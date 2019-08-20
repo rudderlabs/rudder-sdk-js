@@ -27,6 +27,38 @@ var EventType = {
     IDENTIFY: "identify"
 };
 
+//ECommerce Events Enumeration
+var ECommerceEvents = {
+    PRODUCTS_SEARCHED: "Products Searched",
+    PRODUCT_LIST_VIEWED: "Product List Viewed",
+    PRODUCT_LIST_FILTERED: "Product List Filtered",
+    PROMOTION_VIEWED: "Promotion Viewed",
+    PROMOTION_CLICKED: "Promotion Clicked",
+    PRODUCT_CLICKED: "Product Clicked",
+    PRODUCT_VIEWED: "Product Viewed",
+    PRODUCT_ADDED: "Product Added",
+    PRODUCT_REMOVED: "Product Removed",
+    CART_VIEWED: "Cart Viewed",
+    CHECKOUT_STARTED: "Checkout Started",
+    CHECKOUT_STEP_VIEWED: "Checkout Step Viewed",
+    CHECKOUT_STEP_COMPLETED: "Checkout Step Completed",
+    PAYMENT_INFO_ENTERED: "Payment Info Entered",
+    ORDER_UPDATED: "Order Updated",
+    ORDER_COMPLETED: "Order Completed",
+    ORDER_REFUNDED: "Order Refunded",
+    ORDER_CANCELLED: "Order Cancelled",
+    COUPON_ENTERED: "Coupon Entered",
+    COUPON_APPLIED: "Coupon Applied",
+    COUPON_DENIED: "Coupon Denied",
+    COUPON_REMOVED: "Coupon Removed",
+    PRODUCT_ADDED_TO_WISHLIST: "Product Added to Wishlist",
+    PRODUCT_REMOVED_FROM_WISHLIST: "Product Removed from Wishlist",
+    WISH_LIST_PRODUCT_ADDED_TO_CART: "Wishlist Product Added to Cart",
+    PRODUCT_SHARED: "Product Shared",
+    CART_SHARED: "Cart Shared",
+    PRODUCT_REVIEWED: "Product Reviewed"
+}
+
 const BASE_URL = "";
 
 //Singleton implementation of the core SDK client class
@@ -120,6 +152,22 @@ class RudderMessage {
     //Validate whether this message is semantically valid for the 
     //event type mentioned
     validateFor (eventType){
+        //First check that rl_properties is populated
+        if(!this.rl_properties){
+            throw new Error("Key rl_properties is required");
+        }
+        //Event type specific checks
+        switch (eventType){
+            case EventType.TRACK:
+                //check if rl_event is present
+                if (!this.rl_event){
+                    throw new Error("Key rl_event is required for track event");
+                }
+                break;
+            case EventType.PAGE:
+                break;
+
+        }
 
     }
 }
@@ -160,20 +208,96 @@ class RudderApp {
 
 //Traits class
 class RudderTraits {
-
+    constructor(){
+        this.rl_address = null;
+        this.rl_age = null;
+        this.rl_birthday = null;
+        this.rl_company = null;
+        this.rl_createdat = null;
+        this.rl_description = null;
+        this.rl_email = null;
+        this.rl_firstname = null;
+        this.rl_gender = null;
+        this.rl_id = null;
+        this.rl_lastname = null;
+        this.rl_name = null;
+        this.rl_phone = null;
+        this.rl_phone = null;
+        this.rl_title = null;
+        this.rl_username = null;
+    }
 
 }
-//Test code
+
+//Class for Address to be embedded in Traits
+class TraitsAddress {
+    constructor(){
+        this.rl_city = "";
+        this.rl_country = "";
+        this.rl_postalcode = "";
+        this.rl_state = "";
+        this.rl_street = "";
+    }
+}
+
+//Class for Company to be embedded in Traits
+class TraitsCompany {
+    constructor(){
+        this.rl_name = "";
+        this.rl_id = "";
+        this.rl_industry = "";
+    }
+}
+
+
+//Library information class
+class RudderLibraryInfo {
+    constructor(){
+        this.rl_name = "";
+        this.rl_version = "";
+    }
+}
+
+//Operating System information class
+class RudderOSInfo {
+    constructor(){
+        this.rl_name = "";
+        this.rl_version = "";
+    }
+
+}
+
+//Screen information class
+class RudderScreenInfo {
+    constructor(){
+        this.rl_density = 0;
+        this.rl_width = 0;
+        this.rl_height = 0;
+    }
+}
+
+//Device information class
+class RudderDeviceInfo {
+
+    constructor(){
+        this.rl_id = "";
+        this.rl_manufacturer = "";
+        this.rl_model = "";
+        this.rl_name = "";
+
+    }
+}
+
+//Carrier information
+class RudderNetwork {
+     constructor(){
+         this.rl_carrier = "";
+     }
+}
+//Test code 
 context = new RudderContext();
 context.applicationContext = {};
 var Instance1 = Analytics.getInstance(context);
-var Instance2 = Analytics.getInstance(context);
-
-
-console.log(Instance1 == Instance2); //check reference equality
-console.log(Instance1.flushQueueSize);
-Instance1.flushQueueSize = 5;
-console.log(Instance2.flushQueueSize); //reconfirm
 console.log(JSON.stringify(new RudderMessage()));
 
   
