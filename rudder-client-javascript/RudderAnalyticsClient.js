@@ -59,6 +59,13 @@ var ECommerceEvents = {
     PRODUCT_REVIEWED: "Product Reviewed"
 }
 
+//Enumeration for integrations supported
+var RudderIntegrationPlatform = {
+    RUDDERLABS: "rudderlabs",
+    GA: "ga",
+    AMPLITUDE: "amplitude"
+}
+
 const BASE_URL = "";
 
 //Singleton implementation of the core SDK client class
@@ -77,15 +84,38 @@ var Analytics = (function () {
         return {
 
             //Track function
-            track: function(event){
-                if(event.message){ //process only if valid message is there
-                    event.message.validateFor(MessageType.TRACK);
+            track: function(rudderElement){
+                if(rudderElement.rl_message){ //process only if valid message is there
+                    rudderElement.rl_message.validateFor(MessageType.TRACK);
                     //validated, now set event type and add to flush queue
-                    event.message.type = MessageType.TRACK.value;
-                    addToFlushQueue(event);
+                    rudderElement.rl_message.rl_type = MessageType.TRACK;
+                    addToFlushQueue(rudderElement);
+                }
+
+            },
+
+            //Page function
+            page: function(rudderElement){
+                if(rudderElement.rl_message){ //process only if valid message is there
+                    rudderElement.rl_message.validateFor(MessageType.PAGE);
+                    //validated, now set event type and add to flush queue
+                    rudderElement.rl_message.rl_type = MessageType.PAGE;
+                    addToFlushQueue(rudderElement);
+                }
+
+            },
+
+            //Screen function
+            screen: function(rudderElement){
+                if(rudderElement.rl_message){ //process only if valid message is there
+                    rudderElement.rl_message.validateFor(MessageType.SCREEN);
+                    //validated, now set event type and add to flush queue
+                    rudderElement.rl_message.rl_type = MessageType.SCREEN;
+                    addToFlushQueue(rudderElement);
                 }
 
             }
+
         };
     
     };
@@ -120,12 +150,40 @@ var Analytics = (function () {
    
 })();
 
-//Message payload class
+
+//Payload class, contains batch of Elements
+class RudderPayload {
+    constructor(){
+        var curDateTime = new Date().toISOString();
+        var curDate = curDateTime.split('T')[0];
+        var curTimeExceptMillis 
+        = curDateTime.split('T')[1].split('Z')[0].split('.')[0];
+        var curTimeMillis = curDateTime.split('Z')[0].split('.')[1];
+        //console.log(curDate + " " + curTimeExceptMillis + "+" + curTimeMillis);
+        this.sent_at = curDate + " " + curTimeExceptMillis + "+" + curTimeMillis;
+        this.batch = null;
+    }
+}
+
+//Individual element class containing Rudder Message
 class RudderElement {
     constructor(){
         this.rl_message = new RudderMessage();
         
     }
+}
+
+class RudderElementBuilder {
+
+    constructor(){
+        this.rudderProperty = null;
+        this.event = null;
+        this.userId = null;
+        this.channel = null;
+    }
+
+    
+    
 }
 
 
@@ -212,6 +270,15 @@ class RudderMessage {
             !this.rl_properties.get(propertyName)) {
                 throw new Error("Key " + propertyName + " is required in rl_properties");
             }
+    }
+
+    //Utility methods for adding one or more integrations
+    addIntegration(platform){
+        this.rl_integrations.push(platform);
+    }
+
+    addIntegrations(platformArray){
+        this.rl_integrations.pushValues(platformArray);
     }
 }
 
@@ -339,16 +406,13 @@ class RudderNetwork {
 }
 
 
-//Rudder event class
-class RudderEvent {
-
-}
-
 //Test code 
 context = new RudderContext();
 context.applicationContext = {};
 var Instance1 = Analytics.getInstance(context);
-console.log(JSON.stringify(new RudderElement()));
+//console.log(JSON.stringify(new RudderElement()));
+
+
 
 
   
