@@ -19,8 +19,8 @@ function generateUUID() { // Public Domain/MIT
     });
 }
 
-//Event Type enumeration
-var EventType = {
+//Message Type enumeration
+var MessageType = {
     TRACK: "track",
     PAGE: "page",
     SCREEN: "screen",
@@ -79,9 +79,9 @@ var Analytics = (function () {
             //Track function
             track: function(event){
                 if(event.message){ //process only if valid message is there
-                    event.message.validateFor(EventType.TRACK);
+                    event.message.validateFor(MessageType.TRACK);
                     //validated, now set event type and add to flush queue
-                    event.message.type = EventType.TRACK.value;
+                    event.message.type = MessageType.TRACK.value;
                     addToFlushQueue(event);
                 }
 
@@ -104,7 +104,6 @@ var Analytics = (function () {
                     throw new Error("Application context cannot be null");
                 }
 
-                console.log(JSON.stringify(context));
                 instance = init();
 
                 //Initialize
@@ -120,6 +119,15 @@ var Analytics = (function () {
     };
    
 })();
+
+//Message payload class
+class RudderElement {
+    constructor(){
+        this.rl_message = new RudderMessage();
+        
+    }
+}
+
 
 //Core message class with default values
 class RudderMessage {
@@ -149,26 +157,61 @@ class RudderMessage {
         this.rl_properties.set(key, value);
     }
 
-    //Validate whether this message is semantically valid for the 
-    //event type mentioned
-    validateFor (eventType){
+    //Validate whether this message is semantically valid for the type mentioned
+    validateFor (messageType){
         //First check that rl_properties is populated
         if(!this.rl_properties){
             throw new Error("Key rl_properties is required");
         }
         //Event type specific checks
-        switch (eventType){
-            case EventType.TRACK:
+        switch (messageType){
+            case MessageType.TRACK:
                 //check if rl_event is present
                 if (!this.rl_event){
                     throw new Error("Key rl_event is required for track event");
                 }
-                break;
-            case EventType.PAGE:
-                break;
+                //Next make specific checks for e-commerce events
+                if (this.rl_event in Object.values(ECommerceEvents)){
+                    switch(rl_event){
+                        case ECommerceEvents.CHECKOUT_STEP_VIEWED:
+                        case ECommerceEvents.CHECKOUT_STEP_COMPLETED:
+                        case ECommerceEvents.PAYMENT_INFO_ENTERED:
+                            checkForKey("checkout_id");
+                            checkForKey("step");
+                            break;
+                        case ECommerceEvents.PROMOTION_VIEWED:
+                        case ECommerceEvents.PROMOTION_CLICKED:
+                            checkForKey("promotion_id");
+                            break;
+                        case ECommerceEvents.ORDER_REFUNDED:
+                            checkForKey("order_id");
+                            break;
+                        default:    
+                    }
+                } else if (!this.rl_properties.has("category") ||
+                            !this.rl_properties.get("category")){
+                                throw new Error("Key category is required in rl_properties");
+                }
 
+                break;
+            case MessageType.PAGE:
+                break;
+            case MessageType.SCREEN:
+                if (!this.rl_properties.has("name") ||
+                    !this.rl_properties.get("name")){
+                        throw new Error("Key name is required in rl_properties");
+                }
+                break;
         }
 
+    }
+
+    //Function for checking existence of a particular property
+    checkForKey(propertyName){
+        if(!this.rl_properties.has(propertyName) || 
+            !this.rl_properties.get(propertyName)) {
+                throw new Error("Key " + propertyName + " is required in rl_properties");
+            }
     }
 }
 
@@ -294,10 +337,18 @@ class RudderNetwork {
          this.rl_carrier = "";
      }
 }
+
+
+//Rudder event class
+class RudderEvent {
+
+}
+
 //Test code 
 context = new RudderContext();
 context.applicationContext = {};
 var Instance1 = Analytics.getInstance(context);
-console.log(JSON.stringify(new RudderMessage()));
+console.log(JSON.stringify(new RudderElement()));
+
 
   
