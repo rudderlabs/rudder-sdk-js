@@ -141,6 +141,7 @@ var Analytics = (function () {
                 instance.flushQueueSize = flushQueueSize;
                 instance.endPointUri = endPointUri;
                 instance.shouldCache = shouldCache;
+                
             }
 
             return instance;
@@ -169,10 +170,41 @@ class RudderPayload {
 class RudderElement {
     constructor(){
         this.rl_message = new RudderMessage();
-        
     }
+
+    //Setters that in turn set the field values for the contained object
+    setType(type){
+        this.rl_message.rl_type = type;
+    }
+
+    setProperty(rudderProperty){
+        this.rl_message.rl_properties = rudderProoperty;
+    }
+
+    setUserId(userId){
+        this.rl_message.rl_user_id = userId;
+    }
+
+    setEventName(eventName){
+        this.rl_message.rl_event = eventName;
+    }
+
+    updateTraits(traits){
+        this.rl_message.rl_context.rl_traits = traits;
+    }
+
+    //Set integration enabled/disabled and if enabled, set the destination properties
+    addIntegrationProps(integrationKey, isEnabled, destinationProps){
+        this.rl_message.rl_integrations.set(integrationKey, isEnabled);
+        if (isEnabled){
+            this.rl_message.rl_destination_properties.set(integrationKey, destinationProps);
+        }
+    }
+
 }
 
+//Class responsible for building up the individual elements in a batch
+//that is transmitted by the SDK
 class RudderElementBuilder {
 
     constructor(){
@@ -182,9 +214,56 @@ class RudderElementBuilder {
         this.channel = null;
     }
 
+    //Set the property
+    setProperty(rudderProperty){
+        this.rudderProperty = rudderProperty;
+        return this;
+    }
+
+    //Populate property from a map
+    setPropertyMap(propertyMap){
+        if (!this.rudderProperty){
+            this.rudderProperty = new RudderProperty();
+        }
+        this.rudderProperty.addProperties(propertyMap);
+        return this;
+    }
     
-    
+    //Build and set the property object
+    setPropertyBuilder(rudderPropertyBuilder){
+        this.rudderProperty = rudderPropertyBuilder.build();
+        return this;
+    }
+
+    //Setter methods for all variables. Instance is returned for each call in 
+    //accordance with the Builder pattern
+
+    setEvent(event){
+        this.event = event;
+        return this;
+    }
+
+    setUserId (userId) {
+        this.userId = userId;
+        return this;
+    }
+
+    setChannel(channel){
+        this.channel = channel;
+        return this;
+    }
+
+    build(){
+
+        element = new RudderElement();
+        element.setUserId(this.userId);
+        element.setEventName(this.event);
+        element.setProperty(this.rudderProperty);
+        return element;
+    }
+
 }
+
 
 
 //Core message class with default values
@@ -201,7 +280,8 @@ class RudderMessage {
         this.rl_user_id = null;
         this.rl_event = null;
         this.rl_properties = new Map();
-        this.rl_integrations = [];
+        this.rl_integrations = new Map();
+        this.rl_destination_properties = new Map();
 
     }
 
@@ -248,7 +328,7 @@ class RudderMessage {
                     }
                 } else if (!this.rl_properties.has("category") ||
                             !this.rl_properties.get("category")){
-                                throw new Error("Key category is required in rl_properties");
+                                throw new Error("Key 'category' is required in rl_properties");
                 }
 
                 break;
@@ -257,7 +337,7 @@ class RudderMessage {
             case MessageType.SCREEN:
                 if (!this.rl_properties.has("name") ||
                     !this.rl_properties.get("name")){
-                        throw new Error("Key name is required in rl_properties");
+                        throw new Error("Key 'name' is required in rl_properties");
                 }
                 break;
         }
@@ -268,7 +348,7 @@ class RudderMessage {
     checkForKey(propertyName){
         if(!this.rl_properties.has(propertyName) || 
             !this.rl_properties.get(propertyName)) {
-                throw new Error("Key " + propertyName + " is required in rl_properties");
+                throw new Error("Key '" + propertyName + "' is required in rl_properties");
             }
     }
 
@@ -288,18 +368,33 @@ class RudderContext {
         this.rl_app = null;
         this.rl_traits = null;
         this.rl_library = null;
-        this.rl_os = null;
-        this.rl_screen = null;
+        //this.rl_os = null;
+        var os = new RudderOSInfo();
+        os.rl_version = ""; //skipping version for simplicity now
+        var screen = new RudderScreenInfo();
+
+        //Depending on environment within which the code is executing, screen
+        //dimensions can be set
         //User agent and locale can be retrieved only for browser
         //For server-side integration, same needs to be set by calling program
         if (typeof window === 'undefined') { //server-side integration
+            screen.rl_width = 0;
+            screen.rl_height = 0;
+            screen.rl_density = 0;
+            os.rl_version = "";
+            os.rl_name = "";
             this.rl_user_agent = null;
             this.rl_locale = null;
         } else { //running within browser
+            screen.rl_width = window.width;
+            screen.rl_height = window.height;
+            screen.rl_density = window.devicePixelRatio;
             this.rl_user_agent = navigator.userAgent;
             //property name differs based on browser version
             this.rl_locale = navigator.language || navigator.browserLanguage;
         }
+
+        this.screen = screen;
         this.rl_device = null;
         this.rl_network = null;
     }
