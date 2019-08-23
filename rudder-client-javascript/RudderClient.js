@@ -1,5 +1,5 @@
 //  -----------------------------------------------------------------------
-//  <copyright file="RudderAnalyticsClient.js" company="Rudder Labs">
+//  <copyright file="RudderClient.js" company="Rudder Labs">
 //   Copyright (c) 2019 Rudder Labs All rights reserved.
 //  </copyright>
 //  <author>Rudder Labs</author>
@@ -69,7 +69,7 @@ var RudderIntegrationPlatform = {
 const BASE_URL = "";
 
 //Singleton implementation of the core SDK client class
-var Analytics = (function () {
+var RudderClient = (function () {
  
     // Instance stores a reference to the Singleton
     var instance;
@@ -504,7 +504,7 @@ class RudderNetwork {
 //Test code 
 context = new RudderContext();
 context.applicationContext = {};
-var Instance1 = Analytics.getInstance(context);
+var Instance1 = RudderClient.getInstance(context);
 //console.log(JSON.stringify(new RudderElement()));
 
 
