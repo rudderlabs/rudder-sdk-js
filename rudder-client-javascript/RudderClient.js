@@ -66,90 +66,75 @@ var RudderIntegrationPlatform = {
     AMPLITUDE: "amplitude"
 }
 
-const BASE_URL = "";
+const BASE_URL = "https://rudderlabs.com";
 
-//Singleton implementation of the core SDK client class
-var RudderClient = (function () {
- 
-    // Instance stores a reference to the Singleton
+const FLUSH_QUEUE_SIZE = 30;
+
+//Rudder configration class
+var RudderConfig = (function () {
+
     var instance;
 
-   
-    function init() {
+    function init(){
 
-        //Private variables and methods
-        
+        //Private variables
+        var endPointUri = BASE_URL;
+        var flushQueueSize = FLUSH_QUEUE_SIZE;
+        var integrations = [];
 
-        //Public variables and methods
+        //Public methods
         return {
 
-            //Track function
-            track: function(rudderElement){
-                if(rudderElement.rl_message){ //process only if valid message is there
-                    rudderElement.rl_message.validateFor(MessageType.TRACK);
-                    //validated, now set event type and add to flush queue
-                    rudderElement.rl_message.rl_type = MessageType.TRACK;
-                    addToFlushQueue(rudderElement);
-                }
-
+            getDefaultIntegrations: function() {
+                return [];
             },
 
-            //Page function
-            page: function(rudderElement){
-                if(rudderElement.rl_message){ //process only if valid message is there
-                    rudderElement.rl_message.validateFor(MessageType.PAGE);
-                    //validated, now set event type and add to flush queue
-                    rudderElement.rl_message.rl_type = MessageType.PAGE;
-                    addToFlushQueue(rudderElement);
-                }
-
+            getEndPointUri: function() {
+                return this.endPointUri;
             },
 
-            //Screen function
-            screen: function(rudderElement){
-                if(rudderElement.rl_message){ //process only if valid message is there
-                    rudderElement.rl_message.validateFor(MessageType.SCREEN);
-                    //validated, now set event type and add to flush queue
-                    rudderElement.rl_message.rl_type = MessageType.SCREEN;
-                    addToFlushQueue(rudderElement);
-                }
+            getFlushQueueSize: function() {
+                return this.flushQueueSize;
+            },
 
+            setIntegrations: function(integrations){
+                this.integrations = integrations;
+            },
+
+            setFlushQueueSize: function(flushQueueSize) {
+                this.flushQueueSize = flushQueueSize;
+            },
+
+            setEndPointUri: function (endPointUri) {
+                this.endPointUri = endPointUri;
             }
 
         };
-    
+
     };
-   
+
     return {
-   
-        // Get the Singleton instance if one exists
-        // or create one if it doesn't
-        getInstance: function (context,
-                                flushQueueSize = 10,
-                                endPointUri = BASE_URL,
-                                shouldCache = true) {
-
-            if ( !instance ) {
-                if (!context || !context.applicationContext){
-                    throw new Error("Application context cannot be null");
-                }
-
+        getDefaultConfig: function() {
+            if (!instance){
                 instance = init();
-
-                //Initialize
-                instance.context = context;
-                instance.flushQueueSize = flushQueueSize;
-                instance.endPointUri = endPointUri;
-                instance.shouldCache = shouldCache;
-                
             }
-
             return instance;
         }
-
     };
-   
+    
 })();
+
+//Event Repository
+class EventRepository {
+    contructor(){
+        var events = [];
+        var eventsBuffer = [];
+        var writeKey = null;
+        var rudderConfig = null;
+    }
+
+
+}
 
 
 //Payload class, contains batch of Elements
@@ -500,13 +485,119 @@ class RudderNetwork {
      }
 }
 
+//Singleton implementation of the core SDK client class
+var RudderClient = function () {
+ 
+    //Instance stores a reference to the Singleton
+    var instance;
+
+
+    function init() {
+
+        //Private variables and methods
+        //Rudder config
+        var rudderConfig;
+
+        //Event repository
+        var eventRepository;
+        
+
+        //Public variables and methods
+        return {
+
+            //Initialize integrations
+            initiateIntegrations: function (rudderConfig){
+                        
+            },
+
+            //Track function
+            track: function(rudderElement){
+                if(rudderElement.rl_message){ //process only if valid message is there
+                    rudderElement.rl_message.validateFor(MessageType.TRACK);
+                    //validated, now set event type and add to flush queue
+                    rudderElement.rl_message.rl_type = MessageType.TRACK;
+                    addToFlushQueue(rudderElement);
+                }
+
+            },
+
+            //Page function
+            page: function(rudderElement){
+                if(rudderElement.rl_message){ //process only if valid message is there
+                    rudderElement.rl_message.validateFor(MessageType.PAGE);
+                    //validated, now set event type and add to flush queue
+                    rudderElement.rl_message.rl_type = MessageType.PAGE;
+                    addToFlushQueue(rudderElement);
+                }
+
+            },
+
+            //Screen function
+            screen: function(rudderElement){
+                if(rudderElement.rl_message){ //process only if valid message is there
+                    rudderElement.rl_message.validateFor(MessageType.SCREEN);
+                    //validated, now set event type and add to flush queue
+                    rudderElement.rl_message.rl_type = MessageType.SCREEN;
+                    addToFlushQueue(rudderElement);
+                }
+
+            }
+
+        }
+    
+    }
+   
+    return {
+   
+        // Get the Singleton instance if one exists
+        // or create one if it doesn't
+        getInstance: function (writeKey) {
+
+            return getInstance(writeKey, RudderConfig.getDefaultConfig());
+        },
+
+        getInstance: function (writeKey, rudderConfig){
+
+
+            if ( !instance ) {
+
+                //Check that valid inoput object instances have been provided for creating
+                //RudderClient instance
+
+                if (!writeKey || 0 === writeKey.length){
+                    throw new Error("writeKey cannot be null or empty");
+                }
+
+                if(!rudderConfig){
+                    throw new Error("rudderConfig cannot be null");
+                }
+
+                    
+                instance = init();
+
+                //Initialize
+                eventRepository = new EventRepository(writeKey, rudderConfig);
+                rudderConfig = rudderConfig;
+
+                initiateIntegrations(rudderConfig);
+            }
+
+            return instance;
+        }
+
+    }
+   
+};
+
+
 
 //Test code 
 context = new RudderContext();
 context.applicationContext = {};
 var Instance1 = RudderClient.getInstance(context);
 //console.log(JSON.stringify(new RudderElement()));
-
+var eventRepository = new EventRepository();
+eventRepository.rudderConfig = new RudderConfig();
 
 
 
