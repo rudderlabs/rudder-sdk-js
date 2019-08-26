@@ -19,6 +19,16 @@ function generateUUID() { // Public Domain/MIT
     });
 }
 
+//Utility function for converting an object to a map
+function convertToMap (obj) {
+    let map = new Map();
+    Object.keys(obj).forEach(key => {
+        map.set(key, obj[key]);
+    });
+    return map;
+}
+
+
 //Message Type enumeration
 var MessageType = {
     TRACK: "track",
@@ -27,6 +37,24 @@ var MessageType = {
     IDENTIFY: "identify"
 };
 
+//ECommerce Parameter Names Enumeration
+var ECommerceParamNames ={
+    QUERY:  "query",
+    PRICE:  "price",
+    PRODUCT_ID: "product_id",
+    CATEGORY:   "category",
+    CURRENCY:   "currency",
+    LIST_ID:    "list_id",
+    PRODUCTS:   "products",
+    WISHLIST_ID:    "wishlist_id",
+    WISHLIST_NAME:  "wishlist_name",
+    QUANTITY:   "quantity",
+    CART_ID:    "cart_id",
+    CHECKOUT_ID:    "checkout_id",
+    TOTAL:  "total",
+    REVENUE:    "revenue",
+    ORDER_ID:   "order_id"
+}
 //ECommerce Events Enumeration
 var ECommerceEvents = {
     PRODUCTS_SEARCHED: "Products Searched",
@@ -69,6 +97,210 @@ var RudderIntegrationPlatform = {
 const BASE_URL = "https://rudderlabs.com";
 
 const FLUSH_QUEUE_SIZE = 30;
+
+//Generic class to model various properties collection to be provided for messages
+class RudderProperty {
+    contructor(){
+        var propertyMap = new Map();
+    }
+
+    getProperty(key){
+        return (propertyMap.has(key)?propertyMap.get(key):null);
+    }
+    
+    setProperty (key, value){
+        propertyMap.set(key, value);
+    }
+
+    hasProperty(key){
+        return propertyMap.has(key);
+    }
+
+    getPropertyMap(){
+        return this.propertyMap;
+    }
+
+    setProperty(inputPropertyMap){
+        if(!this.propertyMap){
+            this.propertyMap = inputPropertyMap;
+        } else {
+            for(var key of inputPropertyMap.entries()){
+                this.propertyMap.set(key, inputPropertyMap.get(key));
+            }
+        }
+
+    }
+
+}
+
+//Class for building the "page" message payload
+class PagePropertyBuilder {
+    constructor(){
+        this.title = "";
+        this.url = "";
+        this.path = "";
+        this.referrer = "";
+        this.search = "";
+        this.keywords = "";
+    }
+    //Build the core constituents of the payload
+    build(){
+        if (!this.url || 0 === this.url.length){
+            throw new Error("Page url cannot be null or empty");
+        }
+        var pageProperty = new RudderProperty();
+        pageProperty.setProperty("title", this.title);
+        pageProperty.setProperty("url", this.url);
+        pageProperty.setProperty("path", this.path);
+        pageProperty.setProperty("referrer", this.referrer);
+        pageProperty.setProperty("search", this.search);
+        pageProperty.setProperty("keywords", this.keywords);
+        return pageProperty;
+
+    }
+}
+
+//Class for building the "screen" message payload 
+class ScreenPropertyBuilder {
+    constructor(){
+        this.name = "";
+    }
+
+    build(){
+        if(!this.name || 0 === this.name){
+            throw new Error("Screen name cannot be null or empty");
+        }
+
+        var screenProperty = new RudderProperty();
+        screenProperty.setProperty("name", this.name);
+        return screenProperty;
+    }
+}
+
+
+//Class representing e-commerce order object
+class ECommerceOrder {
+    contructor(){
+        this.order_id = "";
+        this.affiliation = "";
+        this.total = 0;
+        this.value = 0;
+        this.revenue = 0;
+        this.shipping = 0;
+        this.tax = 0;
+        this.discount = 0;
+        this.coupon = "";
+        this.currency = "";
+        this.products = [];
+
+    }
+}
+
+//Class representing e-commerce product object
+class ECommerceProduct {
+    constructor(){
+        this.product_id = "";
+        this.sku = "";
+        this.category = "";
+        this.name = "";
+        this.brand = "";
+        this.variant = "";
+        this.price = 0;
+        this.currency = "";
+        this.quantity = 0;
+        this.coupon = "";
+        this.position = 0;
+        this.url = "";
+        this.image_url = "";
+    }
+}
+
+//Class representing e-commerce promotion
+class ECommercePromotion {
+    constructor(){
+        this.promotion_id = "";
+        this.creative = "";
+        this.name = "";
+        this.position = 0;
+    }
+
+}
+
+//Class representing an e-commerce cart
+class ECommerceCart {
+    constructor() {
+        this.cart_id = "";
+        this.products = [];
+    }
+
+    addProducts(productsToBeAdded){
+        if(productsToBeAdded){ //add only if not-null
+            this.products.pushValues(productsToBeAdded);
+        }
+    }
+
+    addProduct(productToBeAdded){
+        if(productToBeAdded){ //add only if not-null
+            this.products.push(productToBeAdded);
+        }
+    }
+}
+
+//Class representing e-commerce coupon
+class ECommerceCoupon {
+    constructor() {
+        this.cart_id = "";
+        this.order_id = "";
+        this.coupon_id = "";
+        this.coupon_name = "";
+        this.discount = 0;
+        this.reason = "";
+    }
+}
+//Class representing e-commerce wishlist
+class ECommerceWishList {
+    constructor(){
+        this.wishlist_id = "";
+        this.wishlist_name = "";
+    }
+    
+}
+
+
+
+//Class encapsulating checkout details
+class ECommerceCheckout {
+    constructor(){
+        this.checkout_id = "";
+        this.order_id = "";
+        this.step = "";
+        this.shipping_method = "";
+        this.payment_method = "";
+
+    }
+}
+
+//Class representing "checkout started" event
+class CheckoutStartedEvent {
+    constructor(){
+        this.order = null; //order details as part of the checkout
+        this.checkout = null; //checkout details
+    }
+    
+    event (){
+        return ECommerceEvents.CHECKOUT_STARTED;
+    }
+
+    build(){
+        var checkoutProperty = new RudderProperty();
+        checkoutProperty.setProperty(convertToMap(this.order));
+        checkoutProperty.setProperty(convertToMap(this.checkout));
+        return checkoutProperty;
+    }
+}
+
+
+
 
 //Rudder configration class
 var RudderConfig = (function () {
@@ -561,7 +793,7 @@ var RudderClient = function () {
 
             if ( !instance ) {
 
-                //Check that valid inoput object instances have been provided for creating
+                //Check that valid input object instances have been provided for creating
                 //RudderClient instance
 
                 if (!writeKey || 0 === writeKey.length){
