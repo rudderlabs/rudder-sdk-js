@@ -28,6 +28,22 @@ function convertToMap (obj) {
     return map;
 }
 
+//Utility function to retrieve configuration JSON from server
+function getJSON(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('get', url, true);
+    xhr.responseType = 'json';
+    xhr.onload = function() {
+      var status = xhr.status;
+      if (status == 200) {
+        callback(null, xhr.response);
+      } else {
+        callback(status);
+      }
+    };
+    xhr.send();
+}
+
 
 //Message Type enumeration
 var MessageType = {
@@ -292,15 +308,156 @@ class CheckoutStartedEvent {
     }
 
     build(){
-        var checkoutProperty = new RudderProperty();
-        checkoutProperty.setProperty(convertToMap(this.order));
-        checkoutProperty.setProperty(convertToMap(this.checkout));
-        return checkoutProperty;
+        var eventProperty = new RudderProperty();
+        eventProperty.setProperty(convertToMap(this.order));
+        eventProperty.setProperty(convertToMap(this.checkout));
+        return eventProperty;
     }
 }
 
 
+//Class representing order completed event
+class OrderCompletedEvent {
+    constructor(){
+        this.order = null;
+    }
 
+    event(){
+        return ECommerceEvents.ORDER_COMPLETED;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setProperty(convertToMap(this.order));
+    }
+}
+
+//Class representing product addition to cart event
+class ProductAddedToCartEvent {
+    contructor(){
+        this.product = null;
+        this.cartId = null;
+    }
+
+    event(){
+        return ECommerceEvents.PRODUCT_ADDED;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setProperty(convertToMap(this.product));
+        eventProperty.setProperty(ECommerceEvents.PRODUCT_ADDED, this.cartId);
+        return eventProperty;
+    }
+}
+
+//Class representing product addition to cart event
+class ProductAddedToWishlistEvent {
+    contructor(){
+        this.product = null;
+        this.cartId = null;
+    }
+
+    event(){
+        return ECommerceEvents.PRODUCT_ADDED;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setProperty(convertToMap(this.product));
+        eventProperty.setProperty(ECommerceEvents.PRODUCT_ADDED, this.cartId);
+        return eventProperty;
+    }
+}
+
+//Class representing product list view
+class ProductListViewedEvent {
+    constructor(){
+        this.listId = null;
+        this.category = null;
+        this.products = [];
+    }
+    
+    addProducts(inputProducts){
+        if (!this.products){
+            this.products = inputProducts;
+        } else {
+            this.products.pushValues(inputProducts);
+        }
+        
+    }
+
+    addProduct(inputProduct){
+        if(!this.products){
+            this.products = [];
+        }
+        this.products.push(inputProduct);
+    }
+
+    event(){
+        return ECommerceEvents.PRODUCT_LIST_VIEWED;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setProperty(ECommerceParamNames.LIST_ID, this.listId);
+        eventProperty.setProperty(ECommerceParamNames.CATEGORY, this.category);
+        eventProperty.setProperty(ECommerceParamNames.PRODUCTS, this.products);
+        return eventProperty;
+    }
+
+}
+
+//Class for representing product removed event
+class ProductRemovedEvent {
+    constructor(){
+        this.product = null;
+    }
+
+    event(){
+        return ECommerceEvents.PRODUCT_REMOVED;
+    }
+
+    build() {
+        var eventProperty = new RudderProperty();
+        eventProperty.setProperty(convertToMap(this.product));
+        return eventProperty;
+    }
+}
+
+//Class for representing product searched event
+class ProductSearchedEvent {
+    constructor(){
+        this.query = null;
+    }
+
+    event(){
+        return ECommerceEvents.PRODUCTS_SEARCHED;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setProperty(ECommerceParamNames.QUERY, this.query);
+        return eventProperty;
+    }
+}
+
+//Class for representing product viewed event
+class ProductViewedEvent {
+    constructor(){
+        this.product = null;
+    }
+
+    event(){
+        return ECommerceEvents.PRODUCT_VIEWED;
+    }
+
+    build() {
+        var eventProperty = new RudderProperty();
+        eventProperty.setProperty(convertToMap(this.product));
+        return eventProperty;
+    }
+}
 
 //Rudder configration class
 var RudderConfig = (function () {
@@ -327,6 +484,10 @@ var RudderConfig = (function () {
 
             getFlushQueueSize: function() {
                 return this.flushQueueSize;
+            },
+
+            getIntegrations: function() {
+                return this.integrations;
             },
 
             setIntegrations: function(integrations){
@@ -358,11 +519,46 @@ var RudderConfig = (function () {
 
 //Event Repository
 class EventRepository {
-    contructor(){
-        var events = [];
-        var eventsBuffer = [];
-        var writeKey = null;
-        var rudderConfig = null;
+    contructor(writeKey, rudderConfig){
+        this.eventsBuffer = [];
+        this.writeKey = writeKey;
+        this.rudderConfig = rudderConfig;
+
+        getJSON(BASE_URL, function(err, data){
+            if(err){
+                throw new Error("unable to download configurations from server");
+            } else {
+                //parse the json response and populate the configuration JSON                
+                //TO-DO
+            }
+        });
+
+    }
+
+    addToFlushQueue(rudderElement){
+        
+
+        this.eventBuffer.push(rudderElement); //Add to event buffer
+        
+        //Flush events if buffer size has reached limit i.e. flushQueueSize
+        if (this.eventBuffer.length == this.rudderConfig.getFlushQueueSize()) {
+            var payload = JSON.stringify(eventBuffer);
+            var xhr = new XMLHttpRequest();
+
+            console.log(payload);
+
+            xhr.open("POST", this.rudderConfig.getEndPointUri(), true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            //register call back to reset event buffer on successfull POST
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    this.eventBuffer = []; //reset event buffer
+                }
+            };
+            xhr.send(payload);
+        }
+
     }
 
 
@@ -372,11 +568,11 @@ class EventRepository {
 //Payload class, contains batch of Elements
 class RudderPayload {
     constructor(){
-        var curDateTime = new Date().toISOString();
-        var curDate = curDateTime.split('T')[0];
-        var curTimeExceptMillis 
+        this.curDateTime = new Date().toISOString();
+        this.curDate = curDateTime.split('T')[0];
+        this.curTimeExceptMillis 
         = curDateTime.split('T')[1].split('Z')[0].split('.')[0];
-        var curTimeMillis = curDateTime.split('Z')[0].split('.')[1];
+        this.curTimeMillis = curDateTime.split('Z')[0].split('.')[1];
         //console.log(curDate + " " + curTimeExceptMillis + "+" + curTimeMillis);
         this.sent_at = curDate + " " + curTimeExceptMillis + "+" + curTimeMillis;
         this.batch = null;
@@ -718,7 +914,7 @@ class RudderNetwork {
 }
 
 //Singleton implementation of the core SDK client class
-var RudderClient = function () {
+var RudderClient = (function () {
  
     //Instance stores a reference to the Singleton
     var instance;
@@ -739,40 +935,55 @@ var RudderClient = function () {
 
             //Initialize integrations
             initiateIntegrations: function (rudderConfig){
-                        
+                //when JavaScript SDKs provided by the target platforms (where 
+                //applicable)are integrated into the Rudder SDK, then this function
+                //will be implemented
             },
 
             //Track function
+            //TO-DO: Add code for target-provided SDK integrations when implemented
             track: function(rudderElement){
                 if(rudderElement.rl_message){ //process only if valid message is there
                     rudderElement.rl_message.validateFor(MessageType.TRACK);
                     //validated, now set event type and add to flush queue
                     rudderElement.rl_message.rl_type = MessageType.TRACK;
-                    addToFlushQueue(rudderElement);
+                    this.eventRepository.addToFlushQueue(rudderElement);
                 }
 
             },
 
             //Page function
+            //TO-DO: Add code for target-provided SDK integrations when implemented
             page: function(rudderElement){
                 if(rudderElement.rl_message){ //process only if valid message is there
                     rudderElement.rl_message.validateFor(MessageType.PAGE);
                     //validated, now set event type and add to flush queue
                     rudderElement.rl_message.rl_type = MessageType.PAGE;
-                    addToFlushQueue(rudderElement);
+                    this.eventRepository.addToFlushQueue(rudderElement);
                 }
 
             },
 
             //Screen function
+            //TO-DO: Add code for target-provided SDK integrations when implemented
             screen: function(rudderElement){
                 if(rudderElement.rl_message){ //process only if valid message is there
                     rudderElement.rl_message.validateFor(MessageType.SCREEN);
                     //validated, now set event type and add to flush queue
                     rudderElement.rl_message.rl_type = MessageType.SCREEN;
-                    addToFlushQueue(rudderElement);
+                    this.eventRepository.addToFlushQueue(rudderElement);
                 }
 
+            },
+
+            //Identify function
+            //TO-DO: Add code for target-provided SDK integrations when implemented
+            identify: function(rudderTraits) {
+                var rudderElement 
+                = new RudderElementBuilder().setEvent(MessageType.IDENTIFY).setUserId(rudderTraits.rl_id).build();
+                rudderElement.updateTraits(rudderTraits);
+                rudderElement.setType(MessageType.IDENTIFY);
+                this.eventRepository.addToFlushQueue(rudderElement);
             }
 
         }
@@ -783,11 +994,6 @@ var RudderClient = function () {
    
         // Get the Singleton instance if one exists
         // or create one if it doesn't
-        getInstance: function (writeKey) {
-
-            return getInstance(writeKey, RudderConfig.getDefaultConfig());
-        },
-
         getInstance: function (writeKey, rudderConfig){
 
 
@@ -808,10 +1014,11 @@ var RudderClient = function () {
                 instance = init();
 
                 //Initialize
-                eventRepository = new EventRepository(writeKey, rudderConfig);
-                rudderConfig = rudderConfig;
+                this.eventRepository = new EventRepository(writeKey, rudderConfig);
 
-                initiateIntegrations(rudderConfig);
+                this.rudderConfig = rudderConfig;
+
+                //this.initiateIntegrations(this.rudderConfig);
             }
 
             return instance;
@@ -819,17 +1026,12 @@ var RudderClient = function () {
 
     }
    
-};
+})();
 
 
 
 //Test code 
-context = new RudderContext();
-context.applicationContext = {};
-var Instance1 = RudderClient.getInstance(context);
-//console.log(JSON.stringify(new RudderElement()));
-var eventRepository = new EventRepository();
-eventRepository.rudderConfig = new RudderConfig();
+var Instance1 = RudderClient.getInstance("dummykey", RudderConfig.getDefaultConfig());
 
 
 
