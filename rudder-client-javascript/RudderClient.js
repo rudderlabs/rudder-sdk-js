@@ -1,6 +1,6 @@
-//  -----------------------------------------------------------------------
 //  <copyright file="RudderClient.js" company="Rudder Labs">
 //   Copyright (c) 2019 Rudder Labs All rights reserved.
+//  -----------------------------------------------------------------------
 //  </copyright>
 //  <author>Rudder Labs</author>
 //  -----------------------------------------------------------------------
@@ -30,6 +30,9 @@ function convertToMap (obj) {
 
 //Utility function to retrieve configuration JSON from server
 function getJSON(url, callback) {
+    if (typeof window === 'undefined') { //server-side integration, XHR is node module
+        var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+    }
     var xhr = new XMLHttpRequest();
     xhr.open('get', url, true);
     xhr.responseType = 'json';
@@ -116,27 +119,27 @@ const FLUSH_QUEUE_SIZE = 30;
 
 //Generic class to model various properties collection to be provided for messages
 class RudderProperty {
-    contructor(){
-        var propertyMap = new Map();
+    constructor(){
+        this.propertyMap = new Map();
     }
 
     getProperty(key){
-        return (propertyMap.has(key)?propertyMap.get(key):null);
+        return (this.propertyMap.has(key)?this.propertyMap.get(key):null);
     }
     
     setProperty (key, value){
-        propertyMap.set(key, value);
+        this.propertyMap.set(key, value);
     }
 
     hasProperty(key){
-        return propertyMap.has(key);
+        return this.propertyMap.has(key);
     }
 
     getPropertyMap(){
         return this.propertyMap;
     }
 
-    setProperty(inputPropertyMap){
+    setPropertyMap(inputPropertyMap){
         if(!this.propertyMap){
             this.propertyMap = inputPropertyMap;
         } else {
@@ -519,7 +522,9 @@ var RudderConfig = (function () {
 
 //Event Repository
 class EventRepository {
-    contructor(writeKey, rudderConfig){
+    constructor(writeKey, rudderConfig){
+
+        console.log("constructor called");
         this.eventsBuffer = [];
         this.writeKey = writeKey;
         this.rudderConfig = rudderConfig;
@@ -543,6 +548,7 @@ class EventRepository {
         //Flush events if buffer size has reached limit i.e. flushQueueSize
         if (this.eventBuffer.length == this.rudderConfig.getFlushQueueSize()) {
             var payload = JSON.stringify(eventBuffer);
+
             var xhr = new XMLHttpRequest();
 
             console.log(payload);
@@ -591,7 +597,7 @@ class RudderElement {
     }
 
     setProperty(rudderProperty){
-        this.rl_message.rl_properties = rudderProoperty;
+        this.rl_message.rl_properties = rudderProperty;
     }
 
     setUserId(userId){
@@ -668,7 +674,7 @@ class RudderElementBuilder {
 
     build(){
 
-        element = new RudderElement();
+        var element = new RudderElement();
         element.setUserId(this.userId);
         element.setEventName(this.event);
         element.setProperty(this.rudderProperty);
@@ -739,8 +745,8 @@ class RudderMessage {
                             break;
                         default:    
                     }
-                } else if (!this.rl_properties.has("category") ||
-                            !this.rl_properties.get("category")){
+                } else if (!this.rl_properties.hasProperty("category") ||
+                            !this.rl_properties.getProperty("category")){
                                 throw new Error("Key 'category' is required in rl_properties");
                 }
 
@@ -919,74 +925,72 @@ var RudderClient = (function () {
     //Instance stores a reference to the Singleton
     var instance;
 
+    //Private variables and methods
+    //Rudder config
+    var rudderConfig;
+
+    //Event repository
+    var eventRepository;
+
+    //Track function
+    //TO-DO: Add code for target-provided SDK integrations when implemented
+    function track (rudderElement){
+        if(rudderElement.rl_message){ //process only if valid message is there
+            rudderElement.rl_message.validateFor(MessageType.TRACK);
+            //validated, now set event type and add to flush queue
+            rudderElement.rl_message.rl_type = MessageType.TRACK;
+            eventRepository.addToFlushQueue(rudderElement);
+        }
+
+    }
+
+    //Page function
+    //TO-DO: Add code for target-provided SDK integrations when implemented
+    function page (rudderElement){
+        if(rudderElement.rl_message){ //process only if valid message is there
+            rudderElement.rl_message.validateFor(MessageType.PAGE);
+            //validated, now set event type and add to flush queue
+            rudderElement.rl_message.rl_type = MessageType.PAGE;
+            this.eventRepository.addToFlushQueue(rudderElement);
+        }
+
+    }
+
+    //Screen function
+    //TO-DO: Add code for target-provided SDK integrations when implemented
+    function screen (rudderElement){
+        if(rudderElement.rl_message){ //process only if valid message is there
+            rudderElement.rl_message.validateFor(MessageType.SCREEN);
+            //validated, now set event type and add to flush queue
+            rudderElement.rl_message.rl_type = MessageType.SCREEN;
+            this.eventRepository.addToFlushQueue(rudderElement);
+        }
+
+    }
+
+    //Identify function
+    //TO-DO: Add code for target-provided SDK integrations when implemented
+    function identify (rudderTraits) {
+        var rudderElement 
+        = new RudderElementBuilder().setEvent(MessageType.IDENTIFY).setUserId(rudderTraits.rl_id).build();
+        rudderElement.updateTraits(rudderTraits);
+        rudderElement.setType(MessageType.IDENTIFY);
+        this.eventRepository.addToFlushQueue(rudderElement);
+    }
+
 
     function init() {
-
-        //Private variables and methods
-        //Rudder config
-        var rudderConfig;
-
-        //Event repository
-        var eventRepository;
-        
 
         //Public variables and methods
         return {
 
-            //Initialize integrations
-            initiateIntegrations: function (rudderConfig){
-                //when JavaScript SDKs provided by the target platforms (where 
-                //applicable)are integrated into the Rudder SDK, then this function
-                //will be implemented
-            },
+            track: track,
+            page: page,
+            screen: screen,
+            identify: identify
 
-            //Track function
-            //TO-DO: Add code for target-provided SDK integrations when implemented
-            track: function(rudderElement){
-                if(rudderElement.rl_message){ //process only if valid message is there
-                    rudderElement.rl_message.validateFor(MessageType.TRACK);
-                    //validated, now set event type and add to flush queue
-                    rudderElement.rl_message.rl_type = MessageType.TRACK;
-                    this.eventRepository.addToFlushQueue(rudderElement);
-                }
 
-            },
-
-            //Page function
-            //TO-DO: Add code for target-provided SDK integrations when implemented
-            page: function(rudderElement){
-                if(rudderElement.rl_message){ //process only if valid message is there
-                    rudderElement.rl_message.validateFor(MessageType.PAGE);
-                    //validated, now set event type and add to flush queue
-                    rudderElement.rl_message.rl_type = MessageType.PAGE;
-                    this.eventRepository.addToFlushQueue(rudderElement);
-                }
-
-            },
-
-            //Screen function
-            //TO-DO: Add code for target-provided SDK integrations when implemented
-            screen: function(rudderElement){
-                if(rudderElement.rl_message){ //process only if valid message is there
-                    rudderElement.rl_message.validateFor(MessageType.SCREEN);
-                    //validated, now set event type and add to flush queue
-                    rudderElement.rl_message.rl_type = MessageType.SCREEN;
-                    this.eventRepository.addToFlushQueue(rudderElement);
-                }
-
-            },
-
-            //Identify function
-            //TO-DO: Add code for target-provided SDK integrations when implemented
-            identify: function(rudderTraits) {
-                var rudderElement 
-                = new RudderElementBuilder().setEvent(MessageType.IDENTIFY).setUserId(rudderTraits.rl_id).build();
-                rudderElement.updateTraits(rudderTraits);
-                rudderElement.setType(MessageType.IDENTIFY);
-                this.eventRepository.addToFlushQueue(rudderElement);
-            }
-
-        }
+        };
     
     }
    
@@ -1009,16 +1013,15 @@ var RudderClient = (function () {
                 if(!rudderConfig){
                     throw new Error("rudderConfig cannot be null");
                 }
-
                     
                 instance = init();
 
                 //Initialize
-                this.eventRepository = new EventRepository(writeKey, rudderConfig);
+                eventRepository = new EventRepository(writeKey, rudderConfig);
+                console.log("Event Rep Name : " + eventRepository.name);
 
                 this.rudderConfig = rudderConfig;
 
-                //this.initiateIntegrations(this.rudderConfig);
             }
 
             return instance;
@@ -1031,7 +1034,14 @@ var RudderClient = (function () {
 
 
 //Test code 
-var Instance1 = RudderClient.getInstance("dummykey", RudderConfig.getDefaultConfig());
+var client = RudderClient.getInstance("dummykey", RudderConfig.getDefaultConfig());
+var props = new RudderProperty();
+props.setProperty("category","dummy");
+client.track(new RudderElementBuilder().
+                setEvent("dummy").
+                setProperty(props).
+                build());
+
 
 
 
