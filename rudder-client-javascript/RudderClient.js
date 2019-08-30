@@ -119,16 +119,18 @@ const FLUSH_QUEUE_SIZE = 30;
 
 //Generic class to model various properties collection to be provided for messages
 class RudderProperty {
+
+    
     constructor(){
-        this.propertyMap = new Map();
+        this.propertyMap = {};
     }
 
     getProperty(key){
-        return (this.propertyMap.has(key)?this.propertyMap.get(key):null);
+        return (this.propertyMap[key]);
     }
     
     setProperty (key, value){
-        this.propertyMap.set(key, value);
+       this.propertyMap[key]=value;
     }
 
     hasProperty(key){
@@ -144,7 +146,7 @@ class RudderProperty {
             this.propertyMap = inputPropertyMap;
         } else {
             for(var key of inputPropertyMap.entries()){
-                this.propertyMap.set(key, inputPropertyMap.get(key));
+                this.propertyMap[key]=inputPropertyMap[key];
             }
         }
 
@@ -482,7 +484,7 @@ var RudderConfig = (function () {
             },
 
             getEndPointUri: function() {
-                return this.endPointUri;
+                return endPointUri;
             },
 
             getFlushQueueSize: function() {
@@ -495,14 +497,17 @@ var RudderConfig = (function () {
 
             setIntegrations: function(integrations){
                 this.integrations = integrations;
+                return this;
             },
 
             setFlushQueueSize: function(flushQueueSize) {
                 this.flushQueueSize = flushQueueSize;
+                return this;
             },
 
             setEndPointUri: function (endPointUri) {
                 this.endPointUri = endPointUri;
+                return this;
             }
 
         };
@@ -524,7 +529,6 @@ var RudderConfig = (function () {
 class EventRepository {
     constructor(writeKey, rudderConfig){
 
-        console.log("constructor called");
         this.eventsBuffer = [];
         this.writeKey = writeKey;
         this.rudderConfig = rudderConfig;
@@ -542,13 +546,16 @@ class EventRepository {
 
     addToFlushQueue(rudderElement){
         
-
-        this.eventBuffer.push(rudderElement); //Add to event buffer
+        this.eventsBuffer.push(rudderElement); //Add to event buffer
         
         //Flush events if buffer size has reached limit i.e. flushQueueSize
-        if (this.eventBuffer.length == this.rudderConfig.getFlushQueueSize()) {
-            var payload = JSON.stringify(eventBuffer);
+        if (this.eventsBuffer.length == this.rudderConfig.getFlushQueueSize()) {
+            var payload = JSON.stringify(this.eventsBuffer);
 
+            if (typeof window === 'undefined') { //server-side integration, XHR is node module
+                var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+            }
+        
             var xhr = new XMLHttpRequest();
 
             console.log(payload);
@@ -579,7 +586,6 @@ class RudderPayload {
         this.curTimeExceptMillis 
         = curDateTime.split('T')[1].split('Z')[0].split('.')[0];
         this.curTimeMillis = curDateTime.split('Z')[0].split('.')[1];
-        //console.log(curDate + " " + curTimeExceptMillis + "+" + curTimeMillis);
         this.sent_at = curDate + " " + curTimeExceptMillis + "+" + curTimeMillis;
         this.batch = null;
     }
@@ -597,7 +603,9 @@ class RudderElement {
     }
 
     setProperty(rudderProperty){
+    
         this.rl_message.rl_properties = rudderProperty;
+
     }
 
     setUserId(userId){
@@ -634,19 +642,13 @@ class RudderElementBuilder {
     }
 
     //Set the property
-    setProperty(rudderProperty){
-        this.rudderProperty = rudderProperty;
+    setProperty(inputRudderProperty){
+        
+
+        this.rudderProperty = inputRudderProperty;
         return this;
     }
 
-    //Populate property from a map
-    setPropertyMap(propertyMap){
-        if (!this.rudderProperty){
-            this.rudderProperty = new RudderProperty();
-        }
-        this.rudderProperty.addProperties(propertyMap);
-        return this;
-    }
     
     //Build and set the property object
     setPropertyBuilder(rudderPropertyBuilder){
@@ -695,27 +697,29 @@ class RudderMessage {
         this.rl_action = null;
         this.rl_message_id = generateUUID().toString();
         this.rl_timestamp = new Date().getTime();
-        this.rl_anonymous_id = null;
+        this.rl_anonymous_id = generateUUID().toString();
         this.rl_user_id = null;
         this.rl_event = null;
-        this.rl_properties = new Map();
-        this.rl_integrations = new Map();
-        this.rl_destination_properties = new Map();
+        this.rl_properties = {};
+        this.rl_integrations = {};
+        this.rl_destination_properties = {};
 
     }
 
     //Get property
     getProperty(key){
-        return this.rl_properties.get(key);
+        return this.rl_properties[key];
     }
 
     //Add property
     addProperty(key, value){
-        this.rl_properties.set(key, value);
+        this.rl_properties[key]=value;
     }
 
     //Validate whether this message is semantically valid for the type mentioned
     validateFor (messageType){
+
+    
         //First check that rl_properties is populated
         if(!this.rl_properties){
             throw new Error("Key rl_properties is required");
@@ -745,8 +749,7 @@ class RudderMessage {
                             break;
                         default:    
                     }
-                } else if (!this.rl_properties.hasProperty("category") ||
-                            !this.rl_properties.getProperty("category")){
+                } else if (!this.rl_properties["category"]){
                                 throw new Error("Key 'category' is required in rl_properties");
                 }
 
@@ -754,8 +757,7 @@ class RudderMessage {
             case MessageType.PAGE:
                 break;
             case MessageType.SCREEN:
-                if (!this.rl_properties.has("name") ||
-                    !this.rl_properties.get("name")){
+                if (!this.rl_properties["name"]){
                         throw new Error("Key 'name' is required in rl_properties");
                 }
                 break;
@@ -765,8 +767,7 @@ class RudderMessage {
 
     //Function for checking existence of a particular property
     checkForKey(propertyName){
-        if(!this.rl_properties.has(propertyName) || 
-            !this.rl_properties.get(propertyName)) {
+        if(!this.rl_properties[propertyName]) {
                 throw new Error("Key '" + propertyName + "' is required in rl_properties");
             }
     }
@@ -1018,7 +1019,6 @@ var RudderClient = (function () {
 
                 //Initialize
                 eventRepository = new EventRepository(writeKey, rudderConfig);
-                console.log("Event Rep Name : " + eventRepository.name);
 
                 this.rudderConfig = rudderConfig;
 
@@ -1034,14 +1034,16 @@ var RudderClient = (function () {
 
 
 //Test code 
-var client = RudderClient.getInstance("dummykey", RudderConfig.getDefaultConfig());
+var client 
+= RudderClient.getInstance("dummykey", RudderConfig.getDefaultConfig().setFlushQueueSize(1));
 var props = new RudderProperty();
 props.setProperty("category","dummy");
+props.setProperty("user_id","dipanjan");
 client.track(new RudderElementBuilder().
                 setEvent("dummy").
-                setProperty(props).
+                setProperty(props.getPropertyMap()).
+                setUserId("dipanjan").
                 build());
-
 
 
 
