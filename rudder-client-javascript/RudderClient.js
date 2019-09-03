@@ -19,13 +19,16 @@ function generateUUID() { // Public Domain/MIT
     });
 }
 
-//Utility function for converting an object to a map
-function convertToMap (obj) {
-    let map = new Map();
-    Object.keys(obj).forEach(key => {
-        map.set(key, obj[key]);
-    });
-    return map;
+
+//Utility function to get current time (formatted) for including in sent_at field
+function getCurrentTimeFormatted (){
+    var curDateTime = new Date().toISOString();
+    var curDate = curDateTime.split('T')[0];
+    var curTimeExceptMillis 
+    = curDateTime.split('T')[1].split('Z')[0].split('.')[0];
+    var curTimeMillis = curDateTime.split('Z')[0].split('.')[1];
+     return curDate + " " + curTimeExceptMillis + "+" + curTimeMillis;
+
 }
 
 //Utility function to retrieve configuration JSON from server
@@ -33,6 +36,10 @@ function getJSON(url, callback) {
     if (typeof window === 'undefined') { //server-side integration, XHR is node module
         var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
     }
+
+    //Add query param which would be token
+
+
     var xhr = new XMLHttpRequest();
     xhr.open('get', url, true);
     xhr.responseType = 'json';
@@ -52,7 +59,7 @@ function getJSON(url, callback) {
 var MessageType = {
     TRACK: "track",
     PAGE: "page",
-    SCREEN: "screen",
+    //SCREEN: "screen",
     IDENTIFY: "identify"
 };
 
@@ -125,29 +132,27 @@ class RudderProperty {
         this.propertyMap = {};
     }
 
-    getProperty(key){
-        return (this.propertyMap[key]);
-    }
     
-    setProperty (key, value){
-       this.propertyMap[key]=value;
-    }
-
-    hasProperty(key){
-        return this.propertyMap.has(key);
-    }
-
     getPropertyMap(){
         return this.propertyMap;
     }
+
+    getProperty(key){
+        return (this.propertyMap[key]);
+    }
+
+    setProperty (key, value){
+        this.propertyMap[key]=value;
+     }
+ 
 
     setPropertyMap(inputPropertyMap){
         if(!this.propertyMap){
             this.propertyMap = inputPropertyMap;
         } else {
-            for(var key of inputPropertyMap.entries()){
+            Object.keys(inputPropertyMap).forEach(key => {
                 this.propertyMap[key]=inputPropertyMap[key];
-            }
+            });
         }
 
     }
@@ -178,6 +183,38 @@ class PagePropertyBuilder {
         pageProperty.setProperty("keywords", this.keywords);
         return pageProperty;
 
+    }
+
+    //Setter methods to align with Builder pattern
+
+    setTitle(title){
+        this.title = title;
+        return this;
+    }
+
+    setUrl(url){
+        this.url = url;
+        return this;
+    }
+
+    setPath(path){
+        this.path = path;
+        return this;
+    }
+
+    setReferrer(referrer){
+        this.referrer = referrer;
+        return this;
+    }
+
+    setSearch(search){
+        this.search = search;
+        return search;
+    }
+
+    setKeywords(keywords){
+        this.keywords = keywords;
+        return this;
     }
 }
 
@@ -234,6 +271,73 @@ class ECommerceProduct {
         this.url = "";
         this.image_url = "";
     }
+
+    //Setter methods in accordance with Builder pattern
+    setProductId(productId){
+        this.product_id = productId;
+        return this;
+    }
+
+    setSku(sku){
+        this.sku = sku;
+        return this;
+    }
+
+    setCategory(category){
+        this.category = category;
+        return this;
+    }
+
+    setName(name){
+        this.name = name;
+        return this;
+    }
+
+    setBrand(brand){
+        this.brand = brand;
+        return this;
+    }
+
+    setVariant(variant){
+        this.variant = variant;
+        return this;
+    }
+
+    setPrice(price){
+        this.price = price;
+        return this;
+    }
+
+    setCurrency(currency){
+        this.currency = currency;
+        return this;
+    }
+
+    setQuantity(quantity){
+        this.quantity = quantity;
+        return this;
+    }
+
+    setCoupon(coupon){
+        this.coupon = coupon;
+        return coupon;
+    }
+
+    setPosition(position){
+        this.position = position;
+        return this;
+    }
+
+    setUrl(url){
+        this.url = url;
+        return this;
+    }
+
+    setImageUrl(imageUrl){
+        this.image_url = imageUrl;
+        return this;
+    }
+
 }
 
 //Class representing e-commerce promotion
@@ -314,8 +418,8 @@ class CheckoutStartedEvent {
 
     build(){
         var eventProperty = new RudderProperty();
-        eventProperty.setProperty(convertToMap(this.order));
-        eventProperty.setProperty(convertToMap(this.checkout));
+        eventProperty.setProperty(this.order);
+        eventProperty.setProperty(this.checkout);
         return eventProperty;
     }
 }
@@ -333,7 +437,7 @@ class OrderCompletedEvent {
 
     build(){
         var eventProperty = new RudderProperty();
-        eventProperty.setProperty(convertToMap(this.order));
+        eventProperty.setProperty(this.order);
     }
 }
 
@@ -350,9 +454,21 @@ class ProductAddedToCartEvent {
 
     build(){
         var eventProperty = new RudderProperty();
-        eventProperty.setProperty(convertToMap(this.product));
-        eventProperty.setProperty(ECommerceEvents.PRODUCT_ADDED, this.cartId);
+        eventProperty.setPropertyMap(this.product);
+        eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cartId);
         return eventProperty;
+    }
+
+    //Setter methods in accordance to Builder pattern
+
+    setProduct(product){
+        this.product = product;
+        return this;
+    }
+
+    setCartId(cartId) {
+        this.cartId = cartId;
+        return this;
     }
 }
 
@@ -369,7 +485,7 @@ class ProductAddedToWishlistEvent {
 
     build(){
         var eventProperty = new RudderProperty();
-        eventProperty.setProperty(convertToMap(this.product));
+        eventProperty.setProperty(this.product);
         eventProperty.setProperty(ECommerceEvents.PRODUCT_ADDED, this.cartId);
         return eventProperty;
     }
@@ -425,7 +541,7 @@ class ProductRemovedEvent {
 
     build() {
         var eventProperty = new RudderProperty();
-        eventProperty.setProperty(convertToMap(this.product));
+        eventProperty.setProperty(this.product);
         return eventProperty;
     }
 }
@@ -459,7 +575,7 @@ class ProductViewedEvent {
 
     build() {
         var eventProperty = new RudderProperty();
-        eventProperty.setProperty(convertToMap(this.product));
+        eventProperty.setProperty(this.product);
         return eventProperty;
     }
 }
@@ -530,9 +646,12 @@ class EventRepository {
     constructor(writeKey, rudderConfig){
 
         this.eventsBuffer = [];
-        this.writeKey = writeKey;
+        this.write_key = writeKey;
         this.rudderConfig = rudderConfig;
 
+        /*
+        //Not implementing right now since for JavaScript we're not using 
+        //native SDKs
         getJSON(BASE_URL, function(err, data){
             if(err){
                 throw new Error("unable to download configurations from server");
@@ -541,39 +660,46 @@ class EventRepository {
                 //TO-DO
             }
         });
+        */
 
     }
 
-    addToFlushQueue(rudderElement){
+    flush(rudderElement){
+
+        //For Javascript SDK, event will be transmitted immediately
+        //so buffer is really kept to be in alignment with other SDKs
+        this.eventsBuffer = [];
+
         
         this.eventsBuffer.push(rudderElement); //Add to event buffer
         
-        //Flush events if buffer size has reached limit i.e. flushQueueSize
-        if (this.eventsBuffer.length == this.rudderConfig.getFlushQueueSize()) {
-            var payload = JSON.stringify(this.eventsBuffer);
 
-            if (typeof window === 'undefined') { //server-side integration, XHR is node module
-                var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-            }
-        
-            var xhr = new XMLHttpRequest();
+        //construct payload
+        var payload = new RudderPayload();
+        payload.batch = this.eventsBuffer; 
+        payload.write_key = this.write_key;
+        payload.sent_at = getCurrentTimeFormatted();
 
-            console.log(payload);
-
-            xhr.open("POST", this.rudderConfig.getEndPointUri(), true);
-            xhr.setRequestHeader("Content-Type", "application/json");
-
-            //register call back to reset event buffer on successfull POST
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    this.eventBuffer = []; //reset event buffer
-                }
-            };
-            xhr.send(payload);
+        if (typeof window === 'undefined') { //server-side integration, XHR is node module
+            var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
         }
+    
+        var xhr = new XMLHttpRequest();
+
+        console.log(JSON.stringify(payload));
+
+        xhr.open("POST", this.rudderConfig.getEndPointUri(), true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        //register call back to reset event buffer on successfull POST
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                this.eventsBuffer = []; //reset event buffer
+            } 
+        };
+        xhr.send(JSON.stringify(payload));
 
     }
-
 
 }
 
@@ -581,13 +707,8 @@ class EventRepository {
 //Payload class, contains batch of Elements
 class RudderPayload {
     constructor(){
-        this.curDateTime = new Date().toISOString();
-        this.curDate = curDateTime.split('T')[0];
-        this.curTimeExceptMillis 
-        = curDateTime.split('T')[1].split('Z')[0].split('.')[0];
-        this.curTimeMillis = curDateTime.split('Z')[0].split('.')[1];
-        this.sent_at = curDate + " " + curTimeExceptMillis + "+" + curTimeMillis;
         this.batch = null;
+        this.write_key = null;
     }
 }
 
@@ -620,13 +741,6 @@ class RudderElement {
         this.rl_message.rl_context.rl_traits = traits;
     }
 
-    //Set integration enabled/disabled and if enabled, set the destination properties
-    addIntegrationProps(integrationKey, isEnabled, destinationProps){
-        this.rl_message.rl_integrations.set(integrationKey, isEnabled);
-        if (isEnabled){
-            this.rl_message.rl_destination_properties.set(integrationKey, destinationProps);
-        }
-    }
 
 }
 
@@ -643,8 +757,6 @@ class RudderElementBuilder {
 
     //Set the property
     setProperty(inputRudderProperty){
-        
-
         this.rudderProperty = inputRudderProperty;
         return this;
     }
@@ -670,7 +782,7 @@ class RudderElementBuilder {
     }
 
     setChannel(channel){
-        this.channel = channel;
+        this.channel  = channel;
         return this;
     }
 
@@ -692,7 +804,7 @@ class RudderMessage {
 
     constructor(){
         this.rl_channel = "web";
-        this.rl_context = null;
+        this.rl_context = new RudderContext();
         this.rl_type = null;
         this.rl_action = null;
         this.rl_message_id = generateUUID().toString();
@@ -701,9 +813,11 @@ class RudderMessage {
         this.rl_user_id = null;
         this.rl_event = null;
         this.rl_properties = {};
-        this.rl_integrations = {};
-        this.rl_destination_properties = {};
 
+        //By default, all integrations will be set as enabled from client
+        //Decision to route to specific destinations will be taken at server end
+        this.rl_integrations = {};
+        this.rl_integrations["all"]=true;
     }
 
     //Get property
@@ -750,7 +864,9 @@ class RudderMessage {
                         default:    
                     }
                 } else if (!this.rl_properties["category"]){
-                                throw new Error("Key 'category' is required in rl_properties");
+                                //throw new Error("Key 'category' is required in rl_properties");
+                                //if category is not there, set to rl_event
+                                this.rl_properties["category"] = this.rl_event;
                 }
 
                 break;
@@ -772,22 +888,14 @@ class RudderMessage {
             }
     }
 
-    //Utility methods for adding one or more integrations
-    addIntegration(platform){
-        this.rl_integrations.push(platform);
-    }
-
-    addIntegrations(platformArray){
-        this.rl_integrations.pushValues(platformArray);
-    }
 }
 
 //Context class
 class RudderContext {
     constructor(){
-        this.rl_app = null;
+        this.rl_app = new RudderApp();
         this.rl_traits = null;
-        this.rl_library = null;
+        this.rl_library = new RudderLibraryInfo();
         //this.rl_os = null;
         var os = new RudderOSInfo();
         os.rl_version = ""; //skipping version for simplicity now
@@ -823,10 +931,10 @@ class RudderContext {
 //Application class
 class RudderApp {
     constructor(){
-        this.rl_build = "";
-        this.rl_name = "";
-        this.rl_namespace = "";
-        this.rl_version = "";
+        this.rl_build = "1.0.0";
+        this.rl_name = "RudderLabs JavaScript SDK";
+        this.rl_namespace = "com.rudderlabs.javascript";
+        this.rl_version = "1.0.0";
     
     }
 }
@@ -847,11 +955,81 @@ class RudderTraits {
         this.rl_lastname = null;
         this.rl_name = null;
         this.rl_phone = null;
-        this.rl_phone = null;
         this.rl_title = null;
         this.rl_username = null;
     }
 
+    //Setter methods to aid Builder pattern
+    setAddress(address){
+        this.rl_address = address;
+        return this;    
+    }
+
+    setAge(age){
+        this.rl_age = age;
+        return this;
+    }
+
+    setBirthday(birthday){
+        this.rl_birthday = birthday;
+        return this;
+
+    }
+
+    setCompany(company) {
+        this.rl_company = company;
+        return this;
+    }
+
+    setCreatedAt(createAt){
+        this.rl_createdat = createdAt;
+        return this;
+    }
+
+    setDescription(description){
+        this.rl_description = description;
+        return this;
+    }
+
+    setEmail(email){
+        this.rl_email = email;
+        return this;
+    }
+    
+    setFirstname(firstname){
+        this.rl_firstname = firstname;
+        return this;
+    }
+
+    setId(id){
+        this.rl_id = id;
+        return this;
+    }
+
+    setLastname(lastname){
+        this.rl_lastname = lastname;
+        return this;
+    }
+
+    setName(name){
+        this.rl_name = name;
+        return this;
+    }
+
+    setPhone(phone){
+        this.rl_phone = phone;
+        return this;
+    }
+    
+    setTitle(title){
+        this.rl_title = title;
+        return this;
+    }
+
+    setUsername(username){
+        this.rl_username = username;
+        return this;
+    }
 }
 
 //Class for Address to be embedded in Traits
@@ -878,8 +1056,8 @@ class TraitsCompany {
 //Library information class
 class RudderLibraryInfo {
     constructor(){
-        this.rl_name = "";
-        this.rl_version = "";
+        this.rl_name = "RudderLabs JavaScript SDK";
+        this.rl_version = "1.0.0";
     }
 }
 
@@ -940,7 +1118,13 @@ var RudderClient = (function () {
             rudderElement.rl_message.validateFor(MessageType.TRACK);
             //validated, now set event type and add to flush queue
             rudderElement.rl_message.rl_type = MessageType.TRACK;
-            eventRepository.addToFlushQueue(rudderElement);
+            //check if category is populated under rl_properties, 
+            //else use the rl_event value
+            if (!rudderElement.rl_message.rl_properties["category"]){
+                rudderElement.rl_message.rl_properties["category"] 
+                = rudderElement.rl_message.rl_event;
+            }
+            eventRepository.flush(rudderElement);
         }
 
     }
@@ -948,26 +1132,18 @@ var RudderClient = (function () {
     //Page function
     //TO-DO: Add code for target-provided SDK integrations when implemented
     function page (rudderElement){
+        
         if(rudderElement.rl_message){ //process only if valid message is there
             rudderElement.rl_message.validateFor(MessageType.PAGE);
             //validated, now set event type and add to flush queue
             rudderElement.rl_message.rl_type = MessageType.PAGE;
-            this.eventRepository.addToFlushQueue(rudderElement);
+            eventRepository.flush(rudderElement);
         }
 
     }
 
-    //Screen function
-    //TO-DO: Add code for target-provided SDK integrations when implemented
-    function screen (rudderElement){
-        if(rudderElement.rl_message){ //process only if valid message is there
-            rudderElement.rl_message.validateFor(MessageType.SCREEN);
-            //validated, now set event type and add to flush queue
-            rudderElement.rl_message.rl_type = MessageType.SCREEN;
-            this.eventRepository.addToFlushQueue(rudderElement);
-        }
+    //Screen call removed as it does not make sense in a web SDK
 
-    }
 
     //Identify function
     //TO-DO: Add code for target-provided SDK integrations when implemented
@@ -976,7 +1152,8 @@ var RudderClient = (function () {
         = new RudderElementBuilder().setEvent(MessageType.IDENTIFY).setUserId(rudderTraits.rl_id).build();
         rudderElement.updateTraits(rudderTraits);
         rudderElement.setType(MessageType.IDENTIFY);
-        this.eventRepository.addToFlushQueue(rudderElement);
+        eventRepository.flush(rudderElement);
+        
     }
 
 
@@ -987,7 +1164,7 @@ var RudderClient = (function () {
 
             track: track,
             page: page,
-            screen: screen,
+            //screen: screen,
             identify: identify
 
 
@@ -1036,14 +1213,44 @@ var RudderClient = (function () {
 //Test code 
 var client 
 = RudderClient.getInstance("dummykey", RudderConfig.getDefaultConfig().setFlushQueueSize(1));
+
+
 var props = new RudderProperty();
-props.setProperty("category","dummy");
-props.setProperty("user_id","dipanjan");
+props.setProperty("title","How to create a tracking plan");
+props.setProperty("course", "Intro to Analytics");
 client.track(new RudderElementBuilder().
-                setEvent("dummy").
+                setEvent("Article Completed").
                 setProperty(props.getPropertyMap()).
                 setUserId("dipanjan").
                 build());
+
+
+
+client.identify((new RudderTraits()).
+                    setName("dipanjan").
+                    setEmail("dipanjan@rudderlabs.com").
+                    setId(generateUUID));      
+                    
+client.page(new RudderElementBuilder().
+             setProperty(new PagePropertyBuilder().
+                setTitle("Blog Page").
+                setUrl("https://rudderlabs.com").
+                setPath("/blogs").
+                setReferrer("https://www.rudderlabs.com").
+                build().
+                getPropertyMap()).
+                build());
+
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PRODUCT_ADDED).
+                setProperty(new ProductAddedToCartEvent().
+                setProduct(new ECommerceProduct().setName("Dummy Product")).
+                setCartId("DummyCartId").
+                build().getPropertyMap()).
+                build());                
+
+
 
 
 
