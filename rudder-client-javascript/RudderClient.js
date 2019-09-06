@@ -241,7 +241,6 @@ class ECommerceOrder {
     contructor(){
         this.order_id = "";
         this.affiliation = "";
-        this.total = 0;
         this.value = 0;
         this.revenue = 0;
         this.shipping = 0;
@@ -252,6 +251,76 @@ class ECommerceOrder {
         this.products = [];
 
     }
+
+    //Generic setter methods to enable builder pattern
+    setOrderId(orderId){
+        this.order_id = orderId;
+        console.log(JSON.stringify(this));
+        return this;
+    }
+
+    setAffiliation(affiliation){
+        this.affiliation = affiliation;
+        return this;
+    }
+
+    setValue(value){
+        this.value = value;
+        return this;
+    }
+
+    setRevenue(revenue){
+        this.revenue = revenue;
+        return this;
+    }
+
+    setShipping(shipping){
+        this.shipping = shipping;
+        return true;
+    }
+
+    setTax(tax){
+        this.tax = tax;
+        return this;
+    }
+
+    setDiscount(discount){
+        this.discount = discount;
+        return this;
+    }
+
+    setCoupon(coupon){
+        this.coupon = coupon;
+        return this;
+    }
+
+    setCurrency(currency){
+        this.currency = currency;
+        return this;
+    }
+
+    addProducts(productsToBeAdded){
+        if(productsToBeAdded){ //add only if not-null
+            if (!this.products){ //check for null array
+                this.products = [];
+            }
+            this.products.pushValues(productsToBeAdded);
+        }
+        return this; //to aid builder pattern
+    }
+
+    addProduct(productToBeAdded){
+        if(productToBeAdded){ //add only if not-null
+            if (!this.products){ //check for null array
+                this.products = [];
+            }
+
+            this.products.push(productToBeAdded);
+        }
+        return this; //to aid builder pattern
+    }
+
+
 }
 
 //Class representing e-commerce product object
@@ -362,12 +431,14 @@ class ECommerceCart {
         if(productsToBeAdded){ //add only if not-null
             this.products.pushValues(productsToBeAdded);
         }
+        return this; //to aid builder pattern
     }
 
     addProduct(productToBeAdded){
         if(productToBeAdded){ //add only if not-null
             this.products.push(productToBeAdded);
         }
+        return this; //to aid builder pattern
     }
 }
 
@@ -388,7 +459,18 @@ class ECommerceWishList {
         this.wishlist_id = "";
         this.wishlist_name = "";
     }
-    
+
+    //Generic setters in accordance with builder pattern
+    setWishlistId(wishlistId){
+        this.wishlist_id = wishlistId;
+        return this;
+
+    }
+
+    setWishlistName(wishlistName){
+        this.wishlist_name = wishlistName;
+        return this;
+    }    
 }
 
 
@@ -409,7 +491,6 @@ class ECommerceCheckout {
 class CheckoutStartedEvent {
     constructor(){
         this.order = null; //order details as part of the checkout
-        this.checkout = null; //checkout details
     }
     
     event (){
@@ -418,10 +499,16 @@ class CheckoutStartedEvent {
 
     build(){
         var eventProperty = new RudderProperty();
-        eventProperty.setProperty(this.order);
-        eventProperty.setProperty(this.checkout);
+        eventProperty.setPropertyMap(this.order);
         return eventProperty;
     }
+
+    //Generic setter methods to enable builder pattern
+    setOrder(order){
+        this.order = order;
+        return this;
+    }
+
 }
 
 
@@ -472,22 +559,40 @@ class ProductAddedToCartEvent {
     }
 }
 
+
+
 //Class representing product addition to cart event
 class ProductAddedToWishlistEvent {
     contructor(){
         this.product = null;
-        this.cartId = null;
+        this.wishlist = null;
     }
 
     event(){
-        return ECommerceEvents.PRODUCT_ADDED;
+        return ECommerceEvents.PRODUCT_ADDED_TO_WISHLIST;
     }
 
     build(){
         var eventProperty = new RudderProperty();
-        eventProperty.setProperty(this.product);
-        eventProperty.setProperty(ECommerceEvents.PRODUCT_ADDED, this.cartId);
+        eventProperty.setPropertyMap(this.product);
+        eventProperty.setProperty(ECommerceParamNames.WISHLIST_ID, 
+            this.wishlist.wishlist_id);
+        eventProperty.setProperty(ECommerceParamNames.WISHLIST_NAME,
+            this.wishlist.wishlist_name);
+                
         return eventProperty;
+    }
+
+    //Generic setter methods in alignment with builder pattern
+    setProduct(product){
+        this.product = product;
+        console.log(JSON.stringify(this.product));
+        return this;
+    }
+
+    setWishlist(wishlist){
+        this.wishlist = wishlist;
+        return this;
     }
 }
 
@@ -529,20 +634,82 @@ class ProductListViewedEvent {
 
 }
 
+//Class representing "Cart Viewed" event
+//Class representing product list view
+class CartViewedEvent {
+    constructor(){
+        this.cartId = null;
+        this.products = [];
+    }
+
+    
+    addProducts(products){
+        if (!this.products){
+            this.products = products;
+        } else {
+            this.products.pushValues(products);
+        }
+        return this; //keeping code aligned with builder pattern
+        
+    }
+
+    addProduct(product){
+        if(!this.products){
+            this.products = [];
+        }
+        this.products.push(product);
+        return this; //keeping code aligned with builder pattern
+    }
+
+    setCartId(cartId){
+        this.cartId = cartId;
+        return this; //builder pattern
+    }
+
+    event(){
+        return ECommerceEvents.CART_VIEWED;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cartId);
+        eventProperty.setProperty(ECommerceParamNames.PRODUCTS, this.products);
+        return eventProperty;
+    }
+
+}
+
+
+
+
 //Class for representing product removed event
-class ProductRemovedEvent {
+class ProductRemovedFromCartEvent {
     constructor(){
         this.product = null;
+        this.cartId = null;
     }
 
     event(){
         return ECommerceEvents.PRODUCT_REMOVED;
     }
 
-    build() {
+    build(){
         var eventProperty = new RudderProperty();
-        eventProperty.setProperty(this.product);
+        eventProperty.setPropertyMap(this.product);
+        eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cartId);
         return eventProperty;
+    }
+
+    //Setter methods in accordance to Builder pattern
+
+    setProduct(product){
+        this.product = product;
+        return this;
+    }
+
+    setCartId(cartId) {
+        this.cartId = cartId;
+        return this;
     }
 }
 
@@ -1214,7 +1381,7 @@ var RudderClient = (function () {
 var client 
 = RudderClient.getInstance("dummykey", RudderConfig.getDefaultConfig().setFlushQueueSize(1));
 
-
+/*
 var props = new RudderProperty();
 props.setProperty("title","How to create a tracking plan");
 props.setProperty("course", "Intro to Analytics");
@@ -1245,10 +1412,47 @@ client.page(new RudderElementBuilder().
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_ADDED).
                 setProperty(new ProductAddedToCartEvent().
-                setProduct(new ECommerceProduct().setName("Dummy Product")).
-                setCartId("DummyCartId").
+                setProduct(new ECommerceProduct().setName("Dummy Product 1")).
+                setCartId("Dummy Cart 1").
                 build().getPropertyMap()).
-                build());                
+                build());    
+                
+                
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PRODUCT_ADDED_TO_WISHLIST).
+                setProperty(new ProductAddedToWishlistEvent().
+                setProduct(new ECommerceProduct().setName("Dummy Product 2")).
+                setWishlist(new ECommerceWishList().setWishlistId("Dummy Wishlist 1").
+                setWishlistName("Dummy Wishlist 1")).
+                build().getPropertyMap()).
+                build());    
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PRODUCT_REMOVED).
+                setProperty(new ProductAddedToCartEvent().
+                setProduct(new ECommerceProduct().setName("Dummy Product 1")).
+                setCartId("Dummy Cart 1").
+                build().getPropertyMap()).
+                build());    
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.CART_VIEWED).
+                setProperty(new CartViewedEvent().
+                addProduct(new ECommerceProduct().setName("Dummy Product 1")).
+                addProduct(new ECommerceProduct().setName("Dummy Product 2")).
+                setCartId("Dummy Cart 1").
+                build().getPropertyMap()).
+                build());    
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.CHECKOUT_STARTED).
+                setProperty(new CheckoutStartedEvent().
+                setOrder(new ECommerceOrder().setOrderId("Dummy Order 1").
+                addProduct(new ECommerceProduct().setName("Dummy Product 1")).
+                addProduct(new ECommerceProduct().setName("Dummy Product 2"))).
+                build().getPropertyMap()).
+                build());
+*/
+console.log(JSON.stringify(new ECommerceOrder().setOrderId("dummy")));                
+                
+
 
 
 
