@@ -79,7 +79,9 @@ var ECommerceParamNames ={
     CHECKOUT_ID:    "checkout_id",
     TOTAL:  "total",
     REVENUE:    "revenue",
-    ORDER_ID:   "order_id"
+    ORDER_ID:   "order_id",
+    FILTERS:    "filters",
+    SORTS:  "sorts"  
 }
 //ECommerce Events Enumeration
 var ECommerceEvents = {
@@ -238,7 +240,7 @@ class ScreenPropertyBuilder {
 
 //Class representing e-commerce order object
 class ECommerceOrder {
-    contructor(){
+    constructor(){
         this.order_id = "";
         this.affiliation = "";
         this.value = 0;
@@ -255,7 +257,6 @@ class ECommerceOrder {
     //Generic setter methods to enable builder pattern
     setOrderId(orderId){
         this.order_id = orderId;
-        console.log(JSON.stringify(this));
         return this;
     }
 
@@ -322,6 +323,44 @@ class ECommerceOrder {
 
 
 }
+//Class representing e-commerce product filter
+class ECommerceProductFilter {
+    constructor(){
+        this.type = "";
+        this.value = "";
+    }
+
+    //Setter methods in accordance to Builder pattern 
+    setType(type){
+        this.type = type;
+        return this;
+    }
+
+    setValue(value){
+        this.value = value;
+        return this;
+    }
+}
+
+//Class representing e-commerce product sort
+class ECommerceProductSort {
+    constructor(){
+        this.type = "";
+        this.value = "";
+    }
+
+    //Setter methods in accordance to Builder pattern 
+    setType(type){
+        this.type = type;
+        return this;
+    }
+
+    setValue(value){
+        this.value = value;
+        return this;
+    }
+}
+
 
 //Class representing e-commerce product object
 class ECommerceProduct {
@@ -418,7 +457,29 @@ class ECommercePromotion {
         this.position = 0;
     }
 
+    //Setter methods in accordance with Builder pattern
+    setPromotionId(promotionId){
+        this.promotion_id = promotionId;
+        return this;
+    }
+
+    setCreative(creative){
+        this.creative = creative;
+        return this;
+    }
+
+    setName(name){
+        this.name = name;
+        return this;
+    }
+
+    setPosition(position){
+        this.position = position;
+        return this;
+    }
+
 }
+
 
 //Class representing an e-commerce cart
 class ECommerceCart {
@@ -479,24 +540,122 @@ class ECommerceWishList {
 class ECommerceCheckout {
     constructor(){
         this.checkout_id = "";
-        this.order_id = "";
-        this.step = "";
+        this.step = -1;
         this.shipping_method = "";
         this.payment_method = "";
 
     }
+
+    //Setter methods in accordance to Builder pattern
+    setCheckoutId(checkoutId){
+        this.checkout_id = checkoutId;
+        return this;
+    }
+
+    setStep(step){
+        this.step = step;
+        return this;
+    }
+
+    setShippingMethod(shippingMethod){
+        this.shipping_method = shippingMethod;
+        return this;
+    }
+
+    setPaymentMethod(paymentMethod){
+        this.payment_method = paymentMethod;
+        return this;
+    }
 }
 
-//Class representing "checkout started" event
-class CheckoutStartedEvent {
+//Class representing Payment Info
+class ECommercePaymentInfo extends ECommerceCheckout {
+    constructor(){
+        this.order_id = "";
+        super();
+    }
+
+    //Setter methods in accordance to Builder pattern
+    setOrderId(orderId){
+        this.order_id = orderId;
+        return this;
+    }
+}
+
+//Parent class of promotion viewed and promotion clicked events
+class PromotionEvent {
+
+    constructor(){
+        this.promotion = null;
+    }
+
+    //Setter method in accordance to Builder pattern
+    setPromotion(promotion){
+        this.promotion = promotion;
+        return this;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setPropertyMap(this.promotion);
+        return eventProperty;
+    }
+
+}
+
+//Promotion Viewed Event class
+class PromotionViewedEvent extends PromotionEvent {
+
+    event(){
+        return ECommerceEvents.PROMOTION_VIEWED;
+    }
+}
+
+class PromotionClickedEvent extends PromotionEvent {
+
+    event(){
+        return ECommerceEvents.PROMOTION_CLICKED;
+    }
+}
+
+//Parent class of "checkout step viewed" and "checkout step completed" events
+class CheckoutEvent {
+    constructor() {
+        this.checkout = null;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setPropertyMap(this.checkout);
+        return eventProperty;
+    }
+
+    //Setter method in accordance with Builder pattern
+    setCheckout(checkout){
+        this.checkout = checkout;
+        return this;
+    }
+}
+
+//class representing "Checkout Step Viewed"
+class CheckoutStepViewedEvent extends CheckoutEvent {
+    event(){
+        return ECommerceEvents.CHECKOUT_STEP_VIEWED;
+    }
+}
+
+//class representing "Checkout Step Completed"
+class CheckoutStepCompletedEvent extends CheckoutEvent {
+    event(){
+        return ECommerceEvents.CHECKOUT_STEP_COMPLETED;
+    }
+}
+
+//Parent class of "checkout started" and "order completed" events
+class OrderEvent {
     constructor(){
         this.order = null; //order details as part of the checkout
     }
-    
-    event (){
-        return ECommerceEvents.CHECKOUT_STARTED;
-    }
-
     build(){
         var eventProperty = new RudderProperty();
         eventProperty.setPropertyMap(this.order);
@@ -510,33 +669,63 @@ class CheckoutStartedEvent {
     }
 
 }
+//Class representing "checkout started" event
+class CheckoutStartedEvent extends OrderEvent{
+    event (){
+        return ECommerceEvents.CHECKOUT_STARTED;
+    }
+
+}
 
 
 //Class representing order completed event
-class OrderCompletedEvent {
-    constructor(){
-        this.order = null;
-    }
+class OrderCompletedEvent extends OrderEvent {
 
     event(){
         return ECommerceEvents.ORDER_COMPLETED;
     }
 
+}
+//Parent class of "Product Clicked" and "Product Viewed" events
+class ProductEvent {
+    constructor(){
+        this.product = null;
+    }
+
     build(){
         var eventProperty = new RudderProperty();
-        eventProperty.setProperty(this.order);
+        eventProperty.setPropertyMap(this.product);
+        return eventProperty;
+    }
+
+    //Setters in accordance to Builder pattern
+    setProduct(product){
+        this.product = product;
+        return this;
+    }
+
+}
+
+//Class representing "Product Clicked Event"
+class ProductClickedEvent extends ProductEvent {
+    event() {
+        return ECommerceEvents.PRODUCT_CLICKED;
     }
 }
 
-//Class representing product addition to cart event
-class ProductAddedToCartEvent {
-    contructor(){
+//Class representing "Product Viewed Event"
+//Class representing "Product Clicked Event"
+class ProductViewedEvent extends ProductEvent {
+    event() {
+        return ECommerceEvents.PRODUCT_VIEWED;
+    }
+}
+
+//Parent class of "Product Added to Cart" and "Product Removed from Cart" events
+class ProductCartEvent {
+    constructor(){
         this.product = null;
         this.cartId = null;
-    }
-
-    event(){
-        return ECommerceEvents.PRODUCT_ADDED;
     }
 
     build(){
@@ -560,10 +749,26 @@ class ProductAddedToCartEvent {
 }
 
 
+//Class representing product addition to cart event
+class ProductAddedToCartEvent extends ProductCartEvent {
+
+    event(){
+        return ECommerceEvents.PRODUCT_ADDED;
+    }
+
+}
+
+//Class for representing product removed event
+class ProductRemovedFromCartEvent extends ProductCartEvent {
+    event(){
+        return ECommerceEvents.PRODUCT_REMOVED;
+    }
+}
+
 
 //Class representing product addition to cart event
 class ProductAddedToWishlistEvent {
-    contructor(){
+    constructor(){
         this.product = null;
         this.wishlist = null;
     }
@@ -586,7 +791,6 @@ class ProductAddedToWishlistEvent {
     //Generic setter methods in alignment with builder pattern
     setProduct(product){
         this.product = product;
-        console.log(JSON.stringify(this.product));
         return this;
     }
 
@@ -604,21 +808,36 @@ class ProductListViewedEvent {
         this.products = [];
     }
     
-    addProducts(inputProducts){
+    //Setter methods in accordance to Builder pattern
+
+    setListId(listId){
+        this.listId = listId;
+        return this;
+    }
+
+    setCategory(category){
+        this.category = category;
+        return this;
+    }
+
+    addProducts(products){
         if (!this.products){
-            this.products = inputProducts;
+            this.products = products;
         } else {
-            this.products.pushValues(inputProducts);
+            this.products.pushValues(products);
         }
+        return this;
         
     }
 
-    addProduct(inputProduct){
+    addProduct(product){
         if(!this.products){
             this.products = [];
         }
-        this.products.push(inputProduct);
+        this.products.push(product);
+        return this;
     }
+
 
     event(){
         return ECommerceEvents.PRODUCT_LIST_VIEWED;
@@ -634,8 +853,93 @@ class ProductListViewedEvent {
 
 }
 
+//Class representing "Product List Filtered" event
+class ProductListFilteredEvent {
+    constructor(){
+        this.listId = null;
+        this.filters = [];
+        this.sorts = [];
+        this.products = [];
+    }
+    
+    //Setter methods in accordance to Builder pattern
+
+    setListId(listId){
+        this.listId = listId;
+        return this;
+    }
+
+    addProducts(products){
+        if (!this.products){
+            this.products = products;
+        } else {
+            this.products.pushValues(products);
+        }
+        return this;
+        
+    }
+
+    addProduct(product){
+        if(!this.products){
+            this.products = [];
+        }
+        this.products.push(product);
+        return this;
+    }
+
+    addFilters(filters){
+        if (!this.filters){
+            this.filters = filters;
+        } else {
+            this.filters.pushValues(filters);
+        }
+        return this;
+        
+    }
+
+    addFilter(filter){
+        if(!this.filters){
+            this.filters = [];
+        }
+        this.filters.push(filter);
+        return this;
+    }
+
+    addSorts(sorts){
+        if (!this.sorts){
+            this.sorts = sorts;
+        } else {
+            this.sorts.pushValues(sorts);
+        }
+        return this;
+        
+    }
+
+    addSort(sort){
+        if(!this.sorts){
+            this.sorts = [];
+        }
+        this.sorts.push(sort);
+        return this;
+    }
+
+
+    event(){
+        return ECommerceEvents.PRODUCT_LIST_FILTERED;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setProperty(ECommerceParamNames.LIST_ID, this.listId);
+        eventProperty.setProperty(ECommerceParamNames.FILTERS, this.filters);
+        eventProperty.setProperty(ECommerceParamNames.PRODUCTS, this.products);
+        eventProperty.setProperty(ECommerceParamNames.SORTS, this.sorts);
+        return eventProperty;
+    }
+
+}
+
 //Class representing "Cart Viewed" event
-//Class representing product list view
 class CartViewedEvent {
     constructor(){
         this.cartId = null;
@@ -682,36 +986,6 @@ class CartViewedEvent {
 
 
 
-//Class for representing product removed event
-class ProductRemovedFromCartEvent {
-    constructor(){
-        this.product = null;
-        this.cartId = null;
-    }
-
-    event(){
-        return ECommerceEvents.PRODUCT_REMOVED;
-    }
-
-    build(){
-        var eventProperty = new RudderProperty();
-        eventProperty.setPropertyMap(this.product);
-        eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cartId);
-        return eventProperty;
-    }
-
-    //Setter methods in accordance to Builder pattern
-
-    setProduct(product){
-        this.product = product;
-        return this;
-    }
-
-    setCartId(cartId) {
-        this.cartId = cartId;
-        return this;
-    }
-}
 
 //Class for representing product searched event
 class ProductSearchedEvent {
@@ -728,24 +1002,14 @@ class ProductSearchedEvent {
         eventProperty.setProperty(ECommerceParamNames.QUERY, this.query);
         return eventProperty;
     }
-}
 
-//Class for representing product viewed event
-class ProductViewedEvent {
-    constructor(){
-        this.product = null;
-    }
-
-    event(){
-        return ECommerceEvents.PRODUCT_VIEWED;
-    }
-
-    build() {
-        var eventProperty = new RudderProperty();
-        eventProperty.setProperty(this.product);
-        return eventProperty;
+    //Getter method in accordance with builder pattern
+    setQuery(query){
+        this.query = query;
+        return this;
     }
 }
+
 
 //Rudder configration class
 var RudderConfig = (function () {
@@ -1030,10 +1294,9 @@ class RudderMessage {
                             break;
                         default:    
                     }
-                } else if (!this.rl_properties["category"]){
-                                //throw new Error("Key 'category' is required in rl_properties");
-                                //if category is not there, set to rl_event
-                                this.rl_properties["category"] = this.rl_event;
+                } else if (!this.rl_properties["rl_category"]){
+                                //if rl_category is not there, set to rl_event
+                                this.rl_properties["rl_category"] = this.rl_event;
                 }
 
                 break;
@@ -1285,10 +1548,10 @@ var RudderClient = (function () {
             rudderElement.rl_message.validateFor(MessageType.TRACK);
             //validated, now set event type and add to flush queue
             rudderElement.rl_message.rl_type = MessageType.TRACK;
-            //check if category is populated under rl_properties, 
+            //check if rl_category is populated under rl_properties, 
             //else use the rl_event value
-            if (!rudderElement.rl_message.rl_properties["category"]){
-                rudderElement.rl_message.rl_properties["category"] 
+            if (!rudderElement.rl_message.rl_properties["rl_category"]){
+                rudderElement.rl_message.rl_properties["rl_category"] 
                 = rudderElement.rl_message.rl_event;
             }
             eventRepository.flush(rudderElement);
@@ -1409,14 +1672,146 @@ client.page(new RudderElementBuilder().
                 build());
 
 
+//e-commerce examples
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PRODUCTS_SEARCHED).
+                setProperty(new ProductSearchedEvent().
+                setQuery("Dummy Query 1").
+                build().getPropertyMap()).
+                build());    
+
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PRODUCT_LIST_VIEWED).
+                setProperty(new ProductListViewedEvent().
+                addProduct(new ECommerceProduct().setName("Dummy Product 1")).
+                addProduct(new ECommerceProduct().setName("Dummy Product 2")).
+                setListId("Dummy List 1").
+                setCategory("Dummy Product Category 1").
+                build().getPropertyMap()).
+                build());    
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PRODUCT_LIST_FILTERED).
+                setProperty(new ProductListFilteredEvent().
+                addProduct(new ECommerceProduct().setName("Dummy Product 1")).
+                addProduct(new ECommerceProduct().setName("Dummy Product 2")).
+                addFilter(new ECommerceProductFilter().setType("Dummy Filter 1")).
+                addFilter(new ECommerceProductFilter().setType("Dummy Filter 2")).
+                addSort(new ECommerceProductSort().setType("Dummy Sort 1")).
+                addSort(new ECommerceProductSort().setType("Dummy Sort 2")).
+                setListId("Dummy List 3").
+                build().getPropertyMap()).
+                build());  
+
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PROMOTION_VIEWED).
+                setProperty(new PromotionViewedEvent().
+                setPromotion(new ECommercePromotion().
+                setPromotionId("Dummy Promotion 1").
+                setCreative("Dummy Creative 1")).
+                build().getPropertyMap()).
+                build());    
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PROMOTION_CLICKED).
+                setProperty(new PromotionViewedEvent().
+                setPromotion(new ECommercePromotion().
+                setPromotionId("Dummy Promotion 2").
+                setCreative("Dummy Creative 2").
+                setName("Dummy Promotion Name 2")).
+                build().getPropertyMap()).
+                build());    
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PRODUCT_VIEWED).
+                setProperty(new ProductViewedEvent().
+                setProduct(new ECommerceProduct().setName("Dummy Product 0A").
+                setProductId("Dummy Product ID 0A").
+                setSku("Dummy SKU 0A")).
+                build().getPropertyMap()).
+                build());    
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PRODUCT_CLICKED).
+                setProperty(new ProductViewedEvent().
+                setProduct(new ECommerceProduct().setName("Dummy Product 0B").
+                setProductId("Dummy Product ID 0B").
+                setPrice(10.85).
+                setCurrency("USD").
+                setSku("Dummy SKU 0B")).
+                build().getPropertyMap()).
+                build());    
+
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_ADDED).
                 setProperty(new ProductAddedToCartEvent().
-                setProduct(new ECommerceProduct().setName("Dummy Product 1")).
+                setProduct(new ECommerceProduct().setName("Dummy Product 1A")).
+                setCartId("Dummy Cart 1A").
+                build().getPropertyMap()).
+                build());    
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PRODUCT_REMOVED).
+                setProperty(new ProductAddedToCartEvent().
+                setProduct(new ECommerceProduct().setName("Dummy Product 1B")).
+                setCartId("Dummy Cart 1B").
+                build().getPropertyMap()).
+                build());    
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.CART_VIEWED).
+                setProperty(new CartViewedEvent().
+                addProduct(new ECommerceProduct().setName("Dummy Product 1")).
+                addProduct(new ECommerceProduct().setName("Dummy Product 2")).
                 setCartId("Dummy Cart 1").
                 build().getPropertyMap()).
                 build());    
-                
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.CHECKOUT_STARTED).
+                setProperty(new CheckoutStartedEvent().
+                setOrder(new ECommerceOrder().setOrderId("Dummy Order 1").
+                addProduct(new ECommerceProduct().setName("Dummy Product 1")).
+                addProduct(new ECommerceProduct().setName("Dummy Product 2"))).
+                build().getPropertyMap()).
+                build());
+               
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.CHECKOUT_STEP_VIEWED).
+                setProperty(new CheckoutStepViewedEvent().
+                setCheckout(new ECommerceCheckout().
+                setCheckoutId("Dummy Checkout Id 1").
+                setStep(2).
+                setShippingMethod("Dummy Checkout Shipping Method 1").
+                setPaymentMethod("Dummy Checkout Payment Method 1")).
+                build().getPropertyMap()).
+                build());    
+*/ 
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.CHECKOUT_STEP_COMPLETED).
+                setProperty(new CheckoutStepViewedEvent().
+                setCheckout(new ECommerceCheckout().
+                setCheckoutId("Dummy Checkout Id 2").
+                setStep(3).
+                setShippingMethod("Dummy Checkout Shipping Method 2").
+                setPaymentMethod("Dummy Checkout Payment Method 2")).
+                build().getPropertyMap()).
+                build());    
+
+/*                
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.ORDER_COMPLETED).
+                setProperty(new CheckoutStartedEvent().
+                setOrder(new ECommerceOrder().setOrderId("Dummy Order 4").
+                addProduct(new ECommerceProduct().setName("Dummy Product 4")).
+                addProduct(new ECommerceProduct().setName("Dummy Product 5"))).
+                build().getPropertyMap()).
+                build());
+
                 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_ADDED_TO_WISHLIST).
@@ -1426,34 +1821,10 @@ client.track(new RudderElementBuilder().
                 setWishlistName("Dummy Wishlist 1")).
                 build().getPropertyMap()).
                 build());    
-client.track(new RudderElementBuilder().
-                setEvent(ECommerceEvents.PRODUCT_REMOVED).
-                setProperty(new ProductAddedToCartEvent().
-                setProduct(new ECommerceProduct().setName("Dummy Product 1")).
-                setCartId("Dummy Cart 1").
-                build().getPropertyMap()).
-                build());    
-client.track(new RudderElementBuilder().
-                setEvent(ECommerceEvents.CART_VIEWED).
-                setProperty(new CartViewedEvent().
-                addProduct(new ECommerceProduct().setName("Dummy Product 1")).
-                addProduct(new ECommerceProduct().setName("Dummy Product 2")).
-                setCartId("Dummy Cart 1").
-                build().getPropertyMap()).
-                build());    
-client.track(new RudderElementBuilder().
-                setEvent(ECommerceEvents.CHECKOUT_STARTED).
-                setProperty(new CheckoutStartedEvent().
-                setOrder(new ECommerceOrder().setOrderId("Dummy Order 1").
-                addProduct(new ECommerceProduct().setName("Dummy Product 1")).
-                addProduct(new ECommerceProduct().setName("Dummy Product 2"))).
-                build().getPropertyMap()).
-                build());
+
+
+
 */
-console.log(JSON.stringify(new ECommerceOrder().setOrderId("dummy")));                
-                
-
-
 
 
 
