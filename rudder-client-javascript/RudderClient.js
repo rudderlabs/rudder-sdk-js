@@ -571,8 +571,9 @@ class ECommerceCheckout {
 //Class representing Payment Info
 class ECommercePaymentInfo extends ECommerceCheckout {
     constructor(){
-        this.order_id = "";
         super();
+        this.order_id = "";
+
     }
 
     //Setter methods in accordance to Builder pattern
@@ -686,6 +687,32 @@ class OrderCompletedEvent extends OrderEvent {
     }
 
 }
+
+//Class representing payment info entered event
+class PaymentInfoEnteredEvent {
+    constructor(){
+        this.paymentInfo = null;
+    }
+
+    event() {
+        return ECommerceEvents.PAYMENT_INFO_ENTERED;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setPropertyMap(this.paymentInfo);
+        return eventProperty;
+
+    }
+
+    //Setter method in accordance with Builder pattern
+    setPaymentInfo(paymentInfo){
+        this.paymentInfo = paymentInfo;
+        return this;
+    }
+
+}
+
 //Parent class of "Product Clicked" and "Product Viewed" events
 class ProductEvent {
     constructor(){
@@ -1789,7 +1816,6 @@ client.track(new RudderElementBuilder().
                 setPaymentMethod("Dummy Checkout Payment Method 1")).
                 build().getPropertyMap()).
                 build());    
-*/ 
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.CHECKOUT_STEP_COMPLETED).
@@ -1802,7 +1828,6 @@ client.track(new RudderElementBuilder().
                 build().getPropertyMap()).
                 build());    
 
-/*                
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.ORDER_COMPLETED).
                 setProperty(new CheckoutStartedEvent().
@@ -1811,7 +1836,20 @@ client.track(new RudderElementBuilder().
                 addProduct(new ECommerceProduct().setName("Dummy Product 5"))).
                 build().getPropertyMap()).
                 build());
+*/
 
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PAYMENT_INFO_ENTERED).
+                setProperty(new PaymentInfoEnteredEvent().
+                setPaymentInfo(new ECommercePaymentInfo().
+                setCheckoutId("Dummy Checkout Id 3").
+                setStep(4).
+                setShippingMethod("Dummy Checkout Shipping Method 3").
+                setPaymentMethod("Dummy Checkout Payment Method 3")).
+                build().getPropertyMap()).
+                build());    
+
+/*
                 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_ADDED_TO_WISHLIST).
