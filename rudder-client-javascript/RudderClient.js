@@ -575,7 +575,7 @@ class ECommerceExtendedCoupon extends ECommerceCoupon{
 }
 
 //Class representing e-commerce coupon for application or removal 
-class ECommerceAppliedOrRemovedCoupom extends ECommerceExtendedCoupon {
+class ECommerceAppliedOrRemovedCoupon extends ECommerceExtendedCoupon {
     constructor(){
         super();
         this.discount = 0;
@@ -597,8 +597,8 @@ class ECommerceDeniedCoupon extends ECommerceExtendedCoupon {
     }
 
     //Setter method in accordance to Builder pattern
-    setDiscount(discount){
-        this.discount = discount;
+    setReason(reason){
+        this.reason = reason;
         return this;
     }
 }
@@ -1146,7 +1146,45 @@ class ProductSearchedEvent {
     }
 }
 
-//Parent class for 
+//Parent class for Coupon events
+class CouponEvent {
+    contructor(){
+        this.coupon = null;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setPropertyMap(this.coupon);
+        return eventProperty;
+    }
+
+    //Setter method in accordance with Builder pattern
+    setCoupon(coupon){
+        this.coupon = coupon;
+        return this;
+    }
+}
+
+//Class representing coupon applied event
+class CouponAppliedEvent extends CouponEvent {
+    event(){
+        return ECommerceEvents.COUPON_APPLIED;
+    }
+}
+
+//class representing coupon removed event
+class CouponRemovedEvent extends CouponEvent {
+    event(){
+        return ECommerceEvents.COUPON_REMOVED;
+    }
+}
+
+//class representing coupon denied event
+class CouponDeniedEvent extends CouponEvent {
+    event(){
+        return ECommerceEvents.COUPON_DENIED;
+    }
+}
 //Rudder configration class
 var RudderConfig = (function () {
 
@@ -1984,7 +2022,6 @@ client.track(new RudderElementBuilder().
                 build().getPropertyMap()).
                 build());
 
-*/
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.ORDER_CANCELLED).
@@ -2003,6 +2040,50 @@ client.track(new RudderElementBuilder().
                 addProduct(new ECommerceProduct().setName("Dummy Product 8").setSku("Dummy SKU 4"))).
                 build().getPropertyMap()).
                 build());
+
+
+
+
+client.track(new RudderElementBuilder().
+            setEvent(ECommerceEvents.COUPON_APPLIED).
+            setProperty(new CouponAppliedEvent().
+            setCoupon(new ECommerceAppliedOrRemovedCoupon().
+            setOrderId("Dummy Order Id 10").
+            setCartId("Dummy Card Id 3").
+            setCouponId("Dummy Coupon Id 1").
+            setCouponName("Dummy Coupon Name 1").
+            setDiscount(12.32)).
+            build().getPropertyMap()).
+            build());
+
+
+
+client.track(new RudderElementBuilder().
+            setEvent(ECommerceEvents.COUPON_DENIED).
+            setProperty(new CouponDeniedEvent().
+            setCoupon(new ECommerceDeniedCoupon().
+            setOrderId("Dummy Order Id 11").
+            setCartId("Dummy Card Id 4").
+            setCouponId("Dummy Coupon Id 2").
+            setCouponName("Dummy Coupon Name 2").
+            setReason("Dummy Coupon Deny Reason 1")).
+            build().getPropertyMap()).
+            build());
+
+
+*/
+
+client.track(new RudderElementBuilder().
+            setEvent(ECommerceEvents.COUPON_REMOVED).
+            setProperty(new CouponRemovedEvent().
+            setCoupon(new ECommerceAppliedOrRemovedCoupon().
+            setOrderId("Dummy Order Id 11").
+            setCartId("Dummy Card Id 4").
+            setCouponId("Dummy Coupon Id 2").
+            setCouponName("Dummy Coupon Name 2").
+            setDiscount(23.32)).
+            build().getPropertyMap()).
+            build());
 
 /*
 
