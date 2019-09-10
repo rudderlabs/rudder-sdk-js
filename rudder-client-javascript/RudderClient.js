@@ -653,7 +653,7 @@ class CheckoutStepCompletedEvent extends CheckoutEvent {
 }
 
 
-
+//Parent class for order and checkout events
 class OrderEvent {
     
     constructor(){
@@ -685,11 +685,17 @@ class CheckoutStartedEvent extends OrderEvent{
 class OrderCompletedEvent extends OrderEvent {
 
     event(){
-        return
+        return ECommerceEvents.ORDER_COMPLETED;
     }
 
 }
 
+//Class representing order updated event
+class OrderUpdatedEvent extends OrderEvent {
+    this.event(){
+        return ECommerceEvents.ORDER_UPDATED;
+    }
+}
 
 //Class representing payment info entered event
 class PaymentInfoEnteredEvent {
@@ -1841,6 +1847,19 @@ client.track(new RudderElementBuilder().
                 setPaymentMethod("Dummy Checkout Payment Method 3")).
                 build().getPropertyMap()).
                 build());    
+*/
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.ORDER_UPDATED).
+                setProperty(new OrderUpdatedEvent().
+                setOrder(new ECommerceOrder().setOrderId("Dummy Order 4").
+                setAffiliation("Dummy Affiliation 2");
+                addProduct(new ECommerceProduct().setName("Dummy Product 5")).
+                addProduct(new ECommerceProduct().setName("Dummy Product 6"))).
+                build().getPropertyMap()).
+                build());
+
+/*
 
 
 
@@ -1852,10 +1871,6 @@ client.track(new RudderElementBuilder().
                 addProduct(new ECommerceProduct().setName("Dummy Product 5"))).
                 build().getPropertyMap()).
                 build());
-*/
-
-
-/*
                 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_ADDED_TO_WISHLIST).
