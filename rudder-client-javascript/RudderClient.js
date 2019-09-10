@@ -652,9 +652,24 @@ class CheckoutStepCompletedEvent extends CheckoutEvent {
     }
 }
 
-//Parent class of checkout and order events
-class OrderEvent {
 
+
+class OrderEvent {
+    
+    constructor(){
+        this.order = null; //order details as part of the checkout
+    }
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setPropertyMap(this.order);
+        return eventProperty;
+    }
+
+    //Generic setter methods to enable builder pattern
+    setOrder(order){
+        this.order = order;
+        return this;
+    }
 
 }
 //Class representing "checkout started" event
@@ -670,10 +685,11 @@ class CheckoutStartedEvent extends OrderEvent{
 class OrderCompletedEvent extends OrderEvent {
 
     event(){
-        return ECommerceEvents.ORDER_COMPLETED;
+        return
     }
 
 }
+
 
 //Class representing payment info entered event
 class PaymentInfoEnteredEvent {
@@ -681,7 +697,7 @@ class PaymentInfoEnteredEvent {
         this.paymentInfo = null;
     }
 
-    event() {
+    event(){
         return ECommerceEvents.PAYMENT_INFO_ENTERED;
     }
 
@@ -1816,16 +1832,6 @@ client.track(new RudderElementBuilder().
                 build());    
 
 client.track(new RudderElementBuilder().
-                setEvent(ECommerceEvents.ORDER_COMPLETED).
-                setProperty(new CheckoutStartedEvent().
-                setOrder(new ECommerceOrder().setOrderId("Dummy Order 4").
-                addProduct(new ECommerceProduct().setName("Dummy Product 4")).
-                addProduct(new ECommerceProduct().setName("Dummy Product 5"))).
-                build().getPropertyMap()).
-                build());
-*/
-
-client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PAYMENT_INFO_ENTERED).
                 setProperty(new PaymentInfoEnteredEvent().
                 setPaymentInfo(new ECommercePaymentInfo().
@@ -1835,6 +1841,19 @@ client.track(new RudderElementBuilder().
                 setPaymentMethod("Dummy Checkout Payment Method 3")).
                 build().getPropertyMap()).
                 build());    
+
+
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.ORDER_COMPLETED).
+                setProperty(new CheckoutStartedEvent().
+                setOrder(new ECommerceOrder().setOrderId("Dummy Order 4").
+                addProduct(new ECommerceProduct().setName("Dummy Product 4")).
+                addProduct(new ECommerceProduct().setName("Dummy Product 5"))).
+                build().getPropertyMap()).
+                build());
+*/
+
 
 /*
                 
