@@ -652,22 +652,9 @@ class CheckoutStepCompletedEvent extends CheckoutEvent {
     }
 }
 
-//Parent class of "checkout started" and "order completed" events
+//Parent class of checkout and order events
 class OrderEvent {
-    constructor(){
-        this.order = null; //order details as part of the checkout
-    }
-    build(){
-        var eventProperty = new RudderProperty();
-        eventProperty.setPropertyMap(this.order);
-        return eventProperty;
-    }
 
-    //Generic setter methods to enable builder pattern
-    setOrder(order){
-        this.order = order;
-        return this;
-    }
 
 }
 //Class representing "checkout started" event
