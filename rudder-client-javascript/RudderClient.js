@@ -88,7 +88,10 @@ var ECommerceParamNames ={
     REVENUE:    "revenue",
     ORDER_ID:   "order_id",
     FILTERS:    "filters",
-    SORTS:  "sorts"  
+    SORTS:  "sorts",
+    SHARE_VIA:  "share_via",
+    SHARE_MESSAGE:  "share_message",
+    RECIPIENT:  "recipient" 
 }
 //ECommerce Events Enumeration
 var ECommerceEvents = {
@@ -485,7 +488,7 @@ class ECommerceProduct {
 
     setCoupon(coupon){
         this.coupon = coupon;
-        return coupon;
+        return this;
     }
 
     setPosition(position){
@@ -670,6 +673,7 @@ class ECommercePaymentInfo extends ECommerceCheckout {
         return this;
     }
 }
+
 
 //Parent class of promotion viewed and promotion clicked events
 class PromotionEvent {
@@ -902,16 +906,13 @@ class ProductRemovedFromCartEvent extends ProductCartEvent {
 }
 
 
-//Class representing product addition to cart event
-class ProductAddedToWishlistEvent {
+//Parent class for Product-to-Wishlist events
+class ProductWishlistEvent {
     constructor(){
         this.product = null;
         this.wishlist = null;
     }
 
-    event(){
-        return ECommerceEvents.PRODUCT_ADDED_TO_WISHLIST;
-    }
 
     build(){
         var eventProperty = new RudderProperty();
@@ -932,6 +933,47 @@ class ProductAddedToWishlistEvent {
 
     setWishlist(wishlist){
         this.wishlist = wishlist;
+        return this;
+    }
+}
+
+//Class representing product added to wishlist event
+class ProductAddedToWishlistEvent extends ProductWishlistEvent {
+    event(){
+        return ECommerceEvents.PRODUCT_ADDED_TO_WISHLIST;
+    }
+
+}
+
+//Class representing product removed from wishlist
+class ProductRemovedFromWishlistEvent extends ProductWishlistEvent {
+    event(){
+        return ECommerceEvents.PRODUCT_REMOVED_FROM_WISHLIST;
+    }
+
+}
+
+//Class representing wishlist product added to cart event
+class WishlistProductAddedToCartEvent extends ProductWishlistEvent {
+    constructor(){
+        super();
+        this.cart_id = "";
+    }
+
+    event(){
+        return ECommerceEvents.WISH_LIST_PRODUCT_ADDED_TO_CART;
+    }
+
+    //Need to add cart_id in build part
+    build(){
+        var eventProperty = super.build();
+        eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cart_id);
+        return eventProperty;
+    }
+
+    //Setter method in accordance to Builder pattern
+    setCartId(cartId){
+        this.cart_id = cartId;
         return this;
     }
 }
@@ -1183,6 +1225,50 @@ class CouponRemovedEvent extends CouponEvent {
 class CouponDeniedEvent extends CouponEvent {
     event(){
         return ECommerceEvents.COUPON_DENIED;
+    }
+}
+
+//Class representing product share
+class ProductSharedEvent {
+    constructor(){
+        this.share_via = "";
+        this.share_message = "";
+        this.recipient = "";
+        this.product = null;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setPropertyMap(this.product);
+        eventProperty.setProperty(ECommerceParamNames.SHARE_VIA, this.share_via);
+        eventProperty.setProperty(ECommerceParamNames.SHARE_MESSAGE, this.share_message);
+        eventProperty.setProperty(ECommerceParamNames.RECIPIENT, this.recipient);
+        return eventProperty;
+    }
+
+    event(){
+        return ECommerceEvents.PRODUCT_SHARED;
+    }
+
+    //Setter methods in accordance to Builder pattern
+    setShareVia(shareVia){
+        this.share_via = shareVia;
+        return this;
+    }
+
+    setShareMessage(shareMessage){
+        this.share_message = shareMessage;
+        return this;
+    }
+
+    setRecipient(recipient){
+        this.recipient = recipient;
+        return this;
+    }
+
+    setProduct(product){
+        this.product = product;
+        return this;
     }
 }
 //Rudder configration class
@@ -2071,7 +2157,7 @@ client.track(new RudderElementBuilder().
             build());
 
 
-*/
+
 
 client.track(new RudderElementBuilder().
             setEvent(ECommerceEvents.COUPON_REMOVED).
@@ -2085,8 +2171,66 @@ client.track(new RudderElementBuilder().
             build().getPropertyMap()).
             build());
 
-/*
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PRODUCT_ADDED_TO_WISHLIST).
+                setProperty(new ProductAddedToWishlistEvent().
+                setProduct(new ECommerceProduct().
+                setName("Dummy Product 2").
+                setCategory("Dummy Product Category 413").
+                setSku("Dummy Product SKU 43").
+                setVariant("Dummy Product Variant 34").
+                setCoupon("Dummy Product Coupon 123")).
+                setWishlist(new ECommerceWishList().setWishlistId("Dummy Wishlist 1").
+                setWishlistName("Dummy Wishlist 1")).
+                build().getPropertyMap()).
+                build());    
 
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PRODUCT_REMOVED_FROM_WISHLIST).
+                setProperty(new ProductRemovedFromWishlistEvent().
+                setProduct(new ECommerceProduct().
+                setName("Dummy Product 23").
+                setCategory("Dummy Product Category 543").
+                setSku("Dummy Product SKU 78").
+                setVariant("Dummy Product Variant 98").
+                setCoupon("Dummy Product Coupon 113")).
+                setWishlist(new ECommerceWishList().setWishlistId("Dummy Wishlist 2").
+                setWishlistName("Dummy Wishlist 2")).
+                build().getPropertyMap()).
+                build());    
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.WISH_LIST_PRODUCT_ADDED_TO_CART).
+                setProperty(new WishlistProductAddedToCartEvent().
+                setCartId("Dummy Cart ID 2019").
+                setProduct(new ECommerceProduct().
+                setName("Dummy Product 54").
+                setCategory("Dummy Product Category 28").
+                setSku("Dummy Product SKU 12").
+                setVariant("Dummy Product Variant 76").
+                setCoupon("Dummy Product Coupon 3")).
+                setWishlist(new ECommerceWishList()
+                .setWishlistId("Dummy Wishlist 2").
+                setWishlistName("Dummy Wishlist 2")).
+                build().getPropertyMap()).
+                build());    
+*/
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.PRODUCT_SHARED).
+                setProperty(new ProductSharedEvent().
+                setShareVia("Dummy Share Via 1").
+                setShareMessage("Dummy Message 1").
+                setRecipient("Dummy Recipient 1").
+                setProduct(new ECommerceProduct().
+                setName("Dummy Product 542").
+                setCategory("Dummy Product Category 228").
+                setSku("Dummy Product SKU 212").
+                setVariant("Dummy Product Variant 276").
+                setCoupon("Dummy Product Coupon 23")).
+                build().getPropertyMap()).
+                build());    
+
+/*
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.ORDER_COMPLETED).
                 setProperty(new CheckoutStartedEvent().
@@ -2096,14 +2240,6 @@ client.track(new RudderElementBuilder().
                 build().getPropertyMap()).
                 build());
                 
-client.track(new RudderElementBuilder().
-                setEvent(ECommerceEvents.PRODUCT_ADDED_TO_WISHLIST).
-                setProperty(new ProductAddedToWishlistEvent().
-                setProduct(new ECommerceProduct().setName("Dummy Product 2")).
-                setWishlist(new ECommerceWishList().setWishlistId("Dummy Wishlist 1").
-                setWishlistName("Dummy Wishlist 1")).
-                build().getPropertyMap()).
-                build());    
 
 
 
