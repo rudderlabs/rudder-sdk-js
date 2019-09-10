@@ -5,7 +5,14 @@
 //  <author>Rudder Labs</author>
 //  -----------------------------------------------------------------------
 
-
+//Utility method for excluding null and empty values in JSON
+function replacer(key, value) {
+    if (!value || (value == "")) {
+        return undefined;
+    } else {
+        return value;
+    }
+}
 //Utility function for UUID genration
 function generateUUID() { // Public Domain/MIT
     var d = new Date().getTime();
@@ -243,6 +250,7 @@ class ECommerceOrder {
     constructor(){
         this.order_id = "";
         this.affiliation = "";
+        this.total = 0;
         this.value = 0;
         this.revenue = 0;
         this.shipping = 0;
@@ -265,8 +273,16 @@ class ECommerceOrder {
         return this;
     }
 
+    //Total and Value are set to same amount as they've been used interachangeably
+    setTotal(total){
+        this.value = total;
+        this.total = total;
+        return this;
+    }
+
     setValue(value){
         this.value = value;
+        this.total = value;
         return this;
     }
 
@@ -277,7 +293,7 @@ class ECommerceOrder {
 
     setShipping(shipping){
         this.shipping = shipping;
-        return true;
+        return this;
     }
 
     setTax(tax){
@@ -321,8 +337,49 @@ class ECommerceOrder {
         return this; //to aid builder pattern
     }
 
+}
+
+//Class representing completed e-commerce order
+class ECommerceCompletedOrder extends ECommerceOrder {
+
+    constructor(){
+        super();
+        this.checkout_id = "";
+    }
+
+    //Setter method in accordance with Builder pattern
+    setCheckoutId(checkoutId){
+        this.checkout_id = checkoutId;
+        return this;
+    }
 
 }
+
+//Class representing e-commerce coupon
+class ECommerceCoupon {
+    constructor(){
+        this.order_id = "";
+        this.cart_id = "";
+        this.coupon_id = "";
+    }
+
+    //Generic setter methods in accordance with builder pattern
+    setOrderId(orderId){
+        this.order_id = orderId;
+        return this;
+    }
+
+    setCartId(cartId){
+        this.cart_id = cartId;
+        return this;
+    }
+
+    setCouponId(couponId){
+        this.coupon_id = couponId;
+        return this;
+    }
+}
+
 //Class representing e-commerce product filter
 class ECommerceProductFilter {
     constructor(){
@@ -503,15 +560,46 @@ class ECommerceCart {
     }
 }
 
-//Class representing e-commerce coupon
-class ECommerceCoupon {
+//Class representing e-commerce coupon with added coupon_name property
+class ECommerceExtendedCoupon extends ECommerceCoupon{
     constructor() {
-        this.cart_id = "";
-        this.order_id = "";
-        this.coupon_id = "";
+        super();
         this.coupon_name = "";
+    }
+
+    //Setter method in accordance to Builder pattern
+    setCouponName(name) {
+        this.coupon_name = name;
+        return this;
+    }
+}
+
+//Class representing e-commerce coupon for application or removal 
+class ECommerceAppliedOrRemovedCoupom extends ECommerceExtendedCoupon {
+    constructor(){
+        super();
         this.discount = 0;
+    }
+
+    //Setter method in accordance to Builder pattern
+    setDiscount(discount) {
+        this.discount = discount;
+        return this;
+    }
+
+}
+
+//Class representing denied e-commerce coupon
+class ECommerceDeniedCoupon extends ECommerceExtendedCoupon {
+    constructor(){
+        super();
         this.reason = "";
+    }
+
+    //Setter method in accordance to Builder pattern
+    setDiscount(discount){
+        this.discount = discount;
+        return this;
     }
 }
 //Class representing e-commerce wishlist
@@ -692,8 +780,20 @@ class OrderCompletedEvent extends OrderEvent {
 
 //Class representing order updated event
 class OrderUpdatedEvent extends OrderEvent {
-    this.event(){
+    event(){
         return ECommerceEvents.ORDER_UPDATED;
+    }
+}
+//Class representing order refunded event
+class OrderRefundedEvent extends OrderEvent {
+    event(){
+        return ECommerceEvents.ORDER_REFUNDED;
+    }
+}
+
+class OrderCancelledEvent extends OrderEvent {
+    event() {
+        return ECommerceEvents.ORDER_CANCELLED;
     }
 }
 
@@ -1046,7 +1146,7 @@ class ProductSearchedEvent {
     }
 }
 
-
+//Parent class for 
 //Rudder configration class
 var RudderConfig = (function () {
 
@@ -1153,7 +1253,7 @@ class EventRepository {
     
         var xhr = new XMLHttpRequest();
 
-        console.log(JSON.stringify(payload));
+        console.log(JSON.stringify(payload,replacer));
 
         xhr.open("POST", this.rudderConfig.getEndPointUri(), true);
         xhr.setRequestHeader("Content-Type", "application/json");
@@ -1164,7 +1264,7 @@ class EventRepository {
                 this.eventsBuffer = []; //reset event buffer
             } 
         };
-        xhr.send(JSON.stringify(payload));
+        xhr.send(JSON.stringify(payload, replacer));
 
     }
 
@@ -1847,21 +1947,64 @@ client.track(new RudderElementBuilder().
                 setPaymentMethod("Dummy Checkout Payment Method 3")).
                 build().getPropertyMap()).
                 build());    
-*/
+
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.ORDER_UPDATED).
                 setProperty(new OrderUpdatedEvent().
                 setOrder(new ECommerceOrder().setOrderId("Dummy Order 4").
-                setAffiliation("Dummy Affiliation 2");
+                setAffiliation("Dummy Affiliation 2").
                 addProduct(new ECommerceProduct().setName("Dummy Product 5")).
-                addProduct(new ECommerceProduct().setName("Dummy Product 6"))).
+                addProduct(new ECommerceProduct().setName("Dummy Product 6").setSku("Dummy SKU 3"))).
+                build().getPropertyMap()).
+                build());
+               
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.ORDER_COMPLETED).
+                setProperty(new OrderCompletedEvent().
+                setOrder(new ECommerceCompletedOrder().
+                setOrderId("Dummy Order 5").
+                setCheckoutId("Dummy Checkout Id 2").
+                setAffiliation("Dummy Affiliation 2").
+                addProduct(new ECommerceProduct().setName("Dummy Product 7")).
+                addProduct(new ECommerceProduct().setName("Dummy Product 8").setSku("Dummy SKU 4"))).
+                build().getPropertyMap()).
+                build());
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.ORDER_REFUNDED).
+                setProperty(new OrderRefundedEvent().
+                setOrder(new ECommerceOrder().setOrderId("Dummy Order 5").
+                setAffiliation("Dummy Affiliation 3").
+                setTotal(45.85).
+                setCurrency("USD").
+                addProduct(new ECommerceProduct().setName("Dummy Product 5")).
+                addProduct(new ECommerceProduct().setName("Dummy Product 6").setSku("Dummy SKU 3"))).
+                build().getPropertyMap()).
+                build());
+
+*/
+
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.ORDER_CANCELLED).
+                setProperty(new OrderRefundedEvent().
+                setOrder(new ECommerceOrder().
+                setOrderId("Dummy Order 9").
+                setAffiliation("Dummy Affiliation 4").
+                setTotal(30).
+                setRevenue(25.00).
+                setShipping(3).
+                setTax(2).
+                setDiscount(2.5).
+                setCoupon("hasbros").
+                setCurrency("USD").
+                addProduct(new ECommerceProduct().setName("Dummy Product 7")).
+                addProduct(new ECommerceProduct().setName("Dummy Product 8").setSku("Dummy SKU 4"))).
                 build().getPropertyMap()).
                 build());
 
 /*
-
-
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.ORDER_COMPLETED).
