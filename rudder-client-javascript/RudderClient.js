@@ -421,11 +421,22 @@ class ECommerceProductSort {
     }
 }
 
-
-//Class representing e-commerce product object
-class ECommerceProduct {
+//Parent class of e-commerce product
+class ECommerceProductBase {
     constructor(){
         this.product_id = "";
+    }
+    //Setter methods in accordance with Builder pattern
+    setProductId(productId){
+        this.product_id = productId;
+        return this;
+    }
+
+}
+//Class representing e-commerce product object
+class ECommerceProduct extends ECommerceProductBase{
+    constructor(){
+        super();
         this.sku = "";
         this.category = "";
         this.name = "";
@@ -441,11 +452,6 @@ class ECommerceProduct {
     }
 
     //Setter methods in accordance with Builder pattern
-    setProductId(productId){
-        this.product_id = productId;
-        return this;
-    }
-
     setSku(sku){
         this.sku = sku;
         return this;
@@ -1227,27 +1233,21 @@ class CouponDeniedEvent extends CouponEvent {
         return ECommerceEvents.COUPON_DENIED;
     }
 }
-
-//Class representing product share
-class ProductSharedEvent {
+//Parent class for all social media sharing events
+class ShareEvent {
     constructor(){
         this.share_via = "";
         this.share_message = "";
         this.recipient = "";
-        this.product = null;
     }
 
-    build(){
+    build() {
         var eventProperty = new RudderProperty();
-        eventProperty.setPropertyMap(this.product);
         eventProperty.setProperty(ECommerceParamNames.SHARE_VIA, this.share_via);
         eventProperty.setProperty(ECommerceParamNames.SHARE_MESSAGE, this.share_message);
         eventProperty.setProperty(ECommerceParamNames.RECIPIENT, this.recipient);
         return eventProperty;
-    }
-
-    event(){
-        return ECommerceEvents.PRODUCT_SHARED;
+        
     }
 
     //Setter methods in accordance to Builder pattern
@@ -1266,8 +1266,61 @@ class ProductSharedEvent {
         return this;
     }
 
+}
+
+//Class representing product share
+class ProductSharedEvent extends ShareEvent{
+    constructor(){
+        super();
+        this.product = null;
+    }
+
+    build(){
+        var eventProperty = super.build();
+        eventProperty.setPropertyMap(this.product);
+        return eventProperty;
+    }
+
+    event(){
+        return ECommerceEvents.PRODUCT_SHARED;
+    }
+
+    //Setter method in accordance to Builder pattern
     setProduct(product){
         this.product = product;
+        return this;
+    }
+}
+
+class CartSharedEvent extends ShareEvent {
+    constructor(){
+        super();
+        this.cart_id = "";
+        this.products = [];
+    }
+
+    event(){
+        return ECommerceEvents.CART_SHARED;
+    }
+
+    build(){
+        var eventProperty = super.build();
+        eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cart_id);
+        eventProperty.setProperty(ECommerceParamNames.PRODUCTS, this.products);
+        return eventProperty;
+    }
+
+    //Setter methods in accordance with Builder pattern
+    setCartId(cartId){
+        this.cart_id = cartId;
+        return this;
+    }
+
+    addProduct(product){
+        if(!this.products){ //add array if null
+            this.products = [];
+        }
+        this.products.push(product);
         return this;
     }
 }
@@ -2214,7 +2267,6 @@ client.track(new RudderElementBuilder().
                 setWishlistName("Dummy Wishlist 2")).
                 build().getPropertyMap()).
                 build());    
-*/
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_SHARED).
                 setProperty(new ProductSharedEvent().
@@ -2227,6 +2279,19 @@ client.track(new RudderElementBuilder().
                 setSku("Dummy Product SKU 212").
                 setVariant("Dummy Product Variant 276").
                 setCoupon("Dummy Product Coupon 23")).
+                build().getPropertyMap()).
+                build());    
+*/
+client.track(new RudderElementBuilder().
+                setEvent(ECommerceEvents.CART_SHARED).
+                setProperty(new CartSharedEvent().
+                setShareVia("Dummy Share Via 2").
+                setShareMessage("Dummy Message 2").
+                setRecipient("Dummy Recipient 2").
+                addProduct(new ECommerceProductBase().
+                setProductId("Dummy Product Id 255")).
+                addProduct(new ECommerceProductBase().
+                setProductId("Dummy Product Id 522")).                
                 build().getPropertyMap()).
                 build());    
 
