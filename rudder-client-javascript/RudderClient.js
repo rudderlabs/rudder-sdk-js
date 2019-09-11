@@ -1562,19 +1562,19 @@ class RudderMessage {
         }
         //Next make specific checks for e-commerce events
         if (this.rl_event in Object.values(ECommerceEvents)) {
-          switch (rl_event) {
+          switch (this.rl_event) {
             case ECommerceEvents.CHECKOUT_STEP_VIEWED:
             case ECommerceEvents.CHECKOUT_STEP_COMPLETED:
             case ECommerceEvents.PAYMENT_INFO_ENTERED:
-              checkForKey("checkout_id");
-              checkForKey("step");
+              this.checkForKey("checkout_id");
+              this.checkForKey("step");
               break;
             case ECommerceEvents.PROMOTION_VIEWED:
             case ECommerceEvents.PROMOTION_CLICKED:
-              checkForKey("promotion_id");
+              this.checkForKey("promotion_id");
               break;
             case ECommerceEvents.ORDER_REFUNDED:
-              checkForKey("order_id");
+              this.checkForKey("order_id");
               break;
             default:
           }
@@ -1696,7 +1696,7 @@ class RudderTraits {
   }
 
   setCreatedAt(createAt) {
-    this.rl_createdat = createdAt;
+    this.rl_createdat = createAt;
     return this;
   }
 
