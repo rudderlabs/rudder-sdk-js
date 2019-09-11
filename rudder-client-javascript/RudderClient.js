@@ -1324,6 +1324,47 @@ class CartSharedEvent extends ShareEvent {
         return this;
     }
 }
+
+//Class representing Product Reviewed event
+class ProductReviewedEvent {
+    constructor(){
+        this.product_id = "";
+        this.review_id = "";
+        this.review_body = "";
+        this.rating = "";
+    }
+
+    event(){
+        return ECommerceEvents.PRODUCT_REVIEWED;
+    }
+
+    build(){
+        var eventProperty = new RudderProperty();
+        eventProperty.setPropertyMap(this);
+        return eventProperty;
+    }
+
+    //Setter methods in accordance with Builder pattern
+    setProductId(productId){
+        this.product_id = productId;
+        return this;
+    }
+
+    setReviewId(reviewId){
+        this.review_id = reviewId;
+        return this;
+    }
+
+    setReviewBody(reviewBody){
+        this.review_body = reviewBody;
+        return this;
+    }
+
+    setRating(rating){
+        this.rating = rating;
+        return this;
+    }
+}
 //Rudder configration class
 var RudderConfig = (function () {
 
@@ -1953,11 +1994,12 @@ var RudderClient = (function () {
 
 
 
-//Test code 
+//Sample Usage
+/*
 var client 
 = RudderClient.getInstance("dummykey", RudderConfig.getDefaultConfig().setFlushQueueSize(1));
 
-/*
+
 var props = new RudderProperty();
 props.setProperty("title","How to create a tracking plan");
 props.setProperty("course", "Intro to Analytics");
@@ -2281,34 +2323,30 @@ client.track(new RudderElementBuilder().
                 setCoupon("Dummy Product Coupon 23")).
                 build().getPropertyMap()).
                 build());    
-*/
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.CART_SHARED).
                 setProperty(new CartSharedEvent().
                 setShareVia("Dummy Share Via 2").
                 setShareMessage("Dummy Message 2").
                 setRecipient("Dummy Recipient 2").
+                setCartId("Dummy Shared Cart Id 1").
                 addProduct(new ECommerceProductBase().
                 setProductId("Dummy Product Id 255")).
                 addProduct(new ECommerceProductBase().
                 setProductId("Dummy Product Id 522")).                
                 build().getPropertyMap()).
                 build());    
-
-/*
 client.track(new RudderElementBuilder().
-                setEvent(ECommerceEvents.ORDER_COMPLETED).
-                setProperty(new CheckoutStartedEvent().
-                setOrder(new ECommerceOrder().setOrderId("Dummy Order 4").
-                addProduct(new ECommerceProduct().setName("Dummy Product 4")).
-                addProduct(new ECommerceProduct().setName("Dummy Product 5"))).
+                setEvent(ECommerceEvents.PRODUCT_REVIEWED).
+                setProperty(new ProductReviewedEvent().
+                setProductId("Dummy Review Propduct Id 67").
+                setReviewId("Dummy Review ID 1").
+                setReviewBody("Dummy Review Body 1").
+                setRating("Excellent").                
                 build().getPropertyMap()).
-                build());
-                
-
-
-
+                build());    
 */
+
 
 
 
