@@ -52,15 +52,15 @@ function getJSON(url, callback) {
   //Add query param which would be token
 
   var xhr = new XMLHttpRequest();
-  xhr.open("get", url, true);
-  xhr.responseType = "json";
+  xhr.open("GET", url, true);
   xhr.onload = function() {
     var status = xhr.status;
     if (status == 200) {
-      callback(null, xhr.response);
+      callback(null, xhr.responseText);
     } else {
       callback(status);
     }
+
   };
   xhr.send();
 }
@@ -136,6 +136,7 @@ var RudderIntegrationPlatform = {
 };
 
 const BASE_URL = "https://rudderlabs.com";
+const CONFIG_URL = "https://api.rudderlabs.com";
 
 const FLUSH_QUEUE_SIZE = 30;
 
@@ -1383,18 +1384,21 @@ class EventRepository {
     this.write_key = writeKey;
     this.rudderConfig = rudderConfig;
 
-    /*
-        //Not implementing right now since for JavaScript we're not using 
-        //native SDKs
-        getJSON(BASE_URL, function(err, data){
-            if(err){
-                throw new Error("unable to download configurations from server");
-            } else {
-                //parse the json response and populate the configuration JSON                
-                //TO-DO
-            }
-        });
-        */
+    getJSON(CONFIG_URL+"/source-config?write_key="+writeKey, function(err, data){
+        if(err){
+            throw new Error("unable to download configurations from server");
+        } else {
+            //parse the json response and populate the configuration JSON                
+            var configJson = JSON.parse(data);
+            //iterate through all destinations to find which providers require
+            //native SDK enablement
+            configJson.source.destinations.forEach(function(destination, index){
+              console.log("Destination " + index 
+                        + " Enabled? " + destination.enabled
+                        + " Type: " + destination.destinationDefinition.name);
+            });  
+        }
+    });
   }
 
   flush(rudderElement) {
@@ -1904,11 +1908,11 @@ var RudderClient = (function() {
 })();
 
 //Sample Usage
-/*
+
 var client 
-= RudderClient.getInstance("dummykey", RudderConfig.getDefaultConfig().setFlushQueueSize(1));
+= RudderClient.getInstance("1QbNPCBQp2RFWolFj2ZhXi2ER6a", RudderConfig.getDefaultConfig().setFlushQueueSize(1));
 
-
+/*
 var props = new RudderProperty();
 props.setProperty("title","How to create a tracking plan");
 props.setProperty("course", "Intro to Analytics");
