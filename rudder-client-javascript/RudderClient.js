@@ -1395,7 +1395,8 @@ class EventRepository {
             configJson.source.destinations.forEach(function(destination, index){
               console.log("Destination " + index 
                         + " Enabled? " + destination.enabled
-                        + " Type: " + destination.destinationDefinition.name);
+                        + " Type: " + destination.destinationDefinition.name
+                        + " Use Native SDK? " + destination.config.useNativeSDK);
             });  
         }
     });
