@@ -23,7 +23,7 @@ function generateUUID() {
   ) {
     d += performance.now(); //use high-precision timer if available
   }
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     var r = (d + Math.random() * 16) % 16 | 0;
     d = Math.floor(d / 16);
     return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
@@ -43,26 +43,31 @@ function getCurrentTimeFormatted() {
 }
 
 //Utility function to retrieve configuration JSON from server
-function getJSON(url, callback) {
+function getJSON(url, wrappers, isLoaded, callback) {
+  var xhr = null;
+
   if (typeof window === "undefined") {
     //server-side integration, XHR is node module
-    var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+    var xmlHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+    xhr = new xmlHttpRequest();
+  } else {
+    xhr = new XMLHttpRequest();
   }
-
-  //Add query param which would be token
-
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", url, true);
-  xhr.onload = function() {
+  xhr.open("GET", url, false);
+  xhr.onload = function () {
     var status = xhr.status;
     if (status == 200) {
-      callback(null, xhr.responseText);
+      console.log('status 200')
+      callback(null, xhr.responseText, wrappers, isLoaded);
     } else {
       callback(status);
     }
+    console.log('in onload')
 
   };
+  console.log('before send')
   xhr.send();
+  console.log('after send');
 }
 
 //Message Type enumeration
@@ -1323,7 +1328,7 @@ class ProductReviewedEvent {
   }
 }
 //Rudder configration class
-var RudderConfig = (function() {
+var RudderConfig = (function () {
   var instance;
 
   function init() {
@@ -1334,33 +1339,33 @@ var RudderConfig = (function() {
 
     //Public methods
     return {
-      getDefaultIntegrations: function() {
+      getDefaultIntegrations: function () {
         return [];
       },
 
-      getEndPointUri: function() {
+      getEndPointUri: function () {
         return endPointUri;
       },
 
-      getFlushQueueSize: function() {
+      getFlushQueueSize: function () {
         return this.flushQueueSize;
       },
 
-      getIntegrations: function() {
+      getIntegrations: function () {
         return this.integrations;
       },
 
-      setIntegrations: function(integrations) {
+      setIntegrations: function (integrations) {
         this.integrations = integrations;
         return this;
       },
 
-      setFlushQueueSize: function(flushQueueSize) {
+      setFlushQueueSize: function (flushQueueSize) {
         this.flushQueueSize = flushQueueSize;
         return this;
       },
 
-      setEndPointUri: function(endPointUri) {
+      setEndPointUri: function (endPointUri) {
         this.endPointUri = endPointUri;
         return this;
       }
@@ -1368,7 +1373,7 @@ var RudderConfig = (function() {
   }
 
   return {
-    getDefaultConfig: function() {
+    getDefaultConfig: function () {
       if (!instance) {
         instance = init();
       }
@@ -1377,30 +1382,76 @@ var RudderConfig = (function() {
   };
 })();
 
+class AnalyticsManager {
+
+  initializeHubSpot(hubId, wrappers) {
+    if (typeof window !== undefined) {
+      $.ajax({
+        async: false,
+        url: "/integration/HubSpot.js",
+        dataType: "script"
+      });
+    var _hub = new HubspotAnalyticsManager(hubId).init();
+    if(_hub){
+      console.log("===_hub===", _hub)
+      wrappers.push(_hub)
+      console.log('Hubspot loaded!')
+    }
+      console.log("Script loaded in sync");
+    }
+  }
+}
+
 //Event Repository
 class EventRepository {
-  constructor(writeKey, rudderConfig) {
+  constructor(writeKey, rudderConfig, wrappers) {
     this.eventsBuffer = [];
     this.write_key = writeKey;
     this.rudderConfig = rudderConfig;
+    this.enabledNativeSDK = [];
+    console.log(wrappers);
+    this.isLoaded = false;
+    var analyticsManager = new AnalyticsManager();
+    console.log("before getjson");
+    getJSON(CONFIG_URL + "/source-config?write_key=" + writeKey, wrappers, this.isLoaded, function (err, data, wrapperList, isLoaded) {
+      console.log('in callback')
+      if (err) {
+        throw new Error("unable to download configurations from server");
+      } else {
+        //parse the json response and populate the configuration JSON                
+        var configJson = JSON.parse(data);
+        var enabledNativeSDK = []
+        //iterate through all destinations to find which providers require
+        //native SDK enablement
+        configJson.source.destinations.forEach(function (destination, index) {
+          console.log("Destination " + index
+            + " Enabled? " + destination.enabled
+            + " Type: " + destination.destinationDefinition.name
+            + " Use Native SDK? " + destination.config.useNativeSDK);
+          if (destination.enabled && destination.config.useNativeSDK) {
+            //enabledNativeSDK.push(destination.destinationDefinition.name)
+            switch (destination.destinationDefinition.name) {
+              case 'HS':
+                var hubId = destination.config.hubId
+                hubId = "6405167"
+                console.log("=== start init====")
+                analyticsManager.initializeHubSpot(hubId, wrappers);
 
-    getJSON(CONFIG_URL+"/source-config?write_key="+writeKey, function(err, data){
-        if(err){
-            throw new Error("unable to download configurations from server");
-        } else {
-            //parse the json response and populate the configuration JSON                
-            var configJson = JSON.parse(data);
-            //iterate through all destinations to find which providers require
-            //native SDK enablement
-            configJson.source.destinations.forEach(function(destination, index){
-              console.log("Destination " + index 
-                        + " Enabled? " + destination.enabled
-                        + " Type: " + destination.destinationDefinition.name
-                        + " Use Native SDK? " + destination.config.useNativeSDK);
-            });  
-        }
+                console.log("=== end init====")
+                //wrapperList.push(new HubspotAnalyticsManager("6405167"));
+                break;
+              case 'AF':
+                break;
+              default:
+            }
+          }
+        });
+        isLoaded = true;
+      }
     });
+    console.log("after getjson");
   }
+
 
   flush(rudderElement) {
     //For Javascript SDK, event will be transmitted immediately
@@ -1415,25 +1466,28 @@ class EventRepository {
     payload.write_key = this.write_key;
     payload.sent_at = getCurrentTimeFormatted();
 
+    var xhr = null;
+
     if (typeof window === "undefined") {
       //server-side integration, XHR is node module
-      var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+      var xmlHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+      xhr = new xmlHttpRequest();
+    } else {
+      xhr = new XMLHttpRequest();
     }
-
-    var xhr = new XMLHttpRequest();
 
     console.log(JSON.stringify(payload, replacer));
 
-    xhr.open("POST", this.rudderConfig.getEndPointUri(), true);
+    xhr.open("POST", this.rudderConfig.getEndPointUri(), false);
     xhr.setRequestHeader("Content-Type", "application/json");
 
     //register call back to reset event buffer on successfull POST
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
         this.eventsBuffer = []; //reset event buffer
       }
     };
-    xhr.send(JSON.stringify(payload, replacer));
+    //xhr.send(JSON.stringify(payload, replacer));
   }
 }
 
@@ -1460,6 +1514,10 @@ class RudderElement {
     this.rl_message.rl_properties = rudderProperty;
   }
 
+  setUserProperty(rudderUserProperty) {
+    this.rl_message.rl_user_properties = rudderUserProperty;
+  }
+
   setUserId(userId) {
     this.rl_message.rl_user_id = userId;
   }
@@ -1478,6 +1536,7 @@ class RudderElement {
 class RudderElementBuilder {
   constructor() {
     this.rudderProperty = null;
+    this.rudderUserProperty = null;
     this.event = null;
     this.userId = null;
     this.channel = null;
@@ -1492,6 +1551,16 @@ class RudderElementBuilder {
   //Build and set the property object
   setPropertyBuilder(rudderPropertyBuilder) {
     this.rudderProperty = rudderPropertyBuilder.build();
+    return this;
+  }
+
+  setUserProperty(inputRudderUserProperty) {
+    this.rudderUserProperty = inputRudderUserProperty;
+    return this;
+  }
+
+  setUserPropertyBuilder(rudderUserPropertyBuilder) {
+    this.rudderUserProperty = rudderUserPropertyBuilder.build();
     return this;
   }
 
@@ -1518,6 +1587,7 @@ class RudderElementBuilder {
     element.setUserId(this.userId);
     element.setEventName(this.event);
     element.setProperty(this.rudderProperty);
+    element.setUserProperty(this.rudderUserProperty);
     return element;
   }
 }
@@ -1814,7 +1884,7 @@ class RudderNetwork {
 }
 
 //Singleton implementation of the core SDK client class
-var RudderClient = (function() {
+var RudderClient = (function () {
   //Instance stores a reference to the Singleton
   var instance;
 
@@ -1824,6 +1894,8 @@ var RudderClient = (function() {
 
   //Event repository
   var eventRepository;
+
+  var wrappers = [];
 
   //Track function
   //TO-DO: Add code for target-provided SDK integrations when implemented
@@ -1840,6 +1912,10 @@ var RudderClient = (function() {
           rudderElement.rl_message.rl_event;
       }
       eventRepository.flush(rudderElement);
+      console.log(wrappers);
+      wrappers.forEach(analyticsManager => {
+        analyticsManager.track(rudderElement);
+      });
     }
   }
 
@@ -1852,6 +1928,10 @@ var RudderClient = (function() {
       //validated, now set event type and add to flush queue
       rudderElement.rl_message.rl_type = MessageType.PAGE;
       eventRepository.flush(rudderElement);
+      console.log(wrappers);
+      wrappers.forEach(analyticsManager => {
+        analyticsManager.page(rudderElement);
+      });
     }
   }
 
@@ -1867,6 +1947,10 @@ var RudderClient = (function() {
     rudderElement.updateTraits(rudderTraits);
     rudderElement.setType(MessageType.IDENTIFY);
     eventRepository.flush(rudderElement);
+    console.log(wrappers);
+    wrappers.forEach(analyticsManager => {
+      analyticsManager.identify(rudderElement);
+    });
   }
 
   function init() {
@@ -1882,7 +1966,7 @@ var RudderClient = (function() {
   return {
     // Get the Singleton instance if one exists
     // or create one if it doesn't
-    getInstance: function(writeKey, rudderConfig) {
+    getInstance: function (writeKey, rudderConfig) {
       if (!instance) {
         //Check that valid input object instances have been provided for creating
         //RudderClient instance
@@ -1894,15 +1978,18 @@ var RudderClient = (function() {
         if (!rudderConfig) {
           throw new Error("rudderConfig cannot be null");
         }
-
         instance = init();
-
         //Initialize
-        eventRepository = new EventRepository(writeKey, rudderConfig);
+        eventRepository = new EventRepository(writeKey, rudderConfig, wrappers);
+
+
 
         this.rudderConfig = rudderConfig;
-      }
+        return instance;
 
+
+
+      }
       return instance;
     }
   };
@@ -1910,8 +1997,13 @@ var RudderClient = (function() {
 
 //Sample Usage
 
-var client 
-= RudderClient.getInstance("1QbNPCBQp2RFWolFj2ZhXi2ER6a", RudderConfig.getDefaultConfig().setFlushQueueSize(1));
+/* var client
+  = RudderClient.getInstance("1QbNPCBQp2RFWolFj2ZhXi2ER6a", RudderConfig.getDefaultConfig().setFlushQueueSize(1));
+
+client.identify((new RudderTraits()).
+  setName("Mini").
+  setEmail("minimouse@rudderlabs.com").
+  setId(generateUUID())); */
 
 /*
 var props = new RudderProperty();
@@ -1928,8 +2020,8 @@ client.track(new RudderElementBuilder().
 client.identify((new RudderTraits()).
                     setName("dipanjan").
                     setEmail("dipanjan@rudderlabs.com").
-                    setId(generateUUID));      
-                    
+                    setId(generateUUID));
+
 client.page(new RudderElementBuilder().
              setProperty(new PagePropertyBuilder().
                 setTitle("Blog Page").
@@ -1947,7 +2039,7 @@ client.track(new RudderElementBuilder().
                 setProperty(new ProductSearchedEvent().
                 setQuery("Dummy Query 1").
                 build().getPropertyMap()).
-                build());    
+                build());
 
 
 client.track(new RudderElementBuilder().
@@ -1958,7 +2050,7 @@ client.track(new RudderElementBuilder().
                 setListId("Dummy List 1").
                 setCategory("Dummy Product Category 1").
                 build().getPropertyMap()).
-                build());    
+                build());
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_LIST_FILTERED).
@@ -1971,7 +2063,7 @@ client.track(new RudderElementBuilder().
                 addSort(new ECommerceProductSort().setType("Dummy Sort 2")).
                 setListId("Dummy List 3").
                 build().getPropertyMap()).
-                build());  
+                build());
 
 
 client.track(new RudderElementBuilder().
@@ -1981,7 +2073,7 @@ client.track(new RudderElementBuilder().
                 setPromotionId("Dummy Promotion 1").
                 setCreative("Dummy Creative 1")).
                 build().getPropertyMap()).
-                build());    
+                build());
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PROMOTION_CLICKED).
@@ -1991,7 +2083,7 @@ client.track(new RudderElementBuilder().
                 setCreative("Dummy Creative 2").
                 setName("Dummy Promotion Name 2")).
                 build().getPropertyMap()).
-                build());    
+                build());
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_VIEWED).
@@ -2000,7 +2092,7 @@ client.track(new RudderElementBuilder().
                 setProductId("Dummy Product ID 0A").
                 setSku("Dummy SKU 0A")).
                 build().getPropertyMap()).
-                build());    
+                build());
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_CLICKED).
@@ -2011,7 +2103,7 @@ client.track(new RudderElementBuilder().
                 setCurrency("USD").
                 setSku("Dummy SKU 0B")).
                 build().getPropertyMap()).
-                build());    
+                build());
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_ADDED).
@@ -2019,7 +2111,7 @@ client.track(new RudderElementBuilder().
                 setProduct(new ECommerceProduct().setName("Dummy Product 1A")).
                 setCartId("Dummy Cart 1A").
                 build().getPropertyMap()).
-                build());    
+                build());
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_REMOVED).
@@ -2027,7 +2119,7 @@ client.track(new RudderElementBuilder().
                 setProduct(new ECommerceProduct().setName("Dummy Product 1B")).
                 setCartId("Dummy Cart 1B").
                 build().getPropertyMap()).
-                build());    
+                build());
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.CART_VIEWED).
@@ -2036,7 +2128,7 @@ client.track(new RudderElementBuilder().
                 addProduct(new ECommerceProduct().setName("Dummy Product 2")).
                 setCartId("Dummy Cart 1").
                 build().getPropertyMap()).
-                build());    
+                build());
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.CHECKOUT_STARTED).
@@ -2046,7 +2138,7 @@ client.track(new RudderElementBuilder().
                 addProduct(new ECommerceProduct().setName("Dummy Product 2"))).
                 build().getPropertyMap()).
                 build());
-               
+
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.CHECKOUT_STEP_VIEWED).
@@ -2057,7 +2149,7 @@ client.track(new RudderElementBuilder().
                 setShippingMethod("Dummy Checkout Shipping Method 1").
                 setPaymentMethod("Dummy Checkout Payment Method 1")).
                 build().getPropertyMap()).
-                build());    
+                build());
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.CHECKOUT_STEP_COMPLETED).
@@ -2068,7 +2160,7 @@ client.track(new RudderElementBuilder().
                 setShippingMethod("Dummy Checkout Shipping Method 2").
                 setPaymentMethod("Dummy Checkout Payment Method 2")).
                 build().getPropertyMap()).
-                build());    
+                build());
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PAYMENT_INFO_ENTERED).
@@ -2079,7 +2171,7 @@ client.track(new RudderElementBuilder().
                 setShippingMethod("Dummy Checkout Shipping Method 3").
                 setPaymentMethod("Dummy Checkout Payment Method 3")).
                 build().getPropertyMap()).
-                build());    
+                build());
 
 
 client.track(new RudderElementBuilder().
@@ -2091,7 +2183,7 @@ client.track(new RudderElementBuilder().
                 addProduct(new ECommerceProduct().setName("Dummy Product 6").setSku("Dummy SKU 3"))).
                 build().getPropertyMap()).
                 build());
-               
+
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.ORDER_COMPLETED).
@@ -2192,7 +2284,7 @@ client.track(new RudderElementBuilder().
                 setWishlist(new ECommerceWishList().setWishlistId("Dummy Wishlist 1").
                 setWishlistName("Dummy Wishlist 1")).
                 build().getPropertyMap()).
-                build());    
+                build());
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_REMOVED_FROM_WISHLIST).
@@ -2206,7 +2298,7 @@ client.track(new RudderElementBuilder().
                 setWishlist(new ECommerceWishList().setWishlistId("Dummy Wishlist 2").
                 setWishlistName("Dummy Wishlist 2")).
                 build().getPropertyMap()).
-                build());    
+                build());
 
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.WISH_LIST_PRODUCT_ADDED_TO_CART).
@@ -2222,7 +2314,7 @@ client.track(new RudderElementBuilder().
                 .setWishlistId("Dummy Wishlist 2").
                 setWishlistName("Dummy Wishlist 2")).
                 build().getPropertyMap()).
-                build());    
+                build());
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_SHARED).
                 setProperty(new ProductSharedEvent().
@@ -2236,7 +2328,7 @@ client.track(new RudderElementBuilder().
                 setVariant("Dummy Product Variant 276").
                 setCoupon("Dummy Product Coupon 23")).
                 build().getPropertyMap()).
-                build());    
+                build());
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.CART_SHARED).
                 setProperty(new CartSharedEvent().
@@ -2247,16 +2339,16 @@ client.track(new RudderElementBuilder().
                 addProduct(new ECommerceProductBase().
                 setProductId("Dummy Product Id 255")).
                 addProduct(new ECommerceProductBase().
-                setProductId("Dummy Product Id 522")).                
+                setProductId("Dummy Product Id 522")).
                 build().getPropertyMap()).
-                build());    
+                build());
 client.track(new RudderElementBuilder().
                 setEvent(ECommerceEvents.PRODUCT_REVIEWED).
                 setProperty(new ProductReviewedEvent().
                 setProductId("Dummy Review Propduct Id 67").
                 setReviewId("Dummy Review ID 1").
                 setReviewBody("Dummy Review Body 1").
-                setRating("Excellent").                
+                setRating("Excellent").
                 build().getPropertyMap()).
-                build());    
+                build());
 */
