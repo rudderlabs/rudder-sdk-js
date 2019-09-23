@@ -44,15 +44,11 @@ function getCurrentTimeFormatted() {
 
 //Utility function to retrieve configuration JSON from server
 function getJSON(url, wrappers, isLoaded, callback) {
-  var xhr = null;
 
-  if (typeof window === "undefined") {
+  
     //server-side integration, XHR is node module
-    var xmlHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-    xhr = new xmlHttpRequest();
-  } else {
-    xhr = new XMLHttpRequest();
-  }
+    
+  var xhr = new XMLHttpRequest();
   xhr.open("GET", url, false);
   xhr.onload = function () {
     var status = xhr.status;
@@ -1386,12 +1382,14 @@ class AnalyticsManager {
 
   initializeHubSpot(hubId, wrappers) {
     if (typeof window !== undefined) {
-      $.ajax({
+      /* $.ajax({
         async: false,
         url: "/integration/HubSpot.js",
         dataType: "script"
-      });
-    var _hub = new HubspotAnalyticsManager(hubId).init();
+      }); */
+    //var _hub = new HubspotAnalyticsManager(hubId).init();
+    var HubspotAnalyticsManager = require("./integration/Hubspot.js");
+    var _hub = new HubspotAnalyticsManager();
     if(_hub){
       console.log("===_hub===", _hub)
       wrappers.push(_hub)
@@ -1465,16 +1463,10 @@ class EventRepository {
     payload.batch = this.eventsBuffer;
     payload.write_key = this.write_key;
     payload.sent_at = getCurrentTimeFormatted();
-
-    var xhr = null;
-
-    if (typeof window === "undefined") {
       //server-side integration, XHR is node module
-      var xmlHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-      xhr = new xmlHttpRequest();
-    } else {
-      xhr = new XMLHttpRequest();
-    }
+      
+    var  xhr = new XMLHttpRequest();
+  
 
     console.log(JSON.stringify(payload, replacer));
 
@@ -1994,6 +1986,9 @@ var RudderClient = (function () {
     }
   };
 })();
+
+window.RudderClient = RudderClient; 
+window.RudderConfig = RudderConfig;
 
 //Sample Usage
 
