@@ -5,1326 +5,25 @@
 //  <author>Rudder Labs</author>
 //  -----------------------------------------------------------------------
 
-//Utility method for excluding null and empty values in JSON
-function replacer(key, value) {
-  if (!value || value == "") {
-    return undefined;
-  } else {
-    return value;
-  }
-}
-//Utility function for UUID genration
-function generateUUID() {
-  // Public Domain/MIT
-  var d = new Date().getTime();
-  if (
-    typeof performance !== "undefined" &&
-    typeof performance.now === "function"
-  ) {
-    d += performance.now(); //use high-precision timer if available
-  }
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    var r = (d + Math.random() * 16) % 16 | 0;
-    d = Math.floor(d / 16);
-    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
-  });
-}
+"use strict";
+
+var MessageType = require("./utils.constants.js").MessageType;
+var ECommerceParamNames = require("./utils.constants.js").ECommerceParamNames;
+var ECommerceEvents = require("./utils.constants.js").ECommerceEvents;
+var RudderIntegrationPlatform = require("./utils.constants.js")
+  .RudderIntegrationPlatform;
+var BASE_URL = require("./utils.constants.js").BASE_URL;
+var CONFIG_URL = require("./utils.constants.js").CONFIG_URL;
+var FLUSH_QUEUE_SIZE = require("./utils.constants.js").FLUSH_QUEUE_SIZE;
+
+var replacer = require("./utils.utils.js").replacer;
+var generateUUID = require("./utils.utils.js").generateUUID;
+var getCurrentTimeFormatted = require("./utils.utils.js")
+  .getCurrentTimeFormatted;
+var getJSON = require("./utils.utils.js").getJSON;
 
-//Utility function to get current time (formatted) for including in sent_at field
-function getCurrentTimeFormatted() {
-  var curDateTime = new Date().toISOString();
-  var curDate = curDateTime.split("T")[0];
-  var curTimeExceptMillis = curDateTime
-    .split("T")[1]
-    .split("Z")[0]
-    .split(".")[0];
-  var curTimeMillis = curDateTime.split("Z")[0].split(".")[1];
-  return curDate + " " + curTimeExceptMillis + "+" + curTimeMillis;
-}
-
-//Utility function to retrieve configuration JSON from server
-function getJSON(url, wrappers, isLoaded, callback) {
-
-  
-    //server-side integration, XHR is node module
-    
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", url, false);
-  xhr.onload = function () {
-    var status = xhr.status;
-    if (status == 200) {
-      console.log('status 200')
-      callback(null, xhr.responseText, wrappers, isLoaded);
-    } else {
-      callback(status);
-    }
-    console.log('in onload')
-
-  };
-  console.log('before send')
-  xhr.send();
-  console.log('after send');
-}
-
-//Message Type enumeration
-var MessageType = {
-  TRACK: "track",
-  PAGE: "page",
-  //SCREEN: "screen",
-  IDENTIFY: "identify"
-};
-
-//ECommerce Parameter Names Enumeration
-var ECommerceParamNames = {
-  QUERY: "query",
-  PRICE: "price",
-  PRODUCT_ID: "product_id",
-  CATEGORY: "category",
-  CURRENCY: "currency",
-  LIST_ID: "list_id",
-  PRODUCTS: "products",
-  WISHLIST_ID: "wishlist_id",
-  WISHLIST_NAME: "wishlist_name",
-  QUANTITY: "quantity",
-  CART_ID: "cart_id",
-  CHECKOUT_ID: "checkout_id",
-  TOTAL: "total",
-  REVENUE: "revenue",
-  ORDER_ID: "order_id",
-  FILTERS: "filters",
-  SORTS: "sorts",
-  SHARE_VIA: "share_via",
-  SHARE_MESSAGE: "share_message",
-  RECIPIENT: "recipient"
-};
-//ECommerce Events Enumeration
-var ECommerceEvents = {
-  PRODUCTS_SEARCHED: "Products Searched",
-  PRODUCT_LIST_VIEWED: "Product List Viewed",
-  PRODUCT_LIST_FILTERED: "Product List Filtered",
-  PROMOTION_VIEWED: "Promotion Viewed",
-  PROMOTION_CLICKED: "Promotion Clicked",
-  PRODUCT_CLICKED: "Product Clicked",
-  PRODUCT_VIEWED: "Product Viewed",
-  PRODUCT_ADDED: "Product Added",
-  PRODUCT_REMOVED: "Product Removed",
-  CART_VIEWED: "Cart Viewed",
-  CHECKOUT_STARTED: "Checkout Started",
-  CHECKOUT_STEP_VIEWED: "Checkout Step Viewed",
-  CHECKOUT_STEP_COMPLETED: "Checkout Step Completed",
-  PAYMENT_INFO_ENTERED: "Payment Info Entered",
-  ORDER_UPDATED: "Order Updated",
-  ORDER_COMPLETED: "Order Completed",
-  ORDER_REFUNDED: "Order Refunded",
-  ORDER_CANCELLED: "Order Cancelled",
-  COUPON_ENTERED: "Coupon Entered",
-  COUPON_APPLIED: "Coupon Applied",
-  COUPON_DENIED: "Coupon Denied",
-  COUPON_REMOVED: "Coupon Removed",
-  PRODUCT_ADDED_TO_WISHLIST: "Product Added to Wishlist",
-  PRODUCT_REMOVED_FROM_WISHLIST: "Product Removed from Wishlist",
-  WISH_LIST_PRODUCT_ADDED_TO_CART: "Wishlist Product Added to Cart",
-  PRODUCT_SHARED: "Product Shared",
-  CART_SHARED: "Cart Shared",
-  PRODUCT_REVIEWED: "Product Reviewed"
-};
-
-//Enumeration for integrations supported
-var RudderIntegrationPlatform = {
-  RUDDERLABS: "rudderlabs",
-  GA: "ga",
-  AMPLITUDE: "amplitude"
-};
-
-const BASE_URL = "https://rudderlabs.com";
-const CONFIG_URL = "https://api.rudderlabs.com";
-
-const FLUSH_QUEUE_SIZE = 30;
-
-//Generic class to model various properties collection to be provided for messages
-class RudderProperty {
-  constructor() {
-    this.propertyMap = {};
-  }
-
-  getPropertyMap() {
-    return this.propertyMap;
-  }
-
-  getProperty(key) {
-    return this.propertyMap[key];
-  }
-
-  setProperty(key, value) {
-    this.propertyMap[key] = value;
-  }
-
-  setPropertyMap(inputPropertyMap) {
-    if (!this.propertyMap) {
-      this.propertyMap = inputPropertyMap;
-    } else {
-      Object.keys(inputPropertyMap).forEach(key => {
-        this.propertyMap[key] = inputPropertyMap[key];
-      });
-    }
-  }
-}
-
-//Class for building the "page" message payload
-class PagePropertyBuilder {
-  constructor() {
-    this.title = "";
-    this.url = "";
-    this.path = "";
-    this.referrer = "";
-    this.search = "";
-    this.keywords = "";
-  }
-  //Build the core constituents of the payload
-  build() {
-    if (!this.url || 0 === this.url.length) {
-      throw new Error("Page url cannot be null or empty");
-    }
-    var pageProperty = new RudderProperty();
-    pageProperty.setProperty("title", this.title);
-    pageProperty.setProperty("url", this.url);
-    pageProperty.setProperty("path", this.path);
-    pageProperty.setProperty("referrer", this.referrer);
-    pageProperty.setProperty("search", this.search);
-    pageProperty.setProperty("keywords", this.keywords);
-    return pageProperty;
-  }
-
-  //Setter methods to align with Builder pattern
-
-  setTitle(title) {
-    this.title = title;
-    return this;
-  }
-
-  setUrl(url) {
-    this.url = url;
-    return this;
-  }
-
-  setPath(path) {
-    this.path = path;
-    return this;
-  }
-
-  setReferrer(referrer) {
-    this.referrer = referrer;
-    return this;
-  }
-
-  setSearch(search) {
-    this.search = search;
-    return search;
-  }
-
-  setKeywords(keywords) {
-    this.keywords = keywords;
-    return this;
-  }
-}
-
-//Class for building the "screen" message payload
-class ScreenPropertyBuilder {
-  constructor() {
-    this.name = "";
-  }
-
-  build() {
-    if (!this.name || 0 === this.name) {
-      throw new Error("Screen name cannot be null or empty");
-    }
-
-    var screenProperty = new RudderProperty();
-    screenProperty.setProperty("name", this.name);
-    return screenProperty;
-  }
-}
-
-//Class representing e-commerce order object
-class ECommerceOrder {
-  constructor() {
-    this.order_id = "";
-    this.affiliation = "";
-    this.total = 0;
-    this.value = 0;
-    this.revenue = 0;
-    this.shipping = 0;
-    this.tax = 0;
-    this.discount = 0;
-    this.coupon = "";
-    this.currency = "";
-    this.products = [];
-  }
-
-  //Generic setter methods to enable builder pattern
-  setOrderId(orderId) {
-    this.order_id = orderId;
-    return this;
-  }
-
-  setAffiliation(affiliation) {
-    this.affiliation = affiliation;
-    return this;
-  }
-
-  //Total and Value are set to same amount as they've been used interachangeably
-  setTotal(total) {
-    this.value = total;
-    this.total = total;
-    return this;
-  }
-
-  setValue(value) {
-    this.value = value;
-    this.total = value;
-    return this;
-  }
-
-  setRevenue(revenue) {
-    this.revenue = revenue;
-    return this;
-  }
-
-  setShipping(shipping) {
-    this.shipping = shipping;
-    return this;
-  }
-
-  setTax(tax) {
-    this.tax = tax;
-    return this;
-  }
-
-  setDiscount(discount) {
-    this.discount = discount;
-    return this;
-  }
-
-  setCoupon(coupon) {
-    this.coupon = coupon;
-    return this;
-  }
-
-  setCurrency(currency) {
-    this.currency = currency;
-    return this;
-  }
-
-  addProducts(productsToBeAdded) {
-    if (productsToBeAdded) {
-      //add only if not-null
-      if (!this.products) {
-        //check for null array
-        this.products = [];
-      }
-      this.products.pushValues(productsToBeAdded);
-    }
-    return this; //to aid builder pattern
-  }
-
-  addProduct(productToBeAdded) {
-    if (productToBeAdded) {
-      //add only if not-null
-      if (!this.products) {
-        //check for null array
-        this.products = [];
-      }
-
-      this.products.push(productToBeAdded);
-    }
-    return this; //to aid builder pattern
-  }
-}
-
-//Class representing completed e-commerce order
-class ECommerceCompletedOrder extends ECommerceOrder {
-  constructor() {
-    super();
-    this.checkout_id = "";
-  }
-
-  //Setter method in accordance with Builder pattern
-  setCheckoutId(checkoutId) {
-    this.checkout_id = checkoutId;
-    return this;
-  }
-}
-
-//Class representing e-commerce coupon
-class ECommerceCoupon {
-  constructor() {
-    this.order_id = "";
-    this.cart_id = "";
-    this.coupon_id = "";
-  }
-
-  //Generic setter methods in accordance with builder pattern
-  setOrderId(orderId) {
-    this.order_id = orderId;
-    return this;
-  }
-
-  setCartId(cartId) {
-    this.cart_id = cartId;
-    return this;
-  }
-
-  setCouponId(couponId) {
-    this.coupon_id = couponId;
-    return this;
-  }
-}
-
-//Class representing e-commerce product filter
-class ECommerceProductFilter {
-  constructor() {
-    this.type = "";
-    this.value = "";
-  }
-
-  //Setter methods in accordance to Builder pattern
-  setType(type) {
-    this.type = type;
-    return this;
-  }
-
-  setValue(value) {
-    this.value = value;
-    return this;
-  }
-}
-
-//Class representing e-commerce product sort
-class ECommerceProductSort {
-  constructor() {
-    this.type = "";
-    this.value = "";
-  }
-
-  //Setter methods in accordance to Builder pattern
-  setType(type) {
-    this.type = type;
-    return this;
-  }
-
-  setValue(value) {
-    this.value = value;
-    return this;
-  }
-}
-
-//Parent class of e-commerce product
-class ECommerceProductBase {
-  constructor() {
-    this.product_id = "";
-  }
-  //Setter methods in accordance with Builder pattern
-  setProductId(productId) {
-    this.product_id = productId;
-    return this;
-  }
-}
-//Class representing e-commerce product object
-class ECommerceProduct extends ECommerceProductBase {
-  constructor() {
-    super();
-    this.sku = "";
-    this.category = "";
-    this.name = "";
-    this.brand = "";
-    this.variant = "";
-    this.price = 0;
-    this.currency = "";
-    this.quantity = 0;
-    this.coupon = "";
-    this.position = 0;
-    this.url = "";
-    this.image_url = "";
-  }
-
-  //Setter methods in accordance with Builder pattern
-  setSku(sku) {
-    this.sku = sku;
-    return this;
-  }
-
-  setCategory(category) {
-    this.category = category;
-    return this;
-  }
-
-  setName(name) {
-    this.name = name;
-    return this;
-  }
-
-  setBrand(brand) {
-    this.brand = brand;
-    return this;
-  }
-
-  setVariant(variant) {
-    this.variant = variant;
-    return this;
-  }
-
-  setPrice(price) {
-    this.price = price;
-    return this;
-  }
-
-  setCurrency(currency) {
-    this.currency = currency;
-    return this;
-  }
-
-  setQuantity(quantity) {
-    this.quantity = quantity;
-    return this;
-  }
-
-  setCoupon(coupon) {
-    this.coupon = coupon;
-    return this;
-  }
-
-  setPosition(position) {
-    this.position = position;
-    return this;
-  }
-
-  setUrl(url) {
-    this.url = url;
-    return this;
-  }
-
-  setImageUrl(imageUrl) {
-    this.image_url = imageUrl;
-    return this;
-  }
-}
-
-//Class representing e-commerce promotion
-class ECommercePromotion {
-  constructor() {
-    this.promotion_id = "";
-    this.creative = "";
-    this.name = "";
-    this.position = 0;
-  }
-
-  //Setter methods in accordance with Builder pattern
-  setPromotionId(promotionId) {
-    this.promotion_id = promotionId;
-    return this;
-  }
-
-  setCreative(creative) {
-    this.creative = creative;
-    return this;
-  }
-
-  setName(name) {
-    this.name = name;
-    return this;
-  }
-
-  setPosition(position) {
-    this.position = position;
-    return this;
-  }
-}
-
-//Class representing an e-commerce cart
-class ECommerceCart {
-  constructor() {
-    this.cart_id = "";
-    this.products = [];
-  }
-
-  addProducts(productsToBeAdded) {
-    if (productsToBeAdded) {
-      //add only if not-null
-      this.products.pushValues(productsToBeAdded);
-    }
-    return this; //to aid builder pattern
-  }
-
-  addProduct(productToBeAdded) {
-    if (productToBeAdded) {
-      //add only if not-null
-      this.products.push(productToBeAdded);
-    }
-    return this; //to aid builder pattern
-  }
-}
-
-//Class representing e-commerce coupon with added coupon_name property
-class ECommerceExtendedCoupon extends ECommerceCoupon {
-  constructor() {
-    super();
-    this.coupon_name = "";
-  }
-
-  //Setter method in accordance to Builder pattern
-  setCouponName(name) {
-    this.coupon_name = name;
-    return this;
-  }
-}
-
-//Class representing e-commerce coupon for application or removal
-class ECommerceAppliedOrRemovedCoupon extends ECommerceExtendedCoupon {
-  constructor() {
-    super();
-    this.discount = 0;
-  }
-
-  //Setter method in accordance to Builder pattern
-  setDiscount(discount) {
-    this.discount = discount;
-    return this;
-  }
-}
-
-//Class representing denied e-commerce coupon
-class ECommerceDeniedCoupon extends ECommerceExtendedCoupon {
-  constructor() {
-    super();
-    this.reason = "";
-  }
-
-  //Setter method in accordance to Builder pattern
-  setReason(reason) {
-    this.reason = reason;
-    return this;
-  }
-}
-//Class representing e-commerce wishlist
-class ECommerceWishList {
-  constructor() {
-    this.wishlist_id = "";
-    this.wishlist_name = "";
-  }
-
-  //Generic setters in accordance with builder pattern
-  setWishlistId(wishlistId) {
-    this.wishlist_id = wishlistId;
-    return this;
-  }
-
-  setWishlistName(wishlistName) {
-    this.wishlist_name = wishlistName;
-    return this;
-  }
-}
-
-//Class encapsulating checkout details
-class ECommerceCheckout {
-  constructor() {
-    this.checkout_id = "";
-    this.step = -1;
-    this.shipping_method = "";
-    this.payment_method = "";
-  }
-
-  //Setter methods in accordance to Builder pattern
-  setCheckoutId(checkoutId) {
-    this.checkout_id = checkoutId;
-    return this;
-  }
-
-  setStep(step) {
-    this.step = step;
-    return this;
-  }
-
-  setShippingMethod(shippingMethod) {
-    this.shipping_method = shippingMethod;
-    return this;
-  }
-
-  setPaymentMethod(paymentMethod) {
-    this.payment_method = paymentMethod;
-    return this;
-  }
-}
-
-//Class representing Payment Info
-class ECommercePaymentInfo extends ECommerceCheckout {
-  constructor() {
-    super();
-    this.order_id = "";
-  }
-
-  //Setter methods in accordance to Builder pattern
-  setOrderId(orderId) {
-    this.order_id = orderId;
-    return this;
-  }
-}
-
-//Parent class of promotion viewed and promotion clicked events
-class PromotionEvent {
-  constructor() {
-    this.promotion = null;
-  }
-
-  //Setter method in accordance to Builder pattern
-  setPromotion(promotion) {
-    this.promotion = promotion;
-    return this;
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setPropertyMap(this.promotion);
-    return eventProperty;
-  }
-}
-
-//Promotion Viewed Event class
-class PromotionViewedEvent extends PromotionEvent {
-  event() {
-    return ECommerceEvents.PROMOTION_VIEWED;
-  }
-}
-
-class PromotionClickedEvent extends PromotionEvent {
-  event() {
-    return ECommerceEvents.PROMOTION_CLICKED;
-  }
-}
-
-//Parent class of "checkout step viewed" and "checkout step completed" events
-class CheckoutEvent {
-  constructor() {
-    this.checkout = null;
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setPropertyMap(this.checkout);
-    return eventProperty;
-  }
-
-  //Setter method in accordance with Builder pattern
-  setCheckout(checkout) {
-    this.checkout = checkout;
-    return this;
-  }
-}
-
-//class representing "Checkout Step Viewed"
-class CheckoutStepViewedEvent extends CheckoutEvent {
-  event() {
-    return ECommerceEvents.CHECKOUT_STEP_VIEWED;
-  }
-}
-
-//class representing "Checkout Step Completed"
-class CheckoutStepCompletedEvent extends CheckoutEvent {
-  event() {
-    return ECommerceEvents.CHECKOUT_STEP_COMPLETED;
-  }
-}
-
-//Parent class for order and checkout events
-class OrderEvent {
-  constructor() {
-    this.order = null; //order details as part of the checkout
-  }
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setPropertyMap(this.order);
-    return eventProperty;
-  }
-
-  //Generic setter methods to enable builder pattern
-  setOrder(order) {
-    this.order = order;
-    return this;
-  }
-}
-//Class representing "checkout started" event
-class CheckoutStartedEvent extends OrderEvent {
-  event() {
-    return ECommerceEvents.CHECKOUT_STARTED;
-  }
-}
-
-//Class representing order completed event
-class OrderCompletedEvent extends OrderEvent {
-  event() {
-    return ECommerceEvents.ORDER_COMPLETED;
-  }
-}
-
-//Class representing order updated event
-class OrderUpdatedEvent extends OrderEvent {
-  event() {
-    return ECommerceEvents.ORDER_UPDATED;
-  }
-}
-//Class representing order refunded event
-class OrderRefundedEvent extends OrderEvent {
-  event() {
-    return ECommerceEvents.ORDER_REFUNDED;
-  }
-}
-
-class OrderCancelledEvent extends OrderEvent {
-  event() {
-    return ECommerceEvents.ORDER_CANCELLED;
-  }
-}
-
-//Class representing payment info entered event
-class PaymentInfoEnteredEvent {
-  constructor() {
-    this.paymentInfo = null;
-  }
-
-  event() {
-    return ECommerceEvents.PAYMENT_INFO_ENTERED;
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setPropertyMap(this.paymentInfo);
-    return eventProperty;
-  }
-
-  //Setter method in accordance with Builder pattern
-  setPaymentInfo(paymentInfo) {
-    this.paymentInfo = paymentInfo;
-    return this;
-  }
-}
-
-//Parent class of "Product Clicked" and "Product Viewed" events
-class ProductEvent {
-  constructor() {
-    this.product = null;
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setPropertyMap(this.product);
-    return eventProperty;
-  }
-
-  //Setters in accordance to Builder pattern
-  setProduct(product) {
-    this.product = product;
-    return this;
-  }
-}
-
-//Class representing "Product Clicked Event"
-class ProductClickedEvent extends ProductEvent {
-  event() {
-    return ECommerceEvents.PRODUCT_CLICKED;
-  }
-}
-
-//Class representing "Product Viewed Event"
-//Class representing "Product Clicked Event"
-class ProductViewedEvent extends ProductEvent {
-  event() {
-    return ECommerceEvents.PRODUCT_VIEWED;
-  }
-}
-
-//Parent class of "Product Added to Cart" and "Product Removed from Cart" events
-class ProductCartEvent {
-  constructor() {
-    this.product = null;
-    this.cartId = null;
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setPropertyMap(this.product);
-    eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cartId);
-    return eventProperty;
-  }
-
-  //Setter methods in accordance to Builder pattern
-
-  setProduct(product) {
-    this.product = product;
-    return this;
-  }
-
-  setCartId(cartId) {
-    this.cartId = cartId;
-    return this;
-  }
-}
-
-//Class representing product addition to cart event
-class ProductAddedToCartEvent extends ProductCartEvent {
-  event() {
-    return ECommerceEvents.PRODUCT_ADDED;
-  }
-}
-
-//Class for representing product removed event
-class ProductRemovedFromCartEvent extends ProductCartEvent {
-  event() {
-    return ECommerceEvents.PRODUCT_REMOVED;
-  }
-}
-
-//Parent class for Product-to-Wishlist events
-class ProductWishlistEvent {
-  constructor() {
-    this.product = null;
-    this.wishlist = null;
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setPropertyMap(this.product);
-    eventProperty.setProperty(
-      ECommerceParamNames.WISHLIST_ID,
-      this.wishlist.wishlist_id
-    );
-    eventProperty.setProperty(
-      ECommerceParamNames.WISHLIST_NAME,
-      this.wishlist.wishlist_name
-    );
-
-    return eventProperty;
-  }
-
-  //Generic setter methods in alignment with builder pattern
-  setProduct(product) {
-    this.product = product;
-    return this;
-  }
-
-  setWishlist(wishlist) {
-    this.wishlist = wishlist;
-    return this;
-  }
-}
-
-//Class representing product added to wishlist event
-class ProductAddedToWishlistEvent extends ProductWishlistEvent {
-  event() {
-    return ECommerceEvents.PRODUCT_ADDED_TO_WISHLIST;
-  }
-}
-
-//Class representing product removed from wishlist
-class ProductRemovedFromWishlistEvent extends ProductWishlistEvent {
-  event() {
-    return ECommerceEvents.PRODUCT_REMOVED_FROM_WISHLIST;
-  }
-}
-
-//Class representing wishlist product added to cart event
-class WishlistProductAddedToCartEvent extends ProductWishlistEvent {
-  constructor() {
-    super();
-    this.cart_id = "";
-  }
-
-  event() {
-    return ECommerceEvents.WISH_LIST_PRODUCT_ADDED_TO_CART;
-  }
-
-  //Need to add cart_id in build part
-  build() {
-    var eventProperty = super.build();
-    eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cart_id);
-    return eventProperty;
-  }
-
-  //Setter method in accordance to Builder pattern
-  setCartId(cartId) {
-    this.cart_id = cartId;
-    return this;
-  }
-}
-
-//Class representing product list view
-class ProductListViewedEvent {
-  constructor() {
-    this.listId = null;
-    this.category = null;
-    this.products = [];
-  }
-
-  //Setter methods in accordance to Builder pattern
-
-  setListId(listId) {
-    this.listId = listId;
-    return this;
-  }
-
-  setCategory(category) {
-    this.category = category;
-    return this;
-  }
-
-  addProducts(products) {
-    if (!this.products) {
-      this.products = products;
-    } else {
-      this.products.pushValues(products);
-    }
-    return this;
-  }
-
-  addProduct(product) {
-    if (!this.products) {
-      this.products = [];
-    }
-    this.products.push(product);
-    return this;
-  }
-
-  event() {
-    return ECommerceEvents.PRODUCT_LIST_VIEWED;
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setProperty(ECommerceParamNames.LIST_ID, this.listId);
-    eventProperty.setProperty(ECommerceParamNames.CATEGORY, this.category);
-    eventProperty.setProperty(ECommerceParamNames.PRODUCTS, this.products);
-    return eventProperty;
-  }
-}
-
-//Class representing "Product List Filtered" event
-class ProductListFilteredEvent {
-  constructor() {
-    this.listId = null;
-    this.filters = [];
-    this.sorts = [];
-    this.products = [];
-  }
-
-  //Setter methods in accordance to Builder pattern
-
-  setListId(listId) {
-    this.listId = listId;
-    return this;
-  }
-
-  addProducts(products) {
-    if (!this.products) {
-      this.products = products;
-    } else {
-      this.products.pushValues(products);
-    }
-    return this;
-  }
-
-  addProduct(product) {
-    if (!this.products) {
-      this.products = [];
-    }
-    this.products.push(product);
-    return this;
-  }
-
-  addFilters(filters) {
-    if (!this.filters) {
-      this.filters = filters;
-    } else {
-      this.filters.pushValues(filters);
-    }
-    return this;
-  }
-
-  addFilter(filter) {
-    if (!this.filters) {
-      this.filters = [];
-    }
-    this.filters.push(filter);
-    return this;
-  }
-
-  addSorts(sorts) {
-    if (!this.sorts) {
-      this.sorts = sorts;
-    } else {
-      this.sorts.pushValues(sorts);
-    }
-    return this;
-  }
-
-  addSort(sort) {
-    if (!this.sorts) {
-      this.sorts = [];
-    }
-    this.sorts.push(sort);
-    return this;
-  }
-
-  event() {
-    return ECommerceEvents.PRODUCT_LIST_FILTERED;
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setProperty(ECommerceParamNames.LIST_ID, this.listId);
-    eventProperty.setProperty(ECommerceParamNames.FILTERS, this.filters);
-    eventProperty.setProperty(ECommerceParamNames.PRODUCTS, this.products);
-    eventProperty.setProperty(ECommerceParamNames.SORTS, this.sorts);
-    return eventProperty;
-  }
-}
-
-//Class representing "Cart Viewed" event
-class CartViewedEvent {
-  constructor() {
-    this.cartId = null;
-    this.products = [];
-  }
-
-  addProducts(products) {
-    if (!this.products) {
-      this.products = products;
-    } else {
-      this.products.pushValues(products);
-    }
-    return this; //keeping code aligned with builder pattern
-  }
-
-  addProduct(product) {
-    if (!this.products) {
-      this.products = [];
-    }
-    this.products.push(product);
-    return this; //keeping code aligned with builder pattern
-  }
-
-  setCartId(cartId) {
-    this.cartId = cartId;
-    return this; //builder pattern
-  }
-
-  event() {
-    return ECommerceEvents.CART_VIEWED;
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cartId);
-    eventProperty.setProperty(ECommerceParamNames.PRODUCTS, this.products);
-    return eventProperty;
-  }
-}
-
-//Class for representing product searched event
-class ProductSearchedEvent {
-  constructor() {
-    this.query = null;
-  }
-
-  event() {
-    return ECommerceEvents.PRODUCTS_SEARCHED;
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setProperty(ECommerceParamNames.QUERY, this.query);
-    return eventProperty;
-  }
-
-  //Getter method in accordance with builder pattern
-  setQuery(query) {
-    this.query = query;
-    return this;
-  }
-}
-
-//Parent class for Coupon events
-class CouponEvent {
-  contructor() {
-    this.coupon = null;
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setPropertyMap(this.coupon);
-    return eventProperty;
-  }
-
-  //Setter method in accordance with Builder pattern
-  setCoupon(coupon) {
-    this.coupon = coupon;
-    return this;
-  }
-}
-
-//Class representing coupon applied event
-class CouponAppliedEvent extends CouponEvent {
-  event() {
-    return ECommerceEvents.COUPON_APPLIED;
-  }
-}
-
-//class representing coupon removed event
-class CouponRemovedEvent extends CouponEvent {
-  event() {
-    return ECommerceEvents.COUPON_REMOVED;
-  }
-}
-
-//class representing coupon denied event
-class CouponDeniedEvent extends CouponEvent {
-  event() {
-    return ECommerceEvents.COUPON_DENIED;
-  }
-}
-//Parent class for all social media sharing events
-class ShareEvent {
-  constructor() {
-    this.share_via = "";
-    this.share_message = "";
-    this.recipient = "";
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setProperty(ECommerceParamNames.SHARE_VIA, this.share_via);
-    eventProperty.setProperty(
-      ECommerceParamNames.SHARE_MESSAGE,
-      this.share_message
-    );
-    eventProperty.setProperty(ECommerceParamNames.RECIPIENT, this.recipient);
-    return eventProperty;
-  }
-
-  //Setter methods in accordance to Builder pattern
-  setShareVia(shareVia) {
-    this.share_via = shareVia;
-    return this;
-  }
-
-  setShareMessage(shareMessage) {
-    this.share_message = shareMessage;
-    return this;
-  }
-
-  setRecipient(recipient) {
-    this.recipient = recipient;
-    return this;
-  }
-}
-
-//Class representing product share
-class ProductSharedEvent extends ShareEvent {
-  constructor() {
-    super();
-    this.product = null;
-  }
-
-  build() {
-    var eventProperty = super.build();
-    eventProperty.setPropertyMap(this.product);
-    return eventProperty;
-  }
-
-  event() {
-    return ECommerceEvents.PRODUCT_SHARED;
-  }
-
-  //Setter method in accordance to Builder pattern
-  setProduct(product) {
-    this.product = product;
-    return this;
-  }
-}
-
-class CartSharedEvent extends ShareEvent {
-  constructor() {
-    super();
-    this.cart_id = "";
-    this.products = [];
-  }
-
-  event() {
-    return ECommerceEvents.CART_SHARED;
-  }
-
-  build() {
-    var eventProperty = super.build();
-    eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cart_id);
-    eventProperty.setProperty(ECommerceParamNames.PRODUCTS, this.products);
-    return eventProperty;
-  }
-
-  //Setter methods in accordance with Builder pattern
-  setCartId(cartId) {
-    this.cart_id = cartId;
-    return this;
-  }
-
-  addProduct(product) {
-    if (!this.products) {
-      //add array if null
-      this.products = [];
-    }
-    this.products.push(product);
-    return this;
-  }
-}
-
-//Class representing Product Reviewed event
-class ProductReviewedEvent {
-  constructor() {
-    this.product_id = "";
-    this.review_id = "";
-    this.review_body = "";
-    this.rating = "";
-  }
-
-  event() {
-    return ECommerceEvents.PRODUCT_REVIEWED;
-  }
-
-  build() {
-    var eventProperty = new RudderProperty();
-    eventProperty.setPropertyMap(this);
-    return eventProperty;
-  }
-
-  //Setter methods in accordance with Builder pattern
-  setProductId(productId) {
-    this.product_id = productId;
-    return this;
-  }
-
-  setReviewId(reviewId) {
-    this.review_id = reviewId;
-    return this;
-  }
-
-  setReviewBody(reviewBody) {
-    this.review_body = reviewBody;
-    return this;
-  }
-
-  setRating(rating) {
-    this.rating = rating;
-    return this;
-  }
-}
 //Rudder configration class
-var RudderConfig = (function () {
+var RudderConfig = (function() {
   var instance;
 
   function init() {
@@ -1335,33 +34,33 @@ var RudderConfig = (function () {
 
     //Public methods
     return {
-      getDefaultIntegrations: function () {
+      getDefaultIntegrations: function() {
         return [];
       },
 
-      getEndPointUri: function () {
+      getEndPointUri: function() {
         return endPointUri;
       },
 
-      getFlushQueueSize: function () {
+      getFlushQueueSize: function() {
         return this.flushQueueSize;
       },
 
-      getIntegrations: function () {
+      getIntegrations: function() {
         return this.integrations;
       },
 
-      setIntegrations: function (integrations) {
+      setIntegrations: function(integrations) {
         this.integrations = integrations;
         return this;
       },
 
-      setFlushQueueSize: function (flushQueueSize) {
+      setFlushQueueSize: function(flushQueueSize) {
         this.flushQueueSize = flushQueueSize;
         return this;
       },
 
-      setEndPointUri: function (endPointUri) {
+      setEndPointUri: function(endPointUri) {
         this.endPointUri = endPointUri;
         return this;
       }
@@ -1369,7 +68,7 @@ var RudderConfig = (function () {
   }
 
   return {
-    getDefaultConfig: function () {
+    getDefaultConfig: function() {
       if (!instance) {
         instance = init();
       }
@@ -1379,7 +78,6 @@ var RudderConfig = (function () {
 })();
 
 class AnalyticsManager {
-
   initializeHubSpot(hubId, wrappers) {
     if (typeof window !== undefined) {
       /* $.ajax({
@@ -1387,14 +85,14 @@ class AnalyticsManager {
         url: "/integration/HubSpot.js",
         dataType: "script"
       }); */
-    //var _hub = new HubspotAnalyticsManager(hubId).init();
-    var HubspotAnalyticsManager = require("./integration/Hubspot.js");
-    var _hub = new HubspotAnalyticsManager();
-    if(_hub){
-      console.log("===_hub===", _hub)
-      wrappers.push(_hub)
-      console.log('Hubspot loaded!')
-    }
+      //var _hub = new HubspotAnalyticsManager(hubId).init();
+      var HubspotAnalyticsManager = require("./integration/Hubspot.js");
+      var _hub = new HubspotAnalyticsManager();
+      if (_hub) {
+        console.log("===_hub===", _hub);
+        wrappers.push(_hub);
+        console.log("Hubspot loaded!");
+      }
       console.log("Script loaded in sync");
     }
   }
@@ -1411,45 +109,55 @@ class EventRepository {
     this.isLoaded = false;
     var analyticsManager = new AnalyticsManager();
     console.log("before getjson");
-    getJSON(CONFIG_URL + "/source-config?write_key=" + writeKey, wrappers, this.isLoaded, function (err, data, wrapperList, isLoaded) {
-      console.log('in callback')
-      if (err) {
-        throw new Error("unable to download configurations from server");
-      } else {
-        //parse the json response and populate the configuration JSON                
-        var configJson = JSON.parse(data);
-        var enabledNativeSDK = []
-        //iterate through all destinations to find which providers require
-        //native SDK enablement
-        configJson.source.destinations.forEach(function (destination, index) {
-          console.log("Destination " + index
-            + " Enabled? " + destination.enabled
-            + " Type: " + destination.destinationDefinition.name
-            + " Use Native SDK? " + destination.config.useNativeSDK);
-          if (destination.enabled && destination.config.useNativeSDK) {
-            //enabledNativeSDK.push(destination.destinationDefinition.name)
-            switch (destination.destinationDefinition.name) {
-              case 'HS':
-                var hubId = destination.config.hubId
-                hubId = "6405167"
-                console.log("=== start init====")
-                analyticsManager.initializeHubSpot(hubId, wrappers);
+    getJSON(
+      CONFIG_URL + "/source-config?write_key=" + writeKey,
+      wrappers,
+      this.isLoaded,
+      function(err, data, wrapperList, isLoaded) {
+        console.log("in callback");
+        if (err) {
+          throw new Error("unable to download configurations from server");
+        } else {
+          //parse the json response and populate the configuration JSON
+          var configJson = JSON.parse(data);
+          var enabledNativeSDK = [];
+          //iterate through all destinations to find which providers require
+          //native SDK enablement
+          configJson.source.destinations.forEach(function(destination, index) {
+            console.log(
+              "Destination " +
+                index +
+                " Enabled? " +
+                destination.enabled +
+                " Type: " +
+                destination.destinationDefinition.name +
+                " Use Native SDK? " +
+                destination.config.useNativeSDK
+            );
+            if (destination.enabled && destination.config.useNativeSDK) {
+              //enabledNativeSDK.push(destination.destinationDefinition.name)
+              switch (destination.destinationDefinition.name) {
+                case "HS":
+                  var hubId = destination.config.hubId;
+                  hubId = "6405167";
+                  console.log("=== start init====");
+                  analyticsManager.initializeHubSpot(hubId, wrappers);
 
-                console.log("=== end init====")
-                //wrapperList.push(new HubspotAnalyticsManager("6405167"));
-                break;
-              case 'AF':
-                break;
-              default:
+                  console.log("=== end init====");
+                  //wrapperList.push(new HubspotAnalyticsManager("6405167"));
+                  break;
+                case "AF":
+                  break;
+                default:
+              }
             }
-          }
-        });
-        isLoaded = true;
+          });
+          isLoaded = true;
+        }
       }
-    });
+    );
     console.log("after getjson");
   }
-
 
   flush(rudderElement) {
     //For Javascript SDK, event will be transmitted immediately
@@ -1463,10 +171,9 @@ class EventRepository {
     payload.batch = this.eventsBuffer;
     payload.write_key = this.write_key;
     payload.sent_at = getCurrentTimeFormatted();
-      //server-side integration, XHR is node module
-      
-    var  xhr = new XMLHttpRequest();
-  
+    //server-side integration, XHR is node module
+
+    var xhr = new XMLHttpRequest();
 
     console.log(JSON.stringify(payload, replacer));
 
@@ -1474,7 +181,7 @@ class EventRepository {
     xhr.setRequestHeader("Content-Type", "application/json");
 
     //register call back to reset event buffer on successfull POST
-    xhr.onreadystatechange = function () {
+    xhr.onreadystatechange = function() {
       if (xhr.readyState === 4 && xhr.status === 200) {
         this.eventsBuffer = []; //reset event buffer
       }
@@ -1876,7 +583,7 @@ class RudderNetwork {
 }
 
 //Singleton implementation of the core SDK client class
-var RudderClient = (function () {
+var RudderClient = (function() {
   //Instance stores a reference to the Singleton
   var instance;
 
@@ -1958,7 +665,7 @@ var RudderClient = (function () {
   return {
     // Get the Singleton instance if one exists
     // or create one if it doesn't
-    getInstance: function (writeKey, rudderConfig) {
+    getInstance: function(writeKey, rudderConfig) {
       if (!instance) {
         //Check that valid input object instances have been provided for creating
         //RudderClient instance
@@ -1974,20 +681,15 @@ var RudderClient = (function () {
         //Initialize
         eventRepository = new EventRepository(writeKey, rudderConfig, wrappers);
 
-
-
         this.rudderConfig = rudderConfig;
         return instance;
-
-
-
       }
       return instance;
     }
   };
 })();
 
-window.RudderClient = RudderClient; 
+window.RudderClient = RudderClient;
 window.RudderConfig = RudderConfig;
 
 //Sample Usage
