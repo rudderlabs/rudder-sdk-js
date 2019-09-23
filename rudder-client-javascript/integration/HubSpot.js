@@ -14,11 +14,13 @@ var HubspotAnalyticsManager = function HubspotAnalyticsManager(hubId) {
         }, 3000)
 
       }); */
-      $.ajax({
+      /* $.ajax({
         async: false,
         url: "https://js.hs-scripts.com/"+this.hubId+".js",
         dataType: "script"
-      });
+      }); */
+      var hubspotJs = "https://js.hs-scripts.com/"+this.hubId+".js"
+      require(hubspotJs)
       console.log("===in constructor===");
     }
     return {
@@ -50,8 +52,8 @@ var HubspotAnalyticsManager = function HubspotAnalyticsManager(hubId) {
       var traits = rudderElement.rl_message.rl_context.rl_traits
       var traitsValue = {}
 
-      for(var k in traits){
-          if(traits[k]){
+      for(var k in traits){ 
+          if(!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]){
             var hubspotkey = k.startsWith("rl_") ? k.substring(3, k.length) : k;
             traitsValue[hubspotkey] = traits[k]
           }
@@ -61,7 +63,7 @@ var HubspotAnalyticsManager = function HubspotAnalyticsManager(hubId) {
         //traitsValue.delete(address)
         delete traitsValue['address']
         for(k in address){
-          if(address[k]){
+          if(!!Object.getOwnPropertyDescriptor(address, k) && address[k]){
             hubspotkey = k.startsWith("rl_") ? k.substring(3, k.length) : k;
             hubspotkey = (hubspotkey == 'street') ? 'address' : hubspotkey
             traitsValue[hubspotkey] = address[k]
@@ -70,7 +72,7 @@ var HubspotAnalyticsManager = function HubspotAnalyticsManager(hubId) {
       }
       var userProperties = rudderElement.rl_message.rl_context.rl_user_properties
       for(k in userProperties){
-        if(userProperties[k]){
+        if(!!Object.getOwnPropertyDescriptor(userProperties, k) && userProperties[k]){
           hubspotkey = k.startsWith("rl_") ? k.substring(3, k.length) : k;
           traitsValue[hubspotkey] = userProperties[k]
         }

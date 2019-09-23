@@ -4,6 +4,7 @@
   "description": "",
   "main": ".eslintrc.js",
   "scripts": {
+    "start": "node RudderClient.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
