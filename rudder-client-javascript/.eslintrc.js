@@ -1,7 +1,8 @@
 module.exports = {
   parserOptions: {
     ecmaVersion: 6,
-    sourceType: "script",
+    sourceType: "module",
+    allowImportExportEverywhere: true,
     ecmaFeatures: {}
   },
   rules: {
