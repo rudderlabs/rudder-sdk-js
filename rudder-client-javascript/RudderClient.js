@@ -21,9 +21,9 @@ var generateUUID = require("./utils/utils.js").generateUUID;
 var getCurrentTimeFormatted = require("./utils/utils.js")
   .getCurrentTimeFormatted;
 var getJSON = require("./utils/utils.js").getJSON;
-var RudderConfig = require("./utils/RudderConfig.js");
+var RudderConfig = require("./utils/RudderConfig.js").RudderConfig;
 var AnalyticsManager = require("./utils/AnalyticsManager.js");
-var EventRepository = require("./utils/EventRepository.js");
+var EventRepository = require("./utils/EventRepository.js").EventRepository;
 var RudderPayload = require("./utils/RudderPayload.js");
 var RudderElement = require("./utils/RudderElement.js");
 var RudderElementBuilder = require("./utils/RudderElementBuilder.js");
@@ -118,10 +118,12 @@ var RudderClient = (function() {
   return {
     // Get the Singleton instance if one exists
     // or create one if it doesn't
-    getInstance: function(writeKey, rudderConfig) {
+    getInstance: function(writeKey) {
       if (!instance) {
         //Check that valid input object instances have been provided for creating
         //RudderClient instance
+        console.log(RudderConfig);
+        var rudderConfig = new RudderConfig().getDefaultConfig().setFlushQueueSize(1)
 
         if (!writeKey || 0 === writeKey.length) {
           throw new Error("writeKey cannot be null or empty");
@@ -144,3 +146,4 @@ var RudderClient = (function() {
 
 window.RudderClient = RudderClient;
 window.RudderConfig = RudderConfig;
+window.RudderTraits = RudderTraits;
