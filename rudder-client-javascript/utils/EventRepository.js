@@ -1,8 +1,8 @@
-var getJSON = require("./utils.utils.js").getJSON;
-var CONFIG_URL = require("./utils.constants.js").CONFIG_URL;
-var AnalyticsManager = require("./utils.AnalyticsManager.js");
-var getCurrentTimeFormatted = require("./utils.utils.js").getCurrentTimeFormatted;
-var replacer = require("./utils.utils.js").replacer;
+var getJSON = require("./utils.js").getJSON;
+var CONFIG_URL = require("./constants.js").CONFIG_URL;
+var AnalyticsManager = require("./AnalyticsManager.js");
+var getCurrentTimeFormatted = require("./utils.js").getCurrentTimeFormatted;
+var replacer = require("./utils.js").replacer;
 var RudderPayload = require("./RudderPayload.js");
 //Event Repository
 class EventRepository {

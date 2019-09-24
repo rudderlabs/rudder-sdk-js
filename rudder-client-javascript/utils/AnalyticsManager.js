@@ -7,7 +7,7 @@ class AnalyticsManager {
           dataType: "script"
         }); */
         //var _hub = new HubspotAnalyticsManager(hubId).init();
-        var HubspotAnalyticsManager = require("./integration/Hubspot.js");
+        var HubspotAnalyticsManager = require("./../integration/Hubspot.js");
         var _hub = new HubspotAnalyticsManager(hubId).init();
         if (_hub) {
           console.log("===_hub===", _hub);

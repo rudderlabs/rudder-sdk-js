@@ -1,4 +1,4 @@
-var RudderConstant = require("./utils.constants.js");
+var RudderConstant = require("./constants.js");
 //Rudder configration class
 var RudderConfig = (function() {
     var instance;

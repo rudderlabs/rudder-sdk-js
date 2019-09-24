@@ -7,33 +7,33 @@
 
 "use strict";
 
-var MessageType = require("./utils.constants.js").MessageType;
-var ECommerceParamNames = require("./utils.constants.js").ECommerceParamNames;
-var ECommerceEvents = require("./utils.constants.js").ECommerceEvents;
-var RudderIntegrationPlatform = require("./utils.constants.js")
+var MessageType = require("./utils/constants.js").MessageType;
+var ECommerceParamNames = require("./utils/constants.js").ECommerceParamNames;
+var ECommerceEvents = require("./utils/constants.js").ECommerceEvents;
+var RudderIntegrationPlatform = require("./utils/constants.js")
   .RudderIntegrationPlatform;
-var BASE_URL = require("./utils.constants.js").BASE_URL;
-var CONFIG_URL = require("./utils.constants.js").CONFIG_URL;
-var FLUSH_QUEUE_SIZE = require("./utils.constants.js").FLUSH_QUEUE_SIZE;
+var BASE_URL = require("./utils/constants.js").BASE_URL;
+var CONFIG_URL = require("./utils/constants.js").CONFIG_URL;
+var FLUSH_QUEUE_SIZE = require("./utils/constants.js").FLUSH_QUEUE_SIZE;
 
-var replacer = require("./utils.utils.js").replacer;
-var generateUUID = require("./utils.utils.js").generateUUID;
-var getCurrentTimeFormatted = require("./utils.utils.js")
+var replacer = require("./utils/utils.js").replacer;
+var generateUUID = require("./utils/utils.js").generateUUID;
+var getCurrentTimeFormatted = require("./utils/utils.js")
   .getCurrentTimeFormatted;
-var getJSON = require("./utils.utils.js").getJSON;
-var RudderConfig = require("./utils.RudderConfig.js");
-var AnalyticsManager = require("./utils.AnalyticsManager.js");
-var EventRepository = require("./utils.EventRepository.js");
-var RudderPayload = require("./utils.RudderPayload.js");
-var RudderElement = require("./utils.RudderElement.js");
-var RudderElementBuilder = require("./utils.RudderElementBuilder.js");
-var RudderMessage = require("./utils.RudderMessage.js");
-var RudderContext = require("./utils.RudderContext.js");
-var RudderApp = require("./utils.RudderApp.js");
-var RudderTraits = require("./utils.RudderTraits.js").RudderTraits;
-var TraitsAddress = require("./utils.RudderTraits.js").TraitsAddress;
-var TraitsCompany = require("./utils.RudderTraits.js").TraitsCompany;
-var RudderLibraryInfo = require("./utils.RudderInfo.js").RudderLibraryInfo;
+var getJSON = require("./utils/utils.js").getJSON;
+var RudderConfig = require("./utils/RudderConfig.js");
+var AnalyticsManager = require("./utils/AnalyticsManager.js");
+var EventRepository = require("./utils/EventRepository.js");
+var RudderPayload = require("./utils/RudderPayload.js");
+var RudderElement = require("./utils/RudderElement.js");
+var RudderElementBuilder = require("./utils/RudderElementBuilder.js");
+var RudderMessage = require("./utils/RudderMessage.js");
+var RudderContext = require("./utils/RudderContext.js");
+var RudderApp = require("./utils/RudderApp.js");
+var RudderTraits = require("./utils/RudderTraits.js").RudderTraits;
+var TraitsAddress = require("./utils/RudderTraits.js").TraitsAddress;
+var TraitsCompany = require("./utils/RudderTraits.js").TraitsCompany;
+var RudderLibraryInfo = require("./utils/RudderInfo.js").RudderLibraryInfo;
 
 //Singleton implementation of the core SDK client class
 var RudderClient = (function() {
