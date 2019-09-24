@@ -1,4 +1,4 @@
-var RudderMessage = require("./RudderMessage.js");
+var RudderMessage = require("./RudderMessage.js").RudderMessage;
 //Individual element class containing Rudder Message
 class RudderElement {
     constructor() {

@@ -2,7 +2,7 @@
 var generateUUID = require("./utils.js").generateUUID;
 var MessageType = require("./constants.js").MessageType;
 var ECommerceEvents = require("./constants.js").ECommerceEvents;
-var RudderContext = require("./RudderContext.js");
+var RudderContext = require("./RudderContext.js").RudderContext;
 class RudderMessage {
     constructor() {
       this.rl_channel = "web";

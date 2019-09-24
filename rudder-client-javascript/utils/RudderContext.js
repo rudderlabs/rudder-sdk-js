@@ -1,5 +1,5 @@
 //Context class
-var RudderApp = require("./RudderApp.js");
+var RudderApp = require("./RudderApp.js").RudderApp;
 var RudderLibraryInfo = require("./RudderInfo.js").RudderLibraryInfo;
 var RudderOSInfo = require("./RudderInfo.js").RudderOSInfo;
 var RudderScreenInfo = require("./RudderInfo.js").RudderScreenInfo;

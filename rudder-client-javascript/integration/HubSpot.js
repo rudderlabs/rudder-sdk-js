@@ -19,8 +19,13 @@ var HubspotAnalyticsManager = function HubspotAnalyticsManager(hubId) {
         url: "https://js.hs-scripts.com/"+this.hubId+".js",
         dataType: "script"
       }); */
-      var hubspotJs = "https://js.hs-scripts.com/"+this.hubId+".js"
-      require(hubspotJs)
+      //var hubspotJs = "https://js.hs-scripts.com/"+this.hubId+".js"
+      //require(hubspotJs)
+      //$.getScript(hubspotJs)
+      var ScriptLoader = require("./ScriptLoader.js").ScriptLoader
+      var hubspotJs = "http://js.hs-scripts.com/"+this.hubId+".js"
+      ScriptLoader("hubspot-integration", hubspotJs);
+
       console.log("===in constructor===");
     }
     return {

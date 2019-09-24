@@ -3,7 +3,7 @@ var CONFIG_URL = require("./constants.js").CONFIG_URL;
 var AnalyticsManager = require("./AnalyticsManager.js").AnalyticsManager;
 var getCurrentTimeFormatted = require("./utils.js").getCurrentTimeFormatted;
 var replacer = require("./utils.js").replacer;
-var RudderPayload = require("./RudderPayload.js");
+var RudderPayload = require("./RudderPayload.js").RudderPayload;
 //Event Repository
 class EventRepository {
     constructor(writeKey, rudderConfig, wrappers) {

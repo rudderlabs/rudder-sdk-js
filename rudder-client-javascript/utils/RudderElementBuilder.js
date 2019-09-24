@@ -1,6 +1,6 @@
 //Class responsible for building up the individual elements in a batch
 //that is transmitted by the SDK
-var RudderElement = require("./RudderElement.js");
+var RudderElement = require("./RudderElement.js").RudderElement;
 class RudderElementBuilder {
     constructor() {
       this.rudderProperty = null;
