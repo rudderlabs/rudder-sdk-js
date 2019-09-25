@@ -10,6 +10,7 @@ class test {
 
   page() {
     //if (this.ready) {
+    console.log("args ", ...arguments);
     console.log("page called " + this.prop1);
     //}
   }
@@ -38,13 +39,13 @@ class test {
 
 let instance = new test();
 
-if (window) {
+if (process.browser) {
   console.log("is present? " + !!window.analytics);
   let methodArg = window.analytics[0];
   instance[methodArg[0]](methodArg[1]);
 
   let methodArgNext = window.analytics[1];
-  instance[methodArgNext[0]]();
+  instance[methodArgNext[0]]("test args 1", "test args 2");
 }
 
 let page = instance.page.bind(instance);
