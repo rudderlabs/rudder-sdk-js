@@ -59,18 +59,19 @@ function getJSON(url, wrappers, isLoaded, callback) {
 }
 
 //Utility function to retrieve configuration JSON from server
-function getJSONTrimmed(url, callback) {
+function getJSONTrimmed(context, url, callback) {
   //server-side integration, XHR is node module
-
+  let cb = callback.bind(context);
   var xhr = new XMLHttpRequest();
   xhr.open("GET", url, true);
   xhr.onload = function() {
     var status = xhr.status;
     if (status == 200) {
       console.log("status 200");
-      callback(200, xhr.responseText);
+
+      cb(200, xhr.responseText);
     } else {
-      callback(status);
+      cb(status);
     }
     console.log("in response process");
   };
