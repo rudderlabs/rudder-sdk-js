@@ -75,7 +75,16 @@ const CONFIG_URL = "https://api.rudderlabs.com";
 
 const FLUSH_QUEUE_SIZE = 30;
 
-module.exports = {
+export {
+  MessageType,
+  ECommerceParamNames,
+  ECommerceEvents,
+  RudderIntegrationPlatform,
+  BASE_URL,
+  CONFIG_URL,
+  FLUSH_QUEUE_SIZE
+};
+/* module.exports = {
   MessageType: MessageType,
   ECommerceParamNames: ECommerceParamNames,
   ECommerceEvents: ECommerceEvents,
@@ -83,4 +92,4 @@ module.exports = {
   BASE_URL: BASE_URL,
   CONFIG_URL: CONFIG_URL,
   FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
-};
+}; */

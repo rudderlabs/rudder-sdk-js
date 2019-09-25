@@ -58,9 +58,25 @@ function getJSON(url, wrappers, isLoaded, callback) {
   console.log("after send");
 }
 
-module.exports = {
-  replacer: replacer,
-  generateUUID: generateUUID,
-  getCurrentTimeFormatted: getCurrentTimeFormatted,
-  getJSON: getJSON
-};
+//Utility function to retrieve configuration JSON from server
+function getJSONTrimmed(url, callback) {
+  //server-side integration, XHR is node module
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", url, true);
+  xhr.onload = function() {
+    var status = xhr.status;
+    if (status == 200) {
+      console.log("status 200");
+      callback(200, xhr.responseText);
+    } else {
+      callback(status);
+    }
+    console.log("in response process");
+  };
+  console.log("before send");
+  xhr.send();
+  console.log("after send");
+}
+
+export { replacer, generateUUID, getCurrentTimeFormatted, getJSONTrimmed };

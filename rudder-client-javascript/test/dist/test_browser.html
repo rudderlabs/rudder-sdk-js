@@ -1,14 +1,29 @@
 <html>
   <head> </head>
-  <script src="../dist/browser.js"></script>
   <body>
     <h1>Page Loaded</h1>
+
+    <script type="text/javascript">
+      analytics = window.analytics = [];
+      analytics.page = function() {
+        analytics.push(["page", "value from array"]);
+      };
+
+      analytics.load = function(writeKey) {
+        analytics.push(["load", writeKey]);
+      };
+
+      analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
+      analytics.page();
+    </script>
+
+    <script src="../dist/browser.js"></script>
 
     <script type="text/javascript">
       //var testObj = new analytics.test();
       //testObj.track();
       //testObj.page();
-
+      //analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
       analytics.page();
       analytics.track();
     </script>
