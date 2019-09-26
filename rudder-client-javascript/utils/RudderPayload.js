@@ -5,6 +5,4 @@ class RudderPayload {
       this.write_key = null;
     }
   }
-  module.exports = {
-    RudderPayload: RudderPayload
-  };
+  export { RudderPayload }

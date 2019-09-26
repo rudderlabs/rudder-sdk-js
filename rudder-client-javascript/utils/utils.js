@@ -68,7 +68,6 @@ function getJSONTrimmed(context, url, callback) {
     var status = xhr.status;
     if (status == 200) {
       console.log("status 200");
-
       cb(200, xhr.responseText);
     } else {
       cb(status);
@@ -80,4 +79,4 @@ function getJSONTrimmed(context, url, callback) {
   console.log("after send");
 }
 
-export { replacer, generateUUID, getCurrentTimeFormatted, getJSONTrimmed };
+export { replacer, generateUUID, getCurrentTimeFormatted, getJSONTrimmed, getJSON };

@@ -1,6 +1,5 @@
 var ScriptLoader = function (id, src) {
-    if (document.getElementById(id)) { window.location.protocol = 'file'; return; }
-    window.location.protocol = 'http'
+    if (document.getElementById(id)) { return; }
     var js = document.createElement('script');
     js.src = src;
     js.type = 'text/javascript';
@@ -8,7 +7,6 @@ var ScriptLoader = function (id, src) {
     var e = document.getElementsByTagName('script')[0];
     console.log("==script==", e)
     e.parentNode.insertBefore(js, e);
-    window.location.protocol = 'file'
   }//('hubspot-integration', '//HubSpot.js');
 module.exports = {
   ScriptLoader: ScriptLoader

@@ -1,6 +1,6 @@
-var RudderConstant = require("./constants.js");
+import { BASE_URL, FLUSH_QUEUE_SIZE } from "./constants"
 //Rudder configration class
-var RudderConfig = function() {
+/* var RudderConfig = function() {
     var instance;
   
     function init() {
@@ -51,16 +51,16 @@ var RudderConfig = function() {
             return instance;
         }
     }
-  };
+  }; */
 
-/* class RudderConfig {
+class RudderConfig {
     constructor(){
         this.instance = null;
     }
     init() {
       //Private variables
-      var endPointUri = RudderConstant.BASE_URL;
-      var flushQueueSize = RudderConstant.FLUSH_QUEUE_SIZE;
+      var endPointUri = BASE_URL;
+      var flushQueueSize = FLUSH_QUEUE_SIZE;
       var integrations = [];
   
       //Public methods
@@ -103,8 +103,8 @@ var RudderConfig = function() {
         }
         return this.instance;
     }
-  } */
+  }
+  let rudderConfig = new RudderConfig().getDefaultConfig();
+  console.log(rudderConfig);
 
-  module.exports = {
-    RudderConfig: RudderConfig
-  };
+  export { rudderConfig as RudderConfig };

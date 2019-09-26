@@ -1,12 +1,16 @@
 import { getJSONTrimmed } from "./utils/utils";
 import { CONFIG_URL } from "./utils/constants";
 import { RudderElementBuilder } from "./utils/RudderElementBuilder";
+import { EventRepository } from "./utils/EventRepository";
+import { RudderConfig } from "./utils/RudderConfig";
 
 class test {
   constructor() {
     this.prop1 = "val1";
     this.prop2 = "val2";
     this.ready = false;
+    this.eventRepository = null;
+    this.rudderConfig = null;
   }
 
   page() {
@@ -30,6 +34,7 @@ class test {
         
     }
     console.log(JSON.stringify(rudderElement));
+    this.eventRepository.flush(rudderElement);
   }
 
   track() {
@@ -48,24 +53,44 @@ class test {
         console.log("arg1 ",methodArguments[1])
         if(methodArguments[1]){
             console.log(JSON.parse(JSON.stringify(methodArguments[1])))
-            //rudderElement['rl_message']['rl_properties'] = methodArguments[1]//JSON.parse(arguments[1]);
-            rudderElement.setProperty(methodArguments[1])//methodArguments[0]
+            rudderElement.setProperty(methodArguments[1])
         }
         
     }
     console.log(JSON.stringify(rudderElement));
   }
 
+  processResponse(status, response) {
+    console.log("from callback " + this.prop1);
+    console.log(response);
+    response = JSON.parse(response);
+    response.source.destinations.forEach(function(destination, index) {
+      console.log(
+        "Destination " +
+          index +
+          " Enabled? " +
+          destination.enabled +
+          " Type: " +
+          destination.destinationDefinition.name +
+          " Use Native SDK? " +
+          destination.config.useNativeSDK
+      );
+      if (destination.enabled && destination.config.useNativeSDK) {
+        this.clientIntegrations.push(destination.destinationDefinition.name);
+        this.configArray.push(destination.config);
+      }
+    }, this);
+    //init(this.clientIntegrations, this.configArray);
+  }
+
   load(writeKey) {
     console.log("inside load " + this.prop1);
-    getJSONTrimmed(
+    /* getJSONTrimmed(
       CONFIG_URL + "/source-config?write_key=" + writeKey,
-      (status, response) => {
-        console.log("from callback " + this.prop1);
-        console.log(response);
-        this.ready = true;
-      }
-    );
+      this.processResponse
+    ); */
+    this.rudderConfig = RudderConfig;
+    this.eventRepository = new EventRepository(writeKey, this.rudderConfig, []);
     /* setTimeout(() => {
       this.ready = true;
     }, 5000); */

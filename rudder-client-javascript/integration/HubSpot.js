@@ -1,6 +1,10 @@
-var HubspotAnalyticsManager = function HubspotAnalyticsManager(hubId) {
-  this.hubId = hubId
-  this.init = function(){
+import { ScriptLoader } from "./ScriptLoader"
+class HubspotAnalyticsManager {
+  constructor(hubId){
+    this.hubId = hubId
+  }
+  
+  init(){
     if(typeof window !== undefined){
       
       /* $.getScript("https://js.hs-scripts.com/"+this.hubId+".js").done(function() {
@@ -22,19 +26,15 @@ var HubspotAnalyticsManager = function HubspotAnalyticsManager(hubId) {
       //var hubspotJs = "https://js.hs-scripts.com/"+this.hubId+".js"
       //require(hubspotJs)
       //$.getScript(hubspotJs)
-      var ScriptLoader = require("./ScriptLoader.js").ScriptLoader
+      //var ScriptLoader = require("./ScriptLoader.js").ScriptLoader
       var hubspotJs = "http://js.hs-scripts.com/"+this.hubId+".js"
       ScriptLoader("hubspot-integration", hubspotJs);
 
       console.log("===in constructor===");
     }
-    return {
-      identify : identify,
-      track: track,
-      page: page
-    }
+    
   }
-    function identify(rudderElement) {
+  identify(rudderElement) {
       console.log("in HubspotAnalyticsManager identify");
       /* rudderElement = {
         rl_message: {
@@ -92,19 +92,19 @@ var HubspotAnalyticsManager = function HubspotAnalyticsManager(hubId) {
       
     }
   
-    function track(rudderElement) {
-      console.log("in HubspotAnalyticsManager track");
-      var _hsq = window._hsq = window._hsq || [];
-      var eventValue = {}
-      eventValue['id'] = rudderElement.rl_message.rl_event
-      if(rudderElement.rl_message.rl_properties && rudderElement.rl_message.rl_properties.revenue){
-        console.log("revenue: " + rudderElement.rl_message.rl_properties.revenue);
-        eventValue['value'] = rudderElement.rl_message.rl_properties.revenue
-      }
-      _hsq.push(["trackEvent", eventValue]);
+  track(rudderElement) {
+    console.log("in HubspotAnalyticsManager track");
+    var _hsq = window._hsq = window._hsq || [];
+    var eventValue = {}
+    eventValue['id'] = rudderElement.rl_message.rl_event
+    if(rudderElement.rl_message.rl_properties && rudderElement.rl_message.rl_properties.revenue){
+      console.log("revenue: " + rudderElement.rl_message.rl_properties.revenue);
+      eventValue['value'] = rudderElement.rl_message.rl_properties.revenue
     }
+    _hsq.push(["trackEvent", eventValue]);
+  }
   
-    function page(rudderElement) {
+  page(rudderElement) {
       console.log("in HubspotAnalyticsManager page");
       var _hsq = window._hsq = window._hsq || [];
       console.log('path: ' + rudderElement.rl_message.rl_properties.path);
@@ -117,5 +117,5 @@ var HubspotAnalyticsManager = function HubspotAnalyticsManager(hubId) {
     hb = hb || new HubspotAnalyticsManager(hubId)
     return hb
   } */
-  module.exports = HubspotAnalyticsManager 
+  export { HubspotAnalyticsManager };
   

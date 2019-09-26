@@ -1,9 +1,17 @@
-var getJSON = require("./utils.js").getJSON;
+/* var getJSON = require("./utils.js").getJSON;
 var CONFIG_URL = require("./constants.js").CONFIG_URL;
 var AnalyticsManager = require("./AnalyticsManager.js").AnalyticsManager;
 var getCurrentTimeFormatted = require("./utils.js").getCurrentTimeFormatted;
 var replacer = require("./utils.js").replacer;
-var RudderPayload = require("./RudderPayload.js").RudderPayload;
+var RudderPayload = require("./RudderPayload.js").RudderPayload; */
+
+import { getJSON } from "./utils";
+import { CONFIG_URL } from "./constants";
+import { AnalyticsManager } from "./AnalyticsManager";
+import { getCurrentTimeFormatted } from "./utils";
+import { replacer } from "./utils";
+import { RudderPayload } from "./RudderPayload";
+
 //Event Repository
 class EventRepository {
     constructor(writeKey, rudderConfig, wrappers) {
@@ -47,7 +55,7 @@ class EventRepository {
                     var hubId = destination.config.hubId;
                     hubId = "6405167";
                     console.log("=== start init====");
-                    analyticsManager.initializeHubSpot(hubId, wrappers);
+                    //analyticsManager.initializeHubSpot(hubId, wrappers);
   
                     console.log("=== end init====");
                     //wrapperList.push(new HubspotAnalyticsManager("6405167"));
@@ -80,10 +88,11 @@ class EventRepository {
       //server-side integration, XHR is node module
   
       var xhr = new XMLHttpRequest();
-  
+      
+      console.log("==== in flush ====");
       console.log(JSON.stringify(payload, replacer));
   
-      xhr.open("POST", this.rudderConfig.getEndPointUri(), false);
+      xhr.open("POST", this.rudderConfig.getEndPointUri(), true);
       xhr.setRequestHeader("Content-Type", "application/json");
   
       //register call back to reset event buffer on successfull POST
@@ -95,6 +104,4 @@ class EventRepository {
       //xhr.send(JSON.stringify(payload, replacer));
     }
   }
-  module.exports = {
-    EventRepository: EventRepository
-  };
+  export { EventRepository };
