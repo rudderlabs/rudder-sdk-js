@@ -60,7 +60,8 @@ module.exports = {
     "require-atomic-updates": 2,
     "require-yield": 2,
     "use-isnan": 2,
-    "valid-typeof": 2
+    "valid-typeof": 2,
+    "no-continue": 1
   },
   env: {
     browser: true,

@@ -2,6 +2,8 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+require('core-js/modules/es6.array.from');
+
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -22,6 +24,26 @@ function _createClass(Constructor, protoProps, staticProps) {
   if (protoProps) _defineProperties(Constructor.prototype, protoProps);
   if (staticProps) _defineProperties(Constructor, staticProps);
   return Constructor;
+}
+
+function _toConsumableArray(arr) {
+  return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+}
+
+function _arrayWithoutHoles(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+}
+
+function _iterableToArray(iter) {
+  if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+}
+
+function _nonIterableSpread() {
+  throw new TypeError("Invalid attempt to spread non-iterable instance");
 }
 
 function getJSONTrimmed(context, url, callback) {
@@ -157,17 +179,16 @@ function () {
     value: function page(rudderElement) {
       console.log("in HubspotAnalyticsManager page");
 
-      var _hsq = window._hsq = window._hsq || [];
+      var _hsq = window._hsq = window._hsq || []; //console.log("path: " + rudderElement.rl_message.rl_properties.path);
+      //_hsq.push(["setPath", rudderElement.rl_message.rl_properties.path]);
 
-      console.log("path: " + rudderElement.rl_message.rl_properties.path);
-
-      _hsq.push(["setPath", rudderElement.rl_message.rl_properties.path]);
 
       _hsq.push(["trackPageView"]);
     }
   }, {
     key: "loaded",
     value: function loaded() {
+      console.log("in hubspot isLoaded");
       return !!(window._hsq && window._hsq.push !== Array.prototype.push);
     }
   }]);
@@ -185,6 +206,8 @@ var integrations = {
 };
 
 function init(intgArray, configArray) {
+  var _this = this;
+
   console.log("supported intgs ", integrations);
   var i = 0;
   intgArray.forEach(function (intg) {
@@ -198,8 +221,29 @@ function init(intgArray, configArray) {
       hubId = "6405167";
       var intgInstance = new intgClass(hubId);
       intgInstance.init();
+
+      _this.clientIntegrationObjects.push(intgInstance);
     }
   });
+
+  var _loop = function _loop(_i) {
+    //send the queued events to the fetched integration
+    _this.toBeProcessedArray.forEach(function (event) {
+      var _this$clientIntegrati;
+
+      var methodName = event[0];
+      event.shift();
+      console.log("replay on integrations " + "method " + methodName + " args " + event);
+
+      (_this$clientIntegrati = _this.clientIntegrationObjects[_i])[methodName].apply(_this$clientIntegrati, _toConsumableArray(event));
+    });
+  };
+
+  for (var _i = 0; _i < this.clientIntegrationObjects.length; _i++) {
+    _loop(_i);
+  }
+
+  this.toBeProcessedArray = [];
 }
 
 var test =
@@ -213,6 +257,8 @@ function () {
     this.ready = false;
     this.clientIntegrations = [];
     this.configArray = [];
+    this.clientIntegrationObjects = [];
+    this.toBeProcessedArray = [];
   }
 
   _createClass(test, [{
@@ -229,32 +275,47 @@ function () {
           this.configArray.push(destination.config);
         }
       }, this);
-      init(this.clientIntegrations, this.configArray);
+      init.call(this, this.clientIntegrations, this.configArray);
     }
   }, {
     key: "page",
     value: function page() {
-      var _console;
+      console.log("type=== " + typeof arguments);
+      var args = Array.from(arguments);
+      console.log("args ", args); //try to first send to all integrations, if list populated from BE
 
-      //if (this.ready) {
-      (_console = console).log.apply(_console, ["args "].concat(Array.prototype.slice.call(arguments)));
+      this.clientIntegrationObjects.forEach(function (obj) {
+        //obj.page(...arguments);
+        console.log("called in normal flow");
+        obj.page({
+          rl_message: {
+            rl_properties: {
+              path: "/abc-123"
+            }
+          }
+        }); //test
+      });
 
-      console.log("page called " + this.prop1); //}
+      if (this.clientIntegrationObjects.length === 0 && args[args.length - 1] != "wait") {
+        console.log("pushing in replay queue");
+        args.unshift("page");
+        this.toBeProcessedArray.push(args); //new event processing after analytics initialized  but integrations not fetched from BE
+      } // self analytics process
+
+
+      console.log("args ", args.slice(0, args.length - 1));
+      console.log("page called " + this.prop1);
     }
   }, {
     key: "track",
     value: function track() {
-      //if (this.ready) {
-      console.log("track called " + this.prop2); //}
+      console.log("track called " + this.prop2);
     }
   }, {
     key: "load",
     value: function load(writeKey) {
       console.log("inside load " + this.prop1);
       getJSONTrimmed(this, CONFIG_URL + "/source-config?write_key=" + writeKey, this.processResponse);
-      /* setTimeout(() => {
-        this.ready = true;
-      }, 5000); */
     }
   }]);
 
@@ -265,18 +326,49 @@ var instance = new test();
 
 {
   console.log("is present? " + !!window.analytics);
+  var eventsPushedAlready = !!window.analytics && window.analytics.push == Array.prototype.push;
   var methodArg = window.analytics ? window.analytics[0] : [];
 
-  if (methodArg.length > 0) {
-    instance[methodArg[0]](methodArg[1]);
-    instance[methodArgNext[0]]("test args 1", "test args 2");
+  if (methodArg.length > 0 && methodArg[0] == "load") {
+    instance[methodArg[0]](methodArg[1]); //instance[methodArgNext[0]]("test args 1", "test args 2");
   }
 
-  var methodArgNext = window.analytics ? window.analytics[1] : [];
+  if (eventsPushedAlready) {
+    for (var i = 1; i < window.analytics.length; i++) {
+      instance.toBeProcessedArray.push(window.analytics[i]);
+    }
 
-  if (methodArgNext.length > 0) {
-    instance[methodArg[0]](methodArg[1]);
+    console.log("queued " + instance.toBeProcessedArray.length);
+
+    for (var _i2 = 0; _i2 < instance.toBeProcessedArray.length; _i2++) {
+      var event = _toConsumableArray(instance.toBeProcessedArray[_i2]);
+
+      console.log("replay event " + event);
+      var method = event[0];
+      event.push("wait");
+      event.shift();
+      console.log("replay event modified " + event);
+      instance[method].apply(instance, _toConsumableArray(event));
+    }
   }
+  /* while (!instance.ready) {
+    let isReady = true;
+    instance.clientIntegrationObjects.forEach(obj => {
+      isReady = isReady && obj.loaded();
+    });
+    instance.ready = instance.clientIntegrationObjects.length > 0 && isReady;
+  }
+   console.log("is script ready " + instance.ready);
+   console.log(
+    " is hubspot loaded ",
+    !!(window._hsq && window._hsq.push !== Array.prototype.push)
+  );
+   console.log("analytics array " + window.analytics);
+  let methodArgNext = window.analytics ? window.analytics[1] : [];
+   if (methodArgNext.length > 0) {
+    instance[methodArg[0]](methodArg[1]);
+  } */
+
 }
 
 var page = instance.page.bind(instance);

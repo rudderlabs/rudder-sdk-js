@@ -15,8 +15,24 @@ function init(intgArray, configArray) {
       hubId = "6405167";
       let intgInstance = new intgClass(hubId);
       intgInstance.init();
+
+      this.clientIntegrationObjects.push(intgInstance);
     }
   });
+
+  for (let i = 0; i < this.clientIntegrationObjects.length; i++) {
+    //send the queued events to the fetched integration
+    this.toBeProcessedArray.forEach(event => {
+      let methodName = event[0];
+      event.shift();
+      console.log(
+        "replay on integrations " + "method " + methodName + " args " + event
+      );
+      this.clientIntegrationObjects[i][methodName](...event);
+    });
+  }
+
+  this.toBeProcessedArray = [];
 }
 
 class test {
@@ -26,6 +42,8 @@ class test {
     this.ready = false;
     this.clientIntegrations = [];
     this.configArray = [];
+    this.clientIntegrationObjects = [];
+    this.toBeProcessedArray = [];
   }
 
   processResponse(status, response) {
@@ -48,20 +66,38 @@ class test {
         this.configArray.push(destination.config);
       }
     }, this);
-    init(this.clientIntegrations, this.configArray);
+    init.call(this, this.clientIntegrations, this.configArray);
   }
 
   page() {
-    //if (this.ready) {
-    console.log("args ", ...arguments);
+    console.log("type=== " + typeof arguments);
+
+    var args = Array.from(arguments);
+    console.log("args ", args);
+
+    //try to first send to all integrations, if list populated from BE
+    this.clientIntegrationObjects.forEach(obj => {
+      //obj.page(...arguments);
+      console.log("called in normal flow");
+      obj.page({ rl_message: { rl_properties: { path: "/abc-123" } } }); //test
+    });
+
+    if (
+      this.clientIntegrationObjects.length === 0 &&
+      args[args.length - 1] != "wait"
+    ) {
+      console.log("pushing in replay queue");
+      args.unshift("page");
+      this.toBeProcessedArray.push(args); //new event processing after analytics initialized  but integrations not fetched from BE
+    }
+
+    // self analytics process
+    console.log("args ", args.slice(0, args.length - 1));
     console.log("page called " + this.prop1);
-    //}
   }
 
   track() {
-    //if (this.ready) {
     console.log("track called " + this.prop2);
-    //}
   }
 
   load(writeKey) {
@@ -71,9 +107,6 @@ class test {
       CONFIG_URL + "/source-config?write_key=" + writeKey,
       this.processResponse
     );
-    /* setTimeout(() => {
-      this.ready = true;
-    }, 5000); */
   }
 }
 
@@ -81,18 +114,54 @@ let instance = new test();
 
 if (process.browser) {
   console.log("is present? " + !!window.analytics);
-  let methodArg = window.analytics ? window.analytics[0] : [];
-  if (methodArg.length > 0) {
-    instance[methodArg[0]](methodArg[1]);
+  let eventsPushedAlready =
+    !!window.analytics && window.analytics.push == Array.prototype.push;
 
-    instance[methodArgNext[0]]("test args 1", "test args 2");
+  let methodArg = window.analytics ? window.analytics[0] : [];
+  if (methodArg.length > 0 && methodArg[0] == "load") {
+    instance[methodArg[0]](methodArg[1]);
+    //instance[methodArgNext[0]]("test args 1", "test args 2");
   }
 
+  if (eventsPushedAlready) {
+    for (let i = 1; i < window.analytics.length; i++) {
+      instance.toBeProcessedArray.push(window.analytics[i]);
+    }
+
+    console.log("queued " + instance.toBeProcessedArray.length);
+
+    for (let i = 0; i < instance.toBeProcessedArray.length; i++) {
+      let event = [...instance.toBeProcessedArray[i]];
+      console.log("replay event " + event);
+      let method = event[0];
+      event.push("wait");
+      event.shift();
+      console.log("replay event modified " + event);
+      instance[method](...event);
+    }
+  }
+
+  /* while (!instance.ready) {
+    let isReady = true;
+    instance.clientIntegrationObjects.forEach(obj => {
+      isReady = isReady && obj.loaded();
+    });
+    instance.ready = instance.clientIntegrationObjects.length > 0 && isReady;
+  }
+
+  console.log("is script ready " + instance.ready);
+
+  console.log(
+    " is hubspot loaded ",
+    !!(window._hsq && window._hsq.push !== Array.prototype.push)
+  );
+
+  console.log("analytics array " + window.analytics);
   let methodArgNext = window.analytics ? window.analytics[1] : [];
 
   if (methodArgNext.length > 0) {
     instance[methodArg[0]](methodArg[1]);
-  }
+  } */
 }
 
 let page = instance.page.bind(instance);

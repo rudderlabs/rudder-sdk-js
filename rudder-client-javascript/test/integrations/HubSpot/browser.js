@@ -73,12 +73,13 @@ class HubSpot {
   page(rudderElement) {
     console.log("in HubspotAnalyticsManager page");
     let _hsq = (window._hsq = window._hsq || []);
-    console.log("path: " + rudderElement.rl_message.rl_properties.path);
-    _hsq.push(["setPath", rudderElement.rl_message.rl_properties.path]);
+    //console.log("path: " + rudderElement.rl_message.rl_properties.path);
+    //_hsq.push(["setPath", rudderElement.rl_message.rl_properties.path]);
     _hsq.push(["trackPageView"]);
   }
 
   loaded() {
+    console.log("in hubspot isLoaded");
     return !!(window._hsq && window._hsq.push !== Array.prototype.push);
   }
 }
