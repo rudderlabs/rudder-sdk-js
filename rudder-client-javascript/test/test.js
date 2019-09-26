@@ -202,7 +202,6 @@ if (process.browser) {
       let event = [...instance.toBeProcessedArray[i]];
       console.log("replay event " + event);
       let method = event[0];
-      event.push("wait");
       event.shift();
       console.log("replay event modified " + event);
       instance[method](...event);
