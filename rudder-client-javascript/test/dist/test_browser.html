@@ -12,14 +12,23 @@
       analytics.track = function() {
         analytics.push(["track", ...arguments]);
       };
+      analytics.identify = function() {
+        analytics.push(["identify", ...arguments]);
+      };
 
       analytics.load = function(writeKey) {
         analytics.push(["load", writeKey]);
       };
 
       analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
-      analytics.page("Wishlist");
+      //analytics.page("Wishlist");
       //analytics.page();
+      analytics.identify({
+        name: "Tintin",
+        city: "Brussels",
+        country: "Belgium",
+        email: "tintin@herge.com"
+      }, ()=>{console.log("in identify callback html")});
       analytics.page("Dashboard", {
         "title":"abc",
         "url":"http://abc.com",

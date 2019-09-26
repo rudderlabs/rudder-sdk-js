@@ -1,10 +1,11 @@
-import { getJSONTrimmed } from "../utils/utils";
+import { getJSONTrimmed, generateUUID } from "../utils/utils";
 import { CONFIG_URL, BASE_URL} from "../utils/constants";
 import { integrations } from "./integrations";
 import { RudderElementBuilder } from "../utils/RudderElementBuilder";
 import { getCurrentTimeFormatted } from "../utils/utils";
 import { replacer } from "../utils/utils";
 import { RudderPayload } from "../utils/RudderPayload";
+import { RudderTraits } from "../utils/RudderTraits";
 
 function init(intgArray, configArray) {
   console.log("supported intgs ", integrations);
@@ -86,6 +87,7 @@ class test {
     this.clientIntegrationObjects = undefined;
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
+    this.userId = undefined;
   }
 
   processResponse(status, response) {
@@ -143,6 +145,9 @@ class test {
         console.log(JSON.parse(JSON.stringify(properties)))
         rudderElement['rl_message']['rl_properties'] = properties//JSON.parse(arguments[1]);
     }
+    if(this.userId){
+      rudderElement['rl_message']['rl_anonymous_id'] = rudderElement['rl_message']['rl_user_id'] = this.userId;
+    }
     console.log(JSON.stringify(rudderElement));
 
     //try to first send to all integrations, if list populated from BE
@@ -188,6 +193,9 @@ class test {
     if(properties){
       rudderElement.setProperty(properties)
     }
+    if(this.userId){
+      rudderElement['rl_message']['rl_anonymous_id'] = rudderElement['rl_message']['rl_user_id'] = this.userId;
+    }
     console.log(JSON.stringify(rudderElement));
 
     //try to first send to all integrations, if list populated from BE
@@ -212,6 +220,50 @@ class test {
     }
   }
 
+  identify(userId, traits, options, callback){
+    if (typeof(options) == "function") (callback = options), (options = null);
+    if (typeof(traits) == "function") (callback = traits), (options = null), (traits = null);
+    if (typeof(userId) == "object") (options = traits), (traits = userId), (userId = generateUUID());
+
+    this.userId = userId;
+    var rudderElement = new RudderElementBuilder().build();
+    var rudderTraits = new RudderTraits();
+    console.log(traits)
+    if(traits){
+      for (let k in traits) {
+        if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
+          rudderTraits[k] = traits[k]
+        }
+      }
+    }
+    rudderElement['rl_message']['rl_context']['rl_traits'] = rudderTraits;
+    rudderElement['rl_message']['rl_anonymous_id'] = rudderElement['rl_message']['rl_user_id'] = this.userId;
+
+    console.log(JSON.stringify(rudderElement));
+
+    //try to first send to all integrations, if list populated from BE
+    if(this.clientIntegrationObjects){
+      this.clientIntegrationObjects.forEach(obj => {
+        console.log("called in normal flow");
+        obj.identify(rudderElement)
+      });
+    }
+    if (!this.clientIntegrationObjects) {
+      console.log("pushing in replay queue");
+      //new event processing after analytics initialized  but integrations not fetched from BE
+      this.toBeProcessedByIntegrationArray.push(["identify", rudderElement]);
+    }
+
+    // self analytics process
+    flush.call(rudderElement)
+
+    console.log("identify is called " + this.prop2);
+    if(callback){
+      callback()
+    }
+
+  }
+
   load(writeKey) {
     console.log("inside load " + this.prop1);
     getJSONTrimmed(
@@ -225,7 +277,7 @@ class test {
 let instance = new test();
 
 if (process.browser) {
-  console.log("is present? " + !!window.analytics);
+  //console.log("is present? " + !!window.analytics);
   let eventsPushedAlready =
     !!window.analytics && window.analytics.push == Array.prototype.push;
 
@@ -240,14 +292,14 @@ if (process.browser) {
       instance.toBeProcessedArray.push(window.analytics[i]);
     }
 
-    console.log("queued " + instance.toBeProcessedArray.length);
+    //console.log("queued " + instance.toBeProcessedArray.length);
 
     for (let i = 0; i < instance.toBeProcessedArray.length; i++) {
       let event = [...instance.toBeProcessedArray[i]];
-      console.log("replay event " + event);
+      //console.log("replay event " + event);
       let method = event[0];
       event.shift();
-      console.log("replay event modified " + event);
+      //console.log("replay event modified " + event);
       instance[method](...event);
     }
     instance.toBeProcessedArray = [];

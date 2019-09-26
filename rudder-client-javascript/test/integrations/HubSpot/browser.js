@@ -75,9 +75,9 @@ class HubSpot {
     let _hsq = (window._hsq = window._hsq || []);
     //console.log("path: " + rudderElement.rl_message.rl_properties.path);
     //_hsq.push(["setPath", rudderElement.rl_message.rl_properties.path]);
-    _hsq.push(["identify",{
+    /* _hsq.push(["identify",{
         email: "testtrackpage@email.com"
-    }]);
+    }]); */
     if(rudderElement.rl_message.rl_properties && rudderElement.rl_message.rl_properties.path){
       _hsq.push(["setPath", rudderElement.rl_message.rl_properties.path]);
     }
