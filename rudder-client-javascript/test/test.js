@@ -133,13 +133,15 @@ class test {
         }
         
     }
+    console.log(JSON.stringify(rudderElement));
 
     //try to first send to all integrations, if list populated from BE
     if(this.clientIntegrationObjects){
       this.clientIntegrationObjects.forEach(obj => {
         //obj.page(...arguments);
         console.log("called in normal flow");
-        obj.page({ rl_message: { rl_properties: { path: "/abc-123" } } }); //test
+        //obj.page({ rl_message: { rl_properties: { path: "/abc-123" } } }); //test
+        obj.page(rudderElement)
       });
     }
     

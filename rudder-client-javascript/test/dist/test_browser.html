@@ -6,7 +6,10 @@
     <script type="text/javascript">
       analytics = window.analytics = [];
       analytics.page = function() {
-        analytics.push(["page", "value from array"]);
+        console.log(...arguments)
+        //analytics.push(["page", arguments[0], arguments[1]]);
+        var name = arguments[0]
+        analytics.push(["page", ...arguments]);
       };
 
       analytics.load = function(writeKey) {
@@ -14,18 +17,26 @@
       };
 
       analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
-      analytics.page();
+      analytics.page("Wishlist");
+      //analytics.page();
+      /* analytics.page("Dashboard", {
+        "title":"abc",
+        "url":"http://abc.com"
+      }); */
     </script>
-
-    <script src="../dist/browser.js"></script>
+    <script src="browser.js"></script>
 
     <script type="text/javascript">
       //var testObj = new analytics.test();
       //testObj.track();
       //testObj.page();
       //analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
-      analytics.page("test page");
-      //analytics.track();
+      //analytics.page("Wishlist");
+      //analytics.page();
+      analytics.track('Article Completed', {
+        title: 'How to Create a Tracking Plan',
+        course: 'Intro to Analytics',
+      });
     </script>
   </body>
 </html>
