@@ -21,8 +21,9 @@
       //analytics.page();
       analytics.page("Dashboard", {
         "title":"abc",
-        "url":"http://abc.com"
-      });
+        "url":"http://abc.com",
+        "path":"/abc"
+      },()=>{console.log("in callback html")});
     </script>
     <script src="browser.js"></script>
 

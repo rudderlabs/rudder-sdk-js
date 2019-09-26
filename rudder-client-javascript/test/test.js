@@ -111,27 +111,34 @@ class test {
     init.call(this, this.clientIntegrations, this.configArray);
   }
 
-  page() {
-    console.log("type=== " + typeof arguments);
-
-    var args = Array.from(arguments);
-    console.log("args ", args);
+  page(category, name, properties, options, callback) {
+    
+    if (typeof(options) == "function") (callback = options), (options = null);
+    if (typeof(properties) == "function") (callback = properties), (options = properties = null);
+    if (typeof(name) == "function") (callback = name), (options = properties = name = null);
+    if (typeof(category) === 'object')
+        (options = name), (properties = category), (name = category = null);
+    if (typeof(name) === 'object')
+        (options = properties), (properties = name), (name = null);
+    if (typeof(category) === 'string' && typeof(name) !== 'string')
+        (name = category), (category = null);
 
     var rudderElement = new RudderElementBuilder().build();
-    //console.log(typeof(arguments[0]))
-    if(arguments.length > 0){
-        //console.log("arg length ",arguments.length)
-        let methodArguments = arguments//arguments[0]
-        if(methodArguments[0]){
-            console.log("arg0 ", methodArguments[0])
-            rudderElement['rl_message']['rl_name'] = methodArguments[0]//JSON.parse(arguments[1]);
-        }
-        //console.log("arg1 ",methodArguments[1])
-        if(methodArguments[1]){
-            console.log(JSON.parse(JSON.stringify(methodArguments[1])))
-            rudderElement['rl_message']['rl_properties'] = methodArguments[1]//JSON.parse(arguments[1]);
-        }
-        
+    //console.log("arg length ",arguments.length)
+    let methodArguments = arguments//arguments[0]
+    if(name){
+        console.log("name ", name)
+        rudderElement['rl_message']['rl_name'] = name//JSON.parse(arguments[1]);
+    }
+    if(category){
+      if(!properties){
+        properties = {}
+      }
+      properties['category'] = category
+    }
+    if(properties){
+        console.log(JSON.parse(JSON.stringify(properties)))
+        rudderElement['rl_message']['rl_properties'] = properties//JSON.parse(arguments[1]);
     }
     console.log(JSON.stringify(rudderElement));
 
@@ -162,6 +169,9 @@ class test {
     flush.call(rudderElement)
 
     console.log("page called " + this.prop1);
+    if(callback){
+      callback()
+    }
   }
 
   track() {
