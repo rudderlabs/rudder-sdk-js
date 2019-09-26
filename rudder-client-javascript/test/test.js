@@ -1,10 +1,19 @@
 import { getJSONTrimmed } from "../utils/utils";
-import { CONFIG_URL } from "../utils/constants";
+import { CONFIG_URL, BASE_URL} from "../utils/constants";
 import { integrations } from "./integrations";
+import { RudderElementBuilder } from "../utils/RudderElementBuilder";
+import { getCurrentTimeFormatted } from "../utils/utils";
+import { replacer } from "../utils/utils";
+import { RudderPayload } from "../utils/RudderPayload";
 
 function init(intgArray, configArray) {
   console.log("supported intgs ", integrations);
   let i = 0;
+  this.clientIntegrationObjects = [];
+  if(!intgArray || intgArray.length == 0){
+    this.toBeProcessedByIntegrationArray = [];
+    return
+  }
   intgArray.forEach(intg => {
     console.log("--name--", intg);
     let intgClass = integrations[intg];
@@ -22,7 +31,7 @@ function init(intgArray, configArray) {
 
   for (let i = 0; i < this.clientIntegrationObjects.length; i++) {
     //send the queued events to the fetched integration
-    this.toBeProcessedArray.forEach(event => {
+    this.toBeProcessedByIntegrationArray.forEach(event => {
       let methodName = event[0];
       event.shift();
       console.log(
@@ -32,7 +41,39 @@ function init(intgArray, configArray) {
     });
   }
 
-  this.toBeProcessedArray = [];
+  this.toBeProcessedByIntegrationArray = [];
+}
+
+function flush(rudderElement) {
+  //For Javascript SDK, event will be transmitted immediately
+  //so buffer is really kept to be in alignment with other SDKs
+  this.eventsBuffer = [];
+
+  this.eventsBuffer.push(rudderElement); //Add to event buffer
+
+  //construct payload
+  var payload = new RudderPayload();
+  payload.batch = this.eventsBuffer;
+  payload.write_key = this.write_key;
+  payload.sent_at = getCurrentTimeFormatted();
+  //server-side integration, XHR is node module
+
+  var xhr = new XMLHttpRequest();
+  
+  console.log("==== in flush ====");
+  console.log(JSON.stringify(payload, replacer));
+
+  xhr.open("POST", BASE_URL, true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+
+  //register call back to reset event buffer on successfull POST
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4 && xhr.status === 200) {
+      this.eventsBuffer = []; //reset event buffer
+    }
+  };
+  //xhr.send(JSON.stringify(payload, replacer));
+  console.log("===flushed to Rudder BE");
 }
 
 class test {
@@ -42,8 +83,9 @@ class test {
     this.ready = false;
     this.clientIntegrations = [];
     this.configArray = [];
-    this.clientIntegrationObjects = [];
+    this.clientIntegrationObjects = undefined;
     this.toBeProcessedArray = [];
+    this.toBeProcessedByIntegrationArray = [];
   }
 
   processResponse(status, response) {
@@ -75,24 +117,48 @@ class test {
     var args = Array.from(arguments);
     console.log("args ", args);
 
-    //try to first send to all integrations, if list populated from BE
-    this.clientIntegrationObjects.forEach(obj => {
-      //obj.page(...arguments);
-      console.log("called in normal flow");
-      obj.page({ rl_message: { rl_properties: { path: "/abc-123" } } }); //test
-    });
+    var rudderElement = new RudderElementBuilder().build();
+    //console.log(typeof(arguments[0]))
+    if(arguments.length > 0){
+        //console.log("arg length ",arguments.length)
+        let methodArguments = arguments//arguments[0]
+        if(methodArguments[0]){
+            console.log("arg0 ", methodArguments[0])
+            rudderElement['rl_message']['rl_name'] = methodArguments[0]//JSON.parse(arguments[1]);
+        }
+        //console.log("arg1 ",methodArguments[1])
+        if(methodArguments[1]){
+            console.log(JSON.parse(JSON.stringify(methodArguments[1])))
+            rudderElement['rl_message']['rl_properties'] = methodArguments[1]//JSON.parse(arguments[1]);
+        }
+        
+    }
 
-    if (
-      this.clientIntegrationObjects.length === 0 &&
-      args[args.length - 1] != "wait"
+    //try to first send to all integrations, if list populated from BE
+    if(this.clientIntegrationObjects){
+      this.clientIntegrationObjects.forEach(obj => {
+        //obj.page(...arguments);
+        console.log("called in normal flow");
+        obj.page({ rl_message: { rl_properties: { path: "/abc-123" } } }); //test
+      });
+    }
+    
+
+    if (!this.clientIntegrationObjects
+      /*this.clientIntegrationObjects.length === 0  &&
+      args[args.length - 1] != "wait" */
     ) {
       console.log("pushing in replay queue");
       args.unshift("page");
-      this.toBeProcessedArray.push(args); //new event processing after analytics initialized  but integrations not fetched from BE
+      //this.toBeProcessedArray.push(args); //new event processing after analytics initialized  but integrations not fetched from BE
+      this.toBeProcessedByIntegrationArray.push(["page", rudderElement]);
     }
 
     // self analytics process
     console.log("args ", args.slice(0, args.length - 1));
+
+    flush.call(rudderElement)
+
     console.log("page called " + this.prop1);
   }
 
@@ -139,6 +205,7 @@ if (process.browser) {
       console.log("replay event modified " + event);
       instance[method](...event);
     }
+    instance.toBeProcessedArray = [];
   }
 
   /* while (!instance.ready) {
