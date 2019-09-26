@@ -177,8 +177,39 @@ class test {
     }
   }
 
-  track() {
-    console.log("track called " + this.prop2);
+  track(event, properties, options, callback) {
+    if (typeof(options) == "function") (callback = options), (options = null);
+    if (typeof(properties) == "function")
+      (callback = properties), (options = null), (properties = null);
+      var rudderElement = new RudderElementBuilder().build();
+    if(event){
+      rudderElement.setEventName(event)
+    }
+    if(properties){
+      rudderElement.setProperty(properties)
+    }
+    console.log(JSON.stringify(rudderElement));
+
+    //try to first send to all integrations, if list populated from BE
+    if(this.clientIntegrationObjects){
+      this.clientIntegrationObjects.forEach(obj => {
+        console.log("called in normal flow");
+        obj.track(rudderElement)
+      });
+    }
+    if (!this.clientIntegrationObjects) {
+      console.log("pushing in replay queue");
+      //new event processing after analytics initialized  but integrations not fetched from BE
+      this.toBeProcessedByIntegrationArray.push(["track", rudderElement]);
+    }
+
+    // self analytics process
+    flush.call(rudderElement)
+
+    console.log("track is called " + this.prop2);
+    if(callback){
+      callback()
+    }
   }
 
   load(writeKey) {

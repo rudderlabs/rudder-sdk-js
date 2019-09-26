@@ -7,9 +7,10 @@
       analytics = window.analytics = [];
       analytics.page = function() {
         console.log(...arguments)
-        //analytics.push(["page", arguments[0], arguments[1]]);
-        var name = arguments[0]
         analytics.push(["page", ...arguments]);
+      };
+      analytics.track = function() {
+        analytics.push(["track", ...arguments]);
       };
 
       analytics.load = function(writeKey) {
@@ -23,7 +24,12 @@
         "title":"abc",
         "url":"http://abc.com",
         "path":"/abc"
-      },()=>{console.log("in callback html")});
+      },()=>{console.log("in page callback html")});
+      analytics.track('Article Started', {
+        title: 'How to Create a Tracking Plan',
+        course: 'Intro to Analytics',
+        revenue: 10
+      });
     </script>
     <script src="browser.js"></script>
 
@@ -37,7 +43,8 @@
       analytics.track('Article Completed', {
         title: 'How to Create a Tracking Plan',
         course: 'Intro to Analytics',
-      });
+        revenue: 20
+      }, ()=>{console.log("in track callback html")});
     </script>
   </body>
 </html>
