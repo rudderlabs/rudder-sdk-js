@@ -112,7 +112,10 @@ class test {
   }
 
   page(category, name, properties, options, callback) {
-    
+    console.log("type=== " + typeof arguments);
+
+    var args = Array.from(arguments);
+    console.log("args ", args);
     if (typeof(options) == "function") (callback = options), (options = null);
     if (typeof(properties) == "function") (callback = properties), (options = properties = null);
     if (typeof(name) == "function") (callback = name), (options = properties = name = null);
