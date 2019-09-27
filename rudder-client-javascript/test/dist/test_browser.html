@@ -6,7 +6,7 @@
     <script type="text/javascript">
       analytics = window.analytics = [];
       analytics.page = function() {
-        console.log(...arguments)
+        console.log(...arguments);
         analytics.push(["page", ...arguments]);
       };
       analytics.track = function() {
@@ -23,24 +23,38 @@
       analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
       //analytics.page("Wishlist");
       //analytics.page();
-      analytics.identify({
-        name: "Tintin",
-        city: "Brussels",
-        country: "Belgium",
-        email: "tintin@herge.com"
-      }, ()=>{console.log("in identify callback html")});
-      analytics.page("Dashboard", {
-        "title":"abc",
-        "url":"http://abc.com",
-        "path":"/abc"
-      },()=>{console.log("in page callback html")});
-      analytics.track('Article Started', {
-        title: 'How to Create a Tracking Plan',
-        course: 'Intro to Analytics',
+      analytics.identify(
+        {
+          name: "Tintin",
+          city: "Brussels",
+          country: "Belgium",
+          email: "tintin@herge.com"
+        },
+        () => {
+          console.log("in identify callback html");
+        }
+      );
+
+      analytics.page(
+        "Dashboard",
+        {
+          title: "abc",
+          url: "http://abc.com",
+          path: "/abc"
+        },
+        () => {
+          console.log("in page callback html");
+        }
+      );
+
+      analytics.track("Article Started", {
+        title: "How to Create a Tracking Plan",
+        course: "Intro to Analytics",
         revenue: 10
       });
     </script>
-    <script src="browser.js"></script>
+
+    <script src="https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js"></script>
 
     <script type="text/javascript">
       //var testObj = new analytics.test();
@@ -49,11 +63,17 @@
       //analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
       //analytics.page("Wishlist");
       //analytics.page();
-      analytics.track('Article Completed', {
-        title: 'How to Create a Tracking Plan',
-        course: 'Intro to Analytics',
-        revenue: 20
-      }, ()=>{console.log("in track callback html")});
+      analytics.track(
+        "Article Completed",
+        {
+          title: "How to Create a Tracking Plan",
+          course: "Intro to Analytics",
+          revenue: 20
+        },
+        () => {
+          console.log("in track callback html");
+        }
+      );
     </script>
   </body>
 </html>

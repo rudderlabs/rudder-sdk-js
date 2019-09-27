@@ -70,7 +70,8 @@ var RudderIntegrationPlatform = {
   AMPLITUDE: "amplitude"
 };
 
-const BASE_URL = "https://rudderlabs.com";
+const BASE_URL = "http://18.222.145.124:5000/dump";
+//"https://rudderlabs.com";
 const CONFIG_URL = "https://api.rudderlabs.com";
 
 const FLUSH_QUEUE_SIZE = 30;

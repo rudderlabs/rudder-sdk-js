@@ -12,6 +12,28 @@
       integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
       crossorigin="anonymous"
     />
+
+    <script type="text/javascript">
+      analytics = window.analytics = [];
+      analytics.page = function() {
+        console.log(...arguments);
+        analytics.push(["page", ...arguments]);
+      };
+      analytics.track = function() {
+        analytics.push(["track", ...arguments]);
+      };
+      analytics.identify = function() {
+        analytics.push(["identify", ...arguments]);
+      };
+
+      analytics.load = function(writeKey) {
+        analytics.push(["load", writeKey]);
+      };
+
+      analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
+    </script>
+
+    <script src="https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js"></script>
   </head>
   <body>
     <app-root></app-root>

@@ -1,5 +1,5 @@
 import { getJSONTrimmed, generateUUID } from "../utils/utils";
-import { CONFIG_URL, BASE_URL} from "../utils/constants";
+import { CONFIG_URL, BASE_URL } from "../utils/constants";
 import { integrations } from "./integrations";
 import { RudderElementBuilder } from "../utils/RudderElementBuilder";
 import { getCurrentTimeFormatted } from "../utils/utils";
@@ -11,9 +11,9 @@ function init(intgArray, configArray) {
   console.log("supported intgs ", integrations);
   let i = 0;
   this.clientIntegrationObjects = [];
-  if(!intgArray || intgArray.length == 0){
+  if (!intgArray || intgArray.length == 0) {
     this.toBeProcessedByIntegrationArray = [];
-    return
+    return;
   }
   intgArray.forEach(intg => {
     console.log("--name--", intg);
@@ -55,16 +55,17 @@ function flush(rudderElement) {
   //construct payload
   var payload = new RudderPayload();
   payload.batch = this.eventsBuffer;
-  payload.write_key = this.write_key;
+  payload.write_key = this.writeKey;
   payload.sent_at = getCurrentTimeFormatted();
   //server-side integration, XHR is node module
 
   var xhr = new XMLHttpRequest();
-  
+
   console.log("==== in flush ====");
   console.log(JSON.stringify(payload, replacer));
 
   xhr.open("POST", BASE_URL, true);
+  //xhr.withCredentials = true;
   xhr.setRequestHeader("Content-Type", "application/json");
 
   //register call back to reset event buffer on successfull POST
@@ -73,7 +74,7 @@ function flush(rudderElement) {
       this.eventsBuffer = []; //reset event buffer
     }
   };
-  //xhr.send(JSON.stringify(payload, replacer));
+  xhr.send(JSON.stringify(payload, replacer));
   console.log("===flushed to Rudder BE");
 }
 
@@ -82,6 +83,8 @@ class test {
     this.prop1 = "val1";
     this.prop2 = "val2";
     this.ready = false;
+    this.writeKey = "";
+    this.eventsBuffer = [];
     this.clientIntegrations = [];
     this.configArray = [];
     this.clientIntegrationObjects = undefined;
@@ -118,50 +121,54 @@ class test {
 
     var args = Array.from(arguments);
     console.log("args ", args);
-    if (typeof(options) == "function") (callback = options), (options = null);
-    if (typeof(properties) == "function") (callback = properties), (options = properties = null);
-    if (typeof(name) == "function") (callback = name), (options = properties = name = null);
-    if (typeof(category) === 'object')
-        (options = name), (properties = category), (name = category = null);
-    if (typeof(name) === 'object')
-        (options = properties), (properties = name), (name = null);
-    if (typeof(category) === 'string' && typeof(name) !== 'string')
-        (name = category), (category = null);
+    if (typeof options == "function") (callback = options), (options = null);
+    if (typeof properties == "function")
+      (callback = properties), (options = properties = null);
+    if (typeof name == "function")
+      (callback = name), (options = properties = name = null);
+    if (typeof category === "object")
+      (options = name), (properties = category), (name = category = null);
+    if (typeof name === "object")
+      (options = properties), (properties = name), (name = null);
+    if (typeof category === "string" && typeof name !== "string")
+      (name = category), (category = null);
 
     var rudderElement = new RudderElementBuilder().build();
     //console.log("arg length ",arguments.length)
-    let methodArguments = arguments//arguments[0]
-    if(name){
-        console.log("name ", name)
-        rudderElement['rl_message']['rl_name'] = name//JSON.parse(arguments[1]);
+    let methodArguments = arguments; //arguments[0]
+    if (name) {
+      console.log("name ", name);
+      rudderElement["rl_message"]["rl_name"] = name; //JSON.parse(arguments[1]);
     }
-    if(category){
-      if(!properties){
-        properties = {}
+    if (category) {
+      if (!properties) {
+        properties = {};
       }
-      properties['category'] = category
+      properties["category"] = category;
     }
-    if(properties){
-        console.log(JSON.parse(JSON.stringify(properties)))
-        rudderElement['rl_message']['rl_properties'] = properties//JSON.parse(arguments[1]);
+    if (properties) {
+      console.log(JSON.parse(JSON.stringify(properties)));
+      rudderElement["rl_message"]["rl_properties"] = properties; //JSON.parse(arguments[1]);
     }
-    if(this.userId){
-      rudderElement['rl_message']['rl_anonymous_id'] = rudderElement['rl_message']['rl_user_id'] = this.userId;
+    if (this.userId) {
+      rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
+        "rl_message"
+      ]["rl_user_id"] = this.userId;
     }
     console.log(JSON.stringify(rudderElement));
 
     //try to first send to all integrations, if list populated from BE
-    if(this.clientIntegrationObjects){
+    if (this.clientIntegrationObjects) {
       this.clientIntegrationObjects.forEach(obj => {
         //obj.page(...arguments);
         console.log("called in normal flow");
         //obj.page({ rl_message: { rl_properties: { path: "/abc-123" } } }); //test
-        obj.page(rudderElement)
+        obj.page(rudderElement);
       });
     }
-    
 
-    if (!this.clientIntegrationObjects
+    if (
+      !this.clientIntegrationObjects
       /*this.clientIntegrationObjects.length === 0  &&
       args[args.length - 1] != "wait" */
     ) {
@@ -174,35 +181,37 @@ class test {
     // self analytics process
     console.log("args ", args.slice(0, args.length - 1));
 
-    flush.call(rudderElement)
+    flush.call(this, rudderElement);
 
     console.log("page called " + this.prop1);
-    if(callback){
-      callback()
+    if (callback) {
+      callback();
     }
   }
 
   track(event, properties, options, callback) {
-    if (typeof(options) == "function") (callback = options), (options = null);
-    if (typeof(properties) == "function")
+    if (typeof options == "function") (callback = options), (options = null);
+    if (typeof properties == "function")
       (callback = properties), (options = null), (properties = null);
-      var rudderElement = new RudderElementBuilder().build();
-    if(event){
-      rudderElement.setEventName(event)
+    var rudderElement = new RudderElementBuilder().build();
+    if (event) {
+      rudderElement.setEventName(event);
     }
-    if(properties){
-      rudderElement.setProperty(properties)
+    if (properties) {
+      rudderElement.setProperty(properties);
     }
-    if(this.userId){
-      rudderElement['rl_message']['rl_anonymous_id'] = rudderElement['rl_message']['rl_user_id'] = this.userId;
+    if (this.userId) {
+      rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
+        "rl_message"
+      ]["rl_user_id"] = this.userId;
     }
     console.log(JSON.stringify(rudderElement));
 
     //try to first send to all integrations, if list populated from BE
-    if(this.clientIntegrationObjects){
+    if (this.clientIntegrationObjects) {
       this.clientIntegrationObjects.forEach(obj => {
         console.log("called in normal flow");
-        obj.track(rudderElement)
+        obj.track(rudderElement);
       });
     }
     if (!this.clientIntegrationObjects) {
@@ -212,40 +221,44 @@ class test {
     }
 
     // self analytics process
-    flush.call(rudderElement)
+    flush.call(this, rudderElement);
 
     console.log("track is called " + this.prop2);
-    if(callback){
-      callback()
+    if (callback) {
+      callback();
     }
   }
 
-  identify(userId, traits, options, callback){
-    if (typeof(options) == "function") (callback = options), (options = null);
-    if (typeof(traits) == "function") (callback = traits), (options = null), (traits = null);
-    if (typeof(userId) == "object") (options = traits), (traits = userId), (userId = generateUUID());
+  identify(userId, traits, options, callback) {
+    if (typeof options == "function") (callback = options), (options = null);
+    if (typeof traits == "function")
+      (callback = traits), (options = null), (traits = null);
+    if (typeof userId == "object")
+      (options = traits), (traits = userId), (userId = generateUUID());
 
     this.userId = userId;
     var rudderElement = new RudderElementBuilder().build();
     var rudderTraits = new RudderTraits();
-    console.log(traits)
-    if(traits){
+    console.log(traits);
+    if (traits) {
       for (let k in traits) {
         if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
-          rudderTraits[k] = traits[k]
+          rudderTraits[k] = traits[k];
         }
       }
     }
-    rudderElement['rl_message']['rl_context']['rl_traits'] = rudderTraits;
-    rudderElement['rl_message']['rl_anonymous_id'] = rudderElement['rl_message']['rl_user_id'] = this.userId;
+    rudderElement["rl_message"]["rl_context"]["rl_traits"] = rudderTraits;
+    rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
+      "rl_message"
+    ]["rl_user_id"] = this.userId;
 
     console.log(JSON.stringify(rudderElement));
 
     //try to first send to all integrations, if list populated from BE
-    if(this.clientIntegrationObjects){
+    if (this.clientIntegrationObjects) {
       this.clientIntegrationObjects.forEach(obj => {
         console.log("called in normal flow");
-        obj.identify(rudderElement)
+        obj.identify(rudderElement);
       });
     }
     if (!this.clientIntegrationObjects) {
@@ -255,17 +268,17 @@ class test {
     }
 
     // self analytics process
-    flush.call(rudderElement)
+    flush.call(this, rudderElement);
 
     console.log("identify is called " + this.prop2);
-    if(callback){
-      callback()
+    if (callback) {
+      callback();
     }
-
   }
 
   load(writeKey) {
     console.log("inside load " + this.prop1);
+    this.writeKey = writeKey;
     getJSONTrimmed(
       this,
       CONFIG_URL + "/source-config?write_key=" + writeKey,
@@ -328,8 +341,9 @@ if (process.browser) {
   } */
 }
 
+let identify = instance.identify.bind(instance);
 let page = instance.page.bind(instance);
 let track = instance.track.bind(instance);
 let load = instance.load.bind(instance);
 
-export { page, track, load };
+export { page, track, load, identify };

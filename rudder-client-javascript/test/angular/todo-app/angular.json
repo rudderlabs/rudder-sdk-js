@@ -21,7 +21,7 @@
             "aot": false,
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": ["src/styles.css"],
-            "scripts": ["./src/assets/js/node.js"]
+            "scripts": []
           },
           "configurations": {
             "production": {
