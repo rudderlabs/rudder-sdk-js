@@ -18,6 +18,4 @@ class ScreenPropertyBuilder {
   }
 }
 
-module.exports = {
-  ScreenPropertyBuilder: ScreenPropertyBuilder
-};
+export { ScreenPropertyBuilder };

@@ -29,6 +29,4 @@ class RudderProperty {
   }
 }
 
-module.exports = {
-  RudderProperty: RudderProperty
-};
+export { RudderProperty };

@@ -1,4 +1,4 @@
-var RudderMessage = require("./RudderMessage.js").RudderMessage;
+import RudderMessage from "./RudderMessage";
 //Individual element class containing Rudder Message
 class RudderElement {
   constructor() {
@@ -34,6 +34,4 @@ class RudderElement {
     return this.rl_message;
   }
 }
-module.exports = {
-  RudderElement: RudderElement
-};
+export default RudderElement;

@@ -2,9 +2,10 @@ import babel from "rollup-plugin-babel";
 import commonjs from "rollup-plugin-commonjs";
 import resolve from "rollup-plugin-node-resolve";
 import replace from "rollup-plugin-replace";
+import { uglify } from "rollup-plugin-uglify";
 
 export default {
-  input: "test.js",
+  input: "analytics.js",
   output: [
     {
       file: "dist/browser.js",
@@ -23,5 +24,6 @@ export default {
     babel({
       exclude: "node_modules/**"
     })
+    //process.env.BUILD_ENV === "uglify" && uglify()
   ]
 };

@@ -1,5 +1,3 @@
-"use strict";
-
 //Message Type enumeration
 var MessageType = {
   TRACK: "track",
@@ -70,11 +68,13 @@ var RudderIntegrationPlatform = {
   AMPLITUDE: "amplitude"
 };
 
-const BASE_URL = "http://18.222.145.124:5000/dump";
+var BASE_URL = "http://18.222.145.124:5000/dump";
 //"https://rudderlabs.com";
-const CONFIG_URL = "https://api.rudderlabs.com";
+var CONFIG_URL = "https://api.rudderlabs.com";
 
-const FLUSH_QUEUE_SIZE = 30;
+var FLUSH_QUEUE_SIZE = 30;
+
+var FLUSH_INTERVAL_DEFAULT = 5000;
 
 export {
   MessageType,
@@ -83,7 +83,8 @@ export {
   RudderIntegrationPlatform,
   BASE_URL,
   CONFIG_URL,
-  FLUSH_QUEUE_SIZE
+  FLUSH_QUEUE_SIZE,
+  FLUSH_INTERVAL_DEFAULT
 };
 /* module.exports = {
   MessageType: MessageType,

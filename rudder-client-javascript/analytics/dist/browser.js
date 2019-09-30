@@ -1,6 +1,20 @@
 var analytics = (function (exports) {
   'use strict';
 
+  function _typeof(obj) {
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+      _typeof = function (obj) {
+        return typeof obj;
+      };
+    } else {
+      _typeof = function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+      };
+    }
+
+    return _typeof(obj);
+  }
+
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
       throw new TypeError("Cannot call a class as a function");
@@ -43,6 +57,7 @@ var analytics = (function (exports) {
     throw new TypeError("Invalid attempt to spread non-iterable instance");
   }
 
+  //Utility method for excluding null and empty values in JSON
   function replacer(key, value) {
     if (!value || value == "") {
       return undefined;
@@ -77,33 +92,9 @@ var analytics = (function (exports) {
   } //Utility function to retrieve configuration JSON from server
 
 
-  function getJSON(url, wrappers, isLoaded, callback) {
-    //server-side integration, XHR is node module
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", url, false);
-
-    xhr.onload = function () {
-      var status = xhr.status;
-
-      if (status == 200) {
-        console.log("status 200");
-        callback(null, xhr.responseText, wrappers, isLoaded);
-      } else {
-        callback(status);
-      }
-
-      console.log("in onload");
-    };
-
-    console.log("before send");
-    xhr.send();
-    console.log("after send");
-  } //Utility function to retrieve configuration JSON from server
-
-
   function getJSONTrimmed(context, url, callback) {
     //server-side integration, XHR is node module
-    let cb = callback.bind(context);
+    var cb_ = callback.bind(context);
     var xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
 
@@ -112,9 +103,9 @@ var analytics = (function (exports) {
 
       if (status == 200) {
         console.log("status 200");
-        cb(200, xhr.responseText);
+        cb_(200, xhr.responseText);
       } else {
-        cb(status);
+        cb_(status);
       }
 
       console.log("in response process");
@@ -125,43 +116,13 @@ var analytics = (function (exports) {
     console.log("after send");
   }
 
-  var utils = /*#__PURE__*/Object.freeze({
-    replacer: replacer,
-    generateUUID: generateUUID,
-    getCurrentTimeFormatted: getCurrentTimeFormatted,
-    getJSONTrimmed: getJSONTrimmed,
-    getJSON: getJSON
-  });
-
+  //Message Type enumeration
   var MessageType = {
     TRACK: "track",
     PAGE: "page",
     //SCREEN: "screen",
     IDENTIFY: "identify"
   }; //ECommerce Parameter Names Enumeration
-
-  var ECommerceParamNames = {
-    QUERY: "query",
-    PRICE: "price",
-    PRODUCT_ID: "product_id",
-    CATEGORY: "category",
-    CURRENCY: "currency",
-    LIST_ID: "list_id",
-    PRODUCTS: "products",
-    WISHLIST_ID: "wishlist_id",
-    WISHLIST_NAME: "wishlist_name",
-    QUANTITY: "quantity",
-    CART_ID: "cart_id",
-    CHECKOUT_ID: "checkout_id",
-    TOTAL: "total",
-    REVENUE: "revenue",
-    ORDER_ID: "order_id",
-    FILTERS: "filters",
-    SORTS: "sorts",
-    SHARE_VIA: "share_via",
-    SHARE_MESSAGE: "share_message",
-    RECIPIENT: "recipient"
-  }; //ECommerce Events Enumeration
 
   var ECommerceEvents = {
     PRODUCTS_SEARCHED: "Products Searched",
@@ -193,16 +154,11 @@ var analytics = (function (exports) {
     CART_SHARED: "Cart Shared",
     PRODUCT_REVIEWED: "Product Reviewed"
   }; //Enumeration for integrations supported
+  var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
 
-  var RudderIntegrationPlatform = {
-    RUDDERLABS: "rudderlabs",
-    GA: "ga",
-    AMPLITUDE: "amplitude"
-  };
-  const BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
-
-  const CONFIG_URL = "https://api.rudderlabs.com";
-  const FLUSH_QUEUE_SIZE = 30;
+  var CONFIG_URL = "https://api.rudderlabs.com";
+  var FLUSH_QUEUE_SIZE = 30;
+  var FLUSH_INTERVAL_DEFAULT = 5000;
   /* module.exports = {
     MessageType: MessageType,
     ECommerceParamNames: ECommerceParamNames,
@@ -212,16 +168,6 @@ var analytics = (function (exports) {
     CONFIG_URL: CONFIG_URL,
     FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
   }; */
-
-  var constants = /*#__PURE__*/Object.freeze({
-    MessageType: MessageType,
-    ECommerceParamNames: ECommerceParamNames,
-    ECommerceEvents: ECommerceEvents,
-    RudderIntegrationPlatform: RudderIntegrationPlatform,
-    BASE_URL: BASE_URL,
-    CONFIG_URL: CONFIG_URL,
-    FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
-  });
 
   function ScriptLoader(id, src) {
     console.log("in script loader=== " + id); //if (document.getElementById(id)) {
@@ -293,7 +239,7 @@ var analytics = (function (exports) {
 
         console.log(traitsValue);
 
-        if (typeof window !== undefined) {
+        if ((typeof window === "undefined" ? "undefined" : _typeof(window)) !== undefined) {
           var _hsq = window._hsq = window._hsq || [];
 
           _hsq.push(["identify", traitsValue]);
@@ -364,10 +310,6 @@ var analytics = (function (exports) {
 
   }
 
-  var RudderApp_1 = {
-    RudderApp: RudderApp
-  };
-
   //Library information class
   class RudderLibraryInfo {
     constructor() {
@@ -396,48 +338,18 @@ var analytics = (function (exports) {
 
   } //Device information class
 
-
-  class RudderDeviceInfo {
-    constructor() {
-      this.rl_id = "";
-      this.rl_manufacturer = "";
-      this.rl_model = "";
-      this.rl_name = "";
-    }
-
-  } //Carrier information
-
-
-  class RudderNetwork {
-    constructor() {
-      this.rl_carrier = "";
-    }
-
-  }
-
-  var RudderInfo = {
-    RudderLibraryInfo: RudderLibraryInfo,
-    RudderOSInfo: RudderOSInfo,
-    RudderScreenInfo: RudderScreenInfo,
-    RudderDeviceInfo: RudderDeviceInfo,
-    RudderNetwork: RudderNetwork
-  };
-
-  var RudderApp$1 = RudderApp_1.RudderApp;
-  var RudderLibraryInfo$1 = RudderInfo.RudderLibraryInfo;
-  var RudderOSInfo$1 = RudderInfo.RudderOSInfo;
-  var RudderScreenInfo$1 = RudderInfo.RudderScreenInfo;
+  //Context class
 
   class RudderContext {
     constructor() {
-      this.rl_app = new RudderApp$1();
+      this.rl_app = new RudderApp();
       this.rl_traits = null;
-      this.rl_library = new RudderLibraryInfo$1(); //this.rl_os = null;
+      this.rl_library = new RudderLibraryInfo(); //this.rl_os = null;
 
-      var os = new RudderOSInfo$1();
+      var os = new RudderOSInfo();
       os.rl_version = ""; //skipping version for simplicity now
 
-      var screen = new RudderScreenInfo$1(); //Depending on environment within which the code is executing, screen
+      var screen = new RudderScreenInfo(); //Depending on environment within which the code is executing, screen
       //dimensions can be set
       //User agent and locale can be retrieved only for browser
       //For server-side integration, same needs to be set by calling program
@@ -468,24 +380,17 @@ var analytics = (function (exports) {
 
   }
 
-  var RudderContext_1 = {
-    RudderContext: RudderContext
-  };
-
-  var generateUUID$1 = utils.generateUUID;
-  var MessageType$1 = constants.MessageType;
-  var ECommerceEvents$1 = constants.ECommerceEvents;
-  var RudderContext$1 = RudderContext_1.RudderContext;
+  //Core message class with default values
 
   class RudderMessage {
     constructor() {
       this.rl_channel = "web";
-      this.rl_context = new RudderContext$1();
+      this.rl_context = new RudderContext();
       this.rl_type = null;
       this.rl_action = null;
-      this.rl_message_id = generateUUID$1().toString();
+      this.rl_message_id = generateUUID().toString();
       this.rl_timestamp = new Date().getTime();
-      this.rl_anonymous_id = generateUUID$1().toString();
+      this.rl_anonymous_id = generateUUID().toString();
       this.rl_user_id = null;
       this.rl_event = null;
       this.rl_properties = {}; //By default, all integrations will be set as enabled from client
@@ -514,28 +419,28 @@ var analytics = (function (exports) {
 
 
       switch (messageType) {
-        case MessageType$1.TRACK:
+        case MessageType.TRACK:
           //check if rl_event is present
           if (!this.rl_event) {
             throw new Error("Key rl_event is required for track event");
           } //Next make specific checks for e-commerce events
 
 
-          if (this.rl_event in Object.values(ECommerceEvents$1)) {
+          if (this.rl_event in Object.values(ECommerceEvents)) {
             switch (this.rl_event) {
-              case ECommerceEvents$1.CHECKOUT_STEP_VIEWED:
-              case ECommerceEvents$1.CHECKOUT_STEP_COMPLETED:
-              case ECommerceEvents$1.PAYMENT_INFO_ENTERED:
+              case ECommerceEvents.CHECKOUT_STEP_VIEWED:
+              case ECommerceEvents.CHECKOUT_STEP_COMPLETED:
+              case ECommerceEvents.PAYMENT_INFO_ENTERED:
                 this.checkForKey("checkout_id");
                 this.checkForKey("step");
                 break;
 
-              case ECommerceEvents$1.PROMOTION_VIEWED:
-              case ECommerceEvents$1.PROMOTION_CLICKED:
+              case ECommerceEvents.PROMOTION_VIEWED:
+              case ECommerceEvents.PROMOTION_CLICKED:
                 this.checkForKey("promotion_id");
                 break;
 
-              case ECommerceEvents$1.ORDER_REFUNDED:
+              case ECommerceEvents.ORDER_REFUNDED:
                 this.checkForKey("order_id");
                 break;
 
@@ -548,10 +453,10 @@ var analytics = (function (exports) {
 
           break;
 
-        case MessageType$1.PAGE:
+        case MessageType.PAGE:
           break;
 
-        case MessageType$1.SCREEN:
+        case MessageType.SCREEN:
           if (!this.rl_properties["name"]) {
             throw new Error("Key 'name' is required in rl_properties");
           }
@@ -569,15 +474,9 @@ var analytics = (function (exports) {
 
   }
 
-  var RudderMessage_1 = {
-    RudderMessage: RudderMessage
-  };
-
-  var RudderMessage$1 = RudderMessage_1.RudderMessage; //Individual element class containing Rudder Message
-
   class RudderElement {
     constructor() {
-      this.rl_message = new RudderMessage$1();
+      this.rl_message = new RudderMessage();
     } //Setters that in turn set the field values for the contained object
 
 
@@ -611,13 +510,7 @@ var analytics = (function (exports) {
 
   }
 
-  var RudderElement_1 = {
-    RudderElement: RudderElement
-  };
-
-  //that is transmitted by the SDK
-
-  var RudderElement$1 = RudderElement_1.RudderElement;
+  //Class responsible for building up the individual elements in a batch
 
   class RudderElementBuilder {
     constructor() {
@@ -674,7 +567,7 @@ var analytics = (function (exports) {
     }
 
     build() {
-      var element = new RudderElement$1();
+      var element = new RudderElement();
       element.setUserId(this.userId);
       element.setType(this.type);
       element.setEventName(this.event);
@@ -684,11 +577,6 @@ var analytics = (function (exports) {
     }
 
   }
-
-  var RudderElementBuilder_1 = {
-    RudderElementBuilder: RudderElementBuilder
-  };
-  var RudderElementBuilder_2 = RudderElementBuilder_1.RudderElementBuilder;
 
   //Payload class, contains batch of Elements
   class RudderPayload {
@@ -792,35 +680,6 @@ var analytics = (function (exports) {
 
   } //Class for Company to be embedded in Traits
 
-
-  class TraitsCompany {
-    constructor() {
-      this.rl_name = "";
-      this.rl_id = "";
-      this.rl_industry = "";
-    }
-
-  } //Class for Address to be embedded in Traits
-
-
-  class TraitsAddress {
-    constructor() {
-      this.rl_city = "";
-      this.rl_country = "";
-      this.rl_postalcode = "";
-      this.rl_state = "";
-      this.rl_street = "";
-    }
-
-  }
-
-  var RudderTraits_1 = {
-    RudderTraits: RudderTraits,
-    TraitsCompany: TraitsCompany,
-    TraitsAddress: TraitsAddress
-  };
-  var RudderTraits_2 = RudderTraits_1.RudderTraits;
-
   let defaults = {
     user_storage_key: "rl_user_id",
     user_storage_trait: "rl_trait"
@@ -890,6 +749,72 @@ var analytics = (function (exports) {
 
   var Storage$1 =  Storage ;
 
+  class EventRepository {
+    constructor() {
+      this.eventsBuffer = [];
+      this.url = BASE_URL; //"http://localhost:9005"; //BASE_URL;
+
+      this.state = "READY";
+      /* setInterval(function (){
+          this.preaparePayloadAndFlush(this.eventsBuffer);
+        }, 5000); */
+
+      setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
+    }
+
+    preaparePayloadAndFlush(repo) {
+      //construct payload
+      console.log("==== in preaparePayloadAndFlush with state: " + repo.state);
+      console.log(repo.eventsBuffer);
+
+      if (repo.eventsBuffer.length == 0 || repo.state === "PROCESSING") {
+        return;
+      }
+
+      var eventsPayload = repo.eventsBuffer.slice(0, FLUSH_QUEUE_SIZE);
+      var payload = new RudderPayload();
+      payload.batch = eventsPayload; //this.eventsBuffer;
+
+      payload.write_key = repo.write_key;
+      payload.sent_at = getCurrentTimeFormatted(); //server-side integration, XHR is node module
+
+      var xhr = new XMLHttpRequest();
+      console.log("==== in flush sending to Rudder BE ====");
+      console.log(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
+      xhr.open("POST", repo.url, true);
+      xhr.setRequestHeader("Content-Type", "application/json"); //register call back to reset event buffer on successfull POST
+
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          //this.eventsBuffer = []; //reset event buffer
+          console.log("====== request processed successfully: " + xhr.status);
+          repo.eventsBuffer = repo.eventsBuffer.slice(FLUSH_QUEUE_SIZE);
+          console.log(repo.eventsBuffer.length);
+        } else if (xhr.readyState === 4 && xhr.status !== 200) {
+          console.log("====== request failed with status: " + xhr.status);
+        }
+
+        repo.state = "READY";
+      };
+
+      xhr.send(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
+      repo.state = "PROCESSING";
+    }
+
+    flush(rudderElement) {
+      //For Javascript SDK, event will be transmitted immediately
+      //so buffer is really kept to be in alignment with other SDKs
+      //this.eventsBuffer = [];
+      console.log(this.eventsBuffer);
+      this.eventsBuffer.push(rudderElement.getElementContent()); //Add to event buffer
+
+      console.log("==== Added to flush queue =====" + this.eventsBuffer.length);
+    }
+
+  }
+
+  let eventRepository = new EventRepository();
+
   function init(intgArray, configArray) {
     var _this = this;
 
@@ -903,13 +828,12 @@ var analytics = (function (exports) {
     }
 
     intgArray.forEach(function (intg) {
-      console.log("--name--", intg);
-      var intgClass = integrations[intg];
-      console.log("--class-- ", intgClass);
+      //console.log("--name--", intg);
+      var intgClass = integrations[intg]; //console.log("--class-- ", intgClass);
 
       if (intg === "HS") {
-        var hubId = configArray[i].hubId;
-        console.log("==hubId== " + hubId);
+        var hubId = configArray[i].hubId; //console.log("==hubId== " + hubId);
+
         hubId = "6405167";
         var intgInstance = new intgClass(hubId);
         intgInstance.init();
@@ -925,7 +849,10 @@ var analytics = (function (exports) {
 
         var methodName = event[0];
         event.shift();
-        console.log("replay on integrations " + "method " + methodName + " args " + event);
+        /* console.log(
+          "replay on integrations " + "method " + methodName + " args " + event
+        ); */
+        //uncomment to send data to destination
 
         (_this$clientIntegrati = _this.clientIntegrationObjects[_i])[methodName].apply(_this$clientIntegrati, _toConsumableArray(event));
       });
@@ -939,32 +866,12 @@ var analytics = (function (exports) {
   }
 
   function flush(rudderElement) {
-    //For Javascript SDK, event will be transmitted immediately
-    //so buffer is really kept to be in alignment with other SDKs
-    this.eventsBuffer = [];
-    this.eventsBuffer.push(rudderElement.getElementContent()); //Add to event buffer
-    //construct payload
+    if (!this.eventRepository) {
+      //console.log("initialize event repo")
+      this.eventRepository = eventRepository;
+    }
 
-    var payload = new RudderPayload();
-    payload.batch = this.eventsBuffer;
-    payload.write_key = this.writeKey;
-    payload.sent_at = getCurrentTimeFormatted(); //server-side integration, XHR is node module
-
-    var xhr = new XMLHttpRequest();
-    console.log("==== in flush ====");
-    console.log(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
-    xhr.open("POST", BASE_URL, true); //xhr.withCredentials = true;
-
-    xhr.setRequestHeader("Content-Type", "application/json"); //register call back to reset event buffer on successfull POST
-
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        this.eventsBuffer = []; //reset event buffer
-      }
-    };
-
-    xhr.send(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
-    console.log("===flushed to Rudder BE");
+    this.eventRepository.flush(rudderElement);
   }
 
   var test =
@@ -987,13 +894,14 @@ var analytics = (function (exports) {
       this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : generateUUID();
       this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
       this.storage.setUserId(this.userId);
+      this.eventRepository = eventRepository;
     }
 
     _createClass(test, [{
       key: "processResponse",
       value: function processResponse(status, response) {
-        console.log("from callback " + this.prop1);
-        console.log(response);
+        //console.log("from callback " + this.prop1);
+        //console.log(response);
         response = JSON.parse(response);
         response.source.destinations.forEach(function (destination, index) {
           console.log("Destination " + index + " Enabled? " + destination.enabled + " Type: " + destination.destinationDefinition.name + " Use Native SDK? " + destination.config.useNativeSDK);
@@ -1008,14 +916,14 @@ var analytics = (function (exports) {
     }, {
       key: "page",
       value: function page(category, name, properties, options, callback) {
-        console.log("type=== " + typeof arguments);
+        //console.log("type=== " + typeof arguments);
         var args = Array.from(arguments);
         console.log("args ", args);
         if (typeof options == "function") callback = options, options = null;
         if (typeof properties == "function") callback = properties, options = properties = null;
         if (typeof name == "function") callback = name, options = properties = name = null;
-        if (typeof category === "object") options = name, properties = category, name = category = null;
-        if (typeof name === "object") options = properties, properties = name, name = null;
+        if (_typeof(category) === "object") options = name, properties = category, name = category = null;
+        if (_typeof(name) === "object") options = properties, properties = name, name = null;
         if (typeof category === "string" && typeof name !== "string") name = category, category = null;
 
         if (!this.userId) {
@@ -1023,7 +931,7 @@ var analytics = (function (exports) {
           this.storage.setUserId(this.userId);
         }
 
-        var rudderElement = new RudderElementBuilder_2().setType("page").build(); //console.log("arg length ",arguments.length)
+        var rudderElement = new RudderElementBuilder().setType("page").build(); //console.log("arg length ",arguments.length)
 
         if (name) {
           console.log("name ", name);
@@ -1050,8 +958,8 @@ var analytics = (function (exports) {
         if (this.clientIntegrationObjects) {
           this.clientIntegrationObjects.forEach(function (obj) {
             //obj.page(...arguments);
-            console.log("called in normal flow"); //obj.page({ rl_message: { rl_properties: { path: "/abc-123" } } }); //test
-
+            //console.log("called in normal flow");
+            //obj.page({ rl_message: { rl_properties: { path: "/abc-123" } } }); //test
             obj.page(rudderElement);
           });
         }
@@ -1060,14 +968,14 @@ var analytics = (function (exports) {
         /*this.clientIntegrationObjects.length === 0  &&
         args[args.length - 1] != "wait" */
         ) {
-            console.log("pushing in replay queue");
-            args.unshift("page"); //this.toBeProcessedArray.push(args); //new event processing after analytics initialized  but integrations not fetched from BE
-
+            //console.log("pushing in replay queue");
+            //args.unshift("page");
+            //this.toBeProcessedArray.push(args); //new event processing after analytics initialized  but integrations not fetched from BE
             this.toBeProcessedByIntegrationArray.push(["page", rudderElement]);
           } // self analytics process
+        //console.log("args ", args.slice(0, args.length - 1));
 
 
-        console.log("args ", args.slice(0, args.length - 1));
         flush.call(this, rudderElement);
         console.log("page called " + this.prop1);
 
@@ -1086,7 +994,7 @@ var analytics = (function (exports) {
           this.storage.setUserId(this.userId);
         }
 
-        var rudderElement = new RudderElementBuilder_2().setType("track").build();
+        var rudderElement = new RudderElementBuilder().setType("track").build();
 
         if (event) {
           rudderElement.setEventName(event);
@@ -1126,11 +1034,11 @@ var analytics = (function (exports) {
       value: function identify(userId, traits, options, callback) {
         if (typeof options == "function") callback = options, options = null;
         if (typeof traits == "function") callback = traits, options = null, traits = null;
-        if (typeof userId == "object") options = traits, traits = userId, userId = this.userId;
+        if (_typeof(userId) == "object") options = traits, traits = userId, userId = this.userId;
         this.userId = userId;
         this.storage.setUserId(this.userId);
-        var rudderElement = new RudderElementBuilder_2().setType("identify").build();
-        var rudderTraits = new RudderTraits_2();
+        var rudderElement = new RudderElementBuilder().setType("identify").build();
+        var rudderTraits = new RudderTraits();
         console.log(traits);
 
         if (traits) {
@@ -1216,24 +1124,6 @@ var analytics = (function (exports) {
 
       instance.toBeProcessedArray = [];
     }
-    /* while (!instance.ready) {
-      let isReady = true;
-      instance.clientIntegrationObjects.forEach(obj => {
-        isReady = isReady && obj.loaded();
-      });
-      instance.ready = instance.clientIntegrationObjects.length > 0 && isReady;
-    }
-     console.log("is script ready " + instance.ready);
-     console.log(
-      " is hubspot loaded ",
-      !!(window._hsq && window._hsq.push !== Array.prototype.push)
-    );
-     console.log("analytics array " + window.analytics);
-    let methodArgNext = window.analytics ? window.analytics[1] : [];
-     if (methodArgNext.length > 0) {
-      instance[methodArg[0]](methodArg[1]);
-    } */
-
   }
 
   var identify = instance.identify.bind(instance);

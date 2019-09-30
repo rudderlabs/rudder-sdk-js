@@ -1,5 +1,3 @@
-"use strict";
-
 //Utility method for excluding null and empty values in JSON
 function replacer(key, value) {
   if (!value || value == "") {
@@ -61,16 +59,16 @@ function getJSON(url, wrappers, isLoaded, callback) {
 //Utility function to retrieve configuration JSON from server
 function getJSONTrimmed(context, url, callback) {
   //server-side integration, XHR is node module
-  let cb = callback.bind(context);
+  var cb_ = callback.bind(context);
   var xhr = new XMLHttpRequest();
   xhr.open("GET", url, true);
   xhr.onload = function() {
     var status = xhr.status;
     if (status == 200) {
       console.log("status 200");
-      cb(200, xhr.responseText);
+      cb_(200, xhr.responseText);
     } else {
-      cb(status);
+      cb_(status);
     }
     console.log("in response process");
   };
@@ -79,4 +77,10 @@ function getJSONTrimmed(context, url, callback) {
   console.log("after send");
 }
 
-export { replacer, generateUUID, getCurrentTimeFormatted, getJSONTrimmed, getJSON };
+export {
+  replacer,
+  generateUUID,
+  getCurrentTimeFormatted,
+  getJSONTrimmed,
+  getJSON
+};
