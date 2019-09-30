@@ -3,6 +3,7 @@ import commonjs from "rollup-plugin-commonjs";
 import resolve from "rollup-plugin-node-resolve";
 import replace from "rollup-plugin-replace";
 import { uglify } from "rollup-plugin-uglify";
+import { terser } from "rollup-plugin-terser";
 
 export default {
   input: "analytics.js",
@@ -23,7 +24,8 @@ export default {
     commonjs(),
     babel({
       exclude: "node_modules/**"
-    })
+    }),
+    terser()
     //process.env.BUILD_ENV === "uglify" && uglify()
   ]
 };
