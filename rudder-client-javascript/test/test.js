@@ -6,7 +6,9 @@ import { getCurrentTimeFormatted } from "../utils/utils";
 import { replacer } from "../utils/utils";
 import { RudderPayload } from "../utils/RudderPayload";
 import { RudderTraits } from "../utils/RudderTraits";
+import Storage from "../utils/storage";
 
+//https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 function init(intgArray, configArray) {
   console.log("supported intgs ", integrations);
   let i = 0;
@@ -50,7 +52,7 @@ function flush(rudderElement) {
   //so buffer is really kept to be in alignment with other SDKs
   this.eventsBuffer = [];
 
-  this.eventsBuffer.push(rudderElement); //Add to event buffer
+  this.eventsBuffer.push(rudderElement.getElementContent()); //Add to event buffer
 
   //construct payload
   var payload = new RudderPayload();
@@ -62,7 +64,7 @@ function flush(rudderElement) {
   var xhr = new XMLHttpRequest();
 
   console.log("==== in flush ====");
-  console.log(JSON.stringify(payload, replacer));
+  console.log(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
 
   xhr.open("POST", BASE_URL, true);
   //xhr.withCredentials = true;
@@ -74,7 +76,7 @@ function flush(rudderElement) {
       this.eventsBuffer = []; //reset event buffer
     }
   };
-  xhr.send(JSON.stringify(payload, replacer));
+  xhr.send(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
   console.log("===flushed to Rudder BE");
 }
 
@@ -90,7 +92,18 @@ class test {
     this.clientIntegrationObjects = undefined;
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
-    this.userId = undefined;
+    this.storage = new Storage();
+    this.userId =
+      this.storage.getUserId() != undefined
+        ? this.storage.getUserId()
+        : generateUUID();
+
+    this.userTraits =
+      this.storage.getUserTraits() != undefined
+        ? this.storage.getUserTraits()
+        : {};
+
+    this.storage.setUserId(this.userId);
   }
 
   processResponse(status, response) {
@@ -133,7 +146,12 @@ class test {
     if (typeof category === "string" && typeof name !== "string")
       (name = category), (category = null);
 
-    var rudderElement = new RudderElementBuilder().build();
+    if (!this.userId) {
+      this.userId = generateUUID();
+      this.storage.setUserId(this.userId);
+    }
+
+    var rudderElement = new RudderElementBuilder().setType("page").build();
     //console.log("arg length ",arguments.length)
     let methodArguments = arguments; //arguments[0]
     if (name) {
@@ -150,11 +168,14 @@ class test {
       console.log(JSON.parse(JSON.stringify(properties)));
       rudderElement["rl_message"]["rl_properties"] = properties; //JSON.parse(arguments[1]);
     }
-    if (this.userId) {
-      rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
-        "rl_message"
-      ]["rl_user_id"] = this.userId;
-    }
+
+    rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
+    rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
+      "rl_message"
+    ]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"][
+      "rl_anonymous_id"
+    ] = this.userId;
+
     console.log(JSON.stringify(rudderElement));
 
     //try to first send to all integrations, if list populated from BE
@@ -193,18 +214,27 @@ class test {
     if (typeof options == "function") (callback = options), (options = null);
     if (typeof properties == "function")
       (callback = properties), (options = null), (properties = null);
-    var rudderElement = new RudderElementBuilder().build();
+
+    if (!this.userId) {
+      this.userId = generateUUID();
+      this.storage.setUserId(this.userId);
+    }
+
+    var rudderElement = new RudderElementBuilder().setType("track").build();
     if (event) {
       rudderElement.setEventName(event);
     }
     if (properties) {
       rudderElement.setProperty(properties);
     }
-    if (this.userId) {
-      rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
-        "rl_message"
-      ]["rl_user_id"] = this.userId;
-    }
+
+    rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
+    rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
+      "rl_message"
+    ]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"][
+      "rl_anonymous_id"
+    ] = this.userId;
+
     console.log(JSON.stringify(rudderElement));
 
     //try to first send to all integrations, if list populated from BE
@@ -234,10 +264,12 @@ class test {
     if (typeof traits == "function")
       (callback = traits), (options = null), (traits = null);
     if (typeof userId == "object")
-      (options = traits), (traits = userId), (userId = generateUUID());
+      (options = traits), (traits = userId), (userId = this.userId);
 
     this.userId = userId;
-    var rudderElement = new RudderElementBuilder().build();
+    this.storage.setUserId(this.userId);
+
+    var rudderElement = new RudderElementBuilder().setType("identify").build();
     var rudderTraits = new RudderTraits();
     console.log(traits);
     if (traits) {
@@ -247,10 +279,16 @@ class test {
         }
       }
     }
-    rudderElement["rl_message"]["rl_context"]["rl_traits"] = rudderTraits;
+
+    this.userTraits = traits;
+    this.storage.setUserTraits(this.userTraits);
+
+    rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
     rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
       "rl_message"
-    ]["rl_user_id"] = this.userId;
+    ]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"][
+      "rl_anonymous_id"
+    ] = this.userId;
 
     console.log(JSON.stringify(rudderElement));
 
@@ -274,6 +312,12 @@ class test {
     if (callback) {
       callback();
     }
+  }
+
+  reset() {
+    this.userId = "";
+    this.userTraits = {};
+    this.storage.clear();
   }
 
   load(writeKey) {
@@ -344,6 +388,7 @@ if (process.browser) {
 let identify = instance.identify.bind(instance);
 let page = instance.page.bind(instance);
 let track = instance.track.bind(instance);
+let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
 
-export { page, track, load, identify };
+export { page, track, load, identify, reset };

@@ -1,5 +1,5 @@
 import * as HubSpot from "./HubSpot";
 
-let integrations = { HS: HubSpot.default.HubSpot };
+let integrations = { HS: HubSpot.default };
 
 export { integrations };
