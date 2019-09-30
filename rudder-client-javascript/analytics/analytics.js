@@ -1,10 +1,10 @@
-import { getJSONTrimmed, generateUUID } from "../utils/utils";
-import { CONFIG_URL, BASE_URL } from "../utils/constants";
+import { getJSONTrimmed, generateUUID } from "./utils/utils";
+import { CONFIG_URL } from "./utils/constants";
 import { integrations } from "./integrations";
-import RudderElementBuilder from "../utils/RudderElementBuilder";
-import { RudderTraits } from "../utils/RudderTraits";
-import Storage from "../utils/storage";
-import { EventRepository } from "../utils/EventRepository";
+import RudderElementBuilder from "./utils/RudderElementBuilder";
+import { RudderTraits } from "./utils/RudderTraits";
+import Storage from "./utils/storage";
+import { EventRepository } from "./utils/EventRepository";
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 function init(intgArray, configArray) {

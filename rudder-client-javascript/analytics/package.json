@@ -4,7 +4,9 @@
   "description": "",
   "main": "./dist/browser.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "buildDev": "uglify=\"false\" rollup -c",
+    "buildProd": "uglify=\"true\" rollup -c"
   },
   "author": "",
   "license": "ISC",

@@ -2,7 +2,6 @@ import babel from "rollup-plugin-babel";
 import commonjs from "rollup-plugin-commonjs";
 import resolve from "rollup-plugin-node-resolve";
 import replace from "rollup-plugin-replace";
-import { uglify } from "rollup-plugin-uglify";
 import { terser } from "rollup-plugin-terser";
 
 export default {
@@ -25,7 +24,7 @@ export default {
     babel({
       exclude: "node_modules/**"
     }),
-    terser()
-    //process.env.BUILD_ENV === "uglify" && uglify()
+    process.env.uglify === "true" && terser()
+    //process.env.uglify === "true" && uglify()
   ]
 };
