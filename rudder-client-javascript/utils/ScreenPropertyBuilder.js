@@ -1,5 +1,5 @@
 "use strict";
-var RudderProperty = require("./RudderProperty");
+let RudderProperty = require("./RudderProperty");
 
 //Class for building the "screen" message payload
 class ScreenPropertyBuilder {
@@ -12,7 +12,7 @@ class ScreenPropertyBuilder {
       throw new Error("Screen name cannot be null or empty");
     }
 
-    var screenProperty = new RudderProperty();
+    let screenProperty = new RudderProperty();
     screenProperty.setProperty("name", this.name);
     return screenProperty;
   }

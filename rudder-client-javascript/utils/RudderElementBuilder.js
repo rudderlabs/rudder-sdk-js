@@ -57,7 +57,7 @@ class RudderElementBuilder {
   }
 
   build() {
-    var element = new RudderElement();
+    let element = new RudderElement();
     element.setUserId(this.userId);
     element.setType(this.type);
     element.setEventName(this.event);
@@ -66,4 +66,4 @@ class RudderElementBuilder {
     return element;
   }
 }
-export { RudderElementBuilder };
+export default RudderElementBuilder;

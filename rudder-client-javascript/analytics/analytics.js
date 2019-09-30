@@ -1,10 +1,7 @@
 import { getJSONTrimmed, generateUUID } from "../utils/utils";
 import { CONFIG_URL, BASE_URL } from "../utils/constants";
 import { integrations } from "./integrations";
-import { RudderElementBuilder } from "../utils/RudderElementBuilder";
-import { getCurrentTimeFormatted } from "../utils/utils";
-import { replacer } from "../utils/utils";
-import { RudderPayload } from "../utils/RudderPayload";
+import RudderElementBuilder from "../utils/RudderElementBuilder";
 import { RudderTraits } from "../utils/RudderTraits";
 import Storage from "../utils/storage";
 import { EventRepository } from "../utils/EventRepository";
@@ -57,7 +54,7 @@ function flush(rudderElement) {
   this.eventRepository.flush(rudderElement);
 }
 
-class test {
+class Analytics {
   constructor() {
     this.prop1 = "val1";
     this.prop2 = "val2";
@@ -110,7 +107,7 @@ class test {
   page(category, name, properties, options, callback) {
     //console.log("type=== " + typeof arguments);
 
-    var args = Array.from(arguments);
+    let args = Array.from(arguments);
     console.log("args ", args);
     if (typeof options == "function") (callback = options), (options = null);
     if (typeof properties == "function")
@@ -129,7 +126,7 @@ class test {
       this.storage.setUserId(this.userId);
     }
 
-    var rudderElement = new RudderElementBuilder().setType("page").build();
+    let rudderElement = new RudderElementBuilder().setType("page").build();
     //console.log("arg length ",arguments.length)
     let methodArguments = arguments; //arguments[0]
     if (name) {
@@ -198,7 +195,7 @@ class test {
       this.storage.setUserId(this.userId);
     }
 
-    var rudderElement = new RudderElementBuilder().setType("track").build();
+    let rudderElement = new RudderElementBuilder().setType("track").build();
     if (event) {
       rudderElement.setEventName(event);
     }
@@ -247,8 +244,8 @@ class test {
     this.userId = userId;
     this.storage.setUserId(this.userId);
 
-    var rudderElement = new RudderElementBuilder().setType("identify").build();
-    var rudderTraits = new RudderTraits();
+    let rudderElement = new RudderElementBuilder().setType("identify").build();
+    let rudderTraits = new RudderTraits();
     console.log(traits);
     if (traits) {
       for (let k in traits) {
@@ -309,7 +306,7 @@ class test {
   }
 }
 
-let instance = new test();
+let instance = new Analytics();
 
 if (process.browser) {
   //console.log("is present? " + !!window.analytics);

@@ -1,5 +1,5 @@
 //Message Type enumeration
-var MessageType = {
+let MessageType = {
   TRACK: "track",
   PAGE: "page",
   //SCREEN: "screen",
@@ -7,7 +7,7 @@ var MessageType = {
 };
 
 //ECommerce Parameter Names Enumeration
-var ECommerceParamNames = {
+let ECommerceParamNames = {
   QUERY: "query",
   PRICE: "price",
   PRODUCT_ID: "product_id",
@@ -30,7 +30,7 @@ var ECommerceParamNames = {
   RECIPIENT: "recipient"
 };
 //ECommerce Events Enumeration
-var ECommerceEvents = {
+let ECommerceEvents = {
   PRODUCTS_SEARCHED: "Products Searched",
   PRODUCT_LIST_VIEWED: "Product List Viewed",
   PRODUCT_LIST_FILTERED: "Product List Filtered",
@@ -62,19 +62,19 @@ var ECommerceEvents = {
 };
 
 //Enumeration for integrations supported
-var RudderIntegrationPlatform = {
+let RudderIntegrationPlatform = {
   RUDDERLABS: "rudderlabs",
   GA: "ga",
   AMPLITUDE: "amplitude"
 };
 
-var BASE_URL = "http://18.222.145.124:5000/dump";
+let BASE_URL = "http://18.222.145.124:5000/dump";
 //"https://rudderlabs.com";
-var CONFIG_URL = "https://api.rudderlabs.com";
+let CONFIG_URL = "https://api.rudderlabs.com";
 
-var FLUSH_QUEUE_SIZE = 30;
+let FLUSH_QUEUE_SIZE = 30;
 
-var FLUSH_INTERVAL_DEFAULT = 5000;
+let FLUSH_INTERVAL_DEFAULT = 5000;
 
 export {
   MessageType,

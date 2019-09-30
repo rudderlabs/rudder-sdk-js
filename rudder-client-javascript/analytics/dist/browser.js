@@ -69,14 +69,14 @@ var analytics = (function (exports) {
 
   function generateUUID() {
     // Public Domain/MIT
-    var d = new Date().getTime();
+    let d = new Date().getTime();
 
     if (typeof performance !== "undefined" && typeof performance.now === "function") {
       d += performance.now(); //use high-precision timer if available
     }
 
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-      var r = (d + Math.random() * 16) % 16 | 0;
+      let r = (d + Math.random() * 16) % 16 | 0;
       d = Math.floor(d / 16);
       return (c === "x" ? r : r & 0x3 | 0x8).toString(16);
     });
@@ -84,22 +84,22 @@ var analytics = (function (exports) {
 
 
   function getCurrentTimeFormatted() {
-    var curDateTime = new Date().toISOString();
-    var curDate = curDateTime.split("T")[0];
-    var curTimeExceptMillis = curDateTime.split("T")[1].split("Z")[0].split(".")[0];
-    var curTimeMillis = curDateTime.split("Z")[0].split(".")[1];
+    let curDateTime = new Date().toISOString();
+    let curDate = curDateTime.split("T")[0];
+    let curTimeExceptMillis = curDateTime.split("T")[1].split("Z")[0].split(".")[0];
+    let curTimeMillis = curDateTime.split("Z")[0].split(".")[1];
     return curDate + " " + curTimeExceptMillis + "+" + curTimeMillis;
   } //Utility function to retrieve configuration JSON from server
 
 
   function getJSONTrimmed(context, url, callback) {
     //server-side integration, XHR is node module
-    var cb_ = callback.bind(context);
-    var xhr = new XMLHttpRequest();
+    let cb_ = callback.bind(context);
+    let xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
 
     xhr.onload = function () {
-      var status = xhr.status;
+      let status = xhr.status;
 
       if (status == 200) {
         console.log("status 200");
@@ -117,14 +117,14 @@ var analytics = (function (exports) {
   }
 
   //Message Type enumeration
-  var MessageType = {
+  let MessageType = {
     TRACK: "track",
     PAGE: "page",
     //SCREEN: "screen",
     IDENTIFY: "identify"
   }; //ECommerce Parameter Names Enumeration
 
-  var ECommerceEvents = {
+  let ECommerceEvents = {
     PRODUCTS_SEARCHED: "Products Searched",
     PRODUCT_LIST_VIEWED: "Product List Viewed",
     PRODUCT_LIST_FILTERED: "Product List Filtered",
@@ -154,11 +154,11 @@ var analytics = (function (exports) {
     CART_SHARED: "Cart Shared",
     PRODUCT_REVIEWED: "Product Reviewed"
   }; //Enumeration for integrations supported
-  var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
+  let BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
 
-  var CONFIG_URL = "https://api.rudderlabs.com";
-  var FLUSH_QUEUE_SIZE = 30;
-  var FLUSH_INTERVAL_DEFAULT = 5000;
+  let CONFIG_URL = "https://api.rudderlabs.com";
+  let FLUSH_QUEUE_SIZE = 30;
+  let FLUSH_INTERVAL_DEFAULT = 5000;
   /* module.exports = {
     MessageType: MessageType,
     ECommerceParamNames: ECommerceParamNames,
@@ -346,10 +346,10 @@ var analytics = (function (exports) {
       this.rl_traits = null;
       this.rl_library = new RudderLibraryInfo(); //this.rl_os = null;
 
-      var os = new RudderOSInfo();
+      let os = new RudderOSInfo();
       os.rl_version = ""; //skipping version for simplicity now
 
-      var screen = new RudderScreenInfo(); //Depending on environment within which the code is executing, screen
+      let screen = new RudderScreenInfo(); //Depending on environment within which the code is executing, screen
       //dimensions can be set
       //User agent and locale can be retrieved only for browser
       //For server-side integration, same needs to be set by calling program
@@ -567,22 +567,13 @@ var analytics = (function (exports) {
     }
 
     build() {
-      var element = new RudderElement();
+      let element = new RudderElement();
       element.setUserId(this.userId);
       element.setType(this.type);
       element.setEventName(this.event);
       element.setProperty(this.rudderProperty);
       element.setUserProperty(this.rudderUserProperty);
       return element;
-    }
-
-  }
-
-  //Payload class, contains batch of Elements
-  class RudderPayload {
-    constructor() {
-      this.batch = null;
-      this.write_key = null;
     }
 
   }
@@ -749,6 +740,15 @@ var analytics = (function (exports) {
 
   var Storage$1 =  Storage ;
 
+  //Payload class, contains batch of Elements
+  class RudderPayload {
+    constructor() {
+      this.batch = null;
+      this.write_key = null;
+    }
+
+  }
+
   class EventRepository {
     constructor() {
       this.eventsBuffer = [];
@@ -874,11 +874,11 @@ var analytics = (function (exports) {
     this.eventRepository.flush(rudderElement);
   }
 
-  var test =
+  var Analytics =
   /*#__PURE__*/
   function () {
-    function test() {
-      _classCallCheck(this, test);
+    function Analytics() {
+      _classCallCheck(this, Analytics);
 
       this.prop1 = "val1";
       this.prop2 = "val2";
@@ -897,7 +897,7 @@ var analytics = (function (exports) {
       this.eventRepository = eventRepository;
     }
 
-    _createClass(test, [{
+    _createClass(Analytics, [{
       key: "processResponse",
       value: function processResponse(status, response) {
         //console.log("from callback " + this.prop1);
@@ -1092,10 +1092,10 @@ var analytics = (function (exports) {
       }
     }]);
 
-    return test;
+    return Analytics;
   }();
 
-  var instance = new test();
+  var instance = new Analytics();
 
   {
     //console.log("is present? " + !!window.analytics);

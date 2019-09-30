@@ -11,9 +11,9 @@ class RudderContext {
     this.rl_traits = null;
     this.rl_library = new RudderLibraryInfo();
     //this.rl_os = null;
-    var os = new RudderOSInfo();
+    let os = new RudderOSInfo();
     os.rl_version = ""; //skipping version for simplicity now
-    var screen = new RudderScreenInfo();
+    let screen = new RudderScreenInfo();
 
     //Depending on environment within which the code is executing, screen
     //dimensions can be set
