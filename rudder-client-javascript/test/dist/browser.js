@@ -347,12 +347,10 @@ var analytics = (function (exports) {
   }();
 
   //import nodeCode from "./node";
-  var index =  {
-    HubSpot
-  } ;
+  var index =  HubSpot ;
 
   var integrations = {
-    HS: index.HubSpot
+    HS: index
   };
 
   //Application class
@@ -607,6 +605,10 @@ var analytics = (function (exports) {
       this.rl_message.rl_context.rl_traits = traits;
     }
 
+    getElementContent() {
+      return this.rl_message;
+    }
+
   }
 
   var RudderElement_1 = {
@@ -624,6 +626,7 @@ var analytics = (function (exports) {
       this.event = null;
       this.userId = null;
       this.channel = null;
+      this.type = null;
     } //Set the property
 
 
@@ -665,9 +668,15 @@ var analytics = (function (exports) {
       return this;
     }
 
+    setType(eventType) {
+      this.type = eventType;
+      return this;
+    }
+
     build() {
       var element = new RudderElement$1();
       element.setUserId(this.userId);
+      element.setType(this.type);
       element.setEventName(this.event);
       element.setProperty(this.rudderProperty);
       element.setUserProperty(this.rudderUserProperty);
@@ -812,6 +821,75 @@ var analytics = (function (exports) {
   };
   var RudderTraits_2 = RudderTraits_1.RudderTraits;
 
+  let defaults = {
+    user_storage_key: "rl_user_id",
+    user_storage_trait: "rl_trait"
+  };
+
+  class Storage {
+    constructor() {
+      this.storage = window.localStorage;
+    }
+
+    setItem(key, value) {
+      let stringValue = "";
+
+      if (typeof value == "string") {
+        stringValue = value;
+      }
+
+      if (typeof value == "object") {
+        stringValue = JSON.stringify(value);
+      }
+
+      this.storage.setItem(key, stringValue);
+    }
+
+    setUserId(value) {
+      if (typeof value != "string") {
+        console.log("userId should be string");
+        return;
+      }
+
+      this.storage.setItem(defaults.user_storage_key, value);
+      return;
+    }
+
+    setUserTraits(value) {
+      if (typeof value != "object") {
+        console.log("traits should be object");
+        return;
+      }
+
+      this.storage.setItem(defaults.user_storage_trait, JSON.stringify(value));
+      return;
+    }
+
+    getItem(key) {
+      let stringValue = this.storage.getItem(key);
+      return JSON.parse(stringValue);
+    }
+
+    getUserId() {
+      return this.storage.getItem(defaults.user_storage_key);
+    }
+
+    getUserTraits() {
+      return JSON.parse(this.storage.getItem(defaults.user_storage_trait));
+    }
+
+    removeItem(key) {
+      this.storage.removeItem(key);
+    }
+
+    clear() {
+      this.storage.clear();
+    }
+
+  }
+
+  var Storage$1 =  Storage ;
+
   function init(intgArray, configArray) {
     var _this = this;
 
@@ -864,7 +942,7 @@ var analytics = (function (exports) {
     //For Javascript SDK, event will be transmitted immediately
     //so buffer is really kept to be in alignment with other SDKs
     this.eventsBuffer = [];
-    this.eventsBuffer.push(rudderElement); //Add to event buffer
+    this.eventsBuffer.push(rudderElement.getElementContent()); //Add to event buffer
     //construct payload
 
     var payload = new RudderPayload();
@@ -874,7 +952,7 @@ var analytics = (function (exports) {
 
     var xhr = new XMLHttpRequest();
     console.log("==== in flush ====");
-    console.log(JSON.stringify(payload, replacer));
+    console.log(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
     xhr.open("POST", BASE_URL, true); //xhr.withCredentials = true;
 
     xhr.setRequestHeader("Content-Type", "application/json"); //register call back to reset event buffer on successfull POST
@@ -885,7 +963,7 @@ var analytics = (function (exports) {
       }
     };
 
-    xhr.send(JSON.stringify(payload, replacer));
+    xhr.send(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
     console.log("===flushed to Rudder BE");
   }
 
@@ -905,7 +983,10 @@ var analytics = (function (exports) {
       this.clientIntegrationObjects = undefined;
       this.toBeProcessedArray = [];
       this.toBeProcessedByIntegrationArray = [];
-      this.userId = undefined;
+      this.storage = new Storage$1();
+      this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : generateUUID();
+      this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
+      this.storage.setUserId(this.userId);
     }
 
     _createClass(test, [{
@@ -936,7 +1017,13 @@ var analytics = (function (exports) {
         if (typeof category === "object") options = name, properties = category, name = category = null;
         if (typeof name === "object") options = properties, properties = name, name = null;
         if (typeof category === "string" && typeof name !== "string") name = category, category = null;
-        var rudderElement = new RudderElementBuilder_2().build(); //console.log("arg length ",arguments.length)
+
+        if (!this.userId) {
+          this.userId = generateUUID();
+          this.storage.setUserId(this.userId);
+        }
+
+        var rudderElement = new RudderElementBuilder_2().setType("page").build(); //console.log("arg length ",arguments.length)
 
         if (name) {
           console.log("name ", name);
@@ -956,10 +1043,8 @@ var analytics = (function (exports) {
           rudderElement["rl_message"]["rl_properties"] = properties; //JSON.parse(arguments[1]);
         }
 
-        if (this.userId) {
-          rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement["rl_message"]["rl_user_id"] = this.userId;
-        }
-
+        rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
+        rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement["rl_message"]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"]["rl_anonymous_id"] = this.userId;
         console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
 
         if (this.clientIntegrationObjects) {
@@ -995,7 +1080,13 @@ var analytics = (function (exports) {
       value: function track(event, properties, options, callback) {
         if (typeof options == "function") callback = options, options = null;
         if (typeof properties == "function") callback = properties, options = null, properties = null;
-        var rudderElement = new RudderElementBuilder_2().build();
+
+        if (!this.userId) {
+          this.userId = generateUUID();
+          this.storage.setUserId(this.userId);
+        }
+
+        var rudderElement = new RudderElementBuilder_2().setType("track").build();
 
         if (event) {
           rudderElement.setEventName(event);
@@ -1005,10 +1096,8 @@ var analytics = (function (exports) {
           rudderElement.setProperty(properties);
         }
 
-        if (this.userId) {
-          rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement["rl_message"]["rl_user_id"] = this.userId;
-        }
-
+        rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
+        rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement["rl_message"]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"]["rl_anonymous_id"] = this.userId;
         console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
 
         if (this.clientIntegrationObjects) {
@@ -1037,9 +1126,10 @@ var analytics = (function (exports) {
       value: function identify(userId, traits, options, callback) {
         if (typeof options == "function") callback = options, options = null;
         if (typeof traits == "function") callback = traits, options = null, traits = null;
-        if (typeof userId == "object") options = traits, traits = userId, userId = generateUUID();
+        if (typeof userId == "object") options = traits, traits = userId, userId = this.userId;
         this.userId = userId;
-        var rudderElement = new RudderElementBuilder_2().build();
+        this.storage.setUserId(this.userId);
+        var rudderElement = new RudderElementBuilder_2().setType("identify").build();
         var rudderTraits = new RudderTraits_2();
         console.log(traits);
 
@@ -1051,8 +1141,10 @@ var analytics = (function (exports) {
           }
         }
 
-        rudderElement["rl_message"]["rl_context"]["rl_traits"] = rudderTraits;
-        rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement["rl_message"]["rl_user_id"] = this.userId;
+        this.userTraits = traits;
+        this.storage.setUserTraits(this.userTraits);
+        rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
+        rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement["rl_message"]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"]["rl_anonymous_id"] = this.userId;
         console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
 
         if (this.clientIntegrationObjects) {
@@ -1075,6 +1167,13 @@ var analytics = (function (exports) {
         if (callback) {
           callback();
         }
+      }
+    }, {
+      key: "reset",
+      value: function reset() {
+        this.userId = "";
+        this.userTraits = {};
+        this.storage.clear();
       }
     }, {
       key: "load",
@@ -1140,11 +1239,13 @@ var analytics = (function (exports) {
   var identify = instance.identify.bind(instance);
   var page = instance.page.bind(instance);
   var track = instance.track.bind(instance);
+  var reset = instance.reset.bind(instance);
   var load = instance.load.bind(instance);
 
   exports.identify = identify;
   exports.load = load;
   exports.page = page;
+  exports.reset = reset;
   exports.track = track;
 
   return exports;

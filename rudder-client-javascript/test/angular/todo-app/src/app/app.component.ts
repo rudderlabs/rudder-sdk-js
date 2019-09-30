@@ -15,10 +15,10 @@ export class AppComponent {
 
     analytics.identify(
       {
-        name: "Tintin",
-        city: "Brussels",
-        country: "Belgium",
-        email: "tintin@herge.com"
+        name: "demo2",
+        city: "Orissa",
+        country: "India",
+        email: "demo2@gmail.com"
       },
       () => {
         console.log("in identify callback html");

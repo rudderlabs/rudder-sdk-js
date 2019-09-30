@@ -25,10 +25,7 @@
       //analytics.page();
       analytics.identify(
         {
-          name: "Tintin",
-          city: "Brussels",
-          country: "Belgium",
-          email: "tintin@herge.com"
+          name: "demo"
         },
         () => {
           console.log("in identify callback html");
@@ -47,6 +44,18 @@
         }
       );
 
+      analytics.identify(
+        {
+          name: "demo",
+          city: "Kolkata",
+          country: "India",
+          email: "demo@gmail.com"
+        },
+        () => {
+          console.log("in identify callback html");
+        }
+      );
+
       analytics.track("Article Started", {
         title: "How to Create a Tracking Plan",
         course: "Intro to Analytics",
@@ -54,7 +63,7 @@
       });
     </script>
 
-    <script src="https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js"></script>
+    <script src="./browser.js"></script>
 
     <script type="text/javascript">
       //var testObj = new analytics.test();
@@ -69,6 +78,20 @@
           title: "How to Create a Tracking Plan",
           course: "Intro to Analytics",
           revenue: 20
+        },
+        () => {
+          console.log("in track callback html");
+        }
+      );
+
+      analytics.reset();
+
+      analytics.track(
+        "New Track Event",
+        {
+          title: "How to Create a Tracking Plan",
+          course: "Intro to Demo",
+          revenue: 30
         },
         () => {
           console.log("in track callback html");
