@@ -20,7 +20,8 @@ export default {
   ],
   plugins: [
     replace({
-      "process.browser": process.env.NODE_ENV == "true" ? false : true
+      "process.browser": process.env.NODE_ENV == "true" ? false : true,
+      "process.prod": process.env.ENV == "prod" ? true : false
     }),
     resolve(),
     commonjs(),

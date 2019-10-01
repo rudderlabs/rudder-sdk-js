@@ -6,9 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",
-    "buildProdBrowser": "NODE_ENV=false uglify=true rollup -c",
+    "buildProdBrowser": "NODE_ENV=false  ENV=prod uglify=true rollup -c",
     "buildDevNode": "NODE_ENV=true uglify=false rollup -c",
-    "buildProdNode": "NODE_ENV=true uglify=true rollup -c"
+    "buildProdNode": "NODE_ENV=true ENV=prod uglify=true rollup -c"
   },
   "author": "",
   "license": "ISC",

@@ -7,33 +7,41 @@
 
 "use strict";
 
-var MessageType = require("./utils/constants.js").MessageType;
-var ECommerceParamNames = require("./utils/constants.js").ECommerceParamNames;
-var ECommerceEvents = require("./utils/constants.js").ECommerceEvents;
-var RudderIntegrationPlatform = require("./utils/constants.js")
+var MessageType = require("./analytics/utils/constants.js.js").MessageType;
+var ECommerceParamNames = require("./analytics/utils/constants.js.js")
+  .ECommerceParamNames;
+var ECommerceEvents = require("./analytics/utils/constants.js.js")
+  .ECommerceEvents;
+var RudderIntegrationPlatform = require("./analytics/utils/constants.js.js")
   .RudderIntegrationPlatform;
-var BASE_URL = require("./utils/constants.js").BASE_URL;
-var CONFIG_URL = require("./utils/constants.js").CONFIG_URL;
-var FLUSH_QUEUE_SIZE = require("./utils/constants.js").FLUSH_QUEUE_SIZE;
+var BASE_URL = require("./analytics/utils/constants.js.js").BASE_URL;
+var CONFIG_URL = require("./analytics/utils/constants.js.js").CONFIG_URL;
+var FLUSH_QUEUE_SIZE = require("./analytics/utils/constants.js.js")
+  .FLUSH_QUEUE_SIZE;
 
-var replacer = require("./utils/utils.js").replacer;
-var generateUUID = require("./utils/utils.js").generateUUID;
-var getCurrentTimeFormatted = require("./utils/utils.js")
+var replacer = require("./analytics/utils/utils.js.js").replacer;
+var generateUUID = require("./analytics/utils/utils.js.js").generateUUID;
+var getCurrentTimeFormatted = require("./analytics/utils/utils.js.js")
   .getCurrentTimeFormatted;
-var getJSON = require("./utils/utils.js").getJSON;
-var RudderConfig = require("./utils/RudderConfig.js").RudderConfig;
-var AnalyticsManager = require("./utils/AnalyticsManager.js");
-var EventRepository = require("./utils/EventRepository.js").EventRepository;
-var RudderPayload = require("./utils/RudderPayload.js");
-var RudderElement = require("./utils/RudderElement.js");
-var RudderElementBuilder = require("./utils/RudderElementBuilder.js").RudderElementBuilder;
-var RudderMessage = require("./utils/RudderMessage.js");
-var RudderContext = require("./utils/RudderContext.js");
-var RudderApp = require("./utils/RudderApp.js");
-var RudderTraits = require("./utils/RudderTraits.js").RudderTraits;
-var TraitsAddress = require("./utils/RudderTraits.js").TraitsAddress;
-var TraitsCompany = require("./utils/RudderTraits.js").TraitsCompany;
-var RudderLibraryInfo = require("./utils/RudderInfo.js").RudderLibraryInfo;
+var getJSON = require("./analytics/utils/utils.js.js").getJSON;
+var RudderConfig = require("./analytics/utils/RudderConfig.js.js").RudderConfig;
+var AnalyticsManager = require("./analytics/utils/AnalyticsManager.js.js");
+var EventRepository = require("./analytics/utils/EventRepository.js.js")
+  .EventRepository;
+var RudderPayload = require("./analytics/utils/RudderPayload.js");
+var RudderElement = require("./analytics/utils/RudderElement.js.js");
+var RudderElementBuilder = require("./analytics/utils/RudderElementBuilder.js.js")
+  .RudderElementBuilder;
+var RudderMessage = require("./analytics/utils/RudderMessage.js.js");
+var RudderContext = require("./analytics/utils/RudderContext.js.js");
+var RudderApp = require("./analytics/utils/RudderApp.js.js");
+var RudderTraits = require("./analytics/utils/RudderTraits.js.js").RudderTraits;
+var TraitsAddress = require("./analytics/utils/RudderTraits.js.js")
+  .TraitsAddress;
+var TraitsCompany = require("./analytics/utils/RudderTraits.js.js")
+  .TraitsCompany;
+var RudderLibraryInfo = require("./analytics/utils/RudderInfo.js.js")
+  .RudderLibraryInfo;
 
 //Singleton implementation of the core SDK client class
 var RudderClient = (function() {
@@ -123,7 +131,9 @@ var RudderClient = (function() {
         //Check that valid input object instances have been provided for creating
         //RudderClient instance
         console.log(RudderConfig);
-        var rudderConfig = new RudderConfig().getDefaultConfig().setFlushQueueSize(1)
+        var rudderConfig = new RudderConfig()
+          .getDefaultConfig()
+          .setFlushQueueSize(1);
 
         if (!writeKey || 0 === writeKey.length) {
           throw new Error("writeKey cannot be null or empty");

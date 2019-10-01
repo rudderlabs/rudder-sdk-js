@@ -46,7 +46,8 @@ class Storage {
     this.storage.removeItem(key);
   }
   clear() {
-    this.storage.clear();
+    this.storage.removeItem(defaults.user_storage_key);
+    this.storage.removeItem(defaults.user_storage_trait);
   }
 }
 

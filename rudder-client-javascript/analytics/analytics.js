@@ -9,43 +9,9 @@ import PromotionViewedEvent from "./utils/PromotionViewedEvent";
 import ECommercePromotion from "./utils/ECommercePromotion";
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
-function init(intgArray, configArray) {
-  console.log("supported intgs ", integrations);
-  let i = 0;
-  this.clientIntegrationObjects = [];
-  if (!intgArray || intgArray.length == 0) {
-    this.toBeProcessedByIntegrationArray = [];
-    return;
-  }
-  intgArray.forEach(intg => {
-    //console.log("--name--", intg);
-    let intgClass = integrations[intg];
-    //console.log("--class-- ", intgClass);
-    if (intg === "HS") {
-      let hubId = configArray[i].hubId;
-      //console.log("==hubId== " + hubId);
-      hubId = "6405167";
-      let intgInstance = new intgClass(hubId);
-      intgInstance.init();
 
-      this.clientIntegrationObjects.push(intgInstance);
-    }
-  });
-
-  for (let i = 0; i < this.clientIntegrationObjects.length; i++) {
-    //send the queued events to the fetched integration
-    this.toBeProcessedByIntegrationArray.forEach(event => {
-      let methodName = event[0];
-      event.shift();
-      /* console.log(
-        "replay on integrations " + "method " + methodName + " args " + event
-      ); */
-      //uncomment to send data to destination
-      this.clientIntegrationObjects[i][methodName](...event);
-    });
-  }
-
-  this.toBeProcessedByIntegrationArray = [];
+if (process.prod) {
+  console.log = () => {};
 }
 
 function flush(rudderElement) {
@@ -103,14 +69,50 @@ class Analytics {
         this.configArray.push(destination.config);
       }
     }, this);
-    init.call(this, this.clientIntegrations, this.configArray);
+    //init.call(this, this.clientIntegrations, this.configArray);
+    this.init(this.clientIntegrations, this.configArray);
+  }
+
+  init(intgArray, configArray) {
+    console.log("supported intgs ", integrations);
+    let i = 0;
+    this.clientIntegrationObjects = [];
+    if (!intgArray || intgArray.length == 0) {
+      this.toBeProcessedByIntegrationArray = [];
+      return;
+    }
+    intgArray.forEach(intg => {
+      //console.log("--name--", intg);
+      let intgClass = integrations[intg];
+      //console.log("--class-- ", intgClass);
+      if (intg === "HS") {
+        let hubId = configArray[i].hubId;
+        //console.log("==hubId== " + hubId);
+        hubId = "6405167";
+        let intgInstance = new intgClass(hubId);
+        intgInstance.init();
+
+        this.clientIntegrationObjects.push(intgInstance);
+      }
+    });
+
+    for (let i = 0; i < this.clientIntegrationObjects.length; i++) {
+      //send the queued events to the fetched integration
+      this.toBeProcessedByIntegrationArray.forEach(event => {
+        let methodName = event[0];
+        event.shift();
+        /* console.log(
+          "replay on integrations " + "method " + methodName + " args " + event
+        ); */
+        //uncomment to send data to destination
+        this.clientIntegrationObjects[i][methodName](...event);
+      });
+    }
+
+    this.toBeProcessedByIntegrationArray = [];
   }
 
   page(category, name, properties, options, callback) {
-    //console.log("type=== " + typeof arguments);
-
-    let args = Array.from(arguments);
-    console.log("args ", args);
     if (typeof options == "function") (callback = options), (options = null);
     if (typeof properties == "function")
       (callback = properties), (options = properties = null);
@@ -158,26 +160,14 @@ class Analytics {
     //try to first send to all integrations, if list populated from BE
     if (this.clientIntegrationObjects) {
       this.clientIntegrationObjects.forEach(obj => {
-        //obj.page(...arguments);
-        //console.log("called in normal flow");
-        //obj.page({ rl_message: { rl_properties: { path: "/abc-123" } } }); //test
         obj.page(rudderElement);
       });
     }
 
-    if (
-      !this.clientIntegrationObjects
-      /*this.clientIntegrationObjects.length === 0  &&
-      args[args.length - 1] != "wait" */
-    ) {
-      //console.log("pushing in replay queue");
-      //args.unshift("page");
-      //this.toBeProcessedArray.push(args); //new event processing after analytics initialized  but integrations not fetched from BE
+    if (!this.clientIntegrationObjects) {
+      //new event processing after analytics initialized  but integrations not fetched from BE
       this.toBeProcessedByIntegrationArray.push(["page", rudderElement]);
     }
-
-    // self analytics process
-    //console.log("args ", args.slice(0, args.length - 1));
 
     flush.call(this, rudderElement);
 
@@ -250,15 +240,9 @@ class Analytics {
     let rudderTraits = new RudderTraits();
     console.log(traits);
     if (traits) {
-      for (let k in traits) {
-        if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
-          rudderTraits[k] = traits[k];
-        }
-      }
+      this.userTraits = traits;
+      this.storage.setUserTraits(this.userTraits);
     }
-
-    this.userTraits = traits;
-    this.storage.setUserTraits(this.userTraits);
 
     rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
     rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
@@ -346,4 +330,14 @@ let track = instance.track.bind(instance);
 let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
 
-export { page, track, load, identify, reset, RudderElementBuilder, PromotionViewedEvent, ECommercePromotion, ECommerceEvents };
+export {
+  page,
+  track,
+  load,
+  identify,
+  reset,
+  RudderElementBuilder,
+  PromotionViewedEvent,
+  ECommercePromotion,
+  ECommerceEvents
+};

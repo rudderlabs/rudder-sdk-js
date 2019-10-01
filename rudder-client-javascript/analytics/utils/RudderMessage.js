@@ -18,7 +18,7 @@ class RudderMessage {
     //By default, all integrations will be set as enabled from client
     //Decision to route to specific destinations will be taken at server end
     this.rl_integrations = {};
-    this.rl_integrations["all"] = true;
+    this.rl_integrations["All"] = true;
   }
 
   //Get property

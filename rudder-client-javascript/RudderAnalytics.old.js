@@ -1,8 +1,8 @@
-import { getJSONTrimmed } from "./utils/utils";
-import { CONFIG_URL } from "./utils/constants";
-import { RudderElementBuilder } from "./utils/RudderElementBuilder";
-import { EventRepository } from "./utils/EventRepository";
-import { RudderConfig } from "./utils/RudderConfig";
+import { getJSONTrimmed } from "./analytics/utils/utils";
+import { CONFIG_URL } from "./analytics/utils/constants";
+import { RudderElementBuilder } from "./analytics/utils/RudderElementBuilder";
+import { EventRepository } from "./analytics/utils/EventRepository";
+import { RudderConfig } from "./analytics/utils/RudderConfig";
 
 class test {
   constructor() {
@@ -18,20 +18,19 @@ class test {
     console.log("page called " + this.prop1);
     //}
     var rudderElement = new RudderElementBuilder().build();
-    console.log(typeof(arguments[0]))
-    if(arguments.length > 0){
-        console.log("arg length ",arguments.length)
-        let methodArguments = arguments//arguments[0]
-        if(methodArguments[0]){
-            console.log("arg0 ", methodArguments[0])
-            rudderElement['rl_message']['rl_name'] = methodArguments[0]//JSON.parse(arguments[1]);
-        }
-        console.log("arg1 ",methodArguments[1])
-        if(methodArguments[1]){
-            console.log(JSON.parse(JSON.stringify(methodArguments[1])))
-            rudderElement['rl_message']['rl_properties'] = methodArguments[1]//JSON.parse(arguments[1]);
-        }
-        
+    console.log(typeof arguments[0]);
+    if (arguments.length > 0) {
+      console.log("arg length ", arguments.length);
+      let methodArguments = arguments; //arguments[0]
+      if (methodArguments[0]) {
+        console.log("arg0 ", methodArguments[0]);
+        rudderElement["rl_message"]["rl_name"] = methodArguments[0]; //JSON.parse(arguments[1]);
+      }
+      console.log("arg1 ", methodArguments[1]);
+      if (methodArguments[1]) {
+        console.log(JSON.parse(JSON.stringify(methodArguments[1])));
+        rudderElement["rl_message"]["rl_properties"] = methodArguments[1]; //JSON.parse(arguments[1]);
+      }
     }
     console.log(JSON.stringify(rudderElement));
     this.eventRepository.flush(rudderElement);
@@ -42,20 +41,19 @@ class test {
     console.log("track called " + this.prop2);
     //}
     var rudderElement = new RudderElementBuilder().build();
-    if(arguments.length > 0){
-        console.log("arg length ",arguments.length)
-        let methodArguments = arguments//arguments[0]
-        if(methodArguments[0]){
-            console.log("arg0 ", methodArguments[0])
-            //rudderElement['rl_message']['rl_name'] = methodArguments[0]//JSON.parse(arguments[1]);
-            rudderElement.setEventName(methodArguments[0])
-        }
-        console.log("arg1 ",methodArguments[1])
-        if(methodArguments[1]){
-            console.log(JSON.parse(JSON.stringify(methodArguments[1])))
-            rudderElement.setProperty(methodArguments[1])
-        }
-        
+    if (arguments.length > 0) {
+      console.log("arg length ", arguments.length);
+      let methodArguments = arguments; //arguments[0]
+      if (methodArguments[0]) {
+        console.log("arg0 ", methodArguments[0]);
+        //rudderElement['rl_message']['rl_name'] = methodArguments[0]//JSON.parse(arguments[1]);
+        rudderElement.setEventName(methodArguments[0]);
+      }
+      console.log("arg1 ", methodArguments[1]);
+      if (methodArguments[1]) {
+        console.log(JSON.parse(JSON.stringify(methodArguments[1])));
+        rudderElement.setProperty(methodArguments[1]);
+      }
     }
     console.log(JSON.stringify(rudderElement));
   }
@@ -106,19 +104,17 @@ if (window) {
   console.log(methodCalls);
   methodCalls.forEach(element => {
     let argsLength = element.length;
-    console.log("====", argsLength, element)
-    let methodName = element[0]
-    element.shift()
-    if(argsLength > 0){
-        console.log("slice====", ...element)
+    console.log("====", argsLength, element);
+    let methodName = element[0];
+    element.shift();
+    if (argsLength > 0) {
+      console.log("slice====", ...element);
       instance[methodName](...element);
     } else {
       instance[methodName]();
     }
   });
 }
-
-
 
 let page = instance.page.bind(instance);
 let track = instance.track.bind(instance);

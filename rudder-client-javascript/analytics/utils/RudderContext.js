@@ -19,7 +19,7 @@ class RudderContext {
     //dimensions can be set
     //User agent and locale can be retrieved only for browser
     //For server-side integration, same needs to be set by calling program
-    if (typeof window === "undefined") {
+    if (process.browser) {
       //server-side integration
       screen.rl_width = 0;
       screen.rl_height = 0;
