@@ -7,7 +7,7 @@
       analytics = window.analytics = [];
       XMLHttpRequestNode = XMLHttpRequest;
       analytics.page = function() {
-        console.log(...arguments)
+        console.log(...arguments);
         analytics.push(["page", ...arguments]);
       };
       analytics.track = function() {
@@ -22,12 +22,17 @@
       };
 
       analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
-      analytics.identify({
-        name: "Tintin",
-        city: "Brussels",
-        country: "Belgium",
-        email: "tintin@herge.com"
-      }, ()=>{console.log("in identify callback html")});
+      analytics.identify(
+        {
+          name: "Tintin",
+          city: "Brussels",
+          country: "Belgium",
+          email: "tintin@herge.com"
+        },
+        () => {
+          console.log("in identify callback html");
+        }
+      );
       analytics.page("Wishlist1");
       /* var counter = 1
       setInterval(() => {
@@ -51,7 +56,7 @@
         revenue: 10
       }); */
     </script>
-    <script src="browser.js"></script>
+    <script src="../dist/browser.js"></script>
 
     <script type="text/javascript">
       //var testObj = new analytics.test();
@@ -65,14 +70,21 @@
         course: 'Intro to Analytics',
         revenue: 20
       }, ()=>{console.log("in track callback html")}); */
-      analytics.track(new analytics.RudderElementBuilder().
-                setEvent(analytics.ECommerceEvents.PROMOTION_VIEWED).
-                setProperty(new analytics.PromotionViewedEvent().
-                setPromotion(new analytics.ECommercePromotion().
-                setPromotionId("Dummy Promotion 1").
-                setCreative("Dummy Creative 1")).
-                build().getPropertyMap()).
-                build());
+      analytics.track(
+        new analytics.RudderElementBuilder()
+          .setEvent(analytics.ECommerceEvents.PROMOTION_VIEWED)
+          .setProperty(
+            new analytics.PromotionViewedEvent()
+              .setPromotion(
+                new analytics.ECommercePromotion()
+                  .setPromotionId("Dummy Promotion 1")
+                  .setCreative("Dummy Creative 1")
+              )
+              .build()
+              .getPropertyMap()
+          )
+          .build()
+      );
     </script>
   </body>
 </html>
