@@ -1,10 +1,12 @@
 import { getJSONTrimmed, generateUUID } from "./utils/utils";
-import { CONFIG_URL } from "./utils/constants";
+import { CONFIG_URL, ECommerceEvents } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import { RudderTraits } from "./utils/RudderTraits";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
+import PromotionViewedEvent from "./utils/PromotionViewedEvent";
+import ECommercePromotion from "./utils/ECommercePromotion";
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 function init(intgArray, configArray) {
@@ -344,4 +346,4 @@ let track = instance.track.bind(instance);
 let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
 
-export { page, track, load, identify, reset };
+export { page, track, load, identify, reset, RudderElementBuilder, PromotionViewedEvent, ECommercePromotion, ECommerceEvents };
