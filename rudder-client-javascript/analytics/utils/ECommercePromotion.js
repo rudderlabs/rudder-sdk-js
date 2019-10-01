@@ -29,6 +29,4 @@ class ECommercePromotion {
   }
 }
 
-module.exports = {
-  ECommercePromotion: ECommercePromotion
-};
+export default ECommercePromotion;

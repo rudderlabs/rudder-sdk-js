@@ -6,7 +6,7 @@
     <script type="text/javascript">
       analytics = window.analytics = [];
       analytics.page = function() {
-        console.log(...arguments);
+        console.log(...arguments)
         analytics.push(["page", ...arguments]);
       };
       analytics.track = function() {
@@ -21,76 +21,57 @@
       };
 
       analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
-      //analytics.page("Wishlist");
+      analytics.identify({
+        name: "Tintin",
+        city: "Brussels",
+        country: "Belgium",
+        email: "tintin@herge.com"
+      }, ()=>{console.log("in identify callback html")});
+      analytics.page("Wishlist1");
+      /* var counter = 1
+      setInterval(() => {
+        analytics.page("Wishlist"+ ++counter)
+      }, 2000); */
       //analytics.page();
-      analytics.identify(
-        {
-          name: "demo"
-        },
-        () => {
-          console.log("in identify callback html");
-        }
-      );
-
-      analytics.page(
-        "Dashboard",
-        {
-          title: "abc",
-          url: "http://abc.com",
-          path: "/abc"
-        },
-        () => {
-          console.log("in page callback html");
-        }
-      );
-
-      analytics.identify(
-        {
-          name: "demo",
-          city: "Kolkata",
-          country: "India",
-          email: "demo@gmail.com"
-        },
-        () => {
-          console.log("in identify callback html");
-        }
-      );
-
-      analytics.track("Article Started", {
-        title: "How to Create a Tracking Plan",
-        course: "Intro to Analytics",
+      /* analytics.identify({
+        name: "Tintin",
+        city: "Brussels",
+        country: "Belgium",
+        email: "tintin@herge.com"
+      }, ()=>{console.log("in identify callback html")}); */
+      /* analytics.page("Dashboard", {
+        "title":"abc",
+        "url":"http://abc.com",
+        "path":"/abc"
+      },()=>{console.log("in page callback html")});
+      analytics.track('Article Started', {
+        title: 'How to Create a Tracking Plan',
+        course: 'Intro to Analytics',
         revenue: 10
-      });
+      }); */
     </script>
-
-    <script src="../dist/browser.js"></script>
+    <script src="browser.js"></script>
 
     <script type="text/javascript">
-      analytics.track(
-        "Article Completed",
-        {
-          title: "How to Create a Tracking Plan",
-          course: "Intro to Analytics",
-          revenue: 20
-        },
-        () => {
-          console.log("in track callback html");
-        }
-      );
-
-      analytics.reset();
-
-      analytics.track(
-        "New Track Event",
-        {
-          title: "How to Create a Tracking Plan",
-          course: "Intro to Demo",
-          revenue: 30
-        },
-        () => {
-          console.log("in track callback html");
-        }
-      );
+      //var testObj = new analytics.test();
+      //testObj.track();
+      //testObj.page();
+      //analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
+      //analytics.page("Wishlist");
+      //analytics.page();
+      /* analytics.track('Article Completed', {
+        title: 'How to Create a Tracking Plan',
+        course: 'Intro to Analytics',
+        revenue: 20
+      }, ()=>{console.log("in track callback html")}); */
+      analytics.track(new analytics.RudderElementBuilder().
+                setEvent(analytics.ECommerceEvents.PROMOTION_VIEWED).
+                setProperty(new analytics.PromotionViewedEvent().
+                setPromotion(new analytics.ECommercePromotion().
+                setPromotionId("Dummy Promotion 1").
+                setCreative("Dummy Creative 1")).
+                build().getPropertyMap()).
+                build());
     </script>
   </body>
 </html>

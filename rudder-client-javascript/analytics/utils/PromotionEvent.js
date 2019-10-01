@@ -1,4 +1,4 @@
-var RudderProperty = require("./RudderProperty");
+import { RudderProperty } from "./RudderProperty";
 
 //Parent class of promotion viewed and promotion clicked events
 class PromotionEvent {
@@ -19,6 +19,4 @@ class PromotionEvent {
   }
 }
 
-module.exports = {
-  PromotionEvent: PromotionEvent
-};
+export default PromotionEvent;
