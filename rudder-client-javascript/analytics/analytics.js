@@ -24,8 +24,6 @@ function flush(rudderElement) {
 
 class Analytics {
   constructor() {
-    this.prop1 = "val1";
-    this.prop2 = "val2";
     this.ready = false;
     this.writeKey = "";
     this.eventsBuffer = [];
