@@ -1,3 +1,5 @@
+import * as XMLHttpRequestNode from "Xmlhttprequest";
+
 //Utility method for excluding null and empty values in JSON
 function replacer(key, value) {
   if (!value || value == "") {
@@ -39,7 +41,11 @@ function getCurrentTimeFormatted() {
 function getJSON(url, wrappers, isLoaded, callback) {
   //server-side integration, XHR is node module
 
-  let xhr = new XMLHttpRequest();
+  if (process.browser) {
+    var xhr = new XMLHttpRequestNode();
+  } else {
+    var xhr = new XMLHttpRequestNode.XMLHttpRequest();
+  }
   xhr.open("GET", url, false);
   xhr.onload = function() {
     let status = xhr.status;
@@ -60,7 +66,12 @@ function getJSON(url, wrappers, isLoaded, callback) {
 function getJSONTrimmed(context, url, callback) {
   //server-side integration, XHR is node module
   let cb_ = callback.bind(context);
-  let xhr = new XMLHttpRequest();
+
+  if (process.browser) {
+    var xhr = new XMLHttpRequestNode();
+  } else {
+    var xhr = new XMLHttpRequestNode.XMLHttpRequest();
+  }
   xhr.open("GET", url, true);
   xhr.onload = function() {
     let status = xhr.status;

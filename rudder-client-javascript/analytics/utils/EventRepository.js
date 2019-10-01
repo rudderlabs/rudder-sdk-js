@@ -6,6 +6,7 @@ import {
 import { getCurrentTimeFormatted } from "./utils";
 import { replacer } from "./utils";
 import { RudderPayload } from "./RudderPayload";
+import * as XMLHttpRequestNode from "Xmlhttprequest";
 
 //Event Repository
 class EventRepository {
@@ -33,7 +34,11 @@ class EventRepository {
     payload.sent_at = getCurrentTimeFormatted();
     //server-side integration, XHR is node module
 
-    var xhr = new XMLHttpRequest();
+    if (process.browser) {
+      var xhr = new XMLHttpRequestNode();
+    } else {
+      var xhr = new XMLHttpRequestNode.XMLHttpRequest();
+    }
 
     console.log("==== in flush sending to Rudder BE ====");
     console.log(JSON.stringify(payload, replacer).replace(/rl_/g, ""));

@@ -5,8 +5,10 @@
   "main": "./dist/browser.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "buildDev": "uglify=\"false\" rollup -c",
-    "buildProd": "uglify=\"true\" rollup -c"
+    "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",
+    "buildProdBrowser": "NODE_ENV=false uglify=true rollup -c",
+    "buildDevNode": "NODE_ENV=true uglify=false rollup -c",
+    "buildProdNode": "NODE_ENV=true uglify=true rollup -c"
   },
   "author": "",
   "license": "ISC",
@@ -28,6 +30,7 @@
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-terser": "^5.1.2",
-    "rollup-plugin-uglify": "^6.0.3"
+    "rollup-plugin-uglify": "^6.0.3",
+    "xmlhttprequest": "^1.8.0"
   }
 }

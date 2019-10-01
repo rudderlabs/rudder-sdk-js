@@ -6,6 +6,7 @@ import { terser } from "rollup-plugin-terser";
 
 export default {
   input: "analytics.js",
+  external: ["Xmlhttprequest"],
   output: [
     {
       file: "dist/browser.js",
@@ -18,7 +19,9 @@ export default {
     }
   ],
   plugins: [
-    replace({ "process.browser": true }),
+    replace({
+      "process.browser": process.env.NODE_ENV == "true" ? false : true
+    }),
     resolve(),
     commonjs(),
     babel({

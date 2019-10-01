@@ -5,6 +5,7 @@
 
     <script type="text/javascript">
       analytics = window.analytics = [];
+      XMLHttpRequestNode = XMLHttpRequest;
       analytics.page = function() {
         console.log(...arguments)
         analytics.push(["page", ...arguments]);
