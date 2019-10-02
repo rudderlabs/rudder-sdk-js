@@ -10,10 +10,11 @@ import ECommercePromotion from "./utils/ECommercePromotion";
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
-/* if (process.prod) {
-  console.log = () => {};
-} */
-
+/**
+ * Add the rudderelement object to flush queue
+ *
+ * @param {RudderElement} rudderElement
+ */
 function flush(rudderElement) {
   if (!this.eventRepository) {
     this.eventRepository = EventRepository;
@@ -21,7 +22,15 @@ function flush(rudderElement) {
   this.eventRepository.flush(rudderElement);
 }
 
+/**
+ * class responsible for handling core
+ * event tracking functionalities
+ */
 class Analytics {
+  /**
+   *Creates an instance of Analytics.
+   * @memberof Analytics
+   */
   constructor() {
     this.ready = false;
     this.writeKey = "";
@@ -46,6 +55,14 @@ class Analytics {
     this.eventRepository = EventRepository;
   }
 
+  /**
+   * Process the response from control plane and
+   * call initialize for integrations
+   *
+   * @param {*} status
+   * @param {*} response
+   * @memberof Analytics
+   */
   processResponse(status, response) {
     response = JSON.parse(response);
     response.source.destinations.forEach(function(destination, index) {
@@ -67,6 +84,15 @@ class Analytics {
     this.init(this.clientIntegrations, this.configArray);
   }
 
+  /**
+   * Initialize integrations by addinfg respective scripts
+   * keep the instances reference in core
+   *
+   * @param {*} intgArray
+   * @param {*} configArray
+   * @returns
+   * @memberof Analytics
+   */
   init(intgArray, configArray) {
     console.log("supported intgs ", integrations);
     let i = 0;
@@ -99,6 +125,16 @@ class Analytics {
     this.toBeProcessedByIntegrationArray = [];
   }
 
+  /**
+   * Process page params and forward to page call
+   *
+   * @param {*} category
+   * @param {*} name
+   * @param {*} properties
+   * @param {*} options
+   * @param {*} callback
+   * @memberof Analytics
+   */
   page(category, name, properties, options, callback) {
     if (typeof options == "function") (callback = options), (options = null);
     if (typeof properties == "function")
@@ -114,6 +150,15 @@ class Analytics {
     this.processPage(category, name, properties, options, callback);
   }
 
+  /**
+   * Process track params and forward to track call
+   *
+   * @param {*} event
+   * @param {*} properties
+   * @param {*} options
+   * @param {*} callback
+   * @memberof Analytics
+   */
   track(event, properties, options, callback) {
     if (typeof options == "function") (callback = options), (options = null);
     if (typeof properties == "function")
@@ -122,6 +167,15 @@ class Analytics {
     this.processTrack(event, properties, options, callback);
   }
 
+  /**
+   * Process identify params and forward to indentify  call
+   *
+   * @param {*} userId
+   * @param {*} traits
+   * @param {*} options
+   * @param {*} callback
+   * @memberof Analytics
+   */
   identify(userId, traits, options, callback) {
     if (typeof options == "function") (callback = options), (options = null);
     if (typeof traits == "function")
@@ -132,6 +186,16 @@ class Analytics {
     this.processIdentify(userId, traits, options, callback);
   }
 
+  /**
+   * Send page call to Rudder BE and to initialized integrations
+   *
+   * @param {*} category
+   * @param {*} name
+   * @param {*} properties
+   * @param {*} options
+   * @param {*} callback
+   * @memberof Analytics
+   */
   processPage(category, name, properties, options, callback) {
     if (!this.userId) {
       this.userId = generateUUID();
@@ -177,12 +241,21 @@ class Analytics {
 
     flush.call(this, rudderElement);
 
-    console.log("page called " + this.prop1);
+    console.log("page called ");
     if (callback) {
       callback();
     }
   }
 
+  /**
+   * Send track call to Rudder BE and to initialized integrations
+   *
+   * @param {*} event
+   * @param {*} properties
+   * @param {*} options
+   * @param {*} callback
+   * @memberof Analytics
+   */
   processTrack(event, properties, options, callback) {
     if (!this.userId) {
       this.userId = generateUUID();
@@ -222,12 +295,21 @@ class Analytics {
     // self analytics process
     flush.call(this, rudderElement);
 
-    console.log("track is called " + this.prop2);
+    console.log("track is called ");
     if (callback) {
       callback();
     }
   }
 
+  /**
+   * Send identify call to Rudder BE and to initialized integrations
+   *
+   * @param {*} userId
+   * @param {*} traits
+   * @param {*} options
+   * @param {*} callback
+   * @memberof Analytics
+   */
   processIdentify(userId, traits, options, callback) {
     this.userId = userId;
     this.storage.setUserId(this.userId);
@@ -265,12 +347,19 @@ class Analytics {
     // self analytics process
     flush.call(this, rudderElement);
 
-    console.log("identify is called " + this.prop2);
+    console.log("identify is called ");
     if (callback) {
       callback();
     }
   }
 
+  /**
+   * Identify call supporting rudderelement from builder
+   *
+   * @param {*} rudderElement
+   * @param {*} callback
+   * @memberof Analytics
+   */
   identifyUser(rudderElement, callback) {
     this.userId = userId;
     this.storage.setUserId(this.userId);
@@ -310,12 +399,19 @@ class Analytics {
     // self analytics process
     flush.call(this, rudderElement);
 
-    console.log("identify is called " + this.prop2);
+    console.log("identify is called ");
     if (callback) {
       callback();
     }
   }
 
+  /**
+   * Page call supporting rudderelement from builder
+   *
+   * @param {*} rudderElement
+   * @param {*} callback
+   * @memberof Analytics
+   */
   trackPage(rudderElement, callback) {
     if (!this.userId) {
       this.userId = generateUUID();
@@ -345,12 +441,19 @@ class Analytics {
 
     flush.call(this, rudderElement);
 
-    console.log("page called " + this.prop1);
+    console.log("page called ");
     if (callback) {
       callback();
     }
   }
 
+  /**
+   * Track call supporting rudderelement from builder
+   *
+   * @param {*} rudderElement
+   * @param {*} callback
+   * @memberof Analytics
+   */
   trackEvent(rudderElement, callback) {
     if (!this.userId) {
       this.userId = generateUUID();
@@ -382,20 +485,30 @@ class Analytics {
     // self analytics process
     flush.call(this, rudderElement);
 
-    console.log("track is called " + this.prop2);
     if (callback) {
       callback();
     }
   }
 
+  /**
+   * Clear user information
+   *
+   * @memberof Analytics
+   */
   reset() {
     this.userId = "";
     this.userTraits = {};
     this.storage.clear();
   }
 
+  /**
+   * Call control pane to get client configs
+   *
+   * @param {*} writeKey
+   * @memberof Analytics
+   */
   load(writeKey) {
-    console.log("inside load " + this.prop1);
+    console.log("inside load ");
     this.writeKey = writeKey;
     getJSONTrimmed(
       this,
@@ -449,6 +562,7 @@ export {
   trackEvent,
   trackPage,
   identifyUser,
+  // ideally if we are supporting builder, these should be part of init script rather than exported from core
   RudderElementBuilder,
   PromotionViewedEvent,
   ECommercePromotion,
