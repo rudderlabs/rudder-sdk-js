@@ -10,6 +10,9 @@
         console.log(...arguments);
         analytics.push(["page", ...arguments]);
       };
+      analytics.trackEvent = function() {
+        analytics.push(["trackEvent", ...arguments]);
+      };
       analytics.track = function() {
         analytics.push(["track", ...arguments]);
       };
@@ -22,7 +25,7 @@
       };
 
       analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
-      analytics.identify(
+      /* analytics.identify(
         {
           name: "Tintin",
           city: "Brussels",
@@ -33,7 +36,7 @@
           console.log("in identify callback html");
         }
       );
-      analytics.page("Wishlist1");
+      analytics.page("Wishlist1"); */
       /* var counter = 1
       setInterval(() => {
         analytics.page("Wishlist"+ ++counter)
@@ -45,7 +48,7 @@
         country: "Belgium",
         email: "tintin@herge.com"
       }, ()=>{console.log("in identify callback html")}); */
-      /* analytics.page("Dashboard", {
+      analytics.page("Dashboard", {
         "title":"abc",
         "url":"http://abc.com",
         "path":"/abc"
@@ -54,7 +57,7 @@
         title: 'How to Create a Tracking Plan',
         course: 'Intro to Analytics',
         revenue: 10
-      }); */
+      });
     </script>
     <script src="../dist/browser.js"></script>
 
@@ -70,7 +73,12 @@
         course: 'Intro to Analytics',
         revenue: 20
       }, ()=>{console.log("in track callback html")}); */
-      analytics.track(
+      /* analytics.track('Article Completed', {
+        title: 'How to Create a Tracking Plan',
+        course: 'Intro to Analytics',
+        revenue: 20
+      }, ()=>{console.log("in track callback html")}); */
+      analytics.trackEvent(
         new analytics.RudderElementBuilder()
           .setEvent(analytics.ECommerceEvents.PROMOTION_VIEWED)
           .setProperty(

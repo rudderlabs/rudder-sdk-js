@@ -16,7 +16,6 @@ if (process.prod) {
 
 function flush(rudderElement) {
   if (!this.eventRepository) {
-    //console.log("initialize event repo")
     this.eventRepository = EventRepository;
   }
   this.eventRepository.flush(rudderElement);
@@ -48,8 +47,6 @@ class Analytics {
   }
 
   processResponse(status, response) {
-    //console.log("from callback " + this.prop1);
-    //console.log(response);
     response = JSON.parse(response);
     response.source.destinations.forEach(function(destination, index) {
       console.log(
@@ -67,7 +64,6 @@ class Analytics {
         this.configArray.push(destination.config);
       }
     }, this);
-    //init.call(this, this.clientIntegrations, this.configArray);
     this.init(this.clientIntegrations, this.configArray);
   }
 
@@ -80,12 +76,9 @@ class Analytics {
       return;
     }
     intgArray.forEach(intg => {
-      //console.log("--name--", intg);
       let intgClass = integrations[intg];
-      //console.log("--class-- ", intgClass);
       if (intg === "HS") {
         let hubId = configArray[i].hubId;
-        //console.log("==hubId== " + hubId);
         hubId = "6405167";
         let intgInstance = new intgClass(hubId);
         intgInstance.init();
@@ -99,10 +92,6 @@ class Analytics {
       this.toBeProcessedByIntegrationArray.forEach(event => {
         let methodName = event[0];
         event.shift();
-        /* console.log(
-          "replay on integrations " + "method " + methodName + " args " + event
-        ); */
-        //uncomment to send data to destination
         this.clientIntegrationObjects[i][methodName](...event);
       });
     }
@@ -122,18 +111,38 @@ class Analytics {
       (options = properties), (properties = name), (name = null);
     if (typeof category === "string" && typeof name !== "string")
       (name = category), (category = null);
+    this.processPage(category, name, properties, options, callback);
+    
+  }
 
+  track(event, properties, options, callback) {
+    if (typeof options == "function") (callback = options), (options = null);
+    if (typeof properties == "function")
+      (callback = properties), (options = null), (properties = null);
+
+    this.processTrack(event, properties, options, callback);
+  }
+
+  identify(userId, traits, options, callback) {
+    if (typeof options == "function") (callback = options), (options = null);
+    if (typeof traits == "function")
+      (callback = traits), (options = null), (traits = null);
+    if (typeof userId == "object")
+      (options = traits), (traits = userId), (userId = this.userId);
+    
+    this.processIdentify(userId, traits, options, callback);
+  }
+
+  processPage(category, name, properties, options, callback){
     if (!this.userId) {
       this.userId = generateUUID();
       this.storage.setUserId(this.userId);
     }
 
     let rudderElement = new RudderElementBuilder().setType("page").build();
-    //console.log("arg length ",arguments.length)
-    let methodArguments = arguments; //arguments[0]
     if (name) {
       console.log("name ", name);
-      rudderElement["rl_message"]["rl_name"] = name; //JSON.parse(arguments[1]);
+      rudderElement["rl_message"]["rl_name"] = name;
     }
     if (category) {
       if (!properties) {
@@ -143,7 +152,7 @@ class Analytics {
     }
     if (properties) {
       console.log(JSON.parse(JSON.stringify(properties)));
-      rudderElement["rl_message"]["rl_properties"] = properties; //JSON.parse(arguments[1]);
+      rudderElement["rl_message"]["rl_properties"] = properties;
     }
 
     rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
@@ -175,11 +184,7 @@ class Analytics {
     }
   }
 
-  track(event, properties, options, callback) {
-    if (typeof options == "function") (callback = options), (options = null);
-    if (typeof properties == "function")
-      (callback = properties), (options = null), (properties = null);
-
+  processTrack(event, properties, options, callback){
     if (!this.userId) {
       this.userId = generateUUID();
       this.storage.setUserId(this.userId);
@@ -224,13 +229,7 @@ class Analytics {
     }
   }
 
-  identify(userId, traits, options, callback) {
-    if (typeof options == "function") (callback = options), (options = null);
-    if (typeof traits == "function")
-      (callback = traits), (options = null), (traits = null);
-    if (typeof userId == "object")
-      (options = traits), (traits = userId), (userId = this.userId);
-
+  processIdentify(userId, traits, options, callback){
     this.userId = userId;
     this.storage.setUserId(this.userId);
 
@@ -273,6 +272,120 @@ class Analytics {
     }
   }
 
+  identifyUser(rudderElement, callback){
+    this.userId = userId;
+    this.storage.setUserId(this.userId);
+
+    if (rudderElement && rudderElement["rl_message"]
+        && rudderElement["rl_message"]["rl_context"] 
+        && rudderElement["rl_message"]["rl_context"]["rl_traits"] ) {
+      this.userTraits = traits;
+      this.storage.setUserTraits(this.userTraits);
+    }
+
+    rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
+    rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
+      "rl_message"
+    ]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"][
+      "rl_anonymous_id"
+    ] = this.userId;
+
+    console.log(JSON.stringify(rudderElement));
+
+    //try to first send to all integrations, if list populated from BE
+    if (this.clientIntegrationObjects) {
+      this.clientIntegrationObjects.forEach(obj => {
+        console.log("called in normal flow");
+        obj.identify(rudderElement);
+      });
+    }
+    if (!this.clientIntegrationObjects) {
+      console.log("pushing in replay queue");
+      //new event processing after analytics initialized  but integrations not fetched from BE
+      this.toBeProcessedByIntegrationArray.push(["identify", rudderElement]);
+    }
+
+    // self analytics process
+    flush.call(this, rudderElement);
+
+    console.log("identify is called " + this.prop2);
+    if (callback) {
+      callback();
+    }
+  }
+
+  trackPage(rudderElement, callback){
+    if (!this.userId) {
+      this.userId = generateUUID();
+      this.storage.setUserId(this.userId);
+    }
+
+    rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
+    rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
+      "rl_message"
+    ]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"][
+      "rl_anonymous_id"
+    ] = this.userId;
+
+    console.log(JSON.stringify(rudderElement));
+
+    //try to first send to all integrations, if list populated from BE
+    if (this.clientIntegrationObjects) {
+      this.clientIntegrationObjects.forEach(obj => {
+        obj.page(rudderElement);
+      });
+    }
+
+    if (!this.clientIntegrationObjects) {
+      //new event processing after analytics initialized  but integrations not fetched from BE
+      this.toBeProcessedByIntegrationArray.push(["page", rudderElement]);
+    }
+
+    flush.call(this, rudderElement);
+
+    console.log("page called " + this.prop1);
+    if (callback) {
+      callback();
+    }
+  }
+
+  trackEvent(rudderElement, callback){
+    if (!this.userId) {
+      this.userId = generateUUID();
+      this.storage.setUserId(this.userId);
+    }
+
+    rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
+    rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
+      "rl_message"
+    ]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"][
+      "rl_anonymous_id"
+    ] = this.userId;
+
+    console.log(JSON.stringify(rudderElement));
+
+    //try to first send to all integrations, if list populated from BE
+    if (this.clientIntegrationObjects) {
+      this.clientIntegrationObjects.forEach(obj => {
+        console.log("called in normal flow");
+        obj.track(rudderElement);
+      });
+    }
+    if (!this.clientIntegrationObjects) {
+      console.log("pushing in replay queue");
+      //new event processing after analytics initialized  but integrations not fetched from BE
+      this.toBeProcessedByIntegrationArray.push(["track", rudderElement]);
+    }
+
+    // self analytics process
+    flush.call(this, rudderElement);
+
+    console.log("track is called " + this.prop2);
+    if (callback) {
+      callback();
+    }
+  }
+
   reset() {
     this.userId = "";
     this.userTraits = {};
@@ -293,14 +406,12 @@ class Analytics {
 let instance = new Analytics();
 
 if (process.browser) {
-  //console.log("is present? " + !!window.analytics);
   let eventsPushedAlready =
     !!window.analytics && window.analytics.push == Array.prototype.push;
 
   let methodArg = window.analytics ? window.analytics[0] : [];
   if (methodArg.length > 0 && methodArg[0] == "load") {
     instance[methodArg[0]](methodArg[1]);
-    //instance[methodArgNext[0]]("test args 1", "test args 2");
   }
 
   if (eventsPushedAlready) {
@@ -308,14 +419,10 @@ if (process.browser) {
       instance.toBeProcessedArray.push(window.analytics[i]);
     }
 
-    //console.log("queued " + instance.toBeProcessedArray.length);
-
     for (let i = 0; i < instance.toBeProcessedArray.length; i++) {
       let event = [...instance.toBeProcessedArray[i]];
-      //console.log("replay event " + event);
       let method = event[0];
       event.shift();
-      //console.log("replay event modified " + event);
       instance[method](...event);
     }
     instance.toBeProcessedArray = [];
@@ -325,6 +432,7 @@ if (process.browser) {
 let identify = instance.identify.bind(instance);
 let page = instance.page.bind(instance);
 let track = instance.track.bind(instance);
+let trackEvent = instance.trackEvent.bind(instance);
 let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
 
@@ -334,6 +442,7 @@ export {
   load,
   identify,
   reset,
+  trackEvent,
   RudderElementBuilder,
   PromotionViewedEvent,
   ECommercePromotion,
