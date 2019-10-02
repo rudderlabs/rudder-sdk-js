@@ -8,18 +8,32 @@ import { replacer } from "./utils";
 import { RudderPayload } from "./RudderPayload";
 import * as XMLHttpRequestNode from "Xmlhttprequest";
 
-//Event Repository
+/**
+ *
+ * @class EventRepository responsible for adding events into 
+ * flush queue and sending data to rudder backend 
+ * in batch and maintains order of the event.
+ */
 class EventRepository {
+  /**
+   *Creates an instance of EventRepository.
+   * @memberof EventRepository
+   */
   constructor() {
     this.eventsBuffer = [];
-    this.url = BASE_URL; //"http://localhost:9005"; //BASE_URL;
+    this.url = BASE_URL//"http://localhost:9005"; //BASE_URL;
     this.state = "READY";
-    /* setInterval(function (){
-        this.preaparePayloadAndFlush(this.eventsBuffer);
-      }, 5000); */
+    this.batchSize = 0;
     setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
   }
 
+  /**
+   *
+   *
+   * @param {EventRepository} repo
+   * @returns
+   * @memberof EventRepository
+   */
   preaparePayloadAndFlush(repo) {
     //construct payload
     console.log("==== in preaparePayloadAndFlush with state: " + repo.state);
@@ -27,11 +41,12 @@ class EventRepository {
     if (repo.eventsBuffer.length == 0 || repo.state === "PROCESSING") {
       return;
     }
-    var eventsPayload = repo.eventsBuffer.slice(0, FLUSH_QUEUE_SIZE);
+    var eventsPayload = repo.eventsBuffer;
     var payload = new RudderPayload();
-    payload.batch = eventsPayload; //this.eventsBuffer;
+    payload.batch = eventsPayload;
     payload.write_key = repo.write_key;
     payload.sent_at = getCurrentTimeFormatted();
+    repo.batchSize = repo.eventsBuffer.length;
     //server-side integration, XHR is node module
 
     if (process.browser) {
@@ -41,7 +56,6 @@ class EventRepository {
     }
 
     console.log("==== in flush sending to Rudder BE ====");
-    //console.log(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
     console.log(JSON.stringify(payload, replacer));
 
     xhr.open("POST", repo.url, true);
@@ -50,24 +64,26 @@ class EventRepository {
     //register call back to reset event buffer on successfull POST
     xhr.onreadystatechange = function() {
       if (xhr.readyState === 4 && xhr.status === 200) {
-        //this.eventsBuffer = []; //reset event buffer
         console.log("====== request processed successfully: " + xhr.status);
-        repo.eventsBuffer = repo.eventsBuffer.slice(FLUSH_QUEUE_SIZE);
+        repo.eventsBuffer = repo.eventsBuffer.slice(repo.batchSize);
         console.log(repo.eventsBuffer.length);
       } else if (xhr.readyState === 4 && xhr.status !== 200) {
         console.log("====== request failed with status: " + xhr.status);
       }
       repo.state = "READY";
     };
-    //xhr.send(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
     xhr.send(JSON.stringify(payload, replacer));
     repo.state = "PROCESSING";
   }
 
-  flush(rudderElement) {
-    //For Javascript SDK, event will be transmitted immediately
+  /**
+   *
+   *
+   * @param {RudderElement} rudderElement
+   * @memberof EventRepository
+   */
+  enqueue(rudderElement) {
     //so buffer is really kept to be in alignment with other SDKs
-    //this.eventsBuffer = [];
     console.log(this.eventsBuffer);
     this.eventsBuffer.push(rudderElement.getElementContent()); //Add to event buffer
     console.log("==== Added to flush queue =====" + this.eventsBuffer.length);

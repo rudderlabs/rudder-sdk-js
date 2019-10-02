@@ -1,6 +1,12 @@
 import * as XMLHttpRequestNode from "Xmlhttprequest";
 
-//Utility method for excluding null and empty values in JSON
+/**
+ *
+ * Utility method for excluding null and empty values in JSON
+ * @param {*} key
+ * @param {*} value
+ * @returns
+ */
 function replacer(key, value) {
   if (!value || value === "") {
     return undefined;
@@ -8,7 +14,12 @@ function replacer(key, value) {
     return value;
   }
 }
-//Utility function for UUID genration
+
+/**
+ *
+ * Utility function for UUID genration
+ * @returns
+ */
 function generateUUID() {
   // Public Domain/MIT
   let d = new Date().getTime();
@@ -25,7 +36,12 @@ function generateUUID() {
   });
 }
 
-//Utility function to get current time (formatted) for including in sent_at field
+
+/**
+ *
+ * Utility function to get current time (formatted) for including in sent_at field
+ * @returns
+ */
 function getCurrentTimeFormatted() {
   let curDateTime = new Date().toISOString();
   let curDate = curDateTime.split("T")[0];
@@ -37,7 +53,15 @@ function getCurrentTimeFormatted() {
   return curDate + " " + curTimeExceptMillis + "+" + curTimeMillis;
 }
 
-//Utility function to retrieve configuration JSON from server
+
+/**
+ *
+ * Utility function to retrieve configuration JSON from server
+ * @param {*} url
+ * @param {*} wrappers
+ * @param {*} isLoaded
+ * @param {*} callback
+ */
 function getJSON(url, wrappers, isLoaded, callback) {
   //server-side integration, XHR is node module
 
@@ -55,14 +79,18 @@ function getJSON(url, wrappers, isLoaded, callback) {
     } else {
       callback(status);
     }
-    console.log("in onload");
   };
-  console.log("before send");
   xhr.send();
-  console.log("after send");
 }
 
-//Utility function to retrieve configuration JSON from server
+
+/**
+ *
+ * Utility function to retrieve configuration JSON from server
+ * @param {*} context
+ * @param {*} url
+ * @param {*} callback
+ */
 function getJSONTrimmed(context, url, callback) {
   //server-side integration, XHR is node module
   let cb_ = callback.bind(context);
@@ -81,11 +109,8 @@ function getJSONTrimmed(context, url, callback) {
     } else {
       cb_(status);
     }
-    console.log("in response process");
   };
-  console.log("before send");
   xhr.send();
-  console.log("after send");
 }
 
 export {

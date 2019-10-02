@@ -15,11 +15,11 @@ import ECommercePromotion from "./utils/ECommercePromotion";
  *
  * @param {RudderElement} rudderElement
  */
-function flush(rudderElement) {
+function enqueue(rudderElement) {
   if (!this.eventRepository) {
     this.eventRepository = EventRepository;
   }
-  this.eventRepository.flush(rudderElement);
+  this.eventRepository.enqueue(rudderElement);
 }
 
 /**
@@ -239,7 +239,7 @@ class Analytics {
       this.toBeProcessedByIntegrationArray.push(["page", rudderElement]);
     }
 
-    flush.call(this, rudderElement);
+    enqueue.call(this, rudderElement);
 
     console.log("page called ");
     if (callback) {
@@ -293,7 +293,7 @@ class Analytics {
     }
 
     // self analytics process
-    flush.call(this, rudderElement);
+    enqueue.call(this, rudderElement);
 
     console.log("track is called ");
     if (callback) {
@@ -345,7 +345,7 @@ class Analytics {
     }
 
     // self analytics process
-    flush.call(this, rudderElement);
+    enqueue.call(this, rudderElement);
 
     console.log("identify is called ");
     if (callback) {
@@ -397,7 +397,7 @@ class Analytics {
     }
 
     // self analytics process
-    flush.call(this, rudderElement);
+    enqueue.call(this, rudderElement);
 
     console.log("identify is called ");
     if (callback) {
@@ -439,7 +439,7 @@ class Analytics {
       this.toBeProcessedByIntegrationArray.push(["page", rudderElement]);
     }
 
-    flush.call(this, rudderElement);
+    enqueue.call(this, rudderElement);
 
     console.log("page called ");
     if (callback) {
@@ -483,7 +483,7 @@ class Analytics {
     }
 
     // self analytics process
-    flush.call(this, rudderElement);
+    enqueue.call(this, rudderElement);
 
     if (callback) {
       callback();
