@@ -4,49 +4,49 @@ import { MessageType, ECommerceEvents } from "./constants";
 import RudderContext from "./RudderContext";
 class RudderMessage {
   constructor() {
-    this.rl_channel = "web";
-    this.rl_context = new RudderContext();
-    this.rl_type = null;
-    this.rl_action = null;
-    this.rl_message_id = generateUUID().toString();
-    this.rl_timestamp = new Date().getTime();
-    this.rl_anonymous_id = generateUUID().toString();
-    this.rl_user_id = null;
-    this.rl_event = null;
-    this.rl_properties = {};
+    this.channel = "web";
+    this.context = new RudderContext();
+    this.type = null;
+    this.action = null;
+    this.message_id = generateUUID().toString();
+    this.timestamp = new Date().getTime();
+    this.anonymous_id = generateUUID().toString();
+    this.user_id = null;
+    this.event = null;
+    this.properties = {};
 
     //By default, all integrations will be set as enabled from client
     //Decision to route to specific destinations will be taken at server end
-    this.rl_integrations = {};
-    this.rl_integrations["All"] = true;
+    this.integrations = {};
+    this.integrations["All"] = true;
   }
 
   //Get property
   getProperty(key) {
-    return this.rl_properties[key];
+    return this.properties[key];
   }
 
   //Add property
   addProperty(key, value) {
-    this.rl_properties[key] = value;
+    this.properties[key] = value;
   }
 
   //Validate whether this message is semantically valid for the type mentioned
   validateFor(messageType) {
-    //First check that rl_properties is populated
-    if (!this.rl_properties) {
-      throw new Error("Key rl_properties is required");
+    //First check that properties is populated
+    if (!this.properties) {
+      throw new Error("Key properties is required");
     }
     //Event type specific checks
     switch (messageType) {
       case MessageType.TRACK:
-        //check if rl_event is present
-        if (!this.rl_event) {
-          throw new Error("Key rl_event is required for track event");
+        //check if event is present
+        if (!this.event) {
+          throw new Error("Key event is required for track event");
         }
         //Next make specific checks for e-commerce events
-        if (this.rl_event in Object.values(ECommerceEvents)) {
-          switch (this.rl_event) {
+        if (this.event in Object.values(ECommerceEvents)) {
+          switch (this.event) {
             case ECommerceEvents.CHECKOUT_STEP_VIEWED:
             case ECommerceEvents.CHECKOUT_STEP_COMPLETED:
             case ECommerceEvents.PAYMENT_INFO_ENTERED:
@@ -62,17 +62,17 @@ class RudderMessage {
               break;
             default:
           }
-        } else if (!this.rl_properties["rl_category"]) {
-          //if rl_category is not there, set to rl_event
-          this.rl_properties["rl_category"] = this.rl_event;
+        } else if (!this.properties["category"]) {
+          //if category is not there, set to event
+          this.properties["category"] = this.event;
         }
 
         break;
       case MessageType.PAGE:
         break;
       case MessageType.SCREEN:
-        if (!this.rl_properties["name"]) {
-          throw new Error("Key 'name' is required in rl_properties");
+        if (!this.properties["name"]) {
+          throw new Error("Key 'name' is required in properties");
         }
         break;
     }
@@ -80,10 +80,8 @@ class RudderMessage {
 
   //Function for checking existence of a particular property
   checkForKey(propertyName) {
-    if (!this.rl_properties[propertyName]) {
-      throw new Error(
-        "Key '" + propertyName + "' is required in rl_properties"
-      );
+    if (!this.properties[propertyName]) {
+      throw new Error("Key '" + propertyName + "' is required in properties");
     }
   }
 }

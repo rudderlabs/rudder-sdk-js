@@ -13,7 +13,7 @@ class CartViewedEvent {
     if (!this.products) {
       this.products = products;
     } else {
-      this.products.pushValues(products);
+      this.products.pushValues(...products);
     }
     return this; //keeping code aligned with builder pattern
   }

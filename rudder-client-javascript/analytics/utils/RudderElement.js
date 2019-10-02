@@ -2,36 +2,36 @@ import RudderMessage from "./RudderMessage";
 //Individual element class containing Rudder Message
 class RudderElement {
   constructor() {
-    this.rl_message = new RudderMessage();
+    this.message = new RudderMessage();
   }
 
   //Setters that in turn set the field values for the contained object
   setType(type) {
-    this.rl_message.rl_type = type;
+    this.message.type = type;
   }
 
   setProperty(rudderProperty) {
-    this.rl_message.rl_properties = rudderProperty;
+    this.message.properties = rudderProperty;
   }
 
   setUserProperty(rudderUserProperty) {
-    this.rl_message.rl_user_properties = rudderUserProperty;
+    this.message.user_properties = rudderUserProperty;
   }
 
   setUserId(userId) {
-    this.rl_message.rl_user_id = userId;
+    this.message.user_id = userId;
   }
 
   setEventName(eventName) {
-    this.rl_message.rl_event = eventName;
+    this.message.event = eventName;
   }
 
   updateTraits(traits) {
-    this.rl_message.rl_context.rl_traits = traits;
+    this.message.context.traits = traits;
   }
 
   getElementContent() {
-    return this.rl_message;
+    return this.message;
   }
 }
 export default RudderElement;

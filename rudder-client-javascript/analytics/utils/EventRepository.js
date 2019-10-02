@@ -41,7 +41,8 @@ class EventRepository {
     }
 
     console.log("==== in flush sending to Rudder BE ====");
-    console.log(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
+    //console.log(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
+    console.log(JSON.stringify(payload, replacer));
 
     xhr.open("POST", repo.url, true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -58,7 +59,8 @@ class EventRepository {
       }
       repo.state = "READY";
     };
-    xhr.send(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
+    //xhr.send(JSON.stringify(payload, replacer).replace(/rl_/g, ""));
+    xhr.send(JSON.stringify(payload, replacer));
     repo.state = "PROCESSING";
   }
 

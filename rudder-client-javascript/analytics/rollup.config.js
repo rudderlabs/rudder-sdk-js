@@ -3,6 +3,7 @@ import commonjs from "rollup-plugin-commonjs";
 import resolve from "rollup-plugin-node-resolve";
 import replace from "rollup-plugin-replace";
 import { terser } from "rollup-plugin-terser";
+import strip from "rollup-plugin-strip";
 
 export default {
   input: "analytics.js",
@@ -23,6 +24,7 @@ export default {
       "process.browser": process.env.NODE_ENV == "true" ? false : true,
       "process.prod": process.env.ENV == "prod" ? true : false
     }),
+    process.env.ENV == "prod" && strip(),
     resolve(),
     commonjs(),
     babel({

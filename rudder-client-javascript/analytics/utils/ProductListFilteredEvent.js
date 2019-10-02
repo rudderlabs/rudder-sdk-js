@@ -22,7 +22,7 @@ class ProductListFilteredEvent {
     if (!this.products) {
       this.products = products;
     } else {
-      this.products.pushValues(products);
+      this.products.pushValues(...products);
     }
     return this;
   }
@@ -39,7 +39,7 @@ class ProductListFilteredEvent {
     if (!this.filters) {
       this.filters = filters;
     } else {
-      this.filters.pushValues(filters);
+      this.filters.pushValues(...filters);
     }
     return this;
   }
@@ -56,7 +56,7 @@ class ProductListFilteredEvent {
     if (!this.sorts) {
       this.sorts = sorts;
     } else {
-      this.sorts.pushValues(sorts);
+      this.sorts.pushValues(...sorts);
     }
     return this;
   }

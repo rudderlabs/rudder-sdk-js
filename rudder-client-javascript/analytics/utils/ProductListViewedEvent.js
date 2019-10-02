@@ -26,7 +26,7 @@ class ProductListViewedEvent {
     if (!this.products) {
       this.products = products;
     } else {
-      this.products.pushValues(products);
+      this.products.push(...products);
     }
     return this;
   }

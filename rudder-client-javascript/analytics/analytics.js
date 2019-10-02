@@ -10,9 +10,9 @@ import ECommercePromotion from "./utils/ECommercePromotion";
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
-if (process.prod) {
+/* if (process.prod) {
   console.log = () => {};
-}
+} */
 
 function flush(rudderElement) {
   if (!this.eventRepository) {
@@ -112,7 +112,6 @@ class Analytics {
     if (typeof category === "string" && typeof name !== "string")
       (name = category), (category = null);
     this.processPage(category, name, properties, options, callback);
-    
   }
 
   track(event, properties, options, callback) {
@@ -129,11 +128,11 @@ class Analytics {
       (callback = traits), (options = null), (traits = null);
     if (typeof userId == "object")
       (options = traits), (traits = userId), (userId = this.userId);
-    
+
     this.processIdentify(userId, traits, options, callback);
   }
 
-  processPage(category, name, properties, options, callback){
+  processPage(category, name, properties, options, callback) {
     if (!this.userId) {
       this.userId = generateUUID();
       this.storage.setUserId(this.userId);
@@ -142,7 +141,7 @@ class Analytics {
     let rudderElement = new RudderElementBuilder().setType("page").build();
     if (name) {
       console.log("name ", name);
-      rudderElement["rl_message"]["rl_name"] = name;
+      rudderElement["message"]["name"] = name;
     }
     if (category) {
       if (!properties) {
@@ -152,14 +151,14 @@ class Analytics {
     }
     if (properties) {
       console.log(JSON.parse(JSON.stringify(properties)));
-      rudderElement["rl_message"]["rl_properties"] = properties;
+      rudderElement["message"]["properties"] = properties;
     }
 
-    rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
-    rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
-      "rl_message"
-    ]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"][
-      "rl_anonymous_id"
+    rudderElement["message"]["context"]["traits"] = this.userTraits;
+    rudderElement["message"]["anonymous_id"] = rudderElement["message"][
+      "user_id"
+    ] = rudderElement["message"]["context"]["traits"][
+      "anonymous_id"
     ] = this.userId;
 
     console.log(JSON.stringify(rudderElement));
@@ -184,7 +183,7 @@ class Analytics {
     }
   }
 
-  processTrack(event, properties, options, callback){
+  processTrack(event, properties, options, callback) {
     if (!this.userId) {
       this.userId = generateUUID();
       this.storage.setUserId(this.userId);
@@ -198,11 +197,11 @@ class Analytics {
       rudderElement.setProperty(properties);
     }
 
-    rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
-    rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
-      "rl_message"
-    ]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"][
-      "rl_anonymous_id"
+    rudderElement["message"]["context"]["traits"] = this.userTraits;
+    rudderElement["message"]["anonymous_id"] = rudderElement["message"][
+      "user_id"
+    ] = rudderElement["message"]["context"]["traits"][
+      "anonymous_id"
     ] = this.userId;
 
     console.log(JSON.stringify(rudderElement));
@@ -229,7 +228,7 @@ class Analytics {
     }
   }
 
-  processIdentify(userId, traits, options, callback){
+  processIdentify(userId, traits, options, callback) {
     this.userId = userId;
     this.storage.setUserId(this.userId);
 
@@ -241,11 +240,11 @@ class Analytics {
       this.storage.setUserTraits(this.userTraits);
     }
 
-    rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
-    rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
-      "rl_message"
-    ]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"][
-      "rl_anonymous_id"
+    rudderElement["message"]["context"]["traits"] = this.userTraits;
+    rudderElement["message"]["anonymous_id"] = rudderElement["message"][
+      "user_id"
+    ] = rudderElement["message"]["context"]["traits"][
+      "anonymous_id"
     ] = this.userId;
 
     console.log(JSON.stringify(rudderElement));
@@ -272,22 +271,25 @@ class Analytics {
     }
   }
 
-  identifyUser(rudderElement, callback){
+  identifyUser(rudderElement, callback) {
     this.userId = userId;
     this.storage.setUserId(this.userId);
 
-    if (rudderElement && rudderElement["rl_message"]
-        && rudderElement["rl_message"]["rl_context"] 
-        && rudderElement["rl_message"]["rl_context"]["rl_traits"] ) {
+    if (
+      rudderElement &&
+      rudderElement["message"] &&
+      rudderElement["message"]["context"] &&
+      rudderElement["message"]["context"]["traits"]
+    ) {
       this.userTraits = traits;
       this.storage.setUserTraits(this.userTraits);
     }
 
-    rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
-    rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
-      "rl_message"
-    ]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"][
-      "rl_anonymous_id"
+    rudderElement["message"]["context"]["traits"] = this.userTraits;
+    rudderElement["message"]["anonymous_id"] = rudderElement["message"][
+      "user_id"
+    ] = rudderElement["message"]["context"]["traits"][
+      "anonymous_id"
     ] = this.userId;
 
     console.log(JSON.stringify(rudderElement));
@@ -314,17 +316,17 @@ class Analytics {
     }
   }
 
-  trackPage(rudderElement, callback){
+  trackPage(rudderElement, callback) {
     if (!this.userId) {
       this.userId = generateUUID();
       this.storage.setUserId(this.userId);
     }
 
-    rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
-    rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
-      "rl_message"
-    ]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"][
-      "rl_anonymous_id"
+    rudderElement["message"]["context"]["traits"] = this.userTraits;
+    rudderElement["message"]["anonymous_id"] = rudderElement["message"][
+      "user_id"
+    ] = rudderElement["message"]["context"]["traits"][
+      "anonymous_id"
     ] = this.userId;
 
     console.log(JSON.stringify(rudderElement));
@@ -349,17 +351,17 @@ class Analytics {
     }
   }
 
-  trackEvent(rudderElement, callback){
+  trackEvent(rudderElement, callback) {
     if (!this.userId) {
       this.userId = generateUUID();
       this.storage.setUserId(this.userId);
     }
 
-    rudderElement["rl_message"]["rl_context"]["rl_traits"] = this.userTraits;
-    rudderElement["rl_message"]["rl_anonymous_id"] = rudderElement[
-      "rl_message"
-    ]["rl_user_id"] = rudderElement["rl_message"]["rl_context"]["rl_traits"][
-      "rl_anonymous_id"
+    rudderElement["message"]["context"]["traits"] = this.userTraits;
+    rudderElement["message"]["anonymous_id"] = rudderElement["message"][
+      "user_id"
+    ] = rudderElement["message"]["context"]["traits"][
+      "anonymous_id"
     ] = this.userId;
 
     console.log(JSON.stringify(rudderElement));

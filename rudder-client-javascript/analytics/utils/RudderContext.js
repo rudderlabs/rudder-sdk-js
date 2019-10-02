@@ -7,12 +7,12 @@ import {
 } from "./RudderInfo";
 class RudderContext {
   constructor() {
-    this.rl_app = new RudderApp();
-    this.rl_traits = null;
-    this.rl_library = new RudderLibraryInfo();
-    //this.rl_os = null;
+    this.app = new RudderApp();
+    this.traits = null;
+    this.library = new RudderLibraryInfo();
+    //this.os = null;
     let os = new RudderOSInfo();
-    os.rl_version = ""; //skipping version for simplicity now
+    os.version = ""; //skipping version for simplicity now
     let screen = new RudderScreenInfo();
 
     //Depending on environment within which the code is executing, screen
@@ -21,26 +21,26 @@ class RudderContext {
     //For server-side integration, same needs to be set by calling program
     if (process.browser) {
       //server-side integration
-      screen.rl_width = 0;
-      screen.rl_height = 0;
-      screen.rl_density = 0;
-      os.rl_version = "";
-      os.rl_name = "";
-      this.rl_user_agent = null;
-      this.rl_locale = null;
+      screen.width = 0;
+      screen.height = 0;
+      screen.density = 0;
+      os.version = "";
+      os.name = "";
+      this.user_agent = null;
+      this.locale = null;
     } else {
       //running within browser
-      screen.rl_width = window.width;
-      screen.rl_height = window.height;
-      screen.rl_density = window.devicePixelRatio;
-      this.rl_user_agent = navigator.userAgent;
+      screen.width = window.width;
+      screen.height = window.height;
+      screen.density = window.devicePixelRatio;
+      this.user_agent = navigator.userAgent;
       //property name differs based on browser version
-      this.rl_locale = navigator.language || navigator.browserLanguage;
+      this.locale = navigator.language || navigator.browserLanguage;
     }
 
     this.screen = screen;
-    this.rl_device = null;
-    this.rl_network = null;
+    this.device = null;
+    this.network = null;
   }
 }
 export default RudderContext;

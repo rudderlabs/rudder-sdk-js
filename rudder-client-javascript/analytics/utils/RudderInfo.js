@@ -1,38 +1,38 @@
 //Library information class
 class RudderLibraryInfo {
   constructor() {
-    this.rl_name = "RudderLabs JavaScript SDK";
-    this.rl_version = "1.0.0";
+    this.name = "RudderLabs JavaScript SDK";
+    this.version = "1.0.0";
   }
 }
 //Operating System information class
 class RudderOSInfo {
   constructor() {
-    this.rl_name = "";
-    this.rl_version = "";
+    this.name = "";
+    this.version = "";
   }
 }
 //Screen information class
 class RudderScreenInfo {
   constructor() {
-    this.rl_density = 0;
-    this.rl_width = 0;
-    this.rl_height = 0;
+    this.density = 0;
+    this.width = 0;
+    this.height = 0;
   }
 }
 //Device information class
 class RudderDeviceInfo {
   constructor() {
-    this.rl_id = "";
-    this.rl_manufacturer = "";
-    this.rl_model = "";
-    this.rl_name = "";
+    this.id = "";
+    this.manufacturer = "";
+    this.model = "";
+    this.name = "";
   }
 }
 //Carrier information
 class RudderNetwork {
   constructor() {
-    this.rl_carrier = "";
+    this.carrier = "";
   }
 }
 export {

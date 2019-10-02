@@ -2,7 +2,7 @@ import * as XMLHttpRequestNode from "Xmlhttprequest";
 
 //Utility method for excluding null and empty values in JSON
 function replacer(key, value) {
-  if (!value || value == "") {
+  if (!value || value === "") {
     return undefined;
   } else {
     return value;

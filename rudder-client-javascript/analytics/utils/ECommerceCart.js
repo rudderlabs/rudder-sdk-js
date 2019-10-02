@@ -8,7 +8,7 @@ class ECommerceCart {
   addProducts(productsToBeAdded) {
     if (productsToBeAdded) {
       //add only if not-null
-      this.products.pushValues(productsToBeAdded);
+      this.products.pushValues(...productsToBeAdded);
     }
     return this; //to aid builder pattern
   }
