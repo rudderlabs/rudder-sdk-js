@@ -77,7 +77,7 @@ class ECommerceOrder {
         //check for null array
         this.products = [];
       }
-      this.products.pushValues(...productsToBeAdded);
+      this.products.push(...productsToBeAdded);
     }
     return this; //to aid builder pattern
   }
