@@ -105,7 +105,6 @@ class Analytics {
       let intgClass = integrations[intg];
       if (intg === "HS") {
         let hubId = configArray[i].hubId;
-        hubId = "6405167";
         let intgInstance = new intgClass(hubId);
         intgInstance.init();
 
