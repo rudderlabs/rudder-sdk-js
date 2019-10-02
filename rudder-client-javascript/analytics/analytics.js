@@ -433,6 +433,8 @@ let identify = instance.identify.bind(instance);
 let page = instance.page.bind(instance);
 let track = instance.track.bind(instance);
 let trackEvent = instance.trackEvent.bind(instance);
+let trackPage = instance.trackPage.bind(instance);
+let identifyUser = instance.identifyUser.bind(instance);
 let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
 
@@ -443,6 +445,8 @@ export {
   identify,
   reset,
   trackEvent,
+  trackPage,
+  identifyUser,
   RudderElementBuilder,
   PromotionViewedEvent,
   ECommercePromotion,
