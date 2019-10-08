@@ -1,1 +1,1562 @@
-var analytics=function(e,t){"use strict";function s(e){return(s="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}function i(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}function n(e,t){for(var s=0;s<t.length;s++){var i=t[s];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(e,i.key,i)}}function r(e,t,s){return t&&n(e.prototype,t),s&&n(e,s),e}function o(e){return(o=Object.setPrototypeOf?Object.getPrototypeOf:function(e){return e.__proto__||Object.getPrototypeOf(e)})(e)}function a(e,t){return(a=Object.setPrototypeOf||function(e,t){return e.__proto__=t,e})(e,t)}function u(e,t){return!t||"object"!=typeof t&&"function"!=typeof t?function(e){if(void 0===e)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return e}(e):t}function c(e){return function(e){if(Array.isArray(e)){for(var t=0,s=new Array(e.length);t<e.length;t++)s[t]=e[t];return s}}(e)||function(e){if(Symbol.iterator in Object(e)||"[object Arguments]"===Object.prototype.toString.call(e))return Array.from(e)}(e)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance")}()}function h(e,t){return t&&""!==t?t:void 0}function l(){var e=(new Date).getTime();return"undefined"!=typeof performance&&"function"==typeof performance.now&&(e+=performance.now()),"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,(function(t){var s=(e+16*Math.random())%16|0;return e=Math.floor(e/16),("x"===t?s:3&s|8).toString(16)}))}var d={TRACK:"track",PAGE:"page",IDENTIFY:"identify"},y={PRODUCTS_SEARCHED:"Products Searched",PRODUCT_LIST_VIEWED:"Product List Viewed",PRODUCT_LIST_FILTERED:"Product List Filtered",PROMOTION_VIEWED:"Promotion Viewed",PROMOTION_CLICKED:"Promotion Clicked",PRODUCT_CLICKED:"Product Clicked",PRODUCT_VIEWED:"Product Viewed",PRODUCT_ADDED:"Product Added",PRODUCT_REMOVED:"Product Removed",CART_VIEWED:"Cart Viewed",CHECKOUT_STARTED:"Checkout Started",CHECKOUT_STEP_VIEWED:"Checkout Step Viewed",CHECKOUT_STEP_COMPLETED:"Checkout Step Completed",PAYMENT_INFO_ENTERED:"Payment Info Entered",ORDER_UPDATED:"Order Updated",ORDER_COMPLETED:"Order Completed",ORDER_REFUNDED:"Order Refunded",ORDER_CANCELLED:"Order Cancelled",COUPON_ENTERED:"Coupon Entered",COUPON_APPLIED:"Coupon Applied",COUPON_DENIED:"Coupon Denied",COUPON_REMOVED:"Coupon Removed",PRODUCT_ADDED_TO_WISHLIST:"Product Added to Wishlist",PRODUCT_REMOVED_FROM_WISHLIST:"Product Removed from Wishlist",WISH_LIST_PRODUCT_ADDED_TO_CART:"Wishlist Product Added to Cart",PRODUCT_SHARED:"Product Shared",CART_SHARED:"Cart Shared",PRODUCT_REVIEWED:"Product Reviewed"},f="http://18.222.145.124:5000/dump",p=5e3;var g={HS:function(){function e(t){i(this,e),this.hubId=t}return r(e,[{key:"init",value:function(){!function(e,t){var s=document.createElement("script");s.src=t,s.type="text/javascript",s.id=e;var i=document.getElementsByTagName("script")[0];i.parentNode.insertBefore(s,i)}("hubspot-integration","http://js.hs-scripts.com/"+this.hubId+".js")}},{key:"identify",value:function(e){var t=e.message.context.traits,i={};for(var n in t){if(Object.getOwnPropertyDescriptor(t,n)&&t[n])i[n.startsWith("")?n.substring(3,n.length):n]=t[n]}if(i.address){var r=i.address;for(var o in delete i.address,r)if(Object.getOwnPropertyDescriptor(r,o)&&r[o]){var a=o.startsWith("")?o.substring(3,o.length):o;i[a="street"==a?"address":a]=r[o]}}var u=e.message.context.user_properties;for(var c in u){if(Object.getOwnPropertyDescriptor(u,c)&&u[c])i[c.startsWith("")?c.substring(3,c.length):c]=u[c]}void 0!==("undefined"==typeof window?"undefined":s(window))&&(window._hsq=window._hsq||[]).push(["identify",i])}},{key:"track",value:function(e){var t=window._hsq=window._hsq||[],s={};s.id=e.message.event,e.message.properties&&e.message.properties.revenue&&(s.value=e.message.properties.revenue),t.push(["trackEvent",s])}},{key:"page",value:function(e){var t=window._hsq=window._hsq||[];e.message.properties&&e.message.properties.path&&t.push(["setPath",e.message.properties.path]),t.push(["trackPageView"])}},{key:"loaded",value:function(){return!(!window._hsq||window._hsq.push===Array.prototype.push)}}]),e}()},v=function e(){i(this,e),this.build="1.0.0",this.name="RudderLabs JavaScript SDK",this.namespace="com.rudderlabs.javascript",this.version="1.0.0"},m=function e(){i(this,e),this.name="RudderLabs JavaScript SDK",this.version="1.0.0"},I=function e(){i(this,e),this.name="",this.version=""},E=function e(){i(this,e),this.density=0,this.width=0,this.height=0},k=function e(){i(this,e),this.app=new v,this.traits=null,this.library=new m;var t=new I;t.version="";var s=new E;s.width=0,s.height=0,s.density=0,t.version="",t.name="",this.user_agent=null,this.locale=null,this.screen=s,this.device=null,this.network=null},P=function(){function e(){i(this,e),this.channel="web",this.context=new k,this.type=null,this.action=null,this.message_id=l().toString(),this.timestamp=(new Date).getTime(),this.anonymous_id=l().toString(),this.user_id=null,this.event=null,this.properties={},this.integrations={},this.integrations.All=!0}return r(e,[{key:"getProperty",value:function(e){return this.properties[e]}},{key:"addProperty",value:function(e,t){this.properties[e]=t}},{key:"validateFor",value:function(e){if(!this.properties)throw new Error("Key properties is required");switch(e){case d.TRACK:if(!this.event)throw new Error("Key event is required for track event");if(this.event in Object.values(y))switch(this.event){case y.CHECKOUT_STEP_VIEWED:case y.CHECKOUT_STEP_COMPLETED:case y.PAYMENT_INFO_ENTERED:this.checkForKey("checkout_id"),this.checkForKey("step");break;case y.PROMOTION_VIEWED:case y.PROMOTION_CLICKED:this.checkForKey("promotion_id");break;case y.ORDER_REFUNDED:this.checkForKey("order_id")}else this.properties.category||(this.properties.category=this.event);break;case d.PAGE:break;case d.SCREEN:if(!this.properties.name)throw new Error("Key 'name' is required in properties")}}},{key:"checkForKey",value:function(e){if(!this.properties[e])throw new Error("Key '"+e+"' is required in properties")}}]),e}(),O=function(){function e(){i(this,e),this.message=new P}return r(e,[{key:"setType",value:function(e){this.message.type=e}},{key:"setProperty",value:function(e){this.message.properties=e}},{key:"setUserProperty",value:function(e){this.message.user_properties=e}},{key:"setUserId",value:function(e){this.message.user_id=e}},{key:"setEventName",value:function(e){this.message.event=e}},{key:"updateTraits",value:function(e){this.message.context.traits=e}},{key:"getElementContent",value:function(){return this.message}}]),e}(),_=function(){function e(){i(this,e),this.rudderProperty=null,this.rudderUserProperty=null,this.event=null,this.userId=null,this.channel=null,this.type=null}return r(e,[{key:"setProperty",value:function(e){return this.rudderProperty=e,this}},{key:"setPropertyBuilder",value:function(e){return this.rudderProperty=e.build(),this}},{key:"setUserProperty",value:function(e){return this.rudderUserProperty=e,this}},{key:"setUserPropertyBuilder",value:function(e){return this.rudderUserProperty=e.build(),this}},{key:"setEvent",value:function(e){return this.event=e,this}},{key:"setUserId",value:function(e){return this.userId=e,this}},{key:"setChannel",value:function(e){return this.channel=e,this}},{key:"setType",value:function(e){return this.type=e,this}},{key:"build",value:function(){var e=new O;return e.setUserId(this.userId),e.setType(this.type),e.setEventName(this.event),e.setProperty(this.rudderProperty),e.setUserProperty(this.rudderUserProperty),e}}]),e}(),b=function(){function e(){i(this,e),this.address=null,this.age=null,this.birthday=null,this.company=null,this.createdat=null,this.description=null,this.email=null,this.firstname=null,this.gender=null,this.id=null,this.lastname=null,this.name=null,this.phone=null,this.title=null,this.username=null}return r(e,[{key:"setAddress",value:function(e){return this.address=e,this}},{key:"setAge",value:function(e){return this.age=e,this}},{key:"setBirthday",value:function(e){return this.birthday=e,this}},{key:"setCompany",value:function(e){return this.company=e,this}},{key:"setCreatedAt",value:function(e){return this.createdat=e,this}},{key:"setDescription",value:function(e){return this.description=e,this}},{key:"setEmail",value:function(e){return this.email=e,this}},{key:"setFirstname",value:function(e){return this.firstname=e,this}},{key:"setId",value:function(e){return this.id=e,this}},{key:"setLastname",value:function(e){return this.lastname=e,this}},{key:"setName",value:function(e){return this.name=e,this}},{key:"setPhone",value:function(e){return this.phone=e,this}},{key:"setTitle",value:function(e){return this.title=e,this}},{key:"setUsername",value:function(e){return this.username=e,this}}]),e}(),w="rl_user_id",T="rl_trait",D=function(){function e(){i(this,e),this.storage=window.localStorage}return r(e,[{key:"setItem",value:function(e,t){var i="";"string"==typeof t&&(i=t),"object"==s(t)&&(i=JSON.stringify(t)),this.storage.setItem(e,i)}},{key:"setUserId",value:function(e){"string"==typeof e&&this.storage.setItem(w,e)}},{key:"setUserTraits",value:function(e){"object"==s(e)&&this.storage.setItem(T,JSON.stringify(e))}},{key:"getItem",value:function(e){var t=this.storage.getItem(e);return JSON.parse(t)}},{key:"getUserId",value:function(){return this.storage.getItem(w)}},{key:"getUserTraits",value:function(){return JSON.parse(this.storage.getItem(T))}},{key:"removeItem",value:function(e){this.storage.removeItem(e)}},{key:"clear",value:function(){this.storage.removeItem(w),this.storage.removeItem(T)}}]),e}(),C=function e(){i(this,e),this.batch=null,this.write_key=null},R=new(function(){function e(){i(this,e),this.eventsBuffer=[],this.url=f,this.state="READY",setInterval(this.preaparePayloadAndFlush,p,this)}return r(e,[{key:"preaparePayloadAndFlush",value:function(e){if(0!=e.eventsBuffer.length&&"PROCESSING"!==e.state){var s,i,n=e.eventsBuffer.slice(0,30),r=new C;r.batch=n,r.write_key=e.write_key,r.sent_at=(s=(new Date).toISOString()).split("T")[0]+" "+s.split("T")[1].split("Z")[0].split(".")[0]+"+"+s.split("Z")[0].split(".")[1],(i=new t).open("POST",e.url,!0),i.setRequestHeader("Content-Type","application/json"),i.onreadystatechange=function(){4===i.readyState&&200===i.status?e.eventsBuffer=e.eventsBuffer.slice(30):4===i.readyState&&i.status,e.state="READY"},i.send(JSON.stringify(r,h)),e.state="PROCESSING"}}},{key:"flush",value:function(e){this.eventsBuffer.push(e.getElementContent())}}]),e}()),S=function(){function e(){i(this,e),this.propertyMap={}}return r(e,[{key:"getPropertyMap",value:function(){return this.propertyMap}},{key:"getProperty",value:function(e){return this.propertyMap[e]}},{key:"setProperty",value:function(e,t){this.propertyMap[e]=t}},{key:"setPropertyMap",value:function(e){var t=this;this.propertyMap?Object.keys(e).forEach((function(s){t.propertyMap[s]=e[s]})):this.propertyMap=e}}]),e}(),U=function(e){function t(){return i(this,t),u(this,o(t).call(this))}return function(e,t){if("function"!=typeof t&&null!==t)throw new TypeError("Super expression must either be null or a function");e.prototype=Object.create(t&&t.prototype,{constructor:{value:e,writable:!0,configurable:!0}}),t&&a(e,t)}(t,e),r(t,[{key:"event",value:function(){return y.PROMOTION_VIEWED}}]),t}(function(){function e(){i(this,e),this.promotion=null}return r(e,[{key:"setPromotion",value:function(e){return this.promotion=e,this}},{key:"build",value:function(){var e=new S;return e.setPropertyMap(this.promotion),e}}]),e}()),A=function(){function e(){i(this,e),this.promotion_id="",this.creative="",this.name="",this.position=0}return r(e,[{key:"setPromotionId",value:function(e){return this.promotion_id=e,this}},{key:"setCreative",value:function(e){return this.creative=e,this}},{key:"setName",value:function(e){return this.name=e,this}},{key:"setPosition",value:function(e){return this.position=e,this}}]),e}();function x(e){this.eventRepository||(this.eventRepository=R),this.eventRepository.flush(e)}var j=new(function(){function e(){i(this,e),this.ready=!1,this.writeKey="",this.eventsBuffer=[],this.clientIntegrations=[],this.configArray=[],this.clientIntegrationObjects=void 0,this.toBeProcessedArray=[],this.toBeProcessedByIntegrationArray=[],this.storage=new D,this.userId=null!=this.storage.getUserId()?this.storage.getUserId():l(),this.userTraits=null!=this.storage.getUserTraits()?this.storage.getUserTraits():{},this.storage.setUserId(this.userId),this.eventRepository=R}return r(e,[{key:"processResponse",value:function(e,t){(t=JSON.parse(t)).source.destinations.forEach((function(e,t){e.enabled&&e.config.useNativeSDK&&(this.clientIntegrations.push(e.destinationDefinition.name),this.configArray.push(e.config))}),this),this.init(this.clientIntegrations,this.configArray)}},{key:"init",value:function(e,t){var s=this;if(this.clientIntegrationObjects=[],e&&0!=e.length){e.forEach((function(e){var i=g[e];if("HS"===e){t[0].hubId;"6405167";var n=new i("6405167");n.init(),s.clientIntegrationObjects.push(n)}}));for(var i=function(e){s.toBeProcessedByIntegrationArray.forEach((function(t){var i,n=t[0];t.shift(),(i=s.clientIntegrationObjects[e])[n].apply(i,c(t))}))},n=0;n<this.clientIntegrationObjects.length;n++)i(n);this.toBeProcessedByIntegrationArray=[]}else this.toBeProcessedByIntegrationArray=[]}},{key:"page",value:function(e,t,i,n,r){"function"==typeof n&&(r=n,n=null),"function"==typeof i&&(r=i,n=i=null),"function"==typeof t&&(r=t,n=i=t=null),"object"===s(e)&&(n=t,i=e,t=e=null),"object"===s(t)&&(n=i,i=t,t=null),"string"==typeof e&&"string"!=typeof t&&(t=e,e=null),this.processPage(e,t,i,n,r)}},{key:"track",value:function(e,t,s,i){"function"==typeof s&&(i=s,s=null),"function"==typeof t&&(i=t,s=null,t=null),this.processTrack(e,t,s,i)}},{key:"identify",value:function(e,t,i,n){"function"==typeof i&&(n=i,i=null),"function"==typeof t&&(n=t,i=null,t=null),"object"==s(e)&&(i=t,t=e,e=this.userId),this.processIdentify(e,t,i,n)}},{key:"processPage",value:function(e,t,s,i,n){this.userId||(this.userId=l(),this.storage.setUserId(this.userId));var r=(new _).setType("page").build();t&&(r.message.name=t),e&&(s||(s={}),s.category=e),s&&(r.message.properties=s),r.message.context.traits=this.userTraits,r.message.anonymous_id=r.message.user_id=r.message.context.traits.anonymous_id=this.userId,this.clientIntegrationObjects&&this.clientIntegrationObjects.forEach((function(e){e.page(r)})),this.clientIntegrationObjects||this.toBeProcessedByIntegrationArray.push(["page",r]),x.call(this,r),n&&n()}},{key:"processTrack",value:function(e,t,s,i){this.userId||(this.userId=l(),this.storage.setUserId(this.userId));var n=(new _).setType("track").build();e&&n.setEventName(e),t&&n.setProperty(t),n.message.context.traits=this.userTraits,n.message.anonymous_id=n.message.user_id=n.message.context.traits.anonymous_id=this.userId,this.clientIntegrationObjects&&this.clientIntegrationObjects.forEach((function(e){e.track(n)})),this.clientIntegrationObjects||this.toBeProcessedByIntegrationArray.push(["track",n]),x.call(this,n),i&&i()}},{key:"processIdentify",value:function(e,t,s,i){this.userId=e,this.storage.setUserId(this.userId);var n=(new _).setType("identify").build();new b;t&&(this.userTraits=t,this.storage.setUserTraits(this.userTraits)),n.message.context.traits=this.userTraits,n.message.anonymous_id=n.message.user_id=n.message.context.traits.anonymous_id=this.userId,this.clientIntegrationObjects&&this.clientIntegrationObjects.forEach((function(e){e.identify(n)})),this.clientIntegrationObjects||this.toBeProcessedByIntegrationArray.push(["identify",n]),x.call(this,n),i&&i()}},{key:"identifyUser",value:function(e,t){this.userId=userId,this.storage.setUserId(this.userId),e&&e.message&&e.message.context&&e.message.context.traits&&(this.userTraits=traits,this.storage.setUserTraits(this.userTraits)),e.message.context.traits=this.userTraits,e.message.anonymous_id=e.message.user_id=e.message.context.traits.anonymous_id=this.userId,this.clientIntegrationObjects&&this.clientIntegrationObjects.forEach((function(t){t.identify(e)})),this.clientIntegrationObjects||this.toBeProcessedByIntegrationArray.push(["identify",e]),x.call(this,e),t&&t()}},{key:"trackPage",value:function(e,t){this.userId||(this.userId=l(),this.storage.setUserId(this.userId)),e.message.context.traits=this.userTraits,e.message.anonymous_id=e.message.user_id=e.message.context.traits.anonymous_id=this.userId,this.clientIntegrationObjects&&this.clientIntegrationObjects.forEach((function(t){t.page(e)})),this.clientIntegrationObjects||this.toBeProcessedByIntegrationArray.push(["page",e]),x.call(this,e),t&&t()}},{key:"trackEvent",value:function(e,t){this.userId||(this.userId=l(),this.storage.setUserId(this.userId)),e.message.context.traits=this.userTraits,e.message.anonymous_id=e.message.user_id=e.message.context.traits.anonymous_id=this.userId,this.clientIntegrationObjects&&this.clientIntegrationObjects.forEach((function(t){t.track(e)})),this.clientIntegrationObjects||this.toBeProcessedByIntegrationArray.push(["track",e]),x.call(this,e),t&&t()}},{key:"reset",value:function(){this.userId="",this.userTraits={},this.storage.clear()}},{key:"load",value:function(e){var s,i,n,r,o;this.writeKey=e,s=this,i="https://api.rudderlabs.com/source-config?write_key="+e,n=this.processResponse,o=n.bind(s),(r=new t).open("GET",i,!0),r.onload=function(){var e=r.status;200==e?o(200,r.responseText):o(e)},r.send()}}]),e}()),N=!!window.analytics&&window.analytics.push==Array.prototype.push,B=window.analytics?window.analytics[0]:[];if(B.length>0&&"load"==B[0]&&j[B[0]](B[1]),N){for(var M=1;M<window.analytics.length;M++)j.toBeProcessedArray.push(window.analytics[M]);for(var K=0;K<j.toBeProcessedArray.length;K++){var L=c(j.toBeProcessedArray[K]),V=L[0];L.shift(),j[V].apply(j,c(L))}j.toBeProcessedArray=[]}var W=j.identify.bind(j),F=j.page.bind(j),H=j.track.bind(j),q=j.trackEvent.bind(j),J=j.trackPage.bind(j),G=j.identifyUser.bind(j),Y=j.reset.bind(j),Z=j.load.bind(j);return e.ECommerceEvents=y,e.ECommercePromotion=A,e.PromotionViewedEvent=U,e.RudderElementBuilder=_,e.identify=W,e.identifyUser=G,e.load=Z,e.page=F,e.reset=Y,e.track=H,e.trackEvent=q,e.trackPage=J,e}({},XMLHttpRequestNode);
+var analytics = (function (exports, XMLHttpRequestNode, ua) {
+  'use strict';
+
+  ua = ua && ua.hasOwnProperty('default') ? ua['default'] : ua;
+
+  function _typeof(obj) {
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+      _typeof = function (obj) {
+        return typeof obj;
+      };
+    } else {
+      _typeof = function (obj) {
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+      };
+    }
+
+    return _typeof(obj);
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _defineProperties(target, props) {
+    for (var i = 0; i < props.length; i++) {
+      var descriptor = props[i];
+      descriptor.enumerable = descriptor.enumerable || false;
+      descriptor.configurable = true;
+      if ("value" in descriptor) descriptor.writable = true;
+      Object.defineProperty(target, descriptor.key, descriptor);
+    }
+  }
+
+  function _createClass(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    return Constructor;
+  }
+
+  function _inherits(subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function");
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) _setPrototypeOf(subClass, superClass);
+  }
+
+  function _getPrototypeOf(o) {
+    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
+      return o.__proto__ || Object.getPrototypeOf(o);
+    };
+    return _getPrototypeOf(o);
+  }
+
+  function _setPrototypeOf(o, p) {
+    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
+      o.__proto__ = p;
+      return o;
+    };
+
+    return _setPrototypeOf(o, p);
+  }
+
+  function _assertThisInitialized(self) {
+    if (self === void 0) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return self;
+  }
+
+  function _possibleConstructorReturn(self, call) {
+    if (call && (typeof call === "object" || typeof call === "function")) {
+      return call;
+    }
+
+    return _assertThisInitialized(self);
+  }
+
+  function _toConsumableArray(arr) {
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+  }
+
+  function _arrayWithoutHoles(arr) {
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+      return arr2;
+    }
+  }
+
+  function _iterableToArray(iter) {
+    if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+  }
+
+  function _nonIterableSpread() {
+    throw new TypeError("Invalid attempt to spread non-iterable instance");
+  }
+
+  /**
+   *
+   * Utility method for excluding null and empty values in JSON
+   * @param {*} key
+   * @param {*} value
+   * @returns
+   */
+
+  function replacer(key, value) {
+    if (!value || value === "") {
+      return undefined;
+    } else {
+      return value;
+    }
+  }
+  /**
+   *
+   * Utility function for UUID genration
+   * @returns
+   */
+
+
+  function generateUUID() {
+    // Public Domain/MIT
+    var d = new Date().getTime();
+
+    if (typeof performance !== "undefined" && typeof performance.now === "function") {
+      d += performance.now(); //use high-precision timer if available
+    }
+
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+      var r = (d + Math.random() * 16) % 16 | 0;
+      d = Math.floor(d / 16);
+      return (c === "x" ? r : r & 0x3 | 0x8).toString(16);
+    });
+  }
+  /**
+   *
+   * Utility function to get current time (formatted) for including in sent_at field
+   * @returns
+   */
+
+
+  function getCurrentTimeFormatted() {
+    var curDateTime = new Date().toISOString();
+    var curDate = curDateTime.split("T")[0];
+    var curTimeExceptMillis = curDateTime.split("T")[1].split("Z")[0].split(".")[0];
+    var curTimeMillis = curDateTime.split("Z")[0].split(".")[1];
+    return curDate + " " + curTimeExceptMillis + "+" + curTimeMillis;
+  }
+
+  //Message Type enumeration
+  var MessageType = {
+    TRACK: "track",
+    PAGE: "page",
+    //SCREEN: "screen",
+    IDENTIFY: "identify"
+  }; //ECommerce Parameter Names Enumeration
+
+  var ECommerceEvents = {
+    PRODUCTS_SEARCHED: "Products Searched",
+    PRODUCT_LIST_VIEWED: "Product List Viewed",
+    PRODUCT_LIST_FILTERED: "Product List Filtered",
+    PROMOTION_VIEWED: "Promotion Viewed",
+    PROMOTION_CLICKED: "Promotion Clicked",
+    PRODUCT_CLICKED: "Product Clicked",
+    PRODUCT_VIEWED: "Product Viewed",
+    PRODUCT_ADDED: "Product Added",
+    PRODUCT_REMOVED: "Product Removed",
+    CART_VIEWED: "Cart Viewed",
+    CHECKOUT_STARTED: "Checkout Started",
+    CHECKOUT_STEP_VIEWED: "Checkout Step Viewed",
+    CHECKOUT_STEP_COMPLETED: "Checkout Step Completed",
+    PAYMENT_INFO_ENTERED: "Payment Info Entered",
+    ORDER_UPDATED: "Order Updated",
+    ORDER_COMPLETED: "Order Completed",
+    ORDER_REFUNDED: "Order Refunded",
+    ORDER_CANCELLED: "Order Cancelled",
+    COUPON_ENTERED: "Coupon Entered",
+    COUPON_APPLIED: "Coupon Applied",
+    COUPON_DENIED: "Coupon Denied",
+    COUPON_REMOVED: "Coupon Removed",
+    PRODUCT_ADDED_TO_WISHLIST: "Product Added to Wishlist",
+    PRODUCT_REMOVED_FROM_WISHLIST: "Product Removed from Wishlist",
+    WISH_LIST_PRODUCT_ADDED_TO_CART: "Wishlist Product Added to Cart",
+    PRODUCT_SHARED: "Product Shared",
+    CART_SHARED: "Cart Shared",
+    PRODUCT_REVIEWED: "Product Reviewed"
+  }; //Enumeration for integrations supported
+  var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
+  var FLUSH_INTERVAL_DEFAULT = 5000;
+  /* module.exports = {
+    MessageType: MessageType,
+    ECommerceParamNames: ECommerceParamNames,
+    ECommerceEvents: ECommerceEvents,
+    RudderIntegrationPlatform: RudderIntegrationPlatform,
+    BASE_URL: BASE_URL,
+    CONFIG_URL: CONFIG_URL,
+    FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
+  }; */
+
+  var HubSpotNode =
+  /*#__PURE__*/
+  function () {
+    function HubSpotNode() {
+      _classCallCheck(this, HubSpotNode);
+
+      console.log("nothing to construct");
+    }
+
+    _createClass(HubSpotNode, [{
+      key: "init",
+      value: function init() {
+        console.log("node not supported");
+        console.log("===in init===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        console.log("node not supported");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        console.log("node not supported");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        console.log("node not supported");
+      }
+    }, {
+      key: "loaded",
+      value: function loaded() {
+        console.log("in hubspot isLoaded");
+        console.log("node not supported");
+      }
+    }]);
+
+    return HubSpotNode;
+  }();
+
+  var index =  HubSpotNode;
+
+  var GANode =
+  /*#__PURE__*/
+  function () {
+    function GANode(trackingID) {
+      _classCallCheck(this, GANode);
+
+      this.trackingID = trackingID;
+      this.client = "";
+    }
+
+    _createClass(GANode, [{
+      key: "init",
+      value: function init() {
+        console.log("===in GA Node init==="); //this.client = ua(this.trackingID, "6a14abda-6b12-4578-bf66-43c754eaeda9");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        console.log("=== in GA Node identify===");
+        this.client = ua(this.trackingID, rudderElement.message.user_id);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        console.log("=== in GA Node track===");
+        this.client.event(rudderElement.message.type, rudderElement.message.event, function (err) {
+          // Handle the error if necessary.
+          // In case no error is provided you can be sure
+          // the request was successfully sent off to Google.
+          console.log("error sending to GA" + err);
+        });
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        console.log("=== in GA Node page===");
+
+        if (rudderElement.message.properties && rudderElement.message.properties.path) {
+          this.client.pageview(rudderElement.message.properties.path, function (err) {
+            // Handle the error if necessary.
+            // In case no error is provided you can be sure
+            // the request was successfully sent off to Google.
+            console.log("error sending to GA" + err);
+          }); //this.client.pageview(rudderElement.message.properties.path).send();
+        }
+      }
+    }, {
+      key: "loaded",
+      value: function loaded() {
+        console.log("in GA isLoaded");
+        console.log("node not supported");
+      }
+    }]);
+
+    return GANode;
+  }();
+
+  var index$1 =  GANode;
+
+  var integrations = {
+    HS: index,
+    GA: index$1
+  };
+
+  //Application class
+  var RudderApp = function RudderApp() {
+    _classCallCheck(this, RudderApp);
+
+    this.build = "1.0.0";
+    this.name = "RudderLabs JavaScript SDK";
+    this.namespace = "com.rudderlabs.javascript";
+    this.version = "1.0.0";
+  };
+
+  //Library information class
+  var RudderLibraryInfo = function RudderLibraryInfo() {
+    _classCallCheck(this, RudderLibraryInfo);
+
+    this.name = "RudderLabs JavaScript SDK";
+    this.version = "1.0.0";
+  }; //Operating System information class
+
+
+  var RudderOSInfo = function RudderOSInfo() {
+    _classCallCheck(this, RudderOSInfo);
+
+    this.name = "";
+    this.version = "";
+  }; //Screen information class
+
+
+  var RudderScreenInfo = function RudderScreenInfo() {
+    _classCallCheck(this, RudderScreenInfo);
+
+    this.density = 0;
+    this.width = 0;
+    this.height = 0;
+  }; //Device information class
+
+  var RudderContext = function RudderContext() {
+    _classCallCheck(this, RudderContext);
+
+    this.app = new RudderApp();
+    this.traits = null;
+    this.library = new RudderLibraryInfo(); //this.os = null;
+
+    var os = new RudderOSInfo();
+    os.version = ""; //skipping version for simplicity now
+
+    var screen = new RudderScreenInfo(); //Depending on environment within which the code is executing, screen
+    //dimensions can be set
+    //User agent and locale can be retrieved only for browser
+    //For server-side integration, same needs to be set by calling program
+
+    {
+      //server-side integration
+      screen.width = 0;
+      screen.height = 0;
+      screen.density = 0;
+      os.version = "";
+      os.name = "";
+      this.user_agent = null;
+      this.locale = null;
+    }
+
+    this.screen = screen;
+    this.device = null;
+    this.network = null;
+  };
+
+  var RudderMessage =
+  /*#__PURE__*/
+  function () {
+    function RudderMessage() {
+      _classCallCheck(this, RudderMessage);
+
+      this.channel = "web";
+      this.context = new RudderContext();
+      this.type = null;
+      this.action = null;
+      this.message_id = generateUUID().toString();
+      this.timestamp = new Date().getTime();
+      this.anonymous_id = generateUUID().toString();
+      this.user_id = null;
+      this.event = null;
+      this.properties = {}; //By default, all integrations will be set as enabled from client
+      //Decision to route to specific destinations will be taken at server end
+
+      this.integrations = {};
+      this.integrations["All"] = true;
+    } //Get property
+
+
+    _createClass(RudderMessage, [{
+      key: "getProperty",
+      value: function getProperty(key) {
+        return this.properties[key];
+      } //Add property
+
+    }, {
+      key: "addProperty",
+      value: function addProperty(key, value) {
+        this.properties[key] = value;
+      } //Validate whether this message is semantically valid for the type mentioned
+
+    }, {
+      key: "validateFor",
+      value: function validateFor(messageType) {
+        //First check that properties is populated
+        if (!this.properties) {
+          throw new Error("Key properties is required");
+        } //Event type specific checks
+
+
+        switch (messageType) {
+          case MessageType.TRACK:
+            //check if event is present
+            if (!this.event) {
+              throw new Error("Key event is required for track event");
+            } //Next make specific checks for e-commerce events
+
+
+            if (this.event in Object.values(ECommerceEvents)) {
+              switch (this.event) {
+                case ECommerceEvents.CHECKOUT_STEP_VIEWED:
+                case ECommerceEvents.CHECKOUT_STEP_COMPLETED:
+                case ECommerceEvents.PAYMENT_INFO_ENTERED:
+                  this.checkForKey("checkout_id");
+                  this.checkForKey("step");
+                  break;
+
+                case ECommerceEvents.PROMOTION_VIEWED:
+                case ECommerceEvents.PROMOTION_CLICKED:
+                  this.checkForKey("promotion_id");
+                  break;
+
+                case ECommerceEvents.ORDER_REFUNDED:
+                  this.checkForKey("order_id");
+                  break;
+
+                default:
+              }
+            } else if (!this.properties["category"]) {
+              //if category is not there, set to event
+              this.properties["category"] = this.event;
+            }
+
+            break;
+
+          case MessageType.PAGE:
+            break;
+
+          case MessageType.SCREEN:
+            if (!this.properties["name"]) {
+              throw new Error("Key 'name' is required in properties");
+            }
+
+            break;
+        }
+      } //Function for checking existence of a particular property
+
+    }, {
+      key: "checkForKey",
+      value: function checkForKey(propertyName) {
+        if (!this.properties[propertyName]) {
+          throw new Error("Key '" + propertyName + "' is required in properties");
+        }
+      }
+    }]);
+
+    return RudderMessage;
+  }();
+
+  var RudderElement =
+  /*#__PURE__*/
+  function () {
+    function RudderElement() {
+      _classCallCheck(this, RudderElement);
+
+      this.message = new RudderMessage();
+    } //Setters that in turn set the field values for the contained object
+
+
+    _createClass(RudderElement, [{
+      key: "setType",
+      value: function setType(type) {
+        this.message.type = type;
+      }
+    }, {
+      key: "setProperty",
+      value: function setProperty(rudderProperty) {
+        this.message.properties = rudderProperty;
+      }
+    }, {
+      key: "setUserProperty",
+      value: function setUserProperty(rudderUserProperty) {
+        this.message.user_properties = rudderUserProperty;
+      }
+    }, {
+      key: "setUserId",
+      value: function setUserId(userId) {
+        this.message.user_id = userId;
+      }
+    }, {
+      key: "setEventName",
+      value: function setEventName(eventName) {
+        this.message.event = eventName;
+      }
+    }, {
+      key: "updateTraits",
+      value: function updateTraits(traits) {
+        this.message.context.traits = traits;
+      }
+    }, {
+      key: "getElementContent",
+      value: function getElementContent() {
+        return this.message;
+      }
+    }]);
+
+    return RudderElement;
+  }();
+
+  var RudderElementBuilder =
+  /*#__PURE__*/
+  function () {
+    function RudderElementBuilder() {
+      _classCallCheck(this, RudderElementBuilder);
+
+      this.rudderProperty = null;
+      this.rudderUserProperty = null;
+      this.event = null;
+      this.userId = null;
+      this.channel = null;
+      this.type = null;
+    } //Set the property
+
+
+    _createClass(RudderElementBuilder, [{
+      key: "setProperty",
+      value: function setProperty(inputRudderProperty) {
+        this.rudderProperty = inputRudderProperty;
+        return this;
+      } //Build and set the property object
+
+    }, {
+      key: "setPropertyBuilder",
+      value: function setPropertyBuilder(rudderPropertyBuilder) {
+        this.rudderProperty = rudderPropertyBuilder.build();
+        return this;
+      }
+    }, {
+      key: "setUserProperty",
+      value: function setUserProperty(inputRudderUserProperty) {
+        this.rudderUserProperty = inputRudderUserProperty;
+        return this;
+      }
+    }, {
+      key: "setUserPropertyBuilder",
+      value: function setUserPropertyBuilder(rudderUserPropertyBuilder) {
+        this.rudderUserProperty = rudderUserPropertyBuilder.build();
+        return this;
+      } //Setter methods for all variables. Instance is returned for each call in
+      //accordance with the Builder pattern
+
+    }, {
+      key: "setEvent",
+      value: function setEvent(event) {
+        this.event = event;
+        return this;
+      }
+    }, {
+      key: "setUserId",
+      value: function setUserId(userId) {
+        this.userId = userId;
+        return this;
+      }
+    }, {
+      key: "setChannel",
+      value: function setChannel(channel) {
+        this.channel = channel;
+        return this;
+      }
+    }, {
+      key: "setType",
+      value: function setType(eventType) {
+        this.type = eventType;
+        return this;
+      }
+    }, {
+      key: "build",
+      value: function build() {
+        var element = new RudderElement();
+        element.setUserId(this.userId);
+        element.setType(this.type);
+        element.setEventName(this.event);
+        element.setProperty(this.rudderProperty);
+        element.setUserProperty(this.rudderUserProperty);
+        return element;
+      }
+    }]);
+
+    return RudderElementBuilder;
+  }();
+
+  //Traits class
+  var RudderTraits =
+  /*#__PURE__*/
+  function () {
+    function RudderTraits() {
+      _classCallCheck(this, RudderTraits);
+
+      this.address = null;
+      this.age = null;
+      this.birthday = null;
+      this.company = null;
+      this.createdat = null;
+      this.description = null;
+      this.email = null;
+      this.firstname = null;
+      this.gender = null;
+      this.id = null;
+      this.lastname = null;
+      this.name = null;
+      this.phone = null;
+      this.title = null;
+      this.username = null;
+    } //Setter methods to aid Builder pattern
+
+
+    _createClass(RudderTraits, [{
+      key: "setAddress",
+      value: function setAddress(address) {
+        this.address = address;
+        return this;
+      }
+    }, {
+      key: "setAge",
+      value: function setAge(age) {
+        this.age = age;
+        return this;
+      }
+    }, {
+      key: "setBirthday",
+      value: function setBirthday(birthday) {
+        this.birthday = birthday;
+        return this;
+      }
+    }, {
+      key: "setCompany",
+      value: function setCompany(company) {
+        this.company = company;
+        return this;
+      }
+    }, {
+      key: "setCreatedAt",
+      value: function setCreatedAt(createAt) {
+        this.createdat = createAt;
+        return this;
+      }
+    }, {
+      key: "setDescription",
+      value: function setDescription(description) {
+        this.description = description;
+        return this;
+      }
+    }, {
+      key: "setEmail",
+      value: function setEmail(email) {
+        this.email = email;
+        return this;
+      }
+    }, {
+      key: "setFirstname",
+      value: function setFirstname(firstname) {
+        this.firstname = firstname;
+        return this;
+      }
+    }, {
+      key: "setId",
+      value: function setId(id) {
+        this.id = id;
+        return this;
+      }
+    }, {
+      key: "setLastname",
+      value: function setLastname(lastname) {
+        this.lastname = lastname;
+        return this;
+      }
+    }, {
+      key: "setName",
+      value: function setName(name) {
+        this.name = name;
+        return this;
+      }
+    }, {
+      key: "setPhone",
+      value: function setPhone(phone) {
+        this.phone = phone;
+        return this;
+      }
+    }, {
+      key: "setTitle",
+      value: function setTitle(title) {
+        this.title = title;
+        return this;
+      }
+    }, {
+      key: "setUsername",
+      value: function setUsername(username) {
+        this.username = username;
+        return this;
+      }
+    }]);
+
+    return RudderTraits;
+  }(); //Class for Company to be embedded in Traits
+
+  var StorageNode =
+  /*#__PURE__*/
+  function () {
+    function StorageNode() {
+      _classCallCheck(this, StorageNode);
+
+      this.storage = {};
+    }
+
+    _createClass(StorageNode, [{
+      key: "setItem",
+      value: function setItem(key, value) {
+        console.log("not implemented");
+      }
+    }, {
+      key: "setUserId",
+      value: function setUserId(value) {
+        console.log("not implemented");
+      }
+    }, {
+      key: "setUserTraits",
+      value: function setUserTraits(value) {
+        console.log("not implemented");
+      }
+    }, {
+      key: "getItem",
+      value: function getItem(key) {
+        console.log("not implemented");
+      }
+    }, {
+      key: "getUserId",
+      value: function getUserId() {
+        console.log("not implemented");
+      }
+    }, {
+      key: "getUserTraits",
+      value: function getUserTraits() {
+        console.log("not implemented");
+      }
+    }, {
+      key: "removeItem",
+      value: function removeItem(key) {
+        console.log("not implemented");
+      }
+    }, {
+      key: "clear",
+      value: function clear() {
+        console.log("not implemented");
+      }
+    }]);
+
+    return StorageNode;
+  }();
+
+  var Storage =  StorageNode;
+
+  //Payload class, contains batch of Elements
+  var RudderPayload = function RudderPayload() {
+    _classCallCheck(this, RudderPayload);
+
+    this.batch = null;
+    this.write_key = null;
+  };
+
+  /**
+   *
+   * @class EventRepository responsible for adding events into 
+   * flush queue and sending data to rudder backend 
+   * in batch and maintains order of the event.
+   */
+
+  var EventRepository =
+  /*#__PURE__*/
+  function () {
+    /**
+     *Creates an instance of EventRepository.
+     * @memberof EventRepository
+     */
+    function EventRepository() {
+      _classCallCheck(this, EventRepository);
+
+      this.eventsBuffer = [];
+      this.url = BASE_URL; //"http://localhost:9005"; //BASE_URL;
+
+      this.state = "READY";
+      this.batchSize = 0;
+      setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
+    }
+    /**
+     *
+     *
+     * @param {EventRepository} repo
+     * @returns
+     * @memberof EventRepository
+     */
+
+
+    _createClass(EventRepository, [{
+      key: "preaparePayloadAndFlush",
+      value: function preaparePayloadAndFlush(repo) {
+        //construct payload
+        console.log("==== in preaparePayloadAndFlush with state: " + repo.state);
+        console.log(repo.eventsBuffer);
+
+        if (repo.eventsBuffer.length == 0 || repo.state === "PROCESSING") {
+          return;
+        }
+
+        var eventsPayload = repo.eventsBuffer;
+        var payload = new RudderPayload();
+        payload.batch = eventsPayload;
+        payload.write_key = repo.write_key;
+        payload.sent_at = getCurrentTimeFormatted();
+        repo.batchSize = repo.eventsBuffer.length; //server-side integration, XHR is node module
+
+        if (false) {
+          var xhr;
+        } else {
+          var xhr = new XMLHttpRequestNode.XMLHttpRequest();
+        }
+
+        console.log("==== in flush sending to Rudder BE ====");
+        console.log(JSON.stringify(payload, replacer));
+        xhr.open("POST", repo.url, true);
+        xhr.setRequestHeader("Content-Type", "application/json"); //register call back to reset event buffer on successfull POST
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            console.log("====== request processed successfully: " + xhr.status);
+            repo.eventsBuffer = repo.eventsBuffer.slice(repo.batchSize);
+            console.log(repo.eventsBuffer.length);
+          } else if (xhr.readyState === 4 && xhr.status !== 200) {
+            console.log("====== request failed with status: " + xhr.status);
+          }
+
+          repo.state = "READY";
+        };
+
+        xhr.send(JSON.stringify(payload, replacer));
+        repo.state = "PROCESSING";
+      }
+      /**
+       *
+       *
+       * @param {RudderElement} rudderElement
+       * @memberof EventRepository
+       */
+
+    }, {
+      key: "enqueue",
+      value: function enqueue(rudderElement) {
+        //so buffer is really kept to be in alignment with other SDKs
+        console.log(this.eventsBuffer);
+        this.eventsBuffer.push(rudderElement.getElementContent()); //Add to event buffer
+
+        console.log("==== Added to flush queue =====" + this.eventsBuffer.length);
+      }
+    }]);
+
+    return EventRepository;
+  }();
+
+  var eventRepository = new EventRepository();
+
+  var RudderProperty =
+  /*#__PURE__*/
+  function () {
+    function RudderProperty() {
+      _classCallCheck(this, RudderProperty);
+
+      this.propertyMap = {};
+    }
+
+    _createClass(RudderProperty, [{
+      key: "getPropertyMap",
+      value: function getPropertyMap() {
+        return this.propertyMap;
+      }
+    }, {
+      key: "getProperty",
+      value: function getProperty(key) {
+        return this.propertyMap[key];
+      }
+    }, {
+      key: "setProperty",
+      value: function setProperty(key, value) {
+        this.propertyMap[key] = value;
+      }
+    }, {
+      key: "setPropertyMap",
+      value: function setPropertyMap(inputPropertyMap) {
+        var _this = this;
+
+        if (!this.propertyMap) {
+          this.propertyMap = inputPropertyMap;
+        } else {
+          Object.keys(inputPropertyMap).forEach(function (key) {
+            _this.propertyMap[key] = inputPropertyMap[key];
+          });
+        }
+      }
+    }]);
+
+    return RudderProperty;
+  }();
+
+  var PromotionEvent =
+  /*#__PURE__*/
+  function () {
+    function PromotionEvent() {
+      _classCallCheck(this, PromotionEvent);
+
+      this.promotion = null;
+    } //Setter method in accordance to Builder pattern
+
+
+    _createClass(PromotionEvent, [{
+      key: "setPromotion",
+      value: function setPromotion(promotion) {
+        this.promotion = promotion;
+        return this;
+      }
+    }, {
+      key: "build",
+      value: function build() {
+        var eventProperty = new RudderProperty();
+        eventProperty.setPropertyMap(this.promotion);
+        return eventProperty;
+      }
+    }]);
+
+    return PromotionEvent;
+  }();
+
+  var PromotionViewedEvent =
+  /*#__PURE__*/
+  function (_PromotionEvent) {
+    _inherits(PromotionViewedEvent, _PromotionEvent);
+
+    function PromotionViewedEvent() {
+      _classCallCheck(this, PromotionViewedEvent);
+
+      return _possibleConstructorReturn(this, _getPrototypeOf(PromotionViewedEvent).call(this));
+    }
+
+    _createClass(PromotionViewedEvent, [{
+      key: "event",
+      value: function event() {
+        return ECommerceEvents.PROMOTION_VIEWED;
+      }
+    }]);
+
+    return PromotionViewedEvent;
+  }(PromotionEvent);
+
+  //Class representing e-commerce promotion
+  var ECommercePromotion =
+  /*#__PURE__*/
+  function () {
+    function ECommercePromotion() {
+      _classCallCheck(this, ECommercePromotion);
+
+      this.promotion_id = "";
+      this.creative = "";
+      this.name = "";
+      this.position = 0;
+    } //Setter methods in accordance with Builder pattern
+
+
+    _createClass(ECommercePromotion, [{
+      key: "setPromotionId",
+      value: function setPromotionId(promotionId) {
+        this.promotion_id = promotionId;
+        return this;
+      }
+    }, {
+      key: "setCreative",
+      value: function setCreative(creative) {
+        this.creative = creative;
+        return this;
+      }
+    }, {
+      key: "setName",
+      value: function setName(name) {
+        this.name = name;
+        return this;
+      }
+    }, {
+      key: "setPosition",
+      value: function setPosition(position) {
+        this.position = position;
+        return this;
+      }
+    }]);
+
+    return ECommercePromotion;
+  }();
+
+  /**
+   * Add the rudderelement object to flush queue
+   *
+   * @param {RudderElement} rudderElement
+   */
+
+  function enqueue(rudderElement) {
+    if (!this.eventRepository) {
+      this.eventRepository = eventRepository;
+    }
+
+    this.eventRepository.enqueue(rudderElement);
+  }
+  /**
+   * class responsible for handling core
+   * event tracking functionalities
+   */
+
+
+  var Analytics =
+  /*#__PURE__*/
+  function () {
+    /**
+     *Creates an instance of Analytics.
+     * @memberof Analytics
+     */
+    function Analytics() {
+      _classCallCheck(this, Analytics);
+
+      this.ready = false;
+      this.writeKey = "";
+      this.eventsBuffer = [];
+      this.clientIntegrations = [];
+      this.configArray = [];
+      this.clientIntegrationObjects = undefined;
+      this.toBeProcessedArray = [];
+      this.toBeProcessedByIntegrationArray = [];
+      this.storage = new Storage();
+      this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : generateUUID();
+      this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
+      this.storage.setUserId(this.userId);
+      this.eventRepository = eventRepository;
+    }
+    /**
+     * Process the response from control plane and
+     * call initialize for integrations
+     *
+     * @param {*} status
+     * @param {*} response
+     * @memberof Analytics
+     */
+
+
+    _createClass(Analytics, [{
+      key: "processResponse",
+      value: function processResponse(status, response) {
+        console.log("===in process response=== " + status);
+        response = JSON.parse(response);
+        response.source.destinations.forEach(function (destination, index) {
+          console.log("Destination " + index + " Enabled? " + destination.enabled + " Type: " + destination.destinationDefinition.name + " Use Native SDK? " + destination.config.useNativeSDK);
+
+          if (destination.enabled && destination.config.useNativeSDK) {
+            this.clientIntegrations.push(destination.destinationDefinition.name);
+            this.configArray.push(destination.config);
+          }
+        }, this);
+        this.init(this.clientIntegrations, this.configArray);
+      }
+      /**
+       * Initialize integrations by addinfg respective scripts
+       * keep the instances reference in core
+       *
+       * @param {*} intgArray
+       * @param {*} configArray
+       * @returns
+       * @memberof Analytics
+       */
+
+    }, {
+      key: "init",
+      value: function init(intgArray, configArray) {
+        var _this = this;
+
+        console.log("supported intgs ", integrations);
+        var i = 0;
+        this.clientIntegrationObjects = [];
+        /* if (!intgArray || intgArray.length == 0) {
+          this.toBeProcessedByIntegrationArray = [];
+          return;
+        } */
+
+        intgArray.forEach(function (intg) {
+          var intgClass = integrations[intg];
+
+          if (intg === "HS") {
+            var hubId = configArray[i].hubId;
+            var intgInstance = new intgClass(hubId);
+            intgInstance.init();
+
+            _this.clientIntegrationObjects.push(intgInstance);
+          }
+        }); // Add GA forcibly for tests
+
+        var GAClass = integrations["GA"];
+        var GAInstance = new GAClass("UA-143161493-8");
+        GAInstance.init();
+        console.log("GA initialized");
+        this.clientIntegrationObjects.push(GAInstance);
+
+        var _loop = function _loop(_i) {
+          //send the queued events to the fetched integration
+          _this.toBeProcessedByIntegrationArray.forEach(function (event) {
+            var _this$clientIntegrati;
+
+            var methodName = event[0];
+            event.shift();
+
+            (_this$clientIntegrati = _this.clientIntegrationObjects[_i])[methodName].apply(_this$clientIntegrati, _toConsumableArray(event));
+          });
+        };
+
+        for (var _i = 0; _i < this.clientIntegrationObjects.length; _i++) {
+          _loop(_i);
+        }
+
+        this.toBeProcessedByIntegrationArray = [];
+      }
+      /**
+       * Process page params and forward to page call
+       *
+       * @param {*} category
+       * @param {*} name
+       * @param {*} properties
+       * @param {*} options
+       * @param {*} callback
+       * @memberof Analytics
+       */
+
+    }, {
+      key: "page",
+      value: function page(category, name, properties, options, callback) {
+        if (typeof options == "function") callback = options, options = null;
+        if (typeof properties == "function") callback = properties, options = properties = null;
+        if (typeof name == "function") callback = name, options = properties = name = null;
+        if (_typeof(category) === "object") options = name, properties = category, name = category = null;
+        if (_typeof(name) === "object") options = properties, properties = name, name = null;
+        if (typeof category === "string" && typeof name !== "string") name = category, category = null;
+        this.processPage(category, name, properties, options, callback);
+      }
+      /**
+       * Process track params and forward to track call
+       *
+       * @param {*} event
+       * @param {*} properties
+       * @param {*} options
+       * @param {*} callback
+       * @memberof Analytics
+       */
+
+    }, {
+      key: "track",
+      value: function track(event, properties, options, callback) {
+        if (typeof options == "function") callback = options, options = null;
+        if (typeof properties == "function") callback = properties, options = null, properties = null;
+        this.processTrack(event, properties, options, callback);
+      }
+      /**
+       * Process identify params and forward to indentify  call
+       *
+       * @param {*} userId
+       * @param {*} traits
+       * @param {*} options
+       * @param {*} callback
+       * @memberof Analytics
+       */
+
+    }, {
+      key: "identify",
+      value: function identify(userId, traits, options, callback) {
+        if (typeof options == "function") callback = options, options = null;
+        if (typeof traits == "function") callback = traits, options = null, traits = null;
+        if (_typeof(userId) == "object") options = traits, traits = userId, userId = this.userId;
+        this.processIdentify(userId, traits, options, callback);
+      }
+      /**
+       * Send page call to Rudder BE and to initialized integrations
+       *
+       * @param {*} category
+       * @param {*} name
+       * @param {*} properties
+       * @param {*} options
+       * @param {*} callback
+       * @memberof Analytics
+       */
+
+    }, {
+      key: "processPage",
+      value: function processPage(category, name, properties, options, callback) {
+        if (!this.userId) {
+          this.userId = generateUUID();
+          this.storage.setUserId(this.userId);
+        }
+
+        var rudderElement = new RudderElementBuilder().setType("page").build();
+
+        if (name) {
+          console.log("name ", name);
+          rudderElement["message"]["name"] = name;
+        }
+
+        if (category) {
+          if (!properties) {
+            properties = {};
+          }
+
+          properties["category"] = category;
+        }
+
+        if (properties) {
+          console.log(JSON.parse(JSON.stringify(properties)));
+          rudderElement["message"]["properties"] = properties;
+        }
+
+        rudderElement["message"]["context"]["traits"] = this.userTraits;
+        rudderElement["message"]["anonymous_id"] = rudderElement["message"]["user_id"] = rudderElement["message"]["context"]["traits"]["anonymous_id"] = this.userId;
+        console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
+
+        if (this.clientIntegrationObjects) {
+          this.clientIntegrationObjects.forEach(function (obj) {
+            obj.page(rudderElement);
+          });
+        }
+
+        if (!this.clientIntegrationObjects) {
+          //new event processing after analytics initialized  but integrations not fetched from BE
+          this.toBeProcessedByIntegrationArray.push(["page", rudderElement]);
+        }
+
+        enqueue.call(this, rudderElement);
+        console.log("page called ");
+
+        if (callback) {
+          callback();
+        }
+      }
+      /**
+       * Send track call to Rudder BE and to initialized integrations
+       *
+       * @param {*} event
+       * @param {*} properties
+       * @param {*} options
+       * @param {*} callback
+       * @memberof Analytics
+       */
+
+    }, {
+      key: "processTrack",
+      value: function processTrack(event, properties, options, callback) {
+        if (!this.userId) {
+          this.userId = generateUUID();
+          this.storage.setUserId(this.userId);
+        }
+
+        var rudderElement = new RudderElementBuilder().setType("track").build();
+
+        if (event) {
+          rudderElement.setEventName(event);
+        }
+
+        if (properties) {
+          rudderElement.setProperty(properties);
+        }
+
+        rudderElement["message"]["context"]["traits"] = this.userTraits;
+        rudderElement["message"]["anonymous_id"] = rudderElement["message"]["user_id"] = rudderElement["message"]["context"]["traits"]["anonymous_id"] = this.userId;
+        console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
+
+        if (this.clientIntegrationObjects) {
+          this.clientIntegrationObjects.forEach(function (obj) {
+            console.log("called in normal flow");
+            obj.track(rudderElement);
+          });
+        }
+
+        if (!this.clientIntegrationObjects) {
+          console.log("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
+
+          this.toBeProcessedByIntegrationArray.push(["track", rudderElement]);
+        } // self analytics process
+
+
+        enqueue.call(this, rudderElement);
+        console.log("track is called ");
+
+        if (callback) {
+          callback();
+        }
+      }
+      /**
+       * Send identify call to Rudder BE and to initialized integrations
+       *
+       * @param {*} userId
+       * @param {*} traits
+       * @param {*} options
+       * @param {*} callback
+       * @memberof Analytics
+       */
+
+    }, {
+      key: "processIdentify",
+      value: function processIdentify(userId, traits, options, callback) {
+        this.userId = userId;
+        this.storage.setUserId(this.userId);
+        var rudderElement = new RudderElementBuilder().setType("identify").build();
+        var rudderTraits = new RudderTraits();
+        console.log(traits);
+
+        if (traits) {
+          this.userTraits = traits;
+          this.storage.setUserTraits(this.userTraits);
+        }
+
+        rudderElement["message"]["context"]["traits"] = this.userTraits;
+        rudderElement["message"]["anonymous_id"] = rudderElement["message"]["user_id"] = rudderElement["message"]["context"]["traits"]["anonymous_id"] = this.userId;
+        console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
+
+        if (this.clientIntegrationObjects) {
+          this.clientIntegrationObjects.forEach(function (obj) {
+            console.log("called in normal flow");
+            obj.identify(rudderElement);
+          });
+        }
+
+        if (!this.clientIntegrationObjects) {
+          console.log("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
+
+          this.toBeProcessedByIntegrationArray.push(["identify", rudderElement]);
+        } // self analytics process
+
+
+        enqueue.call(this, rudderElement);
+        console.log("identify is called ");
+
+        if (callback) {
+          callback();
+        }
+      }
+      /**
+       * Identify call supporting rudderelement from builder
+       *
+       * @param {*} rudderElement
+       * @param {*} callback
+       * @memberof Analytics
+       */
+
+    }, {
+      key: "identifyUser",
+      value: function identifyUser(rudderElement, callback) {
+        this.userId = userId;
+        this.storage.setUserId(this.userId);
+
+        if (rudderElement && rudderElement["message"] && rudderElement["message"]["context"] && rudderElement["message"]["context"]["traits"]) {
+          this.userTraits = traits;
+          this.storage.setUserTraits(this.userTraits);
+        }
+
+        rudderElement["message"]["context"]["traits"] = this.userTraits;
+        rudderElement["message"]["anonymous_id"] = rudderElement["message"]["user_id"] = rudderElement["message"]["context"]["traits"]["anonymous_id"] = this.userId;
+        console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
+
+        if (this.clientIntegrationObjects) {
+          this.clientIntegrationObjects.forEach(function (obj) {
+            console.log("called in normal flow");
+            obj.identify(rudderElement);
+          });
+        }
+
+        if (!this.clientIntegrationObjects) {
+          console.log("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
+
+          this.toBeProcessedByIntegrationArray.push(["identify", rudderElement]);
+        } // self analytics process
+
+
+        enqueue.call(this, rudderElement);
+        console.log("identify is called ");
+
+        if (callback) {
+          callback();
+        }
+      }
+      /**
+       * Page call supporting rudderelement from builder
+       *
+       * @param {*} rudderElement
+       * @param {*} callback
+       * @memberof Analytics
+       */
+
+    }, {
+      key: "trackPage",
+      value: function trackPage(rudderElement, callback) {
+        if (!this.userId) {
+          this.userId = generateUUID();
+          this.storage.setUserId(this.userId);
+        }
+
+        rudderElement["message"]["context"]["traits"] = this.userTraits;
+        rudderElement["message"]["anonymous_id"] = rudderElement["message"]["user_id"] = rudderElement["message"]["context"]["traits"]["anonymous_id"] = this.userId;
+        console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
+
+        if (this.clientIntegrationObjects) {
+          this.clientIntegrationObjects.forEach(function (obj) {
+            obj.page(rudderElement);
+          });
+        }
+
+        if (!this.clientIntegrationObjects) {
+          //new event processing after analytics initialized  but integrations not fetched from BE
+          this.toBeProcessedByIntegrationArray.push(["page", rudderElement]);
+        }
+
+        enqueue.call(this, rudderElement);
+        console.log("page called ");
+
+        if (callback) {
+          callback();
+        }
+      }
+      /**
+       * Track call supporting rudderelement from builder
+       *
+       * @param {*} rudderElement
+       * @param {*} callback
+       * @memberof Analytics
+       */
+
+    }, {
+      key: "trackEvent",
+      value: function trackEvent(rudderElement, callback) {
+        if (!this.userId) {
+          this.userId = generateUUID();
+          this.storage.setUserId(this.userId);
+        }
+
+        rudderElement["message"]["context"]["traits"] = this.userTraits;
+        rudderElement["message"]["anonymous_id"] = rudderElement["message"]["user_id"] = rudderElement["message"]["context"]["traits"]["anonymous_id"] = this.userId;
+        console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
+
+        if (this.clientIntegrationObjects) {
+          this.clientIntegrationObjects.forEach(function (obj) {
+            console.log("called in normal flow");
+            obj.track(rudderElement);
+          });
+        }
+
+        if (!this.clientIntegrationObjects) {
+          console.log("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
+
+          this.toBeProcessedByIntegrationArray.push(["track", rudderElement]);
+        } // self analytics process
+
+
+        enqueue.call(this, rudderElement);
+
+        if (callback) {
+          callback();
+        }
+      }
+      /**
+       * Clear user information
+       *
+       * @memberof Analytics
+       */
+
+    }, {
+      key: "reset",
+      value: function reset() {
+        this.userId = "";
+        this.userTraits = {};
+        this.storage.clear();
+      }
+      /**
+       * Call control pane to get client configs
+       *
+       * @param {*} writeKey
+       * @memberof Analytics
+       */
+
+    }, {
+      key: "load",
+      value: function load(writeKey) {
+        console.log("inside load ");
+        this.writeKey = writeKey;
+        this.init([], this.configArray);
+        /* getJSONTrimmed(
+          this,
+          CONFIG_URL + "/source-config?write_key=" + writeKey,
+          this.processResponse
+        ); */
+      }
+    }]);
+
+    return Analytics;
+  }();
+
+  var instance = new Analytics();
+
+  var identify = instance.identify.bind(instance);
+  var page = instance.page.bind(instance);
+  var track = instance.track.bind(instance);
+  var trackEvent = instance.trackEvent.bind(instance);
+  var trackPage = instance.trackPage.bind(instance);
+  var identifyUser = instance.identifyUser.bind(instance);
+  var reset = instance.reset.bind(instance);
+  var load = instance.load.bind(instance);
+
+  exports.ECommerceEvents = ECommerceEvents;
+  exports.ECommercePromotion = ECommercePromotion;
+  exports.PromotionViewedEvent = PromotionViewedEvent;
+  exports.RudderElementBuilder = RudderElementBuilder;
+  exports.identify = identify;
+  exports.identifyUser = identifyUser;
+  exports.load = load;
+  exports.page = page;
+  exports.reset = reset;
+  exports.track = track;
+  exports.trackEvent = trackEvent;
+  exports.trackPage = trackPage;
+
+  return exports;
+
+}({}, XMLHttpRequestNode, ua));

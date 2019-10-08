@@ -36,7 +36,6 @@ function generateUUID() {
   });
 }
 
-
 /**
  *
  * Utility function to get current time (formatted) for including in sent_at field
@@ -52,7 +51,6 @@ function getCurrentTimeFormatted() {
   let curTimeMillis = curDateTime.split("Z")[0].split(".")[1];
   return curDate + " " + curTimeExceptMillis + "+" + curTimeMillis;
 }
-
 
 /**
  *
@@ -83,7 +81,6 @@ function getJSON(url, wrappers, isLoaded, callback) {
   xhr.send();
 }
 
-
 /**
  *
  * Utility function to retrieve configuration JSON from server
@@ -104,7 +101,7 @@ function getJSONTrimmed(context, url, callback) {
   xhr.onload = function() {
     let status = xhr.status;
     if (status == 200) {
-      console.log("status 200");
+      console.log("status 200 " + "calling callback");
       cb_(200, xhr.responseText);
     } else {
       cb_(status);

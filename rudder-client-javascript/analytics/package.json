@@ -1,8 +1,8 @@
 {
-  "name": "test-rudder-sdk",
-  "version": "1.0.5",
+  "name": "test-rudder-node-sdk",
+  "version": "1.0.0",
   "description": "",
-  "main": "./dist/browser.js",
+  "main": "./dist/node.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",
@@ -12,6 +12,10 @@
   },
   "author": "",
   "license": "ISC",
+  "dependencies": {
+    "universal-analytics": "^0.4.20",
+    "xmlhttprequest": "^1.8.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
@@ -31,7 +35,6 @@
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-strip": "^1.2.2",
     "rollup-plugin-terser": "^5.1.2",
-    "rollup-plugin-uglify": "^6.0.3",
-    "xmlhttprequest": "^1.8.0"
+    "rollup-plugin-uglify": "^6.0.3"
   }
 }

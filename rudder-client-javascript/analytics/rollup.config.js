@@ -7,7 +7,7 @@ import strip from "rollup-plugin-strip";
 
 export default {
   input: "analytics.js",
-  external: ["Xmlhttprequest"],
+  external: ["Xmlhttprequest", "universal-analytics"],
   output: [
     {
       file: "dist/browser.js",

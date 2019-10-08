@@ -64,6 +64,7 @@ class Analytics {
    * @memberof Analytics
    */
   processResponse(status, response) {
+    console.log("===in process response=== " + status);
     response = JSON.parse(response);
     response.source.destinations.forEach(function(destination, index) {
       console.log(
@@ -111,6 +112,13 @@ class Analytics {
         this.clientIntegrationObjects.push(intgInstance);
       }
     });
+
+    // Add GA forcibly for tests , TODO : Remove
+    /* let GAClass = integrations["GA"];
+    let GAInstance = new GAClass("UA-143161493-8");
+    GAInstance.init();
+    console.log("GA initialized");
+    this.clientIntegrationObjects.push(GAInstance); */
 
     for (let i = 0; i < this.clientIntegrationObjects.length; i++) {
       //send the queued events to the fetched integration
@@ -509,6 +517,7 @@ class Analytics {
   load(writeKey) {
     console.log("inside load ");
     this.writeKey = writeKey;
+    //this.init([], this.configArray);  TODO: Remove
     getJSONTrimmed(
       this,
       CONFIG_URL + "/source-config?write_key=" + writeKey,

@@ -1,6 +1,6 @@
 //not tested completely, will look it later
 
-var analytics = require("../../dist/node");
+var analytics = require("test-rudder-node-sdk");
 
 analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
 analytics.identify(
