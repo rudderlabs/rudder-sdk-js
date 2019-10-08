@@ -111,6 +111,13 @@ class Analytics {
 
         this.clientIntegrationObjects.push(intgInstance);
       }
+      if (intg === "GA") {
+        let trackingID = configArray[i].trackingID;
+        let intgInstance = new intgClass(trackingID);
+        intgInstance.init();
+
+        this.clientIntegrationObjects.push(intgInstance);
+      }
     });
 
     // Add GA forcibly for tests , TODO : Remove

@@ -1,24 +1,56 @@
 class GA {
-  constructor() {
-    console.log("nothing to construct");
+  constructor(trackingID) {
+    this.trackingID = trackingID;
   }
 
   init() {
-    console.log("browser not implemented");
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-    console.log("===in init===");
+      //window.ga_debug = {trace: true};
+      
+      ga('create', this.trackingID, 'auto');
+      ga('send', 'pageview');
+
+    console.log("===in init GA===");
   }
 
   identify(rudderElement) {
-    console.log("browser not implemented");
+    ga('set', 'userId', rudderElement.message.anonymous_id);
+    console.log("in GoogleAnalyticsManager identify");
   }
 
   track(rudderElement) {
-    console.log("browser not implemented");
+    var eventCategory = rudderElement.message.event
+    var eventAction = rudderElement.message.event
+    var eventLabel = rudderElement.message.event
+    var eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue
+    var payLoad = {
+      hitType: 'event',
+      eventCategory : eventCategory,
+      eventAction : eventAction,
+      eventLabel : eventLabel,
+      eventValue : eventValue
+    }
+    console.log(window['GoogleAnalyticsObject'])
+    ga('send', 'event', payLoad);
+    console.log("in GoogleAnalyticsManager track");
   }
 
   page(rudderElement) {
-    console.log("browser not implemented");
+    console.log("in GoogleAnalyticsManager page");
+    console.log(window['GoogleAnalyticsObject'])
+    var path = (rudderElement.properties && rudderElement.properties.path) ? rudderElement.properties.path : undefined
+    if(path){
+      ga('set', 'page', path);
+    }
+    ga('send', 'pageview', {
+      hitCallback: function() {
+        console.log("===GA callback===");
+      }
+    });
   }
 
   loaded() {
