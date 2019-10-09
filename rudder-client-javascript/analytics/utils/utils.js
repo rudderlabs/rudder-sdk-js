@@ -88,7 +88,7 @@ function getJSON(url, wrappers, isLoaded, callback) {
  * @param {*} url
  * @param {*} callback
  */
-function getJSONTrimmed(context, url, callback) {
+function getJSONTrimmed(context, url, writeKey, callback) {
   //server-side integration, XHR is node module
   let cb_ = callback.bind(context);
 
@@ -98,6 +98,7 @@ function getJSONTrimmed(context, url, callback) {
     var xhr = new XMLHttpRequestNode.XMLHttpRequest();
   }
   xhr.open("GET", url, true);
+  xhr.setRequestHeader("Authorization", "Basic " + btoa(writeKey + ":"));
   xhr.onload = function() {
     let status = xhr.status;
     if (status == 200) {

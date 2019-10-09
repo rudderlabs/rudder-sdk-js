@@ -438,7 +438,7 @@ class Analytics {
     //this.init([], this.configArray);  TODO: Remove
     getJSONTrimmed(
       this,
-      CONFIG_URL + "/source-config?write_key=" + writeKey,
+      CONFIG_URL, writeKey,
       this.processResponse
     );
   }
