@@ -43,13 +43,15 @@ function generateUUID() {
  */
 function getCurrentTimeFormatted() {
   let curDateTime = new Date().toISOString();
-  let curDate = curDateTime.split("T")[0];
+  // Keeping same as iso string
+  /* let curDate = curDateTime.split("T")[0];
   let curTimeExceptMillis = curDateTime
     .split("T")[1]
     .split("Z")[0]
     .split(".")[0];
   let curTimeMillis = curDateTime.split("Z")[0].split(".")[1];
-  return curDate + " " + curTimeExceptMillis + "+" + curTimeMillis;
+  return curDate + " " + curTimeExceptMillis + "+" + curTimeMillis; */
+  return curDateTime;
 }
 
 /**

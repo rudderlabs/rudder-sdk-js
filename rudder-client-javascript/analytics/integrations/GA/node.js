@@ -14,7 +14,7 @@ class GANode {
 
   identify(rudderElement) {
     console.log("=== in GA Node identify===");
-    this.client = ua(this.trackingID, rudderElement.message.user_id);
+    this.client = ua(this.trackingID, rudderElement.message.userId);
   }
 
   track(rudderElement) {

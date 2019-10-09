@@ -6,6 +6,7 @@
     <script type="text/javascript">
       analytics = window.analytics = [];
       XMLHttpRequestNode = XMLHttpRequest;
+      ua = {};
       analytics.page = function() {
         console.log(...arguments);
         analytics.push(["page", ...arguments]);
@@ -42,20 +43,31 @@
         analytics.page("Wishlist"+ ++counter)
       }, 2000); */
       //analytics.page();
-      /* analytics.identify({
-        name: "Tintin",
-        city: "Brussels",
-        country: "Belgium",
-        email: "tintin@herge.com"
-      }, ()=>{console.log("in identify callback html")}); */
-      analytics.page("Dashboard", {
-        "title":"abc",
-        "url":"http://abc.com",
-        "path":"/abc"
-      },()=>{console.log("in page callback html")});
-      analytics.track('Article Started', {
-        title: 'How to Create a Tracking Plan',
-        course: 'Intro to Analytics',
+      analytics.identify(
+        {
+          name: "Tintin",
+          city: "Brussels",
+          country: "Belgium",
+          email: "tintin@herge.com"
+        },
+        () => {
+          console.log("in identify callback html");
+        }
+      );
+      analytics.page(
+        "Dashboard",
+        {
+          title: "abc",
+          url: "http://abc.com",
+          path: "/abc"
+        },
+        () => {
+          console.log("in page callback html");
+        }
+      );
+      analytics.track("Article Started", {
+        title: "How to Create a Tracking Plan",
+        course: "Intro to Analytics",
         revenue: 10
       });
     </script>
@@ -78,7 +90,7 @@
         course: 'Intro to Analytics',
         revenue: 20
       }, ()=>{console.log("in track callback html")}); */
-      analytics.trackEvent(
+      /* analytics.trackEvent(
         new analytics.RudderElementBuilder()
           .setEvent(analytics.ECommerceEvents.PROMOTION_VIEWED)
           .setProperty(
@@ -92,7 +104,7 @@
               .getPropertyMap()
           )
           .build()
-      );
+      ); */
     </script>
   </body>
 </html>

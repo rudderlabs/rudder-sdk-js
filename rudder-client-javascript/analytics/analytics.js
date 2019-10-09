@@ -33,7 +33,6 @@ class Analytics {
    */
   constructor() {
     this.ready = false;
-    this.writeKey = "";
     this.eventsBuffer = [];
     this.clientIntegrations = [];
     this.configArray = [];
@@ -127,22 +126,24 @@ class Analytics {
     console.log("GA initialized");
     this.clientIntegrationObjects.push(GAInstance); */
 
-    
-      //send the queued events to the fetched integration
-      this.toBeProcessedByIntegrationArray.forEach(event => {
-        let methodName = event[0];
-        event.shift();
-        console.log(this.clientIntegrationObjects[i].name);
-        console.log("event: " , ...event)
-        let integrationOptions = event[0].message.integrations
-        for (let i = 0; i < this.clientIntegrationObjects.length; i++) {
-          if(integrationOptions[this.clientIntegrationObjects[i].name] || 
-            (integrationOptions[this.clientIntegrationObjects[i].name] == undefined && integrationOptions["All"])){
-            this.clientIntegrationObjects[i][methodName](...event);
-          }
+    //send the queued events to the fetched integration
+    this.toBeProcessedByIntegrationArray.forEach(event => {
+      let methodName = event[0];
+      event.shift();
+      console.log(this.clientIntegrationObjects[i].name);
+      console.log("event: ", ...event);
+      let integrationOptions = event[0].message.integrations;
+      for (let i = 0; i < this.clientIntegrationObjects.length; i++) {
+        if (
+          integrationOptions[this.clientIntegrationObjects[i].name] ||
+          (integrationOptions[this.clientIntegrationObjects[i].name] ==
+            undefined &&
+            integrationOptions["All"])
+        ) {
+          this.clientIntegrationObjects[i][methodName](...event);
         }
-        
-      });
+      }
+    });
 
     this.toBeProcessedByIntegrationArray = [];
   }
@@ -219,7 +220,6 @@ class Analytics {
    * @memberof Analytics
    */
   processPage(category, name, properties, options, callback) {
-
     let rudderElement = new RudderElementBuilder().setType("page").build();
     if (name) {
       console.log("name ", name);
@@ -235,7 +235,7 @@ class Analytics {
       console.log(JSON.parse(JSON.stringify(properties)));
       rudderElement["message"]["properties"] = properties;
     }
-    if(options && options["integrations"]){
+    if (options && options["integrations"]) {
       rudderElement.message.integrations = options["integrations"];
     }
 
@@ -252,17 +252,16 @@ class Analytics {
    * @memberof Analytics
    */
   processTrack(event, properties, options, callback) {
-
     let rudderElement = new RudderElementBuilder().setType("track").build();
     if (event) {
       rudderElement.setEventName(event);
     }
     if (properties) {
       rudderElement.setProperty(properties);
-    } else{
+    } else {
       rudderElement.setProperty({});
     }
-    if(options && options["integrations"]){
+    if (options && options["integrations"]) {
       rudderElement.message.integrations = options["integrations"];
     }
 
@@ -288,7 +287,7 @@ class Analytics {
       this.userTraits = traits;
       this.storage.setUserTraits(this.userTraits);
     }
-    if(options && options["integrations"]){
+    if (options && options["integrations"]) {
       rudderElement.message.integrations = options["integrations"];
     }
 
@@ -303,8 +302,8 @@ class Analytics {
    * @memberof Analytics
    */
   identifyUser(rudderElement, callback) {
-    if(rudderElement["message"]["user_id"]){
-      this.userId = rudderElement["message"]["user_id"];
+    if (rudderElement["message"]["userId"]) {
+      this.userId = rudderElement["message"]["userId"];
       this.storage.setUserId(this.userId);
     }
 
@@ -351,18 +350,17 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  processAndSendDataToDestinations(type, rudderElement, callback){
-
+  processAndSendDataToDestinations(type, rudderElement, callback) {
     if (!this.userId) {
       this.userId = generateUUID();
       this.storage.setUserId(this.userId);
     }
 
     rudderElement["message"]["context"]["traits"] = this.userTraits;
-    rudderElement["message"]["anonymous_id"] = rudderElement["message"][
-      "user_id"
+    rudderElement["message"]["anonymousId"] = rudderElement["message"][
+      "userId"
     ] = rudderElement["message"]["context"]["traits"][
-      "anonymous_id"
+      "anonymousId"
     ] = this.userId;
 
     console.log(JSON.stringify(rudderElement));
@@ -373,7 +371,10 @@ class Analytics {
     if (this.clientIntegrationObjects) {
       this.clientIntegrationObjects.forEach(obj => {
         console.log("called in normal flow");
-        if(integrations[obj.name] || (integrations[obj.name] == undefined && integrations["All"])){
+        if (
+          integrations[obj.name] ||
+          (integrations[obj.name] == undefined && integrations["All"])
+        ) {
           obj[type](rudderElement);
         }
       });
@@ -412,13 +413,9 @@ class Analytics {
    */
   load(writeKey) {
     console.log("inside load ");
-    this.writeKey = writeKey;
+    this.eventRepository.writeKey = writeKey;
     //this.init([], this.configArray);  TODO: Remove
-    getJSONTrimmed(
-      this,
-      CONFIG_URL, writeKey,
-      this.processResponse
-    );
+    getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
   }
 }
 

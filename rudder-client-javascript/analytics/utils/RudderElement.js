@@ -19,7 +19,7 @@ class RudderElement {
   }
 
   setUserId(userId) {
-    this.message.user_id = userId;
+    this.message.userId = userId;
   }
 
   setEventName(eventName) {

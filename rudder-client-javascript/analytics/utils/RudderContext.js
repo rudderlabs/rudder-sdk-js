@@ -26,18 +26,19 @@ class RudderContext {
       screen.density = 0;
       os.version = "";
       os.name = "";
-      this.user_agent = null;
+      this.userAgent = null;
       this.locale = null;
     } else {
       //running within browser
       screen.width = window.width;
       screen.height = window.height;
       screen.density = window.devicePixelRatio;
-      this.user_agent = navigator.userAgent;
+      this.userAgent = navigator.userAgent;
       //property name differs based on browser version
       this.locale = navigator.language || navigator.browserLanguage;
     }
-
+    this.ip = "0.0.0.0";
+    this.os = os;
     this.screen = screen;
     this.device = null;
     this.network = null;

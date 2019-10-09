@@ -10,8 +10,8 @@ import * as XMLHttpRequestNode from "Xmlhttprequest";
 
 /**
  *
- * @class EventRepository responsible for adding events into 
- * flush queue and sending data to rudder backend 
+ * @class EventRepository responsible for adding events into
+ * flush queue and sending data to rudder backend
  * in batch and maintains order of the event.
  */
 class EventRepository {
@@ -21,7 +21,8 @@ class EventRepository {
    */
   constructor() {
     this.eventsBuffer = [];
-    this.url = BASE_URL//"http://localhost:9005"; //BASE_URL;
+    this.writeKey = "";
+    this.url = BASE_URL; //"http://localhost:9005"; //BASE_URL;
     this.state = "READY";
     this.batchSize = 0;
     setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
@@ -44,8 +45,8 @@ class EventRepository {
     var eventsPayload = repo.eventsBuffer;
     var payload = new RudderPayload();
     payload.batch = eventsPayload;
-    payload.write_key = repo.write_key;
-    payload.sent_at = getCurrentTimeFormatted();
+    payload.writeKey = repo.writeKey;
+    payload.sentAt = getCurrentTimeFormatted();
     repo.batchSize = repo.eventsBuffer.length;
     //server-side integration, XHR is node module
 

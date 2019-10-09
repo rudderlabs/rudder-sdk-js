@@ -2,10 +2,8 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
 var XMLHttpRequestNode = require('Xmlhttprequest');
-var ua = _interopDefault(require('universal-analytics'));
+require('universal-analytics');
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -154,11 +152,51 @@ function generateUUID() {
 
 
 function getCurrentTimeFormatted() {
-  var curDateTime = new Date().toISOString();
-  var curDate = curDateTime.split("T")[0];
-  var curTimeExceptMillis = curDateTime.split("T")[1].split("Z")[0].split(".")[0];
-  var curTimeMillis = curDateTime.split("Z")[0].split(".")[1];
-  return curDate + " " + curTimeExceptMillis + "+" + curTimeMillis;
+  var curDateTime = new Date().toISOString(); // Keeping same as iso string
+
+  /* let curDate = curDateTime.split("T")[0];
+  let curTimeExceptMillis = curDateTime
+    .split("T")[1]
+    .split("Z")[0]
+    .split(".")[0];
+  let curTimeMillis = curDateTime.split("Z")[0].split(".")[1];
+  return curDate + " " + curTimeExceptMillis + "+" + curTimeMillis; */
+
+  return curDateTime;
+}
+/**
+ *
+ * Utility function to retrieve configuration JSON from server
+ * @param {*} context
+ * @param {*} url
+ * @param {*} callback
+ */
+
+
+function getJSONTrimmed(context, url, callback) {
+  //server-side integration, XHR is node module
+  var cb_ = callback.bind(context);
+
+  if (true) {
+    var xhr = new XMLHttpRequestNode();
+  } else {
+    var xhr;
+  }
+
+  xhr.open("GET", url, true);
+
+  xhr.onload = function () {
+    var status = xhr.status;
+
+    if (status == 200) {
+      console.log("status 200 " + "calling callback");
+      cb_(200, xhr.responseText);
+    } else {
+      cb_(status);
+    }
+  };
+
+  xhr.send();
 }
 
 //Message Type enumeration
@@ -200,6 +238,8 @@ var ECommerceEvents = {
   PRODUCT_REVIEWED: "Product Reviewed"
 }; //Enumeration for integrations supported
 var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
+
+var CONFIG_URL = "https://api.rudderlabs.com";
 var FLUSH_INTERVAL_DEFAULT = 5000;
 /* module.exports = {
   MessageType: MessageType,
@@ -211,107 +251,212 @@ var FLUSH_INTERVAL_DEFAULT = 5000;
   FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
 }; */
 
-var HubSpotNode =
+function ScriptLoader(id, src) {
+  console.log("in script loader=== " + id); //if (document.getElementById(id)) {
+  //console.log("id not found==");
+
+  var js = document.createElement("script");
+  js.src = src;
+  js.type = "text/javascript";
+  js.id = id;
+  var e = document.getElementsByTagName("script")[0];
+  console.log("==script==", e);
+  e.parentNode.insertBefore(js, e); //}
+} //('hubspot-integration', '//HubSpot.js');
+
+var HubSpot =
 /*#__PURE__*/
 function () {
-  function HubSpotNode() {
-    _classCallCheck(this, HubSpotNode);
+  function HubSpot(hubId) {
+    _classCallCheck(this, HubSpot);
 
-    console.log("nothing to construct");
+    this.hubId = hubId;
   }
 
-  _createClass(HubSpotNode, [{
+  _createClass(HubSpot, [{
     key: "init",
     value: function init() {
-      console.log("node not supported");
+      var hubspotJs = "http://js.hs-scripts.com/" + this.hubId + ".js";
+      ScriptLoader("hubspot-integration", hubspotJs);
       console.log("===in init===");
     }
   }, {
     key: "identify",
     value: function identify(rudderElement) {
-      console.log("node not supported");
+      console.log("in HubspotAnalyticsManager identify");
+      var traits = rudderElement.message.context.traits;
+      var traitsValue = {};
+
+      for (var k in traits) {
+        if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
+          var hubspotkey = k.startsWith("") ? k.substring(3, k.length) : k;
+          traitsValue[hubspotkey] = traits[k];
+        }
+      }
+
+      if (traitsValue["address"]) {
+        var address = traitsValue["address"]; //traitsValue.delete(address)
+
+        delete traitsValue["address"];
+
+        for (var _k in address) {
+          if (!!Object.getOwnPropertyDescriptor(address, _k) && address[_k]) {
+            var _hubspotkey = _k.startsWith("") ? _k.substring(3, _k.length) : _k;
+
+            _hubspotkey = _hubspotkey == "street" ? "address" : _hubspotkey;
+            traitsValue[_hubspotkey] = address[_k];
+          }
+        }
+      }
+
+      var userProperties = rudderElement.message.context.user_properties;
+
+      for (var _k2 in userProperties) {
+        if (!!Object.getOwnPropertyDescriptor(userProperties, _k2) && userProperties[_k2]) {
+          var _hubspotkey2 = _k2.startsWith("") ? _k2.substring(3, _k2.length) : _k2;
+
+          traitsValue[_hubspotkey2] = userProperties[_k2];
+        }
+      }
+
+      console.log(traitsValue);
+
+      if ((typeof window === "undefined" ? "undefined" : _typeof(window)) !== undefined) {
+        var _hsq = window._hsq = window._hsq || [];
+
+        _hsq.push(["identify", traitsValue]);
+      }
     }
   }, {
     key: "track",
     value: function track(rudderElement) {
-      console.log("node not supported");
+      console.log("in HubspotAnalyticsManager track");
+
+      var _hsq = window._hsq = window._hsq || [];
+
+      var eventValue = {};
+      eventValue["id"] = rudderElement.message.event;
+
+      if (rudderElement.message.properties && rudderElement.message.properties.revenue) {
+        console.log("revenue: " + rudderElement.message.properties.revenue);
+        eventValue["value"] = rudderElement.message.properties.revenue;
+      }
+
+      _hsq.push(["trackEvent", eventValue]);
     }
   }, {
     key: "page",
     value: function page(rudderElement) {
-      console.log("node not supported");
+      console.log("in HubspotAnalyticsManager page");
+
+      var _hsq = window._hsq = window._hsq || []; //console.log("path: " + rudderElement.message.properties.path);
+      //_hsq.push(["setPath", rudderElement.message.properties.path]);
+
+      /* _hsq.push(["identify",{
+          email: "testtrackpage@email.com"
+      }]); */
+
+
+      if (rudderElement.message.properties && rudderElement.message.properties.path) {
+        _hsq.push(["setPath", rudderElement.message.properties.path]);
+      }
+
+      _hsq.push(["trackPageView"]);
     }
   }, {
     key: "loaded",
     value: function loaded() {
       console.log("in hubspot isLoaded");
-      console.log("node not supported");
+      return !!(window._hsq && window._hsq.push !== Array.prototype.push);
     }
   }]);
 
-  return HubSpotNode;
+  return HubSpot;
 }();
 
-var index =  HubSpotNode;
+var index =  HubSpot ;
 
-var GANode =
+var GA =
 /*#__PURE__*/
 function () {
-  function GANode(trackingID) {
-    _classCallCheck(this, GANode);
+  function GA(trackingID) {
+    _classCallCheck(this, GA);
 
     this.trackingID = trackingID;
-    this.client = "";
   }
 
-  _createClass(GANode, [{
+  _createClass(GA, [{
     key: "init",
     value: function init() {
-      console.log("===in GA Node init==="); //this.client = ua(this.trackingID, "6a14abda-6b12-4578-bf66-43c754eaeda9");
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments);
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m);
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga'); //window.ga_debug = {trace: true};
+
+
+      ga('create', this.trackingID, 'auto');
+      ga('send', 'pageview');
+      console.log("===in init GA===");
     }
   }, {
     key: "identify",
     value: function identify(rudderElement) {
-      console.log("=== in GA Node identify===");
-      this.client = ua(this.trackingID, rudderElement.message.user_id);
+      ga('set', 'userId', rudderElement.message.anonymous_id);
+      console.log("in GoogleAnalyticsManager identify");
     }
   }, {
     key: "track",
     value: function track(rudderElement) {
-      console.log("=== in GA Node track===");
-      this.client.event(rudderElement.message.type, rudderElement.message.event, function (err) {
-        // Handle the error if necessary.
-        // In case no error is provided you can be sure
-        // the request was successfully sent off to Google.
-        console.log("error sending to GA" + err);
-      });
+      var eventCategory = rudderElement.message.event;
+      var eventAction = rudderElement.message.event;
+      var eventLabel = rudderElement.message.event;
+      var eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
+      var payLoad = {
+        hitType: 'event',
+        eventCategory: eventCategory,
+        eventAction: eventAction,
+        eventLabel: eventLabel,
+        eventValue: eventValue
+      };
+      console.log(window['GoogleAnalyticsObject']);
+      ga('send', 'event', payLoad);
+      console.log("in GoogleAnalyticsManager track");
     }
   }, {
     key: "page",
     value: function page(rudderElement) {
-      console.log("=== in GA Node page===");
+      console.log("in GoogleAnalyticsManager page");
+      console.log(window['GoogleAnalyticsObject']);
+      var path = rudderElement.properties && rudderElement.properties.path ? rudderElement.properties.path : undefined;
 
-      if (rudderElement.message.properties && rudderElement.message.properties.path) {
-        this.client.pageview(rudderElement.message.properties.path, function (err) {
-          // Handle the error if necessary.
-          // In case no error is provided you can be sure
-          // the request was successfully sent off to Google.
-          console.log("error sending to GA" + err);
-        }); //this.client.pageview(rudderElement.message.properties.path).send();
+      if (path) {
+        ga('set', 'page', path);
       }
+
+      ga('send', 'pageview', {
+        hitCallback: function hitCallback() {
+          console.log("===GA callback===");
+        }
+      });
     }
   }, {
     key: "loaded",
     value: function loaded() {
       console.log("in GA isLoaded");
-      console.log("node not supported");
+      console.log("browser not implemented");
     }
   }]);
 
-  return GANode;
+  return GA;
 }();
 
-var index$1 =  GANode;
+var index$1 =  GA ;
 
 var integrations = {
   HS: index,
@@ -369,16 +514,17 @@ var RudderContext = function RudderContext() {
   //For server-side integration, same needs to be set by calling program
 
   {
-    //server-side integration
-    screen.width = 0;
-    screen.height = 0;
-    screen.density = 0;
-    os.version = "";
-    os.name = "";
-    this.user_agent = null;
-    this.locale = null;
+    //running within browser
+    screen.width = window.width;
+    screen.height = window.height;
+    screen.density = window.devicePixelRatio;
+    this.userAgent = navigator.userAgent; //property name differs based on browser version
+
+    this.locale = navigator.language || navigator.browserLanguage;
   }
 
+  this.ip = "0.0.0.0";
+  this.os = os;
   this.screen = screen;
   this.device = null;
   this.network = null;
@@ -394,10 +540,10 @@ function () {
     this.context = new RudderContext();
     this.type = null;
     this.action = null;
-    this.message_id = generateUUID().toString();
-    this.timestamp = new Date().getTime();
-    this.anonymous_id = generateUUID().toString();
-    this.user_id = null;
+    this.messageId = generateUUID().toString();
+    this.timestamp = new Date().toISOString();
+    this.anonymousId = generateUUID().toString();
+    this.userId = null;
     this.event = null;
     this.properties = {}; //By default, all integrations will be set as enabled from client
     //Decision to route to specific destinations will be taken at server end
@@ -515,7 +661,7 @@ function () {
   }, {
     key: "setUserId",
     value: function setUserId(userId) {
-      this.message.user_id = userId;
+      this.message.userId = userId;
     }
   }, {
     key: "setEventName",
@@ -619,188 +765,103 @@ function () {
   return RudderElementBuilder;
 }();
 
-//Traits class
-var RudderTraits =
+var defaults = {
+  user_storage_key: "rl_user_id",
+  user_storage_trait: "rl_trait"
+};
+
+var Storage =
 /*#__PURE__*/
 function () {
-  function RudderTraits() {
-    _classCallCheck(this, RudderTraits);
+  function Storage() {
+    _classCallCheck(this, Storage);
 
-    this.address = null;
-    this.age = null;
-    this.birthday = null;
-    this.company = null;
-    this.createdat = null;
-    this.description = null;
-    this.email = null;
-    this.firstname = null;
-    this.gender = null;
-    this.id = null;
-    this.lastname = null;
-    this.name = null;
-    this.phone = null;
-    this.title = null;
-    this.username = null;
-  } //Setter methods to aid Builder pattern
-
-
-  _createClass(RudderTraits, [{
-    key: "setAddress",
-    value: function setAddress(address) {
-      this.address = address;
-      return this;
-    }
-  }, {
-    key: "setAge",
-    value: function setAge(age) {
-      this.age = age;
-      return this;
-    }
-  }, {
-    key: "setBirthday",
-    value: function setBirthday(birthday) {
-      this.birthday = birthday;
-      return this;
-    }
-  }, {
-    key: "setCompany",
-    value: function setCompany(company) {
-      this.company = company;
-      return this;
-    }
-  }, {
-    key: "setCreatedAt",
-    value: function setCreatedAt(createAt) {
-      this.createdat = createAt;
-      return this;
-    }
-  }, {
-    key: "setDescription",
-    value: function setDescription(description) {
-      this.description = description;
-      return this;
-    }
-  }, {
-    key: "setEmail",
-    value: function setEmail(email) {
-      this.email = email;
-      return this;
-    }
-  }, {
-    key: "setFirstname",
-    value: function setFirstname(firstname) {
-      this.firstname = firstname;
-      return this;
-    }
-  }, {
-    key: "setId",
-    value: function setId(id) {
-      this.id = id;
-      return this;
-    }
-  }, {
-    key: "setLastname",
-    value: function setLastname(lastname) {
-      this.lastname = lastname;
-      return this;
-    }
-  }, {
-    key: "setName",
-    value: function setName(name) {
-      this.name = name;
-      return this;
-    }
-  }, {
-    key: "setPhone",
-    value: function setPhone(phone) {
-      this.phone = phone;
-      return this;
-    }
-  }, {
-    key: "setTitle",
-    value: function setTitle(title) {
-      this.title = title;
-      return this;
-    }
-  }, {
-    key: "setUsername",
-    value: function setUsername(username) {
-      this.username = username;
-      return this;
-    }
-  }]);
-
-  return RudderTraits;
-}(); //Class for Company to be embedded in Traits
-
-var StorageNode =
-/*#__PURE__*/
-function () {
-  function StorageNode() {
-    _classCallCheck(this, StorageNode);
-
-    this.storage = {};
+    this.storage = window.localStorage;
   }
 
-  _createClass(StorageNode, [{
+  _createClass(Storage, [{
     key: "setItem",
     value: function setItem(key, value) {
-      console.log("not implemented");
+      var stringValue = "";
+
+      if (typeof value == "string") {
+        stringValue = value;
+      }
+
+      if (_typeof(value) == "object") {
+        stringValue = JSON.stringify(value);
+      }
+
+      this.storage.setItem(key, stringValue);
     }
   }, {
     key: "setUserId",
     value: function setUserId(value) {
-      console.log("not implemented");
+      if (typeof value != "string") {
+        console.log("userId should be string");
+        return;
+      }
+
+      this.storage.setItem(defaults.user_storage_key, value);
+      return;
     }
   }, {
     key: "setUserTraits",
     value: function setUserTraits(value) {
-      console.log("not implemented");
+      if (_typeof(value) != "object") {
+        console.log("traits should be object");
+        return;
+      }
+
+      this.storage.setItem(defaults.user_storage_trait, JSON.stringify(value));
+      return;
     }
   }, {
     key: "getItem",
     value: function getItem(key) {
-      console.log("not implemented");
+      var stringValue = this.storage.getItem(key);
+      return JSON.parse(stringValue);
     }
   }, {
     key: "getUserId",
     value: function getUserId() {
-      console.log("not implemented");
+      return this.storage.getItem(defaults.user_storage_key);
     }
   }, {
     key: "getUserTraits",
     value: function getUserTraits() {
-      console.log("not implemented");
+      return JSON.parse(this.storage.getItem(defaults.user_storage_trait));
     }
   }, {
     key: "removeItem",
     value: function removeItem(key) {
-      console.log("not implemented");
+      this.storage.removeItem(key);
     }
   }, {
     key: "clear",
     value: function clear() {
-      console.log("not implemented");
+      this.storage.removeItem(defaults.user_storage_key);
+      this.storage.removeItem(defaults.user_storage_trait);
     }
   }]);
 
-  return StorageNode;
+  return Storage;
 }();
 
-var Storage =  StorageNode;
+var Storage$1 =  Storage ;
 
 //Payload class, contains batch of Elements
 var RudderPayload = function RudderPayload() {
   _classCallCheck(this, RudderPayload);
 
   this.batch = null;
-  this.write_key = null;
+  this.writeKey = null;
 };
 
 /**
  *
- * @class EventRepository responsible for adding events into 
- * flush queue and sending data to rudder backend 
+ * @class EventRepository responsible for adding events into
+ * flush queue and sending data to rudder backend
  * in batch and maintains order of the event.
  */
 
@@ -815,6 +876,7 @@ function () {
     _classCallCheck(this, EventRepository);
 
     this.eventsBuffer = [];
+    this.writeKey = "";
     this.url = BASE_URL; //"http://localhost:9005"; //BASE_URL;
 
     this.state = "READY";
@@ -844,14 +906,14 @@ function () {
       var eventsPayload = repo.eventsBuffer;
       var payload = new RudderPayload();
       payload.batch = eventsPayload;
-      payload.write_key = repo.write_key;
-      payload.sent_at = getCurrentTimeFormatted();
+      payload.writeKey = repo.writeKey;
+      payload.sentAt = getCurrentTimeFormatted();
       repo.batchSize = repo.eventsBuffer.length; //server-side integration, XHR is node module
 
-      if (false) {
-        var xhr;
+      if (true) {
+        var xhr = new XMLHttpRequestNode();
       } else {
-        var xhr = new XMLHttpRequestNode.XMLHttpRequest();
+        var xhr;
       }
 
       console.log("==== in flush sending to Rudder BE ====");
@@ -1061,14 +1123,13 @@ function () {
     _classCallCheck(this, Analytics);
 
     this.ready = false;
-    this.writeKey = "";
     this.eventsBuffer = [];
     this.clientIntegrations = [];
     this.configArray = [];
     this.clientIntegrationObjects = undefined;
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
-    this.storage = new Storage();
+    this.storage = new Storage$1();
     this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : generateUUID();
     this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
     this.storage.setUserId(this.userId);
@@ -1117,10 +1178,11 @@ function () {
       console.log("supported intgs ", integrations);
       var i = 0;
       this.clientIntegrationObjects = [];
-      /* if (!intgArray || intgArray.length == 0) {
+
+      if (!intgArray || intgArray.length == 0) {
         this.toBeProcessedByIntegrationArray = [];
         return;
-      } */
+      }
 
       intgArray.forEach(function (intg) {
         var intgClass = integrations[intg];
@@ -1132,13 +1194,23 @@ function () {
 
           _this.clientIntegrationObjects.push(intgInstance);
         }
-      }); // Add GA forcibly for tests
 
-      var GAClass = integrations["GA"];
-      var GAInstance = new GAClass("UA-143161493-8");
+        if (intg === "GA") {
+          var trackingID = configArray[i].trackingID;
+
+          var _intgInstance = new intgClass(trackingID);
+
+          _intgInstance.init();
+
+          _this.clientIntegrationObjects.push(_intgInstance);
+        }
+      }); // Add GA forcibly for tests , TODO : Remove
+
+      /* let GAClass = integrations["GA"];
+      let GAInstance = new GAClass("UA-143161493-8");
       GAInstance.init();
       console.log("GA initialized");
-      this.clientIntegrationObjects.push(GAInstance);
+      this.clientIntegrationObjects.push(GAInstance); */
 
       var _loop = function _loop(_i) {
         //send the queued events to the fetched integration
@@ -1229,11 +1301,6 @@ function () {
   }, {
     key: "processPage",
     value: function processPage(category, name, properties, options, callback) {
-      if (!this.userId) {
-        this.userId = generateUUID();
-        this.storage.setUserId(this.userId);
-      }
-
       var rudderElement = new RudderElementBuilder().setType("page").build();
 
       if (name) {
@@ -1254,27 +1321,7 @@ function () {
         rudderElement["message"]["properties"] = properties;
       }
 
-      rudderElement["message"]["context"]["traits"] = this.userTraits;
-      rudderElement["message"]["anonymous_id"] = rudderElement["message"]["user_id"] = rudderElement["message"]["context"]["traits"]["anonymous_id"] = this.userId;
-      console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
-
-      if (this.clientIntegrationObjects) {
-        this.clientIntegrationObjects.forEach(function (obj) {
-          obj.page(rudderElement);
-        });
-      }
-
-      if (!this.clientIntegrationObjects) {
-        //new event processing after analytics initialized  but integrations not fetched from BE
-        this.toBeProcessedByIntegrationArray.push(["page", rudderElement]);
-      }
-
-      enqueue.call(this, rudderElement);
-      console.log("page called ");
-
-      if (callback) {
-        callback();
-      }
+      this.trackPage(rudderElement, callback);
     }
     /**
      * Send track call to Rudder BE and to initialized integrations
@@ -1289,11 +1336,6 @@ function () {
   }, {
     key: "processTrack",
     value: function processTrack(event, properties, options, callback) {
-      if (!this.userId) {
-        this.userId = generateUUID();
-        this.storage.setUserId(this.userId);
-      }
-
       var rudderElement = new RudderElementBuilder().setType("track").build();
 
       if (event) {
@@ -1304,30 +1346,7 @@ function () {
         rudderElement.setProperty(properties);
       }
 
-      rudderElement["message"]["context"]["traits"] = this.userTraits;
-      rudderElement["message"]["anonymous_id"] = rudderElement["message"]["user_id"] = rudderElement["message"]["context"]["traits"]["anonymous_id"] = this.userId;
-      console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
-
-      if (this.clientIntegrationObjects) {
-        this.clientIntegrationObjects.forEach(function (obj) {
-          console.log("called in normal flow");
-          obj.track(rudderElement);
-        });
-      }
-
-      if (!this.clientIntegrationObjects) {
-        console.log("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
-
-        this.toBeProcessedByIntegrationArray.push(["track", rudderElement]);
-      } // self analytics process
-
-
-      enqueue.call(this, rudderElement);
-      console.log("track is called ");
-
-      if (callback) {
-        callback();
-      }
+      this.trackEvent(rudderElement, callback);
     }
     /**
      * Send identify call to Rudder BE and to initialized integrations
@@ -1345,7 +1364,6 @@ function () {
       this.userId = userId;
       this.storage.setUserId(this.userId);
       var rudderElement = new RudderElementBuilder().setType("identify").build();
-      var rudderTraits = new RudderTraits();
       console.log(traits);
 
       if (traits) {
@@ -1353,30 +1371,7 @@ function () {
         this.storage.setUserTraits(this.userTraits);
       }
 
-      rudderElement["message"]["context"]["traits"] = this.userTraits;
-      rudderElement["message"]["anonymous_id"] = rudderElement["message"]["user_id"] = rudderElement["message"]["context"]["traits"]["anonymous_id"] = this.userId;
-      console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
-
-      if (this.clientIntegrationObjects) {
-        this.clientIntegrationObjects.forEach(function (obj) {
-          console.log("called in normal flow");
-          obj.identify(rudderElement);
-        });
-      }
-
-      if (!this.clientIntegrationObjects) {
-        console.log("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
-
-        this.toBeProcessedByIntegrationArray.push(["identify", rudderElement]);
-      } // self analytics process
-
-
-      enqueue.call(this, rudderElement);
-      console.log("identify is called ");
-
-      if (callback) {
-        callback();
-      }
+      this.identifyUser(rudderElement, callback);
     }
     /**
      * Identify call supporting rudderelement from builder
@@ -1389,8 +1384,10 @@ function () {
   }, {
     key: "identifyUser",
     value: function identifyUser(rudderElement, callback) {
-      this.userId = userId;
-      this.storage.setUserId(this.userId);
+      if (rudderElement["message"]["userId"]) {
+        this.userId = rudderElement["message"]["userId"];
+        this.storage.setUserId(this.userId);
+      }
 
       if (rudderElement && rudderElement["message"] && rudderElement["message"]["context"] && rudderElement["message"]["context"]["traits"]) {
         this.userTraits = traits;
@@ -1398,7 +1395,7 @@ function () {
       }
 
       rudderElement["message"]["context"]["traits"] = this.userTraits;
-      rudderElement["message"]["anonymous_id"] = rudderElement["message"]["user_id"] = rudderElement["message"]["context"]["traits"]["anonymous_id"] = this.userId;
+      rudderElement["message"]["anonymousId"] = rudderElement["message"]["userId"] = rudderElement["message"]["context"]["traits"]["anonymousId"] = this.userId;
       console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
 
       if (this.clientIntegrationObjects) {
@@ -1439,7 +1436,7 @@ function () {
       }
 
       rudderElement["message"]["context"]["traits"] = this.userTraits;
-      rudderElement["message"]["anonymous_id"] = rudderElement["message"]["user_id"] = rudderElement["message"]["context"]["traits"]["anonymous_id"] = this.userId;
+      rudderElement["message"]["anonymousId"] = rudderElement["message"]["userId"] = rudderElement["message"]["context"]["traits"]["anonymousId"] = this.userId;
       console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
 
       if (this.clientIntegrationObjects) {
@@ -1477,7 +1474,7 @@ function () {
       }
 
       rudderElement["message"]["context"]["traits"] = this.userTraits;
-      rudderElement["message"]["anonymous_id"] = rudderElement["message"]["user_id"] = rudderElement["message"]["context"]["traits"]["anonymous_id"] = this.userId;
+      rudderElement["message"]["anonymousId"] = rudderElement["message"]["userId"] = rudderElement["message"]["context"]["traits"]["anonymousId"] = this.userId;
       console.log(JSON.stringify(rudderElement)); //try to first send to all integrations, if list populated from BE
 
       if (this.clientIntegrationObjects) {
@@ -1524,13 +1521,9 @@ function () {
     key: "load",
     value: function load(writeKey) {
       console.log("inside load ");
-      this.writeKey = writeKey;
-      this.init([], this.configArray);
-      /* getJSONTrimmed(
-        this,
-        CONFIG_URL + "/source-config?write_key=" + writeKey,
-        this.processResponse
-      ); */
+      this.eventRepository.writeKey = writeKey; //this.init([], this.configArray);  TODO: Remove
+
+      getJSONTrimmed(this, CONFIG_URL + "/source-config?write_key=" + writeKey, this.processResponse);
     }
   }]);
 
@@ -1538,6 +1531,31 @@ function () {
 }();
 
 var instance = new Analytics();
+
+{
+  var eventsPushedAlready = !!window.analytics && window.analytics.push == Array.prototype.push;
+  var methodArg = window.analytics ? window.analytics[0] : [];
+
+  if (methodArg.length > 0 && methodArg[0] == "load") {
+    instance[methodArg[0]](methodArg[1]);
+  }
+
+  if (eventsPushedAlready) {
+    for (var i = 1; i < window.analytics.length; i++) {
+      instance.toBeProcessedArray.push(window.analytics[i]);
+    }
+
+    for (var _i2 = 0; _i2 < instance.toBeProcessedArray.length; _i2++) {
+      var event = _toConsumableArray(instance.toBeProcessedArray[_i2]);
+
+      var method = event[0];
+      event.shift();
+      instance[method].apply(instance, _toConsumableArray(event));
+    }
+
+    instance.toBeProcessedArray = [];
+  }
+}
 
 var identify = instance.identify.bind(instance);
 var page = instance.page.bind(instance);
