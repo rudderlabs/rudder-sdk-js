@@ -211,10 +211,6 @@ class Analytics {
    * @memberof Analytics
    */
   processPage(category, name, properties, options, callback) {
-    if (!this.userId) {
-      this.userId = generateUUID();
-      this.storage.setUserId(this.userId);
-    }
 
     let rudderElement = new RudderElementBuilder().setType("page").build();
     if (name) {
@@ -232,33 +228,7 @@ class Analytics {
       rudderElement["message"]["properties"] = properties;
     }
 
-    rudderElement["message"]["context"]["traits"] = this.userTraits;
-    rudderElement["message"]["anonymous_id"] = rudderElement["message"][
-      "user_id"
-    ] = rudderElement["message"]["context"]["traits"][
-      "anonymous_id"
-    ] = this.userId;
-
-    console.log(JSON.stringify(rudderElement));
-
-    //try to first send to all integrations, if list populated from BE
-    if (this.clientIntegrationObjects) {
-      this.clientIntegrationObjects.forEach(obj => {
-        obj.page(rudderElement);
-      });
-    }
-
-    if (!this.clientIntegrationObjects) {
-      //new event processing after analytics initialized  but integrations not fetched from BE
-      this.toBeProcessedByIntegrationArray.push(["page", rudderElement]);
-    }
-
-    enqueue.call(this, rudderElement);
-
-    console.log("page called ");
-    if (callback) {
-      callback();
-    }
+    this.trackPage(rudderElement, callback);
   }
 
   /**
@@ -271,10 +241,6 @@ class Analytics {
    * @memberof Analytics
    */
   processTrack(event, properties, options, callback) {
-    if (!this.userId) {
-      this.userId = generateUUID();
-      this.storage.setUserId(this.userId);
-    }
 
     let rudderElement = new RudderElementBuilder().setType("track").build();
     if (event) {
@@ -284,35 +250,7 @@ class Analytics {
       rudderElement.setProperty(properties);
     }
 
-    rudderElement["message"]["context"]["traits"] = this.userTraits;
-    rudderElement["message"]["anonymous_id"] = rudderElement["message"][
-      "user_id"
-    ] = rudderElement["message"]["context"]["traits"][
-      "anonymous_id"
-    ] = this.userId;
-
-    console.log(JSON.stringify(rudderElement));
-
-    //try to first send to all integrations, if list populated from BE
-    if (this.clientIntegrationObjects) {
-      this.clientIntegrationObjects.forEach(obj => {
-        console.log("called in normal flow");
-        obj.track(rudderElement);
-      });
-    }
-    if (!this.clientIntegrationObjects) {
-      console.log("pushing in replay queue");
-      //new event processing after analytics initialized  but integrations not fetched from BE
-      this.toBeProcessedByIntegrationArray.push(["track", rudderElement]);
-    }
-
-    // self analytics process
-    enqueue.call(this, rudderElement);
-
-    console.log("track is called ");
-    if (callback) {
-      callback();
-    }
+    this.trackEvent(rudderElement, callback);
   }
 
   /**
@@ -329,42 +267,13 @@ class Analytics {
     this.storage.setUserId(this.userId);
 
     let rudderElement = new RudderElementBuilder().setType("identify").build();
-    let rudderTraits = new RudderTraits();
     console.log(traits);
     if (traits) {
       this.userTraits = traits;
       this.storage.setUserTraits(this.userTraits);
     }
 
-    rudderElement["message"]["context"]["traits"] = this.userTraits;
-    rudderElement["message"]["anonymous_id"] = rudderElement["message"][
-      "user_id"
-    ] = rudderElement["message"]["context"]["traits"][
-      "anonymous_id"
-    ] = this.userId;
-
-    console.log(JSON.stringify(rudderElement));
-
-    //try to first send to all integrations, if list populated from BE
-    if (this.clientIntegrationObjects) {
-      this.clientIntegrationObjects.forEach(obj => {
-        console.log("called in normal flow");
-        obj.identify(rudderElement);
-      });
-    }
-    if (!this.clientIntegrationObjects) {
-      console.log("pushing in replay queue");
-      //new event processing after analytics initialized  but integrations not fetched from BE
-      this.toBeProcessedByIntegrationArray.push(["identify", rudderElement]);
-    }
-
-    // self analytics process
-    enqueue.call(this, rudderElement);
-
-    console.log("identify is called ");
-    if (callback) {
-      callback();
-    }
+    this.identifyUser(rudderElement, callback);
   }
 
   /**
@@ -375,8 +284,10 @@ class Analytics {
    * @memberof Analytics
    */
   identifyUser(rudderElement, callback) {
-    this.userId = userId;
-    this.storage.setUserId(this.userId);
+    if(rudderElement["message"]["user_id"]){
+      this.userId = rudderElement["message"]["user_id"];
+      this.storage.setUserId(this.userId);
+    }
 
     if (
       rudderElement &&
