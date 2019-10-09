@@ -8,7 +8,7 @@ import * as XMLHttpRequestNode from "Xmlhttprequest";
  * @returns
  */
 function replacer(key, value) {
-  if (!value || value === "") {
+  if (value === null || value === undefined) {
     return undefined;
   } else {
     return value;

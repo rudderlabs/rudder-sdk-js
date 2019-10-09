@@ -130,8 +130,6 @@ class Analytics {
     this.toBeProcessedByIntegrationArray.forEach(event => {
       let methodName = event[0];
       event.shift();
-      console.log(this.clientIntegrationObjects[i].name);
-      console.log("event: ", ...event);
       let integrationOptions = event[0].message.integrations;
       for (let i = 0; i < this.clientIntegrationObjects.length; i++) {
         if (
