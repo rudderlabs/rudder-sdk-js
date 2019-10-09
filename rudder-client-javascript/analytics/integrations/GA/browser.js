@@ -1,6 +1,7 @@
 class GA {
   constructor(trackingID) {
-    this.trackingID = trackingID;
+    this.trackingID = trackingID;//UA-149602794-1
+    this.name = "GA";
   }
 
   init() {
@@ -26,7 +27,11 @@ class GA {
     var eventCategory = rudderElement.message.event
     var eventAction = rudderElement.message.event
     var eventLabel = rudderElement.message.event
-    var eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue
+    var eventValue = ""
+    if(rudderElement.message.properties){
+      eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue
+    }
+    
     var payLoad = {
       hitType: 'event',
       eventCategory : eventCategory,

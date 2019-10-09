@@ -2,7 +2,8 @@ import { ScriptLoader } from "../ScriptLoader";
 
 class HubSpot {
   constructor(hubId) {
-    this.hubId = hubId;
+    this.hubId = hubId;//6405167
+    this.name = "HS";
   }
 
   init() {
@@ -20,7 +21,7 @@ class HubSpot {
 
     for (let k in traits) {
       if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
-        let hubspotkey = k.startsWith("") ? k.substring(3, k.length) : k;
+        let hubspotkey = k;//k.startsWith("rl_") ? k.substring(3, k.length) : k;
         traitsValue[hubspotkey] = traits[k];
       }
     }
@@ -30,7 +31,7 @@ class HubSpot {
       delete traitsValue["address"];
       for (let k in address) {
         if (!!Object.getOwnPropertyDescriptor(address, k) && address[k]) {
-          let hubspotkey = k.startsWith("") ? k.substring(3, k.length) : k;
+          let hubspotkey = k;//k.startsWith("rl_") ? k.substring(3, k.length) : k;
           hubspotkey = hubspotkey == "street" ? "address" : hubspotkey;
           traitsValue[hubspotkey] = address[k];
         }
@@ -42,7 +43,7 @@ class HubSpot {
         !!Object.getOwnPropertyDescriptor(userProperties, k) &&
         userProperties[k]
       ) {
-        let hubspotkey = k.startsWith("") ? k.substring(3, k.length) : k;
+        let hubspotkey = k;//k.startsWith("rl_") ? k.substring(3, k.length) : k;
         traitsValue[hubspotkey] = userProperties[k];
       }
     }
