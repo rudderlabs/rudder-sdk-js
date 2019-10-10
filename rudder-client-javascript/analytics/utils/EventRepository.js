@@ -47,6 +47,12 @@ class EventRepository {
     payload.batch = eventsPayload;
     payload.writeKey = repo.writeKey;
     payload.sentAt = getCurrentTimeFormatted();
+
+    //add sentAt to individual events as well
+    payload.batch.forEach(event => {
+      event.sentAt = payload.sentAt;
+    });
+
     repo.batchSize = repo.eventsBuffer.length;
     //server-side integration, XHR is node module
 

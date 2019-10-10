@@ -9,7 +9,7 @@ class RudderMessage {
     this.type = null;
     this.action = null;
     this.messageId = generateUUID().toString();
-    this.timestamp = new Date().toISOString();
+    this.originalTimestamp = new Date().toISOString();
     this.anonymousId = generateUUID().toString();
     this.userId = null;
     this.event = null;
