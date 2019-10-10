@@ -43,7 +43,7 @@
         analytics.page("Wishlist"+ ++counter)
       }, 2000); */
       //analytics.page();
-      analytics.identify(
+      /* analytics.identify(
         {
           name: "Tintin",
           city: "Brussels",
@@ -69,9 +69,9 @@
         title: "How to Create a Tracking Plan",
         course: "Intro to Analytics",
         revenue: 10
-      });
+      }); */
     </script>
-    <script src="../dist/browser.js"></script>
+    <script src="browser.js"></script>
 
     <script type="text/javascript">
       //var testObj = new analytics.test();
@@ -105,6 +105,32 @@
           )
           .build()
       ); */
+      analytics.identify('12345', {email: "sayan@gmail.com"}, {
+               context: {
+                   ip: '0.0.0.0',
+               },
+               page: {
+                   path: '',
+                   referrer: '',
+                   search: '',
+                   title: '',
+                   url: '',
+               },
+               anonymousId: '00000000000000000000000000',
+           });
+           analytics.page('ApplicationLoaded', {
+               path: '',
+               referrer: '',
+               search: '',
+               title: '',
+               url: '',
+           },
+               {
+                   context: {
+                       ip: '0.0.0.0'
+                   },
+                   anonymousId: '00000000000000000000000000'
+               });
     </script>
   </body>
 </html>
