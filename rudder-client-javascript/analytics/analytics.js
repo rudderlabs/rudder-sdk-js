@@ -233,11 +233,8 @@ class Analytics {
       console.log(JSON.parse(JSON.stringify(properties)));
       rudderElement["message"]["properties"] = properties;
     }
-    if (options && options["integrations"]) {
-      rudderElement.message.integrations = options["integrations"];
-    }
 
-    this.trackPage(rudderElement, callback);
+    this.trackPage(rudderElement, options, callback);
   }
 
   /**
@@ -259,11 +256,8 @@ class Analytics {
     } else {
       rudderElement.setProperty({});
     }
-    if (options && options["integrations"]) {
-      rudderElement.message.integrations = options["integrations"];
-    }
 
-    this.trackEvent(rudderElement, callback);
+    this.trackEvent(rudderElement, options, callback);
   }
 
   /**
@@ -285,11 +279,8 @@ class Analytics {
       this.userTraits = traits;
       this.storage.setUserTraits(this.userTraits);
     }
-    if (options && options["integrations"]) {
-      rudderElement.message.integrations = options["integrations"];
-    }
 
-    this.identifyUser(rudderElement, callback);
+    this.identifyUser(rudderElement, options, callback);
   }
 
   /**
@@ -299,7 +290,7 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  identifyUser(rudderElement, callback) {
+  identifyUser(rudderElement, options,callback) {
     if (rudderElement["message"]["userId"]) {
       this.userId = rudderElement["message"]["userId"];
       this.storage.setUserId(this.userId);
@@ -311,11 +302,11 @@ class Analytics {
       rudderElement["message"]["context"] &&
       rudderElement["message"]["context"]["traits"]
     ) {
-      this.userTraits = traits;
+      this.userTraits = rudderElement["message"]["context"]["traits"];
       this.storage.setUserTraits(this.userTraits);
     }
 
-    this.processAndSendDataToDestinations("identify", rudderElement, callback);
+    this.processAndSendDataToDestinations("identify", rudderElement, options, callback);
   }
 
   /**
@@ -325,8 +316,8 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  trackPage(rudderElement, callback) {
-    this.processAndSendDataToDestinations("page", rudderElement, callback);
+  trackPage(rudderElement, options, callback) {
+    this.processAndSendDataToDestinations("page", rudderElement, options, callback);
   }
 
   /**
@@ -336,8 +327,8 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  trackEvent(rudderElement, callback) {
-    this.processAndSendDataToDestinations("track", rudderElement, callback);
+  trackEvent(rudderElement, options, callback) {
+    this.processAndSendDataToDestinations("track", rudderElement, options, callback);
   }
 
   /**
@@ -348,7 +339,7 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  processAndSendDataToDestinations(type, rudderElement, callback) {
+  processAndSendDataToDestinations(type, rudderElement, options, callback) {
     if (!this.userId) {
       this.userId = generateUUID();
       this.storage.setUserId(this.userId);
@@ -360,6 +351,10 @@ class Analytics {
     ] = rudderElement["message"]["context"]["traits"][
       "anonymousId"
     ] = this.userId;
+
+    if (options) {
+      this.processOptionsParam(rudderElement, options);
+    }
 
     console.log(JSON.stringify(rudderElement));
 
@@ -389,6 +384,32 @@ class Analytics {
     console.log(type + "is called ");
     if (callback) {
       callback();
+    }
+  }
+
+  /**
+   * process options parameter
+   *
+   * @param {*} rudderElement
+   * @param {*} options
+   * @memberof Analytics
+   */
+  processOptionsParam(rudderElement, options){
+    var toplevelElements = ['integrations', 'anonymousId', 'originalTimestamp']; 
+    for(let key in options){
+      console.log(key, options[key])
+      if(toplevelElements.includes(key)){
+        rudderElement.message[key] = options[key]
+      } else {
+        if(key !== 'context')
+          rudderElement.message.context[key] = options[key]
+        else{
+          for(let k in options[key]){
+            rudderElement.message.context[k] = options[key][k]
+          }
+        }
+      }
+
     }
   }
 
