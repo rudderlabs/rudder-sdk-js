@@ -1,4 +1,8 @@
-import ua from "universal-analytics";
+//import ua from "universal-analytics";
+let ua;
+if (!process.browser) {
+  ua = require("universal-analytics");
+}
 
 class GANode {
   constructor(trackingID) {

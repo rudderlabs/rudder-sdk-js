@@ -6,7 +6,12 @@ import {
 import { getCurrentTimeFormatted } from "./utils";
 import { replacer } from "./utils";
 import { RudderPayload } from "./RudderPayload";
-import * as XMLHttpRequestNode from "Xmlhttprequest";
+//import * as XMLHttpRequestNode from "Xmlhttprequest";
+
+let XMLHttpRequestNode;
+if (!process.browser) {
+  XMLHttpRequestNode = require("Xmlhttprequest");
+}
 
 /**
  *
@@ -57,7 +62,7 @@ class EventRepository {
     //server-side integration, XHR is node module
 
     if (process.browser) {
-      var xhr = new XMLHttpRequestNode();
+      var xhr = new XMLHttpRequest();
     } else {
       var xhr = new XMLHttpRequestNode.XMLHttpRequest();
     }
