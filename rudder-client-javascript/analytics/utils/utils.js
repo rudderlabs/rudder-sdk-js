@@ -5,6 +5,11 @@ if (!process.browser) {
   XMLHttpRequestNode = require("Xmlhttprequest");
 }
 
+let btoaNode;
+if (!process.browser) {
+  btoaNode = require("btoa");
+}
+
 /**
  *
  * Utility method for excluding null and empty values in JSON
@@ -105,7 +110,12 @@ function getJSONTrimmed(context, url, writeKey, callback) {
     var xhr = new XMLHttpRequestNode.XMLHttpRequest();
   }
   xhr.open("GET", url, true);
-  xhr.setRequestHeader("Authorization", "Basic " + btoa(writeKey + ":"));
+  if (process.browser) {
+    xhr.setRequestHeader("Authorization", "Basic " + btoa(writeKey + ":"));
+  } else {
+    xhr.setRequestHeader("Authorization", "Basic " + btoaNode(writeKey + ":"));
+  }
+
   xhr.onload = function() {
     let status = xhr.status;
     if (status == 200) {
