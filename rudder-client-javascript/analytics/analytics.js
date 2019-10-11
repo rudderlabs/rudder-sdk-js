@@ -17,7 +17,6 @@ import ECommercePromotion from "./utils/ECommercePromotion";
  */
 function enqueue(rudderElement) {
   if (!this.eventRepository) {
-    console.log("====initializing event repo====");
     this.eventRepository = EventRepository;
   }
   this.eventRepository.enqueue(rudderElement);
@@ -221,7 +220,6 @@ class Analytics {
   processPage(category, name, properties, options, callback) {
     let rudderElement = new RudderElementBuilder().setType("page").build();
     if (name) {
-      console.log("name ", name);
       rudderElement["message"]["name"] = name;
     }
     if (category) {
@@ -231,7 +229,6 @@ class Analytics {
       properties["category"] = category;
     }
     if (properties) {
-      console.log(JSON.parse(JSON.stringify(properties)));
       rudderElement["message"]["properties"] = properties;
     }
 
@@ -275,7 +272,6 @@ class Analytics {
     this.storage.setUserId(this.userId);
 
     let rudderElement = new RudderElementBuilder().setType("identify").build();
-    console.log(traits);
     if (traits) {
       this.userTraits = traits;
       this.storage.setUserTraits(this.userTraits);
@@ -382,7 +378,7 @@ class Analytics {
     // self analytics process
     enqueue.call(this, rudderElement);
 
-    console.log(type + "is called ");
+    console.log(type + " is called ");
     if (callback) {
       callback();
     }
@@ -398,7 +394,6 @@ class Analytics {
   processOptionsParam(rudderElement, options){
     var toplevelElements = ['integrations', 'anonymousId', 'originalTimestamp']; 
     for(let key in options){
-      console.log(key, options[key])
       if(toplevelElements.includes(key)){
         rudderElement.message[key] = options[key]
       } else {

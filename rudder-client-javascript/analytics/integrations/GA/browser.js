@@ -39,23 +39,17 @@ class GA {
       eventLabel : eventLabel,
       eventValue : eventValue
     }
-    console.log(window['GoogleAnalyticsObject'])
     ga('send', 'event', payLoad);
     console.log("in GoogleAnalyticsManager track");
   }
 
   page(rudderElement) {
     console.log("in GoogleAnalyticsManager page");
-    console.log(window['GoogleAnalyticsObject'])
     var path = (rudderElement.properties && rudderElement.properties.path) ? rudderElement.properties.path : undefined
     if(path){
       ga('set', 'page', path);
     }
-    ga('send', 'pageview', {
-      hitCallback: function() {
-        console.log("===GA callback===");
-      }
-    });
+    ga('send', 'pageview');
   }
 
   loaded() {

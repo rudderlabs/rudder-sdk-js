@@ -8,7 +8,6 @@
       //XMLHttpRequestNode = XMLHttpRequest;
       //ua = {};
       analytics.page = function() {
-        console.log(...arguments);
         analytics.push(["page", ...arguments]);
       };
       analytics.trackEvent = function() {
