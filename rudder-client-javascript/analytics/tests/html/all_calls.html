@@ -5,29 +5,22 @@
 
     <script type="text/javascript">
       analytics = window.analytics = [];
-      analytics.page = function() {
-        analytics.push(["page", ...arguments]);
-      };
-      analytics.trackEvent = function() {
-        analytics.push(["trackEvent", ...arguments]);
-      };
-      analytics.track = function() {
-        analytics.push(["track", ...arguments]);
-      };
-      analytics.identify = function() {
-        analytics.push(["identify", ...arguments]);
-      };
+      var methods = ["load", "page", "track", "identify", "trackEvent", "trackPage", "identifyUser", "reset"];
+      for(var i=0;i<methods.length;i++){
+        var method = methods[i];
+        analytics[method] = function(methodName){
+          return function(){
+            analytics.push([methodName, ...arguments]);
+          }
+        }(method)
+      }
 
-      analytics.load = function() {
-        analytics.push(["load", ...arguments]);
-      };
-
-      analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
+      analytics.load("1S2kNlbkMrWLBO79H2eNuEST27I", "http://localhost:9090");
     </script>
     <script src="browser.js"></script>
 
     <script type="text/javascript">
-      analytics.identify(
+      /* analytics.identify(
         "12345",
         { email: "sayan@gmail.com" },
         {
@@ -43,7 +36,7 @@
           },
           anonymousId: "00000000000000000000000000"
         }
-      );
+      ); */
       analytics.page(
         "ApplicationLoaded",
         {
@@ -61,9 +54,8 @@
         }
       );
       analytics.track(
-        "test track event",
+        "test track event GA3",
         {
-          category: "",
           type: event,
           user_actual_role: 'system_admin, system_user' ,
           user_actual_id: 12345

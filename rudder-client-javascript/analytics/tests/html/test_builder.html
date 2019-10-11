@@ -1,0 +1,40 @@
+<html>
+  <head> </head>
+  <body>
+    <h1>Page Loaded</h1>
+
+    <script type="text/javascript">
+      analytics = window.analytics = [];
+      var methods = ["load", "page", "track", "identify", "trackEvent", "trackPage", "identifyUser", "reset"];
+      for(var i=0;i<methods.length;i++){
+        var method = methods[i];
+        analytics[method] = function(methodName){
+          return function(){
+            analytics.push([methodName, ...arguments]);
+          }
+        }(method)
+      }
+
+      analytics.load("1S2kNlbkMrWLBO79H2eNuEST27I");
+    </script>
+    <script src="browser.js"></script>
+
+    <script type="text/javascript">
+      analytics.trackEvent(
+        new analytics.RudderElementBuilder()
+          .setEvent(analytics.ECommerceEvents.PROMOTION_VIEWED)
+          .setProperty(
+            new analytics.PromotionViewedEvent()
+              .setPromotion(
+                new analytics.ECommercePromotion()
+                  .setPromotionId("Dummy Promotion 1")
+                  .setCreative("Dummy Creative 1")
+              )
+              .build()
+              .getPropertyMap()
+          )
+          .build()
+      );
+    </script>
+  </body>
+</html>

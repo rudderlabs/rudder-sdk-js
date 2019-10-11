@@ -5,24 +5,18 @@
 
     <script type="text/javascript">
       analytics = window.analytics = [];
-      analytics.page = function() {
-        analytics.push(["page", ...arguments]);
-      };
-      analytics.trackEvent = function() {
-        analytics.push(["trackEvent", ...arguments]);
-      };
-      analytics.track = function() {
-        analytics.push(["track", ...arguments]);
-      };
-      analytics.identify = function() {
-        analytics.push(["identify", ...arguments]);
-      };
-
-      analytics.load = function() {
-        analytics.push(["load", ...arguments]);
-      };
+      var methods = ["load", "page", "track", "identify", "trackEvent", "trackPage", "identifyUser", "reset"];
+      for(var i=0;i<methods.length;i++){
+        var method = methods[i];
+        analytics[method] = function(methodName){
+          return function(){
+            analytics.push([methodName, ...arguments]);
+          }
+        }(method)
+      }
 
       analytics.load("1S2kNlbkMrWLBO79H2eNuEST27I");
+      analytics.reset();
     </script>
     <script src="browser.js"></script>
 
