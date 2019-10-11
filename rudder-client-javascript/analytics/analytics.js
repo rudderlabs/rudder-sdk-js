@@ -17,6 +17,7 @@ import ECommercePromotion from "./utils/ECommercePromotion";
  */
 function enqueue(rudderElement) {
   if (!this.eventRepository) {
+    console.log("====initializing event repo====");
     this.eventRepository = EventRepository;
   }
   this.eventRepository.enqueue(rudderElement);
@@ -430,10 +431,12 @@ class Analytics {
    * @param {*} writeKey
    * @memberof Analytics
    */
-  load(writeKey) {
+  load(writeKey, serverUrl) {
     console.log("inside load ");
     this.eventRepository.writeKey = writeKey;
-    //this.init([], this.configArray);  TODO: Remove
+    if(serverUrl){
+      this.eventRepository.url = serverUrl;
+    }
     getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
   }
 }
@@ -446,7 +449,9 @@ if (process.browser) {
 
   let methodArg = window.analytics ? window.analytics[0] : [];
   if (methodArg.length > 0 && methodArg[0] == "load") {
-    instance[methodArg[0]](methodArg[1]);
+    let method = methodArg[0];
+    methodArg.shift();
+    instance[method](...methodArg);
   }
 
   if (eventsPushedAlready) {

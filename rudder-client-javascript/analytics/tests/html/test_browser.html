@@ -21,11 +21,11 @@
         analytics.push(["identify", ...arguments]);
       };
 
-      analytics.load = function(writeKey) {
-        analytics.push(["load", writeKey]);
+      analytics.load = function() {
+        analytics.push(["load", ...arguments]);
       };
 
-      analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
+      analytics.load("1S2kNlbkMrWLBO79H2eNuEST27I");
       /* analytics.identify(
         {
           name: "Tintin",
@@ -71,7 +71,7 @@
         revenue: 10
       }); */
     </script>
-    <script src="../../dist/browser.js"></script>
+    <script src="browser.js"></script>
 
     <script type="text/javascript">
       //var testObj = new analytics.test();
@@ -130,6 +130,21 @@
           search: "",
           title: "",
           url: ""
+        },
+        {
+          context: {
+            ip: "0.0.0.0"
+          },
+          anonymousId: "00000000000000000000000000"
+        }
+      );
+      analytics.track(
+        "test track event",
+        {
+          category: "",
+          type: event,
+          user_actual_role: 'system_admin, system_user' ,
+          user_actual_id: 12345
         },
         {
           context: {
