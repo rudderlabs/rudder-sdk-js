@@ -104,7 +104,7 @@
           )
           .build()
       ); */
-      analytics.identify(
+      /* analytics.identify(
         "12345",
         { email: "sayan@gmail.com" },
         {
@@ -151,7 +151,73 @@
           },
           anonymousId: "00000000000000000000000000"
         }
+      ); */
+      analytics.identify("123456");
+      analytics.track("test with identify");
+      analytics.identify(
+        {
+          name: "Tintin",
+          city: "Brussels",
+          country: "Belgium",
+          email: "tintin@herge.com"
+        },
+        {
+          context: {
+            ip: "0.0.0.0"
+          },
+          page: {
+            path: "",
+            referrer: "",
+            search: "",
+            title: "",
+            url: ""
+          },
+          anonymousId: "00000000000000000000000000"
+        },
+        () => {
+          console.log("in identify tintin html");
+        }
       );
+      analytics.track("test with traits");
+      analytics.reset();
+      analytics.track("test after reset", {}, {
+          context: {
+            ip: "0.0.0.0"
+          },
+          page: {
+            path: "",
+            referrer: "",
+            search: "",
+            title: "",
+            url: ""
+          },
+          anonymousId: "00000000000000000000000000"
+        });
+      analytics.identify("1234567",
+        {
+          name: "Mickey",
+          city: "Disneyland",
+          country: "USA",
+          email: "mickeymouse@disney.com"
+        },
+        {
+          context: {
+            ip: "0.0.0.0"
+          },
+          page: {
+            path: "",
+            referrer: "",
+            search: "",
+            title: "",
+            url: ""
+          },
+          anonymousId: "00000000000000000000000000"
+        },
+        () => {
+          console.log("in identify mickey html");
+        }
+      );
+      analytics.track("test after reassignment");
     </script>
   </body>
 </html>
