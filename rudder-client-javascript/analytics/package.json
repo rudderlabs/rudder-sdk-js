@@ -1,8 +1,8 @@
 {
-  "name": "test-rudder-node-sdk",
+  "name": "rudder-analytics.js",
   "version": "1.0.0",
   "description": "",
-  "main": "./dist/node.js",
+  "main": "./dist/browser.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",

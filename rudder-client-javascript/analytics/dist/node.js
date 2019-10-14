@@ -2,9 +2,6 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var XMLHttpRequestNode = require('Xmlhttprequest');
-require('universal-analytics');
-
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
     _typeof = function (obj) {
@@ -108,6 +105,18 @@ function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
 }
 
+//import * as XMLHttpRequestNode from "Xmlhttprequest";
+var XMLHttpRequestNode;
+
+{
+  XMLHttpRequestNode = require("Xmlhttprequest");
+}
+
+var btoaNode;
+
+{
+  btoaNode = require("btoa");
+}
 /**
  *
  * Utility method for excluding null and empty values in JSON
@@ -115,6 +124,7 @@ function _nonIterableSpread() {
  * @param {*} value
  * @returns
  */
+
 
 function replacer(key, value) {
   if (value === null || value === undefined) {
@@ -177,14 +187,17 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   //server-side integration, XHR is node module
   var cb_ = callback.bind(context);
 
-  if (true) {
-    var xhr = new XMLHttpRequestNode();
-  } else {
+  if (false) {
     var xhr;
+  } else {
+    var xhr = new XMLHttpRequestNode.XMLHttpRequest();
   }
 
   xhr.open("GET", url, true);
-  xhr.setRequestHeader("Authorization", "Basic " + btoa(writeKey + ":"));
+
+  {
+    xhr.setRequestHeader("Authorization", "Basic " + btoaNode(writeKey + ":"));
+  }
 
   xhr.onload = function () {
     var status = xhr.status;
@@ -252,222 +265,114 @@ var FLUSH_INTERVAL_DEFAULT = 5000;
   FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
 }; */
 
-function ScriptLoader(id, src) {
-  console.log("in script loader=== " + id); //if (document.getElementById(id)) {
-  //console.log("id not found==");
-
-  var js = document.createElement("script");
-  js.src = src;
-  js.type = "text/javascript";
-  js.id = id;
-  var e = document.getElementsByTagName("script")[0];
-  console.log("==script==", e);
-  e.parentNode.insertBefore(js, e); //}
-} //('hubspot-integration', '//HubSpot.js');
-
-var HubSpot =
+var HubSpotNode =
 /*#__PURE__*/
 function () {
-  function HubSpot(hubId) {
-    _classCallCheck(this, HubSpot);
+  function HubSpotNode() {
+    _classCallCheck(this, HubSpotNode);
 
-    this.hubId = hubId; //6405167
-
-    this.name = "HS";
+    console.log("nothing to construct");
   }
 
-  _createClass(HubSpot, [{
+  _createClass(HubSpotNode, [{
     key: "init",
     value: function init() {
-      var hubspotJs = "http://js.hs-scripts.com/" + this.hubId + ".js";
-      ScriptLoader("hubspot-integration", hubspotJs);
+      console.log("node not supported");
       console.log("===in init===");
     }
   }, {
     key: "identify",
     value: function identify(rudderElement) {
-      console.log("in HubspotAnalyticsManager identify");
-      var traits = rudderElement.message.context.traits;
-      var traitsValue = {};
-
-      for (var k in traits) {
-        if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
-          var hubspotkey = k; //k.startsWith("rl_") ? k.substring(3, k.length) : k;
-
-          traitsValue[hubspotkey] = traits[k];
-        }
-      }
-
-      if (traitsValue["address"]) {
-        var address = traitsValue["address"]; //traitsValue.delete(address)
-
-        delete traitsValue["address"];
-
-        for (var _k in address) {
-          if (!!Object.getOwnPropertyDescriptor(address, _k) && address[_k]) {
-            var _hubspotkey = _k; //k.startsWith("rl_") ? k.substring(3, k.length) : k;
-
-            _hubspotkey = _hubspotkey == "street" ? "address" : _hubspotkey;
-            traitsValue[_hubspotkey] = address[_k];
-          }
-        }
-      }
-
-      var userProperties = rudderElement.message.context.user_properties;
-
-      for (var _k2 in userProperties) {
-        if (!!Object.getOwnPropertyDescriptor(userProperties, _k2) && userProperties[_k2]) {
-          var _hubspotkey2 = _k2; //k.startsWith("rl_") ? k.substring(3, k.length) : k;
-
-          traitsValue[_hubspotkey2] = userProperties[_k2];
-        }
-      }
-
-      console.log(traitsValue);
-
-      if ((typeof window === "undefined" ? "undefined" : _typeof(window)) !== undefined) {
-        var _hsq = window._hsq = window._hsq || [];
-
-        _hsq.push(["identify", traitsValue]);
-      }
+      console.log("node not supported");
     }
   }, {
     key: "track",
     value: function track(rudderElement) {
-      console.log("in HubspotAnalyticsManager track");
-
-      var _hsq = window._hsq = window._hsq || [];
-
-      var eventValue = {};
-      eventValue["id"] = rudderElement.message.event;
-
-      if (rudderElement.message.properties && rudderElement.message.properties.revenue) {
-        console.log("revenue: " + rudderElement.message.properties.revenue);
-        eventValue["value"] = rudderElement.message.properties.revenue;
-      }
-
-      _hsq.push(["trackEvent", eventValue]);
+      console.log("node not supported");
     }
   }, {
     key: "page",
     value: function page(rudderElement) {
-      console.log("in HubspotAnalyticsManager page");
-
-      var _hsq = window._hsq = window._hsq || []; //console.log("path: " + rudderElement.message.properties.path);
-      //_hsq.push(["setPath", rudderElement.message.properties.path]);
-
-      /* _hsq.push(["identify",{
-          email: "testtrackpage@email.com"
-      }]); */
-
-
-      if (rudderElement.message.properties && rudderElement.message.properties.path) {
-        _hsq.push(["setPath", rudderElement.message.properties.path]);
-      }
-
-      _hsq.push(["trackPageView"]);
+      console.log("node not supported");
     }
   }, {
     key: "loaded",
     value: function loaded() {
       console.log("in hubspot isLoaded");
-      return !!(window._hsq && window._hsq.push !== Array.prototype.push);
+      console.log("node not supported");
     }
   }]);
 
-  return HubSpot;
+  return HubSpotNode;
 }();
 
-var index =  HubSpot ;
+var index =  HubSpotNode;
 
-var GA =
+//import ua from "universal-analytics";
+var ua;
+
+{
+  ua = require("universal-analytics");
+}
+
+var GANode =
 /*#__PURE__*/
 function () {
-  function GA(trackingID) {
-    _classCallCheck(this, GA);
+  function GANode(trackingID) {
+    _classCallCheck(this, GANode);
 
-    this.trackingID = trackingID; //UA-149602794-1
-
-    this.name = "GA";
+    this.trackingID = trackingID;
+    this.client = "";
   }
 
-  _createClass(GA, [{
+  _createClass(GANode, [{
     key: "init",
     value: function init() {
-      (function (i, s, o, g, r, a, m) {
-        i['GoogleAnalyticsObject'] = r;
-        i[r] = i[r] || function () {
-          (i[r].q = i[r].q || []).push(arguments);
-        }, i[r].l = 1 * new Date();
-        a = s.createElement(o), m = s.getElementsByTagName(o)[0];
-        a.async = 1;
-        a.src = g;
-        m.parentNode.insertBefore(a, m);
-      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga'); //window.ga_debug = {trace: true};
-
-
-      ga('create', this.trackingID, 'auto');
-      ga('send', 'pageview');
-      console.log("===in init GA===");
+      console.log("===in GA Node init==="); //this.client = ua(this.trackingID, "6a14abda-6b12-4578-bf66-43c754eaeda9");
     }
   }, {
     key: "identify",
     value: function identify(rudderElement) {
-      ga('set', 'userId', rudderElement.message.anonymous_id);
-      console.log("in GoogleAnalyticsManager identify");
+      console.log("=== in GA Node identify===");
+      this.client = ua(this.trackingID, rudderElement.message.userId);
     }
   }, {
     key: "track",
     value: function track(rudderElement) {
-      var eventCategory = rudderElement.message.event;
-      var eventAction = rudderElement.message.event;
-      var eventLabel = rudderElement.message.event;
-      var eventValue = "";
-
-      if (rudderElement.message.properties) {
-        eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
-      }
-
-      var payLoad = {
-        hitType: 'event',
-        eventCategory: eventCategory,
-        eventAction: eventAction,
-        eventLabel: eventLabel,
-        eventValue: eventValue
-      };
-      console.log(window['GoogleAnalyticsObject']);
-      ga('send', 'event', payLoad);
-      console.log("in GoogleAnalyticsManager track");
+      console.log("=== in GA Node track===");
+      this.client.event(rudderElement.message.type, rudderElement.message.event, function (err) {
+        // Handle the error if necessary.
+        // In case no error is provided you can be sure
+        // the request was successfully sent off to Google.
+        console.log("error sending to GA" + err);
+      });
     }
   }, {
     key: "page",
     value: function page(rudderElement) {
-      console.log("in GoogleAnalyticsManager page");
-      console.log(window['GoogleAnalyticsObject']);
-      var path = rudderElement.properties && rudderElement.properties.path ? rudderElement.properties.path : undefined;
+      console.log("=== in GA Node page===");
 
-      if (path) {
-        ga('set', 'page', path);
+      if (rudderElement.message.properties && rudderElement.message.properties.path) {
+        this.client.pageview(rudderElement.message.properties.path, function (err) {
+          // Handle the error if necessary.
+          // In case no error is provided you can be sure
+          // the request was successfully sent off to Google.
+          console.log("error sending to GA" + err);
+        }); //this.client.pageview(rudderElement.message.properties.path).send();
       }
-
-      ga('send', 'pageview', {
-        hitCallback: function hitCallback() {
-          console.log("===GA callback===");
-        }
-      });
     }
   }, {
     key: "loaded",
     value: function loaded() {
       console.log("in GA isLoaded");
-      console.log("browser not implemented");
+      console.log("node not supported");
     }
   }]);
 
-  return GA;
+  return GANode;
 }();
 
-var index$1 =  GA ;
+var index$1 =  GANode;
 
 var integrations = {
   HS: index,
@@ -525,13 +430,14 @@ var RudderContext = function RudderContext() {
   //For server-side integration, same needs to be set by calling program
 
   {
-    //running within browser
-    screen.width = window.width;
-    screen.height = window.height;
-    screen.density = window.devicePixelRatio;
-    this.userAgent = navigator.userAgent; //property name differs based on browser version
-
-    this.locale = navigator.language || navigator.browserLanguage;
+    //server-side integration
+    screen.width = 0;
+    screen.height = 0;
+    screen.density = 0;
+    os.version = "";
+    os.name = "";
+    this.userAgent = null;
+    this.locale = null;
   }
 
   this.ip = "0.0.0.0";
@@ -776,90 +682,61 @@ function () {
   return RudderElementBuilder;
 }();
 
-var defaults = {
-  user_storage_key: "rl_user_id",
-  user_storage_trait: "rl_trait"
-};
-
-var Storage =
+var StorageNode =
 /*#__PURE__*/
 function () {
-  function Storage() {
-    _classCallCheck(this, Storage);
+  function StorageNode() {
+    _classCallCheck(this, StorageNode);
 
-    this.storage = window.localStorage;
+    this.storage = {};
   }
 
-  _createClass(Storage, [{
+  _createClass(StorageNode, [{
     key: "setItem",
     value: function setItem(key, value) {
-      var stringValue = "";
-
-      if (typeof value == "string") {
-        stringValue = value;
-      }
-
-      if (_typeof(value) == "object") {
-        stringValue = JSON.stringify(value);
-      }
-
-      this.storage.setItem(key, stringValue);
+      console.log("not implemented");
     }
   }, {
     key: "setUserId",
     value: function setUserId(value) {
-      if (typeof value != "string") {
-        console.log("userId should be string");
-        return;
-      }
-
-      this.storage.setItem(defaults.user_storage_key, value);
-      return;
+      console.log("not implemented");
     }
   }, {
     key: "setUserTraits",
     value: function setUserTraits(value) {
-      if (_typeof(value) != "object") {
-        console.log("traits should be object");
-        return;
-      }
-
-      this.storage.setItem(defaults.user_storage_trait, JSON.stringify(value));
-      return;
+      console.log("not implemented");
     }
   }, {
     key: "getItem",
     value: function getItem(key) {
-      var stringValue = this.storage.getItem(key);
-      return JSON.parse(stringValue);
+      console.log("not implemented");
     }
   }, {
     key: "getUserId",
     value: function getUserId() {
-      return this.storage.getItem(defaults.user_storage_key);
+      console.log("not implemented");
     }
   }, {
     key: "getUserTraits",
     value: function getUserTraits() {
-      return JSON.parse(this.storage.getItem(defaults.user_storage_trait));
+      console.log("not implemented");
     }
   }, {
     key: "removeItem",
     value: function removeItem(key) {
-      this.storage.removeItem(key);
+      console.log("not implemented");
     }
   }, {
     key: "clear",
     value: function clear() {
-      this.storage.removeItem(defaults.user_storage_key);
-      this.storage.removeItem(defaults.user_storage_trait);
+      console.log("not implemented");
     }
   }]);
 
-  return Storage;
+  return StorageNode;
 }();
 
-var Storage$1 =  Storage ;
+var Storage =  StorageNode;
 
 //Payload class, contains batch of Elements
 var RudderPayload = function RudderPayload() {
@@ -869,12 +746,18 @@ var RudderPayload = function RudderPayload() {
   this.writeKey = null;
 };
 
+var XMLHttpRequestNode$1;
+
+{
+  XMLHttpRequestNode$1 = require("Xmlhttprequest");
+}
 /**
  *
  * @class EventRepository responsible for adding events into
  * flush queue and sending data to rudder backend
  * in batch and maintains order of the event.
  */
+
 
 var EventRepository =
 /*#__PURE__*/
@@ -925,10 +808,10 @@ function () {
       });
       repo.batchSize = repo.eventsBuffer.length; //server-side integration, XHR is node module
 
-      if (true) {
-        var xhr = new XMLHttpRequestNode();
-      } else {
+      if (false) {
         var xhr;
+      } else {
+        var xhr = new XMLHttpRequestNode$1.XMLHttpRequest();
       }
 
       console.log("==== in flush sending to Rudder BE ====");
@@ -1144,7 +1027,7 @@ function () {
     this.clientIntegrationObjects = undefined;
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
-    this.storage = new Storage$1();
+    this.storage = new Storage();
     this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : generateUUID();
     this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
     this.storage.setUserId(this.userId);
@@ -1317,7 +1200,6 @@ function () {
       var rudderElement = new RudderElementBuilder().setType("page").build();
 
       if (name) {
-        console.log("name ", name);
         rudderElement["message"]["name"] = name;
       }
 
@@ -1330,15 +1212,10 @@ function () {
       }
 
       if (properties) {
-        console.log(JSON.parse(JSON.stringify(properties)));
         rudderElement["message"]["properties"] = properties;
       }
 
-      if (options && options["integrations"]) {
-        rudderElement.message.integrations = options["integrations"];
-      }
-
-      this.trackPage(rudderElement, callback);
+      this.trackPage(rudderElement, options, callback);
     }
     /**
      * Send track call to Rudder BE and to initialized integrations
@@ -1365,11 +1242,7 @@ function () {
         rudderElement.setProperty({});
       }
 
-      if (options && options["integrations"]) {
-        rudderElement.message.integrations = options["integrations"];
-      }
-
-      this.trackEvent(rudderElement, callback);
+      this.trackEvent(rudderElement, options, callback);
     }
     /**
      * Send identify call to Rudder BE and to initialized integrations
@@ -1387,18 +1260,13 @@ function () {
       this.userId = userId;
       this.storage.setUserId(this.userId);
       var rudderElement = new RudderElementBuilder().setType("identify").build();
-      console.log(traits);
 
       if (traits) {
         this.userTraits = traits;
         this.storage.setUserTraits(this.userTraits);
       }
 
-      if (options && options["integrations"]) {
-        rudderElement.message.integrations = options["integrations"];
-      }
-
-      this.identifyUser(rudderElement, callback);
+      this.identifyUser(rudderElement, options, callback);
     }
     /**
      * Identify call supporting rudderelement from builder
@@ -1410,18 +1278,18 @@ function () {
 
   }, {
     key: "identifyUser",
-    value: function identifyUser(rudderElement, callback) {
+    value: function identifyUser(rudderElement, options, callback) {
       if (rudderElement["message"]["userId"]) {
         this.userId = rudderElement["message"]["userId"];
         this.storage.setUserId(this.userId);
       }
 
       if (rudderElement && rudderElement["message"] && rudderElement["message"]["context"] && rudderElement["message"]["context"]["traits"]) {
-        this.userTraits = traits;
+        this.userTraits = rudderElement["message"]["context"]["traits"];
         this.storage.setUserTraits(this.userTraits);
       }
 
-      this.processAndSendDataToDestinations("identify", rudderElement, callback);
+      this.processAndSendDataToDestinations("identify", rudderElement, options, callback);
     }
     /**
      * Page call supporting rudderelement from builder
@@ -1433,8 +1301,8 @@ function () {
 
   }, {
     key: "trackPage",
-    value: function trackPage(rudderElement, callback) {
-      this.processAndSendDataToDestinations("page", rudderElement, callback);
+    value: function trackPage(rudderElement, options, callback) {
+      this.processAndSendDataToDestinations("page", rudderElement, options, callback);
     }
     /**
      * Track call supporting rudderelement from builder
@@ -1446,8 +1314,8 @@ function () {
 
   }, {
     key: "trackEvent",
-    value: function trackEvent(rudderElement, callback) {
-      this.processAndSendDataToDestinations("track", rudderElement, callback);
+    value: function trackEvent(rudderElement, options, callback) {
+      this.processAndSendDataToDestinations("track", rudderElement, options, callback);
     }
     /**
      * Process and send data to destinations along with rudder BE
@@ -1460,7 +1328,7 @@ function () {
 
   }, {
     key: "processAndSendDataToDestinations",
-    value: function processAndSendDataToDestinations(type, rudderElement, callback) {
+    value: function processAndSendDataToDestinations(type, rudderElement, options, callback) {
       if (!this.userId) {
         this.userId = generateUUID();
         this.storage.setUserId(this.userId);
@@ -1468,6 +1336,11 @@ function () {
 
       rudderElement["message"]["context"]["traits"] = this.userTraits;
       rudderElement["message"]["anonymousId"] = rudderElement["message"]["userId"] = rudderElement["message"]["context"]["traits"]["anonymousId"] = this.userId;
+
+      if (options) {
+        this.processOptionsParam(rudderElement, options);
+      }
+
       console.log(JSON.stringify(rudderElement));
       var integrations = rudderElement.message.integrations; //try to first send to all integrations, if list populated from BE
 
@@ -1489,10 +1362,35 @@ function () {
 
 
       enqueue.call(this, rudderElement);
-      console.log(type + "is called ");
+      console.log(type + " is called ");
 
       if (callback) {
         callback();
+      }
+    }
+    /**
+     * process options parameter
+     *
+     * @param {*} rudderElement
+     * @param {*} options
+     * @memberof Analytics
+     */
+
+  }, {
+    key: "processOptionsParam",
+    value: function processOptionsParam(rudderElement, options) {
+      var toplevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];
+
+      for (var key in options) {
+        if (toplevelElements.includes(key)) {
+          rudderElement.message[key] = options[key];
+        } else {
+          if (key !== 'context') rudderElement.message.context[key] = options[key];else {
+            for (var k in options[key]) {
+              rudderElement.message.context[k] = options[key][k];
+            }
+          }
+        }
       }
     }
     /**
@@ -1517,9 +1415,13 @@ function () {
 
   }, {
     key: "load",
-    value: function load(writeKey) {
+    value: function load(writeKey, serverUrl) {
       console.log("inside load ");
-      this.eventRepository.writeKey = writeKey; //this.init([], this.configArray);  TODO: Remove
+      this.eventRepository.writeKey = writeKey;
+
+      if (serverUrl) {
+        this.eventRepository.url = serverUrl;
+      }
 
       getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
     }
@@ -1529,31 +1431,6 @@ function () {
 }();
 
 var instance = new Analytics();
-
-{
-  var eventsPushedAlready = !!window.analytics && window.analytics.push == Array.prototype.push;
-  var methodArg = window.analytics ? window.analytics[0] : [];
-
-  if (methodArg.length > 0 && methodArg[0] == "load") {
-    instance[methodArg[0]](methodArg[1]);
-  }
-
-  if (eventsPushedAlready) {
-    for (var i = 1; i < window.analytics.length; i++) {
-      instance.toBeProcessedArray.push(window.analytics[i]);
-    }
-
-    for (var _i2 = 0; _i2 < instance.toBeProcessedArray.length; _i2++) {
-      var event = _toConsumableArray(instance.toBeProcessedArray[_i2]);
-
-      var method = event[0];
-      event.shift();
-      instance[method].apply(instance, _toConsumableArray(event));
-    }
-
-    instance.toBeProcessedArray = [];
-  }
-}
 
 var identify = instance.identify.bind(instance);
 var page = instance.page.bind(instance);
