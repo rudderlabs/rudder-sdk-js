@@ -13,6 +13,11 @@ if (!process.browser) {
   XMLHttpRequestNode = require("Xmlhttprequest");
 }
 
+let btoaNode;
+if (!process.browser) {
+  btoaNode = require("btoa");
+}
+
 /**
  *
  * @class EventRepository responsible for adding events into
@@ -72,6 +77,11 @@ class EventRepository {
 
     xhr.open("POST", repo.url, true);
     xhr.setRequestHeader("Content-Type", "application/json");
+    if (process.browser) {
+      xhr.setRequestHeader("Authorization", "Basic " + btoa(payload.writeKey + ":"));
+    } else {
+      xhr.setRequestHeader("Authorization", "Basic " + btoaNode(payload.writeKey + ":"));
+    }
 
     //register call back to reset event buffer on successfull POST
     xhr.onreadystatechange = function() {

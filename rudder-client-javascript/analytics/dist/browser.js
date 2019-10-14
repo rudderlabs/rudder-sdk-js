@@ -750,6 +750,12 @@ var analytics = (function (exports) {
   {
     XMLHttpRequestNode$1 = require("Xmlhttprequest");
   }
+
+  var btoaNode$1;
+
+  {
+    btoaNode$1 = require("btoa");
+  }
   /**
    *
    * @class EventRepository responsible for adding events into
@@ -816,7 +822,12 @@ var analytics = (function (exports) {
         console.log("==== in flush sending to Rudder BE ====");
         console.log(JSON.stringify(payload, replacer));
         xhr.open("POST", repo.url, true);
-        xhr.setRequestHeader("Content-Type", "application/json"); //register call back to reset event buffer on successfull POST
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        {
+          xhr.setRequestHeader("Authorization", "Basic " + btoaNode$1(payload.writeKey + ":"));
+        } //register call back to reset event buffer on successfull POST
+
 
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4 && xhr.status === 200) {
