@@ -1,0 +1,14 @@
+**/.DS_Store
+**/bin/
+**/obj/
+**/.vs
+**/.vscode
+**/.classpath
+**/.settings/
+**/.project
+*.iml
+**/node_modules
+**/**/node_modules
+local.properties
+*.apk
+*.zip
