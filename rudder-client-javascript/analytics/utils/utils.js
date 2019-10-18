@@ -122,10 +122,25 @@ function getJSONTrimmed(context, url, writeKey, callback) {
       console.log("status 200 " + "calling callback");
       cb_(200, xhr.responseText);
     } else {
+      handleError(new Error("request failed with status: " + xhr.status + " for url: " + url));
       cb_(status);
     }
   };
   xhr.send();
+}
+
+function handleError(error){
+  
+  let errorMessage = error.message ? error.message : undefined;
+  if(error instanceof Event){
+    if(error.target && error.target.localName == "script"){
+      errorMessage = "error in script loading: "+error.target.id;
+    }
+  }
+  if(errorMessage){
+    console.log("%c"+errorMessage, 'color: blue');
+  }
+
 }
 
 export {
@@ -133,5 +148,6 @@ export {
   generateUUID,
   getCurrentTimeFormatted,
   getJSONTrimmed,
-  getJSON
+  getJSON,
+  handleError
 };

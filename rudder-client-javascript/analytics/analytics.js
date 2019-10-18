@@ -1,4 +1,4 @@
-import { getJSONTrimmed, generateUUID } from "./utils/utils";
+import { getJSONTrimmed, generateUUID, handleError } from "./utils/utils";
 import { CONFIG_URL, ECommerceEvents } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -94,6 +94,7 @@ class Analytics {
    * @memberof Analytics
    */
   init(intgArray, configArray) {
+    
     console.log("supported intgs ", integrations);
     let i = 0;
     this.clientIntegrationObjects = [];
@@ -138,12 +139,17 @@ class Analytics {
             undefined &&
             integrationOptions["All"])
         ) {
-          this.clientIntegrationObjects[i][methodName](...event);
+          try {
+            this.clientIntegrationObjects[i][methodName](...event);
+          } catch (error) {
+            handleError(error);
+          }
         }
       }
     });
 
     this.toBeProcessedByIntegrationArray = [];
+    
   }
 
   /**
@@ -337,50 +343,53 @@ class Analytics {
    * @memberof Analytics
    */
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
-    if (!this.userId) {
-      this.userId = generateUUID();
-      this.storage.setUserId(this.userId);
-    }
+    try{
+      if (!this.userId) {
+        this.userId = generateUUID();
+        this.storage.setUserId(this.userId);
+      }
 
-    rudderElement["message"]["context"]["traits"] = this.userTraits;
-    rudderElement["message"]["anonymousId"] = rudderElement["message"][
-      "userId"
-    ] = rudderElement["message"]["context"]["traits"][
-      "anonymousId"
-    ] = this.userId;
+      rudderElement["message"]["context"]["traits"] = this.userTraits;
+      rudderElement["message"]["anonymousId"] = rudderElement["message"][
+        "userId"
+      ] = rudderElement["message"]["context"]["traits"][
+        "anonymousId"
+      ] = this.userId;
 
-    if (options) {
-      this.processOptionsParam(rudderElement, options);
-    }
+      if (options) {
+        this.processOptionsParam(rudderElement, options);
+      }
+      console.log(JSON.stringify(rudderElement));
 
-    console.log(JSON.stringify(rudderElement));
+      var integrations = rudderElement.message.integrations;
 
-    var integrations = rudderElement.message.integrations;
+      //try to first send to all integrations, if list populated from BE
+      if (this.clientIntegrationObjects) {
+        this.clientIntegrationObjects.forEach(obj => {
+          console.log("called in normal flow");
+          if (
+            integrations[obj.name] ||
+            (integrations[obj.name] == undefined && integrations["All"])
+          ) {
+            obj[type](rudderElement);
+          }
+        });
+      }
+      if (!this.clientIntegrationObjects) {
+        console.log("pushing in replay queue");
+        //new event processing after analytics initialized  but integrations not fetched from BE
+        this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
+      }
 
-    //try to first send to all integrations, if list populated from BE
-    if (this.clientIntegrationObjects) {
-      this.clientIntegrationObjects.forEach(obj => {
-        console.log("called in normal flow");
-        if (
-          integrations[obj.name] ||
-          (integrations[obj.name] == undefined && integrations["All"])
-        ) {
-          obj[type](rudderElement);
-        }
-      });
-    }
-    if (!this.clientIntegrationObjects) {
-      console.log("pushing in replay queue");
-      //new event processing after analytics initialized  but integrations not fetched from BE
-      this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
-    }
+      // self analytics process
+      enqueue.call(this, rudderElement);
 
-    // self analytics process
-    enqueue.call(this, rudderElement);
-
-    console.log(type + " is called ");
-    if (callback) {
-      callback();
+      console.log(type + " is called ");
+      if (callback) {
+        callback();
+      }
+    } catch (error){
+      handleError(error);
     }
   }
 
@@ -434,6 +443,12 @@ class Analytics {
     }
     getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
   }
+}
+
+if (process.browser) {
+  window.addEventListener('error', function(e) {
+    handleError(e);
+  }, true);
 }
 
 let instance = new Analytics();

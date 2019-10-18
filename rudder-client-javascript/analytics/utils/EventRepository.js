@@ -3,7 +3,7 @@ import {
   FLUSH_QUEUE_SIZE,
   FLUSH_INTERVAL_DEFAULT
 } from "./constants";
-import { getCurrentTimeFormatted } from "./utils";
+import { getCurrentTimeFormatted, handleError } from "./utils";
 import { replacer } from "./utils";
 import { RudderPayload } from "./RudderPayload";
 //import * as XMLHttpRequestNode from "Xmlhttprequest";
@@ -77,6 +77,7 @@ class EventRepository {
 
     xhr.open("POST", repo.url, true);
     xhr.setRequestHeader("Content-Type", "application/json");
+
     if (process.browser) {
       xhr.setRequestHeader("Authorization", "Basic " + btoa(payload.writeKey + ":"));
     } else {
@@ -90,7 +91,7 @@ class EventRepository {
         repo.eventsBuffer = repo.eventsBuffer.slice(repo.batchSize);
         console.log(repo.eventsBuffer.length);
       } else if (xhr.readyState === 4 && xhr.status !== 200) {
-        console.log("====== request failed with status: " + xhr.status);
+        handleError(new Error("request failed with status: " + xhr.status + " for url: " + repo.url));
       }
       repo.state = "READY";
     };

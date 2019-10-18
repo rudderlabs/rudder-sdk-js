@@ -194,11 +194,26 @@ var analytics = (function (exports) {
         console.log("status 200 " + "calling callback");
         cb_(200, xhr.responseText);
       } else {
+        handleError(new Error("request failed with status: " + xhr.status + " for url: " + url));
         cb_(status);
       }
     };
 
     xhr.send();
+  }
+
+  function handleError(error) {
+    var errorMessage = error.message ? error.message : undefined;
+
+    if (error instanceof Event) {
+      if (error.target && error.target.localName == "script") {
+        errorMessage = "error in script loading: " + error.target.id;
+      }
+    }
+
+    if (errorMessage) {
+      console.log("%c" + errorMessage, 'color: blue');
+    }
   }
 
   //Message Type enumeration
@@ -943,7 +958,7 @@ var analytics = (function (exports) {
             repo.eventsBuffer = repo.eventsBuffer.slice(repo.batchSize);
             console.log(repo.eventsBuffer.length);
           } else if (xhr.readyState === 4 && xhr.status !== 200) {
-            console.log("====== request failed with status: " + xhr.status);
+            handleError(new Error("request failed with status: " + xhr.status + " for url: " + repo.url));
           }
 
           repo.state = "READY";
@@ -1236,9 +1251,13 @@ var analytics = (function (exports) {
 
           for (var _i = 0; _i < _this.clientIntegrationObjects.length; _i++) {
             if (integrationOptions[_this.clientIntegrationObjects[_i].name] || integrationOptions[_this.clientIntegrationObjects[_i].name] == undefined && integrationOptions["All"]) {
-              var _this$clientIntegrati;
+              try {
+                var _this$clientIntegrati;
 
-              (_this$clientIntegrati = _this.clientIntegrationObjects[_i])[methodName].apply(_this$clientIntegrati, _toConsumableArray(event));
+                (_this$clientIntegrati = _this.clientIntegrationObjects[_i])[methodName].apply(_this$clientIntegrati, _toConsumableArray(event));
+              } catch (error) {
+                handleError(error);
+              }
             }
           }
         });
@@ -1447,43 +1466,47 @@ var analytics = (function (exports) {
     }, {
       key: "processAndSendDataToDestinations",
       value: function processAndSendDataToDestinations(type, rudderElement, options, callback) {
-        if (!this.userId) {
-          this.userId = generateUUID();
-          this.storage.setUserId(this.userId);
-        }
+        try {
+          if (!this.userId) {
+            this.userId = generateUUID();
+            this.storage.setUserId(this.userId);
+          }
 
-        rudderElement["message"]["context"]["traits"] = this.userTraits;
-        rudderElement["message"]["anonymousId"] = rudderElement["message"]["userId"] = rudderElement["message"]["context"]["traits"]["anonymousId"] = this.userId;
+          rudderElement["message"]["context"]["traits"] = this.userTraits;
+          rudderElement["message"]["anonymousId"] = rudderElement["message"]["userId"] = rudderElement["message"]["context"]["traits"]["anonymousId"] = this.userId;
 
-        if (options) {
-          this.processOptionsParam(rudderElement, options);
-        }
+          if (options) {
+            this.processOptionsParam(rudderElement, options);
+          }
 
-        console.log(JSON.stringify(rudderElement));
-        var integrations = rudderElement.message.integrations; //try to first send to all integrations, if list populated from BE
+          console.log(JSON.stringify(rudderElement));
+          var integrations = rudderElement.message.integrations; //try to first send to all integrations, if list populated from BE
 
-        if (this.clientIntegrationObjects) {
-          this.clientIntegrationObjects.forEach(function (obj) {
-            console.log("called in normal flow");
+          if (this.clientIntegrationObjects) {
+            this.clientIntegrationObjects.forEach(function (obj) {
+              console.log("called in normal flow");
 
-            if (integrations[obj.name] || integrations[obj.name] == undefined && integrations["All"]) {
-              obj[type](rudderElement);
-            }
-          });
-        }
+              if (integrations[obj.name] || integrations[obj.name] == undefined && integrations["All"]) {
+                obj[type](rudderElement);
+              }
+            });
+          }
 
-        if (!this.clientIntegrationObjects) {
-          console.log("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
+          if (!this.clientIntegrationObjects) {
+            console.log("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
 
-          this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
-        } // self analytics process
+            this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
+          } // self analytics process
 
 
-        enqueue.call(this, rudderElement);
-        console.log(type + " is called ");
+          enqueue.call(this, rudderElement);
+          console.log(type + " is called ");
 
-        if (callback) {
-          callback();
+          if (callback) {
+            callback();
+          }
+        } catch (error) {
+          handleError(error);
         }
       }
       /**
@@ -1547,6 +1570,12 @@ var analytics = (function (exports) {
 
     return Analytics;
   }();
+
+  {
+    window.addEventListener('error', function (e) {
+      handleError(e);
+    }, true);
+  }
 
   var instance = new Analytics();
 
