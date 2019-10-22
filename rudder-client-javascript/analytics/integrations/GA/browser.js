@@ -52,9 +52,9 @@ class GA {
     ga('send', 'pageview');
   }
 
-  loaded() {
+  isLoaded() {
     console.log("in GA isLoaded");
-    console.log("browser not implemented");
+    return !!window.gaplugins
   }
 }
 

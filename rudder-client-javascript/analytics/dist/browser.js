@@ -258,6 +258,8 @@ var analytics = (function (exports) {
 
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
   var FLUSH_INTERVAL_DEFAULT = 5000;
+  var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
+  var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
     MessageType: MessageType,
     ECommerceParamNames: ECommerceParamNames,
@@ -297,7 +299,7 @@ var analytics = (function (exports) {
       value: function init() {
         var hubspotJs = "http://js.hs-scripts.com/" + this.hubId + ".js";
         ScriptLoader("hubspot-integration", hubspotJs);
-        console.log("===in init===");
+        console.log("===in init HS===");
       }
     }, {
       key: "identify",
@@ -384,8 +386,8 @@ var analytics = (function (exports) {
         _hsq.push(["trackPageView"]);
       }
     }, {
-      key: "loaded",
-      value: function loaded() {
+      key: "isLoaded",
+      value: function isLoaded() {
         console.log("in hubspot isLoaded");
         return !!(window._hsq && window._hsq.push !== Array.prototype.push);
       }
@@ -467,10 +469,10 @@ var analytics = (function (exports) {
         ga('send', 'pageview');
       }
     }, {
-      key: "loaded",
-      value: function loaded() {
+      key: "isLoaded",
+      value: function isLoaded() {
         console.log("in GA isLoaded");
-        console.log("browser not implemented");
+        return !!window.gaplugins;
       }
     }]);
 
@@ -1147,7 +1149,7 @@ var analytics = (function (exports) {
   /*#__PURE__*/
   function () {
     /**
-     *Creates an instance of Analytics.
+     * Creates an instance of Analytics.
      * @memberof Analytics
      */
     function Analytics() {
@@ -1158,6 +1160,8 @@ var analytics = (function (exports) {
       this.clientIntegrations = [];
       this.configArray = [];
       this.clientIntegrationObjects = undefined;
+      this.successfullyLoadedIntegration = [];
+      this.failedToBeLoadedIntegration = [];
       this.toBeProcessedArray = [];
       this.toBeProcessedByIntegrationArray = [];
       this.storage = new Storage$1();
@@ -1221,9 +1225,9 @@ var analytics = (function (exports) {
           if (intg === "HS") {
             var hubId = configArray[i].hubId;
             var intgInstance = new intgClass(hubId);
-            intgInstance.init();
+            intgInstance.init(); //this.clientIntegrationObjects.push(intgInstance);
 
-            _this.clientIntegrationObjects.push(intgInstance);
+            _this.isInitialized(intgInstance).then(_this.replayEvents);
           }
 
           if (intg === "GA") {
@@ -1231,37 +1235,71 @@ var analytics = (function (exports) {
 
             var _intgInstance = new intgClass(trackingID);
 
-            _intgInstance.init();
+            _intgInstance.init(); //this.clientIntegrationObjects.push(intgInstance);
 
-            _this.clientIntegrationObjects.push(_intgInstance);
-          }
-        }); // Add GA forcibly for tests , TODO : Remove
 
-        /* let GAClass = integrations["GA"];
-        let GAInstance = new GAClass("UA-143161493-8");
-        GAInstance.init();
-        console.log("GA initialized");
-        this.clientIntegrationObjects.push(GAInstance); */
-        //send the queued events to the fetched integration
-
-        this.toBeProcessedByIntegrationArray.forEach(function (event) {
-          var methodName = event[0];
-          event.shift();
-          var integrationOptions = event[0].message.integrations;
-
-          for (var _i = 0; _i < _this.clientIntegrationObjects.length; _i++) {
-            if (integrationOptions[_this.clientIntegrationObjects[_i].name] || integrationOptions[_this.clientIntegrationObjects[_i].name] == undefined && integrationOptions["All"]) {
-              try {
-                var _this$clientIntegrati;
-
-                (_this$clientIntegrati = _this.clientIntegrationObjects[_i])[methodName].apply(_this$clientIntegrati, _toConsumableArray(event));
-              } catch (error) {
-                handleError(error);
-              }
-            }
+            _this.isInitialized(_intgInstance).then(_this.replayEvents);
           }
         });
-        this.toBeProcessedByIntegrationArray = [];
+      }
+    }, {
+      key: "replayEvents",
+      value: function replayEvents(object) {
+        if (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length) {
+          object.clientIntegrationObjects = object.successfullyLoadedIntegration; //send the queued events to the fetched integration
+
+          object.toBeProcessedByIntegrationArray.forEach(function (event) {
+            var methodName = event[0];
+            event.shift();
+            var integrationOptions = event[0].message.integrations;
+
+            for (var i = 0; i < object.clientIntegrationObjects.length; i++) {
+              if (integrationOptions[object.clientIntegrationObjects[i].name] || integrationOptions[object.clientIntegrationObjects[i].name] == undefined && integrationOptions["All"]) {
+                try {
+                  var _object$clientIntegra;
+
+                  (_object$clientIntegra = object.clientIntegrationObjects[i])[methodName].apply(_object$clientIntegra, _toConsumableArray(event));
+                } catch (error) {
+                  handleError(error);
+                }
+              }
+            }
+          });
+          object.toBeProcessedByIntegrationArray = [];
+        }
+      }
+    }, {
+      key: "pause",
+      value: function pause(time) {
+        return new Promise(function (resolve) {
+          setTimeout(resolve, time);
+        });
+      }
+    }, {
+      key: "isInitialized",
+      value: function isInitialized(instance) {
+        var _this2 = this;
+
+        var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        return new Promise(function (resolve) {
+          if (instance.isLoaded()) {
+            _this2.successfullyLoadedIntegration.push(instance);
+
+            return resolve(_this2);
+          }
+
+          if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
+            console.log("====max wait over====");
+
+            _this2.failedToBeLoadedIntegration.push(instance);
+
+            return resolve(_this2);
+          }
+
+          _this2.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(function () {
+            return _this2.isInitialized(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
+          });
+        });
       }
       /**
        * Process page params and forward to page call
@@ -1594,8 +1632,8 @@ var analytics = (function (exports) {
         instance.toBeProcessedArray.push(window.analytics[i]);
       }
 
-      for (var _i2 = 0; _i2 < instance.toBeProcessedArray.length; _i2++) {
-        var event = _toConsumableArray(instance.toBeProcessedArray[_i2]);
+      for (var _i = 0; _i < instance.toBeProcessedArray.length; _i++) {
+        var event = _toConsumableArray(instance.toBeProcessedArray[_i]);
 
         var _method = event[0];
         event.shift();
