@@ -9,11 +9,11 @@ export default {
   input: "analytics.js",
   external: ["Xmlhttprequest", "universal-analytics"],
   output: [
-    /* {
+    {
       file: "dist/browser.min.js",
       format: "iife",
       name: "analytics"
-    }, */
+    },
     {
       file: "dist/node.js",
       format: "cjs"
