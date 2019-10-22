@@ -1,5 +1,5 @@
 import { getJSONTrimmed, generateUUID, handleError } from "./utils/utils";
-import { CONFIG_URL, ECommerceEvents } from "./utils/constants";
+import { CONFIG_URL, ECommerceEvents, MAX_WAIT_FOR_INTEGRATION_LOAD, INTEGRATION_LOAD_CHECK_INTERVAL } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import { RudderTraits } from "./utils/RudderTraits";
@@ -28,7 +28,7 @@ function enqueue(rudderElement) {
  */
 class Analytics {
   /**
-   *Creates an instance of Analytics.
+   * Creates an instance of Analytics.
    * @memberof Analytics
    */
   constructor() {
@@ -37,6 +37,8 @@ class Analytics {
     this.clientIntegrations = [];
     this.configArray = [];
     this.clientIntegrationObjects = undefined;
+    this.successfullyLoadedIntegration = [];
+    this.failedToBeLoadedIntegration = [];
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
     this.storage = new Storage();
@@ -109,47 +111,72 @@ class Analytics {
         let intgInstance = new intgClass(hubId);
         intgInstance.init();
 
-        this.clientIntegrationObjects.push(intgInstance);
+        //this.clientIntegrationObjects.push(intgInstance);
+        this.isInitialized(intgInstance).then(this.replayEvents);
       }
       if (intg === "GA") {
         let trackingID = configArray[i].trackingID;
         let intgInstance = new intgClass(trackingID);
         intgInstance.init();
 
-        this.clientIntegrationObjects.push(intgInstance);
+        //this.clientIntegrationObjects.push(intgInstance);
+        this.isInitialized(intgInstance).then(this.replayEvents);
       }
     });
+    
+  }
 
-    // Add GA forcibly for tests , TODO : Remove
-    /* let GAClass = integrations["GA"];
-    let GAInstance = new GAClass("UA-143161493-8");
-    GAInstance.init();
-    console.log("GA initialized");
-    this.clientIntegrationObjects.push(GAInstance); */
-
-    //send the queued events to the fetched integration
-    this.toBeProcessedByIntegrationArray.forEach(event => {
-      let methodName = event[0];
-      event.shift();
-      let integrationOptions = event[0].message.integrations;
-      for (let i = 0; i < this.clientIntegrationObjects.length; i++) {
-        if (
-          integrationOptions[this.clientIntegrationObjects[i].name] ||
-          (integrationOptions[this.clientIntegrationObjects[i].name] ==
-            undefined &&
-            integrationOptions["All"])
-        ) {
-          try {
-            this.clientIntegrationObjects[i][methodName](...event);
-          } catch (error) {
-            handleError(error);
+  replayEvents(object){
+    if(object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length){
+      object.clientIntegrationObjects = object.successfullyLoadedIntegration;
+      //send the queued events to the fetched integration
+      object.toBeProcessedByIntegrationArray.forEach(event => {
+        let methodName = event[0];
+        event.shift();
+        let integrationOptions = event[0].message.integrations;
+        for (let i = 0; i < object.clientIntegrationObjects.length; i++) {
+          if (
+            integrationOptions[object.clientIntegrationObjects[i].name] ||
+            (integrationOptions[object.clientIntegrationObjects[i].name] ==
+              undefined &&
+              integrationOptions["All"])
+          ) {
+            try {
+              object.clientIntegrationObjects[i][methodName](...event);
+            } catch (error) {
+              handleError(error);
+            }
           }
         }
+      });
+      object.toBeProcessedByIntegrationArray = [];
+    }
+  }
+
+  pause(time) {
+    return new Promise(resolve => {
+      setTimeout(resolve, time);
+    });
+  }
+
+
+  isInitialized(instance, time = 0){
+    return new Promise((resolve) => {
+      if(instance.isLoaded()){
+        this.successfullyLoadedIntegration.push(instance);
+        return resolve(this);
       }
+      if(time >= MAX_WAIT_FOR_INTEGRATION_LOAD){
+        console.log("====max wait over====")
+        this.failedToBeLoadedIntegration.push(instance);
+        return resolve(this);
+      }
+
+      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+        return this.isInitialized(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL ).then(resolve);
+      });
     });
 
-    this.toBeProcessedByIntegrationArray = [];
-    
   }
 
   /**

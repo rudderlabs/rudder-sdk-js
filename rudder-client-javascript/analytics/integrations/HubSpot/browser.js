@@ -10,7 +10,7 @@ class HubSpot {
     let hubspotJs = "http://js.hs-scripts.com/" + this.hubId + ".js";
     ScriptLoader("hubspot-integration", hubspotJs);
 
-    console.log("===in init===");
+    console.log("===in init HS===");
   }
 
   identify(rudderElement) {
@@ -88,7 +88,7 @@ class HubSpot {
     _hsq.push(["trackPageView"]);
   }
 
-  loaded() {
+  isLoaded() {
     console.log("in hubspot isLoaded");
     return !!(window._hsq && window._hsq.push !== Array.prototype.push);
   }
