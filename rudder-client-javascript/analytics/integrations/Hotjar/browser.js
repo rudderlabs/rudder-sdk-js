@@ -1,7 +1,7 @@
 class Hotjar {
   constructor(siteId) {
     this.siteId = siteId;//1549611
-    this.name = "HJ";
+    this.name = "HOTJAR";
   }
 
   init() {

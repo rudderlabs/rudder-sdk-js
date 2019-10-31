@@ -103,7 +103,6 @@ class Analytics {
 
     if (!intgArray || intgArray.length == 0) {
       this.toBeProcessedByIntegrationArray = [];
-      intgInstance.init();
       return;
     }
     intgArray.forEach(intg => {
@@ -124,7 +123,7 @@ class Analytics {
         //this.clientIntegrationObjects.push(intgInstance);
         this.isInitialized(intgInstance).then(this.replayEvents);
       }
-      if (intg === "HJ") {
+      if (intg === "HOTJAR") {
         let siteID = configArray[i].siteID;
         let intgInstance = new intgClass(siteID);
         intgInstance.init();
