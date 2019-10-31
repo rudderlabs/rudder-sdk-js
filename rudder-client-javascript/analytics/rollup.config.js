@@ -10,7 +10,7 @@ export default {
   external: ["Xmlhttprequest", "universal-analytics"],
   output: [
     {
-      file: "dist/browser.min.js",
+      file: "dist/browser.js",
       format: "iife",
       name: "analytics"
     },

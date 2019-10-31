@@ -481,9 +481,71 @@ var analytics = (function (exports) {
 
   var index$1 =  GA ;
 
+  var Hotjar =
+  /*#__PURE__*/
+  function () {
+    function Hotjar(siteId) {
+      _classCallCheck(this, Hotjar);
+
+      this.siteId = siteId; //1549611
+
+      this.name = "HOTJAR";
+    }
+
+    _createClass(Hotjar, [{
+      key: "init",
+      value: function init() {
+        window.hotjarSiteId = this.siteId;
+
+        (function (h, o, t, j, a, r) {
+          h.hj = h.hj || function () {
+            (h.hj.q = h.hj.q || []).push(arguments);
+          };
+
+          h._hjSettings = {
+            hjid: h.hotjarSiteId,
+            hjsv: 6
+          };
+          a = o.getElementsByTagName('head')[0];
+          r = o.createElement('script');
+          r.async = 1;
+          r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
+          a.appendChild(r);
+        })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+
+        console.log("===in init Hotjar===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        console.log("method not supported");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        console.log("method not supported");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        console.log("method not supported");
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        console.log("method not supported");
+      }
+    }]);
+
+    return Hotjar;
+  }();
+
+  var index$2 =  Hotjar ;
+
   var integrations = {
     HS: index,
-    GA: index$1
+    GA: index$1,
+    HOTJAR: index$2
   };
 
   //Application class
@@ -1239,6 +1301,17 @@ var analytics = (function (exports) {
 
 
             _this.isInitialized(_intgInstance).then(_this.replayEvents);
+          }
+
+          if (intg === "HOTJAR") {
+            var siteID = configArray[i].siteID;
+
+            var _intgInstance2 = new intgClass(siteID);
+
+            _intgInstance2.init();
+            /* As we Hotjar tracks all events by itself, no need to send events explicitly. 
+               So, not putting 'Hotjar' object in clientIntegrationObjects list. */
+
           }
         });
       }

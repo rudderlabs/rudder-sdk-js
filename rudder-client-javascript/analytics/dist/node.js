@@ -391,9 +391,53 @@ function () {
 
 var index$1 =  GANode;
 
+var HotjarNode =
+/*#__PURE__*/
+function () {
+  function HotjarNode() {
+    _classCallCheck(this, HotjarNode);
+
+    console.log("nothing to construct");
+  }
+
+  _createClass(HotjarNode, [{
+    key: "init",
+    value: function init() {
+      console.log("node not supported");
+      console.log("===in init===");
+    }
+  }, {
+    key: "identify",
+    value: function identify(rudderElement) {
+      console.log("node not supported");
+    }
+  }, {
+    key: "track",
+    value: function track(rudderElement) {
+      console.log("node not supported");
+    }
+  }, {
+    key: "page",
+    value: function page(rudderElement) {
+      console.log("node not supported");
+    }
+  }, {
+    key: "loaded",
+    value: function loaded() {
+      console.log("in hubspot isLoaded");
+      console.log("node not supported");
+    }
+  }]);
+
+  return HotjarNode;
+}();
+
+var index$2 =  HotjarNode;
+
 var integrations = {
   HS: index,
-  GA: index$1
+  GA: index$1,
+  HOTJAR: index$2
 };
 
 //Application class
@@ -1132,6 +1176,17 @@ function () {
 
 
           _this.isInitialized(_intgInstance).then(_this.replayEvents);
+        }
+
+        if (intg === "HOTJAR") {
+          var siteID = configArray[i].siteID;
+
+          var _intgInstance2 = new intgClass(siteID);
+
+          _intgInstance2.init();
+          /* As we Hotjar tracks all events by itself, no need to send events explicitly. 
+             So, not putting 'Hotjar' object in clientIntegrationObjects list. */
+
         }
       });
     }
