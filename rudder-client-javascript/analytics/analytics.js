@@ -100,8 +100,12 @@ class Analytics {
     console.log("supported intgs ", integrations);
     let i = 0;
     this.clientIntegrationObjects = [];
+
     if (!intgArray || intgArray.length == 0) {
       this.toBeProcessedByIntegrationArray = [];
+      let intgClass = integrations["HJ"];
+      let intgInstance = new intgClass("1549611");
+      intgInstance.init();
       return;
     }
     intgArray.forEach(intg => {
@@ -121,6 +125,14 @@ class Analytics {
 
         //this.clientIntegrationObjects.push(intgInstance);
         this.isInitialized(intgInstance).then(this.replayEvents);
+      }
+      if (intg === "HJ") {
+        let siteID = configArray[i].siteID;
+        let intgInstance = new intgClass(siteID);
+        intgInstance.init();
+
+        /* As we Hotjar tracks all events by itself, no need to send events explicitly. 
+           So, not putting 'Hotjar' object in clientIntegrationObjects list. */
       }
     });
     
