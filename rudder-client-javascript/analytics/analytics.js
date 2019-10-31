@@ -103,8 +103,6 @@ class Analytics {
 
     if (!intgArray || intgArray.length == 0) {
       this.toBeProcessedByIntegrationArray = [];
-      let intgClass = integrations["HJ"];
-      let intgInstance = new intgClass("1549611");
       intgInstance.init();
       return;
     }
