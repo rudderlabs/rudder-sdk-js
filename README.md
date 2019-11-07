@@ -1,3 +1,5 @@
+https://attachment.freshdesk.com/inline/attachment?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6NDgwMTQ2MDkxNTYsImRvbWFpbiI6ImJyb3dzZXJzdGFja2hlbHAuZnJlc2hkZXNrLmNvbSIsImFjY291bnRfaWQiOjExOTkzNjV9.yqE0CQQi01EEX6-cOfkSRGSsh9Tn1p3ekpxM5Xqo_Io
+
 # What is Rudder?
 
 **Short answer:** 
