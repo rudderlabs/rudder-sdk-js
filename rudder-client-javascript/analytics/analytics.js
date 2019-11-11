@@ -2,7 +2,6 @@ import { getJSONTrimmed, generateUUID, handleError } from "./utils/utils";
 import { CONFIG_URL, ECommerceEvents, MAX_WAIT_FOR_INTEGRATION_LOAD, INTEGRATION_LOAD_CHECK_INTERVAL } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
-import { RudderTraits } from "./utils/RudderTraits";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
 import PromotionViewedEvent from "./utils/PromotionViewedEvent";
@@ -130,6 +129,13 @@ class Analytics {
 
         /* As we Hotjar tracks all events by itself, no need to send events explicitly. 
            So, not putting 'Hotjar' object in clientIntegrationObjects list. */
+      }
+      if(intg === "GOOGLEADS"){
+        let googleAdsConfig = configArray[i];
+        let intgInstance = new intgClass(googleAdsConfig);
+        intgInstance.init();
+
+        this.isInitialized(intgInstance).then(this.replayEvents);
       }
     });
     
