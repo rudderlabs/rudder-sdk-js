@@ -542,10 +542,123 @@ var analytics = (function (exports) {
 
   var index$2 =  Hotjar ;
 
+  var GoogleAds =
+  /*#__PURE__*/
+  function () {
+    function GoogleAds(config) {
+      _classCallCheck(this, GoogleAds);
+
+      //this.accountId = config.accountId;//AW-696901813
+      this.conversionId = config.conversionId;
+      this.pageLoadConversions = config.pageLoadConversions;
+      this.clickEventConversions = config.clickEventConversions;
+      this.name = "GOOGLEADS";
+    }
+
+    _createClass(GoogleAds, [{
+      key: "init",
+      value: function init() {
+        var sourceUrl = "https://www.googletagmanager.com/gtag/js?id=" + this.conversionId;
+
+        (function (id, src, document) {
+          console.log("in script loader=== " + id);
+          var js = document.createElement("script");
+          js.src = src;
+          js.async = 1;
+          js.type = "text/javascript";
+          js.id = id;
+          var e = document.getElementsByTagName("head")[0];
+          console.log("==script==", e);
+          e.appendChild(js);
+        })('googleAds-integration', sourceUrl, document);
+
+        window.dataLayer = window.dataLayer || [];
+
+        window.gtag = function () {
+          window.dataLayer.push(arguments);
+        };
+
+        window.gtag('js', new Date());
+        window.gtag('config', this.conversionId);
+        console.log("===in init Google Ads===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        console.log("method not supported");
+      } //https://developers.google.com/gtagjs/reference/event
+
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        console.log("in GoogleAdsAnalyticsManager track");
+        var conversionData = this.getConversionData(this.clickEventConversions, rudderElement.message.event);
+
+        if (conversionData['conversionLabel']) {
+          var conversionLabel = conversionData['conversionLabel'];
+          var eventName = conversionData['eventName'];
+          var sendToValue = this.conversionId + "/" + conversionLabel;
+          var properties = {};
+
+          if (rudderElement.properties) {
+            properties['value'] = rudderElement.properties['revenue'];
+            properties['currency'] = rudderElement.properties['currency'];
+            properties['transaction_id'] = rudderElement.properties['order_id'];
+          }
+
+          properties['send_to'] = sendToValue;
+          window.gtag('event', eventName, properties);
+        }
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        console.log("in GoogleAdsAnalyticsManager page");
+        var conversionData = this.getConversionData(this.pageLoadConversions, rudderElement.message.name);
+
+        if (conversionData['conversionLabel']) {
+          var conversionLabel = conversionData['conversionLabel'];
+          var eventName = conversionData['eventName'];
+          window.gtag('event', eventName, {
+            'send_to': this.conversionId + "/" + conversionLabel
+          });
+        }
+      }
+    }, {
+      key: "getConversionData",
+      value: function getConversionData(eventTypeConversions, eventName) {
+        var conversionData = {};
+
+        if (eventTypeConversions) {
+          eventTypeConversions.forEach(function (eventTypeConversion) {
+            if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
+              //rudderElement["message"]["name"]
+              conversionData['conversionLabel'] = eventTypeConversion.conversionLabel;
+              conversionData['eventName'] = eventTypeConversion.name;
+              return;
+            }
+          });
+        }
+
+        return conversionData;
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return window.dataLayer.push !== Array.prototype.push;
+      }
+    }]);
+
+    return GoogleAds;
+  }();
+
+  var index$3 =  GoogleAds ;
+
   var integrations = {
     HS: index,
     GA: index$1,
-    HOTJAR: index$2
+    HOTJAR: index$2,
+    GOOGLEADS: index$3
   };
 
   //Application class
@@ -1312,6 +1425,16 @@ var analytics = (function (exports) {
             /* As we Hotjar tracks all events by itself, no need to send events explicitly. 
                So, not putting 'Hotjar' object in clientIntegrationObjects list. */
 
+          }
+
+          if (intg === "GOOGLEADS") {
+            var googleAdsConfig = configArray[i];
+
+            var _intgInstance3 = new intgClass(googleAdsConfig);
+
+            _intgInstance3.init();
+
+            _this.isInitialized(_intgInstance3).then(_this.replayEvents);
           }
         });
       }

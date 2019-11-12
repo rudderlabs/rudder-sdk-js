@@ -434,10 +434,53 @@ function () {
 
 var index$2 =  HotjarNode;
 
+var GoogleAdsNode =
+/*#__PURE__*/
+function () {
+  function GoogleAdsNode() {
+    _classCallCheck(this, GoogleAdsNode);
+
+    console.log("nothing to construct");
+  }
+
+  _createClass(GoogleAdsNode, [{
+    key: "init",
+    value: function init() {
+      console.log("node not supported");
+      console.log("===in init===");
+    }
+  }, {
+    key: "identify",
+    value: function identify(rudderElement) {
+      console.log("node not supported");
+    }
+  }, {
+    key: "track",
+    value: function track(rudderElement) {
+      console.log("node not supported");
+    }
+  }, {
+    key: "page",
+    value: function page(rudderElement) {
+      console.log("node not supported");
+    }
+  }, {
+    key: "loaded",
+    value: function loaded() {
+      console.log("node not supported");
+    }
+  }]);
+
+  return GoogleAdsNode;
+}();
+
+var index$3 =  GoogleAdsNode;
+
 var integrations = {
   HS: index,
   GA: index$1,
-  HOTJAR: index$2
+  HOTJAR: index$2,
+  GOOGLEADS: index$3
 };
 
 //Application class
@@ -1187,6 +1230,16 @@ function () {
           /* As we Hotjar tracks all events by itself, no need to send events explicitly. 
              So, not putting 'Hotjar' object in clientIntegrationObjects list. */
 
+        }
+
+        if (intg === "GOOGLEADS") {
+          var googleAdsConfig = configArray[i];
+
+          var _intgInstance3 = new intgClass(googleAdsConfig);
+
+          _intgInstance3.init();
+
+          _this.isInitialized(_intgInstance3).then(_this.replayEvents);
         }
       });
     }
