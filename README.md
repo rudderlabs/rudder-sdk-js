@@ -30,14 +30,11 @@ Few sample usage of the sdk can be found under **tests** directory for vanilla h
 <script  type="text/javascript">
 	analytics = window.analytics = [];
 	var  methods = [
-		"load", 
-		"page", 
-		"track", 
-		"identify", 
-		"trackEvent", 
-		"trackPage",
-		"identifyUser", 
-		"reset"
+		"load", // loads analytics.js with your write key.
+		"page", // to keep track whenever a user visits a page 
+		"track", // to keep track of user actions, like purchase, signup 
+		"identify", // to associate userId with traits 
+		"reset" // resets the userId and traits.
 	];
 
 	for (var i=0; i<methods.length; i++) {
@@ -48,7 +45,7 @@ Few sample usage of the sdk can be found under **tests** directory for vanilla h
 			}
 		} (method)
 	}
-	analytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI");
+	analytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI"); // You need to replace "YOUR_WRITE_KEY" with the Writekey in Rudder control plane and "DATA_PLANE_URI" with the url of the server. The 2nd parameter is optional.
 </script>
 <script  src="https://unpkg.com/rudder-analytics@1.0.3"></script>
 
@@ -59,6 +56,23 @@ Few sample usage of the sdk can be found under **tests** directory for vanilla h
 ```
 // Sample calls on global analytics object, for more examples, refer the tests folder
 <script  type="text/javascript">
+	analytics.identify(
+        "12345", //userid, if it is provided, it will override the anonymousId
+        { email: "sayan@gmail.com" }, // parameter to provide user traits, like, address, email etc.
+        {
+          context: {
+            ip: "0.0.0.0"
+          },
+          page: {
+            path: "",
+            referrer: "",
+            search: "",
+            title: "",
+            url: ""
+          },
+          anonymousId: "12345" 
+        } // options parameter is a dictionary that is optional but provides information like, context, integrations, anonymousId etc. You can provide user traits in the context and it will set the traits value.
+    );
 	analytics.page(
 		"ApplicationLoaded",
 		{
@@ -67,23 +81,23 @@ Few sample usage of the sdk can be found under **tests** directory for vanilla h
 			search:  "",
 			title:  "",
 			url:  ""
-		},
+		}, // parameter to provide properties of the page. The mentioned parameters will be auto captured in our future release.
 		{
 			context: {
 				ip:  "0.0.0.0"
-			},
-			anonymousId:  "00000000000000000000000000"
-		},
-		() => {console.log("in identify");}
+			}, // Context is a dictionary of extra information that provides useful context about a datapoint, for example the user’s ip address.
+			anonymousId:  "00000000000000000000000000" // anonymousId is a UUID that is generated to identify the user, if it is provided, it will override the generated one.
+		}, 
+		() => {console.log("in page call");} // you can provide callback that will be executed after the successful execution of page call.
 	);
 
 	analytics.track(
-		"test track event GA3",
+		"test track event GA3", // event name
 		{
-			type:  event,
+			type:  'event',
 			user_actual_role:  'system_admin, system_user' ,
 			user_actual_id:  12345
-		},
+		}, // properties of the event that you want to track, like, revenue, currency, value etc.
 		{
 			context: {
 				ip:  "0.0.0.0"
