@@ -27,14 +27,23 @@ Few sample usage of the sdk can be found under **tests** directory for vanilla h
 **Setup**
 ```
 // Script load start for working in browser env
+// Place the below snippet in the <header> section in your html.
 <script  type="text/javascript">
 	analytics = window.analytics = [];
+	/*
+	"load"     :  loads analytics.js with your write key.
+	"page"     :  to keep track whenever a user visits a page.
+	"track"    :  to keep track of user actions, like purchase, signup.
+	"identify" :  to associate userId with traits.
+	"reset"    :  resets the userId and traits.
+	For further reference of these apis, please refer Segment spec https://segment.com/docs/sources/website/analytics.js/
+	*/
 	var  methods = [
-		"load", // loads analytics.js with your write key.
-		"page", // to keep track whenever a user visits a page 
-		"track", // to keep track of user actions, like purchase, signup 
-		"identify", // to associate userId with traits 
-		"reset" // resets the userId and traits.
+		"load",
+		"page",
+		"track",
+		"identify",
+		"reset"
 	];
 
 	for (var i=0; i<methods.length; i++) {
@@ -45,7 +54,12 @@ Few sample usage of the sdk can be found under **tests** directory for vanilla h
 			}
 		} (method)
 	}
-	analytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI"); // You need to replace "YOUR_WRITE_KEY" with the Writekey in Rudder control plane and "DATA_PLANE_URI" with the url of the server. The 2nd parameter is optional.
+	/*
+	The below method is load analytics with your writekey.
+	You need to replace "YOUR_WRITE_KEY" with the Writekey in Rudder control plane and "DATA_PLANE_URI" with the uri of the server. 
+	The 2nd parameter is optional.
+	*/
+	analytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI");
 </script>
 <script  src="https://unpkg.com/rudder-analytics@1.0.3"></script>
 
@@ -55,10 +69,20 @@ Few sample usage of the sdk can be found under **tests** directory for vanilla h
 **Sample events**
 ```
 // Sample calls on global analytics object, for more examples, refer the tests folder
+
 <script  type="text/javascript">
+	/*
+	In the below call, these are the following parameters:
+		1. a string - userid, if it is provided, it will override the anonymousId.
+		2. a dictionary, to provide user traits, like, address, email etc.
+		3. a dictionary that is optional but provides information like, context, integrations, anonymousId etc. You can provide user traits in the context as well and it will set the traits value. 
+			3.1. anonymousId is a UUID that is generated to identify the user, if it is provided, it will override the generated one.
+			3.2. Context is a dictionary of extra information that provides useful context about a datapoint, for example the user’s ip address.
+		4. you can provide callback that will be executed after the successful execution of identify call.
+	*/
 	analytics.identify(
-        "12345", //userid, if it is provided, it will override the anonymousId
-        { email: "sayan@gmail.com" }, // parameter to provide user traits, like, address, email etc.
+        "12345",
+        { email: "sayan@gmail.com" },
         {
           context: {
             ip: "0.0.0.0"
@@ -71,39 +95,61 @@ Few sample usage of the sdk can be found under **tests** directory for vanilla h
             url: ""
           },
           anonymousId: "12345" 
-        } // options parameter is a dictionary that is optional but provides information like, context, integrations, anonymousId etc. You can provide user traits in the context and it will set the traits value.
+        },
+		() => {console.log("in identify call");}
     );
+	/*
+	In the below call, these are the following parameters:
+		1. a string - category of the page
+		1. a string - name of the page
+		2. a dictionary, to provide properties of the page. The mentioned parameters are auto captured.
+		3. a dictionary that is optional but provides information like, context, integrations, anonymousId etc. You can provide user traits in the context as well and it will set the traits value. 
+			3.1. anonymousId is a UUID that is generated to identify the user, if it is provided, it will override the generated one.
+			3.2. Context is a dictionary of extra information that provides useful context about a datapoint, for example the user’s ip address.
+		4. you can provide callback that will be executed after the successful execution of page call.
+	*/
 	analytics.page(
-		"ApplicationLoaded",
+		"Cart",
+		"Cart Viewed",
 		{
 			path:  "",
 			referrer:  "",
 			search:  "",
 			title:  "",
 			url:  ""
-		}, // parameter to provide properties of the page. The mentioned parameters will be auto captured in our future release.
-		{
-			context: {
-				ip:  "0.0.0.0"
-			}, // Context is a dictionary of extra information that provides useful context about a datapoint, for example the user’s ip address.
-			anonymousId:  "00000000000000000000000000" // anonymousId is a UUID that is generated to identify the user, if it is provided, it will override the generated one.
-		}, 
-		() => {console.log("in page call");} // you can provide callback that will be executed after the successful execution of page call.
-	);
-
-	analytics.track(
-		"test track event GA3", // event name
-		{
-			type:  'event',
-			user_actual_role:  'system_admin, system_user' ,
-			user_actual_id:  12345
-		}, // properties of the event that you want to track, like, revenue, currency, value etc.
+		},
 		{
 			context: {
 				ip:  "0.0.0.0"
 			},
 			anonymousId:  "00000000000000000000000000"
-		}
+		}, 
+		() => {console.log("in page call");}
+	);
+
+	/*
+	In the below call, these are the following parameters:
+		1. a string - event name 
+		2. a dictionary, properties of the event that you want to track, like, revenue, currency, value etc.
+		3. a dictionary that is optional but provides information like, context, integrations, anonymousId etc. You can provide user traits in the context as well and it will set the traits value. 
+			3.1. anonymousId is a UUID that is generated to identify the user, if it is provided, it will override the generated one.
+			3.2. Context is a dictionary of extra information that provides useful context about a datapoint, for example the user’s ip address.
+		4. you can provide callback that will be executed after the successful execution of track call.
+	*/
+	analytics.track(
+		"test track event GA3",
+		{
+			revenue:  30,
+			currency:  'USD' ,
+			user_actual_id:  12345
+		},
+		{
+			context: {
+				ip:  "0.0.0.0"
+			},
+			anonymousId:  "00000000000000000000000000"
+		}, 
+		() => {console.log("in track call");}
 	);
 </script>
 ```
