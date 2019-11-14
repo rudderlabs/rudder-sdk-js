@@ -55,7 +55,7 @@ Few sample usage of the sdk can be found under **tests** directory for vanilla h
 		} (method)
 	}
 	/*
-	The below method is load analytics with your writekey.
+	The below method is to load analytics with your writekey.
 	You need to replace "YOUR_WRITE_KEY" with the Writekey in Rudder control plane and "DATA_PLANE_URI" with the uri of the server. 
 	The 2nd parameter is optional.
 	*/
