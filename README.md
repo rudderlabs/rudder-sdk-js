@@ -60,6 +60,11 @@ Few sample usage of the sdk can be found under **tests** directory for vanilla h
 	The 2nd parameter is optional.
 	*/
 	analytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI");
+
+	/*
+	The below call is to track the pageview. It auto captures the properties(path, referrer, search, title, url.) If you want to override them, use the call mentioned in section Sample events.
+	*/
+	analytics.page();
 </script>
 <script  src="https://unpkg.com/rudder-analytics@1.0.3"></script>
 
