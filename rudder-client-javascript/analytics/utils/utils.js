@@ -143,11 +143,46 @@ function handleError(error){
 
 }
 
+function getDefaultPageProperties(){
+
+  let canonicalUrl = getCanonicalUrl();
+  let path = canonicalUrl ? canonicalUrl.pathname : window.location.pathname;
+  let referrer = document.referrer;
+  let search = window.location.search;
+  let title = document.title;
+  let url = getUrl(search);
+
+  return {
+    path: path,
+    referrer: referrer,
+    search: search,
+    title: title,
+    url: url
+  };
+}
+
+function getUrl(search){
+  let canonicalUrl = getCanonicalUrl();
+  let url = canonicalUrl ? canonicalUrl.indexOf('?') > -1 ? canonicalUrl : canonicalUrl + search : window.location.href;
+  let hashIndex = url.indexOf('#');
+  return hashIndex > -1 ? url.slice(0, hashIndex) : url;
+}
+
+function getCanonicalUrl() {
+  var tags = document.getElementsByTagName('link');
+  for (var i = 0, tag; tag = tags[i]; i++) {
+    if (tag.getAttribute('rel') === 'canonical') {
+      return tag.getAttribute('href');
+    }
+  }
+} 
+
 export {
   replacer,
   generateUUID,
   getCurrentTimeFormatted,
   getJSONTrimmed,
   getJSON,
+  getDefaultPageProperties,
   handleError
 };

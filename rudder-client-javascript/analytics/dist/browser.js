@@ -216,6 +216,39 @@ var analytics = (function (exports) {
     }
   }
 
+  function getDefaultPageProperties() {
+    var canonicalUrl = getCanonicalUrl();
+    var path = canonicalUrl ? canonicalUrl.pathname : window.location.pathname;
+    var referrer = document.referrer;
+    var search = window.location.search;
+    var title = document.title;
+    var url = getUrl(search);
+    return {
+      path: path,
+      referrer: referrer,
+      search: search,
+      title: title,
+      url: url
+    };
+  }
+
+  function getUrl(search) {
+    var canonicalUrl = getCanonicalUrl();
+    var url = canonicalUrl ? canonicalUrl.indexOf('?') > -1 ? canonicalUrl : canonicalUrl + search : window.location.href;
+    var hashIndex = url.indexOf('#');
+    return hashIndex > -1 ? url.slice(0, hashIndex) : url;
+  }
+
+  function getCanonicalUrl() {
+    var tags = document.getElementsByTagName('link');
+
+    for (var i = 0, tag; tag = tags[i]; i++) {
+      if (tag.getAttribute('rel') === 'canonical') {
+        return tag.getAttribute('href');
+      }
+    }
+  }
+
   //Message Type enumeration
   var MessageType = {
     TRACK: "track",
@@ -542,10 +575,123 @@ var analytics = (function (exports) {
 
   var index$2 =  Hotjar ;
 
+  var GoogleAds =
+  /*#__PURE__*/
+  function () {
+    function GoogleAds(config) {
+      _classCallCheck(this, GoogleAds);
+
+      //this.accountId = config.accountId;//AW-696901813
+      this.conversionId = config.conversionId;
+      this.pageLoadConversions = config.pageLoadConversions;
+      this.clickEventConversions = config.clickEventConversions;
+      this.name = "GOOGLEADS";
+    }
+
+    _createClass(GoogleAds, [{
+      key: "init",
+      value: function init() {
+        var sourceUrl = "https://www.googletagmanager.com/gtag/js?id=" + this.conversionId;
+
+        (function (id, src, document) {
+          console.log("in script loader=== " + id);
+          var js = document.createElement("script");
+          js.src = src;
+          js.async = 1;
+          js.type = "text/javascript";
+          js.id = id;
+          var e = document.getElementsByTagName("head")[0];
+          console.log("==script==", e);
+          e.appendChild(js);
+        })('googleAds-integration', sourceUrl, document);
+
+        window.dataLayer = window.dataLayer || [];
+
+        window.gtag = function () {
+          window.dataLayer.push(arguments);
+        };
+
+        window.gtag('js', new Date());
+        window.gtag('config', this.conversionId);
+        console.log("===in init Google Ads===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        console.log("method not supported");
+      } //https://developers.google.com/gtagjs/reference/event
+
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        console.log("in GoogleAdsAnalyticsManager track");
+        var conversionData = this.getConversionData(this.clickEventConversions, rudderElement.message.event);
+
+        if (conversionData['conversionLabel']) {
+          var conversionLabel = conversionData['conversionLabel'];
+          var eventName = conversionData['eventName'];
+          var sendToValue = this.conversionId + "/" + conversionLabel;
+          var properties = {};
+
+          if (rudderElement.properties) {
+            properties['value'] = rudderElement.properties['revenue'];
+            properties['currency'] = rudderElement.properties['currency'];
+            properties['transaction_id'] = rudderElement.properties['order_id'];
+          }
+
+          properties['send_to'] = sendToValue;
+          window.gtag('event', eventName, properties);
+        }
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        console.log("in GoogleAdsAnalyticsManager page");
+        var conversionData = this.getConversionData(this.pageLoadConversions, rudderElement.message.name);
+
+        if (conversionData['conversionLabel']) {
+          var conversionLabel = conversionData['conversionLabel'];
+          var eventName = conversionData['eventName'];
+          window.gtag('event', eventName, {
+            'send_to': this.conversionId + "/" + conversionLabel
+          });
+        }
+      }
+    }, {
+      key: "getConversionData",
+      value: function getConversionData(eventTypeConversions, eventName) {
+        var conversionData = {};
+
+        if (eventTypeConversions) {
+          eventTypeConversions.forEach(function (eventTypeConversion) {
+            if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
+              //rudderElement["message"]["name"]
+              conversionData['conversionLabel'] = eventTypeConversion.conversionLabel;
+              conversionData['eventName'] = eventTypeConversion.name;
+              return;
+            }
+          });
+        }
+
+        return conversionData;
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return window.dataLayer.push !== Array.prototype.push;
+      }
+    }]);
+
+    return GoogleAds;
+  }();
+
+  var index$3 =  GoogleAds ;
+
   var integrations = {
     HS: index,
     GA: index$1,
-    HOTJAR: index$2
+    HOTJAR: index$2,
+    GOOGLEADS: index$3
   };
 
   //Application class
@@ -1313,6 +1459,16 @@ var analytics = (function (exports) {
                So, not putting 'Hotjar' object in clientIntegrationObjects list. */
 
           }
+
+          if (intg === "GOOGLEADS") {
+            var googleAdsConfig = configArray[i];
+
+            var _intgInstance3 = new intgClass(googleAdsConfig);
+
+            _intgInstance3.init();
+
+            _this.isInitialized(_intgInstance3).then(_this.replayEvents);
+          }
         });
       }
     }, {
@@ -1451,16 +1607,16 @@ var analytics = (function (exports) {
           rudderElement["message"]["name"] = name;
         }
 
-        if (category) {
-          if (!properties) {
-            properties = {};
-          }
+        if (!properties) {
+          properties = {};
+        }
 
+        if (category) {
           properties["category"] = category;
         }
 
         if (properties) {
-          rudderElement["message"]["properties"] = properties;
+          rudderElement["message"]["properties"] = this.getPageProperties(properties); //properties;
         }
 
         this.trackPage(rudderElement, options, callback);
@@ -1644,6 +1800,19 @@ var analytics = (function (exports) {
             }
           }
         }
+      }
+    }, {
+      key: "getPageProperties",
+      value: function getPageProperties(properties) {
+        var defaultPageProperties = getDefaultPageProperties();
+
+        for (var key in defaultPageProperties) {
+          if (properties[key] === undefined) {
+            properties[key] = defaultPageProperties[key];
+          }
+        }
+
+        return properties;
       }
       /**
        * Clear user information

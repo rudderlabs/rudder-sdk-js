@@ -1,8 +1,7 @@
-import { getJSONTrimmed, generateUUID, handleError } from "./utils/utils";
+import { getJSONTrimmed, generateUUID, handleError, getDefaultPageProperties } from "./utils/utils";
 import { CONFIG_URL, ECommerceEvents, MAX_WAIT_FOR_INTEGRATION_LOAD, INTEGRATION_LOAD_CHECK_INTERVAL } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
-import { RudderTraits } from "./utils/RudderTraits";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
 import PromotionViewedEvent from "./utils/PromotionViewedEvent";
@@ -130,6 +129,13 @@ class Analytics {
 
         /* As we Hotjar tracks all events by itself, no need to send events explicitly. 
            So, not putting 'Hotjar' object in clientIntegrationObjects list. */
+      }
+      if(intg === "GOOGLEADS"){
+        let googleAdsConfig = configArray[i];
+        let intgInstance = new intgClass(googleAdsConfig);
+        intgInstance.init();
+
+        this.isInitialized(intgInstance).then(this.replayEvents);
       }
     });
     
@@ -264,14 +270,14 @@ class Analytics {
     if (name) {
       rudderElement["message"]["name"] = name;
     }
+    if (!properties) {
+      properties = {};
+    }
     if (category) {
-      if (!properties) {
-        properties = {};
-      }
       properties["category"] = category;
     }
     if (properties) {
-      rudderElement["message"]["properties"] = properties;
+      rudderElement["message"]["properties"] = this.getPageProperties(properties)//properties;
     }
 
     this.trackPage(rudderElement, options, callback);
@@ -452,6 +458,16 @@ class Analytics {
       }
 
     }
+  }
+
+  getPageProperties(properties){
+    let defaultPageProperties = getDefaultPageProperties();
+    for(let key in defaultPageProperties){
+      if(properties[key] === undefined){
+        properties[key] = defaultPageProperties[key]
+      }
+    }
+    return properties;
   }
 
   /**

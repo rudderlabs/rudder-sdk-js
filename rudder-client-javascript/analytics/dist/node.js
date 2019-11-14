@@ -228,6 +228,39 @@ function handleError(error) {
   }
 }
 
+function getDefaultPageProperties() {
+  var canonicalUrl = getCanonicalUrl();
+  var path = canonicalUrl ? canonicalUrl.pathname : window.location.pathname;
+  var referrer = document.referrer;
+  var search = window.location.search;
+  var title = document.title;
+  var url = getUrl(search);
+  return {
+    path: path,
+    referrer: referrer,
+    search: search,
+    title: title,
+    url: url
+  };
+}
+
+function getUrl(search) {
+  var canonicalUrl = getCanonicalUrl();
+  var url = canonicalUrl ? canonicalUrl.indexOf('?') > -1 ? canonicalUrl : canonicalUrl + search : window.location.href;
+  var hashIndex = url.indexOf('#');
+  return hashIndex > -1 ? url.slice(0, hashIndex) : url;
+}
+
+function getCanonicalUrl() {
+  var tags = document.getElementsByTagName('link');
+
+  for (var i = 0, tag; tag = tags[i]; i++) {
+    if (tag.getAttribute('rel') === 'canonical') {
+      return tag.getAttribute('href');
+    }
+  }
+}
+
 //Message Type enumeration
 var MessageType = {
   TRACK: "track",
@@ -434,10 +467,53 @@ function () {
 
 var index$2 =  HotjarNode;
 
+var GoogleAdsNode =
+/*#__PURE__*/
+function () {
+  function GoogleAdsNode() {
+    _classCallCheck(this, GoogleAdsNode);
+
+    console.log("nothing to construct");
+  }
+
+  _createClass(GoogleAdsNode, [{
+    key: "init",
+    value: function init() {
+      console.log("node not supported");
+      console.log("===in init===");
+    }
+  }, {
+    key: "identify",
+    value: function identify(rudderElement) {
+      console.log("node not supported");
+    }
+  }, {
+    key: "track",
+    value: function track(rudderElement) {
+      console.log("node not supported");
+    }
+  }, {
+    key: "page",
+    value: function page(rudderElement) {
+      console.log("node not supported");
+    }
+  }, {
+    key: "loaded",
+    value: function loaded() {
+      console.log("node not supported");
+    }
+  }]);
+
+  return GoogleAdsNode;
+}();
+
+var index$3 =  GoogleAdsNode;
+
 var integrations = {
   HS: index,
   GA: index$1,
-  HOTJAR: index$2
+  HOTJAR: index$2,
+  GOOGLEADS: index$3
 };
 
 //Application class
@@ -1188,6 +1264,16 @@ function () {
              So, not putting 'Hotjar' object in clientIntegrationObjects list. */
 
         }
+
+        if (intg === "GOOGLEADS") {
+          var googleAdsConfig = configArray[i];
+
+          var _intgInstance3 = new intgClass(googleAdsConfig);
+
+          _intgInstance3.init();
+
+          _this.isInitialized(_intgInstance3).then(_this.replayEvents);
+        }
       });
     }
   }, {
@@ -1326,16 +1412,16 @@ function () {
         rudderElement["message"]["name"] = name;
       }
 
-      if (category) {
-        if (!properties) {
-          properties = {};
-        }
+      if (!properties) {
+        properties = {};
+      }
 
+      if (category) {
         properties["category"] = category;
       }
 
       if (properties) {
-        rudderElement["message"]["properties"] = properties;
+        rudderElement["message"]["properties"] = this.getPageProperties(properties); //properties;
       }
 
       this.trackPage(rudderElement, options, callback);
@@ -1519,6 +1605,19 @@ function () {
           }
         }
       }
+    }
+  }, {
+    key: "getPageProperties",
+    value: function getPageProperties(properties) {
+      var defaultPageProperties = getDefaultPageProperties();
+
+      for (var key in defaultPageProperties) {
+        if (properties[key] === undefined) {
+          properties[key] = defaultPageProperties[key];
+        }
+      }
+
+      return properties;
     }
     /**
      * Clear user information
