@@ -312,11 +312,11 @@ var analytics = (function(exports) {
   var instance = new test();
 
   {
-    console.log("is present? " + !!window.analytics);
-    var methodArg = window.analytics ? window.analytics[0] : [];
+    console.log("is present? " + !!window.rudderanalytics);
+    var methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
     if (methodArg.length > 0) {
       instance[methodArg[0]](methodArg[1]);
-      var methodArgNext = window.analytics[1];
+      var methodArgNext = window.rudderanalytics[1];
       instance[methodArgNext[0]]("test args 1", "test args 2");
     }
   }

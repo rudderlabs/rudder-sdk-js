@@ -31,6 +31,7 @@ class Analytics {
    * @memberof Analytics
    */
   constructor() {
+    this.initialized = false
     this.ready = false;
     this.eventsBuffer = [];
     this.clientIntegrations = [];
@@ -321,7 +322,7 @@ class Analytics {
 
     let rudderElement = new RudderElementBuilder().setType("identify").build();
     if (traits) {
-      this.userTraits = traits;
+      this.userTraits = JSON.parse(JSON.stringify(traits));
       this.storage.setUserTraits(this.userTraits);
     }
 
@@ -347,7 +348,7 @@ class Analytics {
       rudderElement["message"]["context"] &&
       rudderElement["message"]["context"]["traits"]
     ) {
-      this.userTraits = rudderElement["message"]["context"]["traits"];
+      this.userTraits = Object.assign({},rudderElement["message"]["context"]["traits"]);
       this.storage.setUserTraits(this.userTraits);
     }
 
@@ -391,7 +392,7 @@ class Analytics {
         this.storage.setUserId(this.userId);
       }
 
-      rudderElement["message"]["context"]["traits"] = this.userTraits;
+      rudderElement["message"]["context"]["traits"] = Object.assign({}, this.userTraits);
       rudderElement["message"]["anonymousId"] = rudderElement["message"][
         "userId"
       ] = rudderElement["message"]["context"]["traits"][
@@ -447,6 +448,10 @@ class Analytics {
     for(let key in options){
       if(toplevelElements.includes(key)){
         rudderElement.message[key] = options[key]
+        //special handle for ananymousId as transformation expects anonymousId in traits.
+        if(key === 'anonymousId'){
+          rudderElement.message.context.traits['anonymousId'] = options[key]
+        }
       } else {
         if(key !== 'context')
           rudderElement.message.context[key] = options[key]
@@ -507,9 +512,9 @@ let instance = new Analytics();
 
 if (process.browser) {
   let eventsPushedAlready =
-    !!window.analytics && window.analytics.push == Array.prototype.push;
+    !!window.rudderanalytics && window.rudderanalytics.push == Array.prototype.push;
 
-  let methodArg = window.analytics ? window.analytics[0] : [];
+  let methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
   if (methodArg.length > 0 && methodArg[0] == "load") {
     let method = methodArg[0];
     methodArg.shift();
@@ -517,8 +522,8 @@ if (process.browser) {
   }
 
   if (eventsPushedAlready) {
-    for (let i = 1; i < window.analytics.length; i++) {
-      instance.toBeProcessedArray.push(window.analytics[i]);
+    for (let i = 1; i < window.rudderanalytics.length; i++) {
+      instance.toBeProcessedArray.push(window.rudderanalytics[i]);
     }
 
     for (let i = 0; i < instance.toBeProcessedArray.length; i++) {
@@ -534,24 +539,15 @@ if (process.browser) {
 let identify = instance.identify.bind(instance);
 let page = instance.page.bind(instance);
 let track = instance.track.bind(instance);
-let trackEvent = instance.trackEvent.bind(instance);
-let trackPage = instance.trackPage.bind(instance);
-let identifyUser = instance.identifyUser.bind(instance);
 let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
+let initialized = instance.initialized = true
 
 export {
+  initialized,
   page,
   track,
   load,
   identify,
-  reset,
-  trackEvent,
-  trackPage,
-  identifyUser,
-  // ideally if we are supporting builder, these should be part of init script rather than exported from core
-  RudderElementBuilder,
-  PromotionViewedEvent,
-  ECommercePromotion,
-  ECommerceEvents
+  reset
 };

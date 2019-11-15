@@ -4,29 +4,29 @@
     <h1>Page Loaded</h1>
 
     <script type="text/javascript">
-      analytics = window.analytics = [];
+      rudderanalytics = window.rudderanalytics = [];
       var methods = ["load", "page", "track", "identify", "trackEvent", "trackPage", "identifyUser", "reset"];
       for(var i=0;i<methods.length;i++){
         var method = methods[i];
-        analytics[method] = function(methodName){
+        rudderanalytics[method] = function(methodName){
           return function(){
-            analytics.push([methodName, ...arguments]);
+            rudderanalytics.push([methodName, ...arguments]);
           }
         }(method)
       }
 
-      analytics.load("1S2kNlbkMrWLBO79H2eNuEST27I");
+      rudderanalytics.load("1S2kNlbkMrWLBO79H2eNuEST27I");
     </script>
     <script src="browser.js"></script>
 
     <script type="text/javascript">
-      analytics.trackEvent(
-        new analytics.RudderElementBuilder()
-          .setEvent(analytics.ECommerceEvents.PROMOTION_VIEWED)
+      rudderanalytics.trackEvent(
+        new rudderanalytics.RudderElementBuilder()
+          .setEvent(rudderanalytics.ECommerceEvents.PROMOTION_VIEWED)
           .setProperty(
-            new analytics.PromotionViewedEvent()
+            new rudderanalytics.PromotionViewedEvent()
               .setPromotion(
-                new analytics.ECommercePromotion()
+                new rudderanalytics.ECommercePromotion()
                   .setPromotionId("Dummy Promotion 1")
                   .setCreative("Dummy Creative 1")
               )
