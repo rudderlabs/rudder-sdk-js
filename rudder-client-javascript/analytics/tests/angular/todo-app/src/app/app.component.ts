@@ -9,11 +9,11 @@ export class AppComponent {
   title = "todo-app";
 
   handleClick(event: Event) {
-    let analytics = window["analytics"];
-    console.log("===analytics===", analytics);
-    //analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
+    let rudderanalytics = window["rudderanalytics"];
+    console.log("===rudderanalytics===", rudderanalytics);
+    //rudderanalytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
 
-    analytics.identify(
+    rudderanalytics.identify(
       {
         name: "demo2",
         city: "Orissa",
@@ -25,7 +25,7 @@ export class AppComponent {
       }
     );
 
-    analytics.page(
+    rudderanalytics.page(
       "Dashboard",
       {
         title: "abc",
@@ -37,9 +37,9 @@ export class AppComponent {
       }
     );
 
-    analytics.track("Article Started", {
+    rudderanalytics.track("Article Started", {
       title: "How to Create a Tracking Plan",
-      course: "Intro to Analytics",
+      course: "Intro to rudderanalytics",
       revenue: 10
     });
 

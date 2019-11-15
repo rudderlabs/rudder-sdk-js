@@ -1,4 +1,4 @@
-var analytics = (function (exports) {
+var rudderanalytics = (function (exports) {
   'use strict';
 
   function _typeof(obj) {
@@ -35,53 +35,6 @@ var analytics = (function (exports) {
     if (protoProps) _defineProperties(Constructor.prototype, protoProps);
     if (staticProps) _defineProperties(Constructor, staticProps);
     return Constructor;
-  }
-
-  function _inherits(subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function");
-    }
-
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) _setPrototypeOf(subClass, superClass);
-  }
-
-  function _getPrototypeOf(o) {
-    _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-      return o.__proto__ || Object.getPrototypeOf(o);
-    };
-    return _getPrototypeOf(o);
-  }
-
-  function _setPrototypeOf(o, p) {
-    _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-      o.__proto__ = p;
-      return o;
-    };
-
-    return _setPrototypeOf(o, p);
-  }
-
-  function _assertThisInitialized(self) {
-    if (self === void 0) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return self;
-  }
-
-  function _possibleConstructorReturn(self, call) {
-    if (call && (typeof call === "object" || typeof call === "function")) {
-      return call;
-    }
-
-    return _assertThisInitialized(self);
   }
 
   function _toConsumableArray(arr) {
@@ -701,7 +654,7 @@ var analytics = (function (exports) {
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.0";
+    this.version = "1.0.4";
   };
 
   //Library information class
@@ -709,7 +662,7 @@ var analytics = (function (exports) {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.0";
+    this.version = "1.0.4";
   }; //Operating System information class
 
 
@@ -1200,140 +1153,6 @@ var analytics = (function (exports) {
 
   var eventRepository = new EventRepository();
 
-  var RudderProperty =
-  /*#__PURE__*/
-  function () {
-    function RudderProperty() {
-      _classCallCheck(this, RudderProperty);
-
-      this.propertyMap = {};
-    }
-
-    _createClass(RudderProperty, [{
-      key: "getPropertyMap",
-      value: function getPropertyMap() {
-        return this.propertyMap;
-      }
-    }, {
-      key: "getProperty",
-      value: function getProperty(key) {
-        return this.propertyMap[key];
-      }
-    }, {
-      key: "setProperty",
-      value: function setProperty(key, value) {
-        this.propertyMap[key] = value;
-      }
-    }, {
-      key: "setPropertyMap",
-      value: function setPropertyMap(inputPropertyMap) {
-        var _this = this;
-
-        if (!this.propertyMap) {
-          this.propertyMap = inputPropertyMap;
-        } else {
-          Object.keys(inputPropertyMap).forEach(function (key) {
-            _this.propertyMap[key] = inputPropertyMap[key];
-          });
-        }
-      }
-    }]);
-
-    return RudderProperty;
-  }();
-
-  var PromotionEvent =
-  /*#__PURE__*/
-  function () {
-    function PromotionEvent() {
-      _classCallCheck(this, PromotionEvent);
-
-      this.promotion = null;
-    } //Setter method in accordance to Builder pattern
-
-
-    _createClass(PromotionEvent, [{
-      key: "setPromotion",
-      value: function setPromotion(promotion) {
-        this.promotion = promotion;
-        return this;
-      }
-    }, {
-      key: "build",
-      value: function build() {
-        var eventProperty = new RudderProperty();
-        eventProperty.setPropertyMap(this.promotion);
-        return eventProperty;
-      }
-    }]);
-
-    return PromotionEvent;
-  }();
-
-  var PromotionViewedEvent =
-  /*#__PURE__*/
-  function (_PromotionEvent) {
-    _inherits(PromotionViewedEvent, _PromotionEvent);
-
-    function PromotionViewedEvent() {
-      _classCallCheck(this, PromotionViewedEvent);
-
-      return _possibleConstructorReturn(this, _getPrototypeOf(PromotionViewedEvent).call(this));
-    }
-
-    _createClass(PromotionViewedEvent, [{
-      key: "event",
-      value: function event() {
-        return ECommerceEvents.PROMOTION_VIEWED;
-      }
-    }]);
-
-    return PromotionViewedEvent;
-  }(PromotionEvent);
-
-  //Class representing e-commerce promotion
-  var ECommercePromotion =
-  /*#__PURE__*/
-  function () {
-    function ECommercePromotion() {
-      _classCallCheck(this, ECommercePromotion);
-
-      this.promotion_id = "";
-      this.creative = "";
-      this.name = "";
-      this.position = 0;
-    } //Setter methods in accordance with Builder pattern
-
-
-    _createClass(ECommercePromotion, [{
-      key: "setPromotionId",
-      value: function setPromotionId(promotionId) {
-        this.promotion_id = promotionId;
-        return this;
-      }
-    }, {
-      key: "setCreative",
-      value: function setCreative(creative) {
-        this.creative = creative;
-        return this;
-      }
-    }, {
-      key: "setName",
-      value: function setName(name) {
-        this.name = name;
-        return this;
-      }
-    }, {
-      key: "setPosition",
-      value: function setPosition(position) {
-        this.position = position;
-        return this;
-      }
-    }]);
-
-    return ECommercePromotion;
-  }();
-
   /**
    * Add the rudderelement object to flush queue
    *
@@ -1363,6 +1182,7 @@ var analytics = (function (exports) {
     function Analytics() {
       _classCallCheck(this, Analytics);
 
+      this.initialized = false;
       this.ready = false;
       this.eventsBuffer = [];
       this.clientIntegrations = [];
@@ -1666,7 +1486,7 @@ var analytics = (function (exports) {
         var rudderElement = new RudderElementBuilder().setType("identify").build();
 
         if (traits) {
-          this.userTraits = traits;
+          this.userTraits = JSON.parse(JSON.stringify(traits));
           this.storage.setUserTraits(this.userTraits);
         }
 
@@ -1689,7 +1509,7 @@ var analytics = (function (exports) {
         }
 
         if (rudderElement && rudderElement["message"] && rudderElement["message"]["context"] && rudderElement["message"]["context"]["traits"]) {
-          this.userTraits = rudderElement["message"]["context"]["traits"];
+          this.userTraits = Object.assign({}, rudderElement["message"]["context"]["traits"]);
           this.storage.setUserTraits(this.userTraits);
         }
 
@@ -1739,7 +1559,7 @@ var analytics = (function (exports) {
             this.storage.setUserId(this.userId);
           }
 
-          rudderElement["message"]["context"]["traits"] = this.userTraits;
+          rudderElement["message"]["context"]["traits"] = Object.assign({}, this.userTraits);
           rudderElement["message"]["anonymousId"] = rudderElement["message"]["userId"] = rudderElement["message"]["context"]["traits"]["anonymousId"] = this.userId;
 
           if (options) {
@@ -1791,7 +1611,11 @@ var analytics = (function (exports) {
 
         for (var key in options) {
           if (toplevelElements.includes(key)) {
-            rudderElement.message[key] = options[key];
+            rudderElement.message[key] = options[key]; //special handle for ananymousId as transformation expects anonymousId in traits.
+
+            if (key === 'anonymousId') {
+              rudderElement.message.context.traits['anonymousId'] = options[key];
+            }
           } else {
             if (key !== 'context') rudderElement.message.context[key] = options[key];else {
               for (var k in options[key]) {
@@ -1860,8 +1684,8 @@ var analytics = (function (exports) {
   var instance = new Analytics();
 
   {
-    var eventsPushedAlready = !!window.analytics && window.analytics.push == Array.prototype.push;
-    var methodArg = window.analytics ? window.analytics[0] : [];
+    var eventsPushedAlready = !!window.rudderanalytics && window.rudderanalytics.push == Array.prototype.push;
+    var methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
 
     if (methodArg.length > 0 && methodArg[0] == "load") {
       var method = methodArg[0];
@@ -1870,8 +1694,8 @@ var analytics = (function (exports) {
     }
 
     if (eventsPushedAlready) {
-      for (var i = 1; i < window.analytics.length; i++) {
-        instance.toBeProcessedArray.push(window.analytics[i]);
+      for (var i = 1; i < window.rudderanalytics.length; i++) {
+        instance.toBeProcessedArray.push(window.rudderanalytics[i]);
       }
 
       for (var _i = 0; _i < instance.toBeProcessedArray.length; _i++) {
@@ -1890,24 +1714,16 @@ var analytics = (function (exports) {
   var identify = instance.identify.bind(instance);
   var page = instance.page.bind(instance);
   var track = instance.track.bind(instance);
-  var trackEvent = instance.trackEvent.bind(instance);
-  var trackPage = instance.trackPage.bind(instance);
-  var identifyUser = instance.identifyUser.bind(instance);
   var reset = instance.reset.bind(instance);
   var load = instance.load.bind(instance);
+  var initialized = instance.initialized = true;
 
-  exports.ECommerceEvents = ECommerceEvents;
-  exports.ECommercePromotion = ECommercePromotion;
-  exports.PromotionViewedEvent = PromotionViewedEvent;
-  exports.RudderElementBuilder = RudderElementBuilder;
   exports.identify = identify;
-  exports.identifyUser = identifyUser;
+  exports.initialized = initialized;
   exports.load = load;
   exports.page = page;
   exports.reset = reset;
   exports.track = track;
-  exports.trackEvent = trackEvent;
-  exports.trackPage = trackPage;
 
   return exports;
 

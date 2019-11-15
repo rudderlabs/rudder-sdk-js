@@ -14,28 +14,35 @@
     />
 
     <script type="text/javascript">
-      analytics = window.analytics = [];
-      analytics.page = function() {
+      rudderanalytics = window.rudderanalytics = [];
+      rudderanalytics.page = function() {
         console.log(...arguments);
-        analytics.push(["page", ...arguments]);
+        rudderanalytics.push(["page", ...arguments]);
       };
-      analytics.track = function() {
-        analytics.push(["track", ...arguments]);
+      rudderanalytics.track = function() {
+        rudderanalytics.push(["track", ...arguments]);
       };
-      analytics.identify = function() {
-        analytics.push(["identify", ...arguments]);
-      };
-
-      analytics.load = function(writeKey) {
-        analytics.push(["load", writeKey]);
+      rudderanalytics.identify = function() {
+        rudderanalytics.push(["identify", ...arguments]);
       };
 
-      analytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
+      rudderanalytics.load = function(writeKey) {
+        rudderanalytics.push(["load", writeKey]);
+      };
+
+      rudderanalytics.load("1QbNPCBQp2RFWolFj2ZhXi2ER6a");
     </script>
 
     <script src="https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js"></script>
   </head>
   <body>
+      <script>
+          //for(let elem of document.querySelectorAll('*')) {
+            document.addEventListener("click", e => console.log(`Bubbling: ${e.target.name ? e.target.name : e.target.tagName}`));
+            document.addEventListener("click", e => console.log(`Capturing: ${e.target.textContent}`), true);
+            //document.addEventListener("scroll", e => console.log(`Bubbling: ${e.target.tagName}`))
+          //}
+        </script>
     <app-root></app-root>
   </body>
 </html>

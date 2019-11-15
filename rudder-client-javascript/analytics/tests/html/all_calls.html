@@ -4,23 +4,23 @@
     <h1>Page Loaded</h1>
 
     <script type="text/javascript">
-      analytics = window.analytics = [];
+      rudderanalytics = window.rudderanalytics = [];
       var methods = ["load", "page", "track", "identify", "trackEvent", "trackPage", "identifyUser", "reset"];
       for(var i=0;i<methods.length;i++){
         var method = methods[i];
-        analytics[method] = function(methodName){
+        rudderanalytics[method] = function(methodName){
           return function(){
-            analytics.push([methodName, ...arguments]);
+            rudderanalytics.push([methodName, ...arguments]);
           }
         }(method)
       }
 
-      analytics.load("1S2kNlbkMrWLBO79H2eNuEST27I", "https://torpedo.dev.rudderlabs.com/v1/batch");
+      rudderanalytics.load("1S2kNlbkMrWLBO79H2eNuEST27I", "https://torpedo.dev.rudderlabs.com/v1/batch");
     </script>
-    <script src="https://unpkg.com/rudder-analytics@1.0.3"></script>
+    <script src="browser.js"></script>
 
     <script type="text/javascript">
-      analytics.identify(
+      rudderanalytics.identify(
         "12345",
         { email: "sayan@gmail.com" },
         {
@@ -37,7 +37,7 @@
           anonymousId: "00000000000000000000000000"
         }
       );
-      analytics.page(
+      rudderanalytics.page(
         "ApplicationLoaded",
         {
           path: "",
@@ -53,7 +53,7 @@
           anonymousId: "00000000000000000000000000"
         }
       );
-      analytics.track(
+      rudderanalytics.track(
         "test track event GA3",
         {
           type: event,

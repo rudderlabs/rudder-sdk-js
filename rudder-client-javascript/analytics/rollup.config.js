@@ -10,19 +10,20 @@ export default {
   external: ["Xmlhttprequest", "universal-analytics"],
   output: [
     {
-      file: "dist/browser.js",
+      file: "dist/browser.min.js",
       format: "iife",
-      name: "analytics"
-    },
+      name: "rudderanalytics"
+    }/* ,
     {
       file: "dist/node.js",
       format: "cjs"
-    }
+    } */
   ],
   plugins: [
     replace({
       "process.browser": process.env.NODE_ENV == "true" ? false : true,
-      "process.prod": process.env.ENV == "prod" ? true : false
+      "process.prod": process.env.ENV == "prod" ? true : false,
+      "process.package_version": process.env.npm_package_version
     }),
     process.env.ENV == "prod" && strip(),
     resolve(),

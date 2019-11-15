@@ -2,7 +2,7 @@
 class RudderLibraryInfo {
   constructor() {
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.0";
+    this.version = "process.package_version";
   }
 }
 //Operating System information class
