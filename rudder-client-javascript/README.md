@@ -13,21 +13,11 @@ Rudder is a platform for collecting, storing and routing customer event data to 
 Released under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 
-# Rudder JS-SDK
+# Get Started
 
-This repo contains **builds** and **source-code** to integrate with your web-app applications. Use this to send analytics data from your applications to ever evolving destinations such as (HubSpot, Google Analytics and many more...)
+Place the below snippet in the <header> section of your html.
 
-
-# How to get started
-
-Under the **analytics** folder, navigate to **dist** where you can find the minified and unminified versions of the sdk. There are two builds for working with browser based applications **browser.js** and a minified **browser.min.js** which is hosted.
-
-Few sample usage of the sdk can be found under **tests** directory for vanilla html integrations.
-
-**Setup**
 ```
-// Script load start for working in browser env
-// Place the below snippet in the <header> section in your html.
 <script>
 	rudderanalytics = window.rudderanalytics = [];
 	
@@ -53,8 +43,6 @@ Few sample usage of the sdk can be found under **tests** directory for vanilla h
 
 <script  src="https://unpkg.com/rudder-analytics@1.0.5"></script>
 
-// The above is basically the browser.min.js being serviced by cdn, for localtesting, one can refer the js under dist folder
-// This marks the end of loading our script, one can wrap the above in iife if it helps
 ```
 
 The above snippet does the following:
@@ -66,7 +54,9 @@ The above snippet does the following:
    - "identify" : to associate userId with traits. 
    - "reset" : resets the userId and traits.
 3. Loads analytics object with your writekey. **You need to replace "YOUR_WRITE_KEY" with the Writekey in Rudder control plane and "DATA_PLANE_URI" with the uri of the server/data plane.**
-4. Make the page() call to track the pageview. It auto captures the properties(path, referrer, search, title, url.) If you want to override them, use the call mentioned in section Sample events.
+4. Make the page() call to track the pageview. It auto captures the properties(path, referrer, search, title, url). If you want to override them, use the call mentioned in section Sample events.
+
+Sample SDK usages can be found under **tests** directory for vanilla html integrations.
 
 # Sample events
 
@@ -96,11 +86,11 @@ rudderanalytics.identify(
 );
 ```
 In the above call, these are the following parameters:
-  1. a string - userid, if it is provided, it will override the anonymousId.
-  2. a dictionary, to provide user traits, like, address, email etc.
-  3. a dictionary that is optional but provides information like, context, integrations, anonymousId etc. You can provide user      traits in the context as well and it will set the traits value. 
-     -  **anonymousId** is a UUID that is generated to identify the user, if it is provided, it will override the generated           one.
-     -  Context is a dictionary of extra information that provides useful context about a datapoint, for example the user’s ip        address.
+  1. a string - userid, if provided, will override the anonymousId.
+  2. a dictionary, to provide user traits, like address, email etc.
+  3. a dictionary that is optional but provides information like context, integrations, anonymousId etc. You can provide user      traits in the context as well and it will set the traits value. 
+     -  **anonymousId** is a UUID that is generated to identify the user. If provided, it will override the generated           one.
+     -  Context is a dictionary of extra information that provides useful context about a datapoint, Eg. User’s ip        address.
   4. you can provide callback that will be executed after the successful execution of identify call.
 	
 ## ```page```
@@ -167,6 +157,6 @@ In the above call, these are the following parameters:
 
 One can start adding integrations like *Mixpanel*, *Facebook ads* and others for sending data through their *js* sdks.
 
-For building the sdk,
+For building the sdk
 - Look for run scripts in the *package.json* file for getting browser minified and non-minified specific builds.
 - For adding or removing integrations, modify the *imports* in *index.js* under **integrations** folder.
