@@ -13,7 +13,7 @@ export default {
   external: ["Xmlhttprequest", "universal-analytics"],
   output: [
     {
-      file: "dist/browser.js",
+      file: process.env.ENV == "prod" ? "dist/browser.min.js" : "dist/browser.js",
       format: "iife",
       name: "rudderanalytics"
     } /* ,
