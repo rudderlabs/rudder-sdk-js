@@ -1,4 +1,5 @@
 import { ScriptLoader } from "../ScriptLoader";
+import logger from "../../utils/logUtil";
 
 class HubSpot {
   constructor(hubId) {
@@ -10,11 +11,11 @@ class HubSpot {
     let hubspotJs = "http://js.hs-scripts.com/" + this.hubId + ".js";
     ScriptLoader("hubspot-integration", hubspotJs);
 
-    console.log("===in init HS===");
+    logger.debug("===in init HS===");
   }
 
   identify(rudderElement) {
-    console.log("in HubspotAnalyticsManager identify");
+    logger.debug("in HubspotAnalyticsManager identify");
 
     let traits = rudderElement.message.context.traits;
     let traitsValue = {};
@@ -48,7 +49,7 @@ class HubSpot {
       }
     }
 
-    console.log(traitsValue);
+    logger.debug(traitsValue);
 
     if (typeof window !== undefined) {
       let _hsq = (window._hsq = window._hsq || []);
@@ -57,7 +58,7 @@ class HubSpot {
   }
 
   track(rudderElement) {
-    console.log("in HubspotAnalyticsManager track");
+    logger.debug("in HubspotAnalyticsManager track");
     let _hsq = (window._hsq = window._hsq || []);
     let eventValue = {};
     eventValue["id"] = rudderElement.message.event;
@@ -65,16 +66,16 @@ class HubSpot {
       rudderElement.message.properties &&
       rudderElement.message.properties.revenue
     ) {
-      console.log("revenue: " + rudderElement.message.properties.revenue);
+      logger.debug("revenue: " + rudderElement.message.properties.revenue);
       eventValue["value"] = rudderElement.message.properties.revenue;
     }
     _hsq.push(["trackEvent", eventValue]);
   }
 
   page(rudderElement) {
-    console.log("in HubspotAnalyticsManager page");
+    logger.debug("in HubspotAnalyticsManager page");
     let _hsq = (window._hsq = window._hsq || []);
-    //console.log("path: " + rudderElement.message.properties.path);
+    //logger.debug("path: " + rudderElement.message.properties.path);
     //_hsq.push(["setPath", rudderElement.message.properties.path]);
     /* _hsq.push(["identify",{
         email: "testtrackpage@email.com"
@@ -89,7 +90,7 @@ class HubSpot {
   }
 
   isLoaded() {
-    console.log("in hubspot isLoaded");
+    logger.debug("in hubspot isLoaded");
     return !!(window._hsq && window._hsq.push !== Array.prototype.push);
   }
 }

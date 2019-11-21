@@ -1,4 +1,5 @@
 //import * as XMLHttpRequestNode from "Xmlhttprequest";
+import logger from "./logUtil"
 
 let XMLHttpRequestNode;
 if (!process.browser) {
@@ -84,7 +85,7 @@ function getJSON(url, wrappers, isLoaded, callback) {
   xhr.onload = function() {
     let status = xhr.status;
     if (status == 200) {
-      console.log("status 200");
+      logger.debug("status 200");
       callback(null, xhr.responseText, wrappers, isLoaded);
     } else {
       callback(status);
@@ -119,7 +120,7 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   xhr.onload = function() {
     let status = xhr.status;
     if (status == 200) {
-      console.log("status 200 " + "calling callback");
+      logger.debug("status 200 " + "calling callback");
       cb_(200, xhr.responseText);
     } else {
       handleError(new Error("request failed with status: " + xhr.status + " for url: " + url));
@@ -138,7 +139,9 @@ function handleError(error){
     }
   }
   if(errorMessage){
-    console.log("%c"+errorMessage, 'color: blue');
+    //console.log("%c"+errorMessage, 'color: blue');
+    //console.error(errorMessage);
+    logger.error(errorMessage)
   }
 
 }
@@ -175,7 +178,7 @@ function getCanonicalUrl() {
       return tag.getAttribute('href');
     }
   }
-} 
+}
 
 export {
   replacer,

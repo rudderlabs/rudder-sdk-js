@@ -14,6 +14,7 @@ import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
+import logger from "./utils/logUtil"
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
@@ -73,10 +74,10 @@ class Analytics {
    * @memberof Analytics
    */
   processResponse(status, response) {
-    console.log("===in process response=== " + status);
+    logger.debug("===in process response=== " + status);
     response = JSON.parse(response);
     response.source.destinations.forEach(function(destination, index) {
-      console.log(
+      logger.debug(
         "Destination " +
           index +
           " Enabled? " +
@@ -104,7 +105,7 @@ class Analytics {
    * @memberof Analytics
    */
   init(intgArray, configArray) {
-    console.log("supported intgs ", integrations);
+    logger.debug("supported intgs ", integrations);
     let i = 0;
     this.clientIntegrationObjects = [];
 
@@ -192,7 +193,7 @@ class Analytics {
         return resolve(this);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
-        console.log("====max wait over====");
+        logger.debug("====max wait over====");
         this.failedToBeLoadedIntegration.push(instance);
         return resolve(this);
       }
@@ -441,14 +442,14 @@ class Analytics {
       if (options) {
         this.processOptionsParam(rudderElement, options);
       }
-      console.log(JSON.stringify(rudderElement));
+      logger.debug(JSON.stringify(rudderElement));
 
       var integrations = rudderElement.message.integrations;
 
       //try to first send to all integrations, if list populated from BE
       if (this.clientIntegrationObjects) {
         this.clientIntegrationObjects.forEach(obj => {
-          console.log("called in normal flow");
+          logger.debug("called in normal flow");
           if (
             integrations[obj.name] ||
             (integrations[obj.name] == undefined && integrations["All"])
@@ -458,7 +459,7 @@ class Analytics {
         });
       }
       if (!this.clientIntegrationObjects) {
-        console.log("pushing in replay queue");
+        logger.debug("pushing in replay queue");
         //new event processing after analytics initialized  but integrations not fetched from BE
         this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
       }
@@ -466,7 +467,7 @@ class Analytics {
       // self analytics process
       enqueue.call(this, rudderElement, type);
 
-      console.log(type + " is called ");
+      logger.debug(type + " is called ");
       if (callback) {
         callback();
       }
@@ -530,9 +531,12 @@ class Analytics {
    * @param {*} writeKey
    * @memberof Analytics
    */
-  load(writeKey, serverUrl) {
-    console.log("inside load ");
+  load(writeKey, serverUrl, logLevel) {
+    logger.debug("inside load ");
     this.eventRepository.writeKey = writeKey;
+    if(logLevel){
+      logger.setLogLevel(logLevel);
+    }
     if (serverUrl) {
       this.eventRepository.url = serverUrl;
     }

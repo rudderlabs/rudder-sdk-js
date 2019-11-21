@@ -7,6 +7,7 @@ import { getCurrentTimeFormatted, handleError } from "./utils";
 import { replacer } from "./utils";
 import { RudderPayload } from "./RudderPayload";
 import Queue from "@segment/localstorage-retry";
+import logger from "./logUtil";
 //import * as XMLHttpRequestNode from "Xmlhttprequest";
 
 let XMLHttpRequestNode;
@@ -77,8 +78,8 @@ class EventRepository {
    */
   preaparePayloadAndFlush(repo) {
     //construct payload
-    console.log("==== in preaparePayloadAndFlush with state: " + repo.state);
-    console.log(repo.eventsBuffer);
+    logger.debug("==== in preaparePayloadAndFlush with state: " + repo.state);
+    logger.debug(repo.eventsBuffer);
     if (repo.eventsBuffer.length == 0 || repo.state === "PROCESSING") {
       return;
     }
@@ -102,8 +103,8 @@ class EventRepository {
       var xhr = new XMLHttpRequestNode.XMLHttpRequest();
     }
 
-    console.log("==== in flush sending to Rudder BE ====");
-    console.log(JSON.stringify(payload, replacer));
+    logger.debug("==== in flush sending to Rudder BE ====");
+    logger.debug(JSON.stringify(payload, replacer));
 
     xhr.open("POST", repo.url, true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -123,9 +124,9 @@ class EventRepository {
     //register call back to reset event buffer on successfull POST
     xhr.onreadystatechange = function() {
       if (xhr.readyState === 4 && xhr.status === 200) {
-        console.log("====== request processed successfully: " + xhr.status);
+        logger.debug("====== request processed successfully: " + xhr.status);
         repo.eventsBuffer = repo.eventsBuffer.slice(repo.batchSize);
-        console.log(repo.eventsBuffer.length);
+        logger.debug(repo.eventsBuffer.length);
       } else if (xhr.readyState === 4 && xhr.status !== 200) {
         handleError(
           new Error(
@@ -162,7 +163,7 @@ class EventRepository {
 
       xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
-          console.log("====== request processed successfully: " + xhr.status);
+          logger.debug("====== request processed successfully: " + xhr.status);
           queueFn(null, xhr.status);
         } else if (xhr.readyState === 4 && xhr.status !== 200) {
           handleError(

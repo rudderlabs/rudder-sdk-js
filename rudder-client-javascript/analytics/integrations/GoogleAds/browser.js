@@ -1,3 +1,4 @@
+import logger from "../../utils/logUtil";
 class GoogleAds {
   constructor(config) {
     //this.accountId = config.accountId;//AW-696901813
@@ -11,14 +12,14 @@ class GoogleAds {
   init() {
     let sourceUrl = "https://www.googletagmanager.com/gtag/js?id="+this.conversionId;
     (function (id, src, document) {
-      console.log("in script loader=== " + id);
+      logger.debug("in script loader=== " + id);
       let js = document.createElement("script");
       js.src = src;
       js.async = 1;
       js.type = "text/javascript";
       js.id = id;
       let e = document.getElementsByTagName("head")[0];
-      console.log("==script==", e);
+      logger.debug("==script==", e);
       e.appendChild(js);
     })('googleAds-integration', sourceUrl, document);
 
@@ -29,16 +30,16 @@ class GoogleAds {
     window.gtag('js', new Date());
     window.gtag('config', this.conversionId);
 
-    console.log("===in init Google Ads===");
+    logger.debug("===in init Google Ads===");
   }
 
   identify(rudderElement) {
-    console.log("method not supported");
+    logger.error("method not supported");
   }
 
   //https://developers.google.com/gtagjs/reference/event
   track(rudderElement) {
-    console.log("in GoogleAdsAnalyticsManager track");
+    logger.debug("in GoogleAdsAnalyticsManager track");
     let conversionData = this.getConversionData(this.clickEventConversions, rudderElement.message.event);
     if(conversionData['conversionLabel']){
       let conversionLabel = conversionData['conversionLabel']
@@ -57,7 +58,7 @@ class GoogleAds {
   }
 
   page(rudderElement) {
-    console.log("in GoogleAdsAnalyticsManager page");
+    logger.debug("in GoogleAdsAnalyticsManager page");
     let conversionData = this.getConversionData(this.pageLoadConversions, rudderElement.message.name);
     if(conversionData['conversionLabel']){
       let conversionLabel = conversionData['conversionLabel']

@@ -1,3 +1,4 @@
+import logger from "../logUtil"
 let defaults = {
   user_storage_key: "rl_user_id",
   user_storage_trait: "rl_trait"
@@ -18,7 +19,7 @@ class Storage {
   }
   setUserId(value) {
     if (typeof value != "string") {
-      console.log("userId should be string");
+      logger.error("userId should be string");
       return;
     }
     this.storage.setItem(defaults.user_storage_key, value);
@@ -26,7 +27,7 @@ class Storage {
   }
   setUserTraits(value) {
     if (typeof value != "object") {
-      console.log("traits should be object");
+      logger.error("traits should be object");
       return;
     }
     this.storage.setItem(defaults.user_storage_trait, JSON.stringify(value));
