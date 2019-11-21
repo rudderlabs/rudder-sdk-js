@@ -6,6 +6,7 @@ import {
 import { getCurrentTimeFormatted, handleError } from "./utils";
 import { replacer } from "./utils";
 import { RudderPayload } from "./RudderPayload";
+import Queue from "@segment/localstorage-retry";
 //import * as XMLHttpRequestNode from "Xmlhttprequest";
 
 let XMLHttpRequestNode;
@@ -17,6 +18,12 @@ let btoaNode;
 if (!process.browser) {
   btoaNode = require("btoa");
 }
+
+var queueOptions = {
+  maxRetryDelay: 360000, // max interval of 1hr. Added as a guard.
+  minRetryDelay: 1000, // first attempt (1s)
+  backoffFactor: 0
+};
 
 /**
  *
@@ -32,10 +39,33 @@ class EventRepository {
   constructor() {
     this.eventsBuffer = [];
     this.writeKey = "";
-    this.url = BASE_URL; //"http://localhost:9005"; //BASE_URL;
+    this.url = BASE_URL;
     this.state = "READY";
     this.batchSize = 0;
-    setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
+
+    // previous implementation
+    //setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
+
+    this.payloadQueue = new Queue("rudder", queueOptions, function(item, done) {
+      // apply sentAt at flush time and reset on each retry
+      item.sentAt = getCurrentTimeFormatted();
+      //send this item for processing, with a callback to enable queue to get the done status
+      eventRepository.processQueueElement(
+        item.url,
+        item.headers,
+        item.message,
+        10 * 1000,
+        function(err, res) {
+          if (err) {
+            return done(err);
+          }
+          done(null, res);
+        }
+      );
+    });
+
+    //start queue
+    this.payloadQueue.start();
   }
 
   /**
@@ -79,9 +109,15 @@ class EventRepository {
     xhr.setRequestHeader("Content-Type", "application/json");
 
     if (process.browser) {
-      xhr.setRequestHeader("Authorization", "Basic " + btoa(payload.writeKey + ":"));
+      xhr.setRequestHeader(
+        "Authorization",
+        "Basic " + btoa(payload.writeKey + ":")
+      );
     } else {
-      xhr.setRequestHeader("Authorization", "Basic " + btoaNode(payload.writeKey + ":"));
+      xhr.setRequestHeader(
+        "Authorization",
+        "Basic " + btoaNode(payload.writeKey + ":")
+      );
     }
 
     //register call back to reset event buffer on successfull POST
@@ -91,7 +127,14 @@ class EventRepository {
         repo.eventsBuffer = repo.eventsBuffer.slice(repo.batchSize);
         console.log(repo.eventsBuffer.length);
       } else if (xhr.readyState === 4 && xhr.status !== 200) {
-        handleError(new Error("request failed with status: " + xhr.status + " for url: " + repo.url));
+        handleError(
+          new Error(
+            "request failed with status: " +
+              xhr.status +
+              " for url: " +
+              repo.url
+          )
+        );
       }
       repo.state = "READY";
     };
@@ -100,16 +143,73 @@ class EventRepository {
   }
 
   /**
+   * the queue item proceesor
+   * @param {*} url to send requests to
+   * @param {*} headers
+   * @param {*} message
+   * @param {*} timeout
+   * @param {*} queueFn the function to call after request completion
+   */
+  processQueueElement(url, headers, message, timeout, queueFn) {
+    try {
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", url, true);
+      for (var k in headers) {
+        xhr.setRequestHeader(k, headers[k]);
+      }
+      xhr.timeout = timeout;
+      xhr.ontimeout = queueFn;
+
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          console.log("====== request processed successfully: " + xhr.status);
+          queueFn(null, xhr.status);
+        } else if (xhr.readyState === 4 && xhr.status !== 200) {
+          handleError(
+            new Error(
+              "request failed with status: " +
+                xhr.status +
+                xhr.statusText +
+                " for url: " +
+                url
+            )
+          );
+          queueFn(
+            new Error(
+              "request failed with status: " +
+                xhr.status +
+                xhr.statusText +
+                " for url: " +
+                url
+            )
+          );
+        }
+      };
+
+      xhr.send(JSON.stringify(message, replacer));
+    } catch (error) {
+      queueFn(error);
+    }
+  }
+
+  /**
    *
    *
    * @param {RudderElement} rudderElement
    * @memberof EventRepository
    */
-  enqueue(rudderElement) {
-    //so buffer is really kept to be in alignment with other SDKs
-    console.log(this.eventsBuffer);
-    this.eventsBuffer.push(rudderElement.getElementContent()); //Add to event buffer
-    console.log("==== Added to flush queue =====" + this.eventsBuffer.length);
+  enqueue(rudderElement, type) {
+    var headers = {
+      "Content-Type": "application/json",
+      Authorization: "Basic " + btoa(this.writeKey + ":")
+    };
+
+    // add items to the queue
+    this.payloadQueue.addItem({
+      url: this.url + "/" + type,
+      headers: headers,
+      message: rudderElement.getElementContent()
+    });
   }
 }
 let eventRepository = new EventRepository();

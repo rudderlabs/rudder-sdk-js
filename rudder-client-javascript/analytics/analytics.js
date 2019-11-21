@@ -1,11 +1,19 @@
-import { getJSONTrimmed, generateUUID, handleError, getDefaultPageProperties } from "./utils/utils";
-import { CONFIG_URL, ECommerceEvents, MAX_WAIT_FOR_INTEGRATION_LOAD, INTEGRATION_LOAD_CHECK_INTERVAL } from "./utils/constants";
+import {
+  getJSONTrimmed,
+  generateUUID,
+  handleError,
+  getDefaultPageProperties
+} from "./utils/utils";
+import {
+  CONFIG_URL,
+  ECommerceEvents,
+  MAX_WAIT_FOR_INTEGRATION_LOAD,
+  INTEGRATION_LOAD_CHECK_INTERVAL
+} from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
-import PromotionViewedEvent from "./utils/PromotionViewedEvent";
-import ECommercePromotion from "./utils/ECommercePromotion";
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
@@ -14,11 +22,11 @@ import ECommercePromotion from "./utils/ECommercePromotion";
  *
  * @param {RudderElement} rudderElement
  */
-function enqueue(rudderElement) {
+function enqueue(rudderElement, type) {
   if (!this.eventRepository) {
     this.eventRepository = EventRepository;
   }
-  this.eventRepository.enqueue(rudderElement);
+  this.eventRepository.enqueue(rudderElement, type);
 }
 
 /**
@@ -31,7 +39,7 @@ class Analytics {
    * @memberof Analytics
    */
   constructor() {
-    this.initialized = false
+    this.initialized = false;
     this.ready = false;
     this.eventsBuffer = [];
     this.clientIntegrations = [];
@@ -96,7 +104,6 @@ class Analytics {
    * @memberof Analytics
    */
   init(intgArray, configArray) {
-    
     console.log("supported intgs ", integrations);
     let i = 0;
     this.clientIntegrationObjects = [];
@@ -131,7 +138,7 @@ class Analytics {
         /* As we Hotjar tracks all events by itself, no need to send events explicitly. 
            So, not putting 'Hotjar' object in clientIntegrationObjects list. */
       }
-      if(intg === "GOOGLEADS"){
+      if (intg === "GOOGLEADS") {
         let googleAdsConfig = configArray[i];
         let intgInstance = new intgClass(googleAdsConfig);
         intgInstance.init();
@@ -139,11 +146,14 @@ class Analytics {
         this.isInitialized(intgInstance).then(this.replayEvents);
       }
     });
-    
   }
 
-  replayEvents(object){
-    if(object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length){
+  replayEvents(object) {
+    if (
+      object.successfullyLoadedIntegration.length +
+        object.failedToBeLoadedIntegration.length ==
+      object.clientIntegrations.length
+    ) {
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
       //send the queued events to the fetched integration
       object.toBeProcessedByIntegrationArray.forEach(event => {
@@ -175,24 +185,25 @@ class Analytics {
     });
   }
 
-
-  isInitialized(instance, time = 0){
-    return new Promise((resolve) => {
-      if(instance.isLoaded()){
+  isInitialized(instance, time = 0) {
+    return new Promise(resolve => {
+      if (instance.isLoaded()) {
         this.successfullyLoadedIntegration.push(instance);
         return resolve(this);
       }
-      if(time >= MAX_WAIT_FOR_INTEGRATION_LOAD){
-        console.log("====max wait over====")
+      if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
+        console.log("====max wait over====");
         this.failedToBeLoadedIntegration.push(instance);
         return resolve(this);
       }
 
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        return this.isInitialized(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL ).then(resolve);
+        return this.isInitialized(
+          instance,
+          time + INTEGRATION_LOAD_CHECK_INTERVAL
+        ).then(resolve);
       });
     });
-
   }
 
   /**
@@ -278,7 +289,9 @@ class Analytics {
       properties["category"] = category;
     }
     if (properties) {
-      rudderElement["message"]["properties"] = this.getPageProperties(properties)//properties;
+      rudderElement["message"]["properties"] = this.getPageProperties(
+        properties
+      ); //properties;
     }
 
     this.trackPage(rudderElement, options, callback);
@@ -341,7 +354,7 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  identifyUser(rudderElement, options,callback) {
+  identifyUser(rudderElement, options, callback) {
     if (rudderElement["message"]["userId"]) {
       this.userId = rudderElement["message"]["userId"];
       this.storage.setUserId(this.userId);
@@ -353,11 +366,19 @@ class Analytics {
       rudderElement["message"]["context"] &&
       rudderElement["message"]["context"]["traits"]
     ) {
-      this.userTraits = Object.assign({},rudderElement["message"]["context"]["traits"]);
+      this.userTraits = Object.assign(
+        {},
+        rudderElement["message"]["context"]["traits"]
+      );
       this.storage.setUserTraits(this.userTraits);
     }
 
-    this.processAndSendDataToDestinations("identify", rudderElement, options, callback);
+    this.processAndSendDataToDestinations(
+      "identify",
+      rudderElement,
+      options,
+      callback
+    );
   }
 
   /**
@@ -368,7 +389,12 @@ class Analytics {
    * @memberof Analytics
    */
   trackPage(rudderElement, options, callback) {
-    this.processAndSendDataToDestinations("page", rudderElement, options, callback);
+    this.processAndSendDataToDestinations(
+      "page",
+      rudderElement,
+      options,
+      callback
+    );
   }
 
   /**
@@ -379,7 +405,12 @@ class Analytics {
    * @memberof Analytics
    */
   trackEvent(rudderElement, options, callback) {
-    this.processAndSendDataToDestinations("track", rudderElement, options, callback);
+    this.processAndSendDataToDestinations(
+      "track",
+      rudderElement,
+      options,
+      callback
+    );
   }
 
   /**
@@ -391,13 +422,16 @@ class Analytics {
    * @memberof Analytics
    */
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
-    try{
+    try {
       if (!this.userId) {
         this.userId = generateUUID();
         this.storage.setUserId(this.userId);
       }
 
-      rudderElement["message"]["context"]["traits"] = Object.assign({}, this.userTraits);
+      rudderElement["message"]["context"]["traits"] = Object.assign(
+        {},
+        this.userTraits
+      );
       rudderElement["message"]["anonymousId"] = rudderElement["message"][
         "userId"
       ] = rudderElement["message"]["context"]["traits"][
@@ -430,13 +464,13 @@ class Analytics {
       }
 
       // self analytics process
-      enqueue.call(this, rudderElement);
+      enqueue.call(this, rudderElement, type);
 
       console.log(type + " is called ");
       if (callback) {
         callback();
       }
-    } catch (error){
+    } catch (error) {
       handleError(error);
     }
   }
@@ -448,33 +482,32 @@ class Analytics {
    * @param {*} options
    * @memberof Analytics
    */
-  processOptionsParam(rudderElement, options){
-    var toplevelElements = ['integrations', 'anonymousId', 'originalTimestamp']; 
-    for(let key in options){
-      if(toplevelElements.includes(key)){
-        rudderElement.message[key] = options[key]
+  processOptionsParam(rudderElement, options) {
+    var toplevelElements = ["integrations", "anonymousId", "originalTimestamp"];
+    for (let key in options) {
+      if (toplevelElements.includes(key)) {
+        rudderElement.message[key] = options[key];
         //special handle for ananymousId as transformation expects anonymousId in traits.
-        if(key === 'anonymousId'){
-          rudderElement.message.context.traits['anonymousId'] = options[key]
+        if (key === "anonymousId") {
+          rudderElement.message.context.traits["anonymousId"] = options[key];
         }
       } else {
-        if(key !== 'context')
-          rudderElement.message.context[key] = options[key]
-        else{
-          for(let k in options[key]){
-            rudderElement.message.context[k] = options[key][k]
+        if (key !== "context")
+          rudderElement.message.context[key] = options[key];
+        else {
+          for (let k in options[key]) {
+            rudderElement.message.context[k] = options[key][k];
           }
         }
       }
-
     }
   }
 
-  getPageProperties(properties){
+  getPageProperties(properties) {
     let defaultPageProperties = getDefaultPageProperties();
-    for(let key in defaultPageProperties){
-      if(properties[key] === undefined){
-        properties[key] = defaultPageProperties[key]
+    for (let key in defaultPageProperties) {
+      if (properties[key] === undefined) {
+        properties[key] = defaultPageProperties[key];
       }
     }
     return properties;
@@ -500,7 +533,7 @@ class Analytics {
   load(writeKey, serverUrl) {
     console.log("inside load ");
     this.eventRepository.writeKey = writeKey;
-    if(serverUrl){
+    if (serverUrl) {
       this.eventRepository.url = serverUrl;
     }
     getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
@@ -508,16 +541,21 @@ class Analytics {
 }
 
 if (process.browser) {
-  window.addEventListener('error', function(e) {
-    handleError(e);
-  }, true);
+  window.addEventListener(
+    "error",
+    function(e) {
+      handleError(e);
+    },
+    true
+  );
 }
 
 let instance = new Analytics();
 
 if (process.browser) {
   let eventsPushedAlready =
-    !!window.rudderanalytics && window.rudderanalytics.push == Array.prototype.push;
+    !!window.rudderanalytics &&
+    window.rudderanalytics.push == Array.prototype.push;
 
   let methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
   if (methodArg.length > 0 && methodArg[0] == "load") {
@@ -546,13 +584,6 @@ let page = instance.page.bind(instance);
 let track = instance.track.bind(instance);
 let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
-let initialized = instance.initialized = true
+let initialized = (instance.initialized = true);
 
-export {
-  initialized,
-  page,
-  track,
-  load,
-  identify,
-  reset
-};
+export { initialized, page, track, load, identify, reset };
