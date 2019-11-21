@@ -317,12 +317,17 @@ class Analytics {
    * @memberof Analytics
    */
   processIdentify(userId, traits, options, callback) {
+    if(userId !== this.userId){
+      this.reset();
+    }
     this.userId = userId;
     this.storage.setUserId(this.userId);
 
     let rudderElement = new RudderElementBuilder().setType("identify").build();
     if (traits) {
-      this.userTraits = JSON.parse(JSON.stringify(traits));
+      for(let key in traits){
+        this.userTraits[key] = traits[key]
+      }
       this.storage.setUserTraits(this.userTraits);
     }
 
