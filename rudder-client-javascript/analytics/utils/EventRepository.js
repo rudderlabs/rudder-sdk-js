@@ -49,7 +49,7 @@ class EventRepository {
 
     this.payloadQueue = new Queue("rudder", queueOptions, function(item, done) {
       // apply sentAt at flush time and reset on each retry
-      item.sentAt = getCurrentTimeFormatted();
+      item.message.sentAt = getCurrentTimeFormatted();
       //send this item for processing, with a callback to enable queue to get the done status
       eventRepository.processQueueElement(
         item.url,
@@ -205,11 +205,13 @@ class EventRepository {
       Authorization: "Basic " + btoa(this.writeKey + ":")
     };
 
+    var message = rudderElement.getElementContent();
+    message.originalTimestamp = getCurrentTimeFormatted();
     // add items to the queue
     this.payloadQueue.addItem({
       url: this.url + "/" + type,
       headers: headers,
-      message: rudderElement.getElementContent()
+      message: message
     });
   }
 }
