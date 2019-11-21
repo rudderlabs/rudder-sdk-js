@@ -531,12 +531,12 @@ class Analytics {
    * @param {*} writeKey
    * @memberof Analytics
    */
-  load(writeKey, serverUrl, logLevel) {
+  load(writeKey, serverUrl, options) {
+    if(options && options.logLevel){
+      logger.setLogLevel(options.logLevel);
+    }
     logger.debug("inside load ");
     this.eventRepository.writeKey = writeKey;
-    if(logLevel){
-      logger.setLogLevel(logLevel);
-    }
     if (serverUrl) {
       this.eventRepository.url = serverUrl;
     }

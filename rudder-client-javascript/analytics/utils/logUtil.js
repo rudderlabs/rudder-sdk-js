@@ -7,14 +7,14 @@ var LOG_LEVEL_INFO = 1,
 var logger = {
 
     setLogLevel : function(logLevel){
-        switch(logLevel.toLowerCase()){
-            case 'info':
+        switch(logLevel.toUpperCase()){
+            case 'INFO':
                 LOG_LEVEL = LOG_LEVEL_INFO;
                 return
-            case 'debug':
+            case 'DEBUG':
                 LOG_LEVEL = LOG_LEVEL_DEBUG;
                 return
-            case 'warn':
+            case 'WARN':
                 LOG_LEVEL = LOG_LEVEL_WARN;
                 return
         }       
@@ -39,7 +39,7 @@ var logger = {
     },
 
     error : function(){
-        if(LOG_LEVEL <= LOG_LEVEL_DEBUG){
+        if(LOG_LEVEL <= LOG_LEVEL_ERROR){
             console.error(...arguments);
         }
     }

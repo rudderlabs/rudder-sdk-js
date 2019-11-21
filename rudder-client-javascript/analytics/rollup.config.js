@@ -28,7 +28,6 @@ export default {
       "process.prod": process.env.ENV == "prod" ? true : false,
       "process.package_version": process.env.npm_package_version
     }),
-    process.env.ENV == "prod" && strip(),
     resolve({
       jsnext: true,
       browser: true
