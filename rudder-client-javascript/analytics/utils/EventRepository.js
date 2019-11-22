@@ -160,30 +160,34 @@ class EventRepository {
       }
       xhr.timeout = timeout;
       xhr.ontimeout = queueFn;
-
+      xhr.onerror = queueFn;
       xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-          logger.debug("====== request processed successfully: " + xhr.status);
-          queueFn(null, xhr.status);
-        } else if (xhr.readyState === 4 && xhr.status !== 200) {
-          handleError(
-            new Error(
-              "request failed with status: " +
-                xhr.status +
-                xhr.statusText +
-                " for url: " +
-                url
-            )
-          );
-          queueFn(
-            new Error(
-              "request failed with status: " +
-                xhr.status +
-                xhr.statusText +
-                " for url: " +
-                url
-            )
-          );
+        if (xhr.readyState === 4) {
+          if (xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600)) {
+            handleError(
+              new Error(
+                "request failed with status: " +
+                  xhr.status +
+                  xhr.statusText +
+                  " for url: " +
+                  url
+              )
+            );
+            queueFn(
+              new Error(
+                "request failed with status: " +
+                  xhr.status +
+                  xhr.statusText +
+                  " for url: " +
+                  url
+              )
+            );
+          } else {
+            logger.debug(
+              "====== request processed successfully: " + xhr.status
+            );
+            queueFn(null, xhr.status);
+          }
         }
       };
 
