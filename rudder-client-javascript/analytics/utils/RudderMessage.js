@@ -10,15 +10,14 @@ class RudderMessage {
     this.action = null;
     this.messageId = generateUUID().toString();
     this.originalTimestamp = new Date().toISOString();
-    this.anonymousId = generateUUID().toString();
+    this.anonymousId = null;
     this.userId = null;
     this.event = null;
     this.properties = {};
-
+    this.integrations = {};
     //By default, all integrations will be set as enabled from client
     //Decision to route to specific destinations will be taken at server end
-    this.integrations = { All: false, S3: true };
-    //this.integrations["All"] = true;
+    this.integrations["All"] = true;
   }
 
   //Get property

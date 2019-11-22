@@ -54,14 +54,17 @@ class Analytics {
     this.userId =
       this.storage.getUserId() != undefined
         ? this.storage.getUserId()
-        : generateUUID();
+        : "";
 
     this.userTraits =
       this.storage.getUserTraits() != undefined
         ? this.storage.getUserTraits()
         : {};
+    
+    this.anonymousId = this.storage.getAnonymousId() ? this.storage.getAnonymousId() : generateUUID();
 
     this.storage.setUserId(this.userId);
+    this.storage.setAnonymousId(this.anonymousId);
     this.eventRepository = EventRepository;
   }
 
@@ -331,7 +334,7 @@ class Analytics {
    * @memberof Analytics
    */
   processIdentify(userId, traits, options, callback) {
-    if(userId !== this.userId){
+    if( userId && this.userId && userId !== this.userId){
       this.reset();
     }
     this.userId = userId;
@@ -424,20 +427,23 @@ class Analytics {
    */
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
     try {
-      if (!this.userId) {
+      /* if (!this.userId) {
         this.userId = generateUUID();
         this.storage.setUserId(this.userId);
+      } */
+      if(!this.anonymousId){
+        console.log("anonymousId not present: " + this.storage.getAnonymousId());
+        this.anonymousId = generateUUID();
+        this.storage.setAnonymousId(this.anonymousId);
       }
 
       rudderElement["message"]["context"]["traits"] = Object.assign(
         {},
         this.userTraits
       );
-      rudderElement["message"]["anonymousId"] = rudderElement["message"][
-        "userId"
-      ] = rudderElement["message"]["context"]["traits"][
-        "anonymousId"
-      ] = this.userId;
+      console.log("anonymousId: ", this.anonymousId)
+      rudderElement["message"]["anonymousId"] = this.anonymousId;
+      rudderElement["message"]["userId"] = this.userId;
 
       if (options) {
         this.processOptionsParam(rudderElement, options);
@@ -489,9 +495,9 @@ class Analytics {
       if (toplevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
         //special handle for ananymousId as transformation expects anonymousId in traits.
-        if (key === "anonymousId") {
+        /* if (key === "anonymousId") {
           rudderElement.message.context.traits["anonymousId"] = options[key];
-        }
+        } */
       } else {
         if (key !== "context")
           rudderElement.message.context[key] = options[key];
@@ -522,6 +528,7 @@ class Analytics {
   reset() {
     this.userId = "";
     this.userTraits = {};
+    this.anonymousId = "";
     this.storage.clear();
   }
 
