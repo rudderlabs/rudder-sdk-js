@@ -1,3 +1,4 @@
+import logger from "../../utils/logUtil";
 class Hotjar {
   constructor(siteId) {
     this.siteId = siteId;//1549611
@@ -15,23 +16,23 @@ class Hotjar {
         a.appendChild(r);
     })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
 
-    console.log("===in init Hotjar===");
+    logger.debug("===in init Hotjar===");
   }
 
   identify(rudderElement) {
-    console.log("method not supported");
+    logger.error("method not supported");
   }
 
   track(rudderElement) {
-    console.log("method not supported");
+    logger.error("method not supported");
   }
 
   page(rudderElement) {
-    console.log("method not supported");
+    logger.error("method not supported");
   }
 
   isLoaded() {
-    console.log("method not supported");
+    logger.error("method not supported");
   }
 }
 

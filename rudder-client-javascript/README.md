@@ -41,7 +41,7 @@ Place the below snippet in the `<header>` section of your html.
 	rudderanalytics.page();
 </script>
 
-<script  src="https://unpkg.com/rudder-analytics@1.0.5"></script>
+<script  src="https://cdn.rudderlabs.com/rudder.min.js"></script>
 
 ```
 

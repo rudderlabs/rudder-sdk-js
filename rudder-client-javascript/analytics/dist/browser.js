@@ -57,6 +57,57 @@ var rudderanalytics = (function (exports) {
     throw new TypeError("Invalid attempt to spread non-iterable instance");
   }
 
+  var LOG_LEVEL_INFO = 1,
+      LOG_LEVEL_DEBUG = 2,
+      LOG_LEVEL_WARN = 3,
+      LOG_LEVEL_ERROR = 4,
+      LOG_LEVEL = LOG_LEVEL_ERROR;
+  var logger = {
+    setLogLevel: function setLogLevel(logLevel) {
+      switch (logLevel.toUpperCase()) {
+        case 'INFO':
+          LOG_LEVEL = LOG_LEVEL_INFO;
+          return;
+
+        case 'DEBUG':
+          LOG_LEVEL = LOG_LEVEL_DEBUG;
+          return;
+
+        case 'WARN':
+          LOG_LEVEL = LOG_LEVEL_WARN;
+          return;
+      }
+    },
+    info: function info() {
+      if (LOG_LEVEL <= LOG_LEVEL_INFO) {
+        var _console;
+
+        (_console = console).info.apply(_console, arguments);
+      }
+    },
+    debug: function debug() {
+      if (LOG_LEVEL <= LOG_LEVEL_DEBUG) {
+        var _console2;
+
+        (_console2 = console).debug.apply(_console2, arguments);
+      }
+    },
+    warn: function warn() {
+      if (LOG_LEVEL <= LOG_LEVEL_WARN) {
+        var _console3;
+
+        (_console3 = console).warn.apply(_console3, arguments);
+      }
+    },
+    error: function error() {
+      if (LOG_LEVEL <= LOG_LEVEL_ERROR) {
+        var _console4;
+
+        (_console4 = console).error.apply(_console4, arguments);
+      }
+    }
+  };
+
   //import * as XMLHttpRequestNode from "Xmlhttprequest";
   /**
    *
@@ -144,7 +195,7 @@ var rudderanalytics = (function (exports) {
       var status = xhr.status;
 
       if (status == 200) {
-        console.log("status 200 " + "calling callback");
+        logger.debug("status 200 " + "calling callback");
         cb_(200, xhr.responseText);
       } else {
         handleError(new Error("request failed with status: " + xhr.status + " for url: " + url));
@@ -165,7 +216,9 @@ var rudderanalytics = (function (exports) {
     }
 
     if (errorMessage) {
-      console.log("%c" + errorMessage, 'color: blue');
+      //console.log("%c"+errorMessage, 'color: blue');
+      //console.error(errorMessage);
+      logger.error(errorMessage);
     }
   }
 
@@ -243,7 +296,6 @@ var rudderanalytics = (function (exports) {
   var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
 
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
-  var FLUSH_INTERVAL_DEFAULT = 5000;
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -257,17 +309,15 @@ var rudderanalytics = (function (exports) {
   }; */
 
   function ScriptLoader(id, src) {
-    console.log("in script loader=== " + id); //if (document.getElementById(id)) {
-    //console.log("id not found==");
-
+    logger.debug("in script loader=== " + id);
     var js = document.createElement("script");
     js.src = src;
     js.type = "text/javascript";
     js.id = id;
     var e = document.getElementsByTagName("script")[0];
-    console.log("==script==", e);
-    e.parentNode.insertBefore(js, e); //}
-  } //('hubspot-integration', '//HubSpot.js');
+    logger.debug("==script==", e);
+    e.parentNode.insertBefore(js, e);
+  }
 
   var HubSpot =
   /*#__PURE__*/
@@ -285,12 +335,12 @@ var rudderanalytics = (function (exports) {
       value: function init() {
         var hubspotJs = "http://js.hs-scripts.com/" + this.hubId + ".js";
         ScriptLoader("hubspot-integration", hubspotJs);
-        console.log("===in init HS===");
+        logger.debug("===in init HS===");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        console.log("in HubspotAnalyticsManager identify");
+        logger.debug("in HubspotAnalyticsManager identify");
         var traits = rudderElement.message.context.traits;
         var traitsValue = {};
 
@@ -327,7 +377,7 @@ var rudderanalytics = (function (exports) {
           }
         }
 
-        console.log(traitsValue);
+        logger.debug(traitsValue);
 
         if ((typeof window === "undefined" ? "undefined" : _typeof(window)) !== undefined) {
           var _hsq = window._hsq = window._hsq || [];
@@ -338,7 +388,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "track",
       value: function track(rudderElement) {
-        console.log("in HubspotAnalyticsManager track");
+        logger.debug("in HubspotAnalyticsManager track");
 
         var _hsq = window._hsq = window._hsq || [];
 
@@ -346,7 +396,7 @@ var rudderanalytics = (function (exports) {
         eventValue["id"] = rudderElement.message.event;
 
         if (rudderElement.message.properties && rudderElement.message.properties.revenue) {
-          console.log("revenue: " + rudderElement.message.properties.revenue);
+          logger.debug("revenue: " + rudderElement.message.properties.revenue);
           eventValue["value"] = rudderElement.message.properties.revenue;
         }
 
@@ -355,9 +405,9 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "page",
       value: function page(rudderElement) {
-        console.log("in HubspotAnalyticsManager page");
+        logger.debug("in HubspotAnalyticsManager page");
 
-        var _hsq = window._hsq = window._hsq || []; //console.log("path: " + rudderElement.message.properties.path);
+        var _hsq = window._hsq = window._hsq || []; //logger.debug("path: " + rudderElement.message.properties.path);
         //_hsq.push(["setPath", rudderElement.message.properties.path]);
 
         /* _hsq.push(["identify",{
@@ -374,7 +424,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "isLoaded",
       value: function isLoaded() {
-        console.log("in hubspot isLoaded");
+        logger.debug("in hubspot isLoaded");
         return !!(window._hsq && window._hsq.push !== Array.prototype.push);
       }
     }]);
@@ -412,13 +462,13 @@ var rudderanalytics = (function (exports) {
 
         ga('create', this.trackingID, 'auto');
         ga('send', 'pageview');
-        console.log("===in init GA===");
+        logger.debug("===in init GA===");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
         ga('set', 'userId', rudderElement.message.anonymous_id);
-        console.log("in GoogleAnalyticsManager identify");
+        logger.debug("in GoogleAnalyticsManager identify");
       }
     }, {
       key: "track",
@@ -440,12 +490,12 @@ var rudderanalytics = (function (exports) {
           eventValue: eventValue
         };
         ga('send', 'event', payLoad);
-        console.log("in GoogleAnalyticsManager track");
+        logger.debug("in GoogleAnalyticsManager track");
       }
     }, {
       key: "page",
       value: function page(rudderElement) {
-        console.log("in GoogleAnalyticsManager page");
+        logger.debug("in GoogleAnalyticsManager page");
         var path = rudderElement.properties && rudderElement.properties.path ? rudderElement.properties.path : undefined;
 
         if (path) {
@@ -457,7 +507,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "isLoaded",
       value: function isLoaded() {
-        console.log("in GA isLoaded");
+        logger.debug("in GA isLoaded");
         return !!window.gaplugins;
       }
     }]);
@@ -499,27 +549,27 @@ var rudderanalytics = (function (exports) {
           a.appendChild(r);
         })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
 
-        console.log("===in init Hotjar===");
+        logger.debug("===in init Hotjar===");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        console.log("method not supported");
+        logger.error("method not supported");
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
-        console.log("method not supported");
+        logger.error("method not supported");
       }
     }, {
       key: "page",
       value: function page(rudderElement) {
-        console.log("method not supported");
+        logger.error("method not supported");
       }
     }, {
       key: "isLoaded",
       value: function isLoaded() {
-        console.log("method not supported");
+        logger.error("method not supported");
       }
     }]);
 
@@ -547,14 +597,14 @@ var rudderanalytics = (function (exports) {
         var sourceUrl = "https://www.googletagmanager.com/gtag/js?id=" + this.conversionId;
 
         (function (id, src, document) {
-          console.log("in script loader=== " + id);
+          logger.debug("in script loader=== " + id);
           var js = document.createElement("script");
           js.src = src;
           js.async = 1;
           js.type = "text/javascript";
           js.id = id;
           var e = document.getElementsByTagName("head")[0];
-          console.log("==script==", e);
+          logger.debug("==script==", e);
           e.appendChild(js);
         })('googleAds-integration', sourceUrl, document);
 
@@ -566,18 +616,18 @@ var rudderanalytics = (function (exports) {
 
         window.gtag('js', new Date());
         window.gtag('config', this.conversionId);
-        console.log("===in init Google Ads===");
+        logger.debug("===in init Google Ads===");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        console.log("method not supported");
+        logger.error("method not supported");
       } //https://developers.google.com/gtagjs/reference/event
 
     }, {
       key: "track",
       value: function track(rudderElement) {
-        console.log("in GoogleAdsAnalyticsManager track");
+        logger.debug("in GoogleAdsAnalyticsManager track");
         var conversionData = this.getConversionData(this.clickEventConversions, rudderElement.message.event);
 
         if (conversionData['conversionLabel']) {
@@ -599,7 +649,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "page",
       value: function page(rudderElement) {
-        console.log("in GoogleAdsAnalyticsManager page");
+        logger.debug("in GoogleAdsAnalyticsManager page");
         var conversionData = this.getConversionData(this.pageLoadConversions, rudderElement.message.name);
 
         if (conversionData['conversionLabel']) {
@@ -654,7 +704,7 @@ var rudderanalytics = (function (exports) {
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.4";
+    this.version = "1.0.5";
   };
 
   //Library information class
@@ -662,7 +712,7 @@ var rudderanalytics = (function (exports) {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.4";
+    this.version = "1.0.5";
   }; //Operating System information class
 
 
@@ -726,13 +776,13 @@ var rudderanalytics = (function (exports) {
       this.action = null;
       this.messageId = generateUUID().toString();
       this.originalTimestamp = new Date().toISOString();
-      this.anonymousId = generateUUID().toString();
+      this.anonymousId = null;
       this.userId = null;
       this.event = null;
-      this.properties = {}; //By default, all integrations will be set as enabled from client
+      this.properties = {};
+      this.integrations = {}; //By default, all integrations will be set as enabled from client
       //Decision to route to specific destinations will be taken at server end
 
-      this.integrations = {};
       this.integrations["All"] = true;
     } //Get property
 
@@ -951,7 +1001,8 @@ var rudderanalytics = (function (exports) {
 
   var defaults = {
     user_storage_key: "rl_user_id",
-    user_storage_trait: "rl_trait"
+    user_storage_trait: "rl_trait",
+    user_storage_anonymousId: "rl_anonymous_id"
   };
 
   var Storage =
@@ -982,7 +1033,7 @@ var rudderanalytics = (function (exports) {
       key: "setUserId",
       value: function setUserId(value) {
         if (typeof value != "string") {
-          console.log("userId should be string");
+          logger.error("userId should be string");
           return;
         }
 
@@ -993,11 +1044,22 @@ var rudderanalytics = (function (exports) {
       key: "setUserTraits",
       value: function setUserTraits(value) {
         if (_typeof(value) != "object") {
-          console.log("traits should be object");
+          logger.error("traits should be object");
           return;
         }
 
         this.storage.setItem(defaults.user_storage_trait, JSON.stringify(value));
+        return;
+      }
+    }, {
+      key: "setAnonymousId",
+      value: function setAnonymousId(value) {
+        if (typeof value != "string") {
+          logger.error("anonymousId should be string");
+          return;
+        }
+
+        this.storage.setItem(defaults.user_storage_anonymousId, value);
         return;
       }
     }, {
@@ -1017,6 +1079,11 @@ var rudderanalytics = (function (exports) {
         return JSON.parse(this.storage.getItem(defaults.user_storage_trait));
       }
     }, {
+      key: "getAnonymousId",
+      value: function getAnonymousId() {
+        return this.storage.getItem(defaults.user_storage_anonymousId);
+      }
+    }, {
       key: "removeItem",
       value: function removeItem(key) {
         this.storage.removeItem(key);
@@ -1026,6 +1093,7 @@ var rudderanalytics = (function (exports) {
       value: function clear() {
         this.storage.removeItem(defaults.user_storage_key);
         this.storage.removeItem(defaults.user_storage_trait);
+        this.storage.removeItem(defaults.user_storage_anonymousId);
       }
     }]);
 
@@ -1042,13 +1110,2359 @@ var rudderanalytics = (function (exports) {
     this.writeKey = null;
   };
 
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
+
+  var rngBrowser = createCommonjsModule(function (module) {
+  // Unique ID creation requires a high quality random # generator.  In the
+  // browser this is a little complicated due to unknown quality of Math.random()
+  // and inconsistent support for the `crypto` API.  We do the best we can via
+  // feature-detection
+
+  // getRandomValues needs to be invoked in a context where "this" is a Crypto
+  // implementation. Also, find the complete implementation of crypto on IE11.
+  var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)) ||
+                        (typeof(msCrypto) != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto));
+
+  if (getRandomValues) {
+    // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
+    var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+
+    module.exports = function whatwgRNG() {
+      getRandomValues(rnds8);
+      return rnds8;
+    };
+  } else {
+    // Math.random()-based (RNG)
+    //
+    // If all else fails, use Math.random().  It's fast, but is of unspecified
+    // quality.
+    var rnds = new Array(16);
+
+    module.exports = function mathRNG() {
+      for (var i = 0, r; i < 16; i++) {
+        if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+        rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+      }
+
+      return rnds;
+    };
+  }
+  });
+
+  /**
+   * Convert array of 16 byte values to UUID string format of the form:
+   * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+   */
+  var byteToHex = [];
+  for (var i = 0; i < 256; ++i) {
+    byteToHex[i] = (i + 0x100).toString(16).substr(1);
+  }
+
+  function bytesToUuid(buf, offset) {
+    var i = offset || 0;
+    var bth = byteToHex;
+    // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+    return ([bth[buf[i++]], bth[buf[i++]], 
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]],
+  	bth[buf[i++]], bth[buf[i++]],
+  	bth[buf[i++]], bth[buf[i++]]]).join('');
+  }
+
+  var bytesToUuid_1 = bytesToUuid;
+
+  // **`v1()` - Generate time-based UUID**
+  //
+  // Inspired by https://github.com/LiosK/UUID.js
+  // and http://docs.python.org/library/uuid.html
+
+  var _nodeId;
+  var _clockseq;
+
+  // Previous uuid creation time
+  var _lastMSecs = 0;
+  var _lastNSecs = 0;
+
+  // See https://github.com/broofa/node-uuid for API details
+  function v1(options, buf, offset) {
+    var i = buf && offset || 0;
+    var b = buf || [];
+
+    options = options || {};
+    var node = options.node || _nodeId;
+    var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
+
+    // node and clockseq need to be initialized to random values if they're not
+    // specified.  We do this lazily to minimize issues related to insufficient
+    // system entropy.  See #189
+    if (node == null || clockseq == null) {
+      var seedBytes = rngBrowser();
+      if (node == null) {
+        // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+        node = _nodeId = [
+          seedBytes[0] | 0x01,
+          seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]
+        ];
+      }
+      if (clockseq == null) {
+        // Per 4.2.2, randomize (14 bit) clockseq
+        clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
+      }
+    }
+
+    // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+    // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+    // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+    // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+    var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
+
+    // Per 4.2.1.2, use count of uuid's generated during the current clock
+    // cycle to simulate higher resolution clock
+    var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
+
+    // Time since last uuid creation (in msecs)
+    var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
+
+    // Per 4.2.1.2, Bump clockseq on clock regression
+    if (dt < 0 && options.clockseq === undefined) {
+      clockseq = clockseq + 1 & 0x3fff;
+    }
+
+    // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+    // time interval
+    if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
+      nsecs = 0;
+    }
+
+    // Per 4.2.1.2 Throw error if too many uuids are requested
+    if (nsecs >= 10000) {
+      throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
+    }
+
+    _lastMSecs = msecs;
+    _lastNSecs = nsecs;
+    _clockseq = clockseq;
+
+    // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+    msecs += 12219292800000;
+
+    // `time_low`
+    var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+    b[i++] = tl >>> 24 & 0xff;
+    b[i++] = tl >>> 16 & 0xff;
+    b[i++] = tl >>> 8 & 0xff;
+    b[i++] = tl & 0xff;
+
+    // `time_mid`
+    var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
+    b[i++] = tmh >>> 8 & 0xff;
+    b[i++] = tmh & 0xff;
+
+    // `time_high_and_version`
+    b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+    b[i++] = tmh >>> 16 & 0xff;
+
+    // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+    b[i++] = clockseq >>> 8 | 0x80;
+
+    // `clock_seq_low`
+    b[i++] = clockseq & 0xff;
+
+    // `node`
+    for (var n = 0; n < 6; ++n) {
+      b[i + n] = node[n];
+    }
+
+    return buf ? buf : bytesToUuid_1(b);
+  }
+
+  var v1_1 = v1;
+
+  function v4(options, buf, offset) {
+    var i = buf && offset || 0;
+
+    if (typeof(options) == 'string') {
+      buf = options === 'binary' ? new Array(16) : null;
+      options = null;
+    }
+    options = options || {};
+
+    var rnds = options.random || (options.rng || rngBrowser)();
+
+    // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+    rnds[6] = (rnds[6] & 0x0f) | 0x40;
+    rnds[8] = (rnds[8] & 0x3f) | 0x80;
+
+    // Copy bytes to buffer, if provided
+    if (buf) {
+      for (var ii = 0; ii < 16; ++ii) {
+        buf[i + ii] = rnds[ii];
+      }
+    }
+
+    return buf || bytesToUuid_1(rnds);
+  }
+
+  var v4_1 = v4;
+
+  var uuid = v4_1;
+  uuid.v1 = v1_1;
+  uuid.v4 = v4_1;
+
+  var uuid_1 = uuid;
+
+  var hop = Object.prototype.hasOwnProperty;
+  var strCharAt = String.prototype.charAt;
+  var toStr = Object.prototype.toString;
+
+  /**
+   * Returns the character at a given index.
+   *
+   * @param {string} str
+   * @param {number} index
+   * @return {string|undefined}
+   */
+  // TODO: Move to a library
+  var charAt = function(str, index) {
+    return strCharAt.call(str, index);
+  };
+
+  /**
+   * hasOwnProperty, wrapped as a function.
+   *
+   * @name has
+   * @api private
+   * @param {*} context
+   * @param {string|number} prop
+   * @return {boolean}
+   */
+
+  // TODO: Move to a library
+  var has = function has(context, prop) {
+    return hop.call(context, prop);
+  };
+
+  /**
+   * Returns true if a value is a string, otherwise false.
+   *
+   * @name isString
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+
+  // TODO: Move to a library
+  var isString = function isString(val) {
+    return toStr.call(val) === '[object String]';
+  };
+
+  /**
+   * Returns true if a value is array-like, otherwise false. Array-like means a
+   * value is not null, undefined, or a function, and has a numeric `length`
+   * property.
+   *
+   * @name isArrayLike
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+  // TODO: Move to a library
+  var isArrayLike = function isArrayLike(val) {
+    return val != null && (typeof val !== 'function' && typeof val.length === 'number');
+  };
+
+
+  /**
+   * indexKeys
+   *
+   * @name indexKeys
+   * @api private
+   * @param {} target
+   * @param {Function} pred
+   * @return {Array}
+   */
+  var indexKeys = function indexKeys(target, pred) {
+    pred = pred || has;
+
+    var results = [];
+
+    for (var i = 0, len = target.length; i < len; i += 1) {
+      if (pred(target, i)) {
+        results.push(String(i));
+      }
+    }
+
+    return results;
+  };
+
+  /**
+   * Returns an array of an object's owned keys.
+   *
+   * @name objectKeys
+   * @api private
+   * @param {*} target
+   * @param {Function} pred Predicate function used to include/exclude values from
+   * the resulting array.
+   * @return {Array}
+   */
+  var objectKeys = function objectKeys(target, pred) {
+    pred = pred || has;
+
+    var results = [];
+
+    for (var key in target) {
+      if (pred(target, key)) {
+        results.push(String(key));
+      }
+    }
+
+    return results;
+  };
+
+  /**
+   * Creates an array composed of all keys on the input object. Ignores any non-enumerable properties.
+   * More permissive than the native `Object.keys` function (non-objects will not throw errors).
+   *
+   * @name keys
+   * @api public
+   * @category Object
+   * @param {Object} source The value to retrieve keys from.
+   * @return {Array} An array containing all the input `source`'s keys.
+   * @example
+   * keys({ likes: 'avocado', hates: 'pineapple' });
+   * //=> ['likes', 'pineapple'];
+   *
+   * // Ignores non-enumerable properties
+   * var hasHiddenKey = { name: 'Tim' };
+   * Object.defineProperty(hasHiddenKey, 'hidden', {
+   *   value: 'i am not enumerable!',
+   *   enumerable: false
+   * })
+   * keys(hasHiddenKey);
+   * //=> ['name'];
+   *
+   * // Works on arrays
+   * keys(['a', 'b', 'c']);
+   * //=> ['0', '1', '2']
+   *
+   * // Skips unpopulated indices in sparse arrays
+   * var arr = [1];
+   * arr[4] = 4;
+   * keys(arr);
+   * //=> ['0', '4']
+   */
+  var keys = function keys(source) {
+    if (source == null) {
+      return [];
+    }
+
+    // IE6-8 compatibility (string)
+    if (isString(source)) {
+      return indexKeys(source, charAt);
+    }
+
+    // IE6-8 compatibility (arguments)
+    if (isArrayLike(source)) {
+      return indexKeys(source, has);
+    }
+
+    return objectKeys(source);
+  };
+
+  /*
+   * Exports.
+   */
+
+  var keys_1 = keys;
+
+  var uuid$1 = uuid_1.v4;
+
+  var inMemoryStore = {
+    _data: {},
+    length: 0,
+    setItem: function(key, value) {
+      this._data[key] = value;
+      this.length = keys_1(this._data).length;
+      return value;
+    },
+    getItem: function(key) {
+      if (key in this._data) {
+        return this._data[key];
+      }
+      return null;
+    },
+    removeItem: function(key) {
+      if (key in this._data) {
+        delete this._data[key];
+      }
+      this.length = keys_1(this._data).length;
+      return null;
+    },
+    clear: function() {
+      this._data = {};
+      this.length = 0;
+    },
+    key: function(index) {
+      return keys_1(this._data)[index];
+    }
+  };
+
+  function isSupportedNatively() {
+    try {
+      if (!window.localStorage) return false;
+      var key = uuid$1();
+      window.localStorage.setItem(key, 'test_value');
+      var value = window.localStorage.getItem(key);
+      window.localStorage.removeItem(key);
+
+      // handle localStorage silently failing
+      return value === 'test_value';
+    } catch (e) {
+      // Can throw if localStorage is disabled
+      return false;
+    }
+  }
+
+  function pickStorage() {
+    if (isSupportedNatively()) {
+      return window.localStorage;
+    }
+    // fall back to in-memory
+    return inMemoryStore;
+  }
+
+  // Return a shared instance
+  var defaultEngine = pickStorage();
+  // Expose the in-memory store explicitly for testing
+  var inMemoryEngine = inMemoryStore;
+
+  var engine = {
+  	defaultEngine: defaultEngine,
+  	inMemoryEngine: inMemoryEngine
+  };
+
+  /*
+   * Module dependencies.
+   */
+
+
+
+  var objToString = Object.prototype.toString;
+
+  /**
+   * Tests if a value is a number.
+   *
+   * @name isNumber
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean} Returns `true` if `val` is a number, otherwise `false`.
+   */
+  // TODO: Move to library
+  var isNumber = function isNumber(val) {
+    var type = typeof val;
+    return type === 'number' || (type === 'object' && objToString.call(val) === '[object Number]');
+  };
+
+  /**
+   * Tests if a value is an array.
+   *
+   * @name isArray
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean} Returns `true` if the value is an array, otherwise `false`.
+   */
+  // TODO: Move to library
+  var isArray = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
+    return objToString.call(val) === '[object Array]';
+  };
+
+  /**
+   * Tests if a value is array-like. Array-like means the value is not a function and has a numeric
+   * `.length` property.
+   *
+   * @name isArrayLike
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+  // TODO: Move to library
+  var isArrayLike$1 = function isArrayLike(val) {
+    return val != null && (isArray(val) || (val !== 'function' && isNumber(val.length)));
+  };
+
+  /**
+   * Internal implementation of `each`. Works on arrays and array-like data structures.
+   *
+   * @name arrayEach
+   * @api private
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Array} array The array(-like) structure to iterate over.
+   * @return {undefined}
+   */
+  var arrayEach = function arrayEach(iterator, array) {
+    for (var i = 0; i < array.length; i += 1) {
+      // Break iteration early if `iterator` returns `false`
+      if (iterator(array[i], i, array) === false) {
+        break;
+      }
+    }
+  };
+
+  /**
+   * Internal implementation of `each`. Works on objects.
+   *
+   * @name baseEach
+   * @api private
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Object} object The object to iterate over.
+   * @return {undefined}
+   */
+  var baseEach = function baseEach(iterator, object) {
+    var ks = keys_1(object);
+
+    for (var i = 0; i < ks.length; i += 1) {
+      // Break iteration early if `iterator` returns `false`
+      if (iterator(object[ks[i]], ks[i], object) === false) {
+        break;
+      }
+    }
+  };
+
+  /**
+   * Iterate over an input collection, invoking an `iterator` function for each element in the
+   * collection and passing to it three arguments: `(value, index, collection)`. The `iterator`
+   * function can end iteration early by returning `false`.
+   *
+   * @name each
+   * @api public
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Array|Object|string} collection The collection to iterate over.
+   * @return {undefined} Because `each` is run only for side effects, always returns `undefined`.
+   * @example
+   * var log = console.log.bind(console);
+   *
+   * each(log, ['a', 'b', 'c']);
+   * //-> 'a', 0, ['a', 'b', 'c']
+   * //-> 'b', 1, ['a', 'b', 'c']
+   * //-> 'c', 2, ['a', 'b', 'c']
+   * //=> undefined
+   *
+   * each(log, 'tim');
+   * //-> 't', 2, 'tim'
+   * //-> 'i', 1, 'tim'
+   * //-> 'm', 0, 'tim'
+   * //=> undefined
+   *
+   * // Note: Iteration order not guaranteed across environments
+   * each(log, { name: 'tim', occupation: 'enchanter' });
+   * //-> 'tim', 'name', { name: 'tim', occupation: 'enchanter' }
+   * //-> 'enchanter', 'occupation', { name: 'tim', occupation: 'enchanter' }
+   * //=> undefined
+   */
+  var each = function each(iterator, collection) {
+    return (isArrayLike$1(collection) ? arrayEach : baseEach).call(this, iterator, collection);
+  };
+
+  /*
+   * Exports.
+   */
+
+  var each_1 = each;
+
+  var json3 = createCommonjsModule(function (module, exports) {
+  (function () {
+    // Detect the `define` function exposed by asynchronous module loaders. The
+    // strict `define` check is necessary for compatibility with `r.js`.
+    var isLoader = typeof undefined === "function" && undefined.amd;
+
+    // A set of types used to distinguish objects from primitives.
+    var objectTypes = {
+      "function": true,
+      "object": true
+    };
+
+    // Detect the `exports` object exposed by CommonJS implementations.
+    var freeExports =  exports && !exports.nodeType && exports;
+
+    // Use the `global` object exposed by Node (including Browserify via
+    // `insert-module-globals`), Narwhal, and Ringo as the default context,
+    // and the `window` object in browsers. Rhino exports a `global` function
+    // instead.
+    var root = objectTypes[typeof window] && window || this,
+        freeGlobal = freeExports && objectTypes['object'] && module && !module.nodeType && typeof commonjsGlobal == "object" && commonjsGlobal;
+
+    if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
+      root = freeGlobal;
+    }
+
+    // Public: Initializes JSON 3 using the given `context` object, attaching the
+    // `stringify` and `parse` functions to the specified `exports` object.
+    function runInContext(context, exports) {
+      context || (context = root.Object());
+      exports || (exports = root.Object());
+
+      // Native constructor aliases.
+      var Number = context.Number || root.Number,
+          String = context.String || root.String,
+          Object = context.Object || root.Object,
+          Date = context.Date || root.Date,
+          SyntaxError = context.SyntaxError || root.SyntaxError,
+          TypeError = context.TypeError || root.TypeError,
+          Math = context.Math || root.Math,
+          nativeJSON = context.JSON || root.JSON;
+
+      // Delegate to the native `stringify` and `parse` implementations.
+      if (typeof nativeJSON == "object" && nativeJSON) {
+        exports.stringify = nativeJSON.stringify;
+        exports.parse = nativeJSON.parse;
+      }
+
+      // Convenience aliases.
+      var objectProto = Object.prototype,
+          getClass = objectProto.toString,
+          isProperty = objectProto.hasOwnProperty,
+          undefined$1;
+
+      // Internal: Contains `try...catch` logic used by other functions.
+      // This prevents other functions from being deoptimized.
+      function attempt(func, errorFunc) {
+        try {
+          func();
+        } catch (exception) {
+          if (errorFunc) {
+            errorFunc();
+          }
+        }
+      }
+
+      // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
+      var isExtended = new Date(-3509827334573292);
+      attempt(function () {
+        // The `getUTCFullYear`, `Month`, and `Date` methods return nonsensical
+        // results for certain dates in Opera >= 10.53.
+        isExtended = isExtended.getUTCFullYear() == -109252 && isExtended.getUTCMonth() === 0 && isExtended.getUTCDate() === 1 &&
+          isExtended.getUTCHours() == 10 && isExtended.getUTCMinutes() == 37 && isExtended.getUTCSeconds() == 6 && isExtended.getUTCMilliseconds() == 708;
+      });
+
+      // Internal: Determines whether the native `JSON.stringify` and `parse`
+      // implementations are spec-compliant. Based on work by Ken Snyder.
+      function has(name) {
+        if (has[name] != null) {
+          // Return cached feature test result.
+          return has[name];
+        }
+        var isSupported;
+        if (name == "bug-string-char-index") {
+          // IE <= 7 doesn't support accessing string characters using square
+          // bracket notation. IE 8 only supports this for primitives.
+          isSupported = "a"[0] != "a";
+        } else if (name == "json") {
+          // Indicates whether both `JSON.stringify` and `JSON.parse` are
+          // supported.
+          isSupported = has("json-stringify") && has("date-serialization") && has("json-parse");
+        } else if (name == "date-serialization") {
+          // Indicates whether `Date`s can be serialized accurately by `JSON.stringify`.
+          isSupported = has("json-stringify") && isExtended;
+          if (isSupported) {
+            var stringify = exports.stringify;
+            attempt(function () {
+              isSupported =
+                // JSON 2, Prototype <= 1.7, and older WebKit builds incorrectly
+                // serialize extended years.
+                stringify(new Date(-8.64e15)) == '"-271821-04-20T00:00:00.000Z"' &&
+                // The milliseconds are optional in ES 5, but required in 5.1.
+                stringify(new Date(8.64e15)) == '"+275760-09-13T00:00:00.000Z"' &&
+                // Firefox <= 11.0 incorrectly serializes years prior to 0 as negative
+                // four-digit years instead of six-digit years. Credits: @Yaffle.
+                stringify(new Date(-621987552e5)) == '"-000001-01-01T00:00:00.000Z"' &&
+                // Safari <= 5.1.5 and Opera >= 10.53 incorrectly serialize millisecond
+                // values less than 1000. Credits: @Yaffle.
+                stringify(new Date(-1)) == '"1969-12-31T23:59:59.999Z"';
+            });
+          }
+        } else {
+          var value, serialized = '{"a":[1,true,false,null,"\\u0000\\b\\n\\f\\r\\t"]}';
+          // Test `JSON.stringify`.
+          if (name == "json-stringify") {
+            var stringify = exports.stringify, stringifySupported = typeof stringify == "function";
+            if (stringifySupported) {
+              // A test function object with a custom `toJSON` method.
+              (value = function () {
+                return 1;
+              }).toJSON = value;
+              attempt(function () {
+                stringifySupported =
+                  // Firefox 3.1b1 and b2 serialize string, number, and boolean
+                  // primitives as object literals.
+                  stringify(0) === "0" &&
+                  // FF 3.1b1, b2, and JSON 2 serialize wrapped primitives as object
+                  // literals.
+                  stringify(new Number()) === "0" &&
+                  stringify(new String()) == '""' &&
+                  // FF 3.1b1, 2 throw an error if the value is `null`, `undefined`, or
+                  // does not define a canonical JSON representation (this applies to
+                  // objects with `toJSON` properties as well, *unless* they are nested
+                  // within an object or array).
+                  stringify(getClass) === undefined$1 &&
+                  // IE 8 serializes `undefined` as `"undefined"`. Safari <= 5.1.7 and
+                  // FF 3.1b3 pass this test.
+                  stringify(undefined$1) === undefined$1 &&
+                  // Safari <= 5.1.7 and FF 3.1b3 throw `Error`s and `TypeError`s,
+                  // respectively, if the value is omitted entirely.
+                  stringify() === undefined$1 &&
+                  // FF 3.1b1, 2 throw an error if the given value is not a number,
+                  // string, array, object, Boolean, or `null` literal. This applies to
+                  // objects with custom `toJSON` methods as well, unless they are nested
+                  // inside object or array literals. YUI 3.0.0b1 ignores custom `toJSON`
+                  // methods entirely.
+                  stringify(value) === "1" &&
+                  stringify([value]) == "[1]" &&
+                  // Prototype <= 1.6.1 serializes `[undefined]` as `"[]"` instead of
+                  // `"[null]"`.
+                  stringify([undefined$1]) == "[null]" &&
+                  // YUI 3.0.0b1 fails to serialize `null` literals.
+                  stringify(null) == "null" &&
+                  // FF 3.1b1, 2 halts serialization if an array contains a function:
+                  // `[1, true, getClass, 1]` serializes as "[1,true,],". FF 3.1b3
+                  // elides non-JSON values from objects and arrays, unless they
+                  // define custom `toJSON` methods.
+                  stringify([undefined$1, getClass, null]) == "[null,null,null]" &&
+                  // Simple serialization test. FF 3.1b1 uses Unicode escape sequences
+                  // where character escape codes are expected (e.g., `\b` => `\u0008`).
+                  stringify({ "a": [value, true, false, null, "\x00\b\n\f\r\t"] }) == serialized &&
+                  // FF 3.1b1 and b2 ignore the `filter` and `width` arguments.
+                  stringify(null, value) === "1" &&
+                  stringify([1, 2], null, 1) == "[\n 1,\n 2\n]";
+              }, function () {
+                stringifySupported = false;
+              });
+            }
+            isSupported = stringifySupported;
+          }
+          // Test `JSON.parse`.
+          if (name == "json-parse") {
+            var parse = exports.parse, parseSupported;
+            if (typeof parse == "function") {
+              attempt(function () {
+                // FF 3.1b1, b2 will throw an exception if a bare literal is provided.
+                // Conforming implementations should also coerce the initial argument to
+                // a string prior to parsing.
+                if (parse("0") === 0 && !parse(false)) {
+                  // Simple parsing test.
+                  value = parse(serialized);
+                  parseSupported = value["a"].length == 5 && value["a"][0] === 1;
+                  if (parseSupported) {
+                    attempt(function () {
+                      // Safari <= 5.1.2 and FF 3.1b1 allow unescaped tabs in strings.
+                      parseSupported = !parse('"\t"');
+                    });
+                    if (parseSupported) {
+                      attempt(function () {
+                        // FF 4.0 and 4.0.1 allow leading `+` signs and leading
+                        // decimal points. FF 4.0, 4.0.1, and IE 9-10 also allow
+                        // certain octal literals.
+                        parseSupported = parse("01") !== 1;
+                      });
+                    }
+                    if (parseSupported) {
+                      attempt(function () {
+                        // FF 4.0, 4.0.1, and Rhino 1.7R3-R4 allow trailing decimal
+                        // points. These environments, along with FF 3.1b1 and 2,
+                        // also allow trailing commas in JSON objects and arrays.
+                        parseSupported = parse("1.") !== 1;
+                      });
+                    }
+                  }
+                }
+              }, function () {
+                parseSupported = false;
+              });
+            }
+            isSupported = parseSupported;
+          }
+        }
+        return has[name] = !!isSupported;
+      }
+      has["bug-string-char-index"] = has["date-serialization"] = has["json"] = has["json-stringify"] = has["json-parse"] = null;
+
+      if (!has("json")) {
+        // Common `[[Class]]` name aliases.
+        var functionClass = "[object Function]",
+            dateClass = "[object Date]",
+            numberClass = "[object Number]",
+            stringClass = "[object String]",
+            arrayClass = "[object Array]",
+            booleanClass = "[object Boolean]";
+
+        // Detect incomplete support for accessing string characters by index.
+        var charIndexBuggy = has("bug-string-char-index");
+
+        // Internal: Normalizes the `for...in` iteration algorithm across
+        // environments. Each enumerated key is yielded to a `callback` function.
+        var forOwn = function (object, callback) {
+          var size = 0, Properties, dontEnums, property;
+
+          // Tests for bugs in the current environment's `for...in` algorithm. The
+          // `valueOf` property inherits the non-enumerable flag from
+          // `Object.prototype` in older versions of IE, Netscape, and Mozilla.
+          (Properties = function () {
+            this.valueOf = 0;
+          }).prototype.valueOf = 0;
+
+          // Iterate over a new instance of the `Properties` class.
+          dontEnums = new Properties();
+          for (property in dontEnums) {
+            // Ignore all properties inherited from `Object.prototype`.
+            if (isProperty.call(dontEnums, property)) {
+              size++;
+            }
+          }
+          Properties = dontEnums = null;
+
+          // Normalize the iteration algorithm.
+          if (!size) {
+            // A list of non-enumerable properties inherited from `Object.prototype`.
+            dontEnums = ["valueOf", "toString", "toLocaleString", "propertyIsEnumerable", "isPrototypeOf", "hasOwnProperty", "constructor"];
+            // IE <= 8, Mozilla 1.0, and Netscape 6.2 ignore shadowed non-enumerable
+            // properties.
+            forOwn = function (object, callback) {
+              var isFunction = getClass.call(object) == functionClass, property, length;
+              var hasProperty = !isFunction && typeof object.constructor != "function" && objectTypes[typeof object.hasOwnProperty] && object.hasOwnProperty || isProperty;
+              for (property in object) {
+                // Gecko <= 1.0 enumerates the `prototype` property of functions under
+                // certain conditions; IE does not.
+                if (!(isFunction && property == "prototype") && hasProperty.call(object, property)) {
+                  callback(property);
+                }
+              }
+              // Manually invoke the callback for each non-enumerable property.
+              for (length = dontEnums.length; property = dontEnums[--length];) {
+                if (hasProperty.call(object, property)) {
+                  callback(property);
+                }
+              }
+            };
+          } else {
+            // No bugs detected; use the standard `for...in` algorithm.
+            forOwn = function (object, callback) {
+              var isFunction = getClass.call(object) == functionClass, property, isConstructor;
+              for (property in object) {
+                if (!(isFunction && property == "prototype") && isProperty.call(object, property) && !(isConstructor = property === "constructor")) {
+                  callback(property);
+                }
+              }
+              // Manually invoke the callback for the `constructor` property due to
+              // cross-environment inconsistencies.
+              if (isConstructor || isProperty.call(object, (property = "constructor"))) {
+                callback(property);
+              }
+            };
+          }
+          return forOwn(object, callback);
+        };
+
+        // Public: Serializes a JavaScript `value` as a JSON string. The optional
+        // `filter` argument may specify either a function that alters how object and
+        // array members are serialized, or an array of strings and numbers that
+        // indicates which properties should be serialized. The optional `width`
+        // argument may be either a string or number that specifies the indentation
+        // level of the output.
+        if (!has("json-stringify") && !has("date-serialization")) {
+          // Internal: A map of control characters and their escaped equivalents.
+          var Escapes = {
+            92: "\\\\",
+            34: '\\"',
+            8: "\\b",
+            12: "\\f",
+            10: "\\n",
+            13: "\\r",
+            9: "\\t"
+          };
+
+          // Internal: Converts `value` into a zero-padded string such that its
+          // length is at least equal to `width`. The `width` must be <= 6.
+          var leadingZeroes = "000000";
+          var toPaddedString = function (width, value) {
+            // The `|| 0` expression is necessary to work around a bug in
+            // Opera <= 7.54u2 where `0 == -0`, but `String(-0) !== "0"`.
+            return (leadingZeroes + (value || 0)).slice(-width);
+          };
+
+          // Internal: Serializes a date object.
+          var serializeDate = function (value) {
+            var getData, year, month, date, time, hours, minutes, seconds, milliseconds;
+            // Define additional utility methods if the `Date` methods are buggy.
+            if (!isExtended) {
+              var floor = Math.floor;
+              // A mapping between the months of the year and the number of days between
+              // January 1st and the first of the respective month.
+              var Months = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+              // Internal: Calculates the number of days between the Unix epoch and the
+              // first day of the given month.
+              var getDay = function (year, month) {
+                return Months[month] + 365 * (year - 1970) + floor((year - 1969 + (month = +(month > 1))) / 4) - floor((year - 1901 + month) / 100) + floor((year - 1601 + month) / 400);
+              };
+              getData = function (value) {
+                // Manually compute the year, month, date, hours, minutes,
+                // seconds, and milliseconds if the `getUTC*` methods are
+                // buggy. Adapted from @Yaffle's `date-shim` project.
+                date = floor(value / 864e5);
+                for (year = floor(date / 365.2425) + 1970 - 1; getDay(year + 1, 0) <= date; year++);
+                for (month = floor((date - getDay(year, 0)) / 30.42); getDay(year, month + 1) <= date; month++);
+                date = 1 + date - getDay(year, month);
+                // The `time` value specifies the time within the day (see ES
+                // 5.1 section 15.9.1.2). The formula `(A % B + B) % B` is used
+                // to compute `A modulo B`, as the `%` operator does not
+                // correspond to the `modulo` operation for negative numbers.
+                time = (value % 864e5 + 864e5) % 864e5;
+                // The hours, minutes, seconds, and milliseconds are obtained by
+                // decomposing the time within the day. See section 15.9.1.10.
+                hours = floor(time / 36e5) % 24;
+                minutes = floor(time / 6e4) % 60;
+                seconds = floor(time / 1e3) % 60;
+                milliseconds = time % 1e3;
+              };
+            } else {
+              getData = function (value) {
+                year = value.getUTCFullYear();
+                month = value.getUTCMonth();
+                date = value.getUTCDate();
+                hours = value.getUTCHours();
+                minutes = value.getUTCMinutes();
+                seconds = value.getUTCSeconds();
+                milliseconds = value.getUTCMilliseconds();
+              };
+            }
+            serializeDate = function (value) {
+              if (value > -1 / 0 && value < 1 / 0) {
+                // Dates are serialized according to the `Date#toJSON` method
+                // specified in ES 5.1 section 15.9.5.44. See section 15.9.1.15
+                // for the ISO 8601 date time string format.
+                getData(value);
+                // Serialize extended years correctly.
+                value = (year <= 0 || year >= 1e4 ? (year < 0 ? "-" : "+") + toPaddedString(6, year < 0 ? -year : year) : toPaddedString(4, year)) +
+                "-" + toPaddedString(2, month + 1) + "-" + toPaddedString(2, date) +
+                // Months, dates, hours, minutes, and seconds should have two
+                // digits; milliseconds should have three.
+                "T" + toPaddedString(2, hours) + ":" + toPaddedString(2, minutes) + ":" + toPaddedString(2, seconds) +
+                // Milliseconds are optional in ES 5.0, but required in 5.1.
+                "." + toPaddedString(3, milliseconds) + "Z";
+                year = month = date = hours = minutes = seconds = milliseconds = null;
+              } else {
+                value = null;
+              }
+              return value;
+            };
+            return serializeDate(value);
+          };
+
+          // For environments with `JSON.stringify` but buggy date serialization,
+          // we override the native `Date#toJSON` implementation with a
+          // spec-compliant one.
+          if (has("json-stringify") && !has("date-serialization")) {
+            // Internal: the `Date#toJSON` implementation used to override the native one.
+            function dateToJSON (key) {
+              return serializeDate(this);
+            }
+
+            // Public: `JSON.stringify`. See ES 5.1 section 15.12.3.
+            var nativeStringify = exports.stringify;
+            exports.stringify = function (source, filter, width) {
+              var nativeToJSON = Date.prototype.toJSON;
+              Date.prototype.toJSON = dateToJSON;
+              var result = nativeStringify(source, filter, width);
+              Date.prototype.toJSON = nativeToJSON;
+              return result;
+            };
+          } else {
+            // Internal: Double-quotes a string `value`, replacing all ASCII control
+            // characters (characters with code unit values between 0 and 31) with
+            // their escaped equivalents. This is an implementation of the
+            // `Quote(value)` operation defined in ES 5.1 section 15.12.3.
+            var unicodePrefix = "\\u00";
+            var escapeChar = function (character) {
+              var charCode = character.charCodeAt(0), escaped = Escapes[charCode];
+              if (escaped) {
+                return escaped;
+              }
+              return unicodePrefix + toPaddedString(2, charCode.toString(16));
+            };
+            var reEscape = /[\x00-\x1f\x22\x5c]/g;
+            var quote = function (value) {
+              reEscape.lastIndex = 0;
+              return '"' +
+                (
+                  reEscape.test(value)
+                    ? value.replace(reEscape, escapeChar)
+                    : value
+                ) +
+                '"';
+            };
+
+            // Internal: Recursively serializes an object. Implements the
+            // `Str(key, holder)`, `JO(value)`, and `JA(value)` operations.
+            var serialize = function (property, object, callback, properties, whitespace, indentation, stack) {
+              var value, type, className, results, element, index, length, prefix, result;
+              attempt(function () {
+                // Necessary for host object support.
+                value = object[property];
+              });
+              if (typeof value == "object" && value) {
+                if (value.getUTCFullYear && getClass.call(value) == dateClass && value.toJSON === Date.prototype.toJSON) {
+                  value = serializeDate(value);
+                } else if (typeof value.toJSON == "function") {
+                  value = value.toJSON(property);
+                }
+              }
+              if (callback) {
+                // If a replacement function was provided, call it to obtain the value
+                // for serialization.
+                value = callback.call(object, property, value);
+              }
+              // Exit early if value is `undefined` or `null`.
+              if (value == undefined$1) {
+                return value === undefined$1 ? value : "null";
+              }
+              type = typeof value;
+              // Only call `getClass` if the value is an object.
+              if (type == "object") {
+                className = getClass.call(value);
+              }
+              switch (className || type) {
+                case "boolean":
+                case booleanClass:
+                  // Booleans are represented literally.
+                  return "" + value;
+                case "number":
+                case numberClass:
+                  // JSON numbers must be finite. `Infinity` and `NaN` are serialized as
+                  // `"null"`.
+                  return value > -1 / 0 && value < 1 / 0 ? "" + value : "null";
+                case "string":
+                case stringClass:
+                  // Strings are double-quoted and escaped.
+                  return quote("" + value);
+              }
+              // Recursively serialize objects and arrays.
+              if (typeof value == "object") {
+                // Check for cyclic structures. This is a linear search; performance
+                // is inversely proportional to the number of unique nested objects.
+                for (length = stack.length; length--;) {
+                  if (stack[length] === value) {
+                    // Cyclic structures cannot be serialized by `JSON.stringify`.
+                    throw TypeError();
+                  }
+                }
+                // Add the object to the stack of traversed objects.
+                stack.push(value);
+                results = [];
+                // Save the current indentation level and indent one additional level.
+                prefix = indentation;
+                indentation += whitespace;
+                if (className == arrayClass) {
+                  // Recursively serialize array elements.
+                  for (index = 0, length = value.length; index < length; index++) {
+                    element = serialize(index, value, callback, properties, whitespace, indentation, stack);
+                    results.push(element === undefined$1 ? "null" : element);
+                  }
+                  result = results.length ? (whitespace ? "[\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "]" : ("[" + results.join(",") + "]")) : "[]";
+                } else {
+                  // Recursively serialize object members. Members are selected from
+                  // either a user-specified list of property names, or the object
+                  // itself.
+                  forOwn(properties || value, function (property) {
+                    var element = serialize(property, value, callback, properties, whitespace, indentation, stack);
+                    if (element !== undefined$1) {
+                      // According to ES 5.1 section 15.12.3: "If `gap` {whitespace}
+                      // is not the empty string, let `member` {quote(property) + ":"}
+                      // be the concatenation of `member` and the `space` character."
+                      // The "`space` character" refers to the literal space
+                      // character, not the `space` {width} argument provided to
+                      // `JSON.stringify`.
+                      results.push(quote(property) + ":" + (whitespace ? " " : "") + element);
+                    }
+                  });
+                  result = results.length ? (whitespace ? "{\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "}" : ("{" + results.join(",") + "}")) : "{}";
+                }
+                // Remove the object from the traversed object stack.
+                stack.pop();
+                return result;
+              }
+            };
+
+            // Public: `JSON.stringify`. See ES 5.1 section 15.12.3.
+            exports.stringify = function (source, filter, width) {
+              var whitespace, callback, properties, className;
+              if (objectTypes[typeof filter] && filter) {
+                className = getClass.call(filter);
+                if (className == functionClass) {
+                  callback = filter;
+                } else if (className == arrayClass) {
+                  // Convert the property names array into a makeshift set.
+                  properties = {};
+                  for (var index = 0, length = filter.length, value; index < length;) {
+                    value = filter[index++];
+                    className = getClass.call(value);
+                    if (className == "[object String]" || className == "[object Number]") {
+                      properties[value] = 1;
+                    }
+                  }
+                }
+              }
+              if (width) {
+                className = getClass.call(width);
+                if (className == numberClass) {
+                  // Convert the `width` to an integer and create a string containing
+                  // `width` number of space characters.
+                  if ((width -= width % 1) > 0) {
+                    if (width > 10) {
+                      width = 10;
+                    }
+                    for (whitespace = ""; whitespace.length < width;) {
+                      whitespace += " ";
+                    }
+                  }
+                } else if (className == stringClass) {
+                  whitespace = width.length <= 10 ? width : width.slice(0, 10);
+                }
+              }
+              // Opera <= 7.54u2 discards the values associated with empty string keys
+              // (`""`) only if they are used directly within an object member list
+              // (e.g., `!("" in { "": 1})`).
+              return serialize("", (value = {}, value[""] = source, value), callback, properties, whitespace, "", []);
+            };
+          }
+        }
+
+        // Public: Parses a JSON source string.
+        if (!has("json-parse")) {
+          var fromCharCode = String.fromCharCode;
+
+          // Internal: A map of escaped control characters and their unescaped
+          // equivalents.
+          var Unescapes = {
+            92: "\\",
+            34: '"',
+            47: "/",
+            98: "\b",
+            116: "\t",
+            110: "\n",
+            102: "\f",
+            114: "\r"
+          };
+
+          // Internal: Stores the parser state.
+          var Index, Source;
+
+          // Internal: Resets the parser state and throws a `SyntaxError`.
+          var abort = function () {
+            Index = Source = null;
+            throw SyntaxError();
+          };
+
+          // Internal: Returns the next token, or `"$"` if the parser has reached
+          // the end of the source string. A token may be a string, number, `null`
+          // literal, or Boolean literal.
+          var lex = function () {
+            var source = Source, length = source.length, value, begin, position, isSigned, charCode;
+            while (Index < length) {
+              charCode = source.charCodeAt(Index);
+              switch (charCode) {
+                case 9: case 10: case 13: case 32:
+                  // Skip whitespace tokens, including tabs, carriage returns, line
+                  // feeds, and space characters.
+                  Index++;
+                  break;
+                case 123: case 125: case 91: case 93: case 58: case 44:
+                  // Parse a punctuator token (`{`, `}`, `[`, `]`, `:`, or `,`) at
+                  // the current position.
+                  value = charIndexBuggy ? source.charAt(Index) : source[Index];
+                  Index++;
+                  return value;
+                case 34:
+                  // `"` delimits a JSON string; advance to the next character and
+                  // begin parsing the string. String tokens are prefixed with the
+                  // sentinel `@` character to distinguish them from punctuators and
+                  // end-of-string tokens.
+                  for (value = "@", Index++; Index < length;) {
+                    charCode = source.charCodeAt(Index);
+                    if (charCode < 32) {
+                      // Unescaped ASCII control characters (those with a code unit
+                      // less than the space character) are not permitted.
+                      abort();
+                    } else if (charCode == 92) {
+                      // A reverse solidus (`\`) marks the beginning of an escaped
+                      // control character (including `"`, `\`, and `/`) or Unicode
+                      // escape sequence.
+                      charCode = source.charCodeAt(++Index);
+                      switch (charCode) {
+                        case 92: case 34: case 47: case 98: case 116: case 110: case 102: case 114:
+                          // Revive escaped control characters.
+                          value += Unescapes[charCode];
+                          Index++;
+                          break;
+                        case 117:
+                          // `\u` marks the beginning of a Unicode escape sequence.
+                          // Advance to the first character and validate the
+                          // four-digit code point.
+                          begin = ++Index;
+                          for (position = Index + 4; Index < position; Index++) {
+                            charCode = source.charCodeAt(Index);
+                            // A valid sequence comprises four hexdigits (case-
+                            // insensitive) that form a single hexadecimal value.
+                            if (!(charCode >= 48 && charCode <= 57 || charCode >= 97 && charCode <= 102 || charCode >= 65 && charCode <= 70)) {
+                              // Invalid Unicode escape sequence.
+                              abort();
+                            }
+                          }
+                          // Revive the escaped character.
+                          value += fromCharCode("0x" + source.slice(begin, Index));
+                          break;
+                        default:
+                          // Invalid escape sequence.
+                          abort();
+                      }
+                    } else {
+                      if (charCode == 34) {
+                        // An unescaped double-quote character marks the end of the
+                        // string.
+                        break;
+                      }
+                      charCode = source.charCodeAt(Index);
+                      begin = Index;
+                      // Optimize for the common case where a string is valid.
+                      while (charCode >= 32 && charCode != 92 && charCode != 34) {
+                        charCode = source.charCodeAt(++Index);
+                      }
+                      // Append the string as-is.
+                      value += source.slice(begin, Index);
+                    }
+                  }
+                  if (source.charCodeAt(Index) == 34) {
+                    // Advance to the next character and return the revived string.
+                    Index++;
+                    return value;
+                  }
+                  // Unterminated string.
+                  abort();
+                default:
+                  // Parse numbers and literals.
+                  begin = Index;
+                  // Advance past the negative sign, if one is specified.
+                  if (charCode == 45) {
+                    isSigned = true;
+                    charCode = source.charCodeAt(++Index);
+                  }
+                  // Parse an integer or floating-point value.
+                  if (charCode >= 48 && charCode <= 57) {
+                    // Leading zeroes are interpreted as octal literals.
+                    if (charCode == 48 && ((charCode = source.charCodeAt(Index + 1)), charCode >= 48 && charCode <= 57)) {
+                      // Illegal octal literal.
+                      abort();
+                    }
+                    isSigned = false;
+                    // Parse the integer component.
+                    for (; Index < length && ((charCode = source.charCodeAt(Index)), charCode >= 48 && charCode <= 57); Index++);
+                    // Floats cannot contain a leading decimal point; however, this
+                    // case is already accounted for by the parser.
+                    if (source.charCodeAt(Index) == 46) {
+                      position = ++Index;
+                      // Parse the decimal component.
+                      for (; position < length; position++) {
+                        charCode = source.charCodeAt(position);
+                        if (charCode < 48 || charCode > 57) {
+                          break;
+                        }
+                      }
+                      if (position == Index) {
+                        // Illegal trailing decimal.
+                        abort();
+                      }
+                      Index = position;
+                    }
+                    // Parse exponents. The `e` denoting the exponent is
+                    // case-insensitive.
+                    charCode = source.charCodeAt(Index);
+                    if (charCode == 101 || charCode == 69) {
+                      charCode = source.charCodeAt(++Index);
+                      // Skip past the sign following the exponent, if one is
+                      // specified.
+                      if (charCode == 43 || charCode == 45) {
+                        Index++;
+                      }
+                      // Parse the exponential component.
+                      for (position = Index; position < length; position++) {
+                        charCode = source.charCodeAt(position);
+                        if (charCode < 48 || charCode > 57) {
+                          break;
+                        }
+                      }
+                      if (position == Index) {
+                        // Illegal empty exponent.
+                        abort();
+                      }
+                      Index = position;
+                    }
+                    // Coerce the parsed value to a JavaScript number.
+                    return +source.slice(begin, Index);
+                  }
+                  // A negative sign may only precede numbers.
+                  if (isSigned) {
+                    abort();
+                  }
+                  // `true`, `false`, and `null` literals.
+                  var temp = source.slice(Index, Index + 4);
+                  if (temp == "true") {
+                    Index += 4;
+                    return true;
+                  } else if (temp == "fals" && source.charCodeAt(Index + 4 ) == 101) {
+                    Index += 5;
+                    return false;
+                  } else if (temp == "null") {
+                    Index += 4;
+                    return null;
+                  }
+                  // Unrecognized token.
+                  abort();
+              }
+            }
+            // Return the sentinel `$` character if the parser has reached the end
+            // of the source string.
+            return "$";
+          };
+
+          // Internal: Parses a JSON `value` token.
+          var get = function (value) {
+            var results, hasMembers;
+            if (value == "$") {
+              // Unexpected end of input.
+              abort();
+            }
+            if (typeof value == "string") {
+              if ((charIndexBuggy ? value.charAt(0) : value[0]) == "@") {
+                // Remove the sentinel `@` character.
+                return value.slice(1);
+              }
+              // Parse object and array literals.
+              if (value == "[") {
+                // Parses a JSON array, returning a new JavaScript array.
+                results = [];
+                for (;;) {
+                  value = lex();
+                  // A closing square bracket marks the end of the array literal.
+                  if (value == "]") {
+                    break;
+                  }
+                  // If the array literal contains elements, the current token
+                  // should be a comma separating the previous element from the
+                  // next.
+                  if (hasMembers) {
+                    if (value == ",") {
+                      value = lex();
+                      if (value == "]") {
+                        // Unexpected trailing `,` in array literal.
+                        abort();
+                      }
+                    } else {
+                      // A `,` must separate each array element.
+                      abort();
+                    }
+                  } else {
+                    hasMembers = true;
+                  }
+                  // Elisions and leading commas are not permitted.
+                  if (value == ",") {
+                    abort();
+                  }
+                  results.push(get(value));
+                }
+                return results;
+              } else if (value == "{") {
+                // Parses a JSON object, returning a new JavaScript object.
+                results = {};
+                for (;;) {
+                  value = lex();
+                  // A closing curly brace marks the end of the object literal.
+                  if (value == "}") {
+                    break;
+                  }
+                  // If the object literal contains members, the current token
+                  // should be a comma separator.
+                  if (hasMembers) {
+                    if (value == ",") {
+                      value = lex();
+                      if (value == "}") {
+                        // Unexpected trailing `,` in object literal.
+                        abort();
+                      }
+                    } else {
+                      // A `,` must separate each object member.
+                      abort();
+                    }
+                  } else {
+                    hasMembers = true;
+                  }
+                  // Leading commas are not permitted, object property names must be
+                  // double-quoted strings, and a `:` must separate each property
+                  // name and value.
+                  if (value == "," || typeof value != "string" || (charIndexBuggy ? value.charAt(0) : value[0]) != "@" || lex() != ":") {
+                    abort();
+                  }
+                  results[value.slice(1)] = get(lex());
+                }
+                return results;
+              }
+              // Unexpected token encountered.
+              abort();
+            }
+            return value;
+          };
+
+          // Internal: Updates a traversed object member.
+          var update = function (source, property, callback) {
+            var element = walk(source, property, callback);
+            if (element === undefined$1) {
+              delete source[property];
+            } else {
+              source[property] = element;
+            }
+          };
+
+          // Internal: Recursively traverses a parsed JSON object, invoking the
+          // `callback` function for each value. This is an implementation of the
+          // `Walk(holder, name)` operation defined in ES 5.1 section 15.12.2.
+          var walk = function (source, property, callback) {
+            var value = source[property], length;
+            if (typeof value == "object" && value) {
+              // `forOwn` can't be used to traverse an array in Opera <= 8.54
+              // because its `Object#hasOwnProperty` implementation returns `false`
+              // for array indices (e.g., `![1, 2, 3].hasOwnProperty("0")`).
+              if (getClass.call(value) == arrayClass) {
+                for (length = value.length; length--;) {
+                  update(getClass, forOwn, value, length, callback);
+                }
+              } else {
+                forOwn(value, function (property) {
+                  update(value, property, callback);
+                });
+              }
+            }
+            return callback.call(source, property, value);
+          };
+
+          // Public: `JSON.parse`. See ES 5.1 section 15.12.2.
+          exports.parse = function (source, callback) {
+            var result, value;
+            Index = 0;
+            Source = "" + source;
+            result = get(lex());
+            // If a JSON string contains multiple tokens, it is invalid.
+            if (lex() != "$") {
+              abort();
+            }
+            // Reset the parser state.
+            Index = Source = null;
+            return callback && getClass.call(callback) == functionClass ? walk((value = {}, value[""] = result, value), "", callback) : result;
+          };
+        }
+      }
+
+      exports.runInContext = runInContext;
+      return exports;
+    }
+
+    if (freeExports && !isLoader) {
+      // Export for CommonJS environments.
+      runInContext(root, freeExports);
+    } else {
+      // Export for web browsers and JavaScript engines.
+      var nativeJSON = root.JSON,
+          previousJSON = root.JSON3,
+          isRestored = false;
+
+      var JSON3 = runInContext(root, (root.JSON3 = {
+        // Public: Restores the original value of the global `JSON` object and
+        // returns a reference to the `JSON3` object.
+        "noConflict": function () {
+          if (!isRestored) {
+            isRestored = true;
+            root.JSON = nativeJSON;
+            root.JSON3 = previousJSON;
+            nativeJSON = previousJSON = null;
+          }
+          return JSON3;
+        }
+      }));
+
+      root.JSON = {
+        "parse": JSON3.parse,
+        "stringify": JSON3.stringify
+      };
+    }
+  }).call(commonjsGlobal);
+  });
+
+  var defaultEngine$1 = engine.defaultEngine;
+  var inMemoryEngine$1 = engine.inMemoryEngine;
+
+
+
+
+  /**
+  * Store Implementation with dedicated
+  */
+
+  function Store(name, id, keys, optionalEngine) {
+    this.id = id;
+    this.name = name;
+    this.keys = keys || {};
+    this.engine = optionalEngine || defaultEngine$1;
+  }
+
+  /**
+  * Set value by key.
+  */
+
+  Store.prototype.set = function(key, value) {
+    var compoundKey = this._createValidKey(key);
+    if (!compoundKey) return;
+    try {
+      this.engine.setItem(compoundKey, json3.stringify(value));
+    } catch (err) {
+      if (isQuotaExceeded(err)) {
+        // switch to inMemory engine
+        this._swapEngine();
+        // and save it there
+        this.set(key, value);
+      }
+    }
+  };
+
+  /**
+  * Get by Key.
+  */
+
+  Store.prototype.get = function(key) {
+    try {
+      var str = this.engine.getItem(this._createValidKey(key));
+      if (str === null) {
+        return null;
+      }
+      return json3.parse(str);
+    } catch (err) {
+      return null;
+    }
+  };
+
+  /**
+  * Remove by Key.
+  */
+
+  Store.prototype.remove = function(key) {
+    this.engine.removeItem(this._createValidKey(key));
+  };
+
+  /**
+  * Ensure the key is valid
+  */
+
+  Store.prototype._createValidKey = function(key) {
+    var name = this.name;
+    var id = this.id;
+
+    if (!keys_1(this.keys).length) return [name, id, key].join('.');
+
+    // validate and return undefined if invalid key
+    var compoundKey;
+    each_1(function(value) {
+      if (value === key) {
+        compoundKey = [name, id, key].join('.');
+      }
+    }, this.keys);
+    return compoundKey;
+  };
+
+  /**
+  * Switch to inMemoryEngine, bringing any existing data with.
+  */
+
+  Store.prototype._swapEngine = function() {
+    var self = this;
+
+    // grab existing data, but only for this page's queue instance, not all
+    // better to keep other queues in localstorage to be flushed later
+    // than to pull them into memory and remove them from durable storage
+    each_1(function(key) {
+      var value = self.get(key);
+      inMemoryEngine$1.setItem([self.name, self.id, key].join('.'), value);
+      self.remove(key);
+    }, this.keys);
+
+    this.engine = inMemoryEngine$1;
+  };
+
+  var store = Store;
+
+  function isQuotaExceeded(e) {
+    var quotaExceeded = false;
+    if (e.code) {
+      switch (e.code) {
+      case 22:
+        quotaExceeded = true;
+        break;
+      case 1014:
+        // Firefox
+        if (e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+          quotaExceeded = true;
+        }
+        break;
+      default:
+        break;
+      }
+    } else if (e.number === -2147024882) {
+      // Internet Explorer 8
+      quotaExceeded = true;
+    }
+    return quotaExceeded;
+  }
+
+  var defaultClock = {
+    setTimeout: function(fn, ms) {
+      return window.setTimeout(fn, ms);
+    },
+    clearTimeout: function(id) {
+      return window.clearTimeout(id);
+    },
+    Date: window.Date
+  };
+
+  var clock = defaultClock;
+
+  function Schedule() {
+    this.tasks = {};
+    this.nextId = 1;
+  }
+
+  Schedule.prototype.now = function() {
+    return +new clock.Date();
+  };
+
+  Schedule.prototype.run = function(task, timeout) {
+    var id = this.nextId++;
+    this.tasks[id] = clock.setTimeout(this._handle(id, task), timeout);
+    return id;
+  };
+
+  Schedule.prototype.cancel = function(id) {
+    if (this.tasks[id]) {
+      clock.clearTimeout(this.tasks[id]);
+      delete this.tasks[id];
+    }
+  };
+
+  Schedule.prototype.cancelAll = function() {
+    each_1(clock.clearTimeout, this.tasks);
+    this.tasks = {};
+  };
+
+  Schedule.prototype._handle = function(id, callback) {
+    var self = this;
+    return function() {
+      delete self.tasks[id];
+      return callback();
+    };
+  };
+
+  Schedule.setClock = function(newClock) {
+    clock = newClock;
+  };
+
+  Schedule.resetClock = function() {
+    clock = defaultClock;
+  };
+
+  var schedule = Schedule;
+
+  /**
+   * Expose `debug()` as the module.
+   */
+
+  var debug_1 = debug;
+
+  /**
+   * Create a debugger with the given `name`.
+   *
+   * @param {String} name
+   * @return {Type}
+   * @api public
+   */
+
+  function debug(name) {
+    if (!debug.enabled(name)) return function(){};
+
+    return function(fmt){
+      fmt = coerce(fmt);
+
+      var curr = new Date;
+      var ms = curr - (debug[name] || curr);
+      debug[name] = curr;
+
+      fmt = name
+        + ' '
+        + fmt
+        + ' +' + debug.humanize(ms);
+
+      // This hackery is required for IE8
+      // where `console.log` doesn't have 'apply'
+      window.console
+        && console.log
+        && Function.prototype.apply.call(console.log, console, arguments);
+    }
+  }
+
+  /**
+   * The currently active debug mode names.
+   */
+
+  debug.names = [];
+  debug.skips = [];
+
+  /**
+   * Enables a debug mode by name. This can include modes
+   * separated by a colon and wildcards.
+   *
+   * @param {String} name
+   * @api public
+   */
+
+  debug.enable = function(name) {
+    try {
+      localStorage.debug = name;
+    } catch(e){}
+
+    var split = (name || '').split(/[\s,]+/)
+      , len = split.length;
+
+    for (var i = 0; i < len; i++) {
+      name = split[i].replace('*', '.*?');
+      if (name[0] === '-') {
+        debug.skips.push(new RegExp('^' + name.substr(1) + '$'));
+      }
+      else {
+        debug.names.push(new RegExp('^' + name + '$'));
+      }
+    }
+  };
+
+  /**
+   * Disable debug output.
+   *
+   * @api public
+   */
+
+  debug.disable = function(){
+    debug.enable('');
+  };
+
+  /**
+   * Humanize the given `ms`.
+   *
+   * @param {Number} m
+   * @return {String}
+   * @api private
+   */
+
+  debug.humanize = function(ms) {
+    var sec = 1000
+      , min = 60 * 1000
+      , hour = 60 * min;
+
+    if (ms >= hour) return (ms / hour).toFixed(1) + 'h';
+    if (ms >= min) return (ms / min).toFixed(1) + 'm';
+    if (ms >= sec) return (ms / sec | 0) + 's';
+    return ms + 'ms';
+  };
+
+  /**
+   * Returns true if the given mode name is enabled, false otherwise.
+   *
+   * @param {String} name
+   * @return {Boolean}
+   * @api public
+   */
+
+  debug.enabled = function(name) {
+    for (var i = 0, len = debug.skips.length; i < len; i++) {
+      if (debug.skips[i].test(name)) {
+        return false;
+      }
+    }
+    for (var i = 0, len = debug.names.length; i < len; i++) {
+      if (debug.names[i].test(name)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  /**
+   * Coerce `val`.
+   */
+
+  function coerce(val) {
+    if (val instanceof Error) return val.stack || val.message;
+    return val;
+  }
+
+  // persist
+
+  try {
+    if (window.localStorage) debug.enable(localStorage.debug);
+  } catch(e){}
+
+  var componentEmitter = createCommonjsModule(function (module) {
+  /**
+   * Expose `Emitter`.
+   */
+
+  {
+    module.exports = Emitter;
+  }
+
+  /**
+   * Initialize a new `Emitter`.
+   *
+   * @api public
+   */
+
+  function Emitter(obj) {
+    if (obj) return mixin(obj);
+  }
+  /**
+   * Mixin the emitter properties.
+   *
+   * @param {Object} obj
+   * @return {Object}
+   * @api private
+   */
+
+  function mixin(obj) {
+    for (var key in Emitter.prototype) {
+      obj[key] = Emitter.prototype[key];
+    }
+    return obj;
+  }
+
+  /**
+   * Listen on the given `event` with `fn`.
+   *
+   * @param {String} event
+   * @param {Function} fn
+   * @return {Emitter}
+   * @api public
+   */
+
+  Emitter.prototype.on =
+  Emitter.prototype.addEventListener = function(event, fn){
+    this._callbacks = this._callbacks || {};
+    (this._callbacks['$' + event] = this._callbacks['$' + event] || [])
+      .push(fn);
+    return this;
+  };
+
+  /**
+   * Adds an `event` listener that will be invoked a single
+   * time then automatically removed.
+   *
+   * @param {String} event
+   * @param {Function} fn
+   * @return {Emitter}
+   * @api public
+   */
+
+  Emitter.prototype.once = function(event, fn){
+    function on() {
+      this.off(event, on);
+      fn.apply(this, arguments);
+    }
+
+    on.fn = fn;
+    this.on(event, on);
+    return this;
+  };
+
+  /**
+   * Remove the given callback for `event` or all
+   * registered callbacks.
+   *
+   * @param {String} event
+   * @param {Function} fn
+   * @return {Emitter}
+   * @api public
+   */
+
+  Emitter.prototype.off =
+  Emitter.prototype.removeListener =
+  Emitter.prototype.removeAllListeners =
+  Emitter.prototype.removeEventListener = function(event, fn){
+    this._callbacks = this._callbacks || {};
+
+    // all
+    if (0 == arguments.length) {
+      this._callbacks = {};
+      return this;
+    }
+
+    // specific event
+    var callbacks = this._callbacks['$' + event];
+    if (!callbacks) return this;
+
+    // remove all handlers
+    if (1 == arguments.length) {
+      delete this._callbacks['$' + event];
+      return this;
+    }
+
+    // remove specific handler
+    var cb;
+    for (var i = 0; i < callbacks.length; i++) {
+      cb = callbacks[i];
+      if (cb === fn || cb.fn === fn) {
+        callbacks.splice(i, 1);
+        break;
+      }
+    }
+
+    // Remove event specific arrays for event types that no
+    // one is subscribed for to avoid memory leak.
+    if (callbacks.length === 0) {
+      delete this._callbacks['$' + event];
+    }
+
+    return this;
+  };
+
+  /**
+   * Emit `event` with the given args.
+   *
+   * @param {String} event
+   * @param {Mixed} ...
+   * @return {Emitter}
+   */
+
+  Emitter.prototype.emit = function(event){
+    this._callbacks = this._callbacks || {};
+
+    var args = new Array(arguments.length - 1)
+      , callbacks = this._callbacks['$' + event];
+
+    for (var i = 1; i < arguments.length; i++) {
+      args[i - 1] = arguments[i];
+    }
+
+    if (callbacks) {
+      callbacks = callbacks.slice(0);
+      for (var i = 0, len = callbacks.length; i < len; ++i) {
+        callbacks[i].apply(this, args);
+      }
+    }
+
+    return this;
+  };
+
+  /**
+   * Return array of callbacks for `event`.
+   *
+   * @param {String} event
+   * @return {Array}
+   * @api public
+   */
+
+  Emitter.prototype.listeners = function(event){
+    this._callbacks = this._callbacks || {};
+    return this._callbacks['$' + event] || [];
+  };
+
+  /**
+   * Check if this emitter has `event` handlers.
+   *
+   * @param {String} event
+   * @return {Boolean}
+   * @api public
+   */
+
+  Emitter.prototype.hasListeners = function(event){
+    return !! this.listeners(event).length;
+  };
+  });
+
+  var uuid$2 = uuid_1.v4;
+
+
+
+  var debug$1 = debug_1('localstorage-retry');
+
+
+  // Some browsers don't support Function.prototype.bind, so just including a simplified version here
+  function bind(func, obj) {
+    return function() {
+      return func.apply(obj, arguments);
+    };
+  }
+
+  /**
+   * @callback processFunc
+   * @param {Mixed} item The item added to the queue to process
+   * @param {Function} done A function to call when processing is completed.
+   *   @param {Error} Optional error parameter if the processing failed
+   *   @param {Response} Optional response parameter to emit for async handling
+   */
+
+  /**
+   * Constructs a Queue backed by localStorage
+   *
+   * @constructor
+   * @param {String} name The name of the queue. Will be used to find abandoned queues and retry their items
+   * @param {processFunc} fn The function to call in order to process an item added to the queue
+   */
+  function Queue(name, opts, fn) {
+    if (typeof opts === 'function') fn = opts;
+    this.name = name;
+    this.id = uuid$2();
+    this.fn = fn;
+    this.maxItems = opts.maxItems || Infinity;
+    this.maxAttempts = opts.maxAttempts || Infinity;
+
+    this.backoff = {
+      MIN_RETRY_DELAY: opts.minRetryDelay || 1000,
+      MAX_RETRY_DELAY: opts.maxRetryDelay || 30000,
+      FACTOR: opts.backoffFactor || 2,
+      JITTER: opts.backoffJitter || 0
+    };
+
+    // painstakingly tuned. that's why they're not "easily" configurable
+    this.timeouts = {
+      ACK_TIMER: 1000,
+      RECLAIM_TIMER: 3000,
+      RECLAIM_TIMEOUT: 10000,
+      RECLAIM_WAIT: 500
+    };
+
+    this.keys = {
+      IN_PROGRESS: 'inProgress',
+      QUEUE: 'queue',
+      ACK: 'ack',
+      RECLAIM_START: 'reclaimStart',
+      RECLAIM_END: 'reclaimEnd'
+    };
+
+    this._schedule = new schedule();
+    this._processId = 0;
+
+    // Set up our empty queues
+    this._store = new store(this.name, this.id, this.keys);
+    this._store.set(this.keys.IN_PROGRESS, {});
+    this._store.set(this.keys.QUEUE, []);
+
+    // bind recurring tasks for ease of use
+    this._ack = bind(this._ack, this);
+    this._checkReclaim = bind(this._checkReclaim, this);
+    this._processHead = bind(this._processHead, this);
+
+    this._running = false;
+  }
+
+  /**
+   * Mix in event emitter
+   */
+
+  componentEmitter(Queue.prototype);
+
+  /**
+   * Starts processing the queue
+   */
+  Queue.prototype.start = function() {
+    if (this._running) {
+      this.stop();
+    }
+    this._running = true;
+    this._ack();
+    this._checkReclaim();
+    this._processHead();
+  };
+
+  /**
+   * Stops processing the queue
+   */
+  Queue.prototype.stop = function() {
+    this._schedule.cancelAll();
+    this._running = false;
+  };
+
+  /**
+   * Decides whether to retry. Overridable.
+   *
+   * @param {Object} item The item being processed
+   * @param {Number} attemptNumber The attemptNumber (1 for first retry)
+   * @param {Error} error The error from previous attempt, if there was one
+   * @return {Boolean} Whether to requeue the message
+   */
+  Queue.prototype.shouldRetry = function(_, attemptNumber) {
+    if (attemptNumber > this.maxAttempts) return false;
+    return true;
+  };
+
+  /**
+   * Calculates the delay (in ms) for a retry attempt
+   *
+   * @param {Number} attemptNumber The attemptNumber (1 for first retry)
+   * @return {Number} The delay in milliseconds to wait before attempting a retry
+   */
+  Queue.prototype.getDelay = function(attemptNumber) {
+    var ms = this.backoff.MIN_RETRY_DELAY * Math.pow(this.backoff.FACTOR, attemptNumber);
+    if (this.backoff.JITTER) {
+      var rand =  Math.random();
+      var deviation = Math.floor(rand * this.backoff.JITTER * ms);
+      if (Math.floor(rand * 10) < 5) {
+        ms -= deviation;
+      } else {
+        ms += deviation;
+      }
+    }
+    return Number(Math.min(ms, this.backoff.MAX_RETRY_DELAY).toPrecision(1));
+  };
+
+  /**
+   * Adds an item to the queue
+   *
+   * @param {Mixed} item The item to process
+   */
+  Queue.prototype.addItem = function(item) {
+    this._enqueue({
+      item: item,
+      attemptNumber: 0,
+      time: this._schedule.now()
+    });
+  };
+
+  /**
+   * Adds an item to the retry queue
+   *
+   * @param {Mixed} item The item to retry
+   * @param {Number} attemptNumber The attempt number (1 for first retry)
+   * @param {Error} [error] The error from previous attempt, if there was one
+   */
+  Queue.prototype.requeue = function(item, attemptNumber, error) {
+    if (this.shouldRetry(item, attemptNumber, error)) {
+      this._enqueue({
+        item: item,
+        attemptNumber: attemptNumber,
+        time: this._schedule.now() + this.getDelay(attemptNumber)
+      });
+    } else {
+      this.emit('discard', item, attemptNumber);
+    }
+  };
+
+  Queue.prototype._enqueue = function(entry) {
+    var queue = this._store.get(this.keys.QUEUE) || [];
+    queue = queue.slice(-(this.maxItems - 1));
+    queue.push(entry);
+    queue = queue.sort(function(a,b) {
+      return a.time - b.time;
+    });
+
+    this._store.set(this.keys.QUEUE, queue);
+
+    if (this._running) {
+      this._processHead();
+    }
+  };
+
+  Queue.prototype._processHead = function() {
+    var self = this;
+    var store = this._store;
+
+    // cancel the scheduled task if it exists
+    this._schedule.cancel(this._processId);
+
+    // Pop the head off the queue
+    var queue = store.get(this.keys.QUEUE) || [];
+    var inProgress = store.get(this.keys.IN_PROGRESS) || {};
+    var now = this._schedule.now();
+    var toRun = [];
+
+    function enqueue(el, id) {
+      toRun.push({
+        item: el.item,
+        done: function handle(err, res) {
+          var inProgress = store.get(self.keys.IN_PROGRESS) || {};
+          delete inProgress[id];
+          store.set(self.keys.IN_PROGRESS, inProgress);
+          self.emit('processed', err, res, el.item);
+          if (err) {
+            self.requeue(el.item, el.attemptNumber + 1, err);
+          }
+        }
+      });
+    }
+
+    var inProgressSize = Object.keys(inProgress).length;
+
+    while (queue.length && queue[0].time <= now && inProgressSize++ < self.maxItems) {
+      var el = queue.shift();
+      var id = uuid$2();
+
+      // Save this to the in progress map
+      inProgress[id] = {
+        item: el.item,
+        attemptNumber: el.attemptNumber,
+        time: self._schedule.now()
+      };
+
+      enqueue(el, id);
+    }
+
+    store.set(this.keys.QUEUE, queue);
+    store.set(this.keys.IN_PROGRESS, inProgress);
+
+    each_1(function(el) {
+      // TODO: handle fn timeout
+      try {
+        self.fn(el.item, el.done);
+      } catch (err) {
+        debug$1('Process function threw error: ' + err);
+      }
+    }, toRun);
+
+    // re-read the queue in case the process function finished immediately or added another item
+    queue = store.get(this.keys.QUEUE) || [];
+    this._schedule.cancel(this._processId);
+    if (queue.length > 0) {
+      this._processId = this._schedule.run(this._processHead, queue[0].time - now);
+    }
+  };
+
+  // Ack continuously to prevent other tabs from claiming our queue
+  Queue.prototype._ack = function() {
+    this._store.set(this.keys.ACK, this._schedule.now());
+    this._store.set(this.keys.RECLAIM_START, null);
+    this._store.set(this.keys.RECLAIM_END, null);
+    this._schedule.run(this._ack, this.timeouts.ACK_TIMER);
+  };
+
+  Queue.prototype._checkReclaim = function() {
+    var self = this;
+
+    function tryReclaim(store) {
+      store.set(self.keys.RECLAIM_START, self.id);
+      store.set(self.keys.ACK, self._schedule.now());
+
+      self._schedule.run(function() {
+        if (store.get(self.keys.RECLAIM_START) !== self.id) return;
+        store.set(self.keys.RECLAIM_END, self.id);
+
+        self._schedule.run(function() {
+          if (store.get(self.keys.RECLAIM_END) !== self.id) return;
+          if (store.get(self.keys.RECLAIM_START) !== self.id) return;
+          self._reclaim(store.id);
+        }, self.timeouts.RECLAIM_WAIT);
+      }, self.timeouts.RECLAIM_WAIT);
+    }
+
+    function findOtherQueues(name) {
+      var res = [];
+      var storage = self._store.engine;
+      for (var i = 0; i < storage.length; i++) {
+        var k = storage.key(i);
+        var parts = k.split('.');
+        if (parts.length !== 3) continue;
+        if (parts[0] !== name) continue;
+        if (parts[2] !== 'ack') continue;
+        res.push(new store(name, parts[1], self.keys));
+      }
+      return res;
+    }
+
+    each_1(function(store) {
+      if (store.id === self.id) return;
+      if (self._schedule.now() - store.get(self.keys.ACK) < self.timeouts.RECLAIM_TIMEOUT) return;
+      tryReclaim(store);
+    }, findOtherQueues(this.name));
+
+    this._schedule.run(this._checkReclaim, this.timeouts.RECLAIM_TIMER);
+  };
+
+  Queue.prototype._reclaim = function(id) {
+    var self = this;
+    var other = new store(this.name, id, this.keys);
+
+    var our = {
+      queue: this._store.get(this.keys.QUEUE) || []
+    };
+
+    var their = {
+      inProgress: other.get(this.keys.IN_PROGRESS) || {},
+      queue: other.get(this.keys.QUEUE) || []
+    };
+
+    // add their queue to ours, resetting run-time to immediate and copying the attempt#
+    each_1(function(el) {
+      our.queue.push({
+        item: el.item,
+        attemptNumber: el.attemptNumber,
+        time: self._schedule.now()
+      });
+    }, their.queue);
+
+    // if the queue is abandoned, all the in-progress are failed. retry them immediately and increment the attempt#
+    each_1(function(el) {
+      our.queue.push({
+        item: el.item,
+        attemptNumber: el.attemptNumber + 1,
+        time: self._schedule.now()
+      });
+    }, their.inProgress);
+
+    our.queue = our.queue.sort(function(a,b) {
+      return a.time - b.time;
+    });
+
+    this._store.set(this.keys.QUEUE, our.queue);
+
+    // remove all keys
+    other.remove(this.keys.ACK);
+    other.remove(this.keys.RECLAIM_START);
+    other.remove(this.keys.RECLAIM_END);
+    other.remove(this.keys.IN_PROGRESS);
+    other.remove(this.keys.QUEUE);
+
+    // process the new items we claimed
+    this._processHead();
+  };
+
+  var lib = Queue;
+
+  var queueOptions = {
+    maxRetryDelay: 360000,
+    // max interval of 1hr. Added as a guard.
+    minRetryDelay: 1000,
+    // first attempt (1s)
+    backoffFactor: 0
+  };
   /**
    *
    * @class EventRepository responsible for adding events into
    * flush queue and sending data to rudder backend
    * in batch and maintains order of the event.
    */
-
 
   var EventRepository =
   /*#__PURE__*/
@@ -1062,11 +3476,25 @@ var rudderanalytics = (function (exports) {
 
       this.eventsBuffer = [];
       this.writeKey = "";
-      this.url = BASE_URL; //"http://localhost:9005"; //BASE_URL;
-
+      this.url = BASE_URL;
       this.state = "READY";
-      this.batchSize = 0;
-      setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
+      this.batchSize = 0; // previous implementation
+      //setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
+
+      this.payloadQueue = new lib("rudder", queueOptions, function (item, done) {
+        // apply sentAt at flush time and reset on each retry
+        item.message.sentAt = getCurrentTimeFormatted(); //send this item for processing, with a callback to enable queue to get the done status
+
+        eventRepository.processQueueElement(item.url, item.headers, item.message, 10 * 1000, function (err, res) {
+          if (err) {
+            return done(err);
+          }
+
+          done(null, res);
+        });
+      }); //start queue
+
+      this.payloadQueue.start();
     }
     /**
      *
@@ -1081,8 +3509,8 @@ var rudderanalytics = (function (exports) {
       key: "preaparePayloadAndFlush",
       value: function preaparePayloadAndFlush(repo) {
         //construct payload
-        console.log("==== in preaparePayloadAndFlush with state: " + repo.state);
-        console.log(repo.eventsBuffer);
+        logger.debug("==== in preaparePayloadAndFlush with state: " + repo.state);
+        logger.debug(repo.eventsBuffer);
 
         if (repo.eventsBuffer.length == 0 || repo.state === "PROCESSING") {
           return;
@@ -1105,8 +3533,8 @@ var rudderanalytics = (function (exports) {
           var xhr;
         }
 
-        console.log("==== in flush sending to Rudder BE ====");
-        console.log(JSON.stringify(payload, replacer));
+        logger.debug("==== in flush sending to Rudder BE ====");
+        logger.debug(JSON.stringify(payload, replacer));
         xhr.open("POST", repo.url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
 
@@ -1117,9 +3545,9 @@ var rudderanalytics = (function (exports) {
 
         xhr.onreadystatechange = function () {
           if (xhr.readyState === 4 && xhr.status === 200) {
-            console.log("====== request processed successfully: " + xhr.status);
+            logger.debug("====== request processed successfully: " + xhr.status);
             repo.eventsBuffer = repo.eventsBuffer.slice(repo.batchSize);
-            console.log(repo.eventsBuffer.length);
+            logger.debug(repo.eventsBuffer.length);
           } else if (xhr.readyState === 4 && xhr.status !== 200) {
             handleError(new Error("request failed with status: " + xhr.status + " for url: " + repo.url));
           }
@@ -1131,6 +3559,47 @@ var rudderanalytics = (function (exports) {
         repo.state = "PROCESSING";
       }
       /**
+       * the queue item proceesor
+       * @param {*} url to send requests to
+       * @param {*} headers
+       * @param {*} message
+       * @param {*} timeout
+       * @param {*} queueFn the function to call after request completion
+       */
+
+    }, {
+      key: "processQueueElement",
+      value: function processQueueElement(url, headers, message, timeout, queueFn) {
+        try {
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", url, true);
+
+          for (var k in headers) {
+            xhr.setRequestHeader(k, headers[k]);
+          }
+
+          xhr.timeout = timeout;
+          xhr.ontimeout = queueFn;
+          xhr.onerror = queueFn;
+
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+              if (xhr.status === 429 || xhr.status >= 500 && xhr.status < 600) {
+                handleError(new Error("request failed with status: " + xhr.status + xhr.statusText + " for url: " + url));
+                queueFn(new Error("request failed with status: " + xhr.status + xhr.statusText + " for url: " + url));
+              } else {
+                logger.debug("====== request processed successfully: " + xhr.status);
+                queueFn(null, xhr.status);
+              }
+            }
+          };
+
+          xhr.send(JSON.stringify(message, replacer));
+        } catch (error) {
+          queueFn(error);
+        }
+      }
+      /**
        *
        *
        * @param {RudderElement} rudderElement
@@ -1139,12 +3608,19 @@ var rudderanalytics = (function (exports) {
 
     }, {
       key: "enqueue",
-      value: function enqueue(rudderElement) {
-        //so buffer is really kept to be in alignment with other SDKs
-        console.log(this.eventsBuffer);
-        this.eventsBuffer.push(rudderElement.getElementContent()); //Add to event buffer
+      value: function enqueue(rudderElement, type) {
+        var headers = {
+          "Content-Type": "application/json",
+          Authorization: "Basic " + btoa(this.writeKey + ":")
+        };
+        var message = rudderElement.getElementContent();
+        message.originalTimestamp = getCurrentTimeFormatted(); // add items to the queue
 
-        console.log("==== Added to flush queue =====" + this.eventsBuffer.length);
+        this.payloadQueue.addItem({
+          url: this.url + "/" + type,
+          headers: headers,
+          message: message
+        });
       }
     }]);
 
@@ -1159,12 +3635,12 @@ var rudderanalytics = (function (exports) {
    * @param {RudderElement} rudderElement
    */
 
-  function enqueue(rudderElement) {
+  function enqueue(rudderElement, type) {
     if (!this.eventRepository) {
       this.eventRepository = eventRepository;
     }
 
-    this.eventRepository.enqueue(rudderElement);
+    this.eventRepository.enqueue(rudderElement, type);
   }
   /**
    * class responsible for handling core
@@ -1193,9 +3669,11 @@ var rudderanalytics = (function (exports) {
       this.toBeProcessedArray = [];
       this.toBeProcessedByIntegrationArray = [];
       this.storage = new Storage$1();
-      this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : generateUUID();
+      this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
       this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
+      this.anonymousId = this.storage.getAnonymousId() ? this.storage.getAnonymousId() : generateUUID();
       this.storage.setUserId(this.userId);
+      this.storage.setAnonymousId(this.anonymousId);
       this.eventRepository = eventRepository;
     }
     /**
@@ -1211,10 +3689,10 @@ var rudderanalytics = (function (exports) {
     _createClass(Analytics, [{
       key: "processResponse",
       value: function processResponse(status, response) {
-        console.log("===in process response=== " + status);
+        logger.debug("===in process response=== " + status);
         response = JSON.parse(response);
         response.source.destinations.forEach(function (destination, index) {
-          console.log("Destination " + index + " Enabled? " + destination.enabled + " Type: " + destination.destinationDefinition.name + " Use Native SDK? " + destination.config.useNativeSDK);
+          logger.debug("Destination " + index + " Enabled? " + destination.enabled + " Type: " + destination.destinationDefinition.name + " Use Native SDK? " + destination.config.useNativeSDK);
 
           if (destination.enabled && destination.config.useNativeSDK) {
             this.clientIntegrations.push(destination.destinationDefinition.name);
@@ -1238,7 +3716,7 @@ var rudderanalytics = (function (exports) {
       value: function init(intgArray, configArray) {
         var _this = this;
 
-        console.log("supported intgs ", integrations);
+        logger.debug("supported intgs ", integrations);
         var i = 0;
         this.clientIntegrationObjects = [];
 
@@ -1338,7 +3816,7 @@ var rudderanalytics = (function (exports) {
           }
 
           if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
-            console.log("====max wait over====");
+            logger.debug("====max wait over====");
 
             _this2.failedToBeLoadedIntegration.push(instance);
 
@@ -1481,12 +3959,19 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "processIdentify",
       value: function processIdentify(userId, traits, options, callback) {
+        if (userId && this.userId && userId !== this.userId) {
+          this.reset();
+        }
+
         this.userId = userId;
         this.storage.setUserId(this.userId);
         var rudderElement = new RudderElementBuilder().setType("identify").build();
 
         if (traits) {
-          this.userTraits = JSON.parse(JSON.stringify(traits));
+          for (var key in traits) {
+            this.userTraits[key] = traits[key];
+          }
+
           this.storage.setUserTraits(this.userTraits);
         }
 
@@ -1554,24 +4039,26 @@ var rudderanalytics = (function (exports) {
       key: "processAndSendDataToDestinations",
       value: function processAndSendDataToDestinations(type, rudderElement, options, callback) {
         try {
-          if (!this.userId) {
-            this.userId = generateUUID();
-            this.storage.setUserId(this.userId);
+          if (!this.anonymousId) {
+            this.anonymousId = generateUUID();
+            this.storage.setAnonymousId(this.anonymousId);
           }
 
           rudderElement["message"]["context"]["traits"] = Object.assign({}, this.userTraits);
-          rudderElement["message"]["anonymousId"] = rudderElement["message"]["userId"] = rudderElement["message"]["context"]["traits"]["anonymousId"] = this.userId;
+          console.log("anonymousId: ", this.anonymousId);
+          rudderElement["message"]["anonymousId"] = this.anonymousId;
+          rudderElement["message"]["userId"] = this.userId;
 
           if (options) {
             this.processOptionsParam(rudderElement, options);
           }
 
-          console.log(JSON.stringify(rudderElement));
+          logger.debug(JSON.stringify(rudderElement));
           var integrations = rudderElement.message.integrations; //try to first send to all integrations, if list populated from BE
 
           if (this.clientIntegrationObjects) {
             this.clientIntegrationObjects.forEach(function (obj) {
-              console.log("called in normal flow");
+              logger.debug("called in normal flow");
 
               if (integrations[obj.name] || integrations[obj.name] == undefined && integrations["All"]) {
                 obj[type](rudderElement);
@@ -1580,14 +4067,14 @@ var rudderanalytics = (function (exports) {
           }
 
           if (!this.clientIntegrationObjects) {
-            console.log("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
+            logger.debug("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
 
             this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
           } // self analytics process
 
 
-          enqueue.call(this, rudderElement);
-          console.log(type + " is called ");
+          enqueue.call(this, rudderElement, type);
+          logger.debug(type + " is called ");
 
           if (callback) {
             callback();
@@ -1607,17 +4094,17 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "processOptionsParam",
       value: function processOptionsParam(rudderElement, options) {
-        var toplevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];
+        var toplevelElements = ["integrations", "anonymousId", "originalTimestamp"];
 
         for (var key in options) {
           if (toplevelElements.includes(key)) {
             rudderElement.message[key] = options[key]; //special handle for ananymousId as transformation expects anonymousId in traits.
 
-            if (key === 'anonymousId') {
-              rudderElement.message.context.traits['anonymousId'] = options[key];
-            }
+            /* if (key === "anonymousId") {
+              rudderElement.message.context.traits["anonymousId"] = options[key];
+            } */
           } else {
-            if (key !== 'context') rudderElement.message.context[key] = options[key];else {
+            if (key !== "context") rudderElement.message.context[key] = options[key];else {
               for (var k in options[key]) {
                 rudderElement.message.context[k] = options[key][k];
               }
@@ -1649,6 +4136,7 @@ var rudderanalytics = (function (exports) {
       value: function reset() {
         this.userId = "";
         this.userTraits = {};
+        this.anonymousId = "";
         this.storage.clear();
       }
       /**
@@ -1660,8 +4148,12 @@ var rudderanalytics = (function (exports) {
 
     }, {
       key: "load",
-      value: function load(writeKey, serverUrl) {
-        console.log("inside load ");
+      value: function load(writeKey, serverUrl, options) {
+        if (options && options.logLevel) {
+          logger.setLogLevel(options.logLevel);
+        }
+
+        logger.debug("inside load ");
         this.eventRepository.writeKey = writeKey;
 
         if (serverUrl) {
@@ -1676,7 +4168,7 @@ var rudderanalytics = (function (exports) {
   }();
 
   {
-    window.addEventListener('error', function (e) {
+    window.addEventListener("error", function (e) {
       handleError(e);
     }, true);
   }
@@ -1694,8 +4186,8 @@ var rudderanalytics = (function (exports) {
     }
 
     if (eventsPushedAlready) {
-      for (var i = 1; i < window.rudderanalytics.length; i++) {
-        instance.toBeProcessedArray.push(window.rudderanalytics[i]);
+      for (var i$1 = 1; i$1 < window.rudderanalytics.length; i$1++) {
+        instance.toBeProcessedArray.push(window.rudderanalytics[i$1]);
       }
 
       for (var _i = 0; _i < instance.toBeProcessedArray.length; _i++) {

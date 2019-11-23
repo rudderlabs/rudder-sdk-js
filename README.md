@@ -51,7 +51,7 @@ Few sample usage of the sdk can be found under **tests** directory for vanilla h
 	rudderanalytics.page();
 </script>
 
-<script  src="https://unpkg.com/rudder-analytics@1.0.5"></script>
+<script  src="https://cdn.rudderlabs.com/rudder.min.js"></script>
 
 // The above is basically the browser.min.js being serviced by cdn, for localtesting, one can refer the js under dist folder
 // This marks the end of loading our script, one can wrap the above in iife if it helps

@@ -1,3 +1,4 @@
+import logger from "../../utils/logUtil";
 class GA {
   constructor(trackingID) {
     this.trackingID = trackingID;//UA-149602794-1
@@ -15,12 +16,12 @@ class GA {
       ga('create', this.trackingID, 'auto');
       ga('send', 'pageview');
 
-    console.log("===in init GA===");
+    logger.debug("===in init GA===");
   }
 
   identify(rudderElement) {
     ga('set', 'userId', rudderElement.message.anonymous_id);
-    console.log("in GoogleAnalyticsManager identify");
+    logger.debug("in GoogleAnalyticsManager identify");
   }
 
   track(rudderElement) {
@@ -40,11 +41,11 @@ class GA {
       eventValue : eventValue
     }
     ga('send', 'event', payLoad);
-    console.log("in GoogleAnalyticsManager track");
+    logger.debug("in GoogleAnalyticsManager track");
   }
 
   page(rudderElement) {
-    console.log("in GoogleAnalyticsManager page");
+    logger.debug("in GoogleAnalyticsManager page");
     var path = (rudderElement.properties && rudderElement.properties.path) ? rudderElement.properties.path : undefined
     if(path){
       ga('set', 'page', path);
@@ -53,7 +54,7 @@ class GA {
   }
 
   isLoaded() {
-    console.log("in GA isLoaded");
+    logger.debug("in GA isLoaded");
     return !!window.gaplugins
   }
 }
