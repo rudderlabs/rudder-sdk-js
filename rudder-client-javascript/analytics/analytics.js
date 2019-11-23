@@ -427,12 +427,7 @@ class Analytics {
    */
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
     try {
-      /* if (!this.userId) {
-        this.userId = generateUUID();
-        this.storage.setUserId(this.userId);
-      } */
       if(!this.anonymousId){
-        console.log("anonymousId not present: " + this.storage.getAnonymousId());
         this.anonymousId = generateUUID();
         this.storage.setAnonymousId(this.anonymousId);
       }

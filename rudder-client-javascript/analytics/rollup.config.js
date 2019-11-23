@@ -55,9 +55,25 @@ export default {
     }),
     process.env.uglify === "true" && terser(),
     process.env.ENV == "prod" &&
-      obfuscatorPlugin({
-        compact: true
-      })
+      obfuscatorPlugin(
+          {
+          compact: true,
+          controlFlowFlattening: false,
+          deadCodeInjection: false,
+          debugProtection: false,
+          disableConsoleOutput: false,
+          identifierNamesGenerator: 'mangled',
+          log: false,
+          renameGlobals: false,
+          rotateStringArray: true,
+          selfDefending: false,
+          sourceMap: false,
+          stringArray: false,
+          stringArrayEncoding: false,
+          transformObjectKeys: false,
+          unicodeEscapeSequence: false
+        }
+      )
     //process.env.uglify === "true" && uglify()
   ]
 };
