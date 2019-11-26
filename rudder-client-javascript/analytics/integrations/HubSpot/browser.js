@@ -64,10 +64,9 @@ class HubSpot {
     eventValue["id"] = rudderElement.message.event;
     if (
       rudderElement.message.properties &&
-      rudderElement.message.properties.revenue
+      (rudderElement.message.properties.revenue || rudderElement.message.properties.value)
     ) {
-      logger.debug("revenue: " + rudderElement.message.properties.revenue);
-      eventValue["value"] = rudderElement.message.properties.revenue;
+      eventValue["value"] = rudderElement.message.properties.revenue || rudderElement.message.properties.value;;
     }
     _hsq.push(["trackEvent", eventValue]);
   }
