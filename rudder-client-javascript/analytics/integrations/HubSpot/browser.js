@@ -23,10 +23,15 @@ class HubSpot {
     for (let k in traits) {
       if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
         let hubspotkey = k;//k.startsWith("rl_") ? k.substring(3, k.length) : k;
-        traitsValue[hubspotkey] = traits[k];
+        if(toString.call(traits[k]) == '[object Date]'){
+          traitsValue[hubspotkey] = traits[k].getTime();
+        } else {
+          traitsValue[hubspotkey] = traits[k];
+        }
       }
+      
     }
-    if (traitsValue["address"]) {
+    /* if (traitsValue["address"]) {
       let address = traitsValue["address"];
       //traitsValue.delete(address)
       delete traitsValue["address"];
@@ -37,7 +42,7 @@ class HubSpot {
           traitsValue[hubspotkey] = address[k];
         }
       }
-    }
+    } */
     let userProperties = rudderElement.message.context.user_properties;
     for (let k in userProperties) {
       if (
