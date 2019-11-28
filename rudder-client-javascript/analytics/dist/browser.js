@@ -348,32 +348,34 @@ var rudderanalytics = (function (exports) {
           if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
             var hubspotkey = k; //k.startsWith("rl_") ? k.substring(3, k.length) : k;
 
-            traitsValue[hubspotkey] = traits[k];
-          }
-        }
-
-        if (traitsValue["address"]) {
-          var address = traitsValue["address"]; //traitsValue.delete(address)
-
-          delete traitsValue["address"];
-
-          for (var _k in address) {
-            if (!!Object.getOwnPropertyDescriptor(address, _k) && address[_k]) {
-              var _hubspotkey = _k; //k.startsWith("rl_") ? k.substring(3, k.length) : k;
-
-              _hubspotkey = _hubspotkey == "street" ? "address" : _hubspotkey;
-              traitsValue[_hubspotkey] = address[_k];
+            if (toString.call(traits[k]) == '[object Date]') {
+              traitsValue[hubspotkey] = traits[k].getTime();
+            } else {
+              traitsValue[hubspotkey] = traits[k];
             }
           }
         }
+        /* if (traitsValue["address"]) {
+          let address = traitsValue["address"];
+          //traitsValue.delete(address)
+          delete traitsValue["address"];
+          for (let k in address) {
+            if (!!Object.getOwnPropertyDescriptor(address, k) && address[k]) {
+              let hubspotkey = k;//k.startsWith("rl_") ? k.substring(3, k.length) : k;
+              hubspotkey = hubspotkey == "street" ? "address" : hubspotkey;
+              traitsValue[hubspotkey] = address[k];
+            }
+          }
+        } */
+
 
         var userProperties = rudderElement.message.context.user_properties;
 
-        for (var _k2 in userProperties) {
-          if (!!Object.getOwnPropertyDescriptor(userProperties, _k2) && userProperties[_k2]) {
-            var _hubspotkey2 = _k2; //k.startsWith("rl_") ? k.substring(3, k.length) : k;
+        for (var _k in userProperties) {
+          if (!!Object.getOwnPropertyDescriptor(userProperties, _k) && userProperties[_k]) {
+            var _hubspotkey = _k; //k.startsWith("rl_") ? k.substring(3, k.length) : k;
 
-            traitsValue[_hubspotkey2] = userProperties[_k2];
+            traitsValue[_hubspotkey] = userProperties[_k];
           }
         }
 
@@ -395,9 +397,8 @@ var rudderanalytics = (function (exports) {
         var eventValue = {};
         eventValue["id"] = rudderElement.message.event;
 
-        if (rudderElement.message.properties && rudderElement.message.properties.revenue) {
-          logger.debug("revenue: " + rudderElement.message.properties.revenue);
-          eventValue["value"] = rudderElement.message.properties.revenue;
+        if (rudderElement.message.properties && (rudderElement.message.properties.revenue || rudderElement.message.properties.value)) {
+          eventValue["value"] = rudderElement.message.properties.revenue || rudderElement.message.properties.value;
         }
 
         _hsq.push(["trackEvent", eventValue]);
