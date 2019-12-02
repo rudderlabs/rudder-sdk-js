@@ -15,6 +15,7 @@ import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
+import { addDomEventHandlers } from "./utils/autotrack.js";
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
@@ -75,6 +76,9 @@ class Analytics {
   processResponse(status, response) {
     logger.debug("===in process response=== " + status);
     response = JSON.parse(response);
+    if (response.source.useAutoTracking || true) {
+      addDomEventHandlers(this);
+    }
     response.source.destinations.forEach(function(destination, index) {
       logger.debug(
         "Destination " +
