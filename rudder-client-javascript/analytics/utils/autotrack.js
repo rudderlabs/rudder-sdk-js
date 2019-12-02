@@ -1,10 +1,6 @@
 import {getDefaultPageProperties} from "./utils"
+import logger from "./logUtil";
 function addDomEventHandlers(rudderanalytics) {
-    /* var handler = bind(function(e) {
-        console.log("handler");
-        e = e || window.event;
-        console.log("handler");
-    }, this); */
     var handler = e => {
         e = e || window.event;
         var target = e.target || e.srcElement;
@@ -13,9 +9,9 @@ function addDomEventHandlers(rudderanalytics) {
             target = target.parentNode;
         }
         if(shouldTrackDomEvent(target, e)){
-            console.log("to be tracked ", e.type);
+            logger.debug("to be tracked ", e.type);
         } else {
-            console.log("not to be tracked ", e.type);
+            logger.debug("not to be tracked ", e.type);
         }
         trackWindowEvent(e, rudderanalytics);
         
@@ -28,7 +24,7 @@ function addDomEventHandlers(rudderanalytics) {
 
 function register_event (element, type, handler, useCapture) {
     if (!element) {
-        console.error('No valid element provided to register_event');
+        logger.error('No valid element provided to register_event');
         return;
     }
     element.addEventListener(type, handler, !!useCapture);
@@ -95,13 +91,11 @@ function trackWindowEvent(e, rudderanalytics) {
 
     if (shouldTrackDomEvent(target, e)) {
         var targetElementList = [target];
-        console.log(targetElementList)
         var curEl = target;
         while (curEl.parentNode && !isTag(curEl, 'body')) {
             targetElementList.push(curEl.parentNode);
             curEl = curEl.parentNode;
         }
-        console.log(targetElementList)
 
         var elementsJson = [];
         var href, explicitNoTrack = false;
@@ -142,7 +136,7 @@ function trackWindowEvent(e, rudderanalytics) {
             'el_attr_href': href,
             'el_text': elementText
         }
-        console.log('web_event', props);
+        logger.debug('web_event', props);
         rudderanalytics.track('autotrack', props);
         return true;
     }
@@ -152,7 +146,6 @@ function getText(el){
     var text = "";
     el.childNodes.forEach(function(value){
         if(value.nodeType === Node.TEXT_NODE) { 
-           console.log("Current textNode value is : ", value.nodeValue.trim())
            text += value.nodeValue;
         }
     });	
@@ -164,10 +157,8 @@ function getPropertiesFromElement(elem) {
         'classes': getClassName(elem).split(' '),
         'tag_name': elem.tagName.toLowerCase()
     };
-    console.log(elem.attributes)
     
     let attrLength = elem.attributes.length;
-    console.log(elem.attributes.length, typeof(elem.attributes))
     for(let i=0;i<attrLength;i++){
         let name = elem.attributes[i].name;
         let value = elem.attributes[i].value;
