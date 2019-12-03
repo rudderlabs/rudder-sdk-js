@@ -3453,9 +3453,9 @@ var rudderanalytics = (function (exports) {
 
   var queueOptions = {
     maxRetryDelay: 360000,
-    // max interval of 1hr. Added as a guard.
+    // max retry interval
     minRetryDelay: 1000,
-    // first attempt (1s)
+    // first attempt after 1sec
     backoffFactor: 0
   };
   /**
@@ -3615,10 +3615,12 @@ var rudderanalytics = (function (exports) {
           Authorization: "Basic " + btoa(this.writeKey + ":")
         };
         var message = rudderElement.getElementContent();
-        message.originalTimestamp = getCurrentTimeFormatted(); // add items to the queue
+        message.originalTimestamp = getCurrentTimeFormatted(); //modify the url for event specific endpoints
+
+        var url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url; // add items to the queue
 
         this.payloadQueue.addItem({
-          url: this.url + "/" + type,
+          url: url + "/v1/" + type,
           headers: headers,
           message: message
         });
@@ -4150,6 +4152,13 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "load",
       value: function load(writeKey, serverUrl, options) {
+        if (!writeKey || !serverUrl || serverUrl.length == 0) {
+          handleError({
+            message: "Unable to load due to wrong writeKey or serverUrl"
+          });
+          throw Error("failed to initialize");
+        }
+
         if (options && options.logLevel) {
           logger.setLogLevel(options.logLevel);
         }
