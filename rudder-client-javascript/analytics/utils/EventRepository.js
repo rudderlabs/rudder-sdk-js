@@ -21,8 +21,8 @@ if (!process.browser) {
 }
 
 var queueOptions = {
-  maxRetryDelay: 360000, // max interval of 1hr. Added as a guard.
-  minRetryDelay: 1000, // first attempt (1s)
+  maxRetryDelay: 360000, // max retry interval
+  minRetryDelay: 1000, // first attempt after 1sec
   backoffFactor: 0
 };
 
@@ -211,9 +211,11 @@ class EventRepository {
 
     var message = rudderElement.getElementContent();
     message.originalTimestamp = getCurrentTimeFormatted();
+    //modify the url for event specific endpoints
+    var url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
     // add items to the queue
     this.payloadQueue.addItem({
-      url: this.url + "/" + type,
+      url: url + "/v1/" + type,
       headers: headers,
       message: message
     });

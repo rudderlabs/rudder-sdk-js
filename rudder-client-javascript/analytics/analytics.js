@@ -14,7 +14,7 @@ import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
-import logger from "./utils/logUtil"
+import logger from "./utils/logUtil";
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
@@ -52,16 +52,16 @@ class Analytics {
     this.toBeProcessedByIntegrationArray = [];
     this.storage = new Storage();
     this.userId =
-      this.storage.getUserId() != undefined
-        ? this.storage.getUserId()
-        : "";
+      this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
 
     this.userTraits =
       this.storage.getUserTraits() != undefined
         ? this.storage.getUserTraits()
         : {};
-    
-    this.anonymousId = this.storage.getAnonymousId() ? this.storage.getAnonymousId() : generateUUID();
+
+    this.anonymousId = this.storage.getAnonymousId()
+      ? this.storage.getAnonymousId()
+      : generateUUID();
 
     this.storage.setUserId(this.userId);
     this.storage.setAnonymousId(this.anonymousId);
@@ -334,7 +334,7 @@ class Analytics {
    * @memberof Analytics
    */
   processIdentify(userId, traits, options, callback) {
-    if( userId && this.userId && userId !== this.userId){
+    if (userId && this.userId && userId !== this.userId) {
       this.reset();
     }
     this.userId = userId;
@@ -342,8 +342,8 @@ class Analytics {
 
     let rudderElement = new RudderElementBuilder().setType("identify").build();
     if (traits) {
-      for(let key in traits){
-        this.userTraits[key] = traits[key]
+      for (let key in traits) {
+        this.userTraits[key] = traits[key];
       }
       this.storage.setUserTraits(this.userTraits);
     }
@@ -427,7 +427,7 @@ class Analytics {
    */
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
     try {
-      if(!this.anonymousId){
+      if (!this.anonymousId) {
         this.anonymousId = generateUUID();
         this.storage.setAnonymousId(this.anonymousId);
       }
@@ -436,7 +436,7 @@ class Analytics {
         {},
         this.userTraits
       );
-      console.log("anonymousId: ", this.anonymousId)
+      console.log("anonymousId: ", this.anonymousId);
       rudderElement["message"]["anonymousId"] = this.anonymousId;
       rudderElement["message"]["userId"] = this.userId;
 
@@ -534,7 +534,13 @@ class Analytics {
    * @memberof Analytics
    */
   load(writeKey, serverUrl, options) {
-    if(options && options.logLevel){
+    if (!writeKey || !serverUrl || serverUrl.length == 0) {
+      handleError({
+        message: "Unable to load due to wrong writeKey or serverUrl"
+      });
+      throw Error("failed to initialize");
+    }
+    if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
     logger.debug("inside load ");
