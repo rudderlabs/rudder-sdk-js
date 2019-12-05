@@ -3732,7 +3732,7 @@ var rudderanalytics = (function (exports) {
           var intgClass = integrations[intg];
 
           if (intg === "HS") {
-            var hubId = configArray[i].hubId;
+            var hubId = configArray[i].hubID;
             var intgInstance = new intgClass(hubId);
             intgInstance.init(); //this.clientIntegrationObjects.push(intgInstance);
 
