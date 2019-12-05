@@ -119,7 +119,7 @@ class Analytics {
     intgArray.forEach(intg => {
       let intgClass = integrations[intg];
       if (intg === "HS") {
-        let hubId = configArray[i].hubId;
+        let hubId = configArray[i].hubID;
         let intgInstance = new intgClass(hubId);
         intgInstance.init();
 
