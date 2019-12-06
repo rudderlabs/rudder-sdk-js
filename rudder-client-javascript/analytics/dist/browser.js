@@ -1000,554 +1000,52 @@ var rudderanalytics = (function (exports) {
     return RudderElementBuilder;
   }();
 
-  var defaults = {
-    user_storage_key: "rl_user_id",
-    user_storage_trait: "rl_trait",
-    user_storage_anonymousId: "rl_anonymous_id"
-  };
-
-  var Storage =
-  /*#__PURE__*/
-  function () {
-    function Storage() {
-      _classCallCheck(this, Storage);
-
-      this.storage = window.localStorage;
-    }
-
-    _createClass(Storage, [{
-      key: "setItem",
-      value: function setItem(key, value) {
-        var stringValue = "";
-
-        if (typeof value == "string") {
-          stringValue = value;
-        }
-
-        if (_typeof(value) == "object") {
-          stringValue = JSON.stringify(value);
-        }
-
-        this.storage.setItem(key, stringValue);
-      }
-    }, {
-      key: "setUserId",
-      value: function setUserId(value) {
-        if (typeof value != "string") {
-          logger.error("userId should be string");
-          return;
-        }
-
-        this.storage.setItem(defaults.user_storage_key, value);
-        return;
-      }
-    }, {
-      key: "setUserTraits",
-      value: function setUserTraits(value) {
-        if (_typeof(value) != "object") {
-          logger.error("traits should be object");
-          return;
-        }
-
-        this.storage.setItem(defaults.user_storage_trait, JSON.stringify(value));
-        return;
-      }
-    }, {
-      key: "setAnonymousId",
-      value: function setAnonymousId(value) {
-        if (typeof value != "string") {
-          logger.error("anonymousId should be string");
-          return;
-        }
-
-        this.storage.setItem(defaults.user_storage_anonymousId, value);
-        return;
-      }
-    }, {
-      key: "getItem",
-      value: function getItem(key) {
-        var stringValue = this.storage.getItem(key);
-        return JSON.parse(stringValue);
-      }
-    }, {
-      key: "getUserId",
-      value: function getUserId() {
-        return this.storage.getItem(defaults.user_storage_key);
-      }
-    }, {
-      key: "getUserTraits",
-      value: function getUserTraits() {
-        return JSON.parse(this.storage.getItem(defaults.user_storage_trait));
-      }
-    }, {
-      key: "getAnonymousId",
-      value: function getAnonymousId() {
-        return this.storage.getItem(defaults.user_storage_anonymousId);
-      }
-    }, {
-      key: "removeItem",
-      value: function removeItem(key) {
-        this.storage.removeItem(key);
-      }
-    }, {
-      key: "clear",
-      value: function clear() {
-        this.storage.removeItem(defaults.user_storage_key);
-        this.storage.removeItem(defaults.user_storage_trait);
-        this.storage.removeItem(defaults.user_storage_anonymousId);
-      }
-    }]);
-
-    return Storage;
-  }();
-
-  var Storage$1 =  Storage ;
-
-  //Payload class, contains batch of Elements
-  var RudderPayload = function RudderPayload() {
-    _classCallCheck(this, RudderPayload);
-
-    this.batch = null;
-    this.writeKey = null;
-  };
-
-  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
-
-  var rngBrowser = createCommonjsModule(function (module) {
-  // Unique ID creation requires a high quality random # generator.  In the
-  // browser this is a little complicated due to unknown quality of Math.random()
-  // and inconsistent support for the `crypto` API.  We do the best we can via
-  // feature-detection
-
-  // getRandomValues needs to be invoked in a context where "this" is a Crypto
-  // implementation. Also, find the complete implementation of crypto on IE11.
-  var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)) ||
-                        (typeof(msCrypto) != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto));
-
-  if (getRandomValues) {
-    // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
-    var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
-
-    module.exports = function whatwgRNG() {
-      getRandomValues(rnds8);
-      return rnds8;
-    };
-  } else {
-    // Math.random()-based (RNG)
-    //
-    // If all else fails, use Math.random().  It's fast, but is of unspecified
-    // quality.
-    var rnds = new Array(16);
-
-    module.exports = function mathRNG() {
-      for (var i = 0, r; i < 16; i++) {
-        if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
-        rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
-      }
-
-      return rnds;
-    };
-  }
-  });
-
   /**
-   * Convert array of 16 byte values to UUID string format of the form:
-   * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
-   */
-  var byteToHex = [];
-  for (var i = 0; i < 256; ++i) {
-    byteToHex[i] = (i + 0x100).toString(16).substr(1);
-  }
-
-  function bytesToUuid(buf, offset) {
-    var i = offset || 0;
-    var bth = byteToHex;
-    // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([bth[buf[i++]], bth[buf[i++]], 
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]]]).join('');
-  }
-
-  var bytesToUuid_1 = bytesToUuid;
-
-  // **`v1()` - Generate time-based UUID**
-  //
-  // Inspired by https://github.com/LiosK/UUID.js
-  // and http://docs.python.org/library/uuid.html
-
-  var _nodeId;
-  var _clockseq;
-
-  // Previous uuid creation time
-  var _lastMSecs = 0;
-  var _lastNSecs = 0;
-
-  // See https://github.com/broofa/node-uuid for API details
-  function v1(options, buf, offset) {
-    var i = buf && offset || 0;
-    var b = buf || [];
-
-    options = options || {};
-    var node = options.node || _nodeId;
-    var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
-
-    // node and clockseq need to be initialized to random values if they're not
-    // specified.  We do this lazily to minimize issues related to insufficient
-    // system entropy.  See #189
-    if (node == null || clockseq == null) {
-      var seedBytes = rngBrowser();
-      if (node == null) {
-        // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
-        node = _nodeId = [
-          seedBytes[0] | 0x01,
-          seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]
-        ];
-      }
-      if (clockseq == null) {
-        // Per 4.2.2, randomize (14 bit) clockseq
-        clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
-      }
-    }
-
-    // UUID timestamps are 100 nano-second units since the Gregorian epoch,
-    // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
-    // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
-    // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
-    var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
-
-    // Per 4.2.1.2, use count of uuid's generated during the current clock
-    // cycle to simulate higher resolution clock
-    var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
-
-    // Time since last uuid creation (in msecs)
-    var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
-
-    // Per 4.2.1.2, Bump clockseq on clock regression
-    if (dt < 0 && options.clockseq === undefined) {
-      clockseq = clockseq + 1 & 0x3fff;
-    }
-
-    // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
-    // time interval
-    if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
-      nsecs = 0;
-    }
-
-    // Per 4.2.1.2 Throw error if too many uuids are requested
-    if (nsecs >= 10000) {
-      throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
-    }
-
-    _lastMSecs = msecs;
-    _lastNSecs = nsecs;
-    _clockseq = clockseq;
-
-    // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
-    msecs += 12219292800000;
-
-    // `time_low`
-    var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
-    b[i++] = tl >>> 24 & 0xff;
-    b[i++] = tl >>> 16 & 0xff;
-    b[i++] = tl >>> 8 & 0xff;
-    b[i++] = tl & 0xff;
-
-    // `time_mid`
-    var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
-    b[i++] = tmh >>> 8 & 0xff;
-    b[i++] = tmh & 0xff;
-
-    // `time_high_and_version`
-    b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
-    b[i++] = tmh >>> 16 & 0xff;
-
-    // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
-    b[i++] = clockseq >>> 8 | 0x80;
-
-    // `clock_seq_low`
-    b[i++] = clockseq & 0xff;
-
-    // `node`
-    for (var n = 0; n < 6; ++n) {
-      b[i + n] = node[n];
-    }
-
-    return buf ? buf : bytesToUuid_1(b);
-  }
-
-  var v1_1 = v1;
-
-  function v4(options, buf, offset) {
-    var i = buf && offset || 0;
-
-    if (typeof(options) == 'string') {
-      buf = options === 'binary' ? new Array(16) : null;
-      options = null;
-    }
-    options = options || {};
-
-    var rnds = options.random || (options.rng || rngBrowser)();
-
-    // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
-    rnds[6] = (rnds[6] & 0x0f) | 0x40;
-    rnds[8] = (rnds[8] & 0x3f) | 0x80;
-
-    // Copy bytes to buffer, if provided
-    if (buf) {
-      for (var ii = 0; ii < 16; ++ii) {
-        buf[i + ii] = rnds[ii];
-      }
-    }
-
-    return buf || bytesToUuid_1(rnds);
-  }
-
-  var v4_1 = v4;
-
-  var uuid = v4_1;
-  uuid.v1 = v1_1;
-  uuid.v4 = v4_1;
-
-  var uuid_1 = uuid;
-
-  var hop = Object.prototype.hasOwnProperty;
-  var strCharAt = String.prototype.charAt;
-  var toStr = Object.prototype.toString;
-
-  /**
-   * Returns the character at a given index.
-   *
-   * @param {string} str
-   * @param {number} index
-   * @return {string|undefined}
-   */
-  // TODO: Move to a library
-  var charAt = function(str, index) {
-    return strCharAt.call(str, index);
-  };
-
-  /**
-   * hasOwnProperty, wrapped as a function.
-   *
-   * @name has
-   * @api private
-   * @param {*} context
-   * @param {string|number} prop
-   * @return {boolean}
+   * toString ref.
    */
 
-  // TODO: Move to a library
-  var has = function has(context, prop) {
-    return hop.call(context, prop);
-  };
+  var toString$1 = Object.prototype.toString;
 
   /**
-   * Returns true if a value is a string, otherwise false.
+   * Return the type of `val`.
    *
-   * @name isString
-   * @api private
-   * @param {*} val
-   * @return {boolean}
-   */
-
-  // TODO: Move to a library
-  var isString = function isString(val) {
-    return toStr.call(val) === '[object String]';
-  };
-
-  /**
-   * Returns true if a value is array-like, otherwise false. Array-like means a
-   * value is not null, undefined, or a function, and has a numeric `length`
-   * property.
-   *
-   * @name isArrayLike
-   * @api private
-   * @param {*} val
-   * @return {boolean}
-   */
-  // TODO: Move to a library
-  var isArrayLike = function isArrayLike(val) {
-    return val != null && (typeof val !== 'function' && typeof val.length === 'number');
-  };
-
-
-  /**
-   * indexKeys
-   *
-   * @name indexKeys
-   * @api private
-   * @param {} target
-   * @param {Function} pred
-   * @return {Array}
-   */
-  var indexKeys = function indexKeys(target, pred) {
-    pred = pred || has;
-
-    var results = [];
-
-    for (var i = 0, len = target.length; i < len; i += 1) {
-      if (pred(target, i)) {
-        results.push(String(i));
-      }
-    }
-
-    return results;
-  };
-
-  /**
-   * Returns an array of an object's owned keys.
-   *
-   * @name objectKeys
-   * @api private
-   * @param {*} target
-   * @param {Function} pred Predicate function used to include/exclude values from
-   * the resulting array.
-   * @return {Array}
-   */
-  var objectKeys = function objectKeys(target, pred) {
-    pred = pred || has;
-
-    var results = [];
-
-    for (var key in target) {
-      if (pred(target, key)) {
-        results.push(String(key));
-      }
-    }
-
-    return results;
-  };
-
-  /**
-   * Creates an array composed of all keys on the input object. Ignores any non-enumerable properties.
-   * More permissive than the native `Object.keys` function (non-objects will not throw errors).
-   *
-   * @name keys
+   * @param {Mixed} val
+   * @return {String}
    * @api public
-   * @category Object
-   * @param {Object} source The value to retrieve keys from.
-   * @return {Array} An array containing all the input `source`'s keys.
-   * @example
-   * keys({ likes: 'avocado', hates: 'pineapple' });
-   * //=> ['likes', 'pineapple'];
-   *
-   * // Ignores non-enumerable properties
-   * var hasHiddenKey = { name: 'Tim' };
-   * Object.defineProperty(hasHiddenKey, 'hidden', {
-   *   value: 'i am not enumerable!',
-   *   enumerable: false
-   * })
-   * keys(hasHiddenKey);
-   * //=> ['name'];
-   *
-   * // Works on arrays
-   * keys(['a', 'b', 'c']);
-   * //=> ['0', '1', '2']
-   *
-   * // Skips unpopulated indices in sparse arrays
-   * var arr = [1];
-   * arr[4] = 4;
-   * keys(arr);
-   * //=> ['0', '4']
-   */
-  var keys = function keys(source) {
-    if (source == null) {
-      return [];
-    }
-
-    // IE6-8 compatibility (string)
-    if (isString(source)) {
-      return indexKeys(source, charAt);
-    }
-
-    // IE6-8 compatibility (arguments)
-    if (isArrayLike(source)) {
-      return indexKeys(source, has);
-    }
-
-    return objectKeys(source);
-  };
-
-  /*
-   * Exports.
    */
 
-  var keys_1 = keys;
-
-  var uuid$1 = uuid_1.v4;
-
-  var inMemoryStore = {
-    _data: {},
-    length: 0,
-    setItem: function(key, value) {
-      this._data[key] = value;
-      this.length = keys_1(this._data).length;
-      return value;
-    },
-    getItem: function(key) {
-      if (key in this._data) {
-        return this._data[key];
-      }
-      return null;
-    },
-    removeItem: function(key) {
-      if (key in this._data) {
-        delete this._data[key];
-      }
-      this.length = keys_1(this._data).length;
-      return null;
-    },
-    clear: function() {
-      this._data = {};
-      this.length = 0;
-    },
-    key: function(index) {
-      return keys_1(this._data)[index];
+  var componentType = function(val){
+    switch (toString$1.call(val)) {
+      case '[object Date]': return 'date';
+      case '[object RegExp]': return 'regexp';
+      case '[object Arguments]': return 'arguments';
+      case '[object Array]': return 'array';
+      case '[object Error]': return 'error';
     }
+
+    if (val === null) return 'null';
+    if (val === undefined) return 'undefined';
+    if (val !== val) return 'nan';
+    if (val && val.nodeType === 1) return 'element';
+
+    if (isBuffer(val)) return 'buffer';
+
+    val = val.valueOf
+      ? val.valueOf()
+      : Object.prototype.valueOf.apply(val);
+
+    return typeof val;
   };
 
-  function isSupportedNatively() {
-    try {
-      if (!window.localStorage) return false;
-      var key = uuid$1();
-      window.localStorage.setItem(key, 'test_value');
-      var value = window.localStorage.getItem(key);
-      window.localStorage.removeItem(key);
-
-      // handle localStorage silently failing
-      return value === 'test_value';
-    } catch (e) {
-      // Can throw if localStorage is disabled
-      return false;
-    }
+  // code borrowed from https://github.com/feross/is-buffer/blob/master/index.js
+  function isBuffer(obj) {
+    return !!(obj != null &&
+      (obj._isBuffer || // For Safari 5-7 (missing Object.prototype.constructor)
+        (obj.constructor &&
+        typeof obj.constructor.isBuffer === 'function' &&
+        obj.constructor.isBuffer(obj))
+      ))
   }
-
-  function pickStorage() {
-    if (isSupportedNatively()) {
-      return window.localStorage;
-    }
-    // fall back to in-memory
-    return inMemoryStore;
-  }
-
-  // Return a shared instance
-  var defaultEngine = pickStorage();
-  // Expose the in-memory store explicitly for testing
-  var inMemoryEngine = inMemoryStore;
-
-  var engine = {
-  	defaultEngine: defaultEngine,
-  	inMemoryEngine: inMemoryEngine
-  };
 
   /*
    * Module dependencies.
@@ -1555,127 +1053,933 @@ var rudderanalytics = (function (exports) {
 
 
 
-  var objToString = Object.prototype.toString;
-
   /**
-   * Tests if a value is a number.
+   * Deeply clone an object.
    *
-   * @name isNumber
-   * @api private
-   * @param {*} val The value to test.
-   * @return {boolean} Returns `true` if `val` is a number, otherwise `false`.
+   * @param {*} obj Any object.
    */
-  // TODO: Move to library
-  var isNumber = function isNumber(val) {
-    var type = typeof val;
-    return type === 'number' || (type === 'object' && objToString.call(val) === '[object Number]');
-  };
 
-  /**
-   * Tests if a value is an array.
-   *
-   * @name isArray
-   * @api private
-   * @param {*} val The value to test.
-   * @return {boolean} Returns `true` if the value is an array, otherwise `false`.
-   */
-  // TODO: Move to library
-  var isArray = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
-    return objToString.call(val) === '[object Array]';
-  };
+  var clone = function clone(obj) {
+    var t = componentType(obj);
 
-  /**
-   * Tests if a value is array-like. Array-like means the value is not a function and has a numeric
-   * `.length` property.
-   *
-   * @name isArrayLike
-   * @api private
-   * @param {*} val
-   * @return {boolean}
-   */
-  // TODO: Move to library
-  var isArrayLike$1 = function isArrayLike(val) {
-    return val != null && (isArray(val) || (val !== 'function' && isNumber(val.length)));
-  };
-
-  /**
-   * Internal implementation of `each`. Works on arrays and array-like data structures.
-   *
-   * @name arrayEach
-   * @api private
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Array} array The array(-like) structure to iterate over.
-   * @return {undefined}
-   */
-  var arrayEach = function arrayEach(iterator, array) {
-    for (var i = 0; i < array.length; i += 1) {
-      // Break iteration early if `iterator` returns `false`
-      if (iterator(array[i], i, array) === false) {
-        break;
+    if (t === 'object') {
+      var copy = {};
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          copy[key] = clone(obj[key]);
+        }
       }
+      return copy;
     }
-  };
 
-  /**
-   * Internal implementation of `each`. Works on objects.
-   *
-   * @name baseEach
-   * @api private
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Object} object The object to iterate over.
-   * @return {undefined}
-   */
-  var baseEach = function baseEach(iterator, object) {
-    var ks = keys_1(object);
-
-    for (var i = 0; i < ks.length; i += 1) {
-      // Break iteration early if `iterator` returns `false`
-      if (iterator(object[ks[i]], ks[i], object) === false) {
-        break;
+    if (t === 'array') {
+      var copy = new Array(obj.length);
+      for (var i = 0, l = obj.length; i < l; i++) {
+        copy[i] = clone(obj[i]);
       }
+      return copy;
     }
-  };
 
-  /**
-   * Iterate over an input collection, invoking an `iterator` function for each element in the
-   * collection and passing to it three arguments: `(value, index, collection)`. The `iterator`
-   * function can end iteration early by returning `false`.
-   *
-   * @name each
-   * @api public
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Array|Object|string} collection The collection to iterate over.
-   * @return {undefined} Because `each` is run only for side effects, always returns `undefined`.
-   * @example
-   * var log = console.log.bind(console);
-   *
-   * each(log, ['a', 'b', 'c']);
-   * //-> 'a', 0, ['a', 'b', 'c']
-   * //-> 'b', 1, ['a', 'b', 'c']
-   * //-> 'c', 2, ['a', 'b', 'c']
-   * //=> undefined
-   *
-   * each(log, 'tim');
-   * //-> 't', 2, 'tim'
-   * //-> 'i', 1, 'tim'
-   * //-> 'm', 0, 'tim'
-   * //=> undefined
-   *
-   * // Note: Iteration order not guaranteed across environments
-   * each(log, { name: 'tim', occupation: 'enchanter' });
-   * //-> 'tim', 'name', { name: 'tim', occupation: 'enchanter' }
-   * //-> 'enchanter', 'occupation', { name: 'tim', occupation: 'enchanter' }
-   * //=> undefined
-   */
-  var each = function each(iterator, collection) {
-    return (isArrayLike$1(collection) ? arrayEach : baseEach).call(this, iterator, collection);
+    if (t === 'regexp') {
+      // from millermedeiros/amd-utils - MIT
+      var flags = '';
+      flags += obj.multiline ? 'm' : '';
+      flags += obj.global ? 'g' : '';
+      flags += obj.ignoreCase ? 'i' : '';
+      return new RegExp(obj.source, flags);
+    }
+
+    if (t === 'date') {
+      return new Date(obj.getTime());
+    }
+
+    // string, number, boolean, etc.
+    return obj;
   };
 
   /*
    * Exports.
    */
 
-  var each_1 = each;
+  var clone_1 = clone;
+
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
+
+  /**
+   * Helpers.
+   */
+
+  var s = 1000;
+  var m = s * 60;
+  var h = m * 60;
+  var d = h * 24;
+  var y = d * 365.25;
+
+  /**
+   * Parse or format the given `val`.
+   *
+   * Options:
+   *
+   *  - `long` verbose formatting [false]
+   *
+   * @param {String|Number} val
+   * @param {Object} options
+   * @return {String|Number}
+   * @api public
+   */
+
+  var ms = function(val, options){
+    options = options || {};
+    if ('string' == typeof val) return parse(val);
+    return options.long
+      ? long(val)
+      : short(val);
+  };
+
+  /**
+   * Parse the given `str` and return milliseconds.
+   *
+   * @param {String} str
+   * @return {Number}
+   * @api private
+   */
+
+  function parse(str) {
+    str = '' + str;
+    if (str.length > 10000) return;
+    var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
+    if (!match) return;
+    var n = parseFloat(match[1]);
+    var type = (match[2] || 'ms').toLowerCase();
+    switch (type) {
+      case 'years':
+      case 'year':
+      case 'yrs':
+      case 'yr':
+      case 'y':
+        return n * y;
+      case 'days':
+      case 'day':
+      case 'd':
+        return n * d;
+      case 'hours':
+      case 'hour':
+      case 'hrs':
+      case 'hr':
+      case 'h':
+        return n * h;
+      case 'minutes':
+      case 'minute':
+      case 'mins':
+      case 'min':
+      case 'm':
+        return n * m;
+      case 'seconds':
+      case 'second':
+      case 'secs':
+      case 'sec':
+      case 's':
+        return n * s;
+      case 'milliseconds':
+      case 'millisecond':
+      case 'msecs':
+      case 'msec':
+      case 'ms':
+        return n;
+    }
+  }
+
+  /**
+   * Short format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+
+  function short(ms) {
+    if (ms >= d) return Math.round(ms / d) + 'd';
+    if (ms >= h) return Math.round(ms / h) + 'h';
+    if (ms >= m) return Math.round(ms / m) + 'm';
+    if (ms >= s) return Math.round(ms / s) + 's';
+    return ms + 'ms';
+  }
+
+  /**
+   * Long format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+
+  function long(ms) {
+    return plural(ms, d, 'day')
+      || plural(ms, h, 'hour')
+      || plural(ms, m, 'minute')
+      || plural(ms, s, 'second')
+      || ms + ' ms';
+  }
+
+  /**
+   * Pluralization helper.
+   */
+
+  function plural(ms, n, name) {
+    if (ms < n) return;
+    if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
+    return Math.ceil(ms / n) + ' ' + name + 's';
+  }
+
+  var debug_1 = createCommonjsModule(function (module, exports) {
+  /**
+   * This is the common logic for both the Node.js and web browser
+   * implementations of `debug()`.
+   *
+   * Expose `debug()` as the module.
+   */
+
+  exports = module.exports = debug;
+  exports.coerce = coerce;
+  exports.disable = disable;
+  exports.enable = enable;
+  exports.enabled = enabled;
+  exports.humanize = ms;
+
+  /**
+   * The currently active debug mode names, and names to skip.
+   */
+
+  exports.names = [];
+  exports.skips = [];
+
+  /**
+   * Map of special "%n" handling functions, for the debug "format" argument.
+   *
+   * Valid key names are a single, lowercased letter, i.e. "n".
+   */
+
+  exports.formatters = {};
+
+  /**
+   * Previously assigned color.
+   */
+
+  var prevColor = 0;
+
+  /**
+   * Previous log timestamp.
+   */
+
+  var prevTime;
+
+  /**
+   * Select a color.
+   *
+   * @return {Number}
+   * @api private
+   */
+
+  function selectColor() {
+    return exports.colors[prevColor++ % exports.colors.length];
+  }
+
+  /**
+   * Create a debugger with the given `namespace`.
+   *
+   * @param {String} namespace
+   * @return {Function}
+   * @api public
+   */
+
+  function debug(namespace) {
+
+    // define the `disabled` version
+    function disabled() {
+    }
+    disabled.enabled = false;
+
+    // define the `enabled` version
+    function enabled() {
+
+      var self = enabled;
+
+      // set `diff` timestamp
+      var curr = +new Date();
+      var ms = curr - (prevTime || curr);
+      self.diff = ms;
+      self.prev = prevTime;
+      self.curr = curr;
+      prevTime = curr;
+
+      // add the `color` if not set
+      if (null == self.useColors) self.useColors = exports.useColors();
+      if (null == self.color && self.useColors) self.color = selectColor();
+
+      var args = Array.prototype.slice.call(arguments);
+
+      args[0] = exports.coerce(args[0]);
+
+      if ('string' !== typeof args[0]) {
+        // anything else let's inspect with %o
+        args = ['%o'].concat(args);
+      }
+
+      // apply any `formatters` transformations
+      var index = 0;
+      args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+        // if we encounter an escaped % then don't increase the array index
+        if (match === '%%') return match;
+        index++;
+        var formatter = exports.formatters[format];
+        if ('function' === typeof formatter) {
+          var val = args[index];
+          match = formatter.call(self, val);
+
+          // now we need to remove `args[index]` since it's inlined in the `format`
+          args.splice(index, 1);
+          index--;
+        }
+        return match;
+      });
+
+      if ('function' === typeof exports.formatArgs) {
+        args = exports.formatArgs.apply(self, args);
+      }
+      var logFn = enabled.log || exports.log || console.log.bind(console);
+      logFn.apply(self, args);
+    }
+    enabled.enabled = true;
+
+    var fn = exports.enabled(namespace) ? enabled : disabled;
+
+    fn.namespace = namespace;
+
+    return fn;
+  }
+
+  /**
+   * Enables a debug mode by namespaces. This can include modes
+   * separated by a colon and wildcards.
+   *
+   * @param {String} namespaces
+   * @api public
+   */
+
+  function enable(namespaces) {
+    exports.save(namespaces);
+
+    var split = (namespaces || '').split(/[\s,]+/);
+    var len = split.length;
+
+    for (var i = 0; i < len; i++) {
+      if (!split[i]) continue; // ignore empty strings
+      namespaces = split[i].replace(/\*/g, '.*?');
+      if (namespaces[0] === '-') {
+        exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+      } else {
+        exports.names.push(new RegExp('^' + namespaces + '$'));
+      }
+    }
+  }
+
+  /**
+   * Disable debug output.
+   *
+   * @api public
+   */
+
+  function disable() {
+    exports.enable('');
+  }
+
+  /**
+   * Returns true if the given mode name is enabled, false otherwise.
+   *
+   * @param {String} name
+   * @return {Boolean}
+   * @api public
+   */
+
+  function enabled(name) {
+    var i, len;
+    for (i = 0, len = exports.skips.length; i < len; i++) {
+      if (exports.skips[i].test(name)) {
+        return false;
+      }
+    }
+    for (i = 0, len = exports.names.length; i < len; i++) {
+      if (exports.names[i].test(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Coerce `val`.
+   *
+   * @param {Mixed} val
+   * @return {Mixed}
+   * @api private
+   */
+
+  function coerce(val) {
+    if (val instanceof Error) return val.stack || val.message;
+    return val;
+  }
+  });
+  var debug_2 = debug_1.coerce;
+  var debug_3 = debug_1.disable;
+  var debug_4 = debug_1.enable;
+  var debug_5 = debug_1.enabled;
+  var debug_6 = debug_1.humanize;
+  var debug_7 = debug_1.names;
+  var debug_8 = debug_1.skips;
+  var debug_9 = debug_1.formatters;
+
+  var browser = createCommonjsModule(function (module, exports) {
+  /**
+   * This is the web browser implementation of `debug()`.
+   *
+   * Expose `debug()` as the module.
+   */
+
+  exports = module.exports = debug_1;
+  exports.log = log;
+  exports.formatArgs = formatArgs;
+  exports.save = save;
+  exports.load = load;
+  exports.useColors = useColors;
+  exports.storage = 'undefined' != typeof chrome
+                 && 'undefined' != typeof chrome.storage
+                    ? chrome.storage.local
+                    : localstorage();
+
+  /**
+   * Colors.
+   */
+
+  exports.colors = [
+    'lightseagreen',
+    'forestgreen',
+    'goldenrod',
+    'dodgerblue',
+    'darkorchid',
+    'crimson'
+  ];
+
+  /**
+   * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+   * and the Firebug extension (any Firefox version) are known
+   * to support "%c" CSS customizations.
+   *
+   * TODO: add a `localStorage` variable to explicitly enable/disable colors
+   */
+
+  function useColors() {
+    // is webkit? http://stackoverflow.com/a/16459606/376773
+    return ('WebkitAppearance' in document.documentElement.style) ||
+      // is firebug? http://stackoverflow.com/a/398120/376773
+      (window.console && (console.firebug || (console.exception && console.table))) ||
+      // is firefox >= v31?
+      // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+      (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
+  }
+
+  /**
+   * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+   */
+
+  exports.formatters.j = function(v) {
+    return JSON.stringify(v);
+  };
+
+
+  /**
+   * Colorize log arguments if enabled.
+   *
+   * @api public
+   */
+
+  function formatArgs() {
+    var args = arguments;
+    var useColors = this.useColors;
+
+    args[0] = (useColors ? '%c' : '')
+      + this.namespace
+      + (useColors ? ' %c' : ' ')
+      + args[0]
+      + (useColors ? '%c ' : ' ')
+      + '+' + exports.humanize(this.diff);
+
+    if (!useColors) return args;
+
+    var c = 'color: ' + this.color;
+    args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+
+    // the final "%c" is somewhat tricky, because there could be other
+    // arguments passed either before or after the %c, so we need to
+    // figure out the correct index to insert the CSS into
+    var index = 0;
+    var lastC = 0;
+    args[0].replace(/%[a-z%]/g, function(match) {
+      if ('%%' === match) return;
+      index++;
+      if ('%c' === match) {
+        // we only are interested in the *last* %c
+        // (the user may have provided their own)
+        lastC = index;
+      }
+    });
+
+    args.splice(lastC, 0, c);
+    return args;
+  }
+
+  /**
+   * Invokes `console.log()` when available.
+   * No-op when `console.log` is not a "function".
+   *
+   * @api public
+   */
+
+  function log() {
+    // this hackery is required for IE8/9, where
+    // the `console.log` function doesn't have 'apply'
+    return 'object' === typeof console
+      && console.log
+      && Function.prototype.apply.call(console.log, console, arguments);
+  }
+
+  /**
+   * Save `namespaces`.
+   *
+   * @param {String} namespaces
+   * @api private
+   */
+
+  function save(namespaces) {
+    try {
+      if (null == namespaces) {
+        exports.storage.removeItem('debug');
+      } else {
+        exports.storage.debug = namespaces;
+      }
+    } catch(e) {}
+  }
+
+  /**
+   * Load `namespaces`.
+   *
+   * @return {String} returns the previously persisted debug modes
+   * @api private
+   */
+
+  function load() {
+    var r;
+    try {
+      r = exports.storage.debug;
+    } catch(e) {}
+    return r;
+  }
+
+  /**
+   * Enable namespaces listed in `localStorage.debug` initially.
+   */
+
+  exports.enable(load());
+
+  /**
+   * Localstorage attempts to return the localstorage.
+   *
+   * This is necessary because safari throws
+   * when a user disables cookies/localstorage
+   * and you attempt to access it.
+   *
+   * @return {LocalStorage}
+   * @api private
+   */
+
+  function localstorage(){
+    try {
+      return window.localStorage;
+    } catch (e) {}
+  }
+  });
+  var browser_1 = browser.log;
+  var browser_2 = browser.formatArgs;
+  var browser_3 = browser.save;
+  var browser_4 = browser.load;
+  var browser_5 = browser.useColors;
+  var browser_6 = browser.storage;
+  var browser_7 = browser.colors;
+
+  /**
+   * Module dependencies.
+   */
+
+  var debug = browser('cookie');
+
+  /**
+   * Set or get cookie `name` with `value` and `options` object.
+   *
+   * @param {String} name
+   * @param {String} value
+   * @param {Object} options
+   * @return {Mixed}
+   * @api public
+   */
+
+  var componentCookie = function(name, value, options){
+    switch (arguments.length) {
+      case 3:
+      case 2:
+        return set(name, value, options);
+      case 1:
+        return get(name);
+      default:
+        return all();
+    }
+  };
+
+  /**
+   * Set cookie `name` to `value`.
+   *
+   * @param {String} name
+   * @param {String} value
+   * @param {Object} options
+   * @api private
+   */
+
+  function set(name, value, options) {
+    options = options || {};
+    var str = encode(name) + '=' + encode(value);
+
+    if (null == value) options.maxage = -1;
+
+    if (options.maxage) {
+      options.expires = new Date(+new Date + options.maxage);
+    }
+
+    if (options.path) str += '; path=' + options.path;
+    if (options.domain) str += '; domain=' + options.domain;
+    if (options.expires) str += '; expires=' + options.expires.toUTCString();
+    if (options.secure) str += '; secure';
+
+    document.cookie = str;
+  }
+
+  /**
+   * Return all cookies.
+   *
+   * @return {Object}
+   * @api private
+   */
+
+  function all() {
+    var str;
+    try {
+      str = document.cookie;
+    } catch (err) {
+      if (typeof console !== 'undefined' && typeof console.error === 'function') {
+        console.error(err.stack || err);
+      }
+      return {};
+    }
+    return parse$1(str);
+  }
+
+  /**
+   * Get cookie `name`.
+   *
+   * @param {String} name
+   * @return {String}
+   * @api private
+   */
+
+  function get(name) {
+    return all()[name];
+  }
+
+  /**
+   * Parse cookie `str`.
+   *
+   * @param {String} str
+   * @return {Object}
+   * @api private
+   */
+
+  function parse$1(str) {
+    var obj = {};
+    var pairs = str.split(/ *; */);
+    var pair;
+    if ('' == pairs[0]) return obj;
+    for (var i = 0; i < pairs.length; ++i) {
+      pair = pairs[i].split('=');
+      obj[decode(pair[0])] = decode(pair[1]);
+    }
+    return obj;
+  }
+
+  /**
+   * Encode.
+   */
+
+  function encode(value){
+    try {
+      return encodeURIComponent(value);
+    } catch (e) {
+      debug('error `encode(%o)` - %o', value, e);
+    }
+  }
+
+  /**
+   * Decode.
+   */
+
+  function decode(value) {
+    try {
+      return decodeURIComponent(value);
+    } catch (e) {
+      debug('error `decode(%o)` - %o', value, e);
+    }
+  }
+
+  var max = Math.max;
+
+  /**
+   * Produce a new array composed of all but the first `n` elements of an input `collection`.
+   *
+   * @name drop
+   * @api public
+   * @param {number} count The number of elements to drop.
+   * @param {Array} collection The collection to iterate over.
+   * @return {Array} A new array containing all but the first element from `collection`.
+   * @example
+   * drop(0, [1, 2, 3]); // => [1, 2, 3]
+   * drop(1, [1, 2, 3]); // => [2, 3]
+   * drop(2, [1, 2, 3]); // => [3]
+   * drop(3, [1, 2, 3]); // => []
+   * drop(4, [1, 2, 3]); // => []
+   */
+  var drop = function drop(count, collection) {
+    var length = collection ? collection.length : 0;
+
+    if (!length) {
+      return [];
+    }
+
+    // Preallocating an array *significantly* boosts performance when dealing with
+    // `arguments` objects on v8. For a summary, see:
+    // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
+    var toDrop = max(Number(count) || 0, 0);
+    var resultsLength = max(length - toDrop, 0);
+    var results = new Array(resultsLength);
+
+    for (var i = 0; i < resultsLength; i += 1) {
+      results[i] = collection[i + toDrop];
+    }
+
+    return results;
+  };
+
+  /*
+   * Exports.
+   */
+
+  var drop_1 = drop;
+
+  var max$1 = Math.max;
+
+  /**
+   * Produce a new array by passing each value in the input `collection` through a transformative
+   * `iterator` function. The `iterator` function is passed three arguments:
+   * `(value, index, collection)`.
+   *
+   * @name rest
+   * @api public
+   * @param {Array} collection The collection to iterate over.
+   * @return {Array} A new array containing all but the first element from `collection`.
+   * @example
+   * rest([1, 2, 3]); // => [2, 3]
+   */
+  var rest = function rest(collection) {
+    if (collection == null || !collection.length) {
+      return [];
+    }
+
+    // Preallocating an array *significantly* boosts performance when dealing with
+    // `arguments` objects on v8. For a summary, see:
+    // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
+    var results = new Array(max$1(collection.length - 2, 0));
+
+    for (var i = 1; i < collection.length; i += 1) {
+      results[i - 1] = collection[i];
+    }
+
+    return results;
+  };
+
+  /*
+   * Exports.
+   */
+
+  var rest_1 = rest;
+
+  /*
+   * Module dependencies.
+   */
+
+
+
+
+  var has = Object.prototype.hasOwnProperty;
+  var objToString = Object.prototype.toString;
+
+  /**
+   * Returns `true` if a value is an object, otherwise `false`.
+   *
+   * @name isObject
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean}
+   */
+  // TODO: Move to a library
+  var isObject = function isObject(value) {
+    return Boolean(value) && typeof value === 'object';
+  };
+
+  /**
+   * Returns `true` if a value is a plain object, otherwise `false`.
+   *
+   * @name isPlainObject
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean}
+   */
+  // TODO: Move to a library
+  var isPlainObject = function isPlainObject(value) {
+    return Boolean(value) && objToString.call(value) === '[object Object]';
+  };
+
+  /**
+   * Assigns a key-value pair to a target object when the value assigned is owned,
+   * and where target[key] is undefined.
+   *
+   * @name shallowCombiner
+   * @api private
+   * @param {Object} target
+   * @param {Object} source
+   * @param {*} value
+   * @param {string} key
+   */
+  var shallowCombiner = function shallowCombiner(target, source, value, key) {
+    if (has.call(source, key) && target[key] === undefined) {
+      target[key] = value;
+    }
+    return source;
+  };
+
+  /**
+   * Assigns a key-value pair to a target object when the value assigned is owned,
+   * and where target[key] is undefined; also merges objects recursively.
+   *
+   * @name deepCombiner
+   * @api private
+   * @param {Object} target
+   * @param {Object} source
+   * @param {*} value
+   * @param {string} key
+   * @return {Object}
+   */
+  var deepCombiner = function(target, source, value, key) {
+    if (has.call(source, key)) {
+      if (isPlainObject(target[key]) && isPlainObject(value)) {
+          target[key] = defaultsDeep(target[key], value);
+      } else if (target[key] === undefined) {
+          target[key] = value;
+      }
+    }
+
+    return source;
+  };
+
+  /**
+   * TODO: Document
+   *
+   * @name defaultsWith
+   * @api private
+   * @param {Function} combiner
+   * @param {Object} target
+   * @param {...Object} sources
+   * @return {Object} Return the input `target`.
+   */
+  var defaultsWith = function(combiner, target /*, ...sources */) {
+    if (!isObject(target)) {
+      return target;
+    }
+
+    combiner = combiner || shallowCombiner;
+    var sources = drop_1(2, arguments);
+
+    for (var i = 0; i < sources.length; i += 1) {
+      for (var key in sources[i]) {
+        combiner(target, sources[i], sources[i][key], key);
+      }
+    }
+
+    return target;
+  };
+
+  /**
+   * Copies owned, enumerable properties from a source object(s) to a target
+   * object when the value of that property on the source object is `undefined`.
+   * Recurses on objects.
+   *
+   * @name defaultsDeep
+   * @api public
+   * @param {Object} target
+   * @param {...Object} sources
+   * @return {Object} The input `target`.
+   */
+  var defaultsDeep = function defaultsDeep(target /*, sources */) {
+    // TODO: Replace with `partial` call?
+    return defaultsWith.apply(null, [deepCombiner, target].concat(rest_1(arguments)));
+  };
+
+  /**
+   * Copies owned, enumerable properties from a source object(s) to a target
+   * object when the value of that property on the source object is `undefined`.
+   *
+   * @name defaults
+   * @api public
+   * @param {Object} target
+   * @param {...Object} sources
+   * @return {Object}
+   * @example
+   * var a = { a: 1 };
+   * var b = { a: 2, b: 2 };
+   *
+   * defaults(a, b);
+   * console.log(a); //=> { a: 1, b: 2 }
+   */
+  var defaults = function(target /*, ...sources */) {
+    // TODO: Replace with `partial` call?
+    return defaultsWith.apply(null, [null, target].concat(rest_1(arguments)));
+  };
+
+  /*
+   * Exports.
+   */
+
+  var defaults_1 = defaults;
+  var deep = defaultsDeep;
+  defaults_1.deep = deep;
 
   var json3 = createCommonjsModule(function (module, exports) {
   (function () {
@@ -2610,6 +2914,1250 @@ var rudderanalytics = (function (exports) {
   }).call(commonjsGlobal);
   });
 
+  var componentUrl = createCommonjsModule(function (module, exports) {
+  /**
+   * Parse the given `url`.
+   *
+   * @param {String} str
+   * @return {Object}
+   * @api public
+   */
+
+  exports.parse = function(url){
+    var a = document.createElement('a');
+    a.href = url;
+    return {
+      href: a.href,
+      host: a.host || location.host,
+      port: ('0' === a.port || '' === a.port) ? port(a.protocol) : a.port,
+      hash: a.hash,
+      hostname: a.hostname || location.hostname,
+      pathname: a.pathname.charAt(0) != '/' ? '/' + a.pathname : a.pathname,
+      protocol: !a.protocol || ':' == a.protocol ? location.protocol : a.protocol,
+      search: a.search,
+      query: a.search.slice(1)
+    };
+  };
+
+  /**
+   * Check if `url` is absolute.
+   *
+   * @param {String} url
+   * @return {Boolean}
+   * @api public
+   */
+
+  exports.isAbsolute = function(url){
+    return 0 == url.indexOf('//') || !!~url.indexOf('://');
+  };
+
+  /**
+   * Check if `url` is relative.
+   *
+   * @param {String} url
+   * @return {Boolean}
+   * @api public
+   */
+
+  exports.isRelative = function(url){
+    return !exports.isAbsolute(url);
+  };
+
+  /**
+   * Check if `url` is cross domain.
+   *
+   * @param {String} url
+   * @return {Boolean}
+   * @api public
+   */
+
+  exports.isCrossDomain = function(url){
+    url = exports.parse(url);
+    var location = exports.parse(window.location.href);
+    return url.hostname !== location.hostname
+      || url.port !== location.port
+      || url.protocol !== location.protocol;
+  };
+
+  /**
+   * Return default port for `protocol`.
+   *
+   * @param  {String} protocol
+   * @return {String}
+   * @api private
+   */
+  function port (protocol){
+    switch (protocol) {
+      case 'http:':
+        return 80;
+      case 'https:':
+        return 443;
+      default:
+        return location.port;
+    }
+  }
+  });
+  var componentUrl_1 = componentUrl.parse;
+  var componentUrl_2 = componentUrl.isAbsolute;
+  var componentUrl_3 = componentUrl.isRelative;
+  var componentUrl_4 = componentUrl.isCrossDomain;
+
+  var lib = createCommonjsModule(function (module, exports) {
+
+  /**
+   * Module dependencies.
+   */
+
+  var parse = componentUrl.parse;
+
+
+  /**
+   * Get the top domain.
+   *
+   * The function constructs the levels of domain and attempts to set a global
+   * cookie on each one when it succeeds it returns the top level domain.
+   *
+   * The method returns an empty string when the hostname is an ip or `localhost`.
+   *
+   * Example levels:
+   *
+   *      domain.levels('http://www.google.co.uk');
+   *      // => ["co.uk", "google.co.uk", "www.google.co.uk"]
+   *
+   * Example:
+   *
+   *      domain('http://localhost:3000/baz');
+   *      // => ''
+   *      domain('http://dev:3000/baz');
+   *      // => ''
+   *      domain('http://127.0.0.1:3000/baz');
+   *      // => ''
+   *      domain('http://segment.io/baz');
+   *      // => 'segment.io'
+   *
+   * @param {string} url
+   * @return {string}
+   * @api public
+   */
+  function domain(url) {
+    var cookie = exports.cookie;
+    var levels = exports.levels(url);
+
+    // Lookup the real top level one.
+    for (var i = 0; i < levels.length; ++i) {
+      var cname = '__tld__';
+      var domain = levels[i];
+      var opts = { domain: '.' + domain };
+
+      cookie(cname, 1, opts);
+      if (cookie(cname)) {
+        cookie(cname, null, opts);
+        return domain;
+      }
+    }
+
+    return '';
+  }
+
+  /**
+   * Levels returns all levels of the given url.
+   *
+   * @param {string} url
+   * @return {Array}
+   * @api public
+   */
+  domain.levels = function(url) {
+    var host = parse(url).hostname;
+    var parts = host.split('.');
+    var last = parts[parts.length - 1];
+    var levels = [];
+
+    // Ip address.
+    if (parts.length === 4 && last === parseInt(last, 10)) {
+      return levels;
+    }
+
+    // Localhost.
+    if (parts.length <= 1) {
+      return levels;
+    }
+
+    // Create levels.
+    for (var i = parts.length - 2; i >= 0; --i) {
+      levels.push(parts.slice(i).join('.'));
+    }
+
+    return levels;
+  };
+
+  /**
+   * Expose cookie on domain.
+   */
+  domain.cookie = componentCookie;
+
+  /*
+   * Exports.
+   */
+
+  exports = module.exports = domain;
+  });
+
+  /**
+   * An object utility to persist values in cookies
+   */
+
+  var CookieLocal =
+  /*#__PURE__*/
+  function () {
+    function CookieLocal(options) {
+      _classCallCheck(this, CookieLocal);
+
+      this._options = {};
+      this.options(options);
+    }
+    /**
+     *
+     * @param {*} options
+     */
+
+
+    _createClass(CookieLocal, [{
+      key: "options",
+      value: function options() {
+        var _options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+        if (arguments.length === 0) return this._options;
+        var domain = "." + lib(window.location.href);
+        if (domain === ".") domain = null; // the default maxage and path
+
+        this._options = defaults_1(_options, {
+          maxage: 31536000000,
+          path: "/",
+          domain: domain
+        }); //try setting a cookie first
+
+        this.set("test_rudder", true);
+
+        if (!this.get("test_rudder")) {
+          this._options.domain = null;
+        }
+
+        this.remove("test_rudder");
+      }
+      /**
+       *
+       * @param {*} key
+       * @param {*} value
+       */
+
+    }, {
+      key: "set",
+      value: function set(key, value) {
+        try {
+          value = json3.stringify(value);
+          componentCookie(key, value, clone_1(this._options));
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+      /**
+       *
+       * @param {*} key
+       */
+
+    }, {
+      key: "get",
+      value: function get(key) {
+        try {
+          var value = componentCookie(key);
+          value = value ? json3.parse(value) : null;
+          return value;
+        } catch (e) {
+          return null;
+        }
+      }
+      /**
+       *
+       * @param {*} key
+       */
+
+    }, {
+      key: "remove",
+      value: function remove(key) {
+        try {
+          componentCookie(key, null, clone_1(this._options));
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+    }]);
+
+    return CookieLocal;
+  }(); // Exporting only the instance
+
+
+  var Cookie = new CookieLocal({});
+
+  var store = (function() {
+  	// Store.js
+  	var store = {},
+  		win = (typeof window != 'undefined' ? window : commonjsGlobal),
+  		doc = win.document,
+  		localStorageName = 'localStorage',
+  		scriptTag = 'script',
+  		storage;
+
+  	store.disabled = false;
+  	store.version = '1.3.20';
+  	store.set = function(key, value) {};
+  	store.get = function(key, defaultVal) {};
+  	store.has = function(key) { return store.get(key) !== undefined };
+  	store.remove = function(key) {};
+  	store.clear = function() {};
+  	store.transact = function(key, defaultVal, transactionFn) {
+  		if (transactionFn == null) {
+  			transactionFn = defaultVal;
+  			defaultVal = null;
+  		}
+  		if (defaultVal == null) {
+  			defaultVal = {};
+  		}
+  		var val = store.get(key, defaultVal);
+  		transactionFn(val);
+  		store.set(key, val);
+  	};
+  	store.getAll = function() {
+  		var ret = {};
+  		store.forEach(function(key, val) {
+  			ret[key] = val;
+  		});
+  		return ret
+  	};
+  	store.forEach = function() {};
+  	store.serialize = function(value) {
+  		return json3.stringify(value)
+  	};
+  	store.deserialize = function(value) {
+  		if (typeof value != 'string') { return undefined }
+  		try { return json3.parse(value) }
+  		catch(e) { return value || undefined }
+  	};
+
+  	// Functions to encapsulate questionable FireFox 3.6.13 behavior
+  	// when about.config::dom.storage.enabled === false
+  	// See https://github.com/marcuswestin/store.js/issues#issue/13
+  	function isLocalStorageNameSupported() {
+  		try { return (localStorageName in win && win[localStorageName]) }
+  		catch(err) { return false }
+  	}
+
+  	if (isLocalStorageNameSupported()) {
+  		storage = win[localStorageName];
+  		store.set = function(key, val) {
+  			if (val === undefined) { return store.remove(key) }
+  			storage.setItem(key, store.serialize(val));
+  			return val
+  		};
+  		store.get = function(key, defaultVal) {
+  			var val = store.deserialize(storage.getItem(key));
+  			return (val === undefined ? defaultVal : val)
+  		};
+  		store.remove = function(key) { storage.removeItem(key); };
+  		store.clear = function() { storage.clear(); };
+  		store.forEach = function(callback) {
+  			for (var i=0; i<storage.length; i++) {
+  				var key = storage.key(i);
+  				callback(key, store.get(key));
+  			}
+  		};
+  	} else if (doc && doc.documentElement.addBehavior) {
+  		var storageOwner,
+  			storageContainer;
+  		// Since #userData storage applies only to specific paths, we need to
+  		// somehow link our data to a specific path.  We choose /favicon.ico
+  		// as a pretty safe option, since all browsers already make a request to
+  		// this URL anyway and being a 404 will not hurt us here.  We wrap an
+  		// iframe pointing to the favicon in an ActiveXObject(htmlfile) object
+  		// (see: http://msdn.microsoft.com/en-us/library/aa752574(v=VS.85).aspx)
+  		// since the iframe access rules appear to allow direct access and
+  		// manipulation of the document element, even for a 404 page.  This
+  		// document can be used instead of the current document (which would
+  		// have been limited to the current path) to perform #userData storage.
+  		try {
+  			storageContainer = new ActiveXObject('htmlfile');
+  			storageContainer.open();
+  			storageContainer.write('<'+scriptTag+'>document.w=window</'+scriptTag+'><iframe src="/favicon.ico"></iframe>');
+  			storageContainer.close();
+  			storageOwner = storageContainer.w.frames[0].document;
+  			storage = storageOwner.createElement('div');
+  		} catch(e) {
+  			// somehow ActiveXObject instantiation failed (perhaps some special
+  			// security settings or otherwse), fall back to per-path storage
+  			storage = doc.createElement('div');
+  			storageOwner = doc.body;
+  		}
+  		var withIEStorage = function(storeFunction) {
+  			return function() {
+  				var args = Array.prototype.slice.call(arguments, 0);
+  				args.unshift(storage);
+  				// See http://msdn.microsoft.com/en-us/library/ms531081(v=VS.85).aspx
+  				// and http://msdn.microsoft.com/en-us/library/ms531424(v=VS.85).aspx
+  				storageOwner.appendChild(storage);
+  				storage.addBehavior('#default#userData');
+  				storage.load(localStorageName);
+  				var result = storeFunction.apply(store, args);
+  				storageOwner.removeChild(storage);
+  				return result
+  			}
+  		};
+
+  		// In IE7, keys cannot start with a digit or contain certain chars.
+  		// See https://github.com/marcuswestin/store.js/issues/40
+  		// See https://github.com/marcuswestin/store.js/issues/83
+  		var forbiddenCharsRegex = new RegExp("[!\"#$%&'()*+,/\\\\:;<=>?@[\\]^`{|}~]", "g");
+  		var ieKeyFix = function(key) {
+  			return key.replace(/^d/, '___$&').replace(forbiddenCharsRegex, '___')
+  		};
+  		store.set = withIEStorage(function(storage, key, val) {
+  			key = ieKeyFix(key);
+  			if (val === undefined) { return store.remove(key) }
+  			storage.setAttribute(key, store.serialize(val));
+  			storage.save(localStorageName);
+  			return val
+  		});
+  		store.get = withIEStorage(function(storage, key, defaultVal) {
+  			key = ieKeyFix(key);
+  			var val = store.deserialize(storage.getAttribute(key));
+  			return (val === undefined ? defaultVal : val)
+  		});
+  		store.remove = withIEStorage(function(storage, key) {
+  			key = ieKeyFix(key);
+  			storage.removeAttribute(key);
+  			storage.save(localStorageName);
+  		});
+  		store.clear = withIEStorage(function(storage) {
+  			var attributes = storage.XMLDocument.documentElement.attributes;
+  			storage.load(localStorageName);
+  			for (var i=attributes.length-1; i>=0; i--) {
+  				storage.removeAttribute(attributes[i].name);
+  			}
+  			storage.save(localStorageName);
+  		});
+  		store.forEach = withIEStorage(function(storage, callback) {
+  			var attributes = storage.XMLDocument.documentElement.attributes;
+  			for (var i=0, attr; attr=attributes[i]; ++i) {
+  				callback(attr.name, store.deserialize(storage.getAttribute(attr.name)));
+  			}
+  		});
+  	}
+
+  	try {
+  		var testKey = '__storejs__';
+  		store.set(testKey, testKey);
+  		if (store.get(testKey) != testKey) { store.disabled = true; }
+  		store.remove(testKey);
+  	} catch(e) {
+  		store.disabled = true;
+  	}
+  	store.enabled = !store.disabled;
+  	
+  	return store
+  }());
+
+  /**
+   * An object utility to persist user and other values in localstorage
+   */
+
+  var StoreLocal =
+  /*#__PURE__*/
+  function () {
+    function StoreLocal(options) {
+      _classCallCheck(this, StoreLocal);
+
+      this._options = {};
+      this.enabled = false;
+      this.options(options);
+    }
+    /**
+     *
+     * @param {*} options
+     */
+
+
+    _createClass(StoreLocal, [{
+      key: "options",
+      value: function options() {
+        var _options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+        if (arguments.length === 0) return this._options;
+        defaults_1(_options, {
+          enabled: true
+        });
+        this.enabled = _options.enabled && store.enabled;
+        this._options = _options;
+      }
+      /**
+       *
+       * @param {*} key
+       * @param {*} value
+       */
+
+    }, {
+      key: "set",
+      value: function set(key, value) {
+        if (!this.enabled) return false;
+        return store.set(key, value);
+      }
+      /**
+       *
+       * @param {*} key
+       */
+
+    }, {
+      key: "get",
+      value: function get(key) {
+        if (!this.enabled) return null;
+        return store.get(key);
+      }
+      /**
+       *
+       * @param {*} key
+       */
+
+    }, {
+      key: "remove",
+      value: function remove(key) {
+        if (!this.enabled) return false;
+        return store.remove(key);
+      }
+    }]);
+
+    return StoreLocal;
+  }(); // Exporting only the instance
+
+
+  var Store = new StoreLocal({});
+
+  var defaults$1 = {
+    user_storage_key: "rl_user_id",
+    user_storage_trait: "rl_trait",
+    user_storage_anonymousId: "rl_anonymous_id"
+  };
+  /**
+   * An object that handles persisting key-val from Analytics
+   */
+
+  var Storage =
+  /*#__PURE__*/
+  function () {
+    function Storage() {
+      _classCallCheck(this, Storage);
+
+      // First try setting the storage to cookie else to localstorage
+      Cookie.set("rudder_cookies", true);
+
+      if (Cookie.get("rudder_cookies")) {
+        Cookie.remove("rudder_cookies");
+        this.storage = Cookie;
+        return;
+      } // localStorage is enabled.
+
+
+      if (Store.enabled) {
+        this.storage = Store;
+        return;
+      }
+    }
+    /**
+     *
+     * @param {*} key
+     * @param {*} value
+     */
+
+
+    _createClass(Storage, [{
+      key: "setItem",
+      value: function setItem(key, value) {
+        this.storage.set(key, value);
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setUserId",
+      value: function setUserId(value) {
+        if (typeof value != "string") {
+          logger.error("userId should be string");
+          return;
+        }
+
+        this.storage.set(defaults$1.user_storage_key, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setUserTraits",
+      value: function setUserTraits(value) {
+        this.storage.set(defaults$1.user_storage_trait, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setAnonymousId",
+      value: function setAnonymousId(value) {
+        if (typeof value != "string") {
+          logger.error("anonymousId should be string");
+          return;
+        }
+
+        this.storage.set(defaults$1.user_storage_anonymousId, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} key
+       */
+
+    }, {
+      key: "getItem",
+      value: function getItem(key) {
+        return this.storage.get(key);
+      }
+      /**
+       * get the stored userId
+       */
+
+    }, {
+      key: "getUserId",
+      value: function getUserId() {
+        return this.storage.get(defaults$1.user_storage_key);
+      }
+      /**
+       * get the stored user traits
+       */
+
+    }, {
+      key: "getUserTraits",
+      value: function getUserTraits() {
+        return this.storage.get(defaults$1.user_storage_trait);
+      }
+      /**
+       * get stored anonymous id
+       */
+
+    }, {
+      key: "getAnonymousId",
+      value: function getAnonymousId() {
+        return this.storage.get(defaults$1.user_storage_anonymousId);
+      }
+      /**
+       *
+       * @param {*} key
+       */
+
+    }, {
+      key: "removeItem",
+      value: function removeItem(key) {
+        return this.storage.remove(key);
+      }
+      /**
+       * remove stored keys
+       */
+
+    }, {
+      key: "clear",
+      value: function clear() {
+        this.storage.remove(defaults$1.user_storage_key);
+        this.storage.remove(defaults$1.user_storage_trait);
+        this.storage.remove(defaults$1.user_storage_anonymousId);
+      }
+    }]);
+
+    return Storage;
+  }();
+
+  var Storage$1 =  Storage ;
+
+  //Payload class, contains batch of Elements
+  var RudderPayload = function RudderPayload() {
+    _classCallCheck(this, RudderPayload);
+
+    this.batch = null;
+    this.writeKey = null;
+  };
+
+  var rngBrowser = createCommonjsModule(function (module) {
+  // Unique ID creation requires a high quality random # generator.  In the
+  // browser this is a little complicated due to unknown quality of Math.random()
+  // and inconsistent support for the `crypto` API.  We do the best we can via
+  // feature-detection
+
+  // getRandomValues needs to be invoked in a context where "this" is a Crypto
+  // implementation. Also, find the complete implementation of crypto on IE11.
+  var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)) ||
+                        (typeof(msCrypto) != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto));
+
+  if (getRandomValues) {
+    // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
+    var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+
+    module.exports = function whatwgRNG() {
+      getRandomValues(rnds8);
+      return rnds8;
+    };
+  } else {
+    // Math.random()-based (RNG)
+    //
+    // If all else fails, use Math.random().  It's fast, but is of unspecified
+    // quality.
+    var rnds = new Array(16);
+
+    module.exports = function mathRNG() {
+      for (var i = 0, r; i < 16; i++) {
+        if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+        rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+      }
+
+      return rnds;
+    };
+  }
+  });
+
+  /**
+   * Convert array of 16 byte values to UUID string format of the form:
+   * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+   */
+  var byteToHex = [];
+  for (var i = 0; i < 256; ++i) {
+    byteToHex[i] = (i + 0x100).toString(16).substr(1);
+  }
+
+  function bytesToUuid(buf, offset) {
+    var i = offset || 0;
+    var bth = byteToHex;
+    // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+    return ([bth[buf[i++]], bth[buf[i++]], 
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]],
+  	bth[buf[i++]], bth[buf[i++]],
+  	bth[buf[i++]], bth[buf[i++]]]).join('');
+  }
+
+  var bytesToUuid_1 = bytesToUuid;
+
+  // **`v1()` - Generate time-based UUID**
+  //
+  // Inspired by https://github.com/LiosK/UUID.js
+  // and http://docs.python.org/library/uuid.html
+
+  var _nodeId;
+  var _clockseq;
+
+  // Previous uuid creation time
+  var _lastMSecs = 0;
+  var _lastNSecs = 0;
+
+  // See https://github.com/broofa/node-uuid for API details
+  function v1(options, buf, offset) {
+    var i = buf && offset || 0;
+    var b = buf || [];
+
+    options = options || {};
+    var node = options.node || _nodeId;
+    var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
+
+    // node and clockseq need to be initialized to random values if they're not
+    // specified.  We do this lazily to minimize issues related to insufficient
+    // system entropy.  See #189
+    if (node == null || clockseq == null) {
+      var seedBytes = rngBrowser();
+      if (node == null) {
+        // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
+        node = _nodeId = [
+          seedBytes[0] | 0x01,
+          seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]
+        ];
+      }
+      if (clockseq == null) {
+        // Per 4.2.2, randomize (14 bit) clockseq
+        clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
+      }
+    }
+
+    // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+    // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
+    // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
+    // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
+    var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
+
+    // Per 4.2.1.2, use count of uuid's generated during the current clock
+    // cycle to simulate higher resolution clock
+    var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
+
+    // Time since last uuid creation (in msecs)
+    var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
+
+    // Per 4.2.1.2, Bump clockseq on clock regression
+    if (dt < 0 && options.clockseq === undefined) {
+      clockseq = clockseq + 1 & 0x3fff;
+    }
+
+    // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+    // time interval
+    if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
+      nsecs = 0;
+    }
+
+    // Per 4.2.1.2 Throw error if too many uuids are requested
+    if (nsecs >= 10000) {
+      throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
+    }
+
+    _lastMSecs = msecs;
+    _lastNSecs = nsecs;
+    _clockseq = clockseq;
+
+    // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
+    msecs += 12219292800000;
+
+    // `time_low`
+    var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+    b[i++] = tl >>> 24 & 0xff;
+    b[i++] = tl >>> 16 & 0xff;
+    b[i++] = tl >>> 8 & 0xff;
+    b[i++] = tl & 0xff;
+
+    // `time_mid`
+    var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
+    b[i++] = tmh >>> 8 & 0xff;
+    b[i++] = tmh & 0xff;
+
+    // `time_high_and_version`
+    b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
+    b[i++] = tmh >>> 16 & 0xff;
+
+    // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
+    b[i++] = clockseq >>> 8 | 0x80;
+
+    // `clock_seq_low`
+    b[i++] = clockseq & 0xff;
+
+    // `node`
+    for (var n = 0; n < 6; ++n) {
+      b[i + n] = node[n];
+    }
+
+    return buf ? buf : bytesToUuid_1(b);
+  }
+
+  var v1_1 = v1;
+
+  function v4(options, buf, offset) {
+    var i = buf && offset || 0;
+
+    if (typeof(options) == 'string') {
+      buf = options === 'binary' ? new Array(16) : null;
+      options = null;
+    }
+    options = options || {};
+
+    var rnds = options.random || (options.rng || rngBrowser)();
+
+    // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+    rnds[6] = (rnds[6] & 0x0f) | 0x40;
+    rnds[8] = (rnds[8] & 0x3f) | 0x80;
+
+    // Copy bytes to buffer, if provided
+    if (buf) {
+      for (var ii = 0; ii < 16; ++ii) {
+        buf[i + ii] = rnds[ii];
+      }
+    }
+
+    return buf || bytesToUuid_1(rnds);
+  }
+
+  var v4_1 = v4;
+
+  var uuid = v4_1;
+  uuid.v1 = v1_1;
+  uuid.v4 = v4_1;
+
+  var uuid_1 = uuid;
+
+  var hop = Object.prototype.hasOwnProperty;
+  var strCharAt = String.prototype.charAt;
+  var toStr = Object.prototype.toString;
+
+  /**
+   * Returns the character at a given index.
+   *
+   * @param {string} str
+   * @param {number} index
+   * @return {string|undefined}
+   */
+  // TODO: Move to a library
+  var charAt = function(str, index) {
+    return strCharAt.call(str, index);
+  };
+
+  /**
+   * hasOwnProperty, wrapped as a function.
+   *
+   * @name has
+   * @api private
+   * @param {*} context
+   * @param {string|number} prop
+   * @return {boolean}
+   */
+
+  // TODO: Move to a library
+  var has$1 = function has(context, prop) {
+    return hop.call(context, prop);
+  };
+
+  /**
+   * Returns true if a value is a string, otherwise false.
+   *
+   * @name isString
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+
+  // TODO: Move to a library
+  var isString = function isString(val) {
+    return toStr.call(val) === '[object String]';
+  };
+
+  /**
+   * Returns true if a value is array-like, otherwise false. Array-like means a
+   * value is not null, undefined, or a function, and has a numeric `length`
+   * property.
+   *
+   * @name isArrayLike
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+  // TODO: Move to a library
+  var isArrayLike = function isArrayLike(val) {
+    return val != null && (typeof val !== 'function' && typeof val.length === 'number');
+  };
+
+
+  /**
+   * indexKeys
+   *
+   * @name indexKeys
+   * @api private
+   * @param {} target
+   * @param {Function} pred
+   * @return {Array}
+   */
+  var indexKeys = function indexKeys(target, pred) {
+    pred = pred || has$1;
+
+    var results = [];
+
+    for (var i = 0, len = target.length; i < len; i += 1) {
+      if (pred(target, i)) {
+        results.push(String(i));
+      }
+    }
+
+    return results;
+  };
+
+  /**
+   * Returns an array of an object's owned keys.
+   *
+   * @name objectKeys
+   * @api private
+   * @param {*} target
+   * @param {Function} pred Predicate function used to include/exclude values from
+   * the resulting array.
+   * @return {Array}
+   */
+  var objectKeys = function objectKeys(target, pred) {
+    pred = pred || has$1;
+
+    var results = [];
+
+    for (var key in target) {
+      if (pred(target, key)) {
+        results.push(String(key));
+      }
+    }
+
+    return results;
+  };
+
+  /**
+   * Creates an array composed of all keys on the input object. Ignores any non-enumerable properties.
+   * More permissive than the native `Object.keys` function (non-objects will not throw errors).
+   *
+   * @name keys
+   * @api public
+   * @category Object
+   * @param {Object} source The value to retrieve keys from.
+   * @return {Array} An array containing all the input `source`'s keys.
+   * @example
+   * keys({ likes: 'avocado', hates: 'pineapple' });
+   * //=> ['likes', 'pineapple'];
+   *
+   * // Ignores non-enumerable properties
+   * var hasHiddenKey = { name: 'Tim' };
+   * Object.defineProperty(hasHiddenKey, 'hidden', {
+   *   value: 'i am not enumerable!',
+   *   enumerable: false
+   * })
+   * keys(hasHiddenKey);
+   * //=> ['name'];
+   *
+   * // Works on arrays
+   * keys(['a', 'b', 'c']);
+   * //=> ['0', '1', '2']
+   *
+   * // Skips unpopulated indices in sparse arrays
+   * var arr = [1];
+   * arr[4] = 4;
+   * keys(arr);
+   * //=> ['0', '4']
+   */
+  var keys = function keys(source) {
+    if (source == null) {
+      return [];
+    }
+
+    // IE6-8 compatibility (string)
+    if (isString(source)) {
+      return indexKeys(source, charAt);
+    }
+
+    // IE6-8 compatibility (arguments)
+    if (isArrayLike(source)) {
+      return indexKeys(source, has$1);
+    }
+
+    return objectKeys(source);
+  };
+
+  /*
+   * Exports.
+   */
+
+  var keys_1 = keys;
+
+  var uuid$1 = uuid_1.v4;
+
+  var inMemoryStore = {
+    _data: {},
+    length: 0,
+    setItem: function(key, value) {
+      this._data[key] = value;
+      this.length = keys_1(this._data).length;
+      return value;
+    },
+    getItem: function(key) {
+      if (key in this._data) {
+        return this._data[key];
+      }
+      return null;
+    },
+    removeItem: function(key) {
+      if (key in this._data) {
+        delete this._data[key];
+      }
+      this.length = keys_1(this._data).length;
+      return null;
+    },
+    clear: function() {
+      this._data = {};
+      this.length = 0;
+    },
+    key: function(index) {
+      return keys_1(this._data)[index];
+    }
+  };
+
+  function isSupportedNatively() {
+    try {
+      if (!window.localStorage) return false;
+      var key = uuid$1();
+      window.localStorage.setItem(key, 'test_value');
+      var value = window.localStorage.getItem(key);
+      window.localStorage.removeItem(key);
+
+      // handle localStorage silently failing
+      return value === 'test_value';
+    } catch (e) {
+      // Can throw if localStorage is disabled
+      return false;
+    }
+  }
+
+  function pickStorage() {
+    if (isSupportedNatively()) {
+      return window.localStorage;
+    }
+    // fall back to in-memory
+    return inMemoryStore;
+  }
+
+  // Return a shared instance
+  var defaultEngine = pickStorage();
+  // Expose the in-memory store explicitly for testing
+  var inMemoryEngine = inMemoryStore;
+
+  var engine = {
+  	defaultEngine: defaultEngine,
+  	inMemoryEngine: inMemoryEngine
+  };
+
+  /*
+   * Module dependencies.
+   */
+
+
+
+  var objToString$1 = Object.prototype.toString;
+
+  /**
+   * Tests if a value is a number.
+   *
+   * @name isNumber
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean} Returns `true` if `val` is a number, otherwise `false`.
+   */
+  // TODO: Move to library
+  var isNumber = function isNumber(val) {
+    var type = typeof val;
+    return type === 'number' || (type === 'object' && objToString$1.call(val) === '[object Number]');
+  };
+
+  /**
+   * Tests if a value is an array.
+   *
+   * @name isArray
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean} Returns `true` if the value is an array, otherwise `false`.
+   */
+  // TODO: Move to library
+  var isArray = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
+    return objToString$1.call(val) === '[object Array]';
+  };
+
+  /**
+   * Tests if a value is array-like. Array-like means the value is not a function and has a numeric
+   * `.length` property.
+   *
+   * @name isArrayLike
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+  // TODO: Move to library
+  var isArrayLike$1 = function isArrayLike(val) {
+    return val != null && (isArray(val) || (val !== 'function' && isNumber(val.length)));
+  };
+
+  /**
+   * Internal implementation of `each`. Works on arrays and array-like data structures.
+   *
+   * @name arrayEach
+   * @api private
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Array} array The array(-like) structure to iterate over.
+   * @return {undefined}
+   */
+  var arrayEach = function arrayEach(iterator, array) {
+    for (var i = 0; i < array.length; i += 1) {
+      // Break iteration early if `iterator` returns `false`
+      if (iterator(array[i], i, array) === false) {
+        break;
+      }
+    }
+  };
+
+  /**
+   * Internal implementation of `each`. Works on objects.
+   *
+   * @name baseEach
+   * @api private
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Object} object The object to iterate over.
+   * @return {undefined}
+   */
+  var baseEach = function baseEach(iterator, object) {
+    var ks = keys_1(object);
+
+    for (var i = 0; i < ks.length; i += 1) {
+      // Break iteration early if `iterator` returns `false`
+      if (iterator(object[ks[i]], ks[i], object) === false) {
+        break;
+      }
+    }
+  };
+
+  /**
+   * Iterate over an input collection, invoking an `iterator` function for each element in the
+   * collection and passing to it three arguments: `(value, index, collection)`. The `iterator`
+   * function can end iteration early by returning `false`.
+   *
+   * @name each
+   * @api public
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Array|Object|string} collection The collection to iterate over.
+   * @return {undefined} Because `each` is run only for side effects, always returns `undefined`.
+   * @example
+   * var log = console.log.bind(console);
+   *
+   * each(log, ['a', 'b', 'c']);
+   * //-> 'a', 0, ['a', 'b', 'c']
+   * //-> 'b', 1, ['a', 'b', 'c']
+   * //-> 'c', 2, ['a', 'b', 'c']
+   * //=> undefined
+   *
+   * each(log, 'tim');
+   * //-> 't', 2, 'tim'
+   * //-> 'i', 1, 'tim'
+   * //-> 'm', 0, 'tim'
+   * //=> undefined
+   *
+   * // Note: Iteration order not guaranteed across environments
+   * each(log, { name: 'tim', occupation: 'enchanter' });
+   * //-> 'tim', 'name', { name: 'tim', occupation: 'enchanter' }
+   * //-> 'enchanter', 'occupation', { name: 'tim', occupation: 'enchanter' }
+   * //=> undefined
+   */
+  var each = function each(iterator, collection) {
+    return (isArrayLike$1(collection) ? arrayEach : baseEach).call(this, iterator, collection);
+  };
+
+  /*
+   * Exports.
+   */
+
+  var each_1 = each;
+
   var defaultEngine$1 = engine.defaultEngine;
   var inMemoryEngine$1 = engine.inMemoryEngine;
 
@@ -2620,7 +4168,7 @@ var rudderanalytics = (function (exports) {
   * Store Implementation with dedicated
   */
 
-  function Store(name, id, keys, optionalEngine) {
+  function Store$1(name, id, keys, optionalEngine) {
     this.id = id;
     this.name = name;
     this.keys = keys || {};
@@ -2631,7 +4179,7 @@ var rudderanalytics = (function (exports) {
   * Set value by key.
   */
 
-  Store.prototype.set = function(key, value) {
+  Store$1.prototype.set = function(key, value) {
     var compoundKey = this._createValidKey(key);
     if (!compoundKey) return;
     try {
@@ -2650,7 +4198,7 @@ var rudderanalytics = (function (exports) {
   * Get by Key.
   */
 
-  Store.prototype.get = function(key) {
+  Store$1.prototype.get = function(key) {
     try {
       var str = this.engine.getItem(this._createValidKey(key));
       if (str === null) {
@@ -2666,7 +4214,7 @@ var rudderanalytics = (function (exports) {
   * Remove by Key.
   */
 
-  Store.prototype.remove = function(key) {
+  Store$1.prototype.remove = function(key) {
     this.engine.removeItem(this._createValidKey(key));
   };
 
@@ -2674,7 +4222,7 @@ var rudderanalytics = (function (exports) {
   * Ensure the key is valid
   */
 
-  Store.prototype._createValidKey = function(key) {
+  Store$1.prototype._createValidKey = function(key) {
     var name = this.name;
     var id = this.id;
 
@@ -2694,7 +4242,7 @@ var rudderanalytics = (function (exports) {
   * Switch to inMemoryEngine, bringing any existing data with.
   */
 
-  Store.prototype._swapEngine = function() {
+  Store$1.prototype._swapEngine = function() {
     var self = this;
 
     // grab existing data, but only for this page's queue instance, not all
@@ -2709,7 +4257,7 @@ var rudderanalytics = (function (exports) {
     this.engine = inMemoryEngine$1;
   };
 
-  var store = Store;
+  var store$1 = Store$1;
 
   function isQuotaExceeded(e) {
     var quotaExceeded = false;
@@ -2795,7 +4343,7 @@ var rudderanalytics = (function (exports) {
    * Expose `debug()` as the module.
    */
 
-  var debug_1 = debug;
+  var debug_1$1 = debug$1;
 
   /**
    * Create a debugger with the given `name`.
@@ -2805,20 +4353,20 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  function debug(name) {
-    if (!debug.enabled(name)) return function(){};
+  function debug$1(name) {
+    if (!debug$1.enabled(name)) return function(){};
 
     return function(fmt){
       fmt = coerce(fmt);
 
       var curr = new Date;
-      var ms = curr - (debug[name] || curr);
-      debug[name] = curr;
+      var ms = curr - (debug$1[name] || curr);
+      debug$1[name] = curr;
 
       fmt = name
         + ' '
         + fmt
-        + ' +' + debug.humanize(ms);
+        + ' +' + debug$1.humanize(ms);
 
       // This hackery is required for IE8
       // where `console.log` doesn't have 'apply'
@@ -2832,8 +4380,8 @@ var rudderanalytics = (function (exports) {
    * The currently active debug mode names.
    */
 
-  debug.names = [];
-  debug.skips = [];
+  debug$1.names = [];
+  debug$1.skips = [];
 
   /**
    * Enables a debug mode by name. This can include modes
@@ -2843,7 +4391,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  debug.enable = function(name) {
+  debug$1.enable = function(name) {
     try {
       localStorage.debug = name;
     } catch(e){}
@@ -2854,10 +4402,10 @@ var rudderanalytics = (function (exports) {
     for (var i = 0; i < len; i++) {
       name = split[i].replace('*', '.*?');
       if (name[0] === '-') {
-        debug.skips.push(new RegExp('^' + name.substr(1) + '$'));
+        debug$1.skips.push(new RegExp('^' + name.substr(1) + '$'));
       }
       else {
-        debug.names.push(new RegExp('^' + name + '$'));
+        debug$1.names.push(new RegExp('^' + name + '$'));
       }
     }
   };
@@ -2868,8 +4416,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  debug.disable = function(){
-    debug.enable('');
+  debug$1.disable = function(){
+    debug$1.enable('');
   };
 
   /**
@@ -2880,7 +4428,7 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
-  debug.humanize = function(ms) {
+  debug$1.humanize = function(ms) {
     var sec = 1000
       , min = 60 * 1000
       , hour = 60 * min;
@@ -2899,14 +4447,14 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  debug.enabled = function(name) {
-    for (var i = 0, len = debug.skips.length; i < len; i++) {
-      if (debug.skips[i].test(name)) {
+  debug$1.enabled = function(name) {
+    for (var i = 0, len = debug$1.skips.length; i < len; i++) {
+      if (debug$1.skips[i].test(name)) {
         return false;
       }
     }
-    for (var i = 0, len = debug.names.length; i < len; i++) {
-      if (debug.names[i].test(name)) {
+    for (var i = 0, len = debug$1.names.length; i < len; i++) {
+      if (debug$1.names[i].test(name)) {
         return true;
       }
     }
@@ -2925,7 +4473,7 @@ var rudderanalytics = (function (exports) {
   // persist
 
   try {
-    if (window.localStorage) debug.enable(localStorage.debug);
+    if (window.localStorage) debug$1.enable(localStorage.debug);
   } catch(e){}
 
   var componentEmitter = createCommonjsModule(function (module) {
@@ -3108,7 +4656,7 @@ var rudderanalytics = (function (exports) {
 
 
 
-  var debug$1 = debug_1('localstorage-retry');
+  var debug$2 = debug_1$1('localstorage-retry');
 
 
   // Some browsers don't support Function.prototype.bind, so just including a simplified version here
@@ -3168,7 +4716,7 @@ var rudderanalytics = (function (exports) {
     this._processId = 0;
 
     // Set up our empty queues
-    this._store = new store(this.name, this.id, this.keys);
+    this._store = new store$1(this.name, this.id, this.keys);
     this._store.set(this.keys.IN_PROGRESS, {});
     this._store.set(this.keys.QUEUE, []);
 
@@ -3339,7 +4887,7 @@ var rudderanalytics = (function (exports) {
       try {
         self.fn(el.item, el.done);
       } catch (err) {
-        debug$1('Process function threw error: ' + err);
+        debug$2('Process function threw error: ' + err);
       }
     }, toRun);
 
@@ -3387,7 +4935,7 @@ var rudderanalytics = (function (exports) {
         if (parts.length !== 3) continue;
         if (parts[0] !== name) continue;
         if (parts[2] !== 'ack') continue;
-        res.push(new store(name, parts[1], self.keys));
+        res.push(new store$1(name, parts[1], self.keys));
       }
       return res;
     }
@@ -3403,7 +4951,7 @@ var rudderanalytics = (function (exports) {
 
   Queue.prototype._reclaim = function(id) {
     var self = this;
-    var other = new store(this.name, id, this.keys);
+    var other = new store$1(this.name, id, this.keys);
 
     var our = {
       queue: this._store.get(this.keys.QUEUE) || []
@@ -3449,7 +4997,7 @@ var rudderanalytics = (function (exports) {
     this._processHead();
   };
 
-  var lib = Queue;
+  var lib$1 = Queue;
 
   var queueOptions = {
     maxRetryDelay: 360000,
@@ -3482,7 +5030,7 @@ var rudderanalytics = (function (exports) {
       this.batchSize = 0; // previous implementation
       //setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
 
-      this.payloadQueue = new lib("rudder", queueOptions, function (item, done) {
+      this.payloadQueue = new lib$1("rudder", queueOptions, function (item, done) {
         // apply sentAt at flush time and reset on each retry
         item.message.sentAt = getCurrentTimeFormatted(); //send this item for processing, with a callback to enable queue to get the done status
 

@@ -14,7 +14,7 @@ export default {
   output: [
     {
       file:
-        process.env.ENV == "prod" ? "dist/browser.min.js" : "dist/browser.js",
+        process.env.ENV == "prod" ? "dist/rudder.min.js" : "dist/browser.js",
       format: "iife",
       name: "rudderanalytics",
       sourceMap: true,
@@ -55,25 +55,23 @@ export default {
     }),
     process.env.uglify === "true" && terser(),
     process.env.ENV == "prod" &&
-      obfuscatorPlugin(
-          {
-          compact: true,
-          controlFlowFlattening: false,
-          deadCodeInjection: false,
-          debugProtection: false,
-          disableConsoleOutput: false,
-          identifierNamesGenerator: 'mangled',
-          log: false,
-          renameGlobals: false,
-          rotateStringArray: true,
-          selfDefending: false,
-          sourceMap: false,
-          stringArray: false,
-          stringArrayEncoding: false,
-          transformObjectKeys: false,
-          unicodeEscapeSequence: false
-        }
-      )
+      obfuscatorPlugin({
+        compact: true,
+        controlFlowFlattening: false,
+        deadCodeInjection: false,
+        debugProtection: false,
+        disableConsoleOutput: false,
+        identifierNamesGenerator: "mangled",
+        log: false,
+        renameGlobals: false,
+        rotateStringArray: true,
+        selfDefending: false,
+        sourceMap: false,
+        stringArray: false,
+        stringArrayEncoding: false,
+        transformObjectKeys: false,
+        unicodeEscapeSequence: false
+      })
     //process.env.uglify === "true" && uglify()
   ]
 };
