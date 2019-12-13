@@ -1,7 +1,7 @@
 import logger from "../../utils/logUtil";
 class GA {
-  constructor(trackingID) {
-    this.trackingID = trackingID;//UA-149602794-1
+  constructor(config) {
+    this.trackingID = config.trackingID;//UA-149602794-1
     this.name = "GA";
   }
 
