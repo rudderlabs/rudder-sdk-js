@@ -57,7 +57,7 @@ export default {
     process.env.ENV == "prod" &&
       obfuscatorPlugin({
         compact: true,
-        controlFlowFlattening: false,
+        controlFlowFlattening: true,
         deadCodeInjection: false,
         debugProtection: false,
         disableConsoleOutput: false,
