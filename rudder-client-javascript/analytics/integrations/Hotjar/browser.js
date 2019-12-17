@@ -1,7 +1,7 @@
 import logger from "../../utils/logUtil";
 class Hotjar {
-  constructor(siteId) {
-    this.siteId = siteId;//1549611
+  constructor(config) {
+    this.siteId = config.siteID;//1549611
     this.name = "HOTJAR";
   }
 

@@ -90,7 +90,7 @@ class Analytics {
           " Use Native SDK? " +
           destination.config.useNativeSDK
       );
-      if (destination.enabled && destination.config.useNativeSDK) {
+      if (destination.enabled) {
         this.clientIntegrations.push(destination.destinationDefinition.name);
         this.configArray.push(destination.config);
       }
@@ -118,37 +118,13 @@ class Analytics {
     }
     intgArray.forEach(intg => {
       let intgClass = integrations[intg];
-      if (intg === "HS") {
-        let hubId = configArray[i].hubID;
-        let intgInstance = new intgClass(hubId);
-        intgInstance.init();
+      let destConfig = configArray[i];
+      let intgInstance = new intgClass(destConfig);
+      intgInstance.init();
 
-        //this.clientIntegrationObjects.push(intgInstance);
-        this.isInitialized(intgInstance).then(this.replayEvents);
-      }
-      if (intg === "GA") {
-        let trackingID = configArray[i].trackingID;
-        let intgInstance = new intgClass(trackingID);
-        intgInstance.init();
+      logger.debug("initializing destination: ", intg);
 
-        //this.clientIntegrationObjects.push(intgInstance);
-        this.isInitialized(intgInstance).then(this.replayEvents);
-      }
-      if (intg === "HOTJAR") {
-        let siteID = configArray[i].siteID;
-        let intgInstance = new intgClass(siteID);
-        intgInstance.init();
-
-        /* As we Hotjar tracks all events by itself, no need to send events explicitly. 
-           So, not putting 'Hotjar' object in clientIntegrationObjects list. */
-      }
-      if (intg === "GOOGLEADS") {
-        let googleAdsConfig = configArray[i];
-        let intgInstance = new intgClass(googleAdsConfig);
-        intgInstance.init();
-
-        this.isInitialized(intgInstance).then(this.replayEvents);
-      }
+      this.isInitialized(intgInstance).then(this.replayEvents);
     });
   }
 

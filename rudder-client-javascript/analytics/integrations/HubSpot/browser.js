@@ -2,8 +2,8 @@ import { ScriptLoader } from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 
 class HubSpot {
-  constructor(hubId) {
-    this.hubId = hubId;//6405167
+  constructor(config) {
+    this.hubId = config.hubID;//6405167
     this.name = "HS";
   }
 

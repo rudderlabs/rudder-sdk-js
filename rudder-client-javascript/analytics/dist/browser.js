@@ -322,10 +322,10 @@ var rudderanalytics = (function (exports) {
   var HubSpot =
   /*#__PURE__*/
   function () {
-    function HubSpot(hubId) {
+    function HubSpot(config) {
       _classCallCheck(this, HubSpot);
 
-      this.hubId = hubId; //6405167
+      this.hubId = config.hubID; //6405167
 
       this.name = "HS";
     }
@@ -438,10 +438,10 @@ var rudderanalytics = (function (exports) {
   var GA =
   /*#__PURE__*/
   function () {
-    function GA(trackingID) {
+    function GA(config) {
       _classCallCheck(this, GA);
 
-      this.trackingID = trackingID; //UA-149602794-1
+      this.trackingID = config.trackingID; //UA-149602794-1
 
       this.name = "GA";
     }
@@ -521,10 +521,10 @@ var rudderanalytics = (function (exports) {
   var Hotjar =
   /*#__PURE__*/
   function () {
-    function Hotjar(siteId) {
+    function Hotjar(config) {
       _classCallCheck(this, Hotjar);
 
-      this.siteId = siteId; //1549611
+      this.siteId = config.siteID; //1549611
 
       this.name = "HOTJAR";
     }
@@ -5245,7 +5245,7 @@ var rudderanalytics = (function (exports) {
         response.source.destinations.forEach(function (destination, index) {
           logger.debug("Destination " + index + " Enabled? " + destination.enabled + " Type: " + destination.destinationDefinition.name + " Use Native SDK? " + destination.config.useNativeSDK);
 
-          if (destination.enabled && destination.config.useNativeSDK) {
+          if (destination.enabled) {
             this.clientIntegrations.push(destination.destinationDefinition.name);
             this.configArray.push(destination.config);
           }
@@ -5278,46 +5278,12 @@ var rudderanalytics = (function (exports) {
 
         intgArray.forEach(function (intg) {
           var intgClass = integrations[intg];
+          var destConfig = configArray[i];
+          var intgInstance = new intgClass(destConfig);
+          intgInstance.init();
+          logger.debug("initializing destination: ", intg);
 
-          if (intg === "HS") {
-            var hubId = configArray[i].hubID;
-            var intgInstance = new intgClass(hubId);
-            intgInstance.init(); //this.clientIntegrationObjects.push(intgInstance);
-
-            _this.isInitialized(intgInstance).then(_this.replayEvents);
-          }
-
-          if (intg === "GA") {
-            var trackingID = configArray[i].trackingID;
-
-            var _intgInstance = new intgClass(trackingID);
-
-            _intgInstance.init(); //this.clientIntegrationObjects.push(intgInstance);
-
-
-            _this.isInitialized(_intgInstance).then(_this.replayEvents);
-          }
-
-          if (intg === "HOTJAR") {
-            var siteID = configArray[i].siteID;
-
-            var _intgInstance2 = new intgClass(siteID);
-
-            _intgInstance2.init();
-            /* As we Hotjar tracks all events by itself, no need to send events explicitly. 
-               So, not putting 'Hotjar' object in clientIntegrationObjects list. */
-
-          }
-
-          if (intg === "GOOGLEADS") {
-            var googleAdsConfig = configArray[i];
-
-            var _intgInstance3 = new intgClass(googleAdsConfig);
-
-            _intgInstance3.init();
-
-            _this.isInitialized(_intgInstance3).then(_this.replayEvents);
-          }
+          _this.isInitialized(intgInstance).then(_this.replayEvents);
         });
       }
     }, {
