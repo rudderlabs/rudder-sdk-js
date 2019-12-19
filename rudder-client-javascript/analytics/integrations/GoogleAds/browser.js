@@ -2,7 +2,7 @@ import logger from "../../utils/logUtil";
 class GoogleAds {
   constructor(config) {
     //this.accountId = config.accountId;//AW-696901813
-    this.conversionId = config.conversionId;
+    this.conversionId = config.conversionID;
     this.pageLoadConversions = config.pageLoadConversions;
     this.clickEventConversions = config.clickEventConversions;
 
