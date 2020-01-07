@@ -59,12 +59,8 @@ class Analytics {
         ? this.storage.getUserTraits()
         : {};
 
-    this.anonymousId = this.storage.getAnonymousId()
-      ? this.storage.getAnonymousId()
-      : generateUUID();
-
+    this.anonymousId = this.getAnonymousId();
     this.storage.setUserId(this.userId);
-    this.storage.setAnonymousId(this.anonymousId);
     this.eventRepository = EventRepository;
   }
 
@@ -403,8 +399,7 @@ class Analytics {
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
     try {
       if (!this.anonymousId) {
-        this.anonymousId = generateUUID();
-        this.storage.setAnonymousId(this.anonymousId);
+        this.setAnonymousId();
       }
 
       rudderElement["message"]["context"]["traits"] = Object.assign(
@@ -498,17 +493,21 @@ class Analytics {
   reset() {
     this.userId = "";
     this.userTraits = {};
-    this.anonymousId = "";
+    this.anonymousId = this.setAnonymousId();
     this.storage.clear();
   }
 
   getAnonymousId(){
-    this.storage.getAnonymousId();
+    this.anonymousId = this.storage.getAnonymousId();
+    if(!this.anonymousId){
+      this.setAnonymousId();
+    }
+    return this.anonymousId;
   }
 
   setAnonymousId(anonymousId){
-    this.anonymousId = anonymousId;
-    this.storage.setAnonymousId(anonymousId);
+    this.anonymousId = anonymousId ? anonymousId : generateUUID();
+    this.storage.setAnonymousId(this.anonymousId);
   }
 
   /**
