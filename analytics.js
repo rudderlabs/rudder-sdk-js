@@ -502,6 +502,15 @@ class Analytics {
     this.storage.clear();
   }
 
+  getAnonymousId(){
+    this.storage.getAnonymousId();
+  }
+
+  setAnonymousId(anonymousId){
+    this.anonymousId = anonymousId;
+    this.storage.setAnonymousId(anonymousId);
+  }
+
   /**
    * Call control pane to get client configs
    *
@@ -572,5 +581,7 @@ let track = instance.track.bind(instance);
 let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
 let initialized = (instance.initialized = true);
+let getAnonymousId = instance.getAnonymousId.bind(instance);
+let setAnonymousId = instance.setAnonymousId.bind(instance);
 
-export { initialized, page, track, load, identify, reset };
+export { initialized, page, track, load, identify, reset, getAnonymousId, setAnonymousId };

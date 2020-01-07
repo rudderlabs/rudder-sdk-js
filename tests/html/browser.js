@@ -5949,6 +5949,17 @@ var rudderanalytics = (function (exports) {
         this.anonymousId = "";
         this.storage.clear();
       }
+    }, {
+      key: "getAnonymousId",
+      value: function getAnonymousId() {
+        this.storage.getAnonymousId();
+      }
+    }, {
+      key: "setAnonymousId",
+      value: function setAnonymousId(anonymousId) {
+        this.anonymousId = anonymousId;
+        this.storage.setAnonymousId(anonymousId);
+      }
       /**
        * Call control pane to get client configs
        *
@@ -6026,12 +6037,16 @@ var rudderanalytics = (function (exports) {
   var reset = instance.reset.bind(instance);
   var load = instance.load.bind(instance);
   var initialized = instance.initialized = true;
+  var getAnonymousId = instance.getAnonymousId.bind(instance);
+  var setAnonymousId = instance.setAnonymousId.bind(instance);
 
+  exports.getAnonymousId = getAnonymousId;
   exports.identify = identify;
   exports.initialized = initialized;
   exports.load = load;
   exports.page = page;
   exports.reset = reset;
+  exports.setAnonymousId = setAnonymousId;
   exports.track = track;
 
   return exports;
