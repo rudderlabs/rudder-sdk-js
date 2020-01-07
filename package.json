@@ -4,7 +4,7 @@
   "description": "",
   "main": "./dist/browser.min.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "sudo ./scripts/run_tests.sh",
     "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",
     "buildProdBrowser": "NODE_ENV=false  ENV=prod uglify=true rollup -c",
     "buildDevNode": "NODE_ENV=true uglify=false rollup -c",
