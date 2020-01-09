@@ -37,6 +37,21 @@ var rudderanalytics = (function (exports) {
     return Constructor;
   }
 
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
   function _toConsumableArray(arr) {
     return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
@@ -704,12 +719,15 @@ var rudderanalytics = (function (exports) {
       this.libraryTolerance = config.libraryTolerance;
       this.useExistingJquery = config.useExistingJquery;
       this.sendExperimentTrack = config.sendExperimentTrack;
-      this.name = "VWO"; // console.error("COnfig ", config, this);
+      this.sendExperimentIdentify = config.sendExperimentIdentify;
+      this.name = "VWO";
+      logger.debug("Config ", config);
     }
 
     _createClass(VWO, [{
       key: "init",
       value: function init() {
+        logger.debug("===in init VWO===");
         var account_id = this.accountId;
         var settings_tolerance = this.settingsTolerance || 250000;
 
@@ -760,49 +778,53 @@ var rudderanalytics = (function (exports) {
               a.setAttribute("type", "text/css");
               if (a.styleSheet) a.styleSheet.cssText = b;else a.appendChild(d.createTextNode(b));
               h.appendChild(a);
-              this.load("//dev.visualwebsiteoptimizer.com/j.php?a=" + account_id + "&u=" + encodeURIComponent(d.URL) + "&r=" + "323232" + "&f=" + +isSPA);
+              this.load("//dev.visualwebsiteoptimizer.com/j.php?a=" + account_id + "&u=" + encodeURIComponent(d.URL) + "&r=" + Math.random() + "&f=" + +isSPA);
               return settings_timer;
             }
           };
         }();
 
-        window._vwo_settings_timer = window._vwo_code.init(); // return window._vwo_code;
+        window._vwo_settings_timer = window._vwo_code.init(); //Send track or iddentify when
 
-        if (this.sendExperimentTrack) {
-          this.experimentViewedTrack();
+        if (this.sendExperimentTrack || this.experimentViewedIdentify) {
+          this.experimentViewed();
         }
-
-        if (this.sendExperimentIdentify) {
-          this.experimentViewedIdentify();
-        }
-
-        logger.debug("===in init VWO===");
       }
     }, {
-      key: "experimentViewedTrack",
-      value: function experimentViewedTrack() {
-        var dataSendingTimer;
+      key: "experimentViewed",
+      value: function experimentViewed() {
         window.VWO = window.VWO || [];
+        var self = this;
         window.VWO.push(["onVariationApplied", function (data) {
           if (!data) {
             return;
           }
 
-          console.error("Variation Applied");
+          logger.debug("Variation Applied");
           var expId = data[1],
               variationId = data[2];
-          console.error(data, expId, _vwo_exp[expId].comb_n[variationId], _vwo_exp[expId]);
+          logger.debug("experiment id:", expId, "Variation Name:", _vwo_exp[expId].comb_n[variationId]);
 
           if (typeof _vwo_exp[expId].comb_n[variationId] !== "undefined" && ["VISUAL_AB", "VISUAL", "SPLIT_URL", "SURVEY"].indexOf(_vwo_exp[expId].type) > -1) {
             try {
-              clearTimeout(dataSendingTimer);
-              window.rudderanalytics.track("Experiment Viewed", {
-                experimentId: expId,
-                variationName: _vwo_exp[expId].comb_n[variationId]
-              });
+              if (self.sendExperimentTrack) {
+                logger.debug("Tracking...");
+                window.rudderanalytics.track("Experiment Viewed", {
+                  experimentId: expId,
+                  variationName: _vwo_exp[expId].comb_n[variationId]
+                });
+              }
             } catch (error) {
-              console.error("Error");
-              console.error(error);
+              logger.error(error);
+            }
+
+            try {
+              if (self.sendExperimentIdentify) {
+                logger.debug("Identifying...");
+                window.rudderanalytics.identify(_defineProperty({}, "Experiment: ".concat(expId), _vwo_exp[expId].comb_n[variationId]));
+              }
+            } catch (error) {
+              logger.error(error);
             }
           }
         }]);
@@ -810,38 +832,29 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("method not supported");
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
-        logger.error("method not supported");
-        console.log(rudderElement);
         var eventName = rudderElement.message.event;
 
         if (eventName === "Order Completed") {
           var total = rudderElement.message.properties ? rudderElement.message.properties.total || rudderElement.message.properties.revenue : 0;
-          console.log(total); // window._vis_opt_queue = window._vis_opt_queue || [];
-          // window._vis_opt_queue.push(() => {
-          //   window._vis_opt_revenue_conversion(total);
-          // });
-
+          logger.debug("Revenue", total);
           window.VWO = window.VWO || [];
-          window.VWO.push(["track.revenueConversion", "7348700"]);
+          window.VWO.push(["track.revenueConversion", total]);
         }
       }
     }, {
       key: "page",
       value: function page(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("method not supported");
       }
     }, {
       key: "isLoaded",
       value: function isLoaded() {
-        logger.error("ISREady");
-        logger.error(!!window._vwo_code);
         return !!window._vwo_code;
-        logger.error("method not supported");
       }
     }]);
 

@@ -7,11 +7,13 @@ class VWO {
     this.libraryTolerance = config.libraryTolerance;
     this.useExistingJquery = config.useExistingJquery;
     this.sendExperimentTrack = config.sendExperimentTrack;
+    this.sendExperimentIdentify = config.sendExperimentIdentify;
     this.name = "VWO";
-    // console.error("COnfig ", config, this);
+    logger.debug("Config ", config);
   }
 
   init() {
+    logger.debug("===in init VWO===");
     var account_id = this.accountId;
     var settings_tolerance = this.settingsTolerance || 250000;
     var library_tolerance = this.libraryTolerance || 200000;
@@ -67,7 +69,7 @@ class VWO {
               "&u=" +
               encodeURIComponent(d.URL) +
               "&r=" +
-              "323232" +
+              Math.random() +
               "&f=" +
               +isSPA
           );
@@ -76,34 +78,30 @@ class VWO {
       };
     })();
     window._vwo_settings_timer = window._vwo_code.init();
-    // return window._vwo_code;
-    if (this.sendExperimentTrack) {
-      this.experimentViewedTrack();
-    }
-    if (this.sendExperimentIdentify) {
-      this.experimentViewedIdentify();
-    }
 
-    logger.debug("===in init VWO===");
+    //Send track or iddentify when
+    if (this.sendExperimentTrack || this.experimentViewedIdentify) {
+      this.experimentViewed();
+    }
   }
 
-  experimentViewedTrack() {
-    var dataSendingTimer;
+  experimentViewed() {
     window.VWO = window.VWO || [];
+    var self = this;
     window.VWO.push([
       "onVariationApplied",
       function(data) {
         if (!data) {
           return;
         }
-        console.log("Variation Applied");
+        logger.debug("Variation Applied");
         var expId = data[1],
           variationId = data[2];
-        console.log(
-          data,
+        logger.debug(
+          "experiment id:",
           expId,
-          _vwo_exp[expId].comb_n[variationId],
-          _vwo_exp[expId]
+          "Variation Name:",
+          _vwo_exp[expId].comb_n[variationId]
         );
         if (
           typeof _vwo_exp[expId].comb_n[variationId] !== "undefined" &&
@@ -112,14 +110,25 @@ class VWO {
           ) > -1
         ) {
           try {
-            clearTimeout(dataSendingTimer);
-            window.rudderanalytics.track("Experiment Viewed", {
-              experimentId: expId,
-              variationName: _vwo_exp[expId].comb_n[variationId]
-            });
+            if (self.sendExperimentTrack) {
+              logger.debug("Tracking...");
+              window.rudderanalytics.track("Experiment Viewed", {
+                experimentId: expId,
+                variationName: _vwo_exp[expId].comb_n[variationId]
+              });
+            }
           } catch (error) {
-            console.error("Error");
-            console.error(error);
+            logger.error(error);
+          }
+          try {
+            if (self.sendExperimentIdentify) {
+              logger.debug("Identifying...");
+              window.rudderanalytics.identify({
+                [`Experiment: ${expId}`]: _vwo_exp[expId].comb_n[variationId]
+              });
+            }
+          } catch (error) {
+            logger.error(error);
           }
         }
       }
@@ -127,7 +136,7 @@ class VWO {
   }
 
   identify(rudderElement) {
-    logger.error("method not supported");
+    logger.debug("method not supported");
   }
 
   track(rudderElement) {
@@ -137,26 +146,18 @@ class VWO {
         ? rudderElement.message.properties.total ||
           rudderElement.message.properties.revenue
         : 0;
-      console.log("Revenue", total);
-      // window._vis_opt_queue = window._vis_opt_queue || [];
-      // window._vis_opt_queue.push(() => {
-      //   window._vis_opt_revenue_conversion(total);
-      // });
+      logger.debug("Revenue", total);
       window.VWO = window.VWO || [];
       window.VWO.push(["track.revenueConversion", total]);
     }
   }
 
   page(rudderElement) {
-    logger.error("method not supported");
+    logger.debug("method not supported");
   }
 
   isLoaded() {
-    logger.error("ISREady");
-    logger.error(!!window._vwo_code);
-
     return !!window._vwo_code;
-    logger.error("method not supported");
   }
 }
 
