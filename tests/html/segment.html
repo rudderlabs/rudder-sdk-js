@@ -1,0 +1,179 @@
+<html>
+  <head>
+    <!-- <script type="text/javascript">
+      rudderanalytics = window.analytics = [];
+      var methods = [
+        "load",
+        "page",
+        "track",
+        "identify",
+        "trackEvent",
+        "trackPage",
+        "identifyUser",
+        "reset"
+      ];
+      for (var i = 0; i < methods.length; i++) {
+        var method = methods[i];
+        rudderanalytics[method] = (function(methodName) {
+          return function() {
+            rudderanalytics.push([methodName, ...arguments]);
+          };
+        })(method);
+      }
+
+      rudderanalytics.load(
+        "1UsLllhcaMieRKR7VFawOtNtaM3",
+        "http://localhost:8080"
+      );
+      // rudderanalytics.track();
+    </script>
+    <script src="./browser.js"></script> -->
+
+    <!-- <script>
+      const testCasesLength = 5;
+      rudderanalytics.track("TEST_CASES_BEGIN");
+      for (let i = 1; i <= testCasesLength; i++) {
+        rudderanalytics.track("TEST_CASES_BEGIN", { id: `TC_00${i}` });
+        const script = document.createElement("script");
+        script.src = `../TC/TC_00${i}.js`;
+        script.type = "text/javascript";
+        document.getElementsByTagName("head")[0].appendChild(script);
+        rudderanalytics.track("TEST_CASES_END", { id: `TC_00${i}` });
+      }
+      rudderanalytics.track("TEST_CASES_END");
+    </script> -->
+    <!-- Start VWO Async Smartcode -->
+    <!-- <script type="text/javascript">
+      window._vwo_code =
+        window._vwo_code ||
+        (function() {
+          var account_id = 470334,
+            settings_tolerance = 2000,
+            library_tolerance = 2500,
+            use_existing_jquery = false,
+            is_spa = 1,
+            hide_element = "body",
+            /* DO NOT EDIT BELOW THIS LINE */
+            f = false,
+            d = document,
+            code = {
+              use_existing_jquery: function() {
+                return use_existing_jquery;
+              },
+              library_tolerance: function() {
+                return library_tolerance;
+              },
+              finish: function() {
+                if (!f) {
+                  f = true;
+                  var a = d.getElementById("_vis_opt_path_hides");
+                  if (a) a.parentNode.removeChild(a);
+                }
+              },
+              finished: function() {
+                return f;
+              },
+              load: function(a) {
+                var b = d.createElement("script");
+                b.src = a;
+                b.type = "text/javascript";
+                b.innerText;
+                b.onerror = function() {
+                  _vwo_code.finish();
+                };
+                d.getElementsByTagName("head")[0].appendChild(b);
+              },
+              init: function() {
+                window.settings_timer = setTimeout(
+                  "_vwo_code.finish()",
+                  settings_tolerance
+                );
+                var a = d.createElement("style"),
+                  b = hide_element
+                    ? hide_element +
+                      "{opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;}"
+                    : "",
+                  h = d.getElementsByTagName("head")[0];
+                a.setAttribute("id", "_vis_opt_path_hides");
+                a.setAttribute("type", "text/css");
+                if (a.styleSheet) a.styleSheet.cssText = b;
+                else a.appendChild(d.createTextNode(b));
+                h.appendChild(a);
+                this.load(
+                  "//dev.visualwebsiteoptimizer.com/j.php?a=" +
+                    account_id +
+                    "&u=" +
+                    encodeURIComponent(d.URL) +
+                    "&f=" +
+                    +is_spa +
+                    "&r=" +
+                    Math.random()
+                );
+                return settings_timer;
+              }
+            };
+          window._vwo_settings_timer = code.init();
+          return code;
+        })();
+    </script> -->
+    <!-- End VWO Async Smartcode -->
+    <script>
+      !(function() {
+        var analytics = (window.analytics = window.analytics || []);
+        if (!analytics.initialize)
+          if (analytics.invoked)
+            window.console &&
+              console.error &&
+              console.error("Segment snippet included twice.");
+          else {
+            analytics.invoked = !0;
+            analytics.methods = [
+              "trackSubmit",
+              "trackClick",
+              "trackLink",
+              "trackForm",
+              "pageview",
+              "identify",
+              "reset",
+              "group",
+              "track",
+              "ready",
+              "alias",
+              "debug",
+              "page",
+              "once",
+              "off",
+              "on"
+            ];
+            analytics.factory = function(t) {
+              return function() {
+                var e = Array.prototype.slice.call(arguments);
+                e.unshift(t);
+                analytics.push(e);
+                return analytics;
+              };
+            };
+            for (var t = 0; t < analytics.methods.length; t++) {
+              var e = analytics.methods[t];
+              analytics[e] = analytics.factory(e);
+            }
+            analytics.load = function(t, e) {
+              var n = document.createElement("script");
+              n.type = "text/javascript";
+              n.async = !0;
+              n.src = "analytics.js";
+              var a = document.getElementsByTagName("script")[0];
+              a.parentNode.insertBefore(n, a);
+              analytics._loadOptions = e;
+            };
+            analytics.SNIPPET_VERSION = "4.1.0";
+            analytics.load("Advg9xdQtfCan4PTaZiTsmfvXc4Lajr2");
+            analytics.page();
+          }
+      })();
+    </script>
+  </head>
+  <body>
+    <h1>Relax while I finish my testing process....</h1>
+  </body>
+</html>
