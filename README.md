@@ -38,10 +38,11 @@ Place the below snippet in the `<header>` section of your html.
 		} (method)
 	}
 	rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI");
+	//rudderanalytics.load("1S2kNlbkMrWLBO79H2eNuEST27I", "http://localhost:8080");
 	rudderanalytics.page();
 </script>
 
-<script  src="https://cdn.rudderlabs.com/rudder.min.js"></script>
+<script  src="https://cdn.rudderlabs.com/rudder-analytics.min.js"></script>
 
 ```
 
