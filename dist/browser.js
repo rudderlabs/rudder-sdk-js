@@ -52,6 +52,43 @@ var rudderanalytics = (function (exports) {
     return obj;
   }
 
+<<<<<<< HEAD
+=======
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      if (enumerableOnly) symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+      keys.push.apply(keys, symbols);
+    }
+
+    return keys;
+  }
+
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
+
+      if (i % 2) {
+        ownKeys(source, true).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        });
+      } else if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+      } else {
+        ownKeys(source).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+      }
+    }
+
+    return target;
+  }
+
+>>>>>>> update dist files
   function _toConsumableArray(arr) {
     return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
@@ -310,7 +347,7 @@ var rudderanalytics = (function (exports) {
   }; //Enumeration for integrations supported
   var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
+  var CONFIG_URL = "http://localhost:5000/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -558,12 +595,12 @@ var rudderanalytics = (function (exports) {
             hjid: h.hotjarSiteId,
             hjsv: 6
           };
-          a = o.getElementsByTagName('head')[0];
-          r = o.createElement('script');
+          a = o.getElementsByTagName("head")[0];
+          r = o.createElement("script");
           r.async = 1;
           r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
           a.appendChild(r);
-        })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+        })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
 
         logger.debug("===in init Hotjar===");
       }
@@ -706,6 +743,7 @@ var rudderanalytics = (function (exports) {
 
   var index$3 =  GoogleAds ;
 
+<<<<<<< HEAD
   var VWO =
   /*#__PURE__*/
   function () {
@@ -825,15 +863,50 @@ var rudderanalytics = (function (exports) {
             }
           }
         }]);
+=======
+  var GoogleTagManager =
+  /*#__PURE__*/
+  function () {
+    function GoogleTagManager(config) {
+      _classCallCheck(this, GoogleTagManager);
+
+      this.containerID = config.containerID;
+      this.name = "GOOGLETAGMANAGER";
+    }
+
+    _createClass(GoogleTagManager, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init GoogleTagManager===");
+
+        (function (w, d, s, l, i) {
+          w[l] = w[l] || [];
+          w[l].push({
+            "gtm.start": new Date().getTime(),
+            event: "gtm.js"
+          });
+          var f = d.getElementsByTagName(s)[0],
+              j = d.createElement(s),
+              dl = l != "dataLayer" ? "&l=" + l : "";
+          j.async = true;
+          j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+          f.parentNode.insertBefore(j, f);
+        })(window, document, "script", "dataLayer", this.containerID);
+>>>>>>> update dist files
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
+<<<<<<< HEAD
         logger.debug("method not supported");
+=======
+        logger.error("method not supported");
+>>>>>>> update dist files
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
+<<<<<<< HEAD
         var eventName = rudderElement.message.event;
 
         if (eventName === "Order Completed") {
@@ -842,20 +915,69 @@ var rudderanalytics = (function (exports) {
           window.VWO = window.VWO || [];
           window.VWO.push(["track.revenueConversion", total]);
         }
+=======
+        logger.debug("===in track GoogleTagManager===");
+        var rudderMessage = rudderElement.message;
+
+        var props = _objectSpread2({
+          event: rudderMessage.event,
+          userId: rudderMessage.userId,
+          anonymousId: rudderMessage.anonymousId
+        }, rudderMessage.properties);
+
+        this.sendToGTMDatalayer(props);
+>>>>>>> update dist files
       }
     }, {
       key: "page",
       value: function page(rudderElement) {
+<<<<<<< HEAD
         logger.debug("method not supported");
+=======
+        logger.debug("===in page GoogleTagManager===");
+        var rudderMessage = rudderElement.message;
+        var pageName = rudderMessage.name;
+        var pageCategory = rudderMessage.properties ? rudderMessage.properties.category : undefined;
+        var eventName;
+
+        if (pageName) {
+          eventName = "Viewed " + pageName + " page";
+        }
+
+        if (pageCategory && pageName) {
+          eventName = "Viewed " + pageCategory + " " + pageName + " page";
+        }
+
+        var props = _objectSpread2({
+          event: eventName,
+          userId: rudderMessage.userId,
+          anonymousId: rudderMessage.anonymousId
+        }, rudderMessage.properties);
+
+        this.sendToGTMDatalayer(props);
+>>>>>>> update dist files
       }
     }, {
       key: "isLoaded",
       value: function isLoaded() {
+<<<<<<< HEAD
         return !!window._vwo_code;
       }
     }]);
 
     return VWO;
+=======
+        return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
+      }
+    }, {
+      key: "sendToGTMDatalayer",
+      value: function sendToGTMDatalayer(props) {
+        window.dataLayer.push(props);
+      }
+    }]);
+
+    return GoogleTagManager;
+>>>>>>> update dist files
   }();
 
   var integrations = {
@@ -863,7 +985,11 @@ var rudderanalytics = (function (exports) {
     GA: index$1,
     HOTJAR: index$2,
     GOOGLEADS: index$3,
+<<<<<<< HEAD
     VWO: VWO
+=======
+    GTM: GoogleTagManager
+>>>>>>> update dist files
   };
 
   //Application class
