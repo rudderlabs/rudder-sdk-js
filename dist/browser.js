@@ -37,6 +37,21 @@ var rudderanalytics = (function (exports) {
     return Constructor;
   }
 
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
   function _toConsumableArray(arr) {
     return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
@@ -586,7 +601,7 @@ var rudderanalytics = (function (exports) {
       _classCallCheck(this, GoogleAds);
 
       //this.accountId = config.accountId;//AW-696901813
-      this.conversionId = config.conversionId;
+      this.conversionId = config.conversionID;
       this.pageLoadConversions = config.pageLoadConversions;
       this.clickEventConversions = config.clickEventConversions;
       this.name = "GOOGLEADS";
@@ -691,11 +706,164 @@ var rudderanalytics = (function (exports) {
 
   var index$3 =  GoogleAds ;
 
+  var VWO =
+  /*#__PURE__*/
+  function () {
+    function VWO(config) {
+      _classCallCheck(this, VWO);
+
+      this.accountId = config.accountId; //1549611
+
+      this.settingsTolerance = config.settingsTolerance;
+      this.isSPA = config.isSPA;
+      this.libraryTolerance = config.libraryTolerance;
+      this.useExistingJquery = config.useExistingJquery;
+      this.sendExperimentTrack = config.sendExperimentTrack;
+      this.sendExperimentIdentify = config.sendExperimentIdentify;
+      this.name = "VWO";
+      logger.debug("Config ", config);
+    }
+
+    _createClass(VWO, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init VWO===");
+        var account_id = this.accountId;
+        var settings_tolerance = this.settingsTolerance;
+        var _library_tolerance = this.libraryTolerance;
+        var _use_existing_jquery = this.useExistingJquery;
+        var isSPA = this.isSPA;
+
+        window._vwo_code = function () {
+          var f = false;
+          var d = document;
+          return {
+            use_existing_jquery: function use_existing_jquery() {
+              return _use_existing_jquery;
+            },
+            library_tolerance: function library_tolerance() {
+              return _library_tolerance;
+            },
+            finish: function finish() {
+              if (!f) {
+                f = true;
+                var a = d.getElementById("_vis_opt_path_hides");
+                if (a) a.parentNode.removeChild(a);
+              }
+            },
+            finished: function finished() {
+              return f;
+            },
+            load: function load(a) {
+              var b = d.createElement("script");
+              b.src = a;
+              b.type = "text/javascript";
+              b.innerText;
+
+              b.onerror = function () {
+                _vwo_code.finish();
+              };
+
+              d.getElementsByTagName("head")[0].appendChild(b);
+            },
+            init: function init() {
+              var settings_timer = setTimeout("_vwo_code.finish()", settings_tolerance);
+              var a = d.createElement("style"),
+                  b = "body{opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;}",
+                  h = d.getElementsByTagName("head")[0];
+              a.setAttribute("id", "_vis_opt_path_hides");
+              a.setAttribute("type", "text/css");
+              if (a.styleSheet) a.styleSheet.cssText = b;else a.appendChild(d.createTextNode(b));
+              h.appendChild(a);
+              this.load("//dev.visualwebsiteoptimizer.com/j.php?a=" + account_id + "&u=" + encodeURIComponent(d.URL) + "&r=" + Math.random() + "&f=" + +isSPA);
+              return settings_timer;
+            }
+          };
+        }();
+
+        window._vwo_settings_timer = window._vwo_code.init(); //Send track or iddentify when
+
+        if (this.sendExperimentTrack || this.experimentViewedIdentify) {
+          this.experimentViewed();
+        }
+      }
+    }, {
+      key: "experimentViewed",
+      value: function experimentViewed() {
+        window.VWO = window.VWO || [];
+        var self = this;
+        window.VWO.push(["onVariationApplied", function (data) {
+          if (!data) {
+            return;
+          }
+
+          logger.debug("Variation Applied");
+          var expId = data[1],
+              variationId = data[2];
+          logger.debug("experiment id:", expId, "Variation Name:", _vwo_exp[expId].comb_n[variationId]);
+
+          if (typeof _vwo_exp[expId].comb_n[variationId] !== "undefined" && ["VISUAL_AB", "VISUAL", "SPLIT_URL", "SURVEY"].indexOf(_vwo_exp[expId].type) > -1) {
+            try {
+              if (self.sendExperimentTrack) {
+                logger.debug("Tracking...");
+                window.rudderanalytics.track("Experiment Viewed", {
+                  experimentId: expId,
+                  variationName: _vwo_exp[expId].comb_n[variationId]
+                });
+              }
+            } catch (error) {
+              logger.error(error);
+            }
+
+            try {
+              if (self.sendExperimentIdentify) {
+                logger.debug("Identifying...");
+                window.rudderanalytics.identify(_defineProperty({}, "Experiment: ".concat(expId), _vwo_exp[expId].comb_n[variationId]));
+              }
+            } catch (error) {
+              logger.error(error);
+            }
+          }
+        }]);
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("method not supported");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var eventName = rudderElement.message.event;
+
+        if (eventName === "Order Completed") {
+          var total = rudderElement.message.properties ? rudderElement.message.properties.total || rudderElement.message.properties.revenue : 0;
+          logger.debug("Revenue", total);
+          window.VWO = window.VWO || [];
+          window.VWO.push(["track.revenueConversion", total]);
+        }
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("method not supported");
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!window._vwo_code;
+      }
+    }]);
+
+    return VWO;
+  }();
+
   var integrations = {
     HS: index,
     GA: index$1,
     HOTJAR: index$2,
-    GOOGLEADS: index$3
+    GOOGLEADS: index$3,
+    VWO: VWO
   };
 
   //Application class
