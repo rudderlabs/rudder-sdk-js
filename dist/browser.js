@@ -52,8 +52,6 @@ var rudderanalytics = (function (exports) {
     return obj;
   }
 
-<<<<<<< HEAD
-=======
   function ownKeys(object, enumerableOnly) {
     var keys = Object.keys(object);
 
@@ -88,7 +86,6 @@ var rudderanalytics = (function (exports) {
     return target;
   }
 
->>>>>>> update dist files
   function _toConsumableArray(arr) {
     return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
@@ -347,7 +344,7 @@ var rudderanalytics = (function (exports) {
   }; //Enumeration for integrations supported
   var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
 
-  var CONFIG_URL = "http://localhost:5000/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -595,12 +592,12 @@ var rudderanalytics = (function (exports) {
             hjid: h.hotjarSiteId,
             hjsv: 6
           };
-          a = o.getElementsByTagName("head")[0];
-          r = o.createElement("script");
+          a = o.getElementsByTagName('head')[0];
+          r = o.createElement('script');
           r.async = 1;
           r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
           a.appendChild(r);
-        })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
+        })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
 
         logger.debug("===in init Hotjar===");
       }
@@ -743,7 +740,6 @@ var rudderanalytics = (function (exports) {
 
   var index$3 =  GoogleAds ;
 
-<<<<<<< HEAD
   var VWO =
   /*#__PURE__*/
   function () {
@@ -863,7 +859,39 @@ var rudderanalytics = (function (exports) {
             }
           }
         }]);
-=======
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("method not supported");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var eventName = rudderElement.message.event;
+
+        if (eventName === "Order Completed") {
+          var total = rudderElement.message.properties ? rudderElement.message.properties.total || rudderElement.message.properties.revenue : 0;
+          logger.debug("Revenue", total);
+          window.VWO = window.VWO || [];
+          window.VWO.push(["track.revenueConversion", total]);
+        }
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("method not supported");
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!window._vwo_code;
+      }
+    }]);
+
+    return VWO;
+  }();
+
   var GoogleTagManager =
   /*#__PURE__*/
   function () {
@@ -892,30 +920,15 @@ var rudderanalytics = (function (exports) {
           j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
           f.parentNode.insertBefore(j, f);
         })(window, document, "script", "dataLayer", this.containerID);
->>>>>>> update dist files
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-<<<<<<< HEAD
-        logger.debug("method not supported");
-=======
         logger.error("method not supported");
->>>>>>> update dist files
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
-<<<<<<< HEAD
-        var eventName = rudderElement.message.event;
-
-        if (eventName === "Order Completed") {
-          var total = rudderElement.message.properties ? rudderElement.message.properties.total || rudderElement.message.properties.revenue : 0;
-          logger.debug("Revenue", total);
-          window.VWO = window.VWO || [];
-          window.VWO.push(["track.revenueConversion", total]);
-        }
-=======
         logger.debug("===in track GoogleTagManager===");
         var rudderMessage = rudderElement.message;
 
@@ -926,14 +939,10 @@ var rudderanalytics = (function (exports) {
         }, rudderMessage.properties);
 
         this.sendToGTMDatalayer(props);
->>>>>>> update dist files
       }
     }, {
       key: "page",
       value: function page(rudderElement) {
-<<<<<<< HEAD
-        logger.debug("method not supported");
-=======
         logger.debug("===in page GoogleTagManager===");
         var rudderMessage = rudderElement.message;
         var pageName = rudderMessage.name;
@@ -955,18 +964,10 @@ var rudderanalytics = (function (exports) {
         }, rudderMessage.properties);
 
         this.sendToGTMDatalayer(props);
->>>>>>> update dist files
       }
     }, {
       key: "isLoaded",
       value: function isLoaded() {
-<<<<<<< HEAD
-        return !!window._vwo_code;
-      }
-    }]);
-
-    return VWO;
-=======
         return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
       }
     }, {
@@ -977,7 +978,6 @@ var rudderanalytics = (function (exports) {
     }]);
 
     return GoogleTagManager;
->>>>>>> update dist files
   }();
 
   var integrations = {
@@ -985,11 +985,8 @@ var rudderanalytics = (function (exports) {
     GA: index$1,
     HOTJAR: index$2,
     GOOGLEADS: index$3,
-<<<<<<< HEAD
-    VWO: VWO
-=======
+    VWO: VWO,
     GTM: GoogleTagManager
->>>>>>> update dist files
   };
 
   //Application class
