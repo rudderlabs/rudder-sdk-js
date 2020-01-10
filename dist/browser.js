@@ -729,12 +729,9 @@ var rudderanalytics = (function (exports) {
       value: function init() {
         logger.debug("===in init VWO===");
         var account_id = this.accountId;
-        var settings_tolerance = this.settingsTolerance || 250000;
-
-        var _library_tolerance = this.libraryTolerance || 200000;
-
-        var _use_existing_jquery = this.useExistingJQuery || true;
-
+        var settings_tolerance = this.settingsTolerance;
+        var _library_tolerance = this.libraryTolerance;
+        var _use_existing_jquery = this.useExistingJquery;
         var isSPA = this.isSPA;
 
         window._vwo_code = function () {
