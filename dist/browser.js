@@ -52,6 +52,40 @@ var rudderanalytics = (function (exports) {
     return obj;
   }
 
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      if (enumerableOnly) symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+      keys.push.apply(keys, symbols);
+    }
+
+    return keys;
+  }
+
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
+
+      if (i % 2) {
+        ownKeys(source, true).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        });
+      } else if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+      } else {
+        ownKeys(source).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+      }
+    }
+
+    return target;
+  }
+
   function _toConsumableArray(arr) {
     return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
@@ -858,12 +892,101 @@ var rudderanalytics = (function (exports) {
     return VWO;
   }();
 
+  var GoogleTagManager =
+  /*#__PURE__*/
+  function () {
+    function GoogleTagManager(config) {
+      _classCallCheck(this, GoogleTagManager);
+
+      this.containerID = config.containerID;
+      this.name = "GOOGLETAGMANAGER";
+    }
+
+    _createClass(GoogleTagManager, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init GoogleTagManager===");
+
+        (function (w, d, s, l, i) {
+          w[l] = w[l] || [];
+          w[l].push({
+            "gtm.start": new Date().getTime(),
+            event: "gtm.js"
+          });
+          var f = d.getElementsByTagName(s)[0],
+              j = d.createElement(s),
+              dl = l != "dataLayer" ? "&l=" + l : "";
+          j.async = true;
+          j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+          f.parentNode.insertBefore(j, f);
+        })(window, document, "script", "dataLayer", this.containerID);
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.error("method not supported");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("===in track GoogleTagManager===");
+        var rudderMessage = rudderElement.message;
+
+        var props = _objectSpread2({
+          event: rudderMessage.event,
+          userId: rudderMessage.userId,
+          anonymousId: rudderMessage.anonymousId
+        }, rudderMessage.properties);
+
+        this.sendToGTMDatalayer(props);
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("===in page GoogleTagManager===");
+        var rudderMessage = rudderElement.message;
+        var pageName = rudderMessage.name;
+        var pageCategory = rudderMessage.properties ? rudderMessage.properties.category : undefined;
+        var eventName;
+
+        if (pageName) {
+          eventName = "Viewed " + pageName + " page";
+        }
+
+        if (pageCategory && pageName) {
+          eventName = "Viewed " + pageCategory + " " + pageName + " page";
+        }
+
+        var props = _objectSpread2({
+          event: eventName,
+          userId: rudderMessage.userId,
+          anonymousId: rudderMessage.anonymousId
+        }, rudderMessage.properties);
+
+        this.sendToGTMDatalayer(props);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
+      }
+    }, {
+      key: "sendToGTMDatalayer",
+      value: function sendToGTMDatalayer(props) {
+        window.dataLayer.push(props);
+      }
+    }]);
+
+    return GoogleTagManager;
+  }();
+
   var integrations = {
     HS: index,
     GA: index$1,
     HOTJAR: index$2,
     GOOGLEADS: index$3,
-    VWO: VWO
+    VWO: VWO,
+    GTM: GoogleTagManager
   };
 
   //Application class
