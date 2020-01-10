@@ -499,7 +499,7 @@ var rudderanalytics = (function (exports) {
       key: "init",
       value: function init() {
         (function (i, s, o, g, r, a, m) {
-          i['GoogleAnalyticsObject'] = r;
+          i["GoogleAnalyticsObject"] = r;
           i[r] = i[r] || function () {
             (i[r].q = i[r].q || []).push(arguments);
           }, i[r].l = 1 * new Date();
@@ -507,39 +507,42 @@ var rudderanalytics = (function (exports) {
           a.async = 1;
           a.src = g;
           m.parentNode.insertBefore(a, m);
-        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga'); //window.ga_debug = {trace: true};
+        })(window, document, "script", "https://www.google-analytics.com/analytics.js", "ga"); //window.ga_debug = {trace: true};
 
 
-        ga('create', this.trackingID, 'auto');
-        ga('send', 'pageview');
+        ga("create", this.trackingID, "auto");
+        ga("send", "pageview");
         logger.debug("===in init GA===");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        ga('set', 'userId', rudderElement.message.anonymous_id);
+        ga("set", "userId", rudderElement.message.anonymous_id);
         logger.debug("in GoogleAnalyticsManager identify");
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
+        console.log("Inside GA track");
         var eventCategory = rudderElement.message.event;
         var eventAction = rudderElement.message.event;
         var eventLabel = rudderElement.message.event;
         var eventValue = "";
+        console.log(eventCategory);
 
         if (rudderElement.message.properties) {
           eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
         }
 
         var payLoad = {
-          hitType: 'event',
+          hitType: "event",
           eventCategory: eventCategory,
           eventAction: eventAction,
           eventLabel: eventLabel,
           eventValue: eventValue
         };
-        ga('send', 'event', payLoad);
+        console.log(payLoad);
+        ga("send", "event", payLoad);
         logger.debug("in GoogleAnalyticsManager track");
       }
     }, {
@@ -549,10 +552,10 @@ var rudderanalytics = (function (exports) {
         var path = rudderElement.properties && rudderElement.properties.path ? rudderElement.properties.path : undefined;
 
         if (path) {
-          ga('set', 'page', path);
+          ga("set", "page", path);
         }
 
-        ga('send', 'pageview');
+        ga("send", "pageview");
       }
     }, {
       key: "isLoaded",
@@ -5559,7 +5562,6 @@ var rudderanalytics = (function (exports) {
         var _this = this;
 
         logger.debug("supported intgs ", integrations);
-        var i = 0;
         this.clientIntegrationObjects = [];
 
         if (!intgArray || intgArray.length == 0) {
@@ -5567,9 +5569,9 @@ var rudderanalytics = (function (exports) {
           return;
         }
 
-        intgArray.forEach(function (intg) {
+        intgArray.forEach(function (intg, index) {
           var intgClass = integrations[intg];
-          var destConfig = configArray[i];
+          var destConfig = configArray[index];
           var intgInstance = new intgClass(destConfig);
           intgInstance.init();
           logger.debug("initializing destination: ", intg);

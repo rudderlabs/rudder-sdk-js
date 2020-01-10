@@ -52,6 +52,40 @@ var rudderanalytics = (function (exports) {
     return obj;
   }
 
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      if (enumerableOnly) symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+      keys.push.apply(keys, symbols);
+    }
+
+    return keys;
+  }
+
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
+
+      if (i % 2) {
+        ownKeys(source, true).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        });
+      } else if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+      } else {
+        ownKeys(source).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+      }
+    }
+
+    return target;
+  }
+
   function _toConsumableArray(arr) {
     return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
@@ -465,7 +499,7 @@ var rudderanalytics = (function (exports) {
       key: "init",
       value: function init() {
         (function (i, s, o, g, r, a, m) {
-          i['GoogleAnalyticsObject'] = r;
+          i["GoogleAnalyticsObject"] = r;
           i[r] = i[r] || function () {
             (i[r].q = i[r].q || []).push(arguments);
           }, i[r].l = 1 * new Date();
@@ -473,39 +507,42 @@ var rudderanalytics = (function (exports) {
           a.async = 1;
           a.src = g;
           m.parentNode.insertBefore(a, m);
-        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga'); //window.ga_debug = {trace: true};
+        })(window, document, "script", "https://www.google-analytics.com/analytics.js", "ga"); //window.ga_debug = {trace: true};
 
 
-        ga('create', this.trackingID, 'auto');
-        ga('send', 'pageview');
+        ga("create", this.trackingID, "auto");
+        ga("send", "pageview");
         logger.debug("===in init GA===");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        ga('set', 'userId', rudderElement.message.anonymous_id);
+        ga("set", "userId", rudderElement.message.anonymous_id);
         logger.debug("in GoogleAnalyticsManager identify");
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
+        console.log("Inside GA track");
         var eventCategory = rudderElement.message.event;
         var eventAction = rudderElement.message.event;
         var eventLabel = rudderElement.message.event;
         var eventValue = "";
+        console.log(eventCategory);
 
         if (rudderElement.message.properties) {
           eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
         }
 
         var payLoad = {
-          hitType: 'event',
+          hitType: "event",
           eventCategory: eventCategory,
           eventAction: eventAction,
           eventLabel: eventLabel,
           eventValue: eventValue
         };
-        ga('send', 'event', payLoad);
+        console.log(payLoad);
+        ga("send", "event", payLoad);
         logger.debug("in GoogleAnalyticsManager track");
       }
     }, {
@@ -515,10 +552,10 @@ var rudderanalytics = (function (exports) {
         var path = rudderElement.properties && rudderElement.properties.path ? rudderElement.properties.path : undefined;
 
         if (path) {
-          ga('set', 'page', path);
+          ga("set", "page", path);
         }
 
-        ga('send', 'pageview');
+        ga("send", "pageview");
       }
     }, {
       key: "isLoaded",
@@ -858,12 +895,101 @@ var rudderanalytics = (function (exports) {
     return VWO;
   }();
 
+  var GoogleTagManager =
+  /*#__PURE__*/
+  function () {
+    function GoogleTagManager(config) {
+      _classCallCheck(this, GoogleTagManager);
+
+      this.containerID = config.containerID;
+      this.name = "GOOGLETAGMANAGER";
+    }
+
+    _createClass(GoogleTagManager, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init GoogleTagManager===");
+
+        (function (w, d, s, l, i) {
+          w[l] = w[l] || [];
+          w[l].push({
+            "gtm.start": new Date().getTime(),
+            event: "gtm.js"
+          });
+          var f = d.getElementsByTagName(s)[0],
+              j = d.createElement(s),
+              dl = l != "dataLayer" ? "&l=" + l : "";
+          j.async = true;
+          j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+          f.parentNode.insertBefore(j, f);
+        })(window, document, "script", "dataLayer", this.containerID);
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.error("method not supported");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("===in track GoogleTagManager===");
+        var rudderMessage = rudderElement.message;
+
+        var props = _objectSpread2({
+          event: rudderMessage.event,
+          userId: rudderMessage.userId,
+          anonymousId: rudderMessage.anonymousId
+        }, rudderMessage.properties);
+
+        this.sendToGTMDatalayer(props);
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("===in page GoogleTagManager===");
+        var rudderMessage = rudderElement.message;
+        var pageName = rudderMessage.name;
+        var pageCategory = rudderMessage.properties ? rudderMessage.properties.category : undefined;
+        var eventName;
+
+        if (pageName) {
+          eventName = "Viewed " + pageName + " page";
+        }
+
+        if (pageCategory && pageName) {
+          eventName = "Viewed " + pageCategory + " " + pageName + " page";
+        }
+
+        var props = _objectSpread2({
+          event: eventName,
+          userId: rudderMessage.userId,
+          anonymousId: rudderMessage.anonymousId
+        }, rudderMessage.properties);
+
+        this.sendToGTMDatalayer(props);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
+      }
+    }, {
+      key: "sendToGTMDatalayer",
+      value: function sendToGTMDatalayer(props) {
+        window.dataLayer.push(props);
+      }
+    }]);
+
+    return GoogleTagManager;
+  }();
+
   var integrations = {
     HS: index,
     GA: index$1,
     HOTJAR: index$2,
     GOOGLEADS: index$3,
-    VWO: VWO
+    VWO: VWO,
+    GTM: GoogleTagManager
   };
 
   //Application class
@@ -5436,7 +5562,6 @@ var rudderanalytics = (function (exports) {
         var _this = this;
 
         logger.debug("supported intgs ", integrations);
-        var i = 0;
         this.clientIntegrationObjects = [];
 
         if (!intgArray || intgArray.length == 0) {
@@ -5444,9 +5569,9 @@ var rudderanalytics = (function (exports) {
           return;
         }
 
-        intgArray.forEach(function (intg) {
+        intgArray.forEach(function (intg, index) {
           var intgClass = integrations[intg];
-          var destConfig = configArray[i];
+          var destConfig = configArray[index];
           var intgInstance = new intgClass(destConfig);
           intgInstance.init();
           logger.debug("initializing destination: ", intg);

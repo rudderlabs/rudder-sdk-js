@@ -109,16 +109,15 @@ class Analytics {
    */
   init(intgArray, configArray) {
     logger.debug("supported intgs ", integrations);
-    let i = 0;
     this.clientIntegrationObjects = [];
 
     if (!intgArray || intgArray.length == 0) {
       this.toBeProcessedByIntegrationArray = [];
       return;
     }
-    intgArray.forEach(intg => {
+    intgArray.forEach((intg, index) => {
       let intgClass = integrations[intg];
-      let destConfig = configArray[i];
+      let destConfig = configArray[index];
       let intgInstance = new intgClass(destConfig);
       intgInstance.init();
 
