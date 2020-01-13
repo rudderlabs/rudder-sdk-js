@@ -43,6 +43,8 @@ The non-minified version of the code is shown below:
 		} (method)
 	}
 	rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI");
+	//For example,
+	//rudderanalytics.load("1Qb1F3jSWv0eKFBPZcrM7ypgjVo", "http://localhost:8080");
 	rudderanalytics.page();
 </script>
 
