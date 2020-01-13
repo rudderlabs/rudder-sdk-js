@@ -59,12 +59,8 @@ class Analytics {
         ? this.storage.getUserTraits()
         : {};
 
-    this.anonymousId = this.storage.getAnonymousId()
-      ? this.storage.getAnonymousId()
-      : generateUUID();
-
+    this.anonymousId = this.getAnonymousId();
     this.storage.setUserId(this.userId);
-    this.storage.setAnonymousId(this.anonymousId);
     this.eventRepository = EventRepository;
   }
 
@@ -403,8 +399,7 @@ class Analytics {
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
     try {
       if (!this.anonymousId) {
-        this.anonymousId = generateUUID();
-        this.storage.setAnonymousId(this.anonymousId);
+        this.setAnonymousId();
       }
 
       rudderElement["message"]["context"]["traits"] = Object.assign(
@@ -498,8 +493,21 @@ class Analytics {
   reset() {
     this.userId = "";
     this.userTraits = {};
-    this.anonymousId = "";
+    this.anonymousId = this.setAnonymousId();
     this.storage.clear();
+  }
+
+  getAnonymousId(){
+    this.anonymousId = this.storage.getAnonymousId();
+    if(!this.anonymousId){
+      this.setAnonymousId();
+    }
+    return this.anonymousId;
+  }
+
+  setAnonymousId(anonymousId){
+    this.anonymousId = anonymousId ? anonymousId : generateUUID();
+    this.storage.setAnonymousId(this.anonymousId);
   }
 
   /**
@@ -572,5 +580,7 @@ let track = instance.track.bind(instance);
 let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
 let initialized = (instance.initialized = true);
+let getAnonymousId = instance.getAnonymousId.bind(instance);
+let setAnonymousId = instance.setAnonymousId.bind(instance);
 
-export { initialized, page, track, load, identify, reset };
+export { initialized, page, track, load, identify, reset, getAnonymousId, setAnonymousId };

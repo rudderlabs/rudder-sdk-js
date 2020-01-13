@@ -499,7 +499,7 @@ var rudderanalytics = (function (exports) {
       key: "init",
       value: function init() {
         (function (i, s, o, g, r, a, m) {
-          i["GoogleAnalyticsObject"] = r;
+          i['GoogleAnalyticsObject'] = r;
           i[r] = i[r] || function () {
             (i[r].q = i[r].q || []).push(arguments);
           }, i[r].l = 1 * new Date();
@@ -507,42 +507,39 @@ var rudderanalytics = (function (exports) {
           a.async = 1;
           a.src = g;
           m.parentNode.insertBefore(a, m);
-        })(window, document, "script", "https://www.google-analytics.com/analytics.js", "ga"); //window.ga_debug = {trace: true};
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga'); //window.ga_debug = {trace: true};
 
 
-        ga("create", this.trackingID, "auto");
-        ga("send", "pageview");
+        ga('create', this.trackingID, 'auto');
+        ga('send', 'pageview');
         logger.debug("===in init GA===");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        ga("set", "userId", rudderElement.message.anonymous_id);
+        ga('set', 'userId', rudderElement.message.anonymous_id);
         logger.debug("in GoogleAnalyticsManager identify");
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
-        console.log("Inside GA track");
         var eventCategory = rudderElement.message.event;
         var eventAction = rudderElement.message.event;
         var eventLabel = rudderElement.message.event;
         var eventValue = "";
-        console.log(eventCategory);
 
         if (rudderElement.message.properties) {
           eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
         }
 
         var payLoad = {
-          hitType: "event",
+          hitType: 'event',
           eventCategory: eventCategory,
           eventAction: eventAction,
           eventLabel: eventLabel,
           eventValue: eventValue
         };
-        console.log(payLoad);
-        ga("send", "event", payLoad);
+        ga('send', 'event', payLoad);
         logger.debug("in GoogleAnalyticsManager track");
       }
     }, {
@@ -552,10 +549,10 @@ var rudderanalytics = (function (exports) {
         var path = rudderElement.properties && rudderElement.properties.path ? rudderElement.properties.path : undefined;
 
         if (path) {
-          ga("set", "page", path);
+          ga('set', 'page', path);
         }
 
-        ga("send", "pageview");
+        ga('send', 'pageview');
       }
     }, {
       key: "isLoaded",
@@ -5516,9 +5513,8 @@ var rudderanalytics = (function (exports) {
       this.storage = new Storage$1();
       this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
       this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
-      this.anonymousId = this.storage.getAnonymousId() ? this.storage.getAnonymousId() : generateUUID();
+      this.anonymousId = this.getAnonymousId();
       this.storage.setUserId(this.userId);
-      this.storage.setAnonymousId(this.anonymousId);
       this.eventRepository = eventRepository;
     }
     /**
@@ -5850,8 +5846,7 @@ var rudderanalytics = (function (exports) {
       value: function processAndSendDataToDestinations(type, rudderElement, options, callback) {
         try {
           if (!this.anonymousId) {
-            this.anonymousId = generateUUID();
-            this.storage.setAnonymousId(this.anonymousId);
+            this.setAnonymousId();
           }
 
           rudderElement["message"]["context"]["traits"] = Object.assign({}, this.userTraits);
@@ -5946,8 +5941,25 @@ var rudderanalytics = (function (exports) {
       value: function reset() {
         this.userId = "";
         this.userTraits = {};
-        this.anonymousId = "";
+        this.anonymousId = this.setAnonymousId();
         this.storage.clear();
+      }
+    }, {
+      key: "getAnonymousId",
+      value: function getAnonymousId() {
+        this.anonymousId = this.storage.getAnonymousId();
+
+        if (!this.anonymousId) {
+          this.setAnonymousId();
+        }
+
+        return this.anonymousId;
+      }
+    }, {
+      key: "setAnonymousId",
+      value: function setAnonymousId(anonymousId) {
+        this.anonymousId = anonymousId ? anonymousId : generateUUID();
+        this.storage.setAnonymousId(this.anonymousId);
       }
       /**
        * Call control pane to get client configs
@@ -6026,12 +6038,16 @@ var rudderanalytics = (function (exports) {
   var reset = instance.reset.bind(instance);
   var load = instance.load.bind(instance);
   var initialized = instance.initialized = true;
+  var getAnonymousId = instance.getAnonymousId.bind(instance);
+  var setAnonymousId = instance.setAnonymousId.bind(instance);
 
+  exports.getAnonymousId = getAnonymousId;
   exports.identify = identify;
   exports.initialized = initialized;
   exports.load = load;
   exports.page = page;
   exports.reset = reset;
+  exports.setAnonymousId = setAnonymousId;
   exports.track = track;
 
   return exports;

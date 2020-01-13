@@ -12,3 +12,4 @@
 local.properties
 *.apk
 *.zip
+package-lock.json
