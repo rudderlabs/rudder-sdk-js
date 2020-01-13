@@ -106,7 +106,7 @@ You can use this method to track various other success metrics for your website,
 
 And we’re done! You’ve successfully installed `rudder-analytics.js` tracking. Now you can enable and use any event destination to send your processed event data that you want, in no time at all.
 
-For a detailed technical documentation and troubleshooting guide on the Rudder’s JavaScript SDK, click [here]()
+For a detailed technical documentation and troubleshooting guide on the Rudder’s JavaScript SDK, click [here](https://docs.rudderlabs.com/sdk-integration-guide/getting-started-with-javascript-sdk).
 
 # Contribute
 You can start adding integrations of your choice for sending data through their JavaScript SDKs.
