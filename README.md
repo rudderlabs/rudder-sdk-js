@@ -4,9 +4,11 @@ Rudder is an enterprise-ready, open-source alternative to Segment, for collectin
 # What is the Rudder JavaScript SDK?
 The Rudder JavaScript SDK (released under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)) allows you to utilize our `rudder-analytics.js` library to start sending event data from your website to Rudder. After integrating this SDK, you will also be able to connect to multiple destinations such as Amplitude, Google Analytics, etc. to send the data.
 
+# How to use the Rudder JavaScript SDK?
+
 This Quick Start Guide will help you get up and running with using the Rudder JavaScript SDK in no time. You just need to follow the steps below:
 
-# Step 1: Install Rudder using the code snippet
+## Step 1: Install Rudder using the code snippet
 To integrate the SDK, place the following code snippet in the `<head>` section of your website.
 
 You can use either the minified or non-minified version of the code:
@@ -49,7 +51,7 @@ The non-minified version of the code is shown below:
 
 **NOTE**: Whichever version of the code you use, you need to replace `YOUR_WRITE_KEY` with the write key in the Rudder Control Plane and `DATA_PLANE_URI` with the URI of the Rudder Server/ Data Plane.
 
-# Step 2: Identify your users using the `identify()` method:
+## Step 2: Identify your users using the `identify()` method:
 The `identify()` method allows you to link users and their actions to a specific userid.
 
 A sample example of how the `identify()` method works is as shown:
@@ -77,7 +79,7 @@ In the above example, information such as the user ID, email along with contextu
 
 **NOTE**: There is no need to call `identify()` for anonymous visitors to your website. Such visitors are automatically assigned an anonymousId.
 
-# Step 3: Track your users’ actions using the `track()` method
+## Step 3: Track your users’ actions using the `track()` method
 The `track()` method allows you to track any actions that your users might perform.
 
 A sample example of how the track() method works is as shown:
