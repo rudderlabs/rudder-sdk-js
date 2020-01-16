@@ -1,14 +1,14 @@
-# What is Rudder?
+# What is RudderStack?
 Rudder is an enterprise-ready, open-source alternative to Segment, for collecting and routing customer event data. More information on Rudder can be found [here](https://github.com/rudderlabs/rudder-server).
 
-# What is the Rudder JavaScript SDK?
-The Rudder JavaScript SDK (released under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)) allows you to utilize our `rudder-analytics.js` library to start sending event data from your website to Rudder. After integrating this SDK, you will also be able to connect to multiple destinations such as Amplitude, Google Analytics, etc. to send the data.
+# What is the RudderStack JavaScript SDK?
+The RudderStack JavaScript SDK (released under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)) allows you to utilize our `rudder-analytics.js` library to start sending event data from your website to RudderStack. After integrating this SDK, you will also be able to connect to multiple destinations such as Amplitude, Google Analytics, etc. to send the data.
 
-# How to use the Rudder JavaScript SDK?
+# How to use the RudderStack JavaScript SDK?
 
-This Quick Start Guide will help you get up and running with using the Rudder JavaScript SDK in no time. You just need to follow the steps below:
+This Quick Start Guide will help you get up and running with using the RudderStack JavaScript SDK in no time. You just need to follow the steps below:
 
-## Step 1: Install Rudder using the code snippet
+## Step 1: Install RudderStack using the code snippet
 To integrate the SDK, place the following code snippet in the `<head>` section of your website.
 
 You can use either the minified or non-minified version of the code:
@@ -51,7 +51,7 @@ The non-minified version of the code is shown below:
 <script  src="https://cdn.rudderlabs.com/rudder-analytics.min.js"></script>
 ```
 
-**NOTE**: Whichever version of the code you use, you need to replace `YOUR_WRITE_KEY` with the write key in the Rudder Control Plane and `DATA_PLANE_URI` with the URI of the Rudder Server/ Data Plane.
+**NOTE**: Whichever version of the code you use, you need to replace `YOUR_WRITE_KEY` with the write key in the RudderStack Control Plane and `DATA_PLANE_URI` with the URI of the RudderStack Server/ Data Plane.
 
 ## Step 2: Identify your users using the `identify()` method:
 The `identify()` method allows you to link users and their actions to a specific userid.
@@ -108,7 +108,7 @@ You can use this method to track various other success metrics for your website,
 
 And we’re done! You’ve successfully installed `rudder-analytics.js` tracking. Now you can enable and use any event destination to send your processed event data that you want, in no time at all.
 
-For a detailed technical documentation and troubleshooting guide on the Rudder’s JavaScript SDK, click [here]()
+For a detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, click [here](https://docs.rudderlabs.com/sdk-integration-guide/getting-started-with-javascript-sdk).
 
 # Contribute
 You can start adding integrations of your choice for sending data through their JavaScript SDKs.
