@@ -6,6 +6,7 @@ import * as VWO from "./VWO";
 import * as GoogleTagManager from "./GoogleTagManager";
 import * as Braze from "./Braze";
 import * as INTERCOM from "./INTERCOM";
+import * as Keen from "./Keen";
 
 let integrations = {
   HS: HubSpot.default,
@@ -15,7 +16,8 @@ let integrations = {
   VWO: VWO.default,
   GTM: GoogleTagManager.default,
   BRAZE: Braze.default,
-  INTERCOM: INTERCOM.default
+  INTERCOM: INTERCOM.default,
+  KEEN: Keen.default
 };
 
 export { integrations };
