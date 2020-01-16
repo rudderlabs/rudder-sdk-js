@@ -22,7 +22,6 @@ class Keen {
         projectId: object.projectID,
         writeKey: object.writeKey
       });
-      logger.debug(object.client)
       return object.client
     }
     function checkAndInitKeen(){
