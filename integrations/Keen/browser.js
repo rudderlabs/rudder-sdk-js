@@ -37,8 +37,8 @@ class Keen {
     let traits = rudderElement.message.context.traits;
     let userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
     let properties = rudderElement.message.properties ? Object.assign(properties, rudderElement.message.properties) : {}
-    properties.visitor = {
-      guest_id: userId,
+    properties.user = {
+      userId: userId,
       traits: traits
     }
     properties = this.getAddOn(properties)
