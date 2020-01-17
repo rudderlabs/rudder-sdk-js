@@ -1199,7 +1199,18 @@ var rudderanalytics = (function (exports) {
       key: "page",
       value: function page(rudderElement) {
         logger.debug("in Keen page");
-        var name = rudderElement.message.name ? rudderElement.message.name : "Loaded a Page";
+        var pageName = rudderElement.message.name;
+        var pageCategory = rudderElement.message.properties ? rudderElement.message.properties.category : undefined;
+        var name = "Loaded a Page";
+
+        if (pageName) {
+          name = "Viewed " + pageName + " page";
+        }
+
+        if (pageCategory && pageName) {
+          name = "Viewed " + pageCategory + " " + pageName + " page";
+        }
+
         var properties = rudderElement.message.properties;
         properties = this.getAddOn(properties);
         this.client.recordEvent(name, properties);
