@@ -344,7 +344,7 @@ var rudderanalytics = (function (exports) {
   }; //Enumeration for integrations supported
   var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
 
-  var CONFIG_URL = "http://localhost:5000/sourceConfig"; //"https://api.rudderlabs.com/sourceConfig";//"https://api.rudderlabs.com/workspaceConfig";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
