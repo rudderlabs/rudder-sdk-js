@@ -1025,8 +1025,8 @@ var rudderanalytics = (function (exports) {
         var traits = rudderElement.message.context.traits;
         var userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
         var properties = rudderElement.message.properties ? Object.assign(properties, rudderElement.message.properties) : {};
-        properties.visitor = {
-          guest_id: userId,
+        properties.user = {
+          userId: userId,
           traits: traits
         };
         properties = this.getAddOn(properties);
