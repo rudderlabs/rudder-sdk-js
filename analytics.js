@@ -406,7 +406,7 @@ class Analytics {
         {},
         this.userTraits
       );
-      console.log("anonymousId: ", this.anonymousId);
+      logger.debug("anonymousId: ", this.anonymousId);
       rudderElement["message"]["anonymousId"] = this.anonymousId;
       rudderElement["message"]["userId"] = this.userId;
 
