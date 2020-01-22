@@ -47,15 +47,13 @@ class Kissmetrics {
     );
   }
 
-  // source :
-  //https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/4213ea776b03fac22dc743c4363dda5ef421137f/lib/index.js#L208
+  // source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
   toUnixTimestamp(date) {
     date = new Date(date);
     return Math.floor(date.getTime() / 1000);
   }
 
-  // source :
-  //https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/4213ea776b03fac22dc743c4363dda5ef421137f/lib/index.js#L208
+  // source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
   clean(obj) {
     var ret = {};
 
@@ -109,8 +107,7 @@ class Kissmetrics {
     return ret;
   }
 
-  // source :
-  //https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/4213ea776b03fac22dc743c4363dda5ef421137f/lib/index.js#L208
+  // source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
   flatten(target, opts) {
     opts = opts || {};
 
@@ -156,8 +153,7 @@ class Kissmetrics {
     return output;
   }
 
-  // source :
-  //https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/4213ea776b03fac22dc743c4363dda5ef421137f/lib/index.js#L208
+  //  source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
   prefix(event, properties) {
     var prefixed = {};
     each(properties, function(key, val) {
