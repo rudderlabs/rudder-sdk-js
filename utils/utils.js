@@ -1,5 +1,5 @@
 //import * as XMLHttpRequestNode from "Xmlhttprequest";
-import logger from "./logUtil"
+import logger from "./logUtil";
 
 let XMLHttpRequestNode;
 if (!process.browser) {
@@ -123,31 +123,32 @@ function getJSONTrimmed(context, url, writeKey, callback) {
       logger.debug("status 200 " + "calling callback");
       cb_(200, xhr.responseText);
     } else {
-      handleError(new Error("request failed with status: " + xhr.status + " for url: " + url));
+      handleError(
+        new Error(
+          "request failed with status: " + xhr.status + " for url: " + url
+        )
+      );
       cb_(status);
     }
   };
   xhr.send();
 }
 
-function handleError(error){
-  
+function handleError(error) {
   let errorMessage = error.message ? error.message : undefined;
-  if(error instanceof Event){
-    if(error.target && error.target.localName == "script"){
-      errorMessage = "error in script loading: "+error.target.id;
+  if (error instanceof Event) {
+    if (error.target && error.target.localName == "script") {
+      errorMessage = "error in script loading: " + error.target.id;
     }
   }
-  if(errorMessage){
+  if (errorMessage) {
     //console.log("%c"+errorMessage, 'color: blue');
     //console.error(errorMessage);
-    logger.error(errorMessage)
+    logger.error(errorMessage);
   }
-
 }
 
-function getDefaultPageProperties(){
-
+function getDefaultPageProperties() {
   let canonicalUrl = getCanonicalUrl();
   let path = canonicalUrl ? canonicalUrl.pathname : window.location.pathname;
   let referrer = document.referrer;
@@ -164,20 +165,53 @@ function getDefaultPageProperties(){
   };
 }
 
-function getUrl(search){
+function getUrl(search) {
   let canonicalUrl = getCanonicalUrl();
-  let url = canonicalUrl ? canonicalUrl.indexOf('?') > -1 ? canonicalUrl : canonicalUrl + search : window.location.href;
-  let hashIndex = url.indexOf('#');
+  let url = canonicalUrl
+    ? canonicalUrl.indexOf("?") > -1
+      ? canonicalUrl
+      : canonicalUrl + search
+    : window.location.href;
+  let hashIndex = url.indexOf("#");
   return hashIndex > -1 ? url.slice(0, hashIndex) : url;
 }
 
 function getCanonicalUrl() {
-  var tags = document.getElementsByTagName('link');
-  for (var i = 0, tag; tag = tags[i]; i++) {
-    if (tag.getAttribute('rel') === 'canonical') {
-      return tag.getAttribute('href');
+  var tags = document.getElementsByTagName("link");
+  for (var i = 0, tag; (tag = tags[i]); i++) {
+    if (tag.getAttribute("rel") === "canonical") {
+      return tag.getAttribute("href");
     }
   }
+}
+
+function getCurrency(val) {
+  if (!val) return;
+  if (typeof val === "number") {
+    return val;
+  }
+  if (typeof val !== "string") {
+    return;
+  }
+
+  val = val.replace(/\$/g, "");
+  val = parseFloat(val);
+
+  if (!isNaN(val)) {
+    return val;
+  }
+}
+
+function getRevenue(properties, eventName) {
+  var revenue = properties.revenue;
+  var orderCompletedRegExp = /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
+
+  // it's always revenue, unless it's called during an order completion.
+  if (!revenue && event && eventName.match(orderCompletedRegExp)) {
+    revenue = properties.total;
+  }
+
+  return getCurrency(revenue);
 }
 
 export {
@@ -186,6 +220,7 @@ export {
   getCurrentTimeFormatted,
   getJSONTrimmed,
   getJSON,
+  getRevenue,
   getDefaultPageProperties,
   handleError
 };
