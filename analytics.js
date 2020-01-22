@@ -243,6 +243,32 @@ class Analytics {
   }
 
   /**
+   *
+   * @param {*} to
+   * @param {*} from
+   * @param {*} options
+   * @param {*} callback
+   */
+  alias(to, from, options, callback) {
+    if (typeof options == "function") (callback = options), (options = null);
+    if (typeof from == "function")
+      (callback = from), (options = null), (from = null);
+    if (typeof from == "object") (options = from), (from = null);
+
+    let rudderElement = new RudderElementBuilder().setType("alias").build();
+    rudderElement.message.previousId =
+      from || this.userId ? this.userId : this.getAnonymousId();
+    rudderElement.message.userId = to;
+
+    this.processAndSendDataToDestinations(
+      "alias",
+      rudderElement,
+      options,
+      callback
+    );
+  }
+
+  /**
    * Send page call to Rudder BE and to initialized integrations
    *
    * @param {*} category
@@ -408,7 +434,9 @@ class Analytics {
       );
       console.log("anonymousId: ", this.anonymousId);
       rudderElement["message"]["anonymousId"] = this.anonymousId;
-      rudderElement["message"]["userId"] = this.userId;
+      rudderElement["message"]["userId"] = rudderElement["message"]["userId"]
+        ? rudderElement["message"]["userId"]
+        : this.userId;
 
       if (options) {
         this.processOptionsParam(rudderElement, options);
@@ -497,15 +525,15 @@ class Analytics {
     this.storage.clear();
   }
 
-  getAnonymousId(){
+  getAnonymousId() {
     this.anonymousId = this.storage.getAnonymousId();
-    if(!this.anonymousId){
+    if (!this.anonymousId) {
       this.setAnonymousId();
     }
     return this.anonymousId;
   }
 
-  setAnonymousId(anonymousId){
+  setAnonymousId(anonymousId) {
     this.anonymousId = anonymousId ? anonymousId : generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
   }
@@ -577,10 +605,21 @@ if (process.browser) {
 let identify = instance.identify.bind(instance);
 let page = instance.page.bind(instance);
 let track = instance.track.bind(instance);
+let alias = instance.alias.bind(instance);
 let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
 let initialized = (instance.initialized = true);
 let getAnonymousId = instance.getAnonymousId.bind(instance);
 let setAnonymousId = instance.setAnonymousId.bind(instance);
 
-export { initialized, page, track, load, identify, reset, getAnonymousId, setAnonymousId };
+export {
+  initialized,
+  page,
+  track,
+  load,
+  identify,
+  reset,
+  alias,
+  getAnonymousId,
+  setAnonymousId
+};
