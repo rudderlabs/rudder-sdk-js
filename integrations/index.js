@@ -7,6 +7,7 @@ import * as GoogleTagManager from "./GoogleTagManager";
 import * as Braze from "./Braze";
 import * as INTERCOM from "./INTERCOM";
 import * as Keen from "./Keen";
+import * as Kissmetrics from "./Kissmetrics";
 
 let integrations = {
   HS: HubSpot.default,
@@ -17,7 +18,8 @@ let integrations = {
   GTM: GoogleTagManager.default,
   BRAZE: Braze.default,
   INTERCOM: INTERCOM.default,
-  KEEN: Keen.default
+  KEEN: Keen.default,
+  KISSMETRICS: Kissmetrics.default
 };
 
 export { integrations };
