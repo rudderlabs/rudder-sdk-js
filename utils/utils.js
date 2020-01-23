@@ -207,7 +207,7 @@ function getRevenue(properties, eventName) {
   var orderCompletedRegExp = /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
 
   // it's always revenue, unless it's called during an order completion.
-  if (!revenue && event && eventName.match(orderCompletedRegExp)) {
+  if (!revenue && eventName && eventName.match(orderCompletedRegExp)) {
     revenue = properties.total;
   }
 
