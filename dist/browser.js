@@ -71,13 +71,13 @@ var rudderanalytics = (function (exports) {
       var source = arguments[i] != null ? arguments[i] : {};
 
       if (i % 2) {
-        ownKeys(source, true).forEach(function (key) {
+        ownKeys(Object(source), true).forEach(function (key) {
           _defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
       } else {
-        ownKeys(source).forEach(function (key) {
+        ownKeys(Object(source)).forEach(function (key) {
           Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
       }
@@ -110,19 +110,19 @@ var rudderanalytics = (function (exports) {
       LOG_LEVEL_DEBUG = 2,
       LOG_LEVEL_WARN = 3,
       LOG_LEVEL_ERROR = 4,
-      LOG_LEVEL = LOG_LEVEL_ERROR;
+      LOG_LEVEL = LOG_LEVEL_INFO;
   var logger = {
     setLogLevel: function setLogLevel(logLevel) {
       switch (logLevel.toUpperCase()) {
-        case 'INFO':
+        case "INFO":
           LOG_LEVEL = LOG_LEVEL_INFO;
           return;
 
-        case 'DEBUG':
+        case "DEBUG":
           LOG_LEVEL = LOG_LEVEL_DEBUG;
           return;
 
-        case 'WARN':
+        case "WARN":
           LOG_LEVEL = LOG_LEVEL_WARN;
           return;
       }
@@ -761,6 +761,7 @@ var rudderanalytics = (function (exports) {
     _createClass(VWO, [{
       key: "init",
       value: function init() {
+        console.log("okay");
         logger.debug("===in init VWO===");
         var account_id = this.accountId;
         var settings_tolerance = this.settingsTolerance;
@@ -980,13 +981,176 @@ var rudderanalytics = (function (exports) {
     return GoogleTagManager;
   }();
 
+  var INTERCOM =
+  /*#__PURE__*/
+  function () {
+    function INTERCOM(config) {
+      _classCallCheck(this, INTERCOM);
+
+      this.APP_ID = config.APP_ID;
+      this.name = "INTERCOM";
+      this.apiKey = config.apiKey;
+      this.appId = config.appId;
+      this.mobileApiKey = config.mobileAppId;
+      this.collectContext = config.collectContext;
+      logger.debug("Config ", config);
+    }
+
+    _createClass(INTERCOM, [{
+      key: "init",
+      value: function init() {
+        if (typeof window.INTERCOM === "function") {
+          window.INTERCOM("reattach_activator");
+          window.INTERCOM("update", {
+            app_id: this.APP_ID
+          });
+        } else {
+          var i = function i() {
+            i.c(arguments);
+          };
+
+          i.q = [];
+          window.INTERCOM = i;
+
+          var l = function l() {
+            var s = document.createElement("script");
+            s.type = "text/javascript";
+            s.async = true;
+            s.src = "https://widget.intercom.io/widget/" + this.APP_ID;
+            var x = document.getElementsByTagName("script")[0];
+            x.parentNode.insertBefore(s, x);
+          };
+
+          if (document.readyState === "complete") {
+            l();
+          } else if (window.attachEvent) {
+            window.attachEvent("onload", l);
+          } else {
+            window.addEventListener("load", l, false);
+          }
+        }
+      }
+    }, {
+      key: "page",
+      value: function page() {
+        // Get new messages of the current user
+        window.INTERCOM("update");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        // Create or update a user
+        var rawPayload = {};
+        var context = rudderElement.message.context; // identity verification
+
+        var identityVerificationProps = context.Intercom ? context.Intercom : null;
+
+        if (identityVerificationProps != null) {
+          // user hash
+          var userHash = context.Intercom.user_hash ? context.Intercom.user_hash : null;
+
+          if (userHash != null) {
+            rawPayload.user_hash = userHash;
+          } // hide default launcher
+
+
+          var hideDefaultLauncher = context.Intercom.hideDefaultLauncher ? context.Intercom.hideDefaultLauncher : null; // if(hideDefaultLauncher!= null){
+          //   rawPayload.hideDefaultLauncher = ;
+          // }
+        } // Map rudder properties payload to intercom's paylod
+
+
+        Object.keys(context.traits).forEach(function (field) {
+          var value = traits[field];
+
+          if (field === "company") {
+            var companies = [];
+            var company = {};
+            var companyFields = Object.keys(traits[field]);
+            companyFields.forEach(function (key) {
+              if (key != "id") {
+                company[key] = context.traits[field][key];
+              } else {
+                company["company_id"] = context.traits[field][key];
+              }
+            });
+
+            if (!companyFields.includes("id")) {
+              company["company_id"] = md5(company.name);
+            }
+
+            companies.push(company);
+            rawPayload.companies = companies;
+          }
+
+          switch (field) {
+            case "createdAt":
+              rawPayload["created_at"] = value;
+              break;
+
+            case "anonymousId":
+              rawPayload["user_id"] = value;
+              break;
+          }
+        });
+        window.INTERCOM("update", rawPayload);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        // Track events
+        var rawPayload = {};
+        var message = rudderElement.message;
+        var properties = message.properties ? Object.keys(message.properties) : null; // udpate properties
+
+        if (properties) {
+          var metadata = {
+            price: {},
+            order_number: {}
+          };
+          properties.forEach(function (property) {
+            var value = message.properties[property];
+
+            switch (property) {
+              case "price":
+                metadata.price["amount"] = value * 100;
+                break;
+
+              case "currency":
+                metadata.price["currency"] = value;
+            }
+
+            switch (property) {
+              case "order_ID" :
+                metadata.order_number["value"] = value;
+                break;
+            }
+          });
+          rawPayload.metadata = metadata;
+        }
+
+        if (message.event) {
+          rawPayload.event_name = message.event;
+        }
+
+        rawPayload.user_id = message.userId ? message.userId : message.anonymousId;
+        rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000); // final call to intercom
+
+        window.INTERCOM("trackEvent", rawPayload);
+      }
+    }]);
+
+    return INTERCOM;
+  }();
+
   var integrations = {
     HS: index,
     GA: index$1,
     HOTJAR: index$2,
     GOOGLEADS: index$3,
     VWO: VWO,
-    GTM: GoogleTagManager
+    GTM: GoogleTagManager,
+    INTERCOM: INTERCOM
   };
 
   //Application class
@@ -1125,8 +1289,6 @@ var rudderanalytics = (function (exports) {
                 case ECommerceEvents.ORDER_REFUNDED:
                   this.checkForKey("order_id");
                   break;
-
-                default:
               }
             } else if (!this.properties["category"]) {
               //if category is not there, set to event
@@ -2276,7 +2438,7 @@ var rudderanalytics = (function (exports) {
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
     // strict `define` check is necessary for compatibility with `r.js`.
-    var isLoader = typeof undefined === "function" && undefined.amd;
+    var isLoader = typeof undefined === "function" ;
 
     // A set of types used to distinguish objects from primitives.
     var objectTypes = {
@@ -2285,7 +2447,7 @@ var rudderanalytics = (function (exports) {
     };
 
     // Detect the `exports` object exposed by CommonJS implementations.
-    var freeExports =  exports && !exports.nodeType && exports;
+    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
 
     // Use the `global` object exposed by Node (including Browserify via
     // `insert-module-globals`), Narwhal, and Ringo as the default context,
@@ -3939,14 +4101,16 @@ var rudderanalytics = (function (exports) {
     var i = offset || 0;
     var bth = byteToHex;
     // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([bth[buf[i++]], bth[buf[i++]], 
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]]]).join('');
+    return ([
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]]
+    ]).join('');
   }
 
   var bytesToUuid_1 = bytesToUuid;
@@ -3963,7 +4127,7 @@ var rudderanalytics = (function (exports) {
   var _lastMSecs = 0;
   var _lastNSecs = 0;
 
-  // See https://github.com/broofa/node-uuid for API details
+  // See https://github.com/uuidjs/uuid for API details
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
@@ -4562,8 +4726,6 @@ var rudderanalytics = (function (exports) {
         if (e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
           quotaExceeded = true;
         }
-        break;
-      default:
         break;
       }
     } else if (e.number === -2147024882) {
