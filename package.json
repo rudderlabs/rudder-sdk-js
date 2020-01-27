@@ -15,12 +15,16 @@
   "dependencies": {
     "@ndhoule/clone": "^1.0.0",
     "@ndhoule/defaults": "^2.0.1",
+    "@ndhoule/extend": "^2.0.0",
     "@segment/localstorage-retry": "^1.2.2",
     "@segment/store": "^1.3.20",
     "@segment/top-domain": "^3.0.0",
     "btoa": "^1.2.1",
     "component-cookie": "^1.1.4",
+    "component-each": "^0.2.6",
+    "is": "^3.3.0",
     "json3": "^3.3.3",
+    "obj-case": "^0.2.0",
     "universal-analytics": "^0.4.20",
     "xmlhttprequest": "^1.8.0"
   },
