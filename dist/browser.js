@@ -342,9 +342,9 @@ var rudderanalytics = (function (exports) {
     CART_SHARED: "Cart Shared",
     PRODUCT_REVIEWED: "Product Reviewed"
   }; //Enumeration for integrations supported
-  var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
+  var BASE_URL = "http://localhost:8080/"; //"https://rudderlabs.com";
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
+  var CONFIG_URL = "http://localhost:5000/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -761,7 +761,6 @@ var rudderanalytics = (function (exports) {
     _createClass(VWO, [{
       key: "init",
       value: function init() {
-        console.log("okay");
         logger.debug("===in init VWO===");
         var account_id = this.accountId;
         var settings_tolerance = this.settingsTolerance;
@@ -987,48 +986,58 @@ var rudderanalytics = (function (exports) {
     function INTERCOM(config) {
       _classCallCheck(this, INTERCOM);
 
-      this.APP_ID = config.APP_ID;
-      this.name = "INTERCOM";
-      this.apiKey = config.apiKey;
-      this.appId = config.appId;
-      this.mobileApiKey = config.mobileAppId;
-      this.collectContext = config.collectContext;
+      this.NAME = "INTERCOM";
+      this.API_KEY = config.apiKey;
+      this.APP_ID = config.appId;
+      this.MOBILE_API_KEY = config.mobileAppId;
       logger.debug("Config ", config);
     }
 
     _createClass(INTERCOM, [{
       key: "init",
       value: function init() {
-        if (typeof window.INTERCOM === "function") {
-          window.INTERCOM("reattach_activator");
-          window.INTERCOM("update", {
-            app_id: this.APP_ID
-          });
-        } else {
-          var i = function i() {
-            i.c(arguments);
-          };
+        window.intercomSettings = {
+          app_id: this.APP_ID
+        };
 
-          i.q = [];
-          window.INTERCOM = i;
-
-          var l = function l() {
-            var s = document.createElement("script");
-            s.type = "text/javascript";
-            s.async = true;
-            s.src = "https://widget.intercom.io/widget/" + this.APP_ID;
-            var x = document.getElementsByTagName("script")[0];
-            x.parentNode.insertBefore(s, x);
-          };
-
-          if (document.readyState === "complete") {
-            l();
-          } else if (window.attachEvent) {
-            window.attachEvent("onload", l);
+        (function () {
+          if (typeof window.INTERCOM === "function") {
+            window.INTERCOM("reattach_activator");
+            window.INTERCOM("update", window.intercomSettings);
           } else {
-            window.addEventListener("load", l, false);
+            var i = function i() {
+              i.c(arguments);
+            };
+
+            i.q = [];
+
+            i.c = function (args) {
+              i.q.push(args);
+            };
+
+            window.INTERCOM = i;
+
+            var l = function l() {
+              var s = document.createElement("script");
+              s.type = "text/javascript";
+              s.async = true;
+              s.src = "https://widget.intercom.io/widget/" + window.intercomSettings.app_id;
+              var x = document.getElementsByTagName("script")[0];
+              x.parentNode.insertBefore(s, x);
+            };
+
+            if (document.readyState === "complete") {
+              l();
+              window.intercom_code = true;
+            } else if (window.attachEvent) {
+              window.attachEvent("onload", l);
+              window.intercom_code = true;
+            } else {
+              window.addEventListener("load", l, false);
+              window.intercom_code = true;
+            }
           }
-        }
+        })();
       }
     }, {
       key: "page",
@@ -1061,12 +1070,12 @@ var rudderanalytics = (function (exports) {
 
 
         Object.keys(context.traits).forEach(function (field) {
-          var value = traits[field];
+          var value = context.traits[field];
 
           if (field === "company") {
             var companies = [];
             var company = {};
-            var companyFields = Object.keys(traits[field]);
+            var companyFields = Object.keys(context.traits[field]);
             companyFields.forEach(function (key) {
               if (key != "id") {
                 company[key] = context.traits[field][key];
@@ -1137,6 +1146,11 @@ var rudderanalytics = (function (exports) {
         rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000); // final call to intercom
 
         window.INTERCOM("trackEvent", rawPayload);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!window.intercom_code;
       }
     }]);
 
@@ -5776,6 +5790,10 @@ var rudderanalytics = (function (exports) {
         var _this2 = this;
 
         var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        console.log("logging instance");
+        console.log(instance);
+        console.log("----------------");
+        console.log(instance.isLoaded());
         return new Promise(function (resolve) {
           if (instance.isLoaded()) {
             _this2.successfullyLoadedIntegration.push(instance);
@@ -6006,6 +6024,10 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "processAndSendDataToDestinations",
       value: function processAndSendDataToDestinations(type, rudderElement, options, callback) {
+        console.log("-----------------------------------------");
+        console.log(type, rudderElement, options, callback);
+        console.log("-----------------------------------------");
+
         try {
           if (!this.anonymousId) {
             this.setAnonymousId();

@@ -2,41 +2,52 @@ import logger from "../../utils/logUtil";
 
 class INTERCOM {
   constructor(config) {
-    this.APP_ID = config.APP_ID;
-    this.name = "INTERCOM";
-    this.apiKey = config.apiKey;
-    this.appId = config.appId;
-    this.mobileApiKey = config.mobileAppId;
-    this.collectContext = config.collectContext;
+    this.NAME = "INTERCOM";
+    this.API_KEY = config.apiKey;
+    this.APP_ID = config.appId;
+    this.MOBILE_API_KEY = config.mobileAppId;
     logger.debug("Config ", config);
   }
 
   init() {
-    if (typeof window.INTERCOM === "function") {
-      window.INTERCOM("reattach_activator");
-      window.INTERCOM("update", { app_id: this.APP_ID });
-    } else {
-      var i = function() {
-        i.c(arguments);
-      };
-      i.q = [];
-      window.INTERCOM = i;
-      var l = function() {
-        var s = document.createElement("script");
-        s.type = "text/javascript";
-        s.async = true;
-        s.src = "https://widget.intercom.io/widget/" + this.APP_ID;
-        var x = document.getElementsByTagName("script")[0];
-        x.parentNode.insertBefore(s, x);
-      };
-      if (document.readyState === "complete") {
-        l();
-      } else if (window.attachEvent) {
-        window.attachEvent("onload", l);
+    window.intercomSettings = {
+      app_id: this.APP_ID
+    };
+    (function() {
+      if (typeof window.INTERCOM === "function") {
+        window.INTERCOM("reattach_activator");
+        window.INTERCOM("update", window.intercomSettings);
       } else {
-        window.addEventListener("load", l, false);
+        var i = function() {
+          i.c(arguments);
+        };
+        i.q = [];
+        i.c = function(args) {
+          i.q.push(args);
+        };
+        window.INTERCOM = i;
+        var l = function() {
+          var s = document.createElement("script");
+          s.type = "text/javascript";
+          s.async = true;
+          s.src =
+            "https://widget.intercom.io/widget/" +
+            window.intercomSettings.app_id;
+          var x = document.getElementsByTagName("script")[0];
+          x.parentNode.insertBefore(s, x);
+        };
+        if (document.readyState === "complete") {
+          l();
+          window.intercom_code = true;
+        } else if (window.attachEvent) {
+          window.attachEvent("onload", l);
+          window.intercom_code = true;
+        } else {
+          window.addEventListener("load", l, false);
+          window.intercom_code = true;
+        }
       }
-    }
+    })();
   }
 
   page() {
@@ -77,12 +88,12 @@ class INTERCOM {
 
     // Map rudder properties payload to intercom's paylod
     Object.keys(context.traits).forEach(field => {
-      const value = traits[field];
+      const value = context.traits[field];
 
       if (field === "company") {
         let companies = [];
         let company = {};
-        const companyFields = Object.keys(traits[field]);
+        const companyFields = Object.keys(context.traits[field]);
 
         companyFields.forEach(key => {
           if (key != "id") {
@@ -167,6 +178,10 @@ class INTERCOM {
 
     // final call to intercom
     window.INTERCOM("trackEvent", rawPayload);
+  }
+
+  isLoaded() {
+    return !!window.intercom_code;
   }
 }
 
