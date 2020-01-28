@@ -1,7 +1,7 @@
 <html>
   <head>
     <script type="text/javascript">
-      var rudderanalytics = (window.rudderanalytics = []);
+      rudderanalytics = window.rudderanalytics = [];
       var methods = [
         "load",
         "page",
@@ -22,25 +22,34 @@
       }
 
       rudderanalytics.load(
-        "1UmzoolMJoAj9MuBDg5YRAWe3Ms",
+        "1WTGuWl5FkIZF5DSOGfwBfWspBC",
         "http://localhost:8080"
       );
-      rudderanalytics.track();
     </script>
+
     <script src="./browser.js"></script>
 
     <script>
-      const testCasesLength = 5;
-      rudderanalytics.track("TEST_CASES_BEGIN");
-      for (let i = 1; i <= testCasesLength; i++) {
-        rudderanalytics.track("TEST_CASES_BEGIN", { id: `TC_00${i}` });
-        const script = document.createElement("script");
-        script.src = `../TC/TC_00${i}.js`;
-        script.type = "text/javascript";
-        document.getElementsByTagName("head")[0].appendChild(script);
-        rudderanalytics.track("TEST_CASES_END", { id: `TC_00${i}` });
-      }
-      rudderanalytics.track("TEST_CASES_END");
+      console.log("3");
+      window.rudderanalytics.page();
+      window.rudderanalytics.identify("fshdgfsd", {
+        name: "Michael Bolton",
+        email: "mbolton@initech.com",
+        plan: "Enterprise",
+        company: {
+          id: 12345
+        },
+        createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
+      });
+
+      window.rudderanalytics.track("Product Purchased", {
+        order_ID: "2969302398",
+        category: "boots",
+        product_name: "yellow_cowboy_boots",
+        price: 99.95,
+        currency: "EUR"
+      });
+      console.log("4");
     </script>
   </head>
   <body>

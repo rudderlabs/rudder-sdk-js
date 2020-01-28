@@ -1001,10 +1001,15 @@ var rudderanalytics = (function (exports) {
         };
 
         (function () {
-          if (typeof window.INTERCOM === "function") {
-            window.INTERCOM("reattach_activator");
-            window.INTERCOM("update", window.intercomSettings);
+          var w = window;
+          var ic = w.Intercom;
+
+          if (typeof ic === "function") {
+            ic("reattach_activator");
+            ic("update", w.intercomSettings);
           } else {
+            var d = document;
+
             var i = function i() {
               i.c(arguments);
             };
@@ -1015,29 +1020,31 @@ var rudderanalytics = (function (exports) {
               i.q.push(args);
             };
 
-            window.INTERCOM = i;
+            w.Intercom = i;
 
             var l = function l() {
-              var s = document.createElement("script");
+              var s = d.createElement("script");
               s.type = "text/javascript";
               s.async = true;
               s.src = "https://widget.intercom.io/widget/" + window.intercomSettings.app_id;
-              var x = document.getElementsByTagName("script")[0];
+              var x = d.getElementsByTagName("script")[0];
               x.parentNode.insertBefore(s, x);
             };
 
             if (document.readyState === "complete") {
               l();
               window.intercom_code = true;
-            } else if (window.attachEvent) {
-              window.attachEvent("onload", l);
+            } else if (w.attachEvent) {
+              w.attachEvent("onload", l);
               window.intercom_code = true;
             } else {
-              window.addEventListener("load", l, false);
+              w.addEventListener("load", l, false);
               window.intercom_code = true;
             }
           }
         })();
+
+        window.INTERCOM = Intercom;
       }
     }, {
       key: "page",
@@ -1048,7 +1055,8 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        // Create or update a user
+        console.log("intercom identify");
+        console.log(rudderElement);
         var rawPayload = {};
         var context = rudderElement.message.context; // identity verification
 
@@ -1090,6 +1098,8 @@ var rudderanalytics = (function (exports) {
 
             companies.push(company);
             rawPayload.companies = companies;
+          } else {
+            rawPayload[field] = context.traits[field];
           }
 
           switch (field) {
@@ -1102,40 +1112,40 @@ var rudderanalytics = (function (exports) {
               break;
           }
         });
-        window.INTERCOM("update", rawPayload);
+        console.log(rawPayload);
+        window.Intercom("update", rawPayload);
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
         // Track events
+        console.log("intercom track", rudderElement);
         var rawPayload = {};
         var message = rudderElement.message;
         var properties = message.properties ? Object.keys(message.properties) : null; // udpate properties
 
         if (properties) {
-          var metadata = {
-            price: {},
-            order_number: {}
-          };
           properties.forEach(function (property) {
-            var value = message.properties[property];
+            var value = message.properties[property]; // customAttributes[property] = value;
+            // switch (property) {
+            //   case "price":
+            //     metadata.price["amount"] = value * 100;
+            //     break;
+            //   case "currency":
+            //     metadata.price["currency"] = value;
+            //   default:
+            //     break;
+            // }
+            // switch (property) {
+            //   case "order_ID" || "order_url":
+            //     metadata.order_number["value"] = value;
+            //     break;
+            //   default:
+            //     break;
+            // }
 
-            switch (property) {
-              case "price":
-                metadata.price["amount"] = value * 100;
-                break;
-
-              case "currency":
-                metadata.price["currency"] = value;
-            }
-
-            switch (property) {
-              case "order_ID" :
-                metadata.order_number["value"] = value;
-                break;
-            }
+            rawPayload[property] = value;
           });
-          rawPayload.metadata = metadata;
         }
 
         if (message.event) {
@@ -1143,13 +1153,15 @@ var rudderanalytics = (function (exports) {
         }
 
         rawPayload.user_id = message.userId ? message.userId : message.anonymousId;
-        rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000); // final call to intercom
+        rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000);
+        console.log("intercom end", rawPayload); // final call to intercom
 
-        window.INTERCOM("trackEvent", rawPayload);
+        window.Intercom("trackEvent", rawPayload.event_name, rawPayload);
       }
     }, {
       key: "isLoaded",
       value: function isLoaded() {
+        console.log("Intercom loaded", !!window.intercom_code);
         return !!window.intercom_code;
       }
     }]);
@@ -5654,6 +5666,9 @@ var rudderanalytics = (function (exports) {
    */
 
   function enqueue(rudderElement, type) {
+    console.log("loggin in enqueue");
+    console.log(rudderElement, type);
+
     if (!this.eventRepository) {
       this.eventRepository = eventRepository;
     }
@@ -5866,6 +5881,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(userId, traits, options, callback) {
+        console.log("in identify", userId, traits, options, callback);
         if (typeof options == "function") callback = options, options = null;
         if (typeof traits == "function") callback = traits, options = null, traits = null;
         if (_typeof(userId) == "object") options = traits, traits = userId, userId = this.userId;

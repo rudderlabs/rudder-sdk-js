@@ -13,11 +13,15 @@ class INTERCOM {
     window.intercomSettings = {
       app_id: this.APP_ID
     };
+
     (function() {
-      if (typeof window.INTERCOM === "function") {
-        window.INTERCOM("reattach_activator");
-        window.INTERCOM("update", window.intercomSettings);
+      var w = window;
+      var ic = w.Intercom;
+      if (typeof ic === "function") {
+        ic("reattach_activator");
+        ic("update", w.intercomSettings);
       } else {
+        var d = document;
         var i = function() {
           i.c(arguments);
         };
@@ -25,29 +29,30 @@ class INTERCOM {
         i.c = function(args) {
           i.q.push(args);
         };
-        window.INTERCOM = i;
+        w.Intercom = i;
         var l = function() {
-          var s = document.createElement("script");
+          var s = d.createElement("script");
           s.type = "text/javascript";
           s.async = true;
           s.src =
             "https://widget.intercom.io/widget/" +
             window.intercomSettings.app_id;
-          var x = document.getElementsByTagName("script")[0];
+          var x = d.getElementsByTagName("script")[0];
           x.parentNode.insertBefore(s, x);
         };
         if (document.readyState === "complete") {
           l();
           window.intercom_code = true;
-        } else if (window.attachEvent) {
-          window.attachEvent("onload", l);
+        } else if (w.attachEvent) {
+          w.attachEvent("onload", l);
           window.intercom_code = true;
         } else {
-          window.addEventListener("load", l, false);
+          w.addEventListener("load", l, false);
           window.intercom_code = true;
         }
       }
     })();
+    window.INTERCOM = Intercom;
   }
 
   page() {
@@ -56,7 +61,8 @@ class INTERCOM {
   }
 
   identify(rudderElement) {
-    // Create or update a user
+    console.log("intercom identify");
+    console.log(rudderElement);
 
     let rawPayload = {};
     const context = rudderElement.message.context;
@@ -109,6 +115,8 @@ class INTERCOM {
 
         companies.push(company);
         rawPayload.companies = companies;
+      } else {
+        rawPayload[field] = context.traits[field];
       }
 
       switch (field) {
@@ -123,12 +131,15 @@ class INTERCOM {
           break;
       }
     });
+    console.log(rawPayload);
 
     window.INTERCOM("update", rawPayload);
   }
 
   track(rudderElement) {
     // Track events
+
+    console.log("intercom track", rudderElement);
 
     let rawPayload = {};
     const message = rudderElement.message;
@@ -139,33 +150,31 @@ class INTERCOM {
 
     // udpate properties
     if (properties) {
-      let metadata = {
-        price: {},
-        order_number: {}
-      };
+      let customAttributes = {};
 
       properties.forEach(property => {
         const value = message.properties[property];
+        // customAttributes[property] = value;
 
-        switch (property) {
-          case "price":
-            metadata.price["amount"] = value * 100;
-            break;
-          case "currency":
-            metadata.price["currency"] = value;
-          default:
-            break;
-        }
+        // switch (property) {
+        //   case "price":
+        //     metadata.price["amount"] = value * 100;
+        //     break;
+        //   case "currency":
+        //     metadata.price["currency"] = value;
+        //   default:
+        //     break;
+        // }
 
-        switch (property) {
-          case "order_ID" || "order_url":
-            metadata.order_number["value"] = value;
-            break;
-          default:
-            break;
-        }
+        // switch (property) {
+        //   case "order_ID" || "order_url":
+        //     metadata.order_number["value"] = value;
+        //     break;
+        //   default:
+        //     break;
+        // }
+        rawPayload[property] = value;
       });
-      rawPayload.metadata = metadata;
     }
 
     if (message.event) {
@@ -175,12 +184,13 @@ class INTERCOM {
     rawPayload.created_at = Math.floor(
       new Date(message.originalTimestamp).getTime() / 1000
     );
+    console.log("intercom end", rawPayload);
 
-    // final call to intercom
-    window.INTERCOM("trackEvent", rawPayload);
+    window.INTERCOM("trackEvent", rawPayload.event_name, rawPayload);
   }
 
   isLoaded() {
+    console.log("Intercom loaded", !!window.intercom_code);
     return !!window.intercom_code;
   }
 }
