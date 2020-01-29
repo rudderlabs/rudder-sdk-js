@@ -110,19 +110,19 @@ var rudderanalytics = (function (exports) {
       LOG_LEVEL_DEBUG = 2,
       LOG_LEVEL_WARN = 3,
       LOG_LEVEL_ERROR = 4,
-      LOG_LEVEL = LOG_LEVEL_INFO;
+      LOG_LEVEL = LOG_LEVEL_ERROR;
   var logger = {
     setLogLevel: function setLogLevel(logLevel) {
       switch (logLevel.toUpperCase()) {
-        case "INFO":
+        case 'INFO':
           LOG_LEVEL = LOG_LEVEL_INFO;
           return;
 
-        case "DEBUG":
+        case 'DEBUG':
           LOG_LEVEL = LOG_LEVEL_DEBUG;
           return;
 
-        case "WARN":
+        case 'WARN':
           LOG_LEVEL = LOG_LEVEL_WARN;
           return;
       }
@@ -989,7 +989,7 @@ var rudderanalytics = (function (exports) {
       this.NAME = "INTERCOM";
       this.API_KEY = config.apiKey;
       this.APP_ID = config.appId;
-      this.MOBILE_API_KEY = config.mobileAppId;
+      this.MOBILE_APP_ID = config.mobileAppId;
       logger.debug("Config ", config);
     }
 
@@ -1043,23 +1043,18 @@ var rudderanalytics = (function (exports) {
             }
           }
         })();
-
-        window.INTERCOM = Intercom;
       }
     }, {
       key: "page",
       value: function page() {
         // Get new messages of the current user
-        window.INTERCOM("update");
+        window.Intercom("update");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        console.log("intercom identify");
-        console.log(rudderElement);
         var rawPayload = {};
-        var context = rudderElement.message.context; // identity verification
-
+        var context = rudderElement.message.context;
         var identityVerificationProps = context.Intercom ? context.Intercom : null;
 
         if (identityVerificationProps != null) {
@@ -1071,10 +1066,12 @@ var rudderanalytics = (function (exports) {
           } // hide default launcher
 
 
-          var hideDefaultLauncher = context.Intercom.hideDefaultLauncher ? context.Intercom.hideDefaultLauncher : null; // if(hideDefaultLauncher!= null){
-          //   rawPayload.hideDefaultLauncher = ;
-          // }
-        } // Map rudder properties payload to intercom's paylod
+          var hideDefaultLauncher = context.Intercom.hideDefaultLauncher ? context.Intercom.hideDefaultLauncher : null;
+
+          if (hideDefaultLauncher != null) {
+            rawPayload.hide_default_launcher = hideDefaultLauncher;
+          }
+        } // map rudderPayload to desired
 
 
         Object.keys(context.traits).forEach(function (field) {
@@ -1112,41 +1109,19 @@ var rudderanalytics = (function (exports) {
               break;
           }
         });
-        console.log(rawPayload);
+        rawPayload.user_id = rudderElement.message.userId;
         window.Intercom("update", rawPayload);
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
-        // Track events
-        console.log("intercom track", rudderElement);
         var rawPayload = {};
         var message = rudderElement.message;
-        var properties = message.properties ? Object.keys(message.properties) : null; // udpate properties
-
-        if (properties) {
-          properties.forEach(function (property) {
-            var value = message.properties[property]; // customAttributes[property] = value;
-            // switch (property) {
-            //   case "price":
-            //     metadata.price["amount"] = value * 100;
-            //     break;
-            //   case "currency":
-            //     metadata.price["currency"] = value;
-            //   default:
-            //     break;
-            // }
-            // switch (property) {
-            //   case "order_ID" || "order_url":
-            //     metadata.order_number["value"] = value;
-            //     break;
-            //   default:
-            //     break;
-            // }
-
-            rawPayload[property] = value;
-          });
-        }
+        var properties = message.properties ? Object.keys(message.properties) : null;
+        properties.forEach(function (property) {
+          var value = message.properties[property];
+          rawPayload[property] = value;
+        });
 
         if (message.event) {
           rawPayload.event_name = message.event;
@@ -1154,14 +1129,11 @@ var rudderanalytics = (function (exports) {
 
         rawPayload.user_id = message.userId ? message.userId : message.anonymousId;
         rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000);
-        console.log("intercom end", rawPayload); // final call to intercom
-
         window.Intercom("trackEvent", rawPayload.event_name, rawPayload);
       }
     }, {
       key: "isLoaded",
       value: function isLoaded() {
-        console.log("Intercom loaded", !!window.intercom_code);
         return !!window.intercom_code;
       }
     }]);
@@ -5666,9 +5638,6 @@ var rudderanalytics = (function (exports) {
    */
 
   function enqueue(rudderElement, type) {
-    console.log("loggin in enqueue");
-    console.log(rudderElement, type);
-
     if (!this.eventRepository) {
       this.eventRepository = eventRepository;
     }
@@ -5805,10 +5774,6 @@ var rudderanalytics = (function (exports) {
         var _this2 = this;
 
         var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-        console.log("logging instance");
-        console.log(instance);
-        console.log("----------------");
-        console.log(instance.isLoaded());
         return new Promise(function (resolve) {
           if (instance.isLoaded()) {
             _this2.successfullyLoadedIntegration.push(instance);
@@ -5881,7 +5846,6 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(userId, traits, options, callback) {
-        console.log("in identify", userId, traits, options, callback);
         if (typeof options == "function") callback = options, options = null;
         if (typeof traits == "function") callback = traits, options = null, traits = null;
         if (_typeof(userId) == "object") options = traits, traits = userId, userId = this.userId;
@@ -6040,10 +6004,6 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "processAndSendDataToDestinations",
       value: function processAndSendDataToDestinations(type, rudderElement, options, callback) {
-        console.log("-----------------------------------------");
-        console.log(type, rudderElement, options, callback);
-        console.log("-----------------------------------------");
-
         try {
           if (!this.anonymousId) {
             this.setAnonymousId();

@@ -5,7 +5,7 @@ class INTERCOM {
     this.NAME = "INTERCOM";
     this.API_KEY = config.apiKey;
     this.APP_ID = config.appId;
-    this.MOBILE_API_KEY = config.mobileAppId;
+    this.MOBILE_APP_ID = config.mobileAppId;
     logger.debug("Config ", config);
   }
 
@@ -52,22 +52,17 @@ class INTERCOM {
         }
       }
     })();
-    window.INTERCOM = Intercom;
   }
 
   page() {
     // Get new messages of the current user
-    window.INTERCOM("update");
+    window.Intercom("update");
   }
 
   identify(rudderElement) {
-    console.log("intercom identify");
-    console.log(rudderElement);
-
     let rawPayload = {};
     const context = rudderElement.message.context;
 
-    // identity verification
     const identityVerificationProps = context.Intercom
       ? context.Intercom
       : null;
@@ -86,13 +81,12 @@ class INTERCOM {
         ? context.Intercom.hideDefaultLauncher
         : null;
 
-      // if(hideDefaultLauncher!= null){
-      //   rawPayload.hideDefaultLauncher = ;
-
-      // }
+      if (hideDefaultLauncher != null) {
+        rawPayload.hide_default_launcher = hideDefaultLauncher;
+      }
     }
 
-    // Map rudder properties payload to intercom's paylod
+    // map rudderPayload to desired
     Object.keys(context.traits).forEach(field => {
       const value = context.traits[field];
 
@@ -131,51 +125,21 @@ class INTERCOM {
           break;
       }
     });
-    console.log(rawPayload);
-
-    window.INTERCOM("update", rawPayload);
+    rawPayload.user_id = rudderElement.message.userId;
+    window.Intercom("update", rawPayload);
   }
 
   track(rudderElement) {
-    // Track events
-
-    console.log("intercom track", rudderElement);
-
     let rawPayload = {};
     const message = rudderElement.message;
 
     const properties = message.properties
       ? Object.keys(message.properties)
       : null;
-
-    // udpate properties
-    if (properties) {
-      let customAttributes = {};
-
-      properties.forEach(property => {
-        const value = message.properties[property];
-        // customAttributes[property] = value;
-
-        // switch (property) {
-        //   case "price":
-        //     metadata.price["amount"] = value * 100;
-        //     break;
-        //   case "currency":
-        //     metadata.price["currency"] = value;
-        //   default:
-        //     break;
-        // }
-
-        // switch (property) {
-        //   case "order_ID" || "order_url":
-        //     metadata.order_number["value"] = value;
-        //     break;
-        //   default:
-        //     break;
-        // }
-        rawPayload[property] = value;
-      });
-    }
+    properties.forEach(property => {
+      const value = message.properties[property];
+      rawPayload[property] = value;
+    });
 
     if (message.event) {
       rawPayload.event_name = message.event;
@@ -184,13 +148,10 @@ class INTERCOM {
     rawPayload.created_at = Math.floor(
       new Date(message.originalTimestamp).getTime() / 1000
     );
-    console.log("intercom end", rawPayload);
-
-    window.INTERCOM("trackEvent", rawPayload.event_name, rawPayload);
+    window.Intercom("trackEvent", rawPayload.event_name, rawPayload);
   }
 
   isLoaded() {
-    console.log("Intercom loaded", !!window.intercom_code);
     return !!window.intercom_code;
   }
 }
