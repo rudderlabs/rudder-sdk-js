@@ -6,6 +6,7 @@ import * as VWO from "./VWO";
 import * as GoogleTagManager from "./GoogleTagManager";
 import * as Keen from "./Keen";
 import * as Kissmetrics from "./Kissmetrics";
+import * as CustomerIO from "./CustomerIO";
 
 let integrations = {
   HS: HubSpot.default,
@@ -15,7 +16,8 @@ let integrations = {
   VWO: VWO.default,
   GTM: GoogleTagManager.default,
   KEEN: Keen.default,
-  KISSMETRICS: Kissmetrics.default
+  KISSMETRICS: Kissmetrics.default,
+  CUSTOMERIO: CustomerIO.default
 };
 
 export { integrations };
