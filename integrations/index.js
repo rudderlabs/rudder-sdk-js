@@ -8,6 +8,7 @@ import * as Braze from "./Braze";
 import * as INTERCOM from "./INTERCOM";
 import * as Keen from "./Keen";
 import * as Kissmetrics from "./Kissmetrics";
+import * as CustomerIO from "./CustomerIO";
 
 let integrations = {
   HS: HubSpot.default,
@@ -19,7 +20,8 @@ let integrations = {
   BRAZE: Braze.default,
   INTERCOM: INTERCOM.default,
   KEEN: Keen.default,
-  KISSMETRICS: Kissmetrics.default
+  KISSMETRICS: Kissmetrics.default,
+  CUSTOMERIO: CustomerIO.default
 };
 
 export { integrations };
