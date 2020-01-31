@@ -30,7 +30,7 @@ class CustomerIO {
     let userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
     let traits = rudderElement.message.context.traits ? rudderElement.message.context.traits : {};
     if(!traits.created_at){
-      traits.created_at = (new Date()).getTime();
+      traits.created_at = Math.floor((new Date()).getTime()/1000);
     }
     traits.id = userId;
     window._cio.identify(traits);
