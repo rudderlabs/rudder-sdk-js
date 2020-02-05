@@ -144,7 +144,12 @@ class Analytics {
               integrationOptions["All"])
           ) {
             try {
-              object.clientIntegrationObjects[i][methodName](...event);
+              if (
+                !object.clientIntegrationObjects[i]["isFailed"] ||
+                !object.clientIntegrationObjects[i]["isFailed"]()
+              ) {
+                object.clientIntegrationObjects[i][methodName](...event);
+              }
             } catch (error) {
               handleError(error);
             }
@@ -454,7 +459,9 @@ class Analytics {
             integrations[obj.name] ||
             (integrations[obj.name] == undefined && integrations["All"])
           ) {
-            obj[type](rudderElement);
+            if (!obj["isFailed"] || !obj["isFailed"]()) {
+              obj[type](rudderElement);
+            }
           }
         });
       }
