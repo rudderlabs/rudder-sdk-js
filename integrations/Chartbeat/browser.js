@@ -14,7 +14,8 @@ class Chartbeat {
     window._sf_async_config.uid = config.uid;
     window._sf_async_config.domain = config.domain;
     this.isVideo = config.video ? true : false;
-    this.sendNameAndCategoryAsTitle = config.sendNameAndCategoryAsTitle;
+    this.sendNameAndCategoryAsTitle = config.sendNameAndCategoryAsTitle || true;
+    this.subscriberEngagementKeys = config.subscriberEngagementKeys || [];
     this.replayEvents = [];
     this.failed = false;
     this.isFirstPageCallMade = false;
@@ -42,13 +43,16 @@ class Chartbeat {
       this.initAfterPage();
     } else {
       if (this.failed) {
+        logger.debug("===ignoring cause failed integration===");
         this.replayEvents = [];
         return;
       }
-      if (!isLoaded() && !this.failed) {
+      if (!this.isLoaded() && !this.failed) {
+        logger.debug("===pushing to replay queue for chartbeat===");
         this.replayEvents.push(["page", rudderElement]);
         return;
       }
+      logger.debug("===processing page event in chartbeat===");
       let properties = rudderElement.message.properties;
       window.pSUPERFLY.virtualPage(properties.path);
     }
@@ -82,10 +86,10 @@ class Chartbeat {
 
     var _cbq = (window._cbq = window._cbq || []);
 
-    for (var key in props) {
-      if (!props.hasOwnProperty(key)) continue;
-      if (this.options.subscriberEngagementKeys.indexOf(key) > -1) {
-        _cbq.push([key, props[key]]);
+    for (var key in properties) {
+      if (!properties.hasOwnProperty(key)) continue;
+      if (this.subscriberEngagementKeys.indexOf(key) > -1) {
+        _cbq.push([key, properties[key]]);
       }
     }
   }
@@ -105,6 +109,7 @@ class Chartbeat {
     });
 
     this.isReady(this).then(instance => {
+      logger.debug("===replaying on chartbeat===");
       instance.replayEvents.forEach(event => {
         instance[event[0]](event[1]);
       });
@@ -121,10 +126,12 @@ class Chartbeat {
     return new Promise(resolve => {
       if (this.isLoaded()) {
         this.failed = false;
+        logger.debug("===chartbeat loaded successfully===");
         return resolve(instance);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
         this.failed = true;
+        logger.debug("===chartbeat failed===");
         return resolve(instance);
       }
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
