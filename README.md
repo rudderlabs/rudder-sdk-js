@@ -34,13 +34,13 @@ The non-minified version of the code is shown below:
 		"reset"
 	];
 
-	for (var i=0; i<methods.length; i++) {
-		var method = methods[i];
-		rudderanalytics[method] = function(methodName) {
-			return function() {
-				rudderanalytics.push([methodName, ...arguments]);
-			}
-		} (method)
+	for (var i = 0; i < methods.length; i++) {
+  		var method = methods[i];
+  		rudderanalytics[method] = function (methodName) {
+    			return function () {
+      				rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
+    			};
+  			}(method);
 	}
 	rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI");
 	//For example,
