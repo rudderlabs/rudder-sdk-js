@@ -76,29 +76,36 @@ class Analytics {
    * @memberof Analytics
    */
   processResponse(status, response) {
-    logger.debug("===in process response=== " + status);
-    response = JSON.parse(response);
-    if (response.source.useAutoTracking || true) {
-      addDomEventHandlers(this);
-      autoTrackHandlersRegistered = true;
-    }
-    response.source.destinations.forEach(function(destination, index) {
-      logger.debug(
-        "Destination " +
-          index +
-          " Enabled? " +
-          destination.enabled +
-          " Type: " +
-          destination.destinationDefinition.name +
-          " Use Native SDK? " +
-          destination.config.useNativeSDK
-      );
-      if (destination.enabled) {
-        this.clientIntegrations.push(destination.destinationDefinition.name);
-        this.configArray.push(destination.config);
+    try {
+      logger.debug("===in process response=== " + status);
+      response = JSON.parse(response);
+      if (response.source.useAutoTracking || true) {
+        addDomEventHandlers(this);
+        autoTrackHandlersRegistered = true;
       }
-    }, this);
-    this.init(this.clientIntegrations, this.configArray);
+      response.source.destinations.forEach(function(destination, index) {
+        logger.debug(
+          "Destination " +
+            index +
+            " Enabled? " +
+            destination.enabled +
+            " Type: " +
+            destination.destinationDefinition.name +
+            " Use Native SDK? " +
+            destination.config.useNativeSDK
+        );
+        if (destination.enabled && destination.config.useNativeSDK) {
+          this.clientIntegrations.push(destination.destinationDefinition.name);
+          this.configArray.push(destination.config);
+        }
+      }, this);
+      this.init(this.clientIntegrations, this.configArray);
+    } catch (error) {
+      handleError(error);
+      if (!autoTrackHandlersRegistered) {
+        addDomEventHandlers(this);
+      }
+    }
   }
 
   /**
