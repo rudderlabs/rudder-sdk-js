@@ -1,195 +1,234 @@
-import {getDefaultPageProperties} from "./utils"
+import { getDefaultPageProperties } from "./utils";
 import logger from "./logUtil";
-function addDomEventHandlers(rudderanalytics) {
-    var handler = e => {
-        e = e || window.event;
-        var target = e.target || e.srcElement;
-        
-        if (isTextNode(target)) { 
-            target = target.parentNode;
-        }
-        if(shouldTrackDomEvent(target, e)){
-            logger.debug("to be tracked ", e.type);
-        } else {
-            logger.debug("not to be tracked ", e.type);
-        }
-        trackWindowEvent(e, rudderanalytics);
-        
-    }
-    register_event(document, 'submit', handler, true);
-    register_event(document, 'change', handler, true);
-    register_event(document, 'click', handler, true);
-    rudderanalytics.page();
-};
 
-function register_event (element, type, handler, useCapture) {
-    if (!element) {
-        logger.error('No valid element provided to register_event');
-        return;
+let formData;
+
+function addDomEventHandlers(rudderanalytics) {
+  var handler = e => {
+    e = e || window.event;
+    var target = e.target || e.srcElement;
+
+    if (isTextNode(target)) {
+      target = target.parentNode;
     }
-    element.addEventListener(type, handler, !!useCapture);
-};
+    if (shouldTrackDomEvent(target, e)) {
+      logger.debug("to be tracked ", e.type);
+    } else {
+      logger.debug("not to be tracked ", e.type);
+    }
+    trackWindowEvent(e, rudderanalytics);
+  };
+  register_event(document, "submit", handler, true);
+  register_event(document, "change", handler, true);
+  register_event(document, "click", handler, true);
+  rudderanalytics.page();
+}
+
+function register_event(element, type, handler, useCapture) {
+  if (!element) {
+    logger.error("No valid element provided to register_event");
+    return;
+  }
+  element.addEventListener(type, handler, !!useCapture);
+}
 
 function shouldTrackDomEvent(el, event) {
-    if (!el || isTag(el, 'html') || !isElementNode(el)) {
-        return false;
-    }
-    var tag = el.tagName.toLowerCase();
-    switch (tag) {
-        case 'html':
-            return false;
-        case 'form':
-            return event.type === 'submit';
-        case 'input':
-            if (['button', 'submit'].indexOf(el.getAttribute('type')) === -1) {
-                return event.type === 'change';
-            } else {
-                return event.type === 'click';
-            }
-        case 'select':
-        case 'textarea':
-            return event.type === 'change';
-        default:
-            return event.type === 'click';
-    }
+  if (!el || isTag(el, "html") || !isElementNode(el)) {
+    return false;
+  }
+  var tag = el.tagName.toLowerCase();
+  switch (tag) {
+    case "html":
+      return false;
+    case "form":
+      return event.type === "submit";
+    case "input":
+      if (["button", "submit"].indexOf(el.getAttribute("type")) === -1) {
+        return event.type === "change";
+      } else {
+        return event.type === "click";
+      }
+    case "select":
+    case "textarea":
+      return event.type === "change";
+    default:
+      return event.type === "click";
+  }
 }
 
 function isTag(el, tag) {
-    return el && el.tagName && el.tagName.toLowerCase() === tag.toLowerCase();
+  return el && el.tagName && el.tagName.toLowerCase() === tag.toLowerCase();
 }
 
 function isElementNode(el) {
-    return el && el.nodeType === 1; // Node.ELEMENT_NODE - use integer constant for browser portability
+  return el && el.nodeType === 1; // Node.ELEMENT_NODE - use integer constant for browser portability
 }
 
 function isTextNode(el) {
-    return el && el.nodeType === 3; // Node.TEXT_NODE - use integer constant for browser portability
+  return el && el.nodeType === 3; // Node.TEXT_NODE - use integer constant for browser portability
 }
 
-function shouldTrackElement(el){
-    if(!el.parentNode || isTag(el, 'body'))
-        return false
-    return true
+function shouldTrackElement(el) {
+  if (!el.parentNode || isTag(el, "body")) return false;
+  return true;
 }
 
 function getClassName(el) {
-    switch(typeof el.className) {
-        case 'string':
-            return el.className;
-        case 'object': // handle cases where className might be SVGAnimatedString or some other type
-            return el.className.baseVal || el.getAttribute('class') || '';
-        default: // future proof
-            return '';
-    }
+  switch (typeof el.className) {
+    case "string":
+      return el.className;
+    case "object": // handle cases where className might be SVGAnimatedString or some other type
+      return el.className.baseVal || el.getAttribute("class") || "";
+    default:
+      // future proof
+      return "";
+  }
 }
 
 function trackWindowEvent(e, rudderanalytics) {
-    var target = e.target || e.srcElement;
-    if (isTextNode(target)) {
-        target = target.parentNode;
+  var target = e.target || e.srcElement;
+  var formValues = undefined;
+  if (isTextNode(target)) {
+    target = target.parentNode;
+  }
+
+  if (shouldTrackDomEvent(target, e)) {
+    if (target.tagName.toLowerCase() == "form") {
+      formValues = {};
+      for (var i = 0; i < target.elements.length; i++) {
+        var formElement = target.elements[i];
+        if (isElToBeTracked(formElement)) {
+          let name =
+            formElement.name && formElement.name != ""
+              ? formElement.name
+              : formElement.id;
+          if (name) {
+            formValues[encodeURIComponent(name)] = encodeURIComponent(
+              formElement.value
+            );
+          }
+        }
+      }
+    }
+    var targetElementList = [target];
+    var curEl = target;
+    while (curEl.parentNode && !isTag(curEl, "body")) {
+      targetElementList.push(curEl.parentNode);
+      curEl = curEl.parentNode;
     }
 
-    if (shouldTrackDomEvent(target, e)) {
-        var targetElementList = [target];
-        var curEl = target;
-        while (curEl.parentNode && !isTag(curEl, 'body')) {
-            targetElementList.push(curEl.parentNode);
-            curEl = curEl.parentNode;
-        }
+    var elementsJson = [];
+    var href,
+      explicitNoTrack = false;
 
-        var elementsJson = [];
-        var href, explicitNoTrack = false;
+    targetElementList.forEach(el => {
+      var shouldTrackEl = shouldTrackElement(el);
 
-        targetElementList.forEach(el => {
-            var shouldTrackEl = shouldTrackElement(el);
+      // if the element or a parent element is an anchor tag
+      // include the href as a property
+      if (el.tagName.toLowerCase() === "a") {
+        href = el.getAttribute("href");
+        href = shouldTrackEl && href;
+      }
 
-            // if the element or a parent element is an anchor tag
-            // include the href as a property
-            if (el.tagName.toLowerCase() === 'a') {
-                href = el.getAttribute('href');
-                href = shouldTrackEl && href;
-            }
+      // allow users to programatically prevent tracking of elements by adding class 'rudder-no-track'
 
-            // allow users to programatically prevent tracking of elements by adding class 'rudder-no-track'
-            var classes = getClassName(el).split(' ');
-            if (classes.indexOf('rudder-no-track') >= 0) {
-                explicitNoTrack = true;
-            }
+      explicitNoTrack = explicitNoTrack || !isElToBeTracked(el);
 
-            elementsJson.push(getPropertiesFromElement(el));
-        });
+      //explicitNoTrack = !isElToBeTracked(el);
 
-        if (explicitNoTrack) {
-            return false;
-        }
+      elementsJson.push(getPropertiesFromElement(el));
+    });
 
-        
-        var elementText="";
-        var text = getText(target)//target.innerText//target.textContent//getSafeText(target);
-        if (text && text.length) {
-            elementText = text;
-        }
-        var props = {
-            'event_type': e.type,
-            'page': getDefaultPageProperties(),
-            'elements':  elementsJson,
-            'el_attr_href': href,
-            'el_text': elementText
-        }
-        logger.debug('web_event', props);
-        rudderanalytics.track('autotrack', props);
-        return true;
+    if (explicitNoTrack) {
+      return false;
     }
+
+    var elementText = "";
+    var text = getText(target); //target.innerText//target.textContent//getSafeText(target);
+    if (text && text.length) {
+      elementText = text;
+    }
+    var props = {
+      event_type: e.type,
+      page: getDefaultPageProperties(),
+      elements: elementsJson,
+      el_attr_href: href,
+      el_text: elementText
+    };
+
+    if (formValues) {
+      props["form_values"] = formValues;
+    }
+
+    logger.debug("web_event", props);
+    rudderanalytics.track("autotrack", props);
+    return true;
+  }
 }
 
-function getText(el){
-    var text = "";
-    el.childNodes.forEach(function(value){
-        if(value.nodeType === Node.TEXT_NODE) { 
-           text += value.nodeValue;
-        }
-    });	
-    return text.trim();
+function isElToBeTracked(el) {
+  var classes = getClassName(el).split(" ");
+  if (classes.indexOf("rudder-no-track") >= 0) {
+    return false;
+  }
+  return true;
+}
+
+function getText(el) {
+  var text = "";
+  el.childNodes.forEach(function(value) {
+    if (value.nodeType === Node.TEXT_NODE) {
+      text += value.nodeValue;
+    }
+  });
+  return text.trim();
 }
 
 function getPropertiesFromElement(elem) {
-    var props = {
-        'classes': getClassName(elem).split(' '),
-        'tag_name': elem.tagName.toLowerCase()
-    };
-    
-    let attrLength = elem.attributes.length;
-    for(let i=0;i<attrLength;i++){
-        let name = elem.attributes[i].name;
-        let value = elem.attributes[i].value;
-        if(value){
-            props['attr__' + name] = value;
-        }   
-    } 
+  var props = {
+    classes: getClassName(elem).split(" "),
+    tag_name: elem.tagName.toLowerCase()
+  };
 
-    var nthChild = 1;
-    var nthOfType = 1;
-    var currentElem = elem;
-    while (currentElem = previousElementSibling(currentElem)) {
-        nthChild++;
-        if (currentElem.tagName === elem.tagName) {
-            nthOfType++;
-        }
+  let attrLength = elem.attributes.length;
+  for (let i = 0; i < attrLength; i++) {
+    let name = elem.attributes[i].name;
+    let value = elem.attributes[i].value;
+    if (value) {
+      props["attr__" + name] = value;
     }
-    props['nth_child'] = nthChild;
-    props['nth_of_type'] = nthOfType;
+    if (name == "name" || name == "id") {
+      props["field_value"] =
+        name == "id"
+          ? document.getElementById(value).value
+          : document.getElementsByName(value)[0].value;
+    }
+  }
 
-    return props;
+  var nthChild = 1;
+  var nthOfType = 1;
+  var currentElem = elem;
+  while ((currentElem = previousElementSibling(currentElem))) {
+    nthChild++;
+    if (currentElem.tagName === elem.tagName) {
+      nthOfType++;
+    }
+  }
+  props["nth_child"] = nthChild;
+  props["nth_of_type"] = nthOfType;
+
+  return props;
 }
 
 function previousElementSibling(el) {
-    if (el.previousElementSibling) {
-        return el.previousElementSibling;
-    } else {
-        do {
-            el = el.previousSibling;
-        } while (el && !isElementNode(el));
-        return el;
-    }
+  if (el.previousElementSibling) {
+    return el.previousElementSibling;
+  } else {
+    do {
+      el = el.previousSibling;
+    } while (el && !isElementNode(el));
+    return el;
+  }
 }
-export {addDomEventHandlers}
+export { addDomEventHandlers };
