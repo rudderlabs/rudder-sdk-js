@@ -1,0 +1,87 @@
+<html></html>
+<head>
+  <script>
+    rudderanalytics = window.rudderanalytics = [];
+
+    var methods = ["load", "page", "track", "identify", "reset"];
+
+    for (var i = 0; i < methods.length; i++) {
+      var method = methods[i];
+      rudderanalytics[method] = (function(methodName) {
+        return function() {
+          rudderanalytics.push(
+            [methodName].concat(Array.prototype.slice.call(arguments))
+          );
+        };
+      })(method);
+    }
+    rudderanalytics.load(
+      "1WxuLjndG7YDBT603xZH01mI0HW",
+      "http://localhost:8090"
+    );
+  </script>
+
+  <script src="browser.js"></script>
+</head>
+<body>
+  <div>
+    <button type="button">Click Me!</button>
+    <p>Hi There</p>
+
+    <form id="myForm">
+      Username:<br />
+      <input type="text" name="username" />
+      <br />
+      Email id:<br />
+      <input type="text" name="email_id" />
+      <br /><br />
+      <label for="user-password">Password: </label><br />
+      <input
+        type="password"
+        name="user-pwd"
+        id="user-password"
+        class="rudder-no-track"
+      />
+      <br />
+      <input type="radio" name="gender" id="male" />
+      <label for="male">Male</label><br />
+      <input type="radio" name="gender" id="female" />
+      <label for="female">Female</label>
+      <input type="checkbox" name="subject" id="maths" />
+      <label for="maths">Maths</label>
+      <input type="checkbox" name="subject" id="science" />
+      <label for="sceince">Science</label>
+      <input type="checkbox" name="subject" id="english" />
+      <label for="english">English</label>
+      <label for="Description">Description:</label>
+      <textarea
+        rows="5"
+        cols="50"
+        name="Description"
+        id="Description"
+      ></textarea>
+      <label for="country">Country:</label>
+      <select id="country" id="country">
+        <option value="India">India</option>
+        <option value="Sri Lanka">Sri Lanka</option>
+        <option value="Australia">Australia</option>
+      </select>
+      <input
+        type="hidden"
+        name="googleClientId"
+        class="googleClientId"
+        value="my-gcid"
+      />
+      <input type="submit" value="Submit" />
+    </form>
+  </div>
+
+  <script>
+    var form = document.getElementById("myForm");
+    function handleForm(event) {
+      console.log("form submitted");
+      event.preventDefault();
+    }
+    form.addEventListener("submit", handleForm);
+  </script>
+</body>
