@@ -81,8 +81,7 @@ class Braze {
     return props; 
   }
 
-  identify(rudderElement) {
-    console.log(rudderElement);
+  identify(rudderElement) { 
 
     var userId = rudderElement.message.userId;
     var address = rudderElement.message.context.traits.address;
@@ -129,15 +128,44 @@ class Braze {
     });
   }
 
+
+  handlePurchase(properties,userId){ 
+    var products = properties.products ;
+    var currencyCode = properties.currency; 
+  
+    window.appboy.changeUser(userId);
+  
+    // del used properties
+    del(properties, 'products');
+    del(properties, 'currency');
+  
+    // we have to make a separate call to appboy for each product
+    products .forEach(product => {    
+      var productId = product.product_id;
+      var price = product.price;
+      var quantity = product.quantity;
+      if(quantity && price && productId)
+        window.appboy.logPurchase(productId, price, currencyCode, quantity, properties);
+    }); 
+
+  }
+
   track(rudderElement) { 
    var userId = rudderElement.message.userId;
    var eventName = rudderElement.message.event;
    var properties = rudderElement.message.properties;
 
-   properties = this.handleReservedProperties(properties); 
-
    window.appboy.changeUser(userId);
-   window.appboy.logCustomEvent(eventName, properties);  
+
+   if(eventName.toLowerCase() === 'order completed')
+   {
+     this.handlePurchase(properties,userId);
+   }
+   else
+   {
+    properties = this.handleReservedProperties(properties); 
+    window.appboy.logCustomEvent(eventName, properties);  
+   }
   }
 
 
