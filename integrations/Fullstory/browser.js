@@ -69,36 +69,15 @@ class Fullstory{
     }
 
     page(rudderElement) {
-        console.log(rudderElement);
+        logger.debug("in FULLSORY page");
         let rudderMessage = rudderElement.message;
         let pageName = rudderMessage.name;
-        let pageCategory = rudderMessage.properties
-            ? rudderMessage.properties.category
-            : undefined;// ask
-        
-        let url = rudderMessage.properties.url;
-        let eventName ;
-
-        if (pageName) {
-            eventName = "Viewed " + pageName + " page";
-        }
-
-        if (pageCategory && pageName) {
-            eventName = "Viewed " + pageCategory + " " + pageName + " page";
-        }
-
-        if(!eventName && url) {
-            eventName = "Viewed " + url;
-        }
-
         let props = {
-            event: eventName,
-            userId: rudderMessage.userId,
-            anonymousId: rudderMessage.anonymousId,
+            name: pageName,
             ...rudderMessage.properties
         };
 
-        FS.event("Page", Fullstory.getFSProperties(props));
+        FS.event("Loaded a Page", Fullstory.getFSProperties(props));
     }
 
     identify(rudderElement) {
