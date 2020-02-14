@@ -26,7 +26,8 @@
     "json3": "^3.3.3",
     "obj-case": "^0.2.0",
     "universal-analytics": "^0.4.20",
-    "xmlhttprequest": "^1.8.0"
+    "xmlhttprequest": "^1.8.0",
+    "camelcase": "^5.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
