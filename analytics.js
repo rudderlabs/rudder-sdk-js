@@ -19,8 +19,6 @@ import { addDomEventHandlers } from "./utils/autotrack.js";
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
-const autoTrackHandlersRegistered = false;
-
 /**
  * Add the rudderelement object to flush queue
  *
@@ -43,8 +41,10 @@ class Analytics {
    * @memberof Analytics
    */
   constructor() {
+    this.autoTrackHandlersRegistered = false;
     this.initialized = false;
     this.ready = false;
+    this.trackValues = [];
     this.eventsBuffer = [];
     this.clientIntegrations = [];
     this.configArray = [];
@@ -81,7 +81,7 @@ class Analytics {
       response = JSON.parse(response);
       if (response.source.useAutoTracking || true) {
         addDomEventHandlers(this);
-        autoTrackHandlersRegistered = true;
+        this.autoTrackHandlersRegistered = true;
       }
       response.source.destinations.forEach(function(destination, index) {
         logger.debug(
@@ -102,7 +102,12 @@ class Analytics {
       this.init(this.clientIntegrations, this.configArray);
     } catch (error) {
       handleError(error);
-      if (!autoTrackHandlersRegistered) {
+      logger.debug("===handling config BE response processing error===");
+      logger.debug(
+        "autoTrackHandlersRegistered",
+        this.autoTrackHandlersRegistered
+      );
+      if (!this.autoTrackHandlersRegistered) {
         addDomEventHandlers(this);
       }
     }
@@ -576,6 +581,13 @@ class Analytics {
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
+    if (
+      options &&
+      options.valTrackingList &&
+      options.valTrackingList.push == Array.prototype.push
+    ) {
+      this.trackValues = options.valTrackingList;
+    }
     logger.debug("inside load ");
     this.eventRepository.writeKey = writeKey;
     if (serverUrl) {
@@ -585,7 +597,7 @@ class Analytics {
       getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
     } catch (error) {
       handleError(error);
-      if (!autoTrackHandlersRegistered) {
+      if (!this.autoTrackHandlersRegistered) {
         addDomEventHandlers(instance);
       }
     }
