@@ -4,6 +4,7 @@ import * as Hotjar from "./Hotjar";
 import * as GoogleAds from "./GoogleAds";
 import * as VWO from "./VWO";
 import * as GoogleTagManager from "./GoogleTagManager";
+import * as INTERCOM from "./INTERCOM";
 
 let integrations = {
   HS: HubSpot.default,
@@ -11,7 +12,8 @@ let integrations = {
   HOTJAR: Hotjar.default,
   GOOGLEADS: GoogleAds.default,
   VWO: VWO.default,
-  GTM: GoogleTagManager.default
+  GTM: GoogleTagManager.default,
+  INTERCOM: INTERCOM.default
 };
 
 export { integrations };
