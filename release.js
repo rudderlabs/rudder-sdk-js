@@ -5,9 +5,9 @@ var options = {};
 
 // all options have defaults and can be omitted
 var options = {
-  tag_name: "1.1.0-beta.0",
+  tag_name: "1.1.0-beta.1",
   target_commitish: "master",
-  name: "Release 1.1.0-beta.0",
+  name: "Release 1.1.0-beta.1",
   draft: false,
   prerelease: true,
   repo: "rudder-sdk-js",
