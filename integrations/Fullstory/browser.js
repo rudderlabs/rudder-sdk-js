@@ -77,12 +77,20 @@ class Fullstory{
             ...rudderMessage.properties
         };
 
-        FS.event("Loaded a Page", Fullstory.getFSProperties(props));
+        FS.event("Viewed a Page", Fullstory.getFSProperties(props));
     }
 
     identify(rudderElement) {
         logger.debug("in FULLSORY identify");
-        FS.identify(rudderElement.message.userId, Fullstory.getFSProperties(rudderElement.message.context.traits));
+        let userId = rudderElement.message.userId;
+        let traits = rudderElement.message.context.traits;
+        if(!userId)
+            userId = rudderElement.message.anonymousId;
+        
+        if(Object.keys(traits).length === 0 && traits.constructor === Object)
+            FS.identify(userId);
+        else
+            FS.identify(userId, Fullstory.getFSProperties(traits));
     }
 
     track(rudderElement) {
