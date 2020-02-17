@@ -16,8 +16,19 @@
       })(method);
     }
     rudderanalytics.load(
-      "1WxuLjndG7YDBT603xZH01mI0HW",
-      "http://localhost:8090"
+      "1W3YEpwXQRYYL0veak73cvTKI5r",
+      "https://hosted.rudderlabs.com",
+      {
+        logLevel: "DEBUG",
+        valTrackingList: [
+          "username",
+          "subject",
+          "user-password",
+          "googleClientId",
+          "country",
+          "radio"
+        ]
+      }
     );
   </script>
 
