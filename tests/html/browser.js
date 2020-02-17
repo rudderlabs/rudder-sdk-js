@@ -71,13 +71,13 @@ var rudderanalytics = (function (exports) {
       var source = arguments[i] != null ? arguments[i] : {};
 
       if (i % 2) {
-        ownKeys(source, true).forEach(function (key) {
+        ownKeys(Object(source), true).forEach(function (key) {
           _defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
       } else {
-        ownKeys(source).forEach(function (key) {
+        ownKeys(Object(source)).forEach(function (key) {
           Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
       }
@@ -110,19 +110,19 @@ var rudderanalytics = (function (exports) {
       LOG_LEVEL_DEBUG = 2,
       LOG_LEVEL_WARN = 3,
       LOG_LEVEL_ERROR = 4,
-      LOG_LEVEL = LOG_LEVEL_ERROR;
+      LOG_LEVEL = LOG_LEVEL_INFO;
   var logger = {
     setLogLevel: function setLogLevel(logLevel) {
       switch (logLevel.toUpperCase()) {
-        case 'INFO':
+        case "INFO":
           LOG_LEVEL = LOG_LEVEL_INFO;
           return;
 
-        case 'DEBUG':
+        case "DEBUG":
           LOG_LEVEL = LOG_LEVEL_DEBUG;
           return;
 
-        case 'WARN':
+        case "WARN":
           LOG_LEVEL = LOG_LEVEL_WARN;
           return;
       }
@@ -342,9 +342,9 @@ var rudderanalytics = (function (exports) {
     CART_SHARED: "Cart Shared",
     PRODUCT_REVIEWED: "Product Reviewed"
   }; //Enumeration for integrations supported
-  var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
+  var BASE_URL = "http://localhost:8080/"; //"https://rudderlabs.com";
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
+  var CONFIG_URL = "http://localhost:5000/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -499,7 +499,7 @@ var rudderanalytics = (function (exports) {
       key: "init",
       value: function init() {
         (function (i, s, o, g, r, a, m) {
-          i["GoogleAnalyticsObject"] = r;
+          i['GoogleAnalyticsObject'] = r;
           i[r] = i[r] || function () {
             (i[r].q = i[r].q || []).push(arguments);
           }, i[r].l = 1 * new Date();
@@ -507,42 +507,39 @@ var rudderanalytics = (function (exports) {
           a.async = 1;
           a.src = g;
           m.parentNode.insertBefore(a, m);
-        })(window, document, "script", "https://www.google-analytics.com/analytics.js", "ga"); //window.ga_debug = {trace: true};
+        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga'); //window.ga_debug = {trace: true};
 
 
-        ga("create", this.trackingID, "auto");
-        ga("send", "pageview");
+        ga('create', this.trackingID, 'auto');
+        ga('send', 'pageview');
         logger.debug("===in init GA===");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        ga("set", "userId", rudderElement.message.anonymous_id);
+        ga('set', 'userId', rudderElement.message.anonymous_id);
         logger.debug("in GoogleAnalyticsManager identify");
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
-        console.log("Inside GA track");
         var eventCategory = rudderElement.message.event;
         var eventAction = rudderElement.message.event;
         var eventLabel = rudderElement.message.event;
         var eventValue = "";
-        console.log(eventCategory);
 
         if (rudderElement.message.properties) {
           eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
         }
 
         var payLoad = {
-          hitType: "event",
+          hitType: 'event',
           eventCategory: eventCategory,
           eventAction: eventAction,
           eventLabel: eventLabel,
           eventValue: eventValue
         };
-        console.log(payLoad);
-        ga("send", "event", payLoad);
+        ga('send', 'event', payLoad);
         logger.debug("in GoogleAnalyticsManager track");
       }
     }, {
@@ -552,10 +549,10 @@ var rudderanalytics = (function (exports) {
         var path = rudderElement.properties && rudderElement.properties.path ? rudderElement.properties.path : undefined;
 
         if (path) {
-          ga("set", "page", path);
+          ga('set', 'page', path);
         }
 
-        ga("send", "pageview");
+        ga('send', 'pageview');
       }
     }, {
       key: "isLoaded",
@@ -983,13 +980,203 @@ var rudderanalytics = (function (exports) {
     return GoogleTagManager;
   }();
 
+  var INTERCOM =
+  /*#__PURE__*/
+  function () {
+    function INTERCOM(config) {
+      _classCallCheck(this, INTERCOM);
+
+      this.NAME = "INTERCOM";
+      this.API_KEY = config.apiKey;
+      this.APP_ID = config.appId;
+      this.MOBILE_API_KEY = config.mobileAppId;
+      logger.debug("Config ", config);
+    }
+
+    _createClass(INTERCOM, [{
+      key: "init",
+      value: function init() {
+        window.intercomSettings = {
+          app_id: this.APP_ID
+        };
+
+        (function () {
+          var w = window;
+          var ic = w.Intercom;
+
+          if (typeof ic === "function") {
+            ic("reattach_activator");
+            ic("update", w.intercomSettings);
+          } else {
+            var d = document;
+
+            var i = function i() {
+              i.c(arguments);
+            };
+
+            i.q = [];
+
+            i.c = function (args) {
+              i.q.push(args);
+            };
+
+            w.Intercom = i;
+
+            var l = function l() {
+              var s = d.createElement("script");
+              s.type = "text/javascript";
+              s.async = true;
+              s.src = "https://widget.intercom.io/widget/" + window.intercomSettings.app_id;
+              var x = d.getElementsByTagName("script")[0];
+              x.parentNode.insertBefore(s, x);
+            };
+
+            if (document.readyState === "complete") {
+              l();
+              window.intercom_code = true;
+            } else if (w.attachEvent) {
+              w.attachEvent("onload", l);
+              window.intercom_code = true;
+            } else {
+              w.addEventListener("load", l, false);
+              window.intercom_code = true;
+            }
+          }
+        })();
+
+        window.INTERCOM = Intercom;
+      }
+    }, {
+      key: "page",
+      value: function page() {
+        // Get new messages of the current user
+        window.INTERCOM("update");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        console.log("intercom identify");
+        console.log(rudderElement);
+        var rawPayload = {};
+        var context = rudderElement.message.context; // identity verification
+
+        var identityVerificationProps = context.Intercom ? context.Intercom : null;
+
+        if (identityVerificationProps != null) {
+          // user hash
+          var userHash = context.Intercom.user_hash ? context.Intercom.user_hash : null;
+
+          if (userHash != null) {
+            rawPayload.user_hash = userHash;
+          } // hide default launcher
+
+
+          var hideDefaultLauncher = context.Intercom.hideDefaultLauncher ? context.Intercom.hideDefaultLauncher : null; // if(hideDefaultLauncher!= null){
+          //   rawPayload.hideDefaultLauncher = ;
+          // }
+        } // Map rudder properties payload to intercom's paylod
+
+
+        Object.keys(context.traits).forEach(function (field) {
+          var value = context.traits[field];
+
+          if (field === "company") {
+            var companies = [];
+            var company = {};
+            var companyFields = Object.keys(context.traits[field]);
+            companyFields.forEach(function (key) {
+              if (key != "id") {
+                company[key] = context.traits[field][key];
+              } else {
+                company["company_id"] = context.traits[field][key];
+              }
+            });
+
+            if (!companyFields.includes("id")) {
+              company["company_id"] = md5(company.name);
+            }
+
+            companies.push(company);
+            rawPayload.companies = companies;
+          } else {
+            rawPayload[field] = context.traits[field];
+          }
+
+          switch (field) {
+            case "createdAt":
+              rawPayload["created_at"] = value;
+              break;
+
+            case "anonymousId":
+              rawPayload["user_id"] = value;
+              break;
+          }
+        });
+        console.log(rawPayload);
+        window.Intercom("update", rawPayload);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        // Track events
+        console.log("intercom track", rudderElement);
+        var rawPayload = {};
+        var message = rudderElement.message;
+        var properties = message.properties ? Object.keys(message.properties) : null; // udpate properties
+
+        if (properties) {
+          properties.forEach(function (property) {
+            var value = message.properties[property]; // customAttributes[property] = value;
+            // switch (property) {
+            //   case "price":
+            //     metadata.price["amount"] = value * 100;
+            //     break;
+            //   case "currency":
+            //     metadata.price["currency"] = value;
+            //   default:
+            //     break;
+            // }
+            // switch (property) {
+            //   case "order_ID" || "order_url":
+            //     metadata.order_number["value"] = value;
+            //     break;
+            //   default:
+            //     break;
+            // }
+
+            rawPayload[property] = value;
+          });
+        }
+
+        if (message.event) {
+          rawPayload.event_name = message.event;
+        }
+
+        rawPayload.user_id = message.userId ? message.userId : message.anonymousId;
+        rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000);
+        console.log("intercom end", rawPayload); // final call to intercom
+
+        window.Intercom("trackEvent", rawPayload.event_name, rawPayload);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        console.log("Intercom loaded", !!window.intercom_code);
+        return !!window.intercom_code;
+      }
+    }]);
+
+    return INTERCOM;
+  }();
+
   var integrations = {
     HS: index,
     GA: index$1,
     HOTJAR: index$2,
     GOOGLEADS: index$3,
     VWO: VWO,
-    GTM: GoogleTagManager
+    GTM: GoogleTagManager,
+    INTERCOM: INTERCOM
   };
 
   //Application class
@@ -1128,8 +1315,6 @@ var rudderanalytics = (function (exports) {
                 case ECommerceEvents.ORDER_REFUNDED:
                   this.checkForKey("order_id");
                   break;
-
-                default:
               }
             } else if (!this.properties["category"]) {
               //if category is not there, set to event
@@ -2279,7 +2464,7 @@ var rudderanalytics = (function (exports) {
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
     // strict `define` check is necessary for compatibility with `r.js`.
-    var isLoader = typeof undefined === "function" && undefined.amd;
+    var isLoader = typeof undefined === "function" ;
 
     // A set of types used to distinguish objects from primitives.
     var objectTypes = {
@@ -2288,7 +2473,7 @@ var rudderanalytics = (function (exports) {
     };
 
     // Detect the `exports` object exposed by CommonJS implementations.
-    var freeExports =  exports && !exports.nodeType && exports;
+    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
 
     // Use the `global` object exposed by Node (including Browserify via
     // `insert-module-globals`), Narwhal, and Ringo as the default context,
@@ -3942,14 +4127,16 @@ var rudderanalytics = (function (exports) {
     var i = offset || 0;
     var bth = byteToHex;
     // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([bth[buf[i++]], bth[buf[i++]], 
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]]]).join('');
+    return ([
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]]
+    ]).join('');
   }
 
   var bytesToUuid_1 = bytesToUuid;
@@ -3966,7 +4153,7 @@ var rudderanalytics = (function (exports) {
   var _lastMSecs = 0;
   var _lastNSecs = 0;
 
-  // See https://github.com/broofa/node-uuid for API details
+  // See https://github.com/uuidjs/uuid for API details
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
@@ -4565,8 +4752,6 @@ var rudderanalytics = (function (exports) {
         if (e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
           quotaExceeded = true;
         }
-        break;
-      default:
         break;
       }
     } else if (e.number === -2147024882) {
@@ -5481,6 +5666,9 @@ var rudderanalytics = (function (exports) {
    */
 
   function enqueue(rudderElement, type) {
+    console.log("loggin in enqueue");
+    console.log(rudderElement, type);
+
     if (!this.eventRepository) {
       this.eventRepository = eventRepository;
     }
@@ -5516,9 +5704,8 @@ var rudderanalytics = (function (exports) {
       this.storage = new Storage$1();
       this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
       this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
-      this.anonymousId = this.storage.getAnonymousId() ? this.storage.getAnonymousId() : generateUUID();
+      this.anonymousId = this.getAnonymousId();
       this.storage.setUserId(this.userId);
-      this.storage.setAnonymousId(this.anonymousId);
       this.eventRepository = eventRepository;
     }
     /**
@@ -5618,6 +5805,10 @@ var rudderanalytics = (function (exports) {
         var _this2 = this;
 
         var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        console.log("logging instance");
+        console.log(instance);
+        console.log("----------------");
+        console.log(instance.isLoaded());
         return new Promise(function (resolve) {
           if (instance.isLoaded()) {
             _this2.successfullyLoadedIntegration.push(instance);
@@ -5690,6 +5881,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(userId, traits, options, callback) {
+        console.log("in identify", userId, traits, options, callback);
         if (typeof options == "function") callback = options, options = null;
         if (typeof traits == "function") callback = traits, options = null, traits = null;
         if (_typeof(userId) == "object") options = traits, traits = userId, userId = this.userId;
@@ -5848,10 +6040,13 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "processAndSendDataToDestinations",
       value: function processAndSendDataToDestinations(type, rudderElement, options, callback) {
+        console.log("-----------------------------------------");
+        console.log(type, rudderElement, options, callback);
+        console.log("-----------------------------------------");
+
         try {
           if (!this.anonymousId) {
-            this.anonymousId = generateUUID();
-            this.storage.setAnonymousId(this.anonymousId);
+            this.setAnonymousId();
           }
 
           rudderElement["message"]["context"]["traits"] = Object.assign({}, this.userTraits);
@@ -5946,19 +6141,25 @@ var rudderanalytics = (function (exports) {
       value: function reset() {
         this.userId = "";
         this.userTraits = {};
-        this.anonymousId = "";
+        this.anonymousId = this.setAnonymousId();
         this.storage.clear();
       }
     }, {
       key: "getAnonymousId",
       value: function getAnonymousId() {
-        this.storage.getAnonymousId();
+        this.anonymousId = this.storage.getAnonymousId();
+
+        if (!this.anonymousId) {
+          this.setAnonymousId();
+        }
+
+        return this.anonymousId;
       }
     }, {
       key: "setAnonymousId",
       value: function setAnonymousId(anonymousId) {
-        this.anonymousId = anonymousId;
-        this.storage.setAnonymousId(anonymousId);
+        this.anonymousId = anonymousId ? anonymousId : generateUUID();
+        this.storage.setAnonymousId(this.anonymousId);
       }
       /**
        * Call control pane to get client configs
