@@ -6,6 +6,11 @@ import * as VWO from "./VWO";
 import * as GoogleTagManager from "./GoogleTagManager";
 import * as Braze from "./Braze";
 import * as INTERCOM from "./INTERCOM";
+import * as Keen from "./Keen";
+import * as Kissmetrics from "./Kissmetrics";
+import * as CustomerIO from "./CustomerIO";
+import * as Chartbeat from "./Chartbeat";
+import * as Comscore from "./Comscore";
 
 let integrations = {
   HS: HubSpot.default,
@@ -15,7 +20,12 @@ let integrations = {
   VWO: VWO.default,
   GTM: GoogleTagManager.default,
   BRAZE: Braze.default,
-  INTERCOM: INTERCOM.default
+  INTERCOM: INTERCOM.default,
+  KEEN: Keen.default,
+  KISSMETRICS: Kissmetrics.default,
+  CUSTOMERIO: CustomerIO.default,
+  CHARTBEAT: Chartbeat.default,
+  COMSCORE: Comscore.default
 };
 
 export { integrations };

@@ -15,6 +15,7 @@ import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
+import { addDomEventHandlers } from "./utils/autotrack.js";
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
@@ -40,8 +41,11 @@ class Analytics {
    * @memberof Analytics
    */
   constructor() {
+    this.autoTrackHandlersRegistered = false;
+    this.autoTrackFeatureEnabled = false;
     this.initialized = false;
     this.ready = false;
+    this.trackValues = [];
     this.eventsBuffer = [];
     this.clientIntegrations = [];
     this.configArray = [];
@@ -73,25 +77,42 @@ class Analytics {
    * @memberof Analytics
    */
   processResponse(status, response) {
-    logger.debug("===in process response=== " + status);
-    response = JSON.parse(response);
-    response.source.destinations.forEach(function(destination, index) {
-      logger.debug(
-        "Destination " +
-          index +
-          " Enabled? " +
-          destination.enabled +
-          " Type: " +
-          destination.destinationDefinition.name +
-          " Use Native SDK? " +
-          destination.config.useNativeSDK
-      );
-      if (destination.enabled) {
-        this.clientIntegrations.push(destination.destinationDefinition.name);
-        this.configArray.push(destination.config);
+    try {
+      logger.debug("===in process response=== " + status);
+      response = JSON.parse(response);
+      if (response.source.useAutoTracking) {
+        this.autoTrackFeatureEnabled = true;
+        addDomEventHandlers(this);
+        this.autoTrackHandlersRegistered = true;
       }
-    }, this);
-    this.init(this.clientIntegrations, this.configArray);
+      response.source.destinations.forEach(function(destination, index) {
+        logger.debug(
+          "Destination " +
+            index +
+            " Enabled? " +
+            destination.enabled +
+            " Type: " +
+            destination.destinationDefinition.name +
+            " Use Native SDK? " +
+            destination.config.useNativeSDK
+        );
+        if (destination.enabled && destination.config.useNativeSDK) {
+          this.clientIntegrations.push(destination.destinationDefinition.name);
+          this.configArray.push(destination.config);
+        }
+      }, this);
+      this.init(this.clientIntegrations, this.configArray);
+    } catch (error) {
+      handleError(error);
+      logger.debug("===handling config BE response processing error===");
+      logger.debug(
+        "autoTrackHandlersRegistered",
+        this.autoTrackHandlersRegistered
+      );
+      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+        addDomEventHandlers(this);
+      }
+    }
   }
 
   /**
@@ -144,7 +165,12 @@ class Analytics {
               integrationOptions["All"])
           ) {
             try {
-              object.clientIntegrationObjects[i][methodName](...event);
+              if (
+                !object.clientIntegrationObjects[i]["isFailed"] ||
+                !object.clientIntegrationObjects[i]["isFailed"]()
+              ) {
+                object.clientIntegrationObjects[i][methodName](...event);
+              }
             } catch (error) {
               handleError(error);
             }
@@ -241,6 +267,32 @@ class Analytics {
       (options = traits), (traits = userId), (userId = this.userId);
 
     this.processIdentify(userId, traits, options, callback);
+  }
+
+  /**
+   *
+   * @param {*} to
+   * @param {*} from
+   * @param {*} options
+   * @param {*} callback
+   */
+  alias(to, from, options, callback) {
+    if (typeof options == "function") (callback = options), (options = null);
+    if (typeof from == "function")
+      (callback = from), (options = null), (from = null);
+    if (typeof from == "object") (options = from), (from = null);
+
+    let rudderElement = new RudderElementBuilder().setType("alias").build();
+    rudderElement.message.previousId =
+      from || this.userId ? this.userId : this.getAnonymousId();
+    rudderElement.message.userId = to;
+
+    this.processAndSendDataToDestinations(
+      "alias",
+      rudderElement,
+      options,
+      callback
+    );
   }
 
   /**
@@ -409,7 +461,9 @@ class Analytics {
       );
       logger.debug("anonymousId: ", this.anonymousId);
       rudderElement["message"]["anonymousId"] = this.anonymousId;
-      rudderElement["message"]["userId"] = this.userId;
+      rudderElement["message"]["userId"] = rudderElement["message"]["userId"]
+        ? rudderElement["message"]["userId"]
+        : this.userId;
 
       if (options) {
         this.processOptionsParam(rudderElement, options);
@@ -426,7 +480,9 @@ class Analytics {
             integrations[obj.name] ||
             (integrations[obj.name] == undefined && integrations["All"])
           ) {
-            obj[type](rudderElement);
+            if (!obj["isFailed"] || !obj["isFailed"]()) {
+              obj[type](rudderElement);
+            }
           }
         });
       }
@@ -498,15 +554,15 @@ class Analytics {
     this.storage.clear();
   }
 
-  getAnonymousId(){
+  getAnonymousId() {
     this.anonymousId = this.storage.getAnonymousId();
-    if(!this.anonymousId){
+    if (!this.anonymousId) {
       this.setAnonymousId();
     }
     return this.anonymousId;
   }
 
-  setAnonymousId(anonymousId){
+  setAnonymousId(anonymousId) {
     this.anonymousId = anonymousId ? anonymousId : generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
   }
@@ -527,12 +583,26 @@ class Analytics {
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
+    if (
+      options &&
+      options.valTrackingList &&
+      options.valTrackingList.push == Array.prototype.push
+    ) {
+      this.trackValues = options.valTrackingList;
+    }
     logger.debug("inside load ");
     this.eventRepository.writeKey = writeKey;
     if (serverUrl) {
       this.eventRepository.url = serverUrl;
     }
-    getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
+    try {
+      getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
+    } catch (error) {
+      handleError(error);
+      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+        addDomEventHandlers(instance);
+      }
+    }
   }
 }
 
@@ -578,10 +648,21 @@ if (process.browser) {
 let identify = instance.identify.bind(instance);
 let page = instance.page.bind(instance);
 let track = instance.track.bind(instance);
+let alias = instance.alias.bind(instance);
 let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
 let initialized = (instance.initialized = true);
 let getAnonymousId = instance.getAnonymousId.bind(instance);
 let setAnonymousId = instance.setAnonymousId.bind(instance);
 
-export { initialized, page, track, load, identify, reset, getAnonymousId, setAnonymousId };
+export {
+  initialized,
+  page,
+  track,
+  load,
+  identify,
+  reset,
+  alias,
+  getAnonymousId,
+  setAnonymousId
+};
