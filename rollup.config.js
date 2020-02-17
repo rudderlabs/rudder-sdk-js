@@ -7,7 +7,7 @@ import builtins from "rollup-plugin-node-builtins";
 import globals from "rollup-plugin-node-globals";
 import json from "rollup-plugin-json";
 import obfuscatorPlugin from "rollup-plugin-javascript-obfuscator";
-
+import { version } from "./package.json";
 export default {
   input: "analytics.js",
   external: ["Xmlhttprequest", "universal-analytics"],
@@ -29,7 +29,7 @@ export default {
     replace({
       "process.browser": process.env.NODE_ENV == "true" ? false : true,
       "process.prod": process.env.ENV == "prod" ? true : false,
-      "process.package_version": process.env.npm_package_version
+      "process.package_version": version
     }),
     resolve({
       jsnext: true,
