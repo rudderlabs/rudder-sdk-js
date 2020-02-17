@@ -14,7 +14,9 @@ export default {
   output: [
     {
       file:
-        process.env.ENV == "prod" ? "dist/rudder.min.js" : "dist/browser.js",
+        process.env.ENV == "prod"
+          ? "dist/rudder-analytics.min.js"
+          : "dist/browser.js",
       format: "iife",
       name: "rudderanalytics",
       sourceMap: true,

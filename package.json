@@ -1,6 +1,6 @@
 {
   "name": "rudder-analytics",
-  "version": "1.0.5",
+  "version": "1.1.0-beta.0",
   "description": "",
   "main": "./dist/browser.min.js",
   "scripts": {
@@ -9,7 +9,7 @@
     "buildProdBrowser": "NODE_ENV=false  ENV=prod uglify=true rollup -c",
     "buildDevNode": "NODE_ENV=true uglify=false rollup -c",
     "buildProdNode": "NODE_ENV=true ENV=prod uglify=true rollup -c",
-    "changelog": "auto-changelog -p"
+    "changelog": "auto-changelog -p -t keepachangelog -u true -l false"
   },
   "author": "",
   "license": "ISC",

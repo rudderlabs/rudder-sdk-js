@@ -71,13 +71,13 @@ var rudderanalytics = (function (exports) {
       var source = arguments[i] != null ? arguments[i] : {};
 
       if (i % 2) {
-        ownKeys(Object(source), true).forEach(function (key) {
+        ownKeys(source, true).forEach(function (key) {
           _defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
       } else {
-        ownKeys(Object(source)).forEach(function (key) {
+        ownKeys(source).forEach(function (key) {
           Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
       }
@@ -372,17 +372,9 @@ var rudderanalytics = (function (exports) {
     CART_SHARED: "Cart Shared",
     PRODUCT_REVIEWED: "Product Reviewed"
   }; //Enumeration for integrations supported
-  var BASE_URL = "http://localhost:8080/"; //"https://rudderlabs.com";
+  var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  var CONFIG_URL = "http://localhost:5000/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
-=======
-  var CONFIG_URL = "http://localhost:5000/sourceConfig"; //"https://api.rudderlabs.com/sourceConfig";//"https://api.rudderlabs.com/workspaceConfig";
->>>>>>> added output files
-=======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
->>>>>>> updated output files
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -1016,6 +1008,361 @@ var rudderanalytics = (function (exports) {
     }]);
 
     return GoogleTagManager;
+  }();
+
+  /*
+  E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
+  */
+
+  var Braze =
+  /*#__PURE__*/
+  function () {
+    function Braze(config, analytics) {
+      _classCallCheck(this, Braze);
+
+      this.analytics = analytics;
+      this.appKey = config.appKey;
+      if (!config.appKey) this.appKey = '';
+      this.endPoint = '';
+
+      if (config.dataCenter) {
+        var dataCenterArr = config.dataCenter.trim().split('-');
+
+        if (dataCenterArr[0].toLowerCase() === 'eu') {
+          this.endPoint = 'sdk.fra-01.braze.eu';
+        } else {
+          this.endPoint = 'sdk.iad-' + dataCenterArr[1] + '.braze.com';
+        }
+      }
+
+      this.name = "BRAZE";
+      logger.debug("Config ", config);
+    }
+    /** https://js.appboycdn.com/web-sdk/latest/doc/ab.User.html#toc4
+     */
+
+
+    _createClass(Braze, [{
+      key: "formatGender",
+      value: function formatGender(gender) {
+        if (!gender) return;
+        if (typeof gender !== 'string') return;
+        var femaleGenders = ['woman', 'female', 'w', 'f'];
+        var maleGenders = ['man', 'male', 'm'];
+        var otherGenders = ['other', 'o'];
+        if (femaleGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.FEMALE;
+        if (maleGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.MALE;
+        if (otherGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.OTHER;
+      }
+    }, {
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Braze==="); //load appboy
+
+        +function (a, p, P, b, y) {
+          a.appboy = {};
+          a.appboyQueue = [];
+
+          for (var s = "initialize destroy getDeviceId toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates requestContentCardsRefresh subscribeToContentCardsUpdates logCardImpressions logCardClick logCardDismissal logFeedDisplayed logContentCardsDisplayed logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick logInAppMessageHtmlClick subscribeToNewInAppMessages subscribeToInAppMessage removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages trackLocation stopWebTracking resumeWebTracking wipeData ab ab.DeviceProperties ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setLanguage ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.User.prototype.addAlias ab.User.prototype.setCustomLocationAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.TextAlignment ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.prototype.closeMessage ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.HtmlMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.ContentCards ab.ContentCards.prototype.getUnviewedCardCount ab.Card ab.Card.prototype.dismissCard ab.ClassicCard ab.CaptionedImage ab.Banner ab.ControlCard ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed display.showContentCards display.hideContentCards display.toggleContentCards sharedLib".split(" "), i = 0; i < s.length; i++) {
+            for (var m = s[i], k = a.appboy, l = m.split("."), j = 0; j < l.length - 1; j++) {
+              k = k[l[j]];
+            }
+
+            k[l[j]] = new Function("return function " + m.replace(/\./g, "_") + "(){window.appboyQueue.push(arguments); return true}")();
+          }
+
+          window.appboy.getUser = function () {
+            return new window.appboy.ab.User();
+          };
+
+          window.appboy.getCachedFeed = function () {
+            return new window.appboy.ab.Feed();
+          };
+
+          window.appboy.getCachedContentCards = function () {
+            return new window.appboy.ab.ContentCards();
+          };
+
+          (y = p.createElement(P)).type = 'text/javascript';
+          y.src = 'https://js.appboycdn.com/web-sdk/2.4/appboy.min.js';
+          y.async = 1;
+          (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
+        }(window, document, 'script');
+        window.appboy.initialize(this.appKey, {
+          enableLogging: true,
+          baseUrl: this.endPoint
+        });
+        window.appboy.display.automaticallyShowNewInAppMessages();
+        var userId = this.analytics.userId; //send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser 
+
+        if (userId) appboy.changeUser(userId);
+        window.appboy.openSession();
+      }
+    }, {
+      key: "handleReservedProperties",
+      value: function handleReservedProperties(props) {
+        // remove reserved keys from custom event properties
+        // https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
+        var reserved = ['time', 'product_id', 'quantity', 'event_name', 'price', 'currency'];
+        reserved.forEach(function (element) {
+          delete props[element];
+        });
+        return props;
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        var userId = rudderElement.message.userId;
+        var address = rudderElement.message.context.traits.address;
+        var avatar = rudderElement.message.context.traits.avatar;
+        var birthday = rudderElement.message.context.traits.birthday;
+        var email = rudderElement.message.context.traits.email;
+        var firstname = rudderElement.message.context.traits.firstname;
+        var gender = rudderElement.message.context.traits.gender;
+        var lastname = rudderElement.message.context.traits.lastname;
+        var phone = rudderElement.message.context.traits.phone; // This is a hack to make a deep copy that is not recommended because it will often fail:
+
+        var traits = JSON.parse(JSON.stringify(rudderElement.message.context.traits));
+        window.appboy.changeUser(userId);
+        window.appboy.getUser().setAvatarImageUrl(avatar);
+        if (email) window.appboy.getUser().setEmail(email);
+        if (firstname) window.appboy.getUser().setFirstName(firstname);
+        if (gender) window.appboy.getUser().setGender(this.formatGender(gender));
+        if (lastname) window.appboy.getUser().setLastName(lastname);
+        if (phone) window.appboy.getUser().setPhoneNumber(phone);
+
+        if (address) {
+          window.appboy.getUser().setCountry(address.country);
+          window.appboy.getUser().setHomeCity(address.city);
+        }
+
+        if (birthday) {
+          window.appboy.getUser().setDateOfBirth(birthday.getUTCFullYear(), birthday.getUTCMonth() + 1, birthday.getUTCDate());
+        } // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
+
+
+        var reserved = ['avatar', 'address', 'birthday', 'email', 'id', 'firstname', 'gender', 'lastname', 'phone', 'facebook', 'twitter', 'first_name', 'last_name', 'dob', 'external_id', 'country', 'home_city', 'bio', 'gender', 'phone', 'email_subscribe', 'push_subscribe'];
+        reserved.forEach(function (element) {
+          delete traits[element];
+        });
+        Object.keys(traits).forEach(function (key) {
+          window.appboy.getUser().setCustomUserAttribute(key, traits[key]);
+        });
+      }
+    }, {
+      key: "handlePurchase",
+      value: function handlePurchase(properties, userId) {
+        var products = properties.products;
+        var currencyCode = properties.currency;
+        window.appboy.changeUser(userId); // del used properties
+
+        del(properties, 'products');
+        del(properties, 'currency'); // we have to make a separate call to appboy for each product
+
+        products.forEach(function (product) {
+          var productId = product.product_id;
+          var price = product.price;
+          var quantity = product.quantity;
+          if (quantity && price && productId) window.appboy.logPurchase(productId, price, currencyCode, quantity, properties);
+        });
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var userId = rudderElement.message.userId;
+        var eventName = rudderElement.message.event;
+        var properties = rudderElement.message.properties;
+        window.appboy.changeUser(userId);
+
+        if (eventName.toLowerCase() === 'order completed') {
+          this.handlePurchase(properties, userId);
+        } else {
+          properties = this.handleReservedProperties(properties);
+          window.appboy.logCustomEvent(eventName, properties);
+        }
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        var userId = rudderElement.message.userId;
+        var eventName = rudderElement.message.name;
+        var properties = rudderElement.message.properties;
+        properties = this.handleReservedProperties(properties);
+        window.appboy.changeUser(userId);
+        window.appboy.logCustomEvent(eventName, properties);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return window.appboyQueue === null;
+      }
+    }]);
+
+    return Braze;
+  }();
+
+  var INTERCOM =
+  /*#__PURE__*/
+  function () {
+    function INTERCOM(config) {
+      _classCallCheck(this, INTERCOM);
+
+      this.NAME = "INTERCOM";
+      this.API_KEY = config.apiKey;
+      this.APP_ID = config.appId;
+      this.MOBILE_APP_ID = config.mobileAppId;
+      logger.debug("Config ", config);
+    }
+
+    _createClass(INTERCOM, [{
+      key: "init",
+      value: function init() {
+        window.intercomSettings = {
+          app_id: this.APP_ID
+        };
+
+        (function () {
+          var w = window;
+          var ic = w.Intercom;
+
+          if (typeof ic === "function") {
+            ic("reattach_activator");
+            ic("update", w.intercomSettings);
+          } else {
+            var d = document;
+
+            var i = function i() {
+              i.c(arguments);
+            };
+
+            i.q = [];
+
+            i.c = function (args) {
+              i.q.push(args);
+            };
+
+            w.Intercom = i;
+
+            var l = function l() {
+              var s = d.createElement("script");
+              s.type = "text/javascript";
+              s.async = true;
+              s.src = "https://widget.intercom.io/widget/" + window.intercomSettings.app_id;
+              var x = d.getElementsByTagName("script")[0];
+              x.parentNode.insertBefore(s, x);
+            };
+
+            if (document.readyState === "complete") {
+              l();
+              window.intercom_code = true;
+            } else if (w.attachEvent) {
+              w.attachEvent("onload", l);
+              window.intercom_code = true;
+            } else {
+              w.addEventListener("load", l, false);
+              window.intercom_code = true;
+            }
+          }
+        })();
+      }
+    }, {
+      key: "page",
+      value: function page() {
+        // Get new messages of the current user
+        window.Intercom("update");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        var rawPayload = {};
+        var context = rudderElement.message.context;
+        var identityVerificationProps = context.Intercom ? context.Intercom : null;
+
+        if (identityVerificationProps != null) {
+          // user hash
+          var userHash = context.Intercom.user_hash ? context.Intercom.user_hash : null;
+
+          if (userHash != null) {
+            rawPayload.user_hash = userHash;
+          } // hide default launcher
+
+
+          var hideDefaultLauncher = context.Intercom.hideDefaultLauncher ? context.Intercom.hideDefaultLauncher : null;
+
+          if (hideDefaultLauncher != null) {
+            rawPayload.hide_default_launcher = hideDefaultLauncher;
+          }
+        } // map rudderPayload to desired
+
+
+        Object.keys(context.traits).forEach(function (field) {
+          var value = context.traits[field];
+
+          if (field === "company") {
+            var companies = [];
+            var company = {};
+            var companyFields = Object.keys(context.traits[field]);
+            companyFields.forEach(function (key) {
+              if (key != "id") {
+                company[key] = context.traits[field][key];
+              } else {
+                company["company_id"] = context.traits[field][key];
+              }
+            });
+
+            if (!companyFields.includes("id")) {
+              company["company_id"] = md5(company.name);
+            }
+
+            companies.push(company);
+            rawPayload.companies = companies;
+          } else {
+            rawPayload[field] = context.traits[field];
+          }
+
+          switch (field) {
+            case "createdAt":
+              rawPayload["created_at"] = value;
+              break;
+
+            case "anonymousId":
+              rawPayload["user_id"] = value;
+              break;
+
+            default:
+              break;
+          }
+        });
+        rawPayload.user_id = rudderElement.message.userId;
+        window.Intercom("update", rawPayload);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var rawPayload = {};
+        var message = rudderElement.message;
+        var properties = message.properties ? Object.keys(message.properties) : null;
+        properties.forEach(function (property) {
+          var value = message.properties[property];
+          rawPayload[property] = value;
+        });
+
+        if (message.event) {
+          rawPayload.event_name = message.event;
+        }
+
+        rawPayload.user_id = message.userId ? message.userId : message.anonymousId;
+        rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000);
+        window.Intercom("trackEvent", rawPayload.event_name, rawPayload);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!window.intercom_code;
+      }
+    }]);
+
+    return INTERCOM;
   }();
 
   var Keen =
@@ -2821,82 +3168,7 @@ var rudderanalytics = (function (exports) {
     return Kissmetrics;
   }();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-  var INTERCOM =
-  /*#__PURE__*/
-  function () {
-    function INTERCOM(config) {
-      _classCallCheck(this, INTERCOM);
-
-      this.NAME = "INTERCOM";
-      this.API_KEY = config.apiKey;
-      this.APP_ID = config.appId;
-      this.MOBILE_APP_ID = config.mobileAppId;
-      logger.debug("Config ", config);
-    }
-
-    _createClass(INTERCOM, [{
-      key: "init",
-      value: function init() {
-        window.intercomSettings = {
-          app_id: this.APP_ID
-        };
-
-        (function () {
-          var w = window;
-          var ic = w.Intercom;
-
-          if (typeof ic === "function") {
-            ic("reattach_activator");
-            ic("update", w.intercomSettings);
-          } else {
-            var d = document;
-
-            var i = function i() {
-              i.c(arguments);
-            };
-
-            i.q = [];
-
-            i.c = function (args) {
-              i.q.push(args);
-            };
-
-            w.Intercom = i;
-
-            var l = function l() {
-              var s = d.createElement("script");
-              s.type = "text/javascript";
-              s.async = true;
-              s.src = "https://widget.intercom.io/widget/" + window.intercomSettings.app_id;
-              var x = d.getElementsByTagName("script")[0];
-              x.parentNode.insertBefore(s, x);
-            };
-
-            if (document.readyState === "complete") {
-              l();
-              window.intercom_code = true;
-            } else if (w.attachEvent) {
-              w.attachEvent("onload", l);
-              window.intercom_code = true;
-            } else {
-              w.addEventListener("load", l, false);
-              window.intercom_code = true;
-            }
-          }
-        })();
-      }
-    }, {
-      key: "page",
-      value: function page() {
-        // Get new messages of the current user
-        window.Intercom("update");
-=======
-  var Keen =
-=======
   var CustomerIO =
->>>>>>> output files and bugfix
   /*#__PURE__*/
   function () {
     function CustomerIO(config) {
@@ -2928,10 +3200,6 @@ var rudderanalytics = (function (exports) {
           for (c = 0; c < b.length; c++) {
             window._cio[b[c]] = a(b[c]);
           }
-<<<<<<< HEAD
-        }
->>>>>>> added output files
-=======
           var t = document.createElement('script'),
               s = document.getElementsByTagName('script')[0];
           t.async = true;
@@ -2940,84 +3208,10 @@ var rudderanalytics = (function (exports) {
           t.src = 'https://assets.customer.io/assets/track.js';
           s.parentNode.insertBefore(t, s);
         })();
->>>>>>> output files and bugfix
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-        var rawPayload = {};
-        var context = rudderElement.message.context;
-        var identityVerificationProps = context.Intercom ? context.Intercom : null;
-
-        if (identityVerificationProps != null) {
-          // user hash
-          var userHash = context.Intercom.user_hash ? context.Intercom.user_hash : null;
-
-          if (userHash != null) {
-            rawPayload.user_hash = userHash;
-          } // hide default launcher
-
-
-          var hideDefaultLauncher = context.Intercom.hideDefaultLauncher ? context.Intercom.hideDefaultLauncher : null;
-
-          if (hideDefaultLauncher != null) {
-            rawPayload.hide_default_launcher = hideDefaultLauncher;
-          }
-        } // map rudderPayload to desired
-
-
-        Object.keys(context.traits).forEach(function (field) {
-          var value = context.traits[field];
-
-          if (field === "company") {
-            var companies = [];
-            var company = {};
-            var companyFields = Object.keys(context.traits[field]);
-            companyFields.forEach(function (key) {
-              if (key != "id") {
-                company[key] = context.traits[field][key];
-              } else {
-                company["company_id"] = context.traits[field][key];
-              }
-            });
-
-            if (!companyFields.includes("id")) {
-              company["company_id"] = md5(company.name);
-            }
-
-            companies.push(company);
-            rawPayload.companies = companies;
-          } else {
-            rawPayload[field] = context.traits[field];
-          }
-
-          switch (field) {
-            case "createdAt":
-              rawPayload["created_at"] = value;
-              break;
-
-            case "anonymousId":
-              rawPayload["user_id"] = value;
-              break;
-          }
-        });
-        rawPayload.user_id = rudderElement.message.userId;
-        window.Intercom("update", rawPayload);
-=======
-        logger.debug("in Keen identify");
-        var traits = rudderElement.message.context.traits;
-        var userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
-        var properties = rudderElement.message.properties ? Object.assign(properties, rudderElement.message.properties) : {};
-        properties.user = {
-          userId: userId,
-          traits: traits
-        };
-        properties = this.getAddOn(properties);
-        this.client.extendEvents(properties);
->>>>>>> added output files
-=======
         logger.debug("in Customer IO identify");
         var userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
         var traits = rudderElement.message.context.traits ? rudderElement.message.context.traits : {};
@@ -3029,35 +3223,12 @@ var rudderanalytics = (function (exports) {
         traits.id = userId;
 
         window._cio.identify(traits);
->>>>>>> output files and bugfix
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-        var rawPayload = {};
-        var message = rudderElement.message;
-        var properties = message.properties ? Object.keys(message.properties) : null;
-        properties.forEach(function (property) {
-          var value = message.properties[property];
-          rawPayload[property] = value;
-        });
-
-        if (message.event) {
-          rawPayload.event_name = message.event;
-        }
-
-        rawPayload.user_id = message.userId ? message.userId : message.anonymousId;
-        rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000);
-        window.Intercom("trackEvent", rawPayload.event_name, rawPayload);
-=======
-        logger.debug("in Keen track");
-        var event = rudderElement.message.event;
-=======
         logger.debug("in Customer IO track");
         var eventName = rudderElement.message.event;
->>>>>>> output files and bugfix
         var properties = rudderElement.message.properties;
 
         window._cio.track(eventName, properties);
@@ -3068,96 +3239,506 @@ var rudderanalytics = (function (exports) {
         logger.debug("in Customer IO page");
         var name = rudderElement.message.name || rudderElement.message.properties.url;
 
-<<<<<<< HEAD
-        var properties = rudderElement.message.properties;
-        properties = this.getAddOn(properties);
-        this.client.recordEvent(name, properties);
->>>>>>> added output files
-=======
         window._cio.page(name, rudderElement.message.properties);
->>>>>>> output files and bugfix
       }
     }, {
       key: "isLoaded",
       value: function isLoaded() {
-<<<<<<< HEAD
-<<<<<<< HEAD
-        return !!window.intercom_code;
-      }
-    }]);
-
-    return INTERCOM;
-=======
-        logger.debug("in Keen isLoaded");
-        return !!(this.client != null);
-      }
-    }, {
-      key: "getAddOn",
-      value: function getAddOn(properties) {
-        var addOns = [];
-
-        if (this.ipAddon) {
-          properties.ip_address = '${keen.ip}';
-          addOns.push({
-            name: 'keen:ip_to_geo',
-            input: {
-              ip: 'ip_address'
-            },
-            output: 'ip_geo_info'
-          });
-        }
-
-        if (this.uaAddon) {
-          properties.user_agent = '${keen.user_agent}';
-          addOns.push({
-            name: 'keen:ua_parser',
-            input: {
-              ua_string: 'user_agent'
-            },
-            output: 'parsed_user_agent'
-          });
-        }
-
-        if (this.urlAddon) {
-          properties.page_url = document.location.href;
-          addOns.push({
-            name: 'keen:url_parser',
-            input: {
-              url: 'page_url'
-            },
-            output: 'parsed_page_url'
-          });
-        }
-
-        if (this.referrerAddon) {
-          properties.page_url = document.location.href;
-          properties.referrer_url = document.referrer;
-          addOns.push({
-            name: 'keen:referrer_parser',
-            input: {
-              referrer_url: 'referrer_url',
-              page_url: 'page_url'
-            },
-            output: 'referrer_info'
-          });
-        }
-
-        properties.keen = {
-          addons: addOns
-        };
-        return properties;
-      }
-    }]);
-
-    return Keen;
->>>>>>> added output files
-=======
         return !!(window._cio && window._cio.push !== Array.prototype.push);
       }
     }]);
 
     return CustomerIO;
->>>>>>> output files and bugfix
+  }();
+
+  /**
+   * toString ref.
+   */
+
+  var toString$2 = Object.prototype.toString;
+
+  /**
+   * Return the type of `val`.
+   *
+   * @param {Mixed} val
+   * @return {String}
+   * @api public
+   */
+
+  var componentType$1 = function(val){
+    switch (toString$2.call(val)) {
+      case '[object Function]': return 'function';
+      case '[object Date]': return 'date';
+      case '[object RegExp]': return 'regexp';
+      case '[object Arguments]': return 'arguments';
+      case '[object Array]': return 'array';
+      case '[object String]': return 'string';
+    }
+
+    if (val === null) return 'null';
+    if (val === undefined) return 'undefined';
+    if (val && val.nodeType === 1) return 'element';
+    if (val === Object(val)) return 'object';
+
+    return typeof val;
+  };
+
+  /**
+   * Module dependencies.
+   */
+
+  try {
+    var type$1 = componentType$1;
+  } catch (err) {
+    var type$1 = componentType$1;
+  }
+
+
+
+  /**
+   * HOP reference.
+   */
+
+  var has$2 = Object.prototype.hasOwnProperty;
+
+  /**
+   * Iterate the given `obj` and invoke `fn(val, i)`
+   * in optional context `ctx`.
+   *
+   * @param {String|Array|Object} obj
+   * @param {Function} fn
+   * @param {Object} [ctx]
+   * @api public
+   */
+
+  var componentEach$1 = function(obj, fn, ctx){
+    fn = toFunction_1(fn);
+    ctx = ctx || this;
+    switch (type$1(obj)) {
+      case 'array':
+        return array$1(obj, fn, ctx);
+      case 'object':
+        if ('number' == typeof obj.length) return array$1(obj, fn, ctx);
+        return object$1(obj, fn, ctx);
+      case 'string':
+        return string$1(obj, fn, ctx);
+    }
+  };
+
+  /**
+   * Iterate string chars.
+   *
+   * @param {String} obj
+   * @param {Function} fn
+   * @param {Object} ctx
+   * @api private
+   */
+
+  function string$1(obj, fn, ctx) {
+    for (var i = 0; i < obj.length; ++i) {
+      fn.call(ctx, obj.charAt(i), i);
+    }
+  }
+
+  /**
+   * Iterate object keys.
+   *
+   * @param {Object} obj
+   * @param {Function} fn
+   * @param {Object} ctx
+   * @api private
+   */
+
+  function object$1(obj, fn, ctx) {
+    for (var key in obj) {
+      if (has$2.call(obj, key)) {
+        fn.call(ctx, key, obj[key]);
+      }
+    }
+  }
+
+  /**
+   * Iterate array-ish.
+   *
+   * @param {Array|Object} obj
+   * @param {Function} fn
+   * @param {Object} ctx
+   * @api private
+   */
+
+  function array$1(obj, fn, ctx) {
+    for (var i = 0; i < obj.length; ++i) {
+      fn.call(ctx, obj[i], i);
+    }
+  }
+
+  /**
+   * Cache whether `<body>` exists.
+   */
+
+  var body = false;
+
+
+  /**
+   * Callbacks to call when the body exists.
+   */
+
+  var callbacks = [];
+
+
+  /**
+   * Export a way to add handlers to be invoked once the body exists.
+   *
+   * @param {Function} callback  A function to call when the body exists.
+   */
+
+  var onBody = function onBody (callback) {
+    if (body) {
+      call(callback);
+    } else {
+      callbacks.push(callback);
+    }
+  };
+
+
+  /**
+   * Set an interval to check for `document.body`.
+   */
+
+  var interval = setInterval(function () {
+    if (!document.body) return;
+    body = true;
+    componentEach$1(callbacks, call);
+    clearInterval(interval);
+  }, 5);
+
+
+  /**
+   * Call a callback, passing it the body.
+   *
+   * @param {Function} callback  The callback to call.
+   */
+
+  function call (callback) {
+    callback(document.body);
+  }
+
+  var Chartbeat =
+  /*#__PURE__*/
+  function () {
+    function Chartbeat(config, analytics) {
+      _classCallCheck(this, Chartbeat);
+
+      this.analytics = analytics; // use this to modify failed integrations or for passing events from callback to other destinations
+
+      this._sf_async_config = window._sf_async_config = window._sf_async_config || {};
+      window._sf_async_config.useCanonical = true;
+      window._sf_async_config.uid = config.uid;
+      window._sf_async_config.domain = config.domain;
+      this.isVideo = config.video ? true : false;
+      this.sendNameAndCategoryAsTitle = config.sendNameAndCategoryAsTitle || true;
+      this.subscriberEngagementKeys = config.subscriberEngagementKeys || [];
+      this.replayEvents = [];
+      this.failed = false;
+      this.isFirstPageCallMade = false;
+      this.name = "Chartbeat";
+    }
+
+    _createClass(Chartbeat, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Chartbeat===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Chartbeat identify");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in Chartbeat track");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in Chartbeat page");
+        this.loadConfig(rudderElement);
+
+        if (!this.isFirstPageCallMade) {
+          this.isFirstPageCallMade = true;
+          this.initAfterPage();
+        } else {
+          if (this.failed) {
+            logger.debug("===ignoring cause failed integration===");
+            this.replayEvents = [];
+            return;
+          }
+
+          if (!this.isLoaded() && !this.failed) {
+            logger.debug("===pushing to replay queue for chartbeat===");
+            this.replayEvents.push(["page", rudderElement]);
+            return;
+          }
+
+          logger.debug("===processing page event in chartbeat===");
+          var properties = rudderElement.message.properties;
+          window.pSUPERFLY.virtualPage(properties.path);
+        }
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in Chartbeat isLoaded");
+
+        if (!this.isFirstPageCallMade) {
+          return true;
+        } else {
+          return !!window.pSUPERFLY;
+        }
+      }
+    }, {
+      key: "isFailed",
+      value: function isFailed() {
+        return this.failed;
+      }
+    }, {
+      key: "loadConfig",
+      value: function loadConfig(rudderElement) {
+        var properties = rudderElement.message.properties;
+        var category = properties ? properties.category : undefined;
+        var name = rudderElement.message.name;
+        var author = properties ? properties.author : undefined;
+        var title;
+
+        if (this.sendNameAndCategoryAsTitle) {
+          title = category && name ? category + " " + name : name;
+        }
+
+        if (category) window._sf_async_config.sections = category;
+        if (author) window._sf_async_config.authors = author;
+        if (title) window._sf_async_config.title = title;
+
+        var _cbq = window._cbq = window._cbq || [];
+
+        for (var key in properties) {
+          if (!properties.hasOwnProperty(key)) continue;
+
+          if (this.subscriberEngagementKeys.indexOf(key) > -1) {
+            _cbq.push([key, properties[key]]);
+          }
+        }
+      }
+    }, {
+      key: "initAfterPage",
+      value: function initAfterPage() {
+        var _this = this;
+
+        onBody(function () {
+          var script = _this.isVideo ? "chartbeat_video.js" : "chartbeat.js";
+
+          function loadChartbeat() {
+            var e = document.createElement("script");
+            var n = document.getElementsByTagName("script")[0];
+            e.type = "text/javascript";
+            e.async = true;
+            e.src = "//static.chartbeat.com/js/" + script;
+            n.parentNode.insertBefore(e, n);
+          }
+
+          loadChartbeat();
+        });
+        this.isReady(this).then(function (instance) {
+          logger.debug("===replaying on chartbeat===");
+          instance.replayEvents.forEach(function (event) {
+            instance[event[0]](event[1]);
+          });
+        });
+      }
+    }, {
+      key: "pause",
+      value: function pause(time) {
+        return new Promise(function (resolve) {
+          setTimeout(resolve, time);
+        });
+      }
+    }, {
+      key: "isReady",
+      value: function isReady(instance) {
+        var _this2 = this;
+
+        var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        return new Promise(function (resolve) {
+          if (_this2.isLoaded()) {
+            _this2.failed = false;
+            logger.debug("===chartbeat loaded successfully===");
+            return resolve(instance);
+          }
+
+          if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
+            _this2.failed = true;
+            logger.debug("===chartbeat failed===");
+            return resolve(instance);
+          }
+
+          _this2.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(function () {
+            return _this2.isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
+          });
+        });
+      }
+    }]);
+
+    return Chartbeat;
+  }();
+
+  var Comscore =
+  /*#__PURE__*/
+  function () {
+    function Comscore(config) {
+      _classCallCheck(this, Comscore);
+
+      this.c2ID = config.c2ID;
+      this.comScoreBeaconParam = config.comScoreBeaconParam ? config.comScoreBeaconParam : {};
+      this.isFirstPageCallMade = false;
+      this.failed = false;
+      this.comScoreParams = {};
+      this.name = "COMSCORE";
+    }
+
+    _createClass(Comscore, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Comscore init===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Comscore identify");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in Comscore track");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in Comscore page");
+        this.loadConfig(rudderElement);
+
+        if (!this.isFirstPageCallMade) {
+          this.isFirstPageCallMade = true;
+          this.initAfterPage();
+        } else {
+          if (this.failed) {
+            this.replayEvents = [];
+            return;
+          }
+
+          if (!isLoaded() && !this.failed) {
+            this.replayEvents.push(["page", rudderElement]);
+            return;
+          }
+
+          var properties = rudderElement.message.properties; //window.COMSCORE.beacon({c1:"2", c2: ""});
+          //this.comScoreParams = this.mapComscoreParams(properties);
+
+          window.COMSCORE.beacon(this.comScoreParams);
+        }
+      }
+    }, {
+      key: "loadConfig",
+      value: function loadConfig(rudderElement) {
+        logger.debug("=====in loadConfig=====");
+        this.comScoreParams = this.mapComscoreParams(rudderElement.message.properties);
+        window._comscore = window._comscore || [];
+
+        window._comscore.push(this.comScoreParams);
+      }
+    }, {
+      key: "initAfterPage",
+      value: function initAfterPage() {
+        logger.debug("=====in initAfterPage=====");
+
+        (function () {
+          var s = document.createElement("script"),
+              el = document.getElementsByTagName("script")[0];
+          s.async = true;
+          s.src = (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js";
+          el.parentNode.insertBefore(s, el);
+        })();
+
+        this.isReady(this).then(function (instance) {
+          instance.replayEvents.forEach(function (event) {
+            instance[event[0]](event[1]);
+          });
+        });
+      }
+    }, {
+      key: "pause",
+      value: function pause(time) {
+        return new Promise(function (resolve) {
+          setTimeout(resolve, time);
+        });
+      }
+    }, {
+      key: "isReady",
+      value: function isReady(instance) {
+        var _this = this;
+
+        var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        return new Promise(function (resolve) {
+          if (_this.isLoaded()) {
+            _this.failed = false;
+            return resolve(instance);
+          }
+
+          if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
+            _this.failed = true;
+            return resolve(instance);
+          }
+
+          _this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(function () {
+            return _this.isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
+          });
+        });
+      }
+    }, {
+      key: "mapComscoreParams",
+      value: function mapComscoreParams(properties) {
+        logger.debug("=====in mapComscoreParams=====");
+        var comScoreBeaconParamsMap = this.comScoreBeaconParam;
+        var comScoreParams = {};
+        Object.keys(comScoreBeaconParamsMap).forEach(function (property) {
+          if (property in properties) {
+            var key = comScoreBeaconParamsMap[property];
+            var value = properties[property];
+            comScoreParams[key] = value;
+          }
+        });
+        comScoreParams.c1 = "2";
+        comScoreParams.c2 = this.c2ID;
+        /* if (this.options.comscorekw.length) {
+          comScoreParams.comscorekw = this.options.comscorekw;
+        } */
+
+        logger.debug("=====in mapComscoreParams=====", comScoreParams);
+        return comScoreParams;
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in Comscore isLoaded");
+
+        if (!this.isFirstPageCallMade) {
+          return true;
+        } else {
+          return !!window.COMSCORE;
+        }
+      }
+    }]);
+
+    return Comscore;
   }();
 
   var integrations = {
@@ -3167,17 +3748,13 @@ var rudderanalytics = (function (exports) {
     GOOGLEADS: index$3,
     VWO: VWO,
     GTM: GoogleTagManager,
-<<<<<<< HEAD
-<<<<<<< HEAD
-    INTERCOM: INTERCOM
-=======
-    KEEN: Keen
->>>>>>> added output files
-=======
+    BRAZE: Braze,
+    INTERCOM: INTERCOM,
     KEEN: Keen,
     KISSMETRICS: Kissmetrics,
-    CUSTOMERIO: CustomerIO
->>>>>>> output files and bugfix
+    CUSTOMERIO: CustomerIO,
+    CHARTBEAT: Chartbeat,
+    COMSCORE: Comscore
   };
 
   //Application class
@@ -3187,7 +3764,7 @@ var rudderanalytics = (function (exports) {
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.5";
+    this.version = "1.1.0-beta.0";
   };
 
   //Library information class
@@ -3195,7 +3772,7 @@ var rudderanalytics = (function (exports) {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.5";
+    this.version = "1.1.0-beta.0";
   }; //Operating System information class
 
 
@@ -3316,6 +3893,8 @@ var rudderanalytics = (function (exports) {
                 case ECommerceEvents.ORDER_REFUNDED:
                   this.checkForKey("order_id");
                   break;
+
+                default:
               }
             } else if (!this.properties["category"]) {
               //if category is not there, set to event
@@ -3484,7 +4063,7 @@ var rudderanalytics = (function (exports) {
    * toString ref.
    */
 
-  var toString$2 = Object.prototype.toString;
+  var toString$3 = Object.prototype.toString;
 
   /**
    * Return the type of `val`.
@@ -3494,8 +4073,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentType$1 = function(val){
-    switch (toString$2.call(val)) {
+  var componentType$2 = function(val){
+    switch (toString$3.call(val)) {
       case '[object Date]': return 'date';
       case '[object RegExp]': return 'regexp';
       case '[object Arguments]': return 'arguments';
@@ -3540,7 +4119,7 @@ var rudderanalytics = (function (exports) {
    */
 
   var clone = function clone(obj) {
-    var t = componentType$1(obj);
+    var t = componentType$2(obj);
 
     if (t === 'object') {
       var copy = {};
@@ -4312,7 +4891,7 @@ var rudderanalytics = (function (exports) {
 
 
 
-  var has$2 = Object.prototype.hasOwnProperty;
+  var has$3 = Object.prototype.hasOwnProperty;
   var objToString = Object.prototype.toString;
 
   /**
@@ -4353,7 +4932,7 @@ var rudderanalytics = (function (exports) {
    * @param {string} key
    */
   var shallowCombiner = function shallowCombiner(target, source, value, key) {
-    if (has$2.call(source, key) && target[key] === undefined) {
+    if (has$3.call(source, key) && target[key] === undefined) {
       target[key] = value;
     }
     return source;
@@ -4372,7 +4951,7 @@ var rudderanalytics = (function (exports) {
    * @return {Object}
    */
   var deepCombiner = function(target, source, value, key) {
-    if (has$2.call(source, key)) {
+    if (has$3.call(source, key)) {
       if (isPlainObject(target[key]) && isPlainObject(value)) {
           target[key] = defaultsDeep(target[key], value);
       } else if (target[key] === undefined) {
@@ -4459,7 +5038,7 @@ var rudderanalytics = (function (exports) {
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
     // strict `define` check is necessary for compatibility with `r.js`.
-    var isLoader = typeof undefined === "function" ;
+    var isLoader = typeof undefined === "function" && undefined.amd;
 
     // A set of types used to distinguish objects from primitives.
     var objectTypes = {
@@ -4468,7 +5047,7 @@ var rudderanalytics = (function (exports) {
     };
 
     // Detect the `exports` object exposed by CommonJS implementations.
-    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
+    var freeExports =  exports && !exports.nodeType && exports;
 
     // Use the `global` object exposed by Node (including Browserify via
     // `insert-module-globals`), Narwhal, and Ringo as the default context,
@@ -6122,16 +6701,14 @@ var rudderanalytics = (function (exports) {
     var i = offset || 0;
     var bth = byteToHex;
     // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]]
-    ]).join('');
+    return ([bth[buf[i++]], bth[buf[i++]], 
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]],
+  	bth[buf[i++]], bth[buf[i++]],
+  	bth[buf[i++]], bth[buf[i++]]]).join('');
   }
 
   var bytesToUuid_1 = bytesToUuid;
@@ -6148,7 +6725,7 @@ var rudderanalytics = (function (exports) {
   var _lastMSecs = 0;
   var _lastNSecs = 0;
 
-  // See https://github.com/uuidjs/uuid for API details
+  // See https://github.com/broofa/node-uuid for API details
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
@@ -6303,7 +6880,7 @@ var rudderanalytics = (function (exports) {
    */
 
   // TODO: Move to a library
-  var has$3 = function has(context, prop) {
+  var has$4 = function has(context, prop) {
     return hop.call(context, prop);
   };
 
@@ -6347,7 +6924,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    */
   var indexKeys = function indexKeys(target, pred) {
-    pred = pred || has$3;
+    pred = pred || has$4;
 
     var results = [];
 
@@ -6371,7 +6948,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    */
   var objectKeys = function objectKeys(target, pred) {
-    pred = pred || has$3;
+    pred = pred || has$4;
 
     var results = [];
 
@@ -6428,7 +7005,7 @@ var rudderanalytics = (function (exports) {
 
     // IE6-8 compatibility (arguments)
     if (isArrayLike(source)) {
-      return indexKeys(source, has$3);
+      return indexKeys(source, has$4);
     }
 
     return objectKeys(source);
@@ -6747,6 +7324,8 @@ var rudderanalytics = (function (exports) {
         if (e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
           quotaExceeded = true;
         }
+        break;
+      default:
         break;
       }
     } else if (e.number === -2147024882) {
@@ -7654,6 +8233,278 @@ var rudderanalytics = (function (exports) {
 
   var eventRepository = new EventRepository();
 
+  function addDomEventHandlers(rudderanalytics) {
+    var handler = function handler(e) {
+      e = e || window.event;
+      var target = e.target || e.srcElement;
+
+      if (isTextNode(target)) {
+        target = target.parentNode;
+      }
+
+      if (shouldTrackDomEvent(target, e)) {
+        logger.debug("to be tracked ", e.type);
+      } else {
+        logger.debug("not to be tracked ", e.type);
+      }
+
+      trackWindowEvent(e, rudderanalytics);
+    };
+
+    register_event(document, "submit", handler, true);
+    register_event(document, "change", handler, true);
+    register_event(document, "click", handler, true);
+    rudderanalytics.page();
+  }
+
+  function register_event(element, type, handler, useCapture) {
+    if (!element) {
+      logger.error("No valid element provided to register_event");
+      return;
+    }
+
+    element.addEventListener(type, handler, !!useCapture);
+  }
+
+  function shouldTrackDomEvent(el, event) {
+    if (!el || isTag(el, "html") || !isElementNode(el)) {
+      return false;
+    }
+
+    var tag = el.tagName.toLowerCase();
+
+    switch (tag) {
+      case "html":
+        return false;
+
+      case "form":
+        return event.type === "submit";
+
+      case "input":
+        if (["button", "submit"].indexOf(el.getAttribute("type")) === -1) {
+          return event.type === "change";
+        } else {
+          return event.type === "click";
+        }
+
+      case "select":
+      case "textarea":
+        return event.type === "change";
+
+      default:
+        return event.type === "click";
+    }
+  }
+
+  function isTag(el, tag) {
+    return el && el.tagName && el.tagName.toLowerCase() === tag.toLowerCase();
+  }
+
+  function isElementNode(el) {
+    return el && el.nodeType === 1; // Node.ELEMENT_NODE - use integer constant for browser portability
+  }
+
+  function isTextNode(el) {
+    return el && el.nodeType === 3; // Node.TEXT_NODE - use integer constant for browser portability
+  }
+
+  function shouldTrackElement(el) {
+    if (!el.parentNode || isTag(el, "body")) return false;
+    return true;
+  }
+
+  function getClassName(el) {
+    switch (_typeof(el.className)) {
+      case "string":
+        return el.className;
+
+      case "object":
+        // handle cases where className might be SVGAnimatedString or some other type
+        return el.className.baseVal || el.getAttribute("class") || "";
+
+      default:
+        // future proof
+        return "";
+    }
+  }
+
+  function trackWindowEvent(e, rudderanalytics) {
+    var target = e.target || e.srcElement;
+    var formValues = undefined;
+
+    if (isTextNode(target)) {
+      target = target.parentNode;
+    }
+
+    if (shouldTrackDomEvent(target, e)) {
+      if (target.tagName.toLowerCase() == "form") {
+        formValues = {};
+
+        for (var i = 0; i < target.elements.length; i++) {
+          var formElement = target.elements[i];
+
+          if (isElToBeTracked(formElement) && isElValueToBeTracked(formElement, rudderanalytics.trackValues)) {
+            var name = formElement.id ? formElement.id : formElement.name;
+
+            if (name && typeof name === "string") {
+              var key = formElement.id ? formElement.id : formElement.name; // formElement.value gives the same thing
+
+              var value = formElement.id ? document.getElementById(formElement.id).value : document.getElementsByName(formElement.name)[0].value;
+
+              if (formElement.type === "checkbox" || formElement.type === "radio") {
+                value = formElement.checked;
+              }
+
+              if (key.trim() !== "") {
+                formValues[encodeURIComponent(key)] = encodeURIComponent(value);
+              }
+            }
+          }
+        }
+      }
+
+      var targetElementList = [target];
+      var curEl = target;
+
+      while (curEl.parentNode && !isTag(curEl, "body")) {
+        targetElementList.push(curEl.parentNode);
+        curEl = curEl.parentNode;
+      }
+
+      var elementsJson = [];
+      var href,
+          explicitNoTrack = false;
+      targetElementList.forEach(function (el) {
+        var shouldTrackEl = shouldTrackElement(el); // if the element or a parent element is an anchor tag
+        // include the href as a property
+
+        if (el.tagName.toLowerCase() === "a") {
+          href = el.getAttribute("href");
+          href = shouldTrackEl && href;
+        } // allow users to programatically prevent tracking of elements by adding class 'rudder-no-track'
+
+
+        explicitNoTrack = explicitNoTrack || !isElToBeTracked(el); //explicitNoTrack = !isElToBeTracked(el);
+
+        elementsJson.push(getPropertiesFromElement(el, rudderanalytics));
+      });
+
+      if (explicitNoTrack) {
+        return false;
+      }
+
+      var elementText = "";
+      var text = getText(target); //target.innerText//target.textContent//getSafeText(target);
+
+      if (text && text.length) {
+        elementText = text;
+      }
+
+      var props = {
+        event_type: e.type,
+        page: getDefaultPageProperties(),
+        elements: elementsJson,
+        el_attr_href: href,
+        el_text: elementText
+      };
+
+      if (formValues) {
+        props["form_values"] = formValues;
+      }
+
+      logger.debug("web_event", props);
+      rudderanalytics.track("autotrack", props);
+      return true;
+    }
+  }
+
+  function isElValueToBeTracked(el, includeList) {
+    var elAttributesLength = el.attributes.length;
+
+    for (var i = 0; i < elAttributesLength; i++) {
+      var value = el.attributes[i].value;
+
+      if (includeList.indexOf(value) > -1) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function isElToBeTracked(el) {
+    var classes = getClassName(el).split(" ");
+
+    if (classes.indexOf("rudder-no-track") >= 0) {
+      return false;
+    }
+
+    return true;
+  }
+
+  function getText(el) {
+    var text = "";
+    el.childNodes.forEach(function (value) {
+      if (value.nodeType === Node.TEXT_NODE) {
+        text += value.nodeValue;
+      }
+    });
+    return text.trim();
+  }
+
+  function getPropertiesFromElement(elem, rudderanalytics) {
+    var props = {
+      classes: getClassName(elem).split(" "),
+      tag_name: elem.tagName.toLowerCase()
+    };
+    var attrLength = elem.attributes.length;
+
+    for (var i = 0; i < attrLength; i++) {
+      var name = elem.attributes[i].name;
+      var value = elem.attributes[i].value;
+
+      if (value) {
+        props["attr__" + name] = value;
+      }
+
+      if ((name == "name" || name == "id") && isElValueToBeTracked(elem, rudderanalytics.trackValues)) {
+        props["field_value"] = name == "id" ? document.getElementById(value).value : document.getElementsByName(value)[0].value;
+
+        if (elem.type === "checkbox" || elem.type === "radio") {
+          props["field_value"] = elem.checked;
+        }
+      }
+    }
+
+    var nthChild = 1;
+    var nthOfType = 1;
+    var currentElem = elem;
+
+    while (currentElem = previousElementSibling(currentElem)) {
+      nthChild++;
+
+      if (currentElem.tagName === elem.tagName) {
+        nthOfType++;
+      }
+    }
+
+    props["nth_child"] = nthChild;
+    props["nth_of_type"] = nthOfType;
+    return props;
+  }
+
+  function previousElementSibling(el) {
+    if (el.previousElementSibling) {
+      return el.previousElementSibling;
+    } else {
+      do {
+        el = el.previousSibling;
+      } while (el && !isElementNode(el));
+
+      return el;
+    }
+  }
+
   /**
    * Add the rudderelement object to flush queue
    *
@@ -7683,8 +8534,11 @@ var rudderanalytics = (function (exports) {
     function Analytics() {
       _classCallCheck(this, Analytics);
 
+      this.autoTrackHandlersRegistered = false;
+      this.autoTrackFeatureEnabled = false;
       this.initialized = false;
       this.ready = false;
+      this.trackValues = [];
       this.eventsBuffer = [];
       this.clientIntegrations = [];
       this.configArray = [];
@@ -7713,17 +8567,34 @@ var rudderanalytics = (function (exports) {
     _createClass(Analytics, [{
       key: "processResponse",
       value: function processResponse(status, response) {
-        logger.debug("===in process response=== " + status);
-        response = JSON.parse(response);
-        response.source.destinations.forEach(function (destination, index) {
-          logger.debug("Destination " + index + " Enabled? " + destination.enabled + " Type: " + destination.destinationDefinition.name + " Use Native SDK? " + destination.config.useNativeSDK);
+        try {
+          logger.debug("===in process response=== " + status);
+          response = JSON.parse(response);
 
-          if (destination.enabled) {
-            this.clientIntegrations.push(destination.destinationDefinition.name);
-            this.configArray.push(destination.config);
+          if (response.source.useAutoTracking) {
+            this.autoTrackFeatureEnabled = true;
+            addDomEventHandlers(this);
+            this.autoTrackHandlersRegistered = true;
           }
-        }, this);
-        this.init(this.clientIntegrations, this.configArray);
+
+          response.source.destinations.forEach(function (destination, index) {
+            logger.debug("Destination " + index + " Enabled? " + destination.enabled + " Type: " + destination.destinationDefinition.name + " Use Native SDK? " + destination.config.useNativeSDK);
+
+            if (destination.enabled && destination.config.useNativeSDK) {
+              this.clientIntegrations.push(destination.destinationDefinition.name);
+              this.configArray.push(destination.config);
+            }
+          }, this);
+          this.init(this.clientIntegrations, this.configArray);
+        } catch (error) {
+          handleError(error);
+          logger.debug("===handling config BE response processing error===");
+          logger.debug("autoTrackHandlersRegistered", this.autoTrackHandlersRegistered);
+
+          if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+            addDomEventHandlers(this);
+          }
+        }
       }
       /**
        * Initialize integrations by addinfg respective scripts
@@ -7740,6 +8611,7 @@ var rudderanalytics = (function (exports) {
       value: function init(intgArray, configArray) {
         var _this = this;
 
+        var self = this;
         logger.debug("supported intgs ", integrations);
         this.clientIntegrationObjects = [];
 
@@ -7751,7 +8623,7 @@ var rudderanalytics = (function (exports) {
         intgArray.forEach(function (intg, index) {
           var intgClass = integrations[intg];
           var destConfig = configArray[index];
-          var intgInstance = new intgClass(destConfig);
+          var intgInstance = new intgClass(destConfig, self);
           intgInstance.init();
           logger.debug("initializing destination: ", intg);
 
@@ -7772,9 +8644,11 @@ var rudderanalytics = (function (exports) {
             for (var i = 0; i < object.clientIntegrationObjects.length; i++) {
               if (integrationOptions[object.clientIntegrationObjects[i].name] || integrationOptions[object.clientIntegrationObjects[i].name] == undefined && integrationOptions["All"]) {
                 try {
-                  var _object$clientIntegra;
+                  if (!object.clientIntegrationObjects[i]["isFailed"] || !object.clientIntegrationObjects[i]["isFailed"]()) {
+                    var _object$clientIntegra;
 
-                  (_object$clientIntegra = object.clientIntegrationObjects[i])[methodName].apply(_object$clientIntegra, _toConsumableArray(event));
+                    (_object$clientIntegra = object.clientIntegrationObjects[i])[methodName].apply(_object$clientIntegra, _toConsumableArray(event));
+                  }
                 } catch (error) {
                   handleError(error);
                 }
@@ -8052,7 +8926,7 @@ var rudderanalytics = (function (exports) {
           }
 
           rudderElement["message"]["context"]["traits"] = Object.assign({}, this.userTraits);
-          console.log("anonymousId: ", this.anonymousId);
+          logger.debug("anonymousId: ", this.anonymousId);
           rudderElement["message"]["anonymousId"] = this.anonymousId;
           rudderElement["message"]["userId"] = rudderElement["message"]["userId"] ? rudderElement["message"]["userId"] : this.userId;
 
@@ -8068,7 +8942,9 @@ var rudderanalytics = (function (exports) {
               logger.debug("called in normal flow");
 
               if (integrations[obj.name] || integrations[obj.name] == undefined && integrations["All"]) {
-                obj[type](rudderElement);
+                if (!obj["isFailed"] || !obj["isFailed"]()) {
+                  obj[type](rudderElement);
+                }
               }
             });
           }
@@ -8184,6 +9060,10 @@ var rudderanalytics = (function (exports) {
           logger.setLogLevel(options.logLevel);
         }
 
+        if (options && options.valTrackingList && options.valTrackingList.push == Array.prototype.push) {
+          this.trackValues = options.valTrackingList;
+        }
+
         logger.debug("inside load ");
         this.eventRepository.writeKey = writeKey;
 
@@ -8191,7 +9071,15 @@ var rudderanalytics = (function (exports) {
           this.eventRepository.url = serverUrl;
         }
 
-        getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
+        try {
+          getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
+        } catch (error) {
+          handleError(error);
+
+          if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+            addDomEventHandlers(instance);
+          }
+        }
       }
     }]);
 

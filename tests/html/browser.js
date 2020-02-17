@@ -71,13 +71,13 @@ var rudderanalytics = (function (exports) {
       var source = arguments[i] != null ? arguments[i] : {};
 
       if (i % 2) {
-        ownKeys(Object(source), true).forEach(function (key) {
+        ownKeys(source, true).forEach(function (key) {
           _defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
       } else {
-        ownKeys(Object(source)).forEach(function (key) {
+        ownKeys(source).forEach(function (key) {
           Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
       }
@@ -110,19 +110,19 @@ var rudderanalytics = (function (exports) {
       LOG_LEVEL_DEBUG = 2,
       LOG_LEVEL_WARN = 3,
       LOG_LEVEL_ERROR = 4,
-      LOG_LEVEL = LOG_LEVEL_INFO;
+      LOG_LEVEL = LOG_LEVEL_ERROR;
   var logger = {
     setLogLevel: function setLogLevel(logLevel) {
       switch (logLevel.toUpperCase()) {
-        case "INFO":
+        case 'INFO':
           LOG_LEVEL = LOG_LEVEL_INFO;
           return;
 
-        case "DEBUG":
+        case 'DEBUG':
           LOG_LEVEL = LOG_LEVEL_DEBUG;
           return;
 
-        case "WARN":
+        case 'WARN':
           LOG_LEVEL = LOG_LEVEL_WARN;
           return;
       }
@@ -289,19 +289,49 @@ var rudderanalytics = (function (exports) {
 
   function getUrl(search) {
     var canonicalUrl = getCanonicalUrl();
-    var url = canonicalUrl ? canonicalUrl.indexOf('?') > -1 ? canonicalUrl : canonicalUrl + search : window.location.href;
-    var hashIndex = url.indexOf('#');
+    var url = canonicalUrl ? canonicalUrl.indexOf("?") > -1 ? canonicalUrl : canonicalUrl + search : window.location.href;
+    var hashIndex = url.indexOf("#");
     return hashIndex > -1 ? url.slice(0, hashIndex) : url;
   }
 
   function getCanonicalUrl() {
-    var tags = document.getElementsByTagName('link');
+    var tags = document.getElementsByTagName("link");
 
     for (var i = 0, tag; tag = tags[i]; i++) {
-      if (tag.getAttribute('rel') === 'canonical') {
-        return tag.getAttribute('href');
+      if (tag.getAttribute("rel") === "canonical") {
+        return tag.getAttribute("href");
       }
     }
+  }
+
+  function getCurrency(val) {
+    if (!val) return;
+
+    if (typeof val === "number") {
+      return val;
+    }
+
+    if (typeof val !== "string") {
+      return;
+    }
+
+    val = val.replace(/\$/g, "");
+    val = parseFloat(val);
+
+    if (!isNaN(val)) {
+      return val;
+    }
+  }
+
+  function getRevenue(properties, eventName) {
+    var revenue = properties.revenue;
+    var orderCompletedRegExp = /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i; // it's always revenue, unless it's called during an order completion.
+
+    if (!revenue && eventName && eventName.match(orderCompletedRegExp)) {
+      revenue = properties.total;
+    }
+
+    return getCurrency(revenue);
   }
 
   //Message Type enumeration
@@ -342,9 +372,9 @@ var rudderanalytics = (function (exports) {
     CART_SHARED: "Cart Shared",
     PRODUCT_REVIEWED: "Product Reviewed"
   }; //Enumeration for integrations supported
-  var BASE_URL = "http://localhost:8080/"; //"https://rudderlabs.com";
+  var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
 
-  var CONFIG_URL = "http://localhost:5000/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -980,6 +1010,197 @@ var rudderanalytics = (function (exports) {
     return GoogleTagManager;
   }();
 
+  /*
+  E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
+  */
+
+  var Braze =
+  /*#__PURE__*/
+  function () {
+    function Braze(config, analytics) {
+      _classCallCheck(this, Braze);
+
+      this.analytics = analytics;
+      this.appKey = config.appKey;
+      if (!config.appKey) this.appKey = '';
+      this.endPoint = '';
+
+      if (config.dataCenter) {
+        var dataCenterArr = config.dataCenter.trim().split('-');
+
+        if (dataCenterArr[0].toLowerCase() === 'eu') {
+          this.endPoint = 'sdk.fra-01.braze.eu';
+        } else {
+          this.endPoint = 'sdk.iad-' + dataCenterArr[1] + '.braze.com';
+        }
+      }
+
+      this.name = "BRAZE";
+      logger.debug("Config ", config);
+    }
+    /** https://js.appboycdn.com/web-sdk/latest/doc/ab.User.html#toc4
+     */
+
+
+    _createClass(Braze, [{
+      key: "formatGender",
+      value: function formatGender(gender) {
+        if (!gender) return;
+        if (typeof gender !== 'string') return;
+        var femaleGenders = ['woman', 'female', 'w', 'f'];
+        var maleGenders = ['man', 'male', 'm'];
+        var otherGenders = ['other', 'o'];
+        if (femaleGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.FEMALE;
+        if (maleGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.MALE;
+        if (otherGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.OTHER;
+      }
+    }, {
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Braze==="); //load appboy
+
+        +function (a, p, P, b, y) {
+          a.appboy = {};
+          a.appboyQueue = [];
+
+          for (var s = "initialize destroy getDeviceId toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates requestContentCardsRefresh subscribeToContentCardsUpdates logCardImpressions logCardClick logCardDismissal logFeedDisplayed logContentCardsDisplayed logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick logInAppMessageHtmlClick subscribeToNewInAppMessages subscribeToInAppMessage removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages trackLocation stopWebTracking resumeWebTracking wipeData ab ab.DeviceProperties ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setLanguage ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.User.prototype.addAlias ab.User.prototype.setCustomLocationAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.TextAlignment ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.prototype.closeMessage ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.HtmlMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.ContentCards ab.ContentCards.prototype.getUnviewedCardCount ab.Card ab.Card.prototype.dismissCard ab.ClassicCard ab.CaptionedImage ab.Banner ab.ControlCard ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed display.showContentCards display.hideContentCards display.toggleContentCards sharedLib".split(" "), i = 0; i < s.length; i++) {
+            for (var m = s[i], k = a.appboy, l = m.split("."), j = 0; j < l.length - 1; j++) {
+              k = k[l[j]];
+            }
+
+            k[l[j]] = new Function("return function " + m.replace(/\./g, "_") + "(){window.appboyQueue.push(arguments); return true}")();
+          }
+
+          window.appboy.getUser = function () {
+            return new window.appboy.ab.User();
+          };
+
+          window.appboy.getCachedFeed = function () {
+            return new window.appboy.ab.Feed();
+          };
+
+          window.appboy.getCachedContentCards = function () {
+            return new window.appboy.ab.ContentCards();
+          };
+
+          (y = p.createElement(P)).type = 'text/javascript';
+          y.src = 'https://js.appboycdn.com/web-sdk/2.4/appboy.min.js';
+          y.async = 1;
+          (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
+        }(window, document, 'script');
+        window.appboy.initialize(this.appKey, {
+          enableLogging: true,
+          baseUrl: this.endPoint
+        });
+        window.appboy.display.automaticallyShowNewInAppMessages();
+        var userId = this.analytics.userId; //send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser 
+
+        if (userId) appboy.changeUser(userId);
+        window.appboy.openSession();
+      }
+    }, {
+      key: "handleReservedProperties",
+      value: function handleReservedProperties(props) {
+        // remove reserved keys from custom event properties
+        // https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
+        var reserved = ['time', 'product_id', 'quantity', 'event_name', 'price', 'currency'];
+        reserved.forEach(function (element) {
+          delete props[element];
+        });
+        return props;
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        var userId = rudderElement.message.userId;
+        var address = rudderElement.message.context.traits.address;
+        var avatar = rudderElement.message.context.traits.avatar;
+        var birthday = rudderElement.message.context.traits.birthday;
+        var email = rudderElement.message.context.traits.email;
+        var firstname = rudderElement.message.context.traits.firstname;
+        var gender = rudderElement.message.context.traits.gender;
+        var lastname = rudderElement.message.context.traits.lastname;
+        var phone = rudderElement.message.context.traits.phone; // This is a hack to make a deep copy that is not recommended because it will often fail:
+
+        var traits = JSON.parse(JSON.stringify(rudderElement.message.context.traits));
+        window.appboy.changeUser(userId);
+        window.appboy.getUser().setAvatarImageUrl(avatar);
+        if (email) window.appboy.getUser().setEmail(email);
+        if (firstname) window.appboy.getUser().setFirstName(firstname);
+        if (gender) window.appboy.getUser().setGender(this.formatGender(gender));
+        if (lastname) window.appboy.getUser().setLastName(lastname);
+        if (phone) window.appboy.getUser().setPhoneNumber(phone);
+
+        if (address) {
+          window.appboy.getUser().setCountry(address.country);
+          window.appboy.getUser().setHomeCity(address.city);
+        }
+
+        if (birthday) {
+          window.appboy.getUser().setDateOfBirth(birthday.getUTCFullYear(), birthday.getUTCMonth() + 1, birthday.getUTCDate());
+        } // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
+
+
+        var reserved = ['avatar', 'address', 'birthday', 'email', 'id', 'firstname', 'gender', 'lastname', 'phone', 'facebook', 'twitter', 'first_name', 'last_name', 'dob', 'external_id', 'country', 'home_city', 'bio', 'gender', 'phone', 'email_subscribe', 'push_subscribe'];
+        reserved.forEach(function (element) {
+          delete traits[element];
+        });
+        Object.keys(traits).forEach(function (key) {
+          window.appboy.getUser().setCustomUserAttribute(key, traits[key]);
+        });
+      }
+    }, {
+      key: "handlePurchase",
+      value: function handlePurchase(properties, userId) {
+        var products = properties.products;
+        var currencyCode = properties.currency;
+        window.appboy.changeUser(userId); // del used properties
+
+        del(properties, 'products');
+        del(properties, 'currency'); // we have to make a separate call to appboy for each product
+
+        products.forEach(function (product) {
+          var productId = product.product_id;
+          var price = product.price;
+          var quantity = product.quantity;
+          if (quantity && price && productId) window.appboy.logPurchase(productId, price, currencyCode, quantity, properties);
+        });
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var userId = rudderElement.message.userId;
+        var eventName = rudderElement.message.event;
+        var properties = rudderElement.message.properties;
+        window.appboy.changeUser(userId);
+
+        if (eventName.toLowerCase() === 'order completed') {
+          this.handlePurchase(properties, userId);
+        } else {
+          properties = this.handleReservedProperties(properties);
+          window.appboy.logCustomEvent(eventName, properties);
+        }
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        var userId = rudderElement.message.userId;
+        var eventName = rudderElement.message.name;
+        var properties = rudderElement.message.properties;
+        properties = this.handleReservedProperties(properties);
+        window.appboy.changeUser(userId);
+        window.appboy.logCustomEvent(eventName, properties);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return window.appboyQueue === null;
+      }
+    }]);
+
+    return Braze;
+  }();
+
   var INTERCOM =
   /*#__PURE__*/
   function () {
@@ -989,7 +1210,7 @@ var rudderanalytics = (function (exports) {
       this.NAME = "INTERCOM";
       this.API_KEY = config.apiKey;
       this.APP_ID = config.appId;
-      this.MOBILE_API_KEY = config.mobileAppId;
+      this.MOBILE_APP_ID = config.mobileAppId;
       logger.debug("Config ", config);
     }
 
@@ -1043,23 +1264,18 @@ var rudderanalytics = (function (exports) {
             }
           }
         })();
-
-        window.INTERCOM = Intercom;
       }
     }, {
       key: "page",
       value: function page() {
         // Get new messages of the current user
-        window.INTERCOM("update");
+        window.Intercom("update");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        console.log("intercom identify");
-        console.log(rudderElement);
         var rawPayload = {};
-        var context = rudderElement.message.context; // identity verification
-
+        var context = rudderElement.message.context;
         var identityVerificationProps = context.Intercom ? context.Intercom : null;
 
         if (identityVerificationProps != null) {
@@ -1071,10 +1287,12 @@ var rudderanalytics = (function (exports) {
           } // hide default launcher
 
 
-          var hideDefaultLauncher = context.Intercom.hideDefaultLauncher ? context.Intercom.hideDefaultLauncher : null; // if(hideDefaultLauncher!= null){
-          //   rawPayload.hideDefaultLauncher = ;
-          // }
-        } // Map rudder properties payload to intercom's paylod
+          var hideDefaultLauncher = context.Intercom.hideDefaultLauncher ? context.Intercom.hideDefaultLauncher : null;
+
+          if (hideDefaultLauncher != null) {
+            rawPayload.hide_default_launcher = hideDefaultLauncher;
+          }
+        } // map rudderPayload to desired
 
 
         Object.keys(context.traits).forEach(function (field) {
@@ -1110,43 +1328,24 @@ var rudderanalytics = (function (exports) {
             case "anonymousId":
               rawPayload["user_id"] = value;
               break;
+
+            default:
+              break;
           }
         });
-        console.log(rawPayload);
+        rawPayload.user_id = rudderElement.message.userId;
         window.Intercom("update", rawPayload);
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
-        // Track events
-        console.log("intercom track", rudderElement);
         var rawPayload = {};
         var message = rudderElement.message;
-        var properties = message.properties ? Object.keys(message.properties) : null; // udpate properties
-
-        if (properties) {
-          properties.forEach(function (property) {
-            var value = message.properties[property]; // customAttributes[property] = value;
-            // switch (property) {
-            //   case "price":
-            //     metadata.price["amount"] = value * 100;
-            //     break;
-            //   case "currency":
-            //     metadata.price["currency"] = value;
-            //   default:
-            //     break;
-            // }
-            // switch (property) {
-            //   case "order_ID" || "order_url":
-            //     metadata.order_number["value"] = value;
-            //     break;
-            //   default:
-            //     break;
-            // }
-
-            rawPayload[property] = value;
-          });
-        }
+        var properties = message.properties ? Object.keys(message.properties) : null;
+        properties.forEach(function (property) {
+          var value = message.properties[property];
+          rawPayload[property] = value;
+        });
 
         if (message.event) {
           rawPayload.event_name = message.event;
@@ -1154,19 +1353,2392 @@ var rudderanalytics = (function (exports) {
 
         rawPayload.user_id = message.userId ? message.userId : message.anonymousId;
         rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000);
-        console.log("intercom end", rawPayload); // final call to intercom
-
         window.Intercom("trackEvent", rawPayload.event_name, rawPayload);
       }
     }, {
       key: "isLoaded",
       value: function isLoaded() {
-        console.log("Intercom loaded", !!window.intercom_code);
         return !!window.intercom_code;
       }
     }]);
 
     return INTERCOM;
+  }();
+
+  var Keen =
+  /*#__PURE__*/
+  function () {
+    function Keen(config) {
+      _classCallCheck(this, Keen);
+
+      this.projectID = config.projectID;
+      this.writeKey = config.writeKey;
+      this.ipAddon = config.ipAddon;
+      this.uaAddon = config.uaAddon;
+      this.urlAddon = config.urlAddon;
+      this.referrerAddon = config.referrerAddon;
+      this.client = null;
+      this.name = "KEEN";
+    }
+
+    _createClass(Keen, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Keen===");
+        ScriptLoader("keen-integration", 'https://cdn.jsdelivr.net/npm/keen-tracking@4');
+        var check = setInterval(checkAndInitKeen.bind(this), 1000);
+
+        function initKeen(object) {
+          object.client = new window.KeenTracking({
+            projectId: object.projectID,
+            writeKey: object.writeKey
+          });
+          return object.client;
+        }
+
+        function checkAndInitKeen() {
+          if (window.KeenTracking !== undefined && window.KeenTracking !== void 0) {
+            this.client = initKeen(this);
+            clearInterval(check);
+          }
+        }
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Keen identify");
+        var traits = rudderElement.message.context.traits;
+        var userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
+        var properties = rudderElement.message.properties ? Object.assign(properties, rudderElement.message.properties) : {};
+        properties.user = {
+          userId: userId,
+          traits: traits
+        };
+        properties = this.getAddOn(properties);
+        this.client.extendEvents(properties);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in Keen track");
+        var event = rudderElement.message.event;
+        var properties = rudderElement.message.properties;
+        properties = this.getAddOn(properties);
+        this.client.recordEvent(event, properties);
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in Keen page");
+        var pageName = rudderElement.message.name;
+        var pageCategory = rudderElement.message.properties ? rudderElement.message.properties.category : undefined;
+        var name = "Loaded a Page";
+
+        if (pageName) {
+          name = "Viewed " + pageName + " page";
+        }
+
+        if (pageCategory && pageName) {
+          name = "Viewed " + pageCategory + " " + pageName + " page";
+        }
+
+        var properties = rudderElement.message.properties;
+        properties = this.getAddOn(properties);
+        this.client.recordEvent(name, properties);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in Keen isLoaded");
+        return !!(this.client != null);
+      }
+    }, {
+      key: "getAddOn",
+      value: function getAddOn(properties) {
+        var addOns = [];
+
+        if (this.ipAddon) {
+          properties.ip_address = '${keen.ip}';
+          addOns.push({
+            name: 'keen:ip_to_geo',
+            input: {
+              ip: 'ip_address'
+            },
+            output: 'ip_geo_info'
+          });
+        }
+
+        if (this.uaAddon) {
+          properties.user_agent = '${keen.user_agent}';
+          addOns.push({
+            name: 'keen:ua_parser',
+            input: {
+              ua_string: 'user_agent'
+            },
+            output: 'parsed_user_agent'
+          });
+        }
+
+        if (this.urlAddon) {
+          properties.page_url = document.location.href;
+          addOns.push({
+            name: 'keen:url_parser',
+            input: {
+              url: 'page_url'
+            },
+            output: 'parsed_page_url'
+          });
+        }
+
+        if (this.referrerAddon) {
+          properties.page_url = document.location.href;
+          properties.referrer_url = document.referrer;
+          addOns.push({
+            name: 'keen:referrer_parser',
+            input: {
+              referrer_url: 'referrer_url',
+              page_url: 'page_url'
+            },
+            output: 'referrer_info'
+          });
+        }
+
+        properties.keen = {
+          addons: addOns
+        };
+        return properties;
+      }
+    }]);
+
+    return Keen;
+  }();
+
+  /* globals window, HTMLElement */
+
+  /**!
+   * is
+   * the definitive JavaScript type testing library
+   *
+   * @copyright 2013-2014 Enrico Marino / Jordan Harband
+   * @license MIT
+   */
+
+  var objProto = Object.prototype;
+  var owns = objProto.hasOwnProperty;
+  var toStr = objProto.toString;
+  var symbolValueOf;
+  if (typeof Symbol === 'function') {
+    symbolValueOf = Symbol.prototype.valueOf;
+  }
+  var bigIntValueOf;
+  if (typeof BigInt === 'function') {
+    bigIntValueOf = BigInt.prototype.valueOf;
+  }
+  var isActualNaN = function (value) {
+    return value !== value;
+  };
+  var NON_HOST_TYPES = {
+    'boolean': 1,
+    number: 1,
+    string: 1,
+    undefined: 1
+  };
+
+  var base64Regex = /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$/;
+  var hexRegex = /^[A-Fa-f0-9]+$/;
+
+  /**
+   * Expose `is`
+   */
+
+  var is = {};
+
+  /**
+   * Test general.
+   */
+
+  /**
+   * is.type
+   * Test if `value` is a type of `type`.
+   *
+   * @param {*} value value to test
+   * @param {String} type type
+   * @return {Boolean} true if `value` is a type of `type`, false otherwise
+   * @api public
+   */
+
+  is.a = is.type = function (value, type) {
+    return typeof value === type;
+  };
+
+  /**
+   * is.defined
+   * Test if `value` is defined.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if 'value' is defined, false otherwise
+   * @api public
+   */
+
+  is.defined = function (value) {
+    return typeof value !== 'undefined';
+  };
+
+  /**
+   * is.empty
+   * Test if `value` is empty.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is empty, false otherwise
+   * @api public
+   */
+
+  is.empty = function (value) {
+    var type = toStr.call(value);
+    var key;
+
+    if (type === '[object Array]' || type === '[object Arguments]' || type === '[object String]') {
+      return value.length === 0;
+    }
+
+    if (type === '[object Object]') {
+      for (key in value) {
+        if (owns.call(value, key)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    return !value;
+  };
+
+  /**
+   * is.equal
+   * Test if `value` is equal to `other`.
+   *
+   * @param {*} value value to test
+   * @param {*} other value to compare with
+   * @return {Boolean} true if `value` is equal to `other`, false otherwise
+   */
+
+  is.equal = function equal(value, other) {
+    if (value === other) {
+      return true;
+    }
+
+    var type = toStr.call(value);
+    var key;
+
+    if (type !== toStr.call(other)) {
+      return false;
+    }
+
+    if (type === '[object Object]') {
+      for (key in value) {
+        if (!is.equal(value[key], other[key]) || !(key in other)) {
+          return false;
+        }
+      }
+      for (key in other) {
+        if (!is.equal(value[key], other[key]) || !(key in value)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    if (type === '[object Array]') {
+      key = value.length;
+      if (key !== other.length) {
+        return false;
+      }
+      while (key--) {
+        if (!is.equal(value[key], other[key])) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    if (type === '[object Function]') {
+      return value.prototype === other.prototype;
+    }
+
+    if (type === '[object Date]') {
+      return value.getTime() === other.getTime();
+    }
+
+    return false;
+  };
+
+  /**
+   * is.hosted
+   * Test if `value` is hosted by `host`.
+   *
+   * @param {*} value to test
+   * @param {*} host host to test with
+   * @return {Boolean} true if `value` is hosted by `host`, false otherwise
+   * @api public
+   */
+
+  is.hosted = function (value, host) {
+    var type = typeof host[value];
+    return type === 'object' ? !!host[value] : !NON_HOST_TYPES[type];
+  };
+
+  /**
+   * is.instance
+   * Test if `value` is an instance of `constructor`.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is an instance of `constructor`
+   * @api public
+   */
+
+  is.instance = is['instanceof'] = function (value, constructor) {
+    return value instanceof constructor;
+  };
+
+  /**
+   * is.nil / is.null
+   * Test if `value` is null.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is null, false otherwise
+   * @api public
+   */
+
+  is.nil = is['null'] = function (value) {
+    return value === null;
+  };
+
+  /**
+   * is.undef / is.undefined
+   * Test if `value` is undefined.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is undefined, false otherwise
+   * @api public
+   */
+
+  is.undef = is.undefined = function (value) {
+    return typeof value === 'undefined';
+  };
+
+  /**
+   * Test arguments.
+   */
+
+  /**
+   * is.args
+   * Test if `value` is an arguments object.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is an arguments object, false otherwise
+   * @api public
+   */
+
+  is.args = is.arguments = function (value) {
+    var isStandardArguments = toStr.call(value) === '[object Arguments]';
+    var isOldArguments = !is.array(value) && is.arraylike(value) && is.object(value) && is.fn(value.callee);
+    return isStandardArguments || isOldArguments;
+  };
+
+  /**
+   * Test array.
+   */
+
+  /**
+   * is.array
+   * Test if 'value' is an array.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is an array, false otherwise
+   * @api public
+   */
+
+  is.array = Array.isArray || function (value) {
+    return toStr.call(value) === '[object Array]';
+  };
+
+  /**
+   * is.arguments.empty
+   * Test if `value` is an empty arguments object.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is an empty arguments object, false otherwise
+   * @api public
+   */
+  is.args.empty = function (value) {
+    return is.args(value) && value.length === 0;
+  };
+
+  /**
+   * is.array.empty
+   * Test if `value` is an empty array.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is an empty array, false otherwise
+   * @api public
+   */
+  is.array.empty = function (value) {
+    return is.array(value) && value.length === 0;
+  };
+
+  /**
+   * is.arraylike
+   * Test if `value` is an arraylike object.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is an arguments object, false otherwise
+   * @api public
+   */
+
+  is.arraylike = function (value) {
+    return !!value && !is.bool(value)
+      && owns.call(value, 'length')
+      && isFinite(value.length)
+      && is.number(value.length)
+      && value.length >= 0;
+  };
+
+  /**
+   * Test boolean.
+   */
+
+  /**
+   * is.bool
+   * Test if `value` is a boolean.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is a boolean, false otherwise
+   * @api public
+   */
+
+  is.bool = is['boolean'] = function (value) {
+    return toStr.call(value) === '[object Boolean]';
+  };
+
+  /**
+   * is.false
+   * Test if `value` is false.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is false, false otherwise
+   * @api public
+   */
+
+  is['false'] = function (value) {
+    return is.bool(value) && Boolean(Number(value)) === false;
+  };
+
+  /**
+   * is.true
+   * Test if `value` is true.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is true, false otherwise
+   * @api public
+   */
+
+  is['true'] = function (value) {
+    return is.bool(value) && Boolean(Number(value)) === true;
+  };
+
+  /**
+   * Test date.
+   */
+
+  /**
+   * is.date
+   * Test if `value` is a date.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is a date, false otherwise
+   * @api public
+   */
+
+  is.date = function (value) {
+    return toStr.call(value) === '[object Date]';
+  };
+
+  /**
+   * is.date.valid
+   * Test if `value` is a valid date.
+   *
+   * @param {*} value value to test
+   * @returns {Boolean} true if `value` is a valid date, false otherwise
+   */
+  is.date.valid = function (value) {
+    return is.date(value) && !isNaN(Number(value));
+  };
+
+  /**
+   * Test element.
+   */
+
+  /**
+   * is.element
+   * Test if `value` is an html element.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is an HTML Element, false otherwise
+   * @api public
+   */
+
+  is.element = function (value) {
+    return value !== undefined
+      && typeof HTMLElement !== 'undefined'
+      && value instanceof HTMLElement
+      && value.nodeType === 1;
+  };
+
+  /**
+   * Test error.
+   */
+
+  /**
+   * is.error
+   * Test if `value` is an error object.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is an error object, false otherwise
+   * @api public
+   */
+
+  is.error = function (value) {
+    return toStr.call(value) === '[object Error]';
+  };
+
+  /**
+   * Test function.
+   */
+
+  /**
+   * is.fn / is.function (deprecated)
+   * Test if `value` is a function.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is a function, false otherwise
+   * @api public
+   */
+
+  is.fn = is['function'] = function (value) {
+    var isAlert = typeof window !== 'undefined' && value === window.alert;
+    if (isAlert) {
+      return true;
+    }
+    var str = toStr.call(value);
+    return str === '[object Function]' || str === '[object GeneratorFunction]' || str === '[object AsyncFunction]';
+  };
+
+  /**
+   * Test number.
+   */
+
+  /**
+   * is.number
+   * Test if `value` is a number.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is a number, false otherwise
+   * @api public
+   */
+
+  is.number = function (value) {
+    return toStr.call(value) === '[object Number]';
+  };
+
+  /**
+   * is.infinite
+   * Test if `value` is positive or negative infinity.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is positive or negative Infinity, false otherwise
+   * @api public
+   */
+  is.infinite = function (value) {
+    return value === Infinity || value === -Infinity;
+  };
+
+  /**
+   * is.decimal
+   * Test if `value` is a decimal number.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is a decimal number, false otherwise
+   * @api public
+   */
+
+  is.decimal = function (value) {
+    return is.number(value) && !isActualNaN(value) && !is.infinite(value) && value % 1 !== 0;
+  };
+
+  /**
+   * is.divisibleBy
+   * Test if `value` is divisible by `n`.
+   *
+   * @param {Number} value value to test
+   * @param {Number} n dividend
+   * @return {Boolean} true if `value` is divisible by `n`, false otherwise
+   * @api public
+   */
+
+  is.divisibleBy = function (value, n) {
+    var isDividendInfinite = is.infinite(value);
+    var isDivisorInfinite = is.infinite(n);
+    var isNonZeroNumber = is.number(value) && !isActualNaN(value) && is.number(n) && !isActualNaN(n) && n !== 0;
+    return isDividendInfinite || isDivisorInfinite || (isNonZeroNumber && value % n === 0);
+  };
+
+  /**
+   * is.integer
+   * Test if `value` is an integer.
+   *
+   * @param value to test
+   * @return {Boolean} true if `value` is an integer, false otherwise
+   * @api public
+   */
+
+  is.integer = is['int'] = function (value) {
+    return is.number(value) && !isActualNaN(value) && value % 1 === 0;
+  };
+
+  /**
+   * is.maximum
+   * Test if `value` is greater than 'others' values.
+   *
+   * @param {Number} value value to test
+   * @param {Array} others values to compare with
+   * @return {Boolean} true if `value` is greater than `others` values
+   * @api public
+   */
+
+  is.maximum = function (value, others) {
+    if (isActualNaN(value)) {
+      throw new TypeError('NaN is not a valid value');
+    } else if (!is.arraylike(others)) {
+      throw new TypeError('second argument must be array-like');
+    }
+    var len = others.length;
+
+    while (--len >= 0) {
+      if (value < others[len]) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  /**
+   * is.minimum
+   * Test if `value` is less than `others` values.
+   *
+   * @param {Number} value value to test
+   * @param {Array} others values to compare with
+   * @return {Boolean} true if `value` is less than `others` values
+   * @api public
+   */
+
+  is.minimum = function (value, others) {
+    if (isActualNaN(value)) {
+      throw new TypeError('NaN is not a valid value');
+    } else if (!is.arraylike(others)) {
+      throw new TypeError('second argument must be array-like');
+    }
+    var len = others.length;
+
+    while (--len >= 0) {
+      if (value > others[len]) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  /**
+   * is.nan
+   * Test if `value` is not a number.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is not a number, false otherwise
+   * @api public
+   */
+
+  is.nan = function (value) {
+    return !is.number(value) || value !== value;
+  };
+
+  /**
+   * is.even
+   * Test if `value` is an even number.
+   *
+   * @param {Number} value value to test
+   * @return {Boolean} true if `value` is an even number, false otherwise
+   * @api public
+   */
+
+  is.even = function (value) {
+    return is.infinite(value) || (is.number(value) && value === value && value % 2 === 0);
+  };
+
+  /**
+   * is.odd
+   * Test if `value` is an odd number.
+   *
+   * @param {Number} value value to test
+   * @return {Boolean} true if `value` is an odd number, false otherwise
+   * @api public
+   */
+
+  is.odd = function (value) {
+    return is.infinite(value) || (is.number(value) && value === value && value % 2 !== 0);
+  };
+
+  /**
+   * is.ge
+   * Test if `value` is greater than or equal to `other`.
+   *
+   * @param {Number} value value to test
+   * @param {Number} other value to compare with
+   * @return {Boolean}
+   * @api public
+   */
+
+  is.ge = function (value, other) {
+    if (isActualNaN(value) || isActualNaN(other)) {
+      throw new TypeError('NaN is not a valid value');
+    }
+    return !is.infinite(value) && !is.infinite(other) && value >= other;
+  };
+
+  /**
+   * is.gt
+   * Test if `value` is greater than `other`.
+   *
+   * @param {Number} value value to test
+   * @param {Number} other value to compare with
+   * @return {Boolean}
+   * @api public
+   */
+
+  is.gt = function (value, other) {
+    if (isActualNaN(value) || isActualNaN(other)) {
+      throw new TypeError('NaN is not a valid value');
+    }
+    return !is.infinite(value) && !is.infinite(other) && value > other;
+  };
+
+  /**
+   * is.le
+   * Test if `value` is less than or equal to `other`.
+   *
+   * @param {Number} value value to test
+   * @param {Number} other value to compare with
+   * @return {Boolean} if 'value' is less than or equal to 'other'
+   * @api public
+   */
+
+  is.le = function (value, other) {
+    if (isActualNaN(value) || isActualNaN(other)) {
+      throw new TypeError('NaN is not a valid value');
+    }
+    return !is.infinite(value) && !is.infinite(other) && value <= other;
+  };
+
+  /**
+   * is.lt
+   * Test if `value` is less than `other`.
+   *
+   * @param {Number} value value to test
+   * @param {Number} other value to compare with
+   * @return {Boolean} if `value` is less than `other`
+   * @api public
+   */
+
+  is.lt = function (value, other) {
+    if (isActualNaN(value) || isActualNaN(other)) {
+      throw new TypeError('NaN is not a valid value');
+    }
+    return !is.infinite(value) && !is.infinite(other) && value < other;
+  };
+
+  /**
+   * is.within
+   * Test if `value` is within `start` and `finish`.
+   *
+   * @param {Number} value value to test
+   * @param {Number} start lower bound
+   * @param {Number} finish upper bound
+   * @return {Boolean} true if 'value' is is within 'start' and 'finish'
+   * @api public
+   */
+  is.within = function (value, start, finish) {
+    if (isActualNaN(value) || isActualNaN(start) || isActualNaN(finish)) {
+      throw new TypeError('NaN is not a valid value');
+    } else if (!is.number(value) || !is.number(start) || !is.number(finish)) {
+      throw new TypeError('all arguments must be numbers');
+    }
+    var isAnyInfinite = is.infinite(value) || is.infinite(start) || is.infinite(finish);
+    return isAnyInfinite || (value >= start && value <= finish);
+  };
+
+  /**
+   * Test object.
+   */
+
+  /**
+   * is.object
+   * Test if `value` is an object.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is an object, false otherwise
+   * @api public
+   */
+  is.object = function (value) {
+    return toStr.call(value) === '[object Object]';
+  };
+
+  /**
+   * is.primitive
+   * Test if `value` is a primitive.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is a primitive, false otherwise
+   * @api public
+   */
+  is.primitive = function isPrimitive(value) {
+    if (!value) {
+      return true;
+    }
+    if (typeof value === 'object' || is.object(value) || is.fn(value) || is.array(value)) {
+      return false;
+    }
+    return true;
+  };
+
+  /**
+   * is.hash
+   * Test if `value` is a hash - a plain object literal.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is a hash, false otherwise
+   * @api public
+   */
+
+  is.hash = function (value) {
+    return is.object(value) && value.constructor === Object && !value.nodeType && !value.setInterval;
+  };
+
+  /**
+   * Test regexp.
+   */
+
+  /**
+   * is.regexp
+   * Test if `value` is a regular expression.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is a regexp, false otherwise
+   * @api public
+   */
+
+  is.regexp = function (value) {
+    return toStr.call(value) === '[object RegExp]';
+  };
+
+  /**
+   * Test string.
+   */
+
+  /**
+   * is.string
+   * Test if `value` is a string.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if 'value' is a string, false otherwise
+   * @api public
+   */
+
+  is.string = function (value) {
+    return toStr.call(value) === '[object String]';
+  };
+
+  /**
+   * Test base64 string.
+   */
+
+  /**
+   * is.base64
+   * Test if `value` is a valid base64 encoded string.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if 'value' is a base64 encoded string, false otherwise
+   * @api public
+   */
+
+  is.base64 = function (value) {
+    return is.string(value) && (!value.length || base64Regex.test(value));
+  };
+
+  /**
+   * Test base64 string.
+   */
+
+  /**
+   * is.hex
+   * Test if `value` is a valid hex encoded string.
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if 'value' is a hex encoded string, false otherwise
+   * @api public
+   */
+
+  is.hex = function (value) {
+    return is.string(value) && (!value.length || hexRegex.test(value));
+  };
+
+  /**
+   * is.symbol
+   * Test if `value` is an ES6 Symbol
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is a Symbol, false otherise
+   * @api public
+   */
+
+  is.symbol = function (value) {
+    return typeof Symbol === 'function' && toStr.call(value) === '[object Symbol]' && typeof symbolValueOf.call(value) === 'symbol';
+  };
+
+  /**
+   * is.bigint
+   * Test if `value` is an ES-proposed BigInt
+   *
+   * @param {*} value value to test
+   * @return {Boolean} true if `value` is a BigInt, false otherise
+   * @api public
+   */
+
+  is.bigint = function (value) {
+    // eslint-disable-next-line valid-typeof
+    return typeof BigInt === 'function' && toStr.call(value) === '[object BigInt]' && typeof bigIntValueOf.call(value) === 'bigint';
+  };
+
+  var is_1 = is;
+
+  var has = Object.prototype.hasOwnProperty;
+
+  /**
+   * Copy the properties of one or more `objects` onto a destination object. Input objects are iterated over
+   * in left-to-right order, so duplicate properties on later objects will overwrite those from
+   * erevious ones. Only enumerable and own properties of the input objects are copied onto the
+   * resulting object.
+   *
+   * @name extend
+   * @api public
+   * @category Object
+   * @param {Object} dest The destination object.
+   * @param {...Object} sources The source objects.
+   * @return {Object} `dest`, extended with the properties of all `sources`.
+   * @example
+   * var a = { a: 'a' };
+   * var b = { b: 'b' };
+   * var c = { c: 'c' };
+   *
+   * extend(a, b, c);
+   * //=> { a: 'a', b: 'b', c: 'c' };
+   */
+  var extend = function extend(dest /*, sources */) {
+    var sources = Array.prototype.slice.call(arguments, 1);
+
+    for (var i = 0; i < sources.length; i += 1) {
+      for (var key in sources[i]) {
+        if (has.call(sources[i], key)) {
+          dest[key] = sources[i][key];
+        }
+      }
+    }
+
+    return dest;
+  };
+
+  /*
+   * Exports.
+   */
+
+  var extend_1 = extend;
+
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
+
+  var objCase = createCommonjsModule(function (module) {
+
+
+  /**
+   * Module exports, export
+   */
+
+  module.exports = multiple(find);
+  module.exports.find = module.exports;
+
+
+  /**
+   * Export the replacement function, return the modified object
+   */
+
+  module.exports.replace = function (obj, key, val, options) {
+    multiple(replace).call(this, obj, key, val, options);
+    return obj;
+  };
+
+
+  /**
+   * Export the delete function, return the modified object
+   */
+
+  module.exports.del = function (obj, key, options) {
+    multiple(del).call(this, obj, key, null, options);
+    return obj;
+  };
+
+
+  /**
+   * Compose applying the function to a nested key
+   */
+
+  function multiple (fn) {
+    return function (obj, path, val, options) {
+      normalize = options && isFunction(options.normalizer) ? options.normalizer : defaultNormalize;
+      path = normalize(path);
+
+      var key;
+      var finished = false;
+
+      while (!finished) loop();
+
+      function loop() {
+        for (key in obj) {
+          var normalizedKey = normalize(key);
+          if (0 === path.indexOf(normalizedKey)) {
+            var temp = path.substr(normalizedKey.length);
+            if (temp.charAt(0) === '.' || temp.length === 0) {
+              path = temp.substr(1);
+              var child = obj[key];
+
+              // we're at the end and there is nothing.
+              if (null == child) {
+                finished = true;
+                return;
+              }
+
+              // we're at the end and there is something.
+              if (!path.length) {
+                finished = true;
+                return;
+              }
+
+              // step into child
+              obj = child;
+
+              // but we're done here
+              return;
+            }
+          }
+        }
+
+        key = undefined;
+        // if we found no matching properties
+        // on the current object, there's no match.
+        finished = true;
+      }
+
+      if (!key) return;
+      if (null == obj) return obj;
+
+      // the `obj` and `key` is one above the leaf object and key, so
+      // start object: { a: { 'b.c': 10 } }
+      // end object: { 'b.c': 10 }
+      // end key: 'b.c'
+      // this way, you can do `obj[key]` and get `10`.
+      return fn(obj, key, val);
+    };
+  }
+
+
+  /**
+   * Find an object by its key
+   *
+   * find({ first_name : 'Calvin' }, 'firstName')
+   */
+
+  function find (obj, key) {
+    if (obj.hasOwnProperty(key)) return obj[key];
+  }
+
+
+  /**
+   * Delete a value for a given key
+   *
+   * del({ a : 'b', x : 'y' }, 'X' }) -> { a : 'b' }
+   */
+
+  function del (obj, key) {
+    if (obj.hasOwnProperty(key)) delete obj[key];
+    return obj;
+  }
+
+
+  /**
+   * Replace an objects existing value with a new one
+   *
+   * replace({ a : 'b' }, 'a', 'c') -> { a : 'c' }
+   */
+
+  function replace (obj, key, val) {
+    if (obj.hasOwnProperty(key)) obj[key] = val;
+    return obj;
+  }
+
+  /**
+   * Normalize a `dot.separated.path`.
+   *
+   * A.HELL(!*&#(!)O_WOR   LD.bar => ahelloworldbar
+   *
+   * @param {String} path
+   * @return {String}
+   */
+
+  function defaultNormalize(path) {
+    return path.replace(/[^a-zA-Z0-9\.]+/g, '').toLowerCase();
+  }
+
+  /**
+   * Check if a value is a function.
+   *
+   * @param {*} val
+   * @return {boolean} Returns `true` if `val` is a function, otherwise `false`.
+   */
+
+  function isFunction(val) {
+    return typeof val === 'function';
+  }
+  });
+  var objCase_1 = objCase.find;
+  var objCase_2 = objCase.replace;
+  var objCase_3 = objCase.del;
+
+  /**
+   * toString ref.
+   */
+
+  var toString$1 = Object.prototype.toString;
+
+  /**
+   * Return the type of `val`.
+   *
+   * @param {Mixed} val
+   * @return {String}
+   * @api public
+   */
+
+  var componentType = function(val){
+    switch (toString$1.call(val)) {
+      case '[object Function]': return 'function';
+      case '[object Date]': return 'date';
+      case '[object RegExp]': return 'regexp';
+      case '[object Arguments]': return 'arguments';
+      case '[object Array]': return 'array';
+      case '[object String]': return 'string';
+    }
+
+    if (val === null) return 'null';
+    if (val === undefined) return 'undefined';
+    if (val && val.nodeType === 1) return 'element';
+    if (val === Object(val)) return 'object';
+
+    return typeof val;
+  };
+
+  /**
+   * Global Names
+   */
+
+  var globals = /\b(Array|Date|Object|Math|JSON)\b/g;
+
+  /**
+   * Return immediate identifiers parsed from `str`.
+   *
+   * @param {String} str
+   * @param {String|Function} map function or prefix
+   * @return {Array}
+   * @api public
+   */
+
+  var componentProps = function(str, fn){
+    var p = unique(props(str));
+    if (fn && 'string' == typeof fn) fn = prefixed(fn);
+    if (fn) return map(str, p, fn);
+    return p;
+  };
+
+  /**
+   * Return immediate identifiers in `str`.
+   *
+   * @param {String} str
+   * @return {Array}
+   * @api private
+   */
+
+  function props(str) {
+    return str
+      .replace(/\.\w+|\w+ *\(|"[^"]*"|'[^']*'|\/([^/]+)\//g, '')
+      .replace(globals, '')
+      .match(/[a-zA-Z_]\w*/g)
+      || [];
+  }
+
+  /**
+   * Return `str` with `props` mapped with `fn`.
+   *
+   * @param {String} str
+   * @param {Array} props
+   * @param {Function} fn
+   * @return {String}
+   * @api private
+   */
+
+  function map(str, props, fn) {
+    var re = /\.\w+|\w+ *\(|"[^"]*"|'[^']*'|\/([^/]+)\/|[a-zA-Z_]\w*/g;
+    return str.replace(re, function(_){
+      if ('(' == _[_.length - 1]) return fn(_);
+      if (!~props.indexOf(_)) return _;
+      return fn(_);
+    });
+  }
+
+  /**
+   * Return unique array.
+   *
+   * @param {Array} arr
+   * @return {Array}
+   * @api private
+   */
+
+  function unique(arr) {
+    var ret = [];
+
+    for (var i = 0; i < arr.length; i++) {
+      if (~ret.indexOf(arr[i])) continue;
+      ret.push(arr[i]);
+    }
+
+    return ret;
+  }
+
+  /**
+   * Map with prefix `str`.
+   */
+
+  function prefixed(str) {
+    return function(_){
+      return str + _;
+    };
+  }
+
+  /**
+   * Module Dependencies
+   */
+
+  var expr;
+  try {
+    expr = componentProps;
+  } catch(e) {
+    expr = componentProps;
+  }
+
+  /**
+   * Expose `toFunction()`.
+   */
+
+  var toFunction_1 = toFunction;
+
+  /**
+   * Convert `obj` to a `Function`.
+   *
+   * @param {Mixed} obj
+   * @return {Function}
+   * @api private
+   */
+
+  function toFunction(obj) {
+    switch ({}.toString.call(obj)) {
+      case '[object Object]':
+        return objectToFunction(obj);
+      case '[object Function]':
+        return obj;
+      case '[object String]':
+        return stringToFunction(obj);
+      case '[object RegExp]':
+        return regexpToFunction(obj);
+      default:
+        return defaultToFunction(obj);
+    }
+  }
+
+  /**
+   * Default to strict equality.
+   *
+   * @param {Mixed} val
+   * @return {Function}
+   * @api private
+   */
+
+  function defaultToFunction(val) {
+    return function(obj){
+      return val === obj;
+    };
+  }
+
+  /**
+   * Convert `re` to a function.
+   *
+   * @param {RegExp} re
+   * @return {Function}
+   * @api private
+   */
+
+  function regexpToFunction(re) {
+    return function(obj){
+      return re.test(obj);
+    };
+  }
+
+  /**
+   * Convert property `str` to a function.
+   *
+   * @param {String} str
+   * @return {Function}
+   * @api private
+   */
+
+  function stringToFunction(str) {
+    // immediate such as "> 20"
+    if (/^ *\W+/.test(str)) return new Function('_', 'return _ ' + str);
+
+    // properties such as "name.first" or "age > 18" or "age > 18 && age < 36"
+    return new Function('_', 'return ' + get(str));
+  }
+
+  /**
+   * Convert `object` to a function.
+   *
+   * @param {Object} object
+   * @return {Function}
+   * @api private
+   */
+
+  function objectToFunction(obj) {
+    var match = {};
+    for (var key in obj) {
+      match[key] = typeof obj[key] === 'string'
+        ? defaultToFunction(obj[key])
+        : toFunction(obj[key]);
+    }
+    return function(val){
+      if (typeof val !== 'object') return false;
+      for (var key in match) {
+        if (!(key in val)) return false;
+        if (!match[key](val[key])) return false;
+      }
+      return true;
+    };
+  }
+
+  /**
+   * Built the getter function. Supports getter style functions
+   *
+   * @param {String} str
+   * @return {String}
+   * @api private
+   */
+
+  function get(str) {
+    var props = expr(str);
+    if (!props.length) return '_.' + str;
+
+    var val, i, prop;
+    for (i = 0; i < props.length; i++) {
+      prop = props[i];
+      val = '_.' + prop;
+      val = "('function' == typeof " + val + " ? " + val + "() : " + val + ")";
+
+      // mimic negative lookbehind to avoid problems with nested properties
+      str = stripNested(prop, str, val);
+    }
+
+    return str;
+  }
+
+  /**
+   * Mimic negative lookbehind to avoid problems with nested properties.
+   *
+   * See: http://blog.stevenlevithan.com/archives/mimic-lookbehind-javascript
+   *
+   * @param {String} prop
+   * @param {String} str
+   * @param {String} val
+   * @return {String}
+   * @api private
+   */
+
+  function stripNested (prop, str, val) {
+    return str.replace(new RegExp('(\\.)?' + prop, 'g'), function($0, $1) {
+      return $1 ? $0 : val;
+    });
+  }
+
+  /**
+   * Module dependencies.
+   */
+
+  try {
+    var type = componentType;
+  } catch (err) {
+    var type = componentType;
+  }
+
+
+
+  /**
+   * HOP reference.
+   */
+
+  var has$1 = Object.prototype.hasOwnProperty;
+
+  /**
+   * Iterate the given `obj` and invoke `fn(val, i)`
+   * in optional context `ctx`.
+   *
+   * @param {String|Array|Object} obj
+   * @param {Function} fn
+   * @param {Object} [ctx]
+   * @api public
+   */
+
+  var componentEach = function(obj, fn, ctx){
+    fn = toFunction_1(fn);
+    ctx = ctx || this;
+    switch (type(obj)) {
+      case 'array':
+        return array(obj, fn, ctx);
+      case 'object':
+        if ('number' == typeof obj.length) return array(obj, fn, ctx);
+        return object(obj, fn, ctx);
+      case 'string':
+        return string(obj, fn, ctx);
+    }
+  };
+
+  /**
+   * Iterate string chars.
+   *
+   * @param {String} obj
+   * @param {Function} fn
+   * @param {Object} ctx
+   * @api private
+   */
+
+  function string(obj, fn, ctx) {
+    for (var i = 0; i < obj.length; ++i) {
+      fn.call(ctx, obj.charAt(i), i);
+    }
+  }
+
+  /**
+   * Iterate object keys.
+   *
+   * @param {Object} obj
+   * @param {Function} fn
+   * @param {Object} ctx
+   * @api private
+   */
+
+  function object(obj, fn, ctx) {
+    for (var key in obj) {
+      if (has$1.call(obj, key)) {
+        fn.call(ctx, key, obj[key]);
+      }
+    }
+  }
+
+  /**
+   * Iterate array-ish.
+   *
+   * @param {Array|Object} obj
+   * @param {Function} fn
+   * @param {Object} ctx
+   * @api private
+   */
+
+  function array(obj, fn, ctx) {
+    for (var i = 0; i < obj.length; ++i) {
+      fn.call(ctx, obj[i], i);
+    }
+  }
+
+  var Kissmetrics =
+  /*#__PURE__*/
+  function () {
+    function Kissmetrics(config) {
+      _classCallCheck(this, Kissmetrics);
+
+      this.apiKey = config.apiKey;
+      this.prefixProperties = config.prefixProperties;
+      this.name = "KISSMETRICS";
+    }
+
+    _createClass(Kissmetrics, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Kissmetrics===");
+        window._kmq = window._kmq || [];
+
+        var _kmk = window._kmk || this.apiKey;
+
+        function _kms(u) {
+          setTimeout(function () {
+            var d = document,
+                f = d.getElementsByTagName("script")[0],
+                s = d.createElement("script");
+            s.type = "text/javascript";
+            s.async = true;
+            s.src = u;
+            f.parentNode.insertBefore(s, f);
+          }, 1);
+        }
+
+        _kms("//i.kissmetrics.com/i.js");
+
+        _kms("//scripts.kissmetrics.com/" + _kmk + ".2.js");
+
+        if (this.isEnvMobile()) {
+          window._kmq.push(["set", {
+            "Mobile Session": "Yes"
+          }]);
+        }
+      }
+    }, {
+      key: "isEnvMobile",
+      value: function isEnvMobile() {
+        return navigator.userAgent.match(/Android/i) || navigator.userAgent.match(/BlackBerry/i) || navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/Opera Mini/i) || navigator.userAgent.match(/iPad/i) || navigator.userAgent.match(/iPhone|iPod/i);
+      } // source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
+
+    }, {
+      key: "toUnixTimestamp",
+      value: function toUnixTimestamp(date) {
+        date = new Date(date);
+        return Math.floor(date.getTime() / 1000);
+      } // source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
+
+    }, {
+      key: "clean",
+      value: function clean(obj) {
+        var ret = {};
+
+        for (var k in obj) {
+          if (obj.hasOwnProperty(k)) {
+            var value = obj[k];
+            if (value === null || typeof value === "undefined") continue; // convert date to unix
+
+            if (is_1.date(value)) {
+              ret[k] = this.toUnixTimestamp(value);
+              continue;
+            } // leave boolean as is
+
+
+            if (is_1.bool(value)) {
+              ret[k] = value;
+              continue;
+            } // leave  numbers as is
+
+
+            if (is_1.number(value)) {
+              ret[k] = value;
+              continue;
+            } // convert non objects to strings
+
+
+            logger.debug(value.toString());
+
+            if (value.toString() !== "[object Object]") {
+              ret[k] = value.toString();
+              continue;
+            } // json
+            // must flatten including the name of the original trait/property
+
+
+            var nestedObj = {};
+            nestedObj[k] = value;
+            var flattenedObj = this.flatten(nestedObj, {
+              safe: true
+            }); // stringify arrays inside nested object to be consistent with top level behavior of arrays
+
+            for (var key in flattenedObj) {
+              if (is_1.array(flattenedObj[key])) {
+                flattenedObj[key] = flattenedObj[key].toString();
+              }
+            }
+
+            ret = extend_1(ret, flattenedObj);
+            delete ret[k];
+          }
+        }
+
+        return ret;
+      } // source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
+
+    }, {
+      key: "flatten",
+      value: function flatten(target, opts) {
+        opts = opts || {};
+        var delimiter = opts.delimiter || ".";
+        var maxDepth = opts.maxDepth;
+        var currentDepth = 1;
+        var output = {};
+
+        function step(object, prev) {
+          for (var key in object) {
+            if (object.hasOwnProperty(key)) {
+              var value = object[key];
+              var isarray = opts.safe && is_1.array(value);
+              var type = Object.prototype.toString.call(value);
+              var isobject = type === "[object Object]" || type === "[object Array]";
+              var arr = [];
+              var newKey = prev ? prev + delimiter + key : key;
+
+              if (!opts.maxDepth) {
+                maxDepth = currentDepth + 1;
+              }
+
+              for (var keys in value) {
+                if (value.hasOwnProperty(keys)) {
+                  arr.push(keys);
+                }
+              }
+
+              if (!isarray && isobject && arr.length && currentDepth < maxDepth) {
+                ++currentDepth;
+                return step(value, newKey);
+              }
+
+              output[newKey] = value;
+            }
+          }
+        }
+
+        step(target);
+        return output;
+      } //  source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
+
+    }, {
+      key: "prefix",
+      value: function prefix(event, properties) {
+        var prefixed = {};
+        componentEach(properties, function (key, val) {
+          if (key === "Billing Amount") {
+            prefixed[key] = val;
+          } else if (key === "revenue") {
+            prefixed[event + " - " + key] = val;
+            prefixed["Billing Amount"] = val;
+          } else {
+            prefixed[event + " - " + key] = val;
+          }
+        });
+        return prefixed;
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Kissmetrics identify");
+        var traits = this.clean(rudderElement.message.context.traits);
+        var userId = rudderElement.message.userId && rudderElement.message.userId != "" ? rudderElement.message.userId : undefined;
+
+        if (userId) {
+          window._kmq.push(["identify", userId]);
+        }
+
+        if (traits) {
+          window._kmq.push(["set", traits]);
+        }
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in Kissmetrics track");
+        var event = rudderElement.message.event;
+        var properties = JSON.parse(JSON.stringify(rudderElement.message.properties));
+        var timestamp = this.toUnixTimestamp(new Date());
+        var revenue = getRevenue(properties);
+
+        if (revenue) {
+          properties.revenue = revenue;
+        }
+
+        var products = properties.products;
+
+        if (products) {
+          delete properties.products;
+        }
+
+        properties = this.clean(properties);
+        logger.debug(JSON.stringify(properties));
+
+        if (this.prefixProperties) {
+          properties = this.prefix(event, properties);
+        }
+
+        window._kmq.push(["record", event, properties]);
+
+        var iterator = function pushItem(product, i) {
+          var item = product;
+          if (this.prefixProperties) item = this.prefix(event, item);
+          item._t = timestamp + i;
+          item._d = 1;
+          window.KM.set(item);
+        }.bind(this);
+
+        if (products) {
+          window._kmq.push(function () {
+            componentEach(products, iterator);
+          });
+        }
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in Kissmetrics page");
+        var pageName = rudderElement.message.name;
+        var pageCategory = rudderElement.message.properties ? rudderElement.message.properties.category : undefined;
+        var name = "Loaded a Page";
+
+        if (pageName) {
+          name = "Viewed " + pageName + " page";
+        }
+
+        if (pageCategory && pageName) {
+          name = "Viewed " + pageCategory + " " + pageName + " page";
+        }
+
+        var properties = rudderElement.message.properties;
+
+        if (this.prefixProperties) {
+          properties = this.prefix("Page", properties);
+        }
+
+        window._kmq.push(["record", name, properties]);
+      }
+    }, {
+      key: "alias",
+      value: function alias(rudderElement) {
+        var prev = rudderElement.message.previousId;
+        var userId = rudderElement.message.userId;
+
+        window._kmq.push(["alias", userId, prev]);
+      }
+    }, {
+      key: "group",
+      value: function group(rudderElement) {
+        logger.debug("group not supported");
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in Kissmetrics isLoaded");
+        return is_1.object(window.KM);
+      }
+    }]);
+
+    return Kissmetrics;
+  }();
+
+  var CustomerIO =
+  /*#__PURE__*/
+  function () {
+    function CustomerIO(config) {
+      _classCallCheck(this, CustomerIO);
+
+      this.siteID = config.siteID;
+      this.apiKey = config.apiKey;
+      this.name = "CUSTOMERIO";
+    }
+
+    _createClass(CustomerIO, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Customer IO init===");
+        window._cio = window._cio || [];
+        var siteID = this.siteID;
+
+        (function () {
+          var a, b, c;
+
+          a = function a(f) {
+            return function () {
+              window._cio.push([f].concat(Array.prototype.slice.call(arguments, 0)));
+            };
+          };
+
+          b = ["load", "identify", "sidentify", "track", "page"];
+
+          for (c = 0; c < b.length; c++) {
+            window._cio[b[c]] = a(b[c]);
+          }
+          var t = document.createElement('script'),
+              s = document.getElementsByTagName('script')[0];
+          t.async = true;
+          t.id = 'cio-tracker';
+          t.setAttribute('data-site-id', siteID);
+          t.src = 'https://assets.customer.io/assets/track.js';
+          s.parentNode.insertBefore(t, s);
+        })();
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Customer IO identify");
+        var userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
+        var traits = rudderElement.message.context.traits ? rudderElement.message.context.traits : {};
+
+        if (!traits.created_at) {
+          traits.created_at = Math.floor(new Date().getTime() / 1000);
+        }
+
+        traits.id = userId;
+
+        window._cio.identify(traits);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in Customer IO track");
+        var eventName = rudderElement.message.event;
+        var properties = rudderElement.message.properties;
+
+        window._cio.track(eventName, properties);
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in Customer IO page");
+        var name = rudderElement.message.name || rudderElement.message.properties.url;
+
+        window._cio.page(name, rudderElement.message.properties);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!(window._cio && window._cio.push !== Array.prototype.push);
+      }
+    }]);
+
+    return CustomerIO;
+  }();
+
+  /**
+   * toString ref.
+   */
+
+  var toString$2 = Object.prototype.toString;
+
+  /**
+   * Return the type of `val`.
+   *
+   * @param {Mixed} val
+   * @return {String}
+   * @api public
+   */
+
+  var componentType$1 = function(val){
+    switch (toString$2.call(val)) {
+      case '[object Function]': return 'function';
+      case '[object Date]': return 'date';
+      case '[object RegExp]': return 'regexp';
+      case '[object Arguments]': return 'arguments';
+      case '[object Array]': return 'array';
+      case '[object String]': return 'string';
+    }
+
+    if (val === null) return 'null';
+    if (val === undefined) return 'undefined';
+    if (val && val.nodeType === 1) return 'element';
+    if (val === Object(val)) return 'object';
+
+    return typeof val;
+  };
+
+  /**
+   * Module dependencies.
+   */
+
+  try {
+    var type$1 = componentType$1;
+  } catch (err) {
+    var type$1 = componentType$1;
+  }
+
+
+
+  /**
+   * HOP reference.
+   */
+
+  var has$2 = Object.prototype.hasOwnProperty;
+
+  /**
+   * Iterate the given `obj` and invoke `fn(val, i)`
+   * in optional context `ctx`.
+   *
+   * @param {String|Array|Object} obj
+   * @param {Function} fn
+   * @param {Object} [ctx]
+   * @api public
+   */
+
+  var componentEach$1 = function(obj, fn, ctx){
+    fn = toFunction_1(fn);
+    ctx = ctx || this;
+    switch (type$1(obj)) {
+      case 'array':
+        return array$1(obj, fn, ctx);
+      case 'object':
+        if ('number' == typeof obj.length) return array$1(obj, fn, ctx);
+        return object$1(obj, fn, ctx);
+      case 'string':
+        return string$1(obj, fn, ctx);
+    }
+  };
+
+  /**
+   * Iterate string chars.
+   *
+   * @param {String} obj
+   * @param {Function} fn
+   * @param {Object} ctx
+   * @api private
+   */
+
+  function string$1(obj, fn, ctx) {
+    for (var i = 0; i < obj.length; ++i) {
+      fn.call(ctx, obj.charAt(i), i);
+    }
+  }
+
+  /**
+   * Iterate object keys.
+   *
+   * @param {Object} obj
+   * @param {Function} fn
+   * @param {Object} ctx
+   * @api private
+   */
+
+  function object$1(obj, fn, ctx) {
+    for (var key in obj) {
+      if (has$2.call(obj, key)) {
+        fn.call(ctx, key, obj[key]);
+      }
+    }
+  }
+
+  /**
+   * Iterate array-ish.
+   *
+   * @param {Array|Object} obj
+   * @param {Function} fn
+   * @param {Object} ctx
+   * @api private
+   */
+
+  function array$1(obj, fn, ctx) {
+    for (var i = 0; i < obj.length; ++i) {
+      fn.call(ctx, obj[i], i);
+    }
+  }
+
+  /**
+   * Cache whether `<body>` exists.
+   */
+
+  var body = false;
+
+
+  /**
+   * Callbacks to call when the body exists.
+   */
+
+  var callbacks = [];
+
+
+  /**
+   * Export a way to add handlers to be invoked once the body exists.
+   *
+   * @param {Function} callback  A function to call when the body exists.
+   */
+
+  var onBody = function onBody (callback) {
+    if (body) {
+      call(callback);
+    } else {
+      callbacks.push(callback);
+    }
+  };
+
+
+  /**
+   * Set an interval to check for `document.body`.
+   */
+
+  var interval = setInterval(function () {
+    if (!document.body) return;
+    body = true;
+    componentEach$1(callbacks, call);
+    clearInterval(interval);
+  }, 5);
+
+
+  /**
+   * Call a callback, passing it the body.
+   *
+   * @param {Function} callback  The callback to call.
+   */
+
+  function call (callback) {
+    callback(document.body);
+  }
+
+  var Chartbeat =
+  /*#__PURE__*/
+  function () {
+    function Chartbeat(config, analytics) {
+      _classCallCheck(this, Chartbeat);
+
+      this.analytics = analytics; // use this to modify failed integrations or for passing events from callback to other destinations
+
+      this._sf_async_config = window._sf_async_config = window._sf_async_config || {};
+      window._sf_async_config.useCanonical = true;
+      window._sf_async_config.uid = config.uid;
+      window._sf_async_config.domain = config.domain;
+      this.isVideo = config.video ? true : false;
+      this.sendNameAndCategoryAsTitle = config.sendNameAndCategoryAsTitle || true;
+      this.subscriberEngagementKeys = config.subscriberEngagementKeys || [];
+      this.replayEvents = [];
+      this.failed = false;
+      this.isFirstPageCallMade = false;
+      this.name = "Chartbeat";
+    }
+
+    _createClass(Chartbeat, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Chartbeat===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Chartbeat identify");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in Chartbeat track");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in Chartbeat page");
+        this.loadConfig(rudderElement);
+
+        if (!this.isFirstPageCallMade) {
+          this.isFirstPageCallMade = true;
+          this.initAfterPage();
+        } else {
+          if (this.failed) {
+            logger.debug("===ignoring cause failed integration===");
+            this.replayEvents = [];
+            return;
+          }
+
+          if (!this.isLoaded() && !this.failed) {
+            logger.debug("===pushing to replay queue for chartbeat===");
+            this.replayEvents.push(["page", rudderElement]);
+            return;
+          }
+
+          logger.debug("===processing page event in chartbeat===");
+          var properties = rudderElement.message.properties;
+          window.pSUPERFLY.virtualPage(properties.path);
+        }
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in Chartbeat isLoaded");
+
+        if (!this.isFirstPageCallMade) {
+          return true;
+        } else {
+          return !!window.pSUPERFLY;
+        }
+      }
+    }, {
+      key: "isFailed",
+      value: function isFailed() {
+        return this.failed;
+      }
+    }, {
+      key: "loadConfig",
+      value: function loadConfig(rudderElement) {
+        var properties = rudderElement.message.properties;
+        var category = properties ? properties.category : undefined;
+        var name = rudderElement.message.name;
+        var author = properties ? properties.author : undefined;
+        var title;
+
+        if (this.sendNameAndCategoryAsTitle) {
+          title = category && name ? category + " " + name : name;
+        }
+
+        if (category) window._sf_async_config.sections = category;
+        if (author) window._sf_async_config.authors = author;
+        if (title) window._sf_async_config.title = title;
+
+        var _cbq = window._cbq = window._cbq || [];
+
+        for (var key in properties) {
+          if (!properties.hasOwnProperty(key)) continue;
+
+          if (this.subscriberEngagementKeys.indexOf(key) > -1) {
+            _cbq.push([key, properties[key]]);
+          }
+        }
+      }
+    }, {
+      key: "initAfterPage",
+      value: function initAfterPage() {
+        var _this = this;
+
+        onBody(function () {
+          var script = _this.isVideo ? "chartbeat_video.js" : "chartbeat.js";
+
+          function loadChartbeat() {
+            var e = document.createElement("script");
+            var n = document.getElementsByTagName("script")[0];
+            e.type = "text/javascript";
+            e.async = true;
+            e.src = "//static.chartbeat.com/js/" + script;
+            n.parentNode.insertBefore(e, n);
+          }
+
+          loadChartbeat();
+        });
+        this.isReady(this).then(function (instance) {
+          logger.debug("===replaying on chartbeat===");
+          instance.replayEvents.forEach(function (event) {
+            instance[event[0]](event[1]);
+          });
+        });
+      }
+    }, {
+      key: "pause",
+      value: function pause(time) {
+        return new Promise(function (resolve) {
+          setTimeout(resolve, time);
+        });
+      }
+    }, {
+      key: "isReady",
+      value: function isReady(instance) {
+        var _this2 = this;
+
+        var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        return new Promise(function (resolve) {
+          if (_this2.isLoaded()) {
+            _this2.failed = false;
+            logger.debug("===chartbeat loaded successfully===");
+            return resolve(instance);
+          }
+
+          if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
+            _this2.failed = true;
+            logger.debug("===chartbeat failed===");
+            return resolve(instance);
+          }
+
+          _this2.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(function () {
+            return _this2.isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
+          });
+        });
+      }
+    }]);
+
+    return Chartbeat;
+  }();
+
+  var Comscore =
+  /*#__PURE__*/
+  function () {
+    function Comscore(config) {
+      _classCallCheck(this, Comscore);
+
+      this.c2ID = config.c2ID;
+      this.comScoreBeaconParam = config.comScoreBeaconParam ? config.comScoreBeaconParam : {};
+      this.isFirstPageCallMade = false;
+      this.failed = false;
+      this.comScoreParams = {};
+      this.name = "COMSCORE";
+    }
+
+    _createClass(Comscore, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Comscore init===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Comscore identify");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in Comscore track");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in Comscore page");
+        this.loadConfig(rudderElement);
+
+        if (!this.isFirstPageCallMade) {
+          this.isFirstPageCallMade = true;
+          this.initAfterPage();
+        } else {
+          if (this.failed) {
+            this.replayEvents = [];
+            return;
+          }
+
+          if (!isLoaded() && !this.failed) {
+            this.replayEvents.push(["page", rudderElement]);
+            return;
+          }
+
+          var properties = rudderElement.message.properties; //window.COMSCORE.beacon({c1:"2", c2: ""});
+          //this.comScoreParams = this.mapComscoreParams(properties);
+
+          window.COMSCORE.beacon(this.comScoreParams);
+        }
+      }
+    }, {
+      key: "loadConfig",
+      value: function loadConfig(rudderElement) {
+        logger.debug("=====in loadConfig=====");
+        this.comScoreParams = this.mapComscoreParams(rudderElement.message.properties);
+        window._comscore = window._comscore || [];
+
+        window._comscore.push(this.comScoreParams);
+      }
+    }, {
+      key: "initAfterPage",
+      value: function initAfterPage() {
+        logger.debug("=====in initAfterPage=====");
+
+        (function () {
+          var s = document.createElement("script"),
+              el = document.getElementsByTagName("script")[0];
+          s.async = true;
+          s.src = (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js";
+          el.parentNode.insertBefore(s, el);
+        })();
+
+        this.isReady(this).then(function (instance) {
+          instance.replayEvents.forEach(function (event) {
+            instance[event[0]](event[1]);
+          });
+        });
+      }
+    }, {
+      key: "pause",
+      value: function pause(time) {
+        return new Promise(function (resolve) {
+          setTimeout(resolve, time);
+        });
+      }
+    }, {
+      key: "isReady",
+      value: function isReady(instance) {
+        var _this = this;
+
+        var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        return new Promise(function (resolve) {
+          if (_this.isLoaded()) {
+            _this.failed = false;
+            return resolve(instance);
+          }
+
+          if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
+            _this.failed = true;
+            return resolve(instance);
+          }
+
+          _this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(function () {
+            return _this.isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
+          });
+        });
+      }
+    }, {
+      key: "mapComscoreParams",
+      value: function mapComscoreParams(properties) {
+        logger.debug("=====in mapComscoreParams=====");
+        var comScoreBeaconParamsMap = this.comScoreBeaconParam;
+        var comScoreParams = {};
+        Object.keys(comScoreBeaconParamsMap).forEach(function (property) {
+          if (property in properties) {
+            var key = comScoreBeaconParamsMap[property];
+            var value = properties[property];
+            comScoreParams[key] = value;
+          }
+        });
+        comScoreParams.c1 = "2";
+        comScoreParams.c2 = this.c2ID;
+        /* if (this.options.comscorekw.length) {
+          comScoreParams.comscorekw = this.options.comscorekw;
+        } */
+
+        logger.debug("=====in mapComscoreParams=====", comScoreParams);
+        return comScoreParams;
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in Comscore isLoaded");
+
+        if (!this.isFirstPageCallMade) {
+          return true;
+        } else {
+          return !!window.COMSCORE;
+        }
+      }
+    }]);
+
+    return Comscore;
   }();
 
   var integrations = {
@@ -1176,7 +3748,13 @@ var rudderanalytics = (function (exports) {
     GOOGLEADS: index$3,
     VWO: VWO,
     GTM: GoogleTagManager,
-    INTERCOM: INTERCOM
+    BRAZE: Braze,
+    INTERCOM: INTERCOM,
+    KEEN: Keen,
+    KISSMETRICS: Kissmetrics,
+    CUSTOMERIO: CustomerIO,
+    CHARTBEAT: Chartbeat,
+    COMSCORE: Comscore
   };
 
   //Application class
@@ -1186,7 +3764,7 @@ var rudderanalytics = (function (exports) {
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.5";
+    this.version = "1.1.0-beta.0";
   };
 
   //Library information class
@@ -1194,7 +3772,7 @@ var rudderanalytics = (function (exports) {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.5";
+    this.version = "1.1.0-beta.0";
   }; //Operating System information class
 
 
@@ -1315,6 +3893,8 @@ var rudderanalytics = (function (exports) {
                 case ECommerceEvents.ORDER_REFUNDED:
                   this.checkForKey("order_id");
                   break;
+
+                default:
               }
             } else if (!this.properties["category"]) {
               //if category is not there, set to event
@@ -1483,7 +4063,7 @@ var rudderanalytics = (function (exports) {
    * toString ref.
    */
 
-  var toString$1 = Object.prototype.toString;
+  var toString$3 = Object.prototype.toString;
 
   /**
    * Return the type of `val`.
@@ -1493,8 +4073,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentType = function(val){
-    switch (toString$1.call(val)) {
+  var componentType$2 = function(val){
+    switch (toString$3.call(val)) {
       case '[object Date]': return 'date';
       case '[object RegExp]': return 'regexp';
       case '[object Arguments]': return 'arguments';
@@ -1539,7 +4119,7 @@ var rudderanalytics = (function (exports) {
    */
 
   var clone = function clone(obj) {
-    var t = componentType(obj);
+    var t = componentType$2(obj);
 
     if (t === 'object') {
       var copy = {};
@@ -1581,12 +4161,6 @@ var rudderanalytics = (function (exports) {
    */
 
   var clone_1 = clone;
-
-  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
 
   /**
    * Helpers.
@@ -2120,7 +4694,7 @@ var rudderanalytics = (function (exports) {
       case 2:
         return set(name, value, options);
       case 1:
-        return get(name);
+        return get$1(name);
       default:
         return all();
     }
@@ -2181,7 +4755,7 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
-  function get(name) {
+  function get$1(name) {
     return all()[name];
   }
 
@@ -2317,7 +4891,7 @@ var rudderanalytics = (function (exports) {
 
 
 
-  var has = Object.prototype.hasOwnProperty;
+  var has$3 = Object.prototype.hasOwnProperty;
   var objToString = Object.prototype.toString;
 
   /**
@@ -2358,7 +4932,7 @@ var rudderanalytics = (function (exports) {
    * @param {string} key
    */
   var shallowCombiner = function shallowCombiner(target, source, value, key) {
-    if (has.call(source, key) && target[key] === undefined) {
+    if (has$3.call(source, key) && target[key] === undefined) {
       target[key] = value;
     }
     return source;
@@ -2377,7 +4951,7 @@ var rudderanalytics = (function (exports) {
    * @return {Object}
    */
   var deepCombiner = function(target, source, value, key) {
-    if (has.call(source, key)) {
+    if (has$3.call(source, key)) {
       if (isPlainObject(target[key]) && isPlainObject(value)) {
           target[key] = defaultsDeep(target[key], value);
       } else if (target[key] === undefined) {
@@ -2464,7 +5038,7 @@ var rudderanalytics = (function (exports) {
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
     // strict `define` check is necessary for compatibility with `r.js`.
-    var isLoader = typeof undefined === "function" ;
+    var isLoader = typeof undefined === "function" && undefined.amd;
 
     // A set of types used to distinguish objects from primitives.
     var objectTypes = {
@@ -2473,7 +5047,7 @@ var rudderanalytics = (function (exports) {
     };
 
     // Detect the `exports` object exposed by CommonJS implementations.
-    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
+    var freeExports =  exports && !exports.nodeType && exports;
 
     // Use the `global` object exposed by Node (including Browserify via
     // `insert-module-globals`), Narwhal, and Ringo as the default context,
@@ -4127,16 +6701,14 @@ var rudderanalytics = (function (exports) {
     var i = offset || 0;
     var bth = byteToHex;
     // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]]
-    ]).join('');
+    return ([bth[buf[i++]], bth[buf[i++]], 
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]], '-',
+  	bth[buf[i++]], bth[buf[i++]],
+  	bth[buf[i++]], bth[buf[i++]],
+  	bth[buf[i++]], bth[buf[i++]]]).join('');
   }
 
   var bytesToUuid_1 = bytesToUuid;
@@ -4153,7 +6725,7 @@ var rudderanalytics = (function (exports) {
   var _lastMSecs = 0;
   var _lastNSecs = 0;
 
-  // See https://github.com/uuidjs/uuid for API details
+  // See https://github.com/broofa/node-uuid for API details
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
@@ -4283,7 +6855,7 @@ var rudderanalytics = (function (exports) {
 
   var hop = Object.prototype.hasOwnProperty;
   var strCharAt = String.prototype.charAt;
-  var toStr = Object.prototype.toString;
+  var toStr$1 = Object.prototype.toString;
 
   /**
    * Returns the character at a given index.
@@ -4308,7 +6880,7 @@ var rudderanalytics = (function (exports) {
    */
 
   // TODO: Move to a library
-  var has$1 = function has(context, prop) {
+  var has$4 = function has(context, prop) {
     return hop.call(context, prop);
   };
 
@@ -4323,7 +6895,7 @@ var rudderanalytics = (function (exports) {
 
   // TODO: Move to a library
   var isString = function isString(val) {
-    return toStr.call(val) === '[object String]';
+    return toStr$1.call(val) === '[object String]';
   };
 
   /**
@@ -4352,7 +6924,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    */
   var indexKeys = function indexKeys(target, pred) {
-    pred = pred || has$1;
+    pred = pred || has$4;
 
     var results = [];
 
@@ -4376,7 +6948,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    */
   var objectKeys = function objectKeys(target, pred) {
-    pred = pred || has$1;
+    pred = pred || has$4;
 
     var results = [];
 
@@ -4433,7 +7005,7 @@ var rudderanalytics = (function (exports) {
 
     // IE6-8 compatibility (arguments)
     if (isArrayLike(source)) {
-      return indexKeys(source, has$1);
+      return indexKeys(source, has$4);
     }
 
     return objectKeys(source);
@@ -4752,6 +7324,8 @@ var rudderanalytics = (function (exports) {
         if (e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
           quotaExceeded = true;
         }
+        break;
+      default:
         break;
       }
     } else if (e.number === -2147024882) {
@@ -5677,15 +8251,15 @@ var rudderanalytics = (function (exports) {
       trackWindowEvent(e, rudderanalytics);
     };
 
-    register_event(document, 'submit', handler, true);
-    register_event(document, 'change', handler, true);
-    register_event(document, 'click', handler, true);
+    register_event(document, "submit", handler, true);
+    register_event(document, "change", handler, true);
+    register_event(document, "click", handler, true);
     rudderanalytics.page();
   }
 
   function register_event(element, type, handler, useCapture) {
     if (!element) {
-      logger.error('No valid element provided to register_event');
+      logger.error("No valid element provided to register_event");
       return;
     }
 
@@ -5693,32 +8267,32 @@ var rudderanalytics = (function (exports) {
   }
 
   function shouldTrackDomEvent(el, event) {
-    if (!el || isTag(el, 'html') || !isElementNode(el)) {
+    if (!el || isTag(el, "html") || !isElementNode(el)) {
       return false;
     }
 
     var tag = el.tagName.toLowerCase();
 
     switch (tag) {
-      case 'html':
+      case "html":
         return false;
 
-      case 'form':
-        return event.type === 'submit';
+      case "form":
+        return event.type === "submit";
 
-      case 'input':
-        if (['button', 'submit'].indexOf(el.getAttribute('type')) === -1) {
-          return event.type === 'change';
+      case "input":
+        if (["button", "submit"].indexOf(el.getAttribute("type")) === -1) {
+          return event.type === "change";
         } else {
-          return event.type === 'click';
+          return event.type === "click";
         }
 
-      case 'select':
-      case 'textarea':
-        return event.type === 'change';
+      case "select":
+      case "textarea":
+        return event.type === "change";
 
       default:
-        return event.type === 'click';
+        return event.type === "click";
     }
   }
 
@@ -5735,37 +8309,64 @@ var rudderanalytics = (function (exports) {
   }
 
   function shouldTrackElement(el) {
-    if (!el.parentNode || isTag(el, 'body')) return false;
+    if (!el.parentNode || isTag(el, "body")) return false;
     return true;
   }
 
   function getClassName(el) {
     switch (_typeof(el.className)) {
-      case 'string':
+      case "string":
         return el.className;
 
-      case 'object':
+      case "object":
         // handle cases where className might be SVGAnimatedString or some other type
-        return el.className.baseVal || el.getAttribute('class') || '';
+        return el.className.baseVal || el.getAttribute("class") || "";
 
       default:
         // future proof
-        return '';
+        return "";
     }
   }
 
   function trackWindowEvent(e, rudderanalytics) {
     var target = e.target || e.srcElement;
+    var formValues = undefined;
 
     if (isTextNode(target)) {
       target = target.parentNode;
     }
 
     if (shouldTrackDomEvent(target, e)) {
+      if (target.tagName.toLowerCase() == "form") {
+        formValues = {};
+
+        for (var i = 0; i < target.elements.length; i++) {
+          var formElement = target.elements[i];
+
+          if (isElToBeTracked(formElement) && isElValueToBeTracked(formElement, rudderanalytics.trackValues)) {
+            var name = formElement.id ? formElement.id : formElement.name;
+
+            if (name && typeof name === "string") {
+              var key = formElement.id ? formElement.id : formElement.name; // formElement.value gives the same thing
+
+              var value = formElement.id ? document.getElementById(formElement.id).value : document.getElementsByName(formElement.name)[0].value;
+
+              if (formElement.type === "checkbox" || formElement.type === "radio") {
+                value = formElement.checked;
+              }
+
+              if (key.trim() !== "") {
+                formValues[encodeURIComponent(key)] = encodeURIComponent(value);
+              }
+            }
+          }
+        }
+      }
+
       var targetElementList = [target];
       var curEl = target;
 
-      while (curEl.parentNode && !isTag(curEl, 'body')) {
+      while (curEl.parentNode && !isTag(curEl, "body")) {
         targetElementList.push(curEl.parentNode);
         curEl = curEl.parentNode;
       }
@@ -5777,19 +8378,15 @@ var rudderanalytics = (function (exports) {
         var shouldTrackEl = shouldTrackElement(el); // if the element or a parent element is an anchor tag
         // include the href as a property
 
-        if (el.tagName.toLowerCase() === 'a') {
-          href = el.getAttribute('href');
+        if (el.tagName.toLowerCase() === "a") {
+          href = el.getAttribute("href");
           href = shouldTrackEl && href;
         } // allow users to programatically prevent tracking of elements by adding class 'rudder-no-track'
 
 
-        var classes = getClassName(el).split(' ');
+        explicitNoTrack = explicitNoTrack || !isElToBeTracked(el); //explicitNoTrack = !isElToBeTracked(el);
 
-        if (classes.indexOf('rudder-no-track') >= 0) {
-          explicitNoTrack = true;
-        }
-
-        elementsJson.push(getPropertiesFromElement(el));
+        elementsJson.push(getPropertiesFromElement(el, rudderanalytics));
       });
 
       if (explicitNoTrack) {
@@ -5804,16 +8401,45 @@ var rudderanalytics = (function (exports) {
       }
 
       var props = {
-        'event_type': e.type,
-        'page': getDefaultPageProperties(),
-        'elements': elementsJson,
-        'el_attr_href': href,
-        'el_text': elementText
+        event_type: e.type,
+        page: getDefaultPageProperties(),
+        elements: elementsJson,
+        el_attr_href: href,
+        el_text: elementText
       };
-      logger.debug('web_event', props);
-      rudderanalytics.track('autotrack', props);
+
+      if (formValues) {
+        props["form_values"] = formValues;
+      }
+
+      logger.debug("web_event", props);
+      rudderanalytics.track("autotrack", props);
       return true;
     }
+  }
+
+  function isElValueToBeTracked(el, includeList) {
+    var elAttributesLength = el.attributes.length;
+
+    for (var i = 0; i < elAttributesLength; i++) {
+      var value = el.attributes[i].value;
+
+      if (includeList.indexOf(value) > -1) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function isElToBeTracked(el) {
+    var classes = getClassName(el).split(" ");
+
+    if (classes.indexOf("rudder-no-track") >= 0) {
+      return false;
+    }
+
+    return true;
   }
 
   function getText(el) {
@@ -5826,10 +8452,10 @@ var rudderanalytics = (function (exports) {
     return text.trim();
   }
 
-  function getPropertiesFromElement(elem) {
+  function getPropertiesFromElement(elem, rudderanalytics) {
     var props = {
-      'classes': getClassName(elem).split(' '),
-      'tag_name': elem.tagName.toLowerCase()
+      classes: getClassName(elem).split(" "),
+      tag_name: elem.tagName.toLowerCase()
     };
     var attrLength = elem.attributes.length;
 
@@ -5838,7 +8464,15 @@ var rudderanalytics = (function (exports) {
       var value = elem.attributes[i].value;
 
       if (value) {
-        props['attr__' + name] = value;
+        props["attr__" + name] = value;
+      }
+
+      if ((name == "name" || name == "id") && isElValueToBeTracked(elem, rudderanalytics.trackValues)) {
+        props["field_value"] = name == "id" ? document.getElementById(value).value : document.getElementsByName(value)[0].value;
+
+        if (elem.type === "checkbox" || elem.type === "radio") {
+          props["field_value"] = elem.checked;
+        }
       }
     }
 
@@ -5854,8 +8488,8 @@ var rudderanalytics = (function (exports) {
       }
     }
 
-    props['nth_child'] = nthChild;
-    props['nth_of_type'] = nthOfType;
+    props["nth_child"] = nthChild;
+    props["nth_of_type"] = nthOfType;
     return props;
   }
 
@@ -5878,9 +8512,6 @@ var rudderanalytics = (function (exports) {
    */
 
   function enqueue(rudderElement, type) {
-    console.log("loggin in enqueue");
-    console.log(rudderElement, type);
-
     if (!this.eventRepository) {
       this.eventRepository = eventRepository;
     }
@@ -5903,8 +8534,11 @@ var rudderanalytics = (function (exports) {
     function Analytics() {
       _classCallCheck(this, Analytics);
 
+      this.autoTrackHandlersRegistered = false;
+      this.autoTrackFeatureEnabled = false;
       this.initialized = false;
       this.ready = false;
+      this.trackValues = [];
       this.eventsBuffer = [];
       this.clientIntegrations = [];
       this.configArray = [];
@@ -5933,22 +8567,34 @@ var rudderanalytics = (function (exports) {
     _createClass(Analytics, [{
       key: "processResponse",
       value: function processResponse(status, response) {
-        logger.debug("===in process response=== " + status);
-        response = JSON.parse(response);
+        try {
+          logger.debug("===in process response=== " + status);
+          response = JSON.parse(response);
 
-        if (response.source.useAutoTracking || true) {
-          addDomEventHandlers(this);
-        }
-
-        response.source.destinations.forEach(function (destination, index) {
-          logger.debug("Destination " + index + " Enabled? " + destination.enabled + " Type: " + destination.destinationDefinition.name + " Use Native SDK? " + destination.config.useNativeSDK);
-
-          if (destination.enabled) {
-            this.clientIntegrations.push(destination.destinationDefinition.name);
-            this.configArray.push(destination.config);
+          if (response.source.useAutoTracking) {
+            this.autoTrackFeatureEnabled = true;
+            addDomEventHandlers(this);
+            this.autoTrackHandlersRegistered = true;
           }
-        }, this);
-        this.init(this.clientIntegrations, this.configArray);
+
+          response.source.destinations.forEach(function (destination, index) {
+            logger.debug("Destination " + index + " Enabled? " + destination.enabled + " Type: " + destination.destinationDefinition.name + " Use Native SDK? " + destination.config.useNativeSDK);
+
+            if (destination.enabled && destination.config.useNativeSDK) {
+              this.clientIntegrations.push(destination.destinationDefinition.name);
+              this.configArray.push(destination.config);
+            }
+          }, this);
+          this.init(this.clientIntegrations, this.configArray);
+        } catch (error) {
+          handleError(error);
+          logger.debug("===handling config BE response processing error===");
+          logger.debug("autoTrackHandlersRegistered", this.autoTrackHandlersRegistered);
+
+          if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+            addDomEventHandlers(this);
+          }
+        }
       }
       /**
        * Initialize integrations by addinfg respective scripts
@@ -5965,6 +8611,7 @@ var rudderanalytics = (function (exports) {
       value: function init(intgArray, configArray) {
         var _this = this;
 
+        var self = this;
         logger.debug("supported intgs ", integrations);
         this.clientIntegrationObjects = [];
 
@@ -5976,7 +8623,7 @@ var rudderanalytics = (function (exports) {
         intgArray.forEach(function (intg, index) {
           var intgClass = integrations[intg];
           var destConfig = configArray[index];
-          var intgInstance = new intgClass(destConfig);
+          var intgInstance = new intgClass(destConfig, self);
           intgInstance.init();
           logger.debug("initializing destination: ", intg);
 
@@ -5997,9 +8644,11 @@ var rudderanalytics = (function (exports) {
             for (var i = 0; i < object.clientIntegrationObjects.length; i++) {
               if (integrationOptions[object.clientIntegrationObjects[i].name] || integrationOptions[object.clientIntegrationObjects[i].name] == undefined && integrationOptions["All"]) {
                 try {
-                  var _object$clientIntegra;
+                  if (!object.clientIntegrationObjects[i]["isFailed"] || !object.clientIntegrationObjects[i]["isFailed"]()) {
+                    var _object$clientIntegra;
 
-                  (_object$clientIntegra = object.clientIntegrationObjects[i])[methodName].apply(_object$clientIntegra, _toConsumableArray(event));
+                    (_object$clientIntegra = object.clientIntegrationObjects[i])[methodName].apply(_object$clientIntegra, _toConsumableArray(event));
+                  }
                 } catch (error) {
                   handleError(error);
                 }
@@ -6022,10 +8671,6 @@ var rudderanalytics = (function (exports) {
         var _this2 = this;
 
         var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-        console.log("logging instance");
-        console.log(instance);
-        console.log("----------------");
-        console.log(instance.isLoaded());
         return new Promise(function (resolve) {
           if (instance.isLoaded()) {
             _this2.successfullyLoadedIntegration.push(instance);
@@ -6098,11 +8743,29 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(userId, traits, options, callback) {
-        console.log("in identify", userId, traits, options, callback);
         if (typeof options == "function") callback = options, options = null;
         if (typeof traits == "function") callback = traits, options = null, traits = null;
         if (_typeof(userId) == "object") options = traits, traits = userId, userId = this.userId;
         this.processIdentify(userId, traits, options, callback);
+      }
+      /**
+       *
+       * @param {*} to
+       * @param {*} from
+       * @param {*} options
+       * @param {*} callback
+       */
+
+    }, {
+      key: "alias",
+      value: function alias(to, from, options, callback) {
+        if (typeof options == "function") callback = options, options = null;
+        if (typeof from == "function") callback = from, options = null, from = null;
+        if (_typeof(from) == "object") options = from, from = null;
+        var rudderElement = new RudderElementBuilder().setType("alias").build();
+        rudderElement.message.previousId = from || this.userId ? this.userId : this.getAnonymousId();
+        rudderElement.message.userId = to;
+        this.processAndSendDataToDestinations("alias", rudderElement, options, callback);
       }
       /**
        * Send page call to Rudder BE and to initialized integrations
@@ -6257,19 +8920,15 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "processAndSendDataToDestinations",
       value: function processAndSendDataToDestinations(type, rudderElement, options, callback) {
-        console.log("-----------------------------------------");
-        console.log(type, rudderElement, options, callback);
-        console.log("-----------------------------------------");
-
         try {
           if (!this.anonymousId) {
             this.setAnonymousId();
           }
 
           rudderElement["message"]["context"]["traits"] = Object.assign({}, this.userTraits);
-          console.log("anonymousId: ", this.anonymousId);
+          logger.debug("anonymousId: ", this.anonymousId);
           rudderElement["message"]["anonymousId"] = this.anonymousId;
-          rudderElement["message"]["userId"] = this.userId;
+          rudderElement["message"]["userId"] = rudderElement["message"]["userId"] ? rudderElement["message"]["userId"] : this.userId;
 
           if (options) {
             this.processOptionsParam(rudderElement, options);
@@ -6283,7 +8942,9 @@ var rudderanalytics = (function (exports) {
               logger.debug("called in normal flow");
 
               if (integrations[obj.name] || integrations[obj.name] == undefined && integrations["All"]) {
-                obj[type](rudderElement);
+                if (!obj["isFailed"] || !obj["isFailed"]()) {
+                  obj[type](rudderElement);
+                }
               }
             });
           }
@@ -6399,6 +9060,10 @@ var rudderanalytics = (function (exports) {
           logger.setLogLevel(options.logLevel);
         }
 
+        if (options && options.valTrackingList && options.valTrackingList.push == Array.prototype.push) {
+          this.trackValues = options.valTrackingList;
+        }
+
         logger.debug("inside load ");
         this.eventRepository.writeKey = writeKey;
 
@@ -6406,7 +9071,15 @@ var rudderanalytics = (function (exports) {
           this.eventRepository.url = serverUrl;
         }
 
-        getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
+        try {
+          getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
+        } catch (error) {
+          handleError(error);
+
+          if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+            addDomEventHandlers(instance);
+          }
+        }
       }
     }]);
 
@@ -6452,12 +9125,14 @@ var rudderanalytics = (function (exports) {
   var identify = instance.identify.bind(instance);
   var page = instance.page.bind(instance);
   var track = instance.track.bind(instance);
+  var alias = instance.alias.bind(instance);
   var reset = instance.reset.bind(instance);
   var load = instance.load.bind(instance);
   var initialized = instance.initialized = true;
   var getAnonymousId = instance.getAnonymousId.bind(instance);
   var setAnonymousId = instance.setAnonymousId.bind(instance);
 
+  exports.alias = alias;
   exports.getAnonymousId = getAnonymousId;
   exports.identify = identify;
   exports.initialized = initialized;
