@@ -42,6 +42,7 @@ class Analytics {
    */
   constructor() {
     this.autoTrackHandlersRegistered = false;
+    this.autoTrackFeatureEnabled = false;
     this.initialized = false;
     this.ready = false;
     this.trackValues = [];
@@ -79,7 +80,8 @@ class Analytics {
     try {
       logger.debug("===in process response=== " + status);
       response = JSON.parse(response);
-      if (response.source.useAutoTracking || true) {
+      if (response.source.useAutoTracking) {
+        this.autoTrackFeatureEnabled = true;
         addDomEventHandlers(this);
         this.autoTrackHandlersRegistered = true;
       }
@@ -107,7 +109,7 @@ class Analytics {
         "autoTrackHandlersRegistered",
         this.autoTrackHandlersRegistered
       );
-      if (!this.autoTrackHandlersRegistered) {
+      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
         addDomEventHandlers(this);
       }
     }
@@ -596,7 +598,7 @@ class Analytics {
       getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
     } catch (error) {
       handleError(error);
-      if (!this.autoTrackHandlersRegistered) {
+      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
         addDomEventHandlers(instance);
       }
     }
