@@ -104,6 +104,7 @@ class Analytics {
    * @memberof Analytics
    */
   init(intgArray, configArray) {
+    let self = this;
     logger.debug("supported intgs ", integrations);
     this.clientIntegrationObjects = [];
 
@@ -114,7 +115,7 @@ class Analytics {
     intgArray.forEach((intg, index) => {
       let intgClass = integrations[intg];
       let destConfig = configArray[index];
-      let intgInstance = new intgClass(destConfig);
+      let intgInstance = new intgClass(destConfig, self);
       intgInstance.init();
 
       logger.debug("initializing destination: ", intg);

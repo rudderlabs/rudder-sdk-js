@@ -4,6 +4,7 @@ import * as Hotjar from "./Hotjar";
 import * as GoogleAds from "./GoogleAds";
 import * as VWO from "./VWO";
 import * as GoogleTagManager from "./GoogleTagManager";
+import * as Braze from "./Braze";
 import * as INTERCOM from "./INTERCOM";
 
 let integrations = {
@@ -13,6 +14,7 @@ let integrations = {
   GOOGLEADS: GoogleAds.default,
   VWO: VWO.default,
   GTM: GoogleTagManager.default,
+  BRAZE: Braze.default,
   INTERCOM: INTERCOM.default
 };
 
