@@ -13,6 +13,10 @@
   },
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rudderlabs/rudder-sdk-js.git"
+  },
   "dependencies": {
     "@ndhoule/clone": "^1.0.0",
     "@ndhoule/defaults": "^2.0.1",
@@ -24,6 +28,7 @@
     "btoa": "^1.2.1",
     "component-cookie": "^1.1.4",
     "component-each": "^0.2.6",
+    "gh-release": "^3.5.0",
     "is": "^3.3.0",
     "json3": "^3.3.3",
     "obj-case": "^0.2.0",
