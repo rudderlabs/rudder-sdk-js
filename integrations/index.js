@@ -7,6 +7,8 @@ import * as GoogleTagManager from "./GoogleTagManager";
 import * as Keen from "./Keen";
 import * as Kissmetrics from "./Kissmetrics";
 import * as CustomerIO from "./CustomerIO";
+import * as Chartbeat from "./Chartbeat";
+import * as Comscore from "./Comscore";
 
 let integrations = {
   HS: HubSpot.default,
@@ -17,7 +19,9 @@ let integrations = {
   GTM: GoogleTagManager.default,
   KEEN: Keen.default,
   KISSMETRICS: Kissmetrics.default,
-  CUSTOMERIO: CustomerIO.default
+  CUSTOMERIO: CustomerIO.default,
+  CHARTBEAT: Chartbeat.default,
+  COMSCORE: Comscore.default
 };
 
 export { integrations };
