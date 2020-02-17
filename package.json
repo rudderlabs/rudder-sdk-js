@@ -9,7 +9,7 @@
     "buildProdBrowser": "NODE_ENV=false  ENV=prod uglify=true rollup -c",
     "buildDevNode": "NODE_ENV=true uglify=false rollup -c",
     "buildProdNode": "NODE_ENV=true ENV=prod uglify=true rollup -c",
-    "changelog": "auto-changelog -p -t keepachangelog -u true -l false"
+    "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc "
   },
   "author": "",
   "license": "ISC",
