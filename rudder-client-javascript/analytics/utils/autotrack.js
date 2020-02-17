@@ -1,8 +1,6 @@
 import { getDefaultPageProperties } from "./utils";
 import logger from "./logUtil";
 
-let formData;
-
 function addDomEventHandlers(rudderanalytics) {
   var handler = e => {
     e = e || window.event;
@@ -97,15 +95,26 @@ function trackWindowEvent(e, rudderanalytics) {
       formValues = {};
       for (var i = 0; i < target.elements.length; i++) {
         var formElement = target.elements[i];
-        if (isElToBeTracked(formElement)) {
-          let name =
-            formElement.name && formElement.name != ""
-              ? formElement.name
-              : formElement.id;
-          if (name) {
-            formValues[encodeURIComponent(name)] = encodeURIComponent(
-              formElement.value
-            );
+        if (
+          isElToBeTracked(formElement) &&
+          isElValueToBeTracked(formElement, rudderanalytics.trackValues)
+        ) {
+          let name = formElement.id ? formElement.id : formElement.name;
+          if (name && typeof name === "string") {
+            var key = formElement.id ? formElement.id : formElement.name;
+            // formElement.value gives the same thing
+            var value = formElement.id
+              ? document.getElementById(formElement.id).value
+              : document.getElementsByName(formElement.name)[0].value;
+            if (
+              formElement.type === "checkbox" ||
+              formElement.type === "radio"
+            ) {
+              value = formElement.checked;
+            }
+            if (key.trim() !== "") {
+              formValues[encodeURIComponent(key)] = encodeURIComponent(value);
+            }
           }
         }
       }
@@ -137,7 +146,7 @@ function trackWindowEvent(e, rudderanalytics) {
 
       //explicitNoTrack = !isElToBeTracked(el);
 
-      elementsJson.push(getPropertiesFromElement(el));
+      elementsJson.push(getPropertiesFromElement(el, rudderanalytics));
     });
 
     if (explicitNoTrack) {
@@ -167,6 +176,17 @@ function trackWindowEvent(e, rudderanalytics) {
   }
 }
 
+function isElValueToBeTracked(el, includeList) {
+  var elAttributesLength = el.attributes.length;
+  for (let i = 0; i < elAttributesLength; i++) {
+    let value = el.attributes[i].value;
+    if (includeList.indexOf(value) > -1) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function isElToBeTracked(el) {
   var classes = getClassName(el).split(" ");
   if (classes.indexOf("rudder-no-track") >= 0) {
@@ -185,7 +205,7 @@ function getText(el) {
   return text.trim();
 }
 
-function getPropertiesFromElement(elem) {
+function getPropertiesFromElement(elem, rudderanalytics) {
   var props = {
     classes: getClassName(elem).split(" "),
     tag_name: elem.tagName.toLowerCase()
@@ -198,11 +218,18 @@ function getPropertiesFromElement(elem) {
     if (value) {
       props["attr__" + name] = value;
     }
-    if (name == "name" || name == "id") {
+    if (
+      (name == "name" || name == "id") &&
+      isElValueToBeTracked(elem, rudderanalytics.trackValues)
+    ) {
       props["field_value"] =
         name == "id"
           ? document.getElementById(value).value
           : document.getElementsByName(value)[0].value;
+
+      if (elem.type === "checkbox" || elem.type === "radio") {
+        props["field_value"] = elem.checked;
+      }
     }
   }
 
