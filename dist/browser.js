@@ -3252,6 +3252,7 @@ var rudderanalytics = (function (exports) {
   }();
 
   /**
+<<<<<<< HEAD
    * toString ref.
    */
 
@@ -3373,6 +3374,8 @@ var rudderanalytics = (function (exports) {
   }
 
   /**
+=======
+>>>>>>> added support for configurable config url
    * Cache whether `<body>` exists.
    */
 
@@ -3408,7 +3411,11 @@ var rudderanalytics = (function (exports) {
   var interval = setInterval(function () {
     if (!document.body) return;
     body = true;
+<<<<<<< HEAD
     componentEach$1(callbacks, call);
+=======
+    componentEach(callbacks, call);
+>>>>>>> added support for configurable config url
     clearInterval(interval);
   }, 5);
 
@@ -9049,6 +9056,8 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "load",
       value: function load(writeKey, serverUrl, options) {
+        var configUrl = CONFIG_URL;
+
         if (!writeKey || !serverUrl || serverUrl.length == 0) {
           handleError({
             message: "Unable to load due to wrong writeKey or serverUrl"
@@ -9060,6 +9069,13 @@ var rudderanalytics = (function (exports) {
           logger.setLogLevel(options.logLevel);
         }
 
+<<<<<<< HEAD
+=======
+        if (options && options.configUrl) {
+          configUrl = options.configUrl;
+        }
+
+>>>>>>> added support for configurable config url
         if (options && options.valTrackingList && options.valTrackingList.push == Array.prototype.push) {
           this.trackValues = options.valTrackingList;
         }
@@ -9072,7 +9088,11 @@ var rudderanalytics = (function (exports) {
         }
 
         try {
+<<<<<<< HEAD
           getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
+=======
+          getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
+>>>>>>> added support for configurable config url
         } catch (error) {
           handleError(error);
 
