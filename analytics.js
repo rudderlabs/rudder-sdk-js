@@ -574,6 +574,7 @@ class Analytics {
    * @memberof Analytics
    */
   load(writeKey, serverUrl, options) {
+    let configUrl = CONFIG_URL;
     if (!writeKey || !serverUrl || serverUrl.length == 0) {
       handleError({
         message: "Unable to load due to wrong writeKey or serverUrl"
@@ -582,6 +583,9 @@ class Analytics {
     }
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
+    }
+    if (options && options.configUrl) {
+      configUrl = options.configUrl;
     }
     if (
       options &&
@@ -596,7 +600,7 @@ class Analytics {
       this.eventRepository.url = serverUrl;
     }
     try {
-      getJSONTrimmed(this, CONFIG_URL, writeKey, this.processResponse);
+      getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
     } catch (error) {
       handleError(error);
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
