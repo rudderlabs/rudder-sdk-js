@@ -16,6 +16,8 @@ import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
+import Emitter from "component-emitter";
+import after from "after";
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
@@ -44,7 +46,6 @@ class Analytics {
     this.autoTrackHandlersRegistered = false;
     this.autoTrackFeatureEnabled = false;
     this.initialized = false;
-    this.ready = false;
     this.trackValues = [];
     this.eventsBuffer = [];
     this.clientIntegrations = [];
@@ -66,6 +67,8 @@ class Analytics {
     this.anonymousId = this.getAnonymousId();
     this.storage.setUserId(this.userId);
     this.eventRepository = EventRepository;
+    this.readyCallback = undefined;
+    this.executeReadyCallback = undefined;
   }
 
   /**
@@ -96,7 +99,7 @@ class Analytics {
             " Use Native SDK? " +
             destination.config.useNativeSDK
         );
-        if (destination.enabled && destination.config.useNativeSDK) {
+        if (destination.enabled) {
           this.clientIntegrations.push(destination.destinationDefinition.name);
           this.configArray.push(destination.config);
         }
@@ -130,6 +133,9 @@ class Analytics {
     this.clientIntegrationObjects = [];
 
     if (!intgArray || intgArray.length == 0) {
+      if (this.readyCallback) {
+        this.readyCallback();
+      }
       this.toBeProcessedByIntegrationArray = [];
       return;
     }
@@ -152,6 +158,20 @@ class Analytics {
       object.clientIntegrations.length
     ) {
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
+
+      object.executeReadyCallback = after(
+        object.clientIntegrationObjects.length,
+        object.readyCallback
+      );
+
+      object.on("ready", object.executeReadyCallback);
+
+      object.clientIntegrationObjects.forEach(intg => {
+        if (!intg["isReady"] || intg["isReady"]()) {
+          object.emit("ready");
+        }
+      });
+
       //send the queued events to the fetched integration
       object.toBeProcessedByIntegrationArray.forEach(event => {
         let methodName = event[0];
@@ -604,6 +624,14 @@ class Analytics {
       }
     }
   }
+
+  ready(callback) {
+    if (typeof callback == "function") {
+      this.readyCallback = callback;
+      return;
+    }
+    logger.error("ready callback is not a function");
+  }
 }
 
 if (process.browser) {
@@ -617,6 +645,8 @@ if (process.browser) {
 }
 
 let instance = new Analytics();
+
+Emitter(instance);
 
 if (process.browser) {
   let eventsPushedAlready =
@@ -645,6 +675,7 @@ if (process.browser) {
   }
 }
 
+let ready = instance.ready.bind(instance);
 let identify = instance.identify.bind(instance);
 let page = instance.page.bind(instance);
 let track = instance.track.bind(instance);
@@ -657,6 +688,7 @@ let setAnonymousId = instance.setAnonymousId.bind(instance);
 
 export {
   initialized,
+  ready,
   page,
   track,
   load,

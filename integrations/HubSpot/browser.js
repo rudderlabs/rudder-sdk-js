@@ -3,7 +3,7 @@ import logger from "../../utils/logUtil";
 
 class HubSpot {
   constructor(config) {
-    this.hubId = config.hubID;//6405167
+    this.hubId = config.hubID; //6405167
     this.name = "HS";
   }
 
@@ -22,14 +22,13 @@ class HubSpot {
 
     for (let k in traits) {
       if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
-        let hubspotkey = k;//k.startsWith("rl_") ? k.substring(3, k.length) : k;
-        if(toString.call(traits[k]) == '[object Date]'){
+        let hubspotkey = k; //k.startsWith("rl_") ? k.substring(3, k.length) : k;
+        if (toString.call(traits[k]) == "[object Date]") {
           traitsValue[hubspotkey] = traits[k].getTime();
         } else {
           traitsValue[hubspotkey] = traits[k];
         }
       }
-      
     }
     /* if (traitsValue["address"]) {
       let address = traitsValue["address"];
@@ -49,7 +48,7 @@ class HubSpot {
         !!Object.getOwnPropertyDescriptor(userProperties, k) &&
         userProperties[k]
       ) {
-        let hubspotkey = k;//k.startsWith("rl_") ? k.substring(3, k.length) : k;
+        let hubspotkey = k; //k.startsWith("rl_") ? k.substring(3, k.length) : k;
         traitsValue[hubspotkey] = userProperties[k];
       }
     }
@@ -69,9 +68,12 @@ class HubSpot {
     eventValue["id"] = rudderElement.message.event;
     if (
       rudderElement.message.properties &&
-      (rudderElement.message.properties.revenue || rudderElement.message.properties.value)
+      (rudderElement.message.properties.revenue ||
+        rudderElement.message.properties.value)
     ) {
-      eventValue["value"] = rudderElement.message.properties.revenue || rudderElement.message.properties.value;;
+      eventValue["value"] =
+        rudderElement.message.properties.revenue ||
+        rudderElement.message.properties.value;
     }
     _hsq.push(["trackEvent", eventValue]);
   }
@@ -95,6 +97,10 @@ class HubSpot {
 
   isLoaded() {
     logger.debug("in hubspot isLoaded");
+    return !!(window._hsq && window._hsq.push !== Array.prototype.push);
+  }
+
+  isReady() {
     return !!(window._hsq && window._hsq.push !== Array.prototype.push);
   }
 }

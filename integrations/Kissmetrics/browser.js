@@ -263,6 +263,10 @@ class Kissmetrics {
     logger.debug("in Kissmetrics isLoaded");
     return is.object(window.KM);
   }
+
+  isReady() {
+    return is.object(window.KM);
+  }
 }
 
 export { Kissmetrics };

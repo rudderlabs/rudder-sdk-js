@@ -12,25 +12,38 @@ class CustomerIO {
     window._cio = window._cio || [];
     let siteID = this.siteID;
     (function() {
-        var a,b,c;a=function(f){return function(){window._cio.push([f].
-        concat(Array.prototype.slice.call(arguments,0)))}};b=["load","identify",
-        "sidentify","track","page"];for(c=0;c<b.length;c++){window._cio[b[c]]=a(b[c])};
-        var t = document.createElement('script'),
-            s = document.getElementsByTagName('script')[0];
-        t.async = true;
-        t.id    = 'cio-tracker';
-        t.setAttribute('data-site-id', siteID);
-        t.src = 'https://assets.customer.io/assets/track.js';
-        s.parentNode.insertBefore(t, s);
+      var a, b, c;
+      a = function(f) {
+        return function() {
+          window._cio.push(
+            [f].concat(Array.prototype.slice.call(arguments, 0))
+          );
+        };
+      };
+      b = ["load", "identify", "sidentify", "track", "page"];
+      for (c = 0; c < b.length; c++) {
+        window._cio[b[c]] = a(b[c]);
+      }
+      var t = document.createElement("script"),
+        s = document.getElementsByTagName("script")[0];
+      t.async = true;
+      t.id = "cio-tracker";
+      t.setAttribute("data-site-id", siteID);
+      t.src = "https://assets.customer.io/assets/track.js";
+      s.parentNode.insertBefore(t, s);
     })();
   }
 
   identify(rudderElement) {
     logger.debug("in Customer IO identify");
-    let userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
-    let traits = rudderElement.message.context.traits ? rudderElement.message.context.traits : {};
-    if(!traits.created_at){
-      traits.created_at = Math.floor((new Date()).getTime()/1000);
+    let userId = rudderElement.message.userId
+      ? rudderElement.message.userId
+      : rudderElement.message.anonymousId;
+    let traits = rudderElement.message.context.traits
+      ? rudderElement.message.context.traits
+      : {};
+    if (!traits.created_at) {
+      traits.created_at = Math.floor(new Date().getTime() / 1000);
     }
     traits.id = userId;
     window._cio.identify(traits);
@@ -42,18 +55,21 @@ class CustomerIO {
     let eventName = rudderElement.message.event;
     let properties = rudderElement.message.properties;
     window._cio.track(eventName, properties);
-    
   }
 
   page(rudderElement) {
     logger.debug("in Customer IO page");
 
-    var name = rudderElement.message.name || rudderElement.message.properties.url;
+    var name =
+      rudderElement.message.name || rudderElement.message.properties.url;
     window._cio.page(name, rudderElement.message.properties);
-    
   }
 
   isLoaded() {
+    return !!(window._cio && window._cio.push !== Array.prototype.push);
+  }
+
+  isReady() {
     return !!(window._cio && window._cio.push !== Array.prototype.push);
   }
 }
