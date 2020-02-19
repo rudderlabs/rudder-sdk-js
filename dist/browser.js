@@ -6375,7 +6375,9 @@ var rudderanalytics = (function (exports) {
   var defaults$1 = {
     user_storage_key: "rl_user_id",
     user_storage_trait: "rl_trait",
-    user_storage_anonymousId: "rl_anonymous_id"
+    user_storage_anonymousId: "rl_anonymous_id",
+    group_storage_key: "rl_group_id",
+    group_storage_trait: "rl_group_trait"
   };
   /**
    * An object that handles persisting key-val from Analytics
@@ -6447,6 +6449,33 @@ var rudderanalytics = (function (exports) {
        */
 
     }, {
+      key: "setGroupId",
+      value: function setGroupId(value) {
+        if (typeof value != "string") {
+          logger.error("groupId should be string");
+          return;
+        }
+
+        this.storage.set(defaults$1.group_storage_key, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setGroupTraits",
+      value: function setGroupTraits(value) {
+        this.storage.set(defaults$1.group_storage_trait, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
       key: "setAnonymousId",
       value: function setAnonymousId(value) {
         if (typeof value != "string") {
@@ -6484,6 +6513,24 @@ var rudderanalytics = (function (exports) {
       key: "getUserTraits",
       value: function getUserTraits() {
         return this.storage.get(defaults$1.user_storage_trait);
+      }
+      /**
+       * get the stored userId
+       */
+
+    }, {
+      key: "getGroupId",
+      value: function getGroupId() {
+        return this.storage.get(defaults$1.group_storage_key);
+      }
+      /**
+       * get the stored user traits
+       */
+
+    }, {
+      key: "getGroupTraits",
+      value: function getGroupTraits() {
+        return this.storage.get(defaults$1.group_storage_trait);
       }
       /**
        * get stored anonymous id
@@ -8429,6 +8476,8 @@ var rudderanalytics = (function (exports) {
       this.storage = new Storage$1();
       this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
       this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
+      this.groupId = this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
+      this.groupTraits = this.storage.getGroupTraits() != undefined ? this.storage.getGroupTraits() : {};
       this.anonymousId = this.getAnonymousId();
       this.storage.setUserId(this.userId);
       this.eventRepository = eventRepository;
@@ -8647,6 +8696,41 @@ var rudderanalytics = (function (exports) {
         this.processAndSendDataToDestinations("alias", rudderElement, options, callback);
       }
       /**
+       *
+       * @param {*} to
+       * @param {*} from
+       * @param {*} options
+       * @param {*} callback
+       */
+
+    }, {
+      key: "group",
+      value: function group(groupId, traits, options, callback) {
+        if (typeof options == "function") callback = options, options = null;
+        if (typeof traits == "function") callback = traits, options = null, traits = null;
+        if (_typeof(groupId) == "object") options = traits, traits = groupId, id = _group.id();
+        /* group.identify(id, traits);
+         var msg = this.normalize({
+          options: options,
+          traits: group.traits(),
+          groupId: group.id()
+        }); */
+
+        this.groupId = groupId;
+        this.storage.setGroupId(this.groupId);
+        var rudderElement = new RudderElementBuilder().setType("group").build();
+
+        if (traits) {
+          for (var key in traits) {
+            this.groupTraits[key] = traits[key];
+          }
+
+          this.storage.setGroupTraits(this.groupTraits);
+        }
+
+        this.processAndSendDataToDestinations("group", rudderElement, options, callback);
+      }
+      /**
        * Send page call to Rudder BE and to initialized integrations
        *
        * @param {*} category
@@ -8808,6 +8892,16 @@ var rudderanalytics = (function (exports) {
           logger.debug("anonymousId: ", this.anonymousId);
           rudderElement["message"]["anonymousId"] = this.anonymousId;
           rudderElement["message"]["userId"] = rudderElement["message"]["userId"] ? rudderElement["message"]["userId"] : this.userId;
+
+          if (type == "group") {
+            if (this.groupId) {
+              rudderElement["message"]["traits"] = this.groupId;
+            }
+
+            if (this.groupTraits) {
+              rudderElement["message"]["traits"] = Object.assign({}, this.groupTraits);
+            }
+          }
 
           if (options) {
             this.processOptionsParam(rudderElement, options);
@@ -9011,6 +9105,9 @@ var rudderanalytics = (function (exports) {
   var page = instance.page.bind(instance);
   var track = instance.track.bind(instance);
   var alias = instance.alias.bind(instance);
+
+  var _group = instance.group.bind(instance);
+
   var reset = instance.reset.bind(instance);
   var load = instance.load.bind(instance);
   var initialized = instance.initialized = true;
@@ -9019,6 +9116,7 @@ var rudderanalytics = (function (exports) {
 
   exports.alias = alias;
   exports.getAnonymousId = getAnonymousId;
+  exports.group = _group;
   exports.identify = identify;
   exports.initialized = initialized;
   exports.load = load;

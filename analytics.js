@@ -64,6 +64,14 @@ class Analytics {
         ? this.storage.getUserTraits()
         : {};
 
+    this.groupId =
+      this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
+
+    this.groupTraits = 
+      this.storage.getGroupTraits() != undefined
+        ? this.storage.getGroupTraits()
+        : {};
+    
     this.anonymousId = this.getAnonymousId();
     this.storage.setUserId(this.userId);
     this.eventRepository = EventRepository;
@@ -316,6 +324,46 @@ class Analytics {
   }
 
   /**
+   *
+   * @param {*} to
+   * @param {*} from
+   * @param {*} options
+   * @param {*} callback
+   */
+  group(groupId, traits, options, callback) {
+
+    if (typeof options == "function") (callback = options), (options = null);
+    if (typeof traits == "function") (callback = traits), (options = null), (traits = null);
+    if (typeof groupId == "object") (options = traits), (traits = groupId), (id=group.id());
+
+    /* group.identify(id, traits);
+
+    var msg = this.normalize({
+      options: options,
+      traits: group.traits(),
+      groupId: group.id()
+    }); */
+
+    this.groupId = groupId;
+    this.storage.setGroupId(this.groupId);
+
+    let rudderElement = new RudderElementBuilder().setType("group").build();
+    if (traits) {
+      for (let key in traits) {
+        this.groupTraits[key] = traits[key];
+      }
+      this.storage.setGroupTraits(this.groupTraits);
+    }
+
+    this.processAndSendDataToDestinations(
+      "group",
+      rudderElement,
+      options,
+      callback
+    );
+  }
+
+  /**
    * Send page call to Rudder BE and to initialized integrations
    *
    * @param {*} category
@@ -484,6 +532,18 @@ class Analytics {
       rudderElement["message"]["userId"] = rudderElement["message"]["userId"]
         ? rudderElement["message"]["userId"]
         : this.userId;
+
+      if(type == "group"){
+        if(this.groupId){
+          rudderElement["message"]["traits"] = this.groupId
+        }
+        if(this.groupTraits){
+          rudderElement["message"]["traits"] = Object.assign(
+            {},
+            this.groupTraits
+          );
+        }
+      }
 
       if (options) {
         this.processOptionsParam(rudderElement, options);
@@ -684,6 +744,7 @@ let identify = instance.identify.bind(instance);
 let page = instance.page.bind(instance);
 let track = instance.track.bind(instance);
 let alias = instance.alias.bind(instance);
+let group = instance.group.bind(instance);
 let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
 let initialized = (instance.initialized = true);
@@ -699,6 +760,7 @@ export {
   identify,
   reset,
   alias,
+  group,
   getAnonymousId,
   setAnonymousId
 };
