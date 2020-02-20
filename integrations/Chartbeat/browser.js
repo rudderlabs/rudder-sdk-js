@@ -71,6 +71,10 @@ class Chartbeat {
     return this.failed;
   }
 
+  isReady() {
+    return !!window.pSUPERFLY;
+  }
+
   loadConfig(rudderElement) {
     let properties = rudderElement.message.properties;
     let category = properties ? properties.category : undefined;
@@ -108,7 +112,7 @@ class Chartbeat {
       loadChartbeat();
     });
 
-    this.isReady(this).then(instance => {
+    this._isReady(this).then(instance => {
       logger.debug("===replaying on chartbeat===");
       instance.replayEvents.forEach(event => {
         instance[event[0]](event[1]);
@@ -122,11 +126,12 @@ class Chartbeat {
     });
   }
 
-  isReady(instance, time = 0) {
+  _isReady(instance, time = 0) {
     return new Promise(resolve => {
       if (this.isLoaded()) {
         this.failed = false;
         logger.debug("===chartbeat loaded successfully===");
+        instance.analytics.emit("ready");
         return resolve(instance);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
@@ -135,7 +140,7 @@ class Chartbeat {
         return resolve(instance);
       }
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        return this.isReady(
+        return this._isReady(
           instance,
           time + INTEGRATION_LOAD_CHECK_INTERVAL
         ).then(resolve);

@@ -4,18 +4,21 @@ import {
   INTEGRATION_LOAD_CHECK_INTERVAL
 } from "../../utils/constants";
 class Comscore {
-  constructor(config) {
+  constructor(config, analytics) {
     this.c2ID = config.c2ID;
-    this.comScoreBeaconParam = config.comScoreBeaconParam ? config.comScoreBeaconParam : {};
+    this.analytics = analytics;
+    this.comScoreBeaconParam = config.comScoreBeaconParam
+      ? config.comScoreBeaconParam
+      : {};
     this.isFirstPageCallMade = false;
     this.failed = false;
     this.comScoreParams = {};
+    this.replayEvents = [];
     this.name = "COMSCORE";
   }
 
   init() {
     logger.debug("===in init Comscore init===");
-    
   }
 
   identify(rudderElement) {
@@ -24,7 +27,6 @@ class Comscore {
 
   track(rudderElement) {
     logger.debug("in Comscore track");
-    
   }
 
   page(rudderElement) {
@@ -40,7 +42,7 @@ class Comscore {
         this.replayEvents = [];
         return;
       }
-      if (!isLoaded() && !this.failed) {
+      if (!this.isLoaded() && !this.failed) {
         this.replayEvents.push(["page", rudderElement]);
         return;
       }
@@ -48,28 +50,31 @@ class Comscore {
       //window.COMSCORE.beacon({c1:"2", c2: ""});
       //this.comScoreParams = this.mapComscoreParams(properties);
       window.COMSCORE.beacon(this.comScoreParams);
-    
     }
   }
 
-  loadConfig(rudderElement){
+  loadConfig(rudderElement) {
     logger.debug("=====in loadConfig=====");
-    this.comScoreParams = this.mapComscoreParams(rudderElement.message.properties);
+    this.comScoreParams = this.mapComscoreParams(
+      rudderElement.message.properties
+    );
     window._comscore = window._comscore || [];
     window._comscore.push(this.comScoreParams);
-
   }
 
   initAfterPage() {
     logger.debug("=====in initAfterPage=====");
     (function() {
-      var s = document.createElement("script"), el = document.getElementsByTagName("script")[0]; 
-      s.async = true; 
-      s.src = (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js"; 
+      var s = document.createElement("script"),
+        el = document.getElementsByTagName("script")[0];
+      s.async = true;
+      s.src =
+        (document.location.protocol == "https:" ? "https://sb" : "http://b") +
+        ".scorecardresearch.com/beacon.js";
       el.parentNode.insertBefore(s, el);
     })();
 
-    this.isReady(this).then(instance => {
+    this._isReady(this).then(instance => {
       instance.replayEvents.forEach(event => {
         instance[event[0]](event[1]);
       });
@@ -82,10 +87,11 @@ class Comscore {
     });
   }
 
-  isReady(instance, time = 0) {
+  _isReady(instance, time = 0) {
     return new Promise(resolve => {
       if (this.isLoaded()) {
         this.failed = false;
+        instance.analytics.emit("ready");
         return resolve(instance);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
@@ -93,7 +99,7 @@ class Comscore {
         return resolve(instance);
       }
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        return this.isReady(
+        return this._isReady(
           instance,
           time + INTEGRATION_LOAD_CHECK_INTERVAL
         ).then(resolve);
@@ -101,7 +107,7 @@ class Comscore {
     });
   }
 
-  mapComscoreParams(properties){
+  mapComscoreParams(properties) {
     logger.debug("=====in mapComscoreParams=====");
     let comScoreBeaconParamsMap = this.comScoreBeaconParam;
 
@@ -131,6 +137,10 @@ class Comscore {
     } else {
       return !!window.COMSCORE;
     }
+  }
+
+  isReady() {
+    return !!window.COMSCORE;
   }
 }
 

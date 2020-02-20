@@ -14,20 +14,23 @@ class Keen {
 
   init() {
     logger.debug("===in init Keen===");
-    ScriptLoader("keen-integration", 'https://cdn.jsdelivr.net/npm/keen-tracking@4');
-    
+    ScriptLoader(
+      "keen-integration",
+      "https://cdn.jsdelivr.net/npm/keen-tracking@4"
+    );
+
     var check = setInterval(checkAndInitKeen.bind(this), 1000);
-    function initKeen(object){
+    function initKeen(object) {
       object.client = new window.KeenTracking({
         projectId: object.projectID,
         writeKey: object.writeKey
       });
-      return object.client
+      return object.client;
     }
-    function checkAndInitKeen(){
-      if(window.KeenTracking !== undefined && window.KeenTracking !== void 0 ){
-        this.client = initKeen(this)
-        clearInterval(check)
+    function checkAndInitKeen() {
+      if (window.KeenTracking !== undefined && window.KeenTracking !== void 0) {
+        this.client = initKeen(this);
+        clearInterval(check);
       }
     }
   }
@@ -35,30 +38,36 @@ class Keen {
   identify(rudderElement) {
     logger.debug("in Keen identify");
     let traits = rudderElement.message.context.traits;
-    let userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
-    let properties = rudderElement.message.properties ? Object.assign(properties, rudderElement.message.properties) : {}
+    let userId = rudderElement.message.userId
+      ? rudderElement.message.userId
+      : rudderElement.message.anonymousId;
+    let properties = rudderElement.message.properties
+      ? Object.assign(properties, rudderElement.message.properties)
+      : {};
     properties.user = {
       userId: userId,
       traits: traits
-    }
-    properties = this.getAddOn(properties)
+    };
+    properties = this.getAddOn(properties);
     this.client.extendEvents(properties);
   }
 
   track(rudderElement) {
     logger.debug("in Keen track");
 
-    var event = rudderElement.message.event
-    var properties = rudderElement.message.properties
-    properties = this.getAddOn(properties)
-    this.client.recordEvent(event, properties)
+    var event = rudderElement.message.event;
+    var properties = rudderElement.message.properties;
+    properties = this.getAddOn(properties);
+    this.client.recordEvent(event, properties);
   }
 
   page(rudderElement) {
     logger.debug("in Keen page");
     const pageName = rudderElement.message.name;
-    const pageCategory = rudderElement.message.properties ? rudderElement.message.properties.category : undefined;
-    var name = "Loaded a Page"
+    const pageCategory = rudderElement.message.properties
+      ? rudderElement.message.properties.category
+      : undefined;
+    var name = "Loaded a Page";
     if (pageName) {
       name = "Viewed " + pageName + " page";
     }
@@ -66,64 +75,68 @@ class Keen {
       name = "Viewed " + pageCategory + " " + pageName + " page";
     }
 
-    var properties = rudderElement.message.properties
-    properties = this.getAddOn(properties)
-    this.client.recordEvent(name, properties)
+    var properties = rudderElement.message.properties;
+    properties = this.getAddOn(properties);
+    this.client.recordEvent(name, properties);
   }
 
   isLoaded() {
     logger.debug("in Keen isLoaded");
-    return !!(this.client != null)
+    return !!(this.client != null);
   }
 
-  getAddOn(properties){
-    var addOns = []
-    if(this.ipAddon){
-      properties.ip_address = '${keen.ip}'
+  isReady() {
+    return !!(this.client != null);
+  }
+
+  getAddOn(properties) {
+    var addOns = [];
+    if (this.ipAddon) {
+      properties.ip_address = "${keen.ip}";
       addOns.push({
-        name: 'keen:ip_to_geo',
+        name: "keen:ip_to_geo",
         input: {
-          ip: 'ip_address'
+          ip: "ip_address"
         },
-        output: 'ip_geo_info'
+        output: "ip_geo_info"
       });
     }
-    if(this.uaAddon){
-      properties.user_agent = '${keen.user_agent}'
+    if (this.uaAddon) {
+      properties.user_agent = "${keen.user_agent}";
       addOns.push({
-        name: 'keen:ua_parser',
+        name: "keen:ua_parser",
         input: {
-          ua_string: 'user_agent'
+          ua_string: "user_agent"
         },
-        output: 'parsed_user_agent'
+        output: "parsed_user_agent"
       });
     }
-    if(this.urlAddon){
-      properties.page_url = document.location.href
+    if (this.urlAddon) {
+      properties.page_url = document.location.href;
       addOns.push({
-        name: 'keen:url_parser',
+        name: "keen:url_parser",
         input: {
-          url: 'page_url'
+          url: "page_url"
         },
-        output: 'parsed_page_url'
+        output: "parsed_page_url"
       });
     }
-    if(this.referrerAddon){
-      properties.page_url = document.location.href
+    if (this.referrerAddon) {
+      properties.page_url = document.location.href;
       properties.referrer_url = document.referrer;
       addOns.push({
-        name: 'keen:referrer_parser',
+        name: "keen:referrer_parser",
         input: {
-          referrer_url: 'referrer_url',
-          page_url: 'page_url'
+          referrer_url: "referrer_url",
+          page_url: "page_url"
         },
-        output: 'referrer_info'
-        });
+        output: "referrer_info"
+      });
     }
     properties.keen = {
-      addons : addOns
-    }
-    return properties
+      addons: addOns
+    };
+    return properties;
   }
 }
 

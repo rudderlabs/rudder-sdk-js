@@ -10,8 +10,9 @@ class GoogleAds {
   }
 
   init() {
-    let sourceUrl = "https://www.googletagmanager.com/gtag/js?id="+this.conversionId;
-    (function (id, src, document) {
+    let sourceUrl =
+      "https://www.googletagmanager.com/gtag/js?id=" + this.conversionId;
+    (function(id, src, document) {
       logger.debug("in script loader=== " + id);
       let js = document.createElement("script");
       js.src = src;
@@ -21,14 +22,14 @@ class GoogleAds {
       let e = document.getElementsByTagName("head")[0];
       logger.debug("==script==", e);
       e.appendChild(js);
-    })('googleAds-integration', sourceUrl, document);
+    })("googleAds-integration", sourceUrl, document);
 
     window.dataLayer = window.dataLayer || [];
     window.gtag = function() {
       window.dataLayer.push(arguments);
     };
-    window.gtag('js', new Date());
-    window.gtag('config', this.conversionId);
+    window.gtag("js", new Date());
+    window.gtag("config", this.conversionId);
 
     logger.debug("===in init Google Ads===");
   }
@@ -40,42 +41,51 @@ class GoogleAds {
   //https://developers.google.com/gtagjs/reference/event
   track(rudderElement) {
     logger.debug("in GoogleAdsAnalyticsManager track");
-    let conversionData = this.getConversionData(this.clickEventConversions, rudderElement.message.event);
-    if(conversionData['conversionLabel']){
-      let conversionLabel = conversionData['conversionLabel']
-      let eventName = conversionData['eventName'];
+    let conversionData = this.getConversionData(
+      this.clickEventConversions,
+      rudderElement.message.event
+    );
+    if (conversionData["conversionLabel"]) {
+      let conversionLabel = conversionData["conversionLabel"];
+      let eventName = conversionData["eventName"];
       let sendToValue = this.conversionId + "/" + conversionLabel;
       let properties = {};
-      if(rudderElement.properties){
-        properties['value'] = rudderElement.properties['revenue']
-        properties['currency'] = rudderElement.properties['currency']
-        properties['transaction_id'] = rudderElement.properties['order_id']
+      if (rudderElement.properties) {
+        properties["value"] = rudderElement.properties["revenue"];
+        properties["currency"] = rudderElement.properties["currency"];
+        properties["transaction_id"] = rudderElement.properties["order_id"];
       }
-      properties['send_to'] = sendToValue;
-      window.gtag('event', eventName, properties);
+      properties["send_to"] = sendToValue;
+      window.gtag("event", eventName, properties);
     }
-    
   }
 
   page(rudderElement) {
     logger.debug("in GoogleAdsAnalyticsManager page");
-    let conversionData = this.getConversionData(this.pageLoadConversions, rudderElement.message.name);
-    if(conversionData['conversionLabel']){
-      let conversionLabel = conversionData['conversionLabel']
-      let eventName = conversionData['eventName'];
-      window.gtag('event', eventName, {'send_to': this.conversionId + "/" + conversionLabel});
+    let conversionData = this.getConversionData(
+      this.pageLoadConversions,
+      rudderElement.message.name
+    );
+    if (conversionData["conversionLabel"]) {
+      let conversionLabel = conversionData["conversionLabel"];
+      let eventName = conversionData["eventName"];
+      window.gtag("event", eventName, {
+        send_to: this.conversionId + "/" + conversionLabel
+      });
     }
-    
   }
 
-  getConversionData(eventTypeConversions, eventName){
-    let conversionData = {}
-    if(eventTypeConversions){
+  getConversionData(eventTypeConversions, eventName) {
+    let conversionData = {};
+    if (eventTypeConversions) {
       eventTypeConversions.forEach(eventTypeConversion => {
-        if(eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()){
+        if (
+          eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()
+        ) {
           //rudderElement["message"]["name"]
-          conversionData['conversionLabel'] = eventTypeConversion.conversionLabel;
-          conversionData['eventName'] = eventTypeConversion.name;
+          conversionData["conversionLabel"] =
+            eventTypeConversion.conversionLabel;
+          conversionData["eventName"] = eventTypeConversion.name;
           return;
         }
       });
@@ -84,6 +94,10 @@ class GoogleAds {
   }
 
   isLoaded() {
+    return window.dataLayer.push !== Array.prototype.push;
+  }
+
+  isReady() {
     return window.dataLayer.push !== Array.prototype.push;
   }
 }

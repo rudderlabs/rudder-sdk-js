@@ -72,6 +72,12 @@ class GoogleTagManager {
   sendToGTMDatalayer(props) {
     window.dataLayer.push(props);
   }
+
+  isReady() {
+    return !!(
+      window.dataLayer && Array.prototype.push !== window.dataLayer.push
+    );
+  }
 }
 
 export { GoogleTagManager };
