@@ -1,7 +1,5 @@
-var rudderanalytics = (function (exports, after) {
+var rudderanalytics = (function (exports) {
   'use strict';
-
-  after = after && after.hasOwnProperty('default') ? after['default'] : after;
 
   function _typeof(obj) {
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -8504,6 +8502,35 @@ var rudderanalytics = (function (exports, after) {
     }
   }
 
+  var after_1 = after;
+
+  function after(count, callback, err_cb) {
+      var bail = false;
+      err_cb = err_cb || noop;
+      proxy.count = count;
+
+      return (count === 0) ? callback() : proxy
+
+      function proxy(err, result) {
+          if (proxy.count <= 0) {
+              throw new Error('after called too many times')
+          }
+          --proxy.count;
+
+          // after first error, rest are passed to err_cb
+          if (err) {
+              bail = true;
+              callback(err);
+              // future error callbacks will go to error handler
+              callback = err_cb;
+          } else if (proxy.count === 0 && !bail) {
+              callback(null, result);
+          }
+      }
+  }
+
+  function noop() {}
+
   /**
    * Add the rudderelement object to flush queue
    *
@@ -8641,7 +8668,7 @@ var rudderanalytics = (function (exports, after) {
       value: function replayEvents(object) {
         if (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length) {
           object.clientIntegrationObjects = object.successfullyLoadedIntegration;
-          object.executeReadyCallback = after(object.clientIntegrationObjects.length, object.readyCallback);
+          object.executeReadyCallback = after_1(object.clientIntegrationObjects.length, object.readyCallback);
           object.on("ready", object.executeReadyCallback);
           object.clientIntegrationObjects.forEach(function (intg) {
             if (!intg["isReady"] || intg["isReady"]()) {
@@ -8791,6 +8818,7 @@ var rudderanalytics = (function (exports, after) {
     }, {
       key: "group",
       value: function group(groupId, traits, options, callback) {
+        if (!arguments.length) return;
         if (typeof options == "function") callback = options, options = null;
         if (typeof traits == "function") callback = traits, options = null, traits = null;
         if (_typeof(groupId) == "object") options = traits, traits = groupId, groupId = this.groupId;
@@ -8802,10 +8830,11 @@ var rudderanalytics = (function (exports, after) {
           for (var key in traits) {
             this.groupTraits[key] = traits[key];
           }
-
-          this.storage.setGroupTraits(this.groupTraits);
+        } else {
+          this.groupTraits = {};
         }
 
+        this.storage.setGroupTraits(this.groupTraits);
         this.processAndSendDataToDestinations("group", rudderElement, options, callback);
       }
       /**
@@ -9216,4 +9245,4 @@ var rudderanalytics = (function (exports, after) {
 
   return exports;
 
-}({}, after));
+}({}));

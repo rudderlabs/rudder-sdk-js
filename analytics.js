@@ -332,6 +332,8 @@ class Analytics {
    */
   group(groupId, traits, options, callback) {
 
+    if (!arguments.length) return;
+
     if (typeof options == "function") (callback = options), (options = null);
     if (typeof traits == "function") (callback = traits), (options = null), (traits = null);
     if (typeof groupId == "object") (options = traits), (traits = groupId), (groupId = this.groupId);
@@ -344,8 +346,10 @@ class Analytics {
       for (let key in traits) {
         this.groupTraits[key] = traits[key];
       }
-      this.storage.setGroupTraits(this.groupTraits);
+    } else {
+      this.groupTraits = {}
     }
+    this.storage.setGroupTraits(this.groupTraits);
 
     this.processAndSendDataToDestinations(
       "group",
