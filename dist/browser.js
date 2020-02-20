@@ -8709,13 +8709,6 @@ var rudderanalytics = (function (exports) {
         if (typeof options == "function") callback = options, options = null;
         if (typeof traits == "function") callback = traits, options = null, traits = null;
         if (_typeof(groupId) == "object") options = traits, traits = groupId, id = _group.id();
-        /* group.identify(id, traits);
-         var msg = this.normalize({
-          options: options,
-          traits: group.traits(),
-          groupId: group.id()
-        }); */
-
         this.groupId = groupId;
         this.storage.setGroupId(this.groupId);
         var rudderElement = new RudderElementBuilder().setType("group").build();

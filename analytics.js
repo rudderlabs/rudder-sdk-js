@@ -336,14 +336,6 @@ class Analytics {
     if (typeof traits == "function") (callback = traits), (options = null), (traits = null);
     if (typeof groupId == "object") (options = traits), (traits = groupId), (id=group.id());
 
-    /* group.identify(id, traits);
-
-    var msg = this.normalize({
-      options: options,
-      traits: group.traits(),
-      groupId: group.id()
-    }); */
-
     this.groupId = groupId;
     this.storage.setGroupId(this.groupId);
 
