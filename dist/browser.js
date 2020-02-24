@@ -427,7 +427,7 @@ var rudderanalytics = (function (exports) {
           if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
             var hubspotkey = k; //k.startsWith("rl_") ? k.substring(3, k.length) : k;
 
-            if (toString.call(traits[k]) == '[object Date]') {
+            if (toString.call(traits[k]) == "[object Date]") {
               traitsValue[hubspotkey] = traits[k].getTime();
             } else {
               traitsValue[hubspotkey] = traits[k];
@@ -507,6 +507,11 @@ var rudderanalytics = (function (exports) {
         logger.debug("in hubspot isLoaded");
         return !!(window._hsq && window._hsq.push !== Array.prototype.push);
       }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!(window._hsq && window._hsq.push !== Array.prototype.push);
+      }
     }]);
 
     return HubSpot;
@@ -529,7 +534,7 @@ var rudderanalytics = (function (exports) {
       key: "init",
       value: function init() {
         (function (i, s, o, g, r, a, m) {
-          i['GoogleAnalyticsObject'] = r;
+          i["GoogleAnalyticsObject"] = r;
           i[r] = i[r] || function () {
             (i[r].q = i[r].q || []).push(arguments);
           }, i[r].l = 1 * new Date();
@@ -537,17 +542,17 @@ var rudderanalytics = (function (exports) {
           a.async = 1;
           a.src = g;
           m.parentNode.insertBefore(a, m);
-        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga'); //window.ga_debug = {trace: true};
+        })(window, document, "script", "https://www.google-analytics.com/analytics.js", "ga"); //window.ga_debug = {trace: true};
 
 
-        ga('create', this.trackingID, 'auto');
-        ga('send', 'pageview');
+        ga("create", this.trackingID, "auto");
+        ga("send", "pageview");
         logger.debug("===in init GA===");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        ga('set', 'userId', rudderElement.message.anonymous_id);
+        ga("set", "userId", rudderElement.message.anonymous_id);
         logger.debug("in GoogleAnalyticsManager identify");
       }
     }, {
@@ -563,13 +568,13 @@ var rudderanalytics = (function (exports) {
         }
 
         var payLoad = {
-          hitType: 'event',
+          hitType: "event",
           eventCategory: eventCategory,
           eventAction: eventAction,
           eventLabel: eventLabel,
           eventValue: eventValue
         };
-        ga('send', 'event', payLoad);
+        ga("send", "event", payLoad);
         logger.debug("in GoogleAnalyticsManager track");
       }
     }, {
@@ -579,15 +584,20 @@ var rudderanalytics = (function (exports) {
         var path = rudderElement.properties && rudderElement.properties.path ? rudderElement.properties.path : undefined;
 
         if (path) {
-          ga('set', 'page', path);
+          ga("set", "page", path);
         }
 
-        ga('send', 'pageview');
+        ga("send", "pageview");
       }
     }, {
       key: "isLoaded",
       value: function isLoaded() {
         logger.debug("in GA isLoaded");
+        return !!window.gaplugins;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
         return !!window.gaplugins;
       }
     }]);
@@ -622,12 +632,12 @@ var rudderanalytics = (function (exports) {
             hjid: h.hotjarSiteId,
             hjsv: 6
           };
-          a = o.getElementsByTagName('head')[0];
-          r = o.createElement('script');
+          a = o.getElementsByTagName("head")[0];
+          r = o.createElement("script");
           r.async = 1;
           r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
           a.appendChild(r);
-        })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+        })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
 
         logger.debug("===in init Hotjar===");
       }
@@ -650,6 +660,11 @@ var rudderanalytics = (function (exports) {
       key: "isLoaded",
       value: function isLoaded() {
         logger.error("method not supported");
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return true;
       }
     }]);
 
@@ -686,7 +701,7 @@ var rudderanalytics = (function (exports) {
           var e = document.getElementsByTagName("head")[0];
           logger.debug("==script==", e);
           e.appendChild(js);
-        })('googleAds-integration', sourceUrl, document);
+        })("googleAds-integration", sourceUrl, document);
 
         window.dataLayer = window.dataLayer || [];
 
@@ -694,8 +709,8 @@ var rudderanalytics = (function (exports) {
           window.dataLayer.push(arguments);
         };
 
-        window.gtag('js', new Date());
-        window.gtag('config', this.conversionId);
+        window.gtag("js", new Date());
+        window.gtag("config", this.conversionId);
         logger.debug("===in init Google Ads===");
       }
     }, {
@@ -710,20 +725,20 @@ var rudderanalytics = (function (exports) {
         logger.debug("in GoogleAdsAnalyticsManager track");
         var conversionData = this.getConversionData(this.clickEventConversions, rudderElement.message.event);
 
-        if (conversionData['conversionLabel']) {
-          var conversionLabel = conversionData['conversionLabel'];
-          var eventName = conversionData['eventName'];
+        if (conversionData["conversionLabel"]) {
+          var conversionLabel = conversionData["conversionLabel"];
+          var eventName = conversionData["eventName"];
           var sendToValue = this.conversionId + "/" + conversionLabel;
           var properties = {};
 
           if (rudderElement.properties) {
-            properties['value'] = rudderElement.properties['revenue'];
-            properties['currency'] = rudderElement.properties['currency'];
-            properties['transaction_id'] = rudderElement.properties['order_id'];
+            properties["value"] = rudderElement.properties["revenue"];
+            properties["currency"] = rudderElement.properties["currency"];
+            properties["transaction_id"] = rudderElement.properties["order_id"];
           }
 
-          properties['send_to'] = sendToValue;
-          window.gtag('event', eventName, properties);
+          properties["send_to"] = sendToValue;
+          window.gtag("event", eventName, properties);
         }
       }
     }, {
@@ -732,11 +747,11 @@ var rudderanalytics = (function (exports) {
         logger.debug("in GoogleAdsAnalyticsManager page");
         var conversionData = this.getConversionData(this.pageLoadConversions, rudderElement.message.name);
 
-        if (conversionData['conversionLabel']) {
-          var conversionLabel = conversionData['conversionLabel'];
-          var eventName = conversionData['eventName'];
-          window.gtag('event', eventName, {
-            'send_to': this.conversionId + "/" + conversionLabel
+        if (conversionData["conversionLabel"]) {
+          var conversionLabel = conversionData["conversionLabel"];
+          var eventName = conversionData["eventName"];
+          window.gtag("event", eventName, {
+            send_to: this.conversionId + "/" + conversionLabel
           });
         }
       }
@@ -749,8 +764,8 @@ var rudderanalytics = (function (exports) {
           eventTypeConversions.forEach(function (eventTypeConversion) {
             if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
               //rudderElement["message"]["name"]
-              conversionData['conversionLabel'] = eventTypeConversion.conversionLabel;
-              conversionData['eventName'] = eventTypeConversion.name;
+              conversionData["conversionLabel"] = eventTypeConversion.conversionLabel;
+              conversionData["eventName"] = eventTypeConversion.name;
               return;
             }
           });
@@ -761,6 +776,11 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "isLoaded",
       value: function isLoaded() {
+        return window.dataLayer.push !== Array.prototype.push;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
         return window.dataLayer.push !== Array.prototype.push;
       }
     }]);
@@ -917,6 +937,11 @@ var rudderanalytics = (function (exports) {
       value: function isLoaded() {
         return !!window._vwo_code;
       }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!window._vwo_code;
+      }
     }]);
 
     return VWO;
@@ -1005,6 +1030,11 @@ var rudderanalytics = (function (exports) {
       value: function sendToGTMDatalayer(props) {
         window.dataLayer.push(props);
       }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
+      }
     }]);
 
     return GoogleTagManager;
@@ -1022,16 +1052,16 @@ var rudderanalytics = (function (exports) {
 
       this.analytics = analytics;
       this.appKey = config.appKey;
-      if (!config.appKey) this.appKey = '';
-      this.endPoint = '';
+      if (!config.appKey) this.appKey = "";
+      this.endPoint = "";
 
       if (config.dataCenter) {
-        var dataCenterArr = config.dataCenter.trim().split('-');
+        var dataCenterArr = config.dataCenter.trim().split("-");
 
-        if (dataCenterArr[0].toLowerCase() === 'eu') {
-          this.endPoint = 'sdk.fra-01.braze.eu';
+        if (dataCenterArr[0].toLowerCase() === "eu") {
+          this.endPoint = "sdk.fra-01.braze.eu";
         } else {
-          this.endPoint = 'sdk.iad-' + dataCenterArr[1] + '.braze.com';
+          this.endPoint = "sdk.iad-" + dataCenterArr[1] + ".braze.com";
         }
       }
 
@@ -1046,10 +1076,10 @@ var rudderanalytics = (function (exports) {
       key: "formatGender",
       value: function formatGender(gender) {
         if (!gender) return;
-        if (typeof gender !== 'string') return;
-        var femaleGenders = ['woman', 'female', 'w', 'f'];
-        var maleGenders = ['man', 'male', 'm'];
-        var otherGenders = ['other', 'o'];
+        if (typeof gender !== "string") return;
+        var femaleGenders = ["woman", "female", "w", "f"];
+        var maleGenders = ["man", "male", "m"];
+        var otherGenders = ["other", "o"];
         if (femaleGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.FEMALE;
         if (maleGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.MALE;
         if (otherGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.OTHER;
@@ -1083,17 +1113,17 @@ var rudderanalytics = (function (exports) {
             return new window.appboy.ab.ContentCards();
           };
 
-          (y = p.createElement(P)).type = 'text/javascript';
-          y.src = 'https://js.appboycdn.com/web-sdk/2.4/appboy.min.js';
+          (y = p.createElement(P)).type = "text/javascript";
+          y.src = "https://js.appboycdn.com/web-sdk/2.4/appboy.min.js";
           y.async = 1;
           (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
-        }(window, document, 'script');
+        }(window, document, "script");
         window.appboy.initialize(this.appKey, {
           enableLogging: true,
           baseUrl: this.endPoint
         });
         window.appboy.display.automaticallyShowNewInAppMessages();
-        var userId = this.analytics.userId; //send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser 
+        var userId = this.analytics.userId; //send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser
 
         if (userId) appboy.changeUser(userId);
         window.appboy.openSession();
@@ -1103,7 +1133,7 @@ var rudderanalytics = (function (exports) {
       value: function handleReservedProperties(props) {
         // remove reserved keys from custom event properties
         // https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
-        var reserved = ['time', 'product_id', 'quantity', 'event_name', 'price', 'currency'];
+        var reserved = ["time", "product_id", "quantity", "event_name", "price", "currency"];
         reserved.forEach(function (element) {
           delete props[element];
         });
@@ -1141,7 +1171,7 @@ var rudderanalytics = (function (exports) {
         } // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
 
 
-        var reserved = ['avatar', 'address', 'birthday', 'email', 'id', 'firstname', 'gender', 'lastname', 'phone', 'facebook', 'twitter', 'first_name', 'last_name', 'dob', 'external_id', 'country', 'home_city', 'bio', 'gender', 'phone', 'email_subscribe', 'push_subscribe'];
+        var reserved = ["avatar", "address", "birthday", "email", "id", "firstname", "gender", "lastname", "phone", "facebook", "twitter", "first_name", "last_name", "dob", "external_id", "country", "home_city", "bio", "gender", "phone", "email_subscribe", "push_subscribe"];
         reserved.forEach(function (element) {
           delete traits[element];
         });
@@ -1156,8 +1186,8 @@ var rudderanalytics = (function (exports) {
         var currencyCode = properties.currency;
         window.appboy.changeUser(userId); // del used properties
 
-        del(properties, 'products');
-        del(properties, 'currency'); // we have to make a separate call to appboy for each product
+        del(properties, "products");
+        del(properties, "currency"); // we have to make a separate call to appboy for each product
 
         products.forEach(function (product) {
           var productId = product.product_id;
@@ -1174,7 +1204,7 @@ var rudderanalytics = (function (exports) {
         var properties = rudderElement.message.properties;
         window.appboy.changeUser(userId);
 
-        if (eventName.toLowerCase() === 'order completed') {
+        if (eventName.toLowerCase() === "order completed") {
           this.handlePurchase(properties, userId);
         } else {
           properties = this.handleReservedProperties(properties);
@@ -1194,6 +1224,11 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "isLoaded",
       value: function isLoaded() {
+        return window.appboyQueue === null;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
         return window.appboyQueue === null;
       }
     }]);
@@ -1360,6 +1395,11 @@ var rudderanalytics = (function (exports) {
       value: function isLoaded() {
         return !!window.intercom_code;
       }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!window.intercom_code;
+      }
     }]);
 
     return INTERCOM;
@@ -1385,7 +1425,7 @@ var rudderanalytics = (function (exports) {
       key: "init",
       value: function init() {
         logger.debug("===in init Keen===");
-        ScriptLoader("keen-integration", 'https://cdn.jsdelivr.net/npm/keen-tracking@4');
+        ScriptLoader("keen-integration", "https://cdn.jsdelivr.net/npm/keen-tracking@4");
         var check = setInterval(checkAndInitKeen.bind(this), 1000);
 
         function initKeen(object) {
@@ -1453,40 +1493,45 @@ var rudderanalytics = (function (exports) {
         return !!(this.client != null);
       }
     }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!(this.client != null);
+      }
+    }, {
       key: "getAddOn",
       value: function getAddOn(properties) {
         var addOns = [];
 
         if (this.ipAddon) {
-          properties.ip_address = '${keen.ip}';
+          properties.ip_address = "${keen.ip}";
           addOns.push({
-            name: 'keen:ip_to_geo',
+            name: "keen:ip_to_geo",
             input: {
-              ip: 'ip_address'
+              ip: "ip_address"
             },
-            output: 'ip_geo_info'
+            output: "ip_geo_info"
           });
         }
 
         if (this.uaAddon) {
-          properties.user_agent = '${keen.user_agent}';
+          properties.user_agent = "${keen.user_agent}";
           addOns.push({
-            name: 'keen:ua_parser',
+            name: "keen:ua_parser",
             input: {
-              ua_string: 'user_agent'
+              ua_string: "user_agent"
             },
-            output: 'parsed_user_agent'
+            output: "parsed_user_agent"
           });
         }
 
         if (this.urlAddon) {
           properties.page_url = document.location.href;
           addOns.push({
-            name: 'keen:url_parser',
+            name: "keen:url_parser",
             input: {
-              url: 'page_url'
+              url: "page_url"
             },
-            output: 'parsed_page_url'
+            output: "parsed_page_url"
           });
         }
 
@@ -1494,12 +1539,12 @@ var rudderanalytics = (function (exports) {
           properties.page_url = document.location.href;
           properties.referrer_url = document.referrer;
           addOns.push({
-            name: 'keen:referrer_parser',
+            name: "keen:referrer_parser",
             input: {
-              referrer_url: 'referrer_url',
-              page_url: 'page_url'
+              referrer_url: "referrer_url",
+              page_url: "page_url"
             },
-            output: 'referrer_info'
+            output: "referrer_info"
           });
         }
 
@@ -3163,6 +3208,11 @@ var rudderanalytics = (function (exports) {
         logger.debug("in Kissmetrics isLoaded");
         return is_1.object(window.KM);
       }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return is_1.object(window.KM);
+      }
     }]);
 
     return Kissmetrics;
@@ -3200,12 +3250,13 @@ var rudderanalytics = (function (exports) {
           for (c = 0; c < b.length; c++) {
             window._cio[b[c]] = a(b[c]);
           }
-          var t = document.createElement('script'),
-              s = document.getElementsByTagName('script')[0];
+
+          var t = document.createElement("script"),
+              s = document.getElementsByTagName("script")[0];
           t.async = true;
-          t.id = 'cio-tracker';
-          t.setAttribute('data-site-id', siteID);
-          t.src = 'https://assets.customer.io/assets/track.js';
+          t.id = "cio-tracker";
+          t.setAttribute("data-site-id", siteID);
+          t.src = "https://assets.customer.io/assets/track.js";
           s.parentNode.insertBefore(t, s);
         })();
       }
@@ -3244,6 +3295,11 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "isLoaded",
       value: function isLoaded() {
+        return !!(window._cio && window._cio.push !== Array.prototype.push);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
         return !!(window._cio && window._cio.push !== Array.prototype.push);
       }
     }]);
@@ -3382,6 +3438,11 @@ var rudderanalytics = (function (exports) {
         return this.failed;
       }
     }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!window.pSUPERFLY;
+      }
+    }, {
       key: "loadConfig",
       value: function loadConfig(rudderElement) {
         var properties = rudderElement.message.properties;
@@ -3427,7 +3488,8 @@ var rudderanalytics = (function (exports) {
 
           loadChartbeat();
         });
-        this.isReady(this).then(function (instance) {
+
+        this._isReady(this).then(function (instance) {
           logger.debug("===replaying on chartbeat===");
           instance.replayEvents.forEach(function (event) {
             instance[event[0]](event[1]);
@@ -3442,8 +3504,8 @@ var rudderanalytics = (function (exports) {
         });
       }
     }, {
-      key: "isReady",
-      value: function isReady(instance) {
+      key: "_isReady",
+      value: function _isReady(instance) {
         var _this2 = this;
 
         var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
@@ -3451,6 +3513,7 @@ var rudderanalytics = (function (exports) {
           if (_this2.isLoaded()) {
             _this2.failed = false;
             logger.debug("===chartbeat loaded successfully===");
+            instance.analytics.emit("ready");
             return resolve(instance);
           }
 
@@ -3461,7 +3524,7 @@ var rudderanalytics = (function (exports) {
           }
 
           _this2.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(function () {
-            return _this2.isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
+            return _this2._isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
           });
         });
       }
@@ -3473,14 +3536,16 @@ var rudderanalytics = (function (exports) {
   var Comscore =
   /*#__PURE__*/
   function () {
-    function Comscore(config) {
+    function Comscore(config, analytics) {
       _classCallCheck(this, Comscore);
 
       this.c2ID = config.c2ID;
+      this.analytics = analytics;
       this.comScoreBeaconParam = config.comScoreBeaconParam ? config.comScoreBeaconParam : {};
       this.isFirstPageCallMade = false;
       this.failed = false;
       this.comScoreParams = {};
+      this.replayEvents = [];
       this.name = "COMSCORE";
     }
 
@@ -3514,7 +3579,7 @@ var rudderanalytics = (function (exports) {
             return;
           }
 
-          if (!isLoaded() && !this.failed) {
+          if (!this.isLoaded() && !this.failed) {
             this.replayEvents.push(["page", rudderElement]);
             return;
           }
@@ -3547,7 +3612,7 @@ var rudderanalytics = (function (exports) {
           el.parentNode.insertBefore(s, el);
         })();
 
-        this.isReady(this).then(function (instance) {
+        this._isReady(this).then(function (instance) {
           instance.replayEvents.forEach(function (event) {
             instance[event[0]](event[1]);
           });
@@ -3561,14 +3626,15 @@ var rudderanalytics = (function (exports) {
         });
       }
     }, {
-      key: "isReady",
-      value: function isReady(instance) {
+      key: "_isReady",
+      value: function _isReady(instance) {
         var _this = this;
 
         var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
         return new Promise(function (resolve) {
           if (_this.isLoaded()) {
             _this.failed = false;
+            instance.analytics.emit("ready");
             return resolve(instance);
           }
 
@@ -3578,7 +3644,7 @@ var rudderanalytics = (function (exports) {
           }
 
           _this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(function () {
-            return _this.isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
+            return _this._isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
           });
         });
       }
@@ -3614,6 +3680,11 @@ var rudderanalytics = (function (exports) {
         } else {
           return !!window.COMSCORE;
         }
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!window.COMSCORE;
       }
     }]);
 
@@ -6375,7 +6446,9 @@ var rudderanalytics = (function (exports) {
   var defaults$1 = {
     user_storage_key: "rl_user_id",
     user_storage_trait: "rl_trait",
-    user_storage_anonymousId: "rl_anonymous_id"
+    user_storage_anonymousId: "rl_anonymous_id",
+    group_storage_key: "rl_group_id",
+    group_storage_trait: "rl_group_trait"
   };
   /**
    * An object that handles persisting key-val from Analytics
@@ -6447,6 +6520,33 @@ var rudderanalytics = (function (exports) {
        */
 
     }, {
+      key: "setGroupId",
+      value: function setGroupId(value) {
+        if (typeof value != "string") {
+          logger.error("groupId should be string");
+          return;
+        }
+
+        this.storage.set(defaults$1.group_storage_key, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setGroupTraits",
+      value: function setGroupTraits(value) {
+        this.storage.set(defaults$1.group_storage_trait, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
       key: "setAnonymousId",
       value: function setAnonymousId(value) {
         if (typeof value != "string") {
@@ -6484,6 +6584,24 @@ var rudderanalytics = (function (exports) {
       key: "getUserTraits",
       value: function getUserTraits() {
         return this.storage.get(defaults$1.user_storage_trait);
+      }
+      /**
+       * get the stored userId
+       */
+
+    }, {
+      key: "getGroupId",
+      value: function getGroupId() {
+        return this.storage.get(defaults$1.group_storage_key);
+      }
+      /**
+       * get the stored user traits
+       */
+
+    }, {
+      key: "getGroupTraits",
+      value: function getGroupTraits() {
+        return this.storage.get(defaults$1.group_storage_trait);
       }
       /**
        * get stored anonymous id
@@ -8384,6 +8502,35 @@ var rudderanalytics = (function (exports) {
     }
   }
 
+  var after_1 = after;
+
+  function after(count, callback, err_cb) {
+      var bail = false;
+      err_cb = err_cb || noop;
+      proxy.count = count;
+
+      return (count === 0) ? callback() : proxy
+
+      function proxy(err, result) {
+          if (proxy.count <= 0) {
+              throw new Error('after called too many times')
+          }
+          --proxy.count;
+
+          // after first error, rest are passed to err_cb
+          if (err) {
+              bail = true;
+              callback(err);
+              // future error callbacks will go to error handler
+              callback = err_cb;
+          } else if (proxy.count === 0 && !bail) {
+              callback(null, result);
+          }
+      }
+  }
+
+  function noop() {}
+
   /**
    * Add the rudderelement object to flush queue
    *
@@ -8416,7 +8563,6 @@ var rudderanalytics = (function (exports) {
       this.autoTrackHandlersRegistered = false;
       this.autoTrackFeatureEnabled = false;
       this.initialized = false;
-      this.ready = false;
       this.trackValues = [];
       this.eventsBuffer = [];
       this.clientIntegrations = [];
@@ -8429,9 +8575,13 @@ var rudderanalytics = (function (exports) {
       this.storage = new Storage$1();
       this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
       this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
+      this.groupId = this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
+      this.groupTraits = this.storage.getGroupTraits() != undefined ? this.storage.getGroupTraits() : {};
       this.anonymousId = this.getAnonymousId();
       this.storage.setUserId(this.userId);
       this.eventRepository = eventRepository;
+      this.readyCallback = undefined;
+      this.executeReadyCallback = undefined;
     }
     /**
      * Process the response from control plane and
@@ -8459,7 +8609,7 @@ var rudderanalytics = (function (exports) {
           response.source.destinations.forEach(function (destination, index) {
             logger.debug("Destination " + index + " Enabled? " + destination.enabled + " Type: " + destination.destinationDefinition.name + " Use Native SDK? " + destination.config.useNativeSDK);
 
-            if (destination.enabled && destination.config.useNativeSDK) {
+            if (destination.enabled) {
               this.clientIntegrations.push(destination.destinationDefinition.name);
               this.configArray.push(destination.config);
             }
@@ -8495,6 +8645,10 @@ var rudderanalytics = (function (exports) {
         this.clientIntegrationObjects = [];
 
         if (!intgArray || intgArray.length == 0) {
+          if (this.readyCallback) {
+            this.readyCallback();
+          }
+
           this.toBeProcessedByIntegrationArray = [];
           return;
         }
@@ -8513,7 +8667,14 @@ var rudderanalytics = (function (exports) {
       key: "replayEvents",
       value: function replayEvents(object) {
         if (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length) {
-          object.clientIntegrationObjects = object.successfullyLoadedIntegration; //send the queued events to the fetched integration
+          object.clientIntegrationObjects = object.successfullyLoadedIntegration;
+          object.executeReadyCallback = after_1(object.clientIntegrationObjects.length, object.readyCallback);
+          object.on("ready", object.executeReadyCallback);
+          object.clientIntegrationObjects.forEach(function (intg) {
+            if (!intg["isReady"] || intg["isReady"]()) {
+              object.emit("ready");
+            }
+          }); //send the queued events to the fetched integration
 
           object.toBeProcessedByIntegrationArray.forEach(function (event) {
             var methodName = event[0];
@@ -8645,6 +8806,36 @@ var rudderanalytics = (function (exports) {
         rudderElement.message.previousId = from || this.userId ? this.userId : this.getAnonymousId();
         rudderElement.message.userId = to;
         this.processAndSendDataToDestinations("alias", rudderElement, options, callback);
+      }
+      /**
+       *
+       * @param {*} to
+       * @param {*} from
+       * @param {*} options
+       * @param {*} callback
+       */
+
+    }, {
+      key: "group",
+      value: function group(groupId, traits, options, callback) {
+        if (!arguments.length) return;
+        if (typeof options == "function") callback = options, options = null;
+        if (typeof traits == "function") callback = traits, options = null, traits = null;
+        if (_typeof(groupId) == "object") options = traits, traits = groupId, groupId = this.groupId;
+        this.groupId = groupId;
+        this.storage.setGroupId(this.groupId);
+        var rudderElement = new RudderElementBuilder().setType("group").build();
+
+        if (traits) {
+          for (var key in traits) {
+            this.groupTraits[key] = traits[key];
+          }
+        } else {
+          this.groupTraits = {};
+        }
+
+        this.storage.setGroupTraits(this.groupTraits);
+        this.processAndSendDataToDestinations("group", rudderElement, options, callback);
       }
       /**
        * Send page call to Rudder BE and to initialized integrations
@@ -8809,6 +9000,16 @@ var rudderanalytics = (function (exports) {
           rudderElement["message"]["anonymousId"] = this.anonymousId;
           rudderElement["message"]["userId"] = rudderElement["message"]["userId"] ? rudderElement["message"]["userId"] : this.userId;
 
+          if (type == "group") {
+            if (this.groupId) {
+              rudderElement["message"]["traits"] = this.groupId;
+            }
+
+            if (this.groupTraits) {
+              rudderElement["message"]["traits"] = Object.assign({}, this.groupTraits);
+            }
+          }
+
           if (options) {
             this.processOptionsParam(rudderElement, options);
           }
@@ -8966,6 +9167,16 @@ var rudderanalytics = (function (exports) {
           }
         }
       }
+    }, {
+      key: "ready",
+      value: function ready(callback) {
+        if (typeof callback == "function") {
+          this.readyCallback = callback;
+          return;
+        }
+
+        logger.error("ready callback is not a function");
+      }
     }]);
 
     return Analytics;
@@ -8978,6 +9189,7 @@ var rudderanalytics = (function (exports) {
   }
 
   var instance = new Analytics();
+  componentEmitter(instance);
 
   {
     var eventsPushedAlready = !!window.rudderanalytics && window.rudderanalytics.push == Array.prototype.push;
@@ -9007,10 +9219,12 @@ var rudderanalytics = (function (exports) {
     }
   }
 
+  var ready = instance.ready.bind(instance);
   var identify = instance.identify.bind(instance);
   var page = instance.page.bind(instance);
   var track = instance.track.bind(instance);
   var alias = instance.alias.bind(instance);
+  var group = instance.group.bind(instance);
   var reset = instance.reset.bind(instance);
   var load = instance.load.bind(instance);
   var initialized = instance.initialized = true;
@@ -9019,10 +9233,12 @@ var rudderanalytics = (function (exports) {
 
   exports.alias = alias;
   exports.getAnonymousId = getAnonymousId;
+  exports.group = group;
   exports.identify = identify;
   exports.initialized = initialized;
   exports.load = load;
   exports.page = page;
+  exports.ready = ready;
   exports.reset = reset;
   exports.setAnonymousId = setAnonymousId;
   exports.track = track;
