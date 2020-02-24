@@ -75,7 +75,7 @@ class Analytics {
     this.anonymousId = this.getAnonymousId();
     this.storage.setUserId(this.userId);
     this.eventRepository = EventRepository;
-    this.readyCallback = undefined;
+    this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
   }
 
