@@ -256,15 +256,11 @@ class Kissmetrics {
   }
 
   group(rudderElement) {
-    let userId = rudderElement.message.userId;
     let groupId = rudderElement.message.groupId;
     let groupTraits = rudderElement.message.traits;
     groupTraits = this.prefix("Group", groupTraits);
     if(groupId){
       groupTraits["Group - id"] = groupId;
-    }
-    if (userId) {
-      window._kmq.push(["identify", userId]);
     }
     window._kmq.push(["set", groupTraits]);
   }
