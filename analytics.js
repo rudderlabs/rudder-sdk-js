@@ -67,11 +67,11 @@ class Analytics {
     this.groupId =
       this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
 
-    this.groupTraits = 
+    this.groupTraits =
       this.storage.getGroupTraits() != undefined
         ? this.storage.getGroupTraits()
         : {};
-    
+
     this.anonymousId = this.getAnonymousId();
     this.storage.setUserId(this.userId);
     this.eventRepository = EventRepository;
@@ -331,12 +331,13 @@ class Analytics {
    * @param {*} callback
    */
   group(groupId, traits, options, callback) {
-
     if (!arguments.length) return;
 
     if (typeof options == "function") (callback = options), (options = null);
-    if (typeof traits == "function") (callback = traits), (options = null), (traits = null);
-    if (typeof groupId == "object") (options = traits), (traits = groupId), (groupId = this.groupId);
+    if (typeof traits == "function")
+      (callback = traits), (options = null), (traits = null);
+    if (typeof groupId == "object")
+      (options = traits), (traits = groupId), (groupId = this.groupId);
 
     this.groupId = groupId;
     this.storage.setGroupId(this.groupId);
@@ -347,7 +348,7 @@ class Analytics {
         this.groupTraits[key] = traits[key];
       }
     } else {
-      this.groupTraits = {}
+      this.groupTraits = {};
     }
     this.storage.setGroupTraits(this.groupTraits);
 
@@ -529,11 +530,11 @@ class Analytics {
         ? rudderElement["message"]["userId"]
         : this.userId;
 
-      if(type == "group"){
-        if(this.groupId){
-          rudderElement["message"]["traits"] = this.groupId
+      if (type == "group") {
+        if (this.groupId) {
+          rudderElement["message"]["groupId"] = this.groupId;
         }
-        if(this.groupTraits){
+        if (this.groupTraits) {
           rudderElement["message"]["traits"] = Object.assign(
             {},
             this.groupTraits
