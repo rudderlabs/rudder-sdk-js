@@ -616,6 +616,7 @@ var rudderanalytics = (function (exports) {
       this.siteId = config.siteID; //1549611
 
       this.name = "HOTJAR";
+      this._ready = false;
     }
 
     _createClass(Hotjar, [{
@@ -639,12 +640,21 @@ var rudderanalytics = (function (exports) {
           a.appendChild(r);
         })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
 
+        this._ready = true;
         logger.debug("===in init Hotjar===");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        logger.error("method not supported");
+        var userId = rudderElement.message.userId || rudderElement.message.anonymousId;
+
+        if (!userId) {
+          logger.error('user id is required');
+          return;
+        }
+
+        var traits = rudderElement.message.context.traits;
+        window.hj('identify', rudderElement.message.userId, traits);
       }
     }, {
       key: "track",
@@ -659,12 +669,12 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "isLoaded",
       value: function isLoaded() {
-        logger.error("method not supported");
+        return this._ready;
       }
     }, {
       key: "isReady",
       value: function isReady() {
-        return true;
+        return this._ready;
       }
     }]);
 
@@ -3200,12 +3210,21 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "group",
       value: function group(rudderElement) {
-        logger.debug("group not supported");
+        var groupId = rudderElement.message.groupId;
+        var groupTraits = rudderElement.message.traits;
+        groupTraits = this.prefix("Group", groupTraits);
+
+        if (groupId) {
+          groupTraits["Group - id"] = groupId;
+        }
+
+        window._kmq.push(["set", groupTraits]);
+
+        logger.debug("in Kissmetrics group");
       }
     }, {
       key: "isLoaded",
       value: function isLoaded() {
-        logger.debug("in Kissmetrics isLoaded");
         return is_1.object(window.KM);
       }
     }, {
@@ -3714,7 +3733,7 @@ var rudderanalytics = (function (exports) {
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.1.0-beta.3";
+    this.version = "1.1.0-beta.4";
   };
 
   //Library information class
@@ -3722,7 +3741,7 @@ var rudderanalytics = (function (exports) {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.1.0-beta.3";
+    this.version = "1.1.0-beta.4";
   }; //Operating System information class
 
 
@@ -8580,7 +8599,9 @@ var rudderanalytics = (function (exports) {
       this.anonymousId = this.getAnonymousId();
       this.storage.setUserId(this.userId);
       this.eventRepository = eventRepository;
-      this.readyCallback = undefined;
+
+      this.readyCallback = function () {};
+
       this.executeReadyCallback = undefined;
     }
     /**
@@ -8641,8 +8662,7 @@ var rudderanalytics = (function (exports) {
         var _this = this;
 
         var self = this;
-        logger.debug("supported intgs ", integrations);
-        this.clientIntegrationObjects = [];
+        logger.debug("supported intgs ", integrations); // this.clientIntegrationObjects = [];
 
         if (!intgArray || intgArray.length == 0) {
           if (this.readyCallback) {
@@ -8667,6 +8687,7 @@ var rudderanalytics = (function (exports) {
       key: "replayEvents",
       value: function replayEvents(object) {
         if (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length) {
+          object.clientIntegrationObjects = [];
           object.clientIntegrationObjects = object.successfullyLoadedIntegration;
           object.executeReadyCallback = after_1(object.clientIntegrationObjects.length, object.readyCallback);
           object.on("ready", object.executeReadyCallback);
