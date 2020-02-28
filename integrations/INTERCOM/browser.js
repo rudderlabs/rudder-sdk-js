@@ -154,6 +154,10 @@ class INTERCOM {
   isLoaded() {
     return !!window.intercom_code;
   }
+
+  isReady() {
+    return !!window.intercom_code;
+  }
 }
 
 export { INTERCOM };

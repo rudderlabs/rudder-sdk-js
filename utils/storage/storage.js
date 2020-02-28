@@ -4,7 +4,9 @@ import { Store } from "./store";
 let defaults = {
   user_storage_key: "rl_user_id",
   user_storage_trait: "rl_trait",
-  user_storage_anonymousId: "rl_anonymous_id"
+  user_storage_anonymousId: "rl_anonymous_id",
+  group_storage_key: "rl_group_id",
+  group_storage_trait: "rl_group_trait"
 };
 
 /**
@@ -63,6 +65,28 @@ class Storage {
    *
    * @param {*} value
    */
+  setGroupId(value) {
+    if (typeof value != "string") {
+      logger.error("groupId should be string");
+      return;
+    }
+    this.storage.set(defaults.group_storage_key, value);
+    return;
+  }
+
+  /**
+   *
+   * @param {*} value
+   */
+  setGroupTraits(value) {
+    this.storage.set(defaults.group_storage_trait, value);
+    return;
+  }
+
+  /**
+   *
+   * @param {*} value
+   */
   setAnonymousId(value) {
     if (typeof value != "string") {
       logger.error("anonymousId should be string");
@@ -92,6 +116,20 @@ class Storage {
    */
   getUserTraits() {
     return this.storage.get(defaults.user_storage_trait);
+  }
+
+  /**
+   * get the stored userId
+   */
+  getGroupId() {
+    return this.storage.get(defaults.group_storage_key);
+  }
+
+  /**
+   * get the stored user traits
+   */
+  getGroupTraits() {
+    return this.storage.get(defaults.group_storage_trait);
   }
 
   /**

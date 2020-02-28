@@ -159,6 +159,10 @@ class VWO {
   isLoaded() {
     return !!window._vwo_code;
   }
+
+  isReady() {
+    return !!window._vwo_code;
+  }
 }
 
 export { VWO };

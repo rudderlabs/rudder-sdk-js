@@ -1,0 +1,11 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ubuntu/rudder-sdk-js
+permissions:
+  - object: /home/ubuntu/rudder-sdk-js
+    pattern: '**'
+    owner: ubuntu
+    group: ubuntu
+    mode: 755

@@ -16,6 +16,8 @@ import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
+import Emitter from "component-emitter";
+import after from "after";
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
@@ -44,7 +46,6 @@ class Analytics {
     this.autoTrackHandlersRegistered = false;
     this.autoTrackFeatureEnabled = false;
     this.initialized = false;
-    this.ready = false;
     this.trackValues = [];
     this.eventsBuffer = [];
     this.clientIntegrations = [];
@@ -63,9 +64,19 @@ class Analytics {
         ? this.storage.getUserTraits()
         : {};
 
+    this.groupId =
+      this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
+
+    this.groupTraits =
+      this.storage.getGroupTraits() != undefined
+        ? this.storage.getGroupTraits()
+        : {};
+
     this.anonymousId = this.getAnonymousId();
     this.storage.setUserId(this.userId);
     this.eventRepository = EventRepository;
+    this.readyCallback = undefined;
+    this.executeReadyCallback = undefined;
   }
 
   /**
@@ -96,7 +107,7 @@ class Analytics {
             " Use Native SDK? " +
             destination.config.useNativeSDK
         );
-        if (destination.enabled && destination.config.useNativeSDK) {
+        if (destination.enabled) {
           this.clientIntegrations.push(destination.destinationDefinition.name);
           this.configArray.push(destination.config);
         }
@@ -130,6 +141,9 @@ class Analytics {
     this.clientIntegrationObjects = [];
 
     if (!intgArray || intgArray.length == 0) {
+      if (this.readyCallback) {
+        this.readyCallback();
+      }
       this.toBeProcessedByIntegrationArray = [];
       return;
     }
@@ -152,6 +166,20 @@ class Analytics {
       object.clientIntegrations.length
     ) {
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
+
+      object.executeReadyCallback = after(
+        object.clientIntegrationObjects.length,
+        object.readyCallback
+      );
+
+      object.on("ready", object.executeReadyCallback);
+
+      object.clientIntegrationObjects.forEach(intg => {
+        if (!intg["isReady"] || intg["isReady"]()) {
+          object.emit("ready");
+        }
+      });
+
       //send the queued events to the fetched integration
       object.toBeProcessedByIntegrationArray.forEach(event => {
         let methodName = event[0];
@@ -289,6 +317,43 @@ class Analytics {
 
     this.processAndSendDataToDestinations(
       "alias",
+      rudderElement,
+      options,
+      callback
+    );
+  }
+
+  /**
+   *
+   * @param {*} to
+   * @param {*} from
+   * @param {*} options
+   * @param {*} callback
+   */
+  group(groupId, traits, options, callback) {
+    if (!arguments.length) return;
+
+    if (typeof options == "function") (callback = options), (options = null);
+    if (typeof traits == "function")
+      (callback = traits), (options = null), (traits = null);
+    if (typeof groupId == "object")
+      (options = traits), (traits = groupId), (groupId = this.groupId);
+
+    this.groupId = groupId;
+    this.storage.setGroupId(this.groupId);
+
+    let rudderElement = new RudderElementBuilder().setType("group").build();
+    if (traits) {
+      for (let key in traits) {
+        this.groupTraits[key] = traits[key];
+      }
+    } else {
+      this.groupTraits = {};
+    }
+    this.storage.setGroupTraits(this.groupTraits);
+
+    this.processAndSendDataToDestinations(
+      "group",
       rudderElement,
       options,
       callback
@@ -465,6 +530,18 @@ class Analytics {
         ? rudderElement["message"]["userId"]
         : this.userId;
 
+      if (type == "group") {
+        if (this.groupId) {
+          rudderElement["message"]["groupId"] = this.groupId;
+        }
+        if (this.groupTraits) {
+          rudderElement["message"]["traits"] = Object.assign(
+            {},
+            this.groupTraits
+          );
+        }
+      }
+
       if (options) {
         this.processOptionsParam(rudderElement, options);
       }
@@ -608,6 +685,14 @@ class Analytics {
       }
     }
   }
+
+  ready(callback) {
+    if (typeof callback == "function") {
+      this.readyCallback = callback;
+      return;
+    }
+    logger.error("ready callback is not a function");
+  }
 }
 
 if (process.browser) {
@@ -621,6 +706,8 @@ if (process.browser) {
 }
 
 let instance = new Analytics();
+
+Emitter(instance);
 
 if (process.browser) {
   let eventsPushedAlready =
@@ -649,10 +736,12 @@ if (process.browser) {
   }
 }
 
+let ready = instance.ready.bind(instance);
 let identify = instance.identify.bind(instance);
 let page = instance.page.bind(instance);
 let track = instance.track.bind(instance);
 let alias = instance.alias.bind(instance);
+let group = instance.group.bind(instance);
 let reset = instance.reset.bind(instance);
 let load = instance.load.bind(instance);
 let initialized = (instance.initialized = true);
@@ -661,12 +750,14 @@ let setAnonymousId = instance.setAnonymousId.bind(instance);
 
 export {
   initialized,
+  ready,
   page,
   track,
   load,
   identify,
   reset,
   alias,
+  group,
   getAnonymousId,
   setAnonymousId
 };

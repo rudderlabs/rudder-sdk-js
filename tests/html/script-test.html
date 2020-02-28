@@ -1,6 +1,7 @@
 <html>
   <head>
     <script type="text/javascript">
+      // checking test commit 2
       rudderanalytics = window.rudderanalytics = [];
       var methods = [
         "load",
@@ -22,8 +23,8 @@
       }
 
       rudderanalytics.load(
-        "1WTGuWl5FkIZF5DSOGfwBfWspBC",
-        "http://localhost:8080"
+        "1WxuLjndG7YDBT603xZH01mI0HW",
+        "http://localhost:8090"
       );
       rudderanalytics.track();
       // rudderanalytics.page(); //Turn this on if Chartbeat is a destination
@@ -32,7 +33,9 @@
     <script src="./browser.js"></script>
 
     <script>
-      console.log("3");
+      window.rudderanalytics.ready(() => {
+        console.log("we are all set!!!");
+      });
       window.rudderanalytics.page();
       window.rudderanalytics.identify("fshdgfsd", {
         name: "Michael Bolton",
@@ -51,7 +54,7 @@
         price: 99.95,
         currency: "EUR"
       });
-      console.log("4");
+      window.rudderanalytics.page();
     </script>
   </head>
   <body>
