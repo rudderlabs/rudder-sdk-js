@@ -138,7 +138,7 @@ class Analytics {
   init(intgArray, configArray) {
     let self = this;
     logger.debug("supported intgs ", integrations);
-    this.clientIntegrationObjects = [];
+    // this.clientIntegrationObjects = [];
 
     if (!intgArray || intgArray.length == 0) {
       if (this.readyCallback) {
@@ -165,6 +165,7 @@ class Analytics {
         object.failedToBeLoadedIntegration.length ==
       object.clientIntegrations.length
     ) {
+      object.clientIntegrationObjects = [];
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
 
       object.executeReadyCallback = after(

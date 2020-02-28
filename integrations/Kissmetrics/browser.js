@@ -263,10 +263,10 @@ class Kissmetrics {
       groupTraits["Group - id"] = groupId;
     }
     window._kmq.push(["set", groupTraits]);
+    logger.debug("in Kissmetrics group");
   }
 
   isLoaded() {
-    logger.debug("in Kissmetrics isLoaded");
     return is.object(window.KM);
   }
 
