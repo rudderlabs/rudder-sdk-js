@@ -3714,7 +3714,7 @@ var rudderanalytics = (function (exports) {
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.1.0-beta.2";
+    this.version = "1.1.0-beta.3";
   };
 
   //Library information class
@@ -3722,7 +3722,7 @@ var rudderanalytics = (function (exports) {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.1.0-beta.2";
+    this.version = "1.1.0-beta.3";
   }; //Operating System information class
 
 
@@ -9002,7 +9002,7 @@ var rudderanalytics = (function (exports) {
 
           if (type == "group") {
             if (this.groupId) {
-              rudderElement["message"]["traits"] = this.groupId;
+              rudderElement["message"]["groupId"] = this.groupId;
             }
 
             if (this.groupTraits) {
