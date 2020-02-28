@@ -3,6 +3,7 @@ class Hotjar {
   constructor(config) {
     this.siteId = config.siteID; //1549611
     this.name = "HOTJAR";
+    this._ready = false;
   }
 
   init() {
@@ -20,12 +21,21 @@ class Hotjar {
       r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
       a.appendChild(r);
     })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
+    this._ready = true;
 
     logger.debug("===in init Hotjar===");
   }
 
   identify(rudderElement) {
-    logger.error("method not supported");
+    let userId = rudderElement.message.userId || rudderElement.message.anonymousId;
+    if (!userId){
+      logger.error('user id is required');
+      return;
+    }
+  
+    var traits = rudderElement.message.context.traits;
+  
+    window.hj('identify', rudderElement.message.userId, traits);
   }
 
   track(rudderElement) {
@@ -37,11 +47,11 @@ class Hotjar {
   }
 
   isLoaded() {
-    logger.error("method not supported");
+    return this._ready;
   }
 
   isReady() {
-    return true;
+    return this._ready;
   }
 }
 
