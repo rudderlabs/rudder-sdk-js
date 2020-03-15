@@ -62,9 +62,6 @@ rudderanalytics.identify(
       "12345",
       { email: "name@domain.com" },
       {
-        context: {
-          ip: "0.0.0.0"
-        },
         page: {
           path: "",
           referrer: "",
