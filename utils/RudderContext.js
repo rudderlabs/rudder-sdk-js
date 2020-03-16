@@ -37,7 +37,6 @@ class RudderContext {
       //property name differs based on browser version
       this.locale = navigator.language || navigator.browserLanguage;
     }
-    this.ip = "0.0.0.0";
     this.os = os;
     this.screen = screen;
     this.device = null;
