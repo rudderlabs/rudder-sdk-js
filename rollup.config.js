@@ -6,7 +6,6 @@ import { terser } from "rollup-plugin-terser";
 import builtins from "rollup-plugin-node-builtins";
 import globals from "rollup-plugin-node-globals";
 import json from "rollup-plugin-json";
-import obfuscatorPlugin from "rollup-plugin-javascript-obfuscator";
 import { version } from "./package.json";
 export default {
   input: "analytics.js",
@@ -55,8 +54,8 @@ export default {
     babel({
       exclude: "node_modules/**"
     }),
-    process.env.uglify === "true" && terser(),
-    process.env.ENV == "prod" &&
+    process.env.uglify === "true" && terser()
+    /* process.env.ENV == "prod" &&
       obfuscatorPlugin({
         compact: true,
         controlFlowFlattening: true,
@@ -73,7 +72,7 @@ export default {
         stringArrayEncoding: false,
         transformObjectKeys: false,
         unicodeEscapeSequence: false
-      })
+      }) */
     //process.env.uglify === "true" && uglify()
   ]
 };
