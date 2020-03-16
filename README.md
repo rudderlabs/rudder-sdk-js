@@ -91,6 +91,26 @@ rudderanalytics.track(
     user_actual_id:  12345
   },
   {
+    anonymousId:  "00000000000000000000000000"
+  }, 
+  () => {console.log("in track call");}
+);
+```
+In the above example, the method tracks the event ‘test track event GA3’, information such as the revenue, currency, anonymousId.
+
+You can use this method to track various other success metrics for your website, such as user signups, item purchases, article bookmarks, and much more.
+
+**NOTE**: To override contextual information, for ex: anonymizing IP and other contextual fields, the following template can be used. Similarly for overriding the auto generated anonymousId with provided id.
+
+```
+rudderanalytics.track(
+  "test track event GA3",
+  {
+    revenue:  30,
+    currency:  'USD' ,
+    user_actual_id:  12345
+  },
+  {
     context: {
       ip:  "0.0.0.0"
     },
@@ -99,9 +119,6 @@ rudderanalytics.track(
   () => {console.log("in track call");}
 );
 ```
-In the above example, the method tracks the event ‘test track event GA3’, information such as the revenue, currently, user ID and other contextual information such as IP address.
-
-You can use this method to track various other success metrics for your website, such as user signups, item purchases, article bookmarks, and much more.
 
 And we’re done! You’ve successfully installed `rudder-analytics.js` tracking. Now you can enable and use any event destination to send your processed event data that you want, in no time at all.
 
