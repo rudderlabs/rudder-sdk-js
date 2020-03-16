@@ -1,13 +1,14 @@
 var ghRelease = require("gh-release");
+const homedir = require("os").homedir();
 
 // options can also be just an empty object
 var options = {};
 
 // all options have defaults and can be omitted
 var options = {
-  tag_name: "1.1.0-beta.1",
+  tag_name: "1.1.1-rc.0",
   target_commitish: "master",
-  name: "Release 1.1.0-beta.1",
+  name: "Pre Release 1.1.1-rc.0",
   draft: false,
   prerelease: true,
   repo: "rudder-sdk-js",
@@ -16,8 +17,11 @@ var options = {
 };
 
 // or an API token
+let token = fs.readFileSync(homedir + "/.gh_token", "utf8");
+token = token.replace(/\n/g, "");
+
 options.auth = {
-  token: ""
+  token
 };
 
 ghRelease(options, function(err, result) {
