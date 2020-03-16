@@ -30,6 +30,7 @@
     "component-cookie": "^1.1.4",
     "component-each": "^0.2.6",
     "component-emitter": "github:component/emitter",
+    "fs": "0.0.1-security",
     "gh-release": "^3.5.0",
     "is": "^3.3.0",
     "json3": "^3.3.3",
