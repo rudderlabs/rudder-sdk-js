@@ -1,5 +1,6 @@
 var ghRelease = require("gh-release");
 const homedir = require("os").homedir();
+const fs = require("fs");
 
 // options can also be just an empty object
 var options = {};
