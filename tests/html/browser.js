@@ -3327,127 +3327,6 @@ var rudderanalytics = (function (exports) {
   }();
 
   /**
-   * toString ref.
-   */
-
-  var toString$2 = Object.prototype.toString;
-
-  /**
-   * Return the type of `val`.
-   *
-   * @param {Mixed} val
-   * @return {String}
-   * @api public
-   */
-
-  var componentType$1 = function(val){
-    switch (toString$2.call(val)) {
-      case '[object Function]': return 'function';
-      case '[object Date]': return 'date';
-      case '[object RegExp]': return 'regexp';
-      case '[object Arguments]': return 'arguments';
-      case '[object Array]': return 'array';
-      case '[object String]': return 'string';
-    }
-
-    if (val === null) return 'null';
-    if (val === undefined) return 'undefined';
-    if (val && val.nodeType === 1) return 'element';
-    if (val === Object(val)) return 'object';
-
-    return typeof val;
-  };
-
-  /**
-   * Module dependencies.
-   */
-
-  try {
-    var type$1 = componentType$1;
-  } catch (err) {
-    var type$1 = componentType$1;
-  }
-
-
-
-  /**
-   * HOP reference.
-   */
-
-  var has$2 = Object.prototype.hasOwnProperty;
-
-  /**
-   * Iterate the given `obj` and invoke `fn(val, i)`
-   * in optional context `ctx`.
-   *
-   * @param {String|Array|Object} obj
-   * @param {Function} fn
-   * @param {Object} [ctx]
-   * @api public
-   */
-
-  var componentEach$1 = function(obj, fn, ctx){
-    fn = toFunction_1(fn);
-    ctx = ctx || this;
-    switch (type$1(obj)) {
-      case 'array':
-        return array$1(obj, fn, ctx);
-      case 'object':
-        if ('number' == typeof obj.length) return array$1(obj, fn, ctx);
-        return object$1(obj, fn, ctx);
-      case 'string':
-        return string$1(obj, fn, ctx);
-    }
-  };
-
-  /**
-   * Iterate string chars.
-   *
-   * @param {String} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function string$1(obj, fn, ctx) {
-    for (var i = 0; i < obj.length; ++i) {
-      fn.call(ctx, obj.charAt(i), i);
-    }
-  }
-
-  /**
-   * Iterate object keys.
-   *
-   * @param {Object} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function object$1(obj, fn, ctx) {
-    for (var key in obj) {
-      if (has$2.call(obj, key)) {
-        fn.call(ctx, key, obj[key]);
-      }
-    }
-  }
-
-  /**
-   * Iterate array-ish.
-   *
-   * @param {Array|Object} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function array$1(obj, fn, ctx) {
-    for (var i = 0; i < obj.length; ++i) {
-      fn.call(ctx, obj[i], i);
-    }
-  }
-
-  /**
    * Cache whether `<body>` exists.
    */
 
@@ -3483,7 +3362,7 @@ var rudderanalytics = (function (exports) {
   var interval = setInterval(function () {
     if (!document.body) return;
     body = true;
-    componentEach$1(callbacks, call);
+    componentEach(callbacks, call);
     clearInterval(interval);
   }, 5);
 
@@ -4152,7 +4031,7 @@ var rudderanalytics = (function (exports) {
    * toString ref.
    */
 
-  var toString$3 = Object.prototype.toString;
+  var toString$2 = Object.prototype.toString;
 
   /**
    * Return the type of `val`.
@@ -4162,8 +4041,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentType$2 = function(val){
-    switch (toString$3.call(val)) {
+  var componentType$1 = function(val){
+    switch (toString$2.call(val)) {
       case '[object Date]': return 'date';
       case '[object RegExp]': return 'regexp';
       case '[object Arguments]': return 'arguments';
@@ -4208,7 +4087,7 @@ var rudderanalytics = (function (exports) {
    */
 
   var clone = function clone(obj) {
-    var t = componentType$2(obj);
+    var t = componentType$1(obj);
 
     if (t === 'object') {
       var copy = {};
@@ -4980,7 +4859,7 @@ var rudderanalytics = (function (exports) {
 
 
 
-  var has$3 = Object.prototype.hasOwnProperty;
+  var has$2 = Object.prototype.hasOwnProperty;
   var objToString = Object.prototype.toString;
 
   /**
@@ -5021,7 +4900,7 @@ var rudderanalytics = (function (exports) {
    * @param {string} key
    */
   var shallowCombiner = function shallowCombiner(target, source, value, key) {
-    if (has$3.call(source, key) && target[key] === undefined) {
+    if (has$2.call(source, key) && target[key] === undefined) {
       target[key] = value;
     }
     return source;
@@ -5040,7 +4919,7 @@ var rudderanalytics = (function (exports) {
    * @return {Object}
    */
   var deepCombiner = function(target, source, value, key) {
-    if (has$3.call(source, key)) {
+    if (has$2.call(source, key)) {
       if (isPlainObject(target[key]) && isPlainObject(value)) {
           target[key] = defaultsDeep(target[key], value);
       } else if (target[key] === undefined) {
@@ -7016,7 +6895,7 @@ var rudderanalytics = (function (exports) {
    */
 
   // TODO: Move to a library
-  var has$4 = function has(context, prop) {
+  var has$3 = function has(context, prop) {
     return hop.call(context, prop);
   };
 
@@ -7060,7 +6939,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    */
   var indexKeys = function indexKeys(target, pred) {
-    pred = pred || has$4;
+    pred = pred || has$3;
 
     var results = [];
 
@@ -7084,7 +6963,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    */
   var objectKeys = function objectKeys(target, pred) {
-    pred = pred || has$4;
+    pred = pred || has$3;
 
     var results = [];
 
@@ -7141,7 +7020,7 @@ var rudderanalytics = (function (exports) {
 
     // IE6-8 compatibility (arguments)
     if (isArrayLike(source)) {
-      return indexKeys(source, has$4);
+      return indexKeys(source, has$3);
     }
 
     return objectKeys(source);
@@ -9299,6 +9178,17 @@ var rudderanalytics = (function (exports) {
           configUrl = options.configUrl;
         }
 
+        logger.debug("inside load ");
+        this.eventRepository.writeKey = writeKey;
+
+        if (serverUrl) {
+          this.eventRepository.url = serverUrl;
+        }
+
+        if (options && options.valTrackingList && options.valTrackingList.push == Array.prototype.push) {
+          this.trackValues = options.valTrackingList;
+        }
+
         if (options && options.useAutoTracking) {
           this.autoTrackFeatureEnabled = true;
 
@@ -9307,17 +9197,6 @@ var rudderanalytics = (function (exports) {
             this.autoTrackHandlersRegistered = true;
             logger.debug("autoTrackHandlersRegistered", this.autoTrackHandlersRegistered);
           }
-        }
-
-        if (options && options.valTrackingList && options.valTrackingList.push == Array.prototype.push) {
-          this.trackValues = options.valTrackingList;
-        }
-
-        logger.debug("inside load ");
-        this.eventRepository.writeKey = writeKey;
-
-        if (serverUrl) {
-          this.eventRepository.url = serverUrl;
         }
 
         try {
