@@ -673,6 +673,18 @@ class Analytics {
     if (options && options.configUrl) {
       configUrl = options.configUrl;
     }
+    logger.debug("inside load ");
+    this.eventRepository.writeKey = writeKey;
+    if (serverUrl) {
+      this.eventRepository.url = serverUrl;
+    }
+    if (
+      options &&
+      options.valTrackingList &&
+      options.valTrackingList.push == Array.prototype.push
+    ) {
+      this.trackValues = options.valTrackingList;
+    }
     if (options && options.useAutoTracking) {
       this.autoTrackFeatureEnabled = true;
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
@@ -683,18 +695,6 @@ class Analytics {
           this.autoTrackHandlersRegistered
         );
       }
-    }
-    if (
-      options &&
-      options.valTrackingList &&
-      options.valTrackingList.push == Array.prototype.push
-    ) {
-      this.trackValues = options.valTrackingList;
-    }
-    logger.debug("inside load ");
-    this.eventRepository.writeKey = writeKey;
-    if (serverUrl) {
-      this.eventRepository.url = serverUrl;
     }
     try {
       getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
