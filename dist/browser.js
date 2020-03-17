@@ -3854,7 +3854,7 @@ var rudderanalytics = (function (exports) {
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.1.1-rc.0";
+    this.version = "1.1.1-rc.1";
   };
 
   //Library information class
@@ -3862,7 +3862,7 @@ var rudderanalytics = (function (exports) {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.1.1-rc.0";
+    this.version = "1.1.1-rc.1";
   }; //Operating System information class
 
 
@@ -8750,7 +8750,7 @@ var rudderanalytics = (function (exports) {
           logger.debug("===in process response=== " + status);
           response = JSON.parse(response);
 
-          if (response.source.useAutoTracking) {
+          if (response.source.useAutoTracking && !this.autoTrackHandlersRegistered) {
             this.autoTrackFeatureEnabled = true;
             addDomEventHandlers(this);
             this.autoTrackHandlersRegistered = true;
@@ -8772,6 +8772,7 @@ var rudderanalytics = (function (exports) {
 
           if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
             addDomEventHandlers(this);
+            this.autoTrackHandlersRegistered = true;
           }
         }
       }
@@ -9143,8 +9144,10 @@ var rudderanalytics = (function (exports) {
         try {
           if (!this.anonymousId) {
             this.setAnonymousId();
-          }
+          } // assign page properties to context
 
+
+          rudderElement["message"]["context"]["page"] = getDefaultPageProperties();
           rudderElement["message"]["context"]["traits"] = Object.assign({}, this.userTraits);
           logger.debug("anonymousId: ", this.anonymousId);
           rudderElement["message"]["anonymousId"] = this.anonymousId;
@@ -9294,6 +9297,16 @@ var rudderanalytics = (function (exports) {
 
         if (options && options.configUrl) {
           configUrl = options.configUrl;
+        }
+
+        if (options && options.useAutoTracking) {
+          this.autoTrackFeatureEnabled = true;
+
+          if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+            addDomEventHandlers(this);
+            this.autoTrackHandlersRegistered = true;
+            logger.debug("autoTrackHandlersRegistered", this.autoTrackHandlersRegistered);
+          }
         }
 
         if (options && options.valTrackingList && options.valTrackingList.push == Array.prototype.push) {
