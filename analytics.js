@@ -91,7 +91,10 @@ class Analytics {
     try {
       logger.debug("===in process response=== " + status);
       response = JSON.parse(response);
-      if (response.source.useAutoTracking) {
+      if (
+        response.source.useAutoTracking &&
+        !this.autoTrackHandlersRegistered
+      ) {
         this.autoTrackFeatureEnabled = true;
         addDomEventHandlers(this);
         this.autoTrackHandlersRegistered = true;
@@ -122,6 +125,7 @@ class Analytics {
       );
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
         addDomEventHandlers(this);
+        this.autoTrackHandlersRegistered = true;
       }
     }
   }
@@ -521,10 +525,14 @@ class Analytics {
         this.setAnonymousId();
       }
 
+      // assign page properties to context
+      rudderElement["message"]["context"]["page"] = getDefaultPageProperties();
+
       rudderElement["message"]["context"]["traits"] = Object.assign(
         {},
         this.userTraits
       );
+
       logger.debug("anonymousId: ", this.anonymousId);
       rudderElement["message"]["anonymousId"] = this.anonymousId;
       rudderElement["message"]["userId"] = rudderElement["message"]["userId"]
@@ -664,6 +672,17 @@ class Analytics {
     }
     if (options && options.configUrl) {
       configUrl = options.configUrl;
+    }
+    if (options && options.useAutoTracking) {
+      this.autoTrackFeatureEnabled = true;
+      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+        addDomEventHandlers(this);
+        this.autoTrackHandlersRegistered = true;
+        logger.debug(
+          "autoTrackHandlersRegistered",
+          this.autoTrackHandlersRegistered
+        );
+      }
     }
     if (
       options &&
