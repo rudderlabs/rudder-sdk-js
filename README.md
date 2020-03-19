@@ -53,6 +53,11 @@ The non-minified version of the code is shown below:
 
 **NOTE**: Whichever version of the code you use, you need to replace `YOUR_WRITE_KEY` with the write key in the RudderStack Control Plane and `DATA_PLANE_URI` with the URI of the RudderStack Server/ Data Plane.
 
+You can also execute the min file in async/defer way, like:
+```
+<script async src="https://cdn.rudderlabs.com/rudder-analytics.min.js"></script>
+```
+
 ## Step 2: Identify your users using the `identify()` method:
 The `identify()` method allows you to link users and their actions to a specific userid.
 
@@ -90,9 +95,6 @@ rudderanalytics.track(
     currency:  'USD' ,
     user_actual_id:  12345
   },
-  {
-    anonymousId:  "00000000000000000000000000"
-  }, 
   () => {console.log("in track call");}
 );
 ```
@@ -100,7 +102,7 @@ In the above example, the method tracks the event ‘test track event GA3’, in
 
 You can use this method to track various other success metrics for your website, such as user signups, item purchases, article bookmarks, and much more.
 
-**NOTE**: To override contextual information, for ex: anonymizing IP and other contextual fields, the following template can be used. Similarly for overriding the auto generated anonymousId with provided id.
+**NOTE**: To override contextual information, for ex: anonymising IP and other contextual fields, the following template can be used. Similarly one can override the auto generated anonymousId with provided id. For this:
 
 ```
 rudderanalytics.track(
@@ -123,6 +125,31 @@ rudderanalytics.track(
 And we’re done! You’ve successfully installed `rudder-analytics.js` tracking. Now you can enable and use any event destination to send your processed event data that you want, in no time at all.
 
 For a detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, click [here](https://docs.rudderlabs.com/sdk-integration-guide/getting-started-with-javascript-sdk).
+
+## Step 4: Check Ready State
+There are cases when one may want to tap into the features provide by end destination SDKs to enhance tracking and other functionality. Rudder SDK exposes a `ready` api with a `callback` parameter that fires when the SDK is done initialising itself and other third-party native-sdk destinations.
+
+Ex: 
+```
+rudderanalytics.ready(
+	() => {console.log("we are all set!!!");}
+);
+```
+
+# Autotrack
+It may happen that the need arises to track most of user interactions with a web-app. It becomes hard for a developer to capture these DOM interactions and make track calls for all. The autotrack feature of Rudder SDK helps in tracking all user interactions like `click | change | submit` automatically. The data generated will be verbose and to make sense of the data, one can use `user transformations` from the config-plane to build use-cases like monitoring user journeys etc. 
+For more information and payload structure, click click [here](https://docs.rudderstack.com/sdk-integration-guide/getting-started-with-javascript-sdk/rudderstack-autotrack-feature).
+
+To enable autotracking, make the load call as: 
+```
+rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI", {useAutoTracking:  true});
+```
+
+# Self-hosted Config Plane
+Since Rudder SDK depends on the config plane for fetching configs like `native-sdk enabled destinations etc`,  if you are self-hosting the config plane, make the load call as:
+```
+rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI", {configUrl:  "CONFIG_PLANE_URI"});
+```
 
 # Contribute
 You can start adding integrations of your choice for sending data through their JavaScript SDKs.
