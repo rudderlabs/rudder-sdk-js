@@ -73,8 +73,7 @@ rudderanalytics.identify(
           search: "",
           title: "",
           url: ""
-        },
-        anonymousId: "12345" 
+        }
       },
   () => {console.log("in identify call");}
 );
@@ -102,7 +101,7 @@ In the above example, the method tracks the event ‘test track event GA3’, in
 
 You can use this method to track various other success metrics for your website, such as user signups, item purchases, article bookmarks, and much more.
 
-**NOTE**: To override contextual information, for ex: anonymising IP and other contextual fields, the following template can be used. Similarly one can override the auto generated anonymousId with provided id. For this:
+**NOTE**: To override contextual information, for ex: anonymising IP and other contextual fields like page properties, the following template can be used. Similarly one can override the auto generated anonymousId with provided id. For this:
 
 ```
 rudderanalytics.track(
@@ -113,6 +112,13 @@ rudderanalytics.track(
     user_actual_id:  12345
   },
   {
+    page: {
+          path: "",
+          referrer: "",
+          search: "",
+          title: "",
+          url: ""
+    },
     context: {
       ip:  "0.0.0.0"
     },
