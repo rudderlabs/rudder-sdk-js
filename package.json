@@ -31,6 +31,7 @@
     "component-each": "^0.2.6",
     "component-emitter": "github:component/emitter",
     "gh-release": "^3.5.0",
+    "handlebars": "^4.7.3",
     "is": "^3.3.0",
     "json3": "^3.3.3",
     "obj-case": "^0.2.0",

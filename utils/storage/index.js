@@ -1,3 +1,3 @@
 import { Storage } from "./storage";
 import { StorageNode } from "./storage_node";
-export default process.browser ? Storage : StorageNode;
+export default process.browser ? new Storage() : StorageNode;

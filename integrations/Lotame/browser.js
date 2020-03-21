@@ -1,9 +1,18 @@
 import logger from "../../utils/logUtil";
+import {LotameStorage} from "./LotameStorage";
+import Handlebars from "handlebars"
 class Lotame {
   constructor(config) {
-    this.clientId = config.clientId;
-    this.clientIdSpace = config.clientIdSpace;
     this.name = "LOTAME";
+    this.storage = LotameStorage;
+    this.bcpUrlSettings = config.bcpUrlSettings;
+    this.dspUrlSettings = config.dspUrlSettings;
+    this.mappings = {};
+    config.mappings.forEach( mapping => {
+      let key = mapping.key;
+      let value = mapping.value;
+      this.mappings[key] = value;
+    });
   }
 
   init() {
@@ -18,22 +27,24 @@ class Lotame {
     document.getElementsByTagName('body')[0].appendChild(image);
   }
 
+  synchPixel(userId){
+    logger.debug("===== in synchPixel ======");
+
+    if(this.dspUrlSettings && this.dspUrlSettings.length > 0){
+      this.dspUrlSettings.forEach(urlSettings => {
+        let template = Handlebars.compile(urlSettings.dspUrlTemplate);
+        let dspUrl = template({...this.mappings, userId:userId});
+        this.addPixel(dspUrl, "1", "1");
+      });
+    }
+    this.storage.setLotameSynchTime(Date.now());
+
+  }
+
   identify(rudderElement) {
-    // ga("set", "userId", rudderElement.message.anonymous_id);
     logger.debug("in Lotame identify");
     let userId = rudderElement.message.userId;
-    let lotameDspSource = `http://sync.crwdcntrl.net/map/c=${clientId}/tp=${clientIdSpace}/tpid=${userId}`; 
-    
-    let googleDspSource = `https://cm.g.doubleclick.net/pixel?google_nid=lotameddp&google_cm`; 
-    let tubeMogulDspSource = `https://sync-tm.everesttech.net/upi/pid/bsTd8NdE?redir=https%3A%2F%2Fsync.crwdcntrl.net%2Fmap%2Fc%3D1811%2Ftp%3DTBMG%2Ftpid%3D%24%7BTM_USER_ID%7D`; 
-    let appNexusDspSource = `http://ib.adnxs.com/getuid?http%3A%2F%2Fsync.crwdcntrl.net%2Fmap%2Fc=281%2Frand=${random}%2Ftpid%3D%24UID%2Ftp%3DANXS`; 
-    let tradeDeskDspSource = `http://ib.adnxs.com/getuid?http%3A%2F%2Fsync.crwdcntrl.net%2Fmap%2Fc=281%2Frand=${random}%2Ftpid%3D%24UID%2Ftp%3DANXS`; 
-
-    addPixel(lotameDspSource, "1", "1");
-    addPixel(googleDspSource, "1", "1");
-    addPixel(tubeMogulDspSource, "1", "1");
-    addPixel(appNexusDspSource, "1", "1");
-    addPixel(tradeDeskDspSource, "1", "1");
+    this.synchPixel(userId); 
   }
 
   track(rudderElement) {
@@ -42,8 +53,30 @@ class Lotame {
 
   page(rudderElement) {
     logger.debug("in Lotame page");
-    let lotameBcpSource = `https://bcp.crwdcntrl.net/5/c=14830/b=77419654`; 
-    addPixel(lotameBcpSource, "1", "1"); 
+
+    if(this.bcpUrlSettings && this.bcpUrlSettings.length > 0){
+      this.bcpUrlSettings.forEach(urlSettings => {
+        let template = Handlebars.compile(urlSettings.bcpUrlTemplate);
+        let bcpUrl = template({...this.mappings});
+        this.addPixel(bcpUrl, "1", "1");
+      });
+      
+    }
+
+    if(rudderElement.message.userId && this.isPixelToBeSynched()){
+      this.synchPixel(rudderElement.message.userId);
+    }
+  }
+
+  isPixelToBeSynched(){
+    let lastSynchedTime = this.storage.getLotameSynchTime();
+    let currentTime = Date.now();
+    if(!lastSynchedTime){
+      return true;
+    }
+
+    let difference = Math.floor((currentTime - lastSynchedTime) / (1000 * 3600 * 24));
+    return difference >= 7;
   }
 
   isLoaded() {
