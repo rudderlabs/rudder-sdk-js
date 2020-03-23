@@ -55,7 +55,7 @@ class Analytics {
     this.failedToBeLoadedIntegration = [];
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
-    this.storage = new Storage();
+    this.storage = Storage;
     this.userId =
       this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
 
