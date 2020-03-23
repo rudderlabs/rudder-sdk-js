@@ -17,6 +17,7 @@ class Lotame {
 
   init() {
     logger.debug("===in init Lotame===");
+    window.LOTAME_SYNCH_CALLBACK = () => {};
   }
 
   addPixel(source, width, height){
@@ -38,6 +39,9 @@ class Lotame {
       });
     }
     this.storage.setLotameSynchTime(Date.now());
+    if(window.LOTAME_SYNCH_CALLBACK && typeof window.LOTAME_SYNCH_CALLBACK == "function"){
+      window.LOTAME_SYNCH_CALLBACK();
+    }
 
   }
 

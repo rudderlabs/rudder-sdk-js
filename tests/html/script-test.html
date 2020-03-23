@@ -23,8 +23,11 @@
       }
 
       rudderanalytics.load(
-        "1WxuLjndG7YDBT603xZH01mI0HW",
-        "http://localhost:8090"
+        "1X6kp0fxQpP5tzg6CAFjQoXkwa6",
+        "http://localhost:8090",
+        {
+          configUrl: "https://api-tf.rudderlabs.com/sourceConfig"
+        }
       );
       rudderanalytics.track();
       // rudderanalytics.page(); //Turn this on if Chartbeat is a destination
@@ -35,6 +38,10 @@
     <script>
       window.rudderanalytics.ready(() => {
         console.log("we are all set!!!");
+        // The below callback is to register this to Lotame as a callback when the dsp pixels get synched.
+        /* window.LOTAME_SYNCH_CALLBACK = () => {
+          rudderanalytics.track("synch lotame", {}, {integrations:{"All" : false, "S3": true}});
+        } */
       });
       window.rudderanalytics.page();
       window.rudderanalytics.identify("fshdgfsd", {
