@@ -38,6 +38,7 @@ class Lotame {
     }
     this.storage.setLotameSynchTime(Date.now());
     if(window.LOTAME_SYNCH_CALLBACK && typeof window.LOTAME_SYNCH_CALLBACK == "function"){
+      logger.debug("===== in synchPixel callback======");
       window.LOTAME_SYNCH_CALLBACK();
     }
 
@@ -46,11 +47,12 @@ class Lotame {
   compileUrl(map, url){
 
     Object.keys(map).forEach(key => {
-      let replaceKey = "{{"+key+"}}";
-      let regex = new RegExp(replaceKey, 'gi');
-      url = url.replace(regex, map[key]);
+      if(map.hasOwnProperty(key)){
+        let replaceKey = "{{"+key+"}}";
+        let regex = new RegExp(replaceKey, 'gi');
+        url = url.replace(regex, map[key]);
+      }
     });
-    console.log(url);
     return url;
   }
 
