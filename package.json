@@ -3,12 +3,23 @@
   "version": "1.1.0-beta.2",
   "description": "",
   "main": "./dist/browser.min.js",
+  "size-limit": [
+    {
+      "path": "dist/rudder-analytics.min.js",
+      "import": "{ createComponent }",
+      "brotli": true
+    }
+  ],
   "scripts": {
     "test": "./scripts/run_tests.sh",
     "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",
     "buildProdBrowser": "NODE_ENV=false  ENV=prod uglify=true rollup -c",
+    "buildProdBrowserGzip": "NODE_ENV=false  ENV=prod ENC=gzip uglify=true rollup -c",
+    "buildProdBrowserBrotli": "NODE_ENV=false  ENV=prod ENC=br uglify=true rollup -c",
     "buildDevNode": "NODE_ENV=true uglify=false rollup -c",
     "buildProdNode": "NODE_ENV=true ENV=prod uglify=true rollup -c",
+    "size-build": "npm run buildProdBrowser",
+    "size": "npm run size-build && size-limit",
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc "
   },
   "author": "",
@@ -41,6 +52,7 @@
   "devDependencies": {
     "@babel/core": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
+    "@size-limit/preset-big-lib": "^4.4.1",
     "eslint": "^6.1.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-config-prettier": "^6.2.0",
@@ -51,8 +63,10 @@
     "eslint-plugin-react-hooks": "^1.7.0",
     "rollup": "^1.22.0",
     "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-brotli": "^2.0.2",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-eslint": "^7.0.0",
+    "rollup-plugin-gzip": "^2.3.0",
     "rollup-plugin-javascript-obfuscator": "^1.0.4",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
@@ -61,6 +75,7 @@
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-strip": "^1.2.2",
     "rollup-plugin-terser": "^5.1.2",
-    "rollup-plugin-uglify": "^6.0.3"
+    "rollup-plugin-uglify": "^6.0.3",
+    "size-limit": "^4.4.1"
   }
 }
