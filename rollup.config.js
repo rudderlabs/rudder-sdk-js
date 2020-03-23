@@ -6,6 +6,8 @@ import { terser } from "rollup-plugin-terser";
 import builtins from "rollup-plugin-node-builtins";
 import globals from "rollup-plugin-node-globals";
 import json from "rollup-plugin-json";
+import gzipPlugin from "rollup-plugin-gzip";
+import brotli from "rollup-plugin-brotli";
 import { version } from "./package.json";
 export default {
   input: "analytics.js",
@@ -14,7 +16,11 @@ export default {
     {
       file:
         process.env.ENV == "prod"
-          ? "dist/rudder-analytics.min.js"
+          ? process.env.ENC == "gzip"
+            ? "dist/rudder-analytics.min.gzip.js"
+            : process.env.ENC == "br"
+            ? "dist/rudder-analytics.min.br.js"
+            : "dist/rudder-analytics.min.js"
           : "dist/browser.js",
       format: "iife",
       name: "rudderanalytics",
@@ -54,25 +60,8 @@ export default {
     babel({
       exclude: "node_modules/**"
     }),
-    process.env.uglify === "true" && terser()
-    /* process.env.ENV == "prod" &&
-      obfuscatorPlugin({
-        compact: true,
-        controlFlowFlattening: true,
-        deadCodeInjection: false,
-        debugProtection: false,
-        disableConsoleOutput: false,
-        identifierNamesGenerator: "mangled",
-        log: false,
-        renameGlobals: false,
-        rotateStringArray: true,
-        selfDefending: false,
-        sourceMap: false,
-        stringArray: false,
-        stringArrayEncoding: false,
-        transformObjectKeys: false,
-        unicodeEscapeSequence: false
-      }) */
-    //process.env.uglify === "true" && uglify()
+    process.env.uglify === "true" && terser(),
+    process.env.ENC === "gzip" && gzipPlugin(),
+    process.env.ENC === "br" && brotli()
   ]
 };
