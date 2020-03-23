@@ -1,6 +1,5 @@
 import logger from "../../utils/logUtil";
 import {LotameStorage} from "./LotameStorage";
-import Handlebars from "handlebars"
 class Lotame {
   constructor(config) {
     this.name = "LOTAME";
@@ -33,8 +32,7 @@ class Lotame {
 
     if(this.dspUrlSettings && this.dspUrlSettings.length > 0){
       this.dspUrlSettings.forEach(urlSettings => {
-        let template = Handlebars.compile(urlSettings.dspUrlTemplate);
-        let dspUrl = template({...this.mappings, userId:userId});
+        let dspUrl = this.compileUrl({...this.mappings, userId:userId}, urlSettings.dspUrlTemplate);
         this.addPixel(dspUrl, "1", "1");
       });
     }
@@ -43,6 +41,17 @@ class Lotame {
       window.LOTAME_SYNCH_CALLBACK();
     }
 
+  }
+
+  compileUrl(map, url){
+
+    Object.keys(map).forEach(key => {
+      let replaceKey = "{{"+key+"}}";
+      let regex = new RegExp(replaceKey, 'gi');
+      url = url.replace(regex, map[key]);
+    });
+    console.log(url);
+    return url;
   }
 
   identify(rudderElement) {
@@ -60,8 +69,7 @@ class Lotame {
 
     if(this.bcpUrlSettings && this.bcpUrlSettings.length > 0){
       this.bcpUrlSettings.forEach(urlSettings => {
-        let template = Handlebars.compile(urlSettings.bcpUrlTemplate);
-        let bcpUrl = template({...this.mappings});
+        let bcpUrl = this.compileUrl({...this.mappings}, urlSettings.bcpUrlTemplate);
         this.addPixel(bcpUrl, "1", "1");
       });
       
