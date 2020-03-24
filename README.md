@@ -170,6 +170,7 @@ You can start adding integrations of your choice for sending data through their 
      - `npm run buildProdBrowser` : This outputs  **rudder-analytics.min.js**.
      - `npm run buildProdBrowserBrotli`: This outputs two files, **rudder-analytics.min.br.js** (the original minified file, same as above) and **rudder-analytics.min.br.js.br** (the brotli compressed file).
      - `npm run buildProdBrowserGzip`: This outputs two files, **rudder-analytics.min.gzip.js** (the original minified file, same as above) and **rudder-analytics.min.gzip.js.gz** (the gzipped compressed file).
+     
      We are using **rollup** to build our SDKs, configuration for it is present in `rollup.config.js` in the repo directory.
 
  - For adding or removing integrations, modify the imports in `index.js` under integrations folder.
