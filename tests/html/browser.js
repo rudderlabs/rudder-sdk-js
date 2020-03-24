@@ -3327,6 +3327,127 @@ var rudderanalytics = (function (exports) {
   }();
 
   /**
+   * toString ref.
+   */
+
+  var toString$2 = Object.prototype.toString;
+
+  /**
+   * Return the type of `val`.
+   *
+   * @param {Mixed} val
+   * @return {String}
+   * @api public
+   */
+
+  var componentType$1 = function(val){
+    switch (toString$2.call(val)) {
+      case '[object Function]': return 'function';
+      case '[object Date]': return 'date';
+      case '[object RegExp]': return 'regexp';
+      case '[object Arguments]': return 'arguments';
+      case '[object Array]': return 'array';
+      case '[object String]': return 'string';
+    }
+
+    if (val === null) return 'null';
+    if (val === undefined) return 'undefined';
+    if (val && val.nodeType === 1) return 'element';
+    if (val === Object(val)) return 'object';
+
+    return typeof val;
+  };
+
+  /**
+   * Module dependencies.
+   */
+
+  try {
+    var type$1 = componentType$1;
+  } catch (err) {
+    var type$1 = componentType$1;
+  }
+
+
+
+  /**
+   * HOP reference.
+   */
+
+  var has$2 = Object.prototype.hasOwnProperty;
+
+  /**
+   * Iterate the given `obj` and invoke `fn(val, i)`
+   * in optional context `ctx`.
+   *
+   * @param {String|Array|Object} obj
+   * @param {Function} fn
+   * @param {Object} [ctx]
+   * @api public
+   */
+
+  var componentEach$1 = function(obj, fn, ctx){
+    fn = toFunction_1(fn);
+    ctx = ctx || this;
+    switch (type$1(obj)) {
+      case 'array':
+        return array$1(obj, fn, ctx);
+      case 'object':
+        if ('number' == typeof obj.length) return array$1(obj, fn, ctx);
+        return object$1(obj, fn, ctx);
+      case 'string':
+        return string$1(obj, fn, ctx);
+    }
+  };
+
+  /**
+   * Iterate string chars.
+   *
+   * @param {String} obj
+   * @param {Function} fn
+   * @param {Object} ctx
+   * @api private
+   */
+
+  function string$1(obj, fn, ctx) {
+    for (var i = 0; i < obj.length; ++i) {
+      fn.call(ctx, obj.charAt(i), i);
+    }
+  }
+
+  /**
+   * Iterate object keys.
+   *
+   * @param {Object} obj
+   * @param {Function} fn
+   * @param {Object} ctx
+   * @api private
+   */
+
+  function object$1(obj, fn, ctx) {
+    for (var key in obj) {
+      if (has$2.call(obj, key)) {
+        fn.call(ctx, key, obj[key]);
+      }
+    }
+  }
+
+  /**
+   * Iterate array-ish.
+   *
+   * @param {Array|Object} obj
+   * @param {Function} fn
+   * @param {Object} ctx
+   * @api private
+   */
+
+  function array$1(obj, fn, ctx) {
+    for (var i = 0; i < obj.length; ++i) {
+      fn.call(ctx, obj[i], i);
+    }
+  }
+
+  /**
    * Cache whether `<body>` exists.
    */
 
@@ -3362,7 +3483,7 @@ var rudderanalytics = (function (exports) {
   var interval = setInterval(function () {
     if (!document.body) return;
     body = true;
-    componentEach(callbacks, call);
+    componentEach$1(callbacks, call);
     clearInterval(interval);
   }, 5);
 
@@ -3710,328 +3831,11 @@ var rudderanalytics = (function (exports) {
     return Comscore;
   }();
 
-  var integrations = {
-    HS: index,
-    GA: index$1,
-    HOTJAR: index$2,
-    GOOGLEADS: index$3,
-    VWO: VWO,
-    GTM: GoogleTagManager,
-    BRAZE: Braze,
-    INTERCOM: INTERCOM,
-    KEEN: Keen,
-    KISSMETRICS: Kissmetrics,
-    CUSTOMERIO: CustomerIO,
-    CHARTBEAT: Chartbeat,
-    COMSCORE: Comscore
-  };
-
-  //Application class
-  var RudderApp = function RudderApp() {
-    _classCallCheck(this, RudderApp);
-
-    this.build = "1.0.0";
-    this.name = "RudderLabs JavaScript SDK";
-    this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.1.1-rc.1";
-  };
-
-  //Library information class
-  var RudderLibraryInfo = function RudderLibraryInfo() {
-    _classCallCheck(this, RudderLibraryInfo);
-
-    this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.1.1-rc.1";
-  }; //Operating System information class
-
-
-  var RudderOSInfo = function RudderOSInfo() {
-    _classCallCheck(this, RudderOSInfo);
-
-    this.name = "";
-    this.version = "";
-  }; //Screen information class
-
-
-  var RudderScreenInfo = function RudderScreenInfo() {
-    _classCallCheck(this, RudderScreenInfo);
-
-    this.density = 0;
-    this.width = 0;
-    this.height = 0;
-  }; //Device information class
-
-  var RudderContext = function RudderContext() {
-    _classCallCheck(this, RudderContext);
-
-    this.app = new RudderApp();
-    this.traits = null;
-    this.library = new RudderLibraryInfo(); //this.os = null;
-
-    var os = new RudderOSInfo();
-    os.version = ""; //skipping version for simplicity now
-
-    var screen = new RudderScreenInfo(); //Depending on environment within which the code is executing, screen
-    //dimensions can be set
-    //User agent and locale can be retrieved only for browser
-    //For server-side integration, same needs to be set by calling program
-
-    {
-      //running within browser
-      screen.width = window.width;
-      screen.height = window.height;
-      screen.density = window.devicePixelRatio;
-      this.userAgent = navigator.userAgent; //property name differs based on browser version
-
-      this.locale = navigator.language || navigator.browserLanguage;
-    }
-
-    this.os = os;
-    this.screen = screen;
-    this.device = null;
-    this.network = null;
-  };
-
-  var RudderMessage =
-  /*#__PURE__*/
-  function () {
-    function RudderMessage() {
-      _classCallCheck(this, RudderMessage);
-
-      this.channel = "web";
-      this.context = new RudderContext();
-      this.type = null;
-      this.action = null;
-      this.messageId = generateUUID().toString();
-      this.originalTimestamp = new Date().toISOString();
-      this.anonymousId = null;
-      this.userId = null;
-      this.event = null;
-      this.properties = {};
-      this.integrations = {}; //By default, all integrations will be set as enabled from client
-      //Decision to route to specific destinations will be taken at server end
-
-      this.integrations["All"] = true;
-    } //Get property
-
-
-    _createClass(RudderMessage, [{
-      key: "getProperty",
-      value: function getProperty(key) {
-        return this.properties[key];
-      } //Add property
-
-    }, {
-      key: "addProperty",
-      value: function addProperty(key, value) {
-        this.properties[key] = value;
-      } //Validate whether this message is semantically valid for the type mentioned
-
-    }, {
-      key: "validateFor",
-      value: function validateFor(messageType) {
-        //First check that properties is populated
-        if (!this.properties) {
-          throw new Error("Key properties is required");
-        } //Event type specific checks
-
-
-        switch (messageType) {
-          case MessageType.TRACK:
-            //check if event is present
-            if (!this.event) {
-              throw new Error("Key event is required for track event");
-            } //Next make specific checks for e-commerce events
-
-
-            if (this.event in Object.values(ECommerceEvents)) {
-              switch (this.event) {
-                case ECommerceEvents.CHECKOUT_STEP_VIEWED:
-                case ECommerceEvents.CHECKOUT_STEP_COMPLETED:
-                case ECommerceEvents.PAYMENT_INFO_ENTERED:
-                  this.checkForKey("checkout_id");
-                  this.checkForKey("step");
-                  break;
-
-                case ECommerceEvents.PROMOTION_VIEWED:
-                case ECommerceEvents.PROMOTION_CLICKED:
-                  this.checkForKey("promotion_id");
-                  break;
-
-                case ECommerceEvents.ORDER_REFUNDED:
-                  this.checkForKey("order_id");
-                  break;
-
-                default:
-              }
-            } else if (!this.properties["category"]) {
-              //if category is not there, set to event
-              this.properties["category"] = this.event;
-            }
-
-            break;
-
-          case MessageType.PAGE:
-            break;
-
-          case MessageType.SCREEN:
-            if (!this.properties["name"]) {
-              throw new Error("Key 'name' is required in properties");
-            }
-
-            break;
-        }
-      } //Function for checking existence of a particular property
-
-    }, {
-      key: "checkForKey",
-      value: function checkForKey(propertyName) {
-        if (!this.properties[propertyName]) {
-          throw new Error("Key '" + propertyName + "' is required in properties");
-        }
-      }
-    }]);
-
-    return RudderMessage;
-  }();
-
-  var RudderElement =
-  /*#__PURE__*/
-  function () {
-    function RudderElement() {
-      _classCallCheck(this, RudderElement);
-
-      this.message = new RudderMessage();
-    } //Setters that in turn set the field values for the contained object
-
-
-    _createClass(RudderElement, [{
-      key: "setType",
-      value: function setType(type) {
-        this.message.type = type;
-      }
-    }, {
-      key: "setProperty",
-      value: function setProperty(rudderProperty) {
-        this.message.properties = rudderProperty;
-      }
-    }, {
-      key: "setUserProperty",
-      value: function setUserProperty(rudderUserProperty) {
-        this.message.user_properties = rudderUserProperty;
-      }
-    }, {
-      key: "setUserId",
-      value: function setUserId(userId) {
-        this.message.userId = userId;
-      }
-    }, {
-      key: "setEventName",
-      value: function setEventName(eventName) {
-        this.message.event = eventName;
-      }
-    }, {
-      key: "updateTraits",
-      value: function updateTraits(traits) {
-        this.message.context.traits = traits;
-      }
-    }, {
-      key: "getElementContent",
-      value: function getElementContent() {
-        return this.message;
-      }
-    }]);
-
-    return RudderElement;
-  }();
-
-  var RudderElementBuilder =
-  /*#__PURE__*/
-  function () {
-    function RudderElementBuilder() {
-      _classCallCheck(this, RudderElementBuilder);
-
-      this.rudderProperty = null;
-      this.rudderUserProperty = null;
-      this.event = null;
-      this.userId = null;
-      this.channel = null;
-      this.type = null;
-    } //Set the property
-
-
-    _createClass(RudderElementBuilder, [{
-      key: "setProperty",
-      value: function setProperty(inputRudderProperty) {
-        this.rudderProperty = inputRudderProperty;
-        return this;
-      } //Build and set the property object
-
-    }, {
-      key: "setPropertyBuilder",
-      value: function setPropertyBuilder(rudderPropertyBuilder) {
-        this.rudderProperty = rudderPropertyBuilder.build();
-        return this;
-      }
-    }, {
-      key: "setUserProperty",
-      value: function setUserProperty(inputRudderUserProperty) {
-        this.rudderUserProperty = inputRudderUserProperty;
-        return this;
-      }
-    }, {
-      key: "setUserPropertyBuilder",
-      value: function setUserPropertyBuilder(rudderUserPropertyBuilder) {
-        this.rudderUserProperty = rudderUserPropertyBuilder.build();
-        return this;
-      } //Setter methods for all variables. Instance is returned for each call in
-      //accordance with the Builder pattern
-
-    }, {
-      key: "setEvent",
-      value: function setEvent(event) {
-        this.event = event;
-        return this;
-      }
-    }, {
-      key: "setUserId",
-      value: function setUserId(userId) {
-        this.userId = userId;
-        return this;
-      }
-    }, {
-      key: "setChannel",
-      value: function setChannel(channel) {
-        this.channel = channel;
-        return this;
-      }
-    }, {
-      key: "setType",
-      value: function setType(eventType) {
-        this.type = eventType;
-        return this;
-      }
-    }, {
-      key: "build",
-      value: function build() {
-        var element = new RudderElement();
-        element.setUserId(this.userId);
-        element.setType(this.type);
-        element.setEventName(this.event);
-        element.setProperty(this.rudderProperty);
-        element.setUserProperty(this.rudderUserProperty);
-        return element;
-      }
-    }]);
-
-    return RudderElementBuilder;
-  }();
-
   /**
    * toString ref.
    */
 
-  var toString$2 = Object.prototype.toString;
+  var toString$3 = Object.prototype.toString;
 
   /**
    * Return the type of `val`.
@@ -4041,8 +3845,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentType$1 = function(val){
-    switch (toString$2.call(val)) {
+  var componentType$2 = function(val){
+    switch (toString$3.call(val)) {
       case '[object Date]': return 'date';
       case '[object RegExp]': return 'regexp';
       case '[object Arguments]': return 'arguments';
@@ -4087,7 +3891,7 @@ var rudderanalytics = (function (exports) {
    */
 
   var clone = function clone(obj) {
-    var t = componentType$1(obj);
+    var t = componentType$2(obj);
 
     if (t === 'object') {
       var copy = {};
@@ -4859,7 +4663,7 @@ var rudderanalytics = (function (exports) {
 
 
 
-  var has$2 = Object.prototype.hasOwnProperty;
+  var has$3 = Object.prototype.hasOwnProperty;
   var objToString = Object.prototype.toString;
 
   /**
@@ -4900,7 +4704,7 @@ var rudderanalytics = (function (exports) {
    * @param {string} key
    */
   var shallowCombiner = function shallowCombiner(target, source, value, key) {
-    if (has$2.call(source, key) && target[key] === undefined) {
+    if (has$3.call(source, key) && target[key] === undefined) {
       target[key] = value;
     }
     return source;
@@ -4919,7 +4723,7 @@ var rudderanalytics = (function (exports) {
    * @return {Object}
    */
   var deepCombiner = function(target, source, value, key) {
-    if (has$2.call(source, key)) {
+    if (has$3.call(source, key)) {
       if (isPlainObject(target[key]) && isPlainObject(value)) {
           target[key] = defaultsDeep(target[key], value);
       } else if (target[key] === undefined) {
@@ -6656,7 +6460,487 @@ var rudderanalytics = (function (exports) {
     return Storage;
   }();
 
-  var Storage$1 =  Storage ;
+  var Storage$1 =  new Storage() ;
+
+  var defaults$2 = {
+    lotame_synch_time_key: "lt_synch_timestamp"
+  };
+
+  var LotameStorage =
+  /*#__PURE__*/
+  function () {
+    function LotameStorage() {
+      _classCallCheck(this, LotameStorage);
+
+      this.storage = Storage$1; //new Storage();
+    }
+
+    _createClass(LotameStorage, [{
+      key: "setLotameSynchTime",
+      value: function setLotameSynchTime(value) {
+        this.storage.setItem(defaults$2.lotame_synch_time_key, value);
+      }
+    }, {
+      key: "getLotameSynchTime",
+      value: function getLotameSynchTime() {
+        return this.storage.getItem(defaults$2.lotame_synch_time_key);
+      }
+    }]);
+
+    return LotameStorage;
+  }();
+
+  var lotameStorage = new LotameStorage();
+
+  var Lotame =
+  /*#__PURE__*/
+  function () {
+    function Lotame(config) {
+      var _this = this;
+
+      _classCallCheck(this, Lotame);
+
+      this.name = "LOTAME";
+      this.storage = lotameStorage;
+      this.bcpUrlSettings = config.bcpUrlSettings;
+      this.dspUrlSettings = config.dspUrlSettings;
+      this.mappings = {};
+      config.mappings.forEach(function (mapping) {
+        var key = mapping.key;
+        var value = mapping.value;
+        _this.mappings[key] = value;
+      });
+    }
+
+    _createClass(Lotame, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Lotame===");
+
+        window.LOTAME_SYNCH_CALLBACK = function () {};
+      }
+    }, {
+      key: "addPixel",
+      value: function addPixel(source, width, height) {
+        var image = document.createElement("img");
+        image.src = source;
+        image.setAttribute("width", width);
+        image.setAttribute("height", height);
+        document.getElementsByTagName("body")[0].appendChild(image);
+      }
+    }, {
+      key: "synchPixel",
+      value: function synchPixel(userId) {
+        var _this2 = this;
+
+        logger.debug("===== in synchPixel ======");
+
+        if (this.dspUrlSettings && this.dspUrlSettings.length > 0) {
+          this.dspUrlSettings.forEach(function (urlSettings) {
+            var dspUrl = _this2.compileUrl(_objectSpread2({}, _this2.mappings, {
+              userId: userId
+            }), urlSettings.dspUrlTemplate);
+
+            _this2.addPixel(dspUrl, "1", "1");
+          });
+        }
+
+        this.storage.setLotameSynchTime(Date.now()); // this is custom to lotame, can be thought of as additional feature
+
+        if (window.LOTAME_SYNCH_CALLBACK && typeof window.LOTAME_SYNCH_CALLBACK == "function") {
+          logger.debug("===== in synchPixel callback======");
+          window.LOTAME_SYNCH_CALLBACK();
+        }
+      }
+    }, {
+      key: "compileUrl",
+      value: function compileUrl(map, url) {
+        Object.keys(map).forEach(function (key) {
+          if (map.hasOwnProperty(key)) {
+            var replaceKey = "{{" + key + "}}";
+            var regex = new RegExp(replaceKey, "gi");
+            url = url.replace(regex, map[key]);
+          }
+        });
+        return url;
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Lotame identify");
+        var userId = rudderElement.message.userId;
+        this.synchPixel(userId);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("track not supported for lotame");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        var _this3 = this;
+
+        logger.debug("in Lotame page");
+
+        if (this.bcpUrlSettings && this.bcpUrlSettings.length > 0) {
+          this.bcpUrlSettings.forEach(function (urlSettings) {
+            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings), urlSettings.bcpUrlTemplate);
+
+            _this3.addPixel(bcpUrl, "1", "1");
+          });
+        }
+
+        if (rudderElement.message.userId && this.isPixelToBeSynched()) {
+          this.synchPixel(rudderElement.message.userId);
+        }
+      }
+    }, {
+      key: "isPixelToBeSynched",
+      value: function isPixelToBeSynched() {
+        var lastSynchedTime = this.storage.getLotameSynchTime();
+        var currentTime = Date.now();
+
+        if (!lastSynchedTime) {
+          return true;
+        }
+
+        var difference = Math.floor((currentTime - lastSynchedTime) / (1000 * 3600 * 24));
+        return difference >= 7;
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in Lotame isLoaded");
+        return true;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return true;
+      }
+    }]);
+
+    return Lotame;
+  }();
+
+  var integrations = {
+    HS: index,
+    GA: index$1,
+    HOTJAR: index$2,
+    GOOGLEADS: index$3,
+    VWO: VWO,
+    GTM: GoogleTagManager,
+    BRAZE: Braze,
+    INTERCOM: INTERCOM,
+    KEEN: Keen,
+    KISSMETRICS: Kissmetrics,
+    CUSTOMERIO: CustomerIO,
+    CHARTBEAT: Chartbeat,
+    COMSCORE: Comscore,
+    LOTAME: Lotame
+  };
+
+  //Application class
+  var RudderApp = function RudderApp() {
+    _classCallCheck(this, RudderApp);
+
+    this.build = "1.0.0";
+    this.name = "RudderLabs JavaScript SDK";
+    this.namespace = "com.rudderlabs.javascript";
+    this.version = "1.1.1-rc.2";
+  };
+
+  //Library information class
+  var RudderLibraryInfo = function RudderLibraryInfo() {
+    _classCallCheck(this, RudderLibraryInfo);
+
+    this.name = "RudderLabs JavaScript SDK";
+    this.version = "1.1.1-rc.2";
+  }; //Operating System information class
+
+
+  var RudderOSInfo = function RudderOSInfo() {
+    _classCallCheck(this, RudderOSInfo);
+
+    this.name = "";
+    this.version = "";
+  }; //Screen information class
+
+
+  var RudderScreenInfo = function RudderScreenInfo() {
+    _classCallCheck(this, RudderScreenInfo);
+
+    this.density = 0;
+    this.width = 0;
+    this.height = 0;
+  }; //Device information class
+
+  var RudderContext = function RudderContext() {
+    _classCallCheck(this, RudderContext);
+
+    this.app = new RudderApp();
+    this.traits = null;
+    this.library = new RudderLibraryInfo(); //this.os = null;
+
+    var os = new RudderOSInfo();
+    os.version = ""; //skipping version for simplicity now
+
+    var screen = new RudderScreenInfo(); //Depending on environment within which the code is executing, screen
+    //dimensions can be set
+    //User agent and locale can be retrieved only for browser
+    //For server-side integration, same needs to be set by calling program
+
+    {
+      //running within browser
+      screen.width = window.width;
+      screen.height = window.height;
+      screen.density = window.devicePixelRatio;
+      this.userAgent = navigator.userAgent; //property name differs based on browser version
+
+      this.locale = navigator.language || navigator.browserLanguage;
+    }
+
+    this.os = os;
+    this.screen = screen;
+    this.device = null;
+    this.network = null;
+  };
+
+  var RudderMessage =
+  /*#__PURE__*/
+  function () {
+    function RudderMessage() {
+      _classCallCheck(this, RudderMessage);
+
+      this.channel = "web";
+      this.context = new RudderContext();
+      this.type = null;
+      this.action = null;
+      this.messageId = generateUUID().toString();
+      this.originalTimestamp = new Date().toISOString();
+      this.anonymousId = null;
+      this.userId = null;
+      this.event = null;
+      this.properties = {};
+      this.integrations = {}; //By default, all integrations will be set as enabled from client
+      //Decision to route to specific destinations will be taken at server end
+
+      this.integrations["All"] = true;
+    } //Get property
+
+
+    _createClass(RudderMessage, [{
+      key: "getProperty",
+      value: function getProperty(key) {
+        return this.properties[key];
+      } //Add property
+
+    }, {
+      key: "addProperty",
+      value: function addProperty(key, value) {
+        this.properties[key] = value;
+      } //Validate whether this message is semantically valid for the type mentioned
+
+    }, {
+      key: "validateFor",
+      value: function validateFor(messageType) {
+        //First check that properties is populated
+        if (!this.properties) {
+          throw new Error("Key properties is required");
+        } //Event type specific checks
+
+
+        switch (messageType) {
+          case MessageType.TRACK:
+            //check if event is present
+            if (!this.event) {
+              throw new Error("Key event is required for track event");
+            } //Next make specific checks for e-commerce events
+
+
+            if (this.event in Object.values(ECommerceEvents)) {
+              switch (this.event) {
+                case ECommerceEvents.CHECKOUT_STEP_VIEWED:
+                case ECommerceEvents.CHECKOUT_STEP_COMPLETED:
+                case ECommerceEvents.PAYMENT_INFO_ENTERED:
+                  this.checkForKey("checkout_id");
+                  this.checkForKey("step");
+                  break;
+
+                case ECommerceEvents.PROMOTION_VIEWED:
+                case ECommerceEvents.PROMOTION_CLICKED:
+                  this.checkForKey("promotion_id");
+                  break;
+
+                case ECommerceEvents.ORDER_REFUNDED:
+                  this.checkForKey("order_id");
+                  break;
+
+                default:
+              }
+            } else if (!this.properties["category"]) {
+              //if category is not there, set to event
+              this.properties["category"] = this.event;
+            }
+
+            break;
+
+          case MessageType.PAGE:
+            break;
+
+          case MessageType.SCREEN:
+            if (!this.properties["name"]) {
+              throw new Error("Key 'name' is required in properties");
+            }
+
+            break;
+        }
+      } //Function for checking existence of a particular property
+
+    }, {
+      key: "checkForKey",
+      value: function checkForKey(propertyName) {
+        if (!this.properties[propertyName]) {
+          throw new Error("Key '" + propertyName + "' is required in properties");
+        }
+      }
+    }]);
+
+    return RudderMessage;
+  }();
+
+  var RudderElement =
+  /*#__PURE__*/
+  function () {
+    function RudderElement() {
+      _classCallCheck(this, RudderElement);
+
+      this.message = new RudderMessage();
+    } //Setters that in turn set the field values for the contained object
+
+
+    _createClass(RudderElement, [{
+      key: "setType",
+      value: function setType(type) {
+        this.message.type = type;
+      }
+    }, {
+      key: "setProperty",
+      value: function setProperty(rudderProperty) {
+        this.message.properties = rudderProperty;
+      }
+    }, {
+      key: "setUserProperty",
+      value: function setUserProperty(rudderUserProperty) {
+        this.message.user_properties = rudderUserProperty;
+      }
+    }, {
+      key: "setUserId",
+      value: function setUserId(userId) {
+        this.message.userId = userId;
+      }
+    }, {
+      key: "setEventName",
+      value: function setEventName(eventName) {
+        this.message.event = eventName;
+      }
+    }, {
+      key: "updateTraits",
+      value: function updateTraits(traits) {
+        this.message.context.traits = traits;
+      }
+    }, {
+      key: "getElementContent",
+      value: function getElementContent() {
+        return this.message;
+      }
+    }]);
+
+    return RudderElement;
+  }();
+
+  var RudderElementBuilder =
+  /*#__PURE__*/
+  function () {
+    function RudderElementBuilder() {
+      _classCallCheck(this, RudderElementBuilder);
+
+      this.rudderProperty = null;
+      this.rudderUserProperty = null;
+      this.event = null;
+      this.userId = null;
+      this.channel = null;
+      this.type = null;
+    } //Set the property
+
+
+    _createClass(RudderElementBuilder, [{
+      key: "setProperty",
+      value: function setProperty(inputRudderProperty) {
+        this.rudderProperty = inputRudderProperty;
+        return this;
+      } //Build and set the property object
+
+    }, {
+      key: "setPropertyBuilder",
+      value: function setPropertyBuilder(rudderPropertyBuilder) {
+        this.rudderProperty = rudderPropertyBuilder.build();
+        return this;
+      }
+    }, {
+      key: "setUserProperty",
+      value: function setUserProperty(inputRudderUserProperty) {
+        this.rudderUserProperty = inputRudderUserProperty;
+        return this;
+      }
+    }, {
+      key: "setUserPropertyBuilder",
+      value: function setUserPropertyBuilder(rudderUserPropertyBuilder) {
+        this.rudderUserProperty = rudderUserPropertyBuilder.build();
+        return this;
+      } //Setter methods for all variables. Instance is returned for each call in
+      //accordance with the Builder pattern
+
+    }, {
+      key: "setEvent",
+      value: function setEvent(event) {
+        this.event = event;
+        return this;
+      }
+    }, {
+      key: "setUserId",
+      value: function setUserId(userId) {
+        this.userId = userId;
+        return this;
+      }
+    }, {
+      key: "setChannel",
+      value: function setChannel(channel) {
+        this.channel = channel;
+        return this;
+      }
+    }, {
+      key: "setType",
+      value: function setType(eventType) {
+        this.type = eventType;
+        return this;
+      }
+    }, {
+      key: "build",
+      value: function build() {
+        var element = new RudderElement();
+        element.setUserId(this.userId);
+        element.setType(this.type);
+        element.setEventName(this.event);
+        element.setProperty(this.rudderProperty);
+        element.setUserProperty(this.rudderUserProperty);
+        return element;
+      }
+    }]);
+
+    return RudderElementBuilder;
+  }();
 
   //Payload class, contains batch of Elements
   var RudderPayload = function RudderPayload() {
@@ -6895,7 +7179,7 @@ var rudderanalytics = (function (exports) {
    */
 
   // TODO: Move to a library
-  var has$3 = function has(context, prop) {
+  var has$4 = function has(context, prop) {
     return hop.call(context, prop);
   };
 
@@ -6939,7 +7223,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    */
   var indexKeys = function indexKeys(target, pred) {
-    pred = pred || has$3;
+    pred = pred || has$4;
 
     var results = [];
 
@@ -6963,7 +7247,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    */
   var objectKeys = function objectKeys(target, pred) {
-    pred = pred || has$3;
+    pred = pred || has$4;
 
     var results = [];
 
@@ -7020,7 +7304,7 @@ var rudderanalytics = (function (exports) {
 
     // IE6-8 compatibility (arguments)
     if (isArrayLike(source)) {
-      return indexKeys(source, has$3);
+      return indexKeys(source, has$4);
     }
 
     return objectKeys(source);
@@ -8599,7 +8883,7 @@ var rudderanalytics = (function (exports) {
       this.failedToBeLoadedIntegration = [];
       this.toBeProcessedArray = [];
       this.toBeProcessedByIntegrationArray = [];
-      this.storage = new Storage$1();
+      this.storage = Storage$1;
       this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
       this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
       this.groupId = this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
