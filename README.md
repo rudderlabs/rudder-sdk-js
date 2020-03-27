@@ -16,7 +16,7 @@ You can use either the minified or non-minified version of the code:
 The minified version is as follows:
 ```
 <script> 
-rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track","identify","reset"],i=0;i<methods.length;i++){var method=methods[i];rudderanalytics[method]=function(d){return function(){rudderanalytics.push([d,...arguments])}}(method)}rudderanalytics.load("YOUR_WRITE_KEY","DATA_PLANE_URI"),rudderanalytics.page();
+rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track","alias","group","identify","ready","reset"],i=0;i<methods.length;i++){var method=methods[i];rudderanalytics[method]=function(d){return function(){rudderanalytics.push([d,...arguments])}}(method)}rudderanalytics.load("YOUR_WRITE_KEY","DATA_PLANE_URI"),rudderanalytics.page();
 </script>
 
 <script  src="https://cdn.rudderlabs.com/rudder-analytics.min.js"></script>
@@ -31,6 +31,9 @@ The non-minified version of the code is shown below:
 		"page",
 		"track",
 		"identify",
+		"alias",
+		"group",
+		"ready",
 		"reset"
 	];
 
