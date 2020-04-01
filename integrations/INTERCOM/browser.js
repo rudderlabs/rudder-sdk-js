@@ -1,4 +1,5 @@
 import logger from "../../utils/logUtil";
+import md5 from "md5";
 
 class INTERCOM {
   constructor(config) {
@@ -88,41 +89,54 @@ class INTERCOM {
 
     // map rudderPayload to desired
     Object.keys(context.traits).forEach(field => {
-      const value = context.traits[field];
+      if (context.traits.hasOwnProperty(field)) {
+        const value = context.traits[field];
 
-      if (field === "company") {
-        let companies = [];
-        let company = {};
-        const companyFields = Object.keys(context.traits[field]);
-
-        companyFields.forEach(key => {
-          if (key != "id") {
-            company[key] = context.traits[field][key];
-          } else {
-            company["company_id"] = context.traits[field][key];
+        if (field === "company") {
+          let companies = [];
+          let company = {};
+          // special handling string
+          if (typeof context.traits[field] == "string") {
+            company["company_id"] = md5(context.traits[field]);
           }
-        });
+          const companyFields =
+            (typeof context.traits[field] == "object" &&
+              Object.keys(context.traits[field])) ||
+            [];
+          companyFields.forEach(key => {
+            if (companyFields.hasOwnProperty(key)) {
+              if (key != "id") {
+                company[key] = context.traits[field][key];
+              } else {
+                company["company_id"] = context.traits[field][key];
+              }
+            }
+          });
 
-        if (!companyFields.includes("id")) {
-          company["company_id"] = md5(company.name);
+          if (
+            typeof context.traits[field] == "object" &&
+            !companyFields.includes("id")
+          ) {
+            company["company_id"] = md5(company.name);
+          }
+
+          companies.push(company);
+          rawPayload.companies = companies;
+        } else {
+          rawPayload[field] = context.traits[field];
         }
 
-        companies.push(company);
-        rawPayload.companies = companies;
-      } else {
-        rawPayload[field] = context.traits[field];
-      }
+        switch (field) {
+          case "createdAt":
+            rawPayload["created_at"] = value;
+            break;
+          case "anonymousId":
+            rawPayload["user_id"] = value;
+            break;
 
-      switch (field) {
-        case "createdAt":
-          rawPayload["created_at"] = value;
-          break;
-        case "anonymousId":
-          rawPayload["user_id"] = value;
-          break;
-
-        default:
-          break;
+          default:
+            break;
+        }
       }
     });
     rawPayload.user_id = rudderElement.message.userId;
