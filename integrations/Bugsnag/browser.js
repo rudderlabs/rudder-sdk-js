@@ -6,70 +6,52 @@ import {
 } from "../../utils/constants";
 
 class Bugsnag {
-    constructor(config) {
-      this.apiKey = config.apiKey;
-      this.name = "BUGSNAG";
-      logger.debug("Config ", config);
-    }
+  constructor(config) {
+    this.apiKey = config.apiKey;
+    this.name = "BUGSNAG";
+    this.setIntervalHandler = undefined;
+    logger.debug("Config ", config);
+  }
 
-
-
-init() {
+  init() {
     logger.debug("===in init Bugsnag===");
-    console.log("===in init Bugsnag===");
-    // let src = "//d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js";
-    // let js = document.createElement("script");
-    // js.src = src;
-    // js.type = "text/javascript";
-    // js.id="bugsnag";
-    // var inlineScript = document.createTextNode("window.bugsnagClient = bugsnag('"+this.apiKey+"')");
-    // js.appendChild(inlineScript);
-    // let e = document.getElementsByTagName("script")[0];
-    // logger.debug("==script==", e);
-    // console.log("==script==", js)
-    // e.parentNode.insertBefore(js, e);
-    // console.log("==script 2==", e)
-    ScriptLoader("bugsnag","//d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js")
-    window.Bugsnag = [];
-        window.Bugsnag.apiKey = this.apiKey;
-        window.Bugsnag.ssl = this.ssl;
-        window.Bugsnag.releaseStage = this.releaseStage;
-       // window.bugsnagClient = window.Bugsnag;
-   
-      }
+    ScriptLoader(
+      "bugsnag-id",
+      "//d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js"
+    );
 
-isLoaded() {
+    this.setIntervalHandler = setInterval(
+      this.initBugsnagClient.bind(this),
+      1000
+    );
+  }
+
+  initBugsnagClient() {
+    if (window.bugsnag !== undefined && window.bugsnag !== void 0) {
+      window.bugsnagClient = window.bugsnag(this.apiKey);
+      clearInterval(this.setIntervalHandler);
+    }
+  }
+
+  isLoaded() {
     logger.debug("in bugsnag isLoaded");
-    console.log(window.Bugsnag);
-    return !!window.Bugsnag;
+    return !!window.bugsnagClient;
+  }
 
-      }
-
-isReady() {
+  isReady() {
     logger.debug("in bugsnag isReady");
-    console.log(window.Bugsnag);
-    return !!window.Bugsnag;
+    return !!window.bugsnagClient;
+  }
 
-}
-
-identify(rudderElement) {
- 
+  identify(rudderElement) {
     let traits = rudderElement.message.context.traits;
     let traitsFinal = {
-        id: rudderElement.message.userId,
-        name: traits.name,
-        email: traits.email
-
-    }
+      id: rudderElement.message.userId,
+      name: traits.name,
+      email: traits.email
+    };
     console.log(traitsFinal);
-    window.Bugsnag.user = traitsFinal;
-    
- 
-
-
-}
-
-
-
+    window.bugsnagClient.user = traitsFinal;
+  }
 }
 export { Bugsnag };

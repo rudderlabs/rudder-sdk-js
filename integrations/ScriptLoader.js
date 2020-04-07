@@ -6,8 +6,6 @@ function ScriptLoader(id, src) {
   js.type = "text/javascript";
   js.id = id;
   let e = document.getElementsByTagName("script")[0];
-  logger.debug("==script==", e);
-  console.log("==script==", e);
   e.parentNode.insertBefore(js, e);
 }
 
