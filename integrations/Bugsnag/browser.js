@@ -7,6 +7,7 @@ import {
 
 class Bugsnag {
   constructor(config) {
+    this.releaseStage = config.releaseStage;
     this.apiKey = config.apiKey;
     this.name = "BUGSNAG";
     this.setIntervalHandler = undefined;
@@ -29,6 +30,7 @@ class Bugsnag {
   initBugsnagClient() {
     if (window.bugsnag !== undefined && window.bugsnag !== void 0) {
       window.bugsnagClient = window.bugsnag(this.apiKey);
+      window.bugsnagClient.releaseStage = this.releaseStage;
       clearInterval(this.setIntervalHandler);
     }
   }
@@ -52,6 +54,7 @@ class Bugsnag {
     };
     console.log(traitsFinal);
     window.bugsnagClient.user = traitsFinal;
+    window.bugsnagClient.notify(new Error("error in identify"));
   }
 }
 export { Bugsnag };

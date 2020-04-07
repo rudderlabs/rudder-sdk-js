@@ -409,8 +409,6 @@ var rudderanalytics = (function (exports) {
     js.type = "text/javascript";
     js.id = id;
     var e = document.getElementsByTagName("script")[0];
-    logger.debug("==script==", e);
-    console.log("==script==", e);
     e.parentNode.insertBefore(js, e);
   }
 
@@ -3701,8 +3699,10 @@ var rudderanalytics = (function (exports) {
     function Bugsnag(config) {
       _classCallCheck(this, Bugsnag);
 
+      this.releaseStage = config.releaseStage;
       this.apiKey = config.apiKey;
       this.name = "BUGSNAG";
+      this.setIntervalHandler = undefined;
       logger.debug("Config ", config);
     }
 
@@ -3710,36 +3710,29 @@ var rudderanalytics = (function (exports) {
       key: "init",
       value: function init() {
         logger.debug("===in init Bugsnag===");
-        console.log("===in init Bugsnag==="); // let src = "//d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js";
-        // let js = document.createElement("script");
-        // js.src = src;
-        // js.type = "text/javascript";
-        // js.id="bugsnag";
-        // var inlineScript = document.createTextNode("window.bugsnagClient = bugsnag('"+this.apiKey+"')");
-        // js.appendChild(inlineScript);
-        // let e = document.getElementsByTagName("script")[0];
-        // logger.debug("==script==", e);
-        // console.log("==script==", js)
-        // e.parentNode.insertBefore(js, e);
-        // console.log("==script 2==", e)
-
-        ScriptLoader("bugsnag", "//d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js");
-        window.Bugsnag = [];
-        window.Bugsnag.apiKey = "edb628153688c37ddea5116b01d30cfc";
+        ScriptLoader("bugsnag-id", "//d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js");
+        this.setIntervalHandler = setInterval(this.initBugsnagClient.bind(this), 1000);
+      }
+    }, {
+      key: "initBugsnagClient",
+      value: function initBugsnagClient() {
+        if (window.bugsnag !== undefined && window.bugsnag !== void 0) {
+          window.bugsnagClient = window.bugsnag(this.apiKey);
+          window.bugsnagClient.releaseStage = this.releaseStage;
+          clearInterval(this.setIntervalHandler);
+        }
       }
     }, {
       key: "isLoaded",
       value: function isLoaded() {
         logger.debug("in bugsnag isLoaded");
-        console.log(window.Bugsnag);
-        return !!window.Bugsnag;
+        return !!window.bugsnagClient;
       }
     }, {
       key: "isReady",
       value: function isReady() {
         logger.debug("in bugsnag isReady");
-        console.log(window.Bugsnag);
-        return !!window.Bugsnag;
+        return !!window.bugsnagClient;
       }
     }, {
       key: "identify",
@@ -3750,7 +3743,8 @@ var rudderanalytics = (function (exports) {
           name: traits.name,
           email: traits.email
         };
-        extend_1(window.Bugsnag.user, traitsFinal);
+        console.log(traitsFinal);
+        window.bugsnagClient.user = traitsFinal;
       }
     }]);
 
