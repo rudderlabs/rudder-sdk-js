@@ -144,7 +144,28 @@ rudderanalytics.ready(
 	() => {console.log("we are all set!!!");}
 );
 ```
+# Adding callbacks to standard methods
+One can also define callbacks to common methods of  ```rudderanalytics``` object.
+***Note***: For now, the functionality is supported for ```syncPixel``` method which is called in Rudder SDK when making sync calls in integrations for relevant destinations.
 
+Ex:
+```
+<script>
+rudderanalytics.syncPixelCallback = obj  => {
+    rudderanalytics.track(
+         "sync lotame",
+         { destination: obj.destination },
+         { integrations: { All: false, S3: true } }
+    ); 
+};
+</script>
+
+<script src="https://cdn.rudderlabs.com/rudder-analytics.min.js"></script>
+```
+In the above example, we are defining a  ```syncPixelCallback``` on the analytics object before the call to load the SDK. This will lead to calling of this registered callback with the parameter 
+```{destination: <destination_name>}``` whenever a sync call is made from Rudder SDK for relevant integrations like *Lotame*.
+
+We will be adding similar callbacks for apis such as ```track, page, identify``` etc.
 # Autotrack
 It may happen that the need arises to track most of user interactions with a web-app. It becomes hard for a developer to capture these DOM interactions and make track calls for all. The autotrack feature of Rudder SDK helps in tracking all user interactions like `click | change | submit` automatically. The data generated will be verbose and to make sense of the data, one can use `user transformations` from the config-plane to build use-cases like monitoring user journeys etc. 
 For more information and payload structure, click [here](https://docs.rudderstack.com/sdk-integration-guide/getting-started-with-javascript-sdk/rudderstack-autotrack-feature).
