@@ -6822,12 +6822,13 @@ var rudderanalytics = (function (exports) {
   var Lotame =
   /*#__PURE__*/
   function () {
-    function Lotame(config) {
+    function Lotame(config, analytics) {
       var _this = this;
 
       _classCallCheck(this, Lotame);
 
       this.name = "LOTAME";
+      this.analytics = analytics;
       this.storage = lotameStorage;
       this.bcpUrlSettings = config.bcpUrlSettings;
       this.dspUrlSettings = config.dspUrlSettings;
@@ -6856,11 +6857,11 @@ var rudderanalytics = (function (exports) {
         document.getElementsByTagName("body")[0].appendChild(image);
       }
     }, {
-      key: "synchPixel",
-      value: function synchPixel(userId) {
+      key: "syncPixel",
+      value: function syncPixel(userId) {
         var _this2 = this;
 
-        logger.debug("===== in synchPixel ======");
+        logger.debug("===== in syncPixel ======");
 
         if (this.dspUrlSettings && this.dspUrlSettings.length > 0) {
           this.dspUrlSettings.forEach(function (urlSettings) {
@@ -6872,11 +6873,12 @@ var rudderanalytics = (function (exports) {
           });
         }
 
-        this.storage.setLotameSynchTime(Date.now()); // this is custom to lotame, can be thought of as additional feature
+        this.storage.setLotameSynchTime(Date.now()); // emit on syncPixel
 
-        if (window.LOTAME_SYNCH_CALLBACK && typeof window.LOTAME_SYNCH_CALLBACK == "function") {
-          logger.debug("===== in synchPixel callback======");
-          window.LOTAME_SYNCH_CALLBACK();
+        if (this.analytics.methodToCallbackMapping["syncPixel"]) {
+          this.analytics.emit("syncPixel", {
+            destination: this.name
+          });
         }
       }
     }, {
@@ -6896,7 +6898,7 @@ var rudderanalytics = (function (exports) {
       value: function identify(rudderElement) {
         logger.debug("in Lotame identify");
         var userId = rudderElement.message.userId;
-        this.synchPixel(userId);
+        this.syncPixel(userId);
       }
     }, {
       key: "track",
@@ -6919,7 +6921,7 @@ var rudderanalytics = (function (exports) {
         }
 
         if (rudderElement.message.userId && this.isPixelToBeSynched()) {
-          this.synchPixel(rudderElement.message.userId);
+          this.syncPixel(rudderElement.message.userId);
         }
       }
     }, {
@@ -9222,6 +9224,9 @@ var rudderanalytics = (function (exports) {
       this.readyCallback = function () {};
 
       this.executeReadyCallback = undefined;
+      this.methodToCallbackMapping = {
+        syncPixel: "syncPixelCallback"
+      };
     }
     /**
      * Process the response from control plane and
@@ -9830,6 +9835,20 @@ var rudderanalytics = (function (exports) {
 
         logger.error("ready callback is not a function");
       }
+    }, {
+      key: "registerCallbacks",
+      value: function registerCallbacks() {
+        var _this3 = this;
+
+        Object.keys(this.methodToCallbackMapping).forEach(function (methodName) {
+          if (_this3.methodToCallbackMapping.hasOwnProperty(methodName)) {
+            var callback = !!window.rudderanalytics ? typeof window.rudderanalytics[_this3.methodToCallbackMapping[methodName]] == "function" ? window.rudderanalytics[_this3.methodToCallbackMapping[methodName]] : function () {} : function () {};
+            logger.debug("registerCallbacks", methodName, callback);
+
+            _this3.on(methodName, callback);
+          }
+        });
+      }
     }]);
 
     return Analytics;
@@ -9845,6 +9864,8 @@ var rudderanalytics = (function (exports) {
   componentEmitter(instance);
 
   {
+    // register supported callbacks
+    instance.registerCallbacks();
     var eventsPushedAlready = !!window.rudderanalytics && window.rudderanalytics.push == Array.prototype.push;
     var methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
 
