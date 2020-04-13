@@ -3,6 +3,15 @@
     <script type="text/javascript">
       // checking test commit 2
       rudderanalytics = window.rudderanalytics = [];
+
+      // this is required to be set before RudderAnalytics is loaded/run
+      window.rudderanalytics.syncPixelCallback = obj => {
+        /*  window.rudderanalytics.track(
+          "sync lotame",
+          { destination: obj.destination },
+          { integrations: { All: false, S3: true } }
+        ); */
+      };
       var methods = [
         "load",
         "page",
@@ -22,15 +31,11 @@
         })(method);
       }
 
-      rudderanalytics.load(
-        "1X6kp0fxQpP5tzg6CAFjQoXkwa6",
-        "http://localhost:8090",
-        {
-          configUrl: "https://api-tf.rudderlabs.com/sourceConfig"
-        }
-      );
+      rudderanalytics.load("write-key", "https://hosted.rudderlabs.com", {
+        configUrl: "https://api-tf.rudderlabs.com/sourceConfig"
+      });
       rudderanalytics.track();
-      // rudderanalytics.page(); //Turn this on if Chartbeat is a destination
+      rudderanalytics.page(); //Turn this on if Chartbeat is a destination
     </script>
 
     <script src="./browser.js"></script>
@@ -38,10 +43,6 @@
     <script>
       window.rudderanalytics.ready(() => {
         console.log("we are all set!!!");
-        // The below callback is to register this to Lotame as a callback when the dsp pixels get synched.
-        /* window.LOTAME_SYNCH_CALLBACK = () => {
-          rudderanalytics.track("synch lotame", {}, {integrations:{"All" : false, "S3": true}});
-        } */
       });
       window.rudderanalytics.page();
       window.rudderanalytics.identify("fshdgfsd", {

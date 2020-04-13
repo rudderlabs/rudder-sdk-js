@@ -1,8 +1,9 @@
 import logger from "../../utils/logUtil";
 import { LotameStorage } from "./LotameStorage";
 class Lotame {
-  constructor(config) {
+  constructor(config, analytics) {
     this.name = "LOTAME";
+    this.analytics = analytics;
     this.storage = LotameStorage;
     this.bcpUrlSettings = config.bcpUrlSettings;
     this.dspUrlSettings = config.dspUrlSettings;
@@ -27,8 +28,8 @@ class Lotame {
     document.getElementsByTagName("body")[0].appendChild(image);
   }
 
-  synchPixel(userId) {
-    logger.debug("===== in synchPixel ======");
+  syncPixel(userId) {
+    logger.debug("===== in syncPixel ======");
 
     if (this.dspUrlSettings && this.dspUrlSettings.length > 0) {
       this.dspUrlSettings.forEach(urlSettings => {
@@ -40,13 +41,11 @@ class Lotame {
       });
     }
     this.storage.setLotameSynchTime(Date.now());
-    // this is custom to lotame, can be thought of as additional feature
-    if (
-      window.LOTAME_SYNCH_CALLBACK &&
-      typeof window.LOTAME_SYNCH_CALLBACK == "function"
-    ) {
-      logger.debug("===== in synchPixel callback======");
-      window.LOTAME_SYNCH_CALLBACK();
+    // emit on syncPixel
+    if (this.analytics.methodToCallbackMapping["syncPixel"]) {
+      this.analytics.emit("syncPixel", {
+        destination: this.name
+      });
     }
   }
 
@@ -64,7 +63,7 @@ class Lotame {
   identify(rudderElement) {
     logger.debug("in Lotame identify");
     let userId = rudderElement.message.userId;
-    this.synchPixel(userId);
+    this.syncPixel(userId);
   }
 
   track(rudderElement) {
@@ -85,7 +84,7 @@ class Lotame {
     }
 
     if (rudderElement.message.userId && this.isPixelToBeSynched()) {
-      this.synchPixel(rudderElement.message.userId);
+      this.syncPixel(rudderElement.message.userId);
     }
   }
 

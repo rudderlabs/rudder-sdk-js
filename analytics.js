@@ -77,6 +77,9 @@ class Analytics {
     this.eventRepository = EventRepository;
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
+    this.methodToCallbackMapping = {
+      syncPixel: "syncPixelCallback"
+    };
   }
 
   /**
@@ -713,6 +716,23 @@ class Analytics {
     }
     logger.error("ready callback is not a function");
   }
+
+  registerCallbacks() {
+    Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+      if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
+        let callback = !!window.rudderanalytics
+          ? typeof window.rudderanalytics[
+              this.methodToCallbackMapping[methodName]
+            ] == "function"
+            ? window.rudderanalytics[this.methodToCallbackMapping[methodName]]
+            : () => {}
+          : () => {};
+
+        logger.debug("registerCallbacks", methodName, callback);
+        this.on(methodName, callback);
+      }
+    });
+  }
 }
 
 if (process.browser) {
@@ -730,6 +750,8 @@ let instance = new Analytics();
 Emitter(instance);
 
 if (process.browser) {
+  // register supported callbacks
+  instance.registerCallbacks();
   let eventsPushedAlready =
     !!window.rudderanalytics &&
     window.rudderanalytics.push == Array.prototype.push;
