@@ -6,7 +6,8 @@ let defaults = {
   user_storage_trait: "rl_trait",
   user_storage_anonymousId: "rl_anonymous_id",
   group_storage_key: "rl_group_id",
-  group_storage_trait: "rl_group_trait"
+  group_storage_trait: "rl_group_trait",
+  device_id: "rl_device_id"
 };
 
 /**
@@ -97,6 +98,19 @@ class Storage {
   }
 
   /**
+   * 
+   * @param {*} value 
+   */
+  setDeviceId(value) {
+    if (typeof value != "string") {
+      logger.error("anonymousId should be string");
+      return;
+    }
+    this.storage.set(defaults.device_id, value);
+    return;
+  }
+
+  /**
    *
    * @param {*} key
    */
@@ -137,6 +151,13 @@ class Storage {
    */
   getAnonymousId() {
     return this.storage.get(defaults.user_storage_anonymousId);
+  }
+
+/**
+ *  get stored device id
+ */
+  getDeviceId() {
+    return this.storage.get(defaults.device_id);
   }
 
   /**
