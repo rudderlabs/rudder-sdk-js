@@ -77,6 +77,7 @@ class Analytics {
 
     this.anonymousId = this.getAnonymousId();
     this.storage.setUserId(this.userId);
+    this.deviceId = this.getDeviceId();
     this.eventRepository = EventRepository;
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
@@ -587,6 +588,9 @@ class Analytics {
         {},
         this.userTraits
       );
+      
+      rudderElement["message"]["context"]["device"] = {}
+      rudderElement["message"]["context"]["device"]["rudder_device_id"] = this.deviceId + ''
 
       logger.debug("anonymousId: ", this.anonymousId);
       rudderElement["message"]["anonymousId"] = this.anonymousId;
@@ -717,6 +721,19 @@ class Analytics {
   setAnonymousId(anonymousId) {
     this.anonymousId = anonymousId ? anonymousId : generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
+  }
+
+  getDeviceId() {
+    this.deviceId = this.storage.getDeviceId();
+    if(!this.deviceId) {
+      this.setDeviceId();
+    }
+    return this.deviceId;
+  }
+
+  setDeviceId() {
+    this.deviceId = generateUUID();
+    this.storage.setDeviceId(this.deviceId);
   }
 
   /**
