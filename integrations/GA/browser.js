@@ -28,14 +28,14 @@ class GA {
 
     //window.ga_debug = {trace: true};
 
-    ga("create", this.trackingID, "auto");
-    ga("send", "pageview");
+    ga("create", this.trackingID, "auto", "rudder_ga");
+    //ga("send", "pageview");
 
     logger.debug("===in init GA===");
   }
 
   identify(rudderElement) {
-    ga("set", "userId", rudderElement.message.anonymous_id);
+    ga("rudder_ga.set", "userId", rudderElement.message.anonymous_id);
     logger.debug("in GoogleAnalyticsManager identify");
   }
 
@@ -57,7 +57,7 @@ class GA {
       eventLabel: eventLabel,
       eventValue: eventValue
     };
-    ga("send", "event", payLoad);
+    ga("rudder_ga.send", "event", payLoad);
     logger.debug("in GoogleAnalyticsManager track");
   }
 
@@ -68,9 +68,9 @@ class GA {
         ? rudderElement.properties.path
         : undefined;
     if (path) {
-      ga("set", "page", path);
+      ga("rudder_ga.set", "page", path);
     }
-    ga("send", "pageview");
+    ga("rudder_ga.send", "pageview");
   }
 
   isLoaded() {
