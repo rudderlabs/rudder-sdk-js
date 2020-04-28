@@ -11,6 +11,7 @@ import * as Kissmetrics from "./Kissmetrics";
 import * as CustomerIO from "./CustomerIO";
 import * as Chartbeat from "./Chartbeat";
 import * as Comscore from "./Comscore";
+import * as FbPixel from "./FbPixel";
 
 let integrations = {
   HS: HubSpot.default,
@@ -25,7 +26,8 @@ let integrations = {
   KISSMETRICS: Kissmetrics.default,
   CUSTOMERIO: CustomerIO.default,
   CHARTBEAT: Chartbeat.default,
-  COMSCORE: Comscore.default
+  COMSCORE: Comscore.default,
+  FB_PIXEL: FbPixel.default
 };
 
 export { integrations };

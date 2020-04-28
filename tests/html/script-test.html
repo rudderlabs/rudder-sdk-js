@@ -1,18 +1,13 @@
 <html>
   <head>
+    <!--  <script src="//d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js"></script>
+    <script>
+      window.bugsnagClient = bugsnag("API_KEY");
+    </script> -->
     <script type="text/javascript">
       // checking test commit 2
       rudderanalytics = window.rudderanalytics = [];
-      var methods = [
-        "load",
-        "page",
-        "track",
-        "identify",
-        "trackEvent",
-        "trackPage",
-        "identifyUser",
-        "reset"
-      ];
+      var methods = ["load", "identify", "ready","page","track"];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
         rudderanalytics[method] = (function(methodName) {
@@ -23,11 +18,13 @@
       }
 
       rudderanalytics.load(
-        "1WxuLjndG7YDBT603xZH01mI0HW",
-        "http://localhost:8090"
+        "1b7Hh70fpIsbZmOAx7JN7nPedHZ",
+        "http://localhost:8080",
+        {
+          logLevel: "DEBUG",
+          configUrl: "http://localhost:5000/sourceConfig"
+        }
       );
-      rudderanalytics.track();
-      // rudderanalytics.page(); //Turn this on if Chartbeat is a destination
     </script>
 
     <script src="./browser.js"></script>
@@ -35,41 +32,28 @@
     <script>
       window.rudderanalytics.ready(() => {
         console.log("we are all set!!!");
-      });
-      window.rudderanalytics.page();
-      window.rudderanalytics.identify("fshdgfsd", {
-        name: "Michael Bolton",
-        email: "mbolton@initech.com",
-        plan: "Enterprise",
-        company: {
-          id: 12345
-        },
-        createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
+      
       });
 
+      window.rudderanalytics.identify("abc", {
+        name: "Ruchira Moitra",
+        email: "mbolton@initech.com",
+        createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
+      });
       window.rudderanalytics.track("Product Purchased", {
         order_ID: "2969302398",
         category: "boots",
         product_name: "yellow_cowboy_boots",
         price: 99.95,
-        currency: "EUR"
+        currency: "EUR",
+        revenue: 100,
+        checkinDate: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
       });
       window.rudderanalytics.page();
+
     </script>
   </head>
   <body>
     <h1>Relax while I finish my testing process....</h1>
-    <video
-      controls=""
-      autoplay
-      name="media"
-      title="Video Title"
-      poster="test_poster.jpg"
-    >
-      <source
-        src="http://www.html5rocks.com/en/tutorials/video/basics/devstories.mp4"
-        type="video/mp4;"
-      />
-    </video>
   </body>
 </html>
