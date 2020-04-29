@@ -7,7 +7,7 @@
     <script type="text/javascript">
       // checking test commit 2
       rudderanalytics = window.rudderanalytics = [];
-      var methods = ["load", "identify", "ready","page","track"];
+      var methods = ["load", "identify","ready","page","track"];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
         rudderanalytics[method] = (function(methodName) {
@@ -19,7 +19,7 @@
 
       rudderanalytics.load(
         "1b7Hh70fpIsbZmOAx7JN7nPedHZ",
-        "http://localhost:8080",
+        "http://65b91cda.ngrok.io",
         {
           logLevel: "DEBUG",
           configUrl: "http://localhost:5000/sourceConfig"

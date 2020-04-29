@@ -4,12 +4,11 @@ import is from "is";
 import each from "@ndhoule/each";
 //var each = require('@ndhoule/each');
 
-
 class FbPixel {
   constructor(config) {
     (this.blacklistPiiProperties = config.blacklistPiiProperties), //present
       (this.categoryToContent = config.categoryToContent), //map contentTypes
-      (this.pixelId = config.pixelId),//present
+      (this.pixelId = config.pixelId), //present
       (this.eventsToEvents = config.eventsToEvents), //map  standardEvents
       (this.eventCustomProperties = config.eventCustomProperties), //present
       (this.valueFieldIdentifier = config.valueFieldIdentifier), //present
@@ -18,15 +17,15 @@ class FbPixel {
       (this.legacyConversionPixelId = config.legacyConversionPixelId), //map legacyevents
       (this.userIdAsPixelId = config.userIdAsPixelId), //present
       (this.whitelistPiiProperties = config.whitelistPiiProperties); //present
-      this.name = "FB_PIXEL";
-    console.log(config)
+    this.name = "FB_PIXEL";
+    console.log(config);
   }
- 
+
   init() {
     logger.debug("===in init FbPixelRuchira===");
     console.log("===in init FbPixel Ruchira===");
     console.log(this.pixelId);
-     window._fbq = function () {
+    window._fbq = function () {
       if (window.fbq.callMethod) {
         window.fbq.callMethod.apply(window.fbq, arguments);
       } else {
@@ -48,121 +47,159 @@ class FbPixel {
       "//connect.facebook.net/en_US/fbevents.js"
     );
     console.log("script loaded");
- 
-    
-   
   }
 
   isLoaded() {
     logger.debug("in FbPixel isLoaded");
     console.log("in FbPixel isLoaded");
-    console.log(!!(window.fbq && window.fbq.callMethod))
+    console.log(!!(window.fbq && window.fbq.callMethod));
     return !!(window.fbq && window.fbq.callMethod);
-   
   }
   isReady() {
     logger.debug("in FbPixel isReady");
     console.log("in FbPixel isReady");
-    console.log(!!(window.fbq && window.fbq.callMethod))
+    console.log(!!(window.fbq && window.fbq.callMethod));
     return !!(window.fbq && window.fbq.callMethod);
   }
-   page(rudderElement) {
+  page(rudderElement) {
     console.log("in page call");
     window.fbq("track", "PageView");
-   }
+  }
   identify(rudderElement) {
     console.log("in identify call");
-     this.page();
-   }
+    this.page();
+  }
   track(rudderElement) {
-    console.log("in track call")
+    console.log("in track call");
     var event = rudderElement.message.event;
     var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
-    var payload = this.buildPayLoad(rudderElement,true);
-  
+    var payload = this.buildPayLoad(rudderElement, true);
+
     payload.value = revenue;
     var standard = this.eventsToEvents;
     var legacy = this.legacyConversionPixelId;
+    console.log(standard);
+    console.log(legacy);
+    var standardTo;
+    var legacyTo;
+
+    standardTo = standard.reduce((filtered, standard) => {
+      if (standard.from === event) {
+        console.log("in if");
+        filtered.push(standard.to);
+      }
+      return filtered;
+    }, []);
+    legacyTo = legacy.reduce((filtered, legacy) => {
+      if (legacy.from === event) {
+        console.log("in if");
+        filtered.push(legacy.to);
+      }
+      return filtered;
+    }, []);
 
     console.log(payload);
-    window.fbq('trackSingleCustom',this.pixelId,event,payload,{
-      eventID: rudderElement.message.messageId
-   })
+    if(![].concat(standardTo,legacyTo).length){
+      window.fbq("trackSingleCustom", this.pixelId, event, payload, {
+        eventID: rudderElement.messageId,
+      });
+      return;
+    }
+   each(function(event){
+     if(event=== 'Purchase') payload.currency = rudderElement.properties.currency;
+     window.fbq('trackSingle',this.pixelId,event,payload,{
+       eventID:rudderElement.messageId
+     });
+   },standardTo);
 
-  }
+
+   each(function(event){
+     window.fbq('trackSingle',this.pixelId,event,{
+       currency: rudderElement.properties.currency,
+       value: revenue
+     },{
+       eventID: rudderElement.messageId
+     });
+   },legacyTo);
+
+
+    
+  };
+
+
   formatRevenue(revenue) {
     return Number(revenue || 0).toFixed(2);
   }
 
-  buildPayLoad(rudderElement,isStandardEvent){
+  buildPayLoad(rudderElement, isStandardEvent) {
     var dateFields = [
-      'checkinDate',
-      'checkoutDate',
-      'departingArrivalDate',
-      'departingDepartureDate',
-      'returningArrivalDate',
-      'returningDepartureDate',
-      'travelEnd',
-      'travelStart'
+      "checkinDate",
+      "checkoutDate",
+      "departingArrivalDate",
+      "departingDepartureDate",
+      "returningArrivalDate",
+      "returningDepartureDate",
+      "travelEnd",
+      "travelStart",
     ];
     var defaultPiiProperties = [
-      'email',
-      'firstName',
-      'lastName',
-      'gender',
-      'city',
-      'country',
-      'phone',
-      'state',
-      'zip',
-      'birthday'
+      "email",
+      "firstName",
+      "lastName",
+      "gender",
+      "city",
+      "country",
+      "phone",
+      "state",
+      "zip",
+      "birthday",
     ];
     var whitelistPiiProperties = this.whitelistPiiProperties || [];
     var blacklistPiiProperties = this.blacklistPiiProperties || [];
     var eventCustomProperties = this.eventCustomProperties || [];
     var customPiiProperties = {};
-    for(var i = 0; i<blacklistPiiProperties[i];i++){
+    for (var i = 0; i < blacklistPiiProperties[i]; i++) {
       var configuration = blacklistPiiProperties[i];
-      customPiiProperties[configuration.blacklistPiiProperties] = true; //configuration.hashProperty
+      customPiiProperties[configuration.blacklistPiiProperties] =
+        configuration.blacklistPiiHash; //configuration.hashProperty
     }
     var payload = {};
     var properties = rudderElement.message.properties;
 
-    console.log("properties")
-    console.log(properties)
+    console.log("properties");
+    console.log(properties);
 
-    for(var property in properties ){
-   if(!properties.hasOwnProperty(property)){
-     continue;
-   }
-   
-   if(isStandardEvent && eventCustomProperties.indexOf(property) < 0){
-     continue;
-   }
-  var value = properties[property];
+    for (var property in properties) {
+      if (!properties.hasOwnProperty(property)) {
+        continue;
+      }
 
-  if(dateFields.indexOf(properties)>=0){
-    if(is.date(value)){
-      payload[property] = value.toISOTring().split('T')[0];
-      continue;
+      if (isStandardEvent && eventCustomProperties.indexOf(property) < 0) {
+        continue;
+      }
+      var value = properties[property];
+
+      if (dateFields.indexOf(properties) >= 0) {
+        if (is.date(value)) {
+          payload[property] = value.toISOTring().split("T")[0];
+          continue;
+        }
+      }
+      if (customPiiProperties.hasOwnProperty(property)) {
+        if (customPiiProperties[property] && typeof value == "string") {
+          payload[property] = sha256(value);
+        }
+        continue;
+      }
+      var isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
+      var isProperyWhiteListed = whitelistPiiProperties.indexOf(property) >= 0;
+      if (!isPropertyPii || isProperyWhiteListed) {
+        payload[property] = value;
+      }
     }
-  }
-  if(customPiiProperties.hasOwnProperty(property)){
-    if(customPiiProperties[property] && typeof value == 'string'){
-      payload[property] = sha256(value);
-    }
-    continue;
-  }
-  var isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
-  var isProperyWhiteListed = whitelistPiiProperties.indexOf(property) >= 0;
-  if(!isPropertyPii || isProperyWhiteListed){
-    payload[property] = value;
-  }
-    }
-  console.log("payload");
-  console.log(payload);
+    console.log("payload");
+    console.log(payload);
     return payload;
-
   }
 }
 
