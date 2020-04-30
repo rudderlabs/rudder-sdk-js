@@ -99,34 +99,345 @@ class FbPixel {
     }, []);
 
     console.log(payload);
-    if(![].concat(standardTo,legacyTo).length){
+    if (![].concat(standardTo, legacyTo).length) {
       window.fbq("trackSingleCustom", this.pixelId, event, payload, {
         eventID: rudderElement.messageId,
       });
       return;
     }
-   each(function(event){
-     if(event=== 'Purchase') payload.currency = rudderElement.properties.currency;
-     window.fbq('trackSingle',this.pixelId,event,payload,{
-       eventID:rudderElement.messageId
-     });
-   },standardTo);
+    each(function (event) {
+      if (event === "Purchase")
+        payload.currency = rudderElement.properties.currency;
+      window.fbq("trackSingle", this.pixelId, event, payload, {
+        eventID: rudderElement.messageId,
+      });
+    }, standardTo);
 
+    each(function (event) {
+      window.fbq(
+        "trackSingle",
+        this.pixelId,
+        event,
+        {
+          currency: rudderElement.properties.currency,
+          value: revenue,
+        },
+        {
+          eventID: rudderElement.messageId,
+        }
+      );
+    }, legacyTo);
 
-   each(function(event){
-     window.fbq('trackSingle',this.pixelId,event,{
-       currency: rudderElement.properties.currency,
-       value: revenue
-     },{
-       eventID: rudderElement.messageId
-     });
-   },legacyTo);
+    if (event === "Product List Viewed") {
+      var contentType;
+      var contentIds;
+      var contents = [];
+      var products = rudderElement.properties.products;
+      var customProperties = buildPayLoad(rudderElement, true);
 
+      if (Array.isArray(products)) {
+        products.forEach(function (product) {
+          var productId = product.product_id;
+          if (productId) {
+            contentIds.push(productId);
+            contents.push({
+              id: productId,
+              quantity: rudderElement.properties.quantity,
+            });
+          }
+        });
+      }
+      if (contentIds.length) {
+        contentType = ["product"];
+      } else {
+        contentIds.push(rudderElement.properties.category || "");
+        contents.push({
+          id: rudderElement.properties.category || "",
+          quantity: 1,
+        });
+        contentType = ["product_group"];
+      }
+      window.fbq(
+        "trackSingle",
+        this.pixelId,
+        "ViewContent",
+        this.merge(
+          {
+            content_ids: contentIds,
+            content_type: contentType, //need to change
+            contents: contents,
+          },
+          customProperties
+        ),
+        {
+          eventID: rudderElement.messageId,
+        }
+      );
 
-    
-  };
+      each(function (event) {
+        window.fbq(
+          "trackSingle",
+          this.pixelId,
+          event,
+          {
+            currency: rudderElement.properties.currency,
+            value: this.formatRevenue(rudderElement.properties.revenue),
+          },
+          {
+            eventID: rudderElement.messageId,
+          }
+        );
+      }, legacyTo);
+    } else if (event == "Product Viewed") {
+      var useValue = this.valueFieldIdentifier === "properties.value";
+      var customProperties = this.buildPayLoad(rudderElement, true);
 
+      window.fbq(
+        "trackSingle",
+        this.pixelId,
+        "ViewContent",
+        this.merge(
+          {
+            content_ids: [
+              rudderElement.properties.product_id ||
+                rudderElement.properties.id ||
+                rudderElement.properties.sku ||
+                "",
+            ],
+            content_type: "", //need to change
+            content_name: rudderElement.properties.product_name || "",
+            content_category: rudderElement.properties.category || "",
+            currency: rudderElement.properties.currency,
+            value: useValue
+              ? this.formatRevenue(rudderElement.properties.value)
+              : this.formatRevenue(rudderElement.properties.price),
+            contents: [
+              {
+                id:
+                  rudderElement.properties.product_id ||
+                  rudderElement.properties.id ||
+                  rudderElement.properties.sku ||
+                  "",
+                quantity: rudderElement.properties.quantity,
+                item_price: rudderElement.properties.price,
+              },
+            ],
+          },
+          customProperties
+        ),
+        {
+          eventID: rudderElement.messageId,
+        }
+      );
 
+      each(function (event) {
+        window.fbq(
+          "trackSingle",
+          this.pixelId,
+          event,
+          {
+            currency: rudderElement.properties.currency,
+            value: useValue
+              ? this.formatRevenue(rudderElement.properties.value)
+              : this.formatRevenue(rudderElement.properties.price),
+          },
+          {
+            eventID: rudderElement.messageId,
+          }
+        );
+      }, legacyTo);
+    } else if (event === "Product Added") {
+      var useValue = this.valueFieldIdentifier === "properties.value";
+      var customProperties = this.buildPayLoad(rudderElement, true);
+      window.fbq(
+        "trackSingle",
+        this.pixelId,
+        "AddToCart",
+        this.merge(
+          {
+            content_ids: [
+              rudderElement.properties.product_id ||
+                rudderElement.properties.id ||
+                rudderElement.properties.sku ||
+                "",
+            ],
+            content_type: "", //need to change
+            content_name: rudderElement.properties.product_name || "",
+            content_category: rudderElement.properties.category || "",
+            currency: rudderElement.properties.currency,
+            value: useValue
+              ? this.formatRevenue(rudderElement.properties.value)
+              : this.formatRevenue(rudderElement.properties.price),
+            contents: [
+              {
+                id:
+                  rudderElement.properties.product_id ||
+                  rudderElement.properties.id ||
+                  rudderElement.properties.sku ||
+                  "",
+                quantity: rudderElement.properties.quantity,
+                item_price: rudderElement.properties.price,
+              },
+            ],
+          },
+          customProperties
+        ),
+        {
+          eventID: rudderElement.messageId,
+        }
+      );
+
+      each(function (event) {
+        window.fbq(
+          "trackSingle",
+          this.pixelId,
+          event,
+          {
+            currency: rudderElement.properties.currency,
+            value: useValue
+              ? this.formatRevenue(rudderElement.properties.value)
+              : this.formatRevenue(rudderElement.properties.price),
+          },
+          {
+            eventID: rudderElement.messageId,
+          }
+        );
+      }, legacyTo);
+    }
+    else if(event == 'Order Completed'){
+      var products = rudderElement.properites.products;
+      var customProperties = this.buildPayLoad(rudderElement,true)
+      var revenue = this.formatRevenue(rudderElement.properties.revenue)
+
+      var contentType = '' //need to change
+      var contentIds = [];
+      var contents = [];
+
+      for(var i=0; i<products.length; i++)
+{
+  var pId = product.product_id;
+  contentIds.push(pId);
+  var content = {
+    id: pId,
+    quantity: rudderElement.properties.quantity
+  }
+  if(rudderElement.properties.price){
+    content.item_price = rudderElement.properties.price;
+  }
+  contents.push(content)
+}  
+window.fbq('trackSingle',
+this.pixelId,
+'Purchase',
+this.merge({
+  content_ids: contentIds,
+  content_type: contentType,
+  currency: rudderElement.properties.currency,
+  value: revenue,
+  contents: contents,
+  num_items: contentIds.length
+},customProperties),{
+  eventID: rudderElement.messageId
+})
+
+each(function(event){
+  window.fbq('trackSingle',this.pixelId,event,{
+    currency: rudderElement.properties.currency,
+    value: this.formatRevenue(rudderElement.properties.revenue)
+  },{
+    eventID: rudderElement.messageId
+  })},legacyto
+)
+
+}
+else if(event === 'Products Searched'){
+  var customProperties = this.buildPayLoad(rudderElement,true);
+  window.fbq('trackSingle',this.pixelId,'Search',merge({
+    search_string: rudderElement.properties.query
+  },customProperties),{
+    eventID: rudderElement.messageId
+  })
+
+  each(function(event){
+    window.fbq('trackSingle',this.pixelId,event,{
+      currency: rudderElement.properties.currency,
+      value: formatRevenue(rudderElement.properties.revenue)
+    },{
+      eventID: rudderElement.messageId
+    })
+  },legacyTo)
+}
+else if(event === 'Checkout Started'){
+  var products = rudderElement.properites.products;
+      var customProperties = this.buildPayLoad(rudderElement,true)
+      var revenue = this.formatRevenue(rudderElement.properties.revenue)
+      var contentCategory= rudderElement.properties.category;
+      var contentType = '' //need to change
+      var contentIds = [];
+      var contents = [];
+
+      for(var i=0; i<products.length; i++)
+{
+  var pId = product.product_id;
+  contentIds.push(pId);
+  var content = {
+    id: pId,
+    quantity: rudderElement.properties.quantity,
+    item_price: rudderElement.properties.price
+  }
+  if(rudderElement.properties.price){
+    content.item_price = rudderElement.properties.price;
+  }
+  contents.push(content)
+} 
+if(!contentCategory && products[0] && products[0].category){
+  contentCategory = products[0].category
+} 
+window.fbq('trackSingle',
+this.pixelId,
+'InitiateCheckout',
+this.merge({
+  content_category: contentCategory,
+  content_ids: contentIds,
+  content_type: contentType,
+  currency: rudderElement.properties.currency,
+  value: revenue,
+  contents: contents,
+  num_items: contentIds.length
+},customProperties),{
+  eventID: rudderElement.messageId
+})
+
+each(function(event){
+  window.fbq('trackSingle',this.pixelId,event,{
+    currency: rudderElement.properties.currency,
+    value: this.formatRevenue(rudderElement.properties.revenue)
+  },{
+    eventID: rudderElement.messageId
+  })},legacyto
+)
+}
+  }
+
+  merge(obj1, obj2) {
+    var res = {};
+
+    // All properties of obj1
+    for (var propObj1 in obj1) {
+      if (obj1.hasOwnProperty(propObj1)) {
+        res[propObj1] = obj1[propObj1];
+      }
+    }
+
+    // Extra properties of obj2
+    for (var propObj2 in obj2) {
+      if (obj2.hasOwnProperty(propObj2) && !res.hasOwnProperty(propObj2)) {
+        res[propObj2] = obj2[propObj2];
+      }
+    }
+
+    return res;
+  }
   formatRevenue(revenue) {
     return Number(revenue || 0).toFixed(2);
   }
