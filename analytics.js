@@ -55,7 +55,7 @@ class Analytics {
     this.failedToBeLoadedIntegration = [];
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
-    this.storage = new Storage();
+    this.storage = Storage;
     this.userId =
       this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
 
@@ -77,6 +77,9 @@ class Analytics {
     this.eventRepository = EventRepository;
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
+    this.methodToCallbackMapping = {
+      syncPixel: "syncPixelCallback"
+    };
   }
 
   /**
@@ -91,7 +94,10 @@ class Analytics {
     try {
       logger.debug("===in process response=== " + status);
       response = JSON.parse(response);
-      if (response.source.useAutoTracking) {
+      if (
+        response.source.useAutoTracking &&
+        !this.autoTrackHandlersRegistered
+      ) {
         this.autoTrackFeatureEnabled = true;
         addDomEventHandlers(this);
         this.autoTrackHandlersRegistered = true;
@@ -122,6 +128,7 @@ class Analytics {
       );
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
         addDomEventHandlers(this);
+        this.autoTrackHandlersRegistered = true;
       }
     }
   }
@@ -521,10 +528,14 @@ class Analytics {
         this.setAnonymousId();
       }
 
+      // assign page properties to context
+      rudderElement["message"]["context"]["page"] = getDefaultPageProperties();
+
       rudderElement["message"]["context"]["traits"] = Object.assign(
         {},
         this.userTraits
       );
+
       logger.debug("anonymousId: ", this.anonymousId);
       rudderElement["message"]["anonymousId"] = this.anonymousId;
       rudderElement["message"]["userId"] = rudderElement["message"]["userId"]
@@ -665,6 +676,11 @@ class Analytics {
     if (options && options.configUrl) {
       configUrl = options.configUrl;
     }
+    logger.debug("inside load ");
+    this.eventRepository.writeKey = writeKey;
+    if (serverUrl) {
+      this.eventRepository.url = serverUrl;
+    }
     if (
       options &&
       options.valTrackingList &&
@@ -672,10 +688,16 @@ class Analytics {
     ) {
       this.trackValues = options.valTrackingList;
     }
-    logger.debug("inside load ");
-    this.eventRepository.writeKey = writeKey;
-    if (serverUrl) {
-      this.eventRepository.url = serverUrl;
+    if (options && options.useAutoTracking) {
+      this.autoTrackFeatureEnabled = true;
+      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+        addDomEventHandlers(this);
+        this.autoTrackHandlersRegistered = true;
+        logger.debug(
+          "autoTrackHandlersRegistered",
+          this.autoTrackHandlersRegistered
+        );
+      }
     }
     try {
       getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
@@ -694,6 +716,23 @@ class Analytics {
     }
     logger.error("ready callback is not a function");
   }
+
+  registerCallbacks() {
+    Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+      if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
+        let callback = !!window.rudderanalytics
+          ? typeof window.rudderanalytics[
+              this.methodToCallbackMapping[methodName]
+            ] == "function"
+            ? window.rudderanalytics[this.methodToCallbackMapping[methodName]]
+            : () => {}
+          : () => {};
+
+        logger.debug("registerCallbacks", methodName, callback);
+        this.on(methodName, callback);
+      }
+    });
+  }
 }
 
 if (process.browser) {
@@ -711,6 +750,8 @@ let instance = new Analytics();
 Emitter(instance);
 
 if (process.browser) {
+  // register supported callbacks
+  instance.registerCallbacks();
   let eventsPushedAlready =
     !!window.rudderanalytics &&
     window.rudderanalytics.push == Array.prototype.push;

@@ -26,6 +26,8 @@ var queueOptions = {
   backoffFactor: 0
 };
 
+const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
+
 /**
  *
  * @class EventRepository responsible for adding events into
@@ -211,6 +213,13 @@ class EventRepository {
 
     var message = rudderElement.getElementContent();
     message.originalTimestamp = getCurrentTimeFormatted();
+    message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
+
+    // check message size, if greater log an error
+    if (JSON.stringify(message).length > MESSAGE_LENGTH) {
+      logger.error("message length greater 32 Kb ", message);
+    }
+
     //modify the url for event specific endpoints
     var url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
     // add items to the queue

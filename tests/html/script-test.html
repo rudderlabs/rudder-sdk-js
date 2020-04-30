@@ -8,6 +8,25 @@
       // checking test commit 2
       rudderanalytics = window.rudderanalytics = [];
       var methods = ["load", "identify","ready","page","track"];
+
+      // this is required to be set before RudderAnalytics is loaded/run
+      window.rudderanalytics.syncPixelCallback = obj => {
+        /*  window.rudderanalytics.track(
+          "sync lotame",
+          { destination: obj.destination },
+          { integrations: { All: false, S3: true } }
+        ); */
+      };
+      var methods = [
+        "load",
+        "page",
+        "track",
+        "identify",
+        "trackEvent",
+        "trackPage",
+        "identifyUser",
+        "reset"
+      ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
         rudderanalytics[method] = (function(methodName) {
@@ -25,6 +44,11 @@
           configUrl: "http://localhost:5000/sourceConfig"
         }
       );
+      rudderanalytics.load("write-key", "https://hosted.rudderlabs.com", {
+        configUrl: "https://api-tf.rudderlabs.com/sourceConfig"
+      });
+      rudderanalytics.track();
+      rudderanalytics.page(); //Turn this on if Chartbeat is a destination
     </script>
 
     <script src="./browser.js"></script>

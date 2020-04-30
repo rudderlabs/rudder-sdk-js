@@ -12,6 +12,7 @@ import * as CustomerIO from "./CustomerIO";
 import * as Chartbeat from "./Chartbeat";
 import * as Comscore from "./Comscore";
 import * as FbPixel from "./FbPixel";
+import * as Lotame from "./Lotame";
 
 let integrations = {
   HS: HubSpot.default,
@@ -27,7 +28,11 @@ let integrations = {
   CUSTOMERIO: CustomerIO.default,
   CHARTBEAT: Chartbeat.default,
   COMSCORE: Comscore.default,
+<<<<<<< HEAD
   FB_PIXEL: FbPixel.default
+=======
+  LOTAME: Lotame.default
+>>>>>>> origin/master
 };
 
 export { integrations };

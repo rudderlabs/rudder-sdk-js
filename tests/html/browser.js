@@ -1248,6 +1248,333 @@ var rudderanalytics = (function (exports) {
   }();
 
   var INTERCOM = /*#__PURE__*/function () {
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
+
+  var crypt = createCommonjsModule(function (module) {
+  (function() {
+    var base64map
+        = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+
+    crypt = {
+      // Bit-wise rotation left
+      rotl: function(n, b) {
+        return (n << b) | (n >>> (32 - b));
+      },
+
+      // Bit-wise rotation right
+      rotr: function(n, b) {
+        return (n << (32 - b)) | (n >>> b);
+      },
+
+      // Swap big-endian to little-endian and vice versa
+      endian: function(n) {
+        // If number given, swap endian
+        if (n.constructor == Number) {
+          return crypt.rotl(n, 8) & 0x00FF00FF | crypt.rotl(n, 24) & 0xFF00FF00;
+        }
+
+        // Else, assume array and swap all items
+        for (var i = 0; i < n.length; i++)
+          n[i] = crypt.endian(n[i]);
+        return n;
+      },
+
+      // Generate an array of any length of random bytes
+      randomBytes: function(n) {
+        for (var bytes = []; n > 0; n--)
+          bytes.push(Math.floor(Math.random() * 256));
+        return bytes;
+      },
+
+      // Convert a byte array to big-endian 32-bit words
+      bytesToWords: function(bytes) {
+        for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
+          words[b >>> 5] |= bytes[i] << (24 - b % 32);
+        return words;
+      },
+
+      // Convert big-endian 32-bit words to a byte array
+      wordsToBytes: function(words) {
+        for (var bytes = [], b = 0; b < words.length * 32; b += 8)
+          bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+        return bytes;
+      },
+
+      // Convert a byte array to a hex string
+      bytesToHex: function(bytes) {
+        for (var hex = [], i = 0; i < bytes.length; i++) {
+          hex.push((bytes[i] >>> 4).toString(16));
+          hex.push((bytes[i] & 0xF).toString(16));
+        }
+        return hex.join('');
+      },
+
+      // Convert a hex string to a byte array
+      hexToBytes: function(hex) {
+        for (var bytes = [], c = 0; c < hex.length; c += 2)
+          bytes.push(parseInt(hex.substr(c, 2), 16));
+        return bytes;
+      },
+
+      // Convert a byte array to a base-64 string
+      bytesToBase64: function(bytes) {
+        for (var base64 = [], i = 0; i < bytes.length; i += 3) {
+          var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+          for (var j = 0; j < 4; j++)
+            if (i * 8 + j * 6 <= bytes.length * 8)
+              base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
+            else
+              base64.push('=');
+        }
+        return base64.join('');
+      },
+
+      // Convert a base-64 string to a byte array
+      base64ToBytes: function(base64) {
+        // Remove non-base-64 characters
+        base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
+
+        for (var bytes = [], i = 0, imod4 = 0; i < base64.length;
+            imod4 = ++i % 4) {
+          if (imod4 == 0) continue;
+          bytes.push(((base64map.indexOf(base64.charAt(i - 1))
+              & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2))
+              | (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
+        }
+        return bytes;
+      }
+    };
+
+    module.exports = crypt;
+  })();
+  });
+
+  var charenc = {
+    // UTF-8 encoding
+    utf8: {
+      // Convert a string to a byte array
+      stringToBytes: function(str) {
+        return charenc.bin.stringToBytes(unescape(encodeURIComponent(str)));
+      },
+
+      // Convert a byte array to a string
+      bytesToString: function(bytes) {
+        return decodeURIComponent(escape(charenc.bin.bytesToString(bytes)));
+      }
+    },
+
+    // Binary encoding
+    bin: {
+      // Convert a string to a byte array
+      stringToBytes: function(str) {
+        for (var bytes = [], i = 0; i < str.length; i++)
+          bytes.push(str.charCodeAt(i) & 0xFF);
+        return bytes;
+      },
+
+      // Convert a byte array to a string
+      bytesToString: function(bytes) {
+        for (var str = [], i = 0; i < bytes.length; i++)
+          str.push(String.fromCharCode(bytes[i]));
+        return str.join('');
+      }
+    }
+  };
+
+  var charenc_1 = charenc;
+
+  /*!
+   * Determine if an object is a Buffer
+   *
+   * @author   Feross Aboukhadijeh <https://feross.org>
+   * @license  MIT
+   */
+
+  // The _isBuffer check is for Safari 5-7 support, because it's missing
+  // Object.prototype.constructor. Remove this eventually
+  var isBuffer_1 = function (obj) {
+    return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+  };
+
+  function isBuffer (obj) {
+    return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+  }
+
+  // For Node v0.10 support. Remove this eventually.
+  function isSlowBuffer (obj) {
+    return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
+  }
+
+  var md5 = createCommonjsModule(function (module) {
+  (function(){
+    var crypt$1 = crypt,
+        utf8 = charenc_1.utf8,
+        isBuffer = isBuffer_1,
+        bin = charenc_1.bin,
+
+    // The core
+    md5 = function (message, options) {
+      // Convert to byte array
+      if (message.constructor == String)
+        if (options && options.encoding === 'binary')
+          message = bin.stringToBytes(message);
+        else
+          message = utf8.stringToBytes(message);
+      else if (isBuffer(message))
+        message = Array.prototype.slice.call(message, 0);
+      else if (!Array.isArray(message))
+        message = message.toString();
+      // else, assume byte array already
+
+      var m = crypt$1.bytesToWords(message),
+          l = message.length * 8,
+          a =  1732584193,
+          b = -271733879,
+          c = -1732584194,
+          d =  271733878;
+
+      // Swap endian
+      for (var i = 0; i < m.length; i++) {
+        m[i] = ((m[i] <<  8) | (m[i] >>> 24)) & 0x00FF00FF |
+               ((m[i] << 24) | (m[i] >>>  8)) & 0xFF00FF00;
+      }
+
+      // Padding
+      m[l >>> 5] |= 0x80 << (l % 32);
+      m[(((l + 64) >>> 9) << 4) + 14] = l;
+
+      // Method shortcuts
+      var FF = md5._ff,
+          GG = md5._gg,
+          HH = md5._hh,
+          II = md5._ii;
+
+      for (var i = 0; i < m.length; i += 16) {
+
+        var aa = a,
+            bb = b,
+            cc = c,
+            dd = d;
+
+        a = FF(a, b, c, d, m[i+ 0],  7, -680876936);
+        d = FF(d, a, b, c, m[i+ 1], 12, -389564586);
+        c = FF(c, d, a, b, m[i+ 2], 17,  606105819);
+        b = FF(b, c, d, a, m[i+ 3], 22, -1044525330);
+        a = FF(a, b, c, d, m[i+ 4],  7, -176418897);
+        d = FF(d, a, b, c, m[i+ 5], 12,  1200080426);
+        c = FF(c, d, a, b, m[i+ 6], 17, -1473231341);
+        b = FF(b, c, d, a, m[i+ 7], 22, -45705983);
+        a = FF(a, b, c, d, m[i+ 8],  7,  1770035416);
+        d = FF(d, a, b, c, m[i+ 9], 12, -1958414417);
+        c = FF(c, d, a, b, m[i+10], 17, -42063);
+        b = FF(b, c, d, a, m[i+11], 22, -1990404162);
+        a = FF(a, b, c, d, m[i+12],  7,  1804603682);
+        d = FF(d, a, b, c, m[i+13], 12, -40341101);
+        c = FF(c, d, a, b, m[i+14], 17, -1502002290);
+        b = FF(b, c, d, a, m[i+15], 22,  1236535329);
+
+        a = GG(a, b, c, d, m[i+ 1],  5, -165796510);
+        d = GG(d, a, b, c, m[i+ 6],  9, -1069501632);
+        c = GG(c, d, a, b, m[i+11], 14,  643717713);
+        b = GG(b, c, d, a, m[i+ 0], 20, -373897302);
+        a = GG(a, b, c, d, m[i+ 5],  5, -701558691);
+        d = GG(d, a, b, c, m[i+10],  9,  38016083);
+        c = GG(c, d, a, b, m[i+15], 14, -660478335);
+        b = GG(b, c, d, a, m[i+ 4], 20, -405537848);
+        a = GG(a, b, c, d, m[i+ 9],  5,  568446438);
+        d = GG(d, a, b, c, m[i+14],  9, -1019803690);
+        c = GG(c, d, a, b, m[i+ 3], 14, -187363961);
+        b = GG(b, c, d, a, m[i+ 8], 20,  1163531501);
+        a = GG(a, b, c, d, m[i+13],  5, -1444681467);
+        d = GG(d, a, b, c, m[i+ 2],  9, -51403784);
+        c = GG(c, d, a, b, m[i+ 7], 14,  1735328473);
+        b = GG(b, c, d, a, m[i+12], 20, -1926607734);
+
+        a = HH(a, b, c, d, m[i+ 5],  4, -378558);
+        d = HH(d, a, b, c, m[i+ 8], 11, -2022574463);
+        c = HH(c, d, a, b, m[i+11], 16,  1839030562);
+        b = HH(b, c, d, a, m[i+14], 23, -35309556);
+        a = HH(a, b, c, d, m[i+ 1],  4, -1530992060);
+        d = HH(d, a, b, c, m[i+ 4], 11,  1272893353);
+        c = HH(c, d, a, b, m[i+ 7], 16, -155497632);
+        b = HH(b, c, d, a, m[i+10], 23, -1094730640);
+        a = HH(a, b, c, d, m[i+13],  4,  681279174);
+        d = HH(d, a, b, c, m[i+ 0], 11, -358537222);
+        c = HH(c, d, a, b, m[i+ 3], 16, -722521979);
+        b = HH(b, c, d, a, m[i+ 6], 23,  76029189);
+        a = HH(a, b, c, d, m[i+ 9],  4, -640364487);
+        d = HH(d, a, b, c, m[i+12], 11, -421815835);
+        c = HH(c, d, a, b, m[i+15], 16,  530742520);
+        b = HH(b, c, d, a, m[i+ 2], 23, -995338651);
+
+        a = II(a, b, c, d, m[i+ 0],  6, -198630844);
+        d = II(d, a, b, c, m[i+ 7], 10,  1126891415);
+        c = II(c, d, a, b, m[i+14], 15, -1416354905);
+        b = II(b, c, d, a, m[i+ 5], 21, -57434055);
+        a = II(a, b, c, d, m[i+12],  6,  1700485571);
+        d = II(d, a, b, c, m[i+ 3], 10, -1894986606);
+        c = II(c, d, a, b, m[i+10], 15, -1051523);
+        b = II(b, c, d, a, m[i+ 1], 21, -2054922799);
+        a = II(a, b, c, d, m[i+ 8],  6,  1873313359);
+        d = II(d, a, b, c, m[i+15], 10, -30611744);
+        c = II(c, d, a, b, m[i+ 6], 15, -1560198380);
+        b = II(b, c, d, a, m[i+13], 21,  1309151649);
+        a = II(a, b, c, d, m[i+ 4],  6, -145523070);
+        d = II(d, a, b, c, m[i+11], 10, -1120210379);
+        c = II(c, d, a, b, m[i+ 2], 15,  718787259);
+        b = II(b, c, d, a, m[i+ 9], 21, -343485551);
+
+        a = (a + aa) >>> 0;
+        b = (b + bb) >>> 0;
+        c = (c + cc) >>> 0;
+        d = (d + dd) >>> 0;
+      }
+
+      return crypt$1.endian([a, b, c, d]);
+    };
+
+    // Auxiliary functions
+    md5._ff  = function (a, b, c, d, x, s, t) {
+      var n = a + (b & c | ~b & d) + (x >>> 0) + t;
+      return ((n << s) | (n >>> (32 - s))) + b;
+    };
+    md5._gg  = function (a, b, c, d, x, s, t) {
+      var n = a + (b & d | c & ~d) + (x >>> 0) + t;
+      return ((n << s) | (n >>> (32 - s))) + b;
+    };
+    md5._hh  = function (a, b, c, d, x, s, t) {
+      var n = a + (b ^ c ^ d) + (x >>> 0) + t;
+      return ((n << s) | (n >>> (32 - s))) + b;
+    };
+    md5._ii  = function (a, b, c, d, x, s, t) {
+      var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
+      return ((n << s) | (n >>> (32 - s))) + b;
+    };
+
+    // Package private blocksize
+    md5._blocksize = 16;
+    md5._digestsize = 16;
+
+    module.exports = function (message, options) {
+      if (message === undefined || message === null)
+        throw new Error('Illegal argument ' + message);
+
+      var digestbytes = crypt$1.wordsToBytes(md5(message, options));
+      return options && options.asBytes ? digestbytes :
+          options && options.asString ? bin.bytesToString(digestbytes) :
+          crypt$1.bytesToHex(digestbytes);
+    };
+
+  })();
+  });
+
+  var INTERCOM =
+  /*#__PURE__*/
+  function () {
     function INTERCOM(config) {
       _classCallCheck(this, INTERCOM);
 
@@ -1340,38 +1667,53 @@ var rudderanalytics = (function (exports) {
 
 
         Object.keys(context.traits).forEach(function (field) {
-          var value = context.traits[field];
+          if (context.traits.hasOwnProperty(field)) {
+            var value = context.traits[field];
 
-          if (field === "company") {
-            var companies = [];
-            var company = {};
-            var companyFields = Object.keys(context.traits[field]);
-            companyFields.forEach(function (key) {
-              if (key != "id") {
-                company[key] = context.traits[field][key];
-              } else {
-                company["company_id"] = context.traits[field][key];
+            if (field === "company") {
+              var companies = [];
+              var company = {}; // special handling string
+
+              if (typeof context.traits[field] == "string") {
+                company["company_id"] = md5(context.traits[field]);
               }
-            });
 
-            if (!companyFields.includes("id")) {
-              company["company_id"] = md5(company.name);
+              var companyFields = _typeof(context.traits[field]) == "object" && Object.keys(context.traits[field]) || [];
+              companyFields.forEach(function (key) {
+                if (companyFields.hasOwnProperty(key)) {
+                  if (key != "id") {
+                    company[key] = context.traits[field][key];
+                  } else {
+                    company["company_id"] = context.traits[field][key];
+                  }
+                }
+              });
+
+              if (_typeof(context.traits[field]) == "object" && !companyFields.includes("id")) {
+                company["company_id"] = md5(company.name);
+              }
+
+              companies.push(company);
+              rawPayload.companies = companies;
+            } else {
+              rawPayload[field] = context.traits[field];
             }
-
-            companies.push(company);
-            rawPayload.companies = companies;
-          } else {
-            rawPayload[field] = context.traits[field];
-          }
-
-          switch (field) {
-            case "createdAt":
-              rawPayload["created_at"] = value;
-              break;
 
             case "anonymousId":
               rawPayload["user_id"] = value;
               break;
+            switch (field) {
+              case "createdAt":
+                rawPayload["created_at"] = value;
+                break;
+
+              case "anonymousId":
+                rawPayload["user_id"] = value;
+                break;
+
+              default:
+                break;
+            }
           }
         });
         rawPayload.user_id = rudderElement.message.userId;
@@ -2420,12 +2762,6 @@ var rudderanalytics = (function (exports) {
    */
 
   var extend_1 = extend;
-
-  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
 
   var objCase = createCommonjsModule(function (module) {
 
@@ -3541,6 +3877,9 @@ var rudderanalytics = (function (exports) {
   }();
 
   var Comscore = /*#__PURE__*/function () {
+  var Comscore =
+  /*#__PURE__*/
+  function () {
     function Comscore(config, analytics) {
       _classCallCheck(this, Comscore);
 
@@ -3856,306 +4195,11 @@ var rudderanalytics = (function (exports) {
     COMSCORE: Comscore,
     FB_PIXEL: FbPixel
   };
-
-  //Application class
-  var RudderApp = function RudderApp() {
-    _classCallCheck(this, RudderApp);
-
-    this.build = "1.0.0";
-    this.name = "RudderLabs JavaScript SDK";
-    this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.1.0-beta.2";
-  };
-
-  //Library information class
-  var RudderLibraryInfo = function RudderLibraryInfo() {
-    _classCallCheck(this, RudderLibraryInfo);
-
-    this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.1.0-beta.2";
-  }; //Operating System information class
-
-
-  var RudderOSInfo = function RudderOSInfo() {
-    _classCallCheck(this, RudderOSInfo);
-
-    this.name = "";
-    this.version = "";
-  }; //Screen information class
-
-
-  var RudderScreenInfo = function RudderScreenInfo() {
-    _classCallCheck(this, RudderScreenInfo);
-
-    this.density = 0;
-    this.width = 0;
-    this.height = 0;
-  }; //Device information class
-
-  var RudderContext = function RudderContext() {
-    _classCallCheck(this, RudderContext);
-
-    this.app = new RudderApp();
-    this.traits = null;
-    this.library = new RudderLibraryInfo(); //this.os = null;
-
-    var os = new RudderOSInfo();
-    os.version = ""; //skipping version for simplicity now
-
-    var screen = new RudderScreenInfo(); //Depending on environment within which the code is executing, screen
-    //dimensions can be set
-    //User agent and locale can be retrieved only for browser
-    //For server-side integration, same needs to be set by calling program
-
-    {
-      //running within browser
-      screen.width = window.width;
-      screen.height = window.height;
-      screen.density = window.devicePixelRatio;
-      this.userAgent = navigator.userAgent; //property name differs based on browser version
-
-      this.locale = navigator.language || navigator.browserLanguage;
-    }
-
-    this.ip = "0.0.0.0";
-    this.os = os;
-    this.screen = screen;
-    this.device = null;
-    this.network = null;
-  };
-
-  var RudderMessage = /*#__PURE__*/function () {
-    function RudderMessage() {
-      _classCallCheck(this, RudderMessage);
-
-      this.channel = "web";
-      this.context = new RudderContext();
-      this.type = null;
-      this.action = null;
-      this.messageId = generateUUID().toString();
-      this.originalTimestamp = new Date().toISOString();
-      this.anonymousId = null;
-      this.userId = null;
-      this.event = null;
-      this.properties = {};
-      this.integrations = {}; //By default, all integrations will be set as enabled from client
-      //Decision to route to specific destinations will be taken at server end
-
-      this.integrations["All"] = true;
-    } //Get property
-
-
-    _createClass(RudderMessage, [{
-      key: "getProperty",
-      value: function getProperty(key) {
-        return this.properties[key];
-      } //Add property
-
-    }, {
-      key: "addProperty",
-      value: function addProperty(key, value) {
-        this.properties[key] = value;
-      } //Validate whether this message is semantically valid for the type mentioned
-
-    }, {
-      key: "validateFor",
-      value: function validateFor(messageType) {
-        //First check that properties is populated
-        if (!this.properties) {
-          throw new Error("Key properties is required");
-        } //Event type specific checks
-
-
-        switch (messageType) {
-          case MessageType.TRACK:
-            //check if event is present
-            if (!this.event) {
-              throw new Error("Key event is required for track event");
-            } //Next make specific checks for e-commerce events
-
-
-            if (this.event in Object.values(ECommerceEvents)) {
-              switch (this.event) {
-                case ECommerceEvents.CHECKOUT_STEP_VIEWED:
-                case ECommerceEvents.CHECKOUT_STEP_COMPLETED:
-                case ECommerceEvents.PAYMENT_INFO_ENTERED:
-                  this.checkForKey("checkout_id");
-                  this.checkForKey("step");
-                  break;
-
-                case ECommerceEvents.PROMOTION_VIEWED:
-                case ECommerceEvents.PROMOTION_CLICKED:
-                  this.checkForKey("promotion_id");
-                  break;
-
-                case ECommerceEvents.ORDER_REFUNDED:
-                  this.checkForKey("order_id");
-                  break;
-              }
-            } else if (!this.properties["category"]) {
-              //if category is not there, set to event
-              this.properties["category"] = this.event;
-            }
-
-            break;
-
-          case MessageType.PAGE:
-            break;
-
-          case MessageType.SCREEN:
-            if (!this.properties["name"]) {
-              throw new Error("Key 'name' is required in properties");
-            }
-
-            break;
-        }
-      } //Function for checking existence of a particular property
-
-    }, {
-      key: "checkForKey",
-      value: function checkForKey(propertyName) {
-        if (!this.properties[propertyName]) {
-          throw new Error("Key '" + propertyName + "' is required in properties");
-        }
-      }
-    }]);
-
-    return RudderMessage;
-  }();
-
-  var RudderElement = /*#__PURE__*/function () {
-    function RudderElement() {
-      _classCallCheck(this, RudderElement);
-
-      this.message = new RudderMessage();
-    } //Setters that in turn set the field values for the contained object
-
-
-    _createClass(RudderElement, [{
-      key: "setType",
-      value: function setType(type) {
-        this.message.type = type;
-      }
-    }, {
-      key: "setProperty",
-      value: function setProperty(rudderProperty) {
-        this.message.properties = rudderProperty;
-      }
-    }, {
-      key: "setUserProperty",
-      value: function setUserProperty(rudderUserProperty) {
-        this.message.user_properties = rudderUserProperty;
-      }
-    }, {
-      key: "setUserId",
-      value: function setUserId(userId) {
-        this.message.userId = userId;
-      }
-    }, {
-      key: "setEventName",
-      value: function setEventName(eventName) {
-        this.message.event = eventName;
-      }
-    }, {
-      key: "updateTraits",
-      value: function updateTraits(traits) {
-        this.message.context.traits = traits;
-      }
-    }, {
-      key: "getElementContent",
-      value: function getElementContent() {
-        return this.message;
-      }
-    }]);
-
-    return RudderElement;
-  }();
-
-  var RudderElementBuilder = /*#__PURE__*/function () {
-    function RudderElementBuilder() {
-      _classCallCheck(this, RudderElementBuilder);
-
-      this.rudderProperty = null;
-      this.rudderUserProperty = null;
-      this.event = null;
-      this.userId = null;
-      this.channel = null;
-      this.type = null;
-    } //Set the property
-
-
-    _createClass(RudderElementBuilder, [{
-      key: "setProperty",
-      value: function setProperty(inputRudderProperty) {
-        this.rudderProperty = inputRudderProperty;
-        return this;
-      } //Build and set the property object
-
-    }, {
-      key: "setPropertyBuilder",
-      value: function setPropertyBuilder(rudderPropertyBuilder) {
-        this.rudderProperty = rudderPropertyBuilder.build();
-        return this;
-      }
-    }, {
-      key: "setUserProperty",
-      value: function setUserProperty(inputRudderUserProperty) {
-        this.rudderUserProperty = inputRudderUserProperty;
-        return this;
-      }
-    }, {
-      key: "setUserPropertyBuilder",
-      value: function setUserPropertyBuilder(rudderUserPropertyBuilder) {
-        this.rudderUserProperty = rudderUserPropertyBuilder.build();
-        return this;
-      } //Setter methods for all variables. Instance is returned for each call in
-      //accordance with the Builder pattern
-
-    }, {
-      key: "setEvent",
-      value: function setEvent(event) {
-        this.event = event;
-        return this;
-      }
-    }, {
-      key: "setUserId",
-      value: function setUserId(userId) {
-        this.userId = userId;
-        return this;
-      }
-    }, {
-      key: "setChannel",
-      value: function setChannel(channel) {
-        this.channel = channel;
-        return this;
-      }
-    }, {
-      key: "setType",
-      value: function setType(eventType) {
-        this.type = eventType;
-        return this;
-      }
-    }, {
-      key: "build",
-      value: function build() {
-        var element = new RudderElement();
-        element.setUserId(this.userId);
-        element.setType(this.type);
-        element.setEventName(this.event);
-        element.setProperty(this.rudderProperty);
-        element.setUserProperty(this.rudderUserProperty);
-        return element;
-      }
-    }]);
-
-    return RudderElementBuilder;
-  }();
-
   /**
    * toString ref.
    */
 
-  var toString$2 = Object.prototype.toString;
+  var toString$3 = Object.prototype.toString;
 
   /**
    * Return the type of `val`.
@@ -4165,8 +4209,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentType$1 = function(val){
-    switch (toString$2.call(val)) {
+  var componentType$2 = function(val){
+    switch (toString$3.call(val)) {
       case '[object Date]': return 'date';
       case '[object RegExp]': return 'regexp';
       case '[object Arguments]': return 'arguments';
@@ -4179,7 +4223,7 @@ var rudderanalytics = (function (exports) {
     if (val !== val) return 'nan';
     if (val && val.nodeType === 1) return 'element';
 
-    if (isBuffer(val)) return 'buffer';
+    if (isBuffer$1(val)) return 'buffer';
 
     val = val.valueOf
       ? val.valueOf()
@@ -4189,7 +4233,7 @@ var rudderanalytics = (function (exports) {
   };
 
   // code borrowed from https://github.com/feross/is-buffer/blob/master/index.js
-  function isBuffer(obj) {
+  function isBuffer$1(obj) {
     return !!(obj != null &&
       (obj._isBuffer || // For Safari 5-7 (missing Object.prototype.constructor)
         (obj.constructor &&
@@ -4211,7 +4255,7 @@ var rudderanalytics = (function (exports) {
    */
 
   var clone = function clone(obj) {
-    var t = componentType$1(obj);
+    var t = componentType$2(obj);
 
     if (t === 'object') {
       var copy = {};
@@ -4244,6 +4288,9 @@ var rudderanalytics = (function (exports) {
       return new Date(obj.getTime());
     }
 
+  var RudderMessage = /*#__PURE__*/function () {
+    function RudderMessage() {
+      _classCallCheck(this, RudderMessage);
     // string, number, boolean, etc.
     return obj;
   };
@@ -4362,6 +4409,14 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+                case ECommerceEvents.ORDER_REFUNDED:
+                  this.checkForKey("order_id");
+                  break;
+              }
+            } else if (!this.properties["category"]) {
+              //if category is not there, set to event
+              this.properties["category"] = this.event;
+            }
   function long(ms) {
     return plural(ms, d, 'day')
       || plural(ms, h, 'hour')
@@ -4408,6 +4463,73 @@ var rudderanalytics = (function (exports) {
    * Valid key names are a single, lowercased letter, i.e. "n".
    */
 
+  var RudderElement = /*#__PURE__*/function () {
+    function RudderElement() {
+      _classCallCheck(this, RudderElement);
+
+      this.message = new RudderMessage();
+    } //Setters that in turn set the field values for the contained object
+
+
+    _createClass(RudderElement, [{
+      key: "setType",
+      value: function setType(type) {
+        this.message.type = type;
+      }
+    }, {
+      key: "setProperty",
+      value: function setProperty(rudderProperty) {
+        this.message.properties = rudderProperty;
+      }
+    }, {
+      key: "setUserProperty",
+      value: function setUserProperty(rudderUserProperty) {
+        this.message.user_properties = rudderUserProperty;
+      }
+    }, {
+      key: "setUserId",
+      value: function setUserId(userId) {
+        this.message.userId = userId;
+      }
+    }, {
+      key: "setEventName",
+      value: function setEventName(eventName) {
+        this.message.event = eventName;
+      }
+    }, {
+      key: "updateTraits",
+      value: function updateTraits(traits) {
+        this.message.context.traits = traits;
+      }
+    }, {
+      key: "getElementContent",
+      value: function getElementContent() {
+        return this.message;
+      }
+    }]);
+
+    return RudderElement;
+  }();
+
+  var RudderElementBuilder = /*#__PURE__*/function () {
+    function RudderElementBuilder() {
+      _classCallCheck(this, RudderElementBuilder);
+
+      this.rudderProperty = null;
+      this.rudderUserProperty = null;
+      this.event = null;
+      this.userId = null;
+      this.channel = null;
+      this.type = null;
+    } //Set the property
+
+
+    _createClass(RudderElementBuilder, [{
+      key: "setProperty",
+      value: function setProperty(inputRudderProperty) {
+        this.rudderProperty = inputRudderProperty;
+        return this;
+      } //Build and set the property object
   exports.formatters = {};
 
   /**
@@ -4429,6 +4551,7 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+  var toString$2 = Object.prototype.toString;
   function selectColor() {
     return exports.colors[prevColor++ % exports.colors.length];
   }
@@ -4441,6 +4564,19 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+  var componentType$1 = function(val){
+    switch (toString$2.call(val)) {
+      case '[object Date]': return 'date';
+      case '[object RegExp]': return 'regexp';
+      case '[object Arguments]': return 'arguments';
+      case '[object Array]': return 'array';
+      case '[object Error]': return 'error';
+    }
+
+    if (val === null) return 'null';
+    if (val === undefined) return 'undefined';
+    if (val !== val) return 'nan';
+    if (val && val.nodeType === 1) return 'element';
   function debug(namespace) {
 
     // define the `disabled` version
@@ -4474,6 +4610,8 @@ var rudderanalytics = (function (exports) {
         args = ['%o'].concat(args);
       }
 
+  var clone = function clone(obj) {
+    var t = componentType$1(obj);
       // apply any `formatters` transformations
       var index = 0;
       args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
@@ -6513,7 +6651,9 @@ var rudderanalytics = (function (exports) {
    * An object utility to persist user and other values in localstorage
    */
 
-  var StoreLocal = /*#__PURE__*/function () {
+  var StoreLocal =
+  /*#__PURE__*/
+  function () {
     function StoreLocal(options) {
       _classCallCheck(this, StoreLocal);
 
@@ -6592,7 +6732,9 @@ var rudderanalytics = (function (exports) {
    * An object that handles persisting key-val from Analytics
    */
 
-  var Storage = /*#__PURE__*/function () {
+  var Storage =
+  /*#__PURE__*/
+  function () {
     function Storage() {
       _classCallCheck(this, Storage);
 
@@ -6774,7 +6916,571 @@ var rudderanalytics = (function (exports) {
     return Storage;
   }();
 
-  var Storage$1 =  Storage ;
+  var Storage$1 =  new Storage() ;
+
+  var defaults$2 = {
+    lotame_synch_time_key: "lt_synch_timestamp"
+  };
+
+  var LotameStorage =
+  /*#__PURE__*/
+  function () {
+    function LotameStorage() {
+      _classCallCheck(this, LotameStorage);
+
+      this.storage = Storage$1; //new Storage();
+    }
+
+    _createClass(LotameStorage, [{
+      key: "setLotameSynchTime",
+      value: function setLotameSynchTime(value) {
+        this.storage.setItem(defaults$2.lotame_synch_time_key, value);
+      }
+    }, {
+      key: "getLotameSynchTime",
+      value: function getLotameSynchTime() {
+        return this.storage.getItem(defaults$2.lotame_synch_time_key);
+      }
+    }]);
+
+    return LotameStorage;
+  }();
+
+  var lotameStorage = new LotameStorage();
+
+  var Lotame =
+  /*#__PURE__*/
+  function () {
+    function Lotame(config) {
+      var _this = this;
+
+      _classCallCheck(this, Lotame);
+
+      this.name = "LOTAME";
+      this.storage = lotameStorage;
+      this.bcpUrlSettings = config.bcpUrlSettings;
+      this.dspUrlSettings = config.dspUrlSettings;
+      this.mappings = {};
+      config.mappings.forEach(function (mapping) {
+        var key = mapping.key;
+        var value = mapping.value;
+        _this.mappings[key] = value;
+      });
+    }
+
+    _createClass(Lotame, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Lotame===");
+
+        window.LOTAME_SYNCH_CALLBACK = function () {};
+      }
+    }, {
+      key: "addPixel",
+      value: function addPixel(source, width, height) {
+        var image = document.createElement("img");
+        image.src = source;
+        image.setAttribute("width", width);
+        image.setAttribute("height", height);
+        document.getElementsByTagName("body")[0].appendChild(image);
+      }
+    }, {
+      key: "synchPixel",
+      value: function synchPixel(userId) {
+        var _this2 = this;
+
+        logger.debug("===== in synchPixel ======");
+
+        if (this.dspUrlSettings && this.dspUrlSettings.length > 0) {
+          this.dspUrlSettings.forEach(function (urlSettings) {
+            var dspUrl = _this2.compileUrl(_objectSpread2({}, _this2.mappings, {
+              userId: userId
+            }), urlSettings.dspUrlTemplate);
+
+            _this2.addPixel(dspUrl, "1", "1");
+          });
+        }
+
+        this.storage.setLotameSynchTime(Date.now()); // this is custom to lotame, can be thought of as additional feature
+
+        if (window.LOTAME_SYNCH_CALLBACK && typeof window.LOTAME_SYNCH_CALLBACK == "function") {
+          logger.debug("===== in synchPixel callback======");
+          window.LOTAME_SYNCH_CALLBACK();
+        }
+      }
+    }, {
+      key: "compileUrl",
+      value: function compileUrl(map, url) {
+        Object.keys(map).forEach(function (key) {
+          if (map.hasOwnProperty(key)) {
+            var replaceKey = "{{" + key + "}}";
+            var regex = new RegExp(replaceKey, "gi");
+            url = url.replace(regex, map[key]);
+          }
+        });
+        return url;
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Lotame identify");
+        var userId = rudderElement.message.userId;
+        this.synchPixel(userId);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("track not supported for lotame");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        var _this3 = this;
+
+        logger.debug("in Lotame page");
+
+        if (this.bcpUrlSettings && this.bcpUrlSettings.length > 0) {
+          this.bcpUrlSettings.forEach(function (urlSettings) {
+            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings), urlSettings.bcpUrlTemplate);
+
+            _this3.addPixel(bcpUrl, "1", "1");
+          });
+        }
+
+        if (rudderElement.message.userId && this.isPixelToBeSynched()) {
+          this.synchPixel(rudderElement.message.userId);
+        }
+      }
+    }, {
+      key: "isPixelToBeSynched",
+      value: function isPixelToBeSynched() {
+        var lastSynchedTime = this.storage.getLotameSynchTime();
+        var currentTime = Date.now();
+
+        if (!lastSynchedTime) {
+          return true;
+        }
+
+        var difference = Math.floor((currentTime - lastSynchedTime) / (1000 * 3600 * 24));
+        return difference >= 7;
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in Lotame isLoaded");
+        return true;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return true;
+      }
+    }]);
+
+    return Lotame;
+  }();
+
+  var integrations = {
+    HS: index,
+    GA: index$1,
+    HOTJAR: index$2,
+    GOOGLEADS: index$3,
+    VWO: VWO,
+    GTM: GoogleTagManager,
+    BRAZE: Braze,
+    INTERCOM: INTERCOM,
+    KEEN: Keen,
+    KISSMETRICS: Kissmetrics,
+    CUSTOMERIO: CustomerIO,
+    CHARTBEAT: Chartbeat,
+    COMSCORE: Comscore,
+    LOTAME: Lotame
+  };
+
+  //Application class
+  var RudderApp = function RudderApp() {
+    _classCallCheck(this, RudderApp);
+
+    this.build = "1.0.0";
+    this.name = "RudderLabs JavaScript SDK";
+    this.namespace = "com.rudderlabs.javascript";
+    this.version = "1.1.1-rc.2";
+  };
+
+  //Library information class
+  var RudderLibraryInfo = function RudderLibraryInfo() {
+    _classCallCheck(this, RudderLibraryInfo);
+
+    this.name = "RudderLabs JavaScript SDK";
+    this.version = "1.1.1-rc.2";
+  }; //Operating System information class
+
+
+  var RudderOSInfo = function RudderOSInfo() {
+    _classCallCheck(this, RudderOSInfo);
+
+    this.name = "";
+    this.version = "";
+  }; //Screen information class
+
+
+  var RudderScreenInfo = function RudderScreenInfo() {
+    _classCallCheck(this, RudderScreenInfo);
+
+    this.density = 0;
+    this.width = 0;
+    this.height = 0;
+  }; //Device information class
+
+  var RudderContext = function RudderContext() {
+    _classCallCheck(this, RudderContext);
+
+    this.app = new RudderApp();
+    this.traits = null;
+    this.library = new RudderLibraryInfo(); //this.os = null;
+
+    var os = new RudderOSInfo();
+    os.version = ""; //skipping version for simplicity now
+
+    var screen = new RudderScreenInfo(); //Depending on environment within which the code is executing, screen
+    //dimensions can be set
+    //User agent and locale can be retrieved only for browser
+    //For server-side integration, same needs to be set by calling program
+
+    {
+      //running within browser
+      screen.width = window.width;
+      screen.height = window.height;
+      screen.density = window.devicePixelRatio;
+      this.userAgent = navigator.userAgent; //property name differs based on browser version
+
+      this.locale = navigator.language || navigator.browserLanguage;
+    }
+
+    this.os = os;
+    this.screen = screen;
+    this.device = null;
+    this.network = null;
+  };
+
+  var RudderMessage =
+  /*#__PURE__*/
+  function () {
+    function RudderMessage() {
+      _classCallCheck(this, RudderMessage);
+
+      this.channel = "web";
+      this.context = new RudderContext();
+      this.type = null;
+      this.action = null;
+      this.messageId = generateUUID().toString();
+      this.originalTimestamp = new Date().toISOString();
+      this.anonymousId = null;
+      this.userId = null;
+      this.event = null;
+      this.properties = {};
+      this.integrations = {}; //By default, all integrations will be set as enabled from client
+      //Decision to route to specific destinations will be taken at server end
+
+      this.integrations["All"] = true;
+    } //Get property
+
+
+    _createClass(RudderMessage, [{
+      key: "getProperty",
+      value: function getProperty(key) {
+        return this.properties[key];
+      } //Add property
+
+    }, {
+      key: "addProperty",
+      value: function addProperty(key, value) {
+        this.properties[key] = value;
+      } //Validate whether this message is semantically valid for the type mentioned
+
+    }, {
+      key: "validateFor",
+      value: function validateFor(messageType) {
+        //First check that properties is populated
+        if (!this.properties) {
+          throw new Error("Key properties is required");
+        } //Event type specific checks
+
+
+        switch (messageType) {
+          case MessageType.TRACK:
+            //check if event is present
+            if (!this.event) {
+              throw new Error("Key event is required for track event");
+            } //Next make specific checks for e-commerce events
+
+
+            if (this.event in Object.values(ECommerceEvents)) {
+              switch (this.event) {
+                case ECommerceEvents.CHECKOUT_STEP_VIEWED:
+                case ECommerceEvents.CHECKOUT_STEP_COMPLETED:
+                case ECommerceEvents.PAYMENT_INFO_ENTERED:
+                  this.checkForKey("checkout_id");
+                  this.checkForKey("step");
+                  break;
+
+  var StoreLocal = /*#__PURE__*/function () {
+    function StoreLocal(options) {
+      _classCallCheck(this, StoreLocal);
+                case ECommerceEvents.PROMOTION_VIEWED:
+                case ECommerceEvents.PROMOTION_CLICKED:
+                  this.checkForKey("promotion_id");
+                  break;
+
+                case ECommerceEvents.ORDER_REFUNDED:
+                  this.checkForKey("order_id");
+                  break;
+
+                default:
+              }
+            } else if (!this.properties["category"]) {
+              //if category is not there, set to event
+              this.properties["category"] = this.event;
+            }
+
+            break;
+
+          case MessageType.PAGE:
+            break;
+
+          case MessageType.SCREEN:
+            if (!this.properties["name"]) {
+              throw new Error("Key 'name' is required in properties");
+            }
+
+            break;
+        }
+      } //Function for checking existence of a particular property
+
+    }, {
+      key: "checkForKey",
+      value: function checkForKey(propertyName) {
+        if (!this.properties[propertyName]) {
+          throw new Error("Key '" + propertyName + "' is required in properties");
+        }
+      }
+    }]);
+
+    return StoreLocal;
+  }(); // Exporting only the instance
+
+
+  var Store = new StoreLocal({});
+
+  var defaults$1 = {
+    user_storage_key: "rl_user_id",
+    user_storage_trait: "rl_trait",
+    user_storage_anonymousId: "rl_anonymous_id",
+    group_storage_key: "rl_group_id",
+    group_storage_trait: "rl_group_trait"
+  };
+  /**
+   * An object that handles persisting key-val from Analytics
+   */
+
+  var Storage = /*#__PURE__*/function () {
+    function Storage() {
+      _classCallCheck(this, Storage);
+
+      // First try setting the storage to cookie else to localstorage
+      Cookie.set("rudder_cookies", true);
+    return RudderMessage;
+  }();
+
+  var RudderElement =
+  /*#__PURE__*/
+  function () {
+    function RudderElement() {
+      _classCallCheck(this, RudderElement);
+
+      this.message = new RudderMessage();
+    } //Setters that in turn set the field values for the contained object
+
+
+    _createClass(RudderElement, [{
+      key: "setType",
+      value: function setType(type) {
+        this.message.type = type;
+      }
+    }, {
+      key: "setProperty",
+      value: function setProperty(rudderProperty) {
+        this.message.properties = rudderProperty;
+      }
+    }, {
+      key: "setUserProperty",
+      value: function setUserProperty(rudderUserProperty) {
+        this.message.user_properties = rudderUserProperty;
+      }
+    }, {
+      key: "setUserId",
+      value: function setUserId(userId) {
+        this.message.userId = userId;
+      }
+    }, {
+      key: "setEventName",
+      value: function setEventName(eventName) {
+        this.message.event = eventName;
+      }
+    }, {
+      key: "setGroupId",
+      value: function setGroupId(value) {
+        if (typeof value != "string") {
+          logger.error("groupId should be string");
+          return;
+        }
+
+        this.storage.set(defaults$1.group_storage_key, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setGroupTraits",
+      value: function setGroupTraits(value) {
+        this.storage.set(defaults$1.group_storage_trait, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setAnonymousId",
+      value: function setAnonymousId(value) {
+        if (typeof value != "string") {
+          logger.error("anonymousId should be string");
+          return;
+        }
+
+        this.storage.set(defaults$1.user_storage_anonymousId, value);
+        return;
+      key: "updateTraits",
+      value: function updateTraits(traits) {
+        this.message.context.traits = traits;
+      }
+    }, {
+      key: "getElementContent",
+      value: function getElementContent() {
+        return this.message;
+      }
+    }]);
+
+    return RudderElement;
+  }();
+
+  var RudderElementBuilder =
+  /*#__PURE__*/
+  function () {
+    function RudderElementBuilder() {
+      _classCallCheck(this, RudderElementBuilder);
+
+      this.rudderProperty = null;
+      this.rudderUserProperty = null;
+      this.event = null;
+      this.userId = null;
+      this.channel = null;
+      this.type = null;
+    } //Set the property
+
+
+    _createClass(RudderElementBuilder, [{
+      key: "setProperty",
+      value: function setProperty(inputRudderProperty) {
+        this.rudderProperty = inputRudderProperty;
+        return this;
+      } //Build and set the property object
+
+    }, {
+      key: "setPropertyBuilder",
+      value: function setPropertyBuilder(rudderPropertyBuilder) {
+        this.rudderProperty = rudderPropertyBuilder.build();
+        return this;
+      }
+    }, {
+      key: "setUserProperty",
+      value: function setUserProperty(inputRudderUserProperty) {
+        this.rudderUserProperty = inputRudderUserProperty;
+        return this;
+      }
+    }, {
+      key: "setUserPropertyBuilder",
+      value: function setUserPropertyBuilder(rudderUserPropertyBuilder) {
+        this.rudderUserProperty = rudderUserPropertyBuilder.build();
+        return this;
+      } //Setter methods for all variables. Instance is returned for each call in
+      //accordance with the Builder pattern
+
+    }, {
+      key: "setEvent",
+      value: function setEvent(event) {
+        this.event = event;
+        return this;
+      }
+    }, {
+      key: "setUserId",
+      value: function setUserId(userId) {
+        this.userId = userId;
+        return this;
+      }
+      /**
+       * get the stored userId
+       */
+
+    }, {
+      key: "getGroupId",
+      value: function getGroupId() {
+        return this.storage.get(defaults$1.group_storage_key);
+      }
+      /**
+       * get the stored user traits
+       */
+
+    }, {
+      key: "getGroupTraits",
+      value: function getGroupTraits() {
+        return this.storage.get(defaults$1.group_storage_trait);
+      }
+      /**
+       * get stored anonymous id
+       */
+
+    }, {
+      key: "setChannel",
+      value: function setChannel(channel) {
+        this.channel = channel;
+        return this;
+      }
+    }, {
+      key: "setType",
+      value: function setType(eventType) {
+        this.type = eventType;
+        return this;
+      }
+    }, {
+      key: "build",
+      value: function build() {
+        var element = new RudderElement();
+        element.setUserId(this.userId);
+        element.setType(this.type);
+        element.setEventName(this.event);
+        element.setProperty(this.rudderProperty);
+        element.setUserProperty(this.rudderUserProperty);
+        return element;
+      }
+    }]);
+
+    return RudderElementBuilder;
+  }();
 
   //Payload class, contains batch of Elements
   var RudderPayload = function RudderPayload() {
@@ -8192,6 +8898,8 @@ var rudderanalytics = (function (exports) {
     // first attempt after 1sec
     backoffFactor: 0
   };
+  var MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
+
   /**
    *
    * @class EventRepository responsible for adding events into
@@ -8347,7 +9055,14 @@ var rudderanalytics = (function (exports) {
           Authorization: "Basic " + btoa(this.writeKey + ":")
         };
         var message = rudderElement.getElementContent();
-        message.originalTimestamp = getCurrentTimeFormatted(); //modify the url for event specific endpoints
+        message.originalTimestamp = getCurrentTimeFormatted();
+        message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
+        // check message size, if greater log an error
+
+        if (JSON.stringify(message).length > MESSAGE_LENGTH) {
+          logger.error("message length greater 32 Kb ", message);
+        } //modify the url for event specific endpoints
+
 
         var url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url; // add items to the queue
 
@@ -8704,7 +9419,7 @@ var rudderanalytics = (function (exports) {
       this.failedToBeLoadedIntegration = [];
       this.toBeProcessedArray = [];
       this.toBeProcessedByIntegrationArray = [];
-      this.storage = new Storage$1();
+      this.storage = Storage$1;
       this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
       this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
       this.groupId = this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
@@ -8734,7 +9449,7 @@ var rudderanalytics = (function (exports) {
           logger.debug("===in process response=== " + status);
           response = JSON.parse(response);
 
-          if (response.source.useAutoTracking) {
+          if (response.source.useAutoTracking && !this.autoTrackHandlersRegistered) {
             this.autoTrackFeatureEnabled = true;
             addDomEventHandlers(this);
             this.autoTrackHandlersRegistered = true;
@@ -8756,6 +9471,7 @@ var rudderanalytics = (function (exports) {
 
           if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
             addDomEventHandlers(this);
+            this.autoTrackHandlersRegistered = true;
           }
         }
       }
@@ -9127,8 +9843,10 @@ var rudderanalytics = (function (exports) {
         try {
           if (!this.anonymousId) {
             this.setAnonymousId();
-          }
+          } // assign page properties to context
 
+
+          rudderElement["message"]["context"]["page"] = getDefaultPageProperties();
           rudderElement["message"]["context"]["traits"] = Object.assign({}, this.userTraits);
           logger.debug("anonymousId: ", this.anonymousId);
           rudderElement["message"]["anonymousId"] = this.anonymousId;
@@ -9289,6 +10007,20 @@ var rudderanalytics = (function (exports) {
 
         if (serverUrl) {
           this.eventRepository.url = serverUrl;
+        }
+
+        if (options && options.valTrackingList && options.valTrackingList.push == Array.prototype.push) {
+          this.trackValues = options.valTrackingList;
+        }
+
+        if (options && options.useAutoTracking) {
+          this.autoTrackFeatureEnabled = true;
+
+          if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+            addDomEventHandlers(this);
+            this.autoTrackHandlersRegistered = true;
+            logger.debug("autoTrackHandlersRegistered", this.autoTrackHandlersRegistered);
+          }
         }
 
         try {
