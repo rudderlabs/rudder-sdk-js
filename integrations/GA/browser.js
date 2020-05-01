@@ -48,6 +48,12 @@ class GA {
       eventValue = rudderElement.message.properties.value
         ? rudderElement.message.properties.value
         : rudderElement.message.properties.revenue;
+      eventCategory = rudderElement.message.properties.category
+        ? rudderElement.message.properties.category
+        : eventCategory;
+      eventLabel = rudderElement.message.properties.label
+        ? rudderElement.message.properties.label
+        : eventLabel;
     }
 
     var payLoad = {
