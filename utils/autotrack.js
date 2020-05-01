@@ -24,7 +24,7 @@ function addDomEventHandlers(rudderanalytics) {
 
 function register_event(element, type, handler, useCapture) {
   if (!element) {
-    logger.error("No valid element provided to register_event");
+    logger.error("[Autotrack] register_event:: No valid element provided to register_event");
     return;
   }
   element.addEventListener(type, handler, !!useCapture);
