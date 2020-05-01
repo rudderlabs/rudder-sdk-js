@@ -70,12 +70,28 @@ class GA {
   page(rudderElement) {
     logger.debug("in GoogleAnalyticsManager page");
     var path =
-      rudderElement.properties && rudderElement.properties.path
-        ? rudderElement.properties.path
+      rudderElement.message.properties && rudderElement.message.properties.path
+        ? rudderElement.message.properties.path
         : undefined;
+    var title = rudderElement.message.properties && rudderElement.message.properties.title
+        ? rudderElement.message.properties.title
+        : undefined;
+    var location = rudderElement.message.properties && rudderElement.message.properties.url
+        ? rudderElement.message.properties.url
+        : undefined;
+
     if (path) {
       ga("set", "page", path);
     }
+
+    if (title) {
+      ga("set", "title", title);
+    }
+
+    if (location) {
+      ga("set", "location", location);
+    }
+
     ga("send", "pageview");
   }
 
