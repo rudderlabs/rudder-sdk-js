@@ -19,7 +19,7 @@ The minified version is as follows:
 rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track","alias","group","identify","ready","reset"],i=0;i<methods.length;i++){var method=methods[i];rudderanalytics[method]=function(d){return function(){rudderanalytics.push([d,...arguments])}}(method)}rudderanalytics.load("YOUR_WRITE_KEY","DATA_PLANE_URI"),rudderanalytics.page();
 </script>
 
-<script  src="https://cdn.rudderlabs.com/rudder-analytics.min.js"></script>
+<script  src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script>
 ```
 The non-minified version of the code is shown below:
 ```
@@ -51,7 +51,7 @@ The non-minified version of the code is shown below:
 	rudderanalytics.page();
 </script>
 
-<script  src="https://cdn.rudderlabs.com/rudder-analytics.min.js"></script>
+<script  src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script>
 ```
 
 **NOTE**: Whichever version of the code you use, you need to replace `YOUR_WRITE_KEY` with the write key in the RudderStack Control Plane and `DATA_PLANE_URI` with the URI of the RudderStack Server/ Data Plane.
