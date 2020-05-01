@@ -7632,7 +7632,7 @@ var rudderanalytics = (function (exports) {
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.1.1-rc.2";
+    this.version = "1.1.1";
   };
 
   //Library information class
@@ -7640,7 +7640,7 @@ var rudderanalytics = (function (exports) {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.1.1-rc.2";
+    this.version = "1.1.1";
   }; //Operating System information class
 
 
