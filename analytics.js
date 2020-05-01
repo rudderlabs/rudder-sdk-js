@@ -241,7 +241,7 @@ class Analytics {
       }
 
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        console.log("====after pause, again checking====")
+        logger.debug("====after pause, again checking====")
         return this.isInitialized(
           instance,
           time + INTEGRATION_LOAD_CHECK_INTERVAL
@@ -766,7 +766,7 @@ if (process.browser) {
   if (methodArg.length > 0 && methodArg[0] == "load") {
     let method = methodArg[0];
     methodArg.shift();
-    console.log("=====from init, calling method:: ", method)
+    logger.debug("=====from init, calling method:: ", method)
     instance[method](...methodArg);
   }
 
