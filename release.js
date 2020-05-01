@@ -7,11 +7,11 @@ var options = {};
 
 // all options have defaults and can be omitted
 var options = {
-  tag_name: "1.1.1-rc.2",
+  tag_name: "1.1.1",
   target_commitish: "master",
-  name: "Pre Release 1.1.1-rc.2",
+  name: "Release 1.1.1",
   draft: false,
-  prerelease: true,
+  prerelease: false,
   repo: "rudder-sdk-js",
   owner: "rudderlabs",
   endpoint: "https://api.github.com" // for GitHub enterprise, use http(s)://hostname/api/v3
