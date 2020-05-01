@@ -29,7 +29,7 @@ class Hotjar {
   identify(rudderElement) {
     let userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId){
-      logger.error('user id is required');
+      logger.debug('[Hotjar] identify:: user id is required');
       return;
     }
   
@@ -39,11 +39,11 @@ class Hotjar {
   }
 
   track(rudderElement) {
-    logger.error("method not supported");
+    logger.debug("[Hotjar] track:: method not supported");
   }
 
   page(rudderElement) {
-    logger.error("method not supported");
+    logger.debug("[Hotjar] page:: method not supported");
   }
 
   isLoaded() {

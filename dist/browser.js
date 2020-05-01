@@ -265,9 +265,7 @@ var rudderanalytics = (function (exports) {
     }
 
     if (errorMessage) {
-      //console.log("%c"+errorMessage, 'color: blue');
-      //console.error(errorMessage);
-      logger.error(errorMessage);
+      logger.error("[Util] handleError:: ", errorMessage);
     }
   }
 
@@ -372,7 +370,7 @@ var rudderanalytics = (function (exports) {
     CART_SHARED: "Cart Shared",
     PRODUCT_REVIEWED: "Product Reviewed"
   }; //Enumeration for integrations supported
-  var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
+  var BASE_URL = "https://hosted-dataplane.rudderstack.com"; // default to RudderStack
 
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
@@ -660,7 +658,7 @@ var rudderanalytics = (function (exports) {
         var userId = rudderElement.message.userId || rudderElement.message.anonymousId;
 
         if (!userId) {
-          logger.error('user id is required');
+          logger.debug('[Hotjar] identify:: user id is required');
           return;
         }
 
@@ -670,12 +668,12 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "track",
       value: function track(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("[Hotjar] track:: method not supported");
       }
     }, {
       key: "page",
       value: function page(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("[Hotjar] page:: method not supported");
       }
     }, {
       key: "isLoaded",
@@ -737,7 +735,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("[GoogleAds] identify:: method not supported");
       } //https://developers.google.com/gtagjs/reference/event
 
     }, {
@@ -917,7 +915,7 @@ var rudderanalytics = (function (exports) {
                 });
               }
             } catch (error) {
-              logger.error(error);
+              logger.error("[VWO] experimentViewed:: ", error);
             }
 
             try {
@@ -926,7 +924,7 @@ var rudderanalytics = (function (exports) {
                 window.rudderanalytics.identify(_defineProperty({}, "Experiment: ".concat(expId), _vwo_exp[expId].comb_n[variationId]));
               }
             } catch (error) {
-              logger.error(error);
+              logger.error("[VWO] experimentViewed:: ", error);
             }
           }
         }]);
@@ -1000,7 +998,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("[GTM] identify:: method not supported");
       }
     }, {
       key: "track",
@@ -7300,7 +7298,7 @@ var rudderanalytics = (function (exports) {
       key: "setUserId",
       value: function setUserId(value) {
         if (typeof value != "string") {
-          logger.error("userId should be string");
+          logger.error("[Storage] setUserId:: userId should be string");
           return;
         }
 
@@ -7327,7 +7325,7 @@ var rudderanalytics = (function (exports) {
       key: "setGroupId",
       value: function setGroupId(value) {
         if (typeof value != "string") {
-          logger.error("groupId should be string");
+          logger.error("[Storage] setGroupId:: groupId should be string");
           return;
         }
 
@@ -7354,7 +7352,7 @@ var rudderanalytics = (function (exports) {
       key: "setAnonymousId",
       value: function setAnonymousId(value) {
         if (typeof value != "string") {
-          logger.error("anonymousId should be string");
+          logger.error("[Storage] setAnonymousId:: anonymousId should be string");
           return;
         }
 
@@ -9506,7 +9504,7 @@ var rudderanalytics = (function (exports) {
         // check message size, if greater log an error
 
         if (JSON.stringify(message).length > MESSAGE_LENGTH) {
-          logger.error("message length greater 32 Kb ", message);
+          logger.error("[EventRepository] enqueue:: message length greater 32 Kb ", message);
         } //modify the url for event specific endpoints
 
 
@@ -9551,7 +9549,7 @@ var rudderanalytics = (function (exports) {
 
   function register_event(element, type, handler, useCapture) {
     if (!element) {
-      logger.error("No valid element provided to register_event");
+      logger.error("[Autotrack] register_event:: No valid element provided to register_event");
       return;
     }
 
@@ -10445,7 +10443,7 @@ var rudderanalytics = (function (exports) {
 
         if (!writeKey || !serverUrl || serverUrl.length == 0) {
           handleError({
-            message: "Unable to load due to wrong writeKey or serverUrl"
+            message: "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
           });
           throw Error("failed to initialize");
         }

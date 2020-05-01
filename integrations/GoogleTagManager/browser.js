@@ -20,7 +20,7 @@ class GoogleTagManager {
   }
 
   identify(rudderElement) {
-    logger.error("method not supported");
+    logger.debug("[GTM] identify:: method not supported");
   }
 
   track(rudderElement) {

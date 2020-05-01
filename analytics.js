@@ -672,7 +672,7 @@ class Analytics {
     let configUrl = CONFIG_URL;
     if (!writeKey || !serverUrl || serverUrl.length == 0) {
       handleError({
-        message: "Unable to load due to wrong writeKey or serverUrl"
+        message: "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
       });
       throw Error("failed to initialize");
     }

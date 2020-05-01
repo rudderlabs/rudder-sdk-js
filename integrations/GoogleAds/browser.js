@@ -35,7 +35,7 @@ class GoogleAds {
   }
 
   identify(rudderElement) {
-    logger.error("method not supported");
+    logger.debug("[GoogleAds] identify:: method not supported");
   }
 
   //https://developers.google.com/gtagjs/reference/event
