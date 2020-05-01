@@ -169,22 +169,26 @@ class Analytics {
 
   replayEvents(object) {
     if (
-      object.successfullyLoadedIntegration.length +
-        object.failedToBeLoadedIntegration.length ==
-      object.clientIntegrations.length
+      (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length) 
+      && object.toBeProcessedByIntegrationArray.length > 0
     ) {
+      logger.debug("===replay events called====", object.successfullyLoadedIntegration.length,  object.failedToBeLoadedIntegration.length)
       object.clientIntegrationObjects = [];
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
 
+      logger.debug("==registering after callback===", object.clientIntegrationObjects.length)
       object.executeReadyCallback = after(
         object.clientIntegrationObjects.length,
         object.readyCallback
       );
 
+      logger.debug("==registering ready callback===")
       object.on("ready", object.executeReadyCallback);
 
       object.clientIntegrationObjects.forEach(intg => {
+        logger.debug("===looping over each successful integration====")
         if (!intg["isReady"] || intg["isReady"]()) {
+          logger.debug("===letting know I am ready=====", intg["name"])
           object.emit("ready");
         }
       });
@@ -227,6 +231,7 @@ class Analytics {
   isInitialized(instance, time = 0) {
     return new Promise(resolve => {
       if (instance.isLoaded()) {
+        logger.debug("===integration loaded successfully====", instance["name"])
         this.successfullyLoadedIntegration.push(instance);
         return resolve(this);
       }
@@ -237,6 +242,7 @@ class Analytics {
       }
 
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+        console.log("====after pause, again checking====")
         return this.isInitialized(
           instance,
           time + INTEGRATION_LOAD_CHECK_INTERVAL
@@ -777,6 +783,7 @@ if (process.browser) {
   if (methodArg.length > 0 && methodArg[0] == "load") {
     let method = methodArg[0];
     methodArg.shift();
+    console.log("=====from init, calling method:: ", method)
     instance[method](...methodArg);
   }
 
@@ -789,6 +796,7 @@ if (process.browser) {
       let event = [...instance.toBeProcessedArray[i]];
       let method = event[0];
       event.shift();
+      logger.debug("=====from init, calling method:: ", method)
       instance[method](...event);
     }
     instance.toBeProcessedArray = [];
