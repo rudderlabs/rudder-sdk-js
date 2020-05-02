@@ -60,6 +60,8 @@ You can also execute the min file in async/defer way, like:
 ```
 <script async src="https://cdn.rudderlabs.com/rudder-analytics.min.js"></script>
 ```
+**NOTE**: We are moving our sdk to a diiferent path from the earlier https://cdn.rudderlabs.com/rudder-analytics.min.js to
+https://cdn.rudderlabs.com/v1/rudder-analytics.min.js. The earlier path may not be maintained in coming releases.
 
 ## Step 2: Identify your users using the `identify()` method:
 The `identify()` method allows you to link users and their actions to a specific userid.
