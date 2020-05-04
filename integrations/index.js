@@ -28,11 +28,8 @@ let integrations = {
   CUSTOMERIO: CustomerIO.default,
   CHARTBEAT: Chartbeat.default,
   COMSCORE: Comscore.default,
-<<<<<<< HEAD
-  FB_PIXEL: FbPixel.default
-=======
+  FB_PIXEL: FbPixel.default,
   LOTAME: Lotame.default
->>>>>>> origin/master
 };
 
 export { integrations };

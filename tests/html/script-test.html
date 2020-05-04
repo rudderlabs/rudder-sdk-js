@@ -7,7 +7,7 @@
     <script type="text/javascript">
       // checking test commit 2
       rudderanalytics = window.rudderanalytics = [];
-      var methods = ["load", "identify","ready","page","track"];
+      var methods = ["load","ready","track"];
 
       // this is required to be set before RudderAnalytics is loaded/run
       window.rudderanalytics.syncPixelCallback = obj => {
@@ -38,15 +38,13 @@
 
       rudderanalytics.load(
         "1b7Hh70fpIsbZmOAx7JN7nPedHZ",
-        "http://65b91cda.ngrok.io",
+        "http://localhost:8080",
         {
           logLevel: "DEBUG",
           configUrl: "http://localhost:5000/sourceConfig"
         }
       );
-      rudderanalytics.load("write-key", "https://hosted.rudderlabs.com", {
-        configUrl: "https://api-tf.rudderlabs.com/sourceConfig"
-      });
+    
       rudderanalytics.track();
       rudderanalytics.page(); //Turn this on if Chartbeat is a destination
     </script>
@@ -59,21 +57,22 @@
       
       });
 
-      window.rudderanalytics.identify("abc", {
-        name: "Ruchira Moitra",
-        email: "mbolton@initech.com",
-        createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
-      });
-      window.rudderanalytics.track("Product Purchased", {
-        order_ID: "2969302398",
+      // window.rudderanalytics.identify("abc", {
+      //   name: "Ruchira Moitra",
+      //   email: "mbolton@initech.com",
+      //   createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
+      // });
+      window.rudderanalytics.track("Product Added", {
+        order_ID: "123",
         category: "boots",
         product_name: "yellow_cowboy_boots",
         price: 99.95,
         currency: "EUR",
-        revenue: 100,
-        checkinDate: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
+        revenue: 2000,
+        value: 3000,
+        checkinDate: "Thu Mar 24 2018 17:46:45 GMT+0000 (UTC)"
       });
-      window.rudderanalytics.page();
+      // window.rudderanalytics.page();
 
     </script>
   </head>
