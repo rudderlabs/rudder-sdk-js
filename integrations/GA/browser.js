@@ -2,6 +2,8 @@ import logger from "../../utils/logUtil";
 class GA {
   constructor(config) {
     this.trackingID = config.trackingID;
+    // config.allowLinker = true;
+    this.allowLinker = config.allowLinker || false;
     this.name = "GA";
   }
 
@@ -28,14 +30,23 @@ class GA {
 
     //window.ga_debug = {trace: true};
 
-    ga("create", this.trackingID, "auto", "rudder_ga");
+    ga("create", this.trackingID, "auto", "rudder_ga", {
+      allowLinker: this.allowLinker,
+    });
     //ga("send", "pageview");
 
     logger.debug("===in init GA===");
   }
 
+  setUserId(rudderElement) {
+    var userId = rudderElement.message.userId !== ''
+      ? rudderElement.message.userId
+      : rudderElement.message.anonymousId
+    ga("rudder_ga.set", "userId", userId);
+  }
+
   identify(rudderElement) {
-    ga("rudder_ga.set", "userId", rudderElement.message.anonymous_id);
+    this.setUserId(rudderElement);
     logger.debug("in GoogleAnalyticsManager identify");
   }
 
@@ -63,6 +74,7 @@ class GA {
       eventLabel: eventLabel,
       eventValue: eventValue
     };
+    this.setUserId(rudderElement);
     ga("rudder_ga.send", "event", payLoad);
     logger.debug("in GoogleAnalyticsManager track");
   }
@@ -91,7 +103,7 @@ class GA {
     if (location) {
       ga("rudder_ga.set", "location", location);
     }
-
+    this.setUserId(rudderElement);
     ga("rudder_ga.send", "pageview");
     
   }
