@@ -134,14 +134,19 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   xhr.send();
 }
 
-function handleError(error) {
+function handleError(error, analytics) {
   let errorMessage = error.message ? error.message : undefined;
+  let sampleAdBlockTest = undefined
   if (error instanceof Event) {
     if (error.target && error.target.localName == "script") {
-      errorMessage = "error in script loading: " + error.target.id;
+      errorMessage = "error in script loading:: src::  " + error.target.src + " id:: " + error.target.id;
+      if(analytics && error.target.src == "http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js") {
+        sampleAdBlockTest = true
+        analytics.track("ad-blocked", {category: errorMessage})
+      }
     }
   }
-  if (errorMessage) {
+  if (errorMessage && !sampleAdBlockTest) {
     logger.error("[Util] handleError:: ", errorMessage);
   }
 }
