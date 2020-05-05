@@ -142,7 +142,7 @@ function handleError(error, analyticsInstance) {
   if (error instanceof Event) {
     if (error.target && error.target.localName == "script") {
       errorMessage = "error in script loading:: src::  " + error.target.src + " id:: " + error.target.id;
-      if(analytics && error.target.src == "http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js") {
+      if(analyticsInstance && error.target.src.includes("adsbygoogle.js")) {
         sampleAdBlockTest = true
         analyticsInstance.page("", "ad-blocked", {path: "/ad-blocked", title: errorMessage})
       }
