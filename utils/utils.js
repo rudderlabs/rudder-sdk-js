@@ -134,7 +134,7 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   xhr.send();
 }
 
-function handleError(error, analytics) {
+function handleError(error, analyticsInstance) {
   let errorMessage = error.message ? error.message : undefined;
   let sampleAdBlockTest = undefined
   if (error instanceof Event) {
@@ -142,7 +142,7 @@ function handleError(error, analytics) {
       errorMessage = "error in script loading:: src::  " + error.target.src + " id:: " + error.target.id;
       if(analytics && error.target.src == "http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js") {
         sampleAdBlockTest = true
-        analytics.track("ad-blocked", {category: errorMessage})
+        analyticsInstance.page("", "ad-blocked", {path: "/ad-blocked", title: errorMessage})
       }
     }
   }
