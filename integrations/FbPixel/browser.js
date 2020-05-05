@@ -40,6 +40,7 @@ class FbPixel {
     window.fbq.allowDuplicatePageViews = true; // enables fb
     window.fbq.version = "2.0";
     window.fbq.queue = [];
+    
     window.fbq("init", this.pixelId);
     console.log(window.fbq);
     ScriptLoader(
@@ -67,7 +68,9 @@ class FbPixel {
   }
   identify(rudderElement) {
     console.log("in identify call");
-    this.page();
+    if(this.advancedMapping){
+      window.fbq("init",this.pixelId,rudderElement.message.context.traits)
+    }
   }
   track(rudderElement) {
     console.log("in track call");

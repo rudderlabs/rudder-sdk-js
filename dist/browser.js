@@ -4340,8 +4340,8 @@ var rudderanalytics = (function (exports) {
     _createClass(FbPixel, [{
       key: "init",
       value: function init() {
-        logger.debug("===in init FbPixelRuchira===");
-        console.log("===in init FbPixel Ruchira===");
+        logger.debug("===in init FbPixel===");
+        console.log("===in init FbPixel===");
         console.log(this.pixelId);
 
         window._fbq = function () {
@@ -4392,7 +4392,10 @@ var rudderanalytics = (function (exports) {
       key: "identify",
       value: function identify(rudderElement) {
         console.log("in identify call");
-        this.page();
+
+        if (!this.advancedMapping) {
+          window.fbq("init", this.pixelId, rudderElement.message.context.traits);
+        }
       }
     }, {
       key: "track",
@@ -4675,8 +4678,6 @@ var rudderanalytics = (function (exports) {
               eventID: rudderElement.message.messageId
             });
           }, legacyto);
-        } else {
-          console.log("Ruchira else");
         }
       }
     }, {
