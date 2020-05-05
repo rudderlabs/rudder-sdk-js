@@ -112,7 +112,7 @@ class FbPixel {
     // }
     each(function (event) {
       if (event === "Purchase")
-        payload.currency = rudderElement.message.properties.currency;
+        payload.currency = rudderElement.message.properties.currency || 'USD';
       window.fbq("trackSingle", this.pixelId, event, payload, {
         eventID: rudderElement.message.messageId,
       });
