@@ -21,6 +21,7 @@ import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import Emitter from "component-emitter";
 import after from "after";
+import {ScriptLoader} from "./integrations/ScriptLoader"
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
@@ -818,16 +819,11 @@ class Analytics {
       }
     });
   }
-}
 
-if (process.browser) {
-  window.addEventListener(
-    "error",
-    function(e) {
-      handleError(e);
-    },
-    true
-  );
+  sendSampleRequest() {
+    ScriptLoader("ad-block", "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
+  }
+    
 }
 
 let instance = new Analytics();
@@ -835,6 +831,19 @@ let instance = new Analytics();
 Emitter(instance);
 
 if (process.browser) {
+  window.addEventListener(
+    "error",
+    (e) => {
+      handleError(e, instance);
+    },
+    true
+  );
+}
+
+if (process.browser) {
+  // test for adblocker
+  instance.sendSampleRequest()
+  
   // register supported callbacks
   instance.registerCallbacks();
   let eventsPushedAlready =
