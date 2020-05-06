@@ -5,17 +5,17 @@ import each from "@ndhoule/each";
 
 class FbPixel {
   constructor(config) {
-    this.blacklistPiiProperties = config.blacklistPiiProperties; //present
-    this.categoryToContent = config.categoryToContent; //map contentTypes
-    this.pixelId = config.pixelId; //present
-    this.eventsToEvents = config.eventsToEvents; //map  standardEvents
-    this.eventCustomProperties = config.eventCustomProperties; //present
-    this.valueFieldIdentifier = config.valueFieldIdentifier; //present
+    this.blacklistPiiProperties = config.blacklistPiiProperties; 
+    this.categoryToContent = config.categoryToContent; 
+    this.pixelId = config.pixelId; 
+    this.eventsToEvents = config.eventsToEvents; 
+    this.eventCustomProperties = config.eventCustomProperties; 
+    this.valueFieldIdentifier = config.valueFieldIdentifier; 
     this.advancedMapping = config.advancedMapping;
-    this.traitKeyToExternalId = config.traitKeyToExternalId; //present
-    this.legacyConversionPixelId = config.legacyConversionPixelId; //map legacyevents
-    this.userIdAsPixelId = config.userIdAsPixelId; //present
-    this.whitelistPiiProperties = config.whitelistPiiProperties; //present
+    this.traitKeyToExternalId = config.traitKeyToExternalId; 
+    this.legacyConversionPixelId = config.legacyConversionPixelId; 
+    this.userIdAsPixelId = config.userIdAsPixelId;
+    this.whitelistPiiProperties = config.whitelistPiiProperties;
     this.name = "FB_PIXEL";
   }
 
@@ -151,7 +151,7 @@ class FbPixel {
         this.merge(
           {
             content_ids: contentIds,
-            content_type: this.getContentType(rudderElement, contentType), //need to change
+            content_type: this.getContentType(rudderElement, contentType), 
             contents: contents,
           },
           customProperties
@@ -191,7 +191,7 @@ class FbPixel {
                 rudderElement.message.properties.sku ||
                 "",
             ],
-            content_type: this.getContentType(rudderElement, ["product"]), //need to change
+            content_type: this.getContentType(rudderElement, ["product"]), 
             content_name: rudderElement.message.properties.product_name || "",
             content_category: rudderElement.message.properties.category || "",
             currency: rudderElement.message.properties.currency,
@@ -248,7 +248,7 @@ class FbPixel {
                 rudderElement.message.properties.sku ||
                 "",
             ],
-            content_type: this.getContentType(rudderElement, ["product"]), //need to change
+            content_type: this.getContentType(rudderElement, ["product"]), 
 
             content_name: rudderElement.message.properties.product_name || "",
             content_category: rudderElement.message.properties.category || "",
@@ -299,7 +299,7 @@ class FbPixel {
               rudderElement.message.properties.sku ||
               "",
           ],
-          content_type: this.getContentType(rudderElement, ["product"]), //need to change
+          content_type: this.getContentType(rudderElement, ["product"]), 
 
           content_name: rudderElement.message.properties.product_name || "",
           content_category: rudderElement.message.properties.category || "",
@@ -328,7 +328,7 @@ class FbPixel {
         rudderElement.message.properties.revenue
       );
 
-      var contentType = this.getContentType(rudderElement, ["product"]); //need to change
+      var contentType = this.getContentType(rudderElement, ["product"]); 
       var contentIds = [];
       var contents = [];
 
@@ -556,7 +556,7 @@ class FbPixel {
     for (var i = 0; i < blacklistPiiProperties[i]; i++) {
       var configuration = blacklistPiiProperties[i];
       customPiiProperties[configuration.blacklistPiiProperties] =
-        configuration.blacklistPiiHash; //configuration.hashProperty
+        configuration.blacklistPiiHash; 
     }
     var payload = {};
     var properties = rudderElement.message.properties;
