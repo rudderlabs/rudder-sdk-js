@@ -4,7 +4,7 @@ import { Cookie } from "../../utils/storage/cookie";
 class GA {
   constructor(config) {
     this.trackingID = config.trackingID;
-    config.allowLinker = true;
+    // config.allowLinker = true;
     this.allowLinker = config.allowLinker || false;
     this.name = "GA";
   }
