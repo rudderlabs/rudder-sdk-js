@@ -53,6 +53,10 @@ class GoogleTagManager {
       eventName = "Viewed " + pageCategory + " " + pageName + " page";
     }
 
+    if(!eventName) {
+      eventName = "Viewed a Page";
+    }
+    
     let props = {
       event: eventName,
       userId: rudderMessage.userId,
