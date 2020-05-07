@@ -17,9 +17,22 @@ class FbPixel {
     this.userIdAsPixelId = config.userIdAsPixelId;
     this.whitelistPiiProperties = config.whitelistPiiProperties;
     this.name = "FB_PIXEL";
+    console.log(config)
   }
 
   init() {
+   
+  if(this.categoryToContent === undefined){
+    this.categoryToContent = []
+  }
+  if(this.legacyConversionPixelId === undefined){
+    this.legacyConversionPixelId = []
+  }
+  if(this.userIdAsPixelId === undefined){
+    this.userIdAsPixelId = []
+  }
+  
+  
     logger.debug("===in init FbPixel===");
     window._fbq = function () {
       if (window.fbq.callMethod) {
@@ -69,11 +82,22 @@ class FbPixel {
     var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
     var payload = this.buildPayLoad(rudderElement, true);
 
+    if(this.categoryToContent === undefined){
+      this.categoryToContent = []
+    }
+    if(this.legacyConversionPixelId === undefined){
+      this.legacyConversionPixelId = []
+    }
+    if(this.userIdAsPixelId === undefined){
+      this.userIdAsPixelId = []
+    }
+   
     payload.value = revenue;
     var standard = this.eventsToEvents;
     var legacy = this.legacyConversionPixelId;
     var standardTo;
     var legacyTo;
+    
 
     standardTo = standard.reduce((filtered, standard) => {
       if (standard.from === event) {

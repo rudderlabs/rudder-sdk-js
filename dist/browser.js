@@ -4322,17 +4322,17 @@ var rudderanalytics = (function (exports) {
     function FbPixel(config) {
       _classCallCheck(this, FbPixel);
 
-      this.blacklistPiiProperties = config.blacklistPiiProperties, //present
-      this.categoryToContent = config.categoryToContent, //map contentTypes
-      this.pixelId = config.pixelId, //present
-      this.eventsToEvents = config.eventsToEvents, //map  standardEvents
-      this.eventCustomProperties = config.eventCustomProperties, //present
-      this.valueFieldIdentifier = config.valueFieldIdentifier, //present
-      this.advancedMapping = config.advancedMapping, this.traitKeyToExternalId = config.traitKeyToExternalId, //present
-      this.legacyConversionPixelId = config.legacyConversionPixelId, //map legacyevents
-      this.userIdAsPixelId = config.userIdAsPixelId, //present
-      this.whitelistPiiProperties = config.whitelistPiiProperties; //present
-
+      this.blacklistPiiProperties = config.blacklistPiiProperties;
+      this.categoryToContent = config.categoryToContent;
+      this.pixelId = config.pixelId;
+      this.eventsToEvents = config.eventsToEvents;
+      this.eventCustomProperties = config.eventCustomProperties;
+      this.valueFieldIdentifier = config.valueFieldIdentifier;
+      this.advancedMapping = config.advancedMapping;
+      this.traitKeyToExternalId = config.traitKeyToExternalId;
+      this.legacyConversionPixelId = config.legacyConversionPixelId;
+      this.userIdAsPixelId = config.userIdAsPixelId;
+      this.whitelistPiiProperties = config.whitelistPiiProperties;
       this.name = "FB_PIXEL";
       console.log(config);
     }
@@ -4340,9 +4340,34 @@ var rudderanalytics = (function (exports) {
     _createClass(FbPixel, [{
       key: "init",
       value: function init() {
-        logger.debug("===in init FbPixel===");
-        console.log("===in init FbPixel===");
+        console.log(this.blacklistPiiProperties);
+        console.log(this.categoryToContent); // undefined
+
         console.log(this.pixelId);
+        console.log(this.eventsToEvents);
+        console.log(this.eventCustomProperties);
+        console.log(this.valueFieldIdentifier);
+        console.log(this.advancedMapping);
+        console.log(this.traitKeyToExternalId);
+        console.log(this.legacyConversionPixelId); //undefined
+
+        console.log(this.userIdAsPixelId); //undefined
+
+        console.log(this.whitelistPiiProperties);
+
+        if (this.categoryToContent === undefined) {
+          this.categoryToContent = [];
+        }
+
+        if (this.legacyConversionPixelId === undefined) {
+          this.legacyConversionPixelId = [];
+        }
+
+        if (this.userIdAsPixelId === undefined) {
+          this.userIdAsPixelId = [];
+        }
+
+        logger.debug("===in init FbPixel===");
 
         window._fbq = function () {
           if (window.fbq.callMethod) {
@@ -4362,60 +4387,65 @@ var rudderanalytics = (function (exports) {
         window.fbq.version = "2.0";
         window.fbq.queue = [];
         window.fbq("init", this.pixelId);
-        console.log(window.fbq);
         ScriptLoader("fbpixel-integration", "//connect.facebook.net/en_US/fbevents.js");
-        console.log("script loaded");
       }
     }, {
       key: "isLoaded",
       value: function isLoaded() {
         logger.debug("in FbPixel isLoaded");
-        console.log("in FbPixel isLoaded");
-        console.log(!!(window.fbq && window.fbq.callMethod));
         return !!(window.fbq && window.fbq.callMethod);
       }
     }, {
       key: "isReady",
       value: function isReady() {
         logger.debug("in FbPixel isReady");
-        console.log("in FbPixel isReady");
-        console.log(!!(window.fbq && window.fbq.callMethod));
         return !!(window.fbq && window.fbq.callMethod);
       }
     }, {
       key: "page",
       value: function page(rudderElement) {
-        console.log("in page call");
         window.fbq("track", "PageView");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        console.log("in identify call");
-
-        if (!this.advancedMapping) {
+        if (this.advancedMapping) {
           window.fbq("init", this.pixelId, rudderElement.message.context.traits);
         }
       }
     }, {
       key: "track",
       value: function track(rudderElement) {
-        console.log("in track call");
         var event = rudderElement.message.event;
         var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
         var payload = this.buildPayLoad(rudderElement, true);
+
+        if (this.categoryToContent === undefined) {
+          this.categoryToContent = [];
+        }
+
+        if (this.legacyConversionPixelId === undefined) {
+          this.legacyConversionPixelId = [];
+        }
+
+        if (this.userIdAsPixelId === undefined) {
+          this.userIdAsPixelId = [];
+        }
+
+        console.log(this.eventsToEvents);
+        console.log("this.eventsToEvents");
         payload.value = revenue;
         var standard = this.eventsToEvents;
         var legacy = this.legacyConversionPixelId;
-        console.log(standard);
-        console.log(legacy);
         var standardTo;
         var legacyTo;
-        console.log("event");
-        console.log(event);
+        console.log(this.config);
+        console.log(standard);
+        console.log("standard");
+        console.log(legacy);
+        console.log("legacy");
         standardTo = standard.reduce(function (filtered, standard) {
           if (standard.from === event) {
-            console.log("in if");
             filtered.push(standard.to);
           }
 
@@ -4423,21 +4453,16 @@ var rudderanalytics = (function (exports) {
         }, []);
         legacyTo = legacy.reduce(function (filtered, legacy) {
           if (legacy.from === event) {
-            console.log("in if");
             filtered.push(legacy.to);
           }
 
           return filtered;
         }, []);
-        console.log(payload); // if (![].concat(standardTo, legacyTo).length) {
-        //   window.fbq("trackSingleCustom", this.pixelId, event, payload, {
-        //     eventID: rudderElement.message.messageId,
-        //   });
-        //   return;
-        // }
-
         each_1(function (event) {
-          if (event === "Purchase") payload.currency = rudderElement.message.properties.currency;
+          if (event === "Purchase") {
+            payload.currency = rudderElement.message.properties.currency || "USD";
+          }
+
           window.fbq("trackSingle", this.pixelId, event, payload, {
             eventID: rudderElement.message.messageId
           });
@@ -4452,7 +4477,6 @@ var rudderanalytics = (function (exports) {
         }, legacyTo);
 
         if (event === "Product List Viewed") {
-          console.log("Product List Viewed");
           var contentType;
           var contentIds;
           var contents = [];
@@ -4487,7 +4511,6 @@ var rudderanalytics = (function (exports) {
           window.fbq("trackSingle", this.pixelId, "ViewContent", this.merge({
             content_ids: contentIds,
             content_type: this.getContentType(rudderElement, contentType),
-            //need to change
             contents: contents
           }, customProperties), {
             eventID: rudderElement.message.messageId
@@ -4501,13 +4524,11 @@ var rudderanalytics = (function (exports) {
             });
           }, legacyTo);
         } else if (event === "Product Viewed") {
-          console.log("Product Viewed");
           var useValue = this.valueFieldIdentifier === "properties.value";
           var customProperties = this.buildPayLoad(rudderElement, true);
           window.fbq("trackSingle", this.pixelId, "ViewContent", this.merge({
             content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
-            content_type: this.getContentType(rudderElement, ['product']),
-            //need to change
+            content_type: this.getContentType(rudderElement, ["product"]),
             content_name: rudderElement.message.properties.product_name || "",
             content_category: rudderElement.message.properties.category || "",
             currency: rudderElement.message.properties.currency,
@@ -4529,13 +4550,11 @@ var rudderanalytics = (function (exports) {
             });
           }, legacyTo);
         } else if (event === "Product Added") {
-          console.log("in product added");
           var useValue = this.valueFieldIdentifier === "properties.value";
           var customProperties = this.buildPayLoad(rudderElement, true);
           window.fbq("trackSingle", this.pixelId, "AddToCart", this.merge({
             content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
-            content_type: this.getContentType(rudderElement, ['product']),
-            //need to change
+            content_type: this.getContentType(rudderElement, ["product"]),
             content_name: rudderElement.message.properties.product_name || "",
             content_category: rudderElement.message.properties.category || "",
             currency: rudderElement.message.properties.currency,
@@ -4556,11 +4575,9 @@ var rudderanalytics = (function (exports) {
               eventID: rudderElement.message.messageId
             });
           }, legacyTo);
-          console.log("check");
-          console.log(this.merge({
+          this.merge({
             content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
-            content_type: this.getContentType(rudderElement, ['product']),
-            //need to change
+            content_type: this.getContentType(rudderElement, ["product"]),
             content_name: rudderElement.message.properties.product_name || "",
             content_category: rudderElement.message.properties.category || "",
             currency: rudderElement.message.properties.currency,
@@ -4570,14 +4587,12 @@ var rudderanalytics = (function (exports) {
               quantity: rudderElement.message.properties.quantity,
               item_price: rudderElement.message.properties.price
             }]
-          }, customProperties));
-        } else if (event === 'Order Completed') {
-          console.log("Order Completed");
+          }, customProperties);
+        } else if (event === "Order Completed") {
           var products = rudderElement.message.properites.products;
           var customProperties = this.buildPayLoad(rudderElement, true);
           var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
-          var contentType = this.getContentType(rudderElement, ['product']); //need to change
-
+          var contentType = this.getContentType(rudderElement, ["product"]);
           var contentIds = [];
           var contents = [];
 
@@ -4596,7 +4611,7 @@ var rudderanalytics = (function (exports) {
             contents.push(content);
           }
 
-          window.fbq('trackSingle', this.pixelId, 'Purchase', this.merge({
+          window.fbq("trackSingle", this.pixelId, "Purchase", this.merge({
             content_ids: contentIds,
             content_type: contentType,
             currency: rudderElement.message.properties.currency,
@@ -4607,31 +4622,29 @@ var rudderanalytics = (function (exports) {
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq('trackSingle', this.pixelId, event, {
+            window.fbq("trackSingle", this.pixelId, event, {
               currency: rudderElement.message.properties.currency,
               value: this.formatRevenue(rudderElement.message.properties.revenue)
             }, {
               eventID: rudderElement.message.messageId
             });
           }, legacyto);
-        } else if (event === 'Products Searched') {
-          console.log('Products Searched');
+        } else if (event === "Products Searched") {
           var customProperties = this.buildPayLoad(rudderElement, true);
-          window.fbq('trackSingle', this.pixelId, 'Search', merge({
+          window.fbq("trackSingle", this.pixelId, "Search", merge({
             search_string: rudderElement.message.properties.query
           }, customProperties), {
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq('trackSingle', this.pixelId, event, {
+            window.fbq("trackSingle", this.pixelId, event, {
               currency: rudderElement.message.properties.currency,
               value: formatRevenue(rudderElement.message.properties.revenue)
             }, {
               eventID: rudderElement.message.messageId
             });
           }, legacyTo);
-        } else if (event === 'Checkout Started') {
-          console.log('Checkout Started');
+        } else if (event === "Checkout Started") {
           var products = rudderElement.message.properites.products;
           var customProperties = this.buildPayLoad(rudderElement, true);
           var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
@@ -4659,10 +4672,10 @@ var rudderanalytics = (function (exports) {
             contentCategory = products[0].category;
           }
 
-          window.fbq('trackSingle', this.pixelId, 'InitiateCheckout', this.merge({
+          window.fbq("trackSingle", this.pixelId, "InitiateCheckout", this.merge({
             content_category: contentCategory,
             content_ids: contentIds,
-            content_type: this.getContentType(rudderElement, ['product']),
+            content_type: this.getContentType(rudderElement, ["product"]),
             currency: rudderElement.message.properties.currency,
             value: revenue,
             contents: contents,
@@ -4671,7 +4684,7 @@ var rudderanalytics = (function (exports) {
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq('trackSingle', this.pixelId, event, {
+            window.fbq("trackSingle", this.pixelId, event, {
               currency: rudderElement.message.properties.currency,
               value: this.formatRevenue(rudderElement.message.properties.revenue)
             }, {
@@ -4686,15 +4699,12 @@ var rudderanalytics = (function (exports) {
         var options = rudderElement.message.options;
 
         if (options && options.contentType) {
-          console.log("in options");
-          console.log(options.contentType);
           return [options.contentType];
         }
 
         var category = rudderElement.message.properties.category;
 
         if (!category) {
-          console.log("in not category");
           var products = rudderElement.message.properties.products;
 
           if (products && products.length) {
@@ -4714,8 +4724,6 @@ var rudderanalytics = (function (exports) {
           }, []);
 
           if (mappedTo.length) {
-            console.log("mappedTo");
-            onsole.log(mappedTo);
             return mappedTo;
           }
         }
@@ -4759,13 +4767,11 @@ var rudderanalytics = (function (exports) {
 
         for (var i = 0; i < blacklistPiiProperties[i]; i++) {
           var configuration = blacklistPiiProperties[i];
-          customPiiProperties[configuration.blacklistPiiProperties] = configuration.blacklistPiiHash; //configuration.hashProperty
+          customPiiProperties[configuration.blacklistPiiProperties] = configuration.blacklistPiiHash;
         }
 
         var payload = {};
         var properties = rudderElement.message.properties;
-        console.log("properties");
-        console.log(properties);
 
         for (var property in properties) {
           if (!properties.hasOwnProperty(property)) {
@@ -4801,8 +4807,6 @@ var rudderanalytics = (function (exports) {
           }
         }
 
-        console.log("payload");
-        console.log(payload);
         return payload;
       }
     }]);
