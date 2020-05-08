@@ -377,7 +377,7 @@ class Analytics {
 
     let rudderElement = new RudderElementBuilder().setType("alias").build();
     rudderElement.message.previousId =
-      from || this.userId ? this.userId : this.getAnonymousId();
+      from || (this.userId ? this.userId : this.getAnonymousId());
     rudderElement.message.userId = to;
 
     this.processAndSendDataToDestinations(
