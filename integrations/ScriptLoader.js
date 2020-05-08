@@ -3,6 +3,7 @@ function ScriptLoader(id, src) {
   logger.debug("in script loader=== " + id);
   let js = document.createElement("script");
   js.src = src;
+  js.async = true;
   js.type = "text/javascript";
   js.id = id;
   let e = document.getElementsByTagName("script")[0];

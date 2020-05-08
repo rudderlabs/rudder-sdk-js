@@ -137,18 +137,24 @@ function getJSONTrimmed(context, url, writeKey, callback) {
 function handleError(error, analyticsInstance) {
   let errorMessage = error.message ? error.message : undefined;
   let sampleAdBlockTest = undefined
-  if (error instanceof Event) {
-    if (error.target && error.target.localName == "script") {
-      errorMessage = "error in script loading:: src::  " + error.target.src + " id:: " + error.target.id;
-      if(analyticsInstance && error.target.src.includes("adsbygoogle.js")) {
-        sampleAdBlockTest = true
-        analyticsInstance.page("", "ad-blocked", {path: "/ad-blocked", title: errorMessage})
+  try {
+    if (error instanceof Event) {
+      if (error.target && error.target.localName == "script") {
+        errorMessage = "error in script loading:: src::  " + error.target.src + " id:: " + error.target.id;
+        if(analyticsInstance && error.target.src.includes("adsbyrudder")) {
+          sampleAdBlockTest = true
+          analyticsInstance.page("RudderJS-Initiated", "ad-block page request", {path: "/ad-blocked", title: errorMessage})
+        }
       }
     }
+    logger.error("from 1=======", errorMessage)
+    if (errorMessage && !sampleAdBlockTest) {
+      logger.error("[Util] handleError:: ", errorMessage);
+    }
+  } catch (e) {
+    logger.error("[Util] handleError:: ", e)
   }
-  if (errorMessage && !sampleAdBlockTest) {
-    logger.error("[Util] handleError:: ", errorMessage);
-  }
+  
 }
 
 function getDefaultPageProperties() {

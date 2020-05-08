@@ -77,6 +77,7 @@ class Analytics {
     this.storage.setUserId(this.userId);
     this.deviceId = this.getDeviceId();
     this.eventRepository = EventRepository;
+    this.sendAdblockPage = false
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
@@ -286,6 +287,9 @@ class Analytics {
       (options = properties), (properties = name), (name = null);
     if (typeof category === "string" && typeof name !== "string")
       (name = category), (category = null);
+    if(this.sendAdblockPage && category != "RudderJS-Initiated") {
+      this.sendSampleRequest()
+    }
     this.processPage(category, name, properties, options, callback);
   }
 
@@ -662,7 +666,6 @@ class Analytics {
   reset() {
     this.userId = "";
     this.userTraits = {};
-    this.anonymousId = this.setAnonymousId();
     this.storage.clear();
   }
 
@@ -699,6 +702,7 @@ class Analytics {
    * @memberof Analytics
    */
   load(writeKey, serverUrl, options) {
+    logger.debug("inside load ");
     let configUrl = CONFIG_URL;
     if (!writeKey || !serverUrl || serverUrl.length == 0) {
       handleError({
@@ -712,7 +716,9 @@ class Analytics {
     if (options && options.configUrl) {
       configUrl = options.configUrl;
     }
-    logger.debug("inside load ");
+    if(options && options.sendAdblockPage) {
+      this.sendAdblockPage = true
+    }
     this.eventRepository.writeKey = writeKey;
     if (serverUrl) {
       this.eventRepository.url = serverUrl;
@@ -771,7 +777,7 @@ class Analytics {
   }
 
   sendSampleRequest() {
-    ScriptLoader("ad-block", "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
+    ScriptLoader("ad-block", "//pagead2.googlesyndication.com/pagead/js/adsbyrudder.js")
   }
     
 }
@@ -792,7 +798,7 @@ if (process.browser) {
 
 if (process.browser) {
   // test for adblocker
-  instance.sendSampleRequest()
+  // instance.sendSampleRequest()
   
   // register supported callbacks
   instance.registerCallbacks();
