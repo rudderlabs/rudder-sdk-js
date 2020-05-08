@@ -78,7 +78,6 @@ class Analytics {
 
     this.anonymousId = this.getAnonymousId();
     this.storage.setUserId(this.userId);
-    this.deviceId = this.getDeviceId();
     this.eventRepository = EventRepository;
     this.sendAdblockPage = false
     this.readyCallback = () => {};
@@ -594,9 +593,6 @@ class Analytics {
         this.userTraits
       );
       
-      rudderElement["message"]["context"]["device"] = {}
-      rudderElement["message"]["context"]["device"]["rudder_device_id"] = this.deviceId + ''
-
       logger.debug("anonymousId: ", this.anonymousId);
       rudderElement["message"]["anonymousId"] = this.anonymousId;
       rudderElement["message"]["userId"] = rudderElement["message"]["userId"]
@@ -727,19 +723,6 @@ class Analytics {
     this.storage.setAnonymousId(this.anonymousId);
   }
 
-  getDeviceId() {
-    this.deviceId = this.storage.getDeviceId();
-    if(!this.deviceId) {
-      this.setDeviceId();
-    }
-    return this.deviceId;
-  }
-
-  setDeviceId() {
-    this.deviceId = generateUUID();
-    this.storage.setDeviceId(this.deviceId);
-  }
-
   /**
    * Call control pane to get client configs
    *
@@ -827,7 +810,7 @@ class Analytics {
   }
 
   sendSampleRequest() {
-    ScriptLoader("ad-block", "//pagead2.googlesyndication.com/pagead/js/adsbyrudder.js")
+    ScriptLoader("ad-block", "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
   }
     
 }

@@ -143,13 +143,12 @@ function handleError(error, analyticsInstance) {
     if (error instanceof Event) {
       if (error.target && error.target.localName == "script") {
         errorMessage = "error in script loading:: src::  " + error.target.src + " id:: " + error.target.id;
-        if(analyticsInstance && error.target.src.includes("adsbyrudder")) {
+        if(analyticsInstance && error.target.src.includes("adsbygoogle")) {
           sampleAdBlockTest = true
           analyticsInstance.page("RudderJS-Initiated", "ad-block page request", {path: "/ad-blocked", title: errorMessage})
         }
       }
     }
-    logger.error("from 1=======", errorMessage)
     if (errorMessage && !sampleAdBlockTest) {
       logger.error("[Util] handleError:: ", errorMessage);
     }
