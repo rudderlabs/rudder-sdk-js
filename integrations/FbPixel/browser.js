@@ -17,11 +17,10 @@ class FBPixel {
     this.userIdAsPixelId = config.userIdAsPixelId;
     this.whitelistPiiProperties = config.whitelistPiiProperties;
     this.name = "FB_PIXEL";
-    console.log(config)
+   
   }
 
   init() {
-<<<<<<< HEAD
    
   if(this.categoryToContent === undefined){
     this.categoryToContent = []
@@ -35,9 +34,7 @@ class FBPixel {
   
   
     logger.debug("===in init FbPixel===");
-=======
-    logger.debug("===in init FBPixel===");
->>>>>>> f480af1a60a4e8fb924bf73a40ff921b7dff93fc
+  
     window._fbq = function () {
       if (window.fbq.callMethod) {
         window.fbq.callMethod.apply(window.fbq, arguments);
