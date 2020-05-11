@@ -1,3 +1,3 @@
-import { FbPixel } from "./browser";
+import { FBPixel } from "./browser";
 
-export default FbPixel;
+export default FBPixel;

@@ -1,9 +1,9 @@
 import { ScriptLoader } from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import is from "is";
-import each from "@ndhoule/each";
+import each from "./node_modules/@ndhoule/each";
 
-class FbPixel {
+class FBPixel {
   constructor(config) {
     this.blacklistPiiProperties = config.blacklistPiiProperties; 
     this.categoryToContent = config.categoryToContent; 
@@ -21,6 +21,7 @@ class FbPixel {
   }
 
   init() {
+<<<<<<< HEAD
    
   if(this.categoryToContent === undefined){
     this.categoryToContent = []
@@ -34,6 +35,9 @@ class FbPixel {
   
   
     logger.debug("===in init FbPixel===");
+=======
+    logger.debug("===in init FBPixel===");
+>>>>>>> f480af1a60a4e8fb924bf73a40ff921b7dff93fc
     window._fbq = function () {
       if (window.fbq.callMethod) {
         window.fbq.callMethod.apply(window.fbq, arguments);
@@ -58,12 +62,12 @@ class FbPixel {
   }
 
   isLoaded() {
-    logger.debug("in FbPixel isLoaded");
+    logger.debug("in FBPixel isLoaded");
     return !!(window.fbq && window.fbq.callMethod);
   }
 
   isReady() {
-    logger.debug("in FbPixel isReady");
+    logger.debug("in FBPixel isReady");
     return !!(window.fbq && window.fbq.callMethod);
   }
 
@@ -617,4 +621,4 @@ class FbPixel {
   }
 }
 
-export { FbPixel };
+export { FBPixel };
