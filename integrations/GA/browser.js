@@ -1,7 +1,7 @@
 import logger from "../../utils/logUtil";
 class GA {
   constructor(config) {
-    this.trackingID = config.trackingID; //UA-149602794-1
+    this.trackingID = config.trackingID;
     this.name = "GA";
   }
 
@@ -28,14 +28,14 @@ class GA {
 
     //window.ga_debug = {trace: true};
 
-    ga("create", this.trackingID, "auto");
-    ga("send", "pageview");
+    ga("create", this.trackingID, "auto", "rudder_ga");
+    //ga("send", "pageview");
 
     logger.debug("===in init GA===");
   }
 
   identify(rudderElement) {
-    ga("set", "userId", rudderElement.message.anonymous_id);
+    ga("rudder_ga.set", "userId", rudderElement.message.anonymous_id);
     logger.debug("in GoogleAnalyticsManager identify");
   }
 
@@ -48,6 +48,12 @@ class GA {
       eventValue = rudderElement.message.properties.value
         ? rudderElement.message.properties.value
         : rudderElement.message.properties.revenue;
+      eventCategory = rudderElement.message.properties.category
+        ? rudderElement.message.properties.category
+        : eventCategory;
+      eventLabel = rudderElement.message.properties.label
+        ? rudderElement.message.properties.label
+        : eventLabel;
     }
 
     var payLoad = {
@@ -57,20 +63,37 @@ class GA {
       eventLabel: eventLabel,
       eventValue: eventValue
     };
-    ga("send", "event", payLoad);
+    ga("rudder_ga.send", "event", payLoad);
     logger.debug("in GoogleAnalyticsManager track");
   }
 
   page(rudderElement) {
     logger.debug("in GoogleAnalyticsManager page");
     var path =
-      rudderElement.properties && rudderElement.properties.path
-        ? rudderElement.properties.path
+      rudderElement.message.properties && rudderElement.message.properties.path
+        ? rudderElement.message.properties.path
         : undefined;
+    var title = rudderElement.message.properties && rudderElement.message.properties.title
+        ? rudderElement.message.properties.title
+        : undefined;
+    var location = rudderElement.message.properties && rudderElement.message.properties.url
+        ? rudderElement.message.properties.url
+        : undefined;
+
     if (path) {
-      ga("set", "page", path);
+      ga("rudder_ga.set", "page", path);
     }
-    ga("send", "pageview");
+
+    if (title) {
+      ga("rudder_ga.set", "title", title);
+    }
+
+    if (location) {
+      ga("rudder_ga.set", "location", location);
+    }
+
+    ga("rudder_ga.send", "pageview");
+    
   }
 
   isLoaded() {

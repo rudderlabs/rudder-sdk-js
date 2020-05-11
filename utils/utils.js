@@ -142,9 +142,7 @@ function handleError(error) {
     }
   }
   if (errorMessage) {
-    //console.log("%c"+errorMessage, 'color: blue');
-    //console.error(errorMessage);
-    logger.error(errorMessage);
+    logger.error("[Util] handleError:: ", errorMessage);
   }
 }
 

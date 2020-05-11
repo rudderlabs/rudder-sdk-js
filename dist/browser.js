@@ -280,9 +280,7 @@ var rudderanalytics = (function (exports) {
     }
 
     if (errorMessage) {
-      //console.log("%c"+errorMessage, 'color: blue');
-      //console.error(errorMessage);
-      logger.error(errorMessage);
+      logger.error("[Util] handleError:: ", errorMessage);
     }
   }
 
@@ -387,7 +385,7 @@ var rudderanalytics = (function (exports) {
     CART_SHARED: "Cart Shared",
     PRODUCT_REVIEWED: "Product Reviewed"
   }; //Enumeration for integrations supported
-  var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
+  var BASE_URL = "https://hosted-dataplane.rudderstack.com"; // default to RudderStack
 
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
@@ -539,8 +537,7 @@ var rudderanalytics = (function (exports) {
     function GA(config) {
       _classCallCheck(this, GA);
 
-      this.trackingID = config.trackingID; //UA-149602794-1
-
+      this.trackingID = config.trackingID;
       this.name = "GA";
     }
 
@@ -559,14 +556,14 @@ var rudderanalytics = (function (exports) {
         })(window, document, "script", "https://www.google-analytics.com/analytics.js", "ga"); //window.ga_debug = {trace: true};
 
 
-        ga("create", this.trackingID, "auto");
-        ga("send", "pageview");
+        ga("create", this.trackingID, "auto", "rudder_ga"); //ga("send", "pageview");
+
         logger.debug("===in init GA===");
       }
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        ga("set", "userId", rudderElement.message.anonymous_id);
+        ga("rudder_ga.set", "userId", rudderElement.message.anonymous_id);
         logger.debug("in GoogleAnalyticsManager identify");
       }
     }, {
@@ -579,6 +576,8 @@ var rudderanalytics = (function (exports) {
 
         if (rudderElement.message.properties) {
           eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
+          eventCategory = rudderElement.message.properties.category ? rudderElement.message.properties.category : eventCategory;
+          eventLabel = rudderElement.message.properties.label ? rudderElement.message.properties.label : eventLabel;
         }
 
         var payLoad = {
@@ -588,20 +587,30 @@ var rudderanalytics = (function (exports) {
           eventLabel: eventLabel,
           eventValue: eventValue
         };
-        ga("send", "event", payLoad);
+        ga("rudder_ga.send", "event", payLoad);
         logger.debug("in GoogleAnalyticsManager track");
       }
     }, {
       key: "page",
       value: function page(rudderElement) {
         logger.debug("in GoogleAnalyticsManager page");
-        var path = rudderElement.properties && rudderElement.properties.path ? rudderElement.properties.path : undefined;
+        var path = rudderElement.message.properties && rudderElement.message.properties.path ? rudderElement.message.properties.path : undefined;
+        var title = rudderElement.message.properties && rudderElement.message.properties.title ? rudderElement.message.properties.title : undefined;
+        var location = rudderElement.message.properties && rudderElement.message.properties.url ? rudderElement.message.properties.url : undefined;
 
         if (path) {
-          ga("set", "page", path);
+          ga("rudder_ga.set", "page", path);
         }
 
-        ga("send", "pageview");
+        if (title) {
+          ga("rudder_ga.set", "title", title);
+        }
+
+        if (location) {
+          ga("rudder_ga.set", "location", location);
+        }
+
+        ga("rudder_ga.send", "pageview");
       }
     }, {
       key: "isLoaded",
@@ -661,7 +670,7 @@ var rudderanalytics = (function (exports) {
         var userId = rudderElement.message.userId || rudderElement.message.anonymousId;
 
         if (!userId) {
-          logger.error('user id is required');
+          logger.debug('[Hotjar] identify:: user id is required');
           return;
         }
 
@@ -671,12 +680,12 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "track",
       value: function track(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("[Hotjar] track:: method not supported");
       }
     }, {
       key: "page",
       value: function page(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("[Hotjar] page:: method not supported");
       }
     }, {
       key: "isLoaded",
@@ -736,7 +745,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("[GoogleAds] identify:: method not supported");
       } //https://developers.google.com/gtagjs/reference/event
 
     }, {
@@ -914,7 +923,7 @@ var rudderanalytics = (function (exports) {
                 });
               }
             } catch (error) {
-              logger.error(error);
+              logger.error("[VWO] experimentViewed:: ", error);
             }
 
             try {
@@ -923,7 +932,7 @@ var rudderanalytics = (function (exports) {
                 window.rudderanalytics.identify(_defineProperty({}, "Experiment: ".concat(expId), _vwo_exp[expId].comb_n[variationId]));
               }
             } catch (error) {
-              logger.error(error);
+              logger.error("[VWO] experimentViewed:: ", error);
             }
           }
         }]);
@@ -995,7 +1004,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("[GTM] identify:: method not supported");
       }
     }, {
       key: "track",
@@ -5443,7 +5452,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentCookie = function(name, value, options){
+  var rudderComponentCookie = function(name, value, options){
     switch (arguments.length) {
       case 3:
       case 2:
@@ -5477,6 +5486,7 @@ var rudderanalytics = (function (exports) {
     if (options.path) str += '; path=' + options.path;
     if (options.domain) str += '; domain=' + options.domain;
     if (options.expires) str += '; expires=' + options.expires.toUTCString();
+    if (options.samesite) str += '; samesite=' + options.samesite;
     if (options.secure) str += '; secure';
 
     document.cookie = str;
@@ -6810,6 +6820,648 @@ var rudderanalytics = (function (exports) {
   var componentUrl_3 = componentUrl.isRelative;
   var componentUrl_4 = componentUrl.isCrossDomain;
 
+  /**
+   * Helpers.
+   */
+
+  var s$1 = 1000;
+  var m$1 = s$1 * 60;
+  var h$1 = m$1 * 60;
+  var d$1 = h$1 * 24;
+  var y$1 = d$1 * 365.25;
+
+  /**
+   * Parse or format the given `val`.
+   *
+   * Options:
+   *
+   *  - `long` verbose formatting [false]
+   *
+   * @param {String|Number} val
+   * @param {Object} options
+   * @return {String|Number}
+   * @api public
+   */
+
+  var ms$1 = function(val, options){
+    options = options || {};
+    if ('string' == typeof val) return parse$2(val);
+    return options.long
+      ? long$1(val)
+      : short$1(val);
+  };
+
+  /**
+   * Parse the given `str` and return milliseconds.
+   *
+   * @param {String} str
+   * @return {Number}
+   * @api private
+   */
+
+  function parse$2(str) {
+    str = '' + str;
+    if (str.length > 10000) return;
+    var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
+    if (!match) return;
+    var n = parseFloat(match[1]);
+    var type = (match[2] || 'ms').toLowerCase();
+    switch (type) {
+      case 'years':
+      case 'year':
+      case 'yrs':
+      case 'yr':
+      case 'y':
+        return n * y$1;
+      case 'days':
+      case 'day':
+      case 'd':
+        return n * d$1;
+      case 'hours':
+      case 'hour':
+      case 'hrs':
+      case 'hr':
+      case 'h':
+        return n * h$1;
+      case 'minutes':
+      case 'minute':
+      case 'mins':
+      case 'min':
+      case 'm':
+        return n * m$1;
+      case 'seconds':
+      case 'second':
+      case 'secs':
+      case 'sec':
+      case 's':
+        return n * s$1;
+      case 'milliseconds':
+      case 'millisecond':
+      case 'msecs':
+      case 'msec':
+      case 'ms':
+        return n;
+    }
+  }
+
+  /**
+   * Short format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+
+  function short$1(ms) {
+    if (ms >= d$1) return Math.round(ms / d$1) + 'd';
+    if (ms >= h$1) return Math.round(ms / h$1) + 'h';
+    if (ms >= m$1) return Math.round(ms / m$1) + 'm';
+    if (ms >= s$1) return Math.round(ms / s$1) + 's';
+    return ms + 'ms';
+  }
+
+  /**
+   * Long format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+
+  function long$1(ms) {
+    return plural$1(ms, d$1, 'day')
+      || plural$1(ms, h$1, 'hour')
+      || plural$1(ms, m$1, 'minute')
+      || plural$1(ms, s$1, 'second')
+      || ms + ' ms';
+  }
+
+  /**
+   * Pluralization helper.
+   */
+
+  function plural$1(ms, n, name) {
+    if (ms < n) return;
+    if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
+    return Math.ceil(ms / n) + ' ' + name + 's';
+  }
+
+  var debug_1$1 = createCommonjsModule(function (module, exports) {
+  /**
+   * This is the common logic for both the Node.js and web browser
+   * implementations of `debug()`.
+   *
+   * Expose `debug()` as the module.
+   */
+
+  exports = module.exports = debug;
+  exports.coerce = coerce;
+  exports.disable = disable;
+  exports.enable = enable;
+  exports.enabled = enabled;
+  exports.humanize = ms$1;
+
+  /**
+   * The currently active debug mode names, and names to skip.
+   */
+
+  exports.names = [];
+  exports.skips = [];
+
+  /**
+   * Map of special "%n" handling functions, for the debug "format" argument.
+   *
+   * Valid key names are a single, lowercased letter, i.e. "n".
+   */
+
+  exports.formatters = {};
+
+  /**
+   * Previously assigned color.
+   */
+
+  var prevColor = 0;
+
+  /**
+   * Previous log timestamp.
+   */
+
+  var prevTime;
+
+  /**
+   * Select a color.
+   *
+   * @return {Number}
+   * @api private
+   */
+
+  function selectColor() {
+    return exports.colors[prevColor++ % exports.colors.length];
+  }
+
+  /**
+   * Create a debugger with the given `namespace`.
+   *
+   * @param {String} namespace
+   * @return {Function}
+   * @api public
+   */
+
+  function debug(namespace) {
+
+    // define the `disabled` version
+    function disabled() {
+    }
+    disabled.enabled = false;
+
+    // define the `enabled` version
+    function enabled() {
+
+      var self = enabled;
+
+      // set `diff` timestamp
+      var curr = +new Date();
+      var ms = curr - (prevTime || curr);
+      self.diff = ms;
+      self.prev = prevTime;
+      self.curr = curr;
+      prevTime = curr;
+
+      // add the `color` if not set
+      if (null == self.useColors) self.useColors = exports.useColors();
+      if (null == self.color && self.useColors) self.color = selectColor();
+
+      var args = Array.prototype.slice.call(arguments);
+
+      args[0] = exports.coerce(args[0]);
+
+      if ('string' !== typeof args[0]) {
+        // anything else let's inspect with %o
+        args = ['%o'].concat(args);
+      }
+
+      // apply any `formatters` transformations
+      var index = 0;
+      args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+        // if we encounter an escaped % then don't increase the array index
+        if (match === '%%') return match;
+        index++;
+        var formatter = exports.formatters[format];
+        if ('function' === typeof formatter) {
+          var val = args[index];
+          match = formatter.call(self, val);
+
+          // now we need to remove `args[index]` since it's inlined in the `format`
+          args.splice(index, 1);
+          index--;
+        }
+        return match;
+      });
+
+      if ('function' === typeof exports.formatArgs) {
+        args = exports.formatArgs.apply(self, args);
+      }
+      var logFn = enabled.log || exports.log || console.log.bind(console);
+      logFn.apply(self, args);
+    }
+    enabled.enabled = true;
+
+    var fn = exports.enabled(namespace) ? enabled : disabled;
+
+    fn.namespace = namespace;
+
+    return fn;
+  }
+
+  /**
+   * Enables a debug mode by namespaces. This can include modes
+   * separated by a colon and wildcards.
+   *
+   * @param {String} namespaces
+   * @api public
+   */
+
+  function enable(namespaces) {
+    exports.save(namespaces);
+
+    var split = (namespaces || '').split(/[\s,]+/);
+    var len = split.length;
+
+    for (var i = 0; i < len; i++) {
+      if (!split[i]) continue; // ignore empty strings
+      namespaces = split[i].replace(/\*/g, '.*?');
+      if (namespaces[0] === '-') {
+        exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+      } else {
+        exports.names.push(new RegExp('^' + namespaces + '$'));
+      }
+    }
+  }
+
+  /**
+   * Disable debug output.
+   *
+   * @api public
+   */
+
+  function disable() {
+    exports.enable('');
+  }
+
+  /**
+   * Returns true if the given mode name is enabled, false otherwise.
+   *
+   * @param {String} name
+   * @return {Boolean}
+   * @api public
+   */
+
+  function enabled(name) {
+    var i, len;
+    for (i = 0, len = exports.skips.length; i < len; i++) {
+      if (exports.skips[i].test(name)) {
+        return false;
+      }
+    }
+    for (i = 0, len = exports.names.length; i < len; i++) {
+      if (exports.names[i].test(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Coerce `val`.
+   *
+   * @param {Mixed} val
+   * @return {Mixed}
+   * @api private
+   */
+
+  function coerce(val) {
+    if (val instanceof Error) return val.stack || val.message;
+    return val;
+  }
+  });
+  var debug_2$1 = debug_1$1.coerce;
+  var debug_3$1 = debug_1$1.disable;
+  var debug_4$1 = debug_1$1.enable;
+  var debug_5$1 = debug_1$1.enabled;
+  var debug_6$1 = debug_1$1.humanize;
+  var debug_7$1 = debug_1$1.names;
+  var debug_8$1 = debug_1$1.skips;
+  var debug_9$1 = debug_1$1.formatters;
+
+  var browser$1 = createCommonjsModule(function (module, exports) {
+  /**
+   * This is the web browser implementation of `debug()`.
+   *
+   * Expose `debug()` as the module.
+   */
+
+  exports = module.exports = debug_1$1;
+  exports.log = log;
+  exports.formatArgs = formatArgs;
+  exports.save = save;
+  exports.load = load;
+  exports.useColors = useColors;
+  exports.storage = 'undefined' != typeof chrome
+                 && 'undefined' != typeof chrome.storage
+                    ? chrome.storage.local
+                    : localstorage();
+
+  /**
+   * Colors.
+   */
+
+  exports.colors = [
+    'lightseagreen',
+    'forestgreen',
+    'goldenrod',
+    'dodgerblue',
+    'darkorchid',
+    'crimson'
+  ];
+
+  /**
+   * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+   * and the Firebug extension (any Firefox version) are known
+   * to support "%c" CSS customizations.
+   *
+   * TODO: add a `localStorage` variable to explicitly enable/disable colors
+   */
+
+  function useColors() {
+    // is webkit? http://stackoverflow.com/a/16459606/376773
+    return ('WebkitAppearance' in document.documentElement.style) ||
+      // is firebug? http://stackoverflow.com/a/398120/376773
+      (window.console && (console.firebug || (console.exception && console.table))) ||
+      // is firefox >= v31?
+      // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+      (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
+  }
+
+  /**
+   * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+   */
+
+  exports.formatters.j = function(v) {
+    return JSON.stringify(v);
+  };
+
+
+  /**
+   * Colorize log arguments if enabled.
+   *
+   * @api public
+   */
+
+  function formatArgs() {
+    var args = arguments;
+    var useColors = this.useColors;
+
+    args[0] = (useColors ? '%c' : '')
+      + this.namespace
+      + (useColors ? ' %c' : ' ')
+      + args[0]
+      + (useColors ? '%c ' : ' ')
+      + '+' + exports.humanize(this.diff);
+
+    if (!useColors) return args;
+
+    var c = 'color: ' + this.color;
+    args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+
+    // the final "%c" is somewhat tricky, because there could be other
+    // arguments passed either before or after the %c, so we need to
+    // figure out the correct index to insert the CSS into
+    var index = 0;
+    var lastC = 0;
+    args[0].replace(/%[a-z%]/g, function(match) {
+      if ('%%' === match) return;
+      index++;
+      if ('%c' === match) {
+        // we only are interested in the *last* %c
+        // (the user may have provided their own)
+        lastC = index;
+      }
+    });
+
+    args.splice(lastC, 0, c);
+    return args;
+  }
+
+  /**
+   * Invokes `console.log()` when available.
+   * No-op when `console.log` is not a "function".
+   *
+   * @api public
+   */
+
+  function log() {
+    // this hackery is required for IE8/9, where
+    // the `console.log` function doesn't have 'apply'
+    return 'object' === typeof console
+      && console.log
+      && Function.prototype.apply.call(console.log, console, arguments);
+  }
+
+  /**
+   * Save `namespaces`.
+   *
+   * @param {String} namespaces
+   * @api private
+   */
+
+  function save(namespaces) {
+    try {
+      if (null == namespaces) {
+        exports.storage.removeItem('debug');
+      } else {
+        exports.storage.debug = namespaces;
+      }
+    } catch(e) {}
+  }
+
+  /**
+   * Load `namespaces`.
+   *
+   * @return {String} returns the previously persisted debug modes
+   * @api private
+   */
+
+  function load() {
+    var r;
+    try {
+      r = exports.storage.debug;
+    } catch(e) {}
+    return r;
+  }
+
+  /**
+   * Enable namespaces listed in `localStorage.debug` initially.
+   */
+
+  exports.enable(load());
+
+  /**
+   * Localstorage attempts to return the localstorage.
+   *
+   * This is necessary because safari throws
+   * when a user disables cookies/localstorage
+   * and you attempt to access it.
+   *
+   * @return {LocalStorage}
+   * @api private
+   */
+
+  function localstorage(){
+    try {
+      return window.localStorage;
+    } catch (e) {}
+  }
+  });
+  var browser_1$1 = browser$1.log;
+  var browser_2$1 = browser$1.formatArgs;
+  var browser_3$1 = browser$1.save;
+  var browser_4$1 = browser$1.load;
+  var browser_5$1 = browser$1.useColors;
+  var browser_6$1 = browser$1.storage;
+  var browser_7$1 = browser$1.colors;
+
+  /**
+   * Module dependencies.
+   */
+
+  var debug$1 = browser$1('cookie');
+
+  /**
+   * Set or get cookie `name` with `value` and `options` object.
+   *
+   * @param {String} name
+   * @param {String} value
+   * @param {Object} options
+   * @return {Mixed}
+   * @api public
+   */
+
+  var componentCookie = function(name, value, options){
+    switch (arguments.length) {
+      case 3:
+      case 2:
+        return set$1(name, value, options);
+      case 1:
+        return get$2(name);
+      default:
+        return all$1();
+    }
+  };
+
+  /**
+   * Set cookie `name` to `value`.
+   *
+   * @param {String} name
+   * @param {String} value
+   * @param {Object} options
+   * @api private
+   */
+
+  function set$1(name, value, options) {
+    options = options || {};
+    var str = encode$1(name) + '=' + encode$1(value);
+
+    if (null == value) options.maxage = -1;
+
+    if (options.maxage) {
+      options.expires = new Date(+new Date + options.maxage);
+    }
+
+    if (options.path) str += '; path=' + options.path;
+    if (options.domain) str += '; domain=' + options.domain;
+    if (options.expires) str += '; expires=' + options.expires.toUTCString();
+    if (options.secure) str += '; secure';
+    if (options.samesite) str += '; samesite=' + options.samesite;
+
+    document.cookie = str;
+  }
+
+  /**
+   * Return all cookies.
+   *
+   * @return {Object}
+   * @api private
+   */
+
+  function all$1() {
+    var str;
+    try {
+      str = document.cookie;
+    } catch (err) {
+      if (typeof console !== 'undefined' && typeof console.error === 'function') {
+        console.error(err.stack || err);
+      }
+      return {};
+    }
+    return parse$3(str);
+  }
+
+  /**
+   * Get cookie `name`.
+   *
+   * @param {String} name
+   * @return {String}
+   * @api private
+   */
+
+  function get$2(name) {
+    return all$1()[name];
+  }
+
+  /**
+   * Parse cookie `str`.
+   *
+   * @param {String} str
+   * @return {Object}
+   * @api private
+   */
+
+  function parse$3(str) {
+    var obj = {};
+    var pairs = str.split(/ *; */);
+    var pair;
+    if ('' == pairs[0]) return obj;
+    for (var i = 0; i < pairs.length; ++i) {
+      pair = pairs[i].split('=');
+      obj[decode$1(pair[0])] = decode$1(pair[1]);
+    }
+    return obj;
+  }
+
+  /**
+   * Encode.
+   */
+
+  function encode$1(value){
+    try {
+      return encodeURIComponent(value);
+    } catch (e) {
+      debug$1('error `encode(%o)` - %o', value, e);
+    }
+  }
+
+  /**
+   * Decode.
+   */
+
+  function decode$1(value) {
+    try {
+      return decodeURIComponent(value);
+    } catch (e) {
+      debug$1('error `decode(%o)` - %o', value, e);
+    }
+  }
+
   var lib = createCommonjsModule(function (module, exports) {
 
   /**
@@ -6914,7 +7566,9 @@ var rudderanalytics = (function (exports) {
    * An object utility to persist values in cookies
    */
 
-  var CookieLocal = /*#__PURE__*/function () {
+  var CookieLocal =
+  /*#__PURE__*/
+  function () {
     function CookieLocal(options) {
       _classCallCheck(this, CookieLocal);
 
@@ -6939,7 +7593,8 @@ var rudderanalytics = (function (exports) {
         this._options = defaults_1(_options, {
           maxage: 31536000000,
           path: "/",
-          domain: domain
+          domain: domain,
+          samesite: "Lax"
         }); //try setting a cookie first
 
         this.set("test_rudder", true);
@@ -6961,7 +7616,7 @@ var rudderanalytics = (function (exports) {
       value: function set(key, value) {
         try {
           value = json3.stringify(value);
-          componentCookie(key, value, clone_1(this._options));
+          rudderComponentCookie(key, value, clone_1(this._options));
           return true;
         } catch (e) {
           return false;
@@ -6976,7 +7631,7 @@ var rudderanalytics = (function (exports) {
       key: "get",
       value: function get(key) {
         try {
-          var value = componentCookie(key);
+          var value = rudderComponentCookie(key);
           value = value ? json3.parse(value) : null;
           return value;
         } catch (e) {
@@ -6992,7 +7647,7 @@ var rudderanalytics = (function (exports) {
       key: "remove",
       value: function remove(key) {
         try {
-          componentCookie(key, null, clone_1(this._options));
+          rudderComponentCookie(key, null, clone_1(this._options));
           return true;
         } catch (e) {
           return false;
@@ -7295,7 +7950,7 @@ var rudderanalytics = (function (exports) {
       key: "setUserId",
       value: function setUserId(value) {
         if (typeof value != "string") {
-          logger.error("userId should be string");
+          logger.error("[Storage] setUserId:: userId should be string");
           return;
         }
 
@@ -7322,7 +7977,7 @@ var rudderanalytics = (function (exports) {
       key: "setGroupId",
       value: function setGroupId(value) {
         if (typeof value != "string") {
-          logger.error("groupId should be string");
+          logger.error("[Storage] setGroupId:: groupId should be string");
           return;
         }
 
@@ -7349,7 +8004,7 @@ var rudderanalytics = (function (exports) {
       key: "setAnonymousId",
       value: function setAnonymousId(value) {
         if (typeof value != "string") {
-          logger.error("anonymousId should be string");
+          logger.error("[Storage] setAnonymousId:: anonymousId should be string");
           return;
         }
 
@@ -7467,7 +8122,9 @@ var rudderanalytics = (function (exports) {
 
   var lotameStorage = new LotameStorage();
 
-  var Lotame = /*#__PURE__*/function () {
+  var Lotame =
+  /*#__PURE__*/
+  function () {
     function Lotame(config, analytics) {
       var _this = this;
 
@@ -7624,7 +8281,7 @@ var rudderanalytics = (function (exports) {
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.1.1-rc.2";
+    this.version = "1.1.1";
   };
 
   //Library information class
@@ -7632,7 +8289,7 @@ var rudderanalytics = (function (exports) {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.1.1-rc.2";
+    this.version = "1.1.1";
   }; //Operating System information class
 
 
@@ -8371,7 +9028,7 @@ var rudderanalytics = (function (exports) {
    * Expose `debug()` as the module.
    */
 
-  var debug_1$1 = debug$1;
+  var debug_1$2 = debug$2;
 
   /**
    * Create a debugger with the given `name`.
@@ -8381,20 +9038,20 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  function debug$1(name) {
-    if (!debug$1.enabled(name)) return function(){};
+  function debug$2(name) {
+    if (!debug$2.enabled(name)) return function(){};
 
     return function(fmt){
       fmt = coerce(fmt);
 
       var curr = new Date;
-      var ms = curr - (debug$1[name] || curr);
-      debug$1[name] = curr;
+      var ms = curr - (debug$2[name] || curr);
+      debug$2[name] = curr;
 
       fmt = name
         + ' '
         + fmt
-        + ' +' + debug$1.humanize(ms);
+        + ' +' + debug$2.humanize(ms);
 
       // This hackery is required for IE8
       // where `console.log` doesn't have 'apply'
@@ -8408,8 +9065,8 @@ var rudderanalytics = (function (exports) {
    * The currently active debug mode names.
    */
 
-  debug$1.names = [];
-  debug$1.skips = [];
+  debug$2.names = [];
+  debug$2.skips = [];
 
   /**
    * Enables a debug mode by name. This can include modes
@@ -8419,7 +9076,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  debug$1.enable = function(name) {
+  debug$2.enable = function(name) {
     try {
       localStorage.debug = name;
     } catch(e){}
@@ -8430,10 +9087,10 @@ var rudderanalytics = (function (exports) {
     for (var i = 0; i < len; i++) {
       name = split[i].replace('*', '.*?');
       if (name[0] === '-') {
-        debug$1.skips.push(new RegExp('^' + name.substr(1) + '$'));
+        debug$2.skips.push(new RegExp('^' + name.substr(1) + '$'));
       }
       else {
-        debug$1.names.push(new RegExp('^' + name + '$'));
+        debug$2.names.push(new RegExp('^' + name + '$'));
       }
     }
   };
@@ -8444,8 +9101,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  debug$1.disable = function(){
-    debug$1.enable('');
+  debug$2.disable = function(){
+    debug$2.enable('');
   };
 
   /**
@@ -8456,7 +9113,7 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
-  debug$1.humanize = function(ms) {
+  debug$2.humanize = function(ms) {
     var sec = 1000
       , min = 60 * 1000
       , hour = 60 * min;
@@ -8475,14 +9132,14 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  debug$1.enabled = function(name) {
-    for (var i = 0, len = debug$1.skips.length; i < len; i++) {
-      if (debug$1.skips[i].test(name)) {
+  debug$2.enabled = function(name) {
+    for (var i = 0, len = debug$2.skips.length; i < len; i++) {
+      if (debug$2.skips[i].test(name)) {
         return false;
       }
     }
-    for (var i = 0, len = debug$1.names.length; i < len; i++) {
-      if (debug$1.names[i].test(name)) {
+    for (var i = 0, len = debug$2.names.length; i < len; i++) {
+      if (debug$2.names[i].test(name)) {
         return true;
       }
     }
@@ -8501,7 +9158,7 @@ var rudderanalytics = (function (exports) {
   // persist
 
   try {
-    if (window.localStorage) debug$1.enable(localStorage.debug);
+    if (window.localStorage) debug$2.enable(localStorage.debug);
   } catch(e){}
 
   var componentEmitter = createCommonjsModule(function (module) {
@@ -8684,7 +9341,7 @@ var rudderanalytics = (function (exports) {
 
 
 
-  var debug$2 = debug_1$1('localstorage-retry');
+  var debug$3 = debug_1$2('localstorage-retry');
 
 
   // Some browsers don't support Function.prototype.bind, so just including a simplified version here
@@ -8915,7 +9572,7 @@ var rudderanalytics = (function (exports) {
       try {
         self.fn(el.item, el.done);
       } catch (err) {
-        debug$2('Process function threw error: ' + err);
+        debug$3('Process function threw error: ' + err);
       }
     }, toRun);
 
@@ -9196,7 +9853,7 @@ var rudderanalytics = (function (exports) {
         // check message size, if greater log an error
 
         if (JSON.stringify(message).length > MESSAGE_LENGTH) {
-          logger.error("message length greater 32 Kb ", message);
+          logger.error("[EventRepository] enqueue:: message length greater 32 Kb ", message);
         } //modify the url for event specific endpoints
 
 
@@ -9241,7 +9898,7 @@ var rudderanalytics = (function (exports) {
 
   function register_event(element, type, handler, useCapture) {
     if (!element) {
-      logger.error("No valid element provided to register_event");
+      logger.error("[Autotrack] register_event:: No valid element provided to register_event");
       return;
     }
 
@@ -9654,13 +10311,19 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "replayEvents",
       value: function replayEvents(object) {
-        if (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length) {
+        if (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length && object.toBeProcessedByIntegrationArray.length > 0) {
+          logger.debug("===replay events called====", object.successfullyLoadedIntegration.length, object.failedToBeLoadedIntegration.length);
           object.clientIntegrationObjects = [];
           object.clientIntegrationObjects = object.successfullyLoadedIntegration;
+          logger.debug("==registering after callback===", object.clientIntegrationObjects.length);
           object.executeReadyCallback = after_1(object.clientIntegrationObjects.length, object.readyCallback);
+          logger.debug("==registering ready callback===");
           object.on("ready", object.executeReadyCallback);
           object.clientIntegrationObjects.forEach(function (intg) {
+            logger.debug("===looping over each successful integration====");
+
             if (!intg["isReady"] || intg["isReady"]()) {
+              logger.debug("===letting know I am ready=====", intg["name"]);
               object.emit("ready");
             }
           }); //send the queued events to the fetched integration
@@ -9702,6 +10365,8 @@ var rudderanalytics = (function (exports) {
         var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
         return new Promise(function (resolve) {
           if (instance.isLoaded()) {
+            logger.debug("===integration loaded successfully====", instance["name"]);
+
             _this2.successfullyLoadedIntegration.push(instance);
 
             return resolve(_this2);
@@ -9716,6 +10381,7 @@ var rudderanalytics = (function (exports) {
           }
 
           _this2.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(function () {
+            logger.debug("====after pause, again checking====");
             return _this2.isInitialized(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
           });
         });
@@ -10124,7 +10790,7 @@ var rudderanalytics = (function (exports) {
 
         if (!writeKey || !serverUrl || serverUrl.length == 0) {
           handleError({
-            message: "Unable to load due to wrong writeKey or serverUrl"
+            message: "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
           });
           throw Error("failed to initialize");
         }
@@ -10215,6 +10881,7 @@ var rudderanalytics = (function (exports) {
     if (methodArg.length > 0 && methodArg[0] == "load") {
       var method = methodArg[0];
       methodArg.shift();
+      logger.debug("=====from init, calling method:: ", method);
       instance[method].apply(instance, _toConsumableArray(methodArg));
     }
 
@@ -10228,6 +10895,7 @@ var rudderanalytics = (function (exports) {
 
         var _method = event[0];
         event.shift();
+        logger.debug("=====from init, calling method:: ", _method);
 
         instance[_method].apply(instance, _toConsumableArray(event));
       }

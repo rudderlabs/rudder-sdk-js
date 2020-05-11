@@ -118,7 +118,7 @@ class VWO {
               });
             }
           } catch (error) {
-            logger.error(error);
+            logger.error("[VWO] experimentViewed:: ", error);
           }
           try {
             if (self.sendExperimentIdentify) {
@@ -128,7 +128,7 @@ class VWO {
               });
             }
           } catch (error) {
-            logger.error(error);
+            logger.error("[VWO] experimentViewed:: " , error);
           }
         }
       }

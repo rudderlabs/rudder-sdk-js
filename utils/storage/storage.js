@@ -45,7 +45,7 @@ class Storage {
    */
   setUserId(value) {
     if (typeof value != "string") {
-      logger.error("userId should be string");
+      logger.error("[Storage] setUserId:: userId should be string");
       return;
     }
     this.storage.set(defaults.user_storage_key, value);
@@ -67,7 +67,7 @@ class Storage {
    */
   setGroupId(value) {
     if (typeof value != "string") {
-      logger.error("groupId should be string");
+      logger.error("[Storage] setGroupId:: groupId should be string");
       return;
     }
     this.storage.set(defaults.group_storage_key, value);
@@ -89,7 +89,7 @@ class Storage {
    */
   setAnonymousId(value) {
     if (typeof value != "string") {
-      logger.error("anonymousId should be string");
+      logger.error("[Storage] setAnonymousId:: anonymousId should be string");
       return;
     }
     this.storage.set(defaults.user_storage_anonymousId, value);
