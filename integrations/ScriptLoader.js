@@ -9,8 +9,6 @@ function ScriptLoader(id, src) {
   let e = document.getElementsByTagName("script")[0];
   logger.debug("==script==", e);
   e.parentNode.insertBefore(js, e);
-  console.log(js);
-  console.log(e);
 }
 
 export { ScriptLoader };
