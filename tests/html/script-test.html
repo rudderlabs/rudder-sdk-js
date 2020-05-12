@@ -19,13 +19,10 @@
       };
       var methods = [
         "load",
-        "page",
-        "track",
+        
         "identify",
-        "trackEvent",
-        "trackPage",
-        "identifyUser",
-        "reset"
+       
+       "ready"
       ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
@@ -36,17 +33,13 @@
         })(method);
       }
 
-      rudderanalytics.load(
-        "1cuY42ftbhV4ufcEMc0UZjlkLwS",
-        "http://localhost:8050",
-        {
-          logLevel: "DEBUG",
-          
-        }
-      );
-    
-  
-     
+      rudderanalytics.load("1bl8HHeGf1uwUfOMoKeMlOJRxPz", "https://hosted.rudderlabs.com", {
+        logLevel: "DEBUG",
+        configUrl: "https://api.rudderlabs.com/sourceConfig"
+
+      });
+    //  rudderanalytics.track();
+      //rudderanalytics.page(); //Turn this on if Chartbeat is a destination
     </script>
 
     <script src="./browser.js"></script>
@@ -56,14 +49,19 @@
         console.log("we are all set!!!");
       
       });
-
-      window.rudderanalytics.identify("abc", {
+     window.rudderanalytics.page();
+      window.rudderanalytics.identify("ruchu123", {
         name: "Ruchira Moitra",
-        email: "mbolton@initech.com",
+        email: "ruchira@gmail.com",
+        plan: "Enterprise",
+        company: {
+          id: "abc123"
+        },
         createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
       });
+
       window.rudderanalytics.track("Product Added", {
-        order_ID: "123",
+        order_ID: "2969302398",
         category: "boots",
         product_name: "yellow_cowboy_boots",
         price: 99.95,
@@ -199,5 +197,6 @@
   </head>
   <body>
     <h1>Relax while I finish my testing process....</h1>
+ 
   </body>
 </html>
