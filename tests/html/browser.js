@@ -2,6 +2,8 @@ var rudderanalytics = (function (exports) {
   'use strict';
 
   function _typeof(obj) {
+    "@babel/helpers - typeof";
+
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
       _typeof = function (obj) {
         return typeof obj;
@@ -71,13 +73,13 @@ var rudderanalytics = (function (exports) {
       var source = arguments[i] != null ? arguments[i] : {};
 
       if (i % 2) {
-        ownKeys(source, true).forEach(function (key) {
+        ownKeys(Object(source), true).forEach(function (key) {
           _defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
       } else {
-        ownKeys(source).forEach(function (key) {
+        ownKeys(Object(source)).forEach(function (key) {
           Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
       }
@@ -87,23 +89,36 @@ var rudderanalytics = (function (exports) {
   }
 
   function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
   }
 
   function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) {
-      for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-      return arr2;
-    }
+    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
   }
 
   function _iterableToArray(iter) {
-    if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+  }
+
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(n);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
   }
 
   function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance");
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
   var LOG_LEVEL_INFO = 1,
@@ -396,9 +411,7 @@ var rudderanalytics = (function (exports) {
     e.parentNode.insertBefore(js, e);
   }
 
-  var HubSpot =
-  /*#__PURE__*/
-  function () {
+  var HubSpot = /*#__PURE__*/function () {
     function HubSpot(config) {
       _classCallCheck(this, HubSpot);
 
@@ -517,9 +530,7 @@ var rudderanalytics = (function (exports) {
 
   var index =  HubSpot ;
 
-  var GA =
-  /*#__PURE__*/
-  function () {
+  var GA = /*#__PURE__*/function () {
     function GA(config) {
       _classCallCheck(this, GA);
 
@@ -616,9 +627,7 @@ var rudderanalytics = (function (exports) {
 
   var index$1 =  GA ;
 
-  var Hotjar =
-  /*#__PURE__*/
-  function () {
+  var Hotjar = /*#__PURE__*/function () {
     function Hotjar(config) {
       _classCallCheck(this, Hotjar);
 
@@ -692,9 +701,7 @@ var rudderanalytics = (function (exports) {
 
   var index$2 =  Hotjar ;
 
-  var GoogleAds =
-  /*#__PURE__*/
-  function () {
+  var GoogleAds = /*#__PURE__*/function () {
     function GoogleAds(config) {
       _classCallCheck(this, GoogleAds);
 
@@ -809,9 +816,7 @@ var rudderanalytics = (function (exports) {
 
   var index$3 =  GoogleAds ;
 
-  var VWO =
-  /*#__PURE__*/
-  function () {
+  var VWO = /*#__PURE__*/function () {
     function VWO(config) {
       _classCallCheck(this, VWO);
 
@@ -966,9 +971,7 @@ var rudderanalytics = (function (exports) {
     return VWO;
   }();
 
-  var GoogleTagManager =
-  /*#__PURE__*/
-  function () {
+  var GoogleTagManager = /*#__PURE__*/function () {
     function GoogleTagManager(config) {
       _classCallCheck(this, GoogleTagManager);
 
@@ -1063,9 +1066,7 @@ var rudderanalytics = (function (exports) {
   E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
   */
 
-  var Braze =
-  /*#__PURE__*/
-  function () {
+  var Braze = /*#__PURE__*/function () {
     function Braze(config, analytics) {
       _classCallCheck(this, Braze);
 
@@ -1255,6 +1256,7 @@ var rudderanalytics = (function (exports) {
     return Braze;
   }();
 
+  var INTERCOM = /*#__PURE__*/function () {
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
   function createCommonjsModule(fn, module) {
@@ -1706,6 +1708,9 @@ var rudderanalytics = (function (exports) {
               rawPayload[field] = context.traits[field];
             }
 
+            case "anonymousId":
+              rawPayload["user_id"] = value;
+              break;
             switch (field) {
               case "createdAt":
                 rawPayload["created_at"] = value;
@@ -1757,9 +1762,7 @@ var rudderanalytics = (function (exports) {
     return INTERCOM;
   }();
 
-  var Keen =
-  /*#__PURE__*/
-  function () {
+  var Keen = /*#__PURE__*/function () {
     function Keen(config) {
       _classCallCheck(this, Keen);
 
@@ -1948,7 +1951,7 @@ var rudderanalytics = (function (exports) {
    * Expose `is`
    */
 
-  var is = {};
+  var is$1 = {};
 
   /**
    * Test general.
@@ -1964,7 +1967,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.a = is.type = function (value, type) {
+  is$1.a = is$1.type = function (value, type) {
     return typeof value === type;
   };
 
@@ -1977,7 +1980,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.defined = function (value) {
+  is$1.defined = function (value) {
     return typeof value !== 'undefined';
   };
 
@@ -1990,7 +1993,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.empty = function (value) {
+  is$1.empty = function (value) {
     var type = toStr.call(value);
     var key;
 
@@ -2019,7 +2022,7 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is equal to `other`, false otherwise
    */
 
-  is.equal = function equal(value, other) {
+  is$1.equal = function equal(value, other) {
     if (value === other) {
       return true;
     }
@@ -2033,12 +2036,12 @@ var rudderanalytics = (function (exports) {
 
     if (type === '[object Object]') {
       for (key in value) {
-        if (!is.equal(value[key], other[key]) || !(key in other)) {
+        if (!is$1.equal(value[key], other[key]) || !(key in other)) {
           return false;
         }
       }
       for (key in other) {
-        if (!is.equal(value[key], other[key]) || !(key in value)) {
+        if (!is$1.equal(value[key], other[key]) || !(key in value)) {
           return false;
         }
       }
@@ -2051,7 +2054,7 @@ var rudderanalytics = (function (exports) {
         return false;
       }
       while (key--) {
-        if (!is.equal(value[key], other[key])) {
+        if (!is$1.equal(value[key], other[key])) {
           return false;
         }
       }
@@ -2079,7 +2082,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.hosted = function (value, host) {
+  is$1.hosted = function (value, host) {
     var type = typeof host[value];
     return type === 'object' ? !!host[value] : !NON_HOST_TYPES[type];
   };
@@ -2093,7 +2096,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.instance = is['instanceof'] = function (value, constructor) {
+  is$1.instance = is$1['instanceof'] = function (value, constructor) {
     return value instanceof constructor;
   };
 
@@ -2106,7 +2109,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.nil = is['null'] = function (value) {
+  is$1.nil = is$1['null'] = function (value) {
     return value === null;
   };
 
@@ -2119,7 +2122,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.undef = is.undefined = function (value) {
+  is$1.undef = is$1.undefined = function (value) {
     return typeof value === 'undefined';
   };
 
@@ -2136,9 +2139,9 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.args = is.arguments = function (value) {
+  is$1.args = is$1.arguments = function (value) {
     var isStandardArguments = toStr.call(value) === '[object Arguments]';
-    var isOldArguments = !is.array(value) && is.arraylike(value) && is.object(value) && is.fn(value.callee);
+    var isOldArguments = !is$1.array(value) && is$1.arraylike(value) && is$1.object(value) && is$1.fn(value.callee);
     return isStandardArguments || isOldArguments;
   };
 
@@ -2155,7 +2158,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.array = Array.isArray || function (value) {
+  is$1.array = Array.isArray || function (value) {
     return toStr.call(value) === '[object Array]';
   };
 
@@ -2167,8 +2170,8 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is an empty arguments object, false otherwise
    * @api public
    */
-  is.args.empty = function (value) {
-    return is.args(value) && value.length === 0;
+  is$1.args.empty = function (value) {
+    return is$1.args(value) && value.length === 0;
   };
 
   /**
@@ -2179,8 +2182,8 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is an empty array, false otherwise
    * @api public
    */
-  is.array.empty = function (value) {
-    return is.array(value) && value.length === 0;
+  is$1.array.empty = function (value) {
+    return is$1.array(value) && value.length === 0;
   };
 
   /**
@@ -2192,11 +2195,11 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.arraylike = function (value) {
-    return !!value && !is.bool(value)
+  is$1.arraylike = function (value) {
+    return !!value && !is$1.bool(value)
       && owns.call(value, 'length')
       && isFinite(value.length)
-      && is.number(value.length)
+      && is$1.number(value.length)
       && value.length >= 0;
   };
 
@@ -2213,7 +2216,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.bool = is['boolean'] = function (value) {
+  is$1.bool = is$1['boolean'] = function (value) {
     return toStr.call(value) === '[object Boolean]';
   };
 
@@ -2226,8 +2229,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is['false'] = function (value) {
-    return is.bool(value) && Boolean(Number(value)) === false;
+  is$1['false'] = function (value) {
+    return is$1.bool(value) && Boolean(Number(value)) === false;
   };
 
   /**
@@ -2239,8 +2242,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is['true'] = function (value) {
-    return is.bool(value) && Boolean(Number(value)) === true;
+  is$1['true'] = function (value) {
+    return is$1.bool(value) && Boolean(Number(value)) === true;
   };
 
   /**
@@ -2256,7 +2259,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.date = function (value) {
+  is$1.date = function (value) {
     return toStr.call(value) === '[object Date]';
   };
 
@@ -2267,8 +2270,8 @@ var rudderanalytics = (function (exports) {
    * @param {*} value value to test
    * @returns {Boolean} true if `value` is a valid date, false otherwise
    */
-  is.date.valid = function (value) {
-    return is.date(value) && !isNaN(Number(value));
+  is$1.date.valid = function (value) {
+    return is$1.date(value) && !isNaN(Number(value));
   };
 
   /**
@@ -2284,7 +2287,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.element = function (value) {
+  is$1.element = function (value) {
     return value !== undefined
       && typeof HTMLElement !== 'undefined'
       && value instanceof HTMLElement
@@ -2304,7 +2307,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.error = function (value) {
+  is$1.error = function (value) {
     return toStr.call(value) === '[object Error]';
   };
 
@@ -2321,7 +2324,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.fn = is['function'] = function (value) {
+  is$1.fn = is$1['function'] = function (value) {
     var isAlert = typeof window !== 'undefined' && value === window.alert;
     if (isAlert) {
       return true;
@@ -2343,7 +2346,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.number = function (value) {
+  is$1.number = function (value) {
     return toStr.call(value) === '[object Number]';
   };
 
@@ -2355,7 +2358,7 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is positive or negative Infinity, false otherwise
    * @api public
    */
-  is.infinite = function (value) {
+  is$1.infinite = function (value) {
     return value === Infinity || value === -Infinity;
   };
 
@@ -2368,8 +2371,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.decimal = function (value) {
-    return is.number(value) && !isActualNaN(value) && !is.infinite(value) && value % 1 !== 0;
+  is$1.decimal = function (value) {
+    return is$1.number(value) && !isActualNaN(value) && !is$1.infinite(value) && value % 1 !== 0;
   };
 
   /**
@@ -2382,10 +2385,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.divisibleBy = function (value, n) {
-    var isDividendInfinite = is.infinite(value);
-    var isDivisorInfinite = is.infinite(n);
-    var isNonZeroNumber = is.number(value) && !isActualNaN(value) && is.number(n) && !isActualNaN(n) && n !== 0;
+  is$1.divisibleBy = function (value, n) {
+    var isDividendInfinite = is$1.infinite(value);
+    var isDivisorInfinite = is$1.infinite(n);
+    var isNonZeroNumber = is$1.number(value) && !isActualNaN(value) && is$1.number(n) && !isActualNaN(n) && n !== 0;
     return isDividendInfinite || isDivisorInfinite || (isNonZeroNumber && value % n === 0);
   };
 
@@ -2398,8 +2401,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.integer = is['int'] = function (value) {
-    return is.number(value) && !isActualNaN(value) && value % 1 === 0;
+  is$1.integer = is$1['int'] = function (value) {
+    return is$1.number(value) && !isActualNaN(value) && value % 1 === 0;
   };
 
   /**
@@ -2412,10 +2415,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.maximum = function (value, others) {
+  is$1.maximum = function (value, others) {
     if (isActualNaN(value)) {
       throw new TypeError('NaN is not a valid value');
-    } else if (!is.arraylike(others)) {
+    } else if (!is$1.arraylike(others)) {
       throw new TypeError('second argument must be array-like');
     }
     var len = others.length;
@@ -2439,10 +2442,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.minimum = function (value, others) {
+  is$1.minimum = function (value, others) {
     if (isActualNaN(value)) {
       throw new TypeError('NaN is not a valid value');
-    } else if (!is.arraylike(others)) {
+    } else if (!is$1.arraylike(others)) {
       throw new TypeError('second argument must be array-like');
     }
     var len = others.length;
@@ -2465,8 +2468,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.nan = function (value) {
-    return !is.number(value) || value !== value;
+  is$1.nan = function (value) {
+    return !is$1.number(value) || value !== value;
   };
 
   /**
@@ -2478,8 +2481,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.even = function (value) {
-    return is.infinite(value) || (is.number(value) && value === value && value % 2 === 0);
+  is$1.even = function (value) {
+    return is$1.infinite(value) || (is$1.number(value) && value === value && value % 2 === 0);
   };
 
   /**
@@ -2491,8 +2494,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.odd = function (value) {
-    return is.infinite(value) || (is.number(value) && value === value && value % 2 !== 0);
+  is$1.odd = function (value) {
+    return is$1.infinite(value) || (is$1.number(value) && value === value && value % 2 !== 0);
   };
 
   /**
@@ -2505,11 +2508,11 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.ge = function (value, other) {
+  is$1.ge = function (value, other) {
     if (isActualNaN(value) || isActualNaN(other)) {
       throw new TypeError('NaN is not a valid value');
     }
-    return !is.infinite(value) && !is.infinite(other) && value >= other;
+    return !is$1.infinite(value) && !is$1.infinite(other) && value >= other;
   };
 
   /**
@@ -2522,11 +2525,11 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.gt = function (value, other) {
+  is$1.gt = function (value, other) {
     if (isActualNaN(value) || isActualNaN(other)) {
       throw new TypeError('NaN is not a valid value');
     }
-    return !is.infinite(value) && !is.infinite(other) && value > other;
+    return !is$1.infinite(value) && !is$1.infinite(other) && value > other;
   };
 
   /**
@@ -2539,11 +2542,11 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.le = function (value, other) {
+  is$1.le = function (value, other) {
     if (isActualNaN(value) || isActualNaN(other)) {
       throw new TypeError('NaN is not a valid value');
     }
-    return !is.infinite(value) && !is.infinite(other) && value <= other;
+    return !is$1.infinite(value) && !is$1.infinite(other) && value <= other;
   };
 
   /**
@@ -2556,11 +2559,11 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.lt = function (value, other) {
+  is$1.lt = function (value, other) {
     if (isActualNaN(value) || isActualNaN(other)) {
       throw new TypeError('NaN is not a valid value');
     }
-    return !is.infinite(value) && !is.infinite(other) && value < other;
+    return !is$1.infinite(value) && !is$1.infinite(other) && value < other;
   };
 
   /**
@@ -2573,13 +2576,13 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if 'value' is is within 'start' and 'finish'
    * @api public
    */
-  is.within = function (value, start, finish) {
+  is$1.within = function (value, start, finish) {
     if (isActualNaN(value) || isActualNaN(start) || isActualNaN(finish)) {
       throw new TypeError('NaN is not a valid value');
-    } else if (!is.number(value) || !is.number(start) || !is.number(finish)) {
+    } else if (!is$1.number(value) || !is$1.number(start) || !is$1.number(finish)) {
       throw new TypeError('all arguments must be numbers');
     }
-    var isAnyInfinite = is.infinite(value) || is.infinite(start) || is.infinite(finish);
+    var isAnyInfinite = is$1.infinite(value) || is$1.infinite(start) || is$1.infinite(finish);
     return isAnyInfinite || (value >= start && value <= finish);
   };
 
@@ -2595,7 +2598,7 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is an object, false otherwise
    * @api public
    */
-  is.object = function (value) {
+  is$1.object = function (value) {
     return toStr.call(value) === '[object Object]';
   };
 
@@ -2607,11 +2610,11 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is a primitive, false otherwise
    * @api public
    */
-  is.primitive = function isPrimitive(value) {
+  is$1.primitive = function isPrimitive(value) {
     if (!value) {
       return true;
     }
-    if (typeof value === 'object' || is.object(value) || is.fn(value) || is.array(value)) {
+    if (typeof value === 'object' || is$1.object(value) || is$1.fn(value) || is$1.array(value)) {
       return false;
     }
     return true;
@@ -2626,8 +2629,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.hash = function (value) {
-    return is.object(value) && value.constructor === Object && !value.nodeType && !value.setInterval;
+  is$1.hash = function (value) {
+    return is$1.object(value) && value.constructor === Object && !value.nodeType && !value.setInterval;
   };
 
   /**
@@ -2643,7 +2646,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.regexp = function (value) {
+  is$1.regexp = function (value) {
     return toStr.call(value) === '[object RegExp]';
   };
 
@@ -2660,7 +2663,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.string = function (value) {
+  is$1.string = function (value) {
     return toStr.call(value) === '[object String]';
   };
 
@@ -2677,8 +2680,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.base64 = function (value) {
-    return is.string(value) && (!value.length || base64Regex.test(value));
+  is$1.base64 = function (value) {
+    return is$1.string(value) && (!value.length || base64Regex.test(value));
   };
 
   /**
@@ -2694,8 +2697,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.hex = function (value) {
-    return is.string(value) && (!value.length || hexRegex.test(value));
+  is$1.hex = function (value) {
+    return is$1.string(value) && (!value.length || hexRegex.test(value));
   };
 
   /**
@@ -2707,7 +2710,7 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.symbol = function (value) {
+  is$1.symbol = function (value) {
     return typeof Symbol === 'function' && toStr.call(value) === '[object Symbol]' && typeof symbolValueOf.call(value) === 'symbol';
   };
 
@@ -2720,12 +2723,12 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.bigint = function (value) {
+  is$1.bigint = function (value) {
     // eslint-disable-next-line valid-typeof
     return typeof BigInt === 'function' && toStr.call(value) === '[object BigInt]' && typeof bigIntValueOf.call(value) === 'bigint';
   };
 
-  var is_1 = is;
+  var is_1 = is$1;
 
   var has = Object.prototype.hasOwnProperty;
 
@@ -3284,9 +3287,7 @@ var rudderanalytics = (function (exports) {
     }
   }
 
-  var Kissmetrics =
-  /*#__PURE__*/
-  function () {
+  var Kissmetrics = /*#__PURE__*/function () {
     function Kissmetrics(config) {
       _classCallCheck(this, Kissmetrics);
 
@@ -3573,9 +3574,7 @@ var rudderanalytics = (function (exports) {
     return Kissmetrics;
   }();
 
-  var CustomerIO =
-  /*#__PURE__*/
-  function () {
+  var CustomerIO = /*#__PURE__*/function () {
     function CustomerIO(config) {
       _classCallCheck(this, CustomerIO);
 
@@ -3663,127 +3662,6 @@ var rudderanalytics = (function (exports) {
   }();
 
   /**
-   * toString ref.
-   */
-
-  var toString$2 = Object.prototype.toString;
-
-  /**
-   * Return the type of `val`.
-   *
-   * @param {Mixed} val
-   * @return {String}
-   * @api public
-   */
-
-  var componentType$1 = function(val){
-    switch (toString$2.call(val)) {
-      case '[object Function]': return 'function';
-      case '[object Date]': return 'date';
-      case '[object RegExp]': return 'regexp';
-      case '[object Arguments]': return 'arguments';
-      case '[object Array]': return 'array';
-      case '[object String]': return 'string';
-    }
-
-    if (val === null) return 'null';
-    if (val === undefined) return 'undefined';
-    if (val && val.nodeType === 1) return 'element';
-    if (val === Object(val)) return 'object';
-
-    return typeof val;
-  };
-
-  /**
-   * Module dependencies.
-   */
-
-  try {
-    var type$1 = componentType$1;
-  } catch (err) {
-    var type$1 = componentType$1;
-  }
-
-
-
-  /**
-   * HOP reference.
-   */
-
-  var has$2 = Object.prototype.hasOwnProperty;
-
-  /**
-   * Iterate the given `obj` and invoke `fn(val, i)`
-   * in optional context `ctx`.
-   *
-   * @param {String|Array|Object} obj
-   * @param {Function} fn
-   * @param {Object} [ctx]
-   * @api public
-   */
-
-  var componentEach$1 = function(obj, fn, ctx){
-    fn = toFunction_1(fn);
-    ctx = ctx || this;
-    switch (type$1(obj)) {
-      case 'array':
-        return array$1(obj, fn, ctx);
-      case 'object':
-        if ('number' == typeof obj.length) return array$1(obj, fn, ctx);
-        return object$1(obj, fn, ctx);
-      case 'string':
-        return string$1(obj, fn, ctx);
-    }
-  };
-
-  /**
-   * Iterate string chars.
-   *
-   * @param {String} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function string$1(obj, fn, ctx) {
-    for (var i = 0; i < obj.length; ++i) {
-      fn.call(ctx, obj.charAt(i), i);
-    }
-  }
-
-  /**
-   * Iterate object keys.
-   *
-   * @param {Object} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function object$1(obj, fn, ctx) {
-    for (var key in obj) {
-      if (has$2.call(obj, key)) {
-        fn.call(ctx, key, obj[key]);
-      }
-    }
-  }
-
-  /**
-   * Iterate array-ish.
-   *
-   * @param {Array|Object} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function array$1(obj, fn, ctx) {
-    for (var i = 0; i < obj.length; ++i) {
-      fn.call(ctx, obj[i], i);
-    }
-  }
-
-  /**
    * Cache whether `<body>` exists.
    */
 
@@ -3819,7 +3697,7 @@ var rudderanalytics = (function (exports) {
   var interval = setInterval(function () {
     if (!document.body) return;
     body = true;
-    componentEach$1(callbacks, call);
+    componentEach(callbacks, call);
     clearInterval(interval);
   }, 5);
 
@@ -3834,9 +3712,7 @@ var rudderanalytics = (function (exports) {
     callback(document.body);
   }
 
-  var Chartbeat =
-  /*#__PURE__*/
-  function () {
+  var Chartbeat = /*#__PURE__*/function () {
     function Chartbeat(config, analytics) {
       _classCallCheck(this, Chartbeat);
 
@@ -4009,6 +3885,7 @@ var rudderanalytics = (function (exports) {
     return Chartbeat;
   }();
 
+  var Comscore = /*#__PURE__*/function () {
   var Comscore =
   /*#__PURE__*/
   function () {
@@ -4167,6 +4044,166 @@ var rudderanalytics = (function (exports) {
     return Comscore;
   }();
 
+  var each = require('@ndhoule/each');
+
+  var FbPixel = /*#__PURE__*/function () {
+    function FbPixel(config) {
+      _classCallCheck(this, FbPixel);
+
+      this.blacklistPiiProperties = config.blacklistPiiProperties, //present
+      this.categoryToContent = config.categoryToContent, this.pixelId = config.pixelId, //present
+      this.eventsToEvents = config.eventsToEvents, this.eventCustomProperties = config.eventCustomProperties, //present
+      this.valueFieldIdentifier = config.valueFieldIdentifier, //present
+      this.advancedMapping = config.advancedMapping, this.traitKeyToExternalId = config.traitKeyToExternalId, //present
+      this.legacyConversionPixelId = config.legacyConversionPixelId, this.userIdAsPixelId = config.userIdAsPixelId, //present
+      this.whitelistPiiProperties = config.whitelistPiiProperties; //present
+
+      this.name = "FB_PIXEL";
+    }
+
+    _createClass(FbPixel, [{
+      key: "init",
+      value: function init() {
+        ScriptLoader("fbpixel-integration", "//connect.facebook.net/en_US/fbevents.js");
+        this.setIntervalHandler = setInterval(this.initFbPixelClient.bind(this), 5000);
+        logger.debug("===in init FbPixel Ruchira===");
+        console.log("===in init FbPixel Ruchira===");
+      }
+    }, {
+      key: "initFbPixelClient",
+      value: function initFbPixelClient() {
+        window._fbq = function () {
+          console.log("initFbPixelClient");
+          console.log(window.fbq.callMethod);
+
+          if (window.fbq.callMethod) {
+            window.fbq.callMethod.apply(window.fbq, arguments);
+          } else {
+            window.fbq.queue.push(arguments);
+          }
+        };
+
+        window.fbq = window.fbq || window._fbq;
+        window.fbq.push = window.fbq;
+        window.fbq.loaded = true;
+        window.fbq.disablePushState = true; // disables automatic pageview tracking
+
+        window.fbq.allowDuplicatePageViews = true; // enables fb
+
+        window.fbq.version = "2.0";
+        window.fbq.queue = [];
+
+        if (!this.options.automaticConfiguration) {
+          window.fbq("set", "autoConfig", false, this.pixelId);
+        }
+
+        window.fbq("init", this.options.pixelId);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in FbPixel isLoaded");
+        console.log("in FbPixel isLoaded");
+        console.log(!!(window.fbq && window.fbq.callMethod));
+        return !!(window.fbq && window.fbq.callMethod);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        logger.debug("in FbPixel isReady");
+        console.log("in FbPixel isReady");
+        console.log(!!(window.fbq && window.fbq.callMethod));
+        return !!(window.fbq && window.fbq.callMethod);
+      } // page(rudderElement) {
+      //   window.fbq("track", "PageView");
+      // }
+      // identify(rudderElement) {
+      //   this.page();
+      // }
+      // track(rudderElement) {
+      //   var event = rudderElement.message.event;
+      //   var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
+      //   var payload = this.buildPayLoad(rudderElement);
+      //   payload.value = revenue;
+      //   //var standard;
+      //   //var legacy;
+      //   window.fbq('trackSingleCustom',this.pixelId,event,payload,{
+      //     eventID: rudderElement.message.messageId
+      //   })
+      // }
+
+    }, {
+      key: "formatRevenue",
+      value: function formatRevenue(revenue) {
+        return Number(revenue || 0).toFixed(2);
+      }
+    }, {
+      key: "buildPayLoad",
+      value: function buildPayLoad(rudderElement) {
+        var dateFields = ['checkinDate', 'checkoutDate', 'departingArrivalDate', 'departingDepartureDate', 'returningArrivalDate', 'returningDepartureDate', 'travelEnd', 'travelStart'];
+        var defaultPiiProperties = ['email', 'firstName', 'lastName', 'gender', 'city', 'country', 'phone', 'state', 'zip', 'birthday'];
+        var whitelistPiiProperties = this.whitelistPiiProperties || [];
+        var blacklistPiiProperties = this.blacklistPiiProperties || [];
+        var eventCustomProperties = this.eventCustomProperties || [];
+        var customPiiProperties = {};
+
+        for (var i = 0; i < blacklistPiiProperties[i]; i++) {
+          var configuration = blacklistPiiProperties[i];
+          customPiiProperties[configuration.propertyName] = configuration.hashProperty;
+        }
+
+        var payload = {};
+        var properties = rudderElement.properties;
+
+        for (var property in properties) {
+          if (eventCustomProperties.indexOf(property) < 0) {
+            continue;
+          }
+
+          var value = properties[property];
+
+          if (dateFields.indexOf(camel(property)) >= 0) {
+            if (is.date(value)) {
+              payload[property] = value.toISOString().split('T')[0];
+              continue;
+            }
+          }
+
+          if (customPiiProperties[property] && typeof value === 'string') {
+            payload[property] = sha256(value);
+          }
+
+          var isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
+          var isPropertyWhiteListed = whitelistPiiProperties.indexOf(property) >= 0;
+
+          if (!isPropertyPii || isPropertyWhiteListed) {
+            payload[property] = value;
+          }
+        }
+
+        return payload;
+      }
+    }]);
+
+    return FbPixel;
+  }();
+
+  var integrations = {
+    HS: index,
+    GA: index$1,
+    HOTJAR: index$2,
+    GOOGLEADS: index$3,
+    VWO: VWO,
+    GTM: GoogleTagManager,
+    BRAZE: Braze,
+    INTERCOM: INTERCOM,
+    KEEN: Keen,
+    KISSMETRICS: Kissmetrics,
+    CUSTOMERIO: CustomerIO,
+    CHARTBEAT: Chartbeat,
+    COMSCORE: Comscore,
+    FB_PIXEL: FbPixel
+  };
   /**
    * toString ref.
    */
@@ -4260,6 +4297,9 @@ var rudderanalytics = (function (exports) {
       return new Date(obj.getTime());
     }
 
+  var RudderMessage = /*#__PURE__*/function () {
+    function RudderMessage() {
+      _classCallCheck(this, RudderMessage);
     // string, number, boolean, etc.
     return obj;
   };
@@ -4378,6 +4418,14 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+                case ECommerceEvents.ORDER_REFUNDED:
+                  this.checkForKey("order_id");
+                  break;
+              }
+            } else if (!this.properties["category"]) {
+              //if category is not there, set to event
+              this.properties["category"] = this.event;
+            }
   function long(ms) {
     return plural(ms, d, 'day')
       || plural(ms, h, 'hour')
@@ -4424,6 +4472,73 @@ var rudderanalytics = (function (exports) {
    * Valid key names are a single, lowercased letter, i.e. "n".
    */
 
+  var RudderElement = /*#__PURE__*/function () {
+    function RudderElement() {
+      _classCallCheck(this, RudderElement);
+
+      this.message = new RudderMessage();
+    } //Setters that in turn set the field values for the contained object
+
+
+    _createClass(RudderElement, [{
+      key: "setType",
+      value: function setType(type) {
+        this.message.type = type;
+      }
+    }, {
+      key: "setProperty",
+      value: function setProperty(rudderProperty) {
+        this.message.properties = rudderProperty;
+      }
+    }, {
+      key: "setUserProperty",
+      value: function setUserProperty(rudderUserProperty) {
+        this.message.user_properties = rudderUserProperty;
+      }
+    }, {
+      key: "setUserId",
+      value: function setUserId(userId) {
+        this.message.userId = userId;
+      }
+    }, {
+      key: "setEventName",
+      value: function setEventName(eventName) {
+        this.message.event = eventName;
+      }
+    }, {
+      key: "updateTraits",
+      value: function updateTraits(traits) {
+        this.message.context.traits = traits;
+      }
+    }, {
+      key: "getElementContent",
+      value: function getElementContent() {
+        return this.message;
+      }
+    }]);
+
+    return RudderElement;
+  }();
+
+  var RudderElementBuilder = /*#__PURE__*/function () {
+    function RudderElementBuilder() {
+      _classCallCheck(this, RudderElementBuilder);
+
+      this.rudderProperty = null;
+      this.rudderUserProperty = null;
+      this.event = null;
+      this.userId = null;
+      this.channel = null;
+      this.type = null;
+    } //Set the property
+
+
+    _createClass(RudderElementBuilder, [{
+      key: "setProperty",
+      value: function setProperty(inputRudderProperty) {
+        this.rudderProperty = inputRudderProperty;
+        return this;
+      } //Build and set the property object
   exports.formatters = {};
 
   /**
@@ -4445,6 +4560,7 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+  var toString$2 = Object.prototype.toString;
   function selectColor() {
     return exports.colors[prevColor++ % exports.colors.length];
   }
@@ -4457,6 +4573,19 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+  var componentType$1 = function(val){
+    switch (toString$2.call(val)) {
+      case '[object Date]': return 'date';
+      case '[object RegExp]': return 'regexp';
+      case '[object Arguments]': return 'arguments';
+      case '[object Array]': return 'array';
+      case '[object Error]': return 'error';
+    }
+
+    if (val === null) return 'null';
+    if (val === undefined) return 'undefined';
+    if (val !== val) return 'nan';
+    if (val && val.nodeType === 1) return 'element';
   function debug(namespace) {
 
     // define the `disabled` version
@@ -4490,6 +4619,8 @@ var rudderanalytics = (function (exports) {
         args = ['%o'].concat(args);
       }
 
+  var clone = function clone(obj) {
+    var t = componentType$1(obj);
       // apply any `formatters` transformations
       var index = 0;
       args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
@@ -5000,7 +5131,7 @@ var rudderanalytics = (function (exports) {
 
 
 
-  var has$3 = Object.prototype.hasOwnProperty;
+  var has$2 = Object.prototype.hasOwnProperty;
   var objToString = Object.prototype.toString;
 
   /**
@@ -5041,7 +5172,7 @@ var rudderanalytics = (function (exports) {
    * @param {string} key
    */
   var shallowCombiner = function shallowCombiner(target, source, value, key) {
-    if (has$3.call(source, key) && target[key] === undefined) {
+    if (has$2.call(source, key) && target[key] === undefined) {
       target[key] = value;
     }
     return source;
@@ -5060,7 +5191,7 @@ var rudderanalytics = (function (exports) {
    * @return {Object}
    */
   var deepCombiner = function(target, source, value, key) {
-    if (has$3.call(source, key)) {
+    if (has$2.call(source, key)) {
       if (isPlainObject(target[key]) && isPlainObject(value)) {
           target[key] = defaultsDeep(target[key], value);
       } else if (target[key] === undefined) {
@@ -5147,7 +5278,7 @@ var rudderanalytics = (function (exports) {
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
     // strict `define` check is necessary for compatibility with `r.js`.
-    var isLoader = typeof undefined === "function" && undefined.amd;
+    var isLoader = typeof undefined === "function" ;
 
     // A set of types used to distinguish objects from primitives.
     var objectTypes = {
@@ -5156,7 +5287,7 @@ var rudderanalytics = (function (exports) {
     };
 
     // Detect the `exports` object exposed by CommonJS implementations.
-    var freeExports =  exports && !exports.nodeType && exports;
+    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
 
     // Use the `global` object exposed by Node (including Browserify via
     // `insert-module-globals`), Narwhal, and Ringo as the default context,
@@ -7750,6 +7881,9 @@ var rudderanalytics = (function (exports) {
                   this.checkForKey("step");
                   break;
 
+  var StoreLocal = /*#__PURE__*/function () {
+    function StoreLocal(options) {
+      _classCallCheck(this, StoreLocal);
                 case ECommerceEvents.PROMOTION_VIEWED:
                 case ECommerceEvents.PROMOTION_CLICKED:
                   this.checkForKey("promotion_id");
@@ -7789,6 +7923,29 @@ var rudderanalytics = (function (exports) {
       }
     }]);
 
+    return StoreLocal;
+  }(); // Exporting only the instance
+
+
+  var Store = new StoreLocal({});
+
+  var defaults$1 = {
+    user_storage_key: "rl_user_id",
+    user_storage_trait: "rl_trait",
+    user_storage_anonymousId: "rl_anonymous_id",
+    group_storage_key: "rl_group_id",
+    group_storage_trait: "rl_group_trait"
+  };
+  /**
+   * An object that handles persisting key-val from Analytics
+   */
+
+  var Storage = /*#__PURE__*/function () {
+    function Storage() {
+      _classCallCheck(this, Storage);
+
+      // First try setting the storage to cookie else to localstorage
+      Cookie.set("rudder_cookies", true);
     return RudderMessage;
   }();
 
@@ -7828,6 +7985,42 @@ var rudderanalytics = (function (exports) {
         this.message.event = eventName;
       }
     }, {
+      key: "setGroupId",
+      value: function setGroupId(value) {
+        if (typeof value != "string") {
+          logger.error("groupId should be string");
+          return;
+        }
+
+        this.storage.set(defaults$1.group_storage_key, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setGroupTraits",
+      value: function setGroupTraits(value) {
+        this.storage.set(defaults$1.group_storage_trait, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setAnonymousId",
+      value: function setAnonymousId(value) {
+        if (typeof value != "string") {
+          logger.error("anonymousId should be string");
+          return;
+        }
+
+        this.storage.set(defaults$1.user_storage_anonymousId, value);
+        return;
       key: "updateTraits",
       value: function updateTraits(traits) {
         this.message.context.traits = traits;
@@ -7896,6 +8089,28 @@ var rudderanalytics = (function (exports) {
         this.userId = userId;
         return this;
       }
+      /**
+       * get the stored userId
+       */
+
+    }, {
+      key: "getGroupId",
+      value: function getGroupId() {
+        return this.storage.get(defaults$1.group_storage_key);
+      }
+      /**
+       * get the stored user traits
+       */
+
+    }, {
+      key: "getGroupTraits",
+      value: function getGroupTraits() {
+        return this.storage.get(defaults$1.group_storage_trait);
+      }
+      /**
+       * get stored anonymous id
+       */
+
     }, {
       key: "setChannel",
       value: function setChannel(channel) {
@@ -7982,14 +8197,16 @@ var rudderanalytics = (function (exports) {
     var i = offset || 0;
     var bth = byteToHex;
     // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([bth[buf[i++]], bth[buf[i++]], 
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]]]).join('');
+    return ([
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]]
+    ]).join('');
   }
 
   var bytesToUuid_1 = bytesToUuid;
@@ -8006,7 +8223,7 @@ var rudderanalytics = (function (exports) {
   var _lastMSecs = 0;
   var _lastNSecs = 0;
 
-  // See https://github.com/broofa/node-uuid for API details
+  // See https://github.com/uuidjs/uuid for API details
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
@@ -8161,7 +8378,7 @@ var rudderanalytics = (function (exports) {
    */
 
   // TODO: Move to a library
-  var has$4 = function has(context, prop) {
+  var has$3 = function has(context, prop) {
     return hop.call(context, prop);
   };
 
@@ -8205,7 +8422,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    */
   var indexKeys = function indexKeys(target, pred) {
-    pred = pred || has$4;
+    pred = pred || has$3;
 
     var results = [];
 
@@ -8229,7 +8446,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    */
   var objectKeys = function objectKeys(target, pred) {
-    pred = pred || has$4;
+    pred = pred || has$3;
 
     var results = [];
 
@@ -8286,7 +8503,7 @@ var rudderanalytics = (function (exports) {
 
     // IE6-8 compatibility (arguments)
     if (isArrayLike(source)) {
-      return indexKeys(source, has$4);
+      return indexKeys(source, has$3);
     }
 
     return objectKeys(source);
@@ -8482,7 +8699,7 @@ var rudderanalytics = (function (exports) {
    * //-> 'enchanter', 'occupation', { name: 'tim', occupation: 'enchanter' }
    * //=> undefined
    */
-  var each = function each(iterator, collection) {
+  var each$1 = function each(iterator, collection) {
     return (isArrayLike$1(collection) ? arrayEach : baseEach).call(this, iterator, collection);
   };
 
@@ -8490,7 +8707,7 @@ var rudderanalytics = (function (exports) {
    * Exports.
    */
 
-  var each_1 = each;
+  var each_1 = each$1;
 
   var defaultEngine$1 = engine.defaultEngine;
   var inMemoryEngine$1 = engine.inMemoryEngine;
@@ -8605,8 +8822,6 @@ var rudderanalytics = (function (exports) {
         if (e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
           quotaExceeded = true;
         }
-        break;
-      default:
         break;
       }
     } else if (e.number === -2147024882) {
@@ -9349,9 +9564,7 @@ var rudderanalytics = (function (exports) {
    * in batch and maintains order of the event.
    */
 
-  var EventRepository =
-  /*#__PURE__*/
-  function () {
+  var EventRepository = /*#__PURE__*/function () {
     /**
      *Creates an instance of EventRepository.
      * @memberof EventRepository
@@ -9843,9 +10056,7 @@ var rudderanalytics = (function (exports) {
    */
 
 
-  var Analytics =
-  /*#__PURE__*/
-  function () {
+  var Analytics = /*#__PURE__*/function () {
     /**
      * Creates an instance of Analytics.
      * @memberof Analytics
@@ -10454,6 +10665,10 @@ var rudderanalytics = (function (exports) {
 
         if (options && options.configUrl) {
           configUrl = options.configUrl;
+        }
+
+        if (options && options.valTrackingList && options.valTrackingList.push == Array.prototype.push) {
+          this.trackValues = options.valTrackingList;
         }
 
         logger.debug("inside load ");

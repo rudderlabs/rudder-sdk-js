@@ -2,6 +2,8 @@ var rudderanalytics = (function (exports) {
   'use strict';
 
   function _typeof(obj) {
+    "@babel/helpers - typeof";
+
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
       _typeof = function (obj) {
         return typeof obj;
@@ -71,13 +73,13 @@ var rudderanalytics = (function (exports) {
       var source = arguments[i] != null ? arguments[i] : {};
 
       if (i % 2) {
-        ownKeys(source, true).forEach(function (key) {
+        ownKeys(Object(source), true).forEach(function (key) {
           _defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
       } else {
-        ownKeys(source).forEach(function (key) {
+        ownKeys(Object(source)).forEach(function (key) {
           Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
       }
@@ -87,23 +89,36 @@ var rudderanalytics = (function (exports) {
   }
 
   function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
   }
 
   function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) {
-      for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-      return arr2;
-    }
+    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
   }
 
   function _iterableToArray(iter) {
-    if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+  }
+
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(n);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
   }
 
   function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance");
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
   var LOG_LEVEL_INFO = 1,
@@ -387,6 +402,7 @@ var rudderanalytics = (function (exports) {
 
   function ScriptLoader(id, src) {
     logger.debug("in script loader=== " + id);
+    console.log("in script loader=== " + id);
     var js = document.createElement("script");
     js.src = src;
     js.type = "text/javascript";
@@ -394,11 +410,11 @@ var rudderanalytics = (function (exports) {
     var e = document.getElementsByTagName("script")[0];
     logger.debug("==script==", e);
     e.parentNode.insertBefore(js, e);
+    console.log(js);
+    console.log(e);
   }
 
-  var HubSpot =
-  /*#__PURE__*/
-  function () {
+  var HubSpot = /*#__PURE__*/function () {
     function HubSpot(config) {
       _classCallCheck(this, HubSpot);
 
@@ -517,9 +533,7 @@ var rudderanalytics = (function (exports) {
 
   var index =  HubSpot ;
 
-  var GA =
-  /*#__PURE__*/
-  function () {
+  var GA = /*#__PURE__*/function () {
     function GA(config) {
       _classCallCheck(this, GA);
 
@@ -616,9 +630,7 @@ var rudderanalytics = (function (exports) {
 
   var index$1 =  GA ;
 
-  var Hotjar =
-  /*#__PURE__*/
-  function () {
+  var Hotjar = /*#__PURE__*/function () {
     function Hotjar(config) {
       _classCallCheck(this, Hotjar);
 
@@ -692,9 +704,7 @@ var rudderanalytics = (function (exports) {
 
   var index$2 =  Hotjar ;
 
-  var GoogleAds =
-  /*#__PURE__*/
-  function () {
+  var GoogleAds = /*#__PURE__*/function () {
     function GoogleAds(config) {
       _classCallCheck(this, GoogleAds);
 
@@ -809,9 +819,7 @@ var rudderanalytics = (function (exports) {
 
   var index$3 =  GoogleAds ;
 
-  var VWO =
-  /*#__PURE__*/
-  function () {
+  var VWO = /*#__PURE__*/function () {
     function VWO(config) {
       _classCallCheck(this, VWO);
 
@@ -966,9 +974,7 @@ var rudderanalytics = (function (exports) {
     return VWO;
   }();
 
-  var GoogleTagManager =
-  /*#__PURE__*/
-  function () {
+  var GoogleTagManager = /*#__PURE__*/function () {
     function GoogleTagManager(config) {
       _classCallCheck(this, GoogleTagManager);
 
@@ -1063,9 +1069,7 @@ var rudderanalytics = (function (exports) {
   E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
   */
 
-  var Braze =
-  /*#__PURE__*/
-  function () {
+  var Braze = /*#__PURE__*/function () {
     function Braze(config, analytics) {
       _classCallCheck(this, Braze);
 
@@ -1579,9 +1583,7 @@ var rudderanalytics = (function (exports) {
   })();
   });
 
-  var INTERCOM =
-  /*#__PURE__*/
-  function () {
+  var INTERCOM = /*#__PURE__*/function () {
     function INTERCOM(config) {
       _classCallCheck(this, INTERCOM);
 
@@ -1714,9 +1716,6 @@ var rudderanalytics = (function (exports) {
               case "anonymousId":
                 rawPayload["user_id"] = value;
                 break;
-
-              default:
-                break;
             }
           }
         });
@@ -1757,9 +1756,7 @@ var rudderanalytics = (function (exports) {
     return INTERCOM;
   }();
 
-  var Keen =
-  /*#__PURE__*/
-  function () {
+  var Keen = /*#__PURE__*/function () {
     function Keen(config) {
       _classCallCheck(this, Keen);
 
@@ -3284,9 +3281,7 @@ var rudderanalytics = (function (exports) {
     }
   }
 
-  var Kissmetrics =
-  /*#__PURE__*/
-  function () {
+  var Kissmetrics = /*#__PURE__*/function () {
     function Kissmetrics(config) {
       _classCallCheck(this, Kissmetrics);
 
@@ -3573,9 +3568,7 @@ var rudderanalytics = (function (exports) {
     return Kissmetrics;
   }();
 
-  var CustomerIO =
-  /*#__PURE__*/
-  function () {
+  var CustomerIO = /*#__PURE__*/function () {
     function CustomerIO(config) {
       _classCallCheck(this, CustomerIO);
 
@@ -3663,127 +3656,6 @@ var rudderanalytics = (function (exports) {
   }();
 
   /**
-   * toString ref.
-   */
-
-  var toString$2 = Object.prototype.toString;
-
-  /**
-   * Return the type of `val`.
-   *
-   * @param {Mixed} val
-   * @return {String}
-   * @api public
-   */
-
-  var componentType$1 = function(val){
-    switch (toString$2.call(val)) {
-      case '[object Function]': return 'function';
-      case '[object Date]': return 'date';
-      case '[object RegExp]': return 'regexp';
-      case '[object Arguments]': return 'arguments';
-      case '[object Array]': return 'array';
-      case '[object String]': return 'string';
-    }
-
-    if (val === null) return 'null';
-    if (val === undefined) return 'undefined';
-    if (val && val.nodeType === 1) return 'element';
-    if (val === Object(val)) return 'object';
-
-    return typeof val;
-  };
-
-  /**
-   * Module dependencies.
-   */
-
-  try {
-    var type$1 = componentType$1;
-  } catch (err) {
-    var type$1 = componentType$1;
-  }
-
-
-
-  /**
-   * HOP reference.
-   */
-
-  var has$2 = Object.prototype.hasOwnProperty;
-
-  /**
-   * Iterate the given `obj` and invoke `fn(val, i)`
-   * in optional context `ctx`.
-   *
-   * @param {String|Array|Object} obj
-   * @param {Function} fn
-   * @param {Object} [ctx]
-   * @api public
-   */
-
-  var componentEach$1 = function(obj, fn, ctx){
-    fn = toFunction_1(fn);
-    ctx = ctx || this;
-    switch (type$1(obj)) {
-      case 'array':
-        return array$1(obj, fn, ctx);
-      case 'object':
-        if ('number' == typeof obj.length) return array$1(obj, fn, ctx);
-        return object$1(obj, fn, ctx);
-      case 'string':
-        return string$1(obj, fn, ctx);
-    }
-  };
-
-  /**
-   * Iterate string chars.
-   *
-   * @param {String} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function string$1(obj, fn, ctx) {
-    for (var i = 0; i < obj.length; ++i) {
-      fn.call(ctx, obj.charAt(i), i);
-    }
-  }
-
-  /**
-   * Iterate object keys.
-   *
-   * @param {Object} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function object$1(obj, fn, ctx) {
-    for (var key in obj) {
-      if (has$2.call(obj, key)) {
-        fn.call(ctx, key, obj[key]);
-      }
-    }
-  }
-
-  /**
-   * Iterate array-ish.
-   *
-   * @param {Array|Object} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function array$1(obj, fn, ctx) {
-    for (var i = 0; i < obj.length; ++i) {
-      fn.call(ctx, obj[i], i);
-    }
-  }
-
-  /**
    * Cache whether `<body>` exists.
    */
 
@@ -3819,7 +3691,7 @@ var rudderanalytics = (function (exports) {
   var interval = setInterval(function () {
     if (!document.body) return;
     body = true;
-    componentEach$1(callbacks, call);
+    componentEach(callbacks, call);
     clearInterval(interval);
   }, 5);
 
@@ -3834,9 +3706,7 @@ var rudderanalytics = (function (exports) {
     callback(document.body);
   }
 
-  var Chartbeat =
-  /*#__PURE__*/
-  function () {
+  var Chartbeat = /*#__PURE__*/function () {
     function Chartbeat(config, analytics) {
       _classCallCheck(this, Chartbeat);
 
@@ -4009,9 +3879,7 @@ var rudderanalytics = (function (exports) {
     return Chartbeat;
   }();
 
-  var Comscore =
-  /*#__PURE__*/
-  function () {
+  var Comscore = /*#__PURE__*/function () {
     function Comscore(config, analytics) {
       _classCallCheck(this, Comscore);
 
@@ -4167,11 +4035,799 @@ var rudderanalytics = (function (exports) {
     return Comscore;
   }();
 
+  var hop = Object.prototype.hasOwnProperty;
+  var strCharAt = String.prototype.charAt;
+  var toStr$1 = Object.prototype.toString;
+
+  /**
+   * Returns the character at a given index.
+   *
+   * @param {string} str
+   * @param {number} index
+   * @return {string|undefined}
+   */
+  // TODO: Move to a library
+  var charAt = function(str, index) {
+    return strCharAt.call(str, index);
+  };
+
+  /**
+   * hasOwnProperty, wrapped as a function.
+   *
+   * @name has
+   * @api private
+   * @param {*} context
+   * @param {string|number} prop
+   * @return {boolean}
+   */
+
+  // TODO: Move to a library
+  var has$2 = function has(context, prop) {
+    return hop.call(context, prop);
+  };
+
+  /**
+   * Returns true if a value is a string, otherwise false.
+   *
+   * @name isString
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+
+  // TODO: Move to a library
+  var isString = function isString(val) {
+    return toStr$1.call(val) === '[object String]';
+  };
+
+  /**
+   * Returns true if a value is array-like, otherwise false. Array-like means a
+   * value is not null, undefined, or a function, and has a numeric `length`
+   * property.
+   *
+   * @name isArrayLike
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+  // TODO: Move to a library
+  var isArrayLike = function isArrayLike(val) {
+    return val != null && (typeof val !== 'function' && typeof val.length === 'number');
+  };
+
+
+  /**
+   * indexKeys
+   *
+   * @name indexKeys
+   * @api private
+   * @param {} target
+   * @param {Function} pred
+   * @return {Array}
+   */
+  var indexKeys = function indexKeys(target, pred) {
+    pred = pred || has$2;
+
+    var results = [];
+
+    for (var i = 0, len = target.length; i < len; i += 1) {
+      if (pred(target, i)) {
+        results.push(String(i));
+      }
+    }
+
+    return results;
+  };
+
+  /**
+   * Returns an array of an object's owned keys.
+   *
+   * @name objectKeys
+   * @api private
+   * @param {*} target
+   * @param {Function} pred Predicate function used to include/exclude values from
+   * the resulting array.
+   * @return {Array}
+   */
+  var objectKeys = function objectKeys(target, pred) {
+    pred = pred || has$2;
+
+    var results = [];
+
+    for (var key in target) {
+      if (pred(target, key)) {
+        results.push(String(key));
+      }
+    }
+
+    return results;
+  };
+
+  /**
+   * Creates an array composed of all keys on the input object. Ignores any non-enumerable properties.
+   * More permissive than the native `Object.keys` function (non-objects will not throw errors).
+   *
+   * @name keys
+   * @api public
+   * @category Object
+   * @param {Object} source The value to retrieve keys from.
+   * @return {Array} An array containing all the input `source`'s keys.
+   * @example
+   * keys({ likes: 'avocado', hates: 'pineapple' });
+   * //=> ['likes', 'pineapple'];
+   *
+   * // Ignores non-enumerable properties
+   * var hasHiddenKey = { name: 'Tim' };
+   * Object.defineProperty(hasHiddenKey, 'hidden', {
+   *   value: 'i am not enumerable!',
+   *   enumerable: false
+   * })
+   * keys(hasHiddenKey);
+   * //=> ['name'];
+   *
+   * // Works on arrays
+   * keys(['a', 'b', 'c']);
+   * //=> ['0', '1', '2']
+   *
+   * // Skips unpopulated indices in sparse arrays
+   * var arr = [1];
+   * arr[4] = 4;
+   * keys(arr);
+   * //=> ['0', '4']
+   */
+  var keys = function keys(source) {
+    if (source == null) {
+      return [];
+    }
+
+    // IE6-8 compatibility (string)
+    if (isString(source)) {
+      return indexKeys(source, charAt);
+    }
+
+    // IE6-8 compatibility (arguments)
+    if (isArrayLike(source)) {
+      return indexKeys(source, has$2);
+    }
+
+    return objectKeys(source);
+  };
+
+  /*
+   * Exports.
+   */
+
+  var keys_1 = keys;
+
+  /*
+   * Module dependencies.
+   */
+
+
+
+  var objToString = Object.prototype.toString;
+
+  /**
+   * Tests if a value is a number.
+   *
+   * @name isNumber
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean} Returns `true` if `val` is a number, otherwise `false`.
+   */
+  // TODO: Move to library
+  var isNumber = function isNumber(val) {
+    var type = typeof val;
+    return type === 'number' || (type === 'object' && objToString.call(val) === '[object Number]');
+  };
+
+  /**
+   * Tests if a value is an array.
+   *
+   * @name isArray
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean} Returns `true` if the value is an array, otherwise `false`.
+   */
+  // TODO: Move to library
+  var isArray = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
+    return objToString.call(val) === '[object Array]';
+  };
+
+  /**
+   * Tests if a value is array-like. Array-like means the value is not a function and has a numeric
+   * `.length` property.
+   *
+   * @name isArrayLike
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+  // TODO: Move to library
+  var isArrayLike$1 = function isArrayLike(val) {
+    return val != null && (isArray(val) || (val !== 'function' && isNumber(val.length)));
+  };
+
+  /**
+   * Internal implementation of `each`. Works on arrays and array-like data structures.
+   *
+   * @name arrayEach
+   * @api private
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Array} array The array(-like) structure to iterate over.
+   * @return {undefined}
+   */
+  var arrayEach = function arrayEach(iterator, array) {
+    for (var i = 0; i < array.length; i += 1) {
+      // Break iteration early if `iterator` returns `false`
+      if (iterator(array[i], i, array) === false) {
+        break;
+      }
+    }
+  };
+
+  /**
+   * Internal implementation of `each`. Works on objects.
+   *
+   * @name baseEach
+   * @api private
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Object} object The object to iterate over.
+   * @return {undefined}
+   */
+  var baseEach = function baseEach(iterator, object) {
+    var ks = keys_1(object);
+
+    for (var i = 0; i < ks.length; i += 1) {
+      // Break iteration early if `iterator` returns `false`
+      if (iterator(object[ks[i]], ks[i], object) === false) {
+        break;
+      }
+    }
+  };
+
+  /**
+   * Iterate over an input collection, invoking an `iterator` function for each element in the
+   * collection and passing to it three arguments: `(value, index, collection)`. The `iterator`
+   * function can end iteration early by returning `false`.
+   *
+   * @name each
+   * @api public
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Array|Object|string} collection The collection to iterate over.
+   * @return {undefined} Because `each` is run only for side effects, always returns `undefined`.
+   * @example
+   * var log = console.log.bind(console);
+   *
+   * each(log, ['a', 'b', 'c']);
+   * //-> 'a', 0, ['a', 'b', 'c']
+   * //-> 'b', 1, ['a', 'b', 'c']
+   * //-> 'c', 2, ['a', 'b', 'c']
+   * //=> undefined
+   *
+   * each(log, 'tim');
+   * //-> 't', 2, 'tim'
+   * //-> 'i', 1, 'tim'
+   * //-> 'm', 0, 'tim'
+   * //=> undefined
+   *
+   * // Note: Iteration order not guaranteed across environments
+   * each(log, { name: 'tim', occupation: 'enchanter' });
+   * //-> 'tim', 'name', { name: 'tim', occupation: 'enchanter' }
+   * //-> 'enchanter', 'occupation', { name: 'tim', occupation: 'enchanter' }
+   * //=> undefined
+   */
+  var each = function each(iterator, collection) {
+    return (isArrayLike$1(collection) ? arrayEach : baseEach).call(this, iterator, collection);
+  };
+
+  /*
+   * Exports.
+   */
+
+  var each_1 = each;
+
+  var FbPixel = /*#__PURE__*/function () {
+    function FbPixel(config) {
+      _classCallCheck(this, FbPixel);
+
+      this.blacklistPiiProperties = config.blacklistPiiProperties;
+      this.categoryToContent = config.categoryToContent;
+      this.pixelId = config.pixelId;
+      this.eventsToEvents = config.eventsToEvents;
+      this.eventCustomProperties = config.eventCustomProperties;
+      this.valueFieldIdentifier = config.valueFieldIdentifier;
+      this.advancedMapping = config.advancedMapping;
+      this.traitKeyToExternalId = config.traitKeyToExternalId;
+      this.legacyConversionPixelId = config.legacyConversionPixelId;
+      this.userIdAsPixelId = config.userIdAsPixelId;
+      this.whitelistPiiProperties = config.whitelistPiiProperties;
+      this.name = "FB_PIXEL";
+      console.log(config);
+    }
+
+    _createClass(FbPixel, [{
+      key: "init",
+      value: function init() {
+        console.log(this.blacklistPiiProperties);
+        console.log(this.categoryToContent); // undefined
+
+        console.log(this.pixelId);
+        console.log(this.eventsToEvents);
+        console.log(this.eventCustomProperties);
+        console.log(this.valueFieldIdentifier);
+        console.log(this.advancedMapping);
+        console.log(this.traitKeyToExternalId);
+        console.log(this.legacyConversionPixelId); //undefined
+
+        console.log(this.userIdAsPixelId); //undefined
+
+        console.log(this.whitelistPiiProperties);
+
+        if (this.categoryToContent === undefined) {
+          this.categoryToContent = [];
+        }
+
+        if (this.legacyConversionPixelId === undefined) {
+          this.legacyConversionPixelId = [];
+        }
+
+        if (this.userIdAsPixelId === undefined) {
+          this.userIdAsPixelId = [];
+        }
+
+        logger.debug("===in init FbPixel===");
+
+        window._fbq = function () {
+          if (window.fbq.callMethod) {
+            window.fbq.callMethod.apply(window.fbq, arguments);
+          } else {
+            window.fbq.queue.push(arguments);
+          }
+        };
+
+        window.fbq = window.fbq || window._fbq;
+        window.fbq.push = window.fbq;
+        window.fbq.loaded = true;
+        window.fbq.disablePushState = true; // disables automatic pageview tracking
+
+        window.fbq.allowDuplicatePageViews = true; // enables fb
+
+        window.fbq.version = "2.0";
+        window.fbq.queue = [];
+        window.fbq("init", this.pixelId);
+        ScriptLoader("fbpixel-integration", "//connect.facebook.net/en_US/fbevents.js");
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in FbPixel isLoaded");
+        return !!(window.fbq && window.fbq.callMethod);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        logger.debug("in FbPixel isReady");
+        return !!(window.fbq && window.fbq.callMethod);
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        window.fbq("track", "PageView");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        if (this.advancedMapping) {
+          window.fbq("init", this.pixelId, rudderElement.message.context.traits);
+        }
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var event = rudderElement.message.event;
+        var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
+        var payload = this.buildPayLoad(rudderElement, true);
+
+        if (this.categoryToContent === undefined) {
+          this.categoryToContent = [];
+        }
+
+        if (this.legacyConversionPixelId === undefined) {
+          this.legacyConversionPixelId = [];
+        }
+
+        if (this.userIdAsPixelId === undefined) {
+          this.userIdAsPixelId = [];
+        }
+
+        console.log(this.eventsToEvents);
+        console.log("this.eventsToEvents");
+        payload.value = revenue;
+        var standard = this.eventsToEvents;
+        var legacy = this.legacyConversionPixelId;
+        var standardTo;
+        var legacyTo;
+        console.log(this.config);
+        console.log(standard);
+        console.log("standard");
+        console.log(legacy);
+        console.log("legacy");
+        standardTo = standard.reduce(function (filtered, standard) {
+          if (standard.from === event) {
+            filtered.push(standard.to);
+          }
+
+          return filtered;
+        }, []);
+        legacyTo = legacy.reduce(function (filtered, legacy) {
+          if (legacy.from === event) {
+            filtered.push(legacy.to);
+          }
+
+          return filtered;
+        }, []);
+        each_1(function (event) {
+          if (event === "Purchase") {
+            payload.currency = rudderElement.message.properties.currency || "USD";
+          }
+
+          window.fbq("trackSingle", this.pixelId, event, payload, {
+            eventID: rudderElement.message.messageId
+          });
+        }, standardTo);
+        each_1(function (event) {
+          window.fbq("trackSingle", this.pixelId, event, {
+            currency: rudderElement.message.properties.currency,
+            value: revenue
+          }, {
+            eventID: rudderElement.message.messageId
+          });
+        }, legacyTo);
+
+        if (event === "Product List Viewed") {
+          var contentType;
+          var contentIds;
+          var contents = [];
+          var products = rudderElement.message.properties.products;
+          var customProperties = this.buildPayLoad(rudderElement, true);
+
+          if (Array.isArray(products)) {
+            products.forEach(function (product) {
+              var productId = product.product_id;
+
+              if (productId) {
+                contentIds.push(productId);
+                contents.push({
+                  id: productId,
+                  quantity: rudderElement.message.properties.quantity
+                });
+              }
+            });
+          }
+
+          if (contentIds.length) {
+            contentType = ["product"];
+          } else {
+            contentIds.push(rudderElement.message.properties.category || "");
+            contents.push({
+              id: rudderElement.message.properties.category || "",
+              quantity: 1
+            });
+            contentType = ["product_group"];
+          }
+
+          window.fbq("trackSingle", this.pixelId, "ViewContent", this.merge({
+            content_ids: contentIds,
+            content_type: this.getContentType(rudderElement, contentType),
+            contents: contents
+          }, customProperties), {
+            eventID: rudderElement.message.messageId
+          });
+          each_1(function (event) {
+            window.fbq("trackSingle", this.pixelId, event, {
+              currency: rudderElement.message.properties.currency,
+              value: this.formatRevenue(rudderElement.message.properties.revenue)
+            }, {
+              eventID: rudderElement.message.messageId
+            });
+          }, legacyTo);
+        } else if (event === "Product Viewed") {
+          var useValue = this.valueFieldIdentifier === "properties.value";
+          var customProperties = this.buildPayLoad(rudderElement, true);
+          window.fbq("trackSingle", this.pixelId, "ViewContent", this.merge({
+            content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
+            content_type: this.getContentType(rudderElement, ["product"]),
+            content_name: rudderElement.message.properties.product_name || "",
+            content_category: rudderElement.message.properties.category || "",
+            currency: rudderElement.message.properties.currency,
+            value: useValue ? this.formatRevenue(rudderElement.message.properties.value) : this.formatRevenue(rudderElement.message.properties.price),
+            contents: [{
+              id: rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || "",
+              quantity: rudderElement.message.properties.quantity,
+              item_price: rudderElement.message.properties.price
+            }]
+          }, customProperties), {
+            eventID: rudderElement.message.messageId
+          });
+          each_1(function (event) {
+            window.fbq("trackSingle", this.pixelId, event, {
+              currency: rudderElement.message.properties.currency,
+              value: useValue ? this.formatRevenue(rudderElement.message.properties.value) : this.formatRevenue(rudderElement.message.properties.price)
+            }, {
+              eventID: rudderElement.message.messageId
+            });
+          }, legacyTo);
+        } else if (event === "Product Added") {
+          var useValue = this.valueFieldIdentifier === "properties.value";
+          var customProperties = this.buildPayLoad(rudderElement, true);
+          window.fbq("trackSingle", this.pixelId, "AddToCart", this.merge({
+            content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
+            content_type: this.getContentType(rudderElement, ["product"]),
+            content_name: rudderElement.message.properties.product_name || "",
+            content_category: rudderElement.message.properties.category || "",
+            currency: rudderElement.message.properties.currency,
+            value: useValue ? this.formatRevenue(rudderElement.message.properties.value) : this.formatRevenue(rudderElement.message.properties.price),
+            contents: [{
+              id: rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || "",
+              quantity: rudderElement.message.properties.quantity,
+              item_price: rudderElement.message.properties.price
+            }]
+          }, customProperties), {
+            eventID: rudderElement.message.messageId
+          });
+          each_1(function (event) {
+            window.fbq("trackSingle", this.pixelId, event, {
+              currency: rudderElement.message.properties.currency,
+              value: useValue ? this.formatRevenue(rudderElement.message.properties.value) : this.formatRevenue(rudderElement.message.properties.price)
+            }, {
+              eventID: rudderElement.message.messageId
+            });
+          }, legacyTo);
+          this.merge({
+            content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
+            content_type: this.getContentType(rudderElement, ["product"]),
+            content_name: rudderElement.message.properties.product_name || "",
+            content_category: rudderElement.message.properties.category || "",
+            currency: rudderElement.message.properties.currency,
+            value: useValue ? this.formatRevenue(rudderElement.message.properties.value) : this.formatRevenue(rudderElement.message.properties.price),
+            contents: [{
+              id: rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || "",
+              quantity: rudderElement.message.properties.quantity,
+              item_price: rudderElement.message.properties.price
+            }]
+          }, customProperties);
+        } else if (event === "Order Completed") {
+          var products = rudderElement.message.properites.products;
+          var customProperties = this.buildPayLoad(rudderElement, true);
+          var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
+          var contentType = this.getContentType(rudderElement, ["product"]);
+          var contentIds = [];
+          var contents = [];
+
+          for (var i = 0; i < products.length; i++) {
+            var pId = product.product_id;
+            contentIds.push(pId);
+            var content = {
+              id: pId,
+              quantity: rudderElement.message.properties.quantity
+            };
+
+            if (rudderElement.message.properties.price) {
+              content.item_price = rudderElement.message.properties.price;
+            }
+
+            contents.push(content);
+          }
+
+          window.fbq("trackSingle", this.pixelId, "Purchase", this.merge({
+            content_ids: contentIds,
+            content_type: contentType,
+            currency: rudderElement.message.properties.currency,
+            value: revenue,
+            contents: contents,
+            num_items: contentIds.length
+          }, customProperties), {
+            eventID: rudderElement.message.messageId
+          });
+          each_1(function (event) {
+            window.fbq("trackSingle", this.pixelId, event, {
+              currency: rudderElement.message.properties.currency,
+              value: this.formatRevenue(rudderElement.message.properties.revenue)
+            }, {
+              eventID: rudderElement.message.messageId
+            });
+          }, legacyto);
+        } else if (event === "Products Searched") {
+          var customProperties = this.buildPayLoad(rudderElement, true);
+          window.fbq("trackSingle", this.pixelId, "Search", merge({
+            search_string: rudderElement.message.properties.query
+          }, customProperties), {
+            eventID: rudderElement.message.messageId
+          });
+          each_1(function (event) {
+            window.fbq("trackSingle", this.pixelId, event, {
+              currency: rudderElement.message.properties.currency,
+              value: formatRevenue(rudderElement.message.properties.revenue)
+            }, {
+              eventID: rudderElement.message.messageId
+            });
+          }, legacyTo);
+        } else if (event === "Checkout Started") {
+          var products = rudderElement.message.properites.products;
+          var customProperties = this.buildPayLoad(rudderElement, true);
+          var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
+          var contentCategory = rudderElement.message.properties.category;
+          var contentIds = [];
+          var contents = [];
+
+          for (var i = 0; i < products.length; i++) {
+            var pId = product.product_id;
+            contentIds.push(pId);
+            var content = {
+              id: pId,
+              quantity: rudderElement.message.properties.quantity,
+              item_price: rudderElement.message.properties.price
+            };
+
+            if (rudderElement.message.properties.price) {
+              content.item_price = rudderElement.message.properties.price;
+            }
+
+            contents.push(content);
+          }
+
+          if (!contentCategory && products[0] && products[0].category) {
+            contentCategory = products[0].category;
+          }
+
+          window.fbq("trackSingle", this.pixelId, "InitiateCheckout", this.merge({
+            content_category: contentCategory,
+            content_ids: contentIds,
+            content_type: this.getContentType(rudderElement, ["product"]),
+            currency: rudderElement.message.properties.currency,
+            value: revenue,
+            contents: contents,
+            num_items: contentIds.length
+          }, customProperties), {
+            eventID: rudderElement.message.messageId
+          });
+          each_1(function (event) {
+            window.fbq("trackSingle", this.pixelId, event, {
+              currency: rudderElement.message.properties.currency,
+              value: this.formatRevenue(rudderElement.message.properties.revenue)
+            }, {
+              eventID: rudderElement.message.messageId
+            });
+          }, legacyto);
+        }
+      }
+    }, {
+      key: "getContentType",
+      value: function getContentType(rudderElement, defaultValue) {
+        var options = rudderElement.message.options;
+
+        if (options && options.contentType) {
+          return [options.contentType];
+        }
+
+        var category = rudderElement.message.properties.category;
+
+        if (!category) {
+          var products = rudderElement.message.properties.products;
+
+          if (products && products.length) {
+            category = products[0].category;
+          }
+        }
+
+        if (category) {
+          var mapped = this.categoryToContent;
+          var mappedTo;
+          mappedTo = mapped.reduce(function (filtered, mapped) {
+            if (mapped.from == category) {
+              filtered.push(mapped.to);
+            }
+
+            return filtered;
+          }, []);
+
+          if (mappedTo.length) {
+            return mappedTo;
+          }
+        }
+
+        return defaultValue;
+      }
+    }, {
+      key: "merge",
+      value: function merge(obj1, obj2) {
+        var res = {}; // All properties of obj1
+
+        for (var propObj1 in obj1) {
+          if (obj1.hasOwnProperty(propObj1)) {
+            res[propObj1] = obj1[propObj1];
+          }
+        } // Extra properties of obj2
+
+
+        for (var propObj2 in obj2) {
+          if (obj2.hasOwnProperty(propObj2) && !res.hasOwnProperty(propObj2)) {
+            res[propObj2] = obj2[propObj2];
+          }
+        }
+
+        return res;
+      }
+    }, {
+      key: "formatRevenue",
+      value: function formatRevenue(revenue) {
+        return Number(revenue || 0).toFixed(2);
+      }
+    }, {
+      key: "buildPayLoad",
+      value: function buildPayLoad(rudderElement, isStandardEvent) {
+        var dateFields = ["checkinDate", "checkoutDate", "departingArrivalDate", "departingDepartureDate", "returningArrivalDate", "returningDepartureDate", "travelEnd", "travelStart"];
+        var defaultPiiProperties = ["email", "firstName", "lastName", "gender", "city", "country", "phone", "state", "zip", "birthday"];
+        var whitelistPiiProperties = this.whitelistPiiProperties || [];
+        var blacklistPiiProperties = this.blacklistPiiProperties || [];
+        var eventCustomProperties = this.eventCustomProperties || [];
+        var customPiiProperties = {};
+
+        for (var i = 0; i < blacklistPiiProperties[i]; i++) {
+          var configuration = blacklistPiiProperties[i];
+          customPiiProperties[configuration.blacklistPiiProperties] = configuration.blacklistPiiHash;
+        }
+
+        var payload = {};
+        var properties = rudderElement.message.properties;
+
+        for (var property in properties) {
+          if (!properties.hasOwnProperty(property)) {
+            continue;
+          }
+
+          if (isStandardEvent && eventCustomProperties.indexOf(property) < 0) {
+            continue;
+          }
+
+          var value = properties[property];
+
+          if (dateFields.indexOf(properties) >= 0) {
+            if (is_1.date(value)) {
+              payload[property] = value.toISOTring().split("T")[0];
+              continue;
+            }
+          }
+
+          if (customPiiProperties.hasOwnProperty(property)) {
+            if (customPiiProperties[property] && typeof value == "string") {
+              payload[property] = sha256(value);
+            }
+
+            continue;
+          }
+
+          var isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
+          var isProperyWhiteListed = whitelistPiiProperties.indexOf(property) >= 0;
+
+          if (!isPropertyPii || isProperyWhiteListed) {
+            payload[property] = value;
+          }
+        }
+
+        return payload;
+      }
+    }]);
+
+    return FbPixel;
+  }();
+
   /**
    * toString ref.
    */
 
-  var toString$3 = Object.prototype.toString;
+  var toString$2 = Object.prototype.toString;
 
   /**
    * Return the type of `val`.
@@ -4181,8 +4837,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentType$2 = function(val){
-    switch (toString$3.call(val)) {
+  var componentType$1 = function(val){
+    switch (toString$2.call(val)) {
       case '[object Date]': return 'date';
       case '[object RegExp]': return 'regexp';
       case '[object Arguments]': return 'arguments';
@@ -4227,7 +4883,7 @@ var rudderanalytics = (function (exports) {
    */
 
   var clone = function clone(obj) {
-    var t = componentType$2(obj);
+    var t = componentType$1(obj);
 
     if (t === 'object') {
       var copy = {};
@@ -5001,7 +5657,7 @@ var rudderanalytics = (function (exports) {
 
 
   var has$3 = Object.prototype.hasOwnProperty;
-  var objToString = Object.prototype.toString;
+  var objToString$1 = Object.prototype.toString;
 
   /**
    * Returns `true` if a value is an object, otherwise `false`.
@@ -5026,7 +5682,7 @@ var rudderanalytics = (function (exports) {
    */
   // TODO: Move to a library
   var isPlainObject = function isPlainObject(value) {
-    return Boolean(value) && objToString.call(value) === '[object Object]';
+    return Boolean(value) && objToString$1.call(value) === '[object Object]';
   };
 
   /**
@@ -5147,7 +5803,7 @@ var rudderanalytics = (function (exports) {
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
     // strict `define` check is necessary for compatibility with `r.js`.
-    var isLoader = typeof undefined === "function" && undefined.amd;
+    var isLoader = typeof undefined === "function" ;
 
     // A set of types used to distinguish objects from primitives.
     var objectTypes = {
@@ -5156,7 +5812,7 @@ var rudderanalytics = (function (exports) {
     };
 
     // Detect the `exports` object exposed by CommonJS implementations.
-    var freeExports =  exports && !exports.nodeType && exports;
+    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
 
     // Use the `global` object exposed by Node (including Browserify via
     // `insert-module-globals`), Narwhal, and Ringo as the default context,
@@ -7175,9 +7831,7 @@ var rudderanalytics = (function (exports) {
    * An object utility to persist user and other values in localstorage
    */
 
-  var StoreLocal =
-  /*#__PURE__*/
-  function () {
+  var StoreLocal = /*#__PURE__*/function () {
     function StoreLocal(options) {
       _classCallCheck(this, StoreLocal);
 
@@ -7256,9 +7910,7 @@ var rudderanalytics = (function (exports) {
    * An object that handles persisting key-val from Analytics
    */
 
-  var Storage =
-  /*#__PURE__*/
-  function () {
+  var Storage = /*#__PURE__*/function () {
     function Storage() {
       _classCallCheck(this, Storage);
 
@@ -7446,9 +8098,7 @@ var rudderanalytics = (function (exports) {
     lotame_synch_time_key: "lt_synch_timestamp"
   };
 
-  var LotameStorage =
-  /*#__PURE__*/
-  function () {
+  var LotameStorage = /*#__PURE__*/function () {
     function LotameStorage() {
       _classCallCheck(this, LotameStorage);
 
@@ -7620,6 +8270,7 @@ var rudderanalytics = (function (exports) {
     CUSTOMERIO: CustomerIO,
     CHARTBEAT: Chartbeat,
     COMSCORE: Comscore,
+    FB_PIXEL: FbPixel,
     LOTAME: Lotame
   };
 
@@ -7689,9 +8340,7 @@ var rudderanalytics = (function (exports) {
     this.network = null;
   };
 
-  var RudderMessage =
-  /*#__PURE__*/
-  function () {
+  var RudderMessage = /*#__PURE__*/function () {
     function RudderMessage() {
       _classCallCheck(this, RudderMessage);
 
@@ -7758,8 +8407,6 @@ var rudderanalytics = (function (exports) {
                 case ECommerceEvents.ORDER_REFUNDED:
                   this.checkForKey("order_id");
                   break;
-
-                default:
               }
             } else if (!this.properties["category"]) {
               //if category is not there, set to event
@@ -7792,9 +8439,7 @@ var rudderanalytics = (function (exports) {
     return RudderMessage;
   }();
 
-  var RudderElement =
-  /*#__PURE__*/
-  function () {
+  var RudderElement = /*#__PURE__*/function () {
     function RudderElement() {
       _classCallCheck(this, RudderElement);
 
@@ -7842,9 +8487,7 @@ var rudderanalytics = (function (exports) {
     return RudderElement;
   }();
 
-  var RudderElementBuilder =
-  /*#__PURE__*/
-  function () {
+  var RudderElementBuilder = /*#__PURE__*/function () {
     function RudderElementBuilder() {
       _classCallCheck(this, RudderElementBuilder);
 
@@ -7982,14 +8625,16 @@ var rudderanalytics = (function (exports) {
     var i = offset || 0;
     var bth = byteToHex;
     // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([bth[buf[i++]], bth[buf[i++]], 
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]]]).join('');
+    return ([
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]]
+    ]).join('');
   }
 
   var bytesToUuid_1 = bytesToUuid;
@@ -8006,7 +8651,7 @@ var rudderanalytics = (function (exports) {
   var _lastMSecs = 0;
   var _lastNSecs = 0;
 
-  // See https://github.com/broofa/node-uuid for API details
+  // See https://github.com/uuidjs/uuid for API details
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
@@ -8134,170 +8779,6 @@ var rudderanalytics = (function (exports) {
 
   var uuid_1 = uuid;
 
-  var hop = Object.prototype.hasOwnProperty;
-  var strCharAt = String.prototype.charAt;
-  var toStr$1 = Object.prototype.toString;
-
-  /**
-   * Returns the character at a given index.
-   *
-   * @param {string} str
-   * @param {number} index
-   * @return {string|undefined}
-   */
-  // TODO: Move to a library
-  var charAt = function(str, index) {
-    return strCharAt.call(str, index);
-  };
-
-  /**
-   * hasOwnProperty, wrapped as a function.
-   *
-   * @name has
-   * @api private
-   * @param {*} context
-   * @param {string|number} prop
-   * @return {boolean}
-   */
-
-  // TODO: Move to a library
-  var has$4 = function has(context, prop) {
-    return hop.call(context, prop);
-  };
-
-  /**
-   * Returns true if a value is a string, otherwise false.
-   *
-   * @name isString
-   * @api private
-   * @param {*} val
-   * @return {boolean}
-   */
-
-  // TODO: Move to a library
-  var isString = function isString(val) {
-    return toStr$1.call(val) === '[object String]';
-  };
-
-  /**
-   * Returns true if a value is array-like, otherwise false. Array-like means a
-   * value is not null, undefined, or a function, and has a numeric `length`
-   * property.
-   *
-   * @name isArrayLike
-   * @api private
-   * @param {*} val
-   * @return {boolean}
-   */
-  // TODO: Move to a library
-  var isArrayLike = function isArrayLike(val) {
-    return val != null && (typeof val !== 'function' && typeof val.length === 'number');
-  };
-
-
-  /**
-   * indexKeys
-   *
-   * @name indexKeys
-   * @api private
-   * @param {} target
-   * @param {Function} pred
-   * @return {Array}
-   */
-  var indexKeys = function indexKeys(target, pred) {
-    pred = pred || has$4;
-
-    var results = [];
-
-    for (var i = 0, len = target.length; i < len; i += 1) {
-      if (pred(target, i)) {
-        results.push(String(i));
-      }
-    }
-
-    return results;
-  };
-
-  /**
-   * Returns an array of an object's owned keys.
-   *
-   * @name objectKeys
-   * @api private
-   * @param {*} target
-   * @param {Function} pred Predicate function used to include/exclude values from
-   * the resulting array.
-   * @return {Array}
-   */
-  var objectKeys = function objectKeys(target, pred) {
-    pred = pred || has$4;
-
-    var results = [];
-
-    for (var key in target) {
-      if (pred(target, key)) {
-        results.push(String(key));
-      }
-    }
-
-    return results;
-  };
-
-  /**
-   * Creates an array composed of all keys on the input object. Ignores any non-enumerable properties.
-   * More permissive than the native `Object.keys` function (non-objects will not throw errors).
-   *
-   * @name keys
-   * @api public
-   * @category Object
-   * @param {Object} source The value to retrieve keys from.
-   * @return {Array} An array containing all the input `source`'s keys.
-   * @example
-   * keys({ likes: 'avocado', hates: 'pineapple' });
-   * //=> ['likes', 'pineapple'];
-   *
-   * // Ignores non-enumerable properties
-   * var hasHiddenKey = { name: 'Tim' };
-   * Object.defineProperty(hasHiddenKey, 'hidden', {
-   *   value: 'i am not enumerable!',
-   *   enumerable: false
-   * })
-   * keys(hasHiddenKey);
-   * //=> ['name'];
-   *
-   * // Works on arrays
-   * keys(['a', 'b', 'c']);
-   * //=> ['0', '1', '2']
-   *
-   * // Skips unpopulated indices in sparse arrays
-   * var arr = [1];
-   * arr[4] = 4;
-   * keys(arr);
-   * //=> ['0', '4']
-   */
-  var keys = function keys(source) {
-    if (source == null) {
-      return [];
-    }
-
-    // IE6-8 compatibility (string)
-    if (isString(source)) {
-      return indexKeys(source, charAt);
-    }
-
-    // IE6-8 compatibility (arguments)
-    if (isArrayLike(source)) {
-      return indexKeys(source, has$4);
-    }
-
-    return objectKeys(source);
-  };
-
-  /*
-   * Exports.
-   */
-
-  var keys_1 = keys;
-
   var uuid$1 = uuid_1.v4;
 
   var inMemoryStore = {
@@ -8363,134 +8844,6 @@ var rudderanalytics = (function (exports) {
   	defaultEngine: defaultEngine,
   	inMemoryEngine: inMemoryEngine
   };
-
-  /*
-   * Module dependencies.
-   */
-
-
-
-  var objToString$1 = Object.prototype.toString;
-
-  /**
-   * Tests if a value is a number.
-   *
-   * @name isNumber
-   * @api private
-   * @param {*} val The value to test.
-   * @return {boolean} Returns `true` if `val` is a number, otherwise `false`.
-   */
-  // TODO: Move to library
-  var isNumber = function isNumber(val) {
-    var type = typeof val;
-    return type === 'number' || (type === 'object' && objToString$1.call(val) === '[object Number]');
-  };
-
-  /**
-   * Tests if a value is an array.
-   *
-   * @name isArray
-   * @api private
-   * @param {*} val The value to test.
-   * @return {boolean} Returns `true` if the value is an array, otherwise `false`.
-   */
-  // TODO: Move to library
-  var isArray = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
-    return objToString$1.call(val) === '[object Array]';
-  };
-
-  /**
-   * Tests if a value is array-like. Array-like means the value is not a function and has a numeric
-   * `.length` property.
-   *
-   * @name isArrayLike
-   * @api private
-   * @param {*} val
-   * @return {boolean}
-   */
-  // TODO: Move to library
-  var isArrayLike$1 = function isArrayLike(val) {
-    return val != null && (isArray(val) || (val !== 'function' && isNumber(val.length)));
-  };
-
-  /**
-   * Internal implementation of `each`. Works on arrays and array-like data structures.
-   *
-   * @name arrayEach
-   * @api private
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Array} array The array(-like) structure to iterate over.
-   * @return {undefined}
-   */
-  var arrayEach = function arrayEach(iterator, array) {
-    for (var i = 0; i < array.length; i += 1) {
-      // Break iteration early if `iterator` returns `false`
-      if (iterator(array[i], i, array) === false) {
-        break;
-      }
-    }
-  };
-
-  /**
-   * Internal implementation of `each`. Works on objects.
-   *
-   * @name baseEach
-   * @api private
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Object} object The object to iterate over.
-   * @return {undefined}
-   */
-  var baseEach = function baseEach(iterator, object) {
-    var ks = keys_1(object);
-
-    for (var i = 0; i < ks.length; i += 1) {
-      // Break iteration early if `iterator` returns `false`
-      if (iterator(object[ks[i]], ks[i], object) === false) {
-        break;
-      }
-    }
-  };
-
-  /**
-   * Iterate over an input collection, invoking an `iterator` function for each element in the
-   * collection and passing to it three arguments: `(value, index, collection)`. The `iterator`
-   * function can end iteration early by returning `false`.
-   *
-   * @name each
-   * @api public
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Array|Object|string} collection The collection to iterate over.
-   * @return {undefined} Because `each` is run only for side effects, always returns `undefined`.
-   * @example
-   * var log = console.log.bind(console);
-   *
-   * each(log, ['a', 'b', 'c']);
-   * //-> 'a', 0, ['a', 'b', 'c']
-   * //-> 'b', 1, ['a', 'b', 'c']
-   * //-> 'c', 2, ['a', 'b', 'c']
-   * //=> undefined
-   *
-   * each(log, 'tim');
-   * //-> 't', 2, 'tim'
-   * //-> 'i', 1, 'tim'
-   * //-> 'm', 0, 'tim'
-   * //=> undefined
-   *
-   * // Note: Iteration order not guaranteed across environments
-   * each(log, { name: 'tim', occupation: 'enchanter' });
-   * //-> 'tim', 'name', { name: 'tim', occupation: 'enchanter' }
-   * //-> 'enchanter', 'occupation', { name: 'tim', occupation: 'enchanter' }
-   * //=> undefined
-   */
-  var each = function each(iterator, collection) {
-    return (isArrayLike$1(collection) ? arrayEach : baseEach).call(this, iterator, collection);
-  };
-
-  /*
-   * Exports.
-   */
-
-  var each_1 = each;
 
   var defaultEngine$1 = engine.defaultEngine;
   var inMemoryEngine$1 = engine.inMemoryEngine;
@@ -8605,8 +8958,6 @@ var rudderanalytics = (function (exports) {
         if (e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
           quotaExceeded = true;
         }
-        break;
-      default:
         break;
       }
     } else if (e.number === -2147024882) {
@@ -9349,9 +9700,7 @@ var rudderanalytics = (function (exports) {
    * in batch and maintains order of the event.
    */
 
-  var EventRepository =
-  /*#__PURE__*/
-  function () {
+  var EventRepository = /*#__PURE__*/function () {
     /**
      *Creates an instance of EventRepository.
      * @memberof EventRepository
@@ -9843,9 +10192,7 @@ var rudderanalytics = (function (exports) {
    */
 
 
-  var Analytics =
-  /*#__PURE__*/
-  function () {
+  var Analytics = /*#__PURE__*/function () {
     /**
      * Creates an instance of Analytics.
      * @memberof Analytics

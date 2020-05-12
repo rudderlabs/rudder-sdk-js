@@ -1,8 +1,13 @@
 <html>
   <head>
+    <!--  <script src="//d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js"></script>
+    <script>
+      window.bugsnagClient = bugsnag("API_KEY");
+    </script> -->
     <script type="text/javascript">
       // checking test commit 2
       rudderanalytics = window.rudderanalytics = [];
+      var methods = ["load","ready","track"];
 
       // this is required to be set before RudderAnalytics is loaded/run
       window.rudderanalytics.syncPixelCallback = obj => {
@@ -31,9 +36,15 @@
         })(method);
       }
 
-      rudderanalytics.load("write-key", "https://hosted.rudderlabs.com", {
-        configUrl: "https://api-tf.rudderlabs.com/sourceConfig"
-      });
+      rudderanalytics.load(
+        "1bZb2lMHmBGSPWNiMgqHUKPq56l",
+        "http://localhost:8080",
+        {
+          logLevel: "DEBUG",
+          configUrl: "http://localhost:5000/sourceConfig"
+        }
+      );
+    
       rudderanalytics.track();
       rudderanalytics.page(); //Turn this on if Chartbeat is a destination
     </script>
@@ -43,41 +54,29 @@
     <script>
       window.rudderanalytics.ready(() => {
         console.log("we are all set!!!");
-      });
-      window.rudderanalytics.page();
-      window.rudderanalytics.identify("fshdgfsd", {
-        name: "Michael Bolton",
-        email: "mbolton@initech.com",
-        plan: "Enterprise",
-        company: {
-          id: 12345
-        },
-        createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
+      
       });
 
-      window.rudderanalytics.track("Product Purchased", {
-        order_ID: "2969302398",
+      window.rudderanalytics.identify("abc", {
+        name: "Ruchira Moitra",
+        email: "mbolton@initech.com",
+        createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
+      });
+      window.rudderanalytics.track("Product Added", {
+        order_ID: "123",
         category: "boots",
         product_name: "yellow_cowboy_boots",
         price: 99.95,
-        currency: "EUR"
+        currency: "EUR",
+        revenue: 2000,
+        value: 3000,
+        checkinDate: "Thu Mar 24 2018 17:46:45 GMT+0000 (UTC)"
       });
-      window.rudderanalytics.page();
+      // window.rudderanalytics.page();
+
     </script>
   </head>
   <body>
     <h1>Relax while I finish my testing process....</h1>
-    <video
-      controls=""
-      autoplay
-      name="media"
-      title="Video Title"
-      poster="test_poster.jpg"
-    >
-      <source
-        src="http://www.html5rocks.com/en/tutorials/video/basics/devstories.mp4"
-        type="video/mp4;"
-      />
-    </video>
   </body>
 </html>

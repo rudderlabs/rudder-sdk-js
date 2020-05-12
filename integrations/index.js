@@ -11,6 +11,7 @@ import * as Kissmetrics from "./Kissmetrics";
 import * as CustomerIO from "./CustomerIO";
 import * as Chartbeat from "./Chartbeat";
 import * as Comscore from "./Comscore";
+import * as FBPixel from "./FBPixel";
 import * as Lotame from "./Lotame";
 
 let integrations = {
@@ -27,6 +28,7 @@ let integrations = {
   CUSTOMERIO: CustomerIO.default,
   CHARTBEAT: Chartbeat.default,
   COMSCORE: Comscore.default,
+  FACEBOOK_PIXEL: FBPixel.default,
   LOTAME: Lotame.default
 };
 
