@@ -1,7 +1,7 @@
 import { ScriptLoader } from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import is from "is";
-import each from "./node_modules/@ndhoule/each";
+import each from "@ndhoule/each";
 
 class FBPixel {
   constructor(config) {
