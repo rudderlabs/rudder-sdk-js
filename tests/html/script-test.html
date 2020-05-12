@@ -14,13 +14,10 @@
       };
       var methods = [
         "load",
-        "page",
-        "track",
+        
         "identify",
-        "trackEvent",
-        "trackPage",
-        "identifyUser",
-        "reset"
+       
+       "ready"
       ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
@@ -31,11 +28,13 @@
         })(method);
       }
 
-      rudderanalytics.load("write-key", "https://hosted.rudderlabs.com", {
-        configUrl: "https://api-tf.rudderlabs.com/sourceConfig"
+      rudderanalytics.load("1bl8HHeGf1uwUfOMoKeMlOJRxPz", "https://hosted.rudderlabs.com", {
+        logLevel: "DEBUG",
+        configUrl: "https://api.rudderlabs.com/sourceConfig"
+
       });
-      rudderanalytics.track();
-      rudderanalytics.page(); //Turn this on if Chartbeat is a destination
+    //  rudderanalytics.track();
+      //rudderanalytics.page(); //Turn this on if Chartbeat is a destination
     </script>
 
     <script src="./browser.js"></script>
@@ -44,18 +43,18 @@
       window.rudderanalytics.ready(() => {
         console.log("we are all set!!!");
       });
-      window.rudderanalytics.page();
-      window.rudderanalytics.identify("fshdgfsd", {
-        name: "Michael Bolton",
-        email: "mbolton@initech.com",
+     window.rudderanalytics.page();
+      window.rudderanalytics.identify("ruchu123", {
+        name: "Ruchira Moitra",
+        email: "ruchira@gmail.com",
         plan: "Enterprise",
         company: {
-          id: 12345
+          id: "abc123"
         },
         createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
       });
 
-      window.rudderanalytics.track("Product Purchased", {
+      window.rudderanalytics.track("Product Added", {
         order_ID: "2969302398",
         category: "boots",
         product_name: "yellow_cowboy_boots",
@@ -67,17 +66,6 @@
   </head>
   <body>
     <h1>Relax while I finish my testing process....</h1>
-    <video
-      controls=""
-      autoplay
-      name="media"
-      title="Video Title"
-      poster="test_poster.jpg"
-    >
-      <source
-        src="http://www.html5rocks.com/en/tutorials/video/basics/devstories.mp4"
-        type="video/mp4;"
-      />
-    </video>
+ 
   </body>
 </html>

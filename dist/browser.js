@@ -2,6 +2,8 @@ var rudderanalytics = (function (exports) {
   'use strict';
 
   function _typeof(obj) {
+    "@babel/helpers - typeof";
+
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
       _typeof = function (obj) {
         return typeof obj;
@@ -71,13 +73,13 @@ var rudderanalytics = (function (exports) {
       var source = arguments[i] != null ? arguments[i] : {};
 
       if (i % 2) {
-        ownKeys(source, true).forEach(function (key) {
+        ownKeys(Object(source), true).forEach(function (key) {
           _defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
       } else {
-        ownKeys(source).forEach(function (key) {
+        ownKeys(Object(source)).forEach(function (key) {
           Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
       }
@@ -87,23 +89,36 @@ var rudderanalytics = (function (exports) {
   }
 
   function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
   }
 
   function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) {
-      for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-      return arr2;
-    }
+    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
   }
 
   function _iterableToArray(iter) {
-    if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+  }
+
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(n);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
   }
 
   function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance");
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
   var LOG_LEVEL_INFO = 1,
@@ -398,9 +413,7 @@ var rudderanalytics = (function (exports) {
     e.parentNode.insertBefore(js, e);
   }
 
-  var HubSpot =
-  /*#__PURE__*/
-  function () {
+  var HubSpot = /*#__PURE__*/function () {
     function HubSpot(config) {
       _classCallCheck(this, HubSpot);
 
@@ -518,1388 +531,6 @@ var rudderanalytics = (function (exports) {
   }();
 
   var index =  HubSpot ;
-
-  var GA =
-  /*#__PURE__*/
-  function () {
-    function GA(config) {
-      _classCallCheck(this, GA);
-
-      this.trackingID = config.trackingID; //UA-149602794-1
-
-      this.name = "GA";
-    }
-
-    _createClass(GA, [{
-      key: "init",
-      value: function init() {
-        (function (i, s, o, g, r, a, m) {
-          i["GoogleAnalyticsObject"] = r;
-          i[r] = i[r] || function () {
-            (i[r].q = i[r].q || []).push(arguments);
-          }, i[r].l = 1 * new Date();
-          a = s.createElement(o), m = s.getElementsByTagName(o)[0];
-          a.async = 1;
-          a.src = g;
-          m.parentNode.insertBefore(a, m);
-        })(window, document, "script", "https://www.google-analytics.com/analytics.js", "ga"); //window.ga_debug = {trace: true};
-
-
-        ga("create", this.trackingID, "auto");
-        ga("send", "pageview");
-        logger.debug("===in init GA===");
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        ga("set", "userId", rudderElement.message.anonymous_id);
-        logger.debug("in GoogleAnalyticsManager identify");
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        var eventCategory = rudderElement.message.event;
-        var eventAction = rudderElement.message.event;
-        var eventLabel = rudderElement.message.event;
-        var eventValue = "";
-
-        if (rudderElement.message.properties) {
-          eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
-        }
-
-        var payLoad = {
-          hitType: "event",
-          eventCategory: eventCategory,
-          eventAction: eventAction,
-          eventLabel: eventLabel,
-          eventValue: eventValue
-        };
-        ga("send", "event", payLoad);
-        logger.debug("in GoogleAnalyticsManager track");
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        logger.debug("in GoogleAnalyticsManager page");
-        var path = rudderElement.properties && rudderElement.properties.path ? rudderElement.properties.path : undefined;
-
-        if (path) {
-          ga("set", "page", path);
-        }
-
-        ga("send", "pageview");
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        logger.debug("in GA isLoaded");
-        return !!window.gaplugins;
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return !!window.gaplugins;
-      }
-    }]);
-
-    return GA;
-  }();
-
-  var index$1 =  GA ;
-
-  var Hotjar =
-  /*#__PURE__*/
-  function () {
-    function Hotjar(config) {
-      _classCallCheck(this, Hotjar);
-
-      this.siteId = config.siteID; //1549611
-
-      this.name = "HOTJAR";
-      this._ready = false;
-    }
-
-    _createClass(Hotjar, [{
-      key: "init",
-      value: function init() {
-        window.hotjarSiteId = this.siteId;
-
-        (function (h, o, t, j, a, r) {
-          h.hj = h.hj || function () {
-            (h.hj.q = h.hj.q || []).push(arguments);
-          };
-
-          h._hjSettings = {
-            hjid: h.hotjarSiteId,
-            hjsv: 6
-          };
-          a = o.getElementsByTagName("head")[0];
-          r = o.createElement("script");
-          r.async = 1;
-          r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
-          a.appendChild(r);
-        })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
-
-        this._ready = true;
-        logger.debug("===in init Hotjar===");
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        var userId = rudderElement.message.userId || rudderElement.message.anonymousId;
-
-        if (!userId) {
-          logger.error('user id is required');
-          return;
-        }
-
-        var traits = rudderElement.message.context.traits;
-        window.hj('identify', rudderElement.message.userId, traits);
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        logger.error("method not supported");
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        logger.error("method not supported");
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        return this._ready;
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return this._ready;
-      }
-    }]);
-
-    return Hotjar;
-  }();
-
-  var index$2 =  Hotjar ;
-
-  var GoogleAds =
-  /*#__PURE__*/
-  function () {
-    function GoogleAds(config) {
-      _classCallCheck(this, GoogleAds);
-
-      //this.accountId = config.accountId;//AW-696901813
-      this.conversionId = config.conversionID;
-      this.pageLoadConversions = config.pageLoadConversions;
-      this.clickEventConversions = config.clickEventConversions;
-      this.name = "GOOGLEADS";
-    }
-
-    _createClass(GoogleAds, [{
-      key: "init",
-      value: function init() {
-        var sourceUrl = "https://www.googletagmanager.com/gtag/js?id=" + this.conversionId;
-
-        (function (id, src, document) {
-          logger.debug("in script loader=== " + id);
-          var js = document.createElement("script");
-          js.src = src;
-          js.async = 1;
-          js.type = "text/javascript";
-          js.id = id;
-          var e = document.getElementsByTagName("head")[0];
-          logger.debug("==script==", e);
-          e.appendChild(js);
-        })("googleAds-integration", sourceUrl, document);
-
-        window.dataLayer = window.dataLayer || [];
-
-        window.gtag = function () {
-          window.dataLayer.push(arguments);
-        };
-
-        window.gtag("js", new Date());
-        window.gtag("config", this.conversionId);
-        logger.debug("===in init Google Ads===");
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        logger.error("method not supported");
-      } //https://developers.google.com/gtagjs/reference/event
-
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        logger.debug("in GoogleAdsAnalyticsManager track");
-        var conversionData = this.getConversionData(this.clickEventConversions, rudderElement.message.event);
-
-        if (conversionData["conversionLabel"]) {
-          var conversionLabel = conversionData["conversionLabel"];
-          var eventName = conversionData["eventName"];
-          var sendToValue = this.conversionId + "/" + conversionLabel;
-          var properties = {};
-
-          if (rudderElement.properties) {
-            properties["value"] = rudderElement.properties["revenue"];
-            properties["currency"] = rudderElement.properties["currency"];
-            properties["transaction_id"] = rudderElement.properties["order_id"];
-          }
-
-          properties["send_to"] = sendToValue;
-          window.gtag("event", eventName, properties);
-        }
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        logger.debug("in GoogleAdsAnalyticsManager page");
-        var conversionData = this.getConversionData(this.pageLoadConversions, rudderElement.message.name);
-
-        if (conversionData["conversionLabel"]) {
-          var conversionLabel = conversionData["conversionLabel"];
-          var eventName = conversionData["eventName"];
-          window.gtag("event", eventName, {
-            send_to: this.conversionId + "/" + conversionLabel
-          });
-        }
-      }
-    }, {
-      key: "getConversionData",
-      value: function getConversionData(eventTypeConversions, eventName) {
-        var conversionData = {};
-
-        if (eventTypeConversions) {
-          eventTypeConversions.forEach(function (eventTypeConversion) {
-            if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
-              //rudderElement["message"]["name"]
-              conversionData["conversionLabel"] = eventTypeConversion.conversionLabel;
-              conversionData["eventName"] = eventTypeConversion.name;
-              return;
-            }
-          });
-        }
-
-        return conversionData;
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        return window.dataLayer.push !== Array.prototype.push;
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return window.dataLayer.push !== Array.prototype.push;
-      }
-    }]);
-
-    return GoogleAds;
-  }();
-
-  var index$3 =  GoogleAds ;
-
-  var VWO =
-  /*#__PURE__*/
-  function () {
-    function VWO(config) {
-      _classCallCheck(this, VWO);
-
-      this.accountId = config.accountId; //1549611
-
-      this.settingsTolerance = config.settingsTolerance;
-      this.isSPA = config.isSPA;
-      this.libraryTolerance = config.libraryTolerance;
-      this.useExistingJquery = config.useExistingJquery;
-      this.sendExperimentTrack = config.sendExperimentTrack;
-      this.sendExperimentIdentify = config.sendExperimentIdentify;
-      this.name = "VWO";
-      logger.debug("Config ", config);
-    }
-
-    _createClass(VWO, [{
-      key: "init",
-      value: function init() {
-        logger.debug("===in init VWO===");
-        var account_id = this.accountId;
-        var settings_tolerance = this.settingsTolerance;
-        var _library_tolerance = this.libraryTolerance;
-        var _use_existing_jquery = this.useExistingJquery;
-        var isSPA = this.isSPA;
-
-        window._vwo_code = function () {
-          var f = false;
-          var d = document;
-          return {
-            use_existing_jquery: function use_existing_jquery() {
-              return _use_existing_jquery;
-            },
-            library_tolerance: function library_tolerance() {
-              return _library_tolerance;
-            },
-            finish: function finish() {
-              if (!f) {
-                f = true;
-                var a = d.getElementById("_vis_opt_path_hides");
-                if (a) a.parentNode.removeChild(a);
-              }
-            },
-            finished: function finished() {
-              return f;
-            },
-            load: function load(a) {
-              var b = d.createElement("script");
-              b.src = a;
-              b.type = "text/javascript";
-              b.innerText;
-
-              b.onerror = function () {
-                _vwo_code.finish();
-              };
-
-              d.getElementsByTagName("head")[0].appendChild(b);
-            },
-            init: function init() {
-              var settings_timer = setTimeout("_vwo_code.finish()", settings_tolerance);
-              var a = d.createElement("style"),
-                  b = "body{opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;}",
-                  h = d.getElementsByTagName("head")[0];
-              a.setAttribute("id", "_vis_opt_path_hides");
-              a.setAttribute("type", "text/css");
-              if (a.styleSheet) a.styleSheet.cssText = b;else a.appendChild(d.createTextNode(b));
-              h.appendChild(a);
-              this.load("//dev.visualwebsiteoptimizer.com/j.php?a=" + account_id + "&u=" + encodeURIComponent(d.URL) + "&r=" + Math.random() + "&f=" + +isSPA);
-              return settings_timer;
-            }
-          };
-        }();
-
-        window._vwo_settings_timer = window._vwo_code.init(); //Send track or iddentify when
-
-        if (this.sendExperimentTrack || this.experimentViewedIdentify) {
-          this.experimentViewed();
-        }
-      }
-    }, {
-      key: "experimentViewed",
-      value: function experimentViewed() {
-        window.VWO = window.VWO || [];
-        var self = this;
-        window.VWO.push(["onVariationApplied", function (data) {
-          if (!data) {
-            return;
-          }
-
-          logger.debug("Variation Applied");
-          var expId = data[1],
-              variationId = data[2];
-          logger.debug("experiment id:", expId, "Variation Name:", _vwo_exp[expId].comb_n[variationId]);
-
-          if (typeof _vwo_exp[expId].comb_n[variationId] !== "undefined" && ["VISUAL_AB", "VISUAL", "SPLIT_URL", "SURVEY"].indexOf(_vwo_exp[expId].type) > -1) {
-            try {
-              if (self.sendExperimentTrack) {
-                logger.debug("Tracking...");
-                window.rudderanalytics.track("Experiment Viewed", {
-                  experimentId: expId,
-                  variationName: _vwo_exp[expId].comb_n[variationId]
-                });
-              }
-            } catch (error) {
-              logger.error(error);
-            }
-
-            try {
-              if (self.sendExperimentIdentify) {
-                logger.debug("Identifying...");
-                window.rudderanalytics.identify(_defineProperty({}, "Experiment: ".concat(expId), _vwo_exp[expId].comb_n[variationId]));
-              }
-            } catch (error) {
-              logger.error(error);
-            }
-          }
-        }]);
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        logger.debug("method not supported");
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        var eventName = rudderElement.message.event;
-
-        if (eventName === "Order Completed") {
-          var total = rudderElement.message.properties ? rudderElement.message.properties.total || rudderElement.message.properties.revenue : 0;
-          logger.debug("Revenue", total);
-          window.VWO = window.VWO || [];
-          window.VWO.push(["track.revenueConversion", total]);
-        }
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        logger.debug("method not supported");
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        return !!window._vwo_code;
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return !!window._vwo_code;
-      }
-    }]);
-
-    return VWO;
-  }();
-
-  var GoogleTagManager =
-  /*#__PURE__*/
-  function () {
-    function GoogleTagManager(config) {
-      _classCallCheck(this, GoogleTagManager);
-
-      this.containerID = config.containerID;
-      this.name = "GOOGLETAGMANAGER";
-    }
-
-    _createClass(GoogleTagManager, [{
-      key: "init",
-      value: function init() {
-        logger.debug("===in init GoogleTagManager===");
-
-        (function (w, d, s, l, i) {
-          w[l] = w[l] || [];
-          w[l].push({
-            "gtm.start": new Date().getTime(),
-            event: "gtm.js"
-          });
-          var f = d.getElementsByTagName(s)[0],
-              j = d.createElement(s),
-              dl = l != "dataLayer" ? "&l=" + l : "";
-          j.async = true;
-          j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-          f.parentNode.insertBefore(j, f);
-        })(window, document, "script", "dataLayer", this.containerID);
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        logger.error("method not supported");
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        logger.debug("===in track GoogleTagManager===");
-        var rudderMessage = rudderElement.message;
-
-        var props = _objectSpread2({
-          event: rudderMessage.event,
-          userId: rudderMessage.userId,
-          anonymousId: rudderMessage.anonymousId
-        }, rudderMessage.properties);
-
-        this.sendToGTMDatalayer(props);
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        logger.debug("===in page GoogleTagManager===");
-        var rudderMessage = rudderElement.message;
-        var pageName = rudderMessage.name;
-        var pageCategory = rudderMessage.properties ? rudderMessage.properties.category : undefined;
-        var eventName;
-
-        if (pageName) {
-          eventName = "Viewed " + pageName + " page";
-        }
-
-        if (pageCategory && pageName) {
-          eventName = "Viewed " + pageCategory + " " + pageName + " page";
-        }
-
-        var props = _objectSpread2({
-          event: eventName,
-          userId: rudderMessage.userId,
-          anonymousId: rudderMessage.anonymousId
-        }, rudderMessage.properties);
-
-        this.sendToGTMDatalayer(props);
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
-      }
-    }, {
-      key: "sendToGTMDatalayer",
-      value: function sendToGTMDatalayer(props) {
-        window.dataLayer.push(props);
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
-      }
-    }]);
-
-    return GoogleTagManager;
-  }();
-
-  /*
-  E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
-  */
-
-  var Braze =
-  /*#__PURE__*/
-  function () {
-    function Braze(config, analytics) {
-      _classCallCheck(this, Braze);
-
-      this.analytics = analytics;
-      this.appKey = config.appKey;
-      if (!config.appKey) this.appKey = "";
-      this.endPoint = "";
-
-      if (config.dataCenter) {
-        var dataCenterArr = config.dataCenter.trim().split("-");
-
-        if (dataCenterArr[0].toLowerCase() === "eu") {
-          this.endPoint = "sdk.fra-01.braze.eu";
-        } else {
-          this.endPoint = "sdk.iad-" + dataCenterArr[1] + ".braze.com";
-        }
-      }
-
-      this.name = "BRAZE";
-      logger.debug("Config ", config);
-    }
-    /** https://js.appboycdn.com/web-sdk/latest/doc/ab.User.html#toc4
-     */
-
-
-    _createClass(Braze, [{
-      key: "formatGender",
-      value: function formatGender(gender) {
-        if (!gender) return;
-        if (typeof gender !== "string") return;
-        var femaleGenders = ["woman", "female", "w", "f"];
-        var maleGenders = ["man", "male", "m"];
-        var otherGenders = ["other", "o"];
-        if (femaleGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.FEMALE;
-        if (maleGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.MALE;
-        if (otherGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.OTHER;
-      }
-    }, {
-      key: "init",
-      value: function init() {
-        logger.debug("===in init Braze==="); //load appboy
-
-        +function (a, p, P, b, y) {
-          a.appboy = {};
-          a.appboyQueue = [];
-
-          for (var s = "initialize destroy getDeviceId toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates requestContentCardsRefresh subscribeToContentCardsUpdates logCardImpressions logCardClick logCardDismissal logFeedDisplayed logContentCardsDisplayed logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick logInAppMessageHtmlClick subscribeToNewInAppMessages subscribeToInAppMessage removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages trackLocation stopWebTracking resumeWebTracking wipeData ab ab.DeviceProperties ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setLanguage ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.User.prototype.addAlias ab.User.prototype.setCustomLocationAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.TextAlignment ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.prototype.closeMessage ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.HtmlMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.ContentCards ab.ContentCards.prototype.getUnviewedCardCount ab.Card ab.Card.prototype.dismissCard ab.ClassicCard ab.CaptionedImage ab.Banner ab.ControlCard ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed display.showContentCards display.hideContentCards display.toggleContentCards sharedLib".split(" "), i = 0; i < s.length; i++) {
-            for (var m = s[i], k = a.appboy, l = m.split("."), j = 0; j < l.length - 1; j++) {
-              k = k[l[j]];
-            }
-
-            k[l[j]] = new Function("return function " + m.replace(/\./g, "_") + "(){window.appboyQueue.push(arguments); return true}")();
-          }
-
-          window.appboy.getUser = function () {
-            return new window.appboy.ab.User();
-          };
-
-          window.appboy.getCachedFeed = function () {
-            return new window.appboy.ab.Feed();
-          };
-
-          window.appboy.getCachedContentCards = function () {
-            return new window.appboy.ab.ContentCards();
-          };
-
-          (y = p.createElement(P)).type = "text/javascript";
-          y.src = "https://js.appboycdn.com/web-sdk/2.4/appboy.min.js";
-          y.async = 1;
-          (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
-        }(window, document, "script");
-        window.appboy.initialize(this.appKey, {
-          enableLogging: true,
-          baseUrl: this.endPoint
-        });
-        window.appboy.display.automaticallyShowNewInAppMessages();
-        var userId = this.analytics.userId; //send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser
-
-        if (userId) appboy.changeUser(userId);
-        window.appboy.openSession();
-      }
-    }, {
-      key: "handleReservedProperties",
-      value: function handleReservedProperties(props) {
-        // remove reserved keys from custom event properties
-        // https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
-        var reserved = ["time", "product_id", "quantity", "event_name", "price", "currency"];
-        reserved.forEach(function (element) {
-          delete props[element];
-        });
-        return props;
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        var userId = rudderElement.message.userId;
-        var address = rudderElement.message.context.traits.address;
-        var avatar = rudderElement.message.context.traits.avatar;
-        var birthday = rudderElement.message.context.traits.birthday;
-        var email = rudderElement.message.context.traits.email;
-        var firstname = rudderElement.message.context.traits.firstname;
-        var gender = rudderElement.message.context.traits.gender;
-        var lastname = rudderElement.message.context.traits.lastname;
-        var phone = rudderElement.message.context.traits.phone; // This is a hack to make a deep copy that is not recommended because it will often fail:
-
-        var traits = JSON.parse(JSON.stringify(rudderElement.message.context.traits));
-        window.appboy.changeUser(userId);
-        window.appboy.getUser().setAvatarImageUrl(avatar);
-        if (email) window.appboy.getUser().setEmail(email);
-        if (firstname) window.appboy.getUser().setFirstName(firstname);
-        if (gender) window.appboy.getUser().setGender(this.formatGender(gender));
-        if (lastname) window.appboy.getUser().setLastName(lastname);
-        if (phone) window.appboy.getUser().setPhoneNumber(phone);
-
-        if (address) {
-          window.appboy.getUser().setCountry(address.country);
-          window.appboy.getUser().setHomeCity(address.city);
-        }
-
-        if (birthday) {
-          window.appboy.getUser().setDateOfBirth(birthday.getUTCFullYear(), birthday.getUTCMonth() + 1, birthday.getUTCDate());
-        } // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
-
-
-        var reserved = ["avatar", "address", "birthday", "email", "id", "firstname", "gender", "lastname", "phone", "facebook", "twitter", "first_name", "last_name", "dob", "external_id", "country", "home_city", "bio", "gender", "phone", "email_subscribe", "push_subscribe"];
-        reserved.forEach(function (element) {
-          delete traits[element];
-        });
-        Object.keys(traits).forEach(function (key) {
-          window.appboy.getUser().setCustomUserAttribute(key, traits[key]);
-        });
-      }
-    }, {
-      key: "handlePurchase",
-      value: function handlePurchase(properties, userId) {
-        var products = properties.products;
-        var currencyCode = properties.currency;
-        window.appboy.changeUser(userId); // del used properties
-
-        del(properties, "products");
-        del(properties, "currency"); // we have to make a separate call to appboy for each product
-
-        products.forEach(function (product) {
-          var productId = product.product_id;
-          var price = product.price;
-          var quantity = product.quantity;
-          if (quantity && price && productId) window.appboy.logPurchase(productId, price, currencyCode, quantity, properties);
-        });
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        var userId = rudderElement.message.userId;
-        var eventName = rudderElement.message.event;
-        var properties = rudderElement.message.properties;
-        window.appboy.changeUser(userId);
-
-        if (eventName.toLowerCase() === "order completed") {
-          this.handlePurchase(properties, userId);
-        } else {
-          properties = this.handleReservedProperties(properties);
-          window.appboy.logCustomEvent(eventName, properties);
-        }
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        var userId = rudderElement.message.userId;
-        var eventName = rudderElement.message.name;
-        var properties = rudderElement.message.properties;
-        properties = this.handleReservedProperties(properties);
-        window.appboy.changeUser(userId);
-        window.appboy.logCustomEvent(eventName, properties);
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        return window.appboyQueue === null;
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return window.appboyQueue === null;
-      }
-    }]);
-
-    return Braze;
-  }();
-
-  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
-
-  function createCommonjsModule(fn, module) {
-  	return module = { exports: {} }, fn(module, module.exports), module.exports;
-  }
-
-  var crypt = createCommonjsModule(function (module) {
-  (function() {
-    var base64map
-        = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
-
-    crypt = {
-      // Bit-wise rotation left
-      rotl: function(n, b) {
-        return (n << b) | (n >>> (32 - b));
-      },
-
-      // Bit-wise rotation right
-      rotr: function(n, b) {
-        return (n << (32 - b)) | (n >>> b);
-      },
-
-      // Swap big-endian to little-endian and vice versa
-      endian: function(n) {
-        // If number given, swap endian
-        if (n.constructor == Number) {
-          return crypt.rotl(n, 8) & 0x00FF00FF | crypt.rotl(n, 24) & 0xFF00FF00;
-        }
-
-        // Else, assume array and swap all items
-        for (var i = 0; i < n.length; i++)
-          n[i] = crypt.endian(n[i]);
-        return n;
-      },
-
-      // Generate an array of any length of random bytes
-      randomBytes: function(n) {
-        for (var bytes = []; n > 0; n--)
-          bytes.push(Math.floor(Math.random() * 256));
-        return bytes;
-      },
-
-      // Convert a byte array to big-endian 32-bit words
-      bytesToWords: function(bytes) {
-        for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
-          words[b >>> 5] |= bytes[i] << (24 - b % 32);
-        return words;
-      },
-
-      // Convert big-endian 32-bit words to a byte array
-      wordsToBytes: function(words) {
-        for (var bytes = [], b = 0; b < words.length * 32; b += 8)
-          bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
-        return bytes;
-      },
-
-      // Convert a byte array to a hex string
-      bytesToHex: function(bytes) {
-        for (var hex = [], i = 0; i < bytes.length; i++) {
-          hex.push((bytes[i] >>> 4).toString(16));
-          hex.push((bytes[i] & 0xF).toString(16));
-        }
-        return hex.join('');
-      },
-
-      // Convert a hex string to a byte array
-      hexToBytes: function(hex) {
-        for (var bytes = [], c = 0; c < hex.length; c += 2)
-          bytes.push(parseInt(hex.substr(c, 2), 16));
-        return bytes;
-      },
-
-      // Convert a byte array to a base-64 string
-      bytesToBase64: function(bytes) {
-        for (var base64 = [], i = 0; i < bytes.length; i += 3) {
-          var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
-          for (var j = 0; j < 4; j++)
-            if (i * 8 + j * 6 <= bytes.length * 8)
-              base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
-            else
-              base64.push('=');
-        }
-        return base64.join('');
-      },
-
-      // Convert a base-64 string to a byte array
-      base64ToBytes: function(base64) {
-        // Remove non-base-64 characters
-        base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
-
-        for (var bytes = [], i = 0, imod4 = 0; i < base64.length;
-            imod4 = ++i % 4) {
-          if (imod4 == 0) continue;
-          bytes.push(((base64map.indexOf(base64.charAt(i - 1))
-              & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2))
-              | (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
-        }
-        return bytes;
-      }
-    };
-
-    module.exports = crypt;
-  })();
-  });
-
-  var charenc = {
-    // UTF-8 encoding
-    utf8: {
-      // Convert a string to a byte array
-      stringToBytes: function(str) {
-        return charenc.bin.stringToBytes(unescape(encodeURIComponent(str)));
-      },
-
-      // Convert a byte array to a string
-      bytesToString: function(bytes) {
-        return decodeURIComponent(escape(charenc.bin.bytesToString(bytes)));
-      }
-    },
-
-    // Binary encoding
-    bin: {
-      // Convert a string to a byte array
-      stringToBytes: function(str) {
-        for (var bytes = [], i = 0; i < str.length; i++)
-          bytes.push(str.charCodeAt(i) & 0xFF);
-        return bytes;
-      },
-
-      // Convert a byte array to a string
-      bytesToString: function(bytes) {
-        for (var str = [], i = 0; i < bytes.length; i++)
-          str.push(String.fromCharCode(bytes[i]));
-        return str.join('');
-      }
-    }
-  };
-
-  var charenc_1 = charenc;
-
-  /*!
-   * Determine if an object is a Buffer
-   *
-   * @author   Feross Aboukhadijeh <https://feross.org>
-   * @license  MIT
-   */
-
-  // The _isBuffer check is for Safari 5-7 support, because it's missing
-  // Object.prototype.constructor. Remove this eventually
-  var isBuffer_1 = function (obj) {
-    return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
-  };
-
-  function isBuffer (obj) {
-    return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-  }
-
-  // For Node v0.10 support. Remove this eventually.
-  function isSlowBuffer (obj) {
-    return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
-  }
-
-  var md5 = createCommonjsModule(function (module) {
-  (function(){
-    var crypt$1 = crypt,
-        utf8 = charenc_1.utf8,
-        isBuffer = isBuffer_1,
-        bin = charenc_1.bin,
-
-    // The core
-    md5 = function (message, options) {
-      // Convert to byte array
-      if (message.constructor == String)
-        if (options && options.encoding === 'binary')
-          message = bin.stringToBytes(message);
-        else
-          message = utf8.stringToBytes(message);
-      else if (isBuffer(message))
-        message = Array.prototype.slice.call(message, 0);
-      else if (!Array.isArray(message))
-        message = message.toString();
-      // else, assume byte array already
-
-      var m = crypt$1.bytesToWords(message),
-          l = message.length * 8,
-          a =  1732584193,
-          b = -271733879,
-          c = -1732584194,
-          d =  271733878;
-
-      // Swap endian
-      for (var i = 0; i < m.length; i++) {
-        m[i] = ((m[i] <<  8) | (m[i] >>> 24)) & 0x00FF00FF |
-               ((m[i] << 24) | (m[i] >>>  8)) & 0xFF00FF00;
-      }
-
-      // Padding
-      m[l >>> 5] |= 0x80 << (l % 32);
-      m[(((l + 64) >>> 9) << 4) + 14] = l;
-
-      // Method shortcuts
-      var FF = md5._ff,
-          GG = md5._gg,
-          HH = md5._hh,
-          II = md5._ii;
-
-      for (var i = 0; i < m.length; i += 16) {
-
-        var aa = a,
-            bb = b,
-            cc = c,
-            dd = d;
-
-        a = FF(a, b, c, d, m[i+ 0],  7, -680876936);
-        d = FF(d, a, b, c, m[i+ 1], 12, -389564586);
-        c = FF(c, d, a, b, m[i+ 2], 17,  606105819);
-        b = FF(b, c, d, a, m[i+ 3], 22, -1044525330);
-        a = FF(a, b, c, d, m[i+ 4],  7, -176418897);
-        d = FF(d, a, b, c, m[i+ 5], 12,  1200080426);
-        c = FF(c, d, a, b, m[i+ 6], 17, -1473231341);
-        b = FF(b, c, d, a, m[i+ 7], 22, -45705983);
-        a = FF(a, b, c, d, m[i+ 8],  7,  1770035416);
-        d = FF(d, a, b, c, m[i+ 9], 12, -1958414417);
-        c = FF(c, d, a, b, m[i+10], 17, -42063);
-        b = FF(b, c, d, a, m[i+11], 22, -1990404162);
-        a = FF(a, b, c, d, m[i+12],  7,  1804603682);
-        d = FF(d, a, b, c, m[i+13], 12, -40341101);
-        c = FF(c, d, a, b, m[i+14], 17, -1502002290);
-        b = FF(b, c, d, a, m[i+15], 22,  1236535329);
-
-        a = GG(a, b, c, d, m[i+ 1],  5, -165796510);
-        d = GG(d, a, b, c, m[i+ 6],  9, -1069501632);
-        c = GG(c, d, a, b, m[i+11], 14,  643717713);
-        b = GG(b, c, d, a, m[i+ 0], 20, -373897302);
-        a = GG(a, b, c, d, m[i+ 5],  5, -701558691);
-        d = GG(d, a, b, c, m[i+10],  9,  38016083);
-        c = GG(c, d, a, b, m[i+15], 14, -660478335);
-        b = GG(b, c, d, a, m[i+ 4], 20, -405537848);
-        a = GG(a, b, c, d, m[i+ 9],  5,  568446438);
-        d = GG(d, a, b, c, m[i+14],  9, -1019803690);
-        c = GG(c, d, a, b, m[i+ 3], 14, -187363961);
-        b = GG(b, c, d, a, m[i+ 8], 20,  1163531501);
-        a = GG(a, b, c, d, m[i+13],  5, -1444681467);
-        d = GG(d, a, b, c, m[i+ 2],  9, -51403784);
-        c = GG(c, d, a, b, m[i+ 7], 14,  1735328473);
-        b = GG(b, c, d, a, m[i+12], 20, -1926607734);
-
-        a = HH(a, b, c, d, m[i+ 5],  4, -378558);
-        d = HH(d, a, b, c, m[i+ 8], 11, -2022574463);
-        c = HH(c, d, a, b, m[i+11], 16,  1839030562);
-        b = HH(b, c, d, a, m[i+14], 23, -35309556);
-        a = HH(a, b, c, d, m[i+ 1],  4, -1530992060);
-        d = HH(d, a, b, c, m[i+ 4], 11,  1272893353);
-        c = HH(c, d, a, b, m[i+ 7], 16, -155497632);
-        b = HH(b, c, d, a, m[i+10], 23, -1094730640);
-        a = HH(a, b, c, d, m[i+13],  4,  681279174);
-        d = HH(d, a, b, c, m[i+ 0], 11, -358537222);
-        c = HH(c, d, a, b, m[i+ 3], 16, -722521979);
-        b = HH(b, c, d, a, m[i+ 6], 23,  76029189);
-        a = HH(a, b, c, d, m[i+ 9],  4, -640364487);
-        d = HH(d, a, b, c, m[i+12], 11, -421815835);
-        c = HH(c, d, a, b, m[i+15], 16,  530742520);
-        b = HH(b, c, d, a, m[i+ 2], 23, -995338651);
-
-        a = II(a, b, c, d, m[i+ 0],  6, -198630844);
-        d = II(d, a, b, c, m[i+ 7], 10,  1126891415);
-        c = II(c, d, a, b, m[i+14], 15, -1416354905);
-        b = II(b, c, d, a, m[i+ 5], 21, -57434055);
-        a = II(a, b, c, d, m[i+12],  6,  1700485571);
-        d = II(d, a, b, c, m[i+ 3], 10, -1894986606);
-        c = II(c, d, a, b, m[i+10], 15, -1051523);
-        b = II(b, c, d, a, m[i+ 1], 21, -2054922799);
-        a = II(a, b, c, d, m[i+ 8],  6,  1873313359);
-        d = II(d, a, b, c, m[i+15], 10, -30611744);
-        c = II(c, d, a, b, m[i+ 6], 15, -1560198380);
-        b = II(b, c, d, a, m[i+13], 21,  1309151649);
-        a = II(a, b, c, d, m[i+ 4],  6, -145523070);
-        d = II(d, a, b, c, m[i+11], 10, -1120210379);
-        c = II(c, d, a, b, m[i+ 2], 15,  718787259);
-        b = II(b, c, d, a, m[i+ 9], 21, -343485551);
-
-        a = (a + aa) >>> 0;
-        b = (b + bb) >>> 0;
-        c = (c + cc) >>> 0;
-        d = (d + dd) >>> 0;
-      }
-
-      return crypt$1.endian([a, b, c, d]);
-    };
-
-    // Auxiliary functions
-    md5._ff  = function (a, b, c, d, x, s, t) {
-      var n = a + (b & c | ~b & d) + (x >>> 0) + t;
-      return ((n << s) | (n >>> (32 - s))) + b;
-    };
-    md5._gg  = function (a, b, c, d, x, s, t) {
-      var n = a + (b & d | c & ~d) + (x >>> 0) + t;
-      return ((n << s) | (n >>> (32 - s))) + b;
-    };
-    md5._hh  = function (a, b, c, d, x, s, t) {
-      var n = a + (b ^ c ^ d) + (x >>> 0) + t;
-      return ((n << s) | (n >>> (32 - s))) + b;
-    };
-    md5._ii  = function (a, b, c, d, x, s, t) {
-      var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
-      return ((n << s) | (n >>> (32 - s))) + b;
-    };
-
-    // Package private blocksize
-    md5._blocksize = 16;
-    md5._digestsize = 16;
-
-    module.exports = function (message, options) {
-      if (message === undefined || message === null)
-        throw new Error('Illegal argument ' + message);
-
-      var digestbytes = crypt$1.wordsToBytes(md5(message, options));
-      return options && options.asBytes ? digestbytes :
-          options && options.asString ? bin.bytesToString(digestbytes) :
-          crypt$1.bytesToHex(digestbytes);
-    };
-
-  })();
-  });
-
-  var INTERCOM =
-  /*#__PURE__*/
-  function () {
-    function INTERCOM(config) {
-      _classCallCheck(this, INTERCOM);
-
-      this.NAME = "INTERCOM";
-      this.API_KEY = config.apiKey;
-      this.APP_ID = config.appId;
-      this.MOBILE_APP_ID = config.mobileAppId;
-      logger.debug("Config ", config);
-    }
-
-    _createClass(INTERCOM, [{
-      key: "init",
-      value: function init() {
-        window.intercomSettings = {
-          app_id: this.APP_ID
-        };
-
-        (function () {
-          var w = window;
-          var ic = w.Intercom;
-
-          if (typeof ic === "function") {
-            ic("reattach_activator");
-            ic("update", w.intercomSettings);
-          } else {
-            var d = document;
-
-            var i = function i() {
-              i.c(arguments);
-            };
-
-            i.q = [];
-
-            i.c = function (args) {
-              i.q.push(args);
-            };
-
-            w.Intercom = i;
-
-            var l = function l() {
-              var s = d.createElement("script");
-              s.type = "text/javascript";
-              s.async = true;
-              s.src = "https://widget.intercom.io/widget/" + window.intercomSettings.app_id;
-              var x = d.getElementsByTagName("script")[0];
-              x.parentNode.insertBefore(s, x);
-            };
-
-            if (document.readyState === "complete") {
-              l();
-              window.intercom_code = true;
-            } else if (w.attachEvent) {
-              w.attachEvent("onload", l);
-              window.intercom_code = true;
-            } else {
-              w.addEventListener("load", l, false);
-              window.intercom_code = true;
-            }
-          }
-        })();
-      }
-    }, {
-      key: "page",
-      value: function page() {
-        // Get new messages of the current user
-        window.Intercom("update");
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        var rawPayload = {};
-        var context = rudderElement.message.context;
-        var identityVerificationProps = context.Intercom ? context.Intercom : null;
-
-        if (identityVerificationProps != null) {
-          // user hash
-          var userHash = context.Intercom.user_hash ? context.Intercom.user_hash : null;
-
-          if (userHash != null) {
-            rawPayload.user_hash = userHash;
-          } // hide default launcher
-
-
-          var hideDefaultLauncher = context.Intercom.hideDefaultLauncher ? context.Intercom.hideDefaultLauncher : null;
-
-          if (hideDefaultLauncher != null) {
-            rawPayload.hide_default_launcher = hideDefaultLauncher;
-          }
-        } // map rudderPayload to desired
-
-
-        Object.keys(context.traits).forEach(function (field) {
-          if (context.traits.hasOwnProperty(field)) {
-            var value = context.traits[field];
-
-            if (field === "company") {
-              var companies = [];
-              var company = {}; // special handling string
-
-              if (typeof context.traits[field] == "string") {
-                company["company_id"] = md5(context.traits[field]);
-              }
-
-              var companyFields = _typeof(context.traits[field]) == "object" && Object.keys(context.traits[field]) || [];
-              companyFields.forEach(function (key) {
-                if (companyFields.hasOwnProperty(key)) {
-                  if (key != "id") {
-                    company[key] = context.traits[field][key];
-                  } else {
-                    company["company_id"] = context.traits[field][key];
-                  }
-                }
-              });
-
-              if (_typeof(context.traits[field]) == "object" && !companyFields.includes("id")) {
-                company["company_id"] = md5(company.name);
-              }
-
-              companies.push(company);
-              rawPayload.companies = companies;
-            } else {
-              rawPayload[field] = context.traits[field];
-            }
-
-            switch (field) {
-              case "createdAt":
-                rawPayload["created_at"] = value;
-                break;
-
-              case "anonymousId":
-                rawPayload["user_id"] = value;
-                break;
-
-              default:
-                break;
-            }
-          }
-        });
-        rawPayload.user_id = rudderElement.message.userId;
-        window.Intercom("update", rawPayload);
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        var rawPayload = {};
-        var message = rudderElement.message;
-        var properties = message.properties ? Object.keys(message.properties) : null;
-        properties.forEach(function (property) {
-          var value = message.properties[property];
-          rawPayload[property] = value;
-        });
-
-        if (message.event) {
-          rawPayload.event_name = message.event;
-        }
-
-        rawPayload.user_id = message.userId ? message.userId : message.anonymousId;
-        rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000);
-        window.Intercom("trackEvent", rawPayload.event_name, rawPayload);
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        return !!window.intercom_code;
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return !!window.intercom_code;
-      }
-    }]);
-
-    return INTERCOM;
-  }();
-
-  var Keen =
-  /*#__PURE__*/
-  function () {
-    function Keen(config) {
-      _classCallCheck(this, Keen);
-
-      this.projectID = config.projectID;
-      this.writeKey = config.writeKey;
-      this.ipAddon = config.ipAddon;
-      this.uaAddon = config.uaAddon;
-      this.urlAddon = config.urlAddon;
-      this.referrerAddon = config.referrerAddon;
-      this.client = null;
-      this.name = "KEEN";
-    }
-
-    _createClass(Keen, [{
-      key: "init",
-      value: function init() {
-        logger.debug("===in init Keen===");
-        ScriptLoader("keen-integration", "https://cdn.jsdelivr.net/npm/keen-tracking@4");
-        var check = setInterval(checkAndInitKeen.bind(this), 1000);
-
-        function initKeen(object) {
-          object.client = new window.KeenTracking({
-            projectId: object.projectID,
-            writeKey: object.writeKey
-          });
-          return object.client;
-        }
-
-        function checkAndInitKeen() {
-          if (window.KeenTracking !== undefined && window.KeenTracking !== void 0) {
-            this.client = initKeen(this);
-            clearInterval(check);
-          }
-        }
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        logger.debug("in Keen identify");
-        var traits = rudderElement.message.context.traits;
-        var userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
-        var properties = rudderElement.message.properties ? Object.assign(properties, rudderElement.message.properties) : {};
-        properties.user = {
-          userId: userId,
-          traits: traits
-        };
-        properties = this.getAddOn(properties);
-        this.client.extendEvents(properties);
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        logger.debug("in Keen track");
-        var event = rudderElement.message.event;
-        var properties = rudderElement.message.properties;
-        properties = this.getAddOn(properties);
-        this.client.recordEvent(event, properties);
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        logger.debug("in Keen page");
-        var pageName = rudderElement.message.name;
-        var pageCategory = rudderElement.message.properties ? rudderElement.message.properties.category : undefined;
-        var name = "Loaded a Page";
-
-        if (pageName) {
-          name = "Viewed " + pageName + " page";
-        }
-
-        if (pageCategory && pageName) {
-          name = "Viewed " + pageCategory + " " + pageName + " page";
-        }
-
-        var properties = rudderElement.message.properties;
-        properties = this.getAddOn(properties);
-        this.client.recordEvent(name, properties);
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        logger.debug("in Keen isLoaded");
-        return !!(this.client != null);
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return !!(this.client != null);
-      }
-    }, {
-      key: "getAddOn",
-      value: function getAddOn(properties) {
-        var addOns = [];
-
-        if (this.ipAddon) {
-          properties.ip_address = "${keen.ip}";
-          addOns.push({
-            name: "keen:ip_to_geo",
-            input: {
-              ip: "ip_address"
-            },
-            output: "ip_geo_info"
-          });
-        }
-
-        if (this.uaAddon) {
-          properties.user_agent = "${keen.user_agent}";
-          addOns.push({
-            name: "keen:ua_parser",
-            input: {
-              ua_string: "user_agent"
-            },
-            output: "parsed_user_agent"
-          });
-        }
-
-        if (this.urlAddon) {
-          properties.page_url = document.location.href;
-          addOns.push({
-            name: "keen:url_parser",
-            input: {
-              url: "page_url"
-            },
-            output: "parsed_page_url"
-          });
-        }
-
-        if (this.referrerAddon) {
-          properties.page_url = document.location.href;
-          properties.referrer_url = document.referrer;
-          addOns.push({
-            name: "keen:referrer_parser",
-            input: {
-              referrer_url: "referrer_url",
-              page_url: "page_url"
-            },
-            output: "referrer_info"
-          });
-        }
-
-        properties.keen = {
-          addons: addOns
-        };
-        return properties;
-      }
-    }]);
-
-    return Keen;
-  }();
 
   /* globals window, HTMLElement */
 
@@ -2718,47 +1349,11 @@ var rudderanalytics = (function (exports) {
 
   var is_1 = is;
 
-  var has = Object.prototype.hasOwnProperty;
+  var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-  /**
-   * Copy the properties of one or more `objects` onto a destination object. Input objects are iterated over
-   * in left-to-right order, so duplicate properties on later objects will overwrite those from
-   * erevious ones. Only enumerable and own properties of the input objects are copied onto the
-   * resulting object.
-   *
-   * @name extend
-   * @api public
-   * @category Object
-   * @param {Object} dest The destination object.
-   * @param {...Object} sources The source objects.
-   * @return {Object} `dest`, extended with the properties of all `sources`.
-   * @example
-   * var a = { a: 'a' };
-   * var b = { b: 'b' };
-   * var c = { c: 'c' };
-   *
-   * extend(a, b, c);
-   * //=> { a: 'a', b: 'b', c: 'c' };
-   */
-  var extend = function extend(dest /*, sources */) {
-    var sources = Array.prototype.slice.call(arguments, 1);
-
-    for (var i = 0; i < sources.length; i += 1) {
-      for (var key in sources[i]) {
-        if (has.call(sources[i], key)) {
-          dest[key] = sources[i][key];
-        }
-      }
-    }
-
-    return dest;
-  };
-
-  /*
-   * Exports.
-   */
-
-  var extend_1 = extend;
+  function createCommonjsModule(fn, module) {
+  	return module = { exports: {} }, fn(module, module.exports), module.exports;
+  }
 
   var objCase = createCommonjsModule(function (module) {
 
@@ -3202,7 +1797,7 @@ var rudderanalytics = (function (exports) {
    * HOP reference.
    */
 
-  var has$1 = Object.prototype.hasOwnProperty;
+  var has = Object.prototype.hasOwnProperty;
 
   /**
    * Iterate the given `obj` and invoke `fn(val, i)`
@@ -3254,7 +1849,7 @@ var rudderanalytics = (function (exports) {
 
   function object(obj, fn, ctx) {
     for (var key in obj) {
-      if (has$1.call(obj, key)) {
+      if (has.call(obj, key)) {
         fn.call(ctx, key, obj[key]);
       }
     }
@@ -3275,9 +1870,1682 @@ var rudderanalytics = (function (exports) {
     }
   }
 
-  var Kissmetrics =
-  /*#__PURE__*/
-  function () {
+  var hasOwn = Object.prototype.hasOwnProperty;
+  var toStr$1 = Object.prototype.toString;
+  var defineProperty = Object.defineProperty;
+  var gOPD = Object.getOwnPropertyDescriptor;
+
+  var isArray = function isArray(arr) {
+  	if (typeof Array.isArray === 'function') {
+  		return Array.isArray(arr);
+  	}
+
+  	return toStr$1.call(arr) === '[object Array]';
+  };
+
+  var isPlainObject = function isPlainObject(obj) {
+  	if (!obj || toStr$1.call(obj) !== '[object Object]') {
+  		return false;
+  	}
+
+  	var hasOwnConstructor = hasOwn.call(obj, 'constructor');
+  	var hasIsPrototypeOf = obj.constructor && obj.constructor.prototype && hasOwn.call(obj.constructor.prototype, 'isPrototypeOf');
+  	// Not own constructor property must be Object
+  	if (obj.constructor && !hasOwnConstructor && !hasIsPrototypeOf) {
+  		return false;
+  	}
+
+  	// Own properties are enumerated firstly, so to speed up,
+  	// if last one is own, then all properties are own.
+  	var key;
+  	for (key in obj) { /**/ }
+
+  	return typeof key === 'undefined' || hasOwn.call(obj, key);
+  };
+
+  // If name is '__proto__', and Object.defineProperty is available, define __proto__ as an own property on target
+  var setProperty = function setProperty(target, options) {
+  	if (defineProperty && options.name === '__proto__') {
+  		defineProperty(target, options.name, {
+  			enumerable: true,
+  			configurable: true,
+  			value: options.newValue,
+  			writable: true
+  		});
+  	} else {
+  		target[options.name] = options.newValue;
+  	}
+  };
+
+  // Return undefined instead of __proto__ if '__proto__' is not an own property
+  var getProperty = function getProperty(obj, name) {
+  	if (name === '__proto__') {
+  		if (!hasOwn.call(obj, name)) {
+  			return void 0;
+  		} else if (gOPD) {
+  			// In early versions of node, obj['__proto__'] is buggy when obj has
+  			// __proto__ as an own property. Object.getOwnPropertyDescriptor() works.
+  			return gOPD(obj, name).value;
+  		}
+  	}
+
+  	return obj[name];
+  };
+
+  var extend = function extend() {
+  	var options, name, src, copy, copyIsArray, clone;
+  	var target = arguments[0];
+  	var i = 1;
+  	var length = arguments.length;
+  	var deep = false;
+
+  	// Handle a deep copy situation
+  	if (typeof target === 'boolean') {
+  		deep = target;
+  		target = arguments[1] || {};
+  		// skip the boolean and the target
+  		i = 2;
+  	}
+  	if (target == null || (typeof target !== 'object' && typeof target !== 'function')) {
+  		target = {};
+  	}
+
+  	for (; i < length; ++i) {
+  		options = arguments[i];
+  		// Only deal with non-null/undefined values
+  		if (options != null) {
+  			// Extend the base object
+  			for (name in options) {
+  				src = getProperty(target, name);
+  				copy = getProperty(options, name);
+
+  				// Prevent never-ending loop
+  				if (target !== copy) {
+  					// Recurse if we're merging plain objects or arrays
+  					if (deep && copy && (isPlainObject(copy) || (copyIsArray = isArray(copy)))) {
+  						if (copyIsArray) {
+  							copyIsArray = false;
+  							clone = src && isArray(src) ? src : [];
+  						} else {
+  							clone = src && isPlainObject(src) ? src : {};
+  						}
+
+  						// Never move original objects, clone them
+  						setProperty(target, { name: name, newValue: extend(deep, clone, copy) });
+
+  					// Don't bring in undefined values
+  					} else if (typeof copy !== 'undefined') {
+  						setProperty(target, { name: name, newValue: copy });
+  					}
+  				}
+  			}
+  		}
+  	}
+
+  	// Return the modified object
+  	return target;
+  };
+
+  var GA = /*#__PURE__*/function () {
+    function GA(config) {
+      _classCallCheck(this, GA);
+
+      this.trackingID = config.trackingID; //UA-149602794-1
+
+      this.sendUserId = config.sendUserId; //from here new to be added in ui
+
+      this.dimensions = config.dimensions;
+      this.metrics = config.metrics;
+      this.contentGroupings = config.contentGroupings;
+      this.nonInteraction = config.nonInteraction;
+      this.anonymizeIp = config.anonymizeIp;
+      this.useGoogleAmpClientId = config.useGoogleAmpClientId;
+      this.classic = config.classic;
+      this.domain = config.domain;
+      this.doubleClick = config.doubleClick;
+      this.enhancedEcommerce = config.enhancedEcommerce;
+      this.enhancedLinkAttribution = config.enhancedLinkAttribution;
+      this.ignoredReferrers = config.ignoredReferrers;
+      this.includeSearch = config.includeSearch;
+      this.setAllMappedProps = config.setAllMappedProps;
+      this.siteSpeedSampleRate = config.siteSpeedSampleRate;
+      this.sampleRate = config.sampleRate;
+      this.trackCategorizedPages = config.trackCategorizedPages;
+      this.trackNamedPages = config.trackNamedPages;
+      this.optimize = config.optimize;
+      this.resetCustomDimensionsOnPage = config.resetCustomDimensionsOnPage;
+      this.inputs = config;
+      this.name = "GA";
+    }
+
+    _createClass(GA, [{
+      key: "init",
+      value: function init() {
+        this.resetCustomDimensionsOnPage = '';
+        this.pageCalled = false;
+
+        (function (i, s, o, g, r, a, m) {
+          i["GoogleAnalyticsObject"] = r;
+          i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments);
+          }, i[r].l = 1 * new Date();
+          a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+          a.async = 1;
+          a.src = g;
+          m.parentNode.insertBefore(a, m);
+        })(window, document, "script", "https://www.google-analytics.com/analytics.js", "ga"); //window.ga_debug = {trace: true};
+
+
+        ga("create", this.trackingID, "auto");
+        ga("send", "pageview");
+        logger.debug("===in init GA===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        console.log(this.sendUserId);
+
+        if (this.sendUserId && rudderElement.message.userId) {
+          ga("set", "userId", rudderElement.message.userId);
+        }
+
+        this.sendUserId = true;
+
+        if (this.sendUserId) {
+          console.log("inside ga send");
+          console.log(rudderElement.message.userId);
+          ga("set", "userId", rudderElement.message.userId);
+        }
+
+        var custom = metrics(rudderElement.message.context.traits, this.dimensions, this.metrics, this.contentGroupings);
+        console.log("custom");
+        console.log(custom);
+        if (Object.keys(custom).length) ga('set', custom);
+        logger.debug("in GoogleAnalyticsManager identify");
+        console.log("in GoogleAnalyticsManager identify");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement, options) {
+        console.log("this.name");
+        console.log(this.name);
+        console.log("in GoogleAnalyticsManager track 1");
+
+        console.log("inputs");
+        console.log(this.inputs);
+        var eventCategory = rudderElement.message.properties.category;
+        var eventAction = rudderElement.message.event;
+        var eventLabel = rudderElement.message.properties.label;
+        var eventValue = "";
+
+        if (rudderElement.message.properties) {
+          eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
+        }
+
+        var payLoad = {
+          eventCategory: eventCategory || 'All',
+          eventAction: eventAction,
+          eventLabel: eventLabel,
+          eventValue: formatValue(eventValue),
+          nonInteraction: rudderElement.message.properties.nonInteraction !== undefined ? !!rudderElement.message.properties.nonInteraction : !!this.nonInteraction
+        };
+        console.log("payload 1");
+        console.log(payLoad);
+        var campaign = rudderElement.message.context.campaign;
+        console.log(campaign);
+        console.log("campaign");
+
+        if (campaign) {
+          if (campaign.name) payload.campaignName = campaign.name;
+          if (campaign.source) payload.campaignSource = campaign.source;
+          if (campaign.medium) payload.campaignMedium = campaign.medium;
+          if (campaign.content) payload.campaignContent = campaign.content;
+          if (campaign.term) payload.campaignKeyword = campaign.term;
+        }
+
+        payLoad = extend(payLoad, setCustomDimenionsAndMetrics(rudderElement.message.properties, this.inputs));
+        console.log("payload");
+        console.log(payLoad);
+        ga("send", "event", payLoad);
+        logger.debug("in GoogleAnalyticsManager track");
+        console.log("in GoogleAnalyticsManager track");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in GoogleAnalyticsManager page");
+        console.log("in GoogleAnalyticsManager page");
+        var category = rudderElement.message.properties.category;
+        var eventProperties = rudderElement.message.properties;
+        var name = rudderElement.message.properties.fullName;
+        var campaign = rudderElement.message.context.campaign | {};
+        var pageview = {};
+        var pagePath = path(eventProperties, this.includeSearch);
+        var pageReferrer = rudderElement.message.properties.referrer || '';
+        var pageTitle = name || eventProperties.title; // var track;
+
+        pageview.page = pagePath;
+        pageview.title = pageTitle;
+        pageview.location = eventProperties.url;
+
+        if (campaign) {
+          if (campaign.name) pageview.campaignName = campaign.name;
+          if (campaign.source) pageview.campaignSource = campaign.source;
+          if (campaign.medium) pageview.campaignMedium = campaign.medium;
+          if (campaign.content) pageview.campaignContent = campaign.content;
+          if (campaign.term) pageview.campaignKeyword = campaign.term;
+        }
+
+        var payload = {
+          page: pagePath,
+          title: pageTitle
+        };
+        var resetCustomDimensions = {};
+
+        for (var i = 0; i < this.resetCustomDimensionsOnPage.length; i++) {
+          var property = this.resetCustomDimensionsOnPage[i];
+
+          if (this.dimensions[property]) {
+            resetCustomDimensions[this.dimensions[property]] = null;
+          }
+        }
+
+        console.log(payload);
+        console.log("payload");
+        ga('set', resetCustomDimensions);
+        pageview = extend(pageview, setCustomDimenionsAndMetrics(eventProperties, this.inputs));
+        if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
+        ga('set', payload);
+        if (this.pageCalled) delete pageview.location;
+        console.log("pageview");
+        console.log(pageview);
+        ga('send', 'pageview', pageview); //track categorized page call to be modified
+
+        if (category && this.trackCategorizedPages) {
+          this.track(rudderElement, {
+            nonInteraction: 1
+          });
+        } //track named page call to be modified
+
+
+        if (name && this.trackNamedPages) {
+          this.track(rudderElement, {
+            nonInteraction: 1
+          });
+        }
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in GA isLoaded");
+        return !!window.gaplugins;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!window.gaplugins;
+      }
+    }]);
+
+    return GA;
+  }();
+
+  function metrics(obj, dimensions, metrics, contentGroupings) {
+    var ret = {};
+    componentEach([metrics, dimensions, contentGroupings], function (group) {
+      componentEach(group, function (prop, key) {
+        var value = objCase(obj, prop) || obj[prop];
+        if (is_1["boolean"](value)) value = value.toString();
+        if (value || value === 0) ret[key] = value;
+      });
+    });
+    return ret;
+  }
+
+  function formatValue(value) {
+    if (!value || value < 0) return 0;
+    return Math.round(value);
+  }
+
+  function setCustomDimenionsAndMetrics(props, inputs) {
+    var ret = {};
+    var custom = metrics(inputs.dimensions, inputs.metrics, inputs.contentGroupings);
+
+    if (Object.keys(custom).length) {
+      if (inputs.setAllMappedProps) {
+        ga("set", custom);
+      } else {
+        componentEach(custom, function (key, value) {
+          ret[key] = value;
+        });
+        return ret;
+      }
+    }
+  }
+
+  function path(properties, includeSearch) {
+    if (!properties) return;
+    var str = properties.path;
+    if (includeSearch && properties.search) str += properties.search;
+    return str;
+  }
+
+  var index$1 =  GA ;
+
+  var Hotjar = /*#__PURE__*/function () {
+    function Hotjar(config) {
+      _classCallCheck(this, Hotjar);
+
+      this.siteId = config.siteID; //1549611
+
+      this.name = "HOTJAR";
+      this._ready = false;
+    }
+
+    _createClass(Hotjar, [{
+      key: "init",
+      value: function init() {
+        window.hotjarSiteId = this.siteId;
+
+        (function (h, o, t, j, a, r) {
+          h.hj = h.hj || function () {
+            (h.hj.q = h.hj.q || []).push(arguments);
+          };
+
+          h._hjSettings = {
+            hjid: h.hotjarSiteId,
+            hjsv: 6
+          };
+          a = o.getElementsByTagName("head")[0];
+          r = o.createElement("script");
+          r.async = 1;
+          r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
+          a.appendChild(r);
+        })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
+
+        this._ready = true;
+        logger.debug("===in init Hotjar===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        var userId = rudderElement.message.userId || rudderElement.message.anonymousId;
+
+        if (!userId) {
+          logger.error('user id is required');
+          return;
+        }
+
+        var traits = rudderElement.message.context.traits;
+        window.hj('identify', rudderElement.message.userId, traits);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.error("method not supported");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.error("method not supported");
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return this._ready;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return this._ready;
+      }
+    }]);
+
+    return Hotjar;
+  }();
+
+  var index$2 =  Hotjar ;
+
+  var GoogleAds = /*#__PURE__*/function () {
+    function GoogleAds(config) {
+      _classCallCheck(this, GoogleAds);
+
+      //this.accountId = config.accountId;//AW-696901813
+      this.conversionId = config.conversionID;
+      this.pageLoadConversions = config.pageLoadConversions;
+      this.clickEventConversions = config.clickEventConversions;
+      this.name = "GOOGLEADS";
+    }
+
+    _createClass(GoogleAds, [{
+      key: "init",
+      value: function init() {
+        var sourceUrl = "https://www.googletagmanager.com/gtag/js?id=" + this.conversionId;
+
+        (function (id, src, document) {
+          logger.debug("in script loader=== " + id);
+          var js = document.createElement("script");
+          js.src = src;
+          js.async = 1;
+          js.type = "text/javascript";
+          js.id = id;
+          var e = document.getElementsByTagName("head")[0];
+          logger.debug("==script==", e);
+          e.appendChild(js);
+        })("googleAds-integration", sourceUrl, document);
+
+        window.dataLayer = window.dataLayer || [];
+
+        window.gtag = function () {
+          window.dataLayer.push(arguments);
+        };
+
+        window.gtag("js", new Date());
+        window.gtag("config", this.conversionId);
+        logger.debug("===in init Google Ads===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.error("method not supported");
+      } //https://developers.google.com/gtagjs/reference/event
+
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in GoogleAdsAnalyticsManager track");
+        var conversionData = this.getConversionData(this.clickEventConversions, rudderElement.message.event);
+
+        if (conversionData["conversionLabel"]) {
+          var conversionLabel = conversionData["conversionLabel"];
+          var eventName = conversionData["eventName"];
+          var sendToValue = this.conversionId + "/" + conversionLabel;
+          var properties = {};
+
+          if (rudderElement.properties) {
+            properties["value"] = rudderElement.properties["revenue"];
+            properties["currency"] = rudderElement.properties["currency"];
+            properties["transaction_id"] = rudderElement.properties["order_id"];
+          }
+
+          properties["send_to"] = sendToValue;
+          window.gtag("event", eventName, properties);
+        }
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in GoogleAdsAnalyticsManager page");
+        var conversionData = this.getConversionData(this.pageLoadConversions, rudderElement.message.name);
+
+        if (conversionData["conversionLabel"]) {
+          var conversionLabel = conversionData["conversionLabel"];
+          var eventName = conversionData["eventName"];
+          window.gtag("event", eventName, {
+            send_to: this.conversionId + "/" + conversionLabel
+          });
+        }
+      }
+    }, {
+      key: "getConversionData",
+      value: function getConversionData(eventTypeConversions, eventName) {
+        var conversionData = {};
+
+        if (eventTypeConversions) {
+          eventTypeConversions.forEach(function (eventTypeConversion) {
+            if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
+              //rudderElement["message"]["name"]
+              conversionData["conversionLabel"] = eventTypeConversion.conversionLabel;
+              conversionData["eventName"] = eventTypeConversion.name;
+              return;
+            }
+          });
+        }
+
+        return conversionData;
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return window.dataLayer.push !== Array.prototype.push;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return window.dataLayer.push !== Array.prototype.push;
+      }
+    }]);
+
+    return GoogleAds;
+  }();
+
+  var index$3 =  GoogleAds ;
+
+  var VWO = /*#__PURE__*/function () {
+    function VWO(config) {
+      _classCallCheck(this, VWO);
+
+      this.accountId = config.accountId; //1549611
+
+      this.settingsTolerance = config.settingsTolerance;
+      this.isSPA = config.isSPA;
+      this.libraryTolerance = config.libraryTolerance;
+      this.useExistingJquery = config.useExistingJquery;
+      this.sendExperimentTrack = config.sendExperimentTrack;
+      this.sendExperimentIdentify = config.sendExperimentIdentify;
+      this.name = "VWO";
+      logger.debug("Config ", config);
+    }
+
+    _createClass(VWO, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init VWO===");
+        var account_id = this.accountId;
+        var settings_tolerance = this.settingsTolerance;
+        var _library_tolerance = this.libraryTolerance;
+        var _use_existing_jquery = this.useExistingJquery;
+        var isSPA = this.isSPA;
+
+        window._vwo_code = function () {
+          var f = false;
+          var d = document;
+          return {
+            use_existing_jquery: function use_existing_jquery() {
+              return _use_existing_jquery;
+            },
+            library_tolerance: function library_tolerance() {
+              return _library_tolerance;
+            },
+            finish: function finish() {
+              if (!f) {
+                f = true;
+                var a = d.getElementById("_vis_opt_path_hides");
+                if (a) a.parentNode.removeChild(a);
+              }
+            },
+            finished: function finished() {
+              return f;
+            },
+            load: function load(a) {
+              var b = d.createElement("script");
+              b.src = a;
+              b.type = "text/javascript";
+              b.innerText;
+
+              b.onerror = function () {
+                _vwo_code.finish();
+              };
+
+              d.getElementsByTagName("head")[0].appendChild(b);
+            },
+            init: function init() {
+              var settings_timer = setTimeout("_vwo_code.finish()", settings_tolerance);
+              var a = d.createElement("style"),
+                  b = "body{opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;}",
+                  h = d.getElementsByTagName("head")[0];
+              a.setAttribute("id", "_vis_opt_path_hides");
+              a.setAttribute("type", "text/css");
+              if (a.styleSheet) a.styleSheet.cssText = b;else a.appendChild(d.createTextNode(b));
+              h.appendChild(a);
+              this.load("//dev.visualwebsiteoptimizer.com/j.php?a=" + account_id + "&u=" + encodeURIComponent(d.URL) + "&r=" + Math.random() + "&f=" + +isSPA);
+              return settings_timer;
+            }
+          };
+        }();
+
+        window._vwo_settings_timer = window._vwo_code.init(); //Send track or iddentify when
+
+        if (this.sendExperimentTrack || this.experimentViewedIdentify) {
+          this.experimentViewed();
+        }
+      }
+    }, {
+      key: "experimentViewed",
+      value: function experimentViewed() {
+        window.VWO = window.VWO || [];
+        var self = this;
+        window.VWO.push(["onVariationApplied", function (data) {
+          if (!data) {
+            return;
+          }
+
+          logger.debug("Variation Applied");
+          var expId = data[1],
+              variationId = data[2];
+          logger.debug("experiment id:", expId, "Variation Name:", _vwo_exp[expId].comb_n[variationId]);
+
+          if (typeof _vwo_exp[expId].comb_n[variationId] !== "undefined" && ["VISUAL_AB", "VISUAL", "SPLIT_URL", "SURVEY"].indexOf(_vwo_exp[expId].type) > -1) {
+            try {
+              if (self.sendExperimentTrack) {
+                logger.debug("Tracking...");
+                window.rudderanalytics.track("Experiment Viewed", {
+                  experimentId: expId,
+                  variationName: _vwo_exp[expId].comb_n[variationId]
+                });
+              }
+            } catch (error) {
+              logger.error(error);
+            }
+
+            try {
+              if (self.sendExperimentIdentify) {
+                logger.debug("Identifying...");
+                window.rudderanalytics.identify(_defineProperty({}, "Experiment: ".concat(expId), _vwo_exp[expId].comb_n[variationId]));
+              }
+            } catch (error) {
+              logger.error(error);
+            }
+          }
+        }]);
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("method not supported");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var eventName = rudderElement.message.event;
+
+        if (eventName === "Order Completed") {
+          var total = rudderElement.message.properties ? rudderElement.message.properties.total || rudderElement.message.properties.revenue : 0;
+          logger.debug("Revenue", total);
+          window.VWO = window.VWO || [];
+          window.VWO.push(["track.revenueConversion", total]);
+        }
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("method not supported");
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!window._vwo_code;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!window._vwo_code;
+      }
+    }]);
+
+    return VWO;
+  }();
+
+  var GoogleTagManager = /*#__PURE__*/function () {
+    function GoogleTagManager(config) {
+      _classCallCheck(this, GoogleTagManager);
+
+      this.containerID = config.containerID;
+      this.name = "GOOGLETAGMANAGER";
+    }
+
+    _createClass(GoogleTagManager, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init GoogleTagManager===");
+
+        (function (w, d, s, l, i) {
+          w[l] = w[l] || [];
+          w[l].push({
+            "gtm.start": new Date().getTime(),
+            event: "gtm.js"
+          });
+          var f = d.getElementsByTagName(s)[0],
+              j = d.createElement(s),
+              dl = l != "dataLayer" ? "&l=" + l : "";
+          j.async = true;
+          j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+          f.parentNode.insertBefore(j, f);
+        })(window, document, "script", "dataLayer", this.containerID);
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.error("method not supported");
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("===in track GoogleTagManager===");
+        var rudderMessage = rudderElement.message;
+
+        var props = _objectSpread2({
+          event: rudderMessage.event,
+          userId: rudderMessage.userId,
+          anonymousId: rudderMessage.anonymousId
+        }, rudderMessage.properties);
+
+        this.sendToGTMDatalayer(props);
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("===in page GoogleTagManager===");
+        var rudderMessage = rudderElement.message;
+        var pageName = rudderMessage.name;
+        var pageCategory = rudderMessage.properties ? rudderMessage.properties.category : undefined;
+        var eventName;
+
+        if (pageName) {
+          eventName = "Viewed " + pageName + " page";
+        }
+
+        if (pageCategory && pageName) {
+          eventName = "Viewed " + pageCategory + " " + pageName + " page";
+        }
+
+        var props = _objectSpread2({
+          event: eventName,
+          userId: rudderMessage.userId,
+          anonymousId: rudderMessage.anonymousId
+        }, rudderMessage.properties);
+
+        this.sendToGTMDatalayer(props);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
+      }
+    }, {
+      key: "sendToGTMDatalayer",
+      value: function sendToGTMDatalayer(props) {
+        window.dataLayer.push(props);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
+      }
+    }]);
+
+    return GoogleTagManager;
+  }();
+
+  /*
+  E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
+  */
+
+  var Braze = /*#__PURE__*/function () {
+    function Braze(config, analytics) {
+      _classCallCheck(this, Braze);
+
+      this.analytics = analytics;
+      this.appKey = config.appKey;
+      if (!config.appKey) this.appKey = "";
+      this.endPoint = "";
+
+      if (config.dataCenter) {
+        var dataCenterArr = config.dataCenter.trim().split("-");
+
+        if (dataCenterArr[0].toLowerCase() === "eu") {
+          this.endPoint = "sdk.fra-01.braze.eu";
+        } else {
+          this.endPoint = "sdk.iad-" + dataCenterArr[1] + ".braze.com";
+        }
+      }
+
+      this.name = "BRAZE";
+      logger.debug("Config ", config);
+    }
+    /** https://js.appboycdn.com/web-sdk/latest/doc/ab.User.html#toc4
+     */
+
+
+    _createClass(Braze, [{
+      key: "formatGender",
+      value: function formatGender(gender) {
+        if (!gender) return;
+        if (typeof gender !== "string") return;
+        var femaleGenders = ["woman", "female", "w", "f"];
+        var maleGenders = ["man", "male", "m"];
+        var otherGenders = ["other", "o"];
+        if (femaleGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.FEMALE;
+        if (maleGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.MALE;
+        if (otherGenders.indexOf(gender.toLowerCase()) > -1) return window.appboy.ab.User.Genders.OTHER;
+      }
+    }, {
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Braze==="); //load appboy
+
+        +function (a, p, P, b, y) {
+          a.appboy = {};
+          a.appboyQueue = [];
+
+          for (var s = "initialize destroy getDeviceId toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates requestContentCardsRefresh subscribeToContentCardsUpdates logCardImpressions logCardClick logCardDismissal logFeedDisplayed logContentCardsDisplayed logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick logInAppMessageHtmlClick subscribeToNewInAppMessages subscribeToInAppMessage removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages trackLocation stopWebTracking resumeWebTracking wipeData ab ab.DeviceProperties ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setLanguage ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.User.prototype.addAlias ab.User.prototype.setCustomLocationAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.TextAlignment ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.prototype.closeMessage ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.HtmlMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.ContentCards ab.ContentCards.prototype.getUnviewedCardCount ab.Card ab.Card.prototype.dismissCard ab.ClassicCard ab.CaptionedImage ab.Banner ab.ControlCard ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed display.showContentCards display.hideContentCards display.toggleContentCards sharedLib".split(" "), i = 0; i < s.length; i++) {
+            for (var m = s[i], k = a.appboy, l = m.split("."), j = 0; j < l.length - 1; j++) {
+              k = k[l[j]];
+            }
+
+            k[l[j]] = new Function("return function " + m.replace(/\./g, "_") + "(){window.appboyQueue.push(arguments); return true}")();
+          }
+
+          window.appboy.getUser = function () {
+            return new window.appboy.ab.User();
+          };
+
+          window.appboy.getCachedFeed = function () {
+            return new window.appboy.ab.Feed();
+          };
+
+          window.appboy.getCachedContentCards = function () {
+            return new window.appboy.ab.ContentCards();
+          };
+
+          (y = p.createElement(P)).type = "text/javascript";
+          y.src = "https://js.appboycdn.com/web-sdk/2.4/appboy.min.js";
+          y.async = 1;
+          (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
+        }(window, document, "script");
+        window.appboy.initialize(this.appKey, {
+          enableLogging: true,
+          baseUrl: this.endPoint
+        });
+        window.appboy.display.automaticallyShowNewInAppMessages();
+        var userId = this.analytics.userId; //send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser
+
+        if (userId) appboy.changeUser(userId);
+        window.appboy.openSession();
+      }
+    }, {
+      key: "handleReservedProperties",
+      value: function handleReservedProperties(props) {
+        // remove reserved keys from custom event properties
+        // https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
+        var reserved = ["time", "product_id", "quantity", "event_name", "price", "currency"];
+        reserved.forEach(function (element) {
+          delete props[element];
+        });
+        return props;
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        var userId = rudderElement.message.userId;
+        var address = rudderElement.message.context.traits.address;
+        var avatar = rudderElement.message.context.traits.avatar;
+        var birthday = rudderElement.message.context.traits.birthday;
+        var email = rudderElement.message.context.traits.email;
+        var firstname = rudderElement.message.context.traits.firstname;
+        var gender = rudderElement.message.context.traits.gender;
+        var lastname = rudderElement.message.context.traits.lastname;
+        var phone = rudderElement.message.context.traits.phone; // This is a hack to make a deep copy that is not recommended because it will often fail:
+
+        var traits = JSON.parse(JSON.stringify(rudderElement.message.context.traits));
+        window.appboy.changeUser(userId);
+        window.appboy.getUser().setAvatarImageUrl(avatar);
+        if (email) window.appboy.getUser().setEmail(email);
+        if (firstname) window.appboy.getUser().setFirstName(firstname);
+        if (gender) window.appboy.getUser().setGender(this.formatGender(gender));
+        if (lastname) window.appboy.getUser().setLastName(lastname);
+        if (phone) window.appboy.getUser().setPhoneNumber(phone);
+
+        if (address) {
+          window.appboy.getUser().setCountry(address.country);
+          window.appboy.getUser().setHomeCity(address.city);
+        }
+
+        if (birthday) {
+          window.appboy.getUser().setDateOfBirth(birthday.getUTCFullYear(), birthday.getUTCMonth() + 1, birthday.getUTCDate());
+        } // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
+
+
+        var reserved = ["avatar", "address", "birthday", "email", "id", "firstname", "gender", "lastname", "phone", "facebook", "twitter", "first_name", "last_name", "dob", "external_id", "country", "home_city", "bio", "gender", "phone", "email_subscribe", "push_subscribe"];
+        reserved.forEach(function (element) {
+          delete traits[element];
+        });
+        Object.keys(traits).forEach(function (key) {
+          window.appboy.getUser().setCustomUserAttribute(key, traits[key]);
+        });
+      }
+    }, {
+      key: "handlePurchase",
+      value: function handlePurchase(properties, userId) {
+        var products = properties.products;
+        var currencyCode = properties.currency;
+        window.appboy.changeUser(userId); // del used properties
+
+        del(properties, "products");
+        del(properties, "currency"); // we have to make a separate call to appboy for each product
+
+        products.forEach(function (product) {
+          var productId = product.product_id;
+          var price = product.price;
+          var quantity = product.quantity;
+          if (quantity && price && productId) window.appboy.logPurchase(productId, price, currencyCode, quantity, properties);
+        });
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var userId = rudderElement.message.userId;
+        var eventName = rudderElement.message.event;
+        var properties = rudderElement.message.properties;
+        window.appboy.changeUser(userId);
+
+        if (eventName.toLowerCase() === "order completed") {
+          this.handlePurchase(properties, userId);
+        } else {
+          properties = this.handleReservedProperties(properties);
+          window.appboy.logCustomEvent(eventName, properties);
+        }
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        var userId = rudderElement.message.userId;
+        var eventName = rudderElement.message.name;
+        var properties = rudderElement.message.properties;
+        properties = this.handleReservedProperties(properties);
+        window.appboy.changeUser(userId);
+        window.appboy.logCustomEvent(eventName, properties);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return window.appboyQueue === null;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return window.appboyQueue === null;
+      }
+    }]);
+
+    return Braze;
+  }();
+
+  var crypt = createCommonjsModule(function (module) {
+  (function() {
+    var base64map
+        = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+
+    crypt = {
+      // Bit-wise rotation left
+      rotl: function(n, b) {
+        return (n << b) | (n >>> (32 - b));
+      },
+
+      // Bit-wise rotation right
+      rotr: function(n, b) {
+        return (n << (32 - b)) | (n >>> b);
+      },
+
+      // Swap big-endian to little-endian and vice versa
+      endian: function(n) {
+        // If number given, swap endian
+        if (n.constructor == Number) {
+          return crypt.rotl(n, 8) & 0x00FF00FF | crypt.rotl(n, 24) & 0xFF00FF00;
+        }
+
+        // Else, assume array and swap all items
+        for (var i = 0; i < n.length; i++)
+          n[i] = crypt.endian(n[i]);
+        return n;
+      },
+
+      // Generate an array of any length of random bytes
+      randomBytes: function(n) {
+        for (var bytes = []; n > 0; n--)
+          bytes.push(Math.floor(Math.random() * 256));
+        return bytes;
+      },
+
+      // Convert a byte array to big-endian 32-bit words
+      bytesToWords: function(bytes) {
+        for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
+          words[b >>> 5] |= bytes[i] << (24 - b % 32);
+        return words;
+      },
+
+      // Convert big-endian 32-bit words to a byte array
+      wordsToBytes: function(words) {
+        for (var bytes = [], b = 0; b < words.length * 32; b += 8)
+          bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
+        return bytes;
+      },
+
+      // Convert a byte array to a hex string
+      bytesToHex: function(bytes) {
+        for (var hex = [], i = 0; i < bytes.length; i++) {
+          hex.push((bytes[i] >>> 4).toString(16));
+          hex.push((bytes[i] & 0xF).toString(16));
+        }
+        return hex.join('');
+      },
+
+      // Convert a hex string to a byte array
+      hexToBytes: function(hex) {
+        for (var bytes = [], c = 0; c < hex.length; c += 2)
+          bytes.push(parseInt(hex.substr(c, 2), 16));
+        return bytes;
+      },
+
+      // Convert a byte array to a base-64 string
+      bytesToBase64: function(bytes) {
+        for (var base64 = [], i = 0; i < bytes.length; i += 3) {
+          var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+          for (var j = 0; j < 4; j++)
+            if (i * 8 + j * 6 <= bytes.length * 8)
+              base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
+            else
+              base64.push('=');
+        }
+        return base64.join('');
+      },
+
+      // Convert a base-64 string to a byte array
+      base64ToBytes: function(base64) {
+        // Remove non-base-64 characters
+        base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
+
+        for (var bytes = [], i = 0, imod4 = 0; i < base64.length;
+            imod4 = ++i % 4) {
+          if (imod4 == 0) continue;
+          bytes.push(((base64map.indexOf(base64.charAt(i - 1))
+              & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2))
+              | (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
+        }
+        return bytes;
+      }
+    };
+
+    module.exports = crypt;
+  })();
+  });
+
+  var charenc = {
+    // UTF-8 encoding
+    utf8: {
+      // Convert a string to a byte array
+      stringToBytes: function(str) {
+        return charenc.bin.stringToBytes(unescape(encodeURIComponent(str)));
+      },
+
+      // Convert a byte array to a string
+      bytesToString: function(bytes) {
+        return decodeURIComponent(escape(charenc.bin.bytesToString(bytes)));
+      }
+    },
+
+    // Binary encoding
+    bin: {
+      // Convert a string to a byte array
+      stringToBytes: function(str) {
+        for (var bytes = [], i = 0; i < str.length; i++)
+          bytes.push(str.charCodeAt(i) & 0xFF);
+        return bytes;
+      },
+
+      // Convert a byte array to a string
+      bytesToString: function(bytes) {
+        for (var str = [], i = 0; i < bytes.length; i++)
+          str.push(String.fromCharCode(bytes[i]));
+        return str.join('');
+      }
+    }
+  };
+
+  var charenc_1 = charenc;
+
+  /*!
+   * Determine if an object is a Buffer
+   *
+   * @author   Feross Aboukhadijeh <https://feross.org>
+   * @license  MIT
+   */
+
+  // The _isBuffer check is for Safari 5-7 support, because it's missing
+  // Object.prototype.constructor. Remove this eventually
+  var isBuffer_1 = function (obj) {
+    return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+  };
+
+  function isBuffer (obj) {
+    return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
+  }
+
+  // For Node v0.10 support. Remove this eventually.
+  function isSlowBuffer (obj) {
+    return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
+  }
+
+  var md5 = createCommonjsModule(function (module) {
+  (function(){
+    var crypt$1 = crypt,
+        utf8 = charenc_1.utf8,
+        isBuffer = isBuffer_1,
+        bin = charenc_1.bin,
+
+    // The core
+    md5 = function (message, options) {
+      // Convert to byte array
+      if (message.constructor == String)
+        if (options && options.encoding === 'binary')
+          message = bin.stringToBytes(message);
+        else
+          message = utf8.stringToBytes(message);
+      else if (isBuffer(message))
+        message = Array.prototype.slice.call(message, 0);
+      else if (!Array.isArray(message))
+        message = message.toString();
+      // else, assume byte array already
+
+      var m = crypt$1.bytesToWords(message),
+          l = message.length * 8,
+          a =  1732584193,
+          b = -271733879,
+          c = -1732584194,
+          d =  271733878;
+
+      // Swap endian
+      for (var i = 0; i < m.length; i++) {
+        m[i] = ((m[i] <<  8) | (m[i] >>> 24)) & 0x00FF00FF |
+               ((m[i] << 24) | (m[i] >>>  8)) & 0xFF00FF00;
+      }
+
+      // Padding
+      m[l >>> 5] |= 0x80 << (l % 32);
+      m[(((l + 64) >>> 9) << 4) + 14] = l;
+
+      // Method shortcuts
+      var FF = md5._ff,
+          GG = md5._gg,
+          HH = md5._hh,
+          II = md5._ii;
+
+      for (var i = 0; i < m.length; i += 16) {
+
+        var aa = a,
+            bb = b,
+            cc = c,
+            dd = d;
+
+        a = FF(a, b, c, d, m[i+ 0],  7, -680876936);
+        d = FF(d, a, b, c, m[i+ 1], 12, -389564586);
+        c = FF(c, d, a, b, m[i+ 2], 17,  606105819);
+        b = FF(b, c, d, a, m[i+ 3], 22, -1044525330);
+        a = FF(a, b, c, d, m[i+ 4],  7, -176418897);
+        d = FF(d, a, b, c, m[i+ 5], 12,  1200080426);
+        c = FF(c, d, a, b, m[i+ 6], 17, -1473231341);
+        b = FF(b, c, d, a, m[i+ 7], 22, -45705983);
+        a = FF(a, b, c, d, m[i+ 8],  7,  1770035416);
+        d = FF(d, a, b, c, m[i+ 9], 12, -1958414417);
+        c = FF(c, d, a, b, m[i+10], 17, -42063);
+        b = FF(b, c, d, a, m[i+11], 22, -1990404162);
+        a = FF(a, b, c, d, m[i+12],  7,  1804603682);
+        d = FF(d, a, b, c, m[i+13], 12, -40341101);
+        c = FF(c, d, a, b, m[i+14], 17, -1502002290);
+        b = FF(b, c, d, a, m[i+15], 22,  1236535329);
+
+        a = GG(a, b, c, d, m[i+ 1],  5, -165796510);
+        d = GG(d, a, b, c, m[i+ 6],  9, -1069501632);
+        c = GG(c, d, a, b, m[i+11], 14,  643717713);
+        b = GG(b, c, d, a, m[i+ 0], 20, -373897302);
+        a = GG(a, b, c, d, m[i+ 5],  5, -701558691);
+        d = GG(d, a, b, c, m[i+10],  9,  38016083);
+        c = GG(c, d, a, b, m[i+15], 14, -660478335);
+        b = GG(b, c, d, a, m[i+ 4], 20, -405537848);
+        a = GG(a, b, c, d, m[i+ 9],  5,  568446438);
+        d = GG(d, a, b, c, m[i+14],  9, -1019803690);
+        c = GG(c, d, a, b, m[i+ 3], 14, -187363961);
+        b = GG(b, c, d, a, m[i+ 8], 20,  1163531501);
+        a = GG(a, b, c, d, m[i+13],  5, -1444681467);
+        d = GG(d, a, b, c, m[i+ 2],  9, -51403784);
+        c = GG(c, d, a, b, m[i+ 7], 14,  1735328473);
+        b = GG(b, c, d, a, m[i+12], 20, -1926607734);
+
+        a = HH(a, b, c, d, m[i+ 5],  4, -378558);
+        d = HH(d, a, b, c, m[i+ 8], 11, -2022574463);
+        c = HH(c, d, a, b, m[i+11], 16,  1839030562);
+        b = HH(b, c, d, a, m[i+14], 23, -35309556);
+        a = HH(a, b, c, d, m[i+ 1],  4, -1530992060);
+        d = HH(d, a, b, c, m[i+ 4], 11,  1272893353);
+        c = HH(c, d, a, b, m[i+ 7], 16, -155497632);
+        b = HH(b, c, d, a, m[i+10], 23, -1094730640);
+        a = HH(a, b, c, d, m[i+13],  4,  681279174);
+        d = HH(d, a, b, c, m[i+ 0], 11, -358537222);
+        c = HH(c, d, a, b, m[i+ 3], 16, -722521979);
+        b = HH(b, c, d, a, m[i+ 6], 23,  76029189);
+        a = HH(a, b, c, d, m[i+ 9],  4, -640364487);
+        d = HH(d, a, b, c, m[i+12], 11, -421815835);
+        c = HH(c, d, a, b, m[i+15], 16,  530742520);
+        b = HH(b, c, d, a, m[i+ 2], 23, -995338651);
+
+        a = II(a, b, c, d, m[i+ 0],  6, -198630844);
+        d = II(d, a, b, c, m[i+ 7], 10,  1126891415);
+        c = II(c, d, a, b, m[i+14], 15, -1416354905);
+        b = II(b, c, d, a, m[i+ 5], 21, -57434055);
+        a = II(a, b, c, d, m[i+12],  6,  1700485571);
+        d = II(d, a, b, c, m[i+ 3], 10, -1894986606);
+        c = II(c, d, a, b, m[i+10], 15, -1051523);
+        b = II(b, c, d, a, m[i+ 1], 21, -2054922799);
+        a = II(a, b, c, d, m[i+ 8],  6,  1873313359);
+        d = II(d, a, b, c, m[i+15], 10, -30611744);
+        c = II(c, d, a, b, m[i+ 6], 15, -1560198380);
+        b = II(b, c, d, a, m[i+13], 21,  1309151649);
+        a = II(a, b, c, d, m[i+ 4],  6, -145523070);
+        d = II(d, a, b, c, m[i+11], 10, -1120210379);
+        c = II(c, d, a, b, m[i+ 2], 15,  718787259);
+        b = II(b, c, d, a, m[i+ 9], 21, -343485551);
+
+        a = (a + aa) >>> 0;
+        b = (b + bb) >>> 0;
+        c = (c + cc) >>> 0;
+        d = (d + dd) >>> 0;
+      }
+
+      return crypt$1.endian([a, b, c, d]);
+    };
+
+    // Auxiliary functions
+    md5._ff  = function (a, b, c, d, x, s, t) {
+      var n = a + (b & c | ~b & d) + (x >>> 0) + t;
+      return ((n << s) | (n >>> (32 - s))) + b;
+    };
+    md5._gg  = function (a, b, c, d, x, s, t) {
+      var n = a + (b & d | c & ~d) + (x >>> 0) + t;
+      return ((n << s) | (n >>> (32 - s))) + b;
+    };
+    md5._hh  = function (a, b, c, d, x, s, t) {
+      var n = a + (b ^ c ^ d) + (x >>> 0) + t;
+      return ((n << s) | (n >>> (32 - s))) + b;
+    };
+    md5._ii  = function (a, b, c, d, x, s, t) {
+      var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
+      return ((n << s) | (n >>> (32 - s))) + b;
+    };
+
+    // Package private blocksize
+    md5._blocksize = 16;
+    md5._digestsize = 16;
+
+    module.exports = function (message, options) {
+      if (message === undefined || message === null)
+        throw new Error('Illegal argument ' + message);
+
+      var digestbytes = crypt$1.wordsToBytes(md5(message, options));
+      return options && options.asBytes ? digestbytes :
+          options && options.asString ? bin.bytesToString(digestbytes) :
+          crypt$1.bytesToHex(digestbytes);
+    };
+
+  })();
+  });
+
+  var INTERCOM = /*#__PURE__*/function () {
+    function INTERCOM(config) {
+      _classCallCheck(this, INTERCOM);
+
+      this.NAME = "INTERCOM";
+      this.API_KEY = config.apiKey;
+      this.APP_ID = config.appId;
+      this.MOBILE_APP_ID = config.mobileAppId;
+      logger.debug("Config ", config);
+    }
+
+    _createClass(INTERCOM, [{
+      key: "init",
+      value: function init() {
+        window.intercomSettings = {
+          app_id: this.APP_ID
+        };
+
+        (function () {
+          var w = window;
+          var ic = w.Intercom;
+
+          if (typeof ic === "function") {
+            ic("reattach_activator");
+            ic("update", w.intercomSettings);
+          } else {
+            var d = document;
+
+            var i = function i() {
+              i.c(arguments);
+            };
+
+            i.q = [];
+
+            i.c = function (args) {
+              i.q.push(args);
+            };
+
+            w.Intercom = i;
+
+            var l = function l() {
+              var s = d.createElement("script");
+              s.type = "text/javascript";
+              s.async = true;
+              s.src = "https://widget.intercom.io/widget/" + window.intercomSettings.app_id;
+              var x = d.getElementsByTagName("script")[0];
+              x.parentNode.insertBefore(s, x);
+            };
+
+            if (document.readyState === "complete") {
+              l();
+              window.intercom_code = true;
+            } else if (w.attachEvent) {
+              w.attachEvent("onload", l);
+              window.intercom_code = true;
+            } else {
+              w.addEventListener("load", l, false);
+              window.intercom_code = true;
+            }
+          }
+        })();
+      }
+    }, {
+      key: "page",
+      value: function page() {
+        // Get new messages of the current user
+        window.Intercom("update");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        var rawPayload = {};
+        var context = rudderElement.message.context;
+        var identityVerificationProps = context.Intercom ? context.Intercom : null;
+
+        if (identityVerificationProps != null) {
+          // user hash
+          var userHash = context.Intercom.user_hash ? context.Intercom.user_hash : null;
+
+          if (userHash != null) {
+            rawPayload.user_hash = userHash;
+          } // hide default launcher
+
+
+          var hideDefaultLauncher = context.Intercom.hideDefaultLauncher ? context.Intercom.hideDefaultLauncher : null;
+
+          if (hideDefaultLauncher != null) {
+            rawPayload.hide_default_launcher = hideDefaultLauncher;
+          }
+        } // map rudderPayload to desired
+
+
+        Object.keys(context.traits).forEach(function (field) {
+          if (context.traits.hasOwnProperty(field)) {
+            var value = context.traits[field];
+
+            if (field === "company") {
+              var companies = [];
+              var company = {}; // special handling string
+
+              if (typeof context.traits[field] == "string") {
+                company["company_id"] = md5(context.traits[field]);
+              }
+
+              var companyFields = _typeof(context.traits[field]) == "object" && Object.keys(context.traits[field]) || [];
+              companyFields.forEach(function (key) {
+                if (companyFields.hasOwnProperty(key)) {
+                  if (key != "id") {
+                    company[key] = context.traits[field][key];
+                  } else {
+                    company["company_id"] = context.traits[field][key];
+                  }
+                }
+              });
+
+              if (_typeof(context.traits[field]) == "object" && !companyFields.includes("id")) {
+                company["company_id"] = md5(company.name);
+              }
+
+              companies.push(company);
+              rawPayload.companies = companies;
+            } else {
+              rawPayload[field] = context.traits[field];
+            }
+
+            switch (field) {
+              case "createdAt":
+                rawPayload["created_at"] = value;
+                break;
+
+              case "anonymousId":
+                rawPayload["user_id"] = value;
+                break;
+            }
+          }
+        });
+        rawPayload.user_id = rudderElement.message.userId;
+        window.Intercom("update", rawPayload);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var rawPayload = {};
+        var message = rudderElement.message;
+        var properties = message.properties ? Object.keys(message.properties) : null;
+        properties.forEach(function (property) {
+          var value = message.properties[property];
+          rawPayload[property] = value;
+        });
+
+        if (message.event) {
+          rawPayload.event_name = message.event;
+        }
+
+        rawPayload.user_id = message.userId ? message.userId : message.anonymousId;
+        rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000);
+        window.Intercom("trackEvent", rawPayload.event_name, rawPayload);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!window.intercom_code;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!window.intercom_code;
+      }
+    }]);
+
+    return INTERCOM;
+  }();
+
+  var Keen = /*#__PURE__*/function () {
+    function Keen(config) {
+      _classCallCheck(this, Keen);
+
+      this.projectID = config.projectID;
+      this.writeKey = config.writeKey;
+      this.ipAddon = config.ipAddon;
+      this.uaAddon = config.uaAddon;
+      this.urlAddon = config.urlAddon;
+      this.referrerAddon = config.referrerAddon;
+      this.client = null;
+      this.name = "KEEN";
+    }
+
+    _createClass(Keen, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Keen===");
+        ScriptLoader("keen-integration", "https://cdn.jsdelivr.net/npm/keen-tracking@4");
+        var check = setInterval(checkAndInitKeen.bind(this), 1000);
+
+        function initKeen(object) {
+          object.client = new window.KeenTracking({
+            projectId: object.projectID,
+            writeKey: object.writeKey
+          });
+          return object.client;
+        }
+
+        function checkAndInitKeen() {
+          if (window.KeenTracking !== undefined && window.KeenTracking !== void 0) {
+            this.client = initKeen(this);
+            clearInterval(check);
+          }
+        }
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Keen identify");
+        var traits = rudderElement.message.context.traits;
+        var userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
+        var properties = rudderElement.message.properties ? Object.assign(properties, rudderElement.message.properties) : {};
+        properties.user = {
+          userId: userId,
+          traits: traits
+        };
+        properties = this.getAddOn(properties);
+        this.client.extendEvents(properties);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in Keen track");
+        var event = rudderElement.message.event;
+        var properties = rudderElement.message.properties;
+        properties = this.getAddOn(properties);
+        this.client.recordEvent(event, properties);
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in Keen page");
+        var pageName = rudderElement.message.name;
+        var pageCategory = rudderElement.message.properties ? rudderElement.message.properties.category : undefined;
+        var name = "Loaded a Page";
+
+        if (pageName) {
+          name = "Viewed " + pageName + " page";
+        }
+
+        if (pageCategory && pageName) {
+          name = "Viewed " + pageCategory + " " + pageName + " page";
+        }
+
+        var properties = rudderElement.message.properties;
+        properties = this.getAddOn(properties);
+        this.client.recordEvent(name, properties);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in Keen isLoaded");
+        return !!(this.client != null);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!(this.client != null);
+      }
+    }, {
+      key: "getAddOn",
+      value: function getAddOn(properties) {
+        var addOns = [];
+
+        if (this.ipAddon) {
+          properties.ip_address = "${keen.ip}";
+          addOns.push({
+            name: "keen:ip_to_geo",
+            input: {
+              ip: "ip_address"
+            },
+            output: "ip_geo_info"
+          });
+        }
+
+        if (this.uaAddon) {
+          properties.user_agent = "${keen.user_agent}";
+          addOns.push({
+            name: "keen:ua_parser",
+            input: {
+              ua_string: "user_agent"
+            },
+            output: "parsed_user_agent"
+          });
+        }
+
+        if (this.urlAddon) {
+          properties.page_url = document.location.href;
+          addOns.push({
+            name: "keen:url_parser",
+            input: {
+              url: "page_url"
+            },
+            output: "parsed_page_url"
+          });
+        }
+
+        if (this.referrerAddon) {
+          properties.page_url = document.location.href;
+          properties.referrer_url = document.referrer;
+          addOns.push({
+            name: "keen:referrer_parser",
+            input: {
+              referrer_url: "referrer_url",
+              page_url: "page_url"
+            },
+            output: "referrer_info"
+          });
+        }
+
+        properties.keen = {
+          addons: addOns
+        };
+        return properties;
+      }
+    }]);
+
+    return Keen;
+  }();
+
+  var has$1 = Object.prototype.hasOwnProperty;
+
+  /**
+   * Copy the properties of one or more `objects` onto a destination object. Input objects are iterated over
+   * in left-to-right order, so duplicate properties on later objects will overwrite those from
+   * erevious ones. Only enumerable and own properties of the input objects are copied onto the
+   * resulting object.
+   *
+   * @name extend
+   * @api public
+   * @category Object
+   * @param {Object} dest The destination object.
+   * @param {...Object} sources The source objects.
+   * @return {Object} `dest`, extended with the properties of all `sources`.
+   * @example
+   * var a = { a: 'a' };
+   * var b = { b: 'b' };
+   * var c = { c: 'c' };
+   *
+   * extend(a, b, c);
+   * //=> { a: 'a', b: 'b', c: 'c' };
+   */
+  var extend$1 = function extend(dest /*, sources */) {
+    var sources = Array.prototype.slice.call(arguments, 1);
+
+    for (var i = 0; i < sources.length; i += 1) {
+      for (var key in sources[i]) {
+        if (has$1.call(sources[i], key)) {
+          dest[key] = sources[i][key];
+        }
+      }
+    }
+
+    return dest;
+  };
+
+  /*
+   * Exports.
+   */
+
+  var extend_1 = extend$1;
+
+  var Kissmetrics = /*#__PURE__*/function () {
     function Kissmetrics(config) {
       _classCallCheck(this, Kissmetrics);
 
@@ -3564,9 +3832,7 @@ var rudderanalytics = (function (exports) {
     return Kissmetrics;
   }();
 
-  var CustomerIO =
-  /*#__PURE__*/
-  function () {
+  var CustomerIO = /*#__PURE__*/function () {
     function CustomerIO(config) {
       _classCallCheck(this, CustomerIO);
 
@@ -3654,127 +3920,6 @@ var rudderanalytics = (function (exports) {
   }();
 
   /**
-   * toString ref.
-   */
-
-  var toString$2 = Object.prototype.toString;
-
-  /**
-   * Return the type of `val`.
-   *
-   * @param {Mixed} val
-   * @return {String}
-   * @api public
-   */
-
-  var componentType$1 = function(val){
-    switch (toString$2.call(val)) {
-      case '[object Function]': return 'function';
-      case '[object Date]': return 'date';
-      case '[object RegExp]': return 'regexp';
-      case '[object Arguments]': return 'arguments';
-      case '[object Array]': return 'array';
-      case '[object String]': return 'string';
-    }
-
-    if (val === null) return 'null';
-    if (val === undefined) return 'undefined';
-    if (val && val.nodeType === 1) return 'element';
-    if (val === Object(val)) return 'object';
-
-    return typeof val;
-  };
-
-  /**
-   * Module dependencies.
-   */
-
-  try {
-    var type$1 = componentType$1;
-  } catch (err) {
-    var type$1 = componentType$1;
-  }
-
-
-
-  /**
-   * HOP reference.
-   */
-
-  var has$2 = Object.prototype.hasOwnProperty;
-
-  /**
-   * Iterate the given `obj` and invoke `fn(val, i)`
-   * in optional context `ctx`.
-   *
-   * @param {String|Array|Object} obj
-   * @param {Function} fn
-   * @param {Object} [ctx]
-   * @api public
-   */
-
-  var componentEach$1 = function(obj, fn, ctx){
-    fn = toFunction_1(fn);
-    ctx = ctx || this;
-    switch (type$1(obj)) {
-      case 'array':
-        return array$1(obj, fn, ctx);
-      case 'object':
-        if ('number' == typeof obj.length) return array$1(obj, fn, ctx);
-        return object$1(obj, fn, ctx);
-      case 'string':
-        return string$1(obj, fn, ctx);
-    }
-  };
-
-  /**
-   * Iterate string chars.
-   *
-   * @param {String} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function string$1(obj, fn, ctx) {
-    for (var i = 0; i < obj.length; ++i) {
-      fn.call(ctx, obj.charAt(i), i);
-    }
-  }
-
-  /**
-   * Iterate object keys.
-   *
-   * @param {Object} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function object$1(obj, fn, ctx) {
-    for (var key in obj) {
-      if (has$2.call(obj, key)) {
-        fn.call(ctx, key, obj[key]);
-      }
-    }
-  }
-
-  /**
-   * Iterate array-ish.
-   *
-   * @param {Array|Object} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function array$1(obj, fn, ctx) {
-    for (var i = 0; i < obj.length; ++i) {
-      fn.call(ctx, obj[i], i);
-    }
-  }
-
-  /**
    * Cache whether `<body>` exists.
    */
 
@@ -3810,7 +3955,7 @@ var rudderanalytics = (function (exports) {
   var interval = setInterval(function () {
     if (!document.body) return;
     body = true;
-    componentEach$1(callbacks, call);
+    componentEach(callbacks, call);
     clearInterval(interval);
   }, 5);
 
@@ -3825,9 +3970,7 @@ var rudderanalytics = (function (exports) {
     callback(document.body);
   }
 
-  var Chartbeat =
-  /*#__PURE__*/
-  function () {
+  var Chartbeat = /*#__PURE__*/function () {
     function Chartbeat(config, analytics) {
       _classCallCheck(this, Chartbeat);
 
@@ -4000,9 +4143,7 @@ var rudderanalytics = (function (exports) {
     return Chartbeat;
   }();
 
-  var Comscore =
-  /*#__PURE__*/
-  function () {
+  var Comscore = /*#__PURE__*/function () {
     function Comscore(config, analytics) {
       _classCallCheck(this, Comscore);
 
@@ -4162,7 +4303,7 @@ var rudderanalytics = (function (exports) {
    * toString ref.
    */
 
-  var toString$3 = Object.prototype.toString;
+  var toString$2 = Object.prototype.toString;
 
   /**
    * Return the type of `val`.
@@ -4172,8 +4313,8 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentType$2 = function(val){
-    switch (toString$3.call(val)) {
+  var componentType$1 = function(val){
+    switch (toString$2.call(val)) {
       case '[object Date]': return 'date';
       case '[object RegExp]': return 'regexp';
       case '[object Arguments]': return 'arguments';
@@ -4218,7 +4359,7 @@ var rudderanalytics = (function (exports) {
    */
 
   var clone = function clone(obj) {
-    var t = componentType$2(obj);
+    var t = componentType$1(obj);
 
     if (t === 'object') {
       var copy = {};
@@ -4990,7 +5131,7 @@ var rudderanalytics = (function (exports) {
 
 
 
-  var has$3 = Object.prototype.hasOwnProperty;
+  var has$2 = Object.prototype.hasOwnProperty;
   var objToString = Object.prototype.toString;
 
   /**
@@ -5015,7 +5156,7 @@ var rudderanalytics = (function (exports) {
    * @return {boolean}
    */
   // TODO: Move to a library
-  var isPlainObject = function isPlainObject(value) {
+  var isPlainObject$1 = function isPlainObject(value) {
     return Boolean(value) && objToString.call(value) === '[object Object]';
   };
 
@@ -5031,7 +5172,7 @@ var rudderanalytics = (function (exports) {
    * @param {string} key
    */
   var shallowCombiner = function shallowCombiner(target, source, value, key) {
-    if (has$3.call(source, key) && target[key] === undefined) {
+    if (has$2.call(source, key) && target[key] === undefined) {
       target[key] = value;
     }
     return source;
@@ -5050,8 +5191,8 @@ var rudderanalytics = (function (exports) {
    * @return {Object}
    */
   var deepCombiner = function(target, source, value, key) {
-    if (has$3.call(source, key)) {
-      if (isPlainObject(target[key]) && isPlainObject(value)) {
+    if (has$2.call(source, key)) {
+      if (isPlainObject$1(target[key]) && isPlainObject$1(value)) {
           target[key] = defaultsDeep(target[key], value);
       } else if (target[key] === undefined) {
           target[key] = value;
@@ -5137,7 +5278,7 @@ var rudderanalytics = (function (exports) {
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
     // strict `define` check is necessary for compatibility with `r.js`.
-    var isLoader = typeof undefined === "function" && undefined.amd;
+    var isLoader = typeof undefined === "function" ;
 
     // A set of types used to distinguish objects from primitives.
     var objectTypes = {
@@ -5146,7 +5287,7 @@ var rudderanalytics = (function (exports) {
     };
 
     // Detect the `exports` object exposed by CommonJS implementations.
-    var freeExports =  exports && !exports.nodeType && exports;
+    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
 
     // Use the `global` object exposed by Node (including Browserify via
     // `insert-module-globals`), Narwhal, and Ringo as the default context,
@@ -6258,9 +6399,7 @@ var rudderanalytics = (function (exports) {
    * An object utility to persist values in cookies
    */
 
-  var CookieLocal =
-  /*#__PURE__*/
-  function () {
+  var CookieLocal = /*#__PURE__*/function () {
     function CookieLocal(options) {
       _classCallCheck(this, CookieLocal);
 
@@ -6522,9 +6661,7 @@ var rudderanalytics = (function (exports) {
    * An object utility to persist user and other values in localstorage
    */
 
-  var StoreLocal =
-  /*#__PURE__*/
-  function () {
+  var StoreLocal = /*#__PURE__*/function () {
     function StoreLocal(options) {
       _classCallCheck(this, StoreLocal);
 
@@ -6603,9 +6740,7 @@ var rudderanalytics = (function (exports) {
    * An object that handles persisting key-val from Analytics
    */
 
-  var Storage =
-  /*#__PURE__*/
-  function () {
+  var Storage = /*#__PURE__*/function () {
     function Storage() {
       _classCallCheck(this, Storage);
 
@@ -6793,9 +6928,7 @@ var rudderanalytics = (function (exports) {
     lotame_synch_time_key: "lt_synch_timestamp"
   };
 
-  var LotameStorage =
-  /*#__PURE__*/
-  function () {
+  var LotameStorage = /*#__PURE__*/function () {
     function LotameStorage() {
       _classCallCheck(this, LotameStorage);
 
@@ -6819,15 +6952,14 @@ var rudderanalytics = (function (exports) {
 
   var lotameStorage = new LotameStorage();
 
-  var Lotame =
-  /*#__PURE__*/
-  function () {
-    function Lotame(config) {
+  var Lotame = /*#__PURE__*/function () {
+    function Lotame(config, analytics) {
       var _this = this;
 
       _classCallCheck(this, Lotame);
 
       this.name = "LOTAME";
+      this.analytics = analytics;
       this.storage = lotameStorage;
       this.bcpUrlSettings = config.bcpUrlSettings;
       this.dspUrlSettings = config.dspUrlSettings;
@@ -6856,11 +6988,11 @@ var rudderanalytics = (function (exports) {
         document.getElementsByTagName("body")[0].appendChild(image);
       }
     }, {
-      key: "synchPixel",
-      value: function synchPixel(userId) {
+      key: "syncPixel",
+      value: function syncPixel(userId) {
         var _this2 = this;
 
-        logger.debug("===== in synchPixel ======");
+        logger.debug("===== in syncPixel ======");
 
         if (this.dspUrlSettings && this.dspUrlSettings.length > 0) {
           this.dspUrlSettings.forEach(function (urlSettings) {
@@ -6872,11 +7004,12 @@ var rudderanalytics = (function (exports) {
           });
         }
 
-        this.storage.setLotameSynchTime(Date.now()); // this is custom to lotame, can be thought of as additional feature
+        this.storage.setLotameSynchTime(Date.now()); // emit on syncPixel
 
-        if (window.LOTAME_SYNCH_CALLBACK && typeof window.LOTAME_SYNCH_CALLBACK == "function") {
-          logger.debug("===== in synchPixel callback======");
-          window.LOTAME_SYNCH_CALLBACK();
+        if (this.analytics.methodToCallbackMapping["syncPixel"]) {
+          this.analytics.emit("syncPixel", {
+            destination: this.name
+          });
         }
       }
     }, {
@@ -6896,7 +7029,7 @@ var rudderanalytics = (function (exports) {
       value: function identify(rudderElement) {
         logger.debug("in Lotame identify");
         var userId = rudderElement.message.userId;
-        this.synchPixel(userId);
+        this.syncPixel(userId);
       }
     }, {
       key: "track",
@@ -6919,7 +7052,7 @@ var rudderanalytics = (function (exports) {
         }
 
         if (rudderElement.message.userId && this.isPixelToBeSynched()) {
-          this.synchPixel(rudderElement.message.userId);
+          this.syncPixel(rudderElement.message.userId);
         }
       }
     }, {
@@ -7034,9 +7167,7 @@ var rudderanalytics = (function (exports) {
     this.network = null;
   };
 
-  var RudderMessage =
-  /*#__PURE__*/
-  function () {
+  var RudderMessage = /*#__PURE__*/function () {
     function RudderMessage() {
       _classCallCheck(this, RudderMessage);
 
@@ -7103,8 +7234,6 @@ var rudderanalytics = (function (exports) {
                 case ECommerceEvents.ORDER_REFUNDED:
                   this.checkForKey("order_id");
                   break;
-
-                default:
               }
             } else if (!this.properties["category"]) {
               //if category is not there, set to event
@@ -7137,9 +7266,7 @@ var rudderanalytics = (function (exports) {
     return RudderMessage;
   }();
 
-  var RudderElement =
-  /*#__PURE__*/
-  function () {
+  var RudderElement = /*#__PURE__*/function () {
     function RudderElement() {
       _classCallCheck(this, RudderElement);
 
@@ -7187,9 +7314,7 @@ var rudderanalytics = (function (exports) {
     return RudderElement;
   }();
 
-  var RudderElementBuilder =
-  /*#__PURE__*/
-  function () {
+  var RudderElementBuilder = /*#__PURE__*/function () {
     function RudderElementBuilder() {
       _classCallCheck(this, RudderElementBuilder);
 
@@ -7327,14 +7452,16 @@ var rudderanalytics = (function (exports) {
     var i = offset || 0;
     var bth = byteToHex;
     // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([bth[buf[i++]], bth[buf[i++]], 
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]]]).join('');
+    return ([
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]]
+    ]).join('');
   }
 
   var bytesToUuid_1 = bytesToUuid;
@@ -7351,7 +7478,7 @@ var rudderanalytics = (function (exports) {
   var _lastMSecs = 0;
   var _lastNSecs = 0;
 
-  // See https://github.com/broofa/node-uuid for API details
+  // See https://github.com/uuidjs/uuid for API details
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
@@ -7481,7 +7608,7 @@ var rudderanalytics = (function (exports) {
 
   var hop = Object.prototype.hasOwnProperty;
   var strCharAt = String.prototype.charAt;
-  var toStr$1 = Object.prototype.toString;
+  var toStr$2 = Object.prototype.toString;
 
   /**
    * Returns the character at a given index.
@@ -7506,7 +7633,7 @@ var rudderanalytics = (function (exports) {
    */
 
   // TODO: Move to a library
-  var has$4 = function has(context, prop) {
+  var has$3 = function has(context, prop) {
     return hop.call(context, prop);
   };
 
@@ -7521,7 +7648,7 @@ var rudderanalytics = (function (exports) {
 
   // TODO: Move to a library
   var isString = function isString(val) {
-    return toStr$1.call(val) === '[object String]';
+    return toStr$2.call(val) === '[object String]';
   };
 
   /**
@@ -7550,7 +7677,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    */
   var indexKeys = function indexKeys(target, pred) {
-    pred = pred || has$4;
+    pred = pred || has$3;
 
     var results = [];
 
@@ -7574,7 +7701,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    */
   var objectKeys = function objectKeys(target, pred) {
-    pred = pred || has$4;
+    pred = pred || has$3;
 
     var results = [];
 
@@ -7631,7 +7758,7 @@ var rudderanalytics = (function (exports) {
 
     // IE6-8 compatibility (arguments)
     if (isArrayLike(source)) {
-      return indexKeys(source, has$4);
+      return indexKeys(source, has$3);
     }
 
     return objectKeys(source);
@@ -7740,7 +7867,7 @@ var rudderanalytics = (function (exports) {
    * @return {boolean} Returns `true` if the value is an array, otherwise `false`.
    */
   // TODO: Move to library
-  var isArray = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
+  var isArray$1 = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
     return objToString$1.call(val) === '[object Array]';
   };
 
@@ -7755,7 +7882,7 @@ var rudderanalytics = (function (exports) {
    */
   // TODO: Move to library
   var isArrayLike$1 = function isArrayLike(val) {
-    return val != null && (isArray(val) || (val !== 'function' && isNumber(val.length)));
+    return val != null && (isArray$1(val) || (val !== 'function' && isNumber(val.length)));
   };
 
   /**
@@ -7950,8 +8077,6 @@ var rudderanalytics = (function (exports) {
         if (e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
           quotaExceeded = true;
         }
-        break;
-      default:
         break;
       }
     } else if (e.number === -2147024882) {
@@ -8694,9 +8819,7 @@ var rudderanalytics = (function (exports) {
    * in batch and maintains order of the event.
    */
 
-  var EventRepository =
-  /*#__PURE__*/
-  function () {
+  var EventRepository = /*#__PURE__*/function () {
     /**
      *Creates an instance of EventRepository.
      * @memberof EventRepository
@@ -9188,9 +9311,7 @@ var rudderanalytics = (function (exports) {
    */
 
 
-  var Analytics =
-  /*#__PURE__*/
-  function () {
+  var Analytics = /*#__PURE__*/function () {
     /**
      * Creates an instance of Analytics.
      * @memberof Analytics
@@ -9222,6 +9343,9 @@ var rudderanalytics = (function (exports) {
       this.readyCallback = function () {};
 
       this.executeReadyCallback = undefined;
+      this.methodToCallbackMapping = {
+        syncPixel: "syncPixelCallback"
+      };
     }
     /**
      * Process the response from control plane and
@@ -9830,6 +9954,20 @@ var rudderanalytics = (function (exports) {
 
         logger.error("ready callback is not a function");
       }
+    }, {
+      key: "registerCallbacks",
+      value: function registerCallbacks() {
+        var _this3 = this;
+
+        Object.keys(this.methodToCallbackMapping).forEach(function (methodName) {
+          if (_this3.methodToCallbackMapping.hasOwnProperty(methodName)) {
+            var callback = !!window.rudderanalytics ? typeof window.rudderanalytics[_this3.methodToCallbackMapping[methodName]] == "function" ? window.rudderanalytics[_this3.methodToCallbackMapping[methodName]] : function () {} : function () {};
+            logger.debug("registerCallbacks", methodName, callback);
+
+            _this3.on(methodName, callback);
+          }
+        });
+      }
     }]);
 
     return Analytics;
@@ -9845,6 +9983,8 @@ var rudderanalytics = (function (exports) {
   componentEmitter(instance);
 
   {
+    // register supported callbacks
+    instance.registerCallbacks();
     var eventsPushedAlready = !!window.rudderanalytics && window.rudderanalytics.push == Array.prototype.push;
     var methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
 
