@@ -1,13 +1,4 @@
 import logger from "../../utils/logUtil";
-<<<<<<< HEAD
-import Storage from "../../utils/storage";
-
-class GA {
-  constructor(config) {
-    this.trackingID = config.trackingID;
-    // config.allowLinker = true;
-    this.allowLinker = config.allowLinker || false;
-=======
 import is from "is";
 import dot from "obj-case";
 import each from "component-each";
@@ -39,7 +30,6 @@ class GA {
     this.optimize = config.optimize;
     this.resetCustomDimensionsOnPage = config.resetCustomDimensionsOnPage;
     this.inputs = config;
->>>>>>> changes in page,identify,track calls in ga
     this.name = "GA";
   }
 
@@ -65,35 +55,14 @@ class GA {
       "https://www.google-analytics.com/analytics.js",
       "ga"
     );
-<<<<<<< HEAD
-
-    // use analytics_debug.js for debugging
-
-    ga("create", this.trackingID, "auto", "rudder_ga", {
-      allowLinker: this.allowLinker,
-    });
-
-    var userId = Storage.getUserId()
-    if (userId && userId !== '') {
-      ga("rudder_ga.set", "userId", userId);
-    }
-    //ga("send", "pageview");
-=======
     //window.ga_debug = {trace: true};
     ga("create", this.trackingID, "auto");
     ga("send", "pageview");
->>>>>>> changes in page,identify,track calls in ga
 
     logger.debug("===in init GA===");
   }
 
   identify(rudderElement) {
-<<<<<<< HEAD
-    var userId = rudderElement.message.userId !== ''
-      ? rudderElement.message.userId
-      : rudderElement.message.anonymousId
-    ga("rudder_ga.set", "userId", userId);
-=======
     console.log(this.sendUserId);
 
     if (this.sendUserId && rudderElement.message.userId) {
@@ -115,7 +84,6 @@ class GA {
     console.log("custom");
     console.log(custom);
     if (Object.keys(custom).length) ga("set", custom);
->>>>>>> changes in page,identify,track calls in ga
     logger.debug("in GoogleAnalyticsManager identify");
     console.log("in GoogleAnalyticsManager identify");
   }
@@ -156,9 +124,6 @@ class GA {
           ? !!rudderElement.message.properties.nonInteraction
           : !!opts.nonInteraction,
     };
-<<<<<<< HEAD
-    ga("rudder_ga.send", "event", payLoad);
-=======
 
     console.log("payload 1");
     console.log(payLoad);
@@ -183,41 +148,62 @@ class GA {
     console.log("payload");
     console.log(payLoad);
     ga("send", "event", payLoad);
->>>>>>> changes in page,identify,track calls in ga
     logger.debug("in GoogleAnalyticsManager track");
     console.log("in GoogleAnalyticsManager track");
+
+    // Ecommerce events
+    var event = rudderElement.message.event;
+    console.log(event);
+    console.log("event")
+    if(event ==="Order Completed"){
+      console.log("inside order completed")
+      var properties = rudderElement.message.properties;
+      var total = properties.total;
+      var orderId = properties.orderId;
+      var products = properties.products;
+
+      if(!orderId) return;
+      console.log(this.ecommerce)
+      if(!this.ecommerce){
+        ga('require','ecommerce')
+        this.ecommerce = true;
+      }
+
+      console.log(this.ecommerce)
+
+      ga('ecommerce:addTransaction',{
+        affiliation: properties.affiliation,
+        shipping: properties.shipping,
+        revenue: total,
+        tax: properties.tax,
+        id: orderId,
+        currency: properties.currency
+
+      });
+
+      each(products, function(product){
+        var productTrack = createProductTrack(rudderElement,product);
+        console.log(productTrack)
+        console.log("productTrack")
+        ga('ecommerce:addItem',{
+          category: productTrack.category,
+          quantity: productTrack.quantity,
+          price: productTrack.price,
+          name: productTrack.name,
+          sku: productTrack.sku,
+          id: orderId,
+          currency: productTrack.currency
+        })
+      })
+
+      ga('ecommerce:send')
+    }
 
    
   }
 
   page(rudderElement) {
     logger.debug("in GoogleAnalyticsManager page");
-<<<<<<< HEAD
-    var path =
-      rudderElement.message.properties && rudderElement.message.properties.path
-        ? rudderElement.message.properties.path
-        : undefined;
-    var title = rudderElement.message.properties && rudderElement.message.properties.title
-        ? rudderElement.message.properties.title
-        : undefined;
-    var location = rudderElement.message.properties && rudderElement.message.properties.url
-        ? rudderElement.message.properties.url
-        : undefined;
-
-    if (path) {
-      ga("rudder_ga.set", "page", path);
-    }
-
-    if (title) {
-      ga("rudder_ga.set", "title", title);
-    }
-
-    if (location) {
-      ga("rudder_ga.set", "location", location);
-    }
-    ga("rudder_ga.send", "pageview");
-    
-=======
     console.log("in GoogleAnalyticsManager page");
 
     var category = rudderElement.message.properties.category;
@@ -278,7 +264,6 @@ class GA {
     if (name && this.trackNamedPages) {
       this.track(rudderElement, { nonInteraction: 1 });
     }
->>>>>>> changes in page,identify,track calls in ga
   }
 
   isLoaded() {
@@ -293,9 +278,6 @@ class GA {
 function metrics(obj, dimensions, metrics, contentGroupings) {
   var ret = {};
 
-<<<<<<< HEAD
-export { GA };
-=======
   each([metrics, dimensions, contentGroupings], function (group) {
     each(group, function (prop, key) {
       var value = dot(obj, prop) || obj[prop];
@@ -333,5 +315,10 @@ function path(properties, includeSearch) {
   if (includeSearch && properties.search) str += properties.search;
   return str;
 }
+
+function createProductTrack(rudderElement,properties){
+  var props = properties || {};
+  props.currency = properties.currency || rudderElement.message.properties.currency;
+  return {properties: props}
+}
 export { GA };
->>>>>>> changes in page,identify,track calls in ga

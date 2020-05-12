@@ -60,15 +60,26 @@
         createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
       });
 
-      window.rudderanalytics.track("Product Added", {
-        order_ID: "2969302398",
-        category: "boots",
-        product_name: "yellow_cowboy_boots",
-        price: 99.95,
-        currency: "EUR",
-        revenue: 2000,
-        value: 3000,
-        checkinDate: "Thu Mar 24 2018 17:46:45 GMT+0000 (UTC)"
+      window.rudderanalytics.track("Order Completed", {
+        orderId: 'af5ccd73',
+            total: 99.99,
+            shipping: 13.99,
+            tax: 20.99,
+            currency: 'INR',
+            products: [
+              {
+                quantity: 1,
+                price: 24.75,
+                name: 'my product',
+                sku: 'p-298'
+              },
+              {
+                quantity: 3,
+                price: 24.75,
+                name: 'other product',
+                sku: 'p-299'
+              }
+            ]
       });
       window.rudderanalytics.track('Payment Info Entered',
           {

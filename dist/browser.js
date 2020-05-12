@@ -2170,6 +2170,237 @@ var rudderanalytics = (function (exports) {
   	return target;
   };
 
+  var max = Math.max;
+
+  /**
+   * Produce a new array composed of all but the first `n` elements of an input `collection`.
+   *
+   * @name drop
+   * @api public
+   * @param {number} count The number of elements to drop.
+   * @param {Array} collection The collection to iterate over.
+   * @return {Array} A new array containing all but the first element from `collection`.
+   * @example
+   * drop(0, [1, 2, 3]); // => [1, 2, 3]
+   * drop(1, [1, 2, 3]); // => [2, 3]
+   * drop(2, [1, 2, 3]); // => [3]
+   * drop(3, [1, 2, 3]); // => []
+   * drop(4, [1, 2, 3]); // => []
+   */
+  var drop = function drop(count, collection) {
+    var length = collection ? collection.length : 0;
+
+    if (!length) {
+      return [];
+    }
+
+    // Preallocating an array *significantly* boosts performance when dealing with
+    // `arguments` objects on v8. For a summary, see:
+    // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
+    var toDrop = max(Number(count) || 0, 0);
+    var resultsLength = max(length - toDrop, 0);
+    var results = new Array(resultsLength);
+
+    for (var i = 0; i < resultsLength; i += 1) {
+      results[i] = collection[i + toDrop];
+    }
+
+    return results;
+  };
+
+  /*
+   * Exports.
+   */
+
+  var drop_1 = drop;
+
+  var max$1 = Math.max;
+
+  /**
+   * Produce a new array by passing each value in the input `collection` through a transformative
+   * `iterator` function. The `iterator` function is passed three arguments:
+   * `(value, index, collection)`.
+   *
+   * @name rest
+   * @api public
+   * @param {Array} collection The collection to iterate over.
+   * @return {Array} A new array containing all but the first element from `collection`.
+   * @example
+   * rest([1, 2, 3]); // => [2, 3]
+   */
+  var rest = function rest(collection) {
+    if (collection == null || !collection.length) {
+      return [];
+    }
+
+    // Preallocating an array *significantly* boosts performance when dealing with
+    // `arguments` objects on v8. For a summary, see:
+    // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
+    var results = new Array(max$1(collection.length - 2, 0));
+
+    for (var i = 1; i < collection.length; i += 1) {
+      results[i - 1] = collection[i];
+    }
+
+    return results;
+  };
+
+  /*
+   * Exports.
+   */
+
+  var rest_1 = rest;
+
+  /*
+   * Module dependencies.
+   */
+
+
+
+
+  var has$1 = Object.prototype.hasOwnProperty;
+  var objToString = Object.prototype.toString;
+
+  /**
+   * Returns `true` if a value is an object, otherwise `false`.
+   *
+   * @name isObject
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean}
+   */
+  // TODO: Move to a library
+  var isObject = function isObject(value) {
+    return Boolean(value) && typeof value === 'object';
+  };
+
+  /**
+   * Returns `true` if a value is a plain object, otherwise `false`.
+   *
+   * @name isPlainObject
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean}
+   */
+  // TODO: Move to a library
+  var isPlainObject$1 = function isPlainObject(value) {
+    return Boolean(value) && objToString.call(value) === '[object Object]';
+  };
+
+  /**
+   * Assigns a key-value pair to a target object when the value assigned is owned,
+   * and where target[key] is undefined.
+   *
+   * @name shallowCombiner
+   * @api private
+   * @param {Object} target
+   * @param {Object} source
+   * @param {*} value
+   * @param {string} key
+   */
+  var shallowCombiner = function shallowCombiner(target, source, value, key) {
+    if (has$1.call(source, key) && target[key] === undefined) {
+      target[key] = value;
+    }
+    return source;
+  };
+
+  /**
+   * Assigns a key-value pair to a target object when the value assigned is owned,
+   * and where target[key] is undefined; also merges objects recursively.
+   *
+   * @name deepCombiner
+   * @api private
+   * @param {Object} target
+   * @param {Object} source
+   * @param {*} value
+   * @param {string} key
+   * @return {Object}
+   */
+  var deepCombiner = function(target, source, value, key) {
+    if (has$1.call(source, key)) {
+      if (isPlainObject$1(target[key]) && isPlainObject$1(value)) {
+          target[key] = defaultsDeep(target[key], value);
+      } else if (target[key] === undefined) {
+          target[key] = value;
+      }
+    }
+
+    return source;
+  };
+
+  /**
+   * TODO: Document
+   *
+   * @name defaultsWith
+   * @api private
+   * @param {Function} combiner
+   * @param {Object} target
+   * @param {...Object} sources
+   * @return {Object} Return the input `target`.
+   */
+  var defaultsWith = function(combiner, target /*, ...sources */) {
+    if (!isObject(target)) {
+      return target;
+    }
+
+    combiner = combiner || shallowCombiner;
+    var sources = drop_1(2, arguments);
+
+    for (var i = 0; i < sources.length; i += 1) {
+      for (var key in sources[i]) {
+        combiner(target, sources[i], sources[i][key], key);
+      }
+    }
+
+    return target;
+  };
+
+  /**
+   * Copies owned, enumerable properties from a source object(s) to a target
+   * object when the value of that property on the source object is `undefined`.
+   * Recurses on objects.
+   *
+   * @name defaultsDeep
+   * @api public
+   * @param {Object} target
+   * @param {...Object} sources
+   * @return {Object} The input `target`.
+   */
+  var defaultsDeep = function defaultsDeep(target /*, sources */) {
+    // TODO: Replace with `partial` call?
+    return defaultsWith.apply(null, [deepCombiner, target].concat(rest_1(arguments)));
+  };
+
+  /**
+   * Copies owned, enumerable properties from a source object(s) to a target
+   * object when the value of that property on the source object is `undefined`.
+   *
+   * @name defaults
+   * @api public
+   * @param {Object} target
+   * @param {...Object} sources
+   * @return {Object}
+   * @example
+   * var a = { a: 1 };
+   * var b = { a: 2, b: 2 };
+   *
+   * defaults(a, b);
+   * console.log(a); //=> { a: 1, b: 2 }
+   */
+  var defaults = function(target /*, ...sources */) {
+    // TODO: Replace with `partial` call?
+    return defaultsWith.apply(null, [null, target].concat(rest_1(arguments)));
+  };
+
+  /*
+   * Exports.
+   */
+
+  var defaults_1 = defaults;
+  var deep = defaultsDeep;
+  defaults_1.deep = deep;
+
   var GA = /*#__PURE__*/function () {
     function GA(config) {
       _classCallCheck(this, GA);
@@ -2205,7 +2436,7 @@ var rudderanalytics = (function (exports) {
     _createClass(GA, [{
       key: "init",
       value: function init() {
-        this.resetCustomDimensionsOnPage = '';
+        this.resetCustomDimensionsOnPage = "";
         this.pageCalled = false;
 
         (function (i, s, o, g, r, a, m) {
@@ -2244,7 +2475,7 @@ var rudderanalytics = (function (exports) {
         var custom = metrics(rudderElement.message.context.traits, this.dimensions, this.metrics, this.contentGroupings);
         console.log("custom");
         console.log(custom);
-        if (Object.keys(custom).length) ga('set', custom);
+        if (Object.keys(custom).length) ga("set", custom);
         logger.debug("in GoogleAnalyticsManager identify");
         console.log("in GoogleAnalyticsManager identify");
       }
@@ -2254,7 +2485,11 @@ var rudderanalytics = (function (exports) {
         console.log("this.name");
         console.log(this.name);
         console.log("in GoogleAnalyticsManager track 1");
+        var contextOpts; //need to implement
 
+        var interfaceOpts = this.inputs;
+        var opts = defaults_1(options || {}, contextOpts);
+        opts = defaults_1(opts, interfaceOpts);
         console.log("inputs");
         console.log(this.inputs);
         var eventCategory = rudderElement.message.properties.category;
@@ -2267,11 +2502,11 @@ var rudderanalytics = (function (exports) {
         }
 
         var payLoad = {
-          eventCategory: eventCategory || 'All',
+          eventCategory: eventCategory || "All",
           eventAction: eventAction,
           eventLabel: eventLabel,
           eventValue: formatValue(eventValue),
-          nonInteraction: rudderElement.message.properties.nonInteraction !== undefined ? !!rudderElement.message.properties.nonInteraction : !!this.nonInteraction
+          nonInteraction: rudderElement.message.properties.nonInteraction !== undefined ? !!rudderElement.message.properties.nonInteraction : !!opts.nonInteraction
         };
         console.log("payload 1");
         console.log(payLoad);
@@ -2292,7 +2527,51 @@ var rudderanalytics = (function (exports) {
         console.log(payLoad);
         ga("send", "event", payLoad);
         logger.debug("in GoogleAnalyticsManager track");
-        console.log("in GoogleAnalyticsManager track");
+        console.log("in GoogleAnalyticsManager track"); // Ecommerce events
+
+        var event = rudderElement.message.event;
+        console.log(event);
+        console.log("event");
+
+        if (event === "Order Completed") {
+          console.log("inside order completed");
+          var properties = rudderElement.message.properties;
+          var total = properties.total;
+          var orderId = properties.orderId;
+          var products = properties.products;
+          if (!orderId) return;
+          console.log(this.ecommerce);
+
+          if (!this.ecommerce) {
+            ga('require', 'ecommerce');
+            this.ecommerce = true;
+          }
+
+          console.log(this.ecommerce);
+          ga('ecommerce:addTransaction', {
+            affiliation: properties.affiliation,
+            shipping: properties.shipping,
+            revenue: total,
+            tax: properties.tax,
+            id: orderId,
+            currency: properties.currency
+          });
+          componentEach(products, function (product) {
+            var productTrack = createProductTrack(rudderElement, product);
+            console.log(productTrack);
+            console.log("productTrack");
+            ga('ecommerce:addItem', {
+              category: productTrack.category,
+              quantity: productTrack.quantity,
+              price: productTrack.price,
+              name: productTrack.name,
+              sku: productTrack.sku,
+              id: orderId,
+              currency: productTrack.currency
+            });
+          });
+          ga('ecommerce:send');
+        }
       }
     }, {
       key: "page",
@@ -2305,7 +2584,7 @@ var rudderanalytics = (function (exports) {
         var campaign = rudderElement.message.context.campaign | {};
         var pageview = {};
         var pagePath = path(eventProperties, this.includeSearch);
-        var pageReferrer = rudderElement.message.properties.referrer || '';
+        var pageReferrer = rudderElement.message.properties.referrer || "";
         var pageTitle = name || eventProperties.title; // var track;
 
         pageview.page = pagePath;
@@ -2336,14 +2615,14 @@ var rudderanalytics = (function (exports) {
 
         console.log(payload);
         console.log("payload");
-        ga('set', resetCustomDimensions);
+        ga("set", resetCustomDimensions);
         pageview = extend(pageview, setCustomDimenionsAndMetrics(eventProperties, this.inputs));
         if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
-        ga('set', payload);
+        ga("set", payload);
         if (this.pageCalled) delete pageview.location;
         console.log("pageview");
         console.log(pageview);
-        ga('send', 'pageview', pageview); //track categorized page call to be modified
+        ga("send", "pageview", pageview); //track categorized page call to be modified
 
         if (category && this.trackCategorizedPages) {
           this.track(rudderElement, {
@@ -2412,6 +2691,14 @@ var rudderanalytics = (function (exports) {
     var str = properties.path;
     if (includeSearch && properties.search) str += properties.search;
     return str;
+  }
+
+  function createProductTrack(rudderElement, properties) {
+    var props = properties || {};
+    props.currency = properties.currency || rudderElement.message.properties.currency;
+    return {
+      properties: props
+    };
   }
 
   var index$1 =  GA ;
@@ -3711,9 +3998,7 @@ var rudderanalytics = (function (exports) {
     return Keen;
   }();
 
-        Object.keys(context.traits).forEach(function (field) {
-          if (context.traits.hasOwnProperty(field)) {
-            var value = context.traits[field];
+  var has$2 = Object.prototype.hasOwnProperty;
 
   /**
    * Copy the properties of one or more `objects` onto a destination object. Input objects are iterated over
@@ -3740,7 +4025,7 @@ var rudderanalytics = (function (exports) {
 
     for (var i = 0; i < sources.length; i += 1) {
       for (var key in sources[i]) {
-        if (has$1.call(sources[i], key)) {
+        if (has$2.call(sources[i], key)) {
           dest[key] = sources[i][key];
         }
       }
@@ -5465,181 +5750,11 @@ var rudderanalytics = (function (exports) {
           groupTraits["Group - id"] = groupId;
         }
 
-        window._kmq.push(["set", groupTraits]);
-
-        logger.debug("in Kissmetrics group");
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        return is_1.object(window.KM);
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return is_1.object(window.KM);
-      }
-    }]);
-
-    return Kissmetrics;
-  }();
-
-  var CustomerIO = /*#__PURE__*/function () {
-    function CustomerIO(config) {
-      _classCallCheck(this, CustomerIO);
-
-      this.siteID = config.siteID;
-      this.apiKey = config.apiKey;
-      this.name = "CUSTOMERIO";
-    }
-
-    _createClass(CustomerIO, [{
-      key: "init",
-      value: function init() {
-        logger.debug("===in init Customer IO init===");
-        window._cio = window._cio || [];
-        var siteID = this.siteID;
-
-        (function () {
-          var a, b, c;
-
-          a = function a(f) {
-            return function () {
-              window._cio.push([f].concat(Array.prototype.slice.call(arguments, 0)));
-            };
-          };
-
-          b = ["load", "identify", "sidentify", "track", "page"];
-
-          for (c = 0; c < b.length; c++) {
-            window._cio[b[c]] = a(b[c]);
-          }
-
-          var t = document.createElement("script"),
-              s = document.getElementsByTagName("script")[0];
-          t.async = true;
-          t.id = "cio-tracker";
-          t.setAttribute("data-site-id", siteID);
-          t.src = "https://assets.customer.io/assets/track.js";
-          s.parentNode.insertBefore(t, s);
-        })();
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        logger.debug("in Customer IO identify");
-        var userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
-        var traits = rudderElement.message.context.traits ? rudderElement.message.context.traits : {};
-
-        if (!traits.created_at) {
-          traits.created_at = Math.floor(new Date().getTime() / 1000);
-        }
-
-        traits.id = userId;
-
-        window._cio.identify(traits);
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        logger.debug("in Customer IO track");
-        var eventName = rudderElement.message.event;
-        var properties = rudderElement.message.properties;
-
-        window._cio.track(eventName, properties);
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        logger.debug("in Customer IO page");
-        var name = rudderElement.message.name || rudderElement.message.properties.url;
-
-        window._cio.page(name, rudderElement.message.properties);
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        return !!(window._cio && window._cio.push !== Array.prototype.push);
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return !!(window._cio && window._cio.push !== Array.prototype.push);
-      }
-    }]);
-
-    return CustomerIO;
-  }();
-
-  /**
-   * Cache whether `<body>` exists.
-   */
-
-  var body = false;
-
-
-  /**
-   * Callbacks to call when the body exists.
-   */
-
-  var callbacks = [];
-
-
-  /**
-   * Export a way to add handlers to be invoked once the body exists.
-   *
-   * @param {Function} callback  A function to call when the body exists.
-   */
-
-  var onBody = function onBody (callback) {
-    if (body) {
-      call(callback);
-    } else {
-      callbacks.push(callback);
-    }
-  };
-
-
-  /**
-   * Set an interval to check for `document.body`.
-   */
-
-  var interval = setInterval(function () {
-    if (!document.body) return;
-    body = true;
-    componentEach(callbacks, call);
-    clearInterval(interval);
-  }, 5);
-
-
-  /**
-   * Call a callback, passing it the body.
-   *
-   * @param {Function} callback  The callback to call.
-   */
-
-  function call (callback) {
-    callback(document.body);
-  }
-
-  var Chartbeat = /*#__PURE__*/function () {
-    function Chartbeat(config, analytics) {
-      _classCallCheck(this, Chartbeat);
-
-      this.analytics = analytics; // use this to modify failed integrations or for passing events from callback to other destinations
-
-      this._sf_async_config = window._sf_async_config = window._sf_async_config || {};
-      window._sf_async_config.useCanonical = true;
-      window._sf_async_config.uid = config.uid;
-      window._sf_async_config.domain = config.domain;
-      this.isVideo = config.video ? true : false;
-      this.sendNameAndCategoryAsTitle = config.sendNameAndCategoryAsTitle || true;
-      this.subscriberEngagementKeys = config.subscriberEngagementKeys || [];
-      this.replayEvents = [];
-      this.failed = false;
-      this.isFirstPageCallMade = false;
-      this.name = "CHARTBEAT";
-    }
+  var json3 = createCommonjsModule(function (module, exports) {
+  (function () {
+    // Detect the `define` function exposed by asynchronous module loaders. The
+    // strict `define` check is necessary for compatibility with `r.js`.
+    var isLoader = typeof undefined === "function" ;
 
     _createClass(Chartbeat, [{
       key: "init",
