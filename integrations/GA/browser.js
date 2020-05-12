@@ -1,7 +1,11 @@
 import logger from "../../utils/logUtil";
+import { Cookie } from "../../utils/storage/cookie";
+
 class GA {
   constructor(config) {
     this.trackingID = config.trackingID;
+    // config.allowLinker = true;
+    this.allowLinker = config.allowLinker || false;
     this.name = "GA";
   }
 
@@ -28,14 +32,24 @@ class GA {
 
     //window.ga_debug = {trace: true};
 
-    ga("create", this.trackingID, "auto", "rudder_ga");
+    ga("create", this.trackingID, "auto", "rudder_ga", {
+      allowLinker: this.allowLinker,
+    });
+
+    var userId = Cookie.get('rl_user_id');
+    if (userId && userId !== '') {
+      ga("rudder_ga.set", "userId", userId);
+    }
     //ga("send", "pageview");
 
     logger.debug("===in init GA===");
   }
 
   identify(rudderElement) {
-    ga("rudder_ga.set", "userId", rudderElement.message.anonymous_id);
+    var userId = rudderElement.message.userId !== ''
+      ? rudderElement.message.userId
+      : rudderElement.message.anonymousId
+    ga("rudder_ga.set", "userId", userId);
     logger.debug("in GoogleAnalyticsManager identify");
   }
 
@@ -91,7 +105,6 @@ class GA {
     if (location) {
       ga("rudder_ga.set", "location", location);
     }
-
     ga("rudder_ga.send", "pageview");
     
   }
