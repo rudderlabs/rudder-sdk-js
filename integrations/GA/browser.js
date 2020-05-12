@@ -145,6 +145,54 @@ class GA {
     logger.debug("in GoogleAnalyticsManager track");
     console.log("in GoogleAnalyticsManager track");
 
+    // Ecommerce events
+    var event = rudderElement.message.event;
+    console.log(event);
+    console.log("event")
+    if(event ==="Order Completed"){
+      console.log("inside order completed")
+      var properties = rudderElement.message.properties;
+      var total = properties.total;
+      var orderId = properties.orderId;
+      var products = properties.products;
+
+      if(!orderId) return;
+      console.log(this.ecommerce)
+      if(!this.ecommerce){
+        ga('require','ecommerce')
+        this.ecommerce = true;
+      }
+
+      console.log(this.ecommerce)
+
+      ga('ecommerce:addTransaction',{
+        affiliation: properties.affiliation,
+        shipping: properties.shipping,
+        revenue: total,
+        tax: properties.tax,
+        id: orderId,
+        currency: properties.currency
+
+      });
+
+      each(products, function(product){
+        var productTrack = createProductTrack(rudderElement,product);
+        console.log(productTrack)
+        console.log("productTrack")
+        ga('ecommerce:addItem',{
+          category: productTrack.category,
+          quantity: productTrack.quantity,
+          price: productTrack.price,
+          name: productTrack.name,
+          sku: productTrack.sku,
+          id: orderId,
+          currency: productTrack.currency
+        })
+      })
+
+      ga('ecommerce:send')
+    }
+
    
   }
 
@@ -260,5 +308,11 @@ function path(properties, includeSearch) {
   var str = properties.path;
   if (includeSearch && properties.search) str += properties.search;
   return str;
+}
+
+function createProductTrack(rudderElement,properties){
+  var props = properties || {};
+  props.currency = properties.currency || rudderElement.message.properties.currency;
+  return {properties: props}
 }
 export { GA };
