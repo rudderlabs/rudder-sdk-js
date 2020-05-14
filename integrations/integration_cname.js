@@ -1,3 +1,4 @@
+// for sdk side native integration identification
 let commonNames = {
  "All": "All",
  "Google Analytics": "GA",

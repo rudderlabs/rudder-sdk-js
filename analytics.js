@@ -4,7 +4,8 @@ import {
   handleError,
   getDefaultPageProperties,
   findAllEnabledDestinations,
-  tranformToRudderNames
+  tranformToRudderNames,
+  transformToServerNames
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -620,6 +621,9 @@ class Analytics {
         this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
       }
 
+      // convert integrations object to server identified names, kind of hack now!
+      transformToServerNames(rudderElement.message.integrations)
+      
       // self analytics process, send to rudder
       enqueue.call(this, rudderElement, type);
 

@@ -157,6 +157,7 @@ var rudderanalytics = (function (exports) {
     }
   };
 
+  // for sdk side native integration identification
   var commonNames = {
     "All": "All",
     "Google Analytics": "GA",
@@ -193,6 +194,25 @@ var rudderanalytics = (function (exports) {
     "Lotame": "LOTAME",
     "LOTAME": "LOTAME",
     "Visual Website Optimizer": "VWO",
+    "VWO": "VWO"
+  };
+
+  var clientToServerNames = {
+    "All": "All",
+    "GA": "Google Analytics",
+    "GOOGLEADS": "Google Ads",
+    "BRAZE": "Braze",
+    "Chartbeat": "Chartbeat",
+    "COMSCORE": "Comscore",
+    "CUSTOMERIO": "Customer IO",
+    "FB_PIXEL": "Facebook Pixel",
+    "GOOGLETAGMANAGER": "Google Tag Manager",
+    "HOTJAR": "Hotjar",
+    "HS": "HubSpot",
+    "INTERCOM": "Intercom",
+    "KEEN": "Keen",
+    "KISSMETRICS": "Kiss Metrics",
+    "LOTAME": "Lotame",
     "VWO": "VWO"
   };
 
@@ -384,8 +404,25 @@ var rudderanalytics = (function (exports) {
         }
 
         if (key != "All") {
-          // delete user supplied keys except All and if except those where oldkeys are same as transformed keys
+          // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys 
           if (commonNames[key] != undefined && commonNames[key] != key) {
+            delete integrationObject[key];
+          }
+        }
+      }
+    });
+  }
+
+  function transformToServerNames(integrationObject) {
+    Object.keys(integrationObject).forEach(function (key) {
+      if (integrationObject.hasOwnProperty(key)) {
+        if (clientToServerNames[key]) {
+          integrationObject[clientToServerNames[key]] = integrationObject[key];
+        }
+
+        if (key != "All") {
+          // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys 
+          if (clientToServerNames[key] != undefined && clientToServerNames[key] != key) {
             delete integrationObject[key];
           }
         }
@@ -10973,8 +11010,10 @@ var rudderanalytics = (function (exports) {
             logger.debug("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
 
             this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
-          } // self analytics process, send to rudder
+          } // convert integrations object to server identified names, kind of hack now!
 
+
+          transformToServerNames(rudderElement.message.integrations); // self analytics process, send to rudder
 
           enqueue.call(this, rudderElement, type);
           logger.debug(type + " is called ");

@@ -1,6 +1,7 @@
 //import * as XMLHttpRequestNode from "Xmlhttprequest";
 import logger from "./logUtil";
 import {commonNames} from "../integrations/integration_cname"
+import {clientToServerNames} from "../integrations/client_server_name"
 
 let XMLHttpRequestNode;
 if (!process.browser) {
@@ -235,6 +236,23 @@ function tranformToRudderNames(integrationObject) {
   })
 }
 
+function transformToServerNames(integrationObject) {
+  Object.keys(integrationObject).forEach(key => {
+    if(integrationObject.hasOwnProperty(key)) {
+      if(clientToServerNames[key]) {
+        integrationObject[clientToServerNames[key]] = integrationObject[key]
+      }
+      if(key != "All") {
+        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys 
+        if(clientToServerNames[key] != undefined && clientToServerNames[key] != key) {
+          delete integrationObject[key]
+        }
+      }
+      
+    }
+  })
+}
+
 /**
  * 
  * @param {*} sdkSuppliedIntegrations 
@@ -310,5 +328,6 @@ export {
   getDefaultPageProperties,
   findAllEnabledDestinations,
   tranformToRudderNames,
+  transformToServerNames,
   handleError
 };
