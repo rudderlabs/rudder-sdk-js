@@ -164,6 +164,7 @@ class Analytics {
     }
 
     intgArray.forEach((intg) => {
+      logger.debug("[Analytics] init :: trying to initialize integration name:: ", intg.name)
       let intgClass = integrations[intg.name];
       let destConfig = intg.config;
       let intgInstance = new intgClass(destConfig, self);

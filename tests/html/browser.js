@@ -454,7 +454,7 @@ var rudderanalytics = (function (exports) {
       configPlaneEnabledIntegrations.forEach(function (intg) {
         if (!allValue) {
           // All false ==> check if intg true supplied
-          if (sdkSuppliedIntegrations[intg] && sdkSuppliedIntegrations[intg]) {
+          if (sdkSuppliedIntegrations[intg] != undefined && sdkSuppliedIntegrations[intg] == true) {
             enabledList.push(intg);
           }
         } else {
@@ -481,7 +481,7 @@ var rudderanalytics = (function (exports) {
       configPlaneEnabledIntegrations.forEach(function (intg) {
         if (!allValue) {
           // All false ==> check if intg true supplied
-          if (sdkSuppliedIntegrations[intg.name] && sdkSuppliedIntegrations[intg.name]) {
+          if (sdkSuppliedIntegrations[intg.name] != undefined && sdkSuppliedIntegrations[intg.name] == true) {
             enabledList.push(intg);
           }
         } else {
@@ -10615,6 +10615,7 @@ var rudderanalytics = (function (exports) {
         }
 
         intgArray.forEach(function (intg) {
+          logger.debug("[Analytics] init :: trying to initialize integration name:: ", intg.name);
           var intgClass = integrations[intg.name];
           var destConfig = intg.config;
           var intgInstance = new intgClass(destConfig, self);

@@ -271,7 +271,7 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
     configPlaneEnabledIntegrations.forEach(intg => {
       if(!allValue) {
         // All false ==> check if intg true supplied
-        if(sdkSuppliedIntegrations[intg] && sdkSuppliedIntegrations[intg]) {
+        if(sdkSuppliedIntegrations[intg]!= undefined && sdkSuppliedIntegrations[intg] == true) {
           enabledList.push(intg)
         }
       } else {
@@ -297,7 +297,7 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
     configPlaneEnabledIntegrations.forEach(intg => {
       if(!allValue) {
         // All false ==> check if intg true supplied
-        if(sdkSuppliedIntegrations[intg.name] && sdkSuppliedIntegrations[intg.name]) {
+        if(sdkSuppliedIntegrations[intg.name]!= undefined && sdkSuppliedIntegrations[intg.name] == true) {
           enabledList.push(intg)
         }
       } else {
