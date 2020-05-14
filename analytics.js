@@ -2,7 +2,9 @@ import {
   getJSONTrimmed,
   generateUUID,
   handleError,
-  getDefaultPageProperties
+  getDefaultPageProperties,
+  findAllEnabledDestinations,
+  tranformToRudderNames
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -49,7 +51,7 @@ class Analytics {
     this.trackValues = [];
     this.eventsBuffer = [];
     this.clientIntegrations = [];
-    this.configArray = [];
+    this.loadOnlyIntegrations = {};
     this.clientIntegrationObjects = undefined;
     this.successfullyLoadedIntegration = [];
     this.failedToBeLoadedIntegration = [];
@@ -114,11 +116,17 @@ class Analytics {
             destination.config.useNativeSDK
         );
         if (destination.enabled) {
-          this.clientIntegrations.push(destination.destinationDefinition.name);
-          this.configArray.push(destination.config);
+          this.clientIntegrations.push({"name": destination.destinationDefinition.name, "config": destination.config});
         }
       }, this);
-      this.init(this.clientIntegrations, this.configArray);
+
+      // intersection of config-plane native sdk destinations with sdk load time destination list
+      this.clientIntegrations = findAllEnabledDestinations(
+        this.loadOnlyIntegrations,
+        this.clientIntegrations
+      );
+
+      this.init(this.clientIntegrations);
     } catch (error) {
       handleError(error);
       logger.debug("===handling config BE response processing error===");
@@ -138,11 +146,10 @@ class Analytics {
    * keep the instances reference in core
    *
    * @param {*} intgArray
-   * @param {*} configArray
    * @returns
    * @memberof Analytics
    */
-  init(intgArray, configArray) {
+  init(intgArray) {
     let self = this;
     logger.debug("supported intgs ", integrations);
     // this.clientIntegrationObjects = [];
@@ -154,9 +161,10 @@ class Analytics {
       this.toBeProcessedByIntegrationArray = [];
       return;
     }
-    intgArray.forEach((intg, index) => {
-      let intgClass = integrations[intg];
-      let destConfig = configArray[index];
+
+    intgArray.forEach((intg) => {
+      let intgClass = integrations[intg.name];
+      let destConfig = intg.config;
       let intgInstance = new intgClass(destConfig, self);
       intgInstance.init();
 
@@ -168,26 +176,35 @@ class Analytics {
 
   replayEvents(object) {
     if (
-      (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length) 
-      && object.toBeProcessedByIntegrationArray.length > 0
+      object.successfullyLoadedIntegration.length +
+        object.failedToBeLoadedIntegration.length ==
+        object.clientIntegrations.length &&
+      object.toBeProcessedByIntegrationArray.length > 0
     ) {
-      logger.debug("===replay events called====", object.successfullyLoadedIntegration.length,  object.failedToBeLoadedIntegration.length)
+      logger.debug(
+        "===replay events called====",
+        object.successfullyLoadedIntegration.length,
+        object.failedToBeLoadedIntegration.length
+      );
       object.clientIntegrationObjects = [];
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
 
-      logger.debug("==registering after callback===", object.clientIntegrationObjects.length)
+      logger.debug(
+        "==registering after callback===",
+        object.clientIntegrationObjects.length
+      );
       object.executeReadyCallback = after(
         object.clientIntegrationObjects.length,
         object.readyCallback
       );
 
-      logger.debug("==registering ready callback===")
+      logger.debug("==registering ready callback===");
       object.on("ready", object.executeReadyCallback);
 
       object.clientIntegrationObjects.forEach(intg => {
-        logger.debug("===looping over each successful integration====")
+        logger.debug("===looping over each successful integration====");
         if (!intg["isReady"] || intg["isReady"]()) {
-          logger.debug("===letting know I am ready=====", intg["name"])
+          logger.debug("===letting know I am ready=====", intg["name"]);
           object.emit("ready");
         }
       });
@@ -196,24 +213,29 @@ class Analytics {
       object.toBeProcessedByIntegrationArray.forEach(event => {
         let methodName = event[0];
         event.shift();
-        let integrationOptions = event[0].message.integrations;
-        for (let i = 0; i < object.clientIntegrationObjects.length; i++) {
-          if (
-            integrationOptions[object.clientIntegrationObjects[i].name] ||
-            (integrationOptions[object.clientIntegrationObjects[i].name] ==
-              undefined &&
-              integrationOptions["All"])
-          ) {
-            try {
-              if (
-                !object.clientIntegrationObjects[i]["isFailed"] ||
-                !object.clientIntegrationObjects[i]["isFailed"]()
-              ) {
-                object.clientIntegrationObjects[i][methodName](...event);
-              }
-            } catch (error) {
-              handleError(error);
+
+        var clientSuppliedIntegrations = event[0].message.integrations;
+
+        // get intersection between config plane native enabled destinations
+        // (which were able to successfully load on the page) vs user supplied integrations
+        var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+          clientSuppliedIntegrations,
+          object.clientIntegrationObjects
+        );
+
+        //send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
+        for (let i = 0; i < succesfulLoadedIntersectClientSuppliedIntegrations.length; i++) {
+          try {
+            if (
+              !succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"] ||
+              !succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"]()
+            ) {
+              succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
+                ...event
+              );
             }
+          } catch (error) {
+            handleError(error);
           }
         }
       });
@@ -230,7 +252,10 @@ class Analytics {
   isInitialized(instance, time = 0) {
     return new Promise(resolve => {
       if (instance.isLoaded()) {
-        logger.debug("===integration loaded successfully====", instance["name"])
+        logger.debug(
+          "===integration loaded successfully====",
+          instance["name"]
+        );
         this.successfullyLoadedIntegration.push(instance);
         return resolve(this);
       }
@@ -241,7 +266,7 @@ class Analytics {
       }
 
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        logger.debug("====after pause, again checking====")
+        logger.debug("====after pause, again checking====");
         return this.isInitialized(
           instance,
           time + INTEGRATION_LOAD_CHECK_INTERVAL
@@ -565,29 +590,37 @@ class Analytics {
       }
       logger.debug(JSON.stringify(rudderElement));
 
-      var integrations = rudderElement.message.integrations;
+      // structure user supplied integrations object to rudder format
+      if (Object.keys(rudderElement.message.integrations).length > 0) {
+        tranformToRudderNames(rudderElement.message.integrations);
+      }
+
+      // if not specified at event level, All: true is default
+      var clientSuppliedIntegrations = rudderElement.message.integrations;
+
+      // get intersection between config plane native enabled destinations
+      // (which were able to successfully load on the page) vs user supplied integrations
+      var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+        clientSuppliedIntegrations,
+        this.clientIntegrationObjects
+      );
 
       //try to first send to all integrations, if list populated from BE
-      if (this.clientIntegrationObjects) {
-        this.clientIntegrationObjects.forEach(obj => {
-          logger.debug("called in normal flow");
-          if (
-            integrations[obj.name] ||
-            (integrations[obj.name] == undefined && integrations["All"])
-          ) {
-            if (!obj["isFailed"] || !obj["isFailed"]()) {
-              obj[type](rudderElement);
-            }
-          }
-        });
-      }
+      succesfulLoadedIntersectClientSuppliedIntegrations.forEach(obj => {
+        if (!obj["isFailed"] || !obj["isFailed"]()) {
+          obj[type](rudderElement);
+        }
+      });
+
+      // config plane native enabled destinations, still not completely loaded
+      // in the page, add the events to a queue and process later
       if (!this.clientIntegrationObjects) {
         logger.debug("pushing in replay queue");
         //new event processing after analytics initialized  but integrations not fetched from BE
         this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
       }
 
-      // self analytics process
+      // self analytics process, send to rudder
       enqueue.call(this, rudderElement, type);
 
       logger.debug(type + " is called ");
@@ -672,12 +705,17 @@ class Analytics {
     let configUrl = CONFIG_URL;
     if (!writeKey || !serverUrl || serverUrl.length == 0) {
       handleError({
-        message: "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
+        message:
+          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
       });
       throw Error("failed to initialize");
     }
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
+    }
+    if (options && options.integrations) {
+      Object.assign(this.loadOnlyIntegrations, options.integrations);
+      tranformToRudderNames(this.loadOnlyIntegrations);
     }
     if (options && options.configUrl) {
       configUrl = options.configUrl;
@@ -766,7 +804,7 @@ if (process.browser) {
   if (methodArg.length > 0 && methodArg[0] == "load") {
     let method = methodArg[0];
     methodArg.shift();
-    logger.debug("=====from init, calling method:: ", method)
+    logger.debug("=====from init, calling method:: ", method);
     instance[method](...methodArg);
   }
 
@@ -779,7 +817,7 @@ if (process.browser) {
       let event = [...instance.toBeProcessedArray[i]];
       let method = event[0];
       event.shift();
-      logger.debug("=====from init, calling method:: ", method)
+      logger.debug("=====from init, calling method:: ", method);
       instance[method](...event);
     }
     instance.toBeProcessedArray = [];

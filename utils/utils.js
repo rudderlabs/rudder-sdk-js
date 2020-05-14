@@ -1,5 +1,6 @@
 //import * as XMLHttpRequestNode from "Xmlhttprequest";
 import logger from "./logUtil";
+import {commonNames} from "../integrations/integration_cname"
 
 let XMLHttpRequestNode;
 if (!process.browser) {
@@ -212,6 +213,91 @@ function getRevenue(properties, eventName) {
   return getCurrency(revenue);
 }
 
+/**
+ *
+ *
+ * @param {*} integrationObject
+ */
+function tranformToRudderNames(integrationObject) {
+  Object.keys(integrationObject).forEach(key => {
+    if(integrationObject.hasOwnProperty(key)) {
+      if(commonNames[key]) {
+        integrationObject[commonNames[key]] = integrationObject[key]
+      }
+      if(key != "All") {
+        // delete user supplied keys except All
+        delete integrationObject[key]
+      }
+      
+    }
+  })
+}
+
+/**
+ * 
+ * @param {*} sdkSuppliedIntegrations 
+ * @param {*} configPlaneEnabledIntegrations 
+ */
+function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledIntegrations) {
+  let enabledList = []
+  if(!configPlaneEnabledIntegrations || configPlaneEnabledIntegrations.length == 0) {
+    return enabledList
+  }
+  let allValue = true
+  if(typeof configPlaneEnabledIntegrations[0] == "string") {
+    if(sdkSuppliedIntegrations["All"] != undefined) {
+      allValue = sdkSuppliedIntegrations["All"]
+    }
+    configPlaneEnabledIntegrations.forEach(intg => {
+      if(!allValue) {
+        // All false ==> check if intg true supplied
+        if(sdkSuppliedIntegrations[intg] && sdkSuppliedIntegrations[intg]) {
+          enabledList.push(intg)
+        }
+      } else {
+        // All true ==> intg true by default
+        let intgValue = true
+        // check if intg false supplied
+        if(sdkSuppliedIntegrations[intg] != undefined && sdkSuppliedIntegrations[intg] == false) {
+          intgValue = false
+        }
+        if(intgValue) {
+          enabledList.push(intg)
+        }
+      }
+    })
+
+    return enabledList
+  }
+
+  if(typeof configPlaneEnabledIntegrations[0] == "object") {
+    if(sdkSuppliedIntegrations["All"] != undefined) {
+      allValue = sdkSuppliedIntegrations["All"]
+    }
+    configPlaneEnabledIntegrations.forEach(intg => {
+      if(!allValue) {
+        // All false ==> check if intg true supplied
+        if(sdkSuppliedIntegrations[intg.name] && sdkSuppliedIntegrations[intg.name]) {
+          enabledList.push(intg)
+        }
+      } else {
+        // All true ==> intg true by default
+        let intgValue = true
+        // check if intg false supplied
+        if(sdkSuppliedIntegrations[intg.name] != undefined && sdkSuppliedIntegrations[intg.name] == false) {
+          intgValue = false
+        }
+        if(intgValue) {
+          enabledList.push(intg)
+        }
+      }
+    })
+
+    return enabledList
+  }
+
+}
+
 export {
   replacer,
   generateUUID,
@@ -220,5 +306,7 @@ export {
   getJSON,
   getRevenue,
   getDefaultPageProperties,
+  findAllEnabledDestinations,
+  tranformToRudderNames,
   handleError
 };

@@ -1,5 +1,5 @@
 import logger from "../../utils/logUtil";
-import { Cookie } from "../../utils/storage/cookie";
+import Storage from "../../utils/storage";
 
 class GA {
   constructor(config) {
@@ -30,13 +30,13 @@ class GA {
       "ga"
     );
 
-    //window.ga_debug = {trace: true};
+    // use analytics_debug.js for debugging
 
     ga("create", this.trackingID, "auto", "rudder_ga", {
       allowLinker: this.allowLinker,
     });
 
-    var userId = Cookie.get('rl_user_id');
+    var userId = Storage.getUserId()
     if (userId && userId !== '') {
       ga("rudder_ga.set", "userId", userId);
     }
