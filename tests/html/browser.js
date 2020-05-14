@@ -157,7 +157,45 @@ var rudderanalytics = (function (exports) {
     }
   };
 
-  //import * as XMLHttpRequestNode from "Xmlhttprequest";
+  var commonNames = {
+    "All": "All",
+    "Google Analytics": "GA",
+    "GoogleAnalytics": "GA",
+    "GA": "GA",
+    "Google Ads": "GOOGLEADS",
+    "GoogleAds": "GOOGLEADS",
+    "GOOGLEADS": "GOOGLEADS",
+    "Braze": "BRAZE",
+    "BRAZE": "BRAZE",
+    "Chartbeat": "Chartbeat",
+    "CHARTBEAT": "Chartbeat",
+    "Comscore": "COMSCORE",
+    "COMSCORE": "COMSCORE",
+    "Customerio": "CUSTOMERIO",
+    "Customer.io": "CUSTOMERIO",
+    "FB Pixel": "FB_PIXEL",
+    "Facebook Pixel": "FB_PIXEL",
+    "FB_PIXEL": "FB_PIXEL",
+    "Google Tag Manager": "GOOGLETAGMANAGER",
+    "GTM": "GOOGLETAGMANAGER",
+    "Hotjar": "HOTJAR",
+    "hotjar": "HOTJAR",
+    "HOTJAR": "HOTJAR",
+    "Hubspot": "HS",
+    "HUBSPOT": "HS",
+    "Intercom": "INTERCOM",
+    "INTERCOM": "INTERCOM",
+    "Keen": "KEEN",
+    "Keen.io": "KEEN",
+    "KEEN": "KEEN",
+    "Kissmetrics": "KISSMETRICS",
+    "KISSMETRICS": "KISSMETRICS",
+    "Lotame": "LOTAME",
+    "LOTAME": "LOTAME",
+    "Visual Website Optimizer": "VWO",
+    "VWO": "VWO"
+  };
+
   /**
    *
    * Utility method for excluding null and empty values in JSON
@@ -330,6 +368,99 @@ var rudderanalytics = (function (exports) {
     }
 
     return getCurrency(revenue);
+  }
+  /**
+   *
+   *
+   * @param {*} integrationObject
+   */
+
+
+  function tranformToRudderNames(integrationObject) {
+    Object.keys(integrationObject).forEach(function (key) {
+      if (integrationObject.hasOwnProperty(key)) {
+        if (commonNames[key]) {
+          integrationObject[commonNames[key]] = integrationObject[key];
+        }
+
+        if (key != "All") {
+          // delete user supplied keys except All and if except those where oldkeys are same as transformed keys
+          if (commonNames[key] != undefined && commonNames[key] != key) {
+            delete integrationObject[key];
+          }
+        }
+      }
+    });
+  }
+  /**
+   * 
+   * @param {*} sdkSuppliedIntegrations 
+   * @param {*} configPlaneEnabledIntegrations 
+   */
+
+
+  function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledIntegrations) {
+    var enabledList = [];
+
+    if (!configPlaneEnabledIntegrations || configPlaneEnabledIntegrations.length == 0) {
+      return enabledList;
+    }
+
+    var allValue = true;
+
+    if (typeof configPlaneEnabledIntegrations[0] == "string") {
+      if (sdkSuppliedIntegrations["All"] != undefined) {
+        allValue = sdkSuppliedIntegrations["All"];
+      }
+
+      configPlaneEnabledIntegrations.forEach(function (intg) {
+        if (!allValue) {
+          // All false ==> check if intg true supplied
+          if (sdkSuppliedIntegrations[intg] && sdkSuppliedIntegrations[intg]) {
+            enabledList.push(intg);
+          }
+        } else {
+          // All true ==> intg true by default
+          var intgValue = true; // check if intg false supplied
+
+          if (sdkSuppliedIntegrations[intg] != undefined && sdkSuppliedIntegrations[intg] == false) {
+            intgValue = false;
+          }
+
+          if (intgValue) {
+            enabledList.push(intg);
+          }
+        }
+      });
+      return enabledList;
+    }
+
+    if (_typeof(configPlaneEnabledIntegrations[0]) == "object") {
+      if (sdkSuppliedIntegrations["All"] != undefined) {
+        allValue = sdkSuppliedIntegrations["All"];
+      }
+
+      configPlaneEnabledIntegrations.forEach(function (intg) {
+        if (!allValue) {
+          // All false ==> check if intg true supplied
+          if (sdkSuppliedIntegrations[intg.name] && sdkSuppliedIntegrations[intg.name]) {
+            enabledList.push(intg);
+          }
+        } else {
+          // All true ==> intg true by default
+          var intgValue = true; // check if intg false supplied
+
+          if (sdkSuppliedIntegrations[intg.name] != undefined && sdkSuppliedIntegrations[intg.name] == false) {
+            intgValue = false;
+          }
+
+          if (intgValue) {
+            enabledList.push(intg);
+          }
+        }
+      });
+      return enabledList;
+    }
   }
 
   //Message Type enumeration
@@ -3361,6 +3492,443 @@ var rudderanalytics = (function (exports) {
 
   var Cookie = new CookieLocal({});
 
+  var store = (function() {
+  	// Store.js
+  	var store = {},
+  		win = (typeof window != 'undefined' ? window : commonjsGlobal),
+  		doc = win.document,
+  		localStorageName = 'localStorage',
+  		scriptTag = 'script',
+  		storage;
+
+  	store.disabled = false;
+  	store.version = '1.3.20';
+  	store.set = function(key, value) {};
+  	store.get = function(key, defaultVal) {};
+  	store.has = function(key) { return store.get(key) !== undefined };
+  	store.remove = function(key) {};
+  	store.clear = function() {};
+  	store.transact = function(key, defaultVal, transactionFn) {
+  		if (transactionFn == null) {
+  			transactionFn = defaultVal;
+  			defaultVal = null;
+  		}
+  		if (defaultVal == null) {
+  			defaultVal = {};
+  		}
+  		var val = store.get(key, defaultVal);
+  		transactionFn(val);
+  		store.set(key, val);
+  	};
+  	store.getAll = function() {
+  		var ret = {};
+  		store.forEach(function(key, val) {
+  			ret[key] = val;
+  		});
+  		return ret
+  	};
+  	store.forEach = function() {};
+  	store.serialize = function(value) {
+  		return json3.stringify(value)
+  	};
+  	store.deserialize = function(value) {
+  		if (typeof value != 'string') { return undefined }
+  		try { return json3.parse(value) }
+  		catch(e) { return value || undefined }
+  	};
+
+  	// Functions to encapsulate questionable FireFox 3.6.13 behavior
+  	// when about.config::dom.storage.enabled === false
+  	// See https://github.com/marcuswestin/store.js/issues#issue/13
+  	function isLocalStorageNameSupported() {
+  		try { return (localStorageName in win && win[localStorageName]) }
+  		catch(err) { return false }
+  	}
+
+  	if (isLocalStorageNameSupported()) {
+  		storage = win[localStorageName];
+  		store.set = function(key, val) {
+  			if (val === undefined) { return store.remove(key) }
+  			storage.setItem(key, store.serialize(val));
+  			return val
+  		};
+  		store.get = function(key, defaultVal) {
+  			var val = store.deserialize(storage.getItem(key));
+  			return (val === undefined ? defaultVal : val)
+  		};
+  		store.remove = function(key) { storage.removeItem(key); };
+  		store.clear = function() { storage.clear(); };
+  		store.forEach = function(callback) {
+  			for (var i=0; i<storage.length; i++) {
+  				var key = storage.key(i);
+  				callback(key, store.get(key));
+  			}
+  		};
+  	} else if (doc && doc.documentElement.addBehavior) {
+  		var storageOwner,
+  			storageContainer;
+  		// Since #userData storage applies only to specific paths, we need to
+  		// somehow link our data to a specific path.  We choose /favicon.ico
+  		// as a pretty safe option, since all browsers already make a request to
+  		// this URL anyway and being a 404 will not hurt us here.  We wrap an
+  		// iframe pointing to the favicon in an ActiveXObject(htmlfile) object
+  		// (see: http://msdn.microsoft.com/en-us/library/aa752574(v=VS.85).aspx)
+  		// since the iframe access rules appear to allow direct access and
+  		// manipulation of the document element, even for a 404 page.  This
+  		// document can be used instead of the current document (which would
+  		// have been limited to the current path) to perform #userData storage.
+  		try {
+  			storageContainer = new ActiveXObject('htmlfile');
+  			storageContainer.open();
+  			storageContainer.write('<'+scriptTag+'>document.w=window</'+scriptTag+'><iframe src="/favicon.ico"></iframe>');
+  			storageContainer.close();
+  			storageOwner = storageContainer.w.frames[0].document;
+  			storage = storageOwner.createElement('div');
+  		} catch(e) {
+  			// somehow ActiveXObject instantiation failed (perhaps some special
+  			// security settings or otherwse), fall back to per-path storage
+  			storage = doc.createElement('div');
+  			storageOwner = doc.body;
+  		}
+  		var withIEStorage = function(storeFunction) {
+  			return function() {
+  				var args = Array.prototype.slice.call(arguments, 0);
+  				args.unshift(storage);
+  				// See http://msdn.microsoft.com/en-us/library/ms531081(v=VS.85).aspx
+  				// and http://msdn.microsoft.com/en-us/library/ms531424(v=VS.85).aspx
+  				storageOwner.appendChild(storage);
+  				storage.addBehavior('#default#userData');
+  				storage.load(localStorageName);
+  				var result = storeFunction.apply(store, args);
+  				storageOwner.removeChild(storage);
+  				return result
+  			}
+  		};
+
+  		// In IE7, keys cannot start with a digit or contain certain chars.
+  		// See https://github.com/marcuswestin/store.js/issues/40
+  		// See https://github.com/marcuswestin/store.js/issues/83
+  		var forbiddenCharsRegex = new RegExp("[!\"#$%&'()*+,/\\\\:;<=>?@[\\]^`{|}~]", "g");
+  		var ieKeyFix = function(key) {
+  			return key.replace(/^d/, '___$&').replace(forbiddenCharsRegex, '___')
+  		};
+  		store.set = withIEStorage(function(storage, key, val) {
+  			key = ieKeyFix(key);
+  			if (val === undefined) { return store.remove(key) }
+  			storage.setAttribute(key, store.serialize(val));
+  			storage.save(localStorageName);
+  			return val
+  		});
+  		store.get = withIEStorage(function(storage, key, defaultVal) {
+  			key = ieKeyFix(key);
+  			var val = store.deserialize(storage.getAttribute(key));
+  			return (val === undefined ? defaultVal : val)
+  		});
+  		store.remove = withIEStorage(function(storage, key) {
+  			key = ieKeyFix(key);
+  			storage.removeAttribute(key);
+  			storage.save(localStorageName);
+  		});
+  		store.clear = withIEStorage(function(storage) {
+  			var attributes = storage.XMLDocument.documentElement.attributes;
+  			storage.load(localStorageName);
+  			for (var i=attributes.length-1; i>=0; i--) {
+  				storage.removeAttribute(attributes[i].name);
+  			}
+  			storage.save(localStorageName);
+  		});
+  		store.forEach = withIEStorage(function(storage, callback) {
+  			var attributes = storage.XMLDocument.documentElement.attributes;
+  			for (var i=0, attr; attr=attributes[i]; ++i) {
+  				callback(attr.name, store.deserialize(storage.getAttribute(attr.name)));
+  			}
+  		});
+  	}
+
+  	try {
+  		var testKey = '__storejs__';
+  		store.set(testKey, testKey);
+  		if (store.get(testKey) != testKey) { store.disabled = true; }
+  		store.remove(testKey);
+  	} catch(e) {
+  		store.disabled = true;
+  	}
+  	store.enabled = !store.disabled;
+  	
+  	return store
+  }());
+
+  /**
+   * An object utility to persist user and other values in localstorage
+   */
+
+  var StoreLocal =
+  /*#__PURE__*/
+  function () {
+    function StoreLocal(options) {
+      _classCallCheck(this, StoreLocal);
+
+      this._options = {};
+      this.enabled = false;
+      this.options(options);
+    }
+    /**
+     *
+     * @param {*} options
+     */
+
+
+    _createClass(StoreLocal, [{
+      key: "options",
+      value: function options() {
+        var _options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+        if (arguments.length === 0) return this._options;
+        defaults_1(_options, {
+          enabled: true
+        });
+        this.enabled = _options.enabled && store.enabled;
+        this._options = _options;
+      }
+      /**
+       *
+       * @param {*} key
+       * @param {*} value
+       */
+
+    }, {
+      key: "set",
+      value: function set(key, value) {
+        if (!this.enabled) return false;
+        return store.set(key, value);
+      }
+      /**
+       *
+       * @param {*} key
+       */
+
+    }, {
+      key: "get",
+      value: function get(key) {
+        if (!this.enabled) return null;
+        return store.get(key);
+      }
+      /**
+       *
+       * @param {*} key
+       */
+
+    }, {
+      key: "remove",
+      value: function remove(key) {
+        if (!this.enabled) return false;
+        return store.remove(key);
+      }
+    }]);
+
+    return StoreLocal;
+  }(); // Exporting only the instance
+
+
+  var Store = new StoreLocal({});
+
+  var defaults$1 = {
+    user_storage_key: "rl_user_id",
+    user_storage_trait: "rl_trait",
+    user_storage_anonymousId: "rl_anonymous_id",
+    group_storage_key: "rl_group_id",
+    group_storage_trait: "rl_group_trait"
+  };
+  /**
+   * An object that handles persisting key-val from Analytics
+   */
+
+  var Storage =
+  /*#__PURE__*/
+  function () {
+    function Storage() {
+      _classCallCheck(this, Storage);
+
+      // First try setting the storage to cookie else to localstorage
+      Cookie.set("rudder_cookies", true);
+
+      if (Cookie.get("rudder_cookies")) {
+        Cookie.remove("rudder_cookies");
+        this.storage = Cookie;
+        return;
+      } // localStorage is enabled.
+
+
+      if (Store.enabled) {
+        this.storage = Store;
+        return;
+      }
+    }
+    /**
+     *
+     * @param {*} key
+     * @param {*} value
+     */
+
+
+    _createClass(Storage, [{
+      key: "setItem",
+      value: function setItem(key, value) {
+        this.storage.set(key, value);
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setUserId",
+      value: function setUserId(value) {
+        if (typeof value != "string") {
+          logger.error("[Storage] setUserId:: userId should be string");
+          return;
+        }
+
+        this.storage.set(defaults$1.user_storage_key, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setUserTraits",
+      value: function setUserTraits(value) {
+        this.storage.set(defaults$1.user_storage_trait, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setGroupId",
+      value: function setGroupId(value) {
+        if (typeof value != "string") {
+          logger.error("[Storage] setGroupId:: groupId should be string");
+          return;
+        }
+
+        this.storage.set(defaults$1.group_storage_key, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setGroupTraits",
+      value: function setGroupTraits(value) {
+        this.storage.set(defaults$1.group_storage_trait, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
+
+    }, {
+      key: "setAnonymousId",
+      value: function setAnonymousId(value) {
+        if (typeof value != "string") {
+          logger.error("[Storage] setAnonymousId:: anonymousId should be string");
+          return;
+        }
+
+        this.storage.set(defaults$1.user_storage_anonymousId, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} key
+       */
+
+    }, {
+      key: "getItem",
+      value: function getItem(key) {
+        return this.storage.get(key);
+      }
+      /**
+       * get the stored userId
+       */
+
+    }, {
+      key: "getUserId",
+      value: function getUserId() {
+        return this.storage.get(defaults$1.user_storage_key);
+      }
+      /**
+       * get the stored user traits
+       */
+
+    }, {
+      key: "getUserTraits",
+      value: function getUserTraits() {
+        return this.storage.get(defaults$1.user_storage_trait);
+      }
+      /**
+       * get the stored userId
+       */
+
+    }, {
+      key: "getGroupId",
+      value: function getGroupId() {
+        return this.storage.get(defaults$1.group_storage_key);
+      }
+      /**
+       * get the stored user traits
+       */
+
+    }, {
+      key: "getGroupTraits",
+      value: function getGroupTraits() {
+        return this.storage.get(defaults$1.group_storage_trait);
+      }
+      /**
+       * get stored anonymous id
+       */
+
+    }, {
+      key: "getAnonymousId",
+      value: function getAnonymousId() {
+        return this.storage.get(defaults$1.user_storage_anonymousId);
+      }
+      /**
+       *
+       * @param {*} key
+       */
+
+    }, {
+      key: "removeItem",
+      value: function removeItem(key) {
+        return this.storage.remove(key);
+      }
+      /**
+       * remove stored keys
+       */
+
+    }, {
+      key: "clear",
+      value: function clear() {
+        this.storage.remove(defaults$1.user_storage_key);
+        this.storage.remove(defaults$1.user_storage_trait);
+        this.storage.remove(defaults$1.user_storage_anonymousId);
+      }
+    }]);
+
+    return Storage;
+  }();
+
+  var Storage$1 =  new Storage() ;
+
   var GA =
   /*#__PURE__*/
   function () {
@@ -3385,13 +3953,13 @@ var rudderanalytics = (function (exports) {
           a.async = 1;
           a.src = g;
           m.parentNode.insertBefore(a, m);
-        })(window, document, "script", "https://www.google-analytics.com/analytics.js", "ga"); //window.ga_debug = {trace: true};
+        })(window, document, "script", "https://www.google-analytics.com/analytics.js", "ga"); // use analytics_debug.js for debugging
 
 
         ga("create", this.trackingID, "auto", "rudder_ga", {
           allowLinker: this.allowLinker
         });
-        var userId = Cookie.get('rl_user_id');
+        var userId = Storage$1.getUserId();
 
         if (userId && userId !== '') {
           ga("rudder_ga.set", "userId", userId);
@@ -7787,443 +8355,6 @@ var rudderanalytics = (function (exports) {
     return FBPixel;
   }();
 
-  var store = (function() {
-  	// Store.js
-  	var store = {},
-  		win = (typeof window != 'undefined' ? window : commonjsGlobal),
-  		doc = win.document,
-  		localStorageName = 'localStorage',
-  		scriptTag = 'script',
-  		storage;
-
-  	store.disabled = false;
-  	store.version = '1.3.20';
-  	store.set = function(key, value) {};
-  	store.get = function(key, defaultVal) {};
-  	store.has = function(key) { return store.get(key) !== undefined };
-  	store.remove = function(key) {};
-  	store.clear = function() {};
-  	store.transact = function(key, defaultVal, transactionFn) {
-  		if (transactionFn == null) {
-  			transactionFn = defaultVal;
-  			defaultVal = null;
-  		}
-  		if (defaultVal == null) {
-  			defaultVal = {};
-  		}
-  		var val = store.get(key, defaultVal);
-  		transactionFn(val);
-  		store.set(key, val);
-  	};
-  	store.getAll = function() {
-  		var ret = {};
-  		store.forEach(function(key, val) {
-  			ret[key] = val;
-  		});
-  		return ret
-  	};
-  	store.forEach = function() {};
-  	store.serialize = function(value) {
-  		return json3.stringify(value)
-  	};
-  	store.deserialize = function(value) {
-  		if (typeof value != 'string') { return undefined }
-  		try { return json3.parse(value) }
-  		catch(e) { return value || undefined }
-  	};
-
-  	// Functions to encapsulate questionable FireFox 3.6.13 behavior
-  	// when about.config::dom.storage.enabled === false
-  	// See https://github.com/marcuswestin/store.js/issues#issue/13
-  	function isLocalStorageNameSupported() {
-  		try { return (localStorageName in win && win[localStorageName]) }
-  		catch(err) { return false }
-  	}
-
-  	if (isLocalStorageNameSupported()) {
-  		storage = win[localStorageName];
-  		store.set = function(key, val) {
-  			if (val === undefined) { return store.remove(key) }
-  			storage.setItem(key, store.serialize(val));
-  			return val
-  		};
-  		store.get = function(key, defaultVal) {
-  			var val = store.deserialize(storage.getItem(key));
-  			return (val === undefined ? defaultVal : val)
-  		};
-  		store.remove = function(key) { storage.removeItem(key); };
-  		store.clear = function() { storage.clear(); };
-  		store.forEach = function(callback) {
-  			for (var i=0; i<storage.length; i++) {
-  				var key = storage.key(i);
-  				callback(key, store.get(key));
-  			}
-  		};
-  	} else if (doc && doc.documentElement.addBehavior) {
-  		var storageOwner,
-  			storageContainer;
-  		// Since #userData storage applies only to specific paths, we need to
-  		// somehow link our data to a specific path.  We choose /favicon.ico
-  		// as a pretty safe option, since all browsers already make a request to
-  		// this URL anyway and being a 404 will not hurt us here.  We wrap an
-  		// iframe pointing to the favicon in an ActiveXObject(htmlfile) object
-  		// (see: http://msdn.microsoft.com/en-us/library/aa752574(v=VS.85).aspx)
-  		// since the iframe access rules appear to allow direct access and
-  		// manipulation of the document element, even for a 404 page.  This
-  		// document can be used instead of the current document (which would
-  		// have been limited to the current path) to perform #userData storage.
-  		try {
-  			storageContainer = new ActiveXObject('htmlfile');
-  			storageContainer.open();
-  			storageContainer.write('<'+scriptTag+'>document.w=window</'+scriptTag+'><iframe src="/favicon.ico"></iframe>');
-  			storageContainer.close();
-  			storageOwner = storageContainer.w.frames[0].document;
-  			storage = storageOwner.createElement('div');
-  		} catch(e) {
-  			// somehow ActiveXObject instantiation failed (perhaps some special
-  			// security settings or otherwse), fall back to per-path storage
-  			storage = doc.createElement('div');
-  			storageOwner = doc.body;
-  		}
-  		var withIEStorage = function(storeFunction) {
-  			return function() {
-  				var args = Array.prototype.slice.call(arguments, 0);
-  				args.unshift(storage);
-  				// See http://msdn.microsoft.com/en-us/library/ms531081(v=VS.85).aspx
-  				// and http://msdn.microsoft.com/en-us/library/ms531424(v=VS.85).aspx
-  				storageOwner.appendChild(storage);
-  				storage.addBehavior('#default#userData');
-  				storage.load(localStorageName);
-  				var result = storeFunction.apply(store, args);
-  				storageOwner.removeChild(storage);
-  				return result
-  			}
-  		};
-
-  		// In IE7, keys cannot start with a digit or contain certain chars.
-  		// See https://github.com/marcuswestin/store.js/issues/40
-  		// See https://github.com/marcuswestin/store.js/issues/83
-  		var forbiddenCharsRegex = new RegExp("[!\"#$%&'()*+,/\\\\:;<=>?@[\\]^`{|}~]", "g");
-  		var ieKeyFix = function(key) {
-  			return key.replace(/^d/, '___$&').replace(forbiddenCharsRegex, '___')
-  		};
-  		store.set = withIEStorage(function(storage, key, val) {
-  			key = ieKeyFix(key);
-  			if (val === undefined) { return store.remove(key) }
-  			storage.setAttribute(key, store.serialize(val));
-  			storage.save(localStorageName);
-  			return val
-  		});
-  		store.get = withIEStorage(function(storage, key, defaultVal) {
-  			key = ieKeyFix(key);
-  			var val = store.deserialize(storage.getAttribute(key));
-  			return (val === undefined ? defaultVal : val)
-  		});
-  		store.remove = withIEStorage(function(storage, key) {
-  			key = ieKeyFix(key);
-  			storage.removeAttribute(key);
-  			storage.save(localStorageName);
-  		});
-  		store.clear = withIEStorage(function(storage) {
-  			var attributes = storage.XMLDocument.documentElement.attributes;
-  			storage.load(localStorageName);
-  			for (var i=attributes.length-1; i>=0; i--) {
-  				storage.removeAttribute(attributes[i].name);
-  			}
-  			storage.save(localStorageName);
-  		});
-  		store.forEach = withIEStorage(function(storage, callback) {
-  			var attributes = storage.XMLDocument.documentElement.attributes;
-  			for (var i=0, attr; attr=attributes[i]; ++i) {
-  				callback(attr.name, store.deserialize(storage.getAttribute(attr.name)));
-  			}
-  		});
-  	}
-
-  	try {
-  		var testKey = '__storejs__';
-  		store.set(testKey, testKey);
-  		if (store.get(testKey) != testKey) { store.disabled = true; }
-  		store.remove(testKey);
-  	} catch(e) {
-  		store.disabled = true;
-  	}
-  	store.enabled = !store.disabled;
-  	
-  	return store
-  }());
-
-  /**
-   * An object utility to persist user and other values in localstorage
-   */
-
-  var StoreLocal =
-  /*#__PURE__*/
-  function () {
-    function StoreLocal(options) {
-      _classCallCheck(this, StoreLocal);
-
-      this._options = {};
-      this.enabled = false;
-      this.options(options);
-    }
-    /**
-     *
-     * @param {*} options
-     */
-
-
-    _createClass(StoreLocal, [{
-      key: "options",
-      value: function options() {
-        var _options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-        if (arguments.length === 0) return this._options;
-        defaults_1(_options, {
-          enabled: true
-        });
-        this.enabled = _options.enabled && store.enabled;
-        this._options = _options;
-      }
-      /**
-       *
-       * @param {*} key
-       * @param {*} value
-       */
-
-    }, {
-      key: "set",
-      value: function set(key, value) {
-        if (!this.enabled) return false;
-        return store.set(key, value);
-      }
-      /**
-       *
-       * @param {*} key
-       */
-
-    }, {
-      key: "get",
-      value: function get(key) {
-        if (!this.enabled) return null;
-        return store.get(key);
-      }
-      /**
-       *
-       * @param {*} key
-       */
-
-    }, {
-      key: "remove",
-      value: function remove(key) {
-        if (!this.enabled) return false;
-        return store.remove(key);
-      }
-    }]);
-
-    return StoreLocal;
-  }(); // Exporting only the instance
-
-
-  var Store = new StoreLocal({});
-
-  var defaults$1 = {
-    user_storage_key: "rl_user_id",
-    user_storage_trait: "rl_trait",
-    user_storage_anonymousId: "rl_anonymous_id",
-    group_storage_key: "rl_group_id",
-    group_storage_trait: "rl_group_trait"
-  };
-  /**
-   * An object that handles persisting key-val from Analytics
-   */
-
-  var Storage =
-  /*#__PURE__*/
-  function () {
-    function Storage() {
-      _classCallCheck(this, Storage);
-
-      // First try setting the storage to cookie else to localstorage
-      Cookie.set("rudder_cookies", true);
-
-      if (Cookie.get("rudder_cookies")) {
-        Cookie.remove("rudder_cookies");
-        this.storage = Cookie;
-        return;
-      } // localStorage is enabled.
-
-
-      if (Store.enabled) {
-        this.storage = Store;
-        return;
-      }
-    }
-    /**
-     *
-     * @param {*} key
-     * @param {*} value
-     */
-
-
-    _createClass(Storage, [{
-      key: "setItem",
-      value: function setItem(key, value) {
-        this.storage.set(key, value);
-      }
-      /**
-       *
-       * @param {*} value
-       */
-
-    }, {
-      key: "setUserId",
-      value: function setUserId(value) {
-        if (typeof value != "string") {
-          logger.error("[Storage] setUserId:: userId should be string");
-          return;
-        }
-
-        this.storage.set(defaults$1.user_storage_key, value);
-        return;
-      }
-      /**
-       *
-       * @param {*} value
-       */
-
-    }, {
-      key: "setUserTraits",
-      value: function setUserTraits(value) {
-        this.storage.set(defaults$1.user_storage_trait, value);
-        return;
-      }
-      /**
-       *
-       * @param {*} value
-       */
-
-    }, {
-      key: "setGroupId",
-      value: function setGroupId(value) {
-        if (typeof value != "string") {
-          logger.error("[Storage] setGroupId:: groupId should be string");
-          return;
-        }
-
-        this.storage.set(defaults$1.group_storage_key, value);
-        return;
-      }
-      /**
-       *
-       * @param {*} value
-       */
-
-    }, {
-      key: "setGroupTraits",
-      value: function setGroupTraits(value) {
-        this.storage.set(defaults$1.group_storage_trait, value);
-        return;
-      }
-      /**
-       *
-       * @param {*} value
-       */
-
-    }, {
-      key: "setAnonymousId",
-      value: function setAnonymousId(value) {
-        if (typeof value != "string") {
-          logger.error("[Storage] setAnonymousId:: anonymousId should be string");
-          return;
-        }
-
-        this.storage.set(defaults$1.user_storage_anonymousId, value);
-        return;
-      }
-      /**
-       *
-       * @param {*} key
-       */
-
-    }, {
-      key: "getItem",
-      value: function getItem(key) {
-        return this.storage.get(key);
-      }
-      /**
-       * get the stored userId
-       */
-
-    }, {
-      key: "getUserId",
-      value: function getUserId() {
-        return this.storage.get(defaults$1.user_storage_key);
-      }
-      /**
-       * get the stored user traits
-       */
-
-    }, {
-      key: "getUserTraits",
-      value: function getUserTraits() {
-        return this.storage.get(defaults$1.user_storage_trait);
-      }
-      /**
-       * get the stored userId
-       */
-
-    }, {
-      key: "getGroupId",
-      value: function getGroupId() {
-        return this.storage.get(defaults$1.group_storage_key);
-      }
-      /**
-       * get the stored user traits
-       */
-
-    }, {
-      key: "getGroupTraits",
-      value: function getGroupTraits() {
-        return this.storage.get(defaults$1.group_storage_trait);
-      }
-      /**
-       * get stored anonymous id
-       */
-
-    }, {
-      key: "getAnonymousId",
-      value: function getAnonymousId() {
-        return this.storage.get(defaults$1.user_storage_anonymousId);
-      }
-      /**
-       *
-       * @param {*} key
-       */
-
-    }, {
-      key: "removeItem",
-      value: function removeItem(key) {
-        return this.storage.remove(key);
-      }
-      /**
-       * remove stored keys
-       */
-
-    }, {
-      key: "clear",
-      value: function clear() {
-        this.storage.remove(defaults$1.user_storage_key);
-        this.storage.remove(defaults$1.user_storage_trait);
-        this.storage.remove(defaults$1.user_storage_anonymousId);
-      }
-    }]);
-
-    return Storage;
-  }();
-
-  var Storage$1 =  new Storage() ;
-
   var defaults$2 = {
     lotame_synch_time_key: "lt_synch_timestamp"
   };
@@ -10350,7 +10481,7 @@ var rudderanalytics = (function (exports) {
       this.trackValues = [];
       this.eventsBuffer = [];
       this.clientIntegrations = [];
-      this.configArray = [];
+      this.loadOnlyIntegrations = {};
       this.clientIntegrationObjects = undefined;
       this.successfullyLoadedIntegration = [];
       this.failedToBeLoadedIntegration = [];
@@ -10399,11 +10530,15 @@ var rudderanalytics = (function (exports) {
             logger.debug("Destination " + index + " Enabled? " + destination.enabled + " Type: " + destination.destinationDefinition.name + " Use Native SDK? " + destination.config.useNativeSDK);
 
             if (destination.enabled) {
-              this.clientIntegrations.push(destination.destinationDefinition.name);
-              this.configArray.push(destination.config);
+              this.clientIntegrations.push({
+                "name": destination.destinationDefinition.name,
+                "config": destination.config
+              });
             }
-          }, this);
-          this.init(this.clientIntegrations, this.configArray);
+          }, this); // intersection of config-plane native sdk destinations with sdk load time destination list
+
+          this.clientIntegrations = findAllEnabledDestinations(this.loadOnlyIntegrations, this.clientIntegrations);
+          this.init(this.clientIntegrations);
         } catch (error) {
           handleError(error);
           logger.debug("===handling config BE response processing error===");
@@ -10420,14 +10555,13 @@ var rudderanalytics = (function (exports) {
        * keep the instances reference in core
        *
        * @param {*} intgArray
-       * @param {*} configArray
        * @returns
        * @memberof Analytics
        */
 
     }, {
       key: "init",
-      value: function init(intgArray, configArray) {
+      value: function init(intgArray) {
         var _this = this;
 
         var self = this;
@@ -10442,9 +10576,9 @@ var rudderanalytics = (function (exports) {
           return;
         }
 
-        intgArray.forEach(function (intg, index) {
-          var intgClass = integrations[intg];
-          var destConfig = configArray[index];
+        intgArray.forEach(function (intg) {
+          var intgClass = integrations[intg.name];
+          var destConfig = intg.config;
           var intgInstance = new intgClass(destConfig, self);
           intgInstance.init();
           logger.debug("initializing destination: ", intg);
@@ -10475,19 +10609,20 @@ var rudderanalytics = (function (exports) {
           object.toBeProcessedByIntegrationArray.forEach(function (event) {
             var methodName = event[0];
             event.shift();
-            var integrationOptions = event[0].message.integrations;
+            var clientSuppliedIntegrations = event[0].message.integrations; // get intersection between config plane native enabled destinations
+            // (which were able to successfully load on the page) vs user supplied integrations
 
-            for (var i = 0; i < object.clientIntegrationObjects.length; i++) {
-              if (integrationOptions[object.clientIntegrationObjects[i].name] || integrationOptions[object.clientIntegrationObjects[i].name] == undefined && integrationOptions["All"]) {
-                try {
-                  if (!object.clientIntegrationObjects[i]["isFailed"] || !object.clientIntegrationObjects[i]["isFailed"]()) {
-                    var _object$clientIntegra;
+            var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(clientSuppliedIntegrations, object.clientIntegrationObjects); //send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
 
-                    (_object$clientIntegra = object.clientIntegrationObjects[i])[methodName].apply(_object$clientIntegra, _toConsumableArray(event));
-                  }
-                } catch (error) {
-                  handleError(error);
+            for (var i = 0; i < succesfulLoadedIntersectClientSuppliedIntegrations.length; i++) {
+              try {
+                if (!succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"] || !succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"]()) {
+                  var _succesfulLoadedInter;
+
+                  (_succesfulLoadedInter = succesfulLoadedIntersectClientSuppliedIntegrations[i])[methodName].apply(_succesfulLoadedInter, _toConsumableArray(event));
                 }
+              } catch (error) {
+                handleError(error);
               }
             }
           });
@@ -10815,26 +10950,30 @@ var rudderanalytics = (function (exports) {
             this.processOptionsParam(rudderElement, options);
           }
 
-          logger.debug(JSON.stringify(rudderElement));
-          var integrations = rudderElement.message.integrations; //try to first send to all integrations, if list populated from BE
+          logger.debug(JSON.stringify(rudderElement)); // structure user supplied integrations object to rudder format
 
-          if (this.clientIntegrationObjects) {
-            this.clientIntegrationObjects.forEach(function (obj) {
-              logger.debug("called in normal flow");
+          if (Object.keys(rudderElement.message.integrations).length > 0) {
+            tranformToRudderNames(rudderElement.message.integrations);
+          } // if not specified at event level, All: true is default
 
-              if (integrations[obj.name] || integrations[obj.name] == undefined && integrations["All"]) {
-                if (!obj["isFailed"] || !obj["isFailed"]()) {
-                  obj[type](rudderElement);
-                }
-              }
-            });
-          }
+
+          var clientSuppliedIntegrations = rudderElement.message.integrations; // get intersection between config plane native enabled destinations
+          // (which were able to successfully load on the page) vs user supplied integrations
+
+          var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(clientSuppliedIntegrations, this.clientIntegrationObjects); //try to first send to all integrations, if list populated from BE
+
+          succesfulLoadedIntersectClientSuppliedIntegrations.forEach(function (obj) {
+            if (!obj["isFailed"] || !obj["isFailed"]()) {
+              obj[type](rudderElement);
+            }
+          }); // config plane native enabled destinations, still not completely loaded
+          // in the page, add the events to a queue and process later
 
           if (!this.clientIntegrationObjects) {
             logger.debug("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
 
             this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
-          } // self analytics process
+          } // self analytics process, send to rudder
 
 
           enqueue.call(this, rudderElement, type);
@@ -10941,6 +11080,11 @@ var rudderanalytics = (function (exports) {
 
         if (options && options.logLevel) {
           logger.setLogLevel(options.logLevel);
+        }
+
+        if (options && options.integrations) {
+          Object.assign(this.loadOnlyIntegrations, options.integrations);
+          tranformToRudderNames(this.loadOnlyIntegrations);
         }
 
         if (options && options.configUrl) {
