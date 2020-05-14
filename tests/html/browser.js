@@ -197,6 +197,7 @@ var rudderanalytics = (function (exports) {
     "VWO": "VWO"
   };
 
+  // from client native integration name to server identified display name
   var clientToServerNames = {
     "All": "All",
     "GA": "Google Analytics",
@@ -10645,7 +10646,13 @@ var rudderanalytics = (function (exports) {
 
           object.toBeProcessedByIntegrationArray.forEach(function (event) {
             var methodName = event[0];
-            event.shift();
+            event.shift(); // convert common names to sdk identified name
+
+            if (Object.keys(event[0].message.integrations).length > 0) {
+              tranformToRudderNames(event[0].message.integrations);
+            } // if not specified at event level, All: true is default
+
+
             var clientSuppliedIntegrations = event[0].message.integrations; // get intersection between config plane native enabled destinations
             // (which were able to successfully load on the page) vs user supplied integrations
 

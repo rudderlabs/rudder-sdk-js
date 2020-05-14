@@ -215,7 +215,15 @@ class Analytics {
         let methodName = event[0];
         event.shift();
 
+        // convert common names to sdk identified name
+        if (Object.keys(event[0].message.integrations).length > 0) {
+          tranformToRudderNames(event[0].message.integrations);
+        }
+  
+        // if not specified at event level, All: true is default
         var clientSuppliedIntegrations = event[0].message.integrations;
+  
+        
 
         // get intersection between config plane native enabled destinations
         // (which were able to successfully load on the page) vs user supplied integrations
