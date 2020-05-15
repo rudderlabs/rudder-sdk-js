@@ -127,6 +127,11 @@ class Analytics {
         this.clientIntegrations
       );
 
+      // remove from the list which don't have support yet in SDK
+      this.clientIntegrations = this.clientIntegrations.filter(intg => {
+        return integrations[intg.name] != undefined
+      })
+
       this.init(this.clientIntegrations);
     } catch (error) {
       handleError(error);
@@ -178,6 +183,7 @@ class Analytics {
         logger.error("[Analytics] initialize integration (integration.init()) failed :: ", intg.name)
       }
       
+
     });
   }
 

@@ -203,7 +203,7 @@ var rudderanalytics = (function (exports) {
     "GA": "Google Analytics",
     "GOOGLEADS": "Google Ads",
     "BRAZE": "Braze",
-    "Chartbeat": "Chartbeat",
+    "CHARTBEAT": "Chartbeat",
     "COMSCORE": "Comscore",
     "CUSTOMERIO": "Customer IO",
     "FB_PIXEL": "Facebook Pixel",
@@ -10575,7 +10575,11 @@ var rudderanalytics = (function (exports) {
             }
           }, this); // intersection of config-plane native sdk destinations with sdk load time destination list
 
-          this.clientIntegrations = findAllEnabledDestinations(this.loadOnlyIntegrations, this.clientIntegrations);
+          this.clientIntegrations = findAllEnabledDestinations(this.loadOnlyIntegrations, this.clientIntegrations); // remove from the list which don't have support yet in SDK
+
+          this.clientIntegrations = this.clientIntegrations.filter(function (intg) {
+            return integrations[intg.name] != undefined;
+          });
           this.init(this.clientIntegrations);
         } catch (error) {
           handleError(error);
