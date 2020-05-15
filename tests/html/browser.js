@@ -168,8 +168,8 @@ var rudderanalytics = (function (exports) {
     "GOOGLEADS": "GOOGLEADS",
     "Braze": "BRAZE",
     "BRAZE": "BRAZE",
-    "Chartbeat": "Chartbeat",
-    "CHARTBEAT": "Chartbeat",
+    "Chartbeat": "CHARTBEAT",
+    "CHARTBEAT": "CHARTBEAT",
     "Comscore": "COMSCORE",
     "COMSCORE": "COMSCORE",
     "Customerio": "CUSTOMERIO",
@@ -203,7 +203,7 @@ var rudderanalytics = (function (exports) {
     "GA": "Google Analytics",
     "GOOGLEADS": "Google Ads",
     "BRAZE": "Braze",
-    "Chartbeat": "Chartbeat",
+    "CHARTBEAT": "Chartbeat",
     "COMSCORE": "Comscore",
     "CUSTOMERIO": "Customer IO",
     "FB_PIXEL": "Facebook Pixel",
@@ -7311,7 +7311,7 @@ var rudderanalytics = (function (exports) {
       this.replayEvents = [];
       this.failed = false;
       this.isFirstPageCallMade = false;
-      this.name = "Chartbeat";
+      this.name = "CHARTBEAT";
     }
 
     _createClass(Chartbeat, [{
@@ -8556,6 +8556,8 @@ var rudderanalytics = (function (exports) {
 
     return Lotame;
   }();
+
+  // (config-plan name, native destination.name , exported integration name(this one below))
 
   var integrations = {
     HS: index,

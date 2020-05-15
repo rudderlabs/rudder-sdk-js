@@ -19,7 +19,7 @@ class Chartbeat {
     this.replayEvents = [];
     this.failed = false;
     this.isFirstPageCallMade = false;
-    this.name = "Chartbeat";
+    this.name = "CHARTBEAT";
   }
 
   init() {

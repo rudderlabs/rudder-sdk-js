@@ -4,7 +4,7 @@ let clientToServerNames = {
     "GA": "Google Analytics",
     "GOOGLEADS": "Google Ads",
     "BRAZE": "Braze",
-    "Chartbeat": "Chartbeat",
+    "CHARTBEAT": "Chartbeat",
     "COMSCORE": "Comscore", 
     "CUSTOMERIO": "Customer IO",
     "FB_PIXEL": "Facebook Pixel",

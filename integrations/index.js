@@ -14,6 +14,9 @@ import * as Comscore from "./Comscore";
 import * as FBPixel from "./FBPixel";
 import * as Lotame from "./Lotame";
 
+// the key names should match the destination.name value to keep partity everywhere 
+// (config-plan name, native destination.name , exported integration name(this one below))
+
 let integrations = {
   HS: HubSpot.default,
   GA: GA.default,
