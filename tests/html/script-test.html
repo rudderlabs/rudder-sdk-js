@@ -14,9 +14,9 @@
       };
       var methods = [
         "load",
-        
+        "page",
         "identify",
-       
+       "track",
        "ready"
       ];
       for (var i = 0; i < methods.length; i++) {
@@ -28,9 +28,9 @@
         })(method);
       }
 
-      rudderanalytics.load("1bl8HHeGf1uwUfOMoKeMlOJRxPz", "https://hosted.rudderlabs.com", {
+      rudderanalytics.load("1bt0vcThjsXCUngMjgTFB62xAyg", "http://localhost:8080", {
         logLevel: "DEBUG",
-        configUrl: "https://api.rudderlabs.com/sourceConfig"
+        configUrl: "http://localhost:5000/sourceConfig"
 
       });
     //  rudderanalytics.track();
@@ -43,7 +43,7 @@
       window.rudderanalytics.ready(() => {
         console.log("we are all set!!!");
       });
-     window.rudderanalytics.page();
+    // window.rudderanalytics.page();
       window.rudderanalytics.identify("ruchu123", {
         name: "Ruchira Moitra",
         email: "ruchira@gmail.com",
@@ -55,7 +55,7 @@
       });
 
       window.rudderanalytics.track("Order Completed", {
-        orderId: 'af5ccd73',
+        orderId: 'ruchiraorder1',
             total: 99.99,
             shipping: 13.99,
             tax: 20.99,
@@ -75,6 +75,63 @@
               }
             ]
       });
+      window.rudderanalytics.track('Product List Filtered', {
+            category: 'cat 1',
+            list_id: '1234',
+            filters: [
+              {
+                type: 'department',
+                value: 'beauty'
+              },
+              {
+                type: 'price',
+                value: 'under'
+              }
+            ],
+            sorts: [
+              {
+                type: 'price',
+                value: 'desc'
+              }
+            ],
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                productDimension: 'My Product Dimension',
+                productMetric: 'My Product Metric'
+              }
+            ],
+            testDimension: true,
+            testMetric: true
+          });
+      window.rudderanalytics.track('Product List Viewed', {
+            category: 'cat 1',
+            list_id: '1234',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                productDimension: 'My Product Dimension1',
+                productMetric: 'My Product Metric1',
+                position: 10
+              },
+              {
+                product_id: '507f1f77bcf86cd799439012',
+                productDimension: 'My Product Dimension2',
+                productMetric: 'My Product Metric2',
+                position: 12
+              },
+              {
+                product_id: '507f1f77bcf86cd799439015',
+                productDimension: 'My Product Dimension3',
+                productMetric: 'My Product Metric3',
+                position: 8
+              }
+            ]
+          });
+      window.rudderanalytics.track('Checkout Step Viewed', {
+            currency: 'CAD',
+            step: 2
+          });
       window.rudderanalytics.page();
     </script>
   </head>
