@@ -19,9 +19,9 @@
       };
       var methods = [
         "load",
-        
+        "page",
         "identify",
-       
+       "track",
        "ready"
       ];
       for (var i = 0; i < methods.length; i++) {
@@ -33,9 +33,9 @@
         })(method);
       }
 
-      rudderanalytics.load("1bl8HHeGf1uwUfOMoKeMlOJRxPz", "https://hosted.rudderlabs.com", {
+      rudderanalytics.load("1bt0vcThjsXCUngMjgTFB62xAyg", "http://localhost:8080", {
         logLevel: "DEBUG",
-        configUrl: "https://api.rudderlabs.com/sourceConfig"
+        configUrl: "http://localhost:5000/sourceConfig"
 
       });
     //  rudderanalytics.track();
@@ -49,7 +49,7 @@
         console.log("we are all set!!!");
       
       });
-     window.rudderanalytics.page();
+    // window.rudderanalytics.page();
       window.rudderanalytics.identify("ruchu123", {
         name: "Ruchira Moitra",
         email: "ruchira@gmail.com",
@@ -61,7 +61,7 @@
       });
 
       window.rudderanalytics.track("Order Completed", {
-        orderId: 'af5ccd73',
+        orderId: 'ruchiraorder1',
             total: 99.99,
             shipping: 13.99,
             tax: 20.99,
@@ -81,129 +81,64 @@
               }
             ]
       });
-      window.rudderanalytics.track('Payment Info Entered',
-          {
-            category: 'Games',
+      window.rudderanalytics.track('Product List Filtered', {
+            category: 'cat 1',
+            list_id: '1234',
+            filters: [
+              {
+                type: 'department',
+                value: 'beauty'
+              },
+              {
+                type: 'price',
+                value: 'under'
+              }
+            ],
+            sorts: [
+              {
+                type: 'price',
+                value: 'desc'
+              }
+            ],
             products: [
               {
                 product_id: '507f1f77bcf86cd799439011',
-                sku: '45790-32',
-                name: 'Monopoly: 3rd Edition',
-                price: 19,
-                position: 1,
-                category: 'Cars',
-                url: 'https://www.example.com/product/path',
-                image_url: 'https://www.example.com/product/path.jpg'
-              },
-              {
-                product_id: '505bd76785ebb509fc183733',
-                sku: '46493-32',
-                name: 'Uno Card Game',
-                price: 3,
-                position: 2,
-                category: 'Cars'
+                productDimension: 'My Product Dimension',
+                productMetric: 'My Product Metric'
               }
-            ]
+            ],
+            testDimension: true,
+            testMetric: true
           });
-          window.rudderanalytics.track('Products Searched',
-          {
-            category: 'Games',
+      window.rudderanalytics.track('Product List Viewed', {
+            category: 'cat 1',
+            list_id: '1234',
             products: [
               {
                 product_id: '507f1f77bcf86cd799439011',
-                sku: '45790-32',
-                name: 'Monopoly: 3rd Edition',
-                price: 19,
-                position: 1,
-                category: 'Cars',
-                url: 'https://www.example.com/product/path',
-                image_url: 'https://www.example.com/product/path.jpg'
+                productDimension: 'My Product Dimension1',
+                productMetric: 'My Product Metric1',
+                position: 10
               },
               {
-                product_id: '505bd76785ebb509fc183733',
-                sku: '46493-32',
-                name: 'Uno Card Game',
-                price: 3,
-                position: 2,
-                category: 'Cars'
+                product_id: '507f1f77bcf86cd799439012',
+                productDimension: 'My Product Dimension2',
+                productMetric: 'My Product Metric2',
+                position: 12
+              },
+              {
+                product_id: '507f1f77bcf86cd799439015',
+                productDimension: 'My Product Dimension3',
+                productMetric: 'My Product Metric3',
+                position: 8
               }
             ]
           });
-          window.rudderanalytics.track('Product Added to Watchlist',
-          {
-            category: 'Games',
-            products: [
-              {
-                product_id: '507f1f77bcf86cd799439011',
-                sku: '45790-32',
-                name: 'Monopoly: 3rd Edition',
-                price: 19,
-                position: 1,
-                category: 'Cars',
-                url: 'https://www.example.com/product/path',
-                image_url: 'https://www.example.com/product/path.jpg'
-              },
-              {
-                product_id: '505bd76785ebb509fc183733',
-                sku: '46493-32',
-                name: 'Uno Card Game',
-                price: 3,
-                position: 2,
-                category: 'Cars'
-              }
-            ]
+      window.rudderanalytics.track('Checkout Step Viewed', {
+            currency: 'CAD',
+            step: 2
           });
-          window.rudderanalytics.track('Checkout Started',
-          {
-            category: 'Games',
-            products: [
-              {
-                product_id: '507f1f77bcf86cd799439011',
-                sku: '45790-32',
-                name: 'Monopoly: 3rd Edition',
-                price: 19,
-                position: 1,
-                category: 'Cars',
-                url: 'https://www.example.com/product/path',
-                image_url: 'https://www.example.com/product/path.jpg'
-              },
-              {
-                product_id: '505bd76785ebb509fc183733',
-                sku: '46493-32',
-                name: 'Uno Card Game',
-                price: 3,
-                position: 2,
-                category: 'Cars'
-              }
-            ]
-          });
-          window.rudderanalytics.track('New User Registered',
-          {
-            category: 'Games',
-            products: [
-              {
-                product_id: '507f1f77bcf86cd799439011',
-                sku: '45790-32',
-                name: 'Monopoly: 3rd Edition',
-                price: 19,
-                position: 1,
-                category: 'Cars',
-                url: 'https://www.example.com/product/path',
-                image_url: 'https://www.example.com/product/path.jpg'
-              },
-              {
-                product_id: '505bd76785ebb509fc183733',
-                sku: '46493-32',
-                name: 'Uno Card Game',
-                price: 3,
-                position: 2,
-                category: 'Cars'
-              }
-            ]
-          });
-
-      // window.rudderanalytics.page();
-
+      window.rudderanalytics.page();
     </script>
   </head>
   <body>
