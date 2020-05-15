@@ -1,5 +1,7 @@
 //import * as XMLHttpRequestNode from "Xmlhttprequest";
 import logger from "./logUtil";
+import {commonNames} from "../integrations/integration_cname"
+import {clientToServerNames} from "../integrations/client_server_name"
 
 let XMLHttpRequestNode;
 if (!process.browser) {
@@ -212,6 +214,110 @@ function getRevenue(properties, eventName) {
   return getCurrency(revenue);
 }
 
+/**
+ *
+ *
+ * @param {*} integrationObject
+ */
+function tranformToRudderNames(integrationObject) {
+  Object.keys(integrationObject).forEach(key => {
+    if(integrationObject.hasOwnProperty(key)) {
+      if(commonNames[key]) {
+        integrationObject[commonNames[key]] = integrationObject[key]
+      }
+      if(key != "All") {
+        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys 
+        if(commonNames[key] != undefined && commonNames[key] != key) {
+          delete integrationObject[key]
+        }
+      }
+      
+    }
+  })
+}
+
+function transformToServerNames(integrationObject) {
+  Object.keys(integrationObject).forEach(key => {
+    if(integrationObject.hasOwnProperty(key)) {
+      if(clientToServerNames[key]) {
+        integrationObject[clientToServerNames[key]] = integrationObject[key]
+      }
+      if(key != "All") {
+        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys 
+        if(clientToServerNames[key] != undefined && clientToServerNames[key] != key) {
+          delete integrationObject[key]
+        }
+      }
+      
+    }
+  })
+}
+
+/**
+ * 
+ * @param {*} sdkSuppliedIntegrations 
+ * @param {*} configPlaneEnabledIntegrations 
+ */
+function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledIntegrations) {
+  let enabledList = []
+  if(!configPlaneEnabledIntegrations || configPlaneEnabledIntegrations.length == 0) {
+    return enabledList
+  }
+  let allValue = true
+  if(typeof configPlaneEnabledIntegrations[0] == "string") {
+    if(sdkSuppliedIntegrations["All"] != undefined) {
+      allValue = sdkSuppliedIntegrations["All"]
+    }
+    configPlaneEnabledIntegrations.forEach(intg => {
+      if(!allValue) {
+        // All false ==> check if intg true supplied
+        if(sdkSuppliedIntegrations[intg]!= undefined && sdkSuppliedIntegrations[intg] == true) {
+          enabledList.push(intg)
+        }
+      } else {
+        // All true ==> intg true by default
+        let intgValue = true
+        // check if intg false supplied
+        if(sdkSuppliedIntegrations[intg] != undefined && sdkSuppliedIntegrations[intg] == false) {
+          intgValue = false
+        }
+        if(intgValue) {
+          enabledList.push(intg)
+        }
+      }
+    })
+
+    return enabledList
+  }
+
+  if(typeof configPlaneEnabledIntegrations[0] == "object") {
+    if(sdkSuppliedIntegrations["All"] != undefined) {
+      allValue = sdkSuppliedIntegrations["All"]
+    }
+    configPlaneEnabledIntegrations.forEach(intg => {
+      if(!allValue) {
+        // All false ==> check if intg true supplied
+        if(sdkSuppliedIntegrations[intg.name]!= undefined && sdkSuppliedIntegrations[intg.name] == true) {
+          enabledList.push(intg)
+        }
+      } else {
+        // All true ==> intg true by default
+        let intgValue = true
+        // check if intg false supplied
+        if(sdkSuppliedIntegrations[intg.name] != undefined && sdkSuppliedIntegrations[intg.name] == false) {
+          intgValue = false
+        }
+        if(intgValue) {
+          enabledList.push(intg)
+        }
+      }
+    })
+
+    return enabledList
+  }
+
+}
+
 export {
   replacer,
   generateUUID,
@@ -220,5 +326,8 @@ export {
   getJSON,
   getRevenue,
   getDefaultPageProperties,
+  findAllEnabledDestinations,
+  tranformToRudderNames,
+  transformToServerNames,
   handleError
 };
