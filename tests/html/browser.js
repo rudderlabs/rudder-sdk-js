@@ -203,7 +203,7 @@ var rudderanalytics = (function (exports) {
     "GA": "Google Analytics",
     "GOOGLEADS": "Google Ads",
     "BRAZE": "Braze",
-    "CHARTBEAT": "Chartbeat",
+    "Chartbeat": "Chartbeat",
     "COMSCORE": "Comscore",
     "CUSTOMERIO": "Customer IO",
     "FB_PIXEL": "Facebook Pixel",
