@@ -10615,14 +10615,18 @@ var rudderanalytics = (function (exports) {
         }
 
         intgArray.forEach(function (intg) {
-          logger.debug("[Analytics] init :: trying to initialize integration name:: ", intg.name);
-          var intgClass = integrations[intg.name];
-          var destConfig = intg.config;
-          var intgInstance = new intgClass(destConfig, self);
-          intgInstance.init();
-          logger.debug("initializing destination: ", intg);
+          try {
+            logger.debug("[Analytics] init :: trying to initialize integration name:: ", intg.name);
+            var intgClass = integrations[intg.name];
+            var destConfig = intg.config;
+            var intgInstance = new intgClass(destConfig, self);
+            intgInstance.init();
+            logger.debug("initializing destination: ", intg);
 
-          _this.isInitialized(intgInstance).then(_this.replayEvents);
+            _this.isInitialized(intgInstance).then(_this.replayEvents);
+          } catch (e) {
+            logger.error("[Analytics] initialize integration (integration.init()) failed :: ", intg.name);
+          }
         });
       }
     }, {

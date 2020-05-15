@@ -164,7 +164,8 @@ class Analytics {
     }
 
     intgArray.forEach((intg) => {
-      logger.debug("[Analytics] init :: trying to initialize integration name:: ", intg.name)
+      try {
+        logger.debug("[Analytics] init :: trying to initialize integration name:: ", intg.name)
       let intgClass = integrations[intg.name];
       let destConfig = intg.config;
       let intgInstance = new intgClass(destConfig, self);
@@ -173,6 +174,10 @@ class Analytics {
       logger.debug("initializing destination: ", intg);
 
       this.isInitialized(intgInstance).then(this.replayEvents);
+      } catch (e) {
+        logger.error("[Analytics] initialize integration (integration.init()) failed :: ", intg.name)
+      }
+      
     });
   }
 
