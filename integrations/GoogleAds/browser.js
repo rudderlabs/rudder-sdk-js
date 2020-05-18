@@ -5,6 +5,7 @@ class GoogleAds {
     this.conversionId = config.conversionID;
     this.pageLoadConversions = config.pageLoadConversions;
     this.clickEventConversions = config.clickEventConversions;
+    this.defaultPageConversion = config.defaultPageConversion;
 
     this.name = "GOOGLEADS";
   }
@@ -78,17 +79,24 @@ class GoogleAds {
   getConversionData(eventTypeConversions, eventName) {
     let conversionData = {};
     if (eventTypeConversions) {
-      eventTypeConversions.forEach(eventTypeConversion => {
-        if (
-          eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()
-        ) {
-          //rudderElement["message"]["name"]
-          conversionData["conversionLabel"] =
-            eventTypeConversion.conversionLabel;
-          conversionData["eventName"] = eventTypeConversion.name;
-          return;
+      if (eventName) {
+        eventTypeConversions.forEach(eventTypeConversion => {
+          if (
+            eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()
+          ) {
+            //rudderElement["message"]["name"]
+            conversionData["conversionLabel"] =
+              eventTypeConversion.conversionLabel;
+            conversionData["eventName"] = eventTypeConversion.name;
+            return;
+          }
+        });
+      } else {
+        if (this.defaultPageConversion) {
+          conversionData["conversionLabel"] = this.defaultPageConversion;
+          conversionData["eventName"] = "Viewed a Page";
         }
-      });
+      }
     }
     return conversionData;
   }
