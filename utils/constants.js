@@ -1,3 +1,4 @@
+import { version } from "../package.json";
 //Message Type enumeration
 let MessageType = {
   TRACK: "track",
@@ -69,7 +70,7 @@ let RudderIntegrationPlatform = {
 };
 
 let BASE_URL = "https://hosted-dataplane.rudderstack.com";  // default to RudderStack
-let CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
+let CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=" + version; //"https://api.rudderlabs.com/workspaceConfig";
 
 let FLUSH_QUEUE_SIZE = 30;
 
