@@ -514,7 +514,8 @@ var rudderanalytics = (function (exports) {
     }
   }
 
-  //Message Type enumeration
+  var version = "1.1.1";
+
   var MessageType = {
     TRACK: "track",
     PAGE: "page",
@@ -554,7 +555,7 @@ var rudderanalytics = (function (exports) {
   }; //Enumeration for integrations supported
   var BASE_URL = "https://hosted-dataplane.rudderstack.com"; // default to RudderStack
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=" + version; //"https://api.rudderlabs.com/workspaceConfig";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -4176,6 +4177,7 @@ var rudderanalytics = (function (exports) {
       this.conversionId = config.conversionID;
       this.pageLoadConversions = config.pageLoadConversions;
       this.clickEventConversions = config.clickEventConversions;
+      this.defaultPageConversion = config.defaultPageConversion;
       this.name = "GOOGLEADS";
     }
 
@@ -4254,14 +4256,21 @@ var rudderanalytics = (function (exports) {
         var conversionData = {};
 
         if (eventTypeConversions) {
-          eventTypeConversions.forEach(function (eventTypeConversion) {
-            if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
-              //rudderElement["message"]["name"]
-              conversionData["conversionLabel"] = eventTypeConversion.conversionLabel;
-              conversionData["eventName"] = eventTypeConversion.name;
-              return;
+          if (eventName) {
+            eventTypeConversions.forEach(function (eventTypeConversion) {
+              if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
+                //rudderElement["message"]["name"]
+                conversionData["conversionLabel"] = eventTypeConversion.conversionLabel;
+                conversionData["eventName"] = eventTypeConversion.name;
+                return;
+              }
+            });
+          } else {
+            if (this.defaultPageConversion) {
+              conversionData["conversionLabel"] = this.defaultPageConversion;
+              conversionData["eventName"] = "Viewed a Page";
             }
-          });
+          }
         }
 
         return conversionData;
