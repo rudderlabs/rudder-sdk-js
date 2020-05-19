@@ -145,7 +145,7 @@ function handleError(error, analyticsInstance) {
         errorMessage = "error in script loading:: src::  " + error.target.src + " id:: " + error.target.id;
         if(analyticsInstance && error.target.src.includes("adsbygoogle")) {
           sampleAdBlockTest = true
-          analyticsInstance.page("RudderJS-Initiated", "ad-block page request", {path: "/ad-blocked", title: errorMessage})
+          analyticsInstance.page("RudderJS-Initiated", "ad-block page request", {path: "/ad-blocked", title: errorMessage}, analyticsInstance.sendAdblockPageOptions)
         }
       }
     }

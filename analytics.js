@@ -80,6 +80,7 @@ class Analytics {
     this.storage.setUserId(this.userId);
     this.eventRepository = EventRepository;
     this.sendAdblockPage = false
+    this.sendAdblockPageOptions = {}
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
@@ -751,6 +752,11 @@ class Analytics {
     }
     if(options && options.sendAdblockPage) {
       this.sendAdblockPage = true
+    }
+    if(options && options.sendAdblockPageOptions) {
+      if(typeof options.sendAdblockPageOptions == "object") {
+        this.sendAdblockPageOptions = options.sendAdblockPageOptions
+      }
     }
     this.eventRepository.writeKey = writeKey;
     if (serverUrl) {
