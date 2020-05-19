@@ -314,17 +314,30 @@ var rudderanalytics = (function (exports) {
     xhr.send();
   }
 
-  function handleError(error) {
+  function handleError(error, analyticsInstance) {
     var errorMessage = error.message ? error.message : undefined;
+    var sampleAdBlockTest = undefined;
 
-    if (error instanceof Event) {
-      if (error.target && error.target.localName == "script") {
-        errorMessage = "error in script loading: " + error.target.id;
+    try {
+      if (error instanceof Event) {
+        if (error.target && error.target.localName == "script") {
+          errorMessage = "error in script loading:: src::  " + error.target.src + " id:: " + error.target.id;
+
+          if (analyticsInstance && error.target.src.includes("adsbygoogle")) {
+            sampleAdBlockTest = true;
+            analyticsInstance.page("RudderJS-Initiated", "ad-block page request", {
+              path: "/ad-blocked",
+              title: errorMessage
+            }, analyticsInstance.sendAdblockPageOptions);
+          }
+        }
       }
-    }
 
-    if (errorMessage) {
-      logger.error("[Util] handleError:: ", errorMessage);
+      if (errorMessage && !sampleAdBlockTest) {
+        logger.error("[Util] handleError:: ", errorMessage);
+      }
+    } catch (e) {
+      logger.error("[Util] handleError:: ", e);
     }
   }
 
@@ -558,6 +571,7 @@ var rudderanalytics = (function (exports) {
     logger.debug("in script loader=== " + id);
     var js = document.createElement("script");
     js.src = src;
+    js.async = true;
     js.type = "text/javascript";
     js.id = id;
     var e = document.getElementsByTagName("script")[0];
@@ -3957,8 +3971,7 @@ var rudderanalytics = (function (exports) {
       key: "clear",
       value: function clear() {
         this.storage.remove(defaults$1.user_storage_key);
-        this.storage.remove(defaults$1.user_storage_trait);
-        this.storage.remove(defaults$1.user_storage_anonymousId);
+        this.storage.remove(defaults$1.user_storage_trait); // this.storage.remove(defaults.user_storage_anonymousId);
       }
     }]);
 
@@ -10535,6 +10548,8 @@ var rudderanalytics = (function (exports) {
       this.anonymousId = this.getAnonymousId();
       this.storage.setUserId(this.userId);
       this.eventRepository = eventRepository;
+      this.sendAdblockPage = false;
+      this.sendAdblockPageOptions = {};
 
       this.readyCallback = function () {};
 
@@ -10740,6 +10755,11 @@ var rudderanalytics = (function (exports) {
         if (_typeof(category) === "object") options = name, properties = category, name = category = null;
         if (_typeof(name) === "object") options = properties, properties = name, name = null;
         if (typeof category === "string" && typeof name !== "string") name = category, category = null;
+
+        if (this.sendAdblockPage && category != "RudderJS-Initiated") {
+          this.sendSampleRequest();
+        }
+
         this.processPage(category, name, properties, options, callback);
       }
       /**
@@ -10792,7 +10812,7 @@ var rudderanalytics = (function (exports) {
         if (typeof from == "function") callback = from, options = null, from = null;
         if (_typeof(from) == "object") options = from, from = null;
         var rudderElement = new RudderElementBuilder().setType("alias").build();
-        rudderElement.message.previousId = from || this.userId ? this.userId : this.getAnonymousId();
+        rudderElement.message.previousId = from || (this.userId ? this.userId : this.getAnonymousId());
         rudderElement.message.userId = to;
         this.processAndSendDataToDestinations("alias", rudderElement, options, callback);
       }
@@ -11096,7 +11116,6 @@ var rudderanalytics = (function (exports) {
       value: function reset() {
         this.userId = "";
         this.userTraits = {};
-        this.anonymousId = this.setAnonymousId();
         this.storage.clear();
       }
     }, {
@@ -11126,6 +11145,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "load",
       value: function load(writeKey, serverUrl, options) {
+        logger.debug("inside load ");
         var configUrl = CONFIG_URL;
 
         if (!writeKey || !serverUrl || serverUrl.length == 0) {
@@ -11148,7 +11168,16 @@ var rudderanalytics = (function (exports) {
           configUrl = options.configUrl;
         }
 
-        logger.debug("inside load ");
+        if (options && options.sendAdblockPage) {
+          this.sendAdblockPage = true;
+        }
+
+        if (options && options.sendAdblockPageOptions) {
+          if (_typeof(options.sendAdblockPageOptions) == "object") {
+            this.sendAdblockPageOptions = options.sendAdblockPageOptions;
+          }
+        }
+
         this.eventRepository.writeKey = writeKey;
 
         if (serverUrl) {
@@ -11203,21 +11232,28 @@ var rudderanalytics = (function (exports) {
           }
         });
       }
+    }, {
+      key: "sendSampleRequest",
+      value: function sendSampleRequest() {
+        ScriptLoader("ad-block", "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js");
+      }
     }]);
 
     return Analytics;
   }();
 
-  {
-    window.addEventListener("error", function (e) {
-      handleError(e);
-    }, true);
-  }
-
   var instance = new Analytics();
   componentEmitter(instance);
 
   {
+    window.addEventListener("error", function (e) {
+      handleError(e, instance);
+    }, true);
+  }
+
+  {
+    // test for adblocker
+    // instance.sendSampleRequest()
     // register supported callbacks
     instance.registerCallbacks();
     var eventsPushedAlready = !!window.rudderanalytics && window.rudderanalytics.push == Array.prototype.push;

@@ -21,6 +21,7 @@ import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import Emitter from "component-emitter";
 import after from "after";
+import {ScriptLoader} from "./integrations/ScriptLoader"
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
@@ -78,6 +79,8 @@ class Analytics {
     this.anonymousId = this.getAnonymousId();
     this.storage.setUserId(this.userId);
     this.eventRepository = EventRepository;
+    this.sendAdblockPage = false
+    this.sendAdblockPageOptions = {}
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
@@ -318,6 +321,9 @@ class Analytics {
       (options = properties), (properties = name), (name = null);
     if (typeof category === "string" && typeof name !== "string")
       (name = category), (category = null);
+    if(this.sendAdblockPage && category != "RudderJS-Initiated") {
+      this.sendSampleRequest()
+    }
     this.processPage(category, name, properties, options, callback);
   }
 
@@ -372,7 +378,7 @@ class Analytics {
 
     let rudderElement = new RudderElementBuilder().setType("alias").build();
     rudderElement.message.previousId =
-      from || this.userId ? this.userId : this.getAnonymousId();
+      from || (this.userId ? this.userId : this.getAnonymousId());
     rudderElement.message.userId = to;
 
     this.processAndSendDataToDestinations(
@@ -587,7 +593,7 @@ class Analytics {
         {},
         this.userTraits
       );
-
+      
       logger.debug("anonymousId: ", this.anonymousId);
       rudderElement["message"]["anonymousId"] = this.anonymousId;
       rudderElement["message"]["userId"] = rudderElement["message"]["userId"]
@@ -702,7 +708,6 @@ class Analytics {
   reset() {
     this.userId = "";
     this.userTraits = {};
-    this.anonymousId = this.setAnonymousId();
     this.storage.clear();
   }
 
@@ -726,6 +731,7 @@ class Analytics {
    * @memberof Analytics
    */
   load(writeKey, serverUrl, options) {
+    logger.debug("inside load ");
     let configUrl = CONFIG_URL;
     if (!writeKey || !serverUrl || serverUrl.length == 0) {
       handleError({
@@ -744,7 +750,14 @@ class Analytics {
     if (options && options.configUrl) {
       configUrl = options.configUrl;
     }
-    logger.debug("inside load ");
+    if(options && options.sendAdblockPage) {
+      this.sendAdblockPage = true
+    }
+    if(options && options.sendAdblockPageOptions) {
+      if(typeof options.sendAdblockPageOptions == "object") {
+        this.sendAdblockPageOptions = options.sendAdblockPageOptions
+      }
+    }
     this.eventRepository.writeKey = writeKey;
     if (serverUrl) {
       this.eventRepository.url = serverUrl;
@@ -801,16 +814,11 @@ class Analytics {
       }
     });
   }
-}
 
-if (process.browser) {
-  window.addEventListener(
-    "error",
-    function(e) {
-      handleError(e);
-    },
-    true
-  );
+  sendSampleRequest() {
+    ScriptLoader("ad-block", "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
+  }
+    
 }
 
 let instance = new Analytics();
@@ -818,6 +826,19 @@ let instance = new Analytics();
 Emitter(instance);
 
 if (process.browser) {
+  window.addEventListener(
+    "error",
+    (e) => {
+      handleError(e, instance);
+    },
+    true
+  );
+}
+
+if (process.browser) {
+  // test for adblocker
+  // instance.sendSampleRequest()
+  
   // register supported callbacks
   instance.registerCallbacks();
   let eventsPushedAlready =

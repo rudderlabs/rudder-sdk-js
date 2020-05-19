@@ -136,16 +136,26 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   xhr.send();
 }
 
-function handleError(error) {
+function handleError(error, analyticsInstance) {
   let errorMessage = error.message ? error.message : undefined;
-  if (error instanceof Event) {
-    if (error.target && error.target.localName == "script") {
-      errorMessage = "error in script loading: " + error.target.id;
+  let sampleAdBlockTest = undefined
+  try {
+    if (error instanceof Event) {
+      if (error.target && error.target.localName == "script") {
+        errorMessage = "error in script loading:: src::  " + error.target.src + " id:: " + error.target.id;
+        if(analyticsInstance && error.target.src.includes("adsbygoogle")) {
+          sampleAdBlockTest = true
+          analyticsInstance.page("RudderJS-Initiated", "ad-block page request", {path: "/ad-blocked", title: errorMessage}, analyticsInstance.sendAdblockPageOptions)
+        }
+      }
     }
+    if (errorMessage && !sampleAdBlockTest) {
+      logger.error("[Util] handleError:: ", errorMessage);
+    }
+  } catch (e) {
+    logger.error("[Util] handleError:: ", e)
   }
-  if (errorMessage) {
-    logger.error("[Util] handleError:: ", errorMessage);
-  }
+  
 }
 
 function getDefaultPageProperties() {
