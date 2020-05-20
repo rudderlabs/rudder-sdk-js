@@ -69,8 +69,8 @@ let RudderIntegrationPlatform = {
   AMPLITUDE: "amplitude"
 };
 
-let BASE_URL = "https://hosted-dataplane.rudderstack.com";  // default to RudderStack
-let CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=" + version; //"https://api.rudderlabs.com/workspaceConfig";
+let BASE_URL = "https://hosted.rudderlabs.com";  // default to RudderStack
+let CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=" + version;
 
 let FLUSH_QUEUE_SIZE = 30;
 
