@@ -59,11 +59,16 @@ class CookieLocal {
    * @param {*} key
    */
   get(key) {
+    // if not parseable, return as is without json parse
+    let value;
     try {
-      let value = cookie(key);
+      value = cookie(key);
       value = value ? json.parse(value) : null;
       return value;
     } catch (e) {
+      if(value) {
+        return value
+      }
       return null;
     }
   }

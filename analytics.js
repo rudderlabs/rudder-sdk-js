@@ -254,9 +254,12 @@ class Analytics {
               !succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"] ||
               !succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"]()
             ) {
-              succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
-                ...event
-              );
+              if(succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
+                succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
+                  ...event
+                );
+              }
+              
             }
           } catch (error) {
             handleError(error);
@@ -635,7 +638,9 @@ class Analytics {
       //try to first send to all integrations, if list populated from BE
       succesfulLoadedIntersectClientSuppliedIntegrations.forEach(obj => {
         if (!obj["isFailed"] || !obj["isFailed"]()) {
-          obj[type](rudderElement);
+          if(obj[type]) {
+            obj[type](rudderElement);
+          }
         }
       });
 
