@@ -127,7 +127,7 @@ class GA {
       if (this.anonymizeIp) {
         ga("set", "anonymizeIp", true);
       }
-    
+
       logger.debug("===in init GA===");
     }
   }
@@ -145,7 +145,7 @@ class GA {
     for (let val of this.contentGroupings) {
       contentGroupingsArray[val.from] = val.to;
     }
-    
+
     if (this.sendUserId && rudderElement.message.userId) {
       ga("set", "userId", rudderElement.message.userId);
     }
@@ -168,8 +168,6 @@ class GA {
       metricsArray,
       contentGroupingsArray
     );
-
-
 
     if (Object.keys(custom).length) ga("set", custom);
 
@@ -721,7 +719,7 @@ class GA {
       return !!(window._gaq && window._gaq.push !== Array.prototype.push);
     } else {
       logger.debug("in GA isLoaded");
-  
+
       return !!window.gaplugins;
     }
   }

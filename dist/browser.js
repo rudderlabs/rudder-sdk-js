@@ -1,5 +1,7 @@
-var rudderanalytics = (function (exports) {
+var rudderanalytics = (function (exports, cookie) {
   'use strict';
+
+  cookie = cookie && Object.prototype.hasOwnProperty.call(cookie, 'default') ? cookie['default'] : cookie;
 
   function _typeof(obj) {
     "@babel/helpers - typeof";
@@ -227,7 +229,66 @@ var rudderanalytics = (function (exports) {
     }
   };
 
-  //import * as XMLHttpRequestNode from "Xmlhttprequest";
+  // for sdk side native integration identification
+  var commonNames = {
+    "All": "All",
+    "Google Analytics": "GA",
+    "GoogleAnalytics": "GA",
+    "GA": "GA",
+    "Google Ads": "GOOGLEADS",
+    "GoogleAds": "GOOGLEADS",
+    "GOOGLEADS": "GOOGLEADS",
+    "Braze": "BRAZE",
+    "BRAZE": "BRAZE",
+    "Chartbeat": "CHARTBEAT",
+    "CHARTBEAT": "CHARTBEAT",
+    "Comscore": "COMSCORE",
+    "COMSCORE": "COMSCORE",
+    "Customerio": "CUSTOMERIO",
+    "Customer.io": "CUSTOMERIO",
+    "FB Pixel": "FB_PIXEL",
+    "Facebook Pixel": "FB_PIXEL",
+    "FB_PIXEL": "FB_PIXEL",
+    "Google Tag Manager": "GOOGLETAGMANAGER",
+    "GTM": "GOOGLETAGMANAGER",
+    "Hotjar": "HOTJAR",
+    "hotjar": "HOTJAR",
+    "HOTJAR": "HOTJAR",
+    "Hubspot": "HS",
+    "HUBSPOT": "HS",
+    "Intercom": "INTERCOM",
+    "INTERCOM": "INTERCOM",
+    "Keen": "KEEN",
+    "Keen.io": "KEEN",
+    "KEEN": "KEEN",
+    "Kissmetrics": "KISSMETRICS",
+    "KISSMETRICS": "KISSMETRICS",
+    "Lotame": "LOTAME",
+    "LOTAME": "LOTAME",
+    "Visual Website Optimizer": "VWO",
+    "VWO": "VWO"
+  };
+
+  // from client native integration name to server identified display name
+  var clientToServerNames = {
+    "All": "All",
+    "GA": "Google Analytics",
+    "GOOGLEADS": "Google Ads",
+    "BRAZE": "Braze",
+    "CHARTBEAT": "Chartbeat",
+    "COMSCORE": "Comscore",
+    "CUSTOMERIO": "Customer IO",
+    "FB_PIXEL": "Facebook Pixel",
+    "GOOGLETAGMANAGER": "Google Tag Manager",
+    "HOTJAR": "Hotjar",
+    "HS": "HubSpot",
+    "INTERCOM": "Intercom",
+    "KEEN": "Keen",
+    "KISSMETRICS": "Kiss Metrics",
+    "LOTAME": "Lotame",
+    "VWO": "VWO"
+  };
+
   /**
    *
    * Utility method for excluding null and empty values in JSON
@@ -325,19 +386,30 @@ var rudderanalytics = (function (exports) {
     xhr.send();
   }
 
-  function handleError(error) {
+  function handleError(error, analyticsInstance) {
     var errorMessage = error.message ? error.message : undefined;
+    var sampleAdBlockTest = undefined;
 
-    if (error instanceof Event) {
-      if (error.target && error.target.localName == "script") {
-        errorMessage = "error in script loading: " + error.target.id;
+    try {
+      if (error instanceof Event) {
+        if (error.target && error.target.localName == "script") {
+          errorMessage = "error in script loading:: src::  " + error.target.src + " id:: " + error.target.id;
+
+          if (analyticsInstance && error.target.src.includes("adsbygoogle")) {
+            sampleAdBlockTest = true;
+            analyticsInstance.page("RudderJS-Initiated", "ad-block page request", {
+              path: "/ad-blocked",
+              title: errorMessage
+            }, analyticsInstance.sendAdblockPageOptions);
+          }
+        }
       }
-    }
 
-    if (errorMessage) {
-      //console.log("%c"+errorMessage, 'color: blue');
-      //console.error(errorMessage);
-      logger.error(errorMessage);
+      if (errorMessage && !sampleAdBlockTest) {
+        logger.error("[Util] handleError:: ", errorMessage);
+      }
+    } catch (e) {
+      logger.error("[Util] handleError:: ", e);
     }
   }
 
@@ -403,8 +475,119 @@ var rudderanalytics = (function (exports) {
 
     return getCurrency(revenue);
   }
+  /**
+   *
+   *
+   * @param {*} integrationObject
+   */
 
-  //Message Type enumeration
+
+  function tranformToRudderNames(integrationObject) {
+    Object.keys(integrationObject).forEach(function (key) {
+      if (integrationObject.hasOwnProperty(key)) {
+        if (commonNames[key]) {
+          integrationObject[commonNames[key]] = integrationObject[key];
+        }
+
+        if (key != "All") {
+          // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys 
+          if (commonNames[key] != undefined && commonNames[key] != key) {
+            delete integrationObject[key];
+          }
+        }
+      }
+    });
+  }
+
+  function transformToServerNames(integrationObject) {
+    Object.keys(integrationObject).forEach(function (key) {
+      if (integrationObject.hasOwnProperty(key)) {
+        if (clientToServerNames[key]) {
+          integrationObject[clientToServerNames[key]] = integrationObject[key];
+        }
+
+        if (key != "All") {
+          // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys 
+          if (clientToServerNames[key] != undefined && clientToServerNames[key] != key) {
+            delete integrationObject[key];
+          }
+        }
+      }
+    });
+  }
+  /**
+   * 
+   * @param {*} sdkSuppliedIntegrations 
+   * @param {*} configPlaneEnabledIntegrations 
+   */
+
+
+  function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledIntegrations) {
+    var enabledList = [];
+
+    if (!configPlaneEnabledIntegrations || configPlaneEnabledIntegrations.length == 0) {
+      return enabledList;
+    }
+
+    var allValue = true;
+
+    if (typeof configPlaneEnabledIntegrations[0] == "string") {
+      if (sdkSuppliedIntegrations["All"] != undefined) {
+        allValue = sdkSuppliedIntegrations["All"];
+      }
+
+      configPlaneEnabledIntegrations.forEach(function (intg) {
+        if (!allValue) {
+          // All false ==> check if intg true supplied
+          if (sdkSuppliedIntegrations[intg] != undefined && sdkSuppliedIntegrations[intg] == true) {
+            enabledList.push(intg);
+          }
+        } else {
+          // All true ==> intg true by default
+          var intgValue = true; // check if intg false supplied
+
+          if (sdkSuppliedIntegrations[intg] != undefined && sdkSuppliedIntegrations[intg] == false) {
+            intgValue = false;
+          }
+
+          if (intgValue) {
+            enabledList.push(intg);
+          }
+        }
+      });
+      return enabledList;
+    }
+
+    if (_typeof(configPlaneEnabledIntegrations[0]) == "object") {
+      if (sdkSuppliedIntegrations["All"] != undefined) {
+        allValue = sdkSuppliedIntegrations["All"];
+      }
+
+      configPlaneEnabledIntegrations.forEach(function (intg) {
+        if (!allValue) {
+          // All false ==> check if intg true supplied
+          if (sdkSuppliedIntegrations[intg.name] != undefined && sdkSuppliedIntegrations[intg.name] == true) {
+            enabledList.push(intg);
+          }
+        } else {
+          // All true ==> intg true by default
+          var intgValue = true; // check if intg false supplied
+
+          if (sdkSuppliedIntegrations[intg.name] != undefined && sdkSuppliedIntegrations[intg.name] == false) {
+            intgValue = false;
+          }
+
+          if (intgValue) {
+            enabledList.push(intg);
+          }
+        }
+      });
+      return enabledList;
+    }
+  }
+
+  var version = "1.1.1";
+
   var MessageType = {
     TRACK: "track",
     PAGE: "page",
@@ -442,9 +625,9 @@ var rudderanalytics = (function (exports) {
     CART_SHARED: "Cart Shared",
     PRODUCT_REVIEWED: "Product Reviewed"
   }; //Enumeration for integrations supported
-  var BASE_URL = "http://18.222.145.124:5000/dump"; //"https://rudderlabs.com";
+  var BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig"; //"https://api.rudderlabs.com/workspaceConfig";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=" + version;
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -461,6 +644,7 @@ var rudderanalytics = (function (exports) {
     logger.debug("in script loader=== " + id);
     var js = document.createElement("script");
     js.src = src;
+    js.async = true;
     js.type = "text/javascript";
     js.id = id;
     var e = document.getElementsByTagName("script")[0];
@@ -3131,7 +3315,7 @@ var rudderanalytics = (function (exports) {
         var userId = rudderElement.message.userId || rudderElement.message.anonymousId;
 
         if (!userId) {
-          logger.error('user id is required');
+          logger.debug('[Hotjar] identify:: user id is required');
           return;
         }
 
@@ -3141,12 +3325,12 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "track",
       value: function track(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("[Hotjar] track:: method not supported");
       }
     }, {
       key: "page",
       value: function page(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("[Hotjar] page:: method not supported");
       }
     }, {
       key: "isLoaded",
@@ -3173,6 +3357,7 @@ var rudderanalytics = (function (exports) {
       this.conversionId = config.conversionID;
       this.pageLoadConversions = config.pageLoadConversions;
       this.clickEventConversions = config.clickEventConversions;
+      this.defaultPageConversion = config.defaultPageConversion;
       this.name = "GOOGLEADS";
     }
 
@@ -3206,7 +3391,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("[GoogleAds] identify:: method not supported");
       } //https://developers.google.com/gtagjs/reference/event
 
     }, {
@@ -3251,14 +3436,21 @@ var rudderanalytics = (function (exports) {
         var conversionData = {};
 
         if (eventTypeConversions) {
-          eventTypeConversions.forEach(function (eventTypeConversion) {
-            if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
-              //rudderElement["message"]["name"]
-              conversionData["conversionLabel"] = eventTypeConversion.conversionLabel;
-              conversionData["eventName"] = eventTypeConversion.name;
-              return;
+          if (eventName) {
+            eventTypeConversions.forEach(function (eventTypeConversion) {
+              if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
+                //rudderElement["message"]["name"]
+                conversionData["conversionLabel"] = eventTypeConversion.conversionLabel;
+                conversionData["eventName"] = eventTypeConversion.name;
+                return;
+              }
+            });
+          } else {
+            if (this.defaultPageConversion) {
+              conversionData["conversionLabel"] = this.defaultPageConversion;
+              conversionData["eventName"] = "Viewed a Page";
             }
-          });
+          }
         }
 
         return conversionData;
@@ -3384,7 +3576,7 @@ var rudderanalytics = (function (exports) {
                 });
               }
             } catch (error) {
-              logger.error(error);
+              logger.error("[VWO] experimentViewed:: ", error);
             }
 
             try {
@@ -3393,7 +3585,7 @@ var rudderanalytics = (function (exports) {
                 window.rudderanalytics.identify(_defineProperty({}, "Experiment: ".concat(expId), _vwo_exp[expId].comb_n[variationId]));
               }
             } catch (error) {
-              logger.error(error);
+              logger.error("[VWO] experimentViewed:: ", error);
             }
           }
         }]);
@@ -3465,7 +3657,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        logger.error("method not supported");
+        logger.debug("[GTM] identify:: method not supported");
       }
     }, {
       key: "track",
@@ -3496,6 +3688,10 @@ var rudderanalytics = (function (exports) {
 
         if (pageCategory && pageName) {
           eventName = "Viewed " + pageCategory + " " + pageName + " page";
+        }
+
+        if (!eventName) {
+          eventName = "Viewed a Page";
         }
 
         var props = _objectSpread2({
@@ -5007,7 +5203,7 @@ var rudderanalytics = (function (exports) {
       this.replayEvents = [];
       this.failed = false;
       this.isFirstPageCallMade = false;
-      this.name = "Chartbeat";
+      this.name = "CHARTBEAT";
     }
 
     _createClass(Chartbeat, [{
@@ -5320,6 +5516,771 @@ var rudderanalytics = (function (exports) {
     return Comscore;
   }();
 
+  var hop = Object.prototype.hasOwnProperty;
+  var strCharAt = String.prototype.charAt;
+  var toStr$2 = Object.prototype.toString;
+
+  /**
+   * Returns the character at a given index.
+   *
+   * @param {string} str
+   * @param {number} index
+   * @return {string|undefined}
+   */
+  // TODO: Move to a library
+  var charAt = function(str, index) {
+    return strCharAt.call(str, index);
+  };
+
+  /**
+   * hasOwnProperty, wrapped as a function.
+   *
+   * @name has
+   * @api private
+   * @param {*} context
+   * @param {string|number} prop
+   * @return {boolean}
+   */
+
+  // TODO: Move to a library
+  var has$3 = function has(context, prop) {
+    return hop.call(context, prop);
+  };
+
+  /**
+   * Returns true if a value is a string, otherwise false.
+   *
+   * @name isString
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+
+  // TODO: Move to a library
+  var isString = function isString(val) {
+    return toStr$2.call(val) === '[object String]';
+  };
+
+  /**
+   * Returns true if a value is array-like, otherwise false. Array-like means a
+   * value is not null, undefined, or a function, and has a numeric `length`
+   * property.
+   *
+   * @name isArrayLike
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+  // TODO: Move to a library
+  var isArrayLike = function isArrayLike(val) {
+    return val != null && (typeof val !== 'function' && typeof val.length === 'number');
+  };
+
+
+  /**
+   * indexKeys
+   *
+   * @name indexKeys
+   * @api private
+   * @param {} target
+   * @param {Function} pred
+   * @return {Array}
+   */
+  var indexKeys = function indexKeys(target, pred) {
+    pred = pred || has$3;
+
+    var results = [];
+
+    for (var i = 0, len = target.length; i < len; i += 1) {
+      if (pred(target, i)) {
+        results.push(String(i));
+      }
+    }
+
+    return results;
+  };
+
+  /**
+   * Returns an array of an object's owned keys.
+   *
+   * @name objectKeys
+   * @api private
+   * @param {*} target
+   * @param {Function} pred Predicate function used to include/exclude values from
+   * the resulting array.
+   * @return {Array}
+   */
+  var objectKeys = function objectKeys(target, pred) {
+    pred = pred || has$3;
+
+    var results = [];
+
+    for (var key in target) {
+      if (pred(target, key)) {
+        results.push(String(key));
+      }
+    }
+
+    return results;
+  };
+
+  /**
+   * Creates an array composed of all keys on the input object. Ignores any non-enumerable properties.
+   * More permissive than the native `Object.keys` function (non-objects will not throw errors).
+   *
+   * @name keys
+   * @api public
+   * @category Object
+   * @param {Object} source The value to retrieve keys from.
+   * @return {Array} An array containing all the input `source`'s keys.
+   * @example
+   * keys({ likes: 'avocado', hates: 'pineapple' });
+   * //=> ['likes', 'pineapple'];
+   *
+   * // Ignores non-enumerable properties
+   * var hasHiddenKey = { name: 'Tim' };
+   * Object.defineProperty(hasHiddenKey, 'hidden', {
+   *   value: 'i am not enumerable!',
+   *   enumerable: false
+   * })
+   * keys(hasHiddenKey);
+   * //=> ['name'];
+   *
+   * // Works on arrays
+   * keys(['a', 'b', 'c']);
+   * //=> ['0', '1', '2']
+   *
+   * // Skips unpopulated indices in sparse arrays
+   * var arr = [1];
+   * arr[4] = 4;
+   * keys(arr);
+   * //=> ['0', '4']
+   */
+  var keys = function keys(source) {
+    if (source == null) {
+      return [];
+    }
+
+    // IE6-8 compatibility (string)
+    if (isString(source)) {
+      return indexKeys(source, charAt);
+    }
+
+    // IE6-8 compatibility (arguments)
+    if (isArrayLike(source)) {
+      return indexKeys(source, has$3);
+    }
+
+    return objectKeys(source);
+  };
+
+  /*
+   * Exports.
+   */
+
+  var keys_1 = keys;
+
+  /*
+   * Module dependencies.
+   */
+
+
+
+  var objToString$1 = Object.prototype.toString;
+
+  /**
+   * Tests if a value is a number.
+   *
+   * @name isNumber
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean} Returns `true` if `val` is a number, otherwise `false`.
+   */
+  // TODO: Move to library
+  var isNumber = function isNumber(val) {
+    var type = typeof val;
+    return type === 'number' || (type === 'object' && objToString$1.call(val) === '[object Number]');
+  };
+
+  /**
+   * Tests if a value is an array.
+   *
+   * @name isArray
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean} Returns `true` if the value is an array, otherwise `false`.
+   */
+  // TODO: Move to library
+  var isArray$1 = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
+    return objToString$1.call(val) === '[object Array]';
+  };
+
+  /**
+   * Tests if a value is array-like. Array-like means the value is not a function and has a numeric
+   * `.length` property.
+   *
+   * @name isArrayLike
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+  // TODO: Move to library
+  var isArrayLike$1 = function isArrayLike(val) {
+    return val != null && (isArray$1(val) || (val !== 'function' && isNumber(val.length)));
+  };
+
+  /**
+   * Internal implementation of `each`. Works on arrays and array-like data structures.
+   *
+   * @name arrayEach
+   * @api private
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Array} array The array(-like) structure to iterate over.
+   * @return {undefined}
+   */
+  var arrayEach = function arrayEach(iterator, array) {
+    for (var i = 0; i < array.length; i += 1) {
+      // Break iteration early if `iterator` returns `false`
+      if (iterator(array[i], i, array) === false) {
+        break;
+      }
+    }
+  };
+
+  /**
+   * Internal implementation of `each`. Works on objects.
+   *
+   * @name baseEach
+   * @api private
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Object} object The object to iterate over.
+   * @return {undefined}
+   */
+  var baseEach = function baseEach(iterator, object) {
+    var ks = keys_1(object);
+
+    for (var i = 0; i < ks.length; i += 1) {
+      // Break iteration early if `iterator` returns `false`
+      if (iterator(object[ks[i]], ks[i], object) === false) {
+        break;
+      }
+    }
+  };
+
+  /**
+   * Iterate over an input collection, invoking an `iterator` function for each element in the
+   * collection and passing to it three arguments: `(value, index, collection)`. The `iterator`
+   * function can end iteration early by returning `false`.
+   *
+   * @name each
+   * @api public
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Array|Object|string} collection The collection to iterate over.
+   * @return {undefined} Because `each` is run only for side effects, always returns `undefined`.
+   * @example
+   * var log = console.log.bind(console);
+   *
+   * each(log, ['a', 'b', 'c']);
+   * //-> 'a', 0, ['a', 'b', 'c']
+   * //-> 'b', 1, ['a', 'b', 'c']
+   * //-> 'c', 2, ['a', 'b', 'c']
+   * //=> undefined
+   *
+   * each(log, 'tim');
+   * //-> 't', 2, 'tim'
+   * //-> 'i', 1, 'tim'
+   * //-> 'm', 0, 'tim'
+   * //=> undefined
+   *
+   * // Note: Iteration order not guaranteed across environments
+   * each(log, { name: 'tim', occupation: 'enchanter' });
+   * //-> 'tim', 'name', { name: 'tim', occupation: 'enchanter' }
+   * //-> 'enchanter', 'occupation', { name: 'tim', occupation: 'enchanter' }
+   * //=> undefined
+   */
+  var each = function each(iterator, collection) {
+    return (isArrayLike$1(collection) ? arrayEach : baseEach).call(this, iterator, collection);
+  };
+
+  /*
+   * Exports.
+   */
+
+  var each_1 = each;
+
+  var FBPixel = /*#__PURE__*/function () {
+    function FBPixel(config) {
+      _classCallCheck(this, FBPixel);
+
+      this.blacklistPiiProperties = config.blacklistPiiProperties;
+      this.categoryToContent = config.categoryToContent;
+      this.pixelId = config.pixelId;
+      this.eventsToEvents = config.eventsToEvents;
+      this.eventCustomProperties = config.eventCustomProperties;
+      this.valueFieldIdentifier = config.valueFieldIdentifier;
+      this.advancedMapping = config.advancedMapping;
+      this.traitKeyToExternalId = config.traitKeyToExternalId;
+      this.legacyConversionPixelId = config.legacyConversionPixelId;
+      this.userIdAsPixelId = config.userIdAsPixelId;
+      this.whitelistPiiProperties = config.whitelistPiiProperties;
+      this.name = "FB_PIXEL";
+    }
+
+    _createClass(FBPixel, [{
+      key: "init",
+      value: function init() {
+        if (this.categoryToContent === undefined) {
+          this.categoryToContent = [];
+        }
+
+        if (this.legacyConversionPixelId === undefined) {
+          this.legacyConversionPixelId = [];
+        }
+
+        if (this.userIdAsPixelId === undefined) {
+          this.userIdAsPixelId = [];
+        }
+
+        logger.debug("===in init FbPixel===");
+
+        window._fbq = function () {
+          if (window.fbq.callMethod) {
+            window.fbq.callMethod.apply(window.fbq, arguments);
+          } else {
+            window.fbq.queue.push(arguments);
+          }
+        };
+
+        window.fbq = window.fbq || window._fbq;
+        window.fbq.push = window.fbq;
+        window.fbq.loaded = true;
+        window.fbq.disablePushState = true; // disables automatic pageview tracking
+
+        window.fbq.allowDuplicatePageViews = true; // enables fb
+
+        window.fbq.version = "2.0";
+        window.fbq.queue = [];
+        window.fbq("init", this.pixelId);
+        ScriptLoader("fbpixel-integration", "//connect.facebook.net/en_US/fbevents.js");
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in FBPixel isLoaded");
+        return !!(window.fbq && window.fbq.callMethod);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        logger.debug("in FBPixel isReady");
+        return !!(window.fbq && window.fbq.callMethod);
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        window.fbq("track", "PageView");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        if (this.advancedMapping) {
+          window.fbq("init", this.pixelId, rudderElement.message.context.traits);
+        }
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var event = rudderElement.message.event;
+        var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
+        var payload = this.buildPayLoad(rudderElement, true);
+
+        if (this.categoryToContent === undefined) {
+          this.categoryToContent = [];
+        }
+
+        if (this.legacyConversionPixelId === undefined) {
+          this.legacyConversionPixelId = [];
+        }
+
+        if (this.userIdAsPixelId === undefined) {
+          this.userIdAsPixelId = [];
+        }
+
+        payload.value = revenue;
+        var standard = this.eventsToEvents;
+        var legacy = this.legacyConversionPixelId;
+        var standardTo;
+        var legacyTo;
+        standardTo = standard.reduce(function (filtered, standard) {
+          if (standard.from === event) {
+            filtered.push(standard.to);
+          }
+
+          return filtered;
+        }, []);
+        legacyTo = legacy.reduce(function (filtered, legacy) {
+          if (legacy.from === event) {
+            filtered.push(legacy.to);
+          }
+
+          return filtered;
+        }, []);
+        each_1(function (event) {
+          if (event === "Purchase") {
+            payload.currency = rudderElement.message.properties.currency || "USD";
+          }
+
+          window.fbq("trackSingle", this.pixelId, event, payload, {
+            eventID: rudderElement.message.messageId
+          });
+        }, standardTo);
+        each_1(function (event) {
+          window.fbq("trackSingle", this.pixelId, event, {
+            currency: rudderElement.message.properties.currency,
+            value: revenue
+          }, {
+            eventID: rudderElement.message.messageId
+          });
+        }, legacyTo);
+
+        if (event === "Product List Viewed") {
+          var contentType;
+          var contentIds;
+          var contents = [];
+          var products = rudderElement.message.properties.products;
+          var customProperties = this.buildPayLoad(rudderElement, true);
+
+          if (Array.isArray(products)) {
+            products.forEach(function (product) {
+              var productId = product.product_id;
+
+              if (productId) {
+                contentIds.push(productId);
+                contents.push({
+                  id: productId,
+                  quantity: rudderElement.message.properties.quantity
+                });
+              }
+            });
+          }
+
+          if (contentIds.length) {
+            contentType = ["product"];
+          } else {
+            contentIds.push(rudderElement.message.properties.category || "");
+            contents.push({
+              id: rudderElement.message.properties.category || "",
+              quantity: 1
+            });
+            contentType = ["product_group"];
+          }
+
+          window.fbq("trackSingle", this.pixelId, "ViewContent", this.merge({
+            content_ids: contentIds,
+            content_type: this.getContentType(rudderElement, contentType),
+            contents: contents
+          }, customProperties), {
+            eventID: rudderElement.message.messageId
+          });
+          each_1(function (event) {
+            window.fbq("trackSingle", this.pixelId, event, {
+              currency: rudderElement.message.properties.currency,
+              value: this.formatRevenue(rudderElement.message.properties.revenue)
+            }, {
+              eventID: rudderElement.message.messageId
+            });
+          }, legacyTo);
+        } else if (event === "Product Viewed") {
+          var useValue = this.valueFieldIdentifier === "properties.value";
+          var customProperties = this.buildPayLoad(rudderElement, true);
+          window.fbq("trackSingle", this.pixelId, "ViewContent", this.merge({
+            content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
+            content_type: this.getContentType(rudderElement, ["product"]),
+            content_name: rudderElement.message.properties.product_name || "",
+            content_category: rudderElement.message.properties.category || "",
+            currency: rudderElement.message.properties.currency,
+            value: useValue ? this.formatRevenue(rudderElement.message.properties.value) : this.formatRevenue(rudderElement.message.properties.price),
+            contents: [{
+              id: rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || "",
+              quantity: rudderElement.message.properties.quantity,
+              item_price: rudderElement.message.properties.price
+            }]
+          }, customProperties), {
+            eventID: rudderElement.message.messageId
+          });
+          each_1(function (event) {
+            window.fbq("trackSingle", this.pixelId, event, {
+              currency: rudderElement.message.properties.currency,
+              value: useValue ? this.formatRevenue(rudderElement.message.properties.value) : this.formatRevenue(rudderElement.message.properties.price)
+            }, {
+              eventID: rudderElement.message.messageId
+            });
+          }, legacyTo);
+        } else if (event === "Product Added") {
+          var useValue = this.valueFieldIdentifier === "properties.value";
+          var customProperties = this.buildPayLoad(rudderElement, true);
+          window.fbq("trackSingle", this.pixelId, "AddToCart", this.merge({
+            content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
+            content_type: this.getContentType(rudderElement, ["product"]),
+            content_name: rudderElement.message.properties.product_name || "",
+            content_category: rudderElement.message.properties.category || "",
+            currency: rudderElement.message.properties.currency,
+            value: useValue ? this.formatRevenue(rudderElement.message.properties.value) : this.formatRevenue(rudderElement.message.properties.price),
+            contents: [{
+              id: rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || "",
+              quantity: rudderElement.message.properties.quantity,
+              item_price: rudderElement.message.properties.price
+            }]
+          }, customProperties), {
+            eventID: rudderElement.message.messageId
+          });
+          each_1(function (event) {
+            window.fbq("trackSingle", this.pixelId, event, {
+              currency: rudderElement.message.properties.currency,
+              value: useValue ? this.formatRevenue(rudderElement.message.properties.value) : this.formatRevenue(rudderElement.message.properties.price)
+            }, {
+              eventID: rudderElement.message.messageId
+            });
+          }, legacyTo);
+          this.merge({
+            content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
+            content_type: this.getContentType(rudderElement, ["product"]),
+            content_name: rudderElement.message.properties.product_name || "",
+            content_category: rudderElement.message.properties.category || "",
+            currency: rudderElement.message.properties.currency,
+            value: useValue ? this.formatRevenue(rudderElement.message.properties.value) : this.formatRevenue(rudderElement.message.properties.price),
+            contents: [{
+              id: rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || "",
+              quantity: rudderElement.message.properties.quantity,
+              item_price: rudderElement.message.properties.price
+            }]
+          }, customProperties);
+        } else if (event === "Order Completed") {
+          var products = rudderElement.message.properites.products;
+          var customProperties = this.buildPayLoad(rudderElement, true);
+          var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
+          var contentType = this.getContentType(rudderElement, ["product"]);
+          var contentIds = [];
+          var contents = [];
+
+          for (var i = 0; i < products.length; i++) {
+            var pId = product.product_id;
+            contentIds.push(pId);
+            var content = {
+              id: pId,
+              quantity: rudderElement.message.properties.quantity
+            };
+
+            if (rudderElement.message.properties.price) {
+              content.item_price = rudderElement.message.properties.price;
+            }
+
+            contents.push(content);
+          }
+
+          window.fbq("trackSingle", this.pixelId, "Purchase", this.merge({
+            content_ids: contentIds,
+            content_type: contentType,
+            currency: rudderElement.message.properties.currency,
+            value: revenue,
+            contents: contents,
+            num_items: contentIds.length
+          }, customProperties), {
+            eventID: rudderElement.message.messageId
+          });
+          each_1(function (event) {
+            window.fbq("trackSingle", this.pixelId, event, {
+              currency: rudderElement.message.properties.currency,
+              value: this.formatRevenue(rudderElement.message.properties.revenue)
+            }, {
+              eventID: rudderElement.message.messageId
+            });
+          }, legacyto);
+        } else if (event === "Products Searched") {
+          var customProperties = this.buildPayLoad(rudderElement, true);
+          window.fbq("trackSingle", this.pixelId, "Search", merge({
+            search_string: rudderElement.message.properties.query
+          }, customProperties), {
+            eventID: rudderElement.message.messageId
+          });
+          each_1(function (event) {
+            window.fbq("trackSingle", this.pixelId, event, {
+              currency: rudderElement.message.properties.currency,
+              value: formatRevenue(rudderElement.message.properties.revenue)
+            }, {
+              eventID: rudderElement.message.messageId
+            });
+          }, legacyTo);
+        } else if (event === "Checkout Started") {
+          var products = rudderElement.message.properites.products;
+          var customProperties = this.buildPayLoad(rudderElement, true);
+          var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
+          var contentCategory = rudderElement.message.properties.category;
+          var contentIds = [];
+          var contents = [];
+
+          for (var i = 0; i < products.length; i++) {
+            var pId = product.product_id;
+            contentIds.push(pId);
+            var content = {
+              id: pId,
+              quantity: rudderElement.message.properties.quantity,
+              item_price: rudderElement.message.properties.price
+            };
+
+            if (rudderElement.message.properties.price) {
+              content.item_price = rudderElement.message.properties.price;
+            }
+
+            contents.push(content);
+          }
+
+          if (!contentCategory && products[0] && products[0].category) {
+            contentCategory = products[0].category;
+          }
+
+          window.fbq("trackSingle", this.pixelId, "InitiateCheckout", this.merge({
+            content_category: contentCategory,
+            content_ids: contentIds,
+            content_type: this.getContentType(rudderElement, ["product"]),
+            currency: rudderElement.message.properties.currency,
+            value: revenue,
+            contents: contents,
+            num_items: contentIds.length
+          }, customProperties), {
+            eventID: rudderElement.message.messageId
+          });
+          each_1(function (event) {
+            window.fbq("trackSingle", this.pixelId, event, {
+              currency: rudderElement.message.properties.currency,
+              value: this.formatRevenue(rudderElement.message.properties.revenue)
+            }, {
+              eventID: rudderElement.message.messageId
+            });
+          }, legacyto);
+        }
+      }
+    }, {
+      key: "getContentType",
+      value: function getContentType(rudderElement, defaultValue) {
+        var options = rudderElement.message.options;
+
+        if (options && options.contentType) {
+          return [options.contentType];
+        }
+
+        var category = rudderElement.message.properties.category;
+
+        if (!category) {
+          var products = rudderElement.message.properties.products;
+
+          if (products && products.length) {
+            category = products[0].category;
+          }
+        }
+
+        if (category) {
+          var mapped = this.categoryToContent;
+          var mappedTo;
+          mappedTo = mapped.reduce(function (filtered, mapped) {
+            if (mapped.from == category) {
+              filtered.push(mapped.to);
+            }
+
+            return filtered;
+          }, []);
+
+          if (mappedTo.length) {
+            return mappedTo;
+          }
+        }
+
+        return defaultValue;
+      }
+    }, {
+      key: "merge",
+      value: function merge(obj1, obj2) {
+        var res = {}; // All properties of obj1
+
+        for (var propObj1 in obj1) {
+          if (obj1.hasOwnProperty(propObj1)) {
+            res[propObj1] = obj1[propObj1];
+          }
+        } // Extra properties of obj2
+
+
+        for (var propObj2 in obj2) {
+          if (obj2.hasOwnProperty(propObj2) && !res.hasOwnProperty(propObj2)) {
+            res[propObj2] = obj2[propObj2];
+          }
+        }
+
+        return res;
+      }
+    }, {
+      key: "formatRevenue",
+      value: function formatRevenue(revenue) {
+        return Number(revenue || 0).toFixed(2);
+      }
+    }, {
+      key: "buildPayLoad",
+      value: function buildPayLoad(rudderElement, isStandardEvent) {
+        var dateFields = ["checkinDate", "checkoutDate", "departingArrivalDate", "departingDepartureDate", "returningArrivalDate", "returningDepartureDate", "travelEnd", "travelStart"];
+        var defaultPiiProperties = ["email", "firstName", "lastName", "gender", "city", "country", "phone", "state", "zip", "birthday"];
+        var whitelistPiiProperties = this.whitelistPiiProperties || [];
+        var blacklistPiiProperties = this.blacklistPiiProperties || [];
+        var eventCustomProperties = this.eventCustomProperties || [];
+        var customPiiProperties = {};
+
+        for (var i = 0; i < blacklistPiiProperties[i]; i++) {
+          var configuration = blacklistPiiProperties[i];
+          customPiiProperties[configuration.blacklistPiiProperties] = configuration.blacklistPiiHash;
+        }
+
+        var payload = {};
+        var properties = rudderElement.message.properties;
+
+        for (var property in properties) {
+          if (!properties.hasOwnProperty(property)) {
+            continue;
+          }
+
+          if (isStandardEvent && eventCustomProperties.indexOf(property) < 0) {
+            continue;
+          }
+
+          var value = properties[property];
+
+          if (dateFields.indexOf(properties) >= 0) {
+            if (is_1.date(value)) {
+              payload[property] = value.toISOTring().split("T")[0];
+              continue;
+            }
+          }
+
+          if (customPiiProperties.hasOwnProperty(property)) {
+            if (customPiiProperties[property] && typeof value == "string") {
+              payload[property] = sha256(value);
+            }
+
+            continue;
+          }
+
+          var isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
+          var isProperyWhiteListed = whitelistPiiProperties.indexOf(property) >= 0;
+
+          if (!isPropertyPii || isProperyWhiteListed) {
+            payload[property] = value;
+          }
+        }
+
+        return payload;
+      }
+    }]);
+
+    return FBPixel;
+  }();
+
   /**
    * toString ref.
    */
@@ -5422,647 +6383,6 @@ var rudderanalytics = (function (exports) {
    */
 
   var clone_1 = clone;
-
-  /**
-   * Helpers.
-   */
-
-  var s = 1000;
-  var m = s * 60;
-  var h = m * 60;
-  var d = h * 24;
-  var y = d * 365.25;
-
-  /**
-   * Parse or format the given `val`.
-   *
-   * Options:
-   *
-   *  - `long` verbose formatting [false]
-   *
-   * @param {String|Number} val
-   * @param {Object} options
-   * @return {String|Number}
-   * @api public
-   */
-
-  var ms = function(val, options){
-    options = options || {};
-    if ('string' == typeof val) return parse(val);
-    return options.long
-      ? long(val)
-      : short(val);
-  };
-
-  /**
-   * Parse the given `str` and return milliseconds.
-   *
-   * @param {String} str
-   * @return {Number}
-   * @api private
-   */
-
-  function parse(str) {
-    str = '' + str;
-    if (str.length > 10000) return;
-    var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
-    if (!match) return;
-    var n = parseFloat(match[1]);
-    var type = (match[2] || 'ms').toLowerCase();
-    switch (type) {
-      case 'years':
-      case 'year':
-      case 'yrs':
-      case 'yr':
-      case 'y':
-        return n * y;
-      case 'days':
-      case 'day':
-      case 'd':
-        return n * d;
-      case 'hours':
-      case 'hour':
-      case 'hrs':
-      case 'hr':
-      case 'h':
-        return n * h;
-      case 'minutes':
-      case 'minute':
-      case 'mins':
-      case 'min':
-      case 'm':
-        return n * m;
-      case 'seconds':
-      case 'second':
-      case 'secs':
-      case 'sec':
-      case 's':
-        return n * s;
-      case 'milliseconds':
-      case 'millisecond':
-      case 'msecs':
-      case 'msec':
-      case 'ms':
-        return n;
-    }
-  }
-
-  /**
-   * Short format for `ms`.
-   *
-   * @param {Number} ms
-   * @return {String}
-   * @api private
-   */
-
-  function short(ms) {
-    if (ms >= d) return Math.round(ms / d) + 'd';
-    if (ms >= h) return Math.round(ms / h) + 'h';
-    if (ms >= m) return Math.round(ms / m) + 'm';
-    if (ms >= s) return Math.round(ms / s) + 's';
-    return ms + 'ms';
-  }
-
-  /**
-   * Long format for `ms`.
-   *
-   * @param {Number} ms
-   * @return {String}
-   * @api private
-   */
-
-  function long(ms) {
-    return plural(ms, d, 'day')
-      || plural(ms, h, 'hour')
-      || plural(ms, m, 'minute')
-      || plural(ms, s, 'second')
-      || ms + ' ms';
-  }
-
-  /**
-   * Pluralization helper.
-   */
-
-  function plural(ms, n, name) {
-    if (ms < n) return;
-    if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
-    return Math.ceil(ms / n) + ' ' + name + 's';
-  }
-
-  var debug_1 = createCommonjsModule(function (module, exports) {
-  /**
-   * This is the common logic for both the Node.js and web browser
-   * implementations of `debug()`.
-   *
-   * Expose `debug()` as the module.
-   */
-
-  exports = module.exports = debug;
-  exports.coerce = coerce;
-  exports.disable = disable;
-  exports.enable = enable;
-  exports.enabled = enabled;
-  exports.humanize = ms;
-
-  /**
-   * The currently active debug mode names, and names to skip.
-   */
-
-  exports.names = [];
-  exports.skips = [];
-
-  /**
-   * Map of special "%n" handling functions, for the debug "format" argument.
-   *
-   * Valid key names are a single, lowercased letter, i.e. "n".
-   */
-
-  exports.formatters = {};
-
-  /**
-   * Previously assigned color.
-   */
-
-  var prevColor = 0;
-
-  /**
-   * Previous log timestamp.
-   */
-
-  var prevTime;
-
-  /**
-   * Select a color.
-   *
-   * @return {Number}
-   * @api private
-   */
-
-  function selectColor() {
-    return exports.colors[prevColor++ % exports.colors.length];
-  }
-
-  /**
-   * Create a debugger with the given `namespace`.
-   *
-   * @param {String} namespace
-   * @return {Function}
-   * @api public
-   */
-
-  function debug(namespace) {
-
-    // define the `disabled` version
-    function disabled() {
-    }
-    disabled.enabled = false;
-
-    // define the `enabled` version
-    function enabled() {
-
-      var self = enabled;
-
-      // set `diff` timestamp
-      var curr = +new Date();
-      var ms = curr - (prevTime || curr);
-      self.diff = ms;
-      self.prev = prevTime;
-      self.curr = curr;
-      prevTime = curr;
-
-      // add the `color` if not set
-      if (null == self.useColors) self.useColors = exports.useColors();
-      if (null == self.color && self.useColors) self.color = selectColor();
-
-      var args = Array.prototype.slice.call(arguments);
-
-      args[0] = exports.coerce(args[0]);
-
-      if ('string' !== typeof args[0]) {
-        // anything else let's inspect with %o
-        args = ['%o'].concat(args);
-      }
-
-      // apply any `formatters` transformations
-      var index = 0;
-      args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
-        // if we encounter an escaped % then don't increase the array index
-        if (match === '%%') return match;
-        index++;
-        var formatter = exports.formatters[format];
-        if ('function' === typeof formatter) {
-          var val = args[index];
-          match = formatter.call(self, val);
-
-          // now we need to remove `args[index]` since it's inlined in the `format`
-          args.splice(index, 1);
-          index--;
-        }
-        return match;
-      });
-
-      if ('function' === typeof exports.formatArgs) {
-        args = exports.formatArgs.apply(self, args);
-      }
-      var logFn = enabled.log || exports.log || console.log.bind(console);
-      logFn.apply(self, args);
-    }
-    enabled.enabled = true;
-
-    var fn = exports.enabled(namespace) ? enabled : disabled;
-
-    fn.namespace = namespace;
-
-    return fn;
-  }
-
-  /**
-   * Enables a debug mode by namespaces. This can include modes
-   * separated by a colon and wildcards.
-   *
-   * @param {String} namespaces
-   * @api public
-   */
-
-  function enable(namespaces) {
-    exports.save(namespaces);
-
-    var split = (namespaces || '').split(/[\s,]+/);
-    var len = split.length;
-
-    for (var i = 0; i < len; i++) {
-      if (!split[i]) continue; // ignore empty strings
-      namespaces = split[i].replace(/\*/g, '.*?');
-      if (namespaces[0] === '-') {
-        exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
-      } else {
-        exports.names.push(new RegExp('^' + namespaces + '$'));
-      }
-    }
-  }
-
-  /**
-   * Disable debug output.
-   *
-   * @api public
-   */
-
-  function disable() {
-    exports.enable('');
-  }
-
-  /**
-   * Returns true if the given mode name is enabled, false otherwise.
-   *
-   * @param {String} name
-   * @return {Boolean}
-   * @api public
-   */
-
-  function enabled(name) {
-    var i, len;
-    for (i = 0, len = exports.skips.length; i < len; i++) {
-      if (exports.skips[i].test(name)) {
-        return false;
-      }
-    }
-    for (i = 0, len = exports.names.length; i < len; i++) {
-      if (exports.names[i].test(name)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Coerce `val`.
-   *
-   * @param {Mixed} val
-   * @return {Mixed}
-   * @api private
-   */
-
-  function coerce(val) {
-    if (val instanceof Error) return val.stack || val.message;
-    return val;
-  }
-  });
-  var debug_2 = debug_1.coerce;
-  var debug_3 = debug_1.disable;
-  var debug_4 = debug_1.enable;
-  var debug_5 = debug_1.enabled;
-  var debug_6 = debug_1.humanize;
-  var debug_7 = debug_1.names;
-  var debug_8 = debug_1.skips;
-  var debug_9 = debug_1.formatters;
-
-  var browser = createCommonjsModule(function (module, exports) {
-  /**
-   * This is the web browser implementation of `debug()`.
-   *
-   * Expose `debug()` as the module.
-   */
-
-  exports = module.exports = debug_1;
-  exports.log = log;
-  exports.formatArgs = formatArgs;
-  exports.save = save;
-  exports.load = load;
-  exports.useColors = useColors;
-  exports.storage = 'undefined' != typeof chrome
-                 && 'undefined' != typeof chrome.storage
-                    ? chrome.storage.local
-                    : localstorage();
-
-  /**
-   * Colors.
-   */
-
-  exports.colors = [
-    'lightseagreen',
-    'forestgreen',
-    'goldenrod',
-    'dodgerblue',
-    'darkorchid',
-    'crimson'
-  ];
-
-  /**
-   * Currently only WebKit-based Web Inspectors, Firefox >= v31,
-   * and the Firebug extension (any Firefox version) are known
-   * to support "%c" CSS customizations.
-   *
-   * TODO: add a `localStorage` variable to explicitly enable/disable colors
-   */
-
-  function useColors() {
-    // is webkit? http://stackoverflow.com/a/16459606/376773
-    return ('WebkitAppearance' in document.documentElement.style) ||
-      // is firebug? http://stackoverflow.com/a/398120/376773
-      (window.console && (console.firebug || (console.exception && console.table))) ||
-      // is firefox >= v31?
-      // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-      (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
-  }
-
-  /**
-   * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
-   */
-
-  exports.formatters.j = function(v) {
-    return JSON.stringify(v);
-  };
-
-
-  /**
-   * Colorize log arguments if enabled.
-   *
-   * @api public
-   */
-
-  function formatArgs() {
-    var args = arguments;
-    var useColors = this.useColors;
-
-    args[0] = (useColors ? '%c' : '')
-      + this.namespace
-      + (useColors ? ' %c' : ' ')
-      + args[0]
-      + (useColors ? '%c ' : ' ')
-      + '+' + exports.humanize(this.diff);
-
-    if (!useColors) return args;
-
-    var c = 'color: ' + this.color;
-    args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
-
-    // the final "%c" is somewhat tricky, because there could be other
-    // arguments passed either before or after the %c, so we need to
-    // figure out the correct index to insert the CSS into
-    var index = 0;
-    var lastC = 0;
-    args[0].replace(/%[a-z%]/g, function(match) {
-      if ('%%' === match) return;
-      index++;
-      if ('%c' === match) {
-        // we only are interested in the *last* %c
-        // (the user may have provided their own)
-        lastC = index;
-      }
-    });
-
-    args.splice(lastC, 0, c);
-    return args;
-  }
-
-  /**
-   * Invokes `console.log()` when available.
-   * No-op when `console.log` is not a "function".
-   *
-   * @api public
-   */
-
-  function log() {
-    // this hackery is required for IE8/9, where
-    // the `console.log` function doesn't have 'apply'
-    return 'object' === typeof console
-      && console.log
-      && Function.prototype.apply.call(console.log, console, arguments);
-  }
-
-  /**
-   * Save `namespaces`.
-   *
-   * @param {String} namespaces
-   * @api private
-   */
-
-  function save(namespaces) {
-    try {
-      if (null == namespaces) {
-        exports.storage.removeItem('debug');
-      } else {
-        exports.storage.debug = namespaces;
-      }
-    } catch(e) {}
-  }
-
-  /**
-   * Load `namespaces`.
-   *
-   * @return {String} returns the previously persisted debug modes
-   * @api private
-   */
-
-  function load() {
-    var r;
-    try {
-      r = exports.storage.debug;
-    } catch(e) {}
-    return r;
-  }
-
-  /**
-   * Enable namespaces listed in `localStorage.debug` initially.
-   */
-
-  exports.enable(load());
-
-  /**
-   * Localstorage attempts to return the localstorage.
-   *
-   * This is necessary because safari throws
-   * when a user disables cookies/localstorage
-   * and you attempt to access it.
-   *
-   * @return {LocalStorage}
-   * @api private
-   */
-
-  function localstorage(){
-    try {
-      return window.localStorage;
-    } catch (e) {}
-  }
-  });
-  var browser_1 = browser.log;
-  var browser_2 = browser.formatArgs;
-  var browser_3 = browser.save;
-  var browser_4 = browser.load;
-  var browser_5 = browser.useColors;
-  var browser_6 = browser.storage;
-  var browser_7 = browser.colors;
-
-  /**
-   * Module dependencies.
-   */
-
-  var debug = browser('cookie');
-
-  /**
-   * Set or get cookie `name` with `value` and `options` object.
-   *
-   * @param {String} name
-   * @param {String} value
-   * @param {Object} options
-   * @return {Mixed}
-   * @api public
-   */
-
-  var componentCookie = function(name, value, options){
-    switch (arguments.length) {
-      case 3:
-      case 2:
-        return set(name, value, options);
-      case 1:
-        return get$1(name);
-      default:
-        return all();
-    }
-  };
-
-  /**
-   * Set cookie `name` to `value`.
-   *
-   * @param {String} name
-   * @param {String} value
-   * @param {Object} options
-   * @api private
-   */
-
-  function set(name, value, options) {
-    options = options || {};
-    var str = encode(name) + '=' + encode(value);
-
-    if (null == value) options.maxage = -1;
-
-    if (options.maxage) {
-      options.expires = new Date(+new Date + options.maxage);
-    }
-
-    if (options.path) str += '; path=' + options.path;
-    if (options.domain) str += '; domain=' + options.domain;
-    if (options.expires) str += '; expires=' + options.expires.toUTCString();
-    if (options.secure) str += '; secure';
-
-    document.cookie = str;
-  }
-
-  /**
-   * Return all cookies.
-   *
-   * @return {Object}
-   * @api private
-   */
-
-  function all() {
-    var str;
-    try {
-      str = document.cookie;
-    } catch (err) {
-      if (typeof console !== 'undefined' && typeof console.error === 'function') {
-        console.error(err.stack || err);
-      }
-      return {};
-    }
-    return parse$1(str);
-  }
-
-  /**
-   * Get cookie `name`.
-   *
-   * @param {String} name
-   * @return {String}
-   * @api private
-   */
-
-  function get$1(name) {
-    return all()[name];
-  }
-
-  /**
-   * Parse cookie `str`.
-   *
-   * @param {String} str
-   * @return {Object}
-   * @api private
-   */
-
-  function parse$1(str) {
-    var obj = {};
-    var pairs = str.split(/ *; */);
-    var pair;
-    if ('' == pairs[0]) return obj;
-    for (var i = 0; i < pairs.length; ++i) {
-      pair = pairs[i].split('=');
-      obj[decode(pair[0])] = decode(pair[1]);
-    }
-    return obj;
-  }
-
-  /**
-   * Encode.
-   */
-
-  function encode(value){
-    try {
-      return encodeURIComponent(value);
-    } catch (e) {
-      debug('error `encode(%o)` - %o', value, e);
-    }
-  }
-
-  /**
-   * Decode.
-   */
-
-  function decode(value) {
-    try {
-      return decodeURIComponent(value);
-    } catch (e) {
-      debug('error `decode(%o)` - %o', value, e);
-    }
-  }
 
   var json3 = createCommonjsModule(function (module, exports) {
   (function () {
@@ -7085,6 +7405,647 @@ var rudderanalytics = (function (exports) {
   var componentUrl_3 = componentUrl.isRelative;
   var componentUrl_4 = componentUrl.isCrossDomain;
 
+  /**
+   * Helpers.
+   */
+
+  var s = 1000;
+  var m = s * 60;
+  var h = m * 60;
+  var d = h * 24;
+  var y = d * 365.25;
+
+  /**
+   * Parse or format the given `val`.
+   *
+   * Options:
+   *
+   *  - `long` verbose formatting [false]
+   *
+   * @param {String|Number} val
+   * @param {Object} options
+   * @return {String|Number}
+   * @api public
+   */
+
+  var ms = function(val, options){
+    options = options || {};
+    if ('string' == typeof val) return parse(val);
+    return options.long
+      ? long(val)
+      : short(val);
+  };
+
+  /**
+   * Parse the given `str` and return milliseconds.
+   *
+   * @param {String} str
+   * @return {Number}
+   * @api private
+   */
+
+  function parse(str) {
+    str = '' + str;
+    if (str.length > 10000) return;
+    var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
+    if (!match) return;
+    var n = parseFloat(match[1]);
+    var type = (match[2] || 'ms').toLowerCase();
+    switch (type) {
+      case 'years':
+      case 'year':
+      case 'yrs':
+      case 'yr':
+      case 'y':
+        return n * y;
+      case 'days':
+      case 'day':
+      case 'd':
+        return n * d;
+      case 'hours':
+      case 'hour':
+      case 'hrs':
+      case 'hr':
+      case 'h':
+        return n * h;
+      case 'minutes':
+      case 'minute':
+      case 'mins':
+      case 'min':
+      case 'm':
+        return n * m;
+      case 'seconds':
+      case 'second':
+      case 'secs':
+      case 'sec':
+      case 's':
+        return n * s;
+      case 'milliseconds':
+      case 'millisecond':
+      case 'msecs':
+      case 'msec':
+      case 'ms':
+        return n;
+    }
+  }
+
+  /**
+   * Short format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+
+  function short(ms) {
+    if (ms >= d) return Math.round(ms / d) + 'd';
+    if (ms >= h) return Math.round(ms / h) + 'h';
+    if (ms >= m) return Math.round(ms / m) + 'm';
+    if (ms >= s) return Math.round(ms / s) + 's';
+    return ms + 'ms';
+  }
+
+  /**
+   * Long format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+
+  function long(ms) {
+    return plural(ms, d, 'day')
+      || plural(ms, h, 'hour')
+      || plural(ms, m, 'minute')
+      || plural(ms, s, 'second')
+      || ms + ' ms';
+  }
+
+  /**
+   * Pluralization helper.
+   */
+
+  function plural(ms, n, name) {
+    if (ms < n) return;
+    if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
+    return Math.ceil(ms / n) + ' ' + name + 's';
+  }
+
+  var debug_1 = createCommonjsModule(function (module, exports) {
+  /**
+   * This is the common logic for both the Node.js and web browser
+   * implementations of `debug()`.
+   *
+   * Expose `debug()` as the module.
+   */
+
+  exports = module.exports = debug;
+  exports.coerce = coerce;
+  exports.disable = disable;
+  exports.enable = enable;
+  exports.enabled = enabled;
+  exports.humanize = ms;
+
+  /**
+   * The currently active debug mode names, and names to skip.
+   */
+
+  exports.names = [];
+  exports.skips = [];
+
+  /**
+   * Map of special "%n" handling functions, for the debug "format" argument.
+   *
+   * Valid key names are a single, lowercased letter, i.e. "n".
+   */
+
+  exports.formatters = {};
+
+  /**
+   * Previously assigned color.
+   */
+
+  var prevColor = 0;
+
+  /**
+   * Previous log timestamp.
+   */
+
+  var prevTime;
+
+  /**
+   * Select a color.
+   *
+   * @return {Number}
+   * @api private
+   */
+
+  function selectColor() {
+    return exports.colors[prevColor++ % exports.colors.length];
+  }
+
+  /**
+   * Create a debugger with the given `namespace`.
+   *
+   * @param {String} namespace
+   * @return {Function}
+   * @api public
+   */
+
+  function debug(namespace) {
+
+    // define the `disabled` version
+    function disabled() {
+    }
+    disabled.enabled = false;
+
+    // define the `enabled` version
+    function enabled() {
+
+      var self = enabled;
+
+      // set `diff` timestamp
+      var curr = +new Date();
+      var ms = curr - (prevTime || curr);
+      self.diff = ms;
+      self.prev = prevTime;
+      self.curr = curr;
+      prevTime = curr;
+
+      // add the `color` if not set
+      if (null == self.useColors) self.useColors = exports.useColors();
+      if (null == self.color && self.useColors) self.color = selectColor();
+
+      var args = Array.prototype.slice.call(arguments);
+
+      args[0] = exports.coerce(args[0]);
+
+      if ('string' !== typeof args[0]) {
+        // anything else let's inspect with %o
+        args = ['%o'].concat(args);
+      }
+
+      // apply any `formatters` transformations
+      var index = 0;
+      args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+        // if we encounter an escaped % then don't increase the array index
+        if (match === '%%') return match;
+        index++;
+        var formatter = exports.formatters[format];
+        if ('function' === typeof formatter) {
+          var val = args[index];
+          match = formatter.call(self, val);
+
+          // now we need to remove `args[index]` since it's inlined in the `format`
+          args.splice(index, 1);
+          index--;
+        }
+        return match;
+      });
+
+      if ('function' === typeof exports.formatArgs) {
+        args = exports.formatArgs.apply(self, args);
+      }
+      var logFn = enabled.log || exports.log || console.log.bind(console);
+      logFn.apply(self, args);
+    }
+    enabled.enabled = true;
+
+    var fn = exports.enabled(namespace) ? enabled : disabled;
+
+    fn.namespace = namespace;
+
+    return fn;
+  }
+
+  /**
+   * Enables a debug mode by namespaces. This can include modes
+   * separated by a colon and wildcards.
+   *
+   * @param {String} namespaces
+   * @api public
+   */
+
+  function enable(namespaces) {
+    exports.save(namespaces);
+
+    var split = (namespaces || '').split(/[\s,]+/);
+    var len = split.length;
+
+    for (var i = 0; i < len; i++) {
+      if (!split[i]) continue; // ignore empty strings
+      namespaces = split[i].replace(/\*/g, '.*?');
+      if (namespaces[0] === '-') {
+        exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+      } else {
+        exports.names.push(new RegExp('^' + namespaces + '$'));
+      }
+    }
+  }
+
+  /**
+   * Disable debug output.
+   *
+   * @api public
+   */
+
+  function disable() {
+    exports.enable('');
+  }
+
+  /**
+   * Returns true if the given mode name is enabled, false otherwise.
+   *
+   * @param {String} name
+   * @return {Boolean}
+   * @api public
+   */
+
+  function enabled(name) {
+    var i, len;
+    for (i = 0, len = exports.skips.length; i < len; i++) {
+      if (exports.skips[i].test(name)) {
+        return false;
+      }
+    }
+    for (i = 0, len = exports.names.length; i < len; i++) {
+      if (exports.names[i].test(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Coerce `val`.
+   *
+   * @param {Mixed} val
+   * @return {Mixed}
+   * @api private
+   */
+
+  function coerce(val) {
+    if (val instanceof Error) return val.stack || val.message;
+    return val;
+  }
+  });
+  var debug_2 = debug_1.coerce;
+  var debug_3 = debug_1.disable;
+  var debug_4 = debug_1.enable;
+  var debug_5 = debug_1.enabled;
+  var debug_6 = debug_1.humanize;
+  var debug_7 = debug_1.names;
+  var debug_8 = debug_1.skips;
+  var debug_9 = debug_1.formatters;
+
+  var browser = createCommonjsModule(function (module, exports) {
+  /**
+   * This is the web browser implementation of `debug()`.
+   *
+   * Expose `debug()` as the module.
+   */
+
+  exports = module.exports = debug_1;
+  exports.log = log;
+  exports.formatArgs = formatArgs;
+  exports.save = save;
+  exports.load = load;
+  exports.useColors = useColors;
+  exports.storage = 'undefined' != typeof chrome
+                 && 'undefined' != typeof chrome.storage
+                    ? chrome.storage.local
+                    : localstorage();
+
+  /**
+   * Colors.
+   */
+
+  exports.colors = [
+    'lightseagreen',
+    'forestgreen',
+    'goldenrod',
+    'dodgerblue',
+    'darkorchid',
+    'crimson'
+  ];
+
+  /**
+   * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+   * and the Firebug extension (any Firefox version) are known
+   * to support "%c" CSS customizations.
+   *
+   * TODO: add a `localStorage` variable to explicitly enable/disable colors
+   */
+
+  function useColors() {
+    // is webkit? http://stackoverflow.com/a/16459606/376773
+    return ('WebkitAppearance' in document.documentElement.style) ||
+      // is firebug? http://stackoverflow.com/a/398120/376773
+      (window.console && (console.firebug || (console.exception && console.table))) ||
+      // is firefox >= v31?
+      // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+      (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
+  }
+
+  /**
+   * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+   */
+
+  exports.formatters.j = function(v) {
+    return JSON.stringify(v);
+  };
+
+
+  /**
+   * Colorize log arguments if enabled.
+   *
+   * @api public
+   */
+
+  function formatArgs() {
+    var args = arguments;
+    var useColors = this.useColors;
+
+    args[0] = (useColors ? '%c' : '')
+      + this.namespace
+      + (useColors ? ' %c' : ' ')
+      + args[0]
+      + (useColors ? '%c ' : ' ')
+      + '+' + exports.humanize(this.diff);
+
+    if (!useColors) return args;
+
+    var c = 'color: ' + this.color;
+    args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+
+    // the final "%c" is somewhat tricky, because there could be other
+    // arguments passed either before or after the %c, so we need to
+    // figure out the correct index to insert the CSS into
+    var index = 0;
+    var lastC = 0;
+    args[0].replace(/%[a-z%]/g, function(match) {
+      if ('%%' === match) return;
+      index++;
+      if ('%c' === match) {
+        // we only are interested in the *last* %c
+        // (the user may have provided their own)
+        lastC = index;
+      }
+    });
+
+    args.splice(lastC, 0, c);
+    return args;
+  }
+
+  /**
+   * Invokes `console.log()` when available.
+   * No-op when `console.log` is not a "function".
+   *
+   * @api public
+   */
+
+  function log() {
+    // this hackery is required for IE8/9, where
+    // the `console.log` function doesn't have 'apply'
+    return 'object' === typeof console
+      && console.log
+      && Function.prototype.apply.call(console.log, console, arguments);
+  }
+
+  /**
+   * Save `namespaces`.
+   *
+   * @param {String} namespaces
+   * @api private
+   */
+
+  function save(namespaces) {
+    try {
+      if (null == namespaces) {
+        exports.storage.removeItem('debug');
+      } else {
+        exports.storage.debug = namespaces;
+      }
+    } catch(e) {}
+  }
+
+  /**
+   * Load `namespaces`.
+   *
+   * @return {String} returns the previously persisted debug modes
+   * @api private
+   */
+
+  function load() {
+    var r;
+    try {
+      r = exports.storage.debug;
+    } catch(e) {}
+    return r;
+  }
+
+  /**
+   * Enable namespaces listed in `localStorage.debug` initially.
+   */
+
+  exports.enable(load());
+
+  /**
+   * Localstorage attempts to return the localstorage.
+   *
+   * This is necessary because safari throws
+   * when a user disables cookies/localstorage
+   * and you attempt to access it.
+   *
+   * @return {LocalStorage}
+   * @api private
+   */
+
+  function localstorage(){
+    try {
+      return window.localStorage;
+    } catch (e) {}
+  }
+  });
+  var browser_1 = browser.log;
+  var browser_2 = browser.formatArgs;
+  var browser_3 = browser.save;
+  var browser_4 = browser.load;
+  var browser_5 = browser.useColors;
+  var browser_6 = browser.storage;
+  var browser_7 = browser.colors;
+
+  /**
+   * Module dependencies.
+   */
+
+  var debug = browser('cookie');
+
+  /**
+   * Set or get cookie `name` with `value` and `options` object.
+   *
+   * @param {String} name
+   * @param {String} value
+   * @param {Object} options
+   * @return {Mixed}
+   * @api public
+   */
+
+  var componentCookie = function(name, value, options){
+    switch (arguments.length) {
+      case 3:
+      case 2:
+        return set(name, value, options);
+      case 1:
+        return get$1(name);
+      default:
+        return all();
+    }
+  };
+
+  /**
+   * Set cookie `name` to `value`.
+   *
+   * @param {String} name
+   * @param {String} value
+   * @param {Object} options
+   * @api private
+   */
+
+  function set(name, value, options) {
+    options = options || {};
+    var str = encode(name) + '=' + encode(value);
+
+    if (null == value) options.maxage = -1;
+
+    if (options.maxage) {
+      options.expires = new Date(+new Date + options.maxage);
+    }
+
+    if (options.path) str += '; path=' + options.path;
+    if (options.domain) str += '; domain=' + options.domain;
+    if (options.expires) str += '; expires=' + options.expires.toUTCString();
+    if (options.secure) str += '; secure';
+
+    document.cookie = str;
+  }
+
+  /**
+   * Return all cookies.
+   *
+   * @return {Object}
+   * @api private
+   */
+
+  function all() {
+    var str;
+    try {
+      str = document.cookie;
+    } catch (err) {
+      if (typeof console !== 'undefined' && typeof console.error === 'function') {
+        console.error(err.stack || err);
+      }
+      return {};
+    }
+    return parse$1(str);
+  }
+
+  /**
+   * Get cookie `name`.
+   *
+   * @param {String} name
+   * @return {String}
+   * @api private
+   */
+
+  function get$1(name) {
+    return all()[name];
+  }
+
+  /**
+   * Parse cookie `str`.
+   *
+   * @param {String} str
+   * @return {Object}
+   * @api private
+   */
+
+  function parse$1(str) {
+    var obj = {};
+    var pairs = str.split(/ *; */);
+    var pair;
+    if ('' == pairs[0]) return obj;
+    for (var i = 0; i < pairs.length; ++i) {
+      pair = pairs[i].split('=');
+      obj[decode(pair[0])] = decode(pair[1]);
+    }
+    return obj;
+  }
+
+  /**
+   * Encode.
+   */
+
+  function encode(value){
+    try {
+      return encodeURIComponent(value);
+    } catch (e) {
+      debug('error `encode(%o)` - %o', value, e);
+    }
+  }
+
+  /**
+   * Decode.
+   */
+
+  function decode(value) {
+    try {
+      return decodeURIComponent(value);
+    } catch (e) {
+      debug('error `decode(%o)` - %o', value, e);
+    }
+  }
+
   var lib = createCommonjsModule(function (module, exports) {
 
   /**
@@ -7214,7 +8175,8 @@ var rudderanalytics = (function (exports) {
         this._options = defaults_1(_options, {
           maxage: 31536000000,
           path: "/",
-          domain: domain
+          domain: domain,
+          samesite: "Lax"
         }); //try setting a cookie first
 
         this.set("test_rudder", true);
@@ -7236,7 +8198,7 @@ var rudderanalytics = (function (exports) {
       value: function set(key, value) {
         try {
           value = json3.stringify(value);
-          componentCookie(key, value, clone_1(this._options));
+          cookie(key, value, clone_1(this._options));
           return true;
         } catch (e) {
           return false;
@@ -7250,11 +8212,18 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "get",
       value: function get(key) {
+        // if not parseable, return as is without json parse
+        var value;
+
         try {
-          var value = componentCookie(key);
+          value = cookie(key);
           value = value ? json3.parse(value) : null;
           return value;
         } catch (e) {
+          if (value) {
+            return value;
+          }
+
           return null;
         }
       }
@@ -7267,7 +8236,7 @@ var rudderanalytics = (function (exports) {
       key: "remove",
       value: function remove(key) {
         try {
-          componentCookie(key, null, clone_1(this._options));
+          cookie(key, null, clone_1(this._options));
           return true;
         } catch (e) {
           return false;
@@ -7570,7 +8539,7 @@ var rudderanalytics = (function (exports) {
       key: "setUserId",
       value: function setUserId(value) {
         if (typeof value != "string") {
-          logger.error("userId should be string");
+          logger.error("[Storage] setUserId:: userId should be string");
           return;
         }
 
@@ -7597,7 +8566,7 @@ var rudderanalytics = (function (exports) {
       key: "setGroupId",
       value: function setGroupId(value) {
         if (typeof value != "string") {
-          logger.error("groupId should be string");
+          logger.error("[Storage] setGroupId:: groupId should be string");
           return;
         }
 
@@ -7624,7 +8593,7 @@ var rudderanalytics = (function (exports) {
       key: "setAnonymousId",
       value: function setAnonymousId(value) {
         if (typeof value != "string") {
-          logger.error("anonymousId should be string");
+          logger.error("[Storage] setAnonymousId:: anonymousId should be string");
           return;
         }
 
@@ -7704,8 +8673,7 @@ var rudderanalytics = (function (exports) {
       key: "clear",
       value: function clear() {
         this.storage.remove(defaults$1.user_storage_key);
-        this.storage.remove(defaults$1.user_storage_trait);
-        this.storage.remove(defaults$1.user_storage_anonymousId);
+        this.storage.remove(defaults$1.user_storage_trait); // this.storage.remove(defaults.user_storage_anonymousId);
       }
     }]);
 
@@ -7874,6 +8842,8 @@ var rudderanalytics = (function (exports) {
     return Lotame;
   }();
 
+  // (config-plan name, native destination.name , exported integration name(this one below))
+
   var integrations = {
     HS: index,
     GA: index$1,
@@ -7888,6 +8858,7 @@ var rudderanalytics = (function (exports) {
     CUSTOMERIO: CustomerIO,
     CHARTBEAT: Chartbeat,
     COMSCORE: Comscore,
+    FACEBOOK_PIXEL: FBPixel,
     LOTAME: Lotame
   };
 
@@ -7898,7 +8869,7 @@ var rudderanalytics = (function (exports) {
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.1.1-rc.2";
+    this.version = "1.1.1";
   };
 
   //Library information class
@@ -7906,7 +8877,7 @@ var rudderanalytics = (function (exports) {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.1.1-rc.2";
+    this.version = "1.1.1";
   }; //Operating System information class
 
 
@@ -8396,170 +9367,6 @@ var rudderanalytics = (function (exports) {
 
   var uuid_1 = uuid;
 
-  var hop = Object.prototype.hasOwnProperty;
-  var strCharAt = String.prototype.charAt;
-  var toStr$2 = Object.prototype.toString;
-
-  /**
-   * Returns the character at a given index.
-   *
-   * @param {string} str
-   * @param {number} index
-   * @return {string|undefined}
-   */
-  // TODO: Move to a library
-  var charAt = function(str, index) {
-    return strCharAt.call(str, index);
-  };
-
-  /**
-   * hasOwnProperty, wrapped as a function.
-   *
-   * @name has
-   * @api private
-   * @param {*} context
-   * @param {string|number} prop
-   * @return {boolean}
-   */
-
-  // TODO: Move to a library
-  var has$3 = function has(context, prop) {
-    return hop.call(context, prop);
-  };
-
-  /**
-   * Returns true if a value is a string, otherwise false.
-   *
-   * @name isString
-   * @api private
-   * @param {*} val
-   * @return {boolean}
-   */
-
-  // TODO: Move to a library
-  var isString = function isString(val) {
-    return toStr$2.call(val) === '[object String]';
-  };
-
-  /**
-   * Returns true if a value is array-like, otherwise false. Array-like means a
-   * value is not null, undefined, or a function, and has a numeric `length`
-   * property.
-   *
-   * @name isArrayLike
-   * @api private
-   * @param {*} val
-   * @return {boolean}
-   */
-  // TODO: Move to a library
-  var isArrayLike = function isArrayLike(val) {
-    return val != null && (typeof val !== 'function' && typeof val.length === 'number');
-  };
-
-
-  /**
-   * indexKeys
-   *
-   * @name indexKeys
-   * @api private
-   * @param {} target
-   * @param {Function} pred
-   * @return {Array}
-   */
-  var indexKeys = function indexKeys(target, pred) {
-    pred = pred || has$3;
-
-    var results = [];
-
-    for (var i = 0, len = target.length; i < len; i += 1) {
-      if (pred(target, i)) {
-        results.push(String(i));
-      }
-    }
-
-    return results;
-  };
-
-  /**
-   * Returns an array of an object's owned keys.
-   *
-   * @name objectKeys
-   * @api private
-   * @param {*} target
-   * @param {Function} pred Predicate function used to include/exclude values from
-   * the resulting array.
-   * @return {Array}
-   */
-  var objectKeys = function objectKeys(target, pred) {
-    pred = pred || has$3;
-
-    var results = [];
-
-    for (var key in target) {
-      if (pred(target, key)) {
-        results.push(String(key));
-      }
-    }
-
-    return results;
-  };
-
-  /**
-   * Creates an array composed of all keys on the input object. Ignores any non-enumerable properties.
-   * More permissive than the native `Object.keys` function (non-objects will not throw errors).
-   *
-   * @name keys
-   * @api public
-   * @category Object
-   * @param {Object} source The value to retrieve keys from.
-   * @return {Array} An array containing all the input `source`'s keys.
-   * @example
-   * keys({ likes: 'avocado', hates: 'pineapple' });
-   * //=> ['likes', 'pineapple'];
-   *
-   * // Ignores non-enumerable properties
-   * var hasHiddenKey = { name: 'Tim' };
-   * Object.defineProperty(hasHiddenKey, 'hidden', {
-   *   value: 'i am not enumerable!',
-   *   enumerable: false
-   * })
-   * keys(hasHiddenKey);
-   * //=> ['name'];
-   *
-   * // Works on arrays
-   * keys(['a', 'b', 'c']);
-   * //=> ['0', '1', '2']
-   *
-   * // Skips unpopulated indices in sparse arrays
-   * var arr = [1];
-   * arr[4] = 4;
-   * keys(arr);
-   * //=> ['0', '4']
-   */
-  var keys = function keys(source) {
-    if (source == null) {
-      return [];
-    }
-
-    // IE6-8 compatibility (string)
-    if (isString(source)) {
-      return indexKeys(source, charAt);
-    }
-
-    // IE6-8 compatibility (arguments)
-    if (isArrayLike(source)) {
-      return indexKeys(source, has$3);
-    }
-
-    return objectKeys(source);
-  };
-
-  /*
-   * Exports.
-   */
-
-  var keys_1 = keys;
-
   var uuid$1 = uuid_1.v4;
 
   var inMemoryStore = {
@@ -8625,134 +9432,6 @@ var rudderanalytics = (function (exports) {
   	defaultEngine: defaultEngine,
   	inMemoryEngine: inMemoryEngine
   };
-
-  /*
-   * Module dependencies.
-   */
-
-
-
-  var objToString$1 = Object.prototype.toString;
-
-  /**
-   * Tests if a value is a number.
-   *
-   * @name isNumber
-   * @api private
-   * @param {*} val The value to test.
-   * @return {boolean} Returns `true` if `val` is a number, otherwise `false`.
-   */
-  // TODO: Move to library
-  var isNumber = function isNumber(val) {
-    var type = typeof val;
-    return type === 'number' || (type === 'object' && objToString$1.call(val) === '[object Number]');
-  };
-
-  /**
-   * Tests if a value is an array.
-   *
-   * @name isArray
-   * @api private
-   * @param {*} val The value to test.
-   * @return {boolean} Returns `true` if the value is an array, otherwise `false`.
-   */
-  // TODO: Move to library
-  var isArray$1 = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
-    return objToString$1.call(val) === '[object Array]';
-  };
-
-  /**
-   * Tests if a value is array-like. Array-like means the value is not a function and has a numeric
-   * `.length` property.
-   *
-   * @name isArrayLike
-   * @api private
-   * @param {*} val
-   * @return {boolean}
-   */
-  // TODO: Move to library
-  var isArrayLike$1 = function isArrayLike(val) {
-    return val != null && (isArray$1(val) || (val !== 'function' && isNumber(val.length)));
-  };
-
-  /**
-   * Internal implementation of `each`. Works on arrays and array-like data structures.
-   *
-   * @name arrayEach
-   * @api private
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Array} array The array(-like) structure to iterate over.
-   * @return {undefined}
-   */
-  var arrayEach = function arrayEach(iterator, array) {
-    for (var i = 0; i < array.length; i += 1) {
-      // Break iteration early if `iterator` returns `false`
-      if (iterator(array[i], i, array) === false) {
-        break;
-      }
-    }
-  };
-
-  /**
-   * Internal implementation of `each`. Works on objects.
-   *
-   * @name baseEach
-   * @api private
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Object} object The object to iterate over.
-   * @return {undefined}
-   */
-  var baseEach = function baseEach(iterator, object) {
-    var ks = keys_1(object);
-
-    for (var i = 0; i < ks.length; i += 1) {
-      // Break iteration early if `iterator` returns `false`
-      if (iterator(object[ks[i]], ks[i], object) === false) {
-        break;
-      }
-    }
-  };
-
-  /**
-   * Iterate over an input collection, invoking an `iterator` function for each element in the
-   * collection and passing to it three arguments: `(value, index, collection)`. The `iterator`
-   * function can end iteration early by returning `false`.
-   *
-   * @name each
-   * @api public
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Array|Object|string} collection The collection to iterate over.
-   * @return {undefined} Because `each` is run only for side effects, always returns `undefined`.
-   * @example
-   * var log = console.log.bind(console);
-   *
-   * each(log, ['a', 'b', 'c']);
-   * //-> 'a', 0, ['a', 'b', 'c']
-   * //-> 'b', 1, ['a', 'b', 'c']
-   * //-> 'c', 2, ['a', 'b', 'c']
-   * //=> undefined
-   *
-   * each(log, 'tim');
-   * //-> 't', 2, 'tim'
-   * //-> 'i', 1, 'tim'
-   * //-> 'm', 0, 'tim'
-   * //=> undefined
-   *
-   * // Note: Iteration order not guaranteed across environments
-   * each(log, { name: 'tim', occupation: 'enchanter' });
-   * //-> 'tim', 'name', { name: 'tim', occupation: 'enchanter' }
-   * //-> 'enchanter', 'occupation', { name: 'tim', occupation: 'enchanter' }
-   * //=> undefined
-   */
-  var each = function each(iterator, collection) {
-    return (isArrayLike$1(collection) ? arrayEach : baseEach).call(this, iterator, collection);
-  };
-
-  /*
-   * Exports.
-   */
-
-  var each_1 = each;
 
   var defaultEngine$1 = engine.defaultEngine;
   var inMemoryEngine$1 = engine.inMemoryEngine;
@@ -9762,7 +10441,7 @@ var rudderanalytics = (function (exports) {
         // check message size, if greater log an error
 
         if (JSON.stringify(message).length > MESSAGE_LENGTH) {
-          logger.error("message length greater 32 Kb ", message);
+          logger.error("[EventRepository] enqueue:: message length greater 32 Kb ", message);
         } //modify the url for event specific endpoints
 
 
@@ -9807,7 +10486,7 @@ var rudderanalytics = (function (exports) {
 
   function register_event(element, type, handler, useCapture) {
     if (!element) {
-      logger.error("No valid element provided to register_event");
+      logger.error("[Autotrack] register_event:: No valid element provided to register_event");
       return;
     }
 
@@ -10115,7 +10794,7 @@ var rudderanalytics = (function (exports) {
       this.trackValues = [];
       this.eventsBuffer = [];
       this.clientIntegrations = [];
-      this.configArray = [];
+      this.loadOnlyIntegrations = {};
       this.clientIntegrationObjects = undefined;
       this.successfullyLoadedIntegration = [];
       this.failedToBeLoadedIntegration = [];
@@ -10129,6 +10808,8 @@ var rudderanalytics = (function (exports) {
       this.anonymousId = this.getAnonymousId();
       this.storage.setUserId(this.userId);
       this.eventRepository = eventRepository;
+      this.sendAdblockPage = false;
+      this.sendAdblockPageOptions = {};
 
       this.readyCallback = function () {};
 
@@ -10164,11 +10845,19 @@ var rudderanalytics = (function (exports) {
             logger.debug("Destination " + index + " Enabled? " + destination.enabled + " Type: " + destination.destinationDefinition.name + " Use Native SDK? " + destination.config.useNativeSDK);
 
             if (destination.enabled) {
-              this.clientIntegrations.push(destination.destinationDefinition.name);
-              this.configArray.push(destination.config);
+              this.clientIntegrations.push({
+                "name": destination.destinationDefinition.name,
+                "config": destination.config
+              });
             }
-          }, this);
-          this.init(this.clientIntegrations, this.configArray);
+          }, this); // intersection of config-plane native sdk destinations with sdk load time destination list
+
+          this.clientIntegrations = findAllEnabledDestinations(this.loadOnlyIntegrations, this.clientIntegrations); // remove from the list which don't have support yet in SDK
+
+          this.clientIntegrations = this.clientIntegrations.filter(function (intg) {
+            return integrations[intg.name] != undefined;
+          });
+          this.init(this.clientIntegrations);
         } catch (error) {
           handleError(error);
           logger.debug("===handling config BE response processing error===");
@@ -10185,14 +10874,13 @@ var rudderanalytics = (function (exports) {
        * keep the instances reference in core
        *
        * @param {*} intgArray
-       * @param {*} configArray
        * @returns
        * @memberof Analytics
        */
 
     }, {
       key: "init",
-      value: function init(intgArray, configArray) {
+      value: function init(intgArray) {
         var _this = this;
 
         var self = this;
@@ -10207,46 +10895,66 @@ var rudderanalytics = (function (exports) {
           return;
         }
 
-        intgArray.forEach(function (intg, index) {
-          var intgClass = integrations[intg];
-          var destConfig = configArray[index];
-          var intgInstance = new intgClass(destConfig, self);
-          intgInstance.init();
-          logger.debug("initializing destination: ", intg);
+        intgArray.forEach(function (intg) {
+          try {
+            logger.debug("[Analytics] init :: trying to initialize integration name:: ", intg.name);
+            var intgClass = integrations[intg.name];
+            var destConfig = intg.config;
+            var intgInstance = new intgClass(destConfig, self);
+            intgInstance.init();
+            logger.debug("initializing destination: ", intg);
 
-          _this.isInitialized(intgInstance).then(_this.replayEvents);
+            _this.isInitialized(intgInstance).then(_this.replayEvents);
+          } catch (e) {
+            logger.error("[Analytics] initialize integration (integration.init()) failed :: ", intg.name);
+          }
         });
       }
     }, {
       key: "replayEvents",
       value: function replayEvents(object) {
-        if (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length) {
+        if (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length && object.toBeProcessedByIntegrationArray.length > 0) {
+          logger.debug("===replay events called====", object.successfullyLoadedIntegration.length, object.failedToBeLoadedIntegration.length);
           object.clientIntegrationObjects = [];
           object.clientIntegrationObjects = object.successfullyLoadedIntegration;
+          logger.debug("==registering after callback===", object.clientIntegrationObjects.length);
           object.executeReadyCallback = after_1(object.clientIntegrationObjects.length, object.readyCallback);
+          logger.debug("==registering ready callback===");
           object.on("ready", object.executeReadyCallback);
           object.clientIntegrationObjects.forEach(function (intg) {
+            logger.debug("===looping over each successful integration====");
+
             if (!intg["isReady"] || intg["isReady"]()) {
+              logger.debug("===letting know I am ready=====", intg["name"]);
               object.emit("ready");
             }
           }); //send the queued events to the fetched integration
 
           object.toBeProcessedByIntegrationArray.forEach(function (event) {
             var methodName = event[0];
-            event.shift();
-            var integrationOptions = event[0].message.integrations;
+            event.shift(); // convert common names to sdk identified name
 
-            for (var i = 0; i < object.clientIntegrationObjects.length; i++) {
-              if (integrationOptions[object.clientIntegrationObjects[i].name] || integrationOptions[object.clientIntegrationObjects[i].name] == undefined && integrationOptions["All"]) {
-                try {
-                  if (!object.clientIntegrationObjects[i]["isFailed"] || !object.clientIntegrationObjects[i]["isFailed"]()) {
-                    var _object$clientIntegra;
+            if (Object.keys(event[0].message.integrations).length > 0) {
+              tranformToRudderNames(event[0].message.integrations);
+            } // if not specified at event level, All: true is default
 
-                    (_object$clientIntegra = object.clientIntegrationObjects[i])[methodName].apply(_object$clientIntegra, _toConsumableArray(event));
+
+            var clientSuppliedIntegrations = event[0].message.integrations; // get intersection between config plane native enabled destinations
+            // (which were able to successfully load on the page) vs user supplied integrations
+
+            var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(clientSuppliedIntegrations, object.clientIntegrationObjects); //send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
+
+            for (var i = 0; i < succesfulLoadedIntersectClientSuppliedIntegrations.length; i++) {
+              try {
+                if (!succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"] || !succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"]()) {
+                  if (succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
+                    var _succesfulLoadedInter;
+
+                    (_succesfulLoadedInter = succesfulLoadedIntersectClientSuppliedIntegrations[i])[methodName].apply(_succesfulLoadedInter, _toConsumableArray(event));
                   }
-                } catch (error) {
-                  handleError(error);
                 }
+              } catch (error) {
+                handleError(error);
               }
             }
           });
@@ -10268,6 +10976,8 @@ var rudderanalytics = (function (exports) {
         var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
         return new Promise(function (resolve) {
           if (instance.isLoaded()) {
+            logger.debug("===integration loaded successfully====", instance["name"]);
+
             _this2.successfullyLoadedIntegration.push(instance);
 
             return resolve(_this2);
@@ -10282,6 +10992,7 @@ var rudderanalytics = (function (exports) {
           }
 
           _this2.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(function () {
+            logger.debug("====after pause, again checking====");
             return _this2.isInitialized(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
           });
         });
@@ -10306,6 +11017,11 @@ var rudderanalytics = (function (exports) {
         if (_typeof(category) === "object") options = name, properties = category, name = category = null;
         if (_typeof(name) === "object") options = properties, properties = name, name = null;
         if (typeof category === "string" && typeof name !== "string") name = category, category = null;
+
+        if (this.sendAdblockPage && category != "RudderJS-Initiated") {
+          this.sendSampleRequest();
+        }
+
         this.processPage(category, name, properties, options, callback);
       }
       /**
@@ -10358,7 +11074,7 @@ var rudderanalytics = (function (exports) {
         if (typeof from == "function") callback = from, options = null, from = null;
         if (_typeof(from) == "object") options = from, from = null;
         var rudderElement = new RudderElementBuilder().setType("alias").build();
-        rudderElement.message.previousId = from || this.userId ? this.userId : this.getAnonymousId();
+        rudderElement.message.previousId = from || (this.userId ? this.userId : this.getAnonymousId());
         rudderElement.message.userId = to;
         this.processAndSendDataToDestinations("alias", rudderElement, options, callback);
       }
@@ -10571,27 +11287,35 @@ var rudderanalytics = (function (exports) {
             this.processOptionsParam(rudderElement, options);
           }
 
-          logger.debug(JSON.stringify(rudderElement));
-          var integrations = rudderElement.message.integrations; //try to first send to all integrations, if list populated from BE
+          logger.debug(JSON.stringify(rudderElement)); // structure user supplied integrations object to rudder format
 
-          if (this.clientIntegrationObjects) {
-            this.clientIntegrationObjects.forEach(function (obj) {
-              logger.debug("called in normal flow");
+          if (Object.keys(rudderElement.message.integrations).length > 0) {
+            tranformToRudderNames(rudderElement.message.integrations);
+          } // if not specified at event level, All: true is default
 
-              if (integrations[obj.name] || integrations[obj.name] == undefined && integrations["All"]) {
-                if (!obj["isFailed"] || !obj["isFailed"]()) {
-                  obj[type](rudderElement);
-                }
+
+          var clientSuppliedIntegrations = rudderElement.message.integrations; // get intersection between config plane native enabled destinations
+          // (which were able to successfully load on the page) vs user supplied integrations
+
+          var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(clientSuppliedIntegrations, this.clientIntegrationObjects); //try to first send to all integrations, if list populated from BE
+
+          succesfulLoadedIntersectClientSuppliedIntegrations.forEach(function (obj) {
+            if (!obj["isFailed"] || !obj["isFailed"]()) {
+              if (obj[type]) {
+                obj[type](rudderElement);
               }
-            });
-          }
+            }
+          }); // config plane native enabled destinations, still not completely loaded
+          // in the page, add the events to a queue and process later
 
           if (!this.clientIntegrationObjects) {
             logger.debug("pushing in replay queue"); //new event processing after analytics initialized  but integrations not fetched from BE
 
             this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
-          } // self analytics process
+          } // convert integrations object to server identified names, kind of hack now!
 
+
+          transformToServerNames(rudderElement.message.integrations); // self analytics process, send to rudder
 
           enqueue.call(this, rudderElement, type);
           logger.debug(type + " is called ");
@@ -10656,7 +11380,6 @@ var rudderanalytics = (function (exports) {
       value: function reset() {
         this.userId = "";
         this.userTraits = {};
-        this.anonymousId = this.setAnonymousId();
         this.storage.clear();
       }
     }, {
@@ -10686,11 +11409,12 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "load",
       value: function load(writeKey, serverUrl, options) {
+        logger.debug("inside load ");
         var configUrl = CONFIG_URL;
 
         if (!writeKey || !serverUrl || serverUrl.length == 0) {
           handleError({
-            message: "Unable to load due to wrong writeKey or serverUrl"
+            message: "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
           });
           throw Error("failed to initialize");
         }
@@ -10699,11 +11423,25 @@ var rudderanalytics = (function (exports) {
           logger.setLogLevel(options.logLevel);
         }
 
+        if (options && options.integrations) {
+          Object.assign(this.loadOnlyIntegrations, options.integrations);
+          tranformToRudderNames(this.loadOnlyIntegrations);
+        }
+
         if (options && options.configUrl) {
           configUrl = options.configUrl;
         }
 
-        logger.debug("inside load ");
+        if (options && options.sendAdblockPage) {
+          this.sendAdblockPage = true;
+        }
+
+        if (options && options.sendAdblockPageOptions) {
+          if (_typeof(options.sendAdblockPageOptions) == "object") {
+            this.sendAdblockPageOptions = options.sendAdblockPageOptions;
+          }
+        }
+
         this.eventRepository.writeKey = writeKey;
 
         if (serverUrl) {
@@ -10758,21 +11496,28 @@ var rudderanalytics = (function (exports) {
           }
         });
       }
+    }, {
+      key: "sendSampleRequest",
+      value: function sendSampleRequest() {
+        ScriptLoader("ad-block", "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js");
+      }
     }]);
 
     return Analytics;
   }();
 
-  {
-    window.addEventListener("error", function (e) {
-      handleError(e);
-    }, true);
-  }
-
   var instance = new Analytics();
   componentEmitter(instance);
 
   {
+    window.addEventListener("error", function (e) {
+      handleError(e, instance);
+    }, true);
+  }
+
+  {
+    // test for adblocker
+    // instance.sendSampleRequest()
     // register supported callbacks
     instance.registerCallbacks();
     var eventsPushedAlready = !!window.rudderanalytics && window.rudderanalytics.push == Array.prototype.push;
@@ -10781,6 +11526,7 @@ var rudderanalytics = (function (exports) {
     if (methodArg.length > 0 && methodArg[0] == "load") {
       var method = methodArg[0];
       methodArg.shift();
+      logger.debug("=====from init, calling method:: ", method);
       instance[method].apply(instance, _toConsumableArray(methodArg));
     }
 
@@ -10794,6 +11540,7 @@ var rudderanalytics = (function (exports) {
 
         var _method = event[0];
         event.shift();
+        logger.debug("=====from init, calling method:: ", _method);
 
         instance[_method].apply(instance, _toConsumableArray(event));
       }
@@ -10828,4 +11575,4 @@ var rudderanalytics = (function (exports) {
 
   return exports;
 
-}({}));
+}({}, cookie));

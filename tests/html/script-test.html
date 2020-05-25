@@ -1,8 +1,13 @@
 <html>
   <head>
+    <!--  <script src="//d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js"></script>
+    <script>
+      window.bugsnagClient = bugsnag("API_KEY");
+    </script> -->
     <script type="text/javascript">
       // checking test commit 2
       rudderanalytics = window.rudderanalytics = [];
+      var methods = ["load","ready","track"];
 
       // this is required to be set before RudderAnalytics is loaded/run
       window.rudderanalytics.syncPixelCallback = obj => {
@@ -42,6 +47,7 @@
     <script>
       window.rudderanalytics.ready(() => {
         console.log("we are all set!!!");
+      
       });
     // window.rudderanalytics.page();
       window.rudderanalytics.identify("ruchu123", {

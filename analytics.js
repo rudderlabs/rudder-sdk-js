@@ -2,7 +2,10 @@ import {
   getJSONTrimmed,
   generateUUID,
   handleError,
-  getDefaultPageProperties
+  getDefaultPageProperties,
+  findAllEnabledDestinations,
+  tranformToRudderNames,
+  transformToServerNames
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -18,6 +21,7 @@ import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import Emitter from "component-emitter";
 import after from "after";
+import {ScriptLoader} from "./integrations/ScriptLoader"
 
 //https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
@@ -49,7 +53,7 @@ class Analytics {
     this.trackValues = [];
     this.eventsBuffer = [];
     this.clientIntegrations = [];
-    this.configArray = [];
+    this.loadOnlyIntegrations = {};
     this.clientIntegrationObjects = undefined;
     this.successfullyLoadedIntegration = [];
     this.failedToBeLoadedIntegration = [];
@@ -75,6 +79,8 @@ class Analytics {
     this.anonymousId = this.getAnonymousId();
     this.storage.setUserId(this.userId);
     this.eventRepository = EventRepository;
+    this.sendAdblockPage = false
+    this.sendAdblockPageOptions = {}
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
@@ -114,11 +120,22 @@ class Analytics {
             destination.config.useNativeSDK
         );
         if (destination.enabled) {
-          this.clientIntegrations.push(destination.destinationDefinition.name);
-          this.configArray.push(destination.config);
+          this.clientIntegrations.push({"name": destination.destinationDefinition.name, "config": destination.config});
         }
       }, this);
-      this.init(this.clientIntegrations, this.configArray);
+
+      // intersection of config-plane native sdk destinations with sdk load time destination list
+      this.clientIntegrations = findAllEnabledDestinations(
+        this.loadOnlyIntegrations,
+        this.clientIntegrations
+      );
+
+      // remove from the list which don't have support yet in SDK
+      this.clientIntegrations = this.clientIntegrations.filter(intg => {
+        return integrations[intg.name] != undefined
+      })
+
+      this.init(this.clientIntegrations);
     } catch (error) {
       handleError(error);
       logger.debug("===handling config BE response processing error===");
@@ -138,11 +155,10 @@ class Analytics {
    * keep the instances reference in core
    *
    * @param {*} intgArray
-   * @param {*} configArray
    * @returns
    * @memberof Analytics
    */
-  init(intgArray, configArray) {
+  init(intgArray) {
     let self = this;
     logger.debug("supported intgs ", integrations);
     // this.clientIntegrationObjects = [];
@@ -154,15 +170,23 @@ class Analytics {
       this.toBeProcessedByIntegrationArray = [];
       return;
     }
-    intgArray.forEach((intg, index) => {
-      let intgClass = integrations[intg];
-      let destConfig = configArray[index];
+
+    intgArray.forEach((intg) => {
+      try {
+        logger.debug("[Analytics] init :: trying to initialize integration name:: ", intg.name)
+      let intgClass = integrations[intg.name];
+      let destConfig = intg.config;
       let intgInstance = new intgClass(destConfig, self);
       intgInstance.init();
 
       logger.debug("initializing destination: ", intg);
 
       this.isInitialized(intgInstance).then(this.replayEvents);
+      } catch (e) {
+        logger.error("[Analytics] initialize integration (integration.init()) failed :: ", intg.name)
+      }
+      
+
     });
   }
 
@@ -170,20 +194,33 @@ class Analytics {
     if (
       object.successfullyLoadedIntegration.length +
         object.failedToBeLoadedIntegration.length ==
-      object.clientIntegrations.length
+        object.clientIntegrations.length &&
+      object.toBeProcessedByIntegrationArray.length > 0
     ) {
+      logger.debug(
+        "===replay events called====",
+        object.successfullyLoadedIntegration.length,
+        object.failedToBeLoadedIntegration.length
+      );
       object.clientIntegrationObjects = [];
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
 
+      logger.debug(
+        "==registering after callback===",
+        object.clientIntegrationObjects.length
+      );
       object.executeReadyCallback = after(
         object.clientIntegrationObjects.length,
         object.readyCallback
       );
 
+      logger.debug("==registering ready callback===");
       object.on("ready", object.executeReadyCallback);
 
       object.clientIntegrationObjects.forEach(intg => {
+        logger.debug("===looping over each successful integration====");
         if (!intg["isReady"] || intg["isReady"]()) {
+          logger.debug("===letting know I am ready=====", intg["name"]);
           object.emit("ready");
         }
       });
@@ -192,24 +229,40 @@ class Analytics {
       object.toBeProcessedByIntegrationArray.forEach(event => {
         let methodName = event[0];
         event.shift();
-        let integrationOptions = event[0].message.integrations;
-        for (let i = 0; i < object.clientIntegrationObjects.length; i++) {
-          if (
-            integrationOptions[object.clientIntegrationObjects[i].name] ||
-            (integrationOptions[object.clientIntegrationObjects[i].name] ==
-              undefined &&
-              integrationOptions["All"])
-          ) {
-            try {
-              if (
-                !object.clientIntegrationObjects[i]["isFailed"] ||
-                !object.clientIntegrationObjects[i]["isFailed"]()
-              ) {
-                object.clientIntegrationObjects[i][methodName](...event);
+
+        // convert common names to sdk identified name
+        if (Object.keys(event[0].message.integrations).length > 0) {
+          tranformToRudderNames(event[0].message.integrations);
+        }
+  
+        // if not specified at event level, All: true is default
+        var clientSuppliedIntegrations = event[0].message.integrations;
+  
+        
+
+        // get intersection between config plane native enabled destinations
+        // (which were able to successfully load on the page) vs user supplied integrations
+        var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+          clientSuppliedIntegrations,
+          object.clientIntegrationObjects
+        );
+
+        //send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
+        for (let i = 0; i < succesfulLoadedIntersectClientSuppliedIntegrations.length; i++) {
+          try {
+            if (
+              !succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"] ||
+              !succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"]()
+            ) {
+              if(succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
+                succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
+                  ...event
+                );
               }
-            } catch (error) {
-              handleError(error);
+              
             }
+          } catch (error) {
+            handleError(error);
           }
         }
       });
@@ -226,6 +279,10 @@ class Analytics {
   isInitialized(instance, time = 0) {
     return new Promise(resolve => {
       if (instance.isLoaded()) {
+        logger.debug(
+          "===integration loaded successfully====",
+          instance["name"]
+        );
         this.successfullyLoadedIntegration.push(instance);
         return resolve(this);
       }
@@ -236,6 +293,7 @@ class Analytics {
       }
 
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+        logger.debug("====after pause, again checking====");
         return this.isInitialized(
           instance,
           time + INTEGRATION_LOAD_CHECK_INTERVAL
@@ -266,6 +324,9 @@ class Analytics {
       (options = properties), (properties = name), (name = null);
     if (typeof category === "string" && typeof name !== "string")
       (name = category), (category = null);
+    if(this.sendAdblockPage && category != "RudderJS-Initiated") {
+      this.sendSampleRequest()
+    }
     this.processPage(category, name, properties, options, callback);
   }
 
@@ -320,7 +381,7 @@ class Analytics {
 
     let rudderElement = new RudderElementBuilder().setType("alias").build();
     rudderElement.message.previousId =
-      from || this.userId ? this.userId : this.getAnonymousId();
+      from || (this.userId ? this.userId : this.getAnonymousId());
     rudderElement.message.userId = to;
 
     this.processAndSendDataToDestinations(
@@ -535,7 +596,7 @@ class Analytics {
         {},
         this.userTraits
       );
-
+      
       logger.debug("anonymousId: ", this.anonymousId);
       rudderElement["message"]["anonymousId"] = this.anonymousId;
       rudderElement["message"]["userId"] = rudderElement["message"]["userId"]
@@ -559,29 +620,42 @@ class Analytics {
       }
       logger.debug(JSON.stringify(rudderElement));
 
-      var integrations = rudderElement.message.integrations;
+      // structure user supplied integrations object to rudder format
+      if (Object.keys(rudderElement.message.integrations).length > 0) {
+        tranformToRudderNames(rudderElement.message.integrations);
+      }
+
+      // if not specified at event level, All: true is default
+      var clientSuppliedIntegrations = rudderElement.message.integrations;
+
+      // get intersection between config plane native enabled destinations
+      // (which were able to successfully load on the page) vs user supplied integrations
+      var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+        clientSuppliedIntegrations,
+        this.clientIntegrationObjects
+      );
 
       //try to first send to all integrations, if list populated from BE
-      if (this.clientIntegrationObjects) {
-        this.clientIntegrationObjects.forEach(obj => {
-          logger.debug("called in normal flow");
-          if (
-            integrations[obj.name] ||
-            (integrations[obj.name] == undefined && integrations["All"])
-          ) {
-            if (!obj["isFailed"] || !obj["isFailed"]()) {
-              obj[type](rudderElement);
-            }
+      succesfulLoadedIntersectClientSuppliedIntegrations.forEach(obj => {
+        if (!obj["isFailed"] || !obj["isFailed"]()) {
+          if(obj[type]) {
+            obj[type](rudderElement);
           }
-        });
-      }
+        }
+      });
+
+      // config plane native enabled destinations, still not completely loaded
+      // in the page, add the events to a queue and process later
       if (!this.clientIntegrationObjects) {
         logger.debug("pushing in replay queue");
         //new event processing after analytics initialized  but integrations not fetched from BE
         this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
       }
 
-      // self analytics process
+      // convert integrations object to server identified names, kind of hack now!
+      transformToServerNames(rudderElement.message.integrations)
+      
+      // self analytics process, send to rudder
       enqueue.call(this, rudderElement, type);
 
       logger.debug(type + " is called ");
@@ -639,7 +713,6 @@ class Analytics {
   reset() {
     this.userId = "";
     this.userTraits = {};
-    this.anonymousId = this.setAnonymousId();
     this.storage.clear();
   }
 
@@ -663,20 +736,33 @@ class Analytics {
    * @memberof Analytics
    */
   load(writeKey, serverUrl, options) {
+    logger.debug("inside load ");
     let configUrl = CONFIG_URL;
     if (!writeKey || !serverUrl || serverUrl.length == 0) {
       handleError({
-        message: "Unable to load due to wrong writeKey or serverUrl"
+        message:
+          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
       });
       throw Error("failed to initialize");
     }
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
+    if (options && options.integrations) {
+      Object.assign(this.loadOnlyIntegrations, options.integrations);
+      tranformToRudderNames(this.loadOnlyIntegrations);
+    }
     if (options && options.configUrl) {
       configUrl = options.configUrl;
     }
-    logger.debug("inside load ");
+    if(options && options.sendAdblockPage) {
+      this.sendAdblockPage = true
+    }
+    if(options && options.sendAdblockPageOptions) {
+      if(typeof options.sendAdblockPageOptions == "object") {
+        this.sendAdblockPageOptions = options.sendAdblockPageOptions
+      }
+    }
     this.eventRepository.writeKey = writeKey;
     if (serverUrl) {
       this.eventRepository.url = serverUrl;
@@ -733,16 +819,11 @@ class Analytics {
       }
     });
   }
-}
 
-if (process.browser) {
-  window.addEventListener(
-    "error",
-    function(e) {
-      handleError(e);
-    },
-    true
-  );
+  sendSampleRequest() {
+    ScriptLoader("ad-block", "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
+  }
+    
 }
 
 let instance = new Analytics();
@@ -750,6 +831,19 @@ let instance = new Analytics();
 Emitter(instance);
 
 if (process.browser) {
+  window.addEventListener(
+    "error",
+    (e) => {
+      handleError(e, instance);
+    },
+    true
+  );
+}
+
+if (process.browser) {
+  // test for adblocker
+  // instance.sendSampleRequest()
+  
   // register supported callbacks
   instance.registerCallbacks();
   let eventsPushedAlready =
@@ -760,6 +854,7 @@ if (process.browser) {
   if (methodArg.length > 0 && methodArg[0] == "load") {
     let method = methodArg[0];
     methodArg.shift();
+    logger.debug("=====from init, calling method:: ", method);
     instance[method](...methodArg);
   }
 
@@ -772,6 +867,7 @@ if (process.browser) {
       let event = [...instance.toBeProcessedArray[i]];
       let method = event[0];
       event.shift();
+      logger.debug("=====from init, calling method:: ", method);
       instance[method](...event);
     }
     instance.toBeProcessedArray = [];

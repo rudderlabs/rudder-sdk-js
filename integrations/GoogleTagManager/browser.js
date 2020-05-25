@@ -20,7 +20,7 @@ class GoogleTagManager {
   }
 
   identify(rudderElement) {
-    logger.error("method not supported");
+    logger.debug("[GTM] identify:: method not supported");
   }
 
   track(rudderElement) {
@@ -53,6 +53,10 @@ class GoogleTagManager {
       eventName = "Viewed " + pageCategory + " " + pageName + " page";
     }
 
+    if(!eventName) {
+      eventName = "Viewed a Page";
+    }
+    
     let props = {
       event: eventName,
       userId: rudderMessage.userId,

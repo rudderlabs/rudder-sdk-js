@@ -1,5 +1,5 @@
 import clone from "@ndhoule/clone";
-import cookie from "component-cookie";
+import cookie from "rudder-component-cookie";
 import defaults from "@ndhoule/defaults";
 import json from "json3";
 import topDomain from "@segment/top-domain";
@@ -27,7 +27,8 @@ class CookieLocal {
     this._options = defaults(options, {
       maxage: 31536000000,
       path: "/",
-      domain: domain
+      domain: domain,
+      samesite: "Lax"
     });
 
     //try setting a cookie first
@@ -58,11 +59,16 @@ class CookieLocal {
    * @param {*} key
    */
   get(key) {
+    // if not parseable, return as is without json parse
+    let value;
     try {
-      let value = cookie(key);
+      value = cookie(key);
       value = value ? json.parse(value) : null;
       return value;
     } catch (e) {
+      if(value) {
+        return value
+      }
       return null;
     }
   }

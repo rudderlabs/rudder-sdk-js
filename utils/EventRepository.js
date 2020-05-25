@@ -217,7 +217,7 @@ class EventRepository {
 
     // check message size, if greater log an error
     if (JSON.stringify(message).length > MESSAGE_LENGTH) {
-      logger.error("message length greater 32 Kb ", message);
+      logger.error("[EventRepository] enqueue:: message length greater 32 Kb ", message);
     }
 
     //modify the url for event specific endpoints
