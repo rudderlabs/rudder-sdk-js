@@ -31,7 +31,7 @@ class GA {
     this.inputs = config;
     this.enhancedEcommerceLoaded = 0;
     this.name = "GA";
-    console.log(this.inputs);
+    logger.debug(this.inputs);
   }
 
   init() {
@@ -127,8 +127,8 @@ class GA {
       if (this.anonymizeIp) {
         ga("set", "anonymizeIp", true);
       }
-
-      console.log("===in init GA===");
+    
+      logger.debug("===in init GA===");
     }
   }
 
@@ -145,7 +145,7 @@ class GA {
     for (let val of this.contentGroupings) {
       contentGroupingsArray[val.from] = val.to;
     }
-    console.log(rudderElement.message.userId);
+    
     if (this.sendUserId && rudderElement.message.userId) {
       ga("set", "userId", rudderElement.message.userId);
     }
@@ -169,11 +169,11 @@ class GA {
       contentGroupingsArray
     );
 
-    console.log(Object.keys(custom).length);
+
 
     if (Object.keys(custom).length) ga("set", custom);
 
-    console.log("in GoogleAnalyticsManager identify");
+    logger.debug("in GoogleAnalyticsManager identify");
   }
 
   track(rudderElement, options) {
@@ -623,7 +623,7 @@ class GA {
         );
 
         ga("send", "event", payLoad);
-        console.log("in GoogleAnalyticsManager track");
+        logger.debug("in GoogleAnalyticsManager track");
       }
     }
   }
@@ -655,7 +655,7 @@ class GA {
       for (let val of this.contentGroupings) {
         contentGroupingsArray[val.from] = val.to;
       }
-      console.log("in GoogleAnalyticsManager page");
+      logger.debug("in GoogleAnalyticsManager page");
 
       var category = rudderElement.message.properties.category;
       var eventProperties = rudderElement.message.properties;
@@ -716,12 +716,12 @@ class GA {
 
   isLoaded() {
     if (this.classic) {
-      console.log("in GA isLoaded");
+      logger.debug("in GA isLoaded");
 
       return !!(window._gaq && window._gaq.push !== Array.prototype.push);
     } else {
-      console.log("in GA isLoaded");
-      console.log(!!window.gaplugins);
+      logger.debug("in GA isLoaded");
+  
       return !!window.gaplugins;
     }
   }

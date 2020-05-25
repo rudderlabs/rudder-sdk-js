@@ -2122,10 +2122,10 @@ var rudderanalytics = (function (exports) {
       this.contentGroupings = config.contentGroupings || [];
       this.nonInteraction = config.nonInteraction || false;
       this.anonymizeIp = config.anonymizeIp || false;
-      this.useGoogleAmpClientId = false;
-      this.classic = false; //set to false
+      this.useGoogleAmpClientId = config.useGoogleAmpClientId || false;
+      this.classic = config.classic || false; //set to false
 
-      this.domain = config.domain || 'auto';
+      this.domain = config.domain || "auto";
       this.doubleClick = config.doubleClick || false;
       this.enhancedEcommerce = config.enhancedEcommerce || false;
       this.enhancedLinkAttribution = config.enhancedLinkAttribution || false;
@@ -2136,12 +2136,12 @@ var rudderanalytics = (function (exports) {
       this.sampleRate = config.sampleRate || 100;
       this.trackCategorizedPages = config.trackCategorizedPages || true;
       this.trackNamedPages = config.trackNamedPages || true;
-      this.optimize = config.optimize || '';
+      this.optimize = config.optimize || "";
       this.resetCustomDimensionsOnPage = config.resetCustomDimensionsOnPage || [];
       this.inputs = config;
       this.enhancedEcommerceLoaded = 0;
       this.name = "GA";
-      console.log(this.inputs);
+      logger.debug(this.inputs);
     }
 
     _createClass(GA, [{
@@ -2155,30 +2155,30 @@ var rudderanalytics = (function (exports) {
           var sample = this.siteSpeedSampleRate;
           window._gaq = window._gaq || [];
 
-          window._gaq.push('_setAccount', this.trackingID);
+          window._gaq.push("_setAccount", this.trackingID);
 
-          window._gaq.push('_setAllowLinker', true);
+          window._gaq.push("_setAllowLinker", true);
 
-          if (anonymizeIp) window._gaq.push('_gat._anonymizeIp');
-          if (domain) window._gaq.push('_setDomainName', domain);
-          if (sample) window._gaq.push('_setSiteSpeedSampleRate', sample);
+          if (anonymizeIp) window._gaq.push("_gat._anonymizeIp");
+          if (domain) window._gaq.push("_setDomainName", domain);
+          if (sample) window._gaq.push("_setSiteSpeedSampleRate", sample);
 
           if (enhanced) {
-            var protocol = document.location.protocol === 'https:' ? 'https:' : 'http:';
-            var pluginUrl = protocol + '//www.google-analytics.com/plugins/ga/inpage_linkid.js';
+            var protocol = document.location.protocol === "https:" ? "https:" : "http:";
+            var pluginUrl = protocol + "//www.google-analytics.com/plugins/ga/inpage_linkid.js";
 
-            window._gaq.push('_require', 'inpage_linkid', pluginUrl);
+            window._gaq.push("_require", "inpage_linkid", pluginUrl);
           }
 
           if (ignore) {
             if (!is_1.array(ignore)) ignore = [ignore];
             componentEach(ignore, function (domain) {
-              window._gaq.push('_addIgnoredRef', domain);
+              window._gaq.push("_addIgnoredRef", domain);
             });
           }
 
           if (this.doubleClick) ; else {
-            var name = useHttps() ? 'https' : 'http'; //need to change
+            var name = useHttps() ? "https" : "http"; //need to change
           }
         } else {
           this.pageCalled = false;
@@ -2211,7 +2211,7 @@ var rudderanalytics = (function (exports) {
           ga("create", this.trackingID, config);
 
           if (this.optimize) {
-            ga("require", '');
+            ga("require", this.optimize);
           }
 
           if (this.doubleClick) {
@@ -2226,7 +2226,7 @@ var rudderanalytics = (function (exports) {
             ga("set", "anonymizeIp", true);
           }
 
-          console.log("===in init GA===");
+          logger.debug("===in init GA===");
         }
       }
     }, {
@@ -2279,8 +2279,6 @@ var rudderanalytics = (function (exports) {
         } finally {
           _iterator3.f();
         }
-
-        console.log(rudderElement.message.userId);
 
         if (this.sendUserId && rudderElement.message.userId) {
           ga("set", "userId", rudderElement.message.userId);
@@ -2335,9 +2333,8 @@ var rudderanalytics = (function (exports) {
         }
 
         var custom = metrics(rudderElement.message.context.traits, dimensionsArray, metricsArray, contentGroupingsArray);
-        console.log(Object.keys(custom).length);
         if (Object.keys(custom).length) ga("set", custom);
-        console.log("in GoogleAnalyticsManager identify");
+        logger.debug("in GoogleAnalyticsManager identify");
       }
     }, {
       key: "track",
@@ -2351,27 +2348,27 @@ var rudderanalytics = (function (exports) {
             var currncy = props.currency;
             if (!orderId) return;
 
-            window._gaq.push('_addTrans', orderId, props.affiliation, total, props.tax, props.shipping, props.city, props.state, props.country);
+            window._gaq.push("_addTrans", orderId, props.affiliation, total, props.tax, props.shipping, props.city, props.state, props.country);
 
             componentEach(products, function (product) {
 
-              window._gaq.push('_addItem', orderId, props.sku, props.name, props.category, props.price, props.quantity);
+              window._gaq.push("_addItem", orderId, props.sku, props.name, props.category, props.price, props.quantity);
             });
 
-            window._gaq.push('_set', 'currencyCode', currncy);
+            window._gaq.push("_set", "currencyCode", currncy);
 
-            window._gaq.push('_trackTrans');
+            window._gaq.push("_trackTrans");
           } else {
-            var opts = options || '';
+            var opts = options || "";
             var props = rudderElement.message.properties;
             var revenue = props.revenue;
             var event = rudderElement.message.event;
-            var category = props.category || 'All';
+            var category = props.category || "All";
             var label = props.label;
             var value = formatValue(revenue || props.value);
             var nonInteraction = !!(props.nonInteraction || opts.nonInteraction);
 
-            window._gaq.push('_trackEvent', category, event, label, value, nonInteraction);
+            window._gaq.push("_trackEvent", category, event, label, value, nonInteraction);
           }
         } else {
           var dimensionsArray = {};
@@ -2668,7 +2665,7 @@ var rudderanalytics = (function (exports) {
 
               payLoad = extend(payLoad, setCustomDimenionsAndMetrics(rudderElement.message.properties, this.inputs));
               ga("send", "event", payLoad);
-              console.log("in GoogleAnalyticsManager track");
+              logger.debug("in GoogleAnalyticsManager track");
             }
         }
       }
@@ -2680,7 +2677,7 @@ var rudderanalytics = (function (exports) {
           var category = props.category;
           var name = props.name;
 
-          window._gaq.push('_trackPageview', path());
+          window._gaq.push("_trackPageview", path());
 
           if (this.trackCategorizedPages) {
             this.track(rudderElement, {
@@ -2742,7 +2739,7 @@ var rudderanalytics = (function (exports) {
             _iterator12.f();
           }
 
-          console.log("in GoogleAnalyticsManager page");
+          logger.debug("in GoogleAnalyticsManager page");
           var category = rudderElement.message.properties.category;
           var eventProperties = rudderElement.message.properties;
           var name = rudderElement.message.properties.fullName;
@@ -2801,11 +2798,10 @@ var rudderanalytics = (function (exports) {
       key: "isLoaded",
       value: function isLoaded() {
         if (this.classic) {
-          console.log("in GA isLoaded");
+          logger.debug("in GA isLoaded");
           return !!(window._gaq && window._gaq.push !== Array.prototype.push);
         } else {
-          console.log("in GA isLoaded");
-          console.log(!!window.gaplugins);
+          logger.debug("in GA isLoaded");
           return !!window.gaplugins;
         }
       }
@@ -3003,19 +2999,19 @@ var rudderanalytics = (function (exports) {
   function extractCheckoutOptions(rudderElement) {
     var options = [rudderElement.message.properties.paymentMethod, rudderElement.message.properties.shippingMethod];
     var valid = rejectArr(options);
-    return valid.length > 0 ? valid.join(', ') : null;
+    return valid.length > 0 ? valid.join(", ") : null;
   }
 
   function pushEnhancedEcommerce(rudderElement, inputs) {
-    var args = rejectArr(['send', 'event', rudderElement.message.properties.category || 'EnhancedEcommerce', rudderElement.message.event || 'Action not defined', rudderElement.message.properties.label, extend({
+    var args = rejectArr(["send", "event", rudderElement.message.properties.category || "EnhancedEcommerce", rudderElement.message.event || "Action not defined", rudderElement.message.properties.label, extend({
       nonInteraction: 1
     }, setCustomDimenionsAndMetrics(rudderElement.message.properties, inputs))]);
     var event = rudderElement.message.event;
     event = event.toLowerCase();
-    var eventWithCategoryFieldProductScoped = ['product clicked', 'product added', 'product viewed', 'product removed'];
+    var eventWithCategoryFieldProductScoped = ["product clicked", "product added", "product viewed", "product removed"];
 
     if (eventWithCategoryFieldProductScoped.includes(event)) {
-      args[2] = 'EnhancedEcommerce';
+      args[2] = "EnhancedEcommerce";
     }
 
     ga.apply(window, args);
@@ -3023,13 +3019,13 @@ var rudderanalytics = (function (exports) {
 
   function enhancedEcommerceTrackProductAction(rudderElement, action, data, inputs) {
     enhancedEcommerceTrackProduct(rudderElement, inputs);
-    ga('ec:setAction', action, data || {});
+    ga("ec:setAction", action, data || {});
   }
 
   function getProductPosition(item, products) {
     var position = item.properties.position;
 
-    if (typeof position !== 'undefined' && !Number.isNaN(Number(position)) && Number(position) > -1) {
+    if (typeof position !== "undefined" && !Number.isNaN(Number(position)) && Number(position) > -1) {
       return position;
     }
 
@@ -3040,7 +3036,7 @@ var rudderanalytics = (function (exports) {
 
   function rejectArr(obj, fn) {
     fn = fn || compact;
-    return 'array' == type$1(obj) ? rejectarray(obj, fn) : rejectobject(obj, fn);
+    return "array" == type$1(obj) ? rejectarray(obj, fn) : rejectobject(obj, fn);
   }
 
   var rejectarray = function rejectarray(arr, fn) {
@@ -3071,25 +3067,25 @@ var rudderanalytics = (function (exports) {
 
   function type$1(val) {
     switch (toString.call(val)) {
-      case '[object Function]':
-        return 'function';
+      case "[object Function]":
+        return "function";
 
-      case '[object Date]':
-        return 'date';
+      case "[object Date]":
+        return "date";
 
-      case '[object RegExp]':
-        return 'regexp';
+      case "[object RegExp]":
+        return "regexp";
 
-      case '[object Arguments]':
-        return 'arguments';
+      case "[object Arguments]":
+        return "arguments";
 
-      case '[object Array]':
-        return 'array';
+      case "[object Array]":
+        return "array";
     }
 
-    if (val === null) return 'null';
-    if (val === undefined) return 'undefined';
-    if (val === Object(val)) return 'object';
+    if (val === null) return "null";
+    if (val === undefined) return "undefined";
+    if (val === Object(val)) return "object";
     return _typeof(val);
   }
 
