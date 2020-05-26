@@ -2323,7 +2323,6 @@ var rudderanalytics = (function (exports) {
       this.inputs = config;
       this.enhancedEcommerceLoaded = 0;
       this.name = "GA";
-      console.log(this.inputs);
     }
 
     _createClass(GA, [{
@@ -2822,7 +2821,6 @@ var rudderanalytics = (function (exports) {
               var interfaceOpts = this.inputs;
               var opts = defaults_1(options || {}, contextOpts);
               opts = defaults_1(opts, interfaceOpts);
-              console.log("===9====");
               var eventCategory = rudderElement.message.properties.category;
               var eventAction = rudderElement.message.event;
               var eventLabel = rudderElement.message.properties.label;
@@ -2832,7 +2830,6 @@ var rudderanalytics = (function (exports) {
                 eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
               }
 
-              console.log("===9====");
               var payload = {
                 eventCategory: eventCategory || "All",
                 eventAction: eventAction,
@@ -2927,8 +2924,6 @@ var rudderanalytics = (function (exports) {
           }
 
           logger.debug("in GoogleAnalyticsManager page");
-          console.log("in GoogleAnalyticsManager page");
-          console.log(rudderElement);
           var category = rudderElement.message.properties.category;
           var eventProperties = rudderElement.message.properties;
           var name = rudderElement.message.properties.category + " " + rudderElement.message.name;
@@ -2954,8 +2949,6 @@ var rudderanalytics = (function (exports) {
             page: pagePath,
             title: pageTitle
           };
-          console.log("===payload===");
-          console.log(payload);
           var resetCustomDimensions = {};
 
           for (var i = 0; i < this.resetCustomDimensionsOnPage.length; i++) {
@@ -2966,18 +2959,12 @@ var rudderanalytics = (function (exports) {
             }
           }
 
-          console.log("======here======");
           ga("set", resetCustomDimensions);
           pageview = extend(pageview, setCustomDimenionsAndMetrics(eventProperties, this.inputs));
-          console.log("=====2======");
           if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
-          console.log("=====3======");
           ga("set", payload);
-          console.log("=====4======");
           if (this.pageCalled) delete pageview.location;
-          console.log("=====5======");
           ga("send", "pageview", pageview);
-          console.log("=====6======");
 
           if (category && this.trackCategorizedPages) {
             this.track(rudderElement, {
@@ -2985,15 +2972,11 @@ var rudderanalytics = (function (exports) {
             });
           }
 
-          console.log("=====7======");
-
           if (name && this.trackNamedPages) {
             this.track(rudderElement, {
               nonInteraction: 1
             });
           }
-
-          console.log("=====8======");
         }
       }
     }, {
