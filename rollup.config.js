@@ -26,7 +26,9 @@ export default {
       name: "rudderanalytics",
       sourceMap: true,
       sourceMapMode: "inline"
-    } /* ,
+    },
+    { file: "dist/bundle.js", format: "umd", name: "rudderanalytics" }
+    /* ,
     {
       file: "dist/node.js",
       format: "cjs"
