@@ -553,9 +553,9 @@ var rudderanalytics = (function (exports) {
     CART_SHARED: "Cart Shared",
     PRODUCT_REVIEWED: "Product Reviewed"
   }; //Enumeration for integrations supported
-  var BASE_URL = "https://hosted-dataplane.rudderstack.com"; // default to RudderStack
+  var BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=" + version; //"https://api.rudderlabs.com/workspaceConfig";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=" + version;
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -3514,11 +3514,18 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "get",
       value: function get(key) {
+        // if not parseable, return as is without json parse
+        var value;
+
         try {
-          var value = rudderComponentCookie(key);
+          value = rudderComponentCookie(key);
           value = value ? json3.parse(value) : null;
           return value;
         } catch (e) {
+          if (value) {
+            return value;
+          }
+
           return null;
         }
       }
@@ -10696,9 +10703,11 @@ var rudderanalytics = (function (exports) {
             for (var i = 0; i < succesfulLoadedIntersectClientSuppliedIntegrations.length; i++) {
               try {
                 if (!succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"] || !succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"]()) {
-                  var _succesfulLoadedInter;
+                  if (succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
+                    var _succesfulLoadedInter;
 
-                  (_succesfulLoadedInter = succesfulLoadedIntersectClientSuppliedIntegrations[i])[methodName].apply(_succesfulLoadedInter, _toConsumableArray(event));
+                    (_succesfulLoadedInter = succesfulLoadedIntersectClientSuppliedIntegrations[i])[methodName].apply(_succesfulLoadedInter, _toConsumableArray(event));
+                  }
                 }
               } catch (error) {
                 handleError(error);
@@ -11048,7 +11057,9 @@ var rudderanalytics = (function (exports) {
 
           succesfulLoadedIntersectClientSuppliedIntegrations.forEach(function (obj) {
             if (!obj["isFailed"] || !obj["isFailed"]()) {
-              obj[type](rudderElement);
+              if (obj[type]) {
+                obj[type](rudderElement);
+              }
             }
           }); // config plane native enabled destinations, still not completely loaded
           // in the page, add the events to a queue and process later
