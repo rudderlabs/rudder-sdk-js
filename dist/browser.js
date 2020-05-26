@@ -2827,6 +2827,7 @@ var rudderanalytics = (function (exports) {
               var interfaceOpts = this.inputs;
               var opts = defaults_1(options || {}, contextOpts);
               opts = defaults_1(opts, interfaceOpts);
+              console.log("===9====");
               var eventCategory = rudderElement.message.properties.category;
               var eventAction = rudderElement.message.event;
               var eventLabel = rudderElement.message.properties.label;
@@ -2836,7 +2837,8 @@ var rudderanalytics = (function (exports) {
                 eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
               }
 
-              var payLoad = {
+              console.log("===9====");
+              var payload = {
                 eventCategory: eventCategory || "All",
                 eventAction: eventAction,
                 eventLabel: eventLabel,
@@ -2853,9 +2855,9 @@ var rudderanalytics = (function (exports) {
                 if (campaign.term) payload.campaignKeyword = campaign.term;
               }
 
-              payLoad = extend(payLoad, setCustomDimenionsAndMetrics(rudderElement.message.properties, this.inputs));
-              ga("send", "event", payLoad);
-              console.log("in GoogleAnalyticsManager track");
+              payload = extend(payload, setCustomDimenionsAndMetrics(rudderElement.message.properties, this.inputs));
+              ga("send", "event", payload);
+              logger.debug("in GoogleAnalyticsManager track");
             }
         }
       }
@@ -2929,15 +2931,18 @@ var rudderanalytics = (function (exports) {
             _iterator12.f();
           }
 
+          logger.debug("in GoogleAnalyticsManager page");
           console.log("in GoogleAnalyticsManager page");
+          console.log(rudderElement);
           var category = rudderElement.message.properties.category;
           var eventProperties = rudderElement.message.properties;
-          var name = rudderElement.message.properties.fullName;
+          var name = rudderElement.message.properties.category + " " + rudderElement.message.name;
           var campaign = rudderElement.message.context.campaign | {};
           var pageview = {};
           var pagePath = path(eventProperties, this.includeSearch);
           var pageReferrer = rudderElement.message.properties.referrer || "";
-          var pageTitle = name || eventProperties.title;
+          var pageTitle;
+          if (!rudderElement.message.properties.category && !rudderElement.message.name) pageTitle = eventProperties.title;else if (!rudderElement.message.properties.category) pageTitle = rudderElement.message.name;else if (!rudderElement.message.name) pageTitle = rudderElement.message.properties.category;else pageTitle = name;
           pageview.page = pagePath;
           pageview.title = pageTitle;
           pageview.location = eventProperties.url;
@@ -2954,6 +2959,8 @@ var rudderanalytics = (function (exports) {
             page: pagePath,
             title: pageTitle
           };
+          console.log("===payload===");
+          console.log(payload);
           var resetCustomDimensions = {};
 
           for (var i = 0; i < this.resetCustomDimensionsOnPage.length; i++) {
@@ -2964,12 +2971,18 @@ var rudderanalytics = (function (exports) {
             }
           }
 
+          console.log("======here======");
           ga("set", resetCustomDimensions);
           pageview = extend(pageview, setCustomDimenionsAndMetrics(eventProperties, this.inputs));
+          console.log("=====2======");
           if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
+          console.log("=====3======");
           ga("set", payload);
+          console.log("=====4======");
           if (this.pageCalled) delete pageview.location;
+          console.log("=====5======");
           ga("send", "pageview", pageview);
+          console.log("=====6======");
 
           if (category && this.trackCategorizedPages) {
             this.track(rudderElement, {
@@ -2977,11 +2990,15 @@ var rudderanalytics = (function (exports) {
             });
           }
 
+          console.log("=====7======");
+
           if (name && this.trackNamedPages) {
             this.track(rudderElement, {
               nonInteraction: 1
             });
           }
+
+          console.log("=====8======");
         }
       }
     }, {
@@ -6264,34 +6281,939 @@ var rudderanalytics = (function (exports) {
 
         _kms("//scripts.kissmetrics.com/" + _kmk + ".2.js");
 
+  /**
+   * Helpers.
+   */
+
+  var s = 1000;
+  var m = s * 60;
+  var h = m * 60;
+  var d = h * 24;
+  var y = d * 365.25;
+
+  /**
+   * Parse or format the given `val`.
+   *
+   * Options:
+   *
+   *  - `long` verbose formatting [false]
+   *
+   * @param {String|Number} val
+   * @param {Object} options
+   * @return {String|Number}
+   * @api public
+   */
+
+  var ms = function(val, options){
+    options = options || {};
+    if ('string' == typeof val) return parse(val);
+    return options.long
+      ? long(val)
+      : short(val);
+  };
+
+  /**
+   * Parse the given `str` and return milliseconds.
+   *
+   * @param {String} str
+   * @return {Number}
+   * @api private
+   */
+
+  function parse(str) {
+    str = '' + str;
+    if (str.length > 10000) return;
+    var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
+    if (!match) return;
+    var n = parseFloat(match[1]);
+    var type = (match[2] || 'ms').toLowerCase();
+    switch (type) {
+      case 'years':
+      case 'year':
+      case 'yrs':
+      case 'yr':
+      case 'y':
+        return n * y;
+      case 'days':
+      case 'day':
+      case 'd':
+        return n * d;
+      case 'hours':
+      case 'hour':
+      case 'hrs':
+      case 'hr':
+      case 'h':
+        return n * h;
+      case 'minutes':
+      case 'minute':
+      case 'mins':
+      case 'min':
+      case 'm':
+        return n * m;
+      case 'seconds':
+      case 'second':
+      case 'secs':
+      case 'sec':
+      case 's':
+        return n * s;
+      case 'milliseconds':
+      case 'millisecond':
+      case 'msecs':
+      case 'msec':
+      case 'ms':
+        return n;
+    }
+  }
+
+  /**
+   * Short format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+
+  function short(ms) {
+    if (ms >= d) return Math.round(ms / d) + 'd';
+    if (ms >= h) return Math.round(ms / h) + 'h';
+    if (ms >= m) return Math.round(ms / m) + 'm';
+    if (ms >= s) return Math.round(ms / s) + 's';
+    return ms + 'ms';
+  }
+
+  /**
+   * Long format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+
+  function long(ms) {
+    return plural(ms, d, 'day')
+      || plural(ms, h, 'hour')
+      || plural(ms, m, 'minute')
+      || plural(ms, s, 'second')
+      || ms + ' ms';
+  }
+
+  /**
+   * Pluralization helper.
+   */
+
+  function plural(ms, n, name) {
+    if (ms < n) return;
+    if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
+    return Math.ceil(ms / n) + ' ' + name + 's';
+  }
+
+  var debug_1 = createCommonjsModule(function (module, exports) {
+  /**
+   * This is the common logic for both the Node.js and web browser
+   * implementations of `debug()`.
+   *
+   * Expose `debug()` as the module.
+   */
+
+  exports = module.exports = debug;
+  exports.coerce = coerce;
+  exports.disable = disable;
+  exports.enable = enable;
+  exports.enabled = enabled;
+  exports.humanize = ms;
+
+  /**
+   * The currently active debug mode names, and names to skip.
+   */
+
+  exports.names = [];
+  exports.skips = [];
+
+  /**
+   * Map of special "%n" handling functions, for the debug "format" argument.
+   *
+   * Valid key names are a single, lowercased letter, i.e. "n".
+   */
+
+  exports.formatters = {};
+
+  /**
+   * Previously assigned color.
+   */
+
+  var prevColor = 0;
+
+  /**
+   * Previous log timestamp.
+   */
+
+  var prevTime;
+
+  /**
+   * Select a color.
+   *
+   * @return {Number}
+   * @api private
+   */
+
+  function selectColor() {
+    return exports.colors[prevColor++ % exports.colors.length];
+  }
+
+  /**
+   * Create a debugger with the given `namespace`.
+   *
+   * @param {String} namespace
+   * @return {Function}
+   * @api public
+   */
+
+  function debug(namespace) {
+
+    // define the `disabled` version
+    function disabled() {
+    }
+    disabled.enabled = false;
+
+    // define the `enabled` version
+    function enabled() {
+
+      var self = enabled;
+
+      // set `diff` timestamp
+      var curr = +new Date();
+      var ms = curr - (prevTime || curr);
+      self.diff = ms;
+      self.prev = prevTime;
+      self.curr = curr;
+      prevTime = curr;
+
+      // add the `color` if not set
+      if (null == self.useColors) self.useColors = exports.useColors();
+      if (null == self.color && self.useColors) self.color = selectColor();
+
+      var args = Array.prototype.slice.call(arguments);
+
+      args[0] = exports.coerce(args[0]);
+
+      if ('string' !== typeof args[0]) {
+        // anything else let's inspect with %o
+        args = ['%o'].concat(args);
+      }
+
+      // apply any `formatters` transformations
+      var index = 0;
+      args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+        // if we encounter an escaped % then don't increase the array index
+        if (match === '%%') return match;
+        index++;
+        var formatter = exports.formatters[format];
+        if ('function' === typeof formatter) {
+          var val = args[index];
+          match = formatter.call(self, val);
+
+          // now we need to remove `args[index]` since it's inlined in the `format`
+          args.splice(index, 1);
+          index--;
+        }
+        return match;
+      });
+
+      if ('function' === typeof exports.formatArgs) {
+        args = exports.formatArgs.apply(self, args);
+      }
+      var logFn = enabled.log || exports.log || console.log.bind(console);
+      logFn.apply(self, args);
+    }
+    enabled.enabled = true;
+
+    var fn = exports.enabled(namespace) ? enabled : disabled;
+
+    fn.namespace = namespace;
+
+    return fn;
+  }
+
+  /**
+   * Enables a debug mode by namespaces. This can include modes
+   * separated by a colon and wildcards.
+   *
+   * @param {String} namespaces
+   * @api public
+   */
+
+  function enable(namespaces) {
+    exports.save(namespaces);
+
+    var split = (namespaces || '').split(/[\s,]+/);
+    var len = split.length;
+
+    for (var i = 0; i < len; i++) {
+      if (!split[i]) continue; // ignore empty strings
+      namespaces = split[i].replace(/\*/g, '.*?');
+      if (namespaces[0] === '-') {
+        exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+      } else {
+        exports.names.push(new RegExp('^' + namespaces + '$'));
+      }
+    }
+  }
+
+  /**
+   * Disable debug output.
+   *
+   * @api public
+   */
+
+  function disable() {
+    exports.enable('');
+  }
+
+  /**
+   * Returns true if the given mode name is enabled, false otherwise.
+   *
+   * @param {String} name
+   * @return {Boolean}
+   * @api public
+   */
+
+  function enabled(name) {
+    var i, len;
+    for (i = 0, len = exports.skips.length; i < len; i++) {
+      if (exports.skips[i].test(name)) {
+        return false;
+      }
+    }
+    for (i = 0, len = exports.names.length; i < len; i++) {
+      if (exports.names[i].test(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Coerce `val`.
+   *
+   * @param {Mixed} val
+   * @return {Mixed}
+   * @api private
+   */
+
+  function coerce(val) {
+    if (val instanceof Error) return val.stack || val.message;
+    return val;
+  }
+  });
+  var debug_2 = debug_1.coerce;
+  var debug_3 = debug_1.disable;
+  var debug_4 = debug_1.enable;
+  var debug_5 = debug_1.enabled;
+  var debug_6 = debug_1.humanize;
+  var debug_7 = debug_1.names;
+  var debug_8 = debug_1.skips;
+  var debug_9 = debug_1.formatters;
+
+  var browser = createCommonjsModule(function (module, exports) {
+  /**
+   * This is the web browser implementation of `debug()`.
+   *
+   * Expose `debug()` as the module.
+   */
+
+  exports = module.exports = debug_1;
+  exports.log = log;
+  exports.formatArgs = formatArgs;
+  exports.save = save;
+  exports.load = load;
+  exports.useColors = useColors;
+  exports.storage = 'undefined' != typeof chrome
+                 && 'undefined' != typeof chrome.storage
+                    ? chrome.storage.local
+                    : localstorage();
+
+  /**
+   * Colors.
+   */
+
+  exports.colors = [
+    'lightseagreen',
+    'forestgreen',
+    'goldenrod',
+    'dodgerblue',
+    'darkorchid',
+    'crimson'
+  ];
+
+  /**
+   * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+   * and the Firebug extension (any Firefox version) are known
+   * to support "%c" CSS customizations.
+   *
+   * TODO: add a `localStorage` variable to explicitly enable/disable colors
+   */
+
+  function useColors() {
+    // is webkit? http://stackoverflow.com/a/16459606/376773
+    return ('WebkitAppearance' in document.documentElement.style) ||
+      // is firebug? http://stackoverflow.com/a/398120/376773
+      (window.console && (console.firebug || (console.exception && console.table))) ||
+      // is firefox >= v31?
+      // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+      (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
+  }
+
+  /**
+   * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+   */
+
+  exports.formatters.j = function(v) {
+    return JSON.stringify(v);
+  };
+
+
+  /**
+   * Colorize log arguments if enabled.
+   *
+   * @api public
+   */
+
+  function formatArgs() {
+    var args = arguments;
+    var useColors = this.useColors;
+
+    args[0] = (useColors ? '%c' : '')
+      + this.namespace
+      + (useColors ? ' %c' : ' ')
+      + args[0]
+      + (useColors ? '%c ' : ' ')
+      + '+' + exports.humanize(this.diff);
+
+    if (!useColors) return args;
+
+    var c = 'color: ' + this.color;
+    args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+
+    // the final "%c" is somewhat tricky, because there could be other
+    // arguments passed either before or after the %c, so we need to
+    // figure out the correct index to insert the CSS into
+    var index = 0;
+    var lastC = 0;
+    args[0].replace(/%[a-z%]/g, function(match) {
+      if ('%%' === match) return;
+      index++;
+      if ('%c' === match) {
+        // we only are interested in the *last* %c
+        // (the user may have provided their own)
+        lastC = index;
+      }
+    });
+
+    args.splice(lastC, 0, c);
+    return args;
+  }
+
+  /**
+   * Invokes `console.log()` when available.
+   * No-op when `console.log` is not a "function".
+   *
+   * @api public
+   */
+
+  function log() {
+    // this hackery is required for IE8/9, where
+    // the `console.log` function doesn't have 'apply'
+    return 'object' === typeof console
+      && console.log
+      && Function.prototype.apply.call(console.log, console, arguments);
+  }
+
+  /**
+   * Save `namespaces`.
+   *
+   * @param {String} namespaces
+   * @api private
+   */
+
+  function save(namespaces) {
+    try {
+      if (null == namespaces) {
+        exports.storage.removeItem('debug');
+      } else {
+        exports.storage.debug = namespaces;
+      }
+    } catch(e) {}
+  }
+
+  /**
+   * Load `namespaces`.
+   *
+   * @return {String} returns the previously persisted debug modes
+   * @api private
+   */
+
+  function load() {
+    var r;
+    try {
+      r = exports.storage.debug;
+    } catch(e) {}
+    return r;
+  }
+
+  /**
+   * Enable namespaces listed in `localStorage.debug` initially.
+   */
+
+  exports.enable(load());
+
+  /**
+   * Localstorage attempts to return the localstorage.
+   *
+   * This is necessary because safari throws
+   * when a user disables cookies/localstorage
+   * and you attempt to access it.
+   *
+   * @return {LocalStorage}
+   * @api private
+   */
+
+  function localstorage(){
+    try {
+      return window.localStorage;
+    } catch (e) {}
+  }
+  });
+  var browser_1 = browser.log;
+  var browser_2 = browser.formatArgs;
+  var browser_3 = browser.save;
+  var browser_4 = browser.load;
+  var browser_5 = browser.useColors;
+  var browser_6 = browser.storage;
+  var browser_7 = browser.colors;
+
+  /**
+   * Module dependencies.
+   */
+
+  var debug = browser('cookie');
+
+  /**
+   * Set or get cookie `name` with `value` and `options` object.
+   *
+   * @param {String} name
+   * @param {String} value
+   * @param {Object} options
+   * @return {Mixed}
+   * @api public
+   */
+
+  var rudderComponentCookie = function(name, value, options){
+    switch (arguments.length) {
+      case 3:
+      case 2:
+        return set(name, value, options);
+      case 1:
+        return get$1(name);
+      default:
+        return all();
+    }
+  };
+
+  /**
+   * Set cookie `name` to `value`.
+   *
+   * @param {String} name
+   * @param {String} value
+   * @param {Object} options
+   * @api private
+   */
+
+  function set(name, value, options) {
+    options = options || {};
+    var str = encode(name) + '=' + encode(value);
+
+    if (null == value) options.maxage = -1;
+
+    if (options.maxage) {
+      options.expires = new Date(+new Date + options.maxage);
+    }
+
+    if (options.path) str += '; path=' + options.path;
+    if (options.domain) str += '; domain=' + options.domain;
+    if (options.expires) str += '; expires=' + options.expires.toUTCString();
+    if (options.samesite) str += '; samesite=' + options.samesite;
+    if (options.secure) str += '; secure';
+
+    document.cookie = str;
+  }
+
+  /**
+   * Return all cookies.
+   *
+   * @return {Object}
+   * @api private
+   */
+
+  function all() {
+    var str;
+    try {
+      str = document.cookie;
+    } catch (err) {
+      if (typeof console !== 'undefined' && typeof console.error === 'function') {
+        console.error(err.stack || err);
+      }
+      return {};
+    }
+    return parse$1(str);
+  }
+
+  /**
+   * Get cookie `name`.
+   *
+   * @param {String} name
+   * @return {String}
+   * @api private
+   */
+
+  function get$1(name) {
+    return all()[name];
+  }
+
+  /**
+   * Parse cookie `str`.
+   *
+   * @param {String} str
+   * @return {Object}
+   * @api private
+   */
+
+  function parse$1(str) {
+    var obj = {};
+    var pairs = str.split(/ *; */);
+    var pair;
+    if ('' == pairs[0]) return obj;
+    for (var i = 0; i < pairs.length; ++i) {
+      pair = pairs[i].split('=');
+      obj[decode(pair[0])] = decode(pair[1]);
+    }
+    return obj;
+  }
+
+  /**
+   * Encode.
+   */
+
+  function encode(value){
+    try {
+      return encodeURIComponent(value);
+    } catch (e) {
+      debug('error `encode(%o)` - %o', value, e);
+    }
+  }
+
+  /**
+   * Decode.
+   */
+
+  function decode(value) {
+    try {
+      return decodeURIComponent(value);
+    } catch (e) {
+      debug('error `decode(%o)` - %o', value, e);
+    }
+  }
+
   var json3 = createCommonjsModule(function (module, exports) {
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
     // strict `define` check is necessary for compatibility with `r.js`.
     var isLoader = typeof undefined === "function" ;
 
-    }, {
-      key: "toUnixTimestamp",
-      value: function toUnixTimestamp(date) {
-        date = new Date(date);
-        return Math.floor(date.getTime() / 1000);
-      } // source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
+    // A set of types used to distinguish objects from primitives.
+    var objectTypes = {
+      "function": true,
+      "object": true
+    };
 
-    }, {
-      key: "clean",
-      value: function clean(obj) {
-        var ret = {};
+    // Detect the `exports` object exposed by CommonJS implementations.
+    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
 
-        for (var k in obj) {
-          if (obj.hasOwnProperty(k)) {
-            var value = obj[k];
-            if (value === null || typeof value === "undefined") continue; // convert date to unix
+    // Use the `global` object exposed by Node (including Browserify via
+    // `insert-module-globals`), Narwhal, and Ringo as the default context,
+    // and the `window` object in browsers. Rhino exports a `global` function
+    // instead.
+    var root = objectTypes[typeof window] && window || this,
+        freeGlobal = freeExports && objectTypes['object'] && module && !module.nodeType && typeof commonjsGlobal == "object" && commonjsGlobal;
 
-            if (is_1.date(value)) {
-              ret[k] = this.toUnixTimestamp(value);
-              continue;
-            } // leave boolean as is
+    if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
+      root = freeGlobal;
+    }
 
+    // Public: Initializes JSON 3 using the given `context` object, attaching the
+    // `stringify` and `parse` functions to the specified `exports` object.
+    function runInContext(context, exports) {
+      context || (context = root.Object());
+      exports || (exports = root.Object());
+
+      // Native constructor aliases.
+      var Number = context.Number || root.Number,
+          String = context.String || root.String,
+          Object = context.Object || root.Object,
+          Date = context.Date || root.Date,
+          SyntaxError = context.SyntaxError || root.SyntaxError,
+          TypeError = context.TypeError || root.TypeError,
+          Math = context.Math || root.Math,
+          nativeJSON = context.JSON || root.JSON;
+
+      // Delegate to the native `stringify` and `parse` implementations.
+      if (typeof nativeJSON == "object" && nativeJSON) {
+        exports.stringify = nativeJSON.stringify;
+        exports.parse = nativeJSON.parse;
+      }
+
+      // Convenience aliases.
+      var objectProto = Object.prototype,
+          getClass = objectProto.toString,
+          isProperty = objectProto.hasOwnProperty,
+          undefined$1;
+
+      // Internal: Contains `try...catch` logic used by other functions.
+      // This prevents other functions from being deoptimized.
+      function attempt(func, errorFunc) {
+        try {
+          func();
+        } catch (exception) {
+          if (errorFunc) {
+            errorFunc();
+          }
+        }
+      }
+
+      // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
+      var isExtended = new Date(-3509827334573292);
+      attempt(function () {
+        // The `getUTCFullYear`, `Month`, and `Date` methods return nonsensical
+        // results for certain dates in Opera >= 10.53.
+        isExtended = isExtended.getUTCFullYear() == -109252 && isExtended.getUTCMonth() === 0 && isExtended.getUTCDate() === 1 &&
+          isExtended.getUTCHours() == 10 && isExtended.getUTCMinutes() == 37 && isExtended.getUTCSeconds() == 6 && isExtended.getUTCMilliseconds() == 708;
+      });
+
+      // Internal: Determines whether the native `JSON.stringify` and `parse`
+      // implementations are spec-compliant. Based on work by Ken Snyder.
+      function has(name) {
+        if (has[name] != null) {
+          // Return cached feature test result.
+          return has[name];
+        }
+        var isSupported;
+        if (name == "bug-string-char-index") {
+          // IE <= 7 doesn't support accessing string characters using square
+          // bracket notation. IE 8 only supports this for primitives.
+          isSupported = "a"[0] != "a";
+        } else if (name == "json") {
+          // Indicates whether both `JSON.stringify` and `JSON.parse` are
+          // supported.
+          isSupported = has("json-stringify") && has("date-serialization") && has("json-parse");
+        } else if (name == "date-serialization") {
+          // Indicates whether `Date`s can be serialized accurately by `JSON.stringify`.
+          isSupported = has("json-stringify") && isExtended;
+          if (isSupported) {
+            var stringify = exports.stringify;
+            attempt(function () {
+              isSupported =
+                // JSON 2, Prototype <= 1.7, and older WebKit builds incorrectly
+                // serialize extended years.
+                stringify(new Date(-8.64e15)) == '"-271821-04-20T00:00:00.000Z"' &&
+                // The milliseconds are optional in ES 5, but required in 5.1.
+                stringify(new Date(8.64e15)) == '"+275760-09-13T00:00:00.000Z"' &&
+                // Firefox <= 11.0 incorrectly serializes years prior to 0 as negative
+                // four-digit years instead of six-digit years. Credits: @Yaffle.
+                stringify(new Date(-621987552e5)) == '"-000001-01-01T00:00:00.000Z"' &&
+                // Safari <= 5.1.5 and Opera >= 10.53 incorrectly serialize millisecond
+                // values less than 1000. Credits: @Yaffle.
+                stringify(new Date(-1)) == '"1969-12-31T23:59:59.999Z"';
+            });
+          }
+        } else {
+          var value, serialized = '{"a":[1,true,false,null,"\\u0000\\b\\n\\f\\r\\t"]}';
+          // Test `JSON.stringify`.
+          if (name == "json-stringify") {
+            var stringify = exports.stringify, stringifySupported = typeof stringify == "function";
+            if (stringifySupported) {
+              // A test function object with a custom `toJSON` method.
+              (value = function () {
+                return 1;
+              }).toJSON = value;
+              attempt(function () {
+                stringifySupported =
+                  // Firefox 3.1b1 and b2 serialize string, number, and boolean
+                  // primitives as object literals.
+                  stringify(0) === "0" &&
+                  // FF 3.1b1, b2, and JSON 2 serialize wrapped primitives as object
+                  // literals.
+                  stringify(new Number()) === "0" &&
+                  stringify(new String()) == '""' &&
+                  // FF 3.1b1, 2 throw an error if the value is `null`, `undefined`, or
+                  // does not define a canonical JSON representation (this applies to
+                  // objects with `toJSON` properties as well, *unless* they are nested
+                  // within an object or array).
+                  stringify(getClass) === undefined$1 &&
+                  // IE 8 serializes `undefined` as `"undefined"`. Safari <= 5.1.7 and
+                  // FF 3.1b3 pass this test.
+                  stringify(undefined$1) === undefined$1 &&
+                  // Safari <= 5.1.7 and FF 3.1b3 throw `Error`s and `TypeError`s,
+                  // respectively, if the value is omitted entirely.
+                  stringify() === undefined$1 &&
+                  // FF 3.1b1, 2 throw an error if the given value is not a number,
+                  // string, array, object, Boolean, or `null` literal. This applies to
+                  // objects with custom `toJSON` methods as well, unless they are nested
+                  // inside object or array literals. YUI 3.0.0b1 ignores custom `toJSON`
+                  // methods entirely.
+                  stringify(value) === "1" &&
+                  stringify([value]) == "[1]" &&
+                  // Prototype <= 1.6.1 serializes `[undefined]` as `"[]"` instead of
+                  // `"[null]"`.
+                  stringify([undefined$1]) == "[null]" &&
+                  // YUI 3.0.0b1 fails to serialize `null` literals.
+                  stringify(null) == "null" &&
+                  // FF 3.1b1, 2 halts serialization if an array contains a function:
+                  // `[1, true, getClass, 1]` serializes as "[1,true,],". FF 3.1b3
+                  // elides non-JSON values from objects and arrays, unless they
+                  // define custom `toJSON` methods.
+                  stringify([undefined$1, getClass, null]) == "[null,null,null]" &&
+                  // Simple serialization test. FF 3.1b1 uses Unicode escape sequences
+                  // where character escape codes are expected (e.g., `\b` => `\u0008`).
+                  stringify({ "a": [value, true, false, null, "\x00\b\n\f\r\t"] }) == serialized &&
+                  // FF 3.1b1 and b2 ignore the `filter` and `width` arguments.
+                  stringify(null, value) === "1" &&
+                  stringify([1, 2], null, 1) == "[\n 1,\n 2\n]";
+              }, function () {
+                stringifySupported = false;
+              });
+            }
+            isSupported = stringifySupported;
+          }
+          // Test `JSON.parse`.
+          if (name == "json-parse") {
+            var parse = exports.parse, parseSupported;
+            if (typeof parse == "function") {
+              attempt(function () {
+                // FF 3.1b1, b2 will throw an exception if a bare literal is provided.
+                // Conforming implementations should also coerce the initial argument to
+                // a string prior to parsing.
+                if (parse("0") === 0 && !parse(false)) {
+                  // Simple parsing test.
+                  value = parse(serialized);
+                  parseSupported = value["a"].length == 5 && value["a"][0] === 1;
+                  if (parseSupported) {
+                    attempt(function () {
+                      // Safari <= 5.1.2 and FF 3.1b1 allow unescaped tabs in strings.
+                      parseSupported = !parse('"\t"');
+                    });
+                    if (parseSupported) {
+                      attempt(function () {
+                        // FF 4.0 and 4.0.1 allow leading `+` signs and leading
+                        // decimal points. FF 4.0, 4.0.1, and IE 9-10 also allow
+                        // certain octal literals.
+                        parseSupported = parse("01") !== 1;
+                      });
+                    }
+                    if (parseSupported) {
+                      attempt(function () {
+                        // FF 4.0, 4.0.1, and Rhino 1.7R3-R4 allow trailing decimal
+                        // points. These environments, along with FF 3.1b1 and 2,
+                        // also allow trailing commas in JSON objects and arrays.
+                        parseSupported = parse("1.") !== 1;
+                      });
+                    }
+                  }
+                }
+              }, function () {
+                parseSupported = false;
+              });
+            }
+            isSupported = parseSupported;
+          }
+        }
+        return has[name] = !!isSupported;
+      }
+      has["bug-string-char-index"] = has["date-serialization"] = has["json"] = has["json-stringify"] = has["json-parse"] = null;
+
+      if (!has("json")) {
+        // Common `[[Class]]` name aliases.
+        var functionClass = "[object Function]",
+            dateClass = "[object Date]",
+            numberClass = "[object Number]",
+            stringClass = "[object String]",
+            arrayClass = "[object Array]",
+            booleanClass = "[object Boolean]";
+
+        // Detect incomplete support for accessing string characters by index.
+        var charIndexBuggy = has("bug-string-char-index");
+
+        // Internal: Normalizes the `for...in` iteration algorithm across
+        // environments. Each enumerated key is yielded to a `callback` function.
+        var forOwn = function (object, callback) {
+          var size = 0, Properties, dontEnums, property;
+
+          // Tests for bugs in the current environment's `for...in` algorithm. The
+          // `valueOf` property inherits the non-enumerable flag from
+          // `Object.prototype` in older versions of IE, Netscape, and Mozilla.
+          (Properties = function () {
+            this.valueOf = 0;
+          }).prototype.valueOf = 0;
+
+          // Iterate over a new instance of the `Properties` class.
+          dontEnums = new Properties();
+          for (property in dontEnums) {
+            // Ignore all properties inherited from `Object.prototype`.
+            if (isProperty.call(dontEnums, property)) {
+              size++;
+            }
+          }
+          Properties = dontEnums = null;
+
+          // Normalize the iteration algorithm.
+          if (!size) {
+            // A list of non-enumerable properties inherited from `Object.prototype`.
+            dontEnums = ["valueOf", "toString", "toLocaleString", "propertyIsEnumerable", "isPrototypeOf", "hasOwnProperty", "constructor"];
+            // IE <= 8, Mozilla 1.0, and Netscape 6.2 ignore shadowed non-enumerable
+            // properties.
+            forOwn = function (object, callback) {
+              var isFunction = getClass.call(object) == functionClass, property, length;
+              var hasProperty = !isFunction && typeof object.constructor != "function" && objectTypes[typeof object.hasOwnProperty] && object.hasOwnProperty || isProperty;
+              for (property in object) {
+                // Gecko <= 1.0 enumerates the `prototype` property of functions under
+                // certain conditions; IE does not.
+                if (!(isFunction && property == "prototype") && hasProperty.call(object, property)) {
+                  callback(property);
+                }
+              }
+              // Manually invoke the callback for each non-enumerable property.
+              for (length = dontEnums.length; property = dontEnums[--length];) {
+                if (hasProperty.call(object, property)) {
+                  callback(property);
+                }
+              }
+            };
+          } else {
+            // No bugs detected; use the standard `for...in` algorithm.
+            forOwn = function (object, callback) {
+              var isFunction = getClass.call(object) == functionClass, property, isConstructor;
+              for (property in object) {
+                if (!(isFunction && property == "prototype") && isProperty.call(object, property) && !(isConstructor = property === "constructor")) {
+                  callback(property);
+                }
+              }
+              // Manually invoke the callback for the `constructor` property due to
+              // cross-environment inconsistencies.
+              if (isConstructor || isProperty.call(object, (property = "constructor"))) {
+                callback(property);
+              }
+            };
+          }
+          return forOwn(object, callback);
+        };
 
             if (is_1.bool(value)) {
               ret[k] = value;
@@ -6460,118 +7382,13 @@ var rudderanalytics = (function (exports) {
           name = "Viewed " + pageName + " page";
         }
 
-        if (pageCategory && pageName) {
-          name = "Viewed " + pageCategory + " " + pageName + " page";
-        }
-
-        var properties = rudderElement.message.properties;
-
-        if (this.prefixProperties) {
-          properties = this.prefix("Page", properties);
-        }
-
-        window._kmq.push(["record", name, properties]);
-      }
-    }, {
-      key: "alias",
-      value: function alias(rudderElement) {
-        var prev = rudderElement.message.previousId;
-        var userId = rudderElement.message.userId;
-
-        window._kmq.push(["alias", userId, prev]);
-      }
-    }, {
-      key: "group",
-      value: function group(rudderElement) {
-        var groupId = rudderElement.message.groupId;
-        var groupTraits = rudderElement.message.traits;
-        groupTraits = this.prefix("Group", groupTraits);
-
-        if (groupId) {
-          groupTraits["Group - id"] = groupId;
-        }
-
-  var json3 = createCommonjsModule(function (module, exports) {
-  (function () {
-    // Detect the `define` function exposed by asynchronous module loaders. The
-    // strict `define` check is necessary for compatibility with `r.js`.
-    var isLoader = typeof undefined === "function" ;
-
-    _createClass(Chartbeat, [{
-      key: "init",
-      value: function init() {
-        logger.debug("===in init Chartbeat===");
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        logger.debug("in Chartbeat identify");
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        logger.debug("in Chartbeat track");
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        logger.debug("in Chartbeat page");
-        this.loadConfig(rudderElement);
-
-        if (!this.isFirstPageCallMade) {
-          this.isFirstPageCallMade = true;
-          this.initAfterPage();
-        } else {
-          if (this.failed) {
-            logger.debug("===ignoring cause failed integration===");
-            this.replayEvents = [];
-            return;
-          }
-
-          if (!this.isLoaded() && !this.failed) {
-            logger.debug("===pushing to replay queue for chartbeat===");
-            this.replayEvents.push(["page", rudderElement]);
-            return;
-          }
-
-          logger.debug("===processing page event in chartbeat===");
-          var properties = rudderElement.message.properties;
-          window.pSUPERFLY.virtualPage(properties.path);
-        }
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        logger.debug("in Chartbeat isLoaded");
-
-        if (!this.isFirstPageCallMade) {
-          return true;
-        } else {
-          return !!window.pSUPERFLY;
-        }
-      }
-    }, {
-      key: "isFailed",
-      value: function isFailed() {
-        return this.failed;
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return !!window.pSUPERFLY;
-      }
-    }, {
-      key: "loadConfig",
-      value: function loadConfig(rudderElement) {
-        var properties = rudderElement.message.properties;
-        var category = properties ? properties.category : undefined;
-        var name = rudderElement.message.name;
-        var author = properties ? properties.author : undefined;
-        var title;
-
-        if (this.sendNameAndCategoryAsTitle) {
-          title = category && name ? category + " " + name : name;
-        }
+  var debug_1$1 = createCommonjsModule(function (module, exports) {
+  /**
+   * This is the common logic for both the Node.js and web browser
+   * implementations of `debug()`.
+   *
+   * Expose `debug()` as the module.
+   */
 
         if (category) window._sf_async_config.sections = category;
         if (author) window._sf_async_config.authors = author;
@@ -6802,7 +7619,49 @@ var rudderanalytics = (function (exports) {
       value: function isReady() {
         return !!window.COMSCORE;
       }
-    }]);
+    }
+    return false;
+  }
+
+  /**
+   * Coerce `val`.
+   *
+   * @param {Mixed} val
+   * @return {Mixed}
+   * @api private
+   */
+
+  function coerce(val) {
+    if (val instanceof Error) return val.stack || val.message;
+    return val;
+  }
+  });
+  var debug_2$1 = debug_1$1.coerce;
+  var debug_3$1 = debug_1$1.disable;
+  var debug_4$1 = debug_1$1.enable;
+  var debug_5$1 = debug_1$1.enabled;
+  var debug_6$1 = debug_1$1.humanize;
+  var debug_7$1 = debug_1$1.names;
+  var debug_8$1 = debug_1$1.skips;
+  var debug_9$1 = debug_1$1.formatters;
+
+  var browser$1 = createCommonjsModule(function (module, exports) {
+  /**
+   * This is the web browser implementation of `debug()`.
+   *
+   * Expose `debug()` as the module.
+   */
+
+  exports = module.exports = debug_1$1;
+  exports.log = log;
+  exports.formatArgs = formatArgs;
+  exports.save = save;
+  exports.load = load;
+  exports.useColors = useColors;
+  exports.storage = 'undefined' != typeof chrome
+                 && 'undefined' != typeof chrome.storage
+                    ? chrome.storage.local
+                    : localstorage();
 
     return Comscore;
   }();
@@ -6904,7 +7763,19 @@ var rudderanalytics = (function (exports) {
   var objectKeys = function objectKeys(target, pred) {
     pred = pred || has$3;
 
-    var results = [];
+  function localstorage(){
+    try {
+      return window.localStorage;
+    } catch (e) {}
+  }
+  });
+  var browser_1$1 = browser$1.log;
+  var browser_2$1 = browser$1.formatArgs;
+  var browser_3$1 = browser$1.save;
+  var browser_4$1 = browser$1.load;
+  var browser_5$1 = browser$1.useColors;
+  var browser_6$1 = browser$1.storage;
+  var browser_7$1 = browser$1.colors;
 
     for (var key in target) {
       if (pred(target, key)) {
@@ -6912,8 +7783,7 @@ var rudderanalytics = (function (exports) {
       }
     }
 
-    return results;
-  };
+  var debug$1 = browser$1('cookie');
 
   /**
    * Creates an array composed of all keys on the input object. Ignores any non-enumerable properties.
@@ -6952,14 +7822,15 @@ var rudderanalytics = (function (exports) {
       return [];
     }
 
-    // IE6-8 compatibility (string)
-    if (isString(source)) {
-      return indexKeys(source, charAt);
-    }
-
-    // IE6-8 compatibility (arguments)
-    if (isArrayLike(source)) {
-      return indexKeys(source, has$3);
+  var componentCookie = function(name, value, options){
+    switch (arguments.length) {
+      case 3:
+      case 2:
+        return set$1(name, value, options);
+      case 1:
+        return get$2(name);
+      default:
+        return all$1();
     }
 
     return objectKeys(source);
@@ -6969,7 +7840,9 @@ var rudderanalytics = (function (exports) {
    * Exports.
    */
 
-  var keys_1 = keys;
+  function set$1(name, value, options) {
+    options = options || {};
+    var str = encode$1(name) + '=' + encode$1(value);
 
   /*
    * Module dependencies.
@@ -7020,18 +7893,18 @@ var rudderanalytics = (function (exports) {
     return type === 'number' || (type === 'object' && objToString$1.call(val) === '[object Number]');
   };
 
-  /**
-   * Tests if a value is an array.
-   *
-   * @name isArray
-   * @api private
-   * @param {*} val The value to test.
-   * @return {boolean} Returns `true` if the value is an array, otherwise `false`.
-   */
-  // TODO: Move to library
-  var isArray = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
-    return objToString$1.call(val) === '[object Array]';
-  };
+  function all$1() {
+    var str;
+    try {
+      str = document.cookie;
+    } catch (err) {
+      if (typeof console !== 'undefined' && typeof console.error === 'function') {
+        console.error(err.stack || err);
+      }
+      return {};
+    }
+    return parse$2(str);
+  }
 
   /**
    * Tests if a value is array-like. Array-like means the value is not a function and has a numeric
@@ -7047,23 +7920,9 @@ var rudderanalytics = (function (exports) {
     return val != null && (isArray(val) || (val !== 'function' && isNumber(val.length)));
   };
 
-  /**
-   * Internal implementation of `each`. Works on arrays and array-like data structures.
-   *
-   * @name arrayEach
-   * @api private
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Array} array The array(-like) structure to iterate over.
-   * @return {undefined}
-   */
-  var arrayEach = function arrayEach(iterator, array) {
-    for (var i = 0; i < array.length; i += 1) {
-      // Break iteration early if `iterator` returns `false`
-      if (iterator(array[i], i, array) === false) {
-        break;
-      }
-    }
-  };
+  function get$2(name) {
+    return all$1()[name];
+  }
 
   /**
    * Internal implementation of `each`. Works on objects.
@@ -7077,11 +7936,14 @@ var rudderanalytics = (function (exports) {
   var baseEach = function baseEach(iterator, object) {
     var ks = keys_1(object);
 
-    for (var i = 0; i < ks.length; i += 1) {
-      // Break iteration early if `iterator` returns `false`
-      if (iterator(object[ks[i]], ks[i], object) === false) {
-        break;
-      }
+  function parse$2(str) {
+    var obj = {};
+    var pairs = str.split(/ *; */);
+    var pair;
+    if ('' == pairs[0]) return obj;
+    for (var i = 0; i < pairs.length; ++i) {
+      pair = pairs[i].split('=');
+      obj[decode$1(pair[0])] = decode$1(pair[1]);
     }
   };
 
@@ -7120,11 +7982,25 @@ var rudderanalytics = (function (exports) {
     return (isArrayLike$1(collection) ? arrayEach : baseEach).call(this, iterator, collection);
   };
 
-  /*
-   * Exports.
+  function encode$1(value){
+    try {
+      return encodeURIComponent(value);
+    } catch (e) {
+      debug$1('error `encode(%o)` - %o', value, e);
+    }
+  }
+
+  /**
+   * Decode.
    */
 
-  var each_1 = each;
+  function decode$1(value) {
+    try {
+      return decodeURIComponent(value);
+    } catch (e) {
+      debug$1('error `decode(%o)` - %o', value, e);
+    }
+  }
 
   var FBPixel = /*#__PURE__*/function () {
     function FBPixel(config) {
@@ -7433,46 +8309,47 @@ var rudderanalytics = (function (exports) {
           var contentIds = [];
           var contents = [];
 
-          for (var i = 0; i < products.length; i++) {
-            var _product = products[i];
-            var pId = _product.product_id;
-            contentIds.push(pId);
-            var content = {
-              id: pId,
-              quantity: rudderElement.message.properties.quantity,
-              item_price: rudderElement.message.properties.price
-            };
+    }, {
+      key: "set",
+      value: function set(key, value) {
+        try {
+          value = json3.stringify(value);
+          rudderComponentCookie(key, value, clone_1(this._options));
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+      /**
+       *
+       * @param {*} key
+       */
 
             if (rudderElement.message.properties.price) {
               content.item_price = rudderElement.message.properties.price;
             }
 
-            contents.push(content);
+        try {
+          value = rudderComponentCookie(key);
+          value = value ? json3.parse(value) : null;
+          return value;
+        } catch (e) {
+          if (value) {
+            return value;
           }
 
           if (!contentCategory && products[0] && products[0].category) {
             contentCategory = products[0].category;
           }
 
-          window.fbq("trackSingle", self.pixelId, "InitiateCheckout", this.merge({
-            content_category: contentCategory,
-            content_ids: contentIds,
-            content_type: this.getContentType(rudderElement, ["product"]),
-            currency: rudderElement.message.properties.currency,
-            value: revenue,
-            contents: contents,
-            num_items: contentIds.length
-          }, customProperties), {
-            eventID: rudderElement.message.messageId
-          });
-          each_1(function (event) {
-            window.fbq("trackSingle", self.pixelId, event, {
-              currency: rudderElement.message.properties.currency,
-              value: _this.formatRevenue(rudderElement.message.properties.revenue)
-            }, {
-              eventID: rudderElement.message.messageId
-            });
-          }, legacyTo);
+    }, {
+      key: "remove",
+      value: function remove(key) {
+        try {
+          rudderComponentCookie(key, null, clone_1(this._options));
+          return true;
+        } catch (e) {
+          return false;
         }
       }
     }, {
