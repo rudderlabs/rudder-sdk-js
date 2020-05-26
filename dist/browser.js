@@ -2538,8 +2538,11 @@ var rudderanalytics = (function (exports) {
             window._gaq.push('_addTrans', orderId, props.affiliation, total, props.tax, props.shipping, props.city, props.state, props.country);
 
             componentEach(products, function (product) {
+              var track = {
+                properties: product
+              };
 
-              window._gaq.push('_addItem', orderId, props.sku, props.name, props.category, props.price, props.quantity);
+              window._gaq.push("_addItem", orderId, track.properties.sku, track.properties.name, track.properties.category, track.properties.price, track.properties.quantity);
             });
 
             window._gaq.push('_set', 'currencyCode', currncy);
@@ -2609,7 +2612,7 @@ var rudderanalytics = (function (exports) {
 
           var event = rudderElement.message.event;
 
-          if (event === "Order Completed") {
+          if (event === "Order Completed" && !this.enhancedEcommerce) {
             var properties = rudderElement.message.properties;
             var total = properties.total;
             var orderId = properties.orderId;
@@ -2864,7 +2867,7 @@ var rudderanalytics = (function (exports) {
           var category = props.category;
           var name = props.name;
 
-          window._gaq.push('_trackPageview', path());
+          window._gaq.push("_trackPageview", path(this.props, this.includeSearch));
 
           if (this.trackCategorizedPages) {
             this.track(rudderElement, {
