@@ -247,7 +247,7 @@ class GA {
       // Ecommerce events
       var event = rudderElement.message.event;
 
-      if (event === "Order Completed") {
+      if (event === "Order Completed" && !this.enhancedEcommerce) {
         var properties = rudderElement.message.properties;
         var total = properties.total;
         var orderId = properties.orderId;
