@@ -49,102 +49,167 @@
         console.log("we are all set!!!");
       
       });
-    // window.rudderanalytics.page();
-      window.rudderanalytics.identify("ruchu123", {
-        name: "Ruchira Moitra",
-        email: "ruchira@gmail.com",
-        plan: "Enterprise",
-        company: {
-          id: "abc123"
-        },
-        createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
-      });
+      //page calls 
+    window.rudderanalytics.page();
 
-      window.rudderanalytics.track("Order Completed", {
-        orderId: 'ruchiraorder1',
-            total: 99.99,
-            shipping: 13.99,
-            tax: 20.99,
-            currency: 'INR',
-            products: [
-              {
-                quantity: 1,
-                price: 24.75,
-                name: 'my product',
-                sku: 'p-298'
-              },
-              {
-                quantity: 3,
-                price: 24.75,
-                name: 'other product',
-                sku: 'p-299'
-              }
-            ]
-      });
-      window.rudderanalytics.track('Product List Filtered', {
-            category: 'cat 1',
-            list_id: '1234',
-            filters: [
-              {
-                type: 'department',
-                value: 'beauty'
-              },
-              {
-                type: 'price',
-                value: 'under'
-              }
-            ],
-            sorts: [
-              {
-                type: 'price',
-                value: 'desc'
-              }
-            ],
-            products: [
-              {
-                product_id: '507f1f77bcf86cd799439011',
-                productDimension: 'My Product Dimension',
-                productMetric: 'My Product Metric'
-              }
-            ],
-            testDimension: true,
-            testMetric: true
+    window.rudderanalytics.page('ruchira category', 'ruchira name', { url: 'url', path: '/path' });
+
+    window.rudderanalytics.page('category', 'name', {
+            url: 'ruchira url',
+            path: '/ruchirapath',
+            search: '?q=1'
           });
-      window.rudderanalytics.track('Product List Viewed', {
-            category: 'cat 1',
-            list_id: '1234',
-            products: [
-              {
-                product_id: '507f1f77bcf86cd799439011',
-                productDimension: 'My Product Dimension1',
-                productMetric: 'My Product Metric1',
-                position: 10
-              },
-              {
-                product_id: '507f1f77bcf86cd799439012',
-                productDimension: 'My Product Dimension2',
-                productMetric: 'My Product Metric2',
-                position: 12
-              },
-              {
-                product_id: '507f1f77bcf86cd799439015',
-                productDimension: 'My Product Dimension3',
-                productMetric: 'My Product Metric3',
-                position: 8
+
+          window.rudderanalytics.page(
+            'category1',
+            'name1',
+            { url: 'url1', path: '/path1', search: '?q=11' },
+            {
+              campaign: {
+                name: 'test',
+                source: 'test',
+                medium: 'test',
+                term: 'test',
+                content: 'test'
               }
-            ]
+            }
+          );
+
+          window.rudderanalytics.page({
+            score: 21,
+            author: 'Author',
+            postType: 'blog',
+            section: 'News'
           });
-      window.rudderanalytics.track('Checkout Step Viewed', {
-            currency: 'CAD',
-            step: 2
+
+          window.rudderanalytics.page({
+            score: 211,
+            author: 'Author1',
+            postType: 'blog1',
+            section: 'News1'
           });
-          window.rudderanalytics.page("category", "name", {
-        path: "path",
-        url: "url",
-        title: "title",
-        search: "search",
-        referrer: "referrer"
-}); 
+
+          window.rudderanalytics.page('Name1');
+    
+          window.rudderanalytics.page(
+            'Name2',
+            {},
+            {
+              campaign: {
+                name: 'test1',
+                source: 'test1',
+                medium: 'test1',
+                term: 'test1',
+                content: 'test1'
+              }
+            }
+          );
+
+          window.rudderanalytics.page('Category2', 'Name2');
+
+          window.rudderanalytics.page({
+            fruit: 'Apple',
+            color: 'Red'
+          });
+
+          window.rudderanalytics.page({ referrer: 'http://lifeofpablo.com' });
+
+          
+//       window.rudderanalytics.identify("ruchu123", {
+//         name: "Ruchira Moitra",
+//         email: "ruchira@gmail.com",
+//         plan: "Enterprise",
+//         company: {
+//           id: "abc123"
+//         },
+//         createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
+//       });
+
+//       window.rudderanalytics.track("Order Completed", {
+//         orderId: 'ruchiraorder1',
+//             total: 99.99,
+//             shipping: 13.99,
+//             tax: 20.99,
+//             currency: 'INR',
+//             products: [
+//               {
+//                 quantity: 1,
+//                 price: 24.75,
+//                 name: 'my product',
+//                 sku: 'p-298'
+//               },
+//               {
+//                 quantity: 3,
+//                 price: 24.75,
+//                 name: 'other product',
+//                 sku: 'p-299'
+//               }
+//             ]
+//       });
+//       window.rudderanalytics.track('Product List Filtered', {
+//             category: 'cat 1',
+//             list_id: '1234',
+//             filters: [
+//               {
+//                 type: 'department',
+//                 value: 'beauty'
+//               },
+//               {
+//                 type: 'price',
+//                 value: 'under'
+//               }
+//             ],
+//             sorts: [
+//               {
+//                 type: 'price',
+//                 value: 'desc'
+//               }
+//             ],
+//             products: [
+//               {
+//                 product_id: '507f1f77bcf86cd799439011',
+//                 productDimension: 'My Product Dimension',
+//                 productMetric: 'My Product Metric'
+//               }
+//             ],
+//             testDimension: true,
+//             testMetric: true
+//           });
+//       window.rudderanalytics.track('Product List Viewed', {
+//             category: 'cat 1',
+//             list_id: '1234',
+//             products: [
+//               {
+//                 product_id: '507f1f77bcf86cd799439011',
+//                 productDimension: 'My Product Dimension1',
+//                 productMetric: 'My Product Metric1',
+//                 position: 10
+//               },
+//               {
+//                 product_id: '507f1f77bcf86cd799439012',
+//                 productDimension: 'My Product Dimension2',
+//                 productMetric: 'My Product Metric2',
+//                 position: 12
+//               },
+//               {
+//                 product_id: '507f1f77bcf86cd799439015',
+//                 productDimension: 'My Product Dimension3',
+//                 productMetric: 'My Product Metric3',
+//                 position: 8
+//               }
+//             ]
+//           });
+//       window.rudderanalytics.track('Checkout Step Viewed', {
+//             currency: 'CAD',
+//             step: 2
+//           });
+//           window.rudderanalytics.page("category", "name", {
+//         path: "path",
+//         url: "url",
+//         title: "title",
+//         search: "search",
+//         referrer: "referrer"
+// }); 
     </script>
   </head>
   <body>

@@ -31,7 +31,6 @@ class GA {
     this.inputs = config;
     this.enhancedEcommerceLoaded = 0;
     this.name = "GA";
-    logger.debug(this.inputs);
   }
 
   init() {
@@ -591,7 +590,7 @@ class GA {
             : rudderElement.message.properties.revenue;
         }
 
-        var payLoad = {
+        var payload = {
           eventCategory: eventCategory || "All",
           eventAction: eventAction,
           eventLabel: eventLabel,
@@ -612,15 +611,15 @@ class GA {
           if (campaign.term) payload.campaignKeyword = campaign.term;
         }
 
-        payLoad = extend(
-          payLoad,
+        payload = extend(
+          payload,
           setCustomDimenionsAndMetrics(
             rudderElement.message.properties,
             this.inputs
           )
         );
 
-        ga("send", "event", payLoad);
+        ga("send", "event", payload);
         logger.debug("in GoogleAnalyticsManager track");
       }
     }
@@ -657,12 +656,25 @@ class GA {
 
       var category = rudderElement.message.properties.category;
       var eventProperties = rudderElement.message.properties;
-      var name = rudderElement.message.properties.fullName;
+      var name =
+        rudderElement.message.properties.category +
+        " " +
+        rudderElement.message.name;
       var campaign = rudderElement.message.context.campaign | {};
       var pageview = {};
       var pagePath = path(eventProperties, this.includeSearch);
       var pageReferrer = rudderElement.message.properties.referrer || "";
-      var pageTitle = name || eventProperties.title;
+      var pageTitle;
+      if (
+        !rudderElement.message.properties.category &&
+        !rudderElement.message.name
+      )
+        pageTitle = eventProperties.title;
+      else if (!rudderElement.message.properties.category)
+        pageTitle = rudderElement.message.name;
+      else if (!rudderElement.message.name)
+        pageTitle = rudderElement.message.properties.category;
+      else pageTitle = name;
 
       pageview.page = pagePath;
       pageview.title = pageTitle;
@@ -696,6 +708,7 @@ class GA {
       );
 
       if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
+
       ga("set", payload);
 
       if (this.pageCalled) delete pageview.location;

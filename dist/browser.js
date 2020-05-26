@@ -1,7 +1,5 @@
-var rudderanalytics = (function (exports, cookie) {
+var rudderanalytics = (function (exports) {
   'use strict';
-
-  cookie = cookie && Object.prototype.hasOwnProperty.call(cookie, 'default') ? cookie['default'] : cookie;
 
   function _typeof(obj) {
     "@babel/helpers - typeof";
@@ -2325,7 +2323,7 @@ var rudderanalytics = (function (exports, cookie) {
       this.inputs = config;
       this.enhancedEcommerceLoaded = 0;
       this.name = "GA";
-      logger.debug(this.inputs);
+      console.log(this.inputs);
     }
 
     _createClass(GA, [{
@@ -2824,6 +2822,7 @@ var rudderanalytics = (function (exports, cookie) {
               var interfaceOpts = this.inputs;
               var opts = defaults_1(options || {}, contextOpts);
               opts = defaults_1(opts, interfaceOpts);
+              console.log("===9====");
               var eventCategory = rudderElement.message.properties.category;
               var eventAction = rudderElement.message.event;
               var eventLabel = rudderElement.message.properties.label;
@@ -2833,7 +2832,8 @@ var rudderanalytics = (function (exports, cookie) {
                 eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
               }
 
-              var payLoad = {
+              console.log("===9====");
+              var payload = {
                 eventCategory: eventCategory || "All",
                 eventAction: eventAction,
                 eventLabel: eventLabel,
@@ -2850,8 +2850,8 @@ var rudderanalytics = (function (exports, cookie) {
                 if (campaign.term) payload.campaignKeyword = campaign.term;
               }
 
-              payLoad = extend(payLoad, setCustomDimenionsAndMetrics(rudderElement.message.properties, this.inputs));
-              ga("send", "event", payLoad);
+              payload = extend(payload, setCustomDimenionsAndMetrics(rudderElement.message.properties, this.inputs));
+              ga("send", "event", payload);
               logger.debug("in GoogleAnalyticsManager track");
             }
         }
@@ -2927,14 +2927,17 @@ var rudderanalytics = (function (exports, cookie) {
           }
 
           logger.debug("in GoogleAnalyticsManager page");
+          console.log("in GoogleAnalyticsManager page");
+          console.log(rudderElement);
           var category = rudderElement.message.properties.category;
           var eventProperties = rudderElement.message.properties;
-          var name = rudderElement.message.properties.fullName;
+          var name = rudderElement.message.properties.category + " " + rudderElement.message.name;
           var campaign = rudderElement.message.context.campaign | {};
           var pageview = {};
           var pagePath = path(eventProperties, this.includeSearch);
           var pageReferrer = rudderElement.message.properties.referrer || "";
-          var pageTitle = name || eventProperties.title;
+          var pageTitle;
+          if (!rudderElement.message.properties.category && !rudderElement.message.name) pageTitle = eventProperties.title;else if (!rudderElement.message.properties.category) pageTitle = rudderElement.message.name;else if (!rudderElement.message.name) pageTitle = rudderElement.message.properties.category;else pageTitle = name;
           pageview.page = pagePath;
           pageview.title = pageTitle;
           pageview.location = eventProperties.url;
@@ -2951,6 +2954,8 @@ var rudderanalytics = (function (exports, cookie) {
             page: pagePath,
             title: pageTitle
           };
+          console.log("===payload===");
+          console.log(payload);
           var resetCustomDimensions = {};
 
           for (var i = 0; i < this.resetCustomDimensionsOnPage.length; i++) {
@@ -2961,12 +2966,18 @@ var rudderanalytics = (function (exports, cookie) {
             }
           }
 
+          console.log("======here======");
           ga("set", resetCustomDimensions);
           pageview = extend(pageview, setCustomDimenionsAndMetrics(eventProperties, this.inputs));
+          console.log("=====2======");
           if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
+          console.log("=====3======");
           ga("set", payload);
+          console.log("=====4======");
           if (this.pageCalled) delete pageview.location;
+          console.log("=====5======");
           ga("send", "pageview", pageview);
+          console.log("=====6======");
 
           if (category && this.trackCategorizedPages) {
             this.track(rudderElement, {
@@ -2974,11 +2985,15 @@ var rudderanalytics = (function (exports, cookie) {
             });
           }
 
+          console.log("=====7======");
+
           if (name && this.trackNamedPages) {
             this.track(rudderElement, {
               nonInteraction: 1
             });
           }
+
+          console.log("=====8======");
         }
       }
     }, {
@@ -6387,6 +6402,648 @@ var rudderanalytics = (function (exports, cookie) {
 
   var clone_1 = clone;
 
+  /**
+   * Helpers.
+   */
+
+  var s = 1000;
+  var m = s * 60;
+  var h = m * 60;
+  var d = h * 24;
+  var y = d * 365.25;
+
+  /**
+   * Parse or format the given `val`.
+   *
+   * Options:
+   *
+   *  - `long` verbose formatting [false]
+   *
+   * @param {String|Number} val
+   * @param {Object} options
+   * @return {String|Number}
+   * @api public
+   */
+
+  var ms = function(val, options){
+    options = options || {};
+    if ('string' == typeof val) return parse(val);
+    return options.long
+      ? long(val)
+      : short(val);
+  };
+
+  /**
+   * Parse the given `str` and return milliseconds.
+   *
+   * @param {String} str
+   * @return {Number}
+   * @api private
+   */
+
+  function parse(str) {
+    str = '' + str;
+    if (str.length > 10000) return;
+    var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
+    if (!match) return;
+    var n = parseFloat(match[1]);
+    var type = (match[2] || 'ms').toLowerCase();
+    switch (type) {
+      case 'years':
+      case 'year':
+      case 'yrs':
+      case 'yr':
+      case 'y':
+        return n * y;
+      case 'days':
+      case 'day':
+      case 'd':
+        return n * d;
+      case 'hours':
+      case 'hour':
+      case 'hrs':
+      case 'hr':
+      case 'h':
+        return n * h;
+      case 'minutes':
+      case 'minute':
+      case 'mins':
+      case 'min':
+      case 'm':
+        return n * m;
+      case 'seconds':
+      case 'second':
+      case 'secs':
+      case 'sec':
+      case 's':
+        return n * s;
+      case 'milliseconds':
+      case 'millisecond':
+      case 'msecs':
+      case 'msec':
+      case 'ms':
+        return n;
+    }
+  }
+
+  /**
+   * Short format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+
+  function short(ms) {
+    if (ms >= d) return Math.round(ms / d) + 'd';
+    if (ms >= h) return Math.round(ms / h) + 'h';
+    if (ms >= m) return Math.round(ms / m) + 'm';
+    if (ms >= s) return Math.round(ms / s) + 's';
+    return ms + 'ms';
+  }
+
+  /**
+   * Long format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+
+  function long(ms) {
+    return plural(ms, d, 'day')
+      || plural(ms, h, 'hour')
+      || plural(ms, m, 'minute')
+      || plural(ms, s, 'second')
+      || ms + ' ms';
+  }
+
+  /**
+   * Pluralization helper.
+   */
+
+  function plural(ms, n, name) {
+    if (ms < n) return;
+    if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
+    return Math.ceil(ms / n) + ' ' + name + 's';
+  }
+
+  var debug_1 = createCommonjsModule(function (module, exports) {
+  /**
+   * This is the common logic for both the Node.js and web browser
+   * implementations of `debug()`.
+   *
+   * Expose `debug()` as the module.
+   */
+
+  exports = module.exports = debug;
+  exports.coerce = coerce;
+  exports.disable = disable;
+  exports.enable = enable;
+  exports.enabled = enabled;
+  exports.humanize = ms;
+
+  /**
+   * The currently active debug mode names, and names to skip.
+   */
+
+  exports.names = [];
+  exports.skips = [];
+
+  /**
+   * Map of special "%n" handling functions, for the debug "format" argument.
+   *
+   * Valid key names are a single, lowercased letter, i.e. "n".
+   */
+
+  exports.formatters = {};
+
+  /**
+   * Previously assigned color.
+   */
+
+  var prevColor = 0;
+
+  /**
+   * Previous log timestamp.
+   */
+
+  var prevTime;
+
+  /**
+   * Select a color.
+   *
+   * @return {Number}
+   * @api private
+   */
+
+  function selectColor() {
+    return exports.colors[prevColor++ % exports.colors.length];
+  }
+
+  /**
+   * Create a debugger with the given `namespace`.
+   *
+   * @param {String} namespace
+   * @return {Function}
+   * @api public
+   */
+
+  function debug(namespace) {
+
+    // define the `disabled` version
+    function disabled() {
+    }
+    disabled.enabled = false;
+
+    // define the `enabled` version
+    function enabled() {
+
+      var self = enabled;
+
+      // set `diff` timestamp
+      var curr = +new Date();
+      var ms = curr - (prevTime || curr);
+      self.diff = ms;
+      self.prev = prevTime;
+      self.curr = curr;
+      prevTime = curr;
+
+      // add the `color` if not set
+      if (null == self.useColors) self.useColors = exports.useColors();
+      if (null == self.color && self.useColors) self.color = selectColor();
+
+      var args = Array.prototype.slice.call(arguments);
+
+      args[0] = exports.coerce(args[0]);
+
+      if ('string' !== typeof args[0]) {
+        // anything else let's inspect with %o
+        args = ['%o'].concat(args);
+      }
+
+      // apply any `formatters` transformations
+      var index = 0;
+      args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
+        // if we encounter an escaped % then don't increase the array index
+        if (match === '%%') return match;
+        index++;
+        var formatter = exports.formatters[format];
+        if ('function' === typeof formatter) {
+          var val = args[index];
+          match = formatter.call(self, val);
+
+          // now we need to remove `args[index]` since it's inlined in the `format`
+          args.splice(index, 1);
+          index--;
+        }
+        return match;
+      });
+
+      if ('function' === typeof exports.formatArgs) {
+        args = exports.formatArgs.apply(self, args);
+      }
+      var logFn = enabled.log || exports.log || console.log.bind(console);
+      logFn.apply(self, args);
+    }
+    enabled.enabled = true;
+
+    var fn = exports.enabled(namespace) ? enabled : disabled;
+
+    fn.namespace = namespace;
+
+    return fn;
+  }
+
+  /**
+   * Enables a debug mode by namespaces. This can include modes
+   * separated by a colon and wildcards.
+   *
+   * @param {String} namespaces
+   * @api public
+   */
+
+  function enable(namespaces) {
+    exports.save(namespaces);
+
+    var split = (namespaces || '').split(/[\s,]+/);
+    var len = split.length;
+
+    for (var i = 0; i < len; i++) {
+      if (!split[i]) continue; // ignore empty strings
+      namespaces = split[i].replace(/\*/g, '.*?');
+      if (namespaces[0] === '-') {
+        exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+      } else {
+        exports.names.push(new RegExp('^' + namespaces + '$'));
+      }
+    }
+  }
+
+  /**
+   * Disable debug output.
+   *
+   * @api public
+   */
+
+  function disable() {
+    exports.enable('');
+  }
+
+  /**
+   * Returns true if the given mode name is enabled, false otherwise.
+   *
+   * @param {String} name
+   * @return {Boolean}
+   * @api public
+   */
+
+  function enabled(name) {
+    var i, len;
+    for (i = 0, len = exports.skips.length; i < len; i++) {
+      if (exports.skips[i].test(name)) {
+        return false;
+      }
+    }
+    for (i = 0, len = exports.names.length; i < len; i++) {
+      if (exports.names[i].test(name)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Coerce `val`.
+   *
+   * @param {Mixed} val
+   * @return {Mixed}
+   * @api private
+   */
+
+  function coerce(val) {
+    if (val instanceof Error) return val.stack || val.message;
+    return val;
+  }
+  });
+  var debug_2 = debug_1.coerce;
+  var debug_3 = debug_1.disable;
+  var debug_4 = debug_1.enable;
+  var debug_5 = debug_1.enabled;
+  var debug_6 = debug_1.humanize;
+  var debug_7 = debug_1.names;
+  var debug_8 = debug_1.skips;
+  var debug_9 = debug_1.formatters;
+
+  var browser = createCommonjsModule(function (module, exports) {
+  /**
+   * This is the web browser implementation of `debug()`.
+   *
+   * Expose `debug()` as the module.
+   */
+
+  exports = module.exports = debug_1;
+  exports.log = log;
+  exports.formatArgs = formatArgs;
+  exports.save = save;
+  exports.load = load;
+  exports.useColors = useColors;
+  exports.storage = 'undefined' != typeof chrome
+                 && 'undefined' != typeof chrome.storage
+                    ? chrome.storage.local
+                    : localstorage();
+
+  /**
+   * Colors.
+   */
+
+  exports.colors = [
+    'lightseagreen',
+    'forestgreen',
+    'goldenrod',
+    'dodgerblue',
+    'darkorchid',
+    'crimson'
+  ];
+
+  /**
+   * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+   * and the Firebug extension (any Firefox version) are known
+   * to support "%c" CSS customizations.
+   *
+   * TODO: add a `localStorage` variable to explicitly enable/disable colors
+   */
+
+  function useColors() {
+    // is webkit? http://stackoverflow.com/a/16459606/376773
+    return ('WebkitAppearance' in document.documentElement.style) ||
+      // is firebug? http://stackoverflow.com/a/398120/376773
+      (window.console && (console.firebug || (console.exception && console.table))) ||
+      // is firefox >= v31?
+      // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+      (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
+  }
+
+  /**
+   * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+   */
+
+  exports.formatters.j = function(v) {
+    return JSON.stringify(v);
+  };
+
+
+  /**
+   * Colorize log arguments if enabled.
+   *
+   * @api public
+   */
+
+  function formatArgs() {
+    var args = arguments;
+    var useColors = this.useColors;
+
+    args[0] = (useColors ? '%c' : '')
+      + this.namespace
+      + (useColors ? ' %c' : ' ')
+      + args[0]
+      + (useColors ? '%c ' : ' ')
+      + '+' + exports.humanize(this.diff);
+
+    if (!useColors) return args;
+
+    var c = 'color: ' + this.color;
+    args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+
+    // the final "%c" is somewhat tricky, because there could be other
+    // arguments passed either before or after the %c, so we need to
+    // figure out the correct index to insert the CSS into
+    var index = 0;
+    var lastC = 0;
+    args[0].replace(/%[a-z%]/g, function(match) {
+      if ('%%' === match) return;
+      index++;
+      if ('%c' === match) {
+        // we only are interested in the *last* %c
+        // (the user may have provided their own)
+        lastC = index;
+      }
+    });
+
+    args.splice(lastC, 0, c);
+    return args;
+  }
+
+  /**
+   * Invokes `console.log()` when available.
+   * No-op when `console.log` is not a "function".
+   *
+   * @api public
+   */
+
+  function log() {
+    // this hackery is required for IE8/9, where
+    // the `console.log` function doesn't have 'apply'
+    return 'object' === typeof console
+      && console.log
+      && Function.prototype.apply.call(console.log, console, arguments);
+  }
+
+  /**
+   * Save `namespaces`.
+   *
+   * @param {String} namespaces
+   * @api private
+   */
+
+  function save(namespaces) {
+    try {
+      if (null == namespaces) {
+        exports.storage.removeItem('debug');
+      } else {
+        exports.storage.debug = namespaces;
+      }
+    } catch(e) {}
+  }
+
+  /**
+   * Load `namespaces`.
+   *
+   * @return {String} returns the previously persisted debug modes
+   * @api private
+   */
+
+  function load() {
+    var r;
+    try {
+      r = exports.storage.debug;
+    } catch(e) {}
+    return r;
+  }
+
+  /**
+   * Enable namespaces listed in `localStorage.debug` initially.
+   */
+
+  exports.enable(load());
+
+  /**
+   * Localstorage attempts to return the localstorage.
+   *
+   * This is necessary because safari throws
+   * when a user disables cookies/localstorage
+   * and you attempt to access it.
+   *
+   * @return {LocalStorage}
+   * @api private
+   */
+
+  function localstorage(){
+    try {
+      return window.localStorage;
+    } catch (e) {}
+  }
+  });
+  var browser_1 = browser.log;
+  var browser_2 = browser.formatArgs;
+  var browser_3 = browser.save;
+  var browser_4 = browser.load;
+  var browser_5 = browser.useColors;
+  var browser_6 = browser.storage;
+  var browser_7 = browser.colors;
+
+  /**
+   * Module dependencies.
+   */
+
+  var debug = browser('cookie');
+
+  /**
+   * Set or get cookie `name` with `value` and `options` object.
+   *
+   * @param {String} name
+   * @param {String} value
+   * @param {Object} options
+   * @return {Mixed}
+   * @api public
+   */
+
+  var rudderComponentCookie = function(name, value, options){
+    switch (arguments.length) {
+      case 3:
+      case 2:
+        return set(name, value, options);
+      case 1:
+        return get$1(name);
+      default:
+        return all();
+    }
+  };
+
+  /**
+   * Set cookie `name` to `value`.
+   *
+   * @param {String} name
+   * @param {String} value
+   * @param {Object} options
+   * @api private
+   */
+
+  function set(name, value, options) {
+    options = options || {};
+    var str = encode(name) + '=' + encode(value);
+
+    if (null == value) options.maxage = -1;
+
+    if (options.maxage) {
+      options.expires = new Date(+new Date + options.maxage);
+    }
+
+    if (options.path) str += '; path=' + options.path;
+    if (options.domain) str += '; domain=' + options.domain;
+    if (options.expires) str += '; expires=' + options.expires.toUTCString();
+    if (options.samesite) str += '; samesite=' + options.samesite;
+    if (options.secure) str += '; secure';
+
+    document.cookie = str;
+  }
+
+  /**
+   * Return all cookies.
+   *
+   * @return {Object}
+   * @api private
+   */
+
+  function all() {
+    var str;
+    try {
+      str = document.cookie;
+    } catch (err) {
+      if (typeof console !== 'undefined' && typeof console.error === 'function') {
+        console.error(err.stack || err);
+      }
+      return {};
+    }
+    return parse$1(str);
+  }
+
+  /**
+   * Get cookie `name`.
+   *
+   * @param {String} name
+   * @return {String}
+   * @api private
+   */
+
+  function get$1(name) {
+    return all()[name];
+  }
+
+  /**
+   * Parse cookie `str`.
+   *
+   * @param {String} str
+   * @return {Object}
+   * @api private
+   */
+
+  function parse$1(str) {
+    var obj = {};
+    var pairs = str.split(/ *; */);
+    var pair;
+    if ('' == pairs[0]) return obj;
+    for (var i = 0; i < pairs.length; ++i) {
+      pair = pairs[i].split('=');
+      obj[decode(pair[0])] = decode(pair[1]);
+    }
+    return obj;
+  }
+
+  /**
+   * Encode.
+   */
+
+  function encode(value){
+    try {
+      return encodeURIComponent(value);
+    } catch (e) {
+      debug('error `encode(%o)` - %o', value, e);
+    }
+  }
+
+  /**
+   * Decode.
+   */
+
+  function decode(value) {
+    try {
+      return decodeURIComponent(value);
+    } catch (e) {
+      debug('error `decode(%o)` - %o', value, e);
+    }
+  }
+
   var json3 = createCommonjsModule(function (module, exports) {
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
@@ -7408,133 +8065,7 @@ var rudderanalytics = (function (exports, cookie) {
   var componentUrl_3 = componentUrl.isRelative;
   var componentUrl_4 = componentUrl.isCrossDomain;
 
-  /**
-   * Helpers.
-   */
-
-  var s = 1000;
-  var m = s * 60;
-  var h = m * 60;
-  var d = h * 24;
-  var y = d * 365.25;
-
-  /**
-   * Parse or format the given `val`.
-   *
-   * Options:
-   *
-   *  - `long` verbose formatting [false]
-   *
-   * @param {String|Number} val
-   * @param {Object} options
-   * @return {String|Number}
-   * @api public
-   */
-
-  var ms = function(val, options){
-    options = options || {};
-    if ('string' == typeof val) return parse(val);
-    return options.long
-      ? long(val)
-      : short(val);
-  };
-
-  /**
-   * Parse the given `str` and return milliseconds.
-   *
-   * @param {String} str
-   * @return {Number}
-   * @api private
-   */
-
-  function parse(str) {
-    str = '' + str;
-    if (str.length > 10000) return;
-    var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
-    if (!match) return;
-    var n = parseFloat(match[1]);
-    var type = (match[2] || 'ms').toLowerCase();
-    switch (type) {
-      case 'years':
-      case 'year':
-      case 'yrs':
-      case 'yr':
-      case 'y':
-        return n * y;
-      case 'days':
-      case 'day':
-      case 'd':
-        return n * d;
-      case 'hours':
-      case 'hour':
-      case 'hrs':
-      case 'hr':
-      case 'h':
-        return n * h;
-      case 'minutes':
-      case 'minute':
-      case 'mins':
-      case 'min':
-      case 'm':
-        return n * m;
-      case 'seconds':
-      case 'second':
-      case 'secs':
-      case 'sec':
-      case 's':
-        return n * s;
-      case 'milliseconds':
-      case 'millisecond':
-      case 'msecs':
-      case 'msec':
-      case 'ms':
-        return n;
-    }
-  }
-
-  /**
-   * Short format for `ms`.
-   *
-   * @param {Number} ms
-   * @return {String}
-   * @api private
-   */
-
-  function short(ms) {
-    if (ms >= d) return Math.round(ms / d) + 'd';
-    if (ms >= h) return Math.round(ms / h) + 'h';
-    if (ms >= m) return Math.round(ms / m) + 'm';
-    if (ms >= s) return Math.round(ms / s) + 's';
-    return ms + 'ms';
-  }
-
-  /**
-   * Long format for `ms`.
-   *
-   * @param {Number} ms
-   * @return {String}
-   * @api private
-   */
-
-  function long(ms) {
-    return plural(ms, d, 'day')
-      || plural(ms, h, 'hour')
-      || plural(ms, m, 'minute')
-      || plural(ms, s, 'second')
-      || ms + ' ms';
-  }
-
-  /**
-   * Pluralization helper.
-   */
-
-  function plural(ms, n, name) {
-    if (ms < n) return;
-    if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
-    return Math.ceil(ms / n) + ' ' + name + 's';
-  }
-
-  var debug_1 = createCommonjsModule(function (module, exports) {
+  var debug_1$1 = createCommonjsModule(function (module, exports) {
   /**
    * This is the common logic for both the Node.js and web browser
    * implementations of `debug()`.
@@ -7732,23 +8263,23 @@ var rudderanalytics = (function (exports, cookie) {
     return val;
   }
   });
-  var debug_2 = debug_1.coerce;
-  var debug_3 = debug_1.disable;
-  var debug_4 = debug_1.enable;
-  var debug_5 = debug_1.enabled;
-  var debug_6 = debug_1.humanize;
-  var debug_7 = debug_1.names;
-  var debug_8 = debug_1.skips;
-  var debug_9 = debug_1.formatters;
+  var debug_2$1 = debug_1$1.coerce;
+  var debug_3$1 = debug_1$1.disable;
+  var debug_4$1 = debug_1$1.enable;
+  var debug_5$1 = debug_1$1.enabled;
+  var debug_6$1 = debug_1$1.humanize;
+  var debug_7$1 = debug_1$1.names;
+  var debug_8$1 = debug_1$1.skips;
+  var debug_9$1 = debug_1$1.formatters;
 
-  var browser = createCommonjsModule(function (module, exports) {
+  var browser$1 = createCommonjsModule(function (module, exports) {
   /**
    * This is the web browser implementation of `debug()`.
    *
    * Expose `debug()` as the module.
    */
 
-  exports = module.exports = debug_1;
+  exports = module.exports = debug_1$1;
   exports.log = log;
   exports.formatArgs = formatArgs;
   exports.save = save;
@@ -7910,19 +8441,19 @@ var rudderanalytics = (function (exports, cookie) {
     } catch (e) {}
   }
   });
-  var browser_1 = browser.log;
-  var browser_2 = browser.formatArgs;
-  var browser_3 = browser.save;
-  var browser_4 = browser.load;
-  var browser_5 = browser.useColors;
-  var browser_6 = browser.storage;
-  var browser_7 = browser.colors;
+  var browser_1$1 = browser$1.log;
+  var browser_2$1 = browser$1.formatArgs;
+  var browser_3$1 = browser$1.save;
+  var browser_4$1 = browser$1.load;
+  var browser_5$1 = browser$1.useColors;
+  var browser_6$1 = browser$1.storage;
+  var browser_7$1 = browser$1.colors;
 
   /**
    * Module dependencies.
    */
 
-  var debug = browser('cookie');
+  var debug$1 = browser$1('cookie');
 
   /**
    * Set or get cookie `name` with `value` and `options` object.
@@ -7938,11 +8469,11 @@ var rudderanalytics = (function (exports, cookie) {
     switch (arguments.length) {
       case 3:
       case 2:
-        return set(name, value, options);
+        return set$1(name, value, options);
       case 1:
-        return get$1(name);
+        return get$2(name);
       default:
-        return all();
+        return all$1();
     }
   };
 
@@ -7955,9 +8486,9 @@ var rudderanalytics = (function (exports, cookie) {
    * @api private
    */
 
-  function set(name, value, options) {
+  function set$1(name, value, options) {
     options = options || {};
-    var str = encode(name) + '=' + encode(value);
+    var str = encode$1(name) + '=' + encode$1(value);
 
     if (null == value) options.maxage = -1;
 
@@ -7980,7 +8511,7 @@ var rudderanalytics = (function (exports, cookie) {
    * @api private
    */
 
-  function all() {
+  function all$1() {
     var str;
     try {
       str = document.cookie;
@@ -7990,7 +8521,7 @@ var rudderanalytics = (function (exports, cookie) {
       }
       return {};
     }
-    return parse$1(str);
+    return parse$2(str);
   }
 
   /**
@@ -8001,8 +8532,8 @@ var rudderanalytics = (function (exports, cookie) {
    * @api private
    */
 
-  function get$1(name) {
-    return all()[name];
+  function get$2(name) {
+    return all$1()[name];
   }
 
   /**
@@ -8013,14 +8544,14 @@ var rudderanalytics = (function (exports, cookie) {
    * @api private
    */
 
-  function parse$1(str) {
+  function parse$2(str) {
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
     if ('' == pairs[0]) return obj;
     for (var i = 0; i < pairs.length; ++i) {
       pair = pairs[i].split('=');
-      obj[decode(pair[0])] = decode(pair[1]);
+      obj[decode$1(pair[0])] = decode$1(pair[1]);
     }
     return obj;
   }
@@ -8029,11 +8560,11 @@ var rudderanalytics = (function (exports, cookie) {
    * Encode.
    */
 
-  function encode(value){
+  function encode$1(value){
     try {
       return encodeURIComponent(value);
     } catch (e) {
-      debug('error `encode(%o)` - %o', value, e);
+      debug$1('error `encode(%o)` - %o', value, e);
     }
   }
 
@@ -8041,11 +8572,11 @@ var rudderanalytics = (function (exports, cookie) {
    * Decode.
    */
 
-  function decode(value) {
+  function decode$1(value) {
     try {
       return decodeURIComponent(value);
     } catch (e) {
-      debug('error `decode(%o)` - %o', value, e);
+      debug$1('error `decode(%o)` - %o', value, e);
     }
   }
 
@@ -8201,7 +8732,7 @@ var rudderanalytics = (function (exports, cookie) {
       value: function set(key, value) {
         try {
           value = json3.stringify(value);
-          cookie(key, value, clone_1(this._options));
+          rudderComponentCookie(key, value, clone_1(this._options));
           return true;
         } catch (e) {
           return false;
@@ -8219,7 +8750,7 @@ var rudderanalytics = (function (exports, cookie) {
         var value;
 
         try {
-          value = cookie(key);
+          value = rudderComponentCookie(key);
           value = value ? json3.parse(value) : null;
           return value;
         } catch (e) {
@@ -8239,7 +8770,7 @@ var rudderanalytics = (function (exports, cookie) {
       key: "remove",
       value: function remove(key) {
         try {
-          cookie(key, null, clone_1(this._options));
+          rudderComponentCookie(key, null, clone_1(this._options));
           return true;
         } catch (e) {
           return false;
@@ -9619,7 +10150,7 @@ var rudderanalytics = (function (exports, cookie) {
    * Expose `debug()` as the module.
    */
 
-  var debug_1$1 = debug$1;
+  var debug_1$2 = debug$2;
 
   /**
    * Create a debugger with the given `name`.
@@ -9629,20 +10160,20 @@ var rudderanalytics = (function (exports, cookie) {
    * @api public
    */
 
-  function debug$1(name) {
-    if (!debug$1.enabled(name)) return function(){};
+  function debug$2(name) {
+    if (!debug$2.enabled(name)) return function(){};
 
     return function(fmt){
       fmt = coerce(fmt);
 
       var curr = new Date;
-      var ms = curr - (debug$1[name] || curr);
-      debug$1[name] = curr;
+      var ms = curr - (debug$2[name] || curr);
+      debug$2[name] = curr;
 
       fmt = name
         + ' '
         + fmt
-        + ' +' + debug$1.humanize(ms);
+        + ' +' + debug$2.humanize(ms);
 
       // This hackery is required for IE8
       // where `console.log` doesn't have 'apply'
@@ -9656,8 +10187,8 @@ var rudderanalytics = (function (exports, cookie) {
    * The currently active debug mode names.
    */
 
-  debug$1.names = [];
-  debug$1.skips = [];
+  debug$2.names = [];
+  debug$2.skips = [];
 
   /**
    * Enables a debug mode by name. This can include modes
@@ -9667,7 +10198,7 @@ var rudderanalytics = (function (exports, cookie) {
    * @api public
    */
 
-  debug$1.enable = function(name) {
+  debug$2.enable = function(name) {
     try {
       localStorage.debug = name;
     } catch(e){}
@@ -9678,10 +10209,10 @@ var rudderanalytics = (function (exports, cookie) {
     for (var i = 0; i < len; i++) {
       name = split[i].replace('*', '.*?');
       if (name[0] === '-') {
-        debug$1.skips.push(new RegExp('^' + name.substr(1) + '$'));
+        debug$2.skips.push(new RegExp('^' + name.substr(1) + '$'));
       }
       else {
-        debug$1.names.push(new RegExp('^' + name + '$'));
+        debug$2.names.push(new RegExp('^' + name + '$'));
       }
     }
   };
@@ -9692,8 +10223,8 @@ var rudderanalytics = (function (exports, cookie) {
    * @api public
    */
 
-  debug$1.disable = function(){
-    debug$1.enable('');
+  debug$2.disable = function(){
+    debug$2.enable('');
   };
 
   /**
@@ -9704,7 +10235,7 @@ var rudderanalytics = (function (exports, cookie) {
    * @api private
    */
 
-  debug$1.humanize = function(ms) {
+  debug$2.humanize = function(ms) {
     var sec = 1000
       , min = 60 * 1000
       , hour = 60 * min;
@@ -9723,14 +10254,14 @@ var rudderanalytics = (function (exports, cookie) {
    * @api public
    */
 
-  debug$1.enabled = function(name) {
-    for (var i = 0, len = debug$1.skips.length; i < len; i++) {
-      if (debug$1.skips[i].test(name)) {
+  debug$2.enabled = function(name) {
+    for (var i = 0, len = debug$2.skips.length; i < len; i++) {
+      if (debug$2.skips[i].test(name)) {
         return false;
       }
     }
-    for (var i = 0, len = debug$1.names.length; i < len; i++) {
-      if (debug$1.names[i].test(name)) {
+    for (var i = 0, len = debug$2.names.length; i < len; i++) {
+      if (debug$2.names[i].test(name)) {
         return true;
       }
     }
@@ -9749,7 +10280,7 @@ var rudderanalytics = (function (exports, cookie) {
   // persist
 
   try {
-    if (window.localStorage) debug$1.enable(localStorage.debug);
+    if (window.localStorage) debug$2.enable(localStorage.debug);
   } catch(e){}
 
   var componentEmitter = createCommonjsModule(function (module) {
@@ -9932,7 +10463,7 @@ var rudderanalytics = (function (exports, cookie) {
 
 
 
-  var debug$2 = debug_1$1('localstorage-retry');
+  var debug$3 = debug_1$2('localstorage-retry');
 
 
   // Some browsers don't support Function.prototype.bind, so just including a simplified version here
@@ -10163,7 +10694,7 @@ var rudderanalytics = (function (exports, cookie) {
       try {
         self.fn(el.item, el.done);
       } catch (err) {
-        debug$2('Process function threw error: ' + err);
+        debug$3('Process function threw error: ' + err);
       }
     }, toRun);
 
@@ -11578,4 +12109,4 @@ var rudderanalytics = (function (exports, cookie) {
 
   return exports;
 
-}({}, cookie));
+}({}));
