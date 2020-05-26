@@ -204,11 +204,11 @@ class GA {
           window._gaq.push(
             "_addItem",
             orderId,
-            props.sku,
-            props.name,
-            props.category,
-            props.price,
-            props.quantity
+            track.properties.sku,
+            track.properties.name,
+            track.properties.category,
+            track.properties.price,
+            track.properties.quantity
           );
         });
 
@@ -633,7 +633,7 @@ class GA {
       var props = rudderElement.message.properties;
       var category = props.category;
       var name = props.name;
-      window._gaq.push("_trackPageview", path());
+      window._gaq.push("_trackPageview", path(this.props, this.includeSearch));
 
       if ((category && this, this.trackCategorizedPages)) {
         this.track(rudderElement, { nonInteraction: 1 });
