@@ -2641,13 +2641,17 @@ var rudderanalytics = (function (exports) {
             ga("ecommerce:send");
           } // enhanced ecommerce events
           else if ((event === "Checkout Started" || event === "Checkout Step Viewed" || event === "Order Updated") && this.enhancedEcommerce) {
+              var self = this;
               var properties = rudderElement.message.properties;
               var products = properties.products;
               var options = extractCheckoutOptions(rudderElement);
               this.enhancedEcommerceLoaded = loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
               componentEach(products, function (product) {
                 var productTrack = createProductTrack(rudderElement, product);
-                enhancedEcommerceTrackProduct(productTrack, this.inputs);
+                productTrack = {
+                  message: productTrack
+                };
+                enhancedEcommerceTrackProduct(productTrack, self.inputs);
               });
               ga("ec:setAction", "checkout", {
                 step: properties.step || 1,
@@ -2666,6 +2670,7 @@ var rudderanalytics = (function (exports) {
               ga("ec:setAction", "checkout_option", params);
               ga("send", "event", "Checkout", "Option");
             } else if (event === "Order Completed" && this.enhancedEcommerce) {
+              var self = this;
               var total = rudderElement.message.properties.total || rudderElement.message.properties.revenue || 0;
               var orderId = rudderElement.message.properties.orderId;
               var products = rudderElement.message.properties.products;
@@ -2674,7 +2679,10 @@ var rudderanalytics = (function (exports) {
               this.enhancedEcommerceLoaded = loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
               componentEach(products, function (product) {
                 var productTrack = createProductTrack(rudderElement, product);
-                enhancedEcommerceTrackProduct(productTrack, this.inputs);
+                productTrack = {
+                  message: productTrack
+                };
+                enhancedEcommerceTrackProduct(productTrack, self.inputs);
               });
               ga("ec:setAction", "purchase", {
                 id: orderId,
@@ -3216,7 +3224,7 @@ var rudderanalytics = (function (exports) {
 
     return products.map(function (x) {
       return x.product_id;
-    }).indexOf(item.productId) + 1;
+    }).indexOf(item.properties.product_id) + 1;
   }
 
   function rejectArr(obj, fn) {

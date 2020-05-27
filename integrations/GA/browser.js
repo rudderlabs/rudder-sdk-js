@@ -291,6 +291,8 @@ class GA {
           event === "Order Updated") &&
         this.enhancedEcommerce
       ) {
+        var self = this;
+
         var properties = rudderElement.message.properties;
         var products = properties.products;
         var options = extractCheckoutOptions(rudderElement);
@@ -299,16 +301,18 @@ class GA {
           rudderElement,
           this.enhancedEcommerceLoaded
         );
-
         each(products, function (product) {
           var productTrack = createProductTrack(rudderElement, product);
-          enhancedEcommerceTrackProduct(productTrack, this.inputs);
+          productTrack = { message: productTrack };
+
+          enhancedEcommerceTrackProduct(productTrack, self.inputs);
         });
 
         ga("ec:setAction", "checkout", {
           step: properties.step || 1,
           option: options || undefined,
         });
+
         pushEnhancedEcommerce(rudderElement, this.inputs);
       } else if (
         event === "Checkout Step Completed" &&
@@ -332,6 +336,7 @@ class GA {
         ga("ec:setAction", "checkout_option", params);
         ga("send", "event", "Checkout", "Option");
       } else if (event === "Order Completed" && this.enhancedEcommerce) {
+        var self = this;
         var total =
           rudderElement.message.properties.total ||
           rudderElement.message.properties.revenue ||
@@ -349,7 +354,8 @@ class GA {
 
         each(products, function (product) {
           var productTrack = createProductTrack(rudderElement, product);
-          enhancedEcommerceTrackProduct(productTrack, this.inputs);
+          productTrack = { message: productTrack };
+          enhancedEcommerceTrackProduct(productTrack, self.inputs);
         });
         ga("ec:setAction", "purchase", {
           id: orderId,
@@ -828,7 +834,9 @@ function enhancedEcommerceTrackProduct(rudderElement, inputs) {
   for (let val of inputs.contentGroupings) {
     contentGroupingsArray[val.from] = val.to;
   }
+
   var props = rudderElement.message.properties;
+
   var product = {
     id: props.productId || props.id || props.sku,
     name: props.name,
@@ -906,6 +914,7 @@ function enhancedEcommerceTrackProductAction(
 
 function getProductPosition(item, products) {
   var position = item.properties.position;
+
   if (
     typeof position !== "undefined" &&
     !Number.isNaN(Number(position)) &&
@@ -913,12 +922,13 @@ function getProductPosition(item, products) {
   ) {
     return position;
   }
+
   return (
     products
       .map(function (x) {
         return x.product_id;
       })
-      .indexOf(item.productId) + 1
+      .indexOf(item.properties.product_id) + 1
   );
 }
 
