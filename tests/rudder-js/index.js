@@ -10195,11 +10195,12 @@
     }, {
       key: "enqueue",
       value: function enqueue(rudderElement, type) {
+        var message = rudderElement.getElementContent();
         var headers = {
           "Content-Type": "application/json",
-          Authorization: "Basic " + btoa(this.writeKey + ":")
+          Authorization: "Basic " + btoa(this.writeKey + ":"),
+          AnonymousId: btoa(message.anonymousId)
         };
-        var message = rudderElement.getElementContent();
         message.originalTimestamp = getCurrentTimeFormatted();
         message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
         // check message size, if greater log an error
