@@ -10,15 +10,15 @@ declare module "rudder-js" {
     ): any
 
     function page(
-        name?: string,
         category?: string,
+        name?: string,
         properties?: any,
         options?: any,
         callback?: any
     ): any;
     
     function track(
-        name: string,
+        event: string,
         properties?: any,
         options?: any,
         callback?: any
