@@ -161,6 +161,7 @@
   };
 
   // for sdk side native integration identification
+  // add a mapping from common names to index.js exported key names as identified by Rudder
   var commonNames = {
     "All": "All",
     "Google Analytics": "GA",
@@ -177,11 +178,11 @@
     "COMSCORE": "COMSCORE",
     "Customerio": "CUSTOMERIO",
     "Customer.io": "CUSTOMERIO",
-    "FB Pixel": "FB_PIXEL",
-    "Facebook Pixel": "FB_PIXEL",
-    "FB_PIXEL": "FB_PIXEL",
+    "FB Pixel": "FACEBOOK_PIXEL",
+    "Facebook Pixel": "FACEBOOK_PIXEL",
+    "FB_PIXEL": "FACEBOOK_PIXEL",
     "Google Tag Manager": "GOOGLETAGMANAGER",
-    "GTM": "GOOGLETAGMANAGER",
+    "GTM": "GTM",
     "Hotjar": "HOTJAR",
     "hotjar": "HOTJAR",
     "HOTJAR": "HOTJAR",
@@ -201,6 +202,7 @@
   };
 
   // from client native integration name to server identified display name
+  // add a mapping from Rudder identified key names to Rudder server recognizable names
   var clientToServerNames = {
     "All": "All",
     "GA": "Google Analytics",
@@ -209,8 +211,8 @@
     "CHARTBEAT": "Chartbeat",
     "COMSCORE": "Comscore",
     "CUSTOMERIO": "Customer IO",
-    "FB_PIXEL": "Facebook Pixel",
-    "GOOGLETAGMANAGER": "Google Tag Manager",
+    "FACEBOOK_PIXEL": "Facebook Pixel",
+    "GTM": "Google Tag Manager",
     "HOTJAR": "Hotjar",
     "HS": "HubSpot",
     "INTERCOM": "Intercom",

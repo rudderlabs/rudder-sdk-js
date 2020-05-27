@@ -1,4 +1,5 @@
 // for sdk side native integration identification
+// add a mapping from common names to index.js exported key names as identified by Rudder
 let commonNames = {
  "All": "All",
  "Google Analytics": "GA",
@@ -15,11 +16,11 @@ let commonNames = {
  "COMSCORE": "COMSCORE",
  "Customerio": "CUSTOMERIO",
  "Customer.io": "CUSTOMERIO",
- "FB Pixel": "FB_PIXEL",
- "Facebook Pixel": "FB_PIXEL",
- "FB_PIXEL": "FB_PIXEL",
+ "FB Pixel": "FACEBOOK_PIXEL",
+ "Facebook Pixel": "FACEBOOK_PIXEL",
+ "FB_PIXEL": "FACEBOOK_PIXEL",
  "Google Tag Manager": "GOOGLETAGMANAGER",
- "GTM": "GOOGLETAGMANAGER",
+ "GTM": "GTM",
  "Hotjar": "HOTJAR",
  "hotjar": "HOTJAR",
  "HOTJAR": "HOTJAR",
