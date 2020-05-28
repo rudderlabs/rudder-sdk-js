@@ -16,21 +16,21 @@ switch (process.env.ENV) {
   case "prod":
     switch (process.env.ENC) {
       case "gzip":
-        if(process.env.PROD_DEBUG == "true") {
+        if(process.env.PROD_DEBUG_INLINE == "true") {
           distFileName = "dist/rudder-analytics-map.min.gzip.js"
         } else {
           distFileName = "dist/rudder-analytics.min.gzip.js"
         }
         break
       case "br":
-        if(process.env.PROD_DEBUG == "true") {
+        if(process.env.PROD_DEBUG_INLINE == "true") {
           distFileName = "dist/rudder-analytics-map.min.br.js"
         } else {
           distFileName = "dist/rudder-analytics.min.br.js"
         }
         break
       default:
-        if(process.env.PROD_DEBUG == "true") {
+        if(process.env.PROD_DEBUG_INLINE == "true") {
           distFileName = "dist/rudder-analytics-map.min.js"
         } else {
           distFileName = "dist/rudder-analytics.min.js"
@@ -51,7 +51,7 @@ if(process.env.NPM == "true") {
     file: distFileName,        
     format: "iife",
     name: "rudderanalytics",
-    sourcemap: process.env.PROD_DEBUG == 'true'? 'inline': false,
+    sourcemap: process.env.PROD_DEBUG_INLINE == 'true'? 'inline': process.env.PROD_DEBUG ? true : false,
   })
 }
 

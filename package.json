@@ -13,8 +13,8 @@
   "scripts": {
     "test": "./scripts/run_tests.sh",
     "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",
-    "buildProdBrowser": "NODE_ENV=false  ENV=prod uglify=true rollup -c",
-    "buildProdBrowserDebug": "NODE_ENV=false ENV=prod PROD_DEBUG=true uglify=true rollup -c",
+    "buildProdBrowser": "NODE_ENV=false PROD_DEBUG=true ENV=prod uglify=true rollup -c",
+    "buildProdBrowserDebug": "NODE_ENV=false ENV=prod PROD_DEBUG_INLINE=true uglify=true rollup -c",
     "buildProdBrowserGzip": "NODE_ENV=false  ENV=prod ENC=gzip uglify=true rollup -c",
     "buildProdBrowserBrotli": "NODE_ENV=false  ENV=prod ENC=br uglify=true rollup -c",
     "buildDevNode": "NODE_ENV=true uglify=false rollup -c",
