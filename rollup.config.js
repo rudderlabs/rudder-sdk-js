@@ -45,7 +45,7 @@ switch (process.env.ENV) {
 
 let outputFiles = []
 if(process.env.NPM == "true") {
-  outputFiles.push({ file: "dist/bundle.js", format: "umd", name: "rudderanalytics" } )
+  outputFiles.push({ file: "dist/rudder-sdk-js/index.js", format: "umd", name: "rudderanalytics" } )
 } else {
   outputFiles.push({
     file: distFileName,        

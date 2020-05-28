@@ -158,6 +158,7 @@ var rudderanalytics = (function (exports) {
   };
 
   // for sdk side native integration identification
+  // add a mapping from common names to index.js exported key names as identified by Rudder
   var commonNames = {
     "All": "All",
     "Google Analytics": "GA",
@@ -174,11 +175,11 @@ var rudderanalytics = (function (exports) {
     "COMSCORE": "COMSCORE",
     "Customerio": "CUSTOMERIO",
     "Customer.io": "CUSTOMERIO",
-    "FB Pixel": "FB_PIXEL",
-    "Facebook Pixel": "FB_PIXEL",
-    "FB_PIXEL": "FB_PIXEL",
+    "FB Pixel": "FACEBOOK_PIXEL",
+    "Facebook Pixel": "FACEBOOK_PIXEL",
+    "FB_PIXEL": "FACEBOOK_PIXEL",
     "Google Tag Manager": "GOOGLETAGMANAGER",
-    "GTM": "GOOGLETAGMANAGER",
+    "GTM": "GTM",
     "Hotjar": "HOTJAR",
     "hotjar": "HOTJAR",
     "HOTJAR": "HOTJAR",
@@ -198,6 +199,7 @@ var rudderanalytics = (function (exports) {
   };
 
   // from client native integration name to server identified display name
+  // add a mapping from Rudder identified key names to Rudder server recognizable names
   var clientToServerNames = {
     "All": "All",
     "GA": "Google Analytics",
@@ -206,8 +208,8 @@ var rudderanalytics = (function (exports) {
     "CHARTBEAT": "Chartbeat",
     "COMSCORE": "Comscore",
     "CUSTOMERIO": "Customer IO",
-    "FB_PIXEL": "Facebook Pixel",
-    "GOOGLETAGMANAGER": "Google Tag Manager",
+    "FACEBOOK_PIXEL": "Facebook Pixel",
+    "GTM": "Google Tag Manager",
     "HOTJAR": "Hotjar",
     "HS": "HubSpot",
     "INTERCOM": "Intercom",
@@ -4302,7 +4304,7 @@ var rudderanalytics = (function (exports) {
   var VWO =
   /*#__PURE__*/
   function () {
-    function VWO(config) {
+    function VWO(config, analytics) {
       _classCallCheck(this, VWO);
 
       this.accountId = config.accountId; //1549611
@@ -4314,6 +4316,7 @@ var rudderanalytics = (function (exports) {
       this.sendExperimentTrack = config.sendExperimentTrack;
       this.sendExperimentIdentify = config.sendExperimentIdentify;
       this.name = "VWO";
+      this.analytics = analytics;
       logger.debug("Config ", config);
     }
 
@@ -4383,6 +4386,8 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "experimentViewed",
       value: function experimentViewed() {
+        var _this = this;
+
         window.VWO = window.VWO || [];
         var self = this;
         window.VWO.push(["onVariationApplied", function (data) {
@@ -4399,7 +4404,8 @@ var rudderanalytics = (function (exports) {
             try {
               if (self.sendExperimentTrack) {
                 logger.debug("Tracking...");
-                window.rudderanalytics.track("Experiment Viewed", {
+
+                _this.analytics.track("Experiment Viewed", {
                   experimentId: expId,
                   variationName: _vwo_exp[expId].comb_n[variationId]
                 });
@@ -4411,7 +4417,8 @@ var rudderanalytics = (function (exports) {
             try {
               if (self.sendExperimentIdentify) {
                 logger.debug("Identifying...");
-                window.rudderanalytics.identify(_defineProperty({}, "Experiment: ".concat(expId), _vwo_exp[expId].comb_n[variationId]));
+
+                _this.analytics.identify(_defineProperty({}, "Experiment: ".concat(expId), _vwo_exp[expId].comb_n[variationId]));
               }
             } catch (error) {
               logger.error("[VWO] experimentViewed:: ", error);
@@ -10185,11 +10192,12 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "enqueue",
       value: function enqueue(rudderElement, type) {
+        var message = rudderElement.getElementContent();
         var headers = {
           "Content-Type": "application/json",
-          Authorization: "Basic " + btoa(this.writeKey + ":")
+          Authorization: "Basic " + btoa(this.writeKey + ":"),
+          AnonymousId: btoa(message.anonymousId)
         };
-        var message = rudderElement.getElementContent();
         message.originalTimestamp = getCurrentTimeFormatted();
         message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
         // check message size, if greater log an error
@@ -10566,6 +10574,7 @@ var rudderanalytics = (function (exports) {
       this.eventRepository = eventRepository;
       this.sendAdblockPage = false;
       this.sendAdblockPageOptions = {};
+      this.clientSuppliedCallbacks = {};
 
       this.readyCallback = function () {};
 
@@ -11165,6 +11174,8 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "load",
       value: function load(writeKey, serverUrl, options) {
+        var _this3 = this;
+
         logger.debug("inside load ");
         var configUrl = CONFIG_URL;
 
@@ -11196,6 +11207,20 @@ var rudderanalytics = (function (exports) {
           if (_typeof(options.sendAdblockPageOptions) == "object") {
             this.sendAdblockPageOptions = options.sendAdblockPageOptions;
           }
+        }
+
+        if (options && options.clientSuppliedCallbacks) {
+          // convert to rudder recognised method names
+          var tranformedCallbackMapping = {};
+          Object.keys(this.methodToCallbackMapping).forEach(function (methodName) {
+            if (_this3.methodToCallbackMapping.hasOwnProperty(methodName)) {
+              if (options.clientSuppliedCallbacks[_this3.methodToCallbackMapping[methodName]]) {
+                tranformedCallbackMapping[methodName] = options.clientSuppliedCallbacks[_this3.methodToCallbackMapping[methodName]];
+              }
+            }
+          });
+          Object.assign(this.clientSuppliedCallbacks, tranformedCallbackMapping);
+          this.registerCallbacks(true);
         }
 
         this.eventRepository.writeKey = writeKey;
@@ -11239,16 +11264,47 @@ var rudderanalytics = (function (exports) {
         logger.error("ready callback is not a function");
       }
     }, {
-      key: "registerCallbacks",
-      value: function registerCallbacks() {
-        var _this3 = this;
+      key: "initializeCallbacks",
+      value: function initializeCallbacks() {
+        var _this4 = this;
 
         Object.keys(this.methodToCallbackMapping).forEach(function (methodName) {
-          if (_this3.methodToCallbackMapping.hasOwnProperty(methodName)) {
-            var callback = !!window.rudderanalytics ? typeof window.rudderanalytics[_this3.methodToCallbackMapping[methodName]] == "function" ? window.rudderanalytics[_this3.methodToCallbackMapping[methodName]] : function () {} : function () {};
-            logger.debug("registerCallbacks", methodName, callback);
+          if (_this4.methodToCallbackMapping.hasOwnProperty(methodName)) {
+            _this4.on(methodName, function () {});
+          }
+        });
+      }
+    }, {
+      key: "registerCallbacks",
+      value: function registerCallbacks(calledFromLoad) {
+        var _this5 = this;
 
-            _this3.on(methodName, callback);
+        if (!calledFromLoad) {
+          Object.keys(this.methodToCallbackMapping).forEach(function (methodName) {
+            if (_this5.methodToCallbackMapping.hasOwnProperty(methodName)) {
+              if (!!window.rudderanalytics) {
+                if (typeof window.rudderanalytics[_this5.methodToCallbackMapping[methodName]] == "function") {
+                  _this5.clientSuppliedCallbacks[methodName] = window.rudderanalytics[_this5.methodToCallbackMapping[methodName]];
+                }
+              } // let callback = 
+              //   ? typeof window.rudderanalytics[
+              //       this.methodToCallbackMapping[methodName]
+              //     ] == "function"
+              //     ? window.rudderanalytics[this.methodToCallbackMapping[methodName]]
+              //     : () => {}
+              //   : () => {};
+              //logger.debug("registerCallbacks", methodName, callback);
+              //this.on(methodName, callback);
+
+            }
+          });
+        }
+
+        Object.keys(this.clientSuppliedCallbacks).forEach(function (methodName) {
+          if (_this5.clientSuppliedCallbacks.hasOwnProperty(methodName)) {
+            logger.debug("registerCallbacks", methodName, _this5.clientSuppliedCallbacks[methodName]);
+
+            _this5.on(methodName, _this5.clientSuppliedCallbacks[methodName]);
           }
         });
       }
@@ -11274,8 +11330,10 @@ var rudderanalytics = (function (exports) {
   {
     // test for adblocker
     // instance.sendSampleRequest()
-    // register supported callbacks
-    instance.registerCallbacks();
+    // initialize supported callbacks
+    instance.initializeCallbacks(); // register supported callbacks
+
+    instance.registerCallbacks(false);
     var eventsPushedAlready = !!window.rudderanalytics && window.rudderanalytics.push == Array.prototype.push;
     var methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
 
