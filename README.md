@@ -74,7 +74,7 @@ You can also execute the min file in async/defer way, like:
 **NOTE**: We are moving our sdk to a diiferent path from the earlier  [https://cdn.rudderlabs.com/rudder-analytics.min.js](https://cdn.rudderlabs.com/rudder-analytics.min.js)  to  [https://cdn.rudderlabs.com/v1/rudder-analytics.min.js](https://cdn.rudderlabs.com/v1/rudder-analytics.min.js). The earlier path may not be maintained in coming releases.
 
 **Alternative installation using NPM**
-It is recommended to use the snippet above to use Rudder SDK in your websites, but one can use this [NPM module](https://www.npmjs.com/package/rudder-js) to package Rudder directly into your project.
+It is recommended to use the snippet above to use Rudder SDK in your websites, but one can use this [NPM module](https://www.npmjs.com/package/rudder-sdk-js) to package Rudder directly into your project.
 
  - To install:
 `npm install rudder-sdk-js --save`
