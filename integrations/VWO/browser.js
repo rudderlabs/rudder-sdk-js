@@ -1,6 +1,6 @@
 import logger from "../../utils/logUtil";
 class VWO {
-  constructor(config) {
+  constructor(config, analytics) {
     this.accountId = config.accountId; //1549611
     this.settingsTolerance = config.settingsTolerance;
     this.isSPA = config.isSPA;
@@ -9,6 +9,7 @@ class VWO {
     this.sendExperimentTrack = config.sendExperimentTrack;
     this.sendExperimentIdentify = config.sendExperimentIdentify;
     this.name = "VWO";
+    this.analytics = analytics;
     logger.debug("Config ", config);
   }
 
@@ -90,7 +91,7 @@ class VWO {
     var self = this;
     window.VWO.push([
       "onVariationApplied",
-      function(data) {
+      (data) => {
         if (!data) {
           return;
         }
@@ -112,7 +113,7 @@ class VWO {
           try {
             if (self.sendExperimentTrack) {
               logger.debug("Tracking...");
-              window.rudderanalytics.track("Experiment Viewed", {
+              this.analytics.track("Experiment Viewed", {
                 experimentId: expId,
                 variationName: _vwo_exp[expId].comb_n[variationId]
               });
@@ -123,7 +124,7 @@ class VWO {
           try {
             if (self.sendExperimentIdentify) {
               logger.debug("Identifying...");
-              window.rudderanalytics.identify({
+              this.analytics.identify({
                 [`Experiment: ${expId}`]: _vwo_exp[expId].comb_n[variationId]
               });
             }

@@ -81,6 +81,7 @@ class Analytics {
     this.eventRepository = EventRepository;
     this.sendAdblockPage = false
     this.sendAdblockPageOptions = {}
+    this.clientSuppliedCallbacks = {}
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
@@ -763,6 +764,21 @@ class Analytics {
         this.sendAdblockPageOptions = options.sendAdblockPageOptions
       }
     }
+    if(options && options.clientSuppliedCallbacks) {
+
+      // convert to rudder recognised method names
+      let tranformedCallbackMapping = {}
+      Object.keys(this.methodToCallbackMapping).forEach(methodName =>{
+        if(this.methodToCallbackMapping.hasOwnProperty(methodName)) {
+          if(options.clientSuppliedCallbacks[this.methodToCallbackMapping[methodName]]) {
+            tranformedCallbackMapping[methodName] = options.clientSuppliedCallbacks[this.methodToCallbackMapping[methodName]]
+          }
+        }
+      })
+      Object.assign(this.clientSuppliedCallbacks, tranformedCallbackMapping)
+      this.registerCallbacks(true)
+    }
+
     this.eventRepository.writeKey = writeKey;
     if (serverUrl) {
       this.eventRepository.url = serverUrl;
@@ -803,21 +819,47 @@ class Analytics {
     logger.error("ready callback is not a function");
   }
 
-  registerCallbacks() {
+  initializeCallbacks() {
     Object.keys(this.methodToCallbackMapping).forEach(methodName => {
       if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
-        let callback = !!window.rudderanalytics
-          ? typeof window.rudderanalytics[
-              this.methodToCallbackMapping[methodName]
-            ] == "function"
-            ? window.rudderanalytics[this.methodToCallbackMapping[methodName]]
-            : () => {}
-          : () => {};
-
-        logger.debug("registerCallbacks", methodName, callback);
-        this.on(methodName, callback);
+        this.on(methodName, () => {});
       }
-    });
+    })
+  }
+
+  registerCallbacks(calledFromLoad) {
+
+    if(!calledFromLoad) {
+      Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+        if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
+          if(!!window.rudderanalytics) {
+            if (typeof window.rudderanalytics[
+              this.methodToCallbackMapping[methodName]
+            ] == "function") {
+              this.clientSuppliedCallbacks[methodName] = window.rudderanalytics[this.methodToCallbackMapping[methodName]]
+            }
+          }
+          // let callback = 
+          //   ? typeof window.rudderanalytics[
+          //       this.methodToCallbackMapping[methodName]
+          //     ] == "function"
+          //     ? window.rudderanalytics[this.methodToCallbackMapping[methodName]]
+          //     : () => {}
+          //   : () => {};
+  
+          //logger.debug("registerCallbacks", methodName, callback);
+          
+          //this.on(methodName, callback);
+        }
+      });
+    }
+    
+    Object.keys(this.clientSuppliedCallbacks).forEach(methodName => {
+      if(this.clientSuppliedCallbacks.hasOwnProperty(methodName)) {
+        logger.debug("registerCallbacks", methodName, this.clientSuppliedCallbacks[methodName]);
+        this.on(methodName, this.clientSuppliedCallbacks[methodName]);
+      }
+    })
   }
 
   sendSampleRequest() {
@@ -844,8 +886,11 @@ if (process.browser) {
   // test for adblocker
   // instance.sendSampleRequest()
   
+  // initialize supported callbacks
+  instance.initializeCallbacks()
+
   // register supported callbacks
-  instance.registerCallbacks();
+  instance.registerCallbacks(false);
   let eventsPushedAlready =
     !!window.rudderanalytics &&
     window.rudderanalytics.push == Array.prototype.push;
