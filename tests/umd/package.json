@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "rudder-js": "^1.0.4"
+    "rudder-sdk-js": "^1.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
