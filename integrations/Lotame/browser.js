@@ -32,9 +32,10 @@ class Lotame {
     logger.debug("===== in syncPixel ======");
 
     if (this.dspUrlSettings && this.dspUrlSettings.length > 0) {
+      let currentTime = Date.now();
       this.dspUrlSettings.forEach(urlSettings => {
         let dspUrl = this.compileUrl(
-          { ...this.mappings, userId: userId },
+          { ...this.mappings, userId: userId, random: currentTime },
           urlSettings.dspUrlTemplate
         );
         this.addPixel(dspUrl, "1", "1");
@@ -74,9 +75,10 @@ class Lotame {
     logger.debug("in Lotame page");
 
     if (this.bcpUrlSettings && this.bcpUrlSettings.length > 0) {
+      let currentTime = Date.now();
       this.bcpUrlSettings.forEach(urlSettings => {
         let bcpUrl = this.compileUrl(
-          { ...this.mappings },
+          { ...this.mappings, random: currentTime},
           urlSettings.bcpUrlTemplate
         );
         this.addPixel(bcpUrl, "1", "1");
