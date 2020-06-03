@@ -2,9 +2,11 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.rudderanalytics = {}));
-}(this, function (exports) { 'use strict';
+}(this, (function (exports) { 'use strict';
 
   function _typeof(obj) {
+    "@babel/helpers - typeof";
+
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
       _typeof = function (obj) {
         return typeof obj;
@@ -74,13 +76,13 @@
       var source = arguments[i] != null ? arguments[i] : {};
 
       if (i % 2) {
-        ownKeys(source, true).forEach(function (key) {
+        ownKeys(Object(source), true).forEach(function (key) {
           _defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
       } else {
-        ownKeys(source).forEach(function (key) {
+        ownKeys(Object(source)).forEach(function (key) {
           Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
       }
@@ -90,23 +92,36 @@
   }
 
   function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
   }
 
   function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) {
-      for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-      return arr2;
-    }
+    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
   }
 
   function _iterableToArray(iter) {
-    if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+  }
+
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
   }
 
   function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance");
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
   var LOG_LEVEL_INFO = 1,
@@ -585,9 +600,7 @@
     e.parentNode.insertBefore(js, e);
   }
 
-  var HubSpot =
-  /*#__PURE__*/
-  function () {
+  var HubSpot = /*#__PURE__*/function () {
     function HubSpot(config) {
       _classCallCheck(this, HubSpot);
 
@@ -1692,7 +1705,7 @@
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
     // strict `define` check is necessary for compatibility with `r.js`.
-    var isLoader = typeof undefined === "function" && undefined.amd;
+    var isLoader = typeof undefined === "function" ;
 
     // A set of types used to distinguish objects from primitives.
     var objectTypes = {
@@ -1701,7 +1714,7 @@
     };
 
     // Detect the `exports` object exposed by CommonJS implementations.
-    var freeExports =  exports && !exports.nodeType && exports;
+    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
 
     // Use the `global` object exposed by Node (including Browserify via
     // `insert-module-globals`), Narwhal, and Ringo as the default context,
@@ -2709,132 +2722,6 @@
   var componentUrl_3 = componentUrl.isRelative;
   var componentUrl_4 = componentUrl.isCrossDomain;
 
-  /**
-   * Helpers.
-   */
-
-  var s$1 = 1000;
-  var m$1 = s$1 * 60;
-  var h$1 = m$1 * 60;
-  var d$1 = h$1 * 24;
-  var y$1 = d$1 * 365.25;
-
-  /**
-   * Parse or format the given `val`.
-   *
-   * Options:
-   *
-   *  - `long` verbose formatting [false]
-   *
-   * @param {String|Number} val
-   * @param {Object} options
-   * @return {String|Number}
-   * @api public
-   */
-
-  var ms$1 = function(val, options){
-    options = options || {};
-    if ('string' == typeof val) return parse$2(val);
-    return options.long
-      ? long$1(val)
-      : short$1(val);
-  };
-
-  /**
-   * Parse the given `str` and return milliseconds.
-   *
-   * @param {String} str
-   * @return {Number}
-   * @api private
-   */
-
-  function parse$2(str) {
-    str = '' + str;
-    if (str.length > 10000) return;
-    var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
-    if (!match) return;
-    var n = parseFloat(match[1]);
-    var type = (match[2] || 'ms').toLowerCase();
-    switch (type) {
-      case 'years':
-      case 'year':
-      case 'yrs':
-      case 'yr':
-      case 'y':
-        return n * y$1;
-      case 'days':
-      case 'day':
-      case 'd':
-        return n * d$1;
-      case 'hours':
-      case 'hour':
-      case 'hrs':
-      case 'hr':
-      case 'h':
-        return n * h$1;
-      case 'minutes':
-      case 'minute':
-      case 'mins':
-      case 'min':
-      case 'm':
-        return n * m$1;
-      case 'seconds':
-      case 'second':
-      case 'secs':
-      case 'sec':
-      case 's':
-        return n * s$1;
-      case 'milliseconds':
-      case 'millisecond':
-      case 'msecs':
-      case 'msec':
-      case 'ms':
-        return n;
-    }
-  }
-
-  /**
-   * Short format for `ms`.
-   *
-   * @param {Number} ms
-   * @return {String}
-   * @api private
-   */
-
-  function short$1(ms) {
-    if (ms >= d$1) return Math.round(ms / d$1) + 'd';
-    if (ms >= h$1) return Math.round(ms / h$1) + 'h';
-    if (ms >= m$1) return Math.round(ms / m$1) + 'm';
-    if (ms >= s$1) return Math.round(ms / s$1) + 's';
-    return ms + 'ms';
-  }
-
-  /**
-   * Long format for `ms`.
-   *
-   * @param {Number} ms
-   * @return {String}
-   * @api private
-   */
-
-  function long$1(ms) {
-    return plural$1(ms, d$1, 'day')
-      || plural$1(ms, h$1, 'hour')
-      || plural$1(ms, m$1, 'minute')
-      || plural$1(ms, s$1, 'second')
-      || ms + ' ms';
-  }
-
-  /**
-   * Pluralization helper.
-   */
-
-  function plural$1(ms, n, name) {
-    if (ms < n) return;
-    if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
-    return Math.ceil(ms / n) + ' ' + name + 's';
-  }
-
   var debug_1$1 = createCommonjsModule(function (module, exports) {
   /**
    * This is the common logic for both the Node.js and web browser
@@ -2848,7 +2735,7 @@
   exports.disable = disable;
   exports.enable = enable;
   exports.enabled = enabled;
-  exports.humanize = ms$1;
+  exports.humanize = ms;
 
   /**
    * The currently active debug mode names, and names to skip.
@@ -3270,7 +3157,6 @@
     if (options.domain) str += '; domain=' + options.domain;
     if (options.expires) str += '; expires=' + options.expires.toUTCString();
     if (options.secure) str += '; secure';
-    if (options.samesite) str += '; samesite=' + options.samesite;
 
     document.cookie = str;
   }
@@ -3292,7 +3178,7 @@
       }
       return {};
     }
-    return parse$3(str);
+    return parse$2(str);
   }
 
   /**
@@ -3315,7 +3201,7 @@
    * @api private
    */
 
-  function parse$3(str) {
+  function parse$2(str) {
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
@@ -3455,9 +3341,7 @@
    * An object utility to persist values in cookies
    */
 
-  var CookieLocal =
-  /*#__PURE__*/
-  function () {
+  var CookieLocal = /*#__PURE__*/function () {
     function CookieLocal(options) {
       _classCallCheck(this, CookieLocal);
 
@@ -3727,9 +3611,7 @@
    * An object utility to persist user and other values in localstorage
    */
 
-  var StoreLocal =
-  /*#__PURE__*/
-  function () {
+  var StoreLocal = /*#__PURE__*/function () {
     function StoreLocal(options) {
       _classCallCheck(this, StoreLocal);
 
@@ -3808,9 +3690,7 @@
    * An object that handles persisting key-val from Analytics
    */
 
-  var Storage =
-  /*#__PURE__*/
-  function () {
+  var Storage = /*#__PURE__*/function () {
     function Storage() {
       _classCallCheck(this, Storage);
 
@@ -3993,9 +3873,7 @@
 
   var Storage$1 =  new Storage() ;
 
-  var GA =
-  /*#__PURE__*/
-  function () {
+  var GA = /*#__PURE__*/function () {
     function GA(config) {
       _classCallCheck(this, GA);
 
@@ -4103,9 +3981,7 @@
 
   var index$1 =  GA ;
 
-  var Hotjar =
-  /*#__PURE__*/
-  function () {
+  var Hotjar = /*#__PURE__*/function () {
     function Hotjar(config) {
       _classCallCheck(this, Hotjar);
 
@@ -4179,9 +4055,7 @@
 
   var index$2 =  Hotjar ;
 
-  var GoogleAds =
-  /*#__PURE__*/
-  function () {
+  var GoogleAds = /*#__PURE__*/function () {
     function GoogleAds(config) {
       _classCallCheck(this, GoogleAds);
 
@@ -4304,9 +4178,7 @@
 
   var index$3 =  GoogleAds ;
 
-  var VWO =
-  /*#__PURE__*/
-  function () {
+  var VWO = /*#__PURE__*/function () {
     function VWO(config, analytics) {
       _classCallCheck(this, VWO);
 
@@ -4466,9 +4338,7 @@
     return VWO;
   }();
 
-  var GoogleTagManager =
-  /*#__PURE__*/
-  function () {
+  var GoogleTagManager = /*#__PURE__*/function () {
     function GoogleTagManager(config) {
       _classCallCheck(this, GoogleTagManager);
 
@@ -4567,9 +4437,7 @@
   E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
   */
 
-  var Braze =
-  /*#__PURE__*/
-  function () {
+  var Braze = /*#__PURE__*/function () {
     function Braze(config, analytics) {
       _classCallCheck(this, Braze);
 
@@ -5077,9 +4945,7 @@
   })();
   });
 
-  var INTERCOM =
-  /*#__PURE__*/
-  function () {
+  var INTERCOM = /*#__PURE__*/function () {
     function INTERCOM(config) {
       _classCallCheck(this, INTERCOM);
 
@@ -5212,9 +5078,6 @@
               case "anonymousId":
                 rawPayload["user_id"] = value;
                 break;
-
-              default:
-                break;
             }
           }
         });
@@ -5255,9 +5118,7 @@
     return INTERCOM;
   }();
 
-  var Keen =
-  /*#__PURE__*/
-  function () {
+  var Keen = /*#__PURE__*/function () {
     function Keen(config) {
       _classCallCheck(this, Keen);
 
@@ -6782,9 +6643,7 @@
     }
   }
 
-  var Kissmetrics =
-  /*#__PURE__*/
-  function () {
+  var Kissmetrics = /*#__PURE__*/function () {
     function Kissmetrics(config) {
       _classCallCheck(this, Kissmetrics);
 
@@ -7071,9 +6930,7 @@
     return Kissmetrics;
   }();
 
-  var CustomerIO =
-  /*#__PURE__*/
-  function () {
+  var CustomerIO = /*#__PURE__*/function () {
     function CustomerIO(config) {
       _classCallCheck(this, CustomerIO);
 
@@ -7161,127 +7018,6 @@
   }();
 
   /**
-   * toString ref.
-   */
-
-  var toString$3 = Object.prototype.toString;
-
-  /**
-   * Return the type of `val`.
-   *
-   * @param {Mixed} val
-   * @return {String}
-   * @api public
-   */
-
-  var componentType$2 = function(val){
-    switch (toString$3.call(val)) {
-      case '[object Function]': return 'function';
-      case '[object Date]': return 'date';
-      case '[object RegExp]': return 'regexp';
-      case '[object Arguments]': return 'arguments';
-      case '[object Array]': return 'array';
-      case '[object String]': return 'string';
-    }
-
-    if (val === null) return 'null';
-    if (val === undefined) return 'undefined';
-    if (val && val.nodeType === 1) return 'element';
-    if (val === Object(val)) return 'object';
-
-    return typeof val;
-  };
-
-  /**
-   * Module dependencies.
-   */
-
-  try {
-    var type$1 = componentType$2;
-  } catch (err) {
-    var type$1 = componentType$2;
-  }
-
-
-
-  /**
-   * HOP reference.
-   */
-
-  var has$3 = Object.prototype.hasOwnProperty;
-
-  /**
-   * Iterate the given `obj` and invoke `fn(val, i)`
-   * in optional context `ctx`.
-   *
-   * @param {String|Array|Object} obj
-   * @param {Function} fn
-   * @param {Object} [ctx]
-   * @api public
-   */
-
-  var componentEach$1 = function(obj, fn, ctx){
-    fn = toFunction_1(fn);
-    ctx = ctx || this;
-    switch (type$1(obj)) {
-      case 'array':
-        return array$1(obj, fn, ctx);
-      case 'object':
-        if ('number' == typeof obj.length) return array$1(obj, fn, ctx);
-        return object$1(obj, fn, ctx);
-      case 'string':
-        return string$1(obj, fn, ctx);
-    }
-  };
-
-  /**
-   * Iterate string chars.
-   *
-   * @param {String} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function string$1(obj, fn, ctx) {
-    for (var i = 0; i < obj.length; ++i) {
-      fn.call(ctx, obj.charAt(i), i);
-    }
-  }
-
-  /**
-   * Iterate object keys.
-   *
-   * @param {Object} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function object$1(obj, fn, ctx) {
-    for (var key in obj) {
-      if (has$3.call(obj, key)) {
-        fn.call(ctx, key, obj[key]);
-      }
-    }
-  }
-
-  /**
-   * Iterate array-ish.
-   *
-   * @param {Array|Object} obj
-   * @param {Function} fn
-   * @param {Object} ctx
-   * @api private
-   */
-
-  function array$1(obj, fn, ctx) {
-    for (var i = 0; i < obj.length; ++i) {
-      fn.call(ctx, obj[i], i);
-    }
-  }
-
-  /**
    * Cache whether `<body>` exists.
    */
 
@@ -7317,7 +7053,7 @@
   var interval = setInterval(function () {
     if (!document.body) return;
     body = true;
-    componentEach$1(callbacks, call);
+    componentEach(callbacks, call);
     clearInterval(interval);
   }, 5);
 
@@ -7332,9 +7068,7 @@
     callback(document.body);
   }
 
-  var Chartbeat =
-  /*#__PURE__*/
-  function () {
+  var Chartbeat = /*#__PURE__*/function () {
     function Chartbeat(config, analytics) {
       _classCallCheck(this, Chartbeat);
 
@@ -7507,9 +7241,7 @@
     return Chartbeat;
   }();
 
-  var Comscore =
-  /*#__PURE__*/
-  function () {
+  var Comscore = /*#__PURE__*/function () {
     function Comscore(config, analytics) {
       _classCallCheck(this, Comscore);
 
@@ -7692,7 +7424,7 @@
    */
 
   // TODO: Move to a library
-  var has$4 = function has(context, prop) {
+  var has$3 = function has(context, prop) {
     return hop.call(context, prop);
   };
 
@@ -7736,7 +7468,7 @@
    * @return {Array}
    */
   var indexKeys = function indexKeys(target, pred) {
-    pred = pred || has$4;
+    pred = pred || has$3;
 
     var results = [];
 
@@ -7760,7 +7492,7 @@
    * @return {Array}
    */
   var objectKeys = function objectKeys(target, pred) {
-    pred = pred || has$4;
+    pred = pred || has$3;
 
     var results = [];
 
@@ -7817,7 +7549,7 @@
 
     // IE6-8 compatibility (arguments)
     if (isArrayLike(source)) {
-      return indexKeys(source, has$4);
+      return indexKeys(source, has$3);
     }
 
     return objectKeys(source);
@@ -7957,9 +7689,7 @@
 
   var each_1 = each;
 
-  var FBPixel =
-  /*#__PURE__*/
-  function () {
+  var FBPixel = /*#__PURE__*/function () {
     function FBPixel(config) {
       _classCallCheck(this, FBPixel);
 
@@ -8436,9 +8166,7 @@
     lotame_synch_time_key: "lt_synch_timestamp"
   };
 
-  var LotameStorage =
-  /*#__PURE__*/
-  function () {
+  var LotameStorage = /*#__PURE__*/function () {
     function LotameStorage() {
       _classCallCheck(this, LotameStorage);
 
@@ -8462,9 +8190,7 @@
 
   var lotameStorage = new LotameStorage();
 
-  var Lotame =
-  /*#__PURE__*/
-  function () {
+  var Lotame = /*#__PURE__*/function () {
     function Lotame(config, analytics) {
       var _this = this;
 
@@ -8507,9 +8233,11 @@
         logger.debug("===== in syncPixel ======");
 
         if (this.dspUrlSettings && this.dspUrlSettings.length > 0) {
+          var currentTime = Date.now();
           this.dspUrlSettings.forEach(function (urlSettings) {
-            var dspUrl = _this2.compileUrl(_objectSpread2({}, _this2.mappings, {
-              userId: userId
+            var dspUrl = _this2.compileUrl(_objectSpread2(_objectSpread2({}, _this2.mappings), {}, {
+              userId: userId,
+              random: currentTime
             }), urlSettings.dspUrlTemplate);
 
             _this2.addPixel(dspUrl, "1", "1");
@@ -8556,8 +8284,11 @@
         logger.debug("in Lotame page");
 
         if (this.bcpUrlSettings && this.bcpUrlSettings.length > 0) {
+          var currentTime = Date.now();
           this.bcpUrlSettings.forEach(function (urlSettings) {
-            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings), urlSettings.bcpUrlTemplate);
+            var bcpUrl = _this3.compileUrl(_objectSpread2(_objectSpread2({}, _this3.mappings), {}, {
+              random: currentTime
+            }), urlSettings.bcpUrlTemplate);
 
             _this3.addPixel(bcpUrl, "1", "1");
           });
@@ -8682,9 +8413,7 @@
     this.network = null;
   };
 
-  var RudderMessage =
-  /*#__PURE__*/
-  function () {
+  var RudderMessage = /*#__PURE__*/function () {
     function RudderMessage() {
       _classCallCheck(this, RudderMessage);
 
@@ -8751,8 +8480,6 @@
                 case ECommerceEvents.ORDER_REFUNDED:
                   this.checkForKey("order_id");
                   break;
-
-                default:
               }
             } else if (!this.properties["category"]) {
               //if category is not there, set to event
@@ -8785,9 +8512,7 @@
     return RudderMessage;
   }();
 
-  var RudderElement =
-  /*#__PURE__*/
-  function () {
+  var RudderElement = /*#__PURE__*/function () {
     function RudderElement() {
       _classCallCheck(this, RudderElement);
 
@@ -8835,9 +8560,7 @@
     return RudderElement;
   }();
 
-  var RudderElementBuilder =
-  /*#__PURE__*/
-  function () {
+  var RudderElementBuilder = /*#__PURE__*/function () {
     function RudderElementBuilder() {
       _classCallCheck(this, RudderElementBuilder);
 
@@ -8975,14 +8698,16 @@
     var i = offset || 0;
     var bth = byteToHex;
     // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([bth[buf[i++]], bth[buf[i++]], 
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]], '-',
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]],
-  	bth[buf[i++]], bth[buf[i++]]]).join('');
+    return ([
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]], '-',
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]],
+      bth[buf[i++]], bth[buf[i++]]
+    ]).join('');
   }
 
   var bytesToUuid_1 = bytesToUuid;
@@ -8999,7 +8724,7 @@
   var _lastMSecs = 0;
   var _lastNSecs = 0;
 
-  // See https://github.com/broofa/node-uuid for API details
+  // See https://github.com/uuidjs/uuid for API details
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
@@ -9306,8 +9031,6 @@
         if (e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
           quotaExceeded = true;
         }
-        break;
-      default:
         break;
       }
     } else if (e.number === -2147024882) {
@@ -10050,9 +9773,7 @@
    * in batch and maintains order of the event.
    */
 
-  var EventRepository =
-  /*#__PURE__*/
-  function () {
+  var EventRepository = /*#__PURE__*/function () {
     /**
      *Creates an instance of EventRepository.
      * @memberof EventRepository
@@ -10545,9 +10266,7 @@
    */
 
 
-  var Analytics =
-  /*#__PURE__*/
-  function () {
+  var Analytics = /*#__PURE__*/function () {
     /**
      * Creates an instance of Analytics.
      * @memberof Analytics
@@ -11392,4 +11111,4 @@
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
