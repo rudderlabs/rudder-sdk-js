@@ -209,6 +209,9 @@ var rudderanalytics = (function (exports) {
     "KISSMETRICS": "KISSMETRICS",
     "Lotame": "LOTAME",
     "LOTAME": "LOTAME",
+    "Mouseflow": "MOUSEFLOW",
+    "MouseFlow": "MOUSEFLOW",
+    "mouseflow": "MOUSEFLOW",
     "Visual Website Optimizer": "VWO",
     "VWO": "VWO"
   };
@@ -231,6 +234,7 @@ var rudderanalytics = (function (exports) {
     "KEEN": "Keen",
     "KISSMETRICS": "Kiss Metrics",
     "LOTAME": "Lotame",
+    "Mouseflow": "Mouseflow",
     "VWO": "VWO"
   };
 
@@ -4335,6 +4339,73 @@ var rudderanalytics = (function (exports) {
     return VWO;
   }();
 
+  var Mouseflow = /*#__PURE__*/function () {
+    function Mouseflow(config) {
+      _classCallCheck(this, Mouseflow);
+
+      this.siteId = config.siteID; //1549611
+
+      this.name = "MOUSEFLOW";
+      this._ready = false;
+    }
+
+    _createClass(Mouseflow, [{
+      key: "init",
+      value: function init() {
+       window.mouseflowProjectId = this.siteId;
+       window._mfq = window._mfq || [];
+         (function() {
+          var mf = document.createElement("script");
+          mf.type = "text/javascript"; mf.defer = true;
+          mf.src = "//cdn.mouseflow.com/projects/f7"+window.mouseflowProjectId+".js";
+          document.getElementsByTagName("head")[0].appendChild(mf);
+    })();
+    this._ready = true;;
+
+        this._ready = true;
+        logger.debug("===in init Mouseflow ===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        var userId = rudderElement.message.userId || rudderElement.message.anonymousId;
+
+        if (!userId) {
+          logger.debug('[Mouseflow] identify:: user id is required');
+          return;
+        }
+
+        var traits = rudderElement.message.context.traits;
+        window.hj('identify', rudderElement.message.userId, traits);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("[Mouseflow] track:: method not supported");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("[Mouseflow] page:: method not supported");
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return this._ready;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return this._ready;
+      }
+    }]);
+
+    return Mouseflow;
+  }();
+
+
+
+  var index$2 =  Mouseflow ;
   var GoogleTagManager = /*#__PURE__*/function () {
     function GoogleTagManager(config) {
       _classCallCheck(this, GoogleTagManager);
@@ -8341,7 +8412,8 @@ var rudderanalytics = (function (exports) {
     CHARTBEAT: Chartbeat,
     COMSCORE: Comscore,
     FACEBOOK_PIXEL: FBPixel,
-    LOTAME: Lotame
+    LOTAME: Lotame,
+    MOUSEFLOW: Mouseflow
   };
 
   //Application class

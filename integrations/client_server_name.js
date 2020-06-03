@@ -16,7 +16,8 @@ let clientToServerNames = {
     "KEEN": "Keen", 
     "KISSMETRICS": "Kiss Metrics",
     "LOTAME": "Lotame",
-    "VWO": "VWO"
+    "VWO": "VWO",
+    "MOUSEFLOW":"MOUSEFLOW"
 }
 
 export {clientToServerNames}

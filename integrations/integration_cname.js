@@ -35,6 +35,9 @@ let commonNames = {
  "KISSMETRICS": "KISSMETRICS",
  "Lotame": "LOTAME",
  "LOTAME": "LOTAME",
+ "Mouseflow": "MOUSEFLOW",
+ "MouseFlow": "MOUSEFLOW",
+ "mouseflow": "MOUSEFLOW",
  "Visual Website Optimizer": "VWO",
  "VWO": "VWO"
 }
