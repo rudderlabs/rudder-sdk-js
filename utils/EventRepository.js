@@ -21,9 +21,11 @@ if (!process.browser) {
 }
 
 var queueOptions = {
-  maxRetryDelay: 360000, // max retry interval
-  minRetryDelay: 1000, // first attempt after 1sec
-  backoffFactor: 0
+  maxRetryDelay: 360000,
+  minRetryDelay: 1000,
+  backoffFactor: 2,
+  maxAttempts: 10,
+  maxItems: 100
 };
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
