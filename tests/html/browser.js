@@ -8504,9 +8504,11 @@ var rudderanalytics = (function (exports) {
         logger.debug("===== in syncPixel ======");
 
         if (this.dspUrlSettings && this.dspUrlSettings.length > 0) {
+          var currentTime = Date.now();
           this.dspUrlSettings.forEach(function (urlSettings) {
             var dspUrl = _this2.compileUrl(_objectSpread2({}, _this2.mappings, {
-              userId: userId
+              userId: userId,
+              random: currentTime
             }), urlSettings.dspUrlTemplate);
 
             _this2.addPixel(dspUrl, "1", "1");
@@ -8553,8 +8555,11 @@ var rudderanalytics = (function (exports) {
         logger.debug("in Lotame page");
 
         if (this.bcpUrlSettings && this.bcpUrlSettings.length > 0) {
+          var currentTime = Date.now();
           this.bcpUrlSettings.forEach(function (urlSettings) {
-            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings), urlSettings.bcpUrlTemplate);
+            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings, {
+              random: currentTime
+            }), urlSettings.bcpUrlTemplate);
 
             _this3.addPixel(bcpUrl, "1", "1");
           });
@@ -10033,10 +10038,10 @@ var rudderanalytics = (function (exports) {
 
   var queueOptions = {
     maxRetryDelay: 360000,
-    // max retry interval
     minRetryDelay: 1000,
-    // first attempt after 1sec
-    backoffFactor: 0
+    backoffFactor: 2,
+    maxAttempts: 10,
+    maxItems: 100
   };
   var MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 
