@@ -108,7 +108,7 @@
     if (typeof o === "string") return _arrayLikeToArray(o, minLen);
     var n = Object.prototype.toString.call(o).slice(8, -1);
     if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Map" || n === "Set") return Array.from(n);
     if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
   }
 
@@ -7771,6 +7771,9 @@
     }, {
       key: "track",
       value: function track(rudderElement) {
+        var _this = this;
+
+        var self = this;
         var event = rudderElement.message.event;
         var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
         var payload = this.buildPayLoad(rudderElement, true);
@@ -7793,8 +7796,15 @@
         var standardTo;
         var legacyTo;
         standardTo = standard.reduce(function (filtered, standard) {
+          var key;
+          Object.keys(standard).forEach(function (k) {
+            if (k !== "from") {
+              key = k;
+            }
+          });
+
           if (standard.from === event) {
-            filtered.push(standard.to);
+            filtered.push(key);
           }
 
           return filtered;
@@ -7807,16 +7817,13 @@
           return filtered;
         }, []);
         each_1(function (event) {
-          if (event === "Purchase") {
-            payload.currency = rudderElement.message.properties.currency || "USD";
-          }
-
-          window.fbq("trackSingle", this.pixelId, event, payload, {
+          payload.currency = rudderElement.message.properties.currency || "USD";
+          window.fbq("trackSingle", self.pixelId, event, payload, {
             eventID: rudderElement.message.messageId
           });
         }, standardTo);
         each_1(function (event) {
-          window.fbq("trackSingle", this.pixelId, event, {
+          window.fbq("trackSingle", self.pixelId, event, {
             currency: rudderElement.message.properties.currency,
             value: revenue
           }, {
@@ -7856,7 +7863,7 @@
             contentType = ["product_group"];
           }
 
-          window.fbq("trackSingle", this.pixelId, "ViewContent", this.merge({
+          window.fbq("trackSingle", self.pixelId, "ViewContent", this.merge({
             content_ids: contentIds,
             content_type: this.getContentType(rudderElement, contentType),
             contents: contents
@@ -7864,9 +7871,9 @@
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq("trackSingle", this.pixelId, event, {
+            window.fbq("trackSingle", self.pixelId, event, {
               currency: rudderElement.message.properties.currency,
-              value: this.formatRevenue(rudderElement.message.properties.revenue)
+              value: _this.formatRevenue(rudderElement.message.properties.revenue)
             }, {
               eventID: rudderElement.message.messageId
             });
@@ -7874,7 +7881,7 @@
         } else if (event === "Product Viewed") {
           var useValue = this.valueFieldIdentifier === "properties.value";
           var customProperties = this.buildPayLoad(rudderElement, true);
-          window.fbq("trackSingle", this.pixelId, "ViewContent", this.merge({
+          window.fbq("trackSingle", self.pixelId, "ViewContent", this.merge({
             content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
             content_type: this.getContentType(rudderElement, ["product"]),
             content_name: rudderElement.message.properties.product_name || "",
@@ -7890,9 +7897,9 @@
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq("trackSingle", this.pixelId, event, {
+            window.fbq("trackSingle", self.pixelId, event, {
               currency: rudderElement.message.properties.currency,
-              value: useValue ? this.formatRevenue(rudderElement.message.properties.value) : this.formatRevenue(rudderElement.message.properties.price)
+              value: useValue ? _this.formatRevenue(rudderElement.message.properties.value) : _this.formatRevenue(rudderElement.message.properties.price)
             }, {
               eventID: rudderElement.message.messageId
             });
@@ -7900,7 +7907,7 @@
         } else if (event === "Product Added") {
           var useValue = this.valueFieldIdentifier === "properties.value";
           var customProperties = this.buildPayLoad(rudderElement, true);
-          window.fbq("trackSingle", this.pixelId, "AddToCart", this.merge({
+          window.fbq("trackSingle", self.pixelId, "AddToCart", this.merge({
             content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
             content_type: this.getContentType(rudderElement, ["product"]),
             content_name: rudderElement.message.properties.product_name || "",
@@ -7916,9 +7923,9 @@
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq("trackSingle", this.pixelId, event, {
+            window.fbq("trackSingle", self.pixelId, event, {
               currency: rudderElement.message.properties.currency,
-              value: useValue ? this.formatRevenue(rudderElement.message.properties.value) : this.formatRevenue(rudderElement.message.properties.price)
+              value: useValue ? _this.formatRevenue(rudderElement.message.properties.value) : _this.formatRevenue(rudderElement.message.properties.price)
             }, {
               eventID: rudderElement.message.messageId
             });
@@ -7937,7 +7944,7 @@
             }]
           }, customProperties);
         } else if (event === "Order Completed") {
-          var products = rudderElement.message.properites.products;
+          var products = rudderElement.message.properties.products;
           var customProperties = this.buildPayLoad(rudderElement, true);
           var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
           var contentType = this.getContentType(rudderElement, ["product"]);
@@ -7959,7 +7966,7 @@
             contents.push(content);
           }
 
-          window.fbq("trackSingle", this.pixelId, "Purchase", this.merge({
+          window.fbq("trackSingle", self.pixelId, "Purchase", this.merge({
             content_ids: contentIds,
             content_type: contentType,
             currency: rudderElement.message.properties.currency,
@@ -7970,22 +7977,22 @@
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq("trackSingle", this.pixelId, event, {
+            window.fbq("trackSingle", self.pixelId, event, {
               currency: rudderElement.message.properties.currency,
-              value: this.formatRevenue(rudderElement.message.properties.revenue)
+              value: _this.formatRevenue(rudderElement.message.properties.revenue)
             }, {
               eventID: rudderElement.message.messageId
             });
-          }, legacyto);
+          }, legacyTo);
         } else if (event === "Products Searched") {
           var customProperties = this.buildPayLoad(rudderElement, true);
-          window.fbq("trackSingle", this.pixelId, "Search", merge({
+          window.fbq("trackSingle", self.pixelId, "Search", this.merge({
             search_string: rudderElement.message.properties.query
           }, customProperties), {
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq("trackSingle", this.pixelId, event, {
+            window.fbq("trackSingle", self.pixelId, event, {
               currency: rudderElement.message.properties.currency,
               value: formatRevenue(rudderElement.message.properties.revenue)
             }, {
@@ -7993,7 +8000,7 @@
             });
           }, legacyTo);
         } else if (event === "Checkout Started") {
-          var products = rudderElement.message.properites.products;
+          var products = rudderElement.message.properties.products;
           var customProperties = this.buildPayLoad(rudderElement, true);
           var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
           var contentCategory = rudderElement.message.properties.category;
@@ -8001,7 +8008,8 @@
           var contents = [];
 
           for (var i = 0; i < products.length; i++) {
-            var pId = product.product_id;
+            var _product = products[i];
+            var pId = _product.product_id;
             contentIds.push(pId);
             var content = {
               id: pId,
@@ -8020,7 +8028,7 @@
             contentCategory = products[0].category;
           }
 
-          window.fbq("trackSingle", this.pixelId, "InitiateCheckout", this.merge({
+          window.fbq("trackSingle", self.pixelId, "InitiateCheckout", this.merge({
             content_category: contentCategory,
             content_ids: contentIds,
             content_type: this.getContentType(rudderElement, ["product"]),
@@ -8032,13 +8040,13 @@
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq("trackSingle", this.pixelId, event, {
+            window.fbq("trackSingle", self.pixelId, event, {
               currency: rudderElement.message.properties.currency,
-              value: this.formatRevenue(rudderElement.message.properties.revenue)
+              value: _this.formatRevenue(rudderElement.message.properties.revenue)
             }, {
               eventID: rudderElement.message.messageId
             });
-          }, legacyto);
+          }, legacyTo);
         }
       }
     }, {
@@ -8255,7 +8263,7 @@
         if (this.dspUrlSettingsPixel && this.dspUrlSettingsPixel.length > 0) {
           var currentTime = Date.now();
           this.dspUrlSettingsPixel.forEach(function (urlSettings) {
-            var dspUrl = _this2.compileUrl(_objectSpread2(_objectSpread2({}, _this2.mappings), {}, {
+            var dspUrl = _this2.compileUrl(_objectSpread2({}, _this2.mappings, {
               userId: userId,
               random: currentTime
             }), urlSettings.dspUrlTemplate);
@@ -8270,7 +8278,7 @@
           var _currentTime = Date.now();
 
           this.dspUrlSettingsIframe.forEach(function (urlSettings) {
-            var dspUrl = _this2.compileUrl(_objectSpread2(_objectSpread2({}, _this2.mappings), {}, {
+            var dspUrl = _this2.compileUrl(_objectSpread2({}, _this2.mappings, {
               userId: userId,
               random: _currentTime
             }), urlSettings.dspUrlTemplate);
@@ -8322,7 +8330,7 @@
         if (this.bcpUrlSettingsPixel && this.bcpUrlSettingsPixel.length > 0) {
           var currentTime = Date.now();
           this.bcpUrlSettingsPixel.forEach(function (urlSettings) {
-            var bcpUrl = _this3.compileUrl(_objectSpread2(_objectSpread2({}, _this3.mappings), {}, {
+            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings, {
               random: currentTime
             }), urlSettings.bcpUrlTemplate);
 
@@ -8336,7 +8344,7 @@
           var _currentTime2 = Date.now();
 
           this.bcpUrlSettingsIframe.forEach(function (urlSettings) {
-            var bcpUrl = _this3.compileUrl(_objectSpread2(_objectSpread2({}, _this3.mappings), {}, {
+            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings, {
               random: _currentTime2
             }), urlSettings.bcpUrlTemplate);
 

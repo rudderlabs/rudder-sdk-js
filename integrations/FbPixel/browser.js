@@ -5,36 +5,33 @@ import each from "@ndhoule/each";
 
 class FBPixel {
   constructor(config) {
-    this.blacklistPiiProperties = config.blacklistPiiProperties; 
-    this.categoryToContent = config.categoryToContent; 
-    this.pixelId = config.pixelId; 
-    this.eventsToEvents = config.eventsToEvents; 
-    this.eventCustomProperties = config.eventCustomProperties; 
-    this.valueFieldIdentifier = config.valueFieldIdentifier; 
+    this.blacklistPiiProperties = config.blacklistPiiProperties;
+    this.categoryToContent = config.categoryToContent;
+    this.pixelId = config.pixelId;
+    this.eventsToEvents = config.eventsToEvents;
+    this.eventCustomProperties = config.eventCustomProperties;
+    this.valueFieldIdentifier = config.valueFieldIdentifier;
     this.advancedMapping = config.advancedMapping;
-    this.traitKeyToExternalId = config.traitKeyToExternalId; 
-    this.legacyConversionPixelId = config.legacyConversionPixelId; 
+    this.traitKeyToExternalId = config.traitKeyToExternalId;
+    this.legacyConversionPixelId = config.legacyConversionPixelId;
     this.userIdAsPixelId = config.userIdAsPixelId;
     this.whitelistPiiProperties = config.whitelistPiiProperties;
     this.name = "FB_PIXEL";
-   
   }
 
   init() {
-   
-  if(this.categoryToContent === undefined){
-    this.categoryToContent = []
-  }
-  if(this.legacyConversionPixelId === undefined){
-    this.legacyConversionPixelId = []
-  }
-  if(this.userIdAsPixelId === undefined){
-    this.userIdAsPixelId = []
-  }
-  
-  
+    if (this.categoryToContent === undefined) {
+      this.categoryToContent = [];
+    }
+    if (this.legacyConversionPixelId === undefined) {
+      this.legacyConversionPixelId = [];
+    }
+    if (this.userIdAsPixelId === undefined) {
+      this.userIdAsPixelId = [];
+    }
+
     logger.debug("===in init FbPixel===");
-  
+
     window._fbq = function () {
       if (window.fbq.callMethod) {
         window.fbq.callMethod.apply(window.fbq, arguments);
@@ -79,30 +76,36 @@ class FBPixel {
   }
 
   track(rudderElement) {
+    let self = this;
     var event = rudderElement.message.event;
     var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
     var payload = this.buildPayLoad(rudderElement, true);
 
-    if(this.categoryToContent === undefined){
-      this.categoryToContent = []
+    if (this.categoryToContent === undefined) {
+      this.categoryToContent = [];
     }
-    if(this.legacyConversionPixelId === undefined){
-      this.legacyConversionPixelId = []
+    if (this.legacyConversionPixelId === undefined) {
+      this.legacyConversionPixelId = [];
     }
-    if(this.userIdAsPixelId === undefined){
-      this.userIdAsPixelId = []
+    if (this.userIdAsPixelId === undefined) {
+      this.userIdAsPixelId = [];
     }
-   
+
     payload.value = revenue;
     var standard = this.eventsToEvents;
     var legacy = this.legacyConversionPixelId;
     var standardTo;
     var legacyTo;
-    
 
     standardTo = standard.reduce((filtered, standard) => {
+      let key;
+      Object.keys(standard).forEach((k) => {
+        if (k !== "from") {
+          key = k;
+        }
+      });
       if (standard.from === event) {
-        filtered.push(standard.to);
+        filtered.push(key);
       }
       return filtered;
     }, []);
@@ -114,20 +117,18 @@ class FBPixel {
       return filtered;
     }, []);
 
-    each(function (event) {
-      if (event === "Purchase"){
-        payload.currency = rudderElement.message.properties.currency || "USD";
-      }
-        
-      window.fbq("trackSingle", this.pixelId, event, payload, {
+    each((event) => {
+      payload.currency = rudderElement.message.properties.currency || "USD";
+
+      window.fbq("trackSingle", self.pixelId, event, payload, {
         eventID: rudderElement.message.messageId,
       });
     }, standardTo);
 
-    each(function (event) {
+    each((event) => {
       window.fbq(
         "trackSingle",
-        this.pixelId,
+        self.pixelId,
         event,
         {
           currency: rudderElement.message.properties.currency,
@@ -158,7 +159,7 @@ class FBPixel {
           }
         });
       }
-      
+
       if (contentIds.length) {
         contentType = ["product"];
       } else {
@@ -171,12 +172,12 @@ class FBPixel {
       }
       window.fbq(
         "trackSingle",
-        this.pixelId,
+        self.pixelId,
         "ViewContent",
         this.merge(
           {
             content_ids: contentIds,
-            content_type: this.getContentType(rudderElement, contentType), 
+            content_type: this.getContentType(rudderElement, contentType),
             contents: contents,
           },
           customProperties
@@ -186,10 +187,10 @@ class FBPixel {
         }
       );
 
-      each(function (event) {
+      each((event) => {
         window.fbq(
           "trackSingle",
-          this.pixelId,
+          self.pixelId,
           event,
           {
             currency: rudderElement.message.properties.currency,
@@ -206,7 +207,7 @@ class FBPixel {
 
       window.fbq(
         "trackSingle",
-        this.pixelId,
+        self.pixelId,
         "ViewContent",
         this.merge(
           {
@@ -216,7 +217,7 @@ class FBPixel {
                 rudderElement.message.properties.sku ||
                 "",
             ],
-            content_type: this.getContentType(rudderElement, ["product"]), 
+            content_type: this.getContentType(rudderElement, ["product"]),
             content_name: rudderElement.message.properties.product_name || "",
             content_category: rudderElement.message.properties.category || "",
             currency: rudderElement.message.properties.currency,
@@ -242,10 +243,10 @@ class FBPixel {
         }
       );
 
-      each(function (event) {
+      each((event) => {
         window.fbq(
           "trackSingle",
-          this.pixelId,
+          self.pixelId,
           event,
           {
             currency: rudderElement.message.properties.currency,
@@ -263,7 +264,7 @@ class FBPixel {
       var customProperties = this.buildPayLoad(rudderElement, true);
       window.fbq(
         "trackSingle",
-        this.pixelId,
+        self.pixelId,
         "AddToCart",
         this.merge(
           {
@@ -273,7 +274,7 @@ class FBPixel {
                 rudderElement.message.properties.sku ||
                 "",
             ],
-            content_type: this.getContentType(rudderElement, ["product"]), 
+            content_type: this.getContentType(rudderElement, ["product"]),
 
             content_name: rudderElement.message.properties.product_name || "",
             content_category: rudderElement.message.properties.category || "",
@@ -300,10 +301,10 @@ class FBPixel {
         }
       );
 
-      each(function (event) {
+      each((event) => {
         window.fbq(
           "trackSingle",
-          this.pixelId,
+          self.pixelId,
           event,
           {
             currency: rudderElement.message.properties.currency,
@@ -324,7 +325,7 @@ class FBPixel {
               rudderElement.message.properties.sku ||
               "",
           ],
-          content_type: this.getContentType(rudderElement, ["product"]), 
+          content_type: this.getContentType(rudderElement, ["product"]),
 
           content_name: rudderElement.message.properties.product_name || "",
           content_category: rudderElement.message.properties.category || "",
@@ -347,13 +348,13 @@ class FBPixel {
         customProperties
       );
     } else if (event === "Order Completed") {
-      var products = rudderElement.message.properites.products;
+      var products = rudderElement.message.properties.products;
       var customProperties = this.buildPayLoad(rudderElement, true);
       var revenue = this.formatRevenue(
         rudderElement.message.properties.revenue
       );
 
-      var contentType = this.getContentType(rudderElement, ["product"]); 
+      var contentType = this.getContentType(rudderElement, ["product"]);
       var contentIds = [];
       var contents = [];
 
@@ -371,7 +372,7 @@ class FBPixel {
       }
       window.fbq(
         "trackSingle",
-        this.pixelId,
+        self.pixelId,
         "Purchase",
         this.merge(
           {
@@ -389,10 +390,10 @@ class FBPixel {
         }
       );
 
-      each(function (event) {
+      each((event) => {
         window.fbq(
           "trackSingle",
-          this.pixelId,
+          self.pixelId,
           event,
           {
             currency: rudderElement.message.properties.currency,
@@ -402,14 +403,14 @@ class FBPixel {
             eventID: rudderElement.message.messageId,
           }
         );
-      }, legacyto);
+      }, legacyTo);
     } else if (event === "Products Searched") {
       var customProperties = this.buildPayLoad(rudderElement, true);
       window.fbq(
         "trackSingle",
-        this.pixelId,
+        self.pixelId,
         "Search",
-        merge(
+        this.merge(
           {
             search_string: rudderElement.message.properties.query,
           },
@@ -420,10 +421,10 @@ class FBPixel {
         }
       );
 
-      each(function (event) {
+      each((event) => {
         window.fbq(
           "trackSingle",
-          this.pixelId,
+          self.pixelId,
           event,
           {
             currency: rudderElement.message.properties.currency,
@@ -435,7 +436,7 @@ class FBPixel {
         );
       }, legacyTo);
     } else if (event === "Checkout Started") {
-      var products = rudderElement.message.properites.products;
+      var products = rudderElement.message.properties.products;
       var customProperties = this.buildPayLoad(rudderElement, true);
       var revenue = this.formatRevenue(
         rudderElement.message.properties.revenue
@@ -445,6 +446,7 @@ class FBPixel {
       var contents = [];
 
       for (var i = 0; i < products.length; i++) {
+        let product = products[i];
         var pId = product.product_id;
         contentIds.push(pId);
         var content = {
@@ -462,7 +464,7 @@ class FBPixel {
       }
       window.fbq(
         "trackSingle",
-        this.pixelId,
+        self.pixelId,
         "InitiateCheckout",
         this.merge(
           {
@@ -481,10 +483,10 @@ class FBPixel {
         }
       );
 
-      each(function (event) {
+      each((event) => {
         window.fbq(
           "trackSingle",
-          this.pixelId,
+          self.pixelId,
           event,
           {
             currency: rudderElement.message.properties.currency,
@@ -494,7 +496,7 @@ class FBPixel {
             eventID: rudderElement.message.messageId,
           }
         );
-      }, legacyto);
+      }, legacyTo);
     }
   }
 
@@ -581,7 +583,7 @@ class FBPixel {
     for (var i = 0; i < blacklistPiiProperties[i]; i++) {
       var configuration = blacklistPiiProperties[i];
       customPiiProperties[configuration.blacklistPiiProperties] =
-        configuration.blacklistPiiHash; 
+        configuration.blacklistPiiHash;
     }
     var payload = {};
     var properties = rudderElement.message.properties;
