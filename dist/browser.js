@@ -7770,6 +7770,7 @@ var rudderanalytics = (function (exports) {
       value: function track(rudderElement) {
         var _this = this;
 
+        var self = this;
         var event = rudderElement.message.event;
         var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
         var payload = this.buildPayLoad(rudderElement, true);
@@ -7792,8 +7793,15 @@ var rudderanalytics = (function (exports) {
         var standardTo;
         var legacyTo;
         standardTo = standard.reduce(function (filtered, standard) {
+          var key;
+          Object.keys(standard).forEach(function (k) {
+            if (k !== "from") {
+              key = k;
+            }
+          });
+
           if (standard.from === event) {
-            filtered.push(standard.to);
+            filtered.push(key);
           }
 
           return filtered;
@@ -7806,16 +7814,13 @@ var rudderanalytics = (function (exports) {
           return filtered;
         }, []);
         each_1(function (event) {
-          if (event === "Purchase") {
-            payload.currency = rudderElement.message.properties.currency || "USD";
-          }
-
-          window.fbq("trackSingle", _this.pixelId, event, payload, {
+          payload.currency = rudderElement.message.properties.currency || "USD";
+          window.fbq("trackSingle", self.pixelId, event, payload, {
             eventID: rudderElement.message.messageId
           });
         }, standardTo);
         each_1(function (event) {
-          window.fbq("trackSingle", _this.pixelId, event, {
+          window.fbq("trackSingle", self.pixelId, event, {
             currency: rudderElement.message.properties.currency,
             value: revenue
           }, {
@@ -7855,7 +7860,7 @@ var rudderanalytics = (function (exports) {
             contentType = ["product_group"];
           }
 
-          window.fbq("trackSingle", this.pixelId, "ViewContent", this.merge({
+          window.fbq("trackSingle", self.pixelId, "ViewContent", this.merge({
             content_ids: contentIds,
             content_type: this.getContentType(rudderElement, contentType),
             contents: contents
@@ -7863,7 +7868,7 @@ var rudderanalytics = (function (exports) {
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq("trackSingle", _this.pixelId, event, {
+            window.fbq("trackSingle", self.pixelId, event, {
               currency: rudderElement.message.properties.currency,
               value: _this.formatRevenue(rudderElement.message.properties.revenue)
             }, {
@@ -7873,7 +7878,7 @@ var rudderanalytics = (function (exports) {
         } else if (event === "Product Viewed") {
           var useValue = this.valueFieldIdentifier === "properties.value";
           var customProperties = this.buildPayLoad(rudderElement, true);
-          window.fbq("trackSingle", this.pixelId, "ViewContent", this.merge({
+          window.fbq("trackSingle", self.pixelId, "ViewContent", this.merge({
             content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
             content_type: this.getContentType(rudderElement, ["product"]),
             content_name: rudderElement.message.properties.product_name || "",
@@ -7889,7 +7894,7 @@ var rudderanalytics = (function (exports) {
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq("trackSingle", _this.pixelId, event, {
+            window.fbq("trackSingle", self.pixelId, event, {
               currency: rudderElement.message.properties.currency,
               value: useValue ? _this.formatRevenue(rudderElement.message.properties.value) : _this.formatRevenue(rudderElement.message.properties.price)
             }, {
@@ -7899,7 +7904,7 @@ var rudderanalytics = (function (exports) {
         } else if (event === "Product Added") {
           var useValue = this.valueFieldIdentifier === "properties.value";
           var customProperties = this.buildPayLoad(rudderElement, true);
-          window.fbq("trackSingle", this.pixelId, "AddToCart", this.merge({
+          window.fbq("trackSingle", self.pixelId, "AddToCart", this.merge({
             content_ids: [rudderElement.message.properties.product_id || rudderElement.message.properties.id || rudderElement.message.properties.sku || ""],
             content_type: this.getContentType(rudderElement, ["product"]),
             content_name: rudderElement.message.properties.product_name || "",
@@ -7915,7 +7920,7 @@ var rudderanalytics = (function (exports) {
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq("trackSingle", _this.pixelId, event, {
+            window.fbq("trackSingle", self.pixelId, event, {
               currency: rudderElement.message.properties.currency,
               value: useValue ? _this.formatRevenue(rudderElement.message.properties.value) : _this.formatRevenue(rudderElement.message.properties.price)
             }, {
@@ -7936,7 +7941,7 @@ var rudderanalytics = (function (exports) {
             }]
           }, customProperties);
         } else if (event === "Order Completed") {
-          var products = rudderElement.message.properites.products;
+          var products = rudderElement.message.properties.products;
           var customProperties = this.buildPayLoad(rudderElement, true);
           var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
           var contentType = this.getContentType(rudderElement, ["product"]);
@@ -7958,7 +7963,7 @@ var rudderanalytics = (function (exports) {
             contents.push(content);
           }
 
-          window.fbq("trackSingle", this.pixelId, "Purchase", this.merge({
+          window.fbq("trackSingle", self.pixelId, "Purchase", this.merge({
             content_ids: contentIds,
             content_type: contentType,
             currency: rudderElement.message.properties.currency,
@@ -7969,22 +7974,22 @@ var rudderanalytics = (function (exports) {
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq("trackSingle", _this.pixelId, event, {
+            window.fbq("trackSingle", self.pixelId, event, {
               currency: rudderElement.message.properties.currency,
               value: _this.formatRevenue(rudderElement.message.properties.revenue)
             }, {
               eventID: rudderElement.message.messageId
             });
-          }, legacyto);
+          }, legacyTo);
         } else if (event === "Products Searched") {
           var customProperties = this.buildPayLoad(rudderElement, true);
-          window.fbq("trackSingle", this.pixelId, "Search", merge({
+          window.fbq("trackSingle", self.pixelId, "Search", this.merge({
             search_string: rudderElement.message.properties.query
           }, customProperties), {
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq("trackSingle", _this.pixelId, event, {
+            window.fbq("trackSingle", self.pixelId, event, {
               currency: rudderElement.message.properties.currency,
               value: formatRevenue(rudderElement.message.properties.revenue)
             }, {
@@ -7992,7 +7997,7 @@ var rudderanalytics = (function (exports) {
             });
           }, legacyTo);
         } else if (event === "Checkout Started") {
-          var products = rudderElement.message.properites.products;
+          var products = rudderElement.message.properties.products;
           var customProperties = this.buildPayLoad(rudderElement, true);
           var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
           var contentCategory = rudderElement.message.properties.category;
@@ -8000,7 +8005,8 @@ var rudderanalytics = (function (exports) {
           var contents = [];
 
           for (var i = 0; i < products.length; i++) {
-            var pId = product.product_id;
+            var _product = products[i];
+            var pId = _product.product_id;
             contentIds.push(pId);
             var content = {
               id: pId,
@@ -8019,7 +8025,7 @@ var rudderanalytics = (function (exports) {
             contentCategory = products[0].category;
           }
 
-          window.fbq("trackSingle", this.pixelId, "InitiateCheckout", this.merge({
+          window.fbq("trackSingle", self.pixelId, "InitiateCheckout", this.merge({
             content_category: contentCategory,
             content_ids: contentIds,
             content_type: this.getContentType(rudderElement, ["product"]),
@@ -8031,13 +8037,13 @@ var rudderanalytics = (function (exports) {
             eventID: rudderElement.message.messageId
           });
           each_1(function (event) {
-            window.fbq("trackSingle", _this.pixelId, event, {
+            window.fbq("trackSingle", self.pixelId, event, {
               currency: rudderElement.message.properties.currency,
               value: _this.formatRevenue(rudderElement.message.properties.revenue)
             }, {
               eventID: rudderElement.message.messageId
             });
-          }, legacyto);
+          }, legacyTo);
         }
       }
     }, {

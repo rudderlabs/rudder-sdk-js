@@ -45,8 +45,8 @@
         }
       );
     
-      rudderanalytics.track();
-      rudderanalytics.page(); //Turn this on if Chartbeat is a destination
+  
+     
     </script>
 
     <script src="./browser.js"></script>
@@ -72,6 +72,127 @@
         value: 3000,
         checkinDate: "Thu Mar 24 2018 17:46:45 GMT+0000 (UTC)"
       });
+      window.rudderanalytics.track('Payment Info Entered',
+          {
+            category: 'Games',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                position: 1,
+                category: 'Cars',
+                url: 'https://www.example.com/product/path',
+                image_url: 'https://www.example.com/product/path.jpg'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                position: 2,
+                category: 'Cars'
+              }
+            ]
+          });
+          window.rudderanalytics.track('Products Searched',
+          {
+            category: 'Games',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                position: 1,
+                category: 'Cars',
+                url: 'https://www.example.com/product/path',
+                image_url: 'https://www.example.com/product/path.jpg'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                position: 2,
+                category: 'Cars'
+              }
+            ]
+          });
+          window.rudderanalytics.track('Product Added to Watchlist',
+          {
+            category: 'Games',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                position: 1,
+                category: 'Cars',
+                url: 'https://www.example.com/product/path',
+                image_url: 'https://www.example.com/product/path.jpg'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                position: 2,
+                category: 'Cars'
+              }
+            ]
+          });
+          window.rudderanalytics.track('Checkout Started',
+          {
+            category: 'Games',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                position: 1,
+                category: 'Cars',
+                url: 'https://www.example.com/product/path',
+                image_url: 'https://www.example.com/product/path.jpg'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                position: 2,
+                category: 'Cars'
+              }
+            ]
+          });
+          window.rudderanalytics.track('New User Registered',
+          {
+            category: 'Games',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                sku: '45790-32',
+                name: 'Monopoly: 3rd Edition',
+                price: 19,
+                position: 1,
+                category: 'Cars',
+                url: 'https://www.example.com/product/path',
+                image_url: 'https://www.example.com/product/path.jpg'
+              },
+              {
+                product_id: '505bd76785ebb509fc183733',
+                sku: '46493-32',
+                name: 'Uno Card Game',
+                price: 3,
+                position: 2,
+                category: 'Cars'
+              }
+            ]
+          });
+
       // window.rudderanalytics.page();
 
     </script>
