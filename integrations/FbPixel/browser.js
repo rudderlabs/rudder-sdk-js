@@ -114,7 +114,7 @@ class FBPixel {
       return filtered;
     }, []);
 
-    each(function (event) {
+    each(event => {
       if (event === "Purchase"){
         payload.currency = rudderElement.message.properties.currency || "USD";
       }
@@ -124,7 +124,7 @@ class FBPixel {
       });
     }, standardTo);
 
-    each(function (event) {
+    each(event => {
       window.fbq(
         "trackSingle",
         this.pixelId,
@@ -186,7 +186,7 @@ class FBPixel {
         }
       );
 
-      each(function (event) {
+      each(event => {
         window.fbq(
           "trackSingle",
           this.pixelId,
@@ -242,7 +242,7 @@ class FBPixel {
         }
       );
 
-      each(function (event) {
+      each(event => {
         window.fbq(
           "trackSingle",
           this.pixelId,
@@ -300,7 +300,7 @@ class FBPixel {
         }
       );
 
-      each(function (event) {
+      each(event => {
         window.fbq(
           "trackSingle",
           this.pixelId,
@@ -389,7 +389,7 @@ class FBPixel {
         }
       );
 
-      each(function (event) {
+      each(event => {
         window.fbq(
           "trackSingle",
           this.pixelId,
@@ -420,7 +420,7 @@ class FBPixel {
         }
       );
 
-      each(function (event) {
+      each(event => {
         window.fbq(
           "trackSingle",
           this.pixelId,
@@ -481,7 +481,7 @@ class FBPixel {
         }
       );
 
-      each(function (event) {
+      each(event => {
         window.fbq(
           "trackSingle",
           this.pixelId,
