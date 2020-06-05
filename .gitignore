@@ -13,3 +13,5 @@ local.properties
 *.apk
 *.zip
 package-lock.json
+build.sh
+publish.sh
