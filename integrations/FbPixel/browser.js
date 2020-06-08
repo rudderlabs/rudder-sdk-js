@@ -98,14 +98,8 @@ class FBPixel {
     var legacyTo;
 
     standardTo = standard.reduce((filtered, standard) => {
-      let key;
-      Object.keys(standard).forEach((k) => {
-        if (k !== "from") {
-          key = k;
-        }
-      });
       if (standard.from === event) {
-        filtered.push(key);
+        filtered.push(standard.to);
       }
       return filtered;
     }, []);

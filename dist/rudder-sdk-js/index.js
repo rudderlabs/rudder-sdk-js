@@ -7796,15 +7796,8 @@
         var standardTo;
         var legacyTo;
         standardTo = standard.reduce(function (filtered, standard) {
-          var key;
-          Object.keys(standard).forEach(function (k) {
-            if (k !== "from") {
-              key = k;
-            }
-          });
-
           if (standard.from === event) {
-            filtered.push(key);
+            filtered.push(standard.to);
           }
 
           return filtered;
