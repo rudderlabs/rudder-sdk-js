@@ -3,7 +3,7 @@ import logger from "../../utils/logUtil";
 import is from "is";
 import each from "@ndhoule/each";
 
-class FBPixel {
+class FacebookPixel {
   constructor(config) {
     this.blacklistPiiProperties = config.blacklistPiiProperties;
     this.categoryToContent = config.categoryToContent;
@@ -614,4 +614,4 @@ class FBPixel {
   }
 }
 
-export { FBPixel };
+export { FacebookPixel };
