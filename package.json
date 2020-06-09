@@ -12,6 +12,7 @@
   ],
   "scripts": {
     "test": "./scripts/run_tests.sh",
+    "prodTest": "npm run buildProdBrowser && sed 's/var rudderanalytics/rudderanalytics/g' dist/rudder-analytics.min.js > __tests__/prod_test.js && jest script.test.js",
     "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",
     "buildProdBrowser": "NODE_ENV=false PROD_DEBUG=true ENV=prod uglify=true rollup -c",
     "buildProdBrowserDebug": "NODE_ENV=false ENV=prod PROD_DEBUG_INLINE=true uglify=true rollup -c",
@@ -59,6 +60,7 @@
   "devDependencies": {
     "@babel/core": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
+    "@mediaeventservices/jest-environment-jsdom-external-scripts": "^21.2.2",
     "@size-limit/preset-big-lib": "^4.4.1",
     "eslint": "^6.1.0",
     "eslint-config-airbnb": "^18.0.1",
@@ -68,6 +70,7 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "^1.7.0",
+    "jest": "^26.0.1",
     "rollup": "^1.22.0",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-brotli": "^2.0.2",
