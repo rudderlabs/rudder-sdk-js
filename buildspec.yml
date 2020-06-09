@@ -14,7 +14,7 @@ phases:
       - mv dist/prod.js dist/rudder-analytics.min.js
   post_build:
     commands:
-      - aws s3 cp dist/rudder-analytics.min.js s3://test-JS/rudder-analytics.min.js --metadata '{"max-age":"3600"}'
+      - aws s3 cp dist/rudder-analytics.min.js s3://test-js-pipeline/rudder-analytics.min.js --metadata '{"max-age":"3600"}'
 artifacts:
   files:
     - "**/*"
