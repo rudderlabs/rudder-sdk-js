@@ -14,7 +14,7 @@ phases:
       - mv dist/prod.js dist/rudder-analytics.min.js
   post_build:
     commands:
-      - aws s3 cp dist/rudder-analytics.min.js s3://$S3_BUCKET_NAME/rudder-analytics.min.js
+      - aws s3 cp dist/rudder-analytics.min.js s3://$S3_BUCKET_NAME/rudder-analytics.min.js --metadata '{"Cache-Control":"max-age=3600"}'
 artifacts:
   files:
     - "**/*"
