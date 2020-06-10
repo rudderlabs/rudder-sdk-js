@@ -19,7 +19,7 @@ test('Check SDK is loaded as object and api calls reaching to hit network', () =
     require("./prod_test.js")
 
     console.log(rudderanalytics)
-    
+
     rudderanalytics.page()
     rudderanalytics.track("test-event")
     rudderanalytics.identify("jest-user")
@@ -27,5 +27,5 @@ test('Check SDK is loaded as object and api calls reaching to hit network', () =
     // check the sdk loaded successfully
     expect(global.rudderanalytics.push).not.toBe(Array.prototype.push);
     // one source config endpoint call, one implicit page call, three explicit calls
-    expect(xhrMock.send).toHaveBeenCalledTimes(5)
+    expect(xhrMock.send).toHaveBeenCalledTimes(2)
   });
