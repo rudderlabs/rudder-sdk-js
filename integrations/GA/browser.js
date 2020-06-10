@@ -7,7 +7,7 @@ import defaults from "@ndhoule/defaults";
 class GA {
   constructor(config) {
     this.trackingID = config.trackingID;
-    this.sendUserId = config.sendUserId || false; //from here new to be added in ui
+    this.sendUserId = config.sendUserId || false;
     this.dimensions = config.dimensions || [];
     this.metrics = config.metrics || [];
     this.contentGroupings = config.contentGroupings || [];
@@ -19,14 +19,14 @@ class GA {
     this.doubleClick = config.doubleClick || false;
     this.enhancedEcommerce = config.enhancedEcommerce || false;
     this.enhancedLinkAttribution = config.enhancedLinkAttribution || false;
- 
+
     this.includeSearch = config.includeSearch || false;
     this.setAllMappedProps = config.setAllMappedProps || true;
     this.siteSpeedSampleRate = config.siteSpeedSampleRate || 1;
     this.sampleRate = config.sampleRate || 100;
     this.trackCategorizedPages = config.trackCategorizedPages || true;
     this.trackNamedPages = config.trackNamedPages || true;
-    this.optimize = config.optimize || "";
+    this.optimizeContainerId = config.optimize || "";
     this.resetCustomDimensionsOnPage = config.resetCustomDimensionsOnPage || [];
     this.inputs = config;
     this.enhancedEcommerceLoaded = 0;
@@ -64,6 +64,7 @@ class GA {
       };
     ga.l = new Date().getTime();
 
+    //create ga with these properties. if the properties are empty it will take default values.
     var config = {
       cookieDomain: this.domain || GA.prototype.defaults.domain,
       siteSpeedSampleRate: this.siteSpeedSampleRate,
@@ -74,18 +75,21 @@ class GA {
 
     ga("create", this.trackingID, config);
 
-    if (this.optimize) {
-      ga("require", this.optimize);
+    if (this.optimizeContainerId) {
+      ga("require", this.optimizeContainerId);
     }
 
+    //this is to display advertising
     if (this.doubleClick) {
       ga("require", "displayfeatures");
     }
 
+    // https://support.google.com/analytics/answer/2558867?hl=en
     if (this.enhancedLinkAttribution) {
-      ga("require", "linkid", "linkid.js");
+      ga("require", "linkid");
     }
 
+    //a warning is in ga debugger if anonymize is false after initialization
     if (this.anonymizeIp) {
       ga("set", "anonymizeIp", true);
     }
@@ -106,23 +110,13 @@ class GA {
     for (let val of this.contentGroupings) {
       contentGroupingsArray[val.from] = val.to;
     }
-    console.log(rudderElement.message.userId);
+
+    //send global id
     if (this.sendUserId && rudderElement.message.userId) {
       ga("set", "userId", rudderElement.message.userId);
     }
-    var dimensionsArray = {};
-    for (let val of this.dimensions) {
-      dimensionsArray[val.from] = val.to;
-    }
-    var metricsArray = {};
-    for (let val of this.metrics) {
-      metricsArray[val.from] = val.to;
-    }
-    var contentGroupingsArray = {};
-    for (let val of this.contentGroupings) {
-      contentGroupingsArray[val.from] = val.to;
-    }
 
+    //custom dimensions and metrics
     var custom = metrics(
       rudderElement.message.context.traits,
       dimensionsArray,
@@ -160,13 +154,16 @@ class GA {
       var orderId = properties.orderId;
       var products = properties.products;
 
+      //orderId is required
       if (!orderId) return;
 
+      //ecommerce is required
       if (!this.ecommerce) {
         ga("require", "ecommerce");
         this.ecommerce = true;
       }
 
+      //add transaction
       ga("ecommerce:addTransaction", {
         affiliation: properties.affiliation,
         shipping: properties.shipping,
@@ -176,6 +173,7 @@ class GA {
         currency: properties.currency,
       });
 
+      //products added
       each(products, function (product) {
         var productTrack = createProductTrack(rudderElement, product);
 
@@ -506,6 +504,7 @@ class GA {
         eventAction: eventAction,
         eventLabel: eventLabel,
         eventValue: formatValue(eventValue),
+        // Allow users to override their nonInteraction integration setting for any single particluar event.
         nonInteraction:
           rudderElement.message.properties.nonInteraction !== undefined
             ? !!rudderElement.message.properties.nonInteraction
@@ -588,6 +587,11 @@ class GA {
       page: pagePath,
       title: pageTitle,
     };
+    // Reset custom dimension which are previously set.
+    // Uses the configured dimensions as:
+    // this.dimensions: { "fruit": "dimension1" }
+    // this.resetCustomDimensions: [ "fruit" ]
+    // --> resetCustomDimensions: { "dimension1": null }
 
     var resetCustomDimensions = {};
     for (var i = 0; i < this.resetCustomDimensionsOnPage.length; i++) {
@@ -598,6 +602,8 @@ class GA {
     }
 
     ga("set", resetCustomDimensions);
+
+    //adds more properties to pageview which will be sent
     pageview = extend(
       pageview,
       setCustomDimenionsAndMetrics(eventProperties, this.inputs)
@@ -611,10 +617,12 @@ class GA {
 
     ga("send", "pageview", pageview);
 
+    //categorized pages
     if (category && this.trackCategorizedPages) {
       this.track(rudderElement, { nonInteraction: 1 });
     }
 
+    //named pages
     if (name && this.trackNamedPages) {
       this.track(rudderElement, { nonInteraction: 1 });
     }
@@ -630,6 +638,19 @@ class GA {
     return !!window.gaplugins;
   }
 }
+
+/**
+ * Map google's custom dimensions, metrics & content groupings with `obj`.
+ *
+ * Example:
+ *
+ *      metrics({ revenue: 1.9 }, { { metrics : { revenue: 'metric8' } });
+ *      // => { metric8: 1.9 }
+ *
+ *      metrics({ revenue: 1.9 }, {});
+ *      // => {}
+ */
+
 function metrics(obj, dimensions, metrics, contentGroupings) {
   var ret = {};
 
@@ -678,6 +699,9 @@ function setCustomDimenionsAndMetrics(props, inputs) {
     }
   }
 }
+
+// Return the path based on `properties` and `options`
+
 function path(properties, includeSearch) {
   if (!properties) return;
   var str = properties.path;
@@ -685,12 +709,16 @@ function path(properties, includeSearch) {
   return str;
 }
 
+//Creates a track out of product properties.
+
 function createProductTrack(rudderElement, properties) {
   var props = properties || {};
   props.currency =
     properties.currency || rudderElement.message.properties.currency;
   return { properties: props };
 }
+
+// Loads ec.js (unless already loaded)
 function loadEnhancedEcommerce(rudderElement, a) {
   if (a === 0) {
     ga("require", "ec");
@@ -700,6 +728,8 @@ function loadEnhancedEcommerce(rudderElement, a) {
   ga("set", "&cu", rudderElement.message.properties.currency);
   return a;
 }
+
+//helper class to not repeat `ec:addProduct`
 function enhancedEcommerceTrackProduct(rudderElement, inputs) {
   var dimensionsArray = {};
   for (let val of inputs.dimensions) {
@@ -741,12 +771,13 @@ function enhancedEcommerceTrackProduct(rudderElement, inputs) {
   ga("ec:addProduct", product);
 }
 
+//extracts checkout options
 function extractCheckoutOptions(rudderElement) {
   var options = [
     rudderElement.message.properties.paymentMethod,
     rudderElement.message.properties.shippingMethod,
   ];
-
+  //remove all nulls and join with commas.
   var valid = rejectArr(options);
   return valid.length > 0 ? valid.join(", ") : null;
 }
@@ -780,6 +811,8 @@ function pushEnhancedEcommerce(rudderElement, inputs) {
 
   ga.apply(window, args);
 }
+
+//set action with data
 
 function enhancedEcommerceTrackProductAction(
   rudderElement,
