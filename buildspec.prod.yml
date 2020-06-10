@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+  build:
+    commands:
+      - ls
+      - npm install --unsafe-perm
+      - npm run prodTest
+      - npm run buildProdBrowser
+      - sed 's|rudder-analytics.min.js.map|https://cdn.rudderlabs.com/rudder-analytics.min.js.map|' dist/rudder-analytics.min.js  > dist/prod.js
+      - mv dist/prod.js dist/rudder-analytics.min.js
+  post_build:
+    commands:
+      - aws s3 cp dist/rudder-analytics.min.js s3://$S3_BUCKET_NAME/rudder-analytics.min.js --metadata '{"Cache-Control":"max-age=3600"}'
+      - aws s3 cp dist/rudder-analytics.min.js s3://$S3_BUCKET_NAME/v1/rudder-analytics.min.js --metadata '{"Cache-Control":"max-age=3600"}'
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/v1/rudder-analytics.min.js"
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/rudder-analytics.min.js"
+artifacts:
+  files:
+    - "**/*"
