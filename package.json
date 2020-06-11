@@ -25,6 +25,9 @@
     "size": "npm run size-build && size-limit",
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc "
   },
+  "pre-commit": [
+    "prodTest"
+  ],
   "author": "",
   "license": "ISC",
   "repository": {
@@ -71,6 +74,7 @@
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "^1.7.0",
     "jest": "^26.0.1",
+    "pre-commit": "^1.2.2",
     "rollup": "^1.22.0",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-brotli": "^2.0.2",
