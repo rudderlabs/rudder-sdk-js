@@ -490,7 +490,7 @@ var rudderanalytics = (function (exports) {
         }
 
         if (key != "All") {
-          // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys 
+          // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
           if (commonNames[key] != undefined && commonNames[key] != key) {
             delete integrationObject[key];
           }
@@ -507,7 +507,7 @@ var rudderanalytics = (function (exports) {
         }
 
         if (key != "All") {
-          // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys 
+          // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
           if (clientToServerNames[key] != undefined && clientToServerNames[key] != key) {
             delete integrationObject[key];
           }
@@ -516,9 +516,9 @@ var rudderanalytics = (function (exports) {
     });
   }
   /**
-   * 
-   * @param {*} sdkSuppliedIntegrations 
-   * @param {*} configPlaneEnabledIntegrations 
+   *
+   * @param {*} sdkSuppliedIntegrations
+   * @param {*} configPlaneEnabledIntegrations
    */
 
 
@@ -585,11 +585,23 @@ var rudderanalytics = (function (exports) {
       return enabledList;
     }
   }
+  /**
+   * reject all null values from array/object
+   * @param  {} obj
+   * @param  {} fn
+   */
+
 
   function rejectArr(obj, fn) {
     fn = fn || compact;
     return "array" == type(obj) ? rejectarray(obj, fn) : rejectobject(obj, fn);
   }
+  /**
+   * particular case when rejecting an array
+   * @param  {} arr
+   * @param  {} fn
+   */
+
 
   var rejectarray = function rejectarray(arr, fn) {
     var ret = [];
@@ -600,6 +612,13 @@ var rudderanalytics = (function (exports) {
 
     return ret;
   };
+  /**
+   * Rejecting null from any object other than arrays
+   * @param  {} obj
+   * @param  {} fn
+   *
+   */
+
 
   var rejectobject = function rejectobject(obj, fn) {
     var ret = {};
@@ -616,6 +635,11 @@ var rudderanalytics = (function (exports) {
   function compact(value) {
     return null == value;
   }
+  /**
+   * check type of object incoming in the rejectArr function
+   * @param  {} val
+   */
+
 
   function type(val) {
     switch (toString.call(val)) {
@@ -2413,7 +2437,7 @@ var rudderanalytics = (function (exports) {
         ga("create", this.trackingID, config);
 
         if (this.optimizeContainerId) {
-          ga("require", "");
+          ga("require", this.optimizeContainerId);
         } //ecommerce is required
 
 
@@ -2437,7 +2461,7 @@ var rudderanalytics = (function (exports) {
           ga("set", "anonymizeIp", true);
         }
 
-        console.log("===in init GA===");
+        logger.debug("===in init GA===");
       }
     }, {
       key: "identify",
@@ -2500,7 +2524,7 @@ var rudderanalytics = (function (exports) {
 
         var custom = metrics(rudderElement.message.context.traits, dimensionsArray, metricsArray, contentGroupingsArray);
         if (Object.keys(custom).length) ga("set", custom);
-        console.log("in GoogleAnalyticsManager identify");
+        logger.debug("in GoogleAnalyticsManager identify");
       }
     }, {
       key: "track",
@@ -2799,10 +2823,8 @@ var rudderanalytics = (function (exports) {
                 break;
 
               default:
-                var contextOpts; //need to implement
-
                 var interfaceOpts = this.inputs;
-                var opts = defaults_1(options || {}, contextOpts);
+                var opts = options || {};
                 opts = defaults_1(opts, interfaceOpts);
                 var eventCategory = rudderElement.message.properties.category;
                 var eventAction = rudderElement.message.event;
@@ -2833,7 +2855,7 @@ var rudderanalytics = (function (exports) {
 
                 payload = extend(payload, setCustomDimenionsAndMetrics(rudderElement.message.properties, this.inputs));
                 ga("send", "event", payload);
-                console.log("in GoogleAnalyticsManager track");
+                logger.debug("in GoogleAnalyticsManager track");
             }
           } else {
             var contextOpts; //need to implement
@@ -2870,7 +2892,7 @@ var rudderanalytics = (function (exports) {
 
             payload = extend(payload, setCustomDimenionsAndMetrics(rudderElement.message.properties, this.inputs));
             ga("send", "event", payload);
-            console.log("in GoogleAnalyticsManager track");
+            logger.debug("in GoogleAnalyticsManager track");
           }
       }
     }, {
@@ -2924,7 +2946,7 @@ var rudderanalytics = (function (exports) {
           _iterator9.f();
         }
 
-        console.log("in GoogleAnalyticsManager page");
+        logger.debug("in GoogleAnalyticsManager page");
         var category = rudderElement.message.properties.category;
         var eventProperties = rudderElement.message.properties;
         var name = rudderElement.message.properties.category + " " + rudderElement.message.name;
@@ -2989,7 +3011,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "isLoaded",
       value: function isLoaded() {
-        console.log("in GA isLoaded");
+        logger.debug("in GA isLoaded");
         return !!window.gaplugins;
       }
     }, {
@@ -3002,15 +3024,23 @@ var rudderanalytics = (function (exports) {
     return GA;
   }();
   /**
-   * Map google's custom dimensions, metrics & content groupings with `obj`.
    *
-   * Example:
    *
-   *      metrics({ revenue: 1.9 }, { { metrics : { revenue: 'metric8' } });
-   *      // => { metric8: 1.9 }
+   * @param  {} obj  incoming properties
+   * @param  {} dimensions   the dimension mapping which is entered by the user in the ui. Eg: firstName : dimension1
+   * @param  {} metrics  the metrics mapping which is entered by the user in the ui. Eg: age : metrics1
+   * @param  {} contentGroupings the contentGrouping mapping which is entered by the user in the ui. Eg: section : contentGrouping1
    *
-   *      metrics({ revenue: 1.9 }, {});
-   *      // => {}
+   * This function maps these dimensions,metrics and contentGroupings with the incoming properties to send it to GA where the user has to set the corresponding dimension/metric/content group.
+   * For example if:
+   * if obj -> {age: 24}
+   * metrics -> {age: metric1}
+   * then the function will return {metric1:24} and it will be shown sent to GA if metric1 is set there.
+   *
+   * if obj -> {age: 24}
+   * metrics - {revenue: metric2}
+   * then the function will return {} as there is no corresponding mapping of metric.
+   *
    */
 
 
@@ -3030,6 +3060,11 @@ var rudderanalytics = (function (exports) {
     if (!value || value < 0) return 0;
     return Math.round(value);
   }
+  /**
+   * @param  {} props
+   * @param  {} inputs
+   */
+
 
   function setCustomDimenionsAndMetrics(props, inputs) {
     var ret = {};
@@ -3093,7 +3128,13 @@ var rudderanalytics = (function (exports) {
         return ret;
       }
     }
-  } // Return the path based on `properties` and `options`
+  }
+  /**
+   *  Return the path based on `properties` and `options`
+   *
+   * @param  {} properties
+   * @param  {} includeSearch
+   */
 
 
   function path(properties, includeSearch) {
@@ -3101,7 +3142,12 @@ var rudderanalytics = (function (exports) {
     var str = properties.path;
     if (includeSearch && properties.search) str += properties.search;
     return str;
-  } //Creates a track out of product properties.
+  }
+  /**
+   * Creates a track out of product properties
+   * @param  {} rudderElement
+   * @param  {} properties
+   */
 
 
   function createProductTrack(rudderElement, properties) {
@@ -3110,7 +3156,12 @@ var rudderanalytics = (function (exports) {
     return {
       properties: props
     };
-  } // Loads ec.js (unless already loaded)
+  }
+  /**
+   * Loads ec.js (unless already loaded)
+   * @param  {} rudderElement
+   * @param  {} a
+   */
 
 
   function loadEnhancedEcommerce(rudderElement, a) {
@@ -3121,7 +3172,12 @@ var rudderanalytics = (function (exports) {
 
     ga("set", "&cu", rudderElement.message.properties.currency);
     return a;
-  } //helper class to not repeat `ec:addProduct`
+  }
+  /**
+   * helper class to not repeat `ec:addProduct`
+   * @param  {} rudderElement
+   * @param  {} inputs
+   */
 
 
   function enhancedEcommerceTrackProduct(rudderElement, inputs) {
@@ -3193,7 +3249,11 @@ var rudderanalytics = (function (exports) {
     if (coupon) product.coupon = coupon;
     product = extend(product, metrics(props, dimensionsArray, metricsArray, contentGroupingsArray));
     ga("ec:addProduct", product);
-  } //extracts checkout options
+  }
+  /**
+   *extracts checkout options
+   * @param  {} rudderElement
+   */
 
 
   function extractCheckoutOptions(rudderElement) {
@@ -3202,6 +3262,11 @@ var rudderanalytics = (function (exports) {
     var valid = rejectArr(options);
     return valid.length > 0 ? valid.join(', ') : null;
   }
+  /**
+   * @param  {} rudderElement
+   * @param  {} inputs
+   */
+
 
   function pushEnhancedEcommerce(rudderElement, inputs) {
     var args = rejectArr(['send', 'event', rudderElement.message.properties.category || 'EnhancedEcommerce', rudderElement.message.event || 'Action not defined', rudderElement.message.properties.label, extend({
@@ -3216,13 +3281,26 @@ var rudderanalytics = (function (exports) {
     }
 
     ga.apply(window, args);
-  } //set action with data
+  } //
+
+  /**
+   * set action with data
+   * @param  {} rudderElement
+   * @param  {} action
+   * @param  {} data
+   * @param  {} inputs
+   */
 
 
   function enhancedEcommerceTrackProductAction(rudderElement, action, data, inputs) {
     enhancedEcommerceTrackProduct(rudderElement, inputs);
     ga('ec:setAction', action, data || {});
   }
+  /**
+   * @param  {} item
+   * @param  {} products
+   */
+
 
   function getProductPosition(item, products) {
     var position = item.properties.position;
@@ -3234,7 +3312,7 @@ var rudderanalytics = (function (exports) {
     return products.map(function (x) {
       return x.product_id;
     }).indexOf(item.properties.product_id) + 1;
-  } // function rejectArr(obj, fn) {
+  }
 
   var index$1 =  GA ;
 
