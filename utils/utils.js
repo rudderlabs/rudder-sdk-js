@@ -354,14 +354,21 @@ function findAllEnabledDestinations(
   }
 }
 
-//reject all null values from array/object
-
+/**
+ * reject all null values from array/object
+ * @param  {} obj
+ * @param  {} fn
+ */
 function rejectArr(obj, fn) {
   fn = fn || compact;
   return "array" == type(obj) ? rejectarray(obj, fn) : rejectobject(obj, fn);
 }
 
-//particular case when rejecting an array
+/**
+ * particular case when rejecting an array
+ * @param  {} arr
+ * @param  {} fn
+ */
 var rejectarray = function (arr, fn) {
   var ret = [];
 
@@ -372,8 +379,12 @@ var rejectarray = function (arr, fn) {
   return ret;
 };
 
-//when any other object is needed to be rejected
-
+/**
+ * Rejecting null from any object other than arrays
+ * @param  {} obj
+ * @param  {} fn
+ *
+ */
 var rejectobject = function (obj, fn) {
   var ret = {};
 
@@ -390,7 +401,10 @@ function compact(value) {
   return null == value;
 }
 
-//check type of object incoming in the rejectArr function
+/**
+ * check type of object incoming in the rejectArr function
+ * @param  {} val
+ */
 function type(val) {
   switch (toString.call(val)) {
     case "[object Function]":

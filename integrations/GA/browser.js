@@ -697,18 +697,26 @@ class GA {
   }
 }
 
-/**
- * Map google's custom dimensions, metrics & content groupings with `obj`.
- *
- * Example:
- *
- *      metrics({ revenue: 1.9 }, { { metrics : { revenue: 'metric8' } });
- *      // => { metric8: 1.9 }
- *
- *      metrics({ revenue: 1.9 }, {});
- *      // => {}
- */
 
+/**
+ * 
+ * 
+ * @param  {} obj  incoming properties
+ * @param  {} dimensions   the dimension mapping which is entered by the user in the ui. Eg: firstName : dimension1
+ * @param  {} metrics  the metrics mapping which is entered by the user in the ui. Eg: age : metrics1
+ * @param  {} contentGroupings the contentGrouping mapping which is entered by the user in the ui. Eg: section : contentGrouping1
+ * 
+ * This function maps these dimensions,metrics and contentGroupings with the incoming properties to send it to GA where the user has to set the corresponding dimension/metric/content group.
+ * For example if: 
+ * if obj -> {age: 24}
+ * metrics -> {age: metric1}
+ * then the function will return {metric1:24} and it will be shown sent to GA if metric1 is set there.
+ * 
+ * if obj -> {age: 24}
+ * metrics - {revenue: metric2}
+ * then the function will return {} as there is no corresponding mapping of metric.
+ * 
+ */
 function metrics(obj, dimensions, metrics, contentGroupings) {
   var ret = {};
 
@@ -726,6 +734,10 @@ function formatValue(value) {
   if (!value || value < 0) return 0;
   return Math.round(value);
 }
+/**
+ * @param  {} props
+ * @param  {} inputs
+ */
 function setCustomDimenionsAndMetrics(props, inputs) {
   var ret = {};
   var dimensionsArray = {};
@@ -758,8 +770,13 @@ function setCustomDimenionsAndMetrics(props, inputs) {
   }
 }
 
-// Return the path based on `properties` and `options`
 
+/**
+ *  Return the path based on `properties` and `options`
+ * 
+ * @param  {} properties
+ * @param  {} includeSearch
+ */
 function path(properties, includeSearch) {
   if (!properties) return;
   var str = properties.path;
@@ -767,8 +784,12 @@ function path(properties, includeSearch) {
   return str;
 }
 
-//Creates a track out of product properties.
 
+/**
+ * Creates a track out of product properties
+ * @param  {} rudderElement
+ * @param  {} properties
+ */
 function createProductTrack(rudderElement, properties) {
   var props = properties || {};
   props.currency =
@@ -776,7 +797,12 @@ function createProductTrack(rudderElement, properties) {
   return { properties: props };
 }
 
-// Loads ec.js (unless already loaded)
+
+/**
+ * Loads ec.js (unless already loaded)
+ * @param  {} rudderElement
+ * @param  {} a
+ */
 function loadEnhancedEcommerce(rudderElement, a) {
   if (a === 0) {
     ga("require", "ec");
@@ -787,7 +813,12 @@ function loadEnhancedEcommerce(rudderElement, a) {
   return a;
 }
 
-//helper class to not repeat `ec:addProduct`
+
+/**
+ * helper class to not repeat `ec:addProduct`
+ * @param  {} rudderElement
+ * @param  {} inputs
+ */
 function enhancedEcommerceTrackProduct(rudderElement, inputs) {
   var dimensionsArray = {};
   for (let val of inputs.dimensions) {
@@ -829,7 +860,10 @@ function enhancedEcommerceTrackProduct(rudderElement, inputs) {
   ga("ec:addProduct", product);
 }
 
-//extracts checkout options
+/**
+ *extracts checkout options 
+ * @param  {} rudderElement
+ */
 function extractCheckoutOptions(rudderElement) {
   var options = [
     rudderElement.message.properties.paymentMethod,
@@ -839,7 +873,10 @@ function extractCheckoutOptions(rudderElement) {
   var valid = rejectArr(options);
   return valid.length > 0 ? valid.join(", ") : null;
 }
-
+/**
+ * @param  {} rudderElement
+ * @param  {} inputs
+ */
 function pushEnhancedEcommerce(rudderElement, inputs) {
   var args = rejectArr([
     "send",
@@ -870,8 +907,16 @@ function pushEnhancedEcommerce(rudderElement, inputs) {
   ga.apply(window, args);
 }
 
-//set action with data
+//
 
+
+/**
+ * set action with data
+ * @param  {} rudderElement
+ * @param  {} action
+ * @param  {} data
+ * @param  {} inputs
+ */
 function enhancedEcommerceTrackProductAction(
   rudderElement,
   action,
@@ -882,6 +927,10 @@ function enhancedEcommerceTrackProductAction(
   ga("ec:setAction", action, data || {});
 }
 
+/**
+ * @param  {} item
+ * @param  {} products
+ */
 function getProductPosition(item, products) {
   var position = item.properties.position;
 
