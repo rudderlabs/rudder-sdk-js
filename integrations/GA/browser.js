@@ -72,15 +72,19 @@ class GA {
       sampleRate: this.sampleRate,
       allowLinker: true,
       useAmpClientId: this.useGoogleAmpClientId,
-      //name: "rudder_ga"
+      //   name: "rudder_ga"
     };
 
     ga("create", this.trackingID, config);
 
     if (this.optimizeContainerId) {
-      ga("require", "");
+      ga("require", this.optimizeContainerId);
     }
-
+    //ecommerce is required
+    if (!this.ecommerce) {
+      ga("require", "ecommerce");
+      this.ecommerce = true;
+    }
     //this is to display advertising
     if (this.doubleClick) {
       ga("require", "displayfeatures");
@@ -96,7 +100,7 @@ class GA {
       ga("set", "anonymizeIp", true);
     }
 
-    console.log("===in init GA===");
+    logger.debug("===in init GA===");
   }
 
   identify(rudderElement) {
@@ -128,7 +132,7 @@ class GA {
 
     if (Object.keys(custom).length) ga("set", custom);
 
-    console.log("in GoogleAnalyticsManager identify");
+    logger.debug("in GoogleAnalyticsManager identify");
   }
 
   track(rudderElement, options) {
@@ -156,12 +160,6 @@ class GA {
 
       //orderId is required
       if (!orderId) return;
-
-      //ecommerce is required
-      if (!this.ecommerce) {
-        ga("require", "ecommerce");
-        this.ecommerce = true;
-      }
 
       //add transaction
       ga("ecommerce:addTransaction", {
@@ -541,7 +539,7 @@ class GA {
           );
 
           ga("send", "event", payload);
-          console.log("in GoogleAnalyticsManager track");
+          logger.debug("in GoogleAnalyticsManager track");
       }
     } else {
       var contextOpts; //need to implement
@@ -590,7 +588,7 @@ class GA {
       );
 
       ga("send", "event", payload);
-      console.log("in GoogleAnalyticsManager track");
+      logger.debug("in GoogleAnalyticsManager track");
     }
   }
 
@@ -607,7 +605,7 @@ class GA {
     for (let val of this.contentGroupings) {
       contentGroupingsArray[val.from] = val.to;
     }
-    console.log("in GoogleAnalyticsManager page");
+    logger.debug("in GoogleAnalyticsManager page");
 
     var category = rudderElement.message.properties.category;
     var eventProperties = rudderElement.message.properties;
@@ -643,10 +641,6 @@ class GA {
       if (campaign.term) pageview.campaignKeyword = campaign.term;
     }
 
-    var payload = {
-      page: pagePath,
-      title: pageTitle,
-    };
     // Reset custom dimension which are previously set.
     // Uses the configured dimensions as:
     // this.dimensions: { "fruit": "dimension1" }
@@ -668,7 +662,10 @@ class GA {
       pageview,
       setCustomDimenionsAndMetrics(eventProperties, this.inputs)
     );
-
+    var payload = {
+      page: pagePath,
+      title: pageTitle,
+    };
     if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
 
     ga("set", payload);
@@ -689,7 +686,7 @@ class GA {
   }
 
   isLoaded() {
-    console.log("in GA isLoaded");
+    logger.debug("in GA isLoaded");
 
     return !!window.gaplugins;
   }

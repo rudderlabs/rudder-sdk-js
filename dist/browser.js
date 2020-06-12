@@ -2405,13 +2405,19 @@ var rudderanalytics = (function (exports) {
           siteSpeedSampleRate: this.siteSpeedSampleRate,
           sampleRate: this.sampleRate,
           allowLinker: true,
-          useAmpClientId: this.useGoogleAmpClientId //name: "rudder_ga"
+          useAmpClientId: this.useGoogleAmpClientId //   name: "rudder_ga"
 
         };
         ga("create", this.trackingID, config);
 
         if (this.optimizeContainerId) {
           ga("require", "");
+        } //ecommerce is required
+
+
+        if (!this.ecommerce) {
+          ga("require", "ecommerce");
+          this.ecommerce = true;
         } //this is to display advertising
 
 
@@ -2552,13 +2558,7 @@ var rudderanalytics = (function (exports) {
           var orderId = properties.orderId;
           var products = properties.products; //orderId is required
 
-          if (!orderId) return; //ecommerce is required
-
-          if (!this.ecommerce) {
-            ga("require", "ecommerce");
-            this.ecommerce = true;
-          } //add transaction
-
+          if (!orderId) return; //add transaction
 
           ga("ecommerce:addTransaction", {
             affiliation: properties.affiliation,
@@ -2940,16 +2940,12 @@ var rudderanalytics = (function (exports) {
           if (campaign.medium) pageview.campaignMedium = campaign.medium;
           if (campaign.content) pageview.campaignContent = campaign.content;
           if (campaign.term) pageview.campaignKeyword = campaign.term;
-        }
-
-        var payload = {
-          page: pagePath,
-          title: pageTitle
-        }; // Reset custom dimension which are previously set.
+        } // Reset custom dimension which are previously set.
         // Uses the configured dimensions as:
         // this.dimensions: { "fruit": "dimension1" }
         // this.resetCustomDimensions: [ "fruit" ]
         // --> resetCustomDimensions: { "dimension1": null }
+
 
         var resetCustomDimensions = {};
 
@@ -2964,6 +2960,10 @@ var rudderanalytics = (function (exports) {
         ga("set", resetCustomDimensions); //adds more properties to pageview which will be sent
 
         pageview = extend(pageview, setCustomDimenionsAndMetrics(eventProperties, this.inputs));
+        var payload = {
+          page: pagePath,
+          title: pageTitle
+        };
         if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
         ga("set", payload);
         if (this.pageCalled) delete pageview.location;
