@@ -1,4 +1,5 @@
 import logger from "../../utils/logUtil";
+import { rejectArr } from "../../utils/utils"
 import is from "is";
 import each from "component-each";
 import extend from "extend";
@@ -71,12 +72,13 @@ class GA {
       sampleRate: this.sampleRate,
       allowLinker: true,
       useAmpClientId: this.useGoogleAmpClientId,
+      //name: "rudder_ga"
     };
 
     ga("create", this.trackingID, config);
 
     if (this.optimizeContainerId) {
-      ga("require", this.optimizeContainerId);
+      ga("require", "");
     }
 
     //this is to display advertising
@@ -94,7 +96,7 @@ class GA {
       ga("set", "anonymizeIp", true);
     }
 
-    logger.debug("===in init GA===");
+    console.log("===in init GA===");
   }
 
   identify(rudderElement) {
@@ -192,36 +194,38 @@ class GA {
     }
     // enhanced ecommerce events
     else if (
-      (event === "Checkout Started" ||
-        event === "Checkout Step Viewed" ||
-        event === "Order Updated") &&
       this.enhancedEcommerce
     ) {
-      var self = this;
+      switch(event){
+        case "Checkout Started":
+          case "Checkout Step Viewed":
+            case "Order Updated":
+              var self = this;
 
-      var properties = rudderElement.message.properties;
-      var products = properties.products;
-      var options = extractCheckoutOptions(rudderElement);
-
-      this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
-        rudderElement,
-        this.enhancedEcommerceLoaded
-      );
-      each(products, function (product) {
-        var productTrack = createProductTrack(rudderElement, product);
-        productTrack = { message: productTrack };
-
-        enhancedEcommerceTrackProduct(productTrack, self.inputs);
-      });
-
-      ga("ec:setAction", "checkout", {
-        step: properties.step || 1,
-        option: options || undefined,
-      });
-
-      pushEnhancedEcommerce(rudderElement, this.inputs);
-    } else if (event === "Checkout Step Completed" && this.enhancedEcommerce) {
-      var props = rudderElement.message.properties;
+              var properties = rudderElement.message.properties;
+              var products = properties.products;
+              var options = extractCheckoutOptions(rudderElement);
+        
+              this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
+                rudderElement,
+                this.enhancedEcommerceLoaded
+              );
+              each(products, function (product) {
+                var productTrack = createProductTrack(rudderElement, product);
+                productTrack = { message: productTrack };
+        
+                enhancedEcommerceTrackProduct(productTrack, self.inputs);
+              });
+        
+              ga("ec:setAction", "checkout", {
+                step: properties.step || 1,
+                option: options || undefined,
+              });
+        
+              pushEnhancedEcommerce(rudderElement, this.inputs);
+ break;
+case "Checkout Step Completed":
+  var props = rudderElement.message.properties;
       var options = extractCheckoutOptions(rudderElement);
 
       if (!props.step) return;
@@ -238,8 +242,9 @@ class GA {
 
       ga("ec:setAction", "checkout_option", params);
       ga("send", "event", "Checkout", "Option");
-    } else if (event === "Order Completed" && this.enhancedEcommerce) {
-      var self = this;
+break;
+case "Order Completed":
+  var self = this;
       var total =
         rudderElement.message.properties.total ||
         rudderElement.message.properties.revenue ||
@@ -270,105 +275,112 @@ class GA {
       });
 
       pushEnhancedEcommerce(rudderElement, this.inputs);
-    } else if (event === "Order Refunded" && this.enhancedEcommerce) {
-      var props = rudderElement.message.properties;
-      var orderId = props.orderId;
-      var products = props.products;
-
-      if (!orderId) return;
-
-      this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
-        rudderElement,
-        this.enhancedEcommerceLoaded
-      );
-
-      each(products, function (product) {
-        var track = { properties: product };
-        ga("ec:addProduct", {
-          id:
-            track.properties.product_id ||
-            track.properties.id ||
-            track.properties.sku,
-          quantity: track.properties.quantity,
+      break;
+      case "Order Refunded":
+        var props = rudderElement.message.properties;
+        var orderId = props.orderId;
+        var products = props.products;
+  
+        if (!orderId) return;
+  
+        this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
+          rudderElement,
+          this.enhancedEcommerceLoaded
+        );
+  
+        each(products, function (product) {
+          var track = { properties: product };
+          ga("ec:addProduct", {
+            id:
+              track.properties.product_id ||
+              track.properties.id ||
+              track.properties.sku,
+            quantity: track.properties.quantity,
+          });
         });
-      });
+  
+        ga("ec:setAction", "refund", {
+          id: orderId,
+        });
+  
+        pushEnhancedEcommerce(rudderElement, this.inputs);
+        break;
+        case "Product Added":
+          this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
+            rudderElement,
+            this.enhancedEcommerceLoaded
+          );
+          enhancedEcommerceTrackProductAction(
+            rudderElement,
+            "add",
+            null,
+            this.inputs
+          );
+          pushEnhancedEcommerce(rudderElement, this.inputs);
+          break;
+case "Product Removed":
+  this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
+    rudderElement,
+    this.enhancedEcommerceLoaded
+  );
+  enhancedEcommerceTrackProductAction(
+    rudderElement,
+    "remove",
+    null,
+    this.inputs
+  );
+  pushEnhancedEcommerce(rudderElement, this.inputs);
+  break;
+case "Product Viewed":
+  var props = rudderElement.message.properties;
+  var data = {};
+  this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
+    rudderElement,
+    this.enhancedEcommerceLoaded
+  );
 
-      ga("ec:setAction", "refund", {
-        id: orderId,
-      });
+  if (props.list) data.list = props.list;
+  enhancedEcommerceTrackProductAction(
+    rudderElement,
+    "detail",
+    data,
+    this.inputs
+  );
+  pushEnhancedEcommerce(rudderElement, this.inputs);
+  break;
+case "Product Clicked":
+  var props = rudderElement.message.properties;
+  var data = {};
+  this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
+    rudderElement,
+    this.enhancedEcommerceLoaded
+  );
 
-      pushEnhancedEcommerce(rudderElement, this.inputs);
-    } else if (event === "Product Added" && this.enhancedEcommerce) {
-      this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
-        rudderElement,
-        this.enhancedEcommerceLoaded
-      );
-      enhancedEcommerceTrackProductAction(
-        rudderElement,
-        "add",
-        null,
-        this.inputs
-      );
-      pushEnhancedEcommerce(rudderElement, this.inputs);
-    } else if (event === "Product Removed" && this.enhancedEcommerce) {
-      this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
-        rudderElement,
-        this.enhancedEcommerceLoaded
-      );
-      enhancedEcommerceTrackProductAction(
-        rudderElement,
-        "remove",
-        null,
-        this.inputs
-      );
-      pushEnhancedEcommerce(rudderElement, this.inputs);
-    } else if (event === "Product Viewed" && this.enhancedEcommerce) {
-      var props = rudderElement.message.properties;
-      var data = {};
-      this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
-        rudderElement,
-        this.enhancedEcommerceLoaded
-      );
+  if (props.list) data.list = props.list;
+  enhancedEcommerceTrackProductAction(
+    rudderElement,
+    "click",
+    data,
+    this.inputs
+  );
+  pushEnhancedEcommerce(rudderElement, this.inputs);
+  break;
+  case "Promotion Viewed":
+    var props = rudderElement.message.properties;
 
-      if (props.list) data.list = props.list;
-      enhancedEcommerceTrackProductAction(
-        rudderElement,
-        "detail",
-        data,
-        this.inputs
-      );
-      pushEnhancedEcommerce(rudderElement, this.inputs);
-    } else if (event === "Product Clicked" && this.enhancedEcommerce) {
-      var props = rudderElement.message.properties;
-      var data = {};
-      this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
-        rudderElement,
-        this.enhancedEcommerceLoaded
-      );
-
-      if (props.list) data.list = props.list;
-      enhancedEcommerceTrackProductAction(
-        rudderElement,
-        "click",
-        data,
-        this.inputs
-      );
-      pushEnhancedEcommerce(rudderElement, this.inputs);
-    } else if (event === "Promotion Viewed" && this.enhancedEcommerce) {
-      var props = rudderElement.message.properties;
-
-      this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
-        rudderElement,
-        this.enhancedEcommerceLoaded
-      );
-      ga("ec:addPromo", {
-        id: props.promotionId || props.id,
-        name: props.name,
-        creative: props.creative,
-        position: props.position,
-      });
-      pushEnhancedEcommerce(rudderElement, this.inputs);
-    } else if (event === "Promotion Clicked" && this.enhancedEcommerce) {
+    this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
+      rudderElement,
+      this.enhancedEcommerceLoaded
+    );
+    ga("ec:addPromo", {
+      id: props.promotionId || props.id,
+      name: props.name,
+      creative: props.creative,
+      position: props.position,
+    });
+    pushEnhancedEcommerce(rudderElement, this.inputs);
+    break;
+    case "Promotion Clicked":
       var props = rudderElement.message.properties;
       this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
         rudderElement,
@@ -383,107 +395,161 @@ class GA {
       });
       ga("ec:setAction", "promo_click", {});
       pushEnhancedEcommerce(rudderElement, this.inputs);
-    } else if (event === "Product List Viewed" && this.enhancedEcommerce) {
-      var props = rudderElement.message.properties;
-      var products = props.products;
-
-      this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
-        rudderElement,
-        this.enhancedEcommerceLoaded
-      );
-
-      each(products, function (product) {
-        var item = { properties: product };
-        if (
-          !(item.properties.product_id || item.properties.sku) &&
-          !item.properties.name
-        )
-          return;
-        var impressionObj = {
-          id: item.properties.productId || item.properties.sku,
-          name: item.properties.name,
-          category: item.properties.category || props.category,
-          list: props.list_id || props.category || "products",
-          brand: item.properties.band,
-          variant: item.properties.variant,
-          price: item.properties.price,
-          position: getProductPosition(item, products),
-        };
-        impressionObj = extend(
-          impressionObj,
-          metrics(
-            item.properties,
-            dimensionsArray,
-            metricsArray,
-            contentGroupingsArray
-          )
+      break;
+      case "Product List Viewed":
+        var props = rudderElement.message.properties;
+        var products = props.products;
+  
+        this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
+          rudderElement,
+          this.enhancedEcommerceLoaded
         );
-
-        for (var prop in impressionObj) {
-          if (impressionObj[prop] === undefined) delete impressionObj[prop];
-        }
-        ga("ec:addImpression", impressionObj);
-      });
-      pushEnhancedEcommerce(rudderElement, this.inputs);
-    } else if (event === "Product List Filtered" && this.enhancedEcommerce) {
-      var props = rudderElement.message.properties;
-      var products = props.products;
-      props.filters = props.filters || [];
-      props.sorters = props.sorters || [];
-      var filters = props.filters
-        .map(function (obj) {
-          return obj.type + ":" + obj.value;
-        })
-        .join();
-      var sorts = props.sorters
-        .map(function (obj) {
-          return obj.type + ":" + obj.value;
-        })
-        .join();
-
-      this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
-        rudderElement,
-        this.enhancedEcommerceLoaded
-      );
-
-      each(products, function (product) {
-        var item = { properties: product };
-
-        if (
-          !(item.properties.product_id || item.properties.sku) &&
-          !item.properties.name
-        ) {
-          return;
-        }
-
-        var impressionObj = {
-          id: item.properties.product_id || item.sku,
-          name: item.name,
-          category: item.category || props.category,
-          list: props.list_id || props.category || "search results",
-          brand: props.brand,
-          variant: filters + "::" + sorts,
-          price: item.price,
-          position: getProductPosition(item, products),
-        };
-
-        impressionObj = extend(
-          impressionObj,
-          metrics(
-            item.properties,
-            dimensionsArray,
-            metricsArray,
-            contentGroupingsArray
+  
+        each(products, function (product) {
+          var item = { properties: product };
+          if (
+            !(item.properties.product_id || item.properties.sku) &&
+            !item.properties.name
           )
-        );
+            return;
+          var impressionObj = {
+            id: item.properties.productId || item.properties.sku,
+            name: item.properties.name,
+            category: item.properties.category || props.category,
+            list: props.list_id || props.category || "products",
+            brand: item.properties.band,
+            variant: item.properties.variant,
+            price: item.properties.price,
+            position: getProductPosition(item, products),
+          };
+          impressionObj = extend(
+            impressionObj,
+            metrics(
+              item.properties,
+              dimensionsArray,
+              metricsArray,
+              contentGroupingsArray
+            )
+          );
+  
+          for (var prop in impressionObj) {
+            if (impressionObj[prop] === undefined) delete impressionObj[prop];
+          }
+          ga("ec:addImpression", impressionObj);
+        });
+        pushEnhancedEcommerce(rudderElement, this.inputs);
+        break;
+        case "Product List Filtered":
+          var props = rudderElement.message.properties;
+          var products = props.products;
+          props.filters = props.filters || [];
+          props.sorters = props.sorters || [];
+          var filters = props.filters
+            .map(function (obj) {
+              return obj.type + ":" + obj.value;
+            })
+            .join();
+          var sorts = props.sorters
+            .map(function (obj) {
+              return obj.type + ":" + obj.value;
+            })
+            .join();
+    
+          this.enhancedEcommerceLoaded = loadEnhancedEcommerce(
+            rudderElement,
+            this.enhancedEcommerceLoaded
+          );
+    
+          each(products, function (product) {
+            var item = { properties: product };
+    
+            if (
+              !(item.properties.product_id || item.properties.sku) &&
+              !item.properties.name
+            ) {
+              return;
+            }
+    
+            var impressionObj = {
+              id: item.properties.product_id || item.sku,
+              name: item.name,
+              category: item.category || props.category,
+              list: props.list_id || props.category || "search results",
+              brand: props.brand,
+              variant: filters + "::" + sorts,
+              price: item.price,
+              position: getProductPosition(item, products),
+            };
+    
+            impressionObj = extend(
+              impressionObj,
+              metrics(
+                item.properties,
+                dimensionsArray,
+                metricsArray,
+                contentGroupingsArray
+              )
+            );
+    
+            for (var prop in impressionObj) {
+              if (impressionObj[prop] === undefined) delete impressionObj[prop];
+            }
+            ga("ec:addImpression", impressionObj);
+          });
+          pushEnhancedEcommerce(rudderElement, this.inputs);
+          break;
+          default:
+            var contextOpts; //need to implement
+            var interfaceOpts = this.inputs;
+            var opts = defaults(options || {}, contextOpts);
+            opts = defaults(opts, interfaceOpts);
+      
+            var eventCategory = rudderElement.message.properties.category;
+            var eventAction = rudderElement.message.event;
+            var eventLabel = rudderElement.message.properties.label;
+            var eventValue = "";
+            if (rudderElement.message.properties) {
+              eventValue = rudderElement.message.properties.value
+                ? rudderElement.message.properties.value
+                : rudderElement.message.properties.revenue;
+            }
+      
+            var payload = {
+              eventCategory: eventCategory || "All",
+              eventAction: eventAction,
+              eventLabel: eventLabel,
+              eventValue: formatValue(eventValue),
+              // Allow users to override their nonInteraction integration setting for any single particluar event.
+              nonInteraction:
+                rudderElement.message.properties.nonInteraction !== undefined
+                  ? !!rudderElement.message.properties.nonInteraction
+                  : !!opts.nonInteraction,
+            };
+      
+            var campaign = rudderElement.message.context.campaign;
+      
+            if (campaign) {
+              if (campaign.name) payload.campaignName = campaign.name;
+              if (campaign.source) payload.campaignSource = campaign.source;
+              if (campaign.medium) payload.campaignMedium = campaign.medium;
+              if (campaign.content) payload.campaignContent = campaign.content;
+              if (campaign.term) payload.campaignKeyword = campaign.term;
+            }
+      
+            payload = extend(
+              payload,
+              setCustomDimenionsAndMetrics(
+                rudderElement.message.properties,
+                this.inputs
+              )
+            );
+      
+            ga("send", "event", payload);
+            console.log("in GoogleAnalyticsManager track");
+          }
 
-        for (var prop in impressionObj) {
-          if (impressionObj[prop] === undefined) delete impressionObj[prop];
-        }
-        ga("ec:addImpression", impressionObj);
-      });
-      pushEnhancedEcommerce(rudderElement, this.inputs);
-    } else {
+      } 
+      else {
       var contextOpts; //need to implement
       var interfaceOpts = this.inputs;
       var opts = defaults(options || {}, contextOpts);
@@ -530,7 +596,7 @@ class GA {
       );
 
       ga("send", "event", payload);
-      logger.debug("in GoogleAnalyticsManager track");
+      console.log("in GoogleAnalyticsManager track");
     }
   }
 
@@ -547,7 +613,7 @@ class GA {
     for (let val of this.contentGroupings) {
       contentGroupingsArray[val.from] = val.to;
     }
-    logger.debug("in GoogleAnalyticsManager page");
+    console.log("in GoogleAnalyticsManager page");
 
     var category = rudderElement.message.properties.category;
     var eventProperties = rudderElement.message.properties;
@@ -629,7 +695,7 @@ class GA {
   }
 
   isLoaded() {
-    logger.debug("in GA isLoaded");
+    console.log("in GA isLoaded");
 
     return !!window.gaplugins;
   }
@@ -844,55 +910,55 @@ function getProductPosition(item, products) {
   );
 }
 
-function rejectArr(obj, fn) {
-  fn = fn || compact;
-  return "array" == type(obj) ? rejectarray(obj, fn) : rejectobject(obj, fn);
-}
+// function rejectArr(obj, fn) {
+//   fn = fn || compact;
+//   return "array" == type(obj) ? rejectarray(obj, fn) : rejectobject(obj, fn);
+// }
 
-var rejectarray = function (arr, fn) {
-  var ret = [];
+// var rejectarray = function (arr, fn) {
+//   var ret = [];
 
-  for (var i = 0; i < arr.length; ++i) {
-    if (!fn(arr[i], i)) ret[ret.length] = arr[i];
-  }
+//   for (var i = 0; i < arr.length; ++i) {
+//     if (!fn(arr[i], i)) ret[ret.length] = arr[i];
+//   }
 
-  return ret;
-};
+//   return ret;
+// };
 
-var rejectobject = function (obj, fn) {
-  var ret = {};
+// var rejectobject = function (obj, fn) {
+//   var ret = {};
 
-  for (var k in obj) {
-    if (obj.hasOwnProperty(k) && !fn(obj[k], k)) {
-      ret[k] = obj[k];
-    }
-  }
+//   for (var k in obj) {
+//     if (obj.hasOwnProperty(k) && !fn(obj[k], k)) {
+//       ret[k] = obj[k];
+//     }
+//   }
 
-  return ret;
-};
+//   return ret;
+// };
 
-function compact(value) {
-  return null == value;
-}
+// function compact(value) {
+//   return null == value;
+// }
 
-function type(val) {
-  switch (toString.call(val)) {
-    case "[object Function]":
-      return "function";
-    case "[object Date]":
-      return "date";
-    case "[object RegExp]":
-      return "regexp";
-    case "[object Arguments]":
-      return "arguments";
-    case "[object Array]":
-      return "array";
-  }
+// function type(val) {
+//   switch (toString.call(val)) {
+//     case "[object Function]":
+//       return "function";
+//     case "[object Date]":
+//       return "date";
+//     case "[object RegExp]":
+//       return "regexp";
+//     case "[object Arguments]":
+//       return "arguments";
+//     case "[object Array]":
+//       return "array";
+//   }
 
-  if (val === null) return "null";
-  if (val === undefined) return "undefined";
-  if (val === Object(val)) return "object";
+//   if (val === null) return "null";
+//   if (val === undefined) return "undefined";
+//   if (val === Object(val)) return "object";
 
-  return typeof val;
-}
+//   return typeof val;
+// }
 export { GA };
