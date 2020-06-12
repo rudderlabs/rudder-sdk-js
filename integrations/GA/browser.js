@@ -695,25 +695,24 @@ class GA {
   }
 }
 
-
 /**
- * 
- * 
+ *
+ *
  * @param  {} obj  incoming properties
  * @param  {} dimensions   the dimension mapping which is entered by the user in the ui. Eg: firstName : dimension1
  * @param  {} metrics  the metrics mapping which is entered by the user in the ui. Eg: age : metrics1
  * @param  {} contentGroupings the contentGrouping mapping which is entered by the user in the ui. Eg: section : contentGrouping1
- * 
+ *
  * This function maps these dimensions,metrics and contentGroupings with the incoming properties to send it to GA where the user has to set the corresponding dimension/metric/content group.
- * For example if: 
+ * For example if:
  * if obj -> {age: 24}
  * metrics -> {age: metric1}
  * then the function will return {metric1:24} and it will be shown sent to GA if metric1 is set there.
- * 
+ *
  * if obj -> {age: 24}
  * metrics - {revenue: metric2}
  * then the function will return {} as there is no corresponding mapping of metric.
- * 
+ *
  */
 function metrics(obj, dimensions, metrics, contentGroupings) {
   var ret = {};
@@ -768,10 +767,9 @@ function setCustomDimenionsAndMetrics(props, inputs) {
   }
 }
 
-
 /**
  *  Return the path based on `properties` and `options`
- * 
+ *
  * @param  {} properties
  * @param  {} includeSearch
  */
@@ -781,7 +779,6 @@ function path(properties, includeSearch) {
   if (includeSearch && properties.search) str += properties.search;
   return str;
 }
-
 
 /**
  * Creates a track out of product properties
@@ -794,7 +791,6 @@ function createProductTrack(rudderElement, properties) {
     properties.currency || rudderElement.message.properties.currency;
   return { properties: props };
 }
-
 
 /**
  * Loads ec.js (unless already loaded)
@@ -810,7 +806,6 @@ function loadEnhancedEcommerce(rudderElement, a) {
   ga("set", "&cu", rudderElement.message.properties.currency);
   return a;
 }
-
 
 /**
  * helper class to not repeat `ec:addProduct`
@@ -859,7 +854,7 @@ function enhancedEcommerceTrackProduct(rudderElement, inputs) {
 }
 
 /**
- *extracts checkout options 
+ *extracts checkout options
  * @param  {} rudderElement
  */
 function extractCheckoutOptions(rudderElement) {
@@ -906,7 +901,6 @@ function pushEnhancedEcommerce(rudderElement, inputs) {
 }
 
 //
-
 
 /**
  * set action with data
