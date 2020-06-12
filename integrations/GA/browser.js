@@ -495,9 +495,8 @@ class GA {
           pushEnhancedEcommerce(rudderElement, this.inputs);
           break;
         default:
-          var contextOpts; //need to implement
           var interfaceOpts = this.inputs;
-          var opts = defaults(options || {}, contextOpts);
+          var opts = options || {};
           opts = defaults(opts, interfaceOpts);
 
           var eventCategory = rudderElement.message.properties.category;
@@ -903,55 +902,4 @@ function getProductPosition(item, products) {
   );
 }
 
-// function rejectArr(obj, fn) {
-//   fn = fn || compact;
-//   return "array" == type(obj) ? rejectarray(obj, fn) : rejectobject(obj, fn);
-// }
-
-// var rejectarray = function (arr, fn) {
-//   var ret = [];
-
-//   for (var i = 0; i < arr.length; ++i) {
-//     if (!fn(arr[i], i)) ret[ret.length] = arr[i];
-//   }
-
-//   return ret;
-// };
-
-// var rejectobject = function (obj, fn) {
-//   var ret = {};
-
-//   for (var k in obj) {
-//     if (obj.hasOwnProperty(k) && !fn(obj[k], k)) {
-//       ret[k] = obj[k];
-//     }
-//   }
-
-//   return ret;
-// };
-
-// function compact(value) {
-//   return null == value;
-// }
-
-// function type(val) {
-//   switch (toString.call(val)) {
-//     case "[object Function]":
-//       return "function";
-//     case "[object Date]":
-//       return "date";
-//     case "[object RegExp]":
-//       return "regexp";
-//     case "[object Arguments]":
-//       return "arguments";
-//     case "[object Array]":
-//       return "array";
-//   }
-
-//   if (val === null) return "null";
-//   if (val === undefined) return "undefined";
-//   if (val === Object(val)) return "object";
-
-//   return typeof val;
-// }
 export { GA };
