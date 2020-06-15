@@ -1,7 +1,7 @@
 //import * as XMLHttpRequestNode from "Xmlhttprequest";
 import logger from "./logUtil";
-import {commonNames} from "../integrations/integration_cname"
-import {clientToServerNames} from "../integrations/client_server_name"
+import { commonNames } from "../integrations/integration_cname";
+import { clientToServerNames } from "../integrations/client_server_name";
 
 let XMLHttpRequestNode;
 if (!process.browser) {
@@ -42,7 +42,7 @@ function generateUUID() {
   ) {
     d += performance.now(); //use high-precision timer if available
   }
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     let r = (d + Math.random() * 16) % 16 | 0;
     d = Math.floor(d / 16);
     return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
@@ -84,7 +84,7 @@ function getJSON(url, wrappers, isLoaded, callback) {
     var xhr = new XMLHttpRequestNode.XMLHttpRequest();
   }
   xhr.open("GET", url, false);
-  xhr.onload = function() {
+  xhr.onload = function () {
     let status = xhr.status;
     if (status == 200) {
       logger.debug("status 200");
@@ -119,7 +119,7 @@ function getJSONTrimmed(context, url, writeKey, callback) {
     xhr.setRequestHeader("Authorization", "Basic " + btoaNode(writeKey + ":"));
   }
 
-  xhr.onload = function() {
+  xhr.onload = function () {
     let status = xhr.status;
     if (status == 200) {
       logger.debug("status 200 " + "calling callback");
@@ -138,14 +138,23 @@ function getJSONTrimmed(context, url, writeKey, callback) {
 
 function handleError(error, analyticsInstance) {
   let errorMessage = error.message ? error.message : undefined;
-  let sampleAdBlockTest = undefined
+  let sampleAdBlockTest = undefined;
   try {
     if (error instanceof Event) {
       if (error.target && error.target.localName == "script") {
-        errorMessage = "error in script loading:: src::  " + error.target.src + " id:: " + error.target.id;
-        if(analyticsInstance && error.target.src.includes("adsbygoogle")) {
-          sampleAdBlockTest = true
-          analyticsInstance.page("RudderJS-Initiated", "ad-block page request", {path: "/ad-blocked", title: errorMessage}, analyticsInstance.sendAdblockPageOptions)
+        errorMessage =
+          "error in script loading:: src::  " +
+          error.target.src +
+          " id:: " +
+          error.target.id;
+        if (analyticsInstance && error.target.src.includes("adsbygoogle")) {
+          sampleAdBlockTest = true;
+          analyticsInstance.page(
+            "RudderJS-Initiated",
+            "ad-block page request",
+            { path: "/ad-blocked", title: errorMessage },
+            analyticsInstance.sendAdblockPageOptions
+          );
         }
       }
     }
@@ -153,9 +162,8 @@ function handleError(error, analyticsInstance) {
       logger.error("[Util] handleError:: ", errorMessage);
     }
   } catch (e) {
-    logger.error("[Util] handleError:: ", e)
+    logger.error("[Util] handleError:: ", e);
   }
-  
 }
 
 function getDefaultPageProperties() {
@@ -171,7 +179,7 @@ function getDefaultPageProperties() {
     referrer: referrer,
     search: search,
     title: title,
-    url: url
+    url: url,
   };
 }
 
@@ -230,102 +238,192 @@ function getRevenue(properties, eventName) {
  * @param {*} integrationObject
  */
 function tranformToRudderNames(integrationObject) {
-  Object.keys(integrationObject).forEach(key => {
-    if(integrationObject.hasOwnProperty(key)) {
-      if(commonNames[key]) {
-        integrationObject[commonNames[key]] = integrationObject[key]
+  Object.keys(integrationObject).forEach((key) => {
+    if (integrationObject.hasOwnProperty(key)) {
+      if (commonNames[key]) {
+        integrationObject[commonNames[key]] = integrationObject[key];
       }
-      if(key != "All") {
-        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys 
-        if(commonNames[key] != undefined && commonNames[key] != key) {
-          delete integrationObject[key]
+      if (key != "All") {
+        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
+        if (commonNames[key] != undefined && commonNames[key] != key) {
+          delete integrationObject[key];
         }
       }
-      
     }
-  })
+  });
 }
 
 function transformToServerNames(integrationObject) {
-  Object.keys(integrationObject).forEach(key => {
-    if(integrationObject.hasOwnProperty(key)) {
-      if(clientToServerNames[key]) {
-        integrationObject[clientToServerNames[key]] = integrationObject[key]
+  Object.keys(integrationObject).forEach((key) => {
+    if (integrationObject.hasOwnProperty(key)) {
+      if (clientToServerNames[key]) {
+        integrationObject[clientToServerNames[key]] = integrationObject[key];
       }
-      if(key != "All") {
-        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys 
-        if(clientToServerNames[key] != undefined && clientToServerNames[key] != key) {
-          delete integrationObject[key]
+      if (key != "All") {
+        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
+        if (
+          clientToServerNames[key] != undefined &&
+          clientToServerNames[key] != key
+        ) {
+          delete integrationObject[key];
         }
       }
-      
     }
-  })
+  });
 }
 
 /**
- * 
- * @param {*} sdkSuppliedIntegrations 
- * @param {*} configPlaneEnabledIntegrations 
+ *
+ * @param {*} sdkSuppliedIntegrations
+ * @param {*} configPlaneEnabledIntegrations
  */
-function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledIntegrations) {
-  let enabledList = []
-  if(!configPlaneEnabledIntegrations || configPlaneEnabledIntegrations.length == 0) {
-    return enabledList
+function findAllEnabledDestinations(
+  sdkSuppliedIntegrations,
+  configPlaneEnabledIntegrations
+) {
+  let enabledList = [];
+  if (
+    !configPlaneEnabledIntegrations ||
+    configPlaneEnabledIntegrations.length == 0
+  ) {
+    return enabledList;
   }
-  let allValue = true
-  if(typeof configPlaneEnabledIntegrations[0] == "string") {
-    if(sdkSuppliedIntegrations["All"] != undefined) {
-      allValue = sdkSuppliedIntegrations["All"]
+  let allValue = true;
+  if (typeof configPlaneEnabledIntegrations[0] == "string") {
+    if (sdkSuppliedIntegrations["All"] != undefined) {
+      allValue = sdkSuppliedIntegrations["All"];
     }
-    configPlaneEnabledIntegrations.forEach(intg => {
-      if(!allValue) {
+    configPlaneEnabledIntegrations.forEach((intg) => {
+      if (!allValue) {
         // All false ==> check if intg true supplied
-        if(sdkSuppliedIntegrations[intg]!= undefined && sdkSuppliedIntegrations[intg] == true) {
-          enabledList.push(intg)
+        if (
+          sdkSuppliedIntegrations[intg] != undefined &&
+          sdkSuppliedIntegrations[intg] == true
+        ) {
+          enabledList.push(intg);
         }
       } else {
         // All true ==> intg true by default
-        let intgValue = true
+        let intgValue = true;
         // check if intg false supplied
-        if(sdkSuppliedIntegrations[intg] != undefined && sdkSuppliedIntegrations[intg] == false) {
-          intgValue = false
+        if (
+          sdkSuppliedIntegrations[intg] != undefined &&
+          sdkSuppliedIntegrations[intg] == false
+        ) {
+          intgValue = false;
         }
-        if(intgValue) {
-          enabledList.push(intg)
+        if (intgValue) {
+          enabledList.push(intg);
         }
       }
-    })
+    });
 
-    return enabledList
+    return enabledList;
   }
 
-  if(typeof configPlaneEnabledIntegrations[0] == "object") {
-    if(sdkSuppliedIntegrations["All"] != undefined) {
-      allValue = sdkSuppliedIntegrations["All"]
+  if (typeof configPlaneEnabledIntegrations[0] == "object") {
+    if (sdkSuppliedIntegrations["All"] != undefined) {
+      allValue = sdkSuppliedIntegrations["All"];
     }
-    configPlaneEnabledIntegrations.forEach(intg => {
-      if(!allValue) {
+    configPlaneEnabledIntegrations.forEach((intg) => {
+      if (!allValue) {
         // All false ==> check if intg true supplied
-        if(sdkSuppliedIntegrations[intg.name]!= undefined && sdkSuppliedIntegrations[intg.name] == true) {
-          enabledList.push(intg)
+        if (
+          sdkSuppliedIntegrations[intg.name] != undefined &&
+          sdkSuppliedIntegrations[intg.name] == true
+        ) {
+          enabledList.push(intg);
         }
       } else {
         // All true ==> intg true by default
-        let intgValue = true
+        let intgValue = true;
         // check if intg false supplied
-        if(sdkSuppliedIntegrations[intg.name] != undefined && sdkSuppliedIntegrations[intg.name] == false) {
-          intgValue = false
+        if (
+          sdkSuppliedIntegrations[intg.name] != undefined &&
+          sdkSuppliedIntegrations[intg.name] == false
+        ) {
+          intgValue = false;
         }
-        if(intgValue) {
-          enabledList.push(intg)
+        if (intgValue) {
+          enabledList.push(intg);
         }
       }
-    })
+    });
 
-    return enabledList
+    return enabledList;
+  }
+}
+
+/**
+ * reject all null values from array/object
+ * @param  {} obj
+ * @param  {} fn
+ */
+function rejectArr(obj, fn) {
+  fn = fn || compact;
+  return "array" == type(obj) ? rejectarray(obj, fn) : rejectobject(obj, fn);
+}
+
+/**
+ * particular case when rejecting an array
+ * @param  {} arr
+ * @param  {} fn
+ */
+var rejectarray = function (arr, fn) {
+  var ret = [];
+
+  for (var i = 0; i < arr.length; ++i) {
+    if (!fn(arr[i], i)) ret[ret.length] = arr[i];
   }
 
+  return ret;
+};
+
+/**
+ * Rejecting null from any object other than arrays
+ * @param  {} obj
+ * @param  {} fn
+ *
+ */
+var rejectobject = function (obj, fn) {
+  var ret = {};
+
+  for (var k in obj) {
+    if (obj.hasOwnProperty(k) && !fn(obj[k], k)) {
+      ret[k] = obj[k];
+    }
+  }
+
+  return ret;
+};
+
+function compact(value) {
+  return null == value;
+}
+
+/**
+ * check type of object incoming in the rejectArr function
+ * @param  {} val
+ */
+function type(val) {
+  switch (toString.call(val)) {
+    case "[object Function]":
+      return "function";
+    case "[object Date]":
+      return "date";
+    case "[object RegExp]":
+      return "regexp";
+    case "[object Arguments]":
+      return "arguments";
+    case "[object Array]":
+      return "array";
+  }
+
+  if (val === null) return "null";
+  if (val === undefined) return "undefined";
+  if (val === Object(val)) return "object";
+
+  return typeof val;
 }
 
 export {
@@ -339,5 +437,6 @@ export {
   findAllEnabledDestinations,
   tranformToRudderNames,
   transformToServerNames,
-  handleError
+  handleError,
+  rejectArr,
 };

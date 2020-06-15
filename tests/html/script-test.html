@@ -20,12 +20,9 @@
       var methods = [
         "load",
         "page",
-        "track",
         "identify",
-        "trackEvent",
-        "trackPage",
-        "identifyUser",
-        "reset"
+       "track",
+       "ready"
       ];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
@@ -36,17 +33,13 @@
         })(method);
       }
 
-      rudderanalytics.load(
-        "1cuY42ftbhV4ufcEMc0UZjlkLwS",
-        "http://localhost:8050",
-        {
-          logLevel: "DEBUG",
-          
-        }
-      );
-    
-  
-     
+      rudderanalytics.load("1bt0vcThjsXCUngMjgTFB62xAyg", "http://localhost:8080", {
+        logLevel: "DEBUG",
+        configUrl: "http://localhost:5000/sourceConfig"
+
+      });
+    //  rudderanalytics.track();
+      //rudderanalytics.page(); //Turn this on if Chartbeat is a destination
     </script>
 
     <script src="./browser.js"></script>
@@ -56,148 +49,520 @@
         console.log("we are all set!!!");
       
       });
+      //page calls 
+    // window.rudderanalytics.page();
 
-      window.rudderanalytics.identify("abc", {
+    // window.rudderanalytics.page('ruchira category', 'ruchira name', { url: 'url', path: '/path' });
+
+    // window.rudderanalytics.page('category', 'name', {
+    //         url: 'ruchira url',
+    //         path: '/ruchirapath',
+    //         search: '?q=1'
+    //       });
+
+    //       window.rudderanalytics.page(
+    //         'category1',
+    //         'name1',
+    //         { url: 'url1', path: '/path1', search: '?q=11' },
+    //         {
+    //           campaign: {
+    //             name: 'test',
+    //             source: 'test',
+    //             medium: 'test',
+    //             term: 'test',
+    //             content: 'test'
+    //           }
+    //         }
+    //       );
+
+    //       window.rudderanalytics.page({
+    //         score: 21,
+    //         author: 'Author',
+    //         postType: 'blog',
+    //         section: 'News'
+    //       });
+
+    //       window.rudderanalytics.page({
+    //         score: 211,
+    //         author: 'Author1',
+    //         postType: 'blog1',
+    //         section: 'News1'
+    //       });
+
+    //       window.rudderanalytics.page('Name1');
+    
+    //       window.rudderanalytics.page(
+    //         'Name2',
+    //         {},
+    //         {
+    //           campaign: {
+    //             name: 'test1',
+    //             source: 'test1',
+    //             medium: 'test1',
+    //             term: 'test1',
+    //             content: 'test1'
+    //           }
+    //         }
+    //       );
+
+    //       window.rudderanalytics.page('Category2', 'Name2');
+
+    //       window.rudderanalytics.page({
+    //         fruit: 'Apple',
+    //         color: 'Red'
+    //       });
+
+    //       window.rudderanalytics.page({ referrer: 'http://lifeofpablo.com' });
+
+    //       //identify calls
+          // window.rudderanalytics.page();
+      window.rudderanalytics.identify("ruchu123", {
         name: "Ruchira Moitra",
-        email: "mbolton@initech.com",
+        email: "ruchira@gmail.com",
+        plan: "Enterprise",
+        company: {
+          id: "abc123"
+        },
         createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
       });
-      window.rudderanalytics.track("Product Added", {
-        order_ID: "123",
-        category: "boots",
-        product_name: "yellow_cowboy_boots",
-        price: 99.95,
-        currency: "EUR",
-        revenue: 2000,
-        value: 3000,
-        checkinDate: "Thu Mar 24 2018 17:46:45 GMT+0000 (UTC)"
+      window.rudderanalytics.identify('Steven');
+      
+     // track calls
+
+      // window.rudderanalytics.track('event1');
+
+      // window.rudderanalytics.track('event2', { category: 'blah' });
+
+      // window.rudderanalytics.track(
+      //       'event3',
+      //       {},
+      //       {
+      //         campaign: {
+      //           name: 'test',
+      //           source: 'test',
+      //           medium: 'test',
+      //           term: 'test',
+      //           content: 'test'
+      //         }
+      //       }
+      //     );
+
+      //     window.rudderanalytics.track('event4', { category: 'category' });
+
+      //     // window.rudderanalytics.page('category', 'name');
+      //     window.rudderanalytics.track('event5', {});
+
+      //     // window.rudderanalytics.page('category(page)');
+      //     window.rudderanalytics.track('event6', { category: 'category(track)' });
+
+      //     window.rudderanalytics.track('event7', { label: 'label' });
+
+      //     window.rudderanalytics.track('event8', { value: 1.1 });
+
+      //     window.rudderanalytics.track('event9', { revenue: 9.99 });
+
+      //     window.rudderanalytics.track('event10', { nonInteraction: 1 });
+
+      //     window.rudderanalytics.track(
+      //       'event11',
+      //       {},
+      //       { 'Google Analytics': { nonInteraction: 1 } }
+      //     );
+
+      //     window.rudderanalytics.track('event12', { nonInteraction: false });
+          
+          window.rudderanalytics.track('Order Completed', { orderId: 'ee099bf7' });
+
+          
+
+      window.rudderanalytics.track("Order Completed", {
+        orderId: 'ruchiraorder1',
+            total: 99.99,
+            shipping: 13.99,
+            tax: 20.99,
+            currency: 'INR',
+            products: [
+              {
+                quantity: 1,
+                price: 24.75,
+                name: 'my product',
+                sku: 'p-298'
+              },
+              {
+                quantity: 3,
+                price: 24.75,
+                name: 'other product',
+                sku: 'p-299'
+              }
+            ]
       });
-      window.rudderanalytics.track('Payment Info Entered',
-          {
-            category: 'Games',
-            products: [
-              {
-                product_id: '507f1f77bcf86cd799439011',
-                sku: '45790-32',
-                name: 'Monopoly: 3rd Edition',
-                price: 19,
-                position: 1,
-                category: 'Cars',
-                url: 'https://www.example.com/product/path',
-                image_url: 'https://www.example.com/product/path.jpg'
-              },
-              {
-                product_id: '505bd76785ebb509fc183733',
-                sku: '46493-32',
-                name: 'Uno Card Game',
-                price: 3,
-                position: 2,
-                category: 'Cars'
-              }
-            ]
+
+      window.rudderanalytics.track('Order Completed', {
+            orderId: '5d4c7cb5',
+            revenue: 99.9,
+            shipping: 13.99,
+            tax: 20.99,
+            products: []
           });
-          window.rudderanalytics.track('Products Searched',
-          {
-            category: 'Games',
-            products: [
-              {
-                product_id: '507f1f77bcf86cd799439011',
-                sku: '45790-32',
-                name: 'Monopoly: 3rd Edition',
-                price: 19,
-                position: 1,
-                category: 'Cars',
-                url: 'https://www.example.com/product/path',
-                image_url: 'https://www.example.com/product/path.jpg'
-              },
-              {
-                product_id: '505bd76785ebb509fc183733',
-                sku: '46493-32',
-                name: 'Uno Card Game',
-                price: 3,
-                position: 2,
-                category: 'Cars'
-              }
-            ]
+
+          window.rudderanalytics.track('Order Completed', {
+            orderId: '5d4c7cb5ruchira',
+            revenue: 99.9,
+            shipping: 13.99,
+            tax: 20.99,
+            products: [],
+            currency: 'EUR'
           });
-          window.rudderanalytics.track('Product Added to Watchlist',
-          {
-            category: 'Games',
-            products: [
-              {
-                product_id: '507f1f77bcf86cd799439011',
-                sku: '45790-32',
-                name: 'Monopoly: 3rd Edition',
-                price: 19,
-                position: 1,
-                category: 'Cars',
-                url: 'https://www.example.com/product/path',
-                image_url: 'https://www.example.com/product/path.jpg'
-              },
-              {
-                product_id: '505bd76785ebb509fc183733',
-                sku: '46493-32',
-                name: 'Uno Card Game',
-                price: 3,
-                position: 2,
-                category: 'Cars'
-              }
-            ]
+
+          window.rudderanalytics.track('Product Added', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product',
+            category: 'cat 1',
+            sku: 'p-298',
+            testDimension: true,
+            testMetric: true,
+            position: 4
           });
-          window.rudderanalytics.track('Checkout Started',
-          {
-            category: 'Games',
-            products: [
-              {
-                product_id: '507f1f77bcf86cd799439011',
-                sku: '45790-32',
-                name: 'Monopoly: 3rd Edition',
-                price: 19,
-                position: 1,
-                category: 'Cars',
-                url: 'https://www.example.com/product/path',
-                image_url: 'https://www.example.com/product/path.jpg'
-              },
-              {
-                product_id: '505bd76785ebb509fc183733',
-                sku: '46493-32',
-                name: 'Uno Card Game',
-                price: 3,
-                position: 2,
-                category: 'Cars'
-              }
-            ]
+
+          window.rudderanalytics.track('Product Added', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product 1',
+            category: 'cat 1',
+            sku: 'p-298',
+            testDimension: true,
+            testMetric: true,
+            position: 4.5
           });
-          window.rudderanalytics.track('New User Registered',
-          {
-            category: 'Games',
+
+          window.rudderanalytics.track('Product Added', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product 2',
+            category: 'cat 1',
+            sku: 'p-298',
+            label: 'sample label'
+          });
+          
+          window.rudderanalytics.track('Product Removed', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product',
+            category: 'cat 1',
+            sku: 'p-298',
+            testDimension: true,
+            testMetric: true
+          });
+
+          window.rudderanalytics.track('Product Viewed', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product',
+            category: 'cat 1',
+            sku: 'p-298',
+            list: 'Apparel Gallery',
+            testDimension: true,
+            testMetric: true
+          });
+
+      window.rudderanalytics.track('Product List Filtered', {
+            category: 'cat 1',
+            list_id: '1234',
+            filters: [
+              {
+                type: 'department',
+                value: 'beauty'
+              },
+              {
+                type: 'price',
+                value: 'under'
+              }
+            ],
+            sorts: [
+              {
+                type: 'price',
+                value: 'desc'
+              }
+            ],
             products: [
               {
                 product_id: '507f1f77bcf86cd799439011',
-                sku: '45790-32',
-                name: 'Monopoly: 3rd Edition',
-                price: 19,
-                position: 1,
-                category: 'Cars',
-                url: 'https://www.example.com/product/path',
-                image_url: 'https://www.example.com/product/path.jpg'
+                productDimension: 'My Product Dimension',
+                productMetric: 'My Product Metric'
+              }
+            ],
+            testDimension: true,
+            testMetric: true
+          });
+      window.rudderanalytics.track('Product List Viewed', {
+            category: 'cat 1',
+            list_id: '1234',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                productDimension: 'My Product Dimension1',
+                productMetric: 'My Product Metric1',
+                position: 10
               },
               {
-                product_id: '505bd76785ebb509fc183733',
-                sku: '46493-32',
-                name: 'Uno Card Game',
-                price: 3,
-                position: 2,
-                category: 'Cars'
+                product_id: '507f1f77bcf86cd799439012',
+                productDimension: 'My Product Dimension2',
+                productMetric: 'My Product Metric2',
+                position: 12
+              },
+              {
+                product_id: '507f1f77bcf86cd799439015',
+                productDimension: 'My Product Dimension3',
+                productMetric: 'My Product Metric3',
+                position: 8
               }
             ]
           });
 
-      // window.rudderanalytics.page();
+          window.rudderanalytics.track('Product List Viewed', {
+            category: 'cat 1',
+            list_id: '1234',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                productDimension: 'My Product Dimension1',
+                productMetric: 'My Product Metric1',
+                position: -10 // will not accept -ve number
+              },
+              {
+                product_id: '507f1f77bcf86cd799439012',
+                productDimension: 'My Product Dimension2',
+                productMetric: 'My Product Metric2',
+                position: 'position12' // will not accept string
+              },
+              {
+                product_id: '507f1f77bcf86cd799439015',
+                productDimension: 'My Product Dimension3',
+                productMetric: 'My Product Metric3',
+                position: '8' // accept valid positive numberic string
+              }
+            ]
+          });
 
+          window.rudderanalytics.track('Product List Viewed', {
+            category: 'cat 1',
+            list_id: '1234',
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                productDimension: 'My Product Dimension',
+                productMetric: 'My Product Metric'
+              }
+            ],
+            testDimension: true,
+            testMetric: true
+          });
+
+          window.rudderanalytics.track('Product List Filtered', {
+            category: 'cat 2',
+            list_id: '1234',
+            filters: [
+              {
+                type: 'department',
+                value: 'beauty'
+              },
+              {
+                type: 'price',
+                value: 'under'
+              }
+            ],
+            sorts: [
+              {
+                type: 'price',
+                value: 'desc'
+              }
+            ],
+            products: [
+              {
+                product_id: '507f1f77bcf86cd799439011',
+                productDimension: 'My Product Dimension1',
+                productMetric: 'My Product Metric1',
+                position: 15
+              },
+              {
+                product_id: '507f1f77bcf86cd799439010',
+                productDimension: 'My Product Dimension2',
+                productMetric: 'My Product Metric3',
+                position: 10
+              }
+            ]
+          });
+
+          window.rudderanalytics.track('Product Clicked', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product',
+            category: 'cat 1',
+            sku: 'p-298',
+            list: 'search results',
+            testDimension: true,
+            testMetric: true
+          });
+
+          window.rudderanalytics.track('Promotion Viewed', {
+            currency: 'CAD',
+            promotion_id: 'PROMO_1234',
+            name: 'Summer Sale',
+            creative: 'summer_banner2',
+            position: 'banner_slot1',
+            testDimension: true,
+            testMetric: true
+          });
+
+          window.rudderanalytics.track('Promotion Clicked', {
+            currency: 'CAD',
+            promotion_id: 'PROMO_1234',
+            name: 'Summer Sale',
+            creative: 'summer_banner2',
+            position: 'banner_slot1',
+            testDimension: true,
+            testMetric: true
+          });
+
+          window.rudderanalytics.track('Checkout Started', {
+            currency: 'CAD',
+            products: [
+              {
+                quantity: 1,
+                price: 24.75,
+                name: 'my product',
+                sku: 'p-298'
+              },
+              {
+                quantity: 3,
+                price: 24.75,
+                name: 'other product',
+                sku: 'p-299'
+              }
+            ],
+            step: 1,
+            paymentMethod: 'Visa',
+            testDimension: true,
+            testMetric: true
+          });
+
+          window.rudderanalytics.track('Order Updated', {
+            currency: 'CAD',
+            products: [
+              {
+                quantity: 1,
+                price: 24.75,
+                name: 'my product',
+                category: 'cat 1',
+                sku: 'p-298'
+              },
+              {
+                quantity: 3,
+                price: 24.75,
+                name: 'other product',
+                category: 'cat 2',
+                sku: 'p-299'
+              }
+            ],
+            step: 1,
+            paymentMethod: 'Visa',
+            testDimension: true,
+            testMetric: true
+          });
+
+      window.rudderanalytics.track('Checkout Step Viewed', {
+            currency: 'CAD',
+            step: 2
+          });
+
+          window.rudderanalytics.track('Checkout Step Completed', {
+            currency: 'CAD',
+            step: 2,
+            shippingMethod: 'FedEx'
+          });
+          window.rudderanalytics.track('Checkout Step Completed', {
+            currency: 'CAD',
+            step: 2,
+            paymentMethod: 'Visa',
+            shippingMethod: 'FedEx1'
+          });
+          window.rudderanalytics.track('Checkout Step Completed', {
+            currency: 'CAD',
+            paymentMethod: 'Visa',
+            shippingMethod: 'FedEx1'
+          });
+          window.rudderanalytics.track('Checkout Step Completed', {
+            currency: 'CAD',
+            step: 2,
+          });
+
+          window.rudderanalytics.track('Order Completed', {
+            orderId: '780bc55ruchu',
+            total: 99.9,
+            shipping: 13.99,
+            tax: 20.99,
+            currency: 'CAD',
+            coupon: 'coupon',
+            affiliation: 'affiliation',
+            products: [
+              {
+                quantity: 1,
+                price: 24.75,
+                name: 'my product',
+                category: 'cat 1',
+                sku: 'p-298',
+                coupon: 'promo'
+              },
+              {
+                quantity: 3,
+                price: 24.75,
+                name: 'other product',
+                category: 'cat 2',
+                sku: 'p-299',
+                currency: 'EUR'
+              }
+            ]
+          });
+          window.rudderanalytics.track('Order Refunded', {
+            orderId: '780bc55',
+            testDimension: true,
+            testMetric: true
+          });
+
+          window.rudderanalytics.track('Order Refunded', {
+            orderId: '780bc55',
+            products: [
+              {
+                quantity: 1,
+                sku: 'p-298'
+              },
+              {
+                quantity: 2,
+                sku: 'p-299'
+              }
+            ],
+            testDimension: true,
+            testMetric: true
+          });
+
+          window.rudderanalytics.page("category", "name", {
+        path: "path",
+        url: "url",
+        title: "title",
+        search: "search",
+        referrer: "referrer"
+}); 
     </script>
   </head>
   <body>
     <h1>Relax while I finish my testing process....</h1>
+ 
   </body>
 </html>
