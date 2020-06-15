@@ -417,8 +417,6 @@ class GA {
                 self.contentGroupingsArray
               ),
             };
-            console.log("IMpression obj");
-            console.log(impressionObj);
 
             for (var prop in impressionObj) {
               if (impressionObj[prop] === undefined) delete impressionObj[prop];
@@ -530,8 +528,6 @@ class GA {
               this.inputs
             ),
           };
-          console.log("payload");
-          console.log(payload);
 
           ga("send", "event", payload);
           logger.debug("in GoogleAnalyticsManager track");
@@ -869,8 +865,6 @@ class GA {
         ),
       },
     ]);
-    console.log("args");
-    console.log(args);
 
     var event = rudderElement.message.event;
     event = event.toLowerCase();

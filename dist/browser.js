@@ -2605,8 +2605,6 @@ var rudderanalytics = (function (exports) {
                   impressionObj = _objectSpread2({
                     impressionObj: impressionObj
                   }, self.metricsFunction(item.properties, self.dimensionsArray, self.metricsArray, self.contentGroupingsArray));
-                  console.log("IMpression obj");
-                  console.log(impressionObj);
 
                   for (var prop in impressionObj) {
                     if (impressionObj[prop] === undefined) delete impressionObj[prop];
@@ -2695,8 +2693,6 @@ var rudderanalytics = (function (exports) {
                 payload = _objectSpread2({
                   payload: payload
                 }, this.setCustomDimenionsAndMetrics(rudderElement.message.properties, this.inputs));
-                console.log("payload");
-                console.log(payload);
                 ga("send", "event", payload);
                 logger.debug("in GoogleAnalyticsManager track");
             }
@@ -3081,8 +3077,6 @@ var rudderanalytics = (function (exports) {
         var args = rejectArr(["send", "event", rudderElement.message.properties.category || "EnhancedEcommerce", rudderElement.message.event || "Action not defined", rudderElement.message.properties.label, _objectSpread2({
           nonInteraction: 1
         }, this.setCustomDimenionsAndMetrics(rudderElement.message.properties, inputs))]);
-        console.log("args");
-        console.log(args);
         var event = rudderElement.message.event;
         event = event.toLowerCase();
 
