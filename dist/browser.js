@@ -9065,6 +9065,16 @@ var rudderanalytics = (function (exports) {
     return StoreLocal;
   }(); // Exporting only the instance
 
+    }, {
+      key: "setUserTraits",
+      value: function setUserTraits(value) {
+        this.storage.set(defaults$1.user_storage_trait, value);
+        return;
+      }
+      /**
+       *
+       * @param {*} value
+       */
 
   var Store = new StoreLocal({});
 
