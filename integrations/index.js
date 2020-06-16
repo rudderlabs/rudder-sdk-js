@@ -13,6 +13,7 @@ import * as Chartbeat from "./Chartbeat";
 import * as Comscore from "./Comscore";
 import * as FBPixel from "./FBPixel";
 import * as Lotame from "./Lotame";
+import * as Mouseflow from "./Mouseflow";
 
 // the key names should match the destination.name value to keep partity everywhere 
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -32,7 +33,8 @@ let integrations = {
   CHARTBEAT: Chartbeat.default,
   COMSCORE: Comscore.default,
   FACEBOOK_PIXEL: FBPixel.default,
-  LOTAME: Lotame.default
+  LOTAME: Lotame.default,
+  MOUSEFLOW: Mouseflow.default
 };
 
 export { integrations };
