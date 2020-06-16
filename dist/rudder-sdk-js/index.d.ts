@@ -1,4 +1,4 @@
-declare module "rudder-js" {
+declare module "rudder-sdk-js" {
     function load(
         writeKey: string,
         dataPlaneUrl: string,
