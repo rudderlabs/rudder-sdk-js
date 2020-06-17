@@ -44,13 +44,13 @@
 
     <script src="./browser.js"></script>
 
-    <script>
+    <!-- <script>
       window.rudderanalytics.ready(() => {
         console.log("we are all set!!!");
       
       });
       //page calls 
-    //   window.rudderanalytics.page();
+    // window.rudderanalytics.page();
 
     // window.rudderanalytics.page('ruchira category', 'ruchira name', { url: 'url', path: '/path' });
 
@@ -112,64 +112,64 @@
     //         color: 'Red'
     //       });
 
-    //        window.rudderanalytics.page({ referrer: 'http://lifeofpablo.com' });
+    //       window.rudderanalytics.page({ referrer: 'http://lifeofpablo.com' });
 
     //       //identify calls
-      //     window.rudderanalytics.page();
-      // window.rudderanalytics.identify("ruchu123", {
-      //   name: "Ruchira Moitra",
-      //   email: "ruchira@gmail.com",
-      //   plan: "Enterprise",
-      //   company: {
-      //     id: "abc123"
-      //   },
-      //   createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
-      // });
-      // window.rudderanalytics.identify('Steven');
+          // window.rudderanalytics.page();
+      window.rudderanalytics.identify("ruchu123", {
+        name: "Ruchira Moitra",
+        email: "ruchira@gmail.com",
+        plan: "Enterprise",
+        company: {
+          id: "abc123"
+        },
+        createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
+      });
+      window.rudderanalytics.identify('Steven');
       
-    // track calls
+     // track calls
 
-      window.rudderanalytics.track('event1');
+      // window.rudderanalytics.track('event1');
 
-      window.rudderanalytics.track('event2', { category: 'blah' });
+      // window.rudderanalytics.track('event2', { category: 'blah' });
 
-      window.rudderanalytics.track(
-            'event3',
-            {},
-            {
-              campaign: {
-                name: 'test',
-                source: 'test',
-                medium: 'test',
-                term: 'test',
-                content: 'test'
-              }
-            }
-          );
+      // window.rudderanalytics.track(
+      //       'event3',
+      //       {},
+      //       {
+      //         campaign: {
+      //           name: 'test',
+      //           source: 'test',
+      //           medium: 'test',
+      //           term: 'test',
+      //           content: 'test'
+      //         }
+      //       }
+      //     );
 
-          window.rudderanalytics.track('event4', { category: 'category' });
+      //     window.rudderanalytics.track('event4', { category: 'category' });
 
-          // window.rudderanalytics.page('category', 'name');
-          window.rudderanalytics.track('event5', {});
+      //     // window.rudderanalytics.page('category', 'name');
+      //     window.rudderanalytics.track('event5', {});
 
-          // window.rudderanalytics.page('category(page)');
-          window.rudderanalytics.track('event6', { category: 'category(track)' });
+      //     // window.rudderanalytics.page('category(page)');
+      //     window.rudderanalytics.track('event6', { category: 'category(track)' });
 
-          window.rudderanalytics.track('event7', { label: 'label' });
+      //     window.rudderanalytics.track('event7', { label: 'label' });
 
-          window.rudderanalytics.track('event8', { value: 1.1 });
+      //     window.rudderanalytics.track('event8', { value: 1.1 });
 
-          window.rudderanalytics.track('event9', { revenue: 9.99 });
+      //     window.rudderanalytics.track('event9', { revenue: 9.99 });
 
-          window.rudderanalytics.track('event10', { nonInteraction: 1 });
+      //     window.rudderanalytics.track('event10', { nonInteraction: 1 });
 
-          window.rudderanalytics.track(
-            'event11',
-            {},
-            { 'Google Analytics': { nonInteraction: 1 } }
-          );
+      //     window.rudderanalytics.track(
+      //       'event11',
+      //       {},
+      //       { 'Google Analytics': { nonInteraction: 1 } }
+      //     );
 
-          window.rudderanalytics.track('event12', { nonInteraction: false });
+      //     window.rudderanalytics.track('event12', { nonInteraction: false });
           
           window.rudderanalytics.track('Order Completed', { orderId: 'ee099bf7' });
 
@@ -565,6 +565,13 @@
   </head>
   <body>
     <h1>Relax while I finish my testing process....</h1>
- 
+    <div id="id1">
+      <a id="link1" href="https://example.com">example 1</a>
+    </div>  
+
+    <div id="id2">
+      <a id="link2" href="https://3a842fe106ca.ngrok.io/tests/html/script-test.html">example 2</a>
+    </div>  
+
   </body>
 </html>
