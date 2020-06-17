@@ -50,7 +50,7 @@
       
       });
       //page calls 
-      window.rudderanalytics.page();
+    //   window.rudderanalytics.page();
 
     // window.rudderanalytics.page('ruchira category', 'ruchira name', { url: 'url', path: '/path' });
 
@@ -112,10 +112,10 @@
     //         color: 'Red'
     //       });
 
-           window.rudderanalytics.page({ referrer: 'http://lifeofpablo.com' });
+    //        window.rudderanalytics.page({ referrer: 'http://lifeofpablo.com' });
 
     //       //identify calls
-          // window.rudderanalytics.page();
+      //     window.rudderanalytics.page();
       // window.rudderanalytics.identify("ruchu123", {
       //   name: "Ruchira Moitra",
       //   email: "ruchira@gmail.com",
@@ -127,126 +127,126 @@
       // });
       // window.rudderanalytics.identify('Steven');
       
-     // track calls
+    // track calls
 
-      // window.rudderanalytics.track('event1');
+      window.rudderanalytics.track('event1');
 
-      // window.rudderanalytics.track('event2', { category: 'blah' });
+      window.rudderanalytics.track('event2', { category: 'blah' });
 
-      // window.rudderanalytics.track(
-      //       'event3',
-      //       {},
-      //       {
-      //         campaign: {
-      //           name: 'test',
-      //           source: 'test',
-      //           medium: 'test',
-      //           term: 'test',
-      //           content: 'test'
-      //         }
-      //       }
-      //     );
+      window.rudderanalytics.track(
+            'event3',
+            {},
+            {
+              campaign: {
+                name: 'test',
+                source: 'test',
+                medium: 'test',
+                term: 'test',
+                content: 'test'
+              }
+            }
+          );
 
-      //     window.rudderanalytics.track('event4', { category: 'category' });
+          window.rudderanalytics.track('event4', { category: 'category' });
 
-      //     // window.rudderanalytics.page('category', 'name');
-      //     window.rudderanalytics.track('event5', {});
+          // window.rudderanalytics.page('category', 'name');
+          window.rudderanalytics.track('event5', {});
 
-      //     // window.rudderanalytics.page('category(page)');
-      //     window.rudderanalytics.track('event6', { category: 'category(track)' });
+          // window.rudderanalytics.page('category(page)');
+          window.rudderanalytics.track('event6', { category: 'category(track)' });
 
-      //     window.rudderanalytics.track('event7', { label: 'label' });
+          window.rudderanalytics.track('event7', { label: 'label' });
 
-      //     window.rudderanalytics.track('event8', { value: 1.1 });
+          window.rudderanalytics.track('event8', { value: 1.1 });
 
-      //     window.rudderanalytics.track('event9', { revenue: 9.99 });
+          window.rudderanalytics.track('event9', { revenue: 9.99 });
 
-      //     window.rudderanalytics.track('event10', { nonInteraction: 1 });
+          window.rudderanalytics.track('event10', { nonInteraction: 1 });
 
-      //     window.rudderanalytics.track(
-      //       'event11',
-      //       {},
-      //       { 'Google Analytics': { nonInteraction: 1 } }
-      //     );
+          window.rudderanalytics.track(
+            'event11',
+            {},
+            { 'Google Analytics': { nonInteraction: 1 } }
+          );
 
-      //     window.rudderanalytics.track('event12', { nonInteraction: false });
+          window.rudderanalytics.track('event12', { nonInteraction: false });
           
-//           window.rudderanalytics.track('Order Completed', { orderId: 'ee099bf7' });
+          window.rudderanalytics.track('Order Completed', { orderId: 'ee099bf7' });
 
           
 
-//       window.rudderanalytics.track("Order Completed", {
-//         orderId: 'ruchiraorder1',
-//             total: 99.99,
-//             shipping: 13.99,
-//             tax: 20.99,
-//             currency: 'INR',
-//             products: [
-//               {
-//                 quantity: 1,
-//                 price: 24.75,
-//                 name: 'my product',
-//                 sku: 'p-298'
-//               },
-//               {
-//                 quantity: 3,
-//                 price: 24.75,
-//                 name: 'other product',
-//                 sku: 'p-299'
-//               }
-//             ]
-//       });
+      window.rudderanalytics.track("Order Completed", {
+        orderId: 'ruchiraorder1',
+            total: 99.99,
+            shipping: 13.99,
+            tax: 20.99,
+            currency: 'INR',
+            products: [
+              {
+                quantity: 1,
+                price: 24.75,
+                name: 'my product',
+                sku: 'p-298'
+              },
+              {
+                quantity: 3,
+                price: 24.75,
+                name: 'other product',
+                sku: 'p-299'
+              }
+            ]
+      });
 
-//       window.rudderanalytics.track('Order Completed', {
-//             orderId: '5d4c7cb5',
-//             revenue: 99.9,
-//             shipping: 13.99,
-//             tax: 20.99,
-//             products: []
-//           });
+      window.rudderanalytics.track('Order Completed', {
+            orderId: '5d4c7cb5',
+            revenue: 99.9,
+            shipping: 13.99,
+            tax: 20.99,
+            products: []
+          });
 
-//           window.rudderanalytics.track('Order Completed', {
-//             orderId: '5d4c7cb5ruchira',
-//             revenue: 99.9,
-//             shipping: 13.99,
-//             tax: 20.99,
-//             products: [],
-//             currency: 'EUR'
-//           });
+          window.rudderanalytics.track('Order Completed', {
+            orderId: '5d4c7cb5ruchira',
+            revenue: 99.9,
+            shipping: 13.99,
+            tax: 20.99,
+            products: [],
+            currency: 'EUR'
+          });
 
-//           window.rudderanalytics.track('Product Added', {
-//             currency: 'CAD',
-//             quantity: 1,
-//             price: 24.75,
-//             name: 'my product',
-//             category: 'cat 1',
-//             sku: 'p-298',
-//             testDimension: true,
-//             testMetric: true,
-//             position: 4
-//           });
+          window.rudderanalytics.track('Product Added', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product',
+            category: 'cat 1',
+            sku: 'p-298',
+            testDimension: true,
+            testMetric: true,
+            position: 4
+          });
 
-//           window.rudderanalytics.track('Product Added', {
-//             currency: 'CAD',
-//             quantity: 1,
-//             price: 24.75,
-//             name: 'my product 1',
-//             category: 'cat 1',
-//             sku: 'p-298',
-//             testDimension: true,
-//             testMetric: true,
-//             position: 4.5
-//           });
+          window.rudderanalytics.track('Product Added', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product 1',
+            category: 'cat 1',
+            sku: 'p-298',
+            testDimension: true,
+            testMetric: true,
+            position: 4.5
+          });
 
-//           window.rudderanalytics.track('Product Added', {
-//             currency: 'CAD',
-//             quantity: 1,
-//             price: 24.75,
-//             name: 'my product 2',
-//             category: 'cat 1',
-//             sku: 'p-298',
-//             label: 'sample label'
-//           });
+          window.rudderanalytics.track('Product Added', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product 2',
+            category: 'cat 1',
+            sku: 'p-298',
+            label: 'sample label'
+          });
           
           window.rudderanalytics.track('Product Removed', {
             currency: 'CAD',
