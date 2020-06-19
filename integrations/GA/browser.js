@@ -180,6 +180,7 @@ class GA {
     }
     // enhanced ecommerce events
     else if (this.enhancedEcommerce) {
+  
       switch (event) {
         case "Checkout Started":
         case "Checkout Step Viewed":
@@ -920,6 +921,7 @@ class GA {
         contentGroupingsArray
       )
     };
+    
 
     window.ga("ec:addProduct", product.product);
   }

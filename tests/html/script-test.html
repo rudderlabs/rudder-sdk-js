@@ -561,6 +561,167 @@
         testDimension: "true"
         
 }); 
+<<<<<<< HEAD
+=======
+    </script> -->
+    <script>
+      rudderanalytics.ready(function () {
+        ga('require', 'linker');
+        ga('linker:autoLink', ['example.com', '3a842fe106ca.ngrok.io']);
+      });
+
+
+//                       ================= page =================
+      // rudderanalytics.page("new page");
+      //page calls 
+    // window.rudderanalytics.page();
+
+    // window.rudderanalytics.page('ruchira category', 'ruchira name', { url: 'url', path: '/path' });
+
+    // window.rudderanalytics.page('category', 'name', {
+    //         url: 'ruchira url',
+    //         path: '/ruchirapath',
+    //         search: '?q=1'
+    //       });
+
+    //       window.rudderanalytics.page(
+    //         'category1',
+    //         'name1',
+    //         { url: 'url1', path: '/path1', search: '?q=11' },
+    //         {
+    //           campaign: {
+    //             name: 'test',
+    //             source: 'test',
+    //             medium: 'test',
+    //             term: 'test',
+    //             content: 'test'
+    //           }
+    //         }
+    //       );
+
+          // window.rudderanalytics.page({
+          //   score: 21,
+          //   author: 'Author',
+          //   postType: 'blog',
+          //   section: 'News'
+          // });
+
+    //       window.rudderanalytics.page({
+    //         score: 211,
+    //         author: 'Author1',
+    //         postType: 'blog1',
+    //         section: 'News1'
+    //       });
+
+          // window.rudderanalytics.page('Name1');
+    
+    //       window.rudderanalytics.page(
+    //         'Name2',
+    //         {},
+    //         {
+    //           campaign: {
+    //             name: 'test1',
+    //             source: 'test1',
+    //             medium: 'test1',
+    //             term: 'test1',
+    //             content: 'test1'
+    //           }
+    //         }
+    //       );
+
+    //       window.rudderanalytics.page('Category2', 'Name2');
+
+    //       window.rudderanalytics.page({
+    //         fruit: 'Apple',
+    //         color: 'Red'
+    //       });
+
+          // window.rudderanalytics.page({ referrer: 'http://lifeofpablo.com' });
+          // rudderanalytics.page("new page");
+          rudderanalytics.track("new event 123", {
+            name: "dhawal"
+          });
+          window.rudderanalytics.track('Product Added', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product',
+            category: 'cat 1',
+            sku: 'p-298',
+            testDimension: true,
+            testMetric: true,
+            position: 4
+          });
+
+          window.rudderanalytics.track('Product Added', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product 1',
+            category: 'cat 1',
+            sku: 'p-298',
+            testDimension: true,
+            testMetric: true,
+            position: 4.5
+          });
+
+          window.rudderanalytics.track('Product Added', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product 2',
+            category: 'cat 1',
+            sku: 'p-298',
+            label: 'sample label'
+          });
+          
+
+//                       ================= track =================
+    // window.rudderanalytics.track('event1');
+
+      // window.rudderanalytics.track('event2', { category: 'blah' });
+
+      // window.rudderanalytics.track(
+      //       'event3',
+      //       {},
+      //       {
+      //         campaign: {
+      //           name: 'test',
+      //           source: 'test',
+      //           medium: 'test',
+      //           term: 'test',
+      //           content: 'test'
+      //         }
+      //       }
+      //     );
+
+          // window.rudderanalytics.track('event4', { category: 'category' });
+
+      //     // window.rudderanalytics.page('category', 'name');
+          // window.rudderanalytics.track('event5', {});
+
+      //     // window.rudderanalytics.page('category(page)');
+      //     window.rudderanalytics.track('event6', { category: 'category(track)' });
+
+          // window.rudderanalytics.track('event7', { label: 'label' });
+
+          // window.rudderanalytics.track('event8', { value: 1.1 });
+
+          // window.rudderanalytics.track('event9', { revenue: 9.99 });
+
+          // window.rudderanalytics.track('event10', { nonInteraction: 1 });
+
+          // window.rudderanalytics.track(
+          //   'event11',
+          //   {},
+          //   { 'Google Analytics': { nonInteraction: 1 } }
+          // );
+
+          // window.rudderanalytics.track('event12', { nonInteraction: false });
+          
+      // window.rudderanalytics.track('Order Completed', { orderId: 'ee099bf7' });
+
+>>>>>>> fixed bugs
     </script>
   </head>
   <body>
