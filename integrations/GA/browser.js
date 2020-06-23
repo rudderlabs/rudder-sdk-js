@@ -1,9 +1,9 @@
 import is from "is";
 import each from "component-each";
-import extend from "extend";
 import defaults from "@ndhoule/defaults";
 import { rejectArr } from "../../utils/utils";
 import logger from "../../utils/logUtil";
+import { ScriptLoader } from "../ScriptLoader";
 
 class GA {
   constructor(config) {
@@ -36,8 +36,15 @@ class GA {
       "product clicked",
       "product added",
       "product viewed",
-      "product removed",
+      "product removed"
     ];
+  }
+
+  loadScript() {
+    ScriptLoader(
+      "google-analytics",
+      "https://www.google-analytics.com/analytics.js"
+    );
   }
 
   init() {
@@ -55,37 +62,18 @@ class GA {
       this.contentGroupingsArray[val.from] = val.to;
     }
 
-    (function (i, s, o, g, r, a, m) {
-      i.GoogleAnalyticsObject = r;
-      (i[r] =
-        i[r] ||
-        function () {
-          (i[r].q = i[r].q || []).push(arguments);
-        }),
-        (i[r].l = 1 * new Date());
-      (a = s.createElement(o)), (m = s.getElementsByTagName(o)[0]);
-      a.async = 1;
-      a.src = g;
-      m.parentNode.insertBefore(a, m);
-    })(
-      window,
-      document,
-      "script",
-      "https://www.google-analytics.com/analytics.js",
-      "ga"
-    );
-    // window.ga_debug = {trace: true};
-    ga =
-      ga ||
+    window.GoogleAnalyticsObject = "ga";
+    window.ga =
+      window.ga ||
       function () {
-        ga.q = ga.q || [];
-        ga.q.push(arguments);
+        window.ga.q = window.ga.q || [];
+        window.ga.q.push(arguments);
       };
-    ga.l = new Date().getTime();
+    window.ga.l = new Date().getTime();
 
     // create ga with these properties. if the properties are empty it will take default values.
     const config = {
-      cookieDomain: this.domain || GA.prototype.defaults.domain,
+      cookieDomain: this.domain,
       siteSpeedSampleRate: this.siteSpeedSampleRate,
       sampleRate: this.sampleRate,
       allowLinker: true,
@@ -93,29 +81,29 @@ class GA {
       //   name: "rudder_ga"
     };
 
-    ga("create", this.trackingID, config);
+    window.ga("create", this.trackingID, config);
 
     if (this.optimizeContainerId) {
-      ga("require", this.optimizeContainerId);
+      window.ga("require", this.optimizeContainerId);
     }
     // ecommerce is required
     if (!this.ecommerce) {
-      ga("require", "ecommerce");
+      window.ga("require", "ecommerce");
       this.ecommerce = true;
     }
     // this is to display advertising
     if (this.doubleClick) {
-      ga("require", "displayfeatures");
+      window.ga("require", "displayfeatures");
     }
 
     // https://support.google.com/analytics/answer/2558867?hl=en
     if (this.enhancedLinkAttribution) {
-      ga("require", "linkid");
+      window.ga("require", "linkid");
     }
 
     // a warning is in ga debugger if anonymize is false after initialization
     if (this.anonymizeIp) {
-      ga("set", "anonymizeIp", true);
+      window.ga("set", "anonymizeIp", true);
     }
 
     logger.debug("===in init GA===");
@@ -124,7 +112,7 @@ class GA {
   identify(rudderElement) {
     // send global id
     if (this.sendUserId && rudderElement.message.userId) {
-      ga("set", "userId", rudderElement.message.userId);
+      window.ga("set", "userId", rudderElement.message.userId);
     }
 
     // custom dimensions and metrics
@@ -137,7 +125,7 @@ class GA {
 
     console.log(Object.keys(custom).length);
 
-    if (Object.keys(custom).length) ga("set", custom);
+    if (Object.keys(custom).length) window.ga("set", custom);
 
     logger.debug("in GoogleAnalyticsManager identify");
   }
@@ -157,31 +145,31 @@ class GA {
       if (!orderId) return;
 
       // add transaction
-      ga("ecommerce:addTransaction", {
+      window.ga("ecommerce:addTransaction", {
         affiliation: properties.affiliation,
         shipping: properties.shipping,
         revenue: total,
         tax: properties.tax,
         id: orderId,
-        currency: properties.currency,
+        currency: properties.currency
       });
 
       // products added
       each(products, function (product) {
         const productTrack = self.createProductTrack(rudderElement, product);
 
-        ga("ecommerce:addItem", {
+        window.ga("ecommerce:addItem", {
           category: productTrack.category,
           quantity: productTrack.quantity,
           price: productTrack.price,
           name: productTrack.name,
           sku: productTrack.sku,
           id: orderId,
-          currency: productTrack.currency,
+          currency: productTrack.currency
         });
       });
 
-      ga("ecommerce:send");
+      window.ga("ecommerce:send");
     }
     // enhanced ecommerce events
     else if (this.enhancedEcommerce) {
@@ -204,9 +192,9 @@ class GA {
             self.enhancedEcommerceTrackProduct(productTrack, self.inputs);
           });
 
-          ga("ec:setAction", "checkout", {
+          window.ga("ec:setAction", "checkout", {
             step: properties.step || 1,
-            option: options || undefined,
+            option: options || undefined
           });
 
           this.pushEnhancedEcommerce(rudderElement, this.inputs);
@@ -219,7 +207,7 @@ class GA {
 
           var params = {
             step: props.step || 1,
-            option: options || undefined,
+            option: options || undefined
           };
 
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -227,8 +215,8 @@ class GA {
             this.enhancedEcommerceLoaded
           );
 
-          ga("ec:setAction", "checkout_option", params);
-          ga("send", "event", "Checkout", "Option");
+          window.ga("ec:setAction", "checkout_option", params);
+          window.ga("send", "event", "Checkout", "Option");
           break;
         case "Order Completed":
           var total =
@@ -251,13 +239,13 @@ class GA {
             productTrack = { message: productTrack };
             self.enhancedEcommerceTrackProduct(productTrack, self.inputs);
           });
-          ga("ec:setAction", "purchase", {
+          window.ga("ec:setAction", "purchase", {
             id: orderId,
             affiliation: props.affiliation,
             revenue: total,
             tax: props.tax,
             shipping: props.shipping,
-            coupon: props.coupon,
+            coupon: props.coupon
           });
 
           this.pushEnhancedEcommerce(rudderElement, this.inputs);
@@ -276,17 +264,17 @@ class GA {
 
           each(products, function (product) {
             const track = { properties: product };
-            ga("ec:addProduct", {
+            window.ga("ec:addProduct", {
               id:
                 track.properties.product_id ||
                 track.properties.id ||
                 track.properties.sku,
-              quantity: track.properties.quantity,
+              quantity: track.properties.quantity
             });
           });
 
-          ga("ec:setAction", "refund", {
-            id: orderId,
+          window.ga("ec:setAction", "refund", {
+            id: orderId
           });
 
           this.pushEnhancedEcommerce(rudderElement, this.inputs);
@@ -358,11 +346,11 @@ class GA {
             rudderElement,
             this.enhancedEcommerceLoaded
           );
-          ga("ec:addPromo", {
+          window.ga("ec:addPromo", {
             id: props.promotionId || props.id,
             name: props.name,
             creative: props.creative,
-            position: props.position,
+            position: props.position
           });
           this.pushEnhancedEcommerce(rudderElement, this.inputs);
           break;
@@ -373,13 +361,13 @@ class GA {
             this.enhancedEcommerceLoaded
           );
 
-          ga("ec:addPromo", {
+          window.ga("ec:addPromo", {
             id: props.promotionId || props.id,
             name: props.name,
             creative: props.creative,
-            position: props.position,
+            position: props.position
           });
-          ga("ec:setAction", "promo_click", {});
+          window.ga("ec:setAction", "promo_click", {});
           this.pushEnhancedEcommerce(rudderElement, this.inputs);
           break;
         case "Product List Viewed":
@@ -406,7 +394,7 @@ class GA {
               brand: item.properties.band,
               variant: item.properties.variant,
               price: item.properties.price,
-              position: self.getProductPosition(item, products),
+              position: self.getProductPosition(item, products)
             };
             impressionObj = {
               impressionObj,
@@ -415,13 +403,13 @@ class GA {
                 self.dimensionsArray,
                 self.metricsArray,
                 self.contentGroupingsArray
-              ),
+              )
             };
 
             for (const prop in impressionObj) {
               if (impressionObj[prop] === undefined) delete impressionObj[prop];
             }
-            ga("ec:addImpression", impressionObj);
+            window.ga("ec:addImpression", impressionObj);
           });
           this.pushEnhancedEcommerce(rudderElement, this.inputs);
           break;
@@ -464,7 +452,7 @@ class GA {
               brand: props.brand,
               variant: `${filters}::${sorts}`,
               price: item.price,
-              position: self.getProductPosition(item, products),
+              position: self.getProductPosition(item, products)
             };
 
             impressionObj = {
@@ -474,13 +462,13 @@ class GA {
                 self.dimensionsArray,
                 self.metricsArray,
                 self.contentGroupingsArray
-              ),
+              )
             };
 
             for (const prop in impressionObj) {
               if (impressionObj[prop] === undefined) delete impressionObj[prop];
             }
-            ga("ec:addImpression", impressionObj);
+            window.ga("ec:addImpression", impressionObj);
           });
           this.pushEnhancedEcommerce(rudderElement, this.inputs);
           break;
@@ -508,7 +496,7 @@ class GA {
             nonInteraction:
               rudderElement.message.properties.nonInteraction !== undefined
                 ? !!rudderElement.message.properties.nonInteraction
-                : !!opts.nonInteraction,
+                : !!opts.nonInteraction
           };
 
           var { campaign } = rudderElement.message.context;
@@ -526,10 +514,10 @@ class GA {
             ...this.setCustomDimenionsAndMetrics(
               rudderElement.message.properties,
               this.inputs
-            ),
+            )
           };
 
-          ga("send", "event", payload);
+          window.ga("send", "event", payload);
           logger.debug("in GoogleAnalyticsManager track");
       }
     } else {
@@ -557,7 +545,7 @@ class GA {
         nonInteraction:
           rudderElement.message.properties.nonInteraction !== undefined
             ? !!rudderElement.message.properties.nonInteraction
-            : !!opts.nonInteraction,
+            : !!opts.nonInteraction
       };
 
       var { campaign } = rudderElement.message.context;
@@ -575,10 +563,10 @@ class GA {
         ...this.setCustomDimenionsAndMetrics(
           rudderElement.message.properties,
           this.inputs
-        ),
+        )
       };
 
-      ga("send", "event", payload);
+      window.ga("send", "event", payload);
       logger.debug("in GoogleAnalyticsManager track");
     }
   }
@@ -631,24 +619,24 @@ class GA {
       }
     }
 
-    ga("set", resetCustomDimensions);
+    window.ga("set", resetCustomDimensions);
 
     // adds more properties to pageview which will be sent
     pageview = {
       pageview,
-      ...this.setCustomDimenionsAndMetrics(eventProperties, this.inputs),
+      ...this.setCustomDimenionsAndMetrics(eventProperties, this.inputs)
     };
     const payload = {
       page: pagePath,
-      title: pageTitle,
+      title: pageTitle
     };
     if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
 
-    ga("set", payload);
+    window.ga("set", payload);
 
     if (this.pageCalled) delete pageview.location;
 
-    ga("send", "pageview", pageview);
+    window.ga("send", "pageview", pageview);
 
     // categorized pages
     if (category && this.trackCategorizedPages) {
@@ -736,7 +724,7 @@ class GA {
     );
     if (Object.keys(custom).length) {
       if (inputs.setAllMappedProps) {
-        ga("set", custom);
+        window.ga("set", custom);
       } else {
         each(custom, function (key, value) {
           ret[key] = value;
@@ -778,11 +766,11 @@ class GA {
    */
   loadEnhancedEcommerce(rudderElement, a) {
     if (a === 0) {
-      ga("require", "ec");
+      window.ga("require", "ec");
       a = 1;
     }
 
-    ga("set", "&cu", rudderElement.message.properties.currency);
+    window.ga("set", "&cu", rudderElement.message.properties.currency);
     return a;
   }
 
@@ -815,7 +803,7 @@ class GA {
       price: props.price,
       brand: props.brand,
       variant: props.variant,
-      currency: props.currency,
+      currency: props.currency
     };
 
     if (props.position != null) {
@@ -831,10 +819,10 @@ class GA {
         dimensionsArray,
         metricsArray,
         contentGroupingsArray
-      ),
+      )
     };
 
-    ga("ec:addProduct", product);
+    window.ga("ec:addProduct", product);
   }
 
   /**
@@ -846,7 +834,7 @@ class GA {
    */
   enhancedEcommerceTrackProductAction(rudderElement, action, data, inputs) {
     this.enhancedEcommerceTrackProduct(rudderElement, inputs);
-    ga("ec:setAction", action, data || {});
+    window.ga("ec:setAction", action, data || {});
   }
 
   /**
@@ -866,8 +854,8 @@ class GA {
         ...this.setCustomDimenionsAndMetrics(
           rudderElement.message.properties,
           inputs
-        ),
-      },
+        )
+      }
     ]);
 
     let { event } = rudderElement.message;
@@ -911,7 +899,7 @@ class GA {
   extractCheckoutOptions(rudderElement) {
     const options = [
       rudderElement.message.properties.paymentMethod,
-      rudderElement.message.properties.shippingMethod,
+      rudderElement.message.properties.shippingMethod
     ];
     // remove all nulls and join with commas.
     const valid = rejectArr(options);

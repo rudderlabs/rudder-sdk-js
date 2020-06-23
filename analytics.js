@@ -1,3 +1,5 @@
+import Emitter from "component-emitter";
+import after from "after";
 import {
   getJSONTrimmed,
   generateUUID,
@@ -5,13 +7,13 @@ import {
   getDefaultPageProperties,
   findAllEnabledDestinations,
   tranformToRudderNames,
-  transformToServerNames
+  transformToServerNames,
 } from "./utils/utils";
 import {
   CONFIG_URL,
   ECommerceEvents,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
-  INTEGRATION_LOAD_CHECK_INTERVAL
+  INTEGRATION_LOAD_CHECK_INTERVAL,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -19,11 +21,9 @@ import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
-import Emitter from "component-emitter";
-import after from "after";
-import {ScriptLoader} from "./integrations/ScriptLoader"
+import { ScriptLoader } from "./integrations/ScriptLoader";
 
-//https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
+// https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
 /**
  * Add the rudderelement object to flush queue
@@ -79,13 +79,13 @@ class Analytics {
     this.anonymousId = this.getAnonymousId();
     this.storage.setUserId(this.userId);
     this.eventRepository = EventRepository;
-    this.sendAdblockPage = false
-    this.sendAdblockPageOptions = {}
-    this.clientSuppliedCallbacks = {}
+    this.sendAdblockPage = false;
+    this.sendAdblockPageOptions = {};
+    this.clientSuppliedCallbacks = {};
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
-      syncPixel: "syncPixelCallback"
+      syncPixel: "syncPixelCallback",
     };
   }
 
@@ -99,7 +99,7 @@ class Analytics {
    */
   processResponse(status, response) {
     try {
-      logger.debug("===in process response=== " + status);
+      logger.debug(`===in process response=== ${status}`);
       response = JSON.parse(response);
       if (
         response.source.useAutoTracking &&
@@ -109,22 +109,19 @@ class Analytics {
         addDomEventHandlers(this);
         this.autoTrackHandlersRegistered = true;
       }
-      response.source.destinations.forEach(function(destination, index) {
+      response.source.destinations.forEach(function (destination, index) {
         logger.debug(
-          "Destination " +
-            index +
-            " Enabled? " +
-            destination.enabled +
-            " Type: " +
-            destination.destinationDefinition.name +
-            " Use Native SDK? " +
-            destination.config.useNativeSDK
+          `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? ${destination.config.useNativeSDK}`
         );
         if (destination.enabled) {
-          this.clientIntegrations.push({"name": destination.destinationDefinition.name, "config": destination.config});
+          this.clientIntegrations.push({
+            name: destination.destinationDefinition.name,
+            config: destination.config,
+          });
         }
       }, this);
 
+      console.log("this.clientIntegrations: ", this.clientIntegrations);
       // intersection of config-plane native sdk destinations with sdk load time destination list
       this.clientIntegrations = findAllEnabledDestinations(
         this.loadOnlyIntegrations,
@@ -132,9 +129,9 @@ class Analytics {
       );
 
       // remove from the list which don't have support yet in SDK
-      this.clientIntegrations = this.clientIntegrations.filter(intg => {
-        return integrations[intg.name] != undefined
-      })
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+        return integrations[intg.name] != undefined;
+      });
 
       this.init(this.clientIntegrations);
     } catch (error) {
@@ -160,7 +157,7 @@ class Analytics {
    * @memberof Analytics
    */
   init(intgArray) {
-    let self = this;
+    const self = this;
     logger.debug("supported intgs ", integrations);
     // this.clientIntegrationObjects = [];
 
@@ -174,20 +171,24 @@ class Analytics {
 
     intgArray.forEach((intg) => {
       try {
-        logger.debug("[Analytics] init :: trying to initialize integration name:: ", intg.name)
-      let intgClass = integrations[intg.name];
-      let destConfig = intg.config;
-      let intgInstance = new intgClass(destConfig, self);
-      intgInstance.init();
+        logger.debug(
+          "[Analytics] init :: trying to initialize integration name:: ",
+          intg.name
+        );
+        const intgClass = integrations[intg.name];
+        const destConfig = intg.config;
+        const intgInstance = new intgClass(destConfig, self);
+        intgInstance.init();
 
-      logger.debug("initializing destination: ", intg);
+        logger.debug("initializing destination: ", intg);
 
-      this.isInitialized(intgInstance).then(this.replayEvents);
+        this.isInitialized(intgInstance).then(this.replayEvents);
       } catch (e) {
-        logger.error("[Analytics] initialize integration (integration.init()) failed :: ", intg.name)
+        logger.error(
+          "[Analytics] initialize integration (integration.init()) failed :: ",
+          intg.name
+        );
       }
-      
-
     });
   }
 
@@ -218,49 +219,54 @@ class Analytics {
       logger.debug("==registering ready callback===");
       object.on("ready", object.executeReadyCallback);
 
-      object.clientIntegrationObjects.forEach(intg => {
+      object.clientIntegrationObjects.forEach((intg) => {
         logger.debug("===looping over each successful integration====");
-        if (!intg["isReady"] || intg["isReady"]()) {
-          logger.debug("===letting know I am ready=====", intg["name"]);
+        if (!intg.isReady || intg.isReady()) {
+          logger.debug("===letting know I am ready=====", intg.name);
           object.emit("ready");
         }
       });
 
-      //send the queued events to the fetched integration
-      object.toBeProcessedByIntegrationArray.forEach(event => {
-        let methodName = event[0];
+      // send the queued events to the fetched integration
+      object.toBeProcessedByIntegrationArray.forEach((event) => {
+        const methodName = event[0];
         event.shift();
 
         // convert common names to sdk identified name
         if (Object.keys(event[0].message.integrations).length > 0) {
           tranformToRudderNames(event[0].message.integrations);
         }
-  
+
         // if not specified at event level, All: true is default
-        var clientSuppliedIntegrations = event[0].message.integrations;
-  
-        
+        const clientSuppliedIntegrations = event[0].message.integrations;
 
         // get intersection between config plane native enabled destinations
         // (which were able to successfully load on the page) vs user supplied integrations
-        var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+        const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
           clientSuppliedIntegrations,
           object.clientIntegrationObjects
         );
 
-        //send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-        for (let i = 0; i < succesfulLoadedIntersectClientSuppliedIntegrations.length; i++) {
+        // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
+        for (
+          let i = 0;
+          i < succesfulLoadedIntersectClientSuppliedIntegrations.length;
+          i++
+        ) {
           try {
             if (
-              !succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"] ||
-              !succesfulLoadedIntersectClientSuppliedIntegrations[i]["isFailed"]()
+              !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
+              !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
             ) {
-              if(succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
-                succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
-                  ...event
-                );
+              if (
+                succesfulLoadedIntersectClientSuppliedIntegrations[i][
+                  methodName
+                ]
+              ) {
+                succesfulLoadedIntersectClientSuppliedIntegrations[i][
+                  methodName
+                ](...event);
               }
-              
             }
           } catch (error) {
             handleError(error);
@@ -272,18 +278,15 @@ class Analytics {
   }
 
   pause(time) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(resolve, time);
     });
   }
 
   isInitialized(instance, time = 0) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (instance.isLoaded()) {
-        logger.debug(
-          "===integration loaded successfully====",
-          instance["name"]
-        );
+        logger.debug("===integration loaded successfully====", instance.name);
         this.successfullyLoadedIntegration.push(instance);
         return resolve(this);
       }
@@ -314,10 +317,10 @@ class Analytics {
    * @memberof Analytics
    */
   page(category, name, properties, options, callback) {
-    if (typeof options == "function") (callback = options), (options = null);
-    if (typeof properties == "function")
+    if (typeof options === "function") (callback = options), (options = null);
+    if (typeof properties === "function")
       (callback = properties), (options = properties = null);
-    if (typeof name == "function")
+    if (typeof name === "function")
       (callback = name), (options = properties = name = null);
     if (typeof category === "object")
       (options = name), (properties = category), (name = category = null);
@@ -325,8 +328,8 @@ class Analytics {
       (options = properties), (properties = name), (name = null);
     if (typeof category === "string" && typeof name !== "string")
       (name = category), (category = null);
-    if(this.sendAdblockPage && category != "RudderJS-Initiated") {
-      this.sendSampleRequest()
+    if (this.sendAdblockPage && category != "RudderJS-Initiated") {
+      this.sendSampleRequest();
     }
     this.processPage(category, name, properties, options, callback);
   }
@@ -341,8 +344,8 @@ class Analytics {
    * @memberof Analytics
    */
   track(event, properties, options, callback) {
-    if (typeof options == "function") (callback = options), (options = null);
-    if (typeof properties == "function")
+    if (typeof options === "function") (callback = options), (options = null);
+    if (typeof properties === "function")
       (callback = properties), (options = null), (properties = null);
 
     this.processTrack(event, properties, options, callback);
@@ -358,10 +361,10 @@ class Analytics {
    * @memberof Analytics
    */
   identify(userId, traits, options, callback) {
-    if (typeof options == "function") (callback = options), (options = null);
-    if (typeof traits == "function")
+    if (typeof options === "function") (callback = options), (options = null);
+    if (typeof traits === "function")
       (callback = traits), (options = null), (traits = null);
-    if (typeof userId == "object")
+    if (typeof userId === "object")
       (options = traits), (traits = userId), (userId = this.userId);
 
     this.processIdentify(userId, traits, options, callback);
@@ -375,12 +378,12 @@ class Analytics {
    * @param {*} callback
    */
   alias(to, from, options, callback) {
-    if (typeof options == "function") (callback = options), (options = null);
-    if (typeof from == "function")
+    if (typeof options === "function") (callback = options), (options = null);
+    if (typeof from === "function")
       (callback = from), (options = null), (from = null);
-    if (typeof from == "object") (options = from), (from = null);
+    if (typeof from === "object") (options = from), (from = null);
 
-    let rudderElement = new RudderElementBuilder().setType("alias").build();
+    const rudderElement = new RudderElementBuilder().setType("alias").build();
     rudderElement.message.previousId =
       from || (this.userId ? this.userId : this.getAnonymousId());
     rudderElement.message.userId = to;
@@ -403,18 +406,18 @@ class Analytics {
   group(groupId, traits, options, callback) {
     if (!arguments.length) return;
 
-    if (typeof options == "function") (callback = options), (options = null);
-    if (typeof traits == "function")
+    if (typeof options === "function") (callback = options), (options = null);
+    if (typeof traits === "function")
       (callback = traits), (options = null), (traits = null);
-    if (typeof groupId == "object")
+    if (typeof groupId === "object")
       (options = traits), (traits = groupId), (groupId = this.groupId);
 
     this.groupId = groupId;
     this.storage.setGroupId(this.groupId);
 
-    let rudderElement = new RudderElementBuilder().setType("group").build();
+    const rudderElement = new RudderElementBuilder().setType("group").build();
     if (traits) {
-      for (let key in traits) {
+      for (const key in traits) {
         this.groupTraits[key] = traits[key];
       }
     } else {
@@ -441,20 +444,18 @@ class Analytics {
    * @memberof Analytics
    */
   processPage(category, name, properties, options, callback) {
-    let rudderElement = new RudderElementBuilder().setType("page").build();
+    const rudderElement = new RudderElementBuilder().setType("page").build();
     if (name) {
-      rudderElement["message"]["name"] = name;
+      rudderElement.message.name = name;
     }
     if (!properties) {
       properties = {};
     }
     if (category) {
-      properties["category"] = category;
+      properties.category = category;
     }
     if (properties) {
-      rudderElement["message"]["properties"] = this.getPageProperties(
-        properties
-      ); //properties;
+      rudderElement.message.properties = this.getPageProperties(properties); // properties;
     }
 
     this.trackPage(rudderElement, options, callback);
@@ -470,7 +471,7 @@ class Analytics {
    * @memberof Analytics
    */
   processTrack(event, properties, options, callback) {
-    let rudderElement = new RudderElementBuilder().setType("track").build();
+    const rudderElement = new RudderElementBuilder().setType("track").build();
     if (event) {
       rudderElement.setEventName(event);
     }
@@ -499,9 +500,11 @@ class Analytics {
     this.userId = userId;
     this.storage.setUserId(this.userId);
 
-    let rudderElement = new RudderElementBuilder().setType("identify").build();
+    const rudderElement = new RudderElementBuilder()
+      .setType("identify")
+      .build();
     if (traits) {
-      for (let key in traits) {
+      for (const key in traits) {
         this.userTraits[key] = traits[key];
       }
       this.storage.setUserTraits(this.userTraits);
@@ -518,21 +521,20 @@ class Analytics {
    * @memberof Analytics
    */
   identifyUser(rudderElement, options, callback) {
-    if (rudderElement["message"]["userId"]) {
-      this.userId = rudderElement["message"]["userId"];
+    if (rudderElement.message.userId) {
+      this.userId = rudderElement.message.userId;
       this.storage.setUserId(this.userId);
     }
 
     if (
       rudderElement &&
-      rudderElement["message"] &&
-      rudderElement["message"]["context"] &&
-      rudderElement["message"]["context"]["traits"]
+      rudderElement.message &&
+      rudderElement.message.context &&
+      rudderElement.message.context.traits
     ) {
-      this.userTraits = Object.assign(
-        {},
-        rudderElement["message"]["context"]["traits"]
-      );
+      this.userTraits = {
+        ...rudderElement.message.context.traits,
+      };
       this.storage.setUserTraits(this.userTraits);
     }
 
@@ -591,28 +593,26 @@ class Analytics {
       }
 
       // assign page properties to context
-      rudderElement["message"]["context"]["page"] = getDefaultPageProperties();
+      rudderElement.message.context.page = getDefaultPageProperties();
 
-      rudderElement["message"]["context"]["traits"] = Object.assign(
-        {},
-        this.userTraits
-      );
-      
+      rudderElement.message.context.traits = {
+        ...this.userTraits,
+      };
+
       logger.debug("anonymousId: ", this.anonymousId);
-      rudderElement["message"]["anonymousId"] = this.anonymousId;
-      rudderElement["message"]["userId"] = rudderElement["message"]["userId"]
-        ? rudderElement["message"]["userId"]
+      rudderElement.message.anonymousId = this.anonymousId;
+      rudderElement.message.userId = rudderElement.message.userId
+        ? rudderElement.message.userId
         : this.userId;
 
       if (type == "group") {
         if (this.groupId) {
-          rudderElement["message"]["groupId"] = this.groupId;
+          rudderElement.message.groupId = this.groupId;
         }
         if (this.groupTraits) {
-          rudderElement["message"]["traits"] = Object.assign(
-            {},
-            this.groupTraits
-          );
+          rudderElement.message.traits = {
+            ...this.groupTraits,
+          };
         }
       }
 
@@ -627,19 +627,19 @@ class Analytics {
       }
 
       // if not specified at event level, All: true is default
-      var clientSuppliedIntegrations = rudderElement.message.integrations;
+      const clientSuppliedIntegrations = rudderElement.message.integrations;
 
       // get intersection between config plane native enabled destinations
       // (which were able to successfully load on the page) vs user supplied integrations
-      var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+      const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
         clientSuppliedIntegrations,
         this.clientIntegrationObjects
       );
 
-      //try to first send to all integrations, if list populated from BE
-      succesfulLoadedIntersectClientSuppliedIntegrations.forEach(obj => {
-        if (!obj["isFailed"] || !obj["isFailed"]()) {
-          if(obj[type]) {
+      // try to first send to all integrations, if list populated from BE
+      succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+        if (!obj.isFailed || !obj.isFailed()) {
+          if (obj[type]) {
             obj[type](rudderElement);
           }
         }
@@ -649,17 +649,17 @@ class Analytics {
       // in the page, add the events to a queue and process later
       if (!this.clientIntegrationObjects) {
         logger.debug("pushing in replay queue");
-        //new event processing after analytics initialized  but integrations not fetched from BE
+        // new event processing after analytics initialized  but integrations not fetched from BE
         this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
       }
 
       // convert integrations object to server identified names, kind of hack now!
-      transformToServerNames(rudderElement.message.integrations)
-      
+      transformToServerNames(rudderElement.message.integrations);
+
       // self analytics process, send to rudder
       enqueue.call(this, rudderElement, type);
 
-      logger.debug(type + " is called ");
+      logger.debug(`${type} is called `);
       if (callback) {
         callback();
       }
@@ -676,29 +676,31 @@ class Analytics {
    * @memberof Analytics
    */
   processOptionsParam(rudderElement, options) {
-    var toplevelElements = ["integrations", "anonymousId", "originalTimestamp"];
-    for (let key in options) {
+    const toplevelElements = [
+      "integrations",
+      "anonymousId",
+      "originalTimestamp",
+    ];
+    for (const key in options) {
       if (toplevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
-        //special handle for ananymousId as transformation expects anonymousId in traits.
+        // special handle for ananymousId as transformation expects anonymousId in traits.
         /* if (key === "anonymousId") {
           rudderElement.message.context.traits["anonymousId"] = options[key];
         } */
-      } else {
-        if (key !== "context")
-          rudderElement.message.context[key] = options[key];
-        else {
-          for (let k in options[key]) {
-            rudderElement.message.context[k] = options[key][k];
-          }
+      } else if (key !== "context")
+        rudderElement.message.context[key] = options[key];
+      else {
+        for (const k in options[key]) {
+          rudderElement.message.context[k] = options[key][k];
         }
       }
     }
   }
 
   getPageProperties(properties) {
-    let defaultPageProperties = getDefaultPageProperties();
-    for (let key in defaultPageProperties) {
+    const defaultPageProperties = getDefaultPageProperties();
+    for (const key in defaultPageProperties) {
       if (properties[key] === undefined) {
         properties[key] = defaultPageProperties[key];
       }
@@ -726,7 +728,7 @@ class Analytics {
   }
 
   setAnonymousId(anonymousId) {
-    this.anonymousId = anonymousId ? anonymousId : generateUUID();
+    this.anonymousId = anonymousId || generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
   }
 
@@ -742,7 +744,7 @@ class Analytics {
     if (!writeKey || !serverUrl || serverUrl.length == 0) {
       handleError({
         message:
-          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
+          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl",
       });
       throw Error("failed to initialize");
     }
@@ -756,27 +758,33 @@ class Analytics {
     if (options && options.configUrl) {
       configUrl = options.configUrl;
     }
-    if(options && options.sendAdblockPage) {
-      this.sendAdblockPage = true
+    if (options && options.sendAdblockPage) {
+      this.sendAdblockPage = true;
     }
-    if(options && options.sendAdblockPageOptions) {
-      if(typeof options.sendAdblockPageOptions == "object") {
-        this.sendAdblockPageOptions = options.sendAdblockPageOptions
+    if (options && options.sendAdblockPageOptions) {
+      if (typeof options.sendAdblockPageOptions === "object") {
+        this.sendAdblockPageOptions = options.sendAdblockPageOptions;
       }
     }
-    if(options && options.clientSuppliedCallbacks) {
-
+    if (options && options.clientSuppliedCallbacks) {
       // convert to rudder recognised method names
-      let tranformedCallbackMapping = {}
-      Object.keys(this.methodToCallbackMapping).forEach(methodName =>{
-        if(this.methodToCallbackMapping.hasOwnProperty(methodName)) {
-          if(options.clientSuppliedCallbacks[this.methodToCallbackMapping[methodName]]) {
-            tranformedCallbackMapping[methodName] = options.clientSuppliedCallbacks[this.methodToCallbackMapping[methodName]]
+      const tranformedCallbackMapping = {};
+      Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
+        if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
+          if (
+            options.clientSuppliedCallbacks[
+              this.methodToCallbackMapping[methodName]
+            ]
+          ) {
+            tranformedCallbackMapping[methodName] =
+              options.clientSuppliedCallbacks[
+                this.methodToCallbackMapping[methodName]
+              ];
           }
         }
-      })
-      Object.assign(this.clientSuppliedCallbacks, tranformedCallbackMapping)
-      this.registerCallbacks(true)
+      });
+      Object.assign(this.clientSuppliedCallbacks, tranformedCallbackMapping);
+      this.registerCallbacks(true);
     }
 
     this.eventRepository.writeKey = writeKey;
@@ -801,6 +809,7 @@ class Analytics {
         );
       }
     }
+
     try {
       getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
     } catch (error) {
@@ -812,7 +821,7 @@ class Analytics {
   }
 
   ready(callback) {
-    if (typeof callback == "function") {
+    if (typeof callback === "function") {
       this.readyCallback = callback;
       return;
     }
@@ -820,116 +829,124 @@ class Analytics {
   }
 
   initializeCallbacks() {
-    Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+    Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
       if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
         this.on(methodName, () => {});
       }
-    })
+    });
   }
 
   registerCallbacks(calledFromLoad) {
-
-    if(!calledFromLoad) {
-      Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+    if (!calledFromLoad) {
+      Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
         if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
-          if(!!window.rudderanalytics) {
-            if (typeof window.rudderanalytics[
-              this.methodToCallbackMapping[methodName]
-            ] == "function") {
-              this.clientSuppliedCallbacks[methodName] = window.rudderanalytics[this.methodToCallbackMapping[methodName]]
+          if (window.rudderanalytics) {
+            if (
+              typeof window.rudderanalytics[
+                this.methodToCallbackMapping[methodName]
+              ] === "function"
+            ) {
+              this.clientSuppliedCallbacks[methodName] =
+                window.rudderanalytics[
+                  this.methodToCallbackMapping[methodName]
+                ];
             }
           }
-          // let callback = 
+          // let callback =
           //   ? typeof window.rudderanalytics[
           //       this.methodToCallbackMapping[methodName]
           //     ] == "function"
           //     ? window.rudderanalytics[this.methodToCallbackMapping[methodName]]
           //     : () => {}
           //   : () => {};
-  
-          //logger.debug("registerCallbacks", methodName, callback);
-          
-          //this.on(methodName, callback);
+
+          // logger.debug("registerCallbacks", methodName, callback);
+
+          // this.on(methodName, callback);
         }
       });
     }
-    
-    Object.keys(this.clientSuppliedCallbacks).forEach(methodName => {
-      if(this.clientSuppliedCallbacks.hasOwnProperty(methodName)) {
-        logger.debug("registerCallbacks", methodName, this.clientSuppliedCallbacks[methodName]);
+
+    Object.keys(this.clientSuppliedCallbacks).forEach((methodName) => {
+      if (this.clientSuppliedCallbacks.hasOwnProperty(methodName)) {
+        logger.debug(
+          "registerCallbacks",
+          methodName,
+          this.clientSuppliedCallbacks[methodName]
+        );
         this.on(methodName, this.clientSuppliedCallbacks[methodName]);
       }
-    })
+    });
   }
 
   sendSampleRequest() {
-    ScriptLoader("ad-block", "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")
+    ScriptLoader(
+      "ad-block",
+      "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+    );
   }
-    
 }
 
 let instance = new Analytics();
 
 Emitter(instance);
 
-if (process.browser) {
-  window.addEventListener(
-    "error",
-    (e) => {
-      handleError(e, instance);
-    },
-    true
-  );
+window.addEventListener(
+  "error",
+  (e) => {
+    handleError(e, instance);
+  },
+  true
+);
+
+// if (process.browser) {
+// test for adblocker
+// instance.sendSampleRequest()
+
+// initialize supported callbacks
+instance.initializeCallbacks();
+
+// register supported callbacks
+instance.registerCallbacks(false);
+const eventsPushedAlready =
+  !!window.rudderanalytics &&
+  window.rudderanalytics.push == Array.prototype.push;
+
+const methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
+if (methodArg.length > 0 && methodArg[0] == "load") {
+  const method = methodArg[0];
+  methodArg.shift();
+  logger.debug("=====from init, calling method:: ", method);
+  instance[method](...methodArg);
 }
 
-if (process.browser) {
-  // test for adblocker
-  // instance.sendSampleRequest()
-  
-  // initialize supported callbacks
-  instance.initializeCallbacks()
+if (eventsPushedAlready) {
+  for (let i = 1; i < window.rudderanalytics.length; i++) {
+    instance.toBeProcessedArray.push(window.rudderanalytics[i]);
+  }
 
-  // register supported callbacks
-  instance.registerCallbacks(false);
-  let eventsPushedAlready =
-    !!window.rudderanalytics &&
-    window.rudderanalytics.push == Array.prototype.push;
-
-  let methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
-  if (methodArg.length > 0 && methodArg[0] == "load") {
-    let method = methodArg[0];
-    methodArg.shift();
+  for (let i = 0; i < instance.toBeProcessedArray.length; i++) {
+    const event = [...instance.toBeProcessedArray[i]];
+    const method = event[0];
+    event.shift();
     logger.debug("=====from init, calling method:: ", method);
-    instance[method](...methodArg);
+    instance[method](...event);
   }
-
-  if (eventsPushedAlready) {
-    for (let i = 1; i < window.rudderanalytics.length; i++) {
-      instance.toBeProcessedArray.push(window.rudderanalytics[i]);
-    }
-
-    for (let i = 0; i < instance.toBeProcessedArray.length; i++) {
-      let event = [...instance.toBeProcessedArray[i]];
-      let method = event[0];
-      event.shift();
-      logger.debug("=====from init, calling method:: ", method);
-      instance[method](...event);
-    }
-    instance.toBeProcessedArray = [];
-  }
+  instance.toBeProcessedArray = [];
 }
+// }
 
-let ready = instance.ready.bind(instance);
-let identify = instance.identify.bind(instance);
-let page = instance.page.bind(instance);
-let track = instance.track.bind(instance);
-let alias = instance.alias.bind(instance);
-let group = instance.group.bind(instance);
-let reset = instance.reset.bind(instance);
-let load = instance.load.bind(instance);
-let initialized = (instance.initialized = true);
-let getAnonymousId = instance.getAnonymousId.bind(instance);
-let setAnonymousId = instance.setAnonymousId.bind(instance);
+const ready = instance.ready.bind(instance);
+const identify = instance.identify.bind(instance);
+const page = instance.page.bind(instance);
+const track = instance.track.bind(instance);
+const alias = instance.alias.bind(instance);
+const group = instance.group.bind(instance);
+const reset = instance.reset.bind(instance);
+const load = instance.load.bind(instance);
+const initialized = (instance.initialized = true);
+const getAnonymousId = instance.getAnonymousId.bind(instance);
+const setAnonymousId = instance.setAnonymousId.bind(instance);
 
 export {
   initialized,
@@ -942,5 +959,5 @@ export {
   alias,
   group,
   getAnonymousId,
-  setAnonymousId
+  setAnonymousId,
 };
