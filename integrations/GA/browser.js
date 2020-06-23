@@ -707,12 +707,11 @@ class GA {
 
     var resetCustomDimensions = {};
     for (var i = 0; i < this.resetCustomDimensionsOnPage.length; i++) {
-      var property = this.resetCustomDimensionsOnPage[i];
+      var property = this.resetCustomDimensionsOnPage[i].resetCustomDimensionsOnPage;
       if (this.dimensionsArray[property]) {
         resetCustomDimensions[this.dimensionsArray[property]] = null;
       }
     }
-
     window.ga("set", resetCustomDimensions);
 
     //adds more properties to pageview which will be sent

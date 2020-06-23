@@ -33,9 +33,9 @@
         })(method);
       }
 
-      rudderanalytics.load("1bt0vcThjsXCUngMjgTFB62xAyg", "http://localhost:8080", {
+      rudderanalytics.load("1dM5HE5frZIslUtCjCHP5ju2Jli", "http://localhost:8080", {
         logLevel: "DEBUG",
-        configUrl: "http://localhost:5000/sourceConfig"
+        configUrl: "http://localhost:8050/sourceConfig"
 
       });
     //  rudderanalytics.track();
@@ -557,7 +557,9 @@
         url: "url",
         title: "title",
         search: "search",
-        referrer: "referrer"
+        referrer: "referrer",
+        testDimension: "true"
+        
 }); 
     </script>
   </head>
