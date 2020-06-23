@@ -72,13 +72,6 @@ class GA {
     this.loadScript();
 
     // window.ga_debug = {trace: true};
-    ga =
-      ga ||
-      function () {
-        ga.q = ga.q || [];
-        ga.q.push(arguments);
-      };
-    ga.l = new Date().getTime();
 
     // create ga with these properties. if the properties are empty it will take default values.
     const config = {
@@ -137,17 +130,28 @@ class GA {
     logger.debug("in GoogleAnalyticsManager identify");
   }
 
-  track(rudderElement, options) {
+  track(rudderElement) {
     const self = this;
     // Ecommerce events
     const { event } = rudderElement.message;
-
+    const options = this.extractCheckoutOptions(rudderElement);
+    const props = rudderElement.message.properties;
+    const { properties } = rudderElement.message;
+    const { products } = properties;
+    let { total } = properties;
+    const data = {};
+    const eventCategory = rudderElement.message.properties.category;
+    const { orderId } = properties;
+    const eventAction =
+      rudderElement.message.event || rudderElement.message.name || "";
+    const eventLabel = rudderElement.message.properties.label;
+    let eventValue = "";
+    let payload;
+    const { campaign } = rudderElement.message.context;
+    let params;
+    let filters;
+    let sorts;
     if (event === "Order Completed" && !this.enhancedEcommerce) {
-      var { properties } = rudderElement.message;
-      var { total } = properties;
-      var { orderId } = properties;
-      var { products } = properties;
-
       // orderId is required
       if (!orderId) return;
 
@@ -184,10 +188,6 @@ class GA {
         case "Checkout Started":
         case "Checkout Step Viewed":
         case "Order Updated":
-          var { properties } = rudderElement.message;
-          var { products } = properties;
-          var options = this.extractCheckoutOptions(rudderElement);
-
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
             rudderElement,
             this.enhancedEcommerceLoaded
@@ -217,12 +217,9 @@ class GA {
           );
           break;
         case "Checkout Step Completed":
-          var props = rudderElement.message.properties;
-          var options = this.extractCheckoutOptions(rudderElement);
-          console.log(options);
           if (!props.step) return;
 
-          var params = {
+          params = {
             step: props.step || 1,
             option: options || undefined,
           };
@@ -236,13 +233,10 @@ class GA {
           window.ga("send", "event", "Checkout", "Option");
           break;
         case "Order Completed":
-          var total =
+          total =
             rudderElement.message.properties.total ||
             rudderElement.message.properties.revenue ||
             0;
-          var { orderId } = rudderElement.message.properties;
-          var { products } = rudderElement.message.properties;
-          var props = rudderElement.message.properties;
 
           if (!orderId) return;
 
@@ -278,10 +272,6 @@ class GA {
           );
           break;
         case "Order Refunded":
-          var props = rudderElement.message.properties;
-          var { orderId } = props;
-          var { products } = props;
-
           if (!orderId) return;
 
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -352,8 +342,6 @@ class GA {
           );
           break;
         case "Product Viewed":
-          var props = rudderElement.message.properties;
-          var data = {};
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
             rudderElement,
             this.enhancedEcommerceLoaded
@@ -376,8 +364,6 @@ class GA {
           );
           break;
         case "Product Clicked":
-          var props = rudderElement.message.properties;
-          var data = {};
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
             rudderElement,
             this.enhancedEcommerceLoaded
@@ -400,8 +386,6 @@ class GA {
           );
           break;
         case "Promotion Viewed":
-          var props = rudderElement.message.properties;
-
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
             rudderElement,
             this.enhancedEcommerceLoaded
@@ -420,7 +404,6 @@ class GA {
           );
           break;
         case "Promotion Clicked":
-          var props = rudderElement.message.properties;
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
             rudderElement,
             this.enhancedEcommerceLoaded
@@ -441,9 +424,6 @@ class GA {
           );
           break;
         case "Product List Viewed":
-          var props = rudderElement.message.properties;
-          var { products } = props;
-
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
             rudderElement,
             this.enhancedEcommerceLoaded
@@ -489,16 +469,14 @@ class GA {
           );
           break;
         case "Product List Filtered":
-          var props = rudderElement.message.properties;
-          var { products } = props;
           props.filters = props.filters || [];
           props.sorters = props.sorters || [];
-          var filters = props.filters
+          filters = props.filters
             .map(function (obj) {
               return `${obj.type}:${obj.value}`;
             })
             .join();
-          var sorts = props.sorters
+          sorts = props.sorters
             .map(function (obj) {
               return `${obj.type}:${obj.value}`;
             })
@@ -553,18 +531,13 @@ class GA {
           );
           break;
         default:
-          var eventCategory = rudderElement.message.properties.category;
-          var eventAction =
-            rudderElement.message.event || rudderElement.message.name || "";
-          var eventLabel = rudderElement.message.properties.label;
-          var eventValue = "";
           if (rudderElement.message.properties) {
             eventValue = rudderElement.message.properties.value
               ? rudderElement.message.properties.value
               : rudderElement.message.properties.revenue;
           }
 
-          var payload = {
+          payload = {
             eventCategory: eventCategory || "All",
             eventAction,
             eventLabel,
@@ -575,8 +548,6 @@ class GA {
                 ? !!rudderElement.message.properties.nonInteraction
                 : !!this.nonInteraction,
           };
-
-          var { campaign } = rudderElement.message.context;
 
           if (campaign) {
             if (campaign.name) payload.campaignName = campaign.name;
@@ -600,17 +571,13 @@ class GA {
           logger.debug("in GoogleAnalyticsManager track");
       }
     } else {
-      var eventCategory = rudderElement.message.properties.category;
-      var eventAction = rudderElement.message.event || "";
-      var eventLabel = rudderElement.message.properties.label;
-      var eventValue = "";
       if (rudderElement.message.properties) {
         eventValue = rudderElement.message.properties.value
           ? rudderElement.message.properties.value
           : rudderElement.message.properties.revenue;
       }
 
-      var payload = {
+      payload = {
         eventCategory: eventCategory || "All",
         eventAction,
         eventLabel,
@@ -621,8 +588,6 @@ class GA {
             ? !!rudderElement.message.properties.nonInteraction
             : !!this.nonInteraction,
       };
-
-      var { campaign } = rudderElement.message.context;
 
       if (campaign) {
         if (campaign.name) payload.campaignName = campaign.name;
@@ -668,7 +633,7 @@ class GA {
         rudderElement.message.name || rudderElement.message.properties.category;
     }
 
-    const campaign = rudderElement.message.context.campaign | {};
+    const campaign = rudderElement.message.context.campaign || {};
     let pageview = {};
     const pagePath = this.path(eventProperties, this.includeSearch);
     const pageReferrer = rudderElement.message.properties.referrer || "";

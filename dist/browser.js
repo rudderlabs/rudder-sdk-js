@@ -2332,13 +2332,7 @@ var rudderanalytics = (function (exports) {
 
         window.ga.l = new Date().getTime();
         this.loadScript(); // window.ga_debug = {trace: true};
-
-        ga = ga || function () {
-          ga.q = ga.q || [];
-          ga.q.push(arguments);
-        };
-
-        ga.l = new Date().getTime(); // create ga with these properties. if the properties are empty it will take default values.
+        // create ga with these properties. if the properties are empty it will take default values.
 
         var config = {
           cookieDomain: this.domain || GA.prototype.defaults.domain,
@@ -2392,20 +2386,29 @@ var rudderanalytics = (function (exports) {
       }
     }, {
       key: "track",
-      value: function track(rudderElement, options) {
+      value: function track(rudderElement) {
         var self = this; // Ecommerce events
 
         var event = rudderElement.message.event;
+        var options = this.extractCheckoutOptions(rudderElement);
+        var props = rudderElement.message.properties;
+        var properties = rudderElement.message.properties;
+        var products = properties.products;
+        var total = properties.total;
+        var data = {};
+        var eventCategory = rudderElement.message.properties.category;
+        var orderId = properties.orderId;
+        var eventAction = rudderElement.message.event || rudderElement.message.name || "";
+        var eventLabel = rudderElement.message.properties.label;
+        var eventValue = "";
+        var payload;
+        var campaign = rudderElement.message.context.campaign;
+        var params;
+        var filters;
+        var sorts;
 
         if (event === "Order Completed" && !this.enhancedEcommerce) {
-          var properties = rudderElement.message.properties;
-          var _properties = properties,
-              total = _properties.total;
-          var _properties2 = properties,
-              orderId = _properties2.orderId;
-          var _properties3 = properties,
-              products = _properties3.products; // orderId is required
-
+          // orderId is required
           if (!orderId) return; // add transaction
 
           window.ga("ecommerce:addTransaction", {
@@ -2436,10 +2439,6 @@ var rudderanalytics = (function (exports) {
               case "Checkout Started":
               case "Checkout Step Viewed":
               case "Order Updated":
-                var properties = rudderElement.message.properties;
-                var _properties4 = properties,
-                    products = _properties4.products;
-                var options = this.extractCheckoutOptions(rudderElement);
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
                 componentEach(products, function (product) {
                   var productTrack = self.createProductTrack(rudderElement, product);
@@ -2456,11 +2455,8 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Checkout Step Completed":
-                var props = rudderElement.message.properties;
-                var options = this.extractCheckoutOptions(rudderElement);
-                console.log(options);
                 if (!props.step) return;
-                var params = {
+                params = {
                   step: props.step || 1,
                   option: options || undefined
                 };
@@ -2470,10 +2466,7 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Order Completed":
-                var total = rudderElement.message.properties.total || rudderElement.message.properties.revenue || 0;
-                var orderId = rudderElement.message.properties.orderId;
-                var products = rudderElement.message.properties.products;
-                var props = rudderElement.message.properties;
+                total = rudderElement.message.properties.total || rudderElement.message.properties.revenue || 0;
                 if (!orderId) return;
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
                 componentEach(products, function (product) {
@@ -2495,11 +2488,6 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Order Refunded":
-                var props = rudderElement.message.properties;
-                var _props = props,
-                    orderId = _props.orderId;
-                var _props2 = props,
-                    products = _props2.products;
                 if (!orderId) return;
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
                 componentEach(products, function (product) {
@@ -2530,8 +2518,6 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Product Viewed":
-                var props = rudderElement.message.properties;
-                var data = {};
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
                 if (props.list) data.list = props.list;
                 this.enhancedEcommerceTrackProductAction(rudderElement, "detail", data, this.dimensions, this.metrics, this.contentGroupings);
@@ -2539,8 +2525,6 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Product Clicked":
-                var props = rudderElement.message.properties;
-                var data = {};
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
                 if (props.list) data.list = props.list;
                 this.enhancedEcommerceTrackProductAction(rudderElement, "click", data, this.dimensions, this.metrics, this.contentGroupings);
@@ -2548,7 +2532,6 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Promotion Viewed":
-                var props = rudderElement.message.properties;
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
                 window.ga("ec:addPromo", {
                   id: props.promotionId || props.id,
@@ -2560,7 +2543,6 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Promotion Clicked":
-                var props = rudderElement.message.properties;
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
                 window.ga("ec:addPromo", {
                   id: props.promotionId || props.id,
@@ -2573,9 +2555,6 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Product List Viewed":
-                var props = rudderElement.message.properties;
-                var _props3 = props,
-                    products = _props3.products;
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
                 componentEach(products, function (product) {
                   var item = {
@@ -2606,15 +2585,12 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Product List Filtered":
-                var props = rudderElement.message.properties;
-                var _props4 = props,
-                    products = _props4.products;
                 props.filters = props.filters || [];
                 props.sorters = props.sorters || [];
-                var filters = props.filters.map(function (obj) {
+                filters = props.filters.map(function (obj) {
                   return "".concat(obj.type, ":").concat(obj.value);
                 }).join();
-                var sorts = props.sorters.map(function (obj) {
+                sorts = props.sorters.map(function (obj) {
                   return "".concat(obj.type, ":").concat(obj.value);
                 }).join();
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
@@ -2651,16 +2627,11 @@ var rudderanalytics = (function (exports) {
                 break;
 
               default:
-                var eventCategory = rudderElement.message.properties.category;
-                var eventAction = rudderElement.message.event || rudderElement.message.name || "";
-                var eventLabel = rudderElement.message.properties.label;
-                var eventValue = "";
-
                 if (rudderElement.message.properties) {
                   eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
                 }
 
-                var payload = {
+                payload = {
                   eventCategory: eventCategory || "All",
                   eventAction: eventAction,
                   eventLabel: eventLabel,
@@ -2668,7 +2639,6 @@ var rudderanalytics = (function (exports) {
                   // Allow users to override their nonInteraction integration setting for any single particluar event.
                   nonInteraction: rudderElement.message.properties.nonInteraction !== undefined ? !!rudderElement.message.properties.nonInteraction : !!this.nonInteraction
                 };
-                var campaign = rudderElement.message.context.campaign;
 
                 if (campaign) {
                   if (campaign.name) payload.campaignName = campaign.name;
@@ -2685,16 +2655,11 @@ var rudderanalytics = (function (exports) {
                 logger.debug("in GoogleAnalyticsManager track");
             }
           } else {
-            var eventCategory = rudderElement.message.properties.category;
-            var eventAction = rudderElement.message.event || "";
-            var eventLabel = rudderElement.message.properties.label;
-            var eventValue = "";
-
             if (rudderElement.message.properties) {
               eventValue = rudderElement.message.properties.value ? rudderElement.message.properties.value : rudderElement.message.properties.revenue;
             }
 
-            var payload = {
+            payload = {
               eventCategory: eventCategory || "All",
               eventAction: eventAction,
               eventLabel: eventLabel,
@@ -2702,7 +2667,6 @@ var rudderanalytics = (function (exports) {
               // Allow users to override their nonInteraction integration setting for any single particluar event.
               nonInteraction: rudderElement.message.properties.nonInteraction !== undefined ? !!rudderElement.message.properties.nonInteraction : !!this.nonInteraction
             };
-            var campaign = rudderElement.message.context.campaign;
 
             if (campaign) {
               if (campaign.name) payload.campaignName = campaign.name;
@@ -2735,7 +2699,7 @@ var rudderanalytics = (function (exports) {
           name = rudderElement.message.name || rudderElement.message.properties.category;
         }
 
-        var campaign = rudderElement.message.context.campaign | {};
+        var campaign = rudderElement.message.context.campaign || {};
         var pageview = {};
         var pagePath = this.path(eventProperties, this.includeSearch);
         var pageReferrer = rudderElement.message.properties.referrer || "";
