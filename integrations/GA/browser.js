@@ -1,9 +1,9 @@
-import logger from "../../utils/logUtil";
-import { rejectArr } from "../../utils/utils";
 import is from "is";
 import each from "component-each";
 import extend from "extend";
 import defaults from "@ndhoule/defaults";
+import { rejectArr } from "../../utils/utils";
+import logger from "../../utils/logUtil";
 
 class GA {
   constructor(config) {
@@ -43,20 +43,20 @@ class GA {
   init() {
     this.pageCalled = false;
     this.dimensionsArray = {};
-    for (let val of this.dimensions) {
+    for (const val of this.dimensions) {
       this.dimensionsArray[val.from] = val.to;
     }
     this.metricsArray = {};
-    for (let val of this.metrics) {
+    for (const val of this.metrics) {
       this.metricsArray[val.from] = val.to;
     }
     this.contentGroupingsArray = {};
-    for (let val of this.contentGroupings) {
+    for (const val of this.contentGroupings) {
       this.contentGroupingsArray[val.from] = val.to;
     }
 
     (function (i, s, o, g, r, a, m) {
-      i["GoogleAnalyticsObject"] = r;
+      i.GoogleAnalyticsObject = r;
       (i[r] =
         i[r] ||
         function () {
@@ -74,7 +74,7 @@ class GA {
       "https://www.google-analytics.com/analytics.js",
       "ga"
     );
-    //window.ga_debug = {trace: true};
+    // window.ga_debug = {trace: true};
     ga =
       ga ||
       function () {
@@ -83,8 +83,8 @@ class GA {
       };
     ga.l = new Date().getTime();
 
-    //create ga with these properties. if the properties are empty it will take default values.
-    var config = {
+    // create ga with these properties. if the properties are empty it will take default values.
+    const config = {
       cookieDomain: this.domain || GA.prototype.defaults.domain,
       siteSpeedSampleRate: this.siteSpeedSampleRate,
       sampleRate: this.sampleRate,
@@ -98,12 +98,12 @@ class GA {
     if (this.optimizeContainerId) {
       ga("require", this.optimizeContainerId);
     }
-    //ecommerce is required
+    // ecommerce is required
     if (!this.ecommerce) {
       ga("require", "ecommerce");
       this.ecommerce = true;
     }
-    //this is to display advertising
+    // this is to display advertising
     if (this.doubleClick) {
       ga("require", "displayfeatures");
     }
@@ -113,7 +113,7 @@ class GA {
       ga("require", "linkid");
     }
 
-    //a warning is in ga debugger if anonymize is false after initialization
+    // a warning is in ga debugger if anonymize is false after initialization
     if (this.anonymizeIp) {
       ga("set", "anonymizeIp", true);
     }
@@ -122,13 +122,13 @@ class GA {
   }
 
   identify(rudderElement) {
-    //send global id
+    // send global id
     if (this.sendUserId && rudderElement.message.userId) {
       ga("set", "userId", rudderElement.message.userId);
     }
 
-    //custom dimensions and metrics
-    var custom = this.metricsFunction(
+    // custom dimensions and metrics
+    const custom = this.metricsFunction(
       rudderElement.message.context.traits,
       this.dimensionsArray,
       this.metricsArray,
@@ -143,20 +143,20 @@ class GA {
   }
 
   track(rudderElement, options) {
-    var self = this;
+    const self = this;
     // Ecommerce events
-    var event = rudderElement.message.event;
+    const { event } = rudderElement.message;
 
     if (event === "Order Completed" && !this.enhancedEcommerce) {
-      var properties = rudderElement.message.properties;
-      var total = properties.total;
-      var orderId = properties.orderId;
-      var products = properties.products;
+      var { properties } = rudderElement.message;
+      var { total } = properties;
+      var { orderId } = properties;
+      var { products } = properties;
 
-      //orderId is required
+      // orderId is required
       if (!orderId) return;
 
-      //add transaction
+      // add transaction
       ga("ecommerce:addTransaction", {
         affiliation: properties.affiliation,
         shipping: properties.shipping,
@@ -166,9 +166,9 @@ class GA {
         currency: properties.currency,
       });
 
-      //products added
+      // products added
       each(products, function (product) {
-        var productTrack = self.createProductTrack(rudderElement, product);
+        const productTrack = self.createProductTrack(rudderElement, product);
 
         ga("ecommerce:addItem", {
           category: productTrack.category,
@@ -189,8 +189,8 @@ class GA {
         case "Checkout Started":
         case "Checkout Step Viewed":
         case "Order Updated":
-          var properties = rudderElement.message.properties;
-          var products = properties.products;
+          var { properties } = rudderElement.message;
+          var { products } = properties;
           var options = this.extractCheckoutOptions(rudderElement);
 
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -198,7 +198,7 @@ class GA {
             this.enhancedEcommerceLoaded
           );
           each(products, function (product) {
-            var productTrack = self.createProductTrack(rudderElement, product);
+            let productTrack = self.createProductTrack(rudderElement, product);
             productTrack = { message: productTrack };
 
             self.enhancedEcommerceTrackProduct(productTrack, self.inputs);
@@ -235,8 +235,8 @@ class GA {
             rudderElement.message.properties.total ||
             rudderElement.message.properties.revenue ||
             0;
-          var orderId = rudderElement.message.properties.orderId;
-          var products = rudderElement.message.properties.products;
+          var { orderId } = rudderElement.message.properties;
+          var { products } = rudderElement.message.properties;
           var props = rudderElement.message.properties;
 
           if (!orderId) return;
@@ -247,7 +247,7 @@ class GA {
           );
 
           each(products, function (product) {
-            var productTrack = self.createProductTrack(rudderElement, product);
+            let productTrack = self.createProductTrack(rudderElement, product);
             productTrack = { message: productTrack };
             self.enhancedEcommerceTrackProduct(productTrack, self.inputs);
           });
@@ -264,8 +264,8 @@ class GA {
           break;
         case "Order Refunded":
           var props = rudderElement.message.properties;
-          var orderId = props.orderId;
-          var products = props.products;
+          var { orderId } = props;
+          var { products } = props;
 
           if (!orderId) return;
 
@@ -275,7 +275,7 @@ class GA {
           );
 
           each(products, function (product) {
-            var track = { properties: product };
+            const track = { properties: product };
             ga("ec:addProduct", {
               id:
                 track.properties.product_id ||
@@ -384,7 +384,7 @@ class GA {
           break;
         case "Product List Viewed":
           var props = rudderElement.message.properties;
-          var products = props.products;
+          var { products } = props;
 
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
             rudderElement,
@@ -392,13 +392,13 @@ class GA {
           );
 
           each(products, function (product) {
-            var item = { properties: product };
+            const item = { properties: product };
             if (
               !(item.properties.product_id || item.properties.sku) &&
               !item.properties.name
             )
               return;
-            var impressionObj = {
+            let impressionObj = {
               id: item.properties.productId || item.properties.sku,
               name: item.properties.name,
               category: item.properties.category || props.category,
@@ -418,7 +418,7 @@ class GA {
               ),
             };
 
-            for (var prop in impressionObj) {
+            for (const prop in impressionObj) {
               if (impressionObj[prop] === undefined) delete impressionObj[prop];
             }
             ga("ec:addImpression", impressionObj);
@@ -427,17 +427,17 @@ class GA {
           break;
         case "Product List Filtered":
           var props = rudderElement.message.properties;
-          var products = props.products;
+          var { products } = props;
           props.filters = props.filters || [];
           props.sorters = props.sorters || [];
           var filters = props.filters
             .map(function (obj) {
-              return obj.type + ":" + obj.value;
+              return `${obj.type}:${obj.value}`;
             })
             .join();
           var sorts = props.sorters
             .map(function (obj) {
-              return obj.type + ":" + obj.value;
+              return `${obj.type}:${obj.value}`;
             })
             .join();
 
@@ -447,7 +447,7 @@ class GA {
           );
 
           each(products, function (product) {
-            var item = { properties: product };
+            const item = { properties: product };
 
             if (
               !(item.properties.product_id || item.properties.sku) &&
@@ -456,13 +456,13 @@ class GA {
               return;
             }
 
-            var impressionObj = {
+            let impressionObj = {
               id: item.properties.product_id || item.sku,
               name: item.name,
               category: item.category || props.category,
               list: props.list_id || props.category || "search results",
               brand: props.brand,
-              variant: filters + "::" + sorts,
+              variant: `${filters}::${sorts}`,
               price: item.price,
               position: self.getProductPosition(item, products),
             };
@@ -477,7 +477,7 @@ class GA {
               ),
             };
 
-            for (var prop in impressionObj) {
+            for (const prop in impressionObj) {
               if (impressionObj[prop] === undefined) delete impressionObj[prop];
             }
             ga("ec:addImpression", impressionObj);
@@ -501,8 +501,8 @@ class GA {
 
           var payload = {
             eventCategory: eventCategory || "All",
-            eventAction: eventAction,
-            eventLabel: eventLabel,
+            eventAction,
+            eventLabel,
             eventValue: this.formatValue(eventValue),
             // Allow users to override their nonInteraction integration setting for any single particluar event.
             nonInteraction:
@@ -511,7 +511,7 @@ class GA {
                 : !!opts.nonInteraction,
           };
 
-          var campaign = rudderElement.message.context.campaign;
+          var { campaign } = rudderElement.message.context;
 
           if (campaign) {
             if (campaign.name) payload.campaignName = campaign.name;
@@ -533,7 +533,7 @@ class GA {
           logger.debug("in GoogleAnalyticsManager track");
       }
     } else {
-      var contextOpts; //need to implement
+      let contextOpts; // need to implement
       var interfaceOpts = this.inputs;
       var opts = defaults(options || {}, contextOpts);
       opts = defaults(opts, interfaceOpts);
@@ -550,8 +550,8 @@ class GA {
 
       var payload = {
         eventCategory: eventCategory || "All",
-        eventAction: eventAction,
-        eventLabel: eventLabel,
+        eventAction,
+        eventLabel,
         eventValue: this.formatValue(eventValue),
         // Allow users to override their nonInteraction integration setting for any single particluar event.
         nonInteraction:
@@ -560,7 +560,7 @@ class GA {
             : !!opts.nonInteraction,
       };
 
-      var campaign = rudderElement.message.context.campaign;
+      var { campaign } = rudderElement.message.context;
 
       if (campaign) {
         if (campaign.name) payload.campaignName = campaign.name;
@@ -586,17 +586,14 @@ class GA {
   page(rudderElement) {
     logger.debug("in GoogleAnalyticsManager page");
 
-    var category = rudderElement.message.properties.category;
-    var eventProperties = rudderElement.message.properties;
-    var name =
-      rudderElement.message.properties.category +
-      " " +
-      rudderElement.message.name;
-    var campaign = rudderElement.message.context.campaign | {};
-    var pageview = {};
-    var pagePath = this.path(eventProperties, this.includeSearch);
-    var pageReferrer = rudderElement.message.properties.referrer || "";
-    var pageTitle;
+    const { category } = rudderElement.message.properties;
+    const eventProperties = rudderElement.message.properties;
+    const name = `${rudderElement.message.properties.category} ${rudderElement.message.name}`;
+    const campaign = rudderElement.message.context.campaign | {};
+    let pageview = {};
+    const pagePath = this.path(eventProperties, this.includeSearch);
+    const pageReferrer = rudderElement.message.properties.referrer || "";
+    let pageTitle;
     if (
       !rudderElement.message.properties.category &&
       !rudderElement.message.name
@@ -626,9 +623,9 @@ class GA {
     // this.resetCustomDimensions: [ "fruit" ]
     // --> resetCustomDimensions: { "dimension1": null }
 
-    var resetCustomDimensions = {};
-    for (var i = 0; i < this.resetCustomDimensionsOnPage.length; i++) {
-      var property = this.resetCustomDimensionsOnPage[i];
+    const resetCustomDimensions = {};
+    for (let i = 0; i < this.resetCustomDimensionsOnPage.length; i++) {
+      const property = this.resetCustomDimensionsOnPage[i];
       if (this.dimensionsArray[property]) {
         resetCustomDimensions[this.dimensionsArray[property]] = null;
       }
@@ -636,12 +633,12 @@ class GA {
 
     ga("set", resetCustomDimensions);
 
-    //adds more properties to pageview which will be sent
+    // adds more properties to pageview which will be sent
     pageview = {
       pageview,
       ...this.setCustomDimenionsAndMetrics(eventProperties, this.inputs),
     };
-    var payload = {
+    const payload = {
       page: pagePath,
       title: pageTitle,
     };
@@ -653,12 +650,12 @@ class GA {
 
     ga("send", "pageview", pageview);
 
-    //categorized pages
+    // categorized pages
     if (category && this.trackCategorizedPages) {
       this.track(rudderElement, { nonInteraction: 1 });
     }
 
-    //named pages
+    // named pages
     if (name && this.trackNamedPages) {
       this.track(rudderElement, { nonInteraction: 1 });
     }
@@ -674,6 +671,7 @@ class GA {
   isReady() {
     return !!window.gaplugins;
   }
+
   /**
    *
    *
@@ -694,11 +692,11 @@ class GA {
    *
    */
   metricsFunction(obj, dimensions, metrics, contentGroupings) {
-    var ret = {};
+    const ret = {};
 
     each([metrics, dimensions, contentGroupings], function (group) {
       each(group, function (prop, key) {
-        var value = obj[prop];
+        let value = obj[prop];
         if (is.boolean(value)) value = value.toString();
         if (value || value === 0) ret[key] = value;
       });
@@ -706,29 +704,31 @@ class GA {
 
     return ret;
   }
+
   formatValue(value) {
     if (!value || value < 0) return 0;
     return Math.round(value);
   }
+
   /**
    * @param  {} props
    * @param  {} inputs
    */
   setCustomDimenionsAndMetrics(props, inputs) {
-    var ret = {};
-    var dimensionsArray = {};
-    for (let val of inputs.dimensions) {
+    const ret = {};
+    const dimensionsArray = {};
+    for (const val of inputs.dimensions) {
       dimensionsArray[val.from] = val.to;
     }
-    var metricsArray = {};
-    for (let val of inputs.metrics) {
+    const metricsArray = {};
+    for (const val of inputs.metrics) {
       metricsArray[val.from] = val.to;
     }
-    var contentGroupingsArray = {};
-    for (let val of inputs.contentGroupings) {
+    const contentGroupingsArray = {};
+    for (const val of inputs.contentGroupings) {
       contentGroupingsArray[val.from] = val.to;
     }
-    var custom = this.metricsFunction(
+    const custom = this.metricsFunction(
       props,
       dimensionsArray,
       metricsArray,
@@ -745,6 +745,7 @@ class GA {
       }
     }
   }
+
   /**
    *  Return the path based on `properties` and `options`
    *
@@ -753,21 +754,23 @@ class GA {
    */
   path(properties, includeSearch) {
     if (!properties) return;
-    var str = properties.path;
+    let str = properties.path;
     if (includeSearch && properties.search) str += properties.search;
     return str;
   }
+
   /**
    * Creates a track out of product properties
    * @param  {} rudderElement
    * @param  {} properties
    */
   createProductTrack(rudderElement, properties) {
-    var props = properties || {};
+    const props = properties || {};
     props.currency =
       properties.currency || rudderElement.message.properties.currency;
     return { properties: props };
   }
+
   /**
    * Loads ec.js (unless already loaded)
    * @param  {} rudderElement
@@ -789,22 +792,22 @@ class GA {
    * @param  {} inputs
    */
   enhancedEcommerceTrackProduct(rudderElement, inputs) {
-    var dimensionsArray = {};
-    for (let val of inputs.dimensions) {
+    const dimensionsArray = {};
+    for (const val of inputs.dimensions) {
       dimensionsArray[val.from] = val.to;
     }
-    var metricsArray = {};
-    for (let val of inputs.metrics) {
+    const metricsArray = {};
+    for (const val of inputs.metrics) {
       metricsArray[val.from] = val.to;
     }
-    var contentGroupingsArray = {};
-    for (let val of inputs.contentGroupings) {
+    const contentGroupingsArray = {};
+    for (const val of inputs.contentGroupings) {
       contentGroupingsArray[val.from] = val.to;
     }
 
-    var props = rudderElement.message.properties;
+    const props = rudderElement.message.properties;
 
-    var product = {
+    let product = {
       id: props.productId || props.id || props.sku,
       name: props.name,
       category: props.category,
@@ -819,7 +822,7 @@ class GA {
       product.position = Math.round(props.position);
     }
 
-    var coupon = props.coupon;
+    const { coupon } = props;
     if (coupon) product.coupon = coupon;
     product = {
       product,
@@ -845,12 +848,13 @@ class GA {
     this.enhancedEcommerceTrackProduct(rudderElement, inputs);
     ga("ec:setAction", action, data || {});
   }
+
   /**
    * @param  {} rudderElement
    * @param  {} inputs
    */
   pushEnhancedEcommerce(rudderElement, inputs) {
-    var args = rejectArr([
+    const args = rejectArr([
       "send",
       "event",
       rudderElement.message.properties.category || "EnhancedEcommerce",
@@ -866,7 +870,7 @@ class GA {
       },
     ]);
 
-    var event = rudderElement.message.event;
+    let { event } = rudderElement.message;
     event = event.toLowerCase();
 
     if (this.eventWithCategoryFieldProductScoped.includes(event)) {
@@ -875,12 +879,13 @@ class GA {
 
     ga.apply(window, args);
   }
+
   /**
    * @param  {} item
    * @param  {} products
    */
   getProductPosition(item, products) {
-    var position = item.properties.position;
+    const { position } = item.properties;
 
     if (
       typeof position !== "undefined" &&
@@ -898,17 +903,18 @@ class GA {
         .indexOf(item.properties.product_id) + 1
     );
   }
+
   /**
    *extracts checkout options
    * @param  {} rudderElement
    */
   extractCheckoutOptions(rudderElement) {
-    var options = [
+    const options = [
       rudderElement.message.properties.paymentMethod,
       rudderElement.message.properties.shippingMethod,
     ];
-    //remove all nulls and join with commas.
-    var valid = rejectArr(options);
+    // remove all nulls and join with commas.
+    const valid = rejectArr(options);
     return valid.length > 0 ? valid.join(", ") : null;
   }
 }
