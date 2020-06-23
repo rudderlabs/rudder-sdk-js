@@ -2331,14 +2331,14 @@ var rudderanalytics = (function (exports) {
         };
 
         window.ga.l = new Date().getTime();
-        this.loadScript(); //window.ga_debug = {trace: true};
+        this.loadScript(); // window.ga_debug = {trace: true};
 
         ga = ga || function () {
           ga.q = ga.q || [];
           ga.q.push(arguments);
         };
 
-        ga.l = new Date().getTime(); //create ga with these properties. if the properties are empty it will take default values.
+        ga.l = new Date().getTime(); // create ga with these properties. if the properties are empty it will take default values.
 
         var config = {
           cookieDomain: this.domain || GA.prototype.defaults.domain,
@@ -2352,13 +2352,13 @@ var rudderanalytics = (function (exports) {
 
         if (this.optimizeContainerId) {
           window.ga("require", this.optimizeContainerId);
-        } //ecommerce is required
+        } // ecommerce is required
 
 
         if (!this.ecommerce) {
           window.ga("require", "ecommerce");
           this.ecommerce = true;
-        } //this is to display advertising
+        } // this is to display advertising
 
 
         if (this.doubleClick) {
@@ -2368,7 +2368,7 @@ var rudderanalytics = (function (exports) {
 
         if (this.enhancedLinkAttribution) {
           window.ga("require", "linkid");
-        } //a warning is in ga debugger if anonymize is false after initialization
+        } // a warning is in ga debugger if anonymize is false after initialization
 
 
         if (this.anonymizeIp) {
@@ -2380,10 +2380,10 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(rudderElement) {
-        //send global id
+        // send global id
         if (this.sendUserId && rudderElement.message.userId) {
           window.ga("set", "userId", rudderElement.message.userId);
-        } //custom dimensions and metrics
+        } // custom dimensions and metrics
 
 
         var custom = this.metricsFunction(rudderElement.message.context.traits, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray);
@@ -2399,11 +2399,14 @@ var rudderanalytics = (function (exports) {
 
         if (event === "Order Completed" && !this.enhancedEcommerce) {
           var properties = rudderElement.message.properties;
-          var total = properties.total;
-          var orderId = properties.orderId;
-          var products = properties.products; //orderId is required
+          var _properties = properties,
+              total = _properties.total;
+          var _properties2 = properties,
+              orderId = _properties2.orderId;
+          var _properties3 = properties,
+              products = _properties3.products; // orderId is required
 
-          if (!orderId) return; //add transaction
+          if (!orderId) return; // add transaction
 
           window.ga("ecommerce:addTransaction", {
             affiliation: properties.affiliation,
@@ -2412,7 +2415,7 @@ var rudderanalytics = (function (exports) {
             tax: properties.tax,
             id: orderId,
             currency: properties.currency
-          }); //products added
+          }); // products added
 
           componentEach(products, function (product) {
             var productTrack = self.createProductTrack(rudderElement, product);
@@ -2434,7 +2437,8 @@ var rudderanalytics = (function (exports) {
               case "Checkout Step Viewed":
               case "Order Updated":
                 var properties = rudderElement.message.properties;
-                var products = properties.products;
+                var _properties4 = properties,
+                    products = _properties4.products;
                 var options = this.extractCheckoutOptions(rudderElement);
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
                 componentEach(products, function (product) {
@@ -2492,8 +2496,10 @@ var rudderanalytics = (function (exports) {
 
               case "Order Refunded":
                 var props = rudderElement.message.properties;
-                var orderId = props.orderId;
-                var products = props.products;
+                var _props = props,
+                    orderId = _props.orderId;
+                var _props2 = props,
+                    products = _props2.products;
                 if (!orderId) return;
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
                 componentEach(products, function (product) {
@@ -2568,7 +2574,8 @@ var rudderanalytics = (function (exports) {
 
               case "Product List Viewed":
                 var props = rudderElement.message.properties;
-                var products = props.products;
+                var _props3 = props,
+                    products = _props3.products;
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
                 componentEach(products, function (product) {
                   var item = {
@@ -2600,14 +2607,15 @@ var rudderanalytics = (function (exports) {
 
               case "Product List Filtered":
                 var props = rudderElement.message.properties;
-                var products = props.products;
+                var _props4 = props,
+                    products = _props4.products;
                 props.filters = props.filters || [];
                 props.sorters = props.sorters || [];
                 var filters = props.filters.map(function (obj) {
-                  return obj.type + ":" + obj.value;
+                  return "".concat(obj.type, ":").concat(obj.value);
                 }).join();
                 var sorts = props.sorters.map(function (obj) {
-                  return obj.type + ":" + obj.value;
+                  return "".concat(obj.type, ":").concat(obj.value);
                 }).join();
                 this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(rudderElement, this.enhancedEcommerceLoaded);
                 componentEach(products, function (product) {
@@ -2625,7 +2633,7 @@ var rudderanalytics = (function (exports) {
                     category: item.category || props.category,
                     list: props.list_id || props.category || "search results",
                     brand: props.brand,
-                    variant: filters + "::" + sorts,
+                    variant: "".concat(filters, "::").concat(sorts),
                     price: item.price,
                     position: self.getProductPosition(item, products)
                   };
@@ -2720,7 +2728,7 @@ var rudderanalytics = (function (exports) {
         var name;
 
         if (rudderElement.message.properties.category && rudderElement.message.name) {
-          name = rudderElement.message.properties.category + " " + rudderElement.message.name;
+          name = "".concat(rudderElement.message.properties.category, " ").concat(rudderElement.message.name);
         } else if (!rudderElement.message.properties.category && !rudderElement.message.name) {
           name = "";
         } else {
@@ -2760,7 +2768,7 @@ var rudderanalytics = (function (exports) {
           }
         }
 
-        window.ga("set", resetCustomDimensions); //adds more properties to pageview which will be sent
+        window.ga("set", resetCustomDimensions); // adds more properties to pageview which will be sent
 
         pageview = _objectSpread2({}, pageview, {}, this.setCustomDimenionsAndMetrics(eventProperties, this.dimensions, this.metrics, this.contentGroupings));
         var payload = {
@@ -2772,13 +2780,13 @@ var rudderanalytics = (function (exports) {
         if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
         window.ga("set", payload);
         if (this.pageCalled) delete pageview.location;
-        window.ga("send", "pageview", pageview); //categorized pages
+        window.ga("send", "pageview", pageview); // categorized pages
 
         if (category && this.trackCategorizedPages) {
           this.track(rudderElement, {
             nonInteraction: 1
           });
-        } //named pages
+        } // named pages
 
 
         if (name && this.trackNamedPages) {
@@ -3096,7 +3104,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "extractCheckoutOptions",
       value: function extractCheckoutOptions(rudderElement) {
-        var options = [rudderElement.message.properties.paymentMethod, rudderElement.message.properties.shippingMethod]; //remove all nulls and join with commas.
+        var options = [rudderElement.message.properties.paymentMethod, rudderElement.message.properties.shippingMethod]; // remove all nulls and join with commas.
 
         var valid = rejectArr(options);
         return valid.length > 0 ? valid.join(", ") : null;
@@ -7090,237 +7098,6 @@ var rudderanalytics = (function (exports) {
   var deep = defaultsDeep;
   defaults_1.deep = deep;
 
-  var max = Math.max;
-
-  /**
-   * Produce a new array composed of all but the first `n` elements of an input `collection`.
-   *
-   * @name drop
-   * @api public
-   * @param {number} count The number of elements to drop.
-   * @param {Array} collection The collection to iterate over.
-   * @return {Array} A new array containing all but the first element from `collection`.
-   * @example
-   * drop(0, [1, 2, 3]); // => [1, 2, 3]
-   * drop(1, [1, 2, 3]); // => [2, 3]
-   * drop(2, [1, 2, 3]); // => [3]
-   * drop(3, [1, 2, 3]); // => []
-   * drop(4, [1, 2, 3]); // => []
-   */
-  var drop = function drop(count, collection) {
-    var length = collection ? collection.length : 0;
-
-    if (!length) {
-      return [];
-    }
-
-    // Preallocating an array *significantly* boosts performance when dealing with
-    // `arguments` objects on v8. For a summary, see:
-    // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
-    var toDrop = max(Number(count) || 0, 0);
-    var resultsLength = max(length - toDrop, 0);
-    var results = new Array(resultsLength);
-
-    for (var i = 0; i < resultsLength; i += 1) {
-      results[i] = collection[i + toDrop];
-    }
-
-    return results;
-  };
-
-  /*
-   * Exports.
-   */
-
-  var drop_1 = drop;
-
-  var max$1 = Math.max;
-
-  /**
-   * Produce a new array by passing each value in the input `collection` through a transformative
-   * `iterator` function. The `iterator` function is passed three arguments:
-   * `(value, index, collection)`.
-   *
-   * @name rest
-   * @api public
-   * @param {Array} collection The collection to iterate over.
-   * @return {Array} A new array containing all but the first element from `collection`.
-   * @example
-   * rest([1, 2, 3]); // => [2, 3]
-   */
-  var rest = function rest(collection) {
-    if (collection == null || !collection.length) {
-      return [];
-    }
-
-    // Preallocating an array *significantly* boosts performance when dealing with
-    // `arguments` objects on v8. For a summary, see:
-    // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
-    var results = new Array(max$1(collection.length - 2, 0));
-
-    for (var i = 1; i < collection.length; i += 1) {
-      results[i - 1] = collection[i];
-    }
-
-    return results;
-  };
-
-  /*
-   * Exports.
-   */
-
-  var rest_1 = rest;
-
-  /*
-   * Module dependencies.
-   */
-
-
-
-
-  var has$3 = Object.prototype.hasOwnProperty;
-  var objToString$1 = Object.prototype.toString;
-
-  /**
-   * Returns `true` if a value is an object, otherwise `false`.
-   *
-   * @name isObject
-   * @api private
-   * @param {*} val The value to test.
-   * @return {boolean}
-   */
-  // TODO: Move to a library
-  var isObject = function isObject(value) {
-    return Boolean(value) && typeof value === 'object';
-  };
-
-  /**
-   * Returns `true` if a value is a plain object, otherwise `false`.
-   *
-   * @name isPlainObject
-   * @api private
-   * @param {*} val The value to test.
-   * @return {boolean}
-   */
-  // TODO: Move to a library
-  var isPlainObject = function isPlainObject(value) {
-    return Boolean(value) && objToString$1.call(value) === '[object Object]';
-  };
-
-  /**
-   * Assigns a key-value pair to a target object when the value assigned is owned,
-   * and where target[key] is undefined.
-   *
-   * @name shallowCombiner
-   * @api private
-   * @param {Object} target
-   * @param {Object} source
-   * @param {*} value
-   * @param {string} key
-   */
-  var shallowCombiner = function shallowCombiner(target, source, value, key) {
-    if (has$3.call(source, key) && target[key] === undefined) {
-      target[key] = value;
-    }
-    return source;
-  };
-
-  /**
-   * Assigns a key-value pair to a target object when the value assigned is owned,
-   * and where target[key] is undefined; also merges objects recursively.
-   *
-   * @name deepCombiner
-   * @api private
-   * @param {Object} target
-   * @param {Object} source
-   * @param {*} value
-   * @param {string} key
-   * @return {Object}
-   */
-  var deepCombiner = function(target, source, value, key) {
-    if (has$3.call(source, key)) {
-      if (isPlainObject(target[key]) && isPlainObject(value)) {
-          target[key] = defaultsDeep(target[key], value);
-      } else if (target[key] === undefined) {
-          target[key] = value;
-      }
-    }
-
-    return source;
-  };
-
-  /**
-   * TODO: Document
-   *
-   * @name defaultsWith
-   * @api private
-   * @param {Function} combiner
-   * @param {Object} target
-   * @param {...Object} sources
-   * @return {Object} Return the input `target`.
-   */
-  var defaultsWith = function(combiner, target /*, ...sources */) {
-    if (!isObject(target)) {
-      return target;
-    }
-
-    combiner = combiner || shallowCombiner;
-    var sources = drop_1(2, arguments);
-
-    for (var i = 0; i < sources.length; i += 1) {
-      for (var key in sources[i]) {
-        combiner(target, sources[i], sources[i][key], key);
-      }
-    }
-
-    return target;
-  };
-
-  /**
-   * Copies owned, enumerable properties from a source object(s) to a target
-   * object when the value of that property on the source object is `undefined`.
-   * Recurses on objects.
-   *
-   * @name defaultsDeep
-   * @api public
-   * @param {Object} target
-   * @param {...Object} sources
-   * @return {Object} The input `target`.
-   */
-  var defaultsDeep = function defaultsDeep(target /*, sources */) {
-    // TODO: Replace with `partial` call?
-    return defaultsWith.apply(null, [deepCombiner, target].concat(rest_1(arguments)));
-  };
-
-  /**
-   * Copies owned, enumerable properties from a source object(s) to a target
-   * object when the value of that property on the source object is `undefined`.
-   *
-   * @name defaults
-   * @api public
-   * @param {Object} target
-   * @param {...Object} sources
-   * @return {Object}
-   * @example
-   * var a = { a: 1 };
-   * var b = { a: 2, b: 2 };
-   *
-   * defaults(a, b);
-   * console.log(a); //=> { a: 1, b: 2 }
-   */
-  var defaults = function(target /*, ...sources */) {
-    // TODO: Replace with `partial` call?
-    return defaultsWith.apply(null, [null, target].concat(rest_1(arguments)));
-  };
-
-  /*
-   * Exports.
-   */
-
-  var defaults_1 = defaults;
-  var deep = defaultsDeep;
-  defaults_1.deep = deep;
-
   var json3 = createCommonjsModule(function (module, exports) {
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
@@ -9296,16 +9073,6 @@ var rudderanalytics = (function (exports) {
     return StoreLocal;
   }(); // Exporting only the instance
 
-    }, {
-      key: "setUserTraits",
-      value: function setUserTraits(value) {
-        this.storage.set(defaults$1.user_storage_trait, value);
-        return;
-      }
-      /**
-       *
-       * @param {*} value
-       */
 
   var Store = new StoreLocal({});
 
