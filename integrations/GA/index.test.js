@@ -44,9 +44,19 @@ describe("GA init tests", () => {
     beforeEach(() => {
       googleAnalytics = new GA({
         trackingID: "UA-143161493-8",
-        dimensions: [],
+        dimensions:  [
+          {
+            "from": "testDimension",
+            "to": "dimension1"
+          }
+        ],
         metrics: [],
         contentGroupings: [],
+        resetCustomDimensionsOnPage: [
+          {
+            "resetCustomDimensionsOnPage": "testDimension"
+          }
+        ]
       });
       googleAnalytics.init();
       window.ga = jest.fn();
@@ -62,16 +72,20 @@ describe("GA init tests", () => {
             url: "http://localhost",
             referrer: "",
             title: "test page",
+            testDimension: "abc"
           },
         },
       });
-      // console.log(JSON.stringify(window.ga.mock.calls)); // this has set with empty {} object when resetCustomDimensions
-
-      expect(window.ga.mock.calls[2][0]).toEqual("send");
-      expect(window.ga.mock.calls[2][1]).toEqual("pageview");
+       console.log(JSON.stringify(window.ga.mock.calls)); // this has set with empty {} object when resetCustomDimensions
+      expect(window.ga.mock.calls[0][0]).toEqual("set");
+      expect(window.ga.mock.calls[0][1]).toEqual({"dimension1":null})
+      expect(window.ga.mock.calls[1][0]).toEqual("set");
+      expect(window.ga.mock.calls[1][1]).toEqual({"dimension1":"abc"})
+      expect(window.ga.mock.calls[3][0]).toEqual("send");
+      expect(window.ga.mock.calls[3][1]).toEqual("pageview");
 
       // it has a pageview as a top level key..expected??
-      expect(window.ga.mock.calls[2][2]).toEqual({
+      expect(window.ga.mock.calls[3][2]).toEqual({
           page: "/test",
           title: "test cat",
           location: "http://localhost",
