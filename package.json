@@ -26,7 +26,7 @@
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc "
   },
   "pre-commit": [
-    "prodTest"
+    "test"
   ],
   "author": "",
   "license": "ISC",
