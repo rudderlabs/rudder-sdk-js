@@ -65,21 +65,18 @@ describe("GA init tests", () => {
           },
         },
       });
-      // console.log(JSON.stringify(window.ga.mock.calls)); // this has few nonInteraction hits..expected ??
+      // console.log(JSON.stringify(window.ga.mock.calls)); // this has set with empty {} object when resetCustomDimensions
 
       expect(window.ga.mock.calls[2][0]).toEqual("send");
       expect(window.ga.mock.calls[2][1]).toEqual("pageview");
 
       // it has a pageview as a top level key..expected??
       expect(window.ga.mock.calls[2][2]).toEqual({
-        pageview: {
           page: "/test",
           title: "test cat",
           location: "http://localhost",
-        },
       });
 
-      // TODO: check "set" call, the first call to window.ga is an empty "set" call..check this!
       // TODO: call another page, check location not set
     });
   });
@@ -113,15 +110,12 @@ describe("GA init tests", () => {
       expect(window.ga.mock.calls[0][0]).toEqual("send");
       expect(window.ga.mock.calls[0][1]).toEqual("event");
 
-      // it has a payload as a top level key..expected??
       expect(window.ga.mock.calls[0][2]).toEqual({
-        payload: {
           eventCategory: "All",
           eventAction: "test track",
           eventLabel: "test label",
           eventValue: 20,
           nonInteraction: false,
-        },
       });
     });
 
@@ -143,15 +137,12 @@ describe("GA init tests", () => {
       expect(window.ga.mock.calls[0][0]).toEqual("send");
       expect(window.ga.mock.calls[0][1]).toEqual("event");
 
-      // it has a payload as a top level key..expected??
       expect(window.ga.mock.calls[0][2]).toEqual({
-        payload: {
           eventCategory: "test cat",
           eventAction: "test track",
           eventLabel: "test label",
           eventValue: 20,
           nonInteraction: true,
-        },
       });
     });
   });
