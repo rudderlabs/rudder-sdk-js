@@ -71,6 +71,7 @@ class GA {
       };
     window.ga.l = new Date().getTime();
 
+    this.loadScript();
     // create ga with these properties. if the properties are empty it will take default values.
     const config = {
       cookieDomain: this.domain,
