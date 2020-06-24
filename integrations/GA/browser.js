@@ -125,7 +125,9 @@ export default class GA {
       this.contentGroupingsArray
     );
 
-    if (Object.keys(custom).length) window.ga("set", custom);
+    if (Object.keys(custom).length) {
+      window.ga("set", custom);
+    }
 
     logger.debug("in GoogleAnalyticsManager identify");
   }
@@ -133,17 +135,15 @@ export default class GA {
   track(rudderElement) {
     const self = this;
     // Ecommerce events
-    const { event } = rudderElement.message;
+    const { event, properties, name } = rudderElement.message;
     const options = this.extractCheckoutOptions(rudderElement);
     const props = rudderElement.message.properties;
-    const { properties } = rudderElement.message;
     const { products } = properties;
     let { total } = properties;
     const data = {};
     const eventCategory = rudderElement.message.properties.category;
-    const { order_id } = properties;
-    const eventAction =
-      rudderElement.message.event || rudderElement.message.name || "";
+    const orderId = properties.order_id;
+    const eventAction = event || name || "";
     const eventLabel = rudderElement.message.properties.label;
     let eventValue = "";
     let payload;
@@ -153,7 +153,7 @@ export default class GA {
     let sorts;
     if (event === "Order Completed" && !this.enhancedEcommerce) {
       // order_id is required
-      if (!order_id) return;
+      if (!orderId) return;
 
       // add transaction
       window.ga("ecommerce:addTransaction", {
@@ -161,7 +161,7 @@ export default class GA {
         shipping: properties.shipping,
         revenue: total,
         tax: properties.tax,
-        id: order_id,
+        id: orderId,
         currency: properties.currency,
       });
 
@@ -175,7 +175,7 @@ export default class GA {
           price: productTrack.price,
           name: productTrack.name,
           sku: productTrack.sku,
-          id: order_id,
+          id: orderId,
           currency: productTrack.currency,
         });
       });
@@ -222,7 +222,7 @@ export default class GA {
             rudderElement.message.properties.revenue ||
             0;
 
-          if (!order_id) return;
+          if (!orderId) return;
 
           this.loadEnhancedEcommerce(rudderElement);
 
@@ -232,7 +232,7 @@ export default class GA {
             self.enhancedEcommerceTrackProduct(productTrack);
           });
           window.ga("ec:setAction", "purchase", {
-            id: order_id,
+            id: orderId,
             affiliation: props.affiliation,
             revenue: total,
             tax: props.tax,
@@ -243,7 +243,7 @@ export default class GA {
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Order Refunded":
-          if (!order_id) return;
+          if (!orderId) return;
 
           this.loadEnhancedEcommerce(rudderElement);
 
@@ -259,7 +259,7 @@ export default class GA {
           });
 
           window.ga("ec:setAction", "refund", {
-            id: order_id,
+            id: orderId,
           });
 
           this.pushEnhancedEcommerce(rudderElement);
