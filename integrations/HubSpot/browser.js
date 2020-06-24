@@ -1,4 +1,4 @@
-import { ScriptLoader } from "../ScriptLoader";
+import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 
 class HubSpot {

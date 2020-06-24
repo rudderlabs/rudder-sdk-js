@@ -2,9 +2,9 @@ import is from "is";
 import each from "component-each";
 import logger from "../../utils/logUtil";
 import { rejectArr } from "../../utils/utils";
-import { ScriptLoader } from "../ScriptLoader";
+import ScriptLoader from "../ScriptLoader";
 
-class GA {
+export default class GA {
   constructor(config) {
     this.trackingID = config.trackingID;
     this.sendUserId = config.sendUserId || false;
@@ -48,22 +48,22 @@ class GA {
   init() {
     this.pageCalled = false;
     this.dimensionsArray = {};
-    for (const val of this.dimensions) {
-      this.dimensionsArray[val.from] = val.to;
-    }
+    this.dimensions.forEach((element) => {
+      this.dimensionsArray[element.from] = element.to;
+    });
     this.metricsArray = {};
-    for (const val of this.metrics) {
-      this.metricsArray[val.from] = val.to;
-    }
+    this.metrics.forEach((element) => {
+      this.metricsArray[element.from] = element.to;
+    });
     this.contentGroupingsArray = {};
-    for (const val of this.contentGroupings) {
-      this.contentGroupingsArray[val.from] = val.to;
-    }
+    this.contentGroupings.forEach((element) => {
+      this.contentGroupingsArray[element.from] = element.to;
+    });
 
     window.GoogleAnalyticsObject = "ga";
     window.ga =
       window.ga ||
-      function () {
+      function a() {
         window.ga.q = window.ga.q || [];
         window.ga.q.push(arguments);
       };
@@ -166,7 +166,7 @@ class GA {
       });
 
       // products added
-      each(products, function (product) {
+      each(products, (product) => {
         const productTrack = self.createProductTrack(rudderElement, product);
 
         window.ga("ecommerce:addItem", {
@@ -192,7 +192,7 @@ class GA {
             rudderElement,
             this.enhancedEcommerceLoaded
           );
-          each(products, function (product) {
+          each(products, (product) => {
             let productTrack = self.createProductTrack(rudderElement, product);
             productTrack = { message: productTrack };
 
@@ -245,7 +245,7 @@ class GA {
             this.enhancedEcommerceLoaded
           );
 
-          each(products, function (product) {
+          each(products, (product) => {
             let productTrack = self.createProductTrack(rudderElement, product);
             productTrack = { message: productTrack };
             self.enhancedEcommerceTrackProduct(
@@ -279,7 +279,7 @@ class GA {
             this.enhancedEcommerceLoaded
           );
 
-          each(products, function (product) {
+          each(products, (product) => {
             const track = { properties: product };
             window.ga("ec:addProduct", {
               id:
@@ -429,7 +429,7 @@ class GA {
             this.enhancedEcommerceLoaded
           );
 
-          each(products, function (product) {
+          each(products, (product) => {
             const item = { properties: product };
             if (
               !(item.properties.product_id || item.properties.sku) &&
@@ -455,10 +455,9 @@ class GA {
                 self.contentGroupingsArray
               ),
             };
-
-            for (const prop in impressionObj) {
-              if (impressionObj[prop] === undefined) delete impressionObj[prop];
-            }
+            Object.keys(impressionObj).forEach((key) => {
+              if (impressionObj[key] === undefined) delete impressionObj[key];
+            });
             window.ga("ec:addImpression", impressionObj);
           });
           this.pushEnhancedEcommerce(
@@ -472,12 +471,12 @@ class GA {
           props.filters = props.filters || [];
           props.sorters = props.sorters || [];
           filters = props.filters
-            .map(function (obj) {
+            .map((obj) => {
               return `${obj.type}:${obj.value}`;
             })
             .join();
           sorts = props.sorters
-            .map(function (obj) {
+            .map((obj) => {
               return `${obj.type}:${obj.value}`;
             })
             .join();
@@ -487,7 +486,7 @@ class GA {
             this.enhancedEcommerceLoaded
           );
 
-          each(products, function (product) {
+          each(products, (product) => {
             const item = { properties: product };
 
             if (
@@ -517,10 +516,9 @@ class GA {
                 self.contentGroupingsArray
               ),
             };
-
-            for (const prop in impressionObj) {
-              if (impressionObj[prop] === undefined) delete impressionObj[prop];
-            }
+            Object.keys(impressionObj).forEach((key) => {
+              if (impressionObj[key] === undefined) delete impressionObj[key];
+            });
             window.ga("ec:addImpression", impressionObj);
           });
           this.pushEnhancedEcommerce(
@@ -668,7 +666,7 @@ class GA {
     // --> resetCustomDimensions: { "dimension1": null }
 
     const resetCustomDimensions = {};
-    for (let i = 0; i < this.resetCustomDimensionsOnPage.length; i++) {
+    for (let i = 0; i < this.resetCustomDimensionsOnPage.length; i += 1) {
       const property = this.resetCustomDimensionsOnPage[i]
         .resetCustomDimensionsOnPage;
       if (this.dimensionsArray[property]) {
@@ -767,29 +765,17 @@ class GA {
    */
   setCustomDimenionsAndMetrics(props, dimensions, metrics, contentGroupings) {
     const ret = {};
-    const dimensionsArray = {};
-    for (const val of dimensions) {
-      dimensionsArray[val.from] = val.to;
-    }
-    const metricsArray = {};
-    for (const val of metrics) {
-      metricsArray[val.from] = val.to;
-    }
-    const contentGroupingsArray = {};
-    for (const val of contentGroupings) {
-      contentGroupingsArray[val.from] = val.to;
-    }
     const custom = this.metricsFunction(
       props,
-      dimensionsArray,
-      metricsArray,
-      contentGroupingsArray
+      this.dimensionsArray,
+      this.metricsArray,
+      this.contentGroupingsArray
     );
     if (Object.keys(custom).length) {
       if (this.setAllMappedProps) {
         window.ga("set", custom);
       } else {
-        each(custom, function (key, value) {
+        each(custom, (key, value) => {
           ret[key] = value;
         });
         return ret;
@@ -848,19 +834,6 @@ class GA {
     metrics,
     contentGroupings
   ) {
-    const dimensionsArray = {};
-    for (const val of dimensions) {
-      dimensionsArray[val.from] = val.to;
-    }
-    const metricsArray = {};
-    for (const val of metrics) {
-      metricsArray[val.from] = val.to;
-    }
-    const contentGroupingsArray = {};
-    for (const val of contentGroupings) {
-      contentGroupingsArray[val.from] = val.to;
-    }
-
     const props = rudderElement.message.properties;
 
     let product = {
@@ -884,9 +857,9 @@ class GA {
       product,
       ...this.metricsFunction(
         props,
-        dimensionsArray,
-        metricsArray,
-        contentGroupingsArray
+        this.dimensionsArray,
+        this.metricsArray,
+        this.contentGroupingsArray
       ),
     };
 
@@ -988,4 +961,3 @@ class GA {
     return valid.length > 0 ? valid.join(", ") : null;
   }
 }
-export { GA };

@@ -1,5 +1,5 @@
 import logger from "../../utils/logUtil";
-import { ScriptLoader } from "../ScriptLoader";
+import ScriptLoader from "../ScriptLoader";
 class Keen {
   constructor(config) {
     this.projectID = config.projectID;

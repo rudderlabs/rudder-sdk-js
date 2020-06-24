@@ -21,7 +21,7 @@ import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
-import { ScriptLoader } from "./integrations/ScriptLoader";
+import ScriptLoader from "./integrations/ScriptLoader";
 
 // https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 

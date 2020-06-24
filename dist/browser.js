@@ -121,61 +121,6 @@ var rudderanalytics = (function (exports) {
     throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
-  function _createForOfIteratorHelper(o) {
-    if (typeof Symbol === "undefined" || o[Symbol.iterator] == null) {
-      if (Array.isArray(o) || (o = _unsupportedIterableToArray(o))) {
-        var i = 0;
-
-        var F = function () {};
-
-        return {
-          s: F,
-          n: function () {
-            if (i >= o.length) return {
-              done: true
-            };
-            return {
-              done: false,
-              value: o[i++]
-            };
-          },
-          e: function (e) {
-            throw e;
-          },
-          f: F
-        };
-      }
-
-      throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
-    }
-
-    var it,
-        normalCompletion = true,
-        didErr = false,
-        err;
-    return {
-      s: function () {
-        it = o[Symbol.iterator]();
-      },
-      n: function () {
-        var step = it.next();
-        normalCompletion = step.done;
-        return step;
-      },
-      e: function (e) {
-        didErr = true;
-        err = e;
-      },
-      f: function () {
-        try {
-          if (!normalCompletion && it.return != null) it.return();
-        } finally {
-          if (didErr) throw err;
-        }
-      }
-    };
-  }
-
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
   function createCommonjsModule(fn, module) {
@@ -931,7 +876,7 @@ var rudderanalytics = (function (exports) {
   }; */
 
   function ScriptLoader(id, src) {
-    logger.debug("in script loader=== " + id);
+    logger.debug("in script loader=== ".concat(id));
     var js = document.createElement("script");
     js.src = src;
     js.async = true;
@@ -2274,58 +2219,24 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "init",
       value: function init() {
+        var _this = this;
+
         this.pageCalled = false;
         this.dimensionsArray = {};
-
-        var _iterator = _createForOfIteratorHelper(this.dimensions),
-            _step;
-
-        try {
-          for (_iterator.s(); !(_step = _iterator.n()).done;) {
-            var val = _step.value;
-            this.dimensionsArray[val.from] = val.to;
-          }
-        } catch (err) {
-          _iterator.e(err);
-        } finally {
-          _iterator.f();
-        }
-
+        this.dimensions.forEach(function (element) {
+          _this.dimensionsArray[element.from] = element.to;
+        });
         this.metricsArray = {};
-
-        var _iterator2 = _createForOfIteratorHelper(this.metrics),
-            _step2;
-
-        try {
-          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-            var _val = _step2.value;
-            this.metricsArray[_val.from] = _val.to;
-          }
-        } catch (err) {
-          _iterator2.e(err);
-        } finally {
-          _iterator2.f();
-        }
-
+        this.metrics.forEach(function (element) {
+          _this.metricsArray[element.from] = element.to;
+        });
         this.contentGroupingsArray = {};
-
-        var _iterator3 = _createForOfIteratorHelper(this.contentGroupings),
-            _step3;
-
-        try {
-          for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
-            var _val2 = _step3.value;
-            this.contentGroupingsArray[_val2.from] = _val2.to;
-          }
-        } catch (err) {
-          _iterator3.e(err);
-        } finally {
-          _iterator3.f();
-        }
-
+        this.contentGroupings.forEach(function (element) {
+          _this.contentGroupingsArray[element.from] = element.to;
+        });
         window.GoogleAnalyticsObject = "ga";
 
-        window.ga = window.ga || function () {
+        window.ga = window.ga || function a() {
           window.ga.q = window.ga.q || [];
           window.ga.q.push(arguments);
         };
@@ -2574,11 +2485,9 @@ var rudderanalytics = (function (exports) {
                   impressionObj = _objectSpread2({
                     impressionObj: impressionObj
                   }, self.metricsFunction(item.properties, self.dimensionsArray, self.metricsArray, self.contentGroupingsArray));
-
-                  for (var prop in impressionObj) {
-                    if (impressionObj[prop] === undefined) delete impressionObj[prop];
-                  }
-
+                  Object.keys(impressionObj).forEach(function (key) {
+                    if (impressionObj[key] === undefined) delete impressionObj[key];
+                  });
                   window.ga("ec:addImpression", impressionObj);
                 });
                 this.pushEnhancedEcommerce(rudderElement, this.dimensions, this.metrics, this.contentGroupings);
@@ -2616,11 +2525,9 @@ var rudderanalytics = (function (exports) {
                   impressionObj = _objectSpread2({
                     impressionObj: impressionObj
                   }, self.metricsFunction(item.properties, self.dimensionsArray, self.metricsArray, self.contentGroupingsArray));
-
-                  for (var prop in impressionObj) {
-                    if (impressionObj[prop] === undefined) delete impressionObj[prop];
-                  }
-
+                  Object.keys(impressionObj).forEach(function (key) {
+                    if (impressionObj[key] === undefined) delete impressionObj[key];
+                  });
                   window.ga("ec:addImpression", impressionObj);
                 });
                 this.pushEnhancedEcommerce(rudderElement, this.dimensions, this.metrics, this.contentGroupings);
@@ -2724,7 +2631,7 @@ var rudderanalytics = (function (exports) {
 
         var resetCustomDimensions = {};
 
-        for (var i = 0; i < this.resetCustomDimensionsOnPage.length; i++) {
+        for (var i = 0; i < this.resetCustomDimensionsOnPage.length; i += 1) {
           var property = this.resetCustomDimensionsOnPage[i].resetCustomDimensionsOnPage;
 
           if (this.dimensionsArray[property]) {
@@ -2820,55 +2727,7 @@ var rudderanalytics = (function (exports) {
       key: "setCustomDimenionsAndMetrics",
       value: function setCustomDimenionsAndMetrics(props, dimensions, metrics, contentGroupings) {
         var ret = {};
-        var dimensionsArray = {};
-
-        var _iterator4 = _createForOfIteratorHelper(dimensions),
-            _step4;
-
-        try {
-          for (_iterator4.s(); !(_step4 = _iterator4.n()).done;) {
-            var val = _step4.value;
-            dimensionsArray[val.from] = val.to;
-          }
-        } catch (err) {
-          _iterator4.e(err);
-        } finally {
-          _iterator4.f();
-        }
-
-        var metricsArray = {};
-
-        var _iterator5 = _createForOfIteratorHelper(metrics),
-            _step5;
-
-        try {
-          for (_iterator5.s(); !(_step5 = _iterator5.n()).done;) {
-            var _val3 = _step5.value;
-            metricsArray[_val3.from] = _val3.to;
-          }
-        } catch (err) {
-          _iterator5.e(err);
-        } finally {
-          _iterator5.f();
-        }
-
-        var contentGroupingsArray = {};
-
-        var _iterator6 = _createForOfIteratorHelper(contentGroupings),
-            _step6;
-
-        try {
-          for (_iterator6.s(); !(_step6 = _iterator6.n()).done;) {
-            var _val4 = _step6.value;
-            contentGroupingsArray[_val4.from] = _val4.to;
-          }
-        } catch (err) {
-          _iterator6.e(err);
-        } finally {
-          _iterator6.f();
-        }
-
-        var custom = this.metricsFunction(props, dimensionsArray, metricsArray, contentGroupingsArray);
+        var custom = this.metricsFunction(props, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray);
 
         if (Object.keys(custom).length) {
           if (this.setAllMappedProps) {
@@ -2937,54 +2796,6 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "enhancedEcommerceTrackProduct",
       value: function enhancedEcommerceTrackProduct(rudderElement, dimensions, metrics, contentGroupings) {
-        var dimensionsArray = {};
-
-        var _iterator7 = _createForOfIteratorHelper(dimensions),
-            _step7;
-
-        try {
-          for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-            var val = _step7.value;
-            dimensionsArray[val.from] = val.to;
-          }
-        } catch (err) {
-          _iterator7.e(err);
-        } finally {
-          _iterator7.f();
-        }
-
-        var metricsArray = {};
-
-        var _iterator8 = _createForOfIteratorHelper(metrics),
-            _step8;
-
-        try {
-          for (_iterator8.s(); !(_step8 = _iterator8.n()).done;) {
-            var _val5 = _step8.value;
-            metricsArray[_val5.from] = _val5.to;
-          }
-        } catch (err) {
-          _iterator8.e(err);
-        } finally {
-          _iterator8.f();
-        }
-
-        var contentGroupingsArray = {};
-
-        var _iterator9 = _createForOfIteratorHelper(contentGroupings),
-            _step9;
-
-        try {
-          for (_iterator9.s(); !(_step9 = _iterator9.n()).done;) {
-            var _val6 = _step9.value;
-            contentGroupingsArray[_val6.from] = _val6.to;
-          }
-        } catch (err) {
-          _iterator9.e(err);
-        } finally {
-          _iterator9.f();
-        }
-
         var props = rudderElement.message.properties;
         var product = {
           id: props.productId || props.id || props.sku,
@@ -3005,7 +2816,7 @@ var rudderanalytics = (function (exports) {
         if (coupon) product.coupon = coupon;
         product = _objectSpread2({
           product: product
-        }, this.metricsFunction(props, dimensionsArray, metricsArray, contentGroupingsArray));
+        }, this.metricsFunction(props, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray));
         window.ga("ec:addProduct", product.product);
       }
       /**
