@@ -1,4 +1,4 @@
-var rudderanalytics = window.analytics;
+const rudderanalytics = window.analytics;
 rudderanalytics.reset();
 rudderanalytics.identify();
 rudderanalytics.track();

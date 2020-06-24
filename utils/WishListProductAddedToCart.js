@@ -1,8 +1,8 @@
-var ProductWishlistEvent = require("./ProductWishListEvent");
-var ECommerceEvents = require("./constants").ECommerceEvents;
-var ECommerceParamNames = require("./constants").ECommerceParamNames;
+const ProductWishlistEvent = require("./ProductWishListEvent");
+const { ECommerceEvents } = require("./constants");
+const { ECommerceParamNames } = require("./constants");
 
-//Class representing wishlist product added to cart event
+// Class representing wishlist product added to cart event
 class WishlistProductAddedToCartEvent extends ProductWishlistEvent {
   constructor() {
     super();
@@ -13,14 +13,14 @@ class WishlistProductAddedToCartEvent extends ProductWishlistEvent {
     return ECommerceEvents.WISH_LIST_PRODUCT_ADDED_TO_CART;
   }
 
-  //Need to add cart_id in build part
+  // Need to add cart_id in build part
   build() {
-    var eventProperty = super.build();
+    const eventProperty = super.build();
     eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cart_id);
     return eventProperty;
   }
 
-  //Setter method in accordance to Builder pattern
+  // Setter method in accordance to Builder pattern
   setCartId(cartId) {
     this.cart_id = cartId;
     return this;
@@ -28,5 +28,5 @@ class WishlistProductAddedToCartEvent extends ProductWishlistEvent {
 }
 
 module.exports = {
-  WishlistProductAddedToCartEvent: WishlistProductAddedToCartEvent
+  WishlistProductAddedToCartEvent,
 };

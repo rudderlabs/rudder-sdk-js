@@ -1,6 +1,4 @@
-"use strict";
-
-//Class representing e-commerce coupon
+// Class representing e-commerce coupon
 class ECommerceCoupon {
   constructor() {
     this.order_id = "";
@@ -8,7 +6,7 @@ class ECommerceCoupon {
     this.coupon_id = "";
   }
 
-  //Generic setter methods in accordance with builder pattern
+  // Generic setter methods in accordance with builder pattern
   setOrderId(orderId) {
     this.order_id = orderId;
     return this;
@@ -26,5 +24,5 @@ class ECommerceCoupon {
 }
 
 module.exports = {
-  ECommerceCoupon: ECommerceCoupon
+  ECommerceCoupon,
 };

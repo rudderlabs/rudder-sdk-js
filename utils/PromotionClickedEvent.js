@@ -1,5 +1,5 @@
-var PromotionEvent = require("./PromotionEvent");
-var ECommerceEvents = require("./constants").ECommerceEvents;
+const PromotionEvent = require("./PromotionEvent");
+const { ECommerceEvents } = require("./constants");
 
 class PromotionClickedEvent extends PromotionEvent {
   event() {
@@ -8,5 +8,5 @@ class PromotionClickedEvent extends PromotionEvent {
 }
 
 module.exports = {
-  PromotionClickedEvent: PromotionClickedEvent
+  PromotionClickedEvent,
 };

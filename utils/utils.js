@@ -1,4 +1,4 @@
-//import * as XMLHttpRequestNode from "Xmlhttprequest";
+// import * as XMLHttpRequestNode from "Xmlhttprequest";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
@@ -23,9 +23,8 @@ if (!process.browser) {
 function replacer(key, value) {
   if (value === null || value === undefined) {
     return undefined;
-  } else {
-    return value;
   }
+  return value;
 }
 
 /**
@@ -40,10 +39,10 @@ function generateUUID() {
     typeof performance !== "undefined" &&
     typeof performance.now === "function"
   ) {
-    d += performance.now(); //use high-precision timer if available
+    d += performance.now(); // use high-precision timer if available
   }
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    let r = (d + Math.random() * 16) % 16 | 0;
+    const r = (d + Math.random() * 16) % 16 | 0;
     d = Math.floor(d / 16);
     return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
   });
@@ -55,7 +54,7 @@ function generateUUID() {
  * @returns
  */
 function getCurrentTimeFormatted() {
-  let curDateTime = new Date().toISOString();
+  const curDateTime = new Date().toISOString();
   // Keeping same as iso string
   /* let curDate = curDateTime.split("T")[0];
   let curTimeExceptMillis = curDateTime
@@ -76,7 +75,7 @@ function getCurrentTimeFormatted() {
  * @param {*} callback
  */
 function getJSON(url, wrappers, isLoaded, callback) {
-  //server-side integration, XHR is node module
+  // server-side integration, XHR is node module
 
   if (process.browser) {
     var xhr = new XMLHttpRequest();
@@ -85,7 +84,7 @@ function getJSON(url, wrappers, isLoaded, callback) {
   }
   xhr.open("GET", url, false);
   xhr.onload = function () {
-    let status = xhr.status;
+    const { status } = xhr;
     if (status == 200) {
       logger.debug("status 200");
       callback(null, xhr.responseText, wrappers, isLoaded);
@@ -104,8 +103,8 @@ function getJSON(url, wrappers, isLoaded, callback) {
  * @param {*} callback
  */
 function getJSONTrimmed(context, url, writeKey, callback) {
-  //server-side integration, XHR is node module
-  let cb_ = callback.bind(context);
+  // server-side integration, XHR is node module
+  const cb_ = callback.bind(context);
 
   if (process.browser) {
     var xhr = new XMLHttpRequest();
@@ -114,21 +113,19 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   }
   xhr.open("GET", url, true);
   if (process.browser) {
-    xhr.setRequestHeader("Authorization", "Basic " + btoa(writeKey + ":"));
+    xhr.setRequestHeader("Authorization", `Basic ${btoa(`${writeKey}:`)}`);
   } else {
-    xhr.setRequestHeader("Authorization", "Basic " + btoaNode(writeKey + ":"));
+    xhr.setRequestHeader("Authorization", `Basic ${btoaNode(`${writeKey}:`)}`);
   }
 
   xhr.onload = function () {
-    let status = xhr.status;
+    const { status } = xhr;
     if (status == 200) {
       logger.debug("status 200 " + "calling callback");
       cb_(200, xhr.responseText);
     } else {
       handleError(
-        new Error(
-          "request failed with status: " + xhr.status + " for url: " + url
-        )
+        new Error(`request failed with status: ${xhr.status} for url: ${url}`)
       );
       cb_(status);
     }
@@ -138,15 +135,11 @@ function getJSONTrimmed(context, url, writeKey, callback) {
 
 function handleError(error, analyticsInstance) {
   let errorMessage = error.message ? error.message : undefined;
-  let sampleAdBlockTest = undefined;
+  let sampleAdBlockTest;
   try {
     if (error instanceof Event) {
       if (error.target && error.target.localName == "script") {
-        errorMessage =
-          "error in script loading:: src::  " +
-          error.target.src +
-          " id:: " +
-          error.target.id;
+        errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
         if (analyticsInstance && error.target.src.includes("adsbygoogle")) {
           sampleAdBlockTest = true;
           analyticsInstance.page(
@@ -167,35 +160,35 @@ function handleError(error, analyticsInstance) {
 }
 
 function getDefaultPageProperties() {
-  let canonicalUrl = getCanonicalUrl();
-  let path = canonicalUrl ? canonicalUrl.pathname : window.location.pathname;
-  let referrer = document.referrer;
-  let search = window.location.search;
-  let title = document.title;
-  let url = getUrl(search);
+  const canonicalUrl = getCanonicalUrl();
+  const path = canonicalUrl ? canonicalUrl.pathname : window.location.pathname;
+  const { referrer } = document;
+  const { search } = window.location;
+  const { title } = document;
+  const url = getUrl(search);
 
   return {
-    path: path,
-    referrer: referrer,
-    search: search,
-    title: title,
-    url: url,
+    path,
+    referrer,
+    search,
+    title,
+    url,
   };
 }
 
 function getUrl(search) {
-  let canonicalUrl = getCanonicalUrl();
-  let url = canonicalUrl
+  const canonicalUrl = getCanonicalUrl();
+  const url = canonicalUrl
     ? canonicalUrl.indexOf("?") > -1
       ? canonicalUrl
       : canonicalUrl + search
     : window.location.href;
-  let hashIndex = url.indexOf("#");
+  const hashIndex = url.indexOf("#");
   return hashIndex > -1 ? url.slice(0, hashIndex) : url;
 }
 
 function getCanonicalUrl() {
-  var tags = document.getElementsByTagName("link");
+  const tags = document.getElementsByTagName("link");
   for (var i = 0, tag; (tag = tags[i]); i++) {
     if (tag.getAttribute("rel") === "canonical") {
       return tag.getAttribute("href");
@@ -221,8 +214,8 @@ function getCurrency(val) {
 }
 
 function getRevenue(properties, eventName) {
-  var revenue = properties.revenue;
-  var orderCompletedRegExp = /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
+  let { revenue } = properties;
+  const orderCompletedRegExp = /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
 
   // it's always revenue, unless it's called during an order completion.
   if (!revenue && eventName && eventName.match(orderCompletedRegExp)) {
@@ -281,7 +274,7 @@ function findAllEnabledDestinations(
   sdkSuppliedIntegrations,
   configPlaneEnabledIntegrations
 ) {
-  let enabledList = [];
+  const enabledList = [];
   if (
     !configPlaneEnabledIntegrations ||
     configPlaneEnabledIntegrations.length == 0
@@ -289,9 +282,9 @@ function findAllEnabledDestinations(
     return enabledList;
   }
   let allValue = true;
-  if (typeof configPlaneEnabledIntegrations[0] == "string") {
-    if (sdkSuppliedIntegrations["All"] != undefined) {
-      allValue = sdkSuppliedIntegrations["All"];
+  if (typeof configPlaneEnabledIntegrations[0] === "string") {
+    if (sdkSuppliedIntegrations.All != undefined) {
+      allValue = sdkSuppliedIntegrations.All;
     }
     configPlaneEnabledIntegrations.forEach((intg) => {
       if (!allValue) {
@@ -321,9 +314,9 @@ function findAllEnabledDestinations(
     return enabledList;
   }
 
-  if (typeof configPlaneEnabledIntegrations[0] == "object") {
-    if (sdkSuppliedIntegrations["All"] != undefined) {
-      allValue = sdkSuppliedIntegrations["All"];
+  if (typeof configPlaneEnabledIntegrations[0] === "object") {
+    if (sdkSuppliedIntegrations.All != undefined) {
+      allValue = sdkSuppliedIntegrations.All;
     }
     configPlaneEnabledIntegrations.forEach((intg) => {
       if (!allValue) {
@@ -361,7 +354,7 @@ function findAllEnabledDestinations(
  */
 function rejectArr(obj, fn) {
   fn = fn || compact;
-  return "array" == type(obj) ? rejectarray(obj, fn) : rejectobject(obj, fn);
+  return type(obj) == "array" ? rejectarray(obj, fn) : rejectobject(obj, fn);
 }
 
 /**
@@ -370,9 +363,9 @@ function rejectArr(obj, fn) {
  * @param  {} fn
  */
 var rejectarray = function (arr, fn) {
-  var ret = [];
+  const ret = [];
 
-  for (var i = 0; i < arr.length; ++i) {
+  for (let i = 0; i < arr.length; ++i) {
     if (!fn(arr[i], i)) ret[ret.length] = arr[i];
   }
 
@@ -386,9 +379,9 @@ var rejectarray = function (arr, fn) {
  *
  */
 var rejectobject = function (obj, fn) {
-  var ret = {};
+  const ret = {};
 
-  for (var k in obj) {
+  for (const k in obj) {
     if (obj.hasOwnProperty(k) && !fn(obj[k], k)) {
       ret[k] = obj[k];
     }
@@ -398,7 +391,7 @@ var rejectobject = function (obj, fn) {
 };
 
 function compact(value) {
-  return null == value;
+  return value == null;
 }
 
 /**

@@ -1,5 +1,5 @@
-var OrderEvent = require("./OrderEvent");
-var ECommerceEvents = require("./constants").ECommerceEvents;
+const OrderEvent = require("./OrderEvent");
+const { ECommerceEvents } = require("./constants");
 
 class OrderCancelledEvent extends OrderEvent {
   event() {
@@ -8,5 +8,5 @@ class OrderCancelledEvent extends OrderEvent {
 }
 
 module.exports = {
-  OrderCancelledEvent: OrderCancelledEvent
+  OrderCancelledEvent,
 };

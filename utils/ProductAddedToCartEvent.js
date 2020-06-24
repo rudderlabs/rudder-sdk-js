@@ -1,7 +1,7 @@
-var ProductCartEvent = require("./ProductCartEvent");
-var ECommerceEvents = require("./constants").ECommerceEvents;
+const ProductCartEvent = require("./ProductCartEvent");
+const { ECommerceEvents } = require("./constants");
 
-//Class representing product addition to cart event
+// Class representing product addition to cart event
 class ProductAddedToCartEvent extends ProductCartEvent {
   event() {
     return ECommerceEvents.PRODUCT_ADDED;
@@ -9,5 +9,5 @@ class ProductAddedToCartEvent extends ProductCartEvent {
 }
 
 module.exports = {
-  ProductAddedToCartEvent: ProductAddedToCartEvent
+  ProductAddedToCartEvent,
 };

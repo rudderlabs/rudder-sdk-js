@@ -1,6 +1,4 @@
-"use strict";
-
-//Generic class to model various properties collection to be provided for messages
+// Generic class to model various properties collection to be provided for messages
 class RudderProperty {
   constructor() {
     this.propertyMap = {};
@@ -22,7 +20,7 @@ class RudderProperty {
     if (!this.propertyMap) {
       this.propertyMap = inputPropertyMap;
     } else {
-      Object.keys(inputPropertyMap).forEach(key => {
+      Object.keys(inputPropertyMap).forEach((key) => {
         this.propertyMap[key] = inputPropertyMap[key];
       });
     }

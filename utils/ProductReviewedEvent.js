@@ -1,7 +1,7 @@
-var RudderProperty = require("./RudderProperty");
-var ECommerceEvents = require("./constants").ECommerceEvents;
+const RudderProperty = require("./RudderProperty");
+const { ECommerceEvents } = require("./constants");
 
-//Class representing Product Reviewed event
+// Class representing Product Reviewed event
 class ProductReviewedEvent {
   constructor() {
     this.product_id = "";
@@ -15,12 +15,12 @@ class ProductReviewedEvent {
   }
 
   build() {
-    var eventProperty = new RudderProperty();
+    const eventProperty = new RudderProperty();
     eventProperty.setPropertyMap(this);
     return eventProperty;
   }
 
-  //Setter methods in accordance with Builder pattern
+  // Setter methods in accordance with Builder pattern
   setProductId(productId) {
     this.product_id = productId;
     return this;
@@ -43,5 +43,5 @@ class ProductReviewedEvent {
 }
 
 module.exports = {
-  ProductReviewedEvent: ProductReviewedEvent
+  ProductReviewedEvent,
 };

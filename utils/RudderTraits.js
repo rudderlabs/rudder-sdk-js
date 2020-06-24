@@ -1,4 +1,4 @@
-//Traits class
+// Traits class
 class RudderTraits {
   constructor() {
     this.address = null;
@@ -18,7 +18,7 @@ class RudderTraits {
     this.username = null;
   }
 
-  //Setter methods to aid Builder pattern
+  // Setter methods to aid Builder pattern
   setAddress(address) {
     this.address = address;
     return this;
@@ -89,7 +89,7 @@ class RudderTraits {
     return this;
   }
 }
-//Class for Company to be embedded in Traits
+// Class for Company to be embedded in Traits
 class TraitsCompany {
   constructor() {
     this.name = "";
@@ -97,7 +97,7 @@ class TraitsCompany {
     this.industry = "";
   }
 }
-//Class for Address to be embedded in Traits
+// Class for Address to be embedded in Traits
 class TraitsAddress {
   constructor() {
     this.city = "";

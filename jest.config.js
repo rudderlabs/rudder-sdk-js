@@ -29,16 +29,11 @@ module.exports = {
     "/dist/",
     "/tests/",
     "/scripts/",
-    "__tests__"
+    "__tests__",
   ],
 
   // A list of reporter names that Jest uses when writing coverage reports
-  coverageReporters: [
-    "json",
-    "text",
-    "lcov",
-    "clover"
-  ],
+  coverageReporters: ["json", "text", "lcov", "clover"],
 
   // An object that configures minimum threshold enforcement for coverage results
   // coverageThreshold: undefined,
@@ -144,7 +139,7 @@ module.exports = {
   // The glob patterns Jest uses to detect test files
   testMatch: [
     "**/__tests__/**/*test.[jt]s?(x)",
-    "**/?(*.)+(spec|test).[tj]s?(x)"
+    "**/?(*.)+(spec|test).[tj]s?(x)",
   ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped

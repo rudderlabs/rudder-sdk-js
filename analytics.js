@@ -7,13 +7,13 @@ import {
   getDefaultPageProperties,
   findAllEnabledDestinations,
   tranformToRudderNames,
-  transformToServerNames
+  transformToServerNames,
 } from "./utils/utils";
 import {
   CONFIG_URL,
   ECommerceEvents,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
-  INTEGRATION_LOAD_CHECK_INTERVAL
+  INTEGRATION_LOAD_CHECK_INTERVAL,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -85,7 +85,7 @@ class Analytics {
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
-      syncPixel: "syncPixelCallback"
+      syncPixel: "syncPixelCallback",
     };
   }
 
@@ -116,7 +116,7 @@ class Analytics {
         if (destination.enabled) {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
-            config: destination.config
+            config: destination.config,
           });
         }
       }, this);
@@ -129,7 +129,7 @@ class Analytics {
       );
 
       // remove from the list which don't have support yet in SDK
-      this.clientIntegrations = this.clientIntegrations.filter(intg => {
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
         return integrations[intg.name] != undefined;
       });
 
@@ -169,7 +169,7 @@ class Analytics {
       return;
     }
 
-    intgArray.forEach(intg => {
+    intgArray.forEach((intg) => {
       try {
         logger.debug(
           "[Analytics] init :: trying to initialize integration name:: ",
@@ -219,7 +219,7 @@ class Analytics {
       logger.debug("==registering ready callback===");
       object.on("ready", object.executeReadyCallback);
 
-      object.clientIntegrationObjects.forEach(intg => {
+      object.clientIntegrationObjects.forEach((intg) => {
         logger.debug("===looping over each successful integration====");
         if (!intg.isReady || intg.isReady()) {
           logger.debug("===letting know I am ready=====", intg.name);
@@ -228,7 +228,7 @@ class Analytics {
       });
 
       // send the queued events to the fetched integration
-      object.toBeProcessedByIntegrationArray.forEach(event => {
+      object.toBeProcessedByIntegrationArray.forEach((event) => {
         const methodName = event[0];
         event.shift();
 
@@ -278,13 +278,13 @@ class Analytics {
   }
 
   pause(time) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(resolve, time);
     });
   }
 
   isInitialized(instance, time = 0) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (instance.isLoaded()) {
         logger.debug("===integration loaded successfully====", instance.name);
         this.successfullyLoadedIntegration.push(instance);
@@ -533,7 +533,7 @@ class Analytics {
       rudderElement.message.context.traits
     ) {
       this.userTraits = {
-        ...rudderElement.message.context.traits
+        ...rudderElement.message.context.traits,
       };
       this.storage.setUserTraits(this.userTraits);
     }
@@ -596,7 +596,7 @@ class Analytics {
       rudderElement.message.context.page = getDefaultPageProperties();
 
       rudderElement.message.context.traits = {
-        ...this.userTraits
+        ...this.userTraits,
       };
 
       logger.debug("anonymousId: ", this.anonymousId);
@@ -611,7 +611,7 @@ class Analytics {
         }
         if (this.groupTraits) {
           rudderElement.message.traits = {
-            ...this.groupTraits
+            ...this.groupTraits,
           };
         }
       }
@@ -637,7 +637,7 @@ class Analytics {
       );
 
       // try to first send to all integrations, if list populated from BE
-      succesfulLoadedIntersectClientSuppliedIntegrations.forEach(obj => {
+      succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
         if (!obj.isFailed || !obj.isFailed()) {
           if (obj[type]) {
             obj[type](rudderElement);
@@ -679,7 +679,7 @@ class Analytics {
     const toplevelElements = [
       "integrations",
       "anonymousId",
-      "originalTimestamp"
+      "originalTimestamp",
     ];
     for (const key in options) {
       if (toplevelElements.includes(key)) {
@@ -744,7 +744,7 @@ class Analytics {
     if (!writeKey || !serverUrl || serverUrl.length == 0) {
       handleError({
         message:
-          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
+          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl",
       });
       throw Error("failed to initialize");
     }
@@ -769,7 +769,7 @@ class Analytics {
     if (options && options.clientSuppliedCallbacks) {
       // convert to rudder recognised method names
       const tranformedCallbackMapping = {};
-      Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+      Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
         if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
           if (
             options.clientSuppliedCallbacks[
@@ -829,7 +829,7 @@ class Analytics {
   }
 
   initializeCallbacks() {
-    Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+    Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
       if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
         this.on(methodName, () => {});
       }
@@ -838,7 +838,7 @@ class Analytics {
 
   registerCallbacks(calledFromLoad) {
     if (!calledFromLoad) {
-      Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+      Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
         if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
           if (window.rudderanalytics) {
             if (
@@ -867,7 +867,7 @@ class Analytics {
       });
     }
 
-    Object.keys(this.clientSuppliedCallbacks).forEach(methodName => {
+    Object.keys(this.clientSuppliedCallbacks).forEach((methodName) => {
       if (this.clientSuppliedCallbacks.hasOwnProperty(methodName)) {
         logger.debug(
           "registerCallbacks",
@@ -893,7 +893,7 @@ Emitter(instance);
 
 window.addEventListener(
   "error",
-  e => {
+  (e) => {
     handleError(e, instance);
   },
   true
@@ -959,5 +959,5 @@ export {
   alias,
   group,
   getAnonymousId,
-  setAnonymousId
+  setAnonymousId,
 };
