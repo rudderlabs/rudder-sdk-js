@@ -38,12 +38,12 @@ export default class GA {
     ];
   }
 
-  loadScript = () => {
+  static loadScript() {
     ScriptLoader(
       "google-analytics",
       "https://www.google-analytics.com/analytics.js"
     );
-  };
+  }
 
   init() {
     this.pageCalled = false;
@@ -63,9 +63,9 @@ export default class GA {
     window.GoogleAnalyticsObject = "ga";
     window.ga =
       window.ga ||
-      function a() {
+      function a(...args) {
         window.ga.q = window.ga.q || [];
-        window.ga.q.push(arguments);
+        window.ga.q.push(...args);
       };
     window.ga.l = new Date().getTime();
 
@@ -209,12 +209,7 @@ export default class GA {
             option: options || undefined,
           });
 
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Checkout Step Completed":
           if (!props.step) return;
@@ -264,12 +259,7 @@ export default class GA {
             coupon: props.coupon,
           });
 
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Order Refunded":
           if (!orderId) return;
@@ -294,12 +284,7 @@ export default class GA {
             id: orderId,
           });
 
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Added":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -314,12 +299,7 @@ export default class GA {
             this.metrics,
             this.contentGroupings
           );
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Removed":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -334,12 +314,7 @@ export default class GA {
             this.metrics,
             this.contentGroupings
           );
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Viewed":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -356,12 +331,7 @@ export default class GA {
             this.metrics,
             this.contentGroupings
           );
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Clicked":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -378,12 +348,7 @@ export default class GA {
             this.metrics,
             this.contentGroupings
           );
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Promotion Viewed":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -396,12 +361,7 @@ export default class GA {
             creative: props.creative,
             position: props.position,
           });
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Promotion Clicked":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -416,12 +376,7 @@ export default class GA {
             position: props.position,
           });
           window.ga("ec:setAction", "promo_click", {});
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product List Viewed":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -460,12 +415,7 @@ export default class GA {
             });
             window.ga("ec:addImpression", impressionObj);
           });
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product List Filtered":
           props.filters = props.filters || [];
@@ -521,12 +471,7 @@ export default class GA {
             });
             window.ga("ec:addImpression", impressionObj);
           });
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         default:
           if (rudderElement.message.properties) {
@@ -558,10 +503,7 @@ export default class GA {
           payload = {
             payload,
             ...this.setCustomDimenionsAndMetrics(
-              rudderElement.message.properties,
-              this.dimensions,
-              this.metrics,
-              this.contentGroupings
+              rudderElement.message.properties
             ),
           };
 
@@ -597,12 +539,7 @@ export default class GA {
 
       payload = {
         payload,
-        ...this.setCustomDimenionsAndMetrics(
-          rudderElement.message.properties,
-          this.dimensions,
-          this.metrics,
-          this.contentGroupings
-        ),
+        ...this.setCustomDimenionsAndMetrics(rudderElement.message.properties),
       };
 
       window.ga("send", "event", payload.payload);
@@ -678,12 +615,7 @@ export default class GA {
     // adds more properties to pageview which will be sent
     pageview = {
       ...pageview,
-      ...this.setCustomDimenionsAndMetrics(
-        eventProperties,
-        this.dimensions,
-        this.metrics,
-        this.contentGroupings
-      ),
+      ...this.setCustomDimenionsAndMetrics(eventProperties),
     };
     const payload = {
       page: pagePath,
@@ -711,13 +643,12 @@ export default class GA {
     this.pageCalled = true;
   }
 
-  isLoaded() {
+  static isLoaded() {
     logger.debug("in GA isLoaded");
-
     return !!window.gaplugins;
   }
 
-  isReady() {
+  static isReady() {
     return !!window.gaplugins;
   }
 
@@ -740,11 +671,11 @@ export default class GA {
    * then the function will return {} as there is no corresponding mapping of metric.
    *
    */
-  metricsFunction(obj, dimensions, metrics, contentGroupings) {
+  static metricsFunction(obj, dimensions, metrics, contentGroupings) {
     const ret = {};
 
-    each([metrics, dimensions, contentGroupings], function (group) {
-      each(group, function (prop, key) {
+    each([metrics, dimensions, contentGroupings], (group) => {
+      each(group, (prop, key) => {
         let value = obj[prop];
         if (is.boolean(value)) value = value.toString();
         if (value || value === 0) ret[key] = value;
@@ -754,7 +685,7 @@ export default class GA {
     return ret;
   }
 
-  formatValue(value) {
+  static formatValue(value) {
     if (!value || value < 0) return 0;
     return Math.round(value);
   }
@@ -763,7 +694,7 @@ export default class GA {
    * @param  {} props
    * @param  {} inputs
    */
-  setCustomDimenionsAndMetrics(props, dimensions, metrics, contentGroupings) {
+  static setCustomDimenionsAndMetrics(props) {
     const ret = {};
     const custom = this.metricsFunction(
       props,
@@ -775,12 +706,15 @@ export default class GA {
       if (this.setAllMappedProps) {
         window.ga("set", custom);
       } else {
-        each(custom, (key, value) => {
-          ret[key] = value;
+        Object.keys(custom).forEach((key) => {
+          ret[key] = custom[key];
         });
-        return ret;
+        // each(custom, (key, value) => {
+        //   ret[key] = value;
+        // });
       }
     }
+    return ret;
   }
 
   /**
@@ -789,7 +723,7 @@ export default class GA {
    * @param  {} properties
    * @param  {} includeSearch
    */
-  path(properties, includeSearch) {
+  static path(properties, includeSearch) {
     let str = "";
     if (properties) {
       if (includeSearch && properties.search) {
@@ -804,7 +738,7 @@ export default class GA {
    * @param  {} rudderElement
    * @param  {} properties
    */
-  createProductTrack(rudderElement, properties) {
+  static createProductTrack(rudderElement, properties) {
     const props = properties || {};
     props.currency =
       properties.currency || rudderElement.message.properties.currency;
@@ -816,7 +750,7 @@ export default class GA {
    * @param  {} rudderElement
    * @param  {} a
    */
-  loadEnhancedEcommerce(rudderElement, a) {
+  static loadEnhancedEcommerce(rudderElement, a) {
     if (a === 0) {
       window.ga("require", "ec");
       a = 1;
@@ -892,7 +826,7 @@ export default class GA {
    * @param  {} rudderElement
    * @param  {} inputs
    */
-  pushEnhancedEcommerce(rudderElement, dimensions, metrics, contentGroupings) {
+  pushEnhancedEcommerce(rudderElement) {
     const args = rejectArr([
       "send",
       "event",
@@ -902,12 +836,7 @@ export default class GA {
       {
         nonInteraction: 1,
 
-        ...this.setCustomDimenionsAndMetrics(
-          rudderElement.message.properties,
-          dimensions,
-          metrics,
-          contentGroupings
-        ),
+        ...this.setCustomDimenionsAndMetrics(rudderElement.message.properties),
       },
     ]);
 
@@ -918,14 +847,14 @@ export default class GA {
       args[2] = "EnhancedEcommerce";
     }
 
-    ga.apply(window, args);
+    window.ga.apply(window, ...args);
   }
 
   /**
    * @param  {} item
    * @param  {} products
    */
-  getProductPosition(item, products) {
+  static getProductPosition(item, products) {
     const { position } = item.properties;
 
     if (
@@ -938,7 +867,7 @@ export default class GA {
 
     return (
       products
-        .map(function (x) {
+        .map((x) => {
           return x.product_id;
         })
         .indexOf(item.properties.product_id) + 1
@@ -949,7 +878,7 @@ export default class GA {
    *extracts checkout options
    * @param  {} rudderElement
    */
-  extractCheckoutOptions(rudderElement) {
+  static extractCheckoutOptions(rudderElement) {
     const options = [
       rudderElement.message.properties.paymentMethod,
       rudderElement.message.properties.shippingMethod,
