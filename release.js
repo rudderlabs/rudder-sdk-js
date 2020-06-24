@@ -1,4 +1,4 @@
-var ghRelease = require("gh-release");
+const ghRelease = require("gh-release");
 const homedir = require("os").homedir();
 const fs = require("fs");
 
@@ -14,18 +14,18 @@ var options = {
   prerelease: false,
   repo: "rudder-sdk-js",
   owner: "rudderlabs",
-  endpoint: "https://api.github.com" // for GitHub enterprise, use http(s)://hostname/api/v3
+  endpoint: "https://api.github.com", // for GitHub enterprise, use http(s)://hostname/api/v3
 };
 
 // or an API token
-let token = fs.readFileSync(homedir + "/.gh_token", "utf8");
+let token = fs.readFileSync(`${homedir}/.gh_token`, "utf8");
 token = token.replace(/\n/g, "");
 
 options.auth = {
-  token
+  token,
 };
 
-ghRelease(options, function(err, result) {
+ghRelease(options, function (err, result) {
   if (err) {
     console.log(err);
     throw err;

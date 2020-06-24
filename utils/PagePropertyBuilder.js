@@ -1,7 +1,5 @@
-"use strict";
-
-var RudderProperty = require("./RudderProperty");
-//Class for building the "page" message payload
+const RudderProperty = require("./RudderProperty");
+// Class for building the "page" message payload
 class PagePropertyBuilder {
   constructor() {
     this.title = "";
@@ -11,12 +9,13 @@ class PagePropertyBuilder {
     this.search = "";
     this.keywords = "";
   }
-  //Build the core constituents of the payload
+
+  // Build the core constituents of the payload
   build() {
-    if (!this.url || 0 === this.url.length) {
+    if (!this.url || this.url.length === 0) {
       throw new Error("Page url cannot be null or empty");
     }
-    var pageProperty = new RudderProperty();
+    const pageProperty = new RudderProperty();
     pageProperty.setProperty("title", this.title);
     pageProperty.setProperty("url", this.url);
     pageProperty.setProperty("path", this.path);
@@ -26,7 +25,7 @@ class PagePropertyBuilder {
     return pageProperty;
   }
 
-  //Setter methods to align with Builder pattern
+  // Setter methods to align with Builder pattern
 
   setTitle(title) {
     this.title = title;
@@ -60,5 +59,5 @@ class PagePropertyBuilder {
 }
 
 module.exports = {
-  PagePropertyBuilder: PagePropertyBuilder
+  PagePropertyBuilder,
 };

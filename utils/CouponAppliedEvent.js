@@ -1,7 +1,7 @@
-var CouponEvent = require("./CouponEvent");
-var ECommerceEvents = require("./constants").ECommerceEvents;
+const CouponEvent = require("./CouponEvent");
+const { ECommerceEvents } = require("./constants");
 
-//Class representing coupon applied event
+// Class representing coupon applied event
 class CouponAppliedEvent extends CouponEvent {
   event() {
     return ECommerceEvents.COUPON_APPLIED;

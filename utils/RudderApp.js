@@ -1,4 +1,4 @@
-//Application class
+// Application class
 class RudderApp {
   constructor() {
     this.build = "1.0.0";

@@ -1,4 +1,5 @@
 import logger from "../../utils/logUtil";
+
 class CustomerIO {
   constructor(config) {
     this.siteID = config.siteID;
@@ -10,11 +11,13 @@ class CustomerIO {
   init() {
     logger.debug("===in init Customer IO init===");
     window._cio = window._cio || [];
-    let siteID = this.siteID;
-    (function() {
-      var a, b, c;
-      a = function(f) {
-        return function() {
+    const { siteID } = this;
+    (function () {
+      let a;
+      let b;
+      let c;
+      a = function (f) {
+        return function () {
           window._cio.push(
             [f].concat(Array.prototype.slice.call(arguments, 0))
           );
@@ -24,8 +27,8 @@ class CustomerIO {
       for (c = 0; c < b.length; c++) {
         window._cio[b[c]] = a(b[c]);
       }
-      var t = document.createElement("script"),
-        s = document.getElementsByTagName("script")[0];
+      const t = document.createElement("script");
+      const s = document.getElementsByTagName("script")[0];
       t.async = true;
       t.id = "cio-tracker";
       t.setAttribute("data-site-id", siteID);
@@ -36,10 +39,10 @@ class CustomerIO {
 
   identify(rudderElement) {
     logger.debug("in Customer IO identify");
-    let userId = rudderElement.message.userId
+    const userId = rudderElement.message.userId
       ? rudderElement.message.userId
       : rudderElement.message.anonymousId;
-    let traits = rudderElement.message.context.traits
+    const traits = rudderElement.message.context.traits
       ? rudderElement.message.context.traits
       : {};
     if (!traits.created_at) {
@@ -52,15 +55,15 @@ class CustomerIO {
   track(rudderElement) {
     logger.debug("in Customer IO track");
 
-    let eventName = rudderElement.message.event;
-    let properties = rudderElement.message.properties;
+    const eventName = rudderElement.message.event;
+    const { properties } = rudderElement.message;
     window._cio.track(eventName, properties);
   }
 
   page(rudderElement) {
     logger.debug("in Customer IO page");
 
-    var name =
+    const name =
       rudderElement.message.name || rudderElement.message.properties.url;
     window._cio.page(name, rudderElement.message.properties);
   }

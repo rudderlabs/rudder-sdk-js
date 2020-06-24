@@ -1,8 +1,9 @@
 import logger from "../../utils/logUtil";
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
-  INTEGRATION_LOAD_CHECK_INTERVAL
+  INTEGRATION_LOAD_CHECK_INTERVAL,
 } from "../../utils/constants";
+
 class Comscore {
   constructor(config, analytics) {
     this.c2ID = config.c2ID;
@@ -46,9 +47,9 @@ class Comscore {
         this.replayEvents.push(["page", rudderElement]);
         return;
       }
-      let properties = rudderElement.message.properties;
-      //window.COMSCORE.beacon({c1:"2", c2: ""});
-      //this.comScoreParams = this.mapComscoreParams(properties);
+      const { properties } = rudderElement.message;
+      // window.COMSCORE.beacon({c1:"2", c2: ""});
+      // this.comScoreParams = this.mapComscoreParams(properties);
       window.COMSCORE.beacon(this.comScoreParams);
     }
   }
@@ -64,31 +65,31 @@ class Comscore {
 
   initAfterPage() {
     logger.debug("=====in initAfterPage=====");
-    (function() {
-      var s = document.createElement("script"),
-        el = document.getElementsByTagName("script")[0];
+    (function () {
+      const s = document.createElement("script");
+      const el = document.getElementsByTagName("script")[0];
       s.async = true;
-      s.src =
-        (document.location.protocol == "https:" ? "https://sb" : "http://b") +
-        ".scorecardresearch.com/beacon.js";
+      s.src = `${
+        document.location.protocol == "https:" ? "https://sb" : "http://b"
+      }.scorecardresearch.com/beacon.js`;
       el.parentNode.insertBefore(s, el);
     })();
 
-    this._isReady(this).then(instance => {
-      instance.replayEvents.forEach(event => {
+    this._isReady(this).then((instance) => {
+      instance.replayEvents.forEach((event) => {
         instance[event[0]](event[1]);
       });
     });
   }
 
   pause(time) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(resolve, time);
     });
   }
 
   _isReady(instance, time = 0) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (this.isLoaded()) {
         this.failed = false;
         instance.analytics.emit("ready");
@@ -109,14 +110,14 @@ class Comscore {
 
   mapComscoreParams(properties) {
     logger.debug("=====in mapComscoreParams=====");
-    let comScoreBeaconParamsMap = this.comScoreBeaconParam;
+    const comScoreBeaconParamsMap = this.comScoreBeaconParam;
 
-    var comScoreParams = {};
+    const comScoreParams = {};
 
-    Object.keys(comScoreBeaconParamsMap).forEach(function(property) {
+    Object.keys(comScoreBeaconParamsMap).forEach(function (property) {
       if (property in properties) {
-        var key = comScoreBeaconParamsMap[property];
-        var value = properties[property];
+        const key = comScoreBeaconParamsMap[property];
+        const value = properties[property];
         comScoreParams[key] = value;
       }
     });
@@ -134,9 +135,8 @@ class Comscore {
     logger.debug("in Comscore isLoaded");
     if (!this.isFirstPageCallMade) {
       return true;
-    } else {
-      return !!window.COMSCORE;
     }
+    return !!window.COMSCORE;
   }
 
   isReady() {

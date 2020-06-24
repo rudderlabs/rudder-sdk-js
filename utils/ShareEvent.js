@@ -1,7 +1,7 @@
-var RudderProperty = require("./RudderProperty");
-var ECommerceParamNames = require("./constants").ECommerceParamNames;
+const RudderProperty = require("./RudderProperty");
+const { ECommerceParamNames } = require("./constants");
 
-//Parent class for all social media sharing events
+// Parent class for all social media sharing events
 class ShareEvent {
   constructor() {
     this.share_via = "";
@@ -10,7 +10,7 @@ class ShareEvent {
   }
 
   build() {
-    var eventProperty = new RudderProperty();
+    const eventProperty = new RudderProperty();
     eventProperty.setProperty(ECommerceParamNames.SHARE_VIA, this.share_via);
     eventProperty.setProperty(
       ECommerceParamNames.SHARE_MESSAGE,
@@ -20,7 +20,7 @@ class ShareEvent {
     return eventProperty;
   }
 
-  //Setter methods in accordance to Builder pattern
+  // Setter methods in accordance to Builder pattern
   setShareVia(shareVia) {
     this.share_via = shareVia;
     return this;
@@ -38,5 +38,5 @@ class ShareEvent {
 }
 
 module.exports = {
-  ShareEvent: ShareEvent
+  ShareEvent,
 };

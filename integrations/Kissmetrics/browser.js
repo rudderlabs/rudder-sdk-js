@@ -1,9 +1,9 @@
-import logger from "../../utils/logUtil";
-import { getRevenue } from "../../utils/utils";
 import is from "is";
 import extend from "@ndhoule/extend";
 import { del } from "obj-case";
 import each from "component-each";
+import { getRevenue } from "../../utils/utils";
+import logger from "../../utils/logUtil";
 
 class Kissmetrics {
   constructor(config) {
@@ -16,12 +16,12 @@ class Kissmetrics {
     logger.debug("===in init Kissmetrics===");
     window._kmq = window._kmq || [];
 
-    var _kmk = window._kmk || this.apiKey;
+    const _kmk = window._kmk || this.apiKey;
     function _kms(u) {
-      setTimeout(function() {
-        var d = document,
-          f = d.getElementsByTagName("script")[0],
-          s = d.createElement("script");
+      setTimeout(function () {
+        const d = document;
+        const f = d.getElementsByTagName("script")[0];
+        const s = d.createElement("script");
         s.type = "text/javascript";
         s.async = true;
         s.src = u;
@@ -29,7 +29,7 @@ class Kissmetrics {
       }, 1);
     }
     _kms("//i.kissmetrics.com/i.js");
-    _kms("//scripts.kissmetrics.com/" + _kmk + ".2.js");
+    _kms(`//scripts.kissmetrics.com/${_kmk}.2.js`);
 
     if (this.isEnvMobile()) {
       window._kmq.push(["set", { "Mobile Session": "Yes" }]);
@@ -55,11 +55,11 @@ class Kissmetrics {
 
   // source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
   clean(obj) {
-    var ret = {};
+    let ret = {};
 
-    for (var k in obj) {
+    for (const k in obj) {
       if (obj.hasOwnProperty(k)) {
-        var value = obj[k];
+        const value = obj[k];
         if (value === null || typeof value === "undefined") continue;
 
         // convert date to unix
@@ -89,12 +89,12 @@ class Kissmetrics {
 
         // json
         // must flatten including the name of the original trait/property
-        var nestedObj = {};
+        const nestedObj = {};
         nestedObj[k] = value;
-        var flattenedObj = this.flatten(nestedObj, { safe: true });
+        const flattenedObj = this.flatten(nestedObj, { safe: true });
 
         // stringify arrays inside nested object to be consistent with top level behavior of arrays
-        for (var key in flattenedObj) {
+        for (const key in flattenedObj) {
           if (is.array(flattenedObj[key])) {
             flattenedObj[key] = flattenedObj[key].toString();
           }
@@ -111,28 +111,28 @@ class Kissmetrics {
   flatten(target, opts) {
     opts = opts || {};
 
-    var delimiter = opts.delimiter || ".";
-    var maxDepth = opts.maxDepth;
-    var currentDepth = 1;
-    var output = {};
+    const delimiter = opts.delimiter || ".";
+    let { maxDepth } = opts;
+    let currentDepth = 1;
+    const output = {};
 
     function step(object, prev) {
-      for (var key in object) {
+      for (const key in object) {
         if (object.hasOwnProperty(key)) {
-          var value = object[key];
-          var isarray = opts.safe && is.array(value);
-          var type = Object.prototype.toString.call(value);
-          var isobject =
+          const value = object[key];
+          const isarray = opts.safe && is.array(value);
+          const type = Object.prototype.toString.call(value);
+          const isobject =
             type === "[object Object]" || type === "[object Array]";
-          var arr = [];
+          const arr = [];
 
-          var newKey = prev ? prev + delimiter + key : key;
+          const newKey = prev ? prev + delimiter + key : key;
 
           if (!opts.maxDepth) {
             maxDepth = currentDepth + 1;
           }
 
-          for (var keys in value) {
+          for (const keys in value) {
             if (value.hasOwnProperty(keys)) {
               arr.push(keys);
             }
@@ -155,15 +155,15 @@ class Kissmetrics {
 
   //  source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
   prefix(event, properties) {
-    var prefixed = {};
-    each(properties, function(key, val) {
+    const prefixed = {};
+    each(properties, function (key, val) {
       if (key === "Billing Amount") {
         prefixed[key] = val;
       } else if (key === "revenue") {
-        prefixed[event + " - " + key] = val;
+        prefixed[`${event} - ${key}`] = val;
         prefixed["Billing Amount"] = val;
       } else {
-        prefixed[event + " - " + key] = val;
+        prefixed[`${event} - ${key}`] = val;
       }
     });
     return prefixed;
@@ -171,8 +171,8 @@ class Kissmetrics {
 
   identify(rudderElement) {
     logger.debug("in Kissmetrics identify");
-    let traits = this.clean(rudderElement.message.context.traits);
-    let userId =
+    const traits = this.clean(rudderElement.message.context.traits);
+    const userId =
       rudderElement.message.userId && rudderElement.message.userId != ""
         ? rudderElement.message.userId
         : undefined;
@@ -188,18 +188,18 @@ class Kissmetrics {
   track(rudderElement) {
     logger.debug("in Kissmetrics track");
 
-    let event = rudderElement.message.event;
+    const { event } = rudderElement.message;
     let properties = JSON.parse(
       JSON.stringify(rudderElement.message.properties)
     );
-    let timestamp = this.toUnixTimestamp(new Date());
+    const timestamp = this.toUnixTimestamp(new Date());
 
-    let revenue = getRevenue(properties);
+    const revenue = getRevenue(properties);
     if (revenue) {
       properties.revenue = revenue;
     }
 
-    let products = properties.products;
+    const { products } = properties;
     if (products) {
       delete properties.products;
     }
@@ -212,7 +212,7 @@ class Kissmetrics {
     }
     window._kmq.push(["record", event, properties]);
 
-    let iterator = function pushItem(product, i) {
+    const iterator = function pushItem(product, i) {
       let item = product;
       if (this.prefixProperties) item = this.prefix(event, item);
       item._t = timestamp + i;
@@ -233,15 +233,15 @@ class Kissmetrics {
     const pageCategory = rudderElement.message.properties
       ? rudderElement.message.properties.category
       : undefined;
-    var name = "Loaded a Page";
+    let name = "Loaded a Page";
     if (pageName) {
-      name = "Viewed " + pageName + " page";
+      name = `Viewed ${pageName} page`;
     }
     if (pageCategory && pageName) {
-      name = "Viewed " + pageCategory + " " + pageName + " page";
+      name = `Viewed ${pageCategory} ${pageName} page`;
     }
 
-    var properties = rudderElement.message.properties;
+    let { properties } = rudderElement.message;
     if (this.prefixProperties) {
       properties = this.prefix("Page", properties);
     }
@@ -250,16 +250,16 @@ class Kissmetrics {
   }
 
   alias(rudderElement) {
-    var prev = rudderElement.message.previousId;
-    var userId = rudderElement.message.userId;
+    const prev = rudderElement.message.previousId;
+    const { userId } = rudderElement.message;
     window._kmq.push(["alias", userId, prev]);
   }
 
   group(rudderElement) {
-    let groupId = rudderElement.message.groupId;
+    const { groupId } = rudderElement.message;
     let groupTraits = rudderElement.message.traits;
     groupTraits = this.prefix("Group", groupTraits);
-    if(groupId){
+    if (groupId) {
       groupTraits["Group - id"] = groupId;
     }
     window._kmq.push(["set", groupTraits]);

@@ -1,11 +1,11 @@
 import RudderMessage from "./RudderMessage";
-//Individual element class containing Rudder Message
+// Individual element class containing Rudder Message
 class RudderElement {
   constructor() {
     this.message = new RudderMessage();
   }
 
-  //Setters that in turn set the field values for the contained object
+  // Setters that in turn set the field values for the contained object
   setType(type) {
     this.message.type = type;
   }

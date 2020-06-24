@@ -38,12 +38,12 @@ export default class GA {
     ];
   }
 
-  loadScript() {
+  loadScript = () => {
     ScriptLoader(
       "google-analytics",
       "https://www.google-analytics.com/analytics.js"
     );
-  }
+  };
 
   init() {
     this.pageCalled = false;
@@ -790,9 +790,12 @@ export default class GA {
    * @param  {} includeSearch
    */
   path(properties, includeSearch) {
-    if (!properties) return;
-    let str = properties.path;
-    if (includeSearch && properties.search) str += properties.search;
+    let str = "";
+    if (properties) {
+      if (includeSearch && properties.search) {
+        str += properties.search;
+      }
+    }
     return str;
   }
 
@@ -828,12 +831,7 @@ export default class GA {
    * @param  {} rudderElement
    * @param  {} inputs
    */
-  enhancedEcommerceTrackProduct(
-    rudderElement,
-    dimensions,
-    metrics,
-    contentGroupings
-  ) {
+  enhancedEcommerceTrackProduct(rudderElement) {
     const props = rudderElement.message.properties;
 
     let product = {

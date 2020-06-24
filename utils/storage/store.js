@@ -54,6 +54,6 @@ class StoreLocal {
 }
 
 // Exporting only the instance
-let Store = new StoreLocal({});
+const Store = new StoreLocal({});
 
 export { Store };

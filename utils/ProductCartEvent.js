@@ -1,7 +1,7 @@
-var RudderProperty = require("./RudderProperty");
-var ECommerceParamNames = require("./constants").ECommerceParamNames;
+const RudderProperty = require("./RudderProperty");
+const { ECommerceParamNames } = require("./constants");
 
-//Parent class of "Product Added to Cart" and "Product Removed from Cart" events
+// Parent class of "Product Added to Cart" and "Product Removed from Cart" events
 class ProductCartEvent {
   constructor() {
     this.product = null;
@@ -9,13 +9,13 @@ class ProductCartEvent {
   }
 
   build() {
-    var eventProperty = new RudderProperty();
+    const eventProperty = new RudderProperty();
     eventProperty.setPropertyMap(this.product);
     eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cartId);
     return eventProperty;
   }
 
-  //Setter methods in accordance to Builder pattern
+  // Setter methods in accordance to Builder pattern
 
   setProduct(product) {
     this.product = product;
@@ -29,5 +29,5 @@ class ProductCartEvent {
 }
 
 module.exports = {
-  ProductCartEvent: ProductCartEvent
+  ProductCartEvent,
 };

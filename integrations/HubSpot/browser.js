@@ -3,12 +3,12 @@ import logger from "../../utils/logUtil";
 
 class HubSpot {
   constructor(config) {
-    this.hubId = config.hubID; //6405167
+    this.hubId = config.hubID; // 6405167
     this.name = "HS";
   }
 
   init() {
-    let hubspotJs = "http://js.hs-scripts.com/" + this.hubId + ".js";
+    const hubspotJs = `http://js.hs-scripts.com/${this.hubId}.js`;
     ScriptLoader("hubspot-integration", hubspotJs);
 
     logger.debug("===in init HS===");
@@ -17,12 +17,12 @@ class HubSpot {
   identify(rudderElement) {
     logger.debug("in HubspotAnalyticsManager identify");
 
-    let traits = rudderElement.message.context.traits;
-    let traitsValue = {};
+    const { traits } = rudderElement.message.context;
+    const traitsValue = {};
 
-    for (let k in traits) {
+    for (const k in traits) {
       if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
-        let hubspotkey = k; //k.startsWith("rl_") ? k.substring(3, k.length) : k;
+        const hubspotkey = k; // k.startsWith("rl_") ? k.substring(3, k.length) : k;
         if (toString.call(traits[k]) == "[object Date]") {
           traitsValue[hubspotkey] = traits[k].getTime();
         } else {
@@ -42,13 +42,13 @@ class HubSpot {
         }
       }
     } */
-    let userProperties = rudderElement.message.context.user_properties;
-    for (let k in userProperties) {
+    const userProperties = rudderElement.message.context.user_properties;
+    for (const k in userProperties) {
       if (
         !!Object.getOwnPropertyDescriptor(userProperties, k) &&
         userProperties[k]
       ) {
-        let hubspotkey = k; //k.startsWith("rl_") ? k.substring(3, k.length) : k;
+        const hubspotkey = k; // k.startsWith("rl_") ? k.substring(3, k.length) : k;
         traitsValue[hubspotkey] = userProperties[k];
       }
     }
@@ -56,22 +56,22 @@ class HubSpot {
     logger.debug(traitsValue);
 
     if (typeof window !== undefined) {
-      let _hsq = (window._hsq = window._hsq || []);
+      const _hsq = (window._hsq = window._hsq || []);
       _hsq.push(["identify", traitsValue]);
     }
   }
 
   track(rudderElement) {
     logger.debug("in HubspotAnalyticsManager track");
-    let _hsq = (window._hsq = window._hsq || []);
-    let eventValue = {};
-    eventValue["id"] = rudderElement.message.event;
+    const _hsq = (window._hsq = window._hsq || []);
+    const eventValue = {};
+    eventValue.id = rudderElement.message.event;
     if (
       rudderElement.message.properties &&
       (rudderElement.message.properties.revenue ||
         rudderElement.message.properties.value)
     ) {
-      eventValue["value"] =
+      eventValue.value =
         rudderElement.message.properties.revenue ||
         rudderElement.message.properties.value;
     }
@@ -80,9 +80,9 @@ class HubSpot {
 
   page(rudderElement) {
     logger.debug("in HubspotAnalyticsManager page");
-    let _hsq = (window._hsq = window._hsq || []);
-    //logger.debug("path: " + rudderElement.message.properties.path);
-    //_hsq.push(["setPath", rudderElement.message.properties.path]);
+    const _hsq = (window._hsq = window._hsq || []);
+    // logger.debug("path: " + rudderElement.message.properties.path);
+    // _hsq.push(["setPath", rudderElement.message.properties.path]);
     /* _hsq.push(["identify",{
         email: "testtrackpage@email.com"
     }]); */

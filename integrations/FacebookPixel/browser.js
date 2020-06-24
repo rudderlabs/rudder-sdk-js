@@ -1,7 +1,7 @@
-import ScriptLoader  from "../ScriptLoader";
-import logger from "../../utils/logUtil";
 import is from "is";
 import each from "@ndhoule/each";
+import ScriptLoader from "../ScriptLoader";
+import logger from "../../utils/logUtil";
 
 class FacebookPixel {
   constructor(config) {
@@ -76,10 +76,10 @@ class FacebookPixel {
   }
 
   track(rudderElement) {
-    let self = this;
-    var event = rudderElement.message.event;
+    const self = this;
+    const { event } = rudderElement.message;
     var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
-    var payload = this.buildPayLoad(rudderElement, true);
+    const payload = this.buildPayLoad(rudderElement, true);
 
     if (this.categoryToContent === undefined) {
       this.categoryToContent = [];
@@ -92,10 +92,10 @@ class FacebookPixel {
     }
 
     payload.value = revenue;
-    var standard = this.eventsToEvents;
-    var legacy = this.legacyConversionPixelId;
-    var standardTo;
-    var legacyTo;
+    const standard = this.eventsToEvents;
+    const legacy = this.legacyConversionPixelId;
+    let standardTo;
+    let legacyTo;
 
     standardTo = standard.reduce((filtered, standard) => {
       if (standard.from === event) {
@@ -138,12 +138,12 @@ class FacebookPixel {
       var contentType;
       var contentIds;
       var contents = [];
-      var products = rudderElement.message.properties.products;
+      var { products } = rudderElement.message.properties;
       var customProperties = this.buildPayLoad(rudderElement, true);
 
       if (Array.isArray(products)) {
         products.forEach(function (product) {
-          var productId = product.product_id;
+          const productId = product.product_id;
           if (productId) {
             contentIds.push(productId);
             contents.push({
@@ -172,7 +172,7 @@ class FacebookPixel {
           {
             content_ids: contentIds,
             content_type: this.getContentType(rudderElement, contentType),
-            contents: contents,
+            contents,
           },
           customProperties
         ),
@@ -342,7 +342,7 @@ class FacebookPixel {
         customProperties
       );
     } else if (event === "Order Completed") {
-      var products = rudderElement.message.properties.products;
+      var { products } = rudderElement.message.properties;
       var customProperties = this.buildPayLoad(rudderElement, true);
       var revenue = this.formatRevenue(
         rudderElement.message.properties.revenue
@@ -374,7 +374,7 @@ class FacebookPixel {
             content_type: contentType,
             currency: rudderElement.message.properties.currency,
             value: revenue,
-            contents: contents,
+            contents,
             num_items: contentIds.length,
           },
           customProperties
@@ -430,17 +430,17 @@ class FacebookPixel {
         );
       }, legacyTo);
     } else if (event === "Checkout Started") {
-      var products = rudderElement.message.properties.products;
+      var { products } = rudderElement.message.properties;
       var customProperties = this.buildPayLoad(rudderElement, true);
       var revenue = this.formatRevenue(
         rudderElement.message.properties.revenue
       );
-      var contentCategory = rudderElement.message.properties.category;
+      let contentCategory = rudderElement.message.properties.category;
       var contentIds = [];
       var contents = [];
 
       for (var i = 0; i < products.length; i++) {
-        let product = products[i];
+        const product = products[i];
         var pId = product.product_id;
         contentIds.push(pId);
         var content = {
@@ -467,7 +467,7 @@ class FacebookPixel {
             content_type: this.getContentType(rudderElement, ["product"]),
             currency: rudderElement.message.properties.currency,
             value: revenue,
-            contents: contents,
+            contents,
             num_items: contentIds.length,
           },
           customProperties
@@ -495,21 +495,21 @@ class FacebookPixel {
   }
 
   getContentType(rudderElement, defaultValue) {
-    var options = rudderElement.message.options;
+    const { options } = rudderElement.message;
     if (options && options.contentType) {
       return [options.contentType];
     }
 
-    var category = rudderElement.message.properties.category;
+    let { category } = rudderElement.message.properties;
     if (!category) {
-      var products = rudderElement.message.properties.products;
+      const { products } = rudderElement.message.properties;
       if (products && products.length) {
         category = products[0].category;
       }
     }
     if (category) {
-      var mapped = this.categoryToContent;
-      var mappedTo;
+      const mapped = this.categoryToContent;
+      let mappedTo;
       mappedTo = mapped.reduce((filtered, mapped) => {
         if (mapped.from == category) {
           filtered.push(mapped.to);
@@ -524,17 +524,17 @@ class FacebookPixel {
   }
 
   merge(obj1, obj2) {
-    var res = {};
+    const res = {};
 
     // All properties of obj1
-    for (var propObj1 in obj1) {
+    for (const propObj1 in obj1) {
       if (obj1.hasOwnProperty(propObj1)) {
         res[propObj1] = obj1[propObj1];
       }
     }
 
     // Extra properties of obj2
-    for (var propObj2 in obj2) {
+    for (const propObj2 in obj2) {
       if (obj2.hasOwnProperty(propObj2) && !res.hasOwnProperty(propObj2)) {
         res[propObj2] = obj2[propObj2];
       }
@@ -548,7 +548,7 @@ class FacebookPixel {
   }
 
   buildPayLoad(rudderElement, isStandardEvent) {
-    var dateFields = [
+    const dateFields = [
       "checkinDate",
       "checkoutDate",
       "departingArrivalDate",
@@ -558,7 +558,7 @@ class FacebookPixel {
       "travelEnd",
       "travelStart",
     ];
-    var defaultPiiProperties = [
+    const defaultPiiProperties = [
       "email",
       "firstName",
       "lastName",
@@ -570,19 +570,19 @@ class FacebookPixel {
       "zip",
       "birthday",
     ];
-    var whitelistPiiProperties = this.whitelistPiiProperties || [];
-    var blacklistPiiProperties = this.blacklistPiiProperties || [];
-    var eventCustomProperties = this.eventCustomProperties || [];
-    var customPiiProperties = {};
-    for (var i = 0; i < blacklistPiiProperties[i]; i++) {
-      var configuration = blacklistPiiProperties[i];
+    const whitelistPiiProperties = this.whitelistPiiProperties || [];
+    const blacklistPiiProperties = this.blacklistPiiProperties || [];
+    const eventCustomProperties = this.eventCustomProperties || [];
+    const customPiiProperties = {};
+    for (let i = 0; i < blacklistPiiProperties[i]; i++) {
+      const configuration = blacklistPiiProperties[i];
       customPiiProperties[configuration.blacklistPiiProperties] =
         configuration.blacklistPiiHash;
     }
-    var payload = {};
-    var properties = rudderElement.message.properties;
+    const payload = {};
+    const { properties } = rudderElement.message;
 
-    for (var property in properties) {
+    for (const property in properties) {
       if (!properties.hasOwnProperty(property)) {
         continue;
       }
@@ -590,7 +590,7 @@ class FacebookPixel {
       if (isStandardEvent && eventCustomProperties.indexOf(property) < 0) {
         continue;
       }
-      var value = properties[property];
+      const value = properties[property];
 
       if (dateFields.indexOf(properties) >= 0) {
         if (is.date(value)) {
@@ -599,13 +599,14 @@ class FacebookPixel {
         }
       }
       if (customPiiProperties.hasOwnProperty(property)) {
-        if (customPiiProperties[property] && typeof value == "string") {
+        if (customPiiProperties[property] && typeof value === "string") {
           payload[property] = sha256(value);
         }
         continue;
       }
-      var isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
-      var isProperyWhiteListed = whitelistPiiProperties.indexOf(property) >= 0;
+      const isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
+      const isProperyWhiteListed =
+        whitelistPiiProperties.indexOf(property) >= 0;
       if (!isPropertyPii || isProperyWhiteListed) {
         payload[property] = value;
       }

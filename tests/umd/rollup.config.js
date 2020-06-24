@@ -7,20 +7,19 @@ import globals from "rollup-plugin-node-globals";
 import json from "rollup-plugin-json";
 import gzipPlugin from "rollup-plugin-gzip";
 import brotli from "rollup-plugin-brotli";
+
 export default {
   input: "index.js",
   external: ["Xmlhttprequest", "universal-analytics"],
-  output: [
-    { file: "dist/browser.js", format: "iife", name: "test" }
-  ],
+  output: [{ file: "dist/browser.js", format: "iife", name: "test" }],
   plugins: [
     resolve({
       jsnext: true,
-      browser: true
+      browser: true,
     }),
 
     commonjs({
-      include: "node_modules/**"
+      include: "node_modules/**",
     }),
 
     json(),
@@ -28,10 +27,10 @@ export default {
     builtins(),
 
     babel({
-      exclude: "node_modules/**"
+      exclude: "node_modules/**",
     }),
     process.env.uglify === "true" && terser(),
     process.env.ENC === "gzip" && gzipPlugin(),
-    process.env.ENC === "br" && brotli()
-  ]
+    process.env.ENC === "br" && brotli(),
+  ],
 };

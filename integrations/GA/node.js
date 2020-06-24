@@ -1,4 +1,4 @@
-//import ua from "universal-analytics";
+// import ua from "universal-analytics";
 let ua;
 if (!process.browser) {
   ua = require("universal-analytics");
@@ -13,7 +13,7 @@ class GANode {
   init() {
     console.log("===in GA Node init===");
 
-    //this.client = ua(this.trackingID, "6a14abda-6b12-4578-bf66-43c754eaeda9");
+    // this.client = ua(this.trackingID, "6a14abda-6b12-4578-bf66-43c754eaeda9");
   }
 
   identify(rudderElement) {
@@ -26,11 +26,11 @@ class GANode {
     this.client.event(
       rudderElement.message.type,
       rudderElement.message.event,
-      function(err) {
+      function (err) {
         // Handle the error if necessary.
         // In case no error is provided you can be sure
         // the request was successfully sent off to Google.
-        console.log("error sending to GA" + err);
+        console.log(`error sending to GA${err}`);
       }
     );
   }
@@ -41,15 +41,15 @@ class GANode {
       rudderElement.message.properties &&
       rudderElement.message.properties.path
     ) {
-      this.client.pageview(rudderElement.message.properties.path, function(
+      this.client.pageview(rudderElement.message.properties.path, function (
         err
       ) {
         // Handle the error if necessary.
         // In case no error is provided you can be sure
         // the request was successfully sent off to Google.
-        console.log("error sending to GA" + err);
+        console.log(`error sending to GA${err}`);
       });
-      //this.client.pageview(rudderElement.message.properties.path).send();
+      // this.client.pageview(rudderElement.message.properties.path).send();
     }
   }
 

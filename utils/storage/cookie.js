@@ -20,18 +20,18 @@ class CookieLocal {
   options(options = {}) {
     if (arguments.length === 0) return this._options;
 
-    let domain = "." + topDomain(window.location.href);
+    let domain = `.${topDomain(window.location.href)}`;
     if (domain === ".") domain = null;
 
     // the default maxage and path
     this._options = defaults(options, {
       maxage: 31536000000,
       path: "/",
-      domain: domain,
-      samesite: "Lax"
+      domain,
+      samesite: "Lax",
     });
 
-    //try setting a cookie first
+    // try setting a cookie first
     this.set("test_rudder", true);
     if (!this.get("test_rudder")) {
       this._options.domain = null;
@@ -66,8 +66,8 @@ class CookieLocal {
       value = value ? json.parse(value) : null;
       return value;
     } catch (e) {
-      if(value) {
-        return value
+      if (value) {
+        return value;
       }
       return null;
     }
@@ -88,6 +88,6 @@ class CookieLocal {
 }
 
 // Exporting only the instance
-let Cookie = new CookieLocal({});
+const Cookie = new CookieLocal({});
 
 export { Cookie };
