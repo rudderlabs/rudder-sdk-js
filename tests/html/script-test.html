@@ -44,7 +44,7 @@
 
     <script src="./browser.js"></script>
 
-    <!-- <script>
+     <script>
       window.rudderanalytics.ready(() => {
         console.log("we are all set!!!");
       
@@ -52,7 +52,7 @@
       //page calls 
     // window.rudderanalytics.page();
 
-    // window.rudderanalytics.page('ruchira category', 'ruchira name', { url: 'url', path: '/path' });
+    window.rudderanalytics.page('ruchira category', 'ruchira name', { url: 'url', path: '/path' }); 
 
     // window.rudderanalytics.page('category', 'name', {
     //         url: 'ruchira url',
@@ -171,12 +171,12 @@
 
       //     window.rudderanalytics.track('event12', { nonInteraction: false });
           
-          window.rudderanalytics.track('Order Completed', { orderId: 'ee099bf7' });
+          window.rudderanalytics.track('Order Completed', { order_id: 'ee099bf7' });
 
           
 
       window.rudderanalytics.track("Order Completed", {
-        orderId: 'ruchiraorder1',
+        order_id: 'ruchiraorder1',
             total: 99.99,
             shipping: 13.99,
             tax: 20.99,
@@ -198,7 +198,7 @@
       });
 
       window.rudderanalytics.track('Order Completed', {
-            orderId: '5d4c7cb5',
+            order_id: '5d4c7cb5',
             revenue: 99.9,
             shipping: 13.99,
             tax: 20.99,
@@ -206,7 +206,7 @@
           });
 
           window.rudderanalytics.track('Order Completed', {
-            orderId: '5d4c7cb5ruchira',
+            order_id: '5d4c7cb5ruchira',
             revenue: 99.9,
             shipping: 13.99,
             tax: 20.99,
@@ -504,7 +504,7 @@
           });
 
           window.rudderanalytics.track('Order Completed', {
-            orderId: '780bc55ruchu',
+            order_id: '780bc55ruchu',
             total: 99.9,
             shipping: 13.99,
             tax: 20.99,
@@ -531,13 +531,13 @@
             ]
           });
           window.rudderanalytics.track('Order Refunded', {
-            orderId: '780bc55',
+            order_id: '780bc55',
             testDimension: true,
             testMetric: true
           });
 
           window.rudderanalytics.track('Order Refunded', {
-            orderId: '780bc55',
+            order_id: '780bc55',
             products: [
               {
                 quantity: 1,

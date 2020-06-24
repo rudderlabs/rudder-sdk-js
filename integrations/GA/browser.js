@@ -141,7 +141,7 @@ export default class GA {
     let { total } = properties;
     const data = {};
     const eventCategory = rudderElement.message.properties.category;
-    const { orderId } = properties;
+    const { order_id } = properties;
     const eventAction =
       rudderElement.message.event || rudderElement.message.name || "";
     const eventLabel = rudderElement.message.properties.label;
@@ -152,8 +152,8 @@ export default class GA {
     let filters;
     let sorts;
     if (event === "Order Completed" && !this.enhancedEcommerce) {
-      // orderId is required
-      if (!orderId) return;
+      // order_id is required
+      if (!order_id) return;
 
       // add transaction
       window.ga("ecommerce:addTransaction", {
@@ -161,7 +161,7 @@ export default class GA {
         shipping: properties.shipping,
         revenue: total,
         tax: properties.tax,
-        id: orderId,
+        id: order_id,
         currency: properties.currency,
       });
 
@@ -175,7 +175,7 @@ export default class GA {
           price: productTrack.price,
           name: productTrack.name,
           sku: productTrack.sku,
-          id: orderId,
+          id: order_id,
           currency: productTrack.currency,
         });
       });
@@ -196,12 +196,7 @@ export default class GA {
             let productTrack = self.createProductTrack(rudderElement, product);
             productTrack = { message: productTrack };
 
-            self.enhancedEcommerceTrackProduct(
-              productTrack,
-              self.dimensions,
-              self.metrics,
-              self.contentGroupings
-            );
+            self.enhancedEcommerceTrackProduct(productTrack);
           });
 
           window.ga("ec:setAction", "checkout", {
@@ -209,12 +204,7 @@ export default class GA {
             option: options || undefined,
           });
 
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Checkout Step Completed":
           if (!props.step) return;
@@ -238,7 +228,7 @@ export default class GA {
             rudderElement.message.properties.revenue ||
             0;
 
-          if (!orderId) return;
+          if (!order_id) return;
 
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
             rudderElement,
@@ -248,15 +238,10 @@ export default class GA {
           each(products, (product) => {
             let productTrack = self.createProductTrack(rudderElement, product);
             productTrack = { message: productTrack };
-            self.enhancedEcommerceTrackProduct(
-              productTrack,
-              self.dimensions,
-              self.metrics,
-              self.contentGroupings
-            );
+            self.enhancedEcommerceTrackProduct(productTrack);
           });
           window.ga("ec:setAction", "purchase", {
-            id: orderId,
+            id: order_id,
             affiliation: props.affiliation,
             revenue: total,
             tax: props.tax,
@@ -264,15 +249,10 @@ export default class GA {
             coupon: props.coupon,
           });
 
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Order Refunded":
-          if (!orderId) return;
+          if (!order_id) return;
 
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
             rudderElement,
@@ -291,15 +271,10 @@ export default class GA {
           });
 
           window.ga("ec:setAction", "refund", {
-            id: orderId,
+            id: order_id,
           });
 
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Added":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -314,12 +289,7 @@ export default class GA {
             this.metrics,
             this.contentGroupings
           );
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Removed":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -334,12 +304,7 @@ export default class GA {
             this.metrics,
             this.contentGroupings
           );
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Viewed":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -356,12 +321,7 @@ export default class GA {
             this.metrics,
             this.contentGroupings
           );
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Clicked":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -378,12 +338,7 @@ export default class GA {
             this.metrics,
             this.contentGroupings
           );
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Promotion Viewed":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -396,12 +351,7 @@ export default class GA {
             creative: props.creative,
             position: props.position,
           });
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Promotion Clicked":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -416,12 +366,7 @@ export default class GA {
             position: props.position,
           });
           window.ga("ec:setAction", "promo_click", {});
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product List Viewed":
           this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
@@ -437,7 +382,7 @@ export default class GA {
             )
               return;
             let impressionObj = {
-              id: item.properties.productId || item.properties.sku,
+              id: item.properties.product_id || item.properties.sku,
               name: item.properties.name,
               category: item.properties.category || props.category,
               list: props.list_id || props.category || "products",
@@ -460,12 +405,7 @@ export default class GA {
             });
             window.ga("ec:addImpression", impressionObj);
           });
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product List Filtered":
           props.filters = props.filters || [];
@@ -521,12 +461,7 @@ export default class GA {
             });
             window.ga("ec:addImpression", impressionObj);
           });
-          this.pushEnhancedEcommerce(
-            rudderElement,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.pushEnhancedEcommerce(rudderElement);
           break;
         default:
           if (rudderElement.message.properties) {
@@ -558,10 +493,7 @@ export default class GA {
           payload = {
             payload,
             ...this.setCustomDimenionsAndMetrics(
-              rudderElement.message.properties,
-              this.dimensions,
-              this.metrics,
-              this.contentGroupings
+              rudderElement.message.properties
             ),
           };
 
@@ -597,12 +529,7 @@ export default class GA {
 
       payload = {
         payload,
-        ...this.setCustomDimenionsAndMetrics(
-          rudderElement.message.properties,
-          this.dimensions,
-          this.metrics,
-          this.contentGroupings
-        ),
+        ...this.setCustomDimenionsAndMetrics(rudderElement.message.properties),
       };
 
       window.ga("send", "event", payload.payload);
@@ -678,12 +605,7 @@ export default class GA {
     // adds more properties to pageview which will be sent
     pageview = {
       ...pageview,
-      ...this.setCustomDimenionsAndMetrics(
-        eventProperties,
-        this.dimensions,
-        this.metrics,
-        this.contentGroupings
-      ),
+      ...this.setCustomDimenionsAndMetrics(eventProperties),
     };
     const payload = {
       page: pagePath,
@@ -763,7 +685,7 @@ export default class GA {
    * @param  {} props
    * @param  {} inputs
    */
-  setCustomDimenionsAndMetrics(props, dimensions, metrics, contentGroupings) {
+  setCustomDimenionsAndMetrics(props) {
     const ret = {};
     const custom = this.metricsFunction(
       props,
@@ -828,16 +750,11 @@ export default class GA {
    * @param  {} rudderElement
    * @param  {} inputs
    */
-  enhancedEcommerceTrackProduct(
-    rudderElement,
-    dimensions,
-    metrics,
-    contentGroupings
-  ) {
+  enhancedEcommerceTrackProduct(rudderElement) {
     const props = rudderElement.message.properties;
 
     let product = {
-      id: props.productId || props.id || props.sku,
+      id: props.product_id || props.id || props.sku,
       name: props.name,
       category: props.category,
       quantity: props.quantity,
@@ -873,20 +790,8 @@ export default class GA {
    * @param  {} data
    * @param  {} inputs
    */
-  enhancedEcommerceTrackProductAction(
-    rudderElement,
-    action,
-    data,
-    dimensions,
-    metrics,
-    contentGroupings
-  ) {
-    this.enhancedEcommerceTrackProduct(
-      rudderElement,
-      dimensions,
-      metrics,
-      contentGroupings
-    );
+  enhancedEcommerceTrackProductAction(rudderElement, action, data) {
+    this.enhancedEcommerceTrackProduct(rudderElement);
     window.ga("ec:setAction", action, data || {});
   }
 
@@ -894,7 +799,7 @@ export default class GA {
    * @param  {} rudderElement
    * @param  {} inputs
    */
-  pushEnhancedEcommerce(rudderElement, dimensions, metrics, contentGroupings) {
+  pushEnhancedEcommerce(rudderElement) {
     const args = rejectArr([
       "send",
       "event",
@@ -904,12 +809,7 @@ export default class GA {
       {
         nonInteraction: 1,
 
-        ...this.setCustomDimenionsAndMetrics(
-          rudderElement.message.properties,
-          dimensions,
-          metrics,
-          contentGroupings
-        ),
+        ...this.setCustomDimenionsAndMetrics(rudderElement.message.properties),
       },
     ]);
 
