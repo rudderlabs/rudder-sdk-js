@@ -166,7 +166,7 @@ export default class GA {
       });
 
       // products added
-      each(products, (product) => {
+      products.forEach((product) => {
         const productTrack = self.createProductTrack(rudderElement, product);
 
         window.ga("ecommerce:addItem", {
@@ -188,10 +188,7 @@ export default class GA {
         case "Checkout Started":
         case "Checkout Step Viewed":
         case "Order Updated":
-          this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
-            rudderElement,
-            this.enhancedEcommerceLoaded
-          );
+          this.loadEnhancedEcommerce(rudderElement);
           each(products, (product) => {
             let productTrack = self.createProductTrack(rudderElement, product);
             productTrack = { message: productTrack };
@@ -219,10 +216,7 @@ export default class GA {
             option: options || undefined,
           };
 
-          this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
-            rudderElement,
-            this.enhancedEcommerceLoaded
-          );
+          this.loadEnhancedEcommerce(rudderElement);
 
           window.ga("ec:setAction", "checkout_option", params);
           window.ga("send", "event", "Checkout", "Option");
@@ -235,10 +229,7 @@ export default class GA {
 
           if (!orderId) return;
 
-          this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
-            rudderElement,
-            this.enhancedEcommerceLoaded
-          );
+          this.loadEnhancedEcommerce(rudderElement);
 
           each(products, (product) => {
             let productTrack = self.createProductTrack(rudderElement, product);
@@ -264,10 +255,7 @@ export default class GA {
         case "Order Refunded":
           if (!orderId) return;
 
-          this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
-            rudderElement,
-            this.enhancedEcommerceLoaded
-          );
+          this.loadEnhancedEcommerce(rudderElement);
 
           each(products, (product) => {
             const track = { properties: product };
@@ -287,10 +275,7 @@ export default class GA {
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Added":
-          this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
-            rudderElement,
-            this.enhancedEcommerceLoaded
-          );
+          this.loadEnhancedEcommerce(rudderElement);
           this.enhancedEcommerceTrackProductAction(
             rudderElement,
             "add",
@@ -302,10 +287,7 @@ export default class GA {
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Removed":
-          this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
-            rudderElement,
-            this.enhancedEcommerceLoaded
-          );
+          this.loadEnhancedEcommerce(rudderElement);
           this.enhancedEcommerceTrackProductAction(
             rudderElement,
             "remove",
@@ -317,10 +299,7 @@ export default class GA {
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Viewed":
-          this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
-            rudderElement,
-            this.enhancedEcommerceLoaded
-          );
+          this.loadEnhancedEcommerce(rudderElement);
 
           if (props.list) data.list = props.list;
           this.enhancedEcommerceTrackProductAction(
@@ -334,10 +313,7 @@ export default class GA {
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Clicked":
-          this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
-            rudderElement,
-            this.enhancedEcommerceLoaded
-          );
+          this.loadEnhancedEcommerce(rudderElement);
 
           if (props.list) data.list = props.list;
           this.enhancedEcommerceTrackProductAction(
@@ -351,10 +327,7 @@ export default class GA {
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Promotion Viewed":
-          this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
-            rudderElement,
-            this.enhancedEcommerceLoaded
-          );
+          this.loadEnhancedEcommerce(rudderElement);
           window.ga("ec:addPromo", {
             id: props.promotionId || props.id,
             name: props.name,
@@ -364,10 +337,7 @@ export default class GA {
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Promotion Clicked":
-          this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
-            rudderElement,
-            this.enhancedEcommerceLoaded
-          );
+          this.loadEnhancedEcommerce(rudderElement);
 
           window.ga("ec:addPromo", {
             id: props.promotionId || props.id,
@@ -379,10 +349,7 @@ export default class GA {
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product List Viewed":
-          this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
-            rudderElement,
-            this.enhancedEcommerceLoaded
-          );
+          this.loadEnhancedEcommerce(rudderElement);
 
           each(products, (product) => {
             const item = { properties: product };
@@ -431,10 +398,7 @@ export default class GA {
             })
             .join();
 
-          this.enhancedEcommerceLoaded = this.loadEnhancedEcommerce(
-            rudderElement,
-            this.enhancedEcommerceLoaded
-          );
+          this.loadEnhancedEcommerce(rudderElement);
 
           each(products, (product) => {
             const item = { properties: product };
@@ -750,14 +714,13 @@ export default class GA {
    * @param  {} rudderElement
    * @param  {} a
    */
-  static loadEnhancedEcommerce(rudderElement, a) {
-    if (a === 0) {
+  static loadEnhancedEcommerce(rudderElement) {
+    if (this.enhancedEcommerceLoaded === 0) {
       window.ga("require", "ec");
-      a = 1;
+      this.enhancedEcommerceLoaded = 1;
     }
 
     window.ga("set", "&cu", rudderElement.message.properties.currency);
-    return a;
   }
 
   /**
