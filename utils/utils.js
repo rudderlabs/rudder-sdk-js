@@ -3,16 +3,6 @@ import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
 
-let XMLHttpRequestNode;
-if (!process.browser) {
-  XMLHttpRequestNode = require("Xmlhttprequest");
-}
-
-let btoaNode;
-if (!process.browser) {
-  btoaNode = require("btoa");
-}
-
 /**
  *
  * Utility method for excluding null and empty values in JSON
@@ -77,11 +67,8 @@ function getCurrentTimeFormatted() {
 function getJSON(url, wrappers, isLoaded, callback) {
   // server-side integration, XHR is node module
 
-  if (process.browser) {
-    var xhr = new XMLHttpRequest();
-  } else {
-    var xhr = new XMLHttpRequestNode.XMLHttpRequest();
-  }
+  var xhr = new XMLHttpRequest();
+  
   xhr.open("GET", url, false);
   xhr.onload = function () {
     const { status } = xhr;
@@ -106,17 +93,11 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   // server-side integration, XHR is node module
   const cb_ = callback.bind(context);
 
-  if (process.browser) {
-    var xhr = new XMLHttpRequest();
-  } else {
-    var xhr = new XMLHttpRequestNode.XMLHttpRequest();
-  }
+  var xhr = new XMLHttpRequest();
+  
   xhr.open("GET", url, true);
-  if (process.browser) {
-    xhr.setRequestHeader("Authorization", `Basic ${btoa(`${writeKey}:`)}`);
-  } else {
-    xhr.setRequestHeader("Authorization", `Basic ${btoaNode(`${writeKey}:`)}`);
-  }
+  xhr.setRequestHeader("Authorization", `Basic ${btoa(`${writeKey}:`)}`);
+  
 
   xhr.onload = function () {
     const { status } = xhr;
