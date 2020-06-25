@@ -49,13 +49,14 @@ export default class GA {
   init() {
     this.pageCalled = false;
     this.dimensionsArray = {};
+    let elementTo;
     this.dimensions.forEach((element) => {
       if (element.to.startsWith("dimension")) {
         this.dimensionsArray[element.from] = element.to;
       } else {
         /* eslint-disable no-param-reassign */
-        element.to = element.to.replace(/cd/g, "dimension");
-        this.dimensionsArray[element.from] = element.to;
+        elementTo = element.to.replace(/cd/g, "dimension");
+        this.dimensionsArray[element.from] = elementTo;
       }
     });
     this.metricsArray = {};
@@ -63,9 +64,8 @@ export default class GA {
       if (element.to.startsWith("dimension")) {
         this.metricsArray[element.from] = element.to;
       } else {
-        /* eslint-disable no-param-reassign */
-        element.to = element.to.replace(/cm/g, "metric");
-        this.metricsArray[element.from] = element.to;
+        elementTo = element.to.replace(/cm/g, "metric");
+        this.metricsArray[element.from] = elementTo;
       }
     });
     this.contentGroupingsArray = {};
