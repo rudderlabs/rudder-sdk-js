@@ -372,7 +372,7 @@ export default class GA {
               position: self.getProductPosition(item, products),
             };
             impressionObj = {
-              impressionObj,
+              ...impressionObj,
               ...self.metricsFunction(
                 item.properties,
                 self.dimensionsArray,
@@ -749,7 +749,7 @@ export default class GA {
     const { coupon } = props;
     if (coupon) product.coupon = coupon;
     product = {
-      product,
+      ...product,
       ...this.metricsFunction(
         props,
         this.dimensionsArray,
