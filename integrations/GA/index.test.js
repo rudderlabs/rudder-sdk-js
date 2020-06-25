@@ -90,7 +90,7 @@ describe("GA init tests", () => {
           title: "test cat",
           location: "http://localhost",
       });
-
+ console.log(JSON.stringify(window.ga.mock.calls));
       // TODO: call another page, check location not set
     });
   });

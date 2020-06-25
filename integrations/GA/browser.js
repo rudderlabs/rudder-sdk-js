@@ -64,9 +64,9 @@ export default class GA {
     window.GoogleAnalyticsObject = "ga";
     window.ga =
       window.ga ||
-      function a(...args) {
+      function a() {
         window.ga.q = window.ga.q || [];
-        window.ga.q.push(...args);
+        window.ga.q.push(arguments);
       };
     window.ga.l = new Date().getTime();
 
@@ -170,13 +170,13 @@ export default class GA {
         const productTrack = self.createProductTrack(rudderElement, product);
 
         window.ga("ecommerce:addItem", {
-          category: productTrack.category,
-          quantity: productTrack.quantity,
-          price: productTrack.price,
-          name: productTrack.name,
-          sku: productTrack.sku,
+          category: productTrack.properties.category,
+          quantity: productTrack.properties.quantity,
+          price: productTrack.properties.price,
+          name: productTrack.properties.name,
+          sku: productTrack.properties.sku,
           id: orderId,
-          currency: productTrack.currency,
+          currency: productTrack.properties.currency,
         });
       });
 
@@ -673,7 +673,7 @@ export default class GA {
    * @param  {} includeSearch
    */
   path(properties, includeSearch) {
-    let str = "";
+    let str = properties.path;
     if (properties) {
       if (includeSearch && properties.search) {
         str += properties.search;

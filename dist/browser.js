@@ -105,7 +105,7 @@ var rudderanalytics = (function (exports) {
     if (typeof o === "string") return _arrayLikeToArray(o, minLen);
     var n = Object.prototype.toString.call(o).slice(8, -1);
     if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Map" || n === "Set") return Array.from(n);
     if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
   }
 
@@ -2239,11 +2239,8 @@ var rudderanalytics = (function (exports) {
         window.GoogleAnalyticsObject = "ga";
 
         window.ga = window.ga || function a() {
-          var _window$ga$q;
-
           window.ga.q = window.ga.q || [];
-
-          (_window$ga$q = window.ga.q).push.apply(_window$ga$q, arguments);
+          window.ga.q.push(arguments);
         };
 
         window.ga.l = new Date().getTime();
@@ -2343,13 +2340,13 @@ var rudderanalytics = (function (exports) {
           products.forEach(function (product) {
             var productTrack = self.createProductTrack(rudderElement, product);
             window.ga("ecommerce:addItem", {
-              category: productTrack.category,
-              quantity: productTrack.quantity,
-              price: productTrack.price,
-              name: productTrack.name,
-              sku: productTrack.sku,
+              category: productTrack.properties.category,
+              quantity: productTrack.properties.quantity,
+              price: productTrack.properties.price,
+              name: productTrack.properties.name,
+              sku: productTrack.properties.sku,
               id: orderId,
-              currency: productTrack.currency
+              currency: productTrack.properties.currency
             });
           });
           window.ga("ecommerce:send");
@@ -2645,7 +2642,7 @@ var rudderanalytics = (function (exports) {
 
         window.ga("set", resetCustomDimensions); // adds more properties to pageview which will be sent
 
-        pageview = _objectSpread2(_objectSpread2({}, pageview), this.setCustomDimenionsAndMetrics(eventProperties));
+        pageview = _objectSpread2({}, pageview, {}, this.setCustomDimenionsAndMetrics(eventProperties));
         var payload = {
           page: pagePath,
           title: pageTitle
@@ -2757,7 +2754,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "path",
       value: function path(properties, includeSearch) {
-        var str = "";
+        var str = properties.path;
 
         if (properties) {
           if (includeSearch && properties.search) {
@@ -9146,7 +9143,7 @@ var rudderanalytics = (function (exports) {
         if (this.dspUrlSettingsPixel && this.dspUrlSettingsPixel.length > 0) {
           var currentTime = Date.now();
           this.dspUrlSettingsPixel.forEach(function (urlSettings) {
-            var dspUrl = _this2.compileUrl(_objectSpread2(_objectSpread2({}, _this2.mappings), {}, {
+            var dspUrl = _this2.compileUrl(_objectSpread2({}, _this2.mappings, {
               userId: userId,
               random: currentTime
             }), urlSettings.dspUrlTemplate);
@@ -9161,7 +9158,7 @@ var rudderanalytics = (function (exports) {
           var _currentTime = Date.now();
 
           this.dspUrlSettingsIframe.forEach(function (urlSettings) {
-            var dspUrl = _this2.compileUrl(_objectSpread2(_objectSpread2({}, _this2.mappings), {}, {
+            var dspUrl = _this2.compileUrl(_objectSpread2({}, _this2.mappings, {
               userId: userId,
               random: _currentTime
             }), urlSettings.dspUrlTemplate);
@@ -9213,7 +9210,7 @@ var rudderanalytics = (function (exports) {
         if (this.bcpUrlSettingsPixel && this.bcpUrlSettingsPixel.length > 0) {
           var currentTime = Date.now();
           this.bcpUrlSettingsPixel.forEach(function (urlSettings) {
-            var bcpUrl = _this3.compileUrl(_objectSpread2(_objectSpread2({}, _this3.mappings), {}, {
+            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings, {
               random: currentTime
             }), urlSettings.bcpUrlTemplate);
 
@@ -9227,7 +9224,7 @@ var rudderanalytics = (function (exports) {
           var _currentTime2 = Date.now();
 
           this.bcpUrlSettingsIframe.forEach(function (urlSettings) {
-            var bcpUrl = _this3.compileUrl(_objectSpread2(_objectSpread2({}, _this3.mappings), {}, {
+            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings, {
               random: _currentTime2
             }), urlSettings.bcpUrlTemplate);
 
