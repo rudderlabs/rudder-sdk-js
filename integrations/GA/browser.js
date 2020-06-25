@@ -50,17 +50,28 @@ export default class GA {
     this.pageCalled = false;
     this.dimensionsArray = {};
     this.dimensions.forEach((element) => {
-      this.dimensionsArray[element.from] = element.to;
+      if (element.to.startsWith("dimension")) {
+        this.dimensionsArray[element.from] = element.to;
+      } else {
+        /* eslint-disable no-param-reassign */
+        element.to = element.to.replace(/cd/g, "dimension");
+        this.dimensionsArray[element.from] = element.to;
+      }
     });
     this.metricsArray = {};
     this.metrics.forEach((element) => {
-      this.metricsArray[element.from] = element.to;
+      if (element.to.startsWith("dimension")) {
+        this.metricsArray[element.from] = element.to;
+      } else {
+        /* eslint-disable no-param-reassign */
+        element.to = element.to.replace(/cm/g, "metric");
+        this.metricsArray[element.from] = element.to;
+      }
     });
     this.contentGroupingsArray = {};
     this.contentGroupings.forEach((element) => {
       this.contentGroupingsArray[element.from] = element.to;
     });
-
     window.GoogleAnalyticsObject = "ga";
     window.ga =
       window.ga ||
