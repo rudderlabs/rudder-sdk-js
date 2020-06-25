@@ -302,10 +302,7 @@ export default class GA {
           this.enhancedEcommerceTrackProductAction(
             rudderElement,
             "remove",
-            null,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
+            null
           );
           this.pushEnhancedEcommerce(rudderElement);
           break;
@@ -316,10 +313,7 @@ export default class GA {
           this.enhancedEcommerceTrackProductAction(
             rudderElement,
             "detail",
-            data,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
+            data
           );
           this.pushEnhancedEcommerce(rudderElement);
           break;
@@ -330,10 +324,7 @@ export default class GA {
           this.enhancedEcommerceTrackProductAction(
             rudderElement,
             "click",
-            data,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
+            data
           );
           this.pushEnhancedEcommerce(rudderElement);
           break;
@@ -770,7 +761,7 @@ export default class GA {
       ),
     };
 
-    window.ga("ec:addProduct", product.product);
+    window.ga("ec:addProduct", product);
   }
 
   /**
