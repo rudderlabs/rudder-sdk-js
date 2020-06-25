@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import is from "is";
 import each from "component-each";
 import logger from "../../utils/logUtil";
@@ -38,7 +39,7 @@ export default class GA {
     ];
   }
 
-  static loadScript() {
+  loadScript() {
     ScriptLoader(
       "google-analytics",
       "https://www.google-analytics.com/analytics.js"
@@ -71,8 +72,6 @@ export default class GA {
 
     this.loadScript();
 
-    // window.ga_debug = {trace: true};
-
     // create ga with these properties. if the properties are empty it will take default values.
     const config = {
       cookieDomain: this.domain || GA.prototype.defaults.domain,
@@ -80,7 +79,6 @@ export default class GA {
       sampleRate: this.sampleRate,
       allowLinker: true,
       useAmpClientId: this.useGoogleAmpClientId,
-      //   name: "rudder_ga"
     };
 
     window.ga("create", this.trackingID, config);
@@ -88,11 +86,13 @@ export default class GA {
     if (this.optimizeContainerId) {
       window.ga("require", this.optimizeContainerId);
     }
+
     // ecommerce is required
     if (!this.ecommerce) {
       window.ga("require", "ecommerce");
       this.ecommerce = true;
     }
+
     // this is to display advertising
     if (this.doubleClick) {
       window.ga("require", "displayfeatures");
@@ -182,6 +182,7 @@ export default class GA {
 
       window.ga("ecommerce:send");
     }
+
     // enhanced ecommerce events
     else if (this.enhancedEcommerce) {
       switch (event) {
@@ -550,12 +551,6 @@ export default class GA {
       if (campaign.term) pageview.campaignKeyword = campaign.term;
     }
 
-    // Reset custom dimension which are previously set.
-    // Uses the configured dimensions as:
-    // this.dimensions: { "fruit": "dimension1" }
-    // this.resetCustomDimensions: [ "fruit" ]
-    // --> resetCustomDimensions: { "dimension1": null }
-
     const resetCustomDimensions = {};
     for (let i = 0; i < this.resetCustomDimensionsOnPage.length; i += 1) {
       const property = this.resetCustomDimensionsOnPage[i]
@@ -597,12 +592,12 @@ export default class GA {
     this.pageCalled = true;
   }
 
-  static isLoaded() {
+  isLoaded() {
     logger.debug("in GA isLoaded");
     return !!window.gaplugins;
   }
 
-  static isReady() {
+  isReady() {
     return !!window.gaplugins;
   }
 
@@ -625,7 +620,7 @@ export default class GA {
    * then the function will return {} as there is no corresponding mapping of metric.
    *
    */
-  static metricsFunction(obj, dimensions, metrics, contentGroupings) {
+  metricsFunction(obj, dimensions, metrics, contentGroupings) {
     const ret = {};
 
     each([metrics, dimensions, contentGroupings], (group) => {
@@ -639,7 +634,7 @@ export default class GA {
     return ret;
   }
 
-  static formatValue(value) {
+  formatValue(value) {
     if (!value || value < 0) return 0;
     return Math.round(value);
   }
@@ -648,7 +643,7 @@ export default class GA {
    * @param  {} props
    * @param  {} inputs
    */
-  static setCustomDimenionsAndMetrics(props) {
+  setCustomDimenionsAndMetrics(props) {
     const ret = {};
     const custom = this.metricsFunction(
       props,
@@ -677,7 +672,7 @@ export default class GA {
    * @param  {} properties
    * @param  {} includeSearch
    */
-  static path(properties, includeSearch) {
+  path(properties, includeSearch) {
     let str = "";
     if (properties) {
       if (includeSearch && properties.search) {
@@ -692,7 +687,7 @@ export default class GA {
    * @param  {} rudderElement
    * @param  {} properties
    */
-  static createProductTrack(rudderElement, properties) {
+  createProductTrack(rudderElement, properties) {
     const props = properties || {};
     props.currency =
       properties.currency || rudderElement.message.properties.currency;
@@ -704,7 +699,7 @@ export default class GA {
    * @param  {} rudderElement
    * @param  {} a
    */
-  static loadEnhancedEcommerce(rudderElement) {
+  loadEnhancedEcommerce(rudderElement) {
     if (this.enhancedEcommerceLoaded === 0) {
       window.ga("require", "ec");
       this.enhancedEcommerceLoaded = 1;
@@ -776,7 +771,6 @@ export default class GA {
       rudderElement.message.properties.label,
       {
         nonInteraction: 1,
-
         ...this.setCustomDimenionsAndMetrics(rudderElement.message.properties),
       },
     ]);
@@ -795,7 +789,7 @@ export default class GA {
    * @param  {} item
    * @param  {} products
    */
-  static getProductPosition(item, products) {
+  getProductPosition(item, products) {
     const { position } = item.properties;
 
     if (
@@ -819,7 +813,7 @@ export default class GA {
    *extracts checkout options
    * @param  {} rudderElement
    */
-  static extractCheckoutOptions(rudderElement) {
+  extractCheckoutOptions(rudderElement) {
     const options = [
       rudderElement.message.properties.paymentMethod,
       rudderElement.message.properties.shippingMethod,
