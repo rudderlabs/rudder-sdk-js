@@ -1,7 +1,7 @@
-var ShareEvent = require("./ShareEvent");
-var ECommerceEvents = require("./constants").ECommerceEvents;
+const ShareEvent = require("./ShareEvent");
+const { ECommerceEvents } = require("./constants");
 
-//Class representing product share
+// Class representing product share
 class ProductSharedEvent extends ShareEvent {
   constructor() {
     super();
@@ -9,7 +9,7 @@ class ProductSharedEvent extends ShareEvent {
   }
 
   build() {
-    var eventProperty = super.build();
+    const eventProperty = super.build();
     eventProperty.setPropertyMap(this.product);
     return eventProperty;
   }
@@ -18,7 +18,7 @@ class ProductSharedEvent extends ShareEvent {
     return ECommerceEvents.PRODUCT_SHARED;
   }
 
-  //Setter method in accordance to Builder pattern
+  // Setter method in accordance to Builder pattern
   setProduct(product) {
     this.product = product;
     return this;
@@ -26,5 +26,5 @@ class ProductSharedEvent extends ShareEvent {
 }
 
 module.exports = {
-  ProductSharedEvent: ProductSharedEvent
+  ProductSharedEvent,
 };

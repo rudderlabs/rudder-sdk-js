@@ -1,6 +1,6 @@
-var OrderEvent = require("./OrderEvent");
-var ECommerceEvents = require("./constants").ECommerceEvents;
-//Class representing order completed event
+const OrderEvent = require("./OrderEvent");
+const { ECommerceEvents } = require("./constants");
+// Class representing order completed event
 class OrderCompletedEvent extends OrderEvent {
   event() {
     return ECommerceEvents.ORDER_COMPLETED;
@@ -8,5 +8,5 @@ class OrderCompletedEvent extends OrderEvent {
 }
 
 module.exports = {
-  OrderCompletedEvent: OrderCompletedEvent
+  OrderCompletedEvent,
 };

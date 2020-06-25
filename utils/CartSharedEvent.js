@@ -1,6 +1,6 @@
-var ShareEvent = require("./ShareEvent");
-var ECommerceEvents = require("./constants").ECommerceEvents;
-var ECommerceParamNames = require("./constants").ECommerceParamNames;
+const ShareEvent = require("./ShareEvent");
+const { ECommerceEvents } = require("./constants");
+const { ECommerceParamNames } = require("./constants");
 
 class CartSharedEvent extends ShareEvent {
   constructor() {
@@ -14,13 +14,13 @@ class CartSharedEvent extends ShareEvent {
   }
 
   build() {
-    var eventProperty = super.build();
+    const eventProperty = super.build();
     eventProperty.setProperty(ECommerceParamNames.CART_ID, this.cart_id);
     eventProperty.setProperty(ECommerceParamNames.PRODUCTS, this.products);
     return eventProperty;
   }
 
-  //Setter methods in accordance with Builder pattern
+  // Setter methods in accordance with Builder pattern
   setCartId(cartId) {
     this.cart_id = cartId;
     return this;
@@ -28,7 +28,7 @@ class CartSharedEvent extends ShareEvent {
 
   addProduct(product) {
     if (!this.products) {
-      //add array if null
+      // add array if null
       this.products = [];
     }
     this.products.push(product);
@@ -37,5 +37,5 @@ class CartSharedEvent extends ShareEvent {
 }
 
 module.exports = {
-  CartSharedEvent: CartSharedEvent
+  CartSharedEvent,
 };

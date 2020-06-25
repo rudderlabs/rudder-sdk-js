@@ -11,7 +11,8 @@
     }
   ],
   "scripts": {
-    "test": "./scripts/run_tests.sh",
+    "test": "jest --coverage",
+    "prodTest": "npm run buildProdBrowser && sed 's/var rudderanalytics/rudderanalytics/g' dist/rudder-analytics.min.js > __tests__/prodsdk.js && jest script.test.js",
     "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",
     "buildProdBrowser": "NODE_ENV=false PROD_DEBUG=true ENV=prod uglify=true rollup -c",
     "buildProdBrowserDebug": "NODE_ENV=false ENV=prod PROD_DEBUG_INLINE=true uglify=true rollup -c",
@@ -24,6 +25,9 @@
     "size": "npm run size-build && size-limit",
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc "
   },
+  "pre-commit": [
+    "test"
+  ],
   "author": "",
   "license": "ISC",
   "repository": {
@@ -44,6 +48,7 @@
     "component-cookie": "^1.1.4",
     "component-each": "^0.2.6",
     "component-emitter": "github:component/emitter",
+    "each": "^1.2.2",
     "fs": "0.0.1-security",
     "gh-release": "^3.5.0",
     "is": "^3.3.0",
@@ -59,15 +64,20 @@
   "devDependencies": {
     "@babel/core": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
+    "@mediaeventservices/jest-environment-jsdom-external-scripts": "^21.2.2",
     "@size-limit/preset-big-lib": "^4.4.1",
-    "eslint": "^6.1.0",
+    "eslint": "6.8.0",
     "eslint-config-airbnb": "^18.0.1",
-    "eslint-config-prettier": "^6.2.0",
-    "eslint-plugin-import": "^2.18.2",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.21.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
-    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-react-hooks": "^1.7.0",
+    "jest": "^26.0.1",
+    "pre-commit": "^1.2.2",
+    "prettier": "^2.0.5",
     "rollup": "^1.22.0",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-brotli": "^2.0.2",

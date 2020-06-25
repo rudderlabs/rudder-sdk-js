@@ -1,5 +1,5 @@
-import logger from "../../utils/logUtil";
 import md5 from "md5";
+import logger from "../../utils/logUtil";
 
 class INTERCOM {
   constructor(config) {
@@ -12,33 +12,31 @@ class INTERCOM {
 
   init() {
     window.intercomSettings = {
-      app_id: this.APP_ID
+      app_id: this.APP_ID,
     };
 
-    (function() {
-      var w = window;
-      var ic = w.Intercom;
+    (function () {
+      const w = window;
+      const ic = w.Intercom;
       if (typeof ic === "function") {
         ic("reattach_activator");
         ic("update", w.intercomSettings);
       } else {
-        var d = document;
-        var i = function() {
+        const d = document;
+        var i = function () {
           i.c(arguments);
         };
         i.q = [];
-        i.c = function(args) {
+        i.c = function (args) {
           i.q.push(args);
         };
         w.Intercom = i;
-        var l = function() {
-          var s = d.createElement("script");
+        const l = function () {
+          const s = d.createElement("script");
           s.type = "text/javascript";
           s.async = true;
-          s.src =
-            "https://widget.intercom.io/widget/" +
-            window.intercomSettings.app_id;
-          var x = d.getElementsByTagName("script")[0];
+          s.src = `https://widget.intercom.io/widget/${window.intercomSettings.app_id}`;
+          const x = d.getElementsByTagName("script")[0];
           x.parentNode.insertBefore(s, x);
         };
         if (document.readyState === "complete") {
@@ -61,8 +59,8 @@ class INTERCOM {
   }
 
   identify(rudderElement) {
-    let rawPayload = {};
-    const context = rudderElement.message.context;
+    const rawPayload = {};
+    const { context } = rudderElement.message;
 
     const identityVerificationProps = context.Intercom
       ? context.Intercom
@@ -88,36 +86,36 @@ class INTERCOM {
     }
 
     // map rudderPayload to desired
-    Object.keys(context.traits).forEach(field => {
+    Object.keys(context.traits).forEach((field) => {
       if (context.traits.hasOwnProperty(field)) {
         const value = context.traits[field];
 
         if (field === "company") {
-          let companies = [];
-          let company = {};
+          const companies = [];
+          const company = {};
           // special handling string
-          if (typeof context.traits[field] == "string") {
-            company["company_id"] = md5(context.traits[field]);
+          if (typeof context.traits[field] === "string") {
+            company.company_id = md5(context.traits[field]);
           }
           const companyFields =
-            (typeof context.traits[field] == "object" &&
+            (typeof context.traits[field] === "object" &&
               Object.keys(context.traits[field])) ||
             [];
-          companyFields.forEach(key => {
+          companyFields.forEach((key) => {
             if (companyFields.hasOwnProperty(key)) {
               if (key != "id") {
                 company[key] = context.traits[field][key];
               } else {
-                company["company_id"] = context.traits[field][key];
+                company.company_id = context.traits[field][key];
               }
             }
           });
 
           if (
-            typeof context.traits[field] == "object" &&
+            typeof context.traits[field] === "object" &&
             !companyFields.includes("id")
           ) {
-            company["company_id"] = md5(company.name);
+            company.company_id = md5(company.name);
           }
 
           companies.push(company);
@@ -128,10 +126,10 @@ class INTERCOM {
 
         switch (field) {
           case "createdAt":
-            rawPayload["created_at"] = value;
+            rawPayload.created_at = value;
             break;
           case "anonymousId":
-            rawPayload["user_id"] = value;
+            rawPayload.user_id = value;
             break;
 
           default:
@@ -144,13 +142,13 @@ class INTERCOM {
   }
 
   track(rudderElement) {
-    let rawPayload = {};
-    const message = rudderElement.message;
+    const rawPayload = {};
+    const { message } = rudderElement;
 
     const properties = message.properties
       ? Object.keys(message.properties)
       : null;
-    properties.forEach(property => {
+    properties.forEach((property) => {
       const value = message.properties[property];
       rawPayload[property] = value;
     });

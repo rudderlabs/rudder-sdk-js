@@ -1,0 +1,360 @@
+<html>
+
+<head>
+    <title>GA Ecommerce Test</title>
+    <script>
+        rudderanalytics = window.rudderanalytics = [];
+
+        var methods = [
+            "load",
+            "page",
+            "track",
+            "identify",
+            "alias",
+            "group",
+            "ready",
+            "reset",
+            "getAnonymousId",
+            "setAnonymousId"
+        ];
+
+        for (var i = 0; i < methods.length; i++) {
+            var method = methods[i];
+            rudderanalytics[method] = function (methodName) {
+                return function () {
+                    rudderanalytics.push([methodName, ...arguments]);
+                }
+            }(method)
+        }
+        rudderanalytics.load("1dM5HE5frZIslUtCjCHP5ju2Jli", "http://localhost:8080", {
+            configUrl: "http://localhost:5000/sourceConfig"
+        });
+            //For example,
+            //rudderanalytics.load("1Qb1F3jSWv0eKFBPZcrM7ypgjVo", "http://localhost:8080");
+    </script>
+
+    <script>
+        // ==== Browsing ====
+        // Products Searched
+
+        // Product List Viewed
+        // rudderanalytics.track('Product List Viewed', {
+        //     list_id: 'Products Overview',
+        //     category: 'Products Overview',
+        //     products: [
+        //         {
+        //             product_id: 'product-bacon-jam',
+        //             sku: 'sku-1',
+        //             name: 'Bacon Jam',
+        //             price: 3.00,
+        //             position: 1,
+        //             category: 'Food/Drink',
+        //             typeOfProduct: 'Food',
+        //             url: 'https://www.example.com/products/bacon-jam',
+        //             image_url: 'https://www.example.com/product/bacon-jam.jpg'
+        //         },
+        //         {
+        //             product_id: 'product-t-shirt',
+        //             sku: 'sku-2',
+        //             name: 'T-Shirt',
+        //             price: 12.99,
+        //             position: 2,
+        //             category: 'Merch',
+        //             typeOfProduct: 'Shirt',
+        //             url: 'https://www.example.com/products/t-Shirt',
+        //             image_url: 'https://www.example.com/product/t-Shirt.jpg'
+        //         }
+        //     ]
+        // });
+        // Product List Filtered
+        // ==== Promotions ====
+        // Promotion Viewed
+        // rudderanalytics.track('Promotion Viewed', {
+        //     category: 'Promotions',
+        //     label: 'T-shirt promotion viewed',
+        //     id: 'tshirt-offer',
+        //     creative: 'offer banner',
+        //     name: 'Offer promo',
+        //     position: 'middle slot'
+        // });
+        // Promotions Clicked
+        // rudderanalytics.track('Promotion Clicked', {
+        //     category: 'Promotions',
+        //     label: 'T-shirt promotion clicked',
+        //     id: 'tshirt-offer',
+        //     creative: 'offer banner',
+        //     name: 'Offer promo',
+        //     position: 'middle slot'
+        // });
+        // ==== Ordering ====
+
+        // Product Viewed
+        // rudderanalytics.track('Product Viewed', {
+        //     id: 'product-bacon-jam',
+        //     sku: 'sku-1',
+        //     category: 'Merch',
+        //     name: 'Food/Drink',
+        //     brand: 'Kissan',
+        //     variant: 'Extra topped',
+        //     price: 3.00,
+        //     quantity: 2,
+        //     currency: 'GBP',
+        //     position: 1,
+        //     value: 6.00,
+        //     typeOfProduct: 'Food',
+        //     url: 'https://www.example.com/product/bacon-jam',
+        //     image_url: 'https://www.example.com/product/bacon-jam.jpg'
+        // });
+        // Product Added
+        // rudderanalytics.track('Product Added', {
+        //     id: 'product-bacon-jam',
+        //     sku: 'sku-1',
+        //     category: 'Merch',
+        //     name: 'Food/Drink',
+        //     brand: '',
+        //     variant: 'Extra topped',
+        //     price: 3.00,
+        //     quantity: 2,
+        //     currency: 'GBP',
+        //     position: 1,
+        //     value: 6.00,
+        //     typeOfProduct: 'Food',
+        //     url: 'https://www.example.com/product/bacon-jam',
+        //     image_url: 'https://www.example.com/product/bacon-jam.jpg'
+        // });
+        // Product Removed
+        // rudderanalytics.track('Product Removed', {
+        //     id: 'product-bacon-jam',
+        //     sku: 'sku-1',
+        //     category: 'Merch',
+        //     name: 'Food/Drink',
+        //     brand: '',
+        //     variant: 'Extra topped',
+        //     price: 3.00,
+        //     quantity: 2,
+        //     currency: 'GBP',
+        //     position: 1,
+        //     value: 6.00,
+        //     typeOfProduct: 'Food',
+        //     url: 'https://www.example.com/product/bacon-jam',
+        //     image_url: 'https://www.example.com/product/bacon-jam.jpg'
+        // });
+        // Cart Viewed
+
+        // Checkout Started
+        var date = new Date();
+        var transactionId = '' + date.getMonth().toString() +
+            date.getDate().toString() +
+            date.getHours().toString() +
+            date.getMinutes().toString();
+
+        // rudderanalytics.track('Checkout Started', {
+        //     order_id: transactionId,
+        //     value: 31.98,
+        //     revenue: 31.98,
+        //     shipping: 4.00,
+        //     coupon: 'APPARELSALE',
+        //     currency: 'GBP',
+        //     products: [
+        //         {
+        //             product_id: 'product-bacon-jam',
+        //             sku: 'sku-1',
+        //             category: 'Merch',
+        //             name: 'Food/Drink',
+        //             brand: '',
+        //             variant: 'Extra topped',
+        //             price: 3.00,
+        //             quantity: 2,
+        //             currency: 'GBP',
+        //             position: 1,
+        //             value: 6.00,
+        //             typeOfProduct: 'Food',
+        //             url: 'https://www.example.com/product/bacon-jam',
+        //             image_url: 'https://www.example.com/product/bacon-jam.jpg'
+        //         },
+        //         {
+        //             product_id: 'product-t-shirt',
+        //             sku: 'sku-2',
+        //             category: 'Merch',
+        //             name: 'T-Shirt',
+        //             brand: 'Levis',
+        //             variant: 'White',
+        //             price: 12.99,
+        //             quantity: 1,
+        //             currency: 'GBP',
+        //             position: 2,
+        //             value: 12.99,
+        //             typeOfProduct: 'Shirt',
+        //             url: 'https://www.example.com/product/t-shirt',
+        //             image_url: 'https://www.example.com/product/t-shirt.jpg'
+        //         },
+        //         {
+        //             product_id: 'offer-t-shirt',
+        //             sku: 'sku-3',
+        //             category: 'Merch',
+        //             name: 'T-Shirt-on-offer',
+        //             brand: 'Levis',
+        //             variant: 'Black',
+        //             price: 12.99,
+        //             quantity: 1,
+        //             currency: 'GBP',
+        //             position: 1,
+        //             value: 12.99,
+        //             coupon: 'APPARELSALE',
+        //             typeOfProduct: 'Shirt',
+        //             url: 'https://www.example.com/product/offer-t-shirt',
+        //             image_url: 'https://www.example.com/product/offer-t-shirt.jpg'
+        //         }
+        //     ]
+        // });
+        // Checkout Step Viewed
+        // For GA - Make sure you have configured your checkout steps
+        // https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce#checkout-steps
+        // rudderanalytics.track('Checkout Step Viewed', {
+        //     checkout_id: 'what is checkout id here??',
+        //     step: 1,
+        // });
+        // Checkout Step Completed
+        // rudderanalytics.track('Checkout Step Completed', {
+        //     checkout_id: 'what is checkout id here??',
+        //     step: 1
+        // });
+        // you can add more checkout steps and events if you want
+        // Payment Info Entered
+
+        // Order Completed
+        // rudderanalytics.track('Order Completed', {
+        //     checkout_id: 'what is checkout id here??',
+        //     orderId: transactionId,
+        //     value: 31.98,
+        //     revenue: 31.98,
+        //     shipping: 4.00,
+        //     coupon: 'APPARELSALE',
+        //     currency: 'GBP',
+        //     products: [
+        //         {
+        //             product_id: 'product-bacon-jam',
+        //             sku: 'sku-1',
+        //             category: 'Merch',
+        //             name: 'Food/Drink',
+        //             brand: '',
+        //             variant: 'Extra topped',
+        //             price: 3.00,
+        //             quantity: 2,
+        //             currency: 'GBP',
+        //             position: 1,
+        //             value: 6.00,
+        //             typeOfProduct: 'Food',
+        //             url: 'https://www.example.com/product/bacon-jam',
+        //             image_url: 'https://www.example.com/product/bacon-jam.jpg'
+        //         },
+        //         {
+        //             product_id: 'product-t-shirt',
+        //             sku: 'sku-2',
+        //             category: 'Merch',
+        //             name: 'T-Shirt',
+        //             brand: 'Levis',
+        //             variant: 'White',
+        //             price: 12.99,
+        //             quantity: 1,
+        //             currency: 'GBP',
+        //             position: 2,
+        //             value: 12.99,
+        //             typeOfProduct: 'Shirt',
+        //             url: 'https://www.example.com/product/t-shirt',
+        //             image_url: 'https://www.example.com/product/t-shirt.jpg'
+        //         },
+        //         {
+        //             product_id: 'offer-t-shirt',
+        //             sku: 'sku-3',
+        //             category: 'Merch',
+        //             name: 'T-Shirt-on-offer',
+        //             brand: 'Levis',
+        //             variant: 'Black',
+        //             price: 12.99,
+        //             quantity: 1,
+        //             currency: 'GBP',
+        //             position: 1,
+        //             value: 12.99,
+        //             coupon: 'APPARELSALE',
+        //             typeOfProduct: 'Shirt',
+        //             url: 'https://www.example.com/product/offer-t-shirt',
+        //             image_url: 'https://www.example.com/product/offer-t-shirt.jpg'
+        //         }
+        //     ]
+        // });
+        // Order Updated
+        // rudderanalytics.track('Order Updated', {
+        //     checkout_id: 'what is checkout id here??',
+        //     orderId: transactionId,
+        //     value: 51.98,
+        //     revenue: 55.98,
+        //     shipping: 4.00,
+        //     coupon: 'APPARELSALE',
+        //     currency: 'GBP',
+        //     products: [
+        //         {
+        //             product_id: 'product-bacon-jam',
+        //             sku: 'sku-1',
+        //             category: 'Merch',
+        //             name: 'Food/Drink',
+        //             brand: '',
+        //             variant: 'Extra topped',
+        //             price: 3.00,
+        //             quantity: 2,
+        //             currency: 'GBP',
+        //             position: 1,
+        //             value: 6.00,
+        //             typeOfProduct: 'Food',
+        //             url: 'https://www.example.com/product/bacon-jam',
+        //             image_url: 'https://www.example.com/product/bacon-jam.jpg'
+        //         },
+        //         {
+        //             product_id: 'product-t-shirt',
+        //             sku: 'sku-2',
+        //             category: 'Merch',
+        //             name: 'T-Shirt',
+        //             brand: 'Levis',
+        //             variant: 'White',
+        //             price: 12.99,
+        //             quantity: 1,
+        //             currency: 'GBP',
+        //             position: 4,
+        //             value: 12.99,
+        //             typeOfProduct: 'Shirt',
+        //             url: 'https://www.example.com/product/t-shirt',
+        //             image_url: 'https://www.example.com/product/t-shirt.jpg'
+        //         }
+        //     ]
+        // });
+        // Order Refunded
+        // rudderanalytics.track('Order Refunded', {
+        //     orderId: transactionId,
+        //     products: [
+        //         {
+        //             product_id: 'product-bacon-jam',
+        //             quantity: 1
+        //         }
+        //     ]
+        // });
+        // Order Cancelled
+
+        // ==== Coupons ====
+
+        // ==== Wishlist ====
+
+        // ==== Sharing ====
+
+        // ==== Reviewing ====
+
+
+    </script>
+
+    <script src="./rudder-analytics.min.js"></script>
+</head>
+
+<body>
+    <h1>GA Ecommerce Test</h1>
+</body>
+
+</html>

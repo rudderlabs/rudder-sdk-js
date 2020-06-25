@@ -1,26 +1,26 @@
-var ECommerceExtendedCoupon = require("./ECommerceExtendedCoupon");
+const ECommerceExtendedCoupon = require("./ECommerceExtendedCoupon");
 
-//Class representing denied e-commerce coupon
+// Class representing denied e-commerce coupon
 class ECommerceDeniedCoupon extends ECommerceExtendedCoupon {
   constructor() {
     super();
     this.reason = "";
   }
 
-  //Setter method in accordance to Builder pattern
+  // Setter method in accordance to Builder pattern
   setReason(reason) {
     this.reason = reason;
     return this;
   }
 }
-//Class representing e-commerce wishlist
+// Class representing e-commerce wishlist
 class ECommerceWishList {
   constructor() {
     this.wishlist_id = "";
     this.wishlist_name = "";
   }
 
-  //Generic setters in accordance with builder pattern
+  // Generic setters in accordance with builder pattern
   setWishlistId(wishlistId) {
     this.wishlist_id = wishlistId;
     return this;
@@ -33,5 +33,5 @@ class ECommerceWishList {
 }
 
 module.exports = {
-  ECommerceDeniedCoupon: ECommerceDeniedCoupon
+  ECommerceDeniedCoupon,
 };

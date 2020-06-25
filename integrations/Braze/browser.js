@@ -10,11 +10,11 @@ class Braze {
     if (!config.appKey) this.appKey = "";
     this.endPoint = "";
     if (config.dataCenter) {
-      let dataCenterArr = config.dataCenter.trim().split("-");
+      const dataCenterArr = config.dataCenter.trim().split("-");
       if (dataCenterArr[0].toLowerCase() === "eu") {
         this.endPoint = "sdk.fra-01.braze.eu";
       } else {
-        this.endPoint = "sdk.iad-" + dataCenterArr[1] + ".braze.com";
+        this.endPoint = `sdk.iad-${dataCenterArr[1]}.braze.com`;
       }
     }
 
@@ -30,9 +30,9 @@ class Braze {
     if (!gender) return;
     if (typeof gender !== "string") return;
 
-    var femaleGenders = ["woman", "female", "w", "f"];
-    var maleGenders = ["man", "male", "m"];
-    var otherGenders = ["other", "o"];
+    const femaleGenders = ["woman", "female", "w", "f"];
+    const maleGenders = ["man", "male", "m"];
+    const otherGenders = ["other", "o"];
 
     if (femaleGenders.indexOf(gender.toLowerCase()) > -1)
       return window.appboy.ab.User.Genders.FEMALE;
@@ -45,12 +45,12 @@ class Braze {
   init() {
     logger.debug("===in init Braze===");
 
-    //load appboy
-    +(function(a, p, P, b, y) {
+    // load appboy
+    +(function (a, p, P, b, y) {
       a.appboy = {};
       a.appboyQueue = [];
       for (
-        var s = "initialize destroy getDeviceId toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates requestContentCardsRefresh subscribeToContentCardsUpdates logCardImpressions logCardClick logCardDismissal logFeedDisplayed logContentCardsDisplayed logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick logInAppMessageHtmlClick subscribeToNewInAppMessages subscribeToInAppMessage removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages trackLocation stopWebTracking resumeWebTracking wipeData ab ab.DeviceProperties ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setLanguage ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.User.prototype.addAlias ab.User.prototype.setCustomLocationAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.TextAlignment ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.prototype.closeMessage ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.HtmlMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.ContentCards ab.ContentCards.prototype.getUnviewedCardCount ab.Card ab.Card.prototype.dismissCard ab.ClassicCard ab.CaptionedImage ab.Banner ab.ControlCard ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed display.showContentCards display.hideContentCards display.toggleContentCards sharedLib".split(
+        let s = "initialize destroy getDeviceId toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates requestContentCardsRefresh subscribeToContentCardsUpdates logCardImpressions logCardClick logCardDismissal logFeedDisplayed logContentCardsDisplayed logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick logInAppMessageHtmlClick subscribeToNewInAppMessages subscribeToInAppMessage removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages trackLocation stopWebTracking resumeWebTracking wipeData ab ab.DeviceProperties ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setLanguage ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.User.prototype.addAlias ab.User.prototype.setCustomLocationAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.TextAlignment ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.prototype.closeMessage ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.HtmlMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.ContentCards ab.ContentCards.prototype.getUnviewedCardCount ab.Card ab.Card.prototype.dismissCard ab.ClassicCard ab.CaptionedImage ab.Banner ab.ControlCard ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed display.showContentCards display.hideContentCards display.toggleContentCards sharedLib".split(
             " "
           ),
           i = 0;
@@ -64,18 +64,19 @@ class Braze {
         )
           k = k[l[j]];
         k[l[j]] = new Function(
-          "return function " +
-            m.replace(/\./g, "_") +
-            "(){window.appboyQueue.push(arguments); return true}"
+          `return function ${m.replace(
+            /\./g,
+            "_"
+          )}(){window.appboyQueue.push(arguments); return true}`
         )();
       }
-      window.appboy.getUser = function() {
+      window.appboy.getUser = function () {
         return new window.appboy.ab.User();
       };
-      window.appboy.getCachedFeed = function() {
+      window.appboy.getCachedFeed = function () {
         return new window.appboy.ab.Feed();
       };
-      window.appboy.getCachedContentCards = function() {
+      window.appboy.getCachedContentCards = function () {
         return new window.appboy.ab.ContentCards();
       };
       (y = p.createElement(P)).type = "text/javascript";
@@ -86,12 +87,12 @@ class Braze {
 
     window.appboy.initialize(this.appKey, {
       enableLogging: true,
-      baseUrl: this.endPoint
+      baseUrl: this.endPoint,
     });
     window.appboy.display.automaticallyShowNewInAppMessages();
 
-    var userId = this.analytics.userId;
-    //send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser
+    const { userId } = this.analytics;
+    // send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser
     if (userId) appboy.changeUser(userId);
 
     window.appboy.openSession();
@@ -100,34 +101,34 @@ class Braze {
   handleReservedProperties(props) {
     // remove reserved keys from custom event properties
     // https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
-    var reserved = [
+    const reserved = [
       "time",
       "product_id",
       "quantity",
       "event_name",
       "price",
-      "currency"
+      "currency",
     ];
 
-    reserved.forEach(element => {
+    reserved.forEach((element) => {
       delete props[element];
     });
     return props;
   }
 
   identify(rudderElement) {
-    var userId = rudderElement.message.userId;
-    var address = rudderElement.message.context.traits.address;
-    var avatar = rudderElement.message.context.traits.avatar;
-    var birthday = rudderElement.message.context.traits.birthday;
-    var email = rudderElement.message.context.traits.email;
-    var firstname = rudderElement.message.context.traits.firstname;
-    var gender = rudderElement.message.context.traits.gender;
-    var lastname = rudderElement.message.context.traits.lastname;
-    var phone = rudderElement.message.context.traits.phone;
+    const { userId } = rudderElement.message;
+    const { address } = rudderElement.message.context.traits;
+    const { avatar } = rudderElement.message.context.traits;
+    const { birthday } = rudderElement.message.context.traits;
+    const { email } = rudderElement.message.context.traits;
+    const { firstname } = rudderElement.message.context.traits;
+    const { gender } = rudderElement.message.context.traits;
+    const { lastname } = rudderElement.message.context.traits;
+    const { phone } = rudderElement.message.context.traits;
 
     // This is a hack to make a deep copy that is not recommended because it will often fail:
-    var traits = JSON.parse(
+    const traits = JSON.parse(
       JSON.stringify(rudderElement.message.context.traits)
     );
 
@@ -153,7 +154,7 @@ class Braze {
     }
 
     // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
-    var reserved = [
+    const reserved = [
       "avatar",
       "address",
       "birthday",
@@ -175,21 +176,21 @@ class Braze {
       "gender",
       "phone",
       "email_subscribe",
-      "push_subscribe"
+      "push_subscribe",
     ];
 
-    reserved.forEach(element => {
+    reserved.forEach((element) => {
       delete traits[element];
     });
 
-    Object.keys(traits).forEach(key => {
+    Object.keys(traits).forEach((key) => {
       window.appboy.getUser().setCustomUserAttribute(key, traits[key]);
     });
   }
 
   handlePurchase(properties, userId) {
-    var products = properties.products;
-    var currencyCode = properties.currency;
+    const { products } = properties;
+    const currencyCode = properties.currency;
 
     window.appboy.changeUser(userId);
 
@@ -198,10 +199,10 @@ class Braze {
     del(properties, "currency");
 
     // we have to make a separate call to appboy for each product
-    products.forEach(product => {
-      var productId = product.product_id;
-      var price = product.price;
-      var quantity = product.quantity;
+    products.forEach((product) => {
+      const productId = product.product_id;
+      const { price } = product;
+      const { quantity } = product;
       if (quantity && price && productId)
         window.appboy.logPurchase(
           productId,
@@ -214,9 +215,9 @@ class Braze {
   }
 
   track(rudderElement) {
-    var userId = rudderElement.message.userId;
-    var eventName = rudderElement.message.event;
-    var properties = rudderElement.message.properties;
+    const { userId } = rudderElement.message;
+    const eventName = rudderElement.message.event;
+    let { properties } = rudderElement.message;
 
     window.appboy.changeUser(userId);
 
@@ -229,9 +230,9 @@ class Braze {
   }
 
   page(rudderElement) {
-    var userId = rudderElement.message.userId;
-    var eventName = rudderElement.message.name;
-    var properties = rudderElement.message.properties;
+    const { userId } = rudderElement.message;
+    const eventName = rudderElement.message.name;
+    let { properties } = rudderElement.message;
 
     properties = this.handleReservedProperties(properties);
 

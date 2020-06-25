@@ -1,7 +1,7 @@
-var ProductWishlistEvent = require("./ProductWishListEvent");
-var ECommerceEvents = require("./constants").ECommerceEvents;
+const ProductWishlistEvent = require("./ProductWishListEvent");
+const { ECommerceEvents } = require("./constants");
 
-//Class representing product added to wishlist event
+// Class representing product added to wishlist event
 class ProductAddedToWishlistEvent extends ProductWishlistEvent {
   event() {
     return ECommerceEvents.PRODUCT_ADDED_TO_WISHLIST;
@@ -9,5 +9,5 @@ class ProductAddedToWishlistEvent extends ProductWishlistEvent {
 }
 
 module.exports = {
-  ProductAddedToWishlistEvent: ProductAddedToWishlistEvent
+  ProductAddedToWishlistEvent,
 };

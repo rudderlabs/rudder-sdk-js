@@ -1,17 +1,18 @@
 import logger from "../../utils/logUtil";
+
 class Hotjar {
   constructor(config) {
-    this.siteId = config.siteID; //1549611
+    this.siteId = config.siteID; // 1549611
     this.name = "HOTJAR";
     this._ready = false;
   }
 
   init() {
     window.hotjarSiteId = this.siteId;
-    (function(h, o, t, j, a, r) {
+    (function (h, o, t, j, a, r) {
       h.hj =
         h.hj ||
-        function() {
+        function () {
           (h.hj.q = h.hj.q || []).push(arguments);
         };
       h._hjSettings = { hjid: h.hotjarSiteId, hjsv: 6 };
@@ -27,15 +28,16 @@ class Hotjar {
   }
 
   identify(rudderElement) {
-    let userId = rudderElement.message.userId || rudderElement.message.anonymousId;
-    if (!userId){
-      logger.debug('[Hotjar] identify:: user id is required');
+    const userId =
+      rudderElement.message.userId || rudderElement.message.anonymousId;
+    if (!userId) {
+      logger.debug("[Hotjar] identify:: user id is required");
       return;
     }
-  
-    var traits = rudderElement.message.context.traits;
-  
-    window.hj('identify', rudderElement.message.userId, traits);
+
+    const { traits } = rudderElement.message.context;
+
+    window.hj("identify", rudderElement.message.userId, traits);
   }
 
   track(rudderElement) {

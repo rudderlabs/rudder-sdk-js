@@ -1,4 +1,5 @@
 import { HubspotAnalyticsManager } from "../integration-old/HubSpot";
+
 class AnalyticsManager {
   initializeHubSpot(hubId, wrappers) {
     if (typeof window !== undefined) {
@@ -7,9 +8,9 @@ class AnalyticsManager {
           url: "/integration/HubSpot.js",
           dataType: "script"
         }); */
-      //var _hub = new HubspotAnalyticsManager(hubId).init();
-      //var HubspotAnalyticsManager = require("./../integration/Hubspot.js");
-      var _hub = new HubspotAnalyticsManager(hubId).init();
+      // var _hub = new HubspotAnalyticsManager(hubId).init();
+      // var HubspotAnalyticsManager = require("./../integration/Hubspot.js");
+      const _hub = new HubspotAnalyticsManager(hubId).init();
       if (_hub) {
         console.log("===_hub===", _hub);
         wrappers.push(_hub);

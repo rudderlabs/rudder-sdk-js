@@ -1,5 +1,6 @@
 import logger from "../../utils/logUtil";
 import { LotameStorage } from "./LotameStorage";
+
 class Lotame {
   constructor(config, analytics) {
     this.name = "LOTAME";
@@ -10,9 +11,9 @@ class Lotame {
     this.dspUrlSettingsPixel = config.dspUrlSettingsPixel;
     this.dspUrlSettingsIframe = config.dspUrlSettingsIframe;
     this.mappings = {};
-    config.mappings.forEach(mapping => {
-      let key = mapping.key;
-      let value = mapping.value;
+    config.mappings.forEach((mapping) => {
+      const { key } = mapping;
+      const { value } = mapping;
       this.mappings[key] = value;
     });
   }
@@ -23,30 +24,33 @@ class Lotame {
   }
 
   addPixel(source, width, height) {
-    logger.debug("Adding pixel for :: " + source);
+    logger.debug(`Adding pixel for :: ${source}`);
 
-    let image = document.createElement("img");
+    const image = document.createElement("img");
     image.src = source;
     image.setAttribute("width", width);
     image.setAttribute("height", height);
 
-    logger.debug("Image Pixel :: " + image);
+    logger.debug(`Image Pixel :: ${image}`);
     document.getElementsByTagName("body")[0].appendChild(image);
   }
 
   addIFrame(source) {
-    logger.debug("Adding iframe for :: " + source);
+    logger.debug(`Adding iframe for :: ${source}`);
 
-    let iframe = document.createElement("iframe");
+    const iframe = document.createElement("iframe");
     iframe.src = source;
     iframe.title = "empty";
     iframe.setAttribute("id", "LOTCCFrame");
     iframe.setAttribute("tabindex", "-1");
     iframe.setAttribute("role", "presentation");
     iframe.setAttribute("aria-hidden", "true");
-    iframe.setAttribute("style", "border: 0px; width: 0px; height: 0px; display: block;");
+    iframe.setAttribute(
+      "style",
+      "border: 0px; width: 0px; height: 0px; display: block;"
+    );
 
-    logger.debug("IFrame :: " + iframe);
+    logger.debug(`IFrame :: ${iframe}`);
     document.getElementsByTagName("body")[0].appendChild(iframe);
   }
 
@@ -55,10 +59,10 @@ class Lotame {
 
     logger.debug("Firing DSP Pixel URLs");
     if (this.dspUrlSettingsPixel && this.dspUrlSettingsPixel.length > 0) {
-      let currentTime = Date.now();
-      this.dspUrlSettingsPixel.forEach(urlSettings => {
-        let dspUrl = this.compileUrl(
-          { ...this.mappings, userId: userId, random: currentTime },
+      const currentTime = Date.now();
+      this.dspUrlSettingsPixel.forEach((urlSettings) => {
+        const dspUrl = this.compileUrl(
+          { ...this.mappings, userId, random: currentTime },
           urlSettings.dspUrlTemplate
         );
         this.addPixel(dspUrl, "1", "1");
@@ -67,10 +71,10 @@ class Lotame {
 
     logger.debug("Firing DSP IFrame URLs");
     if (this.dspUrlSettingsIframe && this.dspUrlSettingsIframe.length > 0) {
-      let currentTime = Date.now();
-      this.dspUrlSettingsIframe.forEach(urlSettings => {
-        let dspUrl = this.compileUrl(
-          { ...this.mappings, userId: userId, random: currentTime },
+      const currentTime = Date.now();
+      this.dspUrlSettingsIframe.forEach((urlSettings) => {
+        const dspUrl = this.compileUrl(
+          { ...this.mappings, userId, random: currentTime },
           urlSettings.dspUrlTemplate
         );
         this.addIFrame(dspUrl);
@@ -79,18 +83,18 @@ class Lotame {
 
     this.storage.setLotameSynchTime(Date.now());
     // emit on syncPixel
-    if (this.analytics.methodToCallbackMapping["syncPixel"]) {
+    if (this.analytics.methodToCallbackMapping.syncPixel) {
       this.analytics.emit("syncPixel", {
-        destination: this.name
+        destination: this.name,
       });
     }
   }
 
   compileUrl(map, url) {
-    Object.keys(map).forEach(key => {
+    Object.keys(map).forEach((key) => {
       if (map.hasOwnProperty(key)) {
-        let replaceKey = "{{" + key + "}}";
-        let regex = new RegExp(replaceKey, "gi");
+        const replaceKey = `{{${key}}}`;
+        const regex = new RegExp(replaceKey, "gi");
         url = url.replace(regex, map[key]);
       }
     });
@@ -99,7 +103,7 @@ class Lotame {
 
   identify(rudderElement) {
     logger.debug("in Lotame identify");
-    let userId = rudderElement.message.userId;
+    const { userId } = rudderElement.message;
     this.syncPixel(userId);
   }
 
@@ -112,10 +116,10 @@ class Lotame {
 
     logger.debug("Firing BCP Pixel URLs");
     if (this.bcpUrlSettingsPixel && this.bcpUrlSettingsPixel.length > 0) {
-      let currentTime = Date.now();
-      this.bcpUrlSettingsPixel.forEach(urlSettings => {
-        let bcpUrl = this.compileUrl(
-          { ...this.mappings, random: currentTime},
+      const currentTime = Date.now();
+      this.bcpUrlSettingsPixel.forEach((urlSettings) => {
+        const bcpUrl = this.compileUrl(
+          { ...this.mappings, random: currentTime },
           urlSettings.bcpUrlTemplate
         );
         this.addPixel(bcpUrl, "1", "1");
@@ -124,10 +128,10 @@ class Lotame {
 
     logger.debug("Firing BCP IFrame URLs");
     if (this.bcpUrlSettingsIframe && this.bcpUrlSettingsIframe.length > 0) {
-      let currentTime = Date.now();
-      this.bcpUrlSettingsIframe.forEach(urlSettings => {
-        let bcpUrl = this.compileUrl(
-          { ...this.mappings, random: currentTime},
+      const currentTime = Date.now();
+      this.bcpUrlSettingsIframe.forEach((urlSettings) => {
+        const bcpUrl = this.compileUrl(
+          { ...this.mappings, random: currentTime },
           urlSettings.bcpUrlTemplate
         );
         this.addIFrame(bcpUrl);
@@ -140,13 +144,13 @@ class Lotame {
   }
 
   isPixelToBeSynched() {
-    let lastSynchedTime = this.storage.getLotameSynchTime();
-    let currentTime = Date.now();
+    const lastSynchedTime = this.storage.getLotameSynchTime();
+    const currentTime = Date.now();
     if (!lastSynchedTime) {
       return true;
     }
 
-    let difference = Math.floor(
+    const difference = Math.floor(
       (currentTime - lastSynchedTime) / (1000 * 3600 * 24)
     );
     return difference >= 7;

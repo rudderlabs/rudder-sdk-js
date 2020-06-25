@@ -1,13 +1,13 @@
-var ECommerceCheckout = require("./ECommerceCheckout");
+const ECommerceCheckout = require("./ECommerceCheckout");
 
-//Class representing Payment Info
+// Class representing Payment Info
 class ECommercePaymentInfo extends ECommerceCheckout {
   constructor() {
     super();
     this.order_id = "";
   }
 
-  //Setter methods in accordance to Builder pattern
+  // Setter methods in accordance to Builder pattern
   setOrderId(orderId) {
     this.order_id = orderId;
     return this;
@@ -15,5 +15,5 @@ class ECommercePaymentInfo extends ECommerceCheckout {
 }
 
 module.exports = {
-  ECommercePaymentInfo: ECommercePaymentInfo
+  ECommercePaymentInfo,
 };

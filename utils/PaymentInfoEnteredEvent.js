@@ -1,7 +1,7 @@
-var ECommerceEvents = require("./constants").ECommerceEvents;
-var RudderProperty = require("./RudderProperty");
+const { ECommerceEvents } = require("./constants");
+const RudderProperty = require("./RudderProperty");
 
-//Class representing payment info entered event
+// Class representing payment info entered event
 class PaymentInfoEnteredEvent {
   constructor() {
     this.paymentInfo = null;
@@ -12,12 +12,12 @@ class PaymentInfoEnteredEvent {
   }
 
   build() {
-    var eventProperty = new RudderProperty();
+    const eventProperty = new RudderProperty();
     eventProperty.setPropertyMap(this.paymentInfo);
     return eventProperty;
   }
 
-  //Setter method in accordance with Builder pattern
+  // Setter method in accordance with Builder pattern
   setPaymentInfo(paymentInfo) {
     this.paymentInfo = paymentInfo;
     return this;
@@ -25,5 +25,5 @@ class PaymentInfoEnteredEvent {
 }
 
 module.exports = {
-  PaymentInfoEnteredEvent: PaymentInfoEnteredEvent
+  PaymentInfoEnteredEvent,
 };

@@ -1,7 +1,7 @@
-var RudderProperty = require("./RudderProperty");
-var ECommerceParamNames = require("./constants").ECommerceParamNames;
+const RudderProperty = require("./RudderProperty");
+const { ECommerceParamNames } = require("./constants");
 
-//Parent class for Product-to-Wishlist events
+// Parent class for Product-to-Wishlist events
 class ProductWishlistEvent {
   constructor() {
     this.product = null;
@@ -9,7 +9,7 @@ class ProductWishlistEvent {
   }
 
   build() {
-    var eventProperty = new RudderProperty();
+    const eventProperty = new RudderProperty();
     eventProperty.setPropertyMap(this.product);
     eventProperty.setProperty(
       ECommerceParamNames.WISHLIST_ID,
@@ -23,7 +23,7 @@ class ProductWishlistEvent {
     return eventProperty;
   }
 
-  //Generic setter methods in alignment with builder pattern
+  // Generic setter methods in alignment with builder pattern
   setProduct(product) {
     this.product = product;
     return this;
@@ -36,5 +36,5 @@ class ProductWishlistEvent {
 }
 
 module.exports = {
-  ProductWishlistEvent: ProductWishlistEvent
+  ProductWishlistEvent,
 };

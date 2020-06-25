@@ -11,13 +11,13 @@ import * as Kissmetrics from "./Kissmetrics";
 import * as CustomerIO from "./CustomerIO";
 import * as Chartbeat from "./Chartbeat";
 import * as Comscore from "./Comscore";
-import * as FBPixel from "./FBPixel";
+import * as FBPixel from "./FacebookPixel";
 import * as Lotame from "./Lotame";
 
-// the key names should match the destination.name value to keep partity everywhere 
+// the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
 
-let integrations = {
+const integrations = {
   HS: HubSpot.default,
   GA: GA.default,
   HOTJAR: Hotjar.default,
@@ -32,7 +32,7 @@ let integrations = {
   CHARTBEAT: Chartbeat.default,
   COMSCORE: Comscore.default,
   FACEBOOK_PIXEL: FBPixel.default,
-  LOTAME: Lotame.default
+  LOTAME: Lotame.default,
 };
 
 export { integrations };

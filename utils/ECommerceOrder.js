@@ -1,6 +1,4 @@
-"use strict";
-
-//Class representing e-commerce order object
+// Class representing e-commerce order object
 class ECommerceOrder {
   constructor() {
     this.order_id = "";
@@ -16,7 +14,7 @@ class ECommerceOrder {
     this.products = [];
   }
 
-  //Generic setter methods to enable builder pattern
+  // Generic setter methods to enable builder pattern
   setOrderId(orderId) {
     this.order_id = orderId;
     return this;
@@ -27,7 +25,7 @@ class ECommerceOrder {
     return this;
   }
 
-  //Total and Value are set to same amount as they've been used interachangeably
+  // Total and Value are set to same amount as they've been used interachangeably
   setTotal(total) {
     this.value = total;
     this.total = total;
@@ -72,30 +70,30 @@ class ECommerceOrder {
 
   addProducts(productsToBeAdded) {
     if (productsToBeAdded) {
-      //add only if not-null
+      // add only if not-null
       if (!this.products) {
-        //check for null array
+        // check for null array
         this.products = [];
       }
       this.products.push(...productsToBeAdded);
     }
-    return this; //to aid builder pattern
+    return this; // to aid builder pattern
   }
 
   addProduct(productToBeAdded) {
     if (productToBeAdded) {
-      //add only if not-null
+      // add only if not-null
       if (!this.products) {
-        //check for null array
+        // check for null array
         this.products = [];
       }
 
       this.products.push(productToBeAdded);
     }
-    return this; //to aid builder pattern
+    return this; // to aid builder pattern
   }
 }
 
 module.exports = {
-  ECommerceOrder: ECommerceOrder
+  ECommerceOrder,
 };

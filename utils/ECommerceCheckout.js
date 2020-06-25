@@ -1,4 +1,4 @@
-//Class encapsulating checkout details
+// Class encapsulating checkout details
 class ECommerceCheckout {
   constructor() {
     this.checkout_id = "";
@@ -7,7 +7,7 @@ class ECommerceCheckout {
     this.payment_method = "";
   }
 
-  //Setter methods in accordance to Builder pattern
+  // Setter methods in accordance to Builder pattern
   setCheckoutId(checkoutId) {
     this.checkout_id = checkoutId;
     return this;
@@ -30,5 +30,5 @@ class ECommerceCheckout {
 }
 
 module.exports = {
-  ECommerceCheckout: ECommerceCheckout
+  ECommerceCheckout,
 };

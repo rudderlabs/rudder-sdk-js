@@ -1,0 +1,19 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 10
+  build:
+    commands:
+      - ls
+      - npm install --unsafe-perm
+      - npm run prodTest && npm test
+      - npm run buildProdBrowser
+      - sed 's|rudder-analytics.min.js.map|https://js-sdk-test.s3.amazonaws.com/rudder-analytics.min.js.map|' dist/rudder-analytics.min.js  > dist/prod.js
+      - mv dist/prod.js dist/rudder-analytics.min.js
+      - aws s3 cp dist/rudder-analytics.min.js s3://$S3_BUCKET_NAME/rudder-analytics.min.js --cache-control max-age=3600 --acl public-read
+      - aws s3 cp dist/rudder-analytics.min.js.map s3://$S3_BUCKET_NAME/rudder-analytics.min.js.map --cache-control max-age=3600 --acl public-read
+artifacts:
+  files:
+    - "**/*"
