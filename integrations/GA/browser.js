@@ -328,7 +328,7 @@ export default class GA {
         case "Promotion Viewed":
           this.loadEnhancedEcommerce(rudderElement);
           window.ga("ec:addPromo", {
-            id: props.promotionId || props.id,
+            id: props.promotion_id || props.id,
             name: props.name,
             creative: props.creative,
             position: props.position,
@@ -339,7 +339,7 @@ export default class GA {
           this.loadEnhancedEcommerce(rudderElement);
 
           window.ga("ec:addPromo", {
-            id: props.promotionId || props.id,
+            id: props.promotion_id || props.id,
             name: props.name,
             creative: props.creative,
             position: props.position,
