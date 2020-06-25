@@ -287,14 +287,7 @@ export default class GA {
           break;
         case "Product Added":
           this.loadEnhancedEcommerce(rudderElement);
-          this.enhancedEcommerceTrackProductAction(
-            rudderElement,
-            "add",
-            null,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
-          );
+          this.enhancedEcommerceTrackProductAction(rudderElement, "add", null);
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Removed":
@@ -302,10 +295,7 @@ export default class GA {
           this.enhancedEcommerceTrackProductAction(
             rudderElement,
             "remove",
-            null,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
+            null
           );
           this.pushEnhancedEcommerce(rudderElement);
           break;
@@ -316,10 +306,7 @@ export default class GA {
           this.enhancedEcommerceTrackProductAction(
             rudderElement,
             "detail",
-            data,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
+            data
           );
           this.pushEnhancedEcommerce(rudderElement);
           break;
@@ -330,17 +317,14 @@ export default class GA {
           this.enhancedEcommerceTrackProductAction(
             rudderElement,
             "click",
-            data,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
+            data
           );
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Promotion Viewed":
           this.loadEnhancedEcommerce(rudderElement);
           window.ga("ec:addPromo", {
-            id: props.promotionId || props.id,
+            id: props.promotion_id || props.id,
             name: props.name,
             creative: props.creative,
             position: props.position,
@@ -351,7 +335,7 @@ export default class GA {
           this.loadEnhancedEcommerce(rudderElement);
 
           window.ga("ec:addPromo", {
-            id: props.promotionId || props.id,
+            id: props.promotion_id || props.id,
             name: props.name,
             creative: props.creative,
             position: props.position,
@@ -384,7 +368,7 @@ export default class GA {
               position: self.getProductPosition(item, products),
             };
             impressionObj = {
-              impressionObj,
+              ...impressionObj,
               ...self.metricsFunction(
                 item.properties,
                 self.dimensionsArray,
@@ -761,7 +745,7 @@ export default class GA {
     const { coupon } = props;
     if (coupon) product.coupon = coupon;
     product = {
-      product,
+      ...product,
       ...this.metricsFunction(
         props,
         this.dimensionsArray,
@@ -770,7 +754,7 @@ export default class GA {
       ),
     };
 
-    window.ga("ec:addProduct", product.product);
+    window.ga("ec:addProduct", product);
   }
 
   /**
