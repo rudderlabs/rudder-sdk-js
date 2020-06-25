@@ -287,11 +287,7 @@ export default class GA {
           break;
         case "Product Added":
           this.loadEnhancedEcommerce(rudderElement);
-          this.enhancedEcommerceTrackProductAction(
-            rudderElement,
-            "add",
-            null
-          );
+          this.enhancedEcommerceTrackProductAction(rudderElement, "add", null);
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Product Removed":
