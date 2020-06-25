@@ -290,10 +290,7 @@ export default class GA {
           this.enhancedEcommerceTrackProductAction(
             rudderElement,
             "add",
-            null,
-            this.dimensions,
-            this.metrics,
-            this.contentGroupings
+            null
           );
           this.pushEnhancedEcommerce(rudderElement);
           break;
