@@ -782,7 +782,7 @@ export default class GA {
       args[2] = "EnhancedEcommerce";
     }
 
-    window.ga.apply(window, ...args);
+    window.ga.call(window, ...args);
   }
 
   /**
