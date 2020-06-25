@@ -153,7 +153,10 @@ export default class GA {
     let sorts;
     if (event === "Order Completed" && !this.enhancedEcommerce) {
       // order_id is required
-      if (!orderId) return;
+      if (!orderId) {
+        logger.debug("order_id not present events are not sent to GA");
+        return;
+      }
 
       // add transaction
       window.ga("ecommerce:addTransaction", {
@@ -205,8 +208,10 @@ export default class GA {
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Checkout Step Completed":
-          if (!props.step) return;
-
+          if (!props.step) {
+            logger.debug("step not present events are not sent to GA");
+            return;
+          }
           params = {
             step: props.step || 1,
             option: options || undefined,
@@ -223,8 +228,10 @@ export default class GA {
             rudderElement.message.properties.revenue ||
             0;
 
-          if (!orderId) return;
-
+          if (!orderId) {
+            logger.debug("order_id not present events are not sent to GA");
+            return;
+          }
           this.loadEnhancedEcommerce(rudderElement);
 
           each(products, (product) => {
@@ -244,8 +251,10 @@ export default class GA {
           this.pushEnhancedEcommerce(rudderElement);
           break;
         case "Order Refunded":
-          if (!orderId) return;
-
+          if (!orderId) {
+            logger.debug("order_id not present events are not sent to GA");
+            return;
+          }
           this.loadEnhancedEcommerce(rudderElement);
 
           each(products, (product) => {
@@ -347,8 +356,12 @@ export default class GA {
             if (
               !(item.properties.product_id || item.properties.sku) &&
               !item.properties.name
-            )
+            ) {
+              logger.debug(
+                "product_id/sku/name of product not present events are not sent to GA"
+              );
               return;
+            }
             let impressionObj = {
               id: item.properties.product_id || item.properties.sku,
               name: item.properties.name,
@@ -398,6 +411,9 @@ export default class GA {
               !(item.properties.product_id || item.properties.sku) &&
               !item.properties.name
             ) {
+              logger.debug(
+                "product_id/sku/name of product not present events are not sent to GA"
+              );
               return;
             }
 
