@@ -1,8 +1,6 @@
-"use strict";
+const ECommerceProductBase = require("./ECommerceProductBase");
 
-var ECommerceProductBase = require("./ECommerceProductBase");
-
-//Class representing e-commerce product object
+// Class representing e-commerce product object
 class ECommerceProduct extends ECommerceProductBase {
   constructor() {
     super();
@@ -20,7 +18,7 @@ class ECommerceProduct extends ECommerceProductBase {
     this.image_url = "";
   }
 
-  //Setter methods in accordance with Builder pattern
+  // Setter methods in accordance with Builder pattern
   setSku(sku) {
     this.sku = sku;
     return this;
@@ -83,5 +81,5 @@ class ECommerceProduct extends ECommerceProductBase {
 }
 
 module.exports = {
-  ECommerceProduct: ECommerceProduct
+  ECommerceProduct,
 };

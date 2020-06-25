@@ -1,14 +1,14 @@
 import { version } from "../package.json";
-//Message Type enumeration
-let MessageType = {
+// Message Type enumeration
+const MessageType = {
   TRACK: "track",
   PAGE: "page",
-  //SCREEN: "screen",
-  IDENTIFY: "identify"
+  // SCREEN: "screen",
+  IDENTIFY: "identify",
 };
 
-//ECommerce Parameter Names Enumeration
-let ECommerceParamNames = {
+// ECommerce Parameter Names Enumeration
+const ECommerceParamNames = {
   QUERY: "query",
   PRICE: "price",
   PRODUCT_ID: "product_id",
@@ -28,10 +28,10 @@ let ECommerceParamNames = {
   SORTS: "sorts",
   SHARE_VIA: "share_via",
   SHARE_MESSAGE: "share_message",
-  RECIPIENT: "recipient"
+  RECIPIENT: "recipient",
 };
-//ECommerce Events Enumeration
-let ECommerceEvents = {
+// ECommerce Events Enumeration
+const ECommerceEvents = {
   PRODUCTS_SEARCHED: "Products Searched",
   PRODUCT_LIST_VIEWED: "Product List Viewed",
   PRODUCT_LIST_FILTERED: "Product List Filtered",
@@ -59,22 +59,22 @@ let ECommerceEvents = {
   WISH_LIST_PRODUCT_ADDED_TO_CART: "Wishlist Product Added to Cart",
   PRODUCT_SHARED: "Product Shared",
   CART_SHARED: "Cart Shared",
-  PRODUCT_REVIEWED: "Product Reviewed"
+  PRODUCT_REVIEWED: "Product Reviewed",
 };
 
-//Enumeration for integrations supported
-let RudderIntegrationPlatform = {
+// Enumeration for integrations supported
+const RudderIntegrationPlatform = {
   RUDDERLABS: "rudderlabs",
   GA: "ga",
-  AMPLITUDE: "amplitude"
+  AMPLITUDE: "amplitude",
 };
 
-let BASE_URL = "https://hosted.rudderlabs.com";  // default to RudderStack
-let CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=" + version;
+const BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
+const CONFIG_URL = `https://api.rudderlabs.com/sourceConfig/?p=web&v=${version}`;
 
-let FLUSH_QUEUE_SIZE = 30;
+const FLUSH_QUEUE_SIZE = 30;
 
-let FLUSH_INTERVAL_DEFAULT = 5000;
+const FLUSH_INTERVAL_DEFAULT = 5000;
 
 const MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
 const INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
@@ -89,7 +89,7 @@ export {
   FLUSH_QUEUE_SIZE,
   FLUSH_INTERVAL_DEFAULT,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
-  INTEGRATION_LOAD_CHECK_INTERVAL
+  INTEGRATION_LOAD_CHECK_INTERVAL,
 };
 /* module.exports = {
   MessageType: MessageType,

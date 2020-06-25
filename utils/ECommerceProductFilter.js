@@ -1,13 +1,11 @@
-"use strict";
-
-//Class representing e-commerce product filter
+// Class representing e-commerce product filter
 class ECommerceProductFilter {
   constructor() {
     this.type = "";
     this.value = "";
   }
 
-  //Setter methods in accordance to Builder pattern
+  // Setter methods in accordance to Builder pattern
   setType(type) {
     this.type = type;
     return this;
@@ -20,5 +18,5 @@ class ECommerceProductFilter {
 }
 
 module.exports = {
-  ECommerceProductFilter: ECommerceProductFilter
+  ECommerceProductFilter,
 };

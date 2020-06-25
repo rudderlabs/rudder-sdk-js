@@ -1,7 +1,7 @@
-var OrderEvent = require("./OrderEvent");
-var ECommerceEvents = require("./constants").ECommerceEvents;
+const OrderEvent = require("./OrderEvent");
+const { ECommerceEvents } = require("./constants");
 
-//Class representing "checkout started" event
+// Class representing "checkout started" event
 class CheckoutStartedEvent extends OrderEvent {
   event() {
     return ECommerceEvents.CHECKOUT_STARTED;

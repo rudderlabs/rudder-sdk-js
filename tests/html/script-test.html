@@ -33,9 +33,8 @@
         })(method);
       }
 
-      rudderanalytics.load("1bt0vcThjsXCUngMjgTFB62xAyg", "http://localhost:8080", {
-        logLevel: "DEBUG",
-        configUrl: "http://localhost:5000/sourceConfig"
+      rudderanalytics.load("1cA1w20Fe34TdZrtGshutNY8Fm1", "http://localhost:8080", {
+        logLevel: "DEBUG"
 
       });
     //  rudderanalytics.track();
@@ -44,7 +43,7 @@
 
     <script src="./browser.js"></script>
 
-    <script>
+     <script>
       window.rudderanalytics.ready(() => {
         console.log("we are all set!!!");
       
@@ -52,7 +51,68 @@
       //page calls 
     // window.rudderanalytics.page();
 
-    // window.rudderanalytics.page('ruchira category', 'ruchira name', { url: 'url', path: '/path' });
+    window.rudderanalytics.page('ruchira category', 'ruchira name', { url: 'url', path: '/path' }); 
+
+rudderanalytics.track('Order Completed', {
+            checkout_id: 'what is checkout id here??',
+            order_id: "transactionId",
+            value: 31.98,
+            revenue: 31.98,
+            shipping: 4.00,
+            coupon: 'APPARELSALE',
+            currency: 'GBP',
+            products: [
+                {
+                    product_id: 'product-bacon-jam',
+                    sku: 'sku-1',
+                    category: 'Merch',
+                    name: 'Food/Drink',
+                    brand: '',
+                    variant: 'Extra topped',
+                    price: 3.00,
+                    quantity: 2,
+                    currency: 'GBP',
+                    position: 1,
+                    value: 6.00,
+                    typeOfProduct: 'Food',
+                    url: 'https://www.example.com/product/bacon-jam',
+                    image_url: 'https://www.example.com/product/bacon-jam.jpg'
+                },
+                {
+                    product_id: 'product-t-shirt',
+                    sku: 'sku-2',
+                    category: 'Merch',
+                    name: 'T-Shirt',
+                    brand: 'Levis',
+                    variant: 'White',
+                    price: 12.99,
+                    quantity: 1,
+                    currency: 'GBP',
+                    position: 2,
+                    value: 12.99,
+                    typeOfProduct: 'Shirt',
+                    url: 'https://www.example.com/product/t-shirt',
+                    image_url: 'https://www.example.com/product/t-shirt.jpg'
+                },
+                {
+                    product_id: 'offer-t-shirt',
+                    sku: 'sku-3',
+                    category: 'Merch',
+                    name: 'T-Shirt-on-offer',
+                    brand: 'Levis',
+                    variant: 'Black',
+                    price: 12.99,
+                    quantity: 1,
+                    currency: 'GBP',
+                    position: 1,
+                    value: 12.99,
+                    coupon: 'APPARELSALE',
+                    typeOfProduct: 'Shirt',
+                    url: 'https://www.example.com/product/offer-t-shirt',
+                    image_url: 'https://www.example.com/product/offer-t-shirt.jpg'
+                }
+            ]
+        });
 
     // window.rudderanalytics.page('category', 'name', {
     //         url: 'ruchira url',
@@ -171,12 +231,11 @@
 
       //     window.rudderanalytics.track('event12', { nonInteraction: false });
           
-          window.rudderanalytics.track('Order Completed', { orderId: 'ee099bf7' });
 
           
 
       window.rudderanalytics.track("Order Completed", {
-        orderId: 'ruchiraorder1',
+        order_id: 'ruchiraorder1',
             total: 99.99,
             shipping: 13.99,
             tax: 20.99,
@@ -198,7 +257,7 @@
       });
 
       window.rudderanalytics.track('Order Completed', {
-            orderId: '5d4c7cb5',
+            order_id: '5d4c7cb5',
             revenue: 99.9,
             shipping: 13.99,
             tax: 20.99,
@@ -206,7 +265,7 @@
           });
 
           window.rudderanalytics.track('Order Completed', {
-            orderId: '5d4c7cb5ruchira',
+            order_id: '5d4c7cb5ruchira',
             revenue: 99.9,
             shipping: 13.99,
             tax: 20.99,
@@ -504,7 +563,7 @@
           });
 
           window.rudderanalytics.track('Order Completed', {
-            orderId: '780bc55ruchu',
+            order_id: '780bc55ruchu',
             total: 99.9,
             shipping: 13.99,
             tax: 20.99,
@@ -531,13 +590,13 @@
             ]
           });
           window.rudderanalytics.track('Order Refunded', {
-            orderId: '780bc55',
+            order_id: '780bc55',
             testDimension: true,
             testMetric: true
           });
 
           window.rudderanalytics.track('Order Refunded', {
-            orderId: '780bc55',
+            order_id: '780bc55',
             products: [
               {
                 quantity: 1,
@@ -557,12 +616,21 @@
         url: "url",
         title: "title",
         search: "search",
-        referrer: "referrer"
+        referrer: "referrer",
+        testDimension: "true"
+        
 }); 
     </script>
   </head>
   <body>
     <h1>Relax while I finish my testing process....</h1>
- 
+    <div id="id1">
+      <a id="link1" href="https://example.com">example 1</a>
+    </div>  
+
+    <div id="id2">
+      <a id="link2" href="https://3a842fe106ca.ngrok.io/tests/html/script-test.html">example 2</a>
+    </div>  
+
   </body>
 </html>

@@ -1,14 +1,14 @@
+import Queue from "@segment/localstorage-retry";
 import {
   BASE_URL,
   FLUSH_QUEUE_SIZE,
-  FLUSH_INTERVAL_DEFAULT
+  FLUSH_INTERVAL_DEFAULT,
 } from "./constants";
-import { getCurrentTimeFormatted, handleError } from "./utils";
-import { replacer } from "./utils";
+import { getCurrentTimeFormatted, handleError, replacer } from "./utils";
+
 import { RudderPayload } from "./RudderPayload";
-import Queue from "@segment/localstorage-retry";
 import logger from "./logUtil";
-//import * as XMLHttpRequestNode from "Xmlhttprequest";
+// import * as XMLHttpRequestNode from "Xmlhttprequest";
 
 let XMLHttpRequestNode;
 if (!process.browser) {
@@ -20,12 +20,12 @@ if (!process.browser) {
   btoaNode = require("btoa");
 }
 
-var queueOptions = {
+const queueOptions = {
   maxRetryDelay: 360000,
   minRetryDelay: 1000,
   backoffFactor: 2,
   maxAttempts: 10,
-  maxItems: 100
+  maxItems: 100,
 };
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
@@ -49,18 +49,21 @@ class EventRepository {
     this.batchSize = 0;
 
     // previous implementation
-    //setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
+    // setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
 
-    this.payloadQueue = new Queue("rudder", queueOptions, function(item, done) {
+    this.payloadQueue = new Queue("rudder", queueOptions, function (
+      item,
+      done
+    ) {
       // apply sentAt at flush time and reset on each retry
       item.message.sentAt = getCurrentTimeFormatted();
-      //send this item for processing, with a callback to enable queue to get the done status
+      // send this item for processing, with a callback to enable queue to get the done status
       eventRepository.processQueueElement(
         item.url,
         item.headers,
         item.message,
         10 * 1000,
-        function(err, res) {
+        function (err, res) {
           if (err) {
             return done(err);
           }
@@ -69,7 +72,7 @@ class EventRepository {
       );
     });
 
-    //start queue
+    // start queue
     this.payloadQueue.start();
   }
 
@@ -81,25 +84,25 @@ class EventRepository {
    * @memberof EventRepository
    */
   preaparePayloadAndFlush(repo) {
-    //construct payload
-    logger.debug("==== in preaparePayloadAndFlush with state: " + repo.state);
+    // construct payload
+    logger.debug(`==== in preaparePayloadAndFlush with state: ${repo.state}`);
     logger.debug(repo.eventsBuffer);
     if (repo.eventsBuffer.length == 0 || repo.state === "PROCESSING") {
       return;
     }
-    var eventsPayload = repo.eventsBuffer;
-    var payload = new RudderPayload();
+    const eventsPayload = repo.eventsBuffer;
+    const payload = new RudderPayload();
     payload.batch = eventsPayload;
     payload.writeKey = repo.writeKey;
     payload.sentAt = getCurrentTimeFormatted();
 
-    //add sentAt to individual events as well
-    payload.batch.forEach(event => {
+    // add sentAt to individual events as well
+    payload.batch.forEach((event) => {
       event.sentAt = payload.sentAt;
     });
 
     repo.batchSize = repo.eventsBuffer.length;
-    //server-side integration, XHR is node module
+    // server-side integration, XHR is node module
 
     if (process.browser) {
       var xhr = new XMLHttpRequest();
@@ -116,28 +119,25 @@ class EventRepository {
     if (process.browser) {
       xhr.setRequestHeader(
         "Authorization",
-        "Basic " + btoa(payload.writeKey + ":")
+        `Basic ${btoa(`${payload.writeKey}:`)}`
       );
     } else {
       xhr.setRequestHeader(
         "Authorization",
-        "Basic " + btoaNode(payload.writeKey + ":")
+        `Basic ${btoaNode(`${payload.writeKey}:`)}`
       );
     }
 
-    //register call back to reset event buffer on successfull POST
-    xhr.onreadystatechange = function() {
+    // register call back to reset event buffer on successfull POST
+    xhr.onreadystatechange = function () {
       if (xhr.readyState === 4 && xhr.status === 200) {
-        logger.debug("====== request processed successfully: " + xhr.status);
+        logger.debug(`====== request processed successfully: ${xhr.status}`);
         repo.eventsBuffer = repo.eventsBuffer.slice(repo.batchSize);
         logger.debug(repo.eventsBuffer.length);
       } else if (xhr.readyState === 4 && xhr.status !== 200) {
         handleError(
           new Error(
-            "request failed with status: " +
-              xhr.status +
-              " for url: " +
-              repo.url
+            `request failed with status: ${xhr.status} for url: ${repo.url}`
           )
         );
       }
@@ -157,38 +157,30 @@ class EventRepository {
    */
   processQueueElement(url, headers, message, timeout, queueFn) {
     try {
-      var xhr = new XMLHttpRequest();
+      const xhr = new XMLHttpRequest();
       xhr.open("POST", url, true);
-      for (var k in headers) {
+      for (const k in headers) {
         xhr.setRequestHeader(k, headers[k]);
       }
       xhr.timeout = timeout;
       xhr.ontimeout = queueFn;
       xhr.onerror = queueFn;
-      xhr.onreadystatechange = function() {
+      xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
           if (xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600)) {
             handleError(
               new Error(
-                "request failed with status: " +
-                  xhr.status +
-                  xhr.statusText +
-                  " for url: " +
-                  url
+                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`
               )
             );
             queueFn(
               new Error(
-                "request failed with status: " +
-                  xhr.status +
-                  xhr.statusText +
-                  " for url: " +
-                  url
+                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`
               )
             );
           } else {
             logger.debug(
-              "====== request processed successfully: " + xhr.status
+              `====== request processed successfully: ${xhr.status}`
             );
             queueFn(null, xhr.status);
           }
@@ -208,12 +200,12 @@ class EventRepository {
    * @memberof EventRepository
    */
   enqueue(rudderElement, type) {
-    var message = rudderElement.getElementContent();
+    const message = rudderElement.getElementContent();
 
-    var headers = {
+    const headers = {
       "Content-Type": "application/json",
-      Authorization: "Basic " + btoa(this.writeKey + ":"),
-      AnonymousId: btoa(message.anonymousId)
+      Authorization: `Basic ${btoa(`${this.writeKey}:`)}`,
+      AnonymousId: btoa(message.anonymousId),
     };
 
     message.originalTimestamp = getCurrentTimeFormatted();
@@ -221,16 +213,19 @@ class EventRepository {
 
     // check message size, if greater log an error
     if (JSON.stringify(message).length > MESSAGE_LENGTH) {
-      logger.error("[EventRepository] enqueue:: message length greater 32 Kb ", message);
+      logger.error(
+        "[EventRepository] enqueue:: message length greater 32 Kb ",
+        message
+      );
     }
 
-    //modify the url for event specific endpoints
-    var url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
+    // modify the url for event specific endpoints
+    const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
     // add items to the queue
     this.payloadQueue.addItem({
-      url: url + "/v1/" + type,
-      headers: headers,
-      message: message
+      url: `${url}/v1/${type}`,
+      headers,
+      message,
     });
   }
 }

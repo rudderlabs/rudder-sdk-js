@@ -1,8 +1,8 @@
-var RudderProperty = require("./RudderProperty");
-var ECommerceEvents = require("./constants").ECommerceEvents;
-var ECommerceParamNames = require("./constants").ECommerceParamNames;
+const RudderProperty = require("./RudderProperty");
+const { ECommerceEvents } = require("./constants");
+const { ECommerceParamNames } = require("./constants");
 
-//Class representing "Product List Filtered" event
+// Class representing "Product List Filtered" event
 class ProductListFilteredEvent {
   constructor() {
     this.listId = null;
@@ -11,7 +11,7 @@ class ProductListFilteredEvent {
     this.products = [];
   }
 
-  //Setter methods in accordance to Builder pattern
+  // Setter methods in accordance to Builder pattern
 
   setListId(listId) {
     this.listId = listId;
@@ -74,7 +74,7 @@ class ProductListFilteredEvent {
   }
 
   build() {
-    var eventProperty = new RudderProperty();
+    const eventProperty = new RudderProperty();
     eventProperty.setProperty(ECommerceParamNames.LIST_ID, this.listId);
     eventProperty.setProperty(ECommerceParamNames.FILTERS, this.filters);
     eventProperty.setProperty(ECommerceParamNames.PRODUCTS, this.products);
@@ -84,5 +84,5 @@ class ProductListFilteredEvent {
 }
 
 module.exports = {
-  ProductListFilteredEvent: ProductListFilteredEvent
+  ProductListFilteredEvent,
 };

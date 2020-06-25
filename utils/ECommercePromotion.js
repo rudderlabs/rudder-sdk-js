@@ -1,4 +1,4 @@
-//Class representing e-commerce promotion
+// Class representing e-commerce promotion
 class ECommercePromotion {
   constructor() {
     this.promotion_id = "";
@@ -7,7 +7,7 @@ class ECommercePromotion {
     this.position = 0;
   }
 
-  //Setter methods in accordance with Builder pattern
+  // Setter methods in accordance with Builder pattern
   setPromotionId(promotionId) {
     this.promotion_id = promotionId;
     return this;

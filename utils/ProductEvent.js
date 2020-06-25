@@ -1,18 +1,18 @@
-var RudderProperty = require("./RudderProperty");
+const RudderProperty = require("./RudderProperty");
 
-//Parent class of "Product Clicked" and "Product Viewed" events
+// Parent class of "Product Clicked" and "Product Viewed" events
 class ProductEvent {
   constructor() {
     this.product = null;
   }
 
   build() {
-    var eventProperty = new RudderProperty();
+    const eventProperty = new RudderProperty();
     eventProperty.setPropertyMap(this.product);
     return eventProperty;
   }
 
-  //Setters in accordance to Builder pattern
+  // Setters in accordance to Builder pattern
   setProduct(product) {
     this.product = product;
     return this;
@@ -20,5 +20,5 @@ class ProductEvent {
 }
 
 module.exports = {
-  ProductEvent: ProductEvent
+  ProductEvent,
 };

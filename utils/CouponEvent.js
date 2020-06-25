@@ -1,18 +1,18 @@
-var RudderProperty = require("./RudderProperty");
+const RudderProperty = require("./RudderProperty");
 
-//Parent class for Coupon events
+// Parent class for Coupon events
 class CouponEvent {
   contructor() {
     this.coupon = null;
   }
 
   build() {
-    var eventProperty = new RudderProperty();
+    const eventProperty = new RudderProperty();
     eventProperty.setPropertyMap(this.coupon);
     return eventProperty;
   }
 
-  //Setter method in accordance with Builder pattern
+  // Setter method in accordance with Builder pattern
   setCoupon(coupon) {
     this.coupon = coupon;
     return this;
@@ -20,5 +20,5 @@ class CouponEvent {
 }
 
 module.exports = {
-  CouponEvent: CouponEvent
+  CouponEvent,
 };

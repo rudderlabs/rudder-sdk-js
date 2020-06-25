@@ -1,18 +1,18 @@
-//Library information class
+// Library information class
 class RudderLibraryInfo {
   constructor() {
     this.name = "RudderLabs JavaScript SDK";
     this.version = "process.package_version";
   }
 }
-//Operating System information class
+// Operating System information class
 class RudderOSInfo {
   constructor() {
     this.name = "";
     this.version = "";
   }
 }
-//Screen information class
+// Screen information class
 class RudderScreenInfo {
   constructor() {
     this.density = 0;
@@ -20,7 +20,7 @@ class RudderScreenInfo {
     this.height = 0;
   }
 }
-//Device information class
+// Device information class
 class RudderDeviceInfo {
   constructor() {
     this.id = "";
@@ -29,7 +29,7 @@ class RudderDeviceInfo {
     this.name = "";
   }
 }
-//Carrier information
+// Carrier information
 class RudderNetwork {
   constructor() {
     this.carrier = "";
@@ -40,5 +40,5 @@ export {
   RudderOSInfo,
   RudderScreenInfo,
   RudderDeviceInfo,
-  RudderNetwork
+  RudderNetwork,
 };

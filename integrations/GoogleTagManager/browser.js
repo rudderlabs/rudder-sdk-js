@@ -1,4 +1,5 @@
 import logger from "../../utils/logUtil";
+
 class GoogleTagManager {
   constructor(config) {
     this.containerID = config.containerID;
@@ -7,14 +8,14 @@ class GoogleTagManager {
 
   init() {
     logger.debug("===in init GoogleTagManager===");
-    (function(w, d, s, l, i) {
+    (function (w, d, s, l, i) {
       w[l] = w[l] || [];
       w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-      var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s),
-        dl = l != "dataLayer" ? "&l=" + l : "";
+      const f = d.getElementsByTagName(s)[0];
+      const j = d.createElement(s);
+      const dl = l != "dataLayer" ? `&l=${l}` : "";
       j.async = true;
-      j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+      j.src = `https://www.googletagmanager.com/gtm.js?id=${i}${dl}`;
       f.parentNode.insertBefore(j, f);
     })(window, document, "script", "dataLayer", this.containerID);
   }
@@ -25,41 +26,41 @@ class GoogleTagManager {
 
   track(rudderElement) {
     logger.debug("===in track GoogleTagManager===");
-    let rudderMessage = rudderElement.message;
-    let props = {
+    const rudderMessage = rudderElement.message;
+    const props = {
       event: rudderMessage.event,
       userId: rudderMessage.userId,
       anonymousId: rudderMessage.anonymousId,
-      ...rudderMessage.properties
+      ...rudderMessage.properties,
     };
     this.sendToGTMDatalayer(props);
   }
 
   page(rudderElement) {
     logger.debug("===in page GoogleTagManager===");
-    let rudderMessage = rudderElement.message;
-    let pageName = rudderMessage.name;
-    let pageCategory = rudderMessage.properties
+    const rudderMessage = rudderElement.message;
+    const pageName = rudderMessage.name;
+    const pageCategory = rudderMessage.properties
       ? rudderMessage.properties.category
       : undefined;
 
     let eventName;
 
     if (pageName) {
-      eventName = "Viewed " + pageName + " page";
+      eventName = `Viewed ${pageName} page`;
     }
 
     if (pageCategory && pageName) {
-      eventName = "Viewed " + pageCategory + " " + pageName + " page";
+      eventName = `Viewed ${pageCategory} ${pageName} page`;
     }
-    if(!eventName) {
+    if (!eventName) {
       eventName = "Viewed a Page";
     }
-    let props = {
+    const props = {
       event: eventName,
       userId: rudderMessage.userId,
       anonymousId: rudderMessage.anonymousId,
-      ...rudderMessage.properties
+      ...rudderMessage.properties,
     };
 
     this.sendToGTMDatalayer(props);

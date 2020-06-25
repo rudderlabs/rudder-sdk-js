@@ -1,12 +1,13 @@
 import logger from "../logUtil";
 import { Cookie } from "./cookie";
 import { Store } from "./store";
-let defaults = {
+
+const defaults = {
   user_storage_key: "rl_user_id",
   user_storage_trait: "rl_trait",
   user_storage_anonymousId: "rl_anonymous_id",
   group_storage_key: "rl_group_id",
-  group_storage_trait: "rl_group_trait"
+  group_storage_trait: "rl_group_trait",
 };
 
 /**
@@ -26,7 +27,6 @@ class Storage {
     // localStorage is enabled.
     if (Store.enabled) {
       this.storage = Store;
-      return;
     }
   }
 
@@ -44,12 +44,11 @@ class Storage {
    * @param {*} value
    */
   setUserId(value) {
-    if (typeof value != "string") {
+    if (typeof value !== "string") {
       logger.error("[Storage] setUserId:: userId should be string");
       return;
     }
     this.storage.set(defaults.user_storage_key, value);
-    return;
   }
 
   /**
@@ -58,7 +57,6 @@ class Storage {
    */
   setUserTraits(value) {
     this.storage.set(defaults.user_storage_trait, value);
-    return;
   }
 
   /**
@@ -66,12 +64,11 @@ class Storage {
    * @param {*} value
    */
   setGroupId(value) {
-    if (typeof value != "string") {
+    if (typeof value !== "string") {
       logger.error("[Storage] setGroupId:: groupId should be string");
       return;
     }
     this.storage.set(defaults.group_storage_key, value);
-    return;
   }
 
   /**
@@ -80,7 +77,6 @@ class Storage {
    */
   setGroupTraits(value) {
     this.storage.set(defaults.group_storage_trait, value);
-    return;
   }
 
   /**
@@ -88,12 +84,11 @@ class Storage {
    * @param {*} value
    */
   setAnonymousId(value) {
-    if (typeof value != "string") {
+    if (typeof value !== "string") {
       logger.error("[Storage] setAnonymousId:: anonymousId should be string");
       return;
     }
     this.storage.set(defaults.user_storage_anonymousId, value);
-    return;
   }
 
   /**
