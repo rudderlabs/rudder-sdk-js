@@ -432,6 +432,147 @@
     VWO: "VWO"
   };
 
+  var componentUrl = createCommonjsModule(function (module, exports) {
+  /**
+   * Parse the given `url`.
+   *
+   * @param {String} str
+   * @return {Object}
+   * @api public
+   */
+
+  exports.parse = function(url){
+    var a = document.createElement('a');
+    a.href = url;
+    return {
+      href: a.href,
+      host: a.host || location.host,
+      port: ('0' === a.port || '' === a.port) ? port(a.protocol) : a.port,
+      hash: a.hash,
+      hostname: a.hostname || location.hostname,
+      pathname: a.pathname.charAt(0) != '/' ? '/' + a.pathname : a.pathname,
+      protocol: !a.protocol || ':' == a.protocol ? location.protocol : a.protocol,
+      search: a.search,
+      query: a.search.slice(1)
+    };
+  };
+
+  /**
+   * Check if `url` is absolute.
+   *
+   * @param {String} url
+   * @return {Boolean}
+   * @api public
+   */
+
+  exports.isAbsolute = function(url){
+    return 0 == url.indexOf('//') || !!~url.indexOf('://');
+  };
+
+  /**
+   * Check if `url` is relative.
+   *
+   * @param {String} url
+   * @return {Boolean}
+   * @api public
+   */
+
+  exports.isRelative = function(url){
+    return !exports.isAbsolute(url);
+  };
+
+  /**
+   * Check if `url` is cross domain.
+   *
+   * @param {String} url
+   * @return {Boolean}
+   * @api public
+   */
+
+  exports.isCrossDomain = function(url){
+    url = exports.parse(url);
+    var location = exports.parse(window.location.href);
+    return url.hostname !== location.hostname
+      || url.port !== location.port
+      || url.protocol !== location.protocol;
+  };
+
+  /**
+   * Return default port for `protocol`.
+   *
+   * @param  {String} protocol
+   * @return {String}
+   * @api private
+   */
+  function port (protocol){
+    switch (protocol) {
+      case 'http:':
+        return 80;
+      case 'https:':
+        return 443;
+      default:
+        return location.port;
+    }
+  }
+  });
+  var componentUrl_1 = componentUrl.parse;
+  var componentUrl_2 = componentUrl.isAbsolute;
+  var componentUrl_3 = componentUrl.isRelative;
+  var componentUrl_4 = componentUrl.isCrossDomain;
+
+  // Message Type enumeration
+  var MessageType = {
+    TRACK: "track",
+    PAGE: "page",
+    // SCREEN: "screen",
+    IDENTIFY: "identify"
+  }; // ECommerce Parameter Names Enumeration
+
+  var ECommerceEvents = {
+    PRODUCTS_SEARCHED: "Products Searched",
+    PRODUCT_LIST_VIEWED: "Product List Viewed",
+    PRODUCT_LIST_FILTERED: "Product List Filtered",
+    PROMOTION_VIEWED: "Promotion Viewed",
+    PROMOTION_CLICKED: "Promotion Clicked",
+    PRODUCT_CLICKED: "Product Clicked",
+    PRODUCT_VIEWED: "Product Viewed",
+    PRODUCT_ADDED: "Product Added",
+    PRODUCT_REMOVED: "Product Removed",
+    CART_VIEWED: "Cart Viewed",
+    CHECKOUT_STARTED: "Checkout Started",
+    CHECKOUT_STEP_VIEWED: "Checkout Step Viewed",
+    CHECKOUT_STEP_COMPLETED: "Checkout Step Completed",
+    PAYMENT_INFO_ENTERED: "Payment Info Entered",
+    ORDER_UPDATED: "Order Updated",
+    ORDER_COMPLETED: "Order Completed",
+    ORDER_REFUNDED: "Order Refunded",
+    ORDER_CANCELLED: "Order Cancelled",
+    COUPON_ENTERED: "Coupon Entered",
+    COUPON_APPLIED: "Coupon Applied",
+    COUPON_DENIED: "Coupon Denied",
+    COUPON_REMOVED: "Coupon Removed",
+    PRODUCT_ADDED_TO_WISHLIST: "Product Added to Wishlist",
+    PRODUCT_REMOVED_FROM_WISHLIST: "Product Removed from Wishlist",
+    WISH_LIST_PRODUCT_ADDED_TO_CART: "Wishlist Product Added to Cart",
+    PRODUCT_SHARED: "Product Shared",
+    CART_SHARED: "Cart Shared",
+    PRODUCT_REVIEWED: "Product Reviewed"
+  }; // Enumeration for integrations supported
+  var BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
+
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.6";
+  var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
+  var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
+  /* module.exports = {
+    MessageType: MessageType,
+    ECommerceParamNames: ECommerceParamNames,
+    ECommerceEvents: ECommerceEvents,
+    RudderIntegrationPlatform: RudderIntegrationPlatform,
+    BASE_URL: BASE_URL,
+    CONFIG_URL: CONFIG_URL,
+    FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
+  }; */
+
   /**
    *
    * Utility method for excluding null and empty values in JSON
@@ -548,7 +689,7 @@
 
   function getDefaultPageProperties() {
     var canonicalUrl = getCanonicalUrl();
-    var path = canonicalUrl ? canonicalUrl.pathname : window.location.pathname;
+    var path = canonicalUrl ? componentUrl_1(canonicalUrl).pathname : window.location.pathname;
     var _document = document,
         referrer = _document.referrer;
     var search = window.location.search;
@@ -800,59 +941,26 @@
     return _typeof(val);
   }
 
-  var version = "1.1.2";
+  function getUserProvidedConfigUrl(configUrl) {
+    var url = configUrl;
 
-  var MessageType = {
-    TRACK: "track",
-    PAGE: "page",
-    // SCREEN: "screen",
-    IDENTIFY: "identify"
-  }; // ECommerce Parameter Names Enumeration
+    if (configUrl.indexOf("sourceConfig") == -1) {
+      url = url.slice(-1) == "/" ? url.slice(0, -1) : url;
+      url = "".concat(url, "/sourceConfig/");
+    }
 
-  var ECommerceEvents = {
-    PRODUCTS_SEARCHED: "Products Searched",
-    PRODUCT_LIST_VIEWED: "Product List Viewed",
-    PRODUCT_LIST_FILTERED: "Product List Filtered",
-    PROMOTION_VIEWED: "Promotion Viewed",
-    PROMOTION_CLICKED: "Promotion Clicked",
-    PRODUCT_CLICKED: "Product Clicked",
-    PRODUCT_VIEWED: "Product Viewed",
-    PRODUCT_ADDED: "Product Added",
-    PRODUCT_REMOVED: "Product Removed",
-    CART_VIEWED: "Cart Viewed",
-    CHECKOUT_STARTED: "Checkout Started",
-    CHECKOUT_STEP_VIEWED: "Checkout Step Viewed",
-    CHECKOUT_STEP_COMPLETED: "Checkout Step Completed",
-    PAYMENT_INFO_ENTERED: "Payment Info Entered",
-    ORDER_UPDATED: "Order Updated",
-    ORDER_COMPLETED: "Order Completed",
-    ORDER_REFUNDED: "Order Refunded",
-    ORDER_CANCELLED: "Order Cancelled",
-    COUPON_ENTERED: "Coupon Entered",
-    COUPON_APPLIED: "Coupon Applied",
-    COUPON_DENIED: "Coupon Denied",
-    COUPON_REMOVED: "Coupon Removed",
-    PRODUCT_ADDED_TO_WISHLIST: "Product Added to Wishlist",
-    PRODUCT_REMOVED_FROM_WISHLIST: "Product Removed from Wishlist",
-    WISH_LIST_PRODUCT_ADDED_TO_CART: "Wishlist Product Added to Cart",
-    PRODUCT_SHARED: "Product Shared",
-    CART_SHARED: "Cart Shared",
-    PRODUCT_REVIEWED: "Product Reviewed"
-  }; // Enumeration for integrations supported
-  var BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
+    url = url.slice(-1) == "/" ? url : "".concat(url, "/");
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=".concat(version);
-  var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
-  var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
-  /* module.exports = {
-    MessageType: MessageType,
-    ECommerceParamNames: ECommerceParamNames,
-    ECommerceEvents: ECommerceEvents,
-    RudderIntegrationPlatform: RudderIntegrationPlatform,
-    BASE_URL: BASE_URL,
-    CONFIG_URL: CONFIG_URL,
-    FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
-  }; */
+    if (url.indexOf("?") > -1) {
+      if (url.split("?")[1] !== CONFIG_URL.split("?")[1]) {
+        url = url.split("?")[0] + "?" + CONFIG_URL.split("?")[1];
+      }
+    } else {
+      url = url + "?" + CONFIG_URL.split("\?")[1];
+    }
+
+    return url;
+  }
 
   var ScriptLoader = function ScriptLoader(id, src) {
     logger.debug("in script loader=== ".concat(id));
@@ -2434,34 +2542,34 @@
 
               case "Product Added":
                 this.loadEnhancedEcommerce(rudderElement);
-                this.enhancedEcommerceTrackProductAction(rudderElement, "add", null, this.dimensions, this.metrics, this.contentGroupings);
+                this.enhancedEcommerceTrackProductAction(rudderElement, "add", null);
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Product Removed":
                 this.loadEnhancedEcommerce(rudderElement);
-                this.enhancedEcommerceTrackProductAction(rudderElement, "remove", null, this.dimensions, this.metrics, this.contentGroupings);
+                this.enhancedEcommerceTrackProductAction(rudderElement, "remove", null);
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Product Viewed":
                 this.loadEnhancedEcommerce(rudderElement);
                 if (props.list) data.list = props.list;
-                this.enhancedEcommerceTrackProductAction(rudderElement, "detail", data, this.dimensions, this.metrics, this.contentGroupings);
+                this.enhancedEcommerceTrackProductAction(rudderElement, "detail", data);
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Product Clicked":
                 this.loadEnhancedEcommerce(rudderElement);
                 if (props.list) data.list = props.list;
-                this.enhancedEcommerceTrackProductAction(rudderElement, "click", data, this.dimensions, this.metrics, this.contentGroupings);
+                this.enhancedEcommerceTrackProductAction(rudderElement, "click", data);
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Promotion Viewed":
                 this.loadEnhancedEcommerce(rudderElement);
                 window.ga("ec:addPromo", {
-                  id: props.promotionId || props.id,
+                  id: props.promotion_id || props.id,
                   name: props.name,
                   creative: props.creative,
                   position: props.position
@@ -2472,7 +2580,7 @@
               case "Promotion Clicked":
                 this.loadEnhancedEcommerce(rudderElement);
                 window.ga("ec:addPromo", {
-                  id: props.promotionId || props.id,
+                  id: props.promotion_id || props.id,
                   name: props.name,
                   creative: props.creative,
                   position: props.position
@@ -2503,9 +2611,7 @@
                     price: item.properties.price,
                     position: self.getProductPosition(item, products)
                   };
-                  impressionObj = _objectSpread2({
-                    impressionObj: impressionObj
-                  }, self.metricsFunction(item.properties, self.dimensionsArray, self.metricsArray, self.contentGroupingsArray));
+                  impressionObj = _objectSpread2({}, impressionObj, {}, self.metricsFunction(item.properties, self.dimensionsArray, self.metricsArray, self.contentGroupingsArray));
                   Object.keys(impressionObj).forEach(function (key) {
                     if (impressionObj[key] === undefined) delete impressionObj[key];
                   });
@@ -2838,10 +2944,8 @@
 
         var coupon = props.coupon;
         if (coupon) product.coupon = coupon;
-        product = _objectSpread2({
-          product: product
-        }, this.metricsFunction(props, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray));
-        window.ga("ec:addProduct", product.product);
+        product = _objectSpread2({}, product, {}, this.metricsFunction(props, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray));
+        window.ga("ec:addProduct", product);
       }
       /**
        * set action with data
@@ -7860,94 +7964,6 @@
   }).call(commonjsGlobal);
   });
 
-  var componentUrl = createCommonjsModule(function (module, exports) {
-  /**
-   * Parse the given `url`.
-   *
-   * @param {String} str
-   * @return {Object}
-   * @api public
-   */
-
-  exports.parse = function(url){
-    var a = document.createElement('a');
-    a.href = url;
-    return {
-      href: a.href,
-      host: a.host || location.host,
-      port: ('0' === a.port || '' === a.port) ? port(a.protocol) : a.port,
-      hash: a.hash,
-      hostname: a.hostname || location.hostname,
-      pathname: a.pathname.charAt(0) != '/' ? '/' + a.pathname : a.pathname,
-      protocol: !a.protocol || ':' == a.protocol ? location.protocol : a.protocol,
-      search: a.search,
-      query: a.search.slice(1)
-    };
-  };
-
-  /**
-   * Check if `url` is absolute.
-   *
-   * @param {String} url
-   * @return {Boolean}
-   * @api public
-   */
-
-  exports.isAbsolute = function(url){
-    return 0 == url.indexOf('//') || !!~url.indexOf('://');
-  };
-
-  /**
-   * Check if `url` is relative.
-   *
-   * @param {String} url
-   * @return {Boolean}
-   * @api public
-   */
-
-  exports.isRelative = function(url){
-    return !exports.isAbsolute(url);
-  };
-
-  /**
-   * Check if `url` is cross domain.
-   *
-   * @param {String} url
-   * @return {Boolean}
-   * @api public
-   */
-
-  exports.isCrossDomain = function(url){
-    url = exports.parse(url);
-    var location = exports.parse(window.location.href);
-    return url.hostname !== location.hostname
-      || url.port !== location.port
-      || url.protocol !== location.protocol;
-  };
-
-  /**
-   * Return default port for `protocol`.
-   *
-   * @param  {String} protocol
-   * @return {String}
-   * @api private
-   */
-  function port (protocol){
-    switch (protocol) {
-      case 'http:':
-        return 80;
-      case 'https:':
-        return 443;
-      default:
-        return location.port;
-    }
-  }
-  });
-  var componentUrl_1 = componentUrl.parse;
-  var componentUrl_2 = componentUrl.isAbsolute;
-  var componentUrl_3 = componentUrl.isRelative;
-  var componentUrl_4 = componentUrl.isCrossDomain;
-
   /**
    * Helpers.
    */
@@ -9471,7 +9487,7 @@
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.1.2";
+    this.version = "1.0.6";
   };
 
   // Library information class
@@ -9479,7 +9495,7 @@
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.1.2";
+    this.version = "1.0.6";
   }; // Operating System information class
 
 
@@ -11841,7 +11857,7 @@
         }
 
         if (options && options.configUrl) {
-          configUrl = options.configUrl;
+          configUrl = getUserProvidedConfigUrl(options.configUrl);
         }
 
         if (options && options.sendAdblockPage) {
