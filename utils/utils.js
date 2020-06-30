@@ -2,6 +2,8 @@
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
+import { parse } from "component-url";
+import { CONFIG_URL } from "./constants";
 
 /**
  *
@@ -142,7 +144,7 @@ function handleError(error, analyticsInstance) {
 
 function getDefaultPageProperties() {
   const canonicalUrl = getCanonicalUrl();
-  const path = canonicalUrl ? canonicalUrl.pathname : window.location.pathname;
+  const path = canonicalUrl ? parse(canonicalUrl).pathname : window.location.pathname;
   const { referrer } = document;
   const { search } = window.location;
   const { title } = document;
@@ -400,6 +402,23 @@ function type(val) {
   return typeof val;
 }
 
+function getUserProvidedConfigUrl(configUrl){
+  let url = configUrl;
+  if(configUrl.indexOf("sourceConfig") == -1){
+    url = url.slice(-1) == "/" ? url.slice(0, -1) : url;
+    url = `${url}/sourceConfig/`
+  }
+  url = url.slice(-1) == "/" ? url : `${url}/`;
+  if(url.indexOf("?") > -1){
+    if(url.split("?")[1] !==  CONFIG_URL.split("?")[1]){
+      url = url.split("?")[0] + "?" + CONFIG_URL.split("?")[1];
+    }
+  } else {
+    url = url + "?" + CONFIG_URL.split("\?")[1];
+  }
+  return url;
+}
+
 export {
   replacer,
   generateUUID,
@@ -408,6 +427,7 @@ export {
   getJSON,
   getRevenue,
   getDefaultPageProperties,
+  getUserProvidedConfigUrl,
   findAllEnabledDestinations,
   tranformToRudderNames,
   transformToServerNames,
