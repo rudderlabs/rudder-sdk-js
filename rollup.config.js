@@ -9,9 +9,13 @@ import globals from "rollup-plugin-node-globals";
 import json from "rollup-plugin-json";
 import gzipPlugin from "rollup-plugin-gzip";
 import brotli from "rollup-plugin-brotli";
-import { version } from "./package.json";
+import * as webPackage from "./package.json";
+import * as npmPackage from "./dist/rudder-sdk-js/package.json";
+
 
 let distFileName = "";
+let version = webPackage.version;
+let moduleType = "web";
 switch (process.env.ENV) {
   case "prod":
     switch (process.env.ENC) {
@@ -50,6 +54,8 @@ if (process.env.NPM == "true") {
     format: "umd",
     name: "rudderanalytics",
   });
+  version = npmPackage.version;
+  moduleType = "npm";
 } else {
   outputFiles.push({
     file: distFileName,
@@ -72,6 +78,7 @@ export default {
       "process.browser": process.env.NODE_ENV != "true",
       "process.prod": process.env.ENV == "prod",
       "process.package_version": version,
+      "process.module_type": moduleType
     }),
     resolve({
       jsnext: true,
