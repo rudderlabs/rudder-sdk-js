@@ -5,6 +5,7 @@ import {
   generateUUID,
   handleError,
   getDefaultPageProperties,
+  getUserProvidedConfigUrl,
   findAllEnabledDestinations,
   tranformToRudderNames,
   transformToServerNames,
@@ -756,7 +757,7 @@ class Analytics {
       tranformToRudderNames(this.loadOnlyIntegrations);
     }
     if (options && options.configUrl) {
-      configUrl = options.configUrl;
+      configUrl = getUserProvidedConfigUrl(options.configUrl);
     }
     if (options && options.sendAdblockPage) {
       this.sendAdblockPage = true;
