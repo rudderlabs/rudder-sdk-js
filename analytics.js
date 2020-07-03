@@ -122,7 +122,7 @@ class Analytics {
         }
       }, this);
 
-      console.log("this.clientIntegrations: ", this.clientIntegrations);
+      logger.debug("this.clientIntegrations: ", this.clientIntegrations);
       // intersection of config-plane native sdk destinations with sdk load time destination list
       this.clientIntegrations = findAllEnabledDestinations(
         this.loadOnlyIntegrations,
