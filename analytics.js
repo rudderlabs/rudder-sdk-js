@@ -497,6 +497,7 @@ class Analytics {
   processIdentify(userId, traits, options, callback) {
     if (userId && this.userId && userId !== this.userId) {
       this.reset();
+      this.anonymousId = this.getAnonymousId();
     }
     this.userId = userId;
     this.storage.setUserId(this.userId);
@@ -716,6 +717,7 @@ class Analytics {
    */
   reset() {
     this.userId = "";
+    this.anonymousId = "";
     this.userTraits = {};
     this.storage.clear();
   }
