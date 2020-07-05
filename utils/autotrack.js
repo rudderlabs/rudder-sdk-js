@@ -68,6 +68,7 @@ function isTextNode(el) {
   return el && el.nodeType === 3; // Node.TEXT_NODE - use integer constant for browser portability
 }
 
+// excerpt from https://github.com/mixpanel/mixpanel-js/blob/master/src/autotrack-utils.js
 function shouldTrackElement(el) {
 
   if (!el.parentNode || isTag(el, "body")) return false;
@@ -238,6 +239,7 @@ function isExplicitNoTrack(el){
   return false;
 }
 
+// excerpt from https://github.com/mixpanel/mixpanel-js/blob/master/src/autotrack-utils.js
 function isValueToBeTracked(value){
   if(value === null || value === undefined){
     return false;
@@ -274,6 +276,12 @@ function isValueToBeTracked(value){
 return true;
 }
 
+// if the element name is provided in the valTrackingList while loading rudderanalytics, track the value.
+/**
+ * 
+ * @param {*} el 
+ * @param {*} includeList - valTrackingList provided in rudderanalytics.load()
+ */
 function isValueToBeTrackedFromTrackingList(el, includeList) {
   const elAttributesLength = el.attributes.length;
   for (let i = 0; i < elAttributesLength; i++) {
