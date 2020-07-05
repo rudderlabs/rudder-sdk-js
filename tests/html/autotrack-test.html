@@ -21,18 +21,22 @@
       {
         logLevel: "DEBUG",
         valTrackingList: [
-          "username",
-          "subject",
-          "user-password",
           "googleClientId",
-          "country",
-          "radio"
-        ]
+          "radio",
+          "user-pwd2",
+          "Description",
+          "user-pwd"
+        ],
+        useAutoTracking: true
       }
     );
   </script>
 
   <script src="browser.js"></script>
+  <!-- <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.async=!0,p.src=s.api_host+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('8ng06D71u4W2CXnq9OcvtkVO0kn9lisgW3KTA2E85Vs', {api_host: 'http://localhost:8000'})
+  </script> -->
 </head>
 <body>
   <div>
@@ -41,7 +45,7 @@
 
     <form id="myForm">
       Username:<br />
-      <input type="text" name="username" />
+      <input type="text" name="ssntest" />
       <br />
       Email id:<br />
       <input type="text" name="email_id" />
@@ -54,9 +58,17 @@
         class="rudder-no-track"
       />
       <br />
-      <input type="radio" name="gender" id="male" />
+      <label for="user-password2">Password: </label><br />
+      <input
+        type="password"
+        name="user-pwd2"
+        id="user-password2"
+        class="rudder-include"
+      />
+      <br />
+      <input type="radio" name="gender" id="male" class="rudder-include"/>
       <label for="male">Male</label><br />
-      <input type="radio" name="gender" id="female" />
+      <input type="radio" name="gender" id="female" class="rudder-include"/>
       <label for="female">Female</label>
       <input type="checkbox" name="subject" id="maths" />
       <label for="maths">Maths</label>
@@ -70,7 +82,16 @@
         cols="50"
         name="Description"
         id="Description"
+        class="rudder-include"
       ></textarea>
+      <div> This is password</div>
+      <div> This should be tracked</div>
+      <div> This is 1111-2222-3333 - adhar number </div>
+      <div name="testssn"> This is bad!</div>
+      <div>
+        <label name="ssn"> This too is bad!</label>
+      </div>
+      <div ssn="testssn" key1="value1" key2="AAAAA1111Q"> This is good! key2 attribute will not be tracked!</div>
       <label for="country">Country:</label>
       <select id="country" id="country">
         <option value="India">India</option>
@@ -82,6 +103,7 @@
         name="googleClientId"
         class="googleClientId"
         value="my-gcid"
+        class="rudder-include"
       />
       <input type="submit" value="Submit" />
     </form>
