@@ -239,12 +239,21 @@ rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI", {useAutoTracking:  true
 
 ```
 
-By default, the SDK don't capture any DOM element values. To start capturing values, like form field values when submitting the form, other input element values etc, whitelist them using any attribute of the element for which you want to send values, For ex, tracking element values for all elements whose any one attribute is "CLASS_ATTR_NAME":
+By default, SDK does not track hidden, password elements, and element of type input, select, text-areas, i.e, events like `click | change | submit` on these elements won’t get tracked.
+
+If an element with class `rudder-include` is present, that element becomes eligible for tracking.
+
+By default, the SDK doesn't capture any DOM element **values**. To start capturing values, like form field values when submitting the form, other input element values etc, whitelist them using any attribute of the element for which you want to send values, For ex, tracking element values for all elements whose any one attribute is "CLASS_ATTR_NAME":
 
 ```
 rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI", {useAutoTracking:  true, valTrackingList: ["CLASS_ATTR_NAME"]});
 
 ```
+
+The SDK tracks the element attributes and text elements as properties of the DOM event. It removes the attributes that have information which can be **sensitive** like Credit card no, SSN, PAN, ADHAR.
+
+If an element with class `rudder-no-track` is present in the DOM, SDK will not track on that node along with any child nodes in the DOM tree.
+
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#self-hosted-config-plane)Self-hosted Config Plane
 
