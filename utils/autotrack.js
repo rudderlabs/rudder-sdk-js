@@ -68,8 +68,65 @@ function isTextNode(el) {
   return el && el.nodeType === 3; // Node.TEXT_NODE - use integer constant for browser portability
 }
 
+// excerpt from https://github.com/mixpanel/mixpanel-js/blob/master/src/autotrack-utils.js
 function shouldTrackElement(el) {
+
   if (!el.parentNode || isTag(el, "body")) return false;
+
+  let curEl = el;
+  while (curEl.parentNode && !isTag(curEl, "body")) {
+    let classes = getClassName(el).split(" ");
+
+    // if explicitly specified "rudder-no-track", even at parent level, dont track the child nodes too.
+    if (classes.indexOf("rudder-no-track") >= 0) {
+      return false;
+    }
+    curEl = curEl.parentNode;
+  }
+
+  // if explicitly set "rudder-include", at element level, then track the element even if the element is hidden or sensitive.
+  let classes = getClassName(el).split(" ");
+  if (classes.indexOf("rudder-include") >= 0) {
+    return true;
+  }
+
+  // for general elements, do not track input/select/textarea(s)
+  if (
+    isTag(el, 'input') ||
+    isTag(el, 'select') ||
+    isTag(el, 'textarea') ||
+    el.getAttribute('contenteditable') === 'true'
+  ) {
+    return false;
+  } else if (el.getAttribute('contenteditable') === 'inherit'){
+    for(curEl = el.parentNode; curEl.parentNode && !isTag(curEl, "body"); curEl = curEl.parentNode){
+      if(curEl.getAttribute('contenteditable') === 'true'){
+        return false;
+      }
+    }
+  }
+
+  // do not track hidden/password elements
+  let type = el.type || '';
+    if (typeof type === 'string') { // it's possible for el.type to be a DOM element if el is a form with a child input[name="type"]
+        switch(type.toLowerCase()) {
+            case 'hidden':
+                return false;
+            case 'password':
+                return false;
+        }
+    }
+
+    // filter out data from fields that look like sensitive field - 
+    // safeguard - match with regex with possible strings as id or name of an element for creditcard, password, ssn, pan, adhar
+    let name = el.name || el.id || '';
+    if (typeof name === 'string') { // it's possible for el.name or el.id to be a DOM element if el is a form with a child input[name="name"]
+        let sensitiveNameRegex = /^adhar|cc|cardnum|ccnum|creditcard|csc|cvc|cvv|exp|pan|pass|pwd|routing|seccode|securitycode|securitynum|socialsec|socsec|ssn/i;
+        if (sensitiveNameRegex.test(name.replace(/[^a-zA-Z0-9]/g, ''))) {
+            return false;
+        }
+    }
+
   return true;
 }
 
@@ -98,8 +155,8 @@ function trackWindowEvent(e, rudderanalytics) {
       for (let i = 0; i < target.elements.length; i++) {
         const formElement = target.elements[i];
         if (
-          isElToBeTracked(formElement) &&
-          isElValueToBeTracked(formElement, rudderanalytics.trackValues)
+          shouldTrackElement(formElement) &&
+          isValueToBeTrackedFromTrackingList(formElement, rudderanalytics.trackValues)
         ) {
           const name = formElement.id ? formElement.id : formElement.name;
           if (name && typeof name === "string") {
@@ -121,42 +178,38 @@ function trackWindowEvent(e, rudderanalytics) {
         }
       }
     }
-    const targetElementList = [target];
+    const targetElementList = [];
     let curEl = target;
+    if(isExplicitNoTrack(curEl)){
+      return false;
+    }
     while (curEl.parentNode && !isTag(curEl, "body")) {
-      targetElementList.push(curEl.parentNode);
+      if(shouldTrackElement(curEl)){
+        targetElementList.push(curEl);
+      }
       curEl = curEl.parentNode;
     }
 
     const elementsJson = [];
     let href;
-    let explicitNoTrack = false;
 
     targetElementList.forEach((el) => {
-      const shouldTrackEl = shouldTrackElement(el);
 
       // if the element or a parent element is an anchor tag
       // include the href as a property
       if (el.tagName.toLowerCase() === "a") {
         href = el.getAttribute("href");
-        href = shouldTrackEl && href;
+        href =  isValueToBeTracked(href) && href;
       }
-
-      // allow users to programatically prevent tracking of elements by adding class 'rudder-no-track'
-
-      explicitNoTrack = explicitNoTrack || !isElToBeTracked(el);
-
-      // explicitNoTrack = !isElToBeTracked(el);
-
       elementsJson.push(getPropertiesFromElement(el, rudderanalytics));
     });
 
-    if (explicitNoTrack) {
+    if (targetElementList && targetElementList.length == 0) {
       return false;
     }
 
     let elementText = "";
-    const text = getText(target); // target.innerText//target.textContent//getSafeText(target);
+    const text = getText(target); 
     if (text && text.length) {
       elementText = text;
     }
@@ -178,7 +231,58 @@ function trackWindowEvent(e, rudderanalytics) {
   }
 }
 
-function isElValueToBeTracked(el, includeList) {
+function isExplicitNoTrack(el){
+  const classes = getClassName(el).split(" ");
+  if (classes.indexOf("rudder-no-track") >= 0) {
+    return true;
+  }
+  return false;
+}
+
+// excerpt from https://github.com/mixpanel/mixpanel-js/blob/master/src/autotrack-utils.js
+function isValueToBeTracked(value){
+  if(value === null || value === undefined){
+    return false;
+  }
+  if (typeof value === 'string') {
+    value = value.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+
+    // check to see if input value looks like a credit card number
+    // see: https://www.safaribooksonline.com/library/view/regular-expressions-cookbook/9781449327453/ch04s20.html
+    var ccRegex = /^(?:(4[0-9]{12}(?:[0-9]{3})?)|(5[1-5][0-9]{14})|(6(?:011|5[0-9]{2})[0-9]{12})|(3[47][0-9]{13})|(3(?:0[0-5]|[68][0-9])[0-9]{11})|((?:2131|1800|35[0-9]{3})[0-9]{11}))$/;
+    if (ccRegex.test((value || '').replace(/[- ]/g, ''))) {
+        return false;
+    }
+
+    // check to see if input value looks like a social security number
+    var ssnRegex = /(^\d{3}-?\d{2}-?\d{4}$)/;
+    if (ssnRegex.test(value)) {
+        return false;
+    }
+
+    // check to see if input value looks like a adhar number
+    var adharRegex = /(^\d{4}-?\d{4}-?\d{4}$)/;
+    if (adharRegex.test(value)) {
+        return false;
+    }
+
+    // check to see if input value looks like a PAN number
+    var panRegex = /(^\w{5}-?\d{4}-?\w{1}$)/;
+    if (panRegex.test(value)) {
+        return false;
+    }
+}
+
+return true;
+}
+
+// if the element name is provided in the valTrackingList while loading rudderanalytics, track the value.
+/**
+ * 
+ * @param {*} el 
+ * @param {*} includeList - valTrackingList provided in rudderanalytics.load()
+ */
+function isValueToBeTrackedFromTrackingList(el, includeList) {
   const elAttributesLength = el.attributes.length;
   for (let i = 0; i < elAttributesLength; i++) {
     const { value } = el.attributes[i];
@@ -189,19 +293,15 @@ function isElValueToBeTracked(el, includeList) {
   return false;
 }
 
-function isElToBeTracked(el) {
-  const classes = getClassName(el).split(" ");
-  if (classes.indexOf("rudder-no-track") >= 0) {
-    return false;
-  }
-  return true;
-}
-
 function getText(el) {
   let text = "";
   el.childNodes.forEach(function (value) {
     if (value.nodeType === Node.TEXT_NODE) {
-      text += value.nodeValue;
+      let textContent = value.nodeValue.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+
+      // take each word from the text content and check whether the value should be tracked. Also, replace the whitespaces.
+      let textValue = textContent.split(/(\s+)/).filter(isValueToBeTracked).join('').replace(/[\r\n]/g, ' ');
+      text += textValue;
     }
   });
   return text.trim();
@@ -217,12 +317,12 @@ function getPropertiesFromElement(elem, rudderanalytics) {
   for (let i = 0; i < attrLength; i++) {
     const { name } = elem.attributes[i];
     const { value } = elem.attributes[i];
-    if (value) {
+    if (value && isValueToBeTracked(value)) {
       props[`attr__${name}`] = value;
     }
     if (
       (name == "name" || name == "id") &&
-      isElValueToBeTracked(elem, rudderanalytics.trackValues)
+      isValueToBeTrackedFromTrackingList(elem, rudderanalytics.trackValues)
     ) {
       props.field_value =
         name == "id"

@@ -21,13 +21,13 @@
       {
         logLevel: "DEBUG",
         valTrackingList: [
-          "username",
-          "subject",
-          "user-password",
           "googleClientId",
-          "country",
-          "radio"
-        ]
+          "radio",
+          "user-pwd2",
+          "Description",
+          "user-pwd"
+        ],
+        useAutoTracking: true
       }
     );
   </script>
@@ -41,7 +41,7 @@
 
     <form id="myForm">
       Username:<br />
-      <input type="text" name="username" />
+      <input type="text" name="ssntest" />
       <br />
       Email id:<br />
       <input type="text" name="email_id" />
@@ -54,9 +54,17 @@
         class="rudder-no-track"
       />
       <br />
-      <input type="radio" name="gender" id="male" />
+      <label for="user-password2">Password: </label><br />
+      <input
+        type="password"
+        name="user-pwd2"
+        id="user-password2"
+        class="rudder-include"
+      />
+      <br />
+      <input type="radio" name="gender" id="male" class="rudder-include"/>
       <label for="male">Male</label><br />
-      <input type="radio" name="gender" id="female" />
+      <input type="radio" name="gender" id="female" class="rudder-include"/>
       <label for="female">Female</label>
       <input type="checkbox" name="subject" id="maths" />
       <label for="maths">Maths</label>
@@ -70,7 +78,16 @@
         cols="50"
         name="Description"
         id="Description"
+        class="rudder-include"
       ></textarea>
+      <div> This is password</div>
+      <div> This should be tracked</div>
+      <div> This is 1111-2222-3333 - adhar number </div>
+      <div name="testssn"> This is bad!</div>
+      <div>
+        <label name="ssn"> This too is bad!</label>
+      </div>
+      <div ssn="testssn" key1="value1" key2="AAAAA1111Q"> This is good! key2 attribute will not be tracked!</div>
       <label for="country">Country:</label>
       <select id="country" id="country">
         <option value="India">India</option>
@@ -82,6 +99,7 @@
         name="googleClientId"
         class="googleClientId"
         value="my-gcid"
+        class="rudder-include"
       />
       <input type="submit" value="Submit" />
     </form>
