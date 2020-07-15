@@ -88,6 +88,7 @@ class Analytics {
     this.methodToCallbackMapping = {
       syncPixel: "syncPixelCallback",
     };
+    this.loaded = false;
   }
 
   /**
@@ -318,6 +319,7 @@ class Analytics {
    * @memberof Analytics
    */
   page(category, name, properties, options, callback) {
+    if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
       (callback = properties), (options = properties = null);
@@ -345,6 +347,7 @@ class Analytics {
    * @memberof Analytics
    */
   track(event, properties, options, callback) {
+    if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
       (callback = properties), (options = null), (properties = null);
@@ -362,6 +365,7 @@ class Analytics {
    * @memberof Analytics
    */
   identify(userId, traits, options, callback) {
+    if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof traits === "function")
       (callback = traits), (options = null), (traits = null);
@@ -379,6 +383,7 @@ class Analytics {
    * @param {*} callback
    */
   alias(to, from, options, callback) {
+    if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof from === "function")
       (callback = from), (options = null), (from = null);
@@ -405,6 +410,7 @@ class Analytics {
    * @param {*} callback
    */
   group(groupId, traits, options, callback) {
+    if (!this.loaded) return;
     if (!arguments.length) return;
 
     if (typeof options === "function") (callback = options), (options = null);
@@ -721,6 +727,7 @@ class Analytics {
   }
 
   getAnonymousId() {
+    if (!this.loaded) return;
     this.anonymousId = this.storage.getAnonymousId();
     if (!this.anonymousId) {
       this.setAnonymousId();
@@ -729,6 +736,7 @@ class Analytics {
   }
 
   setAnonymousId(anonymousId) {
+    if (!this.loaded) return;
     this.anonymousId = anonymousId || generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
   }
@@ -819,9 +827,11 @@ class Analytics {
         addDomEventHandlers(instance);
       }
     }
+    this.loaded = true;
   }
 
   ready(callback) {
+    if (!this.loaded) return;
     if (typeof callback === "function") {
       this.readyCallback = callback;
       return;
@@ -914,14 +924,17 @@ const eventsPushedAlready =
   window.rudderanalytics.push == Array.prototype.push;
 
 const methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
-if (methodArg.length > 0 && methodArg[0] == "load") {
+if (methodArg.length > 0 && methodArg[0] !== "load") {
+    throw Error("SDK is not loaded with writekey");
+}
+if (methodArg.length > 0 && methodArg[0] === "load") {
   const method = methodArg[0];
   methodArg.shift();
   logger.debug("=====from init, calling method:: ", method);
   instance[method](...methodArg);
 }
 
-if (eventsPushedAlready) {
+if (instance.loaded && eventsPushedAlready) {
   for (let i = 1; i < window.rudderanalytics.length; i++) {
     instance.toBeProcessedArray.push(window.rudderanalytics[i]);
   }
