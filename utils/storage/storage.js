@@ -1,4 +1,5 @@
-import CryptoJS from "crypto-js";
+import AES from "crypto-js/aes";
+import Utf8 from "crypto-js/enc-utf8";
 import logger from "../logUtil";
 import { Cookie } from "./cookie";
 import { Store } from "./store";
@@ -71,7 +72,7 @@ class Storage {
     if (this.trim(value) == "") {
       return value;
     }
-    const prefixedVal = `${defaults.prefix}${CryptoJS.AES.encrypt(
+    const prefixedVal = `${defaults.prefix}${AES.encrypt(
       value,
       EventRepository.writeKey
     ).toString()}`;
@@ -88,10 +89,10 @@ class Storage {
       return value;
     }
     if (value.substring(0, defaults.prefix.length) == defaults.prefix) {
-      return CryptoJS.AES.decrypt(
+      return AES.decrypt(
         value.substring(defaults.prefix.length),
         EventRepository.writeKey
-      ).toString(CryptoJS.enc.Utf8);
+      ).toString(Utf8);
     }
     return value;
   }
