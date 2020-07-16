@@ -88,7 +88,6 @@ class Analytics {
     this.methodToCallbackMapping = {
       syncPixel: "syncPixelCallback",
     };
-    this.loaded = false;
   }
 
   /**
@@ -319,7 +318,6 @@ class Analytics {
    * @memberof Analytics
    */
   page(category, name, properties, options, callback) {
-    if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
       (callback = properties), (options = properties = null);
@@ -347,7 +345,6 @@ class Analytics {
    * @memberof Analytics
    */
   track(event, properties, options, callback) {
-    if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
       (callback = properties), (options = null), (properties = null);
@@ -365,7 +362,6 @@ class Analytics {
    * @memberof Analytics
    */
   identify(userId, traits, options, callback) {
-    if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof traits === "function")
       (callback = traits), (options = null), (traits = null);
@@ -383,7 +379,6 @@ class Analytics {
    * @param {*} callback
    */
   alias(to, from, options, callback) {
-    if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof from === "function")
       (callback = from), (options = null), (from = null);
@@ -410,7 +405,6 @@ class Analytics {
    * @param {*} callback
    */
   group(groupId, traits, options, callback) {
-    if (!this.loaded) return;
     if (!arguments.length) return;
 
     if (typeof options === "function") (callback = options), (options = null);
@@ -727,7 +721,6 @@ class Analytics {
   }
 
   getAnonymousId() {
-    if (!this.loaded) return;
     this.anonymousId = this.storage.getAnonymousId();
     if (!this.anonymousId) {
       this.setAnonymousId();
@@ -736,7 +729,6 @@ class Analytics {
   }
 
   setAnonymousId(anonymousId) {
-    if (!this.loaded) return;
     this.anonymousId = anonymousId || generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
   }
@@ -750,7 +742,7 @@ class Analytics {
   load(writeKey, serverUrl, options) {
     logger.debug("inside load ");
     let configUrl = CONFIG_URL;
-    if (!writeKey || !serverUrl || serverUrl.length == 0) {
+    if (!writeKey || !serverUrl || typeof serverUrl !== "string" || serverUrl.length == 0) {
       handleError({
         message:
           "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl",
@@ -827,11 +819,9 @@ class Analytics {
         addDomEventHandlers(instance);
       }
     }
-    this.loaded = true;
   }
 
   ready(callback) {
-    if (!this.loaded) return;
     if (typeof callback === "function") {
       this.readyCallback = callback;
       return;
