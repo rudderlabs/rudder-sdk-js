@@ -61,6 +61,21 @@ class Analytics {
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
     this.storage = Storage;
+    this.eventRepository = EventRepository;
+    this.sendAdblockPage = false;
+    this.sendAdblockPageOptions = {};
+    this.clientSuppliedCallbacks = {};
+    this.readyCallback = () => {};
+    this.executeReadyCallback = undefined;
+    this.methodToCallbackMapping = {
+      syncPixel: "syncPixelCallback",
+    };
+  }
+
+  /**
+   * initialize the user after load config
+   */
+  initializeUser() {
     this.userId =
       this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
 
@@ -78,16 +93,13 @@ class Analytics {
         : {};
 
     this.anonymousId = this.getAnonymousId();
+
+    // save once for storing older values to encrypted
     this.storage.setUserId(this.userId);
-    this.eventRepository = EventRepository;
-    this.sendAdblockPage = false;
-    this.sendAdblockPageOptions = {};
-    this.clientSuppliedCallbacks = {};
-    this.readyCallback = () => {};
-    this.executeReadyCallback = undefined;
-    this.methodToCallbackMapping = {
-      syncPixel: "syncPixelCallback",
-    };
+    this.storage.setAnonymousId(this.anonymousId);
+    this.storage.setGroupId(this.groupId);
+    this.storage.setUserTraits(this.userTraits);
+    this.storage.setGroupTraits(this.groupTraits);
   }
 
   /**
@@ -792,6 +804,7 @@ class Analytics {
     if (serverUrl) {
       this.eventRepository.url = serverUrl;
     }
+    this.initializeUser();
     if (
       options &&
       options.valTrackingList &&
