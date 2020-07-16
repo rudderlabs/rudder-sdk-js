@@ -924,7 +924,7 @@ if (methodArg.length > 0 && methodArg[0] === "load") {
   instance[method](...methodArg);
 }
 
-if (instance.loaded && eventsPushedAlready) {
+if (eventsPushedAlready) {
   for (let i = 1; i < window.rudderanalytics.length; i++) {
     instance.toBeProcessedArray.push(window.rudderanalytics[i]);
   }
