@@ -742,7 +742,7 @@ class Analytics {
   load(writeKey, serverUrl, options) {
     logger.debug("inside load ");
     let configUrl = CONFIG_URL;
-    if (!writeKey || !serverUrl || serverUrl.length == 0) {
+    if (!writeKey || !serverUrl || typeof serverUrl !== "string" || serverUrl.length == 0) {
       handleError({
         message:
           "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl",
@@ -914,7 +914,10 @@ const eventsPushedAlready =
   window.rudderanalytics.push == Array.prototype.push;
 
 const methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
-if (methodArg.length > 0 && methodArg[0] == "load") {
+if (methodArg.length > 0 && methodArg[0] !== "load") {
+    throw Error("SDK is not loaded with writekey");
+}
+if (methodArg.length > 0 && methodArg[0] === "load") {
   const method = methodArg[0];
   methodArg.shift();
   logger.debug("=====from init, calling method:: ", method);
