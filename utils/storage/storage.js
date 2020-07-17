@@ -3,7 +3,6 @@ import Utf8 from "crypto-js/enc-utf8";
 import logger from "../logUtil";
 import { Cookie } from "./cookie";
 import { Store } from "./store";
-import { EventRepository } from "../EventRepository";
 
 const defaults = {
   user_storage_key: "rl_user_id",
@@ -12,6 +11,7 @@ const defaults = {
   group_storage_key: "rl_group_id",
   group_storage_trait: "rl_group_trait",
   prefix: "RudderEncrypt:",
+  key: "Rudder",
 };
 
 /**
@@ -74,7 +74,7 @@ class Storage {
     }
     const prefixedVal = `${defaults.prefix}${AES.encrypt(
       value,
-      EventRepository.writeKey
+      defaults.key
     ).toString()}`;
 
     return prefixedVal;
@@ -91,7 +91,7 @@ class Storage {
     if (value.substring(0, defaults.prefix.length) == defaults.prefix) {
       return AES.decrypt(
         value.substring(defaults.prefix.length),
-        EventRepository.writeKey
+        defaults.key
       ).toString(Utf8);
     }
     return value;
