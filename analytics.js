@@ -88,6 +88,7 @@ class Analytics {
     this.methodToCallbackMapping = {
       syncPixel: "syncPixelCallback",
     };
+    this.loaded = false;
   }
 
   /**
@@ -318,6 +319,7 @@ class Analytics {
    * @memberof Analytics
    */
   page(category, name, properties, options, callback) {
+    if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
       (callback = properties), (options = properties = null);
@@ -345,6 +347,7 @@ class Analytics {
    * @memberof Analytics
    */
   track(event, properties, options, callback) {
+    if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
       (callback = properties), (options = null), (properties = null);
@@ -362,6 +365,7 @@ class Analytics {
    * @memberof Analytics
    */
   identify(userId, traits, options, callback) {
+    if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof traits === "function")
       (callback = traits), (options = null), (traits = null);
@@ -379,6 +383,7 @@ class Analytics {
    * @param {*} callback
    */
   alias(to, from, options, callback) {
+    if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof from === "function")
       (callback = from), (options = null), (from = null);
@@ -405,6 +410,7 @@ class Analytics {
    * @param {*} callback
    */
   group(groupId, traits, options, callback) {
+    if (!this.loaded) return;
     if (!arguments.length) return;
 
     if (typeof options === "function") (callback = options), (options = null);
@@ -715,12 +721,14 @@ class Analytics {
    * @memberof Analytics
    */
   reset() {
+    if (!this.loaded) return;
     this.userId = "";
     this.userTraits = {};
     this.storage.clear();
   }
 
   getAnonymousId() {
+    if (!this.loaded) return;
     this.anonymousId = this.storage.getAnonymousId();
     if (!this.anonymousId) {
       this.setAnonymousId();
@@ -729,6 +737,7 @@ class Analytics {
   }
 
   setAnonymousId(anonymousId) {
+    if (!this.loaded) return;
     this.anonymousId = anonymousId || generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
   }
@@ -741,6 +750,7 @@ class Analytics {
    */
   load(writeKey, serverUrl, options) {
     logger.debug("inside load ");
+    if (this.loaded) return;
     let configUrl = CONFIG_URL;
     if (!writeKey || !serverUrl || typeof serverUrl !== "string" || serverUrl.length == 0) {
       handleError({
@@ -819,9 +829,11 @@ class Analytics {
         addDomEventHandlers(instance);
       }
     }
+    this.loaded = true;
   }
 
   ready(callback) {
+    if (!this.loaded) return;
     if (typeof callback === "function") {
       this.readyCallback = callback;
       return;
@@ -913,20 +925,22 @@ const eventsPushedAlready =
   !!window.rudderanalytics &&
   window.rudderanalytics.push == Array.prototype.push;
 
-const methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
-if (methodArg.length > 0 && methodArg[0] !== "load") {
-    throw Error("SDK is not loaded with writekey");
+let argumentsArray = window.rudderanalytics;
+
+while(argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load"){
+  argumentsArray.shift();
 }
-if (methodArg.length > 0 && methodArg[0] === "load") {
-  const method = methodArg[0];
-  methodArg.shift();
+if(argumentsArray.length > 0 && argumentsArray[0][0] === "load"){
+  const method = argumentsArray[0][0];
+  argumentsArray[0].shift();
   logger.debug("=====from init, calling method:: ", method);
-  instance[method](...methodArg);
+  instance[method](...argumentsArray[0]);
+  argumentsArray.shift();
 }
 
-if (eventsPushedAlready) {
-  for (let i = 1; i < window.rudderanalytics.length; i++) {
-    instance.toBeProcessedArray.push(window.rudderanalytics[i]);
+if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
+  for (let i = 0; i < argumentsArray.length; i++) {
+    instance.toBeProcessedArray.push(argumentsArray[i]);
   }
 
   for (let i = 0; i < instance.toBeProcessedArray.length; i++) {
