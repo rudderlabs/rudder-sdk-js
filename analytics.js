@@ -742,6 +742,20 @@ class Analytics {
     this.storage.setAnonymousId(this.anonymousId);
   }
 
+  isValidWriteKey(writeKey){
+    if(!writeKey || typeof writeKey !== "string" || writeKey.trim().length == 0){
+      return false;
+    }
+    return true;
+  }
+
+  isValidServerUrl(serverUrl){
+    if(!serverUrl || typeof serverUrl !== "string" || serverUrl.trim().length == 0){
+      return false;
+    }
+    return true;
+  }
+
   /**
    * Call control pane to get client configs
    *
@@ -752,7 +766,7 @@ class Analytics {
     logger.debug("inside load ");
     if (this.loaded) return;
     let configUrl = CONFIG_URL;
-    if (!writeKey || !serverUrl || typeof serverUrl !== "string" || serverUrl.length == 0) {
+    if ( !this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl) ) {
       handleError({
         message:
           "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl",
