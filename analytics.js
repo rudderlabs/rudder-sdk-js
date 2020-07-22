@@ -70,6 +70,7 @@ class Analytics {
     this.methodToCallbackMapping = {
       syncPixel: "syncPixelCallback",
     };
+    this.loaded = false;
   }
 
   /**
@@ -96,23 +97,10 @@ class Analytics {
 
     // save once for storing older values to encrypted
     this.storage.setUserId(this.userId);
-<<<<<<< HEAD
-    this.eventRepository = EventRepository;
-    this.sendAdblockPage = false;
-    this.sendAdblockPageOptions = {};
-    this.clientSuppliedCallbacks = {};
-    this.readyCallback = () => {};
-    this.executeReadyCallback = undefined;
-    this.methodToCallbackMapping = {
-      syncPixel: "syncPixelCallback",
-    };
-    this.loaded = false;
-=======
     this.storage.setAnonymousId(this.anonymousId);
     this.storage.setGroupId(this.groupId);
     this.storage.setUserTraits(this.userTraits);
     this.storage.setGroupTraits(this.groupTraits);
->>>>>>> add crpto-js for value encryption
   }
 
   /**
@@ -766,15 +754,23 @@ class Analytics {
     this.storage.setAnonymousId(this.anonymousId);
   }
 
-  isValidWriteKey(writeKey){
-    if(!writeKey || typeof writeKey !== "string" || writeKey.trim().length == 0){
+  isValidWriteKey(writeKey) {
+    if (
+      !writeKey ||
+      typeof writeKey !== "string" ||
+      writeKey.trim().length == 0
+    ) {
       return false;
     }
     return true;
   }
 
-  isValidServerUrl(serverUrl){
-    if(!serverUrl || typeof serverUrl !== "string" || serverUrl.trim().length == 0){
+  isValidServerUrl(serverUrl) {
+    if (
+      !serverUrl ||
+      typeof serverUrl !== "string" ||
+      serverUrl.trim().length == 0
+    ) {
       return false;
     }
     return true;
@@ -790,7 +786,7 @@ class Analytics {
     logger.debug("inside load ");
     if (this.loaded) return;
     let configUrl = CONFIG_URL;
-    if ( !this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl) ) {
+    if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
       handleError({
         message:
           "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl",
@@ -964,12 +960,16 @@ const eventsPushedAlready =
   !!window.rudderanalytics &&
   window.rudderanalytics.push == Array.prototype.push;
 
-let argumentsArray = window.rudderanalytics;
+const argumentsArray = window.rudderanalytics;
 
-while(argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load"){
+while (argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load") {
   argumentsArray.shift();
 }
-if(argumentsArray && argumentsArray.length > 0 && argumentsArray[0][0] === "load"){
+if (
+  argumentsArray &&
+  argumentsArray.length > 0 &&
+  argumentsArray[0][0] === "load"
+) {
   const method = argumentsArray[0][0];
   argumentsArray[0].shift();
   logger.debug("=====from init, calling method:: ", method);
