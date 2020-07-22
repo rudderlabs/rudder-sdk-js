@@ -26,6 +26,7 @@
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc "
   },
   "pre-commit": [
+    "prodTest",
     "test"
   ],
   "author": "",
@@ -49,7 +50,7 @@
     "component-each": "^0.2.6",
     "component-emitter": "github:component/emitter",
     "component-url": "^0.2.1",
-    "crypto-js": "^4.0.0",
+    "crypto-js": "3.1.9-1",
     "each": "^1.2.2",
     "fs": "0.0.1-security",
     "gh-release": "^3.5.0",
