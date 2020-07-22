@@ -944,7 +944,7 @@ let argumentsArray = window.rudderanalytics;
 while(argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load"){
   argumentsArray.shift();
 }
-if(argumentsArray.length > 0 && argumentsArray[0][0] === "load"){
+if(argumentsArray && argumentsArray.length > 0 && argumentsArray[0][0] === "load"){
   const method = argumentsArray[0][0];
   argumentsArray[0].shift();
   logger.debug("=====from init, calling method:: ", method);
