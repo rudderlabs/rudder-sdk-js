@@ -740,7 +740,7 @@ class Analytics {
   }
 
   getAnonymousId() {
-    if (!this.loaded) return;
+    // if (!this.loaded) return;
     this.anonymousId = this.storage.getAnonymousId();
     if (!this.anonymousId) {
       this.setAnonymousId();
@@ -749,7 +749,7 @@ class Analytics {
   }
 
   setAnonymousId(anonymousId) {
-    if (!this.loaded) return;
+    // if (!this.loaded) return;
     this.anonymousId = anonymousId || generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
   }
