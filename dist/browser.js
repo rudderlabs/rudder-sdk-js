@@ -444,147 +444,6 @@ var rudderanalytics = (function (exports) {
     VWO: "VWO"
   };
 
-  var componentUrl = createCommonjsModule(function (module, exports) {
-  /**
-   * Parse the given `url`.
-   *
-   * @param {String} str
-   * @return {Object}
-   * @api public
-   */
-
-  exports.parse = function(url){
-    var a = document.createElement('a');
-    a.href = url;
-    return {
-      href: a.href,
-      host: a.host || location.host,
-      port: ('0' === a.port || '' === a.port) ? port(a.protocol) : a.port,
-      hash: a.hash,
-      hostname: a.hostname || location.hostname,
-      pathname: a.pathname.charAt(0) != '/' ? '/' + a.pathname : a.pathname,
-      protocol: !a.protocol || ':' == a.protocol ? location.protocol : a.protocol,
-      search: a.search,
-      query: a.search.slice(1)
-    };
-  };
-
-  /**
-   * Check if `url` is absolute.
-   *
-   * @param {String} url
-   * @return {Boolean}
-   * @api public
-   */
-
-  exports.isAbsolute = function(url){
-    return 0 == url.indexOf('//') || !!~url.indexOf('://');
-  };
-
-  /**
-   * Check if `url` is relative.
-   *
-   * @param {String} url
-   * @return {Boolean}
-   * @api public
-   */
-
-  exports.isRelative = function(url){
-    return !exports.isAbsolute(url);
-  };
-
-  /**
-   * Check if `url` is cross domain.
-   *
-   * @param {String} url
-   * @return {Boolean}
-   * @api public
-   */
-
-  exports.isCrossDomain = function(url){
-    url = exports.parse(url);
-    var location = exports.parse(window.location.href);
-    return url.hostname !== location.hostname
-      || url.port !== location.port
-      || url.protocol !== location.protocol;
-  };
-
-  /**
-   * Return default port for `protocol`.
-   *
-   * @param  {String} protocol
-   * @return {String}
-   * @api private
-   */
-  function port (protocol){
-    switch (protocol) {
-      case 'http:':
-        return 80;
-      case 'https:':
-        return 443;
-      default:
-        return location.port;
-    }
-  }
-  });
-  var componentUrl_1 = componentUrl.parse;
-  var componentUrl_2 = componentUrl.isAbsolute;
-  var componentUrl_3 = componentUrl.isRelative;
-  var componentUrl_4 = componentUrl.isCrossDomain;
-
-  // Message Type enumeration
-  var MessageType = {
-    TRACK: "track",
-    PAGE: "page",
-    // SCREEN: "screen",
-    IDENTIFY: "identify"
-  }; // ECommerce Parameter Names Enumeration
-
-  var ECommerceEvents = {
-    PRODUCTS_SEARCHED: "Products Searched",
-    PRODUCT_LIST_VIEWED: "Product List Viewed",
-    PRODUCT_LIST_FILTERED: "Product List Filtered",
-    PROMOTION_VIEWED: "Promotion Viewed",
-    PROMOTION_CLICKED: "Promotion Clicked",
-    PRODUCT_CLICKED: "Product Clicked",
-    PRODUCT_VIEWED: "Product Viewed",
-    PRODUCT_ADDED: "Product Added",
-    PRODUCT_REMOVED: "Product Removed",
-    CART_VIEWED: "Cart Viewed",
-    CHECKOUT_STARTED: "Checkout Started",
-    CHECKOUT_STEP_VIEWED: "Checkout Step Viewed",
-    CHECKOUT_STEP_COMPLETED: "Checkout Step Completed",
-    PAYMENT_INFO_ENTERED: "Payment Info Entered",
-    ORDER_UPDATED: "Order Updated",
-    ORDER_COMPLETED: "Order Completed",
-    ORDER_REFUNDED: "Order Refunded",
-    ORDER_CANCELLED: "Order Cancelled",
-    COUPON_ENTERED: "Coupon Entered",
-    COUPON_APPLIED: "Coupon Applied",
-    COUPON_DENIED: "Coupon Denied",
-    COUPON_REMOVED: "Coupon Removed",
-    PRODUCT_ADDED_TO_WISHLIST: "Product Added to Wishlist",
-    PRODUCT_REMOVED_FROM_WISHLIST: "Product Removed from Wishlist",
-    WISH_LIST_PRODUCT_ADDED_TO_CART: "Wishlist Product Added to Cart",
-    PRODUCT_SHARED: "Product Shared",
-    CART_SHARED: "Cart Shared",
-    PRODUCT_REVIEWED: "Product Reviewed"
-  }; // Enumeration for integrations supported
-  var BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
-
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=1.1.2";
-  var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
-  var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
-  /* module.exports = {
-    MessageType: MessageType,
-    ECommerceParamNames: ECommerceParamNames,
-    ECommerceEvents: ECommerceEvents,
-    RudderIntegrationPlatform: RudderIntegrationPlatform,
-    BASE_URL: BASE_URL,
-    CONFIG_URL: CONFIG_URL,
-    FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
-  }; */
-
   /**
    *
    * Utility method for excluding null and empty values in JSON
@@ -592,6 +451,7 @@ var rudderanalytics = (function (exports) {
    * @param {*} value
    * @returns
    */
+
 
   function replacer(key, value) {
     if (value === null || value === undefined) {
@@ -653,12 +513,22 @@ var rudderanalytics = (function (exports) {
   function getJSONTrimmed(context, url, writeKey, callback) {
     // server-side integration, XHR is node module
     var cb_ = callback.bind(context);
-    var xhr = new XMLHttpRequest();
+
+    if (true) {
+      var xhr = new XMLHttpRequest();
+    } else {
+      var xhr;
+    }
+
     xhr.open("GET", url, true);
-    xhr.setRequestHeader("Authorization", "Basic ".concat(btoa("".concat(writeKey, ":"))));
+
+    {
+      xhr.setRequestHeader("Authorization", "Basic ".concat(btoa("".concat(writeKey, ":"))));
+    }
 
     xhr.onload = function () {
-      var status = xhr.status;
+      var _xhr2 = xhr,
+          status = _xhr2.status;
 
       if (status == 200) {
         logger.debug("status 200 " + "calling callback");
@@ -701,7 +571,7 @@ var rudderanalytics = (function (exports) {
 
   function getDefaultPageProperties() {
     var canonicalUrl = getCanonicalUrl();
-    var path = canonicalUrl ? componentUrl_1(canonicalUrl).pathname : window.location.pathname;
+    var path = canonicalUrl ? canonicalUrl.pathname : window.location.pathname;
     var _document = document,
         referrer = _document.referrer;
     var search = window.location.search;
@@ -953,26 +823,59 @@ var rudderanalytics = (function (exports) {
     return _typeof(val);
   }
 
-  function getUserProvidedConfigUrl(configUrl) {
-    var url = configUrl;
+  var version = "1.1.2";
 
-    if (configUrl.indexOf("sourceConfig") == -1) {
-      url = url.slice(-1) == "/" ? url.slice(0, -1) : url;
-      url = "".concat(url, "/sourceConfig/");
-    }
+  var MessageType = {
+    TRACK: "track",
+    PAGE: "page",
+    // SCREEN: "screen",
+    IDENTIFY: "identify"
+  }; // ECommerce Parameter Names Enumeration
 
-    url = url.slice(-1) == "/" ? url : "".concat(url, "/");
+  var ECommerceEvents = {
+    PRODUCTS_SEARCHED: "Products Searched",
+    PRODUCT_LIST_VIEWED: "Product List Viewed",
+    PRODUCT_LIST_FILTERED: "Product List Filtered",
+    PROMOTION_VIEWED: "Promotion Viewed",
+    PROMOTION_CLICKED: "Promotion Clicked",
+    PRODUCT_CLICKED: "Product Clicked",
+    PRODUCT_VIEWED: "Product Viewed",
+    PRODUCT_ADDED: "Product Added",
+    PRODUCT_REMOVED: "Product Removed",
+    CART_VIEWED: "Cart Viewed",
+    CHECKOUT_STARTED: "Checkout Started",
+    CHECKOUT_STEP_VIEWED: "Checkout Step Viewed",
+    CHECKOUT_STEP_COMPLETED: "Checkout Step Completed",
+    PAYMENT_INFO_ENTERED: "Payment Info Entered",
+    ORDER_UPDATED: "Order Updated",
+    ORDER_COMPLETED: "Order Completed",
+    ORDER_REFUNDED: "Order Refunded",
+    ORDER_CANCELLED: "Order Cancelled",
+    COUPON_ENTERED: "Coupon Entered",
+    COUPON_APPLIED: "Coupon Applied",
+    COUPON_DENIED: "Coupon Denied",
+    COUPON_REMOVED: "Coupon Removed",
+    PRODUCT_ADDED_TO_WISHLIST: "Product Added to Wishlist",
+    PRODUCT_REMOVED_FROM_WISHLIST: "Product Removed from Wishlist",
+    WISH_LIST_PRODUCT_ADDED_TO_CART: "Wishlist Product Added to Cart",
+    PRODUCT_SHARED: "Product Shared",
+    CART_SHARED: "Cart Shared",
+    PRODUCT_REVIEWED: "Product Reviewed"
+  }; // Enumeration for integrations supported
+  var BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
 
-    if (url.indexOf("?") > -1) {
-      if (url.split("?")[1] !== CONFIG_URL.split("?")[1]) {
-        url = url.split("?")[0] + "?" + CONFIG_URL.split("?")[1];
-      }
-    } else {
-      url = url + "?" + CONFIG_URL.split("\?")[1];
-    }
-
-    return url;
-  }
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=".concat(version);
+  var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
+  var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
+  /* module.exports = {
+    MessageType: MessageType,
+    ECommerceParamNames: ECommerceParamNames,
+    ECommerceEvents: ECommerceEvents,
+    RudderIntegrationPlatform: RudderIntegrationPlatform,
+    BASE_URL: BASE_URL,
+    CONFIG_URL: CONFIG_URL,
+    FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
+  }; */
 
   var ScriptLoader = function ScriptLoader(id, src) {
     logger.debug("in script loader=== ".concat(id));
@@ -2322,24 +2225,12 @@ var rudderanalytics = (function (exports) {
 
         this.pageCalled = false;
         this.dimensionsArray = {};
-        var elementTo;
         this.dimensions.forEach(function (element) {
-          if (element.to.startsWith("dimension")) {
-            _this.dimensionsArray[element.from] = element.to;
-          } else {
-            /* eslint-disable no-param-reassign */
-            elementTo = element.to.replace(/cd/g, "dimension");
-            _this.dimensionsArray[element.from] = elementTo;
-          }
+          _this.dimensionsArray[element.from] = element.to;
         });
         this.metricsArray = {};
         this.metrics.forEach(function (element) {
-          if (element.to.startsWith("dimension")) {
-            _this.metricsArray[element.from] = element.to;
-          } else {
-            elementTo = element.to.replace(/cm/g, "metric");
-            _this.metricsArray[element.from] = elementTo;
-          }
+          _this.metricsArray[element.from] = element.to;
         });
         this.contentGroupingsArray = {};
         this.contentGroupings.forEach(function (element) {
@@ -2435,11 +2326,7 @@ var rudderanalytics = (function (exports) {
 
         if (event === "Order Completed" && !this.enhancedEcommerce) {
           // order_id is required
-          if (!orderId) {
-            logger.debug("order_id not present events are not sent to GA");
-            return;
-          } // add transaction
-
+          if (!orderId) return; // add transaction
 
           window.ga("ecommerce:addTransaction", {
             affiliation: properties.affiliation,
@@ -2485,11 +2372,7 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Checkout Step Completed":
-                if (!props.step) {
-                  logger.debug("step not present events are not sent to GA");
-                  return;
-                }
-
+                if (!props.step) return;
                 params = {
                   step: props.step || 1,
                   option: options || undefined
@@ -2501,12 +2384,7 @@ var rudderanalytics = (function (exports) {
 
               case "Order Completed":
                 total = rudderElement.message.properties.total || rudderElement.message.properties.revenue || 0;
-
-                if (!orderId) {
-                  logger.debug("order_id not present events are not sent to GA");
-                  return;
-                }
-
+                if (!orderId) return;
                 this.loadEnhancedEcommerce(rudderElement);
                 componentEach(products, function (product) {
                   var productTrack = self.createProductTrack(rudderElement, product);
@@ -2527,11 +2405,7 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Order Refunded":
-                if (!orderId) {
-                  logger.debug("order_id not present events are not sent to GA");
-                  return;
-                }
-
+                if (!orderId) return;
                 this.loadEnhancedEcommerce(rudderElement);
                 componentEach(products, function (product) {
                   var track = {
@@ -2550,34 +2424,34 @@ var rudderanalytics = (function (exports) {
 
               case "Product Added":
                 this.loadEnhancedEcommerce(rudderElement);
-                this.enhancedEcommerceTrackProductAction(rudderElement, "add", null);
+                this.enhancedEcommerceTrackProductAction(rudderElement, "add", null, this.dimensions, this.metrics, this.contentGroupings);
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Product Removed":
                 this.loadEnhancedEcommerce(rudderElement);
-                this.enhancedEcommerceTrackProductAction(rudderElement, "remove", null);
+                this.enhancedEcommerceTrackProductAction(rudderElement, "remove", null, this.dimensions, this.metrics, this.contentGroupings);
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Product Viewed":
                 this.loadEnhancedEcommerce(rudderElement);
                 if (props.list) data.list = props.list;
-                this.enhancedEcommerceTrackProductAction(rudderElement, "detail", data);
+                this.enhancedEcommerceTrackProductAction(rudderElement, "detail", data, this.dimensions, this.metrics, this.contentGroupings);
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Product Clicked":
                 this.loadEnhancedEcommerce(rudderElement);
                 if (props.list) data.list = props.list;
-                this.enhancedEcommerceTrackProductAction(rudderElement, "click", data);
+                this.enhancedEcommerceTrackProductAction(rudderElement, "click", data, this.dimensions, this.metrics, this.contentGroupings);
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Promotion Viewed":
                 this.loadEnhancedEcommerce(rudderElement);
                 window.ga("ec:addPromo", {
-                  id: props.promotion_id || props.id,
+                  id: props.promotionId || props.id,
                   name: props.name,
                   creative: props.creative,
                   position: props.position
@@ -2588,7 +2462,7 @@ var rudderanalytics = (function (exports) {
               case "Promotion Clicked":
                 this.loadEnhancedEcommerce(rudderElement);
                 window.ga("ec:addPromo", {
-                  id: props.promotion_id || props.id,
+                  id: props.promotionId || props.id,
                   name: props.name,
                   creative: props.creative,
                   position: props.position
@@ -2603,12 +2477,7 @@ var rudderanalytics = (function (exports) {
                   var item = {
                     properties: product
                   };
-
-                  if (!(item.properties.product_id || item.properties.sku) && !item.properties.name) {
-                    logger.debug("product_id/sku/name of product not present events are not sent to GA");
-                    return;
-                  }
-
+                  if (!(item.properties.product_id || item.properties.sku) && !item.properties.name) return;
                   var impressionObj = {
                     id: item.properties.product_id || item.properties.sku,
                     name: item.properties.name,
@@ -2619,7 +2488,9 @@ var rudderanalytics = (function (exports) {
                     price: item.properties.price,
                     position: self.getProductPosition(item, products)
                   };
-                  impressionObj = _objectSpread2({}, impressionObj, {}, self.metricsFunction(item.properties, self.dimensionsArray, self.metricsArray, self.contentGroupingsArray));
+                  impressionObj = _objectSpread2({
+                    impressionObj: impressionObj
+                  }, self.metricsFunction(item.properties, self.dimensionsArray, self.metricsArray, self.contentGroupingsArray));
                   Object.keys(impressionObj).forEach(function (key) {
                     if (impressionObj[key] === undefined) delete impressionObj[key];
                   });
@@ -2644,7 +2515,6 @@ var rudderanalytics = (function (exports) {
                   };
 
                   if (!(item.properties.product_id || item.properties.sku) && !item.properties.name) {
-                    logger.debug("product_id/sku/name of product not present events are not sent to GA");
                     return;
                   }
 
@@ -2952,8 +2822,10 @@ var rudderanalytics = (function (exports) {
 
         var coupon = props.coupon;
         if (coupon) product.coupon = coupon;
-        product = _objectSpread2({}, product, {}, this.metricsFunction(props, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray));
-        window.ga("ec:addProduct", product);
+        product = _objectSpread2({
+          product: product
+        }, this.metricsFunction(props, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray));
+        window.ga("ec:addProduct", product.product);
       }
       /**
        * set action with data
@@ -2989,7 +2861,7 @@ var rudderanalytics = (function (exports) {
           args[2] = "EnhancedEcommerce";
         }
 
-        (_window$ga = window.ga).call.apply(_window$ga, [window].concat(_toConsumableArray(args)));
+        (_window$ga = window.ga).apply.apply(_window$ga, [window].concat(_toConsumableArray(args)));
       }
       /**
        * @param  {} item
@@ -5615,7 +5487,7 @@ var rudderanalytics = (function (exports) {
         window.fbq.version = "2.0";
         window.fbq.queue = [];
         window.fbq("init", this.pixelId);
-        ScriptLoader("fbpixel-integration", "https://connect.facebook.net/en_US/fbevents.js");
+        ScriptLoader("fbpixel-integration", "//connect.facebook.net/en_US/fbevents.js");
       }
     }, {
       key: "isLoaded",
@@ -7944,6 +7816,94 @@ var rudderanalytics = (function (exports) {
     }
   }).call(commonjsGlobal);
   });
+
+  var componentUrl = createCommonjsModule(function (module, exports) {
+  /**
+   * Parse the given `url`.
+   *
+   * @param {String} str
+   * @return {Object}
+   * @api public
+   */
+
+  exports.parse = function(url){
+    var a = document.createElement('a');
+    a.href = url;
+    return {
+      href: a.href,
+      host: a.host || location.host,
+      port: ('0' === a.port || '' === a.port) ? port(a.protocol) : a.port,
+      hash: a.hash,
+      hostname: a.hostname || location.hostname,
+      pathname: a.pathname.charAt(0) != '/' ? '/' + a.pathname : a.pathname,
+      protocol: !a.protocol || ':' == a.protocol ? location.protocol : a.protocol,
+      search: a.search,
+      query: a.search.slice(1)
+    };
+  };
+
+  /**
+   * Check if `url` is absolute.
+   *
+   * @param {String} url
+   * @return {Boolean}
+   * @api public
+   */
+
+  exports.isAbsolute = function(url){
+    return 0 == url.indexOf('//') || !!~url.indexOf('://');
+  };
+
+  /**
+   * Check if `url` is relative.
+   *
+   * @param {String} url
+   * @return {Boolean}
+   * @api public
+   */
+
+  exports.isRelative = function(url){
+    return !exports.isAbsolute(url);
+  };
+
+  /**
+   * Check if `url` is cross domain.
+   *
+   * @param {String} url
+   * @return {Boolean}
+   * @api public
+   */
+
+  exports.isCrossDomain = function(url){
+    url = exports.parse(url);
+    var location = exports.parse(window.location.href);
+    return url.hostname !== location.hostname
+      || url.port !== location.port
+      || url.protocol !== location.protocol;
+  };
+
+  /**
+   * Return default port for `protocol`.
+   *
+   * @param  {String} protocol
+   * @return {String}
+   * @api private
+   */
+  function port (protocol){
+    switch (protocol) {
+      case 'http:':
+        return 80;
+      case 'https:':
+        return 443;
+      default:
+        return location.port;
+    }
+  }
+  });
+  var componentUrl_1 = componentUrl.parse;
+  var componentUrl_2 = componentUrl.isAbsolute;
+  var componentUrl_3 = componentUrl.isRelative;
+  var componentUrl_4 = componentUrl.isCrossDomain;
 
   var debug_1$1 = createCommonjsModule(function (module, exports) {
   /**
@@ -10821,69 +10781,10 @@ var rudderanalytics = (function (exports) {
 
   function isTextNode(el) {
     return el && el.nodeType === 3; // Node.TEXT_NODE - use integer constant for browser portability
-  } // excerpt from https://github.com/mixpanel/mixpanel-js/blob/master/src/autotrack-utils.js
-
+  }
 
   function shouldTrackElement(el) {
     if (!el.parentNode || isTag(el, "body")) return false;
-    var curEl = el;
-
-    while (curEl.parentNode && !isTag(curEl, "body")) {
-      var _classes = getClassName(el).split(" "); // if explicitly specified "rudder-no-track", even at parent level, dont track the child nodes too.
-
-
-      if (_classes.indexOf("rudder-no-track") >= 0) {
-        return false;
-      }
-
-      curEl = curEl.parentNode;
-    } // if explicitly set "rudder-include", at element level, then track the element even if the element is hidden or sensitive.
-
-
-    var classes = getClassName(el).split(" ");
-
-    if (classes.indexOf("rudder-include") >= 0) {
-      return true;
-    } // for general elements, do not track input/select/textarea(s)
-
-
-    if (isTag(el, 'input') || isTag(el, 'select') || isTag(el, 'textarea') || el.getAttribute('contenteditable') === 'true') {
-      return false;
-    } else if (el.getAttribute('contenteditable') === 'inherit') {
-      for (curEl = el.parentNode; curEl.parentNode && !isTag(curEl, "body"); curEl = curEl.parentNode) {
-        if (curEl.getAttribute('contenteditable') === 'true') {
-          return false;
-        }
-      }
-    } // do not track hidden/password elements
-
-
-    var type = el.type || '';
-
-    if (typeof type === 'string') {
-      // it's possible for el.type to be a DOM element if el is a form with a child input[name="type"]
-      switch (type.toLowerCase()) {
-        case 'hidden':
-          return false;
-
-        case 'password':
-          return false;
-      }
-    } // filter out data from fields that look like sensitive field - 
-    // safeguard - match with regex with possible strings as id or name of an element for creditcard, password, ssn, pan, adhar
-
-
-    var name = el.name || el.id || '';
-
-    if (typeof name === 'string') {
-      // it's possible for el.name or el.id to be a DOM element if el is a form with a child input[name="name"]
-      var sensitiveNameRegex = /^adhar|cc|cardnum|ccnum|creditcard|csc|cvc|cvv|exp|pan|pass|pwd|routing|seccode|securitycode|securitynum|socialsec|socsec|ssn/i;
-
-      if (sensitiveNameRegex.test(name.replace(/[^a-zA-Z0-9]/g, ''))) {
-        return false;
-      }
-    }
-
     return true;
   }
 
@@ -10917,7 +10818,7 @@ var rudderanalytics = (function (exports) {
         for (var i = 0; i < target.elements.length; i++) {
           var formElement = target.elements[i];
 
-          if (shouldTrackElement(formElement) && isValueToBeTrackedFromTrackingList(formElement, rudderanalytics.trackValues)) {
+          if (isElToBeTracked(formElement) && isElValueToBeTracked(formElement, rudderanalytics.trackValues)) {
             var name = formElement.id ? formElement.id : formElement.name;
 
             if (name && typeof name === "string") {
@@ -10937,40 +10838,38 @@ var rudderanalytics = (function (exports) {
         }
       }
 
-      var targetElementList = [];
+      var targetElementList = [target];
       var curEl = target;
 
-      if (isExplicitNoTrack(curEl)) {
-        return false;
-      }
-
       while (curEl.parentNode && !isTag(curEl, "body")) {
-        if (shouldTrackElement(curEl)) {
-          targetElementList.push(curEl);
-        }
-
+        targetElementList.push(curEl.parentNode);
         curEl = curEl.parentNode;
       }
 
       var elementsJson = [];
       var href;
+      var explicitNoTrack = false;
       targetElementList.forEach(function (el) {
-        // if the element or a parent element is an anchor tag
+        var shouldTrackEl = shouldTrackElement(el); // if the element or a parent element is an anchor tag
         // include the href as a property
+
         if (el.tagName.toLowerCase() === "a") {
           href = el.getAttribute("href");
-          href = isValueToBeTracked(href) && href;
-        }
+          href = shouldTrackEl && href;
+        } // allow users to programatically prevent tracking of elements by adding class 'rudder-no-track'
+
+
+        explicitNoTrack = explicitNoTrack || !isElToBeTracked(el); // explicitNoTrack = !isElToBeTracked(el);
 
         elementsJson.push(getPropertiesFromElement(el, rudderanalytics));
       });
 
-      if (targetElementList && targetElementList.length == 0) {
+      if (explicitNoTrack) {
         return false;
       }
 
       var elementText = "";
-      var text = getText(target);
+      var text = getText(target); // target.innerText//target.textContent//getSafeText(target);
 
       if (text && text.length) {
         elementText = text;
@@ -10994,65 +10893,7 @@ var rudderanalytics = (function (exports) {
     }
   }
 
-  function isExplicitNoTrack(el) {
-    var classes = getClassName(el).split(" ");
-
-    if (classes.indexOf("rudder-no-track") >= 0) {
-      return true;
-    }
-
-    return false;
-  } // excerpt from https://github.com/mixpanel/mixpanel-js/blob/master/src/autotrack-utils.js
-
-
-  function isValueToBeTracked(value) {
-    if (value === null || value === undefined) {
-      return false;
-    }
-
-    if (typeof value === 'string') {
-      value = value.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, ''); // check to see if input value looks like a credit card number
-      // see: https://www.safaribooksonline.com/library/view/regular-expressions-cookbook/9781449327453/ch04s20.html
-
-      var ccRegex = /^(?:(4[0-9]{12}(?:[0-9]{3})?)|(5[1-5][0-9]{14})|(6(?:011|5[0-9]{2})[0-9]{12})|(3[47][0-9]{13})|(3(?:0[0-5]|[68][0-9])[0-9]{11})|((?:2131|1800|35[0-9]{3})[0-9]{11}))$/;
-
-      if (ccRegex.test((value || '').replace(/[- ]/g, ''))) {
-        return false;
-      } // check to see if input value looks like a social security number
-
-
-      var ssnRegex = /(^\d{3}-?\d{2}-?\d{4}$)/;
-
-      if (ssnRegex.test(value)) {
-        return false;
-      } // check to see if input value looks like a adhar number
-
-
-      var adharRegex = /(^\d{4}-?\d{4}-?\d{4}$)/;
-
-      if (adharRegex.test(value)) {
-        return false;
-      } // check to see if input value looks like a PAN number
-
-
-      var panRegex = /(^\w{5}-?\d{4}-?\w{1}$)/;
-
-      if (panRegex.test(value)) {
-        return false;
-      }
-    }
-
-    return true;
-  } // if the element name is provided in the valTrackingList while loading rudderanalytics, track the value.
-
-  /**
-   * 
-   * @param {*} el 
-   * @param {*} includeList - valTrackingList provided in rudderanalytics.load()
-   */
-
-
-  function isValueToBeTrackedFromTrackingList(el, includeList) {
+  function isElValueToBeTracked(el, includeList) {
     var elAttributesLength = el.attributes.length;
 
     for (var i = 0; i < elAttributesLength; i++) {
@@ -11066,14 +10907,21 @@ var rudderanalytics = (function (exports) {
     return false;
   }
 
+  function isElToBeTracked(el) {
+    var classes = getClassName(el).split(" ");
+
+    if (classes.indexOf("rudder-no-track") >= 0) {
+      return false;
+    }
+
+    return true;
+  }
+
   function getText(el) {
     var text = "";
     el.childNodes.forEach(function (value) {
       if (value.nodeType === Node.TEXT_NODE) {
-        var textContent = value.nodeValue.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, ''); // take each word from the text content and check whether the value should be tracked. Also, replace the whitespaces.
-
-        var textValue = textContent.split(/(\s+)/).filter(isValueToBeTracked).join('').replace(/[\r\n]/g, ' ');
-        text += textValue;
+        text += value.nodeValue;
       }
     });
     return text.trim();
@@ -11090,11 +10938,11 @@ var rudderanalytics = (function (exports) {
       var name = elem.attributes[i].name;
       var value = elem.attributes[i].value;
 
-      if (value && isValueToBeTracked(value)) {
+      if (value) {
         props["attr__".concat(name)] = value;
       }
 
-      if ((name == "name" || name == "id") && isValueToBeTrackedFromTrackingList(elem, rudderanalytics.trackValues)) {
+      if ((name == "name" || name == "id") && isElValueToBeTracked(elem, rudderanalytics.trackValues)) {
         props.field_value = name == "id" ? document.getElementById(value).value : document.getElementsByName(value)[0].value;
 
         if (elem.type === "checkbox" || elem.type === "radio") {
@@ -11802,7 +11650,7 @@ var rudderanalytics = (function (exports) {
         }
 
         if (options && options.configUrl) {
-          configUrl = getUserProvidedConfigUrl(options.configUrl);
+          configUrl = options.configUrl;
         }
 
         if (options && options.sendAdblockPage) {
