@@ -13,6 +13,7 @@ import * as Chartbeat from "./Chartbeat";
 import * as Comscore from "./Comscore";
 import * as FBPixel from "./FacebookPixel";
 import * as Lotame from "./Lotame";
+import * as Optimizely from "./Optimizely";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -33,6 +34,7 @@ const integrations = {
   COMSCORE: Comscore.default,
   FACEBOOK_PIXEL: FBPixel.default,
   LOTAME: Lotame.default,
+  OPTIMIZELY: Optimizely.default,
 };
 
 export { integrations };

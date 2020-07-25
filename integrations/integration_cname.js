@@ -37,6 +37,8 @@ const commonNames = {
   LOTAME: "LOTAME",
   "Visual Website Optimizer": "VWO",
   VWO: "VWO",
+  OPTIMIZELY: "OPTIMIZELY",
+  Optimizely: "OPTIMIZELY",
 };
 
 export { commonNames };
