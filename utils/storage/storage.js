@@ -240,6 +240,8 @@ class Storage {
   clear() {
     this.storage.remove(defaults.user_storage_key);
     this.storage.remove(defaults.user_storage_trait);
+    this.storage.remove(defaults.group_storage_key);
+    this.storage.remove(defaults.group_storage_trait);
     // this.storage.remove(defaults.user_storage_anonymousId);
   }
 }

@@ -736,6 +736,8 @@ class Analytics {
     if (!this.loaded) return;
     this.userId = "";
     this.userTraits = {};
+    this.groupId = "";
+    this.groupTraits = {};
     this.storage.clear();
   }
 
