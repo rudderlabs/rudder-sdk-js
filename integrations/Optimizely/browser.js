@@ -79,7 +79,8 @@ class Optimizely {
 
       // If customCampaignProperties is provided overide the props with it.
       // If valid customCampaignProperties present it will override existing props.
-      const data = window.optimizely && window.optimizely.get("data");
+      // const data = window.optimizely && window.optimizely.get("data");
+      const data = campaignState;
       if (data && this.customCampaignProperties.length > 0) {
         for (
           let index = 0;
@@ -88,8 +89,9 @@ class Optimizely {
         ) {
           const rudderProp = this.customCampaignProperties[index].from;
           const optimizelyProp = this.customCampaignProperties[index].to;
-          if (typeof data[optimizelyProp] !== "undefined") {
-            props[rudderProp] = data[optimizelyProp];
+          if (typeof props[optimizelyProp] !== "undefined") {
+            props[rudderProp] = props[optimizelyProp];
+            delete props[optimizelyProp];
           }
         }
       }
