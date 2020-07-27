@@ -105,7 +105,7 @@ class Chartbeat {
         const n = document.getElementsByTagName("script")[0];
         e.type = "text/javascript";
         e.async = true;
-        e.src = `//static.chartbeat.com/js/${script}`;
+        e.src = `https://static.chartbeat.com/js/${script}`;
         n.parentNode.insertBefore(e, n);
       }
       loadChartbeat();
