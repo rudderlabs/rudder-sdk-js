@@ -28,8 +28,8 @@ class Kissmetrics {
         f.parentNode.insertBefore(s, f);
       }, 1);
     }
-    _kms("//i.kissmetrics.com/i.js");
-    _kms(`//scripts.kissmetrics.com/${_kmk}.2.js`);
+    _kms("https://i.kissmetrics.com/i.js");
+    _kms(`https://scripts.kissmetrics.com/${_kmk}.2.js`);
 
     if (this.isEnvMobile()) {
       window._kmq.push(["set", { "Mobile Session": "Yes" }]);
