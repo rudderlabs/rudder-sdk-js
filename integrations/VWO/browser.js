@@ -66,7 +66,7 @@ class VWO {
           else a.appendChild(d.createTextNode(b));
           h.appendChild(a);
           this.load(
-            `//dev.visualwebsiteoptimizer.com/j.php?a=${account_id}&u=${encodeURIComponent(
+            `https://dev.visualwebsiteoptimizer.com/j.php?a=${account_id}&u=${encodeURIComponent(
               d.URL
             )}&r=${Math.random()}&f=${+isSPA}`
           );
