@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 
 class Optimizely {
@@ -9,8 +11,13 @@ class Optimizely {
       config.sendExperimentTrackAsNonInteractive;
     this.revenueOnlyOnOrderCompleted = config.revenueOnlyOnOrderCompleted;
     this.trackCategorizedPages = config.trackCategorizedPages;
-    this.customCampaignProperties = config.customCampaignProperties ? config.customCampaignProperties : [];
-    this.customExperimentProperties = config.customExperimentProperties ? config.customExperimentProperties : [];
+    this.trackNamedPages = config.trackNamedPages;
+    this.customCampaignProperties = config.customCampaignProperties
+      ? config.customCampaignProperties
+      : [];
+    this.customExperimentProperties = config.customExperimentProperties
+      ? config.customExperimentProperties
+      : [];
     this.name = "OPTIMIZELY";
   }
 
@@ -28,31 +35,22 @@ class Optimizely {
       return referrer;
     }
     return undefined;
-  }
+  };
 
   sendDataToRudder = (campaignState) => {
     logger.debug(campaignState);
     const { experiment } = campaignState;
     const { variation } = campaignState;
-    const context = { integrations: { All: true, Optimizely: false } }; // backward compatibility
+    const context = { integrations: { All: true } };
     const { audiences } = campaignState;
 
     // Reformatting this data structure into hash map so concatenating variation ids and names is easier later
-    /* const audiencesMap = foldl(
-      function (results, audience) {
-        const res = results;
-        res[audience.id] = audience.name;
-        return res;
-      },
-      {},
-      campaignState.audiences
-    ); */
     const audiencesMap = {};
     audiences.forEach((audience) => {
       audiencesMap[audience.id] = audience.name;
     });
 
-    const audienceIds = Object.keys(audiencesMap).sort().join(); // Not adding space for backward compat/consistency reasons since all IDs we've never had spaces
+    const audienceIds = Object.keys(audiencesMap).sort().join();
     const audienceNames = Object.values(audiencesMap).sort().join(", ");
 
     if (this.sendExperimentTrack) {
@@ -81,8 +79,6 @@ class Optimizely {
 
       // If customCampaignProperties is provided overide the props with it.
       // If valid customCampaignProperties present it will override existing props.
-      // const { customCampaignProperties } = this.options;
-      // const customPropsKeys = Object.keys(this.customCampaignProperties);
       const data = window.optimizely && window.optimizely.get("data");
       if (data && this.customCampaignProperties.length > 0) {
         for (
@@ -101,7 +97,14 @@ class Optimizely {
       // Send to Rudder
       this.analytics.track("Experiment Viewed", props, context);
     }
-  }
+    if (this.sendExperimentIdentify) {
+      const traits = {};
+      traits[`Experiment: ${experiment.name}`] = variation.name;
+
+      // Send to Rudder
+      this.analytics.identify(traits);
+    }
+  };
 
   initOptimizelyIntegration(referrerOverride, sendCampaignData) {
     const newActiveCampaign = (id, referrer) => {
@@ -111,7 +114,6 @@ class Optimizely {
           isActive: true,
         });
         const campaignState = activeCampaigns[id];
-        // Segment added code: in case this is a redirect experiment
         if (referrer) campaignState.experiment.referrer = referrer;
         sendCampaignData(campaignState);
       }
@@ -154,23 +156,13 @@ class Optimizely {
         const activeCampaigns = state.getCampaignStates({
           isActive: true,
         });
-        /* Object.keys(activeCampaigns).forEach((id) => {
+        Object.keys(activeCampaigns).forEach((id) => {
           if (referrer) {
             newActiveCampaign(id, referrer);
           } else {
             newActiveCampaign(id);
           }
-        }); */
-        for (var id in activeCampaigns) {
-            if ({}.hasOwnProperty.call(activeCampaigns, id)) {
-              // Segment modified code: need to pass down referrer in the cb for backward compat reasons
-              if (referrer) {
-                newActiveCampaign(id, referrer);
-              } else {
-                newActiveCampaign(id);
-              }
-            }
-          }
+        });
       } else {
         window.optimizely.push({
           type: "addListener",
@@ -213,9 +205,9 @@ class Optimizely {
     logger.debug("in Optimizely web page");
     const { category } = rudderElement.message.properties;
     const { name } = rudderElement.message;
-    const contextOptimizely = {
+    /* const contextOptimizely = {
       integrations: { All: false, Optimizely: true },
-    };
+    }; */
 
     // categorized pages
     if (category && this.trackCategorizedPages) {
@@ -227,7 +219,10 @@ class Optimizely {
 
     // named pages
     if (name && this.trackNamedPages) {
-      this.analytics.track(`Viewed ${name} page`, {}, contextOptimizely);
+      // this.analytics.track(`Viewed ${name} page`, {}, contextOptimizely);
+      rudderElement.message.event = `Viewed ${name} page`;
+      rudderElement.message.type = "track";
+      this.track(rudderElement);
     }
   }
 
@@ -244,4 +239,4 @@ class Optimizely {
   }
 }
 
-export { Optimizely };
+export default Optimizely;
