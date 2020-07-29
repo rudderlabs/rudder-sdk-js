@@ -11,14 +11,13 @@ class Bugsnag {
     this.apiKey = config.apiKey;
     this.name = "BUGSNAG";
     this.setIntervalHandler = undefined;
-    logger.debug("Config ", config);
   }
 
   init() {
     logger.debug("===in init Bugsnag===");
     ScriptLoader(
       "bugsnag-id",
-      "//d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js"
+      "https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js"
     );
 
     this.setIntervalHandler = setInterval(
