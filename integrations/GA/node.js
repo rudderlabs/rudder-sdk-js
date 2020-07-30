@@ -1,4 +1,5 @@
-// import ua from "universal-analytics";
+import logger from "../../utils/logUtil";
+
 let ua;
 if (!process.browser) {
   ua = require("universal-analytics");

@@ -1,3 +1,5 @@
+import logger from "../../utils/logUtil";
+
 class GoogleAdsNode {
   constructor() {
     logger.debug("nothing to construct");

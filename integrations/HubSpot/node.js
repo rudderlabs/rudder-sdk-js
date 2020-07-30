@@ -1,3 +1,5 @@
+import logger from "../../utils/logUtil";
+
 class HubSpotNode {
   constructor() {
     logger.debug("nothing to construct");
