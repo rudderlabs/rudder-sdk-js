@@ -39,6 +39,7 @@ const commonNames = {
   VWO: "VWO",
   OPTIMIZELY: "OPTIMIZELY",
   Optimizely: "OPTIMIZELY",
+  BUGSNAG: "BUGSNAG",
 };
 
 export { commonNames };

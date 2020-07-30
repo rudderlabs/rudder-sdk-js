@@ -1,9 +1,5 @@
 import logger from "../../utils/logUtil";
 import  ScriptLoader  from "../ScriptLoader";
-import {
-  MAX_WAIT_FOR_INTEGRATION_LOAD,
-  INTEGRATION_LOAD_CHECK_INTERVAL
-} from "../../utils/constants";
 
  class Bugsnag {
   constructor(config) {
@@ -27,7 +23,7 @@ import {
   }
 
    initBugsnagClient() {
-    if (window.bugsnag !== undefined && window.bugsnag !== void 0) {
+    if (window.bugsnag !== undefined) {
       window.bugsnagClient = window.bugsnag(this.apiKey);
       window.bugsnagClient.releaseStage = this.releaseStage;
       clearInterval(this.setIntervalHandler);
@@ -47,11 +43,11 @@ import {
    identify(rudderElement) {
     let traits = rudderElement.message.context.traits;
     let traitsFinal = {
-      id: rudderElement.message.userId,
+      id: rudderElement.message.userId || rudderElement.message.anonymousId,
       name: traits.name,
       email: traits.email
     };
-    console.log(traitsFinal);
+  
     window.bugsnagClient.user = traitsFinal;
     window.bugsnagClient.notify(new Error("error in identify"));
   }
