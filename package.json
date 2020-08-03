@@ -47,6 +47,7 @@
     "auto-changelog": "^1.16.2",
     "babel-eslint": "^10.1.0",
     "btoa": "^1.2.1",
+    "camelcase": "^6.0.0",
     "component-cookie": "^1.1.4",
     "component-each": "^0.2.6",
     "component-emitter": "github:component/emitter",

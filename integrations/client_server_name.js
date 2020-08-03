@@ -18,6 +18,7 @@ const clientToServerNames = {
   LOTAME: "Lotame",
   VWO: "VWO",
   OPTIMIZELY: "Optimizely",
+  FULLSTORY: "Fullstory",
 };
 
 export { clientToServerNames };
