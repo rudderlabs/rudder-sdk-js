@@ -1,3 +1,15 @@
+/* eslint-disable new-cap */
+/* eslint-disable func-names */
+/* eslint-disable eqeqeq */
+/* eslint-disable no-prototype-builtins */
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable guard-for-in */
+/* eslint-disable no-sequences */
+/* eslint-disable no-multi-assign */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable import/extensions */
+/* eslint-disable no-param-reassign */
 import Emitter from "component-emitter";
 import after from "after";
 import {
@@ -12,7 +24,6 @@ import {
 } from "./utils/utils";
 import {
   CONFIG_URL,
-  ECommerceEvents,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from "./utils/constants";
@@ -135,7 +146,7 @@ class Analytics {
         }
       }, this);
 
-      console.log("this.clientIntegrations: ", this.clientIntegrations);
+      logger.debug("this.clientIntegrations: ", this.clientIntegrations);
       // intersection of config-plane native sdk destinations with sdk load time destination list
       this.clientIntegrations = findAllEnabledDestinations(
         this.loadOnlyIntegrations,
@@ -206,19 +217,21 @@ class Analytics {
     });
   }
 
+  // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
     if (
       object.successfullyLoadedIntegration.length +
-        object.failedToBeLoadedIntegration.length ==
-        object.clientIntegrations.length &&
-      object.toBeProcessedByIntegrationArray.length > 0
+        object.failedToBeLoadedIntegration.length ===
+      object.clientIntegrations.length
     ) {
       logger.debug(
         "===replay events called====",
         object.successfullyLoadedIntegration.length,
         object.failedToBeLoadedIntegration.length
       );
+      // eslint-disable-next-line no-param-reassign
       object.clientIntegrationObjects = [];
+      // eslint-disable-next-line no-param-reassign
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
 
       logger.debug(
@@ -241,53 +254,58 @@ class Analytics {
         }
       });
 
-      // send the queued events to the fetched integration
-      object.toBeProcessedByIntegrationArray.forEach((event) => {
-        const methodName = event[0];
-        event.shift();
+      if (object.toBeProcessedByIntegrationArray.length > 0) {
+        // send the queued events to the fetched integration
+        object.toBeProcessedByIntegrationArray.forEach((event) => {
+          const methodName = event[0];
+          event.shift();
 
-        // convert common names to sdk identified name
-        if (Object.keys(event[0].message.integrations).length > 0) {
-          tranformToRudderNames(event[0].message.integrations);
-        }
-
-        // if not specified at event level, All: true is default
-        const clientSuppliedIntegrations = event[0].message.integrations;
-
-        // get intersection between config plane native enabled destinations
-        // (which were able to successfully load on the page) vs user supplied integrations
-        const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
-          clientSuppliedIntegrations,
-          object.clientIntegrationObjects
-        );
-
-        // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-        for (
-          let i = 0;
-          i < succesfulLoadedIntersectClientSuppliedIntegrations.length;
-          i++
-        ) {
-          try {
-            if (
-              !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
-              !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
-            ) {
-              if (
-                succesfulLoadedIntersectClientSuppliedIntegrations[i][
-                  methodName
-                ]
-              ) {
-                succesfulLoadedIntersectClientSuppliedIntegrations[i][
-                  methodName
-                ](...event);
-              }
-            }
-          } catch (error) {
-            handleError(error);
+          // convert common names to sdk identified name
+          if (Object.keys(event[0].message.integrations).length > 0) {
+            tranformToRudderNames(event[0].message.integrations);
           }
-        }
-      });
-      object.toBeProcessedByIntegrationArray = [];
+
+          // if not specified at event level, All: true is default
+          const clientSuppliedIntegrations = event[0].message.integrations;
+
+          // get intersection between config plane native enabled destinations
+          // (which were able to successfully load on the page) vs user supplied integrations
+          const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+            clientSuppliedIntegrations,
+            object.clientIntegrationObjects
+          );
+
+          // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
+          for (
+            let i = 0;
+            i < succesfulLoadedIntersectClientSuppliedIntegrations.length;
+            i += 1
+          ) {
+            try {
+              if (
+                !succesfulLoadedIntersectClientSuppliedIntegrations[i]
+                  .isFailed ||
+                !succesfulLoadedIntersectClientSuppliedIntegrations[
+                  i
+                ].isFailed()
+              ) {
+                if (
+                  succesfulLoadedIntersectClientSuppliedIntegrations[i][
+                    methodName
+                  ]
+                ) {
+                  succesfulLoadedIntersectClientSuppliedIntegrations[i][
+                    methodName
+                  ](...event);
+                }
+              }
+            } catch (error) {
+              handleError(error);
+            }
+          }
+        });
+        object.toBeProcessedByIntegrationArray = [];
+      }
     }
   }
 
@@ -839,6 +857,7 @@ class Analytics {
       this.eventRepository.url = serverUrl;
     }
     this.initializeUser();
+    this.loaded = true;
     if (
       options &&
       options.valTrackingList &&
@@ -857,16 +876,14 @@ class Analytics {
         );
       }
     }
-
     try {
       getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
     } catch (error) {
       handleError(error);
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(instance);
+        addDomEventHandlers(this);
       }
     }
-    this.loaded = true;
   }
 
   ready(callback) {
@@ -937,7 +954,7 @@ class Analytics {
   }
 }
 
-let instance = new Analytics();
+const instance = new Analytics();
 
 Emitter(instance);
 
