@@ -3,6 +3,7 @@ import cookie from "rudder-component-cookie";
 import defaults from "@ndhoule/defaults";
 import json from "json3";
 import topDomain from "@segment/top-domain";
+import logger from "../logUtil";
 
 /**
  * An object utility to persist values in cookies
@@ -46,10 +47,10 @@ class CookieLocal {
    */
   set(key, value) {
     try {
-      value = json.stringify(value);
       cookie(key, value, clone(this._options));
       return true;
     } catch (e) {
+      logger.error(e);
       return false;
     }
   }
@@ -59,18 +60,7 @@ class CookieLocal {
    * @param {*} key
    */
   get(key) {
-    // if not parseable, return as is without json parse
-    let value;
-    try {
-      value = cookie(key);
-      value = value ? json.parse(value) : null;
-      return value;
-    } catch (e) {
-      if (value) {
-        return value;
-      }
-      return null;
-    }
+    return cookie(key);
   }
 
   /**

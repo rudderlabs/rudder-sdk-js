@@ -44,7 +44,7 @@ class EventRepository {
   constructor() {
     this.eventsBuffer = [];
     this.writeKey = "";
-    this.url = BASE_URL;
+    this.url = "";
     this.state = "READY";
     this.batchSize = 0;
 

@@ -12,9 +12,8 @@ import brotli from "rollup-plugin-brotli";
 import * as webPackage from "./package.json";
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
 
-
 let distFileName = "";
-let version = webPackage.version;
+let {version} = webPackage;
 let moduleType = "web";
 switch (process.env.ENV) {
   case "prod":
@@ -78,11 +77,12 @@ export default {
       "process.browser": process.env.NODE_ENV != "true",
       "process.prod": process.env.ENV == "prod",
       "process.package_version": version,
-      "process.module_type": moduleType
+      "process.module_type": moduleType,
     }),
     resolve({
       jsnext: true,
       browser: true,
+      preferBuiltins: false,
     }),
 
     commonjs({
