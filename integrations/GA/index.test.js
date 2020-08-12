@@ -1,4 +1,5 @@
 import  GA from "./browser";
+import logger from "../../utils/logUtil";
 
 beforeAll(() => {});
 
@@ -76,7 +77,7 @@ describe("GA init tests", () => {
           },
         },
       });
-       console.log(JSON.stringify(window.ga.mock.calls)); // this has set with empty {} object when resetCustomDimensions
+       logger.debug(JSON.stringify(window.ga.mock.calls)); // this has set with empty {} object when resetCustomDimensions
       expect(window.ga.mock.calls[0][0]).toEqual("set");
       expect(window.ga.mock.calls[0][1]).toEqual({"dimension1":null})
       expect(window.ga.mock.calls[1][0]).toEqual("set");
@@ -90,7 +91,7 @@ describe("GA init tests", () => {
           title: "test cat",
           location: "http://localhost",
       });
- console.log(JSON.stringify(window.ga.mock.calls));
+ logger.debug(JSON.stringify(window.ga.mock.calls));
       // TODO: call another page, check location not set
     });
   });
@@ -119,7 +120,7 @@ describe("GA init tests", () => {
           },
         },
       });
-      // console.log(JSON.stringify(window.ga.mock.calls));
+      // logger.debug(JSON.stringify(window.ga.mock.calls));
 
       expect(window.ga.mock.calls[0][0]).toEqual("send");
       expect(window.ga.mock.calls[0][1]).toEqual("event");
@@ -146,7 +147,7 @@ describe("GA init tests", () => {
           },
         },
       });
-      // console.log(JSON.stringify(window.ga.mock.calls));
+      // logger.debug(JSON.stringify(window.ga.mock.calls));
 
       expect(window.ga.mock.calls[0][0]).toEqual("send");
       expect(window.ga.mock.calls[0][1]).toEqual("event");

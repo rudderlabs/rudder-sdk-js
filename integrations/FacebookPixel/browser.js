@@ -51,7 +51,7 @@ class FacebookPixel {
     window.fbq("init", this.pixelId);
     ScriptLoader(
       "fbpixel-integration",
-      "//connect.facebook.net/en_US/fbevents.js"
+      "https://connect.facebook.net/en_US/fbevents.js"
     );
   }
 

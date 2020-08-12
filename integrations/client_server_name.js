@@ -17,6 +17,8 @@ const clientToServerNames = {
   KISSMETRICS: "Kiss Metrics",
   LOTAME: "Lotame",
   VWO: "VWO",
+  OPTIMIZELY: "Optimizely",
+  FULLSTORY: "Fullstory",
 };
 
 export { clientToServerNames };
