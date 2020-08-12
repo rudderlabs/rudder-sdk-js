@@ -1008,6 +1008,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
@@ -1024,13 +1025,31 @@
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.11";
 =======
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.11";
+=======
+=======
+>>>>>>> update npm module
+>>>>>>> update npm module
 <<<<<<< HEAD
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.7";
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.7";
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
+>>>>>>> update npm module
+>>>>>>> update npm module
+>>>>>>> update npm module
+>>>>>>> update npm module
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -18877,10 +18896,17 @@
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
 =======
         var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
 >>>>>>> Updated npm distribution files
+=======
+        var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
+=======
+        var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
+>>>>>>> update npm module
+>>>>>>> update npm module
         return prefixedVal;
       }
       /**
@@ -18897,10 +18923,17 @@
 
         if (value.substring(0, defaults$1.prefix.length) == defaults$1.prefix) {
 <<<<<<< HEAD
+<<<<<<< HEAD
           return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
 =======
           return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
 >>>>>>> Updated npm distribution files
+=======
+          return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
+=======
+          return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
+>>>>>>> update npm module
+>>>>>>> update npm module
         }
 
         return value;
@@ -19566,9 +19599,24 @@
   }();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   var Optimizely = /*#__PURE__*/function () {
 =======
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
+  var Optimizely =
+  /*#__PURE__*/
+  function () {
+=======
+  var Optimizely = /*#__PURE__*/function () {
+>>>>>>> update npm module
+    function Optimizely(config, analytics) {
+      var _this = this;
+
+      _classCallCheck(this, Optimizely);
+=======
+>>>>>>> update npm module
   var Optimizely =
   /*#__PURE__*/
   function () {
@@ -20291,6 +20339,7 @@
     this.version = "1.0.11";
 >>>>>>> rebase with production branch
   };
+<<<<<<< HEAD
 =======
   var Optimizely = /*#__PURE__*/function () {
     function Optimizely(config, analytics) {
@@ -20299,12 +20348,17 @@
       _classCallCheck(this, Optimizely);
 >>>>>>> Updated npm distribution files
 
+=======
+>>>>>>> update npm module
+
+>>>>>>> update npm module
       this.referrerOverride = function (referrer) {
         if (referrer) {
           window.optimizelyEffectiveReferrer = referrer;
           return referrer;
         }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     this.name = "RudderLabs JavaScript SDK";
 <<<<<<< HEAD
@@ -20329,6 +20383,15 @@
         return undefined;
       };
 >>>>>>> Updated npm distribution files
+=======
+        return undefined;
+      };
+=======
+    this.name = "RudderLabs JavaScript SDK";
+    this.version = "1.0.8";
+  }; // Operating System information class
+>>>>>>> update npm module
+>>>>>>> update npm module
 
       this.sendDataToRudder = function (campaignState) {
         logger.debug(campaignState);
