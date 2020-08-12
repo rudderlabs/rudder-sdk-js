@@ -1,7 +1,12 @@
 {
   "name": "rudder-sdk-js",
+<<<<<<< HEAD
   "version": "1.0.8",
   "description": "Rudder Javascript SDK",
+=======
+  "version": "1.0.7",
+  "description": "RudderStack Javascript SDK",
+>>>>>>> Updated npm distribution files
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
