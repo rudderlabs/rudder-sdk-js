@@ -1,9 +1,9 @@
 /* eslint-disable no-param-reassign */
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
-import { parse } from "component-url";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
+import { parse } from "component-url";
 import { CONFIG_URL } from "./constants";
 import Storage from "./storage";
 

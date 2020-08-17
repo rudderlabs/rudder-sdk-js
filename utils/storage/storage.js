@@ -53,7 +53,7 @@ class Storage {
     try {
       return value ? JSON.parse(value) : null;
     } catch (e) {
-      logger.error(e);
+      logger.debug(e);
       return value || null;
     }
   }
@@ -185,7 +185,10 @@ class Storage {
    * @param {*} key
    */
   getItem(key) {
-    return this.parse(this.decryptValue(this.storage.get(key)));
+    const item = this.storage.get(key);
+    const decryptedValue = this.decryptValue(item);
+    const parsedValue = this.parse(decryptedValue);
+    return parsedValue;
   }
 
   /**
@@ -193,50 +196,49 @@ class Storage {
    */
   getUserId() {
     const userId = this.storage.get(defaults.user_storage_key);
-    const dUserId = this.decryptValue(userId);
-    const parse = this.parse(dUserId);
-    return this.parse(
-      this.decryptValue(this.storage.get(defaults.user_storage_key))
-    );
+    const decryptedValue = this.decryptValue(userId);
+    const parsedValue = this.parse(decryptedValue);
+    return parsedValue;
   }
 
   /**
    * get the stored user traits
    */
   getUserTraits() {
-    return this.parse(
-      this.decryptValue(this.storage.get(defaults.user_storage_trait))
-    );
+    const traits = this.storage.get(defaults.user_storage_trait);
+    const decryptedValue = this.decryptValue(traits);
+    const parsedValue = this.parse(decryptedValue);
+    return parsedValue;
   }
 
   /**
    * get the stored userId
    */
   getGroupId() {
-    return this.parse(
-      this.decryptValue(this.storage.get(defaults.group_storage_key))
-    );
+    const groupId = this.storage.get(defaults.group_storage_key);
+    const decryptedValue = this.decryptValue(groupId);
+    const parsedValue = this.parse(decryptedValue);
+    return parsedValue;
   }
 
   /**
    * get the stored user traits
    */
   getGroupTraits() {
-    return this.parse(
-      this.decryptValue(this.storage.get(defaults.group_storage_trait))
-    );
+    const groupTraits = this.storage.get(defaults.group_storage_trait);
+    const decryptedValue = this.decryptValue(groupTraits);
+    const parsedValue = this.parse(decryptedValue);
+    return parsedValue;
   }
 
   /**
    * get stored anonymous id
    */
   getAnonymousId() {
-    const anoId = this.storage.get(defaults.user_storage_anonymousId);
-    const dAnoId = this.decryptValue(anoId);
-    const parse = this.parse(dAnoId);
-    return this.parse(
-      this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
-    );
+    const anonymousId = this.storage.get(defaults.user_storage_anonymousId);
+    const decryptedValue = this.decryptValue(anonymousId);
+    const parsedValue = this.parse(decryptedValue);
+    return parsedValue;
   }
 
   /**
