@@ -402,6 +402,11 @@ class Analytics {
     if (typeof userId === "object")
       (options = traits), (traits = userId), (userId = this.userId);
 
+    /* if (typeof traits !== "object") {
+      logger.debug("invalid traits");
+      traits = {};
+    } */
+
     this.processIdentify(userId, traits, options, callback);
   }
 
@@ -453,7 +458,7 @@ class Analytics {
     this.storage.setGroupId(this.groupId);
 
     const rudderElement = new RudderElementBuilder().setType("group").build();
-    if (traits) {
+    if (traits && typeof traits === "object") {
       for (const key in traits) {
         this.groupTraits[key] = traits[key];
       }
@@ -540,7 +545,7 @@ class Analytics {
     const rudderElement = new RudderElementBuilder()
       .setType("identify")
       .build();
-    if (traits) {
+    if (traits && typeof traits === "object") {
       for (const key in traits) {
         this.userTraits[key] = traits[key];
       }

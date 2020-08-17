@@ -1,3 +1,5 @@
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-param-reassign */
 import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
 import logger from "../logUtil";
@@ -85,14 +87,19 @@ class Storage {
    * @param {*} value
    */
   decryptValue(value) {
-    if (!value || (typeof value === "string" && this.trim(value) == "")) {
+    if (
+      !value ||
+      (typeof value === "string" && this.trim(value) === "") ||
+      typeof value !== "string"
+    ) {
       return value;
     }
-    if (value.substring(0, defaults.prefix.length) == defaults.prefix) {
-      return AES.decrypt(
-        value.substring(defaults.prefix.length),
-        defaults.key
-      ).toString(Utf8);
+    // value = this.parse(value);
+    while (value.indexOf(defaults.prefix) >= 0) {
+      const index = value.indexOf(defaults.prefix);
+      const substring = value.substring(index + defaults.prefix.length);
+      const dvalue = AES.decrypt(substring, defaults.key).toString(Utf8);
+      value = dvalue;
     }
     return value;
   }
@@ -185,6 +192,9 @@ class Storage {
    * get the stored userId
    */
   getUserId() {
+    const userId = this.storage.get(defaults.user_storage_key);
+    const dUserId = this.decryptValue(userId);
+    const parse = this.parse(dUserId);
     return this.parse(
       this.decryptValue(this.storage.get(defaults.user_storage_key))
     );
@@ -221,6 +231,9 @@ class Storage {
    * get stored anonymous id
    */
   getAnonymousId() {
+    const anoId = this.storage.get(defaults.user_storage_anonymousId);
+    const dAnoId = this.decryptValue(anoId);
+    const parse = this.parse(dAnoId);
     return this.parse(
       this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
     );
@@ -243,6 +256,10 @@ class Storage {
     this.storage.remove(defaults.group_storage_key);
     this.storage.remove(defaults.group_storage_trait);
     // this.storage.remove(defaults.user_storage_anonymousId);
+  }
+
+  getPrefix() {
+    return defaults.prefix;
   }
 }
 

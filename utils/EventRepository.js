@@ -4,7 +4,7 @@ import {
   FLUSH_QUEUE_SIZE,
   FLUSH_INTERVAL_DEFAULT,
 } from "./constants";
-import { getCurrentTimeFormatted, handleError, replacer } from "./utils";
+import { getCurrentTimeFormatted, handleError, replacer, validatePayload } from "./utils";
 
 import { RudderPayload } from "./RudderPayload";
 import logger from "./logUtil";
@@ -58,6 +58,12 @@ class EventRepository {
       // apply sentAt at flush time and reset on each retry
       item.message.sentAt = getCurrentTimeFormatted();
       // send this item for processing, with a callback to enable queue to get the done status
+
+      item.message = validatePayload(item.message);
+      if (item.message === undefined) {
+        logger.debug("dropping invalid event");
+        return;
+      }
       eventRepository.processQueueElement(
         item.url,
         item.headers,
@@ -155,6 +161,7 @@ class EventRepository {
    * @param {*} timeout
    * @param {*} queueFn the function to call after request completion
    */
+  // eslint-disable-next-line class-methods-use-this
   processQueueElement(url, headers, message, timeout, queueFn) {
     try {
       const xhr = new XMLHttpRequest();
