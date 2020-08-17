@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 import clone from "@ndhoule/clone";
@@ -25,7 +26,7 @@ class CookieLocal {
     try {
       return value ? JSON.parse(value) : null;
     } catch (e) {
-      logger.error(e);
+      logger.debug(e);
       return value || null;
     }
   }
