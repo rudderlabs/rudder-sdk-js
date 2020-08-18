@@ -41,7 +41,9 @@ The non-minified version of the code is shown below:
 		"alias",
 		"group",
 		"ready",
-		"reset"
+		"reset",
+		"getAnonymousId",
+    		"setAnonymousId"
 	];
 
 	for (var i = 0; i < methods.length; i++) {
