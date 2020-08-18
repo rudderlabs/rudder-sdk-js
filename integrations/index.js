@@ -16,6 +16,7 @@ import * as Lotame from "./Lotame";
 import * as Optimizely from "./Optimizely";
 import * as Bugsnag from "./Bugsnag";
 import * as Fullstory from "./Fullstory";
+import * as TVSquared from "./TVSquared";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -39,6 +40,7 @@ const integrations = {
   OPTIMIZELY: Optimizely.default,
   BUGSNAG: Bugsnag.default,
   FULLSTORY: Fullstory.default,
+  TVSQUARED: TVSquared.default,
 };
 
 export { integrations };
