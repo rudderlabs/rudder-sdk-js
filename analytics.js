@@ -113,7 +113,7 @@ class Analytics {
 
     // save once for storing older values to encrypted
 
-    // should we alter the older key values or keep them as is?
+    // should we alter the older key values or keep them as is or delete?
     this.storage.setUserId(this.userId, migrate);
     this.storage.setAnonymousId(this.anonymousId, migrate);
     this.storage.setGroupId(this.groupId, migrate);
