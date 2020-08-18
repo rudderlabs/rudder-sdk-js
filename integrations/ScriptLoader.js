@@ -6,13 +6,9 @@ const ScriptLoader = (id, src) => {
   js.src = src;
   js.async = true;
   js.type = "text/javascript";
-  if(id === "TVSquared-integration"){
-    js.defer = true;
-  }
   js.id = id;
   const e = document.getElementsByTagName("script")[0];
   logger.debug("==script==", e);
-  console.log("==script==", e)
   e.parentNode.insertBefore(js, e);
 };
 
