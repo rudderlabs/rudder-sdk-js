@@ -88,25 +88,39 @@ class Analytics {
    * initialize the user after load config
    */
   initializeUser() {
+    const migrate = this.storage.checkIfMigrate();
     this.userId =
-      this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
+      this.storage.getUserId(migrate) != undefined
+        ? this.storage.getUserId(migrate)
+        : "";
 
     this.userTraits =
-      this.storage.getUserTraits() != undefined
-        ? this.storage.getUserTraits()
+      this.storage.getUserTraits(migrate) != undefined
+        ? this.storage.getUserTraits(migrate)
         : {};
 
     this.groupId =
-      this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
+      this.storage.getGroupId(migrate) != undefined
+        ? this.storage.getGroupId(migrate)
+        : "";
 
     this.groupTraits =
-      this.storage.getGroupTraits() != undefined
-        ? this.storage.getGroupTraits()
+      this.storage.getGroupTraits(migrate) != undefined
+        ? this.storage.getGroupTraits(migrate)
         : {};
 
-    this.anonymousId = this.getAnonymousId();
+    this.anonymousId = this.getAnonymousId(migrate);
 
     // save once for storing older values to encrypted
+
+    // should we alter the older key values or keep them as is or delete?
+    // TODO remove the old cookies after 2-3 releases.
+    this.storage.setUserId(this.userId, migrate);
+    this.storage.setAnonymousId(this.anonymousId, migrate);
+    this.storage.setGroupId(this.groupId, migrate);
+    this.storage.setUserTraits(this.userTraits, migrate);
+    this.storage.setGroupTraits(this.groupTraits, migrate);
+
     this.storage.setUserId(this.userId);
     this.storage.setAnonymousId(this.anonymousId);
     this.storage.setGroupId(this.groupId);
@@ -402,6 +416,11 @@ class Analytics {
     if (typeof userId === "object")
       (options = traits), (traits = userId), (userId = this.userId);
 
+    /* if (typeof traits !== "object") {
+      logger.debug("invalid traits");
+      traits = {};
+    } */
+
     this.processIdentify(userId, traits, options, callback);
   }
 
@@ -453,7 +472,7 @@ class Analytics {
     this.storage.setGroupId(this.groupId);
 
     const rudderElement = new RudderElementBuilder().setType("group").build();
-    if (traits) {
+    if (traits && typeof traits === "object") {
       for (const key in traits) {
         this.groupTraits[key] = traits[key];
       }
@@ -540,7 +559,7 @@ class Analytics {
     const rudderElement = new RudderElementBuilder()
       .setType("identify")
       .build();
-    if (traits) {
+    if (traits && typeof traits === "object") {
       for (const key in traits) {
         this.userTraits[key] = traits[key];
       }
@@ -759,19 +778,19 @@ class Analytics {
     this.storage.clear();
   }
 
-  getAnonymousId() {
+  getAnonymousId(migrate) {
     // if (!this.loaded) return;
-    this.anonymousId = this.storage.getAnonymousId();
+    this.anonymousId = this.storage.getAnonymousId(migrate);
     if (!this.anonymousId) {
-      this.setAnonymousId();
+      this.setAnonymousId(undefined, migrate);
     }
     return this.anonymousId;
   }
 
-  setAnonymousId(anonymousId) {
+  setAnonymousId(anonymousId, migrate) {
     // if (!this.loaded) return;
     this.anonymousId = anonymousId || generateUUID();
-    this.storage.setAnonymousId(this.anonymousId);
+    this.storage.setAnonymousId(this.anonymousId, migrate);
   }
 
   isValidWriteKey(writeKey) {

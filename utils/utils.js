@@ -1,9 +1,11 @@
+/* eslint-disable no-param-reassign */
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
 import { parse } from "component-url";
 import { CONFIG_URL } from "./constants";
+import Storage from "./storage";
 
 /**
  *
@@ -404,19 +406,39 @@ function type(val) {
 
 function getUserProvidedConfigUrl(configUrl){
   let url = configUrl;
-  if(configUrl.indexOf("sourceConfig") == -1){
-    url = url.slice(-1) == "/" ? url.slice(0, -1) : url;
+  if (configUrl.indexOf("sourceConfig") === -1) {
+    url = url.slice(-1) === "/" ? url.slice(0, -1) : url;
     url = `${url}/sourceConfig/`
   }
-  url = url.slice(-1) == "/" ? url : `${url}/`;
-  if(url.indexOf("?") > -1){
-    if(url.split("?")[1] !==  CONFIG_URL.split("?")[1]){
-      url = url.split("?")[0] + "?" + CONFIG_URL.split("?")[1];
+  url = url.slice(-1) === "/" ? url : `${url}/`;
+  if (url.indexOf("?") > -1) {
+    if (url.split("?")[1] !== CONFIG_URL.split("?")[1]) {
+      url = `${url.split("?")[0]}?${CONFIG_URL.split("?")[1]}`;
     }
   } else {
-    url = url + "?" + CONFIG_URL.split("\?")[1];
+    url = `${url}?${CONFIG_URL.split("?")[1]}`;
   }
   return url;
+}
+
+function validatePayload(message) {
+  const prefix = Storage.getPrefix(); // "RudderEncrypt:";
+  const { traits } = message.context;
+  const { userId, anonymousId } = message;
+  if (traits && typeof traits !== "object") {
+    message = undefined;
+  }
+  if (userId && typeof userId === "string" && userId.indexOf(prefix) >= 0) {
+    message = undefined;
+  }
+  if (
+    anonymousId &&
+    typeof anonymousId === "string" &&
+    anonymousId.indexOf(prefix) >= 0
+  ) {
+    message = undefined;
+  }
+  return message;
 }
 
 export {
@@ -433,4 +455,5 @@ export {
   transformToServerNames,
   handleError,
   rejectArr,
+  validatePayload,
 };
