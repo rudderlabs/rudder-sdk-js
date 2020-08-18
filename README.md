@@ -178,8 +178,6 @@ rudderanalytics.track(
 
 And we’re done! You’ve successfully installed  `rudder-analytics.js`  tracking. Now you can enable and use any event destination to send your processed event data that you want, in no time at all.
 
-For a detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, click  [here](https://docs.rudderlabs.com/sdk-integration-guide/getting-started-with-javascript-sdk).
-
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#step-4-check-ready-state)Step 4: Check Ready State
 
 There are cases when one may want to tap into the features provide by end destination SDKs to enhance tracking and other functionality. Rudder SDK exposes a  `ready`  api with a  `callback`  parameter that fires when the SDK is done initialising itself and other third-party native-sdk destinations.
@@ -192,6 +190,7 @@ rudderanalytics.ready(
 );
 
 ```
+For a detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, click  [here](https://docs.rudderlabs.com/sdk-integration-guide/getting-started-with-javascript-sdk).
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-callbacks-to-standard-methods)Adding callbacks to standard methods
 
