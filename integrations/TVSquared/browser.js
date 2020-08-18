@@ -1,4 +1,7 @@
+/* eslint-disable camelcase */
+/* eslint-disable no-underscore-dangle */
 import ScriptLoader from "../ScriptLoader";
+import logger from "../../utils/logUtil";
 
 class TVSquared {
   constructor(config) {
@@ -11,44 +14,47 @@ class TVSquared {
 
   init() {
     logger.debug("===in init TVSquared===");
-    window._tvq = window._tvq = [];
-    var url = document.location.protocol == "https:" ? "https://" : "http://";
-    url += "collector-" + this.clientId + ".tvsquared.com/";
+    window._tvq = window._tvq || [];
+    let url = document.location.protocol === "https:" ? "https://" : "http://";
+    url += `collector-${this.clientId}.tvsquared.com/`;
     window._tvq.push(["setSiteId", this.brandId]);
-    window._tvq.push(["setTrackerUrl", url + "tv2track.php"]);
-    ScriptLoader("TVSquared-integration", url + "tv2track.js");
+    window._tvq.push(["setTrackerUrl", `&${url}tv2track.php`]);
+    ScriptLoader("TVSquared-integration", `${url}tv2track.js`);
+
     window._tvq.push([
-      function () {
+      () => {
         this.deleteCustomVariable(5, "page");
       },
     ]);
   }
 
-  isLoaded() {
+  isLoaded = () => {
     logger.debug("in TVSqaured isLoaded");
-    return !!window_tvq;
-  }
+    return !!window._tvq;
+  };
 
-  isReady() {
+  isReady = () => {
     logger.debug("in TVSqaured isReady");
 
-    return !!window_tvq;
-  }
+    return !!window._tvq;
+  };
 
-  page() {
+  page = () => {
     window._tvq.push(["trackPageView"]);
-  }
+  };
 
   track(rudderElement) {
     const { event, userId, anonymousId } = rudderElement.message;
     const {
       revenue,
       productType,
+      category,
       order_id,
       promotion_id,
     } = rudderElement.message.properties;
-    let i, j;
-    var whitelist = eventWhiteList.slice();
+    let i;
+    let j;
+    let whitelist = this.eventWhiteList.slice();
     whitelist = whitelist.filter((wl) => {
       return wl.event !== "";
     });
@@ -61,34 +67,34 @@ class TVSquared {
       }
     }
 
-    var session = { user: userId || anonymousId || "" };
-    var action = {
-      rev: this.formatRevenue(revenue) || "",
-      prod: productType || "",
+    const session = { user: userId || anonymousId || "" };
+    const action = {
+      rev: revenue ? this.formatRevenue(revenue) : "",
+      prod: category || productType || "",
       id: order_id || "",
       promo: promotion_id || "",
     };
-    var customMetrics = this.customMetrics.slice();
+    let customMetrics = this.customMetrics.slice();
     customMetrics = customMetrics.filter((cm) => {
       return cm.propertyName !== "";
     });
     if (customMetrics.length) {
       for (j = 0; j < customMetrics.length; j += 1) {
-        var key = customMetrics[j].propertyName;
-        var value = rudderElement.message.properties[key];
+        const key = customMetrics[j].propertyName;
+        const value = rudderElement.message.properties[key];
         if (value) {
           action[key] = value;
         }
       }
     }
     window._tvq.push([
-      function () {
+      () => {
         this.setCustomVariable(5, "session", JSON.stringify(session), "visit");
       },
     ]);
-    if (event !== "Response") {
+    if (event.toUpperCase() !== "RESPONSE") {
       window._tvq.push([
-        function () {
+        () => {
           this.setCustomVariable(5, event, JSON.stringify(action), "page");
         },
       ]);
@@ -96,9 +102,10 @@ class TVSquared {
     }
   }
 
-  formatRevenue(revenue) {
-    revenue = parseFloat(revenue.replace(/^[^\d\.]*/, ""));
-    return revenue;
-  }
+  formatRevenue = (revenue) => {
+    let rev = revenue;
+    rev = parseFloat(rev.toString().replace(/^[^\d.]*/, ""));
+    return rev;
+  };
 }
 export { TVSquared };
