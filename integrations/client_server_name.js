@@ -19,6 +19,7 @@ const clientToServerNames = {
   VWO: "VWO",
   OPTIMIZELY: "Optimizely",
   FULLSTORY: "Fullstory",
+  TVSQUUARED: "TVSquared"
 };
 
 export { clientToServerNames };
