@@ -128,6 +128,7 @@ class Analytics {
     // save once for storing older values to encrypted
 
     // should we alter the older key values or keep them as is or delete?
+    // TODO remove the old cookies after 2-3 releases.
     this.storage.setUserId(this.userId, migrate);
     this.storage.setAnonymousId(this.anonymousId, migrate);
     this.storage.setGroupId(this.groupId, migrate);
@@ -872,7 +873,7 @@ class Analytics {
     // if (!this.loaded) return;
     this.anonymousId = this.storage.getAnonymousId(migrate);
     if (!this.anonymousId) {
-      this.setAnonymousId(migrate);
+      this.setAnonymousId(undefined, migrate);
     }
     return this.anonymousId;
   }

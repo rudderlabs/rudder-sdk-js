@@ -20,12 +20,12 @@ const defaults = {
   key: "Rudder",
 };
 
-const newDefaults = {
-  user_storage_key: "rl_user_id_1",
-  user_storage_trait: "rl_trait_1",
-  user_storage_anonymousId: "rl_anonymous_id_1",
-  group_storage_key: "rl_group_id_1",
-  group_storage_trait: "rl_group_trait_1",
+const v1Defaults = {
+  user_storage_key: "rl_user_id_v1",
+  user_storage_trait: "rl_trait_v1",
+  user_storage_anonymousId: "rl_anonymous_id_v1",
+  group_storage_key: "rl_group_id_v1",
+  group_storage_trait: "rl_group_trait_v1",
 };
 
 /**
@@ -139,7 +139,7 @@ class Storage {
       return;
     }
     this.storage.set(
-      migrate ? defaults.user_storage_key : newDefaults.user_storage_key,
+      migrate ? defaults.user_storage_key : v1Defaults.user_storage_key,
       this.encryptValue(this.stringify(value))
     );
   }
@@ -150,7 +150,7 @@ class Storage {
    */
   setUserTraits(value, migrate) {
     this.storage.set(
-      migrate ? defaults.user_storage_trait : newDefaults.user_storage_trait,
+      migrate ? defaults.user_storage_trait : v1Defaults.user_storage_trait,
       this.encryptValue(this.stringify(value))
     );
   }
@@ -165,7 +165,7 @@ class Storage {
       return;
     }
     this.storage.set(
-      migrate ? defaults.group_storage_key : newDefaults.group_storage_key,
+      migrate ? defaults.group_storage_key : v1Defaults.group_storage_key,
       this.encryptValue(this.stringify(value))
     );
   }
@@ -176,7 +176,7 @@ class Storage {
    */
   setGroupTraits(value, migrate) {
     this.storage.set(
-      migrate ? defaults.group_storage_trait : newDefaults.group_storage_trait,
+      migrate ? defaults.group_storage_trait : v1Defaults.group_storage_trait,
       this.encryptValue(this.stringify(value))
     );
   }
@@ -193,7 +193,7 @@ class Storage {
     this.storage.set(
       migrate
         ? defaults.user_storage_anonymousId
-        : newDefaults.user_storage_anonymousId,
+        : v1Defaults.user_storage_anonymousId,
       this.encryptValue(this.stringify(value))
     );
   }
@@ -234,7 +234,7 @@ class Storage {
    */
   getUserId(migrate) {
     const userId = this.storage.get(
-      migrate ? defaults.user_storage_key : newDefaults.user_storage_key
+      migrate ? defaults.user_storage_key : v1Defaults.user_storage_key
     );
     const decryptedValue = this.decryptValue(userId);
     const parsedValue = this.parse(decryptedValue);
@@ -246,7 +246,7 @@ class Storage {
    */
   getUserTraits(migrate) {
     const traits = this.storage.get(
-      migrate ? defaults.user_storage_trait : newDefaults.user_storage_trait
+      migrate ? defaults.user_storage_trait : v1Defaults.user_storage_trait
     );
     const decryptedValue = this.decryptValue(traits);
     const parsedValue = this.parse(decryptedValue);
@@ -258,7 +258,7 @@ class Storage {
    */
   getGroupId(migrate) {
     const groupId = this.storage.get(
-      migrate ? defaults.group_storage_key : newDefaults.group_storage_key
+      migrate ? defaults.group_storage_key : v1Defaults.group_storage_key
     );
     const decryptedValue = this.decryptValue(groupId);
     const parsedValue = this.parse(decryptedValue);
@@ -270,7 +270,7 @@ class Storage {
    */
   getGroupTraits(migrate) {
     const groupTraits = this.storage.get(
-      migrate ? defaults.group_storage_trait : newDefaults.group_storage_trait
+      migrate ? defaults.group_storage_trait : v1Defaults.group_storage_trait
     );
     const decryptedValue = this.decryptValue(groupTraits);
     const parsedValue = this.parse(decryptedValue);
@@ -284,7 +284,7 @@ class Storage {
     const anonymousId = this.storage.get(
       migrate
         ? defaults.user_storage_anonymousId
-        : newDefaults.user_storage_anonymousId
+        : v1Defaults.user_storage_anonymousId
     );
     const decryptedValue = this.decryptValue(anonymousId);
     const parsedValue = this.parse(decryptedValue);
