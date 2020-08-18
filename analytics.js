@@ -26,12 +26,12 @@ import {
   transformToServerNames,
   checkReservedKeywords,
   getReferrer,
-  getReferringDomain
+  getReferringDomain,
 } from "./utils/utils";
 import {
   CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
-  INTEGRATION_LOAD_CHECK_INTERVAL
+  INTEGRATION_LOAD_CHECK_INTERVAL,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -44,7 +44,7 @@ import parseLinker from "./utils/linker";
 
 const queryDefaults = {
   trait: "ajs_trait_",
-  prop: "ajs_prop_"
+  prop: "ajs_prop_",
 };
 
 // https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
@@ -92,7 +92,7 @@ class Analytics {
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
-      syncPixel: "syncPixelCallback"
+      syncPixel: "syncPixelCallback",
     };
     this.loaded = false;
     this.loadIntegration = true;
@@ -102,25 +102,38 @@ class Analytics {
    * initialize the user after load config
    */
   initializeUser() {
+    const migrate = this.storage.checkIfMigrate();
     this.userId =
-      this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
+      this.storage.getUserId(migrate) != undefined
+        ? this.storage.getUserId(migrate)
+        : "";
 
     this.userTraits =
-      this.storage.getUserTraits() != undefined
-        ? this.storage.getUserTraits()
+      this.storage.getUserTraits(migrate) != undefined
+        ? this.storage.getUserTraits(migrate)
         : {};
 
     this.groupId =
-      this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
+      this.storage.getGroupId(migrate) != undefined
+        ? this.storage.getGroupId(migrate)
+        : "";
 
     this.groupTraits =
-      this.storage.getGroupTraits() != undefined
-        ? this.storage.getGroupTraits()
+      this.storage.getGroupTraits(migrate) != undefined
+        ? this.storage.getGroupTraits(migrate)
         : {};
 
-    this.anonymousId = this.getAnonymousId();
+    this.anonymousId = this.getAnonymousId(migrate);
 
     // save once for storing older values to encrypted
+
+    // should we alter the older key values or keep them as is?
+    this.storage.setUserId(this.userId, migrate);
+    this.storage.setAnonymousId(this.anonymousId, migrate);
+    this.storage.setGroupId(this.groupId, migrate);
+    this.storage.setUserTraits(this.userTraits, migrate);
+    this.storage.setGroupTraits(this.groupTraits, migrate);
+
     this.storage.setUserId(this.userId);
     this.storage.setAnonymousId(this.anonymousId);
     this.storage.setGroupId(this.groupId);
@@ -168,7 +181,7 @@ class Analytics {
         if (destination.enabled) {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
-            config: destination.config
+            config: destination.config,
           });
         }
       }, this);
@@ -181,7 +194,7 @@ class Analytics {
       );
 
       // remove from the list which don't have support yet in SDK
-      this.clientIntegrations = this.clientIntegrations.filter(intg => {
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
         return integrations[intg.name] != undefined;
       });
 
@@ -221,7 +234,7 @@ class Analytics {
       return;
     }
     let intgInstance;
-    intgArray.forEach(intg => {
+    intgArray.forEach((intg) => {
       try {
         logger.debug(
           "[Analytics] init :: trying to initialize integration name:: ",
@@ -278,7 +291,7 @@ class Analytics {
       logger.debug("==registering ready callback===");
       object.on("ready", object.executeReadyCallback);
 
-      object.clientIntegrationObjects.forEach(intg => {
+      object.clientIntegrationObjects.forEach((intg) => {
         logger.debug("===looping over each successful integration====");
         if (!intg.isReady || intg.isReady()) {
           logger.debug("===letting know I am ready=====", intg.name);
@@ -288,7 +301,7 @@ class Analytics {
 
       if (object.toBeProcessedByIntegrationArray.length > 0) {
         // send the queued events to the fetched integration
-        object.toBeProcessedByIntegrationArray.forEach(event => {
+        object.toBeProcessedByIntegrationArray.forEach((event) => {
           const methodName = event[0];
           event.shift();
 
@@ -302,10 +315,11 @@ class Analytics {
 
           // get intersection between config plane native enabled destinations
           // (which were able to successfully load on the page) vs user supplied integrations
-          const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
-            clientSuppliedIntegrations,
-            object.clientIntegrationObjects
-          );
+          const succesfulLoadedIntersectClientSuppliedIntegrations =
+            findAllEnabledDestinations(
+              clientSuppliedIntegrations,
+              object.clientIntegrationObjects
+            );
 
           // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
           for (
@@ -343,13 +357,13 @@ class Analytics {
   }
 
   pause(time) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(resolve, time);
     });
   }
 
   isInitialized(instance, time = 0) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (instance.isLoaded()) {
         logger.debug("===integration loaded successfully====", instance.name);
         this.successfullyLoadedIntegration.push(instance);
@@ -611,7 +625,7 @@ class Analytics {
       rudderElement.message.context.traits
     ) {
       this.userTraits = {
-        ...rudderElement.message.context.traits
+        ...rudderElement.message.context.traits,
       };
       this.storage.setUserTraits(this.userTraits);
     }
@@ -674,7 +688,7 @@ class Analytics {
       // rudderElement.message.context.page = getDefaultPageProperties();
 
       rudderElement.message.context.traits = {
-        ...this.userTraits
+        ...this.userTraits,
       };
 
       logger.debug("anonymousId: ", this.anonymousId);
@@ -689,7 +703,7 @@ class Analytics {
         }
         if (this.groupTraits) {
           rudderElement.message.traits = {
-            ...this.groupTraits
+            ...this.groupTraits,
           };
         }
       }
@@ -710,14 +724,15 @@ class Analytics {
 
       // get intersection between config plane native enabled destinations
       // (which were able to successfully load on the page) vs user supplied integrations
-      const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
-        clientSuppliedIntegrations,
-        this.clientIntegrationObjects
-      );
+      const succesfulLoadedIntersectClientSuppliedIntegrations =
+        findAllEnabledDestinations(
+          clientSuppliedIntegrations,
+          this.clientIntegrationObjects
+        );
 
       // try to first send to all integrations, if list populated from BE
       try {
-        succesfulLoadedIntersectClientSuppliedIntegrations.forEach(obj => {
+        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
           if (!obj.isFailed || !obj.isFailed()) {
             if (obj[type]) {
               obj[type](rudderElement);
@@ -790,18 +805,18 @@ class Analytics {
     const toplevelElements = [
       "integrations",
       "anonymousId",
-      "originalTimestamp"
+      "originalTimestamp",
     ];
     for (const key in options) {
       if (toplevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== "context") {
         rudderElement.message.context = merge(rudderElement.message.context, {
-          [key]: options[key]
+          [key]: options[key],
         });
       } else if (typeof options[key] === "object" && options[key] != null) {
         rudderElement.message.context = merge(rudderElement.message.context, {
-          ...options[key]
+          ...options[key],
         });
       } else {
         logger.error(
@@ -853,11 +868,11 @@ class Analytics {
     this.storage.clear(flag);
   }
 
-  getAnonymousId() {
+  getAnonymousId(migrate) {
     // if (!this.loaded) return;
-    this.anonymousId = this.storage.getAnonymousId();
+    this.anonymousId = this.storage.getAnonymousId(migrate);
     if (!this.anonymousId) {
-      this.setAnonymousId();
+      this.setAnonymousId(migrate);
     }
     return this.anonymousId;
   }
@@ -923,7 +938,7 @@ class Analytics {
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
       handleError({
         message:
-          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
+          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl",
       });
       throw Error("failed to initialize");
     }
@@ -951,7 +966,7 @@ class Analytics {
     if (options && options.clientSuppliedCallbacks) {
       // convert to rudder recognised method names
       const tranformedCallbackMapping = {};
-      Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+      Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
         if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
           if (
             options.clientSuppliedCallbacks[
@@ -1024,7 +1039,7 @@ class Analytics {
         const res = options.getSourceConfig();
 
         if (res instanceof Promise) {
-          res.then(res => this.processResponse(200, res)).catch(errorHandler);
+          res.then((res) => this.processResponse(200, res)).catch(errorHandler);
         } else {
           this.processResponse(200, res);
         }
@@ -1052,7 +1067,7 @@ class Analytics {
   }
 
   initializeCallbacks() {
-    Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+    Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
       if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
         this.on(methodName, () => {});
       }
@@ -1061,7 +1076,7 @@ class Analytics {
 
   registerCallbacks(calledFromLoad) {
     if (!calledFromLoad) {
-      Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+      Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
         if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
           if (window.rudderanalytics) {
             if (
@@ -1090,7 +1105,7 @@ class Analytics {
       });
     }
 
-    Object.keys(this.clientSuppliedCallbacks).forEach(methodName => {
+    Object.keys(this.clientSuppliedCallbacks).forEach((methodName) => {
       if (this.clientSuppliedCallbacks.hasOwnProperty(methodName)) {
         logger.debug(
           "registerCallbacks",
@@ -1116,7 +1131,7 @@ class Analytics {
   parseQueryString(query) {
     function getTraitsFromQueryObject(qObj) {
       const traits = {};
-      Object.keys(qObj).forEach(key => {
+      Object.keys(qObj).forEach((key) => {
         if (key.substr(0, queryDefaults.trait.length) == queryDefaults.trait) {
           traits[key.substr(queryDefaults.trait.length)] = qObj[key];
         }
@@ -1127,7 +1142,7 @@ class Analytics {
 
     function getEventPropertiesFromQueryObject(qObj) {
       const props = {};
-      Object.keys(qObj).forEach(key => {
+      Object.keys(qObj).forEach((key) => {
         if (key.substr(0, queryDefaults.prop.length) == queryDefaults.prop) {
           props[key.substr(queryDefaults.prop.length)] = qObj[key];
         }
@@ -1195,7 +1210,7 @@ Emitter(instance);
 
 window.addEventListener(
   "error",
-  e => {
+  (e) => {
     handleError(e, instance);
   },
   true
@@ -1271,5 +1286,5 @@ export {
   group,
   getUserTraits,
   getAnonymousId,
-  setAnonymousId
+  setAnonymousId,
 };
