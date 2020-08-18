@@ -1,24 +1,20 @@
+/* eslint-disable eqeqeq */
+/* eslint-disable import/prefer-default-export */
+/* eslint-disable import/no-mutable-exports */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable guard-for-in */
+/* eslint-disable consistent-return */
+/* eslint-disable func-names */
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-param-reassign */
 import Queue from "@segment/localstorage-retry";
 import {
-  BASE_URL,
-  FLUSH_QUEUE_SIZE,
-  FLUSH_INTERVAL_DEFAULT,
-} from "./constants";
-import { getCurrentTimeFormatted, handleError, replacer, validatePayload } from "./utils";
-
-import { RudderPayload } from "./RudderPayload";
+  getCurrentTimeFormatted,
+  handleError,
+  replacer,
+  validatePayload,
+} from "./utils";
 import logger from "./logUtil";
-// import * as XMLHttpRequestNode from "Xmlhttprequest";
-
-let XMLHttpRequestNode;
-if (!process.browser) {
-  XMLHttpRequestNode = require("Xmlhttprequest");
-}
-
-let btoaNode;
-if (!process.browser) {
-  btoaNode = require("btoa");
-}
 
 const queueOptions = {
   maxRetryDelay: 360000,
@@ -80,77 +76,6 @@ class EventRepository {
 
     // start queue
     this.payloadQueue.start();
-  }
-
-  /**
-   *
-   *
-   * @param {EventRepository} repo
-   * @returns
-   * @memberof EventRepository
-   */
-  preaparePayloadAndFlush(repo) {
-    // construct payload
-    logger.debug(`==== in preaparePayloadAndFlush with state: ${repo.state}`);
-    logger.debug(repo.eventsBuffer);
-    if (repo.eventsBuffer.length == 0 || repo.state === "PROCESSING") {
-      return;
-    }
-    const eventsPayload = repo.eventsBuffer;
-    const payload = new RudderPayload();
-    payload.batch = eventsPayload;
-    payload.writeKey = repo.writeKey;
-    payload.sentAt = getCurrentTimeFormatted();
-
-    // add sentAt to individual events as well
-    payload.batch.forEach((event) => {
-      event.sentAt = payload.sentAt;
-    });
-
-    repo.batchSize = repo.eventsBuffer.length;
-    // server-side integration, XHR is node module
-
-    if (process.browser) {
-      var xhr = new XMLHttpRequest();
-    } else {
-      var xhr = new XMLHttpRequestNode.XMLHttpRequest();
-    }
-
-    logger.debug("==== in flush sending to Rudder BE ====");
-    logger.debug(JSON.stringify(payload, replacer));
-
-    xhr.open("POST", repo.url, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-
-    if (process.browser) {
-      xhr.setRequestHeader(
-        "Authorization",
-        `Basic ${btoa(`${payload.writeKey}:`)}`
-      );
-    } else {
-      xhr.setRequestHeader(
-        "Authorization",
-        `Basic ${btoaNode(`${payload.writeKey}:`)}`
-      );
-    }
-
-    // register call back to reset event buffer on successfull POST
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        logger.debug(`====== request processed successfully: ${xhr.status}`);
-        repo.eventsBuffer = repo.eventsBuffer.slice(repo.batchSize);
-        logger.debug(repo.eventsBuffer.length);
-      } else if (xhr.readyState === 4 && xhr.status !== 200) {
-        handleError(
-          new Error(
-            `request failed with status: ${xhr.status} for url: ${repo.url}`
-          )
-        );
-      }
-      repo.state = "READY";
-    };
-    xhr.send(JSON.stringify(payload, replacer));
-    repo.state = "PROCESSING";
   }
 
   /**
