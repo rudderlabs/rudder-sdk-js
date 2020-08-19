@@ -19,7 +19,7 @@ class TVSquared {
     url += `collector-${this.clientId}.tvsquared.com/`;
     window._tvq.push(["setSiteId", this.brandId]);
     window._tvq.push(["setTrackerUrl", `&${url}tv2track.php`]);
-    ScriptLoader("TVSquared-integration", `${url}tv2track.js`);
+    //ScriptLoader("TVSquared-integration", `${url}tv2track.js`);
 
     window._tvq.push([
       () => {
@@ -30,13 +30,12 @@ class TVSquared {
 
   isLoaded = () => {
     logger.debug("in TVSqaured isLoaded");
-    return !!window._tvq;
+    return !!(window._tvq && window._tvq.push !== Array.prototype.push);
   };
 
   isReady = () => {
     logger.debug("in TVSqaured isReady");
-
-    return !!window._tvq;
+    return !!(window._tvq && window._tvq.push !== Array.prototype.push);
   };
 
   page = () => {
@@ -87,6 +86,8 @@ class TVSquared {
         }
       }
     }
+    console.log(session);
+    console.log(action);
     window._tvq.push([
       () => {
         this.setCustomVariable(5, "session", JSON.stringify(session), "visit");
