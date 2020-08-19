@@ -19,7 +19,7 @@ class TVSquared {
     url += `collector-${this.clientId}.tvsquared.com/`;
     window._tvq.push(["setSiteId", this.brandId]);
     window._tvq.push(["setTrackerUrl", `&${url}tv2track.php`]);
-    //ScriptLoader("TVSquared-integration", `${url}tv2track.js`);
+    ScriptLoader("TVSquared-integration", `${url}tv2track.js`);
 
     window._tvq.push([
       () => {
@@ -86,8 +86,6 @@ class TVSquared {
         }
       }
     }
-    console.log(session);
-    console.log(action);
     window._tvq.push([
       () => {
         this.setCustomVariable(5, "session", JSON.stringify(session), "visit");
