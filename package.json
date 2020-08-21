@@ -7,7 +7,7 @@
     {
       "path": "dist/rudder-analytics.min.js",
       "import": "{ createComponent }",
-      "brotli": true
+      "gzip": true
     }
   ],
   "scripts": {
@@ -68,10 +68,12 @@
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",
-    "@babel/preset-env": "^7.6.2",
     "@babel/plugin-proposal-class-properties": "^7.0.0",
+    "@babel/plugin-transform-arrow-functions": "^7.10.4",
+    "@babel/preset-env": "^7.6.2",
     "@mediaeventservices/jest-environment-jsdom-external-scripts": "^21.2.2",
     "@size-limit/preset-big-lib": "^4.4.1",
+    "babel-plugin-external-helpers": "^6.22.0",
     "eslint": "6.8.0",
     "eslint-config-airbnb": "^18.0.1",
     "eslint-config-airbnb-base": "^14.2.0",
