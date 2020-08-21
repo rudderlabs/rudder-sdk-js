@@ -23,7 +23,7 @@ class HubSpot {
     for (const k in traits) {
       if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
         const hubspotkey = k; // k.startsWith("rl_") ? k.substring(3, k.length) : k;
-        if (toString.call(traits[k]) == "[object Date]") {
+        if (Object.prototype.toString.call(traits[k]) == "[object Date]") {
           traitsValue[hubspotkey] = traits[k].getTime();
         } else {
           traitsValue[hubspotkey] = traits[k];
