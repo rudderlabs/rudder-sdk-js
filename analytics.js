@@ -369,9 +369,13 @@ class Analytics {
       (callback = properties), (options = properties = null);
     if (typeof name === "function")
       (callback = name), (options = properties = name = null);
-    if (typeof category === "object")
+    if (
+      typeof category === "object" &&
+      category != null &&
+      category != undefined
+    )
       (options = name), (properties = category), (name = category = null);
-    if (typeof name === "object")
+    if (typeof name === "object" && name != null && name != undefined)
       (options = properties), (properties = name), (name = null);
     if (typeof category === "string" && typeof name !== "string")
       (name = category), (category = null);
@@ -501,18 +505,18 @@ class Analytics {
    */
   processPage(category, name, properties, options, callback) {
     const rudderElement = new RudderElementBuilder().setType("page").build();
-    if (name) {
-      rudderElement.message.name = name;
-    }
     if (!properties) {
       properties = {};
     }
+    if (name) {
+      rudderElement.message.name = name;
+      properties.name = name;
+    }
     if (category) {
+      rudderElement.message.category = category;
       properties.category = category;
     }
-    if (properties) {
-      rudderElement.message.properties = this.getPageProperties(properties); // properties;
-    }
+    rudderElement.message.properties = this.getPageProperties(properties); // properties;
 
     this.trackPage(rudderElement, options, callback);
   }
@@ -649,7 +653,7 @@ class Analytics {
       }
 
       // assign page properties to context
-      rudderElement.message.context.page = getDefaultPageProperties();
+      // rudderElement.message.context.page = getDefaultPageProperties();
 
       rudderElement.message.context.traits = {
         ...this.userTraits,
@@ -672,9 +676,7 @@ class Analytics {
         }
       }
 
-      if (options) {
-        this.processOptionsParam(rudderElement, options);
-      }
+      this.processOptionsParam(rudderElement, options);
       logger.debug(JSON.stringify(rudderElement));
 
       // structure user supplied integrations object to rudder format
@@ -732,6 +734,7 @@ class Analytics {
    * @memberof Analytics
    */
   processOptionsParam(rudderElement, options) {
+    const { type, properties } = rudderElement.message;
     const toplevelElements = [
       "integrations",
       "anonymousId",
@@ -752,16 +755,38 @@ class Analytics {
         }
       }
     }
+    // assign page properties to context.page
+    rudderElement.message.context.page =
+      type == "page"
+        ? this.getContextPageProperties(options, properties)
+        : this.getContextPageProperties(options);
   }
 
-  getPageProperties(properties) {
+  getPageProperties(properties, options) {
     const defaultPageProperties = getDefaultPageProperties();
+    const optionPageProperties = options && options.page ? options.page : {};
     for (const key in defaultPageProperties) {
       if (properties[key] === undefined) {
-        properties[key] = defaultPageProperties[key];
+        properties[key] =
+          optionPageProperties[key] || defaultPageProperties[key];
       }
     }
     return properties;
+  }
+
+  // Assign page properties to context.page if the same property is not provided under context.page
+  getContextPageProperties(options, properties) {
+    const defaultPageProperties = getDefaultPageProperties();
+    const contextPageProperties = options && options.page ? options.page : {};
+    for (const key in defaultPageProperties) {
+      if (contextPageProperties[key] === undefined) {
+        contextPageProperties[key] =
+          properties && properties[key]
+            ? properties[key]
+            : defaultPageProperties[key];
+      }
+    }
+    return contextPageProperties;
   }
 
   /**
