@@ -13,7 +13,7 @@ import * as webPackage from "./package.json";
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
 
 let distFileName = "";
-let {version} = webPackage;
+let { version } = webPackage;
 let moduleType = "web";
 switch (process.env.ENV) {
   case "prod":
@@ -100,7 +100,16 @@ export default {
     builtins(),
 
     babel({
-      exclude: "node_modules/**",
+      presets: [["@babel/env"]],
+      plugins: [
+        [
+          "@babel/plugin-proposal-class-properties",
+          {
+            loose: true,
+          },
+        ],
+        ["@babel/plugin-transform-arrow-functions"],
+      ],
     }),
     process.env.uglify === "true" && terser(),
     process.env.ENC === "gzip" && gzipPlugin(),
