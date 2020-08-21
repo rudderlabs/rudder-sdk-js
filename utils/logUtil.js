@@ -20,25 +20,25 @@ const logger = {
 
   info() {
     if (LOG_LEVEL <= LOG_LEVEL_INFO) {
-      console.info(...arguments);
+      console.log(...arguments);
     }
   },
 
   debug() {
     if (LOG_LEVEL <= LOG_LEVEL_DEBUG) {
-      console.debug(...arguments);
+      console.log(...arguments);
     }
   },
 
   warn() {
     if (LOG_LEVEL <= LOG_LEVEL_WARN) {
-      console.warn(...arguments);
+      console.log(...arguments);
     }
   },
 
   error() {
     if (LOG_LEVEL <= LOG_LEVEL_ERROR) {
-      console.error(...arguments);
+      console.log(...arguments);
     }
   },
 };

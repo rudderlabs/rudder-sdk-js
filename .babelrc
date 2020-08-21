@@ -6,7 +6,7 @@
       {
         "loose": true
       }
-    ]
-  ],
-  "ignore": ["node_modules/**",]
+    ],
+    ["@babel/plugin-transform-arrow-functions"]
+  ]
 }
