@@ -676,13 +676,17 @@ class Analytics {
       );
 
       // try to first send to all integrations, if list populated from BE
-      succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
-        if (!obj.isFailed || !obj.isFailed()) {
-          if (obj[type]) {
-            obj[type](rudderElement);
+      try {
+        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+          if (!obj.isFailed || !obj.isFailed()) {
+            if (obj[type]) {
+              obj[type](rudderElement);
+            }
           }
-        }
-      });
+        });
+      } catch (err) {
+        handleError({ message: `[sendToNative]:${err}` });
+      }
 
       // config plane native enabled destinations, still not completely loaded
       // in the page, add the events to a queue and process later
