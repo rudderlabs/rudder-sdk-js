@@ -101,22 +101,7 @@ export default {
 
     babel({
       exclude: ["node_modules/@babel/**", "node_modules/core-js/**"],
-      presets: [
-        [
-          "@babel/env",
-          {
-            corejs: 3,
-            useBuiltIns: "usage",
-            targets: {
-              edge: "17",
-              firefox: "60",
-              ie: "9",
-              chrome: "67",
-              safari: "11.1",
-            },
-          },
-        ],
-      ],
+      presets: [["@babel/env"]],
       plugins: [
         [
           "@babel/plugin-proposal-class-properties",
