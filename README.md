@@ -81,6 +81,8 @@ You can also execute the min file in async/defer way, like:
 
 **NOTE**: Whichever version of the code you use, you need to replace  `YOUR_WRITE_KEY`  with the write key in the RudderStack Control Plane and  `DATA_PLANE_URI`  with the URI of the RudderStack Server/ Data Plane.
 
+**NOTE** : In all the above versions, there is an explicit `page` call at the last. This is added to ensure whenever the SDK loads in a page, a page call is being sent. You can remove this call completely or modify with extra page properties to suit your need. You can also add page calls in your application in places not tied directly to page load, ex: virtual page views, page renders on route change such as in SPAs.
+
 **NOTE**: We are moving our sdk to a diiferent path from the earlier  [https://cdn.rudderlabs.com/rudder-analytics.min.js](https://cdn.rudderlabs.com/rudder-analytics.min.js)  to  [https://cdn.rudderlabs.com/v1/rudder-analytics.min.js](https://cdn.rudderlabs.com/v1/rudder-analytics.min.js). The earlier path may not be maintained in coming releases.
 
 **Alternative installation using NPM**
@@ -103,7 +105,19 @@ exports.rudderanalytics  =  rudderanalytics
 ``` 
 You can also refer to the sample projects for a walkthrough of the above: [sample angular project](https://github.com/rudderlabs/rudder-analytics-angular) and [sample react project](https://github.com/rudderlabs/rudder-analytics-react)
 
+`Supported browser versions`
 
+ - Safari >=6 
+ -  IE >=10  
+ -  Edge >=15
+ -  Mozilla >=40   
+ - Chrome >= 37 
+ -  Opera >= 23
+ -  Yandex>=14.12  
+
+ 
+ 
+ **NOTE**: If the SDK doesn't work on the versions you are targeting, check if adding browser polyfills to your application solves the issue.
 
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#step-2-identify-your-users-using-the-identify-method)Step 2: Identify your users using the  `identify()`  method:
 
