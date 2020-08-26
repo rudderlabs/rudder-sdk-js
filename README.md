@@ -105,8 +105,7 @@ exports.rudderanalytics  =  rudderanalytics
 ``` 
 You can also refer to the sample projects for a walkthrough of the above: [sample angular project](https://github.com/rudderlabs/rudder-analytics-angular) and [sample react project](https://github.com/rudderlabs/rudder-analytics-react)
 
-`Supported browser versions`
-
+**SDK Supported browser versions**
  - Safari >=6 
  -  IE >=10  
  -  Edge >=15
