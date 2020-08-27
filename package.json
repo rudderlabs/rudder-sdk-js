@@ -52,6 +52,7 @@
     "component-cookie": "^1.1.4",
     "component-each": "^0.2.6",
     "component-emitter": "github:component/emitter",
+    "component-querystring": "^2.0.0",
     "component-url": "^0.2.1",
     "core-js": "^3.6.5",
     "crypto-js": "3.1.9-1",
