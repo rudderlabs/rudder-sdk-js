@@ -17,6 +17,7 @@ import {
   getJSONTrimmed,
   generateUUID,
   handleError,
+  isNil,
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
@@ -455,6 +456,52 @@ class Analytics {
 
     this.processAndSendDataToDestinations(
       "alias",
+      rudderElement,
+      options,
+      callback
+    );
+  }
+
+  /**
+   *
+   * @param {*} mergeObj
+   * @param {*} options
+   * @param {*} callback
+   */
+  merge(mergeObj, options, callback) {
+    if (!this.loaded) return;
+    if (typeof mergeObj !== "object") {
+      logger.error("mergeObj arg to merge call not of type object");
+      return;
+    }
+    if (typeof options === "function") (callback = options), (options = null);
+
+    const mergeProperties = {
+      identifier1: {
+        type: mergeObj.identifier1 && mergeObj.identifier1.type,
+        value: mergeObj.identifier1 && mergeObj.identifier1.value,
+      },
+      identifier2: {
+        type: mergeObj.identifier2 && mergeObj.identifier2.type,
+        value: mergeObj.identifier2 && mergeObj.identifier2.value,
+      },
+    };
+
+    if (
+      isNil(mergeProperties.identifier1.type) ||
+      isNil(mergeProperties.identifier1.value) ||
+      isNil(mergeProperties.identifier2.type) ||
+      isNil(mergeProperties.identifier2.value)
+    ) {
+      logger.error("mergeProperties contains null values for expected inputs");
+      return;
+    }
+
+    const rudderElement = new RudderElementBuilder().setType("merge").build();
+    rudderElement.message.mergeProperties = mergeProperties;
+
+    this.processAndSendDataToDestinations(
+      "merge",
       rudderElement,
       options,
       callback
@@ -1141,6 +1188,7 @@ const identify = instance.identify.bind(instance);
 const page = instance.page.bind(instance);
 const track = instance.track.bind(instance);
 const alias = instance.alias.bind(instance);
+const merge = instance.merge.bind(instance);
 const group = instance.group.bind(instance);
 const reset = instance.reset.bind(instance);
 const load = instance.load.bind(instance);
@@ -1157,6 +1205,7 @@ export {
   identify,
   reset,
   alias,
+  merge,
   group,
   getAnonymousId,
   setAnonymousId,
