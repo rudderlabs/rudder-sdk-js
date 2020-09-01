@@ -12,6 +12,7 @@
 /* eslint-disable no-param-reassign */
 import Emitter from "component-emitter";
 import after from "after";
+import querystring from "component-querystring";
 import {
   getJSONTrimmed,
   generateUUID,
@@ -34,6 +35,11 @@ import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
+
+const queryDefaults = {
+  trait: "ajs_trait_",
+  prop: "ajs_prop_",
+};
 
 // https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
@@ -369,9 +375,13 @@ class Analytics {
       (callback = properties), (options = properties = null);
     if (typeof name === "function")
       (callback = name), (options = properties = name = null);
-    if (typeof category === "object")
+    if (
+      typeof category === "object" &&
+      category != null &&
+      category != undefined
+    )
       (options = name), (properties = category), (name = category = null);
-    if (typeof name === "object")
+    if (typeof name === "object" && name != null && name != undefined)
       (options = properties), (properties = name), (name = null);
     if (typeof category === "string" && typeof name !== "string")
       (name = category), (category = null);
@@ -501,18 +511,18 @@ class Analytics {
    */
   processPage(category, name, properties, options, callback) {
     const rudderElement = new RudderElementBuilder().setType("page").build();
-    if (name) {
-      rudderElement.message.name = name;
-    }
     if (!properties) {
       properties = {};
     }
+    if (name) {
+      rudderElement.message.name = name;
+      properties.name = name;
+    }
     if (category) {
+      rudderElement.message.category = category;
       properties.category = category;
     }
-    if (properties) {
-      rudderElement.message.properties = this.getPageProperties(properties); // properties;
-    }
+    rudderElement.message.properties = this.getPageProperties(properties); // properties;
 
     this.trackPage(rudderElement, options, callback);
   }
@@ -649,7 +659,7 @@ class Analytics {
       }
 
       // assign page properties to context
-      rudderElement.message.context.page = getDefaultPageProperties();
+      // rudderElement.message.context.page = getDefaultPageProperties();
 
       rudderElement.message.context.traits = {
         ...this.userTraits,
@@ -672,9 +682,7 @@ class Analytics {
         }
       }
 
-      if (options) {
-        this.processOptionsParam(rudderElement, options);
-      }
+      this.processOptionsParam(rudderElement, options);
       logger.debug(JSON.stringify(rudderElement));
 
       // structure user supplied integrations object to rudder format
@@ -693,13 +701,17 @@ class Analytics {
       );
 
       // try to first send to all integrations, if list populated from BE
-      succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
-        if (!obj.isFailed || !obj.isFailed()) {
-          if (obj[type]) {
-            obj[type](rudderElement);
+      try {
+        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+          if (!obj.isFailed || !obj.isFailed()) {
+            if (obj[type]) {
+              obj[type](rudderElement);
+            }
           }
-        }
-      });
+        });
+      } catch (err) {
+        handleError({ message: `[sendToNative]:${err}` });
+      }
 
       // config plane native enabled destinations, still not completely loaded
       // in the page, add the events to a queue and process later
@@ -732,6 +744,7 @@ class Analytics {
    * @memberof Analytics
    */
   processOptionsParam(rudderElement, options) {
+    const { type, properties } = rudderElement.message;
     const toplevelElements = [
       "integrations",
       "anonymousId",
@@ -752,16 +765,38 @@ class Analytics {
         }
       }
     }
+    // assign page properties to context.page
+    rudderElement.message.context.page =
+      type == "page"
+        ? this.getContextPageProperties(options, properties)
+        : this.getContextPageProperties(options);
   }
 
-  getPageProperties(properties) {
+  getPageProperties(properties, options) {
     const defaultPageProperties = getDefaultPageProperties();
+    const optionPageProperties = options && options.page ? options.page : {};
     for (const key in defaultPageProperties) {
       if (properties[key] === undefined) {
-        properties[key] = defaultPageProperties[key];
+        properties[key] =
+          optionPageProperties[key] || defaultPageProperties[key];
       }
     }
     return properties;
+  }
+
+  // Assign page properties to context.page if the same property is not provided under context.page
+  getContextPageProperties(options, properties) {
+    const defaultPageProperties = getDefaultPageProperties();
+    const contextPageProperties = options && options.page ? options.page : {};
+    for (const key in defaultPageProperties) {
+      if (contextPageProperties[key] === undefined) {
+        contextPageProperties[key] =
+          properties && properties[key]
+            ? properties[key]
+            : defaultPageProperties[key];
+      }
+    }
+    return contextPageProperties;
   }
 
   /**
@@ -971,6 +1006,71 @@ class Analytics {
       "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
     );
   }
+
+  /**
+   * parse the given query string into usable Rudder object
+   * @param {*} query
+   */
+  parseQueryString(query) {
+    function getTraitsFromQueryObject(qObj) {
+      const traits = {};
+      Object.keys(qObj).forEach((key) => {
+        if (key.substr(0, queryDefaults.trait.length) == queryDefaults.trait) {
+          traits[key.substr(queryDefaults.trait.length)] = qObj[key];
+        }
+      });
+
+      return traits;
+    }
+
+    function getEventPropertiesFromQueryObject(qObj) {
+      const props = {};
+      Object.keys(qObj).forEach((key) => {
+        if (key.substr(0, queryDefaults.prop.length) == queryDefaults.prop) {
+          props[key.substr(queryDefaults.prop.length)] = qObj[key];
+        }
+      });
+
+      return props;
+    }
+
+    const returnObj = {};
+    const queryObject = querystring.parse(query);
+    const userTraits = getTraitsFromQueryObject(queryObject);
+    const eventProps = getEventPropertiesFromQueryObject(queryObject);
+    if (queryObject.ajs_uid) {
+      returnObj.userId = queryObject.ajs_uid;
+      returnObj.traits = userTraits;
+    }
+    if (queryObject.ajs_aid) {
+      returnObj.anonymousId = queryObject.ajs_aid;
+    }
+    if (queryObject.ajs_event) {
+      returnObj.event = queryObject.ajs_event;
+      returnObj.properties = eventProps;
+    }
+
+    return returnObj;
+  }
+}
+
+function pushDataToAnalyticsArray(argumentsArray, obj) {
+  if (obj.anonymousId) {
+    if (obj.userId) {
+      argumentsArray.unshift(
+        ["setAnonymousId", obj.anonymousId],
+        ["identify", obj.userId, obj.traits]
+      );
+    } else {
+      argumentsArray.unshift(["setAnonymousId", obj.anonymousId]);
+    }
+  } else if (obj.userId) {
+    argumentsArray.unshift(["identify", obj.userId, obj.traits]);
+  }
+
+  if (obj.event) {
+    argumentsArray.push(["track", obj.event, obj.properties]);
+  }
 }
 
 const instance = new Analytics();
@@ -1014,6 +1114,11 @@ if (
   instance[method](...argumentsArray[0]);
   argumentsArray.shift();
 }
+
+// once loaded, parse querystring of the page url to send events
+const parsedQueryObject = instance.parseQueryString(window.location.search);
+
+pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
 
 if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
   for (let i = 0; i < argumentsArray.length; i++) {
