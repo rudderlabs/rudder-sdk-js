@@ -442,6 +442,13 @@ function validatePayload(message) {
   return message;
 }
 
+function isNil(val) {
+  if (val === null || val === undefined) {
+    return true;
+  }
+  return false;
+}
+
 export {
   replacer,
   generateUUID,
@@ -457,4 +464,5 @@ export {
   handleError,
   rejectArr,
   validatePayload,
+  isNil,
 };
