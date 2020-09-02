@@ -420,6 +420,13 @@ function getUserProvidedConfigUrl(configUrl) {
   return url;
 }
 
+function isNil(val) {
+  if (val === null || val === undefined) {
+    return true;
+  }
+  return false;
+}
+
 export {
   replacer,
   generateUUID,
@@ -434,4 +441,5 @@ export {
   transformToServerNames,
   handleError,
   rejectArr,
+  isNil,
 };
