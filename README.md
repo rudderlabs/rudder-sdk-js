@@ -20,7 +20,7 @@ The minified version is as follows:
 
 ```
 <script> 
-rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track","alias","group","identify","ready","reset"],i=0;i<methods.length;i++){var method=methods[i];rudderanalytics[method]=function(d){return function(){rudderanalytics.push([d,...arguments])}}(method)}rudderanalytics.load("YOUR_WRITE_KEY","DATA_PLANE_URI"),rudderanalytics.page();
+rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],i=0;i<methods.length;i++){var method=methods[i];rudderanalytics[method]=function(a){return function(){rudderanalytics.push([a].concat(Array.prototype.slice.call(arguments)))}}(method)}rudderanalytics.load("YOUR_WRITE_KEY","DATA_PLANE_URI"),rudderanalytics.page();
 </script>
 
 <script  src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script>
@@ -41,7 +41,9 @@ The non-minified version of the code is shown below:
 		"alias",
 		"group",
 		"ready",
-		"reset"
+		"reset",
+		"getAnonymousId",
+    		"setAnonymousId"
 	];
 
 	for (var i = 0; i < methods.length; i++) {
@@ -62,7 +64,6 @@ The non-minified version of the code is shown below:
 
 ```
 
-**NOTE**: Whichever version of the code you use, you need to replace  `YOUR_WRITE_KEY`  with the write key in the RudderStack Control Plane and  `DATA_PLANE_URI`  with the URI of the RudderStack Server/ Data Plane.
 
 You can also execute the min file in async/defer way, like:
 
@@ -70,6 +71,17 @@ You can also execute the min file in async/defer way, like:
 <script async src="https://cdn.rudderlabs.com/rudder-analytics.min.js"></script>
 
 ```
+
+    Combining the initialization and the above async script together
+    <script type="text/javascript">
+    !function(){var e=window.rudderanalytics=window.rudderanalytics||[];e.methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],e.factory=function(t){return function(){var r=Array.prototype.slice.call(arguments);return r.unshift(t),e.push(r),e}};for(var t=0;t<e.methods.length;t++){var r=e.methods[t];e[r]=e.factory(r)}e.loadJS=function(e,t){var r=document.createElement("script");r.type="text/javascript",r.async=!0,r.src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(r,a)},e.loadJS(),
+    e.load("WRITE_KEY","RUDDER_SERVER_URL"),
+    e.page()}();
+    </script>
+
+**NOTE**: Whichever version of the code you use, you need to replace  `YOUR_WRITE_KEY`  with the write key in the RudderStack Control Plane and  `DATA_PLANE_URI`  with the URI of the RudderStack Server/ Data Plane.
+
+**NOTE** : In all the above versions, there is an explicit `page` call at the last. This is added to ensure whenever the SDK loads in a page, a page call is being sent. You can remove this call completely or modify with extra page properties to suit your need. You can also add page calls in your application in places not tied directly to page load, ex: virtual page views, page renders on route change such as in SPAs.
 
 **NOTE**: We are moving our sdk to a diiferent path from the earlier  [https://cdn.rudderlabs.com/rudder-analytics.min.js](https://cdn.rudderlabs.com/rudder-analytics.min.js)  to  [https://cdn.rudderlabs.com/v1/rudder-analytics.min.js](https://cdn.rudderlabs.com/v1/rudder-analytics.min.js). The earlier path may not be maintained in coming releases.
 
@@ -93,7 +105,18 @@ exports.rudderanalytics  =  rudderanalytics
 ``` 
 You can also refer to the sample projects for a walkthrough of the above: [sample angular project](https://github.com/rudderlabs/rudder-analytics-angular) and [sample react project](https://github.com/rudderlabs/rudder-analytics-react)
 
+**SDK Supported browser versions**
+ - Safari >=6 
+ -  IE >=10  
+ -  Edge >=15
+ -  Mozilla >=40   
+ - Chrome >= 37 
+ -  Opera >= 23
+ -  Yandex>=14.12  
 
+ 
+ 
+ **NOTE**: If the SDK doesn't work on the versions you are targeting, check if adding browser polyfills to your application solves the issue.
 
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#step-2-identify-your-users-using-the-identify-method)Step 2: Identify your users using the  `identify()`  method:
 
@@ -176,8 +199,6 @@ rudderanalytics.track(
 
 And we’re done! You’ve successfully installed  `rudder-analytics.js`  tracking. Now you can enable and use any event destination to send your processed event data that you want, in no time at all.
 
-For a detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, click  [here](https://docs.rudderlabs.com/sdk-integration-guide/getting-started-with-javascript-sdk).
-
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#step-4-check-ready-state)Step 4: Check Ready State
 
 There are cases when one may want to tap into the features provide by end destination SDKs to enhance tracking and other functionality. Rudder SDK exposes a  `ready`  api with a  `callback`  parameter that fires when the SDK is done initialising itself and other third-party native-sdk destinations.
@@ -190,6 +211,7 @@ rudderanalytics.ready(
 );
 
 ```
+For a detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, click  [here](https://docs.rudderlabs.com/sdk-integration-guide/getting-started-with-javascript-sdk).
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-callbacks-to-standard-methods)Adding callbacks to standard methods
 
