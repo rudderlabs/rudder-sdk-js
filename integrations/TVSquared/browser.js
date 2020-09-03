@@ -18,14 +18,8 @@ class TVSquared {
     let url = document.location.protocol === "https:" ? "https://" : "http://";
     url += `collector-${this.clientId}.tvsquared.com/`;
     window._tvq.push(["setSiteId", this.brandId]);
-    window._tvq.push(["setTrackerUrl", `&${url}tv2track.php`]);
+    window._tvq.push(["setTrackerUrl", `${url}tv2track.php`]);
     ScriptLoader("TVSquared-integration", `${url}tv2track.js`);
-
-    window._tvq.push([
-      () => {
-        this.deleteCustomVariable(5, "page");
-      },
-    ]);
   }
 
   isLoaded = () => {
@@ -87,19 +81,19 @@ class TVSquared {
       }
     }
     window._tvq.push([
-      () => {
+      function () {
         this.setCustomVariable(5, "session", JSON.stringify(session), "visit");
       },
     ]);
     if (event.toUpperCase() !== "RESPONSE") {
       window._tvq.push([
-        () => {
+        function () {
           this.setCustomVariable(5, event, JSON.stringify(action), "page");
         },
       ]);
       window._tvq.push(["trackPageView"]);
     }
-  }
+  };
 
   formatRevenue = (revenue) => {
     let rev = revenue;
@@ -107,4 +101,4 @@ class TVSquared {
     return rev;
   };
 }
-export { TVSquared };
+export default TVSquared;
