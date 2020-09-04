@@ -213,6 +213,33 @@ rudderanalytics.ready(
 ```
 For a detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, click  [here](https://docs.rudderlabs.com/sdk-integration-guide/getting-started-with-javascript-sdk).
 
+# [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#querystring-api)Querystring API
+
+Rudder's Querystring API allows you to trigger `track`, `identify` calls using query parameters. If you pass the following parameters in the URL, then it will trigger the corresponding `track / identify` call.
+
+`ajs_uid` 		: Will make a `rudderanalytics.identify()` call with `userId` having the value of the parameter value.
+
+`ajs_aid` 		: Will make a `rudderanalytics.setAnonymousId()` call with `anonymousId` having the value of the parameter value.
+
+`ajs_event`		: Will make a `rudderanalytics.track()` call with `event` name as parameter value.
+
+`ajs_prop_<property>`	: If `ajs_event` is passed as querystring, value of this parameter will populate the `properties` of the corresponding event in the `track` call.
+
+`ajs_trait_<trait>` 	: If `ajs_uid` is provided as querysting, value of this parameter will populate the `traits` of the `identify` call made.
+
+For example,
+
+```
+http://hostname.com/?ajs_uid=12345&ajs_event=test%20event&ajs_aid=abcde&ajs_prop_testProp=prop1&ajs_trait_name=Firstname+Lastname
+```
+For the above URL, the below sdk calls will be triggered.
+
+```
+rudderanalytics.identify("12345", {name: "Firstname Lastname"});
+rudderanalytics.track("test event", {testProp: "prop1"});
+rudderanalytics.setAnonymousId("abcde");
+```
+
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-callbacks-to-standard-methods)Adding callbacks to standard methods
 
 One can also define callbacks to common methods of  `rudderanalytics`  object.  _**Note**_: For now, the functionality is supported for  `syncPixel`  method which is called in Rudder SDK when making sync calls in integrations for relevant destinations.
