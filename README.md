@@ -215,17 +215,7 @@ For a detailed technical documentation and troubleshooting guide on the RudderSt
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#querystring-api)Querystring API
 
-Rudder's Querystring API allows you to trigger `track`, `identify` calls using query parameters. If you pass the following parameters in the URL, then it will trigger the corresponding `track / identify` call.
-
-`ajs_uid` 		: Will make a `rudderanalytics.identify()` call with `userId` having the value of the parameter value.
-
-`ajs_aid` 		: Will make a `rudderanalytics.setAnonymousId()` call with `anonymousId` having the value of the parameter value.
-
-`ajs_event`		: Will make a `rudderanalytics.track()` call with `event` name as parameter value.
-
-`ajs_prop_<property>`	: If `ajs_event` is passed as querystring, value of this parameter will populate the `properties` of the corresponding event in the `track` call.
-
-`ajs_trait_<trait>` 	: If `ajs_uid` is provided as querysting, value of this parameter will populate the `traits` of the `identify` call made.
+Rudder's Querystring API allows you to trigger `track`, `identify` calls using query parameters. If you pass the following parameters in the URL, then it will trigger the corresponding sdk api call.
 
 For example,
 
@@ -239,6 +229,20 @@ rudderanalytics.identify("12345", {name: "Firstname Lastname"});
 rudderanalytics.track("test event", {testProp: "prop1"});
 rudderanalytics.setAnonymousId("abcde");
 ```
+
+You may use the below parameters as querystring parameter and trigger the corresponding call.
+
+`ajs_uid` 		: Will make a `rudderanalytics.identify()` call with `userId` having the value of the parameter value.
+
+`ajs_aid` 		: Will make a `rudderanalytics.setAnonymousId()` call with `anonymousId` having the value of the parameter value.
+
+`ajs_event`		: Will make a `rudderanalytics.track()` call with `event` name as parameter value.
+
+`ajs_prop_<property>`	: If `ajs_event` is passed as querystring, value of this parameter will populate the `properties` of the corresponding event in the `track` call.
+
+`ajs_trait_<trait>` 	: If `ajs_uid` is provided as querysting, value of this parameter will populate the `traits` of the `identify` call made.
+
+
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-callbacks-to-standard-methods)Adding callbacks to standard methods
 
