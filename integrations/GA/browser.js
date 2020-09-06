@@ -2,7 +2,7 @@
 import is from "is";
 import each from "component-each";
 import logger from "../../utils/logUtil";
-import { rejectArr } from "../../utils/utils";
+import { rejectArr } from "./utils";
 import ScriptLoader from "../ScriptLoader";
 
 export default class GA {

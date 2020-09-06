@@ -88,6 +88,11 @@ class Analytics {
       syncPixel: "syncPixelCallback",
     };
     this.loaded = false;
+
+    this.pluginMap = {
+      GA: "GAPlugin"
+    }
+
   }
 
   /**
@@ -161,7 +166,8 @@ class Analytics {
 
       // remove from the list which don't have support yet in SDK
       this.clientIntegrations = this.clientIntegrations.filter((intg) => {
-        return integrations[intg.name] != undefined;
+        //return integrations[intg.name] != undefined;
+        return this.pluginMap[intg.name] != undefined;
       });
 
       this.init(this.clientIntegrations);
@@ -200,13 +206,8 @@ class Analytics {
       return;
     }
 
-    intgArray.forEach((intg) => {
-      try {
-        logger.debug(
-          "[Analytics] init :: trying to initialize integration name:: ",
-          intg.name
-        );
-        const intgClass = integrations[intg.name];
+    function processAfterLoadingIntegration(status, response) {
+      const intgClass = window[pluginName];//window.GaPlugin;
         const destConfig = intg.config;
         const intgInstance = new intgClass(destConfig, self);
         intgInstance.init();
@@ -214,6 +215,78 @@ class Analytics {
         logger.debug("initializing destination: ", intg);
 
         this.isInitialized(intgInstance).then(this.replayEvents);
+    }
+
+    let getIntegration = (integrationSource, sourceConfigObject, callback) => {
+      const cb_ = callback.bind(this);
+      var xhrObj = new XMLHttpRequest();
+      // open and send a synchronous request
+      xhrObj.open('GET', integrationSource, true);
+      xhrObj.onload = function () {
+        const { status } = xhrObj;
+        if (status == 200) {
+          logger.debug("status 200 " + "calling callback");
+          cb_(xhrObj.responseText, sourceConfigObject);
+        } else {
+          handleError(
+            new Error(`request failed with status: ${xhrObj.status} for url: ${url}`)
+          );
+          //cb_(status);
+        }
+      };
+      xhrObj.send('');
+    }
+
+    let callback = (response, intg) => {
+
+      var pluginName = this.pluginMap[intg.name];
+      var se = document.createElement('script');
+      se.type = "text/javascript";
+      se.text = response;
+      document.getElementsByTagName('head')[0].appendChild(se);
+
+      const intgClass = window[pluginName];//window.GaPlugin;
+      const destConfig = intg.config;
+      const intgInstance = new intgClass(destConfig, self);
+      intgInstance.init();
+
+      logger.debug("initializing destination: ", intg);
+
+      this.isInitialized(intgInstance).then(this.replayEvents);
+    }
+
+    intgArray.forEach((intg) => {
+      try {
+        logger.debug(
+          "[Analytics] init :: trying to initialize integration name:: ",
+          intg.name
+        );
+        //ScriptLoader(`${intg.name}-rudder`, "../../dist/GAPlugin.js")
+
+        var pluginName = this.pluginMap[intg.name];
+        var integrationSource = `http://localhost:2222/dist/${pluginName}.js`
+
+        getIntegration(integrationSource, intg, callback);
+
+        /* var xhrObj = new XMLHttpRequest();
+        // open and send a synchronous request
+        xhrObj.open('GET', integrationSource, false);
+        xhrObj.send(''); */
+        // add the returned content to a newly created script tag
+        /* var se = document.createElement('script');
+        se.type = "text/javascript";
+        se.text = xhrObj.responseText;
+        document.getElementsByTagName('head')[0].appendChild(se); 
+        const intgClass = window[pluginName];//window.GaPlugin;
+        const destConfig = intg.config;
+        const intgInstance = new intgClass(destConfig, self);
+        intgInstance.init();
+
+        logger.debug("initializing destination: ", intg);
+
+        this.isInitialized(intgInstance).then(this.replayEvents); */
+
+        
       } catch (e) {
         logger.error(
           "[Analytics] initialize integration (integration.init()) failed :: ",

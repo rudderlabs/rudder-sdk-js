@@ -46,5 +46,4 @@ if(process.intg) {
   };
 }
 
-
 export { integrations };

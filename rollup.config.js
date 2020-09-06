@@ -122,6 +122,7 @@ export default {
         // of a module in node_modules
         Xmlhttprequest: ["Xmlhttprequest"]
       } */
+      exclude: ['*/integrations/**']
     }),
 
     json(),
