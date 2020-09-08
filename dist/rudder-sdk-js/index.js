@@ -995,6 +995,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
@@ -1002,6 +1003,9 @@
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.9";
 >>>>>>> branch for npm and latest release
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
+>>>>>>> add querystring parse to npm module
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -20102,6 +20106,7 @@
     this.namespace = "com.rudderlabs.javascript";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     this.version = "1.0.10";
 =======
     this.version = "1.0.8";
@@ -20109,6 +20114,9 @@
 =======
     this.version = "1.0.9";
 >>>>>>> branch for npm and latest release
+=======
+    this.version = "1.0.10";
+>>>>>>> add querystring parse to npm module
   };
 
   // Library information class
@@ -20118,6 +20126,7 @@
     this.name = "RudderLabs JavaScript SDK";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     this.version = "1.0.10";
 =======
     this.version = "1.0.8";
@@ -20125,6 +20134,9 @@
 =======
     this.version = "1.0.9";
 >>>>>>> branch for npm and latest release
+=======
+    this.version = "1.0.10";
+>>>>>>> add querystring parse to npm module
   }; // Operating System information class
 
 
