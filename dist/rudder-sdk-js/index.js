@@ -638,10 +638,54 @@
      */
 
 
+<<<<<<< HEAD
     Emitter.prototype.emit = function (event) {
       this._callbacks = this._callbacks || {};
       var args = new Array(arguments.length - 1),
           callbacks = this._callbacks['$' + event];
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.7";
+>>>>>>> Updated npm distribution files
+=======
+=======
+>>>>>>> branch for npm and latest release
+=======
+>>>>>>> add querystring parse to npm module
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.7";
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
+>>>>>>> update npm module
+<<<<<<< HEAD
+>>>>>>> update npm module
+=======
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.9";
+>>>>>>> branch for npm and latest release
+<<<<<<< HEAD
+>>>>>>> branch for npm and latest release
+=======
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
+>>>>>>> add querystring parse to npm module
+>>>>>>> add querystring parse to npm module
+  var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
+  var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
+  /* module.exports = {
+    MessageType: MessageType,
+    ECommerceParamNames: ECommerceParamNames,
+    ECommerceEvents: ECommerceEvents,
+    RudderIntegrationPlatform: RudderIntegrationPlatform,
+    BASE_URL: BASE_URL,
+    CONFIG_URL: CONFIG_URL,
+    FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
+  }; */
+>>>>>>> add querystring parse to npm module
 
       for (var i = 1; i < arguments.length; i++) {
         args[i - 1] = arguments[i];
@@ -2566,18 +2610,27 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> branch for npm and latest release
+=======
+>>>>>>> add querystring parse to npm module
   var toString$1 = Object.prototype.toString;
 =======
   var toString = Object.prototype.toString;
 >>>>>>> branch for npm and latest release
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
   var toString$1 = Object.prototype.toString;
 >>>>>>> NPM release version 1.0.11
 =======
 >>>>>>> branch for npm and latest release
+=======
+=======
+  var toString$1 = Object.prototype.toString;
+>>>>>>> add querystring parse to npm module
+>>>>>>> add querystring parse to npm module
   /**
    * Return the type of `val`.
    *
@@ -2589,6 +2642,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var componentType$1 = function componentType(val) {
     switch (toString$1.call(val)) {
 =======
@@ -2600,13 +2654,22 @@
     switch (toString$1.call(val)) {
 >>>>>>> NPM release version 1.0.11
 =======
+=======
+>>>>>>> add querystring parse to npm module
   var componentType$1 = function componentType(val) {
     switch (toString$1.call(val)) {
 =======
   var componentType = function componentType(val) {
     switch (toString.call(val)) {
 >>>>>>> branch for npm and latest release
+<<<<<<< HEAD
 >>>>>>> branch for npm and latest release
+=======
+=======
+  var componentType$1 = function componentType(val) {
+    switch (toString$1.call(val)) {
+>>>>>>> add querystring parse to npm module
+>>>>>>> add querystring parse to npm module
       case '[object Function]':
         return 'function';
 
@@ -18082,6 +18145,7 @@
    */
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   var debug$1 = browser$1('cookie');
 >>>>>>> branch for npm and latest release
@@ -18091,6 +18155,9 @@
 =======
   var toString$1 = Object.prototype.toString;
 >>>>>>> branch for npm and latest release
+=======
+  var toString$2 = Object.prototype.toString;
+>>>>>>> add querystring parse to npm module
   /**
    * Set or get cookie `name` with `value` and `options` object.
    *
@@ -18101,6 +18168,7 @@
    * @api public
    */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -18116,6 +18184,10 @@
   var componentType$1 = function componentType(val) {
     switch (toString$1.call(val)) {
 >>>>>>> branch for npm and latest release
+=======
+  var componentType$2 = function componentType(val) {
+    switch (toString$2.call(val)) {
+>>>>>>> add querystring parse to npm module
       case '[object Date]':
         return 'date';
 
@@ -18187,7 +18259,7 @@
     var str;
 =======
   var clone = function clone(obj) {
-    var t = componentType$1(obj);
+    var t = componentType$2(obj);
 
     if (t === 'object') {
       var copy = {};
@@ -18310,8 +18382,12 @@
 =======
   var ms = function ms(val, options) {
     options = options || {};
+<<<<<<< HEAD
     if ('string' == typeof val) return parse(val);
 >>>>>>> branch for npm and latest release
+=======
+    if ('string' == typeof val) return parse$1(val);
+>>>>>>> add querystring parse to npm module
     return options["long"] ? _long(val) : _short(val);
 >>>>>>> NPM release version 1.0.11
   };
@@ -18345,13 +18421,19 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> branch for npm and latest release
+=======
+>>>>>>> add querystring parse to npm module
   function parse$1(str) {
 =======
   function parse(str) {
 >>>>>>> branch for npm and latest release
+=======
+  function parse$1(str) {
+>>>>>>> add querystring parse to npm module
     str = '' + str;
     if (str.length > 10000) return;
     var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
@@ -18910,7 +18992,19 @@
 =======
   function set(name, value, options) {
     options = options || {};
+<<<<<<< HEAD
     var str = encode$1(name) + '=' + encode$1(value);
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+    var str = encode$1(name) + '=' + encode$1(value);
+=======
+    var str = encode(name) + '=' + encode(value);
+>>>>>>> branch for npm and latest release
+=======
+    var str = encode$1(name) + '=' + encode$1(value);
+>>>>>>> add querystring parse to npm module
+>>>>>>> add querystring parse to npm module
     if (null == value) options.maxage = -1;
 >>>>>>> NPM release version 1.0.11
 
@@ -18951,9 +19045,20 @@
             // length is at least equal to `width`. The `width` must be <= 6.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             var leadingZeroes = "000000";
 =======
     return parse$2(str);
+=======
+<<<<<<< HEAD
+    return parse$2(str);
+=======
+    return parse$1(str);
+>>>>>>> branch for npm and latest release
+=======
+    return parse$2(str);
+>>>>>>> add querystring parse to npm module
+>>>>>>> add querystring parse to npm module
   }
   /**
    * Get cookie `name`.
@@ -18986,6 +19091,7 @@
               var getData, year, month, date, time, hours, minutes, seconds, milliseconds; // Define additional utility methods if the `Date` methods are buggy.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
               if (!isExtended) {
                 var floor = Math.floor; // A mapping between the months of the year and the number of days between
                 // January 1st and the first of the respective month.
@@ -18994,6 +19100,16 @@
                 // first day of the given month.
 =======
   function parse$2(str) {
+=======
+<<<<<<< HEAD
+  function parse$2(str) {
+=======
+  function parse$1(str) {
+>>>>>>> branch for npm and latest release
+=======
+  function parse$2(str) {
+>>>>>>> add querystring parse to npm module
+>>>>>>> add querystring parse to npm module
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
@@ -19019,10 +19135,21 @@
                   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                   for (month = floor((date - getDay(year, 0)) / 30.42); getDay(year, month + 1) <= date; month++) {
                   }
 =======
   function encode$1(value) {
+=======
+<<<<<<< HEAD
+  function encode$1(value) {
+=======
+  function encode(value) {
+>>>>>>> branch for npm and latest release
+=======
+  function encode$1(value) {
+>>>>>>> add querystring parse to npm module
+>>>>>>> add querystring parse to npm module
     try {
       return encodeURIComponent(value);
     } catch (e) {
@@ -19040,10 +19167,21 @@
                   // correspond to the `modulo` operation for negative numbers.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                   time = (value % 864e5 + 864e5) % 864e5; // The hours, minutes, seconds, and milliseconds are obtained by
                   // decomposing the time within the day. See section 15.9.1.10.
 =======
   function decode$1(value) {
+=======
+<<<<<<< HEAD
+  function decode$1(value) {
+=======
+  function decode(value) {
+>>>>>>> branch for npm and latest release
+=======
+  function decode$1(value) {
+>>>>>>> add querystring parse to npm module
+>>>>>>> add querystring parse to npm module
     try {
       return decodeURIComponent(value);
     } catch (e) {
@@ -22004,10 +22142,14 @@
   function set$1(name, value, options) {
     options = options || {};
 <<<<<<< HEAD
+<<<<<<< HEAD
     var str = encode$2(name) + '=' + encode$2(value);
 =======
     var str = encode$1(name) + '=' + encode$1(value);
 >>>>>>> branch for npm and latest release
+=======
+    var str = encode$2(name) + '=' + encode$2(value);
+>>>>>>> add querystring parse to npm module
     if (null == value) options.maxage = -1;
 >>>>>>> NPM release version 1.0.11
 
@@ -22099,7 +22241,7 @@
 =======
 >>>>>>> branch for npm and latest release
 
-    return parse$2(str);
+    return parse$3(str);
   }
 >>>>>>> branch for npm and latest release
   /**
@@ -22138,10 +22280,17 @@
 =======
 =======
 
+<<<<<<< HEAD
 >>>>>>> branch for npm and latest release
 >>>>>>> branch for npm and latest release
   function parse$2(str) {
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+  function parse$3(str) {
+>>>>>>> add querystring parse to npm module
+>>>>>>> add querystring parse to npm module
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
@@ -22172,16 +22321,22 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var Lotame = /*#__PURE__*/function () {
     function Lotame(config, analytics) {
       var _this = this;
 =======
 =======
 >>>>>>> branch for npm and latest release
+=======
+>>>>>>> add querystring parse to npm module
   function encode$2(value) {
 =======
   function encode$1(value) {
 >>>>>>> branch for npm and latest release
+=======
+  function encode$2(value) {
+>>>>>>> add querystring parse to npm module
     try {
       return encodeURIComponent(value);
     } catch (e) {
@@ -22195,6 +22350,7 @@
 
       _classCallCheck(this, Lotame);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       this.name = "LOTAME";
@@ -22213,10 +22369,15 @@
 =======
 =======
 >>>>>>> branch for npm and latest release
+=======
+>>>>>>> add querystring parse to npm module
   function decode$2(value) {
 =======
   function decode$1(value) {
 >>>>>>> branch for npm and latest release
+=======
+  function decode$2(value) {
+>>>>>>> add querystring parse to npm module
     try {
       return decodeURIComponent(value);
     } catch (e) {
@@ -24372,6 +24533,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     this.version = "1.0.10";
 =======
     this.version = "1.0.8";
@@ -24386,11 +24548,19 @@
     this.version = "1.0.11";
 >>>>>>> rebase with production branch
 =======
+=======
+>>>>>>> add querystring parse to npm module
     this.version = "1.0.11";
 =======
     this.version = "1.0.9";
 >>>>>>> branch for npm and latest release
+<<<<<<< HEAD
 >>>>>>> branch for npm and latest release
+=======
+=======
+    this.version = "1.0.10";
+>>>>>>> add querystring parse to npm module
+>>>>>>> add querystring parse to npm module
   };
 <<<<<<< HEAD
 =======
@@ -24441,7 +24611,7 @@
       };
 =======
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.9";
+    this.version = "1.0.10";
   }; // Operating System information class
 >>>>>>> update npm module
 >>>>>>> update npm module
