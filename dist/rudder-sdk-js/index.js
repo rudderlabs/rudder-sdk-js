@@ -3,6 +3,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.rudderanalytics = {}));
@@ -29,10 +30,13 @@
 >>>>>>> Updated npm distribution files
 =======
 >>>>>>> update npm module
+=======
+>>>>>>> update npm module
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.rudderanalytics = {}));
 }(this, (function (exports) { 'use strict';
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> branch for npm and latest release
@@ -55,6 +59,8 @@
 =======
 =======
 >>>>>>> update npm module
+>>>>>>> update npm module
+=======
 >>>>>>> update npm module
 
   function _typeof(obj) {
@@ -1245,6 +1251,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.7";
@@ -1321,6 +1328,11 @@
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
 >>>>>>> update npm module
+>>>>>>> update npm module
+<<<<<<< HEAD
+=======
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
 >>>>>>> update npm module
 >>>>>>> update npm module
 >>>>>>> update npm module
@@ -19581,6 +19593,10 @@
 >>>>>>> Updated npm distribution files
 =======
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> update npm module
+=======
+<<<<<<< HEAD
 >>>>>>> update npm module
     (function () {
       // Detect the `define` function exposed by asynchronous module loaders. The
@@ -19820,6 +19836,8 @@
 =======
 >>>>>>> update npm module
 >>>>>>> update npm module
+=======
+>>>>>>> update npm module
     (function () {
       // Detect the `define` function exposed by asynchronous module loaders. The
       // strict `define` check is necessary for compatibility with `r.js`.
@@ -19878,6 +19896,7 @@
             }
 <<<<<<< HEAD
 =======
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> branch for npm and latest release
@@ -19958,6 +19977,8 @@
 =======
 =======
 >>>>>>> update npm module
+>>>>>>> update npm module
+=======
 >>>>>>> update npm module
           }
         } // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
@@ -22035,6 +22056,7 @@
         var domain = ".".concat(lib(window.location.href));
         if (domain === ".") domain = null; // the default maxage and path
 
+<<<<<<< HEAD
         this._options = defaults_1(_options, {
           maxage: 31536000000,
           path: "/",
@@ -22107,6 +22129,8 @@
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
 =======
 >>>>>>> update npm module
                     results[value.slice(1)] = get(lex());
@@ -22191,6 +22215,7 @@
         }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> branch for npm and latest release
 <<<<<<< HEAD
 >>>>>>> branch for npm and latest release
@@ -22218,6 +22243,8 @@
 =======
 =======
 >>>>>>> update npm module
+>>>>>>> update npm module
+=======
 >>>>>>> update npm module
 
     store.deserialize = function (value) {
@@ -22727,6 +22754,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
 =======
 <<<<<<< HEAD
@@ -22734,6 +22762,9 @@
 =======
 <<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+<<<<<<< HEAD
+>>>>>>> update npm module
 =======
 <<<<<<< HEAD
 >>>>>>> update npm module
@@ -22768,6 +22799,8 @@
 >>>>>>> Updated npm distribution files
 =======
 >>>>>>> update npm module
+=======
+>>>>>>> update npm module
 
     return parse$3(str);
   }
@@ -22795,6 +22828,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var LotameStorage = /*#__PURE__*/function () {
     function LotameStorage() {
       _classCallCheck(this, LotameStorage);
@@ -22804,6 +22838,8 @@
 >>>>>>> branch for npm and latest release
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
 =======
 >>>>>>> update npm module
 
@@ -22846,6 +22882,10 @@
 =======
 =======
 >>>>>>> update npm module
+>>>>>>> update npm module
+=======
+
+  function parse$3(str) {
 >>>>>>> update npm module
     var obj = {};
     var pairs = str.split(/ *; */);
@@ -23648,6 +23688,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
 =======
         var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
@@ -23676,6 +23717,9 @@
 =======
         var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
 >>>>>>> update npm module
+>>>>>>> update npm module
+=======
+        var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
 >>>>>>> update npm module
         return prefixedVal;
       }
@@ -23696,6 +23740,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
 =======
           return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
@@ -23724,6 +23769,9 @@
 =======
           return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
 >>>>>>> update npm module
+>>>>>>> update npm module
+=======
+          return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
 >>>>>>> update npm module
         }
 
@@ -24394,6 +24442,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var Optimizely = /*#__PURE__*/function () {
 =======
 <<<<<<< HEAD
@@ -24402,6 +24451,8 @@
 >>>>>>> branch for npm and latest release
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
 =======
 >>>>>>> update npm module
 <<<<<<< HEAD
@@ -24436,6 +24487,7 @@
 >>>>>>> branch for npm and latest release
 =======
 =======
+<<<<<<< HEAD
   var Optimizely = /*#__PURE__*/function () {
 =======
 <<<<<<< HEAD
@@ -24448,8 +24500,13 @@
 >>>>>>> Updated npm distribution files
 =======
 =======
-  var Optimizely = /*#__PURE__*/function () {
 >>>>>>> update npm module
+=======
+>>>>>>> update npm module
+<<<<<<< HEAD
+>>>>>>> update npm module
+=======
+  var Optimizely = /*#__PURE__*/function () {
 >>>>>>> update npm module
     function Optimizely(config, analytics) {
       var _this = this;
@@ -25191,6 +25248,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   var Optimizely = /*#__PURE__*/function () {
     function Optimizely(config, analytics) {
@@ -25278,6 +25336,8 @@
 =======
 =======
 >>>>>>> update npm module
+=======
+>>>>>>> update npm module
 
   // Library information class
   var RudderLibraryInfo = function RudderLibraryInfo() {
@@ -25286,7 +25346,6 @@
     this.name = "RudderLabs JavaScript SDK";
     this.version = "1.0.10";
   }; // Operating System information class
->>>>>>> update npm module
 
 
   var RudderOSInfo = function RudderOSInfo() {
@@ -25614,6 +25673,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
 
     return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
@@ -25674,6 +25734,11 @@
 
     return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
 >>>>>>> update npm module
+>>>>>>> update npm module
+=======
+    var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+
+    return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
 >>>>>>> update npm module
   }
 
@@ -25695,6 +25760,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   // See https://github.com/uuidjs/uuid for API details
 >>>>>>> Updated npm distribution files
@@ -25719,6 +25785,8 @@
 =======
 =======
 >>>>>>> update npm module
+>>>>>>> update npm module
+=======
 >>>>>>> update npm module
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
@@ -26027,6 +26095,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           break;
 
         case 1014:
@@ -26052,6 +26121,8 @@
 >>>>>>> Updated npm distribution files
 =======
 >>>>>>> update npm module
+=======
+>>>>>>> update npm module
           break;
 
         case 1014:
@@ -26061,6 +26132,7 @@
           }
 
           break;
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> branch for npm and latest release
@@ -26078,6 +26150,8 @@
 =======
 =======
 >>>>>>> update npm module
+>>>>>>> update npm module
+=======
 >>>>>>> update npm module
       }
     } else if (e.number === -2147024882) {
