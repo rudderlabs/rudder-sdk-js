@@ -1,6 +1,7 @@
 (function (global, factory) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('crypto-js/aes'), require('crypto-js/enc-utf8')) :
   typeof define === 'function' && define.amd ? define(['exports', 'crypto-js/aes', 'crypto-js/enc-utf8'], factory) :
   (global = global || self, factory(global.rudderanalytics = {}, global.AES, global.Utf8));
@@ -11,10 +12,13 @@
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.rudderanalytics = {}));
 }(this, (function (exports) { 'use strict';
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> branch for npm and latest release
 =======
@@ -28,6 +32,8 @@
   Utf8 = Utf8 && Object.prototype.hasOwnProperty.call(Utf8, 'default') ? Utf8['default'] : Utf8;
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
 
   function _typeof(obj) {
     "@babel/helpers - typeof";
@@ -764,6 +770,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.7";
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
@@ -784,6 +791,9 @@
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
+>>>>>>> update npm module
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -9720,6 +9730,7 @@
   var json3 = createCommonjsModule(function (module, exports) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
     // strict `define` check is necessary for compatibility with `r.js`.
@@ -9784,6 +9795,8 @@
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
     (function () {
       // Detect the `define` function exposed by asynchronous module loaders. The
       // strict `define` check is necessary for compatibility with `r.js`.
@@ -9840,6 +9853,7 @@
             if (errorFunc) {
               errorFunc();
             }
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> branch for npm and latest release
 =======
@@ -9907,6 +9921,8 @@
             errorFunc();
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
           }
         } // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
 
@@ -10787,6 +10803,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var debug_1$1 = createCommonjsModule(function (module, exports) {
   /**
    * This is the common logic for both the Node.js and web browser
@@ -10804,6 +10821,8 @@
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
                     results[value.slice(1)] = get(lex());
                   }
 
@@ -10871,6 +10890,7 @@
           }
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> branch for npm and latest release
 =======
 =======
@@ -10890,6 +10910,8 @@
   exports.humanize = ms;
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
 
         exports.runInContext = runInContext;
         return exports;
@@ -11349,17 +11371,17 @@
     }
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     return parse$2(str);
   }
 =======
 >>>>>>> branch for npm and latest release
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
 
     return parse$3(str);
-=======
-    return parse$2(str);
->>>>>>> Updated npm distribution files
   }
   /**
    * Get cookie `name`.
@@ -11383,9 +11405,12 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
 
 <<<<<<< HEAD
 >>>>>>> branch for npm and latest release
@@ -11393,12 +11418,15 @@
 =======
   function parse$3(str) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> add querystring parse to npm module
 =======
 =======
   function parse$2(str) {
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
@@ -11993,6 +12021,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
 =======
         var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
@@ -12003,6 +12032,9 @@
         var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+=======
+        var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
+>>>>>>> update npm module
         return prefixedVal;
       }
       /**
@@ -12020,6 +12052,7 @@
         if (value.substring(0, defaults$1.prefix.length) == defaults$1.prefix) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
 =======
           return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
@@ -12030,6 +12063,9 @@
           return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+=======
+          return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
+>>>>>>> update npm module
         }
 
         return value;
@@ -12412,6 +12448,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var Optimizely = /*#__PURE__*/function () {
     function Optimizely(config, analytics) {
       var _this = this;
@@ -12433,6 +12470,9 @@
   function () {
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+=======
+  var Optimizely = /*#__PURE__*/function () {
+>>>>>>> update npm module
     function Optimizely(config, analytics) {
       var _this = this;
 
@@ -13018,6 +13058,7 @@
     this.version = "1.0.10";
   };
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> update npm module
 
 =======
@@ -13054,569 +13095,16 @@
       };
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
-
-      this.sendDataToRudder = function (campaignState) {
-        logger.debug(campaignState);
-        var experiment = campaignState.experiment;
-        var variation = campaignState.variation;
-        var context = {
-          integrations: {
-            All: true
-          }
-        };
-        var audiences = campaignState.audiences; // Reformatting this data structure into hash map so concatenating variation ids and names is easier later
-
-        var audiencesMap = {};
-        audiences.forEach(function (audience) {
-          audiencesMap[audience.id] = audience.name;
-        });
-        var audienceIds = Object.keys(audiencesMap).sort().join();
-        var audienceNames = Object.values(audiencesMap).sort().join(", ");
-
-        if (_this.sendExperimentTrack) {
-          var props = {
-            campaignName: campaignState.campaignName,
-            campaignId: campaignState.id,
-            experimentId: experiment.id,
-            experimentName: experiment.name,
-            variationName: variation.name,
-            variationId: variation.id,
-            audienceId: audienceIds,
-            // eg. '7527562222,7527111138'
-            audienceName: audienceNames,
-            // eg. 'Peaky Blinders, Trust Tree'
-            isInCampaignHoldback: campaignState.isInCampaignHoldback
-          }; // If this was a redirect experiment and the effective referrer is different from document.referrer,
-          // this value is made available. So if a customer came in via google.com/ad -> tb12.com -> redirect experiment -> Belichickgoat.com
-          // `experiment.referrer` would be google.com/ad here NOT `tb12.com`.
-
-          if (experiment.referrer) {
-            props.referrer = experiment.referrer;
-            context.page = {
-              referrer: experiment.referrer
-            };
-          } // For Google's nonInteraction flag
-
-
-          if (_this.sendExperimentTrackAsNonInteractive) props.nonInteraction = 1; // If customCampaignProperties is provided overide the props with it.
-          // If valid customCampaignProperties present it will override existing props.
-          // const data = window.optimizely && window.optimizely.get("data");
-
-          var data = campaignState;
-
-          if (data && _this.customCampaignProperties.length > 0) {
-            for (var index = 0; index < _this.customCampaignProperties.length; index += 1) {
-              var rudderProp = _this.customCampaignProperties[index].from;
-              var optimizelyProp = _this.customCampaignProperties[index].to;
-
-              if (typeof props[optimizelyProp] !== "undefined") {
-                props[rudderProp] = props[optimizelyProp];
-                delete props[optimizelyProp];
-              }
-            }
-          } // Send to Rudder
-
-
-          _this.analytics.track("Experiment Viewed", props, context);
-        }
-
-        if (_this.sendExperimentIdentify) {
-          var traits = {};
-          traits["Experiment: ".concat(experiment.name)] = variation.name; // Send to Rudder
-
-          _this.analytics.identify(traits);
-        }
-      };
-
-      this.analytics = analytics;
-      this.sendExperimentTrack = config.sendExperimentTrack;
-      this.sendExperimentIdentify = config.sendExperimentIdentify;
-      this.sendExperimentTrackAsNonInteractive = config.sendExperimentTrackAsNonInteractive;
-      this.revenueOnlyOnOrderCompleted = config.revenueOnlyOnOrderCompleted;
-      this.trackCategorizedPages = config.trackCategorizedPages;
-      this.trackNamedPages = config.trackNamedPages;
-      this.customCampaignProperties = config.customCampaignProperties ? config.customCampaignProperties : [];
-      this.customExperimentProperties = config.customExperimentProperties ? config.customExperimentProperties : [];
-      this.name = "OPTIMIZELY";
-    }
-
-    _createClass(Optimizely, [{
-      key: "init",
-      value: function init() {
-        logger.debug("=== in optimizely init ===");
-        this.initOptimizelyIntegration(this.referrerOverride, this.sendDataToRudder);
-      }
-    }, {
-      key: "initOptimizelyIntegration",
-      value: function initOptimizelyIntegration(referrerOverride, sendCampaignData) {
-        var newActiveCampaign = function newActiveCampaign(id, referrer) {
-          var state = window.optimizely.get && window.optimizely.get("state");
-
-          if (state) {
-            var activeCampaigns = state.getCampaignStates({
-              isActive: true
-            });
-            var campaignState = activeCampaigns[id];
-            if (referrer) campaignState.experiment.referrer = referrer;
-            sendCampaignData(campaignState);
-          }
-        };
-
-        var checkReferrer = function checkReferrer() {
-          var state = window.optimizely.get && window.optimizely.get("state");
-
-          if (state) {
-            var referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
-
-            if (referrer) {
-              referrerOverride(referrer);
-              return referrer;
-            }
-          }
-
-          return undefined;
-        };
-
-        var registerFutureActiveCampaigns = function registerFutureActiveCampaigns() {
-          window.optimizely = window.optimizely || [];
-          window.optimizely.push({
-            type: "addListener",
-            filter: {
-              type: "lifecycle",
-              name: "campaignDecided"
-            },
-            handler: function handler(event) {
-              var id = event.data.campaign.id;
-              newActiveCampaign(id);
-            }
-          });
-        };
-
-        var registerCurrentlyActiveCampaigns = function registerCurrentlyActiveCampaigns() {
-          window.optimizely = window.optimizely || [];
-          var state = window.optimizely.get && window.optimizely.get("state");
-
-          if (state) {
-            var referrer = checkReferrer();
-            var activeCampaigns = state.getCampaignStates({
-              isActive: true
-            });
-            Object.keys(activeCampaigns).forEach(function (id) {
-              if (referrer) {
-                newActiveCampaign(id, referrer);
-              } else {
-                newActiveCampaign(id);
-              }
-            });
-          } else {
-            window.optimizely.push({
-              type: "addListener",
-              filter: {
-                type: "lifecycle",
-                name: "initialized"
-              },
-              handler: function handler() {
-                checkReferrer();
-              }
-            });
-          }
-        };
-
-        registerCurrentlyActiveCampaigns();
-        registerFutureActiveCampaigns();
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        logger.debug("in Optimizely web track");
-        var eventProperties = rudderElement.message.properties;
-        var event = rudderElement.message.event;
-
-        if (eventProperties.revenue && this.revenueOnlyOnOrderCompleted) {
-          if (event === "Order Completed") {
-            eventProperties.revenue = Math.round(eventProperties.revenue * 100);
-          } else if (event !== "Order Completed") {
-            delete eventProperties.revenue;
-          }
-        }
-
-        var eventName = event.replace(/:/g, "_"); // can't have colons so replacing with underscores
-
-        var payload = {
-          type: "event",
-          eventName: eventName,
-          tags: eventProperties
-        };
-        window.optimizely.push(payload);
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        logger.debug("in Optimizely web page");
-        var category = rudderElement.message.properties.category;
-        var name = rudderElement.message.name;
-        /* const contextOptimizely = {
-          integrations: { All: false, Optimizely: true },
-        }; */
-        // categorized pages
-
-        if (category && this.trackCategorizedPages) {
-          // this.analytics.track(`Viewed ${category} page`, {}, contextOptimizely);
-          rudderElement.message.event = "Viewed ".concat(category, " page");
-          rudderElement.message.type = "track";
-          this.track(rudderElement);
-        } // named pages
-
-
-        if (name && this.trackNamedPages) {
-          // this.analytics.track(`Viewed ${name} page`, {}, contextOptimizely);
-          rudderElement.message.event = "Viewed ".concat(name, " page");
-          rudderElement.message.type = "track";
-          this.track(rudderElement);
-        }
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
-      }
-    }]);
-
-    return Optimizely;
-  }();
-
-  var Bugsnag = /*#__PURE__*/function () {
-    function Bugsnag(config) {
-      _classCallCheck(this, Bugsnag);
-
-      this.releaseStage = config.releaseStage;
-      this.apiKey = config.apiKey;
-      this.name = "BUGSNAG";
-      this.setIntervalHandler = undefined;
-    }
-
-    _createClass(Bugsnag, [{
-      key: "init",
-      value: function init() {
-        logger.debug("===in init Bugsnag===");
-        ScriptLoader("bugsnag-id", "https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js");
-        this.setIntervalHandler = setInterval(this.initBugsnagClient.bind(this), 1000);
-      }
-    }, {
-      key: "initBugsnagClient",
-      value: function initBugsnagClient() {
-        if (window.bugsnag !== undefined) {
-          window.bugsnagClient = window.bugsnag(this.apiKey);
-          window.bugsnagClient.releaseStage = this.releaseStage;
-          clearInterval(this.setIntervalHandler);
-        }
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        logger.debug("in bugsnag isLoaded");
-        return !!window.bugsnagClient;
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        logger.debug("in bugsnag isReady");
-        return !!window.bugsnagClient;
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        var traits = rudderElement.message.context.traits;
-        var traitsFinal = {
-          id: rudderElement.message.userId || rudderElement.message.anonymousId,
-          name: traits.name,
-          email: traits.email
-        };
-        window.bugsnagClient.user = traitsFinal;
-        window.bugsnagClient.notify(new Error("error in identify"));
-      }
-    }]);
-
-    return Bugsnag;
-  }();
-
-  function preserveCamelCase(str) {
-  	let isLastCharLower = false;
-  	let isLastCharUpper = false;
-  	let isLastLastCharUpper = false;
-
-  	for (let i = 0; i < str.length; i++) {
-  		const c = str[i];
-
-  		if (isLastCharLower && /[a-zA-Z]/.test(c) && c.toUpperCase() === c) {
-  			str = str.substr(0, i) + '-' + str.substr(i);
-  			isLastCharLower = false;
-  			isLastLastCharUpper = isLastCharUpper;
-  			isLastCharUpper = true;
-  			i++;
-  		} else if (isLastCharUpper && isLastLastCharUpper && /[a-zA-Z]/.test(c) && c.toLowerCase() === c) {
-  			str = str.substr(0, i - 1) + '-' + str.substr(i - 1);
-  			isLastLastCharUpper = isLastCharUpper;
-  			isLastCharUpper = false;
-  			isLastCharLower = true;
-  		} else {
-  			isLastCharLower = c.toLowerCase() === c;
-  			isLastLastCharUpper = isLastCharUpper;
-  			isLastCharUpper = c.toUpperCase() === c;
-  		}
-  	}
-
-  	return str;
-  }
-
-  var camelcase = function (str) {
-  	if (arguments.length > 1) {
-  		str = Array.from(arguments)
-  			.map(x => x.trim())
-  			.filter(x => x.length)
-  			.join('-');
-  	} else {
-  		str = str.trim();
-  	}
-
-  	if (str.length === 0) {
-  		return '';
-  	}
-
-  	if (str.length === 1) {
-  		return str.toLowerCase();
-  	}
-
-  	if (/^[a-z0-9]+$/.test(str)) {
-  		return str;
-  	}
-
-  	const hasUpperCase = str !== str.toLowerCase();
-
-  	if (hasUpperCase) {
-  		str = preserveCamelCase(str);
-  	}
-
-  	return str
-  		.replace(/^[_.\- ]+/, '')
-  		.toLowerCase()
-  		.replace(/[_.\- ]+(\w|$)/g, (m, p1) => p1.toUpperCase());
-  };
-
-  var Fullstory = /*#__PURE__*/function () {
-    function Fullstory(config) {
-      _classCallCheck(this, Fullstory);
-
-      this.fs_org = config.fs_org;
-      this.fs_debug_mode = config.fs_debug_mode;
-      this.name = "FULLSTORY";
-    }
-
-    _createClass(Fullstory, [{
-      key: "init",
-      value: function init() {
-        logger.debug("===in init FULLSTORY===");
-        window._fs_debug = this.fs_debug_mode;
-        window._fs_host = "fullstory.com";
-        window._fs_script = "edge.fullstory.com/s/fs.js";
-        window._fs_org = this.fs_org;
-        window._fs_namespace = "FS";
-
-        (function (m, n, e, t, l, o, g, y) {
-          if (e in m) {
-            if (m.console && m.console.log) {
-              m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');
-            }
-
-            return;
-          }
-
-          g = m[e] = function (a, b, s) {
-            g.q ? g.q.push([a, b, s]) : g._api(a, b, s);
-          };
-
-          g.q = [];
-          o = n.createElement(t);
-          o.async = 1;
-          o.crossOrigin = "anonymous";
-          o.src = "https://".concat(_fs_script);
-          y = n.getElementsByTagName(t)[0];
-          y.parentNode.insertBefore(o, y);
-
-          g.identify = function (i, v, s) {
-            g(l, {
-              uid: i
-            }, s);
-            if (v) g(l, v, s);
-          };
-
-          g.setUserVars = function (v, s) {
-            g(l, v, s);
-          };
-
-          g.event = function (i, v, s) {
-            g("event", {
-              n: i,
-              p: v
-            }, s);
-          };
-
-          g.shutdown = function () {
-            g("rec", !1);
-          };
-
-          g.restart = function () {
-            g("rec", !0);
-          };
-
-          g.log = function (a, b) {
-            g("log", [a, b]);
-          };
-
-          g.consent = function (a) {
-            g("consent", !arguments.length || a);
-          };
-
-          g.identifyAccount = function (i, v) {
-            o = "account";
-            v = v || {};
-            v.acctId = i;
-            g(o, v);
-          };
-
-          g.clearUserCookie = function () {};
-
-          g._w = {};
-          y = "XMLHttpRequest";
-          g._w[y] = m[y];
-          y = "fetch";
-          g._w[y] = m[y];
-          if (m[y]) m[y] = function () {
-            return g._w[y].apply(this, arguments);
-          };
-        })(window, document, window._fs_namespace, "script", "user");
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        logger.debug("in FULLSORY page");
-        var rudderMessage = rudderElement.message;
-        var pageName = rudderMessage.name;
-
-        var props = _objectSpread2({
-          name: pageName
-        }, rudderMessage.properties);
-
-        window.FS.event("Viewed a Page", Fullstory.getFSProperties(props));
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        logger.debug("in FULLSORY identify");
-        var userId = rudderElement.message.userId;
-        var traits = rudderElement.message.context.traits;
-        if (!userId) userId = rudderElement.message.anonymousId;
-        if (Object.keys(traits).length === 0 && traits.constructor === Object) window.FS.identify(userId);else window.FS.identify(userId, Fullstory.getFSProperties(traits));
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        logger.debug("in FULLSTORY track");
-        window.FS.event(rudderElement.message.event, Fullstory.getFSProperties(rudderElement.message.properties));
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        logger.debug("in FULLSTORY isLoaded");
-        return !!window.FS;
-      }
-    }], [{
-      key: "getFSProperties",
-      value: function getFSProperties(properties) {
-        var FS_properties = {};
-        Object.keys(properties).map(function (key, index) {
-          FS_properties[key === "displayName" || key === "email" ? key : Fullstory.camelCaseField(key)] = properties[key];
-        });
-        return FS_properties;
-      }
-    }, {
-      key: "camelCaseField",
-      value: function camelCaseField(fieldName) {
-        // Do not camel case across type suffixes.
-        var parts = fieldName.split("_");
-
-        if (parts.length > 1) {
-          var typeSuffix = parts.pop();
-
-          switch (typeSuffix) {
-            case "str":
-            case "int":
-            case "date":
-            case "real":
-            case "bool":
-            case "strs":
-            case "ints":
-            case "dates":
-            case "reals":
-            case "bools":
-              return "".concat(camelcase(parts.join("_")), "_").concat(typeSuffix);
-
-          }
-        } // No type suffix found. Camel case the whole field name.
-
-
-        return camelcase(fieldName);
-      }
-    }]);
-
-    return Fullstory;
-  }();
-
-  // (config-plan name, native destination.name , exported integration name(this one below))
-
-  var integrations = {
-    HS: index,
-    GA: index$1,
-    HOTJAR: index$2,
-    GOOGLEADS: index$3,
-    VWO: VWO,
-    GTM: GoogleTagManager,
-    BRAZE: Braze,
-    INTERCOM: INTERCOM,
-    KEEN: Keen,
-    KISSMETRICS: Kissmetrics,
-    CUSTOMERIO: CustomerIO,
-    CHARTBEAT: Chartbeat,
-    COMSCORE: Comscore,
-    FACEBOOK_PIXEL: FacebookPixel,
-    LOTAME: Lotame,
-    OPTIMIZELY: Optimizely,
-    BUGSNAG: Bugsnag,
-    FULLSTORY: Fullstory
-  };
-
-  // Application class
-  var RudderApp = function RudderApp() {
-    _classCallCheck(this, RudderApp);
-
-    this.build = "1.0.0";
-    this.name = "RudderLabs JavaScript SDK";
-    this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.7";
-  };
+=======
 
   // Library information class
   var RudderLibraryInfo = function RudderLibraryInfo() {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.7";
+    this.version = "1.0.10";
   }; // Operating System information class
+>>>>>>> update npm module
 
 
   var RudderOSInfo = function RudderOSInfo() {
@@ -13942,6 +13430,7 @@
     var i = offset || 0;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     var bth = byteToHex;
     // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
     return ([
@@ -13978,6 +13467,11 @@
     ]).join('');
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+=======
+    var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+
+    return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
+>>>>>>> update npm module
   }
 
   var bytesToUuid_1 = bytesToUuid;
@@ -13996,6 +13490,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   // See https://github.com/uuidjs/uuid for API details
 =======
 >>>>>>> branch for npm and latest release
@@ -14004,6 +13499,8 @@
   // See https://github.com/uuidjs/uuid for API details
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
@@ -14298,11 +13795,14 @@
           quotaExceeded = true;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         }
         break;
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
           break;
 
         case 1014:
@@ -14313,6 +13813,7 @@
 
           break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> branch for npm and latest release
 =======
 =======
@@ -14320,6 +13821,8 @@
         break;
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
       }
     } else if (e.number === -2147024882) {
       // Internet Explorer 8
