@@ -12,6 +12,7 @@
 /* eslint-disable no-param-reassign */
 import Emitter from "component-emitter";
 import after from "after";
+import querystring from "component-querystring";
 import {
   getJSONTrimmed,
   generateUUID,
@@ -34,6 +35,11 @@ import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
+
+const queryDefaults = {
+  trait: "ajs_trait_",
+  prop: "ajs_prop_",
+};
 
 // https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
@@ -981,6 +987,71 @@ class Analytics {
       "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
     );
   }
+
+  /**
+   * parse the given query string into usable Rudder object
+   * @param {*} query
+   */
+  parseQueryString(query) {
+    function getTraitsFromQueryObject(qObj) {
+      const traits = {};
+      Object.keys(qObj).forEach((key) => {
+        if (key.substr(0, queryDefaults.trait.length) == queryDefaults.trait) {
+          traits[key.substr(queryDefaults.trait.length)] = qObj[key];
+        }
+      });
+
+      return traits;
+    }
+
+    function getEventPropertiesFromQueryObject(qObj) {
+      const props = {};
+      Object.keys(qObj).forEach((key) => {
+        if (key.substr(0, queryDefaults.prop.length) == queryDefaults.prop) {
+          props[key.substr(queryDefaults.prop.length)] = qObj[key];
+        }
+      });
+
+      return props;
+    }
+
+    const returnObj = {};
+    const queryObject = querystring.parse(query);
+    const userTraits = getTraitsFromQueryObject(queryObject);
+    const eventProps = getEventPropertiesFromQueryObject(queryObject);
+    if (queryObject.ajs_uid) {
+      returnObj.userId = queryObject.ajs_uid;
+      returnObj.traits = userTraits;
+    }
+    if (queryObject.ajs_aid) {
+      returnObj.anonymousId = queryObject.ajs_aid;
+    }
+    if (queryObject.ajs_event) {
+      returnObj.event = queryObject.ajs_event;
+      returnObj.properties = eventProps;
+    }
+
+    return returnObj;
+  }
+}
+
+function pushDataToAnalyticsArray(argumentsArray, obj) {
+  if (obj.anonymousId) {
+    if (obj.userId) {
+      argumentsArray.unshift(
+        ["setAnonymousId", obj.anonymousId],
+        ["identify", obj.userId, obj.traits]
+      );
+    } else {
+      argumentsArray.unshift(["setAnonymousId", obj.anonymousId]);
+    }
+  } else if (obj.userId) {
+    argumentsArray.unshift(["identify", obj.userId, obj.traits]);
+  }
+
+  if (obj.event) {
+    argumentsArray.push(["track", obj.event, obj.properties]);
+  }
 }
 
 const instance = new Analytics();
@@ -1024,6 +1095,11 @@ if (
   instance[method](...argumentsArray[0]);
   argumentsArray.shift();
 }
+
+// once loaded, parse querystring of the page url to send events
+const parsedQueryObject = instance.parseQueryString(window.location.search);
+
+pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
 
 if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
   for (let i = 0; i < argumentsArray.length; i++) {
