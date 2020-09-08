@@ -17,6 +17,7 @@ import {
   getJSONTrimmed,
   generateUUID,
   handleError,
+  isNil,
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
@@ -436,6 +437,46 @@ class Analytics {
 
     this.processAndSendDataToDestinations(
       "alias",
+      rudderElement,
+      options,
+      callback
+    );
+  }
+
+  /**
+   *
+   * @param {*} mergeProperty1
+   * @param {*} mergeProperty2
+   * @param {*} options
+   * @param {*} callback
+   */
+  merge(mergeProperty1, mergeProperty2, options, callback) {
+    if (!this.loaded) return;
+    if (
+      typeof mergeProperty1 !== "object" ||
+      typeof mergeProperty2 !== "object"
+    ) {
+      logger.error("mergeProperties arg's to merge call not of type object");
+    }
+    if (typeof options === "function") (callback = options), (options = null);
+
+    const mergeProperties = [mergeProperty1, mergeProperty2];
+
+    if (
+      isNil(mergeProperties[0].type) ||
+      isNil(mergeProperties[0].value) ||
+      isNil(mergeProperties[1].type) ||
+      isNil(mergeProperties[1].value)
+    ) {
+      logger.error("mergeProperties contains null values for expected inputs");
+      return;
+    }
+
+    const rudderElement = new RudderElementBuilder().setType("merge").build();
+    rudderElement.message.mergeProperties = mergeProperties;
+
+    this.processAndSendDataToDestinations(
+      "merge",
       rudderElement,
       options,
       callback
@@ -1122,6 +1163,7 @@ const identify = instance.identify.bind(instance);
 const page = instance.page.bind(instance);
 const track = instance.track.bind(instance);
 const alias = instance.alias.bind(instance);
+const merge = instance.merge.bind(instance);
 const group = instance.group.bind(instance);
 const reset = instance.reset.bind(instance);
 const load = instance.load.bind(instance);
@@ -1138,6 +1180,7 @@ export {
   identify,
   reset,
   alias,
+  merge,
   group,
   getAnonymousId,
   setAnonymousId,
