@@ -445,34 +445,28 @@ class Analytics {
 
   /**
    *
-   * @param {*} mergeObj
+   * @param {*} mergeProperty1
+   * @param {*} mergeProperty2
    * @param {*} options
    * @param {*} callback
    */
-  merge(mergeObj, options, callback) {
+  merge(mergeProperty1, mergeProperty2, options, callback) {
     if (!this.loaded) return;
-    if (typeof mergeObj !== "object") {
-      logger.error("mergeObj arg to merge call not of type object");
-      return;
+    if (
+      typeof mergeProperty1 !== "object" ||
+      typeof mergeProperty2 !== "object"
+    ) {
+      logger.error("mergeProperties arg's to merge call not of type object");
     }
     if (typeof options === "function") (callback = options), (options = null);
 
-    const mergeProperties = {
-      identifier1: {
-        type: mergeObj.identifier1 && mergeObj.identifier1.type,
-        value: mergeObj.identifier1 && mergeObj.identifier1.value,
-      },
-      identifier2: {
-        type: mergeObj.identifier2 && mergeObj.identifier2.type,
-        value: mergeObj.identifier2 && mergeObj.identifier2.value,
-      },
-    };
+    const mergeProperties = [mergeProperty1, mergeProperty2];
 
     if (
-      isNil(mergeProperties.identifier1.type) ||
-      isNil(mergeProperties.identifier1.value) ||
-      isNil(mergeProperties.identifier2.type) ||
-      isNil(mergeProperties.identifier2.value)
+      isNil(mergeProperties[0].type) ||
+      isNil(mergeProperties[0].value) ||
+      isNil(mergeProperties[1].type) ||
+      isNil(mergeProperties[1].value)
     ) {
       logger.error("mergeProperties contains null values for expected inputs");
       return;
