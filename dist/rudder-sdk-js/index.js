@@ -2,6 +2,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.rudderanalytics = {}));
@@ -11,6 +12,8 @@
 >>>>>>> branch for npm and latest release
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('crypto-js/aes'), require('crypto-js/enc-utf8')) :
   typeof define === 'function' && define.amd ? define(['exports', 'crypto-js/aes', 'crypto-js/enc-utf8'], factory) :
   (global = global || self, factory(global.rudderanalytics = {}, global.AES, global.Utf8));
@@ -24,10 +27,13 @@
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.rudderanalytics = {}));
 }(this, (function (exports) { 'use strict';
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> branch for npm and latest release
 <<<<<<< HEAD
@@ -44,7 +50,12 @@
   Utf8 = Utf8 && Object.prototype.hasOwnProperty.call(Utf8, 'default') ? Utf8['default'] : Utf8;
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+>>>>>>> update npm module
+>>>>>>> update npm module
 
   function _typeof(obj) {
     "@babel/helpers - typeof";
@@ -1233,6 +1244,7 @@
 >>>>>>> branch for npm and latest release
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.7";
@@ -1251,7 +1263,12 @@
 >>>>>>> add querystring parse to npm module
 =======
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+>>>>>>> update npm module
+>>>>>>> update npm module
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.7";
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
@@ -1292,9 +1309,21 @@
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+=======
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
+>>>>>>> update npm module
+>>>>>>> update npm module
+>>>>>>> update npm module
+>>>>>>> update npm module
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -19544,11 +19573,15 @@
           if (errorFunc) {
             errorFunc();
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
 =======
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+<<<<<<< HEAD
+>>>>>>> update npm module
     (function () {
       // Detect the `define` function exposed by asynchronous module loaders. The
       // strict `define` check is necessary for compatibility with `r.js`.
@@ -19624,6 +19657,16 @@
 =======
 =======
 =======
+<<<<<<< HEAD
+=======
+  var json3 = createCommonjsModule(function (module, exports) {
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> Updated npm distribution files
+=======
+<<<<<<< HEAD
+>>>>>>> update npm module
+>>>>>>> update npm module
   (function () {
     // Detect the `define` function exposed by asynchronous module loaders. The
     // strict `define` check is necessary for compatibility with `r.js`.
@@ -19687,6 +19730,7 @@
             errorFunc();
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
           }
         } // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
@@ -19772,6 +19816,10 @@
   var json3 = createCommonjsModule(function (module, exports) {
 <<<<<<< HEAD
 <<<<<<< HEAD
+=======
+=======
+>>>>>>> update npm module
+>>>>>>> update npm module
     (function () {
       // Detect the `define` function exposed by asynchronous module loaders. The
       // strict `define` check is necessary for compatibility with `r.js`.
@@ -19828,6 +19876,15 @@
             if (errorFunc) {
               errorFunc();
             }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> branch for npm and latest release
+<<<<<<< HEAD
+>>>>>>> branch for npm and latest release
+=======
+>>>>>>> update npm module
 =======
 =======
 >>>>>>> branch for npm and latest release
@@ -19883,6 +19940,245 @@
           getClass = objectProto.toString,
           isProperty = objectProto.hasOwnProperty,
           undefined$1;
+<<<<<<< HEAD
+=======
+
+      // Internal: Contains `try...catch` logic used by other functions.
+      // This prevents other functions from being deoptimized.
+      function attempt(func, errorFunc) {
+        try {
+          func();
+        } catch (exception) {
+          if (errorFunc) {
+            errorFunc();
+>>>>>>> Updated npm distribution files
+>>>>>>> Updated npm distribution files
+<<<<<<< HEAD
+>>>>>>> Updated npm distribution files
+=======
+=======
+>>>>>>> update npm module
+>>>>>>> update npm module
+          }
+        } // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
+
+
+        var isExtended = new Date(-3509827334573292);
+        attempt(function () {
+          // The `getUTCFullYear`, `Month`, and `Date` methods return nonsensical
+          // results for certain dates in Opera >= 10.53.
+          isExtended = isExtended.getUTCFullYear() == -109252 && isExtended.getUTCMonth() === 0 && isExtended.getUTCDate() === 1 && isExtended.getUTCHours() == 10 && isExtended.getUTCMinutes() == 37 && isExtended.getUTCSeconds() == 6 && isExtended.getUTCMilliseconds() == 708;
+        }); // Internal: Determines whether the native `JSON.stringify` and `parse`
+        // implementations are spec-compliant. Based on work by Ken Snyder.
+
+        function has(name) {
+          if (has[name] != null) {
+            // Return cached feature test result.
+            return has[name];
+          }
+
+          var isSupported;
+
+          if (name == "bug-string-char-index") {
+            // IE <= 7 doesn't support accessing string characters using square
+            // bracket notation. IE 8 only supports this for primitives.
+            isSupported = "a"[0] != "a";
+          } else if (name == "json") {
+            // Indicates whether both `JSON.stringify` and `JSON.parse` are
+            // supported.
+            isSupported = has("json-stringify") && has("date-serialization") && has("json-parse");
+          } else if (name == "date-serialization") {
+            // Indicates whether `Date`s can be serialized accurately by `JSON.stringify`.
+            isSupported = has("json-stringify") && isExtended;
+
+            if (isSupported) {
+              var stringify = exports.stringify;
+              attempt(function () {
+                isSupported = // JSON 2, Prototype <= 1.7, and older WebKit builds incorrectly
+                // serialize extended years.
+                stringify(new Date(-8.64e15)) == '"-271821-04-20T00:00:00.000Z"' && // The milliseconds are optional in ES 5, but required in 5.1.
+                stringify(new Date(8.64e15)) == '"+275760-09-13T00:00:00.000Z"' && // Firefox <= 11.0 incorrectly serializes years prior to 0 as negative
+                // four-digit years instead of six-digit years. Credits: @Yaffle.
+                stringify(new Date(-621987552e5)) == '"-000001-01-01T00:00:00.000Z"' && // Safari <= 5.1.5 and Opera >= 10.53 incorrectly serialize millisecond
+                // values less than 1000. Credits: @Yaffle.
+                stringify(new Date(-1)) == '"1969-12-31T23:59:59.999Z"';
+              });
+            }
+          } else {
+            var value,
+                serialized = "{\"a\":[1,true,false,null,\"\\u0000\\b\\n\\f\\r\\t\"]}"; // Test `JSON.stringify`.
+
+            if (name == "json-stringify") {
+              var stringify = exports.stringify,
+                  stringifySupported = typeof stringify == "function";
+
+              if (stringifySupported) {
+                // A test function object with a custom `toJSON` method.
+                (value = function value() {
+                  return 1;
+                }).toJSON = value;
+                attempt(function () {
+                  stringifySupported = // Firefox 3.1b1 and b2 serialize string, number, and boolean
+                  // primitives as object literals.
+                  stringify(0) === "0" && // FF 3.1b1, b2, and JSON 2 serialize wrapped primitives as object
+                  // literals.
+                  stringify(new Number()) === "0" && stringify(new String()) == '""' && // FF 3.1b1, 2 throw an error if the value is `null`, `undefined`, or
+                  // does not define a canonical JSON representation (this applies to
+                  // objects with `toJSON` properties as well, *unless* they are nested
+                  // within an object or array).
+                  stringify(getClass) === undefined$1 && // IE 8 serializes `undefined` as `"undefined"`. Safari <= 5.1.7 and
+                  // FF 3.1b3 pass this test.
+                  stringify(undefined$1) === undefined$1 && // Safari <= 5.1.7 and FF 3.1b3 throw `Error`s and `TypeError`s,
+                  // respectively, if the value is omitted entirely.
+                  stringify() === undefined$1 && // FF 3.1b1, 2 throw an error if the given value is not a number,
+                  // string, array, object, Boolean, or `null` literal. This applies to
+                  // objects with custom `toJSON` methods as well, unless they are nested
+                  // inside object or array literals. YUI 3.0.0b1 ignores custom `toJSON`
+                  // methods entirely.
+                  stringify(value) === "1" && stringify([value]) == "[1]" && // Prototype <= 1.6.1 serializes `[undefined]` as `"[]"` instead of
+                  // `"[null]"`.
+                  stringify([undefined$1]) == "[null]" && // YUI 3.0.0b1 fails to serialize `null` literals.
+                  stringify(null) == "null" && // FF 3.1b1, 2 halts serialization if an array contains a function:
+                  // `[1, true, getClass, 1]` serializes as "[1,true,],". FF 3.1b3
+                  // elides non-JSON values from objects and arrays, unless they
+                  // define custom `toJSON` methods.
+                  stringify([undefined$1, getClass, null]) == "[null,null,null]" && // Simple serialization test. FF 3.1b1 uses Unicode escape sequences
+                  // where character escape codes are expected (e.g., `\b` => `\u0008`).
+                  stringify({
+                    "a": [value, true, false, null, "\x00\b\n\f\r\t"]
+                  }) == serialized && // FF 3.1b1 and b2 ignore the `filter` and `width` arguments.
+                  stringify(null, value) === "1" && stringify([1, 2], null, 1) == "[\n 1,\n 2\n]";
+                }, function () {
+                  stringifySupported = false;
+                });
+              }
+
+              isSupported = stringifySupported;
+            } // Test `JSON.parse`.
+
+
+            if (name == "json-parse") {
+              var parse = exports.parse,
+                  parseSupported;
+
+              if (typeof parse == "function") {
+                attempt(function () {
+                  // FF 3.1b1, b2 will throw an exception if a bare literal is provided.
+                  // Conforming implementations should also coerce the initial argument to
+                  // a string prior to parsing.
+                  if (parse("0") === 0 && !parse(false)) {
+                    // Simple parsing test.
+                    value = parse(serialized);
+                    parseSupported = value["a"].length == 5 && value["a"][0] === 1;
+
+                    if (parseSupported) {
+                      attempt(function () {
+                        // Safari <= 5.1.2 and FF 3.1b1 allow unescaped tabs in strings.
+                        parseSupported = !parse('"\t"');
+                      });
+
+                      if (parseSupported) {
+                        attempt(function () {
+                          // FF 4.0 and 4.0.1 allow leading `+` signs and leading
+                          // decimal points. FF 4.0, 4.0.1, and IE 9-10 also allow
+                          // certain octal literals.
+                          parseSupported = parse("01") !== 1;
+                        });
+                      }
+
+                      if (parseSupported) {
+                        attempt(function () {
+                          // FF 4.0, 4.0.1, and Rhino 1.7R3-R4 allow trailing decimal
+                          // points. These environments, along with FF 3.1b1 and 2,
+                          // also allow trailing commas in JSON objects and arrays.
+                          parseSupported = parse("1.") !== 1;
+                        });
+                      }
+                    }
+                  }
+                }, function () {
+                  parseSupported = false;
+                });
+              }
+
+              isSupported = parseSupported;
+            }
+          }
+
+          return has[name] = !!isSupported;
+        }
+
+        has["bug-string-char-index"] = has["date-serialization"] = has["json"] = has["json-stringify"] = has["json-parse"] = null;
+
+        if (!has("json")) {
+          // Common `[[Class]]` name aliases.
+          var functionClass = "[object Function]",
+              dateClass = "[object Date]",
+              numberClass = "[object Number]",
+              stringClass = "[object String]",
+              arrayClass = "[object Array]",
+              booleanClass = "[object Boolean]"; // Detect incomplete support for accessing string characters by index.
+
+          var charIndexBuggy = has("bug-string-char-index"); // Internal: Normalizes the `for...in` iteration algorithm across
+          // environments. Each enumerated key is yielded to a `callback` function.
+
+          var _forOwn = function forOwn(object, callback) {
+            var size = 0,
+                Properties,
+                dontEnums,
+                property; // Tests for bugs in the current environment's `for...in` algorithm. The
+            // `valueOf` property inherits the non-enumerable flag from
+            // `Object.prototype` in older versions of IE, Netscape, and Mozilla.
+
+            (Properties = function Properties() {
+              this.valueOf = 0;
+            }).prototype.valueOf = 0; // Iterate over a new instance of the `Properties` class.
+
+            dontEnums = new Properties();
+
+            for (property in dontEnums) {
+              // Ignore all properties inherited from `Object.prototype`.
+              if (isProperty.call(dontEnums, property)) {
+                size++;
+              }
+            }
+<<<<<<< HEAD
+
+            Properties = dontEnums = null; // Normalize the iteration algorithm.
+
+            if (!size) {
+              // A list of non-enumerable properties inherited from `Object.prototype`.
+              dontEnums = ["valueOf", "toString", "toLocaleString", "propertyIsEnumerable", "isPrototypeOf", "hasOwnProperty", "constructor"]; // IE <= 8, Mozilla 1.0, and Netscape 6.2 ignore shadowed non-enumerable
+              // properties.
+
+              _forOwn = function forOwn(object, callback) {
+                var isFunction = getClass.call(object) == functionClass,
+                    property,
+                    length;
+                var hasProperty = !isFunction && typeof object.constructor != "function" && objectTypes[_typeof(object.hasOwnProperty)] && object.hasOwnProperty || isProperty;
+
+                for (property in object) {
+                  // Gecko <= 1.0 enumerates the `prototype` property of functions under
+                  // certain conditions; IE does not.
+                  if (!(isFunction && property == "prototype") && hasProperty.call(object, property)) {
+                    callback(property);
+                  }
+                } // Manually invoke the callback for each non-enumerable property.
+
+
+                for (length = dontEnums.length; property = dontEnums[--length];) {
+                  if (hasProperty.call(object, property)) {
+                    callback(property);
+                  }
+                }
+              };
+            } else {
+              // No bugs detected; use the standard `for...in` algorithm.
+              _forOwn = function forOwn(object, callback) {
+                var isFunction = getClass.call(object) == functionClass,
+                    property,
+                    isConstructor;
+>>>>>>> update npm module
 
       // Internal: Contains `try...catch` logic used by other functions.
       // This prevents other functions from being deoptimized.
@@ -21778,6 +22074,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     }, {
       key: "get",
       value: function get(key) {
@@ -21790,6 +22087,8 @@
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
 <<<<<<< HEAD
   var debug_1$1 = createCommonjsModule(function (module, exports) {
   /**
@@ -21808,6 +22107,8 @@
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
                     results[value.slice(1)] = get(lex());
                   }
 >>>>>>> branch for npm and latest release
@@ -21889,6 +22190,7 @@
           }
         }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> branch for npm and latest release
 <<<<<<< HEAD
 >>>>>>> branch for npm and latest release
@@ -21911,7 +22213,12 @@
   exports.humanize = ms;
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+>>>>>>> update npm module
+>>>>>>> update npm module
 
     store.deserialize = function (value) {
       if (typeof value != 'string') {
@@ -22419,6 +22726,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
 =======
 <<<<<<< HEAD
@@ -22426,6 +22734,9 @@
 =======
 <<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+<<<<<<< HEAD
+>>>>>>> update npm module
 
 <<<<<<< HEAD
     }, {
@@ -22444,6 +22755,8 @@
 >>>>>>> branch for npm and latest release
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
     return parse$2(str);
 >>>>>>> Updated npm distribution files
   }
@@ -22453,11 +22766,10 @@
 >>>>>>> branch for npm and latest release
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
 
     return parse$3(str);
-=======
-    return parse$2(str);
->>>>>>> Updated npm distribution files
   }
 >>>>>>> branch for npm and latest release
   /**
@@ -22482,6 +22794,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var LotameStorage = /*#__PURE__*/function () {
     function LotameStorage() {
       _classCallCheck(this, LotameStorage);
@@ -22491,6 +22804,8 @@
 >>>>>>> branch for npm and latest release
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
 
       this.storage = Storage$1; // new Storage();
 =======
@@ -22499,8 +22814,12 @@
 =======
 >>>>>>> Updated npm distribution files
 =======
+>>>>>>> update npm module
+=======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
 
 <<<<<<< HEAD
 >>>>>>> branch for npm and latest release
@@ -22512,6 +22831,7 @@
 =======
   function parse$3(str) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> add querystring parse to npm module
 <<<<<<< HEAD
 >>>>>>> add querystring parse to npm module
@@ -22521,7 +22841,12 @@
   function parse$2(str) {
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+>>>>>>> update npm module
+>>>>>>> update npm module
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
@@ -23322,6 +23647,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
 =======
         var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
@@ -23329,6 +23655,8 @@
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
         var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
 =======
         var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
@@ -23342,7 +23670,13 @@
         var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+        var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
+>>>>>>> update npm module
+>>>>>>> update npm module
         return prefixedVal;
       }
       /**
@@ -23361,6 +23695,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
 =======
           return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
@@ -23368,6 +23703,8 @@
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
           return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
 =======
           return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
@@ -23381,7 +23718,13 @@
           return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+          return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
+>>>>>>> update npm module
+>>>>>>> update npm module
         }
 
         return value;
@@ -24050,6 +24393,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var Optimizely = /*#__PURE__*/function () {
 =======
 <<<<<<< HEAD
@@ -24058,6 +24402,8 @@
 >>>>>>> branch for npm and latest release
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
 <<<<<<< HEAD
   var Optimizely =
   /*#__PURE__*/
@@ -24067,6 +24413,8 @@
 >>>>>>> branch for npm and latest release
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
   var Optimizely = /*#__PURE__*/function () {
 >>>>>>> update npm module
     function Optimizely(config, analytics) {
@@ -24096,7 +24444,13 @@
   function () {
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+  var Optimizely = /*#__PURE__*/function () {
+>>>>>>> update npm module
+>>>>>>> update npm module
     function Optimizely(config, analytics) {
       var _this = this;
 
@@ -24836,6 +25190,7 @@
   };
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   var Optimizely = /*#__PURE__*/function () {
     function Optimizely(config, analytics) {
@@ -24849,6 +25204,8 @@
 
 >>>>>>> update npm module
 =======
+=======
+>>>>>>> update npm module
 >>>>>>> update npm module
 
 =======
@@ -24916,570 +25273,20 @@
       };
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
-
-      this.sendDataToRudder = function (campaignState) {
-        logger.debug(campaignState);
-        var experiment = campaignState.experiment;
-        var variation = campaignState.variation;
-        var context = {
-          integrations: {
-            All: true
-          }
-        };
-        var audiences = campaignState.audiences; // Reformatting this data structure into hash map so concatenating variation ids and names is easier later
-
-        var audiencesMap = {};
-        audiences.forEach(function (audience) {
-          audiencesMap[audience.id] = audience.name;
-        });
-        var audienceIds = Object.keys(audiencesMap).sort().join();
-        var audienceNames = Object.values(audiencesMap).sort().join(", ");
-
-        if (_this.sendExperimentTrack) {
-          var props = {
-            campaignName: campaignState.campaignName,
-            campaignId: campaignState.id,
-            experimentId: experiment.id,
-            experimentName: experiment.name,
-            variationName: variation.name,
-            variationId: variation.id,
-            audienceId: audienceIds,
-            // eg. '7527562222,7527111138'
-            audienceName: audienceNames,
-            // eg. 'Peaky Blinders, Trust Tree'
-            isInCampaignHoldback: campaignState.isInCampaignHoldback
-          }; // If this was a redirect experiment and the effective referrer is different from document.referrer,
-          // this value is made available. So if a customer came in via google.com/ad -> tb12.com -> redirect experiment -> Belichickgoat.com
-          // `experiment.referrer` would be google.com/ad here NOT `tb12.com`.
-
-          if (experiment.referrer) {
-            props.referrer = experiment.referrer;
-            context.page = {
-              referrer: experiment.referrer
-            };
-          } // For Google's nonInteraction flag
-
-
-          if (_this.sendExperimentTrackAsNonInteractive) props.nonInteraction = 1; // If customCampaignProperties is provided overide the props with it.
-          // If valid customCampaignProperties present it will override existing props.
-          // const data = window.optimizely && window.optimizely.get("data");
-
-          var data = campaignState;
-
-          if (data && _this.customCampaignProperties.length > 0) {
-            for (var index = 0; index < _this.customCampaignProperties.length; index += 1) {
-              var rudderProp = _this.customCampaignProperties[index].from;
-              var optimizelyProp = _this.customCampaignProperties[index].to;
-
-              if (typeof props[optimizelyProp] !== "undefined") {
-                props[rudderProp] = props[optimizelyProp];
-                delete props[optimizelyProp];
-              }
-            }
-          } // Send to Rudder
-
-
-          _this.analytics.track("Experiment Viewed", props, context);
-        }
-
-        if (_this.sendExperimentIdentify) {
-          var traits = {};
-          traits["Experiment: ".concat(experiment.name)] = variation.name; // Send to Rudder
-
-          _this.analytics.identify(traits);
-        }
-      };
-
-      this.analytics = analytics;
-      this.sendExperimentTrack = config.sendExperimentTrack;
-      this.sendExperimentIdentify = config.sendExperimentIdentify;
-      this.sendExperimentTrackAsNonInteractive = config.sendExperimentTrackAsNonInteractive;
-      this.revenueOnlyOnOrderCompleted = config.revenueOnlyOnOrderCompleted;
-      this.trackCategorizedPages = config.trackCategorizedPages;
-      this.trackNamedPages = config.trackNamedPages;
-      this.customCampaignProperties = config.customCampaignProperties ? config.customCampaignProperties : [];
-      this.customExperimentProperties = config.customExperimentProperties ? config.customExperimentProperties : [];
-      this.name = "OPTIMIZELY";
-    }
-
-    _createClass(Optimizely, [{
-      key: "init",
-      value: function init() {
-        logger.debug("=== in optimizely init ===");
-        this.initOptimizelyIntegration(this.referrerOverride, this.sendDataToRudder);
-      }
-    }, {
-      key: "initOptimizelyIntegration",
-      value: function initOptimizelyIntegration(referrerOverride, sendCampaignData) {
-        var newActiveCampaign = function newActiveCampaign(id, referrer) {
-          var state = window.optimizely.get && window.optimizely.get("state");
-
-          if (state) {
-            var activeCampaigns = state.getCampaignStates({
-              isActive: true
-            });
-            var campaignState = activeCampaigns[id];
-            if (referrer) campaignState.experiment.referrer = referrer;
-            sendCampaignData(campaignState);
-          }
-        };
-
-        var checkReferrer = function checkReferrer() {
-          var state = window.optimizely.get && window.optimizely.get("state");
-
-          if (state) {
-            var referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
-
-            if (referrer) {
-              referrerOverride(referrer);
-              return referrer;
-            }
-          }
-
-          return undefined;
-        };
-
-        var registerFutureActiveCampaigns = function registerFutureActiveCampaigns() {
-          window.optimizely = window.optimizely || [];
-          window.optimizely.push({
-            type: "addListener",
-            filter: {
-              type: "lifecycle",
-              name: "campaignDecided"
-            },
-            handler: function handler(event) {
-              var id = event.data.campaign.id;
-              newActiveCampaign(id);
-            }
-          });
-        };
-
-        var registerCurrentlyActiveCampaigns = function registerCurrentlyActiveCampaigns() {
-          window.optimizely = window.optimizely || [];
-          var state = window.optimizely.get && window.optimizely.get("state");
-
-          if (state) {
-            var referrer = checkReferrer();
-            var activeCampaigns = state.getCampaignStates({
-              isActive: true
-            });
-            Object.keys(activeCampaigns).forEach(function (id) {
-              if (referrer) {
-                newActiveCampaign(id, referrer);
-              } else {
-                newActiveCampaign(id);
-              }
-            });
-          } else {
-            window.optimizely.push({
-              type: "addListener",
-              filter: {
-                type: "lifecycle",
-                name: "initialized"
-              },
-              handler: function handler() {
-                checkReferrer();
-              }
-            });
-          }
-        };
-
-        registerCurrentlyActiveCampaigns();
-        registerFutureActiveCampaigns();
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        logger.debug("in Optimizely web track");
-        var eventProperties = rudderElement.message.properties;
-        var event = rudderElement.message.event;
-
-        if (eventProperties.revenue && this.revenueOnlyOnOrderCompleted) {
-          if (event === "Order Completed") {
-            eventProperties.revenue = Math.round(eventProperties.revenue * 100);
-          } else if (event !== "Order Completed") {
-            delete eventProperties.revenue;
-          }
-        }
-
-        var eventName = event.replace(/:/g, "_"); // can't have colons so replacing with underscores
-
-        var payload = {
-          type: "event",
-          eventName: eventName,
-          tags: eventProperties
-        };
-        window.optimizely.push(payload);
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        logger.debug("in Optimizely web page");
-        var category = rudderElement.message.properties.category;
-        var name = rudderElement.message.name;
-        /* const contextOptimizely = {
-          integrations: { All: false, Optimizely: true },
-        }; */
-        // categorized pages
-
-        if (category && this.trackCategorizedPages) {
-          // this.analytics.track(`Viewed ${category} page`, {}, contextOptimizely);
-          rudderElement.message.event = "Viewed ".concat(category, " page");
-          rudderElement.message.type = "track";
-          this.track(rudderElement);
-        } // named pages
-
-
-        if (name && this.trackNamedPages) {
-          // this.analytics.track(`Viewed ${name} page`, {}, contextOptimizely);
-          rudderElement.message.event = "Viewed ".concat(name, " page");
-          rudderElement.message.type = "track";
-          this.track(rudderElement);
-        }
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
-      }
-    }]);
-
-    return Optimizely;
-  }();
-
-  var Bugsnag = /*#__PURE__*/function () {
-    function Bugsnag(config) {
-      _classCallCheck(this, Bugsnag);
-
-      this.releaseStage = config.releaseStage;
-      this.apiKey = config.apiKey;
-      this.name = "BUGSNAG";
-      this.setIntervalHandler = undefined;
-    }
-
-    _createClass(Bugsnag, [{
-      key: "init",
-      value: function init() {
-        logger.debug("===in init Bugsnag===");
-        ScriptLoader("bugsnag-id", "https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js");
-        this.setIntervalHandler = setInterval(this.initBugsnagClient.bind(this), 1000);
-      }
-    }, {
-      key: "initBugsnagClient",
-      value: function initBugsnagClient() {
-        if (window.bugsnag !== undefined) {
-          window.bugsnagClient = window.bugsnag(this.apiKey);
-          window.bugsnagClient.releaseStage = this.releaseStage;
-          clearInterval(this.setIntervalHandler);
-        }
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        logger.debug("in bugsnag isLoaded");
-        return !!window.bugsnagClient;
-      }
-    }, {
-      key: "isReady",
-      value: function isReady() {
-        logger.debug("in bugsnag isReady");
-        return !!window.bugsnagClient;
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        var traits = rudderElement.message.context.traits;
-        var traitsFinal = {
-          id: rudderElement.message.userId || rudderElement.message.anonymousId,
-          name: traits.name,
-          email: traits.email
-        };
-        window.bugsnagClient.user = traitsFinal;
-        window.bugsnagClient.notify(new Error("error in identify"));
-      }
-    }]);
-
-    return Bugsnag;
-  }();
-
-  function preserveCamelCase(str) {
-  	let isLastCharLower = false;
-  	let isLastCharUpper = false;
-  	let isLastLastCharUpper = false;
-
-  	for (let i = 0; i < str.length; i++) {
-  		const c = str[i];
-
-  		if (isLastCharLower && /[a-zA-Z]/.test(c) && c.toUpperCase() === c) {
-  			str = str.substr(0, i) + '-' + str.substr(i);
-  			isLastCharLower = false;
-  			isLastLastCharUpper = isLastCharUpper;
-  			isLastCharUpper = true;
-  			i++;
-  		} else if (isLastCharUpper && isLastLastCharUpper && /[a-zA-Z]/.test(c) && c.toLowerCase() === c) {
-  			str = str.substr(0, i - 1) + '-' + str.substr(i - 1);
-  			isLastLastCharUpper = isLastCharUpper;
-  			isLastCharUpper = false;
-  			isLastCharLower = true;
-  		} else {
-  			isLastCharLower = c.toLowerCase() === c;
-  			isLastLastCharUpper = isLastCharUpper;
-  			isLastCharUpper = c.toUpperCase() === c;
-  		}
-  	}
-
-  	return str;
-  }
-
-  var camelcase = function (str) {
-  	if (arguments.length > 1) {
-  		str = Array.from(arguments)
-  			.map(x => x.trim())
-  			.filter(x => x.length)
-  			.join('-');
-  	} else {
-  		str = str.trim();
-  	}
-
-  	if (str.length === 0) {
-  		return '';
-  	}
-
-  	if (str.length === 1) {
-  		return str.toLowerCase();
-  	}
-
-  	if (/^[a-z0-9]+$/.test(str)) {
-  		return str;
-  	}
-
-  	const hasUpperCase = str !== str.toLowerCase();
-
-  	if (hasUpperCase) {
-  		str = preserveCamelCase(str);
-  	}
-
-  	return str
-  		.replace(/^[_.\- ]+/, '')
-  		.toLowerCase()
-  		.replace(/[_.\- ]+(\w|$)/g, (m, p1) => p1.toUpperCase());
-  };
-
-  var Fullstory = /*#__PURE__*/function () {
-    function Fullstory(config) {
-      _classCallCheck(this, Fullstory);
-
-      this.fs_org = config.fs_org;
-      this.fs_debug_mode = config.fs_debug_mode;
-      this.name = "FULLSTORY";
-    }
-
-    _createClass(Fullstory, [{
-      key: "init",
-      value: function init() {
-        logger.debug("===in init FULLSTORY===");
-        window._fs_debug = this.fs_debug_mode;
-        window._fs_host = "fullstory.com";
-        window._fs_script = "edge.fullstory.com/s/fs.js";
-        window._fs_org = this.fs_org;
-        window._fs_namespace = "FS";
-
-        (function (m, n, e, t, l, o, g, y) {
-          if (e in m) {
-            if (m.console && m.console.log) {
-              m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');
-            }
-
-            return;
-          }
-
-          g = m[e] = function (a, b, s) {
-            g.q ? g.q.push([a, b, s]) : g._api(a, b, s);
-          };
-
-          g.q = [];
-          o = n.createElement(t);
-          o.async = 1;
-          o.crossOrigin = "anonymous";
-          o.src = "https://".concat(_fs_script);
-          y = n.getElementsByTagName(t)[0];
-          y.parentNode.insertBefore(o, y);
-
-          g.identify = function (i, v, s) {
-            g(l, {
-              uid: i
-            }, s);
-            if (v) g(l, v, s);
-          };
-
-          g.setUserVars = function (v, s) {
-            g(l, v, s);
-          };
-
-          g.event = function (i, v, s) {
-            g("event", {
-              n: i,
-              p: v
-            }, s);
-          };
-
-          g.shutdown = function () {
-            g("rec", !1);
-          };
-
-          g.restart = function () {
-            g("rec", !0);
-          };
-
-          g.log = function (a, b) {
-            g("log", [a, b]);
-          };
-
-          g.consent = function (a) {
-            g("consent", !arguments.length || a);
-          };
-
-          g.identifyAccount = function (i, v) {
-            o = "account";
-            v = v || {};
-            v.acctId = i;
-            g(o, v);
-          };
-
-          g.clearUserCookie = function () {};
-
-          g._w = {};
-          y = "XMLHttpRequest";
-          g._w[y] = m[y];
-          y = "fetch";
-          g._w[y] = m[y];
-          if (m[y]) m[y] = function () {
-            return g._w[y].apply(this, arguments);
-          };
-        })(window, document, window._fs_namespace, "script", "user");
-      }
-    }, {
-      key: "page",
-      value: function page(rudderElement) {
-        logger.debug("in FULLSORY page");
-        var rudderMessage = rudderElement.message;
-        var pageName = rudderMessage.name;
-
-        var props = _objectSpread2({
-          name: pageName
-        }, rudderMessage.properties);
-
-        window.FS.event("Viewed a Page", Fullstory.getFSProperties(props));
-      }
-    }, {
-      key: "identify",
-      value: function identify(rudderElement) {
-        logger.debug("in FULLSORY identify");
-        var userId = rudderElement.message.userId;
-        var traits = rudderElement.message.context.traits;
-        if (!userId) userId = rudderElement.message.anonymousId;
-        if (Object.keys(traits).length === 0 && traits.constructor === Object) window.FS.identify(userId);else window.FS.identify(userId, Fullstory.getFSProperties(traits));
-      }
-    }, {
-      key: "track",
-      value: function track(rudderElement) {
-        logger.debug("in FULLSTORY track");
-        window.FS.event(rudderElement.message.event, Fullstory.getFSProperties(rudderElement.message.properties));
-      }
-    }, {
-      key: "isLoaded",
-      value: function isLoaded() {
-        logger.debug("in FULLSTORY isLoaded");
-        return !!window.FS;
-      }
-    }], [{
-      key: "getFSProperties",
-      value: function getFSProperties(properties) {
-        var FS_properties = {};
-        Object.keys(properties).map(function (key, index) {
-          FS_properties[key === "displayName" || key === "email" ? key : Fullstory.camelCaseField(key)] = properties[key];
-        });
-        return FS_properties;
-      }
-    }, {
-      key: "camelCaseField",
-      value: function camelCaseField(fieldName) {
-        // Do not camel case across type suffixes.
-        var parts = fieldName.split("_");
-
-        if (parts.length > 1) {
-          var typeSuffix = parts.pop();
-
-          switch (typeSuffix) {
-            case "str":
-            case "int":
-            case "date":
-            case "real":
-            case "bool":
-            case "strs":
-            case "ints":
-            case "dates":
-            case "reals":
-            case "bools":
-              return "".concat(camelcase(parts.join("_")), "_").concat(typeSuffix);
-
-          }
-        } // No type suffix found. Camel case the whole field name.
-
-
-        return camelcase(fieldName);
-      }
-    }]);
-
-    return Fullstory;
-  }();
-
-  // (config-plan name, native destination.name , exported integration name(this one below))
-
-  var integrations = {
-    HS: index,
-    GA: index$1,
-    HOTJAR: index$2,
-    GOOGLEADS: index$3,
-    VWO: VWO,
-    GTM: GoogleTagManager,
-    BRAZE: Braze,
-    INTERCOM: INTERCOM,
-    KEEN: Keen,
-    KISSMETRICS: Kissmetrics,
-    CUSTOMERIO: CustomerIO,
-    CHARTBEAT: Chartbeat,
-    COMSCORE: Comscore,
-    FACEBOOK_PIXEL: FacebookPixel,
-    LOTAME: Lotame,
-    OPTIMIZELY: Optimizely,
-    BUGSNAG: Bugsnag,
-    FULLSTORY: Fullstory
-  };
-
-  // Application class
-  var RudderApp = function RudderApp() {
-    _classCallCheck(this, RudderApp);
-
-    this.build = "1.0.0";
-    this.name = "RudderLabs JavaScript SDK";
-    this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.7";
-  };
+=======
+=======
+>>>>>>> update npm module
 
   // Library information class
   var RudderLibraryInfo = function RudderLibraryInfo() {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.7";
+    this.version = "1.0.10";
   }; // Operating System information class
+>>>>>>> update npm module
 
 
   var RudderOSInfo = function RudderOSInfo() {
@@ -25806,6 +25613,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
 
     return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
@@ -25814,6 +25622,8 @@
 >>>>>>> branch for npm and latest release
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
     var bth = byteToHex;
     // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
     return ([
@@ -25856,7 +25666,15 @@
     ]).join('');
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+    var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+
+    return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
+>>>>>>> update npm module
+>>>>>>> update npm module
   }
 
   var bytesToUuid_1 = bytesToUuid;
@@ -25876,6 +25694,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   // See https://github.com/uuidjs/uuid for API details
 >>>>>>> Updated npm distribution files
@@ -25885,6 +25704,8 @@
 >>>>>>> branch for npm and latest release
 >>>>>>> branch for npm and latest release
 =======
+=======
+>>>>>>> update npm module
   // See https://github.com/uuidjs/uuid for API details
 =======
 >>>>>>> branch for npm and latest release
@@ -25893,7 +25714,12 @@
   // See https://github.com/uuidjs/uuid for API details
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+>>>>>>> update npm module
+>>>>>>> update npm module
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
@@ -26200,6 +26026,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
           break;
 
         case 1014:
@@ -26216,11 +26043,15 @@
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
         }
         break;
 =======
 =======
 >>>>>>> Updated npm distribution files
+=======
+>>>>>>> update npm module
           break;
 
         case 1014:
@@ -26231,6 +26062,7 @@
 
           break;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> branch for npm and latest release
 <<<<<<< HEAD
 >>>>>>> branch for npm and latest release
@@ -26241,7 +26073,12 @@
         break;
 >>>>>>> Updated npm distribution files
 >>>>>>> Updated npm distribution files
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
+=======
+=======
+>>>>>>> update npm module
+>>>>>>> update npm module
       }
     } else if (e.number === -2147024882) {
       // Internet Explorer 8
