@@ -1,39 +1,8 @@
 (function (global, factory) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('crypto-js/aes'), require('crypto-js/enc-utf8')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'crypto-js/aes', 'crypto-js/enc-utf8'], factory) :
-  (global = global || self, factory(global.rudderanalytics = {}, global.AES, global.Utf8));
-}(this, (function (exports, AES, Utf8) { 'use strict';
-
-  AES = AES && Object.prototype.hasOwnProperty.call(AES, 'default') ? AES['default'] : AES;
-  Utf8 = Utf8 && Object.prototype.hasOwnProperty.call(Utf8, 'default') ? Utf8['default'] : Utf8;
-=======
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.rudderanalytics = {}));
 }(this, (function (exports) { 'use strict';
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> branch for npm and latest release
-=======
-=======
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('crypto-js/aes'), require('crypto-js/enc-utf8')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'crypto-js/aes', 'crypto-js/enc-utf8'], factory) :
-  (global = global || self, factory(global.rudderanalytics = {}, global.AES, global.Utf8));
-}(this, (function (exports, AES, Utf8) { 'use strict';
-
-  AES = AES && Object.prototype.hasOwnProperty.call(AES, 'default') ? AES['default'] : AES;
-  Utf8 = Utf8 && Object.prototype.hasOwnProperty.call(Utf8, 'default') ? Utf8['default'] : Utf8;
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
 
   function _typeof(obj) {
     "@babel/helpers - typeof";
@@ -766,34 +735,7 @@
     PRODUCT_REVIEWED: "Product Reviewed"
   }; // Enumeration for integrations supported
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.7";
-=======
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
->>>>>>> update npm module
-=======
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.9";
->>>>>>> branch for npm and latest release
-=======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
->>>>>>> add querystring parse to npm module
-=======
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
-=======
-<<<<<<< HEAD
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
-=======
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.7";
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-=======
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
->>>>>>> update npm module
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -9728,75 +9670,6 @@
   defaults_1.deep = deep;
 
   var json3 = createCommonjsModule(function (module, exports) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  (function () {
-    // Detect the `define` function exposed by asynchronous module loaders. The
-    // strict `define` check is necessary for compatibility with `r.js`.
-    var isLoader = typeof undefined === "function" ;
-
-    // A set of types used to distinguish objects from primitives.
-    var objectTypes = {
-      "function": true,
-      "object": true
-    };
-
-    // Detect the `exports` object exposed by CommonJS implementations.
-    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
-
-    // Use the `global` object exposed by Node (including Browserify via
-    // `insert-module-globals`), Narwhal, and Ringo as the default context,
-    // and the `window` object in browsers. Rhino exports a `global` function
-    // instead.
-    var root = objectTypes[typeof window] && window || this,
-        freeGlobal = freeExports && objectTypes['object'] && module && !module.nodeType && typeof commonjsGlobal == "object" && commonjsGlobal;
-
-    if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
-      root = freeGlobal;
-    }
-
-    // Public: Initializes JSON 3 using the given `context` object, attaching the
-    // `stringify` and `parse` functions to the specified `exports` object.
-    function runInContext(context, exports) {
-      context || (context = root.Object());
-      exports || (exports = root.Object());
-
-      // Native constructor aliases.
-      var Number = context.Number || root.Number,
-          String = context.String || root.String,
-          Object = context.Object || root.Object,
-          Date = context.Date || root.Date,
-          SyntaxError = context.SyntaxError || root.SyntaxError,
-          TypeError = context.TypeError || root.TypeError,
-          Math = context.Math || root.Math,
-          nativeJSON = context.JSON || root.JSON;
-
-      // Delegate to the native `stringify` and `parse` implementations.
-      if (typeof nativeJSON == "object" && nativeJSON) {
-        exports.stringify = nativeJSON.stringify;
-        exports.parse = nativeJSON.parse;
-      }
-
-      // Convenience aliases.
-      var objectProto = Object.prototype,
-          getClass = objectProto.toString,
-          isProperty = objectProto.hasOwnProperty,
-          undefined$1;
-
-      // Internal: Contains `try...catch` logic used by other functions.
-      // This prevents other functions from being deoptimized.
-      function attempt(func, errorFunc) {
-        try {
-          func();
-        } catch (exception) {
-          if (errorFunc) {
-            errorFunc();
-=======
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
     (function () {
       // Detect the `define` function exposed by asynchronous module loaders. The
       // strict `define` check is necessary for compatibility with `r.js`.
@@ -9853,76 +9726,6 @@
             if (errorFunc) {
               errorFunc();
             }
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> branch for npm and latest release
-=======
-=======
-  (function () {
-    // Detect the `define` function exposed by asynchronous module loaders. The
-    // strict `define` check is necessary for compatibility with `r.js`.
-    var isLoader = typeof undefined === "function" ;
-
-    // A set of types used to distinguish objects from primitives.
-    var objectTypes = {
-      "function": true,
-      "object": true
-    };
-
-    // Detect the `exports` object exposed by CommonJS implementations.
-    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
-
-    // Use the `global` object exposed by Node (including Browserify via
-    // `insert-module-globals`), Narwhal, and Ringo as the default context,
-    // and the `window` object in browsers. Rhino exports a `global` function
-    // instead.
-    var root = objectTypes[typeof window] && window || this,
-        freeGlobal = freeExports && objectTypes['object'] && module && !module.nodeType && typeof commonjsGlobal == "object" && commonjsGlobal;
-
-    if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
-      root = freeGlobal;
-    }
-
-    // Public: Initializes JSON 3 using the given `context` object, attaching the
-    // `stringify` and `parse` functions to the specified `exports` object.
-    function runInContext(context, exports) {
-      context || (context = root.Object());
-      exports || (exports = root.Object());
-
-      // Native constructor aliases.
-      var Number = context.Number || root.Number,
-          String = context.String || root.String,
-          Object = context.Object || root.Object,
-          Date = context.Date || root.Date,
-          SyntaxError = context.SyntaxError || root.SyntaxError,
-          TypeError = context.TypeError || root.TypeError,
-          Math = context.Math || root.Math,
-          nativeJSON = context.JSON || root.JSON;
-
-      // Delegate to the native `stringify` and `parse` implementations.
-      if (typeof nativeJSON == "object" && nativeJSON) {
-        exports.stringify = nativeJSON.stringify;
-        exports.parse = nativeJSON.parse;
-      }
-
-      // Convenience aliases.
-      var objectProto = Object.prototype,
-          getClass = objectProto.toString,
-          isProperty = objectProto.hasOwnProperty,
-          undefined$1;
-
-      // Internal: Contains `try...catch` logic used by other functions.
-      // This prevents other functions from being deoptimized.
-      function attempt(func, errorFunc) {
-        try {
-          func();
-        } catch (exception) {
-          if (errorFunc) {
-            errorFunc();
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
           }
         } // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
 
@@ -10801,28 +10604,6 @@
                       abort();
                     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  var debug_1$1 = createCommonjsModule(function (module, exports) {
-  /**
-   * This is the common logic for both the Node.js and web browser
-   * implementations of `debug()`.
-   *
-   * Expose `debug()` as the module.
-   */
-
-  exports = module.exports = debug;
-  exports.coerce = coerce;
-  exports.disable = disable;
-  exports.enable = enable;
-  exports.enabled = enabled;
-  exports.humanize = ms;
-=======
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
                     results[value.slice(1)] = get(lex());
                   }
 
@@ -10889,29 +10670,6 @@
             };
           }
         }
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> branch for npm and latest release
-=======
-=======
-  var debug_1$1 = createCommonjsModule(function (module, exports) {
-  /**
-   * This is the common logic for both the Node.js and web browser
-   * implementations of `debug()`.
-   *
-   * Expose `debug()` as the module.
-   */
-
-  exports = module.exports = debug;
-  exports.coerce = coerce;
-  exports.disable = disable;
-  exports.enable = enable;
-  exports.enabled = enabled;
-  exports.humanize = ms;
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
 
         exports.runInContext = runInContext;
         return exports;
@@ -11369,17 +11127,6 @@
 
       return {};
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    return parse$2(str);
-  }
-=======
->>>>>>> branch for npm and latest release
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
 
     return parse$3(str);
   }
@@ -11403,30 +11150,8 @@
    * @api private
    */
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
 
-<<<<<<< HEAD
->>>>>>> branch for npm and latest release
-  function parse$2(str) {
-=======
   function parse$3(str) {
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> add querystring parse to npm module
-=======
-=======
-  function parse$2(str) {
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
@@ -12019,22 +11744,7 @@
           return value;
         }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
-=======
         var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
->>>>>>> update npm module
-=======
-        var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
-=======
-        var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-=======
-        var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
->>>>>>> update npm module
         return prefixedVal;
       }
       /**
@@ -12050,22 +11760,7 @@
         }
 
         if (value.substring(0, defaults$1.prefix.length) == defaults$1.prefix) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-          return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
-=======
           return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
->>>>>>> update npm module
-=======
-          return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
-=======
-          return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-=======
-          return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
->>>>>>> update npm module
         }
 
         return value;
@@ -12445,34 +12140,7 @@
     return Lotame;
   }();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   var Optimizely = /*#__PURE__*/function () {
-    function Optimizely(config, analytics) {
-      var _this = this;
-
-      _classCallCheck(this, Optimizely);
-=======
-  var Optimizely =
-  /*#__PURE__*/
-  function () {
-=======
-  var Optimizely = /*#__PURE__*/function () {
->>>>>>> branch for npm and latest release
-=======
-  var Optimizely = /*#__PURE__*/function () {
-=======
-<<<<<<< HEAD
-  var Optimizely =
-  /*#__PURE__*/
-  function () {
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-=======
-  var Optimizely = /*#__PURE__*/function () {
->>>>>>> update npm module
     function Optimizely(config, analytics) {
       var _this = this;
 
@@ -13057,45 +12725,6 @@
     this.namespace = "com.rudderlabs.javascript";
     this.version = "1.0.10";
   };
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> update npm module
-
-=======
-=======
-  var Optimizely = /*#__PURE__*/function () {
-    function Optimizely(config, analytics) {
-      var _this = this;
-
-      _classCallCheck(this, Optimizely);
->>>>>>> Updated npm distribution files
-
->>>>>>> Updated npm distribution files
-      this.referrerOverride = function (referrer) {
-        if (referrer) {
-          window.optimizelyEffectiveReferrer = referrer;
-          return referrer;
-        }
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-        return undefined;
-      };
-=======
-    this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.10";
-  }; // Operating System information class
->>>>>>> update npm module
-=======
-    this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.10";
-  }; // Operating System information class
-=======
-        return undefined;
-      };
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-=======
 
   // Library information class
   var RudderLibraryInfo = function RudderLibraryInfo() {
@@ -13104,7 +12733,6 @@
     this.name = "RudderLabs JavaScript SDK";
     this.version = "1.0.10";
   }; // Operating System information class
->>>>>>> update npm module
 
 
   var RudderOSInfo = function RudderOSInfo() {
@@ -13428,50 +13056,9 @@
 
   function bytesToUuid(buf, offset) {
     var i = offset || 0;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    var bth = byteToHex;
-    // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]]
-    ]).join('');
-=======
     var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
 
     return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
->>>>>>> branch for npm and latest release
-=======
-    var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-
-    return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
-=======
-    var bth = byteToHex;
-    // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]]
-    ]).join('');
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-=======
-    var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-
-    return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
->>>>>>> update npm module
   }
 
   var bytesToUuid_1 = bytesToUuid;
@@ -13488,19 +13075,6 @@
   var _lastMSecs = 0;
   var _lastNSecs = 0; // See https://github.com/uuidjs/uuid for API details
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  // See https://github.com/uuidjs/uuid for API details
-=======
->>>>>>> branch for npm and latest release
-=======
-=======
-  // See https://github.com/uuidjs/uuid for API details
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
@@ -13793,16 +13367,6 @@
       switch (e.code) {
         case 22:
           quotaExceeded = true;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        }
-        break;
-=======
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
           break;
 
         case 1014:
@@ -13812,17 +13376,6 @@
           }
 
           break;
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> branch for npm and latest release
-=======
-=======
-        }
-        break;
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
       }
     } else if (e.number === -2147024882) {
       // Internet Explorer 8
