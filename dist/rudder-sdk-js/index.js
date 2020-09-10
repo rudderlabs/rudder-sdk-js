@@ -926,7 +926,8 @@
     Optimizely: "OPTIMIZELY",
     FULLSTORY: "FULLSTORY",
     Fullstory: "FULLSTORY",
-    BUGSNAG: "BUGSNAG"
+    BUGSNAG: "BUGSNAG",
+    TVSQUARED: "TVSQUARED"
   };
 
   // from client native integration name to server identified display name
@@ -949,7 +950,8 @@
     LOTAME: "Lotame",
     VWO: "VWO",
     OPTIMIZELY: "Optimizely",
-    FULLSTORY: "Fullstory"
+    FULLSTORY: "Fullstory",
+    TVSQUUARED: "TVSquared"
   };
 
   // Message Type enumeration
@@ -2364,10 +2366,14 @@
    * toString ref.
    */
 <<<<<<< HEAD
+<<<<<<< HEAD
   var toString$1 = Object.prototype.toString;
 =======
   var toString = Object.prototype.toString;
 >>>>>>> branch for npm and latest release
+=======
+  var toString$1 = Object.prototype.toString;
+>>>>>>> NPM release version 1.0.11
   /**
    * Return the type of `val`.
    *
@@ -2377,12 +2383,17 @@
    */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   var componentType$1 = function componentType(val) {
     switch (toString$1.call(val)) {
 =======
   var componentType = function componentType(val) {
     switch (toString.call(val)) {
 >>>>>>> branch for npm and latest release
+=======
+  var componentType$1 = function componentType(val) {
+    switch (toString$1.call(val)) {
+>>>>>>> NPM release version 1.0.11
       case '[object Function]':
         return 'function';
 
@@ -15159,9 +15170,13 @@
   /**
    * Module dependencies.
    */
+<<<<<<< HEAD
 
   var debug$1 = browser$1('cookie');
 >>>>>>> branch for npm and latest release
+=======
+  var toString$2 = Object.prototype.toString;
+>>>>>>> NPM release version 1.0.11
   /**
    * Set or get cookie `name` with `value` and `options` object.
    *
@@ -15173,11 +15188,21 @@
    */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   var rudderComponentCookie = function rudderComponentCookie(name, value, options) {
     switch (arguments.length) {
       case 3:
       case 2:
         return set(name, value, options);
+=======
+  var componentType$2 = function componentType(val) {
+    switch (toString$2.call(val)) {
+      case '[object Date]':
+        return 'date';
+
+      case '[object RegExp]':
+        return 'regexp';
+>>>>>>> NPM release version 1.0.11
 
       case 1:
         return get$1(name);
@@ -15235,11 +15260,19 @@
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   function all() {
 =======
   function all$1() {
 >>>>>>> branch for npm and latest release
     var str;
+=======
+  var clone = function clone(obj) {
+    var t = componentType$2(obj);
+
+    if (t === 'object') {
+      var copy = {};
+>>>>>>> NPM release version 1.0.11
 
     try {
       str = document.cookie;
@@ -15335,6 +15368,7 @@
    * drop(4, [1, 2, 3]); // => []
    */
 
+<<<<<<< HEAD
   var drop = function drop(count, collection) {
     var length = collection ? collection.length : 0;
 
@@ -15354,6 +15388,12 @@
     }
 
     return results;
+=======
+  var ms = function ms(val, options) {
+    options = options || {};
+    if ('string' == typeof val) return parse$1(val);
+    return options["long"] ? _long(val) : _short(val);
+>>>>>>> NPM release version 1.0.11
   };
   /*
    * Exports.
@@ -15383,6 +15423,16 @@
     // `arguments` objects on v8. For a summary, see:
     // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
 
+<<<<<<< HEAD
+=======
+  function parse$1(str) {
+    str = '' + str;
+    if (str.length > 10000) return;
+    var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
+    if (!match) return;
+    var n = parseFloat(match[1]);
+    var type = (match[2] || 'ms').toLowerCase();
+>>>>>>> NPM release version 1.0.11
 
     var results = new Array(max$1(collection.length - 2, 0));
 
@@ -15823,6 +15873,7 @@
                 } // Manually invoke the callback for each non-enumerable property.
 
 
+<<<<<<< HEAD
                 for (length = dontEnums.length; property = dontEnums[--length];) {
                   if (hasProperty.call(object, property)) {
                     callback(property);
@@ -15835,6 +15886,12 @@
                 var isFunction = getClass.call(object) == functionClass,
                     property,
                     isConstructor;
+=======
+  function set(name, value, options) {
+    options = options || {};
+    var str = encode$1(name) + '=' + encode$1(value);
+    if (null == value) options.maxage = -1;
+>>>>>>> NPM release version 1.0.11
 
                 for (property in object) {
                   if (!(isFunction && property == "prototype") && isProperty.call(object, property) && !(isConstructor = property === "constructor")) {
@@ -15872,7 +15929,19 @@
             }; // Internal: Converts `value` into a zero-padded string such that its
             // length is at least equal to `width`. The `width` must be <= 6.
 
+<<<<<<< HEAD
             var leadingZeroes = "000000";
+=======
+    return parse$2(str);
+  }
+  /**
+   * Get cookie `name`.
+   *
+   * @param {String} name
+   * @return {String}
+   * @api private
+   */
+>>>>>>> NPM release version 1.0.11
 
             var toPaddedString = function toPaddedString(width, value) {
               // The `|| 0` expression is necessary to work around a bug in
@@ -15884,12 +15953,25 @@
             var _serializeDate = function serializeDate(value) {
               var getData, year, month, date, time, hours, minutes, seconds, milliseconds; // Define additional utility methods if the `Date` methods are buggy.
 
+<<<<<<< HEAD
               if (!isExtended) {
                 var floor = Math.floor; // A mapping between the months of the year and the number of days between
                 // January 1st and the first of the respective month.
 
                 var Months = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]; // Internal: Calculates the number of days between the Unix epoch and the
                 // first day of the given month.
+=======
+  function parse$2(str) {
+    var obj = {};
+    var pairs = str.split(/ *; */);
+    var pair;
+    if ('' == pairs[0]) return obj;
+
+    for (var i = 0; i < pairs.length; ++i) {
+      pair = pairs[i].split('=');
+      obj[decode$1(pair[0])] = decode$1(pair[1]);
+    }
+>>>>>>> NPM release version 1.0.11
 
                 var getDay = function getDay(year, month) {
                   return Months[month] + 365 * (year - 1970) + floor((year - 1969 + (month = +(month > 1))) / 4) - floor((year - 1901 + month) / 100) + floor((year - 1601 + month) / 400);
@@ -15904,16 +15986,39 @@
                   for (year = floor(date / 365.2425) + 1970 - 1; getDay(year + 1, 0) <= date; year++) {
                   }
 
+<<<<<<< HEAD
                   for (month = floor((date - getDay(year, 0)) / 30.42); getDay(year, month + 1) <= date; month++) {
                   }
+=======
+  function encode$1(value) {
+    try {
+      return encodeURIComponent(value);
+    } catch (e) {
+      debug('error `encode(%o)` - %o', value, e);
+    }
+  }
+  /**
+   * Decode.
+   */
+>>>>>>> NPM release version 1.0.11
 
                   date = 1 + date - getDay(year, month); // The `time` value specifies the time within the day (see ES
                   // 5.1 section 15.9.1.2). The formula `(A % B + B) % B` is used
                   // to compute `A modulo B`, as the `%` operator does not
                   // correspond to the `modulo` operation for negative numbers.
 
+<<<<<<< HEAD
                   time = (value % 864e5 + 864e5) % 864e5; // The hours, minutes, seconds, and milliseconds are obtained by
                   // decomposing the time within the day. See section 15.9.1.10.
+=======
+  function decode$1(value) {
+    try {
+      return decodeURIComponent(value);
+    } catch (e) {
+      debug('error `decode(%o)` - %o', value, e);
+    }
+  }
+>>>>>>> NPM release version 1.0.11
 
                   hours = floor(time / 36e5) % 24;
                   minutes = floor(time / 6e4) % 60;
@@ -17740,6 +17845,7 @@
        * @param {*} key
        */
 
+<<<<<<< HEAD
     }, {
       key: "getItem",
       value: function getItem(key) {
@@ -17748,6 +17854,12 @@
       /**
        * get the stored userId
        */
+=======
+  function set$1(name, value, options) {
+    options = options || {};
+    var str = encode$2(name) + '=' + encode$2(value);
+    if (null == value) options.maxage = -1;
+>>>>>>> NPM release version 1.0.11
 
     }, {
       key: "getUserId",
@@ -17804,6 +17916,7 @@
        * remove stored keys
        */
 
+<<<<<<< HEAD
     }, {
       key: "clear",
       value: function clear() {
@@ -17813,6 +17926,17 @@
         this.storage.remove(defaults$1.group_storage_trait); // this.storage.remove(defaults.user_storage_anonymousId);
       }
     }]);
+=======
+    return parse$3(str);
+  }
+  /**
+   * Get cookie `name`.
+   *
+   * @param {String} name
+   * @return {String}
+   * @api private
+   */
+>>>>>>> NPM release version 1.0.11
 
     return Storage;
   }();
@@ -17823,11 +17947,23 @@
     lotame_synch_time_key: "lt_synch_timestamp"
   };
 
+<<<<<<< HEAD
   var LotameStorage = /*#__PURE__*/function () {
     function LotameStorage() {
       _classCallCheck(this, LotameStorage);
 
       this.storage = Storage$1; // new Storage();
+=======
+  function parse$3(str) {
+    var obj = {};
+    var pairs = str.split(/ *; */);
+    var pair;
+    if ('' == pairs[0]) return obj;
+
+    for (var i = 0; i < pairs.length; ++i) {
+      pair = pairs[i].split('=');
+      obj[decode$2(pair[0])] = decode$2(pair[1]);
+>>>>>>> NPM release version 1.0.11
     }
 
     _createClass(LotameStorage, [{
@@ -17847,12 +17983,26 @@
 
   var lotameStorage = new LotameStorage();
 
+<<<<<<< HEAD
   var Lotame = /*#__PURE__*/function () {
     function Lotame(config, analytics) {
       var _this = this;
+=======
+  function encode$2(value) {
+    try {
+      return encodeURIComponent(value);
+    } catch (e) {
+      debug$1('error `encode(%o)` - %o', value, e);
+    }
+  }
+  /**
+   * Decode.
+   */
+>>>>>>> NPM release version 1.0.11
 
       _classCallCheck(this, Lotame);
 
+<<<<<<< HEAD
       this.name = "LOTAME";
       this.analytics = analytics;
       this.storage = lotameStorage;
@@ -17866,6 +18016,13 @@
         var value = mapping.value;
         _this.mappings[key] = value;
       });
+=======
+  function decode$2(value) {
+    try {
+      return decodeURIComponent(value);
+    } catch (e) {
+      debug$1('error `decode(%o)` - %o', value, e);
+>>>>>>> NPM release version 1.0.11
     }
 =======
 
@@ -19795,6 +19952,123 @@
     return Fullstory;
   }();
 
+  var TVSquared = /*#__PURE__*/function () {
+    function TVSquared(config) {
+      _classCallCheck(this, TVSquared);
+
+      this.isLoaded = function () {
+        logger.debug("in TVSqaured isLoaded");
+        return !!(window._tvq && window._tvq.push !== Array.prototype.push);
+      };
+
+      this.isReady = function () {
+        logger.debug("in TVSqaured isReady");
+        return !!(window._tvq && window._tvq.push !== Array.prototype.push);
+      };
+
+      this.page = function () {
+        window._tvq.push(["trackPageView"]);
+      };
+
+      this.formatRevenue = function (revenue) {
+        var rev = revenue;
+        rev = parseFloat(rev.toString().replace(/^[^\d.]*/, ""));
+        return rev;
+      };
+
+      this.brandId = config.brandId;
+      this.clientId = config.clientId;
+      this.eventWhiteList = config.eventWhiteList || [];
+      this.customMetrics = config.customMetrics || [];
+      this.name = "TVSquared";
+    }
+
+    _createClass(TVSquared, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init TVSquared===");
+        window._tvq = window._tvq || [];
+        var url = document.location.protocol === "https:" ? "https://" : "http://";
+        url += "collector-".concat(this.clientId, ".tvsquared.com/");
+
+        window._tvq.push(["setSiteId", this.brandId]);
+
+        window._tvq.push(["setTrackerUrl", "".concat(url, "tv2track.php")]);
+
+        ScriptLoader("TVSquared-integration", "".concat(url, "tv2track.js"));
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var _rudderElement$messag = rudderElement.message,
+            event = _rudderElement$messag.event,
+            userId = _rudderElement$messag.userId,
+            anonymousId = _rudderElement$messag.anonymousId;
+        var _rudderElement$messag2 = rudderElement.message.properties,
+            revenue = _rudderElement$messag2.revenue,
+            productType = _rudderElement$messag2.productType,
+            category = _rudderElement$messag2.category,
+            order_id = _rudderElement$messag2.order_id,
+            promotion_id = _rudderElement$messag2.promotion_id;
+        var i;
+        var j;
+        var whitelist = this.eventWhiteList.slice();
+        whitelist = whitelist.filter(function (wl) {
+          return wl.event !== "";
+        });
+
+        for (i = 0; i < whitelist.length; i += 1) {
+          if (event.toUpperCase() === whitelist[i].event.toUpperCase()) {
+            break;
+          }
+
+          if (i === whitelist.length - 1) {
+            return;
+          }
+        }
+
+        var session = {
+          user: userId || anonymousId || ""
+        };
+        var action = {
+          rev: revenue ? this.formatRevenue(revenue) : "",
+          prod: category || productType || "",
+          id: order_id || "",
+          promo: promotion_id || ""
+        };
+        var customMetrics = this.customMetrics.slice();
+        customMetrics = customMetrics.filter(function (cm) {
+          return cm.propertyName !== "";
+        });
+
+        if (customMetrics.length) {
+          for (j = 0; j < customMetrics.length; j += 1) {
+            var key = customMetrics[j].propertyName;
+            var value = rudderElement.message.properties[key];
+
+            if (value) {
+              action[key] = value;
+            }
+          }
+        }
+
+        window._tvq.push([function () {
+          this.setCustomVariable(5, "session", JSON.stringify(session), "visit");
+        }]);
+
+        if (event.toUpperCase() !== "RESPONSE") {
+          window._tvq.push([function () {
+            this.setCustomVariable(5, event, JSON.stringify(action), "page");
+          }]);
+
+          window._tvq.push(["trackPageView"]);
+        }
+      }
+    }]);
+
+    return TVSquared;
+  }();
+
   // (config-plan name, native destination.name , exported integration name(this one below))
 
   var integrations = {
@@ -19815,7 +20089,8 @@
     LOTAME: Lotame,
     OPTIMIZELY: Optimizely,
     BUGSNAG: Bugsnag,
-    FULLSTORY: Fullstory
+    FULLSTORY: Fullstory,
+    TVSQUARED: TVSquared
   };
 
   // Application class
@@ -22806,7 +23081,11 @@
     logger.debug("=====from init, calling method:: ", method);
     instance[method].apply(instance, _toConsumableArray(argumentsArray[0]));
     argumentsArray.shift();
-  }
+  } // once loaded, parse querystring of the page url to send events
+
+
+  var parsedQueryObject = instance.parseQueryString(window.location.search);
+  pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
 
 >>>>>>> update npm module
   if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
