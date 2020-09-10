@@ -927,11 +927,16 @@
     FULLSTORY: "FULLSTORY",
     Fullstory: "FULLSTORY",
 <<<<<<< HEAD
+<<<<<<< HEAD
     BUGSNAG: "BUGSNAG",
     TVSQUARED: "TVSQUARED"
 =======
     BUGSNAG: "BUGSNAG"
 >>>>>>> update npm module
+=======
+    BUGSNAG: "BUGSNAG",
+    TVSQUARED: "TVSQUARED"
+>>>>>>> NPM release version 1.0.11
   };
 
   // from client native integration name to server identified display name
@@ -955,11 +960,16 @@
     VWO: "VWO",
     OPTIMIZELY: "Optimizely",
 <<<<<<< HEAD
+<<<<<<< HEAD
     FULLSTORY: "Fullstory",
     TVSQUUARED: "TVSquared"
 =======
     FULLSTORY: "Fullstory"
 >>>>>>> update npm module
+=======
+    FULLSTORY: "Fullstory",
+    TVSQUUARED: "TVSquared"
+>>>>>>> NPM release version 1.0.11
   };
 
   // Message Type enumeration
@@ -2374,10 +2384,14 @@
    * toString ref.
    */
 <<<<<<< HEAD
+<<<<<<< HEAD
   var toString$1 = Object.prototype.toString;
 =======
   var toString = Object.prototype.toString;
 >>>>>>> branch for npm and latest release
+=======
+  var toString$1 = Object.prototype.toString;
+>>>>>>> NPM release version 1.0.11
   /**
    * Return the type of `val`.
    *
@@ -2387,12 +2401,17 @@
    */
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   var componentType$1 = function componentType(val) {
     switch (toString$1.call(val)) {
 =======
   var componentType = function componentType(val) {
     switch (toString.call(val)) {
 >>>>>>> branch for npm and latest release
+=======
+  var componentType$1 = function componentType(val) {
+    switch (toString$1.call(val)) {
+>>>>>>> NPM release version 1.0.11
       case '[object Function]':
         return 'function';
 
@@ -15264,13 +15283,28 @@
     return parse$2(str);
   }
   /**
+<<<<<<< HEAD
    * Get cookie `name`.
+=======
+   * toString ref.
+   */
+  var toString$2 = Object.prototype.toString;
+  /**
+   * Return the type of `val`.
+>>>>>>> NPM release version 1.0.11
    *
    * @param {String} name
    * @return {String}
    * @api private
    */
 
+<<<<<<< HEAD
+=======
+  var componentType$2 = function componentType(val) {
+    switch (toString$2.call(val)) {
+      case '[object Date]':
+        return 'date';
+>>>>>>> NPM release version 1.0.11
 
 <<<<<<< HEAD
   function get$1(name) {
@@ -15348,11 +15382,16 @@
   var drop = function drop(count, collection) {
     var length = collection ? collection.length : 0;
 
+<<<<<<< HEAD
     if (!length) {
       return [];
     } // Preallocating an array *significantly* boosts performance when dealing with
     // `arguments` objects on v8. For a summary, see:
     // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
+=======
+  var clone = function clone(obj) {
+    var t = componentType$2(obj);
+>>>>>>> NPM release version 1.0.11
 
 
     var toDrop = max(Number(count) || 0, 0);
@@ -15439,9 +15478,16 @@
    */
   // TODO: Move to a library
 
+<<<<<<< HEAD
 
   var isPlainObject = function isPlainObject(value) {
     return Boolean(value) && objToString$1.call(value) === '[object Object]';
+=======
+  var ms = function ms(val, options) {
+    options = options || {};
+    if ('string' == typeof val) return parse$1(val);
+    return options["long"] ? _long(val) : _short(val);
+>>>>>>> NPM release version 1.0.11
   };
   /**
    * Assigns a key-value pair to a target object when the value assigned is owned,
@@ -15456,10 +15502,20 @@
    */
 
 
+<<<<<<< HEAD
   var shallowCombiner = function shallowCombiner(target, source, value, key) {
     if (has$3.call(source, key) && target[key] === undefined) {
       target[key] = value;
     }
+=======
+  function parse$1(str) {
+    str = '' + str;
+    if (str.length > 10000) return;
+    var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
+    if (!match) return;
+    var n = parseFloat(match[1]);
+    var type = (match[2] || 'ms').toLowerCase();
+>>>>>>> NPM release version 1.0.11
 
     return source;
   };
@@ -15973,6 +16029,13 @@
                 return _serializeDate(this);
               }; // Public: `JSON.stringify`. See ES 5.1 section 15.12.3.
 
+<<<<<<< HEAD
+=======
+  function set(name, value, options) {
+    options = options || {};
+    var str = encode$1(name) + '=' + encode$1(value);
+    if (null == value) options.maxage = -1;
+>>>>>>> NPM release version 1.0.11
 
               var nativeStringify = exports.stringify;
 
@@ -16003,11 +16066,23 @@
 
               var reEscape = /[\x00-\x1f\x22\x5c]/g;
 
+<<<<<<< HEAD
               var quote = function quote(value) {
                 reEscape.lastIndex = 0;
                 return '"' + (reEscape.test(value) ? value.replace(reEscape, escapeChar) : value) + '"';
               }; // Internal: Recursively serializes an object. Implements the
               // `Str(key, holder)`, `JO(value)`, and `JA(value)` operations.
+=======
+    return parse$2(str);
+  }
+  /**
+   * Get cookie `name`.
+   *
+   * @param {String} name
+   * @return {String}
+   * @api private
+   */
+>>>>>>> NPM release version 1.0.11
 
 
               var serialize = function serialize(property, object, callback, properties, whitespace, indentation, stack) {
@@ -16025,12 +16100,25 @@
                   }
                 }
 
+<<<<<<< HEAD
                 if (callback) {
                   // If a replacement function was provided, call it to obtain the value
                   // for serialization.
                   value = callback.call(object, property, value);
                 } // Exit early if value is `undefined` or `null`.
 
+=======
+  function parse$2(str) {
+    var obj = {};
+    var pairs = str.split(/ *; */);
+    var pair;
+    if ('' == pairs[0]) return obj;
+
+    for (var i = 0; i < pairs.length; ++i) {
+      pair = pairs[i].split('=');
+      obj[decode$1(pair[0])] = decode$1(pair[1]);
+    }
+>>>>>>> NPM release version 1.0.11
 
                 if (value == undefined$1) {
                   return value === undefined$1 ? value : "null";
@@ -16038,9 +16126,22 @@
 
                 type = _typeof(value); // Only call `getClass` if the value is an object.
 
+<<<<<<< HEAD
                 if (type == "object") {
                   className = getClass.call(value);
                 }
+=======
+  function encode$1(value) {
+    try {
+      return encodeURIComponent(value);
+    } catch (e) {
+      debug('error `encode(%o)` - %o', value, e);
+    }
+  }
+  /**
+   * Decode.
+   */
+>>>>>>> NPM release version 1.0.11
 
                 switch (className || type) {
                   case "boolean":
@@ -16048,11 +16149,21 @@
                     // Booleans are represented literally.
                     return "" + value;
 
+<<<<<<< HEAD
                   case "number":
                   case numberClass:
                     // JSON numbers must be finite. `Infinity` and `NaN` are serialized as
                     // `"null"`.
                     return value > -1 / 0 && value < 1 / 0 ? "" + value : "null";
+=======
+  function decode$1(value) {
+    try {
+      return decodeURIComponent(value);
+    } catch (e) {
+      debug('error `decode(%o)` - %o', value, e);
+    }
+  }
+>>>>>>> NPM release version 1.0.11
 
                   case "string":
                   case stringClass:
@@ -17797,6 +17908,7 @@
        * @param {*} key
        */
 
+<<<<<<< HEAD
     }, {
       key: "getItem",
       value: function getItem(key) {
@@ -17805,6 +17917,12 @@
       /**
        * get the stored userId
        */
+=======
+  function set$1(name, value, options) {
+    options = options || {};
+    var str = encode$2(name) + '=' + encode$2(value);
+    if (null == value) options.maxage = -1;
+>>>>>>> NPM release version 1.0.11
 
     }, {
       key: "getUserId",
@@ -17861,6 +17979,7 @@
        * remove stored keys
        */
 
+<<<<<<< HEAD
     }, {
       key: "clear",
       value: function clear() {
@@ -17870,6 +17989,17 @@
         this.storage.remove(defaults$1.group_storage_trait); // this.storage.remove(defaults.user_storage_anonymousId);
       }
     }]);
+=======
+    return parse$3(str);
+  }
+  /**
+   * Get cookie `name`.
+   *
+   * @param {String} name
+   * @return {String}
+   * @api private
+   */
+>>>>>>> NPM release version 1.0.11
 
     return Storage;
   }();
@@ -17880,11 +18010,23 @@
     lotame_synch_time_key: "lt_synch_timestamp"
   };
 
+<<<<<<< HEAD
   var LotameStorage = /*#__PURE__*/function () {
     function LotameStorage() {
       _classCallCheck(this, LotameStorage);
 
       this.storage = Storage$1; // new Storage();
+=======
+  function parse$3(str) {
+    var obj = {};
+    var pairs = str.split(/ *; */);
+    var pair;
+    if ('' == pairs[0]) return obj;
+
+    for (var i = 0; i < pairs.length; ++i) {
+      pair = pairs[i].split('=');
+      obj[decode$2(pair[0])] = decode$2(pair[1]);
+>>>>>>> NPM release version 1.0.11
     }
 
     _createClass(LotameStorage, [{
@@ -17899,14 +18041,37 @@
       }
     }]);
 
+<<<<<<< HEAD
     return LotameStorage;
   }();
+=======
+  function encode$2(value) {
+    try {
+      return encodeURIComponent(value);
+    } catch (e) {
+      debug$1('error `encode(%o)` - %o', value, e);
+    }
+  }
+  /**
+   * Decode.
+   */
+>>>>>>> NPM release version 1.0.11
 
   var lotameStorage = new LotameStorage();
 
+<<<<<<< HEAD
   var Lotame = /*#__PURE__*/function () {
     function Lotame(config, analytics) {
       var _this = this;
+=======
+  function decode$2(value) {
+    try {
+      return decodeURIComponent(value);
+    } catch (e) {
+      debug$1('error `decode(%o)` - %o', value, e);
+    }
+  }
+>>>>>>> NPM release version 1.0.11
 
       _classCallCheck(this, Lotame);
 
@@ -19921,6 +20086,123 @@
     return Fullstory;
   }();
 
+  var TVSquared = /*#__PURE__*/function () {
+    function TVSquared(config) {
+      _classCallCheck(this, TVSquared);
+
+      this.isLoaded = function () {
+        logger.debug("in TVSqaured isLoaded");
+        return !!(window._tvq && window._tvq.push !== Array.prototype.push);
+      };
+
+      this.isReady = function () {
+        logger.debug("in TVSqaured isReady");
+        return !!(window._tvq && window._tvq.push !== Array.prototype.push);
+      };
+
+      this.page = function () {
+        window._tvq.push(["trackPageView"]);
+      };
+
+      this.formatRevenue = function (revenue) {
+        var rev = revenue;
+        rev = parseFloat(rev.toString().replace(/^[^\d.]*/, ""));
+        return rev;
+      };
+
+      this.brandId = config.brandId;
+      this.clientId = config.clientId;
+      this.eventWhiteList = config.eventWhiteList || [];
+      this.customMetrics = config.customMetrics || [];
+      this.name = "TVSquared";
+    }
+
+    _createClass(TVSquared, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init TVSquared===");
+        window._tvq = window._tvq || [];
+        var url = document.location.protocol === "https:" ? "https://" : "http://";
+        url += "collector-".concat(this.clientId, ".tvsquared.com/");
+
+        window._tvq.push(["setSiteId", this.brandId]);
+
+        window._tvq.push(["setTrackerUrl", "".concat(url, "tv2track.php")]);
+
+        ScriptLoader("TVSquared-integration", "".concat(url, "tv2track.js"));
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var _rudderElement$messag = rudderElement.message,
+            event = _rudderElement$messag.event,
+            userId = _rudderElement$messag.userId,
+            anonymousId = _rudderElement$messag.anonymousId;
+        var _rudderElement$messag2 = rudderElement.message.properties,
+            revenue = _rudderElement$messag2.revenue,
+            productType = _rudderElement$messag2.productType,
+            category = _rudderElement$messag2.category,
+            order_id = _rudderElement$messag2.order_id,
+            promotion_id = _rudderElement$messag2.promotion_id;
+        var i;
+        var j;
+        var whitelist = this.eventWhiteList.slice();
+        whitelist = whitelist.filter(function (wl) {
+          return wl.event !== "";
+        });
+
+        for (i = 0; i < whitelist.length; i += 1) {
+          if (event.toUpperCase() === whitelist[i].event.toUpperCase()) {
+            break;
+          }
+
+          if (i === whitelist.length - 1) {
+            return;
+          }
+        }
+
+        var session = {
+          user: userId || anonymousId || ""
+        };
+        var action = {
+          rev: revenue ? this.formatRevenue(revenue) : "",
+          prod: category || productType || "",
+          id: order_id || "",
+          promo: promotion_id || ""
+        };
+        var customMetrics = this.customMetrics.slice();
+        customMetrics = customMetrics.filter(function (cm) {
+          return cm.propertyName !== "";
+        });
+
+        if (customMetrics.length) {
+          for (j = 0; j < customMetrics.length; j += 1) {
+            var key = customMetrics[j].propertyName;
+            var value = rudderElement.message.properties[key];
+
+            if (value) {
+              action[key] = value;
+            }
+          }
+        }
+
+        window._tvq.push([function () {
+          this.setCustomVariable(5, "session", JSON.stringify(session), "visit");
+        }]);
+
+        if (event.toUpperCase() !== "RESPONSE") {
+          window._tvq.push([function () {
+            this.setCustomVariable(5, event, JSON.stringify(action), "page");
+          }]);
+
+          window._tvq.push(["trackPageView"]);
+        }
+      }
+    }]);
+
+    return TVSquared;
+  }();
+
   // (config-plan name, native destination.name , exported integration name(this one below))
 
   var integrations = {
@@ -19942,11 +20224,16 @@
     OPTIMIZELY: Optimizely,
     BUGSNAG: Bugsnag,
 <<<<<<< HEAD
+<<<<<<< HEAD
     FULLSTORY: Fullstory,
     TVSQUARED: TVSquared
 =======
     FULLSTORY: Fullstory
 >>>>>>> update npm module
+=======
+    FULLSTORY: Fullstory,
+    TVSQUARED: TVSquared
+>>>>>>> NPM release version 1.0.11
   };
 
   // Application class
@@ -22937,7 +23224,11 @@
     logger.debug("=====from init, calling method:: ", method);
     instance[method].apply(instance, _toConsumableArray(argumentsArray[0]));
     argumentsArray.shift();
-  }
+  } // once loaded, parse querystring of the page url to send events
+
+
+  var parsedQueryObject = instance.parseQueryString(window.location.search);
+  pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
 
 >>>>>>> update npm module
   if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
