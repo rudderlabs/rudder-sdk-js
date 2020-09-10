@@ -42,6 +42,7 @@ const commonNames = {
   FULLSTORY: "FULLSTORY",
   Fullstory: "FULLSTORY",
   BUGSNAG: "BUGSNAG",
+  TVSQUARED: "TVSQUARED",
 };
 
 export { commonNames };
