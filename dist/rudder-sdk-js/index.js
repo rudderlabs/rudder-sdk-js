@@ -329,6 +329,166 @@
 
   function noop() {}
 
+  var trim_1 = createCommonjsModule(function (module, exports) {
+    exports = module.exports = trim;
+
+    function trim(str) {
+      return str.replace(/^\s*|\s*$/g, '');
+    }
+
+    exports.left = function (str) {
+      return str.replace(/^\s*/, '');
+    };
+
+    exports.right = function (str) {
+      return str.replace(/\s*$/, '');
+    };
+  });
+  var trim_2 = trim_1.left;
+  var trim_3 = trim_1.right;
+
+  /**
+   * toString ref.
+   */
+  var toString = Object.prototype.toString;
+  /**
+   * Return the type of `val`.
+   *
+   * @param {Mixed} val
+   * @return {String}
+   * @api public
+   */
+
+  var componentType = function componentType(val) {
+    switch (toString.call(val)) {
+      case '[object Date]':
+        return 'date';
+
+      case '[object RegExp]':
+        return 'regexp';
+
+      case '[object Arguments]':
+        return 'arguments';
+
+      case '[object Array]':
+        return 'array';
+
+      case '[object Error]':
+        return 'error';
+    }
+
+    if (val === null) return 'null';
+    if (val === undefined) return 'undefined';
+    if (val !== val) return 'nan';
+    if (val && val.nodeType === 1) return 'element';
+    val = val.valueOf ? val.valueOf() : Object.prototype.valueOf.apply(val);
+    return _typeof(val);
+  };
+
+  /**
+   * Module dependencies.
+   */
+
+  var pattern = /(\w+)\[(\d+)\]/;
+  /**
+   * Safely encode the given string
+   * 
+   * @param {String} str
+   * @return {String}
+   * @api private
+   */
+
+  var encode = function encode(str) {
+    try {
+      return encodeURIComponent(str);
+    } catch (e) {
+      return str;
+    }
+  };
+  /**
+   * Safely decode the string
+   * 
+   * @param {String} str
+   * @return {String}
+   * @api private
+   */
+
+
+  var decode = function decode(str) {
+    try {
+      return decodeURIComponent(str.replace(/\+/g, ' '));
+    } catch (e) {
+      return str;
+    }
+  };
+  /**
+   * Parse the given query `str`.
+   *
+   * @param {String} str
+   * @return {Object}
+   * @api public
+   */
+
+
+  var parse = function parse(str) {
+    if ('string' != typeof str) return {};
+    str = trim_1(str);
+    if ('' == str) return {};
+    if ('?' == str.charAt(0)) str = str.slice(1);
+    var obj = {};
+    var pairs = str.split('&');
+
+    for (var i = 0; i < pairs.length; i++) {
+      var parts = pairs[i].split('=');
+      var key = decode(parts[0]);
+      var m;
+
+      if (m = pattern.exec(key)) {
+        obj[m[1]] = obj[m[1]] || [];
+        obj[m[1]][m[2]] = decode(parts[1]);
+        continue;
+      }
+
+      obj[parts[0]] = null == parts[1] ? '' : decode(parts[1]);
+    }
+
+    return obj;
+  };
+  /**
+   * Stringify the given `obj`.
+   *
+   * @param {Object} obj
+   * @return {String}
+   * @api public
+   */
+
+
+  var stringify = function stringify(obj) {
+    if (!obj) return '';
+    var pairs = [];
+
+    for (var key in obj) {
+      var value = obj[key];
+
+      if ('array' == componentType(value)) {
+        for (var i = 0; i < value.length; ++i) {
+          pairs.push(encode(key + '[' + i + ']') + '=' + encode(value[i]));
+        }
+
+        continue;
+      }
+
+      pairs.push(encode(key) + '=' + encode(obj[key]));
+    }
+
+    return pairs.join('&');
+  };
+
+  var componentQuerystring = {
+    parse: parse,
+    stringify: stringify
+  };
+
   var componentUrl = createCommonjsModule(function (module, exports) {
     /**
      * Parse the given `url`.
@@ -510,7 +670,8 @@
     Optimizely: "OPTIMIZELY",
     FULLSTORY: "FULLSTORY",
     Fullstory: "FULLSTORY",
-    BUGSNAG: "BUGSNAG"
+    BUGSNAG: "BUGSNAG",
+    TVSQUARED: "TVSQUARED"
   };
 
   // from client native integration name to server identified display name
@@ -533,7 +694,8 @@
     LOTAME: "Lotame",
     VWO: "VWO",
     OPTIMIZELY: "Optimizely",
-    FULLSTORY: "Fullstory"
+    FULLSTORY: "Fullstory",
+    TVSQUUARED: "TVSquared"
   };
 
   // Message Type enumeration
@@ -1939,7 +2101,7 @@
   /**
    * toString ref.
    */
-  var toString = Object.prototype.toString;
+  var toString$1 = Object.prototype.toString;
   /**
    * Return the type of `val`.
    *
@@ -1948,8 +2110,8 @@
    * @api public
    */
 
-  var componentType = function componentType(val) {
-    switch (toString.call(val)) {
+  var componentType$1 = function componentType(val) {
+    switch (toString$1.call(val)) {
       case '[object Function]':
         return 'function';
 
@@ -2217,9 +2379,9 @@
    */
 
   try {
-    var type$1 = componentType;
+    var type$1 = componentType$1;
   } catch (err) {
-    var type$1 = componentType;
+    var type$1 = componentType$1;
   }
   /**
    * HOP reference.
@@ -8557,7 +8719,7 @@
   /**
    * toString ref.
    */
-  var toString$1 = Object.prototype.toString;
+  var toString$2 = Object.prototype.toString;
   /**
    * Return the type of `val`.
    *
@@ -8566,8 +8728,8 @@
    * @api public
    */
 
-  var componentType$1 = function componentType(val) {
-    switch (toString$1.call(val)) {
+  var componentType$2 = function componentType(val) {
+    switch (toString$2.call(val)) {
       case '[object Date]':
         return 'date';
 
@@ -8611,7 +8773,7 @@
 
 
   var clone = function clone(obj) {
-    var t = componentType$1(obj);
+    var t = componentType$2(obj);
 
     if (t === 'object') {
       var copy = {};
@@ -8681,7 +8843,7 @@
 
   var ms = function ms(val, options) {
     options = options || {};
-    if ('string' == typeof val) return parse(val);
+    if ('string' == typeof val) return parse$1(val);
     return options["long"] ? _long(val) : _short(val);
   };
   /**
@@ -8693,7 +8855,7 @@
    */
 
 
-  function parse(str) {
+  function parse$1(str) {
     str = '' + str;
     if (str.length > 10000) return;
     var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
@@ -9171,7 +9333,7 @@
 
   function set(name, value, options) {
     options = options || {};
-    var str = encode(name) + '=' + encode(value);
+    var str = encode$1(name) + '=' + encode$1(value);
     if (null == value) options.maxage = -1;
 
     if (options.maxage) {
@@ -9206,7 +9368,7 @@
       return {};
     }
 
-    return parse$1(str);
+    return parse$2(str);
   }
   /**
    * Get cookie `name`.
@@ -9229,7 +9391,7 @@
    */
 
 
-  function parse$1(str) {
+  function parse$2(str) {
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
@@ -9237,7 +9399,7 @@
 
     for (var i = 0; i < pairs.length; ++i) {
       pair = pairs[i].split('=');
-      obj[decode(pair[0])] = decode(pair[1]);
+      obj[decode$1(pair[0])] = decode$1(pair[1]);
     }
 
     return obj;
@@ -9247,7 +9409,7 @@
    */
 
 
-  function encode(value) {
+  function encode$1(value) {
     try {
       return encodeURIComponent(value);
     } catch (e) {
@@ -9259,7 +9421,7 @@
    */
 
 
-  function decode(value) {
+  function decode$1(value) {
     try {
       return decodeURIComponent(value);
     } catch (e) {
@@ -10934,7 +11096,7 @@
 
   function set$1(name, value, options) {
     options = options || {};
-    var str = encode$1(name) + '=' + encode$1(value);
+    var str = encode$2(name) + '=' + encode$2(value);
     if (null == value) options.maxage = -1;
 
     if (options.maxage) {
@@ -10968,7 +11130,7 @@
       return {};
     }
 
-    return parse$2(str);
+    return parse$3(str);
   }
   /**
    * Get cookie `name`.
@@ -10991,7 +11153,7 @@
    */
 
 
-  function parse$2(str) {
+  function parse$3(str) {
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
@@ -10999,7 +11161,7 @@
 
     for (var i = 0; i < pairs.length; ++i) {
       pair = pairs[i].split('=');
-      obj[decode$1(pair[0])] = decode$1(pair[1]);
+      obj[decode$2(pair[0])] = decode$2(pair[1]);
     }
 
     return obj;
@@ -11009,7 +11171,7 @@
    */
 
 
-  function encode$1(value) {
+  function encode$2(value) {
     try {
       return encodeURIComponent(value);
     } catch (e) {
@@ -11021,7 +11183,7 @@
    */
 
 
-  function decode$1(value) {
+  function decode$2(value) {
     try {
       return decodeURIComponent(value);
     } catch (e) {
@@ -12533,6 +12695,123 @@
     return Fullstory;
   }();
 
+  var TVSquared = /*#__PURE__*/function () {
+    function TVSquared(config) {
+      _classCallCheck(this, TVSquared);
+
+      this.isLoaded = function () {
+        logger.debug("in TVSqaured isLoaded");
+        return !!(window._tvq && window._tvq.push !== Array.prototype.push);
+      };
+
+      this.isReady = function () {
+        logger.debug("in TVSqaured isReady");
+        return !!(window._tvq && window._tvq.push !== Array.prototype.push);
+      };
+
+      this.page = function () {
+        window._tvq.push(["trackPageView"]);
+      };
+
+      this.formatRevenue = function (revenue) {
+        var rev = revenue;
+        rev = parseFloat(rev.toString().replace(/^[^\d.]*/, ""));
+        return rev;
+      };
+
+      this.brandId = config.brandId;
+      this.clientId = config.clientId;
+      this.eventWhiteList = config.eventWhiteList || [];
+      this.customMetrics = config.customMetrics || [];
+      this.name = "TVSquared";
+    }
+
+    _createClass(TVSquared, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init TVSquared===");
+        window._tvq = window._tvq || [];
+        var url = document.location.protocol === "https:" ? "https://" : "http://";
+        url += "collector-".concat(this.clientId, ".tvsquared.com/");
+
+        window._tvq.push(["setSiteId", this.brandId]);
+
+        window._tvq.push(["setTrackerUrl", "".concat(url, "tv2track.php")]);
+
+        ScriptLoader("TVSquared-integration", "".concat(url, "tv2track.js"));
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var _rudderElement$messag = rudderElement.message,
+            event = _rudderElement$messag.event,
+            userId = _rudderElement$messag.userId,
+            anonymousId = _rudderElement$messag.anonymousId;
+        var _rudderElement$messag2 = rudderElement.message.properties,
+            revenue = _rudderElement$messag2.revenue,
+            productType = _rudderElement$messag2.productType,
+            category = _rudderElement$messag2.category,
+            order_id = _rudderElement$messag2.order_id,
+            promotion_id = _rudderElement$messag2.promotion_id;
+        var i;
+        var j;
+        var whitelist = this.eventWhiteList.slice();
+        whitelist = whitelist.filter(function (wl) {
+          return wl.event !== "";
+        });
+
+        for (i = 0; i < whitelist.length; i += 1) {
+          if (event.toUpperCase() === whitelist[i].event.toUpperCase()) {
+            break;
+          }
+
+          if (i === whitelist.length - 1) {
+            return;
+          }
+        }
+
+        var session = {
+          user: userId || anonymousId || ""
+        };
+        var action = {
+          rev: revenue ? this.formatRevenue(revenue) : "",
+          prod: category || productType || "",
+          id: order_id || "",
+          promo: promotion_id || ""
+        };
+        var customMetrics = this.customMetrics.slice();
+        customMetrics = customMetrics.filter(function (cm) {
+          return cm.propertyName !== "";
+        });
+
+        if (customMetrics.length) {
+          for (j = 0; j < customMetrics.length; j += 1) {
+            var key = customMetrics[j].propertyName;
+            var value = rudderElement.message.properties[key];
+
+            if (value) {
+              action[key] = value;
+            }
+          }
+        }
+
+        window._tvq.push([function () {
+          this.setCustomVariable(5, "session", JSON.stringify(session), "visit");
+        }]);
+
+        if (event.toUpperCase() !== "RESPONSE") {
+          window._tvq.push([function () {
+            this.setCustomVariable(5, event, JSON.stringify(action), "page");
+          }]);
+
+          window._tvq.push(["trackPageView"]);
+        }
+      }
+    }]);
+
+    return TVSquared;
+  }();
+
   // (config-plan name, native destination.name , exported integration name(this one below))
 
   var integrations = {
@@ -12553,7 +12832,8 @@
     LOTAME: Lotame,
     OPTIMIZELY: Optimizely,
     BUGSNAG: Bugsnag,
-    FULLSTORY: Fullstory
+    FULLSTORY: Fullstory,
+    TVSQUARED: TVSquared
   };
 
   // Application class
@@ -14340,6 +14620,11 @@
     return el;
   }
 
+  var queryDefaults = {
+    trait: "ajs_trait_",
+    prop: "ajs_prop_"
+  }; // https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
+
   /**
    * Add the rudderelement object to flush queue
    *
@@ -15207,10 +15492,75 @@
       value: function sendSampleRequest() {
         ScriptLoader("ad-block", "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js");
       }
+      /**
+       * parse the given query string into usable Rudder object
+       * @param {*} query
+       */
+
+    }, {
+      key: "parseQueryString",
+      value: function parseQueryString(query) {
+        function getTraitsFromQueryObject(qObj) {
+          var traits = {};
+          Object.keys(qObj).forEach(function (key) {
+            if (key.substr(0, queryDefaults.trait.length) == queryDefaults.trait) {
+              traits[key.substr(queryDefaults.trait.length)] = qObj[key];
+            }
+          });
+          return traits;
+        }
+
+        function getEventPropertiesFromQueryObject(qObj) {
+          var props = {};
+          Object.keys(qObj).forEach(function (key) {
+            if (key.substr(0, queryDefaults.prop.length) == queryDefaults.prop) {
+              props[key.substr(queryDefaults.prop.length)] = qObj[key];
+            }
+          });
+          return props;
+        }
+
+        var returnObj = {};
+        var queryObject = componentQuerystring.parse(query);
+        var userTraits = getTraitsFromQueryObject(queryObject);
+        var eventProps = getEventPropertiesFromQueryObject(queryObject);
+
+        if (queryObject.ajs_uid) {
+          returnObj.userId = queryObject.ajs_uid;
+          returnObj.traits = userTraits;
+        }
+
+        if (queryObject.ajs_aid) {
+          returnObj.anonymousId = queryObject.ajs_aid;
+        }
+
+        if (queryObject.ajs_event) {
+          returnObj.event = queryObject.ajs_event;
+          returnObj.properties = eventProps;
+        }
+
+        return returnObj;
+      }
     }]);
 
     return Analytics;
   }();
+
+  function pushDataToAnalyticsArray(argumentsArray, obj) {
+    if (obj.anonymousId) {
+      if (obj.userId) {
+        argumentsArray.unshift(["setAnonymousId", obj.anonymousId], ["identify", obj.userId, obj.traits]);
+      } else {
+        argumentsArray.unshift(["setAnonymousId", obj.anonymousId]);
+      }
+    } else if (obj.userId) {
+      argumentsArray.unshift(["identify", obj.userId, obj.traits]);
+    }
+
+    if (obj.event) {
+      argumentsArray.push(["track", obj.event, obj.properties]);
+    }
+  }
 
   var instance = new Analytics();
   componentEmitter(instance);
@@ -15237,7 +15587,11 @@
     logger.debug("=====from init, calling method:: ", method);
     instance[method].apply(instance, _toConsumableArray(argumentsArray[0]));
     argumentsArray.shift();
-  }
+  } // once loaded, parse querystring of the page url to send events
+
+
+  var parsedQueryObject = instance.parseQueryString(window.location.search);
+  pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
 
   if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
     for (var i$1 = 0; i$1 < argumentsArray.length; i$1++) {
