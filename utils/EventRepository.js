@@ -19,6 +19,7 @@ let btoaNode;
 if (!process.browser) {
   btoaNode = require("btoa");
 }
+import storageQueue from "./storage/storageQueue";
 
 const queueOptions = {
   maxRetryDelay: 360000,
@@ -47,6 +48,8 @@ class EventRepository {
     this.url = "";
     this.state = "READY";
     this.batchSize = 0;
+    this.storageQueue = storageQueue;
+    this.transport = "xhr";
 
     // previous implementation
     // setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
@@ -74,6 +77,20 @@ class EventRepository {
 
     // start queue
     this.payloadQueue.start();
+  }
+
+  sendQueueDataForBeacon(){
+    const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
+    const targetUrl = `${url}/beacon/v1/batch`;
+    this.storageQueue.sendDataFromQueue(this.writeKey, targetUrl)
+  }
+
+  initializeTransportMechanism(transport) {
+    //if(transport === "beacon"){
+      this.transport = "beacon";
+      var sendQueueData = this.sendQueueDataForBeacon.bind(this);
+      window.addEventListener("unload", sendQueueData);
+    //}
   }
 
   /**
@@ -222,11 +239,26 @@ class EventRepository {
     // modify the url for event specific endpoints
     const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
     // add items to the queue
-    this.payloadQueue.addItem({
+    /* this.payloadQueue.addItem({
       url: `${url}/v1/${type}`,
       headers,
       message,
-    });
+    }); */
+    const targetUrl = `${url}/beacon/v1/batch`;
+    this.sendWithBeacon(targetUrl, headers, message, this.writeKey);
+    /* if(this.transport === "beacon"){
+      this.sendWithBeacon(url, headers, message);
+    } else {
+      this.payloadQueue.addItem({
+        url: `${url}/v1/${type}`,
+        headers,
+        message,
+      });
+    } */
+  }
+
+  sendWithBeacon(url, headers, message, writeKey){
+    this.storageQueue.enqueue(url, headers, message, writeKey)
   }
 }
 let eventRepository = new EventRepository();
