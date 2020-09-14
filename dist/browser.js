@@ -2822,7 +2822,7 @@ var rudderanalytics = (function (exports) {
                 filters = props.filters.map(function (obj) {
                   return "".concat(obj.type, ":").concat(obj.value);
                 }).join();
-                sorts = props.sorters.map(function (obj) {
+                sorts = props.sorts.map(function (obj) {
                   return "".concat(obj.type, ":").concat(obj.value);
                 }).join();
                 this.loadEnhancedEcommerce(rudderElement);

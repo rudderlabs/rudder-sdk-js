@@ -407,7 +407,7 @@ export default class GA {
               return `${obj.type}:${obj.value}`;
             })
             .join();
-          sorts = props.sorters
+          sorts = props.sorts
             .map((obj) => {
               return `${obj.type}:${obj.value}`;
             })
