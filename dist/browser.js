@@ -2483,7 +2483,7 @@ var rudderanalytics = (function (exports) {
       this.optimizeContainerId = config.optimize || "";
       this.resetCustomDimensionsOnPage = config.resetCustomDimensionsOnPage || [];
       this.enhancedEcommerceLoaded = 0;
-      this.namedTracker = true;
+      this.namedTracker = config.namedTracker || false;
       this.name = "GA";
       this.eventWithCategoryFieldProductScoped = ["product clicked", "product added", "product viewed", "product removed"];
     }
@@ -2818,7 +2818,7 @@ var rudderanalytics = (function (exports) {
 
               case "Product List Filtered":
                 props.filters = props.filters || [];
-                props.sorters = props.sorters || [];
+                props.sorts = props.sorts || [];
                 filters = props.filters.map(function (obj) {
                   return "".concat(obj.type, ":").concat(obj.value);
                 }).join();
