@@ -41,7 +41,7 @@ class EventRepository {
    *Creates an instance of EventRepository.
    * @memberof EventRepository
    */
-  constructor() {
+  constructor(options) {
     this.eventsBuffer = [];
     this.writeKey = "";
     this.url = "";
@@ -51,6 +51,10 @@ class EventRepository {
     // previous implementation
     // setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
 
+    if (options) {
+      // TODO: add checks for value - has to be +ve?
+      Object.assign(queueOptions, options);
+    }
     this.payloadQueue = new Queue("rudder", queueOptions, function (
       item,
       done
@@ -229,5 +233,4 @@ class EventRepository {
     });
   }
 }
-let eventRepository = new EventRepository();
-export { eventRepository as EventRepository };
+export { EventRepository };

@@ -44,7 +44,7 @@ import ScriptLoader from "./integrations/ScriptLoader";
  */
 function enqueue(rudderElement, type) {
   if (!this.eventRepository) {
-    this.eventRepository = EventRepository;
+    this.eventRepository = EventRepository();
   }
   this.eventRepository.enqueue(rudderElement, type);
 }
@@ -72,7 +72,6 @@ class Analytics {
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
     this.storage = Storage;
-    this.eventRepository = EventRepository;
     this.sendAdblockPage = false;
     this.sendAdblockPageOptions = {};
     this.clientSuppliedCallbacks = {};
@@ -851,6 +850,18 @@ class Analytics {
       Object.assign(this.clientSuppliedCallbacks, tranformedCallbackMapping);
       this.registerCallbacks(true);
     }
+
+    const queueOptions = {};
+    if (options) {
+      if (options.maxRetries) {
+        queueOptions.maxAttempts = options.maxRetries;
+      }
+      if (options.maxQueueSize) {
+        queueOptions.maxItems = options.maxQueueSize;
+      }
+    }
+
+    this.eventRepository = new EventRepository(queueOptions);
 
     this.eventRepository.writeKey = writeKey;
     if (serverUrl) {
