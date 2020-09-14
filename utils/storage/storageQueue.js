@@ -9,10 +9,7 @@ const defaults = {
 class StorageQueue {
     constructor() {
         this.storage = Store;
-        //this.queue = [];
         this.maxItems = 3;
-        //this.storage.set(defaults.queue, []);
-        //this.setQueue([]);
     }
 
     getQueue(){
@@ -25,17 +22,8 @@ class StorageQueue {
 
     enqueue(url, headers, message, writekey){
         var queue = this.getQueue() || [];
-        /* var item = {
-            message: message,
-            headers: headers,
-            url: url
-        } */
-        headers.type = 'application/json'
         queue = queue.slice(-(this.maxItems - 1));
         queue.push(message);
-        /* queue = queue.sort(function(a,b) {
-            return a.time - b.time;
-        }); */
         var batch = queue.slice(0);
         var data = {batch: batch};
         var dataToSend = JSON.stringify(data, replacer);
@@ -50,13 +38,7 @@ class StorageQueue {
             this.setQueue(queue);
         }
         if(queue.length == this.maxItems || maxPayloadSizeReached){
-            
-            //const blob = new Blob([JSON.stringify(data)], {type : 'application/json'});
-            //const blob = new Blob([JSON.stringify(data, replacer)], headers);
-            //const blob = new Blob(batch, headers);
-            const blob = new Blob([dataToSend], headers);
-            navigator.sendBeacon(`${url}?writeKey=${writekey}`, blob);
-            this.setQueue([]);
+            this.flushQueue(headers, dataToSend, url, writekey);
         }
         
 
@@ -68,8 +50,13 @@ class StorageQueue {
         var data = {batch: batch};
         var dataToSend = JSON.stringify(data, replacer);
         var headers = {};
+        this.flushQueue(headers, dataToSend, url, writekey);
+        
+    }
+
+    flushQueue(headers, payload, url, writekey){
         headers.type = 'application/json';
-        const blob = new Blob([dataToSend], headers);
+        const blob = new Blob([payload], headers);
         navigator.sendBeacon(`${url}?writeKey=${writekey}`, blob);
         this.setQueue([]);
     }

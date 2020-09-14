@@ -68,7 +68,9 @@ class EventRepository {
     // previous implementation
     // setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
 
-    if (!process.transport.beacon) {
+    if (process.transport.beacon) {
+      this.storageQueue = Queue;
+    } else {
       this.payloadQueue = new Queue("rudder", queueOptions, function (
         item,
         done
@@ -98,8 +100,6 @@ class EventRepository {
   
       // start queue
       this.payloadQueue.start();
-    } else {
-      this.storageQueue = Queue;
     }
   }
 
