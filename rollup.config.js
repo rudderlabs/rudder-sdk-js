@@ -43,7 +43,13 @@ switch (process.env.ENV) {
     }
     break;
   default:
-    distFileName = "dist/browser.js";
+    switch (process.env.TRANSPORT) {
+      case "beacon":
+        distFileName = "dist/browser_beacon.js"
+        break;
+      default:
+        distFileName = "dist/browser.js";
+    }
     break;
 }
 
@@ -79,6 +85,7 @@ export default {
       "process.prod": process.env.ENV == "prod",
       "process.package_version": version,
       "process.module_type": moduleType,
+      "process.transport.beacon": process.env.TRANSPORT == "beacon",
     }),
     resolve({
       jsnext: true,
