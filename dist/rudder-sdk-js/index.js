@@ -1,67 +1,8 @@
 (function (global, factory) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.rudderanalytics = {}));
 }(this, (function (exports) { 'use strict';
-=======
-=======
->>>>>>> branch for npm and latest release
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('crypto-js/aes'), require('crypto-js/enc-utf8')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'crypto-js/aes', 'crypto-js/enc-utf8'], factory) :
-  (global = global || self, factory(global.rudderanalytics = {}, global.AES, global.Utf8));
-}(this, (function (exports, AES, Utf8) { 'use strict';
-
-  AES = AES && Object.prototype.hasOwnProperty.call(AES, 'default') ? AES['default'] : AES;
-  Utf8 = Utf8 && Object.prototype.hasOwnProperty.call(Utf8, 'default') ? Utf8['default'] : Utf8;
-<<<<<<< HEAD
->>>>>>> Updated npm distribution files
-=======
-=======
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
-=======
->>>>>>> update npm module
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-  typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (global = global || self, factory(global.rudderanalytics = {}));
-}(this, (function (exports) { 'use strict';
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> branch for npm and latest release
-<<<<<<< HEAD
->>>>>>> branch for npm and latest release
-=======
-=======
-=======
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('crypto-js/aes'), require('crypto-js/enc-utf8')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'crypto-js/aes', 'crypto-js/enc-utf8'], factory) :
-  (global = global || self, factory(global.rudderanalytics = {}, global.AES, global.Utf8));
-}(this, (function (exports, AES, Utf8) { 'use strict';
-
-  AES = AES && Object.prototype.hasOwnProperty.call(AES, 'default') ? AES['default'] : AES;
-  Utf8 = Utf8 && Object.prototype.hasOwnProperty.call(Utf8, 'default') ? Utf8['default'] : Utf8;
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-<<<<<<< HEAD
->>>>>>> Updated npm distribution files
-=======
-=======
->>>>>>> update npm module
->>>>>>> update npm module
-=======
->>>>>>> update npm module
 
   function _typeof(obj) {
     "@babel/helpers - typeof";
@@ -220,7 +161,6 @@
       }
 
       return obj;
-<<<<<<< HEAD
     }
     /**
      * Listen on the given `event` with `fn`.
@@ -580,6 +520,7 @@
      * @api public
      */
 
+<<<<<<< HEAD
 =======
     }
     /**
@@ -882,120 +823,8 @@
 
 =======
 >>>>>>> branch for npm and latest release
-
-    exports.isAbsolute = function (url) {
-      return 0 == url.indexOf('//') || !!~url.indexOf('://');
-    };
-    /**
-     * Check if `url` is relative.
-     *
-     * @param {String} url
-     * @return {Boolean}
-     * @api public
-     */
-
-<<<<<<< HEAD
-
-    exports.isRelative = function (url) {
-      return !exports.isAbsolute(url);
-    };
-    /**
-     * Check if `url` is cross domain.
-     *
-     * @param {String} url
-     * @return {Boolean}
-     * @api public
-     */
-
-
-    exports.isCrossDomain = function (url) {
-      url = exports.parse(url);
-      var location = exports.parse(window.location.href);
-      return url.hostname !== location.hostname || url.port !== location.port || url.protocol !== location.protocol;
-    };
-    /**
-     * Return default port for `protocol`.
-     *
-     * @param  {String} protocol
-     * @return {String}
-     * @api private
-     */
 =======
-  function after(count, callback, err_cb) {
-    var bail = false;
-    err_cb = err_cb || noop;
-    proxy.count = count;
-    return count === 0 ? callback() : proxy;
-
-    function proxy(err, result) {
-      if (proxy.count <= 0) {
-        throw new Error('after called too many times');
-      }
-
-      --proxy.count; // after first error, rest are passed to err_cb
-
-      if (err) {
-        bail = true;
-        callback(err); // future error callbacks will go to error handler
-
-        callback = err_cb;
-      } else if (proxy.count === 0 && !bail) {
-        callback(null, result);
-      }
-    }
-  }
->>>>>>> branch for npm and latest release
-
-
-    function port(protocol) {
-      switch (protocol) {
-        case 'http:':
-          return 80;
-
-        case 'https:':
-          return 443;
-
-        default:
-          return location.port;
-      }
-    }
-  });
-  var componentUrl_1 = componentUrl.parse;
-  var componentUrl_2 = componentUrl.isAbsolute;
-  var componentUrl_3 = componentUrl.isRelative;
-  var componentUrl_4 = componentUrl.isCrossDomain;
-
-  var componentUrl = createCommonjsModule(function (module, exports) {
-    /**
-     * Parse the given `url`.
-     *
-     * @param {String} str
-     * @return {Object}
-     * @api public
-     */
-    exports.parse = function (url) {
-      var a = document.createElement('a');
-      a.href = url;
-      return {
-        href: a.href,
-        host: a.host || location.host,
-        port: '0' === a.port || '' === a.port ? port(a.protocol) : a.port,
-        hash: a.hash,
-        hostname: a.hostname || location.hostname,
-        pathname: a.pathname.charAt(0) != '/' ? '/' + a.pathname : a.pathname,
-        protocol: !a.protocol || ':' == a.protocol ? location.protocol : a.protocol,
-        search: a.search,
-        query: a.search.slice(1)
-      };
-    };
-    /**
-     * Check if `url` is absolute.
-     *
-     * @param {String} url
-     * @return {Boolean}
-     * @api public
-     */
-
+>>>>>>> resolve conflicts
 
     exports.isAbsolute = function (url) {
       return 0 == url.indexOf('//') || !!~url.indexOf('://');
@@ -1220,6 +1049,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
@@ -1336,6 +1166,9 @@
 >>>>>>> update npm module
 >>>>>>> update npm module
 >>>>>>> update npm module
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.11";
+>>>>>>> resolve conflicts
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -2703,6 +2536,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 >>>>>>> branch for npm and latest release
 =======
@@ -2723,6 +2557,9 @@
   var toString$1 = Object.prototype.toString;
 >>>>>>> add querystring parse to npm module
 >>>>>>> add querystring parse to npm module
+=======
+  var toString$1 = Object.prototype.toString;
+>>>>>>> resolve conflicts
   /**
    * Return the type of `val`.
    *
@@ -2731,6 +2568,7 @@
    * @api public
    */
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -2762,6 +2600,10 @@
     switch (toString$1.call(val)) {
 >>>>>>> add querystring parse to npm module
 >>>>>>> add querystring parse to npm module
+=======
+  var componentType$1 = function componentType(val) {
+    switch (toString$1.call(val)) {
+>>>>>>> resolve conflicts
       case '[object Function]':
         return 'function';
 
@@ -4528,6 +4370,7 @@
             n[i] = crypt.endian(n[i]);
           }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
           return n;
         },
@@ -4581,6 +4424,8 @@
 
 >>>>>>> branch for npm and latest release
 =======
+=======
+>>>>>>> resolve conflicts
 
           return n;
         },
@@ -4631,7 +4476,6 @@
           for (var base64 = [], i = 0; i < bytes.length; i += 3) {
             var triplet = bytes[i] << 16 | bytes[i + 1] << 8 | bytes[i + 2];
 
->>>>>>> branch for npm and latest release
             for (var j = 0; j < 4; j++) {
               if (i * 8 + j * 6 <= bytes.length * 8) base64.push(base64map.charAt(triplet >>> 6 * (3 - j) & 0x3F));else base64.push('=');
             }
@@ -5293,42 +5137,6 @@
               }
             }
           }
-<<<<<<< HEAD
-
-          key = undefined; // if we found no matching properties
-          // on the current object, there's no match.
-
-          finished = true;
-        }
-
-        if (!key) return;
-        if (null == obj) return obj; // the `obj` and `key` is one above the leaf object and key, so
-        // start object: { a: { 'b.c': 10 } }
-        // end object: { 'b.c': 10 }
-        // end key: 'b.c'
-        // this way, you can do `obj[key]` and get `10`.
-
-        return fn(obj, key, val);
-      };
-    }
-    /**
-     * Find an object by its key
-     *
-     * find({ first_name : 'Calvin' }, 'firstName')
-     */
-
-
-    function find(obj, key) {
-      if (obj.hasOwnProperty(key)) return obj[key];
-    }
-    /**
-     * Delete a value for a given key
-     *
-     * del({ a : 'b', x : 'y' }, 'X' }) -> { a : 'b' }
-     */
-
-
-=======
 
           key = undefined; // if we found no matching properties
           // on the current object, there's no match.
@@ -5397,7 +5205,6 @@
 =======
 >>>>>>> branch for npm and latest release
 
->>>>>>> branch for npm and latest release
     function del(obj, key) {
       if (obj.hasOwnProperty(key)) delete obj[key];
       return obj;
@@ -6968,6 +6775,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   (function (root, factory) {
   	{
@@ -7725,6 +7533,8 @@
 >>>>>>> branch for npm and latest release
 =======
 >>>>>>> branch for npm and latest release
+=======
+>>>>>>> resolve conflicts
 
     (function (root, factory) {
       {
@@ -8166,313 +7976,6 @@
               words.push(_r() * 0x100000000 | 0);
             }
 
-=======
-
-    (function (root, factory) {
-      {
-        // CommonJS
-        module.exports = exports = factory();
-      }
-    })(commonjsGlobal, function () {
-      /**
-       * CryptoJS core components.
-       */
-      var CryptoJS = CryptoJS || function (Math, undefined$1) {
-        /*
-         * Local polyfil of Object.create
-         */
-        var create = Object.create || function () {
-          function F() {}
-          return function (obj) {
-            var subtype;
-            F.prototype = obj;
-            subtype = new F();
-            F.prototype = null;
-            return subtype;
-          };
-        }();
-        /**
-         * CryptoJS namespace.
-         */
-
-
-        var C = {};
-        /**
-         * Library namespace.
-         */
-
-        var C_lib = C.lib = {};
-        /**
-         * Base object for prototypal inheritance.
-         */
-
-        var Base = C_lib.Base = function () {
-          return {
-            /**
-             * Creates a new object that inherits from this object.
-             *
-             * @param {Object} overrides Properties to copy into the new object.
-             *
-             * @return {Object} The new object.
-             *
-             * @static
-             *
-             * @example
-             *
-             *     var MyType = CryptoJS.lib.Base.extend({
-             *         field: 'value',
-             *
-             *         method: function () {
-             *         }
-             *     });
-             */
-            extend: function extend(overrides) {
-              // Spawn
-              var subtype = create(this); // Augment
-
-              if (overrides) {
-                subtype.mixIn(overrides);
-              } // Create default initializer
-
-
-              if (!subtype.hasOwnProperty('init') || this.init === subtype.init) {
-                subtype.init = function () {
-                  subtype.$super.init.apply(this, arguments);
-                };
-              } // Initializer's prototype is the subtype object
-
-
-              subtype.init.prototype = subtype; // Reference supertype
-
-              subtype.$super = this;
-              return subtype;
-            },
-
-            /**
-             * Extends this object and runs the init method.
-             * Arguments to create() will be passed to init().
-             *
-             * @return {Object} The new object.
-             *
-             * @static
-             *
-             * @example
-             *
-             *     var instance = MyType.create();
-             */
-            create: function create() {
-              var instance = this.extend();
-              instance.init.apply(instance, arguments);
-              return instance;
-            },
-
-            /**
-             * Initializes a newly created object.
-             * Override this method to add some logic when your objects are created.
-             *
-             * @example
-             *
-             *     var MyType = CryptoJS.lib.Base.extend({
-             *         init: function () {
-             *             // ...
-             *         }
-             *     });
-             */
-            init: function init() {},
-
-            /**
-             * Copies properties into this object.
-             *
-             * @param {Object} properties The properties to mix in.
-             *
-             * @example
-             *
-             *     MyType.mixIn({
-             *         field: 'value'
-             *     });
-             */
-            mixIn: function mixIn(properties) {
-              for (var propertyName in properties) {
-                if (properties.hasOwnProperty(propertyName)) {
-                  this[propertyName] = properties[propertyName];
-                }
-              } // IE won't copy toString using the loop above
-
-
-              if (properties.hasOwnProperty('toString')) {
-                this.toString = properties.toString;
-              }
-            },
-
-            /**
-             * Creates a copy of this object.
-             *
-             * @return {Object} The clone.
-             *
-             * @example
-             *
-             *     var clone = instance.clone();
-             */
-            clone: function clone() {
-              return this.init.prototype.extend(this);
-            }
-          };
-        }();
-        /**
-         * An array of 32-bit words.
-         *
-         * @property {Array} words The array of 32-bit words.
-         * @property {number} sigBytes The number of significant bytes in this word array.
-         */
-
-
-        var WordArray = C_lib.WordArray = Base.extend({
-          /**
-           * Initializes a newly created word array.
-           *
-           * @param {Array} words (Optional) An array of 32-bit words.
-           * @param {number} sigBytes (Optional) The number of significant bytes in the words.
-           *
-           * @example
-           *
-           *     var wordArray = CryptoJS.lib.WordArray.create();
-           *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607]);
-           *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607], 6);
-           */
-          init: function init(words, sigBytes) {
-            words = this.words = words || [];
-
-            if (sigBytes != undefined$1) {
-              this.sigBytes = sigBytes;
-            } else {
-              this.sigBytes = words.length * 4;
-            }
-          },
-
-          /**
-           * Converts this word array to a string.
-           *
-           * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: CryptoJS.enc.Hex
-           *
-           * @return {string} The stringified word array.
-           *
-           * @example
-           *
-           *     var string = wordArray + '';
-           *     var string = wordArray.toString();
-           *     var string = wordArray.toString(CryptoJS.enc.Utf8);
-           */
-          toString: function toString(encoder) {
-            return (encoder || Hex).stringify(this);
-          },
-
-          /**
-           * Concatenates a word array to this word array.
-           *
-           * @param {WordArray} wordArray The word array to append.
-           *
-           * @return {WordArray} This word array.
-           *
-           * @example
-           *
-           *     wordArray1.concat(wordArray2);
-           */
-          concat: function concat(wordArray) {
-            // Shortcuts
-            var thisWords = this.words;
-            var thatWords = wordArray.words;
-            var thisSigBytes = this.sigBytes;
-            var thatSigBytes = wordArray.sigBytes; // Clamp excess bits
-
-            this.clamp(); // Concat
-
-            if (thisSigBytes % 4) {
-              // Copy one byte at a time
-              for (var i = 0; i < thatSigBytes; i++) {
-                var thatByte = thatWords[i >>> 2] >>> 24 - i % 4 * 8 & 0xff;
-                thisWords[thisSigBytes + i >>> 2] |= thatByte << 24 - (thisSigBytes + i) % 4 * 8;
-              }
-            } else {
-              // Copy one word at a time
-              for (var i = 0; i < thatSigBytes; i += 4) {
-                thisWords[thisSigBytes + i >>> 2] = thatWords[i >>> 2];
-              }
-            }
-
-            this.sigBytes += thatSigBytes; // Chainable
-
-            return this;
-          },
-
-          /**
-           * Removes insignificant bits.
-           *
-           * @example
-           *
-           *     wordArray.clamp();
-           */
-          clamp: function clamp() {
-            // Shortcuts
-            var words = this.words;
-            var sigBytes = this.sigBytes; // Clamp
-
-            words[sigBytes >>> 2] &= 0xffffffff << 32 - sigBytes % 4 * 8;
-            words.length = Math.ceil(sigBytes / 4);
-          },
-
-          /**
-           * Creates a copy of this word array.
-           *
-           * @return {WordArray} The clone.
-           *
-           * @example
-           *
-           *     var clone = wordArray.clone();
-           */
-          clone: function clone() {
-            var clone = Base.clone.call(this);
-            clone.words = this.words.slice(0);
-            return clone;
-          },
-
-          /**
-           * Creates a word array filled with random bytes.
-           *
-           * @param {number} nBytes The number of random bytes to generate.
-           *
-           * @return {WordArray} The random word array.
-           *
-           * @static
-           *
-           * @example
-           *
-           *     var wordArray = CryptoJS.lib.WordArray.random(16);
-           */
-          random: function random(nBytes) {
-            var words = [];
-
-            var r = function r(m_w) {
-              var m_w = m_w;
-              var m_z = 0x3ade68b1;
-              var mask = 0xffffffff;
-              return function () {
-                m_z = 0x9069 * (m_z & 0xFFFF) + (m_z >> 0x10) & mask;
-                m_w = 0x4650 * (m_w & 0xFFFF) + (m_w >> 0x10) & mask;
-                var result = (m_z << 0x10) + m_w & mask;
-                result /= 0x100000000;
-                result += 0.5;
-                return result * (Math.random() > .5 ? 1 : -1);
-              };
-            };
-
-            for (var i = 0, rcache; i < nBytes; i += 4) {
-              var _r = r((rcache || Math.random()) * 0x100000000);
-
-              rcache = _r() * 0x3ade67b7;
-              words.push(_r() * 0x100000000 | 0);
-            }
-
->>>>>>> branch for npm and latest release
             return new WordArray.init(words, nBytes);
           }
         });
@@ -8511,7 +8014,6 @@
               hexChars.push((bite >>> 4).toString(16));
               hexChars.push((bite & 0x0f).toString(16));
             }
-<<<<<<< HEAD
 
             return hexChars.join('');
           },
@@ -10741,95 +10243,11 @@
     return !!(obj != null && (obj._isBuffer || // For Safari 5-7 (missing Object.prototype.constructor)
     obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)));
   }
-=======
 
-            return hexChars.join('');
-          },
+  /*
+   * Module dependencies.
+   */
 
-          /**
-           * Converts a hex string to a word array.
-           *
-           * @param {string} hexStr The hex string.
-           *
-           * @return {WordArray} The word array.
-           *
-           * @static
-           *
-           * @example
-           *
-           *     var wordArray = CryptoJS.enc.Hex.parse(hexString);
-           */
-          parse: function parse(hexStr) {
-            // Shortcut
-            var hexStrLength = hexStr.length; // Convert
-
-            var words = [];
-
-            for (var i = 0; i < hexStrLength; i += 2) {
-              words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << 24 - i % 8 * 4;
-            }
-
-            return new WordArray.init(words, hexStrLength / 2);
-          }
-        };
-        /**
-         * Latin1 encoding strategy.
-         */
-
-        var Latin1 = C_enc.Latin1 = {
-          /**
-           * Converts a word array to a Latin1 string.
-           *
-           * @param {WordArray} wordArray The word array.
-           *
-           * @return {string} The Latin1 string.
-           *
-           * @static
-           *
-           * @example
-           *
-           *     var latin1String = CryptoJS.enc.Latin1.stringify(wordArray);
-           */
-          stringify: function stringify(wordArray) {
-            // Shortcuts
-            var words = wordArray.words;
-            var sigBytes = wordArray.sigBytes; // Convert
-
-            var latin1Chars = [];
-
-            for (var i = 0; i < sigBytes; i++) {
-              var bite = words[i >>> 2] >>> 24 - i % 4 * 8 & 0xff;
-              latin1Chars.push(String.fromCharCode(bite));
-            }
->>>>>>> branch for npm and latest release
-
-            return latin1Chars.join('');
-          },
-
-          /**
-           * Converts a Latin1 string to a word array.
-           *
-           * @param {string} latin1Str The Latin1 string.
-           *
-           * @return {WordArray} The word array.
-           *
-           * @static
-           *
-           * @example
-           *
-           *     var wordArray = CryptoJS.enc.Latin1.parse(latin1String);
-           */
-          parse: function parse(latin1Str) {
-            // Shortcut
-            var latin1StrLength = latin1Str.length; // Convert
-
-            var words = [];
-
-            for (var i = 0; i < latin1StrLength; i++) {
-              words[i >>> 2] |= (latin1Str.charCodeAt(i) & 0xff) << 24 - i % 4 * 8;
-            }
-
-<<<<<<< HEAD
   /**
    * Deeply clone an object.
    *
@@ -10861,94 +10279,29 @@
 
       return copy;
     }
-=======
-            return new WordArray.init(words, latin1StrLength);
-          }
-        };
-        /**
-         * UTF-8 encoding strategy.
-         */
 
-        var Utf8 = C_enc.Utf8 = {
-          /**
-           * Converts a word array to a UTF-8 string.
-           *
-           * @param {WordArray} wordArray The word array.
-           *
-           * @return {string} The UTF-8 string.
-           *
-           * @static
-           *
-           * @example
-           *
-           *     var utf8String = CryptoJS.enc.Utf8.stringify(wordArray);
-           */
-          stringify: function stringify(wordArray) {
-            try {
-              return decodeURIComponent(escape(Latin1.stringify(wordArray)));
-            } catch (e) {
-              throw new Error('Malformed UTF-8 data');
-            }
-          },
+    if (t === 'regexp') {
+      // from millermedeiros/amd-utils - MIT
+      var flags = '';
+      flags += obj.multiline ? 'm' : '';
+      flags += obj.global ? 'g' : '';
+      flags += obj.ignoreCase ? 'i' : '';
+      return new RegExp(obj.source, flags);
+    }
 
-          /**
-           * Converts a UTF-8 string to a word array.
-           *
-           * @param {string} utf8Str The UTF-8 string.
-           *
-           * @return {WordArray} The word array.
-           *
-           * @static
-           *
-           * @example
-           *
-           *     var wordArray = CryptoJS.enc.Utf8.parse(utf8String);
-           */
-          parse: function parse(utf8Str) {
-            return Latin1.parse(unescape(encodeURIComponent(utf8Str)));
-          }
-        };
-        /**
-         * Abstract buffered block algorithm template.
-         *
-         * The property blockSize must be implemented in a concrete subtype.
-         *
-         * @property {number} _minBufferSize The number of blocks that should be kept unprocessed in the buffer. Default: 0
-         */
-
-        var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base.extend({
-          /**
-           * Resets this block algorithm's data buffer to its initial state.
-           *
-           * @example
-           *
-           *     bufferedBlockAlgorithm.reset();
-           */
-          reset: function reset() {
-            // Initial values
-            this._data = new WordArray.init();
-            this._nDataBytes = 0;
-          },
-
-          /**
-           * Adds new data to this block algorithm's buffer.
-           *
-           * @param {WordArray|string} data The data to append. Strings are converted to a WordArray using UTF-8.
-           *
-           * @example
-           *
-           *     bufferedBlockAlgorithm._append('data');
-           *     bufferedBlockAlgorithm._append(wordArray);
-           */
-          _append: function _append(data) {
-            // Convert string to WordArray, else assume WordArray already
-            if (typeof data == 'string') {
-              data = Utf8.parse(data);
-            } // Append
+    if (t === 'date') {
+      return new Date(obj.getTime());
+    } // string, number, boolean, etc.
 
 
-            this._data.concat(data);
+    return obj;
+  };
+  /*
+   * Exports.
+   */
 
+
+<<<<<<< HEAD
             this._nDataBytes += data.sigBytes;
           },
 
@@ -19151,11 +18504,99 @@
     return parse$2(str);
 >>>>>>> add querystring parse to npm module
 >>>>>>> add querystring parse to npm module
+=======
+  var clone_1 = clone;
+
+  /**
+   * Helpers.
+   */
+  var s = 1000;
+  var m = s * 60;
+  var h = m * 60;
+  var d = h * 24;
+  var y = d * 365.25;
+  /**
+   * Parse or format the given `val`.
+   *
+   * Options:
+   *
+   *  - `long` verbose formatting [false]
+   *
+   * @param {String|Number} val
+   * @param {Object} options
+   * @return {String|Number}
+   * @api public
+   */
+
+  var ms = function ms(val, options) {
+    options = options || {};
+    if ('string' == typeof val) return parse$1(val);
+    return options["long"] ? _long(val) : _short(val);
+  };
+  /**
+   * Parse the given `str` and return milliseconds.
+   *
+   * @param {String} str
+   * @return {Number}
+   * @api private
+   */
+
+
+  function parse$1(str) {
+    str = '' + str;
+    if (str.length > 10000) return;
+    var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
+    if (!match) return;
+    var n = parseFloat(match[1]);
+    var type = (match[2] || 'ms').toLowerCase();
+
+    switch (type) {
+      case 'years':
+      case 'year':
+      case 'yrs':
+      case 'yr':
+      case 'y':
+        return n * y;
+
+      case 'days':
+      case 'day':
+      case 'd':
+        return n * d;
+
+      case 'hours':
+      case 'hour':
+      case 'hrs':
+      case 'hr':
+      case 'h':
+        return n * h;
+
+      case 'minutes':
+      case 'minute':
+      case 'mins':
+      case 'min':
+      case 'm':
+        return n * m;
+
+      case 'seconds':
+      case 'second':
+      case 'secs':
+      case 'sec':
+      case 's':
+        return n * s;
+
+      case 'milliseconds':
+      case 'millisecond':
+      case 'msecs':
+      case 'msec':
+      case 'ms':
+        return n;
+    }
+>>>>>>> resolve conflicts
   }
   /**
-   * Get cookie `name`.
+   * Short format for `ms`.
    *
-   * @param {String} name
+   * @param {Number} ms
    * @return {String}
    * @api private
    */
@@ -19168,6 +18609,7 @@
             }; // Internal: Serializes a date object.
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   function set(name, value, options) {
     options = options || {};
@@ -19178,10 +18620,27 @@
 >>>>>>> branch for npm and latest release
     if (null == value) options.maxage = -1;
 >>>>>>> branch for npm and latest release
+=======
+  function _short(ms) {
+    if (ms >= d) return Math.round(ms / d) + 'd';
+    if (ms >= h) return Math.round(ms / h) + 'h';
+    if (ms >= m) return Math.round(ms / m) + 'm';
+    if (ms >= s) return Math.round(ms / s) + 's';
+    return ms + 'ms';
+  }
+  /**
+   * Long format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+>>>>>>> resolve conflicts
 
             var _serializeDate = function serializeDate(value) {
               var getData, year, month, date, time, hours, minutes, seconds, milliseconds; // Define additional utility methods if the `Date` methods are buggy.
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
               if (!isExtended) {
@@ -19222,10 +18681,19 @@
                   // seconds, and milliseconds if the `getUTC*` methods are
                   // buggy. Adapted from @Yaffle's `date-shim` project.
                   date = floor(value / 864e5);
+=======
+  function _long(ms) {
+    return plural(ms, d, 'day') || plural(ms, h, 'hour') || plural(ms, m, 'minute') || plural(ms, s, 'second') || ms + ' ms';
+  }
+  /**
+   * Pluralization helper.
+   */
+>>>>>>> resolve conflicts
 
                   for (year = floor(date / 365.2425) + 1970 - 1; getDay(year + 1, 0) <= date; year++) {
                   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
                   for (month = floor((date - getDay(year, 0)) / 30.42); getDay(year, month + 1) <= date; month++) {
@@ -19394,6 +18862,258 @@
     if ('' == pairs[0]) return obj;
 >>>>>>> branch for npm and latest release
 
+=======
+  function plural(ms, n, name) {
+    if (ms < n) return;
+    if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
+    return Math.ceil(ms / n) + ' ' + name + 's';
+  }
+
+  var debug_1 = createCommonjsModule(function (module, exports) {
+    /**
+     * This is the common logic for both the Node.js and web browser
+     * implementations of `debug()`.
+     *
+     * Expose `debug()` as the module.
+     */
+    exports = module.exports = debug;
+    exports.coerce = coerce;
+    exports.disable = disable;
+    exports.enable = enable;
+    exports.enabled = enabled;
+    exports.humanize = ms;
+    /**
+     * The currently active debug mode names, and names to skip.
+     */
+
+    exports.names = [];
+    exports.skips = [];
+    /**
+     * Map of special "%n" handling functions, for the debug "format" argument.
+     *
+     * Valid key names are a single, lowercased letter, i.e. "n".
+     */
+
+    exports.formatters = {};
+    /**
+     * Previously assigned color.
+     */
+
+    var prevColor = 0;
+    /**
+     * Previous log timestamp.
+     */
+
+    var prevTime;
+    /**
+     * Select a color.
+     *
+     * @return {Number}
+     * @api private
+     */
+
+    function selectColor() {
+      return exports.colors[prevColor++ % exports.colors.length];
+    }
+    /**
+     * Create a debugger with the given `namespace`.
+     *
+     * @param {String} namespace
+     * @return {Function}
+     * @api public
+     */
+
+
+    function debug(namespace) {
+      // define the `disabled` version
+      function disabled() {}
+
+      disabled.enabled = false; // define the `enabled` version
+
+      function enabled() {
+        var self = enabled; // set `diff` timestamp
+
+        var curr = +new Date();
+        var ms = curr - (prevTime || curr);
+        self.diff = ms;
+        self.prev = prevTime;
+        self.curr = curr;
+        prevTime = curr; // add the `color` if not set
+
+        if (null == self.useColors) self.useColors = exports.useColors();
+        if (null == self.color && self.useColors) self.color = selectColor();
+        var args = Array.prototype.slice.call(arguments);
+        args[0] = exports.coerce(args[0]);
+
+        if ('string' !== typeof args[0]) {
+          // anything else let's inspect with %o
+          args = ['%o'].concat(args);
+        } // apply any `formatters` transformations
+
+
+        var index = 0;
+        args[0] = args[0].replace(/%([a-z%])/g, function (match, format) {
+          // if we encounter an escaped % then don't increase the array index
+          if (match === '%%') return match;
+          index++;
+          var formatter = exports.formatters[format];
+
+          if ('function' === typeof formatter) {
+            var val = args[index];
+            match = formatter.call(self, val); // now we need to remove `args[index]` since it's inlined in the `format`
+
+            args.splice(index, 1);
+            index--;
+          }
+
+          return match;
+        });
+
+        if ('function' === typeof exports.formatArgs) {
+          args = exports.formatArgs.apply(self, args);
+        }
+
+        var logFn = enabled.log || exports.log || console.log.bind(console);
+        logFn.apply(self, args);
+      }
+
+      enabled.enabled = true;
+      var fn = exports.enabled(namespace) ? enabled : disabled;
+      fn.namespace = namespace;
+      return fn;
+    }
+    /**
+     * Enables a debug mode by namespaces. This can include modes
+     * separated by a colon and wildcards.
+     *
+     * @param {String} namespaces
+     * @api public
+     */
+
+
+    function enable(namespaces) {
+      exports.save(namespaces);
+      var split = (namespaces || '').split(/[\s,]+/);
+      var len = split.length;
+
+      for (var i = 0; i < len; i++) {
+        if (!split[i]) continue; // ignore empty strings
+
+        namespaces = split[i].replace(/\*/g, '.*?');
+
+        if (namespaces[0] === '-') {
+          exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+        } else {
+          exports.names.push(new RegExp('^' + namespaces + '$'));
+        }
+      }
+    }
+    /**
+     * Disable debug output.
+     *
+     * @api public
+     */
+
+
+    function disable() {
+      exports.enable('');
+    }
+    /**
+     * Returns true if the given mode name is enabled, false otherwise.
+     *
+     * @param {String} name
+     * @return {Boolean}
+     * @api public
+     */
+
+
+    function enabled(name) {
+      var i, len;
+
+      for (i = 0, len = exports.skips.length; i < len; i++) {
+        if (exports.skips[i].test(name)) {
+          return false;
+        }
+      }
+
+      for (i = 0, len = exports.names.length; i < len; i++) {
+        if (exports.names[i].test(name)) {
+          return true;
+        }
+      }
+
+      return false;
+    }
+    /**
+     * Coerce `val`.
+     *
+     * @param {Mixed} val
+     * @return {Mixed}
+     * @api private
+     */
+
+
+    function coerce(val) {
+      if (val instanceof Error) return val.stack || val.message;
+      return val;
+    }
+  });
+  var debug_2 = debug_1.coerce;
+  var debug_3 = debug_1.disable;
+  var debug_4 = debug_1.enable;
+  var debug_5 = debug_1.enabled;
+  var debug_6 = debug_1.humanize;
+  var debug_7 = debug_1.names;
+  var debug_8 = debug_1.skips;
+  var debug_9 = debug_1.formatters;
+
+  var browser = createCommonjsModule(function (module, exports) {
+    /**
+     * This is the web browser implementation of `debug()`.
+     *
+     * Expose `debug()` as the module.
+     */
+    exports = module.exports = debug_1;
+    exports.log = log;
+    exports.formatArgs = formatArgs;
+    exports.save = save;
+    exports.load = load;
+    exports.useColors = useColors;
+    exports.storage = 'undefined' != typeof chrome && 'undefined' != typeof chrome.storage ? chrome.storage.local : localstorage();
+    /**
+     * Colors.
+     */
+
+    exports.colors = ['lightseagreen', 'forestgreen', 'goldenrod', 'dodgerblue', 'darkorchid', 'crimson'];
+    /**
+     * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+     * and the Firebug extension (any Firefox version) are known
+     * to support "%c" CSS customizations.
+     *
+     * TODO: add a `localStorage` variable to explicitly enable/disable colors
+     */
+
+    function useColors() {
+      // is webkit? http://stackoverflow.com/a/16459606/376773
+      return 'WebkitAppearance' in document.documentElement.style || // is firebug? http://stackoverflow.com/a/398120/376773
+      window.console && (console.firebug || console.exception && console.table) || // is firefox >= v31?
+      // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+      navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31;
+    }
+    /**
+     * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+     */
+
+
+    exports.formatters.j = function (v) {
+      return JSON.stringify(v);
+    };
+    /**
+     * Colorize log arguments if enabled.
+     *
+     * @api public
+     */
+>>>>>>> resolve conflicts
 
               var serialize = function serialize(property, object, callback, properties, whitespace, indentation, stack) {
                 var value, type, className, results, element, index, length, prefix, result;
@@ -19402,6 +19122,7 @@
                   value = object[property];
                 });
 
+<<<<<<< HEAD
                 if (_typeof(value) == "object" && value) {
                   if (value.getUTCFullYear && getClass.call(value) == dateClass && value.toJSON === Date.prototype.toJSON) {
                     value = _serializeDate(value);
@@ -19436,8 +19157,54 @@
   /**
    * Decode.
    */
+=======
+    function formatArgs() {
+      var args = arguments;
+      var useColors = this.useColors;
+      args[0] = (useColors ? '%c' : '') + this.namespace + (useColors ? ' %c' : ' ') + args[0] + (useColors ? '%c ' : ' ') + '+' + exports.humanize(this.diff);
+      if (!useColors) return args;
+      var c = 'color: ' + this.color;
+      args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1)); // the final "%c" is somewhat tricky, because there could be other
+      // arguments passed either before or after the %c, so we need to
+      // figure out the correct index to insert the CSS into
 
+      var index = 0;
+      var lastC = 0;
+      args[0].replace(/%[a-z%]/g, function (match) {
+        if ('%%' === match) return;
+        index++;
 
+        if ('%c' === match) {
+          // we only are interested in the *last* %c
+          // (the user may have provided their own)
+          lastC = index;
+        }
+      });
+      args.splice(lastC, 0, c);
+      return args;
+    }
+    /**
+     * Invokes `console.log()` when available.
+     * No-op when `console.log` is not a "function".
+     *
+     * @api public
+     */
+
+>>>>>>> resolve conflicts
+
+    function log() {
+      // this hackery is required for IE8/9, where
+      // the `console.log` function doesn't have 'apply'
+      return 'object' === (typeof console === "undefined" ? "undefined" : _typeof(console)) && console.log && Function.prototype.apply.call(console.log, console, arguments);
+    }
+    /**
+     * Save `namespaces`.
+     *
+     * @param {String} namespaces
+     * @api private
+     */
+
+<<<<<<< HEAD
 <<<<<<< HEAD
   function decode$1(value) {
 =======
@@ -19492,6 +19259,102 @@
 
                   prefix = indentation;
                   indentation += whitespace;
+=======
+
+    function save(namespaces) {
+      try {
+        if (null == namespaces) {
+          exports.storage.removeItem('debug');
+        } else {
+          exports.storage.debug = namespaces;
+        }
+      } catch (e) {}
+    }
+    /**
+     * Load `namespaces`.
+     *
+     * @return {String} returns the previously persisted debug modes
+     * @api private
+     */
+
+
+    function load() {
+      var r;
+
+      try {
+        r = exports.storage.debug;
+      } catch (e) {}
+
+      return r;
+    }
+    /**
+     * Enable namespaces listed in `localStorage.debug` initially.
+     */
+
+
+    exports.enable(load());
+    /**
+     * Localstorage attempts to return the localstorage.
+     *
+     * This is necessary because safari throws
+     * when a user disables cookies/localstorage
+     * and you attempt to access it.
+     *
+     * @return {LocalStorage}
+     * @api private
+     */
+
+    function localstorage() {
+      try {
+        return window.localStorage;
+      } catch (e) {}
+    }
+  });
+  var browser_1 = browser.log;
+  var browser_2 = browser.formatArgs;
+  var browser_3 = browser.save;
+  var browser_4 = browser.load;
+  var browser_5 = browser.useColors;
+  var browser_6 = browser.storage;
+  var browser_7 = browser.colors;
+
+  /**
+   * Module dependencies.
+   */
+
+  var debug = browser('cookie');
+  /**
+   * Set or get cookie `name` with `value` and `options` object.
+   *
+   * @param {String} name
+   * @param {String} value
+   * @param {Object} options
+   * @return {Mixed}
+   * @api public
+   */
+
+  var rudderComponentCookie = function rudderComponentCookie(name, value, options) {
+    switch (arguments.length) {
+      case 3:
+      case 2:
+        return set(name, value, options);
+
+      case 1:
+        return get$1(name);
+
+      default:
+        return all();
+    }
+  };
+  /**
+   * Set cookie `name` to `value`.
+   *
+   * @param {String} name
+   * @param {String} value
+   * @param {Object} options
+   * @api private
+   */
+>>>>>>> resolve conflicts
 
 <<<<<<< HEAD
                   if (className == arrayClass) {
@@ -19501,6 +19364,7 @@
                       results.push(element === undefined$1 ? "null" : element);
                     }
 
+<<<<<<< HEAD
                     result = results.length ? whitespace ? "[\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "]" : "[" + results.join(",") + "]" : "[]";
                   } else {
                     // Recursively serialize object members. Members are selected from
@@ -19703,11 +19567,18 @@
     // instead.
     var root = objectTypes[typeof window] && window || this,
         freeGlobal = freeExports && objectTypes['object'] && module && !module.nodeType && typeof commonjsGlobal == "object" && commonjsGlobal;
+=======
+  function set(name, value, options) {
+    options = options || {};
+    var str = encode$1(name) + '=' + encode$1(value);
+    if (null == value) options.maxage = -1;
+>>>>>>> resolve conflicts
 
-    if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
-      root = freeGlobal;
+    if (options.maxage) {
+      options.expires = new Date(+new Date() + options.maxage);
     }
 
+<<<<<<< HEAD
     // Public: Initializes JSON 3 using the given `context` object, attaching the
     // `stringify` and `parse` functions to the specified `exports` object.
     function runInContext(context, exports) {
@@ -19864,10 +19735,50 @@
                           // string.
                           break;
                         }
+=======
+    if (options.path) str += '; path=' + options.path;
+    if (options.domain) str += '; domain=' + options.domain;
+    if (options.expires) str += '; expires=' + options.expires.toUTCString();
+    if (options.samesite) str += '; samesite=' + options.samesite;
+    if (options.secure) str += '; secure';
+    document.cookie = str;
+  }
+  /**
+   * Return all cookies.
+   *
+   * @return {Object}
+   * @api private
+   */
+
+
+  function all() {
+    var str;
+
+    try {
+      str = document.cookie;
+    } catch (err) {
+      if (typeof console !== 'undefined' && typeof console.error === 'function') {
+        console.error(err.stack || err);
+      }
+
+      return {};
+    }
+
+    return parse$2(str);
+  }
+  /**
+   * Get cookie `name`.
+   *
+   * @param {String} name
+   * @return {String}
+   * @api private
+   */
+>>>>>>> resolve conflicts
 
                         charCode = source.charCodeAt(Index);
                         begin = Index; // Optimize for the common case where a string is valid.
 
+<<<<<<< HEAD
                         while (charCode >= 32 && charCode != 92 && charCode != 34) {
                           charCode = source.charCodeAt(++Index);
                         } // Append the string as-is.
@@ -19917,21 +19828,59 @@
       "function": true,
       "object": true
     };
+=======
+  function get$1(name) {
+    return all()[name];
+  }
+  /**
+   * Parse cookie `str`.
+   *
+   * @param {String} str
+   * @return {Object}
+   * @api private
+   */
 
-    // Detect the `exports` object exposed by CommonJS implementations.
-    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
 
-    // Use the `global` object exposed by Node (including Browserify via
-    // `insert-module-globals`), Narwhal, and Ringo as the default context,
-    // and the `window` object in browsers. Rhino exports a `global` function
-    // instead.
-    var root = objectTypes[typeof window] && window || this,
-        freeGlobal = freeExports && objectTypes['object'] && module && !module.nodeType && typeof commonjsGlobal == "object" && commonjsGlobal;
+  function parse$2(str) {
+    var obj = {};
+    var pairs = str.split(/ *; */);
+    var pair;
+    if ('' == pairs[0]) return obj;
 
-    if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
-      root = freeGlobal;
+    for (var i = 0; i < pairs.length; ++i) {
+      pair = pairs[i].split('=');
+      obj[decode$1(pair[0])] = decode$1(pair[1]);
     }
 
+    return obj;
+  }
+  /**
+   * Encode.
+   */
+
+>>>>>>> resolve conflicts
+
+  function encode$1(value) {
+    try {
+      return encodeURIComponent(value);
+    } catch (e) {
+      debug('error `encode(%o)` - %o', value, e);
+    }
+  }
+  /**
+   * Decode.
+   */
+
+
+  function decode$1(value) {
+    try {
+      return decodeURIComponent(value);
+    } catch (e) {
+      debug('error `decode(%o)` - %o', value, e);
+    }
+  }
+
+<<<<<<< HEAD
     // Public: Initializes JSON 3 using the given `context` object, attaching the
     // `stringify` and `parse` functions to the specified `exports` object.
     function runInContext(context, exports) {
@@ -19982,211 +19931,181 @@
 >>>>>>> update npm module
           }
         } // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
+=======
+  var max = Math.max;
+  /**
+   * Produce a new array composed of all but the first `n` elements of an input `collection`.
+   *
+   * @name drop
+   * @api public
+   * @param {number} count The number of elements to drop.
+   * @param {Array} collection The collection to iterate over.
+   * @return {Array} A new array containing all but the first element from `collection`.
+   * @example
+   * drop(0, [1, 2, 3]); // => [1, 2, 3]
+   * drop(1, [1, 2, 3]); // => [2, 3]
+   * drop(2, [1, 2, 3]); // => [3]
+   * drop(3, [1, 2, 3]); // => []
+   * drop(4, [1, 2, 3]); // => []
+   */
+>>>>>>> resolve conflicts
+
+  var drop = function drop(count, collection) {
+    var length = collection ? collection.length : 0;
+
+    if (!length) {
+      return [];
+    } // Preallocating an array *significantly* boosts performance when dealing with
+    // `arguments` objects on v8. For a summary, see:
+    // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
 
 
-        var isExtended = new Date(-3509827334573292);
-        attempt(function () {
-          // The `getUTCFullYear`, `Month`, and `Date` methods return nonsensical
-          // results for certain dates in Opera >= 10.53.
-          isExtended = isExtended.getUTCFullYear() == -109252 && isExtended.getUTCMonth() === 0 && isExtended.getUTCDate() === 1 && isExtended.getUTCHours() == 10 && isExtended.getUTCMinutes() == 37 && isExtended.getUTCSeconds() == 6 && isExtended.getUTCMilliseconds() == 708;
-        }); // Internal: Determines whether the native `JSON.stringify` and `parse`
-        // implementations are spec-compliant. Based on work by Ken Snyder.
+    var toDrop = max(Number(count) || 0, 0);
+    var resultsLength = max(length - toDrop, 0);
+    var results = new Array(resultsLength);
 
-        function has(name) {
-          if (has[name] != null) {
-            // Return cached feature test result.
-            return has[name];
-          }
+    for (var i = 0; i < resultsLength; i += 1) {
+      results[i] = collection[i + toDrop];
+    }
 
-          var isSupported;
-
-          if (name == "bug-string-char-index") {
-            // IE <= 7 doesn't support accessing string characters using square
-            // bracket notation. IE 8 only supports this for primitives.
-            isSupported = "a"[0] != "a";
-          } else if (name == "json") {
-            // Indicates whether both `JSON.stringify` and `JSON.parse` are
-            // supported.
-            isSupported = has("json-stringify") && has("date-serialization") && has("json-parse");
-          } else if (name == "date-serialization") {
-            // Indicates whether `Date`s can be serialized accurately by `JSON.stringify`.
-            isSupported = has("json-stringify") && isExtended;
-
-            if (isSupported) {
-              var stringify = exports.stringify;
-              attempt(function () {
-                isSupported = // JSON 2, Prototype <= 1.7, and older WebKit builds incorrectly
-                // serialize extended years.
-                stringify(new Date(-8.64e15)) == '"-271821-04-20T00:00:00.000Z"' && // The milliseconds are optional in ES 5, but required in 5.1.
-                stringify(new Date(8.64e15)) == '"+275760-09-13T00:00:00.000Z"' && // Firefox <= 11.0 incorrectly serializes years prior to 0 as negative
-                // four-digit years instead of six-digit years. Credits: @Yaffle.
-                stringify(new Date(-621987552e5)) == '"-000001-01-01T00:00:00.000Z"' && // Safari <= 5.1.5 and Opera >= 10.53 incorrectly serialize millisecond
-                // values less than 1000. Credits: @Yaffle.
-                stringify(new Date(-1)) == '"1969-12-31T23:59:59.999Z"';
-              });
-            }
-          } else {
-            var value,
-                serialized = "{\"a\":[1,true,false,null,\"\\u0000\\b\\n\\f\\r\\t\"]}"; // Test `JSON.stringify`.
-
-            if (name == "json-stringify") {
-              var stringify = exports.stringify,
-                  stringifySupported = typeof stringify == "function";
-
-              if (stringifySupported) {
-                // A test function object with a custom `toJSON` method.
-                (value = function value() {
-                  return 1;
-                }).toJSON = value;
-                attempt(function () {
-                  stringifySupported = // Firefox 3.1b1 and b2 serialize string, number, and boolean
-                  // primitives as object literals.
-                  stringify(0) === "0" && // FF 3.1b1, b2, and JSON 2 serialize wrapped primitives as object
-                  // literals.
-                  stringify(new Number()) === "0" && stringify(new String()) == '""' && // FF 3.1b1, 2 throw an error if the value is `null`, `undefined`, or
-                  // does not define a canonical JSON representation (this applies to
-                  // objects with `toJSON` properties as well, *unless* they are nested
-                  // within an object or array).
-                  stringify(getClass) === undefined$1 && // IE 8 serializes `undefined` as `"undefined"`. Safari <= 5.1.7 and
-                  // FF 3.1b3 pass this test.
-                  stringify(undefined$1) === undefined$1 && // Safari <= 5.1.7 and FF 3.1b3 throw `Error`s and `TypeError`s,
-                  // respectively, if the value is omitted entirely.
-                  stringify() === undefined$1 && // FF 3.1b1, 2 throw an error if the given value is not a number,
-                  // string, array, object, Boolean, or `null` literal. This applies to
-                  // objects with custom `toJSON` methods as well, unless they are nested
-                  // inside object or array literals. YUI 3.0.0b1 ignores custom `toJSON`
-                  // methods entirely.
-                  stringify(value) === "1" && stringify([value]) == "[1]" && // Prototype <= 1.6.1 serializes `[undefined]` as `"[]"` instead of
-                  // `"[null]"`.
-                  stringify([undefined$1]) == "[null]" && // YUI 3.0.0b1 fails to serialize `null` literals.
-                  stringify(null) == "null" && // FF 3.1b1, 2 halts serialization if an array contains a function:
-                  // `[1, true, getClass, 1]` serializes as "[1,true,],". FF 3.1b3
-                  // elides non-JSON values from objects and arrays, unless they
-                  // define custom `toJSON` methods.
-                  stringify([undefined$1, getClass, null]) == "[null,null,null]" && // Simple serialization test. FF 3.1b1 uses Unicode escape sequences
-                  // where character escape codes are expected (e.g., `\b` => `\u0008`).
-                  stringify({
-                    "a": [value, true, false, null, "\x00\b\n\f\r\t"]
-                  }) == serialized && // FF 3.1b1 and b2 ignore the `filter` and `width` arguments.
-                  stringify(null, value) === "1" && stringify([1, 2], null, 1) == "[\n 1,\n 2\n]";
-                }, function () {
-                  stringifySupported = false;
-                });
-              }
-
-              isSupported = stringifySupported;
-            } // Test `JSON.parse`.
+    return results;
+  };
+  /*
+   * Exports.
+   */
 
 
-            if (name == "json-parse") {
-              var parse = exports.parse,
-                  parseSupported;
+  var drop_1 = drop;
 
-              if (typeof parse == "function") {
-                attempt(function () {
-                  // FF 3.1b1, b2 will throw an exception if a bare literal is provided.
-                  // Conforming implementations should also coerce the initial argument to
-                  // a string prior to parsing.
-                  if (parse("0") === 0 && !parse(false)) {
-                    // Simple parsing test.
-                    value = parse(serialized);
-                    parseSupported = value["a"].length == 5 && value["a"][0] === 1;
+  var max$1 = Math.max;
+  /**
+   * Produce a new array by passing each value in the input `collection` through a transformative
+   * `iterator` function. The `iterator` function is passed three arguments:
+   * `(value, index, collection)`.
+   *
+   * @name rest
+   * @api public
+   * @param {Array} collection The collection to iterate over.
+   * @return {Array} A new array containing all but the first element from `collection`.
+   * @example
+   * rest([1, 2, 3]); // => [2, 3]
+   */
 
-                    if (parseSupported) {
-                      attempt(function () {
-                        // Safari <= 5.1.2 and FF 3.1b1 allow unescaped tabs in strings.
-                        parseSupported = !parse('"\t"');
-                      });
+  var rest = function rest(collection) {
+    if (collection == null || !collection.length) {
+      return [];
+    } // Preallocating an array *significantly* boosts performance when dealing with
+    // `arguments` objects on v8. For a summary, see:
+    // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
 
-                      if (parseSupported) {
-                        attempt(function () {
-                          // FF 4.0 and 4.0.1 allow leading `+` signs and leading
-                          // decimal points. FF 4.0, 4.0.1, and IE 9-10 also allow
-                          // certain octal literals.
-                          parseSupported = parse("01") !== 1;
-                        });
-                      }
 
-                      if (parseSupported) {
-                        attempt(function () {
-                          // FF 4.0, 4.0.1, and Rhino 1.7R3-R4 allow trailing decimal
-                          // points. These environments, along with FF 3.1b1 and 2,
-                          // also allow trailing commas in JSON objects and arrays.
-                          parseSupported = parse("1.") !== 1;
-                        });
-                      }
-                    }
-                  }
-                }, function () {
-                  parseSupported = false;
-                });
-              }
+    var results = new Array(max$1(collection.length - 2, 0));
 
-              isSupported = parseSupported;
-            }
-          }
+    for (var i = 1; i < collection.length; i += 1) {
+      results[i - 1] = collection[i];
+    }
 
-          return has[name] = !!isSupported;
-        }
+    return results;
+  };
+  /*
+   * Exports.
+   */
 
-        has["bug-string-char-index"] = has["date-serialization"] = has["json"] = has["json-stringify"] = has["json-parse"] = null;
 
-        if (!has("json")) {
-          // Common `[[Class]]` name aliases.
-          var functionClass = "[object Function]",
-              dateClass = "[object Date]",
-              numberClass = "[object Number]",
-              stringClass = "[object String]",
-              arrayClass = "[object Array]",
-              booleanClass = "[object Boolean]"; // Detect incomplete support for accessing string characters by index.
+  var rest_1 = rest;
 
-          var charIndexBuggy = has("bug-string-char-index"); // Internal: Normalizes the `for...in` iteration algorithm across
-          // environments. Each enumerated key is yielded to a `callback` function.
+  /*
+   * Module dependencies.
+   */
 
-          var _forOwn = function forOwn(object, callback) {
-            var size = 0,
-                Properties,
-                dontEnums,
-                property; // Tests for bugs in the current environment's `for...in` algorithm. The
-            // `valueOf` property inherits the non-enumerable flag from
-            // `Object.prototype` in older versions of IE, Netscape, and Mozilla.
 
-            (Properties = function Properties() {
-              this.valueOf = 0;
-            }).prototype.valueOf = 0; // Iterate over a new instance of the `Properties` class.
+  var has$3 = Object.prototype.hasOwnProperty;
+  var objToString$1 = Object.prototype.toString;
+  /**
+   * Returns `true` if a value is an object, otherwise `false`.
+   *
+   * @name isObject
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean}
+   */
+  // TODO: Move to a library
 
-            dontEnums = new Properties();
+  var isObject = function isObject(value) {
+    return Boolean(value) && _typeof(value) === 'object';
+  };
+  /**
+   * Returns `true` if a value is a plain object, otherwise `false`.
+   *
+   * @name isPlainObject
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean}
+   */
+  // TODO: Move to a library
 
-            for (property in dontEnums) {
-              // Ignore all properties inherited from `Object.prototype`.
-              if (isProperty.call(dontEnums, property)) {
-                size++;
-              }
-            }
+
+  var isPlainObject = function isPlainObject(value) {
+    return Boolean(value) && objToString$1.call(value) === '[object Object]';
+  };
+  /**
+   * Assigns a key-value pair to a target object when the value assigned is owned,
+   * and where target[key] is undefined.
+   *
+   * @name shallowCombiner
+   * @api private
+   * @param {Object} target
+   * @param {Object} source
+   * @param {*} value
+   * @param {string} key
+   */
+
+
+  var shallowCombiner = function shallowCombiner(target, source, value, key) {
+    if (has$3.call(source, key) && target[key] === undefined) {
+      target[key] = value;
+    }
+
+    return source;
+  };
+  /**
+   * Assigns a key-value pair to a target object when the value assigned is owned,
+   * and where target[key] is undefined; also merges objects recursively.
+   *
+   * @name deepCombiner
+   * @api private
+   * @param {Object} target
+   * @param {Object} source
+   * @param {*} value
+   * @param {string} key
+   * @return {Object}
+   */
+
+
+  var deepCombiner = function deepCombiner(target, source, value, key) {
+    if (has$3.call(source, key)) {
+      if (isPlainObject(target[key]) && isPlainObject(value)) {
+        target[key] = defaultsDeep(target[key], value);
+      } else if (target[key] === undefined) {
+        target[key] = value;
+      }
+    }
+
+    return source;
+  };
+  /**
+   * TODO: Document
+   *
+   * @name defaultsWith
+   * @api private
+   * @param {Function} combiner
+   * @param {Object} target
+   * @param {...Object} sources
+   * @return {Object} Return the input `target`.
+   */
+
+
 <<<<<<< HEAD
-
-            Properties = dontEnums = null; // Normalize the iteration algorithm.
-
-            if (!size) {
-              // A list of non-enumerable properties inherited from `Object.prototype`.
-              dontEnums = ["valueOf", "toString", "toLocaleString", "propertyIsEnumerable", "isPrototypeOf", "hasOwnProperty", "constructor"]; // IE <= 8, Mozilla 1.0, and Netscape 6.2 ignore shadowed non-enumerable
-              // properties.
-
-              _forOwn = function forOwn(object, callback) {
-                var isFunction = getClass.call(object) == functionClass,
-                    property,
-                    length;
-                var hasProperty = !isFunction && typeof object.constructor != "function" && objectTypes[_typeof(object.hasOwnProperty)] && object.hasOwnProperty || isProperty;
-
-                for (property in object) {
-                  // Gecko <= 1.0 enumerates the `prototype` property of functions under
-                  // certain conditions; IE does not.
-                  if (!(isFunction && property == "prototype") && hasProperty.call(object, property)) {
-                    callback(property);
-                  }
-                } // Manually invoke the callback for each non-enumerable property.
-
-
                 for (length = dontEnums.length; property = dontEnums[--length];) {
                   if (hasProperty.call(object, property)) {
                     callback(property);
@@ -20230,12 +20149,68 @@
 
       var root = objectTypes[typeof window === "undefined" ? "undefined" : _typeof(window)] && window || this,
           freeGlobal = freeExports && objectTypes['object'] && module && !module.nodeType && _typeof(commonjsGlobal) == "object" && commonjsGlobal;
+=======
+  var defaultsWith = function defaultsWith(combiner, target
+  /*, ...sources */
+  ) {
+    if (!isObject(target)) {
+      return target;
+    }
+
+    combiner = combiner || shallowCombiner;
+    var sources = drop_1(2, arguments);
+
+    for (var i = 0; i < sources.length; i += 1) {
+      for (var key in sources[i]) {
+        combiner(target, sources[i], sources[i][key], key);
+      }
+    }
+
+    return target;
+  };
+  /**
+   * Copies owned, enumerable properties from a source object(s) to a target
+   * object when the value of that property on the source object is `undefined`.
+   * Recurses on objects.
+   *
+   * @name defaultsDeep
+   * @api public
+   * @param {Object} target
+   * @param {...Object} sources
+   * @return {Object} The input `target`.
+   */
+
+
+  var defaultsDeep = function defaultsDeep(target
+  /*, sources */
+  ) {
+    // TODO: Replace with `partial` call?
+    return defaultsWith.apply(null, [deepCombiner, target].concat(rest_1(arguments)));
+  };
+  /**
+   * Copies owned, enumerable properties from a source object(s) to a target
+   * object when the value of that property on the source object is `undefined`.
+   *
+   * @name defaults
+   * @api public
+   * @param {Object} target
+   * @param {...Object} sources
+   * @return {Object}
+   * @example
+   * var a = { a: 1 };
+   * var b = { a: 2, b: 2 };
+   *
+   * defaults(a, b);
+   * console.log(a); //=> { a: 1, b: 2 }
+   */
+>>>>>>> resolve conflicts
 
       if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
         root = freeGlobal;
       } // Public: Initializes JSON 3 using the given `context` object, attaching the
       // `stringify` and `parse` functions to the specified `exports` object.
 
+<<<<<<< HEAD
 
       function runInContext(context, exports) {
         context || (context = root.Object());
@@ -20348,6 +20323,192 @@
                         Index = position;
                       } // Coerce the parsed value to a JavaScript number.
 =======
+=======
+  var defaults = function defaults(target
+  /*, ...sources */
+  ) {
+    // TODO: Replace with `partial` call?
+    return defaultsWith.apply(null, [null, target].concat(rest_1(arguments)));
+  };
+  /*
+   * Exports.
+   */
+
+
+  var defaults_1 = defaults;
+  var deep = defaultsDeep;
+  defaults_1.deep = deep;
+
+  var json3 = createCommonjsModule(function (module, exports) {
+    (function () {
+      // Detect the `define` function exposed by asynchronous module loaders. The
+      // strict `define` check is necessary for compatibility with `r.js`.
+      var isLoader = typeof undefined === "function" ; // A set of types used to distinguish objects from primitives.
+
+      var objectTypes = {
+        "function": true,
+        "object": true
+      }; // Detect the `exports` object exposed by CommonJS implementations.
+
+      var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports; // Use the `global` object exposed by Node (including Browserify via
+      // `insert-module-globals`), Narwhal, and Ringo as the default context,
+      // and the `window` object in browsers. Rhino exports a `global` function
+      // instead.
+
+      var root = objectTypes[typeof window === "undefined" ? "undefined" : _typeof(window)] && window || this,
+          freeGlobal = freeExports && objectTypes['object'] && module && !module.nodeType && _typeof(commonjsGlobal) == "object" && commonjsGlobal;
+
+      if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
+        root = freeGlobal;
+      } // Public: Initializes JSON 3 using the given `context` object, attaching the
+      // `stringify` and `parse` functions to the specified `exports` object.
+
+
+      function runInContext(context, exports) {
+        context || (context = root.Object());
+        exports || (exports = root.Object()); // Native constructor aliases.
+
+        var Number = context.Number || root.Number,
+            String = context.String || root.String,
+            Object = context.Object || root.Object,
+            Date = context.Date || root.Date,
+            SyntaxError = context.SyntaxError || root.SyntaxError,
+            TypeError = context.TypeError || root.TypeError,
+            Math = context.Math || root.Math,
+            nativeJSON = context.JSON || root.JSON; // Delegate to the native `stringify` and `parse` implementations.
+
+        if (_typeof(nativeJSON) == "object" && nativeJSON) {
+          exports.stringify = nativeJSON.stringify;
+          exports.parse = nativeJSON.parse;
+        } // Convenience aliases.
+
+
+        var objectProto = Object.prototype,
+            getClass = objectProto.toString,
+            isProperty = objectProto.hasOwnProperty,
+            undefined$1; // Internal: Contains `try...catch` logic used by other functions.
+        // This prevents other functions from being deoptimized.
+
+        function attempt(func, errorFunc) {
+          try {
+            func();
+          } catch (exception) {
+            if (errorFunc) {
+              errorFunc();
+            }
+          }
+        } // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
+
+
+        var isExtended = new Date(-3509827334573292);
+        attempt(function () {
+          // The `getUTCFullYear`, `Month`, and `Date` methods return nonsensical
+          // results for certain dates in Opera >= 10.53.
+          isExtended = isExtended.getUTCFullYear() == -109252 && isExtended.getUTCMonth() === 0 && isExtended.getUTCDate() === 1 && isExtended.getUTCHours() == 10 && isExtended.getUTCMinutes() == 37 && isExtended.getUTCSeconds() == 6 && isExtended.getUTCMilliseconds() == 708;
+        }); // Internal: Determines whether the native `JSON.stringify` and `parse`
+        // implementations are spec-compliant. Based on work by Ken Snyder.
+
+        function has(name) {
+          if (has[name] != null) {
+            // Return cached feature test result.
+            return has[name];
+          }
+
+          var isSupported;
+
+          if (name == "bug-string-char-index") {
+            // IE <= 7 doesn't support accessing string characters using square
+            // bracket notation. IE 8 only supports this for primitives.
+            isSupported = "a"[0] != "a";
+          } else if (name == "json") {
+            // Indicates whether both `JSON.stringify` and `JSON.parse` are
+            // supported.
+            isSupported = has("json-stringify") && has("date-serialization") && has("json-parse");
+          } else if (name == "date-serialization") {
+            // Indicates whether `Date`s can be serialized accurately by `JSON.stringify`.
+            isSupported = has("json-stringify") && isExtended;
+
+            if (isSupported) {
+              var stringify = exports.stringify;
+              attempt(function () {
+                isSupported = // JSON 2, Prototype <= 1.7, and older WebKit builds incorrectly
+                // serialize extended years.
+                stringify(new Date(-8.64e15)) == '"-271821-04-20T00:00:00.000Z"' && // The milliseconds are optional in ES 5, but required in 5.1.
+                stringify(new Date(8.64e15)) == '"+275760-09-13T00:00:00.000Z"' && // Firefox <= 11.0 incorrectly serializes years prior to 0 as negative
+                // four-digit years instead of six-digit years. Credits: @Yaffle.
+                stringify(new Date(-621987552e5)) == '"-000001-01-01T00:00:00.000Z"' && // Safari <= 5.1.5 and Opera >= 10.53 incorrectly serialize millisecond
+                // values less than 1000. Credits: @Yaffle.
+                stringify(new Date(-1)) == '"1969-12-31T23:59:59.999Z"';
+              });
+            }
+          } else {
+            var value,
+                serialized = "{\"a\":[1,true,false,null,\"\\u0000\\b\\n\\f\\r\\t\"]}"; // Test `JSON.stringify`.
+
+            if (name == "json-stringify") {
+              var stringify = exports.stringify,
+                  stringifySupported = typeof stringify == "function";
+
+              if (stringifySupported) {
+                // A test function object with a custom `toJSON` method.
+                (value = function value() {
+                  return 1;
+                }).toJSON = value;
+                attempt(function () {
+                  stringifySupported = // Firefox 3.1b1 and b2 serialize string, number, and boolean
+                  // primitives as object literals.
+                  stringify(0) === "0" && // FF 3.1b1, b2, and JSON 2 serialize wrapped primitives as object
+                  // literals.
+                  stringify(new Number()) === "0" && stringify(new String()) == '""' && // FF 3.1b1, 2 throw an error if the value is `null`, `undefined`, or
+                  // does not define a canonical JSON representation (this applies to
+                  // objects with `toJSON` properties as well, *unless* they are nested
+                  // within an object or array).
+                  stringify(getClass) === undefined$1 && // IE 8 serializes `undefined` as `"undefined"`. Safari <= 5.1.7 and
+                  // FF 3.1b3 pass this test.
+                  stringify(undefined$1) === undefined$1 && // Safari <= 5.1.7 and FF 3.1b3 throw `Error`s and `TypeError`s,
+                  // respectively, if the value is omitted entirely.
+                  stringify() === undefined$1 && // FF 3.1b1, 2 throw an error if the given value is not a number,
+                  // string, array, object, Boolean, or `null` literal. This applies to
+                  // objects with custom `toJSON` methods as well, unless they are nested
+                  // inside object or array literals. YUI 3.0.0b1 ignores custom `toJSON`
+                  // methods entirely.
+                  stringify(value) === "1" && stringify([value]) == "[1]" && // Prototype <= 1.6.1 serializes `[undefined]` as `"[]"` instead of
+                  // `"[null]"`.
+                  stringify([undefined$1]) == "[null]" && // YUI 3.0.0b1 fails to serialize `null` literals.
+                  stringify(null) == "null" && // FF 3.1b1, 2 halts serialization if an array contains a function:
+                  // `[1, true, getClass, 1]` serializes as "[1,true,],". FF 3.1b3
+                  // elides non-JSON values from objects and arrays, unless they
+                  // define custom `toJSON` methods.
+                  stringify([undefined$1, getClass, null]) == "[null,null,null]" && // Simple serialization test. FF 3.1b1 uses Unicode escape sequences
+                  // where character escape codes are expected (e.g., `\b` => `\u0008`).
+                  stringify({
+                    "a": [value, true, false, null, "\x00\b\n\f\r\t"]
+                  }) == serialized && // FF 3.1b1 and b2 ignore the `filter` and `width` arguments.
+                  stringify(null, value) === "1" && stringify([1, 2], null, 1) == "[\n 1,\n 2\n]";
+                }, function () {
+                  stringifySupported = false;
+                });
+              }
+
+              isSupported = stringifySupported;
+            } // Test `JSON.parse`.
+
+
+            if (name == "json-parse") {
+              var parse = exports.parse,
+                  parseSupported;
+
+              if (typeof parse == "function") {
+                attempt(function () {
+                  // FF 3.1b1, b2 will throw an exception if a bare literal is provided.
+                  // Conforming implementations should also coerce the initial argument to
+                  // a string prior to parsing.
+                  if (parse("0") === 0 && !parse(false)) {
+                    // Simple parsing test.
+                    value = parse(serialized);
+                    parseSupported = value["a"].length == 5 && value["a"][0] === 1;
+
+>>>>>>> resolve conflicts
                     if (parseSupported) {
                       attempt(function () {
                         // Safari <= 5.1.2 and FF 3.1b1 allow unescaped tabs in strings.
@@ -20406,6 +20567,7 @@
                 property; // Tests for bugs in the current environment's `for...in` algorithm. The
             // `valueOf` property inherits the non-enumerable flag from
             // `Object.prototype` in older versions of IE, Netscape, and Mozilla.
+<<<<<<< HEAD
 
             (Properties = function Properties() {
               this.valueOf = 0;
@@ -20413,6 +20575,15 @@
 
             dontEnums = new Properties();
 
+=======
+
+            (Properties = function Properties() {
+              this.valueOf = 0;
+            }).prototype.valueOf = 0; // Iterate over a new instance of the `Properties` class.
+
+            dontEnums = new Properties();
+
+>>>>>>> resolve conflicts
             for (property in dontEnums) {
               // Ignore all properties inherited from `Object.prototype`.
               if (isProperty.call(dontEnums, property)) {
@@ -20420,6 +20591,9 @@
               }
             }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> resolve conflicts
 
             Properties = dontEnums = null; // Normalize the iteration algorithm.
 
@@ -20830,6 +21004,7 @@
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
             exports.parse = function (source, callback) {
               var result, value;
               Index = 0;
@@ -20837,6 +21012,8 @@
               result = get(lex()); // If a JSON string contains multiple tokens, it is invalid.
 =======
 >>>>>>> branch for npm and latest release
+=======
+>>>>>>> resolve conflicts
                 switch (className || type) {
                   case "boolean":
                   case booleanClass:
@@ -21087,6 +21264,7 @@
   var debug_8$1 = debug_1$1.skips;
   var debug_9$1 = debug_1$1.formatters;
 
+<<<<<<< HEAD
   var browser$1 = createCommonjsModule(function (module, exports) {
     /**
      * This is the web browser implementation of `debug()`.
@@ -21394,25 +21572,68 @@
 =======
                     if (value == ",") {
                       abort();
+=======
+                            value += fromCharCode("0x" + source.slice(begin, Index));
+                            break;
+
+                          default:
+                            // Invalid escape sequence.
+                            abort();
+                        }
+                      } else {
+                        if (charCode == 34) {
+                          // An unescaped double-quote character marks the end of the
+                          // string.
+                          break;
+                        }
+
+                        charCode = source.charCodeAt(Index);
+                        begin = Index; // Optimize for the common case where a string is valid.
+
+                        while (charCode >= 32 && charCode != 92 && charCode != 34) {
+                          charCode = source.charCodeAt(++Index);
+                        } // Append the string as-is.
+
+
+                        value += source.slice(begin, Index);
+                      }
+>>>>>>> resolve conflicts
                     }
 
-                    results.push(get(value));
-                  }
+                    if (source.charCodeAt(Index) == 34) {
+                      // Advance to the next character and return the revived string.
+                      Index++;
+                      return value;
+                    } // Unterminated string.
 
-                  return results;
-                } else if (value == "{") {
-                  // Parses a JSON object, returning a new JavaScript object.
-                  results = {};
 
-                  for (;;) {
-                    value = lex(); // A closing curly brace marks the end of the object literal.
+                    abort();
 
+<<<<<<< HEAD
                     if (value == "}") {
                       break;
                     } // If the object literal contains members, the current token
                     // should be a comma separator.
 =======
 >>>>>>> branch for npm and latest release
+=======
+                  default:
+                    // Parse numbers and literals.
+                    begin = Index; // Advance past the negative sign, if one is specified.
+
+                    if (charCode == 45) {
+                      isSigned = true;
+                      charCode = source.charCodeAt(++Index);
+                    } // Parse an integer or floating-point value.
+
+
+                    if (charCode >= 48 && charCode <= 57) {
+                      // Leading zeroes are interpreted as octal literals.
+                      if (charCode == 48 && (charCode = source.charCodeAt(Index + 1), charCode >= 48 && charCode <= 57)) {
+                        // Illegal octal literal.
+                        abort();
+                      }
+>>>>>>> resolve conflicts
 
     function load() {
       var r;
@@ -21529,6 +21750,7 @@
   function all$1() {
     var str;
 
+<<<<<<< HEAD
     try {
       str = document.cookie;
     } catch (err) {
@@ -21747,24 +21969,16 @@
     }).call(commonjsGlobal);
   });
 >>>>>>> branch for npm and latest release
+=======
+                        Index = position;
+                      } // Coerce the parsed value to a JavaScript number.
 
-  var debug_1$1 = createCommonjsModule(function (module, exports) {
-    /**
-     * This is the common logic for both the Node.js and web browser
-     * implementations of `debug()`.
-     *
-     * Expose `debug()` as the module.
-     */
-    exports = module.exports = debug;
-    exports.coerce = coerce;
-    exports.disable = disable;
-    exports.enable = enable;
-    exports.enabled = enabled;
-    exports.humanize = ms;
-    /**
-     * The currently active debug mode names, and names to skip.
-     */
+>>>>>>> resolve conflicts
 
+                      return +source.slice(begin, Index);
+                    } // A negative sign may only precede numbers.
+
+<<<<<<< HEAD
 <<<<<<< HEAD
   function get$2(name) {
     return all$1()[name];
@@ -21785,12 +21999,14 @@
      * Valid key names are a single, lowercased letter, i.e. "n".
      */
 >>>>>>> branch for npm and latest release
+=======
+>>>>>>> resolve conflicts
 
-    exports.formatters = {};
-    /**
-     * Previously assigned color.
-     */
+                    if (isSigned) {
+                      abort();
+                    } // `true`, `false`, and `null` literals.
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   function parse$3(str) {
     var obj = {};
@@ -21876,48 +22092,37 @@
     /**
      * Previous log timestamp.
      */
+=======
+>>>>>>> resolve conflicts
 
-    var prevTime;
-    /**
-     * Select a color.
-     *
-     * @return {Number}
-     * @api private
-     */
+                    var temp = source.slice(Index, Index + 4);
 
-    function selectColor() {
-      return exports.colors[prevColor++ % exports.colors.length];
-    }
-    /**
-     * Create a debugger with the given `namespace`.
-     *
-     * @param {String} namespace
-     * @return {Function}
-     * @api public
-     */
+                    if (temp == "true") {
+                      Index += 4;
+                      return true;
+                    } else if (temp == "fals" && source.charCodeAt(Index + 4) == 101) {
+                      Index += 5;
+                      return false;
+                    } else if (temp == "null") {
+                      Index += 4;
+                      return null;
+                    } // Unrecognized token.
 
 
-    function debug(namespace) {
-      // define the `disabled` version
-      function disabled() {}
+                    abort();
+                }
+              } // Return the sentinel `$` character if the parser has reached the end
+              // of the source string.
 
-      disabled.enabled = false; // define the `enabled` version
 
-      function enabled() {
-        var self = enabled; // set `diff` timestamp
+              return "$";
+            }; // Internal: Parses a JSON `value` token.
 
-        var curr = +new Date();
-        var ms = curr - (prevTime || curr);
-        self.diff = ms;
-        self.prev = prevTime;
-        self.curr = curr;
-        prevTime = curr; // add the `color` if not set
 
-        if (null == self.useColors) self.useColors = exports.useColors();
-        if (null == self.color && self.useColors) self.color = selectColor();
-        var args = Array.prototype.slice.call(arguments);
-        args[0] = exports.coerce(args[0]);
+            var get = function get(value) {
+              var results, hasMembers;
 
+<<<<<<< HEAD
         if ('string' !== typeof args[0]) {
           // anything else let's inspect with %o
           args = ['%o'].concat(args);
@@ -21948,8 +22153,20 @@
      * @return {Array}
      * @api public
      */
+=======
+              if (value == "$") {
+                // Unexpected end of input.
+                abort();
+              }
+>>>>>>> resolve conflicts
 
+              if (typeof value == "string") {
+                if ((charIndexBuggy ? value.charAt(0) : value[0]) == "@") {
+                  // Remove the sentinel `@` character.
+                  return value.slice(1);
+                } // Parse object and array literals.
 
+<<<<<<< HEAD
     domain.levels = function (url) {
       var host = parse(url).hostname;
       var parts = host.split('.');
@@ -21966,19 +22183,35 @@
           if (match === '%%') return match;
           index++;
           var formatter = exports.formatters[format];
+=======
+>>>>>>> resolve conflicts
 
-          if ('function' === typeof formatter) {
-            var val = args[index];
-            match = formatter.call(self, val); // now we need to remove `args[index]` since it's inlined in the `format`
+                if (value == "[") {
+                  // Parses a JSON array, returning a new JavaScript array.
+                  results = [];
 
+<<<<<<< HEAD
             args.splice(index, 1);
             index--;
           }
 >>>>>>> branch for npm and latest release
+=======
+                  for (;;) {
+                    value = lex(); // A closing square bracket marks the end of the array literal.
+>>>>>>> resolve conflicts
 
-          return match;
-        });
+                    if (value == "]") {
+                      break;
+                    } // If the array literal contains elements, the current token
+                    // should be a comma separating the previous element from the
+                    // next.
 
+
+                    if (hasMembers) {
+                      if (value == ",") {
+                        value = lex();
+
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
       if (parts.length <= 1) {
@@ -22008,6 +22241,18 @@
 
 =======
 =======
+=======
+                        if (value == "]") {
+                          // Unexpected trailing `,` in array literal.
+                          abort();
+                        }
+                      } else {
+                        // A `,` must separate each array element.
+                        abort();
+                      }
+                    } else {
+                      hasMembers = true;
+>>>>>>> resolve conflicts
                     } // Elisions and leading commas are not permitted.
 >>>>>>> branch for npm and latest release
 
@@ -22377,10 +22622,13 @@
         storage.load(localStorageName);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         for (var i = attributes.length - 1; i >= 0; i--) {
           storage.removeAttribute(attributes[i].name);
 =======
 >>>>>>> branch for npm and latest release
+=======
+>>>>>>> resolve conflicts
         if ('function' === typeof exports.formatArgs) {
           args = exports.formatArgs.apply(self, args);
 >>>>>>> branch for npm and latest release
@@ -22680,15 +22928,7 @@
 =======
   function set$1(name, value, options) {
     options = options || {};
-<<<<<<< HEAD
-<<<<<<< HEAD
     var str = encode$2(name) + '=' + encode$2(value);
-=======
-    var str = encode$1(name) + '=' + encode$1(value);
->>>>>>> branch for npm and latest release
-=======
-    var str = encode$2(name) + '=' + encode$2(value);
->>>>>>> add querystring parse to npm module
     if (null == value) options.maxage = -1;
 >>>>>>> NPM release version 1.0.11
 
@@ -22755,6 +22995,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> Updated npm distribution files
 =======
 <<<<<<< HEAD
@@ -22801,10 +23042,11 @@
 >>>>>>> update npm module
 =======
 >>>>>>> update npm module
+=======
+>>>>>>> resolve conflicts
 
     return parse$3(str);
   }
->>>>>>> branch for npm and latest release
   /**
    * Get cookie `name`.
    *
@@ -22823,6 +23065,7 @@
     lotame_synch_time_key: "lt_synch_timestamp"
   };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -22884,9 +23127,10 @@
 >>>>>>> update npm module
 >>>>>>> update npm module
 =======
+=======
+>>>>>>> resolve conflicts
 
   function parse$3(str) {
->>>>>>> update npm module
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
@@ -22918,6 +23162,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var Lotame = /*#__PURE__*/function () {
     function Lotame(config, analytics) {
       var _this = this;
@@ -22931,8 +23176,9 @@
   function encode$1(value) {
 >>>>>>> branch for npm and latest release
 =======
+=======
+>>>>>>> resolve conflicts
   function encode$2(value) {
->>>>>>> add querystring parse to npm module
     try {
       return encodeURIComponent(value);
     } catch (e) {
@@ -22946,6 +23192,7 @@
 
       _classCallCheck(this, Lotame);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -22972,8 +23219,9 @@
   function decode$1(value) {
 >>>>>>> branch for npm and latest release
 =======
+=======
+>>>>>>> resolve conflicts
   function decode$2(value) {
->>>>>>> add querystring parse to npm module
     try {
       return decodeURIComponent(value);
     } catch (e) {
@@ -23067,6 +23315,9 @@
      * Expose cookie on domain.
      */
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> resolve conflicts
 
 
     domain.cookie = componentCookie;
@@ -23074,6 +23325,7 @@
      * Exports.
      */
 
+<<<<<<< HEAD
 =======
 
 
@@ -23126,6 +23378,15 @@
       value: function syncPixel(userId) {
         var _this2 = this;
 =======
+=======
+    exports = module.exports = domain;
+  });
+
+  /**
+   * An object utility to persist values in cookies
+   */
+
+>>>>>>> resolve conflicts
   var CookieLocal = /*#__PURE__*/function () {
     function CookieLocal(options) {
       _classCallCheck(this, CookieLocal);
@@ -23684,43 +23945,7 @@
           return value;
         }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
-=======
-        var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
->>>>>>> Updated npm distribution files
-=======
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
-        var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
-=======
-        var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
->>>>>>> update npm module
-<<<<<<< HEAD
->>>>>>> update npm module
-=======
-=======
-        var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
-=======
-        var prefixedVal = "".concat(defaults$1.prefix).concat(AES.encrypt(value, defaults$1.key).toString());
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-<<<<<<< HEAD
->>>>>>> Updated npm distribution files
-=======
-=======
-        var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
->>>>>>> update npm module
->>>>>>> update npm module
-=======
-        var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
->>>>>>> update npm module
         return prefixedVal;
       }
       /**
@@ -23736,43 +23961,7 @@
         }
 
         if (value.substring(0, defaults$1.prefix.length) == defaults$1.prefix) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
           return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
-=======
-          return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
->>>>>>> Updated npm distribution files
-=======
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
-          return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
-=======
-          return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
->>>>>>> update npm module
-<<<<<<< HEAD
->>>>>>> update npm module
-=======
-=======
-          return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
-=======
-          return AES.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(Utf8);
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-<<<<<<< HEAD
->>>>>>> Updated npm distribution files
-=======
-=======
-          return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
->>>>>>> update npm module
->>>>>>> update npm module
-=======
-          return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
->>>>>>> update npm module
         }
 
         return value;
@@ -24437,77 +24626,7 @@
     return Fullstory;
   }();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   var Optimizely = /*#__PURE__*/function () {
-=======
-<<<<<<< HEAD
-=======
-=======
->>>>>>> branch for npm and latest release
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
-=======
->>>>>>> update npm module
-<<<<<<< HEAD
-  var Optimizely =
-  /*#__PURE__*/
-  function () {
-=======
-=======
->>>>>>> branch for npm and latest release
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
-  var Optimizely = /*#__PURE__*/function () {
->>>>>>> update npm module
-    function Optimizely(config, analytics) {
-      var _this = this;
-
-      _classCallCheck(this, Optimizely);
-=======
->>>>>>> update npm module
-  var Optimizely =
-  /*#__PURE__*/
-  function () {
-<<<<<<< HEAD
->>>>>>> Updated npm distribution files
-=======
-=======
-  var Optimizely = /*#__PURE__*/function () {
->>>>>>> branch for npm and latest release
-<<<<<<< HEAD
->>>>>>> branch for npm and latest release
-=======
-=======
-<<<<<<< HEAD
-  var Optimizely = /*#__PURE__*/function () {
-=======
-<<<<<<< HEAD
-  var Optimizely =
-  /*#__PURE__*/
-  function () {
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-<<<<<<< HEAD
->>>>>>> Updated npm distribution files
-=======
-=======
->>>>>>> update npm module
-=======
->>>>>>> update npm module
-<<<<<<< HEAD
->>>>>>> update npm module
-=======
-  var Optimizely = /*#__PURE__*/function () {
->>>>>>> update npm module
     function Optimizely(config, analytics) {
       var _this = this;
 
@@ -25049,7 +25168,6 @@
             case "bools":
               return "".concat(camelcase(parts.join("_")), "_").concat(typeSuffix);
 
-<<<<<<< HEAD
           }
         } // No type suffix found. Camel case the whole field name.
 
@@ -25158,8 +25276,6 @@
             if (value) {
               action[key] = value;
             }
-=======
->>>>>>> branch for npm and latest release
           }
         }
 
@@ -25211,6 +25327,7 @@
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -25338,13 +25455,17 @@
 >>>>>>> update npm module
 =======
 >>>>>>> update npm module
+=======
+    this.version = "1.0.11";
+  };
+>>>>>>> resolve conflicts
 
   // Library information class
   var RudderLibraryInfo = function RudderLibraryInfo() {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.10";
+    this.version = "1.0.11";
   }; // Operating System information class
 
 
@@ -25669,77 +25790,9 @@
 
   function bytesToUuid(buf, offset) {
     var i = offset || 0;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
 
     return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
-=======
-=======
->>>>>>> branch for npm and latest release
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
-    var bth = byteToHex;
-    // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]]
-    ]).join('');
-<<<<<<< HEAD
->>>>>>> Updated npm distribution files
-=======
-=======
-    var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-
-    return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
->>>>>>> branch for npm and latest release
-<<<<<<< HEAD
->>>>>>> branch for npm and latest release
-=======
-=======
-    var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-
-    return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
-=======
-    var bth = byteToHex;
-    // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]]
-    ]).join('');
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-<<<<<<< HEAD
->>>>>>> Updated npm distribution files
-=======
-=======
-    var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-
-    return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
->>>>>>> update npm module
->>>>>>> update npm module
-=======
-    var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-
-    return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
->>>>>>> update npm module
   }
 
   var bytesToUuid_1 = bytesToUuid;
@@ -25756,38 +25809,6 @@
   var _lastMSecs = 0;
   var _lastNSecs = 0; // See https://github.com/uuidjs/uuid for API details
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-  // See https://github.com/uuidjs/uuid for API details
->>>>>>> Updated npm distribution files
-=======
-  // See https://github.com/uuidjs/uuid for API details
-=======
->>>>>>> branch for npm and latest release
->>>>>>> branch for npm and latest release
-=======
-=======
->>>>>>> update npm module
-  // See https://github.com/uuidjs/uuid for API details
-=======
->>>>>>> branch for npm and latest release
-=======
-=======
-  // See https://github.com/uuidjs/uuid for API details
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-<<<<<<< HEAD
->>>>>>> Updated npm distribution files
-=======
-=======
->>>>>>> update npm module
->>>>>>> update npm module
-=======
->>>>>>> update npm module
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
@@ -25856,15 +25877,9 @@
     b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
 
     b[i++] = tmh >>> 16 & 0xff; // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
-<<<<<<< HEAD
 
     b[i++] = clockseq >>> 8 | 0x80; // `clock_seq_low`
 
-=======
-
-    b[i++] = clockseq >>> 8 | 0x80; // `clock_seq_low`
-
->>>>>>> branch for npm and latest release
     b[i++] = clockseq & 0xff; // `node`
 
     for (var n = 0; n < 6; ++n) {
@@ -26028,13 +26043,8 @@
   /**
    * Get original engine
    */
-<<<<<<< HEAD
 
 
-=======
-
-
->>>>>>> branch for npm and latest release
   Store$1.prototype.getOriginalEngine = function () {
     return this.originalEngine;
   };
@@ -26091,11 +26101,6 @@
       switch (e.code) {
         case 22:
           quotaExceeded = true;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
           break;
 
         case 1014:
@@ -26105,54 +26110,6 @@
           }
 
           break;
-=======
-        }
-        break;
->>>>>>> Updated npm distribution files
-=======
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
-        }
-        break;
-=======
-=======
->>>>>>> Updated npm distribution files
-=======
->>>>>>> update npm module
-=======
->>>>>>> update npm module
-          break;
-
-        case 1014:
-          // Firefox
-          if (e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-            quotaExceeded = true;
-          }
-
-          break;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> branch for npm and latest release
-<<<<<<< HEAD
->>>>>>> branch for npm and latest release
-=======
-=======
-=======
-        }
-        break;
->>>>>>> Updated npm distribution files
->>>>>>> Updated npm distribution files
-<<<<<<< HEAD
->>>>>>> Updated npm distribution files
-=======
-=======
->>>>>>> update npm module
->>>>>>> update npm module
-=======
->>>>>>> update npm module
       }
     } else if (e.number === -2147024882) {
       // Internet Explorer 8
