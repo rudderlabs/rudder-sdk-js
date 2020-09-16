@@ -670,7 +670,8 @@
     Optimizely: "OPTIMIZELY",
     FULLSTORY: "FULLSTORY",
     Fullstory: "FULLSTORY",
-    BUGSNAG: "BUGSNAG"
+    BUGSNAG: "BUGSNAG",
+    TVSQUARED: "TVSQUARED"
   };
 
   // from client native integration name to server identified display name
@@ -693,7 +694,8 @@
     LOTAME: "Lotame",
     VWO: "VWO",
     OPTIMIZELY: "Optimizely",
-    FULLSTORY: "Fullstory"
+    FULLSTORY: "Fullstory",
+    TVSQUUARED: "TVSquared"
   };
 
   // Message Type enumeration
@@ -735,7 +737,7 @@
     PRODUCT_REVIEWED: "Product Reviewed"
   }; // Enumeration for integrations supported
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.11";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -12693,6 +12695,123 @@
     return Fullstory;
   }();
 
+  var TVSquared = /*#__PURE__*/function () {
+    function TVSquared(config) {
+      _classCallCheck(this, TVSquared);
+
+      this.isLoaded = function () {
+        logger.debug("in TVSqaured isLoaded");
+        return !!(window._tvq && window._tvq.push !== Array.prototype.push);
+      };
+
+      this.isReady = function () {
+        logger.debug("in TVSqaured isReady");
+        return !!(window._tvq && window._tvq.push !== Array.prototype.push);
+      };
+
+      this.page = function () {
+        window._tvq.push(["trackPageView"]);
+      };
+
+      this.formatRevenue = function (revenue) {
+        var rev = revenue;
+        rev = parseFloat(rev.toString().replace(/^[^\d.]*/, ""));
+        return rev;
+      };
+
+      this.brandId = config.brandId;
+      this.clientId = config.clientId;
+      this.eventWhiteList = config.eventWhiteList || [];
+      this.customMetrics = config.customMetrics || [];
+      this.name = "TVSquared";
+    }
+
+    _createClass(TVSquared, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init TVSquared===");
+        window._tvq = window._tvq || [];
+        var url = document.location.protocol === "https:" ? "https://" : "http://";
+        url += "collector-".concat(this.clientId, ".tvsquared.com/");
+
+        window._tvq.push(["setSiteId", this.brandId]);
+
+        window._tvq.push(["setTrackerUrl", "".concat(url, "tv2track.php")]);
+
+        ScriptLoader("TVSquared-integration", "".concat(url, "tv2track.js"));
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var _rudderElement$messag = rudderElement.message,
+            event = _rudderElement$messag.event,
+            userId = _rudderElement$messag.userId,
+            anonymousId = _rudderElement$messag.anonymousId;
+        var _rudderElement$messag2 = rudderElement.message.properties,
+            revenue = _rudderElement$messag2.revenue,
+            productType = _rudderElement$messag2.productType,
+            category = _rudderElement$messag2.category,
+            order_id = _rudderElement$messag2.order_id,
+            promotion_id = _rudderElement$messag2.promotion_id;
+        var i;
+        var j;
+        var whitelist = this.eventWhiteList.slice();
+        whitelist = whitelist.filter(function (wl) {
+          return wl.event !== "";
+        });
+
+        for (i = 0; i < whitelist.length; i += 1) {
+          if (event.toUpperCase() === whitelist[i].event.toUpperCase()) {
+            break;
+          }
+
+          if (i === whitelist.length - 1) {
+            return;
+          }
+        }
+
+        var session = {
+          user: userId || anonymousId || ""
+        };
+        var action = {
+          rev: revenue ? this.formatRevenue(revenue) : "",
+          prod: category || productType || "",
+          id: order_id || "",
+          promo: promotion_id || ""
+        };
+        var customMetrics = this.customMetrics.slice();
+        customMetrics = customMetrics.filter(function (cm) {
+          return cm.propertyName !== "";
+        });
+
+        if (customMetrics.length) {
+          for (j = 0; j < customMetrics.length; j += 1) {
+            var key = customMetrics[j].propertyName;
+            var value = rudderElement.message.properties[key];
+
+            if (value) {
+              action[key] = value;
+            }
+          }
+        }
+
+        window._tvq.push([function () {
+          this.setCustomVariable(5, "session", JSON.stringify(session), "visit");
+        }]);
+
+        if (event.toUpperCase() !== "RESPONSE") {
+          window._tvq.push([function () {
+            this.setCustomVariable(5, event, JSON.stringify(action), "page");
+          }]);
+
+          window._tvq.push(["trackPageView"]);
+        }
+      }
+    }]);
+
+    return TVSquared;
+  }();
+
   // (config-plan name, native destination.name , exported integration name(this one below))
 
   var integrations = {
@@ -12713,7 +12832,8 @@
     LOTAME: Lotame,
     OPTIMIZELY: Optimizely,
     BUGSNAG: Bugsnag,
-    FULLSTORY: Fullstory
+    FULLSTORY: Fullstory,
+    TVSQUARED: TVSquared
   };
 
   // Application class
@@ -12723,7 +12843,7 @@
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.10";
+    this.version = "1.0.11";
   };
 
   // Library information class
@@ -12731,7 +12851,7 @@
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.10";
+    this.version = "1.0.11";
   }; // Operating System information class
 
 
