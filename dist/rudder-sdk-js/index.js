@@ -996,6 +996,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.8";
@@ -1006,6 +1007,9 @@
 =======
   var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
 >>>>>>> add querystring parse to npm module
+=======
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.11";
+>>>>>>> rebase with production branch
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -20107,6 +20111,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     this.version = "1.0.10";
 =======
     this.version = "1.0.8";
@@ -20117,6 +20122,9 @@
 =======
     this.version = "1.0.10";
 >>>>>>> add querystring parse to npm module
+=======
+    this.version = "1.0.11";
+>>>>>>> rebase with production branch
   };
 
   // Library information class
@@ -20127,6 +20135,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     this.version = "1.0.10";
 =======
     this.version = "1.0.8";
@@ -20137,6 +20146,9 @@
 =======
     this.version = "1.0.10";
 >>>>>>> add querystring parse to npm module
+=======
+    this.version = "1.0.11";
+>>>>>>> rebase with production branch
   }; // Operating System information class
 
 
