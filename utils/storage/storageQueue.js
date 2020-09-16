@@ -9,7 +9,7 @@ const defaults = {
 class StorageQueue {
     constructor() {
         this.storage = Store;
-        this.maxItems = 3;
+        this.maxItems = 10;
     }
 
     getQueue(){
