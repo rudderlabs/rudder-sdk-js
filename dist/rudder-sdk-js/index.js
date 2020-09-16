@@ -2488,6 +2488,7 @@
       this.optimizeContainerId = config.optimize || "";
       this.resetCustomDimensionsOnPage = config.resetCustomDimensionsOnPage || [];
       this.enhancedEcommerceLoaded = 0;
+      this.namedTracker = config.namedTracker || false;
       this.name = "GA";
       this.eventWithCategoryFieldProductScoped = ["product clicked", "product added", "product viewed", "product removed"];
     }
@@ -2543,32 +2544,40 @@
           sampleRate: this.sampleRate,
           allowLinker: true,
           useAmpClientId: this.useGoogleAmpClientId
-        };
+        }; // set tracker name to rudderGATracker if on
+
+        if (this.namedTracker) {
+          config.name = "rudderGATracker";
+          this.trackerName = "rudderGATracker.";
+        } else {
+          this.trackerName = "";
+        }
+
         window.ga("create", this.trackingID, config);
 
         if (this.optimizeContainerId) {
-          window.ga("require", this.optimizeContainerId);
+          window.ga("".concat(this.trackerName, "require"), this.optimizeContainerId);
         } // ecommerce is required
 
 
         if (!this.ecommerce) {
-          window.ga("require", "ecommerce");
+          window.ga("".concat(this.trackerName, "require"), "ecommerce");
           this.ecommerce = true;
         } // this is to display advertising
 
 
         if (this.doubleClick) {
-          window.ga("require", "displayfeatures");
+          window.ga("".concat(this.trackerName, "require"), "displayfeatures");
         } // https://support.google.com/analytics/answer/2558867?hl=en
 
 
         if (this.enhancedLinkAttribution) {
-          window.ga("require", "linkid");
+          window.ga("".concat(this.trackerName, "require"), "linkid");
         } // a warning is in ga debugger if anonymize is false after initialization
 
 
         if (this.anonymizeIp) {
-          window.ga("set", "anonymizeIp", true);
+          window.ga("".concat(this.trackerName, "set"), "anonymizeIp", true);
         }
 
         logger.debug("===in init GA===");
@@ -2578,14 +2587,14 @@
       value: function identify(rudderElement) {
         // send global id
         if (this.sendUserId && rudderElement.message.userId) {
-          window.ga("set", "userId", rudderElement.message.userId);
+          window.ga("".concat(this.trackerName, "set"), "userId", rudderElement.message.userId);
         } // custom dimensions and metrics
 
 
         var custom = this.metricsFunction(rudderElement.message.context.traits, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray);
 
         if (Object.keys(custom).length) {
-          window.ga("set", custom);
+          window.ga("".concat(this.trackerName, "set"), custom);
         }
 
         logger.debug("in GoogleAnalyticsManager identify");
@@ -2593,6 +2602,8 @@
     }, {
       key: "track",
       value: function track(rudderElement) {
+        var _this2 = this;
+
         var self = this; // Ecommerce events
 
         var _rudderElement$messag = rudderElement.message,
@@ -2623,7 +2634,7 @@
           } // add transaction
 
 
-          window.ga("ecommerce:addTransaction", {
+          window.ga("".concat(this.trackerName, "ecommerce:addTransaction"), {
             affiliation: properties.affiliation,
             shipping: properties.shipping,
             revenue: total,
@@ -2634,7 +2645,7 @@
 
           products.forEach(function (product) {
             var productTrack = self.createProductTrack(rudderElement, product);
-            window.ga("ecommerce:addItem", {
+            window.ga("".concat(_this2.trackerName, "ecommerce:addItem"), {
               category: productTrack.properties.category,
               quantity: productTrack.properties.quantity,
               price: productTrack.properties.price,
@@ -2644,7 +2655,7 @@
               currency: productTrack.properties.currency
             });
           });
-          window.ga("ecommerce:send");
+          window.ga("".concat(this.trackerName, "ecommerce:send"));
         } // enhanced ecommerce events
         else if (this.enhancedEcommerce) {
             switch (event) {
@@ -2659,7 +2670,7 @@
                   };
                   self.enhancedEcommerceTrackProduct(productTrack);
                 });
-                window.ga("ec:setAction", "checkout", {
+                window.ga("".concat(this.trackerName, "ec:setAction"), "checkout", {
                   step: properties.step || 1,
                   option: options || undefined
                 });
@@ -2677,8 +2688,8 @@
                   option: options || undefined
                 };
                 this.loadEnhancedEcommerce(rudderElement);
-                window.ga("ec:setAction", "checkout_option", params);
-                window.ga("send", "event", "Checkout", "Option");
+                window.ga("".concat(this.trackerName, "ec:setAction"), "checkout_option", params);
+                window.ga("".concat(this.trackerName, "send"), "event", "Checkout", "Option");
                 break;
 
               case "Order Completed":
@@ -2697,7 +2708,7 @@
                   };
                   self.enhancedEcommerceTrackProduct(productTrack);
                 });
-                window.ga("ec:setAction", "purchase", {
+                window.ga("".concat(this.trackerName, "ec:setAction"), "purchase", {
                   id: orderId,
                   affiliation: props.affiliation,
                   revenue: total,
@@ -2719,12 +2730,12 @@
                   var track = {
                     properties: product
                   };
-                  window.ga("ec:addProduct", {
+                  window.ga("".concat(_this2.trackerName, "ec:addProduct"), {
                     id: track.properties.product_id || track.properties.id || track.properties.sku,
                     quantity: track.properties.quantity
                   });
                 });
-                window.ga("ec:setAction", "refund", {
+                window.ga("".concat(this.trackerName, "ec:setAction"), "refund", {
                   id: orderId
                 });
                 this.pushEnhancedEcommerce(rudderElement);
@@ -2758,7 +2769,7 @@
 
               case "Promotion Viewed":
                 this.loadEnhancedEcommerce(rudderElement);
-                window.ga("ec:addPromo", {
+                window.ga("".concat(this.trackerName, "ec:addPromo"), {
                   id: props.promotion_id || props.id,
                   name: props.name,
                   creative: props.creative,
@@ -2769,13 +2780,13 @@
 
               case "Promotion Clicked":
                 this.loadEnhancedEcommerce(rudderElement);
-                window.ga("ec:addPromo", {
+                window.ga("".concat(this.trackerName, "ec:addPromo"), {
                   id: props.promotion_id || props.id,
                   name: props.name,
                   creative: props.creative,
                   position: props.position
                 });
-                window.ga("ec:setAction", "promo_click", {});
+                window.ga("".concat(this.trackerName, "ec:setAction"), "promo_click", {});
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
@@ -2805,14 +2816,14 @@
                   Object.keys(impressionObj).forEach(function (key) {
                     if (impressionObj[key] === undefined) delete impressionObj[key];
                   });
-                  window.ga("ec:addImpression", impressionObj);
+                  window.ga("".concat(_this2.trackerName, "ec:addImpression"), impressionObj);
                 });
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Product List Filtered":
                 props.filters = props.filters || [];
-                props.sorters = props.sorters || [];
+                props.sorts = props.sorts || [];
                 filters = props.filters.map(function (obj) {
                   return "".concat(obj.type, ":").concat(obj.value);
                 }).join();
@@ -2846,7 +2857,7 @@
                   Object.keys(impressionObj).forEach(function (key) {
                     if (impressionObj[key] === undefined) delete impressionObj[key];
                   });
-                  window.ga("ec:addImpression", impressionObj);
+                  window.ga("".concat(_this2.trackerName, "ec:addImpression"), impressionObj);
                 });
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
@@ -2876,7 +2887,7 @@
                 payload = _objectSpread2({
                   payload: payload
                 }, this.setCustomDimenionsAndMetrics(rudderElement.message.properties));
-                window.ga("send", "event", payload.payload);
+                window.ga("".concat(this.trackerName, "send"), "event", payload.payload);
                 logger.debug("in GoogleAnalyticsManager track");
             }
           } else {
@@ -2904,7 +2915,7 @@
             payload = _objectSpread2({
               payload: payload
             }, this.setCustomDimenionsAndMetrics(rudderElement.message.properties));
-            window.ga("send", "event", payload.payload);
+            window.ga("".concat(this.trackerName, "send"), "event", payload.payload);
             logger.debug("in GoogleAnalyticsManager track");
           }
       }
@@ -2952,7 +2963,7 @@
           }
         }
 
-        window.ga("set", resetCustomDimensions); // adds more properties to pageview which will be sent
+        window.ga("".concat(this.trackerName, "set"), resetCustomDimensions); // adds more properties to pageview which will be sent
 
         pageview = _objectSpread2(_objectSpread2({}, pageview), this.setCustomDimenionsAndMetrics(eventProperties));
         var payload = {
@@ -2962,9 +2973,9 @@
         logger.debug(pageReferrer);
         logger.debug(document.referrer);
         if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
-        window.ga("set", payload);
+        window.ga("".concat(this.trackerName, "set"), payload);
         if (this.pageCalled) delete pageview.location;
-        window.ga("send", "pageview", pageview); // categorized pages
+        window.ga("".concat(this.trackerName, "send"), "pageview", pageview); // categorized pages
 
         if (category && this.trackCategorizedPages) {
           this.track(rudderElement, {
@@ -3044,7 +3055,7 @@
 
         if (Object.keys(custom).length) {
           if (this.setAllMappedProps) {
-            window.ga("set", custom);
+            window.ga("".concat(this.trackerName, "set"), custom);
           } else {
             Object.keys(custom).forEach(function (key) {
               ret[key] = custom[key];
@@ -3101,11 +3112,11 @@
       key: "loadEnhancedEcommerce",
       value: function loadEnhancedEcommerce(rudderElement) {
         if (this.enhancedEcommerceLoaded === 0) {
-          window.ga("require", "ec");
+          window.ga("".concat(this.trackerName, "require"), "ec");
           this.enhancedEcommerceLoaded = 1;
         }
 
-        window.ga("set", "&cu", rudderElement.message.properties.currency);
+        window.ga("".concat(this.trackerName, "set"), "&cu", rudderElement.message.properties.currency);
       }
       /**
        * helper class to not repeat `ec:addProduct`
@@ -3135,7 +3146,7 @@
         var coupon = props.coupon;
         if (coupon) product.coupon = coupon;
         product = _objectSpread2(_objectSpread2({}, product), this.metricsFunction(props, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray));
-        window.ga("ec:addProduct", product);
+        window.ga("".concat(this.trackerName, "ec:addProduct"), product);
       }
       /**
        * set action with data
@@ -3149,7 +3160,7 @@
       key: "enhancedEcommerceTrackProductAction",
       value: function enhancedEcommerceTrackProductAction(rudderElement, action, data) {
         this.enhancedEcommerceTrackProduct(rudderElement);
-        window.ga("ec:setAction", action, data || {});
+        window.ga("".concat(this.trackerName, "ec:setAction"), action, data || {});
       }
       /**
        * @param  {} rudderElement
