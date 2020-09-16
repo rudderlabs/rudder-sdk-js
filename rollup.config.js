@@ -16,6 +16,7 @@ import * as npmPackage from "./dist/rudder-sdk-js/package.json";
 let distFileName = "";
 let { version } = webPackage;
 let moduleType = "web";
+let inputFileName = "analytics.js";
 switch (process.env.ENV) {
   case "prod":
     switch (process.env.ENC) {
@@ -45,6 +46,7 @@ switch (process.env.ENV) {
   default:
     switch (process.env.TRANSPORT) {
       case "beacon":
+        inputFileName = "analyticsBeacon.js"
         distFileName = "dist/browser_beacon.js"
         break;
       default:
@@ -75,7 +77,7 @@ if (process.env.NPM == "true") {
 }
 
 export default {
-  input: "analytics.js",
+  input: inputFileName,
   external: ["Xmlhttprequest", "universal-analytics"],
   output: outputFiles,
   plugins: [

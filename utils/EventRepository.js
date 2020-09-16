@@ -1,17 +1,4 @@
-<<<<<<< HEAD
 import Queue from "@segment/localstorage-retry";
-=======
-/* eslint-disable eqeqeq */
-/* eslint-disable import/prefer-default-export */
-/* eslint-disable import/no-mutable-exports */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable guard-for-in */
-/* eslint-disable consistent-return */
-/* eslint-disable func-names */
-/* eslint-disable no-use-before-define */
-/* eslint-disable no-param-reassign */
-//import Queue from "@segment/localstorage-retry";
->>>>>>> 3dc6637... added conditional build config for beacon and xhr
 import {
   BASE_URL,
   FLUSH_QUEUE_SIZE,
@@ -32,9 +19,6 @@ let btoaNode;
 if (!process.browser) {
   btoaNode = require("btoa");
 }
-import storageQueue from "./storage/storageQueue";
-//import storageQueue from "./storage/storageQueue";
-import {default as Queue} from "./EventQueue";
 
 const queueOptions = {
   maxRetryDelay: 360000,
@@ -63,58 +47,33 @@ class EventRepository {
     this.url = "";
     this.state = "READY";
     this.batchSize = 0;
-    this.transport = "xhr";
 
     // previous implementation
     // setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
 
-    if (process.transport.beacon) {
-      this.storageQueue = Queue;
-    } else {
-      this.payloadQueue = new Queue("rudder", queueOptions, function (
-        item,
-        done
-      ) {
-        // apply sentAt at flush time and reset on each retry
-        item.message.sentAt = getCurrentTimeFormatted();
-        // send this item for processing, with a callback to enable queue to get the done status
-  
-        item.message = validatePayload(item.message);
-        if (item.message === undefined) {
-          logger.debug("dropping invalid event");
-          return;
-        }
-        eventRepository.processQueueElement(
-          item.url,
-          item.headers,
-          item.message,
-          10 * 1000,
-          function (err, res) {
-            if (err) {
-              return done(err);
-            }
-            done(null, res);
+    this.payloadQueue = new Queue("rudder", queueOptions, function (
+      item,
+      done
+    ) {
+      // apply sentAt at flush time and reset on each retry
+      item.message.sentAt = getCurrentTimeFormatted();
+      // send this item for processing, with a callback to enable queue to get the done status
+      eventRepository.processQueueElement(
+        item.url,
+        item.headers,
+        item.message,
+        10 * 1000,
+        function (err, res) {
+          if (err) {
+            return done(err);
           }
-        );
-      });
-  
-      // start queue
-      this.payloadQueue.start();
-    }
-  }
+          done(null, res);
+        }
+      );
+    });
 
-  sendQueueDataForBeacon(){
-    const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
-    const targetUrl = `${url}/beacon/v1/batch`;
-    this.storageQueue.sendDataFromQueue(this.writeKey, targetUrl)
-  }
-
-  initializeTransportMechanism() {
-    if(process.transport.beacon){
-      this.transport = "beacon";
-      var sendQueueData = this.sendQueueDataForBeacon.bind(this);
-      window.addEventListener("unload", sendQueueData);
-    }
+    // start queue
+    this.payloadQueue.start();
   }
 
   /**
@@ -263,35 +222,11 @@ class EventRepository {
     // modify the url for event specific endpoints
     const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
     // add items to the queue
-    /* this.payloadQueue.addItem({
+    this.payloadQueue.addItem({
       url: `${url}/v1/${type}`,
       headers,
       message,
-    }); */
-    if (process.transport.beacon) {
-      const targetUrl = `${url}/beacon/v1/batch`;
-      this.sendWithBeacon(targetUrl, headers, message, this.writeKey);
-    } else {
-      this.payloadQueue.addItem({
-        url: `${url}/v1/${type}`,
-        headers,
-        message,
-      });
-    }
-    
-    /* if(this.transport === "beacon"){
-      this.sendWithBeacon(url, headers, message);
-    } else {
-      this.payloadQueue.addItem({
-        url: `${url}/v1/${type}`,
-        headers,
-        message,
-      });
-    } */
-  }
-
-  sendWithBeacon(url, headers, message, writeKey){
-    this.storageQueue.enqueue(url, headers, message, writeKey)
+    });
   }
 }
 let eventRepository = new EventRepository();

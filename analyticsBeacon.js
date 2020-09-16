@@ -31,7 +31,7 @@ import {
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
-import { EventRepository } from "./utils/EventRepository";
+import { EventRepositoryBeacon } from "./utils/EventRepositoryBeacon";
 import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
@@ -50,7 +50,7 @@ const queryDefaults = {
  */
 function enqueue(rudderElement, type) {
   if (!this.eventRepository) {
-    this.eventRepository = EventRepository;
+    this.eventRepository = EventRepositoryBeacon;
   }
   this.eventRepository.enqueue(rudderElement, type);
 }
@@ -78,7 +78,7 @@ class Analytics {
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
     this.storage = Storage;
-    this.eventRepository = EventRepository;
+    this.eventRepository = EventRepositoryBeacon;
     this.sendAdblockPage = false;
     this.sendAdblockPageOptions = {};
     this.clientSuppliedCallbacks = {};
@@ -892,7 +892,7 @@ class Analytics {
       this.eventRepository.url = serverUrl;
     }
     this.initializeUser();
-    //this.eventRepository.initializeTransportMechanism();
+    this.eventRepository.initializeTransportMechanism();
     this.loaded = true;
     if (
       options &&
