@@ -46,11 +46,13 @@ class StorageQueue {
 
     sendDataFromQueue(writekey, url){
         var queue = this.getQueue();
-        var batch = queue.slice(0, queue.length);
-        var data = {batch: batch};
-        var dataToSend = JSON.stringify(data, replacer);
-        var headers = {};
-        this.flushQueue(headers, dataToSend, url, writekey);
+        if(queue && queue.length > 0){
+            var batch = queue.slice(0, queue.length);
+            var data = {batch: batch};
+            var dataToSend = JSON.stringify(data, replacer);
+            var headers = {};
+            this.flushQueue(headers, dataToSend, url, writekey);
+        }
         
     }
 
