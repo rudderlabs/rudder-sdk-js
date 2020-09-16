@@ -737,7 +737,7 @@
     PRODUCT_REVIEWED: "Product Reviewed"
   }; // Enumeration for integrations supported
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.10";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.11";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -12843,7 +12843,7 @@
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.10";
+    this.version = "1.0.11";
   };
 
   // Library information class
@@ -12851,7 +12851,7 @@
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.10";
+    this.version = "1.0.11";
   }; // Operating System information class
 
 
