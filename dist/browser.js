@@ -105,7 +105,7 @@ var rudderanalytics = (function (exports) {
     if (typeof o === "string") return _arrayLikeToArray(o, minLen);
     var n = Object.prototype.toString.call(o).slice(8, -1);
     if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(n);
+    if (n === "Map" || n === "Set") return Array.from(o);
     if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
   }
 
@@ -128,209 +128,451 @@ var rudderanalytics = (function (exports) {
   }
 
   var componentEmitter = createCommonjsModule(function (module) {
-  /**
-   * Expose `Emitter`.
-   */
-
-  {
-    module.exports = Emitter;
-  }
-
-  /**
-   * Initialize a new `Emitter`.
-   *
-   * @api public
-   */
-
-  function Emitter(obj) {
-    if (obj) return mixin(obj);
-  }
-  /**
-   * Mixin the emitter properties.
-   *
-   * @param {Object} obj
-   * @return {Object}
-   * @api private
-   */
-
-  function mixin(obj) {
-    for (var key in Emitter.prototype) {
-      obj[key] = Emitter.prototype[key];
+    /**
+     * Expose `Emitter`.
+     */
+    {
+      module.exports = Emitter;
     }
-    return obj;
-  }
+    /**
+     * Initialize a new `Emitter`.
+     *
+     * @api public
+     */
 
-  /**
-   * Listen on the given `event` with `fn`.
-   *
-   * @param {String} event
-   * @param {Function} fn
-   * @return {Emitter}
-   * @api public
-   */
 
-  Emitter.prototype.on =
-  Emitter.prototype.addEventListener = function(event, fn){
-    this._callbacks = this._callbacks || {};
-    (this._callbacks['$' + event] = this._callbacks['$' + event] || [])
-      .push(fn);
-    return this;
-  };
-
-  /**
-   * Adds an `event` listener that will be invoked a single
-   * time then automatically removed.
-   *
-   * @param {String} event
-   * @param {Function} fn
-   * @return {Emitter}
-   * @api public
-   */
-
-  Emitter.prototype.once = function(event, fn){
-    function on() {
-      this.off(event, on);
-      fn.apply(this, arguments);
+    function Emitter(obj) {
+      if (obj) return mixin(obj);
     }
+    /**
+     * Mixin the emitter properties.
+     *
+     * @param {Object} obj
+     * @return {Object}
+     * @api private
+     */
 
-    on.fn = fn;
-    this.on(event, on);
-    return this;
-  };
-
-  /**
-   * Remove the given callback for `event` or all
-   * registered callbacks.
-   *
-   * @param {String} event
-   * @param {Function} fn
-   * @return {Emitter}
-   * @api public
-   */
-
-  Emitter.prototype.off =
-  Emitter.prototype.removeListener =
-  Emitter.prototype.removeAllListeners =
-  Emitter.prototype.removeEventListener = function(event, fn){
-    this._callbacks = this._callbacks || {};
-
-    // all
-    if (0 == arguments.length) {
-      this._callbacks = {};
-      return this;
-    }
-
-    // specific event
-    var callbacks = this._callbacks['$' + event];
-    if (!callbacks) return this;
-
-    // remove all handlers
-    if (1 == arguments.length) {
-      delete this._callbacks['$' + event];
-      return this;
-    }
-
-    // remove specific handler
-    var cb;
-    for (var i = 0; i < callbacks.length; i++) {
-      cb = callbacks[i];
-      if (cb === fn || cb.fn === fn) {
-        callbacks.splice(i, 1);
-        break;
+    function mixin(obj) {
+      for (var key in Emitter.prototype) {
+        obj[key] = Emitter.prototype[key];
       }
+
+      return obj;
     }
+    /**
+     * Listen on the given `event` with `fn`.
+     *
+     * @param {String} event
+     * @param {Function} fn
+     * @return {Emitter}
+     * @api public
+     */
 
-    // Remove event specific arrays for event types that no
-    // one is subscribed for to avoid memory leak.
-    if (callbacks.length === 0) {
-      delete this._callbacks['$' + event];
-    }
 
-    return this;
-  };
+    Emitter.prototype.on = Emitter.prototype.addEventListener = function (event, fn) {
+      this._callbacks = this._callbacks || {};
+      (this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn);
+      return this;
+    };
+    /**
+     * Adds an `event` listener that will be invoked a single
+     * time then automatically removed.
+     *
+     * @param {String} event
+     * @param {Function} fn
+     * @return {Emitter}
+     * @api public
+     */
 
-  /**
-   * Emit `event` with the given args.
-   *
-   * @param {String} event
-   * @param {Mixed} ...
-   * @return {Emitter}
-   */
 
-  Emitter.prototype.emit = function(event){
-    this._callbacks = this._callbacks || {};
-
-    var args = new Array(arguments.length - 1)
-      , callbacks = this._callbacks['$' + event];
-
-    for (var i = 1; i < arguments.length; i++) {
-      args[i - 1] = arguments[i];
-    }
-
-    if (callbacks) {
-      callbacks = callbacks.slice(0);
-      for (var i = 0, len = callbacks.length; i < len; ++i) {
-        callbacks[i].apply(this, args);
+    Emitter.prototype.once = function (event, fn) {
+      function on() {
+        this.off(event, on);
+        fn.apply(this, arguments);
       }
-    }
 
-    return this;
-  };
+      on.fn = fn;
+      this.on(event, on);
+      return this;
+    };
+    /**
+     * Remove the given callback for `event` or all
+     * registered callbacks.
+     *
+     * @param {String} event
+     * @param {Function} fn
+     * @return {Emitter}
+     * @api public
+     */
 
-  /**
-   * Return array of callbacks for `event`.
-   *
-   * @param {String} event
-   * @return {Array}
-   * @api public
-   */
 
-  Emitter.prototype.listeners = function(event){
-    this._callbacks = this._callbacks || {};
-    return this._callbacks['$' + event] || [];
-  };
+    Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function (event, fn) {
+      this._callbacks = this._callbacks || {}; // all
 
-  /**
-   * Check if this emitter has `event` handlers.
-   *
-   * @param {String} event
-   * @return {Boolean}
-   * @api public
-   */
+      if (0 == arguments.length) {
+        this._callbacks = {};
+        return this;
+      } // specific event
 
-  Emitter.prototype.hasListeners = function(event){
-    return !! this.listeners(event).length;
-  };
+
+      var callbacks = this._callbacks['$' + event];
+      if (!callbacks) return this; // remove all handlers
+
+      if (1 == arguments.length) {
+        delete this._callbacks['$' + event];
+        return this;
+      } // remove specific handler
+
+
+      var cb;
+
+      for (var i = 0; i < callbacks.length; i++) {
+        cb = callbacks[i];
+
+        if (cb === fn || cb.fn === fn) {
+          callbacks.splice(i, 1);
+          break;
+        }
+      } // Remove event specific arrays for event types that no
+      // one is subscribed for to avoid memory leak.
+
+
+      if (callbacks.length === 0) {
+        delete this._callbacks['$' + event];
+      }
+
+      return this;
+    };
+    /**
+     * Emit `event` with the given args.
+     *
+     * @param {String} event
+     * @param {Mixed} ...
+     * @return {Emitter}
+     */
+
+
+    Emitter.prototype.emit = function (event) {
+      this._callbacks = this._callbacks || {};
+      var args = new Array(arguments.length - 1),
+          callbacks = this._callbacks['$' + event];
+
+      for (var i = 1; i < arguments.length; i++) {
+        args[i - 1] = arguments[i];
+      }
+
+      if (callbacks) {
+        callbacks = callbacks.slice(0);
+
+        for (var i = 0, len = callbacks.length; i < len; ++i) {
+          callbacks[i].apply(this, args);
+        }
+      }
+
+      return this;
+    };
+    /**
+     * Return array of callbacks for `event`.
+     *
+     * @param {String} event
+     * @return {Array}
+     * @api public
+     */
+
+
+    Emitter.prototype.listeners = function (event) {
+      this._callbacks = this._callbacks || {};
+      return this._callbacks['$' + event] || [];
+    };
+    /**
+     * Check if this emitter has `event` handlers.
+     *
+     * @param {String} event
+     * @return {Boolean}
+     * @api public
+     */
+
+
+    Emitter.prototype.hasListeners = function (event) {
+      return !!this.listeners(event).length;
+    };
   });
 
   var after_1 = after;
 
   function after(count, callback, err_cb) {
-      var bail = false;
-      err_cb = err_cb || noop;
-      proxy.count = count;
+    var bail = false;
+    err_cb = err_cb || noop;
+    proxy.count = count;
+    return count === 0 ? callback() : proxy;
 
-      return (count === 0) ? callback() : proxy
-
-      function proxy(err, result) {
-          if (proxy.count <= 0) {
-              throw new Error('after called too many times')
-          }
-          --proxy.count;
-
-          // after first error, rest are passed to err_cb
-          if (err) {
-              bail = true;
-              callback(err);
-              // future error callbacks will go to error handler
-              callback = err_cb;
-          } else if (proxy.count === 0 && !bail) {
-              callback(null, result);
-          }
+    function proxy(err, result) {
+      if (proxy.count <= 0) {
+        throw new Error('after called too many times');
       }
+
+      --proxy.count; // after first error, rest are passed to err_cb
+
+      if (err) {
+        bail = true;
+        callback(err); // future error callbacks will go to error handler
+
+        callback = err_cb;
+      } else if (proxy.count === 0 && !bail) {
+        callback(null, result);
+      }
+    }
   }
 
   function noop() {}
+
+  var trim_1 = createCommonjsModule(function (module, exports) {
+    exports = module.exports = trim;
+
+    function trim(str) {
+      return str.replace(/^\s*|\s*$/g, '');
+    }
+
+    exports.left = function (str) {
+      return str.replace(/^\s*/, '');
+    };
+
+    exports.right = function (str) {
+      return str.replace(/\s*$/, '');
+    };
+  });
+  var trim_2 = trim_1.left;
+  var trim_3 = trim_1.right;
+
+  /**
+   * toString ref.
+   */
+  var toString = Object.prototype.toString;
+  /**
+   * Return the type of `val`.
+   *
+   * @param {Mixed} val
+   * @return {String}
+   * @api public
+   */
+
+  var componentType = function componentType(val) {
+    switch (toString.call(val)) {
+      case '[object Date]':
+        return 'date';
+
+      case '[object RegExp]':
+        return 'regexp';
+
+      case '[object Arguments]':
+        return 'arguments';
+
+      case '[object Array]':
+        return 'array';
+
+      case '[object Error]':
+        return 'error';
+    }
+
+    if (val === null) return 'null';
+    if (val === undefined) return 'undefined';
+    if (val !== val) return 'nan';
+    if (val && val.nodeType === 1) return 'element';
+    val = val.valueOf ? val.valueOf() : Object.prototype.valueOf.apply(val);
+    return _typeof(val);
+  };
+
+  /**
+   * Module dependencies.
+   */
+
+  var pattern = /(\w+)\[(\d+)\]/;
+  /**
+   * Safely encode the given string
+   * 
+   * @param {String} str
+   * @return {String}
+   * @api private
+   */
+
+  var encode = function encode(str) {
+    try {
+      return encodeURIComponent(str);
+    } catch (e) {
+      return str;
+    }
+  };
+  /**
+   * Safely decode the string
+   * 
+   * @param {String} str
+   * @return {String}
+   * @api private
+   */
+
+
+  var decode = function decode(str) {
+    try {
+      return decodeURIComponent(str.replace(/\+/g, ' '));
+    } catch (e) {
+      return str;
+    }
+  };
+  /**
+   * Parse the given query `str`.
+   *
+   * @param {String} str
+   * @return {Object}
+   * @api public
+   */
+
+
+  var parse = function parse(str) {
+    if ('string' != typeof str) return {};
+    str = trim_1(str);
+    if ('' == str) return {};
+    if ('?' == str.charAt(0)) str = str.slice(1);
+    var obj = {};
+    var pairs = str.split('&');
+
+    for (var i = 0; i < pairs.length; i++) {
+      var parts = pairs[i].split('=');
+      var key = decode(parts[0]);
+      var m;
+
+      if (m = pattern.exec(key)) {
+        obj[m[1]] = obj[m[1]] || [];
+        obj[m[1]][m[2]] = decode(parts[1]);
+        continue;
+      }
+
+      obj[parts[0]] = null == parts[1] ? '' : decode(parts[1]);
+    }
+
+    return obj;
+  };
+  /**
+   * Stringify the given `obj`.
+   *
+   * @param {Object} obj
+   * @return {String}
+   * @api public
+   */
+
+
+  var stringify = function stringify(obj) {
+    if (!obj) return '';
+    var pairs = [];
+
+    for (var key in obj) {
+      var value = obj[key];
+
+      if ('array' == componentType(value)) {
+        for (var i = 0; i < value.length; ++i) {
+          pairs.push(encode(key + '[' + i + ']') + '=' + encode(value[i]));
+        }
+
+        continue;
+      }
+
+      pairs.push(encode(key) + '=' + encode(obj[key]));
+    }
+
+    return pairs.join('&');
+  };
+
+  var componentQuerystring = {
+    parse: parse,
+    stringify: stringify
+  };
+
+  var componentUrl = createCommonjsModule(function (module, exports) {
+    /**
+     * Parse the given `url`.
+     *
+     * @param {String} str
+     * @return {Object}
+     * @api public
+     */
+    exports.parse = function (url) {
+      var a = document.createElement('a');
+      a.href = url;
+      return {
+        href: a.href,
+        host: a.host || location.host,
+        port: '0' === a.port || '' === a.port ? port(a.protocol) : a.port,
+        hash: a.hash,
+        hostname: a.hostname || location.hostname,
+        pathname: a.pathname.charAt(0) != '/' ? '/' + a.pathname : a.pathname,
+        protocol: !a.protocol || ':' == a.protocol ? location.protocol : a.protocol,
+        search: a.search,
+        query: a.search.slice(1)
+      };
+    };
+    /**
+     * Check if `url` is absolute.
+     *
+     * @param {String} url
+     * @return {Boolean}
+     * @api public
+     */
+
+
+    exports.isAbsolute = function (url) {
+      return 0 == url.indexOf('//') || !!~url.indexOf('://');
+    };
+    /**
+     * Check if `url` is relative.
+     *
+     * @param {String} url
+     * @return {Boolean}
+     * @api public
+     */
+
+
+    exports.isRelative = function (url) {
+      return !exports.isAbsolute(url);
+    };
+    /**
+     * Check if `url` is cross domain.
+     *
+     * @param {String} url
+     * @return {Boolean}
+     * @api public
+     */
+
+
+    exports.isCrossDomain = function (url) {
+      url = exports.parse(url);
+      var location = exports.parse(window.location.href);
+      return url.hostname !== location.hostname || url.port !== location.port || url.protocol !== location.protocol;
+    };
+    /**
+     * Return default port for `protocol`.
+     *
+     * @param  {String} protocol
+     * @return {String}
+     * @api private
+     */
+
+
+    function port(protocol) {
+      switch (protocol) {
+        case 'http:':
+          return 80;
+
+        case 'https:':
+          return 443;
+
+        default:
+          return location.port;
+      }
+    }
+  });
+  var componentUrl_1 = componentUrl.parse;
+  var componentUrl_2 = componentUrl.isAbsolute;
+  var componentUrl_3 = componentUrl.isRelative;
+  var componentUrl_4 = componentUrl.isCrossDomain;
 
   var LOG_LEVEL_INFO = 1;
   var LOG_LEVEL_DEBUG = 2;
@@ -356,28 +598,28 @@ var rudderanalytics = (function (exports) {
       if (LOG_LEVEL <= LOG_LEVEL_INFO) {
         var _console;
 
-        (_console = console).info.apply(_console, arguments);
+        (_console = console).log.apply(_console, arguments);
       }
     },
     debug: function debug() {
       if (LOG_LEVEL <= LOG_LEVEL_DEBUG) {
         var _console2;
 
-        (_console2 = console).debug.apply(_console2, arguments);
+        (_console2 = console).log.apply(_console2, arguments);
       }
     },
     warn: function warn() {
       if (LOG_LEVEL <= LOG_LEVEL_WARN) {
         var _console3;
 
-        (_console3 = console).warn.apply(_console3, arguments);
+        (_console3 = console).log.apply(_console3, arguments);
       }
     },
     error: function error() {
       if (LOG_LEVEL <= LOG_LEVEL_ERROR) {
         var _console4;
 
-        (_console4 = console).error.apply(_console4, arguments);
+        (_console4 = console).log.apply(_console4, arguments);
       }
     }
   };
@@ -420,7 +662,14 @@ var rudderanalytics = (function (exports) {
     Lotame: "LOTAME",
     LOTAME: "LOTAME",
     "Visual Website Optimizer": "VWO",
-    VWO: "VWO"
+    VWO: "VWO",
+    OPTIMIZELY: "OPTIMIZELY",
+    Optimizely: "OPTIMIZELY",
+    FULLSTORY: "FULLSTORY",
+    Fullstory: "FULLSTORY",
+    BUGSNAG: "BUGSNAG",
+    TVSQUARED: "TVSQUARED",
+    LYTICS: "LYTICS"
   };
 
   // from client native integration name to server identified display name
@@ -441,8 +690,64 @@ var rudderanalytics = (function (exports) {
     KEEN: "Keen",
     KISSMETRICS: "Kiss Metrics",
     LOTAME: "Lotame",
-    VWO: "VWO"
+    VWO: "VWO",
+    OPTIMIZELY: "Optimizely",
+    FULLSTORY: "Fullstory",
+    TVSQUUARED: "TVSquared",
+    LYTICS: "Lytics"
   };
+
+  // Message Type enumeration
+  var MessageType = {
+    TRACK: "track",
+    PAGE: "page",
+    // SCREEN: "screen",
+    IDENTIFY: "identify"
+  }; // ECommerce Parameter Names Enumeration
+
+  var ECommerceEvents = {
+    PRODUCTS_SEARCHED: "Products Searched",
+    PRODUCT_LIST_VIEWED: "Product List Viewed",
+    PRODUCT_LIST_FILTERED: "Product List Filtered",
+    PROMOTION_VIEWED: "Promotion Viewed",
+    PROMOTION_CLICKED: "Promotion Clicked",
+    PRODUCT_CLICKED: "Product Clicked",
+    PRODUCT_VIEWED: "Product Viewed",
+    PRODUCT_ADDED: "Product Added",
+    PRODUCT_REMOVED: "Product Removed",
+    CART_VIEWED: "Cart Viewed",
+    CHECKOUT_STARTED: "Checkout Started",
+    CHECKOUT_STEP_VIEWED: "Checkout Step Viewed",
+    CHECKOUT_STEP_COMPLETED: "Checkout Step Completed",
+    PAYMENT_INFO_ENTERED: "Payment Info Entered",
+    ORDER_UPDATED: "Order Updated",
+    ORDER_COMPLETED: "Order Completed",
+    ORDER_REFUNDED: "Order Refunded",
+    ORDER_CANCELLED: "Order Cancelled",
+    COUPON_ENTERED: "Coupon Entered",
+    COUPON_APPLIED: "Coupon Applied",
+    COUPON_DENIED: "Coupon Denied",
+    COUPON_REMOVED: "Coupon Removed",
+    PRODUCT_ADDED_TO_WISHLIST: "Product Added to Wishlist",
+    PRODUCT_REMOVED_FROM_WISHLIST: "Product Removed from Wishlist",
+    WISH_LIST_PRODUCT_ADDED_TO_CART: "Wishlist Product Added to Cart",
+    PRODUCT_SHARED: "Product Shared",
+    CART_SHARED: "Cart Shared",
+    PRODUCT_REVIEWED: "Product Reviewed"
+  }; // Enumeration for integrations supported
+
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=1.1.5";
+  var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
+  var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
+  /* module.exports = {
+    MessageType: MessageType,
+    ECommerceParamNames: ECommerceParamNames,
+    ECommerceEvents: ECommerceEvents,
+    RudderIntegrationPlatform: RudderIntegrationPlatform,
+    BASE_URL: BASE_URL,
+    CONFIG_URL: CONFIG_URL,
+    FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
+  }; */
 
   /**
    *
@@ -451,7 +756,6 @@ var rudderanalytics = (function (exports) {
    * @param {*} value
    * @returns
    */
-
 
   function replacer(key, value) {
     if (value === null || value === undefined) {
@@ -513,22 +817,12 @@ var rudderanalytics = (function (exports) {
   function getJSONTrimmed(context, url, writeKey, callback) {
     // server-side integration, XHR is node module
     var cb_ = callback.bind(context);
-
-    if (true) {
-      var xhr = new XMLHttpRequest();
-    } else {
-      var xhr;
-    }
-
+    var xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
-
-    {
-      xhr.setRequestHeader("Authorization", "Basic ".concat(btoa("".concat(writeKey, ":"))));
-    }
+    xhr.setRequestHeader("Authorization", "Basic ".concat(btoa("".concat(writeKey, ":"))));
 
     xhr.onload = function () {
-      var _xhr2 = xhr,
-          status = _xhr2.status;
+      var status = xhr.status;
 
       if (status == 200) {
         logger.debug("status 200 " + "calling callback");
@@ -571,7 +865,7 @@ var rudderanalytics = (function (exports) {
 
   function getDefaultPageProperties() {
     var canonicalUrl = getCanonicalUrl();
-    var path = canonicalUrl ? canonicalUrl.pathname : window.location.pathname;
+    var path = canonicalUrl ? componentUrl_1(canonicalUrl).pathname : window.location.pathname;
     var _document = document,
         referrer = _document.referrer;
     var search = window.location.search;
@@ -800,7 +1094,7 @@ var rudderanalytics = (function (exports) {
 
 
   function type(val) {
-    switch (toString.call(val)) {
+    switch (Object.prototype.toString.call(val)) {
       case "[object Function]":
         return "function";
 
@@ -823,59 +1117,26 @@ var rudderanalytics = (function (exports) {
     return _typeof(val);
   }
 
-  var version = "1.1.2";
+  function getUserProvidedConfigUrl(configUrl) {
+    var url = configUrl;
 
-  var MessageType = {
-    TRACK: "track",
-    PAGE: "page",
-    // SCREEN: "screen",
-    IDENTIFY: "identify"
-  }; // ECommerce Parameter Names Enumeration
+    if (configUrl.indexOf("sourceConfig") == -1) {
+      url = url.slice(-1) == "/" ? url.slice(0, -1) : url;
+      url = "".concat(url, "/sourceConfig/");
+    }
 
-  var ECommerceEvents = {
-    PRODUCTS_SEARCHED: "Products Searched",
-    PRODUCT_LIST_VIEWED: "Product List Viewed",
-    PRODUCT_LIST_FILTERED: "Product List Filtered",
-    PROMOTION_VIEWED: "Promotion Viewed",
-    PROMOTION_CLICKED: "Promotion Clicked",
-    PRODUCT_CLICKED: "Product Clicked",
-    PRODUCT_VIEWED: "Product Viewed",
-    PRODUCT_ADDED: "Product Added",
-    PRODUCT_REMOVED: "Product Removed",
-    CART_VIEWED: "Cart Viewed",
-    CHECKOUT_STARTED: "Checkout Started",
-    CHECKOUT_STEP_VIEWED: "Checkout Step Viewed",
-    CHECKOUT_STEP_COMPLETED: "Checkout Step Completed",
-    PAYMENT_INFO_ENTERED: "Payment Info Entered",
-    ORDER_UPDATED: "Order Updated",
-    ORDER_COMPLETED: "Order Completed",
-    ORDER_REFUNDED: "Order Refunded",
-    ORDER_CANCELLED: "Order Cancelled",
-    COUPON_ENTERED: "Coupon Entered",
-    COUPON_APPLIED: "Coupon Applied",
-    COUPON_DENIED: "Coupon Denied",
-    COUPON_REMOVED: "Coupon Removed",
-    PRODUCT_ADDED_TO_WISHLIST: "Product Added to Wishlist",
-    PRODUCT_REMOVED_FROM_WISHLIST: "Product Removed from Wishlist",
-    WISH_LIST_PRODUCT_ADDED_TO_CART: "Wishlist Product Added to Cart",
-    PRODUCT_SHARED: "Product Shared",
-    CART_SHARED: "Cart Shared",
-    PRODUCT_REVIEWED: "Product Reviewed"
-  }; // Enumeration for integrations supported
-  var BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
+    url = url.slice(-1) == "/" ? url : "".concat(url, "/");
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=web&v=".concat(version);
-  var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
-  var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
-  /* module.exports = {
-    MessageType: MessageType,
-    ECommerceParamNames: ECommerceParamNames,
-    ECommerceEvents: ECommerceEvents,
-    RudderIntegrationPlatform: RudderIntegrationPlatform,
-    BASE_URL: BASE_URL,
-    CONFIG_URL: CONFIG_URL,
-    FLUSH_QUEUE_SIZE: FLUSH_QUEUE_SIZE
-  }; */
+    if (url.indexOf("?") > -1) {
+      if (url.split("?")[1] !== CONFIG_URL.split("?")[1]) {
+        url = "".concat(url.split("?")[0], "?").concat(CONFIG_URL.split("?")[1]);
+      }
+    } else {
+      url = "".concat(url, "?").concat(CONFIG_URL.split("?")[1]);
+    }
+
+    return url;
+  }
 
   var ScriptLoader = function ScriptLoader(id, src) {
     logger.debug("in script loader=== ".concat(id));
@@ -916,7 +1177,7 @@ var rudderanalytics = (function (exports) {
           if (!!Object.getOwnPropertyDescriptor(traits, k) && traits[k]) {
             var hubspotkey = k; // k.startsWith("rl_") ? k.substring(3, k.length) : k;
 
-            if (toString.call(traits[k]) == "[object Date]") {
+            if (Object.prototype.toString.call(traits[k]) == "[object Date]") {
               traitsValue[hubspotkey] = traits[k].getTime();
             } else {
               traitsValue[hubspotkey] = traits[k];
@@ -1009,45 +1270,38 @@ var rudderanalytics = (function (exports) {
   var index =  HubSpot ;
 
   /* globals window, HTMLElement */
-
-  /**!
-   * is
-   * the definitive JavaScript type testing library
-   *
-   * @copyright 2013-2014 Enrico Marino / Jordan Harband
-   * @license MIT
-   */
-
   var objProto = Object.prototype;
   var owns = objProto.hasOwnProperty;
   var toStr = objProto.toString;
   var symbolValueOf;
+
   if (typeof Symbol === 'function') {
     symbolValueOf = Symbol.prototype.valueOf;
   }
+
   var bigIntValueOf;
+
   if (typeof BigInt === 'function') {
     bigIntValueOf = BigInt.prototype.valueOf;
   }
-  var isActualNaN = function (value) {
+
+  var isActualNaN = function isActualNaN(value) {
     return value !== value;
   };
+
   var NON_HOST_TYPES = {
     'boolean': 1,
     number: 1,
     string: 1,
     undefined: 1
   };
-
   var base64Regex = /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$/;
   var hexRegex = /^[A-Fa-f0-9]+$/;
-
   /**
    * Expose `is`
    */
 
   var is = {};
-
   /**
    * Test general.
    */
@@ -1063,9 +1317,8 @@ var rudderanalytics = (function (exports) {
    */
 
   is.a = is.type = function (value, type) {
-    return typeof value === type;
+    return _typeof(value) === type;
   };
-
   /**
    * is.defined
    * Test if `value` is defined.
@@ -1075,10 +1328,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.defined = function (value) {
     return typeof value !== 'undefined';
   };
-
   /**
    * is.empty
    * Test if `value` is empty.
@@ -1087,6 +1340,7 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is empty, false otherwise
    * @api public
    */
+
 
   is.empty = function (value) {
     var type = toStr.call(value);
@@ -1102,12 +1356,12 @@ var rudderanalytics = (function (exports) {
           return false;
         }
       }
+
       return true;
     }
 
     return !value;
   };
-
   /**
    * is.equal
    * Test if `value` is equal to `other`.
@@ -1116,6 +1370,7 @@ var rudderanalytics = (function (exports) {
    * @param {*} other value to compare with
    * @return {Boolean} true if `value` is equal to `other`, false otherwise
    */
+
 
   is.equal = function equal(value, other) {
     if (value === other) {
@@ -1135,24 +1390,29 @@ var rudderanalytics = (function (exports) {
           return false;
         }
       }
+
       for (key in other) {
         if (!is.equal(value[key], other[key]) || !(key in value)) {
           return false;
         }
       }
+
       return true;
     }
 
     if (type === '[object Array]') {
       key = value.length;
+
       if (key !== other.length) {
         return false;
       }
+
       while (key--) {
         if (!is.equal(value[key], other[key])) {
           return false;
         }
       }
+
       return true;
     }
 
@@ -1166,7 +1426,6 @@ var rudderanalytics = (function (exports) {
 
     return false;
   };
-
   /**
    * is.hosted
    * Test if `value` is hosted by `host`.
@@ -1177,11 +1436,12 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.hosted = function (value, host) {
-    var type = typeof host[value];
+    var type = _typeof(host[value]);
+
     return type === 'object' ? !!host[value] : !NON_HOST_TYPES[type];
   };
-
   /**
    * is.instance
    * Test if `value` is an instance of `constructor`.
@@ -1191,10 +1451,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.instance = is['instanceof'] = function (value, constructor) {
     return value instanceof constructor;
   };
-
   /**
    * is.nil / is.null
    * Test if `value` is null.
@@ -1204,10 +1464,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.nil = is['null'] = function (value) {
     return value === null;
   };
-
   /**
    * is.undef / is.undefined
    * Test if `value` is undefined.
@@ -1217,10 +1477,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.undef = is.undefined = function (value) {
     return typeof value === 'undefined';
   };
-
   /**
    * Test arguments.
    */
@@ -1234,12 +1494,12 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.args = is.arguments = function (value) {
     var isStandardArguments = toStr.call(value) === '[object Arguments]';
     var isOldArguments = !is.array(value) && is.arraylike(value) && is.object(value) && is.fn(value.callee);
     return isStandardArguments || isOldArguments;
   };
-
   /**
    * Test array.
    */
@@ -1253,10 +1513,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.array = Array.isArray || function (value) {
     return toStr.call(value) === '[object Array]';
   };
-
   /**
    * is.arguments.empty
    * Test if `value` is an empty arguments object.
@@ -1265,10 +1525,11 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is an empty arguments object, false otherwise
    * @api public
    */
+
+
   is.args.empty = function (value) {
     return is.args(value) && value.length === 0;
   };
-
   /**
    * is.array.empty
    * Test if `value` is an empty array.
@@ -1277,10 +1538,11 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is an empty array, false otherwise
    * @api public
    */
+
+
   is.array.empty = function (value) {
     return is.array(value) && value.length === 0;
   };
-
   /**
    * is.arraylike
    * Test if `value` is an arraylike object.
@@ -1290,14 +1552,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.arraylike = function (value) {
-    return !!value && !is.bool(value)
-      && owns.call(value, 'length')
-      && isFinite(value.length)
-      && is.number(value.length)
-      && value.length >= 0;
-  };
 
+  is.arraylike = function (value) {
+    return !!value && !is.bool(value) && owns.call(value, 'length') && isFinite(value.length) && is.number(value.length) && value.length >= 0;
+  };
   /**
    * Test boolean.
    */
@@ -1311,10 +1569,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.bool = is['boolean'] = function (value) {
     return toStr.call(value) === '[object Boolean]';
   };
-
   /**
    * is.false
    * Test if `value` is false.
@@ -1324,10 +1582,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is['false'] = function (value) {
     return is.bool(value) && Boolean(Number(value)) === false;
   };
-
   /**
    * is.true
    * Test if `value` is true.
@@ -1337,10 +1595,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is['true'] = function (value) {
     return is.bool(value) && Boolean(Number(value)) === true;
   };
-
   /**
    * Test date.
    */
@@ -1354,10 +1612,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.date = function (value) {
     return toStr.call(value) === '[object Date]';
   };
-
   /**
    * is.date.valid
    * Test if `value` is a valid date.
@@ -1365,10 +1623,11 @@ var rudderanalytics = (function (exports) {
    * @param {*} value value to test
    * @returns {Boolean} true if `value` is a valid date, false otherwise
    */
+
+
   is.date.valid = function (value) {
     return is.date(value) && !isNaN(Number(value));
   };
-
   /**
    * Test element.
    */
@@ -1382,13 +1641,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.element = function (value) {
-    return value !== undefined
-      && typeof HTMLElement !== 'undefined'
-      && value instanceof HTMLElement
-      && value.nodeType === 1;
-  };
 
+  is.element = function (value) {
+    return value !== undefined && typeof HTMLElement !== 'undefined' && value instanceof HTMLElement && value.nodeType === 1;
+  };
   /**
    * Test error.
    */
@@ -1402,10 +1658,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.error = function (value) {
     return toStr.call(value) === '[object Error]';
   };
-
   /**
    * Test function.
    */
@@ -1419,15 +1675,17 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.fn = is['function'] = function (value) {
     var isAlert = typeof window !== 'undefined' && value === window.alert;
+
     if (isAlert) {
       return true;
     }
+
     var str = toStr.call(value);
     return str === '[object Function]' || str === '[object GeneratorFunction]' || str === '[object AsyncFunction]';
   };
-
   /**
    * Test number.
    */
@@ -1441,10 +1699,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.number = function (value) {
     return toStr.call(value) === '[object Number]';
   };
-
   /**
    * is.infinite
    * Test if `value` is positive or negative infinity.
@@ -1453,10 +1711,11 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is positive or negative Infinity, false otherwise
    * @api public
    */
+
+
   is.infinite = function (value) {
     return value === Infinity || value === -Infinity;
   };
-
   /**
    * is.decimal
    * Test if `value` is a decimal number.
@@ -1466,10 +1725,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.decimal = function (value) {
     return is.number(value) && !isActualNaN(value) && !is.infinite(value) && value % 1 !== 0;
   };
-
   /**
    * is.divisibleBy
    * Test if `value` is divisible by `n`.
@@ -1480,13 +1739,13 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.divisibleBy = function (value, n) {
     var isDividendInfinite = is.infinite(value);
     var isDivisorInfinite = is.infinite(n);
     var isNonZeroNumber = is.number(value) && !isActualNaN(value) && is.number(n) && !isActualNaN(n) && n !== 0;
-    return isDividendInfinite || isDivisorInfinite || (isNonZeroNumber && value % n === 0);
+    return isDividendInfinite || isDivisorInfinite || isNonZeroNumber && value % n === 0;
   };
-
   /**
    * is.integer
    * Test if `value` is an integer.
@@ -1496,10 +1755,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.integer = is['int'] = function (value) {
     return is.number(value) && !isActualNaN(value) && value % 1 === 0;
   };
-
   /**
    * is.maximum
    * Test if `value` is greater than 'others' values.
@@ -1510,12 +1769,14 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.maximum = function (value, others) {
     if (isActualNaN(value)) {
       throw new TypeError('NaN is not a valid value');
     } else if (!is.arraylike(others)) {
       throw new TypeError('second argument must be array-like');
     }
+
     var len = others.length;
 
     while (--len >= 0) {
@@ -1526,7 +1787,6 @@ var rudderanalytics = (function (exports) {
 
     return true;
   };
-
   /**
    * is.minimum
    * Test if `value` is less than `others` values.
@@ -1537,12 +1797,14 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.minimum = function (value, others) {
     if (isActualNaN(value)) {
       throw new TypeError('NaN is not a valid value');
     } else if (!is.arraylike(others)) {
       throw new TypeError('second argument must be array-like');
     }
+
     var len = others.length;
 
     while (--len >= 0) {
@@ -1553,7 +1815,6 @@ var rudderanalytics = (function (exports) {
 
     return true;
   };
-
   /**
    * is.nan
    * Test if `value` is not a number.
@@ -1563,10 +1824,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.nan = function (value) {
     return !is.number(value) || value !== value;
   };
-
   /**
    * is.even
    * Test if `value` is an even number.
@@ -1576,10 +1837,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.even = function (value) {
-    return is.infinite(value) || (is.number(value) && value === value && value % 2 === 0);
-  };
 
+  is.even = function (value) {
+    return is.infinite(value) || is.number(value) && value === value && value % 2 === 0;
+  };
   /**
    * is.odd
    * Test if `value` is an odd number.
@@ -1589,10 +1850,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.odd = function (value) {
-    return is.infinite(value) || (is.number(value) && value === value && value % 2 !== 0);
-  };
 
+  is.odd = function (value) {
+    return is.infinite(value) || is.number(value) && value === value && value % 2 !== 0;
+  };
   /**
    * is.ge
    * Test if `value` is greater than or equal to `other`.
@@ -1603,13 +1864,14 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.ge = function (value, other) {
     if (isActualNaN(value) || isActualNaN(other)) {
       throw new TypeError('NaN is not a valid value');
     }
+
     return !is.infinite(value) && !is.infinite(other) && value >= other;
   };
-
   /**
    * is.gt
    * Test if `value` is greater than `other`.
@@ -1620,13 +1882,14 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.gt = function (value, other) {
     if (isActualNaN(value) || isActualNaN(other)) {
       throw new TypeError('NaN is not a valid value');
     }
+
     return !is.infinite(value) && !is.infinite(other) && value > other;
   };
-
   /**
    * is.le
    * Test if `value` is less than or equal to `other`.
@@ -1637,13 +1900,14 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.le = function (value, other) {
     if (isActualNaN(value) || isActualNaN(other)) {
       throw new TypeError('NaN is not a valid value');
     }
+
     return !is.infinite(value) && !is.infinite(other) && value <= other;
   };
-
   /**
    * is.lt
    * Test if `value` is less than `other`.
@@ -1654,13 +1918,14 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.lt = function (value, other) {
     if (isActualNaN(value) || isActualNaN(other)) {
       throw new TypeError('NaN is not a valid value');
     }
+
     return !is.infinite(value) && !is.infinite(other) && value < other;
   };
-
   /**
    * is.within
    * Test if `value` is within `start` and `finish`.
@@ -1671,16 +1936,18 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if 'value' is is within 'start' and 'finish'
    * @api public
    */
+
+
   is.within = function (value, start, finish) {
     if (isActualNaN(value) || isActualNaN(start) || isActualNaN(finish)) {
       throw new TypeError('NaN is not a valid value');
     } else if (!is.number(value) || !is.number(start) || !is.number(finish)) {
       throw new TypeError('all arguments must be numbers');
     }
-    var isAnyInfinite = is.infinite(value) || is.infinite(start) || is.infinite(finish);
-    return isAnyInfinite || (value >= start && value <= finish);
-  };
 
+    var isAnyInfinite = is.infinite(value) || is.infinite(start) || is.infinite(finish);
+    return isAnyInfinite || value >= start && value <= finish;
+  };
   /**
    * Test object.
    */
@@ -1693,10 +1960,11 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is an object, false otherwise
    * @api public
    */
+
+
   is.object = function (value) {
     return toStr.call(value) === '[object Object]';
   };
-
   /**
    * is.primitive
    * Test if `value` is a primitive.
@@ -1705,16 +1973,19 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is a primitive, false otherwise
    * @api public
    */
+
+
   is.primitive = function isPrimitive(value) {
     if (!value) {
       return true;
     }
-    if (typeof value === 'object' || is.object(value) || is.fn(value) || is.array(value)) {
+
+    if (_typeof(value) === 'object' || is.object(value) || is.fn(value) || is.array(value)) {
       return false;
     }
+
     return true;
   };
-
   /**
    * is.hash
    * Test if `value` is a hash - a plain object literal.
@@ -1724,10 +1995,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.hash = function (value) {
     return is.object(value) && value.constructor === Object && !value.nodeType && !value.setInterval;
   };
-
   /**
    * Test regexp.
    */
@@ -1741,10 +2012,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.regexp = function (value) {
     return toStr.call(value) === '[object RegExp]';
   };
-
   /**
    * Test string.
    */
@@ -1758,10 +2029,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.string = function (value) {
     return toStr.call(value) === '[object String]';
   };
-
   /**
    * Test base64 string.
    */
@@ -1775,10 +2046,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.base64 = function (value) {
     return is.string(value) && (!value.length || base64Regex.test(value));
   };
-
   /**
    * Test base64 string.
    */
@@ -1792,10 +2063,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
+
   is.hex = function (value) {
     return is.string(value) && (!value.length || hexRegex.test(value));
   };
-
   /**
    * is.symbol
    * Test if `value` is an ES6 Symbol
@@ -1805,10 +2076,10 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  is.symbol = function (value) {
-    return typeof Symbol === 'function' && toStr.call(value) === '[object Symbol]' && typeof symbolValueOf.call(value) === 'symbol';
-  };
 
+  is.symbol = function (value) {
+    return typeof Symbol === 'function' && toStr.call(value) === '[object Symbol]' && _typeof(symbolValueOf.call(value)) === 'symbol';
+  };
   /**
    * is.bigint
    * Test if `value` is an ES-proposed BigInt
@@ -1817,6 +2088,7 @@ var rudderanalytics = (function (exports) {
    * @return {Boolean} true if `value` is a BigInt, false otherise
    * @api public
    */
+
 
   is.bigint = function (value) {
     // eslint-disable-next-line valid-typeof
@@ -1828,9 +2100,7 @@ var rudderanalytics = (function (exports) {
   /**
    * toString ref.
    */
-
   var toString$1 = Object.prototype.toString;
-
   /**
    * Return the type of `val`.
    *
@@ -1839,30 +2109,38 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentType = function(val){
+  var componentType$1 = function componentType(val) {
     switch (toString$1.call(val)) {
-      case '[object Function]': return 'function';
-      case '[object Date]': return 'date';
-      case '[object RegExp]': return 'regexp';
-      case '[object Arguments]': return 'arguments';
-      case '[object Array]': return 'array';
-      case '[object String]': return 'string';
+      case '[object Function]':
+        return 'function';
+
+      case '[object Date]':
+        return 'date';
+
+      case '[object RegExp]':
+        return 'regexp';
+
+      case '[object Arguments]':
+        return 'arguments';
+
+      case '[object Array]':
+        return 'array';
+
+      case '[object String]':
+        return 'string';
     }
 
     if (val === null) return 'null';
     if (val === undefined) return 'undefined';
     if (val && val.nodeType === 1) return 'element';
     if (val === Object(val)) return 'object';
-
-    return typeof val;
+    return _typeof(val);
   };
 
   /**
    * Global Names
    */
-
   var globals = /\b(Array|Date|Object|Math|JSON)\b/g;
-
   /**
    * Return immediate identifiers parsed from `str`.
    *
@@ -1872,13 +2150,12 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentProps = function(str, fn){
+  var componentProps = function componentProps(str, fn) {
     var p = unique(props(str));
     if (fn && 'string' == typeof fn) fn = prefixed(fn);
     if (fn) return map(str, p, fn);
     return p;
   };
-
   /**
    * Return immediate identifiers in `str`.
    *
@@ -1887,14 +2164,10 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
-  function props(str) {
-    return str
-      .replace(/\.\w+|\w+ *\(|"[^"]*"|'[^']*'|\/([^/]+)\//g, '')
-      .replace(globals, '')
-      .match(/[a-zA-Z_]\w*/g)
-      || [];
-  }
 
+  function props(str) {
+    return str.replace(/\.\w+|\w+ *\(|"[^"]*"|'[^']*'|\/([^/]+)\//g, '').replace(globals, '').match(/[a-zA-Z_]\w*/g) || [];
+  }
   /**
    * Return `str` with `props` mapped with `fn`.
    *
@@ -1905,15 +2178,15 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function map(str, props, fn) {
     var re = /\.\w+|\w+ *\(|"[^"]*"|'[^']*'|\/([^/]+)\/|[a-zA-Z_]\w*/g;
-    return str.replace(re, function(_){
+    return str.replace(re, function (_) {
       if ('(' == _[_.length - 1]) return fn(_);
       if (!~props.indexOf(_)) return _;
       return fn(_);
     });
   }
-
   /**
    * Return unique array.
    *
@@ -1921,6 +2194,7 @@ var rudderanalytics = (function (exports) {
    * @return {Array}
    * @api private
    */
+
 
   function unique(arr) {
     var ret = [];
@@ -1932,13 +2206,13 @@ var rudderanalytics = (function (exports) {
 
     return ret;
   }
-
   /**
    * Map with prefix `str`.
    */
 
+
   function prefixed(str) {
-    return function(_){
+    return function (_) {
       return str + _;
     };
   }
@@ -1948,18 +2222,18 @@ var rudderanalytics = (function (exports) {
    */
 
   var expr;
+
   try {
     expr = componentProps;
-  } catch(e) {
+  } catch (e) {
     expr = componentProps;
   }
-
   /**
    * Expose `toFunction()`.
    */
 
-  var toFunction_1 = toFunction;
 
+  var toFunction_1 = toFunction;
   /**
    * Convert `obj` to a `Function`.
    *
@@ -1972,17 +2246,20 @@ var rudderanalytics = (function (exports) {
     switch ({}.toString.call(obj)) {
       case '[object Object]':
         return objectToFunction(obj);
+
       case '[object Function]':
         return obj;
+
       case '[object String]':
         return stringToFunction(obj);
+
       case '[object RegExp]':
         return regexpToFunction(obj);
+
       default:
         return defaultToFunction(obj);
     }
   }
-
   /**
    * Default to strict equality.
    *
@@ -1991,12 +2268,12 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function defaultToFunction(val) {
-    return function(obj){
+    return function (obj) {
       return val === obj;
     };
   }
-
   /**
    * Convert `re` to a function.
    *
@@ -2005,12 +2282,12 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function regexpToFunction(re) {
-    return function(obj){
+    return function (obj) {
       return re.test(obj);
     };
   }
-
   /**
    * Convert property `str` to a function.
    *
@@ -2019,14 +2296,13 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function stringToFunction(str) {
     // immediate such as "> 20"
-    if (/^ *\W+/.test(str)) return new Function('_', 'return _ ' + str);
+    if (/^ *\W+/.test(str)) return new Function('_', 'return _ ' + str); // properties such as "name.first" or "age > 18" or "age > 18 && age < 36"
 
-    // properties such as "name.first" or "age > 18" or "age > 18 && age < 36"
     return new Function('_', 'return ' + get(str));
   }
-
   /**
    * Convert `object` to a function.
    *
@@ -2035,23 +2311,25 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function objectToFunction(obj) {
     var match = {};
+
     for (var key in obj) {
-      match[key] = typeof obj[key] === 'string'
-        ? defaultToFunction(obj[key])
-        : toFunction(obj[key]);
+      match[key] = typeof obj[key] === 'string' ? defaultToFunction(obj[key]) : toFunction(obj[key]);
     }
-    return function(val){
-      if (typeof val !== 'object') return false;
+
+    return function (val) {
+      if (_typeof(val) !== 'object') return false;
+
       for (var key in match) {
         if (!(key in val)) return false;
         if (!match[key](val[key])) return false;
       }
+
       return true;
     };
   }
-
   /**
    * Built the getter function. Supports getter style functions
    *
@@ -2060,23 +2338,22 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function get(str) {
     var props = expr(str);
     if (!props.length) return '_.' + str;
-
     var val, i, prop;
+
     for (i = 0; i < props.length; i++) {
       prop = props[i];
       val = '_.' + prop;
-      val = "('function' == typeof " + val + " ? " + val + "() : " + val + ")";
+      val = "('function' == typeof " + val + " ? " + val + "() : " + val + ")"; // mimic negative lookbehind to avoid problems with nested properties
 
-      // mimic negative lookbehind to avoid problems with nested properties
       str = stripNested(prop, str, val);
     }
 
     return str;
   }
-
   /**
    * Mimic negative lookbehind to avoid problems with nested properties.
    *
@@ -2089,8 +2366,9 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
-  function stripNested (prop, str, val) {
-    return str.replace(new RegExp('(\\.)?' + prop, 'g'), function($0, $1) {
+
+  function stripNested(prop, str, val) {
+    return str.replace(new RegExp('(\\.)?' + prop, 'g'), function ($0, $1) {
       return $1 ? $0 : val;
     });
   }
@@ -2100,19 +2378,16 @@ var rudderanalytics = (function (exports) {
    */
 
   try {
-    var type$1 = componentType;
+    var type$1 = componentType$1;
   } catch (err) {
-    var type$1 = componentType;
+    var type$1 = componentType$1;
   }
-
-
-
   /**
    * HOP reference.
    */
 
-  var has = Object.prototype.hasOwnProperty;
 
+  var has = Object.prototype.hasOwnProperty;
   /**
    * Iterate the given `obj` and invoke `fn(val, i)`
    * in optional context `ctx`.
@@ -2123,20 +2398,22 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentEach = function(obj, fn, ctx){
+  var componentEach = function componentEach(obj, fn, ctx) {
     fn = toFunction_1(fn);
     ctx = ctx || this;
+
     switch (type$1(obj)) {
       case 'array':
         return array(obj, fn, ctx);
+
       case 'object':
         if ('number' == typeof obj.length) return array(obj, fn, ctx);
         return object(obj, fn, ctx);
+
       case 'string':
         return string(obj, fn, ctx);
     }
   };
-
   /**
    * Iterate string chars.
    *
@@ -2146,12 +2423,12 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function string(obj, fn, ctx) {
     for (var i = 0; i < obj.length; ++i) {
       fn.call(ctx, obj.charAt(i), i);
     }
   }
-
   /**
    * Iterate object keys.
    *
@@ -2161,6 +2438,7 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function object(obj, fn, ctx) {
     for (var key in obj) {
       if (has.call(obj, key)) {
@@ -2168,7 +2446,6 @@ var rudderanalytics = (function (exports) {
       }
     }
   }
-
   /**
    * Iterate array-ish.
    *
@@ -2177,6 +2454,7 @@ var rudderanalytics = (function (exports) {
    * @param {Object} ctx
    * @api private
    */
+
 
   function array(obj, fn, ctx) {
     for (var i = 0; i < obj.length; ++i) {
@@ -2225,12 +2503,24 @@ var rudderanalytics = (function (exports) {
 
         this.pageCalled = false;
         this.dimensionsArray = {};
+        var elementTo;
         this.dimensions.forEach(function (element) {
-          _this.dimensionsArray[element.from] = element.to;
+          if (element.to.startsWith("dimension")) {
+            _this.dimensionsArray[element.from] = element.to;
+          } else {
+            /* eslint-disable no-param-reassign */
+            elementTo = element.to.replace(/cd/g, "dimension");
+            _this.dimensionsArray[element.from] = elementTo;
+          }
         });
         this.metricsArray = {};
         this.metrics.forEach(function (element) {
-          _this.metricsArray[element.from] = element.to;
+          if (element.to.startsWith("dimension")) {
+            _this.metricsArray[element.from] = element.to;
+          } else {
+            elementTo = element.to.replace(/cm/g, "metric");
+            _this.metricsArray[element.from] = elementTo;
+          }
         });
         this.contentGroupingsArray = {};
         this.contentGroupings.forEach(function (element) {
@@ -2326,7 +2616,11 @@ var rudderanalytics = (function (exports) {
 
         if (event === "Order Completed" && !this.enhancedEcommerce) {
           // order_id is required
-          if (!orderId) return; // add transaction
+          if (!orderId) {
+            logger.debug("order_id not present events are not sent to GA");
+            return;
+          } // add transaction
+
 
           window.ga("ecommerce:addTransaction", {
             affiliation: properties.affiliation,
@@ -2372,7 +2666,11 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Checkout Step Completed":
-                if (!props.step) return;
+                if (!props.step) {
+                  logger.debug("step not present events are not sent to GA");
+                  return;
+                }
+
                 params = {
                   step: props.step || 1,
                   option: options || undefined
@@ -2384,7 +2682,12 @@ var rudderanalytics = (function (exports) {
 
               case "Order Completed":
                 total = rudderElement.message.properties.total || rudderElement.message.properties.revenue || 0;
-                if (!orderId) return;
+
+                if (!orderId) {
+                  logger.debug("order_id not present events are not sent to GA");
+                  return;
+                }
+
                 this.loadEnhancedEcommerce(rudderElement);
                 componentEach(products, function (product) {
                   var productTrack = self.createProductTrack(rudderElement, product);
@@ -2405,7 +2708,11 @@ var rudderanalytics = (function (exports) {
                 break;
 
               case "Order Refunded":
-                if (!orderId) return;
+                if (!orderId) {
+                  logger.debug("order_id not present events are not sent to GA");
+                  return;
+                }
+
                 this.loadEnhancedEcommerce(rudderElement);
                 componentEach(products, function (product) {
                   var track = {
@@ -2424,34 +2731,34 @@ var rudderanalytics = (function (exports) {
 
               case "Product Added":
                 this.loadEnhancedEcommerce(rudderElement);
-                this.enhancedEcommerceTrackProductAction(rudderElement, "add", null, this.dimensions, this.metrics, this.contentGroupings);
+                this.enhancedEcommerceTrackProductAction(rudderElement, "add", null);
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Product Removed":
                 this.loadEnhancedEcommerce(rudderElement);
-                this.enhancedEcommerceTrackProductAction(rudderElement, "remove", null, this.dimensions, this.metrics, this.contentGroupings);
+                this.enhancedEcommerceTrackProductAction(rudderElement, "remove", null);
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Product Viewed":
                 this.loadEnhancedEcommerce(rudderElement);
                 if (props.list) data.list = props.list;
-                this.enhancedEcommerceTrackProductAction(rudderElement, "detail", data, this.dimensions, this.metrics, this.contentGroupings);
+                this.enhancedEcommerceTrackProductAction(rudderElement, "detail", data);
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Product Clicked":
                 this.loadEnhancedEcommerce(rudderElement);
                 if (props.list) data.list = props.list;
-                this.enhancedEcommerceTrackProductAction(rudderElement, "click", data, this.dimensions, this.metrics, this.contentGroupings);
+                this.enhancedEcommerceTrackProductAction(rudderElement, "click", data);
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Promotion Viewed":
                 this.loadEnhancedEcommerce(rudderElement);
                 window.ga("ec:addPromo", {
-                  id: props.promotionId || props.id,
+                  id: props.promotion_id || props.id,
                   name: props.name,
                   creative: props.creative,
                   position: props.position
@@ -2462,7 +2769,7 @@ var rudderanalytics = (function (exports) {
               case "Promotion Clicked":
                 this.loadEnhancedEcommerce(rudderElement);
                 window.ga("ec:addPromo", {
-                  id: props.promotionId || props.id,
+                  id: props.promotion_id || props.id,
                   name: props.name,
                   creative: props.creative,
                   position: props.position
@@ -2477,7 +2784,12 @@ var rudderanalytics = (function (exports) {
                   var item = {
                     properties: product
                   };
-                  if (!(item.properties.product_id || item.properties.sku) && !item.properties.name) return;
+
+                  if (!(item.properties.product_id || item.properties.sku) && !item.properties.name) {
+                    logger.debug("product_id/sku/name of product not present events are not sent to GA");
+                    return;
+                  }
+
                   var impressionObj = {
                     id: item.properties.product_id || item.properties.sku,
                     name: item.properties.name,
@@ -2488,9 +2800,7 @@ var rudderanalytics = (function (exports) {
                     price: item.properties.price,
                     position: self.getProductPosition(item, products)
                   };
-                  impressionObj = _objectSpread2({
-                    impressionObj: impressionObj
-                  }, self.metricsFunction(item.properties, self.dimensionsArray, self.metricsArray, self.contentGroupingsArray));
+                  impressionObj = _objectSpread2(_objectSpread2({}, impressionObj), self.metricsFunction(item.properties, self.dimensionsArray, self.metricsArray, self.contentGroupingsArray));
                   Object.keys(impressionObj).forEach(function (key) {
                     if (impressionObj[key] === undefined) delete impressionObj[key];
                   });
@@ -2515,6 +2825,7 @@ var rudderanalytics = (function (exports) {
                   };
 
                   if (!(item.properties.product_id || item.properties.sku) && !item.properties.name) {
+                    logger.debug("product_id/sku/name of product not present events are not sent to GA");
                     return;
                   }
 
@@ -2642,7 +2953,7 @@ var rudderanalytics = (function (exports) {
 
         window.ga("set", resetCustomDimensions); // adds more properties to pageview which will be sent
 
-        pageview = _objectSpread2({}, pageview, {}, this.setCustomDimenionsAndMetrics(eventProperties));
+        pageview = _objectSpread2(_objectSpread2({}, pageview), this.setCustomDimenionsAndMetrics(eventProperties));
         var payload = {
           page: pagePath,
           title: pageTitle
@@ -2822,10 +3133,8 @@ var rudderanalytics = (function (exports) {
 
         var coupon = props.coupon;
         if (coupon) product.coupon = coupon;
-        product = _objectSpread2({
-          product: product
-        }, this.metricsFunction(props, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray));
-        window.ga("ec:addProduct", product.product);
+        product = _objectSpread2(_objectSpread2({}, product), this.metricsFunction(props, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray));
+        window.ga("ec:addProduct", product);
       }
       /**
        * set action with data
@@ -2861,7 +3170,7 @@ var rudderanalytics = (function (exports) {
           args[2] = "EnhancedEcommerce";
         }
 
-        (_window$ga = window.ga).apply.apply(_window$ga, [window].concat(_toConsumableArray(args)));
+        (_window$ga = window.ga).call.apply(_window$ga, [window].concat(_toConsumableArray(args)));
       }
       /**
        * @param  {} item
@@ -3545,136 +3854,133 @@ var rudderanalytics = (function (exports) {
   }();
 
   var crypt = createCommonjsModule(function (module) {
-  (function() {
-    var base64map
-        = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+    (function () {
+      var base64map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
+          crypt = {
+        // Bit-wise rotation left
+        rotl: function rotl(n, b) {
+          return n << b | n >>> 32 - b;
+        },
+        // Bit-wise rotation right
+        rotr: function rotr(n, b) {
+          return n << 32 - b | n >>> b;
+        },
+        // Swap big-endian to little-endian and vice versa
+        endian: function endian(n) {
+          // If number given, swap endian
+          if (n.constructor == Number) {
+            return crypt.rotl(n, 8) & 0x00FF00FF | crypt.rotl(n, 24) & 0xFF00FF00;
+          } // Else, assume array and swap all items
 
-    crypt = {
-      // Bit-wise rotation left
-      rotl: function(n, b) {
-        return (n << b) | (n >>> (32 - b));
-      },
 
-      // Bit-wise rotation right
-      rotr: function(n, b) {
-        return (n << (32 - b)) | (n >>> b);
-      },
+          for (var i = 0; i < n.length; i++) {
+            n[i] = crypt.endian(n[i]);
+          }
 
-      // Swap big-endian to little-endian and vice versa
-      endian: function(n) {
-        // If number given, swap endian
-        if (n.constructor == Number) {
-          return crypt.rotl(n, 8) & 0x00FF00FF | crypt.rotl(n, 24) & 0xFF00FF00;
+          return n;
+        },
+        // Generate an array of any length of random bytes
+        randomBytes: function randomBytes(n) {
+          for (var bytes = []; n > 0; n--) {
+            bytes.push(Math.floor(Math.random() * 256));
+          }
+
+          return bytes;
+        },
+        // Convert a byte array to big-endian 32-bit words
+        bytesToWords: function bytesToWords(bytes) {
+          for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8) {
+            words[b >>> 5] |= bytes[i] << 24 - b % 32;
+          }
+
+          return words;
+        },
+        // Convert big-endian 32-bit words to a byte array
+        wordsToBytes: function wordsToBytes(words) {
+          for (var bytes = [], b = 0; b < words.length * 32; b += 8) {
+            bytes.push(words[b >>> 5] >>> 24 - b % 32 & 0xFF);
+          }
+
+          return bytes;
+        },
+        // Convert a byte array to a hex string
+        bytesToHex: function bytesToHex(bytes) {
+          for (var hex = [], i = 0; i < bytes.length; i++) {
+            hex.push((bytes[i] >>> 4).toString(16));
+            hex.push((bytes[i] & 0xF).toString(16));
+          }
+
+          return hex.join('');
+        },
+        // Convert a hex string to a byte array
+        hexToBytes: function hexToBytes(hex) {
+          for (var bytes = [], c = 0; c < hex.length; c += 2) {
+            bytes.push(parseInt(hex.substr(c, 2), 16));
+          }
+
+          return bytes;
+        },
+        // Convert a byte array to a base-64 string
+        bytesToBase64: function bytesToBase64(bytes) {
+          for (var base64 = [], i = 0; i < bytes.length; i += 3) {
+            var triplet = bytes[i] << 16 | bytes[i + 1] << 8 | bytes[i + 2];
+
+            for (var j = 0; j < 4; j++) {
+              if (i * 8 + j * 6 <= bytes.length * 8) base64.push(base64map.charAt(triplet >>> 6 * (3 - j) & 0x3F));else base64.push('=');
+            }
+          }
+
+          return base64.join('');
+        },
+        // Convert a base-64 string to a byte array
+        base64ToBytes: function base64ToBytes(base64) {
+          // Remove non-base-64 characters
+          base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
+
+          for (var bytes = [], i = 0, imod4 = 0; i < base64.length; imod4 = ++i % 4) {
+            if (imod4 == 0) continue;
+            bytes.push((base64map.indexOf(base64.charAt(i - 1)) & Math.pow(2, -2 * imod4 + 8) - 1) << imod4 * 2 | base64map.indexOf(base64.charAt(i)) >>> 6 - imod4 * 2);
+          }
+
+          return bytes;
         }
-
-        // Else, assume array and swap all items
-        for (var i = 0; i < n.length; i++)
-          n[i] = crypt.endian(n[i]);
-        return n;
-      },
-
-      // Generate an array of any length of random bytes
-      randomBytes: function(n) {
-        for (var bytes = []; n > 0; n--)
-          bytes.push(Math.floor(Math.random() * 256));
-        return bytes;
-      },
-
-      // Convert a byte array to big-endian 32-bit words
-      bytesToWords: function(bytes) {
-        for (var words = [], i = 0, b = 0; i < bytes.length; i++, b += 8)
-          words[b >>> 5] |= bytes[i] << (24 - b % 32);
-        return words;
-      },
-
-      // Convert big-endian 32-bit words to a byte array
-      wordsToBytes: function(words) {
-        for (var bytes = [], b = 0; b < words.length * 32; b += 8)
-          bytes.push((words[b >>> 5] >>> (24 - b % 32)) & 0xFF);
-        return bytes;
-      },
-
-      // Convert a byte array to a hex string
-      bytesToHex: function(bytes) {
-        for (var hex = [], i = 0; i < bytes.length; i++) {
-          hex.push((bytes[i] >>> 4).toString(16));
-          hex.push((bytes[i] & 0xF).toString(16));
-        }
-        return hex.join('');
-      },
-
-      // Convert a hex string to a byte array
-      hexToBytes: function(hex) {
-        for (var bytes = [], c = 0; c < hex.length; c += 2)
-          bytes.push(parseInt(hex.substr(c, 2), 16));
-        return bytes;
-      },
-
-      // Convert a byte array to a base-64 string
-      bytesToBase64: function(bytes) {
-        for (var base64 = [], i = 0; i < bytes.length; i += 3) {
-          var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
-          for (var j = 0; j < 4; j++)
-            if (i * 8 + j * 6 <= bytes.length * 8)
-              base64.push(base64map.charAt((triplet >>> 6 * (3 - j)) & 0x3F));
-            else
-              base64.push('=');
-        }
-        return base64.join('');
-      },
-
-      // Convert a base-64 string to a byte array
-      base64ToBytes: function(base64) {
-        // Remove non-base-64 characters
-        base64 = base64.replace(/[^A-Z0-9+\/]/ig, '');
-
-        for (var bytes = [], i = 0, imod4 = 0; i < base64.length;
-            imod4 = ++i % 4) {
-          if (imod4 == 0) continue;
-          bytes.push(((base64map.indexOf(base64.charAt(i - 1))
-              & (Math.pow(2, -2 * imod4 + 8) - 1)) << (imod4 * 2))
-              | (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)));
-        }
-        return bytes;
-      }
-    };
-
-    module.exports = crypt;
-  })();
+      };
+      module.exports = crypt;
+    })();
   });
 
   var charenc = {
     // UTF-8 encoding
     utf8: {
       // Convert a string to a byte array
-      stringToBytes: function(str) {
+      stringToBytes: function stringToBytes(str) {
         return charenc.bin.stringToBytes(unescape(encodeURIComponent(str)));
       },
-
       // Convert a byte array to a string
-      bytesToString: function(bytes) {
+      bytesToString: function bytesToString(bytes) {
         return decodeURIComponent(escape(charenc.bin.bytesToString(bytes)));
       }
     },
-
     // Binary encoding
     bin: {
       // Convert a string to a byte array
-      stringToBytes: function(str) {
-        for (var bytes = [], i = 0; i < str.length; i++)
+      stringToBytes: function stringToBytes(str) {
+        for (var bytes = [], i = 0; i < str.length; i++) {
           bytes.push(str.charCodeAt(i) & 0xFF);
+        }
+
         return bytes;
       },
-
       // Convert a byte array to a string
-      bytesToString: function(bytes) {
-        for (var str = [], i = 0; i < bytes.length; i++)
+      bytesToString: function bytesToString(bytes) {
+        for (var str = [], i = 0; i < bytes.length; i++) {
           str.push(String.fromCharCode(bytes[i]));
+        }
+
         return str.join('');
       }
     }
   };
-
   var charenc_1 = charenc;
 
   /*!
@@ -3683,183 +3989,163 @@ var rudderanalytics = (function (exports) {
    * @author   Feross Aboukhadijeh <https://feross.org>
    * @license  MIT
    */
-
   // The _isBuffer check is for Safari 5-7 support, because it's missing
   // Object.prototype.constructor. Remove this eventually
-  var isBuffer_1 = function (obj) {
-    return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer)
+  var isBuffer_1 = function isBuffer_1(obj) {
+    return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer);
   };
 
-  function isBuffer (obj) {
-    return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)
-  }
+  function isBuffer(obj) {
+    return !!obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj);
+  } // For Node v0.10 support. Remove this eventually.
 
-  // For Node v0.10 support. Remove this eventually.
-  function isSlowBuffer (obj) {
-    return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
+
+  function isSlowBuffer(obj) {
+    return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0));
   }
 
   var md5 = createCommonjsModule(function (module) {
-  (function(){
-    var crypt$1 = crypt,
-        utf8 = charenc_1.utf8,
-        isBuffer = isBuffer_1,
-        bin = charenc_1.bin,
+    (function () {
+      var crypt$1 = crypt,
+          utf8 = charenc_1.utf8,
+          isBuffer = isBuffer_1,
+          bin = charenc_1.bin,
+          // The core
+      md5 = function md5(message, options) {
+        // Convert to byte array
+        if (message.constructor == String) {
+          if (options && options.encoding === 'binary') message = bin.stringToBytes(message);else message = utf8.stringToBytes(message);
+        } else if (isBuffer(message)) message = Array.prototype.slice.call(message, 0);else if (!Array.isArray(message) && message.constructor !== Uint8Array) message = message.toString(); // else, assume byte array already
 
-    // The core
-    md5 = function (message, options) {
-      // Convert to byte array
-      if (message.constructor == String)
-        if (options && options.encoding === 'binary')
-          message = bin.stringToBytes(message);
-        else
-          message = utf8.stringToBytes(message);
-      else if (isBuffer(message))
-        message = Array.prototype.slice.call(message, 0);
-      else if (!Array.isArray(message))
-        message = message.toString();
-      // else, assume byte array already
+        var m = crypt$1.bytesToWords(message),
+            l = message.length * 8,
+            a = 1732584193,
+            b = -271733879,
+            c = -1732584194,
+            d = 271733878; // Swap endian
 
-      var m = crypt$1.bytesToWords(message),
-          l = message.length * 8,
-          a =  1732584193,
-          b = -271733879,
-          c = -1732584194,
-          d =  271733878;
+        for (var i = 0; i < m.length; i++) {
+          m[i] = (m[i] << 8 | m[i] >>> 24) & 0x00FF00FF | (m[i] << 24 | m[i] >>> 8) & 0xFF00FF00;
+        } // Padding
 
-      // Swap endian
-      for (var i = 0; i < m.length; i++) {
-        m[i] = ((m[i] <<  8) | (m[i] >>> 24)) & 0x00FF00FF |
-               ((m[i] << 24) | (m[i] >>>  8)) & 0xFF00FF00;
-      }
 
-      // Padding
-      m[l >>> 5] |= 0x80 << (l % 32);
-      m[(((l + 64) >>> 9) << 4) + 14] = l;
+        m[l >>> 5] |= 0x80 << l % 32;
+        m[(l + 64 >>> 9 << 4) + 14] = l; // Method shortcuts
 
-      // Method shortcuts
-      var FF = md5._ff,
-          GG = md5._gg,
-          HH = md5._hh,
-          II = md5._ii;
+        var FF = md5._ff,
+            GG = md5._gg,
+            HH = md5._hh,
+            II = md5._ii;
 
-      for (var i = 0; i < m.length; i += 16) {
+        for (var i = 0; i < m.length; i += 16) {
+          var aa = a,
+              bb = b,
+              cc = c,
+              dd = d;
+          a = FF(a, b, c, d, m[i + 0], 7, -680876936);
+          d = FF(d, a, b, c, m[i + 1], 12, -389564586);
+          c = FF(c, d, a, b, m[i + 2], 17, 606105819);
+          b = FF(b, c, d, a, m[i + 3], 22, -1044525330);
+          a = FF(a, b, c, d, m[i + 4], 7, -176418897);
+          d = FF(d, a, b, c, m[i + 5], 12, 1200080426);
+          c = FF(c, d, a, b, m[i + 6], 17, -1473231341);
+          b = FF(b, c, d, a, m[i + 7], 22, -45705983);
+          a = FF(a, b, c, d, m[i + 8], 7, 1770035416);
+          d = FF(d, a, b, c, m[i + 9], 12, -1958414417);
+          c = FF(c, d, a, b, m[i + 10], 17, -42063);
+          b = FF(b, c, d, a, m[i + 11], 22, -1990404162);
+          a = FF(a, b, c, d, m[i + 12], 7, 1804603682);
+          d = FF(d, a, b, c, m[i + 13], 12, -40341101);
+          c = FF(c, d, a, b, m[i + 14], 17, -1502002290);
+          b = FF(b, c, d, a, m[i + 15], 22, 1236535329);
+          a = GG(a, b, c, d, m[i + 1], 5, -165796510);
+          d = GG(d, a, b, c, m[i + 6], 9, -1069501632);
+          c = GG(c, d, a, b, m[i + 11], 14, 643717713);
+          b = GG(b, c, d, a, m[i + 0], 20, -373897302);
+          a = GG(a, b, c, d, m[i + 5], 5, -701558691);
+          d = GG(d, a, b, c, m[i + 10], 9, 38016083);
+          c = GG(c, d, a, b, m[i + 15], 14, -660478335);
+          b = GG(b, c, d, a, m[i + 4], 20, -405537848);
+          a = GG(a, b, c, d, m[i + 9], 5, 568446438);
+          d = GG(d, a, b, c, m[i + 14], 9, -1019803690);
+          c = GG(c, d, a, b, m[i + 3], 14, -187363961);
+          b = GG(b, c, d, a, m[i + 8], 20, 1163531501);
+          a = GG(a, b, c, d, m[i + 13], 5, -1444681467);
+          d = GG(d, a, b, c, m[i + 2], 9, -51403784);
+          c = GG(c, d, a, b, m[i + 7], 14, 1735328473);
+          b = GG(b, c, d, a, m[i + 12], 20, -1926607734);
+          a = HH(a, b, c, d, m[i + 5], 4, -378558);
+          d = HH(d, a, b, c, m[i + 8], 11, -2022574463);
+          c = HH(c, d, a, b, m[i + 11], 16, 1839030562);
+          b = HH(b, c, d, a, m[i + 14], 23, -35309556);
+          a = HH(a, b, c, d, m[i + 1], 4, -1530992060);
+          d = HH(d, a, b, c, m[i + 4], 11, 1272893353);
+          c = HH(c, d, a, b, m[i + 7], 16, -155497632);
+          b = HH(b, c, d, a, m[i + 10], 23, -1094730640);
+          a = HH(a, b, c, d, m[i + 13], 4, 681279174);
+          d = HH(d, a, b, c, m[i + 0], 11, -358537222);
+          c = HH(c, d, a, b, m[i + 3], 16, -722521979);
+          b = HH(b, c, d, a, m[i + 6], 23, 76029189);
+          a = HH(a, b, c, d, m[i + 9], 4, -640364487);
+          d = HH(d, a, b, c, m[i + 12], 11, -421815835);
+          c = HH(c, d, a, b, m[i + 15], 16, 530742520);
+          b = HH(b, c, d, a, m[i + 2], 23, -995338651);
+          a = II(a, b, c, d, m[i + 0], 6, -198630844);
+          d = II(d, a, b, c, m[i + 7], 10, 1126891415);
+          c = II(c, d, a, b, m[i + 14], 15, -1416354905);
+          b = II(b, c, d, a, m[i + 5], 21, -57434055);
+          a = II(a, b, c, d, m[i + 12], 6, 1700485571);
+          d = II(d, a, b, c, m[i + 3], 10, -1894986606);
+          c = II(c, d, a, b, m[i + 10], 15, -1051523);
+          b = II(b, c, d, a, m[i + 1], 21, -2054922799);
+          a = II(a, b, c, d, m[i + 8], 6, 1873313359);
+          d = II(d, a, b, c, m[i + 15], 10, -30611744);
+          c = II(c, d, a, b, m[i + 6], 15, -1560198380);
+          b = II(b, c, d, a, m[i + 13], 21, 1309151649);
+          a = II(a, b, c, d, m[i + 4], 6, -145523070);
+          d = II(d, a, b, c, m[i + 11], 10, -1120210379);
+          c = II(c, d, a, b, m[i + 2], 15, 718787259);
+          b = II(b, c, d, a, m[i + 9], 21, -343485551);
+          a = a + aa >>> 0;
+          b = b + bb >>> 0;
+          c = c + cc >>> 0;
+          d = d + dd >>> 0;
+        }
 
-        var aa = a,
-            bb = b,
-            cc = c,
-            dd = d;
+        return crypt$1.endian([a, b, c, d]);
+      }; // Auxiliary functions
 
-        a = FF(a, b, c, d, m[i+ 0],  7, -680876936);
-        d = FF(d, a, b, c, m[i+ 1], 12, -389564586);
-        c = FF(c, d, a, b, m[i+ 2], 17,  606105819);
-        b = FF(b, c, d, a, m[i+ 3], 22, -1044525330);
-        a = FF(a, b, c, d, m[i+ 4],  7, -176418897);
-        d = FF(d, a, b, c, m[i+ 5], 12,  1200080426);
-        c = FF(c, d, a, b, m[i+ 6], 17, -1473231341);
-        b = FF(b, c, d, a, m[i+ 7], 22, -45705983);
-        a = FF(a, b, c, d, m[i+ 8],  7,  1770035416);
-        d = FF(d, a, b, c, m[i+ 9], 12, -1958414417);
-        c = FF(c, d, a, b, m[i+10], 17, -42063);
-        b = FF(b, c, d, a, m[i+11], 22, -1990404162);
-        a = FF(a, b, c, d, m[i+12],  7,  1804603682);
-        d = FF(d, a, b, c, m[i+13], 12, -40341101);
-        c = FF(c, d, a, b, m[i+14], 17, -1502002290);
-        b = FF(b, c, d, a, m[i+15], 22,  1236535329);
 
-        a = GG(a, b, c, d, m[i+ 1],  5, -165796510);
-        d = GG(d, a, b, c, m[i+ 6],  9, -1069501632);
-        c = GG(c, d, a, b, m[i+11], 14,  643717713);
-        b = GG(b, c, d, a, m[i+ 0], 20, -373897302);
-        a = GG(a, b, c, d, m[i+ 5],  5, -701558691);
-        d = GG(d, a, b, c, m[i+10],  9,  38016083);
-        c = GG(c, d, a, b, m[i+15], 14, -660478335);
-        b = GG(b, c, d, a, m[i+ 4], 20, -405537848);
-        a = GG(a, b, c, d, m[i+ 9],  5,  568446438);
-        d = GG(d, a, b, c, m[i+14],  9, -1019803690);
-        c = GG(c, d, a, b, m[i+ 3], 14, -187363961);
-        b = GG(b, c, d, a, m[i+ 8], 20,  1163531501);
-        a = GG(a, b, c, d, m[i+13],  5, -1444681467);
-        d = GG(d, a, b, c, m[i+ 2],  9, -51403784);
-        c = GG(c, d, a, b, m[i+ 7], 14,  1735328473);
-        b = GG(b, c, d, a, m[i+12], 20, -1926607734);
+      md5._ff = function (a, b, c, d, x, s, t) {
+        var n = a + (b & c | ~b & d) + (x >>> 0) + t;
+        return (n << s | n >>> 32 - s) + b;
+      };
 
-        a = HH(a, b, c, d, m[i+ 5],  4, -378558);
-        d = HH(d, a, b, c, m[i+ 8], 11, -2022574463);
-        c = HH(c, d, a, b, m[i+11], 16,  1839030562);
-        b = HH(b, c, d, a, m[i+14], 23, -35309556);
-        a = HH(a, b, c, d, m[i+ 1],  4, -1530992060);
-        d = HH(d, a, b, c, m[i+ 4], 11,  1272893353);
-        c = HH(c, d, a, b, m[i+ 7], 16, -155497632);
-        b = HH(b, c, d, a, m[i+10], 23, -1094730640);
-        a = HH(a, b, c, d, m[i+13],  4,  681279174);
-        d = HH(d, a, b, c, m[i+ 0], 11, -358537222);
-        c = HH(c, d, a, b, m[i+ 3], 16, -722521979);
-        b = HH(b, c, d, a, m[i+ 6], 23,  76029189);
-        a = HH(a, b, c, d, m[i+ 9],  4, -640364487);
-        d = HH(d, a, b, c, m[i+12], 11, -421815835);
-        c = HH(c, d, a, b, m[i+15], 16,  530742520);
-        b = HH(b, c, d, a, m[i+ 2], 23, -995338651);
+      md5._gg = function (a, b, c, d, x, s, t) {
+        var n = a + (b & d | c & ~d) + (x >>> 0) + t;
+        return (n << s | n >>> 32 - s) + b;
+      };
 
-        a = II(a, b, c, d, m[i+ 0],  6, -198630844);
-        d = II(d, a, b, c, m[i+ 7], 10,  1126891415);
-        c = II(c, d, a, b, m[i+14], 15, -1416354905);
-        b = II(b, c, d, a, m[i+ 5], 21, -57434055);
-        a = II(a, b, c, d, m[i+12],  6,  1700485571);
-        d = II(d, a, b, c, m[i+ 3], 10, -1894986606);
-        c = II(c, d, a, b, m[i+10], 15, -1051523);
-        b = II(b, c, d, a, m[i+ 1], 21, -2054922799);
-        a = II(a, b, c, d, m[i+ 8],  6,  1873313359);
-        d = II(d, a, b, c, m[i+15], 10, -30611744);
-        c = II(c, d, a, b, m[i+ 6], 15, -1560198380);
-        b = II(b, c, d, a, m[i+13], 21,  1309151649);
-        a = II(a, b, c, d, m[i+ 4],  6, -145523070);
-        d = II(d, a, b, c, m[i+11], 10, -1120210379);
-        c = II(c, d, a, b, m[i+ 2], 15,  718787259);
-        b = II(b, c, d, a, m[i+ 9], 21, -343485551);
+      md5._hh = function (a, b, c, d, x, s, t) {
+        var n = a + (b ^ c ^ d) + (x >>> 0) + t;
+        return (n << s | n >>> 32 - s) + b;
+      };
 
-        a = (a + aa) >>> 0;
-        b = (b + bb) >>> 0;
-        c = (c + cc) >>> 0;
-        d = (d + dd) >>> 0;
-      }
+      md5._ii = function (a, b, c, d, x, s, t) {
+        var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
+        return (n << s | n >>> 32 - s) + b;
+      }; // Package private blocksize
 
-      return crypt$1.endian([a, b, c, d]);
-    };
 
-    // Auxiliary functions
-    md5._ff  = function (a, b, c, d, x, s, t) {
-      var n = a + (b & c | ~b & d) + (x >>> 0) + t;
-      return ((n << s) | (n >>> (32 - s))) + b;
-    };
-    md5._gg  = function (a, b, c, d, x, s, t) {
-      var n = a + (b & d | c & ~d) + (x >>> 0) + t;
-      return ((n << s) | (n >>> (32 - s))) + b;
-    };
-    md5._hh  = function (a, b, c, d, x, s, t) {
-      var n = a + (b ^ c ^ d) + (x >>> 0) + t;
-      return ((n << s) | (n >>> (32 - s))) + b;
-    };
-    md5._ii  = function (a, b, c, d, x, s, t) {
-      var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
-      return ((n << s) | (n >>> (32 - s))) + b;
-    };
+      md5._blocksize = 16;
+      md5._digestsize = 16;
 
-    // Package private blocksize
-    md5._blocksize = 16;
-    md5._digestsize = 16;
-
-    module.exports = function (message, options) {
-      if (message === undefined || message === null)
-        throw new Error('Illegal argument ' + message);
-
-      var digestbytes = crypt$1.wordsToBytes(md5(message, options));
-      return options && options.asBytes ? digestbytes :
-          options && options.asString ? bin.bytesToString(digestbytes) :
-          crypt$1.bytesToHex(digestbytes);
-    };
-
-  })();
+      module.exports = function (message, options) {
+        if (message === undefined || message === null) throw new Error('Illegal argument ' + message);
+        var digestbytes = crypt$1.wordsToBytes(md5(message, options));
+        return options && options.asBytes ? digestbytes : options && options.asString ? bin.bytesToString(digestbytes) : crypt$1.bytesToHex(digestbytes);
+      };
+    })();
   });
 
   var INTERCOM = /*#__PURE__*/function () {
@@ -4187,7 +4473,6 @@ var rudderanalytics = (function (exports) {
   }();
 
   var has$1 = Object.prototype.hasOwnProperty;
-
   /**
    * Copy the properties of one or more `objects` onto a destination object. Input objects are iterated over
    * in left-to-right order, so duplicate properties on later objects will overwrite those from
@@ -4208,7 +4493,10 @@ var rudderanalytics = (function (exports) {
    * extend(a, b, c);
    * //=> { a: 'a', b: 'b', c: 'c' };
    */
-  var extend = function extend(dest /*, sources */) {
+
+  var extend = function extend(dest
+  /*, sources */
+  ) {
     var sources = Array.prototype.slice.call(arguments, 1);
 
     for (var i = 0; i < sources.length; i += 1) {
@@ -4221,164 +4509,156 @@ var rudderanalytics = (function (exports) {
 
     return dest;
   };
-
   /*
    * Exports.
    */
 
+
   var extend_1 = extend;
 
   var objCase = createCommonjsModule(function (module) {
+    /**
+     * Module exports, export
+     */
 
 
-  /**
-   * Module exports, export
-   */
+    module.exports = multiple(find);
+    module.exports.find = module.exports;
+    /**
+     * Export the replacement function, return the modified object
+     */
 
-  module.exports = multiple(find);
-  module.exports.find = module.exports;
-
-
-  /**
-   * Export the replacement function, return the modified object
-   */
-
-  module.exports.replace = function (obj, key, val, options) {
-    multiple(replace).call(this, obj, key, val, options);
-    return obj;
-  };
+    module.exports.replace = function (obj, key, val, options) {
+      multiple(replace).call(this, obj, key, val, options);
+      return obj;
+    };
+    /**
+     * Export the delete function, return the modified object
+     */
 
 
-  /**
-   * Export the delete function, return the modified object
-   */
+    module.exports.del = function (obj, key, options) {
+      multiple(del).call(this, obj, key, null, options);
+      return obj;
+    };
+    /**
+     * Compose applying the function to a nested key
+     */
 
-  module.exports.del = function (obj, key, options) {
-    multiple(del).call(this, obj, key, null, options);
-    return obj;
-  };
 
+    function multiple(fn) {
+      return function (obj, path, val, options) {
+        normalize = options && isFunction(options.normalizer) ? options.normalizer : defaultNormalize;
+        path = normalize(path);
+        var key;
+        var finished = false;
 
-  /**
-   * Compose applying the function to a nested key
-   */
-
-  function multiple (fn) {
-    return function (obj, path, val, options) {
-      normalize = options && isFunction(options.normalizer) ? options.normalizer : defaultNormalize;
-      path = normalize(path);
-
-      var key;
-      var finished = false;
-
-      while (!finished) loop();
-
-      function loop() {
-        for (key in obj) {
-          var normalizedKey = normalize(key);
-          if (0 === path.indexOf(normalizedKey)) {
-            var temp = path.substr(normalizedKey.length);
-            if (temp.charAt(0) === '.' || temp.length === 0) {
-              path = temp.substr(1);
-              var child = obj[key];
-
-              // we're at the end and there is nothing.
-              if (null == child) {
-                finished = true;
-                return;
-              }
-
-              // we're at the end and there is something.
-              if (!path.length) {
-                finished = true;
-                return;
-              }
-
-              // step into child
-              obj = child;
-
-              // but we're done here
-              return;
-            }
-          }
+        while (!finished) {
+          loop();
         }
 
-        key = undefined;
-        // if we found no matching properties
-        // on the current object, there's no match.
-        finished = true;
-      }
+        function loop() {
+          for (key in obj) {
+            var normalizedKey = normalize(key);
 
-      if (!key) return;
-      if (null == obj) return obj;
+            if (0 === path.indexOf(normalizedKey)) {
+              var temp = path.substr(normalizedKey.length);
 
-      // the `obj` and `key` is one above the leaf object and key, so
-      // start object: { a: { 'b.c': 10 } }
-      // end object: { 'b.c': 10 }
-      // end key: 'b.c'
-      // this way, you can do `obj[key]` and get `10`.
-      return fn(obj, key, val);
-    };
-  }
+              if (temp.charAt(0) === '.' || temp.length === 0) {
+                path = temp.substr(1);
+                var child = obj[key]; // we're at the end and there is nothing.
+
+                if (null == child) {
+                  finished = true;
+                  return;
+                } // we're at the end and there is something.
 
 
-  /**
-   * Find an object by its key
-   *
-   * find({ first_name : 'Calvin' }, 'firstName')
-   */
-
-  function find (obj, key) {
-    if (obj.hasOwnProperty(key)) return obj[key];
-  }
+                if (!path.length) {
+                  finished = true;
+                  return;
+                } // step into child
 
 
-  /**
-   * Delete a value for a given key
-   *
-   * del({ a : 'b', x : 'y' }, 'X' }) -> { a : 'b' }
-   */
+                obj = child; // but we're done here
 
-  function del (obj, key) {
-    if (obj.hasOwnProperty(key)) delete obj[key];
-    return obj;
-  }
+                return;
+              }
+            }
+          }
+
+          key = undefined; // if we found no matching properties
+          // on the current object, there's no match.
+
+          finished = true;
+        }
+
+        if (!key) return;
+        if (null == obj) return obj; // the `obj` and `key` is one above the leaf object and key, so
+        // start object: { a: { 'b.c': 10 } }
+        // end object: { 'b.c': 10 }
+        // end key: 'b.c'
+        // this way, you can do `obj[key]` and get `10`.
+
+        return fn(obj, key, val);
+      };
+    }
+    /**
+     * Find an object by its key
+     *
+     * find({ first_name : 'Calvin' }, 'firstName')
+     */
 
 
-  /**
-   * Replace an objects existing value with a new one
-   *
-   * replace({ a : 'b' }, 'a', 'c') -> { a : 'c' }
-   */
+    function find(obj, key) {
+      if (obj.hasOwnProperty(key)) return obj[key];
+    }
+    /**
+     * Delete a value for a given key
+     *
+     * del({ a : 'b', x : 'y' }, 'X' }) -> { a : 'b' }
+     */
 
-  function replace (obj, key, val) {
-    if (obj.hasOwnProperty(key)) obj[key] = val;
-    return obj;
-  }
 
-  /**
-   * Normalize a `dot.separated.path`.
-   *
-   * A.HELL(!*&#(!)O_WOR   LD.bar => ahelloworldbar
-   *
-   * @param {String} path
-   * @return {String}
-   */
+    function del(obj, key) {
+      if (obj.hasOwnProperty(key)) delete obj[key];
+      return obj;
+    }
+    /**
+     * Replace an objects existing value with a new one
+     *
+     * replace({ a : 'b' }, 'a', 'c') -> { a : 'c' }
+     */
 
-  function defaultNormalize(path) {
-    return path.replace(/[^a-zA-Z0-9\.]+/g, '').toLowerCase();
-  }
 
-  /**
-   * Check if a value is a function.
-   *
-   * @param {*} val
-   * @return {boolean} Returns `true` if `val` is a function, otherwise `false`.
-   */
+    function replace(obj, key, val) {
+      if (obj.hasOwnProperty(key)) obj[key] = val;
+      return obj;
+    }
+    /**
+     * Normalize a `dot.separated.path`.
+     *
+     * A.HELL(!*&#(!)O_WOR   LD.bar => ahelloworldbar
+     *
+     * @param {String} path
+     * @return {String}
+     */
 
-  function isFunction(val) {
-    return typeof val === 'function';
-  }
+
+    function defaultNormalize(path) {
+      return path.replace(/[^a-zA-Z0-9\.]+/g, '').toLowerCase();
+    }
+    /**
+     * Check if a value is a function.
+     *
+     * @param {*} val
+     * @return {boolean} Returns `true` if `val` is a function, otherwise `false`.
+     */
+
+
+    function isFunction(val) {
+      return typeof val === 'function';
+    }
   });
   var objCase_1 = objCase.find;
   var objCase_2 = objCase.replace;
@@ -4767,33 +5047,28 @@ var rudderanalytics = (function (exports) {
    */
 
   var body = false;
-
-
   /**
    * Callbacks to call when the body exists.
    */
 
   var callbacks = [];
-
-
   /**
    * Export a way to add handlers to be invoked once the body exists.
    *
    * @param {Function} callback  A function to call when the body exists.
    */
 
-  var onBody = function onBody (callback) {
+  var onBody = function onBody(callback) {
     if (body) {
       call(callback);
     } else {
       callbacks.push(callback);
     }
   };
-
-
   /**
    * Set an interval to check for `document.body`.
    */
+
 
   var interval = setInterval(function () {
     if (!document.body) return;
@@ -4801,15 +5076,13 @@ var rudderanalytics = (function (exports) {
     componentEach(callbacks, call);
     clearInterval(interval);
   }, 5);
-
-
   /**
    * Call a callback, passing it the body.
    *
    * @param {Function} callback  The callback to call.
    */
 
-  function call (callback) {
+  function call(callback) {
     callback(document.body);
   }
 
@@ -5145,7 +5418,6 @@ var rudderanalytics = (function (exports) {
   var hop = Object.prototype.hasOwnProperty;
   var strCharAt = String.prototype.charAt;
   var toStr$1 = Object.prototype.toString;
-
   /**
    * Returns the character at a given index.
    *
@@ -5154,10 +5426,10 @@ var rudderanalytics = (function (exports) {
    * @return {string|undefined}
    */
   // TODO: Move to a library
-  var charAt = function(str, index) {
+
+  var charAt = function charAt(str, index) {
     return strCharAt.call(str, index);
   };
-
   /**
    * hasOwnProperty, wrapped as a function.
    *
@@ -5167,12 +5439,12 @@ var rudderanalytics = (function (exports) {
    * @param {string|number} prop
    * @return {boolean}
    */
-
   // TODO: Move to a library
+
+
   var has$2 = function has(context, prop) {
     return hop.call(context, prop);
   };
-
   /**
    * Returns true if a value is a string, otherwise false.
    *
@@ -5181,12 +5453,12 @@ var rudderanalytics = (function (exports) {
    * @param {*} val
    * @return {boolean}
    */
-
   // TODO: Move to a library
+
+
   var isString = function isString(val) {
     return toStr$1.call(val) === '[object String]';
   };
-
   /**
    * Returns true if a value is array-like, otherwise false. Array-like means a
    * value is not null, undefined, or a function, and has a numeric `length`
@@ -5198,11 +5470,11 @@ var rudderanalytics = (function (exports) {
    * @return {boolean}
    */
   // TODO: Move to a library
+
+
   var isArrayLike = function isArrayLike(val) {
-    return val != null && (typeof val !== 'function' && typeof val.length === 'number');
+    return val != null && typeof val !== 'function' && typeof val.length === 'number';
   };
-
-
   /**
    * indexKeys
    *
@@ -5212,9 +5484,10 @@ var rudderanalytics = (function (exports) {
    * @param {Function} pred
    * @return {Array}
    */
+
+
   var indexKeys = function indexKeys(target, pred) {
     pred = pred || has$2;
-
     var results = [];
 
     for (var i = 0, len = target.length; i < len; i += 1) {
@@ -5225,7 +5498,6 @@ var rudderanalytics = (function (exports) {
 
     return results;
   };
-
   /**
    * Returns an array of an object's owned keys.
    *
@@ -5236,9 +5508,10 @@ var rudderanalytics = (function (exports) {
    * the resulting array.
    * @return {Array}
    */
+
+
   var objectKeys = function objectKeys(target, pred) {
     pred = pred || has$2;
-
     var results = [];
 
     for (var key in target) {
@@ -5249,7 +5522,6 @@ var rudderanalytics = (function (exports) {
 
     return results;
   };
-
   /**
    * Creates an array composed of all keys on the input object. Ignores any non-enumerable properties.
    * More permissive than the native `Object.keys` function (non-objects will not throw errors).
@@ -5282,27 +5554,29 @@ var rudderanalytics = (function (exports) {
    * keys(arr);
    * //=> ['0', '4']
    */
+
+
   var keys = function keys(source) {
     if (source == null) {
       return [];
-    }
+    } // IE6-8 compatibility (string)
 
-    // IE6-8 compatibility (string)
+
     if (isString(source)) {
       return indexKeys(source, charAt);
-    }
+    } // IE6-8 compatibility (arguments)
 
-    // IE6-8 compatibility (arguments)
+
     if (isArrayLike(source)) {
       return indexKeys(source, has$2);
     }
 
     return objectKeys(source);
   };
-
   /*
    * Exports.
    */
+
 
   var keys_1 = keys;
 
@@ -5311,9 +5585,7 @@ var rudderanalytics = (function (exports) {
    */
 
 
-
   var objToString = Object.prototype.toString;
-
   /**
    * Tests if a value is a number.
    *
@@ -5323,11 +5595,12 @@ var rudderanalytics = (function (exports) {
    * @return {boolean} Returns `true` if `val` is a number, otherwise `false`.
    */
   // TODO: Move to library
-  var isNumber = function isNumber(val) {
-    var type = typeof val;
-    return type === 'number' || (type === 'object' && objToString.call(val) === '[object Number]');
-  };
 
+  var isNumber = function isNumber(val) {
+    var type = _typeof(val);
+
+    return type === 'number' || type === 'object' && objToString.call(val) === '[object Number]';
+  };
   /**
    * Tests if a value is an array.
    *
@@ -5337,10 +5610,11 @@ var rudderanalytics = (function (exports) {
    * @return {boolean} Returns `true` if the value is an array, otherwise `false`.
    */
   // TODO: Move to library
+
+
   var isArray = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
     return objToString.call(val) === '[object Array]';
   };
-
   /**
    * Tests if a value is array-like. Array-like means the value is not a function and has a numeric
    * `.length` property.
@@ -5351,10 +5625,10 @@ var rudderanalytics = (function (exports) {
    * @return {boolean}
    */
   // TODO: Move to library
-  var isArrayLike$1 = function isArrayLike(val) {
-    return val != null && (isArray(val) || (val !== 'function' && isNumber(val.length)));
-  };
 
+  var isArrayLike$1 = function isArrayLike(val) {
+    return val != null && (isArray(val) || val !== 'function' && isNumber(val.length));
+  };
   /**
    * Internal implementation of `each`. Works on arrays and array-like data structures.
    *
@@ -5364,6 +5638,8 @@ var rudderanalytics = (function (exports) {
    * @param {Array} array The array(-like) structure to iterate over.
    * @return {undefined}
    */
+
+
   var arrayEach = function arrayEach(iterator, array) {
     for (var i = 0; i < array.length; i += 1) {
       // Break iteration early if `iterator` returns `false`
@@ -5372,7 +5648,6 @@ var rudderanalytics = (function (exports) {
       }
     }
   };
-
   /**
    * Internal implementation of `each`. Works on objects.
    *
@@ -5382,6 +5657,8 @@ var rudderanalytics = (function (exports) {
    * @param {Object} object The object to iterate over.
    * @return {undefined}
    */
+
+
   var baseEach = function baseEach(iterator, object) {
     var ks = keys_1(object);
 
@@ -5392,7 +5669,6 @@ var rudderanalytics = (function (exports) {
       }
     }
   };
-
   /**
    * Iterate over an input collection, invoking an `iterator` function for each element in the
    * collection and passing to it three arguments: `(value, index, collection)`. The `iterator`
@@ -5424,13 +5700,15 @@ var rudderanalytics = (function (exports) {
    * //-> 'enchanter', 'occupation', { name: 'tim', occupation: 'enchanter' }
    * //=> undefined
    */
+
+
   var each = function each(iterator, collection) {
     return (isArrayLike$1(collection) ? arrayEach : baseEach).call(this, iterator, collection);
   };
-
   /*
    * Exports.
    */
+
 
   var each_1 = each;
 
@@ -5487,7 +5765,7 @@ var rudderanalytics = (function (exports) {
         window.fbq.version = "2.0";
         window.fbq.queue = [];
         window.fbq("init", this.pixelId);
-        ScriptLoader("fbpixel-integration", "//connect.facebook.net/en_US/fbevents.js");
+        ScriptLoader("fbpixel-integration", "https://connect.facebook.net/en_US/fbevents.js");
       }
     }, {
       key: "isLoaded",
@@ -5908,12 +6186,2539 @@ var rudderanalytics = (function (exports) {
     return FacebookPixel;
   }();
 
+  var core = createCommonjsModule(function (module, exports) {
+
+    (function (root, factory) {
+      {
+        // CommonJS
+        module.exports = exports = factory();
+      }
+    })(commonjsGlobal, function () {
+      /**
+       * CryptoJS core components.
+       */
+      var CryptoJS = CryptoJS || function (Math, undefined$1) {
+        /*
+         * Local polyfil of Object.create
+         */
+        var create = Object.create || function () {
+          function F() {}
+          return function (obj) {
+            var subtype;
+            F.prototype = obj;
+            subtype = new F();
+            F.prototype = null;
+            return subtype;
+          };
+        }();
+        /**
+         * CryptoJS namespace.
+         */
+
+
+        var C = {};
+        /**
+         * Library namespace.
+         */
+
+        var C_lib = C.lib = {};
+        /**
+         * Base object for prototypal inheritance.
+         */
+
+        var Base = C_lib.Base = function () {
+          return {
+            /**
+             * Creates a new object that inherits from this object.
+             *
+             * @param {Object} overrides Properties to copy into the new object.
+             *
+             * @return {Object} The new object.
+             *
+             * @static
+             *
+             * @example
+             *
+             *     var MyType = CryptoJS.lib.Base.extend({
+             *         field: 'value',
+             *
+             *         method: function () {
+             *         }
+             *     });
+             */
+            extend: function extend(overrides) {
+              // Spawn
+              var subtype = create(this); // Augment
+
+              if (overrides) {
+                subtype.mixIn(overrides);
+              } // Create default initializer
+
+
+              if (!subtype.hasOwnProperty('init') || this.init === subtype.init) {
+                subtype.init = function () {
+                  subtype.$super.init.apply(this, arguments);
+                };
+              } // Initializer's prototype is the subtype object
+
+
+              subtype.init.prototype = subtype; // Reference supertype
+
+              subtype.$super = this;
+              return subtype;
+            },
+
+            /**
+             * Extends this object and runs the init method.
+             * Arguments to create() will be passed to init().
+             *
+             * @return {Object} The new object.
+             *
+             * @static
+             *
+             * @example
+             *
+             *     var instance = MyType.create();
+             */
+            create: function create() {
+              var instance = this.extend();
+              instance.init.apply(instance, arguments);
+              return instance;
+            },
+
+            /**
+             * Initializes a newly created object.
+             * Override this method to add some logic when your objects are created.
+             *
+             * @example
+             *
+             *     var MyType = CryptoJS.lib.Base.extend({
+             *         init: function () {
+             *             // ...
+             *         }
+             *     });
+             */
+            init: function init() {},
+
+            /**
+             * Copies properties into this object.
+             *
+             * @param {Object} properties The properties to mix in.
+             *
+             * @example
+             *
+             *     MyType.mixIn({
+             *         field: 'value'
+             *     });
+             */
+            mixIn: function mixIn(properties) {
+              for (var propertyName in properties) {
+                if (properties.hasOwnProperty(propertyName)) {
+                  this[propertyName] = properties[propertyName];
+                }
+              } // IE won't copy toString using the loop above
+
+
+              if (properties.hasOwnProperty('toString')) {
+                this.toString = properties.toString;
+              }
+            },
+
+            /**
+             * Creates a copy of this object.
+             *
+             * @return {Object} The clone.
+             *
+             * @example
+             *
+             *     var clone = instance.clone();
+             */
+            clone: function clone() {
+              return this.init.prototype.extend(this);
+            }
+          };
+        }();
+        /**
+         * An array of 32-bit words.
+         *
+         * @property {Array} words The array of 32-bit words.
+         * @property {number} sigBytes The number of significant bytes in this word array.
+         */
+
+
+        var WordArray = C_lib.WordArray = Base.extend({
+          /**
+           * Initializes a newly created word array.
+           *
+           * @param {Array} words (Optional) An array of 32-bit words.
+           * @param {number} sigBytes (Optional) The number of significant bytes in the words.
+           *
+           * @example
+           *
+           *     var wordArray = CryptoJS.lib.WordArray.create();
+           *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607]);
+           *     var wordArray = CryptoJS.lib.WordArray.create([0x00010203, 0x04050607], 6);
+           */
+          init: function init(words, sigBytes) {
+            words = this.words = words || [];
+
+            if (sigBytes != undefined$1) {
+              this.sigBytes = sigBytes;
+            } else {
+              this.sigBytes = words.length * 4;
+            }
+          },
+
+          /**
+           * Converts this word array to a string.
+           *
+           * @param {Encoder} encoder (Optional) The encoding strategy to use. Default: CryptoJS.enc.Hex
+           *
+           * @return {string} The stringified word array.
+           *
+           * @example
+           *
+           *     var string = wordArray + '';
+           *     var string = wordArray.toString();
+           *     var string = wordArray.toString(CryptoJS.enc.Utf8);
+           */
+          toString: function toString(encoder) {
+            return (encoder || Hex).stringify(this);
+          },
+
+          /**
+           * Concatenates a word array to this word array.
+           *
+           * @param {WordArray} wordArray The word array to append.
+           *
+           * @return {WordArray} This word array.
+           *
+           * @example
+           *
+           *     wordArray1.concat(wordArray2);
+           */
+          concat: function concat(wordArray) {
+            // Shortcuts
+            var thisWords = this.words;
+            var thatWords = wordArray.words;
+            var thisSigBytes = this.sigBytes;
+            var thatSigBytes = wordArray.sigBytes; // Clamp excess bits
+
+            this.clamp(); // Concat
+
+            if (thisSigBytes % 4) {
+              // Copy one byte at a time
+              for (var i = 0; i < thatSigBytes; i++) {
+                var thatByte = thatWords[i >>> 2] >>> 24 - i % 4 * 8 & 0xff;
+                thisWords[thisSigBytes + i >>> 2] |= thatByte << 24 - (thisSigBytes + i) % 4 * 8;
+              }
+            } else {
+              // Copy one word at a time
+              for (var i = 0; i < thatSigBytes; i += 4) {
+                thisWords[thisSigBytes + i >>> 2] = thatWords[i >>> 2];
+              }
+            }
+
+            this.sigBytes += thatSigBytes; // Chainable
+
+            return this;
+          },
+
+          /**
+           * Removes insignificant bits.
+           *
+           * @example
+           *
+           *     wordArray.clamp();
+           */
+          clamp: function clamp() {
+            // Shortcuts
+            var words = this.words;
+            var sigBytes = this.sigBytes; // Clamp
+
+            words[sigBytes >>> 2] &= 0xffffffff << 32 - sigBytes % 4 * 8;
+            words.length = Math.ceil(sigBytes / 4);
+          },
+
+          /**
+           * Creates a copy of this word array.
+           *
+           * @return {WordArray} The clone.
+           *
+           * @example
+           *
+           *     var clone = wordArray.clone();
+           */
+          clone: function clone() {
+            var clone = Base.clone.call(this);
+            clone.words = this.words.slice(0);
+            return clone;
+          },
+
+          /**
+           * Creates a word array filled with random bytes.
+           *
+           * @param {number} nBytes The number of random bytes to generate.
+           *
+           * @return {WordArray} The random word array.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var wordArray = CryptoJS.lib.WordArray.random(16);
+           */
+          random: function random(nBytes) {
+            var words = [];
+
+            var r = function r(m_w) {
+              var m_w = m_w;
+              var m_z = 0x3ade68b1;
+              var mask = 0xffffffff;
+              return function () {
+                m_z = 0x9069 * (m_z & 0xFFFF) + (m_z >> 0x10) & mask;
+                m_w = 0x4650 * (m_w & 0xFFFF) + (m_w >> 0x10) & mask;
+                var result = (m_z << 0x10) + m_w & mask;
+                result /= 0x100000000;
+                result += 0.5;
+                return result * (Math.random() > .5 ? 1 : -1);
+              };
+            };
+
+            for (var i = 0, rcache; i < nBytes; i += 4) {
+              var _r = r((rcache || Math.random()) * 0x100000000);
+
+              rcache = _r() * 0x3ade67b7;
+              words.push(_r() * 0x100000000 | 0);
+            }
+
+            return new WordArray.init(words, nBytes);
+          }
+        });
+        /**
+         * Encoder namespace.
+         */
+
+        var C_enc = C.enc = {};
+        /**
+         * Hex encoding strategy.
+         */
+
+        var Hex = C_enc.Hex = {
+          /**
+           * Converts a word array to a hex string.
+           *
+           * @param {WordArray} wordArray The word array.
+           *
+           * @return {string} The hex string.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var hexString = CryptoJS.enc.Hex.stringify(wordArray);
+           */
+          stringify: function stringify(wordArray) {
+            // Shortcuts
+            var words = wordArray.words;
+            var sigBytes = wordArray.sigBytes; // Convert
+
+            var hexChars = [];
+
+            for (var i = 0; i < sigBytes; i++) {
+              var bite = words[i >>> 2] >>> 24 - i % 4 * 8 & 0xff;
+              hexChars.push((bite >>> 4).toString(16));
+              hexChars.push((bite & 0x0f).toString(16));
+            }
+
+            return hexChars.join('');
+          },
+
+          /**
+           * Converts a hex string to a word array.
+           *
+           * @param {string} hexStr The hex string.
+           *
+           * @return {WordArray} The word array.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var wordArray = CryptoJS.enc.Hex.parse(hexString);
+           */
+          parse: function parse(hexStr) {
+            // Shortcut
+            var hexStrLength = hexStr.length; // Convert
+
+            var words = [];
+
+            for (var i = 0; i < hexStrLength; i += 2) {
+              words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << 24 - i % 8 * 4;
+            }
+
+            return new WordArray.init(words, hexStrLength / 2);
+          }
+        };
+        /**
+         * Latin1 encoding strategy.
+         */
+
+        var Latin1 = C_enc.Latin1 = {
+          /**
+           * Converts a word array to a Latin1 string.
+           *
+           * @param {WordArray} wordArray The word array.
+           *
+           * @return {string} The Latin1 string.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var latin1String = CryptoJS.enc.Latin1.stringify(wordArray);
+           */
+          stringify: function stringify(wordArray) {
+            // Shortcuts
+            var words = wordArray.words;
+            var sigBytes = wordArray.sigBytes; // Convert
+
+            var latin1Chars = [];
+
+            for (var i = 0; i < sigBytes; i++) {
+              var bite = words[i >>> 2] >>> 24 - i % 4 * 8 & 0xff;
+              latin1Chars.push(String.fromCharCode(bite));
+            }
+
+            return latin1Chars.join('');
+          },
+
+          /**
+           * Converts a Latin1 string to a word array.
+           *
+           * @param {string} latin1Str The Latin1 string.
+           *
+           * @return {WordArray} The word array.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var wordArray = CryptoJS.enc.Latin1.parse(latin1String);
+           */
+          parse: function parse(latin1Str) {
+            // Shortcut
+            var latin1StrLength = latin1Str.length; // Convert
+
+            var words = [];
+
+            for (var i = 0; i < latin1StrLength; i++) {
+              words[i >>> 2] |= (latin1Str.charCodeAt(i) & 0xff) << 24 - i % 4 * 8;
+            }
+
+            return new WordArray.init(words, latin1StrLength);
+          }
+        };
+        /**
+         * UTF-8 encoding strategy.
+         */
+
+        var Utf8 = C_enc.Utf8 = {
+          /**
+           * Converts a word array to a UTF-8 string.
+           *
+           * @param {WordArray} wordArray The word array.
+           *
+           * @return {string} The UTF-8 string.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var utf8String = CryptoJS.enc.Utf8.stringify(wordArray);
+           */
+          stringify: function stringify(wordArray) {
+            try {
+              return decodeURIComponent(escape(Latin1.stringify(wordArray)));
+            } catch (e) {
+              throw new Error('Malformed UTF-8 data');
+            }
+          },
+
+          /**
+           * Converts a UTF-8 string to a word array.
+           *
+           * @param {string} utf8Str The UTF-8 string.
+           *
+           * @return {WordArray} The word array.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var wordArray = CryptoJS.enc.Utf8.parse(utf8String);
+           */
+          parse: function parse(utf8Str) {
+            return Latin1.parse(unescape(encodeURIComponent(utf8Str)));
+          }
+        };
+        /**
+         * Abstract buffered block algorithm template.
+         *
+         * The property blockSize must be implemented in a concrete subtype.
+         *
+         * @property {number} _minBufferSize The number of blocks that should be kept unprocessed in the buffer. Default: 0
+         */
+
+        var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm = Base.extend({
+          /**
+           * Resets this block algorithm's data buffer to its initial state.
+           *
+           * @example
+           *
+           *     bufferedBlockAlgorithm.reset();
+           */
+          reset: function reset() {
+            // Initial values
+            this._data = new WordArray.init();
+            this._nDataBytes = 0;
+          },
+
+          /**
+           * Adds new data to this block algorithm's buffer.
+           *
+           * @param {WordArray|string} data The data to append. Strings are converted to a WordArray using UTF-8.
+           *
+           * @example
+           *
+           *     bufferedBlockAlgorithm._append('data');
+           *     bufferedBlockAlgorithm._append(wordArray);
+           */
+          _append: function _append(data) {
+            // Convert string to WordArray, else assume WordArray already
+            if (typeof data == 'string') {
+              data = Utf8.parse(data);
+            } // Append
+
+
+            this._data.concat(data);
+
+            this._nDataBytes += data.sigBytes;
+          },
+
+          /**
+           * Processes available data blocks.
+           *
+           * This method invokes _doProcessBlock(offset), which must be implemented by a concrete subtype.
+           *
+           * @param {boolean} doFlush Whether all blocks and partial blocks should be processed.
+           *
+           * @return {WordArray} The processed data.
+           *
+           * @example
+           *
+           *     var processedData = bufferedBlockAlgorithm._process();
+           *     var processedData = bufferedBlockAlgorithm._process(!!'flush');
+           */
+          _process: function _process(doFlush) {
+            // Shortcuts
+            var data = this._data;
+            var dataWords = data.words;
+            var dataSigBytes = data.sigBytes;
+            var blockSize = this.blockSize;
+            var blockSizeBytes = blockSize * 4; // Count blocks ready
+
+            var nBlocksReady = dataSigBytes / blockSizeBytes;
+
+            if (doFlush) {
+              // Round up to include partial blocks
+              nBlocksReady = Math.ceil(nBlocksReady);
+            } else {
+              // Round down to include only full blocks,
+              // less the number of blocks that must remain in the buffer
+              nBlocksReady = Math.max((nBlocksReady | 0) - this._minBufferSize, 0);
+            } // Count words ready
+
+
+            var nWordsReady = nBlocksReady * blockSize; // Count bytes ready
+
+            var nBytesReady = Math.min(nWordsReady * 4, dataSigBytes); // Process blocks
+
+            if (nWordsReady) {
+              for (var offset = 0; offset < nWordsReady; offset += blockSize) {
+                // Perform concrete-algorithm logic
+                this._doProcessBlock(dataWords, offset);
+              } // Remove processed words
+
+
+              var processedWords = dataWords.splice(0, nWordsReady);
+              data.sigBytes -= nBytesReady;
+            } // Return processed words
+
+
+            return new WordArray.init(processedWords, nBytesReady);
+          },
+
+          /**
+           * Creates a copy of this object.
+           *
+           * @return {Object} The clone.
+           *
+           * @example
+           *
+           *     var clone = bufferedBlockAlgorithm.clone();
+           */
+          clone: function clone() {
+            var clone = Base.clone.call(this);
+            clone._data = this._data.clone();
+            return clone;
+          },
+          _minBufferSize: 0
+        });
+        /**
+         * Abstract hasher template.
+         *
+         * @property {number} blockSize The number of 32-bit words this hasher operates on. Default: 16 (512 bits)
+         */
+
+        var Hasher = C_lib.Hasher = BufferedBlockAlgorithm.extend({
+          /**
+           * Configuration options.
+           */
+          cfg: Base.extend(),
+
+          /**
+           * Initializes a newly created hasher.
+           *
+           * @param {Object} cfg (Optional) The configuration options to use for this hash computation.
+           *
+           * @example
+           *
+           *     var hasher = CryptoJS.algo.SHA256.create();
+           */
+          init: function init(cfg) {
+            // Apply config defaults
+            this.cfg = this.cfg.extend(cfg); // Set initial values
+
+            this.reset();
+          },
+
+          /**
+           * Resets this hasher to its initial state.
+           *
+           * @example
+           *
+           *     hasher.reset();
+           */
+          reset: function reset() {
+            // Reset data buffer
+            BufferedBlockAlgorithm.reset.call(this); // Perform concrete-hasher logic
+
+            this._doReset();
+          },
+
+          /**
+           * Updates this hasher with a message.
+           *
+           * @param {WordArray|string} messageUpdate The message to append.
+           *
+           * @return {Hasher} This hasher.
+           *
+           * @example
+           *
+           *     hasher.update('message');
+           *     hasher.update(wordArray);
+           */
+          update: function update(messageUpdate) {
+            // Append
+            this._append(messageUpdate); // Update the hash
+
+
+            this._process(); // Chainable
+
+
+            return this;
+          },
+
+          /**
+           * Finalizes the hash computation.
+           * Note that the finalize operation is effectively a destructive, read-once operation.
+           *
+           * @param {WordArray|string} messageUpdate (Optional) A final message update.
+           *
+           * @return {WordArray} The hash.
+           *
+           * @example
+           *
+           *     var hash = hasher.finalize();
+           *     var hash = hasher.finalize('message');
+           *     var hash = hasher.finalize(wordArray);
+           */
+          finalize: function finalize(messageUpdate) {
+            // Final message update
+            if (messageUpdate) {
+              this._append(messageUpdate);
+            } // Perform concrete-hasher logic
+
+
+            var hash = this._doFinalize();
+
+            return hash;
+          },
+          blockSize: 512 / 32,
+
+          /**
+           * Creates a shortcut function to a hasher's object interface.
+           *
+           * @param {Hasher} hasher The hasher to create a helper for.
+           *
+           * @return {Function} The shortcut function.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var SHA256 = CryptoJS.lib.Hasher._createHelper(CryptoJS.algo.SHA256);
+           */
+          _createHelper: function _createHelper(hasher) {
+            return function (message, cfg) {
+              return new hasher.init(cfg).finalize(message);
+            };
+          },
+
+          /**
+           * Creates a shortcut function to the HMAC's object interface.
+           *
+           * @param {Hasher} hasher The hasher to use in this HMAC helper.
+           *
+           * @return {Function} The shortcut function.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var HmacSHA256 = CryptoJS.lib.Hasher._createHmacHelper(CryptoJS.algo.SHA256);
+           */
+          _createHmacHelper: function _createHmacHelper(hasher) {
+            return function (message, key) {
+              return new C_algo.HMAC.init(hasher, key).finalize(message);
+            };
+          }
+        });
+        /**
+         * Algorithm namespace.
+         */
+
+        var C_algo = C.algo = {};
+        return C;
+      }(Math);
+
+      return CryptoJS;
+    });
+  });
+
+  var encBase64 = createCommonjsModule(function (module, exports) {
+
+    (function (root, factory) {
+      {
+        // CommonJS
+        module.exports = exports = factory(core);
+      }
+    })(commonjsGlobal, function (CryptoJS) {
+      (function () {
+        // Shortcuts
+        var C = CryptoJS;
+        var C_lib = C.lib;
+        var WordArray = C_lib.WordArray;
+        var C_enc = C.enc;
+        /**
+         * Base64 encoding strategy.
+         */
+
+        var Base64 = C_enc.Base64 = {
+          /**
+           * Converts a word array to a Base64 string.
+           *
+           * @param {WordArray} wordArray The word array.
+           *
+           * @return {string} The Base64 string.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var base64String = CryptoJS.enc.Base64.stringify(wordArray);
+           */
+          stringify: function stringify(wordArray) {
+            // Shortcuts
+            var words = wordArray.words;
+            var sigBytes = wordArray.sigBytes;
+            var map = this._map; // Clamp excess bits
+
+            wordArray.clamp(); // Convert
+
+            var base64Chars = [];
+
+            for (var i = 0; i < sigBytes; i += 3) {
+              var byte1 = words[i >>> 2] >>> 24 - i % 4 * 8 & 0xff;
+              var byte2 = words[i + 1 >>> 2] >>> 24 - (i + 1) % 4 * 8 & 0xff;
+              var byte3 = words[i + 2 >>> 2] >>> 24 - (i + 2) % 4 * 8 & 0xff;
+              var triplet = byte1 << 16 | byte2 << 8 | byte3;
+
+              for (var j = 0; j < 4 && i + j * 0.75 < sigBytes; j++) {
+                base64Chars.push(map.charAt(triplet >>> 6 * (3 - j) & 0x3f));
+              }
+            } // Add padding
+
+
+            var paddingChar = map.charAt(64);
+
+            if (paddingChar) {
+              while (base64Chars.length % 4) {
+                base64Chars.push(paddingChar);
+              }
+            }
+
+            return base64Chars.join('');
+          },
+
+          /**
+           * Converts a Base64 string to a word array.
+           *
+           * @param {string} base64Str The Base64 string.
+           *
+           * @return {WordArray} The word array.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var wordArray = CryptoJS.enc.Base64.parse(base64String);
+           */
+          parse: function parse(base64Str) {
+            // Shortcuts
+            var base64StrLength = base64Str.length;
+            var map = this._map;
+            var reverseMap = this._reverseMap;
+
+            if (!reverseMap) {
+              reverseMap = this._reverseMap = [];
+
+              for (var j = 0; j < map.length; j++) {
+                reverseMap[map.charCodeAt(j)] = j;
+              }
+            } // Ignore padding
+
+
+            var paddingChar = map.charAt(64);
+
+            if (paddingChar) {
+              var paddingIndex = base64Str.indexOf(paddingChar);
+
+              if (paddingIndex !== -1) {
+                base64StrLength = paddingIndex;
+              }
+            } // Convert
+
+
+            return parseLoop(base64Str, base64StrLength, reverseMap);
+          },
+          _map: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
+        };
+
+        function parseLoop(base64Str, base64StrLength, reverseMap) {
+          var words = [];
+          var nBytes = 0;
+
+          for (var i = 0; i < base64StrLength; i++) {
+            if (i % 4) {
+              var bits1 = reverseMap[base64Str.charCodeAt(i - 1)] << i % 4 * 2;
+              var bits2 = reverseMap[base64Str.charCodeAt(i)] >>> 6 - i % 4 * 2;
+              words[nBytes >>> 2] |= (bits1 | bits2) << 24 - nBytes % 4 * 8;
+              nBytes++;
+            }
+          }
+
+          return WordArray.create(words, nBytes);
+        }
+      })();
+
+      return CryptoJS.enc.Base64;
+    });
+  });
+
+  var md5$1 = createCommonjsModule(function (module, exports) {
+
+    (function (root, factory) {
+      {
+        // CommonJS
+        module.exports = exports = factory(core);
+      }
+    })(commonjsGlobal, function (CryptoJS) {
+      (function (Math) {
+        // Shortcuts
+        var C = CryptoJS;
+        var C_lib = C.lib;
+        var WordArray = C_lib.WordArray;
+        var Hasher = C_lib.Hasher;
+        var C_algo = C.algo; // Constants table
+
+        var T = []; // Compute constants
+
+        (function () {
+          for (var i = 0; i < 64; i++) {
+            T[i] = Math.abs(Math.sin(i + 1)) * 0x100000000 | 0;
+          }
+        })();
+        /**
+         * MD5 hash algorithm.
+         */
+
+
+        var MD5 = C_algo.MD5 = Hasher.extend({
+          _doReset: function _doReset() {
+            this._hash = new WordArray.init([0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476]);
+          },
+          _doProcessBlock: function _doProcessBlock(M, offset) {
+            // Swap endian
+            for (var i = 0; i < 16; i++) {
+              // Shortcuts
+              var offset_i = offset + i;
+              var M_offset_i = M[offset_i];
+              M[offset_i] = (M_offset_i << 8 | M_offset_i >>> 24) & 0x00ff00ff | (M_offset_i << 24 | M_offset_i >>> 8) & 0xff00ff00;
+            } // Shortcuts
+
+
+            var H = this._hash.words;
+            var M_offset_0 = M[offset + 0];
+            var M_offset_1 = M[offset + 1];
+            var M_offset_2 = M[offset + 2];
+            var M_offset_3 = M[offset + 3];
+            var M_offset_4 = M[offset + 4];
+            var M_offset_5 = M[offset + 5];
+            var M_offset_6 = M[offset + 6];
+            var M_offset_7 = M[offset + 7];
+            var M_offset_8 = M[offset + 8];
+            var M_offset_9 = M[offset + 9];
+            var M_offset_10 = M[offset + 10];
+            var M_offset_11 = M[offset + 11];
+            var M_offset_12 = M[offset + 12];
+            var M_offset_13 = M[offset + 13];
+            var M_offset_14 = M[offset + 14];
+            var M_offset_15 = M[offset + 15]; // Working varialbes
+
+            var a = H[0];
+            var b = H[1];
+            var c = H[2];
+            var d = H[3]; // Computation
+
+            a = FF(a, b, c, d, M_offset_0, 7, T[0]);
+            d = FF(d, a, b, c, M_offset_1, 12, T[1]);
+            c = FF(c, d, a, b, M_offset_2, 17, T[2]);
+            b = FF(b, c, d, a, M_offset_3, 22, T[3]);
+            a = FF(a, b, c, d, M_offset_4, 7, T[4]);
+            d = FF(d, a, b, c, M_offset_5, 12, T[5]);
+            c = FF(c, d, a, b, M_offset_6, 17, T[6]);
+            b = FF(b, c, d, a, M_offset_7, 22, T[7]);
+            a = FF(a, b, c, d, M_offset_8, 7, T[8]);
+            d = FF(d, a, b, c, M_offset_9, 12, T[9]);
+            c = FF(c, d, a, b, M_offset_10, 17, T[10]);
+            b = FF(b, c, d, a, M_offset_11, 22, T[11]);
+            a = FF(a, b, c, d, M_offset_12, 7, T[12]);
+            d = FF(d, a, b, c, M_offset_13, 12, T[13]);
+            c = FF(c, d, a, b, M_offset_14, 17, T[14]);
+            b = FF(b, c, d, a, M_offset_15, 22, T[15]);
+            a = GG(a, b, c, d, M_offset_1, 5, T[16]);
+            d = GG(d, a, b, c, M_offset_6, 9, T[17]);
+            c = GG(c, d, a, b, M_offset_11, 14, T[18]);
+            b = GG(b, c, d, a, M_offset_0, 20, T[19]);
+            a = GG(a, b, c, d, M_offset_5, 5, T[20]);
+            d = GG(d, a, b, c, M_offset_10, 9, T[21]);
+            c = GG(c, d, a, b, M_offset_15, 14, T[22]);
+            b = GG(b, c, d, a, M_offset_4, 20, T[23]);
+            a = GG(a, b, c, d, M_offset_9, 5, T[24]);
+            d = GG(d, a, b, c, M_offset_14, 9, T[25]);
+            c = GG(c, d, a, b, M_offset_3, 14, T[26]);
+            b = GG(b, c, d, a, M_offset_8, 20, T[27]);
+            a = GG(a, b, c, d, M_offset_13, 5, T[28]);
+            d = GG(d, a, b, c, M_offset_2, 9, T[29]);
+            c = GG(c, d, a, b, M_offset_7, 14, T[30]);
+            b = GG(b, c, d, a, M_offset_12, 20, T[31]);
+            a = HH(a, b, c, d, M_offset_5, 4, T[32]);
+            d = HH(d, a, b, c, M_offset_8, 11, T[33]);
+            c = HH(c, d, a, b, M_offset_11, 16, T[34]);
+            b = HH(b, c, d, a, M_offset_14, 23, T[35]);
+            a = HH(a, b, c, d, M_offset_1, 4, T[36]);
+            d = HH(d, a, b, c, M_offset_4, 11, T[37]);
+            c = HH(c, d, a, b, M_offset_7, 16, T[38]);
+            b = HH(b, c, d, a, M_offset_10, 23, T[39]);
+            a = HH(a, b, c, d, M_offset_13, 4, T[40]);
+            d = HH(d, a, b, c, M_offset_0, 11, T[41]);
+            c = HH(c, d, a, b, M_offset_3, 16, T[42]);
+            b = HH(b, c, d, a, M_offset_6, 23, T[43]);
+            a = HH(a, b, c, d, M_offset_9, 4, T[44]);
+            d = HH(d, a, b, c, M_offset_12, 11, T[45]);
+            c = HH(c, d, a, b, M_offset_15, 16, T[46]);
+            b = HH(b, c, d, a, M_offset_2, 23, T[47]);
+            a = II(a, b, c, d, M_offset_0, 6, T[48]);
+            d = II(d, a, b, c, M_offset_7, 10, T[49]);
+            c = II(c, d, a, b, M_offset_14, 15, T[50]);
+            b = II(b, c, d, a, M_offset_5, 21, T[51]);
+            a = II(a, b, c, d, M_offset_12, 6, T[52]);
+            d = II(d, a, b, c, M_offset_3, 10, T[53]);
+            c = II(c, d, a, b, M_offset_10, 15, T[54]);
+            b = II(b, c, d, a, M_offset_1, 21, T[55]);
+            a = II(a, b, c, d, M_offset_8, 6, T[56]);
+            d = II(d, a, b, c, M_offset_15, 10, T[57]);
+            c = II(c, d, a, b, M_offset_6, 15, T[58]);
+            b = II(b, c, d, a, M_offset_13, 21, T[59]);
+            a = II(a, b, c, d, M_offset_4, 6, T[60]);
+            d = II(d, a, b, c, M_offset_11, 10, T[61]);
+            c = II(c, d, a, b, M_offset_2, 15, T[62]);
+            b = II(b, c, d, a, M_offset_9, 21, T[63]); // Intermediate hash value
+
+            H[0] = H[0] + a | 0;
+            H[1] = H[1] + b | 0;
+            H[2] = H[2] + c | 0;
+            H[3] = H[3] + d | 0;
+          },
+          _doFinalize: function _doFinalize() {
+            // Shortcuts
+            var data = this._data;
+            var dataWords = data.words;
+            var nBitsTotal = this._nDataBytes * 8;
+            var nBitsLeft = data.sigBytes * 8; // Add padding
+
+            dataWords[nBitsLeft >>> 5] |= 0x80 << 24 - nBitsLeft % 32;
+            var nBitsTotalH = Math.floor(nBitsTotal / 0x100000000);
+            var nBitsTotalL = nBitsTotal;
+            dataWords[(nBitsLeft + 64 >>> 9 << 4) + 15] = (nBitsTotalH << 8 | nBitsTotalH >>> 24) & 0x00ff00ff | (nBitsTotalH << 24 | nBitsTotalH >>> 8) & 0xff00ff00;
+            dataWords[(nBitsLeft + 64 >>> 9 << 4) + 14] = (nBitsTotalL << 8 | nBitsTotalL >>> 24) & 0x00ff00ff | (nBitsTotalL << 24 | nBitsTotalL >>> 8) & 0xff00ff00;
+            data.sigBytes = (dataWords.length + 1) * 4; // Hash final blocks
+
+            this._process(); // Shortcuts
+
+
+            var hash = this._hash;
+            var H = hash.words; // Swap endian
+
+            for (var i = 0; i < 4; i++) {
+              // Shortcut
+              var H_i = H[i];
+              H[i] = (H_i << 8 | H_i >>> 24) & 0x00ff00ff | (H_i << 24 | H_i >>> 8) & 0xff00ff00;
+            } // Return final computed hash
+
+
+            return hash;
+          },
+          clone: function clone() {
+            var clone = Hasher.clone.call(this);
+            clone._hash = this._hash.clone();
+            return clone;
+          }
+        });
+
+        function FF(a, b, c, d, x, s, t) {
+          var n = a + (b & c | ~b & d) + x + t;
+          return (n << s | n >>> 32 - s) + b;
+        }
+
+        function GG(a, b, c, d, x, s, t) {
+          var n = a + (b & d | c & ~d) + x + t;
+          return (n << s | n >>> 32 - s) + b;
+        }
+
+        function HH(a, b, c, d, x, s, t) {
+          var n = a + (b ^ c ^ d) + x + t;
+          return (n << s | n >>> 32 - s) + b;
+        }
+
+        function II(a, b, c, d, x, s, t) {
+          var n = a + (c ^ (b | ~d)) + x + t;
+          return (n << s | n >>> 32 - s) + b;
+        }
+        /**
+         * Shortcut function to the hasher's object interface.
+         *
+         * @param {WordArray|string} message The message to hash.
+         *
+         * @return {WordArray} The hash.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var hash = CryptoJS.MD5('message');
+         *     var hash = CryptoJS.MD5(wordArray);
+         */
+
+
+        C.MD5 = Hasher._createHelper(MD5);
+        /**
+         * Shortcut function to the HMAC's object interface.
+         *
+         * @param {WordArray|string} message The message to hash.
+         * @param {WordArray|string} key The secret key.
+         *
+         * @return {WordArray} The HMAC.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var hmac = CryptoJS.HmacMD5(message, key);
+         */
+
+        C.HmacMD5 = Hasher._createHmacHelper(MD5);
+      })(Math);
+
+      return CryptoJS.MD5;
+    });
+  });
+
+  var sha1 = createCommonjsModule(function (module, exports) {
+
+    (function (root, factory) {
+      {
+        // CommonJS
+        module.exports = exports = factory(core);
+      }
+    })(commonjsGlobal, function (CryptoJS) {
+      (function () {
+        // Shortcuts
+        var C = CryptoJS;
+        var C_lib = C.lib;
+        var WordArray = C_lib.WordArray;
+        var Hasher = C_lib.Hasher;
+        var C_algo = C.algo; // Reusable object
+
+        var W = [];
+        /**
+         * SHA-1 hash algorithm.
+         */
+
+        var SHA1 = C_algo.SHA1 = Hasher.extend({
+          _doReset: function _doReset() {
+            this._hash = new WordArray.init([0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0]);
+          },
+          _doProcessBlock: function _doProcessBlock(M, offset) {
+            // Shortcut
+            var H = this._hash.words; // Working variables
+
+            var a = H[0];
+            var b = H[1];
+            var c = H[2];
+            var d = H[3];
+            var e = H[4]; // Computation
+
+            for (var i = 0; i < 80; i++) {
+              if (i < 16) {
+                W[i] = M[offset + i] | 0;
+              } else {
+                var n = W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16];
+                W[i] = n << 1 | n >>> 31;
+              }
+
+              var t = (a << 5 | a >>> 27) + e + W[i];
+
+              if (i < 20) {
+                t += (b & c | ~b & d) + 0x5a827999;
+              } else if (i < 40) {
+                t += (b ^ c ^ d) + 0x6ed9eba1;
+              } else if (i < 60) {
+                t += (b & c | b & d | c & d) - 0x70e44324;
+              } else
+                /* if (i < 80) */
+                {
+                  t += (b ^ c ^ d) - 0x359d3e2a;
+                }
+
+              e = d;
+              d = c;
+              c = b << 30 | b >>> 2;
+              b = a;
+              a = t;
+            } // Intermediate hash value
+
+
+            H[0] = H[0] + a | 0;
+            H[1] = H[1] + b | 0;
+            H[2] = H[2] + c | 0;
+            H[3] = H[3] + d | 0;
+            H[4] = H[4] + e | 0;
+          },
+          _doFinalize: function _doFinalize() {
+            // Shortcuts
+            var data = this._data;
+            var dataWords = data.words;
+            var nBitsTotal = this._nDataBytes * 8;
+            var nBitsLeft = data.sigBytes * 8; // Add padding
+
+            dataWords[nBitsLeft >>> 5] |= 0x80 << 24 - nBitsLeft % 32;
+            dataWords[(nBitsLeft + 64 >>> 9 << 4) + 14] = Math.floor(nBitsTotal / 0x100000000);
+            dataWords[(nBitsLeft + 64 >>> 9 << 4) + 15] = nBitsTotal;
+            data.sigBytes = dataWords.length * 4; // Hash final blocks
+
+            this._process(); // Return final computed hash
+
+
+            return this._hash;
+          },
+          clone: function clone() {
+            var clone = Hasher.clone.call(this);
+            clone._hash = this._hash.clone();
+            return clone;
+          }
+        });
+        /**
+         * Shortcut function to the hasher's object interface.
+         *
+         * @param {WordArray|string} message The message to hash.
+         *
+         * @return {WordArray} The hash.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var hash = CryptoJS.SHA1('message');
+         *     var hash = CryptoJS.SHA1(wordArray);
+         */
+
+        C.SHA1 = Hasher._createHelper(SHA1);
+        /**
+         * Shortcut function to the HMAC's object interface.
+         *
+         * @param {WordArray|string} message The message to hash.
+         * @param {WordArray|string} key The secret key.
+         *
+         * @return {WordArray} The HMAC.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var hmac = CryptoJS.HmacSHA1(message, key);
+         */
+
+        C.HmacSHA1 = Hasher._createHmacHelper(SHA1);
+      })();
+
+      return CryptoJS.SHA1;
+    });
+  });
+
+  var hmac = createCommonjsModule(function (module, exports) {
+
+    (function (root, factory) {
+      {
+        // CommonJS
+        module.exports = exports = factory(core);
+      }
+    })(commonjsGlobal, function (CryptoJS) {
+      (function () {
+        // Shortcuts
+        var C = CryptoJS;
+        var C_lib = C.lib;
+        var Base = C_lib.Base;
+        var C_enc = C.enc;
+        var Utf8 = C_enc.Utf8;
+        var C_algo = C.algo;
+        /**
+         * HMAC algorithm.
+         */
+
+        var HMAC = C_algo.HMAC = Base.extend({
+          /**
+           * Initializes a newly created HMAC.
+           *
+           * @param {Hasher} hasher The hash algorithm to use.
+           * @param {WordArray|string} key The secret key.
+           *
+           * @example
+           *
+           *     var hmacHasher = CryptoJS.algo.HMAC.create(CryptoJS.algo.SHA256, key);
+           */
+          init: function init(hasher, key) {
+            // Init hasher
+            hasher = this._hasher = new hasher.init(); // Convert string to WordArray, else assume WordArray already
+
+            if (typeof key == 'string') {
+              key = Utf8.parse(key);
+            } // Shortcuts
+
+
+            var hasherBlockSize = hasher.blockSize;
+            var hasherBlockSizeBytes = hasherBlockSize * 4; // Allow arbitrary length keys
+
+            if (key.sigBytes > hasherBlockSizeBytes) {
+              key = hasher.finalize(key);
+            } // Clamp excess bits
+
+
+            key.clamp(); // Clone key for inner and outer pads
+
+            var oKey = this._oKey = key.clone();
+            var iKey = this._iKey = key.clone(); // Shortcuts
+
+            var oKeyWords = oKey.words;
+            var iKeyWords = iKey.words; // XOR keys with pad constants
+
+            for (var i = 0; i < hasherBlockSize; i++) {
+              oKeyWords[i] ^= 0x5c5c5c5c;
+              iKeyWords[i] ^= 0x36363636;
+            }
+
+            oKey.sigBytes = iKey.sigBytes = hasherBlockSizeBytes; // Set initial values
+
+            this.reset();
+          },
+
+          /**
+           * Resets this HMAC to its initial state.
+           *
+           * @example
+           *
+           *     hmacHasher.reset();
+           */
+          reset: function reset() {
+            // Shortcut
+            var hasher = this._hasher; // Reset
+
+            hasher.reset();
+            hasher.update(this._iKey);
+          },
+
+          /**
+           * Updates this HMAC with a message.
+           *
+           * @param {WordArray|string} messageUpdate The message to append.
+           *
+           * @return {HMAC} This HMAC instance.
+           *
+           * @example
+           *
+           *     hmacHasher.update('message');
+           *     hmacHasher.update(wordArray);
+           */
+          update: function update(messageUpdate) {
+            this._hasher.update(messageUpdate); // Chainable
+
+
+            return this;
+          },
+
+          /**
+           * Finalizes the HMAC computation.
+           * Note that the finalize operation is effectively a destructive, read-once operation.
+           *
+           * @param {WordArray|string} messageUpdate (Optional) A final message update.
+           *
+           * @return {WordArray} The HMAC.
+           *
+           * @example
+           *
+           *     var hmac = hmacHasher.finalize();
+           *     var hmac = hmacHasher.finalize('message');
+           *     var hmac = hmacHasher.finalize(wordArray);
+           */
+          finalize: function finalize(messageUpdate) {
+            // Shortcut
+            var hasher = this._hasher; // Compute HMAC
+
+            var innerHash = hasher.finalize(messageUpdate);
+            hasher.reset();
+            var hmac = hasher.finalize(this._oKey.clone().concat(innerHash));
+            return hmac;
+          }
+        });
+      })();
+    });
+  });
+
+  var evpkdf = createCommonjsModule(function (module, exports) {
+
+    (function (root, factory, undef) {
+      {
+        // CommonJS
+        module.exports = exports = factory(core, sha1, hmac);
+      }
+    })(commonjsGlobal, function (CryptoJS) {
+      (function () {
+        // Shortcuts
+        var C = CryptoJS;
+        var C_lib = C.lib;
+        var Base = C_lib.Base;
+        var WordArray = C_lib.WordArray;
+        var C_algo = C.algo;
+        var MD5 = C_algo.MD5;
+        /**
+         * This key derivation function is meant to conform with EVP_BytesToKey.
+         * www.openssl.org/docs/crypto/EVP_BytesToKey.html
+         */
+
+        var EvpKDF = C_algo.EvpKDF = Base.extend({
+          /**
+           * Configuration options.
+           *
+           * @property {number} keySize The key size in words to generate. Default: 4 (128 bits)
+           * @property {Hasher} hasher The hash algorithm to use. Default: MD5
+           * @property {number} iterations The number of iterations to perform. Default: 1
+           */
+          cfg: Base.extend({
+            keySize: 128 / 32,
+            hasher: MD5,
+            iterations: 1
+          }),
+
+          /**
+           * Initializes a newly created key derivation function.
+           *
+           * @param {Object} cfg (Optional) The configuration options to use for the derivation.
+           *
+           * @example
+           *
+           *     var kdf = CryptoJS.algo.EvpKDF.create();
+           *     var kdf = CryptoJS.algo.EvpKDF.create({ keySize: 8 });
+           *     var kdf = CryptoJS.algo.EvpKDF.create({ keySize: 8, iterations: 1000 });
+           */
+          init: function init(cfg) {
+            this.cfg = this.cfg.extend(cfg);
+          },
+
+          /**
+           * Derives a key from a password.
+           *
+           * @param {WordArray|string} password The password.
+           * @param {WordArray|string} salt A salt.
+           *
+           * @return {WordArray} The derived key.
+           *
+           * @example
+           *
+           *     var key = kdf.compute(password, salt);
+           */
+          compute: function compute(password, salt) {
+            // Shortcut
+            var cfg = this.cfg; // Init hasher
+
+            var hasher = cfg.hasher.create(); // Initial values
+
+            var derivedKey = WordArray.create(); // Shortcuts
+
+            var derivedKeyWords = derivedKey.words;
+            var keySize = cfg.keySize;
+            var iterations = cfg.iterations; // Generate key
+
+            while (derivedKeyWords.length < keySize) {
+              if (block) {
+                hasher.update(block);
+              }
+
+              var block = hasher.update(password).finalize(salt);
+              hasher.reset(); // Iterations
+
+              for (var i = 1; i < iterations; i++) {
+                block = hasher.finalize(block);
+                hasher.reset();
+              }
+
+              derivedKey.concat(block);
+            }
+
+            derivedKey.sigBytes = keySize * 4;
+            return derivedKey;
+          }
+        });
+        /**
+         * Derives a key from a password.
+         *
+         * @param {WordArray|string} password The password.
+         * @param {WordArray|string} salt A salt.
+         * @param {Object} cfg (Optional) The configuration options to use for this computation.
+         *
+         * @return {WordArray} The derived key.
+         *
+         * @static
+         *
+         * @example
+         *
+         *     var key = CryptoJS.EvpKDF(password, salt);
+         *     var key = CryptoJS.EvpKDF(password, salt, { keySize: 8 });
+         *     var key = CryptoJS.EvpKDF(password, salt, { keySize: 8, iterations: 1000 });
+         */
+
+        C.EvpKDF = function (password, salt, cfg) {
+          return EvpKDF.create(cfg).compute(password, salt);
+        };
+      })();
+
+      return CryptoJS.EvpKDF;
+    });
+  });
+
+  var cipherCore = createCommonjsModule(function (module, exports) {
+
+    (function (root, factory, undef) {
+      {
+        // CommonJS
+        module.exports = exports = factory(core, evpkdf);
+      }
+    })(commonjsGlobal, function (CryptoJS) {
+      /**
+       * Cipher core components.
+       */
+      CryptoJS.lib.Cipher || function (undefined$1) {
+        // Shortcuts
+        var C = CryptoJS;
+        var C_lib = C.lib;
+        var Base = C_lib.Base;
+        var WordArray = C_lib.WordArray;
+        var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm;
+        var C_enc = C.enc;
+        var Utf8 = C_enc.Utf8;
+        var Base64 = C_enc.Base64;
+        var C_algo = C.algo;
+        var EvpKDF = C_algo.EvpKDF;
+        /**
+         * Abstract base cipher template.
+         *
+         * @property {number} keySize This cipher's key size. Default: 4 (128 bits)
+         * @property {number} ivSize This cipher's IV size. Default: 4 (128 bits)
+         * @property {number} _ENC_XFORM_MODE A constant representing encryption mode.
+         * @property {number} _DEC_XFORM_MODE A constant representing decryption mode.
+         */
+
+        var Cipher = C_lib.Cipher = BufferedBlockAlgorithm.extend({
+          /**
+           * Configuration options.
+           *
+           * @property {WordArray} iv The IV to use for this operation.
+           */
+          cfg: Base.extend(),
+
+          /**
+           * Creates this cipher in encryption mode.
+           *
+           * @param {WordArray} key The key.
+           * @param {Object} cfg (Optional) The configuration options to use for this operation.
+           *
+           * @return {Cipher} A cipher instance.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var cipher = CryptoJS.algo.AES.createEncryptor(keyWordArray, { iv: ivWordArray });
+           */
+          createEncryptor: function createEncryptor(key, cfg) {
+            return this.create(this._ENC_XFORM_MODE, key, cfg);
+          },
+
+          /**
+           * Creates this cipher in decryption mode.
+           *
+           * @param {WordArray} key The key.
+           * @param {Object} cfg (Optional) The configuration options to use for this operation.
+           *
+           * @return {Cipher} A cipher instance.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var cipher = CryptoJS.algo.AES.createDecryptor(keyWordArray, { iv: ivWordArray });
+           */
+          createDecryptor: function createDecryptor(key, cfg) {
+            return this.create(this._DEC_XFORM_MODE, key, cfg);
+          },
+
+          /**
+           * Initializes a newly created cipher.
+           *
+           * @param {number} xformMode Either the encryption or decryption transormation mode constant.
+           * @param {WordArray} key The key.
+           * @param {Object} cfg (Optional) The configuration options to use for this operation.
+           *
+           * @example
+           *
+           *     var cipher = CryptoJS.algo.AES.create(CryptoJS.algo.AES._ENC_XFORM_MODE, keyWordArray, { iv: ivWordArray });
+           */
+          init: function init(xformMode, key, cfg) {
+            // Apply config defaults
+            this.cfg = this.cfg.extend(cfg); // Store transform mode and key
+
+            this._xformMode = xformMode;
+            this._key = key; // Set initial values
+
+            this.reset();
+          },
+
+          /**
+           * Resets this cipher to its initial state.
+           *
+           * @example
+           *
+           *     cipher.reset();
+           */
+          reset: function reset() {
+            // Reset data buffer
+            BufferedBlockAlgorithm.reset.call(this); // Perform concrete-cipher logic
+
+            this._doReset();
+          },
+
+          /**
+           * Adds data to be encrypted or decrypted.
+           *
+           * @param {WordArray|string} dataUpdate The data to encrypt or decrypt.
+           *
+           * @return {WordArray} The data after processing.
+           *
+           * @example
+           *
+           *     var encrypted = cipher.process('data');
+           *     var encrypted = cipher.process(wordArray);
+           */
+          process: function process(dataUpdate) {
+            // Append
+            this._append(dataUpdate); // Process available blocks
+
+
+            return this._process();
+          },
+
+          /**
+           * Finalizes the encryption or decryption process.
+           * Note that the finalize operation is effectively a destructive, read-once operation.
+           *
+           * @param {WordArray|string} dataUpdate The final data to encrypt or decrypt.
+           *
+           * @return {WordArray} The data after final processing.
+           *
+           * @example
+           *
+           *     var encrypted = cipher.finalize();
+           *     var encrypted = cipher.finalize('data');
+           *     var encrypted = cipher.finalize(wordArray);
+           */
+          finalize: function finalize(dataUpdate) {
+            // Final data update
+            if (dataUpdate) {
+              this._append(dataUpdate);
+            } // Perform concrete-cipher logic
+
+
+            var finalProcessedData = this._doFinalize();
+
+            return finalProcessedData;
+          },
+          keySize: 128 / 32,
+          ivSize: 128 / 32,
+          _ENC_XFORM_MODE: 1,
+          _DEC_XFORM_MODE: 2,
+
+          /**
+           * Creates shortcut functions to a cipher's object interface.
+           *
+           * @param {Cipher} cipher The cipher to create a helper for.
+           *
+           * @return {Object} An object with encrypt and decrypt shortcut functions.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var AES = CryptoJS.lib.Cipher._createHelper(CryptoJS.algo.AES);
+           */
+          _createHelper: function () {
+            function selectCipherStrategy(key) {
+              if (typeof key == 'string') {
+                return PasswordBasedCipher;
+              } else {
+                return SerializableCipher;
+              }
+            }
+
+            return function (cipher) {
+              return {
+                encrypt: function encrypt(message, key, cfg) {
+                  return selectCipherStrategy(key).encrypt(cipher, message, key, cfg);
+                },
+                decrypt: function decrypt(ciphertext, key, cfg) {
+                  return selectCipherStrategy(key).decrypt(cipher, ciphertext, key, cfg);
+                }
+              };
+            };
+          }()
+        });
+        /**
+         * Abstract base stream cipher template.
+         *
+         * @property {number} blockSize The number of 32-bit words this cipher operates on. Default: 1 (32 bits)
+         */
+
+        var StreamCipher = C_lib.StreamCipher = Cipher.extend({
+          _doFinalize: function _doFinalize() {
+            // Process partial blocks
+            var finalProcessedBlocks = this._process(!!'flush');
+
+            return finalProcessedBlocks;
+          },
+          blockSize: 1
+        });
+        /**
+         * Mode namespace.
+         */
+
+        var C_mode = C.mode = {};
+        /**
+         * Abstract base block cipher mode template.
+         */
+
+        var BlockCipherMode = C_lib.BlockCipherMode = Base.extend({
+          /**
+           * Creates this mode for encryption.
+           *
+           * @param {Cipher} cipher A block cipher instance.
+           * @param {Array} iv The IV words.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var mode = CryptoJS.mode.CBC.createEncryptor(cipher, iv.words);
+           */
+          createEncryptor: function createEncryptor(cipher, iv) {
+            return this.Encryptor.create(cipher, iv);
+          },
+
+          /**
+           * Creates this mode for decryption.
+           *
+           * @param {Cipher} cipher A block cipher instance.
+           * @param {Array} iv The IV words.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var mode = CryptoJS.mode.CBC.createDecryptor(cipher, iv.words);
+           */
+          createDecryptor: function createDecryptor(cipher, iv) {
+            return this.Decryptor.create(cipher, iv);
+          },
+
+          /**
+           * Initializes a newly created mode.
+           *
+           * @param {Cipher} cipher A block cipher instance.
+           * @param {Array} iv The IV words.
+           *
+           * @example
+           *
+           *     var mode = CryptoJS.mode.CBC.Encryptor.create(cipher, iv.words);
+           */
+          init: function init(cipher, iv) {
+            this._cipher = cipher;
+            this._iv = iv;
+          }
+        });
+        /**
+         * Cipher Block Chaining mode.
+         */
+
+        var CBC = C_mode.CBC = function () {
+          /**
+           * Abstract base CBC mode.
+           */
+          var CBC = BlockCipherMode.extend();
+          /**
+           * CBC encryptor.
+           */
+
+          CBC.Encryptor = CBC.extend({
+            /**
+             * Processes the data block at offset.
+             *
+             * @param {Array} words The data words to operate on.
+             * @param {number} offset The offset where the block starts.
+             *
+             * @example
+             *
+             *     mode.processBlock(data.words, offset);
+             */
+            processBlock: function processBlock(words, offset) {
+              // Shortcuts
+              var cipher = this._cipher;
+              var blockSize = cipher.blockSize; // XOR and encrypt
+
+              xorBlock.call(this, words, offset, blockSize);
+              cipher.encryptBlock(words, offset); // Remember this block to use with next block
+
+              this._prevBlock = words.slice(offset, offset + blockSize);
+            }
+          });
+          /**
+           * CBC decryptor.
+           */
+
+          CBC.Decryptor = CBC.extend({
+            /**
+             * Processes the data block at offset.
+             *
+             * @param {Array} words The data words to operate on.
+             * @param {number} offset The offset where the block starts.
+             *
+             * @example
+             *
+             *     mode.processBlock(data.words, offset);
+             */
+            processBlock: function processBlock(words, offset) {
+              // Shortcuts
+              var cipher = this._cipher;
+              var blockSize = cipher.blockSize; // Remember this block to use with next block
+
+              var thisBlock = words.slice(offset, offset + blockSize); // Decrypt and XOR
+
+              cipher.decryptBlock(words, offset);
+              xorBlock.call(this, words, offset, blockSize); // This block becomes the previous block
+
+              this._prevBlock = thisBlock;
+            }
+          });
+
+          function xorBlock(words, offset, blockSize) {
+            // Shortcut
+            var iv = this._iv; // Choose mixing block
+
+            if (iv) {
+              var block = iv; // Remove IV for subsequent blocks
+
+              this._iv = undefined$1;
+            } else {
+              var block = this._prevBlock;
+            } // XOR blocks
+
+
+            for (var i = 0; i < blockSize; i++) {
+              words[offset + i] ^= block[i];
+            }
+          }
+
+          return CBC;
+        }();
+        /**
+         * Padding namespace.
+         */
+
+
+        var C_pad = C.pad = {};
+        /**
+         * PKCS #5/7 padding strategy.
+         */
+
+        var Pkcs7 = C_pad.Pkcs7 = {
+          /**
+           * Pads data using the algorithm defined in PKCS #5/7.
+           *
+           * @param {WordArray} data The data to pad.
+           * @param {number} blockSize The multiple that the data should be padded to.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     CryptoJS.pad.Pkcs7.pad(wordArray, 4);
+           */
+          pad: function pad(data, blockSize) {
+            // Shortcut
+            var blockSizeBytes = blockSize * 4; // Count padding bytes
+
+            var nPaddingBytes = blockSizeBytes - data.sigBytes % blockSizeBytes; // Create padding word
+
+            var paddingWord = nPaddingBytes << 24 | nPaddingBytes << 16 | nPaddingBytes << 8 | nPaddingBytes; // Create padding
+
+            var paddingWords = [];
+
+            for (var i = 0; i < nPaddingBytes; i += 4) {
+              paddingWords.push(paddingWord);
+            }
+
+            var padding = WordArray.create(paddingWords, nPaddingBytes); // Add padding
+
+            data.concat(padding);
+          },
+
+          /**
+           * Unpads data that had been padded using the algorithm defined in PKCS #5/7.
+           *
+           * @param {WordArray} data The data to unpad.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     CryptoJS.pad.Pkcs7.unpad(wordArray);
+           */
+          unpad: function unpad(data) {
+            // Get number of padding bytes from last byte
+            var nPaddingBytes = data.words[data.sigBytes - 1 >>> 2] & 0xff; // Remove padding
+
+            data.sigBytes -= nPaddingBytes;
+          }
+        };
+        /**
+         * Abstract base block cipher template.
+         *
+         * @property {number} blockSize The number of 32-bit words this cipher operates on. Default: 4 (128 bits)
+         */
+
+        var BlockCipher = C_lib.BlockCipher = Cipher.extend({
+          /**
+           * Configuration options.
+           *
+           * @property {Mode} mode The block mode to use. Default: CBC
+           * @property {Padding} padding The padding strategy to use. Default: Pkcs7
+           */
+          cfg: Cipher.cfg.extend({
+            mode: CBC,
+            padding: Pkcs7
+          }),
+          reset: function reset() {
+            // Reset cipher
+            Cipher.reset.call(this); // Shortcuts
+
+            var cfg = this.cfg;
+            var iv = cfg.iv;
+            var mode = cfg.mode; // Reset block mode
+
+            if (this._xformMode == this._ENC_XFORM_MODE) {
+              var modeCreator = mode.createEncryptor;
+            } else
+              /* if (this._xformMode == this._DEC_XFORM_MODE) */
+              {
+                var modeCreator = mode.createDecryptor; // Keep at least one block in the buffer for unpadding
+
+                this._minBufferSize = 1;
+              }
+
+            if (this._mode && this._mode.__creator == modeCreator) {
+              this._mode.init(this, iv && iv.words);
+            } else {
+              this._mode = modeCreator.call(mode, this, iv && iv.words);
+              this._mode.__creator = modeCreator;
+            }
+          },
+          _doProcessBlock: function _doProcessBlock(words, offset) {
+            this._mode.processBlock(words, offset);
+          },
+          _doFinalize: function _doFinalize() {
+            // Shortcut
+            var padding = this.cfg.padding; // Finalize
+
+            if (this._xformMode == this._ENC_XFORM_MODE) {
+              // Pad data
+              padding.pad(this._data, this.blockSize); // Process final blocks
+
+              var finalProcessedBlocks = this._process(!!'flush');
+            } else
+              /* if (this._xformMode == this._DEC_XFORM_MODE) */
+              {
+                // Process final blocks
+                var finalProcessedBlocks = this._process(!!'flush'); // Unpad data
+
+
+                padding.unpad(finalProcessedBlocks);
+              }
+
+            return finalProcessedBlocks;
+          },
+          blockSize: 128 / 32
+        });
+        /**
+         * A collection of cipher parameters.
+         *
+         * @property {WordArray} ciphertext The raw ciphertext.
+         * @property {WordArray} key The key to this ciphertext.
+         * @property {WordArray} iv The IV used in the ciphering operation.
+         * @property {WordArray} salt The salt used with a key derivation function.
+         * @property {Cipher} algorithm The cipher algorithm.
+         * @property {Mode} mode The block mode used in the ciphering operation.
+         * @property {Padding} padding The padding scheme used in the ciphering operation.
+         * @property {number} blockSize The block size of the cipher.
+         * @property {Format} formatter The default formatting strategy to convert this cipher params object to a string.
+         */
+
+        var CipherParams = C_lib.CipherParams = Base.extend({
+          /**
+           * Initializes a newly created cipher params object.
+           *
+           * @param {Object} cipherParams An object with any of the possible cipher parameters.
+           *
+           * @example
+           *
+           *     var cipherParams = CryptoJS.lib.CipherParams.create({
+           *         ciphertext: ciphertextWordArray,
+           *         key: keyWordArray,
+           *         iv: ivWordArray,
+           *         salt: saltWordArray,
+           *         algorithm: CryptoJS.algo.AES,
+           *         mode: CryptoJS.mode.CBC,
+           *         padding: CryptoJS.pad.PKCS7,
+           *         blockSize: 4,
+           *         formatter: CryptoJS.format.OpenSSL
+           *     });
+           */
+          init: function init(cipherParams) {
+            this.mixIn(cipherParams);
+          },
+
+          /**
+           * Converts this cipher params object to a string.
+           *
+           * @param {Format} formatter (Optional) The formatting strategy to use.
+           *
+           * @return {string} The stringified cipher params.
+           *
+           * @throws Error If neither the formatter nor the default formatter is set.
+           *
+           * @example
+           *
+           *     var string = cipherParams + '';
+           *     var string = cipherParams.toString();
+           *     var string = cipherParams.toString(CryptoJS.format.OpenSSL);
+           */
+          toString: function toString(formatter) {
+            return (formatter || this.formatter).stringify(this);
+          }
+        });
+        /**
+         * Format namespace.
+         */
+
+        var C_format = C.format = {};
+        /**
+         * OpenSSL formatting strategy.
+         */
+
+        var OpenSSLFormatter = C_format.OpenSSL = {
+          /**
+           * Converts a cipher params object to an OpenSSL-compatible string.
+           *
+           * @param {CipherParams} cipherParams The cipher params object.
+           *
+           * @return {string} The OpenSSL-compatible string.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var openSSLString = CryptoJS.format.OpenSSL.stringify(cipherParams);
+           */
+          stringify: function stringify(cipherParams) {
+            // Shortcuts
+            var ciphertext = cipherParams.ciphertext;
+            var salt = cipherParams.salt; // Format
+
+            if (salt) {
+              var wordArray = WordArray.create([0x53616c74, 0x65645f5f]).concat(salt).concat(ciphertext);
+            } else {
+              var wordArray = ciphertext;
+            }
+
+            return wordArray.toString(Base64);
+          },
+
+          /**
+           * Converts an OpenSSL-compatible string to a cipher params object.
+           *
+           * @param {string} openSSLStr The OpenSSL-compatible string.
+           *
+           * @return {CipherParams} The cipher params object.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var cipherParams = CryptoJS.format.OpenSSL.parse(openSSLString);
+           */
+          parse: function parse(openSSLStr) {
+            // Parse base64
+            var ciphertext = Base64.parse(openSSLStr); // Shortcut
+
+            var ciphertextWords = ciphertext.words; // Test for salt
+
+            if (ciphertextWords[0] == 0x53616c74 && ciphertextWords[1] == 0x65645f5f) {
+              // Extract salt
+              var salt = WordArray.create(ciphertextWords.slice(2, 4)); // Remove salt from ciphertext
+
+              ciphertextWords.splice(0, 4);
+              ciphertext.sigBytes -= 16;
+            }
+
+            return CipherParams.create({
+              ciphertext: ciphertext,
+              salt: salt
+            });
+          }
+        };
+        /**
+         * A cipher wrapper that returns ciphertext as a serializable cipher params object.
+         */
+
+        var SerializableCipher = C_lib.SerializableCipher = Base.extend({
+          /**
+           * Configuration options.
+           *
+           * @property {Formatter} format The formatting strategy to convert cipher param objects to and from a string. Default: OpenSSL
+           */
+          cfg: Base.extend({
+            format: OpenSSLFormatter
+          }),
+
+          /**
+           * Encrypts a message.
+           *
+           * @param {Cipher} cipher The cipher algorithm to use.
+           * @param {WordArray|string} message The message to encrypt.
+           * @param {WordArray} key The key.
+           * @param {Object} cfg (Optional) The configuration options to use for this operation.
+           *
+           * @return {CipherParams} A cipher params object.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var ciphertextParams = CryptoJS.lib.SerializableCipher.encrypt(CryptoJS.algo.AES, message, key);
+           *     var ciphertextParams = CryptoJS.lib.SerializableCipher.encrypt(CryptoJS.algo.AES, message, key, { iv: iv });
+           *     var ciphertextParams = CryptoJS.lib.SerializableCipher.encrypt(CryptoJS.algo.AES, message, key, { iv: iv, format: CryptoJS.format.OpenSSL });
+           */
+          encrypt: function encrypt(cipher, message, key, cfg) {
+            // Apply config defaults
+            cfg = this.cfg.extend(cfg); // Encrypt
+
+            var encryptor = cipher.createEncryptor(key, cfg);
+            var ciphertext = encryptor.finalize(message); // Shortcut
+
+            var cipherCfg = encryptor.cfg; // Create and return serializable cipher params
+
+            return CipherParams.create({
+              ciphertext: ciphertext,
+              key: key,
+              iv: cipherCfg.iv,
+              algorithm: cipher,
+              mode: cipherCfg.mode,
+              padding: cipherCfg.padding,
+              blockSize: cipher.blockSize,
+              formatter: cfg.format
+            });
+          },
+
+          /**
+           * Decrypts serialized ciphertext.
+           *
+           * @param {Cipher} cipher The cipher algorithm to use.
+           * @param {CipherParams|string} ciphertext The ciphertext to decrypt.
+           * @param {WordArray} key The key.
+           * @param {Object} cfg (Optional) The configuration options to use for this operation.
+           *
+           * @return {WordArray} The plaintext.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var plaintext = CryptoJS.lib.SerializableCipher.decrypt(CryptoJS.algo.AES, formattedCiphertext, key, { iv: iv, format: CryptoJS.format.OpenSSL });
+           *     var plaintext = CryptoJS.lib.SerializableCipher.decrypt(CryptoJS.algo.AES, ciphertextParams, key, { iv: iv, format: CryptoJS.format.OpenSSL });
+           */
+          decrypt: function decrypt(cipher, ciphertext, key, cfg) {
+            // Apply config defaults
+            cfg = this.cfg.extend(cfg); // Convert string to CipherParams
+
+            ciphertext = this._parse(ciphertext, cfg.format); // Decrypt
+
+            var plaintext = cipher.createDecryptor(key, cfg).finalize(ciphertext.ciphertext);
+            return plaintext;
+          },
+
+          /**
+           * Converts serialized ciphertext to CipherParams,
+           * else assumed CipherParams already and returns ciphertext unchanged.
+           *
+           * @param {CipherParams|string} ciphertext The ciphertext.
+           * @param {Formatter} format The formatting strategy to use to parse serialized ciphertext.
+           *
+           * @return {CipherParams} The unserialized ciphertext.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var ciphertextParams = CryptoJS.lib.SerializableCipher._parse(ciphertextStringOrParams, format);
+           */
+          _parse: function _parse(ciphertext, format) {
+            if (typeof ciphertext == 'string') {
+              return format.parse(ciphertext, this);
+            } else {
+              return ciphertext;
+            }
+          }
+        });
+        /**
+         * Key derivation function namespace.
+         */
+
+        var C_kdf = C.kdf = {};
+        /**
+         * OpenSSL key derivation function.
+         */
+
+        var OpenSSLKdf = C_kdf.OpenSSL = {
+          /**
+           * Derives a key and IV from a password.
+           *
+           * @param {string} password The password to derive from.
+           * @param {number} keySize The size in words of the key to generate.
+           * @param {number} ivSize The size in words of the IV to generate.
+           * @param {WordArray|string} salt (Optional) A 64-bit salt to use. If omitted, a salt will be generated randomly.
+           *
+           * @return {CipherParams} A cipher params object with the key, IV, and salt.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var derivedParams = CryptoJS.kdf.OpenSSL.execute('Password', 256/32, 128/32);
+           *     var derivedParams = CryptoJS.kdf.OpenSSL.execute('Password', 256/32, 128/32, 'saltsalt');
+           */
+          execute: function execute(password, keySize, ivSize, salt) {
+            // Generate random salt
+            if (!salt) {
+              salt = WordArray.random(64 / 8);
+            } // Derive key and IV
+
+
+            var key = EvpKDF.create({
+              keySize: keySize + ivSize
+            }).compute(password, salt); // Separate key and IV
+
+            var iv = WordArray.create(key.words.slice(keySize), ivSize * 4);
+            key.sigBytes = keySize * 4; // Return params
+
+            return CipherParams.create({
+              key: key,
+              iv: iv,
+              salt: salt
+            });
+          }
+        };
+        /**
+         * A serializable cipher wrapper that derives the key from a password,
+         * and returns ciphertext as a serializable cipher params object.
+         */
+
+        var PasswordBasedCipher = C_lib.PasswordBasedCipher = SerializableCipher.extend({
+          /**
+           * Configuration options.
+           *
+           * @property {KDF} kdf The key derivation function to use to generate a key and IV from a password. Default: OpenSSL
+           */
+          cfg: SerializableCipher.cfg.extend({
+            kdf: OpenSSLKdf
+          }),
+
+          /**
+           * Encrypts a message using a password.
+           *
+           * @param {Cipher} cipher The cipher algorithm to use.
+           * @param {WordArray|string} message The message to encrypt.
+           * @param {string} password The password.
+           * @param {Object} cfg (Optional) The configuration options to use for this operation.
+           *
+           * @return {CipherParams} A cipher params object.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var ciphertextParams = CryptoJS.lib.PasswordBasedCipher.encrypt(CryptoJS.algo.AES, message, 'password');
+           *     var ciphertextParams = CryptoJS.lib.PasswordBasedCipher.encrypt(CryptoJS.algo.AES, message, 'password', { format: CryptoJS.format.OpenSSL });
+           */
+          encrypt: function encrypt(cipher, message, password, cfg) {
+            // Apply config defaults
+            cfg = this.cfg.extend(cfg); // Derive key and other params
+
+            var derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize); // Add IV to config
+
+            cfg.iv = derivedParams.iv; // Encrypt
+
+            var ciphertext = SerializableCipher.encrypt.call(this, cipher, message, derivedParams.key, cfg); // Mix in derived params
+
+            ciphertext.mixIn(derivedParams);
+            return ciphertext;
+          },
+
+          /**
+           * Decrypts serialized ciphertext using a password.
+           *
+           * @param {Cipher} cipher The cipher algorithm to use.
+           * @param {CipherParams|string} ciphertext The ciphertext to decrypt.
+           * @param {string} password The password.
+           * @param {Object} cfg (Optional) The configuration options to use for this operation.
+           *
+           * @return {WordArray} The plaintext.
+           *
+           * @static
+           *
+           * @example
+           *
+           *     var plaintext = CryptoJS.lib.PasswordBasedCipher.decrypt(CryptoJS.algo.AES, formattedCiphertext, 'password', { format: CryptoJS.format.OpenSSL });
+           *     var plaintext = CryptoJS.lib.PasswordBasedCipher.decrypt(CryptoJS.algo.AES, ciphertextParams, 'password', { format: CryptoJS.format.OpenSSL });
+           */
+          decrypt: function decrypt(cipher, ciphertext, password, cfg) {
+            // Apply config defaults
+            cfg = this.cfg.extend(cfg); // Convert string to CipherParams
+
+            ciphertext = this._parse(ciphertext, cfg.format); // Derive key and other params
+
+            var derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize, ciphertext.salt); // Add IV to config
+
+            cfg.iv = derivedParams.iv; // Decrypt
+
+            var plaintext = SerializableCipher.decrypt.call(this, cipher, ciphertext, derivedParams.key, cfg);
+            return plaintext;
+          }
+        });
+      }();
+    });
+  });
+
+  var aes = createCommonjsModule(function (module, exports) {
+
+    (function (root, factory, undef) {
+      {
+        // CommonJS
+        module.exports = exports = factory(core, encBase64, md5$1, evpkdf, cipherCore);
+      }
+    })(commonjsGlobal, function (CryptoJS) {
+      (function () {
+        // Shortcuts
+        var C = CryptoJS;
+        var C_lib = C.lib;
+        var BlockCipher = C_lib.BlockCipher;
+        var C_algo = C.algo; // Lookup tables
+
+        var SBOX = [];
+        var INV_SBOX = [];
+        var SUB_MIX_0 = [];
+        var SUB_MIX_1 = [];
+        var SUB_MIX_2 = [];
+        var SUB_MIX_3 = [];
+        var INV_SUB_MIX_0 = [];
+        var INV_SUB_MIX_1 = [];
+        var INV_SUB_MIX_2 = [];
+        var INV_SUB_MIX_3 = []; // Compute lookup tables
+
+        (function () {
+          // Compute double table
+          var d = [];
+
+          for (var i = 0; i < 256; i++) {
+            if (i < 128) {
+              d[i] = i << 1;
+            } else {
+              d[i] = i << 1 ^ 0x11b;
+            }
+          } // Walk GF(2^8)
+
+
+          var x = 0;
+          var xi = 0;
+
+          for (var i = 0; i < 256; i++) {
+            // Compute sbox
+            var sx = xi ^ xi << 1 ^ xi << 2 ^ xi << 3 ^ xi << 4;
+            sx = sx >>> 8 ^ sx & 0xff ^ 0x63;
+            SBOX[x] = sx;
+            INV_SBOX[sx] = x; // Compute multiplication
+
+            var x2 = d[x];
+            var x4 = d[x2];
+            var x8 = d[x4]; // Compute sub bytes, mix columns tables
+
+            var t = d[sx] * 0x101 ^ sx * 0x1010100;
+            SUB_MIX_0[x] = t << 24 | t >>> 8;
+            SUB_MIX_1[x] = t << 16 | t >>> 16;
+            SUB_MIX_2[x] = t << 8 | t >>> 24;
+            SUB_MIX_3[x] = t; // Compute inv sub bytes, inv mix columns tables
+
+            var t = x8 * 0x1010101 ^ x4 * 0x10001 ^ x2 * 0x101 ^ x * 0x1010100;
+            INV_SUB_MIX_0[sx] = t << 24 | t >>> 8;
+            INV_SUB_MIX_1[sx] = t << 16 | t >>> 16;
+            INV_SUB_MIX_2[sx] = t << 8 | t >>> 24;
+            INV_SUB_MIX_3[sx] = t; // Compute next counter
+
+            if (!x) {
+              x = xi = 1;
+            } else {
+              x = x2 ^ d[d[d[x8 ^ x2]]];
+              xi ^= d[d[xi]];
+            }
+          }
+        })(); // Precomputed Rcon lookup
+
+
+        var RCON = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
+        /**
+         * AES block cipher algorithm.
+         */
+
+        var AES = C_algo.AES = BlockCipher.extend({
+          _doReset: function _doReset() {
+            // Skip reset of nRounds has been set before and key did not change
+            if (this._nRounds && this._keyPriorReset === this._key) {
+              return;
+            } // Shortcuts
+
+
+            var key = this._keyPriorReset = this._key;
+            var keyWords = key.words;
+            var keySize = key.sigBytes / 4; // Compute number of rounds
+
+            var nRounds = this._nRounds = keySize + 6; // Compute number of key schedule rows
+
+            var ksRows = (nRounds + 1) * 4; // Compute key schedule
+
+            var keySchedule = this._keySchedule = [];
+
+            for (var ksRow = 0; ksRow < ksRows; ksRow++) {
+              if (ksRow < keySize) {
+                keySchedule[ksRow] = keyWords[ksRow];
+              } else {
+                var t = keySchedule[ksRow - 1];
+
+                if (!(ksRow % keySize)) {
+                  // Rot word
+                  t = t << 8 | t >>> 24; // Sub word
+
+                  t = SBOX[t >>> 24] << 24 | SBOX[t >>> 16 & 0xff] << 16 | SBOX[t >>> 8 & 0xff] << 8 | SBOX[t & 0xff]; // Mix Rcon
+
+                  t ^= RCON[ksRow / keySize | 0] << 24;
+                } else if (keySize > 6 && ksRow % keySize == 4) {
+                  // Sub word
+                  t = SBOX[t >>> 24] << 24 | SBOX[t >>> 16 & 0xff] << 16 | SBOX[t >>> 8 & 0xff] << 8 | SBOX[t & 0xff];
+                }
+
+                keySchedule[ksRow] = keySchedule[ksRow - keySize] ^ t;
+              }
+            } // Compute inv key schedule
+
+
+            var invKeySchedule = this._invKeySchedule = [];
+
+            for (var invKsRow = 0; invKsRow < ksRows; invKsRow++) {
+              var ksRow = ksRows - invKsRow;
+
+              if (invKsRow % 4) {
+                var t = keySchedule[ksRow];
+              } else {
+                var t = keySchedule[ksRow - 4];
+              }
+
+              if (invKsRow < 4 || ksRow <= 4) {
+                invKeySchedule[invKsRow] = t;
+              } else {
+                invKeySchedule[invKsRow] = INV_SUB_MIX_0[SBOX[t >>> 24]] ^ INV_SUB_MIX_1[SBOX[t >>> 16 & 0xff]] ^ INV_SUB_MIX_2[SBOX[t >>> 8 & 0xff]] ^ INV_SUB_MIX_3[SBOX[t & 0xff]];
+              }
+            }
+          },
+          encryptBlock: function encryptBlock(M, offset) {
+            this._doCryptBlock(M, offset, this._keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX);
+          },
+          decryptBlock: function decryptBlock(M, offset) {
+            // Swap 2nd and 4th rows
+            var t = M[offset + 1];
+            M[offset + 1] = M[offset + 3];
+            M[offset + 3] = t;
+
+            this._doCryptBlock(M, offset, this._invKeySchedule, INV_SUB_MIX_0, INV_SUB_MIX_1, INV_SUB_MIX_2, INV_SUB_MIX_3, INV_SBOX); // Inv swap 2nd and 4th rows
+
+
+            var t = M[offset + 1];
+            M[offset + 1] = M[offset + 3];
+            M[offset + 3] = t;
+          },
+          _doCryptBlock: function _doCryptBlock(M, offset, keySchedule, SUB_MIX_0, SUB_MIX_1, SUB_MIX_2, SUB_MIX_3, SBOX) {
+            // Shortcut
+            var nRounds = this._nRounds; // Get input, add round key
+
+            var s0 = M[offset] ^ keySchedule[0];
+            var s1 = M[offset + 1] ^ keySchedule[1];
+            var s2 = M[offset + 2] ^ keySchedule[2];
+            var s3 = M[offset + 3] ^ keySchedule[3]; // Key schedule row counter
+
+            var ksRow = 4; // Rounds
+
+            for (var round = 1; round < nRounds; round++) {
+              // Shift rows, sub bytes, mix columns, add round key
+              var t0 = SUB_MIX_0[s0 >>> 24] ^ SUB_MIX_1[s1 >>> 16 & 0xff] ^ SUB_MIX_2[s2 >>> 8 & 0xff] ^ SUB_MIX_3[s3 & 0xff] ^ keySchedule[ksRow++];
+              var t1 = SUB_MIX_0[s1 >>> 24] ^ SUB_MIX_1[s2 >>> 16 & 0xff] ^ SUB_MIX_2[s3 >>> 8 & 0xff] ^ SUB_MIX_3[s0 & 0xff] ^ keySchedule[ksRow++];
+              var t2 = SUB_MIX_0[s2 >>> 24] ^ SUB_MIX_1[s3 >>> 16 & 0xff] ^ SUB_MIX_2[s0 >>> 8 & 0xff] ^ SUB_MIX_3[s1 & 0xff] ^ keySchedule[ksRow++];
+              var t3 = SUB_MIX_0[s3 >>> 24] ^ SUB_MIX_1[s0 >>> 16 & 0xff] ^ SUB_MIX_2[s1 >>> 8 & 0xff] ^ SUB_MIX_3[s2 & 0xff] ^ keySchedule[ksRow++]; // Update state
+
+              s0 = t0;
+              s1 = t1;
+              s2 = t2;
+              s3 = t3;
+            } // Shift rows, sub bytes, add round key
+
+
+            var t0 = (SBOX[s0 >>> 24] << 24 | SBOX[s1 >>> 16 & 0xff] << 16 | SBOX[s2 >>> 8 & 0xff] << 8 | SBOX[s3 & 0xff]) ^ keySchedule[ksRow++];
+            var t1 = (SBOX[s1 >>> 24] << 24 | SBOX[s2 >>> 16 & 0xff] << 16 | SBOX[s3 >>> 8 & 0xff] << 8 | SBOX[s0 & 0xff]) ^ keySchedule[ksRow++];
+            var t2 = (SBOX[s2 >>> 24] << 24 | SBOX[s3 >>> 16 & 0xff] << 16 | SBOX[s0 >>> 8 & 0xff] << 8 | SBOX[s1 & 0xff]) ^ keySchedule[ksRow++];
+            var t3 = (SBOX[s3 >>> 24] << 24 | SBOX[s0 >>> 16 & 0xff] << 16 | SBOX[s1 >>> 8 & 0xff] << 8 | SBOX[s2 & 0xff]) ^ keySchedule[ksRow++]; // Set output
+
+            M[offset] = t0;
+            M[offset + 1] = t1;
+            M[offset + 2] = t2;
+            M[offset + 3] = t3;
+          },
+          keySize: 256 / 32
+        });
+        /**
+         * Shortcut functions to the cipher's object interface.
+         *
+         * @example
+         *
+         *     var ciphertext = CryptoJS.AES.encrypt(message, key, cfg);
+         *     var plaintext  = CryptoJS.AES.decrypt(ciphertext, key, cfg);
+         */
+
+        C.AES = BlockCipher._createHelper(AES);
+      })();
+
+      return CryptoJS.AES;
+    });
+  });
+
+  var encUtf8 = createCommonjsModule(function (module, exports) {
+
+    (function (root, factory) {
+      {
+        // CommonJS
+        module.exports = exports = factory(core);
+      }
+    })(commonjsGlobal, function (CryptoJS) {
+      return CryptoJS.enc.Utf8;
+    });
+  });
+
   /**
    * toString ref.
    */
-
   var toString$2 = Object.prototype.toString;
-
   /**
    * Return the type of `val`.
    *
@@ -5922,44 +8727,42 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentType$1 = function(val){
+  var componentType$2 = function componentType(val) {
     switch (toString$2.call(val)) {
-      case '[object Date]': return 'date';
-      case '[object RegExp]': return 'regexp';
-      case '[object Arguments]': return 'arguments';
-      case '[object Array]': return 'array';
-      case '[object Error]': return 'error';
+      case '[object Date]':
+        return 'date';
+
+      case '[object RegExp]':
+        return 'regexp';
+
+      case '[object Arguments]':
+        return 'arguments';
+
+      case '[object Array]':
+        return 'array';
+
+      case '[object Error]':
+        return 'error';
     }
 
     if (val === null) return 'null';
     if (val === undefined) return 'undefined';
     if (val !== val) return 'nan';
     if (val && val.nodeType === 1) return 'element';
-
     if (isBuffer$1(val)) return 'buffer';
+    val = val.valueOf ? val.valueOf() : Object.prototype.valueOf.apply(val);
+    return _typeof(val);
+  }; // code borrowed from https://github.com/feross/is-buffer/blob/master/index.js
 
-    val = val.valueOf
-      ? val.valueOf()
-      : Object.prototype.valueOf.apply(val);
 
-    return typeof val;
-  };
-
-  // code borrowed from https://github.com/feross/is-buffer/blob/master/index.js
   function isBuffer$1(obj) {
-    return !!(obj != null &&
-      (obj._isBuffer || // For Safari 5-7 (missing Object.prototype.constructor)
-        (obj.constructor &&
-        typeof obj.constructor.isBuffer === 'function' &&
-        obj.constructor.isBuffer(obj))
-      ))
+    return !!(obj != null && (obj._isBuffer || // For Safari 5-7 (missing Object.prototype.constructor)
+    obj.constructor && typeof obj.constructor.isBuffer === 'function' && obj.constructor.isBuffer(obj)));
   }
 
   /*
    * Module dependencies.
    */
-
-
 
   /**
    * Deeply clone an object.
@@ -5967,24 +8770,29 @@ var rudderanalytics = (function (exports) {
    * @param {*} obj Any object.
    */
 
+
   var clone = function clone(obj) {
-    var t = componentType$1(obj);
+    var t = componentType$2(obj);
 
     if (t === 'object') {
       var copy = {};
+
       for (var key in obj) {
         if (obj.hasOwnProperty(key)) {
           copy[key] = clone(obj[key]);
         }
       }
+
       return copy;
     }
 
     if (t === 'array') {
       var copy = new Array(obj.length);
+
       for (var i = 0, l = obj.length; i < l; i++) {
         copy[i] = clone(obj[i]);
       }
+
       return copy;
     }
 
@@ -5999,28 +8807,26 @@ var rudderanalytics = (function (exports) {
 
     if (t === 'date') {
       return new Date(obj.getTime());
-    }
+    } // string, number, boolean, etc.
 
-    // string, number, boolean, etc.
+
     return obj;
   };
-
   /*
    * Exports.
    */
+
 
   var clone_1 = clone;
 
   /**
    * Helpers.
    */
-
   var s = 1000;
   var m = s * 60;
   var h = m * 60;
   var d = h * 24;
   var y = d * 365.25;
-
   /**
    * Parse or format the given `val`.
    *
@@ -6034,14 +8840,11 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var ms = function(val, options){
+  var ms = function ms(val, options) {
     options = options || {};
-    if ('string' == typeof val) return parse(val);
-    return options.long
-      ? long(val)
-      : short(val);
+    if ('string' == typeof val) return parse$1(val);
+    return options["long"] ? _long(val) : _short(val);
   };
-
   /**
    * Parse the given `str` and return milliseconds.
    *
@@ -6050,13 +8853,15 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
-  function parse(str) {
+
+  function parse$1(str) {
     str = '' + str;
     if (str.length > 10000) return;
     var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
     if (!match) return;
     var n = parseFloat(match[1]);
     var type = (match[2] || 'ms').toLowerCase();
+
     switch (type) {
       case 'years':
       case 'year':
@@ -6064,28 +8869,33 @@ var rudderanalytics = (function (exports) {
       case 'yr':
       case 'y':
         return n * y;
+
       case 'days':
       case 'day':
       case 'd':
         return n * d;
+
       case 'hours':
       case 'hour':
       case 'hrs':
       case 'hr':
       case 'h':
         return n * h;
+
       case 'minutes':
       case 'minute':
       case 'mins':
       case 'min':
       case 'm':
         return n * m;
+
       case 'seconds':
       case 'second':
       case 'secs':
       case 'sec':
       case 's':
         return n * s;
+
       case 'milliseconds':
       case 'millisecond':
       case 'msecs':
@@ -6094,7 +8904,6 @@ var rudderanalytics = (function (exports) {
         return n;
     }
   }
-
   /**
    * Short format for `ms`.
    *
@@ -6103,14 +8912,14 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
-  function short(ms) {
+
+  function _short(ms) {
     if (ms >= d) return Math.round(ms / d) + 'd';
     if (ms >= h) return Math.round(ms / h) + 'h';
     if (ms >= m) return Math.round(ms / m) + 'm';
     if (ms >= s) return Math.round(ms / s) + 's';
     return ms + 'ms';
   }
-
   /**
    * Long format for `ms`.
    *
@@ -6119,17 +8928,14 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
-  function long(ms) {
-    return plural(ms, d, 'day')
-      || plural(ms, h, 'hour')
-      || plural(ms, m, 'minute')
-      || plural(ms, s, 'second')
-      || ms + ' ms';
-  }
 
+  function _long(ms) {
+    return plural(ms, d, 'day') || plural(ms, h, 'hour') || plural(ms, m, 'minute') || plural(ms, s, 'second') || ms + ' ms';
+  }
   /**
    * Pluralization helper.
    */
+
 
   function plural(ms, n, name) {
     if (ms < n) return;
@@ -6138,202 +8944,193 @@ var rudderanalytics = (function (exports) {
   }
 
   var debug_1 = createCommonjsModule(function (module, exports) {
-  /**
-   * This is the common logic for both the Node.js and web browser
-   * implementations of `debug()`.
-   *
-   * Expose `debug()` as the module.
-   */
+    /**
+     * This is the common logic for both the Node.js and web browser
+     * implementations of `debug()`.
+     *
+     * Expose `debug()` as the module.
+     */
+    exports = module.exports = debug;
+    exports.coerce = coerce;
+    exports.disable = disable;
+    exports.enable = enable;
+    exports.enabled = enabled;
+    exports.humanize = ms;
+    /**
+     * The currently active debug mode names, and names to skip.
+     */
 
-  exports = module.exports = debug;
-  exports.coerce = coerce;
-  exports.disable = disable;
-  exports.enable = enable;
-  exports.enabled = enabled;
-  exports.humanize = ms;
+    exports.names = [];
+    exports.skips = [];
+    /**
+     * Map of special "%n" handling functions, for the debug "format" argument.
+     *
+     * Valid key names are a single, lowercased letter, i.e. "n".
+     */
 
-  /**
-   * The currently active debug mode names, and names to skip.
-   */
+    exports.formatters = {};
+    /**
+     * Previously assigned color.
+     */
 
-  exports.names = [];
-  exports.skips = [];
+    var prevColor = 0;
+    /**
+     * Previous log timestamp.
+     */
 
-  /**
-   * Map of special "%n" handling functions, for the debug "format" argument.
-   *
-   * Valid key names are a single, lowercased letter, i.e. "n".
-   */
+    var prevTime;
+    /**
+     * Select a color.
+     *
+     * @return {Number}
+     * @api private
+     */
 
-  exports.formatters = {};
-
-  /**
-   * Previously assigned color.
-   */
-
-  var prevColor = 0;
-
-  /**
-   * Previous log timestamp.
-   */
-
-  var prevTime;
-
-  /**
-   * Select a color.
-   *
-   * @return {Number}
-   * @api private
-   */
-
-  function selectColor() {
-    return exports.colors[prevColor++ % exports.colors.length];
-  }
-
-  /**
-   * Create a debugger with the given `namespace`.
-   *
-   * @param {String} namespace
-   * @return {Function}
-   * @api public
-   */
-
-  function debug(namespace) {
-
-    // define the `disabled` version
-    function disabled() {
+    function selectColor() {
+      return exports.colors[prevColor++ % exports.colors.length];
     }
-    disabled.enabled = false;
+    /**
+     * Create a debugger with the given `namespace`.
+     *
+     * @param {String} namespace
+     * @return {Function}
+     * @api public
+     */
 
-    // define the `enabled` version
-    function enabled() {
 
-      var self = enabled;
+    function debug(namespace) {
+      // define the `disabled` version
+      function disabled() {}
 
-      // set `diff` timestamp
-      var curr = +new Date();
-      var ms = curr - (prevTime || curr);
-      self.diff = ms;
-      self.prev = prevTime;
-      self.curr = curr;
-      prevTime = curr;
+      disabled.enabled = false; // define the `enabled` version
 
-      // add the `color` if not set
-      if (null == self.useColors) self.useColors = exports.useColors();
-      if (null == self.color && self.useColors) self.color = selectColor();
+      function enabled() {
+        var self = enabled; // set `diff` timestamp
 
-      var args = Array.prototype.slice.call(arguments);
+        var curr = +new Date();
+        var ms = curr - (prevTime || curr);
+        self.diff = ms;
+        self.prev = prevTime;
+        self.curr = curr;
+        prevTime = curr; // add the `color` if not set
 
-      args[0] = exports.coerce(args[0]);
+        if (null == self.useColors) self.useColors = exports.useColors();
+        if (null == self.color && self.useColors) self.color = selectColor();
+        var args = Array.prototype.slice.call(arguments);
+        args[0] = exports.coerce(args[0]);
 
-      if ('string' !== typeof args[0]) {
-        // anything else let's inspect with %o
-        args = ['%o'].concat(args);
-      }
+        if ('string' !== typeof args[0]) {
+          // anything else let's inspect with %o
+          args = ['%o'].concat(args);
+        } // apply any `formatters` transformations
 
-      // apply any `formatters` transformations
-      var index = 0;
-      args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
-        // if we encounter an escaped % then don't increase the array index
-        if (match === '%%') return match;
-        index++;
-        var formatter = exports.formatters[format];
-        if ('function' === typeof formatter) {
-          var val = args[index];
-          match = formatter.call(self, val);
 
-          // now we need to remove `args[index]` since it's inlined in the `format`
-          args.splice(index, 1);
-          index--;
+        var index = 0;
+        args[0] = args[0].replace(/%([a-z%])/g, function (match, format) {
+          // if we encounter an escaped % then don't increase the array index
+          if (match === '%%') return match;
+          index++;
+          var formatter = exports.formatters[format];
+
+          if ('function' === typeof formatter) {
+            var val = args[index];
+            match = formatter.call(self, val); // now we need to remove `args[index]` since it's inlined in the `format`
+
+            args.splice(index, 1);
+            index--;
+          }
+
+          return match;
+        });
+
+        if ('function' === typeof exports.formatArgs) {
+          args = exports.formatArgs.apply(self, args);
         }
-        return match;
-      });
 
-      if ('function' === typeof exports.formatArgs) {
-        args = exports.formatArgs.apply(self, args);
+        var logFn = enabled.log || exports.log || console.log.bind(console);
+        logFn.apply(self, args);
       }
-      var logFn = enabled.log || exports.log || console.log.bind(console);
-      logFn.apply(self, args);
+
+      enabled.enabled = true;
+      var fn = exports.enabled(namespace) ? enabled : disabled;
+      fn.namespace = namespace;
+      return fn;
     }
-    enabled.enabled = true;
+    /**
+     * Enables a debug mode by namespaces. This can include modes
+     * separated by a colon and wildcards.
+     *
+     * @param {String} namespaces
+     * @api public
+     */
 
-    var fn = exports.enabled(namespace) ? enabled : disabled;
 
-    fn.namespace = namespace;
+    function enable(namespaces) {
+      exports.save(namespaces);
+      var split = (namespaces || '').split(/[\s,]+/);
+      var len = split.length;
 
-    return fn;
-  }
+      for (var i = 0; i < len; i++) {
+        if (!split[i]) continue; // ignore empty strings
 
-  /**
-   * Enables a debug mode by namespaces. This can include modes
-   * separated by a colon and wildcards.
-   *
-   * @param {String} namespaces
-   * @api public
-   */
+        namespaces = split[i].replace(/\*/g, '.*?');
 
-  function enable(namespaces) {
-    exports.save(namespaces);
-
-    var split = (namespaces || '').split(/[\s,]+/);
-    var len = split.length;
-
-    for (var i = 0; i < len; i++) {
-      if (!split[i]) continue; // ignore empty strings
-      namespaces = split[i].replace(/\*/g, '.*?');
-      if (namespaces[0] === '-') {
-        exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
-      } else {
-        exports.names.push(new RegExp('^' + namespaces + '$'));
+        if (namespaces[0] === '-') {
+          exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+        } else {
+          exports.names.push(new RegExp('^' + namespaces + '$'));
+        }
       }
     }
-  }
+    /**
+     * Disable debug output.
+     *
+     * @api public
+     */
 
-  /**
-   * Disable debug output.
-   *
-   * @api public
-   */
 
-  function disable() {
-    exports.enable('');
-  }
-
-  /**
-   * Returns true if the given mode name is enabled, false otherwise.
-   *
-   * @param {String} name
-   * @return {Boolean}
-   * @api public
-   */
-
-  function enabled(name) {
-    var i, len;
-    for (i = 0, len = exports.skips.length; i < len; i++) {
-      if (exports.skips[i].test(name)) {
-        return false;
-      }
+    function disable() {
+      exports.enable('');
     }
-    for (i = 0, len = exports.names.length; i < len; i++) {
-      if (exports.names[i].test(name)) {
-        return true;
+    /**
+     * Returns true if the given mode name is enabled, false otherwise.
+     *
+     * @param {String} name
+     * @return {Boolean}
+     * @api public
+     */
+
+
+    function enabled(name) {
+      var i, len;
+
+      for (i = 0, len = exports.skips.length; i < len; i++) {
+        if (exports.skips[i].test(name)) {
+          return false;
+        }
       }
+
+      for (i = 0, len = exports.names.length; i < len; i++) {
+        if (exports.names[i].test(name)) {
+          return true;
+        }
+      }
+
+      return false;
     }
-    return false;
-  }
+    /**
+     * Coerce `val`.
+     *
+     * @param {Mixed} val
+     * @return {Mixed}
+     * @api private
+     */
 
-  /**
-   * Coerce `val`.
-   *
-   * @param {Mixed} val
-   * @return {Mixed}
-   * @api private
-   */
 
-  function coerce(val) {
-    if (val instanceof Error) return val.stack || val.message;
-    return val;
-  }
+    function coerce(val) {
+      if (val instanceof Error) return val.stack || val.message;
+      return val;
+    }
   });
   var debug_2 = debug_1.coerce;
   var debug_3 = debug_1.disable;
@@ -6345,173 +9142,147 @@ var rudderanalytics = (function (exports) {
   var debug_9 = debug_1.formatters;
 
   var browser = createCommonjsModule(function (module, exports) {
-  /**
-   * This is the web browser implementation of `debug()`.
-   *
-   * Expose `debug()` as the module.
-   */
+    /**
+     * This is the web browser implementation of `debug()`.
+     *
+     * Expose `debug()` as the module.
+     */
+    exports = module.exports = debug_1;
+    exports.log = log;
+    exports.formatArgs = formatArgs;
+    exports.save = save;
+    exports.load = load;
+    exports.useColors = useColors;
+    exports.storage = 'undefined' != typeof chrome && 'undefined' != typeof chrome.storage ? chrome.storage.local : localstorage();
+    /**
+     * Colors.
+     */
 
-  exports = module.exports = debug_1;
-  exports.log = log;
-  exports.formatArgs = formatArgs;
-  exports.save = save;
-  exports.load = load;
-  exports.useColors = useColors;
-  exports.storage = 'undefined' != typeof chrome
-                 && 'undefined' != typeof chrome.storage
-                    ? chrome.storage.local
-                    : localstorage();
+    exports.colors = ['lightseagreen', 'forestgreen', 'goldenrod', 'dodgerblue', 'darkorchid', 'crimson'];
+    /**
+     * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+     * and the Firebug extension (any Firefox version) are known
+     * to support "%c" CSS customizations.
+     *
+     * TODO: add a `localStorage` variable to explicitly enable/disable colors
+     */
 
-  /**
-   * Colors.
-   */
-
-  exports.colors = [
-    'lightseagreen',
-    'forestgreen',
-    'goldenrod',
-    'dodgerblue',
-    'darkorchid',
-    'crimson'
-  ];
-
-  /**
-   * Currently only WebKit-based Web Inspectors, Firefox >= v31,
-   * and the Firebug extension (any Firefox version) are known
-   * to support "%c" CSS customizations.
-   *
-   * TODO: add a `localStorage` variable to explicitly enable/disable colors
-   */
-
-  function useColors() {
-    // is webkit? http://stackoverflow.com/a/16459606/376773
-    return ('WebkitAppearance' in document.documentElement.style) ||
-      // is firebug? http://stackoverflow.com/a/398120/376773
-      (window.console && (console.firebug || (console.exception && console.table))) ||
-      // is firefox >= v31?
+    function useColors() {
+      // is webkit? http://stackoverflow.com/a/16459606/376773
+      return 'WebkitAppearance' in document.documentElement.style || // is firebug? http://stackoverflow.com/a/398120/376773
+      window.console && (console.firebug || console.exception && console.table) || // is firefox >= v31?
       // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-      (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
-  }
-
-  /**
-   * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
-   */
-
-  exports.formatters.j = function(v) {
-    return JSON.stringify(v);
-  };
+      navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31;
+    }
+    /**
+     * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+     */
 
 
-  /**
-   * Colorize log arguments if enabled.
-   *
-   * @api public
-   */
+    exports.formatters.j = function (v) {
+      return JSON.stringify(v);
+    };
+    /**
+     * Colorize log arguments if enabled.
+     *
+     * @api public
+     */
 
-  function formatArgs() {
-    var args = arguments;
-    var useColors = this.useColors;
 
-    args[0] = (useColors ? '%c' : '')
-      + this.namespace
-      + (useColors ? ' %c' : ' ')
-      + args[0]
-      + (useColors ? '%c ' : ' ')
-      + '+' + exports.humanize(this.diff);
+    function formatArgs() {
+      var args = arguments;
+      var useColors = this.useColors;
+      args[0] = (useColors ? '%c' : '') + this.namespace + (useColors ? ' %c' : ' ') + args[0] + (useColors ? '%c ' : ' ') + '+' + exports.humanize(this.diff);
+      if (!useColors) return args;
+      var c = 'color: ' + this.color;
+      args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1)); // the final "%c" is somewhat tricky, because there could be other
+      // arguments passed either before or after the %c, so we need to
+      // figure out the correct index to insert the CSS into
 
-    if (!useColors) return args;
+      var index = 0;
+      var lastC = 0;
+      args[0].replace(/%[a-z%]/g, function (match) {
+        if ('%%' === match) return;
+        index++;
 
-    var c = 'color: ' + this.color;
-    args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+        if ('%c' === match) {
+          // we only are interested in the *last* %c
+          // (the user may have provided their own)
+          lastC = index;
+        }
+      });
+      args.splice(lastC, 0, c);
+      return args;
+    }
+    /**
+     * Invokes `console.log()` when available.
+     * No-op when `console.log` is not a "function".
+     *
+     * @api public
+     */
 
-    // the final "%c" is somewhat tricky, because there could be other
-    // arguments passed either before or after the %c, so we need to
-    // figure out the correct index to insert the CSS into
-    var index = 0;
-    var lastC = 0;
-    args[0].replace(/%[a-z%]/g, function(match) {
-      if ('%%' === match) return;
-      index++;
-      if ('%c' === match) {
-        // we only are interested in the *last* %c
-        // (the user may have provided their own)
-        lastC = index;
-      }
-    });
 
-    args.splice(lastC, 0, c);
-    return args;
-  }
+    function log() {
+      // this hackery is required for IE8/9, where
+      // the `console.log` function doesn't have 'apply'
+      return 'object' === (typeof console === "undefined" ? "undefined" : _typeof(console)) && console.log && Function.prototype.apply.call(console.log, console, arguments);
+    }
+    /**
+     * Save `namespaces`.
+     *
+     * @param {String} namespaces
+     * @api private
+     */
 
-  /**
-   * Invokes `console.log()` when available.
-   * No-op when `console.log` is not a "function".
-   *
-   * @api public
-   */
 
-  function log() {
-    // this hackery is required for IE8/9, where
-    // the `console.log` function doesn't have 'apply'
-    return 'object' === typeof console
-      && console.log
-      && Function.prototype.apply.call(console.log, console, arguments);
-  }
+    function save(namespaces) {
+      try {
+        if (null == namespaces) {
+          exports.storage.removeItem('debug');
+        } else {
+          exports.storage.debug = namespaces;
+        }
+      } catch (e) {}
+    }
+    /**
+     * Load `namespaces`.
+     *
+     * @return {String} returns the previously persisted debug modes
+     * @api private
+     */
 
-  /**
-   * Save `namespaces`.
-   *
-   * @param {String} namespaces
-   * @api private
-   */
 
-  function save(namespaces) {
-    try {
-      if (null == namespaces) {
-        exports.storage.removeItem('debug');
-      } else {
-        exports.storage.debug = namespaces;
-      }
-    } catch(e) {}
-  }
+    function load() {
+      var r;
 
-  /**
-   * Load `namespaces`.
-   *
-   * @return {String} returns the previously persisted debug modes
-   * @api private
-   */
+      try {
+        r = exports.storage.debug;
+      } catch (e) {}
 
-  function load() {
-    var r;
-    try {
-      r = exports.storage.debug;
-    } catch(e) {}
-    return r;
-  }
+      return r;
+    }
+    /**
+     * Enable namespaces listed in `localStorage.debug` initially.
+     */
 
-  /**
-   * Enable namespaces listed in `localStorage.debug` initially.
-   */
 
-  exports.enable(load());
+    exports.enable(load());
+    /**
+     * Localstorage attempts to return the localstorage.
+     *
+     * This is necessary because safari throws
+     * when a user disables cookies/localstorage
+     * and you attempt to access it.
+     *
+     * @return {LocalStorage}
+     * @api private
+     */
 
-  /**
-   * Localstorage attempts to return the localstorage.
-   *
-   * This is necessary because safari throws
-   * when a user disables cookies/localstorage
-   * and you attempt to access it.
-   *
-   * @return {LocalStorage}
-   * @api private
-   */
-
-  function localstorage(){
-    try {
-      return window.localStorage;
-    } catch (e) {}
-  }
+    function localstorage() {
+      try {
+        return window.localStorage;
+      } catch (e) {}
+    }
   });
   var browser_1 = browser.log;
   var browser_2 = browser.formatArgs;
@@ -6526,7 +9297,6 @@ var rudderanalytics = (function (exports) {
    */
 
   var debug = browser('cookie');
-
   /**
    * Set or get cookie `name` with `value` and `options` object.
    *
@@ -6537,18 +9307,19 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var rudderComponentCookie = function(name, value, options){
+  var rudderComponentCookie = function rudderComponentCookie(name, value, options) {
     switch (arguments.length) {
       case 3:
       case 2:
         return set(name, value, options);
+
       case 1:
         return get$1(name);
+
       default:
         return all();
     }
   };
-
   /**
    * Set cookie `name` to `value`.
    *
@@ -6558,14 +9329,14 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function set(name, value, options) {
     options = options || {};
-    var str = encode(name) + '=' + encode(value);
-
+    var str = encode$1(name) + '=' + encode$1(value);
     if (null == value) options.maxage = -1;
 
     if (options.maxage) {
-      options.expires = new Date(+new Date + options.maxage);
+      options.expires = new Date(+new Date() + options.maxage);
     }
 
     if (options.path) str += '; path=' + options.path;
@@ -6573,10 +9344,8 @@ var rudderanalytics = (function (exports) {
     if (options.expires) str += '; expires=' + options.expires.toUTCString();
     if (options.samesite) str += '; samesite=' + options.samesite;
     if (options.secure) str += '; secure';
-
     document.cookie = str;
   }
-
   /**
    * Return all cookies.
    *
@@ -6584,19 +9353,22 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function all() {
     var str;
+
     try {
       str = document.cookie;
     } catch (err) {
       if (typeof console !== 'undefined' && typeof console.error === 'function') {
         console.error(err.stack || err);
       }
+
       return {};
     }
-    return parse$1(str);
-  }
 
+    return parse$2(str);
+  }
   /**
    * Get cookie `name`.
    *
@@ -6605,10 +9377,10 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function get$1(name) {
     return all()[name];
   }
-
   /**
    * Parse cookie `str`.
    *
@@ -6617,35 +9389,38 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
-  function parse$1(str) {
+
+  function parse$2(str) {
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
     if ('' == pairs[0]) return obj;
+
     for (var i = 0; i < pairs.length; ++i) {
       pair = pairs[i].split('=');
-      obj[decode(pair[0])] = decode(pair[1]);
+      obj[decode$1(pair[0])] = decode$1(pair[1]);
     }
+
     return obj;
   }
-
   /**
    * Encode.
    */
 
-  function encode(value){
+
+  function encode$1(value) {
     try {
       return encodeURIComponent(value);
     } catch (e) {
       debug('error `encode(%o)` - %o', value, e);
     }
   }
-
   /**
    * Decode.
    */
 
-  function decode(value) {
+
+  function decode$1(value) {
     try {
       return decodeURIComponent(value);
     } catch (e) {
@@ -6654,7 +9429,6 @@ var rudderanalytics = (function (exports) {
   }
 
   var max = Math.max;
-
   /**
    * Produce a new array composed of all but the first `n` elements of an input `collection`.
    *
@@ -6670,16 +9444,17 @@ var rudderanalytics = (function (exports) {
    * drop(3, [1, 2, 3]); // => []
    * drop(4, [1, 2, 3]); // => []
    */
+
   var drop = function drop(count, collection) {
     var length = collection ? collection.length : 0;
 
     if (!length) {
       return [];
-    }
-
-    // Preallocating an array *significantly* boosts performance when dealing with
+    } // Preallocating an array *significantly* boosts performance when dealing with
     // `arguments` objects on v8. For a summary, see:
     // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
+
+
     var toDrop = max(Number(count) || 0, 0);
     var resultsLength = max(length - toDrop, 0);
     var results = new Array(resultsLength);
@@ -6690,15 +9465,14 @@ var rudderanalytics = (function (exports) {
 
     return results;
   };
-
   /*
    * Exports.
    */
 
+
   var drop_1 = drop;
 
   var max$1 = Math.max;
-
   /**
    * Produce a new array by passing each value in the input `collection` through a transformative
    * `iterator` function. The `iterator` function is passed three arguments:
@@ -6711,14 +9485,15 @@ var rudderanalytics = (function (exports) {
    * @example
    * rest([1, 2, 3]); // => [2, 3]
    */
+
   var rest = function rest(collection) {
     if (collection == null || !collection.length) {
       return [];
-    }
-
-    // Preallocating an array *significantly* boosts performance when dealing with
+    } // Preallocating an array *significantly* boosts performance when dealing with
     // `arguments` objects on v8. For a summary, see:
     // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
+
+
     var results = new Array(max$1(collection.length - 2, 0));
 
     for (var i = 1; i < collection.length; i += 1) {
@@ -6727,10 +9502,10 @@ var rudderanalytics = (function (exports) {
 
     return results;
   };
-
   /*
    * Exports.
    */
+
 
   var rest_1 = rest;
 
@@ -6739,11 +9514,8 @@ var rudderanalytics = (function (exports) {
    */
 
 
-
-
   var has$3 = Object.prototype.hasOwnProperty;
   var objToString$1 = Object.prototype.toString;
-
   /**
    * Returns `true` if a value is an object, otherwise `false`.
    *
@@ -6753,10 +9525,10 @@ var rudderanalytics = (function (exports) {
    * @return {boolean}
    */
   // TODO: Move to a library
-  var isObject = function isObject(value) {
-    return Boolean(value) && typeof value === 'object';
-  };
 
+  var isObject = function isObject(value) {
+    return Boolean(value) && _typeof(value) === 'object';
+  };
   /**
    * Returns `true` if a value is a plain object, otherwise `false`.
    *
@@ -6766,10 +9538,11 @@ var rudderanalytics = (function (exports) {
    * @return {boolean}
    */
   // TODO: Move to a library
+
+
   var isPlainObject = function isPlainObject(value) {
     return Boolean(value) && objToString$1.call(value) === '[object Object]';
   };
-
   /**
    * Assigns a key-value pair to a target object when the value assigned is owned,
    * and where target[key] is undefined.
@@ -6781,13 +9554,15 @@ var rudderanalytics = (function (exports) {
    * @param {*} value
    * @param {string} key
    */
+
+
   var shallowCombiner = function shallowCombiner(target, source, value, key) {
     if (has$3.call(source, key) && target[key] === undefined) {
       target[key] = value;
     }
+
     return source;
   };
-
   /**
    * Assigns a key-value pair to a target object when the value assigned is owned,
    * and where target[key] is undefined; also merges objects recursively.
@@ -6800,18 +9575,19 @@ var rudderanalytics = (function (exports) {
    * @param {string} key
    * @return {Object}
    */
-  var deepCombiner = function(target, source, value, key) {
+
+
+  var deepCombiner = function deepCombiner(target, source, value, key) {
     if (has$3.call(source, key)) {
       if (isPlainObject(target[key]) && isPlainObject(value)) {
-          target[key] = defaultsDeep(target[key], value);
+        target[key] = defaultsDeep(target[key], value);
       } else if (target[key] === undefined) {
-          target[key] = value;
+        target[key] = value;
       }
     }
 
     return source;
   };
-
   /**
    * TODO: Document
    *
@@ -6822,7 +9598,11 @@ var rudderanalytics = (function (exports) {
    * @param {...Object} sources
    * @return {Object} Return the input `target`.
    */
-  var defaultsWith = function(combiner, target /*, ...sources */) {
+
+
+  var defaultsWith = function defaultsWith(combiner, target
+  /*, ...sources */
+  ) {
     if (!isObject(target)) {
       return target;
     }
@@ -6838,7 +9618,6 @@ var rudderanalytics = (function (exports) {
 
     return target;
   };
-
   /**
    * Copies owned, enumerable properties from a source object(s) to a target
    * object when the value of that property on the source object is `undefined`.
@@ -6850,11 +9629,14 @@ var rudderanalytics = (function (exports) {
    * @param {...Object} sources
    * @return {Object} The input `target`.
    */
-  var defaultsDeep = function defaultsDeep(target /*, sources */) {
+
+
+  var defaultsDeep = function defaultsDeep(target
+  /*, sources */
+  ) {
     // TODO: Replace with `partial` call?
     return defaultsWith.apply(null, [deepCombiner, target].concat(rest_1(arguments)));
   };
-
   /**
    * Copies owned, enumerable properties from a source object(s) to a target
    * object when the value of that property on the source object is `undefined`.
@@ -6871,1237 +9653,1247 @@ var rudderanalytics = (function (exports) {
    * defaults(a, b);
    * console.log(a); //=> { a: 1, b: 2 }
    */
-  var defaults = function(target /*, ...sources */) {
+
+
+  var defaults = function defaults(target
+  /*, ...sources */
+  ) {
     // TODO: Replace with `partial` call?
     return defaultsWith.apply(null, [null, target].concat(rest_1(arguments)));
   };
-
   /*
    * Exports.
    */
+
 
   var defaults_1 = defaults;
   var deep = defaultsDeep;
   defaults_1.deep = deep;
 
   var json3 = createCommonjsModule(function (module, exports) {
-  (function () {
-    // Detect the `define` function exposed by asynchronous module loaders. The
-    // strict `define` check is necessary for compatibility with `r.js`.
-    var isLoader = typeof undefined === "function" ;
+    (function () {
+      // Detect the `define` function exposed by asynchronous module loaders. The
+      // strict `define` check is necessary for compatibility with `r.js`.
+      var isLoader = typeof undefined === "function" ; // A set of types used to distinguish objects from primitives.
 
-    // A set of types used to distinguish objects from primitives.
-    var objectTypes = {
-      "function": true,
-      "object": true
-    };
+      var objectTypes = {
+        "function": true,
+        "object": true
+      }; // Detect the `exports` object exposed by CommonJS implementations.
 
-    // Detect the `exports` object exposed by CommonJS implementations.
-    var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports;
+      var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports; // Use the `global` object exposed by Node (including Browserify via
+      // `insert-module-globals`), Narwhal, and Ringo as the default context,
+      // and the `window` object in browsers. Rhino exports a `global` function
+      // instead.
 
-    // Use the `global` object exposed by Node (including Browserify via
-    // `insert-module-globals`), Narwhal, and Ringo as the default context,
-    // and the `window` object in browsers. Rhino exports a `global` function
-    // instead.
-    var root = objectTypes[typeof window] && window || this,
-        freeGlobal = freeExports && objectTypes['object'] && module && !module.nodeType && typeof commonjsGlobal == "object" && commonjsGlobal;
+      var root = objectTypes[typeof window === "undefined" ? "undefined" : _typeof(window)] && window || this,
+          freeGlobal = freeExports && objectTypes['object'] && module && !module.nodeType && _typeof(commonjsGlobal) == "object" && commonjsGlobal;
 
-    if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
-      root = freeGlobal;
-    }
+      if (freeGlobal && (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal || freeGlobal.self === freeGlobal)) {
+        root = freeGlobal;
+      } // Public: Initializes JSON 3 using the given `context` object, attaching the
+      // `stringify` and `parse` functions to the specified `exports` object.
 
-    // Public: Initializes JSON 3 using the given `context` object, attaching the
-    // `stringify` and `parse` functions to the specified `exports` object.
-    function runInContext(context, exports) {
-      context || (context = root.Object());
-      exports || (exports = root.Object());
 
-      // Native constructor aliases.
-      var Number = context.Number || root.Number,
-          String = context.String || root.String,
-          Object = context.Object || root.Object,
-          Date = context.Date || root.Date,
-          SyntaxError = context.SyntaxError || root.SyntaxError,
-          TypeError = context.TypeError || root.TypeError,
-          Math = context.Math || root.Math,
-          nativeJSON = context.JSON || root.JSON;
+      function runInContext(context, exports) {
+        context || (context = root.Object());
+        exports || (exports = root.Object()); // Native constructor aliases.
 
-      // Delegate to the native `stringify` and `parse` implementations.
-      if (typeof nativeJSON == "object" && nativeJSON) {
-        exports.stringify = nativeJSON.stringify;
-        exports.parse = nativeJSON.parse;
-      }
+        var Number = context.Number || root.Number,
+            String = context.String || root.String,
+            Object = context.Object || root.Object,
+            Date = context.Date || root.Date,
+            SyntaxError = context.SyntaxError || root.SyntaxError,
+            TypeError = context.TypeError || root.TypeError,
+            Math = context.Math || root.Math,
+            nativeJSON = context.JSON || root.JSON; // Delegate to the native `stringify` and `parse` implementations.
 
-      // Convenience aliases.
-      var objectProto = Object.prototype,
-          getClass = objectProto.toString,
-          isProperty = objectProto.hasOwnProperty,
-          undefined$1;
+        if (_typeof(nativeJSON) == "object" && nativeJSON) {
+          exports.stringify = nativeJSON.stringify;
+          exports.parse = nativeJSON.parse;
+        } // Convenience aliases.
 
-      // Internal: Contains `try...catch` logic used by other functions.
-      // This prevents other functions from being deoptimized.
-      function attempt(func, errorFunc) {
-        try {
-          func();
-        } catch (exception) {
-          if (errorFunc) {
-            errorFunc();
+
+        var objectProto = Object.prototype,
+            getClass = objectProto.toString,
+            isProperty = objectProto.hasOwnProperty,
+            undefined$1; // Internal: Contains `try...catch` logic used by other functions.
+        // This prevents other functions from being deoptimized.
+
+        function attempt(func, errorFunc) {
+          try {
+            func();
+          } catch (exception) {
+            if (errorFunc) {
+              errorFunc();
+            }
           }
-        }
-      }
+        } // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
 
-      // Test the `Date#getUTC*` methods. Based on work by @Yaffle.
-      var isExtended = new Date(-3509827334573292);
-      attempt(function () {
-        // The `getUTCFullYear`, `Month`, and `Date` methods return nonsensical
-        // results for certain dates in Opera >= 10.53.
-        isExtended = isExtended.getUTCFullYear() == -109252 && isExtended.getUTCMonth() === 0 && isExtended.getUTCDate() === 1 &&
-          isExtended.getUTCHours() == 10 && isExtended.getUTCMinutes() == 37 && isExtended.getUTCSeconds() == 6 && isExtended.getUTCMilliseconds() == 708;
-      });
 
-      // Internal: Determines whether the native `JSON.stringify` and `parse`
-      // implementations are spec-compliant. Based on work by Ken Snyder.
-      function has(name) {
-        if (has[name] != null) {
-          // Return cached feature test result.
-          return has[name];
-        }
-        var isSupported;
-        if (name == "bug-string-char-index") {
-          // IE <= 7 doesn't support accessing string characters using square
-          // bracket notation. IE 8 only supports this for primitives.
-          isSupported = "a"[0] != "a";
-        } else if (name == "json") {
-          // Indicates whether both `JSON.stringify` and `JSON.parse` are
-          // supported.
-          isSupported = has("json-stringify") && has("date-serialization") && has("json-parse");
-        } else if (name == "date-serialization") {
-          // Indicates whether `Date`s can be serialized accurately by `JSON.stringify`.
-          isSupported = has("json-stringify") && isExtended;
-          if (isSupported) {
-            var stringify = exports.stringify;
-            attempt(function () {
-              isSupported =
-                // JSON 2, Prototype <= 1.7, and older WebKit builds incorrectly
+        var isExtended = new Date(-3509827334573292);
+        attempt(function () {
+          // The `getUTCFullYear`, `Month`, and `Date` methods return nonsensical
+          // results for certain dates in Opera >= 10.53.
+          isExtended = isExtended.getUTCFullYear() == -109252 && isExtended.getUTCMonth() === 0 && isExtended.getUTCDate() === 1 && isExtended.getUTCHours() == 10 && isExtended.getUTCMinutes() == 37 && isExtended.getUTCSeconds() == 6 && isExtended.getUTCMilliseconds() == 708;
+        }); // Internal: Determines whether the native `JSON.stringify` and `parse`
+        // implementations are spec-compliant. Based on work by Ken Snyder.
+
+        function has(name) {
+          if (has[name] != null) {
+            // Return cached feature test result.
+            return has[name];
+          }
+
+          var isSupported;
+
+          if (name == "bug-string-char-index") {
+            // IE <= 7 doesn't support accessing string characters using square
+            // bracket notation. IE 8 only supports this for primitives.
+            isSupported = "a"[0] != "a";
+          } else if (name == "json") {
+            // Indicates whether both `JSON.stringify` and `JSON.parse` are
+            // supported.
+            isSupported = has("json-stringify") && has("date-serialization") && has("json-parse");
+          } else if (name == "date-serialization") {
+            // Indicates whether `Date`s can be serialized accurately by `JSON.stringify`.
+            isSupported = has("json-stringify") && isExtended;
+
+            if (isSupported) {
+              var stringify = exports.stringify;
+              attempt(function () {
+                isSupported = // JSON 2, Prototype <= 1.7, and older WebKit builds incorrectly
                 // serialize extended years.
-                stringify(new Date(-8.64e15)) == '"-271821-04-20T00:00:00.000Z"' &&
-                // The milliseconds are optional in ES 5, but required in 5.1.
-                stringify(new Date(8.64e15)) == '"+275760-09-13T00:00:00.000Z"' &&
-                // Firefox <= 11.0 incorrectly serializes years prior to 0 as negative
+                stringify(new Date(-8.64e15)) == '"-271821-04-20T00:00:00.000Z"' && // The milliseconds are optional in ES 5, but required in 5.1.
+                stringify(new Date(8.64e15)) == '"+275760-09-13T00:00:00.000Z"' && // Firefox <= 11.0 incorrectly serializes years prior to 0 as negative
                 // four-digit years instead of six-digit years. Credits: @Yaffle.
-                stringify(new Date(-621987552e5)) == '"-000001-01-01T00:00:00.000Z"' &&
-                // Safari <= 5.1.5 and Opera >= 10.53 incorrectly serialize millisecond
+                stringify(new Date(-621987552e5)) == '"-000001-01-01T00:00:00.000Z"' && // Safari <= 5.1.5 and Opera >= 10.53 incorrectly serialize millisecond
                 // values less than 1000. Credits: @Yaffle.
                 stringify(new Date(-1)) == '"1969-12-31T23:59:59.999Z"';
-            });
-          }
-        } else {
-          var value, serialized = '{"a":[1,true,false,null,"\\u0000\\b\\n\\f\\r\\t"]}';
-          // Test `JSON.stringify`.
-          if (name == "json-stringify") {
-            var stringify = exports.stringify, stringifySupported = typeof stringify == "function";
-            if (stringifySupported) {
-              // A test function object with a custom `toJSON` method.
-              (value = function () {
-                return 1;
-              }).toJSON = value;
-              attempt(function () {
-                stringifySupported =
-                  // Firefox 3.1b1 and b2 serialize string, number, and boolean
+              });
+            }
+          } else {
+            var value,
+                serialized = "{\"a\":[1,true,false,null,\"\\u0000\\b\\n\\f\\r\\t\"]}"; // Test `JSON.stringify`.
+
+            if (name == "json-stringify") {
+              var stringify = exports.stringify,
+                  stringifySupported = typeof stringify == "function";
+
+              if (stringifySupported) {
+                // A test function object with a custom `toJSON` method.
+                (value = function value() {
+                  return 1;
+                }).toJSON = value;
+                attempt(function () {
+                  stringifySupported = // Firefox 3.1b1 and b2 serialize string, number, and boolean
                   // primitives as object literals.
-                  stringify(0) === "0" &&
-                  // FF 3.1b1, b2, and JSON 2 serialize wrapped primitives as object
+                  stringify(0) === "0" && // FF 3.1b1, b2, and JSON 2 serialize wrapped primitives as object
                   // literals.
-                  stringify(new Number()) === "0" &&
-                  stringify(new String()) == '""' &&
-                  // FF 3.1b1, 2 throw an error if the value is `null`, `undefined`, or
+                  stringify(new Number()) === "0" && stringify(new String()) == '""' && // FF 3.1b1, 2 throw an error if the value is `null`, `undefined`, or
                   // does not define a canonical JSON representation (this applies to
                   // objects with `toJSON` properties as well, *unless* they are nested
                   // within an object or array).
-                  stringify(getClass) === undefined$1 &&
-                  // IE 8 serializes `undefined` as `"undefined"`. Safari <= 5.1.7 and
+                  stringify(getClass) === undefined$1 && // IE 8 serializes `undefined` as `"undefined"`. Safari <= 5.1.7 and
                   // FF 3.1b3 pass this test.
-                  stringify(undefined$1) === undefined$1 &&
-                  // Safari <= 5.1.7 and FF 3.1b3 throw `Error`s and `TypeError`s,
+                  stringify(undefined$1) === undefined$1 && // Safari <= 5.1.7 and FF 3.1b3 throw `Error`s and `TypeError`s,
                   // respectively, if the value is omitted entirely.
-                  stringify() === undefined$1 &&
-                  // FF 3.1b1, 2 throw an error if the given value is not a number,
+                  stringify() === undefined$1 && // FF 3.1b1, 2 throw an error if the given value is not a number,
                   // string, array, object, Boolean, or `null` literal. This applies to
                   // objects with custom `toJSON` methods as well, unless they are nested
                   // inside object or array literals. YUI 3.0.0b1 ignores custom `toJSON`
                   // methods entirely.
-                  stringify(value) === "1" &&
-                  stringify([value]) == "[1]" &&
-                  // Prototype <= 1.6.1 serializes `[undefined]` as `"[]"` instead of
+                  stringify(value) === "1" && stringify([value]) == "[1]" && // Prototype <= 1.6.1 serializes `[undefined]` as `"[]"` instead of
                   // `"[null]"`.
-                  stringify([undefined$1]) == "[null]" &&
-                  // YUI 3.0.0b1 fails to serialize `null` literals.
-                  stringify(null) == "null" &&
-                  // FF 3.1b1, 2 halts serialization if an array contains a function:
+                  stringify([undefined$1]) == "[null]" && // YUI 3.0.0b1 fails to serialize `null` literals.
+                  stringify(null) == "null" && // FF 3.1b1, 2 halts serialization if an array contains a function:
                   // `[1, true, getClass, 1]` serializes as "[1,true,],". FF 3.1b3
                   // elides non-JSON values from objects and arrays, unless they
                   // define custom `toJSON` methods.
-                  stringify([undefined$1, getClass, null]) == "[null,null,null]" &&
-                  // Simple serialization test. FF 3.1b1 uses Unicode escape sequences
+                  stringify([undefined$1, getClass, null]) == "[null,null,null]" && // Simple serialization test. FF 3.1b1 uses Unicode escape sequences
                   // where character escape codes are expected (e.g., `\b` => `\u0008`).
-                  stringify({ "a": [value, true, false, null, "\x00\b\n\f\r\t"] }) == serialized &&
-                  // FF 3.1b1 and b2 ignore the `filter` and `width` arguments.
-                  stringify(null, value) === "1" &&
-                  stringify([1, 2], null, 1) == "[\n 1,\n 2\n]";
-              }, function () {
-                stringifySupported = false;
-              });
-            }
-            isSupported = stringifySupported;
-          }
-          // Test `JSON.parse`.
-          if (name == "json-parse") {
-            var parse = exports.parse, parseSupported;
-            if (typeof parse == "function") {
-              attempt(function () {
-                // FF 3.1b1, b2 will throw an exception if a bare literal is provided.
-                // Conforming implementations should also coerce the initial argument to
-                // a string prior to parsing.
-                if (parse("0") === 0 && !parse(false)) {
-                  // Simple parsing test.
-                  value = parse(serialized);
-                  parseSupported = value["a"].length == 5 && value["a"][0] === 1;
-                  if (parseSupported) {
-                    attempt(function () {
-                      // Safari <= 5.1.2 and FF 3.1b1 allow unescaped tabs in strings.
-                      parseSupported = !parse('"\t"');
-                    });
-                    if (parseSupported) {
-                      attempt(function () {
-                        // FF 4.0 and 4.0.1 allow leading `+` signs and leading
-                        // decimal points. FF 4.0, 4.0.1, and IE 9-10 also allow
-                        // certain octal literals.
-                        parseSupported = parse("01") !== 1;
-                      });
-                    }
-                    if (parseSupported) {
-                      attempt(function () {
-                        // FF 4.0, 4.0.1, and Rhino 1.7R3-R4 allow trailing decimal
-                        // points. These environments, along with FF 3.1b1 and 2,
-                        // also allow trailing commas in JSON objects and arrays.
-                        parseSupported = parse("1.") !== 1;
-                      });
-                    }
-                  }
-                }
-              }, function () {
-                parseSupported = false;
-              });
-            }
-            isSupported = parseSupported;
-          }
-        }
-        return has[name] = !!isSupported;
-      }
-      has["bug-string-char-index"] = has["date-serialization"] = has["json"] = has["json-stringify"] = has["json-parse"] = null;
-
-      if (!has("json")) {
-        // Common `[[Class]]` name aliases.
-        var functionClass = "[object Function]",
-            dateClass = "[object Date]",
-            numberClass = "[object Number]",
-            stringClass = "[object String]",
-            arrayClass = "[object Array]",
-            booleanClass = "[object Boolean]";
-
-        // Detect incomplete support for accessing string characters by index.
-        var charIndexBuggy = has("bug-string-char-index");
-
-        // Internal: Normalizes the `for...in` iteration algorithm across
-        // environments. Each enumerated key is yielded to a `callback` function.
-        var forOwn = function (object, callback) {
-          var size = 0, Properties, dontEnums, property;
-
-          // Tests for bugs in the current environment's `for...in` algorithm. The
-          // `valueOf` property inherits the non-enumerable flag from
-          // `Object.prototype` in older versions of IE, Netscape, and Mozilla.
-          (Properties = function () {
-            this.valueOf = 0;
-          }).prototype.valueOf = 0;
-
-          // Iterate over a new instance of the `Properties` class.
-          dontEnums = new Properties();
-          for (property in dontEnums) {
-            // Ignore all properties inherited from `Object.prototype`.
-            if (isProperty.call(dontEnums, property)) {
-              size++;
-            }
-          }
-          Properties = dontEnums = null;
-
-          // Normalize the iteration algorithm.
-          if (!size) {
-            // A list of non-enumerable properties inherited from `Object.prototype`.
-            dontEnums = ["valueOf", "toString", "toLocaleString", "propertyIsEnumerable", "isPrototypeOf", "hasOwnProperty", "constructor"];
-            // IE <= 8, Mozilla 1.0, and Netscape 6.2 ignore shadowed non-enumerable
-            // properties.
-            forOwn = function (object, callback) {
-              var isFunction = getClass.call(object) == functionClass, property, length;
-              var hasProperty = !isFunction && typeof object.constructor != "function" && objectTypes[typeof object.hasOwnProperty] && object.hasOwnProperty || isProperty;
-              for (property in object) {
-                // Gecko <= 1.0 enumerates the `prototype` property of functions under
-                // certain conditions; IE does not.
-                if (!(isFunction && property == "prototype") && hasProperty.call(object, property)) {
-                  callback(property);
-                }
-              }
-              // Manually invoke the callback for each non-enumerable property.
-              for (length = dontEnums.length; property = dontEnums[--length];) {
-                if (hasProperty.call(object, property)) {
-                  callback(property);
-                }
-              }
-            };
-          } else {
-            // No bugs detected; use the standard `for...in` algorithm.
-            forOwn = function (object, callback) {
-              var isFunction = getClass.call(object) == functionClass, property, isConstructor;
-              for (property in object) {
-                if (!(isFunction && property == "prototype") && isProperty.call(object, property) && !(isConstructor = property === "constructor")) {
-                  callback(property);
-                }
-              }
-              // Manually invoke the callback for the `constructor` property due to
-              // cross-environment inconsistencies.
-              if (isConstructor || isProperty.call(object, (property = "constructor"))) {
-                callback(property);
-              }
-            };
-          }
-          return forOwn(object, callback);
-        };
-
-        // Public: Serializes a JavaScript `value` as a JSON string. The optional
-        // `filter` argument may specify either a function that alters how object and
-        // array members are serialized, or an array of strings and numbers that
-        // indicates which properties should be serialized. The optional `width`
-        // argument may be either a string or number that specifies the indentation
-        // level of the output.
-        if (!has("json-stringify") && !has("date-serialization")) {
-          // Internal: A map of control characters and their escaped equivalents.
-          var Escapes = {
-            92: "\\\\",
-            34: '\\"',
-            8: "\\b",
-            12: "\\f",
-            10: "\\n",
-            13: "\\r",
-            9: "\\t"
-          };
-
-          // Internal: Converts `value` into a zero-padded string such that its
-          // length is at least equal to `width`. The `width` must be <= 6.
-          var leadingZeroes = "000000";
-          var toPaddedString = function (width, value) {
-            // The `|| 0` expression is necessary to work around a bug in
-            // Opera <= 7.54u2 where `0 == -0`, but `String(-0) !== "0"`.
-            return (leadingZeroes + (value || 0)).slice(-width);
-          };
-
-          // Internal: Serializes a date object.
-          var serializeDate = function (value) {
-            var getData, year, month, date, time, hours, minutes, seconds, milliseconds;
-            // Define additional utility methods if the `Date` methods are buggy.
-            if (!isExtended) {
-              var floor = Math.floor;
-              // A mapping between the months of the year and the number of days between
-              // January 1st and the first of the respective month.
-              var Months = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-              // Internal: Calculates the number of days between the Unix epoch and the
-              // first day of the given month.
-              var getDay = function (year, month) {
-                return Months[month] + 365 * (year - 1970) + floor((year - 1969 + (month = +(month > 1))) / 4) - floor((year - 1901 + month) / 100) + floor((year - 1601 + month) / 400);
-              };
-              getData = function (value) {
-                // Manually compute the year, month, date, hours, minutes,
-                // seconds, and milliseconds if the `getUTC*` methods are
-                // buggy. Adapted from @Yaffle's `date-shim` project.
-                date = floor(value / 864e5);
-                for (year = floor(date / 365.2425) + 1970 - 1; getDay(year + 1, 0) <= date; year++);
-                for (month = floor((date - getDay(year, 0)) / 30.42); getDay(year, month + 1) <= date; month++);
-                date = 1 + date - getDay(year, month);
-                // The `time` value specifies the time within the day (see ES
-                // 5.1 section 15.9.1.2). The formula `(A % B + B) % B` is used
-                // to compute `A modulo B`, as the `%` operator does not
-                // correspond to the `modulo` operation for negative numbers.
-                time = (value % 864e5 + 864e5) % 864e5;
-                // The hours, minutes, seconds, and milliseconds are obtained by
-                // decomposing the time within the day. See section 15.9.1.10.
-                hours = floor(time / 36e5) % 24;
-                minutes = floor(time / 6e4) % 60;
-                seconds = floor(time / 1e3) % 60;
-                milliseconds = time % 1e3;
-              };
-            } else {
-              getData = function (value) {
-                year = value.getUTCFullYear();
-                month = value.getUTCMonth();
-                date = value.getUTCDate();
-                hours = value.getUTCHours();
-                minutes = value.getUTCMinutes();
-                seconds = value.getUTCSeconds();
-                milliseconds = value.getUTCMilliseconds();
-              };
-            }
-            serializeDate = function (value) {
-              if (value > -1 / 0 && value < 1 / 0) {
-                // Dates are serialized according to the `Date#toJSON` method
-                // specified in ES 5.1 section 15.9.5.44. See section 15.9.1.15
-                // for the ISO 8601 date time string format.
-                getData(value);
-                // Serialize extended years correctly.
-                value = (year <= 0 || year >= 1e4 ? (year < 0 ? "-" : "+") + toPaddedString(6, year < 0 ? -year : year) : toPaddedString(4, year)) +
-                "-" + toPaddedString(2, month + 1) + "-" + toPaddedString(2, date) +
-                // Months, dates, hours, minutes, and seconds should have two
-                // digits; milliseconds should have three.
-                "T" + toPaddedString(2, hours) + ":" + toPaddedString(2, minutes) + ":" + toPaddedString(2, seconds) +
-                // Milliseconds are optional in ES 5.0, but required in 5.1.
-                "." + toPaddedString(3, milliseconds) + "Z";
-                year = month = date = hours = minutes = seconds = milliseconds = null;
-              } else {
-                value = null;
-              }
-              return value;
-            };
-            return serializeDate(value);
-          };
-
-          // For environments with `JSON.stringify` but buggy date serialization,
-          // we override the native `Date#toJSON` implementation with a
-          // spec-compliant one.
-          if (has("json-stringify") && !has("date-serialization")) {
-            // Internal: the `Date#toJSON` implementation used to override the native one.
-            function dateToJSON (key) {
-              return serializeDate(this);
-            }
-
-            // Public: `JSON.stringify`. See ES 5.1 section 15.12.3.
-            var nativeStringify = exports.stringify;
-            exports.stringify = function (source, filter, width) {
-              var nativeToJSON = Date.prototype.toJSON;
-              Date.prototype.toJSON = dateToJSON;
-              var result = nativeStringify(source, filter, width);
-              Date.prototype.toJSON = nativeToJSON;
-              return result;
-            };
-          } else {
-            // Internal: Double-quotes a string `value`, replacing all ASCII control
-            // characters (characters with code unit values between 0 and 31) with
-            // their escaped equivalents. This is an implementation of the
-            // `Quote(value)` operation defined in ES 5.1 section 15.12.3.
-            var unicodePrefix = "\\u00";
-            var escapeChar = function (character) {
-              var charCode = character.charCodeAt(0), escaped = Escapes[charCode];
-              if (escaped) {
-                return escaped;
-              }
-              return unicodePrefix + toPaddedString(2, charCode.toString(16));
-            };
-            var reEscape = /[\x00-\x1f\x22\x5c]/g;
-            var quote = function (value) {
-              reEscape.lastIndex = 0;
-              return '"' +
-                (
-                  reEscape.test(value)
-                    ? value.replace(reEscape, escapeChar)
-                    : value
-                ) +
-                '"';
-            };
-
-            // Internal: Recursively serializes an object. Implements the
-            // `Str(key, holder)`, `JO(value)`, and `JA(value)` operations.
-            var serialize = function (property, object, callback, properties, whitespace, indentation, stack) {
-              var value, type, className, results, element, index, length, prefix, result;
-              attempt(function () {
-                // Necessary for host object support.
-                value = object[property];
-              });
-              if (typeof value == "object" && value) {
-                if (value.getUTCFullYear && getClass.call(value) == dateClass && value.toJSON === Date.prototype.toJSON) {
-                  value = serializeDate(value);
-                } else if (typeof value.toJSON == "function") {
-                  value = value.toJSON(property);
-                }
-              }
-              if (callback) {
-                // If a replacement function was provided, call it to obtain the value
-                // for serialization.
-                value = callback.call(object, property, value);
-              }
-              // Exit early if value is `undefined` or `null`.
-              if (value == undefined$1) {
-                return value === undefined$1 ? value : "null";
-              }
-              type = typeof value;
-              // Only call `getClass` if the value is an object.
-              if (type == "object") {
-                className = getClass.call(value);
-              }
-              switch (className || type) {
-                case "boolean":
-                case booleanClass:
-                  // Booleans are represented literally.
-                  return "" + value;
-                case "number":
-                case numberClass:
-                  // JSON numbers must be finite. `Infinity` and `NaN` are serialized as
-                  // `"null"`.
-                  return value > -1 / 0 && value < 1 / 0 ? "" + value : "null";
-                case "string":
-                case stringClass:
-                  // Strings are double-quoted and escaped.
-                  return quote("" + value);
-              }
-              // Recursively serialize objects and arrays.
-              if (typeof value == "object") {
-                // Check for cyclic structures. This is a linear search; performance
-                // is inversely proportional to the number of unique nested objects.
-                for (length = stack.length; length--;) {
-                  if (stack[length] === value) {
-                    // Cyclic structures cannot be serialized by `JSON.stringify`.
-                    throw TypeError();
-                  }
-                }
-                // Add the object to the stack of traversed objects.
-                stack.push(value);
-                results = [];
-                // Save the current indentation level and indent one additional level.
-                prefix = indentation;
-                indentation += whitespace;
-                if (className == arrayClass) {
-                  // Recursively serialize array elements.
-                  for (index = 0, length = value.length; index < length; index++) {
-                    element = serialize(index, value, callback, properties, whitespace, indentation, stack);
-                    results.push(element === undefined$1 ? "null" : element);
-                  }
-                  result = results.length ? (whitespace ? "[\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "]" : ("[" + results.join(",") + "]")) : "[]";
-                } else {
-                  // Recursively serialize object members. Members are selected from
-                  // either a user-specified list of property names, or the object
-                  // itself.
-                  forOwn(properties || value, function (property) {
-                    var element = serialize(property, value, callback, properties, whitespace, indentation, stack);
-                    if (element !== undefined$1) {
-                      // According to ES 5.1 section 15.12.3: "If `gap` {whitespace}
-                      // is not the empty string, let `member` {quote(property) + ":"}
-                      // be the concatenation of `member` and the `space` character."
-                      // The "`space` character" refers to the literal space
-                      // character, not the `space` {width} argument provided to
-                      // `JSON.stringify`.
-                      results.push(quote(property) + ":" + (whitespace ? " " : "") + element);
-                    }
-                  });
-                  result = results.length ? (whitespace ? "{\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "}" : ("{" + results.join(",") + "}")) : "{}";
-                }
-                // Remove the object from the traversed object stack.
-                stack.pop();
-                return result;
-              }
-            };
-
-            // Public: `JSON.stringify`. See ES 5.1 section 15.12.3.
-            exports.stringify = function (source, filter, width) {
-              var whitespace, callback, properties, className;
-              if (objectTypes[typeof filter] && filter) {
-                className = getClass.call(filter);
-                if (className == functionClass) {
-                  callback = filter;
-                } else if (className == arrayClass) {
-                  // Convert the property names array into a makeshift set.
-                  properties = {};
-                  for (var index = 0, length = filter.length, value; index < length;) {
-                    value = filter[index++];
-                    className = getClass.call(value);
-                    if (className == "[object String]" || className == "[object Number]") {
-                      properties[value] = 1;
-                    }
-                  }
-                }
-              }
-              if (width) {
-                className = getClass.call(width);
-                if (className == numberClass) {
-                  // Convert the `width` to an integer and create a string containing
-                  // `width` number of space characters.
-                  if ((width -= width % 1) > 0) {
-                    if (width > 10) {
-                      width = 10;
-                    }
-                    for (whitespace = ""; whitespace.length < width;) {
-                      whitespace += " ";
-                    }
-                  }
-                } else if (className == stringClass) {
-                  whitespace = width.length <= 10 ? width : width.slice(0, 10);
-                }
-              }
-              // Opera <= 7.54u2 discards the values associated with empty string keys
-              // (`""`) only if they are used directly within an object member list
-              // (e.g., `!("" in { "": 1})`).
-              return serialize("", (value = {}, value[""] = source, value), callback, properties, whitespace, "", []);
-            };
-          }
-        }
-
-        // Public: Parses a JSON source string.
-        if (!has("json-parse")) {
-          var fromCharCode = String.fromCharCode;
-
-          // Internal: A map of escaped control characters and their unescaped
-          // equivalents.
-          var Unescapes = {
-            92: "\\",
-            34: '"',
-            47: "/",
-            98: "\b",
-            116: "\t",
-            110: "\n",
-            102: "\f",
-            114: "\r"
-          };
-
-          // Internal: Stores the parser state.
-          var Index, Source;
-
-          // Internal: Resets the parser state and throws a `SyntaxError`.
-          var abort = function () {
-            Index = Source = null;
-            throw SyntaxError();
-          };
-
-          // Internal: Returns the next token, or `"$"` if the parser has reached
-          // the end of the source string. A token may be a string, number, `null`
-          // literal, or Boolean literal.
-          var lex = function () {
-            var source = Source, length = source.length, value, begin, position, isSigned, charCode;
-            while (Index < length) {
-              charCode = source.charCodeAt(Index);
-              switch (charCode) {
-                case 9: case 10: case 13: case 32:
-                  // Skip whitespace tokens, including tabs, carriage returns, line
-                  // feeds, and space characters.
-                  Index++;
-                  break;
-                case 123: case 125: case 91: case 93: case 58: case 44:
-                  // Parse a punctuator token (`{`, `}`, `[`, `]`, `:`, or `,`) at
-                  // the current position.
-                  value = charIndexBuggy ? source.charAt(Index) : source[Index];
-                  Index++;
-                  return value;
-                case 34:
-                  // `"` delimits a JSON string; advance to the next character and
-                  // begin parsing the string. String tokens are prefixed with the
-                  // sentinel `@` character to distinguish them from punctuators and
-                  // end-of-string tokens.
-                  for (value = "@", Index++; Index < length;) {
-                    charCode = source.charCodeAt(Index);
-                    if (charCode < 32) {
-                      // Unescaped ASCII control characters (those with a code unit
-                      // less than the space character) are not permitted.
-                      abort();
-                    } else if (charCode == 92) {
-                      // A reverse solidus (`\`) marks the beginning of an escaped
-                      // control character (including `"`, `\`, and `/`) or Unicode
-                      // escape sequence.
-                      charCode = source.charCodeAt(++Index);
-                      switch (charCode) {
-                        case 92: case 34: case 47: case 98: case 116: case 110: case 102: case 114:
-                          // Revive escaped control characters.
-                          value += Unescapes[charCode];
-                          Index++;
-                          break;
-                        case 117:
-                          // `\u` marks the beginning of a Unicode escape sequence.
-                          // Advance to the first character and validate the
-                          // four-digit code point.
-                          begin = ++Index;
-                          for (position = Index + 4; Index < position; Index++) {
-                            charCode = source.charCodeAt(Index);
-                            // A valid sequence comprises four hexdigits (case-
-                            // insensitive) that form a single hexadecimal value.
-                            if (!(charCode >= 48 && charCode <= 57 || charCode >= 97 && charCode <= 102 || charCode >= 65 && charCode <= 70)) {
-                              // Invalid Unicode escape sequence.
-                              abort();
-                            }
-                          }
-                          // Revive the escaped character.
-                          value += fromCharCode("0x" + source.slice(begin, Index));
-                          break;
-                        default:
-                          // Invalid escape sequence.
-                          abort();
-                      }
-                    } else {
-                      if (charCode == 34) {
-                        // An unescaped double-quote character marks the end of the
-                        // string.
-                        break;
-                      }
-                      charCode = source.charCodeAt(Index);
-                      begin = Index;
-                      // Optimize for the common case where a string is valid.
-                      while (charCode >= 32 && charCode != 92 && charCode != 34) {
-                        charCode = source.charCodeAt(++Index);
-                      }
-                      // Append the string as-is.
-                      value += source.slice(begin, Index);
-                    }
-                  }
-                  if (source.charCodeAt(Index) == 34) {
-                    // Advance to the next character and return the revived string.
-                    Index++;
-                    return value;
-                  }
-                  // Unterminated string.
-                  abort();
-                default:
-                  // Parse numbers and literals.
-                  begin = Index;
-                  // Advance past the negative sign, if one is specified.
-                  if (charCode == 45) {
-                    isSigned = true;
-                    charCode = source.charCodeAt(++Index);
-                  }
-                  // Parse an integer or floating-point value.
-                  if (charCode >= 48 && charCode <= 57) {
-                    // Leading zeroes are interpreted as octal literals.
-                    if (charCode == 48 && ((charCode = source.charCodeAt(Index + 1)), charCode >= 48 && charCode <= 57)) {
-                      // Illegal octal literal.
-                      abort();
-                    }
-                    isSigned = false;
-                    // Parse the integer component.
-                    for (; Index < length && ((charCode = source.charCodeAt(Index)), charCode >= 48 && charCode <= 57); Index++);
-                    // Floats cannot contain a leading decimal point; however, this
-                    // case is already accounted for by the parser.
-                    if (source.charCodeAt(Index) == 46) {
-                      position = ++Index;
-                      // Parse the decimal component.
-                      for (; position < length; position++) {
-                        charCode = source.charCodeAt(position);
-                        if (charCode < 48 || charCode > 57) {
-                          break;
-                        }
-                      }
-                      if (position == Index) {
-                        // Illegal trailing decimal.
-                        abort();
-                      }
-                      Index = position;
-                    }
-                    // Parse exponents. The `e` denoting the exponent is
-                    // case-insensitive.
-                    charCode = source.charCodeAt(Index);
-                    if (charCode == 101 || charCode == 69) {
-                      charCode = source.charCodeAt(++Index);
-                      // Skip past the sign following the exponent, if one is
-                      // specified.
-                      if (charCode == 43 || charCode == 45) {
-                        Index++;
-                      }
-                      // Parse the exponential component.
-                      for (position = Index; position < length; position++) {
-                        charCode = source.charCodeAt(position);
-                        if (charCode < 48 || charCode > 57) {
-                          break;
-                        }
-                      }
-                      if (position == Index) {
-                        // Illegal empty exponent.
-                        abort();
-                      }
-                      Index = position;
-                    }
-                    // Coerce the parsed value to a JavaScript number.
-                    return +source.slice(begin, Index);
-                  }
-                  // A negative sign may only precede numbers.
-                  if (isSigned) {
-                    abort();
-                  }
-                  // `true`, `false`, and `null` literals.
-                  var temp = source.slice(Index, Index + 4);
-                  if (temp == "true") {
-                    Index += 4;
-                    return true;
-                  } else if (temp == "fals" && source.charCodeAt(Index + 4 ) == 101) {
-                    Index += 5;
-                    return false;
-                  } else if (temp == "null") {
-                    Index += 4;
-                    return null;
-                  }
-                  // Unrecognized token.
-                  abort();
-              }
-            }
-            // Return the sentinel `$` character if the parser has reached the end
-            // of the source string.
-            return "$";
-          };
-
-          // Internal: Parses a JSON `value` token.
-          var get = function (value) {
-            var results, hasMembers;
-            if (value == "$") {
-              // Unexpected end of input.
-              abort();
-            }
-            if (typeof value == "string") {
-              if ((charIndexBuggy ? value.charAt(0) : value[0]) == "@") {
-                // Remove the sentinel `@` character.
-                return value.slice(1);
-              }
-              // Parse object and array literals.
-              if (value == "[") {
-                // Parses a JSON array, returning a new JavaScript array.
-                results = [];
-                for (;;) {
-                  value = lex();
-                  // A closing square bracket marks the end of the array literal.
-                  if (value == "]") {
-                    break;
-                  }
-                  // If the array literal contains elements, the current token
-                  // should be a comma separating the previous element from the
-                  // next.
-                  if (hasMembers) {
-                    if (value == ",") {
-                      value = lex();
-                      if (value == "]") {
-                        // Unexpected trailing `,` in array literal.
-                        abort();
-                      }
-                    } else {
-                      // A `,` must separate each array element.
-                      abort();
-                    }
-                  } else {
-                    hasMembers = true;
-                  }
-                  // Elisions and leading commas are not permitted.
-                  if (value == ",") {
-                    abort();
-                  }
-                  results.push(get(value));
-                }
-                return results;
-              } else if (value == "{") {
-                // Parses a JSON object, returning a new JavaScript object.
-                results = {};
-                for (;;) {
-                  value = lex();
-                  // A closing curly brace marks the end of the object literal.
-                  if (value == "}") {
-                    break;
-                  }
-                  // If the object literal contains members, the current token
-                  // should be a comma separator.
-                  if (hasMembers) {
-                    if (value == ",") {
-                      value = lex();
-                      if (value == "}") {
-                        // Unexpected trailing `,` in object literal.
-                        abort();
-                      }
-                    } else {
-                      // A `,` must separate each object member.
-                      abort();
-                    }
-                  } else {
-                    hasMembers = true;
-                  }
-                  // Leading commas are not permitted, object property names must be
-                  // double-quoted strings, and a `:` must separate each property
-                  // name and value.
-                  if (value == "," || typeof value != "string" || (charIndexBuggy ? value.charAt(0) : value[0]) != "@" || lex() != ":") {
-                    abort();
-                  }
-                  results[value.slice(1)] = get(lex());
-                }
-                return results;
-              }
-              // Unexpected token encountered.
-              abort();
-            }
-            return value;
-          };
-
-          // Internal: Updates a traversed object member.
-          var update = function (source, property, callback) {
-            var element = walk(source, property, callback);
-            if (element === undefined$1) {
-              delete source[property];
-            } else {
-              source[property] = element;
-            }
-          };
-
-          // Internal: Recursively traverses a parsed JSON object, invoking the
-          // `callback` function for each value. This is an implementation of the
-          // `Walk(holder, name)` operation defined in ES 5.1 section 15.12.2.
-          var walk = function (source, property, callback) {
-            var value = source[property], length;
-            if (typeof value == "object" && value) {
-              // `forOwn` can't be used to traverse an array in Opera <= 8.54
-              // because its `Object#hasOwnProperty` implementation returns `false`
-              // for array indices (e.g., `![1, 2, 3].hasOwnProperty("0")`).
-              if (getClass.call(value) == arrayClass) {
-                for (length = value.length; length--;) {
-                  update(getClass, forOwn, value, length, callback);
-                }
-              } else {
-                forOwn(value, function (property) {
-                  update(value, property, callback);
+                  stringify({
+                    "a": [value, true, false, null, "\x00\b\n\f\r\t"]
+                  }) == serialized && // FF 3.1b1 and b2 ignore the `filter` and `width` arguments.
+                  stringify(null, value) === "1" && stringify([1, 2], null, 1) == "[\n 1,\n 2\n]";
+                }, function () {
+                  stringifySupported = false;
                 });
               }
-            }
-            return callback.call(source, property, value);
-          };
 
-          // Public: `JSON.parse`. See ES 5.1 section 15.12.2.
-          exports.parse = function (source, callback) {
-            var result, value;
-            Index = 0;
-            Source = "" + source;
-            result = get(lex());
-            // If a JSON string contains multiple tokens, it is invalid.
-            if (lex() != "$") {
-              abort();
+              isSupported = stringifySupported;
+            } // Test `JSON.parse`.
+
+
+            if (name == "json-parse") {
+              var parse = exports.parse,
+                  parseSupported;
+
+              if (typeof parse == "function") {
+                attempt(function () {
+                  // FF 3.1b1, b2 will throw an exception if a bare literal is provided.
+                  // Conforming implementations should also coerce the initial argument to
+                  // a string prior to parsing.
+                  if (parse("0") === 0 && !parse(false)) {
+                    // Simple parsing test.
+                    value = parse(serialized);
+                    parseSupported = value["a"].length == 5 && value["a"][0] === 1;
+
+                    if (parseSupported) {
+                      attempt(function () {
+                        // Safari <= 5.1.2 and FF 3.1b1 allow unescaped tabs in strings.
+                        parseSupported = !parse('"\t"');
+                      });
+
+                      if (parseSupported) {
+                        attempt(function () {
+                          // FF 4.0 and 4.0.1 allow leading `+` signs and leading
+                          // decimal points. FF 4.0, 4.0.1, and IE 9-10 also allow
+                          // certain octal literals.
+                          parseSupported = parse("01") !== 1;
+                        });
+                      }
+
+                      if (parseSupported) {
+                        attempt(function () {
+                          // FF 4.0, 4.0.1, and Rhino 1.7R3-R4 allow trailing decimal
+                          // points. These environments, along with FF 3.1b1 and 2,
+                          // also allow trailing commas in JSON objects and arrays.
+                          parseSupported = parse("1.") !== 1;
+                        });
+                      }
+                    }
+                  }
+                }, function () {
+                  parseSupported = false;
+                });
+              }
+
+              isSupported = parseSupported;
             }
-            // Reset the parser state.
-            Index = Source = null;
-            return callback && getClass.call(callback) == functionClass ? walk((value = {}, value[""] = result, value), "", callback) : result;
-          };
+          }
+
+          return has[name] = !!isSupported;
         }
+
+        has["bug-string-char-index"] = has["date-serialization"] = has["json"] = has["json-stringify"] = has["json-parse"] = null;
+
+        if (!has("json")) {
+          // Common `[[Class]]` name aliases.
+          var functionClass = "[object Function]",
+              dateClass = "[object Date]",
+              numberClass = "[object Number]",
+              stringClass = "[object String]",
+              arrayClass = "[object Array]",
+              booleanClass = "[object Boolean]"; // Detect incomplete support for accessing string characters by index.
+
+          var charIndexBuggy = has("bug-string-char-index"); // Internal: Normalizes the `for...in` iteration algorithm across
+          // environments. Each enumerated key is yielded to a `callback` function.
+
+          var _forOwn = function forOwn(object, callback) {
+            var size = 0,
+                Properties,
+                dontEnums,
+                property; // Tests for bugs in the current environment's `for...in` algorithm. The
+            // `valueOf` property inherits the non-enumerable flag from
+            // `Object.prototype` in older versions of IE, Netscape, and Mozilla.
+
+            (Properties = function Properties() {
+              this.valueOf = 0;
+            }).prototype.valueOf = 0; // Iterate over a new instance of the `Properties` class.
+
+            dontEnums = new Properties();
+
+            for (property in dontEnums) {
+              // Ignore all properties inherited from `Object.prototype`.
+              if (isProperty.call(dontEnums, property)) {
+                size++;
+              }
+            }
+
+            Properties = dontEnums = null; // Normalize the iteration algorithm.
+
+            if (!size) {
+              // A list of non-enumerable properties inherited from `Object.prototype`.
+              dontEnums = ["valueOf", "toString", "toLocaleString", "propertyIsEnumerable", "isPrototypeOf", "hasOwnProperty", "constructor"]; // IE <= 8, Mozilla 1.0, and Netscape 6.2 ignore shadowed non-enumerable
+              // properties.
+
+              _forOwn = function forOwn(object, callback) {
+                var isFunction = getClass.call(object) == functionClass,
+                    property,
+                    length;
+                var hasProperty = !isFunction && typeof object.constructor != "function" && objectTypes[_typeof(object.hasOwnProperty)] && object.hasOwnProperty || isProperty;
+
+                for (property in object) {
+                  // Gecko <= 1.0 enumerates the `prototype` property of functions under
+                  // certain conditions; IE does not.
+                  if (!(isFunction && property == "prototype") && hasProperty.call(object, property)) {
+                    callback(property);
+                  }
+                } // Manually invoke the callback for each non-enumerable property.
+
+
+                for (length = dontEnums.length; property = dontEnums[--length];) {
+                  if (hasProperty.call(object, property)) {
+                    callback(property);
+                  }
+                }
+              };
+            } else {
+              // No bugs detected; use the standard `for...in` algorithm.
+              _forOwn = function forOwn(object, callback) {
+                var isFunction = getClass.call(object) == functionClass,
+                    property,
+                    isConstructor;
+
+                for (property in object) {
+                  if (!(isFunction && property == "prototype") && isProperty.call(object, property) && !(isConstructor = property === "constructor")) {
+                    callback(property);
+                  }
+                } // Manually invoke the callback for the `constructor` property due to
+                // cross-environment inconsistencies.
+
+
+                if (isConstructor || isProperty.call(object, property = "constructor")) {
+                  callback(property);
+                }
+              };
+            }
+
+            return _forOwn(object, callback);
+          }; // Public: Serializes a JavaScript `value` as a JSON string. The optional
+          // `filter` argument may specify either a function that alters how object and
+          // array members are serialized, or an array of strings and numbers that
+          // indicates which properties should be serialized. The optional `width`
+          // argument may be either a string or number that specifies the indentation
+          // level of the output.
+
+
+          if (!has("json-stringify") && !has("date-serialization")) {
+            // Internal: A map of control characters and their escaped equivalents.
+            var Escapes = {
+              92: "\\\\",
+              34: '\\"',
+              8: "\\b",
+              12: "\\f",
+              10: "\\n",
+              13: "\\r",
+              9: "\\t"
+            }; // Internal: Converts `value` into a zero-padded string such that its
+            // length is at least equal to `width`. The `width` must be <= 6.
+
+            var leadingZeroes = "000000";
+
+            var toPaddedString = function toPaddedString(width, value) {
+              // The `|| 0` expression is necessary to work around a bug in
+              // Opera <= 7.54u2 where `0 == -0`, but `String(-0) !== "0"`.
+              return (leadingZeroes + (value || 0)).slice(-width);
+            }; // Internal: Serializes a date object.
+
+
+            var _serializeDate = function serializeDate(value) {
+              var getData, year, month, date, time, hours, minutes, seconds, milliseconds; // Define additional utility methods if the `Date` methods are buggy.
+
+              if (!isExtended) {
+                var floor = Math.floor; // A mapping between the months of the year and the number of days between
+                // January 1st and the first of the respective month.
+
+                var Months = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334]; // Internal: Calculates the number of days between the Unix epoch and the
+                // first day of the given month.
+
+                var getDay = function getDay(year, month) {
+                  return Months[month] + 365 * (year - 1970) + floor((year - 1969 + (month = +(month > 1))) / 4) - floor((year - 1901 + month) / 100) + floor((year - 1601 + month) / 400);
+                };
+
+                getData = function getData(value) {
+                  // Manually compute the year, month, date, hours, minutes,
+                  // seconds, and milliseconds if the `getUTC*` methods are
+                  // buggy. Adapted from @Yaffle's `date-shim` project.
+                  date = floor(value / 864e5);
+
+                  for (year = floor(date / 365.2425) + 1970 - 1; getDay(year + 1, 0) <= date; year++) {
+                  }
+
+                  for (month = floor((date - getDay(year, 0)) / 30.42); getDay(year, month + 1) <= date; month++) {
+                  }
+
+                  date = 1 + date - getDay(year, month); // The `time` value specifies the time within the day (see ES
+                  // 5.1 section 15.9.1.2). The formula `(A % B + B) % B` is used
+                  // to compute `A modulo B`, as the `%` operator does not
+                  // correspond to the `modulo` operation for negative numbers.
+
+                  time = (value % 864e5 + 864e5) % 864e5; // The hours, minutes, seconds, and milliseconds are obtained by
+                  // decomposing the time within the day. See section 15.9.1.10.
+
+                  hours = floor(time / 36e5) % 24;
+                  minutes = floor(time / 6e4) % 60;
+                  seconds = floor(time / 1e3) % 60;
+                  milliseconds = time % 1e3;
+                };
+              } else {
+                getData = function getData(value) {
+                  year = value.getUTCFullYear();
+                  month = value.getUTCMonth();
+                  date = value.getUTCDate();
+                  hours = value.getUTCHours();
+                  minutes = value.getUTCMinutes();
+                  seconds = value.getUTCSeconds();
+                  milliseconds = value.getUTCMilliseconds();
+                };
+              }
+
+              _serializeDate = function serializeDate(value) {
+                if (value > -1 / 0 && value < 1 / 0) {
+                  // Dates are serialized according to the `Date#toJSON` method
+                  // specified in ES 5.1 section 15.9.5.44. See section 15.9.1.15
+                  // for the ISO 8601 date time string format.
+                  getData(value); // Serialize extended years correctly.
+
+                  value = (year <= 0 || year >= 1e4 ? (year < 0 ? "-" : "+") + toPaddedString(6, year < 0 ? -year : year) : toPaddedString(4, year)) + "-" + toPaddedString(2, month + 1) + "-" + toPaddedString(2, date) + // Months, dates, hours, minutes, and seconds should have two
+                  // digits; milliseconds should have three.
+                  "T" + toPaddedString(2, hours) + ":" + toPaddedString(2, minutes) + ":" + toPaddedString(2, seconds) + // Milliseconds are optional in ES 5.0, but required in 5.1.
+                  "." + toPaddedString(3, milliseconds) + "Z";
+                  year = month = date = hours = minutes = seconds = milliseconds = null;
+                } else {
+                  value = null;
+                }
+
+                return value;
+              };
+
+              return _serializeDate(value);
+            }; // For environments with `JSON.stringify` but buggy date serialization,
+            // we override the native `Date#toJSON` implementation with a
+            // spec-compliant one.
+
+
+            if (has("json-stringify") && !has("date-serialization")) {
+              // Internal: the `Date#toJSON` implementation used to override the native one.
+              var dateToJSON = function dateToJSON(key) {
+                return _serializeDate(this);
+              }; // Public: `JSON.stringify`. See ES 5.1 section 15.12.3.
+
+
+              var nativeStringify = exports.stringify;
+
+              exports.stringify = function (source, filter, width) {
+                var nativeToJSON = Date.prototype.toJSON;
+                Date.prototype.toJSON = dateToJSON;
+                var result = nativeStringify(source, filter, width);
+                Date.prototype.toJSON = nativeToJSON;
+                return result;
+              };
+            } else {
+              // Internal: Double-quotes a string `value`, replacing all ASCII control
+              // characters (characters with code unit values between 0 and 31) with
+              // their escaped equivalents. This is an implementation of the
+              // `Quote(value)` operation defined in ES 5.1 section 15.12.3.
+              var unicodePrefix = "\\u00";
+
+              var escapeChar = function escapeChar(character) {
+                var charCode = character.charCodeAt(0),
+                    escaped = Escapes[charCode];
+
+                if (escaped) {
+                  return escaped;
+                }
+
+                return unicodePrefix + toPaddedString(2, charCode.toString(16));
+              };
+
+              var reEscape = /[\x00-\x1f\x22\x5c]/g;
+
+              var quote = function quote(value) {
+                reEscape.lastIndex = 0;
+                return '"' + (reEscape.test(value) ? value.replace(reEscape, escapeChar) : value) + '"';
+              }; // Internal: Recursively serializes an object. Implements the
+              // `Str(key, holder)`, `JO(value)`, and `JA(value)` operations.
+
+
+              var serialize = function serialize(property, object, callback, properties, whitespace, indentation, stack) {
+                var value, type, className, results, element, index, length, prefix, result;
+                attempt(function () {
+                  // Necessary for host object support.
+                  value = object[property];
+                });
+
+                if (_typeof(value) == "object" && value) {
+                  if (value.getUTCFullYear && getClass.call(value) == dateClass && value.toJSON === Date.prototype.toJSON) {
+                    value = _serializeDate(value);
+                  } else if (typeof value.toJSON == "function") {
+                    value = value.toJSON(property);
+                  }
+                }
+
+                if (callback) {
+                  // If a replacement function was provided, call it to obtain the value
+                  // for serialization.
+                  value = callback.call(object, property, value);
+                } // Exit early if value is `undefined` or `null`.
+
+
+                if (value == undefined$1) {
+                  return value === undefined$1 ? value : "null";
+                }
+
+                type = _typeof(value); // Only call `getClass` if the value is an object.
+
+                if (type == "object") {
+                  className = getClass.call(value);
+                }
+
+                switch (className || type) {
+                  case "boolean":
+                  case booleanClass:
+                    // Booleans are represented literally.
+                    return "" + value;
+
+                  case "number":
+                  case numberClass:
+                    // JSON numbers must be finite. `Infinity` and `NaN` are serialized as
+                    // `"null"`.
+                    return value > -1 / 0 && value < 1 / 0 ? "" + value : "null";
+
+                  case "string":
+                  case stringClass:
+                    // Strings are double-quoted and escaped.
+                    return quote("" + value);
+                } // Recursively serialize objects and arrays.
+
+
+                if (_typeof(value) == "object") {
+                  // Check for cyclic structures. This is a linear search; performance
+                  // is inversely proportional to the number of unique nested objects.
+                  for (length = stack.length; length--;) {
+                    if (stack[length] === value) {
+                      // Cyclic structures cannot be serialized by `JSON.stringify`.
+                      throw TypeError();
+                    }
+                  } // Add the object to the stack of traversed objects.
+
+
+                  stack.push(value);
+                  results = []; // Save the current indentation level and indent one additional level.
+
+                  prefix = indentation;
+                  indentation += whitespace;
+
+                  if (className == arrayClass) {
+                    // Recursively serialize array elements.
+                    for (index = 0, length = value.length; index < length; index++) {
+                      element = serialize(index, value, callback, properties, whitespace, indentation, stack);
+                      results.push(element === undefined$1 ? "null" : element);
+                    }
+
+                    result = results.length ? whitespace ? "[\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "]" : "[" + results.join(",") + "]" : "[]";
+                  } else {
+                    // Recursively serialize object members. Members are selected from
+                    // either a user-specified list of property names, or the object
+                    // itself.
+                    _forOwn(properties || value, function (property) {
+                      var element = serialize(property, value, callback, properties, whitespace, indentation, stack);
+
+                      if (element !== undefined$1) {
+                        // According to ES 5.1 section 15.12.3: "If `gap` {whitespace}
+                        // is not the empty string, let `member` {quote(property) + ":"}
+                        // be the concatenation of `member` and the `space` character."
+                        // The "`space` character" refers to the literal space
+                        // character, not the `space` {width} argument provided to
+                        // `JSON.stringify`.
+                        results.push(quote(property) + ":" + (whitespace ? " " : "") + element);
+                      }
+                    });
+
+                    result = results.length ? whitespace ? "{\n" + indentation + results.join(",\n" + indentation) + "\n" + prefix + "}" : "{" + results.join(",") + "}" : "{}";
+                  } // Remove the object from the traversed object stack.
+
+
+                  stack.pop();
+                  return result;
+                }
+              }; // Public: `JSON.stringify`. See ES 5.1 section 15.12.3.
+
+
+              exports.stringify = function (source, filter, width) {
+                var whitespace, callback, properties, className;
+
+                if (objectTypes[_typeof(filter)] && filter) {
+                  className = getClass.call(filter);
+
+                  if (className == functionClass) {
+                    callback = filter;
+                  } else if (className == arrayClass) {
+                    // Convert the property names array into a makeshift set.
+                    properties = {};
+
+                    for (var index = 0, length = filter.length, value; index < length;) {
+                      value = filter[index++];
+                      className = getClass.call(value);
+
+                      if (className == "[object String]" || className == "[object Number]") {
+                        properties[value] = 1;
+                      }
+                    }
+                  }
+                }
+
+                if (width) {
+                  className = getClass.call(width);
+
+                  if (className == numberClass) {
+                    // Convert the `width` to an integer and create a string containing
+                    // `width` number of space characters.
+                    if ((width -= width % 1) > 0) {
+                      if (width > 10) {
+                        width = 10;
+                      }
+
+                      for (whitespace = ""; whitespace.length < width;) {
+                        whitespace += " ";
+                      }
+                    }
+                  } else if (className == stringClass) {
+                    whitespace = width.length <= 10 ? width : width.slice(0, 10);
+                  }
+                } // Opera <= 7.54u2 discards the values associated with empty string keys
+                // (`""`) only if they are used directly within an object member list
+                // (e.g., `!("" in { "": 1})`).
+
+
+                return serialize("", (value = {}, value[""] = source, value), callback, properties, whitespace, "", []);
+              };
+            }
+          } // Public: Parses a JSON source string.
+
+
+          if (!has("json-parse")) {
+            var fromCharCode = String.fromCharCode; // Internal: A map of escaped control characters and their unescaped
+            // equivalents.
+
+            var Unescapes = {
+              92: "\\",
+              34: '"',
+              47: "/",
+              98: "\b",
+              116: "\t",
+              110: "\n",
+              102: "\f",
+              114: "\r"
+            }; // Internal: Stores the parser state.
+
+            var Index, Source; // Internal: Resets the parser state and throws a `SyntaxError`.
+
+            var abort = function abort() {
+              Index = Source = null;
+              throw SyntaxError();
+            }; // Internal: Returns the next token, or `"$"` if the parser has reached
+            // the end of the source string. A token may be a string, number, `null`
+            // literal, or Boolean literal.
+
+
+            var lex = function lex() {
+              var source = Source,
+                  length = source.length,
+                  value,
+                  begin,
+                  position,
+                  isSigned,
+                  charCode;
+
+              while (Index < length) {
+                charCode = source.charCodeAt(Index);
+
+                switch (charCode) {
+                  case 9:
+                  case 10:
+                  case 13:
+                  case 32:
+                    // Skip whitespace tokens, including tabs, carriage returns, line
+                    // feeds, and space characters.
+                    Index++;
+                    break;
+
+                  case 123:
+                  case 125:
+                  case 91:
+                  case 93:
+                  case 58:
+                  case 44:
+                    // Parse a punctuator token (`{`, `}`, `[`, `]`, `:`, or `,`) at
+                    // the current position.
+                    value = charIndexBuggy ? source.charAt(Index) : source[Index];
+                    Index++;
+                    return value;
+
+                  case 34:
+                    // `"` delimits a JSON string; advance to the next character and
+                    // begin parsing the string. String tokens are prefixed with the
+                    // sentinel `@` character to distinguish them from punctuators and
+                    // end-of-string tokens.
+                    for (value = "@", Index++; Index < length;) {
+                      charCode = source.charCodeAt(Index);
+
+                      if (charCode < 32) {
+                        // Unescaped ASCII control characters (those with a code unit
+                        // less than the space character) are not permitted.
+                        abort();
+                      } else if (charCode == 92) {
+                        // A reverse solidus (`\`) marks the beginning of an escaped
+                        // control character (including `"`, `\`, and `/`) or Unicode
+                        // escape sequence.
+                        charCode = source.charCodeAt(++Index);
+
+                        switch (charCode) {
+                          case 92:
+                          case 34:
+                          case 47:
+                          case 98:
+                          case 116:
+                          case 110:
+                          case 102:
+                          case 114:
+                            // Revive escaped control characters.
+                            value += Unescapes[charCode];
+                            Index++;
+                            break;
+
+                          case 117:
+                            // `\u` marks the beginning of a Unicode escape sequence.
+                            // Advance to the first character and validate the
+                            // four-digit code point.
+                            begin = ++Index;
+
+                            for (position = Index + 4; Index < position; Index++) {
+                              charCode = source.charCodeAt(Index); // A valid sequence comprises four hexdigits (case-
+                              // insensitive) that form a single hexadecimal value.
+
+                              if (!(charCode >= 48 && charCode <= 57 || charCode >= 97 && charCode <= 102 || charCode >= 65 && charCode <= 70)) {
+                                // Invalid Unicode escape sequence.
+                                abort();
+                              }
+                            } // Revive the escaped character.
+
+
+                            value += fromCharCode("0x" + source.slice(begin, Index));
+                            break;
+
+                          default:
+                            // Invalid escape sequence.
+                            abort();
+                        }
+                      } else {
+                        if (charCode == 34) {
+                          // An unescaped double-quote character marks the end of the
+                          // string.
+                          break;
+                        }
+
+                        charCode = source.charCodeAt(Index);
+                        begin = Index; // Optimize for the common case where a string is valid.
+
+                        while (charCode >= 32 && charCode != 92 && charCode != 34) {
+                          charCode = source.charCodeAt(++Index);
+                        } // Append the string as-is.
+
+
+                        value += source.slice(begin, Index);
+                      }
+                    }
+
+                    if (source.charCodeAt(Index) == 34) {
+                      // Advance to the next character and return the revived string.
+                      Index++;
+                      return value;
+                    } // Unterminated string.
+
+
+                    abort();
+
+                  default:
+                    // Parse numbers and literals.
+                    begin = Index; // Advance past the negative sign, if one is specified.
+
+                    if (charCode == 45) {
+                      isSigned = true;
+                      charCode = source.charCodeAt(++Index);
+                    } // Parse an integer or floating-point value.
+
+
+                    if (charCode >= 48 && charCode <= 57) {
+                      // Leading zeroes are interpreted as octal literals.
+                      if (charCode == 48 && (charCode = source.charCodeAt(Index + 1), charCode >= 48 && charCode <= 57)) {
+                        // Illegal octal literal.
+                        abort();
+                      }
+
+                      isSigned = false; // Parse the integer component.
+
+                      for (; Index < length && (charCode = source.charCodeAt(Index), charCode >= 48 && charCode <= 57); Index++) {
+                      } // Floats cannot contain a leading decimal point; however, this
+                      // case is already accounted for by the parser.
+
+
+                      if (source.charCodeAt(Index) == 46) {
+                        position = ++Index; // Parse the decimal component.
+
+                        for (; position < length; position++) {
+                          charCode = source.charCodeAt(position);
+
+                          if (charCode < 48 || charCode > 57) {
+                            break;
+                          }
+                        }
+
+                        if (position == Index) {
+                          // Illegal trailing decimal.
+                          abort();
+                        }
+
+                        Index = position;
+                      } // Parse exponents. The `e` denoting the exponent is
+                      // case-insensitive.
+
+
+                      charCode = source.charCodeAt(Index);
+
+                      if (charCode == 101 || charCode == 69) {
+                        charCode = source.charCodeAt(++Index); // Skip past the sign following the exponent, if one is
+                        // specified.
+
+                        if (charCode == 43 || charCode == 45) {
+                          Index++;
+                        } // Parse the exponential component.
+
+
+                        for (position = Index; position < length; position++) {
+                          charCode = source.charCodeAt(position);
+
+                          if (charCode < 48 || charCode > 57) {
+                            break;
+                          }
+                        }
+
+                        if (position == Index) {
+                          // Illegal empty exponent.
+                          abort();
+                        }
+
+                        Index = position;
+                      } // Coerce the parsed value to a JavaScript number.
+
+
+                      return +source.slice(begin, Index);
+                    } // A negative sign may only precede numbers.
+
+
+                    if (isSigned) {
+                      abort();
+                    } // `true`, `false`, and `null` literals.
+
+
+                    var temp = source.slice(Index, Index + 4);
+
+                    if (temp == "true") {
+                      Index += 4;
+                      return true;
+                    } else if (temp == "fals" && source.charCodeAt(Index + 4) == 101) {
+                      Index += 5;
+                      return false;
+                    } else if (temp == "null") {
+                      Index += 4;
+                      return null;
+                    } // Unrecognized token.
+
+
+                    abort();
+                }
+              } // Return the sentinel `$` character if the parser has reached the end
+              // of the source string.
+
+
+              return "$";
+            }; // Internal: Parses a JSON `value` token.
+
+
+            var get = function get(value) {
+              var results, hasMembers;
+
+              if (value == "$") {
+                // Unexpected end of input.
+                abort();
+              }
+
+              if (typeof value == "string") {
+                if ((charIndexBuggy ? value.charAt(0) : value[0]) == "@") {
+                  // Remove the sentinel `@` character.
+                  return value.slice(1);
+                } // Parse object and array literals.
+
+
+                if (value == "[") {
+                  // Parses a JSON array, returning a new JavaScript array.
+                  results = [];
+
+                  for (;;) {
+                    value = lex(); // A closing square bracket marks the end of the array literal.
+
+                    if (value == "]") {
+                      break;
+                    } // If the array literal contains elements, the current token
+                    // should be a comma separating the previous element from the
+                    // next.
+
+
+                    if (hasMembers) {
+                      if (value == ",") {
+                        value = lex();
+
+                        if (value == "]") {
+                          // Unexpected trailing `,` in array literal.
+                          abort();
+                        }
+                      } else {
+                        // A `,` must separate each array element.
+                        abort();
+                      }
+                    } else {
+                      hasMembers = true;
+                    } // Elisions and leading commas are not permitted.
+
+
+                    if (value == ",") {
+                      abort();
+                    }
+
+                    results.push(get(value));
+                  }
+
+                  return results;
+                } else if (value == "{") {
+                  // Parses a JSON object, returning a new JavaScript object.
+                  results = {};
+
+                  for (;;) {
+                    value = lex(); // A closing curly brace marks the end of the object literal.
+
+                    if (value == "}") {
+                      break;
+                    } // If the object literal contains members, the current token
+                    // should be a comma separator.
+
+
+                    if (hasMembers) {
+                      if (value == ",") {
+                        value = lex();
+
+                        if (value == "}") {
+                          // Unexpected trailing `,` in object literal.
+                          abort();
+                        }
+                      } else {
+                        // A `,` must separate each object member.
+                        abort();
+                      }
+                    } else {
+                      hasMembers = true;
+                    } // Leading commas are not permitted, object property names must be
+                    // double-quoted strings, and a `:` must separate each property
+                    // name and value.
+
+
+                    if (value == "," || typeof value != "string" || (charIndexBuggy ? value.charAt(0) : value[0]) != "@" || lex() != ":") {
+                      abort();
+                    }
+
+                    results[value.slice(1)] = get(lex());
+                  }
+
+                  return results;
+                } // Unexpected token encountered.
+
+
+                abort();
+              }
+
+              return value;
+            }; // Internal: Updates a traversed object member.
+
+
+            var update = function update(source, property, callback) {
+              var element = walk(source, property, callback);
+
+              if (element === undefined$1) {
+                delete source[property];
+              } else {
+                source[property] = element;
+              }
+            }; // Internal: Recursively traverses a parsed JSON object, invoking the
+            // `callback` function for each value. This is an implementation of the
+            // `Walk(holder, name)` operation defined in ES 5.1 section 15.12.2.
+
+
+            var walk = function walk(source, property, callback) {
+              var value = source[property],
+                  length;
+
+              if (_typeof(value) == "object" && value) {
+                // `forOwn` can't be used to traverse an array in Opera <= 8.54
+                // because its `Object#hasOwnProperty` implementation returns `false`
+                // for array indices (e.g., `![1, 2, 3].hasOwnProperty("0")`).
+                if (getClass.call(value) == arrayClass) {
+                  for (length = value.length; length--;) {
+                    update(getClass, _forOwn, value, length, callback);
+                  }
+                } else {
+                  _forOwn(value, function (property) {
+                    update(value, property, callback);
+                  });
+                }
+              }
+
+              return callback.call(source, property, value);
+            }; // Public: `JSON.parse`. See ES 5.1 section 15.12.2.
+
+
+            exports.parse = function (source, callback) {
+              var result, value;
+              Index = 0;
+              Source = "" + source;
+              result = get(lex()); // If a JSON string contains multiple tokens, it is invalid.
+
+              if (lex() != "$") {
+                abort();
+              } // Reset the parser state.
+
+
+              Index = Source = null;
+              return callback && getClass.call(callback) == functionClass ? walk((value = {}, value[""] = result, value), "", callback) : result;
+            };
+          }
+        }
+
+        exports.runInContext = runInContext;
+        return exports;
       }
 
-      exports.runInContext = runInContext;
-      return exports;
-    }
+      if (freeExports && !isLoader) {
+        // Export for CommonJS environments.
+        runInContext(root, freeExports);
+      } else {
+        // Export for web browsers and JavaScript engines.
+        var nativeJSON = root.JSON,
+            previousJSON = root.JSON3,
+            isRestored = false;
+        var JSON3 = runInContext(root, root.JSON3 = {
+          // Public: Restores the original value of the global `JSON` object and
+          // returns a reference to the `JSON3` object.
+          "noConflict": function noConflict() {
+            if (!isRestored) {
+              isRestored = true;
+              root.JSON = nativeJSON;
+              root.JSON3 = previousJSON;
+              nativeJSON = previousJSON = null;
+            }
 
-    if (freeExports && !isLoader) {
-      // Export for CommonJS environments.
-      runInContext(root, freeExports);
-    } else {
-      // Export for web browsers and JavaScript engines.
-      var nativeJSON = root.JSON,
-          previousJSON = root.JSON3,
-          isRestored = false;
-
-      var JSON3 = runInContext(root, (root.JSON3 = {
-        // Public: Restores the original value of the global `JSON` object and
-        // returns a reference to the `JSON3` object.
-        "noConflict": function () {
-          if (!isRestored) {
-            isRestored = true;
-            root.JSON = nativeJSON;
-            root.JSON3 = previousJSON;
-            nativeJSON = previousJSON = null;
+            return JSON3;
           }
-          return JSON3;
-        }
-      }));
-
-      root.JSON = {
-        "parse": JSON3.parse,
-        "stringify": JSON3.stringify
-      };
-    }
-  }).call(commonjsGlobal);
+        });
+        root.JSON = {
+          "parse": JSON3.parse,
+          "stringify": JSON3.stringify
+        };
+      } // Export for asynchronous module loaders.
+    }).call(commonjsGlobal);
   });
-
-  var componentUrl = createCommonjsModule(function (module, exports) {
-  /**
-   * Parse the given `url`.
-   *
-   * @param {String} str
-   * @return {Object}
-   * @api public
-   */
-
-  exports.parse = function(url){
-    var a = document.createElement('a');
-    a.href = url;
-    return {
-      href: a.href,
-      host: a.host || location.host,
-      port: ('0' === a.port || '' === a.port) ? port(a.protocol) : a.port,
-      hash: a.hash,
-      hostname: a.hostname || location.hostname,
-      pathname: a.pathname.charAt(0) != '/' ? '/' + a.pathname : a.pathname,
-      protocol: !a.protocol || ':' == a.protocol ? location.protocol : a.protocol,
-      search: a.search,
-      query: a.search.slice(1)
-    };
-  };
-
-  /**
-   * Check if `url` is absolute.
-   *
-   * @param {String} url
-   * @return {Boolean}
-   * @api public
-   */
-
-  exports.isAbsolute = function(url){
-    return 0 == url.indexOf('//') || !!~url.indexOf('://');
-  };
-
-  /**
-   * Check if `url` is relative.
-   *
-   * @param {String} url
-   * @return {Boolean}
-   * @api public
-   */
-
-  exports.isRelative = function(url){
-    return !exports.isAbsolute(url);
-  };
-
-  /**
-   * Check if `url` is cross domain.
-   *
-   * @param {String} url
-   * @return {Boolean}
-   * @api public
-   */
-
-  exports.isCrossDomain = function(url){
-    url = exports.parse(url);
-    var location = exports.parse(window.location.href);
-    return url.hostname !== location.hostname
-      || url.port !== location.port
-      || url.protocol !== location.protocol;
-  };
-
-  /**
-   * Return default port for `protocol`.
-   *
-   * @param  {String} protocol
-   * @return {String}
-   * @api private
-   */
-  function port (protocol){
-    switch (protocol) {
-      case 'http:':
-        return 80;
-      case 'https:':
-        return 443;
-      default:
-        return location.port;
-    }
-  }
-  });
-  var componentUrl_1 = componentUrl.parse;
-  var componentUrl_2 = componentUrl.isAbsolute;
-  var componentUrl_3 = componentUrl.isRelative;
-  var componentUrl_4 = componentUrl.isCrossDomain;
 
   var debug_1$1 = createCommonjsModule(function (module, exports) {
-  /**
-   * This is the common logic for both the Node.js and web browser
-   * implementations of `debug()`.
-   *
-   * Expose `debug()` as the module.
-   */
+    /**
+     * This is the common logic for both the Node.js and web browser
+     * implementations of `debug()`.
+     *
+     * Expose `debug()` as the module.
+     */
+    exports = module.exports = debug;
+    exports.coerce = coerce;
+    exports.disable = disable;
+    exports.enable = enable;
+    exports.enabled = enabled;
+    exports.humanize = ms;
+    /**
+     * The currently active debug mode names, and names to skip.
+     */
 
-  exports = module.exports = debug;
-  exports.coerce = coerce;
-  exports.disable = disable;
-  exports.enable = enable;
-  exports.enabled = enabled;
-  exports.humanize = ms;
+    exports.names = [];
+    exports.skips = [];
+    /**
+     * Map of special "%n" handling functions, for the debug "format" argument.
+     *
+     * Valid key names are a single, lowercased letter, i.e. "n".
+     */
 
-  /**
-   * The currently active debug mode names, and names to skip.
-   */
+    exports.formatters = {};
+    /**
+     * Previously assigned color.
+     */
 
-  exports.names = [];
-  exports.skips = [];
+    var prevColor = 0;
+    /**
+     * Previous log timestamp.
+     */
 
-  /**
-   * Map of special "%n" handling functions, for the debug "format" argument.
-   *
-   * Valid key names are a single, lowercased letter, i.e. "n".
-   */
+    var prevTime;
+    /**
+     * Select a color.
+     *
+     * @return {Number}
+     * @api private
+     */
 
-  exports.formatters = {};
-
-  /**
-   * Previously assigned color.
-   */
-
-  var prevColor = 0;
-
-  /**
-   * Previous log timestamp.
-   */
-
-  var prevTime;
-
-  /**
-   * Select a color.
-   *
-   * @return {Number}
-   * @api private
-   */
-
-  function selectColor() {
-    return exports.colors[prevColor++ % exports.colors.length];
-  }
-
-  /**
-   * Create a debugger with the given `namespace`.
-   *
-   * @param {String} namespace
-   * @return {Function}
-   * @api public
-   */
-
-  function debug(namespace) {
-
-    // define the `disabled` version
-    function disabled() {
+    function selectColor() {
+      return exports.colors[prevColor++ % exports.colors.length];
     }
-    disabled.enabled = false;
+    /**
+     * Create a debugger with the given `namespace`.
+     *
+     * @param {String} namespace
+     * @return {Function}
+     * @api public
+     */
 
-    // define the `enabled` version
-    function enabled() {
 
-      var self = enabled;
+    function debug(namespace) {
+      // define the `disabled` version
+      function disabled() {}
 
-      // set `diff` timestamp
-      var curr = +new Date();
-      var ms = curr - (prevTime || curr);
-      self.diff = ms;
-      self.prev = prevTime;
-      self.curr = curr;
-      prevTime = curr;
+      disabled.enabled = false; // define the `enabled` version
 
-      // add the `color` if not set
-      if (null == self.useColors) self.useColors = exports.useColors();
-      if (null == self.color && self.useColors) self.color = selectColor();
+      function enabled() {
+        var self = enabled; // set `diff` timestamp
 
-      var args = Array.prototype.slice.call(arguments);
+        var curr = +new Date();
+        var ms = curr - (prevTime || curr);
+        self.diff = ms;
+        self.prev = prevTime;
+        self.curr = curr;
+        prevTime = curr; // add the `color` if not set
 
-      args[0] = exports.coerce(args[0]);
+        if (null == self.useColors) self.useColors = exports.useColors();
+        if (null == self.color && self.useColors) self.color = selectColor();
+        var args = Array.prototype.slice.call(arguments);
+        args[0] = exports.coerce(args[0]);
 
-      if ('string' !== typeof args[0]) {
-        // anything else let's inspect with %o
-        args = ['%o'].concat(args);
-      }
+        if ('string' !== typeof args[0]) {
+          // anything else let's inspect with %o
+          args = ['%o'].concat(args);
+        } // apply any `formatters` transformations
 
-      // apply any `formatters` transformations
-      var index = 0;
-      args[0] = args[0].replace(/%([a-z%])/g, function(match, format) {
-        // if we encounter an escaped % then don't increase the array index
-        if (match === '%%') return match;
-        index++;
-        var formatter = exports.formatters[format];
-        if ('function' === typeof formatter) {
-          var val = args[index];
-          match = formatter.call(self, val);
 
-          // now we need to remove `args[index]` since it's inlined in the `format`
-          args.splice(index, 1);
-          index--;
+        var index = 0;
+        args[0] = args[0].replace(/%([a-z%])/g, function (match, format) {
+          // if we encounter an escaped % then don't increase the array index
+          if (match === '%%') return match;
+          index++;
+          var formatter = exports.formatters[format];
+
+          if ('function' === typeof formatter) {
+            var val = args[index];
+            match = formatter.call(self, val); // now we need to remove `args[index]` since it's inlined in the `format`
+
+            args.splice(index, 1);
+            index--;
+          }
+
+          return match;
+        });
+
+        if ('function' === typeof exports.formatArgs) {
+          args = exports.formatArgs.apply(self, args);
         }
-        return match;
-      });
 
-      if ('function' === typeof exports.formatArgs) {
-        args = exports.formatArgs.apply(self, args);
+        var logFn = enabled.log || exports.log || console.log.bind(console);
+        logFn.apply(self, args);
       }
-      var logFn = enabled.log || exports.log || console.log.bind(console);
-      logFn.apply(self, args);
+
+      enabled.enabled = true;
+      var fn = exports.enabled(namespace) ? enabled : disabled;
+      fn.namespace = namespace;
+      return fn;
     }
-    enabled.enabled = true;
+    /**
+     * Enables a debug mode by namespaces. This can include modes
+     * separated by a colon and wildcards.
+     *
+     * @param {String} namespaces
+     * @api public
+     */
 
-    var fn = exports.enabled(namespace) ? enabled : disabled;
 
-    fn.namespace = namespace;
+    function enable(namespaces) {
+      exports.save(namespaces);
+      var split = (namespaces || '').split(/[\s,]+/);
+      var len = split.length;
 
-    return fn;
-  }
+      for (var i = 0; i < len; i++) {
+        if (!split[i]) continue; // ignore empty strings
 
-  /**
-   * Enables a debug mode by namespaces. This can include modes
-   * separated by a colon and wildcards.
-   *
-   * @param {String} namespaces
-   * @api public
-   */
+        namespaces = split[i].replace(/\*/g, '.*?');
 
-  function enable(namespaces) {
-    exports.save(namespaces);
-
-    var split = (namespaces || '').split(/[\s,]+/);
-    var len = split.length;
-
-    for (var i = 0; i < len; i++) {
-      if (!split[i]) continue; // ignore empty strings
-      namespaces = split[i].replace(/\*/g, '.*?');
-      if (namespaces[0] === '-') {
-        exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
-      } else {
-        exports.names.push(new RegExp('^' + namespaces + '$'));
+        if (namespaces[0] === '-') {
+          exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+        } else {
+          exports.names.push(new RegExp('^' + namespaces + '$'));
+        }
       }
     }
-  }
+    /**
+     * Disable debug output.
+     *
+     * @api public
+     */
 
-  /**
-   * Disable debug output.
-   *
-   * @api public
-   */
 
-  function disable() {
-    exports.enable('');
-  }
-
-  /**
-   * Returns true if the given mode name is enabled, false otherwise.
-   *
-   * @param {String} name
-   * @return {Boolean}
-   * @api public
-   */
-
-  function enabled(name) {
-    var i, len;
-    for (i = 0, len = exports.skips.length; i < len; i++) {
-      if (exports.skips[i].test(name)) {
-        return false;
-      }
+    function disable() {
+      exports.enable('');
     }
-    for (i = 0, len = exports.names.length; i < len; i++) {
-      if (exports.names[i].test(name)) {
-        return true;
+    /**
+     * Returns true if the given mode name is enabled, false otherwise.
+     *
+     * @param {String} name
+     * @return {Boolean}
+     * @api public
+     */
+
+
+    function enabled(name) {
+      var i, len;
+
+      for (i = 0, len = exports.skips.length; i < len; i++) {
+        if (exports.skips[i].test(name)) {
+          return false;
+        }
       }
+
+      for (i = 0, len = exports.names.length; i < len; i++) {
+        if (exports.names[i].test(name)) {
+          return true;
+        }
+      }
+
+      return false;
     }
-    return false;
-  }
+    /**
+     * Coerce `val`.
+     *
+     * @param {Mixed} val
+     * @return {Mixed}
+     * @api private
+     */
 
-  /**
-   * Coerce `val`.
-   *
-   * @param {Mixed} val
-   * @return {Mixed}
-   * @api private
-   */
 
-  function coerce(val) {
-    if (val instanceof Error) return val.stack || val.message;
-    return val;
-  }
+    function coerce(val) {
+      if (val instanceof Error) return val.stack || val.message;
+      return val;
+    }
   });
   var debug_2$1 = debug_1$1.coerce;
   var debug_3$1 = debug_1$1.disable;
@@ -8113,173 +10905,147 @@ var rudderanalytics = (function (exports) {
   var debug_9$1 = debug_1$1.formatters;
 
   var browser$1 = createCommonjsModule(function (module, exports) {
-  /**
-   * This is the web browser implementation of `debug()`.
-   *
-   * Expose `debug()` as the module.
-   */
+    /**
+     * This is the web browser implementation of `debug()`.
+     *
+     * Expose `debug()` as the module.
+     */
+    exports = module.exports = debug_1$1;
+    exports.log = log;
+    exports.formatArgs = formatArgs;
+    exports.save = save;
+    exports.load = load;
+    exports.useColors = useColors;
+    exports.storage = 'undefined' != typeof chrome && 'undefined' != typeof chrome.storage ? chrome.storage.local : localstorage();
+    /**
+     * Colors.
+     */
 
-  exports = module.exports = debug_1$1;
-  exports.log = log;
-  exports.formatArgs = formatArgs;
-  exports.save = save;
-  exports.load = load;
-  exports.useColors = useColors;
-  exports.storage = 'undefined' != typeof chrome
-                 && 'undefined' != typeof chrome.storage
-                    ? chrome.storage.local
-                    : localstorage();
+    exports.colors = ['lightseagreen', 'forestgreen', 'goldenrod', 'dodgerblue', 'darkorchid', 'crimson'];
+    /**
+     * Currently only WebKit-based Web Inspectors, Firefox >= v31,
+     * and the Firebug extension (any Firefox version) are known
+     * to support "%c" CSS customizations.
+     *
+     * TODO: add a `localStorage` variable to explicitly enable/disable colors
+     */
 
-  /**
-   * Colors.
-   */
-
-  exports.colors = [
-    'lightseagreen',
-    'forestgreen',
-    'goldenrod',
-    'dodgerblue',
-    'darkorchid',
-    'crimson'
-  ];
-
-  /**
-   * Currently only WebKit-based Web Inspectors, Firefox >= v31,
-   * and the Firebug extension (any Firefox version) are known
-   * to support "%c" CSS customizations.
-   *
-   * TODO: add a `localStorage` variable to explicitly enable/disable colors
-   */
-
-  function useColors() {
-    // is webkit? http://stackoverflow.com/a/16459606/376773
-    return ('WebkitAppearance' in document.documentElement.style) ||
-      // is firebug? http://stackoverflow.com/a/398120/376773
-      (window.console && (console.firebug || (console.exception && console.table))) ||
-      // is firefox >= v31?
+    function useColors() {
+      // is webkit? http://stackoverflow.com/a/16459606/376773
+      return 'WebkitAppearance' in document.documentElement.style || // is firebug? http://stackoverflow.com/a/398120/376773
+      window.console && (console.firebug || console.exception && console.table) || // is firefox >= v31?
       // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
-      (navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31);
-  }
-
-  /**
-   * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
-   */
-
-  exports.formatters.j = function(v) {
-    return JSON.stringify(v);
-  };
+      navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31;
+    }
+    /**
+     * Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
+     */
 
 
-  /**
-   * Colorize log arguments if enabled.
-   *
-   * @api public
-   */
+    exports.formatters.j = function (v) {
+      return JSON.stringify(v);
+    };
+    /**
+     * Colorize log arguments if enabled.
+     *
+     * @api public
+     */
 
-  function formatArgs() {
-    var args = arguments;
-    var useColors = this.useColors;
 
-    args[0] = (useColors ? '%c' : '')
-      + this.namespace
-      + (useColors ? ' %c' : ' ')
-      + args[0]
-      + (useColors ? '%c ' : ' ')
-      + '+' + exports.humanize(this.diff);
+    function formatArgs() {
+      var args = arguments;
+      var useColors = this.useColors;
+      args[0] = (useColors ? '%c' : '') + this.namespace + (useColors ? ' %c' : ' ') + args[0] + (useColors ? '%c ' : ' ') + '+' + exports.humanize(this.diff);
+      if (!useColors) return args;
+      var c = 'color: ' + this.color;
+      args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1)); // the final "%c" is somewhat tricky, because there could be other
+      // arguments passed either before or after the %c, so we need to
+      // figure out the correct index to insert the CSS into
 
-    if (!useColors) return args;
+      var index = 0;
+      var lastC = 0;
+      args[0].replace(/%[a-z%]/g, function (match) {
+        if ('%%' === match) return;
+        index++;
 
-    var c = 'color: ' + this.color;
-    args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1));
+        if ('%c' === match) {
+          // we only are interested in the *last* %c
+          // (the user may have provided their own)
+          lastC = index;
+        }
+      });
+      args.splice(lastC, 0, c);
+      return args;
+    }
+    /**
+     * Invokes `console.log()` when available.
+     * No-op when `console.log` is not a "function".
+     *
+     * @api public
+     */
 
-    // the final "%c" is somewhat tricky, because there could be other
-    // arguments passed either before or after the %c, so we need to
-    // figure out the correct index to insert the CSS into
-    var index = 0;
-    var lastC = 0;
-    args[0].replace(/%[a-z%]/g, function(match) {
-      if ('%%' === match) return;
-      index++;
-      if ('%c' === match) {
-        // we only are interested in the *last* %c
-        // (the user may have provided their own)
-        lastC = index;
-      }
-    });
 
-    args.splice(lastC, 0, c);
-    return args;
-  }
+    function log() {
+      // this hackery is required for IE8/9, where
+      // the `console.log` function doesn't have 'apply'
+      return 'object' === (typeof console === "undefined" ? "undefined" : _typeof(console)) && console.log && Function.prototype.apply.call(console.log, console, arguments);
+    }
+    /**
+     * Save `namespaces`.
+     *
+     * @param {String} namespaces
+     * @api private
+     */
 
-  /**
-   * Invokes `console.log()` when available.
-   * No-op when `console.log` is not a "function".
-   *
-   * @api public
-   */
 
-  function log() {
-    // this hackery is required for IE8/9, where
-    // the `console.log` function doesn't have 'apply'
-    return 'object' === typeof console
-      && console.log
-      && Function.prototype.apply.call(console.log, console, arguments);
-  }
+    function save(namespaces) {
+      try {
+        if (null == namespaces) {
+          exports.storage.removeItem('debug');
+        } else {
+          exports.storage.debug = namespaces;
+        }
+      } catch (e) {}
+    }
+    /**
+     * Load `namespaces`.
+     *
+     * @return {String} returns the previously persisted debug modes
+     * @api private
+     */
 
-  /**
-   * Save `namespaces`.
-   *
-   * @param {String} namespaces
-   * @api private
-   */
 
-  function save(namespaces) {
-    try {
-      if (null == namespaces) {
-        exports.storage.removeItem('debug');
-      } else {
-        exports.storage.debug = namespaces;
-      }
-    } catch(e) {}
-  }
+    function load() {
+      var r;
 
-  /**
-   * Load `namespaces`.
-   *
-   * @return {String} returns the previously persisted debug modes
-   * @api private
-   */
+      try {
+        r = exports.storage.debug;
+      } catch (e) {}
 
-  function load() {
-    var r;
-    try {
-      r = exports.storage.debug;
-    } catch(e) {}
-    return r;
-  }
+      return r;
+    }
+    /**
+     * Enable namespaces listed in `localStorage.debug` initially.
+     */
 
-  /**
-   * Enable namespaces listed in `localStorage.debug` initially.
-   */
 
-  exports.enable(load());
+    exports.enable(load());
+    /**
+     * Localstorage attempts to return the localstorage.
+     *
+     * This is necessary because safari throws
+     * when a user disables cookies/localstorage
+     * and you attempt to access it.
+     *
+     * @return {LocalStorage}
+     * @api private
+     */
 
-  /**
-   * Localstorage attempts to return the localstorage.
-   *
-   * This is necessary because safari throws
-   * when a user disables cookies/localstorage
-   * and you attempt to access it.
-   *
-   * @return {LocalStorage}
-   * @api private
-   */
-
-  function localstorage(){
-    try {
-      return window.localStorage;
-    } catch (e) {}
-  }
+    function localstorage() {
+      try {
+        return window.localStorage;
+      } catch (e) {}
+    }
   });
   var browser_1$1 = browser$1.log;
   var browser_2$1 = browser$1.formatArgs;
@@ -8294,7 +11060,6 @@ var rudderanalytics = (function (exports) {
    */
 
   var debug$1 = browser$1('cookie');
-
   /**
    * Set or get cookie `name` with `value` and `options` object.
    *
@@ -8305,18 +11070,19 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  var componentCookie = function(name, value, options){
+  var componentCookie = function componentCookie(name, value, options) {
     switch (arguments.length) {
       case 3:
       case 2:
         return set$1(name, value, options);
+
       case 1:
         return get$2(name);
+
       default:
         return all$1();
     }
   };
-
   /**
    * Set cookie `name` to `value`.
    *
@@ -8326,24 +11092,22 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function set$1(name, value, options) {
     options = options || {};
-    var str = encode$1(name) + '=' + encode$1(value);
-
+    var str = encode$2(name) + '=' + encode$2(value);
     if (null == value) options.maxage = -1;
 
     if (options.maxage) {
-      options.expires = new Date(+new Date + options.maxage);
+      options.expires = new Date(+new Date() + options.maxage);
     }
 
     if (options.path) str += '; path=' + options.path;
     if (options.domain) str += '; domain=' + options.domain;
     if (options.expires) str += '; expires=' + options.expires.toUTCString();
     if (options.secure) str += '; secure';
-
     document.cookie = str;
   }
-
   /**
    * Return all cookies.
    *
@@ -8351,19 +11115,22 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function all$1() {
     var str;
+
     try {
       str = document.cookie;
     } catch (err) {
       if (typeof console !== 'undefined' && typeof console.error === 'function') {
         console.error(err.stack || err);
       }
+
       return {};
     }
-    return parse$2(str);
-  }
 
+    return parse$3(str);
+  }
   /**
    * Get cookie `name`.
    *
@@ -8372,10 +11139,10 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
+
   function get$2(name) {
     return all$1()[name];
   }
-
   /**
    * Parse cookie `str`.
    *
@@ -8384,35 +11151,38 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
-  function parse$2(str) {
+
+  function parse$3(str) {
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
     if ('' == pairs[0]) return obj;
+
     for (var i = 0; i < pairs.length; ++i) {
       pair = pairs[i].split('=');
-      obj[decode$1(pair[0])] = decode$1(pair[1]);
+      obj[decode$2(pair[0])] = decode$2(pair[1]);
     }
+
     return obj;
   }
-
   /**
    * Encode.
    */
 
-  function encode$1(value){
+
+  function encode$2(value) {
     try {
       return encodeURIComponent(value);
     } catch (e) {
       debug$1('error `encode(%o)` - %o', value, e);
     }
   }
-
   /**
    * Decode.
    */
 
-  function decode$1(value) {
+
+  function decode$2(value) {
     try {
       return decodeURIComponent(value);
     } catch (e) {
@@ -8421,103 +11191,102 @@ var rudderanalytics = (function (exports) {
   }
 
   var lib = createCommonjsModule(function (module, exports) {
+    /**
+     * Module dependencies.
+     */
 
-  /**
-   * Module dependencies.
-   */
+    var parse = componentUrl.parse;
+    /**
+     * Get the top domain.
+     *
+     * The function constructs the levels of domain and attempts to set a global
+     * cookie on each one when it succeeds it returns the top level domain.
+     *
+     * The method returns an empty string when the hostname is an ip or `localhost`.
+     *
+     * Example levels:
+     *
+     *      domain.levels('http://www.google.co.uk');
+     *      // => ["co.uk", "google.co.uk", "www.google.co.uk"]
+     *
+     * Example:
+     *
+     *      domain('http://localhost:3000/baz');
+     *      // => ''
+     *      domain('http://dev:3000/baz');
+     *      // => ''
+     *      domain('http://127.0.0.1:3000/baz');
+     *      // => ''
+     *      domain('http://segment.io/baz');
+     *      // => 'segment.io'
+     *
+     * @param {string} url
+     * @return {string}
+     * @api public
+     */
 
-  var parse = componentUrl.parse;
+    function domain(url) {
+      var cookie = exports.cookie;
+      var levels = exports.levels(url); // Lookup the real top level one.
 
+      for (var i = 0; i < levels.length; ++i) {
+        var cname = '__tld__';
+        var domain = levels[i];
+        var opts = {
+          domain: '.' + domain
+        };
+        cookie(cname, 1, opts);
 
-  /**
-   * Get the top domain.
-   *
-   * The function constructs the levels of domain and attempts to set a global
-   * cookie on each one when it succeeds it returns the top level domain.
-   *
-   * The method returns an empty string when the hostname is an ip or `localhost`.
-   *
-   * Example levels:
-   *
-   *      domain.levels('http://www.google.co.uk');
-   *      // => ["co.uk", "google.co.uk", "www.google.co.uk"]
-   *
-   * Example:
-   *
-   *      domain('http://localhost:3000/baz');
-   *      // => ''
-   *      domain('http://dev:3000/baz');
-   *      // => ''
-   *      domain('http://127.0.0.1:3000/baz');
-   *      // => ''
-   *      domain('http://segment.io/baz');
-   *      // => 'segment.io'
-   *
-   * @param {string} url
-   * @return {string}
-   * @api public
-   */
-  function domain(url) {
-    var cookie = exports.cookie;
-    var levels = exports.levels(url);
-
-    // Lookup the real top level one.
-    for (var i = 0; i < levels.length; ++i) {
-      var cname = '__tld__';
-      var domain = levels[i];
-      var opts = { domain: '.' + domain };
-
-      cookie(cname, 1, opts);
-      if (cookie(cname)) {
-        cookie(cname, null, opts);
-        return domain;
+        if (cookie(cname)) {
+          cookie(cname, null, opts);
+          return domain;
+        }
       }
+
+      return '';
     }
+    /**
+     * Levels returns all levels of the given url.
+     *
+     * @param {string} url
+     * @return {Array}
+     * @api public
+     */
 
-    return '';
-  }
 
-  /**
-   * Levels returns all levels of the given url.
-   *
-   * @param {string} url
-   * @return {Array}
-   * @api public
-   */
-  domain.levels = function(url) {
-    var host = parse(url).hostname;
-    var parts = host.split('.');
-    var last = parts[parts.length - 1];
-    var levels = [];
+    domain.levels = function (url) {
+      var host = parse(url).hostname;
+      var parts = host.split('.');
+      var last = parts[parts.length - 1];
+      var levels = []; // Ip address.
 
-    // Ip address.
-    if (parts.length === 4 && last === parseInt(last, 10)) {
+      if (parts.length === 4 && last === parseInt(last, 10)) {
+        return levels;
+      } // Localhost.
+
+
+      if (parts.length <= 1) {
+        return levels;
+      } // Create levels.
+
+
+      for (var i = parts.length - 2; i >= 0; --i) {
+        levels.push(parts.slice(i).join('.'));
+      }
+
       return levels;
-    }
+    };
+    /**
+     * Expose cookie on domain.
+     */
 
-    // Localhost.
-    if (parts.length <= 1) {
-      return levels;
-    }
 
-    // Create levels.
-    for (var i = parts.length - 2; i >= 0; --i) {
-      levels.push(parts.slice(i).join('.'));
-    }
+    domain.cookie = componentCookie;
+    /*
+     * Exports.
+     */
 
-    return levels;
-  };
-
-  /**
-   * Expose cookie on domain.
-   */
-  domain.cookie = componentCookie;
-
-  /*
-   * Exports.
-   */
-
-  exports = module.exports = domain;
+    exports = module.exports = domain;
   });
 
   /**
@@ -8571,10 +11340,10 @@ var rudderanalytics = (function (exports) {
       key: "set",
       value: function set(key, value) {
         try {
-          value = json3.stringify(value);
           rudderComponentCookie(key, value, clone_1(this._options));
           return true;
         } catch (e) {
+          logger.error(e);
           return false;
         }
       }
@@ -8586,20 +11355,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "get",
       value: function get(key) {
-        // if not parseable, return as is without json parse
-        var value;
-
-        try {
-          value = rudderComponentCookie(key);
-          value = value ? json3.parse(value) : null;
-          return value;
-        } catch (e) {
-          if (value) {
-            return value;
-          }
-
-          return null;
-        }
+        return rudderComponentCookie(key);
       }
       /**
        *
@@ -8624,171 +11380,218 @@ var rudderanalytics = (function (exports) {
 
   var Cookie = new CookieLocal({});
 
-  var store = (function() {
-  	// Store.js
-  	var store = {},
-  		win = (typeof window != 'undefined' ? window : commonjsGlobal),
-  		doc = win.document,
-  		localStorageName = 'localStorage',
-  		scriptTag = 'script',
-  		storage;
+  var store = function () {
+    // Store.js
+    var store = {},
+        win = typeof window != 'undefined' ? window : commonjsGlobal,
+        doc = win.document,
+        localStorageName = 'localStorage',
+        scriptTag = 'script',
+        storage;
+    store.disabled = false;
+    store.version = '1.3.20';
 
-  	store.disabled = false;
-  	store.version = '1.3.20';
-  	store.set = function(key, value) {};
-  	store.get = function(key, defaultVal) {};
-  	store.has = function(key) { return store.get(key) !== undefined };
-  	store.remove = function(key) {};
-  	store.clear = function() {};
-  	store.transact = function(key, defaultVal, transactionFn) {
-  		if (transactionFn == null) {
-  			transactionFn = defaultVal;
-  			defaultVal = null;
-  		}
-  		if (defaultVal == null) {
-  			defaultVal = {};
-  		}
-  		var val = store.get(key, defaultVal);
-  		transactionFn(val);
-  		store.set(key, val);
-  	};
-  	store.getAll = function() {
-  		var ret = {};
-  		store.forEach(function(key, val) {
-  			ret[key] = val;
-  		});
-  		return ret
-  	};
-  	store.forEach = function() {};
-  	store.serialize = function(value) {
-  		return json3.stringify(value)
-  	};
-  	store.deserialize = function(value) {
-  		if (typeof value != 'string') { return undefined }
-  		try { return json3.parse(value) }
-  		catch(e) { return value || undefined }
-  	};
+    store.set = function (key, value) {};
 
-  	// Functions to encapsulate questionable FireFox 3.6.13 behavior
-  	// when about.config::dom.storage.enabled === false
-  	// See https://github.com/marcuswestin/store.js/issues#issue/13
-  	function isLocalStorageNameSupported() {
-  		try { return (localStorageName in win && win[localStorageName]) }
-  		catch(err) { return false }
-  	}
+    store.get = function (key, defaultVal) {};
 
-  	if (isLocalStorageNameSupported()) {
-  		storage = win[localStorageName];
-  		store.set = function(key, val) {
-  			if (val === undefined) { return store.remove(key) }
-  			storage.setItem(key, store.serialize(val));
-  			return val
-  		};
-  		store.get = function(key, defaultVal) {
-  			var val = store.deserialize(storage.getItem(key));
-  			return (val === undefined ? defaultVal : val)
-  		};
-  		store.remove = function(key) { storage.removeItem(key); };
-  		store.clear = function() { storage.clear(); };
-  		store.forEach = function(callback) {
-  			for (var i=0; i<storage.length; i++) {
-  				var key = storage.key(i);
-  				callback(key, store.get(key));
-  			}
-  		};
-  	} else if (doc && doc.documentElement.addBehavior) {
-  		var storageOwner,
-  			storageContainer;
-  		// Since #userData storage applies only to specific paths, we need to
-  		// somehow link our data to a specific path.  We choose /favicon.ico
-  		// as a pretty safe option, since all browsers already make a request to
-  		// this URL anyway and being a 404 will not hurt us here.  We wrap an
-  		// iframe pointing to the favicon in an ActiveXObject(htmlfile) object
-  		// (see: http://msdn.microsoft.com/en-us/library/aa752574(v=VS.85).aspx)
-  		// since the iframe access rules appear to allow direct access and
-  		// manipulation of the document element, even for a 404 page.  This
-  		// document can be used instead of the current document (which would
-  		// have been limited to the current path) to perform #userData storage.
-  		try {
-  			storageContainer = new ActiveXObject('htmlfile');
-  			storageContainer.open();
-  			storageContainer.write('<'+scriptTag+'>document.w=window</'+scriptTag+'><iframe src="/favicon.ico"></iframe>');
-  			storageContainer.close();
-  			storageOwner = storageContainer.w.frames[0].document;
-  			storage = storageOwner.createElement('div');
-  		} catch(e) {
-  			// somehow ActiveXObject instantiation failed (perhaps some special
-  			// security settings or otherwse), fall back to per-path storage
-  			storage = doc.createElement('div');
-  			storageOwner = doc.body;
-  		}
-  		var withIEStorage = function(storeFunction) {
-  			return function() {
-  				var args = Array.prototype.slice.call(arguments, 0);
-  				args.unshift(storage);
-  				// See http://msdn.microsoft.com/en-us/library/ms531081(v=VS.85).aspx
-  				// and http://msdn.microsoft.com/en-us/library/ms531424(v=VS.85).aspx
-  				storageOwner.appendChild(storage);
-  				storage.addBehavior('#default#userData');
-  				storage.load(localStorageName);
-  				var result = storeFunction.apply(store, args);
-  				storageOwner.removeChild(storage);
-  				return result
-  			}
-  		};
+    store.has = function (key) {
+      return store.get(key) !== undefined;
+    };
 
-  		// In IE7, keys cannot start with a digit or contain certain chars.
-  		// See https://github.com/marcuswestin/store.js/issues/40
-  		// See https://github.com/marcuswestin/store.js/issues/83
-  		var forbiddenCharsRegex = new RegExp("[!\"#$%&'()*+,/\\\\:;<=>?@[\\]^`{|}~]", "g");
-  		var ieKeyFix = function(key) {
-  			return key.replace(/^d/, '___$&').replace(forbiddenCharsRegex, '___')
-  		};
-  		store.set = withIEStorage(function(storage, key, val) {
-  			key = ieKeyFix(key);
-  			if (val === undefined) { return store.remove(key) }
-  			storage.setAttribute(key, store.serialize(val));
-  			storage.save(localStorageName);
-  			return val
-  		});
-  		store.get = withIEStorage(function(storage, key, defaultVal) {
-  			key = ieKeyFix(key);
-  			var val = store.deserialize(storage.getAttribute(key));
-  			return (val === undefined ? defaultVal : val)
-  		});
-  		store.remove = withIEStorage(function(storage, key) {
-  			key = ieKeyFix(key);
-  			storage.removeAttribute(key);
-  			storage.save(localStorageName);
-  		});
-  		store.clear = withIEStorage(function(storage) {
-  			var attributes = storage.XMLDocument.documentElement.attributes;
-  			storage.load(localStorageName);
-  			for (var i=attributes.length-1; i>=0; i--) {
-  				storage.removeAttribute(attributes[i].name);
-  			}
-  			storage.save(localStorageName);
-  		});
-  		store.forEach = withIEStorage(function(storage, callback) {
-  			var attributes = storage.XMLDocument.documentElement.attributes;
-  			for (var i=0, attr; attr=attributes[i]; ++i) {
-  				callback(attr.name, store.deserialize(storage.getAttribute(attr.name)));
-  			}
-  		});
-  	}
+    store.remove = function (key) {};
 
-  	try {
-  		var testKey = '__storejs__';
-  		store.set(testKey, testKey);
-  		if (store.get(testKey) != testKey) { store.disabled = true; }
-  		store.remove(testKey);
-  	} catch(e) {
-  		store.disabled = true;
-  	}
-  	store.enabled = !store.disabled;
-  	
-  	return store
-  }());
+    store.clear = function () {};
+
+    store.transact = function (key, defaultVal, transactionFn) {
+      if (transactionFn == null) {
+        transactionFn = defaultVal;
+        defaultVal = null;
+      }
+
+      if (defaultVal == null) {
+        defaultVal = {};
+      }
+
+      var val = store.get(key, defaultVal);
+      transactionFn(val);
+      store.set(key, val);
+    };
+
+    store.getAll = function () {
+      var ret = {};
+      store.forEach(function (key, val) {
+        ret[key] = val;
+      });
+      return ret;
+    };
+
+    store.forEach = function () {};
+
+    store.serialize = function (value) {
+      return json3.stringify(value);
+    };
+
+    store.deserialize = function (value) {
+      if (typeof value != 'string') {
+        return undefined;
+      }
+
+      try {
+        return json3.parse(value);
+      } catch (e) {
+        return value || undefined;
+      }
+    }; // Functions to encapsulate questionable FireFox 3.6.13 behavior
+    // when about.config::dom.storage.enabled === false
+    // See https://github.com/marcuswestin/store.js/issues#issue/13
+
+
+    function isLocalStorageNameSupported() {
+      try {
+        return localStorageName in win && win[localStorageName];
+      } catch (err) {
+        return false;
+      }
+    }
+
+    if (isLocalStorageNameSupported()) {
+      storage = win[localStorageName];
+
+      store.set = function (key, val) {
+        if (val === undefined) {
+          return store.remove(key);
+        }
+
+        storage.setItem(key, store.serialize(val));
+        return val;
+      };
+
+      store.get = function (key, defaultVal) {
+        var val = store.deserialize(storage.getItem(key));
+        return val === undefined ? defaultVal : val;
+      };
+
+      store.remove = function (key) {
+        storage.removeItem(key);
+      };
+
+      store.clear = function () {
+        storage.clear();
+      };
+
+      store.forEach = function (callback) {
+        for (var i = 0; i < storage.length; i++) {
+          var key = storage.key(i);
+          callback(key, store.get(key));
+        }
+      };
+    } else if (doc && doc.documentElement.addBehavior) {
+      var storageOwner, storageContainer; // Since #userData storage applies only to specific paths, we need to
+      // somehow link our data to a specific path.  We choose /favicon.ico
+      // as a pretty safe option, since all browsers already make a request to
+      // this URL anyway and being a 404 will not hurt us here.  We wrap an
+      // iframe pointing to the favicon in an ActiveXObject(htmlfile) object
+      // (see: http://msdn.microsoft.com/en-us/library/aa752574(v=VS.85).aspx)
+      // since the iframe access rules appear to allow direct access and
+      // manipulation of the document element, even for a 404 page.  This
+      // document can be used instead of the current document (which would
+      // have been limited to the current path) to perform #userData storage.
+
+      try {
+        storageContainer = new ActiveXObject('htmlfile');
+        storageContainer.open();
+        storageContainer.write('<' + scriptTag + '>document.w=window</' + scriptTag + '><iframe src="/favicon.ico"></iframe>');
+        storageContainer.close();
+        storageOwner = storageContainer.w.frames[0].document;
+        storage = storageOwner.createElement('div');
+      } catch (e) {
+        // somehow ActiveXObject instantiation failed (perhaps some special
+        // security settings or otherwse), fall back to per-path storage
+        storage = doc.createElement('div');
+        storageOwner = doc.body;
+      }
+
+      var withIEStorage = function withIEStorage(storeFunction) {
+        return function () {
+          var args = Array.prototype.slice.call(arguments, 0);
+          args.unshift(storage); // See http://msdn.microsoft.com/en-us/library/ms531081(v=VS.85).aspx
+          // and http://msdn.microsoft.com/en-us/library/ms531424(v=VS.85).aspx
+
+          storageOwner.appendChild(storage);
+          storage.addBehavior('#default#userData');
+          storage.load(localStorageName);
+          var result = storeFunction.apply(store, args);
+          storageOwner.removeChild(storage);
+          return result;
+        };
+      }; // In IE7, keys cannot start with a digit or contain certain chars.
+      // See https://github.com/marcuswestin/store.js/issues/40
+      // See https://github.com/marcuswestin/store.js/issues/83
+
+
+      var forbiddenCharsRegex = new RegExp("[!\"#$%&'()*+,/\\\\:;<=>?@[\\]^`{|}~]", "g");
+
+      var ieKeyFix = function ieKeyFix(key) {
+        return key.replace(/^d/, '___$&').replace(forbiddenCharsRegex, '___');
+      };
+
+      store.set = withIEStorage(function (storage, key, val) {
+        key = ieKeyFix(key);
+
+        if (val === undefined) {
+          return store.remove(key);
+        }
+
+        storage.setAttribute(key, store.serialize(val));
+        storage.save(localStorageName);
+        return val;
+      });
+      store.get = withIEStorage(function (storage, key, defaultVal) {
+        key = ieKeyFix(key);
+        var val = store.deserialize(storage.getAttribute(key));
+        return val === undefined ? defaultVal : val;
+      });
+      store.remove = withIEStorage(function (storage, key) {
+        key = ieKeyFix(key);
+        storage.removeAttribute(key);
+        storage.save(localStorageName);
+      });
+      store.clear = withIEStorage(function (storage) {
+        var attributes = storage.XMLDocument.documentElement.attributes;
+        storage.load(localStorageName);
+
+        for (var i = attributes.length - 1; i >= 0; i--) {
+          storage.removeAttribute(attributes[i].name);
+        }
+
+        storage.save(localStorageName);
+      });
+      store.forEach = withIEStorage(function (storage, callback) {
+        var attributes = storage.XMLDocument.documentElement.attributes;
+
+        for (var i = 0, attr; attr = attributes[i]; ++i) {
+          callback(attr.name, store.deserialize(storage.getAttribute(attr.name)));
+        }
+      });
+    }
+
+    try {
+      var testKey = '__storejs__';
+      store.set(testKey, testKey);
+
+      if (store.get(testKey) != testKey) {
+        store.disabled = true;
+      }
+
+      store.remove(testKey);
+    } catch (e) {
+      store.disabled = true;
+    }
+
+    store.enabled = !store.disabled;
+    return store;
+  }();
 
   /**
    * An object utility to persist user and other values in localstorage
@@ -8867,7 +11670,9 @@ var rudderanalytics = (function (exports) {
     user_storage_trait: "rl_trait",
     user_storage_anonymousId: "rl_anonymous_id",
     group_storage_key: "rl_group_id",
-    group_storage_trait: "rl_group_trait"
+    group_storage_trait: "rl_group_trait",
+    prefix: "RudderEncrypt:",
+    key: "Rudder"
   };
   /**
    * An object that handles persisting key-val from Analytics
@@ -8892,16 +11697,85 @@ var rudderanalytics = (function (exports) {
       }
     }
     /**
-     *
-     * @param {*} key
+     * Json stringify the given value
      * @param {*} value
      */
 
 
     _createClass(Storage, [{
+      key: "stringify",
+      value: function stringify(value) {
+        return JSON.stringify(value);
+      }
+      /**
+       * JSON parse the value
+       * @param {*} value
+       */
+
+    }, {
+      key: "parse",
+      value: function parse(value) {
+        // if not parseable, return as is without json parse
+        try {
+          return value ? JSON.parse(value) : null;
+        } catch (e) {
+          logger.error(e);
+          return value || null;
+        }
+      }
+      /**
+       * trim using regex for browser polyfill
+       * @param {*} value
+       */
+
+    }, {
+      key: "trim",
+      value: function trim(value) {
+        return value.replace(/^\s+|\s+$/gm, "");
+      }
+      /**
+       * AES encrypt value with constant prefix
+       * @param {*} value
+       */
+
+    }, {
+      key: "encryptValue",
+      value: function encryptValue(value) {
+        if (this.trim(value) == "") {
+          return value;
+        }
+
+        var prefixedVal = "".concat(defaults$1.prefix).concat(aes.encrypt(value, defaults$1.key).toString());
+        return prefixedVal;
+      }
+      /**
+       * decrypt value
+       * @param {*} value
+       */
+
+    }, {
+      key: "decryptValue",
+      value: function decryptValue(value) {
+        if (!value || typeof value === "string" && this.trim(value) == "") {
+          return value;
+        }
+
+        if (value.substring(0, defaults$1.prefix.length) == defaults$1.prefix) {
+          return aes.decrypt(value.substring(defaults$1.prefix.length), defaults$1.key).toString(encUtf8);
+        }
+
+        return value;
+      }
+      /**
+       *
+       * @param {*} key
+       * @param {*} value
+       */
+
+    }, {
       key: "setItem",
       value: function setItem(key, value) {
-        this.storage.set(key, value);
+        this.storage.set(key, this.encryptValue(this.stringify(value)));
       }
       /**
        *
@@ -8916,7 +11790,7 @@ var rudderanalytics = (function (exports) {
           return;
         }
 
-        this.storage.set(defaults$1.user_storage_key, value);
+        this.storage.set(defaults$1.user_storage_key, this.encryptValue(this.stringify(value)));
       }
       /**
        *
@@ -8926,7 +11800,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "setUserTraits",
       value: function setUserTraits(value) {
-        this.storage.set(defaults$1.user_storage_trait, value);
+        this.storage.set(defaults$1.user_storage_trait, this.encryptValue(this.stringify(value)));
       }
       /**
        *
@@ -8941,7 +11815,7 @@ var rudderanalytics = (function (exports) {
           return;
         }
 
-        this.storage.set(defaults$1.group_storage_key, value);
+        this.storage.set(defaults$1.group_storage_key, this.encryptValue(this.stringify(value)));
       }
       /**
        *
@@ -8951,7 +11825,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "setGroupTraits",
       value: function setGroupTraits(value) {
-        this.storage.set(defaults$1.group_storage_trait, value);
+        this.storage.set(defaults$1.group_storage_trait, this.encryptValue(this.stringify(value)));
       }
       /**
        *
@@ -8966,7 +11840,7 @@ var rudderanalytics = (function (exports) {
           return;
         }
 
-        this.storage.set(defaults$1.user_storage_anonymousId, value);
+        this.storage.set(defaults$1.user_storage_anonymousId, this.encryptValue(this.stringify(value)));
       }
       /**
        *
@@ -8976,7 +11850,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "getItem",
       value: function getItem(key) {
-        return this.storage.get(key);
+        return this.parse(this.decryptValue(this.storage.get(key)));
       }
       /**
        * get the stored userId
@@ -8985,7 +11859,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "getUserId",
       value: function getUserId() {
-        return this.storage.get(defaults$1.user_storage_key);
+        return this.parse(this.decryptValue(this.storage.get(defaults$1.user_storage_key)));
       }
       /**
        * get the stored user traits
@@ -8994,7 +11868,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "getUserTraits",
       value: function getUserTraits() {
-        return this.storage.get(defaults$1.user_storage_trait);
+        return this.parse(this.decryptValue(this.storage.get(defaults$1.user_storage_trait)));
       }
       /**
        * get the stored userId
@@ -9003,7 +11877,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "getGroupId",
       value: function getGroupId() {
-        return this.storage.get(defaults$1.group_storage_key);
+        return this.parse(this.decryptValue(this.storage.get(defaults$1.group_storage_key)));
       }
       /**
        * get the stored user traits
@@ -9012,7 +11886,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "getGroupTraits",
       value: function getGroupTraits() {
-        return this.storage.get(defaults$1.group_storage_trait);
+        return this.parse(this.decryptValue(this.storage.get(defaults$1.group_storage_trait)));
       }
       /**
        * get stored anonymous id
@@ -9021,7 +11895,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "getAnonymousId",
       value: function getAnonymousId() {
-        return this.storage.get(defaults$1.user_storage_anonymousId);
+        return this.parse(this.decryptValue(this.storage.get(defaults$1.user_storage_anonymousId)));
       }
       /**
        *
@@ -9041,7 +11915,9 @@ var rudderanalytics = (function (exports) {
       key: "clear",
       value: function clear() {
         this.storage.remove(defaults$1.user_storage_key);
-        this.storage.remove(defaults$1.user_storage_trait); // this.storage.remove(defaults.user_storage_anonymousId);
+        this.storage.remove(defaults$1.user_storage_trait);
+        this.storage.remove(defaults$1.group_storage_key);
+        this.storage.remove(defaults$1.group_storage_trait); // this.storage.remove(defaults.user_storage_anonymousId);
       }
     }]);
 
@@ -9143,7 +12019,7 @@ var rudderanalytics = (function (exports) {
         if (this.dspUrlSettingsPixel && this.dspUrlSettingsPixel.length > 0) {
           var currentTime = Date.now();
           this.dspUrlSettingsPixel.forEach(function (urlSettings) {
-            var dspUrl = _this2.compileUrl(_objectSpread2({}, _this2.mappings, {
+            var dspUrl = _this2.compileUrl(_objectSpread2(_objectSpread2({}, _this2.mappings), {}, {
               userId: userId,
               random: currentTime
             }), urlSettings.dspUrlTemplate);
@@ -9158,7 +12034,7 @@ var rudderanalytics = (function (exports) {
           var _currentTime = Date.now();
 
           this.dspUrlSettingsIframe.forEach(function (urlSettings) {
-            var dspUrl = _this2.compileUrl(_objectSpread2({}, _this2.mappings, {
+            var dspUrl = _this2.compileUrl(_objectSpread2(_objectSpread2({}, _this2.mappings), {}, {
               userId: userId,
               random: _currentTime
             }), urlSettings.dspUrlTemplate);
@@ -9210,7 +12086,7 @@ var rudderanalytics = (function (exports) {
         if (this.bcpUrlSettingsPixel && this.bcpUrlSettingsPixel.length > 0) {
           var currentTime = Date.now();
           this.bcpUrlSettingsPixel.forEach(function (urlSettings) {
-            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings, {
+            var bcpUrl = _this3.compileUrl(_objectSpread2(_objectSpread2({}, _this3.mappings), {}, {
               random: currentTime
             }), urlSettings.bcpUrlTemplate);
 
@@ -9224,7 +12100,7 @@ var rudderanalytics = (function (exports) {
           var _currentTime2 = Date.now();
 
           this.bcpUrlSettingsIframe.forEach(function (urlSettings) {
-            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings, {
+            var bcpUrl = _this3.compileUrl(_objectSpread2(_objectSpread2({}, _this3.mappings), {}, {
               random: _currentTime2
             }), urlSettings.bcpUrlTemplate);
 
@@ -9265,6 +12141,801 @@ var rudderanalytics = (function (exports) {
     return Lotame;
   }();
 
+  var Optimizely = /*#__PURE__*/function () {
+    function Optimizely(config, analytics) {
+      var _this = this;
+
+      _classCallCheck(this, Optimizely);
+
+      this.referrerOverride = function (referrer) {
+        if (referrer) {
+          window.optimizelyEffectiveReferrer = referrer;
+          return referrer;
+        }
+
+        return undefined;
+      };
+
+      this.sendDataToRudder = function (campaignState) {
+        logger.debug(campaignState);
+        var experiment = campaignState.experiment;
+        var variation = campaignState.variation;
+        var context = {
+          integrations: {
+            All: true
+          }
+        };
+        var audiences = campaignState.audiences; // Reformatting this data structure into hash map so concatenating variation ids and names is easier later
+
+        var audiencesMap = {};
+        audiences.forEach(function (audience) {
+          audiencesMap[audience.id] = audience.name;
+        });
+        var audienceIds = Object.keys(audiencesMap).sort().join();
+        var audienceNames = Object.values(audiencesMap).sort().join(", ");
+
+        if (_this.sendExperimentTrack) {
+          var props = {
+            campaignName: campaignState.campaignName,
+            campaignId: campaignState.id,
+            experimentId: experiment.id,
+            experimentName: experiment.name,
+            variationName: variation.name,
+            variationId: variation.id,
+            audienceId: audienceIds,
+            // eg. '7527562222,7527111138'
+            audienceName: audienceNames,
+            // eg. 'Peaky Blinders, Trust Tree'
+            isInCampaignHoldback: campaignState.isInCampaignHoldback
+          }; // If this was a redirect experiment and the effective referrer is different from document.referrer,
+          // this value is made available. So if a customer came in via google.com/ad -> tb12.com -> redirect experiment -> Belichickgoat.com
+          // `experiment.referrer` would be google.com/ad here NOT `tb12.com`.
+
+          if (experiment.referrer) {
+            props.referrer = experiment.referrer;
+            context.page = {
+              referrer: experiment.referrer
+            };
+          } // For Google's nonInteraction flag
+
+
+          if (_this.sendExperimentTrackAsNonInteractive) props.nonInteraction = 1; // If customCampaignProperties is provided overide the props with it.
+          // If valid customCampaignProperties present it will override existing props.
+          // const data = window.optimizely && window.optimizely.get("data");
+
+          var data = campaignState;
+
+          if (data && _this.customCampaignProperties.length > 0) {
+            for (var index = 0; index < _this.customCampaignProperties.length; index += 1) {
+              var rudderProp = _this.customCampaignProperties[index].from;
+              var optimizelyProp = _this.customCampaignProperties[index].to;
+
+              if (typeof props[optimizelyProp] !== "undefined") {
+                props[rudderProp] = props[optimizelyProp];
+                delete props[optimizelyProp];
+              }
+            }
+          } // Send to Rudder
+
+
+          _this.analytics.track("Experiment Viewed", props, context);
+        }
+
+        if (_this.sendExperimentIdentify) {
+          var traits = {};
+          traits["Experiment: ".concat(experiment.name)] = variation.name; // Send to Rudder
+
+          _this.analytics.identify(traits);
+        }
+      };
+
+      this.analytics = analytics;
+      this.sendExperimentTrack = config.sendExperimentTrack;
+      this.sendExperimentIdentify = config.sendExperimentIdentify;
+      this.sendExperimentTrackAsNonInteractive = config.sendExperimentTrackAsNonInteractive;
+      this.revenueOnlyOnOrderCompleted = config.revenueOnlyOnOrderCompleted;
+      this.trackCategorizedPages = config.trackCategorizedPages;
+      this.trackNamedPages = config.trackNamedPages;
+      this.customCampaignProperties = config.customCampaignProperties ? config.customCampaignProperties : [];
+      this.customExperimentProperties = config.customExperimentProperties ? config.customExperimentProperties : [];
+      this.name = "OPTIMIZELY";
+    }
+
+    _createClass(Optimizely, [{
+      key: "init",
+      value: function init() {
+        logger.debug("=== in optimizely init ===");
+        this.initOptimizelyIntegration(this.referrerOverride, this.sendDataToRudder);
+      }
+    }, {
+      key: "initOptimizelyIntegration",
+      value: function initOptimizelyIntegration(referrerOverride, sendCampaignData) {
+        var newActiveCampaign = function newActiveCampaign(id, referrer) {
+          var state = window.optimizely.get && window.optimizely.get("state");
+
+          if (state) {
+            var activeCampaigns = state.getCampaignStates({
+              isActive: true
+            });
+            var campaignState = activeCampaigns[id];
+            if (referrer) campaignState.experiment.referrer = referrer;
+            sendCampaignData(campaignState);
+          }
+        };
+
+        var checkReferrer = function checkReferrer() {
+          var state = window.optimizely.get && window.optimizely.get("state");
+
+          if (state) {
+            var referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
+
+            if (referrer) {
+              referrerOverride(referrer);
+              return referrer;
+            }
+          }
+
+          return undefined;
+        };
+
+        var registerFutureActiveCampaigns = function registerFutureActiveCampaigns() {
+          window.optimizely = window.optimizely || [];
+          window.optimizely.push({
+            type: "addListener",
+            filter: {
+              type: "lifecycle",
+              name: "campaignDecided"
+            },
+            handler: function handler(event) {
+              var id = event.data.campaign.id;
+              newActiveCampaign(id);
+            }
+          });
+        };
+
+        var registerCurrentlyActiveCampaigns = function registerCurrentlyActiveCampaigns() {
+          window.optimizely = window.optimizely || [];
+          var state = window.optimizely.get && window.optimizely.get("state");
+
+          if (state) {
+            var referrer = checkReferrer();
+            var activeCampaigns = state.getCampaignStates({
+              isActive: true
+            });
+            Object.keys(activeCampaigns).forEach(function (id) {
+              if (referrer) {
+                newActiveCampaign(id, referrer);
+              } else {
+                newActiveCampaign(id);
+              }
+            });
+          } else {
+            window.optimizely.push({
+              type: "addListener",
+              filter: {
+                type: "lifecycle",
+                name: "initialized"
+              },
+              handler: function handler() {
+                checkReferrer();
+              }
+            });
+          }
+        };
+
+        registerCurrentlyActiveCampaigns();
+        registerFutureActiveCampaigns();
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in Optimizely web track");
+        var eventProperties = rudderElement.message.properties;
+        var event = rudderElement.message.event;
+
+        if (eventProperties.revenue && this.revenueOnlyOnOrderCompleted) {
+          if (event === "Order Completed") {
+            eventProperties.revenue = Math.round(eventProperties.revenue * 100);
+          } else if (event !== "Order Completed") {
+            delete eventProperties.revenue;
+          }
+        }
+
+        var eventName = event.replace(/:/g, "_"); // can't have colons so replacing with underscores
+
+        var payload = {
+          type: "event",
+          eventName: eventName,
+          tags: eventProperties
+        };
+        window.optimizely.push(payload);
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in Optimizely web page");
+        var category = rudderElement.message.properties.category;
+        var name = rudderElement.message.name;
+        /* const contextOptimizely = {
+          integrations: { All: false, Optimizely: true },
+        }; */
+        // categorized pages
+
+        if (category && this.trackCategorizedPages) {
+          // this.analytics.track(`Viewed ${category} page`, {}, contextOptimizely);
+          rudderElement.message.event = "Viewed ".concat(category, " page");
+          rudderElement.message.type = "track";
+          this.track(rudderElement);
+        } // named pages
+
+
+        if (name && this.trackNamedPages) {
+          // this.analytics.track(`Viewed ${name} page`, {}, contextOptimizely);
+          rudderElement.message.event = "Viewed ".concat(name, " page");
+          rudderElement.message.type = "track";
+          this.track(rudderElement);
+        }
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
+      }
+    }]);
+
+    return Optimizely;
+  }();
+
+  var Bugsnag = /*#__PURE__*/function () {
+    function Bugsnag(config) {
+      _classCallCheck(this, Bugsnag);
+
+      this.releaseStage = config.releaseStage;
+      this.apiKey = config.apiKey;
+      this.name = "BUGSNAG";
+      this.setIntervalHandler = undefined;
+    }
+
+    _createClass(Bugsnag, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Bugsnag===");
+        ScriptLoader("bugsnag-id", "https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js");
+        this.setIntervalHandler = setInterval(this.initBugsnagClient.bind(this), 1000);
+      }
+    }, {
+      key: "initBugsnagClient",
+      value: function initBugsnagClient() {
+        if (window.bugsnag !== undefined) {
+          window.bugsnagClient = window.bugsnag(this.apiKey);
+          window.bugsnagClient.releaseStage = this.releaseStage;
+          clearInterval(this.setIntervalHandler);
+        }
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in bugsnag isLoaded");
+        return !!window.bugsnagClient;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        logger.debug("in bugsnag isReady");
+        return !!window.bugsnagClient;
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        var traits = rudderElement.message.context.traits;
+        var traitsFinal = {
+          id: rudderElement.message.userId || rudderElement.message.anonymousId,
+          name: traits.name,
+          email: traits.email
+        };
+        window.bugsnagClient.user = traitsFinal;
+        window.bugsnagClient.notify(new Error("error in identify"));
+      }
+    }]);
+
+    return Bugsnag;
+  }();
+
+  var preserveCamelCase = function preserveCamelCase(string) {
+    var isLastCharLower = false;
+    var isLastCharUpper = false;
+    var isLastLastCharUpper = false;
+
+    for (var i = 0; i < string.length; i++) {
+      var character = string[i];
+
+      if (isLastCharLower && /(?:[A-Z\xC0-\xD6\xD8-\xDE\u0100\u0102\u0104\u0106\u0108\u010A\u010C\u010E\u0110\u0112\u0114\u0116\u0118\u011A\u011C\u011E\u0120\u0122\u0124\u0126\u0128\u012A\u012C\u012E\u0130\u0132\u0134\u0136\u0139\u013B\u013D\u013F\u0141\u0143\u0145\u0147\u014A\u014C\u014E\u0150\u0152\u0154\u0156\u0158\u015A\u015C\u015E\u0160\u0162\u0164\u0166\u0168\u016A\u016C\u016E\u0170\u0172\u0174\u0176\u0178\u0179\u017B\u017D\u0181\u0182\u0184\u0186\u0187\u0189-\u018B\u018E-\u0191\u0193\u0194\u0196-\u0198\u019C\u019D\u019F\u01A0\u01A2\u01A4\u01A6\u01A7\u01A9\u01AC\u01AE\u01AF\u01B1-\u01B3\u01B5\u01B7\u01B8\u01BC\u01C4\u01C7\u01CA\u01CD\u01CF\u01D1\u01D3\u01D5\u01D7\u01D9\u01DB\u01DE\u01E0\u01E2\u01E4\u01E6\u01E8\u01EA\u01EC\u01EE\u01F1\u01F4\u01F6-\u01F8\u01FA\u01FC\u01FE\u0200\u0202\u0204\u0206\u0208\u020A\u020C\u020E\u0210\u0212\u0214\u0216\u0218\u021A\u021C\u021E\u0220\u0222\u0224\u0226\u0228\u022A\u022C\u022E\u0230\u0232\u023A\u023B\u023D\u023E\u0241\u0243-\u0246\u0248\u024A\u024C\u024E\u0370\u0372\u0376\u037F\u0386\u0388-\u038A\u038C\u038E\u038F\u0391-\u03A1\u03A3-\u03AB\u03CF\u03D2-\u03D4\u03D8\u03DA\u03DC\u03DE\u03E0\u03E2\u03E4\u03E6\u03E8\u03EA\u03EC\u03EE\u03F4\u03F7\u03F9\u03FA\u03FD-\u042F\u0460\u0462\u0464\u0466\u0468\u046A\u046C\u046E\u0470\u0472\u0474\u0476\u0478\u047A\u047C\u047E\u0480\u048A\u048C\u048E\u0490\u0492\u0494\u0496\u0498\u049A\u049C\u049E\u04A0\u04A2\u04A4\u04A6\u04A8\u04AA\u04AC\u04AE\u04B0\u04B2\u04B4\u04B6\u04B8\u04BA\u04BC\u04BE\u04C0\u04C1\u04C3\u04C5\u04C7\u04C9\u04CB\u04CD\u04D0\u04D2\u04D4\u04D6\u04D8\u04DA\u04DC\u04DE\u04E0\u04E2\u04E4\u04E6\u04E8\u04EA\u04EC\u04EE\u04F0\u04F2\u04F4\u04F6\u04F8\u04FA\u04FC\u04FE\u0500\u0502\u0504\u0506\u0508\u050A\u050C\u050E\u0510\u0512\u0514\u0516\u0518\u051A\u051C\u051E\u0520\u0522\u0524\u0526\u0528\u052A\u052C\u052E\u0531-\u0556\u10A0-\u10C5\u10C7\u10CD\u13A0-\u13F5\u1C90-\u1CBA\u1CBD-\u1CBF\u1E00\u1E02\u1E04\u1E06\u1E08\u1E0A\u1E0C\u1E0E\u1E10\u1E12\u1E14\u1E16\u1E18\u1E1A\u1E1C\u1E1E\u1E20\u1E22\u1E24\u1E26\u1E28\u1E2A\u1E2C\u1E2E\u1E30\u1E32\u1E34\u1E36\u1E38\u1E3A\u1E3C\u1E3E\u1E40\u1E42\u1E44\u1E46\u1E48\u1E4A\u1E4C\u1E4E\u1E50\u1E52\u1E54\u1E56\u1E58\u1E5A\u1E5C\u1E5E\u1E60\u1E62\u1E64\u1E66\u1E68\u1E6A\u1E6C\u1E6E\u1E70\u1E72\u1E74\u1E76\u1E78\u1E7A\u1E7C\u1E7E\u1E80\u1E82\u1E84\u1E86\u1E88\u1E8A\u1E8C\u1E8E\u1E90\u1E92\u1E94\u1E9E\u1EA0\u1EA2\u1EA4\u1EA6\u1EA8\u1EAA\u1EAC\u1EAE\u1EB0\u1EB2\u1EB4\u1EB6\u1EB8\u1EBA\u1EBC\u1EBE\u1EC0\u1EC2\u1EC4\u1EC6\u1EC8\u1ECA\u1ECC\u1ECE\u1ED0\u1ED2\u1ED4\u1ED6\u1ED8\u1EDA\u1EDC\u1EDE\u1EE0\u1EE2\u1EE4\u1EE6\u1EE8\u1EEA\u1EEC\u1EEE\u1EF0\u1EF2\u1EF4\u1EF6\u1EF8\u1EFA\u1EFC\u1EFE\u1F08-\u1F0F\u1F18-\u1F1D\u1F28-\u1F2F\u1F38-\u1F3F\u1F48-\u1F4D\u1F59\u1F5B\u1F5D\u1F5F\u1F68-\u1F6F\u1FB8-\u1FBB\u1FC8-\u1FCB\u1FD8-\u1FDB\u1FE8-\u1FEC\u1FF8-\u1FFB\u2102\u2107\u210B-\u210D\u2110-\u2112\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u2130-\u2133\u213E\u213F\u2145\u2183\u2C00-\u2C2E\u2C60\u2C62-\u2C64\u2C67\u2C69\u2C6B\u2C6D-\u2C70\u2C72\u2C75\u2C7E-\u2C80\u2C82\u2C84\u2C86\u2C88\u2C8A\u2C8C\u2C8E\u2C90\u2C92\u2C94\u2C96\u2C98\u2C9A\u2C9C\u2C9E\u2CA0\u2CA2\u2CA4\u2CA6\u2CA8\u2CAA\u2CAC\u2CAE\u2CB0\u2CB2\u2CB4\u2CB6\u2CB8\u2CBA\u2CBC\u2CBE\u2CC0\u2CC2\u2CC4\u2CC6\u2CC8\u2CCA\u2CCC\u2CCE\u2CD0\u2CD2\u2CD4\u2CD6\u2CD8\u2CDA\u2CDC\u2CDE\u2CE0\u2CE2\u2CEB\u2CED\u2CF2\uA640\uA642\uA644\uA646\uA648\uA64A\uA64C\uA64E\uA650\uA652\uA654\uA656\uA658\uA65A\uA65C\uA65E\uA660\uA662\uA664\uA666\uA668\uA66A\uA66C\uA680\uA682\uA684\uA686\uA688\uA68A\uA68C\uA68E\uA690\uA692\uA694\uA696\uA698\uA69A\uA722\uA724\uA726\uA728\uA72A\uA72C\uA72E\uA732\uA734\uA736\uA738\uA73A\uA73C\uA73E\uA740\uA742\uA744\uA746\uA748\uA74A\uA74C\uA74E\uA750\uA752\uA754\uA756\uA758\uA75A\uA75C\uA75E\uA760\uA762\uA764\uA766\uA768\uA76A\uA76C\uA76E\uA779\uA77B\uA77D\uA77E\uA780\uA782\uA784\uA786\uA78B\uA78D\uA790\uA792\uA796\uA798\uA79A\uA79C\uA79E\uA7A0\uA7A2\uA7A4\uA7A6\uA7A8\uA7AA-\uA7AE\uA7B0-\uA7B4\uA7B6\uA7B8\uA7BA\uA7BC\uA7BE\uA7C2\uA7C4-\uA7C7\uA7C9\uA7F5\uFF21-\uFF3A]|\uD801[\uDC00-\uDC27\uDCB0-\uDCD3]|\uD803[\uDC80-\uDCB2]|\uD806[\uDCA0-\uDCBF]|\uD81B[\uDE40-\uDE5F]|\uD835[\uDC00-\uDC19\uDC34-\uDC4D\uDC68-\uDC81\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB5\uDCD0-\uDCE9\uDD04\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD38\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD6C-\uDD85\uDDA0-\uDDB9\uDDD4-\uDDED\uDE08-\uDE21\uDE3C-\uDE55\uDE70-\uDE89\uDEA8-\uDEC0\uDEE2-\uDEFA\uDF1C-\uDF34\uDF56-\uDF6E\uDF90-\uDFA8\uDFCA]|\uD83A[\uDD00-\uDD21])/.test(character)) {
+        string = string.slice(0, i) + '-' + string.slice(i);
+        isLastCharLower = false;
+        isLastLastCharUpper = isLastCharUpper;
+        isLastCharUpper = true;
+        i++;
+      } else if (isLastCharUpper && isLastLastCharUpper && /(?:[a-z\xB5\xDF-\xF6\xF8-\xFF\u0101\u0103\u0105\u0107\u0109\u010B\u010D\u010F\u0111\u0113\u0115\u0117\u0119\u011B\u011D\u011F\u0121\u0123\u0125\u0127\u0129\u012B\u012D\u012F\u0131\u0133\u0135\u0137\u0138\u013A\u013C\u013E\u0140\u0142\u0144\u0146\u0148\u0149\u014B\u014D\u014F\u0151\u0153\u0155\u0157\u0159\u015B\u015D\u015F\u0161\u0163\u0165\u0167\u0169\u016B\u016D\u016F\u0171\u0173\u0175\u0177\u017A\u017C\u017E-\u0180\u0183\u0185\u0188\u018C\u018D\u0192\u0195\u0199-\u019B\u019E\u01A1\u01A3\u01A5\u01A8\u01AA\u01AB\u01AD\u01B0\u01B4\u01B6\u01B9\u01BA\u01BD-\u01BF\u01C6\u01C9\u01CC\u01CE\u01D0\u01D2\u01D4\u01D6\u01D8\u01DA\u01DC\u01DD\u01DF\u01E1\u01E3\u01E5\u01E7\u01E9\u01EB\u01ED\u01EF\u01F0\u01F3\u01F5\u01F9\u01FB\u01FD\u01FF\u0201\u0203\u0205\u0207\u0209\u020B\u020D\u020F\u0211\u0213\u0215\u0217\u0219\u021B\u021D\u021F\u0221\u0223\u0225\u0227\u0229\u022B\u022D\u022F\u0231\u0233-\u0239\u023C\u023F\u0240\u0242\u0247\u0249\u024B\u024D\u024F-\u0293\u0295-\u02AF\u0371\u0373\u0377\u037B-\u037D\u0390\u03AC-\u03CE\u03D0\u03D1\u03D5-\u03D7\u03D9\u03DB\u03DD\u03DF\u03E1\u03E3\u03E5\u03E7\u03E9\u03EB\u03ED\u03EF-\u03F3\u03F5\u03F8\u03FB\u03FC\u0430-\u045F\u0461\u0463\u0465\u0467\u0469\u046B\u046D\u046F\u0471\u0473\u0475\u0477\u0479\u047B\u047D\u047F\u0481\u048B\u048D\u048F\u0491\u0493\u0495\u0497\u0499\u049B\u049D\u049F\u04A1\u04A3\u04A5\u04A7\u04A9\u04AB\u04AD\u04AF\u04B1\u04B3\u04B5\u04B7\u04B9\u04BB\u04BD\u04BF\u04C2\u04C4\u04C6\u04C8\u04CA\u04CC\u04CE\u04CF\u04D1\u04D3\u04D5\u04D7\u04D9\u04DB\u04DD\u04DF\u04E1\u04E3\u04E5\u04E7\u04E9\u04EB\u04ED\u04EF\u04F1\u04F3\u04F5\u04F7\u04F9\u04FB\u04FD\u04FF\u0501\u0503\u0505\u0507\u0509\u050B\u050D\u050F\u0511\u0513\u0515\u0517\u0519\u051B\u051D\u051F\u0521\u0523\u0525\u0527\u0529\u052B\u052D\u052F\u0560-\u0588\u10D0-\u10FA\u10FD-\u10FF\u13F8-\u13FD\u1C80-\u1C88\u1D00-\u1D2B\u1D6B-\u1D77\u1D79-\u1D9A\u1E01\u1E03\u1E05\u1E07\u1E09\u1E0B\u1E0D\u1E0F\u1E11\u1E13\u1E15\u1E17\u1E19\u1E1B\u1E1D\u1E1F\u1E21\u1E23\u1E25\u1E27\u1E29\u1E2B\u1E2D\u1E2F\u1E31\u1E33\u1E35\u1E37\u1E39\u1E3B\u1E3D\u1E3F\u1E41\u1E43\u1E45\u1E47\u1E49\u1E4B\u1E4D\u1E4F\u1E51\u1E53\u1E55\u1E57\u1E59\u1E5B\u1E5D\u1E5F\u1E61\u1E63\u1E65\u1E67\u1E69\u1E6B\u1E6D\u1E6F\u1E71\u1E73\u1E75\u1E77\u1E79\u1E7B\u1E7D\u1E7F\u1E81\u1E83\u1E85\u1E87\u1E89\u1E8B\u1E8D\u1E8F\u1E91\u1E93\u1E95-\u1E9D\u1E9F\u1EA1\u1EA3\u1EA5\u1EA7\u1EA9\u1EAB\u1EAD\u1EAF\u1EB1\u1EB3\u1EB5\u1EB7\u1EB9\u1EBB\u1EBD\u1EBF\u1EC1\u1EC3\u1EC5\u1EC7\u1EC9\u1ECB\u1ECD\u1ECF\u1ED1\u1ED3\u1ED5\u1ED7\u1ED9\u1EDB\u1EDD\u1EDF\u1EE1\u1EE3\u1EE5\u1EE7\u1EE9\u1EEB\u1EED\u1EEF\u1EF1\u1EF3\u1EF5\u1EF7\u1EF9\u1EFB\u1EFD\u1EFF-\u1F07\u1F10-\u1F15\u1F20-\u1F27\u1F30-\u1F37\u1F40-\u1F45\u1F50-\u1F57\u1F60-\u1F67\u1F70-\u1F7D\u1F80-\u1F87\u1F90-\u1F97\u1FA0-\u1FA7\u1FB0-\u1FB4\u1FB6\u1FB7\u1FBE\u1FC2-\u1FC4\u1FC6\u1FC7\u1FD0-\u1FD3\u1FD6\u1FD7\u1FE0-\u1FE7\u1FF2-\u1FF4\u1FF6\u1FF7\u210A\u210E\u210F\u2113\u212F\u2134\u2139\u213C\u213D\u2146-\u2149\u214E\u2184\u2C30-\u2C5E\u2C61\u2C65\u2C66\u2C68\u2C6A\u2C6C\u2C71\u2C73\u2C74\u2C76-\u2C7B\u2C81\u2C83\u2C85\u2C87\u2C89\u2C8B\u2C8D\u2C8F\u2C91\u2C93\u2C95\u2C97\u2C99\u2C9B\u2C9D\u2C9F\u2CA1\u2CA3\u2CA5\u2CA7\u2CA9\u2CAB\u2CAD\u2CAF\u2CB1\u2CB3\u2CB5\u2CB7\u2CB9\u2CBB\u2CBD\u2CBF\u2CC1\u2CC3\u2CC5\u2CC7\u2CC9\u2CCB\u2CCD\u2CCF\u2CD1\u2CD3\u2CD5\u2CD7\u2CD9\u2CDB\u2CDD\u2CDF\u2CE1\u2CE3\u2CE4\u2CEC\u2CEE\u2CF3\u2D00-\u2D25\u2D27\u2D2D\uA641\uA643\uA645\uA647\uA649\uA64B\uA64D\uA64F\uA651\uA653\uA655\uA657\uA659\uA65B\uA65D\uA65F\uA661\uA663\uA665\uA667\uA669\uA66B\uA66D\uA681\uA683\uA685\uA687\uA689\uA68B\uA68D\uA68F\uA691\uA693\uA695\uA697\uA699\uA69B\uA723\uA725\uA727\uA729\uA72B\uA72D\uA72F-\uA731\uA733\uA735\uA737\uA739\uA73B\uA73D\uA73F\uA741\uA743\uA745\uA747\uA749\uA74B\uA74D\uA74F\uA751\uA753\uA755\uA757\uA759\uA75B\uA75D\uA75F\uA761\uA763\uA765\uA767\uA769\uA76B\uA76D\uA76F\uA771-\uA778\uA77A\uA77C\uA77F\uA781\uA783\uA785\uA787\uA78C\uA78E\uA791\uA793-\uA795\uA797\uA799\uA79B\uA79D\uA79F\uA7A1\uA7A3\uA7A5\uA7A7\uA7A9\uA7AF\uA7B5\uA7B7\uA7B9\uA7BB\uA7BD\uA7BF\uA7C3\uA7C8\uA7CA\uA7F6\uA7FA\uAB30-\uAB5A\uAB60-\uAB68\uAB70-\uABBF\uFB00-\uFB06\uFB13-\uFB17\uFF41-\uFF5A]|\uD801[\uDC28-\uDC4F\uDCD8-\uDCFB]|\uD803[\uDCC0-\uDCF2]|\uD806[\uDCC0-\uDCDF]|\uD81B[\uDE60-\uDE7F]|\uD835[\uDC1A-\uDC33\uDC4E-\uDC54\uDC56-\uDC67\uDC82-\uDC9B\uDCB6-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDCCF\uDCEA-\uDD03\uDD1E-\uDD37\uDD52-\uDD6B\uDD86-\uDD9F\uDDBA-\uDDD3\uDDEE-\uDE07\uDE22-\uDE3B\uDE56-\uDE6F\uDE8A-\uDEA5\uDEC2-\uDEDA\uDEDC-\uDEE1\uDEFC-\uDF14\uDF16-\uDF1B\uDF36-\uDF4E\uDF50-\uDF55\uDF70-\uDF88\uDF8A-\uDF8F\uDFAA-\uDFC2\uDFC4-\uDFC9\uDFCB]|\uD83A[\uDD22-\uDD43])/.test(character)) {
+        string = string.slice(0, i - 1) + '-' + string.slice(i - 1);
+        isLastLastCharUpper = isLastCharUpper;
+        isLastCharUpper = false;
+        isLastCharLower = true;
+      } else {
+        isLastCharLower = character.toLocaleLowerCase() === character && character.toLocaleUpperCase() !== character;
+        isLastLastCharUpper = isLastCharUpper;
+        isLastCharUpper = character.toLocaleUpperCase() === character && character.toLocaleLowerCase() !== character;
+      }
+    }
+
+    return string;
+  };
+
+  var camelCase = function camelCase(input, options) {
+    if (!(typeof input === 'string' || Array.isArray(input))) {
+      throw new TypeError('Expected the input to be `string | string[]`');
+    }
+
+    options = _objectSpread2(_objectSpread2({}, {
+      pascalCase: false
+    }), options);
+
+    var postProcess = function postProcess(x) {
+      return options.pascalCase ? x.charAt(0).toLocaleUpperCase() + x.slice(1) : x;
+    };
+
+    if (Array.isArray(input)) {
+      input = input.map(function (x) {
+        return x.trim();
+      }).filter(function (x) {
+        return x.length;
+      }).join('-');
+    } else {
+      input = input.trim();
+    }
+
+    if (input.length === 0) {
+      return '';
+    }
+
+    if (input.length === 1) {
+      return options.pascalCase ? input.toLocaleUpperCase() : input.toLocaleLowerCase();
+    }
+
+    var hasUpperCase = input !== input.toLocaleLowerCase();
+
+    if (hasUpperCase) {
+      input = preserveCamelCase(input);
+    }
+
+    input = input.replace(/^[_.\- ]+/, '').toLocaleLowerCase().replace(/[ \x2D\._]+((?:[0-9A-Z_a-z\xAA\xB2\xB3\xB5\xB9\xBA\xBC-\xBE\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0345\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0560-\u0588\u05B0-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u05D0-\u05EA\u05EF-\u05F2\u0610-\u061A\u0620-\u0657\u0659-\u0669\u066E-\u06D3\u06D5-\u06DC\u06E1-\u06E8\u06ED-\u06FC\u06FF\u0710-\u073F\u074D-\u07B1\u07C0-\u07EA\u07F4\u07F5\u07FA\u0800-\u0817\u081A-\u082C\u0840-\u0858\u0860-\u086A\u08A0-\u08B4\u08B6-\u08C7\u08D4-\u08DF\u08E3-\u08E9\u08F0-\u093B\u093D-\u094C\u094E-\u0950\u0955-\u0963\u0966-\u096F\u0971-\u0983\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD-\u09C4\u09C7\u09C8\u09CB\u09CC\u09CE\u09D7\u09DC\u09DD\u09DF-\u09E3\u09E6-\u09F1\u09F4-\u09F9\u09FC\u0A01-\u0A03\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A3E-\u0A42\u0A47\u0A48\u0A4B\u0A4C\u0A51\u0A59-\u0A5C\u0A5E\u0A66-\u0A75\u0A81-\u0A83\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD-\u0AC5\u0AC7-\u0AC9\u0ACB\u0ACC\u0AD0\u0AE0-\u0AE3\u0AE6-\u0AEF\u0AF9-\u0AFC\u0B01-\u0B03\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D-\u0B44\u0B47\u0B48\u0B4B\u0B4C\u0B56\u0B57\u0B5C\u0B5D\u0B5F-\u0B63\u0B66-\u0B6F\u0B71-\u0B77\u0B82\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCC\u0BD0\u0BD7\u0BE6-\u0BF2\u0C00-\u0C03\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D-\u0C44\u0C46-\u0C48\u0C4A-\u0C4C\u0C55\u0C56\u0C58-\u0C5A\u0C60-\u0C63\u0C66-\u0C6F\u0C78-\u0C7E\u0C80-\u0C83\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCC\u0CD5\u0CD6\u0CDE\u0CE0-\u0CE3\u0CE6-\u0CEF\u0CF1\u0CF2\u0D00-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D-\u0D44\u0D46-\u0D48\u0D4A-\u0D4C\u0D4E\u0D54-\u0D63\u0D66-\u0D78\u0D7A-\u0D7F\u0D81-\u0D83\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DE6-\u0DEF\u0DF2\u0DF3\u0E01-\u0E3A\u0E40-\u0E46\u0E4D\u0E50-\u0E59\u0E81\u0E82\u0E84\u0E86-\u0E8A\u0E8C-\u0EA3\u0EA5\u0EA7-\u0EB9\u0EBB-\u0EBD\u0EC0-\u0EC4\u0EC6\u0ECD\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F20-\u0F33\u0F40-\u0F47\u0F49-\u0F6C\u0F71-\u0F81\u0F88-\u0F97\u0F99-\u0FBC\u1000-\u1036\u1038\u103B-\u1049\u1050-\u109D\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1369-\u137C\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u170C\u170E-\u1713\u1720-\u1733\u1740-\u1753\u1760-\u176C\u176E-\u1770\u1772\u1773\u1780-\u17B3\u17B6-\u17C8\u17D7\u17DC\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1820-\u1878\u1880-\u18AA\u18B0-\u18F5\u1900-\u191E\u1920-\u192B\u1930-\u1938\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19DA\u1A00-\u1A1B\u1A20-\u1A5E\u1A61-\u1A74\u1A80-\u1A89\u1A90-\u1A99\u1AA7\u1ABF\u1AC0\u1B00-\u1B33\u1B35-\u1B43\u1B45-\u1B4B\u1B50-\u1B59\u1B80-\u1BA9\u1BAC-\u1BE5\u1BE7-\u1BF1\u1C00-\u1C36\u1C40-\u1C49\u1C4D-\u1C7D\u1C80-\u1C88\u1C90-\u1CBA\u1CBD-\u1CBF\u1CE9-\u1CEC\u1CEE-\u1CF3\u1CF5\u1CF6\u1CFA\u1D00-\u1DBF\u1DE7-\u1DF4\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2070\u2071\u2074-\u2079\u207F-\u2089\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2160-\u2189\u2150-\u2182\u2460-\u249B\u24B6-\u24FF\u2776-\u2793\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2CFD\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2DE0-\u2DFF\u2E2F\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312F\u3131-\u318E\u3192-\u3195\u31A0-\u31BF\u31F0-\u31FF\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\u3400-\u4DBF\u4E00-\u9FFC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66E\uA674-\uA67B\uA67F-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA7BF\uA7C2-\uA7CA\uA7F5-\uA805\uA807-\uA827\uA830-\uA835\uA840-\uA873\uA880-\uA8C3\uA8C5\uA8D0-\uA8D9\uA8F2-\uA8F7\uA8FB\uA8FD-\uA92A\uA930-\uA952\uA960-\uA97C\uA980-\uA9B2\uA9B4-\uA9BF\uA9CF-\uA9D9\uA9E0-\uA9FE\uAA00-\uAA36\uAA40-\uAA4D\uAA50-\uAA59\uAA60-\uAA76\uAA7A-\uAABE\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEF\uAAF2-\uAAF5\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB69\uAB70-\uABEA\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD07-\uDD33\uDD40-\uDD78\uDD8A\uDD8B\uDE80-\uDE9C\uDEA0-\uDED0\uDEE1-\uDEFB\uDF00-\uDF23\uDF2D-\uDF4A\uDF50-\uDF7A\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDCA0-\uDCA9\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC58-\uDC76\uDC79-\uDC9E\uDCA7-\uDCAF\uDCE0-\uDCF2\uDCF4\uDCF5\uDCFB-\uDD1B\uDD20-\uDD39\uDD80-\uDDB7\uDDBC-\uDDCF\uDDD2-\uDE03\uDE05\uDE06\uDE0C-\uDE13\uDE15-\uDE17\uDE19-\uDE35\uDE40-\uDE48\uDE60-\uDE7E\uDE80-\uDE9F\uDEC0-\uDEC7\uDEC9-\uDEE4\uDEEB-\uDEEF\uDF00-\uDF35\uDF40-\uDF55\uDF58-\uDF72\uDF78-\uDF91\uDFA9-\uDFAF]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDCFA-\uDD27\uDD30-\uDD39\uDE60-\uDE7E\uDE80-\uDEA9\uDEAB\uDEAC\uDEB0\uDEB1\uDF00-\uDF27\uDF30-\uDF45\uDF51-\uDF54\uDFB0-\uDFCB\uDFE0-\uDFF6]|\uD804[\uDC00-\uDC45\uDC52-\uDC6F\uDC82-\uDCB8\uDCD0-\uDCE8\uDCF0-\uDCF9\uDD00-\uDD32\uDD36-\uDD3F\uDD44-\uDD47\uDD50-\uDD72\uDD76\uDD80-\uDDBF\uDDC1-\uDDC4\uDDCE-\uDDDA\uDDDC\uDDE1-\uDDF4\uDE00-\uDE11\uDE13-\uDE34\uDE37\uDE3E\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEE8\uDEF0-\uDEF9\uDF00-\uDF03\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D-\uDF44\uDF47\uDF48\uDF4B\uDF4C\uDF50\uDF57\uDF5D-\uDF63]|\uD805[\uDC00-\uDC41\uDC43-\uDC45\uDC47-\uDC4A\uDC50-\uDC59\uDC5F-\uDC61\uDC80-\uDCC1\uDCC4\uDCC5\uDCC7\uDCD0-\uDCD9\uDD80-\uDDB5\uDDB8-\uDDBE\uDDD8-\uDDDD\uDE00-\uDE3E\uDE40\uDE44\uDE50-\uDE59\uDE80-\uDEB5\uDEB8\uDEC0-\uDEC9\uDF00-\uDF1A\uDF1D-\uDF2A\uDF30-\uDF3B]|\uD806[\uDC00-\uDC38\uDCA0-\uDCF2\uDCFF-\uDD06\uDD09\uDD0C-\uDD13\uDD15\uDD16\uDD18-\uDD35\uDD37\uDD38\uDD3B\uDD3C\uDD3F-\uDD42\uDD50-\uDD59\uDDA0-\uDDA7\uDDAA-\uDDD7\uDDDA-\uDDDF\uDDE1\uDDE3\uDDE4\uDE00-\uDE32\uDE35-\uDE3E\uDE50-\uDE97\uDE9D\uDEC0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC36\uDC38-\uDC3E\uDC40\uDC50-\uDC6C\uDC72-\uDC8F\uDC92-\uDCA7\uDCA9-\uDCB6\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD36\uDD3A\uDD3C\uDD3D\uDD3F-\uDD41\uDD43\uDD46\uDD47\uDD50-\uDD59\uDD60-\uDD65\uDD67\uDD68\uDD6A-\uDD8E\uDD90\uDD91\uDD93-\uDD96\uDD98\uDDA0-\uDDA9\uDEE0-\uDEF6\uDFB0\uDFC0-\uDFD4]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|[\uD80C\uD81C-\uD820\uD822\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879\uD880-\uD883][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE60-\uDE69\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF50-\uDF59\uDF5B-\uDF61\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDE40-\uDE96\uDF00-\uDF4A\uDF4F-\uDF87\uDF8F-\uDF9F\uDFE0\uDFE1\uDFE3\uDFF0\uDFF1]|\uD821[\uDC00-\uDFF7]|\uD823[\uDC00-\uDCD5\uDD00-\uDD08]|\uD82C[\uDC00-\uDD1E\uDD50-\uDD52\uDD64-\uDD67\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99\uDC9E]|\uD834[\uDEE0-\uDEF3\uDF60-\uDF78]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB\uDFCE-\uDFFF]|\uD838[\uDC00-\uDC06\uDC08-\uDC18\uDC1B-\uDC21\uDC23\uDC24\uDC26-\uDC2A\uDD00-\uDD2C\uDD37-\uDD3D\uDD40-\uDD49\uDD4E\uDEC0-\uDEEB\uDEF0-\uDEF9]|\uD83A[\uDC00-\uDCC4\uDCC7-\uDCCF\uDD00-\uDD43\uDD47\uDD4B\uDD50-\uDD59]|\uD83B[\uDC71-\uDCAB\uDCAD-\uDCAF\uDCB1-\uDCB4\uDD01-\uDD2D\uDD2F-\uDD3D\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD83C[\uDD00-\uDD0C\uDD30-\uDD49\uDD50-\uDD69\uDD70-\uDD89]|\uD83E[\uDFF0-\uDFF9]|\uD869[\uDC00-\uDEDD\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF34\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0]|\uD87E[\uDC00-\uDE1D]|\uD884[\uDC00-\uDF4A])|$)/g, function (_, p1) {
+      return p1.toLocaleUpperCase();
+    }).replace(/[0-9]+((?:[0-9A-Z_a-z\xAA\xB2\xB3\xB5\xB9\xBA\xBC-\xBE\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0345\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0560-\u0588\u05B0-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u05D0-\u05EA\u05EF-\u05F2\u0610-\u061A\u0620-\u0657\u0659-\u0669\u066E-\u06D3\u06D5-\u06DC\u06E1-\u06E8\u06ED-\u06FC\u06FF\u0710-\u073F\u074D-\u07B1\u07C0-\u07EA\u07F4\u07F5\u07FA\u0800-\u0817\u081A-\u082C\u0840-\u0858\u0860-\u086A\u08A0-\u08B4\u08B6-\u08C7\u08D4-\u08DF\u08E3-\u08E9\u08F0-\u093B\u093D-\u094C\u094E-\u0950\u0955-\u0963\u0966-\u096F\u0971-\u0983\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD-\u09C4\u09C7\u09C8\u09CB\u09CC\u09CE\u09D7\u09DC\u09DD\u09DF-\u09E3\u09E6-\u09F1\u09F4-\u09F9\u09FC\u0A01-\u0A03\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A3E-\u0A42\u0A47\u0A48\u0A4B\u0A4C\u0A51\u0A59-\u0A5C\u0A5E\u0A66-\u0A75\u0A81-\u0A83\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD-\u0AC5\u0AC7-\u0AC9\u0ACB\u0ACC\u0AD0\u0AE0-\u0AE3\u0AE6-\u0AEF\u0AF9-\u0AFC\u0B01-\u0B03\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D-\u0B44\u0B47\u0B48\u0B4B\u0B4C\u0B56\u0B57\u0B5C\u0B5D\u0B5F-\u0B63\u0B66-\u0B6F\u0B71-\u0B77\u0B82\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCC\u0BD0\u0BD7\u0BE6-\u0BF2\u0C00-\u0C03\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D-\u0C44\u0C46-\u0C48\u0C4A-\u0C4C\u0C55\u0C56\u0C58-\u0C5A\u0C60-\u0C63\u0C66-\u0C6F\u0C78-\u0C7E\u0C80-\u0C83\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCC\u0CD5\u0CD6\u0CDE\u0CE0-\u0CE3\u0CE6-\u0CEF\u0CF1\u0CF2\u0D00-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D-\u0D44\u0D46-\u0D48\u0D4A-\u0D4C\u0D4E\u0D54-\u0D63\u0D66-\u0D78\u0D7A-\u0D7F\u0D81-\u0D83\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DE6-\u0DEF\u0DF2\u0DF3\u0E01-\u0E3A\u0E40-\u0E46\u0E4D\u0E50-\u0E59\u0E81\u0E82\u0E84\u0E86-\u0E8A\u0E8C-\u0EA3\u0EA5\u0EA7-\u0EB9\u0EBB-\u0EBD\u0EC0-\u0EC4\u0EC6\u0ECD\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F20-\u0F33\u0F40-\u0F47\u0F49-\u0F6C\u0F71-\u0F81\u0F88-\u0F97\u0F99-\u0FBC\u1000-\u1036\u1038\u103B-\u1049\u1050-\u109D\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1369-\u137C\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u170C\u170E-\u1713\u1720-\u1733\u1740-\u1753\u1760-\u176C\u176E-\u1770\u1772\u1773\u1780-\u17B3\u17B6-\u17C8\u17D7\u17DC\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1820-\u1878\u1880-\u18AA\u18B0-\u18F5\u1900-\u191E\u1920-\u192B\u1930-\u1938\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19DA\u1A00-\u1A1B\u1A20-\u1A5E\u1A61-\u1A74\u1A80-\u1A89\u1A90-\u1A99\u1AA7\u1ABF\u1AC0\u1B00-\u1B33\u1B35-\u1B43\u1B45-\u1B4B\u1B50-\u1B59\u1B80-\u1BA9\u1BAC-\u1BE5\u1BE7-\u1BF1\u1C00-\u1C36\u1C40-\u1C49\u1C4D-\u1C7D\u1C80-\u1C88\u1C90-\u1CBA\u1CBD-\u1CBF\u1CE9-\u1CEC\u1CEE-\u1CF3\u1CF5\u1CF6\u1CFA\u1D00-\u1DBF\u1DE7-\u1DF4\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2070\u2071\u2074-\u2079\u207F-\u2089\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2160-\u2189\u2150-\u2182\u2460-\u249B\u24B6-\u24FF\u2776-\u2793\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2CFD\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2DE0-\u2DFF\u2E2F\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312F\u3131-\u318E\u3192-\u3195\u31A0-\u31BF\u31F0-\u31FF\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\u3400-\u4DBF\u4E00-\u9FFC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66E\uA674-\uA67B\uA67F-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA7BF\uA7C2-\uA7CA\uA7F5-\uA805\uA807-\uA827\uA830-\uA835\uA840-\uA873\uA880-\uA8C3\uA8C5\uA8D0-\uA8D9\uA8F2-\uA8F7\uA8FB\uA8FD-\uA92A\uA930-\uA952\uA960-\uA97C\uA980-\uA9B2\uA9B4-\uA9BF\uA9CF-\uA9D9\uA9E0-\uA9FE\uAA00-\uAA36\uAA40-\uAA4D\uAA50-\uAA59\uAA60-\uAA76\uAA7A-\uAABE\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEF\uAAF2-\uAAF5\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB69\uAB70-\uABEA\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD07-\uDD33\uDD40-\uDD78\uDD8A\uDD8B\uDE80-\uDE9C\uDEA0-\uDED0\uDEE1-\uDEFB\uDF00-\uDF23\uDF2D-\uDF4A\uDF50-\uDF7A\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDCA0-\uDCA9\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC58-\uDC76\uDC79-\uDC9E\uDCA7-\uDCAF\uDCE0-\uDCF2\uDCF4\uDCF5\uDCFB-\uDD1B\uDD20-\uDD39\uDD80-\uDDB7\uDDBC-\uDDCF\uDDD2-\uDE03\uDE05\uDE06\uDE0C-\uDE13\uDE15-\uDE17\uDE19-\uDE35\uDE40-\uDE48\uDE60-\uDE7E\uDE80-\uDE9F\uDEC0-\uDEC7\uDEC9-\uDEE4\uDEEB-\uDEEF\uDF00-\uDF35\uDF40-\uDF55\uDF58-\uDF72\uDF78-\uDF91\uDFA9-\uDFAF]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDCFA-\uDD27\uDD30-\uDD39\uDE60-\uDE7E\uDE80-\uDEA9\uDEAB\uDEAC\uDEB0\uDEB1\uDF00-\uDF27\uDF30-\uDF45\uDF51-\uDF54\uDFB0-\uDFCB\uDFE0-\uDFF6]|\uD804[\uDC00-\uDC45\uDC52-\uDC6F\uDC82-\uDCB8\uDCD0-\uDCE8\uDCF0-\uDCF9\uDD00-\uDD32\uDD36-\uDD3F\uDD44-\uDD47\uDD50-\uDD72\uDD76\uDD80-\uDDBF\uDDC1-\uDDC4\uDDCE-\uDDDA\uDDDC\uDDE1-\uDDF4\uDE00-\uDE11\uDE13-\uDE34\uDE37\uDE3E\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEE8\uDEF0-\uDEF9\uDF00-\uDF03\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D-\uDF44\uDF47\uDF48\uDF4B\uDF4C\uDF50\uDF57\uDF5D-\uDF63]|\uD805[\uDC00-\uDC41\uDC43-\uDC45\uDC47-\uDC4A\uDC50-\uDC59\uDC5F-\uDC61\uDC80-\uDCC1\uDCC4\uDCC5\uDCC7\uDCD0-\uDCD9\uDD80-\uDDB5\uDDB8-\uDDBE\uDDD8-\uDDDD\uDE00-\uDE3E\uDE40\uDE44\uDE50-\uDE59\uDE80-\uDEB5\uDEB8\uDEC0-\uDEC9\uDF00-\uDF1A\uDF1D-\uDF2A\uDF30-\uDF3B]|\uD806[\uDC00-\uDC38\uDCA0-\uDCF2\uDCFF-\uDD06\uDD09\uDD0C-\uDD13\uDD15\uDD16\uDD18-\uDD35\uDD37\uDD38\uDD3B\uDD3C\uDD3F-\uDD42\uDD50-\uDD59\uDDA0-\uDDA7\uDDAA-\uDDD7\uDDDA-\uDDDF\uDDE1\uDDE3\uDDE4\uDE00-\uDE32\uDE35-\uDE3E\uDE50-\uDE97\uDE9D\uDEC0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC36\uDC38-\uDC3E\uDC40\uDC50-\uDC6C\uDC72-\uDC8F\uDC92-\uDCA7\uDCA9-\uDCB6\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD36\uDD3A\uDD3C\uDD3D\uDD3F-\uDD41\uDD43\uDD46\uDD47\uDD50-\uDD59\uDD60-\uDD65\uDD67\uDD68\uDD6A-\uDD8E\uDD90\uDD91\uDD93-\uDD96\uDD98\uDDA0-\uDDA9\uDEE0-\uDEF6\uDFB0\uDFC0-\uDFD4]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|[\uD80C\uD81C-\uD820\uD822\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879\uD880-\uD883][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE60-\uDE69\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF50-\uDF59\uDF5B-\uDF61\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDE40-\uDE96\uDF00-\uDF4A\uDF4F-\uDF87\uDF8F-\uDF9F\uDFE0\uDFE1\uDFE3\uDFF0\uDFF1]|\uD821[\uDC00-\uDFF7]|\uD823[\uDC00-\uDCD5\uDD00-\uDD08]|\uD82C[\uDC00-\uDD1E\uDD50-\uDD52\uDD64-\uDD67\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99\uDC9E]|\uD834[\uDEE0-\uDEF3\uDF60-\uDF78]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB\uDFCE-\uDFFF]|\uD838[\uDC00-\uDC06\uDC08-\uDC18\uDC1B-\uDC21\uDC23\uDC24\uDC26-\uDC2A\uDD00-\uDD2C\uDD37-\uDD3D\uDD40-\uDD49\uDD4E\uDEC0-\uDEEB\uDEF0-\uDEF9]|\uD83A[\uDC00-\uDCC4\uDCC7-\uDCCF\uDD00-\uDD43\uDD47\uDD4B\uDD50-\uDD59]|\uD83B[\uDC71-\uDCAB\uDCAD-\uDCAF\uDCB1-\uDCB4\uDD01-\uDD2D\uDD2F-\uDD3D\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD83C[\uDD00-\uDD0C\uDD30-\uDD49\uDD50-\uDD69\uDD70-\uDD89]|\uD83E[\uDFF0-\uDFF9]|\uD869[\uDC00-\uDEDD\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF34\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0]|\uD87E[\uDC00-\uDE1D]|\uD884[\uDC00-\uDF4A])|$)/g, function (m) {
+      return m.toLocaleUpperCase();
+    });
+    return postProcess(input);
+  };
+
+  var camelcase = camelCase; // TODO: Remove this for the next major release
+
+  var default_1 = camelCase;
+  camelcase["default"] = default_1;
+
+  var Fullstory = /*#__PURE__*/function () {
+    function Fullstory(config) {
+      _classCallCheck(this, Fullstory);
+
+      this.fs_org = config.fs_org;
+      this.fs_debug_mode = config.fs_debug_mode;
+      this.name = "FULLSTORY";
+    }
+
+    _createClass(Fullstory, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init FULLSTORY===");
+        window._fs_debug = this.fs_debug_mode;
+        window._fs_host = "fullstory.com";
+        window._fs_script = "edge.fullstory.com/s/fs.js";
+        window._fs_org = this.fs_org;
+        window._fs_namespace = "FS";
+
+        (function (m, n, e, t, l, o, g, y) {
+          if (e in m) {
+            if (m.console && m.console.log) {
+              m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');
+            }
+
+            return;
+          }
+
+          g = m[e] = function (a, b, s) {
+            g.q ? g.q.push([a, b, s]) : g._api(a, b, s);
+          };
+
+          g.q = [];
+          o = n.createElement(t);
+          o.async = 1;
+          o.crossOrigin = "anonymous";
+          o.src = "https://".concat(_fs_script);
+          y = n.getElementsByTagName(t)[0];
+          y.parentNode.insertBefore(o, y);
+
+          g.identify = function (i, v, s) {
+            g(l, {
+              uid: i
+            }, s);
+            if (v) g(l, v, s);
+          };
+
+          g.setUserVars = function (v, s) {
+            g(l, v, s);
+          };
+
+          g.event = function (i, v, s) {
+            g("event", {
+              n: i,
+              p: v
+            }, s);
+          };
+
+          g.shutdown = function () {
+            g("rec", !1);
+          };
+
+          g.restart = function () {
+            g("rec", !0);
+          };
+
+          g.log = function (a, b) {
+            g("log", [a, b]);
+          };
+
+          g.consent = function (a) {
+            g("consent", !arguments.length || a);
+          };
+
+          g.identifyAccount = function (i, v) {
+            o = "account";
+            v = v || {};
+            v.acctId = i;
+            g(o, v);
+          };
+
+          g.clearUserCookie = function () {};
+
+          g._w = {};
+          y = "XMLHttpRequest";
+          g._w[y] = m[y];
+          y = "fetch";
+          g._w[y] = m[y];
+          if (m[y]) m[y] = function () {
+            return g._w[y].apply(this, arguments);
+          };
+        })(window, document, window._fs_namespace, "script", "user");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in FULLSORY page");
+        var rudderMessage = rudderElement.message;
+        var pageName = rudderMessage.name;
+
+        var props = _objectSpread2({
+          name: pageName
+        }, rudderMessage.properties);
+
+        window.FS.event("Viewed a Page", Fullstory.getFSProperties(props));
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in FULLSORY identify");
+        var userId = rudderElement.message.userId;
+        var traits = rudderElement.message.context.traits;
+        if (!userId) userId = rudderElement.message.anonymousId;
+        if (Object.keys(traits).length === 0 && traits.constructor === Object) window.FS.identify(userId);else window.FS.identify(userId, Fullstory.getFSProperties(traits));
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in FULLSTORY track");
+        window.FS.event(rudderElement.message.event, Fullstory.getFSProperties(rudderElement.message.properties));
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in FULLSTORY isLoaded");
+        return !!window.FS;
+      }
+    }], [{
+      key: "getFSProperties",
+      value: function getFSProperties(properties) {
+        var FS_properties = {};
+        Object.keys(properties).map(function (key, index) {
+          FS_properties[key === "displayName" || key === "email" ? key : Fullstory.camelCaseField(key)] = properties[key];
+        });
+        return FS_properties;
+      }
+    }, {
+      key: "camelCaseField",
+      value: function camelCaseField(fieldName) {
+        // Do not camel case across type suffixes.
+        var parts = fieldName.split("_");
+
+        if (parts.length > 1) {
+          var typeSuffix = parts.pop();
+
+          switch (typeSuffix) {
+            case "str":
+            case "int":
+            case "date":
+            case "real":
+            case "bool":
+            case "strs":
+            case "ints":
+            case "dates":
+            case "reals":
+            case "bools":
+              return "".concat(camelcase(parts.join("_")), "_").concat(typeSuffix);
+
+          }
+        } // No type suffix found. Camel case the whole field name.
+
+
+        return camelcase(fieldName);
+      }
+    }]);
+
+    return Fullstory;
+  }();
+
+  var TVSquared = /*#__PURE__*/function () {
+    function TVSquared(config) {
+      _classCallCheck(this, TVSquared);
+
+      this.isLoaded = function () {
+        logger.debug("in TVSqaured isLoaded");
+        return !!(window._tvq && window._tvq.push !== Array.prototype.push);
+      };
+
+      this.isReady = function () {
+        logger.debug("in TVSqaured isReady");
+        return !!(window._tvq && window._tvq.push !== Array.prototype.push);
+      };
+
+      this.page = function () {
+        window._tvq.push(["trackPageView"]);
+      };
+
+      this.formatRevenue = function (revenue) {
+        var rev = revenue;
+        rev = parseFloat(rev.toString().replace(/^[^\d.]*/, ""));
+        return rev;
+      };
+
+      this.brandId = config.brandId;
+      this.clientId = config.clientId;
+      this.eventWhiteList = config.eventWhiteList || [];
+      this.customMetrics = config.customMetrics || [];
+      this.name = "TVSquared";
+    }
+
+    _createClass(TVSquared, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init TVSquared===");
+        window._tvq = window._tvq || [];
+        var url = document.location.protocol === "https:" ? "https://" : "http://";
+        url += "collector-".concat(this.clientId, ".tvsquared.com/");
+
+        window._tvq.push(["setSiteId", this.brandId]);
+
+        window._tvq.push(["setTrackerUrl", "".concat(url, "tv2track.php")]);
+
+        ScriptLoader("TVSquared-integration", "".concat(url, "tv2track.js"));
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var _rudderElement$messag = rudderElement.message,
+            event = _rudderElement$messag.event,
+            userId = _rudderElement$messag.userId,
+            anonymousId = _rudderElement$messag.anonymousId;
+        var _rudderElement$messag2 = rudderElement.message.properties,
+            revenue = _rudderElement$messag2.revenue,
+            productType = _rudderElement$messag2.productType,
+            category = _rudderElement$messag2.category,
+            order_id = _rudderElement$messag2.order_id,
+            promotion_id = _rudderElement$messag2.promotion_id;
+        var i;
+        var j;
+        var whitelist = this.eventWhiteList.slice();
+        whitelist = whitelist.filter(function (wl) {
+          return wl.event !== "";
+        });
+
+        for (i = 0; i < whitelist.length; i += 1) {
+          if (event.toUpperCase() === whitelist[i].event.toUpperCase()) {
+            break;
+          }
+
+          if (i === whitelist.length - 1) {
+            return;
+          }
+        }
+
+        var session = {
+          user: userId || anonymousId || ""
+        };
+        var action = {
+          rev: revenue ? this.formatRevenue(revenue) : "",
+          prod: category || productType || "",
+          id: order_id || "",
+          promo: promotion_id || ""
+        };
+        var customMetrics = this.customMetrics.slice();
+        customMetrics = customMetrics.filter(function (cm) {
+          return cm.propertyName !== "";
+        });
+
+        if (customMetrics.length) {
+          for (j = 0; j < customMetrics.length; j += 1) {
+            var key = customMetrics[j].propertyName;
+            var value = rudderElement.message.properties[key];
+
+            if (value) {
+              action[key] = value;
+            }
+          }
+        }
+
+        window._tvq.push([function () {
+          this.setCustomVariable(5, "session", JSON.stringify(session), "visit");
+        }]);
+
+        if (event.toUpperCase() !== "RESPONSE") {
+          window._tvq.push([function () {
+            this.setCustomVariable(5, event, JSON.stringify(action), "page");
+          }]);
+
+          window._tvq.push(["trackPageView"]);
+        }
+      }
+    }]);
+
+    return TVSquared;
+  }();
+
+  var Lytics = /*#__PURE__*/function () {
+    function Lytics(config) {
+      _classCallCheck(this, Lytics);
+
+      this.isLoaded = function () {
+        logger.debug("in Lytics isLoaded");
+        logger.debug(!!(window.jstag && window.jstag.push !== Array.prototype.push));
+        return !!(window.jstag && window.jstag.push !== Array.prototype.push);
+      };
+
+      this.isReady = function () {
+        logger.debug("in Lytics isReady");
+        return !!(window.jstag && window.jstag.push !== Array.prototype.push);
+      };
+
+      this.accountId = config.accountId;
+      this.stream = config.stream;
+      this.blockload = config.blockload;
+      this.loadid = config.loadid;
+      this.name = "LYTICS";
+    }
+
+    _createClass(Lytics, [{
+      key: "loadLyticsScript",
+      value: function loadLyticsScript() {
+        !function () {
+
+          var o = window.jstag || (window.jstag = {}),
+              r = [];
+
+          function n(e) {
+            o[e] = function () {
+              for (var n = arguments.length, t = new Array(n), i = 0; i < n; i++) {
+                t[i] = arguments[i];
+              }
+
+              r.push([e, t]);
+            };
+          }
+
+          n("send"), n("mock"), n("identify"), n("pageView"), n("unblock"), n("getid"), n("setid"), n("loadEntity"), n("getEntity"), n("on"), n("once"), n("call"), o.loadScript = function (n, t, i) {
+            var e = document.createElement("script");
+            e.async = !0, e.src = n, e.onload = t, e.onerror = i;
+            var o = document.getElementsByTagName("script")[0],
+                r = o && o.parentNode || document.head || document.body,
+                c = o || r.lastChild;
+            return null != c ? r.insertBefore(e, c) : r.appendChild(e), this;
+          }, o.init = function n(t) {
+            return this.config = t, this.loadScript(t.src, function () {
+              if (o.init === n) throw new Error("Load error!"); // eslint-disable-next-line no-unused-expressions
+
+              o.init(o.config), // eslint-disable-next-line func-names
+              function () {
+                for (var n = 0; n < r.length; n++) {
+                  var t = r[n][0],
+                      i = r[n][1];
+                  o[t].apply(o, i);
+                }
+
+                r = void 0;
+              }();
+            }), this;
+          };
+        }(); // Define config and initialize Lytics tracking tag.
+
+        window.jstag.init({
+          loadid: this.loadid,
+          blocked: this.blockload,
+          stream: this.stream,
+          sessecs: 1800,
+          src: "//c.lytics.io/api/tag/".concat(this.accountId, "/latest.min.js")
+        });
+      }
+    }, {
+      key: "init",
+      value: function init() {
+        this.loadLyticsScript();
+        logger.debug("===in init Lytics===");
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Lytics identify"); // eslint-disable-next-line camelcase
+
+        var user_id = rudderElement.message.userId || rudderElement.message.anonymousId;
+        var traits = rudderElement.message.context.traits;
+
+        var payload = _objectSpread2({
+          user_id: user_id
+        }, traits);
+
+        window.jstag.send(this.stream, payload);
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        // eslint-disable-next-line no-underscore-dangle
+        var _e = rudderElement.message.name;
+        var properties = rudderElement.message.properties;
+
+        var payload = _objectSpread2({
+          _e: _e
+        }, properties);
+
+        window.jstag.send(this.stream, payload);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in Lytics track"); // eslint-disable-next-line no-underscore-dangle
+
+        var _e = rudderElement.message.event;
+        var properties = rudderElement.message.properties;
+
+        var payload = _objectSpread2({
+          _e: _e
+        }, properties);
+
+        window.jstag.send(this.stream, payload);
+      }
+    }]);
+
+    return Lytics;
+  }();
+
   // (config-plan name, native destination.name , exported integration name(this one below))
 
   var integrations = {
@@ -9282,7 +12953,12 @@ var rudderanalytics = (function (exports) {
     CHARTBEAT: Chartbeat,
     COMSCORE: Comscore,
     FACEBOOK_PIXEL: FacebookPixel,
-    LOTAME: Lotame
+    LOTAME: Lotame,
+    OPTIMIZELY: Optimizely,
+    BUGSNAG: Bugsnag,
+    FULLSTORY: Fullstory,
+    TVSQUARED: TVSquared,
+    LYTICS: Lytics
   };
 
   // Application class
@@ -9292,7 +12968,7 @@ var rudderanalytics = (function (exports) {
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.1.2";
+    this.version = "1.1.5";
   };
 
   // Library information class
@@ -9300,7 +12976,7 @@ var rudderanalytics = (function (exports) {
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.1.2";
+    this.version = "1.1.5";
   }; // Operating System information class
 
 
@@ -9579,40 +13255,38 @@ var rudderanalytics = (function (exports) {
   }();
 
   var rngBrowser = createCommonjsModule(function (module) {
-  // Unique ID creation requires a high quality random # generator.  In the
-  // browser this is a little complicated due to unknown quality of Math.random()
-  // and inconsistent support for the `crypto` API.  We do the best we can via
-  // feature-detection
+    // Unique ID creation requires a high quality random # generator.  In the
+    // browser this is a little complicated due to unknown quality of Math.random()
+    // and inconsistent support for the `crypto` API.  We do the best we can via
+    // feature-detection
+    // getRandomValues needs to be invoked in a context where "this" is a Crypto
+    // implementation. Also, find the complete implementation of crypto on IE11.
+    var getRandomValues = typeof crypto != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto) || typeof msCrypto != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto);
 
-  // getRandomValues needs to be invoked in a context where "this" is a Crypto
-  // implementation. Also, find the complete implementation of crypto on IE11.
-  var getRandomValues = (typeof(crypto) != 'undefined' && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)) ||
-                        (typeof(msCrypto) != 'undefined' && typeof window.msCrypto.getRandomValues == 'function' && msCrypto.getRandomValues.bind(msCrypto));
+    if (getRandomValues) {
+      // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
+      var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
 
-  if (getRandomValues) {
-    // WHATWG crypto RNG - http://wiki.whatwg.org/wiki/Crypto
-    var rnds8 = new Uint8Array(16); // eslint-disable-line no-undef
+      module.exports = function whatwgRNG() {
+        getRandomValues(rnds8);
+        return rnds8;
+      };
+    } else {
+      // Math.random()-based (RNG)
+      //
+      // If all else fails, use Math.random().  It's fast, but is of unspecified
+      // quality.
+      var rnds = new Array(16);
 
-    module.exports = function whatwgRNG() {
-      getRandomValues(rnds8);
-      return rnds8;
-    };
-  } else {
-    // Math.random()-based (RNG)
-    //
-    // If all else fails, use Math.random().  It's fast, but is of unspecified
-    // quality.
-    var rnds = new Array(16);
+      module.exports = function mathRNG() {
+        for (var i = 0, r; i < 16; i++) {
+          if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
+          rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
+        }
 
-    module.exports = function mathRNG() {
-      for (var i = 0, r; i < 16; i++) {
-        if ((i & 0x03) === 0) r = Math.random() * 0x100000000;
-        rnds[i] = r >>> ((i & 0x03) << 3) & 0xff;
-      }
-
-      return rnds;
-    };
-  }
+        return rnds;
+      };
+    }
   });
 
   /**
@@ -9620,126 +13294,105 @@ var rudderanalytics = (function (exports) {
    * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
    */
   var byteToHex = [];
+
   for (var i = 0; i < 256; ++i) {
     byteToHex[i] = (i + 0x100).toString(16).substr(1);
   }
 
   function bytesToUuid(buf, offset) {
     var i = offset || 0;
-    var bth = byteToHex;
-    // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
-    return ([
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]], '-',
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]],
-      bth[buf[i++]], bth[buf[i++]]
-    ]).join('');
+    var bth = byteToHex; // join used to fix memory issue caused by concatenation: https://bugs.chromium.org/p/v8/issues/detail?id=3175#c4
+
+    return [bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], '-', bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]], bth[buf[i++]]].join('');
   }
 
   var bytesToUuid_1 = bytesToUuid;
 
-  // **`v1()` - Generate time-based UUID**
   //
   // Inspired by https://github.com/LiosK/UUID.js
   // and http://docs.python.org/library/uuid.html
 
   var _nodeId;
-  var _clockseq;
 
-  // Previous uuid creation time
+  var _clockseq; // Previous uuid creation time
+
+
   var _lastMSecs = 0;
-  var _lastNSecs = 0;
+  var _lastNSecs = 0; // See https://github.com/uuidjs/uuid for API details
 
-  // See https://github.com/uuidjs/uuid for API details
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
     var b = buf || [];
-
     options = options || {};
     var node = options.node || _nodeId;
-    var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq;
-
-    // node and clockseq need to be initialized to random values if they're not
+    var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq; // node and clockseq need to be initialized to random values if they're not
     // specified.  We do this lazily to minimize issues related to insufficient
     // system entropy.  See #189
+
     if (node == null || clockseq == null) {
       var seedBytes = rngBrowser();
+
       if (node == null) {
         // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
-        node = _nodeId = [
-          seedBytes[0] | 0x01,
-          seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]
-        ];
+        node = _nodeId = [seedBytes[0] | 0x01, seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]];
       }
+
       if (clockseq == null) {
         // Per 4.2.2, randomize (14 bit) clockseq
         clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 0x3fff;
       }
-    }
-
-    // UUID timestamps are 100 nano-second units since the Gregorian epoch,
+    } // UUID timestamps are 100 nano-second units since the Gregorian epoch,
     // (1582-10-15 00:00).  JSNumbers aren't precise enough for this, so
     // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
     // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
-    var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime();
 
-    // Per 4.2.1.2, use count of uuid's generated during the current clock
+
+    var msecs = options.msecs !== undefined ? options.msecs : new Date().getTime(); // Per 4.2.1.2, use count of uuid's generated during the current clock
     // cycle to simulate higher resolution clock
-    var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1;
 
-    // Time since last uuid creation (in msecs)
-    var dt = (msecs - _lastMSecs) + (nsecs - _lastNSecs)/10000;
+    var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1; // Time since last uuid creation (in msecs)
 
-    // Per 4.2.1.2, Bump clockseq on clock regression
+    var dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 10000; // Per 4.2.1.2, Bump clockseq on clock regression
+
     if (dt < 0 && options.clockseq === undefined) {
       clockseq = clockseq + 1 & 0x3fff;
-    }
-
-    // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
+    } // Reset nsecs if clock regresses (new clockseq) or we've moved onto a new
     // time interval
+
+
     if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === undefined) {
       nsecs = 0;
-    }
+    } // Per 4.2.1.2 Throw error if too many uuids are requested
 
-    // Per 4.2.1.2 Throw error if too many uuids are requested
+
     if (nsecs >= 10000) {
       throw new Error('uuid.v1(): Can\'t create more than 10M uuids/sec');
     }
 
     _lastMSecs = msecs;
     _lastNSecs = nsecs;
-    _clockseq = clockseq;
+    _clockseq = clockseq; // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
 
-    // Per 4.1.4 - Convert from unix epoch to Gregorian epoch
-    msecs += 12219292800000;
+    msecs += 12219292800000; // `time_low`
 
-    // `time_low`
     var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
     b[i++] = tl >>> 24 & 0xff;
     b[i++] = tl >>> 16 & 0xff;
     b[i++] = tl >>> 8 & 0xff;
-    b[i++] = tl & 0xff;
+    b[i++] = tl & 0xff; // `time_mid`
 
-    // `time_mid`
-    var tmh = (msecs / 0x100000000 * 10000) & 0xfffffff;
+    var tmh = msecs / 0x100000000 * 10000 & 0xfffffff;
     b[i++] = tmh >>> 8 & 0xff;
-    b[i++] = tmh & 0xff;
+    b[i++] = tmh & 0xff; // `time_high_and_version`
 
-    // `time_high_and_version`
     b[i++] = tmh >>> 24 & 0xf | 0x10; // include version
-    b[i++] = tmh >>> 16 & 0xff;
 
-    // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
-    b[i++] = clockseq >>> 8 | 0x80;
+    b[i++] = tmh >>> 16 & 0xff; // `clock_seq_hi_and_reserved` (Per 4.2.2 - include variant)
 
-    // `clock_seq_low`
-    b[i++] = clockseq & 0xff;
+    b[i++] = clockseq >>> 8 | 0x80; // `clock_seq_low`
 
-    // `node`
+    b[i++] = clockseq & 0xff; // `node`
+
     for (var n = 0; n < 6; ++n) {
       b[i + n] = node[n];
     }
@@ -9752,19 +13405,17 @@ var rudderanalytics = (function (exports) {
   function v4(options, buf, offset) {
     var i = buf && offset || 0;
 
-    if (typeof(options) == 'string') {
+    if (typeof options == 'string') {
       buf = options === 'binary' ? new Array(16) : null;
       options = null;
     }
+
     options = options || {};
+    var rnds = options.random || (options.rng || rngBrowser)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
 
-    var rnds = options.random || (options.rng || rngBrowser)();
+    rnds[6] = rnds[6] & 0x0f | 0x40;
+    rnds[8] = rnds[8] & 0x3f | 0x80; // Copy bytes to buffer, if provided
 
-    // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
-    rnds[6] = (rnds[6] & 0x0f) | 0x40;
-    rnds[8] = (rnds[8] & 0x3f) | 0x80;
-
-    // Copy bytes to buffer, if provided
     if (buf) {
       for (var ii = 0; ii < 16; ++ii) {
         buf[i + ii] = rnds[ii];
@@ -9779,37 +13430,37 @@ var rudderanalytics = (function (exports) {
   var uuid = v4_1;
   uuid.v1 = v1_1;
   uuid.v4 = v4_1;
-
   var uuid_1 = uuid;
 
   var uuid$1 = uuid_1.v4;
-
   var inMemoryStore = {
     _data: {},
     length: 0,
-    setItem: function(key, value) {
+    setItem: function setItem(key, value) {
       this._data[key] = value;
       this.length = keys_1(this._data).length;
       return value;
     },
-    getItem: function(key) {
+    getItem: function getItem(key) {
       if (key in this._data) {
         return this._data[key];
       }
+
       return null;
     },
-    removeItem: function(key) {
+    removeItem: function removeItem(key) {
       if (key in this._data) {
         delete this._data[key];
       }
+
       this.length = keys_1(this._data).length;
       return null;
     },
-    clear: function() {
+    clear: function clear() {
       this._data = {};
       this.length = 0;
     },
-    key: function(index) {
+    key: function key(index) {
       return keys_1(this._data)[index];
     }
   };
@@ -9820,9 +13471,8 @@ var rudderanalytics = (function (exports) {
       var key = uuid$1();
       window.localStorage.setItem(key, 'test_value');
       var value = window.localStorage.getItem(key);
-      window.localStorage.removeItem(key);
+      window.localStorage.removeItem(key); // handle localStorage silently failing
 
-      // handle localStorage silently failing
       return value === 'test_value';
     } catch (e) {
       // Can throw if localStorage is disabled
@@ -9833,27 +13483,23 @@ var rudderanalytics = (function (exports) {
   function pickStorage() {
     if (isSupportedNatively()) {
       return window.localStorage;
-    }
-    // fall back to in-memory
+    } // fall back to in-memory
+
+
     return inMemoryStore;
-  }
+  } // Return a shared instance
 
-  // Return a shared instance
-  var defaultEngine = pickStorage();
-  // Expose the in-memory store explicitly for testing
+
+  var defaultEngine = pickStorage(); // Expose the in-memory store explicitly for testing
+
   var inMemoryEngine = inMemoryStore;
-
   var engine = {
-  	defaultEngine: defaultEngine,
-  	inMemoryEngine: inMemoryEngine
+    defaultEngine: defaultEngine,
+    inMemoryEngine: inMemoryEngine
   };
 
   var defaultEngine$1 = engine.defaultEngine;
   var inMemoryEngine$1 = engine.inMemoryEngine;
-
-
-
-
   /**
   * Store Implementation with dedicated
   */
@@ -9863,87 +13509,97 @@ var rudderanalytics = (function (exports) {
     this.name = name;
     this.keys = keys || {};
     this.engine = optionalEngine || defaultEngine$1;
+    this.originalEngine = this.engine;
   }
-
   /**
   * Set value by key.
   */
 
-  Store$1.prototype.set = function(key, value) {
+
+  Store$1.prototype.set = function (key, value) {
     var compoundKey = this._createValidKey(key);
+
     if (!compoundKey) return;
+
     try {
       this.engine.setItem(compoundKey, json3.stringify(value));
     } catch (err) {
       if (isQuotaExceeded(err)) {
         // switch to inMemory engine
-        this._swapEngine();
-        // and save it there
+        this._swapEngine(); // and save it there
+
+
         this.set(key, value);
       }
     }
   };
-
   /**
   * Get by Key.
   */
 
-  Store$1.prototype.get = function(key) {
+
+  Store$1.prototype.get = function (key) {
     try {
       var str = this.engine.getItem(this._createValidKey(key));
+
       if (str === null) {
         return null;
       }
+
       return json3.parse(str);
     } catch (err) {
       return null;
     }
   };
+  /**
+   * Get original engine
+   */
 
+
+  Store$1.prototype.getOriginalEngine = function () {
+    return this.originalEngine;
+  };
   /**
   * Remove by Key.
   */
 
-  Store$1.prototype.remove = function(key) {
+
+  Store$1.prototype.remove = function (key) {
     this.engine.removeItem(this._createValidKey(key));
   };
-
   /**
   * Ensure the key is valid
   */
 
-  Store$1.prototype._createValidKey = function(key) {
+
+  Store$1.prototype._createValidKey = function (key) {
     var name = this.name;
     var id = this.id;
+    if (!keys_1(this.keys).length) return [name, id, key].join('.'); // validate and return undefined if invalid key
 
-    if (!keys_1(this.keys).length) return [name, id, key].join('.');
-
-    // validate and return undefined if invalid key
     var compoundKey;
-    each_1(function(value) {
+    each_1(function (value) {
       if (value === key) {
         compoundKey = [name, id, key].join('.');
       }
     }, this.keys);
     return compoundKey;
   };
-
   /**
   * Switch to inMemoryEngine, bringing any existing data with.
   */
 
-  Store$1.prototype._swapEngine = function() {
-    var self = this;
 
-    // grab existing data, but only for this page's queue instance, not all
+  Store$1.prototype._swapEngine = function () {
+    var self = this; // grab existing data, but only for this page's queue instance, not all
     // better to keep other queues in localstorage to be flushed later
     // than to pull them into memory and remove them from durable storage
-    each_1(function(key) {
+
+    each_1(function (key) {
       var value = self.get(key);
       inMemoryEngine$1.setItem([self.name, self.id, key].join('.'), value);
       self.remove(key);
     }, this.keys);
-
     this.engine = inMemoryEngine$1;
   };
 
@@ -9951,35 +13607,38 @@ var rudderanalytics = (function (exports) {
 
   function isQuotaExceeded(e) {
     var quotaExceeded = false;
+
     if (e.code) {
       switch (e.code) {
-      case 22:
-        quotaExceeded = true;
-        break;
-      case 1014:
-        // Firefox
-        if (e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+        case 22:
           quotaExceeded = true;
-        }
-        break;
+          break;
+
+        case 1014:
+          // Firefox
+          if (e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+            quotaExceeded = true;
+          }
+
+          break;
       }
     } else if (e.number === -2147024882) {
       // Internet Explorer 8
       quotaExceeded = true;
     }
+
     return quotaExceeded;
   }
 
   var defaultClock = {
-    setTimeout: function(fn, ms) {
+    setTimeout: function setTimeout(fn, ms) {
       return window.setTimeout(fn, ms);
     },
-    clearTimeout: function(id) {
+    clearTimeout: function clearTimeout(id) {
       return window.clearTimeout(id);
     },
     Date: window.Date
   };
-
   var clock = defaultClock;
 
   function Schedule() {
@@ -9987,41 +13646,41 @@ var rudderanalytics = (function (exports) {
     this.nextId = 1;
   }
 
-  Schedule.prototype.now = function() {
+  Schedule.prototype.now = function () {
     return +new clock.Date();
   };
 
-  Schedule.prototype.run = function(task, timeout) {
+  Schedule.prototype.run = function (task, timeout) {
     var id = this.nextId++;
     this.tasks[id] = clock.setTimeout(this._handle(id, task), timeout);
     return id;
   };
 
-  Schedule.prototype.cancel = function(id) {
+  Schedule.prototype.cancel = function (id) {
     if (this.tasks[id]) {
       clock.clearTimeout(this.tasks[id]);
       delete this.tasks[id];
     }
   };
 
-  Schedule.prototype.cancelAll = function() {
+  Schedule.prototype.cancelAll = function () {
     each_1(clock.clearTimeout, this.tasks);
     this.tasks = {};
   };
 
-  Schedule.prototype._handle = function(id, callback) {
+  Schedule.prototype._handle = function (id, callback) {
     var self = this;
-    return function() {
+    return function () {
       delete self.tasks[id];
       return callback();
     };
   };
 
-  Schedule.setClock = function(newClock) {
+  Schedule.setClock = function (newClock) {
     clock = newClock;
   };
 
-  Schedule.resetClock = function() {
+  Schedule.resetClock = function () {
     clock = defaultClock;
   };
 
@@ -10030,9 +13689,7 @@ var rudderanalytics = (function (exports) {
   /**
    * Expose `debug()` as the module.
    */
-
   var debug_1$2 = debug$2;
-
   /**
    * Create a debugger with the given `name`.
    *
@@ -10042,35 +13699,25 @@ var rudderanalytics = (function (exports) {
    */
 
   function debug$2(name) {
-    if (!debug$2.enabled(name)) return function(){};
-
-    return function(fmt){
+    if (!debug$2.enabled(name)) return function () {};
+    return function (fmt) {
       fmt = coerce(fmt);
-
-      var curr = new Date;
+      var curr = new Date();
       var ms = curr - (debug$2[name] || curr);
       debug$2[name] = curr;
-
-      fmt = name
-        + ' '
-        + fmt
-        + ' +' + debug$2.humanize(ms);
-
-      // This hackery is required for IE8
+      fmt = name + ' ' + fmt + ' +' + debug$2.humanize(ms); // This hackery is required for IE8
       // where `console.log` doesn't have 'apply'
-      window.console
-        && console.log
-        && Function.prototype.apply.call(console.log, console, arguments);
-    }
-  }
 
+      window.console && console.log && Function.prototype.apply.call(console.log, console, arguments);
+    };
+  }
   /**
    * The currently active debug mode names.
    */
 
+
   debug$2.names = [];
   debug$2.skips = [];
-
   /**
    * Enables a debug mode by name. This can include modes
    * separated by a colon and wildcards.
@@ -10079,35 +13726,34 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  debug$2.enable = function(name) {
+  debug$2.enable = function (name) {
     try {
       localStorage.debug = name;
-    } catch(e){}
+    } catch (e) {}
 
-    var split = (name || '').split(/[\s,]+/)
-      , len = split.length;
+    var split = (name || '').split(/[\s,]+/),
+        len = split.length;
 
     for (var i = 0; i < len; i++) {
       name = split[i].replace('*', '.*?');
+
       if (name[0] === '-') {
         debug$2.skips.push(new RegExp('^' + name.substr(1) + '$'));
-      }
-      else {
+      } else {
         debug$2.names.push(new RegExp('^' + name + '$'));
       }
     }
   };
-
   /**
    * Disable debug output.
    *
    * @api public
    */
 
-  debug$2.disable = function(){
+
+  debug$2.disable = function () {
     debug$2.enable('');
   };
-
   /**
    * Humanize the given `ms`.
    *
@@ -10116,17 +13762,16 @@ var rudderanalytics = (function (exports) {
    * @api private
    */
 
-  debug$2.humanize = function(ms) {
-    var sec = 1000
-      , min = 60 * 1000
-      , hour = 60 * min;
 
+  debug$2.humanize = function (ms) {
+    var sec = 1000,
+        min = 60 * 1000,
+        hour = 60 * min;
     if (ms >= hour) return (ms / hour).toFixed(1) + 'h';
     if (ms >= min) return (ms / min).toFixed(1) + 'm';
     if (ms >= sec) return (ms / sec | 0) + 's';
     return ms + 'ms';
   };
-
   /**
    * Returns true if the given mode name is enabled, false otherwise.
    *
@@ -10135,49 +13780,45 @@ var rudderanalytics = (function (exports) {
    * @api public
    */
 
-  debug$2.enabled = function(name) {
+
+  debug$2.enabled = function (name) {
     for (var i = 0, len = debug$2.skips.length; i < len; i++) {
       if (debug$2.skips[i].test(name)) {
         return false;
       }
     }
+
     for (var i = 0, len = debug$2.names.length; i < len; i++) {
       if (debug$2.names[i].test(name)) {
         return true;
       }
     }
+
     return false;
   };
-
   /**
    * Coerce `val`.
    */
 
+
   function coerce(val) {
     if (val instanceof Error) return val.stack || val.message;
     return val;
-  }
+  } // persist
 
-  // persist
 
   try {
     if (window.localStorage) debug$2.enable(localStorage.debug);
-  } catch(e){}
+  } catch (e) {}
 
   var uuid$2 = uuid_1.v4;
+  var debug$3 = debug_1$2('localstorage-retry'); // Some browsers don't support Function.prototype.bind, so just including a simplified version here
 
-
-
-  var debug$3 = debug_1$2('localstorage-retry');
-
-
-  // Some browsers don't support Function.prototype.bind, so just including a simplified version here
   function bind(func, obj) {
-    return function() {
+    return function () {
       return func.apply(obj, arguments);
     };
   }
-
   /**
    * @callback processFunc
    * @param {Mixed} item The item added to the queue to process
@@ -10193,6 +13834,8 @@ var rudderanalytics = (function (exports) {
    * @param {String} name The name of the queue. Will be used to find abandoned queues and retry their items
    * @param {processFunc} fn The function to call in order to process an item added to the queue
    */
+
+
   function Queue(name, opts, fn) {
     if (typeof opts === 'function') fn = opts;
     this.name = name;
@@ -10200,73 +13843,74 @@ var rudderanalytics = (function (exports) {
     this.fn = fn;
     this.maxItems = opts.maxItems || Infinity;
     this.maxAttempts = opts.maxAttempts || Infinity;
-
     this.backoff = {
       MIN_RETRY_DELAY: opts.minRetryDelay || 1000,
       MAX_RETRY_DELAY: opts.maxRetryDelay || 30000,
       FACTOR: opts.backoffFactor || 2,
       JITTER: opts.backoffJitter || 0
-    };
+    }; // painstakingly tuned. that's why they're not "easily" configurable
 
-    // painstakingly tuned. that's why they're not "easily" configurable
     this.timeouts = {
       ACK_TIMER: 1000,
       RECLAIM_TIMER: 3000,
       RECLAIM_TIMEOUT: 10000,
       RECLAIM_WAIT: 500
     };
-
     this.keys = {
       IN_PROGRESS: 'inProgress',
       QUEUE: 'queue',
-      ACK: 'ack',
       RECLAIM_START: 'reclaimStart',
-      RECLAIM_END: 'reclaimEnd'
+      RECLAIM_END: 'reclaimEnd',
+      ACK: 'ack'
     };
-
     this._schedule = new schedule();
-    this._processId = 0;
+    this._processId = 0; // Set up our empty queues
 
-    // Set up our empty queues
     this._store = new store$1(this.name, this.id, this.keys);
-    this._store.set(this.keys.IN_PROGRESS, {});
-    this._store.set(this.keys.QUEUE, []);
 
-    // bind recurring tasks for ease of use
+    this._store.set(this.keys.IN_PROGRESS, {});
+
+    this._store.set(this.keys.QUEUE, []); // bind recurring tasks for ease of use
+
+
     this._ack = bind(this._ack, this);
     this._checkReclaim = bind(this._checkReclaim, this);
     this._processHead = bind(this._processHead, this);
-
     this._running = false;
   }
-
   /**
    * Mix in event emitter
    */
 
-  componentEmitter(Queue.prototype);
 
+  componentEmitter(Queue.prototype);
   /**
    * Starts processing the queue
    */
-  Queue.prototype.start = function() {
+
+  Queue.prototype.start = function () {
     if (this._running) {
       this.stop();
     }
+
     this._running = true;
+
     this._ack();
+
     this._checkReclaim();
+
     this._processHead();
   };
-
   /**
    * Stops processing the queue
    */
-  Queue.prototype.stop = function() {
+
+
+  Queue.prototype.stop = function () {
     this._schedule.cancelAll();
+
     this._running = false;
   };
-
   /**
    * Decides whether to retry. Overridable.
    *
@@ -10275,44 +13919,50 @@ var rudderanalytics = (function (exports) {
    * @param {Error} error The error from previous attempt, if there was one
    * @return {Boolean} Whether to requeue the message
    */
-  Queue.prototype.shouldRetry = function(_, attemptNumber) {
+
+
+  Queue.prototype.shouldRetry = function (_, attemptNumber) {
     if (attemptNumber > this.maxAttempts) return false;
     return true;
   };
-
   /**
    * Calculates the delay (in ms) for a retry attempt
    *
    * @param {Number} attemptNumber The attemptNumber (1 for first retry)
    * @return {Number} The delay in milliseconds to wait before attempting a retry
    */
-  Queue.prototype.getDelay = function(attemptNumber) {
+
+
+  Queue.prototype.getDelay = function (attemptNumber) {
     var ms = this.backoff.MIN_RETRY_DELAY * Math.pow(this.backoff.FACTOR, attemptNumber);
+
     if (this.backoff.JITTER) {
-      var rand =  Math.random();
+      var rand = Math.random();
       var deviation = Math.floor(rand * this.backoff.JITTER * ms);
+
       if (Math.floor(rand * 10) < 5) {
         ms -= deviation;
       } else {
         ms += deviation;
       }
     }
+
     return Number(Math.min(ms, this.backoff.MAX_RETRY_DELAY).toPrecision(1));
   };
-
   /**
    * Adds an item to the queue
    *
    * @param {Mixed} item The item to process
    */
-  Queue.prototype.addItem = function(item) {
+
+
+  Queue.prototype.addItem = function (item) {
     this._enqueue({
       item: item,
       attemptNumber: 0,
       time: this._schedule.now()
     });
   };
-
   /**
    * Adds an item to the retry queue
    *
@@ -10320,7 +13970,9 @@ var rudderanalytics = (function (exports) {
    * @param {Number} attemptNumber The attempt number (1 for first retry)
    * @param {Error} [error] The error from previous attempt, if there was one
    */
-  Queue.prototype.requeue = function(item, attemptNumber, error) {
+
+
+  Queue.prototype.requeue = function (item, attemptNumber, error) {
     if (this.shouldRetry(item, attemptNumber, error)) {
       this._enqueue({
         item: item,
@@ -10332,11 +13984,11 @@ var rudderanalytics = (function (exports) {
     }
   };
 
-  Queue.prototype._enqueue = function(entry) {
+  Queue.prototype._enqueue = function (entry) {
     var queue = this._store.get(this.keys.QUEUE) || [];
     queue = queue.slice(-(this.maxItems - 1));
     queue.push(entry);
-    queue = queue.sort(function(a,b) {
+    queue = queue.sort(function (a, b) {
       return a.time - b.time;
     });
 
@@ -10347,17 +13999,18 @@ var rudderanalytics = (function (exports) {
     }
   };
 
-  Queue.prototype._processHead = function() {
+  Queue.prototype._processHead = function () {
     var self = this;
-    var store = this._store;
+    var store = this._store; // cancel the scheduled task if it exists
 
-    // cancel the scheduled task if it exists
-    this._schedule.cancel(this._processId);
+    this._schedule.cancel(this._processId); // Pop the head off the queue
 
-    // Pop the head off the queue
+
     var queue = store.get(this.keys.QUEUE) || [];
     var inProgress = store.get(this.keys.IN_PROGRESS) || {};
+
     var now = this._schedule.now();
+
     var toRun = [];
 
     function enqueue(el, id) {
@@ -10368,6 +14021,7 @@ var rudderanalytics = (function (exports) {
           delete inProgress[id];
           store.set(self.keys.IN_PROGRESS, inProgress);
           self.emit('processed', err, res, el.item);
+
           if (err) {
             self.requeue(el.item, el.attemptNumber + 1, err);
           }
@@ -10379,60 +14033,62 @@ var rudderanalytics = (function (exports) {
 
     while (queue.length && queue[0].time <= now && inProgressSize++ < self.maxItems) {
       var el = queue.shift();
-      var id = uuid$2();
+      var id = uuid$2(); // Save this to the in progress map
 
-      // Save this to the in progress map
       inProgress[id] = {
         item: el.item,
         attemptNumber: el.attemptNumber,
         time: self._schedule.now()
       };
-
       enqueue(el, id);
     }
 
     store.set(this.keys.QUEUE, queue);
     store.set(this.keys.IN_PROGRESS, inProgress);
-
-    each_1(function(el) {
+    each_1(function (el) {
       // TODO: handle fn timeout
       try {
         self.fn(el.item, el.done);
       } catch (err) {
         debug$3('Process function threw error: ' + err);
       }
-    }, toRun);
+    }, toRun); // re-read the queue in case the process function finished immediately or added another item
 
-    // re-read the queue in case the process function finished immediately or added another item
     queue = store.get(this.keys.QUEUE) || [];
+
     this._schedule.cancel(this._processId);
+
     if (queue.length > 0) {
       this._processId = this._schedule.run(this._processHead, queue[0].time - now);
     }
-  };
+  }; // Ack continuously to prevent other tabs from claiming our queue
 
-  // Ack continuously to prevent other tabs from claiming our queue
-  Queue.prototype._ack = function() {
+
+  Queue.prototype._ack = function () {
     this._store.set(this.keys.ACK, this._schedule.now());
+
     this._store.set(this.keys.RECLAIM_START, null);
+
     this._store.set(this.keys.RECLAIM_END, null);
+
     this._schedule.run(this._ack, this.timeouts.ACK_TIMER);
   };
 
-  Queue.prototype._checkReclaim = function() {
+  Queue.prototype._checkReclaim = function () {
     var self = this;
 
     function tryReclaim(store) {
       store.set(self.keys.RECLAIM_START, self.id);
       store.set(self.keys.ACK, self._schedule.now());
 
-      self._schedule.run(function() {
+      self._schedule.run(function () {
         if (store.get(self.keys.RECLAIM_START) !== self.id) return;
         store.set(self.keys.RECLAIM_END, self.id);
 
-        self._schedule.run(function() {
+        self._schedule.run(function () {
           if (store.get(self.keys.RECLAIM_END) !== self.id) return;
           if (store.get(self.keys.RECLAIM_START) !== self.id) return;
+
           self._reclaim(store.id);
         }, self.timeouts.RECLAIM_WAIT);
       }, self.timeouts.RECLAIM_WAIT);
@@ -10440,7 +14096,9 @@ var rudderanalytics = (function (exports) {
 
     function findOtherQueues(name) {
       var res = [];
-      var storage = self._store.engine;
+
+      var storage = self._store.getOriginalEngine();
+
       for (var i = 0; i < storage.length; i++) {
         var k = storage.key(i);
         var parts = k.split('.');
@@ -10449,10 +14107,11 @@ var rudderanalytics = (function (exports) {
         if (parts[2] !== 'ack') continue;
         res.push(new store$1(name, parts[1], self.keys));
       }
+
       return res;
     }
 
-    each_1(function(store) {
+    each_1(function (store) {
       if (store.id === self.id) return;
       if (self._schedule.now() - store.get(self.keys.ACK) < self.timeouts.RECLAIM_TIMEOUT) return;
       tryReclaim(store);
@@ -10461,51 +14120,45 @@ var rudderanalytics = (function (exports) {
     this._schedule.run(this._checkReclaim, this.timeouts.RECLAIM_TIMER);
   };
 
-  Queue.prototype._reclaim = function(id) {
+  Queue.prototype._reclaim = function (id) {
     var self = this;
     var other = new store$1(this.name, id, this.keys);
-
     var our = {
       queue: this._store.get(this.keys.QUEUE) || []
     };
-
     var their = {
       inProgress: other.get(this.keys.IN_PROGRESS) || {},
       queue: other.get(this.keys.QUEUE) || []
-    };
+    }; // add their queue to ours, resetting run-time to immediate and copying the attempt#
 
-    // add their queue to ours, resetting run-time to immediate and copying the attempt#
-    each_1(function(el) {
+    each_1(function (el) {
       our.queue.push({
         item: el.item,
         attemptNumber: el.attemptNumber,
         time: self._schedule.now()
       });
-    }, their.queue);
+    }, their.queue); // if the queue is abandoned, all the in-progress are failed. retry them immediately and increment the attempt#
 
-    // if the queue is abandoned, all the in-progress are failed. retry them immediately and increment the attempt#
-    each_1(function(el) {
+    each_1(function (el) {
       our.queue.push({
         item: el.item,
         attemptNumber: el.attemptNumber + 1,
         time: self._schedule.now()
       });
     }, their.inProgress);
-
-    our.queue = our.queue.sort(function(a,b) {
+    our.queue = our.queue.sort(function (a, b) {
       return a.time - b.time;
     });
 
-    this._store.set(this.keys.QUEUE, our.queue);
+    this._store.set(this.keys.QUEUE, our.queue); // remove all keys
 
-    // remove all keys
-    other.remove(this.keys.ACK);
-    other.remove(this.keys.RECLAIM_START);
-    other.remove(this.keys.RECLAIM_END);
+
     other.remove(this.keys.IN_PROGRESS);
     other.remove(this.keys.QUEUE);
+    other.remove(this.keys.RECLAIM_START);
+    other.remove(this.keys.RECLAIM_END);
+    other.remove(this.keys.ACK); // process the new items we claimed
 
-    // process the new items we claimed
     this._processHead();
   };
 
@@ -10545,7 +14198,7 @@ var rudderanalytics = (function (exports) {
 
       this.eventsBuffer = [];
       this.writeKey = "";
-      this.url = BASE_URL;
+      this.url = "";
       this.state = "READY";
       this.batchSize = 0; // previous implementation
       // setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
@@ -10781,10 +14434,69 @@ var rudderanalytics = (function (exports) {
 
   function isTextNode(el) {
     return el && el.nodeType === 3; // Node.TEXT_NODE - use integer constant for browser portability
-  }
+  } // excerpt from https://github.com/mixpanel/mixpanel-js/blob/master/src/autotrack-utils.js
+
 
   function shouldTrackElement(el) {
     if (!el.parentNode || isTag(el, "body")) return false;
+    var curEl = el;
+
+    while (curEl.parentNode && !isTag(curEl, "body")) {
+      var _classes = getClassName(el).split(" "); // if explicitly specified "rudder-no-track", even at parent level, dont track the child nodes too.
+
+
+      if (_classes.indexOf("rudder-no-track") >= 0) {
+        return false;
+      }
+
+      curEl = curEl.parentNode;
+    } // if explicitly set "rudder-include", at element level, then track the element even if the element is hidden or sensitive.
+
+
+    var classes = getClassName(el).split(" ");
+
+    if (classes.indexOf("rudder-include") >= 0) {
+      return true;
+    } // for general elements, do not track input/select/textarea(s)
+
+
+    if (isTag(el, 'input') || isTag(el, 'select') || isTag(el, 'textarea') || el.getAttribute('contenteditable') === 'true') {
+      return false;
+    } else if (el.getAttribute('contenteditable') === 'inherit') {
+      for (curEl = el.parentNode; curEl.parentNode && !isTag(curEl, "body"); curEl = curEl.parentNode) {
+        if (curEl.getAttribute('contenteditable') === 'true') {
+          return false;
+        }
+      }
+    } // do not track hidden/password elements
+
+
+    var type = el.type || '';
+
+    if (typeof type === 'string') {
+      // it's possible for el.type to be a DOM element if el is a form with a child input[name="type"]
+      switch (type.toLowerCase()) {
+        case 'hidden':
+          return false;
+
+        case 'password':
+          return false;
+      }
+    } // filter out data from fields that look like sensitive field - 
+    // safeguard - match with regex with possible strings as id or name of an element for creditcard, password, ssn, pan, adhar
+
+
+    var name = el.name || el.id || '';
+
+    if (typeof name === 'string') {
+      // it's possible for el.name or el.id to be a DOM element if el is a form with a child input[name="name"]
+      var sensitiveNameRegex = /^adhar|cc|cardnum|ccnum|creditcard|csc|cvc|cvv|exp|pan|pass|pwd|routing|seccode|securitycode|securitynum|socialsec|socsec|ssn/i;
+
+      if (sensitiveNameRegex.test(name.replace(/[^a-zA-Z0-9]/g, ''))) {
+        return false;
+      }
+    }
+
     return true;
   }
 
@@ -10818,7 +14530,7 @@ var rudderanalytics = (function (exports) {
         for (var i = 0; i < target.elements.length; i++) {
           var formElement = target.elements[i];
 
-          if (isElToBeTracked(formElement) && isElValueToBeTracked(formElement, rudderanalytics.trackValues)) {
+          if (shouldTrackElement(formElement) && isValueToBeTrackedFromTrackingList(formElement, rudderanalytics.trackValues)) {
             var name = formElement.id ? formElement.id : formElement.name;
 
             if (name && typeof name === "string") {
@@ -10838,38 +14550,40 @@ var rudderanalytics = (function (exports) {
         }
       }
 
-      var targetElementList = [target];
+      var targetElementList = [];
       var curEl = target;
 
+      if (isExplicitNoTrack(curEl)) {
+        return false;
+      }
+
       while (curEl.parentNode && !isTag(curEl, "body")) {
-        targetElementList.push(curEl.parentNode);
+        if (shouldTrackElement(curEl)) {
+          targetElementList.push(curEl);
+        }
+
         curEl = curEl.parentNode;
       }
 
       var elementsJson = [];
       var href;
-      var explicitNoTrack = false;
       targetElementList.forEach(function (el) {
-        var shouldTrackEl = shouldTrackElement(el); // if the element or a parent element is an anchor tag
+        // if the element or a parent element is an anchor tag
         // include the href as a property
-
         if (el.tagName.toLowerCase() === "a") {
           href = el.getAttribute("href");
-          href = shouldTrackEl && href;
-        } // allow users to programatically prevent tracking of elements by adding class 'rudder-no-track'
-
-
-        explicitNoTrack = explicitNoTrack || !isElToBeTracked(el); // explicitNoTrack = !isElToBeTracked(el);
+          href = isValueToBeTracked(href) && href;
+        }
 
         elementsJson.push(getPropertiesFromElement(el, rudderanalytics));
       });
 
-      if (explicitNoTrack) {
+      if (targetElementList && targetElementList.length == 0) {
         return false;
       }
 
       var elementText = "";
-      var text = getText(target); // target.innerText//target.textContent//getSafeText(target);
+      var text = getText(target);
 
       if (text && text.length) {
         elementText = text;
@@ -10893,7 +14607,65 @@ var rudderanalytics = (function (exports) {
     }
   }
 
-  function isElValueToBeTracked(el, includeList) {
+  function isExplicitNoTrack(el) {
+    var classes = getClassName(el).split(" ");
+
+    if (classes.indexOf("rudder-no-track") >= 0) {
+      return true;
+    }
+
+    return false;
+  } // excerpt from https://github.com/mixpanel/mixpanel-js/blob/master/src/autotrack-utils.js
+
+
+  function isValueToBeTracked(value) {
+    if (value === null || value === undefined) {
+      return false;
+    }
+
+    if (typeof value === 'string') {
+      value = value.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, ''); // check to see if input value looks like a credit card number
+      // see: https://www.safaribooksonline.com/library/view/regular-expressions-cookbook/9781449327453/ch04s20.html
+
+      var ccRegex = /^(?:(4[0-9]{12}(?:[0-9]{3})?)|(5[1-5][0-9]{14})|(6(?:011|5[0-9]{2})[0-9]{12})|(3[47][0-9]{13})|(3(?:0[0-5]|[68][0-9])[0-9]{11})|((?:2131|1800|35[0-9]{3})[0-9]{11}))$/;
+
+      if (ccRegex.test((value || '').replace(/[- ]/g, ''))) {
+        return false;
+      } // check to see if input value looks like a social security number
+
+
+      var ssnRegex = /(^\d{3}-?\d{2}-?\d{4}$)/;
+
+      if (ssnRegex.test(value)) {
+        return false;
+      } // check to see if input value looks like a adhar number
+
+
+      var adharRegex = /(^\d{4}-?\d{4}-?\d{4}$)/;
+
+      if (adharRegex.test(value)) {
+        return false;
+      } // check to see if input value looks like a PAN number
+
+
+      var panRegex = /(^\w{5}-?\d{4}-?\w{1}$)/;
+
+      if (panRegex.test(value)) {
+        return false;
+      }
+    }
+
+    return true;
+  } // if the element name is provided in the valTrackingList while loading rudderanalytics, track the value.
+
+  /**
+   * 
+   * @param {*} el 
+   * @param {*} includeList - valTrackingList provided in rudderanalytics.load()
+   */
+
+
+  function isValueToBeTrackedFromTrackingList(el, includeList) {
     var elAttributesLength = el.attributes.length;
 
     for (var i = 0; i < elAttributesLength; i++) {
@@ -10907,21 +14679,14 @@ var rudderanalytics = (function (exports) {
     return false;
   }
 
-  function isElToBeTracked(el) {
-    var classes = getClassName(el).split(" ");
-
-    if (classes.indexOf("rudder-no-track") >= 0) {
-      return false;
-    }
-
-    return true;
-  }
-
   function getText(el) {
     var text = "";
     el.childNodes.forEach(function (value) {
       if (value.nodeType === Node.TEXT_NODE) {
-        text += value.nodeValue;
+        var textContent = value.nodeValue.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, ''); // take each word from the text content and check whether the value should be tracked. Also, replace the whitespaces.
+
+        var textValue = textContent.split(/(\s+)/).filter(isValueToBeTracked).join('').replace(/[\r\n]/g, ' ');
+        text += textValue;
       }
     });
     return text.trim();
@@ -10938,11 +14703,11 @@ var rudderanalytics = (function (exports) {
       var name = elem.attributes[i].name;
       var value = elem.attributes[i].value;
 
-      if (value) {
+      if (value && isValueToBeTracked(value)) {
         props["attr__".concat(name)] = value;
       }
 
-      if ((name == "name" || name == "id") && isElValueToBeTracked(elem, rudderanalytics.trackValues)) {
+      if ((name == "name" || name == "id") && isValueToBeTrackedFromTrackingList(elem, rudderanalytics.trackValues)) {
         props.field_value = name == "id" ? document.getElementById(value).value : document.getElementsByName(value)[0].value;
 
         if (elem.type === "checkbox" || elem.type === "radio") {
@@ -10979,6 +14744,11 @@ var rudderanalytics = (function (exports) {
 
     return el;
   }
+
+  var queryDefaults = {
+    trait: "ajs_trait_",
+    prop: "ajs_prop_"
+  }; // https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
 
   /**
    * Add the rudderelement object to flush queue
@@ -11020,12 +14790,6 @@ var rudderanalytics = (function (exports) {
       this.toBeProcessedArray = [];
       this.toBeProcessedByIntegrationArray = [];
       this.storage = Storage$1;
-      this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
-      this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
-      this.groupId = this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
-      this.groupTraits = this.storage.getGroupTraits() != undefined ? this.storage.getGroupTraits() : {};
-      this.anonymousId = this.getAnonymousId();
-      this.storage.setUserId(this.userId);
       this.eventRepository = eventRepository;
       this.sendAdblockPage = false;
       this.sendAdblockPageOptions = {};
@@ -11037,18 +14801,38 @@ var rudderanalytics = (function (exports) {
       this.methodToCallbackMapping = {
         syncPixel: "syncPixelCallback"
       };
+      this.loaded = false;
     }
     /**
-     * Process the response from control plane and
-     * call initialize for integrations
-     *
-     * @param {*} status
-     * @param {*} response
-     * @memberof Analytics
+     * initialize the user after load config
      */
 
 
     _createClass(Analytics, [{
+      key: "initializeUser",
+      value: function initializeUser() {
+        this.userId = this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
+        this.userTraits = this.storage.getUserTraits() != undefined ? this.storage.getUserTraits() : {};
+        this.groupId = this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
+        this.groupTraits = this.storage.getGroupTraits() != undefined ? this.storage.getGroupTraits() : {};
+        this.anonymousId = this.getAnonymousId(); // save once for storing older values to encrypted
+
+        this.storage.setUserId(this.userId);
+        this.storage.setAnonymousId(this.anonymousId);
+        this.storage.setGroupId(this.groupId);
+        this.storage.setUserTraits(this.userTraits);
+        this.storage.setGroupTraits(this.groupTraits);
+      }
+      /**
+       * Process the response from control plane and
+       * call initialize for integrations
+       *
+       * @param {*} status
+       * @param {*} response
+       * @memberof Analytics
+       */
+
+    }, {
       key: "processResponse",
       value: function processResponse(status, response) {
         try {
@@ -11071,7 +14855,7 @@ var rudderanalytics = (function (exports) {
               });
             }
           }, this);
-          console.log("this.clientIntegrations: ", this.clientIntegrations); // intersection of config-plane native sdk destinations with sdk load time destination list
+          logger.debug("this.clientIntegrations: ", this.clientIntegrations); // intersection of config-plane native sdk destinations with sdk load time destination list
 
           this.clientIntegrations = findAllEnabledDestinations(this.loadOnlyIntegrations, this.clientIntegrations); // remove from the list which don't have support yet in SDK
 
@@ -11130,13 +14914,16 @@ var rudderanalytics = (function (exports) {
             logger.error("[Analytics] initialize integration (integration.init()) failed :: ", intg.name);
           }
         });
-      }
+      } // eslint-disable-next-line class-methods-use-this
+
     }, {
       key: "replayEvents",
       value: function replayEvents(object) {
-        if (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length == object.clientIntegrations.length && object.toBeProcessedByIntegrationArray.length > 0) {
-          logger.debug("===replay events called====", object.successfullyLoadedIntegration.length, object.failedToBeLoadedIntegration.length);
-          object.clientIntegrationObjects = [];
+        if (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length === object.clientIntegrations.length) {
+          logger.debug("===replay events called====", object.successfullyLoadedIntegration.length, object.failedToBeLoadedIntegration.length); // eslint-disable-next-line no-param-reassign
+
+          object.clientIntegrationObjects = []; // eslint-disable-next-line no-param-reassign
+
           object.clientIntegrationObjects = object.successfullyLoadedIntegration;
           logger.debug("==registering after callback===", object.clientIntegrationObjects.length);
           object.executeReadyCallback = after_1(object.clientIntegrationObjects.length, object.readyCallback);
@@ -11149,37 +14936,40 @@ var rudderanalytics = (function (exports) {
               logger.debug("===letting know I am ready=====", intg.name);
               object.emit("ready");
             }
-          }); // send the queued events to the fetched integration
-
-          object.toBeProcessedByIntegrationArray.forEach(function (event) {
-            var methodName = event[0];
-            event.shift(); // convert common names to sdk identified name
-
-            if (Object.keys(event[0].message.integrations).length > 0) {
-              tranformToRudderNames(event[0].message.integrations);
-            } // if not specified at event level, All: true is default
-
-
-            var clientSuppliedIntegrations = event[0].message.integrations; // get intersection between config plane native enabled destinations
-            // (which were able to successfully load on the page) vs user supplied integrations
-
-            var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(clientSuppliedIntegrations, object.clientIntegrationObjects); // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-
-            for (var i = 0; i < succesfulLoadedIntersectClientSuppliedIntegrations.length; i++) {
-              try {
-                if (!succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed || !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()) {
-                  if (succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
-                    var _succesfulLoadedInter;
-
-                    (_succesfulLoadedInter = succesfulLoadedIntersectClientSuppliedIntegrations[i])[methodName].apply(_succesfulLoadedInter, _toConsumableArray(event));
-                  }
-                }
-              } catch (error) {
-                handleError(error);
-              }
-            }
           });
-          object.toBeProcessedByIntegrationArray = [];
+
+          if (object.toBeProcessedByIntegrationArray.length > 0) {
+            // send the queued events to the fetched integration
+            object.toBeProcessedByIntegrationArray.forEach(function (event) {
+              var methodName = event[0];
+              event.shift(); // convert common names to sdk identified name
+
+              if (Object.keys(event[0].message.integrations).length > 0) {
+                tranformToRudderNames(event[0].message.integrations);
+              } // if not specified at event level, All: true is default
+
+
+              var clientSuppliedIntegrations = event[0].message.integrations; // get intersection between config plane native enabled destinations
+              // (which were able to successfully load on the page) vs user supplied integrations
+
+              var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(clientSuppliedIntegrations, object.clientIntegrationObjects); // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
+
+              for (var i = 0; i < succesfulLoadedIntersectClientSuppliedIntegrations.length; i += 1) {
+                try {
+                  if (!succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed || !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()) {
+                    if (succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
+                      var _succesfulLoadedInter;
+
+                      (_succesfulLoadedInter = succesfulLoadedIntersectClientSuppliedIntegrations[i])[methodName].apply(_succesfulLoadedInter, _toConsumableArray(event));
+                    }
+                  }
+                } catch (error) {
+                  handleError(error);
+                }
+              }
+            });
+            object.toBeProcessedByIntegrationArray = [];
+          }
         }
       }
     }, {
@@ -11232,11 +15022,12 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "page",
       value: function page(category, name, properties, options, callback) {
+        if (!this.loaded) return;
         if (typeof options === "function") callback = options, options = null;
         if (typeof properties === "function") callback = properties, options = properties = null;
         if (typeof name === "function") callback = name, options = properties = name = null;
-        if (_typeof(category) === "object") options = name, properties = category, name = category = null;
-        if (_typeof(name) === "object") options = properties, properties = name, name = null;
+        if (_typeof(category) === "object" && category != null && category != undefined) options = name, properties = category, name = category = null;
+        if (_typeof(name) === "object" && name != null && name != undefined) options = properties, properties = name, name = null;
         if (typeof category === "string" && typeof name !== "string") name = category, category = null;
 
         if (this.sendAdblockPage && category != "RudderJS-Initiated") {
@@ -11258,6 +15049,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "track",
       value: function track(event, properties, options, callback) {
+        if (!this.loaded) return;
         if (typeof options === "function") callback = options, options = null;
         if (typeof properties === "function") callback = properties, options = null, properties = null;
         this.processTrack(event, properties, options, callback);
@@ -11275,6 +15067,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "identify",
       value: function identify(userId, traits, options, callback) {
+        if (!this.loaded) return;
         if (typeof options === "function") callback = options, options = null;
         if (typeof traits === "function") callback = traits, options = null, traits = null;
         if (_typeof(userId) === "object") options = traits, traits = userId, userId = this.userId;
@@ -11291,6 +15084,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "alias",
       value: function alias(to, from, options, callback) {
+        if (!this.loaded) return;
         if (typeof options === "function") callback = options, options = null;
         if (typeof from === "function") callback = from, options = null, from = null;
         if (_typeof(from) === "object") options = from, from = null;
@@ -11310,6 +15104,7 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "group",
       value: function group(groupId, traits, options, callback) {
+        if (!this.loaded) return;
         if (!arguments.length) return;
         if (typeof options === "function") callback = options, options = null;
         if (typeof traits === "function") callback = traits, options = null, traits = null;
@@ -11345,21 +15140,21 @@ var rudderanalytics = (function (exports) {
       value: function processPage(category, name, properties, options, callback) {
         var rudderElement = new RudderElementBuilder().setType("page").build();
 
-        if (name) {
-          rudderElement.message.name = name;
-        }
-
         if (!properties) {
           properties = {};
         }
 
+        if (name) {
+          rudderElement.message.name = name;
+          properties.name = name;
+        }
+
         if (category) {
+          rudderElement.message.category = category;
           properties.category = category;
         }
 
-        if (properties) {
-          rudderElement.message.properties = this.getPageProperties(properties); // properties;
-        }
+        rudderElement.message.properties = this.getPageProperties(properties); // properties;
 
         this.trackPage(rudderElement, options, callback);
       }
@@ -11486,9 +15281,9 @@ var rudderanalytics = (function (exports) {
           if (!this.anonymousId) {
             this.setAnonymousId();
           } // assign page properties to context
+          // rudderElement.message.context.page = getDefaultPageProperties();
 
 
-          rudderElement.message.context.page = getDefaultPageProperties();
           rudderElement.message.context.traits = _objectSpread2({}, this.userTraits);
           logger.debug("anonymousId: ", this.anonymousId);
           rudderElement.message.anonymousId = this.anonymousId;
@@ -11504,10 +15299,7 @@ var rudderanalytics = (function (exports) {
             }
           }
 
-          if (options) {
-            this.processOptionsParam(rudderElement, options);
-          }
-
+          this.processOptionsParam(rudderElement, options);
           logger.debug(JSON.stringify(rudderElement)); // structure user supplied integrations object to rudder format
 
           if (Object.keys(rudderElement.message.integrations).length > 0) {
@@ -11520,14 +15312,21 @@ var rudderanalytics = (function (exports) {
 
           var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(clientSuppliedIntegrations, this.clientIntegrationObjects); // try to first send to all integrations, if list populated from BE
 
-          succesfulLoadedIntersectClientSuppliedIntegrations.forEach(function (obj) {
-            if (!obj.isFailed || !obj.isFailed()) {
-              if (obj[type]) {
-                obj[type](rudderElement);
+          try {
+            succesfulLoadedIntersectClientSuppliedIntegrations.forEach(function (obj) {
+              if (!obj.isFailed || !obj.isFailed()) {
+                if (obj[type]) {
+                  obj[type](rudderElement);
+                }
               }
-            }
-          }); // config plane native enabled destinations, still not completely loaded
+            });
+          } catch (err) {
+            handleError({
+              message: "[sendToNative]:".concat(err)
+            });
+          } // config plane native enabled destinations, still not completely loaded
           // in the page, add the events to a queue and process later
+
 
           if (!this.clientIntegrationObjects) {
             logger.debug("pushing in replay queue"); // new event processing after analytics initialized  but integrations not fetched from BE
@@ -11559,6 +15358,9 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "processOptionsParam",
       value: function processOptionsParam(rudderElement, options) {
+        var _rudderElement$messag = rudderElement.message,
+            type = _rudderElement$messag.type,
+            properties = _rudderElement$messag.properties;
         var toplevelElements = ["integrations", "anonymousId", "originalTimestamp"];
 
         for (var key in options) {
@@ -11573,20 +15375,39 @@ var rudderanalytics = (function (exports) {
               rudderElement.message.context[k] = options[key][k];
             }
           }
-        }
+        } // assign page properties to context.page
+
+
+        rudderElement.message.context.page = type == "page" ? this.getContextPageProperties(options, properties) : this.getContextPageProperties(options);
       }
     }, {
       key: "getPageProperties",
-      value: function getPageProperties(properties) {
+      value: function getPageProperties(properties, options) {
         var defaultPageProperties = getDefaultPageProperties();
+        var optionPageProperties = options && options.page ? options.page : {};
 
         for (var key in defaultPageProperties) {
           if (properties[key] === undefined) {
-            properties[key] = defaultPageProperties[key];
+            properties[key] = optionPageProperties[key] || defaultPageProperties[key];
           }
         }
 
         return properties;
+      } // Assign page properties to context.page if the same property is not provided under context.page
+
+    }, {
+      key: "getContextPageProperties",
+      value: function getContextPageProperties(options, properties) {
+        var defaultPageProperties = getDefaultPageProperties();
+        var contextPageProperties = options && options.page ? options.page : {};
+
+        for (var key in defaultPageProperties) {
+          if (contextPageProperties[key] === undefined) {
+            contextPageProperties[key] = properties && properties[key] ? properties[key] : defaultPageProperties[key];
+          }
+        }
+
+        return contextPageProperties;
       }
       /**
        * Clear user information
@@ -11597,13 +15418,17 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "reset",
       value: function reset() {
+        if (!this.loaded) return;
         this.userId = "";
         this.userTraits = {};
+        this.groupId = "";
+        this.groupTraits = {};
         this.storage.clear();
       }
     }, {
       key: "getAnonymousId",
       value: function getAnonymousId() {
+        // if (!this.loaded) return;
         this.anonymousId = this.storage.getAnonymousId();
 
         if (!this.anonymousId) {
@@ -11615,8 +15440,27 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "setAnonymousId",
       value: function setAnonymousId(anonymousId) {
+        // if (!this.loaded) return;
         this.anonymousId = anonymousId || generateUUID();
         this.storage.setAnonymousId(this.anonymousId);
+      }
+    }, {
+      key: "isValidWriteKey",
+      value: function isValidWriteKey(writeKey) {
+        if (!writeKey || typeof writeKey !== "string" || writeKey.trim().length == 0) {
+          return false;
+        }
+
+        return true;
+      }
+    }, {
+      key: "isValidServerUrl",
+      value: function isValidServerUrl(serverUrl) {
+        if (!serverUrl || typeof serverUrl !== "string" || serverUrl.trim().length == 0) {
+          return false;
+        }
+
+        return true;
       }
       /**
        * Call control pane to get client configs
@@ -11631,9 +15475,10 @@ var rudderanalytics = (function (exports) {
         var _this3 = this;
 
         logger.debug("inside load ");
+        if (this.loaded) return;
         var configUrl = CONFIG_URL;
 
-        if (!writeKey || !serverUrl || serverUrl.length == 0) {
+        if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
           handleError({
             message: "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
           });
@@ -11650,7 +15495,7 @@ var rudderanalytics = (function (exports) {
         }
 
         if (options && options.configUrl) {
-          configUrl = options.configUrl;
+          configUrl = getUserProvidedConfigUrl(options.configUrl);
         }
 
         if (options && options.sendAdblockPage) {
@@ -11683,6 +15528,9 @@ var rudderanalytics = (function (exports) {
           this.eventRepository.url = serverUrl;
         }
 
+        this.initializeUser();
+        this.loaded = true;
+
         if (options && options.valTrackingList && options.valTrackingList.push == Array.prototype.push) {
           this.trackValues = options.valTrackingList;
         }
@@ -11703,13 +15551,15 @@ var rudderanalytics = (function (exports) {
           handleError(error);
 
           if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-            addDomEventHandlers(instance);
+            addDomEventHandlers(this);
           }
         }
       }
     }, {
       key: "ready",
       value: function ready(callback) {
+        if (!this.loaded) return;
+
         if (typeof callback === "function") {
           this.readyCallback = callback;
           return;
@@ -11767,10 +15617,75 @@ var rudderanalytics = (function (exports) {
       value: function sendSampleRequest() {
         ScriptLoader("ad-block", "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js");
       }
+      /**
+       * parse the given query string into usable Rudder object
+       * @param {*} query
+       */
+
+    }, {
+      key: "parseQueryString",
+      value: function parseQueryString(query) {
+        function getTraitsFromQueryObject(qObj) {
+          var traits = {};
+          Object.keys(qObj).forEach(function (key) {
+            if (key.substr(0, queryDefaults.trait.length) == queryDefaults.trait) {
+              traits[key.substr(queryDefaults.trait.length)] = qObj[key];
+            }
+          });
+          return traits;
+        }
+
+        function getEventPropertiesFromQueryObject(qObj) {
+          var props = {};
+          Object.keys(qObj).forEach(function (key) {
+            if (key.substr(0, queryDefaults.prop.length) == queryDefaults.prop) {
+              props[key.substr(queryDefaults.prop.length)] = qObj[key];
+            }
+          });
+          return props;
+        }
+
+        var returnObj = {};
+        var queryObject = componentQuerystring.parse(query);
+        var userTraits = getTraitsFromQueryObject(queryObject);
+        var eventProps = getEventPropertiesFromQueryObject(queryObject);
+
+        if (queryObject.ajs_uid) {
+          returnObj.userId = queryObject.ajs_uid;
+          returnObj.traits = userTraits;
+        }
+
+        if (queryObject.ajs_aid) {
+          returnObj.anonymousId = queryObject.ajs_aid;
+        }
+
+        if (queryObject.ajs_event) {
+          returnObj.event = queryObject.ajs_event;
+          returnObj.properties = eventProps;
+        }
+
+        return returnObj;
+      }
     }]);
 
     return Analytics;
   }();
+
+  function pushDataToAnalyticsArray(argumentsArray, obj) {
+    if (obj.anonymousId) {
+      if (obj.userId) {
+        argumentsArray.unshift(["setAnonymousId", obj.anonymousId], ["identify", obj.userId, obj.traits]);
+      } else {
+        argumentsArray.unshift(["setAnonymousId", obj.anonymousId]);
+      }
+    } else if (obj.userId) {
+      argumentsArray.unshift(["identify", obj.userId, obj.traits]);
+    }
+
+    if (obj.event) {
+      argumentsArray.push(["track", obj.event, obj.properties]);
+    }
+  }
 
   var instance = new Analytics();
   componentEmitter(instance);
@@ -11785,18 +15700,27 @@ var rudderanalytics = (function (exports) {
 
   instance.registerCallbacks(false);
   var eventsPushedAlready = !!window.rudderanalytics && window.rudderanalytics.push == Array.prototype.push;
-  var methodArg = window.rudderanalytics ? window.rudderanalytics[0] : [];
+  var argumentsArray = window.rudderanalytics;
 
-  if (methodArg.length > 0 && methodArg[0] == "load") {
-    var method = methodArg[0];
-    methodArg.shift();
-    logger.debug("=====from init, calling method:: ", method);
-    instance[method].apply(instance, _toConsumableArray(methodArg));
+  while (argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load") {
+    argumentsArray.shift();
   }
 
-  if (eventsPushedAlready) {
-    for (var i$1 = 1; i$1 < window.rudderanalytics.length; i$1++) {
-      instance.toBeProcessedArray.push(window.rudderanalytics[i$1]);
+  if (argumentsArray && argumentsArray.length > 0 && argumentsArray[0][0] === "load") {
+    var method = argumentsArray[0][0];
+    argumentsArray[0].shift();
+    logger.debug("=====from init, calling method:: ", method);
+    instance[method].apply(instance, _toConsumableArray(argumentsArray[0]));
+    argumentsArray.shift();
+  } // once loaded, parse querystring of the page url to send events
+
+
+  var parsedQueryObject = instance.parseQueryString(window.location.search);
+  pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
+
+  if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
+    for (var i$1 = 0; i$1 < argumentsArray.length; i$1++) {
+      instance.toBeProcessedArray.push(argumentsArray[i$1]);
     }
 
     for (var _i = 0; _i < instance.toBeProcessedArray.length; _i++) {
