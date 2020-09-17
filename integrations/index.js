@@ -20,27 +20,31 @@ import * as TVSquared from "./TVSquared";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
+let integrations = {};
 
-const integrations = {
-  HS: HubSpot.default,
-  GA: GA.default,
-  HOTJAR: Hotjar.default,
-  GOOGLEADS: GoogleAds.default,
-  VWO: VWO.default,
-  GTM: GoogleTagManager.default,
-  BRAZE: Braze.default,
-  INTERCOM: INTERCOM.default,
-  KEEN: Keen.default,
-  KISSMETRICS: Kissmetrics.default,
-  CUSTOMERIO: CustomerIO.default,
-  CHARTBEAT: Chartbeat.default,
-  COMSCORE: Comscore.default,
-  FACEBOOK_PIXEL: FBPixel.default,
-  LOTAME: Lotame.default,
-  OPTIMIZELY: Optimizely.default,
-  BUGSNAG: Bugsnag.default,
-  FULLSTORY: Fullstory.default,
-  TVSQUARED: TVSquared.default,
-};
+if(process.intg) {
+  integrations = {
+    HS: HubSpot.default,
+    GA: GA.default,
+    HOTJAR: Hotjar.default,
+    GOOGLEADS: GoogleAds.default,
+    VWO: VWO.default,
+    GTM: GoogleTagManager.default,
+    BRAZE: Braze.default,
+    INTERCOM: INTERCOM.default,
+    KEEN: Keen.default,
+    KISSMETRICS: Kissmetrics.default,
+    CUSTOMERIO: CustomerIO.default,
+    CHARTBEAT: Chartbeat.default,
+    COMSCORE: Comscore.default,
+    FACEBOOK_PIXEL: FBPixel.default,
+    LOTAME: Lotame.default,
+    OPTIMIZELY: Optimizely.default,
+    BUGSNAG: Bugsnag.default,
+    FULLSTORY: Fullstory.default,
+    TVSQUARED: TVSquared.default,
+  };
+}
+
 
 export { integrations };

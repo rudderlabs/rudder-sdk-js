@@ -29,7 +29,7 @@ class Optimizely {
     );
   }
 
-  referrerOverride = (referrer) => {
+  referrerOverride(referrer) {
     if (referrer) {
       window.optimizelyEffectiveReferrer = referrer;
       return referrer;
@@ -37,7 +37,7 @@ class Optimizely {
     return undefined;
   };
 
-  sendDataToRudder = (campaignState) => {
+  sendDataToRudder(campaignState) {
     logger.debug(campaignState);
     const { experiment } = campaignState;
     const { variation } = campaignState;

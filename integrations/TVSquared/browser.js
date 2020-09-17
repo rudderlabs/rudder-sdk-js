@@ -22,17 +22,17 @@ class TVSquared {
     ScriptLoader("TVSquared-integration", `${url}tv2track.js`);
   }
 
-  isLoaded = () => {
+  isLoaded(){
     logger.debug("in TVSqaured isLoaded");
     return !!(window._tvq && window._tvq.push !== Array.prototype.push);
   };
 
-  isReady = () => {
+  isReady() {
     logger.debug("in TVSqaured isReady");
     return !!(window._tvq && window._tvq.push !== Array.prototype.push);
   };
 
-  page = () => {
+  page() {
     window._tvq.push(["trackPageView"]);
   };
 
@@ -95,7 +95,7 @@ class TVSquared {
     }
   };
 
-  formatRevenue = (revenue) => {
+  formatRevenue(revenue) {
     let rev = revenue;
     rev = parseFloat(rev.toString().replace(/^[^\d.]*/, ""));
     return rev;
