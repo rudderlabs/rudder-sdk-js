@@ -17,6 +17,11 @@ let distFileName = "";
 let { version } = webPackage;
 let moduleType = "web";
 let inputFileName = "analytics.js";
+
+if(process.env.TRANSPORT == "beacon") {
+  inputFileName = "analyticsBeacon.js"
+}
+
 switch (process.env.ENV) {
   case "prod":
     switch (process.env.ENC) {
@@ -46,7 +51,6 @@ switch (process.env.ENV) {
   default:
     switch (process.env.TRANSPORT) {
       case "beacon":
-        inputFileName = "analyticsBeacon.js"
         distFileName = "dist/browser_beacon.js"
         break;
       default:
@@ -54,6 +58,19 @@ switch (process.env.ENV) {
     }
     break;
 }
+
+
+if(process.env.ENV == "prod"  && process.env.TRANSPORT == "beacon") {
+  distFileName = distFileName.slice(0, -3);
+  distFileName += "_beacon.js"
+}
+
+if(process.env.ES5 == "true") {
+  distFileName = distFileName.slice(0, -3);
+  distFileName += "_es5.js"
+}
+
+
 
 const outputFiles = [];
 if (process.env.NPM == "true") {
@@ -88,6 +105,8 @@ export default {
       "process.package_version": version,
       "process.module_type": moduleType,
       "process.transport.beacon": process.env.TRANSPORT == "beacon",
+      "process.intg": process.env.INTG == "true",
+      "process.autoTrack": process.env.AUTOTRACK == "true"
     }),
     resolve({
       jsnext: true,
@@ -109,7 +128,7 @@ export default {
     globals(),
     builtins(),
 
-    babel({
+    process.env.ES5=="true" && babel({
       exclude: ["node_modules/@babel/**", "node_modules/core-js/**"],
       presets: [["@babel/env"]],
       plugins: [
