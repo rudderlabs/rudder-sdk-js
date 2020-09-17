@@ -359,4 +359,9 @@ function previousElementSibling(el) {
   } while (el && !isElementNode(el));
   return el;
 }
-export { addDomEventHandlers };
+
+let addDomEventHandlersImpl = () => {}
+if(process.autoTrack) {
+  addDomEventHandlersImpl = addDomEventHandlers
+}
+export { addDomEventHandlersImpl };

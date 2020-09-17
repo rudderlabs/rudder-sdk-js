@@ -33,7 +33,7 @@ import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
 import { EventRepositoryBeacon } from "./utils/EventRepositoryBeacon";
 import logger from "./utils/logUtil";
-import { addDomEventHandlers } from "./utils/autotrack.js";
+import { addDomEventHandlersImpl } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
 
 const queryDefaults = {
@@ -137,7 +137,7 @@ class Analytics {
         !this.autoTrackHandlersRegistered
       ) {
         this.autoTrackFeatureEnabled = true;
-        addDomEventHandlers(this);
+        addDomEventHandlersImpl(this);
         this.autoTrackHandlersRegistered = true;
       }
       response.source.destinations.forEach(function (destination, index) {
@@ -173,7 +173,7 @@ class Analytics {
         this.autoTrackHandlersRegistered
       );
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(this);
+        addDomEventHandlersImpl(this);
         this.autoTrackHandlersRegistered = true;
       }
     }
@@ -904,7 +904,7 @@ class Analytics {
     if (options && options.useAutoTracking) {
       this.autoTrackFeatureEnabled = true;
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(this);
+        addDomEventHandlersImpl(this);
         this.autoTrackHandlersRegistered = true;
         logger.debug(
           "autoTrackHandlersRegistered",
@@ -917,7 +917,7 @@ class Analytics {
     } catch (error) {
       handleError(error);
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(this);
+        addDomEventHandlersImpl(this);
       }
     }
   }
