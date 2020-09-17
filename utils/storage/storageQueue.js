@@ -1,5 +1,5 @@
 import { Store } from "./store";
-import { replacer } from "../utils";
+import { replacer, getCurrentTimeFormatted } from "../utils";
 
 const defaults = {
     queue : "queue",
@@ -30,15 +30,13 @@ class StorageQueue {
         var maxPayloadSizeReached = false;
         if(dataToSend.length > defaults.maxPayloadSize){
             batch = queue.slice(0, queue.length - 1);
-            data = {batch: batch};
-            dataToSend = JSON.stringify(data, replacer);
             maxPayloadSizeReached = true;
             this.setQueue([message]);
         } else {
             this.setQueue(queue);
         }
         if(queue.length == this.maxItems || maxPayloadSizeReached){
-            this.flushQueue(headers, dataToSend, url, writekey);
+            this.flushQueue(headers, batch, url, writekey);
         }
         
 
@@ -48,16 +46,19 @@ class StorageQueue {
         var queue = this.getQueue();
         if(queue && queue.length > 0){
             var batch = queue.slice(0, queue.length);
-            var data = {batch: batch};
-            var dataToSend = JSON.stringify(data, replacer);
             var headers = {};
-            this.flushQueue(headers, dataToSend, url, writekey);
+            this.flushQueue(headers, batch, url, writekey);
         }
         
     }
 
-    flushQueue(headers, payload, url, writekey){
+    flushQueue(headers, batch, url, writekey){
         headers.type = 'application/json';
+        batch.map((event) => {
+            event.sentAt = getCurrentTimeFormatted();
+        })
+        var data = {batch: batch};
+        var payload = JSON.stringify(data, replacer);
         const blob = new Blob([payload], headers);
         navigator.sendBeacon(`${url}?writeKey=${writekey}`, blob);
         this.setQueue([]);
