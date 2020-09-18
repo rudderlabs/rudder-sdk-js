@@ -1,5 +1,6 @@
 import { Store } from "./store";
 import { replacer, getCurrentTimeFormatted } from "../utils";
+import logger from "../logUtil";
 
 const defaults = {
     queue : "queue",
@@ -27,15 +28,17 @@ class StorageQueue {
         var batch = queue.slice(0);
         var data = {batch: batch};
         var dataToSend = JSON.stringify(data, replacer);
-        var maxPayloadSizeReached = false;
         if(dataToSend.length > defaults.maxPayloadSize){
             batch = queue.slice(0, queue.length - 1);
             maxPayloadSizeReached = true;
-            this.setQueue([message]);
+            this.flushQueue(headers, batch, url, writekey);
+            queue = this.getQueue();
+            queue.push(message);
+            this.setQueue(queue);
         } else {
             this.setQueue(queue);
         }
-        if(queue.length == this.maxItems || maxPayloadSizeReached){
+        if(queue.length == this.maxItems){
             this.flushQueue(headers, batch, url, writekey);
         }
         
@@ -60,7 +63,10 @@ class StorageQueue {
         var data = {batch: batch};
         var payload = JSON.stringify(data, replacer);
         const blob = new Blob([payload], headers);
-        navigator.sendBeacon(`${url}?writeKey=${writekey}`, blob);
+        var isPushed = navigator.sendBeacon(`${url}?writeKey=${writekey}`, blob);
+        if (!isPushed) {
+         logger.debug("Unable to send data");   
+        }
         this.setQueue([]);
     }
 }
