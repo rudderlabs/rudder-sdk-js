@@ -1,0 +1,15 @@
+{
+  "name": "test-js-dep",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "browserslist-useragent": "^3.0.3",
+    "querystring": "^0.2.0"
+  }
+}

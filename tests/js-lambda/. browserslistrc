@@ -1,0 +1,9 @@
+[modern]
+Firefox >= 53
+Edge >= 15
+Chrome >= 58
+iOS >= 10.1
+not IE 11
+
+[legacy]
+> 1%
