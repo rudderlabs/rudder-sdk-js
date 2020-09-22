@@ -210,18 +210,26 @@ class Analytics {
   }
 
   requireIntegration() {
-    this.globalQueue.unshift(
+    this.globalQueue.push(
       ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
     );
+    /* this.globalQueue.unshift(
+      ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
+    ); */
     //Emitter(this.globalQueue);
     this.globalQueueEmitter.emit("process");
   }
 
-  requirePlugin(integrationName) {
-    if(this.clientRequiredIntegrations.indexOf(integrationName) < 0){
+  requirePlugin(requiredIntegrations, integrationReadyCallback) {
+    requiredIntegrations = Array.isArray(requiredIntegrations) ? requiredIntegrations : [requiredIntegrations]
+    var integrations = requiredIntegrations.filter((integrationName) => {
+      return this.clientRequiredIntegrations.indexOf(integrationName) < 0
+    })
+    if(integrations.length > 0){
       this.pauseProcessQueue = true;
-      this.clientRequiredIntegrations.push(integrationName);
-      this.init(this.clientIntegrations, integrationName);
+      //this.clientRequiredIntegrations.push(integrationName);
+      //Array.prototype.push.apply(this.clientRequiredIntegrations, integrations);
+      this.init(this.clientIntegrations, integrations, integrationReadyCallback);
     }
   }
 
@@ -233,7 +241,7 @@ class Analytics {
    * @returns
    * @memberof Analytics
    */
-  init(intgArray, integrationName) {
+  init(intgArray, integrations, integrationReadyCallback) {
     const self = this;
     //logger.debug("supported intgs ", integrations);
     // this.clientIntegrationObjects = [];
@@ -292,55 +300,75 @@ class Analytics {
 
       logger.debug("initializing destination: ", intg);
 
-      this.isInitialized(intgInstance).then(this.replayEvents);
+      //this.isInitialized(intgInstance).then(()=> {this.makeIntegrationReady.call(this, this, readyCallback)});
+      this.isInitialized(intgInstance).then(()=> {this.makeIntegrationReady(this, integrationReadyCallback)});
     }
 
-    let intgArr = intgArray.filter((intgObject) => {
-      return (intgObject.name == integrationName)
+    let intgArr = integrations.indexOf("all") >=0 ? intgArray : intgArray.filter((intgObject) => {
+      //return (intgObject.name == integrationName)
+      return (integrations.indexOf(intgObject.name) >= 0)
     })
+    /* if(integrations.indexOf("all") >=0){
+      //this.clientRequiredIntegrations.pop();
+      intgArray.forEach(element => {
+        this.clientRequiredIntegrations.push(element.name);
+      });
+      intgArr = intgArray;
+    } else {
+      intgArr = intgArray.filter((intgObject) => {
+        //return (intgObject.name == integrationName)
+        return (integrations.indexOf(intgObject.name) >= 0)
+      })
+    } */
     if (intgArr && intgArr.length > 0 ) {
-      let intg = intgArr[0];
-      try {
-        logger.debug(
-          "[Analytics] init :: trying to initialize integration name:: ",
-          intg.name
-        );
-        //ScriptLoader(`${intg.name}-rudder`, "../../dist/GAPlugin.js")
+      for(let i=0;i<intgArr.length;i++){
+        let intg = intgArr[i];
+        this.clientRequiredIntegrations.push(intg.name);
+        try {
+          logger.debug(
+            "[Analytics] init :: trying to initialize integration name:: ",
+            intg.name
+          );
+          //ScriptLoader(`${intg.name}-rudder`, "../../dist/GAPlugin.js")
 
-        var pluginName = this.pluginMap[intg.name];
-        var integrationSource = `http://localhost:2222/dist/${pluginName}.js`
+          var pluginName = this.pluginMap[intg.name];
+          var integrationSource = `http://localhost:2222/dist/${pluginName}.js`
 
-        if(!window[pluginName]) {
-          getIntegration(integrationSource, intg, processAfterLoadingIntegration);
+          if(!window[pluginName]) {
+            getIntegration(integrationSource, intg, processAfterLoadingIntegration);
+          }
+
+          /* var xhrObj = new XMLHttpRequest();
+          // open and send a synchronous request
+          xhrObj.open('GET', integrationSource, false);
+          xhrObj.send(''); */
+          // add the returned content to a newly created script tag
+          /* var se = document.createElement('script');
+          se.type = "text/javascript";
+          se.text = xhrObj.responseText;
+          document.getElementsByTagName('head')[0].appendChild(se); 
+          const intgClass = window[pluginName];//window.GaPlugin;
+          const destConfig = intg.config;
+          const intgInstance = new intgClass(destConfig, self);
+          intgInstance.init();
+
+          logger.debug("initializing destination: ", intg);
+
+          this.isInitialized(intgInstance).then(this.replayEvents); */
+
+          
+        } catch (e) {
+          logger.error(
+            "[Analytics] initialize integration (integration.init()) failed :: ",
+            intg.name
+          );
+          //this.pauseProcessQueue = false;
+          if(i == intgArr.length - 1){
+            this.emitGlobalQueue();
+          }
         }
-
-        /* var xhrObj = new XMLHttpRequest();
-        // open and send a synchronous request
-        xhrObj.open('GET', integrationSource, false);
-        xhrObj.send(''); */
-        // add the returned content to a newly created script tag
-        /* var se = document.createElement('script');
-        se.type = "text/javascript";
-        se.text = xhrObj.responseText;
-        document.getElementsByTagName('head')[0].appendChild(se); 
-        const intgClass = window[pluginName];//window.GaPlugin;
-        const destConfig = intg.config;
-        const intgInstance = new intgClass(destConfig, self);
-        intgInstance.init();
-
-        logger.debug("initializing destination: ", intg);
-
-        this.isInitialized(intgInstance).then(this.replayEvents); */
-
-        
-      } catch (e) {
-        logger.error(
-          "[Analytics] initialize integration (integration.init()) failed :: ",
-          intg.name
-        );
-        //this.pauseProcessQueue = false;
-        this.emitGlobalQueue();
       }
+      
     } else {
       //this.pauseProcessQueue = false;
       this.emitGlobalQueue();
@@ -354,7 +382,9 @@ class Analytics {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  replayEvents(object) {
+  makeIntegrationReady(object, integrationReadyCallback) {
+    // clientRequiredIntegrations - contains integrations with requireIntegrations
+    // clientIntegrations - contains all deviceMode enabled integrations from sourceConfig
     if (
       object.successfullyLoadedIntegration.length +
         object.failedToBeLoadedIntegration.length ===
@@ -391,57 +421,8 @@ class Analytics {
         }
       });
 
-      if (object.toBeProcessedByIntegrationArray.length > 0) {
-        // send the queued events to the fetched integration
-        object.toBeProcessedByIntegrationArray.forEach((event) => {
-          const methodName = event[0];
-          event.shift();
-
-          // convert common names to sdk identified name
-          if (Object.keys(event[0].message.integrations).length > 0) {
-            tranformToRudderNames(event[0].message.integrations);
-          }
-
-          // if not specified at event level, All: true is default
-          const clientSuppliedIntegrations = event[0].message.integrations;
-
-          // get intersection between config plane native enabled destinations
-          // (which were able to successfully load on the page) vs user supplied integrations
-          const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
-            clientSuppliedIntegrations,
-            object.clientIntegrationObjects
-          );
-
-          // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-          for (
-            let i = 0;
-            i < succesfulLoadedIntersectClientSuppliedIntegrations.length;
-            i += 1
-          ) {
-            try {
-              if (
-                !succesfulLoadedIntersectClientSuppliedIntegrations[i]
-                  .isFailed ||
-                !succesfulLoadedIntersectClientSuppliedIntegrations[
-                  i
-                ].isFailed()
-              ) {
-                if (
-                  succesfulLoadedIntersectClientSuppliedIntegrations[i][
-                    methodName
-                  ]
-                ) {
-                  succesfulLoadedIntersectClientSuppliedIntegrations[i][
-                    methodName
-                  ](...event);
-                }
-              }
-            } catch (error) {
-              handleError(error);
-            }
-          }
-        });
-        object.toBeProcessedByIntegrationArray = [];
+      if(integrationReadyCallback){
+        integrationReadyCallback();
       }
       object.emitGlobalQueue();
     }
