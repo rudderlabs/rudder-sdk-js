@@ -9,6 +9,7 @@ import globals from "rollup-plugin-node-globals";
 import json from "rollup-plugin-json";
 import gzipPlugin from "rollup-plugin-gzip";
 import brotli from "rollup-plugin-brotli";
+import visualizer from "rollup-plugin-visualizer";
 import * as webPackage from "./package.json";
 
 let distFileName = "";
@@ -61,10 +62,14 @@ export default {
     builtins(),
 
     babel({
-      exclude: "node_modules/**",
+      exclude: ["node_modules/@babel/**", "node_modules/core-js/**"],
+      presets: [["@babel/env"]],
     }),
     process.env.uglify === "true" && terser(),
     process.env.ENC === "gzip" && gzipPlugin(),
     process.env.ENC === "br" && brotli(),
+    process.env.visualizer === "true" &&
+      process.env.uglify === "true" &&
+      visualizer({ sourcemap: true }),
   ],
 };
