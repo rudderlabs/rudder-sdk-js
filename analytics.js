@@ -209,17 +209,6 @@ class Analytics {
     }
   }
 
-  requireIntegration() {
-    this.globalQueue.push(
-      ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
-    );
-    /* this.globalQueue.unshift(
-      ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
-    ); */
-    //Emitter(this.globalQueue);
-    this.globalQueueEmitter.emit("process");
-  }
-
   requirePlugin(requiredIntegrations, integrationReadyCallback) {
     requiredIntegrations = Array.isArray(requiredIntegrations) ? requiredIntegrations : [requiredIntegrations]
     var integrations = requiredIntegrations.filter((integrationName) => {
@@ -467,7 +456,7 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  page(category, name, properties, options, callback) {
+  processPage(category, name, properties, options, callback) {
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
@@ -487,7 +476,7 @@ class Analytics {
     if (this.sendAdblockPage && category != "RudderJS-Initiated") {
       this.sendSampleRequest();
     }
-    this.processPage(category, name, properties, options, callback);
+    this.processPageView(category, name, properties, options, callback);
   }
 
   /**
@@ -499,13 +488,13 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  track(event, properties, options, callback) {
+  processTrack(event, properties, options, callback) {
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
       (callback = properties), (options = null), (properties = null);
 
-    this.processTrack(event, properties, options, callback);
+    this.processTrackEvent(event, properties, options, callback);
   }
 
   /**
@@ -517,7 +506,7 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  identify(userId, traits, options, callback) {
+  processIdentify(userId, traits, options, callback) {
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof traits === "function")
@@ -525,7 +514,7 @@ class Analytics {
     if (typeof userId === "object")
       (options = traits), (traits = userId), (userId = this.userId);
 
-    this.processIdentify(userId, traits, options, callback);
+    this.processIdentifyUser(userId, traits, options, callback);
   }
 
   /**
@@ -535,7 +524,7 @@ class Analytics {
    * @param {*} options
    * @param {*} callback
    */
-  alias(to, from, options, callback) {
+  processAlias(to, from, options, callback) {
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof from === "function")
@@ -562,7 +551,7 @@ class Analytics {
    * @param {*} options
    * @param {*} callback
    */
-  group(groupId, traits, options, callback) {
+  processGroup(groupId, traits, options, callback) {
     if (!this.loaded) return;
     if (!arguments.length) return;
 
@@ -603,7 +592,7 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  processPage(category, name, properties, options, callback) {
+  processPageView(category, name, properties, options, callback) {
     const rudderElement = new RudderElementBuilder().setType("page").build();
     if (!properties) {
       properties = {};
@@ -630,7 +619,7 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  processTrack(event, properties, options, callback) {
+  processTrackEvent(event, properties, options, callback) {
     const rudderElement = new RudderElementBuilder().setType("track").build();
     if (event) {
       rudderElement.setEventName(event);
@@ -653,9 +642,9 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  processIdentify(userId, traits, options, callback) {
+  processIdentifyUser(userId, traits, options, callback) {
     if (userId && this.userId && userId !== this.userId) {
-      this.reset();
+      this.processReset();
     }
     this.userId = userId;
     this.storage.setUserId(this.userId);
@@ -749,7 +738,7 @@ class Analytics {
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
     try {
       if (!this.anonymousId) {
-        this.setAnonymousId();
+        this.processSetAnonymousId();
       }
 
       // assign page properties to context
@@ -898,7 +887,7 @@ class Analytics {
    *
    * @memberof Analytics
    */
-  reset() {
+  processReset() {
     if (!this.loaded) return;
     this.userId = "";
     this.userTraits = {};
@@ -911,12 +900,12 @@ class Analytics {
     // if (!this.loaded) return;
     this.anonymousId = this.storage.getAnonymousId();
     if (!this.anonymousId) {
-      this.setAnonymousId();
+      this.processSetAnonymousId();
     }
     return this.anonymousId;
   }
 
-  setAnonymousId(anonymousId) {
+  processSetAnonymousId(anonymousId) {
     // if (!this.loaded) return;
     this.anonymousId = anonymousId || generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
@@ -1148,6 +1137,67 @@ class Analytics {
 
     return returnObj;
   }
+
+
+  requireIntegration() {
+    this.globalQueue.push(
+      ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
+    );
+    /* this.globalQueue.unshift(
+      ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
+    ); */
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  track(){
+    this.globalQueue.push(
+      ["processTrack"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  page(){
+    this.globalQueue.push(
+      ["processPage"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  identify(){
+    this.globalQueue.push(
+      ["processIdentify"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  group(){
+    this.globalQueue.push(
+      ["processGroup"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  alias(){
+    this.globalQueue.push(
+      ["processAlias"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  reset(){
+    this.globalQueue.push(
+      ["processReset"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  setAnonymousId(){
+    this.globalQueue.push(
+      ["processSetAnonymousId"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
 }
 
 function pushDataToAnalyticsArray(argumentsArray, obj) {
@@ -1163,11 +1213,8 @@ function pushDataToAnalyticsArray(argumentsArray, obj) {
   } else if (obj.userId) {
     argumentsArray.unshift(["identify", obj.userId, obj.traits]);
   }
-
-  if (obj.event) {
-    argumentsArray.push(["track", obj.event, obj.properties]);
-  }
 }
+
 
 const instance = new Analytics();
 
@@ -1246,8 +1293,6 @@ const initialized = (instance.initialized = true);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
 const requireIntegration = instance.requireIntegration.bind(instance);
-const pseudoTrack = instance.pseudoTrack.bind(instance);
-const pseudoPage = instance.pseudoPage.bind(instance);
 
 export {
   initialized,
@@ -1261,7 +1306,5 @@ export {
   group,
   getAnonymousId,
   setAnonymousId,
-  requireIntegration,
-  pseudoTrack,
-  pseudoPage
+  requireIntegration
 };
