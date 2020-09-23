@@ -411,7 +411,19 @@ class Analytics {
       });
 
       if(integrationReadyCallback){
-        integrationReadyCallback();
+        var successList = [];
+        var failureList = [];
+        object.successfullyLoadedIntegration.forEach((intg) => {
+          successList.push(intg.name);
+        })
+        object.failedToBeLoadedIntegration.forEach((intg) => {
+          failureList.push(intg.name);
+        })
+        var returnObject = {
+          success: [...successList],
+          failure: [...failureList]
+        }
+        integrationReadyCallback(returnObject);
       }
       object.emitGlobalQueue();
     }
