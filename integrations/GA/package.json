@@ -1,5 +1,5 @@
 {
-  "name": "GA-plugin",
+  "name": "ga-plugin",
   "version": "1.1.2",
   "description": "",
   "main": "./GAPlugin.js",

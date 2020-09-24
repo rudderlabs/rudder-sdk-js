@@ -88,6 +88,20 @@ class Analytics {
       syncPixel: "syncPixelCallback",
     };
     this.loaded = false;
+
+    this.pluginMap = {
+      GA: "GAPlugin",
+      HS: "HSPlugin"
+    }
+
+    this.globalQueue = [];
+    this.pauseProcessQueue = false;
+    this.clientRequiredIntegrations = [];
+    //this.globalQueue.on(this.processGlobalQueue);
+
+    this.globalQueueEmitter = new Emitter;
+    this.globalQueueEmitter.on("process", this.processGlobalQueue.bind(this));
+
   }
 
   /**
@@ -118,6 +132,19 @@ class Analytics {
     this.storage.setGroupId(this.groupId);
     this.storage.setUserTraits(this.userTraits);
     this.storage.setGroupTraits(this.groupTraits);
+  }
+
+  //processQueueInterval  = setInterval(this.processGlobalQueue, 1000);
+
+  processGlobalQueue(object){
+    while(!this.pauseProcessQueue && this.globalQueue.length > 0){
+      const element = [...this.globalQueue[0]];
+      const method = element[0];
+      element.shift();
+      this.globalQueue.shift();
+      this[method](...element);
+      
+    }
   }
 
   /**
@@ -161,10 +188,13 @@ class Analytics {
 
       // remove from the list which don't have support yet in SDK
       this.clientIntegrations = this.clientIntegrations.filter((intg) => {
-        return integrations[intg.name] != undefined;
+        //return integrations[intg.name] != undefined;
+        return this.pluginMap[intg.name] != undefined;
       });
+      this.emitGlobalQueue();
 
-      this.init(this.clientIntegrations);
+      // place it under require
+      // this.init(this.clientIntegrations);
     } catch (error) {
       handleError(error);
       logger.debug("===handling config BE response processing error===");
@@ -179,6 +209,19 @@ class Analytics {
     }
   }
 
+  requirePlugin(requiredIntegrations, integrationReadyCallback) {
+    requiredIntegrations = Array.isArray(requiredIntegrations) ? requiredIntegrations : [requiredIntegrations]
+    var integrations = requiredIntegrations.filter((integrationName) => {
+      return this.clientRequiredIntegrations.indexOf(integrationName) < 0
+    })
+    if(integrations.length > 0){
+      this.pauseProcessQueue = true;
+      //this.clientRequiredIntegrations.push(integrationName);
+      //Array.prototype.push.apply(this.clientRequiredIntegrations, integrations);
+      this.init(this.clientIntegrations, integrations, integrationReadyCallback);
+    }
+  }
+
   /**
    * Initialize integrations by addinfg respective scripts
    * keep the instances reference in core
@@ -187,9 +230,9 @@ class Analytics {
    * @returns
    * @memberof Analytics
    */
-  init(intgArray) {
+  init(intgArray, integrations, integrationReadyCallback) {
     const self = this;
-    logger.debug("supported intgs ", integrations);
+    //logger.debug("supported intgs ", integrations);
     // this.clientIntegrationObjects = [];
 
     if (!intgArray || intgArray.length == 0) {
@@ -200,13 +243,8 @@ class Analytics {
       return;
     }
 
-    intgArray.forEach((intg) => {
-      try {
-        logger.debug(
-          "[Analytics] init :: trying to initialize integration name:: ",
-          intg.name
-        );
-        const intgClass = integrations[intg.name];
+    /* function processAfterLoadingIntegration(status, response) {
+      const intgClass = window[pluginName];//window.GaPlugin;
         const destConfig = intg.config;
         const intgInstance = new intgClass(destConfig, self);
         intgInstance.init();
@@ -214,21 +252,133 @@ class Analytics {
         logger.debug("initializing destination: ", intg);
 
         this.isInitialized(intgInstance).then(this.replayEvents);
-      } catch (e) {
-        logger.error(
-          "[Analytics] initialize integration (integration.init()) failed :: ",
-          intg.name
-        );
+    } */
+
+    let getIntegration = (integrationSource, sourceConfigObject, callback) => {
+      const cb_ = callback.bind(this);
+      var xhrObj = new XMLHttpRequest();
+      // open and send a synchronous request
+      xhrObj.open('GET', integrationSource, true);
+      xhrObj.onload = function () {
+        const { status } = xhrObj;
+        if (status == 200) {
+          logger.debug("status 200 " + "calling callback");
+          cb_(xhrObj.responseText, sourceConfigObject);
+        } else {
+          handleError(
+            new Error(`request failed with status: ${xhrObj.status} for url: ${url}`)
+          );
+          //cb_(status);
+        }
+      };
+      xhrObj.send('');
+    }
+
+    let processAfterLoadingIntegration = (response, intg) => {
+
+      var pluginName = this.pluginMap[intg.name];
+      var se = document.createElement('script');
+      se.type = "text/javascript";
+      se.text = response;
+      document.getElementsByTagName('head')[0].appendChild(se);
+
+      const intgClass = window[pluginName];//window.GaPlugin;
+      const destConfig = intg.config;
+      const intgInstance = new intgClass(destConfig, self);
+      intgInstance.init();
+
+      logger.debug("initializing destination: ", intg);
+
+      //this.isInitialized(intgInstance).then(()=> {this.makeIntegrationReady.call(this, this, readyCallback)});
+      this.isInitialized(intgInstance).then(()=> {this.makeIntegrationReady(this, integrationReadyCallback)});
+    }
+
+    let intgArr = integrations.indexOf("all") >=0 ? intgArray : intgArray.filter((intgObject) => {
+      //return (intgObject.name == integrationName)
+      return (integrations.indexOf(intgObject.name) >= 0)
+    })
+    /* if(integrations.indexOf("all") >=0){
+      //this.clientRequiredIntegrations.pop();
+      intgArray.forEach(element => {
+        this.clientRequiredIntegrations.push(element.name);
+      });
+      intgArr = intgArray;
+    } else {
+      intgArr = intgArray.filter((intgObject) => {
+        //return (intgObject.name == integrationName)
+        return (integrations.indexOf(intgObject.name) >= 0)
+      })
+    } */
+    if (intgArr && intgArr.length > 0 ) {
+      for(let i=0;i<intgArr.length;i++){
+        let intg = intgArr[i];
+        this.clientRequiredIntegrations.push(intg.name);
+        try {
+          logger.debug(
+            "[Analytics] init :: trying to initialize integration name:: ",
+            intg.name
+          );
+          //ScriptLoader(`${intg.name}-rudder`, "../../dist/GAPlugin.js")
+
+          var pluginName = this.pluginMap[intg.name];
+          var integrationSource = `http://localhost:2222/dist/${pluginName}.js`
+
+          if(!window[pluginName]) {
+            getIntegration(integrationSource, intg, processAfterLoadingIntegration);
+          }
+
+          /* var xhrObj = new XMLHttpRequest();
+          // open and send a synchronous request
+          xhrObj.open('GET', integrationSource, false);
+          xhrObj.send(''); */
+          // add the returned content to a newly created script tag
+          /* var se = document.createElement('script');
+          se.type = "text/javascript";
+          se.text = xhrObj.responseText;
+          document.getElementsByTagName('head')[0].appendChild(se); 
+          const intgClass = window[pluginName];//window.GaPlugin;
+          const destConfig = intg.config;
+          const intgInstance = new intgClass(destConfig, self);
+          intgInstance.init();
+
+          logger.debug("initializing destination: ", intg);
+
+          this.isInitialized(intgInstance).then(this.replayEvents); */
+
+          
+        } catch (e) {
+          logger.error(
+            "[Analytics] initialize integration (integration.init()) failed :: ",
+            intg.name
+          );
+          //this.pauseProcessQueue = false;
+          if(i == intgArr.length - 1){
+            this.emitGlobalQueue();
+          }
+        }
       }
-    });
+      
+    } else {
+      //this.pauseProcessQueue = false;
+      this.emitGlobalQueue();
+    }
+  }
+
+  emitGlobalQueue(){
+    this.pauseProcessQueue = false;
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
   }
 
   // eslint-disable-next-line class-methods-use-this
-  replayEvents(object) {
+  makeIntegrationReady(object, integrationReadyCallback) {
+    // clientRequiredIntegrations - contains integrations with requireIntegrations
+    // clientIntegrations - contains all deviceMode enabled integrations from sourceConfig
     if (
       object.successfullyLoadedIntegration.length +
         object.failedToBeLoadedIntegration.length ===
-      object.clientIntegrations.length
+        object.clientRequiredIntegrations.length
+      //object.clientIntegrations.length
     ) {
       logger.debug(
         "===replay events called====",
@@ -256,62 +406,26 @@ class Analytics {
         logger.debug("===looping over each successful integration====");
         if (!intg.isReady || intg.isReady()) {
           logger.debug("===letting know I am ready=====", intg.name);
-          object.emit("ready");
+          //object.emit("ready");
         }
       });
 
-      if (object.toBeProcessedByIntegrationArray.length > 0) {
-        // send the queued events to the fetched integration
-        object.toBeProcessedByIntegrationArray.forEach((event) => {
-          const methodName = event[0];
-          event.shift();
-
-          // convert common names to sdk identified name
-          if (Object.keys(event[0].message.integrations).length > 0) {
-            tranformToRudderNames(event[0].message.integrations);
-          }
-
-          // if not specified at event level, All: true is default
-          const clientSuppliedIntegrations = event[0].message.integrations;
-
-          // get intersection between config plane native enabled destinations
-          // (which were able to successfully load on the page) vs user supplied integrations
-          const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
-            clientSuppliedIntegrations,
-            object.clientIntegrationObjects
-          );
-
-          // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-          for (
-            let i = 0;
-            i < succesfulLoadedIntersectClientSuppliedIntegrations.length;
-            i += 1
-          ) {
-            try {
-              if (
-                !succesfulLoadedIntersectClientSuppliedIntegrations[i]
-                  .isFailed ||
-                !succesfulLoadedIntersectClientSuppliedIntegrations[
-                  i
-                ].isFailed()
-              ) {
-                if (
-                  succesfulLoadedIntersectClientSuppliedIntegrations[i][
-                    methodName
-                  ]
-                ) {
-                  succesfulLoadedIntersectClientSuppliedIntegrations[i][
-                    methodName
-                  ](...event);
-                }
-              }
-            } catch (error) {
-              handleError(error);
-            }
-          }
-        });
-        object.toBeProcessedByIntegrationArray = [];
+      if(integrationReadyCallback){
+        var successList = [];
+        var failureList = [];
+        object.successfullyLoadedIntegration.forEach((intg) => {
+          successList.push(intg.name);
+        })
+        object.failedToBeLoadedIntegration.forEach((intg) => {
+          failureList.push(intg.name);
+        })
+        var returnObject = {
+          success: [...successList],
+          failure: [...failureList]
+        }
+        integrationReadyCallback(returnObject);
       }
+      object.emitGlobalQueue();
     }
   }
 
@@ -354,7 +468,7 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  page(category, name, properties, options, callback) {
+  processPage(category, name, properties, options, callback) {
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
@@ -374,7 +488,7 @@ class Analytics {
     if (this.sendAdblockPage && category != "RudderJS-Initiated") {
       this.sendSampleRequest();
     }
-    this.processPage(category, name, properties, options, callback);
+    this.processPageView(category, name, properties, options, callback);
   }
 
   /**
@@ -386,13 +500,13 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  track(event, properties, options, callback) {
+  processTrack(event, properties, options, callback) {
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
       (callback = properties), (options = null), (properties = null);
 
-    this.processTrack(event, properties, options, callback);
+    this.processTrackEvent(event, properties, options, callback);
   }
 
   /**
@@ -404,7 +518,7 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  identify(userId, traits, options, callback) {
+  processIdentify(userId, traits, options, callback) {
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof traits === "function")
@@ -412,7 +526,7 @@ class Analytics {
     if (typeof userId === "object")
       (options = traits), (traits = userId), (userId = this.userId);
 
-    this.processIdentify(userId, traits, options, callback);
+    this.processIdentifyUser(userId, traits, options, callback);
   }
 
   /**
@@ -422,7 +536,7 @@ class Analytics {
    * @param {*} options
    * @param {*} callback
    */
-  alias(to, from, options, callback) {
+  processAlias(to, from, options, callback) {
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof from === "function")
@@ -449,7 +563,7 @@ class Analytics {
    * @param {*} options
    * @param {*} callback
    */
-  group(groupId, traits, options, callback) {
+  processGroup(groupId, traits, options, callback) {
     if (!this.loaded) return;
     if (!arguments.length) return;
 
@@ -490,7 +604,7 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  processPage(category, name, properties, options, callback) {
+  processPageView(category, name, properties, options, callback) {
     const rudderElement = new RudderElementBuilder().setType("page").build();
     if (!properties) {
       properties = {};
@@ -517,7 +631,7 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  processTrack(event, properties, options, callback) {
+  processTrackEvent(event, properties, options, callback) {
     const rudderElement = new RudderElementBuilder().setType("track").build();
     if (event) {
       rudderElement.setEventName(event);
@@ -540,9 +654,9 @@ class Analytics {
    * @param {*} callback
    * @memberof Analytics
    */
-  processIdentify(userId, traits, options, callback) {
+  processIdentifyUser(userId, traits, options, callback) {
     if (userId && this.userId && userId !== this.userId) {
-      this.reset();
+      this.processReset();
     }
     this.userId = userId;
     this.storage.setUserId(this.userId);
@@ -636,7 +750,7 @@ class Analytics {
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
     try {
       if (!this.anonymousId) {
-        this.setAnonymousId();
+        this.processSetAnonymousId();
       }
 
       // assign page properties to context
@@ -785,7 +899,7 @@ class Analytics {
    *
    * @memberof Analytics
    */
-  reset() {
+  processReset() {
     if (!this.loaded) return;
     this.userId = "";
     this.userTraits = {};
@@ -798,12 +912,12 @@ class Analytics {
     // if (!this.loaded) return;
     this.anonymousId = this.storage.getAnonymousId();
     if (!this.anonymousId) {
-      this.setAnonymousId();
+      this.processSetAnonymousId();
     }
     return this.anonymousId;
   }
 
-  setAnonymousId(anonymousId) {
+  processSetAnonymousId(anonymousId) {
     // if (!this.loaded) return;
     this.anonymousId = anonymousId || generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
@@ -913,6 +1027,7 @@ class Analytics {
       }
     }
     try {
+      this.pauseProcessQueue = true;
       getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
     } catch (error) {
       handleError(error);
@@ -1034,6 +1149,67 @@ class Analytics {
 
     return returnObj;
   }
+
+
+  requireIntegration() {
+    this.globalQueue.push(
+      ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
+    );
+    /* this.globalQueue.unshift(
+      ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
+    ); */
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  track(){
+    this.globalQueue.push(
+      ["processTrack"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  page(){
+    this.globalQueue.push(
+      ["processPage"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  identify(){
+    this.globalQueue.push(
+      ["processIdentify"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  group(){
+    this.globalQueue.push(
+      ["processGroup"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  alias(){
+    this.globalQueue.push(
+      ["processAlias"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  reset(){
+    this.globalQueue.push(
+      ["processReset"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+  setAnonymousId(){
+    this.globalQueue.push(
+      ["processSetAnonymousId"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
 }
 
 function pushDataToAnalyticsArray(argumentsArray, obj) {
@@ -1049,11 +1225,8 @@ function pushDataToAnalyticsArray(argumentsArray, obj) {
   } else if (obj.userId) {
     argumentsArray.unshift(["identify", obj.userId, obj.traits]);
   }
-
-  if (obj.event) {
-    argumentsArray.push(["track", obj.event, obj.properties]);
-  }
 }
+
 
 const instance = new Analytics();
 
@@ -1104,17 +1277,19 @@ pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
 
 if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
   for (let i = 0; i < argumentsArray.length; i++) {
-    instance.toBeProcessedArray.push(argumentsArray[i]);
+    //instance.toBeProcessedArray.push(argumentsArray[i]);
+    instance.globalQueue.push(argumentsArray[i]);
   }
+  instance.globalQueueEmitter.emit("process");
 
-  for (let i = 0; i < instance.toBeProcessedArray.length; i++) {
+  /* for (let i = 0; i < instance.toBeProcessedArray.length; i++) {
     const event = [...instance.toBeProcessedArray[i]];
     const method = event[0];
     event.shift();
     logger.debug("=====from init, calling method:: ", method);
     instance[method](...event);
   }
-  instance.toBeProcessedArray = [];
+  instance.toBeProcessedArray = []; */
 }
 // }
 
@@ -1129,6 +1304,7 @@ const load = instance.load.bind(instance);
 const initialized = (instance.initialized = true);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
+const requireIntegration = instance.requireIntegration.bind(instance);
 
 export {
   initialized,
@@ -1142,4 +1318,5 @@ export {
   group,
   getAnonymousId,
   setAnonymousId,
+  requireIntegration
 };
