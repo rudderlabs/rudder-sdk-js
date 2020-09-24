@@ -33,13 +33,15 @@ class EventRepository {
   }
 
   sendQueueDataForBeacon(){
-    const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
-    const targetUrl = `${url}/beacon/v1/batch`;
-    this.storageQueue.sendDataFromQueue(this.writeKey, targetUrl)
+    this.storageQueue.sendDataFromQueue()
   }
 
   initializeTransportMechanism() {
     var sendQueueData = this.sendQueueDataForBeacon.bind(this);
+    const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
+    const targetUrl = `${url}/beacon/v1/batch`;
+    this.storageQueue.url = targetUrl;
+    this.storageQueue.writekey = this.writeKey;
     window.addEventListener("unload", sendQueueData);
   }
 
