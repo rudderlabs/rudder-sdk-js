@@ -65,6 +65,7 @@ class Analytics {
    * @memberof Analytics
    */
   constructor() {
+    this.configUrl = CONFIG_URL;
     this.autoTrackHandlersRegistered = false;
     this.autoTrackFeatureEnabled = false;
     this.initialized = false;
@@ -206,6 +207,7 @@ class Analytics {
         addDomEventHandlersImpl(this);
         this.autoTrackHandlersRegistered = true;
       }
+      this.emitGlobalQueue();
     }
   }
 
@@ -236,10 +238,10 @@ class Analytics {
     // this.clientIntegrationObjects = [];
 
     if (!intgArray || intgArray.length == 0) {
-      if (this.readyCallback) {
-        this.readyCallback();
-      }
-      this.toBeProcessedByIntegrationArray = [];
+      // if (this.readyCallback) {
+      //   this.readyCallback();
+      // }
+      // this.toBeProcessedByIntegrationArray = [];
       return;
     }
 
@@ -294,21 +296,9 @@ class Analytics {
     }
 
     let intgArr = integrations.indexOf("all") >=0 ? intgArray : intgArray.filter((intgObject) => {
-      //return (intgObject.name == integrationName)
+      // get the intersection of client required integrations and those enabled in config plane
       return (integrations.indexOf(intgObject.name) >= 0)
     })
-    /* if(integrations.indexOf("all") >=0){
-      //this.clientRequiredIntegrations.pop();
-      intgArray.forEach(element => {
-        this.clientRequiredIntegrations.push(element.name);
-      });
-      intgArr = intgArray;
-    } else {
-      intgArr = intgArray.filter((intgObject) => {
-        //return (intgObject.name == integrationName)
-        return (integrations.indexOf(intgObject.name) >= 0)
-      })
-    } */
     if (intgArr && intgArr.length > 0 ) {
       for(let i=0;i<intgArr.length;i++){
         let intg = intgArr[i];
@@ -381,34 +371,34 @@ class Analytics {
       //object.clientIntegrations.length
     ) {
       logger.debug(
-        "===replay events called====",
+        "===calling integration onReady callback====",
         object.successfullyLoadedIntegration.length,
         object.failedToBeLoadedIntegration.length
       );
       // eslint-disable-next-line no-param-reassign
-      object.clientIntegrationObjects = [];
-      // eslint-disable-next-line no-param-reassign
-      object.clientIntegrationObjects = object.successfullyLoadedIntegration;
+      // object.clientIntegrationObjects = [];
+      // // eslint-disable-next-line no-param-reassign
+      // object.clientIntegrationObjects = object.successfullyLoadedIntegration;
 
-      logger.debug(
-        "==registering after callback===",
-        object.clientIntegrationObjects.length
-      );
-      object.executeReadyCallback = after(
-        object.clientIntegrationObjects.length,
-        object.readyCallback
-      );
+      // logger.debug(
+      //   "==registering after callback===",
+      //   object.clientIntegrationObjects.length
+      // );
+      // object.executeReadyCallback = after(
+      //   object.clientIntegrationObjects.length,
+      //   object.readyCallback
+      // );
 
-      logger.debug("==registering ready callback===");
-      object.on("ready", object.executeReadyCallback);
+      // logger.debug("==registering ready callback===");
+      // object.on("ready", object.executeReadyCallback);
 
-      object.clientIntegrationObjects.forEach((intg) => {
-        logger.debug("===looping over each successful integration====");
-        if (!intg.isReady || intg.isReady()) {
-          logger.debug("===letting know I am ready=====", intg.name);
-          //object.emit("ready");
-        }
-      });
+      // object.clientIntegrationObjects.forEach((intg) => {
+      //   logger.debug("===looping over each successful integration====");
+      //   if (!intg.isReady || intg.isReady()) {
+      //     logger.debug("===letting know I am ready=====", intg.name);
+      //     //object.emit("ready");
+      //   }
+      // });
 
       if(integrationReadyCallback){
         var successList = [];
@@ -792,7 +782,7 @@ class Analytics {
       // (which were able to successfully load on the page) vs user supplied integrations
       const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
         clientSuppliedIntegrations,
-        this.clientIntegrationObjects
+        this.successfullyLoadedIntegration
       );
 
       // try to first send to all integrations, if list populated from BE
@@ -810,11 +800,11 @@ class Analytics {
 
       // config plane native enabled destinations, still not completely loaded
       // in the page, add the events to a queue and process later
-      if (!this.clientIntegrationObjects) {
-        logger.debug("pushing in replay queue");
-        // new event processing after analytics initialized  but integrations not fetched from BE
-        this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
-      }
+      // if (!this.clientIntegrationObjects) {
+      //   logger.debug("pushing in replay queue");
+      //   // new event processing after analytics initialized  but integrations not fetched from BE
+      //   this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
+      // }
 
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
@@ -945,6 +935,18 @@ class Analytics {
     return true;
   }
 
+  getConfigFromBackend() {
+    try {
+      this.pauseProcessQueue = true;
+      getJSONTrimmed(this, this.configUrl, this.eventRepository.writeKey, this.processResponse);
+    } catch (error) {
+      handleError(error);
+      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+        addDomEventHandlersImpl(this);
+      }
+    }
+  }
+
   /**
    * Call control pane to get client configs
    *
@@ -954,7 +956,7 @@ class Analytics {
   load(writeKey, serverUrl, options) {
     logger.debug("inside load ");
     if (this.loaded) return;
-    let configUrl = CONFIG_URL;
+    this.configUrl = CONFIG_URL;
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
       handleError({
         message:
@@ -970,7 +972,7 @@ class Analytics {
       tranformToRudderNames(this.loadOnlyIntegrations);
     }
     if (options && options.configUrl) {
-      configUrl = getUserProvidedConfigUrl(options.configUrl);
+      this.configUrl = getUserProvidedConfigUrl(options.configUrl);
     }
     if (options && options.sendAdblockPage) {
       this.sendAdblockPage = true;
@@ -1026,21 +1028,15 @@ class Analytics {
         );
       }
     }
-    try {
-      this.pauseProcessQueue = true;
-      getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
-    } catch (error) {
-      handleError(error);
-      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlersImpl(this);
-      }
-    }
   }
 
-  ready(callback) {
+  processReady(callback) {
     if (!this.loaded) return;
     if (typeof callback === "function") {
       this.readyCallback = callback;
+      // since our globalqueue only processes events after load, we can directly call ready callback from here
+      // as our Analytics object is ready with fetching of configs from backend
+      this.readyCallback(this.clientIntegrations);
       return;
     }
     logger.error("ready callback is not a function");
@@ -1161,6 +1157,15 @@ class Analytics {
     //Emitter(this.globalQueue);
     this.globalQueueEmitter.emit("process");
   }
+
+  ready(){
+    this.globalQueue.push(
+      ["processReady"].concat(Array.prototype.slice.call(arguments))
+    );
+    //Emitter(this.globalQueue);
+    this.globalQueueEmitter.emit("process");
+  }
+
   track(){
     this.globalQueue.push(
       ["processTrack"].concat(Array.prototype.slice.call(arguments))
@@ -1268,6 +1273,8 @@ if (
   logger.debug("=====from init, calling method:: ", method);
   instance[method](...argumentsArray[0]);
   argumentsArray.shift();
+  // after load get configFromBackend
+  argumentsArray.unshift(['getConfigFromBackend'])
 }
 
 // once loaded, parse querystring of the page url to send events
