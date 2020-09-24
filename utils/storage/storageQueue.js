@@ -16,14 +16,15 @@ class StorageQueue {
         this.flushQueueTimeOutInterval = 1000 * 60 * 10; // 10 mins
         this.url = "";
         this.writekey = "";
+        this.queueName = `${defaults.queue}.${Date.now()}`
     }
 
     getQueue(){
-        return this.storage.get(defaults.queue);
+        return this.storage.get(this.queueName);
     }
 
     setQueue(value){
-        this.storage.set(defaults.queue, value);
+        this.storage.set(this.queueName, value);
     }
 
     enqueue(url, headers, message, writekey){
@@ -47,6 +48,11 @@ class StorageQueue {
         }
         
 
+    }
+
+    sendDataFromQueueAndDestroyQueue(){
+        this.sendDataFromQueue();
+        this.storage.remove(this.queueName);
     }
 
     sendDataFromQueue(){

@@ -33,7 +33,7 @@ class EventRepository {
   }
 
   sendQueueDataForBeacon(){
-    this.storageQueue.sendDataFromQueue()
+    this.storageQueue.sendDataFromQueueAndDestroyQueue()
   }
 
   initializeTransportMechanism() {
