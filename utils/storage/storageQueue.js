@@ -11,6 +11,11 @@ class StorageQueue {
     constructor() {
         this.storage = Store;
         this.maxItems = 10;
+        this.flushQueueTimeOut = undefined;
+        this.timeOutActive = false;
+        this.flushQueueTimeOutInterval = 1000 * 60 * 10; // 10 mins
+        this.url = "";
+        this.writekey = "";
     }
 
     getQueue(){
@@ -30,14 +35,13 @@ class StorageQueue {
         var dataToSend = JSON.stringify(data, replacer);
         if(dataToSend.length > defaults.maxPayloadSize){
             batch = queue.slice(0, queue.length - 1);
-            maxPayloadSizeReached = true;
             this.flushQueue(headers, batch, url, writekey);
             queue = this.getQueue();
             queue.push(message);
-            this.setQueue(queue);
-        } else {
-            this.setQueue(queue);
         }
+        this.setQueue(queue);
+        this.setTimer();
+        
         if(queue.length == this.maxItems){
             this.flushQueue(headers, batch, url, writekey);
         }
@@ -45,12 +49,12 @@ class StorageQueue {
 
     }
 
-    sendDataFromQueue(writekey, url){
+    sendDataFromQueue(){
         var queue = this.getQueue();
         if(queue && queue.length > 0){
             var batch = queue.slice(0, queue.length);
             var headers = {};
-            this.flushQueue(headers, batch, url, writekey);
+            this.flushQueue(headers, batch, this.url, this.writekey);
         }
         
     }
@@ -68,6 +72,21 @@ class StorageQueue {
          logger.debug("Unable to send data");   
         }
         this.setQueue([]);
+        this.clearTimer();
+       
+    }
+
+    setTimer(){
+        if(!this.timeOutActive){
+            this.flushQueueTimeOut = setTimeout(this.sendDataFromQueue.bind(this), this.flushQueueTimeOutInterval);
+            this.timeOutActive = true;
+        }
+    }
+    clearTimer(){
+        if(this.timeOutActive){
+            clearTimeout(this.flushQueueTimeOut);
+            this.timeOutActive = false;
+        }
     }
 }
 
