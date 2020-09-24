@@ -321,7 +321,7 @@ class Analytics {
           //ScriptLoader(`${intg.name}-rudder`, "../../dist/GAPlugin.js")
 
           var pluginName = this.pluginMap[intg.name];
-          var integrationSource = `http://localhost:2222/dist/${pluginName}.js`
+          var integrationSource = `http://js-sdk.dev.rudderlabs.com/plugins/${pluginName}.js`
 
           if(!window[pluginName]) {
             getIntegration(integrationSource, intg, processAfterLoadingIntegration);
