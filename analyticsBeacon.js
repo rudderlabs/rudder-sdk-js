@@ -1285,7 +1285,12 @@ pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
 if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
   for (let i = 0; i < argumentsArray.length; i++) {
     //instance.toBeProcessedArray.push(argumentsArray[i]);
-    instance.globalQueue.push(argumentsArray[i]);
+    //instance.globalQueue.push(argumentsArray[i]);
+    const event = [...argumentsArray[i]];
+    const method = event[0];
+    event.shift();
+    logger.debug("=====from init, calling method:: ", method);
+    instance[method](...event);
   }
   instance.globalQueueEmitter.emit("process");
 
