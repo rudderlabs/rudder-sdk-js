@@ -232,16 +232,17 @@ class Analytics {
    * @returns
    * @memberof Analytics
    */
-  init(intgArray, integrations, integrationReadyCallback) {
+  init(fetchedFromBEIntgArray, clientIsRequiringIntegrations, integrationReadyCallback) {
     const self = this;
     //logger.debug("supported intgs ", integrations);
     // this.clientIntegrationObjects = [];
 
-    if (!intgArray || intgArray.length == 0) {
+    if (!fetchedFromBEIntgArray || fetchedFromBEIntgArray.length == 0) {
       // if (this.readyCallback) {
       //   this.readyCallback();
       // }
       // this.toBeProcessedByIntegrationArray = [];
+      integrationReadyCallback(this.getParamForIntegrationReadyCallback())
       return;
     }
 
@@ -295,13 +296,13 @@ class Analytics {
       this.isInitialized(intgInstance).then(()=> {this.makeIntegrationReady(this, integrationReadyCallback)});
     }
 
-    let intgArr = integrations.indexOf("all") >=0 ? intgArray : intgArray.filter((intgObject) => {
+    let intersectedIntgArr = clientIsRequiringIntegrations.indexOf("all") >=0 ? fetchedFromBEIntgArray : fetchedFromBEIntgArray.filter((intgObject) => {
       // get the intersection of client required integrations and those enabled in config plane
-      return (integrations.indexOf(intgObject.name) >= 0)
+      return (clientIsRequiringIntegrations.indexOf(intgObject.name) >= 0)
     })
-    if (intgArr && intgArr.length > 0 ) {
-      for(let i=0;i<intgArr.length;i++){
-        let intg = intgArr[i];
+    if (intersectedIntgArr && intersectedIntgArr.length > 0 ) {
+      for(let i=0;i<intersectedIntgArr.length;i++){
+        let intg = intersectedIntgArr[i];
         this.clientRequiredIntegrations.push(intg.name);
         try {
           logger.debug(
@@ -342,7 +343,8 @@ class Analytics {
             intg.name
           );
           //this.pauseProcessQueue = false;
-          if(i == intgArr.length - 1){
+          integrationReadyCallback(this.getParamForIntegrationReadyCallback())
+          if(i == intersectedIntgArr.length - 1){
             this.emitGlobalQueue();
           }
         }
@@ -350,6 +352,7 @@ class Analytics {
       
     } else {
       //this.pauseProcessQueue = false;
+      integrationReadyCallback(this.getParamForIntegrationReadyCallback())
       this.emitGlobalQueue();
     }
   }
@@ -401,22 +404,26 @@ class Analytics {
       // });
 
       if(integrationReadyCallback){
-        var successList = [];
-        var failureList = [];
-        object.successfullyLoadedIntegration.forEach((intg) => {
-          successList.push(intg.name);
-        })
-        object.failedToBeLoadedIntegration.forEach((intg) => {
-          failureList.push(intg.name);
-        })
-        var returnObject = {
-          success: [...successList],
-          failure: [...failureList]
-        }
-        integrationReadyCallback(returnObject);
+        integrationReadyCallback(object.getParamForIntegrationReadyCallback());
       }
       object.emitGlobalQueue();
     }
+  }
+
+  getParamForIntegrationReadyCallback() {
+    var successList = [];
+    var failureList = [];
+    this.successfullyLoadedIntegration.forEach((intg) => {
+      successList.push(intg.name);
+    })
+    this.failedToBeLoadedIntegration.forEach((intg) => {
+      failureList.push(intg.name);
+    })
+    var returnObject = {
+      success: [...successList],
+      failure: [...failureList]
+    }
+    return returnObject
   }
 
   pause(time) {
