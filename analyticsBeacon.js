@@ -358,9 +358,11 @@ class Analytics {
   }
 
   emitGlobalQueue(){
-    this.pauseProcessQueue = false;
-    //Emitter(this.globalQueue);
-    this.globalQueueEmitter.emit("process");
+    if(this.pauseProcessQueue){
+      this.pauseProcessQueue = false;
+      this.globalQueueEmitter.emit("process");
+    }
+    
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -1238,7 +1240,6 @@ function pushDataToAnalyticsArray(argumentsArray, obj) {
     argumentsArray.unshift(["identify", obj.userId, obj.traits]);
   }
 }
-
 
 const instance = new Analytics();
 
