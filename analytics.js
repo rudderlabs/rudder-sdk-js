@@ -27,6 +27,7 @@ import {
   CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
+  INTEGRATION_URL,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -98,7 +99,6 @@ class Analytics {
     this.globalQueue = [];
     this.pauseProcessQueue = false;
     this.clientRequiredIntegrations = [];
-    //this.globalQueue.on(this.processGlobalQueue);
 
     this.globalQueueEmitter = new Emitter;
     this.globalQueueEmitter.on("process", this.processGlobalQueue.bind(this));
@@ -134,8 +134,6 @@ class Analytics {
     this.storage.setUserTraits(this.userTraits);
     this.storage.setGroupTraits(this.groupTraits);
   }
-
-  //processQueueInterval  = setInterval(this.processGlobalQueue, 1000);
 
   processGlobalQueue(object){
     while(!this.pauseProcessQueue && this.globalQueue.length > 0){
@@ -189,7 +187,6 @@ class Analytics {
 
       // remove from the list which don't have support yet in SDK
       this.clientIntegrations = this.clientIntegrations.filter((intg) => {
-        //return integrations[intg.name] != undefined;
         return this.pluginMap[intg.name] != undefined;
       });
       this.emitGlobalQueue();
@@ -218,8 +215,6 @@ class Analytics {
     })
     if(integrations.length > 0){
       this.pauseProcessQueue = true;
-      //this.clientRequiredIntegrations.push(integrationName);
-      //Array.prototype.push.apply(this.clientRequiredIntegrations, integrations);
       this.init(this.clientIntegrations, integrations, integrationReadyCallback);
     }
   }
@@ -234,28 +229,11 @@ class Analytics {
    */
   init(fetchedFromBEIntgArray, clientIsRequiringIntegrations, integrationReadyCallback) {
     const self = this;
-    //logger.debug("supported intgs ", integrations);
-    // this.clientIntegrationObjects = [];
 
     if (!fetchedFromBEIntgArray || fetchedFromBEIntgArray.length == 0) {
-      // if (this.readyCallback) {
-      //   this.readyCallback();
-      // }
-      // this.toBeProcessedByIntegrationArray = [];
       integrationReadyCallback(this.getParamForIntegrationReadyCallback())
       return;
     }
-
-    /* function processAfterLoadingIntegration(status, response) {
-      const intgClass = window[pluginName];//window.GaPlugin;
-        const destConfig = intg.config;
-        const intgInstance = new intgClass(destConfig, self);
-        intgInstance.init();
-
-        logger.debug("initializing destination: ", intg);
-
-        this.isInitialized(intgInstance).then(this.replayEvents);
-    } */
 
     let getIntegration = (integrationSource, sourceConfigObject, callback) => {
       const cb_ = callback.bind(this);
@@ -291,8 +269,6 @@ class Analytics {
       intgInstance.init();
 
       logger.debug("initializing destination: ", intg);
-
-      //this.isInitialized(intgInstance).then(()=> {this.makeIntegrationReady.call(this, this, readyCallback)});
       this.isInitialized(intgInstance).then(()=> {this.makeIntegrationReady(this, integrationReadyCallback)});
     }
 
@@ -309,40 +285,19 @@ class Analytics {
             "[Analytics] init :: trying to initialize integration name:: ",
             intg.name
           );
-          //ScriptLoader(`${intg.name}-rudder`, "../../dist/GAPlugin.js")
 
           var pluginName = this.pluginMap[intg.name];
-          var integrationSource = `http://js-sdk.dev.rudderlabs.com/plugins/${pluginName}.js`
+          var integrationSource = `${INTEGRATION_URL}${pluginName}.js`
 
           if(!window[pluginName]) {
             getIntegration(integrationSource, intg, processAfterLoadingIntegration);
           }
-
-          /* var xhrObj = new XMLHttpRequest();
-          // open and send a synchronous request
-          xhrObj.open('GET', integrationSource, false);
-          xhrObj.send(''); */
-          // add the returned content to a newly created script tag
-          /* var se = document.createElement('script');
-          se.type = "text/javascript";
-          se.text = xhrObj.responseText;
-          document.getElementsByTagName('head')[0].appendChild(se); 
-          const intgClass = window[pluginName];//window.GaPlugin;
-          const destConfig = intg.config;
-          const intgInstance = new intgClass(destConfig, self);
-          intgInstance.init();
-
-          logger.debug("initializing destination: ", intg);
-
-          this.isInitialized(intgInstance).then(this.replayEvents); */
-
           
         } catch (e) {
           logger.error(
             "[Analytics] initialize integration (integration.init()) failed :: ",
             intg.name
           );
-          //this.pauseProcessQueue = false;
           integrationReadyCallback(this.getParamForIntegrationReadyCallback())
           if(i == intersectedIntgArr.length - 1){
             this.emitGlobalQueue();
@@ -351,7 +306,6 @@ class Analytics {
       }
       
     } else {
-      //this.pauseProcessQueue = false;
       integrationReadyCallback(this.getParamForIntegrationReadyCallback())
       this.emitGlobalQueue();
     }
@@ -373,37 +327,12 @@ class Analytics {
       object.successfullyLoadedIntegration.length +
         object.failedToBeLoadedIntegration.length ===
         object.clientRequiredIntegrations.length
-      //object.clientIntegrations.length
     ) {
       logger.debug(
         "===calling integration onReady callback====",
         object.successfullyLoadedIntegration.length,
         object.failedToBeLoadedIntegration.length
       );
-      // eslint-disable-next-line no-param-reassign
-      // object.clientIntegrationObjects = [];
-      // // eslint-disable-next-line no-param-reassign
-      // object.clientIntegrationObjects = object.successfullyLoadedIntegration;
-
-      // logger.debug(
-      //   "==registering after callback===",
-      //   object.clientIntegrationObjects.length
-      // );
-      // object.executeReadyCallback = after(
-      //   object.clientIntegrationObjects.length,
-      //   object.readyCallback
-      // );
-
-      // logger.debug("==registering ready callback===");
-      // object.on("ready", object.executeReadyCallback);
-
-      // object.clientIntegrationObjects.forEach((intg) => {
-      //   logger.debug("===looping over each successful integration====");
-      //   if (!intg.isReady || intg.isReady()) {
-      //     logger.debug("===letting know I am ready=====", intg.name);
-      //     //object.emit("ready");
-      //   }
-      // });
 
       if(integrationReadyCallback){
         integrationReadyCallback(object.getParamForIntegrationReadyCallback());
@@ -807,14 +736,6 @@ class Analytics {
         handleError({ message: `[sendToNative]:${err}` });
       }
 
-      // config plane native enabled destinations, still not completely loaded
-      // in the page, add the events to a queue and process later
-      // if (!this.clientIntegrationObjects) {
-      //   logger.debug("pushing in replay queue");
-      //   // new event processing after analytics initialized  but integrations not fetched from BE
-      //   this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
-      // }
-
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
 
@@ -1159,10 +1080,6 @@ class Analytics {
     this.globalQueue.push(
       ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
     );
-    /* this.globalQueue.unshift(
-      ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
-    ); */
-    //Emitter(this.globalQueue);
     this.globalQueueEmitter.emit("process");
   }
 
@@ -1170,7 +1087,6 @@ class Analytics {
     this.globalQueue.push(
       ["processReady"].concat(Array.prototype.slice.call(arguments))
     );
-    //Emitter(this.globalQueue);
     this.globalQueueEmitter.emit("process");
   }
 
@@ -1178,49 +1094,42 @@ class Analytics {
     this.globalQueue.push(
       ["processTrack"].concat(Array.prototype.slice.call(arguments))
     );
-    //Emitter(this.globalQueue);
     this.globalQueueEmitter.emit("process");
   }
   page(){
     this.globalQueue.push(
       ["processPage"].concat(Array.prototype.slice.call(arguments))
     );
-    //Emitter(this.globalQueue);
     this.globalQueueEmitter.emit("process");
   }
   identify(){
     this.globalQueue.push(
       ["processIdentify"].concat(Array.prototype.slice.call(arguments))
     );
-    //Emitter(this.globalQueue);
     this.globalQueueEmitter.emit("process");
   }
   group(){
     this.globalQueue.push(
       ["processGroup"].concat(Array.prototype.slice.call(arguments))
     );
-    //Emitter(this.globalQueue);
     this.globalQueueEmitter.emit("process");
   }
   alias(){
     this.globalQueue.push(
       ["processAlias"].concat(Array.prototype.slice.call(arguments))
     );
-    //Emitter(this.globalQueue);
     this.globalQueueEmitter.emit("process");
   }
   reset(){
     this.globalQueue.push(
       ["processReset"].concat(Array.prototype.slice.call(arguments))
     );
-    //Emitter(this.globalQueue);
     this.globalQueueEmitter.emit("process");
   }
   setAnonymousId(){
     this.globalQueue.push(
       ["processSetAnonymousId"].concat(Array.prototype.slice.call(arguments))
     );
-    //Emitter(this.globalQueue);
     this.globalQueueEmitter.emit("process");
   }
 }
@@ -1291,8 +1200,6 @@ pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
 
 if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
   for (let i = 0; i < argumentsArray.length; i++) {
-    //instance.toBeProcessedArray.push(argumentsArray[i]);
-    //instance.globalQueue.push(argumentsArray[i]);
     const event = [...argumentsArray[i]];
     const method = event[0];
     event.shift();
@@ -1300,17 +1207,7 @@ if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
     instance[method](...event);
   }
   instance.globalQueueEmitter.emit("process");
-
-  /* for (let i = 0; i < instance.toBeProcessedArray.length; i++) {
-    const event = [...instance.toBeProcessedArray[i]];
-    const method = event[0];
-    event.shift();
-    logger.debug("=====from init, calling method:: ", method);
-    instance[method](...event);
-  }
-  instance.toBeProcessedArray = []; */
 }
-// }
 
 const ready = instance.ready.bind(instance);
 const identify = instance.identify.bind(instance);
