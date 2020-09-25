@@ -27,6 +27,7 @@ import {
   CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
+  INTEGRATION_URL,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -312,7 +313,7 @@ class Analytics {
           //ScriptLoader(`${intg.name}-rudder`, "../../dist/GAPlugin.js")
 
           var pluginName = this.pluginMap[intg.name];
-          var integrationSource = `http://js-sdk.dev.rudderlabs.com/plugins/${pluginName}.js`
+          var integrationSource = `${INTEGRATION_URL}${pluginName}.js`
 
           if(!window[pluginName]) {
             getIntegration(integrationSource, intg, processAfterLoadingIntegration);
