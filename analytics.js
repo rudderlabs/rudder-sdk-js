@@ -13,6 +13,8 @@
 import Emitter from "component-emitter";
 import after from "after";
 import querystring from "component-querystring";
+import merge from "lodash.merge";
+import utm from "@segment/utm-params"
 import {
   getJSONTrimmed,
   generateUUID,
@@ -718,7 +720,22 @@ class Analytics {
   }
 
   /**
+   * add campaign parsed details under context
+   * @param {*} rudderElement 
+   */
+  addCampaignInfo(rudderElement) {
+    const {search} = getDefaultPageProperties();
+    let campaign = utm(search);
+    if(rudderElement.message.context && typeof rudderElement.message.context === "object") {
+      rudderElement.message.context.campaign = campaign;
+    } 
+  }
+
+  /**
    * process options parameter
+   * Apart from top level keys merge everyting under context
+   * context.page's default properties are overriden by same keys of 
+   * provided properties in case of page call 
    *
    * @param {*} rudderElement
    * @param {*} options
@@ -726,6 +743,15 @@ class Analytics {
    */
   processOptionsParam(rudderElement, options) {
     const { type, properties } = rudderElement.message;
+
+    this.addCampaignInfo(rudderElement);
+
+    // assign page properties to context.page
+    rudderElement.message.context.page =
+      type == "page"
+        ? this.getContextPageProperties(properties)
+        : this.getContextPageProperties();
+
     const toplevelElements = [
       "integrations",
       "anonymousId",
@@ -734,23 +760,22 @@ class Analytics {
     for (const key in options) {
       if (toplevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
-        // special handle for ananymousId as transformation expects anonymousId in traits.
-        /* if (key === "anonymousId") {
-          rudderElement.message.context.traits["anonymousId"] = options[key];
-        } */
-      } else if (key !== "context")
-        rudderElement.message.context[key] = options[key];
-      else {
-        for (const k in options[key]) {
-          rudderElement.message.context[k] = options[key][k];
+      } else if (key !== "context") {
+        rudderElement.message.context = merge(rudderElement.message.context, {
+          [key]: options[key],
+        });
+      } else {
+        if (typeof options[key] === "object" && options[key] != null) {
+          rudderElement.message.context = merge(rudderElement.message.context, {
+            ...options[key],
+          });
+        } else {
+          logger.error(
+            "[Analytics: processOptionsParam] context passed in options is not object"
+          );
         }
       }
     }
-    // assign page properties to context.page
-    rudderElement.message.context.page =
-      type == "page"
-        ? this.getContextPageProperties(options, properties)
-        : this.getContextPageProperties(options);
   }
 
   getPageProperties(properties, options) {
@@ -766,16 +791,14 @@ class Analytics {
   }
 
   // Assign page properties to context.page if the same property is not provided under context.page
-  getContextPageProperties(options, properties) {
+  getContextPageProperties(properties) {
     const defaultPageProperties = getDefaultPageProperties();
-    const contextPageProperties = options && options.page ? options.page : {};
+    let contextPageProperties = {};
     for (const key in defaultPageProperties) {
-      if (contextPageProperties[key] === undefined) {
-        contextPageProperties[key] =
-          properties && properties[key]
-            ? properties[key]
-            : defaultPageProperties[key];
-      }
+      contextPageProperties[key] =
+        properties && properties[key]
+          ? properties[key]
+          : defaultPageProperties[key];
     }
     return contextPageProperties;
   }
