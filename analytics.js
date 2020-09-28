@@ -463,7 +463,7 @@ class Analytics {
     this.storage.setGroupId(this.groupId);
 
     const rudderElement = new RudderElementBuilder().setType("group").build();
-    if (traits) {
+    if (traits && typeof traits === "object") {
       for (const key in traits) {
         this.groupTraits[key] = traits[key];
       }
@@ -550,7 +550,7 @@ class Analytics {
     const rudderElement = new RudderElementBuilder()
       .setType("identify")
       .build();
-    if (traits) {
+    if (traits && typeof traits === "object") {
       for (const key in traits) {
         this.userTraits[key] = traits[key];
       }
@@ -738,9 +738,9 @@ class Analytics {
         /* if (key === "anonymousId") {
           rudderElement.message.context.traits["anonymousId"] = options[key];
         } */
-      } else if (key !== "context")
+      } else if (key !== "context") {
         rudderElement.message.context[key] = options[key];
-      else {
+      } else {
         for (const k in options[key]) {
           rudderElement.message.context[k] = options[key][k];
         }
