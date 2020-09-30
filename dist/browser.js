@@ -12910,13 +12910,11 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "page",
       value: function page(rudderElement) {
-        logger.debug("in Lytics page"); // eslint-disable-next-line no-underscore-dangle
-
-        var _e = rudderElement.message.name;
+        logger.debug("in Lytics page");
         var properties = rudderElement.message.properties;
 
         var payload = _objectSpread2({
-          _e: _e
+          _e: rudderElement.message.name
         }, properties);
 
         window.jstag.send(this.stream, payload);
@@ -12924,13 +12922,11 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "track",
       value: function track(rudderElement) {
-        logger.debug("in Lytics track"); // eslint-disable-next-line no-underscore-dangle
-
-        var _e = rudderElement.message.event;
+        logger.debug("in Lytics track");
         var properties = rudderElement.message.properties;
 
         var payload = _objectSpread2({
-          _e: _e
+          _e: rudderElement.message.event
         }, properties);
 
         window.jstag.send(this.stream, payload);

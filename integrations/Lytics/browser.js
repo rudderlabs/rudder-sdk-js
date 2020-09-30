@@ -123,19 +123,15 @@ class Lytics {
 
   page(rudderElement) {
     logger.debug("in Lytics page");
-    // eslint-disable-next-line no-underscore-dangle
-    const _e = rudderElement.message.name;
     const { properties } = rudderElement.message;
-    const payload = { _e, ...properties };
+    const payload = { _e: rudderElement.message.name, ...properties };
     window.jstag.send(this.stream, payload);
   }
 
   track(rudderElement) {
     logger.debug("in Lytics track");
-    // eslint-disable-next-line no-underscore-dangle
-    const _e = rudderElement.message.event;
     const { properties } = rudderElement.message;
-    const payload = { _e, ...properties };
+    const payload = { _e: rudderElement.message.event, ...properties };
     window.jstag.send(this.stream, payload);
   }
 }
