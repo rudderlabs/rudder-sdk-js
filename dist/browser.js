@@ -12815,17 +12815,6 @@ var rudderanalytics = (function (exports) {
     function Lytics(config) {
       _classCallCheck(this, Lytics);
 
-      this.isLoaded = function () {
-        logger.debug("in Lytics isLoaded");
-        logger.debug(!!(window.jstag && window.jstag.push !== Array.prototype.push));
-        return !!(window.jstag && window.jstag.push !== Array.prototype.push);
-      };
-
-      this.isReady = function () {
-        logger.debug("in Lytics isReady");
-        return !!(window.jstag && window.jstag.push !== Array.prototype.push);
-      };
-
       this.accountId = config.accountId;
       this.stream = config.stream;
       this.blockload = config.blockload;
@@ -12836,7 +12825,7 @@ var rudderanalytics = (function (exports) {
     _createClass(Lytics, [{
       key: "loadLyticsScript",
       value: function loadLyticsScript() {
-        !function () {
+        (function () {
 
           var o = window.jstag || (window.jstag = {}),
               r = [];
@@ -12874,7 +12863,8 @@ var rudderanalytics = (function (exports) {
               }();
             }), this;
           };
-        }(); // Define config and initialize Lytics tracking tag.
+        })(); // Define config and initialize Lytics tracking tag.
+
 
         window.jstag.init({
           loadid: this.loadid,
@@ -12889,6 +12879,19 @@ var rudderanalytics = (function (exports) {
       value: function init() {
         this.loadLyticsScript();
         logger.debug("===in init Lytics===");
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in Lytics isLoaded");
+        logger.debug(!!(window.jstag && window.jstag.push !== Array.prototype.push));
+        return !!(window.jstag && window.jstag.push !== Array.prototype.push);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        logger.debug("in Lytics isReady");
+        return !!(window.jstag && window.jstag.push !== Array.prototype.push);
       }
     }, {
       key: "identify",
@@ -12907,7 +12910,8 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "page",
       value: function page(rudderElement) {
-        // eslint-disable-next-line no-underscore-dangle
+        logger.debug("in Lytics page"); // eslint-disable-next-line no-underscore-dangle
+
         var _e = rudderElement.message.name;
         var properties = rudderElement.message.properties;
 
