@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 // disabled these for Lytics js tag
 /* eslint-disable no-plusplus */
 /* eslint-disable block-scoped-var */
@@ -28,7 +29,7 @@ class Lytics {
   }
 
   loadLyticsScript() {
-    !(function () {
+    (function () {
       "use strict";
       var o = window.jstag || (window.jstag = {}),
         r = [];
@@ -97,18 +98,18 @@ class Lytics {
     logger.debug("===in init Lytics===");
   }
 
-  isLoaded = () => {
+  isLoaded() {
     logger.debug("in Lytics isLoaded");
     logger.debug(
       !!(window.jstag && window.jstag.push !== Array.prototype.push)
     );
     return !!(window.jstag && window.jstag.push !== Array.prototype.push);
-  };
+  }
 
-  isReady = () => {
+  isReady() {
     logger.debug("in Lytics isReady");
     return !!(window.jstag && window.jstag.push !== Array.prototype.push);
-  };
+  }
 
   identify(rudderElement) {
     logger.debug("in Lytics identify");
