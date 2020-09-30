@@ -51,73 +51,74 @@
     // window.rudderanalytics.page();
 
     // window.rudderanalytics.page('ruchira category', 'ruchira name', { url: 'url', path: '/path' }); 
+    rudderanalytics.track();
+    window.rudderanalytics.track('event1');
+rudderanalytics.track('Order Completed', {
+            checkout_id: 'what is checkout id here??',
+            order_id: "transactionId",
+            value: 31.98,
+            revenue: 31.98,
+            shipping: 4.00,
+            coupon: 'APPARELSALE',
+            currency: 'GBP',
+            products: [
+                {
+                    product_id: 'product-bacon-jam',
+                    sku: 'sku-1',
+                    category: 'Merch',
+                    name: 'Food/Drink',
+                    brand: '',
+                    variant: 'Extra topped',
+                    price: 3.00,
+                    quantity: 2,
+                    currency: 'GBP',
+                    position: 1,
+                    value: 6.00,
+                    typeOfProduct: 'Food',
+                    url: 'https://www.example.com/product/bacon-jam',
+                    image_url: 'https://www.example.com/product/bacon-jam.jpg'
+                },
+                {
+                    product_id: 'product-t-shirt',
+                    sku: 'sku-2',
+                    category: 'Merch',
+                    name: 'T-Shirt',
+                    brand: 'Levis',
+                    variant: 'White',
+                    price: 12.99,
+                    quantity: 1,
+                    currency: 'GBP',
+                    position: 2,
+                    value: 12.99,
+                    typeOfProduct: 'Shirt',
+                    url: 'https://www.example.com/product/t-shirt',
+                    image_url: 'https://www.example.com/product/t-shirt.jpg'
+                },
+                {
+                    product_id: 'offer-t-shirt',
+                    sku: 'sku-3',
+                    category: 'Merch',
+                    name: 'T-Shirt-on-offer',
+                    brand: 'Levis',
+                    variant: 'Black',
+                    price: 12.99,
+                    quantity: 1,
+                    currency: 'GBP',
+                    position: 1,
+                    value: 12.99,
+                    coupon: 'APPARELSALE',
+                    typeOfProduct: 'Shirt',
+                    url: 'https://www.example.com/product/offer-t-shirt',
+                    image_url: 'https://www.example.com/product/offer-t-shirt.jpg'
+                }
+            ]
+        });
 
-// rudderanalytics.track('Order Completed', {
-//             checkout_id: 'what is checkout id here??',
-//             order_id: "transactionId",
-//             value: 31.98,
-//             revenue: 31.98,
-//             shipping: 4.00,
-//             coupon: 'APPARELSALE',
-//             currency: 'GBP',
-//             products: [
-//                 {
-//                     product_id: 'product-bacon-jam',
-//                     sku: 'sku-1',
-//                     category: 'Merch',
-//                     name: 'Food/Drink',
-//                     brand: '',
-//                     variant: 'Extra topped',
-//                     price: 3.00,
-//                     quantity: 2,
-//                     currency: 'GBP',
-//                     position: 1,
-//                     value: 6.00,
-//                     typeOfProduct: 'Food',
-//                     url: 'https://www.example.com/product/bacon-jam',
-//                     image_url: 'https://www.example.com/product/bacon-jam.jpg'
-//                 },
-//                 {
-//                     product_id: 'product-t-shirt',
-//                     sku: 'sku-2',
-//                     category: 'Merch',
-//                     name: 'T-Shirt',
-//                     brand: 'Levis',
-//                     variant: 'White',
-//                     price: 12.99,
-//                     quantity: 1,
-//                     currency: 'GBP',
-//                     position: 2,
-//                     value: 12.99,
-//                     typeOfProduct: 'Shirt',
-//                     url: 'https://www.example.com/product/t-shirt',
-//                     image_url: 'https://www.example.com/product/t-shirt.jpg'
-//                 },
-//                 {
-//                     product_id: 'offer-t-shirt',
-//                     sku: 'sku-3',
-//                     category: 'Merch',
-//                     name: 'T-Shirt-on-offer',
-//                     brand: 'Levis',
-//                     variant: 'Black',
-//                     price: 12.99,
-//                     quantity: 1,
-//                     currency: 'GBP',
-//                     position: 1,
-//                     value: 12.99,
-//                     coupon: 'APPARELSALE',
-//                     typeOfProduct: 'Shirt',
-//                     url: 'https://www.example.com/product/offer-t-shirt',
-//                     image_url: 'https://www.example.com/product/offer-t-shirt.jpg'
-//                 }
-//             ]
-//         });
-
-    window.rudderanalytics.page('category', 'name', {
-            url: 'ruchira url',
-            path: '/ruchirapath',
-            search: '?q=1'
-          });
+    // window.rudderanalytics.page('category', 'name', {
+    //         url: 'ruchira url',
+    //         path: '/ruchirapath',
+    //         search: '?q=1'
+    //       });
 
     //       window.rudderanalytics.page(
     //         'category1',
@@ -175,40 +176,50 @@
 
     //       //identify calls
           // window.rudderanalytics.page();
-      window.rudderanalytics.identify("ruchu123", {
-        name: "Ruchira Moitra",
-        email: "ruchira@gmail.com",
-        plan: "Enterprise",
-        company: {
-          id: "abc123"
-        },
-        createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
-      });
-      window.rudderanalytics.identify('Steven');
+      // window.rudderanalytics.identify("ruchu123", {
+      //   name: "Ruchira Moitra",
+      //   email: "ruchira@gmail.com",
+      //   plan: "Enterprise",
+      //   company: [{
+      //     id: "abc123",
+      //     name: {
+      //       second_name:"xyz",
+      //       first_name:"abc"
+      //     }
+      //   },{
+      //     id: "abc1234",
+      //     name: {
+      //       second_name:"xyza",
+      //       first_name:"abcd"
+      //     }
+      //   }],
+      //   createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
+      // });
+      // window.rudderanalytics.identify('Steven');
       
      // track calls
 
-      window.rudderanalytics.track('event1');
+      // window.rudderanalytics.track('event1');
 
-      window.rudderanalytics.track('event2', { category: 'blah' });
+      // window.rudderanalytics.track('event2', { category: 'blah' });
 
-      window.rudderanalytics.track(
-            'event3',
-            {},
-            {
-              campaign: {
-                name: 'test',
-                source: 'test',
-                medium: 'test',
-                term: 'test',
-                content: 'test'
-              }
-            }
-          );
+      // window.rudderanalytics.track(
+      //       'event3',
+      //       {},
+      //       {
+      //         campaign: {
+      //           name: 'test',
+      //           source: 'test',
+      //           medium: 'test',
+      //           term: 'test',
+      //           content: 'test'
+      //         }
+      //       }
+      //     );
 
       //     window.rudderanalytics.track('event4', { category: 'category' });
 
-          window.rudderanalytics.page('category', 'name');
+          // window.rudderanalytics.page('category', 'name');
       //     window.rudderanalytics.track('event5', {});
 
       //     // window.rudderanalytics.page('category(page)');
