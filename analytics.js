@@ -50,7 +50,7 @@ const queryDefaults = {
  */
 function enqueue(rudderElement, type) {
   if (!this.eventRepository) {
-    this.eventRepository = EventRepository();
+    this.eventRepository = EventRepository;
   }
   this.eventRepository.enqueue(rudderElement, type);
 }
@@ -78,6 +78,7 @@ class Analytics {
     this.toBeProcessedArray = [];
     this.toBeProcessedByIntegrationArray = [];
     this.storage = Storage;
+    this.eventRepository = EventRepository;
     this.sendAdblockPage = false;
     this.sendAdblockPageOptions = {};
     this.clientSuppliedCallbacks = {};
@@ -886,17 +887,11 @@ class Analytics {
       this.registerCallbacks(true);
     }
 
-    const queueOptions = {};
-    if (options) {
-      if (options.maxRetries) {
-        queueOptions.maxAttempts = options.maxRetries;
-      }
-      if (options.maxQueueSize) {
-        queueOptions.maxItems = options.maxQueueSize;
-      }
+    if (options.queueOptions && options.queueOptions != null && typeof options.queueOptions == "object") {
+      this.eventRepository.startQueue(options.queueOptions);
+    } else {
+      this.eventRepository.startQueue({});
     }
-
-    this.eventRepository = new EventRepository(queueOptions);
 
     this.eventRepository.writeKey = writeKey;
     if (serverUrl) {
