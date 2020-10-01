@@ -50,7 +50,9 @@ class EventRepository {
 
     // previous implementation
     // setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
+  }
 
+  startQueue(options) {
     if (options) {
       // TODO: add checks for value - has to be +ve?
       Object.assign(queueOptions, options);
@@ -233,4 +235,5 @@ class EventRepository {
     });
   }
 }
-export { EventRepository };
+let eventRepository = new EventRepository();
+export { eventRepository as EventRepository };
