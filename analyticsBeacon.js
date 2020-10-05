@@ -93,7 +93,8 @@ class Analytics {
 
     this.pluginMap = {
       GA: "GAPlugin",
-      HS: "HSPlugin"
+      HS: "HSPlugin",
+      HOTJAR: "HotjarPlugin"
     }
 
     this.globalQueue = [];
@@ -109,6 +110,7 @@ class Analytics {
    * initialize the user after load config
    */
   initializeUser() {
+    logger.debug("====initializing user========")
     this.userId =
       this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
 
@@ -125,7 +127,7 @@ class Analytics {
         ? this.storage.getGroupTraits()
         : {};
 
-    this.anonymousId = this.getAnonymousId();
+    this.anonymousId = this.processGetAnonymousId();
 
     // save once for storing older values to encrypted
     this.storage.setUserId(this.userId);
@@ -209,6 +211,7 @@ class Analytics {
   }
 
   requirePlugin(requiredIntegrations, integrationReadyCallback) {
+    logger.debug("==========downloading plugin============")
     requiredIntegrations = Array.isArray(requiredIntegrations) ? requiredIntegrations : [requiredIntegrations]
     var integrations = requiredIntegrations.filter((integrationName) => {
       return this.clientRequiredIntegrations.indexOf(integrationName) < 0
@@ -292,6 +295,7 @@ class Analytics {
           if(!window[pluginName]) {
             getIntegration(integrationSource, intg, processAfterLoadingIntegration);
           }
+          
         } catch (e) {
           logger.error(
             "[Analytics] initialize integration (integration.init()) failed :: ",
@@ -472,7 +476,7 @@ class Analytics {
 
     const rudderElement = new RudderElementBuilder().setType("alias").build();
     rudderElement.message.previousId =
-      from || (this.userId ? this.userId : this.getAnonymousId());
+      from || (this.userId ? this.userId : this.processGetAnonymousId());
     rudderElement.message.userId = to;
 
     this.processAndSendDataToDestinations(
@@ -819,6 +823,7 @@ class Analytics {
    * @memberof Analytics
    */
   processReset() {
+    logger.debug("========resetting=======")
     if (!this.loaded) return;
     this.userId = "";
     this.userTraits = {};
@@ -827,18 +832,20 @@ class Analytics {
     this.storage.clear();
   }
 
-  getAnonymousId() {
+  processGetAnonymousId() {
     // if (!this.loaded) return;
     this.anonymousId = this.storage.getAnonymousId();
     if (!this.anonymousId) {
       this.processSetAnonymousId();
     }
+    logger.debug("========= get anonId returned: ========" + this.anonymousId)
     return this.anonymousId;
   }
 
   processSetAnonymousId(anonymousId) {
     // if (!this.loaded) return;
     this.anonymousId = anonymousId || generateUUID();
+    logger.debug("=====setting anonId======" + this.anonymousId)
     this.storage.setAnonymousId(this.anonymousId);
   }
 
@@ -864,7 +871,8 @@ class Analytics {
     return true;
   }
 
-  getConfigFromBackend() {
+  processGetConfigFromBackend() {
+    logger.debug("======fetching config from backend=========")
     try {
       this.pauseProcessQueue = true;
       getJSONTrimmed(this, this.configUrl, this.eventRepository.writeKey, this.processResponse);
@@ -936,9 +944,9 @@ class Analytics {
     if (serverUrl) {
       this.eventRepository.url = serverUrl;
     }
-    this.initializeUser();
+    //this.initializeUser();
     this.eventRepository.initializeTransportMechanism();
-    this.loaded = true;
+    //this.loaded = true;
     if (
       options &&
       options.valTrackingList &&
@@ -960,6 +968,7 @@ class Analytics {
   }
 
   processReady(callback) {
+    logger.debug("====processing ready callback==========")
     if (!this.loaded) return;
     if (typeof callback === "function") {
       this.readyCallback = callback;
@@ -995,17 +1004,6 @@ class Analytics {
                 ];
             }
           }
-          // let callback =
-          //   ? typeof window.rudderanalytics[
-          //       this.methodToCallbackMapping[methodName]
-          //     ] == "function"
-          //     ? window.rudderanalytics[this.methodToCallbackMapping[methodName]]
-          //     : () => {}
-          //   : () => {};
-
-          // logger.debug("registerCallbacks", methodName, callback);
-
-          // this.on(methodName, callback);
         }
       });
     }
@@ -1075,62 +1073,93 @@ class Analytics {
     return returnObj;
   }
 
+  initUser() {
+    logger.debug("======pushing initializeUser in queue ==========");
+    this.globalQueue.push(
+      ["initializeUser"].concat(Array.prototype.slice.call(arguments))
+    );
+    this.loaded && this.globalQueueEmitter.emit("process");
+  }
 
   requireIntegration() {
+    logger.debug("======pushing requirePlugin in queue ==========");
     this.globalQueue.push(
       ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
     );
-    this.globalQueueEmitter.emit("process");
+    this.loaded && this.globalQueueEmitter.emit("process");
   }
 
   ready(){
+    logger.debug("======pushing processReady in queue ==========");
     this.globalQueue.push(
       ["processReady"].concat(Array.prototype.slice.call(arguments))
     );
-    this.globalQueueEmitter.emit("process");
+    this.loaded  && this.globalQueueEmitter.emit("process");
   }
 
   track(){
+    logger.debug("======pushing processTrack in queue ==========");
     this.globalQueue.push(
       ["processTrack"].concat(Array.prototype.slice.call(arguments))
     );
-    this.globalQueueEmitter.emit("process");
+    this.loaded  && this.globalQueueEmitter.emit("process");
   }
   page(){
+    logger.debug("======pushing processPage in queue ==========");
     this.globalQueue.push(
       ["processPage"].concat(Array.prototype.slice.call(arguments))
     );
-    this.globalQueueEmitter.emit("process");
+    this.loaded  && this.globalQueueEmitter.emit("process");
   }
   identify(){
+    logger.debug("======pushing processIdentify in queue ==========");
     this.globalQueue.push(
       ["processIdentify"].concat(Array.prototype.slice.call(arguments))
     );
-    this.globalQueueEmitter.emit("process");
+    this.loaded  && this.globalQueueEmitter.emit("process");
   }
   group(){
+    logger.debug("======pushing processGroup in queue ==========");
     this.globalQueue.push(
       ["processGroup"].concat(Array.prototype.slice.call(arguments))
     );
-    this.globalQueueEmitter.emit("process");
+    this.loaded  && this.globalQueueEmitter.emit("process");
   }
   alias(){
+    logger.debug("======pushing processAlias in queue ==========");
     this.globalQueue.push(
       ["processAlias"].concat(Array.prototype.slice.call(arguments))
     );
-    this.globalQueueEmitter.emit("process");
+    this.loaded  && this.globalQueueEmitter.emit("process");
   }
   reset(){
+    logger.debug("======pushing processReset in queue ==========");
     this.globalQueue.push(
       ["processReset"].concat(Array.prototype.slice.call(arguments))
     );
-    this.globalQueueEmitter.emit("process");
+    this.loaded  && this.globalQueueEmitter.emit("process");
   }
   setAnonymousId(){
+    logger.debug("======pushing setAnonymousId in queue ==========");
     this.globalQueue.push(
       ["processSetAnonymousId"].concat(Array.prototype.slice.call(arguments))
     );
-    this.globalQueueEmitter.emit("process");
+    this.loaded  && this.globalQueueEmitter.emit("process");
+  }
+  getAnonymousId(){
+    logger.debug("======pushing getAnonymousId in queue ==========");
+    this.globalQueue.push(
+      ["processGetAnonymousId"].concat(Array.prototype.slice.call(arguments))
+    );
+    this.loaded  && this.globalQueueEmitter.emit("process");
+  }
+
+  getConfigFromBackend() {
+    logger.debug("======pushing getConfigFromBackend in queue ==========");
+    this.globalQueue.push(
+      ["processGetConfigFromBackend"].concat(Array.prototype.slice.call(arguments))
+    );
+    this.loaded  && this.globalQueueEmitter.emit("process");
   }
 }
 
@@ -1189,14 +1218,17 @@ if (
   logger.debug("=====from init, calling method:: ", method);
   instance[method](...argumentsArray[0]);
   argumentsArray.shift();
-  // after load get configFromBackend
-  argumentsArray.unshift(['getConfigFromBackend'])
 }
 
 // once loaded, parse querystring of the page url to send events
 const parsedQueryObject = instance.parseQueryString(window.location.search);
 
 pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
+
+// after load get configFromBackend
+argumentsArray.unshift(['getConfigFromBackend'])
+
+argumentsArray.unshift(['initUser'])
 
 if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
   for (let i = 0; i < argumentsArray.length; i++) {
@@ -1206,8 +1238,10 @@ if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
     logger.debug("=====from init, calling method:: ", method);
     instance[method](...event);
   }
-  instance.globalQueueEmitter.emit("process");
+  //instance.globalQueueEmitter.emit("process");
 }
+
+instance.loaded = true;
 
 const ready = instance.ready.bind(instance);
 const identify = instance.identify.bind(instance);
