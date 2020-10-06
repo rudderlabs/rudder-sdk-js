@@ -36,6 +36,7 @@ import { EventRepositoryBeacon } from "./utils/EventRepositoryBeacon";
 import logger from "./utils/logUtil";
 import { addDomEventHandlersImpl } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
+import { commonNames } from "./integrations/integration_cname";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -94,23 +95,22 @@ class Analytics {
     this.pluginMap = {
       GA: "GAPlugin",
       HS: "HSPlugin",
-      HOTJAR: "HotjarPlugin"
-    }
+      HOTJAR: "HotjarPlugin",
+    };
 
     this.globalQueue = [];
     this.pauseProcessQueue = false;
     this.clientRequiredIntegrations = [];
 
-    this.globalQueueEmitter = new Emitter;
+    this.globalQueueEmitter = new Emitter();
     this.globalQueueEmitter.on("process", this.processGlobalQueue.bind(this));
-
   }
 
   /**
    * initialize the user after load config
    */
   initializeUser() {
-    logger.debug("====initializing user========")
+    logger.debug("====initializing user========");
     this.userId =
       this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
 
@@ -137,14 +137,17 @@ class Analytics {
     this.storage.setGroupTraits(this.groupTraits);
   }
 
-  processGlobalQueue(object){
-    while(!this.pauseProcessQueue && this.globalQueue.length > 0){
-      const element = [...this.globalQueue[0]];
-      const method = element[0];
-      element.shift();
-      this.globalQueue.shift();
-      this[method](...element);
-      
+  processGlobalQueue(object) {
+    while (!this.pauseProcessQueue && this.globalQueue.length > 0) {
+      try {
+        const element = [...this.globalQueue[0]];
+        const method = element[0];
+        element.shift();
+        this.globalQueue.shift();
+        this[method](...element);
+      } catch (error) {
+        handleError(error);
+      }
     }
   }
 
@@ -211,14 +214,36 @@ class Analytics {
   }
 
   requirePlugin(requiredIntegrations, integrationReadyCallback) {
-    logger.debug("==========downloading plugin============")
-    requiredIntegrations = Array.isArray(requiredIntegrations) ? requiredIntegrations : [requiredIntegrations]
+    logger.debug("==========downloading plugin============");
+    requiredIntegrations = Array.isArray(requiredIntegrations)
+      ? requiredIntegrations
+      : [requiredIntegrations];
+    // Map back to sdk known names
+    requiredIntegrations = requiredIntegrations.map((intg) => {
+      return commonNames[intg];
+    });
     var integrations = requiredIntegrations.filter((integrationName) => {
-      return this.clientRequiredIntegrations.indexOf(integrationName) < 0
-    })
-    if(integrations.length > 0){
+      return this.clientRequiredIntegrations.indexOf(integrationName) < 0;
+    });
+    logger.debug(
+      "=========integrations to be dowloaded========= ",
+      integrations
+    );
+
+    if (
+      !integrationReadyCallback ||
+      typeof integrationReadyCallback != "function"
+    ) {
+      integrationReadyCallback = () => {};
+    }
+
+    if (integrations.length > 0) {
       this.pauseProcessQueue = true;
-      this.init(this.clientIntegrations, integrations, integrationReadyCallback);
+      this.init(
+        this.clientIntegrations,
+        integrations,
+        integrationReadyCallback
+      );
     }
   }
 
@@ -230,11 +255,15 @@ class Analytics {
    * @returns
    * @memberof Analytics
    */
-  init(fetchedFromBEIntgArray, clientIsRequiringIntegrations, integrationReadyCallback) {
+  init(
+    fetchedFromBEIntgArray,
+    clientIsRequiringIntegrations,
+    integrationReadyCallback
+  ) {
     const self = this;
 
     if (!fetchedFromBEIntgArray || fetchedFromBEIntgArray.length == 0) {
-      integrationReadyCallback(this.getParamForIntegrationReadyCallback())
+      integrationReadyCallback(this.getParamForIntegrationReadyCallback());
       return;
     }
 
@@ -242,7 +271,7 @@ class Analytics {
       const cb_ = callback.bind(this);
       var xhrObj = new XMLHttpRequest();
       // open and send a synchronous request
-      xhrObj.open('GET', integrationSource, true);
+      xhrObj.open("GET", integrationSource, true);
       xhrObj.onload = function () {
         const { status } = xhrObj;
         if (status == 200) {
@@ -250,72 +279,79 @@ class Analytics {
           cb_(xhrObj.responseText, sourceConfigObject);
         } else {
           handleError(
-            new Error(`request failed with status: ${xhrObj.status} for url: ${url}`)
+            new Error(
+              `request failed with status: ${xhrObj.status} for url: ${url}`
+            )
           );
           //cb_(status);
         }
       };
-      xhrObj.send('');
-    }
+      xhrObj.send("");
+    };
 
     let processAfterLoadingIntegration = (response, intg) => {
-
       var pluginName = this.pluginMap[intg.name];
-      var se = document.createElement('script');
+      var se = document.createElement("script");
       se.type = "text/javascript";
       se.text = response;
-      document.getElementsByTagName('head')[0].appendChild(se);
+      document.getElementsByTagName("head")[0].appendChild(se);
 
-      const intgClass = window[pluginName];//window.GaPlugin;
+      const intgClass = window[pluginName]; //window.GaPlugin;
       const destConfig = intg.config;
       const intgInstance = new intgClass(destConfig, self);
       intgInstance.init();
-
       logger.debug("initializing destination: ", intg);
-      this.isInitialized(intgInstance).then(()=> {this.makeIntegrationReady(this, integrationReadyCallback)});
-    }
+      this.isInitialized(intgInstance).then(() => {
+        this.makeIntegrationReady(this, integrationReadyCallback);
+      });
+    };
 
-    let intersectedIntgArr = clientIsRequiringIntegrations.indexOf("all") >=0 ? fetchedFromBEIntgArray : fetchedFromBEIntgArray.filter((intgObject) => {
-      // get the intersection of client required integrations and those enabled in config plane
-      return (clientIsRequiringIntegrations.indexOf(intgObject.name) >= 0)
-    })
-    if (intersectedIntgArr && intersectedIntgArr.length > 0 ) {
-      for(let i=0;i<intersectedIntgArr.length;i++){
+    let intersectedIntgArr =
+      clientIsRequiringIntegrations.indexOf("All") >= 0
+        ? fetchedFromBEIntgArray
+        : fetchedFromBEIntgArray.filter((intgObject) => {
+            // get the intersection of client required integrations and those enabled in config plane
+            return clientIsRequiringIntegrations.indexOf(intgObject.name) >= 0;
+          });
+    if (intersectedIntgArr && intersectedIntgArr.length > 0) {
+      for (let i = 0; i < intersectedIntgArr.length; i++) {
         let intg = intersectedIntgArr[i];
-        this.clientRequiredIntegrations.push(intg.name);
         try {
           logger.debug(
             "[Analytics] init :: trying to initialize integration name:: ",
             intg.name
           );
-
+          this.clientRequiredIntegrations.push(intg.name);
           var pluginName = this.pluginMap[intg.name];
-          var integrationSource = `${INTEGRATION_URL}${pluginName}.js`
+          var integrationSource = `${INTEGRATION_URL}${pluginName}.js`;
 
-          if(!window[pluginName]) {
-            getIntegration(integrationSource, intg, processAfterLoadingIntegration);
+          if (!window[pluginName]) {
+            getIntegration(
+              integrationSource,
+              intg,
+              processAfterLoadingIntegration
+            );
           }
-          
         } catch (e) {
           logger.error(
             "[Analytics] initialize integration (integration.init()) failed :: ",
             intg.name
           );
-          integrationReadyCallback(this.getParamForIntegrationReadyCallback())
-          if(i == intersectedIntgArr.length - 1){
+          integrationReadyCallback(this.getParamForIntegrationReadyCallback());
+          if (i == intersectedIntgArr.length - 1) {
             this.emitGlobalQueue();
           }
         }
       }
-      
     } else {
-      integrationReadyCallback(this.getParamForIntegrationReadyCallback())
+      integrationReadyCallback(this.getParamForIntegrationReadyCallback());
       this.emitGlobalQueue();
     }
   }
 
-  emitGlobalQueue(){
-    if(this.pauseProcessQueue){
+  emitGlobalQueue() {
+    //logger.error("======emitGlobalQueue=======")
+    if(this.pauseProcessQueue) {
       this.pauseProcessQueue = false;
       this.globalQueueEmitter.emit("process");
     }
@@ -329,7 +365,7 @@ class Analytics {
     if (
       object.successfullyLoadedIntegration.length +
         object.failedToBeLoadedIntegration.length ===
-        object.clientRequiredIntegrations.length
+      object.clientRequiredIntegrations.length
     ) {
       logger.debug(
         "===calling integration onReady callback====",
@@ -337,7 +373,7 @@ class Analytics {
         object.failedToBeLoadedIntegration.length
       );
 
-      if(integrationReadyCallback){
+      if (integrationReadyCallback) {
         integrationReadyCallback(object.getParamForIntegrationReadyCallback());
       }
       object.emitGlobalQueue();
@@ -349,15 +385,15 @@ class Analytics {
     var failureList = [];
     this.successfullyLoadedIntegration.forEach((intg) => {
       successList.push(intg.name);
-    })
+    });
     this.failedToBeLoadedIntegration.forEach((intg) => {
       failureList.push(intg.name);
-    })
+    });
     var returnObject = {
       success: [...successList],
-      failure: [...failureList]
-    }
-    return returnObject
+      failure: [...failureList],
+    };
+    return returnObject;
   }
 
   pause(time) {
@@ -823,7 +859,7 @@ class Analytics {
    * @memberof Analytics
    */
   processReset() {
-    logger.debug("========resetting=======")
+    logger.debug("========resetting=======");
     if (!this.loaded) return;
     this.userId = "";
     this.userTraits = {};
@@ -838,14 +874,14 @@ class Analytics {
     if (!this.anonymousId) {
       this.processSetAnonymousId();
     }
-    logger.debug("========= get anonId returned: ========" + this.anonymousId)
+    logger.debug("========= get anonId returned: ========" + this.anonymousId);
     return this.anonymousId;
   }
 
   processSetAnonymousId(anonymousId) {
     // if (!this.loaded) return;
     this.anonymousId = anonymousId || generateUUID();
-    logger.debug("=====setting anonId======" + this.anonymousId)
+    logger.debug("=====setting anonId======" + this.anonymousId);
     this.storage.setAnonymousId(this.anonymousId);
   }
 
@@ -872,10 +908,15 @@ class Analytics {
   }
 
   processGetConfigFromBackend() {
-    logger.debug("======fetching config from backend=========")
+    logger.debug("======fetching config from backend=========");
     try {
       this.pauseProcessQueue = true;
-      getJSONTrimmed(this, this.configUrl, this.eventRepository.writeKey, this.processResponse);
+      getJSONTrimmed(
+        this,
+        this.configUrl,
+        this.eventRepository.writeKey,
+        this.processResponse
+      );
     } catch (error) {
       handleError(error);
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
@@ -968,7 +1009,7 @@ class Analytics {
   }
 
   processReady(callback) {
-    logger.debug("====processing ready callback==========")
+    logger.debug("====processing ready callback==========");
     if (!this.loaded) return;
     if (typeof callback === "function") {
       this.readyCallback = callback;
@@ -1083,83 +1124,85 @@ class Analytics {
 
   requireIntegration() {
     logger.debug("======pushing requirePlugin in queue ==========");
-    this.globalQueue.push(
-      ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
-    );
+      this.globalQueue.push(
+        ["requirePlugin"].concat(Array.prototype.slice.call(arguments))
+      );
     this.loaded && this.globalQueueEmitter.emit("process");
   }
 
-  ready(){
+  ready() {
     logger.debug("======pushing processReady in queue ==========");
     this.globalQueue.push(
       ["processReady"].concat(Array.prototype.slice.call(arguments))
     );
-    this.loaded  && this.globalQueueEmitter.emit("process");
+    this.loaded && this.globalQueueEmitter.emit("process");
   }
 
-  track(){
+  track() {
     logger.debug("======pushing processTrack in queue ==========");
     this.globalQueue.push(
       ["processTrack"].concat(Array.prototype.slice.call(arguments))
     );
-    this.loaded  && this.globalQueueEmitter.emit("process");
+    this.loaded && this.globalQueueEmitter.emit("process");
   }
-  page(){
+  page() {
     logger.debug("======pushing processPage in queue ==========");
     this.globalQueue.push(
       ["processPage"].concat(Array.prototype.slice.call(arguments))
     );
-    this.loaded  && this.globalQueueEmitter.emit("process");
+    this.loaded && this.globalQueueEmitter.emit("process");
   }
-  identify(){
+  identify() {
     logger.debug("======pushing processIdentify in queue ==========");
     this.globalQueue.push(
       ["processIdentify"].concat(Array.prototype.slice.call(arguments))
     );
-    this.loaded  && this.globalQueueEmitter.emit("process");
+    this.loaded && this.globalQueueEmitter.emit("process");
   }
-  group(){
+  group() {
     logger.debug("======pushing processGroup in queue ==========");
     this.globalQueue.push(
       ["processGroup"].concat(Array.prototype.slice.call(arguments))
     );
-    this.loaded  && this.globalQueueEmitter.emit("process");
+    this.loaded && this.globalQueueEmitter.emit("process");
   }
-  alias(){
+  alias() {
     logger.debug("======pushing processAlias in queue ==========");
     this.globalQueue.push(
       ["processAlias"].concat(Array.prototype.slice.call(arguments))
     );
-    this.loaded  && this.globalQueueEmitter.emit("process");
+    this.loaded && this.globalQueueEmitter.emit("process");
   }
-  reset(){
+  reset() {
     logger.debug("======pushing processReset in queue ==========");
     this.globalQueue.push(
       ["processReset"].concat(Array.prototype.slice.call(arguments))
     );
-    this.loaded  && this.globalQueueEmitter.emit("process");
+    this.loaded && this.globalQueueEmitter.emit("process");
   }
-  setAnonymousId(){
+  setAnonymousId() {
     logger.debug("======pushing setAnonymousId in queue ==========");
     this.globalQueue.push(
       ["processSetAnonymousId"].concat(Array.prototype.slice.call(arguments))
     );
-    this.loaded  && this.globalQueueEmitter.emit("process");
+    this.loaded && this.globalQueueEmitter.emit("process");
   }
-  getAnonymousId(){
+  getAnonymousId() {
     logger.debug("======pushing getAnonymousId in queue ==========");
     this.globalQueue.push(
       ["processGetAnonymousId"].concat(Array.prototype.slice.call(arguments))
     );
-    this.loaded  && this.globalQueueEmitter.emit("process");
+    this.loaded && this.globalQueueEmitter.emit("process");
   }
 
   getConfigFromBackend() {
     logger.debug("======pushing getConfigFromBackend in queue ==========");
     this.globalQueue.push(
-      ["processGetConfigFromBackend"].concat(Array.prototype.slice.call(arguments))
+      ["processGetConfigFromBackend"].concat(
+        Array.prototype.slice.call(arguments)
+      )
     );
-    this.loaded  && this.globalQueueEmitter.emit("process");
+    this.loaded && this.globalQueueEmitter.emit("process");
   }
 }
 
@@ -1226,9 +1269,9 @@ const parsedQueryObject = instance.parseQueryString(window.location.search);
 pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
 
 // after load get configFromBackend
-argumentsArray.unshift(['getConfigFromBackend'])
+argumentsArray.unshift(["getConfigFromBackend"]);
 
-argumentsArray.unshift(['initUser'])
+argumentsArray.unshift(["initUser"]);
 
 if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
   for (let i = 0; i < argumentsArray.length; i++) {
@@ -1268,5 +1311,5 @@ export {
   group,
   getAnonymousId,
   setAnonymousId,
-  requireIntegration
+  requireIntegration,
 };
