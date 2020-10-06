@@ -66,19 +66,24 @@ class StorageQueue {
     }
 
     flushQueue(headers, batch, url, writekey){
-        headers.type = 'application/json';
-        batch.map((event) => {
-            event.sentAt = getCurrentTimeFormatted();
-        })
-        var data = {batch: batch};
-        var payload = JSON.stringify(data, replacer);
-        const blob = new Blob([payload], headers);
-        var isPushed = navigator.sendBeacon(`${url}?writeKey=${writekey}`, blob);
-        if (!isPushed) {
-         logger.debug("Unable to send data");   
+        try{
+            headers.type = 'text/plain';
+            batch.map((event) => {
+                event.sentAt = getCurrentTimeFormatted();
+            })
+            var data = {batch: batch};
+            var payload = JSON.stringify(data, replacer);
+            const blob = new Blob([payload]);
+            var isPushed = navigator.sendBeacon(`${url}?writeKey=${writekey}`, blob);
+            if (!isPushed) {
+                logger.debug("Unable to send data");   
+            }
+        } catch (error) {
+            logger.error("error while sending data: ", error.message);
+        } finally {
+            this.setQueue([]);
+            this.clearTimer();
         }
-        this.setQueue([]);
-        this.clearTimer();
        
     }
 
