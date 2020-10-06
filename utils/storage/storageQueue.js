@@ -73,7 +73,7 @@ class StorageQueue {
             })
             var data = {batch: batch};
             var payload = JSON.stringify(data, replacer);
-            const blob = new Blob([payload]);
+            const blob = new Blob([payload], headers);
             var isPushed = navigator.sendBeacon(`${url}?writeKey=${writekey}`, blob);
             if (!isPushed) {
                 logger.debug("Unable to send data");   
