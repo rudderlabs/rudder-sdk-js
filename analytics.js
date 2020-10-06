@@ -1006,6 +1006,10 @@ class Analytics {
         );
       }
     }
+
+    // at a timer to check for the global in-memory queue
+    // every minute
+    setInterval(this.processGlobalQueue.bind(this), 60000)
   }
 
   processReady(callback) {
