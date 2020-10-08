@@ -1008,9 +1008,9 @@ class Analytics {
       }
     }
 
-     // at a timer to check for the global in-memory queue
+     // add a timer to check for the global in-memory queue
     // after load finishes
-    setTimeout(this.processGlobalQueue.bind(this), 60)
+    setTimeout(this.processGlobalQueue.bind(this), 0)
   }
 
   processReady(callback) {
