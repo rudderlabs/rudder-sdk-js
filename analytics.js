@@ -146,6 +146,7 @@ class Analytics {
         this.globalQueue.shift();
         this[method](...element);
       } catch (error) {
+        this.pauseProcessQueue = false;
         handleError(error);
       }
     }
@@ -268,7 +269,7 @@ class Analytics {
       return;
     }
 
-    let getIntegration = (integrationSource, sourceConfigObject, callback) => {
+    let getIntegration = (integrationSource, sourceConfigObject, callback, emitGlobalQueue) => {
       const cb_ = callback.bind(this);
       var xhrObj = new XMLHttpRequest();
       // open and send a synchronous request
@@ -287,6 +288,8 @@ class Analytics {
           //cb_(status);
         }
       };
+      xhr.ontimeout = emitGlobalQueue;
+      xhr.onerror = emitGlobalQueue;
       xhrObj.send("");
     };
 
@@ -330,7 +333,8 @@ class Analytics {
             getIntegration(
               integrationSource,
               intg,
-              processAfterLoadingIntegration
+              processAfterLoadingIntegration,
+              this.emitGlobalQueue.bind(this)
             );
           }
         } catch (e) {
@@ -916,13 +920,15 @@ class Analytics {
         this,
         this.configUrl,
         this.eventRepository.writeKey,
-        this.processResponse
+        this.processResponse,
+        this.emitGlobalQueue.bind(this)
       );
     } catch (error) {
       handleError(error);
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
         addDomEventHandlersImpl(this);
       }
+      this.emitGlobalQueue()
     }
   }
 

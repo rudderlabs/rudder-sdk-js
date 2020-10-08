@@ -91,7 +91,7 @@ function getJSON(url, wrappers, isLoaded, callback) {
  * @param {*} url
  * @param {*} callback
  */
-function getJSONTrimmed(context, url, writeKey, callback) {
+function getJSONTrimmed(context, url, writeKey, callback, emitGlobalQueue) {
   // server-side integration, XHR is node module
   const cb_ = callback.bind(context);
 
@@ -112,6 +112,8 @@ function getJSONTrimmed(context, url, writeKey, callback) {
       cb_(status);
     }
   };
+  xhr.ontimeout = emitGlobalQueue;
+  xhr.onerror = emitGlobalQueue
   xhr.send();
 }
 
