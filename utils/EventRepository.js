@@ -37,7 +37,7 @@ if(process.transport.beacon) {
     minRetryDelay: 1000,
     backoffFactor: 2,
     maxAttempts: 10,
-    maxItems: 100,
+    maxItems: 500,
   };
 }
 
