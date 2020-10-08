@@ -269,7 +269,7 @@ class Analytics {
       return;
     }
 
-    let getIntegration = (integrationSource, sourceConfigObject, callback, emitGlobalQueue) => {
+    let getIntegration = (integrationSource, sourceConfigObject, callback) => {
       const cb_ = callback.bind(this);
       var xhrObj = new XMLHttpRequest();
       // open and send a synchronous request
@@ -278,36 +278,42 @@ class Analytics {
         const { status } = xhrObj;
         if (status == 200) {
           logger.debug("status 200 " + "calling callback");
-          cb_(xhrObj.responseText, sourceConfigObject);
+          cb_(null,xhrObj.responseText, sourceConfigObject);
         } else {
           handleError(
             new Error(
-              `request failed with status: ${xhrObj.status} for url: ${url}`
+              `request failed with status: ${xhrObj.status} for url: ${integrationSource}`
             )
           );
-          //cb_(status);
+          cb_({error: `getIntegration request failed with status: ${xhrObj.status} for url: ${integrationSource}`, failedPluginFetch: sourceConfigObject});
         }
       };
-      xhr.ontimeout = emitGlobalQueue;
-      xhr.onerror = emitGlobalQueue;
+      xhrObj.ontimeout = function() {cb_({error: "getIntegration request timedout", failedPluginFetch: sourceConfigObject});}
+      xhrObj.onerror = function() {cb_({error: "getIntegration request error", failedPluginFetch: sourceConfigObject});}
       xhrObj.send("");
     };
 
-    let processAfterLoadingIntegration = (response, intg) => {
-      var pluginName = this.pluginMap[intg.name];
-      var se = document.createElement("script");
-      se.type = "text/javascript";
-      se.text = response;
-      document.getElementsByTagName("head")[0].appendChild(se);
-
-      const intgClass = window[pluginName]; //window.GaPlugin;
-      const destConfig = intg.config;
-      const intgInstance = new intgClass(destConfig, self);
-      intgInstance.init();
-      logger.debug("initializing destination: ", intg);
-      this.isInitialized(intgInstance).then(() => {
+    let processAfterLoadingIntegration = (error,response, intg) => {
+      if(error) {
+        this.failedToBeLoadedIntegration.push({name: error.failedPluginFetch.name})
         this.makeIntegrationReady(this, integrationReadyCallback);
-      });
+      } else {
+        var pluginName = this.pluginMap[intg.name];
+        var se = document.createElement("script");
+        se.type = "text/javascript";
+        se.text = response;
+        document.getElementsByTagName("head")[0].appendChild(se);
+
+        const intgClass = window[pluginName]; //window.GaPlugin;
+        const destConfig = intg.config;
+        const intgInstance = new intgClass(destConfig, self);
+        intgInstance.init();
+        logger.debug("initializing destination: ", intg);
+        this.isInitialized(intgInstance).then(() => {
+          this.makeIntegrationReady(this, integrationReadyCallback);
+        });
+      }
+      
     };
 
     let intersectedIntgArr =
@@ -339,8 +345,8 @@ class Analytics {
           }
         } catch (e) {
           logger.error(
-            "[Analytics] initialize integration (integration.init()) failed :: ",
-            intg.name
+            "[Analytics] initialize integration (integration.init()) failed :: " + 
+            intg.name + e
           );
           integrationReadyCallback(this.getParamForIntegrationReadyCallback());
           if (i == intersectedIntgArr.length - 1) {
