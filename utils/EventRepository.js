@@ -20,13 +20,26 @@ if (!process.browser) {
   btoaNode = require("btoa");
 }
 
-const queueOptions = {
-  maxRetryDelay: 360000,
-  minRetryDelay: 1000,
-  backoffFactor: 2,
-  maxAttempts: 10,
-  maxItems: 100,
-};
+let queueOptions;
+
+if(process.transport.beacon) {
+  queueOptions = {
+    maxRetryDelay: 360000,
+    minRetryDelay: 1000,
+    backoffFactor: 5,
+    maxAttempts: 50,
+    maxItems: 1000,
+    backoffJitter: 15
+  };
+} else {
+  queueOptions = {
+    maxRetryDelay: 360000,
+    minRetryDelay: 1000,
+    backoffFactor: 2,
+    maxAttempts: 10,
+    maxItems: 100,
+  };
+}
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 
@@ -77,77 +90,6 @@ class EventRepository {
   }
 
   /**
-   *
-   *
-   * @param {EventRepository} repo
-   * @returns
-   * @memberof EventRepository
-   */
-  preaparePayloadAndFlush(repo) {
-    // construct payload
-    logger.debug(`==== in preaparePayloadAndFlush with state: ${repo.state}`);
-    logger.debug(repo.eventsBuffer);
-    if (repo.eventsBuffer.length == 0 || repo.state === "PROCESSING") {
-      return;
-    }
-    const eventsPayload = repo.eventsBuffer;
-    const payload = new RudderPayload();
-    payload.batch = eventsPayload;
-    payload.writeKey = repo.writeKey;
-    payload.sentAt = getCurrentTimeFormatted();
-
-    // add sentAt to individual events as well
-    payload.batch.forEach((event) => {
-      event.sentAt = payload.sentAt;
-    });
-
-    repo.batchSize = repo.eventsBuffer.length;
-    // server-side integration, XHR is node module
-
-    if (process.browser) {
-      var xhr = new XMLHttpRequest();
-    } else {
-      var xhr = new XMLHttpRequestNode.XMLHttpRequest();
-    }
-
-    logger.debug("==== in flush sending to Rudder BE ====");
-    logger.debug(JSON.stringify(payload, replacer));
-
-    xhr.open("POST", repo.url, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-
-    if (process.browser) {
-      xhr.setRequestHeader(
-        "Authorization",
-        `Basic ${btoa(`${payload.writeKey}:`)}`
-      );
-    } else {
-      xhr.setRequestHeader(
-        "Authorization",
-        `Basic ${btoaNode(`${payload.writeKey}:`)}`
-      );
-    }
-
-    // register call back to reset event buffer on successfull POST
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4 && xhr.status === 200) {
-        logger.debug(`====== request processed successfully: ${xhr.status}`);
-        repo.eventsBuffer = repo.eventsBuffer.slice(repo.batchSize);
-        logger.debug(repo.eventsBuffer.length);
-      } else if (xhr.readyState === 4 && xhr.status !== 200) {
-        handleError(
-          new Error(
-            `request failed with status: ${xhr.status} for url: ${repo.url}`
-          )
-        );
-      }
-      repo.state = "READY";
-    };
-    xhr.send(JSON.stringify(payload, replacer));
-    repo.state = "PROCESSING";
-  }
-
-  /**
    * the queue item proceesor
    * @param {*} url to send requests to
    * @param {*} headers
@@ -156,40 +98,62 @@ class EventRepository {
    * @param {*} queueFn the function to call after request completion
    */
   processQueueElement(url, headers, message, timeout, queueFn) {
-    try {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", url, true);
-      for (const k in headers) {
-        xhr.setRequestHeader(k, headers[k]);
-      }
-      xhr.timeout = timeout;
-      xhr.ontimeout = queueFn;
-      xhr.onerror = queueFn;
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600)) {
-            handleError(
-              new Error(
-                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`
-              )
-            );
-            queueFn(
-              new Error(
-                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`
-              )
-            );
-          } else {
-            logger.debug(
-              `====== request processed successfully: ${xhr.status}`
-            );
-            queueFn(null, xhr.status);
-          }
+    if(process.transport.beacon) {
+      try {
+        const data = { batch: [message] };
+        const payload = JSON.stringify(data, replacer);
+        const blob = new Blob([payload], headers);
+        const isPushed = navigator.sendBeacon(
+          url,
+          blob
+        );
+        if (!isPushed) {
+          handleError(
+            new Error( "=====unable to push data, push to beacon queue failed"))
+          queueFn(new Error("unable to push data"));
+        } else {
+          queueFn(null, 200);
         }
-      };
-
-      xhr.send(JSON.stringify(message, replacer));
-    } catch (error) {
-      queueFn(error);
+      } catch (error) {
+        queueFn(error);
+      }
+    }
+    else {
+      try {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", url, true);
+        for (const k in headers) {
+          xhr.setRequestHeader(k, headers[k]);
+        }
+        xhr.timeout = timeout;
+        xhr.ontimeout = queueFn;
+        xhr.onerror = queueFn;
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600)) {
+              handleError(
+                new Error(
+                  `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`
+                )
+              );
+              queueFn(
+                new Error(
+                  `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`
+                )
+              );
+            } else {
+              logger.debug(
+                `====== request processed successfully: ${xhr.status}`
+              );
+              queueFn(null, xhr.status);
+            }
+          }
+        };
+  
+        xhr.send(JSON.stringify(message, replacer));
+      } catch (error) {
+        queueFn(error);
+      }
     }
   }
 
@@ -202,12 +166,17 @@ class EventRepository {
   enqueue(rudderElement, type) {
     const message = rudderElement.getElementContent();
 
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Basic ${btoa(`${this.writeKey}:`)}`,
-      AnonymousId: btoa(message.anonymousId),
-    };
-
+    let headers = {}
+    if(process.transport.beacon) { 
+      headers.type = 'text/plain';
+    }
+    else {
+      headers = {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${btoa(`${this.writeKey}:`)}`,
+        AnonymousId: btoa(message.anonymousId),
+      };
+    }
     message.originalTimestamp = getCurrentTimeFormatted();
     message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
 
@@ -222,11 +191,19 @@ class EventRepository {
     // modify the url for event specific endpoints
     const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
     // add items to the queue
-    this.payloadQueue.addItem({
-      url: `${url}/v1/${type}`,
-      headers,
-      message,
-    });
+    if(process.transport.beacon) {
+      this.payloadQueue.addItem({
+        url: `${url}/beacon/v1/batch?writeKey=${this.writeKey}`,
+        headers,
+        message,
+      });
+    } else {
+      this.payloadQueue.addItem({
+        url: `${url}/v1/${type}`,
+        headers,
+        message,
+      });
+    }
   }
 }
 let eventRepository = new EventRepository();

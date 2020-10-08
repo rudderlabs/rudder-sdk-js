@@ -19,7 +19,7 @@ let moduleType = "web";
 let inputFileName = "analytics.js";
 
 if(process.env.TRANSPORT == "beacon") {
-  inputFileName = "analyticsBeacon.js"
+  inputFileName = "analytics.js"
 }
 
 switch (process.env.ENV) {

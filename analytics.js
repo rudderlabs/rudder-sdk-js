@@ -264,6 +264,7 @@ class Analytics {
 
     if (!fetchedFromBEIntgArray || fetchedFromBEIntgArray.length == 0) {
       integrationReadyCallback(this.getParamForIntegrationReadyCallback());
+      this.emitGlobalQueue();
       return;
     }
 
@@ -1007,9 +1008,9 @@ class Analytics {
       }
     }
 
-    // at a timer to check for the global in-memory queue
-    // every minute
-    setInterval(this.processGlobalQueue.bind(this), 60000)
+     // at a timer to check for the global in-memory queue
+    // after load finishes
+    setTimeout(this.processGlobalQueue.bind(this), 60)
   }
 
   processReady(callback) {
@@ -1120,7 +1121,8 @@ class Analytics {
 
   initUser() {
     logger.debug("======pushing initializeUser in queue ==========");
-    this.globalQueue.push(
+    // this is internal call and shouldbe in front of the queue
+    this.globalQueue.unshift(
       ["initializeUser"].concat(Array.prototype.slice.call(arguments))
     );
     this.loaded && this.globalQueueEmitter.emit("process");
@@ -1201,7 +1203,8 @@ class Analytics {
 
   getConfigFromBackend() {
     logger.debug("======pushing getConfigFromBackend in queue ==========");
-    this.globalQueue.push(
+    // this is internal call and shouldbe in front of the queue
+    this.globalQueue.unshift(
       ["processGetConfigFromBackend"].concat(
         Array.prototype.slice.call(arguments)
       )
@@ -1222,6 +1225,10 @@ function pushDataToAnalyticsArray(argumentsArray, obj) {
     }
   } else if (obj.userId) {
     argumentsArray.unshift(["identify", obj.userId, obj.traits]);
+  }
+
+  if (obj.event) {
+    argumentsArray.push(["track", obj.event, obj.properties]);
   }
 }
 
@@ -1273,9 +1280,9 @@ const parsedQueryObject = instance.parseQueryString(window.location.search);
 pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
 
 // after load get configFromBackend
-argumentsArray.unshift(["getConfigFromBackend"]);
+argumentsArray.push(["getConfigFromBackend"]);
 
-argumentsArray.unshift(["initUser"]);
+argumentsArray.push(["initUser"]);
 
 if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
   for (let i = 0; i < argumentsArray.length; i++) {

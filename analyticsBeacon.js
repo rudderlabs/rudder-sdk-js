@@ -264,6 +264,7 @@ class Analytics {
 
     if (!fetchedFromBEIntgArray || fetchedFromBEIntgArray.length == 0) {
       integrationReadyCallback(this.getParamForIntegrationReadyCallback());
+      this.emitGlobalQueue();
       return;
     }
 
@@ -1007,8 +1008,8 @@ class Analytics {
       }
     }
     // at a timer to check for the global in-memory queue
-    // every minute
-    setInterval(this.processGlobalQueue.bind(this), 60000)
+    // after load finishes
+    setTimeout(this.processGlobalQueue.bind(this), 60)
   }
 
   processReady(callback) {

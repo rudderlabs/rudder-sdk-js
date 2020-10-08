@@ -10,10 +10,10 @@ const defaults = {
 class StorageQueue {
     constructor() {
         this.storage = Store;
-        this.maxItems = 10;
+        this.maxItems = 5;
         this.flushQueueTimeOut = undefined;
         this.timeOutActive = false;
-        this.flushQueueTimeOutInterval = 1000 * 60 * 10; // 10 mins
+        this.flushQueueTimeOutInterval = 1000 * 60 * 1; // 1 min
         this.url = "";
         this.writekey = "";
         this.queueName = `${defaults.queue}.${Date.now()}`
@@ -67,16 +67,20 @@ class StorageQueue {
 
     flushQueue(headers, batch, url, writekey){
         try{
+            headers = {}
             headers.type = 'text/plain';
             batch.map((event) => {
                 event.sentAt = getCurrentTimeFormatted();
             })
-            var data = {batch: batch};
-            var payload = JSON.stringify(data, replacer);
-            const blob = new Blob([payload], headers);
-            var isPushed = navigator.sendBeacon(`${url}?writeKey=${writekey}`, blob);
-            if (!isPushed) {
-                logger.debug("Unable to send data");   
+            if(batch && batch.length > 0) {
+                var data = {batch: batch};
+                var payload = JSON.stringify(data, replacer);
+                console.log("batch payload size=======", payload.length)
+                const blob = new Blob([payload], headers);
+                 var isPushed = navigator.sendBeacon(`${url}?writeKey=${writekey}`, blob);
+                if (!isPushed) {
+                    logger.debug("Unable to send data");   
+                }
             }
         } catch (error) {
             logger.error("error while sending data: ", error.message);

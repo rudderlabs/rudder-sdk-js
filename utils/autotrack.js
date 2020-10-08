@@ -19,7 +19,9 @@ function addDomEventHandlers(rudderanalytics) {
   register_event(document, "submit", handler, true);
   register_event(document, "change", handler, true);
   register_event(document, "click", handler, true);
-  rudderanalytics.page();
+  // if the sdk has not loaded yet, push the event to global array
+  // think we can also simply do  window.rudderanalytics.page(), keeping it explicit for now
+  rudderanalytics.loaded ? rudderanalytics.page() : window.rudderanalytics.page()
 }
 
 function register_event(element, type, handler, useCapture) {
