@@ -191,7 +191,7 @@ function compact(value) {
  * @param  {} val
  */
 function type(val) {
-  switch (toString.call(val)) {
+  switch (Object.prototype.toString.call(val)) {
     case "[object Function]":
       return "function";
     case "[object Date]":
