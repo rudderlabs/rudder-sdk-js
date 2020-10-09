@@ -5,7 +5,7 @@
   "main": "./dist/browser.min.js",
   "size-limit": [
     {
-      "path": "dist/rudder-analytics.min.js",
+      "path": "dist/rudder-analytics.min_beacon.js",
       "import": "{ createComponent }",
       "gzip": true
     }
@@ -30,10 +30,10 @@
     "bundle-size-visual-XHR-ES5-NOAT": "NODE_ENV=false ENV=prod PROD_DEBUG=true uglify=true ES5=true INTG=false AUTOTRACK=false visualizer=true rollup -c",
     "bundle-size-visual-XHR-ES5-AT": "NODE_ENV=false ENV=prod PROD_DEBUG=true uglify=true ES5=true INTG=false AUTOTRACK=true visualizer=true rollup -c",
     "bundle-size-visual-full": "NODE_ENV=false ENV=prod PROD_DEBUG=true uglify=true ES5=true INTG=true AUTOTRACK=true visualizer=true rollup -c",
-    "size-build": "npm run buildProdBrowser",
+    "size-build": "npm run bundle-size-visual-trimmed-AT",
     "size": "npm run size-build && size-limit",
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc ",
-    "buildDevBrowserBeacon": "NODE_ENV=false ES5=false AUTOTRACK=false INTG=false uglify=false TRANSPORT=beacon rollup -c",
+    "buildDevBrowserBeacon": "NODE_ENV=false ES5=false AUTOTRACK=true INTG=false uglify=false TRANSPORT=beacon rollup -c",
     "buildDevBrowserXHR": "NODE_ENV=false ES5=false INTG=false AUTOTRACK=true uglify=false rollup -c"
   },
   "pre-commit": [
@@ -54,6 +54,7 @@
     "@segment/localstorage-retry": "^1.2.2",
     "@segment/store": "^1.3.20",
     "@segment/top-domain": "^3.0.0",
+    "@segment/utm-params": "^2.0.0",
     "after": "^0.8.2",
     "auto-changelog": "^1.16.2",
     "babel-eslint": "^10.1.0",
@@ -72,6 +73,7 @@
     "gh-release": "^3.5.0",
     "is": "^3.3.0",
     "json3": "^3.3.3",
+    "lodash.merge": "^4.6.2",
     "md5": "^2.2.1",
     "obj-case": "^0.2.0",
     "on-body": "0.0.1",
