@@ -61,7 +61,8 @@ export default {
     builtins(),
 
     babel({
-      exclude: "node_modules/**",
+      exclude: ["node_modules/@babel/**", "node_modules/core-js/**"],
+      presets: [["@babel/env"]],
     }),
     process.env.uglify === "true" && terser(),
     process.env.ENC === "gzip" && gzipPlugin(),
