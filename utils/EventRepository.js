@@ -4,7 +4,7 @@ import {
   FLUSH_QUEUE_SIZE,
   FLUSH_INTERVAL_DEFAULT,
 } from "./constants";
-import { getCurrentTimeFormatted, handleError, replacer } from "./utils";
+import { getCurrentTimeFormatted, handleError, replacer, validatePayload } from "./utils";
 
 import { RudderPayload } from "./RudderPayload";
 import logger from "./logUtil";
@@ -57,6 +57,13 @@ class EventRepository {
     ) {
       // apply sentAt at flush time and reset on each retry
       item.message.sentAt = getCurrentTimeFormatted();
+      
+      // check whether the message is a valid payload, if not, return as undefined.
+      item.message = validatePayload(item.message);
+      if (item.message === null) {
+        logger.debug("dropping invalid event");
+        return;
+      }
       // send this item for processing, with a callback to enable queue to get the done status
       eventRepository.processQueueElement(
         item.url,

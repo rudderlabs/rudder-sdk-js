@@ -49,9 +49,9 @@ class Storage {
   parse(value) {
     // if not parseable, return as is without json parse
     try {
-      return value ? JSON.parse(value) : null;
+      return value ? JSON.parse(JSON.stringify(value)) : null;
     } catch (e) {
-      logger.error(e);
+      logger.debug(e);
       return value || null;
     }
   }
@@ -88,11 +88,11 @@ class Storage {
     if (!value || (typeof value === "string" && this.trim(value) == "")) {
       return value;
     }
-    if (value.substring(0, defaults.prefix.length) == defaults.prefix) {
-      return AES.decrypt(
-        value.substring(defaults.prefix.length),
-        defaults.key
-      ).toString(Utf8);
+    while (value.indexOf(defaults.prefix) >= 0) {
+      const index = value.indexOf(defaults.prefix);
+      const substring = value.substring(index + defaults.prefix.length);
+      const dvalue = AES.decrypt(substring, defaults.key).toString(Utf8);
+      value = dvalue;
     }
     return value;
   }
@@ -168,9 +168,7 @@ class Storage {
       return;
     }
     this.storage.set(
-      defaults.user_storage_anonymousId,
-      this.encryptValue(this.stringify(value))
-    );
+      defaults.user_storage_anonymousId, value);
   }
 
   /**
@@ -243,6 +241,10 @@ class Storage {
     this.storage.remove(defaults.group_storage_key);
     this.storage.remove(defaults.group_storage_trait);
     // this.storage.remove(defaults.user_storage_anonymousId);
+  }
+
+  getPrefix() {
+    return defaults.prefix;
   }
 }
 

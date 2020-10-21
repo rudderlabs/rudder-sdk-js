@@ -4,6 +4,7 @@ import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
 import { CONFIG_URL } from "./constants";
+import Storage from "./storage";
 
 /**
  *
@@ -420,6 +421,26 @@ function getUserProvidedConfigUrl(configUrl) {
   return url;
 }
 
+function validatePayload(message) {
+  const prefix = Storage.getPrefix(); // "RudderEncrypt:";
+  const { traits } = message.context;
+  const { userId, anonymousId } = message;
+  if (traits && typeof traits !== "object") {
+    message = null;
+  }
+  if (userId && typeof userId === "string" && userId.indexOf(prefix) >= 0) {
+    message = null;
+  }
+  if (
+    anonymousId &&
+    typeof anonymousId === "string" &&
+    anonymousId.indexOf(prefix) >= 0
+  ) {
+    message = null;
+  }
+  return message;
+}
+
 export {
   replacer,
   generateUUID,
@@ -434,4 +455,5 @@ export {
   transformToServerNames,
   handleError,
   rejectArr,
+  validatePayload,
 };
