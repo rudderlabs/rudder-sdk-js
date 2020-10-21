@@ -8,7 +8,7 @@ class HubSpot {
   }
 
   init() {
-    const hubspotJs = `http://js.hs-scripts.com/${this.hubId}.js`;
+    const hubspotJs = `https://js.hs-scripts.com/${this.hubId}.js`;
     ScriptLoader("hubspot-integration", hubspotJs);
 
     logger.debug("===in init HS===");
