@@ -298,7 +298,6 @@ rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI", {useAutoTracking:  true
 So, please use auto-track after thoroughly testing on your application. RudderStack doesn't store any data but this data may end up in your downstream destinations including your warehouse.
 
 
-
 By default, SDK does not track hidden, password elements, and element of type input, select, text-areas, i.e, events like `click | change | submit` on these elements won’t get tracked.
 
 If an element with class `rudder-include` is present, that element becomes eligible for tracking.
