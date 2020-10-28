@@ -283,7 +283,7 @@ We will be adding similar callbacks for apis such as  `track, page, identify`  e
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#autotrack)Autotrack
 
-It may happen that the need arises to track most of user interactions with a web-app. It becomes hard for a developer to capture these DOM interactions and make track calls for all. The autotrack feature of Rudder SDK helps in tracking all user interactions like  `click | change | submit`  automatically. The data generated will be verbose and to make sense of the data, one can use  `user transformations`  from the config-plane to build use-cases like monitoring user journeys etc. For more information and payload structure, click  [here](https://docs.rudderstack.com/sdk-integration-guide/getting-started-with-javascript-sdk/rudderstack-autotrack-feature).
+It may happen that the need arises to track most of user interactions with a web-app. It becomes hard for a developer to capture these DOM interactions and make track calls for all. The autotrack feature of Rudder SDK helps in tracking all user interactions like  `click | change | submit`  automatically. The data generated will be verbose and to make sense of the data, one can use  `user transformations`  from the config-plane to build use-cases like monitoring user journeys etc. For more information and payload structure, click  [here](https://docs.rudderstack.com/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk/rudderstack-autotrack-feature).
 
 To enable autotracking, make the load call as:
 
@@ -294,22 +294,26 @@ rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI", {useAutoTracking:  true
 
 ## Security
 
-***IMPORTANT***: We have a bunch of safeguards around collecting sensitive information (documented below). Inspite of all the checks, it is possible that sensitive data (particularly passwords) may still be captured for certain react apps or number of password manager browser extensions which store passwords in the attributes in the dom. This issue was first reported for [MixPanel](https://techcrunch.com/2018/02/05/mixpanel-passwords/) and also documented [here](https://freedom-to-tinker.com/2018/02/26/no-boundaries-for-credentials-password-leaks-to-mixpanel-and-session-replay-companies/).
-So, please use auto-track after thoroughly testing on your application. RudderStack doesn't store any data but this data may end up in your downstream destinations including your warehouse.
+**IMPORTANT**: We have a bunch of safeguards around collecting sensitive information (as documented below). Despite all the checks, it is possible that some sensitive data (particularly passwords) can still be captured for certain React apps, or a number of password manager browser extensions which store passwords in the attributes in the DOM. 
+
+This issue was first reported for [MixPanel](https://techcrunch.com/2018/02/05/mixpanel-passwords/) and also documented [here](https://freedom-to-tinker.com/2018/02/26/no-boundaries-for-credentials-password-leaks-to-mixpanel-and-session-replay-companies/).
 
 
-By default, SDK does not track hidden, password elements, and element of type input, select, text-areas, i.e, events like `click | change | submit` on these elements won’t get tracked.
+**So, please use the autotrack feature after thoroughly testing it on your application. RudderStack doesn't store any data but this data may end up in your downstream destinations, including your warehouse.**
 
-If an element with class `rudder-include` is present, that element becomes eligible for tracking.
+
+By default, the SDK does not track hidden, password elements, and element of type input, select, text-areas, i.e, events like `click | change | submit` on these elements won’t get tracked.
+
+**Note**: If an element with class `rudder-include` is present, that element becomes eligible for tracking.
 
 By default, the SDK doesn't capture any DOM element **values**. To start capturing values, like form field values when submitting the form, other input element values etc, whitelist them using any attribute of the element for which you want to send values, For ex, tracking element values for all elements whose any one attribute is "CLASS_ATTR_NAME":
 
 ```
-rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI", {useAutoTracking:  true, valTrackingList: ["CLASS_ATTR_NAME"]});
+rudderanalytics.load(YOUR_WRITE_KEY, DATA_PLANE_URL, {useAutoTracking:  true, valTrackingList: ["CLASS_ATTR_NAME"]});
 
 ```
 
-The SDK tracks the element attributes and text elements as properties of the DOM event. It removes the attributes that have information which can be **sensitive** like Credit card no, SSN, PAN, ADHAR.
+The SDK tracks the element attributes and text elements as properties of the DOM event. It removes the attributes that have information which can be **sensitive** like credit card number, SSN, PAN, Aadhar number, etc.
 
 If an element with class `rudder-no-track` is present in the DOM, SDK will not track on that node along with any child nodes in the DOM tree.
 
