@@ -291,8 +291,10 @@ To enable autotracking, make the load call as:
 rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI", {useAutoTracking:  true});
 
 ```
-***IMPORTANT***: We have a bunch of safeguards around collecting sensitive information (documented below). Inspite of all the checks, it is possible that sensitive data (particularly passwords) may still be captured for certain react apps or number of password manager browser extensions which store passwords in the attributes in the dom. This issue was first reported for [MixPanel](https://techcrunch.com/2018/02/05/mixpanel-passwords/) and also documented (here)[https://freedom-to-tinker.com/2018/02/26/no-boundaries-for-credentials-password-leaks-to-mixpanel-and-session-replay-companies/].
+***IMPORTANT***: We have a bunch of safeguards around collecting sensitive information (documented below). Inspite of all the checks, it is possible that sensitive data (particularly passwords) may still be captured for certain react apps or number of password manager browser extensions which store passwords in the attributes in the dom. This issue was first reported for [MixPanel](https://techcrunch.com/2018/02/05/mixpanel-passwords/) and also documented [here](https://freedom-to-tinker.com/2018/02/26/no-boundaries-for-credentials-password-leaks-to-mixpanel-and-session-replay-companies/).
 So, please use auto-track with caution. RudderStack doesn't store any data but this data may end up in your downstream destinations including your warehouse.
+
+
 
 
 By default, SDK does not track hidden, password elements, and element of type input, select, text-areas, i.e, events like `click | change | submit` on these elements won’t get tracked.
