@@ -7,7 +7,7 @@
 - [Self-Hosted Config Plane](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-callbacks-to-standard-methods)
 - [Contribute](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#contribute)
 
-**IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If you still wish to use it for your project, refer to [this repository](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). <br><br>
+> **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If you still wish to use it for your project, refer to [this repository](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). <br><br>
 
 
 **RudderStack** is an enterprise-ready, open-source alternative to Segment, for collecting and routing customer event data. More information on RudderStack can be found [here](https://github.com/rudderlabs/rudder-server).
@@ -89,13 +89,11 @@ You can also execute the min file in async/defer way, like:
     e.page()}();
     </script>
 
-**NOTE**: Whichever version of the code you use, you need to replace  `YOUR_WRITE_KEY`  with the write key in the RudderStack Control Plane and  `DATA_PLANE_URL`  with the URL of the RudderStack Server/ Data Plane.
-<br>
+> **NOTE**: Whichever version of the code you use, you need to replace  `YOUR_WRITE_KEY`  with the write key in the RudderStack Control Plane and  `DATA_PLANE_URL`  with the URL of the RudderStack Server/ Data Plane.<br><br>
 
-**NOTE** : In all the above versions, there is an explicit `page` call at the end. This is added to ensure that whenever the SDK loads in a page, a `page` call is being sent. You can remove this call completely or modify with extra page properties to suit your requirement. You can also add `page` calls in your application in places not tied directly to page load, ex: virtual page views, page renders on route change such as in SPAs.
-<br>
+> **NOTE** : In all the above versions, there is an explicit `page` call at the end. This is added to ensure that whenever the SDK loads in a page, a `page` call is being sent. You can remove this call completely or modify with extra page properties to suit your requirement. You can also add `page` calls in your application in places not tied directly to page load, ex: virtual page views, page renders on route change such as in SPAs.<br><br>
 
-**IMPORTANT**: We are moving our SDK to a different path from [https://cdn.rudderlabs.com/rudder-analytics.min.js](https://cdn.rudderlabs.com/rudder-analytics.min.js) to [https://cdn.rudderlabs.com/v1/rudder-analytics.min.js](https://cdn.rudderlabs.com/v1/rudder-analytics.min.js). The earlier path may not be maintained in coming releases.
+> **IMPORTANT**: We are moving our SDK to a different path from [https://cdn.rudderlabs.com/rudder-analytics.min.js](https://cdn.rudderlabs.com/rudder-analytics.min.js) to [https://cdn.rudderlabs.com/v1/rudder-analytics.min.js](https://cdn.rudderlabs.com/v1/rudder-analytics.min.js). The earlier path may not be maintained in coming releases.<br><br>
 
 ### Alternative Installation using NPM
 
@@ -130,7 +128,7 @@ You can also refer to the sample projects for a walkthrough of the above: [Sampl
  -  Opera >= 23
  -  Yandex>=14.12
  
- **NOTE**: If the SDK doesn't work on the versions you are targeting, check if adding browser polyfills to your application solves the issue.
+ > **NOTE**: If the SDK doesn't work on the versions you are targeting, check if adding browser polyfills to your application solves the issue.
 
 
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#step-2-identify-your-users-using-the-identify-method)Step 2: Identify Your Users With the  `identify()`  Method:
@@ -159,7 +157,7 @@ rudderanalytics.identify(
 
 In the above example, information such as the user ID, email along with contextual information such as IP address, anonymousId, etc. will be captured.
 
-**NOTE**: There is no need to call  `identify()`  for anonymous visitors to your website. Such visitors are automatically assigned an `anonymousId`.
+> **NOTE**: There is no need to call  `identify()`  for anonymous visitors to your website. Such visitors are automatically assigned an `anonymousId`.
 
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#step-3-track-your-users-actions-using-the-track-method)Step 3: Track Your Users’ Actions With the  `track()`  Method
 
@@ -184,7 +182,7 @@ In the above example, the method tracks the event ‘**test track event GA3**’
 
 You can use this method to track various other success metrics for your website, such as user signups, item purchases, article bookmarks, and much more.
 
-**NOTE**: To override contextual information, for ex: anonymizing IP and other contextual fields like page properties, the following template can be used. Similarly one can override the auto-generated anonymousId with provided ID. For this:
+> **NOTE**: To override contextual information, for ex: anonymizing IP and other contextual fields like page properties, the following template can be used. Similarly one can override the auto-generated anonymousId with provided ID. For this:
 
 ```
 rudderanalytics.track(
@@ -226,6 +224,7 @@ rudderanalytics.ready(
 );
 
 ```
+<br><br>
 
 > **For detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, check out our [docs](https://docs.rudderlabs.com/sdk-integration-guide/getting-started-with-javascript-sdk).**
 
@@ -264,7 +263,7 @@ You may use the below parameters as querystring parameter and trigger the corres
 
 You can also define callbacks to the common methods of the  `rudderanalytics`  object.  
 
-_**Note**_: For now, the functionality is supported for  `syncPixel`  method which is called in the SDK when making sync calls in integrations for relevant destinations.
+> **Note**: For now, the functionality is supported for  `syncPixel`  method which is called in the SDK when making sync calls in integrations for relevant destinations.
 
 For example:
 
@@ -299,7 +298,7 @@ rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI",
 
 We will be adding similar callbacks for APIs such as  `track`, `page`, `identify`,  etc.
 
-**IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If, however, you still wish to use it for your project, refer to [this repository](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack).
+> **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If, however, you still wish to use it for your project, refer to [this repository](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack).
 
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#self-hosted-config-plane)Self-Hosted Config Plane
