@@ -14,7 +14,7 @@ import Emitter from "component-emitter";
 import after from "after";
 import querystring from "component-querystring";
 import merge from "lodash.merge";
-import utm from "@segment/utm-params"
+import utm from "@segment/utm-params";
 import {
   getJSONTrimmed,
   generateUUID,
@@ -721,21 +721,24 @@ class Analytics {
 
   /**
    * add campaign parsed details under context
-   * @param {*} rudderElement 
+   * @param {*} rudderElement
    */
   addCampaignInfo(rudderElement) {
-    const {search} = getDefaultPageProperties();
-    let campaign = utm(search);
-    if(rudderElement.message.context && typeof rudderElement.message.context === "object") {
+    const { search } = getDefaultPageProperties();
+    const campaign = utm(search);
+    if (
+      rudderElement.message.context &&
+      typeof rudderElement.message.context === "object"
+    ) {
       rudderElement.message.context.campaign = campaign;
-    } 
+    }
   }
 
   /**
    * process options parameter
    * Apart from top level keys merge everyting under context
-   * context.page's default properties are overriden by same keys of 
-   * provided properties in case of page call 
+   * context.page's default properties are overriden by same keys of
+   * provided properties in case of page call
    *
    * @param {*} rudderElement
    * @param {*} options
@@ -764,16 +767,14 @@ class Analytics {
         rudderElement.message.context = merge(rudderElement.message.context, {
           [key]: options[key],
         });
+      } else if (typeof options[key] === "object" && options[key] != null) {
+        rudderElement.message.context = merge(rudderElement.message.context, {
+          ...options[key],
+        });
       } else {
-        if (typeof options[key] === "object" && options[key] != null) {
-          rudderElement.message.context = merge(rudderElement.message.context, {
-            ...options[key],
-          });
-        } else {
-          logger.error(
-            "[Analytics: processOptionsParam] context passed in options is not object"
-          );
-        }
+        logger.error(
+          "[Analytics: processOptionsParam] context passed in options is not object"
+        );
       }
     }
   }
@@ -793,7 +794,7 @@ class Analytics {
   // Assign page properties to context.page if the same property is not provided under context.page
   getContextPageProperties(properties) {
     const defaultPageProperties = getDefaultPageProperties();
-    let contextPageProperties = {};
+    const contextPageProperties = {};
     for (const key in defaultPageProperties) {
       contextPageProperties[key] =
         properties && properties[key]
@@ -910,7 +911,12 @@ class Analytics {
       this.registerCallbacks(true);
     }
 
-    if (options.queueOptions && options.queueOptions != null && typeof options.queueOptions == "object") {
+    if (
+      options &&
+      options.queueOptions &&
+      options.queueOptions != null &&
+      typeof options.queueOptions == "object"
+    ) {
       this.eventRepository.startQueue(options.queueOptions);
     } else {
       this.eventRepository.startQueue({});
