@@ -90,8 +90,10 @@ You can also execute the min file in async/defer way, like:
     </script>
 
 **NOTE**: Whichever version of the code you use, you need to replace  `YOUR_WRITE_KEY`  with the write key in the RudderStack Control Plane and  `DATA_PLANE_URL`  with the URL of the RudderStack Server/ Data Plane.
+<br>
 
 **NOTE** : In all the above versions, there is an explicit `page` call at the end. This is added to ensure that whenever the SDK loads in a page, a `page` call is being sent. You can remove this call completely or modify with extra page properties to suit your requirement. You can also add `page` calls in your application in places not tied directly to page load, ex: virtual page views, page renders on route change such as in SPAs.
+<br>
 
 **IMPORTANT**: We are moving our SDK to a different path from [https://cdn.rudderlabs.com/rudder-analytics.min.js](https://cdn.rudderlabs.com/rudder-analytics.min.js) to [https://cdn.rudderlabs.com/v1/rudder-analytics.min.js](https://cdn.rudderlabs.com/v1/rudder-analytics.min.js). The earlier path may not be maintained in coming releases.
 
