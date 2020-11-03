@@ -298,7 +298,10 @@ rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI",
 
 We will be adding similar callbacks for APIs such as  `track`, `page`, `identify`,  etc.
 
-> **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If, however, you still wish to use it for your project, refer to [this repository](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack).
+<br><br>
+**IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If, however, you still wish to use it for your project, refer to [this repository](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack)
+
+<br><br>
 
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#self-hosted-config-plane)Self-Hosted Config Plane
