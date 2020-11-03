@@ -278,7 +278,7 @@ The callback can be supplied in options parameter like below as well:
 
 ```
 //define the callbacks directly on the load method like:
-rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI",
+rudderanalytics.load(YOUR_WRITE_KEY, DATA_PLANE_URL,
 	                    { clientSuppliedCallbacks: {
 						    "syncPixelCallback": () => {console.log('sync done!')}
 						  }
