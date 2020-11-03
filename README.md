@@ -32,7 +32,7 @@ The minified version is as follows:
 
 ```
 <script> 
-rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],i=0;i<methods.length;i++){var method=methods[i];rudderanalytics[method]=function(a){return function(){rudderanalytics.push([a].concat(Array.prototype.slice.call(arguments)))}}(method)}rudderanalytics.load("YOUR_WRITE_KEY","DATA_PLANE_URI"),rudderanalytics.page();
+rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],i=0;i<methods.length;i++){var method=methods[i];rudderanalytics[method]=function(a){return function(){rudderanalytics.push([a].concat(Array.prototype.slice.call(arguments)))}}(method)}rudderanalytics.load(YOUR_WRITE_KEY,DATA_PLANE_URL),rudderanalytics.page();
 </script>
 
 <script  src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script>
@@ -66,7 +66,7 @@ The non-minified version of the code is shown below:
     			};
   			}(method);
 	}
-	rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI");
+	rudderanalytics.load(YOUR_WRITE_KEY, DATA_PLANE_URL);
 	//For example,
 	//rudderanalytics.load("1Qb1F3jSWv0eKFBPZcrM7ypgjVo", "http://localhost:8080");
 	rudderanalytics.page();
@@ -87,7 +87,7 @@ You can also execute the min file in async/defer way, like:
     Combining the initialization and the above async script together
     <script type="text/javascript">
     !function(){var e=window.rudderanalytics=window.rudderanalytics||[];e.methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],e.factory=function(t){return function(){var r=Array.prototype.slice.call(arguments);return r.unshift(t),e.push(r),e}};for(var t=0;t<e.methods.length;t++){var r=e.methods[t];e[r]=e.factory(r)}e.loadJS=function(e,t){var r=document.createElement("script");r.type="text/javascript",r.async=!0,r.src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(r,a)},e.loadJS(),
-    e.load("WRITE_KEY","RUDDER_SERVER_URL"),
+    e.load(YOUR_WRITE_KEY,DATA_PLANE_URL),
     e.page()}();
     </script>
 
@@ -195,19 +195,6 @@ rudderanalytics.track(
     revenue:  30,
     currency:  'USD' ,
     user_actual_id:  12345
-  },
-  {
-    page: {
-          path: "",
-          referrer: "",
-          search: "",
-          title: "",
-          url: ""
-    },
-    context: {
-      ip:  "0.0.0.0"
-    },
-    anonymousId:  "00000000000000000000000000"
   }, 
   () => {console.log("in track call");}
 );
