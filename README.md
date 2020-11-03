@@ -10,8 +10,7 @@
 | **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If you still wish to use it for your project, refer to [this repository](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). |
 |:------|
 
-
-
+# What is RudderStack?
 
 **RudderStack** is an enterprise-ready, open-source alternative to Segment, for collecting and routing customer event data. More information on RudderStack can be found [here](https://github.com/rudderlabs/rudder-server).
 
