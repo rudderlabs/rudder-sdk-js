@@ -49,6 +49,18 @@
         console.log("we are all set!!!");
       
       });
+      window.rudderanalytics.track('Product Added', {
+            currency: 'CAD',
+            quantity: 1,
+            price: 24.75,
+            name: 'my product',
+            category: 'cat 1',
+            sku: 'p-298',
+            testDimension: true,
+            testMetric: true,
+            position: 4
+        });
+
       //page calls 
     // window.rudderanalytics.page();
 
@@ -177,22 +189,22 @@
 
     //       //identify calls
           // window.rudderanalytics.page();
-      window.rudderanalytics.identify("ruchu123", {
-        name: "Ruchira Moitra",
-        email: "ruchira@gmail.com",
-        plan: "Enterprise",
-        company: {
-          id: "abc123"
-        },
-        createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
-      });
-      window.rudderanalytics.identify('Steven');
+      // window.rudderanalytics.identify("ruchu123", {
+      //   name: "Ruchira Moitra",
+      //   email: "ruchira@gmail.com",
+      //   plan: "Enterprise",
+      //   company: {
+      //     id: "abc123"
+      //   },
+      //   createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)"
+      // });
+      // window.rudderanalytics.identify('Steven');
       
      // track calls
 
-       window.rudderanalytics.track('event1');
+      //  window.rudderanalytics.track('event1');
 
-       window.rudderanalytics.track('event2', { category: 'blah' });
+      //  window.rudderanalytics.track('event2', { category: 'blah' });
 
       // window.rudderanalytics.track(
       //       'event3',

@@ -1,3 +1,18 @@
+/* eslint-disable no-undef */
+/* eslint-disable prefer-destructuring */
+/* eslint-disable prefer-template */
+/* eslint-disable yoda */
+/* eslint-disable no-unused-expressions */
+/* eslint-disable no-sequences */
+/* eslint-disable no-redeclare */
+/* eslint-disable block-scoped-var */
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable guard-for-in */
+/* eslint-disable prefer-rest-params */
+/* eslint-disable vars-on-top */
+/* eslint-disable no-var */
+/* eslint-disable no-param-reassign */
+/* eslint-disable func-names */
 import each from "@ndhoule/each";
 import logger from "../../utils/logUtil";
 
@@ -17,7 +32,7 @@ class MoEngage {
       var t = {};
       var q = function (f) {
         return function () {
-          (i.moengage_q = i.moengage_q || []).push({ f: f, a: arguments });
+          (i.moengage_q = i.moengage_q || []).push({ f, a: arguments });
         };
       };
       var f = [
