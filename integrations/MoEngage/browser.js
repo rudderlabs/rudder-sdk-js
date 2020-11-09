@@ -116,25 +116,25 @@ class MoEngage {
   track(rudderElement) {
     logger.debug("inside track");
     // Check if the user id is same as previous session if not a new session will start
-    if (rudderElement.message) {
-      const { event, properties, userId } = rudderElement.message;
-      if (userId) {
-        if (this.initialUserId !== userId) {
-          this.reset();
-        }
-      }
-      // track event : https://docs.moengage.com/docs/tracking-events
-      if (event) {
-        if (properties) {
-          this.moeClient.track_event(event, properties);
-        } else {
-          this.moeClient.track_event(event);
-        }
-      } else {
-        logger.error("Event name not present");
-      }
-    } else {
+    if (!rudderElement.message) {
       logger.error("Payload not correct");
+      return;
+    }
+    const { event, properties, userId } = rudderElement.message;
+    if (userId) {
+      if (this.initialUserId !== userId) {
+        this.reset();
+      }
+    }
+    // track event : https://docs.moengage.com/docs/tracking-events
+    if (!event) {
+      logger.error("Event name not present");
+      return;
+    }
+    if (properties) {
+      this.moeClient.track_event(event, properties);
+    } else {
+      this.moeClient.track_event(event);
     }
   }
 
@@ -163,32 +163,17 @@ class MoEngage {
 
     // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
     if (traits) {
-      each(function name(value, key) {
+      each(function add(value, key) {
         // check if name is present
         if (key === "name") {
           self.moeClient.add_user_name(value);
         }
-
-        // if any of the custom properties are present it will be sent
-        // For example : username is present in trait then the method will be add_user_name
-
         if (Object.prototype.hasOwnProperty.call(traitsMap, key)) {
           const method = `add_${traitsMap[key]}`;
           self.moeClient[method](value);
+        } else {
+          self.moeClient.add_user_attribute(key, value);
         }
-      }, traits);
-
-      // remove the custom properties from triats
-
-      each(function remove(value, key) {
-        if (Object.prototype.hasOwnProperty.call(traits, key))
-          delete traits[key];
-      }, traitsMap);
-
-      // send the remaining properties
-
-      each(function add(value, key) {
-        self.moeClient.add_user_attribute(key, value);
       }, traits);
     }
   }
