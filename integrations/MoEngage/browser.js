@@ -5,6 +5,8 @@ import logger from "../../utils/logUtil";
 const traitsMap = {
   firstName: "first_name",
   lastName: "last_name",
+  firstname: "first_name",
+  lastname: "last_name",
   email: "email",
   phone: "mobile",
   name: "user_name",
