@@ -11,6 +11,7 @@ const traitsMap = {
   phone: "mobile",
   name: "user_name",
   username: "user_name",
+  userName: "user_name",
   gender: "gender",
   birthday: "birthday",
   id: null,
