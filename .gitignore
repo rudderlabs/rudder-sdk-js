@@ -17,3 +17,4 @@ build.sh
 publish.sh
 coverage/**
 dist/
+__tests__/prodsdk.js
