@@ -935,6 +935,13 @@ class Analytics {
     ) {
       this.trackValues = options.valTrackingList;
     }
+
+    if (options && options.setCookieDomain) {
+      console.log("in analytics");
+      console.log(options.setCookieDomain)
+     this.storage.setCookieDomain(options.setCookieDomain)
+    }
+
     if (options && options.useAutoTracking) {
       this.autoTrackFeatureEnabled = true;
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {

@@ -97,6 +97,12 @@ class Storage {
     return value;
   }
 
+  setCookieDomain(value) {
+    console.log("in storage");
+    console.log(value)
+    this.storage.set("custom_cookie_domain", value);
+  }
+
   /**
    *
    * @param {*} key
