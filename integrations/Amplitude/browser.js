@@ -1,37 +1,9 @@
 /* eslint-disable class-methods-use-this */
-import is from "is";
-import each from "component-each";
 import logger from "../../utils/logUtil";
 import { type } from "../../utils/utils"
 
 class Amplitude {
   constructor(config, analytics) {
-
-    /* config = {
-      apiKey:  '',
-      trackAllPages:  true,
-      trackNamedPages:  true,
-      trackCategorizedPages:  true,
-      trackUtmProperties:  true,
-      trackReferrer:  false,
-      batchEvents:  false,
-      eventUploadThreshold:  30,
-      eventUploadPeriodMillis:  30000,
-      useLogRevenueV2:  false,
-      forceHttps:  false,
-      trackGclid:  false,
-      saveParamsReferrerOncePerSession:  true,
-      deviceIdFromUrlParam:  false,
-      mapQueryParams:  {},
-      trackRevenuePerProduct:  false,
-      preferAnonymousIdForDeviceId:  true,
-      traitsToSetOnce:  [],
-      traitsToIncrement:  [],
-      appendFieldsToEventProps:  {},
-      unsetParamsReferrerOnNewSession:  false,
-      trackProductsOnce:  true
-    } */
-
     this.analytics = analytics;
     this.apiKey = config.apiKey;
     this.trackAllPages = config.trackAllPages || false;
@@ -49,8 +21,8 @@ class Amplitude {
     //this.mapQueryParams = config.mapQueryParams;
     this.trackRevenuePerProduct  = config.trackRevenuePerProduct || false;
     this.preferAnonymousIdForDeviceId = config.preferAnonymousIdForDeviceId || false;
-    this.traitsToSetOnce = [];//config.traitsToSetOnce;
-    this.traitsToIncrement = [];//config.traitsToIncrement;
+    this.traitsToSetOnce = [];
+    this.traitsToIncrement = [];
     this.appendFieldsToEventProps = config.appendFieldsToEventProps || false;
     this.unsetParamsReferrerOnNewSession  = config.unsetParamsReferrerOnNewSession || false;
     this.trackProductsOnce = config.trackProductsOnce || false;
@@ -157,16 +129,15 @@ class Amplitude {
       deviceId: this.preferAnonymousIdForDeviceId && this.analytics && this.analytics.getAnonymousId(),
       logLevel: "INFO"
     }
-    amplitude.getInstance().init(this.apiKey, null, initOptions);
-    if (this.versionName) {
+    window.amplitude.getInstance().init(this.apiKey, null, initOptions);
+    /* if (this.versionName) {
       window.amplitude.getInstance().setVersionName(this.versionName);
-    }
+    } */
   }
 
   identify(rudderElement) {
     logger.debug("in Amplitude identify");
 
-    //this.setDeviceIdFromAnonymousId(identify);
     this.setDeviceId(rudderElement);
 
     var callback_function = function(status, response) {
@@ -203,8 +174,6 @@ class Amplitude {
         }
       }
       window.amplitude.identify(amplitudeIdentify, callback_function);
-
-      //TODO userproperties
     }
 
   }
@@ -229,46 +198,39 @@ class Amplitude {
         let productKeys = Object.keys(products);
         for (let index = 0; index < productKeys.length; index++) {
           let product = {}; //new Track({ properties: products[index] });
-          product.properties = this.getProductAttributes(products[index])
+          product = this.getProductAttributes(products[index])
           allProducts.push(product);
         }
-        //properties.products = allProducts;
-
         
         clonedTrackEvent.properties.products = allProducts;
 
-        this.trackEvent(clonedTrackEvent);
-
-        /* amplitude.getInstance().logEvent(event, properties);
-
-        if(properties.revenue && !this.trackRevenuePerProduct) {
-          this.trackRevenue();
-        } */
-        // logEvent.call(this, new Track(clonedTrack), trackRevenuePerProduct);
+        this.trackEvent(clonedTrackEvent, this.trackRevenuePerProduct);
+        if(this.trackRevenuePerProduct){
+          const trackEventMessage = {};
+          Object.assign(trackEventMessage, clonedTrackEvent);
+          this.trackingRevenuePerProduct(trackEventMessage, products, false);
+        }
+        
       } else {
         this.trackEvent(clonedTrackEvent);
       }
       return;
     }
-
-    if(products){
-      delete clonedTrackEvent.properties.products;
-    }
-    
-    this.trackEvent(clonedTrackEvent);
     
     if(products &&  type(products) == 'array') {
-      for (let index = 0; index < products.length; index++) {
-        /* let product = {}; //new Track({ properties: products[index] });
-        product.properties = getProductAttributes(products[index])
-        allProducts.push(product); */
+      delete clonedTrackEvent.properties.products;
+      this.trackEvent(clonedTrackEvent, this.trackRevenuePerProduct);
+
+      const trackEventMessage = {};
+      Object.assign(trackEventMessage, clonedTrackEvent);
+
+      /* for (let index = 0; index < products.length; index++) {
         let product = products[index];
         let price = product.price;
         let quantity = product.quantity;
         clonedTrackEvent.properties = product;
         clonedTrackEvent.event = 'Product Purchased';
         if (this.trackRevenuePerProduct && price != null && quantity) {
-          // Add revenueType if exists, to be able to override.
           if (revenueType) {
             clonedTrackEvent.properties.revenueType = revenueType;
           }
@@ -277,15 +239,39 @@ class Amplitude {
           }
           this.trackRevenue(clonedTrackEvent);
         }
-        this.trackEvent(clonedTrackEvent);
-      }
+        this.trackEvent(clonedTrackEvent, this.trackRevenuePerProduct);
+      } */
+      this.trackingRevenuePerProduct(trackEventMessage, products, true);
+    } else {
+      this.trackEvent(clonedTrackEvent);
     }
-    
-
-    //TODO revenue event, userproperties
   }
 
-  trackEvent(rudderMessage){
+  trackingRevenuePerProduct(trackEventMessage, products, trackEvent){
+    const { revenue, revenueType } = trackEventMessage.properties;
+    for (let index = 0; index < products.length; index++) {
+      let product = products[index];
+      let price = product.price;
+      let quantity = product.quantity;
+      trackEventMessage.properties = product;
+      trackEventMessage.event = 'Product Purchased';
+      if (this.trackRevenuePerProduct && price != null && quantity) {
+        if (revenueType) {
+          trackEventMessage.properties.revenueType = revenueType;
+        }
+        if (revenue) {
+          trackEventMessage.properties.revenue = revenue;
+        }
+        this.trackRevenue(trackEventMessage);
+      }
+      if(trackEvent){
+        this.trackEvent(trackEventMessage, this.trackRevenuePerProduct);
+      }
+      
+    }
+  }
+
+  trackEvent(rudderMessage, toTrackRevenue){
     const { properties, event } = rudderMessage;
 
     var callback_function = function(status, response) {
@@ -293,7 +279,7 @@ class Amplitude {
     };
 
     window.amplitude.getInstance().logEvent(event, properties, callback_function);
-    if(properties.revenue && !this.trackRevenuePerProduct) {
+    if(properties.revenue && !toTrackRevenue) {
       this.trackRevenue(rudderMessage);
     }
 
@@ -309,27 +295,22 @@ class Amplitude {
     this.setDeviceId(rudderElement);
 
     const { properties, name, category } = rudderElement.message;
-    //const pageName = name || category;
-    //const event = `Viewed page ${pageName}`;
-
-    //amplitude.getInstance().logEvent(event, properties);
-
 
     // all pages
     if (this.trackAllPages) {
-      const event = name ? `Viewed page ${name}` : 'Loaded a page';
+      const event = category? `Viewed page ${category}`: name ? `Viewed page ${name}` : 'Loaded a page';
       amplitude.getInstance().logEvent(event, properties, callback_function);
     }
 
     // categorized pages
     if (category && this.trackCategorizedPages) {
-      const event = category ? `Viewed page ${category}` : 'Loaded a page';
+      const event = `Viewed page ${category}`;
       amplitude.getInstance().logEvent(event, properties, callback_function);
     }
 
     // named pages
     if (name && this.trackNamedPages) {
-      const event = name ? `Viewed page ${name}` : 'Loaded a page';
+      const event = `Viewed page ${name}`;
       amplitude.getInstance().logEvent(event, properties, callback_function);
     }
 
@@ -380,8 +361,10 @@ class Amplitude {
     };
 
     const { properties, event } = rudderMessage;
-    let { price, productId, quantity, revenue } = properties;
+    let { price, productId, quantity, revenue, product_id } = properties;
     let revenueType = properties.revenueType || mapRevenueType[event.toLowerCase()];
+
+    productId = productId || product_id;
 
     if (!price) {
       price = revenue;
