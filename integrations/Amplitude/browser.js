@@ -7,8 +7,8 @@ import { type } from "../../utils/utils"
 class Amplitude {
   constructor(config, analytics) {
 
-    config = {
-      apiKey:  'b239e3bff0bf7df6f8f83c78623a25f3',
+    /* config = {
+      apiKey:  '',
       trackAllPages:  true,
       trackNamedPages:  true,
       trackCategorizedPages:  true,
@@ -30,7 +30,7 @@ class Amplitude {
       appendFieldsToEventProps:  {},
       unsetParamsReferrerOnNewSession:  false,
       trackProductsOnce:  true
-    }
+    } */
 
     this.analytics = analytics;
     this.apiKey = config.apiKey;
