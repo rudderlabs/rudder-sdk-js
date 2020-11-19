@@ -298,7 +298,7 @@ class Amplitude {
 
     // all pages
     if (this.trackAllPages) {
-      const event = name ? `Viewed page ${name}` : 'Loaded a page';
+      const event = category? `Viewed page ${category}`: name ? `Viewed page ${name}` : 'Loaded a page';
       amplitude.getInstance().logEvent(event, properties, callback_function);
     }
 
