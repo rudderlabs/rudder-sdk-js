@@ -10,9 +10,8 @@ import logger from "../logUtil";
  */
 class CookieLocal {
   constructor(options) {
-    console.log(options);
     this._options = {};
-    this.options(options);
+    this.options(options)
   }
 
   /**
@@ -21,16 +20,12 @@ class CookieLocal {
    */
   options(options = {}) {
     if (arguments.length === 0) return this._options;
-    console.log(this.get("custom_cookie_domain"));
-    console.log(this.get("test_rudder"));
-    console.log(this.get("rudder_cookies"));
-    console.log("Check cookie");
     let domain = `.${topDomain(window.location.href)}`;
     if (domain === ".") domain = null;
     if (this.get("custom_cookie_domain")) {
       domain = this.get("custom_cookie_domain");
     }
-    console.log(domain);
+
     // the default maxage and path
     this._options = defaults(options, {
       maxage: 31536000000,
@@ -43,12 +38,10 @@ class CookieLocal {
     this.set("test_rudder", true);
     if (!this.get("test_rudder")) {
       this._options.domain =
-        this.get("custom_cookie_domain") != undefined
+        this.get("custom_cookie_domain") !== undefined
           ? this.get("custom_cookie_domain")
           : null;
     }
-    console.log("options");
-    console.log(options);
     this.remove("test_rudder");
   }
 
@@ -90,6 +83,6 @@ class CookieLocal {
 }
 
 // Exporting only the instance
-const Cookie = new CookieLocal({});
 
-export { Cookie };
+
+export { CookieLocal };

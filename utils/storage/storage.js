@@ -1,7 +1,7 @@
 import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
 import logger from "../logUtil";
-import { Cookie } from "./cookie";
+import { CookieLocal } from "./cookie";
 import { Store } from "./store";
 
 const defaults = {
@@ -18,21 +18,7 @@ const defaults = {
  * An object that handles persisting key-val from Analytics
  */
 class Storage {
-  constructor() {
-    // First try setting the storage to cookie else to localstorage
-    Cookie.set("rudder_cookies", true);
-
-    if (Cookie.get("rudder_cookies")) {
-      Cookie.remove("rudder_cookies");
-      this.storage = Cookie;
-      return;
-    }
-
-    // localStorage is enabled.
-    if (Store.enabled) {
-      this.storage = Store;
-    }
-  }
+  constructor() {}
 
   /**
    * Json stringify the given value
@@ -98,9 +84,22 @@ class Storage {
   }
 
   setCookieDomain(value) {
-    console.log("in storage");
-    console.log(value)
-    this.storage.set("custom_cookie_domain", value);
+    const Cookie = new CookieLocal({});
+    Cookie.set("rudder_cookies", true);
+    if (value !== "not set") {
+      Cookie.set("custom_cookie_domain", value);
+      // First try setting the storage to cookie else to localstorage
+      Cookie.options(arguments);
+    } 
+
+    if (Cookie.get("rudder_cookies")) {
+      Cookie.remove("rudder_cookies");
+      this.storage = Cookie;
+    }
+    // localStorage is enabled.
+    else if (Store.enabled) {
+      this.storage = Store;
+    }
   }
 
   /**

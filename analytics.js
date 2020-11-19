@@ -872,6 +872,11 @@ class Analytics {
       });
       throw Error("failed to initialize");
     }
+    if (options && options.setCookieDomain) {
+      this.storage.setCookieDomain(options.setCookieDomain);
+    } else {
+      this.storage.setCookieDomain("not set");
+    }
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
@@ -934,12 +939,6 @@ class Analytics {
       options.valTrackingList.push == Array.prototype.push
     ) {
       this.trackValues = options.valTrackingList;
-    }
-
-    if (options && options.setCookieDomain) {
-      console.log("in analytics");
-      console.log(options.setCookieDomain)
-     this.storage.setCookieDomain(options.setCookieDomain)
     }
 
     if (options && options.useAutoTracking) {
