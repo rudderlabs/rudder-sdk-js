@@ -21,6 +21,7 @@ const clientToServerNames = {
   FULLSTORY: "Fullstory",
   TVSQUUARED: "TVSquared",
   MOENGAGE: "MoEngage",
+  AM: "Amplitude"
 };
 
 export { clientToServerNames };

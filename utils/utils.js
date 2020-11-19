@@ -434,4 +434,5 @@ export {
   transformToServerNames,
   handleError,
   rejectArr,
+  type
 };
