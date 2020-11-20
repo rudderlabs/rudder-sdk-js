@@ -12,8 +12,8 @@ class Amplitude {
     this.trackUtmProperties = config.trackUtmProperties|| false;
     this.trackReferrer = config.trackReferrer|| false;
     this.batchEvents = config.batchEvents|| false;
-    this.eventUploadThreshold = config.eventUploadThreshold || 30;
-    this.eventUploadPeriodMillis = config.eventUploadPeriodMillis || 30000;
+    this.eventUploadThreshold = +config.eventUploadThreshold || 30;
+    this.eventUploadPeriodMillis = +config.eventUploadPeriodMillis || 30000;
     this.forceHttps = config.forceHttps || false;
     this.trackGclid = config.trackGclid || false;
     this.saveParamsReferrerOncePerSession = config.saveParamsReferrerOncePerSession || false;
@@ -235,7 +235,8 @@ class Amplitude {
   }
 
   trackingEventAndRevenuePerProduct(trackEventMessage, products, shouldTrackEventPerProduct){
-    const { revenue, revenueType } = trackEventMessage.properties;
+    let { revenue, revenueType, revenue_type } = trackEventMessage.properties;
+    revenueType = revenueType || revenue_type;
     for (let index = 0; index < products.length; index++) {
       let product = products[index];
       trackEventMessage.properties = product;
@@ -353,7 +354,7 @@ class Amplitude {
 
     const { properties, event } = rudderMessage;
     let { price, productId, quantity, revenue, product_id } = properties;
-    let revenueType = properties.revenueType || mapRevenueType[event.toLowerCase()];
+    let revenueType = properties.revenueType || properties.revenue_type || mapRevenueType[event.toLowerCase()];
 
     productId = productId || product_id;
 
