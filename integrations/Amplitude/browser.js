@@ -188,7 +188,8 @@ class Amplitude {
 
     // For track products once, we will send the products in a single call.
     if(this.trackProductsOnce){
-      if(products &&  type(products) == 'array') { // track all the products in a single event.
+      if(products &&  type(products) == 'array') { 
+        // track all the products in a single event.
         let allProducts = [];
         
         let productKeys = Object.keys(products);
@@ -200,62 +201,46 @@ class Amplitude {
         
         clonedTrackEvent.properties.products = allProducts;
 
-        this.trackEvent(clonedTrackEvent, this.trackRevenuePerProduct); // track revenue as a whole if trackRevenuePerProduct is not enabled.
+        this.logEventAndCorrespondingRevenue(clonedTrackEvent, this.trackRevenuePerProduct); // we do not want to track revenue as a whole if trackRevenuePerProduct is enabled.
         
         // If trackRevenuePerProduct is enabled, track revenues per product. 
         if(this.trackRevenuePerProduct){
           const trackEventMessage = {};
           Object.assign(trackEventMessage, clonedTrackEvent);
-          this.trackingRevenuePerProduct(trackEventMessage, products, false);
+          this.trackingEventAndRevenuePerProduct(trackEventMessage, products, false); // also track revenue only and not event per product.
         }
         
-      } else { // track event and revenue as a whole as products array is not available.
-        this.trackEvent(clonedTrackEvent, false);
+      } else { 
+        // track event and revenue as a whole as products array is not available.
+        this.logEventAndCorrespondingRevenue(clonedTrackEvent, false);
       }
       return;
     }
     
     if(products &&  type(products) == 'array') { // track events iterating over product array individually.
+      
+      // Log the actuall event without products array. We will subsequently track each product with 'Product Purchased' event.
       delete clonedTrackEvent.properties.products;
-      this.trackEvent(clonedTrackEvent, this.trackRevenuePerProduct);
+      this.logEventAndCorrespondingRevenue(clonedTrackEvent, this.trackRevenuePerProduct); 
 
       const trackEventMessage = {};
       Object.assign(trackEventMessage, clonedTrackEvent);
 
-      /* for (let index = 0; index < products.length; index++) {
-        let product = products[index];
-        let price = product.price;
-        let quantity = product.quantity;
-        clonedTrackEvent.properties = product;
-        clonedTrackEvent.event = 'Product Purchased';
-        if (this.trackRevenuePerProduct && price != null && quantity) {
-          if (revenueType) {
-            clonedTrackEvent.properties.revenueType = revenueType;
-          }
-          if (revenue) {
-            clonedTrackEvent.properties.revenue = revenue;
-          }
-          this.trackRevenue(clonedTrackEvent);
-        }
-        this.trackEvent(clonedTrackEvent, this.trackRevenuePerProduct);
-      } */
-
       // track products and revenue per product basis.
-      this.trackingRevenuePerProduct(trackEventMessage, products, true);
-    } else { // track event and revenue as a whole as no product array is present.
-      this.trackEvent(clonedTrackEvent, false);
+      this.trackingEventAndRevenuePerProduct(trackEventMessage, products, true); // track both event and revenue on per product basis.
+    } else { 
+      // track event and revenue as a whole as no product array is present.
+      this.logEventAndCorrespondingRevenue(clonedTrackEvent, false);
     }
   }
 
-  trackingRevenuePerProduct(trackEventMessage, products, trackEvent){
+  trackingEventAndRevenuePerProduct(trackEventMessage, products, shouldTrackEventPerProduct){
     const { revenue, revenueType } = trackEventMessage.properties;
     for (let index = 0; index < products.length; index++) {
       let product = products[index];
-      let price = product.price;
-      let quantity = product.quantity;
       trackEventMessage.properties = product;
       trackEventMessage.event = 'Product Purchased';
-      if (this.trackRevenuePerProduct && price != null && quantity) {
+      if (this.trackRevenuePerProduct) {
         if (revenueType) {
           trackEventMessage.properties.revenueType = revenueType;
         }
@@ -264,14 +249,16 @@ class Amplitude {
         }
         this.trackRevenue(trackEventMessage);
       }
-      if(trackEvent){
-        this.trackEvent(trackEventMessage, this.trackRevenuePerProduct);
+      if(shouldTrackEventPerProduct){
+        this.logEventAndCorrespondingRevenue(trackEventMessage, true);
       }
       
     }
   }
 
-  trackEvent(rudderMessage, dontTrackRevenue){
+  //Always to be called for general and top level events (and not product level)
+  // For these events we expect top level revenue property.
+  logEventAndCorrespondingRevenue(rudderMessage, dontTrackRevenue){
     const { properties, event } = rudderMessage;
 
     window.amplitude.getInstance().logEvent(event, properties);
@@ -371,6 +358,9 @@ class Amplitude {
     productId = productId || product_id;
 
     // If neither revenue nor price is present, then return
+    // else send price and quantity from properties to amplitude
+    // If price not present set price as revenue's value and force quantity to be 1.
+    // Ultimately set quantity to 1 if not already present from above logic.
     if(!revenue && !price){
       console.debug("revenue or price is not present.");
       return;
@@ -378,7 +368,7 @@ class Amplitude {
 
     if (!price) {
       price = revenue;
-      //quantity = 1;
+      quantity = 1;
     }
     if(!quantity){
       quantity = 1;
