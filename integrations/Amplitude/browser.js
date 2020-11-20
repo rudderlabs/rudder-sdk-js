@@ -126,8 +126,7 @@ class Amplitude {
       saveParamsReferrerOncePerSession: this.saveParamsReferrerOncePerSession,
       deviceIdFromUrlParam: this.deviceIdFromUrlParam,
       unsetParamsReferrerOnNewSession: this.unsetParamsReferrerOnNewSession,
-      deviceId: this.preferAnonymousIdForDeviceId && this.analytics && this.analytics.getAnonymousId(),
-      logLevel: "INFO"
+      deviceId: this.preferAnonymousIdForDeviceId && this.analytics && this.analytics.getAnonymousId()
     }
     window.amplitude.getInstance().init(this.apiKey, null, initOptions);
     /* if (this.versionName) {
@@ -140,10 +139,7 @@ class Amplitude {
 
     this.setDeviceId(rudderElement);
 
-    var callback_function = function(status, response) {
-      console.log("in callback - identify - ", status, response);
-    };
-
+    // rudderElement.message.context will always be present as part of identify event payload.
     const { traits } = rudderElement.message.context;
     const { userId } = rudderElement.message;
 
@@ -173,51 +169,53 @@ class Amplitude {
           amplitudeIdentify.set(trait, traits[trait]);
         }
       }
-      window.amplitude.identify(amplitudeIdentify, callback_function);
+      window.amplitude.identify(amplitudeIdentify);
     }
 
   }
 
   track(rudderElement) {
     logger.debug("in Amplitude track");
-
-    //this.setDeviceIdFromAnonymousId(track);
     this.setDeviceId(rudderElement);
 
     const { properties } = rudderElement.message;
-    const { event } = rudderElement.message;
-    const { products, revenue, revenueType } = properties;
+    
+    // message.properties will always be present as part of track event.
+    const { products } = properties;
 
     let clonedTrackEvent = {};
     Object.assign(clonedTrackEvent, rudderElement.message);
 
+    // For track products once, we will send the products in a single call.
     if(this.trackProductsOnce){
-      if(products &&  type(products) == 'array') {
+      if(products &&  type(products) == 'array') { // track all the products in a single event.
         let allProducts = [];
-        // products is object
+        
         let productKeys = Object.keys(products);
         for (let index = 0; index < productKeys.length; index++) {
-          let product = {}; //new Track({ properties: products[index] });
+          let product = {};
           product = this.getProductAttributes(products[index])
           allProducts.push(product);
         }
         
         clonedTrackEvent.properties.products = allProducts;
 
-        this.trackEvent(clonedTrackEvent, this.trackRevenuePerProduct);
+        this.trackEvent(clonedTrackEvent, this.trackRevenuePerProduct); // track revenue as a whole if trackRevenuePerProduct is not enabled.
+        
+        // If trackRevenuePerProduct is enabled, track revenues per product. 
         if(this.trackRevenuePerProduct){
           const trackEventMessage = {};
           Object.assign(trackEventMessage, clonedTrackEvent);
           this.trackingRevenuePerProduct(trackEventMessage, products, false);
         }
         
-      } else {
-        this.trackEvent(clonedTrackEvent);
+      } else { // track event and revenue as a whole as products array is not available.
+        this.trackEvent(clonedTrackEvent, false);
       }
       return;
     }
     
-    if(products &&  type(products) == 'array') {
+    if(products &&  type(products) == 'array') { // track events iterating over product array individually.
       delete clonedTrackEvent.properties.products;
       this.trackEvent(clonedTrackEvent, this.trackRevenuePerProduct);
 
@@ -241,9 +239,11 @@ class Amplitude {
         }
         this.trackEvent(clonedTrackEvent, this.trackRevenuePerProduct);
       } */
+
+      // track products and revenue per product basis.
       this.trackingRevenuePerProduct(trackEventMessage, products, true);
-    } else {
-      this.trackEvent(clonedTrackEvent);
+    } else { // track event and revenue as a whole as no product array is present.
+      this.trackEvent(clonedTrackEvent, false);
     }
   }
 
@@ -271,47 +271,44 @@ class Amplitude {
     }
   }
 
-  trackEvent(rudderMessage, toTrackRevenue){
+  trackEvent(rudderMessage, dontTrackRevenue){
     const { properties, event } = rudderMessage;
 
-    var callback_function = function(status, response) {
-      console.log("in callback - ", event, status, response);
-    };
-
-    window.amplitude.getInstance().logEvent(event, properties, callback_function);
-    if(properties.revenue && !toTrackRevenue) {
+    window.amplitude.getInstance().logEvent(event, properties);
+    if(properties.revenue && !dontTrackRevenue) {
       this.trackRevenue(rudderMessage);
     }
 
   }
-
+/**
+ * track page events base on destination settings. If more than one settings is enabled, multiple events may be logged for a single page event.
+ * For example, if category of a page is present, and both trackAllPages and trackCategorizedPages are enabled, then 2 events will be tracked for 
+ * a single pageview - 'Loaded a page' and `Viewed page ${category}`.
+ *
+ * @memberof Amplitude
+ */
   page(rudderElement) {
     logger.debug("in Amplitude page");
-
-    var callback_function = function(status, response) {
-      console.log("in callback - page - ", status, response);
-    };
-
     this.setDeviceId(rudderElement);
 
     const { properties, name, category } = rudderElement.message;
 
     // all pages
     if (this.trackAllPages) {
-      const event = category? `Viewed page ${category}`: name ? `Viewed page ${name}` : 'Loaded a page';
-      amplitude.getInstance().logEvent(event, properties, callback_function);
+      const event = 'Loaded a page';
+      amplitude.getInstance().logEvent(event, properties);
     }
 
     // categorized pages
     if (category && this.trackCategorizedPages) {
       const event = `Viewed page ${category}`;
-      amplitude.getInstance().logEvent(event, properties, callback_function);
+      amplitude.getInstance().logEvent(event, properties);
     }
 
     // named pages
     if (name && this.trackNamedPages) {
       const event = `Viewed page ${name}`;
-      amplitude.getInstance().logEvent(event, properties, callback_function);
+      amplitude.getInstance().logEvent(event, properties);
     }
 
   }
@@ -320,8 +317,6 @@ class Amplitude {
     logger.debug("in Amplitude group");
 
     this.setDeviceId(rudderElement);
-
-    //this.setDeviceIdFromAnonymousId(group);
 
     const { groupId, traits } = rudderElement.message;
 
@@ -353,6 +348,15 @@ class Amplitude {
     }
   }
 
+  /**
+   * Tracks revenue with logRevenueV2() api based on revenue/price present in event payload. If neither of revenue/price present, it returns.
+   * The event payload may contain ruddermessage of an original track event payload (from trackEvent method) or it is derived from a product 
+   * array (from trackingRevenuePerProduct) in an e-comm event.
+   *
+   * @param {*} rudderMessage
+   * @returns
+   * @memberof Amplitude
+   */
   trackRevenue(rudderMessage){
     var mapRevenueType = {
       'order completed': 'Purchase',
@@ -366,8 +370,17 @@ class Amplitude {
 
     productId = productId || product_id;
 
+    // If neither revenue nor price is present, then return
+    if(!revenue && !price){
+      console.debug("revenue or price is not present.");
+      return;
+    }
+
     if (!price) {
       price = revenue;
+      //quantity = 1;
+    }
+    if(!quantity){
       quantity = 1;
     }
     let amplitudeRevenue = new window.amplitude.Revenue().setPrice(price).setQuantity(quantity).setEventProperties(properties);
