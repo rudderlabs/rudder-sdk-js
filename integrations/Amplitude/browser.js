@@ -235,7 +235,8 @@ class Amplitude {
   }
 
   trackingEventAndRevenuePerProduct(trackEventMessage, products, shouldTrackEventPerProduct){
-    const { revenue, revenueType } = trackEventMessage.properties;
+    let { revenue, revenueType } = trackEventMessage.properties;
+    revenueType = revenueType || trackEventMessage.properties.revenue_type;
     for (let index = 0; index < products.length; index++) {
       let product = products[index];
       trackEventMessage.properties = product;
@@ -353,7 +354,7 @@ class Amplitude {
 
     const { properties, event } = rudderMessage;
     let { price, productId, quantity, revenue, product_id } = properties;
-    let revenueType = properties.revenueType || mapRevenueType[event.toLowerCase()];
+    let revenueType = properties.revenueType || properties.revenue_type || mapRevenueType[event.toLowerCase()];
 
     productId = productId || product_id;
 
