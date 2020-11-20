@@ -256,6 +256,8 @@ class Amplitude {
     }
   }
 
+  //Always to be called for general and top level events (and not product level)
+  // For these events we expect top level revenue property.
   logEventAndCorrespondingRevenue(rudderMessage, dontTrackRevenue){
     const { properties, event } = rudderMessage;
 
