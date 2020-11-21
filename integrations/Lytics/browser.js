@@ -133,7 +133,7 @@ class Lytics {
   track(rudderElement) {
     logger.debug("in Lytics track");
     const { properties } = rudderElement.message;
-    const payload = { event: rudderElement.message.event, ...properties };
+    const payload = { _e: rudderElement.message.event, ...properties };
     window.jstag.send(this.stream, payload);
   }
 }
