@@ -83,13 +83,15 @@ class Lytics {
     })();
 
     // Define config and initialize Lytics tracking tag.
-
     window.jstag.init({
       loadid: this.loadid,
       blocked: this.blockload,
       stream: this.stream,
       sessecs: 1800,
-      src: `//c.lytics.io/api/tag/${this.accountId}/latest.min.js`,
+      src:
+        document.location.protocal === "https:"
+          ? `https://c.lytics.io/api/tag/${this.accountId}/latest.min.js`
+          : `http://c.lytics.io/api/tag/${this.accountId}/latest.min.js`,
     });
   }
 
@@ -124,14 +126,14 @@ class Lytics {
   page(rudderElement) {
     logger.debug("in Lytics page");
     const { properties } = rudderElement.message;
-    const payload = { _e: rudderElement.message.name, ...properties };
-    window.jstag.send(this.stream, payload);
+    const payload = { event: rudderElement.message.name, ...properties };
+    window.jstag.pageView(this.stream, payload);
   }
 
   track(rudderElement) {
     logger.debug("in Lytics track");
     const { properties } = rudderElement.message;
-    const payload = { _e: rudderElement.message.event, ...properties };
+    const payload = { event: rudderElement.message.event, ...properties };
     window.jstag.send(this.stream, payload);
   }
 }
