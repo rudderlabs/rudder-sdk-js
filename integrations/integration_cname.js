@@ -43,6 +43,8 @@ const commonNames = {
   Fullstory: "FULLSTORY",
   BUGSNAG: "BUGSNAG",
   TVSQUARED: "TVSQUARED",
+  Pendo: "PENDO",
+  PENDO: "PENDO",
 };
 
-export { commonNames };
+export { commonNames as default };
