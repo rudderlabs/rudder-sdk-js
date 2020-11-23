@@ -4,6 +4,7 @@ import { type } from "../../utils/utils"
 
 class Amplitude {
   constructor(config, analytics) {
+
     this.analytics = analytics;
     this.apiKey = config.apiKey;
     this.trackAllPages = config.trackAllPages || false;
@@ -26,7 +27,7 @@ class Amplitude {
     this.appendFieldsToEventProps = config.appendFieldsToEventProps || false;
     this.unsetParamsReferrerOnNewSession  = config.unsetParamsReferrerOnNewSession || false;
     this.trackProductsOnce = config.trackProductsOnce || false;
-    //this.versionName = config.versionName;
+    this.versionName = config.versionName;
 
     if(config.traitsToSetOnce && config.traitsToSetOnce.length > 0){
       config.traitsToSetOnce.forEach(element => {
@@ -129,9 +130,9 @@ class Amplitude {
       deviceId: this.preferAnonymousIdForDeviceId && this.analytics && this.analytics.getAnonymousId()
     }
     window.amplitude.getInstance().init(this.apiKey, null, initOptions);
-    /* if (this.versionName) {
+    if (this.versionName) {
       window.amplitude.getInstance().setVersionName(this.versionName);
-    } */
+    }
   }
 
   identify(rudderElement) {
