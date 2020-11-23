@@ -43,6 +43,10 @@ const commonNames = {
   Fullstory: "FULLSTORY",
   BUGSNAG: "BUGSNAG",
   TVSQUARED: "TVSQUARED",
+  MOENGAGE: "MoEngage",
+  AM: "AM",
+  AMPLITUDE: "AM",
+  Amplitude: "AM"
 };
 
 export { commonNames };
