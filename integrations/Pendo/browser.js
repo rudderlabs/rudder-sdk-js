@@ -20,6 +20,34 @@ class Pendo {
     logger.debug("===in init Pendo===");
     this.loadScript();
   }
+
+
+
+  identify(rudderElement){
+
+
+  }
+
+
+  track(rudderElement) {
+
+  }
+
+
+  group(rudderElement) {
+
+  }
+
+  enableDebugging() {
+
+  }
+
+  disableDebugging() {
+
+  }
+
+
+
 }
 
-export default Pendo;
+export {Pendo};

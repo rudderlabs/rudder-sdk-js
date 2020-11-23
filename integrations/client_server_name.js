@@ -23,4 +23,4 @@ const clientToServerNames = {
   PENDO: "Pendo",
 };
 
-export { clientToServerNames as default };
+export { clientToServerNames };

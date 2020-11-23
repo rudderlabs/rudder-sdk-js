@@ -47,4 +47,4 @@ const commonNames = {
   PENDO: "PENDO",
 };
 
-export { commonNames as default };
+export { commonNames };
