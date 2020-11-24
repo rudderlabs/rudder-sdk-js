@@ -47,10 +47,8 @@ class Pendo {
   }
 
   identify(rudderElement) {
-    const obj = {};
-    let accountObj = {};
     let visitorObj = {};
-    visitorObj.d =
+    visitorObj.id =
       rudderElement.message.userId || rudderElement.message.anonymousId;
     if (rudderElement.message.context.traits) {
       visitorObj = {
@@ -59,8 +57,7 @@ class Pendo {
       };
     }
 
-    obj.visitor = visitorObj;
-    window.pendoCli.identify(obj);
+    window.pendoCli.identify({ visitor: visitorObj });
   }
 
   track(rudderElement) {
@@ -68,7 +65,17 @@ class Pendo {
   }
 
   group(rudderElement) {
-    window.pendoCli.initialize();
+    let accountObj = {};
+    accountObj.id =
+      rudderElement.message.userId || rudderElement.message.anonymousId;
+    if (rudderElement.message.context.traits) {
+      accountObj = {
+        ...accountObj,
+        ...rudderElement.message.context.traits,
+      };
+    }
+
+    window.pendoCli.identify({ account: accountObj });
   }
 
   enableDebugging() {
