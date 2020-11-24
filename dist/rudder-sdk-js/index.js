@@ -2,11 +2,9 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.rudderanalytics = {}));
-}(this, (function (exports) { 'use strict';
+}(this, function (exports) { 'use strict';
 
   function _typeof(obj) {
-    "@babel/helpers - typeof";
-
     if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
       _typeof = function (obj) {
         return typeof obj;
@@ -76,13 +74,13 @@
       var source = arguments[i] != null ? arguments[i] : {};
 
       if (i % 2) {
-        ownKeys(Object(source), true).forEach(function (key) {
+        ownKeys(source, true).forEach(function (key) {
           _defineProperty(target, key, source[key]);
         });
       } else if (Object.getOwnPropertyDescriptors) {
         Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
       } else {
-        ownKeys(Object(source)).forEach(function (key) {
+        ownKeys(source).forEach(function (key) {
           Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
       }
@@ -92,36 +90,23 @@
   }
 
   function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
   }
 
   function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
+    if (Array.isArray(arr)) {
+      for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+      return arr2;
+    }
   }
 
   function _iterableToArray(iter) {
-    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
-  }
-
-  function _unsupportedIterableToArray(o, minLen) {
-    if (!o) return;
-    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
-    var n = Object.prototype.toString.call(o).slice(8, -1);
-    if (n === "Object" && o.constructor) n = o.constructor.name;
-    if (n === "Map" || n === "Set") return Array.from(o);
-    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
-  }
-
-  function _arrayLikeToArray(arr, len) {
-    if (len == null || len > arr.length) len = arr.length;
-
-    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
-
-    return arr2;
+    if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
   }
 
   function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+    throw new TypeError("Invalid attempt to spread non-iterable instance");
   }
 
   var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -489,6 +474,2485 @@
     stringify: stringify
   };
 
+  var lodash_merge = createCommonjsModule(function (module, exports) {
+    /**
+     * Lodash (Custom Build) <https://lodash.com/>
+     * Build: `lodash modularize exports="npm" -o ./`
+     * Copyright OpenJS Foundation and other contributors <https://openjsf.org/>
+     * Released under MIT license <https://lodash.com/license>
+     * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+     * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+     */
+
+    /** Used as the size to enable large array optimizations. */
+    var LARGE_ARRAY_SIZE = 200;
+    /** Used to stand-in for `undefined` hash values. */
+
+    var HASH_UNDEFINED = '__lodash_hash_undefined__';
+    /** Used to detect hot functions by number of calls within a span of milliseconds. */
+
+    var HOT_COUNT = 800,
+        HOT_SPAN = 16;
+    /** Used as references for various `Number` constants. */
+
+    var MAX_SAFE_INTEGER = 9007199254740991;
+    /** `Object#toString` result references. */
+
+    var argsTag = '[object Arguments]',
+        arrayTag = '[object Array]',
+        asyncTag = '[object AsyncFunction]',
+        boolTag = '[object Boolean]',
+        dateTag = '[object Date]',
+        errorTag = '[object Error]',
+        funcTag = '[object Function]',
+        genTag = '[object GeneratorFunction]',
+        mapTag = '[object Map]',
+        numberTag = '[object Number]',
+        nullTag = '[object Null]',
+        objectTag = '[object Object]',
+        proxyTag = '[object Proxy]',
+        regexpTag = '[object RegExp]',
+        setTag = '[object Set]',
+        stringTag = '[object String]',
+        undefinedTag = '[object Undefined]',
+        weakMapTag = '[object WeakMap]';
+    var arrayBufferTag = '[object ArrayBuffer]',
+        dataViewTag = '[object DataView]',
+        float32Tag = '[object Float32Array]',
+        float64Tag = '[object Float64Array]',
+        int8Tag = '[object Int8Array]',
+        int16Tag = '[object Int16Array]',
+        int32Tag = '[object Int32Array]',
+        uint8Tag = '[object Uint8Array]',
+        uint8ClampedTag = '[object Uint8ClampedArray]',
+        uint16Tag = '[object Uint16Array]',
+        uint32Tag = '[object Uint32Array]';
+    /**
+     * Used to match `RegExp`
+     * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
+     */
+
+    var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+    /** Used to detect host constructors (Safari). */
+
+    var reIsHostCtor = /^\[object .+?Constructor\]$/;
+    /** Used to detect unsigned integer values. */
+
+    var reIsUint = /^(?:0|[1-9]\d*)$/;
+    /** Used to identify `toStringTag` values of typed arrays. */
+
+    var typedArrayTags = {};
+    typedArrayTags[float32Tag] = typedArrayTags[float64Tag] = typedArrayTags[int8Tag] = typedArrayTags[int16Tag] = typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] = typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] = typedArrayTags[uint32Tag] = true;
+    typedArrayTags[argsTag] = typedArrayTags[arrayTag] = typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] = typedArrayTags[dataViewTag] = typedArrayTags[dateTag] = typedArrayTags[errorTag] = typedArrayTags[funcTag] = typedArrayTags[mapTag] = typedArrayTags[numberTag] = typedArrayTags[objectTag] = typedArrayTags[regexpTag] = typedArrayTags[setTag] = typedArrayTags[stringTag] = typedArrayTags[weakMapTag] = false;
+    /** Detect free variable `global` from Node.js. */
+
+    var freeGlobal = _typeof(commonjsGlobal) == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
+    /** Detect free variable `self`. */
+
+    var freeSelf = (typeof self === "undefined" ? "undefined" : _typeof(self)) == 'object' && self && self.Object === Object && self;
+    /** Used as a reference to the global object. */
+
+    var root = freeGlobal || freeSelf || Function('return this')();
+    /** Detect free variable `exports`. */
+
+    var freeExports =  exports && !exports.nodeType && exports;
+    /** Detect free variable `module`. */
+
+    var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
+    /** Detect the popular CommonJS extension `module.exports`. */
+
+    var moduleExports = freeModule && freeModule.exports === freeExports;
+    /** Detect free variable `process` from Node.js. */
+
+    var freeProcess = moduleExports && freeGlobal.process;
+    /** Used to access faster Node.js helpers. */
+
+    var nodeUtil = function () {
+      try {
+        // Use `util.types` for Node.js 10+.
+        var types = freeModule && freeModule.require && freeModule.require('util').types;
+
+        if (types) {
+          return types;
+        } // Legacy `process.binding('util')` for Node.js < 10.
+
+
+        return freeProcess && freeProcess.binding && freeProcess.binding('util');
+      } catch (e) {}
+    }();
+    /* Node.js helper references. */
+
+
+    var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
+    /**
+     * A faster alternative to `Function#apply`, this function invokes `func`
+     * with the `this` binding of `thisArg` and the arguments of `args`.
+     *
+     * @private
+     * @param {Function} func The function to invoke.
+     * @param {*} thisArg The `this` binding of `func`.
+     * @param {Array} args The arguments to invoke `func` with.
+     * @returns {*} Returns the result of `func`.
+     */
+
+    function apply(func, thisArg, args) {
+      switch (args.length) {
+        case 0:
+          return func.call(thisArg);
+
+        case 1:
+          return func.call(thisArg, args[0]);
+
+        case 2:
+          return func.call(thisArg, args[0], args[1]);
+
+        case 3:
+          return func.call(thisArg, args[0], args[1], args[2]);
+      }
+
+      return func.apply(thisArg, args);
+    }
+    /**
+     * The base implementation of `_.times` without support for iteratee shorthands
+     * or max array length checks.
+     *
+     * @private
+     * @param {number} n The number of times to invoke `iteratee`.
+     * @param {Function} iteratee The function invoked per iteration.
+     * @returns {Array} Returns the array of results.
+     */
+
+
+    function baseTimes(n, iteratee) {
+      var index = -1,
+          result = Array(n);
+
+      while (++index < n) {
+        result[index] = iteratee(index);
+      }
+
+      return result;
+    }
+    /**
+     * The base implementation of `_.unary` without support for storing metadata.
+     *
+     * @private
+     * @param {Function} func The function to cap arguments for.
+     * @returns {Function} Returns the new capped function.
+     */
+
+
+    function baseUnary(func) {
+      return function (value) {
+        return func(value);
+      };
+    }
+    /**
+     * Gets the value at `key` of `object`.
+     *
+     * @private
+     * @param {Object} [object] The object to query.
+     * @param {string} key The key of the property to get.
+     * @returns {*} Returns the property value.
+     */
+
+
+    function getValue(object, key) {
+      return object == null ? undefined : object[key];
+    }
+    /**
+     * Creates a unary function that invokes `func` with its argument transformed.
+     *
+     * @private
+     * @param {Function} func The function to wrap.
+     * @param {Function} transform The argument transform.
+     * @returns {Function} Returns the new function.
+     */
+
+
+    function overArg(func, transform) {
+      return function (arg) {
+        return func(transform(arg));
+      };
+    }
+    /** Used for built-in method references. */
+
+
+    var arrayProto = Array.prototype,
+        funcProto = Function.prototype,
+        objectProto = Object.prototype;
+    /** Used to detect overreaching core-js shims. */
+
+    var coreJsData = root['__core-js_shared__'];
+    /** Used to resolve the decompiled source of functions. */
+
+    var funcToString = funcProto.toString;
+    /** Used to check objects for own properties. */
+
+    var hasOwnProperty = objectProto.hasOwnProperty;
+    /** Used to detect methods masquerading as native. */
+
+    var maskSrcKey = function () {
+      var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
+      return uid ? 'Symbol(src)_1.' + uid : '';
+    }();
+    /**
+     * Used to resolve the
+     * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+     * of values.
+     */
+
+
+    var nativeObjectToString = objectProto.toString;
+    /** Used to infer the `Object` constructor. */
+
+    var objectCtorString = funcToString.call(Object);
+    /** Used to detect if a method is native. */
+
+    var reIsNative = RegExp('^' + funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&').replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$');
+    /** Built-in value references. */
+
+    var Buffer = moduleExports ? root.Buffer : undefined,
+        _Symbol = root.Symbol,
+        Uint8Array = root.Uint8Array,
+        allocUnsafe = Buffer ? Buffer.allocUnsafe : undefined,
+        getPrototype = overArg(Object.getPrototypeOf, Object),
+        objectCreate = Object.create,
+        propertyIsEnumerable = objectProto.propertyIsEnumerable,
+        splice = arrayProto.splice,
+        symToStringTag = _Symbol ? _Symbol.toStringTag : undefined;
+
+    var defineProperty = function () {
+      try {
+        var func = getNative(Object, 'defineProperty');
+        func({}, '', {});
+        return func;
+      } catch (e) {}
+    }();
+    /* Built-in method references for those with the same name as other `lodash` methods. */
+
+
+    var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined,
+        nativeMax = Math.max,
+        nativeNow = Date.now;
+    /* Built-in method references that are verified to be native. */
+
+    var Map = getNative(root, 'Map'),
+        nativeCreate = getNative(Object, 'create');
+    /**
+     * The base implementation of `_.create` without support for assigning
+     * properties to the created object.
+     *
+     * @private
+     * @param {Object} proto The object to inherit from.
+     * @returns {Object} Returns the new object.
+     */
+
+    var baseCreate = function () {
+      function object() {}
+
+      return function (proto) {
+        if (!isObject(proto)) {
+          return {};
+        }
+
+        if (objectCreate) {
+          return objectCreate(proto);
+        }
+
+        object.prototype = proto;
+        var result = new object();
+        object.prototype = undefined;
+        return result;
+      };
+    }();
+    /**
+     * Creates a hash object.
+     *
+     * @private
+     * @constructor
+     * @param {Array} [entries] The key-value pairs to cache.
+     */
+
+
+    function Hash(entries) {
+      var index = -1,
+          length = entries == null ? 0 : entries.length;
+      this.clear();
+
+      while (++index < length) {
+        var entry = entries[index];
+        this.set(entry[0], entry[1]);
+      }
+    }
+    /**
+     * Removes all key-value entries from the hash.
+     *
+     * @private
+     * @name clear
+     * @memberOf Hash
+     */
+
+
+    function hashClear() {
+      this.__data__ = nativeCreate ? nativeCreate(null) : {};
+      this.size = 0;
+    }
+    /**
+     * Removes `key` and its value from the hash.
+     *
+     * @private
+     * @name delete
+     * @memberOf Hash
+     * @param {Object} hash The hash to modify.
+     * @param {string} key The key of the value to remove.
+     * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+     */
+
+
+    function hashDelete(key) {
+      var result = this.has(key) && delete this.__data__[key];
+      this.size -= result ? 1 : 0;
+      return result;
+    }
+    /**
+     * Gets the hash value for `key`.
+     *
+     * @private
+     * @name get
+     * @memberOf Hash
+     * @param {string} key The key of the value to get.
+     * @returns {*} Returns the entry value.
+     */
+
+
+    function hashGet(key) {
+      var data = this.__data__;
+
+      if (nativeCreate) {
+        var result = data[key];
+        return result === HASH_UNDEFINED ? undefined : result;
+      }
+
+      return hasOwnProperty.call(data, key) ? data[key] : undefined;
+    }
+    /**
+     * Checks if a hash value for `key` exists.
+     *
+     * @private
+     * @name has
+     * @memberOf Hash
+     * @param {string} key The key of the entry to check.
+     * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+     */
+
+
+    function hashHas(key) {
+      var data = this.__data__;
+      return nativeCreate ? data[key] !== undefined : hasOwnProperty.call(data, key);
+    }
+    /**
+     * Sets the hash `key` to `value`.
+     *
+     * @private
+     * @name set
+     * @memberOf Hash
+     * @param {string} key The key of the value to set.
+     * @param {*} value The value to set.
+     * @returns {Object} Returns the hash instance.
+     */
+
+
+    function hashSet(key, value) {
+      var data = this.__data__;
+      this.size += this.has(key) ? 0 : 1;
+      data[key] = nativeCreate && value === undefined ? HASH_UNDEFINED : value;
+      return this;
+    } // Add methods to `Hash`.
+
+
+    Hash.prototype.clear = hashClear;
+    Hash.prototype['delete'] = hashDelete;
+    Hash.prototype.get = hashGet;
+    Hash.prototype.has = hashHas;
+    Hash.prototype.set = hashSet;
+    /**
+     * Creates an list cache object.
+     *
+     * @private
+     * @constructor
+     * @param {Array} [entries] The key-value pairs to cache.
+     */
+
+    function ListCache(entries) {
+      var index = -1,
+          length = entries == null ? 0 : entries.length;
+      this.clear();
+
+      while (++index < length) {
+        var entry = entries[index];
+        this.set(entry[0], entry[1]);
+      }
+    }
+    /**
+     * Removes all key-value entries from the list cache.
+     *
+     * @private
+     * @name clear
+     * @memberOf ListCache
+     */
+
+
+    function listCacheClear() {
+      this.__data__ = [];
+      this.size = 0;
+    }
+    /**
+     * Removes `key` and its value from the list cache.
+     *
+     * @private
+     * @name delete
+     * @memberOf ListCache
+     * @param {string} key The key of the value to remove.
+     * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+     */
+
+
+    function listCacheDelete(key) {
+      var data = this.__data__,
+          index = assocIndexOf(data, key);
+
+      if (index < 0) {
+        return false;
+      }
+
+      var lastIndex = data.length - 1;
+
+      if (index == lastIndex) {
+        data.pop();
+      } else {
+        splice.call(data, index, 1);
+      }
+
+      --this.size;
+      return true;
+    }
+    /**
+     * Gets the list cache value for `key`.
+     *
+     * @private
+     * @name get
+     * @memberOf ListCache
+     * @param {string} key The key of the value to get.
+     * @returns {*} Returns the entry value.
+     */
+
+
+    function listCacheGet(key) {
+      var data = this.__data__,
+          index = assocIndexOf(data, key);
+      return index < 0 ? undefined : data[index][1];
+    }
+    /**
+     * Checks if a list cache value for `key` exists.
+     *
+     * @private
+     * @name has
+     * @memberOf ListCache
+     * @param {string} key The key of the entry to check.
+     * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+     */
+
+
+    function listCacheHas(key) {
+      return assocIndexOf(this.__data__, key) > -1;
+    }
+    /**
+     * Sets the list cache `key` to `value`.
+     *
+     * @private
+     * @name set
+     * @memberOf ListCache
+     * @param {string} key The key of the value to set.
+     * @param {*} value The value to set.
+     * @returns {Object} Returns the list cache instance.
+     */
+
+
+    function listCacheSet(key, value) {
+      var data = this.__data__,
+          index = assocIndexOf(data, key);
+
+      if (index < 0) {
+        ++this.size;
+        data.push([key, value]);
+      } else {
+        data[index][1] = value;
+      }
+
+      return this;
+    } // Add methods to `ListCache`.
+
+
+    ListCache.prototype.clear = listCacheClear;
+    ListCache.prototype['delete'] = listCacheDelete;
+    ListCache.prototype.get = listCacheGet;
+    ListCache.prototype.has = listCacheHas;
+    ListCache.prototype.set = listCacheSet;
+    /**
+     * Creates a map cache object to store key-value pairs.
+     *
+     * @private
+     * @constructor
+     * @param {Array} [entries] The key-value pairs to cache.
+     */
+
+    function MapCache(entries) {
+      var index = -1,
+          length = entries == null ? 0 : entries.length;
+      this.clear();
+
+      while (++index < length) {
+        var entry = entries[index];
+        this.set(entry[0], entry[1]);
+      }
+    }
+    /**
+     * Removes all key-value entries from the map.
+     *
+     * @private
+     * @name clear
+     * @memberOf MapCache
+     */
+
+
+    function mapCacheClear() {
+      this.size = 0;
+      this.__data__ = {
+        'hash': new Hash(),
+        'map': new (Map || ListCache)(),
+        'string': new Hash()
+      };
+    }
+    /**
+     * Removes `key` and its value from the map.
+     *
+     * @private
+     * @name delete
+     * @memberOf MapCache
+     * @param {string} key The key of the value to remove.
+     * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+     */
+
+
+    function mapCacheDelete(key) {
+      var result = getMapData(this, key)['delete'](key);
+      this.size -= result ? 1 : 0;
+      return result;
+    }
+    /**
+     * Gets the map value for `key`.
+     *
+     * @private
+     * @name get
+     * @memberOf MapCache
+     * @param {string} key The key of the value to get.
+     * @returns {*} Returns the entry value.
+     */
+
+
+    function mapCacheGet(key) {
+      return getMapData(this, key).get(key);
+    }
+    /**
+     * Checks if a map value for `key` exists.
+     *
+     * @private
+     * @name has
+     * @memberOf MapCache
+     * @param {string} key The key of the entry to check.
+     * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+     */
+
+
+    function mapCacheHas(key) {
+      return getMapData(this, key).has(key);
+    }
+    /**
+     * Sets the map `key` to `value`.
+     *
+     * @private
+     * @name set
+     * @memberOf MapCache
+     * @param {string} key The key of the value to set.
+     * @param {*} value The value to set.
+     * @returns {Object} Returns the map cache instance.
+     */
+
+
+    function mapCacheSet(key, value) {
+      var data = getMapData(this, key),
+          size = data.size;
+      data.set(key, value);
+      this.size += data.size == size ? 0 : 1;
+      return this;
+    } // Add methods to `MapCache`.
+
+
+    MapCache.prototype.clear = mapCacheClear;
+    MapCache.prototype['delete'] = mapCacheDelete;
+    MapCache.prototype.get = mapCacheGet;
+    MapCache.prototype.has = mapCacheHas;
+    MapCache.prototype.set = mapCacheSet;
+    /**
+     * Creates a stack cache object to store key-value pairs.
+     *
+     * @private
+     * @constructor
+     * @param {Array} [entries] The key-value pairs to cache.
+     */
+
+    function Stack(entries) {
+      var data = this.__data__ = new ListCache(entries);
+      this.size = data.size;
+    }
+    /**
+     * Removes all key-value entries from the stack.
+     *
+     * @private
+     * @name clear
+     * @memberOf Stack
+     */
+
+
+    function stackClear() {
+      this.__data__ = new ListCache();
+      this.size = 0;
+    }
+    /**
+     * Removes `key` and its value from the stack.
+     *
+     * @private
+     * @name delete
+     * @memberOf Stack
+     * @param {string} key The key of the value to remove.
+     * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+     */
+
+
+    function stackDelete(key) {
+      var data = this.__data__,
+          result = data['delete'](key);
+      this.size = data.size;
+      return result;
+    }
+    /**
+     * Gets the stack value for `key`.
+     *
+     * @private
+     * @name get
+     * @memberOf Stack
+     * @param {string} key The key of the value to get.
+     * @returns {*} Returns the entry value.
+     */
+
+
+    function stackGet(key) {
+      return this.__data__.get(key);
+    }
+    /**
+     * Checks if a stack value for `key` exists.
+     *
+     * @private
+     * @name has
+     * @memberOf Stack
+     * @param {string} key The key of the entry to check.
+     * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+     */
+
+
+    function stackHas(key) {
+      return this.__data__.has(key);
+    }
+    /**
+     * Sets the stack `key` to `value`.
+     *
+     * @private
+     * @name set
+     * @memberOf Stack
+     * @param {string} key The key of the value to set.
+     * @param {*} value The value to set.
+     * @returns {Object} Returns the stack cache instance.
+     */
+
+
+    function stackSet(key, value) {
+      var data = this.__data__;
+
+      if (data instanceof ListCache) {
+        var pairs = data.__data__;
+
+        if (!Map || pairs.length < LARGE_ARRAY_SIZE - 1) {
+          pairs.push([key, value]);
+          this.size = ++data.size;
+          return this;
+        }
+
+        data = this.__data__ = new MapCache(pairs);
+      }
+
+      data.set(key, value);
+      this.size = data.size;
+      return this;
+    } // Add methods to `Stack`.
+
+
+    Stack.prototype.clear = stackClear;
+    Stack.prototype['delete'] = stackDelete;
+    Stack.prototype.get = stackGet;
+    Stack.prototype.has = stackHas;
+    Stack.prototype.set = stackSet;
+    /**
+     * Creates an array of the enumerable property names of the array-like `value`.
+     *
+     * @private
+     * @param {*} value The value to query.
+     * @param {boolean} inherited Specify returning inherited property names.
+     * @returns {Array} Returns the array of property names.
+     */
+
+    function arrayLikeKeys(value, inherited) {
+      var isArr = isArray(value),
+          isArg = !isArr && isArguments(value),
+          isBuff = !isArr && !isArg && isBuffer(value),
+          isType = !isArr && !isArg && !isBuff && isTypedArray(value),
+          skipIndexes = isArr || isArg || isBuff || isType,
+          result = skipIndexes ? baseTimes(value.length, String) : [],
+          length = result.length;
+
+      for (var key in value) {
+        if ((inherited || hasOwnProperty.call(value, key)) && !(skipIndexes && ( // Safari 9 has enumerable `arguments.length` in strict mode.
+        key == 'length' || // Node.js 0.10 has enumerable non-index properties on buffers.
+        isBuff && (key == 'offset' || key == 'parent') || // PhantomJS 2 has enumerable non-index properties on typed arrays.
+        isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset') || // Skip index properties.
+        isIndex(key, length)))) {
+          result.push(key);
+        }
+      }
+
+      return result;
+    }
+    /**
+     * This function is like `assignValue` except that it doesn't assign
+     * `undefined` values.
+     *
+     * @private
+     * @param {Object} object The object to modify.
+     * @param {string} key The key of the property to assign.
+     * @param {*} value The value to assign.
+     */
+
+
+    function assignMergeValue(object, key, value) {
+      if (value !== undefined && !eq(object[key], value) || value === undefined && !(key in object)) {
+        baseAssignValue(object, key, value);
+      }
+    }
+    /**
+     * Assigns `value` to `key` of `object` if the existing value is not equivalent
+     * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+     * for equality comparisons.
+     *
+     * @private
+     * @param {Object} object The object to modify.
+     * @param {string} key The key of the property to assign.
+     * @param {*} value The value to assign.
+     */
+
+
+    function assignValue(object, key, value) {
+      var objValue = object[key];
+
+      if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) || value === undefined && !(key in object)) {
+        baseAssignValue(object, key, value);
+      }
+    }
+    /**
+     * Gets the index at which the `key` is found in `array` of key-value pairs.
+     *
+     * @private
+     * @param {Array} array The array to inspect.
+     * @param {*} key The key to search for.
+     * @returns {number} Returns the index of the matched value, else `-1`.
+     */
+
+
+    function assocIndexOf(array, key) {
+      var length = array.length;
+
+      while (length--) {
+        if (eq(array[length][0], key)) {
+          return length;
+        }
+      }
+
+      return -1;
+    }
+    /**
+     * The base implementation of `assignValue` and `assignMergeValue` without
+     * value checks.
+     *
+     * @private
+     * @param {Object} object The object to modify.
+     * @param {string} key The key of the property to assign.
+     * @param {*} value The value to assign.
+     */
+
+
+    function baseAssignValue(object, key, value) {
+      if (key == '__proto__' && defineProperty) {
+        defineProperty(object, key, {
+          'configurable': true,
+          'enumerable': true,
+          'value': value,
+          'writable': true
+        });
+      } else {
+        object[key] = value;
+      }
+    }
+    /**
+     * The base implementation of `baseForOwn` which iterates over `object`
+     * properties returned by `keysFunc` and invokes `iteratee` for each property.
+     * Iteratee functions may exit iteration early by explicitly returning `false`.
+     *
+     * @private
+     * @param {Object} object The object to iterate over.
+     * @param {Function} iteratee The function invoked per iteration.
+     * @param {Function} keysFunc The function to get the keys of `object`.
+     * @returns {Object} Returns `object`.
+     */
+
+
+    var baseFor = createBaseFor();
+    /**
+     * The base implementation of `getTag` without fallbacks for buggy environments.
+     *
+     * @private
+     * @param {*} value The value to query.
+     * @returns {string} Returns the `toStringTag`.
+     */
+
+    function baseGetTag(value) {
+      if (value == null) {
+        return value === undefined ? undefinedTag : nullTag;
+      }
+
+      return symToStringTag && symToStringTag in Object(value) ? getRawTag(value) : objectToString(value);
+    }
+    /**
+     * The base implementation of `_.isArguments`.
+     *
+     * @private
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+     */
+
+
+    function baseIsArguments(value) {
+      return isObjectLike(value) && baseGetTag(value) == argsTag;
+    }
+    /**
+     * The base implementation of `_.isNative` without bad shim checks.
+     *
+     * @private
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is a native function,
+     *  else `false`.
+     */
+
+
+    function baseIsNative(value) {
+      if (!isObject(value) || isMasked(value)) {
+        return false;
+      }
+
+      var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
+      return pattern.test(toSource(value));
+    }
+    /**
+     * The base implementation of `_.isTypedArray` without Node.js optimizations.
+     *
+     * @private
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
+     */
+
+
+    function baseIsTypedArray(value) {
+      return isObjectLike(value) && isLength(value.length) && !!typedArrayTags[baseGetTag(value)];
+    }
+    /**
+     * The base implementation of `_.keysIn` which doesn't treat sparse arrays as dense.
+     *
+     * @private
+     * @param {Object} object The object to query.
+     * @returns {Array} Returns the array of property names.
+     */
+
+
+    function baseKeysIn(object) {
+      if (!isObject(object)) {
+        return nativeKeysIn(object);
+      }
+
+      var isProto = isPrototype(object),
+          result = [];
+
+      for (var key in object) {
+        if (!(key == 'constructor' && (isProto || !hasOwnProperty.call(object, key)))) {
+          result.push(key);
+        }
+      }
+
+      return result;
+    }
+    /**
+     * The base implementation of `_.merge` without support for multiple sources.
+     *
+     * @private
+     * @param {Object} object The destination object.
+     * @param {Object} source The source object.
+     * @param {number} srcIndex The index of `source`.
+     * @param {Function} [customizer] The function to customize merged values.
+     * @param {Object} [stack] Tracks traversed source values and their merged
+     *  counterparts.
+     */
+
+
+    function baseMerge(object, source, srcIndex, customizer, stack) {
+      if (object === source) {
+        return;
+      }
+
+      baseFor(source, function (srcValue, key) {
+        stack || (stack = new Stack());
+
+        if (isObject(srcValue)) {
+          baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
+        } else {
+          var newValue = customizer ? customizer(safeGet(object, key), srcValue, key + '', object, source, stack) : undefined;
+
+          if (newValue === undefined) {
+            newValue = srcValue;
+          }
+
+          assignMergeValue(object, key, newValue);
+        }
+      }, keysIn);
+    }
+    /**
+     * A specialized version of `baseMerge` for arrays and objects which performs
+     * deep merges and tracks traversed objects enabling objects with circular
+     * references to be merged.
+     *
+     * @private
+     * @param {Object} object The destination object.
+     * @param {Object} source The source object.
+     * @param {string} key The key of the value to merge.
+     * @param {number} srcIndex The index of `source`.
+     * @param {Function} mergeFunc The function to merge values.
+     * @param {Function} [customizer] The function to customize assigned values.
+     * @param {Object} [stack] Tracks traversed source values and their merged
+     *  counterparts.
+     */
+
+
+    function baseMergeDeep(object, source, key, srcIndex, mergeFunc, customizer, stack) {
+      var objValue = safeGet(object, key),
+          srcValue = safeGet(source, key),
+          stacked = stack.get(srcValue);
+
+      if (stacked) {
+        assignMergeValue(object, key, stacked);
+        return;
+      }
+
+      var newValue = customizer ? customizer(objValue, srcValue, key + '', object, source, stack) : undefined;
+      var isCommon = newValue === undefined;
+
+      if (isCommon) {
+        var isArr = isArray(srcValue),
+            isBuff = !isArr && isBuffer(srcValue),
+            isTyped = !isArr && !isBuff && isTypedArray(srcValue);
+        newValue = srcValue;
+
+        if (isArr || isBuff || isTyped) {
+          if (isArray(objValue)) {
+            newValue = objValue;
+          } else if (isArrayLikeObject(objValue)) {
+            newValue = copyArray(objValue);
+          } else if (isBuff) {
+            isCommon = false;
+            newValue = cloneBuffer(srcValue, true);
+          } else if (isTyped) {
+            isCommon = false;
+            newValue = cloneTypedArray(srcValue, true);
+          } else {
+            newValue = [];
+          }
+        } else if (isPlainObject(srcValue) || isArguments(srcValue)) {
+          newValue = objValue;
+
+          if (isArguments(objValue)) {
+            newValue = toPlainObject(objValue);
+          } else if (!isObject(objValue) || isFunction(objValue)) {
+            newValue = initCloneObject(srcValue);
+          }
+        } else {
+          isCommon = false;
+        }
+      }
+
+      if (isCommon) {
+        // Recursively merge objects and arrays (susceptible to call stack limits).
+        stack.set(srcValue, newValue);
+        mergeFunc(newValue, srcValue, srcIndex, customizer, stack);
+        stack['delete'](srcValue);
+      }
+
+      assignMergeValue(object, key, newValue);
+    }
+    /**
+     * The base implementation of `_.rest` which doesn't validate or coerce arguments.
+     *
+     * @private
+     * @param {Function} func The function to apply a rest parameter to.
+     * @param {number} [start=func.length-1] The start position of the rest parameter.
+     * @returns {Function} Returns the new function.
+     */
+
+
+    function baseRest(func, start) {
+      return setToString(overRest(func, start, identity), func + '');
+    }
+    /**
+     * The base implementation of `setToString` without support for hot loop shorting.
+     *
+     * @private
+     * @param {Function} func The function to modify.
+     * @param {Function} string The `toString` result.
+     * @returns {Function} Returns `func`.
+     */
+
+
+    var baseSetToString = !defineProperty ? identity : function (func, string) {
+      return defineProperty(func, 'toString', {
+        'configurable': true,
+        'enumerable': false,
+        'value': constant(string),
+        'writable': true
+      });
+    };
+    /**
+     * Creates a clone of  `buffer`.
+     *
+     * @private
+     * @param {Buffer} buffer The buffer to clone.
+     * @param {boolean} [isDeep] Specify a deep clone.
+     * @returns {Buffer} Returns the cloned buffer.
+     */
+
+    function cloneBuffer(buffer, isDeep) {
+      if (isDeep) {
+        return buffer.slice();
+      }
+
+      var length = buffer.length,
+          result = allocUnsafe ? allocUnsafe(length) : new buffer.constructor(length);
+      buffer.copy(result);
+      return result;
+    }
+    /**
+     * Creates a clone of `arrayBuffer`.
+     *
+     * @private
+     * @param {ArrayBuffer} arrayBuffer The array buffer to clone.
+     * @returns {ArrayBuffer} Returns the cloned array buffer.
+     */
+
+
+    function cloneArrayBuffer(arrayBuffer) {
+      var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
+      new Uint8Array(result).set(new Uint8Array(arrayBuffer));
+      return result;
+    }
+    /**
+     * Creates a clone of `typedArray`.
+     *
+     * @private
+     * @param {Object} typedArray The typed array to clone.
+     * @param {boolean} [isDeep] Specify a deep clone.
+     * @returns {Object} Returns the cloned typed array.
+     */
+
+
+    function cloneTypedArray(typedArray, isDeep) {
+      var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
+      return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
+    }
+    /**
+     * Copies the values of `source` to `array`.
+     *
+     * @private
+     * @param {Array} source The array to copy values from.
+     * @param {Array} [array=[]] The array to copy values to.
+     * @returns {Array} Returns `array`.
+     */
+
+
+    function copyArray(source, array) {
+      var index = -1,
+          length = source.length;
+      array || (array = Array(length));
+
+      while (++index < length) {
+        array[index] = source[index];
+      }
+
+      return array;
+    }
+    /**
+     * Copies properties of `source` to `object`.
+     *
+     * @private
+     * @param {Object} source The object to copy properties from.
+     * @param {Array} props The property identifiers to copy.
+     * @param {Object} [object={}] The object to copy properties to.
+     * @param {Function} [customizer] The function to customize copied values.
+     * @returns {Object} Returns `object`.
+     */
+
+
+    function copyObject(source, props, object, customizer) {
+      var isNew = !object;
+      object || (object = {});
+      var index = -1,
+          length = props.length;
+
+      while (++index < length) {
+        var key = props[index];
+        var newValue = customizer ? customizer(object[key], source[key], key, object, source) : undefined;
+
+        if (newValue === undefined) {
+          newValue = source[key];
+        }
+
+        if (isNew) {
+          baseAssignValue(object, key, newValue);
+        } else {
+          assignValue(object, key, newValue);
+        }
+      }
+
+      return object;
+    }
+    /**
+     * Creates a function like `_.assign`.
+     *
+     * @private
+     * @param {Function} assigner The function to assign values.
+     * @returns {Function} Returns the new assigner function.
+     */
+
+
+    function createAssigner(assigner) {
+      return baseRest(function (object, sources) {
+        var index = -1,
+            length = sources.length,
+            customizer = length > 1 ? sources[length - 1] : undefined,
+            guard = length > 2 ? sources[2] : undefined;
+        customizer = assigner.length > 3 && typeof customizer == 'function' ? (length--, customizer) : undefined;
+
+        if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+          customizer = length < 3 ? undefined : customizer;
+          length = 1;
+        }
+
+        object = Object(object);
+
+        while (++index < length) {
+          var source = sources[index];
+
+          if (source) {
+            assigner(object, source, index, customizer);
+          }
+        }
+
+        return object;
+      });
+    }
+    /**
+     * Creates a base function for methods like `_.forIn` and `_.forOwn`.
+     *
+     * @private
+     * @param {boolean} [fromRight] Specify iterating from right to left.
+     * @returns {Function} Returns the new base function.
+     */
+
+
+    function createBaseFor(fromRight) {
+      return function (object, iteratee, keysFunc) {
+        var index = -1,
+            iterable = Object(object),
+            props = keysFunc(object),
+            length = props.length;
+
+        while (length--) {
+          var key = props[fromRight ? length : ++index];
+
+          if (iteratee(iterable[key], key, iterable) === false) {
+            break;
+          }
+        }
+
+        return object;
+      };
+    }
+    /**
+     * Gets the data for `map`.
+     *
+     * @private
+     * @param {Object} map The map to query.
+     * @param {string} key The reference key.
+     * @returns {*} Returns the map data.
+     */
+
+
+    function getMapData(map, key) {
+      var data = map.__data__;
+      return isKeyable(key) ? data[typeof key == 'string' ? 'string' : 'hash'] : data.map;
+    }
+    /**
+     * Gets the native function at `key` of `object`.
+     *
+     * @private
+     * @param {Object} object The object to query.
+     * @param {string} key The key of the method to get.
+     * @returns {*} Returns the function if it's native, else `undefined`.
+     */
+
+
+    function getNative(object, key) {
+      var value = getValue(object, key);
+      return baseIsNative(value) ? value : undefined;
+    }
+    /**
+     * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+     *
+     * @private
+     * @param {*} value The value to query.
+     * @returns {string} Returns the raw `toStringTag`.
+     */
+
+
+    function getRawTag(value) {
+      var isOwn = hasOwnProperty.call(value, symToStringTag),
+          tag = value[symToStringTag];
+
+      try {
+        value[symToStringTag] = undefined;
+        var unmasked = true;
+      } catch (e) {}
+
+      var result = nativeObjectToString.call(value);
+
+      if (unmasked) {
+        if (isOwn) {
+          value[symToStringTag] = tag;
+        } else {
+          delete value[symToStringTag];
+        }
+      }
+
+      return result;
+    }
+    /**
+     * Initializes an object clone.
+     *
+     * @private
+     * @param {Object} object The object to clone.
+     * @returns {Object} Returns the initialized clone.
+     */
+
+
+    function initCloneObject(object) {
+      return typeof object.constructor == 'function' && !isPrototype(object) ? baseCreate(getPrototype(object)) : {};
+    }
+    /**
+     * Checks if `value` is a valid array-like index.
+     *
+     * @private
+     * @param {*} value The value to check.
+     * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+     * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+     */
+
+
+    function isIndex(value, length) {
+      var type = _typeof(value);
+
+      length = length == null ? MAX_SAFE_INTEGER : length;
+      return !!length && (type == 'number' || type != 'symbol' && reIsUint.test(value)) && value > -1 && value % 1 == 0 && value < length;
+    }
+    /**
+     * Checks if the given arguments are from an iteratee call.
+     *
+     * @private
+     * @param {*} value The potential iteratee value argument.
+     * @param {*} index The potential iteratee index or key argument.
+     * @param {*} object The potential iteratee object argument.
+     * @returns {boolean} Returns `true` if the arguments are from an iteratee call,
+     *  else `false`.
+     */
+
+
+    function isIterateeCall(value, index, object) {
+      if (!isObject(object)) {
+        return false;
+      }
+
+      var type = _typeof(index);
+
+      if (type == 'number' ? isArrayLike(object) && isIndex(index, object.length) : type == 'string' && index in object) {
+        return eq(object[index], value);
+      }
+
+      return false;
+    }
+    /**
+     * Checks if `value` is suitable for use as unique object key.
+     *
+     * @private
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
+     */
+
+
+    function isKeyable(value) {
+      var type = _typeof(value);
+
+      return type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean' ? value !== '__proto__' : value === null;
+    }
+    /**
+     * Checks if `func` has its source masked.
+     *
+     * @private
+     * @param {Function} func The function to check.
+     * @returns {boolean} Returns `true` if `func` is masked, else `false`.
+     */
+
+
+    function isMasked(func) {
+      return !!maskSrcKey && maskSrcKey in func;
+    }
+    /**
+     * Checks if `value` is likely a prototype object.
+     *
+     * @private
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
+     */
+
+
+    function isPrototype(value) {
+      var Ctor = value && value.constructor,
+          proto = typeof Ctor == 'function' && Ctor.prototype || objectProto;
+      return value === proto;
+    }
+    /**
+     * This function is like
+     * [`Object.keys`](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+     * except that it includes inherited enumerable properties.
+     *
+     * @private
+     * @param {Object} object The object to query.
+     * @returns {Array} Returns the array of property names.
+     */
+
+
+    function nativeKeysIn(object) {
+      var result = [];
+
+      if (object != null) {
+        for (var key in Object(object)) {
+          result.push(key);
+        }
+      }
+
+      return result;
+    }
+    /**
+     * Converts `value` to a string using `Object.prototype.toString`.
+     *
+     * @private
+     * @param {*} value The value to convert.
+     * @returns {string} Returns the converted string.
+     */
+
+
+    function objectToString(value) {
+      return nativeObjectToString.call(value);
+    }
+    /**
+     * A specialized version of `baseRest` which transforms the rest array.
+     *
+     * @private
+     * @param {Function} func The function to apply a rest parameter to.
+     * @param {number} [start=func.length-1] The start position of the rest parameter.
+     * @param {Function} transform The rest array transform.
+     * @returns {Function} Returns the new function.
+     */
+
+
+    function overRest(func, start, transform) {
+      start = nativeMax(start === undefined ? func.length - 1 : start, 0);
+      return function () {
+        var args = arguments,
+            index = -1,
+            length = nativeMax(args.length - start, 0),
+            array = Array(length);
+
+        while (++index < length) {
+          array[index] = args[start + index];
+        }
+
+        index = -1;
+        var otherArgs = Array(start + 1);
+
+        while (++index < start) {
+          otherArgs[index] = args[index];
+        }
+
+        otherArgs[start] = transform(array);
+        return apply(func, this, otherArgs);
+      };
+    }
+    /**
+     * Gets the value at `key`, unless `key` is "__proto__" or "constructor".
+     *
+     * @private
+     * @param {Object} object The object to query.
+     * @param {string} key The key of the property to get.
+     * @returns {*} Returns the property value.
+     */
+
+
+    function safeGet(object, key) {
+      if (key === 'constructor' && typeof object[key] === 'function') {
+        return;
+      }
+
+      if (key == '__proto__') {
+        return;
+      }
+
+      return object[key];
+    }
+    /**
+     * Sets the `toString` method of `func` to return `string`.
+     *
+     * @private
+     * @param {Function} func The function to modify.
+     * @param {Function} string The `toString` result.
+     * @returns {Function} Returns `func`.
+     */
+
+
+    var setToString = shortOut(baseSetToString);
+    /**
+     * Creates a function that'll short out and invoke `identity` instead
+     * of `func` when it's called `HOT_COUNT` or more times in `HOT_SPAN`
+     * milliseconds.
+     *
+     * @private
+     * @param {Function} func The function to restrict.
+     * @returns {Function} Returns the new shortable function.
+     */
+
+    function shortOut(func) {
+      var count = 0,
+          lastCalled = 0;
+      return function () {
+        var stamp = nativeNow(),
+            remaining = HOT_SPAN - (stamp - lastCalled);
+        lastCalled = stamp;
+
+        if (remaining > 0) {
+          if (++count >= HOT_COUNT) {
+            return arguments[0];
+          }
+        } else {
+          count = 0;
+        }
+
+        return func.apply(undefined, arguments);
+      };
+    }
+    /**
+     * Converts `func` to its source code.
+     *
+     * @private
+     * @param {Function} func The function to convert.
+     * @returns {string} Returns the source code.
+     */
+
+
+    function toSource(func) {
+      if (func != null) {
+        try {
+          return funcToString.call(func);
+        } catch (e) {}
+
+        try {
+          return func + '';
+        } catch (e) {}
+      }
+
+      return '';
+    }
+    /**
+     * Performs a
+     * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+     * comparison between two values to determine if they are equivalent.
+     *
+     * @static
+     * @memberOf _
+     * @since 4.0.0
+     * @category Lang
+     * @param {*} value The value to compare.
+     * @param {*} other The other value to compare.
+     * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+     * @example
+     *
+     * var object = { 'a': 1 };
+     * var other = { 'a': 1 };
+     *
+     * _.eq(object, object);
+     * // => true
+     *
+     * _.eq(object, other);
+     * // => false
+     *
+     * _.eq('a', 'a');
+     * // => true
+     *
+     * _.eq('a', Object('a'));
+     * // => false
+     *
+     * _.eq(NaN, NaN);
+     * // => true
+     */
+
+
+    function eq(value, other) {
+      return value === other || value !== value && other !== other;
+    }
+    /**
+     * Checks if `value` is likely an `arguments` object.
+     *
+     * @static
+     * @memberOf _
+     * @since 0.1.0
+     * @category Lang
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+     *  else `false`.
+     * @example
+     *
+     * _.isArguments(function() { return arguments; }());
+     * // => true
+     *
+     * _.isArguments([1, 2, 3]);
+     * // => false
+     */
+
+
+    var isArguments = baseIsArguments(function () {
+      return arguments;
+    }()) ? baseIsArguments : function (value) {
+      return isObjectLike(value) && hasOwnProperty.call(value, 'callee') && !propertyIsEnumerable.call(value, 'callee');
+    };
+    /**
+     * Checks if `value` is classified as an `Array` object.
+     *
+     * @static
+     * @memberOf _
+     * @since 0.1.0
+     * @category Lang
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+     * @example
+     *
+     * _.isArray([1, 2, 3]);
+     * // => true
+     *
+     * _.isArray(document.body.children);
+     * // => false
+     *
+     * _.isArray('abc');
+     * // => false
+     *
+     * _.isArray(_.noop);
+     * // => false
+     */
+
+    var isArray = Array.isArray;
+    /**
+     * Checks if `value` is array-like. A value is considered array-like if it's
+     * not a function and has a `value.length` that's an integer greater than or
+     * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+     *
+     * @static
+     * @memberOf _
+     * @since 4.0.0
+     * @category Lang
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+     * @example
+     *
+     * _.isArrayLike([1, 2, 3]);
+     * // => true
+     *
+     * _.isArrayLike(document.body.children);
+     * // => true
+     *
+     * _.isArrayLike('abc');
+     * // => true
+     *
+     * _.isArrayLike(_.noop);
+     * // => false
+     */
+
+    function isArrayLike(value) {
+      return value != null && isLength(value.length) && !isFunction(value);
+    }
+    /**
+     * This method is like `_.isArrayLike` except that it also checks if `value`
+     * is an object.
+     *
+     * @static
+     * @memberOf _
+     * @since 4.0.0
+     * @category Lang
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is an array-like object,
+     *  else `false`.
+     * @example
+     *
+     * _.isArrayLikeObject([1, 2, 3]);
+     * // => true
+     *
+     * _.isArrayLikeObject(document.body.children);
+     * // => true
+     *
+     * _.isArrayLikeObject('abc');
+     * // => false
+     *
+     * _.isArrayLikeObject(_.noop);
+     * // => false
+     */
+
+
+    function isArrayLikeObject(value) {
+      return isObjectLike(value) && isArrayLike(value);
+    }
+    /**
+     * Checks if `value` is a buffer.
+     *
+     * @static
+     * @memberOf _
+     * @since 4.3.0
+     * @category Lang
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
+     * @example
+     *
+     * _.isBuffer(new Buffer(2));
+     * // => true
+     *
+     * _.isBuffer(new Uint8Array(2));
+     * // => false
+     */
+
+
+    var isBuffer = nativeIsBuffer || stubFalse;
+    /**
+     * Checks if `value` is classified as a `Function` object.
+     *
+     * @static
+     * @memberOf _
+     * @since 0.1.0
+     * @category Lang
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is a function, else `false`.
+     * @example
+     *
+     * _.isFunction(_);
+     * // => true
+     *
+     * _.isFunction(/abc/);
+     * // => false
+     */
+
+    function isFunction(value) {
+      if (!isObject(value)) {
+        return false;
+      } // The use of `Object#toString` avoids issues with the `typeof` operator
+      // in Safari 9 which returns 'object' for typed arrays and other constructors.
+
+
+      var tag = baseGetTag(value);
+      return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
+    }
+    /**
+     * Checks if `value` is a valid array-like length.
+     *
+     * **Note:** This method is loosely based on
+     * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
+     *
+     * @static
+     * @memberOf _
+     * @since 4.0.0
+     * @category Lang
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+     * @example
+     *
+     * _.isLength(3);
+     * // => true
+     *
+     * _.isLength(Number.MIN_VALUE);
+     * // => false
+     *
+     * _.isLength(Infinity);
+     * // => false
+     *
+     * _.isLength('3');
+     * // => false
+     */
+
+
+    function isLength(value) {
+      return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+    }
+    /**
+     * Checks if `value` is the
+     * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+     * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+     *
+     * @static
+     * @memberOf _
+     * @since 0.1.0
+     * @category Lang
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+     * @example
+     *
+     * _.isObject({});
+     * // => true
+     *
+     * _.isObject([1, 2, 3]);
+     * // => true
+     *
+     * _.isObject(_.noop);
+     * // => true
+     *
+     * _.isObject(null);
+     * // => false
+     */
+
+
+    function isObject(value) {
+      var type = _typeof(value);
+
+      return value != null && (type == 'object' || type == 'function');
+    }
+    /**
+     * Checks if `value` is object-like. A value is object-like if it's not `null`
+     * and has a `typeof` result of "object".
+     *
+     * @static
+     * @memberOf _
+     * @since 4.0.0
+     * @category Lang
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+     * @example
+     *
+     * _.isObjectLike({});
+     * // => true
+     *
+     * _.isObjectLike([1, 2, 3]);
+     * // => true
+     *
+     * _.isObjectLike(_.noop);
+     * // => false
+     *
+     * _.isObjectLike(null);
+     * // => false
+     */
+
+
+    function isObjectLike(value) {
+      return value != null && _typeof(value) == 'object';
+    }
+    /**
+     * Checks if `value` is a plain object, that is, an object created by the
+     * `Object` constructor or one with a `[[Prototype]]` of `null`.
+     *
+     * @static
+     * @memberOf _
+     * @since 0.8.0
+     * @category Lang
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
+     * @example
+     *
+     * function Foo() {
+     *   this.a = 1;
+     * }
+     *
+     * _.isPlainObject(new Foo);
+     * // => false
+     *
+     * _.isPlainObject([1, 2, 3]);
+     * // => false
+     *
+     * _.isPlainObject({ 'x': 0, 'y': 0 });
+     * // => true
+     *
+     * _.isPlainObject(Object.create(null));
+     * // => true
+     */
+
+
+    function isPlainObject(value) {
+      if (!isObjectLike(value) || baseGetTag(value) != objectTag) {
+        return false;
+      }
+
+      var proto = getPrototype(value);
+
+      if (proto === null) {
+        return true;
+      }
+
+      var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+      return typeof Ctor == 'function' && Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString;
+    }
+    /**
+     * Checks if `value` is classified as a typed array.
+     *
+     * @static
+     * @memberOf _
+     * @since 3.0.0
+     * @category Lang
+     * @param {*} value The value to check.
+     * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
+     * @example
+     *
+     * _.isTypedArray(new Uint8Array);
+     * // => true
+     *
+     * _.isTypedArray([]);
+     * // => false
+     */
+
+
+    var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
+    /**
+     * Converts `value` to a plain object flattening inherited enumerable string
+     * keyed properties of `value` to own properties of the plain object.
+     *
+     * @static
+     * @memberOf _
+     * @since 3.0.0
+     * @category Lang
+     * @param {*} value The value to convert.
+     * @returns {Object} Returns the converted plain object.
+     * @example
+     *
+     * function Foo() {
+     *   this.b = 2;
+     * }
+     *
+     * Foo.prototype.c = 3;
+     *
+     * _.assign({ 'a': 1 }, new Foo);
+     * // => { 'a': 1, 'b': 2 }
+     *
+     * _.assign({ 'a': 1 }, _.toPlainObject(new Foo));
+     * // => { 'a': 1, 'b': 2, 'c': 3 }
+     */
+
+    function toPlainObject(value) {
+      return copyObject(value, keysIn(value));
+    }
+    /**
+     * Creates an array of the own and inherited enumerable property names of `object`.
+     *
+     * **Note:** Non-object values are coerced to objects.
+     *
+     * @static
+     * @memberOf _
+     * @since 3.0.0
+     * @category Object
+     * @param {Object} object The object to query.
+     * @returns {Array} Returns the array of property names.
+     * @example
+     *
+     * function Foo() {
+     *   this.a = 1;
+     *   this.b = 2;
+     * }
+     *
+     * Foo.prototype.c = 3;
+     *
+     * _.keysIn(new Foo);
+     * // => ['a', 'b', 'c'] (iteration order is not guaranteed)
+     */
+
+
+    function keysIn(object) {
+      return isArrayLike(object) ? arrayLikeKeys(object, true) : baseKeysIn(object);
+    }
+    /**
+     * This method is like `_.assign` except that it recursively merges own and
+     * inherited enumerable string keyed properties of source objects into the
+     * destination object. Source properties that resolve to `undefined` are
+     * skipped if a destination value exists. Array and plain object properties
+     * are merged recursively. Other objects and value types are overridden by
+     * assignment. Source objects are applied from left to right. Subsequent
+     * sources overwrite property assignments of previous sources.
+     *
+     * **Note:** This method mutates `object`.
+     *
+     * @static
+     * @memberOf _
+     * @since 0.5.0
+     * @category Object
+     * @param {Object} object The destination object.
+     * @param {...Object} [sources] The source objects.
+     * @returns {Object} Returns `object`.
+     * @example
+     *
+     * var object = {
+     *   'a': [{ 'b': 2 }, { 'd': 4 }]
+     * };
+     *
+     * var other = {
+     *   'a': [{ 'c': 3 }, { 'e': 5 }]
+     * };
+     *
+     * _.merge(object, other);
+     * // => { 'a': [{ 'b': 2, 'c': 3 }, { 'd': 4, 'e': 5 }] }
+     */
+
+
+    var merge = createAssigner(function (object, source, srcIndex) {
+      baseMerge(object, source, srcIndex);
+    });
+    /**
+     * Creates a function that returns `value`.
+     *
+     * @static
+     * @memberOf _
+     * @since 2.4.0
+     * @category Util
+     * @param {*} value The value to return from the new function.
+     * @returns {Function} Returns the new constant function.
+     * @example
+     *
+     * var objects = _.times(2, _.constant({ 'a': 1 }));
+     *
+     * console.log(objects);
+     * // => [{ 'a': 1 }, { 'a': 1 }]
+     *
+     * console.log(objects[0] === objects[1]);
+     * // => true
+     */
+
+    function constant(value) {
+      return function () {
+        return value;
+      };
+    }
+    /**
+     * This method returns the first argument it receives.
+     *
+     * @static
+     * @since 0.1.0
+     * @memberOf _
+     * @category Util
+     * @param {*} value Any value.
+     * @returns {*} Returns `value`.
+     * @example
+     *
+     * var object = { 'a': 1 };
+     *
+     * console.log(_.identity(object) === object);
+     * // => true
+     */
+
+
+    function identity(value) {
+      return value;
+    }
+    /**
+     * This method returns `false`.
+     *
+     * @static
+     * @memberOf _
+     * @since 4.13.0
+     * @category Util
+     * @returns {boolean} Returns `false`.
+     * @example
+     *
+     * _.times(2, _.stubFalse);
+     * // => [false, false]
+     */
+
+
+    function stubFalse() {
+      return false;
+    }
+
+    module.exports = merge;
+  });
+
+  var hop = Object.prototype.hasOwnProperty;
+  var strCharAt = String.prototype.charAt;
+  var toStr = Object.prototype.toString;
+  /**
+   * Returns the character at a given index.
+   *
+   * @param {string} str
+   * @param {number} index
+   * @return {string|undefined}
+   */
+  // TODO: Move to a library
+
+  var charAt = function charAt(str, index) {
+    return strCharAt.call(str, index);
+  };
+  /**
+   * hasOwnProperty, wrapped as a function.
+   *
+   * @name has
+   * @api private
+   * @param {*} context
+   * @param {string|number} prop
+   * @return {boolean}
+   */
+  // TODO: Move to a library
+
+
+  var has = function has(context, prop) {
+    return hop.call(context, prop);
+  };
+  /**
+   * Returns true if a value is a string, otherwise false.
+   *
+   * @name isString
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+  // TODO: Move to a library
+
+
+  var isString = function isString(val) {
+    return toStr.call(val) === '[object String]';
+  };
+  /**
+   * Returns true if a value is array-like, otherwise false. Array-like means a
+   * value is not null, undefined, or a function, and has a numeric `length`
+   * property.
+   *
+   * @name isArrayLike
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+  // TODO: Move to a library
+
+
+  var isArrayLike = function isArrayLike(val) {
+    return val != null && typeof val !== 'function' && typeof val.length === 'number';
+  };
+  /**
+   * indexKeys
+   *
+   * @name indexKeys
+   * @api private
+   * @param {} target
+   * @param {Function} pred
+   * @return {Array}
+   */
+
+
+  var indexKeys = function indexKeys(target, pred) {
+    pred = pred || has;
+    var results = [];
+
+    for (var i = 0, len = target.length; i < len; i += 1) {
+      if (pred(target, i)) {
+        results.push(String(i));
+      }
+    }
+
+    return results;
+  };
+  /**
+   * Returns an array of an object's owned keys.
+   *
+   * @name objectKeys
+   * @api private
+   * @param {*} target
+   * @param {Function} pred Predicate function used to include/exclude values from
+   * the resulting array.
+   * @return {Array}
+   */
+
+
+  var objectKeys = function objectKeys(target, pred) {
+    pred = pred || has;
+    var results = [];
+
+    for (var key in target) {
+      if (pred(target, key)) {
+        results.push(String(key));
+      }
+    }
+
+    return results;
+  };
+  /**
+   * Creates an array composed of all keys on the input object. Ignores any non-enumerable properties.
+   * More permissive than the native `Object.keys` function (non-objects will not throw errors).
+   *
+   * @name keys
+   * @api public
+   * @category Object
+   * @param {Object} source The value to retrieve keys from.
+   * @return {Array} An array containing all the input `source`'s keys.
+   * @example
+   * keys({ likes: 'avocado', hates: 'pineapple' });
+   * //=> ['likes', 'pineapple'];
+   *
+   * // Ignores non-enumerable properties
+   * var hasHiddenKey = { name: 'Tim' };
+   * Object.defineProperty(hasHiddenKey, 'hidden', {
+   *   value: 'i am not enumerable!',
+   *   enumerable: false
+   * })
+   * keys(hasHiddenKey);
+   * //=> ['name'];
+   *
+   * // Works on arrays
+   * keys(['a', 'b', 'c']);
+   * //=> ['0', '1', '2']
+   *
+   * // Skips unpopulated indices in sparse arrays
+   * var arr = [1];
+   * arr[4] = 4;
+   * keys(arr);
+   * //=> ['0', '4']
+   */
+
+
+  var keys = function keys(source) {
+    if (source == null) {
+      return [];
+    } // IE6-8 compatibility (string)
+
+
+    if (isString(source)) {
+      return indexKeys(source, charAt);
+    } // IE6-8 compatibility (arguments)
+
+
+    if (isArrayLike(source)) {
+      return indexKeys(source, has);
+    }
+
+    return objectKeys(source);
+  };
+  /*
+   * Exports.
+   */
+
+
+  var keys_1 = keys;
+
+  /*
+   * Module dependencies.
+   */
+
+
+  var objToString = Object.prototype.toString;
+  /**
+   * Tests if a value is a number.
+   *
+   * @name isNumber
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean} Returns `true` if `val` is a number, otherwise `false`.
+   */
+  // TODO: Move to library
+
+  var isNumber = function isNumber(val) {
+    var type = _typeof(val);
+
+    return type === 'number' || type === 'object' && objToString.call(val) === '[object Number]';
+  };
+  /**
+   * Tests if a value is an array.
+   *
+   * @name isArray
+   * @api private
+   * @param {*} val The value to test.
+   * @return {boolean} Returns `true` if the value is an array, otherwise `false`.
+   */
+  // TODO: Move to library
+
+
+  var isArray = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
+    return objToString.call(val) === '[object Array]';
+  };
+  /**
+   * Tests if a value is array-like. Array-like means the value is not a function and has a numeric
+   * `.length` property.
+   *
+   * @name isArrayLike
+   * @api private
+   * @param {*} val
+   * @return {boolean}
+   */
+  // TODO: Move to library
+
+  var isArrayLike$1 = function isArrayLike(val) {
+    return val != null && (isArray(val) || val !== 'function' && isNumber(val.length));
+  };
+  /**
+   * Internal implementation of `each`. Works on arrays and array-like data structures.
+   *
+   * @name arrayEach
+   * @api private
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Array} array The array(-like) structure to iterate over.
+   * @return {undefined}
+   */
+
+
+  var arrayEach = function arrayEach(iterator, array) {
+    for (var i = 0; i < array.length; i += 1) {
+      // Break iteration early if `iterator` returns `false`
+      if (iterator(array[i], i, array) === false) {
+        break;
+      }
+    }
+  };
+  /**
+   * Internal implementation of `each`. Works on objects.
+   *
+   * @name baseEach
+   * @api private
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Object} object The object to iterate over.
+   * @return {undefined}
+   */
+
+
+  var baseEach = function baseEach(iterator, object) {
+    var ks = keys_1(object);
+
+    for (var i = 0; i < ks.length; i += 1) {
+      // Break iteration early if `iterator` returns `false`
+      if (iterator(object[ks[i]], ks[i], object) === false) {
+        break;
+      }
+    }
+  };
+  /**
+   * Iterate over an input collection, invoking an `iterator` function for each element in the
+   * collection and passing to it three arguments: `(value, index, collection)`. The `iterator`
+   * function can end iteration early by returning `false`.
+   *
+   * @name each
+   * @api public
+   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
+   * @param {Array|Object|string} collection The collection to iterate over.
+   * @return {undefined} Because `each` is run only for side effects, always returns `undefined`.
+   * @example
+   * var log = console.log.bind(console);
+   *
+   * each(log, ['a', 'b', 'c']);
+   * //-> 'a', 0, ['a', 'b', 'c']
+   * //-> 'b', 1, ['a', 'b', 'c']
+   * //-> 'c', 2, ['a', 'b', 'c']
+   * //=> undefined
+   *
+   * each(log, 'tim');
+   * //-> 't', 2, 'tim'
+   * //-> 'i', 1, 'tim'
+   * //-> 'm', 0, 'tim'
+   * //=> undefined
+   *
+   * // Note: Iteration order not guaranteed across environments
+   * each(log, { name: 'tim', occupation: 'enchanter' });
+   * //-> 'tim', 'name', { name: 'tim', occupation: 'enchanter' }
+   * //-> 'enchanter', 'occupation', { name: 'tim', occupation: 'enchanter' }
+   * //=> undefined
+   */
+
+
+  var each = function each(iterator, collection) {
+    return (isArrayLike$1(collection) ? arrayEach : baseEach).call(this, iterator, collection);
+  };
+  /*
+   * Exports.
+   */
+
+
+  var each_1 = each;
+
+  /*
+   * Module dependencies.
+   */
+
+  /**
+   * Reduces all the values in a collection down into a single value. Does so by iterating through the
+   * collection from left to right, repeatedly calling an `iterator` function and passing to it four
+   * arguments: `(accumulator, value, index, collection)`.
+   *
+   * Returns the final return value of the `iterator` function.
+   *
+   * @name foldl
+   * @api public
+   * @param {Function} iterator The function to invoke per iteration.
+   * @param {*} accumulator The initial accumulator value, passed to the first invocation of `iterator`.
+   * @param {Array|Object} collection The collection to iterate over.
+   * @return {*} The return value of the final call to `iterator`.
+   * @example
+   * foldl(function(total, n) {
+   *   return total + n;
+   * }, 0, [1, 2, 3]);
+   * //=> 6
+   *
+   * var phonebook = { bob: '555-111-2345', tim: '655-222-6789', sheila: '655-333-1298' };
+   *
+   * foldl(function(results, phoneNumber) {
+   *  if (phoneNumber[0] === '6') {
+   *    return results.concat(phoneNumber);
+   *  }
+   *  return results;
+   * }, [], phonebook);
+   * // => ['655-222-6789', '655-333-1298']
+   */
+
+
+  var foldl = function foldl(iterator, accumulator, collection) {
+    if (typeof iterator !== 'function') {
+      throw new TypeError('Expected a function but received a ' + _typeof(iterator));
+    }
+
+    each_1(function (val, i, collection) {
+      accumulator = iterator(accumulator, val, i, collection);
+    }, collection);
+    return accumulator;
+  };
+  /*
+   * Exports.
+   */
+
+
+  var foldl_1 = foldl;
+
+  /**
+   * Module dependencies.
+   */
+
+
+  var parse$1 = componentQuerystring.parse;
+  /**
+   * hasOwnProperty reference.
+   */
+
+  var has$1 = Object.prototype.hasOwnProperty;
+  /**
+   * Get all utm params from the given `querystring`
+   *
+   * @param {String} query
+   * @return {Object}
+   * @api private
+   */
+
+  function utm(query) {
+    // Remove leading ? if present
+    if (query.charAt(0) === '?') {
+      query = query.substring(1);
+    }
+
+    query = query.replace(/\?/g, '&');
+    var param;
+    var params = parse$1(query);
+    var results = {};
+
+    for (var key in params) {
+      if (has$1.call(params, key)) {
+        if (key.substr(0, 4) === 'utm_') {
+          param = key.substr(4);
+          if (param === 'campaign') param = 'name';
+          results[param] = params[key];
+        }
+      }
+    }
+
+    return results;
+  }
+
+  var allowedKeys = {
+    name: true,
+    term: true,
+    source: true,
+    medium: true,
+    content: true
+  };
+  /**
+   * Get strict utm params - from the given `querystring`
+   *
+   * @param {String} query
+   * @return {Object}
+   * @api private
+   */
+
+  function strict(query) {
+    return foldl_1(function (acc, val, key) {
+      if (has$1.call(allowedKeys, key)) acc[key] = val;
+      return acc;
+    }, {}, utm(query));
+  }
+  /*
+   * Exports.
+   */
+
+
+  var lib = utm;
+  var strict_1 = strict;
+  lib.strict = strict_1;
+
   var componentUrl = createCommonjsModule(function (module, exports) {
     /**
      * Parse the given `url`.
@@ -737,7 +3201,7 @@
     PRODUCT_REVIEWED: "Product Reviewed"
   }; // Enumeration for integrations supported
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.11";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.12";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -1151,7 +3615,9 @@
     e.parentNode.insertBefore(js, e);
   };
 
-  var HubSpot = /*#__PURE__*/function () {
+  var HubSpot =
+  /*#__PURE__*/
+  function () {
     function HubSpot(config) {
       _classCallCheck(this, HubSpot);
 
@@ -1163,7 +3629,7 @@
     _createClass(HubSpot, [{
       key: "init",
       value: function init() {
-        var hubspotJs = "http://js.hs-scripts.com/".concat(this.hubId, ".js");
+        var hubspotJs = "https://js.hs-scripts.com/".concat(this.hubId, ".js");
         ScriptLoader("hubspot-integration", hubspotJs);
         logger.debug("===in init HS===");
       }
@@ -1273,7 +3739,7 @@
   /* globals window, HTMLElement */
   var objProto = Object.prototype;
   var owns = objProto.hasOwnProperty;
-  var toStr = objProto.toString;
+  var toStr$1 = objProto.toString;
   var symbolValueOf;
 
   if (typeof Symbol === 'function') {
@@ -1344,7 +3810,7 @@
 
 
   is.empty = function (value) {
-    var type = toStr.call(value);
+    var type = toStr$1.call(value);
     var key;
 
     if (type === '[object Array]' || type === '[object Arguments]' || type === '[object String]') {
@@ -1378,10 +3844,10 @@
       return true;
     }
 
-    var type = toStr.call(value);
+    var type = toStr$1.call(value);
     var key;
 
-    if (type !== toStr.call(other)) {
+    if (type !== toStr$1.call(other)) {
       return false;
     }
 
@@ -1497,7 +3963,7 @@
 
 
   is.args = is.arguments = function (value) {
-    var isStandardArguments = toStr.call(value) === '[object Arguments]';
+    var isStandardArguments = toStr$1.call(value) === '[object Arguments]';
     var isOldArguments = !is.array(value) && is.arraylike(value) && is.object(value) && is.fn(value.callee);
     return isStandardArguments || isOldArguments;
   };
@@ -1516,7 +3982,7 @@
 
 
   is.array = Array.isArray || function (value) {
-    return toStr.call(value) === '[object Array]';
+    return toStr$1.call(value) === '[object Array]';
   };
   /**
    * is.arguments.empty
@@ -1572,7 +4038,7 @@
 
 
   is.bool = is['boolean'] = function (value) {
-    return toStr.call(value) === '[object Boolean]';
+    return toStr$1.call(value) === '[object Boolean]';
   };
   /**
    * is.false
@@ -1615,7 +4081,7 @@
 
 
   is.date = function (value) {
-    return toStr.call(value) === '[object Date]';
+    return toStr$1.call(value) === '[object Date]';
   };
   /**
    * is.date.valid
@@ -1661,7 +4127,7 @@
 
 
   is.error = function (value) {
-    return toStr.call(value) === '[object Error]';
+    return toStr$1.call(value) === '[object Error]';
   };
   /**
    * Test function.
@@ -1684,7 +4150,7 @@
       return true;
     }
 
-    var str = toStr.call(value);
+    var str = toStr$1.call(value);
     return str === '[object Function]' || str === '[object GeneratorFunction]' || str === '[object AsyncFunction]';
   };
   /**
@@ -1702,7 +4168,7 @@
 
 
   is.number = function (value) {
-    return toStr.call(value) === '[object Number]';
+    return toStr$1.call(value) === '[object Number]';
   };
   /**
    * is.infinite
@@ -1964,7 +4430,7 @@
 
 
   is.object = function (value) {
-    return toStr.call(value) === '[object Object]';
+    return toStr$1.call(value) === '[object Object]';
   };
   /**
    * is.primitive
@@ -2015,7 +4481,7 @@
 
 
   is.regexp = function (value) {
-    return toStr.call(value) === '[object RegExp]';
+    return toStr$1.call(value) === '[object RegExp]';
   };
   /**
    * Test string.
@@ -2032,7 +4498,7 @@
 
 
   is.string = function (value) {
-    return toStr.call(value) === '[object String]';
+    return toStr$1.call(value) === '[object String]';
   };
   /**
    * Test base64 string.
@@ -2079,7 +4545,7 @@
 
 
   is.symbol = function (value) {
-    return typeof Symbol === 'function' && toStr.call(value) === '[object Symbol]' && _typeof(symbolValueOf.call(value)) === 'symbol';
+    return typeof Symbol === 'function' && toStr$1.call(value) === '[object Symbol]' && _typeof(symbolValueOf.call(value)) === 'symbol';
   };
   /**
    * is.bigint
@@ -2093,7 +4559,7 @@
 
   is.bigint = function (value) {
     // eslint-disable-next-line valid-typeof
-    return typeof BigInt === 'function' && toStr.call(value) === '[object BigInt]' && typeof bigIntValueOf.call(value) === 'bigint';
+    return typeof BigInt === 'function' && toStr$1.call(value) === '[object BigInt]' && typeof bigIntValueOf.call(value) === 'bigint';
   };
 
   var is_1 = is;
@@ -2388,7 +4854,7 @@
    */
 
 
-  var has = Object.prototype.hasOwnProperty;
+  var has$2 = Object.prototype.hasOwnProperty;
   /**
    * Iterate the given `obj` and invoke `fn(val, i)`
    * in optional context `ctx`.
@@ -2442,7 +4908,7 @@
 
   function object(obj, fn, ctx) {
     for (var key in obj) {
-      if (has.call(obj, key)) {
+      if (has$2.call(obj, key)) {
         fn.call(ctx, key, obj[key]);
       }
     }
@@ -2463,7 +4929,9 @@
     }
   }
 
-  var GA = /*#__PURE__*/function () {
+  var GA =
+  /*#__PURE__*/
+  function () {
     function GA(config) {
       _classCallCheck(this, GA);
 
@@ -2488,6 +4956,7 @@
       this.optimizeContainerId = config.optimize || "";
       this.resetCustomDimensionsOnPage = config.resetCustomDimensionsOnPage || [];
       this.enhancedEcommerceLoaded = 0;
+      this.namedTracker = config.namedTracker || false;
       this.name = "GA";
       this.eventWithCategoryFieldProductScoped = ["product clicked", "product added", "product viewed", "product removed"];
     }
@@ -2543,32 +5012,40 @@
           sampleRate: this.sampleRate,
           allowLinker: true,
           useAmpClientId: this.useGoogleAmpClientId
-        };
+        }; // set tracker name to rudderGATracker if on
+
+        if (this.namedTracker) {
+          config.name = "rudderGATracker";
+          this.trackerName = "rudderGATracker.";
+        } else {
+          this.trackerName = "";
+        }
+
         window.ga("create", this.trackingID, config);
 
         if (this.optimizeContainerId) {
-          window.ga("require", this.optimizeContainerId);
+          window.ga("".concat(this.trackerName, "require"), this.optimizeContainerId);
         } // ecommerce is required
 
 
         if (!this.ecommerce) {
-          window.ga("require", "ecommerce");
+          window.ga("".concat(this.trackerName, "require"), "ecommerce");
           this.ecommerce = true;
         } // this is to display advertising
 
 
         if (this.doubleClick) {
-          window.ga("require", "displayfeatures");
+          window.ga("".concat(this.trackerName, "require"), "displayfeatures");
         } // https://support.google.com/analytics/answer/2558867?hl=en
 
 
         if (this.enhancedLinkAttribution) {
-          window.ga("require", "linkid");
+          window.ga("".concat(this.trackerName, "require"), "linkid");
         } // a warning is in ga debugger if anonymize is false after initialization
 
 
         if (this.anonymizeIp) {
-          window.ga("set", "anonymizeIp", true);
+          window.ga("".concat(this.trackerName, "set"), "anonymizeIp", true);
         }
 
         logger.debug("===in init GA===");
@@ -2578,14 +5055,14 @@
       value: function identify(rudderElement) {
         // send global id
         if (this.sendUserId && rudderElement.message.userId) {
-          window.ga("set", "userId", rudderElement.message.userId);
+          window.ga("".concat(this.trackerName, "set"), "userId", rudderElement.message.userId);
         } // custom dimensions and metrics
 
 
         var custom = this.metricsFunction(rudderElement.message.context.traits, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray);
 
         if (Object.keys(custom).length) {
-          window.ga("set", custom);
+          window.ga("".concat(this.trackerName, "set"), custom);
         }
 
         logger.debug("in GoogleAnalyticsManager identify");
@@ -2593,6 +5070,8 @@
     }, {
       key: "track",
       value: function track(rudderElement) {
+        var _this2 = this;
+
         var self = this; // Ecommerce events
 
         var _rudderElement$messag = rudderElement.message,
@@ -2623,7 +5102,7 @@
           } // add transaction
 
 
-          window.ga("ecommerce:addTransaction", {
+          window.ga("".concat(this.trackerName, "ecommerce:addTransaction"), {
             affiliation: properties.affiliation,
             shipping: properties.shipping,
             revenue: total,
@@ -2634,7 +5113,7 @@
 
           products.forEach(function (product) {
             var productTrack = self.createProductTrack(rudderElement, product);
-            window.ga("ecommerce:addItem", {
+            window.ga("".concat(_this2.trackerName, "ecommerce:addItem"), {
               category: productTrack.properties.category,
               quantity: productTrack.properties.quantity,
               price: productTrack.properties.price,
@@ -2644,7 +5123,7 @@
               currency: productTrack.properties.currency
             });
           });
-          window.ga("ecommerce:send");
+          window.ga("".concat(this.trackerName, "ecommerce:send"));
         } // enhanced ecommerce events
         else if (this.enhancedEcommerce) {
             switch (event) {
@@ -2659,7 +5138,7 @@
                   };
                   self.enhancedEcommerceTrackProduct(productTrack);
                 });
-                window.ga("ec:setAction", "checkout", {
+                window.ga("".concat(this.trackerName, "ec:setAction"), "checkout", {
                   step: properties.step || 1,
                   option: options || undefined
                 });
@@ -2677,8 +5156,8 @@
                   option: options || undefined
                 };
                 this.loadEnhancedEcommerce(rudderElement);
-                window.ga("ec:setAction", "checkout_option", params);
-                window.ga("send", "event", "Checkout", "Option");
+                window.ga("".concat(this.trackerName, "ec:setAction"), "checkout_option", params);
+                window.ga("".concat(this.trackerName, "send"), "event", "Checkout", "Option");
                 break;
 
               case "Order Completed":
@@ -2697,7 +5176,7 @@
                   };
                   self.enhancedEcommerceTrackProduct(productTrack);
                 });
-                window.ga("ec:setAction", "purchase", {
+                window.ga("".concat(this.trackerName, "ec:setAction"), "purchase", {
                   id: orderId,
                   affiliation: props.affiliation,
                   revenue: total,
@@ -2719,12 +5198,12 @@
                   var track = {
                     properties: product
                   };
-                  window.ga("ec:addProduct", {
+                  window.ga("".concat(_this2.trackerName, "ec:addProduct"), {
                     id: track.properties.product_id || track.properties.id || track.properties.sku,
                     quantity: track.properties.quantity
                   });
                 });
-                window.ga("ec:setAction", "refund", {
+                window.ga("".concat(this.trackerName, "ec:setAction"), "refund", {
                   id: orderId
                 });
                 this.pushEnhancedEcommerce(rudderElement);
@@ -2758,7 +5237,7 @@
 
               case "Promotion Viewed":
                 this.loadEnhancedEcommerce(rudderElement);
-                window.ga("ec:addPromo", {
+                window.ga("".concat(this.trackerName, "ec:addPromo"), {
                   id: props.promotion_id || props.id,
                   name: props.name,
                   creative: props.creative,
@@ -2769,13 +5248,13 @@
 
               case "Promotion Clicked":
                 this.loadEnhancedEcommerce(rudderElement);
-                window.ga("ec:addPromo", {
+                window.ga("".concat(this.trackerName, "ec:addPromo"), {
                   id: props.promotion_id || props.id,
                   name: props.name,
                   creative: props.creative,
                   position: props.position
                 });
-                window.ga("ec:setAction", "promo_click", {});
+                window.ga("".concat(this.trackerName, "ec:setAction"), "promo_click", {});
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
@@ -2801,18 +5280,18 @@
                     price: item.properties.price,
                     position: self.getProductPosition(item, products)
                   };
-                  impressionObj = _objectSpread2(_objectSpread2({}, impressionObj), self.metricsFunction(item.properties, self.dimensionsArray, self.metricsArray, self.contentGroupingsArray));
+                  impressionObj = _objectSpread2({}, impressionObj, {}, self.metricsFunction(item.properties, self.dimensionsArray, self.metricsArray, self.contentGroupingsArray));
                   Object.keys(impressionObj).forEach(function (key) {
                     if (impressionObj[key] === undefined) delete impressionObj[key];
                   });
-                  window.ga("ec:addImpression", impressionObj);
+                  window.ga("".concat(_this2.trackerName, "ec:addImpression"), impressionObj);
                 });
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
 
               case "Product List Filtered":
                 props.filters = props.filters || [];
-                props.sorters = props.sorters || [];
+                props.sorts = props.sorts || [];
                 filters = props.filters.map(function (obj) {
                   return "".concat(obj.type, ":").concat(obj.value);
                 }).join();
@@ -2846,7 +5325,7 @@
                   Object.keys(impressionObj).forEach(function (key) {
                     if (impressionObj[key] === undefined) delete impressionObj[key];
                   });
-                  window.ga("ec:addImpression", impressionObj);
+                  window.ga("".concat(_this2.trackerName, "ec:addImpression"), impressionObj);
                 });
                 this.pushEnhancedEcommerce(rudderElement);
                 break;
@@ -2876,7 +5355,7 @@
                 payload = _objectSpread2({
                   payload: payload
                 }, this.setCustomDimenionsAndMetrics(rudderElement.message.properties));
-                window.ga("send", "event", payload.payload);
+                window.ga("".concat(this.trackerName, "send"), "event", payload.payload);
                 logger.debug("in GoogleAnalyticsManager track");
             }
           } else {
@@ -2904,7 +5383,7 @@
             payload = _objectSpread2({
               payload: payload
             }, this.setCustomDimenionsAndMetrics(rudderElement.message.properties));
-            window.ga("send", "event", payload.payload);
+            window.ga("".concat(this.trackerName, "send"), "event", payload.payload);
             logger.debug("in GoogleAnalyticsManager track");
           }
       }
@@ -2952,9 +5431,9 @@
           }
         }
 
-        window.ga("set", resetCustomDimensions); // adds more properties to pageview which will be sent
+        window.ga("".concat(this.trackerName, "set"), resetCustomDimensions); // adds more properties to pageview which will be sent
 
-        pageview = _objectSpread2(_objectSpread2({}, pageview), this.setCustomDimenionsAndMetrics(eventProperties));
+        pageview = _objectSpread2({}, pageview, {}, this.setCustomDimenionsAndMetrics(eventProperties));
         var payload = {
           page: pagePath,
           title: pageTitle
@@ -2962,9 +5441,9 @@
         logger.debug(pageReferrer);
         logger.debug(document.referrer);
         if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
-        window.ga("set", payload);
+        window.ga("".concat(this.trackerName, "set"), payload);
         if (this.pageCalled) delete pageview.location;
-        window.ga("send", "pageview", pageview); // categorized pages
+        window.ga("".concat(this.trackerName, "send"), "pageview", pageview); // categorized pages
 
         if (category && this.trackCategorizedPages) {
           this.track(rudderElement, {
@@ -3044,7 +5523,7 @@
 
         if (Object.keys(custom).length) {
           if (this.setAllMappedProps) {
-            window.ga("set", custom);
+            window.ga("".concat(this.trackerName, "set"), custom);
           } else {
             Object.keys(custom).forEach(function (key) {
               ret[key] = custom[key];
@@ -3101,11 +5580,11 @@
       key: "loadEnhancedEcommerce",
       value: function loadEnhancedEcommerce(rudderElement) {
         if (this.enhancedEcommerceLoaded === 0) {
-          window.ga("require", "ec");
+          window.ga("".concat(this.trackerName, "require"), "ec");
           this.enhancedEcommerceLoaded = 1;
         }
 
-        window.ga("set", "&cu", rudderElement.message.properties.currency);
+        window.ga("".concat(this.trackerName, "set"), "&cu", rudderElement.message.properties.currency);
       }
       /**
        * helper class to not repeat `ec:addProduct`
@@ -3134,8 +5613,8 @@
 
         var coupon = props.coupon;
         if (coupon) product.coupon = coupon;
-        product = _objectSpread2(_objectSpread2({}, product), this.metricsFunction(props, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray));
-        window.ga("ec:addProduct", product);
+        product = _objectSpread2({}, product, {}, this.metricsFunction(props, this.dimensionsArray, this.metricsArray, this.contentGroupingsArray));
+        window.ga("".concat(this.trackerName, "ec:addProduct"), product);
       }
       /**
        * set action with data
@@ -3149,7 +5628,7 @@
       key: "enhancedEcommerceTrackProductAction",
       value: function enhancedEcommerceTrackProductAction(rudderElement, action, data) {
         this.enhancedEcommerceTrackProduct(rudderElement);
-        window.ga("ec:setAction", action, data || {});
+        window.ga("".concat(this.trackerName, "ec:setAction"), action, data || {});
       }
       /**
        * @param  {} rudderElement
@@ -3211,7 +5690,9 @@
 
   var index$1 =  GA ;
 
-  var Hotjar = /*#__PURE__*/function () {
+  var Hotjar =
+  /*#__PURE__*/
+  function () {
     function Hotjar(config) {
       _classCallCheck(this, Hotjar);
 
@@ -3285,7 +5766,9 @@
 
   var index$2 =  Hotjar ;
 
-  var GoogleAds = /*#__PURE__*/function () {
+  var GoogleAds =
+  /*#__PURE__*/
+  function () {
     function GoogleAds(config) {
       _classCallCheck(this, GoogleAds);
 
@@ -3405,7 +5888,9 @@
 
   var index$3 =  GoogleAds ;
 
-  var VWO = /*#__PURE__*/function () {
+  var VWO =
+  /*#__PURE__*/
+  function () {
     function VWO(config, analytics) {
       _classCallCheck(this, VWO);
 
@@ -3565,7 +6050,9 @@
     return VWO;
   }();
 
-  var GoogleTagManager = /*#__PURE__*/function () {
+  var GoogleTagManager =
+  /*#__PURE__*/
+  function () {
     function GoogleTagManager(config) {
       _classCallCheck(this, GoogleTagManager);
 
@@ -3664,7 +6151,9 @@
   E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
   */
 
-  var Braze = /*#__PURE__*/function () {
+  var Braze =
+  /*#__PURE__*/
+  function () {
     function Braze(config, analytics) {
       _classCallCheck(this, Braze);
 
@@ -4016,7 +6505,7 @@
         // Convert to byte array
         if (message.constructor == String) {
           if (options && options.encoding === 'binary') message = bin.stringToBytes(message);else message = utf8.stringToBytes(message);
-        } else if (isBuffer(message)) message = Array.prototype.slice.call(message, 0);else if (!Array.isArray(message) && message.constructor !== Uint8Array) message = message.toString(); // else, assume byte array already
+        } else if (isBuffer(message)) message = Array.prototype.slice.call(message, 0);else if (!Array.isArray(message)) message = message.toString(); // else, assume byte array already
 
         var m = crypt$1.bytesToWords(message),
             l = message.length * 8,
@@ -4149,7 +6638,9 @@
     })();
   });
 
-  var INTERCOM = /*#__PURE__*/function () {
+  var INTERCOM =
+  /*#__PURE__*/
+  function () {
     function INTERCOM(config) {
       _classCallCheck(this, INTERCOM);
 
@@ -4282,6 +6773,9 @@
               case "anonymousId":
                 rawPayload.user_id = value;
                 break;
+
+              default:
+                break;
             }
           }
         });
@@ -4322,7 +6816,9 @@
     return INTERCOM;
   }();
 
-  var Keen = /*#__PURE__*/function () {
+  var Keen =
+  /*#__PURE__*/
+  function () {
     function Keen(config) {
       _classCallCheck(this, Keen);
 
@@ -4473,7 +6969,7 @@
     return Keen;
   }();
 
-  var has$1 = Object.prototype.hasOwnProperty;
+  var has$3 = Object.prototype.hasOwnProperty;
   /**
    * Copy the properties of one or more `objects` onto a destination object. Input objects are iterated over
    * in left-to-right order, so duplicate properties on later objects will overwrite those from
@@ -4502,7 +6998,7 @@
 
     for (var i = 0; i < sources.length; i += 1) {
       for (var key in sources[i]) {
-        if (has$1.call(sources[i], key)) {
+        if (has$3.call(sources[i], key)) {
           dest[key] = sources[i][key];
         }
       }
@@ -4665,7 +7161,9 @@
   var objCase_2 = objCase.replace;
   var objCase_3 = objCase.del;
 
-  var Kissmetrics = /*#__PURE__*/function () {
+  var Kissmetrics =
+  /*#__PURE__*/
+  function () {
     function Kissmetrics(config) {
       _classCallCheck(this, Kissmetrics);
 
@@ -4954,7 +7452,9 @@
     return Kissmetrics;
   }();
 
-  var CustomerIO = /*#__PURE__*/function () {
+  var CustomerIO =
+  /*#__PURE__*/
+  function () {
     function CustomerIO(config) {
       _classCallCheck(this, CustomerIO);
 
@@ -5087,7 +7587,9 @@
     callback(document.body);
   }
 
-  var Chartbeat = /*#__PURE__*/function () {
+  var Chartbeat =
+  /*#__PURE__*/
+  function () {
     function Chartbeat(config, analytics) {
       _classCallCheck(this, Chartbeat);
 
@@ -5260,7 +7762,9 @@
     return Chartbeat;
   }();
 
-  var Comscore = /*#__PURE__*/function () {
+  var Comscore =
+  /*#__PURE__*/
+  function () {
     function Comscore(config, analytics) {
       _classCallCheck(this, Comscore);
 
@@ -5416,304 +7920,9 @@
     return Comscore;
   }();
 
-  var hop = Object.prototype.hasOwnProperty;
-  var strCharAt = String.prototype.charAt;
-  var toStr$1 = Object.prototype.toString;
-  /**
-   * Returns the character at a given index.
-   *
-   * @param {string} str
-   * @param {number} index
-   * @return {string|undefined}
-   */
-  // TODO: Move to a library
-
-  var charAt = function charAt(str, index) {
-    return strCharAt.call(str, index);
-  };
-  /**
-   * hasOwnProperty, wrapped as a function.
-   *
-   * @name has
-   * @api private
-   * @param {*} context
-   * @param {string|number} prop
-   * @return {boolean}
-   */
-  // TODO: Move to a library
-
-
-  var has$2 = function has(context, prop) {
-    return hop.call(context, prop);
-  };
-  /**
-   * Returns true if a value is a string, otherwise false.
-   *
-   * @name isString
-   * @api private
-   * @param {*} val
-   * @return {boolean}
-   */
-  // TODO: Move to a library
-
-
-  var isString = function isString(val) {
-    return toStr$1.call(val) === '[object String]';
-  };
-  /**
-   * Returns true if a value is array-like, otherwise false. Array-like means a
-   * value is not null, undefined, or a function, and has a numeric `length`
-   * property.
-   *
-   * @name isArrayLike
-   * @api private
-   * @param {*} val
-   * @return {boolean}
-   */
-  // TODO: Move to a library
-
-
-  var isArrayLike = function isArrayLike(val) {
-    return val != null && typeof val !== 'function' && typeof val.length === 'number';
-  };
-  /**
-   * indexKeys
-   *
-   * @name indexKeys
-   * @api private
-   * @param {} target
-   * @param {Function} pred
-   * @return {Array}
-   */
-
-
-  var indexKeys = function indexKeys(target, pred) {
-    pred = pred || has$2;
-    var results = [];
-
-    for (var i = 0, len = target.length; i < len; i += 1) {
-      if (pred(target, i)) {
-        results.push(String(i));
-      }
-    }
-
-    return results;
-  };
-  /**
-   * Returns an array of an object's owned keys.
-   *
-   * @name objectKeys
-   * @api private
-   * @param {*} target
-   * @param {Function} pred Predicate function used to include/exclude values from
-   * the resulting array.
-   * @return {Array}
-   */
-
-
-  var objectKeys = function objectKeys(target, pred) {
-    pred = pred || has$2;
-    var results = [];
-
-    for (var key in target) {
-      if (pred(target, key)) {
-        results.push(String(key));
-      }
-    }
-
-    return results;
-  };
-  /**
-   * Creates an array composed of all keys on the input object. Ignores any non-enumerable properties.
-   * More permissive than the native `Object.keys` function (non-objects will not throw errors).
-   *
-   * @name keys
-   * @api public
-   * @category Object
-   * @param {Object} source The value to retrieve keys from.
-   * @return {Array} An array containing all the input `source`'s keys.
-   * @example
-   * keys({ likes: 'avocado', hates: 'pineapple' });
-   * //=> ['likes', 'pineapple'];
-   *
-   * // Ignores non-enumerable properties
-   * var hasHiddenKey = { name: 'Tim' };
-   * Object.defineProperty(hasHiddenKey, 'hidden', {
-   *   value: 'i am not enumerable!',
-   *   enumerable: false
-   * })
-   * keys(hasHiddenKey);
-   * //=> ['name'];
-   *
-   * // Works on arrays
-   * keys(['a', 'b', 'c']);
-   * //=> ['0', '1', '2']
-   *
-   * // Skips unpopulated indices in sparse arrays
-   * var arr = [1];
-   * arr[4] = 4;
-   * keys(arr);
-   * //=> ['0', '4']
-   */
-
-
-  var keys = function keys(source) {
-    if (source == null) {
-      return [];
-    } // IE6-8 compatibility (string)
-
-
-    if (isString(source)) {
-      return indexKeys(source, charAt);
-    } // IE6-8 compatibility (arguments)
-
-
-    if (isArrayLike(source)) {
-      return indexKeys(source, has$2);
-    }
-
-    return objectKeys(source);
-  };
-  /*
-   * Exports.
-   */
-
-
-  var keys_1 = keys;
-
-  /*
-   * Module dependencies.
-   */
-
-
-  var objToString = Object.prototype.toString;
-  /**
-   * Tests if a value is a number.
-   *
-   * @name isNumber
-   * @api private
-   * @param {*} val The value to test.
-   * @return {boolean} Returns `true` if `val` is a number, otherwise `false`.
-   */
-  // TODO: Move to library
-
-  var isNumber = function isNumber(val) {
-    var type = _typeof(val);
-
-    return type === 'number' || type === 'object' && objToString.call(val) === '[object Number]';
-  };
-  /**
-   * Tests if a value is an array.
-   *
-   * @name isArray
-   * @api private
-   * @param {*} val The value to test.
-   * @return {boolean} Returns `true` if the value is an array, otherwise `false`.
-   */
-  // TODO: Move to library
-
-
-  var isArray = typeof Array.isArray === 'function' ? Array.isArray : function isArray(val) {
-    return objToString.call(val) === '[object Array]';
-  };
-  /**
-   * Tests if a value is array-like. Array-like means the value is not a function and has a numeric
-   * `.length` property.
-   *
-   * @name isArrayLike
-   * @api private
-   * @param {*} val
-   * @return {boolean}
-   */
-  // TODO: Move to library
-
-  var isArrayLike$1 = function isArrayLike(val) {
-    return val != null && (isArray(val) || val !== 'function' && isNumber(val.length));
-  };
-  /**
-   * Internal implementation of `each`. Works on arrays and array-like data structures.
-   *
-   * @name arrayEach
-   * @api private
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Array} array The array(-like) structure to iterate over.
-   * @return {undefined}
-   */
-
-
-  var arrayEach = function arrayEach(iterator, array) {
-    for (var i = 0; i < array.length; i += 1) {
-      // Break iteration early if `iterator` returns `false`
-      if (iterator(array[i], i, array) === false) {
-        break;
-      }
-    }
-  };
-  /**
-   * Internal implementation of `each`. Works on objects.
-   *
-   * @name baseEach
-   * @api private
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Object} object The object to iterate over.
-   * @return {undefined}
-   */
-
-
-  var baseEach = function baseEach(iterator, object) {
-    var ks = keys_1(object);
-
-    for (var i = 0; i < ks.length; i += 1) {
-      // Break iteration early if `iterator` returns `false`
-      if (iterator(object[ks[i]], ks[i], object) === false) {
-        break;
-      }
-    }
-  };
-  /**
-   * Iterate over an input collection, invoking an `iterator` function for each element in the
-   * collection and passing to it three arguments: `(value, index, collection)`. The `iterator`
-   * function can end iteration early by returning `false`.
-   *
-   * @name each
-   * @api public
-   * @param {Function(value, key, collection)} iterator The function to invoke per iteration.
-   * @param {Array|Object|string} collection The collection to iterate over.
-   * @return {undefined} Because `each` is run only for side effects, always returns `undefined`.
-   * @example
-   * var log = console.log.bind(console);
-   *
-   * each(log, ['a', 'b', 'c']);
-   * //-> 'a', 0, ['a', 'b', 'c']
-   * //-> 'b', 1, ['a', 'b', 'c']
-   * //-> 'c', 2, ['a', 'b', 'c']
-   * //=> undefined
-   *
-   * each(log, 'tim');
-   * //-> 't', 2, 'tim'
-   * //-> 'i', 1, 'tim'
-   * //-> 'm', 0, 'tim'
-   * //=> undefined
-   *
-   * // Note: Iteration order not guaranteed across environments
-   * each(log, { name: 'tim', occupation: 'enchanter' });
-   * //-> 'tim', 'name', { name: 'tim', occupation: 'enchanter' }
-   * //-> 'enchanter', 'occupation', { name: 'tim', occupation: 'enchanter' }
-   * //=> undefined
-   */
-
-
-  var each = function each(iterator, collection) {
-    return (isArrayLike$1(collection) ? arrayEach : baseEach).call(this, iterator, collection);
-  };
-  /*
-   * Exports.
-   */
-
-
-  var each_1 = each;
-
-  var FacebookPixel = /*#__PURE__*/function () {
+  var FacebookPixel =
+  /*#__PURE__*/
+  function () {
     function FacebookPixel(config) {
       _classCallCheck(this, FacebookPixel);
 
@@ -8843,7 +11052,7 @@
 
   var ms = function ms(val, options) {
     options = options || {};
-    if ('string' == typeof val) return parse$1(val);
+    if ('string' == typeof val) return parse$2(val);
     return options["long"] ? _long(val) : _short(val);
   };
   /**
@@ -8855,7 +11064,7 @@
    */
 
 
-  function parse$1(str) {
+  function parse$2(str) {
     str = '' + str;
     if (str.length > 10000) return;
     var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
@@ -9368,7 +11577,7 @@
       return {};
     }
 
-    return parse$2(str);
+    return parse$3(str);
   }
   /**
    * Get cookie `name`.
@@ -9391,7 +11600,7 @@
    */
 
 
-  function parse$2(str) {
+  function parse$3(str) {
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
@@ -9515,7 +11724,7 @@
    */
 
 
-  var has$3 = Object.prototype.hasOwnProperty;
+  var has$4 = Object.prototype.hasOwnProperty;
   var objToString$1 = Object.prototype.toString;
   /**
    * Returns `true` if a value is an object, otherwise `false`.
@@ -9558,7 +11767,7 @@
 
 
   var shallowCombiner = function shallowCombiner(target, source, value, key) {
-    if (has$3.call(source, key) && target[key] === undefined) {
+    if (has$4.call(source, key) && target[key] === undefined) {
       target[key] = value;
     }
 
@@ -9579,7 +11788,7 @@
 
 
   var deepCombiner = function deepCombiner(target, source, value, key) {
-    if (has$3.call(source, key)) {
+    if (has$4.call(source, key)) {
       if (isPlainObject(target[key]) && isPlainObject(value)) {
         target[key] = defaultsDeep(target[key], value);
       } else if (target[key] === undefined) {
@@ -9675,14 +11884,14 @@
     (function () {
       // Detect the `define` function exposed by asynchronous module loaders. The
       // strict `define` check is necessary for compatibility with `r.js`.
-      var isLoader = typeof undefined === "function" ; // A set of types used to distinguish objects from primitives.
+      var isLoader = typeof undefined === "function" && undefined.amd; // A set of types used to distinguish objects from primitives.
 
       var objectTypes = {
         "function": true,
         "object": true
       }; // Detect the `exports` object exposed by CommonJS implementations.
 
-      var freeExports = objectTypes['object'] && exports && !exports.nodeType && exports; // Use the `global` object exposed by Node (including Browserify via
+      var freeExports =  exports && !exports.nodeType && exports; // Use the `global` object exposed by Node (including Browserify via
       // `insert-module-globals`), Narwhal, and Ringo as the default context,
       // and the `window` object in browsers. Rhino exports a `global` function
       // instead.
@@ -10707,6 +12916,130 @@
     }).call(commonjsGlobal);
   });
 
+  /**
+   * Helpers.
+   */
+  var s$1 = 1000;
+  var m$1 = s$1 * 60;
+  var h$1 = m$1 * 60;
+  var d$1 = h$1 * 24;
+  var y$1 = d$1 * 365.25;
+  /**
+   * Parse or format the given `val`.
+   *
+   * Options:
+   *
+   *  - `long` verbose formatting [false]
+   *
+   * @param {String|Number} val
+   * @param {Object} options
+   * @return {String|Number}
+   * @api public
+   */
+
+  var ms$1 = function ms(val, options) {
+    options = options || {};
+    if ('string' == typeof val) return parse$4(val);
+    return options["long"] ? _long$1(val) : _short$1(val);
+  };
+  /**
+   * Parse the given `str` and return milliseconds.
+   *
+   * @param {String} str
+   * @return {Number}
+   * @api private
+   */
+
+
+  function parse$4(str) {
+    str = '' + str;
+    if (str.length > 10000) return;
+    var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(str);
+    if (!match) return;
+    var n = parseFloat(match[1]);
+    var type = (match[2] || 'ms').toLowerCase();
+
+    switch (type) {
+      case 'years':
+      case 'year':
+      case 'yrs':
+      case 'yr':
+      case 'y':
+        return n * y$1;
+
+      case 'days':
+      case 'day':
+      case 'd':
+        return n * d$1;
+
+      case 'hours':
+      case 'hour':
+      case 'hrs':
+      case 'hr':
+      case 'h':
+        return n * h$1;
+
+      case 'minutes':
+      case 'minute':
+      case 'mins':
+      case 'min':
+      case 'm':
+        return n * m$1;
+
+      case 'seconds':
+      case 'second':
+      case 'secs':
+      case 'sec':
+      case 's':
+        return n * s$1;
+
+      case 'milliseconds':
+      case 'millisecond':
+      case 'msecs':
+      case 'msec':
+      case 'ms':
+        return n;
+    }
+  }
+  /**
+   * Short format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+
+
+  function _short$1(ms) {
+    if (ms >= d$1) return Math.round(ms / d$1) + 'd';
+    if (ms >= h$1) return Math.round(ms / h$1) + 'h';
+    if (ms >= m$1) return Math.round(ms / m$1) + 'm';
+    if (ms >= s$1) return Math.round(ms / s$1) + 's';
+    return ms + 'ms';
+  }
+  /**
+   * Long format for `ms`.
+   *
+   * @param {Number} ms
+   * @return {String}
+   * @api private
+   */
+
+
+  function _long$1(ms) {
+    return plural$1(ms, d$1, 'day') || plural$1(ms, h$1, 'hour') || plural$1(ms, m$1, 'minute') || plural$1(ms, s$1, 'second') || ms + ' ms';
+  }
+  /**
+   * Pluralization helper.
+   */
+
+
+  function plural$1(ms, n, name) {
+    if (ms < n) return;
+    if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
+    return Math.ceil(ms / n) + ' ' + name + 's';
+  }
+
   var debug_1$1 = createCommonjsModule(function (module, exports) {
     /**
      * This is the common logic for both the Node.js and web browser
@@ -10719,7 +13052,7 @@
     exports.disable = disable;
     exports.enable = enable;
     exports.enabled = enabled;
-    exports.humanize = ms;
+    exports.humanize = ms$1;
     /**
      * The currently active debug mode names, and names to skip.
      */
@@ -11130,7 +13463,7 @@
       return {};
     }
 
-    return parse$3(str);
+    return parse$5(str);
   }
   /**
    * Get cookie `name`.
@@ -11153,7 +13486,7 @@
    */
 
 
-  function parse$3(str) {
+  function parse$5(str) {
     var obj = {};
     var pairs = str.split(/ *; */);
     var pair;
@@ -11191,7 +13524,7 @@
     }
   }
 
-  var lib = createCommonjsModule(function (module, exports) {
+  var lib$1 = createCommonjsModule(function (module, exports) {
     /**
      * Module dependencies.
      */
@@ -11294,7 +13627,9 @@
    * An object utility to persist values in cookies
    */
 
-  var CookieLocal = /*#__PURE__*/function () {
+  var CookieLocal =
+  /*#__PURE__*/
+  function () {
     function CookieLocal(options) {
       _classCallCheck(this, CookieLocal);
 
@@ -11313,7 +13648,7 @@
         var _options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
         if (arguments.length === 0) return this._options;
-        var domain = ".".concat(lib(window.location.href));
+        var domain = ".".concat(lib$1(window.location.href));
         if (domain === ".") domain = null; // the default maxage and path
 
         this._options = defaults_1(_options, {
@@ -11598,7 +13933,9 @@
    * An object utility to persist user and other values in localstorage
    */
 
-  var StoreLocal = /*#__PURE__*/function () {
+  var StoreLocal =
+  /*#__PURE__*/
+  function () {
     function StoreLocal(options) {
       _classCallCheck(this, StoreLocal);
 
@@ -11679,7 +14016,9 @@
    * An object that handles persisting key-val from Analytics
    */
 
-  var Storage = /*#__PURE__*/function () {
+  var Storage =
+  /*#__PURE__*/
+  function () {
     function Storage() {
       _classCallCheck(this, Storage);
 
@@ -11931,7 +14270,9 @@
     lotame_synch_time_key: "lt_synch_timestamp"
   };
 
-  var LotameStorage = /*#__PURE__*/function () {
+  var LotameStorage =
+  /*#__PURE__*/
+  function () {
     function LotameStorage() {
       _classCallCheck(this, LotameStorage);
 
@@ -11955,7 +14296,9 @@
 
   var lotameStorage = new LotameStorage();
 
-  var Lotame = /*#__PURE__*/function () {
+  var Lotame =
+  /*#__PURE__*/
+  function () {
     function Lotame(config, analytics) {
       var _this = this;
 
@@ -12020,7 +14363,7 @@
         if (this.dspUrlSettingsPixel && this.dspUrlSettingsPixel.length > 0) {
           var currentTime = Date.now();
           this.dspUrlSettingsPixel.forEach(function (urlSettings) {
-            var dspUrl = _this2.compileUrl(_objectSpread2(_objectSpread2({}, _this2.mappings), {}, {
+            var dspUrl = _this2.compileUrl(_objectSpread2({}, _this2.mappings, {
               userId: userId,
               random: currentTime
             }), urlSettings.dspUrlTemplate);
@@ -12035,7 +14378,7 @@
           var _currentTime = Date.now();
 
           this.dspUrlSettingsIframe.forEach(function (urlSettings) {
-            var dspUrl = _this2.compileUrl(_objectSpread2(_objectSpread2({}, _this2.mappings), {}, {
+            var dspUrl = _this2.compileUrl(_objectSpread2({}, _this2.mappings, {
               userId: userId,
               random: _currentTime
             }), urlSettings.dspUrlTemplate);
@@ -12087,7 +14430,7 @@
         if (this.bcpUrlSettingsPixel && this.bcpUrlSettingsPixel.length > 0) {
           var currentTime = Date.now();
           this.bcpUrlSettingsPixel.forEach(function (urlSettings) {
-            var bcpUrl = _this3.compileUrl(_objectSpread2(_objectSpread2({}, _this3.mappings), {}, {
+            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings, {
               random: currentTime
             }), urlSettings.bcpUrlTemplate);
 
@@ -12101,7 +14444,7 @@
           var _currentTime2 = Date.now();
 
           this.bcpUrlSettingsIframe.forEach(function (urlSettings) {
-            var bcpUrl = _this3.compileUrl(_objectSpread2(_objectSpread2({}, _this3.mappings), {}, {
+            var bcpUrl = _this3.compileUrl(_objectSpread2({}, _this3.mappings, {
               random: _currentTime2
             }), urlSettings.bcpUrlTemplate);
 
@@ -12142,7 +14485,9 @@
     return Lotame;
   }();
 
-  var Optimizely = /*#__PURE__*/function () {
+  var Optimizely =
+  /*#__PURE__*/
+  function () {
     function Optimizely(config, analytics) {
       var _this = this;
 
@@ -12392,7 +14737,9 @@
     return Optimizely;
   }();
 
-  var Bugsnag = /*#__PURE__*/function () {
+  var Bugsnag =
+  /*#__PURE__*/
+  function () {
     function Bugsnag(config) {
       _classCallCheck(this, Bugsnag);
 
@@ -12455,13 +14802,13 @@
     for (var i = 0; i < string.length; i++) {
       var character = string[i];
 
-      if (isLastCharLower && /(?:[A-Z\xC0-\xD6\xD8-\xDE\u0100\u0102\u0104\u0106\u0108\u010A\u010C\u010E\u0110\u0112\u0114\u0116\u0118\u011A\u011C\u011E\u0120\u0122\u0124\u0126\u0128\u012A\u012C\u012E\u0130\u0132\u0134\u0136\u0139\u013B\u013D\u013F\u0141\u0143\u0145\u0147\u014A\u014C\u014E\u0150\u0152\u0154\u0156\u0158\u015A\u015C\u015E\u0160\u0162\u0164\u0166\u0168\u016A\u016C\u016E\u0170\u0172\u0174\u0176\u0178\u0179\u017B\u017D\u0181\u0182\u0184\u0186\u0187\u0189-\u018B\u018E-\u0191\u0193\u0194\u0196-\u0198\u019C\u019D\u019F\u01A0\u01A2\u01A4\u01A6\u01A7\u01A9\u01AC\u01AE\u01AF\u01B1-\u01B3\u01B5\u01B7\u01B8\u01BC\u01C4\u01C7\u01CA\u01CD\u01CF\u01D1\u01D3\u01D5\u01D7\u01D9\u01DB\u01DE\u01E0\u01E2\u01E4\u01E6\u01E8\u01EA\u01EC\u01EE\u01F1\u01F4\u01F6-\u01F8\u01FA\u01FC\u01FE\u0200\u0202\u0204\u0206\u0208\u020A\u020C\u020E\u0210\u0212\u0214\u0216\u0218\u021A\u021C\u021E\u0220\u0222\u0224\u0226\u0228\u022A\u022C\u022E\u0230\u0232\u023A\u023B\u023D\u023E\u0241\u0243-\u0246\u0248\u024A\u024C\u024E\u0370\u0372\u0376\u037F\u0386\u0388-\u038A\u038C\u038E\u038F\u0391-\u03A1\u03A3-\u03AB\u03CF\u03D2-\u03D4\u03D8\u03DA\u03DC\u03DE\u03E0\u03E2\u03E4\u03E6\u03E8\u03EA\u03EC\u03EE\u03F4\u03F7\u03F9\u03FA\u03FD-\u042F\u0460\u0462\u0464\u0466\u0468\u046A\u046C\u046E\u0470\u0472\u0474\u0476\u0478\u047A\u047C\u047E\u0480\u048A\u048C\u048E\u0490\u0492\u0494\u0496\u0498\u049A\u049C\u049E\u04A0\u04A2\u04A4\u04A6\u04A8\u04AA\u04AC\u04AE\u04B0\u04B2\u04B4\u04B6\u04B8\u04BA\u04BC\u04BE\u04C0\u04C1\u04C3\u04C5\u04C7\u04C9\u04CB\u04CD\u04D0\u04D2\u04D4\u04D6\u04D8\u04DA\u04DC\u04DE\u04E0\u04E2\u04E4\u04E6\u04E8\u04EA\u04EC\u04EE\u04F0\u04F2\u04F4\u04F6\u04F8\u04FA\u04FC\u04FE\u0500\u0502\u0504\u0506\u0508\u050A\u050C\u050E\u0510\u0512\u0514\u0516\u0518\u051A\u051C\u051E\u0520\u0522\u0524\u0526\u0528\u052A\u052C\u052E\u0531-\u0556\u10A0-\u10C5\u10C7\u10CD\u13A0-\u13F5\u1C90-\u1CBA\u1CBD-\u1CBF\u1E00\u1E02\u1E04\u1E06\u1E08\u1E0A\u1E0C\u1E0E\u1E10\u1E12\u1E14\u1E16\u1E18\u1E1A\u1E1C\u1E1E\u1E20\u1E22\u1E24\u1E26\u1E28\u1E2A\u1E2C\u1E2E\u1E30\u1E32\u1E34\u1E36\u1E38\u1E3A\u1E3C\u1E3E\u1E40\u1E42\u1E44\u1E46\u1E48\u1E4A\u1E4C\u1E4E\u1E50\u1E52\u1E54\u1E56\u1E58\u1E5A\u1E5C\u1E5E\u1E60\u1E62\u1E64\u1E66\u1E68\u1E6A\u1E6C\u1E6E\u1E70\u1E72\u1E74\u1E76\u1E78\u1E7A\u1E7C\u1E7E\u1E80\u1E82\u1E84\u1E86\u1E88\u1E8A\u1E8C\u1E8E\u1E90\u1E92\u1E94\u1E9E\u1EA0\u1EA2\u1EA4\u1EA6\u1EA8\u1EAA\u1EAC\u1EAE\u1EB0\u1EB2\u1EB4\u1EB6\u1EB8\u1EBA\u1EBC\u1EBE\u1EC0\u1EC2\u1EC4\u1EC6\u1EC8\u1ECA\u1ECC\u1ECE\u1ED0\u1ED2\u1ED4\u1ED6\u1ED8\u1EDA\u1EDC\u1EDE\u1EE0\u1EE2\u1EE4\u1EE6\u1EE8\u1EEA\u1EEC\u1EEE\u1EF0\u1EF2\u1EF4\u1EF6\u1EF8\u1EFA\u1EFC\u1EFE\u1F08-\u1F0F\u1F18-\u1F1D\u1F28-\u1F2F\u1F38-\u1F3F\u1F48-\u1F4D\u1F59\u1F5B\u1F5D\u1F5F\u1F68-\u1F6F\u1FB8-\u1FBB\u1FC8-\u1FCB\u1FD8-\u1FDB\u1FE8-\u1FEC\u1FF8-\u1FFB\u2102\u2107\u210B-\u210D\u2110-\u2112\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u2130-\u2133\u213E\u213F\u2145\u2183\u2C00-\u2C2E\u2C60\u2C62-\u2C64\u2C67\u2C69\u2C6B\u2C6D-\u2C70\u2C72\u2C75\u2C7E-\u2C80\u2C82\u2C84\u2C86\u2C88\u2C8A\u2C8C\u2C8E\u2C90\u2C92\u2C94\u2C96\u2C98\u2C9A\u2C9C\u2C9E\u2CA0\u2CA2\u2CA4\u2CA6\u2CA8\u2CAA\u2CAC\u2CAE\u2CB0\u2CB2\u2CB4\u2CB6\u2CB8\u2CBA\u2CBC\u2CBE\u2CC0\u2CC2\u2CC4\u2CC6\u2CC8\u2CCA\u2CCC\u2CCE\u2CD0\u2CD2\u2CD4\u2CD6\u2CD8\u2CDA\u2CDC\u2CDE\u2CE0\u2CE2\u2CEB\u2CED\u2CF2\uA640\uA642\uA644\uA646\uA648\uA64A\uA64C\uA64E\uA650\uA652\uA654\uA656\uA658\uA65A\uA65C\uA65E\uA660\uA662\uA664\uA666\uA668\uA66A\uA66C\uA680\uA682\uA684\uA686\uA688\uA68A\uA68C\uA68E\uA690\uA692\uA694\uA696\uA698\uA69A\uA722\uA724\uA726\uA728\uA72A\uA72C\uA72E\uA732\uA734\uA736\uA738\uA73A\uA73C\uA73E\uA740\uA742\uA744\uA746\uA748\uA74A\uA74C\uA74E\uA750\uA752\uA754\uA756\uA758\uA75A\uA75C\uA75E\uA760\uA762\uA764\uA766\uA768\uA76A\uA76C\uA76E\uA779\uA77B\uA77D\uA77E\uA780\uA782\uA784\uA786\uA78B\uA78D\uA790\uA792\uA796\uA798\uA79A\uA79C\uA79E\uA7A0\uA7A2\uA7A4\uA7A6\uA7A8\uA7AA-\uA7AE\uA7B0-\uA7B4\uA7B6\uA7B8\uA7BA\uA7BC\uA7BE\uA7C2\uA7C4-\uA7C7\uA7C9\uA7F5\uFF21-\uFF3A]|\uD801[\uDC00-\uDC27\uDCB0-\uDCD3]|\uD803[\uDC80-\uDCB2]|\uD806[\uDCA0-\uDCBF]|\uD81B[\uDE40-\uDE5F]|\uD835[\uDC00-\uDC19\uDC34-\uDC4D\uDC68-\uDC81\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB5\uDCD0-\uDCE9\uDD04\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD38\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD6C-\uDD85\uDDA0-\uDDB9\uDDD4-\uDDED\uDE08-\uDE21\uDE3C-\uDE55\uDE70-\uDE89\uDEA8-\uDEC0\uDEE2-\uDEFA\uDF1C-\uDF34\uDF56-\uDF6E\uDF90-\uDFA8\uDFCA]|\uD83A[\uDD00-\uDD21])/.test(character)) {
+      if (isLastCharLower && /[Lpu\{\}]/.test(character)) {
         string = string.slice(0, i) + '-' + string.slice(i);
         isLastCharLower = false;
         isLastLastCharUpper = isLastCharUpper;
         isLastCharUpper = true;
         i++;
-      } else if (isLastCharUpper && isLastLastCharUpper && /(?:[a-z\xB5\xDF-\xF6\xF8-\xFF\u0101\u0103\u0105\u0107\u0109\u010B\u010D\u010F\u0111\u0113\u0115\u0117\u0119\u011B\u011D\u011F\u0121\u0123\u0125\u0127\u0129\u012B\u012D\u012F\u0131\u0133\u0135\u0137\u0138\u013A\u013C\u013E\u0140\u0142\u0144\u0146\u0148\u0149\u014B\u014D\u014F\u0151\u0153\u0155\u0157\u0159\u015B\u015D\u015F\u0161\u0163\u0165\u0167\u0169\u016B\u016D\u016F\u0171\u0173\u0175\u0177\u017A\u017C\u017E-\u0180\u0183\u0185\u0188\u018C\u018D\u0192\u0195\u0199-\u019B\u019E\u01A1\u01A3\u01A5\u01A8\u01AA\u01AB\u01AD\u01B0\u01B4\u01B6\u01B9\u01BA\u01BD-\u01BF\u01C6\u01C9\u01CC\u01CE\u01D0\u01D2\u01D4\u01D6\u01D8\u01DA\u01DC\u01DD\u01DF\u01E1\u01E3\u01E5\u01E7\u01E9\u01EB\u01ED\u01EF\u01F0\u01F3\u01F5\u01F9\u01FB\u01FD\u01FF\u0201\u0203\u0205\u0207\u0209\u020B\u020D\u020F\u0211\u0213\u0215\u0217\u0219\u021B\u021D\u021F\u0221\u0223\u0225\u0227\u0229\u022B\u022D\u022F\u0231\u0233-\u0239\u023C\u023F\u0240\u0242\u0247\u0249\u024B\u024D\u024F-\u0293\u0295-\u02AF\u0371\u0373\u0377\u037B-\u037D\u0390\u03AC-\u03CE\u03D0\u03D1\u03D5-\u03D7\u03D9\u03DB\u03DD\u03DF\u03E1\u03E3\u03E5\u03E7\u03E9\u03EB\u03ED\u03EF-\u03F3\u03F5\u03F8\u03FB\u03FC\u0430-\u045F\u0461\u0463\u0465\u0467\u0469\u046B\u046D\u046F\u0471\u0473\u0475\u0477\u0479\u047B\u047D\u047F\u0481\u048B\u048D\u048F\u0491\u0493\u0495\u0497\u0499\u049B\u049D\u049F\u04A1\u04A3\u04A5\u04A7\u04A9\u04AB\u04AD\u04AF\u04B1\u04B3\u04B5\u04B7\u04B9\u04BB\u04BD\u04BF\u04C2\u04C4\u04C6\u04C8\u04CA\u04CC\u04CE\u04CF\u04D1\u04D3\u04D5\u04D7\u04D9\u04DB\u04DD\u04DF\u04E1\u04E3\u04E5\u04E7\u04E9\u04EB\u04ED\u04EF\u04F1\u04F3\u04F5\u04F7\u04F9\u04FB\u04FD\u04FF\u0501\u0503\u0505\u0507\u0509\u050B\u050D\u050F\u0511\u0513\u0515\u0517\u0519\u051B\u051D\u051F\u0521\u0523\u0525\u0527\u0529\u052B\u052D\u052F\u0560-\u0588\u10D0-\u10FA\u10FD-\u10FF\u13F8-\u13FD\u1C80-\u1C88\u1D00-\u1D2B\u1D6B-\u1D77\u1D79-\u1D9A\u1E01\u1E03\u1E05\u1E07\u1E09\u1E0B\u1E0D\u1E0F\u1E11\u1E13\u1E15\u1E17\u1E19\u1E1B\u1E1D\u1E1F\u1E21\u1E23\u1E25\u1E27\u1E29\u1E2B\u1E2D\u1E2F\u1E31\u1E33\u1E35\u1E37\u1E39\u1E3B\u1E3D\u1E3F\u1E41\u1E43\u1E45\u1E47\u1E49\u1E4B\u1E4D\u1E4F\u1E51\u1E53\u1E55\u1E57\u1E59\u1E5B\u1E5D\u1E5F\u1E61\u1E63\u1E65\u1E67\u1E69\u1E6B\u1E6D\u1E6F\u1E71\u1E73\u1E75\u1E77\u1E79\u1E7B\u1E7D\u1E7F\u1E81\u1E83\u1E85\u1E87\u1E89\u1E8B\u1E8D\u1E8F\u1E91\u1E93\u1E95-\u1E9D\u1E9F\u1EA1\u1EA3\u1EA5\u1EA7\u1EA9\u1EAB\u1EAD\u1EAF\u1EB1\u1EB3\u1EB5\u1EB7\u1EB9\u1EBB\u1EBD\u1EBF\u1EC1\u1EC3\u1EC5\u1EC7\u1EC9\u1ECB\u1ECD\u1ECF\u1ED1\u1ED3\u1ED5\u1ED7\u1ED9\u1EDB\u1EDD\u1EDF\u1EE1\u1EE3\u1EE5\u1EE7\u1EE9\u1EEB\u1EED\u1EEF\u1EF1\u1EF3\u1EF5\u1EF7\u1EF9\u1EFB\u1EFD\u1EFF-\u1F07\u1F10-\u1F15\u1F20-\u1F27\u1F30-\u1F37\u1F40-\u1F45\u1F50-\u1F57\u1F60-\u1F67\u1F70-\u1F7D\u1F80-\u1F87\u1F90-\u1F97\u1FA0-\u1FA7\u1FB0-\u1FB4\u1FB6\u1FB7\u1FBE\u1FC2-\u1FC4\u1FC6\u1FC7\u1FD0-\u1FD3\u1FD6\u1FD7\u1FE0-\u1FE7\u1FF2-\u1FF4\u1FF6\u1FF7\u210A\u210E\u210F\u2113\u212F\u2134\u2139\u213C\u213D\u2146-\u2149\u214E\u2184\u2C30-\u2C5E\u2C61\u2C65\u2C66\u2C68\u2C6A\u2C6C\u2C71\u2C73\u2C74\u2C76-\u2C7B\u2C81\u2C83\u2C85\u2C87\u2C89\u2C8B\u2C8D\u2C8F\u2C91\u2C93\u2C95\u2C97\u2C99\u2C9B\u2C9D\u2C9F\u2CA1\u2CA3\u2CA5\u2CA7\u2CA9\u2CAB\u2CAD\u2CAF\u2CB1\u2CB3\u2CB5\u2CB7\u2CB9\u2CBB\u2CBD\u2CBF\u2CC1\u2CC3\u2CC5\u2CC7\u2CC9\u2CCB\u2CCD\u2CCF\u2CD1\u2CD3\u2CD5\u2CD7\u2CD9\u2CDB\u2CDD\u2CDF\u2CE1\u2CE3\u2CE4\u2CEC\u2CEE\u2CF3\u2D00-\u2D25\u2D27\u2D2D\uA641\uA643\uA645\uA647\uA649\uA64B\uA64D\uA64F\uA651\uA653\uA655\uA657\uA659\uA65B\uA65D\uA65F\uA661\uA663\uA665\uA667\uA669\uA66B\uA66D\uA681\uA683\uA685\uA687\uA689\uA68B\uA68D\uA68F\uA691\uA693\uA695\uA697\uA699\uA69B\uA723\uA725\uA727\uA729\uA72B\uA72D\uA72F-\uA731\uA733\uA735\uA737\uA739\uA73B\uA73D\uA73F\uA741\uA743\uA745\uA747\uA749\uA74B\uA74D\uA74F\uA751\uA753\uA755\uA757\uA759\uA75B\uA75D\uA75F\uA761\uA763\uA765\uA767\uA769\uA76B\uA76D\uA76F\uA771-\uA778\uA77A\uA77C\uA77F\uA781\uA783\uA785\uA787\uA78C\uA78E\uA791\uA793-\uA795\uA797\uA799\uA79B\uA79D\uA79F\uA7A1\uA7A3\uA7A5\uA7A7\uA7A9\uA7AF\uA7B5\uA7B7\uA7B9\uA7BB\uA7BD\uA7BF\uA7C3\uA7C8\uA7CA\uA7F6\uA7FA\uAB30-\uAB5A\uAB60-\uAB68\uAB70-\uABBF\uFB00-\uFB06\uFB13-\uFB17\uFF41-\uFF5A]|\uD801[\uDC28-\uDC4F\uDCD8-\uDCFB]|\uD803[\uDCC0-\uDCF2]|\uD806[\uDCC0-\uDCDF]|\uD81B[\uDE60-\uDE7F]|\uD835[\uDC1A-\uDC33\uDC4E-\uDC54\uDC56-\uDC67\uDC82-\uDC9B\uDCB6-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDCCF\uDCEA-\uDD03\uDD1E-\uDD37\uDD52-\uDD6B\uDD86-\uDD9F\uDDBA-\uDDD3\uDDEE-\uDE07\uDE22-\uDE3B\uDE56-\uDE6F\uDE8A-\uDEA5\uDEC2-\uDEDA\uDEDC-\uDEE1\uDEFC-\uDF14\uDF16-\uDF1B\uDF36-\uDF4E\uDF50-\uDF55\uDF70-\uDF88\uDF8A-\uDF8F\uDFAA-\uDFC2\uDFC4-\uDFC9\uDFCB]|\uD83A[\uDD22-\uDD43])/.test(character)) {
+      } else if (isLastCharUpper && isLastLastCharUpper && /[Llp\{\}]/.test(character)) {
         string = string.slice(0, i - 1) + '-' + string.slice(i - 1);
         isLastLastCharUpper = isLastCharUpper;
         isLastCharUpper = false;
@@ -12481,9 +14828,9 @@
       throw new TypeError('Expected the input to be `string | string[]`');
     }
 
-    options = _objectSpread2(_objectSpread2({}, {
+    options = _objectSpread2({}, {
       pascalCase: false
-    }), options);
+    }, {}, options);
 
     var postProcess = function postProcess(x) {
       return options.pascalCase ? x.charAt(0).toLocaleUpperCase() + x.slice(1) : x;
@@ -12513,9 +14860,9 @@
       input = preserveCamelCase(input);
     }
 
-    input = input.replace(/^[_.\- ]+/, '').toLocaleLowerCase().replace(/[ \x2D\._]+((?:[0-9A-Z_a-z\xAA\xB2\xB3\xB5\xB9\xBA\xBC-\xBE\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0345\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0560-\u0588\u05B0-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u05D0-\u05EA\u05EF-\u05F2\u0610-\u061A\u0620-\u0657\u0659-\u0669\u066E-\u06D3\u06D5-\u06DC\u06E1-\u06E8\u06ED-\u06FC\u06FF\u0710-\u073F\u074D-\u07B1\u07C0-\u07EA\u07F4\u07F5\u07FA\u0800-\u0817\u081A-\u082C\u0840-\u0858\u0860-\u086A\u08A0-\u08B4\u08B6-\u08C7\u08D4-\u08DF\u08E3-\u08E9\u08F0-\u093B\u093D-\u094C\u094E-\u0950\u0955-\u0963\u0966-\u096F\u0971-\u0983\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD-\u09C4\u09C7\u09C8\u09CB\u09CC\u09CE\u09D7\u09DC\u09DD\u09DF-\u09E3\u09E6-\u09F1\u09F4-\u09F9\u09FC\u0A01-\u0A03\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A3E-\u0A42\u0A47\u0A48\u0A4B\u0A4C\u0A51\u0A59-\u0A5C\u0A5E\u0A66-\u0A75\u0A81-\u0A83\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD-\u0AC5\u0AC7-\u0AC9\u0ACB\u0ACC\u0AD0\u0AE0-\u0AE3\u0AE6-\u0AEF\u0AF9-\u0AFC\u0B01-\u0B03\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D-\u0B44\u0B47\u0B48\u0B4B\u0B4C\u0B56\u0B57\u0B5C\u0B5D\u0B5F-\u0B63\u0B66-\u0B6F\u0B71-\u0B77\u0B82\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCC\u0BD0\u0BD7\u0BE6-\u0BF2\u0C00-\u0C03\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D-\u0C44\u0C46-\u0C48\u0C4A-\u0C4C\u0C55\u0C56\u0C58-\u0C5A\u0C60-\u0C63\u0C66-\u0C6F\u0C78-\u0C7E\u0C80-\u0C83\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCC\u0CD5\u0CD6\u0CDE\u0CE0-\u0CE3\u0CE6-\u0CEF\u0CF1\u0CF2\u0D00-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D-\u0D44\u0D46-\u0D48\u0D4A-\u0D4C\u0D4E\u0D54-\u0D63\u0D66-\u0D78\u0D7A-\u0D7F\u0D81-\u0D83\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DE6-\u0DEF\u0DF2\u0DF3\u0E01-\u0E3A\u0E40-\u0E46\u0E4D\u0E50-\u0E59\u0E81\u0E82\u0E84\u0E86-\u0E8A\u0E8C-\u0EA3\u0EA5\u0EA7-\u0EB9\u0EBB-\u0EBD\u0EC0-\u0EC4\u0EC6\u0ECD\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F20-\u0F33\u0F40-\u0F47\u0F49-\u0F6C\u0F71-\u0F81\u0F88-\u0F97\u0F99-\u0FBC\u1000-\u1036\u1038\u103B-\u1049\u1050-\u109D\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1369-\u137C\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u170C\u170E-\u1713\u1720-\u1733\u1740-\u1753\u1760-\u176C\u176E-\u1770\u1772\u1773\u1780-\u17B3\u17B6-\u17C8\u17D7\u17DC\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1820-\u1878\u1880-\u18AA\u18B0-\u18F5\u1900-\u191E\u1920-\u192B\u1930-\u1938\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19DA\u1A00-\u1A1B\u1A20-\u1A5E\u1A61-\u1A74\u1A80-\u1A89\u1A90-\u1A99\u1AA7\u1ABF\u1AC0\u1B00-\u1B33\u1B35-\u1B43\u1B45-\u1B4B\u1B50-\u1B59\u1B80-\u1BA9\u1BAC-\u1BE5\u1BE7-\u1BF1\u1C00-\u1C36\u1C40-\u1C49\u1C4D-\u1C7D\u1C80-\u1C88\u1C90-\u1CBA\u1CBD-\u1CBF\u1CE9-\u1CEC\u1CEE-\u1CF3\u1CF5\u1CF6\u1CFA\u1D00-\u1DBF\u1DE7-\u1DF4\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2070\u2071\u2074-\u2079\u207F-\u2089\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2160-\u2189\u2150-\u2182\u2460-\u249B\u24B6-\u24FF\u2776-\u2793\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2CFD\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2DE0-\u2DFF\u2E2F\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312F\u3131-\u318E\u3192-\u3195\u31A0-\u31BF\u31F0-\u31FF\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\u3400-\u4DBF\u4E00-\u9FFC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66E\uA674-\uA67B\uA67F-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA7BF\uA7C2-\uA7CA\uA7F5-\uA805\uA807-\uA827\uA830-\uA835\uA840-\uA873\uA880-\uA8C3\uA8C5\uA8D0-\uA8D9\uA8F2-\uA8F7\uA8FB\uA8FD-\uA92A\uA930-\uA952\uA960-\uA97C\uA980-\uA9B2\uA9B4-\uA9BF\uA9CF-\uA9D9\uA9E0-\uA9FE\uAA00-\uAA36\uAA40-\uAA4D\uAA50-\uAA59\uAA60-\uAA76\uAA7A-\uAABE\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEF\uAAF2-\uAAF5\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB69\uAB70-\uABEA\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD07-\uDD33\uDD40-\uDD78\uDD8A\uDD8B\uDE80-\uDE9C\uDEA0-\uDED0\uDEE1-\uDEFB\uDF00-\uDF23\uDF2D-\uDF4A\uDF50-\uDF7A\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDCA0-\uDCA9\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC58-\uDC76\uDC79-\uDC9E\uDCA7-\uDCAF\uDCE0-\uDCF2\uDCF4\uDCF5\uDCFB-\uDD1B\uDD20-\uDD39\uDD80-\uDDB7\uDDBC-\uDDCF\uDDD2-\uDE03\uDE05\uDE06\uDE0C-\uDE13\uDE15-\uDE17\uDE19-\uDE35\uDE40-\uDE48\uDE60-\uDE7E\uDE80-\uDE9F\uDEC0-\uDEC7\uDEC9-\uDEE4\uDEEB-\uDEEF\uDF00-\uDF35\uDF40-\uDF55\uDF58-\uDF72\uDF78-\uDF91\uDFA9-\uDFAF]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDCFA-\uDD27\uDD30-\uDD39\uDE60-\uDE7E\uDE80-\uDEA9\uDEAB\uDEAC\uDEB0\uDEB1\uDF00-\uDF27\uDF30-\uDF45\uDF51-\uDF54\uDFB0-\uDFCB\uDFE0-\uDFF6]|\uD804[\uDC00-\uDC45\uDC52-\uDC6F\uDC82-\uDCB8\uDCD0-\uDCE8\uDCF0-\uDCF9\uDD00-\uDD32\uDD36-\uDD3F\uDD44-\uDD47\uDD50-\uDD72\uDD76\uDD80-\uDDBF\uDDC1-\uDDC4\uDDCE-\uDDDA\uDDDC\uDDE1-\uDDF4\uDE00-\uDE11\uDE13-\uDE34\uDE37\uDE3E\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEE8\uDEF0-\uDEF9\uDF00-\uDF03\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D-\uDF44\uDF47\uDF48\uDF4B\uDF4C\uDF50\uDF57\uDF5D-\uDF63]|\uD805[\uDC00-\uDC41\uDC43-\uDC45\uDC47-\uDC4A\uDC50-\uDC59\uDC5F-\uDC61\uDC80-\uDCC1\uDCC4\uDCC5\uDCC7\uDCD0-\uDCD9\uDD80-\uDDB5\uDDB8-\uDDBE\uDDD8-\uDDDD\uDE00-\uDE3E\uDE40\uDE44\uDE50-\uDE59\uDE80-\uDEB5\uDEB8\uDEC0-\uDEC9\uDF00-\uDF1A\uDF1D-\uDF2A\uDF30-\uDF3B]|\uD806[\uDC00-\uDC38\uDCA0-\uDCF2\uDCFF-\uDD06\uDD09\uDD0C-\uDD13\uDD15\uDD16\uDD18-\uDD35\uDD37\uDD38\uDD3B\uDD3C\uDD3F-\uDD42\uDD50-\uDD59\uDDA0-\uDDA7\uDDAA-\uDDD7\uDDDA-\uDDDF\uDDE1\uDDE3\uDDE4\uDE00-\uDE32\uDE35-\uDE3E\uDE50-\uDE97\uDE9D\uDEC0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC36\uDC38-\uDC3E\uDC40\uDC50-\uDC6C\uDC72-\uDC8F\uDC92-\uDCA7\uDCA9-\uDCB6\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD36\uDD3A\uDD3C\uDD3D\uDD3F-\uDD41\uDD43\uDD46\uDD47\uDD50-\uDD59\uDD60-\uDD65\uDD67\uDD68\uDD6A-\uDD8E\uDD90\uDD91\uDD93-\uDD96\uDD98\uDDA0-\uDDA9\uDEE0-\uDEF6\uDFB0\uDFC0-\uDFD4]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|[\uD80C\uD81C-\uD820\uD822\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879\uD880-\uD883][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE60-\uDE69\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF50-\uDF59\uDF5B-\uDF61\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDE40-\uDE96\uDF00-\uDF4A\uDF4F-\uDF87\uDF8F-\uDF9F\uDFE0\uDFE1\uDFE3\uDFF0\uDFF1]|\uD821[\uDC00-\uDFF7]|\uD823[\uDC00-\uDCD5\uDD00-\uDD08]|\uD82C[\uDC00-\uDD1E\uDD50-\uDD52\uDD64-\uDD67\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99\uDC9E]|\uD834[\uDEE0-\uDEF3\uDF60-\uDF78]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB\uDFCE-\uDFFF]|\uD838[\uDC00-\uDC06\uDC08-\uDC18\uDC1B-\uDC21\uDC23\uDC24\uDC26-\uDC2A\uDD00-\uDD2C\uDD37-\uDD3D\uDD40-\uDD49\uDD4E\uDEC0-\uDEEB\uDEF0-\uDEF9]|\uD83A[\uDC00-\uDCC4\uDCC7-\uDCCF\uDD00-\uDD43\uDD47\uDD4B\uDD50-\uDD59]|\uD83B[\uDC71-\uDCAB\uDCAD-\uDCAF\uDCB1-\uDCB4\uDD01-\uDD2D\uDD2F-\uDD3D\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD83C[\uDD00-\uDD0C\uDD30-\uDD49\uDD50-\uDD69\uDD70-\uDD89]|\uD83E[\uDFF0-\uDFF9]|\uD869[\uDC00-\uDEDD\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF34\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0]|\uD87E[\uDC00-\uDE1D]|\uD884[\uDC00-\uDF4A])|$)/g, function (_, p1) {
+    input = input.replace(/^[_.\- ]+/, '').toLocaleLowerCase().replace(/[ \x2D\._]+([AN_ahlp\{\}]|$)/g, function (_, p1) {
       return p1.toLocaleUpperCase();
-    }).replace(/[0-9]+((?:[0-9A-Z_a-z\xAA\xB2\xB3\xB5\xB9\xBA\xBC-\xBE\xC0-\xD6\xD8-\xF6\xF8-\u02C1\u02C6-\u02D1\u02E0-\u02E4\u02EC\u02EE\u0345\u0370-\u0374\u0376\u0377\u037A-\u037D\u037F\u0386\u0388-\u038A\u038C\u038E-\u03A1\u03A3-\u03F5\u03F7-\u0481\u048A-\u052F\u0531-\u0556\u0559\u0560-\u0588\u05B0-\u05BD\u05BF\u05C1\u05C2\u05C4\u05C5\u05C7\u05D0-\u05EA\u05EF-\u05F2\u0610-\u061A\u0620-\u0657\u0659-\u0669\u066E-\u06D3\u06D5-\u06DC\u06E1-\u06E8\u06ED-\u06FC\u06FF\u0710-\u073F\u074D-\u07B1\u07C0-\u07EA\u07F4\u07F5\u07FA\u0800-\u0817\u081A-\u082C\u0840-\u0858\u0860-\u086A\u08A0-\u08B4\u08B6-\u08C7\u08D4-\u08DF\u08E3-\u08E9\u08F0-\u093B\u093D-\u094C\u094E-\u0950\u0955-\u0963\u0966-\u096F\u0971-\u0983\u0985-\u098C\u098F\u0990\u0993-\u09A8\u09AA-\u09B0\u09B2\u09B6-\u09B9\u09BD-\u09C4\u09C7\u09C8\u09CB\u09CC\u09CE\u09D7\u09DC\u09DD\u09DF-\u09E3\u09E6-\u09F1\u09F4-\u09F9\u09FC\u0A01-\u0A03\u0A05-\u0A0A\u0A0F\u0A10\u0A13-\u0A28\u0A2A-\u0A30\u0A32\u0A33\u0A35\u0A36\u0A38\u0A39\u0A3E-\u0A42\u0A47\u0A48\u0A4B\u0A4C\u0A51\u0A59-\u0A5C\u0A5E\u0A66-\u0A75\u0A81-\u0A83\u0A85-\u0A8D\u0A8F-\u0A91\u0A93-\u0AA8\u0AAA-\u0AB0\u0AB2\u0AB3\u0AB5-\u0AB9\u0ABD-\u0AC5\u0AC7-\u0AC9\u0ACB\u0ACC\u0AD0\u0AE0-\u0AE3\u0AE6-\u0AEF\u0AF9-\u0AFC\u0B01-\u0B03\u0B05-\u0B0C\u0B0F\u0B10\u0B13-\u0B28\u0B2A-\u0B30\u0B32\u0B33\u0B35-\u0B39\u0B3D-\u0B44\u0B47\u0B48\u0B4B\u0B4C\u0B56\u0B57\u0B5C\u0B5D\u0B5F-\u0B63\u0B66-\u0B6F\u0B71-\u0B77\u0B82\u0B83\u0B85-\u0B8A\u0B8E-\u0B90\u0B92-\u0B95\u0B99\u0B9A\u0B9C\u0B9E\u0B9F\u0BA3\u0BA4\u0BA8-\u0BAA\u0BAE-\u0BB9\u0BBE-\u0BC2\u0BC6-\u0BC8\u0BCA-\u0BCC\u0BD0\u0BD7\u0BE6-\u0BF2\u0C00-\u0C03\u0C05-\u0C0C\u0C0E-\u0C10\u0C12-\u0C28\u0C2A-\u0C39\u0C3D-\u0C44\u0C46-\u0C48\u0C4A-\u0C4C\u0C55\u0C56\u0C58-\u0C5A\u0C60-\u0C63\u0C66-\u0C6F\u0C78-\u0C7E\u0C80-\u0C83\u0C85-\u0C8C\u0C8E-\u0C90\u0C92-\u0CA8\u0CAA-\u0CB3\u0CB5-\u0CB9\u0CBD-\u0CC4\u0CC6-\u0CC8\u0CCA-\u0CCC\u0CD5\u0CD6\u0CDE\u0CE0-\u0CE3\u0CE6-\u0CEF\u0CF1\u0CF2\u0D00-\u0D0C\u0D0E-\u0D10\u0D12-\u0D3A\u0D3D-\u0D44\u0D46-\u0D48\u0D4A-\u0D4C\u0D4E\u0D54-\u0D63\u0D66-\u0D78\u0D7A-\u0D7F\u0D81-\u0D83\u0D85-\u0D96\u0D9A-\u0DB1\u0DB3-\u0DBB\u0DBD\u0DC0-\u0DC6\u0DCF-\u0DD4\u0DD6\u0DD8-\u0DDF\u0DE6-\u0DEF\u0DF2\u0DF3\u0E01-\u0E3A\u0E40-\u0E46\u0E4D\u0E50-\u0E59\u0E81\u0E82\u0E84\u0E86-\u0E8A\u0E8C-\u0EA3\u0EA5\u0EA7-\u0EB9\u0EBB-\u0EBD\u0EC0-\u0EC4\u0EC6\u0ECD\u0ED0-\u0ED9\u0EDC-\u0EDF\u0F00\u0F20-\u0F33\u0F40-\u0F47\u0F49-\u0F6C\u0F71-\u0F81\u0F88-\u0F97\u0F99-\u0FBC\u1000-\u1036\u1038\u103B-\u1049\u1050-\u109D\u10A0-\u10C5\u10C7\u10CD\u10D0-\u10FA\u10FC-\u1248\u124A-\u124D\u1250-\u1256\u1258\u125A-\u125D\u1260-\u1288\u128A-\u128D\u1290-\u12B0\u12B2-\u12B5\u12B8-\u12BE\u12C0\u12C2-\u12C5\u12C8-\u12D6\u12D8-\u1310\u1312-\u1315\u1318-\u135A\u1369-\u137C\u1380-\u138F\u13A0-\u13F5\u13F8-\u13FD\u1401-\u166C\u166F-\u167F\u1681-\u169A\u16A0-\u16EA\u16EE-\u16F8\u1700-\u170C\u170E-\u1713\u1720-\u1733\u1740-\u1753\u1760-\u176C\u176E-\u1770\u1772\u1773\u1780-\u17B3\u17B6-\u17C8\u17D7\u17DC\u17E0-\u17E9\u17F0-\u17F9\u1810-\u1819\u1820-\u1878\u1880-\u18AA\u18B0-\u18F5\u1900-\u191E\u1920-\u192B\u1930-\u1938\u1946-\u196D\u1970-\u1974\u1980-\u19AB\u19B0-\u19C9\u19D0-\u19DA\u1A00-\u1A1B\u1A20-\u1A5E\u1A61-\u1A74\u1A80-\u1A89\u1A90-\u1A99\u1AA7\u1ABF\u1AC0\u1B00-\u1B33\u1B35-\u1B43\u1B45-\u1B4B\u1B50-\u1B59\u1B80-\u1BA9\u1BAC-\u1BE5\u1BE7-\u1BF1\u1C00-\u1C36\u1C40-\u1C49\u1C4D-\u1C7D\u1C80-\u1C88\u1C90-\u1CBA\u1CBD-\u1CBF\u1CE9-\u1CEC\u1CEE-\u1CF3\u1CF5\u1CF6\u1CFA\u1D00-\u1DBF\u1DE7-\u1DF4\u1E00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2070\u2071\u2074-\u2079\u207F-\u2089\u2090-\u209C\u2102\u2107\u210A-\u2113\u2115\u2119-\u211D\u2124\u2126\u2128\u212A-\u212D\u212F-\u2139\u213C-\u213F\u2145-\u2149\u214E\u2160-\u2189\u2150-\u2182\u2460-\u249B\u24B6-\u24FF\u2776-\u2793\u2C00-\u2C2E\u2C30-\u2C5E\u2C60-\u2CE4\u2CEB-\u2CEE\u2CF2\u2CF3\u2CFD\u2D00-\u2D25\u2D27\u2D2D\u2D30-\u2D67\u2D6F\u2D80-\u2D96\u2DA0-\u2DA6\u2DA8-\u2DAE\u2DB0-\u2DB6\u2DB8-\u2DBE\u2DC0-\u2DC6\u2DC8-\u2DCE\u2DD0-\u2DD6\u2DD8-\u2DDE\u2DE0-\u2DFF\u2E2F\u3005-\u3007\u3021-\u3029\u3031-\u3035\u3038-\u303C\u3041-\u3096\u309D-\u309F\u30A1-\u30FA\u30FC-\u30FF\u3105-\u312F\u3131-\u318E\u3192-\u3195\u31A0-\u31BF\u31F0-\u31FF\u3220-\u3229\u3248-\u324F\u3251-\u325F\u3280-\u3289\u32B1-\u32BF\u3400-\u4DBF\u4E00-\u9FFC\uA000-\uA48C\uA4D0-\uA4FD\uA500-\uA60C\uA610-\uA62B\uA640-\uA66E\uA674-\uA67B\uA67F-\uA6EF\uA717-\uA71F\uA722-\uA788\uA78B-\uA7BF\uA7C2-\uA7CA\uA7F5-\uA805\uA807-\uA827\uA830-\uA835\uA840-\uA873\uA880-\uA8C3\uA8C5\uA8D0-\uA8D9\uA8F2-\uA8F7\uA8FB\uA8FD-\uA92A\uA930-\uA952\uA960-\uA97C\uA980-\uA9B2\uA9B4-\uA9BF\uA9CF-\uA9D9\uA9E0-\uA9FE\uAA00-\uAA36\uAA40-\uAA4D\uAA50-\uAA59\uAA60-\uAA76\uAA7A-\uAABE\uAAC0\uAAC2\uAADB-\uAADD\uAAE0-\uAAEF\uAAF2-\uAAF5\uAB01-\uAB06\uAB09-\uAB0E\uAB11-\uAB16\uAB20-\uAB26\uAB28-\uAB2E\uAB30-\uAB5A\uAB5C-\uAB69\uAB70-\uABEA\uABF0-\uABF9\uAC00-\uD7A3\uD7B0-\uD7C6\uD7CB-\uD7FB\uF900-\uFA6D\uFA70-\uFAD9\uFB00-\uFB06\uFB13-\uFB17\uFB1D-\uFB28\uFB2A-\uFB36\uFB38-\uFB3C\uFB3E\uFB40\uFB41\uFB43\uFB44\uFB46-\uFBB1\uFBD3-\uFD3D\uFD50-\uFD8F\uFD92-\uFDC7\uFDF0-\uFDFB\uFE70-\uFE74\uFE76-\uFEFC\uFF10-\uFF19\uFF21-\uFF3A\uFF41-\uFF5A\uFF66-\uFFBE\uFFC2-\uFFC7\uFFCA-\uFFCF\uFFD2-\uFFD7\uFFDA-\uFFDC]|\uD800[\uDC00-\uDC0B\uDC0D-\uDC26\uDC28-\uDC3A\uDC3C\uDC3D\uDC3F-\uDC4D\uDC50-\uDC5D\uDC80-\uDCFA\uDD07-\uDD33\uDD40-\uDD78\uDD8A\uDD8B\uDE80-\uDE9C\uDEA0-\uDED0\uDEE1-\uDEFB\uDF00-\uDF23\uDF2D-\uDF4A\uDF50-\uDF7A\uDF80-\uDF9D\uDFA0-\uDFC3\uDFC8-\uDFCF\uDFD1-\uDFD5]|\uD801[\uDC00-\uDC9D\uDCA0-\uDCA9\uDCB0-\uDCD3\uDCD8-\uDCFB\uDD00-\uDD27\uDD30-\uDD63\uDE00-\uDF36\uDF40-\uDF55\uDF60-\uDF67]|\uD802[\uDC00-\uDC05\uDC08\uDC0A-\uDC35\uDC37\uDC38\uDC3C\uDC3F-\uDC55\uDC58-\uDC76\uDC79-\uDC9E\uDCA7-\uDCAF\uDCE0-\uDCF2\uDCF4\uDCF5\uDCFB-\uDD1B\uDD20-\uDD39\uDD80-\uDDB7\uDDBC-\uDDCF\uDDD2-\uDE03\uDE05\uDE06\uDE0C-\uDE13\uDE15-\uDE17\uDE19-\uDE35\uDE40-\uDE48\uDE60-\uDE7E\uDE80-\uDE9F\uDEC0-\uDEC7\uDEC9-\uDEE4\uDEEB-\uDEEF\uDF00-\uDF35\uDF40-\uDF55\uDF58-\uDF72\uDF78-\uDF91\uDFA9-\uDFAF]|\uD803[\uDC00-\uDC48\uDC80-\uDCB2\uDCC0-\uDCF2\uDCFA-\uDD27\uDD30-\uDD39\uDE60-\uDE7E\uDE80-\uDEA9\uDEAB\uDEAC\uDEB0\uDEB1\uDF00-\uDF27\uDF30-\uDF45\uDF51-\uDF54\uDFB0-\uDFCB\uDFE0-\uDFF6]|\uD804[\uDC00-\uDC45\uDC52-\uDC6F\uDC82-\uDCB8\uDCD0-\uDCE8\uDCF0-\uDCF9\uDD00-\uDD32\uDD36-\uDD3F\uDD44-\uDD47\uDD50-\uDD72\uDD76\uDD80-\uDDBF\uDDC1-\uDDC4\uDDCE-\uDDDA\uDDDC\uDDE1-\uDDF4\uDE00-\uDE11\uDE13-\uDE34\uDE37\uDE3E\uDE80-\uDE86\uDE88\uDE8A-\uDE8D\uDE8F-\uDE9D\uDE9F-\uDEA8\uDEB0-\uDEE8\uDEF0-\uDEF9\uDF00-\uDF03\uDF05-\uDF0C\uDF0F\uDF10\uDF13-\uDF28\uDF2A-\uDF30\uDF32\uDF33\uDF35-\uDF39\uDF3D-\uDF44\uDF47\uDF48\uDF4B\uDF4C\uDF50\uDF57\uDF5D-\uDF63]|\uD805[\uDC00-\uDC41\uDC43-\uDC45\uDC47-\uDC4A\uDC50-\uDC59\uDC5F-\uDC61\uDC80-\uDCC1\uDCC4\uDCC5\uDCC7\uDCD0-\uDCD9\uDD80-\uDDB5\uDDB8-\uDDBE\uDDD8-\uDDDD\uDE00-\uDE3E\uDE40\uDE44\uDE50-\uDE59\uDE80-\uDEB5\uDEB8\uDEC0-\uDEC9\uDF00-\uDF1A\uDF1D-\uDF2A\uDF30-\uDF3B]|\uD806[\uDC00-\uDC38\uDCA0-\uDCF2\uDCFF-\uDD06\uDD09\uDD0C-\uDD13\uDD15\uDD16\uDD18-\uDD35\uDD37\uDD38\uDD3B\uDD3C\uDD3F-\uDD42\uDD50-\uDD59\uDDA0-\uDDA7\uDDAA-\uDDD7\uDDDA-\uDDDF\uDDE1\uDDE3\uDDE4\uDE00-\uDE32\uDE35-\uDE3E\uDE50-\uDE97\uDE9D\uDEC0-\uDEF8]|\uD807[\uDC00-\uDC08\uDC0A-\uDC36\uDC38-\uDC3E\uDC40\uDC50-\uDC6C\uDC72-\uDC8F\uDC92-\uDCA7\uDCA9-\uDCB6\uDD00-\uDD06\uDD08\uDD09\uDD0B-\uDD36\uDD3A\uDD3C\uDD3D\uDD3F-\uDD41\uDD43\uDD46\uDD47\uDD50-\uDD59\uDD60-\uDD65\uDD67\uDD68\uDD6A-\uDD8E\uDD90\uDD91\uDD93-\uDD96\uDD98\uDDA0-\uDDA9\uDEE0-\uDEF6\uDFB0\uDFC0-\uDFD4]|\uD808[\uDC00-\uDF99]|\uD809[\uDC00-\uDC6E\uDC80-\uDD43]|[\uD80C\uD81C-\uD820\uD822\uD840-\uD868\uD86A-\uD86C\uD86F-\uD872\uD874-\uD879\uD880-\uD883][\uDC00-\uDFFF]|\uD80D[\uDC00-\uDC2E]|\uD811[\uDC00-\uDE46]|\uD81A[\uDC00-\uDE38\uDE40-\uDE5E\uDE60-\uDE69\uDED0-\uDEED\uDF00-\uDF2F\uDF40-\uDF43\uDF50-\uDF59\uDF5B-\uDF61\uDF63-\uDF77\uDF7D-\uDF8F]|\uD81B[\uDE40-\uDE96\uDF00-\uDF4A\uDF4F-\uDF87\uDF8F-\uDF9F\uDFE0\uDFE1\uDFE3\uDFF0\uDFF1]|\uD821[\uDC00-\uDFF7]|\uD823[\uDC00-\uDCD5\uDD00-\uDD08]|\uD82C[\uDC00-\uDD1E\uDD50-\uDD52\uDD64-\uDD67\uDD70-\uDEFB]|\uD82F[\uDC00-\uDC6A\uDC70-\uDC7C\uDC80-\uDC88\uDC90-\uDC99\uDC9E]|\uD834[\uDEE0-\uDEF3\uDF60-\uDF78]|\uD835[\uDC00-\uDC54\uDC56-\uDC9C\uDC9E\uDC9F\uDCA2\uDCA5\uDCA6\uDCA9-\uDCAC\uDCAE-\uDCB9\uDCBB\uDCBD-\uDCC3\uDCC5-\uDD05\uDD07-\uDD0A\uDD0D-\uDD14\uDD16-\uDD1C\uDD1E-\uDD39\uDD3B-\uDD3E\uDD40-\uDD44\uDD46\uDD4A-\uDD50\uDD52-\uDEA5\uDEA8-\uDEC0\uDEC2-\uDEDA\uDEDC-\uDEFA\uDEFC-\uDF14\uDF16-\uDF34\uDF36-\uDF4E\uDF50-\uDF6E\uDF70-\uDF88\uDF8A-\uDFA8\uDFAA-\uDFC2\uDFC4-\uDFCB\uDFCE-\uDFFF]|\uD838[\uDC00-\uDC06\uDC08-\uDC18\uDC1B-\uDC21\uDC23\uDC24\uDC26-\uDC2A\uDD00-\uDD2C\uDD37-\uDD3D\uDD40-\uDD49\uDD4E\uDEC0-\uDEEB\uDEF0-\uDEF9]|\uD83A[\uDC00-\uDCC4\uDCC7-\uDCCF\uDD00-\uDD43\uDD47\uDD4B\uDD50-\uDD59]|\uD83B[\uDC71-\uDCAB\uDCAD-\uDCAF\uDCB1-\uDCB4\uDD01-\uDD2D\uDD2F-\uDD3D\uDE00-\uDE03\uDE05-\uDE1F\uDE21\uDE22\uDE24\uDE27\uDE29-\uDE32\uDE34-\uDE37\uDE39\uDE3B\uDE42\uDE47\uDE49\uDE4B\uDE4D-\uDE4F\uDE51\uDE52\uDE54\uDE57\uDE59\uDE5B\uDE5D\uDE5F\uDE61\uDE62\uDE64\uDE67-\uDE6A\uDE6C-\uDE72\uDE74-\uDE77\uDE79-\uDE7C\uDE7E\uDE80-\uDE89\uDE8B-\uDE9B\uDEA1-\uDEA3\uDEA5-\uDEA9\uDEAB-\uDEBB]|\uD83C[\uDD00-\uDD0C\uDD30-\uDD49\uDD50-\uDD69\uDD70-\uDD89]|\uD83E[\uDFF0-\uDFF9]|\uD869[\uDC00-\uDEDD\uDF00-\uDFFF]|\uD86D[\uDC00-\uDF34\uDF40-\uDFFF]|\uD86E[\uDC00-\uDC1D\uDC20-\uDFFF]|\uD873[\uDC00-\uDEA1\uDEB0-\uDFFF]|\uD87A[\uDC00-\uDFE0]|\uD87E[\uDC00-\uDE1D]|\uD884[\uDC00-\uDF4A])|$)/g, function (m) {
+    }).replace(/[0-9]+([AN_ahlp\{\}]|$)/g, function (m) {
       return m.toLocaleUpperCase();
     });
     return postProcess(input);
@@ -12526,7 +14873,9 @@
   var default_1 = camelCase;
   camelcase["default"] = default_1;
 
-  var Fullstory = /*#__PURE__*/function () {
+  var Fullstory =
+  /*#__PURE__*/
+  function () {
     function Fullstory(config) {
       _classCallCheck(this, Fullstory);
 
@@ -12684,6 +15033,8 @@
             case "bools":
               return "".concat(camelcase(parts.join("_")), "_").concat(typeSuffix);
 
+            default: // passthrough
+
           }
         } // No type suffix found. Camel case the whole field name.
 
@@ -12695,7 +15046,9 @@
     return Fullstory;
   }();
 
-  var TVSquared = /*#__PURE__*/function () {
+  var TVSquared =
+  /*#__PURE__*/
+  function () {
     function TVSquared(config) {
       _classCallCheck(this, TVSquared);
 
@@ -12843,7 +15196,7 @@
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.11";
+    this.version = "1.0.12";
   };
 
   // Library information class
@@ -12851,7 +15204,7 @@
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.11";
+    this.version = "1.0.12";
   }; // Operating System information class
 
 
@@ -12902,7 +15255,9 @@
     this.network = null;
   };
 
-  var RudderMessage = /*#__PURE__*/function () {
+  var RudderMessage =
+  /*#__PURE__*/
+  function () {
     function RudderMessage() {
       _classCallCheck(this, RudderMessage);
 
@@ -12969,6 +15324,8 @@
                 case ECommerceEvents.ORDER_REFUNDED:
                   this.checkForKey("order_id");
                   break;
+
+                default:
               }
             } else if (!this.properties.category) {
               // if category is not there, set to event
@@ -13001,7 +15358,9 @@
     return RudderMessage;
   }();
 
-  var RudderElement = /*#__PURE__*/function () {
+  var RudderElement =
+  /*#__PURE__*/
+  function () {
     function RudderElement() {
       _classCallCheck(this, RudderElement);
 
@@ -13049,7 +15408,9 @@
     return RudderElement;
   }();
 
-  var RudderElementBuilder = /*#__PURE__*/function () {
+  var RudderElementBuilder =
+  /*#__PURE__*/
+  function () {
     function RudderElementBuilder() {
       _classCallCheck(this, RudderElementBuilder);
 
@@ -13193,7 +15554,7 @@
 
 
   var _lastMSecs = 0;
-  var _lastNSecs = 0; // See https://github.com/uuidjs/uuid for API details
+  var _lastNSecs = 0; // See https://github.com/broofa/node-uuid for API details
 
   function v1(options, buf, offset) {
     var i = buf && offset || 0;
@@ -13384,7 +15745,6 @@
     this.name = name;
     this.keys = keys || {};
     this.engine = optionalEngine || defaultEngine$1;
-    this.originalEngine = this.engine;
   }
   /**
   * Set value by key.
@@ -13425,14 +15785,6 @@
     } catch (err) {
       return null;
     }
-  };
-  /**
-   * Get original engine
-   */
-
-
-  Store$1.prototype.getOriginalEngine = function () {
-    return this.originalEngine;
   };
   /**
   * Remove by Key.
@@ -13495,6 +15847,9 @@
             quotaExceeded = true;
           }
 
+          break;
+
+        default:
           break;
       }
     } else if (e.number === -2147024882) {
@@ -13686,6 +16041,177 @@
     if (window.localStorage) debug$2.enable(localStorage.debug);
   } catch (e) {}
 
+  var componentEmitter$1 = createCommonjsModule(function (module) {
+    /**
+     * Expose `Emitter`.
+     */
+    {
+      module.exports = Emitter;
+    }
+    /**
+     * Initialize a new `Emitter`.
+     *
+     * @api public
+     */
+
+
+    function Emitter(obj) {
+      if (obj) return mixin(obj);
+    }
+    /**
+     * Mixin the emitter properties.
+     *
+     * @param {Object} obj
+     * @return {Object}
+     * @api private
+     */
+
+    function mixin(obj) {
+      for (var key in Emitter.prototype) {
+        obj[key] = Emitter.prototype[key];
+      }
+
+      return obj;
+    }
+    /**
+     * Listen on the given `event` with `fn`.
+     *
+     * @param {String} event
+     * @param {Function} fn
+     * @return {Emitter}
+     * @api public
+     */
+
+
+    Emitter.prototype.on = Emitter.prototype.addEventListener = function (event, fn) {
+      this._callbacks = this._callbacks || {};
+      (this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn);
+      return this;
+    };
+    /**
+     * Adds an `event` listener that will be invoked a single
+     * time then automatically removed.
+     *
+     * @param {String} event
+     * @param {Function} fn
+     * @return {Emitter}
+     * @api public
+     */
+
+
+    Emitter.prototype.once = function (event, fn) {
+      function on() {
+        this.off(event, on);
+        fn.apply(this, arguments);
+      }
+
+      on.fn = fn;
+      this.on(event, on);
+      return this;
+    };
+    /**
+     * Remove the given callback for `event` or all
+     * registered callbacks.
+     *
+     * @param {String} event
+     * @param {Function} fn
+     * @return {Emitter}
+     * @api public
+     */
+
+
+    Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function (event, fn) {
+      this._callbacks = this._callbacks || {}; // all
+
+      if (0 == arguments.length) {
+        this._callbacks = {};
+        return this;
+      } // specific event
+
+
+      var callbacks = this._callbacks['$' + event];
+      if (!callbacks) return this; // remove all handlers
+
+      if (1 == arguments.length) {
+        delete this._callbacks['$' + event];
+        return this;
+      } // remove specific handler
+
+
+      var cb;
+
+      for (var i = 0; i < callbacks.length; i++) {
+        cb = callbacks[i];
+
+        if (cb === fn || cb.fn === fn) {
+          callbacks.splice(i, 1);
+          break;
+        }
+      } // Remove event specific arrays for event types that no
+      // one is subscribed for to avoid memory leak.
+
+
+      if (callbacks.length === 0) {
+        delete this._callbacks['$' + event];
+      }
+
+      return this;
+    };
+    /**
+     * Emit `event` with the given args.
+     *
+     * @param {String} event
+     * @param {Mixed} ...
+     * @return {Emitter}
+     */
+
+
+    Emitter.prototype.emit = function (event) {
+      this._callbacks = this._callbacks || {};
+      var args = new Array(arguments.length - 1),
+          callbacks = this._callbacks['$' + event];
+
+      for (var i = 1; i < arguments.length; i++) {
+        args[i - 1] = arguments[i];
+      }
+
+      if (callbacks) {
+        callbacks = callbacks.slice(0);
+
+        for (var i = 0, len = callbacks.length; i < len; ++i) {
+          callbacks[i].apply(this, args);
+        }
+      }
+
+      return this;
+    };
+    /**
+     * Return array of callbacks for `event`.
+     *
+     * @param {String} event
+     * @return {Array}
+     * @api public
+     */
+
+
+    Emitter.prototype.listeners = function (event) {
+      this._callbacks = this._callbacks || {};
+      return this._callbacks['$' + event] || [];
+    };
+    /**
+     * Check if this emitter has `event` handlers.
+     *
+     * @param {String} event
+     * @return {Boolean}
+     * @api public
+     */
+
+
+    Emitter.prototype.hasListeners = function (event) {
+      return !!this.listeners(event).length;
+    };
+  });
+
   var uuid$2 = uuid_1.v4;
   var debug$3 = debug_1$2('localstorage-retry'); // Some browsers don't support Function.prototype.bind, so just including a simplified version here
 
@@ -13734,9 +16260,9 @@
     this.keys = {
       IN_PROGRESS: 'inProgress',
       QUEUE: 'queue',
+      ACK: 'ack',
       RECLAIM_START: 'reclaimStart',
-      RECLAIM_END: 'reclaimEnd',
-      ACK: 'ack'
+      RECLAIM_END: 'reclaimEnd'
     };
     this._schedule = new schedule();
     this._processId = 0; // Set up our empty queues
@@ -13758,7 +16284,7 @@
    */
 
 
-  componentEmitter(Queue.prototype);
+  componentEmitter$1(Queue.prototype);
   /**
    * Starts processing the queue
    */
@@ -13971,8 +16497,7 @@
 
     function findOtherQueues(name) {
       var res = [];
-
-      var storage = self._store.getOriginalEngine();
+      var storage = self._store.engine;
 
       for (var i = 0; i < storage.length; i++) {
         var k = storage.key(i);
@@ -14028,16 +16553,16 @@
     this._store.set(this.keys.QUEUE, our.queue); // remove all keys
 
 
-    other.remove(this.keys.IN_PROGRESS);
-    other.remove(this.keys.QUEUE);
+    other.remove(this.keys.ACK);
     other.remove(this.keys.RECLAIM_START);
     other.remove(this.keys.RECLAIM_END);
-    other.remove(this.keys.ACK); // process the new items we claimed
+    other.remove(this.keys.IN_PROGRESS);
+    other.remove(this.keys.QUEUE); // process the new items we claimed
 
     this._processHead();
   };
 
-  var lib$1 = Queue;
+  var lib$2 = Queue;
 
   // Payload class, contains batch of Elements
   var RudderPayload = function RudderPayload() {
@@ -14063,12 +16588,14 @@
    * in batch and maintains order of the event.
    */
 
-  var EventRepository = /*#__PURE__*/function () {
+  var EventRepository =
+  /*#__PURE__*/
+  function () {
     /**
      *Creates an instance of EventRepository.
      * @memberof EventRepository
      */
-    function EventRepository() {
+    function EventRepository(options) {
       _classCallCheck(this, EventRepository);
 
       this.eventsBuffer = [];
@@ -14077,32 +16604,40 @@
       this.state = "READY";
       this.batchSize = 0; // previous implementation
       // setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
-
-      this.payloadQueue = new lib$1("rudder", queueOptions, function (item, done) {
-        // apply sentAt at flush time and reset on each retry
-        item.message.sentAt = getCurrentTimeFormatted(); // send this item for processing, with a callback to enable queue to get the done status
-
-        eventRepository.processQueueElement(item.url, item.headers, item.message, 10 * 1000, function (err, res) {
-          if (err) {
-            return done(err);
-          }
-
-          done(null, res);
-        });
-      }); // start queue
-
-      this.payloadQueue.start();
     }
-    /**
-     *
-     *
-     * @param {EventRepository} repo
-     * @returns
-     * @memberof EventRepository
-     */
-
 
     _createClass(EventRepository, [{
+      key: "startQueue",
+      value: function startQueue(options) {
+        if (options) {
+          // TODO: add checks for value - has to be +ve?
+          Object.assign(queueOptions, options);
+        }
+
+        this.payloadQueue = new lib$2("rudder", queueOptions, function (item, done) {
+          // apply sentAt at flush time and reset on each retry
+          item.message.sentAt = getCurrentTimeFormatted(); // send this item for processing, with a callback to enable queue to get the done status
+
+          eventRepository.processQueueElement(item.url, item.headers, item.message, 10 * 1000, function (err, res) {
+            if (err) {
+              return done(err);
+            }
+
+            done(null, res);
+          });
+        }); // start queue
+
+        this.payloadQueue.start();
+      }
+      /**
+       *
+       *
+       * @param {EventRepository} repo
+       * @returns
+       * @memberof EventRepository
+       */
+
+    }, {
       key: "preaparePayloadAndFlush",
       value: function preaparePayloadAndFlush(repo) {
         // construct payload
@@ -14237,387 +16772,7 @@
   var eventRepository = new EventRepository();
 
   function addDomEventHandlers(rudderanalytics) {
-    var handler = function handler(e) {
-      e = e || window.event;
-      var target = e.target || e.srcElement;
-
-      if (isTextNode(target)) {
-        target = target.parentNode;
-      }
-
-      if (shouldTrackDomEvent(target, e)) {
-        logger.debug("to be tracked ", e.type);
-      } else {
-        logger.debug("not to be tracked ", e.type);
-      }
-
-      trackWindowEvent(e, rudderanalytics);
-    };
-
-    register_event(document, "submit", handler, true);
-    register_event(document, "change", handler, true);
-    register_event(document, "click", handler, true);
-    rudderanalytics.page();
-  }
-
-  function register_event(element, type, handler, useCapture) {
-    if (!element) {
-      logger.error("[Autotrack] register_event:: No valid element provided to register_event");
-      return;
-    }
-
-    element.addEventListener(type, handler, !!useCapture);
-  }
-
-  function shouldTrackDomEvent(el, event) {
-    if (!el || isTag(el, "html") || !isElementNode(el)) {
-      return false;
-    }
-
-    var tag = el.tagName.toLowerCase();
-
-    switch (tag) {
-      case "html":
-        return false;
-
-      case "form":
-        return event.type === "submit";
-
-      case "input":
-        if (["button", "submit"].indexOf(el.getAttribute("type")) === -1) {
-          return event.type === "change";
-        }
-
-        return event.type === "click";
-
-      case "select":
-      case "textarea":
-        return event.type === "change";
-
-      default:
-        return event.type === "click";
-    }
-  }
-
-  function isTag(el, tag) {
-    return el && el.tagName && el.tagName.toLowerCase() === tag.toLowerCase();
-  }
-
-  function isElementNode(el) {
-    return el && el.nodeType === 1; // Node.ELEMENT_NODE - use integer constant for browser portability
-  }
-
-  function isTextNode(el) {
-    return el && el.nodeType === 3; // Node.TEXT_NODE - use integer constant for browser portability
-  } // excerpt from https://github.com/mixpanel/mixpanel-js/blob/master/src/autotrack-utils.js
-
-
-  function shouldTrackElement(el) {
-    if (!el.parentNode || isTag(el, "body")) return false;
-    var curEl = el;
-
-    while (curEl.parentNode && !isTag(curEl, "body")) {
-      var _classes = getClassName(el).split(" "); // if explicitly specified "rudder-no-track", even at parent level, dont track the child nodes too.
-
-
-      if (_classes.indexOf("rudder-no-track") >= 0) {
-        return false;
-      }
-
-      curEl = curEl.parentNode;
-    } // if explicitly set "rudder-include", at element level, then track the element even if the element is hidden or sensitive.
-
-
-    var classes = getClassName(el).split(" ");
-
-    if (classes.indexOf("rudder-include") >= 0) {
-      return true;
-    } // for general elements, do not track input/select/textarea(s)
-
-
-    if (isTag(el, 'input') || isTag(el, 'select') || isTag(el, 'textarea') || el.getAttribute('contenteditable') === 'true') {
-      return false;
-    } else if (el.getAttribute('contenteditable') === 'inherit') {
-      for (curEl = el.parentNode; curEl.parentNode && !isTag(curEl, "body"); curEl = curEl.parentNode) {
-        if (curEl.getAttribute('contenteditable') === 'true') {
-          return false;
-        }
-      }
-    } // do not track hidden/password elements
-
-
-    var type = el.type || '';
-
-    if (typeof type === 'string') {
-      // it's possible for el.type to be a DOM element if el is a form with a child input[name="type"]
-      switch (type.toLowerCase()) {
-        case 'hidden':
-          return false;
-
-        case 'password':
-          return false;
-      }
-    } // filter out data from fields that look like sensitive field - 
-    // safeguard - match with regex with possible strings as id or name of an element for creditcard, password, ssn, pan, adhar
-
-
-    var name = el.name || el.id || '';
-
-    if (typeof name === 'string') {
-      // it's possible for el.name or el.id to be a DOM element if el is a form with a child input[name="name"]
-      var sensitiveNameRegex = /^adhar|cc|cardnum|ccnum|creditcard|csc|cvc|cvv|exp|pan|pass|pwd|routing|seccode|securitycode|securitynum|socialsec|socsec|ssn/i;
-
-      if (sensitiveNameRegex.test(name.replace(/[^a-zA-Z0-9]/g, ''))) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  function getClassName(el) {
-    switch (_typeof(el.className)) {
-      case "string":
-        return el.className;
-
-      case "object":
-        // handle cases where className might be SVGAnimatedString or some other type
-        return el.className.baseVal || el.getAttribute("class") || "";
-
-      default:
-        // future proof
-        return "";
-    }
-  }
-
-  function trackWindowEvent(e, rudderanalytics) {
-    var target = e.target || e.srcElement;
-    var formValues;
-
-    if (isTextNode(target)) {
-      target = target.parentNode;
-    }
-
-    if (shouldTrackDomEvent(target, e)) {
-      if (target.tagName.toLowerCase() == "form") {
-        formValues = {};
-
-        for (var i = 0; i < target.elements.length; i++) {
-          var formElement = target.elements[i];
-
-          if (shouldTrackElement(formElement) && isValueToBeTrackedFromTrackingList(formElement, rudderanalytics.trackValues)) {
-            var name = formElement.id ? formElement.id : formElement.name;
-
-            if (name && typeof name === "string") {
-              var key = formElement.id ? formElement.id : formElement.name; // formElement.value gives the same thing
-
-              var value = formElement.id ? document.getElementById(formElement.id).value : document.getElementsByName(formElement.name)[0].value;
-
-              if (formElement.type === "checkbox" || formElement.type === "radio") {
-                value = formElement.checked;
-              }
-
-              if (key.trim() !== "") {
-                formValues[encodeURIComponent(key)] = encodeURIComponent(value);
-              }
-            }
-          }
-        }
-      }
-
-      var targetElementList = [];
-      var curEl = target;
-
-      if (isExplicitNoTrack(curEl)) {
-        return false;
-      }
-
-      while (curEl.parentNode && !isTag(curEl, "body")) {
-        if (shouldTrackElement(curEl)) {
-          targetElementList.push(curEl);
-        }
-
-        curEl = curEl.parentNode;
-      }
-
-      var elementsJson = [];
-      var href;
-      targetElementList.forEach(function (el) {
-        // if the element or a parent element is an anchor tag
-        // include the href as a property
-        if (el.tagName.toLowerCase() === "a") {
-          href = el.getAttribute("href");
-          href = isValueToBeTracked(href) && href;
-        }
-
-        elementsJson.push(getPropertiesFromElement(el, rudderanalytics));
-      });
-
-      if (targetElementList && targetElementList.length == 0) {
-        return false;
-      }
-
-      var elementText = "";
-      var text = getText(target);
-
-      if (text && text.length) {
-        elementText = text;
-      }
-
-      var props = {
-        event_type: e.type,
-        page: getDefaultPageProperties(),
-        elements: elementsJson,
-        el_attr_href: href,
-        el_text: elementText
-      };
-
-      if (formValues) {
-        props.form_values = formValues;
-      }
-
-      logger.debug("web_event", props);
-      rudderanalytics.track("autotrack", props);
-      return true;
-    }
-  }
-
-  function isExplicitNoTrack(el) {
-    var classes = getClassName(el).split(" ");
-
-    if (classes.indexOf("rudder-no-track") >= 0) {
-      return true;
-    }
-
-    return false;
-  } // excerpt from https://github.com/mixpanel/mixpanel-js/blob/master/src/autotrack-utils.js
-
-
-  function isValueToBeTracked(value) {
-    if (value === null || value === undefined) {
-      return false;
-    }
-
-    if (typeof value === 'string') {
-      value = value.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, ''); // check to see if input value looks like a credit card number
-      // see: https://www.safaribooksonline.com/library/view/regular-expressions-cookbook/9781449327453/ch04s20.html
-
-      var ccRegex = /^(?:(4[0-9]{12}(?:[0-9]{3})?)|(5[1-5][0-9]{14})|(6(?:011|5[0-9]{2})[0-9]{12})|(3[47][0-9]{13})|(3(?:0[0-5]|[68][0-9])[0-9]{11})|((?:2131|1800|35[0-9]{3})[0-9]{11}))$/;
-
-      if (ccRegex.test((value || '').replace(/[- ]/g, ''))) {
-        return false;
-      } // check to see if input value looks like a social security number
-
-
-      var ssnRegex = /(^\d{3}-?\d{2}-?\d{4}$)/;
-
-      if (ssnRegex.test(value)) {
-        return false;
-      } // check to see if input value looks like a adhar number
-
-
-      var adharRegex = /(^\d{4}-?\d{4}-?\d{4}$)/;
-
-      if (adharRegex.test(value)) {
-        return false;
-      } // check to see if input value looks like a PAN number
-
-
-      var panRegex = /(^\w{5}-?\d{4}-?\w{1}$)/;
-
-      if (panRegex.test(value)) {
-        return false;
-      }
-    }
-
-    return true;
-  } // if the element name is provided in the valTrackingList while loading rudderanalytics, track the value.
-
-  /**
-   * 
-   * @param {*} el 
-   * @param {*} includeList - valTrackingList provided in rudderanalytics.load()
-   */
-
-
-  function isValueToBeTrackedFromTrackingList(el, includeList) {
-    var elAttributesLength = el.attributes.length;
-
-    for (var i = 0; i < elAttributesLength; i++) {
-      var value = el.attributes[i].value;
-
-      if (includeList.indexOf(value) > -1) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  function getText(el) {
-    var text = "";
-    el.childNodes.forEach(function (value) {
-      if (value.nodeType === Node.TEXT_NODE) {
-        var textContent = value.nodeValue.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, ''); // take each word from the text content and check whether the value should be tracked. Also, replace the whitespaces.
-
-        var textValue = textContent.split(/(\s+)/).filter(isValueToBeTracked).join('').replace(/[\r\n]/g, ' ');
-        text += textValue;
-      }
-    });
-    return text.trim();
-  }
-
-  function getPropertiesFromElement(elem, rudderanalytics) {
-    var props = {
-      classes: getClassName(elem).split(" "),
-      tag_name: elem.tagName.toLowerCase()
-    };
-    var attrLength = elem.attributes.length;
-
-    for (var i = 0; i < attrLength; i++) {
-      var name = elem.attributes[i].name;
-      var value = elem.attributes[i].value;
-
-      if (value && isValueToBeTracked(value)) {
-        props["attr__".concat(name)] = value;
-      }
-
-      if ((name == "name" || name == "id") && isValueToBeTrackedFromTrackingList(elem, rudderanalytics.trackValues)) {
-        props.field_value = name == "id" ? document.getElementById(value).value : document.getElementsByName(value)[0].value;
-
-        if (elem.type === "checkbox" || elem.type === "radio") {
-          props.field_value = elem.checked;
-        }
-      }
-    }
-
-    var nthChild = 1;
-    var nthOfType = 1;
-    var currentElem = elem;
-
-    while (currentElem = previousElementSibling(currentElem)) {
-      nthChild++;
-
-      if (currentElem.tagName === elem.tagName) {
-        nthOfType++;
-      }
-    }
-
-    props.nth_child = nthChild;
-    props.nth_of_type = nthOfType;
-    return props;
-  }
-
-  function previousElementSibling(el) {
-    if (el.previousElementSibling) {
-      return el.previousElementSibling;
-    }
-
-    do {
-      el = el.previousSibling;
-    } while (el && !isElementNode(el));
-
-    return el;
+    logger.error("[AutoTrack]: This functionality has been moved to a different deployment");
   }
 
   var queryDefaults = {
@@ -14644,7 +16799,9 @@
    */
 
 
-  var Analytics = /*#__PURE__*/function () {
+  var Analytics =
+  /*#__PURE__*/
+  function () {
     /**
      * Creates an instance of Analytics.
      * @memberof Analytics
@@ -14744,7 +16901,7 @@
           logger.debug("autoTrackHandlersRegistered", this.autoTrackHandlersRegistered);
 
           if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-            addDomEventHandlers(this);
+            addDomEventHandlers();
             this.autoTrackHandlersRegistered = true;
           }
         }
@@ -15223,7 +17380,27 @@
         }
       }
       /**
+       * add campaign parsed details under context
+       * @param {*} rudderElement
+       */
+
+    }, {
+      key: "addCampaignInfo",
+      value: function addCampaignInfo(rudderElement) {
+        var _getDefaultPageProper = getDefaultPageProperties(),
+            search = _getDefaultPageProper.search;
+
+        var campaign = lib(search);
+
+        if (rudderElement.message.context && _typeof(rudderElement.message.context) === "object") {
+          rudderElement.message.context.campaign = campaign;
+        }
+      }
+      /**
        * process options parameter
+       * Apart from top level keys merge everyting under context
+       * context.page's default properties are overriden by same keys of
+       * provided properties in case of page call
        *
        * @param {*} rudderElement
        * @param {*} options
@@ -15236,24 +17413,22 @@
         var _rudderElement$messag = rudderElement.message,
             type = _rudderElement$messag.type,
             properties = _rudderElement$messag.properties;
+        this.addCampaignInfo(rudderElement); // assign page properties to context.page
+
+        rudderElement.message.context.page = type == "page" ? this.getContextPageProperties(properties) : this.getContextPageProperties();
         var toplevelElements = ["integrations", "anonymousId", "originalTimestamp"];
 
         for (var key in options) {
           if (toplevelElements.includes(key)) {
-            rudderElement.message[key] = options[key]; // special handle for ananymousId as transformation expects anonymousId in traits.
-
-            /* if (key === "anonymousId") {
-              rudderElement.message.context.traits["anonymousId"] = options[key];
-            } */
-          } else if (key !== "context") rudderElement.message.context[key] = options[key];else {
-            for (var k in options[key]) {
-              rudderElement.message.context[k] = options[key][k];
-            }
+            rudderElement.message[key] = options[key];
+          } else if (key !== "context") {
+            rudderElement.message.context = lodash_merge(rudderElement.message.context, _defineProperty({}, key, options[key]));
+          } else if (_typeof(options[key]) === "object" && options[key] != null) {
+            rudderElement.message.context = lodash_merge(rudderElement.message.context, _objectSpread2({}, options[key]));
+          } else {
+            logger.error("[Analytics: processOptionsParam] context passed in options is not object");
           }
-        } // assign page properties to context.page
-
-
-        rudderElement.message.context.page = type == "page" ? this.getContextPageProperties(options, properties) : this.getContextPageProperties(options);
+        }
       }
     }, {
       key: "getPageProperties",
@@ -15272,14 +17447,12 @@
 
     }, {
       key: "getContextPageProperties",
-      value: function getContextPageProperties(options, properties) {
+      value: function getContextPageProperties(properties) {
         var defaultPageProperties = getDefaultPageProperties();
-        var contextPageProperties = options && options.page ? options.page : {};
+        var contextPageProperties = {};
 
         for (var key in defaultPageProperties) {
-          if (contextPageProperties[key] === undefined) {
-            contextPageProperties[key] = properties && properties[key] ? properties[key] : defaultPageProperties[key];
-          }
+          contextPageProperties[key] = properties && properties[key] ? properties[key] : defaultPageProperties[key];
         }
 
         return contextPageProperties;
@@ -15397,6 +17570,12 @@
           this.registerCallbacks(true);
         }
 
+        if (options && options.queueOptions && options.queueOptions != null && _typeof(options.queueOptions) == "object") {
+          this.eventRepository.startQueue(options.queueOptions);
+        } else {
+          this.eventRepository.startQueue({});
+        }
+
         this.eventRepository.writeKey = writeKey;
 
         if (serverUrl) {
@@ -15414,7 +17593,7 @@
           this.autoTrackFeatureEnabled = true;
 
           if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-            addDomEventHandlers(this);
+            addDomEventHandlers();
             this.autoTrackHandlersRegistered = true;
             logger.debug("autoTrackHandlersRegistered", this.autoTrackHandlersRegistered);
           }
@@ -15426,7 +17605,7 @@
           handleError(error);
 
           if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-            addDomEventHandlers(this);
+            addDomEventHandlers();
           }
         }
       }
@@ -15638,4 +17817,4 @@
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));
