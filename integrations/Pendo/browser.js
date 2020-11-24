@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable lines-between-class-members */
 import logger from "../../utils/logUtil";
@@ -57,7 +58,7 @@ class Pendo {
       };
     }
 
-    window.pendoCli.identify({ visitor: visitorObj });
+    this._identify({ visitor: visitorObj });
   }
 
   track(rudderElement) {
@@ -67,15 +68,18 @@ class Pendo {
   group(rudderElement) {
     let accountObj = {};
     accountObj.id =
-      rudderElement.message.userId || rudderElement.message.anonymousId;
+      rudderElement.message.groupId || rudderElement.message.anonymousId;
     if (rudderElement.message.context.traits) {
       accountObj = {
         ...accountObj,
         ...rudderElement.message.context.traits,
       };
     }
+    this._identify({ account: accountObj });
+  }
 
-    window.pendoCli.identify({ account: accountObj });
+  _identify(obj) {
+    window.pendoCli.identify(obj);
   }
 
   enableDebugging() {
