@@ -420,6 +420,30 @@ function getUserProvidedConfigUrl(configUrl) {
   return url;
 }
 
+function recurse(cur, prop, result) {
+  const res = result;
+  if (Object(cur) !== cur) {
+    res[prop] = cur;
+  } else if (Array.isArray(cur)) {
+    const l = cur.length;
+    for (let i = 0; i < l; i += 1)
+      recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res);
+    if (l === 0) res[prop] = [];
+  } else {
+    let isEmpty = true;
+    Object.keys(cur).forEach((key) => {
+      isEmpty = false;
+      recurse(cur[key], prop ? `${prop}.${key}` : key, res);
+    });
+    if (isEmpty) res[prop] = {};
+  }
+  return res;
+}
+
+function flattenJsonPayload(data) {
+  return recurse(data, "", {});
+}
+
 export {
   replacer,
   generateUUID,
@@ -434,4 +458,5 @@ export {
   transformToServerNames,
   handleError,
   rejectArr,
+  flattenJsonPayload,
 };
