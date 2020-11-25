@@ -1,7 +1,5 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-/* eslint-disable lines-between-class-members */
+/* eslint-disable no-underscore-dangle */
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
 
@@ -25,6 +23,7 @@ class Pendo {
     );
     logger.debug("===in init Pendo===");
 
+    // Make a call to initPendo until pendoCli gets references to pendo object.
     this.setIntervalHandler = setInterval(this.initPendo.bind(this), 1000);
   }
 
@@ -32,6 +31,8 @@ class Pendo {
     if (this.isReady()) {
       window.pendoCli = window.pendo;
       clearInterval(this.setIntervalHandler);
+
+      // After pendo is initialized set debugger if debugMode is enabled.
       if (this.isDebugMode) {
         this.enableDebugging();
       } else {
@@ -39,6 +40,7 @@ class Pendo {
       }
     }
   }
+
   isLoaded() {
     logger.debug("in PENDO isLoaded");
     return !!window.pendoCli;
@@ -73,30 +75,33 @@ class Pendo {
   }
 
   recurse(cur, prop, result) {
+    const res = result;
     if (Object(cur) !== cur) {
-      result[prop] = cur;
+      res[prop] = cur;
     } else if (Array.isArray(cur)) {
       const l = cur.length;
       for (let i = 0; i < l; i += 1)
-        this.recurse(cur[i], prop ? `${prop}.${i}` : `${i}`);
-      if (l === 0) result[prop] = [];
+        this.recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res);
+      if (l === 0) res[prop] = [];
     } else {
       let isEmpty = true;
       Object.keys(cur).forEach((key) => {
         isEmpty = false;
-        this.recurse(cur[key], prop ? `${prop}.${key}` : key, result);
+        this.recurse(cur[key], prop ? `${prop}.${key}` : key, res);
       });
-      if (isEmpty) result[prop] = {};
+      if (isEmpty) res[prop] = {};
     }
-    return result;
+    return res;
   }
 
   flattenAgentPayload(data) {
     return this.recurse(data, "", {});
   }
 
+  /* Once iser is identified Pendo makes Track call to track user activity.
+   */
   track(rudderElement) {
-    const props = rudderElement.message;
+    const props = rudderElement.message.properties;
     window.pendoCli.track(rudderElement.message.event, props);
   }
 
@@ -119,6 +124,10 @@ class Pendo {
     this._identify(obj);
   }
 
+  /* Pendo's identify call works intelligently, once u have identifioed a visitor/user,
+   *or associated a visitor to a group/account then Pendo save this data in local storage and
+   *any further upcoming calls are done taking user infor from local.
+   */
   _identify(obj) {
     window.pendoCli.identify(obj);
   }
