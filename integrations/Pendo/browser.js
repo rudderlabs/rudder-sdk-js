@@ -42,6 +42,7 @@ class Pendo {
     }
   }
 
+  /* utility functions ---Start here ---  */
   isLoaded() {
     logger.debug("in PENDO isLoaded");
     return !!window.pendoCli;
@@ -58,7 +59,9 @@ class Pendo {
   isUserAnonymous(message) {
     return !message.userId;
   }
+  /* utility functions --- Ends here ---  */
 
+  /* Config managed functions ----- Start here ------- */
   enableDebugging() {
     window.pendoCli.enableDebugging();
   }
@@ -66,6 +69,7 @@ class Pendo {
   disableDebugging() {
     window.pendoCli.disableDebugging();
   }
+  /* Config managed functions ------- Ends here ------- */
 
   /*
    * PENDO MAPPED FUNCTIONS :: identify, track, group
@@ -93,7 +97,7 @@ class Pendo {
     this._identify({ visitor: visitorObj });
   }
 
-  /* Once iser is identified Pendo makes Track call to track user activity.
+  /* Once user is identified Pendo makes Track call to track user activity.
    */
   track(rudderElement) {
     const { event } = rudderElement.message;
