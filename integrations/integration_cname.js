@@ -46,7 +46,9 @@ const commonNames = {
   MOENGAGE: "MoEngage",
   AM: "AM",
   AMPLITUDE: "AM",
-  Amplitude: "AM"
+  Amplitude: "AM",
+  Lytics: "Lytics",
+  LYTICS: "Lytics",
 };
 
 export { commonNames };
