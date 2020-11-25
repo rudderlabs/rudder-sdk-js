@@ -60,14 +60,15 @@ class Pendo {
 
   identify(rudderElement) {
     let visitorObj = {};
+    const { traits } = rudderElement.message.context;
     const id = this.isUserAnonymous(rudderElement.message)
       ? this.constructPendoAnonymousId(rudderElement.message.anonymousId)
       : rudderElement.message.userId;
     visitorObj.id = id;
-    if (rudderElement.message.context.traits) {
+    if (traits) {
       visitorObj = {
         ...visitorObj,
-        ...this.flattenAgentPayload(rudderElement.message.context.traits),
+        ...this.flattenAgentPayload(traits),
       };
     }
 
@@ -101,19 +102,24 @@ class Pendo {
   /* Once iser is identified Pendo makes Track call to track user activity.
    */
   track(rudderElement) {
+    const { event } = rudderElement.message;
+    if (!event) {
+      throw Error("Cannot call un-named track event");
+    }
     const props = rudderElement.message.properties;
-    window.pendoCli.track(rudderElement.message.event, props);
+    window.pendoCli.track(event, props);
   }
 
   group(rudderElement) {
     const obj = {};
     let accountObj = {};
+    const { traits } = rudderElement.message.context;
     accountObj.id =
       rudderElement.message.groupId || rudderElement.message.anonymousId;
-    if (rudderElement.message.context.traits) {
+    if (traits) {
       accountObj = {
         ...accountObj,
-        ...this.flattenAgentPayload(rudderElement.message.context.traits),
+        ...this.flattenAgentPayload(traits),
       };
       obj.account = accountObj;
     }
@@ -124,7 +130,7 @@ class Pendo {
     this._identify(obj);
   }
 
-  /* Pendo's identify call works intelligently, once u have identifioed a visitor/user,
+  /* Pendo's identify call works intelligently, once u have identified a visitor/user,
    *or associated a visitor to a group/account then Pendo save this data in local storage and
    *any further upcoming calls are done taking user infor from local.
    */
