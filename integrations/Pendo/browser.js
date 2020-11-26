@@ -36,17 +36,22 @@ class Pendo {
         z.parentNode.insertBefore(y, z);
       })(window, document, "script", "pendo");
     })(this.apiKey);
+    this.initializeMe();
     logger.debug("===in init Pendo===");
-    window.pendo.initialize();
-    this.setIntervalHandler = setInterval(this.handleDebugger.bind(this), 1000);
   }
 
-  handleDebugger() {
-    if (window.pendo && window.pendo.isReady && window.pendo.isReady()) {
-      // eslint-disable-next-line no-unused-expressions
-      this.isDebugMode ? this.enableDebugging() : this.disableDebugging();
-      clearInterval(this.setIntervalHandler);
-    }
+  initializeMe() {
+    const userId =
+      this.analytics.userId ||
+      this.constructPendoAnonymousId(this.analytics.anonymousId);
+
+    const accountObj = {
+      id: this.analytics.groupId,
+      ...this.analytics.groupTraits,
+    };
+    const visitorObj = { id: userId, ...this.analytics.userTraits };
+
+    window.pendo.initialize({ account: accountObj, visitor: visitorObj });
   }
 
   /* utility functions ---Start here ---  */
@@ -63,16 +68,6 @@ class Pendo {
   }
   /* utility functions --- Ends here ---  */
 
-  /* Config managed functions ----- Start here ------- */
-  enableDebugging() {
-    window.pendo.enableDebugging();
-  }
-
-  disableDebugging() {
-    window.pendo.disableDebugging();
-  }
-  /* Config managed functions ------- Ends here ------- */
-
   /*
    * PENDO MAPPED FUNCTIONS :: identify, track, group
    */
@@ -85,7 +80,7 @@ class Pendo {
   identify(rudderElement) {
     let visitorObj = {};
     let accountObj = {};
-    const { groupId } = rudderElement.message;
+    const { groupId } = this.analytics;
     const { traits } = rudderElement.message.context;
     const id =
       rudderElement.message.userId ||
@@ -99,7 +94,7 @@ class Pendo {
     }
 
     if (groupId) {
-      accountObj = { id: groupId, ...rudderElement.message.traits };
+      accountObj = { id: groupId, ...this.analytics.groupTraits };
     }
 
     window.pendo.identify({ visitor: visitorObj, account: accountObj });
@@ -124,7 +119,8 @@ class Pendo {
     if (userId) {
       visitorObj = {
         id: userId,
-        ...rudderElement.message.context.traits,
+        ...(rudderElement.message.context &&
+          rudderElement.message.context.traits),
       };
     }
 
