@@ -36,16 +36,22 @@ class Pendo {
         z.parentNode.insertBefore(y, z);
       })(window, document, "script", "pendo");
     })(this.apiKey);
+    this.initializeMe();
     logger.debug("===in init Pendo===");
-    this.setIntervalHandler = setInterval(this.handleDebugger.bind(this), 1000);
   }
 
-  handleDebugger() {
-    if (window.pendo.isReady && window.pendo.isReady()) {
-      // eslint-disable-next-line no-unused-expressions
-      this.isDebugMode ? this.enableDebugging() : this.disableDebugging();
-      clearInterval(this.setIntervalHandler);
-    }
+  initializeMe() {
+    const userId =
+      this.analytics.userId ||
+      this.constructPendoAnonymousId(this.analytics.anonymousId);
+
+    const accountObj = {
+      id: this.analytics.groupId,
+      ...this.analytics.groupTraits,
+    };
+    const visitorObj = { id: userId, ...this.analytics.userTraits };
+
+    window.pendo.initialize({ account: accountObj, visitor: visitorObj });
   }
 
   /* utility functions ---Start here ---  */
@@ -62,16 +68,6 @@ class Pendo {
   }
   /* utility functions --- Ends here ---  */
 
-  /* Config managed functions ----- Start here ------- */
-  enableDebugging() {
-    window.pendo.enableDebugging();
-  }
-
-  disableDebugging() {
-    window.pendo.disableDebugging();
-  }
-  /* Config managed functions ------- Ends here ------- */
-
   /*
    * PENDO MAPPED FUNCTIONS :: identify, track, group
    */
@@ -84,21 +80,17 @@ class Pendo {
   identify(rudderElement) {
     let visitorObj = {};
     let accountObj = {};
-    const { groupId } = rudderElement.message;
-    const { traits } = rudderElement.message.context;
+    const { groupId } = this.analytics;
     const id =
-      rudderElement.message.userId ||
-      this.constructPendoAnonymousId(rudderElement.message.anonymousId);
-    visitorObj.id = id;
-    if (traits) {
-      visitorObj = {
-        ...visitorObj,
-        ...traits,
-      };
-    }
+      this.analytics.userId ||
+      this.constructPendoAnonymousId(this.analytics.anonymousId);
+    visitorObj = {
+      id,
+      ...this.analytics.userTraits,
+    };
 
     if (groupId) {
-      accountObj = { id: groupId, ...rudderElement.message.traits };
+      accountObj = { id: groupId, ...this.analytics.groupTraits };
     }
 
     window.pendo.identify({ visitor: visitorObj, account: accountObj });
@@ -111,19 +103,17 @@ class Pendo {
     let accountObj = {};
     let visitorObj = {};
     const { userId, traits } = rudderElement.message;
-    accountObj.id =
-      rudderElement.message.groupId || rudderElement.message.anonymousId;
-    if (traits) {
-      accountObj = {
-        ...accountObj,
-        ...traits,
-      };
-    }
+    accountObj.id = this.analytics.groupId || this.analytics.anonymousId;
+    accountObj = {
+      ...accountObj,
+      ...traits,
+    };
 
     if (userId) {
       visitorObj = {
         id: userId,
-        ...rudderElement.message.context.traits,
+        ...(rudderElement.message.context &&
+          rudderElement.message.context.traits),
       };
     }
 
