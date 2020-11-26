@@ -1,8 +1,6 @@
 /* eslint-disable class-methods-use-this */
-/* eslint-disable no-underscore-dangle */
+/* eslint-disable lines-between-class-members */
 import logger from "../../utils/logUtil";
-import ScriptLoader from "../ScriptLoader";
-import { flattenJsonPayload } from "../../utils/utils";
 
 class Pendo {
   constructor(config, analytics) {
@@ -15,59 +13,54 @@ class Pendo {
   }
 
   init() {
-    window.pendo = {};
-    window.pendoCli = undefined;
-    window.pendo.apiKey = this.apiKey;
-    ScriptLoader(
-      "pendo-fs",
-      `https://cdn.pendo.io/agent/static/${this.apiKey}/pendo.js`
-    );
+    (function (apiKey) {
+      (function (p, e, n, d, o) {
+        var v, w, x, y, z;
+        o = p[d] = p[d] || {};
+        o._q = [];
+        v = ["initialize", "identify", "updateOptions", "pageLoad", "track"];
+        for (w = 0, x = v.length; w < x; ++w)
+          (function (m) {
+            o[m] =
+              o[m] ||
+              function () {
+                o._q[m === v[0] ? "unshift" : "push"](
+                  [m].concat([].slice.call(arguments, 0))
+                );
+              };
+          })(v[w]);
+        y = e.createElement(n);
+        y.async = !0;
+        y.src = `https://cdn.pendo.io/agent/static/${apiKey}/pendo.js`;
+        z = e.getElementsByTagName(n)[0];
+        z.parentNode.insertBefore(y, z);
+      })(window, document, "script", "pendo");
+    })(this.apiKey);
     logger.debug("===in init Pendo===");
-
-    // Make a call to initPendo until pendoCli gets references to pendo object.
-    this.setIntervalHandler = setInterval(this.initPendo.bind(this), 1000);
-  }
-
-  initPendo() {
-    if (this.isReady()) {
-      window.pendoCli = window.pendo;
-      clearInterval(this.setIntervalHandler);
-
-      // After pendo is initialized set debugger if debugMode is enabled.
-      if (this.isDebugMode) {
-        this.enableDebugging();
-      } else {
-        this.disableDebugging();
-      }
-    }
+    window.pendo.initialize();
   }
 
   /* utility functions ---Start here ---  */
   isLoaded() {
-    logger.debug("in PENDO isLoaded");
-    return !!window.pendoCli;
+    return !!(window.pendo && window.pendo.push !== Array.prototype.push);
   }
 
   isReady() {
-    return window.pendo && window.pendo.isReady && window.pendo.isReady();
+    return !!(window.pendo && window.pendo.push !== Array.prototype.push);
   }
 
   constructPendoAnonymousId(id) {
     return `_PENDO_T_${id}`;
   }
-
-  isUserAnonymous(message) {
-    return !message.userId;
-  }
   /* utility functions --- Ends here ---  */
 
   /* Config managed functions ----- Start here ------- */
   enableDebugging() {
-    window.pendoCli.enableDebugging();
+    window.pendo.enableDebugging();
   }
 
   disableDebugging() {
-    window.pendoCli.disableDebugging();
+    window.pendo.disableDebugging();
   }
   /* Config managed functions ------- Ends here ------- */
 
@@ -82,19 +75,51 @@ class Pendo {
    */
   identify(rudderElement) {
     let visitorObj = {};
+    let accountObj = {};
+    const { groupId } = rudderElement.message;
     const { traits } = rudderElement.message.context;
-    const id = this.isUserAnonymous(rudderElement.message)
-      ? this.constructPendoAnonymousId(rudderElement.message.anonymousId)
-      : rudderElement.message.userId;
+    const id =
+      rudderElement.message.userId ||
+      this.constructPendoAnonymousId(rudderElement.message.anonymousId);
     visitorObj.id = id;
     if (traits) {
       visitorObj = {
         ...visitorObj,
-        ...flattenJsonPayload(traits),
+        ...traits,
       };
     }
 
-    this._identify({ visitor: visitorObj });
+    if (groupId) {
+      accountObj = { id: groupId, ...rudderElement.message.traits };
+    }
+
+    window.pendo.identify({ visitor: visitorObj, account: accountObj });
+  }
+  /*
+   *Group call maps to an account for which visitor belongs.
+   *It is same as identify call but here we send account object.
+   */
+  group(rudderElement) {
+    let accountObj = {};
+    let visitorObj = {};
+    const { userId, traits } = rudderElement.message;
+    accountObj.id =
+      rudderElement.message.groupId || rudderElement.message.anonymousId;
+    if (traits) {
+      accountObj = {
+        ...accountObj,
+        ...traits,
+      };
+    }
+
+    if (userId) {
+      visitorObj = {
+        id: userId,
+        ...rudderElement.message.context.traits,
+      };
+    }
+
+    window.pendo.identify({ account: accountObj, visitor: visitorObj });
   }
 
   /* Once user is identified Pendo makes Track call to track user activity.
@@ -105,35 +130,7 @@ class Pendo {
       throw Error("Cannot call un-named track event");
     }
     const props = rudderElement.message.properties;
-    window.pendoCli.track(event, props);
-  }
-
-  /*
-   *Group call maps to an account for which visitor belongs.
-   *It is same as identify call but here we send account object.
-   */
-  group(rudderElement) {
-    const obj = {};
-    let accountObj = {};
-    const { traits } = rudderElement.message.context;
-    accountObj.id =
-      rudderElement.message.groupId || rudderElement.message.anonymousId;
-    if (traits) {
-      accountObj = {
-        ...accountObj,
-        ...flattenJsonPayload(traits),
-      };
-      obj.account = accountObj;
-    }
-    if (rudderElement.message.userId) {
-      obj.visitor = { id: rudderElement.message.userId };
-    }
-
-    this._identify(obj);
-  }
-
-  _identify(obj) {
-    window.pendoCli.identify(obj);
+    window.pendo.track(event, props);
   }
 }
 
