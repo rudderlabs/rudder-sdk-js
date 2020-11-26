@@ -38,6 +38,15 @@ class Pendo {
     })(this.apiKey);
     logger.debug("===in init Pendo===");
     window.pendo.initialize();
+    this.setIntervalHandler = setInterval(this.handleDebugger.bind(this), 1000);
+  }
+
+  handleDebugger() {
+    if (window.pendo && window.pendo.isReady && window.pendo.isReady()) {
+      // eslint-disable-next-line no-unused-expressions
+      this.isDebugMode ? this.enableDebugging() : this.disableDebugging();
+      clearInterval(this.setIntervalHandler);
+    }
   }
 
   /* utility functions ---Start here ---  */
