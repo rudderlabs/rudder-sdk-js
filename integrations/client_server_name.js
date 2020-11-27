@@ -23,6 +23,7 @@ const clientToServerNames = {
   MOENGAGE: "MoEngage",
   AM: "Amplitude",
   PENDO: "Pendo",
+  LYTICS: "Lytics"
 };
 
 export { clientToServerNames };

@@ -20,6 +20,7 @@ import * as TVSquared from "./TVSquared";
 import * as MoEngage from "./MoEngage";
 import * as Amplitude from "./Amplitude";
 import * as Pendo from "./Pendo";
+import * as Lytics from "./Lytics";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -47,6 +48,7 @@ const integrations = {
   MOENGAGE: MoEngage.default,
   AM: Amplitude.default,
   PENDO: Pendo.default,
+  LYTICS: Lytics.default
 };
 
 export { integrations };
