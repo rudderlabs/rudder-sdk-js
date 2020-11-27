@@ -19,6 +19,7 @@ import * as Fullstory from "./Fullstory";
 import * as TVSquared from "./TVSquared";
 import * as MoEngage from "./MoEngage";
 import * as Amplitude from "./Amplitude";
+import * as Pendo from "./Pendo";
 import * as Lytics from "./Lytics";
 
 // the key names should match the destination.name value to keep partity everywhere
@@ -46,7 +47,8 @@ const integrations = {
   TVSQUARED: TVSquared.default,
   MOENGAGE: MoEngage.default,
   AM: Amplitude.default,
-  LYTICS: Lytics.default,
+  PENDO: Pendo.default,
+  LYTICS: Lytics.default
 };
 
 export { integrations };

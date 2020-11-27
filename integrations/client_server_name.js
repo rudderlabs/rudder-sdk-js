@@ -22,7 +22,8 @@ const clientToServerNames = {
   TVSQUUARED: "TVSquared",
   MOENGAGE: "MoEngage",
   AM: "Amplitude",
-  LYTICS: "Lytics",
+  PENDO: "Pendo",
+  LYTICS: "Lytics"
 };
 
 export { clientToServerNames };

@@ -47,8 +47,10 @@ const commonNames = {
   AM: "AM",
   AMPLITUDE: "AM",
   Amplitude: "AM",
+  Pendo: "PENDO",
+  PENDO: "PENDO",
   Lytics: "Lytics",
-  LYTICS: "Lytics",
+  LYTICS: "Lytics"
 };
 
 export { commonNames };
