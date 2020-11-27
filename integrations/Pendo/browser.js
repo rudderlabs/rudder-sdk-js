@@ -6,9 +6,7 @@ class Pendo {
   constructor(config, analytics) {
     this.analytics = analytics;
     this.apiKey = !config.apiKey ? "" : config.apiKey;
-    this.isDebugMode = config.enableDebugMode;
     this.name = "PENDO";
-    this.setIntervalHandler = undefined;
     logger.debug("Config ", config);
   }
 
