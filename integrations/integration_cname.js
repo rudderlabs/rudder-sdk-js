@@ -43,6 +43,9 @@ const commonNames = {
   Fullstory: "FULLSTORY",
   BUGSNAG: "BUGSNAG",
   TVSQUARED: "TVSQUARED",
+  "Google Analytics 4": "GA4",
+  GoogleAnalytics4: "GA4",
+  GA4: "GA4",
 };
 
 export { commonNames };
