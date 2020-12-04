@@ -21,7 +21,8 @@ export default class GA4 {
       };
     window.gtag("js", new Date());
 
-    // This condition is not working, even after disabling page view 
+    // This condition is not working, even after disabling page view
+    // page_view is even getting called on page load
     if (this.blockPageView) {
       window.gtag("config", measurementId, {
         user_id: userId,
