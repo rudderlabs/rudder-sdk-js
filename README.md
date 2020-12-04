@@ -320,4 +320,4 @@ You can start adding integrations of your choice for sending data through their 
 
 # Contact Us
 
-For more support on using the RudderStack JavaScript SDK, feel free to [contact us](https://rudderstack.com/contact/) or start a conversation on our [Discord](https://discordapp.com/invite/xNEdEGw) channel.
+For more support on using the RudderStack JavaScript SDK, feel free to [contact us](https://rudderstack.com/contact/) or start a conversation on our [Slack](https://resources.rudderstack.com/join-rudderstack-slack) channel.
