@@ -1,6 +1,11 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
+import {
+  eventName,
+  eventParameter,
+  itemParameter,
+} from "./ECommerceEventConfig";
 
 export default class GA4 {
   constructor(config, analytics) {
@@ -44,6 +49,10 @@ export default class GA4 {
     this.loadScript(this.measurementId, userId);
   }
 
+  // When adding events do everything ion lowercase.
+  // use underscores instead of spaces
+  // Register your parameters to show them up in UI even user_id
+
   /* utility functions ---Start here ---  */
   isLoaded() {
     return !!(window.gtag && window.gtag.push !== Array.prototype.push);
@@ -83,21 +92,101 @@ export default class GA4 {
     return reservedName.includes(eventName);
   }
 
-  track(rudderElement) {
-    const { products } = rudderElement.message.properties;
-    const items = [];
-    products.forEach((p) => {
-      const itemId = p.product_id;
-      const itemName = p.product_name;
-      items.push({ item_id: itemId, item_name: itemName });
+  sendGAEvent(event, props) {
+    window.gtag("event", event, props);
+  }
+
+  getDestinationEvent(event) {
+    return eventName.find((p) => p.src.includes(event.toLowerCase()));
+  }
+
+  getDestinationEventProperties(props, destParameter) {
+    const destinationProperties = {};
+    const item = {};
+    Object.keys(props).forEach((key) => {
+      destParameter.forEach((param) => {
+        if (key === param.src) {
+          if (Array.isArray(param.dest)) {
+            param.dest.forEach((d) => {
+              const result = d.split(".");
+              // Here we only support mapping single level object mapping.
+              // To Do Future Scope :: implement using recursion to handle multi level prop mapping
+              if (result.length > 1) {
+                const levelOne = result[0];
+                const levelTwo = result[1];
+                item[levelTwo] = props[key];
+                if (!destinationProperties[levelOne]) {
+                  destinationProperties[levelOne] = [];
+                  destinationProperties[levelOne].push(item);
+                }
+              } else {
+                destinationProperties[result] = props[key];
+              }
+            });
+          } else {
+            destinationProperties[param.dest] = props[key];
+          }
+        }
+      });
     });
-    const { event } = rudderElement.message;
+    return destinationProperties;
+  }
+
+  getDestinationItemProperties(products, item) {
+    const items = [];
+    let obj = {};
+    products.forEach((p) => {
+      obj = {
+        ...this.getDestinationEventProperties(p, itemParameter),
+        ...(item && item[0]),
+      };
+      items.push(obj);
+    });
+    return items;
+  }
+
+  track(rudderElement) {
+    let { event } = rudderElement.message;
+    const { properties } = rudderElement.message;
+    const { products } = properties;
+    let destinationProperties = {};
     if (!event || this.isReservedName(event)) {
       throw Error("Cannot call un-named/reserved named track event");
     }
-    const props = { ...rudderElement.message.properties, ...items };
 
-    window.gtag("event", event, props);
+    const obj = this.getDestinationEvent(event);
+    if (obj) {
+      if (products && Array.isArray(products)) {
+        event = obj.dest;
+        // eslint-disable-next-line no-const-assign
+        destinationProperties = this.getDestinationEventProperties(
+          properties,
+          eventParameter
+        );
+        destinationProperties.items = this.getDestinationItemProperties(
+          products,
+          destinationProperties.items
+        );
+      } else {
+        event = obj.dest;
+        if (!obj.hasItem) {
+          // eslint-disable-next-line no-const-assign
+          destinationProperties = this.getDestinationEventProperties(
+            properties,
+            eventParameter
+          );
+        } else {
+          // create items
+          destinationProperties.items = this.getDestinationItemProperties([
+            properties,
+          ]);
+        }
+      }
+    } else {
+      destinationProperties = properties;
+    }
+
+    this.sendGAEvent(event, destinationProperties);
   }
 
   identify(rudderElement) {
