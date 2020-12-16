@@ -3,8 +3,8 @@
 - [What is the RudderStack JavaScript SDK?](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#what-is-the-rudderstack-javascript-sdk)
 - [How to use the RudderStack JavaScript SDK?](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#how-to-use-the-rudderstack-javascript-sdk) 
 - [Querystring API](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#querystring-api)
-- [Adding Callbacks to Standard Methods]()
-- [Self-Hosted Config Plane](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-callbacks-to-standard-methods)
+- [Adding Callbacks to Standard Methods](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-callbacks-to-standard-methods)
+- [Self-Hosted Control Plane](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#self-hosted-control-plane)
 - [Contribute](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#contribute)
 
 | **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If you still wish to use it for your project, refer to [this repository](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). |
@@ -293,12 +293,12 @@ We will be adding similar callbacks for APIs such as  `track`, `page`, `identify
 |:------|
 
 
-# [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#self-hosted-config-plane)Self-Hosted Config Plane
+# [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#self-hosted-control-plane)Self-Hosted Control Plane
 
-Since the JavaScript SDK depends on the config plane for fetching configs like  `native-sdk enabled destinations etc`, if you are self-hosting the config plane, you need to make the load call as follows:
+If you are using a device mode destination like Heap, FullStory, etc., the JavaScript SDK needs to fetch the required configuration from the Control Plane. If you are using the RudderStack Config Generator to host your own Control Plane, then follow [this guide](https://docs.rudderstack.com/how-to-guides/rudderstack-config-generator) and make a `load` call as shown:
 
 ```
-rudderanalytics.load(YOUR_WRITE_KEY, DATA_PLANE_URL, {configUrl:  CONFIG_PLANE_URL});
+rudderanalytics.load(YOUR_WRITE_KEY, DATA_PLANE_URL, {configUrl: CONTROL_PLANE_URL});
 
 ```
 
