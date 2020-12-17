@@ -1,4 +1,4 @@
-const eventName = [
+const eventNamesConfigArray = [
   // Browsing Section
   {
     src: ["products searched", "product searched"],
@@ -47,7 +47,7 @@ const eventName = [
   // --------
 ];
 
-const eventParameter = [
+const eventParametersConfigArray = [
   { src: "query", dest: ["search_term"] },
   { src: "list_id", dest: ["item_list_id", "items.item_list_id"] },
   { src: "category", dest: ["item_list_name", "items.item_list_name"] },
@@ -67,7 +67,7 @@ const eventParameter = [
   { src: "checkout_id", dest: ["transaction_id"] },
 ];
 
-const itemParameter = [
+const itemParametersConfigArray = [
   { src: "product_id", dest: "item_id" },
   { src: "order_id", dest: "item_id" },
   { src: "name", dest: "item_name" },
@@ -80,4 +80,8 @@ const itemParameter = [
   { src: "position", dest: "index" },
 ];
 
-export { eventName, eventParameter, itemParameter };
+export {
+  eventNamesConfigArray,
+  eventParametersConfigArray,
+  itemParametersConfigArray,
+};
