@@ -20,12 +20,7 @@ const clientToServerNames = {
   OPTIMIZELY: "Optimizely",
   FULLSTORY: "Fullstory",
   TVSQUUARED: "TVSquared",
-<<<<<<< HEAD
-  MOENGAGE: "MoEngage",
-  AM: "Amplitude"
-=======
   GA4: "Google Analytics 4",
->>>>>>> 23bdbcd... GA4 sdk implementation
 };
 
 export { clientToServerNames };
