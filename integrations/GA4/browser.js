@@ -2,10 +2,17 @@
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
 import {
-  eventName,
-  eventParameter,
-  itemParameter,
+  eventParametersConfigArray,
+  itemParametersConfigArray,
 } from "./ECommerceEventConfig";
+
+import {
+  isReservedName,
+  getDestinationEventName,
+  getDestinationEventProperties,
+  getDestinationItemProperties,
+  getPageViewProperty,
+} from "./utility";
 
 export default class GA4 {
   constructor(config, analytics) {
@@ -13,6 +20,7 @@ export default class GA4 {
     this.analytics = analytics;
     this.sendUserId = config.sendUserId || false;
     this.blockPageView = config.blockPageViewEvent || false;
+    this.extendPageViewParams = config.extendPageViewParams || false;
     this.name = "GA4";
   }
 
@@ -63,81 +71,12 @@ export default class GA4 {
   }
   /* utility functions --- Ends here ---  */
 
-  isReservedName(eventName) {
-    const reservedName = [
-      "ad_activeview",
-      "ad_click",
-      "ad_exposure",
-      "ad_impression",
-      "ad_query",
-      "adunit_exposure",
-      "app_clear_data",
-      "app_install",
-      "app_update",
-      "app_remove",
-      "error",
-      "first_open",
-      "first_visit",
-      "in_app_purchase",
-      "notification_dismiss",
-      "notification_foreground",
-      "notification_open",
-      "notification_receive",
-      "os_update",
-      "screen_view",
-      "session_start",
-      "user_engagement",
-    ];
-
-    return reservedName.includes(eventName);
-  }
-
-  sendGAEvent(event, props) {
-    window.gtag("event", event, props);
-  }
-
-  getDestinationEvent(event) {
-    return eventName.find((p) => p.src.includes(event.toLowerCase()));
-  }
-
-  getDestinationEventProperties(props, destParameter) {
-    const destinationProperties = {};
-    const item = {};
-    Object.keys(props).forEach((key) => {
-      destParameter.forEach((param) => {
-        if (key === param.src) {
-          if (Array.isArray(param.dest)) {
-            param.dest.forEach((d) => {
-              const result = d.split(".");
-              // Here we only support mapping single level object mapping.
-              // To Do Future Scope :: implement using recursion to handle multi level prop mapping
-              if (result.length > 1) {
-                const levelOne = result[0];
-                const levelTwo = result[1];
-                item[levelTwo] = props[key];
-                if (!destinationProperties[levelOne]) {
-                  destinationProperties[levelOne] = [];
-                  destinationProperties[levelOne].push(item);
-                }
-              } else {
-                destinationProperties[result] = props[key];
-              }
-            });
-          } else {
-            destinationProperties[param.dest] = props[key];
-          }
-        }
-      });
-    });
-    return destinationProperties;
-  }
-
   getDestinationItemProperties(products, item) {
     const items = [];
     let obj = {};
     products.forEach((p) => {
       obj = {
-        ...this.getDestinationEventProperties(p, itemParameter),
+        ...getDestinationEventProperties(p, itemParametersConfigArray),
         ...(item && item[0]),
       };
       items.push(obj);
@@ -150,20 +89,20 @@ export default class GA4 {
     const { properties } = rudderElement.message;
     const { products } = properties;
     let destinationProperties = {};
-    if (!event || this.isReservedName(event)) {
+    if (!event || isReservedName(event)) {
       throw Error("Cannot call un-named/reserved named track event");
     }
 
-    const obj = this.getDestinationEvent(event);
+    const obj = getDestinationEventName(event);
     if (obj) {
       if (products && Array.isArray(products)) {
         event = obj.dest;
         // eslint-disable-next-line no-const-assign
-        destinationProperties = this.getDestinationEventProperties(
+        destinationProperties = getDestinationEventProperties(
           properties,
-          eventParameter
+          eventParametersConfigArray
         );
-        destinationProperties.items = this.getDestinationItemProperties(
+        destinationProperties.items = getDestinationItemProperties(
           products,
           destinationProperties.items
         );
@@ -171,13 +110,13 @@ export default class GA4 {
         event = obj.dest;
         if (!obj.hasItem) {
           // eslint-disable-next-line no-const-assign
-          destinationProperties = this.getDestinationEventProperties(
+          destinationProperties = getDestinationEventProperties(
             properties,
-            eventParameter
+            eventParametersConfigArray
           );
         } else {
           // create items
-          destinationProperties.items = this.getDestinationItemProperties([
+          destinationProperties.items = getDestinationItemProperties([
             properties,
           ]);
         }
@@ -185,8 +124,7 @@ export default class GA4 {
     } else {
       destinationProperties = properties;
     }
-
-    this.sendGAEvent(event, destinationProperties);
+    window.gtag("event", event, destinationProperties);
   }
 
   identify(rudderElement) {
@@ -201,11 +139,13 @@ export default class GA4 {
   }
 
   page(rudderElement) {
-    window.gtag(
-      "event",
-      "page_view",
-      (rudderElement.message.context && rudderElement.message.context.page) ||
-        {}
-    );
+    const page =
+      rudderElement.message.context && rudderElement.message.context.page;
+    if (!page) return;
+    if (this.extendPageViewParams) {
+      window.gtag("event", "page_view", page);
+    } else {
+      window.gtag("event", "page_view", getPageViewProperty(page));
+    }
   }
 }
