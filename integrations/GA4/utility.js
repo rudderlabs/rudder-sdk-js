@@ -35,9 +35,7 @@ function isReservedName(name) {
 }
 
 function getDestinationEventName(event) {
-  return eventNamesConfigArray.find((p) =>
-    p.src.includes(event.toLowerCase())
-  );
+  return eventNamesConfigArray.find((p) => p.src.includes(event.toLowerCase()));
 }
 
 /*
