@@ -62,7 +62,6 @@ const eventParametersConfigArray = [
   { src: "affiliation", dest: ["affiliation"] },
   { src: "shipping", dest: ["shipping"] },
   { src: "tax", dest: ["tax"] },
-  { src: "affiliation", dest: ["affiliation"] },
   { src: "total", dest: ["value"] },
   { src: "checkout_id", dest: ["transaction_id"] },
 ];

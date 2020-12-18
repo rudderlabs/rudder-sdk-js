@@ -17,12 +17,7 @@ import * as Optimizely from "./Optimizely";
 import * as Bugsnag from "./Bugsnag";
 import * as Fullstory from "./Fullstory";
 import * as TVSquared from "./TVSquared";
-<<<<<<< HEAD
-import * as MoEngage from "./MoEngage";
-import * as Amplitude from "./Amplitude";
-=======
 import * as GA4 from "./GA4";
->>>>>>> 23bdbcd... GA4 sdk implementation
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -47,12 +42,7 @@ const integrations = {
   BUGSNAG: Bugsnag.default,
   FULLSTORY: Fullstory.default,
   TVSQUARED: TVSquared.default,
-<<<<<<< HEAD
-  MOENGAGE: MoEngage.default,
-  AM: Amplitude.default,
-=======
   GA4: GA4.default,
->>>>>>> 23bdbcd... GA4 sdk implementation
 };
 
 export { integrations };

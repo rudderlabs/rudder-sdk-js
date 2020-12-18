@@ -71,19 +71,6 @@ export default class GA4 {
   }
   /* utility functions --- Ends here ---  */
 
-  getDestinationItemProperties(products, item) {
-    const items = [];
-    let obj = {};
-    products.forEach((p) => {
-      obj = {
-        ...getDestinationEventProperties(p, itemParametersConfigArray),
-        ...(item && item[0]),
-      };
-      items.push(obj);
-    });
-    return items;
-  }
-
   track(rudderElement) {
     let { event } = rudderElement.message;
     const { properties } = rudderElement.message;
@@ -93,10 +80,10 @@ export default class GA4 {
       throw Error("Cannot call un-named/reserved named track event");
     }
 
-    const obj = getDestinationEventName(event);
-    if (obj) {
+    const eventMappingObj = getDestinationEventName(event);
+    if (eventMappingObj) {
       if (products && Array.isArray(products)) {
-        event = obj.dest;
+        event = eventMappingObj.dest;
         // eslint-disable-next-line no-const-assign
         destinationProperties = getDestinationEventProperties(
           properties,
@@ -107,8 +94,8 @@ export default class GA4 {
           destinationProperties.items
         );
       } else {
-        event = obj.dest;
-        if (!obj.hasItem) {
+        event = eventMappingObj.dest;
+        if (!eventMappingObj.hasItem) {
           // eslint-disable-next-line no-const-assign
           destinationProperties = getDestinationEventProperties(
             properties,
@@ -139,13 +126,12 @@ export default class GA4 {
   }
 
   page(rudderElement) {
-    const page =
-      rudderElement.message.context && rudderElement.message.context.page;
-    if (!page) return;
+    const pageProps = rudderElement.message.properties;
+    if (!pageProps) return;
     if (this.extendPageViewParams) {
-      window.gtag("event", "page_view", page);
+      window.gtag("event", "page_view", pageProps);
     } else {
-      window.gtag("event", "page_view", getPageViewProperty(page));
+      window.gtag("event", "page_view", getPageViewProperty(pageProps));
     }
   }
 }
