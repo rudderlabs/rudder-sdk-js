@@ -1,10 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import {
-  eventParametersConfigArray,
-  itemParametersConfigArray,
-} from "./ECommerceEventConfig";
+import { eventParametersConfigArray } from "./ECommerceEventConfig";
 
 import {
   isReservedName,
@@ -12,7 +9,8 @@ import {
   getDestinationEventProperties,
   getDestinationItemProperties,
   getPageViewProperty,
-} from "./utility";
+  hasRequiredParameters,
+} from "./utils";
 
 export default class GA4 {
   constructor(config, analytics) {
@@ -79,7 +77,6 @@ export default class GA4 {
     if (!event || isReservedName(event)) {
       throw Error("Cannot call un-named/reserved named track event");
     }
-
     const eventMappingObj = getDestinationEventName(event);
     if (eventMappingObj) {
       if (products && Array.isArray(products)) {
@@ -111,6 +108,11 @@ export default class GA4 {
     } else {
       destinationProperties = properties;
     }
+
+    if (!hasRequiredParameters(destinationProperties, eventMappingObj)) {
+      throw Error("Payload must have required parameters..");
+    }
+
     window.gtag("event", event, destinationProperties);
   }
 

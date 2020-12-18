@@ -68,3 +68,120 @@ rudderanalytics.track("Product List Filtered", {
     },
   ],
 });
+
+rudderanalytics.track("Product Clicked", {
+  product_id: "123",
+  sku: "F15",
+  category: "Games",
+  name: "Game",
+  brand: "Gamepro",
+  variant: "111",
+  price: 13.49,
+  quantity: 11,
+  coupon: "DISC21",
+  position: 1,
+  url: "https://www.website.com/product/path",
+  image_url: "https://www.website.com/product/path.png",
+});
+
+rudderanalytics.track("Product Viewed", {
+  product_id: "123",
+  sku: "F15",
+  category: "Games",
+  name: "Game",
+  brand: "Gamepro",
+  variant: "111",
+  price: 13.49,
+  quantity: 11,
+  coupon: "DISC21",
+  currency: "USD",
+  position: 1,
+  url: "https://www.website.com/product/path",
+  image_url: "https://www.website.com/product/path.png",
+});
+
+rudderanalytics.track("Product Added", {
+  product_id: "123",
+  sku: "F15",
+  category: "Games",
+  name: "Game",
+  brand: "Gamepro",
+  variant: "111",
+  price: 13.49,
+  quantity: 11,
+  coupon: "DISC21",
+  position: 1,
+  url: "https://www.website.com/product/path",
+  image_url: "https://www.website.com/product/path.png",
+});
+
+rudderanalytics.track("Product Removed", {
+  product_id: "123",
+  sku: "F15",
+  category: "Games",
+  name: "Game",
+  brand: "Gamepro",
+  variant: "111",
+  price: 13.49,
+  quantity: 11,
+  coupon: "DISC21",
+  position: 1,
+  url: "https://www.website.com/product/path",
+  image_url: "https://www.website.com/product/path.png",
+});
+
+rudderanalytics.track("Cart Viewed", {
+  cart_id: "12345",
+  products: [
+    {
+      product_id: "123",
+      sku: "G-14",
+      name: "Cards",
+      price: 14.99,
+      position: 1,
+      category: "Games",
+      url: "https://www.website.com/product/path",
+      image_url: "https://www.website.com/product/path.jpg",
+    },
+    {
+      product_id: "345",
+      sku: "G-32",
+      name: "UNO",
+      price: 3.99,
+      position: 2,
+      category: "Games",
+    },
+  ],
+});
+
+rudderanalytics.track("Checkout Started", {
+  order_id: "1234",
+  affiliation: "Apple Store",
+  value: 20,
+  revenue: 15.0,
+  shipping: 22,
+  tax: 1,
+  discount: 1.5,
+  coupon: "ImagePro",
+  currency: "USD",
+  products: [
+    {
+      product_id: "123",
+      sku: "G-32",
+      name: "Monopoly",
+      price: 14,
+      quantity: 1,
+      category: "Games",
+      url: "https://www.website.com/product/path",
+      image_url: "https://www.website.com/product/path.jpg",
+    },
+    {
+      product_id: "345",
+      sku: "F-32",
+      name: "UNO",
+      price: 3.45,
+      quantity: 2,
+      category: "Games",
+    },
+  ],
+});
