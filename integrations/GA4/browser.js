@@ -126,32 +126,23 @@ export default class GA4 {
   handleEventMapper(eventMappingObj, properties, products) {
     let destinationProperties = {};
     const event = eventMappingObj.dest;
-    if (Array.isArray(eventMappingObj)) {
-      /* Recursion approach to send multiple payload to GA4 for single event from rudder payload
+    if (eventMappingObj.onlyIncludeParams) {
+      /* Only include params that are present in given mapping config for things like Cart/Product shared, Product/Products shared
        */
-      eventMappingObj.forEach((d) => {
-        // eslint-disable-next-line no-param-reassign
-        this.handleEventMapper(d, properties, products);
-      });
+      const includeParams = eventMappingObj.onlyIncludeParams;
+      destinationProperties = this.getIncludedParameters(
+        includeParams,
+        properties
+      );
     } else {
-      if (eventMappingObj.onlyIncludeParams) {
-        /* Only include params that are present in given mapping config for things like Cart/Product shared, Product/Products shared
-         */
-        const includeParams = eventMappingObj.onlyIncludeParams;
-        destinationProperties = this.getIncludedParameters(
-          includeParams,
-          properties
-        );
-      } else {
-        destinationProperties = this.getdestinationProperties(
-          properties,
-          eventMappingObj.hasItem,
-          products,
-          eventMappingObj.includeList
-        );
-      }
-      this.sendGAEvent(event, destinationProperties, true, eventMappingObj);
+      destinationProperties = this.getdestinationProperties(
+        properties,
+        eventMappingObj.hasItem,
+        products,
+        eventMappingObj.includeList
+      );
     }
+    this.sendGAEvent(event, destinationProperties, true, eventMappingObj);
   }
 
   /**
@@ -165,9 +156,11 @@ export default class GA4 {
     if (!event || isReservedName(event)) {
       throw Error("Cannot call un-named/reserved named track event");
     }
-    const eventMappingObj = getDestinationEventName(event);
-    if (eventMappingObj) {
-      this.handleEventMapper(eventMappingObj, properties, products);
+    const eventMappingArray = getDestinationEventName(event);
+    if (eventMappingArray) {
+      eventMappingArray.forEach((events) => {
+        this.handleEventMapper(events, properties, products);
+      });
     } else {
       this.sendGAEvent(event, properties, false);
     }

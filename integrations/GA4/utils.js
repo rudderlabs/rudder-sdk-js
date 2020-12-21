@@ -41,14 +41,13 @@ function isReservedName(name) {
 }
 
 /**
- * map rudder event name to ga4 ecomm event name and return object
+ * map rudder event name to ga4 ecomm event name and return array
  * @param {*} event
  */
 function getDestinationEventName(event) {
-  const eventConfig = eventNamesConfigArray.filter((p) =>
+  return eventNamesConfigArray.filter((p) =>
     p.src.includes(event.toLowerCase())
   );
-  return eventConfig.length === 1 ? eventConfig[0] : eventConfig;
 }
 
 /**
