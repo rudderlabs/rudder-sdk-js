@@ -11,6 +11,7 @@ import {
   getPageViewProperty,
   hasRequiredParameters,
 } from "./utils";
+import { type } from "../../utils/utils";
 
 export default class GA4 {
   constructor(config, analytics) {
@@ -79,6 +80,8 @@ export default class GA4 {
     );
 
     if (hasItem) {
+      // only for events where GA requires an items array to be sent
+      // get the product related destination keys || if products is not present use the rudder message properties to get the product related destination keys
       destinationProperties.items = getDestinationItemProperties(
         products || [properties],
         destinationProperties.items
@@ -104,12 +107,22 @@ export default class GA4 {
     if (eventMappingObj) {
       event = eventMappingObj.dest;
       if (eventMappingObj.onlyIncludeParams) {
-        /* Only include params that are present in given object
+        /* Only include params that are present in given mapping config for things like Cart/Product shared, Product/Products shared
          */
         const includeParams = eventMappingObj.onlyIncludeParams;
-        Object.keys(includeParams).forEach((key) => {
-          destinationProperties[includeParams[key]] = properties[key];
-        });
+        if (type(includeParams) === "object") {
+          const { defaults, mappings } = includeParams;
+          if (type(defaults) === "object") {
+            Object.keys(defaults).forEach((key) => {
+              destinationProperties[key] = defaults[key];
+            });
+          }
+          if (type(mappings) === "object") {
+            Object.keys(mappings).forEach((key) => {
+              destinationProperties[mappings[key]] = properties[key];
+            });
+          }
+        }
       } else {
         destinationProperties = this.getdestinationProperties(
           properties,

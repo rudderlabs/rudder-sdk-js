@@ -7,13 +7,28 @@ const requiredEventParameters = {
 };
 
 const includeParams = {
-  Share: {
-    share_via: "method",
-    share_message: "content_type",
-    product_id: "content_id",
+  CartShare: {
+    defaults: {
+      content_type: "Cart",
+    },
+    mappings: {
+      share_via: "method",
+      cart_id: "content_id",
+    },
+  },
+  ProductShare: {
+    defaults: {
+      content_type: "Product",
+    },
+    mappings: {
+      share_via: "method",
+      product_id: "content_id",
+    },
   },
   Search: {
-    query: "search_term",
+    mappings: {
+      query: "search_term",
+    },
   },
 };
 
@@ -157,10 +172,17 @@ const eventNamesConfigArray = [
 
   // Sharing Section :: What will be content id ask
   {
-    src: ["product shared", "cart shared"],
+    src: ["product shared"],
     dest: "share",
     hasItem: false,
-    onlyIncludeParams: includeParams.Share,
+    onlyIncludeParams: includeParams.ProductShare,
+  },
+
+  {
+    src: ["cart shared"],
+    dest: "share",
+    hasItem: false,
+    onlyIncludeParams: includeParams.CartShare,
   },
   //---------
 ];
@@ -168,9 +190,9 @@ const eventNamesConfigArray = [
 const eventParametersConfigArray = [
   { src: "list_id", dest: "item_list_id", inItems: true },
   { src: "category", dest: "item_list_name", inItems: true },
-  { src: "promotion_id", dest: "items.promotion_id", required: true },
+  { src: "promotion_id", dest: "items.promotion_id" },
   { src: "creative", dest: "items.creative_slot" },
-  { src: "name", dest: "items.promotion_name", required: true }, // can be removed
+  { src: "name", dest: "items.promotion_name" }, // can be removed
   { src: "position", dest: "location_id", inItems: true }, // can be removed
   { src: "price", dest: "value" },
   { src: "currency", dest: "currency", inItems: true },
@@ -183,10 +205,10 @@ const eventParametersConfigArray = [
 ];
 
 const itemParametersConfigArray = [
-  { src: "product_id", dest: "item_id", required: true },
-  { src: "order_id", dest: "item_id", required: true },
-  { src: "checkout_id", dest: "item_name", required: true },
-  { src: "name", dest: "item_name", required: true },
+  { src: "product_id", dest: "item_id" },
+  { src: "order_id", dest: "item_id" },
+  { src: "checkout_id", dest: "item_name" },
+  { src: "name", dest: "item_name" },
   { src: "coupon", dest: "coupon" },
   { src: "category", dest: "item_category" },
   { src: "brand", dest: "item_brand" },

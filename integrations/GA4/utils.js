@@ -4,6 +4,8 @@ import {
 } from "./ECommerceEventConfig";
 
 import { pageEventParametersConfigArray } from "./PageEventConfig";
+import { type } from "../../utils/utils";
+import logger from "../../utils/logUtil";
 
 /**
  * Check if event name is not one of the following reserved names
@@ -80,12 +82,11 @@ function hasRequiredParameters(props, eventMappingObj) {
       return true;
     }
     return false;
-  } else {
-    for (const i in props.items) {
-      for (const p in requiredParams) {
-        if (!props.items[i][requiredParams[p]]) {
-          return false;
-        }
+  }
+  for (const i in props.items) {
+    for (const p in requiredParams) {
+      if (!props.items[i][requiredParams[p]]) {
+        return false;
       }
     }
   }
@@ -119,6 +120,8 @@ function getDestinationEventProperties(props, destParameterConfig) {
   Object.keys(props).forEach((key) => {
     destParameterConfig.forEach((param) => {
       if (key === param.src) {
+        // parse things like items.promotion_id, where the promotion_id needs to go inside items in GA4 event but is present in Rudder payload as top level props
+        // but not as top level parameter in GA4
         const result = param.dest.split(".");
         if (result.length > 1) {
           destinationProperties = createItemProperty(
@@ -127,6 +130,7 @@ function getDestinationEventProperties(props, destParameterConfig) {
             props[key]
           );
         } else {
+          // handle case where the key needs to go inside items as well as top level params in GA4
           if (param.inItems) {
             destinationProperties = createItemProperty(
               destinationProperties,
@@ -150,13 +154,19 @@ function getDestinationEventProperties(props, destParameterConfig) {
 function getDestinationItemProperties(products, item) {
   const items = [];
   let obj = {};
-  products.forEach((p) => {
-    obj = {
-      ...getDestinationEventProperties(p, itemParametersConfigArray),
-      ...(item && item[0]),
-    };
-    items.push(obj);
-  });
+  if (type(products) !== "array") {
+    logger.debug("Event payload doesn't have products array");
+  } else {
+    // get the dest keys from itemParameters config
+    // append the already created item object keys (this is done to get the keys that are actually top level props in Rudder payload but GA expects them under items too)
+    products.forEach((p) => {
+      obj = {
+        ...getDestinationEventProperties(p, itemParametersConfigArray),
+        ...((item && type(item) === "array" && item[0]) || {}),
+      };
+      items.push(obj);
+    });
+  }
   return items;
 }
 
