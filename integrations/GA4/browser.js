@@ -67,9 +67,11 @@ export default class GA4 {
 
   /**
    * Function to get destination properties for both event parameters and items array if present
+   * For top level properties, include only those properties that are in the includeList
    * @param {*} properties
    * @param {*} hasItem
    * @param {*} products
+   * @param {*} includeList
    */
   getdestinationProperties(properties, hasItem, products, includeList) {
     let destinationProperties = {};
@@ -156,6 +158,7 @@ export default class GA4 {
     if (!event || isReservedName(event)) {
       throw Error("Cannot call un-named/reserved named track event");
     }
+    // get GA4 event name and corresponding configs defined to add properties to that event
     const eventMappingArray = getDestinationEventName(event);
     if (eventMappingArray) {
       eventMappingArray.forEach((events) => {
