@@ -105,7 +105,7 @@ gtag("event", "view_item", {
       quantity: 11,
       coupon: "DISC21",
       index: 1,
-      item_list_name: "Games",  // extra
+      item_list_name: "Games", // extra
       promotion_name: "Game",
       currency: "USD",
       location_id: 1,

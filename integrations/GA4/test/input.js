@@ -128,7 +128,7 @@ rudderanalytics.track("Product Added", {
   url: "https://www.website.com/product/path",
   image_url: "https://www.website.com/product/path.png",
 });
-// 
+//
 rudderanalytics.track("Product Removed", {
   product_id: "123",
   sku: "F15",
