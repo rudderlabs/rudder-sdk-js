@@ -65,6 +65,12 @@ export default class GA4 {
   }
   /* utility functions --- Ends here ---  */
 
+  /**
+   * Function to get destination properties for both event parameters and items array if present
+   * @param {*} properties
+   * @param {*} hasItem
+   * @param {*} products
+   */
   getdestinationProperties(properties, hasItem, products) {
     let destinationProperties = {};
     destinationProperties = getDestinationEventProperties(
@@ -82,6 +88,10 @@ export default class GA4 {
     return destinationProperties;
   }
 
+  /**
+   *
+   * @param {*} rudderElement
+   */
   track(rudderElement) {
     let { event } = rudderElement.message;
     const { properties } = rudderElement.message;
@@ -94,6 +104,8 @@ export default class GA4 {
     if (eventMappingObj) {
       event = eventMappingObj.dest;
       if (eventMappingObj.onlyIncludeParams) {
+        /* Only include params that are present in given object
+         */
         const includeParams = eventMappingObj.onlyIncludeParams;
         Object.keys(includeParams).forEach((key) => {
           destinationProperties[includeParams[key]] = properties[key];
