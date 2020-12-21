@@ -18,6 +18,10 @@ import * as Bugsnag from "./Bugsnag";
 import * as Fullstory from "./Fullstory";
 import * as TVSquared from "./TVSquared";
 import * as GA4 from "./GA4";
+import * as MoEngage from "./MoEngage";
+import * as Amplitude from "./Amplitude";
+import * as Pendo from "./Pendo";
+import * as Lytics from "./Lytics";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -43,6 +47,10 @@ const integrations = {
   FULLSTORY: Fullstory.default,
   TVSQUARED: TVSquared.default,
   GA4: GA4.default,
+  MOENGAGE: MoEngage.default,
+  AM: Amplitude.default,
+  PENDO: Pendo.default,
+  LYTICS: Lytics.default,
 };
 
 export { integrations };

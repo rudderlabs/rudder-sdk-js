@@ -46,6 +46,14 @@ const commonNames = {
   "Google Analytics 4": "GA4",
   GoogleAnalytics4: "GA4",
   GA4: "GA4",
+  MOENGAGE: "MoEngage",
+  AM: "AM",
+  AMPLITUDE: "AM",
+  Amplitude: "AM",
+  Pendo: "PENDO",
+  PENDO: "PENDO",
+  Lytics: "Lytics",
+  LYTICS: "Lytics",
 };
 
 export { commonNames };
