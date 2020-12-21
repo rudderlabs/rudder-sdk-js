@@ -47,6 +47,32 @@ const includeParams = {
   },
 };
 
+const eventParametersConfigArray = {
+  ListId: { src: "list_id", dest: "item_list_id", inItems: true },
+  Category: { src: "category", dest: "item_list_name", inItems: true },
+  Price: { src: "price", dest: "value" },
+  Currency: { src: "currency", dest: "currency", inItems: true },
+  Coupon: { src: "coupon", dest: "coupon", inItems: true },
+  Affiliation: { src: "affiliation", dest: "affiliation", inItems: true },
+  Shipping: { src: "shipping", dest: "shipping" },
+  Tax: { src: "tax", dest: "tax" },
+  Total: { src: "total", dest: "value" },
+  CheckoutId: { src: "checkout_id", dest: "transaction_id" },
+};
+
+const itemParametersConfigArray = [
+  { src: "product_id", dest: "item_id" },
+  { src: "order_id", dest: "item_id" },
+  { src: "name", dest: "item_name" },
+  { src: "coupon", dest: "coupon" },
+  { src: "category", dest: "item_category" },
+  { src: "brand", dest: "item_brand" },
+  { src: "variant", dest: "item_variant" },
+  { src: "price", dest: "price" },
+  { src: "quantity", dest: "quantity" },
+  { src: "position", dest: "index" },
+];
+
 const eventNamesConfigArray = [
   // Browsing Section
   {
@@ -63,6 +89,10 @@ const eventNamesConfigArray = [
       requiredEventParameters.ProductName,
     ],
     hasItem: true,
+    includeList: [
+      eventParametersConfigArray.ListId,
+      eventParametersConfigArray.Category,
+    ],
   },
 
   // Promotion Section
@@ -86,6 +116,10 @@ const eventNamesConfigArray = [
       requiredEventParameters.ProductName,
     ],
     hasItem: true,
+    includeList: [
+      eventParametersConfigArray.ListId,
+      eventParametersConfigArray.Category,
+    ],
   },
   {
     src: ["product viewed"],
@@ -95,6 +129,10 @@ const eventNamesConfigArray = [
       requiredEventParameters.ProductName,
     ],
     hasItem: true,
+    includeList: [
+      eventParametersConfigArray.Currency,
+      eventParametersConfigArray.Total,
+    ],
   },
   {
     src: ["product added"],
@@ -104,6 +142,10 @@ const eventNamesConfigArray = [
       requiredEventParameters.ProductName,
     ],
     hasItem: true,
+    includeList: [
+      eventParametersConfigArray.Currency,
+      eventParametersConfigArray.Total,
+    ],
   },
   {
     src: ["product removed"],
@@ -113,6 +155,10 @@ const eventNamesConfigArray = [
       requiredEventParameters.ProductName,
     ],
     hasItem: true,
+    includeList: [
+      eventParametersConfigArray.Currency,
+      eventParametersConfigArray.Total,
+    ],
   },
   {
     src: ["cart viewed"],
@@ -122,6 +168,10 @@ const eventNamesConfigArray = [
       requiredEventParameters.ProductName,
     ],
     hasItem: true,
+    includeList: [
+      eventParametersConfigArray.Currency,
+      eventParametersConfigArray.Total,
+    ],
   },
   {
     src: ["checkout started"],
@@ -131,6 +181,11 @@ const eventNamesConfigArray = [
       requiredEventParameters.ProductName,
     ],
     hasItem: true,
+    includeList: [
+      eventParametersConfigArray.Coupon,
+      eventParametersConfigArray.Currency,
+      eventParametersConfigArray.Total,
+    ],
   },
   // To handle sending multiple payload for single event use approach as below
   {
@@ -157,11 +212,29 @@ const eventNamesConfigArray = [
       requiredEventParameters.ProductName,
     ],
     hasItem: true,
+    includeList: [
+      eventParametersConfigArray.Affiliation,
+      eventParametersConfigArray.Coupon,
+      eventParametersConfigArray.Currency,
+      eventParametersConfigArray.CheckoutId,
+      eventParametersConfigArray.Shipping,
+      eventParametersConfigArray.Tax,
+      eventParametersConfigArray.Total,
+    ],
   },
   {
     src: ["order refunded"],
     dest: "refund",
     hasItem: true,
+    includeList: [
+      eventParametersConfigArray.Affiliation,
+      eventParametersConfigArray.Coupon,
+      eventParametersConfigArray.Currency,
+      eventParametersConfigArray.CheckoutId,
+      eventParametersConfigArray.Shipping,
+      eventParametersConfigArray.Tax,
+      eventParametersConfigArray.Total,
+    ],
   },
 
   /* Coupon Section
@@ -177,6 +250,10 @@ const eventNamesConfigArray = [
       requiredEventParameters.ProductName,
     ],
     hasItem: true,
+    includeList: [
+      eventParametersConfigArray.Currency,
+      eventParametersConfigArray.Total,
+    ],
   },
   //-------
 
@@ -195,32 +272,6 @@ const eventNamesConfigArray = [
     onlyIncludeParams: includeParams.CartShare,
   },
   //---------
-];
-
-const eventParametersConfigArray = [
-  { src: "list_id", dest: "item_list_id", inItems: true },
-  { src: "category", dest: "item_list_name", inItems: true },
-  { src: "price", dest: "value" },
-  { src: "currency", dest: "currency", inItems: true },
-  { src: "coupon", dest: "coupon", inItems: true },
-  { src: "affiliation", dest: "affiliation", inItems: true },
-  { src: "shipping", dest: "shipping" },
-  { src: "tax", dest: "tax" },
-  { src: "total", dest: "value" },
-];
-
-const itemParametersConfigArray = [
-  { src: "product_id", dest: "item_id" },
-  { src: "order_id", dest: "item_id" },
-  { src: "checkout_id", dest: "item_name" },
-  { src: "name", dest: "item_name" },
-  { src: "coupon", dest: "coupon" },
-  { src: "category", dest: "item_category" },
-  { src: "brand", dest: "item_brand" },
-  { src: "variant", dest: "item_variant" },
-  { src: "price", dest: "price" },
-  { src: "quantity", dest: "quantity" },
-  { src: "position", dest: "index" },
 ];
 
 export {

@@ -3,7 +3,7 @@ const rudderanalytics = [];
 rudderanalytics.track("Products Searched", {
   query: "HDMI cable",
 });
-// 1
+
 rudderanalytics.track("Product List Viewed", {
   list_id: "list1",
   category: "What's New",
@@ -82,7 +82,7 @@ rudderanalytics.track("Promotion Clicked", {
   name: "sale",
   position: "home_top",
 });
-// same 1
+
 rudderanalytics.track("Product Clicked", {
   product_id: "123",
   sku: "F15",
@@ -97,7 +97,7 @@ rudderanalytics.track("Product Clicked", {
   url: "https://www.website.com/product/path",
   image_url: "https://www.website.com/product/path.png",
 });
-// same 1 - but only coupon
+
 rudderanalytics.track("Product Viewed", {
   product_id: "123",
   sku: "F15",
@@ -113,7 +113,7 @@ rudderanalytics.track("Product Viewed", {
   url: "https://www.website.com/product/path",
   image_url: "https://www.website.com/product/path.png",
 });
-// same 1
+
 rudderanalytics.track("Product Added", {
   product_id: "123",
   sku: "F15",
@@ -128,7 +128,7 @@ rudderanalytics.track("Product Added", {
   url: "https://www.website.com/product/path",
   image_url: "https://www.website.com/product/path.png",
 });
-//
+
 rudderanalytics.track("Product Removed", {
   product_id: "123",
   sku: "F15",

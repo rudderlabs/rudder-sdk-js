@@ -72,11 +72,11 @@ export default class GA4 {
    * @param {*} hasItem
    * @param {*} products
    */
-  getdestinationProperties(properties, hasItem, products) {
+  getdestinationProperties(properties, hasItem, products, includeList) {
     let destinationProperties = {};
     destinationProperties = getDestinationEventProperties(
       properties,
-      eventParametersConfigArray,
+      includeList,
       hasItem
     );
 
@@ -148,7 +148,8 @@ export default class GA4 {
         destinationProperties = this.getdestinationProperties(
           properties,
           eventMappingObj.hasItem,
-          products
+          products,
+          eventMappingObj.includeList
         );
       }
       this.sendGAEvent(event, destinationProperties, true, eventMappingObj);

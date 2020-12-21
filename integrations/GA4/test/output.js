@@ -71,7 +71,6 @@ gtag("event", "view_promotion", { location_id: "home_top" });
 
 gtag("event", "select_promotion", { location_id: "home_top" });
 
-// extra params/
 gtag("event", "select_item", {
   items: [
     {
@@ -92,7 +91,6 @@ gtag("event", "select_item", {
   coupon: "DISC21", // extra
 });
 
-// extra params/
 gtag("event", "view_item", {
   items: [
     {
@@ -117,7 +115,6 @@ gtag("event", "view_item", {
   currency: "USD",
 });
 
-// extra params/
 window.gtag("event", "add_to_cart", {
   content_id: "123",
   items: [
@@ -142,7 +139,6 @@ window.gtag("event", "add_to_cart", {
   location_id: 1,
 });
 
-// extra params/
 window.gtag("event", "remove_from_cart", {
   content_id: "123",
   items: [
@@ -167,7 +163,6 @@ window.gtag("event", "remove_from_cart", {
   location_id: 1,
 });
 
-// extra params/
 window.gtag("event", "view_cart", {
   items: [
     {
@@ -187,7 +182,6 @@ window.gtag("event", "view_cart", {
   ],
 });
 
-// extra params/
 window.gtag("event", "begin_checkout", {
   items: [
     {
@@ -229,7 +223,6 @@ const multiplePayloadExample = [
   }),
 ];
 
-// extra params/
 window.gtag("event", "purchase", {
   items: [
     {
