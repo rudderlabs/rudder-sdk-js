@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import { eventParametersConfigArray } from "./ECommerceEventConfig";
 
 import {
   isReservedName,
@@ -127,12 +126,11 @@ export default class GA4 {
   handleEventMapper(eventMappingObj, properties, products) {
     let destinationProperties = {};
     const event = eventMappingObj.dest;
-    if (eventMappingObj.hasMultiplePayload && Array.isArray(event)) {
+    if (Array.isArray(eventMappingObj)) {
       /* Recursion approach to send multiple payload to GA4 for single event from rudder payload
        */
-      event.forEach((d) => {
+      eventMappingObj.forEach((d) => {
         // eslint-disable-next-line no-param-reassign
-        d.src = eventMappingObj.src;
         this.handleEventMapper(d, properties, products);
       });
     } else {

@@ -32,16 +32,6 @@ const includeParams = {
       query: "search_term",
     },
   },
-  PaymentInfo: {
-    mappings: {
-      payment_method: "payment_type",
-    },
-  },
-  ShippingInfo: {
-    mappings: {
-      shipping_method: "shipping_tier",
-    },
-  },
   Promotion: {
     mappings: {
       position: "location_id",
@@ -60,6 +50,8 @@ const eventParametersConfigArray = {
   Tax: { src: "tax", dest: "tax" },
   Total: { src: "total", dest: "value" },
   CheckoutId: { src: "checkout_id", dest: "transaction_id" },
+  ShippingMethod: { src: "shipping_method", dest: "shipping_tier" },
+  PaymentMethod: { src: "payment_method", dest: "payment_type" },
 };
 
 const itemParametersConfigArray = [
@@ -189,22 +181,17 @@ const eventNamesConfigArray = [
       eventParametersConfigArray.Total,
     ],
   },
-  // To handle sending multiple payload for single event use approach as below
   {
     src: ["payment info entered"],
-    dest: [
-      {
-        dest: "add_payment_info",
-        hasItem: false,
-        onlyIncludeParams: includeParams.PaymentInfo,
-      },
-      {
-        dest: "add_shipping_info",
-        hasItem: false,
-        onlyIncludeParams: includeParams.ShippingInfo,
-      },
-    ],
-    hasMultiplePayload: true,
+    dest: "add_payment_info",
+    hasItem: false,
+    includeList: [eventParametersConfigArray.PaymentMethod],
+  },
+  {
+    src: ["payment info entered"],
+    dest: "add_shipping_info",
+    hasItem: false,
+    includeList: [eventParametersConfigArray.ShippingMethod],
   },
   {
     src: ["order completed"],

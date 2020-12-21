@@ -45,7 +45,10 @@ function isReservedName(name) {
  * @param {*} event
  */
 function getDestinationEventName(event) {
-  return eventNamesConfigArray.find((p) => p.src.includes(event.toLowerCase()));
+  const eventConfig = eventNamesConfigArray.filter((p) =>
+    p.src.includes(event.toLowerCase())
+  );
+  return eventConfig.length === 1 ? eventConfig[0] : eventConfig;
 }
 
 /**
