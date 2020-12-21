@@ -55,10 +55,6 @@ export default class GA4 {
     this.loadScript(this.measurementId, userId);
   }
 
-  // When adding events do everything ion lowercase.
-  // use underscores instead of spaces
-  // Register your parameters to show them up in UI even user_id
-
   /* utility functions ---Start here ---  */
   isLoaded() {
     return !!(window.gtag && window.gtag.push !== Array.prototype.push);
@@ -68,6 +64,23 @@ export default class GA4 {
     return !!(window.gtag && window.gtag.push !== Array.prototype.push);
   }
   /* utility functions --- Ends here ---  */
+
+  getdestinationProperties(properties, hasItem, products) {
+    let destinationProperties = {};
+    destinationProperties = getDestinationEventProperties(
+      properties,
+      eventParametersConfigArray
+    );
+
+    if (hasItem) {
+      destinationProperties.items = getDestinationItemProperties(
+        products || [properties],
+        destinationProperties.items
+      );
+    }
+
+    return destinationProperties;
+  }
 
   track(rudderElement) {
     let { event } = rudderElement.message;
@@ -79,31 +92,18 @@ export default class GA4 {
     }
     const eventMappingObj = getDestinationEventName(event);
     if (eventMappingObj) {
-      if (products && Array.isArray(products)) {
-        event = eventMappingObj.dest;
-        // eslint-disable-next-line no-const-assign
-        destinationProperties = getDestinationEventProperties(
-          properties,
-          eventParametersConfigArray
-        );
-        destinationProperties.items = getDestinationItemProperties(
-          products,
-          destinationProperties.items
-        );
+      event = eventMappingObj.dest;
+      if (eventMappingObj.onlyIncludeParams) {
+        const includeParams = eventMappingObj.onlyIncludeParams;
+        Object.keys(includeParams).forEach((key) => {
+          destinationProperties[includeParams[key]] = properties[key];
+        });
       } else {
-        event = eventMappingObj.dest;
-        if (!eventMappingObj.hasItem) {
-          // eslint-disable-next-line no-const-assign
-          destinationProperties = getDestinationEventProperties(
-            properties,
-            eventParametersConfigArray
-          );
-        } else {
-          // create items
-          destinationProperties.items = getDestinationItemProperties([
-            properties,
-          ]);
-        }
+        destinationProperties = this.getdestinationProperties(
+          properties,
+          eventMappingObj.hasItem,
+          products
+        );
       }
     } else {
       destinationProperties = properties;

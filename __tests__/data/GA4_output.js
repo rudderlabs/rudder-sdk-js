@@ -67,7 +67,9 @@ gtag("event", "Product List Filtered", {
   ],
 });
 
+// extra params/
 gtag("event", "select_item", {
+  content_id: "123", // extra
   items: [
     {
       item_id: "123",
@@ -79,11 +81,20 @@ gtag("event", "select_item", {
       quantity: 11,
       coupon: "DISC21",
       index: 1,
+      item_list_name: "Games",
+      promotion_name: "Game", // extra
+      location_id: 1, // extra
     },
   ],
+  item_list_name: "Games",
+  value: 13.49, // extra
+  coupon: "DISC21", // extra
+  location_id: 1, // extra
 });
 
+// extra params/
 gtag("event", "view_item", {
+  content_id: "123",
   items: [
     {
       item_id: "123",
@@ -95,11 +106,22 @@ gtag("event", "view_item", {
       quantity: 11,
       coupon: "DISC21",
       index: 1,
+      item_list_name: "Games",
+      promotion_name: "Game",
+      currency: "USD",
+      location_id: 1,
     },
   ],
+  item_list_name: "Games",
+  value: 13.49,
+  coupon: "DISC21",
+  currency: "USD",
+  location_id: 1,
 });
 
+// extra params/
 window.gtag("event", "add_to_cart", {
+  content_id: "123",
   items: [
     {
       item_id: "123",
@@ -111,11 +133,20 @@ window.gtag("event", "add_to_cart", {
       quantity: 11,
       coupon: "DISC21",
       index: 1,
+      item_list_name: "Games",
+      promotion_name: "Game",
+      location_id: 1,
     },
   ],
+  item_list_name: "Games",
+  value: 13.49,
+  coupon: "DISC21",
+  location_id: 1,
 });
 
+// extra params/
 window.gtag("event", "remove_from_cart", {
+  content_id: "123",
   items: [
     {
       item_id: "123",
@@ -127,10 +158,18 @@ window.gtag("event", "remove_from_cart", {
       quantity: 11,
       coupon: "DISC21",
       index: 1,
+      item_list_name: "Games",
+      promotion_name: "Game",
+      location_id: 1,
     },
   ],
+  item_list_name: "Games",
+  value: 13.49,
+  coupon: "DISC21",
+  location_id: 1,
 });
 
+// extra params/
 window.gtag("event", "view_cart", {
   items: [
     {
@@ -150,12 +189,8 @@ window.gtag("event", "view_cart", {
   ],
 });
 
+// extra params/
 window.gtag("event", "begin_checkout", {
-  affiliation: "Apple Store",
-  shipping: 22,
-  tax: 1,
-  coupon: "ImagePro",
-  currency: "USD",
   items: [
     {
       item_id: "123",
@@ -178,4 +213,105 @@ window.gtag("event", "begin_checkout", {
       currency: "USD",
     },
   ],
+  affiliation: "Apple Store",
+  shipping: 22,
+  tax: 1,
+  coupon: "ImagePro",
+  currency: "USD",
+});
+
+// not extra
+window.gtag("event", "add_payment_info", {
+  payment_type: "card",
+  items: [
+    {
+      item_name: "12344",
+      item_id: "123",
+    },
+  ],
+});
+
+// extra params/
+window.gtag("event", "purchase", {
+  items: [
+    {
+      item_id: "123",
+      item_name: "Monopoly",
+      price: 14,
+      quantity: 1,
+      item_category: "Games",
+      affiliation: "Apple Store",
+      coupon: "ImagePro",
+      currency: "USD",
+    },
+    {
+      item_id: "345",
+      item_name: "UNO",
+      price: 3.45,
+      quantity: 2,
+      item_category: "Games",
+      affiliation: "Apple Store",
+      coupon: "ImagePro",
+      currency: "USD",
+    },
+  ],
+  affiliation: "Apple Store",
+  value: 20,
+  shipping: 22,
+  tax: 1,
+  coupon: "ImagePro",
+  currency: "USD",
+});
+
+window.gtag("event", "refund", {
+  value: 20,
+  items: [
+    {
+      item_id: "123",
+      item_name: "Monopoly",
+      price: 17,
+      quantity: 1,
+      item_category: "Games",
+      currency: "USD",
+    },
+    {
+      item_id: "345",
+      item_name: "UNO",
+      price: 3,
+      quantity: 1,
+      item_category: "Games",
+      currency: "USD",
+    },
+  ],
+  currency: "USD",
+});
+
+window.gtag("event", "add_to_wishlist", {
+  content_id: "235564423234",
+  items: [
+    {
+      item_id: "235564423234",
+      item_category: "Games",
+      item_name: "Cards",
+      item_brand: "Imagepro",
+      item_variant: "123",
+      price: 8.99,
+      quantity: 1,
+      coupon: "COUPON",
+      index: 1,
+      item_list_name: "Games",
+      promotion_name: "Cards",
+      location_id: 1,
+    },
+  ],
+  item_list_name: "Games",
+  value: 8.99,
+  coupon: "COUPON",
+  location_id: 1,
+});
+
+window.gtag("event", "share", {
+  method: "SMS",
+  content_type: "Check this",
+  content_id: "12345872254426",
 });

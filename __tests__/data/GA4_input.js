@@ -185,3 +185,102 @@ rudderanalytics.track("Checkout Started", {
     },
   ],
 });
+
+rudderanalytics.track("Payment Info Entered", {
+  checkout_id: "12344",
+  order_id: "123",
+  step: "3",
+  shipping_method: "ekart",
+  payment_method: "card",
+});
+
+rudderanalytics.track("Order Completed", {
+  checkout_id: "12345",
+  order_id: "1234",
+  affiliation: "Apple Store",
+  total: 20,
+  revenue: 15.0,
+  shipping: 22,
+  tax: 1,
+  discount: 1.5,
+  coupon: "ImagePro",
+  currency: "USD",
+  products: [
+    {
+      product_id: "123",
+      sku: "G-32",
+      name: "Monopoly",
+      price: 14,
+      quantity: 1,
+      category: "Games",
+      url: "https://www.website.com/product/path",
+      image_url: "https://www.website.com/product/path.jpg",
+    },
+    {
+      product_id: "345",
+      sku: "F-32",
+      name: "UNO",
+      price: 3.45,
+      quantity: 2,
+      category: "Games",
+    },
+  ],
+});
+
+rudderanalytics.track("Order Refunded", {
+  order_id: "1234",
+  total: 20,
+  currency: "USD",
+  products: [
+    {
+      product_id: "123",
+      sku: "G-32",
+      name: "Monopoly",
+      price: 17,
+      quantity: 1,
+      category: "Games",
+      url: "https://www.website.com/product/path",
+      image_url: "https://www.website.com/product/path.jpg",
+    },
+    {
+      product_id: "345",
+      sku: "F-32",
+      name: "UNO",
+      price: 3,
+      quantity: 1,
+      category: "Games",
+    },
+  ],
+});
+
+rudderanalytics.track("Product Added to Wishlist", {
+  wishlist_id: "12345",
+  wishlist_name: "Games",
+  product_id: "235564423234",
+  sku: "F-17",
+  category: "Games",
+  name: "Cards",
+  brand: "Imagepro",
+  variant: "123",
+  price: 8.99,
+  quantity: 1,
+  coupon: "COUPON",
+  position: 1,
+  url: "https://www.site.com/product/path",
+  image_url: "https://www.site.com/product/path.jpg",
+});
+
+rudderanalytics.track("Product Shared", {
+  share_via: "SMS",
+  share_message: "Check this",
+  recipient: "name@friendsemail.com",
+  product_id: "12345872254426",
+  sku: "F-13",
+  category: "Games",
+  name: "Cards",
+  brand: "Maples",
+  variant: "150s",
+  price: 15.99,
+  url: "https://www.myecommercewebsite.com/product/prod",
+  image_url: "https://www.myecommercewebsite.com/product/prod.jpg",
+});
