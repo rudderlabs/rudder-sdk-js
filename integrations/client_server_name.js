@@ -20,10 +20,11 @@ const clientToServerNames = {
   OPTIMIZELY: "Optimizely",
   FULLSTORY: "Fullstory",
   TVSQUUARED: "TVSquared",
+  GA4: "Google Analytics 4",
   MOENGAGE: "MoEngage",
   AM: "Amplitude",
   PENDO: "Pendo",
-  LYTICS: "Lytics"
+  LYTICS: "Lytics",
 };
 
 export { clientToServerNames };

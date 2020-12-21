@@ -468,5 +468,5 @@ export {
   handleError,
   rejectArr,
   type,
-  flattenJsonPayload
+  flattenJsonPayload,
 };
