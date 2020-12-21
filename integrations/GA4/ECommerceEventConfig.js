@@ -30,6 +30,21 @@ const includeParams = {
       query: "search_term",
     },
   },
+  PaymentInfo: {
+    mappings: {
+      payment_method: "payment_type",
+    },
+  },
+  ShippingInfo: {
+    mappings: {
+      shipping_method: "shipping_tier",
+    },
+  },
+  Promotion: {
+    mappings: {
+      position: "location_id",
+    },
+  },
 };
 
 const eventNamesConfigArray = [
@@ -50,28 +65,16 @@ const eventNamesConfigArray = [
     hasItem: true,
   },
 
-  // Promotion Section :: Discuss
+  // Promotion Section
   {
     src: ["promotion viewed"],
     dest: "view_promotion",
-    requiredParams: [
-      requiredEventParameters.ProductId,
-      requiredEventParameters.ProductName,
-      requiredEventParameters.PromotionId,
-      requiredEventParameters.PromotionName,
-    ],
-    hasItem: true,
+    onlyIncludeParams: includeParams.Promotion,
   },
   {
     src: ["promotion clicked"],
     dest: "select_promotion",
-    requiredParams: [
-      requiredEventParameters.ProductId,
-      requiredEventParameters.ProductName,
-      requiredEventParameters.PromotionId,
-      requiredEventParameters.PromotionName,
-    ],
-    hasItem: true,
+    onlyIncludeParams: includeParams.Promotion,
   },
 
   // Ordering Section
@@ -129,14 +132,22 @@ const eventNamesConfigArray = [
     ],
     hasItem: true,
   },
+  // To handle sending multiple payload for single event use approach as below
   {
-    src: ["payment info entered"], // adding item_name as checkout_id. I know its not feasible but what is correct value to send.
-    dest: "add_payment_info",
-    requiredParams: [
-      requiredEventParameters.ProductId,
-      requiredEventParameters.ProductName,
+    src: ["payment info entered"],
+    dest: [
+      {
+        dest: "add_payment_info",
+        hasItem: false,
+        onlyIncludeParams: includeParams.PaymentInfo,
+      },
+      {
+        dest: "add_shipping_info",
+        hasItem: false,
+        onlyIncludeParams: includeParams.ShippingInfo,
+      },
     ],
-    hasItem: true,
+    hasMultiplePayload: true,
   },
   {
     src: ["order completed"],
@@ -147,12 +158,11 @@ const eventNamesConfigArray = [
     ],
     hasItem: true,
   },
-  // Check how to do
   {
     src: ["order refunded"],
     dest: "refund",
     hasItem: true,
-  }, // GA4 refund is different it supports two refund, partial and full refund  // order_id
+  },
 
   /* Coupon Section
     No Coupon Events present in GA4
@@ -170,7 +180,7 @@ const eventNamesConfigArray = [
   },
   //-------
 
-  // Sharing Section :: What will be content id ask
+  // Sharing Section
   {
     src: ["product shared"],
     dest: "share",
@@ -190,14 +200,9 @@ const eventNamesConfigArray = [
 const eventParametersConfigArray = [
   { src: "list_id", dest: "item_list_id", inItems: true },
   { src: "category", dest: "item_list_name", inItems: true },
-  { src: "promotion_id", dest: "items.promotion_id" },
-  { src: "creative", dest: "items.creative_slot" },
-  { src: "name", dest: "items.promotion_name" }, // can be removed
-  { src: "position", dest: "location_id", inItems: true }, // can be removed
   { src: "price", dest: "value" },
   { src: "currency", dest: "currency", inItems: true },
   { src: "coupon", dest: "coupon", inItems: true },
-  { src: "payment_method", dest: "payment_type" },
   { src: "affiliation", dest: "affiliation", inItems: true },
   { src: "shipping", dest: "shipping" },
   { src: "tax", dest: "tax" },

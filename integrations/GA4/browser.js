@@ -76,7 +76,8 @@ export default class GA4 {
     let destinationProperties = {};
     destinationProperties = getDestinationEventProperties(
       properties,
-      eventParametersConfigArray
+      eventParametersConfigArray,
+      hasItem
     );
 
     if (hasItem) {
@@ -92,37 +93,57 @@ export default class GA4 {
   }
 
   /**
-   *
-   * @param {*} rudderElement
+   * Only include params that are present in given mapping config for things like Cart/Product shared, Product/Products shared
+   * @param {*} params
+   * @param {*} properties
    */
-  track(rudderElement) {
-    let { event } = rudderElement.message;
-    const { properties } = rudderElement.message;
-    const { products } = properties;
-    let destinationProperties = {};
-    if (!event || isReservedName(event)) {
-      throw Error("Cannot call un-named/reserved named track event");
+  getIncludedParameters(params, properties) {
+    const destinationProperties = {};
+    if (type(params) === "object") {
+      const { defaults, mappings } = params;
+      if (type(defaults) === "object") {
+        Object.keys(defaults).forEach((key) => {
+          destinationProperties[key] = defaults[key];
+        });
+      }
+      if (type(mappings) === "object") {
+        Object.keys(mappings).forEach((key) => {
+          destinationProperties[mappings[key]] = properties[key];
+        });
+      }
     }
-    const eventMappingObj = getDestinationEventName(event);
-    if (eventMappingObj) {
-      event = eventMappingObj.dest;
+    return destinationProperties;
+  }
+
+  sendGAEvent(event, parameters, checkRequiredParameters, eventMappingObj) {
+    if (checkRequiredParameters) {
+      if (!hasRequiredParameters(parameters, eventMappingObj)) {
+        throw Error("Payload must have required parameters..");
+      }
+    }
+    window.gtag("event", event, parameters);
+  }
+
+  handleEventMapper(eventMappingObj, properties, products) {
+    let destinationProperties = {};
+    const event = eventMappingObj.dest;
+    if (eventMappingObj.hasMultiplePayload && Array.isArray(event)) {
+      /* Recursion approach to send multiple payload to GA4 for single event from rudder payload
+       */
+      event.forEach((d) => {
+        // eslint-disable-next-line no-param-reassign
+        d.src = eventMappingObj.src;
+        this.handleEventMapper(d, properties, products);
+      });
+    } else {
       if (eventMappingObj.onlyIncludeParams) {
         /* Only include params that are present in given mapping config for things like Cart/Product shared, Product/Products shared
          */
         const includeParams = eventMappingObj.onlyIncludeParams;
-        if (type(includeParams) === "object") {
-          const { defaults, mappings } = includeParams;
-          if (type(defaults) === "object") {
-            Object.keys(defaults).forEach((key) => {
-              destinationProperties[key] = defaults[key];
-            });
-          }
-          if (type(mappings) === "object") {
-            Object.keys(mappings).forEach((key) => {
-              destinationProperties[mappings[key]] = properties[key];
-            });
-          }
-        }
+        destinationProperties = this.getIncludedParameters(
+          includeParams,
+          properties
+        );
       } else {
         destinationProperties = this.getdestinationProperties(
           properties,
@@ -130,15 +151,27 @@ export default class GA4 {
           products
         );
       }
+      this.sendGAEvent(event, destinationProperties, true, eventMappingObj);
+    }
+  }
+
+  /**
+   *
+   * @param {*} rudderElement
+   */
+  track(rudderElement) {
+    const { event } = rudderElement.message;
+    const { properties } = rudderElement.message;
+    const { products } = properties;
+    if (!event || isReservedName(event)) {
+      throw Error("Cannot call un-named/reserved named track event");
+    }
+    const eventMappingObj = getDestinationEventName(event);
+    if (eventMappingObj) {
+      this.handleEventMapper(eventMappingObj, properties, products);
     } else {
-      destinationProperties = properties;
+      this.sendGAEvent(event, properties, false);
     }
-
-    if (!hasRequiredParameters(destinationProperties, eventMappingObj)) {
-      throw Error("Payload must have required parameters..");
-    }
-
-    window.gtag("event", event, destinationProperties);
   }
 
   identify(rudderElement) {

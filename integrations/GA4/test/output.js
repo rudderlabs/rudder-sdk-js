@@ -67,9 +67,12 @@ gtag("event", "Product List Filtered", {
   ],
 });
 
+gtag("event", "view_promotion", { location_id: "home_top" });
+
+gtag("event", "select_promotion", { location_id: "home_top" });
+
 // extra params/
 gtag("event", "select_item", {
-  content_id: "123", // extra
   items: [
     {
       item_id: "123",
@@ -82,19 +85,15 @@ gtag("event", "select_item", {
       coupon: "DISC21",
       index: 1,
       item_list_name: "Games",
-      promotion_name: "Game", // extra
-      location_id: 1, // extra
     },
   ],
   item_list_name: "Games",
   value: 13.49, // extra
   coupon: "DISC21", // extra
-  location_id: 1, // extra
 });
 
 // extra params/
 gtag("event", "view_item", {
-  content_id: "123",
   items: [
     {
       item_id: "123",
@@ -106,17 +105,16 @@ gtag("event", "view_item", {
       quantity: 11,
       coupon: "DISC21",
       index: 1,
-      item_list_name: "Games",
+      item_list_name: "Games",  // extra
       promotion_name: "Game",
       currency: "USD",
       location_id: 1,
     },
   ],
-  item_list_name: "Games",
+  item_list_name: "Games", // extra
   value: 13.49,
-  coupon: "DISC21",
+  coupon: "DISC21", // extra
   currency: "USD",
-  location_id: 1,
 });
 
 // extra params/
@@ -220,16 +218,16 @@ window.gtag("event", "begin_checkout", {
   currency: "USD",
 });
 
-// not extra
-window.gtag("event", "add_payment_info", {
-  payment_type: "card",
-  items: [
-    {
-      item_name: "12344",
-      item_id: "123",
-    },
-  ],
-});
+// eslint-disable-next-line no-unused-vars
+const multiplePayloadExample = [
+  window.gtag("event", "add_payment_info", {
+    payment_type: "card",
+  }),
+
+  window.gtag("event", "add_shipping_info", {
+    shipping_tier: "ekart",
+  }),
+];
 
 // extra params/
 window.gtag("event", "purchase", {

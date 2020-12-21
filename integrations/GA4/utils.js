@@ -115,31 +115,24 @@ function hasRequiredParameters(props, eventMappingObj) {
   "item_list_name": "games"
 }
 */
-function getDestinationEventProperties(props, destParameterConfig) {
+function getDestinationEventProperties(
+  props,
+  destParameterConfig,
+  hasItem = true
+) {
   let destinationProperties = {};
   Object.keys(props).forEach((key) => {
     destParameterConfig.forEach((param) => {
       if (key === param.src) {
-        // parse things like items.promotion_id, where the promotion_id needs to go inside items in GA4 event but is present in Rudder payload as top level props
-        // but not as top level parameter in GA4
-        const result = param.dest.split(".");
-        if (result.length > 1) {
+        // handle case where the key needs to go inside items as well as top level params in GA4
+        if (param.inItems && hasItem) {
           destinationProperties = createItemProperty(
             destinationProperties,
-            result[1],
+            param.dest,
             props[key]
           );
-        } else {
-          // handle case where the key needs to go inside items as well as top level params in GA4
-          if (param.inItems) {
-            destinationProperties = createItemProperty(
-              destinationProperties,
-              param.dest,
-              props[key]
-            );
-          }
-          destinationProperties[result] = props[key];
         }
+        destinationProperties[param.dest] = props[key];
       }
     });
   });
