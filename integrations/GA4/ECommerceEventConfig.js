@@ -6,6 +6,8 @@ const requiredEventParameters = {
   ProductName: "item_name",
 };
 
+// To Do : Future Scope :: We can remove this one and add everything in include list.
+// This will also simplify our existing code and complex logics related to that
 const includeParams = {
   CartShare: {
     defaults: {
