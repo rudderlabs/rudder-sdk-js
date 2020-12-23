@@ -16568,6 +16568,14 @@ var rudderanalytics = (function (exports) {
       key: "isReady",
       value: function isReady() {
         logger.debug("in appcues isReady");
+        window.Appcues.on("all", function (eventName, event) {
+          window.rudderanalytics.track(eventName, event, {
+            integrations: {
+              All: true,
+              APPCUES: false
+            }
+          });
+        });
         return !!window.Appcues;
       }
     }, {
@@ -16598,6 +16606,11 @@ var rudderanalytics = (function (exports) {
             name = _rudderElement$messag.name,
             category = _rudderElement$messag.category;
         window.Appcues.page(name, properties);
+      }
+    }, {
+      key: "reset",
+      value: function reset() {
+        window.Appcues.reset();
       }
     }]);
 
