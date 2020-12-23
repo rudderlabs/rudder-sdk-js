@@ -6,14 +6,13 @@ class Appcues {
     this.accountId = config.accountId;
     this.apiKey = config.apiKey;
     this.name = "APPCUES";
-    console.log(this.accountId);
   }
 
   init() {
     logger.debug("===in init Appcues===");
     ScriptLoader(
       "appcues-id",
-      `https:////fast.appcues.com/${this.accountId}.js`
+      `https://fast.appcues.com/${this.accountId}.js`
     );
   }
 
@@ -28,27 +27,35 @@ class Appcues {
   }
 
   identify(rudderElement) {
-    const { traits } = rudderElement.message.context;
-    const { userId } = rudderElement.message;
-    if(userId)
-    {
-     window.Appcues.identify(userId,traits);
+    const {
+      traits
+    } = rudderElement.message.context;
+    const {
+      userId
+    } = rudderElement.message;
+    if (userId) {
+      window.Appcues.identify(userId, traits);
     }
   }
 
   track(rudderElement) {
     const eventName = rudderElement.message.event;
-    let { properties } = rudderElement.message;
-    if(eventName)
-    {
-        window.Appcues.track(eventName,properties);
+    let {
+      properties
+    } = rudderElement.message;
+    if (eventName) {
+      window.Appcues.track(eventName, properties);
     }
-}
+  }
 
   page(rudderElement) {
-    const { userId } = rudderElement.message;
-    const eventName = rudderElement.message.name;
-    let { properties } = rudderElement.message;
+    const {
+      properties,
+      name,
+      category
+    } = rudderElement.message;
+    window.Appcues.page(name, properties);
+  }
 }
-}
-export { Appcues }; 
+
+export default Appcues;
