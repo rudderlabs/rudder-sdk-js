@@ -16549,7 +16549,7 @@ var rudderanalytics = (function (exports) {
 
       this.accountId = config.accountId;
       this.apiKey = config.apiKey;
-      this.name = "APPCUES";
+      this.name = "APPCUES"; //this.sendToAllDestinations = config.sendToAll;
     }
 
     _createClass(Appcues, [{
@@ -16567,15 +16567,17 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "isReady",
       value: function isReady() {
-        logger.debug("in appcues isReady");
-        window.Appcues.on("all", function (eventName, event) {
-          window.rudderanalytics.track(eventName, event, {
-            integrations: {
-              All: true,
-              APPCUES: false
-            }
-          });
-        });
+        logger.debug("in appcues isReady"); // if (this.sendToAllDestinations) {
+        //   window.Appcues.on("all", function(eventName, event) {
+        //     window.rudderanalytics.track(eventName, event, {
+        //       integrations: {
+        //         All: true,
+        //         APPCUES: false
+        //       }
+        //     });
+        //   });
+        // }
+
         return !!window.Appcues;
       }
     }, {

@@ -6,6 +6,7 @@ class Appcues {
     this.accountId = config.accountId;
     this.apiKey = config.apiKey;
     this.name = "APPCUES";
+    //this.sendToAllDestinations = config.sendToAll;
   }
 
   init() {
@@ -23,14 +24,16 @@ class Appcues {
 
   isReady() {
     logger.debug("in appcues isReady");
-    window.Appcues.on("all", function(eventName, event) {
-      window.rudderanalytics.track(eventName, event, {
-        integrations: {
-          All: true,
-          APPCUES: false
-        }
-      });
-    });
+    // if (this.sendToAllDestinations) {
+    //   window.Appcues.on("all", function(eventName, event) {
+    //     window.rudderanalytics.track(eventName, event, {
+    //       integrations: {
+    //         All: true,
+    //         APPCUES: false
+    //       }
+    //     });
+    //   });
+    // }
     return !!window.Appcues;
   }
 
