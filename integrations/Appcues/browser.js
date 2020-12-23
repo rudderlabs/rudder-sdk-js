@@ -23,6 +23,14 @@ class Appcues {
 
   isReady() {
     logger.debug("in appcues isReady");
+    window.Appcues.on("all", function(eventName, event) {
+      window.rudderanalytics.track(eventName, event, {
+        integrations: {
+          All: true,
+          APPCUES: false
+        }
+      });
+    });
     return !!window.Appcues;
   }
 
@@ -56,6 +64,11 @@ class Appcues {
     } = rudderElement.message;
     window.Appcues.page(name, properties);
   }
+
+  reset() {
+    window.Appcues.reset();
+  }
+
 }
 
 export default Appcues;
