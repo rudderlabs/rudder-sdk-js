@@ -54,6 +54,8 @@ const commonNames = {
   PENDO: "PENDO",
   Lytics: "Lytics",
   LYTICS: "Lytics",
+  Appcues: "APPCUES",
+  APPCUES: "APPCUES",
 };
 
 export { commonNames };

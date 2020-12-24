@@ -25,6 +25,7 @@ const clientToServerNames = {
   AM: "Amplitude",
   PENDO: "Pendo",
   LYTICS: "Lytics",
+  APPCUES: "Appcues",
 };
 
 export { clientToServerNames };
