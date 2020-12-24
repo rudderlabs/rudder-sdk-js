@@ -3158,7 +3158,9 @@ var rudderanalytics = (function (exports) {
     Pendo: "PENDO",
     PENDO: "PENDO",
     Lytics: "Lytics",
-    LYTICS: "Lytics"
+    LYTICS: "Lytics",
+    Appcues: "APPCUES",
+    APPCUES: "APPCUES"
   };
 
   // from client native integration name to server identified display name
@@ -3187,7 +3189,8 @@ var rudderanalytics = (function (exports) {
     MOENGAGE: "MoEngage",
     AM: "Amplitude",
     PENDO: "Pendo",
-    LYTICS: "Lytics"
+    LYTICS: "Lytics",
+    APPCUES: "Appcues"
   };
 
   // Message Type enumeration
@@ -16567,7 +16570,8 @@ var rudderanalytics = (function (exports) {
     }, {
       key: "isReady",
       value: function isReady() {
-        logger.debug("in appcues isReady"); // if (this.sendToAllDestinations) {
+        logger.debug("in appcues isReady"); // This block of code enables us to send Appcues Flow events to all the other destinations connected to the same source (we might use it in future)
+        // if (this.sendToAllDestinations && window.Appcues) {
         //   window.Appcues.on("all", function(eventName, event) {
         //     window.rudderanalytics.track(eventName, event, {
         //       integrations: {
@@ -16588,6 +16592,8 @@ var rudderanalytics = (function (exports) {
 
         if (userId) {
           window.Appcues.identify(userId, traits);
+        } else {
+          logger.error("user id is empty");
         }
       }
     }, {
@@ -16598,6 +16604,8 @@ var rudderanalytics = (function (exports) {
 
         if (eventName) {
           window.Appcues.track(eventName, properties);
+        } else {
+          logger.error("event name is empty");
         }
       }
     }, {
@@ -16605,15 +16613,13 @@ var rudderanalytics = (function (exports) {
       value: function page(rudderElement) {
         var _rudderElement$messag = rudderElement.message,
             properties = _rudderElement$messag.properties,
-            name = _rudderElement$messag.name,
-            category = _rudderElement$messag.category;
+            name = _rudderElement$messag.name;
         window.Appcues.page(name, properties);
-      }
-    }, {
-      key: "reset",
-      value: function reset() {
-        window.Appcues.reset();
-      }
+      } // To be uncommented after adding Reset feature to our SDK
+      // reset() {
+      //   window.Appcues.reset();
+      // }
+
     }]);
 
     return Appcues;
