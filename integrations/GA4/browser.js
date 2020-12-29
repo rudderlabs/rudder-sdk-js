@@ -10,7 +10,7 @@ import {
   getPageViewProperty,
   hasRequiredParameters,
 } from "./utils";
-import { type } from "../../utils/utils";
+import { type, flattenJsonPayload } from "../../utils/utils";
 
 export default class GA4 {
   constructor(config, analytics) {
@@ -160,7 +160,7 @@ export default class GA4 {
     }
     // get GA4 event name and corresponding configs defined to add properties to that event
     const eventMappingArray = getDestinationEventName(event);
-    if (eventMappingArray) {
+    if (eventMappingArray && eventMappingArray.length) {
       eventMappingArray.forEach((events) => {
         this.handleEventMapper(events, properties, products);
       });
@@ -169,22 +169,32 @@ export default class GA4 {
     }
   }
 
+
   identify(rudderElement) {
+    window.gtag(
+      "set",
+      "user_properties",
+      flattenJsonPayload(this.analytics.userTraits)
+    );
     if (this.sendUserId && rudderElement.message.userId) {
       const userId = this.analytics.userId || this.analytics.anonymousId;
       window.gtag("config", this.measurementId, {
         user_id: userId,
       });
     }
-    window.gtag("set", "user_properties", this.analytics.userTraits);
+  
     logger.debug("in GoogleAnalyticsManager identify");
   }
 
   page(rudderElement) {
-    const pageProps = rudderElement.message.properties;
+    let pageProps = rudderElement.message.properties;
     if (!pageProps) return;
+    pageProps = flattenJsonPayload(pageProps);
     if (this.extendPageViewParams) {
-      window.gtag("event", "page_view", pageProps);
+      window.gtag("event", "page_view", {
+        ...pageProps,
+        ...getPageViewProperty(pageProps),
+      });
     } else {
       window.gtag("event", "page_view", getPageViewProperty(pageProps));
     }
