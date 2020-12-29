@@ -35,12 +35,26 @@ export default class GA4 {
     // This condition is not working, even after disabling page view
     // page_view is even getting called on page load
     if (this.blockPageView) {
-      window.gtag("config", measurementId, {
-        user_id: userId,
-        send_page_view: false,
-      });
+      if(this.sendUserId) {
+        window.gtag("config", measurementId, {
+          user_id: userId,
+          send_page_view: false,
+        });
+      }
+      else {
+        window.gtag("config", measurementId, {
+          send_page_view: false,
+        });
+      }
     } else {
-      window.gtag("config", measurementId);
+      if(this.sendUserId) {
+        window.gtag("config", measurementId, {
+          user_id: userId,
+        });
+      }
+      else {
+        window.gtag("config", measurementId);
+      }
     }
 
     ScriptLoader(
@@ -169,7 +183,7 @@ export default class GA4 {
     }
   }
 
-
+  
   identify(rudderElement) {
     window.gtag(
       "set",
@@ -182,7 +196,7 @@ export default class GA4 {
         user_id: userId,
       });
     }
-  
+
     logger.debug("in GoogleAnalyticsManager identify");
   }
 
