@@ -179,7 +179,7 @@ export default class GA4 {
         this.handleEventMapper(events, properties, products);
       });
     } else {
-      this.sendGAEvent(event, properties, false);
+      this.sendGAEvent(event, flattenJsonPayload(properties), false);
     }
   }
 
