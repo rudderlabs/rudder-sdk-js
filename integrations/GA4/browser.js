@@ -192,9 +192,17 @@ export default class GA4 {
     );
     if (this.sendUserId && rudderElement.message.userId) {
       const userId = this.analytics.userId || this.analytics.anonymousId;
-      window.gtag("config", this.measurementId, {
-        user_id: userId,
-      });
+      if(this.blockPageView) {
+        window.gtag("config", this.measurementId, {
+          user_id: userId,
+          send_page_view: false,
+        });
+      }
+      else {
+        window.gtag("config", this.measurementId, {
+          user_id: userId,
+        });
+      }
     }
 
     logger.debug("in GoogleAnalyticsManager identify");
