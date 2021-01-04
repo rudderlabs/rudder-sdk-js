@@ -1,3 +1,14 @@
+// Reserved Keywords for properties/triats
+const reservedPropKeywords = [
+  "anonymous_id",
+  "id",
+  "sent_at",
+  "received_at",
+  "timestamp",
+  "original_timestamp",
+  "event_text",
+  "event",
+];
 // Message Type enumeration
 const MessageType = {
   TRACK: "track",
@@ -79,6 +90,7 @@ const MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
 const INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
 
 export {
+  reservedPropKeywords,
   MessageType,
   ECommerceParamNames,
   ECommerceEvents,
