@@ -9,7 +9,7 @@ import globals from "rollup-plugin-node-globals";
 import json from "rollup-plugin-json";
 import gzipPlugin from "rollup-plugin-gzip";
 import brotli from "rollup-plugin-brotli";
-import visualizer from 'rollup-plugin-visualizer';
+import visualizer from "rollup-plugin-visualizer";
 import * as webPackage from "./package.json";
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
 
@@ -116,6 +116,8 @@ export default {
     process.env.uglify === "true" && terser(),
     process.env.ENC === "gzip" && gzipPlugin(),
     process.env.ENC === "br" && brotli(),
-    process.env.visualizer === "true" && process.env.uglify === "true" && visualizer({sourcemap: true}),
+    process.env.visualizer === "true" &&
+      process.env.uglify === "true" &&
+      visualizer({ sourcemap: true }),
   ],
 };
