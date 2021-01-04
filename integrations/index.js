@@ -52,7 +52,7 @@ const integrations = {
   AM: Amplitude.default,
   PENDO: Pendo.default,
   LYTICS: Lytics.default,
-  APPCUES: Appcues.default
+  APPCUES: Appcues.default,
 };
 
 export { integrations };
