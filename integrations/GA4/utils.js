@@ -135,6 +135,8 @@ function getDestinationEventProperties(
           );
         }
         destinationProperties[param.dest] = props[key];
+        // eslint-disable-next-line no-param-reassign
+        delete props[key];
       }
     });
   });

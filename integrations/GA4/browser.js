@@ -10,7 +10,7 @@ import {
   getPageViewProperty,
   hasRequiredParameters,
 } from "./utils";
-import { type } from "../../utils/utils";
+import { type, flattenJsonPayload } from "../../utils/utils";
 
 export default class GA4 {
   constructor(config, analytics) {
@@ -35,9 +35,19 @@ export default class GA4 {
     // This condition is not working, even after disabling page view
     // page_view is even getting called on page load
     if (this.blockPageView) {
+      if (this.sendUserId) {
+        window.gtag("config", measurementId, {
+          user_id: userId,
+          send_page_view: false,
+        });
+      } else {
+        window.gtag("config", measurementId, {
+          send_page_view: false,
+        });
+      }
+    } else if (this.sendUserId) {
       window.gtag("config", measurementId, {
         user_id: userId,
-        send_page_view: false,
       });
     } else {
       window.gtag("config", measurementId);
@@ -160,31 +170,47 @@ export default class GA4 {
     }
     // get GA4 event name and corresponding configs defined to add properties to that event
     const eventMappingArray = getDestinationEventName(event);
-    if (eventMappingArray) {
+    if (eventMappingArray && eventMappingArray.length) {
       eventMappingArray.forEach((events) => {
         this.handleEventMapper(events, properties, products);
       });
     } else {
-      this.sendGAEvent(event, properties, false);
+      this.sendGAEvent(event, flattenJsonPayload(properties), false);
     }
   }
 
   identify(rudderElement) {
+    window.gtag(
+      "set",
+      "user_properties",
+      flattenJsonPayload(this.analytics.userTraits)
+    );
     if (this.sendUserId && rudderElement.message.userId) {
       const userId = this.analytics.userId || this.analytics.anonymousId;
-      window.gtag("config", this.measurementId, {
-        user_id: userId,
-      });
+      if (this.blockPageView) {
+        window.gtag("config", this.measurementId, {
+          user_id: userId,
+          send_page_view: false,
+        });
+      } else {
+        window.gtag("config", this.measurementId, {
+          user_id: userId,
+        });
+      }
     }
-    window.gtag("set", "user_properties", this.analytics.userTraits);
+
     logger.debug("in GoogleAnalyticsManager identify");
   }
 
   page(rudderElement) {
-    const pageProps = rudderElement.message.properties;
+    let pageProps = rudderElement.message.properties;
     if (!pageProps) return;
+    pageProps = flattenJsonPayload(pageProps);
     if (this.extendPageViewParams) {
-      window.gtag("event", "page_view", pageProps);
+      window.gtag("event", "page_view", {
+        ...pageProps,
+        ...getPageViewProperty(pageProps),
+      });
     } else {
       window.gtag("event", "page_view", getPageViewProperty(pageProps));
     }
