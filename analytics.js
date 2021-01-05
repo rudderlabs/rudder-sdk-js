@@ -24,12 +24,13 @@ import {
   findAllEnabledDestinations,
   tranformToRudderNames,
   transformToServerNames,
+  checkReservedKeywords,
 } from "./utils/utils";
 import {
   CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-  reservedPropKeywords,
+  ReservedPropertyKeywords,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -498,11 +499,6 @@ class Analytics {
     if (!properties) {
       properties = {};
     }
-    Object.keys(properties).forEach((property) => {
-      if (reservedPropKeywords.indexOf(property) >= 0) {
-        console.error(`Warning! : Reserved keyword used --> ${property} with page call for name --> ${name}`);
-      }
-    });
     if (name) {
       rudderElement.message.name = name;
       properties.name = name;
@@ -535,11 +531,6 @@ class Analytics {
     } else {
       rudderElement.setProperty({});
     }
-    Object.keys(properties).forEach((property) => {
-      if (reservedPropKeywords.indexOf(property) >= 0) {
-        console.error(`Warning! : Reserved keyword used --> ${property} with track call for event --> ${event}`);
-      }
-    });
     this.trackEvent(rudderElement, options, callback);
   }
 
@@ -563,11 +554,6 @@ class Analytics {
       .setType("identify")
       .build();
     if (traits) {
-      Object.keys(traits).forEach((trait) => {
-        if (reservedPropKeywords.indexOf(trait) >= 0) {
-          console.error(`Warning! : Reserved keyword used --> ${trait} with identify call for user --> ${userId}`);
-        }
-      });
       for (const key in traits) {
         this.userTraits[key] = traits[key];
       }
@@ -589,7 +575,6 @@ class Analytics {
       this.userId = rudderElement.message.userId;
       this.storage.setUserId(this.userId);
     }
-    let traits;
 
     if (
       rudderElement &&
@@ -597,14 +582,8 @@ class Analytics {
       rudderElement.message.context &&
       rudderElement.message.context.traits
     ) {
-      traits = rudderElement.message.context.traits;
-      Object.keys(traits).forEach((trait) => {
-        if (reservedPropKeywords.indexOf(trait) >= 0) {
-          console.error(`Warning! : Reserved keyword used --> ${trait} with identify call for user --> ${this.userId}`);
-        }
-      });
       this.userTraits = {
-        ...traits,
+        ...rudderElement.message.context.traits,
       };
       this.storage.setUserTraits(this.userTraits);
     }
@@ -659,6 +638,22 @@ class Analytics {
    */
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
     try {
+      const { properties } = rudderElement.message;
+      const { traits } = rudderElement.message;
+      if (type === "page" || type === "track" || type === "screen") {
+        checkReservedKeywords(properties, ReservedPropertyKeywords, type);
+      } else {
+        checkReservedKeywords(traits, ReservedPropertyKeywords, type);
+        checkReservedKeywords(this.userTraits, ReservedPropertyKeywords, type);
+        if (type === "group") {
+          checkReservedKeywords(
+            this.groupTraits,
+            ReservedPropertyKeywords,
+            type
+          );
+        }
+      }
+
       if (!this.anonymousId) {
         this.setAnonymousId();
       }
@@ -1199,4 +1194,3 @@ export {
   getAnonymousId,
   setAnonymousId,
 };
-

@@ -419,6 +419,23 @@ function getUserProvidedConfigUrl(configUrl) {
   }
   return url;
 }
+/**
+ * Check if a reserved keyword is present in properties/traits
+ * @param {*} properties
+ * @param {*} reservedKeywords
+ * @param {*} type
+ */
+function checkReservedKeywords(properties, reservedKeywords, type) {
+  if (properties) {
+    Object.keys(properties).forEach((property) => {
+      if (reservedKeywords.indexOf(property) >= 0) {
+        logger.error(
+          `Warning! : Reserved keyword used --> ${property} with ${type} call`
+        );
+      }
+    });
+  }
+}
 
 /* ------- Start FlattenJson -----------
  * This function flatten given json object to single level.
@@ -469,4 +486,5 @@ export {
   rejectArr,
   type,
   flattenJsonPayload,
+  checkReservedKeywords,
 };
