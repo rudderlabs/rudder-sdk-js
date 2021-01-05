@@ -1,5 +1,5 @@
 // Reserved Keywords for properties/triats
-const reservedPropKeywords = [
+const ReservedPropertyKeywords = [
   "anonymous_id",
   "id",
   "sent_at",
@@ -90,7 +90,7 @@ const MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
 const INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
 
 export {
-  reservedPropKeywords,
+  ReservedPropertyKeywords,
   MessageType,
   ECommerceParamNames,
   ECommerceEvents,
