@@ -437,6 +437,39 @@ function checkReservedKeywords(properties, reservedKeywords, type) {
   }
 }
 
+/* ------- Start FlattenJson -----------
+ * This function flatten given json object to single level.
+ * So if there is nested object or array, all will apear in first level properties of an object.
+ * Following is case we are handling in this function ::
+ * condition 1: String
+ * condition 2: Array
+ * condition 3: Nested object
+ */
+function recurse(cur, prop, result) {
+  const res = result;
+  if (Object(cur) !== cur) {
+    res[prop] = cur;
+  } else if (Array.isArray(cur)) {
+    const l = cur.length;
+    for (let i = 0; i < l; i += 1)
+      recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res);
+    if (l === 0) res[prop] = [];
+  } else {
+    let isEmpty = true;
+    Object.keys(cur).forEach((key) => {
+      isEmpty = false;
+      recurse(cur[key], prop ? `${prop}.${key}` : key, res);
+    });
+    if (isEmpty) res[prop] = {};
+  }
+  return res;
+}
+
+function flattenJsonPayload(data) {
+  return recurse(data, "", {});
+}
+/* ------- End FlattenJson ----------- */
+
 export {
   replacer,
   generateUUID,
@@ -452,4 +485,6 @@ export {
   handleError,
   rejectArr,
   checkReservedKeywords,
+  type,
+  flattenJsonPayload,
 };

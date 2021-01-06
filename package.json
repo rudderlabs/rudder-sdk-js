@@ -1,6 +1,10 @@
 {
   "name": "rudder-analytics",
+<<<<<<< HEAD
   "version": "1.1.7",
+=======
+  "version": "1.1.11",
+>>>>>>> origin/production-staging
   "description": "",
   "main": "./dist/browser.min.js",
   "size-limit": [
