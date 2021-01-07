@@ -3,7 +3,7 @@ import { parse } from "component-url";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
-import { CONFIG_URL } from "./constants";
+import { CONFIG_URL, ReservedPropertyKeywords } from "./constants";
 
 /**
  *
@@ -425,12 +425,33 @@ function getUserProvidedConfigUrl(configUrl) {
  * @param {*} reservedKeywords
  * @param {*} type
  */
-function checkReservedKeywords(properties, reservedKeywords, type) {
+function checkReservedKeywords(message, messageType) {
+  //  properties, traits, contextualTraits are either undefined or object
+  const { properties, traits } = message;
+  const contextualTraits = message.context.traits;
   if (properties) {
     Object.keys(properties).forEach((property) => {
-      if (reservedKeywords.indexOf(property) >= 0) {
+      if (ReservedPropertyKeywords.indexOf(property) >= 0) {
         logger.error(
-          `Warning! : Reserved keyword used --> ${property} with ${type} call`
+          `Warning! : Reserved keyword used in properties--> ${property} with ${messageType} call`
+        );
+      }
+    });
+  }
+  if (traits) {
+    Object.keys(traits).forEach((trait) => {
+      if (ReservedPropertyKeywords.indexOf(trait) >= 0) {
+        logger.error(
+          `Warning! : Reserved keyword used in traits--> ${trait} with ${messageType} call`
+        );
+      }
+    });
+  }
+  if (contextualTraits) {
+    Object.keys(contextualTraits).forEach((contextTrait) => {
+      if (ReservedPropertyKeywords.indexOf(contextTrait) >= 0) {
+        logger.error(
+          `Warning! : Reserved keyword used in traits --> ${contextTrait} with ${messageType} call`
         );
       }
     });

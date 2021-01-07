@@ -30,7 +30,6 @@ import {
   CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-  ReservedPropertyKeywords,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -638,22 +637,6 @@ class Analytics {
    */
   processAndSendDataToDestinations(type, rudderElement, options, callback) {
     try {
-      const { properties } = rudderElement.message;
-      const { traits } = rudderElement.message;
-      if (type === "page" || type === "track" || type === "screen") {
-        checkReservedKeywords(properties, ReservedPropertyKeywords, type);
-      } else {
-        checkReservedKeywords(traits, ReservedPropertyKeywords, type);
-        checkReservedKeywords(this.userTraits, ReservedPropertyKeywords, type);
-        if (type === "group") {
-          checkReservedKeywords(
-            this.groupTraits,
-            ReservedPropertyKeywords,
-            type
-          );
-        }
-      }
-
       if (!this.anonymousId) {
         this.setAnonymousId();
       }
@@ -684,6 +667,9 @@ class Analytics {
 
       this.processOptionsParam(rudderElement, options);
       logger.debug(JSON.stringify(rudderElement));
+
+      // check for reserved keys and log
+      checkReservedKeywords(rudderElement.message, type);
 
       // structure user supplied integrations object to rudder format
       if (Object.keys(rudderElement.message.integrations).length > 0) {
