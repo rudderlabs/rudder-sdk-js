@@ -24,6 +24,7 @@ import {
   findAllEnabledDestinations,
   tranformToRudderNames,
   transformToServerNames,
+  checkReservedKeywords,
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -529,7 +530,6 @@ class Analytics {
     } else {
       rudderElement.setProperty({});
     }
-
     this.trackEvent(rudderElement, options, callback);
   }
 
@@ -667,6 +667,9 @@ class Analytics {
 
       this.processOptionsParam(rudderElement, options);
       logger.debug(JSON.stringify(rudderElement));
+
+      // check for reserved keys and log
+      checkReservedKeywords(rudderElement.message, type);
 
       // structure user supplied integrations object to rudder format
       if (Object.keys(rudderElement.message.integrations).length > 0) {
