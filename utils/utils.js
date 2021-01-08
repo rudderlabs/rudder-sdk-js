@@ -431,7 +431,7 @@ function checkReservedKeywords(message, messageType) {
   const contextualTraits = message.context.traits;
   if (properties) {
     Object.keys(properties).forEach((property) => {
-      if (ReservedPropertyKeywords.indexOf(property) >= 0) {
+      if (ReservedPropertyKeywords.indexOf(property.toLowerCase()) >= 0) {
         logger.error(
           `Warning! : Reserved keyword used in properties--> ${property} with ${messageType} call`
         );
@@ -440,7 +440,7 @@ function checkReservedKeywords(message, messageType) {
   }
   if (traits) {
     Object.keys(traits).forEach((trait) => {
-      if (ReservedPropertyKeywords.indexOf(trait) >= 0) {
+      if (ReservedPropertyKeywords.indexOf(trait.toLowerCase()) >= 0) {
         logger.error(
           `Warning! : Reserved keyword used in traits--> ${trait} with ${messageType} call`
         );
@@ -449,7 +449,7 @@ function checkReservedKeywords(message, messageType) {
   }
   if (contextualTraits) {
     Object.keys(contextualTraits).forEach((contextTrait) => {
-      if (ReservedPropertyKeywords.indexOf(contextTrait) >= 0) {
+      if (ReservedPropertyKeywords.indexOf(contextTrait.toLowerCase()) >= 0) {
         logger.error(
           `Warning! : Reserved keyword used in traits --> ${contextTrait} with ${messageType} call`
         );
