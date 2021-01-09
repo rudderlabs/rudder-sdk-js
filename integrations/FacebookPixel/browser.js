@@ -353,7 +353,7 @@ class FacebookPixel {
       var contents = [];
 
       for (var i = 0; i < products.length; i++) {
-        var pId = product.product_id;
+        var pId = products[i].product_id;
         contentIds.push(pId);
         var content = {
           id: pId,
