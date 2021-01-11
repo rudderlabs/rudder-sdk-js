@@ -4,9 +4,9 @@
  * @author Parth Mahajan, Ayush Mehra
  */
 
-import crc32 from "./utils/crc32";
-import USER_INTERFACE from "./utils/userLib";
-import decode from "./utils/base64decoder";
+import crc32 from "./crc32";
+import USER_INTERFACE from "./userLib";
+import decode from "./base64decoder";
 
 const KEY_VALIDATOR = /^[a-zA-Z0-9\-_.]+$/;
 const CHECKSUM_OFFSET_MAX_MIN = 1;
