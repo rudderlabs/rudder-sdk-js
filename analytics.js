@@ -90,6 +90,7 @@ class Analytics {
       syncPixel: "syncPixelCallback",
     };
     this.loaded = false;
+    this.loadIntegration = true;
   }
 
   /**
@@ -920,6 +921,10 @@ class Analytics {
       this.eventRepository.startQueue(options.queueOptions);
     } else {
       this.eventRepository.startQueue({});
+    }
+
+    if(options && options.loadIntegration != undefined){
+      this.loadIntegration = !!options.loadIntegration
     }
 
     this.eventRepository.writeKey = writeKey;

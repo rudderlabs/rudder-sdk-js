@@ -6,7 +6,8 @@ import { rejectArr } from "../../utils/utils";
 import ScriptLoader from "../ScriptLoader";
 
 export default class GA {
-  constructor(config) {
+  constructor(config, analytics) {
+    this.analytics = analytics;
     this.trackingID = config.trackingID;
     this.sendUserId = config.sendUserId || false;
     this.dimensions = config.dimensions || [];
@@ -82,7 +83,9 @@ export default class GA {
       };
     window.ga.l = new Date().getTime();
 
-    this.loadScript();
+    if(this.analytics.loadIntegration){
+      this.loadScript();
+    }
 
     // create ga with these properties. if the properties are empty it will take default values.
     const config = {

@@ -49,112 +49,116 @@ class Amplitude {
   }
 
   init() {
-    (function (e, t) {
-      const n = e.amplitude || {
-        _q: [],
-        _iq: {},
-      };
-      const r = t.createElement("script");
-      r.type = "text/javascript";
-      r.integrity =
-        "sha384-girahbTbYZ9tT03PWWj0mEVgyxtZoyDF9KVZdL+R53PP5wCY0PiVUKq0jeRlMx9M";
-      r.crossOrigin = "anonymous";
-      r.async = true;
-      r.src = "https://cdn.amplitude.com/libs/amplitude-7.2.1-min.gz.js";
-      r.onload = function () {
-        if (!e.amplitude.runQueuedFunctions) {
-          console.log("[Amplitude] Error: could not load SDK");
+    if(this.analytics.loadIntegration){
+      (function (e, t) {
+        const n = e.amplitude || {
+          _q: [],
+          _iq: {},
+        };
+        const r = t.createElement("script");
+        r.type = "text/javascript";
+        r.integrity =
+          "sha384-girahbTbYZ9tT03PWWj0mEVgyxtZoyDF9KVZdL+R53PP5wCY0PiVUKq0jeRlMx9M";
+        r.crossOrigin = "anonymous";
+        r.async = true;
+        r.src = "https://cdn.amplitude.com/libs/amplitude-7.2.1-min.gz.js";
+        r.onload = function () {
+          if (!e.amplitude.runQueuedFunctions) {
+            console.log("[Amplitude] Error: could not load SDK");
+          }
+        };
+        const i = t.getElementsByTagName("script")[0];
+        i.parentNode.insertBefore(r, i);
+  
+        function s(e, t) {
+          e.prototype[t] = function () {
+            this._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
+            return this;
+          };
         }
-      };
-      const i = t.getElementsByTagName("script")[0];
-      i.parentNode.insertBefore(r, i);
-
-      function s(e, t) {
-        e.prototype[t] = function () {
-          this._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
+        const o = function () {
+          this._q = [];
           return this;
         };
-      }
-      const o = function () {
-        this._q = [];
-        return this;
-      };
-      const a = [
-        "add",
-        "append",
-        "clearAll",
-        "prepend",
-        "set",
-        "setOnce",
-        "unset",
-      ];
-      for (let c = 0; c < a.length; c++) {
-        s(o, a[c]);
-      }
-      n.Identify = o;
-      const u = function () {
-        this._q = [];
-        return this;
-      };
-      const l = [
-        "setProductId",
-        "setQuantity",
-        "setPrice",
-        "setRevenueType",
-        "setEventProperties",
-      ];
-      for (let p = 0; p < l.length; p++) {
-        s(u, l[p]);
-      }
-      n.Revenue = u;
-      const d = [
-        "init",
-        "logEvent",
-        "logRevenue",
-        "setUserId",
-        "setUserProperties",
-        "setOptOut",
-        "setVersionName",
-        "setDomain",
-        "setDeviceId",
-        "enableTracking",
-        "setGlobalUserProperties",
-        "identify",
-        "clearUserProperties",
-        "setGroup",
-        "logRevenueV2",
-        "regenerateDeviceId",
-        "groupIdentify",
-        "onInit",
-        "logEventWithTimestamp",
-        "logEventWithGroups",
-        "setSessionId",
-        "resetSessionId",
-      ];
-
-      function v(e) {
-        function t(t) {
-          e[t] = function () {
-            e._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
-          };
+        const a = [
+          "add",
+          "append",
+          "clearAll",
+          "prepend",
+          "set",
+          "setOnce",
+          "unset",
+        ];
+        for (let c = 0; c < a.length; c++) {
+          s(o, a[c]);
         }
-        for (let n = 0; n < d.length; n++) {
-          t(d[n]);
+        n.Identify = o;
+        const u = function () {
+          this._q = [];
+          return this;
+        };
+        const l = [
+          "setProductId",
+          "setQuantity",
+          "setPrice",
+          "setRevenueType",
+          "setEventProperties",
+        ];
+        for (let p = 0; p < l.length; p++) {
+          s(u, l[p]);
         }
-      }
-      v(n);
-      n.getInstance = function (e) {
-        e = (!e || e.length === 0 ? "$default_instance" : e).toLowerCase();
-        if (!n._iq.hasOwnProperty(e)) {
-          n._iq[e] = {
-            _q: [],
-          };
-          v(n._iq[e]);
+        n.Revenue = u;
+        const d = [
+          "init",
+          "logEvent",
+          "logRevenue",
+          "setUserId",
+          "setUserProperties",
+          "setOptOut",
+          "setVersionName",
+          "setDomain",
+          "setDeviceId",
+          "enableTracking",
+          "setGlobalUserProperties",
+          "identify",
+          "clearUserProperties",
+          "setGroup",
+          "logRevenueV2",
+          "regenerateDeviceId",
+          "groupIdentify",
+          "onInit",
+          "logEventWithTimestamp",
+          "logEventWithGroups",
+          "setSessionId",
+          "resetSessionId",
+        ];
+  
+        function v(e) {
+          function t(t) {
+            e[t] = function () {
+              e._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
+            };
+          }
+          for (let n = 0; n < d.length; n++) {
+            t(d[n]);
+          }
         }
-        return n._iq[e];
-      };
-      e.amplitude = n;
-    })(window, document);
+        v(n);
+        n.getInstance = function (e) {
+          e = (!e || e.length === 0 ? "$default_instance" : e).toLowerCase();
+          if (!n._iq.hasOwnProperty(e)) {
+            n._iq[e] = {
+              _q: [],
+            };
+            v(n._iq[e]);
+          }
+          return n._iq[e];
+        };
+        e.amplitude = n;
+      })(window, document);
+    } else {
+      window.amplitude = amplitude;
+    }
 
     const initOptions = {
       includeUtm: this.trackUtmProperties,
