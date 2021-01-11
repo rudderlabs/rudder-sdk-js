@@ -234,13 +234,14 @@ For the above URL, the below SDK calls will be triggered:
 rudderanalytics.identify("12345", {name: "Firstname Lastname"});
 rudderanalytics.track("test event", {testProp: "prop1"});
 rudderanalytics.setAnonymousId("abcde");
+rudderanalytics.setAnonymousId(null, "<version>*<checkSum>*<idName1>*<idValue1>*<idName2>*<idValue2>...");
 ```
 
 You may use the below parameters as querystring parameter and trigger the corresponding call.
 
 `ajs_uid` 		: Makes a `rudderanalytics.identify()` call with `userId` having the value of the parameter value.
 
-`ajs_aid` 		: Makes a `rudderanalytics.setAnonymousId()` call with `anonymousId` having the value of the parameter value.
+`ajs_aid` 		: Makes a `rudderanalytics.setAnonymousId()` call with `anonymousId` having the value of the parameter value or call with `rudderAmpLinkerParm` having the value of `rudderstack` from the query param.
 
 `ajs_event`		: Makes a `rudderanalytics.track()` call with `event` name as parameter value.
 
