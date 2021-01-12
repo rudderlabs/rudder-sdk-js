@@ -261,6 +261,11 @@ const eventNamesConfigArray = [
     onlyIncludeParams: includeParams.CartShare,
   },
   //---------
+  {
+    src: ["group"],
+    dest: "join_group",
+    hasItem: false,
+  },
 ];
 
 export {
