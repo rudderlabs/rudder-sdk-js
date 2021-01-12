@@ -41,7 +41,7 @@ export default class GA {
     ];
   }
 
-  initializeAndloadScript() {
+  initializeGlobalObject() {
     window.GoogleAnalyticsObject = "ga";
     window.ga =
       window.ga ||
@@ -50,6 +50,9 @@ export default class GA {
         window.ga.q.push(arguments);
       };
     window.ga.l = new Date().getTime();
+  }
+
+  loadScript() {
     ScriptLoader(
       "google-analytics",
       "https://www.google-analytics.com/analytics.js"
@@ -84,7 +87,8 @@ export default class GA {
     });
 
     if (this.analytics.loadIntegration) {
-      this.initializeAndloadScript();
+      this.initializeGlobalObject();
+      this.loadScript();
     }
 
     // create ga with these properties. if the properties are empty it will take default values.
