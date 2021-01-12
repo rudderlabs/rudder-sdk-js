@@ -156,8 +156,6 @@ class Amplitude {
         };
         e.amplitude = n;
       })(window, document);
-    } else {
-      window.amplitude = amplitude;
     }
 
     const initOptions = {
