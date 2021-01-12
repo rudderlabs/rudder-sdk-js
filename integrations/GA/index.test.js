@@ -7,7 +7,7 @@ afterAll(() => {
   jest.restoreAllMocks();
 });
 
-GA.prototype.loadScript = jest.fn();
+GA.prototype.initializeAndloadScript = jest.fn();
 
 describe("GA init tests", () => {
   let googleAnalytics;

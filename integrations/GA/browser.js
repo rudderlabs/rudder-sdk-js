@@ -41,7 +41,15 @@ export default class GA {
     ];
   }
 
-  loadScript() {
+  initializeAndloadScript() {
+    window.GoogleAnalyticsObject = "ga";
+    window.ga =
+      window.ga ||
+      function a() {
+        window.ga.q = window.ga.q || [];
+        window.ga.q.push(arguments);
+      };
+    window.ga.l = new Date().getTime();
     ScriptLoader(
       "google-analytics",
       "https://www.google-analytics.com/analytics.js"
@@ -74,17 +82,9 @@ export default class GA {
     this.contentGroupings.forEach((element) => {
       this.contentGroupingsArray[element.from] = element.to;
     });
-    window.GoogleAnalyticsObject = "ga";
-    window.ga =
-      window.ga ||
-      function a() {
-        window.ga.q = window.ga.q || [];
-        window.ga.q.push(arguments);
-      };
-    window.ga.l = new Date().getTime();
 
-    if(this.analytics.loadIntegration){
-      this.loadScript();
+    if (this.analytics.loadIntegration) {
+      this.initializeAndloadScript();
     }
 
     // create ga with these properties. if the properties are empty it will take default values.

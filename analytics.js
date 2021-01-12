@@ -202,7 +202,7 @@ class Analytics {
       this.toBeProcessedByIntegrationArray = [];
       return;
     }
-
+    let intgInstance;
     intgArray.forEach((intg) => {
       try {
         logger.debug(
@@ -211,7 +211,7 @@ class Analytics {
         );
         const intgClass = integrations[intg.name];
         const destConfig = intg.config;
-        const intgInstance = new intgClass(destConfig, self);
+        intgInstance = new intgClass(destConfig, self);
         intgInstance.init();
 
         logger.debug("initializing destination: ", intg);
@@ -222,6 +222,7 @@ class Analytics {
           "[Analytics] initialize integration (integration.init()) failed :: ",
           intg.name
         );
+        this.failedToBeLoadedIntegration.push(intgInstance);
       }
     });
   }
@@ -923,8 +924,8 @@ class Analytics {
       this.eventRepository.startQueue({});
     }
 
-    if(options && options.loadIntegration != undefined){
-      this.loadIntegration = !!options.loadIntegration
+    if (options && options.loadIntegration != undefined) {
+      this.loadIntegration = !!options.loadIntegration;
     }
 
     this.eventRepository.writeKey = writeKey;
