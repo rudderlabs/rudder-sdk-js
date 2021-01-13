@@ -840,7 +840,8 @@ class Analytics {
    */
   setAnonymousId(anonymousId, rudderAmpLinkerParm) {
     // if (!this.loaded) return;
-    const parsedAnonymousId = rudderAmpLinkerParm ? parseLinker(rudderAmpLinkerParm) : null;
+    const parsedAnonymousIdObj = rudderAmpLinkerParm ? parseLinker(rudderAmpLinkerParm) : null;
+    const parsedAnonymousId = parsedAnonymousIdObj ? parsedAnonymousIdObj.rs_amp_id : null;
     this.anonymousId = anonymousId || parsedAnonymousId || generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
   }
