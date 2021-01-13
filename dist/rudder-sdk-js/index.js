@@ -3220,7 +3220,7 @@
     PRODUCT_REVIEWED: "Product Reviewed"
   }; // Enumeration for integrations supported
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.15";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.19";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -5020,8 +5020,8 @@
     }
 
     _createClass(GA, [{
-      key: "initializeAndloadScript",
-      value: function initializeAndloadScript() {
+      key: "initializeGlobalObject",
+      value: function initializeGlobalObject() {
         window.GoogleAnalyticsObject = "ga";
 
         window.ga = window.ga || function a() {
@@ -5030,6 +5030,10 @@
         };
 
         window.ga.l = new Date().getTime();
+      }
+    }, {
+      key: "loadScript",
+      value: function loadScript() {
         ScriptLoader("google-analytics", "https://www.google-analytics.com/analytics.js");
       }
     }, {
@@ -5064,7 +5068,8 @@
         });
 
         if (this.analytics.loadIntegration) {
-          this.initializeAndloadScript();
+          this.initializeGlobalObject();
+          this.loadScript();
         } // create ga with these properties. if the properties are empty it will take default values.
 
 
@@ -16886,7 +16891,7 @@
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.15";
+    this.version = "1.0.19";
   };
 
   // Library information class
@@ -16894,7 +16899,7 @@
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.15";
+    this.version = "1.0.19";
   }; // Operating System information class
 
 
