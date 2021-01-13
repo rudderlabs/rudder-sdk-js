@@ -37,6 +37,7 @@ import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
+import parseLinker from "./utils/linker";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -827,9 +828,21 @@ class Analytics {
     return this.anonymousId;
   }
 
-  setAnonymousId(anonymousId) {
+  /**
+   * Sets anonymous id in the followin precedence:
+   * 1. anonymousId: Id directly provided to the function.
+   * 2. rudderAmpLinkerParm: value generated from linker query parm (rudderstack)
+   *    using praseLinker util.
+   * 3. generateUUID: A new uniquie id is generated and assigned.
+   * 
+   * @param {string} anonymousId 
+   * @param {string} rudderAmpLinkerParm 
+   */
+  setAnonymousId(anonymousId, rudderAmpLinkerParm) {
     // if (!this.loaded) return;
-    this.anonymousId = anonymousId || generateUUID();
+    const parsedAnonymousIdObj = rudderAmpLinkerParm ? parseLinker(rudderAmpLinkerParm) : null;
+    const parsedAnonymousId = parsedAnonymousIdObj ? parsedAnonymousIdObj.rs_amp_id : null;
+    this.anonymousId = anonymousId || parsedAnonymousId || generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
   }
 
