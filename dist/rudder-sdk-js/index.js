@@ -3220,7 +3220,7 @@
     PRODUCT_REVIEWED: "Product Reviewed"
   }; // Enumeration for integrations supported
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.13";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.15";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -4989,9 +4989,10 @@
   var GA =
   /*#__PURE__*/
   function () {
-    function GA(config) {
+    function GA(config, analytics) {
       _classCallCheck(this, GA);
 
+      this.analytics = analytics;
       this.trackingID = config.trackingID;
       this.sendUserId = config.sendUserId || false;
       this.dimensions = config.dimensions || [];
@@ -5019,8 +5020,16 @@
     }
 
     _createClass(GA, [{
-      key: "loadScript",
-      value: function loadScript() {
+      key: "initializeAndloadScript",
+      value: function initializeAndloadScript() {
+        window.GoogleAnalyticsObject = "ga";
+
+        window.ga = window.ga || function a() {
+          window.ga.q = window.ga.q || [];
+          window.ga.q.push(arguments);
+        };
+
+        window.ga.l = new Date().getTime();
         ScriptLoader("google-analytics", "https://www.google-analytics.com/analytics.js");
       }
     }, {
@@ -5053,15 +5062,11 @@
         this.contentGroupings.forEach(function (element) {
           _this.contentGroupingsArray[element.from] = element.to;
         });
-        window.GoogleAnalyticsObject = "ga";
 
-        window.ga = window.ga || function a() {
-          window.ga.q = window.ga.q || [];
-          window.ga.q.push(arguments);
-        };
+        if (this.analytics.loadIntegration) {
+          this.initializeAndloadScript();
+        } // create ga with these properties. if the properties are empty it will take default values.
 
-        window.ga.l = new Date().getTime();
-        this.loadScript(); // create ga with these properties. if the properties are empty it will take default values.
 
         var config = {
           cookieDomain: this.domain || GA.prototype.defaults.domain,
@@ -16078,91 +16083,93 @@
     _createClass(Amplitude, [{
       key: "init",
       value: function init() {
-        (function (e, t) {
-          var n = e.amplitude || {
-            _q: [],
-            _iq: {}
-          };
-          var r = t.createElement("script");
-          r.type = "text/javascript";
-          r.integrity = "sha384-girahbTbYZ9tT03PWWj0mEVgyxtZoyDF9KVZdL+R53PP5wCY0PiVUKq0jeRlMx9M";
-          r.crossOrigin = "anonymous";
-          r.async = true;
-          r.src = "https://cdn.amplitude.com/libs/amplitude-7.2.1-min.gz.js";
+        if (this.analytics.loadIntegration) {
+          (function (e, t) {
+            var n = e.amplitude || {
+              _q: [],
+              _iq: {}
+            };
+            var r = t.createElement("script");
+            r.type = "text/javascript";
+            r.integrity = "sha384-girahbTbYZ9tT03PWWj0mEVgyxtZoyDF9KVZdL+R53PP5wCY0PiVUKq0jeRlMx9M";
+            r.crossOrigin = "anonymous";
+            r.async = true;
+            r.src = "https://cdn.amplitude.com/libs/amplitude-7.2.1-min.gz.js";
 
-          r.onload = function () {
-            if (!e.amplitude.runQueuedFunctions) {
-              console.log("[Amplitude] Error: could not load SDK");
+            r.onload = function () {
+              if (!e.amplitude.runQueuedFunctions) {
+                console.log("[Amplitude] Error: could not load SDK");
+              }
+            };
+
+            var i = t.getElementsByTagName("script")[0];
+            i.parentNode.insertBefore(r, i);
+
+            function s(e, t) {
+              e.prototype[t] = function () {
+                this._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
+
+                return this;
+              };
             }
-          };
 
-          var i = t.getElementsByTagName("script")[0];
-          i.parentNode.insertBefore(r, i);
-
-          function s(e, t) {
-            e.prototype[t] = function () {
-              this._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
-
+            var o = function o() {
+              this._q = [];
               return this;
             };
-          }
 
-          var o = function o() {
-            this._q = [];
-            return this;
-          };
+            var a = ["add", "append", "clearAll", "prepend", "set", "setOnce", "unset"];
 
-          var a = ["add", "append", "clearAll", "prepend", "set", "setOnce", "unset"];
-
-          for (var c = 0; c < a.length; c++) {
-            s(o, a[c]);
-          }
-
-          n.Identify = o;
-
-          var u = function u() {
-            this._q = [];
-            return this;
-          };
-
-          var l = ["setProductId", "setQuantity", "setPrice", "setRevenueType", "setEventProperties"];
-
-          for (var p = 0; p < l.length; p++) {
-            s(u, l[p]);
-          }
-
-          n.Revenue = u;
-          var d = ["init", "logEvent", "logRevenue", "setUserId", "setUserProperties", "setOptOut", "setVersionName", "setDomain", "setDeviceId", "enableTracking", "setGlobalUserProperties", "identify", "clearUserProperties", "setGroup", "logRevenueV2", "regenerateDeviceId", "groupIdentify", "onInit", "logEventWithTimestamp", "logEventWithGroups", "setSessionId", "resetSessionId"];
-
-          function v(e) {
-            function t(t) {
-              e[t] = function () {
-                e._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
-              };
+            for (var c = 0; c < a.length; c++) {
+              s(o, a[c]);
             }
 
-            for (var _n = 0; _n < d.length; _n++) {
-              t(d[_n]);
-            }
-          }
+            n.Identify = o;
 
-          v(n);
+            var u = function u() {
+              this._q = [];
+              return this;
+            };
 
-          n.getInstance = function (e) {
-            e = (!e || e.length === 0 ? "$default_instance" : e).toLowerCase();
+            var l = ["setProductId", "setQuantity", "setPrice", "setRevenueType", "setEventProperties"];
 
-            if (!n._iq.hasOwnProperty(e)) {
-              n._iq[e] = {
-                _q: []
-              };
-              v(n._iq[e]);
+            for (var p = 0; p < l.length; p++) {
+              s(u, l[p]);
             }
 
-            return n._iq[e];
-          };
+            n.Revenue = u;
+            var d = ["init", "logEvent", "logRevenue", "setUserId", "setUserProperties", "setOptOut", "setVersionName", "setDomain", "setDeviceId", "enableTracking", "setGlobalUserProperties", "identify", "clearUserProperties", "setGroup", "logRevenueV2", "regenerateDeviceId", "groupIdentify", "onInit", "logEventWithTimestamp", "logEventWithGroups", "setSessionId", "resetSessionId"];
 
-          e.amplitude = n;
-        })(window, document);
+            function v(e) {
+              function t(t) {
+                e[t] = function () {
+                  e._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
+                };
+              }
+
+              for (var _n = 0; _n < d.length; _n++) {
+                t(d[_n]);
+              }
+            }
+
+            v(n);
+
+            n.getInstance = function (e) {
+              e = (!e || e.length === 0 ? "$default_instance" : e).toLowerCase();
+
+              if (!n._iq.hasOwnProperty(e)) {
+                n._iq[e] = {
+                  _q: []
+                };
+                v(n._iq[e]);
+              }
+
+              return n._iq[e];
+            };
+
+            e.amplitude = n;
+          })(window, document);
+        }
 
         var initOptions = {
           includeUtm: this.trackUtmProperties,
@@ -16879,7 +16886,7 @@
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.13";
+    this.version = "1.0.15";
   };
 
   // Library information class
@@ -16887,7 +16894,7 @@
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.13";
+    this.version = "1.0.15";
   }; // Operating System information class
 
 
@@ -18517,6 +18524,7 @@
         syncPixel: "syncPixelCallback"
       };
       this.loaded = false;
+      this.loadIntegration = true;
     }
     /**
      * initialize the user after load config
@@ -18615,18 +18623,21 @@
           return;
         }
 
+        var intgInstance;
         intgArray.forEach(function (intg) {
           try {
             logger.debug("[Analytics] init :: trying to initialize integration name:: ", intg.name);
             var intgClass = integrations[intg.name];
             var destConfig = intg.config;
-            var intgInstance = new intgClass(destConfig, self);
+            intgInstance = new intgClass(destConfig, self);
             intgInstance.init();
             logger.debug("initializing destination: ", intg);
 
             _this.isInitialized(intgInstance).then(_this.replayEvents);
           } catch (e) {
             logger.error("[Analytics] initialize integration (integration.init()) failed :: ", intg.name);
+
+            _this.failedToBeLoadedIntegration.push(intgInstance);
           }
         });
       } // eslint-disable-next-line class-methods-use-this
@@ -19257,6 +19268,10 @@
           this.eventRepository.startQueue(options.queueOptions);
         } else {
           this.eventRepository.startQueue({});
+        }
+
+        if (options && options.loadIntegration != undefined) {
+          this.loadIntegration = !!options.loadIntegration;
         }
 
         this.eventRepository.writeKey = writeKey;

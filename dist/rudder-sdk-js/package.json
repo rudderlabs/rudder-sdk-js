@@ -1,6 +1,6 @@
 {
-  "name": "rudder-sdk-js",
-  "version": "1.0.13",
+  "name": "rudder-sdk-js-develop",
+  "version": "1.0.18",
   "description": "Rudder Javascript SDK",
   "main": "index.js",
   "types": "index.d.ts",
