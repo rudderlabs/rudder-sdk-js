@@ -3135,7 +3135,20 @@
     FULLSTORY: "FULLSTORY",
     Fullstory: "FULLSTORY",
     BUGSNAG: "BUGSNAG",
-    TVSQUARED: "TVSQUARED"
+    TVSQUARED: "TVSQUARED",
+    "Google Analytics 4": "GA4",
+    GoogleAnalytics4: "GA4",
+    GA4: "GA4",
+    MOENGAGE: "MoEngage",
+    AM: "AM",
+    AMPLITUDE: "AM",
+    Amplitude: "AM",
+    Pendo: "PENDO",
+    PENDO: "PENDO",
+    Lytics: "Lytics",
+    LYTICS: "Lytics",
+    Appcues: "APPCUES",
+    APPCUES: "APPCUES"
   };
 
   // from client native integration name to server identified display name
@@ -3159,7 +3172,13 @@
     VWO: "VWO",
     OPTIMIZELY: "Optimizely",
     FULLSTORY: "Fullstory",
-    TVSQUUARED: "TVSquared"
+    TVSQUUARED: "TVSquared",
+    GA4: "Google Analytics 4",
+    MOENGAGE: "MoEngage",
+    AM: "Amplitude",
+    PENDO: "Pendo",
+    LYTICS: "Lytics",
+    APPCUES: "Appcues"
   };
 
   // Message Type enumeration
@@ -3201,7 +3220,7 @@
     PRODUCT_REVIEWED: "Product Reviewed"
   }; // Enumeration for integrations supported
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.12";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.13";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -3601,6 +3620,44 @@
     }
 
     return url;
+  }
+  /* ------- Start FlattenJson -----------
+   * This function flatten given json object to single level.
+   * So if there is nested object or array, all will apear in first level properties of an object.
+   * Following is case we are handling in this function ::
+   * condition 1: String
+   * condition 2: Array
+   * condition 3: Nested object
+   */
+
+
+  function recurse(cur, prop, result) {
+    var res = result;
+
+    if (Object(cur) !== cur) {
+      res[prop] = cur;
+    } else if (Array.isArray(cur)) {
+      var l = cur.length;
+
+      for (var i = 0; i < l; i += 1) {
+        recurse(cur[i], prop ? "".concat(prop, ".").concat(i) : "".concat(i), res);
+      }
+
+      if (l === 0) res[prop] = [];
+    } else {
+      var isEmpty = true;
+      Object.keys(cur).forEach(function (key) {
+        isEmpty = false;
+        recurse(cur[key], prop ? "".concat(prop, ".").concat(key) : key, res);
+      });
+      if (isEmpty) res[prop] = {};
+    }
+
+    return res;
+  }
+
+  function flattenJsonPayload(data) {
+    return recurse(data, "", {});
   }
 
   var ScriptLoader = function ScriptLoader(id, src) {
@@ -15165,6 +15222,1626 @@
     return TVSquared;
   }();
 
+  var requiredEventParameters = {
+    PromotionId: "promotion_id",
+    PromotionName: "promotion_name",
+    Search: "search_term",
+    ProductId: "item_id",
+    ProductName: "item_name"
+  }; // To Do : Future Scope :: We can remove this one and add everything in include list.
+  // This will also simplify our existing code and complex logics related to that
+
+  var includeParams = {
+    CartShare: {
+      defaults: {
+        content_type: "Cart"
+      },
+      mappings: {
+        share_via: "method",
+        cart_id: "content_id"
+      }
+    },
+    ProductShare: {
+      defaults: {
+        content_type: "Product"
+      },
+      mappings: {
+        share_via: "method",
+        product_id: "content_id"
+      }
+    },
+    Search: {
+      mappings: {
+        query: "search_term"
+      }
+    },
+    Promotion: {
+      mappings: {
+        position: "location_id"
+      }
+    }
+  };
+  var eventParametersConfigArray = {
+    ListId: {
+      src: "list_id",
+      dest: "item_list_id",
+      inItems: true
+    },
+    Category: {
+      src: "category",
+      dest: "item_list_name",
+      inItems: true
+    },
+    Price: {
+      src: "price",
+      dest: "value"
+    },
+    Currency: {
+      src: "currency",
+      dest: "currency",
+      inItems: true
+    },
+    Coupon: {
+      src: "coupon",
+      dest: "coupon",
+      inItems: true
+    },
+    Affiliation: {
+      src: "affiliation",
+      dest: "affiliation",
+      inItems: true
+    },
+    Shipping: {
+      src: "shipping",
+      dest: "shipping"
+    },
+    Tax: {
+      src: "tax",
+      dest: "tax"
+    },
+    Total: {
+      src: "total",
+      dest: "value"
+    },
+    CheckoutId: {
+      src: "checkout_id",
+      dest: "transaction_id"
+    },
+    ShippingMethod: {
+      src: "shipping_method",
+      dest: "shipping_tier"
+    },
+    PaymentMethod: {
+      src: "payment_method",
+      dest: "payment_type"
+    }
+  };
+  var itemParametersConfigArray = [{
+    src: "product_id",
+    dest: "item_id"
+  }, {
+    src: "order_id",
+    dest: "item_id"
+  }, {
+    src: "name",
+    dest: "item_name"
+  }, {
+    src: "coupon",
+    dest: "coupon"
+  }, {
+    src: "category",
+    dest: "item_category"
+  }, {
+    src: "brand",
+    dest: "item_brand"
+  }, {
+    src: "variant",
+    dest: "item_variant"
+  }, {
+    src: "price",
+    dest: "price"
+  }, {
+    src: "quantity",
+    dest: "quantity"
+  }, {
+    src: "position",
+    dest: "index"
+  }];
+  var eventNamesConfigArray = [// Browsing Section
+  {
+    src: ["products searched", "product searched"],
+    dest: "search",
+    requiredParams: requiredEventParameters.Search,
+    onlyIncludeParams: includeParams.Search
+  }, {
+    src: ["product list viewed"],
+    dest: "view_item_list",
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
+    hasItem: true,
+    includeList: [eventParametersConfigArray.ListId, eventParametersConfigArray.Category]
+  }, // Promotion Section
+  {
+    src: ["promotion viewed"],
+    dest: "view_promotion",
+    onlyIncludeParams: includeParams.Promotion
+  }, {
+    src: ["promotion clicked"],
+    dest: "select_promotion",
+    onlyIncludeParams: includeParams.Promotion
+  }, // Ordering Section
+  {
+    src: ["product clicked", "products clicked"],
+    dest: "select_item",
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
+    hasItem: true,
+    includeList: [eventParametersConfigArray.ListId, eventParametersConfigArray.Category]
+  }, {
+    src: ["product viewed"],
+    dest: "view_item",
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
+    hasItem: true,
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total]
+  }, {
+    src: ["product added"],
+    dest: "add_to_cart",
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
+    hasItem: true,
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total]
+  }, {
+    src: ["product removed"],
+    dest: "remove_from_cart",
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
+    hasItem: true,
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total]
+  }, {
+    src: ["cart viewed"],
+    dest: "view_cart",
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
+    hasItem: true,
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total]
+  }, {
+    src: ["checkout started"],
+    dest: "begin_checkout",
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
+    hasItem: true,
+    includeList: [eventParametersConfigArray.Coupon, eventParametersConfigArray.Currency, eventParametersConfigArray.Total]
+  }, {
+    src: ["payment info entered"],
+    dest: "add_payment_info",
+    hasItem: false,
+    includeList: [eventParametersConfigArray.PaymentMethod]
+  }, {
+    src: ["payment info entered"],
+    dest: "add_shipping_info",
+    hasItem: false,
+    includeList: [eventParametersConfigArray.ShippingMethod]
+  }, {
+    src: ["order completed"],
+    dest: "purchase",
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
+    hasItem: true,
+    includeList: [eventParametersConfigArray.Affiliation, eventParametersConfigArray.Coupon, eventParametersConfigArray.Currency, eventParametersConfigArray.CheckoutId, eventParametersConfigArray.Shipping, eventParametersConfigArray.Tax, eventParametersConfigArray.Total]
+  }, {
+    src: ["order refunded"],
+    dest: "refund",
+    hasItem: true,
+    includeList: [eventParametersConfigArray.Affiliation, eventParametersConfigArray.Coupon, eventParametersConfigArray.Currency, eventParametersConfigArray.CheckoutId, eventParametersConfigArray.Shipping, eventParametersConfigArray.Tax, eventParametersConfigArray.Total]
+  },
+  /* Coupon Section
+    No Coupon Events present in GA4
+  /----------  */
+  // Wishlist Section
+  {
+    src: ["product added to wishlist"],
+    dest: "add_to_wishlist",
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
+    hasItem: true,
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total]
+  }, //-------
+  // Sharing Section
+  {
+    src: ["product shared"],
+    dest: "share",
+    hasItem: false,
+    onlyIncludeParams: includeParams.ProductShare
+  }, {
+    src: ["cart shared"],
+    dest: "share",
+    hasItem: false,
+    onlyIncludeParams: includeParams.CartShare
+  } //---------
+  ];
+
+  var pageEventParametersConfigArray = [{
+    src: "path",
+    dest: "page_location"
+  }, {
+    src: "referrer",
+    dest: "page_referrer"
+  }, {
+    src: "title",
+    dest: "page_title"
+  }];
+
+  /**
+   * Check if event name is not one of the following reserved names
+   * @param {*} name
+   */
+
+  function isReservedName(name) {
+    var reservedEventNames = ["ad_activeview", "ad_click", "ad_exposure", "ad_impression", "ad_query", "adunit_exposure", "app_clear_data", "app_install", "app_update", "app_remove", "error", "first_open", "first_visit", "in_app_purchase", "notification_dismiss", "notification_foreground", "notification_open", "notification_receive", "os_update", "screen_view", "session_start", "user_engagement"];
+    return reservedEventNames.includes(name);
+  }
+  /**
+   * map rudder event name to ga4 ecomm event name and return array
+   * @param {*} event
+   */
+
+
+  function getDestinationEventName(event) {
+    return eventNamesConfigArray.filter(function (p) {
+      return p.src.includes(event.toLowerCase());
+    });
+  }
+  /**
+   * Create item array and add into destination parameters
+   * If 'items' prop is present push new key value into it else create a new and push data
+   * 'items' -> name of GA4 Ecommerce property name.
+   * For now its hard coded, we can think of some better soln. later.
+   * @param {*} dest
+   * @param {*} key
+   * @param {*} value
+   */
+
+
+  function createItemProperty(dest, key, value) {
+    var destinationProperties = dest;
+
+    if (!destinationProperties.items) {
+      destinationProperties.items = [];
+      destinationProperties.items.push(_defineProperty({}, key, value));
+    } else {
+      destinationProperties.items[0][key] = value;
+    }
+
+    return destinationProperties;
+  }
+  /**
+   * Check if your payload contains required parameters to map to ga4 ecomm
+   * @param {*} includeRequiredParams this can be boolean or an array or required object
+   * @param {*} key
+   * @param {*} src
+   */
+
+
+  function hasRequiredParameters(props, eventMappingObj) {
+    var requiredParams = eventMappingObj.requiredParams || false;
+    if (!requiredParams) return true;
+
+    if (!Array.isArray(requiredParams)) {
+      if (props[requiredParams]) {
+        return true;
+      }
+
+      return false;
+    }
+
+    for (var i in props.items) {
+      for (var p in requiredParams) {
+        if (!props.items[i][requiredParams[p]]) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+  /**
+   * TO DO Future Improvement ::::
+   * Here we only support mapping single level object mapping.
+   * Implement using recursion to handle multi level prop mapping.
+   * @param {*} props { product_id: 123456_abcdef, name: "chess-board", list_id: "ls_abcdef", category: games }
+   * @param {*} destParameterConfig
+   * Defined Parameter present GA4/utils.js ex: [{ src: "category", dest: "item_list_name", inItems: true }]
+   * @param {*} includeRequiredParams contains object of required parameter to be mapped from source payload
+   * output: {
+    "item_list_id": "ls_abcdef",
+    "items": [
+      {
+        "item_id": "123456_abcdef",
+        "item_name": "chess-board",
+        "item_list_id": "ls_abc",
+        "item_list_name": "games"
+      }
+    ],
+    "item_list_name": "games"
+  }
+  */
+
+
+  function getDestinationEventProperties(props, destParameterConfig) {
+    var hasItem = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+    var destinationProperties = {};
+    Object.keys(props).forEach(function (key) {
+      destParameterConfig.forEach(function (param) {
+        if (key === param.src) {
+          // handle case where the key needs to go inside items as well as top level params in GA4
+          if (param.inItems && hasItem) {
+            destinationProperties = createItemProperty(destinationProperties, param.dest, props[key]);
+          }
+
+          destinationProperties[param.dest] = props[key]; // eslint-disable-next-line no-param-reassign
+
+          delete props[key];
+        }
+      });
+    });
+    return destinationProperties;
+  }
+  /**
+   * Map rudder products arrays payload to ga4 ecomm items array
+   * @param {*} products
+   * @param {*} item
+   */
+
+
+  function getDestinationItemProperties(products, item) {
+    var items = [];
+    var obj = {};
+
+    if (type(products) !== "array") {
+      logger.debug("Event payload doesn't have products array");
+    } else {
+      // get the dest keys from itemParameters config
+      // append the already created item object keys (this is done to get the keys that are actually top level props in Rudder payload but GA expects them under items too)
+      products.forEach(function (p) {
+        obj = _objectSpread2({}, getDestinationEventProperties(p, itemParametersConfigArray), {}, item && type(item) === "array" && item[0] || {});
+        items.push(obj);
+      });
+    }
+
+    return items;
+  }
+  /**
+   * Generate ga4 page_view events payload
+   * @param {*} props
+   */
+
+
+  function getPageViewProperty(props) {
+    return getDestinationEventProperties(props, pageEventParametersConfigArray);
+  }
+
+  var GA4 =
+  /*#__PURE__*/
+  function () {
+    function GA4(config, analytics) {
+      _classCallCheck(this, GA4);
+
+      this.measurementId = config.measurementId;
+      this.analytics = analytics;
+      this.sendUserId = config.sendUserId || false;
+      this.blockPageView = config.blockPageViewEvent || false;
+      this.extendPageViewParams = config.extendPageViewParams || false;
+      this.name = "GA4";
+    }
+
+    _createClass(GA4, [{
+      key: "loadScript",
+      value: function loadScript(measurementId, userId) {
+        window.dataLayer = window.dataLayer || [];
+
+        window.gtag = window.gtag || function gt() {
+          // eslint-disable-next-line prefer-rest-params
+          window.dataLayer.push(arguments);
+        };
+
+        window.gtag("js", new Date()); // This condition is not working, even after disabling page view
+        // page_view is even getting called on page load
+
+        if (this.blockPageView) {
+          if (this.sendUserId) {
+            window.gtag("config", measurementId, {
+              user_id: userId,
+              send_page_view: false
+            });
+          } else {
+            window.gtag("config", measurementId, {
+              send_page_view: false
+            });
+          }
+        } else if (this.sendUserId) {
+          window.gtag("config", measurementId, {
+            user_id: userId
+          });
+        } else {
+          window.gtag("config", measurementId);
+        }
+
+        ScriptLoader("google-analytics 4", "https://www.googletagmanager.com/gtag/js?id=".concat(measurementId));
+      }
+    }, {
+      key: "init",
+      value: function init() {
+        // To do :: check how custom dimension and metrics is used
+        var userId = this.analytics.userId || this.analytics.anonymousId;
+        this.loadScript(this.measurementId, userId);
+      }
+      /* utility functions ---Start here ---  */
+
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!(window.gtag && window.gtag.push !== Array.prototype.push);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!(window.gtag && window.gtag.push !== Array.prototype.push);
+      }
+      /* utility functions --- Ends here ---  */
+
+      /**
+       * Function to get destination properties for both event parameters and items array if present
+       * For top level properties, include only those properties that are in the includeList
+       * @param {*} properties
+       * @param {*} hasItem
+       * @param {*} products
+       * @param {*} includeList
+       */
+
+    }, {
+      key: "getdestinationProperties",
+      value: function getdestinationProperties(properties, hasItem, products, includeList) {
+        var destinationProperties = {};
+        destinationProperties = getDestinationEventProperties(properties, includeList, hasItem);
+
+        if (hasItem) {
+          // only for events where GA requires an items array to be sent
+          // get the product related destination keys || if products is not present use the rudder message properties to get the product related destination keys
+          destinationProperties.items = getDestinationItemProperties(products || [properties], destinationProperties.items);
+        }
+
+        return destinationProperties;
+      }
+      /**
+       * Only include params that are present in given mapping config for things like Cart/Product shared, Product/Products shared
+       * @param {*} params
+       * @param {*} properties
+       */
+
+    }, {
+      key: "getIncludedParameters",
+      value: function getIncludedParameters(params, properties) {
+        var destinationProperties = {};
+
+        if (type(params) === "object") {
+          var defaults = params.defaults,
+              mappings = params.mappings;
+
+          if (type(defaults) === "object") {
+            Object.keys(defaults).forEach(function (key) {
+              destinationProperties[key] = defaults[key];
+            });
+          }
+
+          if (type(mappings) === "object") {
+            Object.keys(mappings).forEach(function (key) {
+              destinationProperties[mappings[key]] = properties[key];
+            });
+          }
+        }
+
+        return destinationProperties;
+      }
+    }, {
+      key: "sendGAEvent",
+      value: function sendGAEvent(event, parameters, checkRequiredParameters, eventMappingObj) {
+        if (checkRequiredParameters) {
+          if (!hasRequiredParameters(parameters, eventMappingObj)) {
+            throw Error("Payload must have required parameters..");
+          }
+        }
+
+        window.gtag("event", event, parameters);
+      }
+    }, {
+      key: "handleEventMapper",
+      value: function handleEventMapper(eventMappingObj, properties, products) {
+        var destinationProperties = {};
+        var event = eventMappingObj.dest;
+
+        if (eventMappingObj.onlyIncludeParams) {
+          /* Only include params that are present in given mapping config for things like Cart/Product shared, Product/Products shared
+           */
+          var includeParams = eventMappingObj.onlyIncludeParams;
+          destinationProperties = this.getIncludedParameters(includeParams, properties);
+        } else {
+          destinationProperties = this.getdestinationProperties(properties, eventMappingObj.hasItem, products, eventMappingObj.includeList);
+        }
+
+        this.sendGAEvent(event, destinationProperties, true, eventMappingObj);
+      }
+      /**
+       *
+       * @param {*} rudderElement
+       */
+
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var _this = this;
+
+        var event = rudderElement.message.event;
+        var properties = rudderElement.message.properties;
+        var products = properties.products;
+
+        if (!event || isReservedName(event)) {
+          throw Error("Cannot call un-named/reserved named track event");
+        } // get GA4 event name and corresponding configs defined to add properties to that event
+
+
+        var eventMappingArray = getDestinationEventName(event);
+
+        if (eventMappingArray && eventMappingArray.length) {
+          eventMappingArray.forEach(function (events) {
+            _this.handleEventMapper(events, properties, products);
+          });
+        } else {
+          this.sendGAEvent(event, flattenJsonPayload(properties), false);
+        }
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        window.gtag("set", "user_properties", flattenJsonPayload(this.analytics.userTraits));
+
+        if (this.sendUserId && rudderElement.message.userId) {
+          var userId = this.analytics.userId || this.analytics.anonymousId;
+
+          if (this.blockPageView) {
+            window.gtag("config", this.measurementId, {
+              user_id: userId,
+              send_page_view: false
+            });
+          } else {
+            window.gtag("config", this.measurementId, {
+              user_id: userId
+            });
+          }
+        }
+
+        logger.debug("in GoogleAnalyticsManager identify");
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        var pageProps = rudderElement.message.properties;
+        if (!pageProps) return;
+        pageProps = flattenJsonPayload(pageProps);
+
+        if (this.extendPageViewParams) {
+          window.gtag("event", "page_view", _objectSpread2({}, pageProps, {}, getPageViewProperty(pageProps)));
+        } else {
+          window.gtag("event", "page_view", getPageViewProperty(pageProps));
+        }
+      }
+    }]);
+
+    return GA4;
+  }();
+
+  var traitsMap = {
+    firstName: "first_name",
+    lastName: "last_name",
+    firstname: "first_name",
+    lastname: "last_name",
+    email: "email",
+    phone: "mobile",
+    name: "user_name",
+    username: "user_name",
+    userName: "user_name",
+    gender: "gender",
+    birthday: "birthday",
+    id: null
+  };
+
+  var MoEngage =
+  /*#__PURE__*/
+  function () {
+    function MoEngage(config, analyticsinstance) {
+      _classCallCheck(this, MoEngage);
+
+      this.isLoaded = function () {
+        logger.debug("in MoEngage isLoaded");
+        return !!window.moeBannerText;
+      };
+
+      this.isReady = function () {
+        logger.debug("in MoEngage isReady");
+        return !!window.moeBannerText;
+      };
+
+      this.apiId = config.apiId;
+      this.debug = config.debug;
+      this.region = config.region;
+      this.name = "MoEngage";
+      this.analyticsinstance = analyticsinstance;
+    }
+
+    _createClass(MoEngage, [{
+      key: "init",
+      value: function init() {
+        var self = this;
+        logger.debug("===in init MoEnagage==="); // loading the script for moengage web sdk
+
+        /* eslint-disable */
+
+        (function (i, s, o, g, r, a, m, n) {
+          i.moengage_object = r;
+          var t = {};
+
+          var q = function q(f) {
+            return function () {
+              (i.moengage_q = i.moengage_q || []).push({
+                f: f,
+                a: arguments
+              });
+            };
+          };
+
+          var f = ["track_event", "add_user_attribute", "add_first_name", "add_last_name", "add_email", "add_mobile", "add_user_name", "add_gender", "add_birthday", "destroy_session", "add_unique_user_id", "moe_events", "call_web_push", "track", "location_type_attribute"];
+          var h = {
+            onsite: ["getData", "registerCallback"]
+          };
+
+          for (var k in f) {
+            t[f[k]] = q(f[k]);
+          }
+
+          for (var k in h) {
+            for (var l in h[k]) {
+              null == t[k] && (t[k] = {}), t[k][h[k][l]] = q(k + "." + h[k][l]);
+            }
+          }
+
+          a = s.createElement(o);
+          m = s.getElementsByTagName(o)[0];
+          a.async = 1;
+          a.src = g;
+          m.parentNode.insertBefore(a, m);
+
+          i.moe = i.moe || function () {
+            n = arguments[0];
+            return t;
+          };
+
+          a.onload = function () {
+            if (n) {
+              i[r] = moe(n);
+            }
+          };
+        })(window, document, "script", document.location.protocol === "https:" ? "https://cdn.moengage.com/webpush/moe_webSdk.min.latest.js" : "http://cdn.moengage.com/webpush/moe_webSdk.min.latest.js", "Moengage");
+        /* eslint-enable */
+        // setting the region if us then not needed.
+
+
+        if (this.region !== "US") {
+          self.moeClient = window.moe({
+            app_id: this.apiId,
+            debug_logs: this.debug ? 1 : 0,
+            cluster: this.region === "EU" ? "eu" : "in"
+          });
+        } else {
+          self.moeClient = window.moe({
+            app_id: this.apiId,
+            debug_logs: this.debug ? 1 : 0
+          });
+        }
+
+        this.initialUserId = this.analyticsinstance.userId;
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("inside track"); // Check if the user id is same as previous session if not a new session will start
+
+        if (!rudderElement.message) {
+          logger.error("Payload not correct");
+          return;
+        }
+
+        var _rudderElement$messag = rudderElement.message,
+            event = _rudderElement$messag.event,
+            properties = _rudderElement$messag.properties,
+            userId = _rudderElement$messag.userId;
+
+        if (userId) {
+          if (this.initialUserId !== userId) {
+            this.reset();
+          }
+        } // track event : https://docs.moengage.com/docs/tracking-events
+
+
+        if (!event) {
+          logger.error("Event name not present");
+          return;
+        }
+
+        if (properties) {
+          this.moeClient.track_event(event, properties);
+        } else {
+          this.moeClient.track_event(event);
+        }
+      }
+    }, {
+      key: "reset",
+      value: function reset() {
+        logger.debug("inside reset"); // reset the user id
+
+        this.initialUserId = this.analyticsinstance.userId;
+        this.moeClient.destroy_session();
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        var self = this;
+        var userId = rudderElement.message.userId;
+        var traits = null;
+
+        if (rudderElement.message.context) {
+          traits = rudderElement.message.context.traits;
+        } // check if user id is same or not
+
+
+        if (this.initialUserId !== userId) {
+          this.reset();
+        } // if user is present map
+
+
+        if (userId) {
+          this.moeClient.add_unique_user_id(userId);
+        } // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
+
+
+        if (traits) {
+          each_1(function add(value, key) {
+            // check if name is present
+            if (key === "name") {
+              self.moeClient.add_user_name(value);
+            }
+
+            if (Object.prototype.hasOwnProperty.call(traitsMap, key)) {
+              var method = "add_".concat(traitsMap[key]);
+              self.moeClient[method](value);
+            } else {
+              self.moeClient.add_user_attribute(key, value);
+            }
+          }, traits);
+        }
+      }
+    }]);
+
+    return MoEngage;
+  }();
+
+  var Amplitude =
+  /*#__PURE__*/
+  function () {
+    function Amplitude(config, analytics) {
+      var _this = this;
+
+      _classCallCheck(this, Amplitude);
+
+      this.name = "AM";
+      this.analytics = analytics;
+      this.apiKey = config.apiKey;
+      this.trackAllPages = config.trackAllPages || false;
+      this.trackNamedPages = config.trackNamedPages || false;
+      this.trackCategorizedPages = config.trackCategorizedPages || false;
+      this.trackUtmProperties = config.trackUtmProperties || false;
+      this.trackReferrer = config.trackReferrer || false;
+      this.batchEvents = config.batchEvents || false;
+      this.eventUploadThreshold = +config.eventUploadThreshold || 30;
+      this.eventUploadPeriodMillis = +config.eventUploadPeriodMillis || 30000;
+      this.forceHttps = config.forceHttps || false;
+      this.trackGclid = config.trackGclid || false;
+      this.saveParamsReferrerOncePerSession = config.saveParamsReferrerOncePerSession || false;
+      this.deviceIdFromUrlParam = config.deviceIdFromUrlParam || false; // this.mapQueryParams = config.mapQueryParams;
+
+      this.trackRevenuePerProduct = config.trackRevenuePerProduct || false;
+      this.preferAnonymousIdForDeviceId = config.preferAnonymousIdForDeviceId || false;
+      this.traitsToSetOnce = [];
+      this.traitsToIncrement = [];
+      this.appendFieldsToEventProps = config.appendFieldsToEventProps || false;
+      this.unsetParamsReferrerOnNewSession = config.unsetParamsReferrerOnNewSession || false;
+      this.trackProductsOnce = config.trackProductsOnce || false;
+      this.versionName = config.versionName;
+
+      if (config.traitsToSetOnce && config.traitsToSetOnce.length > 0) {
+        config.traitsToSetOnce.forEach(function (element) {
+          if (element && element.traits && element.traits !== "") {
+            _this.traitsToSetOnce.push(element.traits);
+          }
+        });
+      }
+
+      if (config.traitsToIncrement && config.traitsToIncrement.length > 0) {
+        config.traitsToIncrement.forEach(function (element) {
+          if (element && element.traits && element.traits !== "") {
+            _this.traitsToIncrement.push(element.traits);
+          }
+        });
+      }
+    }
+
+    _createClass(Amplitude, [{
+      key: "init",
+      value: function init() {
+        (function (e, t) {
+          var n = e.amplitude || {
+            _q: [],
+            _iq: {}
+          };
+          var r = t.createElement("script");
+          r.type = "text/javascript";
+          r.integrity = "sha384-girahbTbYZ9tT03PWWj0mEVgyxtZoyDF9KVZdL+R53PP5wCY0PiVUKq0jeRlMx9M";
+          r.crossOrigin = "anonymous";
+          r.async = true;
+          r.src = "https://cdn.amplitude.com/libs/amplitude-7.2.1-min.gz.js";
+
+          r.onload = function () {
+            if (!e.amplitude.runQueuedFunctions) {
+              console.log("[Amplitude] Error: could not load SDK");
+            }
+          };
+
+          var i = t.getElementsByTagName("script")[0];
+          i.parentNode.insertBefore(r, i);
+
+          function s(e, t) {
+            e.prototype[t] = function () {
+              this._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
+
+              return this;
+            };
+          }
+
+          var o = function o() {
+            this._q = [];
+            return this;
+          };
+
+          var a = ["add", "append", "clearAll", "prepend", "set", "setOnce", "unset"];
+
+          for (var c = 0; c < a.length; c++) {
+            s(o, a[c]);
+          }
+
+          n.Identify = o;
+
+          var u = function u() {
+            this._q = [];
+            return this;
+          };
+
+          var l = ["setProductId", "setQuantity", "setPrice", "setRevenueType", "setEventProperties"];
+
+          for (var p = 0; p < l.length; p++) {
+            s(u, l[p]);
+          }
+
+          n.Revenue = u;
+          var d = ["init", "logEvent", "logRevenue", "setUserId", "setUserProperties", "setOptOut", "setVersionName", "setDomain", "setDeviceId", "enableTracking", "setGlobalUserProperties", "identify", "clearUserProperties", "setGroup", "logRevenueV2", "regenerateDeviceId", "groupIdentify", "onInit", "logEventWithTimestamp", "logEventWithGroups", "setSessionId", "resetSessionId"];
+
+          function v(e) {
+            function t(t) {
+              e[t] = function () {
+                e._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
+              };
+            }
+
+            for (var _n = 0; _n < d.length; _n++) {
+              t(d[_n]);
+            }
+          }
+
+          v(n);
+
+          n.getInstance = function (e) {
+            e = (!e || e.length === 0 ? "$default_instance" : e).toLowerCase();
+
+            if (!n._iq.hasOwnProperty(e)) {
+              n._iq[e] = {
+                _q: []
+              };
+              v(n._iq[e]);
+            }
+
+            return n._iq[e];
+          };
+
+          e.amplitude = n;
+        })(window, document);
+
+        var initOptions = {
+          includeUtm: this.trackUtmProperties,
+          batchEvents: this.batchEvents,
+          eventUploadThreshold: this.eventUploadThreshold,
+          eventUploadPeriodMillis: this.eventUploadPeriodMillis,
+          forceHttps: this.forceHttps,
+          includeGclid: this.trackGclid,
+          includeReferrer: this.trackReferrer,
+          saveParamsReferrerOncePerSession: this.saveParamsReferrerOncePerSession,
+          deviceIdFromUrlParam: this.deviceIdFromUrlParam,
+          unsetParamsReferrerOnNewSession: this.unsetParamsReferrerOnNewSession,
+          deviceId: this.preferAnonymousIdForDeviceId && this.analytics && this.analytics.getAnonymousId()
+        };
+        window.amplitude.getInstance().init(this.apiKey, null, initOptions);
+
+        if (this.versionName) {
+          window.amplitude.getInstance().setVersionName(this.versionName);
+        }
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Amplitude identify");
+        this.setDeviceId(rudderElement); // rudderElement.message.context will always be present as part of identify event payload.
+
+        var traits = rudderElement.message.context.traits;
+        var userId = rudderElement.message.userId;
+
+        if (userId) {
+          window.amplitude.getInstance().setUserId(userId);
+        }
+
+        if (traits) {
+          var amplitudeIdentify = new window.amplitude.Identify();
+
+          for (var trait in traits) {
+            if (!traits.hasOwnProperty(trait)) {
+              continue;
+            }
+
+            var shouldIncrement = this.traitsToIncrement.indexOf(trait) >= 0;
+            var shouldSetOnce = this.traitsToSetOnce.indexOf(trait) >= 0;
+
+            if (shouldIncrement) {
+              amplitudeIdentify.add(trait, traits[trait]);
+            }
+
+            if (shouldSetOnce) {
+              amplitudeIdentify.setOnce(trait, traits[trait]);
+            }
+
+            if (!shouldIncrement && !shouldSetOnce) {
+              amplitudeIdentify.set(trait, traits[trait]);
+            }
+          }
+
+          window.amplitude.identify(amplitudeIdentify);
+        }
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in Amplitude track");
+        this.setDeviceId(rudderElement);
+        var properties = rudderElement.message.properties; // message.properties will always be present as part of track event.
+
+        var products = properties.products;
+        var clonedTrackEvent = {};
+        Object.assign(clonedTrackEvent, rudderElement.message); // For track products once, we will send the products in a single call.
+
+        if (this.trackProductsOnce) {
+          if (products && type(products) == "array") {
+            // track all the products in a single event.
+            var allProducts = [];
+            var productKeys = Object.keys(products);
+
+            for (var index = 0; index < productKeys.length; index++) {
+              var product = {};
+              product = this.getProductAttributes(products[index]);
+              allProducts.push(product);
+            }
+
+            clonedTrackEvent.properties.products = allProducts;
+            this.logEventAndCorrespondingRevenue(clonedTrackEvent, this.trackRevenuePerProduct); // we do not want to track revenue as a whole if trackRevenuePerProduct is enabled.
+            // If trackRevenuePerProduct is enabled, track revenues per product.
+
+            if (this.trackRevenuePerProduct) {
+              var trackEventMessage = {};
+              Object.assign(trackEventMessage, clonedTrackEvent);
+              this.trackingEventAndRevenuePerProduct(trackEventMessage, products, false); // also track revenue only and not event per product.
+            }
+          } else {
+            // track event and revenue as a whole as products array is not available.
+            this.logEventAndCorrespondingRevenue(clonedTrackEvent, false);
+          }
+
+          return;
+        }
+
+        if (products && type(products) == "array") {
+          // track events iterating over product array individually.
+          // Log the actuall event without products array. We will subsequently track each product with 'Product Purchased' event.
+          delete clonedTrackEvent.properties.products;
+          this.logEventAndCorrespondingRevenue(clonedTrackEvent, this.trackRevenuePerProduct);
+          var _trackEventMessage = {};
+          Object.assign(_trackEventMessage, clonedTrackEvent); // track products and revenue per product basis.
+
+          this.trackingEventAndRevenuePerProduct(_trackEventMessage, products, true); // track both event and revenue on per product basis.
+        } else {
+          // track event and revenue as a whole as no product array is present.
+          this.logEventAndCorrespondingRevenue(clonedTrackEvent, false);
+        }
+      }
+    }, {
+      key: "trackingEventAndRevenuePerProduct",
+      value: function trackingEventAndRevenuePerProduct(trackEventMessage, products, shouldTrackEventPerProduct) {
+        var _trackEventMessage$pr = trackEventMessage.properties,
+            revenue = _trackEventMessage$pr.revenue,
+            revenueType = _trackEventMessage$pr.revenueType,
+            revenue_type = _trackEventMessage$pr.revenue_type;
+        revenueType = revenueType || revenue_type;
+
+        for (var index = 0; index < products.length; index++) {
+          var product = products[index];
+          trackEventMessage.properties = product;
+          trackEventMessage.event = "Product Purchased";
+
+          if (this.trackRevenuePerProduct) {
+            if (revenueType) {
+              trackEventMessage.properties.revenueType = revenueType;
+            }
+
+            if (revenue) {
+              trackEventMessage.properties.revenue = revenue;
+            }
+
+            this.trackRevenue(trackEventMessage);
+          }
+
+          if (shouldTrackEventPerProduct) {
+            this.logEventAndCorrespondingRevenue(trackEventMessage, true);
+          }
+        }
+      } // Always to be called for general and top level events (and not product level)
+      // For these events we expect top level revenue property.
+
+    }, {
+      key: "logEventAndCorrespondingRevenue",
+      value: function logEventAndCorrespondingRevenue(rudderMessage, dontTrackRevenue) {
+        var properties = rudderMessage.properties,
+            event = rudderMessage.event;
+        window.amplitude.getInstance().logEvent(event, properties);
+
+        if (properties.revenue && !dontTrackRevenue) {
+          this.trackRevenue(rudderMessage);
+        }
+      }
+      /**
+       * track page events base on destination settings. If more than one settings is enabled, multiple events may be logged for a single page event.
+       * For example, if category of a page is present, and both trackAllPages and trackCategorizedPages are enabled, then 2 events will be tracked for
+       * a single pageview - 'Loaded a page' and `Viewed page ${category}`.
+       *
+       * @memberof Amplitude
+       */
+
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in Amplitude page");
+        this.setDeviceId(rudderElement);
+        var _rudderElement$messag = rudderElement.message,
+            properties = _rudderElement$messag.properties,
+            name = _rudderElement$messag.name,
+            category = _rudderElement$messag.category; // all pages
+
+        if (this.trackAllPages) {
+          var event = "Loaded a page";
+          amplitude.getInstance().logEvent(event, properties);
+        } // categorized pages
+
+
+        if (category && this.trackCategorizedPages) {
+          var _event = "Viewed page ".concat(category);
+
+          amplitude.getInstance().logEvent(_event, properties);
+        } // named pages
+
+
+        if (name && this.trackNamedPages) {
+          var _event2 = "Viewed page ".concat(name);
+
+          amplitude.getInstance().logEvent(_event2, properties);
+        }
+      }
+    }, {
+      key: "group",
+      value: function group(rudderElement) {
+        logger.debug("in Amplitude group");
+        this.setDeviceId(rudderElement);
+        var _rudderElement$messag2 = rudderElement.message,
+            groupId = _rudderElement$messag2.groupId,
+            traits = _rudderElement$messag2.traits;
+        var groupTypeTrait = this.groupTypeTrait;
+        var groupValueTrait = this.groupValueTrait;
+
+        if (groupTypeTrait && groupValueTrait && traits) {
+          var groupType = traits[groupTypeTrait];
+          var groupValue = traits[groupValueTrait];
+        }
+
+        if (groupType && groupValue) {
+          window.amplitude.getInstance().setGroup(groupTypeTrait, groupValueTrait);
+        } else if (groupId) {
+          // Similar as segment but not sure whether we need it as our cloud mode supports only the above if block
+          window.amplitude.getInstance().setGroup("[Rudderstack] Group", groupId);
+        } // https://developers.amplitude.com/docs/setting-user-properties#setting-group-properties
+        // no other api for setting group properties for javascript
+
+      }
+    }, {
+      key: "setDeviceId",
+      value: function setDeviceId(rudderElement) {
+        var anonymousId = rudderElement.message.anonymousId;
+
+        if (this.preferAnonymousIdForDeviceId && anonymousId) {
+          window.amplitude.getInstance().setDeviceId(anonymousId);
+        }
+      }
+      /**
+       * Tracks revenue with logRevenueV2() api based on revenue/price present in event payload. If neither of revenue/price present, it returns.
+       * The event payload may contain ruddermessage of an original track event payload (from trackEvent method) or it is derived from a product
+       * array (from trackingRevenuePerProduct) in an e-comm event.
+       *
+       * @param {*} rudderMessage
+       * @returns
+       * @memberof Amplitude
+       */
+
+    }, {
+      key: "trackRevenue",
+      value: function trackRevenue(rudderMessage) {
+        var mapRevenueType = {
+          "order completed": "Purchase",
+          "completed order": "Purchase",
+          "product purchased": "Purchase"
+        };
+        var properties = rudderMessage.properties,
+            event = rudderMessage.event;
+        var price = properties.price,
+            productId = properties.productId,
+            quantity = properties.quantity,
+            revenue = properties.revenue,
+            product_id = properties.product_id;
+        var revenueType = properties.revenueType || properties.revenue_type || mapRevenueType[event.toLowerCase()];
+        productId = productId || product_id; // If neither revenue nor price is present, then return
+        // else send price and quantity from properties to amplitude
+        // If price not present set price as revenue's value and force quantity to be 1.
+        // Ultimately set quantity to 1 if not already present from above logic.
+
+        if (!revenue && !price) {
+          console.debug("revenue or price is not present.");
+          return;
+        }
+
+        if (!price) {
+          price = revenue;
+          quantity = 1;
+        }
+
+        if (!quantity) {
+          quantity = 1;
+        }
+
+        var amplitudeRevenue = new window.amplitude.Revenue().setPrice(price).setQuantity(quantity).setEventProperties(properties);
+
+        if (revenueType) {
+          amplitudeRevenue.setRevenueType(revenueType);
+        }
+
+        if (productId) {
+          amplitudeRevenue.setProductId(productId);
+        }
+
+        window.amplitude.getInstance().logRevenueV2(amplitudeRevenue);
+      }
+    }, {
+      key: "getProductAttributes",
+      value: function getProductAttributes(product) {
+        return {
+          productId: product.productId || product.product_id,
+          sku: product.sku,
+          name: product.name,
+          price: product.price,
+          quantity: product.quantity,
+          category: product.category
+        };
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in Amplitude isLoaded");
+        return !!(window.amplitude && window.amplitude.getInstance().options);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!(window.amplitude && window.amplitude.getInstance().options);
+      }
+    }]);
+
+    return Amplitude;
+  }();
+
+  var Pendo =
+  /*#__PURE__*/
+  function () {
+    function Pendo(config, analytics) {
+      _classCallCheck(this, Pendo);
+
+      this.analytics = analytics;
+      this.apiKey = !config.apiKey ? "" : config.apiKey;
+      this.name = "PENDO";
+      logger.debug("Config ", config);
+    }
+
+    _createClass(Pendo, [{
+      key: "init",
+      value: function init() {
+        (function (apiKey) {
+          (function (p, e, n, d, o) {
+            var v, w, x, y, z;
+            o = p[d] = p[d] || {};
+            o._q = [];
+            v = ["initialize", "identify", "updateOptions", "pageLoad", "track"];
+
+            for (w = 0, x = v.length; w < x; ++w) {
+              (function (m) {
+                o[m] = o[m] || function () {
+                  o._q[m === v[0] ? "unshift" : "push"]([m].concat([].slice.call(arguments, 0)));
+                };
+              })(v[w]);
+            }
+
+            y = e.createElement(n);
+            y.async = !0;
+            y.src = "https://cdn.pendo.io/agent/static/".concat(apiKey, "/pendo.js");
+            z = e.getElementsByTagName(n)[0];
+            z.parentNode.insertBefore(y, z);
+          })(window, document, "script", "pendo");
+        })(this.apiKey);
+
+        this.initializeMe();
+        logger.debug("===in init Pendo===");
+      }
+    }, {
+      key: "initializeMe",
+      value: function initializeMe() {
+        var userId = this.analytics.userId || this.constructPendoAnonymousId(this.analytics.anonymousId);
+
+        var accountObj = _objectSpread2({
+          id: this.analytics.groupId
+        }, this.analytics.groupTraits);
+
+        var visitorObj = _objectSpread2({
+          id: userId
+        }, this.analytics.userTraits);
+
+        window.pendo.initialize({
+          account: accountObj,
+          visitor: visitorObj
+        });
+      }
+      /* utility functions ---Start here ---  */
+
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        return !!(window.pendo && window.pendo.push !== Array.prototype.push);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        return !!(window.pendo && window.pendo.push !== Array.prototype.push);
+      }
+    }, {
+      key: "constructPendoAnonymousId",
+      value: function constructPendoAnonymousId(id) {
+        return "_PENDO_T_".concat(id);
+      }
+      /* utility functions --- Ends here ---  */
+
+      /*
+       * PENDO MAPPED FUNCTIONS :: identify, track, group
+       */
+
+      /* Pendo's identify call works intelligently, once u have identified a visitor/user,
+       *or associated a visitor to a group/account then Pendo save this data in local storage and
+       *any further upcoming calls are done taking user info from local.
+       * To track user perndo maps user to Visitor in Pendo.
+       */
+
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        var visitorObj = {};
+        var accountObj = {};
+        var groupId = this.analytics.groupId;
+        var id = this.analytics.userId || this.constructPendoAnonymousId(this.analytics.anonymousId);
+        visitorObj = _objectSpread2({
+          id: id
+        }, this.analytics.userTraits);
+
+        if (groupId) {
+          accountObj = _objectSpread2({
+            id: groupId
+          }, this.analytics.groupTraits);
+        }
+
+        window.pendo.identify({
+          visitor: visitorObj,
+          account: accountObj
+        });
+      }
+      /*
+       *Group call maps to an account for which visitor belongs.
+       *It is same as identify call but here we send account object.
+       */
+
+    }, {
+      key: "group",
+      value: function group(rudderElement) {
+        var accountObj = {};
+        var visitorObj = {};
+        var _rudderElement$messag = rudderElement.message,
+            userId = _rudderElement$messag.userId,
+            traits = _rudderElement$messag.traits;
+        accountObj.id = this.analytics.groupId || this.analytics.anonymousId;
+        accountObj = _objectSpread2({}, accountObj, {}, traits);
+
+        if (userId) {
+          visitorObj = _objectSpread2({
+            id: userId
+          }, rudderElement.message.context && rudderElement.message.context.traits);
+        }
+
+        window.pendo.identify({
+          account: accountObj,
+          visitor: visitorObj
+        });
+      }
+      /* Once user is identified Pendo makes Track call to track user activity.
+       */
+
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var event = rudderElement.message.event;
+
+        if (!event) {
+          throw Error("Cannot call un-named track event");
+        }
+
+        var props = rudderElement.message.properties;
+        window.pendo.track(event, props);
+      }
+    }]);
+
+    return Pendo;
+  }();
+
+  var Lytics =
+  /*#__PURE__*/
+  function () {
+    function Lytics(config) {
+      _classCallCheck(this, Lytics);
+
+      this.accountId = config.accountId;
+      this.stream = config.stream;
+      this.blockload = config.blockload;
+      this.loadid = config.loadid;
+      this.name = "LYTICS";
+    }
+
+    _createClass(Lytics, [{
+      key: "loadLyticsScript",
+      value: function loadLyticsScript() {
+        (function () {
+
+          var o = window.jstag || (window.jstag = {}),
+              r = [];
+
+          function n(e) {
+            o[e] = function () {
+              for (var n = arguments.length, t = new Array(n), i = 0; i < n; i++) {
+                t[i] = arguments[i];
+              }
+
+              r.push([e, t]);
+            };
+          }
+
+          n("send"), n("mock"), n("identify"), n("pageView"), n("unblock"), n("getid"), n("setid"), n("loadEntity"), n("getEntity"), n("on"), n("once"), n("call"), o.loadScript = function (n, t, i) {
+            var e = document.createElement("script");
+            e.async = !0, e.src = n, e.onload = t, e.onerror = i;
+            var o = document.getElementsByTagName("script")[0],
+                r = o && o.parentNode || document.head || document.body,
+                c = o || r.lastChild;
+            return null != c ? r.insertBefore(e, c) : r.appendChild(e), this;
+          }, o.init = function n(t) {
+            return this.config = t, this.loadScript(t.src, function () {
+              if (o.init === n) throw new Error("Load error!"); // eslint-disable-next-line no-unused-expressions
+
+              o.init(o.config), // eslint-disable-next-line func-names
+              function () {
+                for (var n = 0; n < r.length; n++) {
+                  var t = r[n][0],
+                      i = r[n][1];
+                  o[t].apply(o, i);
+                }
+
+                r = void 0;
+              }();
+            }), this;
+          };
+        })(); // Define config and initialize Lytics tracking tag.
+
+
+        window.jstag.init({
+          loadid: this.loadid,
+          blocked: this.blockload,
+          stream: this.stream,
+          sessecs: 1800,
+          src: document.location.protocal === "https:" ? "https://c.lytics.io/api/tag/".concat(this.accountId, "/latest.min.js") : "http://c.lytics.io/api/tag/".concat(this.accountId, "/latest.min.js")
+        });
+      }
+    }, {
+      key: "init",
+      value: function init() {
+        this.loadLyticsScript();
+        logger.debug("===in init Lytics===");
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in Lytics isLoaded");
+        logger.debug(!!(window.jstag && window.jstag.push !== Array.prototype.push));
+        return !!(window.jstag && window.jstag.push !== Array.prototype.push);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        logger.debug("in Lytics isReady");
+        return !!(window.jstag && window.jstag.push !== Array.prototype.push);
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in Lytics identify"); // eslint-disable-next-line camelcase
+
+        var user_id = rudderElement.message.userId || rudderElement.message.anonymousId;
+        var traits = rudderElement.message.context.traits;
+
+        var payload = _objectSpread2({
+          user_id: user_id
+        }, traits);
+
+        window.jstag.send(this.stream, payload);
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in Lytics page");
+        var properties = rudderElement.message.properties;
+
+        var payload = _objectSpread2({
+          event: rudderElement.message.name
+        }, properties);
+
+        window.jstag.pageView(this.stream, payload);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in Lytics track");
+        var properties = rudderElement.message.properties;
+
+        var payload = _objectSpread2({
+          _e: rudderElement.message.event
+        }, properties);
+
+        window.jstag.send(this.stream, payload);
+      }
+    }]);
+
+    return Lytics;
+  }();
+
+  var Appcues =
+  /*#__PURE__*/
+  function () {
+    function Appcues(config) {
+      _classCallCheck(this, Appcues);
+
+      this.accountId = config.accountId;
+      this.apiKey = config.apiKey;
+      this.name = "APPCUES"; //this.sendToAllDestinations = config.sendToAll;
+    }
+
+    _createClass(Appcues, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Appcues===");
+        ScriptLoader("appcues-id", "https://fast.appcues.com/".concat(this.accountId, ".js"));
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in appcues isLoaded");
+        return !!window.Appcues;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        logger.debug("in appcues isReady"); // This block of code enables us to send Appcues Flow events to all the other destinations connected to the same source (we might use it in future)
+        // if (this.sendToAllDestinations && window.Appcues) {
+        //   window.Appcues.on("all", function(eventName, event) {
+        //     window.rudderanalytics.track(eventName, event, {
+        //       integrations: {
+        //         All: true,
+        //         APPCUES: false
+        //       }
+        //     });
+        //   });
+        // }
+
+        return !!window.Appcues;
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        var traits = rudderElement.message.context.traits;
+        var userId = rudderElement.message.userId;
+
+        if (userId) {
+          window.Appcues.identify(userId, traits);
+        } else {
+          logger.error("user id is empty");
+        }
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var eventName = rudderElement.message.event;
+        var properties = rudderElement.message.properties;
+
+        if (eventName) {
+          window.Appcues.track(eventName, properties);
+        } else {
+          logger.error("event name is empty");
+        }
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        var _rudderElement$messag = rudderElement.message,
+            properties = _rudderElement$messag.properties,
+            name = _rudderElement$messag.name;
+        window.Appcues.page(name, properties);
+      } // To be uncommented after adding Reset feature to our SDK
+      // reset() {
+      //   window.Appcues.reset();
+      // }
+
+    }]);
+
+    return Appcues;
+  }();
+
   // (config-plan name, native destination.name , exported integration name(this one below))
 
   var integrations = {
@@ -15186,7 +16863,13 @@
     OPTIMIZELY: Optimizely,
     BUGSNAG: Bugsnag,
     FULLSTORY: Fullstory,
-    TVSQUARED: TVSquared
+    TVSQUARED: TVSquared,
+    GA4: GA4,
+    MOENGAGE: MoEngage,
+    AM: Amplitude,
+    PENDO: Pendo,
+    LYTICS: Lytics,
+    APPCUES: Appcues
   };
 
   // Application class
@@ -15196,7 +16879,7 @@
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.12";
+    this.version = "1.0.13";
   };
 
   // Library information class
@@ -15204,7 +16887,7 @@
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.12";
+    this.version = "1.0.13";
   }; // Operating System information class
 
 

@@ -1,0 +1,158 @@
+<html>
+  <head>
+    <script type="text/javascript">
+      rudderanalytics = window.rudderanalytics = [];
+      var methods = ["load", "page", "identify", "track", "ready", "group"];
+      for (var i = 0; i < methods.length; i++) {
+        var method = methods[i];
+        rudderanalytics[method] = (function (methodName) {
+          return function () {
+            rudderanalytics.push([methodName, ...arguments]);
+          };
+        })(method);
+      }
+      
+    rudderanalytics.load(
+      "1kT6kQvlivvbvyzO3SW4d2G0Y2u",
+      "https://hosted.rudderlabs.com",
+      {
+        logLevel: "DEBUG",
+        configUrl:"http://localhost:5000/sourceConfig",
+      }
+    );
+    </script>
+    <script src= "https://cdn.rudderlabs.com/v1/rudder-analytics-staging.min.js"></script>
+    <script>
+      rudderanalytics.page();
+      /*
+      Expected result: ehen trackAllPages settings is enabled.
+
+      [{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605855490405,"event_id":137,"session_id":1605853983798,"event_type":"Loaded a page","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"path":"/tests/html/test_amplitude.html","referrer":"http://localhost:2222/tests/html/","search":"","title":"","url":"http://localhost:2222/tests/html/test_amplitude.html"},"user_properties":{},"uuid":"7beb034f-8c74-46ba-8372-24adf118e529","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":159,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"}]
+
+      */
+
+      rudderanalytics.track("track without property");
+      /*
+      Expected result:
+
+      [{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605855423642,"event_id":136,"session_id":1605853983798,"event_type":"track without property","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{},"user_properties":{},"uuid":"eeaa5593-f2da-485a-9ba8-6a14cfe4daac","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":158,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"}]
+
+      */
+
+      rudderanalytics.identify("user1234", {name: "test name123", email: "test123@email.com", score: 10, initialScore: 100});
+      /*
+      Expected result: score is desined as traitsToIncrement and initialScore is defined as traitsToSetOnce
+
+      [{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605855308560,"event_id":22,"session_id":1605853983798,"event_type":"$identify","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{},"user_properties":{"$set":{"name":"test name123","email":"test123@email.com","account_type":"free_trial","first_login":false},"$add":{"score":10},"$setOnce":{"initialScore":100}},"uuid":"dc85eb7a-a0eb-4c93-81d9-0f406bbc12c9","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":157,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"}]
+
+      */
+
+
+      rudderanalytics.track("test track event", {prop1: "value1", prop2: "value2"});
+      /*
+      Expected result:
+
+      [{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605855193617,"event_id":135,"session_id":1605853983798,"event_type":"test track event","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"prop1":"value1","prop2":"value2"},"user_properties":{},"uuid":"0e3dd040-1a0a-4a04-8d3a-d3e90f076384","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":156,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"}]
+
+      */
+
+      
+      rudderanalytics.track("test revenue event", {revenue: 12, currency: "GBP"});
+
+      /*
+      Expected result:
+
+      [{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605855102948,"event_id":133,"session_id":1605853983798,"event_type":"test revenue event","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"revenue":12,"currency":"GBP"},"user_properties":{},"uuid":"ec42d6ba-0eea-4c66-8bf3-c243c67cc367","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":154,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605855102954,"event_id":134,"session_id":1605853983798,"event_type":"revenue_amount","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"revenue":12,"currency":"GBP","$quantity":1,"$price":12},"user_properties":{},"uuid":"cfbefd90-d652-465e-bee5-d4a8d037b522","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":155,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"}]
+
+      */
+
+      rudderanalytics.track('Order Completed', {
+            checkout_id: 'what is checkout id here??',
+            orderId: "ABCD1234",
+            value: 31.98,
+            revenue: 31.98,
+            shipping: 4.00,
+            coupon: 'APPARELSALE',
+            currency: 'GBP',
+            products: [
+                {
+                    product_id: 'product-bacon-jam',
+                    sku: 'sku-1',
+                    category: 'Merch',
+                    name: 'Food/Drink',
+                    brand: '',
+                    variant: 'Extra topped',
+                    price: 3.00,
+                    quantity: 2,
+                    currency: 'GBP',
+                    position: 1,
+                    value: 6.00,
+                    typeOfProduct: 'Food',
+                    url: 'https://www.example.com/product/bacon-jam',
+                    image_url: 'https://www.example.com/product/bacon-jam.jpg'
+                },
+                {
+                    product_id: 'product-t-shirt',
+                    sku: 'sku-2',
+                    category: 'Merch',
+                    name: 'T-Shirt',
+                    brand: 'Levis',
+                    variant: 'White',
+                    price: 12.99,
+                    quantity: 1,
+                    currency: 'GBP',
+                    position: 2,
+                    value: 12.99,
+                    typeOfProduct: 'Shirt',
+                    url: 'https://www.example.com/product/t-shirt',
+                    image_url: 'https://www.example.com/product/t-shirt.jpg'
+                },
+                {
+                    product_id: 'offer-t-shirt',
+                    sku: 'sku-3',
+                    category: 'Merch',
+                    name: 'T-Shirt-on-offer',
+                    brand: 'Levis',
+                    variant: 'Black',
+                    price: 12.99,
+                    quantity: 1,
+                    currency: 'GBP',
+                    position: 1,
+                    value: 12.99,
+                    coupon: 'APPARELSALE',
+                    typeOfProduct: 'Shirt',
+                    url: 'https://www.example.com/product/offer-t-shirt',
+                    image_url: 'https://www.example.com/product/offer-t-shirt.jpg'
+                }
+            ]
+        });
+        /* 
+        Expected Result: When trackProductsOnce is disabled and trackRevenuePerProduct is enabled.
+
+        [{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854062734,"event_id":111,"session_id":1605853983798,"event_type":"Order Completed","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"checkout_id":"what is checkout id here??","orderId":"ABCD1234","value":31.98,"revenue":31.98,"shipping":4,"coupon":"APPARELSALE","currency":"GBP"},"user_properties":{},"uuid":"7a068d1f-7437-41f9-b872-f4390bf724e7","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":132,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854062740,"event_id":112,"session_id":1605853983798,"event_type":"revenue_amount","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"product_id":"product-bacon-jam","sku":"sku-1","category":"Merch","name":"Food/Drink","brand":"","variant":"Extra topped","price":3,"quantity":2,"currency":"GBP","position":1,"value":6,"typeOfProduct":"Food","url":"https://www.example.com/product/bacon-jam","image_url":"https://www.example.com/product/bacon-jam.jpg","revenue":31.98,"$productId":"product-bacon-jam","$quantity":2,"$price":3,"$revenueType":"Purchase"},"user_properties":{},"uuid":"48f210f5-237d-41df-89a0-df57578b8307","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":133,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854062741,"event_id":113,"session_id":1605853983798,"event_type":"Product Purchased","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"product_id":"product-bacon-jam","sku":"sku-1","category":"Merch","name":"Food/Drink","brand":"","variant":"Extra topped","price":3,"quantity":2,"currency":"GBP","position":1,"value":6,"typeOfProduct":"Food","url":"https://www.example.com/product/bacon-jam","image_url":"https://www.example.com/product/bacon-jam.jpg","revenue":31.98},"user_properties":{},"uuid":"67c8c6e5-9f0b-48d6-ba71-1bdc5948553e","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":134,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854062742,"event_id":114,"session_id":1605853983798,"event_type":"revenue_amount","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"product_id":"product-t-shirt","sku":"sku-2","category":"Merch","name":"T-Shirt","brand":"Levis","variant":"White","price":12.99,"quantity":1,"currency":"GBP","position":2,"value":12.99,"typeOfProduct":"Shirt","url":"https://www.example.com/product/t-shirt","image_url":"https://www.example.com/product/t-shirt.jpg","revenue":31.98,"$productId":"product-t-shirt","$quantity":1,"$price":12.99,"$revenueType":"Purchase"},"user_properties":{},"uuid":"829b8599-7764-41b4-a4a9-da0f804ad1b2","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":135,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854062743,"event_id":115,"session_id":1605853983798,"event_type":"Product Purchased","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"product_id":"product-t-shirt","sku":"sku-2","category":"Merch","name":"T-Shirt","brand":"Levis","variant":"White","price":12.99,"quantity":1,"currency":"GBP","position":2,"value":12.99,"typeOfProduct":"Shirt","url":"https://www.example.com/product/t-shirt","image_url":"https://www.example.com/product/t-shirt.jpg","revenue":31.98},"user_properties":{},"uuid":"b32ee1de-dbe3-4cfe-a435-acaca5a32f50","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":136,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854062744,"event_id":116,"session_id":1605853983798,"event_type":"revenue_amount","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"product_id":"offer-t-shirt","sku":"sku-3","category":"Merch","name":"T-Shirt-on-offer","brand":"Levis","variant":"Black","price":12.99,"quantity":1,"currency":"GBP","position":1,"value":12.99,"coupon":"APPARELSALE","typeOfProduct":"Shirt","url":"https://www.example.com/product/offer-t-shirt","image_url":"https://www.example.com/product/offer-t-shirt.jpg","revenue":31.98,"$productId":"offer-t-shirt","$quantity":1,"$price":12.99,"$revenueType":"Purchase"},"user_properties":{},"uuid":"47ffc311-a7ae-4363-b883-886bfde3c4b1","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":137,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854062744,"event_id":117,"session_id":1605853983798,"event_type":"Product Purchased","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"product_id":"offer-t-shirt","sku":"sku-3","category":"Merch","name":"T-Shirt-on-offer","brand":"Levis","variant":"Black","price":12.99,"quantity":1,"currency":"GBP","position":1,"value":12.99,"coupon":"APPARELSALE","typeOfProduct":"Shirt","url":"https://www.example.com/product/offer-t-shirt","image_url":"https://www.example.com/product/offer-t-shirt.jpg","revenue":31.98},"user_properties":{},"uuid":"6461fcc5-d63d-4aec-87c2-80d020980519","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":138,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"}]
+        
+        ================
+
+        Expected Result: When both trackProductsOnce and trackRevenuePerProduct are enabled. - weird settings :P
+
+        [{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854357675,"event_id":118,"session_id":1605853983798,"event_type":"Order Completed","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"checkout_id":"what is checkout id here??","orderId":"ABCD1234","value":31.98,"revenue":31.98,"shipping":4,"coupon":"APPARELSALE","currency":"GBP","products":[{"productId":"product-bacon-jam","sku":"sku-1","name":"Food/Drink","price":3,"quantity":2,"category":"Merch"},{"productId":"product-t-shirt","sku":"sku-2","name":"T-Shirt","price":12.99,"quantity":1,"category":"Merch"},{"productId":"offer-t-shirt","sku":"sku-3","name":"T-Shirt-on-offer","price":12.99,"quantity":1,"category":"Merch"}]},"user_properties":{},"uuid":"5e9c3565-da9b-4944-9d7c-722e3859080a","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":139,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854357681,"event_id":119,"session_id":1605853983798,"event_type":"revenue_amount","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"product_id":"product-bacon-jam","sku":"sku-1","category":"Merch","name":"Food/Drink","brand":"","variant":"Extra topped","price":3,"quantity":2,"currency":"GBP","position":1,"value":6,"typeOfProduct":"Food","url":"https://www.example.com/product/bacon-jam","image_url":"https://www.example.com/product/bacon-jam.jpg","revenue":31.98,"$productId":"product-bacon-jam","$quantity":2,"$price":3,"$revenueType":"Purchase"},"user_properties":{},"uuid":"23d35222-843b-48fd-af6e-c97039b5b089","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":140,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854357682,"event_id":120,"session_id":1605853983798,"event_type":"revenue_amount","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"product_id":"product-t-shirt","sku":"sku-2","category":"Merch","name":"T-Shirt","brand":"Levis","variant":"White","price":12.99,"quantity":1,"currency":"GBP","position":2,"value":12.99,"typeOfProduct":"Shirt","url":"https://www.example.com/product/t-shirt","image_url":"https://www.example.com/product/t-shirt.jpg","revenue":31.98,"$productId":"product-t-shirt","$quantity":1,"$price":12.99,"$revenueType":"Purchase"},"user_properties":{},"uuid":"0899a568-f6bb-474d-93a3-e58f4a2f51b2","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":141,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854357683,"event_id":121,"session_id":1605853983798,"event_type":"revenue_amount","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"product_id":"offer-t-shirt","sku":"sku-3","category":"Merch","name":"T-Shirt-on-offer","brand":"Levis","variant":"Black","price":12.99,"quantity":1,"currency":"GBP","position":1,"value":12.99,"coupon":"APPARELSALE","typeOfProduct":"Shirt","url":"https://www.example.com/product/offer-t-shirt","image_url":"https://www.example.com/product/offer-t-shirt.jpg","revenue":31.98,"$productId":"offer-t-shirt","$quantity":1,"$price":12.99,"$revenueType":"Purchase"},"user_properties":{},"uuid":"b0dba39a-755e-44f1-8d9d-f32a9a6b3a73","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":142,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"}]
+        
+        =================
+
+        Expected Result: When trackProductsOnce is enabled and trackRevenuePerProduct is disabled.
+
+        [{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854554768,"event_id":122,"session_id":1605853983798,"event_type":"Order Completed","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"checkout_id":"what is checkout id here??","orderId":"ABCD1234","value":31.98,"revenue":31.98,"shipping":4,"coupon":"APPARELSALE","currency":"GBP","products":[{"productId":"product-bacon-jam","sku":"sku-1","name":"Food/Drink","price":3,"quantity":2,"category":"Merch"},{"productId":"product-t-shirt","sku":"sku-2","name":"T-Shirt","price":12.99,"quantity":1,"category":"Merch"},{"productId":"offer-t-shirt","sku":"sku-3","name":"T-Shirt-on-offer","price":12.99,"quantity":1,"category":"Merch"}]},"user_properties":{},"uuid":"d31788b2-408a-4a9a-b9f4-6b1c5ee27430","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":143,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854554772,"event_id":123,"session_id":1605853983798,"event_type":"revenue_amount","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"checkout_id":"what is checkout id here??","orderId":"ABCD1234","value":31.98,"revenue":31.98,"shipping":4,"coupon":"APPARELSALE","currency":"GBP","products":[{"productId":"product-bacon-jam","sku":"sku-1","name":"Food/Drink","price":3,"quantity":2,"category":"Merch"},{"productId":"product-t-shirt","sku":"sku-2","name":"T-Shirt","price":12.99,"quantity":1,"category":"Merch"},{"productId":"offer-t-shirt","sku":"sku-3","name":"T-Shirt-on-offer","price":12.99,"quantity":1,"category":"Merch"}],"$quantity":1,"$price":31.98,"$revenueType":"Purchase"},"user_properties":{},"uuid":"428cdddc-084a-4603-969a-6f1c6977c616","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":144,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"}]
+
+        =================
+
+        Expected Result: When both trackProductsOnce and trackRevenuePerProduct are disabled.
+
+        [{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854729943,"event_id":124,"session_id":1605853983798,"event_type":"Order Completed","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"checkout_id":"what is checkout id here??","orderId":"ABCD1234","value":31.98,"revenue":31.98,"shipping":4,"coupon":"APPARELSALE","currency":"GBP"},"user_properties":{},"uuid":"e7bfa293-2649-4e3b-8195-178d7f4ae350","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":145,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854729947,"event_id":125,"session_id":1605853983798,"event_type":"revenue_amount","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"checkout_id":"what is checkout id here??","orderId":"ABCD1234","value":31.98,"revenue":31.98,"shipping":4,"coupon":"APPARELSALE","currency":"GBP","$quantity":1,"$price":31.98,"$revenueType":"Purchase"},"user_properties":{},"uuid":"cbcc06a1-f861-4f01-8512-6d4444ce68ce","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":146,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854729948,"event_id":126,"session_id":1605853983798,"event_type":"Product Purchased","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"product_id":"product-bacon-jam","sku":"sku-1","category":"Merch","name":"Food/Drink","brand":"","variant":"Extra topped","price":3,"quantity":2,"currency":"GBP","position":1,"value":6,"typeOfProduct":"Food","url":"https://www.example.com/product/bacon-jam","image_url":"https://www.example.com/product/bacon-jam.jpg"},"user_properties":{},"uuid":"f21d0c42-2d10-4621-ba7a-659a00fa8425","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":147,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854729949,"event_id":127,"session_id":1605853983798,"event_type":"Product Purchased","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"product_id":"product-t-shirt","sku":"sku-2","category":"Merch","name":"T-Shirt","brand":"Levis","variant":"White","price":12.99,"quantity":1,"currency":"GBP","position":2,"value":12.99,"typeOfProduct":"Shirt","url":"https://www.example.com/product/t-shirt","image_url":"https://www.example.com/product/t-shirt.jpg"},"user_properties":{},"uuid":"52aeb574-5e2f-4df4-98e2-5204adab64a0","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":148,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"},{"device_id":"ecfc395a-141d-401a-aa1e-f0128cf0e673","user_id":"user1234","timestamp":1605854729950,"event_id":128,"session_id":1605853983798,"event_type":"Product Purchased","version_name":null,"platform":"Web","os_name":"Chrome","os_version":"86","device_model":"Mac","device_manufacturer":null,"language":"en-GB","carrier":null,"api_properties":{},"event_properties":{"product_id":"offer-t-shirt","sku":"sku-3","category":"Merch","name":"T-Shirt-on-offer","brand":"Levis","variant":"Black","price":12.99,"quantity":1,"currency":"GBP","position":1,"value":12.99,"coupon":"APPARELSALE","typeOfProduct":"Shirt","url":"https://www.example.com/product/offer-t-shirt","image_url":"https://www.example.com/product/offer-t-shirt.jpg"},"user_properties":{},"uuid":"0641676e-67cb-4aa8-a946-ee4bb280127a","library":{"name":"amplitude-js","version":"7.2.1"},"sequence_number":149,"groups":{},"group_properties":{},"user_agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"}]
+
+        */
+    </script>
+  </head>
+  <body>
+    <h1>Relax while I finish my testing process....</h1>
+  </body>
+</html>
