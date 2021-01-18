@@ -81,8 +81,8 @@ It is recommended to use the snippet above to use Rudder SDK in your websites, b
 - Since, the module exports a bunch of api's on a already defined object combined with node module caching, you should perform the below only once and use the exported object throughout your project :
  ```
  import * as rudderanalytics from "rudder-sdk-js"
-rudderanalytics.ready(() => {console.log("we are all set!!!")})
 rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI")
+rudderanalytics.ready(() => {console.log("we are all set!!!")})
 export  {  rudderanalytics  }
  ```
  For es5, with *require*:
@@ -229,6 +229,10 @@ rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI",
 We will be adding similar callbacks for apis such as  `track, page, identify`  etc.
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#autotrack)Autotrack
+
+| **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If you still wish to use it for your project, refer to [this security checkpoints](https://github.com/rudderlabs/rudder-sdk-js-autotrack#security). |
+|:------|
+
 
 It may happen that the need arises to track most of user interactions with a web-app. It becomes hard for a developer to capture these DOM interactions and make track calls for all. The autotrack feature of Rudder SDK helps in tracking all user interactions like  `click | change | submit`  automatically. The data generated will be verbose and to make sense of the data, one can use  `user transformations`  from the config-plane to build use-cases like monitoring user journeys etc. For more information and payload structure, click  [here](https://docs.rudderstack.com/sdk-integration-guide/getting-started-with-javascript-sdk/rudderstack-autotrack-feature).
 
