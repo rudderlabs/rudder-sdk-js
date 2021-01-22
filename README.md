@@ -248,6 +248,8 @@ You may use the below parameters as querystring parameter and trigger the corres
 
 `ajs_trait_<trait>` 	: If `ajs_uid` is provided as querysting, value of this parameter will populate the `traits` of the `identify` call made.
 
+| **IMPORTANT**: This feature is not supported in NPM module yet. It will be released soon. |
+|:------|
 
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-callbacks-to-standard-methods)Adding Callbacks to Standard Methods
