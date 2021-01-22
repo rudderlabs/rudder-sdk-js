@@ -1110,15 +1110,17 @@ function pushQueryStringDataToAnalyticsArray(argumentsArray, obj) {
 }
 
 function processDataInAnalyticsArray(analytics){
-  for (let i = 0; i < analytics.toBeProcessedArray.length; i++) {
-    const event = [...analytics.toBeProcessedArray[i]];
-    const method = event[0];
-    event.shift();
-    logger.debug("=====from analytics array, calling method:: ", method);
-    analytics[method](...event);
+  if(instance.loaded){
+    for (let i = 0; i < analytics.toBeProcessedArray.length; i++) {
+      const event = [...analytics.toBeProcessedArray[i]];
+      const method = event[0];
+      event.shift();
+      logger.debug("=====from analytics array, calling method:: ", method);
+      analytics[method](...event);
+    }
+    
+    instance.toBeProcessedArray = [];
   }
-  
-  instance.toBeProcessedArray = [];
 }
 
 const instance = new Analytics();
@@ -1173,9 +1175,7 @@ if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
     instance.toBeProcessedArray.push(argumentsArray[i]);
   }
 
-  if(instance.loaded){
-    processDataInAnalyticsArray(instance);
-  }
+  processDataInAnalyticsArray(instance);
   
 }
 // }
