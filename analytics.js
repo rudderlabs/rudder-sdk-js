@@ -960,6 +960,7 @@ class Analytics {
         addDomEventHandlers(this);
       }
     }
+    processDataInAnalyticsArray(this);
   }
 
   ready(callback) {
@@ -1076,7 +1077,10 @@ class Analytics {
   }
 }
 
-function pushDataToAnalyticsArray(argumentsArray, obj) {
+function pushQueryStringDataToAnalyticsArray(argumentsArray, obj) {
+  if(!argumentsArray){
+    argumentsArray = [];
+  }
   if (obj.anonymousId) {
     if (obj.userId) {
       argumentsArray.unshift(
@@ -1093,6 +1097,18 @@ function pushDataToAnalyticsArray(argumentsArray, obj) {
   if (obj.event) {
     argumentsArray.push(["track", obj.event, obj.properties]);
   }
+}
+
+function processDataInAnalyticsArray(analytics){
+  for (let i = 0; i < analytics.toBeProcessedArray.length; i++) {
+    const event = [...analytics.toBeProcessedArray[i]];
+    const method = event[0];
+    event.shift();
+    logger.debug("=====from analytics array, calling method:: ", method);
+    analytics[method](...event);
+  }
+  
+  instance.toBeProcessedArray = [];
 }
 
 const instance = new Analytics();
@@ -1140,21 +1156,17 @@ if (
 // once loaded, parse querystring of the page url to send events
 const parsedQueryObject = instance.parseQueryString(window.location.search);
 
-pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
+pushQueryStringDataToAnalyticsArray(argumentsArray, parsedQueryObject);
 
 if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
-  for (let i = 0; i < argumentsArray.length; i++) {
+   for (let i = 0; i < argumentsArray.length; i++) {
     instance.toBeProcessedArray.push(argumentsArray[i]);
   }
 
-  for (let i = 0; i < instance.toBeProcessedArray.length; i++) {
-    const event = [...instance.toBeProcessedArray[i]];
-    const method = event[0];
-    event.shift();
-    logger.debug("=====from init, calling method:: ", method);
-    instance[method](...event);
+  if(instance.loaded){
+    processDataInAnalyticsArray(instance);
   }
-  instance.toBeProcessedArray = [];
+  
 }
 // }
 
