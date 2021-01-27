@@ -36,8 +36,6 @@ describe("GA init tests", () => {
       allowLinker: true,
       useAmpClientId: false,
     });
-    expect(window.ga.q[1][0]).toEqual("require");
-    expect(window.ga.q[1][1]).toEqual("ecommerce");
   });
 
   describe("GA page", () => {

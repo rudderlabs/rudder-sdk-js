@@ -19,6 +19,7 @@ export default class GA {
     this.domain = config.domain || "auto";
     this.doubleClick = config.doubleClick || false;
     this.enhancedEcommerce = config.enhancedEcommerce || false;
+    this.ecommerce = config.ecommerce || false;
     this.enhancedLinkAttribution = config.enhancedLinkAttribution || false;
 
     this.includeSearch = config.includeSearch || false;
@@ -106,12 +107,6 @@ export default class GA {
       window.ga(`${this.trackerName}require`, this.optimizeContainerId);
     }
 
-    // ecommerce is required
-    if (!this.ecommerce) {
-      window.ga(`${this.trackerName}require`, "ecommerce");
-      this.ecommerce = true;
-    }
-
     // this is to display advertising
     if (this.doubleClick) {
       window.ga(`${this.trackerName}require`, "displayfeatures");
@@ -180,7 +175,13 @@ export default class GA {
         logger.debug("order_id not present events are not sent to GA");
         return;
       }
-
+      console.log(this.ecommerce)
+      // ecommerce is required
+      if (!this.checkEcommerce && this.ecommerce) {
+        console.log("inside")
+        window.ga(`${this.trackerName}require`, "ecommerce");
+        this.checkEcommerce = true;
+      }
       // add transaction
       window.ga(`${this.trackerName}ecommerce:addTransaction`, {
         affiliation: properties.affiliation,
