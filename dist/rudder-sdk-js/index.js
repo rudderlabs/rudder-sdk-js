@@ -3220,7 +3220,7 @@
     PRODUCT_REVIEWED: "Product Reviewed"
   }; // Enumeration for integrations supported
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.19";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.20";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -5090,24 +5090,26 @@
 
         window.ga("create", this.trackingID, config);
 
-        if (this.optimizeContainerId) {
-          window.ga("".concat(this.trackerName, "require"), this.optimizeContainerId);
-        } // ecommerce is required
+        if (this.analytics.loadIntegration) {
+          if (this.optimizeContainerId) {
+            window.ga("".concat(this.trackerName, "require"), this.optimizeContainerId);
+          } // ecommerce is required
 
 
-        if (!this.ecommerce) {
-          window.ga("".concat(this.trackerName, "require"), "ecommerce");
-          this.ecommerce = true;
-        } // this is to display advertising
+          if (!this.ecommerce) {
+            window.ga("".concat(this.trackerName, "require"), "ecommerce");
+            this.ecommerce = true;
+          } // this is to display advertising
 
 
-        if (this.doubleClick) {
-          window.ga("".concat(this.trackerName, "require"), "displayfeatures");
-        } // https://support.google.com/analytics/answer/2558867?hl=en
+          if (this.doubleClick) {
+            window.ga("".concat(this.trackerName, "require"), "displayfeatures");
+          } // https://support.google.com/analytics/answer/2558867?hl=en
 
 
-        if (this.enhancedLinkAttribution) {
-          window.ga("".concat(this.trackerName, "require"), "linkid");
+          if (this.enhancedLinkAttribution) {
+            window.ga("".concat(this.trackerName, "require"), "linkid");
+          }
         } // a warning is in ga debugger if anonymize is false after initialization
 
 
@@ -16891,7 +16893,7 @@
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.19";
+    this.version = "1.0.20";
   };
 
   // Library information class
@@ -16899,7 +16901,7 @@
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.19";
+    this.version = "1.0.20";
   }; // Operating System information class
 
 
@@ -18507,6 +18509,7 @@
       this.autoTrackHandlersRegistered = false;
       this.autoTrackFeatureEnabled = false;
       this.initialized = false;
+      this.areEventsReplayed = false;
       this.trackValues = [];
       this.eventsBuffer = [];
       this.clientIntegrations = [];
@@ -18650,7 +18653,7 @@
     }, {
       key: "replayEvents",
       value: function replayEvents(object) {
-        if (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length === object.clientIntegrations.length) {
+        if (object.successfullyLoadedIntegration.length + object.failedToBeLoadedIntegration.length === object.clientIntegrations.length && !object.areEventsReplayed) {
           logger.debug("===replay events called====", object.successfullyLoadedIntegration.length, object.failedToBeLoadedIntegration.length); // eslint-disable-next-line no-param-reassign
 
           object.clientIntegrationObjects = []; // eslint-disable-next-line no-param-reassign
@@ -18700,6 +18703,7 @@
               }
             });
             object.toBeProcessedByIntegrationArray = [];
+            object.areEventsReplayed = true;
           }
         }
       }
@@ -19311,6 +19315,8 @@
             addDomEventHandlers();
           }
         }
+
+        processDataInAnalyticsArray(this);
       }
     }, {
       key: "ready",
@@ -19428,7 +19434,11 @@
     return Analytics;
   }();
 
-  function pushDataToAnalyticsArray(argumentsArray, obj) {
+  function pushQueryStringDataToAnalyticsArray(argumentsArray, obj) {
+    if (!argumentsArray) {
+      argumentsArray = [];
+    }
+
     if (obj.anonymousId) {
       if (obj.userId) {
         argumentsArray.unshift(["setAnonymousId", obj.anonymousId], ["identify", obj.userId, obj.traits]);
@@ -19441,6 +19451,21 @@
 
     if (obj.event) {
       argumentsArray.push(["track", obj.event, obj.properties]);
+    }
+  }
+
+  function processDataInAnalyticsArray(analytics) {
+    if (instance.loaded) {
+      for (var i = 0; i < analytics.toBeProcessedArray.length; i++) {
+        var event = _toConsumableArray(analytics.toBeProcessedArray[i]);
+
+        var method = event[0];
+        event.shift();
+        logger.debug("=====from analytics array, calling method:: ", method);
+        analytics[method].apply(analytics, _toConsumableArray(event));
+      }
+
+      instance.toBeProcessedArray = [];
     }
   }
 
@@ -19473,24 +19498,14 @@
 
 
   var parsedQueryObject = instance.parseQueryString(window.location.search);
-  pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
+  pushQueryStringDataToAnalyticsArray(argumentsArray, parsedQueryObject);
 
   if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
     for (var i$1 = 0; i$1 < argumentsArray.length; i$1++) {
       instance.toBeProcessedArray.push(argumentsArray[i$1]);
     }
 
-    for (var _i = 0; _i < instance.toBeProcessedArray.length; _i++) {
-      var event = _toConsumableArray(instance.toBeProcessedArray[_i]);
-
-      var _method = event[0];
-      event.shift();
-      logger.debug("=====from init, calling method:: ", _method);
-
-      instance[_method].apply(instance, _toConsumableArray(event));
-    }
-
-    instance.toBeProcessedArray = [];
+    processDataInAnalyticsArray(instance);
   } // }
 
 
