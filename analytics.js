@@ -70,6 +70,7 @@ class Analytics {
     this.autoTrackHandlersRegistered = false;
     this.autoTrackFeatureEnabled = false;
     this.initialized = false;
+    this.areEventsReplayed = false;
     this.trackValues = [];
     this.eventsBuffer = [];
     this.clientIntegrations = [];
@@ -232,7 +233,7 @@ class Analytics {
     if (
       object.successfullyLoadedIntegration.length +
         object.failedToBeLoadedIntegration.length ===
-      object.clientIntegrations.length
+      object.clientIntegrations.length && !object.areEventsReplayed 
     ) {
       logger.debug(
         "===replay events called====",
@@ -315,6 +316,7 @@ class Analytics {
           }
         });
         object.toBeProcessedByIntegrationArray = [];
+        object.areEventsReplayed  = true;
       }
     }
   }
