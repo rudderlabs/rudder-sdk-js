@@ -1089,25 +1089,22 @@ class Analytics {
   }
 }
 
-function pushQueryStringDataToAnalyticsArray(argumentsArray, obj) {
-  if (!argumentsArray) {
-    argumentsArray = [];
-  }
+function pushQueryStringDataToAnalyticsArray(obj) {
   if (obj.anonymousId) {
     if (obj.userId) {
-      argumentsArray.unshift(
+      instance.toBeProcessedArray.push(
         ["setAnonymousId", obj.anonymousId],
         ["identify", obj.userId, obj.traits]
       );
     } else {
-      argumentsArray.unshift(["setAnonymousId", obj.anonymousId]);
+      instance.toBeProcessedArray.push(["setAnonymousId", obj.anonymousId]);
     }
   } else if (obj.userId) {
-    argumentsArray.unshift(["identify", obj.userId, obj.traits]);
+    instance.toBeProcessedArray.push(["identify", obj.userId, obj.traits]);
   }
 
   if (obj.event) {
-    argumentsArray.push(["track", obj.event, obj.properties]);
+    instance.toBeProcessedArray.push(["track", obj.event, obj.properties]);
   }
 }
 
@@ -1170,13 +1167,14 @@ if (
 // once loaded, parse querystring of the page url to send events
 const parsedQueryObject = instance.parseQueryString(window.location.search);
 
-pushQueryStringDataToAnalyticsArray(argumentsArray, parsedQueryObject);
+pushQueryStringDataToAnalyticsArray(parsedQueryObject);
 
-if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
+if (argumentsArray && argumentsArray.length > 0) {
   for (let i = 0; i < argumentsArray.length; i++) {
     instance.toBeProcessedArray.push(argumentsArray[i]);
   }
-
+}
+if(eventsPushedAlready){
   processDataInAnalyticsArray(instance);
 }
 // }
