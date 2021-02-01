@@ -56,6 +56,9 @@ const commonNames = {
   LYTICS: "Lytics",
   Appcues: "APPCUES",
   APPCUES: "APPCUES",
+  POSTHOG: "POSTHOG",
+  PostHog: "POSTHOG",
+  Posthog: "POSTHOG"
 };
 
 export { commonNames };
