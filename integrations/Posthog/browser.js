@@ -7,20 +7,13 @@ class Posthog {
     this.analytics = analytics;
     this.teamApiKey = config.teamApiKey;
     this.yourInstance = config.yourInstance || "https://app.posthog.com";
-    this.autocapture = config.autocapture;
-    this.capturePageView = config.capturePageView;
-    this.disableSessionRecording = config.disableSessionRecording;
+    this.autocapture = config.autocapture || false;
+    this.capturePageView = config.capturePageView || false;
+    this.disableSessionRecording = config.disableSessionRecording || false;
+    this.disableCookie = config.disableCookie || false;
     this.propertyBlackList = [];
     this.xhrHeaders = {};
-    this.superProperties = {};
 
-    if (config.superProperties && config.superProperties.length > 0) {
-      config.superProperties.forEach(property => {
-        if(property && property.key && property.value && property.key.trim() != "" && property.value.trim() != ""){
-          this.superProperties[property.key] = property.value;
-        }
-      });
-    }
     if (config.xhrHeaders && config.xhrHeaders.length > 0) {
       config.xhrHeaders.forEach(header => {
         if(header && header.key && header.value && header.key.trim() != "" && header.value.trim() != ""){
@@ -62,17 +55,40 @@ class Posthog {
       autocapture: this.autocapture,
       capture_pageview: this.capturePageView,
       disable_session_recording: this.disableSessionRecording,
-      property_blacklist: this.propertyBlackList
+      property_blacklist: this.propertyBlackList,
+      disable_cookie: this.disableCookie
     };
     if(this.xhrHeaders && Object.keys(this.xhrHeaders).length > 0){
-      configObject.xhr_headers = {};//this.xhrHeaders;
+      configObject.xhr_headers = this.xhrHeaders;
     }
-
 
     posthog.init(this.teamApiKey, configObject);
-    if(this.superProperties && Object.keys(this.superProperties).length > 0){
-      posthog.register(this.superProperties);
+  }
+
+  /**
+   * superproperties should be part of rudderelement.message.integrations.POSTHOG object.
+   * Once we call the posthog.register api, the corresponding property will be sent along with subsequent capture calls.
+   * To remove the superproperties, we call unregister api.
+   */
+  processSuperProperties(rudderElement){
+    const integrations = rudderElement.message.integrations;
+    if(integrations && integrations.POSTHOG){
+      const {superProperties, setOnceProperties, unsetProperties} = integrations.POSTHOG;
+      if(superProperties && Object.keys(superProperties).length > 0){
+        posthog.register(superProperties);
+      }
+      if(setOnceProperties && Object.keys(setOnceProperties).length > 0){
+        posthog.register_once(setOnceProperties);
+      }
+      if(unsetProperties && unsetProperties.length > 0){
+        unsetProperties.forEach(property => {
+          if(property && property.trim() != ""){
+            posthog.unregister(property);
+          }
+        });
+      }
     }
+
   }
 
   identify(rudderElement) {
@@ -83,12 +99,10 @@ class Posthog {
     const { userId } = rudderElement.message;
 
     if (userId) {
-      window.posthog.identify(userId);
+      posthog.identify(userId, traits);
     }
 
-    if (traits) {
-      window.posthog.people.set(traits);
-    }
+    this.processSuperProperties(rudderElement);
   }
 
   track(rudderElement) {
@@ -96,7 +110,9 @@ class Posthog {
 
     const { event, properties } = rudderElement.message;
 
-    window.posthog.capture(event, properties);
+    this.processSuperProperties(rudderElement);
+
+    posthog.capture(event, properties);
   }
 
   /**
@@ -107,7 +123,9 @@ class Posthog {
   page(rudderElement) {
     logger.debug("in Posthog page");
 
-    window.posthog.capture('$pageview');
+    this.processSuperProperties(rudderElement);
+
+    posthog.capture('$pageview');
   }
 
   isLoaded() {
