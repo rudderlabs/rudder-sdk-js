@@ -26,6 +26,7 @@ const clientToServerNames = {
   PENDO: "Pendo",
   LYTICS: "Lytics",
   APPCUES: "Appcues",
+  POSTHOG: "PostHog"
 };
 
 export { clientToServerNames };
