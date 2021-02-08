@@ -606,8 +606,8 @@ export default class GA {
       page: pagePath,
       title: pageTitle
     };
-    logger.debug(pageReferrer);
-    logger.debug(document.referrer);
+    logger.debug("referrer: " + pageReferrer);
+    logger.debug("document referrer: ", document.referrer);
     if (pageReferrer !== document.referrer) payload.referrer = pageReferrer;
 
     window.ga(`${this.trackerName}set`, payload);

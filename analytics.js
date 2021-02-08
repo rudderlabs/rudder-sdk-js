@@ -148,7 +148,7 @@ class Analytics {
       }
       response.source.destinations.forEach(function (destination, index) {
         logger.debug(
-          `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? ${destination.config.useNativeSDK}`
+          `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
         );
         if (destination.enabled) {
           this.clientIntegrations.push({
@@ -240,7 +240,9 @@ class Analytics {
     ) {
       logger.debug(
         "===replay events called====",
+        " successfully loaded count: ",
         object.successfullyLoadedIntegration.length,
+        " failed loaded count: ",
         object.failedToBeLoadedIntegration.length
       );
       // eslint-disable-next-line no-param-reassign
@@ -250,6 +252,7 @@ class Analytics {
 
       logger.debug(
         "==registering after callback===",
+        " after to be called after count : ",
         object.clientIntegrationObjects.length
       );
       object.executeReadyCallback = after(
