@@ -12,68 +12,9 @@ This Quick Start Guide will help you get up and running with using the RudderSta
 
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#step-1-install-rudderstack-using-the-code-snippet)Step 1: Install RudderStack using the code snippet
 
-To integrate the SDK, place the following code snippet in the  `<head>`  section of your website.
+To integrate the SDK:
 
-You can use either the minified or non-minified version of the code:
-
-The minified version is as follows:
-
-```
-<script> 
-rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track","alias","group","identify","ready","reset"],i=0;i<methods.length;i++){var method=methods[i];rudderanalytics[method]=function(d){return function(){rudderanalytics.push([d,...arguments])}}(method)}rudderanalytics.load("YOUR_WRITE_KEY","DATA_PLANE_URI"),rudderanalytics.page();
-</script>
-
-<script  src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script>
-
-```
-
-The non-minified version of the code is shown below:
-
-```
-<script>
-	rudderanalytics = window.rudderanalytics = [];
-	
-	var  methods = [
-		"load",
-		"page",
-		"track",
-		"identify",
-		"alias",
-		"group",
-		"ready",
-		"reset"
-	];
-
-	for (var i = 0; i < methods.length; i++) {
-  		var method = methods[i];
-  		rudderanalytics[method] = function (methodName) {
-    			return function () {
-      				rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
-    			};
-  			}(method);
-	}
-	rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI");
-	//For example,
-	//rudderanalytics.load("1Qb1F3jSWv0eKFBPZcrM7ypgjVo", "http://localhost:8080");
-	rudderanalytics.page();
-</script>
-
-<script  src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script>
-
-```
-
-**NOTE**: Whichever version of the code you use, you need to replace  `YOUR_WRITE_KEY`  with the write key in the RudderStack Control Plane and  `DATA_PLANE_URI`  with the URI of the RudderStack Server/ Data Plane.
-
-You can also execute the min file in async/defer way, like:
-
-```
-<script async src="https://cdn.rudderlabs.com/rudder-analytics.min.js"></script>
-
-```
-
-**NOTE**: We are moving our sdk to a diiferent path from the earlier  [https://cdn.rudderlabs.com/rudder-analytics.min.js](https://cdn.rudderlabs.com/rudder-analytics.min.js)  to  [https://cdn.rudderlabs.com/v1/rudder-analytics.min.js](https://cdn.rudderlabs.com/v1/rudder-analytics.min.js). The earlier path may not be maintained in coming releases.
-
-**Alternative installation using NPM**
+**Installation using NPM**
 It is recommended to use the snippet above to use Rudder SDK in your websites, but one can use this [NPM module](https://www.npmjs.com/package/rudder-js) to package Rudder directly into your project.
 
  - To install:
@@ -91,6 +32,17 @@ var rudderanalytics  =  require("rudder-sdk-js")
 rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI")
 exports.rudderanalytics  =  rudderanalytics
 ``` 
+
+For destinations where you don't want the SDK to load the third-party scripts separately, modify the load call:
+```
+rudderanalytics.load("YOUR_WRITE_KEY", "DATA_PLANE_URI", {loadIntegration:  false})
+// the SDK expects that the destination global queue or function for pushing events is
+// already present for the destinations.
+// Currently, the loadIntegration flag is supported for Amplitude and 
+// Google Analytics destinations. The SDK expects window.amplitude and window.ga to be already 
+// defined by the user separately for sending events to these destinations.
+
+```
 You can also refer to the sample projects for a walkthrough of the above: [sample angular project](https://github.com/rudderlabs/rudder-analytics-angular) and [sample react project](https://github.com/rudderlabs/rudder-analytics-react)
 
 
