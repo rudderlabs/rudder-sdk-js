@@ -24,7 +24,7 @@ import {
   findAllEnabledDestinations,
   tranformToRudderNames,
   transformToServerNames,
-  checkReservedKeywords,
+  checkReservedKeywords
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -93,6 +93,7 @@ class Analytics {
       syncPixel: "syncPixelCallback"
     };
     this.loaded = false;
+    this.loadIntegration = true;
   }
 
   /**
@@ -204,6 +205,7 @@ class Analytics {
       this.toBeProcessedByIntegrationArray = [];
       return;
     }
+    let intgInstance;
     intgArray.forEach(intg => {
       try {
         logger.debug(
@@ -212,7 +214,7 @@ class Analytics {
         );
         const intgClass = integrations[intg.name];
         const destConfig = intg.config;
-        const intgInstance = new intgClass(destConfig, self);
+        intgInstance = new intgClass(destConfig, self);
         intgInstance.init();
 
         logger.debug("initializing destination: ", intg);
@@ -223,6 +225,7 @@ class Analytics {
           "[Analytics] initialize integration (integration.init()) failed :: ",
           intg.name
         );
+        this.failedToBeLoadedIntegration.push(intgInstance);
       }
     });
   }
@@ -839,14 +842,18 @@ class Analytics {
    * 2. rudderAmpLinkerParm: value generated from linker query parm (rudderstack)
    *    using praseLinker util.
    * 3. generateUUID: A new uniquie id is generated and assigned.
-   * 
-   * @param {string} anonymousId 
-   * @param {string} rudderAmpLinkerParm 
+   *
+   * @param {string} anonymousId
+   * @param {string} rudderAmpLinkerParm
    */
   setAnonymousId(anonymousId, rudderAmpLinkerParm) {
     // if (!this.loaded) return;
-    const parsedAnonymousIdObj = rudderAmpLinkerParm ? parseLinker(rudderAmpLinkerParm) : null;
-    const parsedAnonymousId = parsedAnonymousIdObj ? parsedAnonymousIdObj.rs_amp_id : null;
+    const parsedAnonymousIdObj = rudderAmpLinkerParm
+      ? parseLinker(rudderAmpLinkerParm)
+      : null;
+    const parsedAnonymousId = parsedAnonymousIdObj
+      ? parsedAnonymousIdObj.rs_amp_id
+      : null;
     this.anonymousId = anonymousId || parsedAnonymousId || generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
   }
@@ -938,6 +945,10 @@ class Analytics {
       this.eventRepository.startQueue(options.queueOptions);
     } else {
       this.eventRepository.startQueue({});
+    }
+
+    if (options && options.loadIntegration != undefined) {
+      this.loadIntegration = !!options.loadIntegration;
     }
 
     this.eventRepository.writeKey = writeKey;
@@ -1174,7 +1185,7 @@ if (argumentsArray && argumentsArray.length > 0) {
     instance.toBeProcessedArray.push(argumentsArray[i]);
   }
 }
-if(eventsPushedAlready){
+if (eventsPushedAlready) {
   processDataInAnalyticsArray(instance);
 }
 // }
