@@ -8,7 +8,8 @@ const ScriptLoader = (id, src) => {
   js.type = "text/javascript";
   js.id = id;
   const e = document.getElementsByTagName("script")[0];
-  logger.debug("==script==", e);
+  logger.debug("==parent script==", e);
+  logger.debug("==adding script==", js);
   e.parentNode.insertBefore(js, e);
 };
 
