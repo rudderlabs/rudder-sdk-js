@@ -233,9 +233,9 @@ class Analytics {
   // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
     if (
-      object.successfullyLoadedIntegration.length +
+      (object.successfullyLoadedIntegration.length +
         object.failedToBeLoadedIntegration.length ===
-        object.clientIntegrations.length &&
+        object.clientIntegrations.length) &&
       !object.areEventsReplayed
     ) {
       logger.debug(
