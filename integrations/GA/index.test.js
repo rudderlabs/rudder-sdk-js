@@ -12,7 +12,7 @@ GA.prototype.loadScript = jest.fn();
 describe("GA init tests", () => {
   let googleAnalytics;
   beforeEach(() => {
-    googleAnalytics = new GA({ trackingID: "UA-143161493-8" });
+    googleAnalytics = new GA({ trackingID: "UA-143161493-8" }, {loadIntegration: true});
     googleAnalytics.init();
   });
 
@@ -58,7 +58,7 @@ describe("GA init tests", () => {
             "resetCustomDimensionsOnPage": "testDimension"
           }
         ]
-      });
+      }, {loadIntegration: true});
       googleAnalytics.init();
       window.ga = jest.fn();
     });
@@ -104,7 +104,7 @@ describe("GA init tests", () => {
         dimensions: [],
         metrics: [],
         contentGroupings: [],
-      });
+      }, {loadIntegration: true});
       googleAnalytics.init();
       window.ga = jest.fn();
     });
