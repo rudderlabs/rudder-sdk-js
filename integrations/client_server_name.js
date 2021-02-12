@@ -3,6 +3,7 @@
 const clientToServerNames = {
   All: "All",
   GA: "Google Analytics",
+  GA360: "Google Analytics 360",
   GOOGLEADS: "Google Ads",
   BRAZE: "Braze",
   CHARTBEAT: "Chartbeat",
