@@ -13,7 +13,9 @@
 
 # What is RudderStack?
 
-**RudderStack** is an enterprise-ready, open-source alternative to Segment, for collecting and routing customer event data. More information on RudderStack can be found [here](https://github.com/rudderlabs/rudder-server).
+[RudderStack](https://rudderstack.com/) is a **customer data pipeline** tool for collecting, routing and processing data from your websites, apps, cloud tools, and data warehouse.
+
+More information on RudderStack can be found [here](https://github.com/rudderlabs/rudder-server).
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#what-is-the-rudderstack-javascript-sdk)What Is the RudderStack JavaScript SDK?
 
