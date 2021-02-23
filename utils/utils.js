@@ -1,5 +1,7 @@
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
 import { parse } from "component-url";
+import get from "get-value";
+import set from "set-value";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
@@ -491,6 +493,44 @@ function flattenJsonPayload(data) {
 }
 /* ------- End FlattenJson ----------- */
 
+// Extract fileds from message with exclusions
+// Pass the keys of message for extraction and
+// exclusion fields to exlude and the payload to map into
+/* eslint-disable  array-callback-return */
+// -----------------Example-------------------
+// extractCustomFields(message,payload,["traits", "context.traits", "properties"], "email",
+// ["firstName",
+// "lastName",
+// "phone",
+// "title",
+// "organization",
+// "city",
+// "region",
+// "country",
+// "zip",
+// "image",
+// "timezone"])
+// -------------------------------------------
+// The above call will map the fields other than the
+// exlusion list from the given keys to the destination payload
+function extractCustomFields(message, destination, keys, exclusionFields) {
+  keys.map((key) => {
+    const messageContext = get(message, key);
+    if (messageContext) {
+      const values = [];
+      Object.keys(messageContext).map((value) => {
+        if (!exclusionFields.includes(value)) values.push(value);
+      });
+      values.map((val) => {
+        if (!(typeof messageContext[val] === "undefined")) {
+          set(destination, val, get(messageContext, val));
+        }
+      });
+    }
+  });
+  return destination;
+}
+
 export {
   replacer,
   generateUUID,
@@ -508,4 +548,5 @@ export {
   type,
   flattenJsonPayload,
   checkReservedKeywords,
+  extractCustomFields,
 };
