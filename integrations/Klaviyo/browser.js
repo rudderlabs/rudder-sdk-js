@@ -39,6 +39,7 @@ class Klaviyo {
       traitsInfo = message.traits;
     } else {
       logger.error("user traits not present");
+      return;
     }
 
     let payload = {
