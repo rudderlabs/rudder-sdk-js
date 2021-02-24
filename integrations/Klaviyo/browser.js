@@ -98,13 +98,17 @@ class Klaviyo {
 
   page(rudderElement) {
     const { message } = rudderElement;
-    if (message.properties && message.properties.additionalInfo) {
+    if (
+      message.name ||
+      (message.properties && message.properties.additionalInfo)
+    ) {
       const catStr = message.properties.category
-        ? `, Category: ${message.properties.category}`
+        ? `Category: ${message.properties.category}`
         : "";
+      const pStr = message.name ? `Page: ${message.name}` : "";
       window._learnq.push([
         "track",
-        `Page: ${message.name}${catStr}`,
+        `${pStr} ${catStr}`,
         message.properties.pageInfo,
       ]);
     } else window._learnq.push(["track"]);
