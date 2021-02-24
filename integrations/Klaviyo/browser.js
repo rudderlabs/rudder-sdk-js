@@ -7,13 +7,7 @@ import { extractCustomFields } from "../../utils/utils";
 class Klaviyo {
   constructor(config) {
     this.publicApiKey = config.publicApiKey;
-    this.apiKey = config.privateApiKey;
-    this.listId = config.listId;
-    this.consent = config.consent;
-    this.smsConsent = config.smsConsent;
     this.name = "KLAVIYO";
-    this.CONFIG_MEMBERSHIP = "Membership";
-    this.CONFIG_SUBSCRIBE = "Subscribe";
   }
 
   init() {
@@ -27,32 +21,38 @@ class Klaviyo {
   isLoaded() {
     logger.debug("===in isLoaded Klaviyo===");
 
-    return !!window._learnq;
+    return !!(window._learnq && window._learnq.push !== Array.prototype.push);
   }
 
   isReady() {
     logger.debug("===in isReady Klaviyo===");
 
-    return !!window._learnq;
+    return !!(window._learnq && window._learnq.push !== Array.prototype.push);
   }
-
-  
 
   identify(rudderElement) {
     const { message } = rudderElement;
-    if (!message.context.traits) logger.error("user traits not present");
+    let traitsInfo;
+    if (message.context.traits) {
+      traitsInfo = message.context.traits;
+    } else if (message.traits) {
+      traitsInfo = message.traits;
+    } else {
+      logger.error("user traits not present");
+    }
+
     let payload = {
       $id: message.userId,
-      $email: message.context.traits.email,
-      $phone_number: message.context.traits.phone,
-      $first_name: message.context.traits.firstName,
-      $last_name: message.context.traits.lastName,
-      $organization: message.context.traits.organization,
-      $title: message.context.traits.title,
-      $city: message.context.traits.city,
-      $region: message.context.traits.region,
-      $country: message.context.traits.country,
-      $zip: message.context.traits.zip,
+      $email: traitsInfo.email,
+      $phone_number: traitsInfo.phone,
+      $first_name: traitsInfo.firstName,
+      $last_name: traitsInfo.lastName,
+      $organization: traitsInfo.organization,
+      $title: traitsInfo.title,
+      $city: traitsInfo.city,
+      $region: traitsInfo.region,
+      $country: traitsInfo.country,
+      $zip: traitsInfo.zip,
     };
     if (!payload.$email && !payload.$phone_number) {
       logger.error("user phone or email not present");
@@ -63,7 +63,7 @@ class Klaviyo {
       payload = extractCustomFields(
         message,
         payload,
-        ["context.traits"],
+        ["context.traits", "traits"],
         [
           "email",
           "firstName",
@@ -97,13 +97,16 @@ class Klaviyo {
 
   page(rudderElement) {
     const { message } = rudderElement;
-    if (message.properties.additionalInfo)
+    if (message.properties && message.properties.additionalInfo) {
+      const catStr = message.properties.category
+        ? `, Category: ${message.properties.category}`
+        : "";
       window._learnq.push([
         "track",
-        `Catagoty: ${message.categoty}, Page: ${message.name}`,
+        `Page: ${message.name}${catStr}`,
         message.properties.pageInfo,
       ]);
-    else window._learnq.push(["track"]);
+    } else window._learnq.push(["track"]);
   }
 }
 
