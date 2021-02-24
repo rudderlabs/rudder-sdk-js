@@ -32,28 +32,22 @@ class Klaviyo {
 
   identify(rudderElement) {
     const { message } = rudderElement;
-    let traitsInfo;
-    if (message.context.traits) {
-      traitsInfo = message.context.traits;
-    } else if (message.traits) {
-      traitsInfo = message.traits;
-    } else {
+    if (!(message.context && message.context.traits)) {
       logger.error("user traits not present");
       return;
     }
-
     let payload = {
       $id: message.userId,
-      $email: traitsInfo.email,
-      $phone_number: traitsInfo.phone,
-      $first_name: traitsInfo.firstName,
-      $last_name: traitsInfo.lastName,
-      $organization: traitsInfo.organization,
-      $title: traitsInfo.title,
-      $city: traitsInfo.city,
-      $region: traitsInfo.region,
-      $country: traitsInfo.country,
-      $zip: traitsInfo.zip,
+      $email: message.context.traits.email,
+      $phone_number: message.context.traits.phone,
+      $first_name: message.context.traits.firstName,
+      $last_name: message.context.traits.lastName,
+      $organization: message.context.traits.organization,
+      $title: message.context.traits.title,
+      $city: message.context.traits.city,
+      $region: message.context.traits.region,
+      $country: message.context.traits.country,
+      $zip: message.context.traits.zip,
     };
     if (!payload.$email && !payload.$phone_number) {
       logger.error("user phone or email not present");
