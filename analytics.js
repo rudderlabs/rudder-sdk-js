@@ -137,7 +137,9 @@ class Analytics {
   processResponse(status, response) {
     try {
       logger.debug(`===in process response=== ${status}`);
-      response = JSON.parse(response);
+      if (typeof response === 'string') {
+        response = JSON.parse(response);
+      }
       if (
         response.source.useAutoTracking &&
         !this.autoTrackHandlersRegistered
@@ -978,13 +980,37 @@ class Analytics {
         );
       }
     }
-    try {
-      getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
-    } catch (error) {
+
+    function errorHandler(error) {
       handleError(error);
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
         addDomEventHandlers(this);
       }
+    }
+
+    if (options && options.getSourceConfig) {
+      if (typeof options.getSourceConfig !== "function") {
+        handleError('option "getSourceConfig" must be a function');
+      } else {
+        const res = options.getSourceConfig();
+
+        if (res instanceof Promise) {
+          res
+            .then(res => this.processResponse(200, res))
+            .catch(errorHandler)
+        } else {
+          this.processResponse(200, res);
+        }
+
+        processDataInAnalyticsArray(this);
+      }
+      return;
+    }
+
+    try {
+      getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
+    } catch (error) {
+      errorHandler(error)
     }
     processDataInAnalyticsArray(this);
   }
