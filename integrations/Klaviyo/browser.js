@@ -60,7 +60,7 @@ class Klaviyo {
       payload = extractCustomFields(
         message,
         payload,
-        ["context.traits", "traits"],
+        ["context.traits"],
         [
           "email",
           "firstName",
