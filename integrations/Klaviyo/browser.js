@@ -7,6 +7,8 @@ import { extractCustomFields } from "../../utils/utils";
 class Klaviyo {
   constructor(config) {
     this.publicApiKey = config.publicApiKey;
+    this.sendPageAsTrack = config.sendPageAsTrack;
+    this.additionalPageInfo = config.additionalPageInfo;
     this.name = "KLAVIYO";
   }
 
@@ -37,7 +39,7 @@ class Klaviyo {
       return;
     }
     let payload = {
-      $id: message.userId,
+      $id: message.userId || message.anonymousId,
       $email: message.context.traits.email,
       $phone_number: message.context.traits.phone,
       $first_name: message.context.traits.firstName,
@@ -85,27 +87,35 @@ class Klaviyo {
 
   track(rudderElement) {
     const { message } = rudderElement;
-    if (message.properties)
-      window._learnq.push(["track", message.event, message.properties]);
-    else window._learnq.push(["track", message.event]);
+    if (message.properties) {
+      const propsPayload = message.properties;
+      if (propsPayload.revenue) {
+        propsPayload.$value = propsPayload.revenue;
+        delete propsPayload.revenue;
+      }
+      window._learnq.push(["track", message.event, propsPayload]);
+    } else window._learnq.push(["track", message.event]);
   }
 
   page(rudderElement) {
     const { message } = rudderElement;
-    if (
-      message.name ||
-      (message.properties && message.properties.additionalInfo)
-    ) {
+    if (this.sendPageAsTrack) {
       const catStr = message.properties.category
         ? `Category: ${message.properties.category}`
         : "";
       const pStr = message.name ? `Page: ${message.name}` : "";
-      window._learnq.push([
-        "track",
-        `${pStr} ${catStr}`,
-        message.properties.pageInfo,
-      ]);
-    } else window._learnq.push(["track"]);
+      const infoString =
+        message.properties.category && message.name
+          ? `${pStr} ${catStr}`
+          : "Page Viewed";
+      if (this.additionalPageInfo && message.properties) {
+        window._learnq.push(["track", `${infoString}`, message.properties]);
+      } else {
+        window._learnq.push(["track", `${pStr} ${catStr}`]);
+      }
+    } else {
+      window._learnq.push(["track"]);
+    }
   }
 }
 

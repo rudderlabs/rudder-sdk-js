@@ -517,13 +517,13 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
   keys.map((key) => {
     const messageContext = get(message, key);
     if (messageContext) {
-      const values = [];
-      Object.keys(messageContext).map((value) => {
-        if (!exclusionFields.includes(value)) values.push(value);
+      const objKeys = [];
+      Object.keys(messageContext).map((k) => {
+        if (!exclusionFields.includes(k)) objKeys.push(k);
       });
-      values.map((val) => {
-        if (!(typeof messageContext[val] === "undefined")) {
-          set(destination, val, get(messageContext, val));
+      objKeys.map((k) => {
+        if (!(typeof messageContext[k] === "undefined")) {
+          set(destination, k, get(messageContext, k));
         }
       });
     }
