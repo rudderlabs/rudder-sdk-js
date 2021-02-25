@@ -24,7 +24,9 @@ import {
   findAllEnabledDestinations,
   tranformToRudderNames,
   transformToServerNames,
-  checkReservedKeywords
+  checkReservedKeywords,
+  getReferrer,
+  getReferringDomain
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -124,6 +126,17 @@ class Analytics {
     this.storage.setGroupId(this.groupId);
     this.storage.setUserTraits(this.userTraits);
     this.storage.setGroupTraits(this.groupTraits);
+  }
+
+  setInitialPageProperties(){
+    let initialReferrer = this.storage.getInitialReferrer();
+    let initialReferringDomain = this.storage.getInitialReferringDomain();
+    if(initialReferrer == null && initialReferringDomain == null){
+      initialReferrer = getReferrer();
+      initialReferringDomain = getReferringDomain(initialReferrer);
+      this.storage.setInitialReferrer(initialReferrer);
+      this.storage.setInitialReferringDomain(initialReferringDomain);
+    }
   }
 
   /**
@@ -794,6 +807,8 @@ class Analytics {
   getPageProperties(properties, options) {
     const defaultPageProperties = getDefaultPageProperties();
     const optionPageProperties = options && options.page ? options.page : {};
+    defaultPageProperties.initial_referrer = this.storage.getInitialReferrer();
+    defaultPageProperties.initial_referring_domain = this.storage.getInitialReferringDomain();
     for (const key in defaultPageProperties) {
       if (properties[key] === undefined) {
         properties[key] =
@@ -959,6 +974,7 @@ class Analytics {
       this.eventRepository.url = serverUrl;
     }
     this.initializeUser();
+    this.setInitialPageProperties();
     this.loaded = true;
     if (
       options &&
