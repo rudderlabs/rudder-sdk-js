@@ -148,18 +148,33 @@ function getDefaultPageProperties() {
   const path = canonicalUrl
     ? parse(canonicalUrl).pathname
     : window.location.pathname;
-  const { referrer } = document;
+  //const { referrer } = document;
   const { search } = window.location;
   const { title } = document;
   const url = getUrl(search);
 
+  const referrer = getReferrer();
+  const referring_domain = getReferringDomain(referrer);
   return {
     path,
     referrer,
+    referring_domain,
     search,
     title,
     url,
   };
+}
+
+function getReferrer() {
+  return document.referrer || "$direct";
+}
+
+function getReferringDomain(referrer) {
+  var split = referrer.split("/");
+  if (split.length >= 3) {
+    return split[2];
+  }
+  return "";
 }
 
 function getUrl(search) {
@@ -555,5 +570,7 @@ export {
   type,
   flattenJsonPayload,
   checkReservedKeywords,
-  extractCustomFields,
+  getReferrer,
+  getReferringDomain,
+  extractCustomFields
 };
