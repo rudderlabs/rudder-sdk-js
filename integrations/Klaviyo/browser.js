@@ -10,6 +10,24 @@ class Klaviyo {
     this.sendPageAsTrack = config.sendPageAsTrack;
     this.additionalPageInfo = config.additionalPageInfo;
     this.name = "KLAVIYO";
+    this.keysToExtract = ["context.traits"];
+    this.exclusionKeys = [
+      "email",
+      "firstName",
+      "lastName",
+      "phone",
+      "title",
+      "organization",
+      "city",
+      "region",
+      "country",
+      "zip",
+      "image",
+      "timezone",
+      "anonymousId",
+      "userId",
+      "properties",
+    ];
   }
 
   init() {
@@ -60,24 +78,8 @@ class Klaviyo {
       payload = extractCustomFields(
         message,
         payload,
-        ["context.traits"],
-        [
-          "email",
-          "firstName",
-          "lastName",
-          "phone",
-          "title",
-          "organization",
-          "city",
-          "region",
-          "country",
-          "zip",
-          "image",
-          "timezone",
-          "anonymousId",
-          "userId",
-          "properties",
-        ]
+        this.keysToExtract,
+        this.exclusionKeys
       );
     } catch (err) {
       logger.debug(`Error occured at extractCustomFields ${err}`);
@@ -100,18 +102,18 @@ class Klaviyo {
   page(rudderElement) {
     const { message } = rudderElement;
     if (this.sendPageAsTrack) {
-      const catStr = message.properties.category
-        ? `Category: ${message.properties.category}`
-        : "";
-      const pStr = message.name ? `Page: ${message.name}` : "";
-      const infoString =
-        message.properties.category && message.name
-          ? `${pStr} ${catStr}`
-          : "Page Viewed";
-      if (this.additionalPageInfo && message.properties) {
-        window._learnq.push(["track", `${infoString}`, message.properties]);
+      let eventName;
+      if (message.properties && message.properties.category && message.name) {
+        eventName = `Viewed ${message.properties.category} ${message.name} page`;
+      } else if (message.name) {
+        eventName = `Viewed ${message.name} page`;
       } else {
-        window._learnq.push(["track", `${pStr} ${catStr}`]);
+        eventName = "Viewed a Page";
+      }
+      if (this.additionalPageInfo && message.properties) {
+        window._learnq.push(["track", `${eventName}`, message.properties]);
+      } else {
+        window._learnq.push(["track", `${eventName}`]);
       }
     } else {
       window._learnq.push(["track"]);
