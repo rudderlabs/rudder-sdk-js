@@ -58,7 +58,9 @@ const commonNames = {
   APPCUES: "APPCUES",
   POSTHOG: "POSTHOG",
   PostHog: "POSTHOG",
-  Posthog: "POSTHOG"
+  Posthog: "POSTHOG",
+  KLAVIYO: "KLAVIYO",
+  Klaviyo: "KLAVIYO"
 };
 
 export { commonNames };

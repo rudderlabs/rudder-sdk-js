@@ -1,5 +1,7 @@
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
 import { parse } from "component-url";
+import get from "get-value";
+import set from "set-value";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
@@ -163,16 +165,16 @@ function getDefaultPageProperties() {
   };
 }
 
-function getReferrer(){
-  return document.referrer || '$direct';
+function getReferrer() {
+  return document.referrer || "$direct";
 }
 
-function getReferringDomain (referrer) {
-  var split = referrer.split('/');
+function getReferringDomain(referrer) {
+  var split = referrer.split("/");
   if (split.length >= 3) {
-      return split[2];
+    return split[2];
   }
-  return '';
+  return "";
 }
 
 function getUrl(search) {
@@ -505,6 +507,51 @@ function flattenJsonPayload(data) {
   return recurse(data, "", {});
 }
 /* ------- End FlattenJson ----------- */
+/**
+ *
+ * @param {*} message
+ * @param {*} destination
+ * @param {*} keys
+ * @param {*} exclusionFields
+ * Extract fileds from message with exclusions
+ * Pass the keys of message for extraction and
+ * exclusion fields to exlude and the payload to map into
+ * -----------------Example-------------------
+ * extractCustomFields(message,payload,["traits", "context.traits", "properties"], "email",
+ * ["firstName",
+ * "lastName",
+ * "phone",
+ * "title",
+ * "organization",
+ * "city",
+ * "region",
+ * "country",
+ * "zip",
+ * "image",
+ * "timezone"])
+ * -------------------------------------------
+ * The above call will map the fields other than the
+ * exlusion list from the given keys to the destination payload
+ *
+ */
+
+function extractCustomFields(message, destination, keys, exclusionFields) {
+  keys.map((key) => {
+    const messageContext = get(message, key);
+    if (messageContext) {
+      const objKeys = [];
+      Object.keys(messageContext).map((k) => {
+        if (!exclusionFields.includes(k)) objKeys.push(k);
+      });
+      objKeys.map((k) => {
+        if (!(typeof messageContext[k] === "undefined")) {
+          set(destination, k, get(messageContext, k));
+        }
+      });
+    }
+  });
+  return destination;
+}
 
 export {
   replacer,
@@ -524,5 +571,6 @@ export {
   flattenJsonPayload,
   checkReservedKeywords,
   getReferrer,
-  getReferringDomain
+  getReferringDomain,
+  extractCustomFields
 };
