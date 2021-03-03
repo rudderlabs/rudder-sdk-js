@@ -78,6 +78,7 @@
     "@babel/plugin-proposal-class-properties": "^7.0.0",
     "@babel/plugin-proposal-optional-chaining": "^7.11.0",
     "@babel/plugin-transform-arrow-functions": "^7.10.4",
+    "@babel/plugin-transform-object-assign": "^7.12.13",
     "@babel/preset-env": "^7.6.2",
     "@mediaeventservices/jest-environment-jsdom-external-scripts": "^21.2.2",
     "@size-limit/preset-big-lib": "^4.4.1",
