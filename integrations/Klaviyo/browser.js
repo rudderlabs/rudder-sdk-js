@@ -57,11 +57,17 @@ class Klaviyo {
       return;
     }
     let payload = {
-      $id: message.userId || message.anonymousId,
+      $id: message.userId || message.context.userId || message.anonymousId,
       $email: message.context.traits.email,
       $phone_number: message.context.traits.phone,
-      $first_name: message.context.traits.firstName,
-      $last_name: message.context.traits.lastName,
+      $first_name:
+        message.context.traits.firstName ||
+        message.context.traits.firstname ||
+        message.context.traits.first_name,
+      $last_name:
+        message.context.traits.lastName ||
+        message.context.traits.lastname ||
+        message.context.traits.last_name,
       $organization: message.context.traits.organization,
       $title: message.context.traits.title,
       $city: message.context.traits.city,
@@ -69,8 +75,8 @@ class Klaviyo {
       $country: message.context.traits.country,
       $zip: message.context.traits.zip,
     };
-    if (!payload.$email && !payload.$phone_number) {
-      logger.error("user phone or email not present");
+    if (!payload.$email && !payload.$phone_number && !payload.$id) {
+      logger.error("user id, phone or email not present");
       return;
     }
     // Extract other K-V property from traits about user custom properties
