@@ -76,10 +76,10 @@ class Klaviyo {
       $last_name: lastName,
       $city: city,
       $country: country,
-      $organization: get(message.context.traits, "organization"),
-      $title: get(message.context.traits, "title"),
-      $region: get(message.context.traits, "region"),
-      $zip: get(message.context.traits, "zip"),
+      $organization: get(message, "context.traits.organization"),
+      $title: get(message, "context.traits.title"),
+      $region: get(message, "context.traits.region"),
+      $zip: get(message, "context.traits.zip"),
     };
     if (!payload.$email && !payload.$phone_number && !payload.$id) {
       logger.error("user id, phone or email not present");
