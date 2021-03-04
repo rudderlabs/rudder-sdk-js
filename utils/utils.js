@@ -552,6 +552,45 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
   });
   return destination;
 }
+/**
+ * 
+ * @param {*} message 
+ * 
+ * Use get-value to retrieve defined trais from message traits
+ */
+function getDefinedTraits(message) {
+  const traitsValue = {
+    userId:
+      get(message, "userId") ||
+      get(message.context.traits, "userId") ||
+      get(message, "anonymousId"),
+    email:
+      get(message.context.traits, "email") ||
+      get(message.context.traits, "Email") ||
+      get(message.context.traits, "E-mail"),
+    phone:
+      get(message.context.traits, "phone") ||
+      get(message.context.traits, "Phone"),
+    firstName:
+      get(message.context.traits, "firstName") ||
+      get(message.context.traits, "firstname") ||
+      get(message.context.traits, "first_name"),
+    lastName:
+      get(message.context.traits, "lastName") ||
+      get(message.context.traits, "lastname") ||
+      get(message.context.traits, "last_name"),
+    name:
+      get(message.context.traits, "name") ||
+      get(message.context.traits, "Name"),
+    city:
+      get(message.context.traits, "city") ||
+      get(message.context.traits, "City"),
+    country:
+      get(message.context.traits, "country") ||
+      get(message.context.traits, "Country"),
+  };
+  return traitsValue;
+}
 
 export {
   replacer,
@@ -572,5 +611,6 @@ export {
   checkReservedKeywords,
   getReferrer,
   getReferringDomain,
-  extractCustomFields
+  extractCustomFields,
+  getDefinedTraits
 };

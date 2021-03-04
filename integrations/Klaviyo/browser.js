@@ -1,8 +1,9 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
+import get from "get-value";
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import { extractCustomFields } from "../../utils/utils";
+import { extractCustomFields, getDefinedTraits } from "../../utils/utils";
 
 class Klaviyo {
   constructor(config) {
@@ -56,24 +57,29 @@ class Klaviyo {
       logger.error("user traits not present");
       return;
     }
+
+    const {
+      userId,
+      email,
+      phone,
+      firstName,
+      lastName,
+      city,
+      country,
+    } = getDefinedTraits(message);
+
     let payload = {
-      $id: message.userId || message.context.userId || message.anonymousId,
-      $email: message.context.traits.email,
-      $phone_number: message.context.traits.phone,
-      $first_name:
-        message.context.traits.firstName ||
-        message.context.traits.firstname ||
-        message.context.traits.first_name,
-      $last_name:
-        message.context.traits.lastName ||
-        message.context.traits.lastname ||
-        message.context.traits.last_name,
-      $organization: message.context.traits.organization,
-      $title: message.context.traits.title,
-      $city: message.context.traits.city,
-      $region: message.context.traits.region,
-      $country: message.context.traits.country,
-      $zip: message.context.traits.zip,
+      $id: userId,
+      $email: email,
+      $phone_number: phone,
+      $first_name: firstName,
+      $last_name: lastName,
+      $city: city,
+      $country: country,
+      $organization: get(message.context.traits, "organization"),
+      $title: get(message.context.traits, "title"),
+      $region: get(message.context.traits, "region"),
+      $zip: get(message.context.traits, "zip"),
     };
     if (!payload.$email && !payload.$phone_number && !payload.$id) {
       logger.error("user id, phone or email not present");
