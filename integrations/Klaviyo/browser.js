@@ -10,6 +10,7 @@ class Klaviyo {
     this.publicApiKey = config.publicApiKey;
     this.sendPageAsTrack = config.sendPageAsTrack;
     this.additionalPageInfo = config.additionalPageInfo;
+    this.enforceEmailAsPrimary = config.enforceEmailAsPrimary;
     this.name = "KLAVIYO";
     this.keysToExtract = ["context.traits"];
     this.exclusionKeys = [
@@ -93,6 +94,10 @@ class Klaviyo {
     if (!payload.$email && !payload.$phone_number && !payload.$id) {
       logger.error("user id, phone or email not present");
       return;
+    }
+    if (this.enforceEmailAsPrimary) {
+      delete payload.$id;
+      payload._id = userId;
     }
     // Extract other K-V property from traits about user custom properties
     try {
