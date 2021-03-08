@@ -134,18 +134,18 @@ class Clevertap {
     const { event, properties } = rudderElement.message;
     if (properties) {
       window.clevertap.event.push(event, properties);
+    } else {
+      window.clevertap.event.push(event);
     }
-    window.clevertap.event.push(event);
   }
 
   page(rudderElement) {
-    const { message } = rudderElement;
     const { name, properties } = rudderElement.message;
     let eventName;
     if (properties && properties.category && name) {
-      eventName = `Viewed ${message.properties.category} ${message.name} page`;
+      eventName = `Viewed ${properties.category} ${name} page`;
     } else if (name) {
-      eventName = `Viewed ${message.name} page`;
+      eventName = `Viewed ${name} page`;
     } else {
       eventName = "Viewed a Page";
     }
