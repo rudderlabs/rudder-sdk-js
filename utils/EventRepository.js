@@ -79,6 +79,10 @@ class EventRepository {
 
         // start queue
         this.payloadQueue.start()
+
+        this.payloadQueue.on('processed', (...args) => {
+            logger.debug(args)
+        })
     }
 
     /**
