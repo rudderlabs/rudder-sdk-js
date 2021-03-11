@@ -54,11 +54,11 @@ const queryDefaults = {
  *
  * @param {RudderElement} rudderElement
  */
-function enqueue(rudderElement, type) {
+function enqueue(rudderElement, type, callback) {
   if (!this.eventRepository) {
     this.eventRepository = EventRepository;
   }
-  this.eventRepository.enqueue(rudderElement, type);
+  this.eventRepository.enqueue(rudderElement, type, callback);
 }
 
 /**
@@ -735,12 +735,12 @@ class Analytics {
       transformToServerNames(rudderElement.message.integrations);
 
       // self analytics process, send to rudder
-      enqueue.call(this, rudderElement, type);
+      enqueue.call(this, rudderElement, type, callback);
 
       logger.debug(`${type} is called `);
-      if (callback) {
-        callback();
-      }
+      // if (callback) {
+      //   callback();
+      // }
     } catch (error) {
       handleError(error);
     }
