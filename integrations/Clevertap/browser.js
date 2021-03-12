@@ -2,7 +2,12 @@
 import get from "get-value";
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import { extractCustomFields, getDefinedTraits } from "../../utils/utils";
+import {
+  extractCustomFields,
+  getDefinedTraits,
+  isArray,
+  isObject,
+} from "../../utils/utils";
 
 class Clevertap {
   constructor(config) {
@@ -25,19 +30,6 @@ class Clevertap {
       "Birthday",
       "anonymousId",
       "userId",
-      "msgEmail",
-      "msgemail",
-      "msg_email",
-      "msgPush",
-      "msgpush",
-      "msg_push",
-      "msgSms",
-      "msgsms",
-      "msg_sms",
-      "msgSMS",
-      "msgWhatsapp",
-      "msgwhatsapp",
-      "msg_whatsapp",
     ];
   }
 
@@ -47,8 +39,6 @@ class Clevertap {
       document.location.protocol == "https:"
         ? "https://d2r1yp2w7bby2u.cloudfront.net/js/a.js"
         : "http://static.clevertap.com/js/a.js";
-
-    ScriptLoader("clevertap-integration", sourceUrl);
 
     window.clevertap = {
       event: [],
@@ -62,16 +52,18 @@ class Clevertap {
     if (this.region && this.region !== "none") {
       window.clevertap.region.push(this.region);
     }
+
+    ScriptLoader("clevertap-integration", sourceUrl);
   }
 
   isLoaded() {
     logger.debug("in clevertap isLoaded");
-    return !!window.clevertap && window.clevertap.logout !== "undefined";
+    return !!window.clevertap && window.clevertap.logout !== undefined;
   }
 
   isReady() {
     logger.debug("in clevertap isReady");
-    return !!window.clevertap && window.clevertap.logout !== "undefined";
+    return !!window.clevertap && window.clevertap.logout !== undefined;
   }
 
   identify(rudderElement) {
@@ -90,27 +82,6 @@ class Clevertap {
       Phone: phone,
       Gender: get(message, "context.traits.gender"),
       DOB: get(message, "context.traits.birthday"),
-      // optional fields. controls whether the user will be sent email, push etc.
-      "MSG-email":
-        get(message, "context.traits.msgEmail") ||
-        get(message, "context.traits.msgemail") ||
-        get(message, "context.traits.msg_email"),
-      "MSG-push":
-        get(message, "context.traits.msgPush") ||
-        get(message, "context.traits.msgpush") ||
-        get(message, "context.traits.msg_push"),
-      // Enable push notifications
-      "MSG-sms":
-        get(message, "context.traits.msgSms") ||
-        get(message, "context.traits.msgsms") ||
-        get(message, "context.traits.msg_sms") ||
-        get(message, "context.traits.msgSMS"),
-      // Enable sms notifications
-      "MSG-whatsapp":
-        get(message, "context.traits.msgWhatsapp") ||
-        get(message, "context.traits.msgwhatsapp") ||
-        get(message, "context.traits.msg_whatsapp"),
-      // Enable WhatsApp notifications
     };
     // Extract other K-V property from traits about user custom properties
     try {
@@ -123,7 +94,12 @@ class Clevertap {
     } catch (err) {
       logger.debug(`Error occured at extractCustomFields ${err}`);
     }
-
+    Object.values(payload).map((vals) => {
+      if (isObject(vals)) {
+        logger.debug("cannot process, unsupported traits");
+        return;
+      }
+    });
     window.clevertap.onUserLogin.push({
       Site: payload,
     });
@@ -133,13 +109,42 @@ class Clevertap {
     logger.debug("in clevertap track");
     const { event, properties } = rudderElement.message;
     if (properties) {
-      window.clevertap.event.push(event, properties);
+      if (event === "Order Completed") {
+        let ecomProperties = {
+          "Charged ID": properties.checkout_id,
+          Amount: properties.revenue,
+          Items: properties.products,
+        };
+        // Extract other K-V property from traits about user custom properties
+        try {
+          ecomProperties = extractCustomFields(
+            rudderElement.message,
+            ecomProperties,
+            ["properties"],
+            ["checkout_id", "revenue", "products"]
+          );
+        } catch (err) {
+          logger.debug(`Error occured at extractCustomFields ${err}`);
+        }
+        window.clevertap.event.push("Charged", ecomProperties);
+      } else {
+        Object.values(properties).map((vals) => {
+          if (isObject(vals) || isArray(vals)) {
+            logger.debug("cannot process, unsupported event");
+            return;
+          }
+        });
+        window.clevertap.event.push(event, properties);
+      }
+    } else if (event === "Order Completed") {
+      window.clevertap.event.push("Charged");
     } else {
       window.clevertap.event.push(event);
     }
   }
 
   page(rudderElement) {
+    logger.debug("in clevertap page");
     const { name, properties } = rudderElement.message;
     let eventName;
     if (properties && properties.category && name) {
@@ -150,6 +155,12 @@ class Clevertap {
       eventName = "Viewed a Page";
     }
     if (properties) {
+      Object.values(properties).map((vals) => {
+        if (isObject(vals) || isArray(vals)) {
+          logger.debug("cannot process, unsupported event");
+          return;
+        }
+      });
       window.clevertap.event.push(eventName, properties);
     } else {
       window.clevertap.event.push(eventName);
