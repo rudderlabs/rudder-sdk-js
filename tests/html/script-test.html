@@ -1,0 +1,634 @@
+<html>
+  <head>
+    <!--  <script src="//d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js"></script>
+    <script>
+      window.bugsnagClient = bugsnag("API_KEY");
+    </script> -->
+    <script type="text/javascript">
+      // checking test commit 2
+      rudderanalytics = window.rudderanalytics = [];
+      var methods = ["load", "ready", "track"];
+
+      // this is required to be set before RudderAnalytics is loaded/run
+      window.rudderanalytics.syncPixelCallback = (obj) => {
+        /*  window.rudderanalytics.track(
+                "sync lotame",
+                { destination: obj.destination },
+                { integrations: { All: false, S3: true } }
+              ); */
+      };
+      var methods = ["load", "page", "identify", "track", "ready"];
+      for (var i = 0; i < methods.length; i++) {
+        var method = methods[i];
+        rudderanalytics[method] = (function (methodName) {
+          return function () {
+            rudderanalytics.push([methodName, ...arguments]);
+          };
+        })(method);
+      }
+
+      rudderanalytics.load(
+        "1krt3VlD6NE2No3cwOR2iH0CXrZ",
+        "http://localhost:8080",
+        {
+          logLevel: "DEBUG",
+          configUrl: "https://api.dev.rudderlabs.com",
+        }
+      );
+      //  rudderanalytics.track();
+      //rudderanalytics.page(); //Turn this on if Chartbeat is a destination
+    </script>
+
+    <script src="../../dist/browser.js"></script>
+
+    <script>
+      window.rudderanalytics.ready(() => {
+        console.log("we are all set!!!");
+      });
+      //page calls
+      // window.rudderanalytics.page();
+
+      window.rudderanalytics.page("ruchira category", "ruchira name", {
+        url: "url",
+        path: "/path",
+      });
+
+      rudderanalytics.track("Order Completed", {
+        checkout_id: "what is checkout id here??",
+        order_id: "transactionId",
+        value: 31.98,
+        revenue: 31.98,
+        shipping: 4.0,
+        coupon: "APPARELSALE",
+        currency: "GBP",
+        products: [
+          {
+            product_id: "product-bacon-jam",
+            sku: "sku-1",
+            category: "Merch",
+            name: "Food/Drink",
+            brand: "",
+            variant: "Extra topped",
+            price: 3.0,
+            quantity: 2,
+            currency: "GBP",
+            position: 1,
+            value: 6.0,
+            typeOfProduct: "Food",
+            url: "https://www.example.com/product/bacon-jam",
+            image_url: "https://www.example.com/product/bacon-jam.jpg",
+          },
+          {
+            product_id: "product-t-shirt",
+            sku: "sku-2",
+            category: "Merch",
+            name: "T-Shirt",
+            brand: "Levis",
+            variant: "White",
+            price: 12.99,
+            quantity: 1,
+            currency: "GBP",
+            position: 2,
+            value: 12.99,
+            typeOfProduct: "Shirt",
+            url: "https://www.example.com/product/t-shirt",
+            image_url: "https://www.example.com/product/t-shirt.jpg",
+          },
+          {
+            product_id: "offer-t-shirt",
+            sku: "sku-3",
+            category: "Merch",
+            name: "T-Shirt-on-offer",
+            brand: "Levis",
+            variant: "Black",
+            price: 12.99,
+            quantity: 1,
+            currency: "GBP",
+            position: 1,
+            value: 12.99,
+            coupon: "APPARELSALE",
+            typeOfProduct: "Shirt",
+            url: "https://www.example.com/product/offer-t-shirt",
+            image_url: "https://www.example.com/product/offer-t-shirt.jpg",
+          },
+        ],
+      });
+
+      // window.rudderanalytics.page('category', 'name', {
+      //         url: 'ruchira url',
+      //         path: '/ruchirapath',
+      //         search: '?q=1'
+      //       });
+
+      //       window.rudderanalytics.page(
+      //         'category1',
+      //         'name1',
+      //         { url: 'url1', path: '/path1', search: '?q=11' },
+      //         {
+      //           campaign: {
+      //             name: 'test',
+      //             source: 'test',
+      //             medium: 'test',
+      //             term: 'test',
+      //             content: 'test'
+      //           }
+      //         }
+      //       );
+
+      //       window.rudderanalytics.page({
+      //         score: 21,
+      //         author: 'Author',
+      //         postType: 'blog',
+      //         section: 'News'
+      //       });
+
+      //       window.rudderanalytics.page({
+      //         score: 211,
+      //         author: 'Author1',
+      //         postType: 'blog1',
+      //         section: 'News1'
+      //       });
+
+      //       window.rudderanalytics.page('Name1');
+
+      //       window.rudderanalytics.page(
+      //         'Name2',
+      //         {},
+      //         {
+      //           campaign: {
+      //             name: 'test1',
+      //             source: 'test1',
+      //             medium: 'test1',
+      //             term: 'test1',
+      //             content: 'test1'
+      //           }
+      //         }
+      //       );
+
+      //       window.rudderanalytics.page('Category2', 'Name2');
+
+      //       window.rudderanalytics.page({
+      //         fruit: 'Apple',
+      //         color: 'Red'
+      //       });
+
+      //       window.rudderanalytics.page({ referrer: 'http://lifeofpablo.com' });
+
+      //       //identify calls
+      // window.rudderanalytics.page();
+      window.rudderanalytics.identify("ruchu123", {
+        name: "Ruchira Moitra",
+        email: "ruchira@gmail.com",
+        plan: "Enterprise",
+        company: {
+          id: "abc123",
+        },
+        createdAt: "Thu Mar 24 2016 17:46:45 GMT+0000 (UTC)",
+      });
+      window.rudderanalytics.identify("Steven");
+
+      // track calls
+
+      window.rudderanalytics.track('Simple event');
+      // window.rudderanalytics.track('event2', { category: 'blah' });
+
+      // window.rudderanalytics.track(
+      //       'event3',
+      //       {},
+      //       {
+      //         campaign: {
+      //           name: 'test',
+      //           source: 'test',
+      //           medium: 'test',
+      //           term: 'test',
+      //           content: 'test'
+      //         }
+      //       }
+      //     );
+
+      //     window.rudderanalytics.track('event4', { category: 'category' });
+
+      //     // window.rudderanalytics.page('category', 'name');
+      //     window.rudderanalytics.track('event5', {});
+
+      //     // window.rudderanalytics.page('category(page)');
+      //     window.rudderanalytics.track('event6', { category: 'category(track)' });
+
+      //     window.rudderanalytics.track('event7', { label: 'label' });
+
+      //     window.rudderanalytics.track('event8', { value: 1.1 });
+
+      //     window.rudderanalytics.track('event9', { revenue: 9.99 });
+
+      //     window.rudderanalytics.track('event10', { nonInteraction: 1 });
+
+      //     window.rudderanalytics.track(
+      //       'event11',
+      //       {},
+      //       { 'Google Analytics': { nonInteraction: 1 } }
+      //     );
+
+      //     window.rudderanalytics.track('event12', { nonInteraction: false });
+
+      window.rudderanalytics.track("Order Completed", {
+        order_id: "ruchiraorder1",
+        total: 99.99,
+        shipping: 13.99,
+        tax: 20.99,
+        currency: "INR",
+        products: [
+          {
+            quantity: 1,
+            price: 24.75,
+            name: "my product",
+            sku: "p-298",
+          },
+          {
+            quantity: 3,
+            price: 24.75,
+            name: "other product",
+            sku: "p-299",
+          },
+        ],
+      });
+
+      window.rudderanalytics.track("Order Completed", {
+        order_id: "5d4c7cb5",
+        revenue: 99.9,
+        shipping: 13.99,
+        tax: 20.99,
+        products: [],
+      });
+
+      window.rudderanalytics.track("Order Completed", {
+        order_id: "5d4c7cb5ruchira",
+        revenue: 99.9,
+        shipping: 13.99,
+        tax: 20.99,
+        products: [],
+        currency: "EUR",
+      });
+
+      window.rudderanalytics.track("Product Added", {
+        currency: "CAD",
+        quantity: 1,
+        price: 24.75,
+        name: "my product",
+        category: "cat 1",
+        sku: "p-298",
+        testDimension: true,
+        testMetric: true,
+        position: 4,
+      });
+
+      window.rudderanalytics.track("Product Added", {
+        currency: "CAD",
+        quantity: 1,
+        price: 24.75,
+        name: "my product 1",
+        category: "cat 1",
+        sku: "p-298",
+        testDimension: true,
+        testMetric: true,
+        position: 4.5,
+      });
+
+      window.rudderanalytics.track("Product Added", {
+        currency: "CAD",
+        quantity: 1,
+        price: 24.75,
+        name: "my product 2",
+        category: "cat 1",
+        sku: "p-298",
+        label: "sample label",
+      });
+
+      window.rudderanalytics.track("Product Removed", {
+        currency: "CAD",
+        quantity: 1,
+        price: 24.75,
+        name: "my product",
+        category: "cat 1",
+        sku: "p-298",
+        testDimension: true,
+        testMetric: true,
+      });
+
+      window.rudderanalytics.track("Product Viewed", {
+        currency: "CAD",
+        quantity: 1,
+        price: 24.75,
+        name: "my product",
+        category: "cat 1",
+        sku: "p-298",
+        list: "Apparel Gallery",
+        testDimension: true,
+        testMetric: true,
+      });
+
+      window.rudderanalytics.track("Product List Filtered", {
+        category: "cat 1",
+        list_id: "1234",
+        filters: [
+          {
+            type: "department",
+            value: "beauty",
+          },
+          {
+            type: "price",
+            value: "under",
+          },
+        ],
+        sorts: [
+          {
+            type: "price",
+            value: "desc",
+          },
+        ],
+        products: [
+          {
+            product_id: "507f1f77bcf86cd799439011",
+            productDimension: "My Product Dimension",
+            productMetric: "My Product Metric",
+          },
+        ],
+        testDimension: true,
+        testMetric: true,
+      });
+      window.rudderanalytics.track("Product List Viewed", {
+        category: "cat 1",
+        list_id: "1234",
+        products: [
+          {
+            product_id: "507f1f77bcf86cd799439011",
+            productDimension: "My Product Dimension1",
+            productMetric: "My Product Metric1",
+            position: 10,
+          },
+          {
+            product_id: "507f1f77bcf86cd799439012",
+            productDimension: "My Product Dimension2",
+            productMetric: "My Product Metric2",
+            position: 12,
+          },
+          {
+            product_id: "507f1f77bcf86cd799439015",
+            productDimension: "My Product Dimension3",
+            productMetric: "My Product Metric3",
+            position: 8,
+          },
+        ],
+      });
+
+      window.rudderanalytics.track("Product List Viewed", {
+        category: "cat 1",
+        list_id: "1234",
+        products: [
+          {
+            product_id: "507f1f77bcf86cd799439011",
+            productDimension: "My Product Dimension1",
+            productMetric: "My Product Metric1",
+            position: -10, // will not accept -ve number
+          },
+          {
+            product_id: "507f1f77bcf86cd799439012",
+            productDimension: "My Product Dimension2",
+            productMetric: "My Product Metric2",
+            position: "position12", // will not accept string
+          },
+          {
+            product_id: "507f1f77bcf86cd799439015",
+            productDimension: "My Product Dimension3",
+            productMetric: "My Product Metric3",
+            position: "8", // accept valid positive numberic string
+          },
+        ],
+      });
+
+      window.rudderanalytics.track("Product List Viewed", {
+        category: "cat 1",
+        list_id: "1234",
+        products: [
+          {
+            product_id: "507f1f77bcf86cd799439011",
+            productDimension: "My Product Dimension",
+            productMetric: "My Product Metric",
+          },
+        ],
+        testDimension: true,
+        testMetric: true,
+      });
+
+      window.rudderanalytics.track("Product List Filtered", {
+        category: "cat 2",
+        list_id: "1234",
+        filters: [
+          {
+            type: "department",
+            value: "beauty",
+          },
+          {
+            type: "price",
+            value: "under",
+          },
+        ],
+        sorts: [
+          {
+            type: "price",
+            value: "desc",
+          },
+        ],
+        products: [
+          {
+            product_id: "507f1f77bcf86cd799439011",
+            productDimension: "My Product Dimension1",
+            productMetric: "My Product Metric1",
+            position: 15,
+          },
+          {
+            product_id: "507f1f77bcf86cd799439010",
+            productDimension: "My Product Dimension2",
+            productMetric: "My Product Metric3",
+            position: 10,
+          },
+        ],
+      });
+
+      window.rudderanalytics.track("Product Clicked", {
+        currency: "CAD",
+        quantity: 1,
+        price: 24.75,
+        name: "my product",
+        category: "cat 1",
+        sku: "p-298",
+        list: "search results",
+        testDimension: true,
+        testMetric: true,
+      });
+
+      window.rudderanalytics.track("Promotion Viewed", {
+        currency: "CAD",
+        promotion_id: "PROMO_1234",
+        name: "Summer Sale",
+        creative: "summer_banner2",
+        position: "banner_slot1",
+        testDimension: true,
+        testMetric: true,
+      });
+
+      window.rudderanalytics.track("Promotion Clicked", {
+        currency: "CAD",
+        promotion_id: "PROMO_1234",
+        name: "Summer Sale",
+        creative: "summer_banner2",
+        position: "banner_slot1",
+        testDimension: true,
+        testMetric: true,
+      });
+
+      window.rudderanalytics.track("Checkout Started", {
+        currency: "CAD",
+        products: [
+          {
+            quantity: 1,
+            price: 24.75,
+            name: "my product",
+            sku: "p-298",
+          },
+          {
+            quantity: 3,
+            price: 24.75,
+            name: "other product",
+            sku: "p-299",
+          },
+        ],
+        step: 1,
+        paymentMethod: "Visa",
+        testDimension: true,
+        testMetric: true,
+      });
+
+      window.rudderanalytics.track("Order Updated", {
+        currency: "CAD",
+        products: [
+          {
+            quantity: 1,
+            price: 24.75,
+            name: "my product",
+            category: "cat 1",
+            sku: "p-298",
+          },
+          {
+            quantity: 3,
+            price: 24.75,
+            name: "other product",
+            category: "cat 2",
+            sku: "p-299",
+          },
+        ],
+        step: 1,
+        paymentMethod: "Visa",
+        testDimension: true,
+        testMetric: true,
+      });
+
+      window.rudderanalytics.track("Checkout Step Viewed", {
+        currency: "CAD",
+        step: 2,
+      });
+
+      window.rudderanalytics.track("Checkout Step Completed", {
+        currency: "CAD",
+        step: 2,
+        shippingMethod: "FedEx",
+      });
+      window.rudderanalytics.track("Checkout Step Completed", {
+        currency: "CAD",
+        step: 2,
+        paymentMethod: "Visa",
+        shippingMethod: "FedEx1",
+      });
+      window.rudderanalytics.track("Checkout Step Completed", {
+        currency: "CAD",
+        paymentMethod: "Visa",
+        shippingMethod: "FedEx1",
+      });
+      window.rudderanalytics.track("Checkout Step Completed", {
+        currency: "CAD",
+        step: 2,
+      });
+
+      window.rudderanalytics.track("Order Completed", {
+        order_id: "780bc55ruchu",
+        total: 99.9,
+        shipping: 13.99,
+        tax: 20.99,
+        currency: "CAD",
+        coupon: "coupon",
+        affiliation: "affiliation",
+        products: [
+          {
+            quantity: 1,
+            price: 24.75,
+            name: "my product",
+            category: "cat 1",
+            sku: "p-298",
+            coupon: "promo",
+          },
+          {
+            quantity: 3,
+            price: 24.75,
+            name: "other product",
+            category: "cat 2",
+            sku: "p-299",
+            currency: "EUR",
+          },
+        ],
+      });
+      window.rudderanalytics.track("Order Refunded", {
+        order_id: "780bc55",
+        testDimension: true,
+        testMetric: true,
+      });
+
+      window.rudderanalytics.track("Order Refunded", {
+        order_id: "780bc55",
+        products: [
+          {
+            quantity: 1,
+            sku: "p-298",
+          },
+          {
+            quantity: 2,
+            sku: "p-299",
+          },
+        ],
+        testDimension: true,
+        testMetric: true,
+      });
+
+      window.rudderanalytics.page("category", "name", {
+        path: "path",
+        url: "url",
+        title: "title",
+        search: "search",
+        referrer: "referrer",
+        testDimension: "true",
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Relax while I finish my testing process....</h1>
+    <div id="id1">
+      <a id="link1" href="https://example.com">example 1</a>
+    </div>
+
+    <div id="id2">
+      <a
+        id="link2"
+        href="https://3a842fe106ca.ngrok.io/tests/html/script-test.html"
+        >example 2</a
+      >
+    </div>
+  </body>
+</html>
