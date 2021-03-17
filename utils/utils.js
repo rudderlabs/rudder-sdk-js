@@ -592,6 +592,20 @@ function getDefinedTraits(message) {
   return traitsValue;
 }
 
+/**
+ * To check if a variable is storing object or not
+ */
+const isObject = (obj) => {
+  return type(obj) === "object";
+};
+
+/**
+ * To check if a variable is storing array or not
+ */
+const isArray = (obj) => {
+  return type(obj) === "array";
+};
+
 export {
   replacer,
   generateUUID,
@@ -612,5 +626,7 @@ export {
   getReferrer,
   getReferringDomain,
   extractCustomFields,
-  getDefinedTraits
+  getDefinedTraits,
+  isObject,
+  isArray
 };

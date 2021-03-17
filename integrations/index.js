@@ -25,6 +25,7 @@ import * as Lytics from "./Lytics";
 import * as Appcues from "./Appcues";
 import * as Posthog from "./Posthog";
 import * as Klaviyo from "./Klaviyo";
+import * as Clevertap from "./Clevertap";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -56,7 +57,8 @@ const integrations = {
   LYTICS: Lytics.default,
   APPCUES: Appcues.default,
   POSTHOG: Posthog.default,
-  KLAVIYO: Klaviyo.default
+  KLAVIYO: Klaviyo.default,
+  CLEVERTAP: Clevertap.default
 };
 
 export { integrations };
