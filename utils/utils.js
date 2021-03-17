@@ -596,14 +596,14 @@ function getDefinedTraits(message) {
  * To check if a variable is storing object or not
  */
 const isObject = (obj) => {
-  return Object.prototype.toString.call(obj) === '[object Object]';
+  return type(obj) === "object";
 };
 
 /**
- * To check if a variable is storing object or not
+ * To check if a variable is storing array or not
  */
 const isArray = (obj) => {
-  return Object.prototype.toString.call(obj) === '[object Array]';
+  return type(obj) === "array";
 };
 
 export {
