@@ -36,6 +36,10 @@ class Storage {
     }
   }
 
+  options(options = {}) {
+    this.storage.options(options);
+  }
+
   /**
    * Json stringify the given value
    * @param {*} value
