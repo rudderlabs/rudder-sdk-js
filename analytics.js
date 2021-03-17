@@ -920,6 +920,9 @@ class Analytics {
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
+    if (options && options.setCookieDomain) {
+      this.storage.options({domain: options.setCookieDomain});
+    }
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       tranformToRudderNames(this.loadOnlyIntegrations);
