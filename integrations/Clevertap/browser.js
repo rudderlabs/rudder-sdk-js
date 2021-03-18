@@ -30,6 +30,16 @@ class Clevertap {
       "Birthday",
       "anonymousId",
       "userId",
+      "lastName",
+      "lastname",
+      "last_name",
+      "firstName",
+      "firstname",
+      "first_name",
+      "employed",
+      "education",
+      "married",
+      "customerType",
     ];
   }
 
@@ -82,7 +92,13 @@ class Clevertap {
       Phone: phone,
       Gender: get(message, "context.traits.gender"),
       DOB: get(message, "context.traits.birthday"),
+      Photo: get(message, "context.traits.avatar"),
+      Employed: get(message, "context.traits.employed"),
+      Education: get(message, "context.traits.education"),
+      Married: get(message, "context.traits.married"),
+      "Customer Type": get(message, "context.traits.customerType"),
     };
+
     // Extract other K-V property from traits about user custom properties
     try {
       payload = extractCustomFields(
@@ -148,11 +164,11 @@ class Clevertap {
     const { name, properties } = rudderElement.message;
     let eventName;
     if (properties && properties.category && name) {
-      eventName = `Viewed ${properties.category} ${name} page`;
+      eventName = `WebPage Viewed ${name} ${properties.category}`;
     } else if (name) {
-      eventName = `Viewed ${name} page`;
+      eventName = `WebPage Viewed ${name}`;
     } else {
-      eventName = "Viewed a Page";
+      eventName = "WebPage Viewed";
     }
     if (properties) {
       Object.values(properties).map((vals) => {
