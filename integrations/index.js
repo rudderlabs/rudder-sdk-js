@@ -26,6 +26,7 @@ import * as Appcues from "./Appcues";
 import * as Posthog from "./Posthog";
 import * as Klaviyo from "./Klaviyo";
 import * as Clevertap from "./Clevertap";
+import * as BingAds from "./BingAds";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -58,7 +59,8 @@ const integrations = {
   APPCUES: Appcues.default,
   POSTHOG: Posthog.default,
   KLAVIYO: Klaviyo.default,
-  CLEVERTAP: Clevertap.default
+  CLEVERTAP: Clevertap.default,
+  BINGADS: BingAds.default
 };
 
 export { integrations };
