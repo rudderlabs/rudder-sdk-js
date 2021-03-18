@@ -84,14 +84,7 @@ class Clevertap {
       logger.error("user traits not present");
       return;
     }
-    const {
-      userId,
-      email,
-      phone,
-      name,
-      firstName,
-      lastName,
-    } = getDefinedTraits(message);
+    const { userId, email, phone, name } = getDefinedTraits(message);
     let payload = {
       Name: name,
       Identity: userId,
@@ -105,9 +98,7 @@ class Clevertap {
       Married: get(message, "context.traits.married"),
       "Customer Type": get(message, "context.traits.customerType"),
     };
-    if (!get(payload, "Name") && firstName && lastName) {
-      payload.Name = `${firstName} ${lastName}`;
-    }
+
     // Extract other K-V property from traits about user custom properties
     try {
       payload = extractCustomFields(

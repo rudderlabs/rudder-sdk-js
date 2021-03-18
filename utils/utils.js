@@ -589,6 +589,18 @@ function getDefinedTraits(message) {
       get(message, "context.traits.country") ||
       get(message, "context.traits.Country"),
   };
+
+  if (
+    !get(traitsValue, "name") &&
+    get(traitsValue, "firstName") &&
+    get(traitsValue, "lastName")
+  ) {
+    set(
+      traitsValue,
+      "name",
+      `${get(traitsValue, "firstName")} ${get(traitsValue, "lastName")}`
+    );
+  }
   return traitsValue;
 }
 
