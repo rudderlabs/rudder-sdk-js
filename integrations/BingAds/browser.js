@@ -43,7 +43,7 @@ class BingAds {
 
   track = (rudderElement) => {
     const { type, properties } = rudderElement.message;
-    const { category, currency, value, label } = properties;
+    const { category, currency, value, label, revenue, total } = properties;
     let event = {
       ea: type
     };
@@ -56,6 +56,13 @@ class BingAds {
     if (value) {
       event.gv = value;
     }
+    else if(revenue) {
+      event.gv = revenue;
+    }
+    else if(total) {
+      event.gv = total;
+    }
+
     if (label) {
       event.el = label;
     }
