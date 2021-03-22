@@ -1,18 +1,16 @@
 import logger from "../../utils/logUtil";
-import ScriptLoader from "../ScriptLoader";
 
 class BingAds {
   constructor(config) {
     this.apikey = config.apikey;
   }
 
-  loadBingadsScript() {
-    var apikey = this.apikey;
-    (function(w, d, t, r, u) {
+  loadBingadsScript = () => {
+    ((w, d, t, r, u) => {
       var f, n, i;
-      w[u] = w[u] || [], f = function() {
+      w[u] = w[u] || [], f = () => {
         var o = {
-          ti: apikey
+          ti: this.apikey
         };
         o.q = w[u], w[u] = new UET(o);
       }, n = d.createElement(t), n.src = r, n.async = 1, n.onload = n.onreadystatechange = function() {
@@ -22,19 +20,18 @@ class BingAds {
     })(window, document, "script", "https://bat.bing.com/bat.js", "uetq");
   }
 
-  init() {
-    logger.debug("===in init BingAds===");
-    console.log(window);
+  init = () => {
     this.loadBingadsScript();
+    logger.debug("===in init BingAds===");
   }
 
-  isLoaded() {
-    logger.debug("in Bingads isLoaded");
+  isLoaded = () => {
+    logger.debug("in BingAds isLoaded");
     return (!!window.uetq && window.uetq.push !== Array.prototype.push);
   }
 
-  isReady() {
-    logger.debug("in Bingads isReady");
+  isReady = () => {
+    logger.debug("in BingAds isReady");
     return !!(window.uetq && window.uetq.push !== Array.prototype.push);
   }
 
@@ -42,23 +39,22 @@ class BingAds {
     Visit here(for details Parameter details): https://help.ads.microsoft.com/#apex/3/en/53056/2
     Under: What data does UET collect once I install it on my website?
     It conatins info about parameters ea,ec,gc,gv,el
-
   */
 
-  track(rudderElement) {
-    const typeofcall = rudderElement.message.type;
-    const properties = rudderElement.message.properties;
-    var event = {
-      ea: typeofcall
+  track = (rudderElement) => {
+    const { type, properties } = rudderElement.message;
+    const { category, currency, value, label } = properties;
+    let event = {
+      ea: type
     };
-    if (properties.category) event.ec = properties.category;
-    if (properties.currency) event.gc = properties.currency;
-    if (properties.value) event.gv = properties.value;
-    if (properties.label) event.el = properties.label;
+    if (category) event.ec = category;
+    if (currency) event.gc = currency;
+    if (value) event.gv = value;
+    if (label) event.el = label;
     window.uetq.push(event);
   }
 
-  page(rudderElement) {
+  page = () => {
     window.uetq.push('pageLoad');
   }
 }
