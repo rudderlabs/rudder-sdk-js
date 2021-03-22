@@ -47,10 +47,18 @@ class BingAds {
     let event = {
       ea: type
     };
-    if (category) event.ec = category;
-    if (currency) event.gc = currency;
-    if (value) event.gv = value;
-    if (label) event.el = label;
+    if (category) {
+      event.ec = category;
+    }
+    if (currency) {
+      event.gc = currency;
+    }
+    if (value) {
+      event.gv = value;
+    }
+    if (label) {
+      event.el = label;
+    }
     window.uetq.push(event);
   }
 
