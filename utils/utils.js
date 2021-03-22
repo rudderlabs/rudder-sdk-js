@@ -541,7 +541,9 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
     if (messageContext) {
       const objKeys = [];
       Object.keys(messageContext).map((k) => {
-        if (!exclusionFields.includes(k)) objKeys.push(k);
+        if (exclusionFields.indexOf(k) < 0) {
+          objKeys.push(k);
+        }
       });
       objKeys.map((k) => {
         if (!(typeof messageContext[k] === "undefined")) {
@@ -553,9 +555,9 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
   return destination;
 }
 /**
- * 
- * @param {*} message 
- * 
+ *
+ * @param {*} message
+ *
  * Use get-value to retrieve defined trais from message traits
  */
 function getDefinedTraits(message) {
@@ -589,8 +591,34 @@ function getDefinedTraits(message) {
       get(message, "context.traits.country") ||
       get(message, "context.traits.Country"),
   };
+
+  if (
+    !get(traitsValue, "name") &&
+    get(traitsValue, "firstName") &&
+    get(traitsValue, "lastName")
+  ) {
+    set(
+      traitsValue,
+      "name",
+      `${get(traitsValue, "firstName")} ${get(traitsValue, "lastName")}`
+    );
+  }
   return traitsValue;
 }
+
+/**
+ * To check if a variable is storing object or not
+ */
+const isObject = (obj) => {
+  return type(obj) === "object";
+};
+
+/**
+ * To check if a variable is storing array or not
+ */
+const isArray = (obj) => {
+  return type(obj) === "array";
+};
 
 export {
   replacer,
@@ -612,5 +640,7 @@ export {
   getReferrer,
   getReferringDomain,
   extractCustomFields,
-  getDefinedTraits
+  getDefinedTraits,
+  isObject,
+  isArray,
 };

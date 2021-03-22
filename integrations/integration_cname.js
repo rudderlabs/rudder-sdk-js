@@ -60,7 +60,9 @@ const commonNames = {
   PostHog: "POSTHOG",
   Posthog: "POSTHOG",
   KLAVIYO: "KLAVIYO",
-  Klaviyo: "KLAVIYO"
+  Klaviyo: "KLAVIYO",
+  CLEVERTAP: "CLEVERTAP",
+  Clevertap: "CLEVERTAP"
 };
 
 export { commonNames };
