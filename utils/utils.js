@@ -541,7 +541,9 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
     if (messageContext) {
       const objKeys = [];
       Object.keys(messageContext).map((k) => {
-        if (!exclusionFields.includes(k)) objKeys.push(k);
+        if (exclusionFields.indexOf(k) < 0) {
+          objKeys.push(k);
+        }
       });
       objKeys.map((k) => {
         if (!(typeof messageContext[k] === "undefined")) {
@@ -553,9 +555,9 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
   return destination;
 }
 /**
- * 
- * @param {*} message 
- * 
+ *
+ * @param {*} message
+ *
  * Use get-value to retrieve defined trais from message traits
  */
 function getDefinedTraits(message) {
@@ -640,5 +642,5 @@ export {
   extractCustomFields,
   getDefinedTraits,
   isObject,
-  isArray
+  isArray,
 };
