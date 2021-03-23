@@ -56,13 +56,12 @@ class BingAds {
     if (value) {
       event.gv = value;
     }
-    else if(revenue) {
+    if (revenue) {
       event.gv = revenue;
     }
-    else if(total) {
+    if (total) {
       event.gv = total;
     }
-
     if (label) {
       event.el = label;
     }
