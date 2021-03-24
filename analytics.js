@@ -24,7 +24,9 @@ import {
   findAllEnabledDestinations,
   tranformToRudderNames,
   transformToServerNames,
-  checkReservedKeywords
+  checkReservedKeywords,
+  getReferrer,
+  getReferringDomain
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -126,6 +128,17 @@ class Analytics {
     this.storage.setGroupTraits(this.groupTraits);
   }
 
+  setInitialPageProperties(){
+    let initialReferrer = this.storage.getInitialReferrer();
+    let initialReferringDomain = this.storage.getInitialReferringDomain();
+    if(initialReferrer == null && initialReferringDomain == null){
+      initialReferrer = getReferrer();
+      initialReferringDomain = getReferringDomain(initialReferrer);
+      this.storage.setInitialReferrer(initialReferrer);
+      this.storage.setInitialReferringDomain(initialReferringDomain);
+    }
+  }
+
   /**
    * Process the response from control plane and
    * call initialize for integrations
@@ -137,7 +150,9 @@ class Analytics {
   processResponse(status, response) {
     try {
       logger.debug(`===in process response=== ${status}`);
-      response = JSON.parse(response);
+      if (typeof response === 'string') {
+        response = JSON.parse(response);
+      }
       if (
         response.source.useAutoTracking &&
         !this.autoTrackHandlersRegistered
@@ -794,6 +809,8 @@ class Analytics {
   getPageProperties(properties, options) {
     const defaultPageProperties = getDefaultPageProperties();
     const optionPageProperties = options && options.page ? options.page : {};
+    defaultPageProperties.initial_referrer = this.storage.getInitialReferrer();
+    defaultPageProperties.initial_referring_domain = this.storage.getInitialReferringDomain();
     for (const key in defaultPageProperties) {
       if (properties[key] === undefined) {
         properties[key] =
@@ -903,6 +920,9 @@ class Analytics {
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
+    if (options && options.setCookieDomain) {
+      this.storage.options({domain: options.setCookieDomain});
+    }
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       tranformToRudderNames(this.loadOnlyIntegrations);
@@ -959,6 +979,7 @@ class Analytics {
       this.eventRepository.url = serverUrl;
     }
     this.initializeUser();
+    this.setInitialPageProperties();
     this.loaded = true;
     if (
       options &&
@@ -978,13 +999,37 @@ class Analytics {
         );
       }
     }
-    try {
-      getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
-    } catch (error) {
+
+    function errorHandler(error) {
       handleError(error);
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
         addDomEventHandlers(this);
       }
+    }
+
+    if (options && options.getSourceConfig) {
+      if (typeof options.getSourceConfig !== "function") {
+        handleError('option "getSourceConfig" must be a function');
+      } else {
+        const res = options.getSourceConfig();
+
+        if (res instanceof Promise) {
+          res
+            .then(res => this.processResponse(200, res))
+            .catch(errorHandler)
+        } else {
+          this.processResponse(200, res);
+        }
+
+        processDataInAnalyticsArray(this);
+      }
+      return;
+    }
+
+    try {
+      getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
+    } catch (error) {
+      errorHandler(error)
     }
     processDataInAnalyticsArray(this);
   }

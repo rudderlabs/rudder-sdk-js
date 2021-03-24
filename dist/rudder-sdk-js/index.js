@@ -57,6 +57,24 @@
     return obj;
   }
 
+  function _extends() {
+    _extends = Object.assign || function (target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = arguments[i];
+
+        for (var key in source) {
+          if (Object.prototype.hasOwnProperty.call(source, key)) {
+            target[key] = source[key];
+          }
+        }
+      }
+
+      return target;
+    };
+
+    return _extends.apply(this, arguments);
+  }
+
   function ownKeys(object, enumerableOnly) {
     var keys = Object.keys(object);
 
@@ -3069,6 +3087,275 @@
   var componentUrl_3 = componentUrl.isRelative;
   var componentUrl_4 = componentUrl.isCrossDomain;
 
+  /*!
+   * isobject <https://github.com/jonschlinkert/isobject>
+   *
+   * Copyright (c) 2014-2017, Jon Schlinkert.
+   * Released under the MIT License.
+   */
+
+  var isobject = function isObject(val) {
+    return val != null && _typeof(val) === 'object' && Array.isArray(val) === false;
+  };
+
+  /*!
+   * get-value <https://github.com/jonschlinkert/get-value>
+   *
+   * Copyright (c) 2014-2018, Jon Schlinkert.
+   * Released under the MIT License.
+   */
+
+  var getValue = function getValue(target, path, options) {
+    if (!isobject(options)) {
+      options = {
+        "default": options
+      };
+    }
+
+    if (!isValidObject(target)) {
+      return typeof options["default"] !== 'undefined' ? options["default"] : target;
+    }
+
+    if (typeof path === 'number') {
+      path = String(path);
+    }
+
+    var isArray = Array.isArray(path);
+    var isString = typeof path === 'string';
+    var splitChar = options.separator || '.';
+    var joinChar = options.joinChar || (typeof splitChar === 'string' ? splitChar : '.');
+
+    if (!isString && !isArray) {
+      return target;
+    }
+
+    if (isString && path in target) {
+      return isValid(path, target, options) ? target[path] : options["default"];
+    }
+
+    var segs = isArray ? path : split(path, splitChar, options);
+    var len = segs.length;
+    var idx = 0;
+
+    do {
+      var prop = segs[idx];
+
+      if (typeof prop === 'number') {
+        prop = String(prop);
+      }
+
+      while (prop && prop.slice(-1) === '\\') {
+        prop = join([prop.slice(0, -1), segs[++idx] || ''], joinChar, options);
+      }
+
+      if (prop in target) {
+        if (!isValid(prop, target, options)) {
+          return options["default"];
+        }
+
+        target = target[prop];
+      } else {
+        var hasProp = false;
+        var n = idx + 1;
+
+        while (n < len) {
+          prop = join([prop, segs[n++]], joinChar, options);
+
+          if (hasProp = prop in target) {
+            if (!isValid(prop, target, options)) {
+              return options["default"];
+            }
+
+            target = target[prop];
+            idx = n - 1;
+            break;
+          }
+        }
+
+        if (!hasProp) {
+          return options["default"];
+        }
+      }
+    } while (++idx < len && isValidObject(target));
+
+    if (idx === len) {
+      return target;
+    }
+
+    return options["default"];
+  };
+
+  function join(segs, joinChar, options) {
+    if (typeof options.join === 'function') {
+      return options.join(segs);
+    }
+
+    return segs[0] + joinChar + segs[1];
+  }
+
+  function split(path, splitChar, options) {
+    if (typeof options.split === 'function') {
+      return options.split(path);
+    }
+
+    return path.split(splitChar);
+  }
+
+  function isValid(key, target, options) {
+    if (typeof options.isValid === 'function') {
+      return options.isValid(key, target);
+    }
+
+    return true;
+  }
+
+  function isValidObject(val) {
+    return isobject(val) || Array.isArray(val) || typeof val === 'function';
+  }
+
+  /*!
+   * isobject <https://github.com/jonschlinkert/isobject>
+   *
+   * Copyright (c) 2014-2017, Jon Schlinkert.
+   * Released under the MIT License.
+   */
+
+  var isobject$1 = function isObject(val) {
+    return val != null && _typeof(val) === 'object' && Array.isArray(val) === false;
+  };
+
+  function isObjectObject(o) {
+    return isobject$1(o) === true && Object.prototype.toString.call(o) === '[object Object]';
+  }
+
+  var isPlainObject = function isPlainObject(o) {
+    var ctor, prot;
+    if (isObjectObject(o) === false) return false; // If has modified constructor
+
+    ctor = o.constructor;
+    if (typeof ctor !== 'function') return false; // If has modified prototype
+
+    prot = ctor.prototype;
+    if (isObjectObject(prot) === false) return false; // If constructor does not have an Object-specific method
+
+    if (prot.hasOwnProperty('isPrototypeOf') === false) {
+      return false;
+    } // Most likely a plain Object
+
+
+    return true;
+  };
+
+  function set(target, path, value, options) {
+    if (!isObject(target)) {
+      return target;
+    }
+
+    var opts = options || {};
+    var isArray = Array.isArray(path);
+
+    if (!isArray && typeof path !== 'string') {
+      return target;
+    }
+
+    var merge = opts.merge;
+
+    if (merge && typeof merge !== 'function') {
+      merge = Object.assign;
+    }
+
+    var keys = (isArray ? path : split$1(path, opts)).filter(isValidKey);
+    var len = keys.length;
+    var orig = target;
+
+    if (!options && keys.length === 1) {
+      result(target, keys[0], value, merge);
+      return target;
+    }
+
+    for (var i = 0; i < len; i++) {
+      var prop = keys[i];
+
+      if (!isObject(target[prop])) {
+        target[prop] = {};
+      }
+
+      if (i === len - 1) {
+        result(target, prop, value, merge);
+        break;
+      }
+
+      target = target[prop];
+    }
+
+    return orig;
+  }
+
+  function result(target, path, value, merge) {
+    if (merge && isPlainObject(target[path]) && isPlainObject(value)) {
+      target[path] = merge({}, target[path], value);
+    } else {
+      target[path] = value;
+    }
+  }
+
+  function split$1(path, options) {
+    var id = createKey(path, options);
+    if (set.memo[id]) return set.memo[id];
+
+    var _char = options && options.separator ? options.separator : '.';
+
+    var keys = [];
+    var res = [];
+
+    if (options && typeof options.split === 'function') {
+      keys = options.split(path);
+    } else {
+      keys = path.split(_char);
+    }
+
+    for (var i = 0; i < keys.length; i++) {
+      var prop = keys[i];
+
+      while (prop && prop.slice(-1) === '\\' && keys[i + 1] != null) {
+        prop = prop.slice(0, -1) + _char + keys[++i];
+      }
+
+      res.push(prop);
+    }
+
+    set.memo[id] = res;
+    return res;
+  }
+
+  function createKey(pattern, options) {
+    var id = pattern;
+
+    if (typeof options === 'undefined') {
+      return id + '';
+    }
+
+    var keys = Object.keys(options);
+
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      id += ';' + key + '=' + String(options[key]);
+    }
+
+    return id;
+  }
+
+  function isValidKey(key) {
+    return key !== '__proto__' && key !== 'constructor' && key !== 'prototype';
+  }
+
+  function isObject(val) {
+    return val !== null && (_typeof(val) === 'object' || typeof val === 'function');
+  }
+
+  set.memo = {};
+  var setValue = set;
+
   var LOG_LEVEL_INFO = 1;
   var LOG_LEVEL_DEBUG = 2;
   var LOG_LEVEL_WARN = 3;
@@ -3179,7 +3466,11 @@
     APPCUES: "APPCUES",
     POSTHOG: "POSTHOG",
     PostHog: "POSTHOG",
-    Posthog: "POSTHOG"
+    Posthog: "POSTHOG",
+    KLAVIYO: "KLAVIYO",
+    Klaviyo: "KLAVIYO",
+    CLEVERTAP: "CLEVERTAP",
+    Clevertap: "CLEVERTAP"
   };
 
   // from client native integration name to server identified display name
@@ -3210,7 +3501,9 @@
     PENDO: "Pendo",
     LYTICS: "Lytics",
     APPCUES: "Appcues",
-    POSTHOG: "PostHog"
+    POSTHOG: "PostHog",
+    KLAVIYO: "Klaviyo",
+    CLEVERTAP: "Clevertap"
   };
 
   // Reserved Keywords for properties/triats
@@ -3254,7 +3547,7 @@
     PRODUCT_REVIEWED: "Product Reviewed"
   }; // Enumeration for integrations supported
 
-  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.15";
+  var CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=npm&v=1.0.16";
   var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
   var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
   /* module.exports = {
@@ -3383,20 +3676,36 @@
 
   function getDefaultPageProperties() {
     var canonicalUrl = getCanonicalUrl();
-    var path = canonicalUrl ? componentUrl_1(canonicalUrl).pathname : window.location.pathname;
-    var _document = document,
-        referrer = _document.referrer;
+    var path = canonicalUrl ? componentUrl_1(canonicalUrl).pathname : window.location.pathname; //const { referrer } = document;
+
     var search = window.location.search;
-    var _document2 = document,
-        title = _document2.title;
+    var _document = document,
+        title = _document.title;
     var url = getUrl(search);
+    var referrer = getReferrer();
+    var referring_domain = getReferringDomain(referrer);
     return {
       path: path,
       referrer: referrer,
+      referring_domain: referring_domain,
       search: search,
       title: title,
       url: url
     };
+  }
+
+  function getReferrer() {
+    return document.referrer || "$direct";
+  }
+
+  function getReferringDomain(referrer) {
+    var split = referrer.split("/");
+
+    if (split.length >= 3) {
+      return split[2];
+    }
+
+    return "";
   }
 
   function getUrl(search) {
@@ -3731,6 +4040,101 @@
   function flattenJsonPayload(data) {
     return recurse(data, "", {});
   }
+  /* ------- End FlattenJson ----------- */
+
+  /**
+   *
+   * @param {*} message
+   * @param {*} destination
+   * @param {*} keys
+   * @param {*} exclusionFields
+   * Extract fileds from message with exclusions
+   * Pass the keys of message for extraction and
+   * exclusion fields to exlude and the payload to map into
+   * -----------------Example-------------------
+   * extractCustomFields(message,payload,["traits", "context.traits", "properties"], "email",
+   * ["firstName",
+   * "lastName",
+   * "phone",
+   * "title",
+   * "organization",
+   * "city",
+   * "region",
+   * "country",
+   * "zip",
+   * "image",
+   * "timezone"])
+   * -------------------------------------------
+   * The above call will map the fields other than the
+   * exlusion list from the given keys to the destination payload
+   *
+   */
+
+
+  function extractCustomFields(message, destination, keys, exclusionFields) {
+    keys.map(function (key) {
+      var messageContext = getValue(message, key);
+
+      if (messageContext) {
+        var objKeys = [];
+        Object.keys(messageContext).map(function (k) {
+          if (exclusionFields.indexOf(k) < 0) {
+            objKeys.push(k);
+          }
+        });
+        objKeys.map(function (k) {
+          if (!(typeof messageContext[k] === "undefined")) {
+            setValue(destination, k, getValue(messageContext, k));
+          }
+        });
+      }
+    });
+    return destination;
+  }
+  /**
+   *
+   * @param {*} message
+   *
+   * Use get-value to retrieve defined trais from message traits
+   */
+
+
+  function getDefinedTraits(message) {
+    var traitsValue = {
+      userId: getValue(message, "userId") || getValue(message, "context.traits.userId") || getValue(message, "anonymousId"),
+      email: getValue(message, "context.traits.email") || getValue(message, "context.traits.Email") || getValue(message, "context.traits.E-mail"),
+      phone: getValue(message, "context.traits.phone") || getValue(message, "context.traits.Phone"),
+      firstName: getValue(message, "context.traits.firstName") || getValue(message, "context.traits.firstname") || getValue(message, "context.traits.first_name"),
+      lastName: getValue(message, "context.traits.lastName") || getValue(message, "context.traits.lastname") || getValue(message, "context.traits.last_name"),
+      name: getValue(message, "context.traits.name") || getValue(message, "context.traits.Name"),
+      city: getValue(message, "context.traits.city") || getValue(message, "context.traits.City"),
+      country: getValue(message, "context.traits.country") || getValue(message, "context.traits.Country")
+    };
+
+    if (!getValue(traitsValue, "name") && getValue(traitsValue, "firstName") && getValue(traitsValue, "lastName")) {
+      setValue(traitsValue, "name", "".concat(getValue(traitsValue, "firstName"), " ").concat(getValue(traitsValue, "lastName")));
+    }
+
+    return traitsValue;
+  }
+  /**
+   * To check if a variable is storing object or not
+   */
+
+
+  var isObject$1 = function isObject(obj) {
+    return type(obj) === "object";
+  };
+  /**
+   * To check if a variable is storing array or not
+   */
+
+
+  var isArray$1 = function isArray(obj) {
+    return type(obj) === "array";
+  };
+
+  /* eslint-disable no-use-before-define */
 
   var ScriptLoader = function ScriptLoader(id, src) {
     logger.debug("in script loader=== ".concat(id));
@@ -6981,7 +7385,7 @@
         logger.debug("in Keen identify");
         var traits = rudderElement.message.context.traits;
         var userId = rudderElement.message.userId ? rudderElement.message.userId : rudderElement.message.anonymousId;
-        var properties = rudderElement.message.properties ? Object.assign(properties, rudderElement.message.properties) : {};
+        var properties = rudderElement.message.properties ? _extends(properties, rudderElement.message.properties) : {};
         properties.user = {
           userId: userId,
           traits: traits
@@ -11632,7 +12036,7 @@
     switch (arguments.length) {
       case 3:
       case 2:
-        return set(name, value, options);
+        return set$1(name, value, options);
 
       case 1:
         return get$1(name);
@@ -11651,7 +12055,7 @@
    */
 
 
-  function set(name, value, options) {
+  function set$1(name, value, options) {
     options = options || {};
     var str = encode$1(name) + '=' + encode$1(value);
     if (null == value) options.maxage = -1;
@@ -11847,7 +12251,7 @@
    */
   // TODO: Move to a library
 
-  var isObject = function isObject(value) {
+  var isObject$2 = function isObject(value) {
     return Boolean(value) && _typeof(value) === 'object';
   };
   /**
@@ -11861,7 +12265,7 @@
   // TODO: Move to a library
 
 
-  var isPlainObject = function isPlainObject(value) {
+  var isPlainObject$1 = function isPlainObject(value) {
     return Boolean(value) && objToString$1.call(value) === '[object Object]';
   };
   /**
@@ -11900,7 +12304,7 @@
 
   var deepCombiner = function deepCombiner(target, source, value, key) {
     if (has$4.call(source, key)) {
-      if (isPlainObject(target[key]) && isPlainObject(value)) {
+      if (isPlainObject$1(target[key]) && isPlainObject$1(value)) {
         target[key] = defaultsDeep(target[key], value);
       } else if (target[key] === undefined) {
         target[key] = value;
@@ -11924,7 +12328,7 @@
   var defaultsWith = function defaultsWith(combiner, target
   /*, ...sources */
   ) {
-    if (!isObject(target)) {
+    if (!isObject$2(target)) {
       return target;
     }
 
@@ -13395,7 +13799,7 @@
     switch (arguments.length) {
       case 3:
       case 2:
-        return set$1(name, value, options);
+        return set$2(name, value, options);
 
       case 1:
         return get$2(name);
@@ -13414,7 +13818,7 @@
    */
 
 
-  function set$1(name, value, options) {
+  function set$2(name, value, options) {
     options = options || {};
     var str = encode$2(name) + '=' + encode$2(value);
     if (null == value) options.maxage = -1;
@@ -13992,6 +14396,8 @@
     user_storage_anonymousId: "rl_anonymous_id",
     group_storage_key: "rl_group_id",
     group_storage_trait: "rl_group_trait",
+    page_storage_init_referrer: "rl_page_init_referrer",
+    page_storage_init_referring_domain: "rl_page_init_referring_domain",
     prefix: "RudderEncrypt:",
     key: "Rudder"
   };
@@ -14017,13 +14423,20 @@
         this.storage = Store;
       }
     }
-    /**
-     * Json stringify the given value
-     * @param {*} value
-     */
-
 
     _createClass(Storage, [{
+      key: "options",
+      value: function options() {
+        var _options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+        this.storage.options(_options);
+      }
+      /**
+       * Json stringify the given value
+       * @param {*} value
+       */
+
+    }, {
       key: "stringify",
       value: function stringify(value) {
         return JSON.stringify(value);
@@ -14164,6 +14577,24 @@
         this.storage.set(defaults$1.user_storage_anonymousId, this.encryptValue(this.stringify(value)));
       }
       /**
+       * @param {*} value
+       */
+
+    }, {
+      key: "setInitialReferrer",
+      value: function setInitialReferrer(value) {
+        this.storage.set(defaults$1.page_storage_init_referrer, this.encryptValue(this.stringify(value)));
+      }
+      /**
+       * @param {*} value
+       */
+
+    }, {
+      key: "setInitialReferringDomain",
+      value: function setInitialReferringDomain(value) {
+        this.storage.set(defaults$1.page_storage_init_referring_domain, this.encryptValue(this.stringify(value)));
+      }
+      /**
        *
        * @param {*} key
        */
@@ -14217,6 +14648,24 @@
       key: "getAnonymousId",
       value: function getAnonymousId() {
         return this.parse(this.decryptValue(this.storage.get(defaults$1.user_storage_anonymousId)));
+      }
+      /**
+       * get stored initial referrer
+       */
+
+    }, {
+      key: "getInitialReferrer",
+      value: function getInitialReferrer(value) {
+        return this.parse(this.decryptValue(this.storage.get(defaults$1.page_storage_init_referrer)));
+      }
+      /**
+       * get stored initial referring domain
+       */
+
+    }, {
+      key: "getInitialReferringDomain",
+      value: function getInitialReferringDomain(value) {
+        return this.parse(this.decryptValue(this.storage.get(defaults$1.page_storage_init_referring_domain)));
       }
       /**
        *
@@ -16156,7 +16605,9 @@
 
         var products = properties.products;
         var clonedTrackEvent = {};
-        Object.assign(clonedTrackEvent, rudderElement.message); // For track products once, we will send the products in a single call.
+
+        _extends(clonedTrackEvent, rudderElement.message); // For track products once, we will send the products in a single call.
+
 
         if (this.trackProductsOnce) {
           if (products && type(products) == "array") {
@@ -16176,7 +16627,9 @@
 
             if (this.trackRevenuePerProduct) {
               var trackEventMessage = {};
-              Object.assign(trackEventMessage, clonedTrackEvent);
+
+              _extends(trackEventMessage, clonedTrackEvent);
+
               this.trackingEventAndRevenuePerProduct(trackEventMessage, products, false); // also track revenue only and not event per product.
             }
           } else {
@@ -16193,7 +16646,9 @@
           delete clonedTrackEvent.properties.products;
           this.logEventAndCorrespondingRevenue(clonedTrackEvent, this.trackRevenuePerProduct);
           var _trackEventMessage = {};
-          Object.assign(_trackEventMessage, clonedTrackEvent); // track products and revenue per product basis.
+
+          _extends(_trackEventMessage, clonedTrackEvent); // track products and revenue per product basis.
+
 
           this.trackingEventAndRevenuePerProduct(_trackEventMessage, products, true); // track both event and revenue on per product basis.
         } else {
@@ -16924,6 +17379,301 @@
     return Posthog;
   }();
 
+  var Klaviyo = /*#__PURE__*/function () {
+    function Klaviyo(config) {
+      _classCallCheck(this, Klaviyo);
+
+      this.publicApiKey = config.publicApiKey;
+      this.sendPageAsTrack = config.sendPageAsTrack;
+      this.additionalPageInfo = config.additionalPageInfo;
+      this.enforceEmailAsPrimary = config.enforceEmailAsPrimary;
+      this.name = "KLAVIYO";
+      this.keysToExtract = ["context.traits"];
+      this.exclusionKeys = ["email", "E-mail", "Email", "firstName", "firstname", "first_name", "lastName", "lastname", "last_name", "phone", "Phone", "title", "organization", "city", "City", "region", "country", "Country", "zip", "image", "timezone", "anonymousId", "userId", "properties"];
+    }
+
+    _createClass(Klaviyo, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Klaviyo===");
+        ScriptLoader("klaviyo-integration", "https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=".concat(this.publicApiKey));
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("===in isLoaded Klaviyo===");
+        return !!(window._learnq && window._learnq.push !== Array.prototype.push);
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        logger.debug("===in isReady Klaviyo===");
+        return !!(window._learnq && window._learnq.push !== Array.prototype.push);
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        var message = rudderElement.message;
+
+        if (!(message.context && message.context.traits)) {
+          logger.error("user traits not present");
+          return;
+        }
+
+        var _getDefinedTraits = getDefinedTraits(message),
+            userId = _getDefinedTraits.userId,
+            email = _getDefinedTraits.email,
+            phone = _getDefinedTraits.phone,
+            firstName = _getDefinedTraits.firstName,
+            lastName = _getDefinedTraits.lastName,
+            city = _getDefinedTraits.city,
+            country = _getDefinedTraits.country;
+
+        var payload = {
+          $id: userId,
+          $email: email,
+          $phone_number: phone,
+          $first_name: firstName,
+          $last_name: lastName,
+          $city: city,
+          $country: country,
+          $organization: getValue(message, "context.traits.organization"),
+          $title: getValue(message, "context.traits.title"),
+          $region: getValue(message, "context.traits.region"),
+          $zip: getValue(message, "context.traits.zip")
+        };
+
+        if (!payload.$email && !payload.$phone_number && !payload.$id) {
+          logger.error("user id, phone or email not present");
+          return;
+        }
+
+        if (this.enforceEmailAsPrimary) {
+          delete payload.$id;
+          payload._id = userId;
+        } // Extract other K-V property from traits about user custom properties
+
+
+        try {
+          payload = extractCustomFields(message, payload, this.keysToExtract, this.exclusionKeys);
+        } catch (err) {
+          logger.debug("Error occured at extractCustomFields ".concat(err));
+        }
+
+        window._learnq.push(["identify", payload]);
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        var message = rudderElement.message;
+
+        if (message.properties) {
+          var propsPayload = message.properties;
+
+          if (propsPayload.revenue) {
+            propsPayload.$value = propsPayload.revenue;
+            delete propsPayload.revenue;
+          }
+
+          window._learnq.push(["track", message.event, propsPayload]);
+        } else window._learnq.push(["track", message.event]);
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        var message = rudderElement.message;
+
+        if (this.sendPageAsTrack) {
+          var eventName;
+
+          if (message.properties && message.properties.category && message.name) {
+            eventName = "Viewed ".concat(message.properties.category, " ").concat(message.name, " page");
+          } else if (message.name) {
+            eventName = "Viewed ".concat(message.name, " page");
+          } else {
+            eventName = "Viewed a Page";
+          }
+
+          if (this.additionalPageInfo && message.properties) {
+            window._learnq.push(["track", "".concat(eventName), message.properties]);
+          } else {
+            window._learnq.push(["track", "".concat(eventName)]);
+          }
+        } else {
+          window._learnq.push(["track"]);
+        }
+      }
+    }]);
+
+    return Klaviyo;
+  }();
+
+  var Clevertap = /*#__PURE__*/function () {
+    function Clevertap(config) {
+      _classCallCheck(this, Clevertap);
+
+      this.accountId = config.accountId;
+      this.apiKey = config.passcode;
+      this.name = "CLEVERTAP";
+      this.region = config.region;
+      this.keysToExtract = ["context.traits"];
+      this.exclusionKeys = ["email", "E-mail", "Email", "phone", "Phone", "name", "Name", "gender", "Gender", "birthday", "Birthday", "anonymousId", "userId", "lastName", "lastname", "last_name", "firstName", "firstname", "first_name", "employed", "education", "married", "customerType"];
+    }
+
+    _createClass(Clevertap, [{
+      key: "init",
+      value: function init() {
+        logger.debug("===in init Clevertap===");
+        var sourceUrl = document.location.protocol == "https:" ? "https://d2r1yp2w7bby2u.cloudfront.net/js/a.js" : "http://static.clevertap.com/js/a.js";
+        window.clevertap = {
+          event: [],
+          profile: [],
+          account: [],
+          onUserLogin: [],
+          notifications: []
+        };
+        window.clevertap.enablePersonalization = true;
+        window.clevertap.account.push({
+          id: this.accountId
+        });
+
+        if (this.region && this.region !== "none") {
+          window.clevertap.region.push(this.region);
+        }
+
+        ScriptLoader("clevertap-integration", sourceUrl);
+      }
+    }, {
+      key: "isLoaded",
+      value: function isLoaded() {
+        logger.debug("in clevertap isLoaded");
+        return !!window.clevertap && window.clevertap.logout !== undefined;
+      }
+    }, {
+      key: "isReady",
+      value: function isReady() {
+        logger.debug("in clevertap isReady");
+        return !!window.clevertap && window.clevertap.logout !== undefined;
+      }
+    }, {
+      key: "identify",
+      value: function identify(rudderElement) {
+        logger.debug("in clevertap identify");
+        var message = rudderElement.message;
+
+        if (!(message.context && message.context.traits)) {
+          logger.error("user traits not present");
+          return;
+        }
+
+        var _getDefinedTraits = getDefinedTraits(message),
+            userId = _getDefinedTraits.userId,
+            email = _getDefinedTraits.email,
+            phone = _getDefinedTraits.phone,
+            name = _getDefinedTraits.name;
+
+        var payload = {
+          Name: name,
+          Identity: userId,
+          Email: email,
+          Phone: phone,
+          Gender: getValue(message, "context.traits.gender"),
+          DOB: getValue(message, "context.traits.birthday"),
+          Photo: getValue(message, "context.traits.avatar"),
+          Employed: getValue(message, "context.traits.employed"),
+          Education: getValue(message, "context.traits.education"),
+          Married: getValue(message, "context.traits.married"),
+          "Customer Type": getValue(message, "context.traits.customerType")
+        }; // Extract other K-V property from traits about user custom properties
+
+        try {
+          payload = extractCustomFields(message, payload, this.keysToExtract, this.exclusionKeys);
+        } catch (err) {
+          logger.debug("Error occured at extractCustomFields ".concat(err));
+        }
+
+        Object.keys(payload).map(function (key) {
+          if (isObject$1(payload[key])) {
+            logger.debug("cannot process, unsupported traits");
+            return;
+          }
+        });
+        window.clevertap.onUserLogin.push({
+          Site: payload
+        });
+      }
+    }, {
+      key: "track",
+      value: function track(rudderElement) {
+        logger.debug("in clevertap track");
+        var _rudderElement$messag = rudderElement.message,
+            event = _rudderElement$messag.event,
+            properties = _rudderElement$messag.properties;
+
+        if (properties) {
+          if (event === "Order Completed") {
+            var ecomProperties = {
+              "Charged ID": properties.checkout_id,
+              Amount: properties.revenue,
+              Items: properties.products
+            }; // Extract other K-V property from traits about user custom properties
+
+            try {
+              ecomProperties = extractCustomFields(rudderElement.message, ecomProperties, ["properties"], ["checkout_id", "revenue", "products"]);
+            } catch (err) {
+              logger.debug("Error occured at extractCustomFields ".concat(err));
+            }
+
+            window.clevertap.event.push("Charged", ecomProperties);
+          } else {
+            Object.keys(properties).map(function (key) {
+              if (isObject$1(properties[key]) || isArray$1(properties[key])) {
+                logger.debug("cannot process, unsupported event");
+                return;
+              }
+            });
+            window.clevertap.event.push(event, properties);
+          }
+        } else if (event === "Order Completed") {
+          window.clevertap.event.push("Charged");
+        } else {
+          window.clevertap.event.push(event);
+        }
+      }
+    }, {
+      key: "page",
+      value: function page(rudderElement) {
+        logger.debug("in clevertap page");
+        var _rudderElement$messag2 = rudderElement.message,
+            name = _rudderElement$messag2.name,
+            properties = _rudderElement$messag2.properties;
+        var eventName;
+
+        if (properties && properties.category && name) {
+          eventName = "WebPage Viewed ".concat(name, " ").concat(properties.category);
+        } else if (name) {
+          eventName = "WebPage Viewed ".concat(name);
+        } else {
+          eventName = "WebPage Viewed";
+        }
+
+        if (properties) {
+          Object.keys(properties).map(function (key) {
+            if (isObject$1(properties[key]) || isArray$1(properties[key])) {
+              logger.debug("cannot process, unsupported event");
+              return;
+            }
+          });
+          window.clevertap.event.push(eventName, properties);
+        } else {
+          window.clevertap.event.push(eventName);
+        }
+      }
+    }]);
+
+    return Clevertap;
+  }();
+
   // (config-plan name, native destination.name , exported integration name(this one below))
 
   var integrations = {
@@ -16952,7 +17702,9 @@
     PENDO: Pendo,
     LYTICS: Lytics,
     APPCUES: Appcues,
-    POSTHOG: Posthog
+    POSTHOG: Posthog,
+    KLAVIYO: Klaviyo,
+    CLEVERTAP: Clevertap
   };
 
   // Application class
@@ -16962,7 +17714,7 @@
     this.build = "1.0.0";
     this.name = "RudderLabs JavaScript SDK";
     this.namespace = "com.rudderlabs.javascript";
-    this.version = "1.0.15";
+    this.version = "1.0.16";
   };
 
   // Library information class
@@ -16970,7 +17722,7 @@
     _classCallCheck(this, RudderLibraryInfo);
 
     this.name = "RudderLabs JavaScript SDK";
-    this.version = "1.0.15";
+    this.version = "1.0.16";
   }; // Operating System information class
 
 
@@ -18244,7 +18996,7 @@
       value: function startQueue(options) {
         if (options) {
           // TODO: add checks for value - has to be +ve?
-          Object.assign(queueOptions, options);
+          _extends(queueOptions, options);
         }
 
         this.payloadQueue = new lib$2("rudder", queueOptions, function (item, done) {
@@ -18414,23 +19166,23 @@
       }
 
       if (shouldTrackDomEvent(target, e)) {
-        logger.debug("to be tracked ", e.type);
+        logger.debug('to be tracked ', e.type);
       } else {
-        logger.debug("not to be tracked ", e.type);
+        logger.debug('not to be tracked ', e.type);
       }
 
       trackWindowEvent(e, rudderanalytics);
     };
 
-    register_event(document, "submit", handler, true);
-    register_event(document, "change", handler, true);
-    register_event(document, "click", handler, true);
+    register_event(document, 'submit', handler, true);
+    register_event(document, 'change', handler, true);
+    register_event(document, 'click', handler, true);
     rudderanalytics.page();
   }
 
   function register_event(element, type, handler, useCapture) {
     if (!element) {
-      logger.error("[Autotrack] register_event:: No valid element provided to register_event");
+      logger.error('[Autotrack] register_event:: No valid element provided to register_event');
       return;
     }
 
@@ -18438,32 +19190,32 @@
   }
 
   function shouldTrackDomEvent(el, event) {
-    if (!el || isTag(el, "html") || !isElementNode(el)) {
+    if (!el || isTag(el, 'html') || !isElementNode(el)) {
       return false;
     }
 
     var tag = el.tagName.toLowerCase();
 
     switch (tag) {
-      case "html":
+      case 'html':
         return false;
 
-      case "form":
-        return event.type === "submit";
+      case 'form':
+        return event.type === 'submit';
 
-      case "input":
-        if (["button", "submit"].indexOf(el.getAttribute("type")) === -1) {
-          return event.type === "change";
+      case 'input':
+        if (['button', 'submit'].indexOf(el.getAttribute('type')) === -1) {
+          return event.type === 'change';
         }
 
-        return event.type === "click";
+        return event.type === 'click';
 
-      case "select":
-      case "textarea":
-        return event.type === "change";
+      case 'select':
+      case 'textarea':
+        return event.type === 'change';
 
       default:
-        return event.type === "click";
+        return event.type === 'click';
     }
   }
 
@@ -18481,14 +19233,14 @@
 
 
   function shouldTrackElement(el) {
-    if (!el.parentNode || isTag(el, "body")) return false;
+    if (!el.parentNode || isTag(el, 'body')) return false;
     var curEl = el;
 
-    while (curEl.parentNode && !isTag(curEl, "body")) {
-      var _classes = getClassName(el).split(" "); // if explicitly specified "rudder-no-track", even at parent level, dont track the child nodes too.
+    while (curEl.parentNode && !isTag(curEl, 'body')) {
+      var _classes = getClassName(el).split(' '); // if explicitly specified "rudder-no-track", even at parent level, dont track the child nodes too.
 
 
-      if (_classes.indexOf("rudder-no-track") >= 0) {
+      if (_classes.indexOf('rudder-no-track') >= 0) {
         return false;
       }
 
@@ -18496,46 +19248,46 @@
     } // if explicitly set "rudder-include", at element level, then track the element even if the element is hidden or sensitive.
 
 
-    var classes = getClassName(el).split(" ");
+    var classes = getClassName(el).split(' ');
 
-    if (classes.indexOf("rudder-include") >= 0) {
+    if (classes.indexOf('rudder-include') >= 0) {
       return true;
     } // for general elements, do not track input/select/textarea(s)
 
 
-    if (isTag(el, "input") || isTag(el, "select") || isTag(el, "textarea") || el.getAttribute("contenteditable") === "true") {
+    if (isTag(el, 'input') || isTag(el, 'select') || isTag(el, 'textarea') || el.getAttribute('contenteditable') === 'true') {
       return false;
-    } else if (el.getAttribute("contenteditable") === "inherit") {
-      for (curEl = el.parentNode; curEl.parentNode && !isTag(curEl, "body"); curEl = curEl.parentNode) {
-        if (curEl.getAttribute("contenteditable") === "true") {
+    } else if (el.getAttribute('contenteditable') === 'inherit') {
+      for (curEl = el.parentNode; curEl.parentNode && !isTag(curEl, 'body'); curEl = curEl.parentNode) {
+        if (curEl.getAttribute('contenteditable') === 'true') {
           return false;
         }
       }
     } // do not track hidden/password elements
 
 
-    var type = el.type || "";
+    var type = el.type || '';
 
-    if (typeof type === "string") {
+    if (typeof type === 'string') {
       // it's possible for el.type to be a DOM element if el is a form with a child input[name="type"]
       switch (type.toLowerCase()) {
-        case "hidden":
+        case 'hidden':
           return false;
 
-        case "password":
+        case 'password':
           return false;
       }
     } // filter out data from fields that look like sensitive field -
     // safeguard - match with regex with possible strings as id or name of an element for creditcard, password, ssn, pan, adhar
 
 
-    var name = el.name || el.id || "";
+    var name = el.name || el.id || '';
 
-    if (typeof name === "string") {
+    if (typeof name === 'string') {
       // it's possible for el.name or el.id to be a DOM element if el is a form with a child input[name="name"]
       var sensitiveNameRegex = /^adhar|cc|cardnum|ccnum|creditcard|csc|cvc|cvv|exp|pan|pass|pwd|routing|seccode|securitycode|securitynum|socialsec|socsec|ssn/i;
 
-      if (sensitiveNameRegex.test(name.replace(/[^a-zA-Z0-9]/g, ""))) {
+      if (sensitiveNameRegex.test(name.replace(/[^a-zA-Z0-9]/g, ''))) {
         return false;
       }
     }
@@ -18545,16 +19297,16 @@
 
   function getClassName(el) {
     switch (_typeof(el.className)) {
-      case "string":
+      case 'string':
         return el.className;
 
-      case "object":
+      case 'object':
         // handle cases where className might be SVGAnimatedString or some other type
-        return el.className.baseVal || el.getAttribute("class") || "";
+        return el.className.baseVal || el.getAttribute('class') || '';
 
       default:
         // future proof
-        return "";
+        return '';
     }
   }
 
@@ -18567,7 +19319,7 @@
     }
 
     if (shouldTrackDomEvent(target, e)) {
-      if (target.tagName.toLowerCase() == "form") {
+      if (target.tagName.toLowerCase() == 'form') {
         formValues = {};
 
         for (var i = 0; i < target.elements.length; i++) {
@@ -18576,16 +19328,16 @@
           if (shouldTrackElement(formElement) && isValueToBeTrackedFromTrackingList(formElement, rudderanalytics.trackValues)) {
             var name = formElement.id ? formElement.id : formElement.name;
 
-            if (name && typeof name === "string") {
+            if (name && typeof name === 'string') {
               var key = formElement.id ? formElement.id : formElement.name; // formElement.value gives the same thing
 
               var value = formElement.id ? document.getElementById(formElement.id).value : document.getElementsByName(formElement.name)[0].value;
 
-              if (formElement.type === "checkbox" || formElement.type === "radio") {
+              if (formElement.type === 'checkbox' || formElement.type === 'radio') {
                 value = formElement.checked;
               }
 
-              if (key.trim() !== "") {
+              if (key.trim() !== '') {
                 formValues[encodeURIComponent(key)] = encodeURIComponent(value);
               }
             }
@@ -18600,7 +19352,7 @@
         return false;
       }
 
-      while (curEl.parentNode && !isTag(curEl, "body")) {
+      while (curEl.parentNode && !isTag(curEl, 'body')) {
         if (shouldTrackElement(curEl)) {
           targetElementList.push(curEl);
         }
@@ -18613,8 +19365,8 @@
       targetElementList.forEach(function (el) {
         // if the element or a parent element is an anchor tag
         // include the href as a property
-        if (el.tagName.toLowerCase() === "a") {
-          href = el.getAttribute("href");
+        if (el.tagName.toLowerCase() === 'a') {
+          href = el.getAttribute('href');
           href = isValueToBeTracked(href) && href;
         }
 
@@ -18625,7 +19377,7 @@
         return false;
       }
 
-      var elementText = "";
+      var elementText = '';
       var text = getText(target);
 
       if (text && text.length) {
@@ -18644,16 +19396,16 @@
         props.form_values = formValues;
       }
 
-      logger.debug("web_event", props);
-      rudderanalytics.track("autotrack", props);
+      logger.debug('web_event', props);
+      rudderanalytics.track('autotrack', props);
       return true;
     }
   }
 
   function isExplicitNoTrack(el) {
-    var classes = getClassName(el).split(" ");
+    var classes = getClassName(el).split(' ');
 
-    if (classes.indexOf("rudder-no-track") >= 0) {
+    if (classes.indexOf('rudder-no-track') >= 0) {
       return true;
     }
 
@@ -18666,13 +19418,13 @@
       return false;
     }
 
-    if (typeof value === "string") {
-      value = value.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, ""); // check to see if input value looks like a credit card number
+    if (typeof value === 'string') {
+      value = value.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, ''); // check to see if input value looks like a credit card number
       // see: https://www.safaribooksonline.com/library/view/regular-expressions-cookbook/9781449327453/ch04s20.html
 
       var ccRegex = /^(?:(4[0-9]{12}(?:[0-9]{3})?)|(5[1-5][0-9]{14})|(6(?:011|5[0-9]{2})[0-9]{12})|(3[47][0-9]{13})|(3(?:0[0-5]|[68][0-9])[0-9]{11})|((?:2131|1800|35[0-9]{3})[0-9]{11}))$/;
 
-      if (ccRegex.test((value || "").replace(/[- ]/g, ""))) {
+      if (ccRegex.test((value || '').replace(/[- ]/g, ''))) {
         return false;
       } // check to see if input value looks like a social security number
 
@@ -18723,12 +19475,12 @@
   }
 
   function getText(el) {
-    var text = "";
+    var text = '';
     el.childNodes.forEach(function (value) {
       if (value.nodeType === Node.TEXT_NODE) {
-        var textContent = value.nodeValue.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, ""); // take each word from the text content and check whether the value should be tracked. Also, replace the whitespaces.
+        var textContent = value.nodeValue.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, ''); // take each word from the text content and check whether the value should be tracked. Also, replace the whitespaces.
 
-        var textValue = textContent.split(/(\s+)/).filter(isValueToBeTracked).join("").replace(/[\r\n]/g, " ");
+        var textValue = textContent.split(/(\s+)/).filter(isValueToBeTracked).join('').replace(/[\r\n]/g, ' ');
         text += textValue;
       }
     });
@@ -18737,7 +19489,7 @@
 
   function getPropertiesFromElement(elem, rudderanalytics) {
     var props = {
-      classes: getClassName(elem).split(" "),
+      classes: getClassName(elem).split(' '),
       tag_name: elem.tagName.toLowerCase()
     };
     var attrLength = elem.attributes.length;
@@ -18750,10 +19502,10 @@
         props["attr__".concat(name)] = value;
       }
 
-      if ((name == "name" || name == "id") && isValueToBeTrackedFromTrackingList(elem, rudderanalytics.trackValues)) {
-        props.field_value = name == "id" ? document.getElementById(value).value : document.getElementsByName(value)[0].value;
+      if ((name == 'name' || name == 'id') && isValueToBeTrackedFromTrackingList(elem, rudderanalytics.trackValues)) {
+        props.field_value = name == 'id' ? document.getElementById(value).value : document.getElementsByName(value)[0].value;
 
-        if (elem.type === "checkbox" || elem.type === "radio") {
+        if (elem.type === 'checkbox' || elem.type === 'radio') {
           props.field_value = elem.checked;
         }
       }
@@ -19109,6 +19861,19 @@
         this.storage.setUserTraits(this.userTraits);
         this.storage.setGroupTraits(this.groupTraits);
       }
+    }, {
+      key: "setInitialPageProperties",
+      value: function setInitialPageProperties() {
+        var initialReferrer = this.storage.getInitialReferrer();
+        var initialReferringDomain = this.storage.getInitialReferringDomain();
+
+        if (initialReferrer == null && initialReferringDomain == null) {
+          initialReferrer = getReferrer();
+          initialReferringDomain = getReferringDomain(initialReferrer);
+          this.storage.setInitialReferrer(initialReferrer);
+          this.storage.setInitialReferringDomain(initialReferringDomain);
+        }
+      }
       /**
        * Process the response from control plane and
        * call initialize for integrations
@@ -19123,7 +19888,10 @@
       value: function processResponse(status, response) {
         try {
           logger.debug("===in process response=== ".concat(status));
-          response = JSON.parse(response);
+
+          if (typeof response === 'string') {
+            response = JSON.parse(response);
+          }
 
           if (response.source.useAutoTracking && !this.autoTrackHandlersRegistered) {
             this.autoTrackFeatureEnabled = true;
@@ -19696,6 +20464,8 @@
       value: function getPageProperties(properties, options) {
         var defaultPageProperties = getDefaultPageProperties();
         var optionPageProperties = options && options.page ? options.page : {};
+        defaultPageProperties.initial_referrer = this.storage.getInitialReferrer();
+        defaultPageProperties.initial_referring_domain = this.storage.getInitialReferringDomain();
 
         for (var key in defaultPageProperties) {
           if (properties[key] === undefined) {
@@ -19811,8 +20581,15 @@
           logger.setLogLevel(options.logLevel);
         }
 
+        if (options && options.setCookieDomain) {
+          this.storage.options({
+            domain: options.setCookieDomain
+          });
+        }
+
         if (options && options.integrations) {
-          Object.assign(this.loadOnlyIntegrations, options.integrations);
+          _extends(this.loadOnlyIntegrations, options.integrations);
+
           tranformToRudderNames(this.loadOnlyIntegrations);
         }
 
@@ -19840,7 +20617,9 @@
               }
             }
           });
-          Object.assign(this.clientSuppliedCallbacks, tranformedCallbackMapping);
+
+          _extends(this.clientSuppliedCallbacks, tranformedCallbackMapping);
+
           this.registerCallbacks(true);
         }
 
@@ -19861,6 +20640,7 @@
         }
 
         this.initializeUser();
+        this.setInitialPageProperties();
         this.loaded = true;
 
         if (options && options.valTrackingList && options.valTrackingList.push == Array.prototype.push) {
@@ -19877,14 +20657,38 @@
           }
         }
 
-        try {
-          getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
-        } catch (error) {
+        function errorHandler(error) {
           handleError(error);
 
           if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
             addDomEventHandlers(this);
           }
+        }
+
+        if (options && options.getSourceConfig) {
+          if (typeof options.getSourceConfig !== "function") {
+            handleError('option "getSourceConfig" must be a function');
+          } else {
+            var res = options.getSourceConfig();
+
+            if (res instanceof Promise) {
+              res.then(function (res) {
+                return _this3.processResponse(200, res);
+              })["catch"](errorHandler);
+            } else {
+              this.processResponse(200, res);
+            }
+
+            processDataInAnalyticsArray(this);
+          }
+
+          return;
+        }
+
+        try {
+          getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
+        } catch (error) {
+          errorHandler(error);
         }
 
         processDataInAnalyticsArray(this);

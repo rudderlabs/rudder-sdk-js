@@ -10,6 +10,8 @@ const defaults = {
   user_storage_anonymousId: "rl_anonymous_id",
   group_storage_key: "rl_group_id",
   group_storage_trait: "rl_group_trait",
+  page_storage_init_referrer: "rl_page_init_referrer",
+  page_storage_init_referring_domain: "rl_page_init_referring_domain",
   prefix: "RudderEncrypt:",
   key: "Rudder",
 };
@@ -32,6 +34,10 @@ class Storage {
     if (Store.enabled) {
       this.storage = Store;
     }
+  }
+
+  options(options = {}) {
+    this.storage.options(options);
   }
 
   /**
@@ -174,6 +180,26 @@ class Storage {
   }
 
   /**
+   * @param {*} value
+   */
+  setInitialReferrer(value){
+    this.storage.set(
+      defaults.page_storage_init_referrer,
+      this.encryptValue(this.stringify(value))
+    );
+  }
+
+  /**
+   * @param {*} value
+   */
+  setInitialReferringDomain(value){
+    this.storage.set(
+      defaults.page_storage_init_referring_domain,
+      this.encryptValue(this.stringify(value))
+    );
+  }
+
+  /**
    *
    * @param {*} key
    */
@@ -223,6 +249,24 @@ class Storage {
   getAnonymousId() {
     return this.parse(
       this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
+    );
+  }
+
+  /**
+   * get stored initial referrer
+   */
+  getInitialReferrer(value){
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.page_storage_init_referrer))
+    );
+  }
+
+  /**
+   * get stored initial referring domain
+   */
+  getInitialReferringDomain(value){
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.page_storage_init_referring_domain))
     );
   }
 

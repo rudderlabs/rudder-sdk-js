@@ -1,5 +1,7 @@
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
 import { parse } from "component-url";
+import get from "get-value";
+import set from "set-value";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
@@ -146,18 +148,33 @@ function getDefaultPageProperties() {
   const path = canonicalUrl
     ? parse(canonicalUrl).pathname
     : window.location.pathname;
-  const { referrer } = document;
+  //const { referrer } = document;
   const { search } = window.location;
   const { title } = document;
   const url = getUrl(search);
 
+  const referrer = getReferrer();
+  const referring_domain = getReferringDomain(referrer);
   return {
     path,
     referrer,
+    referring_domain,
     search,
     title,
     url,
   };
+}
+
+function getReferrer() {
+  return document.referrer || "$direct";
+}
+
+function getReferringDomain(referrer) {
+  var split = referrer.split("/");
+  if (split.length >= 3) {
+    return split[2];
+  }
+  return "";
 }
 
 function getUrl(search) {
@@ -490,6 +507,118 @@ function flattenJsonPayload(data) {
   return recurse(data, "", {});
 }
 /* ------- End FlattenJson ----------- */
+/**
+ *
+ * @param {*} message
+ * @param {*} destination
+ * @param {*} keys
+ * @param {*} exclusionFields
+ * Extract fileds from message with exclusions
+ * Pass the keys of message for extraction and
+ * exclusion fields to exlude and the payload to map into
+ * -----------------Example-------------------
+ * extractCustomFields(message,payload,["traits", "context.traits", "properties"], "email",
+ * ["firstName",
+ * "lastName",
+ * "phone",
+ * "title",
+ * "organization",
+ * "city",
+ * "region",
+ * "country",
+ * "zip",
+ * "image",
+ * "timezone"])
+ * -------------------------------------------
+ * The above call will map the fields other than the
+ * exlusion list from the given keys to the destination payload
+ *
+ */
+
+function extractCustomFields(message, destination, keys, exclusionFields) {
+  keys.map((key) => {
+    const messageContext = get(message, key);
+    if (messageContext) {
+      const objKeys = [];
+      Object.keys(messageContext).map((k) => {
+        if (exclusionFields.indexOf(k) < 0) {
+          objKeys.push(k);
+        }
+      });
+      objKeys.map((k) => {
+        if (!(typeof messageContext[k] === "undefined")) {
+          set(destination, k, get(messageContext, k));
+        }
+      });
+    }
+  });
+  return destination;
+}
+/**
+ *
+ * @param {*} message
+ *
+ * Use get-value to retrieve defined trais from message traits
+ */
+function getDefinedTraits(message) {
+  const traitsValue = {
+    userId:
+      get(message, "userId") ||
+      get(message, "context.traits.userId") ||
+      get(message, "anonymousId"),
+    email:
+      get(message, "context.traits.email") ||
+      get(message, "context.traits.Email") ||
+      get(message, "context.traits.E-mail"),
+    phone:
+      get(message, "context.traits.phone") ||
+      get(message, "context.traits.Phone"),
+    firstName:
+      get(message, "context.traits.firstName") ||
+      get(message, "context.traits.firstname") ||
+      get(message, "context.traits.first_name"),
+    lastName:
+      get(message, "context.traits.lastName") ||
+      get(message, "context.traits.lastname") ||
+      get(message, "context.traits.last_name"),
+    name:
+      get(message, "context.traits.name") ||
+      get(message, "context.traits.Name"),
+    city:
+      get(message, "context.traits.city") ||
+      get(message, "context.traits.City"),
+    country:
+      get(message, "context.traits.country") ||
+      get(message, "context.traits.Country"),
+  };
+
+  if (
+    !get(traitsValue, "name") &&
+    get(traitsValue, "firstName") &&
+    get(traitsValue, "lastName")
+  ) {
+    set(
+      traitsValue,
+      "name",
+      `${get(traitsValue, "firstName")} ${get(traitsValue, "lastName")}`
+    );
+  }
+  return traitsValue;
+}
+
+/**
+ * To check if a variable is storing object or not
+ */
+const isObject = (obj) => {
+  return type(obj) === "object";
+};
+
+/**
+ * To check if a variable is storing array or not
+ */
+const isArray = (obj) => {
+  return type(obj) === "array";
+};
 
 export {
   replacer,
@@ -508,4 +637,10 @@ export {
   type,
   flattenJsonPayload,
   checkReservedKeywords,
+  getReferrer,
+  getReferringDomain,
+  extractCustomFields,
+  getDefinedTraits,
+  isObject,
+  isArray,
 };
