@@ -15,6 +15,5 @@ local.properties
 package-lock.json
 build.sh
 publish.sh
-dist/
 coverage/**
 __tests__/prodsdk.js
