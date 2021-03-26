@@ -42,30 +42,28 @@ class BingAds {
   */
 
   track = (rudderElement) => {
-    const { type, properties } = rudderElement.message;
-    const { category, currency, value, label, revenue, total } = properties;
-    let event = {
-      ea: type
+    const { type, properties, event } = rudderElement.message;
+    const { category, currency, value, revenue, total } = properties;
+    let payload = {
+      ea: type,
+      el: event
     };
     if (category) {
-      event.ec = category;
+      payload.ec = category;
     }
     if (currency) {
-      event.gc = currency;
+      payload.gc = currency;
     }
     if (value) {
-      event.gv = value;
+      payload.gv = value;
     }
     if (revenue) {
-      event.gv = revenue;
+      payload.gv = revenue;
     }
     if (total) {
-      event.gv = total;
+      payload.gv = total;
     }
-    if (label) {
-      event.el = label;
-    }
-    window.uetq.push(event);
+    window.uetq.push(payload);
   }
 
   page = () => {
