@@ -10,6 +10,7 @@ const clientToServerNames = {
   CUSTOMERIO: "Customer IO",
   FACEBOOK_PIXEL: "Facebook Pixel",
   GTM: "Google Tag Manager",
+  GTM_SERVER_SIDE: "Google Tag Manager Server Side",
   HOTJAR: "Hotjar",
   HS: "HubSpot",
   INTERCOM: "Intercom",
