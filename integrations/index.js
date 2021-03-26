@@ -4,6 +4,7 @@ import * as Hotjar from "./Hotjar";
 import * as GoogleAds from "./GoogleAds";
 import * as VWO from "./VWO";
 import * as GoogleTagManager from "./GoogleTagManager";
+import * as GoogleTagManagerServerSide from "./GoogleTagManagerServerSide";
 import * as Braze from "./Braze";
 import * as INTERCOM from "./INTERCOM";
 import * as Keen from "./Keen";
@@ -37,6 +38,7 @@ const integrations = {
   GOOGLEADS: GoogleAds.default,
   VWO: VWO.default,
   GTM: GoogleTagManager.default,
+  GTMSERVERSIDE: GoogleTagManagerServerSide.default,
   BRAZE: Braze.default,
   INTERCOM: INTERCOM.default,
   KEEN: Keen.default,
