@@ -2,7 +2,7 @@ import logger from "../../utils/logUtil";
 
 class BingAds {
   constructor(config) {
-    this.apikey = config.apikey;
+    this.tagID = config.tagID;
   }
 
   loadBingadsScript = () => {
@@ -10,7 +10,7 @@ class BingAds {
       let f, n, i;
       w[u] = w[u] || [], f = () => {
         let o = {
-          ti: this.apikey
+          ti: this.tagID
         };
         o.q = w[u], w[u] = new UET(o);
       }, n = d.createElement(t), n.src = r, n.async = 1, n.onload = n.onreadystatechange = function() {
@@ -44,7 +44,7 @@ class BingAds {
   track = (rudderElement) => {
     const { type, properties, event } = rudderElement.message;
     const { category, currency, value, revenue, total } = properties;
-    let payload = {
+    const payload = {
       ea: type,
       el: event
     };
