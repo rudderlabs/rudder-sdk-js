@@ -28,7 +28,8 @@ const clientToServerNames = {
   APPCUES: "Appcues",
   POSTHOG: "PostHog",
   KLAVIYO: "Klaviyo",
-  CLEVERTAP: "Clevertap"
+  CLEVERTAP: "Clevertap",
+  BINGADS: "BingAds"
 };
 
 export { clientToServerNames };
