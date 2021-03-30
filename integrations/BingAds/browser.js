@@ -3,6 +3,7 @@ import logger from "../../utils/logUtil";
 class BingAds {
   constructor(config) {
     this.tagID = config.tagID;
+    this.name = "BINGADS";
   }
 
   loadBingadsScript = () => {
