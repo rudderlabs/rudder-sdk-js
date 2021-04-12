@@ -6,6 +6,7 @@ import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
 import { CONFIG_URL, ReservedPropertyKeywords } from "./constants";
+import Storage from "./storage";
 
 /**
  *
@@ -156,6 +157,8 @@ function getDefaultPageProperties() {
 
   const referrer = getReferrer();
   const referring_domain = getReferringDomain(referrer);
+  const initial_referrer = Storage.getInitialReferrer();
+  const initial_referring_domain = Storage.getInitialReferringDomain();
   return {
     path,
     referrer,
@@ -163,7 +166,9 @@ function getDefaultPageProperties() {
     search,
     title,
     url,
-    tab_url
+    tab_url,
+    initial_referrer,
+    initial_referring_domain
   };
 }
 
