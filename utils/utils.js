@@ -153,6 +153,7 @@ function getDefaultPageProperties() {
   const { search } = window.location;
   const { title } = document;
   const url = getUrl(search);
+  const tab_url = window.location.href;
 
   const referrer = getReferrer();
   const referring_domain = getReferringDomain(referrer);
@@ -165,6 +166,7 @@ function getDefaultPageProperties() {
     search,
     title,
     url,
+    tab_url,
     initial_referrer,
     initial_referring_domain
   };
