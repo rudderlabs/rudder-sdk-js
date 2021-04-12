@@ -809,8 +809,6 @@ class Analytics {
   getPageProperties(properties, options) {
     const defaultPageProperties = getDefaultPageProperties();
     const optionPageProperties = options && options.page ? options.page : {};
-    defaultPageProperties.initial_referrer = this.storage.getInitialReferrer();
-    defaultPageProperties.initial_referring_domain = this.storage.getInitialReferringDomain();
     for (const key in defaultPageProperties) {
       if (properties[key] === undefined) {
         properties[key] =
