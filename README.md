@@ -10,7 +10,6 @@
 | **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If you still wish to use it for your project, refer to [this repository](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). |
 | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
-
 # What is RudderStack?
 
 [RudderStack](https://rudderstack.com/) is a **customer data pipeline** tool for collecting, routing and processing data from your websites, apps, cloud tools, and data warehouse.
@@ -100,7 +99,6 @@ You can also execute the min file in async/defer way, like:
 | **IMPORTANT**: We are moving our SDK to a different path from [https://cdn.rudderlabs.com/rudder-analytics.min.js](https://cdn.rudderlabs.com/rudder-analytics.min.js) to [https://cdn.rudderlabs.com/v1/rudder-analytics.min.js](https://cdn.rudderlabs.com/v1/rudder-analytics.min.js). The earlier path may not be maintained in coming releases. |
 | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
-
 ### Alternative Installation using NPM
 
 While we recommended you use the JavaScript snippet above to use the SDK in your websites, you can also use this [NPM module](https://www.npmjs.com/package/rudder-sdk-js) to package RudderStack directly into your project.
@@ -111,8 +109,8 @@ While we recommended you use the JavaScript snippet above to use the SDK in your
 
 ```
 import * as rudderanalytics from "rudder-sdk-js"
-rudderanalytics.ready(() => {console.log("we are all set!!!")})
 rudderanalytics.load(YOUR_WRITE_KEY, DATA_PLANE_URL)
+rudderanalytics.ready(() => {console.log("we are all set!!!")})
 export  {  rudderanalytics  }
 ```
 
@@ -224,7 +222,6 @@ rudderanalytics.ready(
 | **For detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, check out our [docs](https://docs.rudderlabs.com/sdk-integration-guide/getting-started-with-javascript-sdk).** |
 | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
-
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#querystring-api)Querystring API
 
 RudderStack's Querystring API allows you to trigger `track`, `identify` calls using query parameters. If you pass the following parameters in the URL, then it will trigger the corresponding SDK API call.
@@ -296,7 +293,6 @@ We will be adding similar callbacks for APIs such as `track`, `page`, `identify`
 
 | **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If you still wish to use it for your project, refer to [this repository](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). |
 | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#self-hosted-control-plane)Self-Hosted Control Plane
 
