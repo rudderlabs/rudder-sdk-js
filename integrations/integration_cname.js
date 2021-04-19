@@ -62,7 +62,11 @@ const commonNames = {
   KLAVIYO: "KLAVIYO",
   Klaviyo: "KLAVIYO",
   CLEVERTAP: "CLEVERTAP",
-  Clevertap: "CLEVERTAP"
+  Clevertap: "CLEVERTAP",
+  PinterestTag: "PINTEREST_TAG",
+  Pinterest_Tag: "PINTEREST_TAG",
+  PINTERESTTAG: "PINTEREST_TAG",
+  PINTEREST_TAG: "PINTEREST_TAG",
 };
 
 export { commonNames };
