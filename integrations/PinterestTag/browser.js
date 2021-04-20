@@ -1,5 +1,16 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
+import {
+  eventMapping,
+  searchPropertyMapping,
+  productPropertyMapping,
+  pinterestPropertySupport,
+} from "./propertyMappingConfig";
+import {
+  flattenJsonPayload,
+  isDefinedAndNotNull,
+  getDataFromSource,
+} from "../../utils/utils";
 
 export default class PinterestTag {
   constructor(config, analytics) {
@@ -7,7 +18,7 @@ export default class PinterestTag {
     this.tagId = !config.tagId ? "" : config.tagId;
     this.enhancedMatch = config.enhancedMatch || false;
     this.customProperties = config.customProperties || [];
-    this.eventsMapping = config.eventsMapping || [];
+    this.userDefinedEventsMapping = config.eventsMapping || [];
     this.name = "PINTEREST_TAG";
     logger.debug("config", config);
   }
@@ -64,16 +75,100 @@ export default class PinterestTag {
     window.pintrk("track", eventName, pinterestObject);
   }
 
-  generatePinterestObject() {
+  getMappingObject(properties, mappings) {
+    let pinterestObject = {};
+    mappings.forEach((mapping) => {
+      Object.keys(properties).forEach((p) => {
+        pinterestObject = {
+          ...getDataFromSource(mapping.src, mapping.dest, p, properties),
+          ...pinterestObject,
+        };
+      });
+    });
+    return pinterestObject;
+  }
+
+  getRawPayload(properties) {
+    const data = {};
+    Object.keys(properties).forEach((p) => {
+      if (pinterestPropertySupport.includes(p)) {
+        data[p] = properties[p];
+      }
+    });
+    if (isDefinedAndNotNull(properties[searchPropertyMapping.src])) {
+      data[searchPropertyMapping.dest] = properties[searchPropertyMapping.src];
+    }
+    return data;
+  }
+
+  generatePinterestObject(properties, hasEmptyProducts = false) {
     // Get custom property mapping array list
     // Now loop over this array list and generate new property to be sent to pinterest
+    const pinterestObject = this.getRawPayload(properties);
+
+    let { products } = properties;
+    if (hasEmptyProducts && !products) {
+      products = [properties];
+    }
+    if (products) {
+      const lineItems = [];
+      products.forEach((p) => {
+        const product = this.getMappingObject(p, productPropertyMapping);
+        lineItems.push(product);
+      });
+      pinterestObject.line_items = lineItems;
+    }
+
+    if (this.customProperties.length > 0) {
+      const flattenPayload = flattenJsonPayload(properties);
+      this.customProperties.forEach((custom) => {
+        // This check fails if user is sending boolean value as false
+        // Adding toString because if the property value is boolean then it never gets reflected in destination
+        if (isDefinedAndNotNull(flattenPayload[custom.properties])) {
+          pinterestObject[custom.properties] = flattenPayload[
+            custom.properties
+          ].toString();
+        }
+      });
+    }
+    return pinterestObject;
+  }
+
+  getDestinationEventName(event) {
+    const destinationEvent = eventMapping.find((p) =>
+      p.src.includes(event.toLowerCase())
+    );
+    if (!destinationEvent && this.userDefinedEventsMapping.length > 0) {
+      const userDefinedEvent = this.userDefinedEventsMapping.find(
+        (e) => e.pinterestEvent.toLowerCase() === event.toLowerCase()
+      );
+      if (userDefinedEvent && userDefinedEvent.rudderEvent) {
+        return {
+          dest: userDefinedEvent.pinterestEvent,
+          isUserDefinedEvent: true,
+        };
+      }
+    }
+    return destinationEvent;
   }
 
   track(rudderElement) {
-    const { event } = rudderElement.message;
-    const { properties } = rudderElement.message;
-    const pinterestObject = this.generatePinterestObject(properties);
-    this.sendPinterestTrack(event, pinterestObject);
+    if (!rudderElement.message) {
+      return;
+    }
+    const { properties, event } = rudderElement.message;
+    let eventName = event;
+    const destEvent = this.getDestinationEventName(event);
+    if (isDefinedAndNotNull(destEvent)) {
+      eventName = destEvent.dest;
+    }
+    const pinterestObject = this.generatePinterestObject(
+      properties,
+      destEvent?.hasEmptyProducts,
+      destEvent?.isUserDefinedEvent
+    );
+
+    this.sendPinterestTrack(eventName, pinterestObject);
   }
 
   page(rudderElement) {

@@ -21,6 +21,9 @@ function replacer(key, value) {
   return value;
 }
 
+const isDefined = (x) => x !== undefined;
+const isNotNull = (x) => x !== null;
+const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
 /**
  *
  * Utility function for UUID genration
@@ -620,6 +623,27 @@ const isArray = (obj) => {
   return type(obj) === "array";
 };
 
+const getDataFromSource = (src, dest, key, properties) => {
+  const data = {};
+  if (isArray(src)) {
+    for (let index = 0; index < src.length; index += 1) {
+      if (src[index] === key.toLowerCase()) {
+        data[dest] = properties[key].toString();
+        if (data) {
+          // return only if the value is valid.
+          // else look for next possible source in precedence
+          return data;
+        }
+      }
+    }
+  } else if (typeof src === "string")
+    if (src === key.toLowerCase()) {
+      data[dest] = properties[key].toString();
+      // eslint-disable-next-line no-param-reassign
+    }
+  return data;
+};
+
 export {
   replacer,
   generateUUID,
@@ -643,4 +667,6 @@ export {
   getDefinedTraits,
   isObject,
   isArray,
+  isDefinedAndNotNull,
+  getDataFromSource,
 };
