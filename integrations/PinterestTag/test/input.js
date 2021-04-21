@@ -152,3 +152,29 @@ rudderanalytics.track("Order Completed", {
     },
   ],
 });
+// This event will map to Signup for Pinterest because there is a property mapping associated  with it.
+rudderanalytics.track("register", {
+  checkout_id: "12345",
+  order_id: "1234",
+  isUserAuthenticated: true, // custom properties
+  isDomainLocked: false, // custom properties
+  coupon: "ImagePro",
+  currency: "USD",
+  products: [
+    {
+      product_id: "123",
+      sku: "G-32",
+      name: "Monopoly",
+      price: 14,
+      quantity: 1,
+      category: "Games",
+    },
+    {
+      sku: "F-32-sku-value",
+      name: "UNO",
+      price: 3.45,
+      quantity: 2,
+      category: "Games",
+    },
+  ],
+});

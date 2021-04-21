@@ -37,6 +37,7 @@ export default class PinterestTag {
         r.parentNode.insertBefore(t, r);
       }
     })("https://s.pinimg.com/ct/core.js");
+
   }
 
   handleEnhancedMatch() {
@@ -169,7 +170,7 @@ export default class PinterestTag {
     );
     if (!destinationEvent && this.userDefinedEventsMapping.length > 0) {
       const userDefinedEvent = this.userDefinedEventsMapping.find(
-        (e) => e.pinterestEvent.toLowerCase() === event.toLowerCase()
+        (e) => e.rudderEvent.toLowerCase() === event.toLowerCase()
       );
       if (userDefinedEvent && userDefinedEvent.rudderEvent) {
         return {

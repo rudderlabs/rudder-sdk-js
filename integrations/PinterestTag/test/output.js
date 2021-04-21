@@ -98,3 +98,32 @@ pintrk("track", "Checkout", {
   isUserAuthenticated: "true",
   isDomainLocked: "false",
 });
+
+pintrk(
+  "track",
+  "Signup",
+
+  {
+    order_id: "1234",
+    coupon: "ImagePro",
+    currency: "USD",
+    line_items: [
+      {
+        product_quantity: "1",
+        product_category: "Games",
+        product_price: "14",
+        product_name: "Monopoly",
+        product_id: "123",
+      },
+      {
+        product_quantity: "2",
+        product_category: "Games",
+        product_price: "3.45",
+        product_name: "UNO",
+        product_id: "F-32-sku-value",
+      },
+    ],
+    isUserAuthenticated: "true",
+    isDomainLocked: "false",
+  }
+);
