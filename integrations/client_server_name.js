@@ -29,7 +29,8 @@ const clientToServerNames = {
   POSTHOG: "PostHog",
   KLAVIYO: "Klaviyo",
   CLEVERTAP: "Clevertap",
-  BINGADS: "BingAds"
+  BINGADS: "BingAds",
+  PINTEREST_TAG: "PinterestTag",
 };
 
 export { clientToServerNames };
