@@ -218,7 +218,7 @@ export default class PinterestTag {
   identify() {
     const email = this.analytics.userTraits && this.analytics.userTraits.email;
     if (email) {
-      window.pintrk("set", { np: "rudderstack", em: email });
+      window.pintrk("set", { em: email });
     }
   }
 }
