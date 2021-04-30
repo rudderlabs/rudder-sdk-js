@@ -37,7 +37,6 @@ export default class PinterestTag {
         r.parentNode.insertBefore(t, r);
       }
     })("https://s.pinimg.com/ct/core.js");
-
   }
 
   handleEnhancedMatch() {
@@ -142,8 +141,12 @@ export default class PinterestTag {
       pinterestObject.line_items = lineItems;
     }
 
-    if (this.customProperties.length > 0) {
+    if (
+      this.customProperties.length > 0 &&
+      Object.keys(properties).length > 0
+    ) {
       const flattenPayload = flattenJsonPayload(properties);
+
       this.customProperties.forEach((custom) => {
         // This check fails if user is sending boolean value as false
         // Adding toString because if the property value is boolean then it never gets reflected in destination
@@ -170,11 +173,11 @@ export default class PinterestTag {
     );
     if (!destinationEvent && this.userDefinedEventsMapping.length > 0) {
       const userDefinedEvent = this.userDefinedEventsMapping.find(
-        (e) => e.rudderEvent.toLowerCase() === event.toLowerCase()
+        (e) => e.from.toLowerCase() === event.toLowerCase()
       );
-      if (userDefinedEvent && userDefinedEvent.rudderEvent) {
+      if (userDefinedEvent && userDefinedEvent.to) {
         return {
-          dest: userDefinedEvent.pinterestEvent,
+          dest: userDefinedEvent.to,
           isUserDefinedEvent: true,
         };
       }
@@ -183,7 +186,7 @@ export default class PinterestTag {
   }
 
   track(rudderElement) {
-    if (!rudderElement.message) {
+    if (!rudderElement.message || !rudderElement.message.event) {
       return;
     }
     const { properties, event } = rudderElement.message;
