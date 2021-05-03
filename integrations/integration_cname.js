@@ -68,6 +68,8 @@ const commonNames = {
   Pinterest_Tag: "PINTEREST_TAG",
   PINTERESTTAG: "PINTEREST_TAG",
   PINTEREST_TAG: "PINTEREST_TAG",
+  pinterest: "PINTEREST_TAG",
+  Pinterest: "PINTEREST_TAG",
 };
 
 export { commonNames };
