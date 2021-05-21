@@ -41,6 +41,7 @@ const commonNames = {
   Optimizely: "OPTIMIZELY",
   FULLSTORY: "FULLSTORY",
   Fullstory: "FULLSTORY",
+  FullStory: "FULLSTORY",
   BUGSNAG: "BUGSNAG",
   TVSQUARED: "TVSQUARED",
   "Google Analytics 4": "GA4",
@@ -69,6 +70,8 @@ const commonNames = {
   PINTERESTTAG: "PINTEREST_TAG",
   PINTEREST_TAG: "PINTEREST_TAG",
   pinterest: "PINTEREST_TAG",
+  PinterestAds: "PINTEREST_TAG",
+  Pinterest_Ads: "PINTEREST_TAG",
   Pinterest: "PINTEREST_TAG",
 };
 
