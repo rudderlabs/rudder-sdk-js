@@ -12,6 +12,7 @@ class AdobeAnalytics {
     this.sslHeartbeat = config.sslHeartbeat;
     this.heartbeatTrackingServerUrl = config.heartbeatTrackingServerUrl || "";
     this.eventsToTypes = config.eventsToTypes || [];
+    this.marketingCloudOrgId = config.marketingCloudOrgId || "";
     this.name = "ADOBE_ANALYTICS";
   }
 
@@ -48,7 +49,6 @@ class AdobeAnalytics {
   initAdobeAnalyticsClient = () => {
     const { s } = window;
     s.trackingServer = s.trackingServer || this.trackingServerUrl; // need to add tracking server secure url
-    this.marketingCloudOrgId = "00E276AB581D06200A495E6B@AdobeOrg";
     if (
       this.marketingCloudOrgId &&
       window.Visitor &&
