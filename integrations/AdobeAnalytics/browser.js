@@ -1,9 +1,12 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
 import each from "@ndhoule/each";
-import getHashFromArray from "./util";
+import { toIso, getHashFromArray } from "./util";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
+
+const dynamicKeys = [];
 
 class AdobeAnalytics {
   constructor(config) {
@@ -12,7 +15,11 @@ class AdobeAnalytics {
     this.sslHeartbeat = config.sslHeartbeat;
     this.heartbeatTrackingServerUrl = config.heartbeatTrackingServerUrl || "";
     this.eventsToTypes = config.eventsToTypes || [];
-    this.marketingCloudOrgId = config.marketingCloudOrgId || "";
+    this.marketingCloudOrgId = config.marketingCloudOrgId || ""; // to be added
+    this.dropVisitorId = config.dropVisitorId; // to be added
+    this.trackingServerSecureUrl = config.trackingServerSecureUrl || ""; // to be added
+    this.timestampHybridOption = config.timestampHybridOption; // to be added
+    this.preferVisitorId = config.preferVisitorId; // to be added
     this.name = "ADOBE_ANALYTICS";
   }
 
@@ -78,6 +85,72 @@ class AdobeAnalytics {
       window.ADB.push !== Array.prototype.push &&
       window.s_gi
     );
+  };
+
+  page = (rudderElement) => {
+    // delete existing keys from widnow.s
+    console.log("dynamic Keys initially");
+    console.log(dynamicKeys);
+    this.clearWindowSKeys(dynamicKeys);
+    console.log("dynamic Keys after clear");
+    console.log(dynamicKeys);
+
+    // The pageName variable typically stores the name of a given page
+    let name;
+    if (rudderElement.message.name) {
+      name = rudderElement.message.name;
+    } else if (rudderElement.message.properties) {
+      name = rudderElement.message.properties.name;
+    }
+
+    const pageName = name ? `Viewed Page ${name}` : "Viewed Page";
+
+    window.s.pageName = pageName;
+
+    // The referrer variable overrides the automatically collected referrer in reports.
+    let referrer;
+    let url;
+    if (rudderElement.message.context && rudderElement.message.context.page) {
+      referrer = rudderElement.message.context.page.referrer;
+      url = rudderElement.message.context.page.url;
+    } else if (rudderElement.message.properties) {
+      referrer = rudderElement.message.properties.referrer;
+      url = rudderElement.message.properties.url;
+    }
+
+    window.s.referrer = referrer;
+
+    // if dropVisitorId is true visitorID will not be set
+    /** Cross-device visitor identification uses the visitorID variable to associate a user across devices.
+     *  The visitorID variable takes the highest priority when identifying unique visitors.
+     * Visitor deduplication is not retroactive: */
+    if (!this.dropVisitorId) {
+      const { userId } = rudderElement.message;
+      if (userId) {
+        if (!this.timestampHybridOption) {
+          window.s.visitorID = userId;
+        }
+        // If timestamp hybrid option and visitor id preferred is on visitorID is set
+        if (this.timestampHybridOption && this.preferVisitorId) {
+          window.s.visitorID = userId;
+        }
+      }
+    }
+    // update values in window.s
+    this.updateWindowSKeys(pageName, "events", dynamicKeys);
+    this.updateWindowSKeys(url, "pageURL", dynamicKeys);
+    this.updateCommonWindowSKeys(rudderElement);
+    console.log("dynamic Keys after setting");
+    console.log(dynamicKeys);
+    this.calculateTimestamp(rudderElement);
+
+    // TODO: Mapping variables
+
+    /** The t() method is an important core component to Adobe Analytics. It takes all Analytics variables defined on the page,
+     *  compiles them into an image request, and sends that data to Adobe data collection servers.
+     * */
+
+    window.s.t();
   };
 
   track = (rudderElement) => {
@@ -182,13 +255,8 @@ class AdobeAnalytics {
   hearbeatSessionStart = (rudderElement) => {
     const { va } = window.ADB;
     const { properties } = rudderElement.message;
-    const {
-      livestream,
-      title,
-      asset_id,
-      total_length,
-      session_id,
-    } = properties;
+    const { livestream, title, asset_id, total_length, session_id } =
+      properties;
     const streamType = livestream
       ? va.MediaHeartbeat.StreamType.LIVE
       : va.MediaHeartbeat.StreamType.VOD;
@@ -211,13 +279,8 @@ class AdobeAnalytics {
     this.populatHeartbeat(rudderElement);
     const { properties } = rudderElement.message;
     const { va } = window.ADB;
-    const {
-      session_id,
-      chapter_name,
-      position,
-      length,
-      start_time,
-    } = properties;
+    const { session_id, chapter_name, position, length, start_time } =
+      properties;
 
     this.mediaHeartbeats[session_id || "default"].hearbeat.trackPlay();
     const contextData = this.customVideoMetadataContext(rudderElement);
@@ -475,6 +538,50 @@ class AdobeAnalytics {
       va.MediaHeartbeat.MediaObjectKey.StandardVideoMetadata,
       stdVidMeta
     );
+  };
+
+  clearWindowSKeys = (presentKeys) => {
+    each((keys) => {
+      delete window.s[keys];
+    }, presentKeys);
+    presentKeys.length = 0;
+  };
+
+  updateWindowSKeys = (value, key, dynamicKeysArray) => {
+    if (key && value !== undefined && value !== null && value !== "") {
+      dynamicKeysArray.push(key);
+      window.s[key] = value.toString();
+    }
+  };
+
+  updateCommonWindowSKeys = (rudderElement) => {
+    const { properties } = rudderElement.message;
+    const { context } = rudderElement.message;
+    let campaign;
+    if (context && context.campaign) {
+      campaign = context.campaign.name;
+    } else {
+      campaign = properties.campaign;
+    }
+    const channel = rudderElement.message.channel || properties.channel;
+    const { state, zip } = properties;
+
+    this.updateWindowSKeys(channel, "channel", dynamicKeys);
+    this.updateWindowSKeys(campaign, "campaign", dynamicKeys);
+    this.updateWindowSKeys(state, "state", dynamicKeys);
+    this.updateWindowSKeys(zip, "zip", dynamicKeys);
+  };
+
+  calculateTimestamp = (rudderElement) => {
+    const { properties } = rudderElement.message;
+    const timestamp = properties.originalTimestamp || properties.timestamp;
+    // he s.timestamp variable is a string containing the date and time of the hit. Valid timestamp formats include ISO 8601 and Unix time.
+    // if (typeof timestamp !== "string") {
+    //   timestamp = toIso(timestamp);
+    // }
+    if (this.timestampHybridOption && !this.preferVisitorId) {
+      this.updateWindowSKeys(timestamp, "timestamp");
+    }
   };
 }
 

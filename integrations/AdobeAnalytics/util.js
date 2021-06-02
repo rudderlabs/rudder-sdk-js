@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 function isEmpty(value) {
   return (
     value === undefined ||
@@ -23,4 +25,7 @@ const getHashFromArray = (
   return hashMap;
 };
 
-export default getHashFromArray;
+const toIso = (stringTimestamp) => {
+  return new Date(stringTimestamp).toISOString();
+};
+export { toIso, getHashFromArray };
