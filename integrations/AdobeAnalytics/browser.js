@@ -1,6 +1,3 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable camelcase */
 import each from "@ndhoule/each";
 import { toIso, getHashFromArray } from "./util";
 import ScriptLoader from "../ScriptLoader";
@@ -23,7 +20,7 @@ class AdobeAnalytics {
     this.name = "ADOBE_ANALYTICS";
   }
 
-  init = () => {
+  init() {
     // check if was already initialised. If yes then use already existing.
     window.s_account = window.s_account || this.reportSuiteIds;
     window.rudderHBPlayheads = {};
@@ -51,9 +48,9 @@ class AdobeAnalytics {
         1000
       );
     }
-  };
+  }
 
-  initAdobeAnalyticsClient = () => {
+  initAdobeAnalyticsClient() {
     const { s } = window;
     s.trackingServer = s.trackingServer || this.trackingServerUrl; // need to add tracking server secure url
     if (
@@ -67,27 +64,27 @@ class AdobeAnalytics {
           window.s.trackingServerSecure || this.trackingServerSecureUrl,
       });
     }
-  };
+  }
 
-  isLoaded = () => {
+  isLoaded() {
     logger.debug("in AdobeAnalytics isLoaded");
     return !!(
       window.ADB &&
       window.ADB.push !== Array.prototype.push &&
       window.s_gi
     );
-  };
+  }
 
-  isReady = () => {
+  isReady() {
     logger.debug("in AdobeAnalytics isReady");
     return !!(
       window.ADB &&
       window.ADB.push !== Array.prototype.push &&
       window.s_gi
     );
-  };
+  }
 
-  page = (rudderElement) => {
+  page(rudderElement) {
     // delete existing keys from widnow.s
     console.log("dynamic Keys initially");
     console.log(dynamicKeys);
@@ -151,9 +148,9 @@ class AdobeAnalytics {
      * */
 
     window.s.t();
-  };
+  }
 
-  track = (rudderElement) => {
+  track(rudderElement) {
     if (this.heartbeatTrackingServerUrl) {
       const eventsToTypesHashmap = getHashFromArray(this.eventsToTypes);
       const { event } = rudderElement.message;
@@ -207,9 +204,9 @@ class AdobeAnalytics {
         }
       }
     }
-  };
+  }
 
-  initHeartbeat = (rudderElement) => {
+  initHeartbeat(rudderElement) {
     console.log("inside");
     const that = this;
     const { va } = window.ADB;
@@ -250,9 +247,9 @@ class AdobeAnalytics {
     };
     this.createQos(rudderElement);
     this.hearbeatSessionStart(rudderElement);
-  };
+  }
 
-  hearbeatSessionStart = (rudderElement) => {
+  hearbeatSessionStart(rudderElement) {
     const { va } = window.ADB;
     const { properties } = rudderElement.message;
     const { livestream, title, asset_id, total_length, session_id } =
@@ -273,9 +270,9 @@ class AdobeAnalytics {
       mediaObj,
       contextData
     );
-  };
+  }
 
-  heartbeatVideoStart = (rudderElement) => {
+  heartbeatVideoStart(rudderElement) {
     this.populatHeartbeat(rudderElement);
     const { properties } = rudderElement.message;
     const { va } = window.ADB;
@@ -299,17 +296,17 @@ class AdobeAnalytics {
       );
       this.mediaHeartbeats[session_id || "default"].chapterInProgress = true;
     }
-  };
+  }
 
-  heartbeatVideoPaused = (rudderElement) => {
+  heartbeatVideoPaused(rudderElement) {
     this.populatHeartbeat(rudderElement);
     const { properties } = rudderElement.message;
     this.mediaHeartbeats[
       properties.session_id || "default"
     ].hearbeat.trackPause();
-  };
+  }
 
-  heartbeatVideoComplete = (rudderElement) => {
+  heartbeatVideoComplete(rudderElement) {
     this.populatHeartbeat(rudderElement);
     const { va } = window.ADB;
     const { properties } = rudderElement.message;
@@ -319,9 +316,9 @@ class AdobeAnalytics {
     this.mediaHeartbeats[
       properties.session_id || "default"
     ].chapterInProgress = false;
-  };
+  }
 
-  heartbeatSessionEnd = (rudderElement) => {
+  heartbeatSessionEnd(rudderElement) {
     this.populatHeartbeat(rudderElement);
     const { properties } = rudderElement.message;
     const { session_id } = properties;
@@ -330,9 +327,9 @@ class AdobeAnalytics {
 
     delete this.mediaHeartbeats[session_id || "default"];
     delete this.adBreakCounts[session_id || "default"];
-  };
+  }
 
-  heartbeatAdStarted = (rudderElement) => {
+  heartbeatAdStarted(rudderElement) {
     const { va } = window.ADB;
     const { properties } = rudderElement.message;
     const {
@@ -371,9 +368,9 @@ class AdobeAnalytics {
       adObject,
       content || {}
     );
-  };
+  }
 
-  heartbeatAdCompleted = (rudderElement) => {
+  heartbeatAdCompleted(rudderElement) {
     const { va } = window.ADB;
     const { properties } = rudderElement.message;
     const { session_id } = properties;
@@ -387,9 +384,9 @@ class AdobeAnalytics {
       va.MediaHeartbeat.Event.AdBreakComplete
     );
     this.adBreakProgress = false;
-  };
+  }
 
-  heartbeatAdSkipped = (rudderElement) => {
+  heartbeatAdSkipped(rudderElement) {
     const { va } = window.ADB;
     const { properties } = rudderElement.message;
     const { session_id } = properties;
@@ -403,9 +400,9 @@ class AdobeAnalytics {
       va.MediaHeartbeat.Event.AdBreakComplete
     );
     this.adBreakProgress = false;
-  };
+  }
 
-  heartbeatSeekStarted = (rudderElement) => {
+  heartbeatSeekStarted(rudderElement) {
     this.populatHeartbeat(rudderElement);
     const { va } = window.ADB;
     const { properties } = rudderElement.message;
@@ -413,9 +410,9 @@ class AdobeAnalytics {
     this.mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
       va.MediaHeartbeat.Event.SeekStart
     );
-  };
+  }
 
-  heartbeatSeekCompleted = (rudderElement) => {
+  heartbeatSeekCompleted(rudderElement) {
     this.populatHeartbeat(rudderElement);
     const { va } = window.ADB;
     const { properties } = rudderElement.message;
@@ -423,9 +420,9 @@ class AdobeAnalytics {
     this.mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
       va.MediaHeartbeat.Event.SeekComplete
     );
-  };
+  }
 
-  heartbeatBufferStarted = (rudderElement) => {
+  heartbeatBufferStarted(rudderElement) {
     this.populatHeartbeat(rudderElement);
     const { va } = window.ADB;
     const { properties } = rudderElement.message;
@@ -433,19 +430,19 @@ class AdobeAnalytics {
     this.mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
       va.MediaHeartbeat.Event.BufferStart
     );
-  };
+  }
 
-  heartbeatQualityUpdated = (rudderElement) => {
+  heartbeatQualityUpdated(rudderElement) {
     this.createQos(rudderElement);
-  };
+  }
 
-  heartbeatUpdatePlayhead = (rudderElement) => {
+  heartbeatUpdatePlayhead(rudderElement) {
     this.playhead = rudderElement.message.properties
       ? rudderElement.message.properties.position
       : null;
-  };
+  }
 
-  heartbeatBufferCompleted = (rudderElement) => {
+  heartbeatBufferCompleted(rudderElement) {
     this.populatHeartbeat(rudderElement);
     const { va } = window.ADB;
     const { properties } = rudderElement.message;
@@ -453,9 +450,9 @@ class AdobeAnalytics {
     this.mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
       va.MediaHeartbeat.Event.BufferComplete
     );
-  };
+  }
 
-  createQos = (rudderElement) => {
+  createQos(rudderElement) {
     const { va } = window.ADB;
     const { properties } = rudderElement.message;
     const { bitrate, startupTime, fps, droppedFrames } = properties;
@@ -466,9 +463,9 @@ class AdobeAnalytics {
       fps || 0,
       droppedFrames || 0
     );
-  };
+  }
 
-  populatHeartbeat = (rudderElement) => {
+  populatHeartbeat(rudderElement) {
     const { properties } = rudderElement.message;
     const { session_id, channel, video_player } = properties;
     const mediaHeartbeat = this.mediaHeartbeats[session_id || "default"];
@@ -481,9 +478,9 @@ class AdobeAnalytics {
       mediaHeartbeatConfig.playerName =
         video_player || mediaHeartbeatConfig.playerName;
     }
-  };
+  }
 
-  customVideoMetadataContext = (rudderElement) => {
+  customVideoMetadataContext(rudderElement) {
     console.log(rudderElement);
     const contextData = {};
     const extractedProperties = [];
@@ -498,9 +495,9 @@ class AdobeAnalytics {
       contextData[key] = value;
     }, extractedProperties);
     return contextData;
-  };
+  }
 
-  standardVideoMetadata = (rudderElement, mediaObj) => {
+  standardVideoMetadata(rudderElement, mediaObj) {
     const { va } = window.ADB;
     const { properties } = rudderElement.message;
     const metaKeys = va.MediaHeartbeat.VideoMetadataKeys;
@@ -538,23 +535,23 @@ class AdobeAnalytics {
       va.MediaHeartbeat.MediaObjectKey.StandardVideoMetadata,
       stdVidMeta
     );
-  };
+  }
 
-  clearWindowSKeys = (presentKeys) => {
+  clearWindowSKeys(presentKeys) {
     each((keys) => {
       delete window.s[keys];
     }, presentKeys);
     presentKeys.length = 0;
-  };
+  }
 
-  updateWindowSKeys = (value, key, dynamicKeysArray) => {
+  updateWindowSKeys(value, key, dynamicKeysArray) {
     if (key && value !== undefined && value !== null && value !== "") {
       dynamicKeysArray.push(key);
       window.s[key] = value.toString();
     }
-  };
+  }
 
-  updateCommonWindowSKeys = (rudderElement) => {
+  updateCommonWindowSKeys(rudderElement) {
     const { properties } = rudderElement.message;
     const { context } = rudderElement.message;
     let campaign;
@@ -570,9 +567,9 @@ class AdobeAnalytics {
     this.updateWindowSKeys(campaign, "campaign", dynamicKeys);
     this.updateWindowSKeys(state, "state", dynamicKeys);
     this.updateWindowSKeys(zip, "zip", dynamicKeys);
-  };
+  }
 
-  calculateTimestamp = (rudderElement) => {
+  calculateTimestamp(rudderElement) {
     const { properties } = rudderElement.message;
     const timestamp = properties.originalTimestamp || properties.timestamp;
     // he s.timestamp variable is a string containing the date and time of the hit. Valid timestamp formats include ISO 8601 and Unix time.
@@ -582,7 +579,7 @@ class AdobeAnalytics {
     if (this.timestampHybridOption && !this.preferVisitorId) {
       this.updateWindowSKeys(timestamp, "timestamp");
     }
-  };
+  }
 }
 
 export default AdobeAnalytics;
