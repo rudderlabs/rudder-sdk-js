@@ -1,3 +1,6 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable camelcase */
+/* eslint-disable class-methods-use-this */
 import each from "@ndhoule/each";
 import { toIso, getHashFromArray } from "./util";
 import ScriptLoader from "../ScriptLoader";
@@ -15,8 +18,9 @@ class AdobeAnalytics {
     this.marketingCloudOrgId = config.marketingCloudOrgId || ""; // to be added
     this.dropVisitorId = config.dropVisitorId; // to be added
     this.trackingServerSecureUrl = config.trackingServerSecureUrl || ""; // to be added
-    this.timestampHybridOption = config.timestampHybridOption; // to be added
+    this.timestampOption = config.timestampOption; // to be added
     this.preferVisitorId = config.preferVisitorId; // to be added
+    this.rudderEventsToAdobeEvents = config.rudderEventsToAdobeEvents || [];
     this.name = "ADOBE_ANALYTICS";
   }
 
@@ -124,11 +128,11 @@ class AdobeAnalytics {
     if (!this.dropVisitorId) {
       const { userId } = rudderElement.message;
       if (userId) {
-        if (!this.timestampHybridOption) {
+        if (this.timestampOption === "disabled") {
           window.s.visitorID = userId;
         }
         // If timestamp hybrid option and visitor id preferred is on visitorID is set
-        if (this.timestampHybridOption && this.preferVisitorId) {
+        if (this.timestampHybridOption === "hybrid" && this.preferVisitorId) {
           window.s.visitorID = userId;
         }
       }
@@ -154,7 +158,8 @@ class AdobeAnalytics {
     if (this.heartbeatTrackingServerUrl) {
       const eventsToTypesHashmap = getHashFromArray(this.eventsToTypes);
       const { event } = rudderElement.message;
-      const heartBeatFunction = eventsToTypesHashmap[event];
+      const heartBeatFunction = eventsToTypesHashmap[event.toLowerCase()];
+      // process mapped video events
       if (heartBeatFunction) {
         switch (heartBeatFunction) {
           case "initHeartbeat":
@@ -203,8 +208,23 @@ class AdobeAnalytics {
             logger.error("No heartbeat function for this event");
         }
       }
+      // process unmapped ecomm events
+      const isProcessed = this.checkIfRudderEcommEvent(rudderElement);
+      // process mapped events
+      if (!isProcessed) {
+        const rudderEventsToAdobeEventsHashmap = getHashFromArray(
+          this.rudderEventsToAdobeEvents
+        );
+        if (rudderEventsToAdobeEventsHashmap[event.toLowerCase()]) {
+          this.processEvent(
+            rudderElement,
+            rudderEventsToAdobeEventsHashmap[event.toLowerCase()].trim()
+          );
+        }
+      }
     }
   }
+  // Handling Video Type Events
 
   initHeartbeat(rudderElement) {
     console.log("inside");
@@ -451,6 +471,78 @@ class AdobeAnalytics {
       va.MediaHeartbeat.Event.BufferComplete
     );
   }
+  // End of Handling Video Type Events
+
+  // Handling Ecomm Events
+
+  productViewHandle(rudderElement) {
+    this.clearWindowSKeys(dynamicKeys);
+    this.processEvent(rudderElement, "prodView");
+  }
+
+  productAddedHandle(rudderElement) {
+    this.clearWindowSKeys(dynamicKeys);
+    this.processEvent(rudderElement, "scAdd");
+  }
+
+  productRemovedHandle(rudderElement) {
+    this.clearWindowSKeys(dynamicKeys);
+    this.processEvent(rudderElement, "scRemove");
+  }
+
+  orderCompletedHandle(rudderElement) {
+    console.log("in order completed");
+    console.log(dynamicKeys);
+    this.clearWindowSKeys(dynamicKeys);
+    console.log("in order completed after clearing");
+    console.log(dynamicKeys);
+    const { properties } = rudderElement.message;
+    const { purchaseId, transactionId, order_id } = properties;
+    this.updateWindowSKeys(purchaseId || order_id, "purchaseID", dynamicKeys);
+    this.updateWindowSKeys(
+      transactionId || order_id,
+      "transactionID",
+      dynamicKeys
+    );
+
+    this.processEvent(rudderElement, "purchase");
+  }
+
+  cartViewedHandle(rudderElement) {
+    this.clearWindowSKeys(dynamicKeys);
+    this.processEvent(rudderElement, "scView");
+  }
+
+  cartOpenedHandle(rudderElement) {
+    this.clearWindowSKeys(dynamicKeys);
+    this.processEvent(rudderElement, "scOpen");
+  }
+
+  processEvent(rudderElement, adobeEventName) {
+    console.log(adobeEventName);
+    const { properties, event } = rudderElement.message;
+    const { currency } = properties;
+    // this.populateProductsWindowS(
+    //   event,
+    //   properties,
+    //   adobeEventName,
+    //   this.productIdentifier,
+    //   "", // merchant event
+    //   "" // merchant evars
+    // );
+    // TODO: need to add property mappings
+
+    this.updateCommonWindowSKeys(rudderElement);
+    this.calculateTimestamp(rudderElement);
+    if (currency !== "USD") {
+      this.updateWindowSKeys(currency, "currencyCode", dynamicKeys);
+    }
+
+    window.s.linkTrackVars = dynamicKeys.join(",");
+    this.updateWindowSKeys(adobeEventName, "events", dynamicKeys);
+
+    window.s.tl(true, "o", event);
+  }
 
   createQos(rudderElement) {
     const { va } = window.ADB;
@@ -576,9 +668,45 @@ class AdobeAnalytics {
     // if (typeof timestamp !== "string") {
     //   timestamp = toIso(timestamp);
     // }
-    if (this.timestampHybridOption && !this.preferVisitorId) {
-      this.updateWindowSKeys(timestamp, "timestamp");
+    if (
+      (this.timestampOption === "hybrid" && !this.preferVisitorId) ||
+      this.timestampOption === "enabled"
+    ) {
+      this.updateWindowSKeys(timestamp, "timestamp", dynamicKeys);
     }
+  }
+
+  checkIfRudderEcommEvent(rudderElement) {
+    const { event } = rudderElement.message;
+    let ret = true;
+    switch (event.toLowerCase()) {
+      case "product viewed":
+      case "product list viewed":
+        this.productViewHandle(rudderElement);
+        break;
+      case "product added":
+        this.productAddedHandle(rudderElement);
+        break;
+      case "product removed":
+        this.productRemovedHandle(rudderElement);
+        break;
+      case "order completed":
+        this.orderCompletedHandle(rudderElement);
+        break;
+      case "cart viewed":
+        this.cartViewedHandle(rudderElement);
+        break;
+      case "checkout started":
+        this.checkoutStartedHandle(rudderElement);
+        break;
+      case "cart opened":
+      case "opened cart":
+        this.cartOpenedHandle(rudderElement);
+        break;
+      default:
+        ret = false;
+    }
+    return ret;
   }
 }
 
