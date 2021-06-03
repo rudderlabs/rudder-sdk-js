@@ -1,4 +1,5 @@
 /* eslint-disable no-param-reassign */
+import _ from "lodash";
 
 function isEmpty(value) {
   return (
@@ -28,4 +29,18 @@ const getHashFromArray = (
 const toIso = (stringTimestamp) => {
   return new Date(stringTimestamp).toISOString();
 };
-export { toIso, getHashFromArray };
+
+const getDataFromContext = (contextMap, rudderElement) => {
+  const { context } = rudderElement.message;
+  const contextDataMap = {};
+  if (context) {
+    Object.keys(contextMap).forEach((value) => {
+      if (value) {
+        const val = _.get(context, value);
+        contextDataMap[contextMap[value]] = val;
+      }
+    });
+  }
+  return contextDataMap;
+};
+export { toIso, getHashFromArray, getDataFromContext };

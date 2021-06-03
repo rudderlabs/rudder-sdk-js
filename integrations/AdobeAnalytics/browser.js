@@ -1,8 +1,5 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable camelcase */
-/* eslint-disable class-methods-use-this */
 import each from "@ndhoule/each";
-import { toIso, getHashFromArray } from "./util";
+import { toIso, getHashFromArray, getDataFromContext } from "./util";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 
@@ -15,12 +12,17 @@ class AdobeAnalytics {
     this.sslHeartbeat = config.sslHeartbeat;
     this.heartbeatTrackingServerUrl = config.heartbeatTrackingServerUrl || "";
     this.eventsToTypes = config.eventsToTypes || [];
-    this.marketingCloudOrgId = config.marketingCloudOrgId || ""; // to be added
-    this.dropVisitorId = config.dropVisitorId; // to be added
-    this.trackingServerSecureUrl = config.trackingServerSecureUrl || ""; // to be added
-    this.timestampOption = config.timestampOption; // to be added
-    this.preferVisitorId = config.preferVisitorId; // to be added
+    this.marketingCloudOrgId = config.marketingCloudOrgId || "";
+    this.dropVisitorId = config.dropVisitorId;
+    this.trackingServerSecureUrl = config.trackingServerSecureUrl || "";
+    this.timestampOption = config.timestampOption;
+    this.preferVisitorId = config.preferVisitorId;
     this.rudderEventsToAdobeEvents = config.rudderEventsToAdobeEvents || [];
+    this.trackPageName = config.trackPageName; // to be added
+    this.contextDataMapping = config.contextDataMapping || []; // to be added
+    this.eVarMapping = config.eVarMapping || []; // to be added
+    this.hierMapping = config.hierMapping || []; // to be added
+    this.pageName = "";
     this.name = "ADOBE_ANALYTICS";
   }
 
@@ -72,29 +74,17 @@ class AdobeAnalytics {
 
   isLoaded() {
     logger.debug("in AdobeAnalytics isLoaded");
-    return !!(
-      window.ADB &&
-      window.ADB.push !== Array.prototype.push &&
-      window.s_gi
-    );
+    return !!(window.s_gi && window.s_gi !== Array.prototype.push);
   }
 
   isReady() {
     logger.debug("in AdobeAnalytics isReady");
-    return !!(
-      window.ADB &&
-      window.ADB.push !== Array.prototype.push &&
-      window.s_gi
-    );
+    return !!(window.s_gi && window.s_gi !== Array.prototype.push);
   }
 
   page(rudderElement) {
     // delete existing keys from widnow.s
-    console.log("dynamic Keys initially");
-    console.log(dynamicKeys);
     this.clearWindowSKeys(dynamicKeys);
-    console.log("dynamic Keys after clear");
-    console.log(dynamicKeys);
 
     // The pageName variable typically stores the name of a given page
     let name;
@@ -104,9 +94,9 @@ class AdobeAnalytics {
       name = rudderElement.message.properties.name;
     }
 
-    const pageName = name ? `Viewed Page ${name}` : "Viewed Page";
+    this.pageName = name ? `Viewed Page ${name}` : "Viewed Page";
 
-    window.s.pageName = pageName;
+    window.s.pageName = this.pageName;
 
     // The referrer variable overrides the automatically collected referrer in reports.
     let referrer;
@@ -138,15 +128,16 @@ class AdobeAnalytics {
       }
     }
     // update values in window.s
-    this.updateWindowSKeys(pageName, "events", dynamicKeys);
-    this.updateWindowSKeys(url, "pageURL", dynamicKeys);
+    this.updateWindowSKeys(this.pageName, "events");
+    this.updateWindowSKeys(url, "pageURL");
     this.updateCommonWindowSKeys(rudderElement);
-    console.log("dynamic Keys after setting");
-    console.log(dynamicKeys);
+
     this.calculateTimestamp(rudderElement);
 
     // TODO: Mapping variables
-
+    this.handleContextData(rudderElement);
+    this.handleEVars(rudderElement);
+    this.handleHier(rudderElement);
     /** The t() method is an important core component to Adobe Analytics. It takes all Analytics variables defined on the page,
      *  compiles them into an image request, and sends that data to Adobe data collection servers.
      * */
@@ -155,9 +146,10 @@ class AdobeAnalytics {
   }
 
   track(rudderElement) {
+    this.clearWindowSKeys(dynamicKeys);
+    const { event } = rudderElement.message;
     if (this.heartbeatTrackingServerUrl) {
       const eventsToTypesHashmap = getHashFromArray(this.eventsToTypes);
-      const { event } = rudderElement.message;
       const heartBeatFunction = eventsToTypesHashmap[event.toLowerCase()];
       // process mapped video events
       if (heartBeatFunction) {
@@ -208,26 +200,25 @@ class AdobeAnalytics {
             logger.error("No heartbeat function for this event");
         }
       }
-      // process unmapped ecomm events
-      const isProcessed = this.checkIfRudderEcommEvent(rudderElement);
-      // process mapped events
-      if (!isProcessed) {
-        const rudderEventsToAdobeEventsHashmap = getHashFromArray(
-          this.rudderEventsToAdobeEvents
+    }
+    // process unmapped ecomm events
+    const isProcessed = this.checkIfRudderEcommEvent(rudderElement);
+    // process mapped events
+    if (!isProcessed) {
+      const rudderEventsToAdobeEventsHashmap = getHashFromArray(
+        this.rudderEventsToAdobeEvents
+      );
+      if (rudderEventsToAdobeEventsHashmap[event.toLowerCase()]) {
+        this.processEvent(
+          rudderElement,
+          rudderEventsToAdobeEventsHashmap[event.toLowerCase()].trim()
         );
-        if (rudderEventsToAdobeEventsHashmap[event.toLowerCase()]) {
-          this.processEvent(
-            rudderElement,
-            rudderEventsToAdobeEventsHashmap[event.toLowerCase()].trim()
-          );
-        }
       }
     }
   }
   // Handling Video Type Events
 
   initHeartbeat(rudderElement) {
-    console.log("inside");
     const that = this;
     const { va } = window.ADB;
     const { message } = rudderElement;
@@ -283,7 +274,7 @@ class AdobeAnalytics {
       total_length || 0,
       streamType
     );
-    const contextData = this.customVideoMetadataContext(rudderElement);
+    const contextData = this.handleContextData(rudderElement);
     this.standardVideoMetadata(rudderElement, mediaObj);
 
     this.mediaHeartbeats[session_id || "default"].hearbeat.trackSessionStart(
@@ -300,7 +291,7 @@ class AdobeAnalytics {
       properties;
 
     this.mediaHeartbeats[session_id || "default"].hearbeat.trackPlay();
-    const contextData = this.customVideoMetadataContext(rudderElement);
+    const contextData = this.handleContextData(rudderElement);
 
     if (!this.mediaHeartbeats[session_id || "default"].chapterInProgress) {
       const chapterObj = va.MediaHeartbeat.createChapterObject(
@@ -491,19 +482,11 @@ class AdobeAnalytics {
   }
 
   orderCompletedHandle(rudderElement) {
-    console.log("in order completed");
-    console.log(dynamicKeys);
     this.clearWindowSKeys(dynamicKeys);
-    console.log("in order completed after clearing");
-    console.log(dynamicKeys);
     const { properties } = rudderElement.message;
     const { purchaseId, transactionId, order_id } = properties;
-    this.updateWindowSKeys(purchaseId || order_id, "purchaseID", dynamicKeys);
-    this.updateWindowSKeys(
-      transactionId || order_id,
-      "transactionID",
-      dynamicKeys
-    );
+    this.updateWindowSKeys(purchaseId || order_id, "purchaseID");
+    this.updateWindowSKeys(transactionId || order_id, "transactionID");
 
     this.processEvent(rudderElement, "purchase");
   }
@@ -519,28 +502,23 @@ class AdobeAnalytics {
   }
 
   processEvent(rudderElement, adobeEventName) {
-    console.log(adobeEventName);
     const { properties, event } = rudderElement.message;
     const { currency } = properties;
-    // this.populateProductsWindowS(
-    //   event,
-    //   properties,
-    //   adobeEventName,
-    //   this.productIdentifier,
-    //   "", // merchant event
-    //   "" // merchant evars
-    // );
+
     // TODO: need to add property mappings
 
     this.updateCommonWindowSKeys(rudderElement);
     this.calculateTimestamp(rudderElement);
     if (currency !== "USD") {
-      this.updateWindowSKeys(currency, "currencyCode", dynamicKeys);
+      this.updateWindowSKeys(currency, "currencyCode");
     }
 
-    window.s.linkTrackVars = dynamicKeys.join(",");
-    this.updateWindowSKeys(adobeEventName, "events", dynamicKeys);
+    this.updateWindowSKeys(adobeEventName, "events");
 
+    this.handleContextData(rudderElement);
+    this.handleEVars(rudderElement);
+
+    window.s.linkTrackVars = dynamicKeys.join(",");
     window.s.tl(true, "o", event);
   }
 
@@ -570,23 +548,6 @@ class AdobeAnalytics {
       mediaHeartbeatConfig.playerName =
         video_player || mediaHeartbeatConfig.playerName;
     }
-  }
-
-  customVideoMetadataContext(rudderElement) {
-    console.log(rudderElement);
-    const contextData = {};
-    const extractedProperties = [];
-    each((value, key) => {
-      if (!key || value === undefined || value === null || value === "") {
-        return;
-      }
-      if (typeof value === "boolean") {
-        contextData[key] = value.toString();
-        return;
-      }
-      contextData[key] = value;
-    }, extractedProperties);
-    return contextData;
   }
 
   standardVideoMetadata(rudderElement, mediaObj) {
@@ -636,16 +597,15 @@ class AdobeAnalytics {
     presentKeys.length = 0;
   }
 
-  updateWindowSKeys(value, key, dynamicKeysArray) {
+  updateWindowSKeys(value, key) {
     if (key && value !== undefined && value !== null && value !== "") {
-      dynamicKeysArray.push(key);
+      dynamicKeys.push(key);
       window.s[key] = value.toString();
     }
   }
 
   updateCommonWindowSKeys(rudderElement) {
-    const { properties } = rudderElement.message;
-    const { context } = rudderElement.message;
+    const { properties, type, context } = rudderElement.message;
     let campaign;
     if (context && context.campaign) {
       campaign = context.campaign.name;
@@ -655,10 +615,18 @@ class AdobeAnalytics {
     const channel = rudderElement.message.channel || properties.channel;
     const { state, zip } = properties;
 
-    this.updateWindowSKeys(channel, "channel", dynamicKeys);
-    this.updateWindowSKeys(campaign, "campaign", dynamicKeys);
-    this.updateWindowSKeys(state, "state", dynamicKeys);
-    this.updateWindowSKeys(zip, "zip", dynamicKeys);
+    this.updateWindowSKeys(channel, "channel");
+    this.updateWindowSKeys(campaign, "campaign");
+    this.updateWindowSKeys(state, "state");
+    this.updateWindowSKeys(zip, "zip");
+    const name = context.page ? context.page.name : undefined;
+
+    if (this.trackPageName && type === "track") {
+      this.updateWindowSKeys(
+        properties.pageName || this.pageName || name,
+        "pageName"
+      );
+    }
   }
 
   calculateTimestamp(rudderElement) {
@@ -672,7 +640,70 @@ class AdobeAnalytics {
       (this.timestampOption === "hybrid" && !this.preferVisitorId) ||
       this.timestampOption === "enabled"
     ) {
-      this.updateWindowSKeys(timestamp, "timestamp", dynamicKeys);
+      this.updateWindowSKeys(timestamp, "timestamp");
+    }
+  }
+
+  handleContextData(rudderElement) {
+    window.s.contextData = {};
+    const { properties } = rudderElement.message;
+    const contextDataPrefixValue = this.contextDataPrefix
+      ? `${this.contextDataPrefix}.`
+      : "";
+    if (properties) {
+      each((value, key) => {
+        this.setContextData(contextDataPrefixValue + key, value);
+      }, properties);
+    }
+
+    const contextDataMappingHashmap = getHashFromArray(this.contextDataMapping);
+    const keyValueContextData = getDataFromContext(
+      contextDataMappingHashmap,
+      rudderElement
+    );
+    if (keyValueContextData) {
+      each((value, key) => {
+        if (!key && value !== undefined && value !== null && value !== "") {
+          this.setContextData(key, value.toString());
+        }
+      }, keyValueContextData);
+    }
+  }
+
+  setContextData(contextDataKey, contextDataValue) {
+    window.s.contextData[contextDataKey] = contextDataValue;
+    dynamicKeys.push(`contextData.${contextDataKey}`);
+  }
+
+  handleEVars(rudderElement) {
+    const { properties } = rudderElement.message;
+    const eVarMappingHashmap = getHashFromArray(this.eVarMapping);
+    const eVarHashmapMod = {};
+    Object.keys(eVarMappingHashmap).forEach((value) => {
+      eVarHashmapMod[value] = `eVar${eVarMappingHashmap[value]}`;
+    });
+    if (eVarHashmapMod) {
+      each((value, key) => {
+        if (eVarHashmapMod[key]) {
+          this.updateWindowSKeys(value, eVarHashmapMod[key]);
+        }
+      }, properties);
+    }
+  }
+
+  handleHier(rudderElement) {
+    const { properties } = rudderElement.message;
+    const hierMappingHashmap = getHashFromArray(this.hierMapping);
+    const hierHashmapMod = {};
+    Object.keys(hierMappingHashmap).forEach((value) => {
+      hierHashmapMod[value] = `hier${hierMappingHashmap[value]}`;
+    });
+    if (hierHashmapMod) {
+      each((value, key) => {
+        if (hierHashmapMod[key]) {
+          this.updateWindowSKeys(value, hierHashmapMod[key]);
+        }
+      }, properties);
     }
   }
 
