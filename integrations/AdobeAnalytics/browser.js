@@ -1,3 +1,7 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable camelcase */
+/* eslint-disable class-methods-use-this */
 import each from "@ndhoule/each";
 import { toIso, getHashFromArray, getDataFromContext } from "./util";
 import ScriptLoader from "../ScriptLoader";
@@ -22,6 +26,9 @@ class AdobeAnalytics {
     this.contextDataMapping = config.contextDataMapping || []; // to be added
     this.eVarMapping = config.eVarMapping || []; // to be added
     this.hierMapping = config.hierMapping || []; // to be added
+    this.listMapping = config.listMapping || []; // to be added
+    this.listDelimiter = config.listDelimiter || []; // to be added
+    this.customPropsMapping = config.customPropsMapping || []; // to be added
     this.pageName = "";
     this.name = "ADOBE_ANALYTICS";
   }
@@ -138,6 +145,7 @@ class AdobeAnalytics {
     this.handleContextData(rudderElement);
     this.handleEVars(rudderElement);
     this.handleHier(rudderElement);
+    this.handleLists(rudderElement);
     /** The t() method is an important core component to Adobe Analytics. It takes all Analytics variables defined on the page,
      *  compiles them into an image request, and sends that data to Adobe data collection servers.
      * */
@@ -517,6 +525,7 @@ class AdobeAnalytics {
 
     this.handleContextData(rudderElement);
     this.handleEVars(rudderElement);
+    this.handleLists(rudderElement);
 
     window.s.linkTrackVars = dynamicKeys.join(",");
     window.s.tl(true, "o", event);
@@ -600,7 +609,7 @@ class AdobeAnalytics {
   updateWindowSKeys(value, key) {
     if (key && value !== undefined && value !== null && value !== "") {
       dynamicKeys.push(key);
-      window.s[key] = value.toString();
+      window.s[key] = value;
     }
   }
 
@@ -630,17 +639,23 @@ class AdobeAnalytics {
   }
 
   calculateTimestamp(rudderElement) {
-    const { properties } = rudderElement.message;
-    const timestamp = properties.originalTimestamp || properties.timestamp;
-    // he s.timestamp variable is a string containing the date and time of the hit. Valid timestamp formats include ISO 8601 and Unix time.
-    // if (typeof timestamp !== "string") {
-    //   timestamp = toIso(timestamp);
-    // }
-    if (
-      (this.timestampOption === "hybrid" && !this.preferVisitorId) ||
-      this.timestampOption === "enabled"
-    ) {
-      this.updateWindowSKeys(timestamp, "timestamp");
+    const { properties, originalTimestamp, timestamp } = rudderElement.message;
+    let timestampVal =
+      originalTimestamp ||
+      timestamp ||
+      properties.originalTimestamp ||
+      properties.timestamp;
+    // The s.timestamp variable is a string containing the date and time of the hit. Valid timestamp formats include ISO 8601 and Unix time.
+    if (timestampVal) {
+      if (typeof timestampVal !== "string") {
+        timestampVal = toIso(timestampVal);
+      }
+      if (
+        (this.timestampOption === "hybrid" && !this.preferVisitorId) ||
+        this.timestampOption === "enabled"
+      ) {
+        this.updateWindowSKeys(timestampVal, "timestamp");
+      }
     }
   }
 
@@ -664,7 +679,7 @@ class AdobeAnalytics {
     if (keyValueContextData) {
       each((value, key) => {
         if (!key && value !== undefined && value !== null && value !== "") {
-          this.setContextData(key, value.toString());
+          this.setContextData(key, value);
         }
       }, keyValueContextData);
     }
@@ -702,6 +717,31 @@ class AdobeAnalytics {
       each((value, key) => {
         if (hierHashmapMod[key]) {
           this.updateWindowSKeys(value, hierHashmapMod[key]);
+        }
+      }, properties);
+    }
+  }
+
+  handleLists(rudderElement) {
+    const { properties } = rudderElement.message;
+    let listMappingHashmap = getHashFromArray(this.listMapping);
+    listMappingHashmap = { a: "1", b: "2", c: "3" };
+    let listDelimiterHashmap = getHashFromArray(this.listDelimiter);
+    listDelimiterHashmap = { a: "/" };
+    if (properties) {
+      each((value, key) => {
+        if (listMappingHashmap[key] && listDelimiterHashmap[key]) {
+          if (typeof value !== "string" && !Array.isArray(value)) {
+            logger.error("list variable is neither a string nor an array");
+          }
+          const delimiter = listDelimiterHashmap[key];
+          const listValue = `list${listMappingHashmap[key]}`;
+          if (typeof value === "string") {
+            value = value.replace(/\s*,+\s*/g, delimiter);
+          } else {
+            value = value.join(delimiter);
+          }
+          this.updateWindowSKeys(value, listValue);
         }
       }, properties);
     }
