@@ -155,6 +155,7 @@ class AdobeAnalytics {
     this.handleEVars(rudderElement);
     this.handleHier(rudderElement);
     this.handleLists(rudderElement);
+    this.handleCustomProps(rudderElement);
     /** The t() method is an important core component to Adobe Analytics. It takes all Analytics variables defined on the page,
      *  compiles them into an image request, and sends that data to Adobe data collection servers.
      * */
@@ -488,7 +489,9 @@ class AdobeAnalytics {
 
     this.handleContextData(rudderElement);
     this.handleEVars(rudderElement);
+    this.handleHier(rudderElement);
     this.handleLists(rudderElement);
+    this.handleCustomProps(rudderElement);
 
     window.s.linkTrackVars = dynamicKeys.join(",");
     window.s.tl(true, "o", event);
@@ -663,7 +666,7 @@ class AdobeAnalytics {
     if (eVarHashmapMod) {
       each((value, key) => {
         if (eVarHashmapMod[key]) {
-          this.updateWindowSKeys(value, eVarHashmapMod[key]);
+          this.updateWindowSKeys(value.toString(), eVarHashmapMod[key]);
         }
       }, properties);
     }
@@ -679,7 +682,7 @@ class AdobeAnalytics {
     if (hierHashmapMod) {
       each((value, key) => {
         if (hierHashmapMod[key]) {
-          this.updateWindowSKeys(value, hierHashmapMod[key]);
+          this.updateWindowSKeys(value.toString(), hierHashmapMod[key]);
         }
       }, properties);
     }
@@ -694,6 +697,7 @@ class AdobeAnalytics {
         if (listMappingHashmap[key] && listDelimiterHashmap[key]) {
           if (typeof value !== "string" && !Array.isArray(value)) {
             logger.error("list variable is neither a string nor an array");
+            return;
           }
           const delimiter = listDelimiterHashmap[key];
           const listValue = `list${listMappingHashmap[key]}`;
@@ -702,7 +706,7 @@ class AdobeAnalytics {
           } else {
             value = value.join(delimiter);
           }
-          this.updateWindowSKeys(value, listValue);
+          this.updateWindowSKeys(value.toString(), listValue);
         }
       }, properties);
     }
@@ -717,6 +721,7 @@ class AdobeAnalytics {
         if (customPropsMappingHashmap[key]) {
           if (typeof value !== "string" && !Array.isArray(value)) {
             logger.error("list variable is neither a string nor an array");
+            return;
           }
           const delimiter = propsDelimiterHashmap[key]
             ? propsDelimiterHashmap[key]
@@ -727,7 +732,7 @@ class AdobeAnalytics {
           } else {
             value = value.join(delimiter);
           }
-          this.updateWindowSKeys(value, propValue);
+          this.updateWindowSKeys(value.toString(), propValue);
         }
       }, properties);
     }
@@ -882,9 +887,9 @@ class AdobeAnalytics {
         key = key.split(".");
         const productValue = _.get(key[1], properties);
         if (productValue && productValue !== "undefined") {
-          eVars.push(`${value}=${productValue}`);
+          eVars.push(`eVar${value}=${productValue}`);
         } else if (key in properties) {
-          eVars.push(`${value}=${String[properties[key]]}`);
+          eVars.push(`eVar${value}=${String[properties[key]]}`);
         }
       }
     }, this.productMerchEvarsMap);
