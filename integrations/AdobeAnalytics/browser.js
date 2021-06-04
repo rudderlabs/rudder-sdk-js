@@ -6,6 +6,7 @@ import each from "@ndhoule/each";
 import { toIso, getHashFromArray, getDataFromContext } from "./util";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
+import _ from "lodash";
 
 const dynamicKeys = [];
 
@@ -29,6 +30,14 @@ class AdobeAnalytics {
     this.listMapping = config.listMapping || []; // to be added
     this.listDelimiter = config.listDelimiter || []; // to be added
     this.customPropsMapping = config.customPropsMapping || []; // to be added
+    this.propsDelimiter = config.propsDelimiter || []; // to be added
+    this.eventMerchEventToAdobeEvent = config.eventMerchEventToAdobeEvent || []; // to be added
+    this.eventMerchProperties = config.eventMerchProperties || []; // to be added
+    this.productMerchEventToAdobeEvent =
+      config.productMerchEventToAdobeEvent || []; // to be added
+    this.productMerchProperties = config.productMerchProperties || []; // to be added
+    this.productMerchEvarsMap = config.productMerchEvarsMap || []; // to be added
+    this.productIdentifier = config.productIdentifier; // to be added
     this.pageName = "";
     this.name = "ADOBE_ANALYTICS";
   }
@@ -160,54 +169,8 @@ class AdobeAnalytics {
       const eventsToTypesHashmap = getHashFromArray(this.eventsToTypes);
       const heartBeatFunction = eventsToTypesHashmap[event.toLowerCase()];
       // process mapped video events
-      if (heartBeatFunction) {
-        switch (heartBeatFunction) {
-          case "initHeartbeat":
-            this.initHeartbeat(rudderElement);
-            break;
-          case "heartbeatVideoStart":
-            this.heartbeatVideoStart(rudderElement);
-            break;
-          case "heartbeatVideoPaused":
-            this.heartbeatVideoPaused(rudderElement);
-            break;
-          case "heartbeatVideoComplete":
-            this.heartbeatVideoComplete(rudderElement);
-            break;
-          case "heartbeatSessionEnd":
-            this.heartbeatSessionEnd(rudderElement);
-            break;
-          case "heartbeatAdStarted":
-            this.heartbeatAdStarted(rudderElement);
-            break;
-          case "heartbeatAdCompleted":
-            this.heartbeatAdCompleted(rudderElement);
-            break;
-          case "heartbeatAdSkipped":
-            this.heartbeatAdSkipped(rudderElement);
-            break;
-          case "heartbeatSeekStarted":
-            this.heartbeatSeekStarted(rudderElement);
-            break;
-          case "heartbeatSeekCompleted":
-            this.heartbeatSeekCompleted(rudderElement);
-            break;
-          case "heartbeatBufferStarted":
-            this.heartbeatBufferStarted(rudderElement);
-            break;
-          case "heartbeatBufferCompleted":
-            this.heartbeatBufferCompleted(rudderElement);
-            break;
-          case "heartbeatQualityUpdated":
-            this.heartbeatQualityUpdated(rudderElement);
-            break;
-          case "heartbeatUpdatePlayhead":
-            this.heartbeatUpdatePlayhead(rudderElement);
-            break;
-          default:
-            logger.error("No heartbeat function for this event");
-        }
-      }
+
+      this.processHeartbeatMappedEvents(heartBeatFunction, rudderElement);
     }
     // process unmapped ecomm events
     const isProcessed = this.checkIfRudderEcommEvent(rudderElement);
@@ -520,8 +483,8 @@ class AdobeAnalytics {
     if (currency !== "USD") {
       this.updateWindowSKeys(currency, "currencyCode");
     }
-
-    this.updateWindowSKeys(adobeEventName, "events");
+    this.setEventsString(event, properties, adobeEventName);
+    this.setProductString(event, properties);
 
     this.handleContextData(rudderElement);
     this.handleEVars(rudderElement);
@@ -724,10 +687,8 @@ class AdobeAnalytics {
 
   handleLists(rudderElement) {
     const { properties } = rudderElement.message;
-    let listMappingHashmap = getHashFromArray(this.listMapping);
-    listMappingHashmap = { a: "1", b: "2", c: "3" };
-    let listDelimiterHashmap = getHashFromArray(this.listDelimiter);
-    listDelimiterHashmap = { a: "/" };
+    const listMappingHashmap = getHashFromArray(this.listMapping);
+    const listDelimiterHashmap = getHashFromArray(this.listDelimiter);
     if (properties) {
       each((value, key) => {
         if (listMappingHashmap[key] && listDelimiterHashmap[key]) {
@@ -745,6 +706,189 @@ class AdobeAnalytics {
         }
       }, properties);
     }
+  }
+
+  handleCustomProps(rudderElement) {
+    const { properties } = rudderElement.message;
+    const customPropsMappingHashmap = getHashFromArray(this.customPropsMapping);
+    const propsDelimiterHashmap = getHashFromArray(this.propsDelimiter);
+    if (properties) {
+      each((value, key) => {
+        if (customPropsMappingHashmap[key]) {
+          if (typeof value !== "string" && !Array.isArray(value)) {
+            logger.error("list variable is neither a string nor an array");
+          }
+          const delimiter = propsDelimiterHashmap[key]
+            ? propsDelimiterHashmap[key]
+            : "|";
+          const propValue = `prop${customPropsMappingHashmap[key]}`;
+          if (typeof value === "string") {
+            value = value.replace(/\s*,+\s*/g, delimiter);
+          } else {
+            value = value.join(delimiter);
+          }
+          this.updateWindowSKeys(value, propValue);
+        }
+      }, properties);
+    }
+  }
+
+  setEventsString(event, properties, adobeEventName) {
+    // adobe events are taken as comma separated string
+    let adobeEventArray = adobeEventName ? adobeEventName.split(",") : [];
+
+    const merchMap = this.mapMerchEvents(event, properties);
+    adobeEventArray = adobeEventArray.concat(merchMap);
+    adobeEventArray = adobeEventArray.filter((item) => {
+      return !!item;
+    });
+    const adobeEvent = adobeEventArray.join(",");
+    this.updateWindowSKeys(adobeEvent, "events");
+    window.s.linkTrackEvents = adobeEvent;
+  }
+
+  mapMerchEvents(event, properties) {
+    const eventMerchEventToAdobeEventHashmap = getHashFromArray(
+      this.eventMerchEventToAdobeEvent
+    );
+
+    let merchMap = [];
+    if (
+      !eventMerchEventToAdobeEventHashmap[event.toLowerCase()] ||
+      !this.eventMerchProperties
+    ) {
+      return merchMap;
+    }
+    const adobeEvent =
+      eventMerchEventToAdobeEventHashmap[event.toLowerCase()].split(",");
+
+    let eventString;
+    each((rudderProp) => {
+      if (rudderProp in properties) {
+        each((value) => {
+          eventString = `${value}=${String(properties[rudderProp])}`;
+          merchMap.push(eventString);
+        }, adobeEvent);
+      } else {
+        merchMap = merchMap.concat(adobeEvent);
+      }
+    }, this.eventMerchProperties);
+
+    return merchMap;
+  }
+
+  setProductString(event, properties) {
+    const productMerchEventToAdobeEventHashmap = getHashFromArray(
+      this.productMerchEventToAdobeEvent
+    );
+
+    const adobeEvent =
+      productMerchEventToAdobeEventHashmap[event.toLowerCase()];
+    if (adobeEvent) {
+      const isSingleProdEvent =
+        adobeEvent === "scAdd" ||
+        adobeEvent === "scRemove" ||
+        (adobeEvent === "prodView" &&
+          event.toLowerCase() !== "product list viewed") ||
+        !Array.isArray(properties.products);
+      const prodFields = isSingleProdEvent ? [properties] : properties.prducts;
+      this.mapProducts(event, prodFields, adobeEvent);
+    }
+  }
+
+  mapProducts(event, prodFields, adobeEvent) {
+    let prodString;
+    prodFields.forEach((value) => {
+      const category = value.category || "";
+      const quantity = value.quantity() != null ? value.quantity : 1;
+      const total = value.price ? (value.price * quantity).toFixed(2) : 0;
+      let item;
+      if (this.productIdentifier === "id") {
+        item = value.product_id || value.id;
+      } else {
+        item = value[this.productIdentifier];
+      }
+      const eventString = this.mapMerchProductEvents(
+        event,
+        value,
+        adobeEvent
+      ).join("|");
+      const prodEVarsString = this.mapMerchProductEVars(value).join("|");
+      if (eventString !== "" || prodEVarsString !== "") {
+        const test = [
+          category,
+          item,
+          quantity,
+          total,
+          eventString,
+          prodEVarsString,
+        ].map((val) => {
+          if (val == null) {
+            return String(val);
+          }
+          return val;
+        });
+        prodString = test.join(";");
+      }
+      prodString = [category, item, quantity, total]
+        .map((val) => {
+          if (val === null) {
+            return String(val);
+          }
+          return val;
+        })
+        .join(";");
+    });
+    this.updateWindowSKeys(prodString, "products");
+  }
+
+  mapMerchProductEvents(event, properties, adobeEvent) {
+    const productMerchEventToAdobeEventHashmap = getHashFromArray(
+      this.productMerchEventToAdobeEvent
+    );
+
+    const merchMap = [];
+    let eventString;
+    if (
+      !productMerchEventToAdobeEventHashmap[event.toLowerCase()] ||
+      !this.productMerchProperties
+    ) {
+      return merchMap;
+    }
+
+    each((rudderProp) => {
+      if (rudderProp.startsWith("products.")) {
+        const value = _.get(properties, rudderProp);
+        if (value && value !== "undefined") {
+          each((val) => {
+            eventString = `${val}=${value}`;
+            merchMap.push(eventString);
+          }, adobeEvent);
+        }
+      } else if (rudderProp in properties) {
+        each((val) => {
+          eventString = `${val}=${String(properties[rudderProp])}`;
+          merchMap.push(eventString);
+        }, adobeEvent);
+      }
+    }, this.productMerchProperties);
+    return merchMap;
+  }
+
+  mapMerchProductEVars(properties) {
+    const eVars = [];
+    each((key, value) => {
+      if (key.startsWith("products.")) {
+        key = key.split(".");
+        const productValue = _.get(key[1], properties);
+        if (productValue && productValue !== "undefined") {
+          eVars.push(`${value}=${productValue}`);
+        } else if (key in properties) {
+          eVars.push(`${value}=${String[properties[key]]}`);
+        }
+      }
+    }, this.productMerchEvarsMap);
+    return eVars;
   }
 
   checkIfRudderEcommEvent(rudderElement) {
@@ -778,6 +922,57 @@ class AdobeAnalytics {
         ret = false;
     }
     return ret;
+  }
+
+  processHeartbeatMappedEvents(heartBeatFunction, rudderElement) {
+    if (heartBeatFunction) {
+      switch (heartBeatFunction) {
+        case "initHeartbeat":
+          this.initHeartbeat(rudderElement);
+          break;
+        case "heartbeatVideoStart":
+          this.heartbeatVideoStart(rudderElement);
+          break;
+        case "heartbeatVideoPaused":
+          this.heartbeatVideoPaused(rudderElement);
+          break;
+        case "heartbeatVideoComplete":
+          this.heartbeatVideoComplete(rudderElement);
+          break;
+        case "heartbeatSessionEnd":
+          this.heartbeatSessionEnd(rudderElement);
+          break;
+        case "heartbeatAdStarted":
+          this.heartbeatAdStarted(rudderElement);
+          break;
+        case "heartbeatAdCompleted":
+          this.heartbeatAdCompleted(rudderElement);
+          break;
+        case "heartbeatAdSkipped":
+          this.heartbeatAdSkipped(rudderElement);
+          break;
+        case "heartbeatSeekStarted":
+          this.heartbeatSeekStarted(rudderElement);
+          break;
+        case "heartbeatSeekCompleted":
+          this.heartbeatSeekCompleted(rudderElement);
+          break;
+        case "heartbeatBufferStarted":
+          this.heartbeatBufferStarted(rudderElement);
+          break;
+        case "heartbeatBufferCompleted":
+          this.heartbeatBufferCompleted(rudderElement);
+          break;
+        case "heartbeatQualityUpdated":
+          this.heartbeatQualityUpdated(rudderElement);
+          break;
+        case "heartbeatUpdatePlayhead":
+          this.heartbeatUpdatePlayhead(rudderElement);
+          break;
+        default:
+          logger.error("No heartbeat function for this event");
+      }
+    }
   }
 }
 
