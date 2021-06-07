@@ -46,7 +46,9 @@ class AdobeAnalytics {
   init() {
     // check if was already initialised. If yes then use already existing.
     window.s_account = window.s_account || this.reportSuiteIds;
+    // update playhead value of a session
     window.rudderHBPlayheads = {};
+    // load separately as heartbeat sdk is large and need not be required if this is off.
     if (this.heartbeatTrackingServerUrl) {
       ScriptLoader(
         "adobe-analytics-heartbeat",
@@ -56,6 +58,7 @@ class AdobeAnalytics {
         this.initAdobeAnalyticsClient.bind(this),
         1000
       );
+      // for heartbeat
       this.playhead = 0;
       this.qosData = {};
       this.adBreakCounts = {};
@@ -75,7 +78,9 @@ class AdobeAnalytics {
 
   initAdobeAnalyticsClient() {
     const { s } = window;
-    s.trackingServer = s.trackingServer || this.trackingServerUrl; // need to add tracking server secure url
+    s.trackingServer = s.trackingServer || this.trackingServerUrl;
+    s.trackingServerSecure =
+      s.trackingServerSecure || this.trackingServerSecureUrl;
     if (
       this.marketingCloudOrgId &&
       window.Visitor &&
@@ -190,6 +195,8 @@ class AdobeAnalytics {
     }
   }
   // Handling Video Type Events
+  // DOC: https://experienceleague.adobe.com/docs/media-analytics/using/sdk-implement/setup/setup-javascript/set-up-js-2.html?lang=en
+  // DOC: https://experienceleague.adobe.com/docs/media-analytics/using/sdk-implement/track-av-playback/track-core-overview.html?lang=en
 
   initHeartbeat(rudderElement) {
     const that = this;
@@ -473,15 +480,23 @@ class AdobeAnalytics {
     this.clearWindowSKeys(dynamicKeys);
     this.processEvent(rudderElement, "scOpen");
   }
+  // End of handling Ecomm Events
 
+  // Custom functions
+
+  /**
+   * @param  {} rudderElement
+   * @param  {} adobeEventName
+   *
+   * Update window variables and do adobe track calls
+   */
   processEvent(rudderElement, adobeEventName) {
     const { properties, event } = rudderElement.message;
     const { currency } = properties;
 
-    // TODO: need to add property mappings
-
     this.updateCommonWindowSKeys(rudderElement);
     this.calculateTimestamp(rudderElement);
+    // useful for setting evar as amount value if this is set
     if (currency !== "USD") {
       this.updateWindowSKeys(currency, "currencyCode");
     }
@@ -494,9 +509,32 @@ class AdobeAnalytics {
     this.handleLists(rudderElement);
     this.handleCustomProps(rudderElement);
 
+    /**
+     * The s.linkTrackVars variable is a string containing a comma-delimited list of variables that you want to
+     * include in link tracking image requests
+     */
+
     window.s.linkTrackVars = dynamicKeys.join(",");
+
+    /**
+     * The tl() method is an important core component to Adobe Analytics.
+     * It takes all Analytics variables defined on the page, compiles them into an image request,
+     * and sends that data to Adobe data collection servers. It works similarly to the t() method,
+     * however this method does not increment page views.
+     * It is useful for tracking links and other elements that wouldn’t be considered a full page load.
+     */
     window.s.tl(true, "o", event);
   }
+
+  /**
+   *
+   * @param {} rudderElement
+   * Quality of experience tracking includes quality of service (QoS) and error tracking, both are optional elements
+   *  and are not required for core media tracking implementations.
+   *
+   * DOC: https://experienceleague.adobe.com/docs/media-analytics/using/sdk-implement/track-qos/track-qos-overview.html?lang=en
+   * DOC: https://experienceleague.adobe.com/docs/media-analytics/using/sdk-implement/track-qos/track-qos-js/track-qos-js.html?lang=en
+   */
 
   createQos(rudderElement) {
     const { va } = window.ADB;
@@ -510,6 +548,8 @@ class AdobeAnalytics {
       droppedFrames || 0
     );
   }
+
+  // Begin heartbeat implementation
 
   populatHeartbeat(rudderElement) {
     const { properties } = rudderElement.message;
@@ -525,6 +565,14 @@ class AdobeAnalytics {
         video_player || mediaHeartbeatConfig.playerName;
     }
   }
+
+  /**
+   *
+   * @param {*} rudderElement
+   * @param {*} mediaObj
+   *
+   * DOC: https://experienceleague.adobe.com/docs/media-analytics/using/sdk-implement/track-ads/impl-std-ad-metadata/impl-std-ad-md-js/impl-std-ad-metadata-js.html?lang=en
+   */
 
   standardVideoMetadata(rudderElement, mediaObj) {
     const { va } = window.ADB;
@@ -566,6 +614,8 @@ class AdobeAnalytics {
     );
   }
 
+  // clear the previously set keys for adobe analytics
+
   clearWindowSKeys(presentKeys) {
     each((keys) => {
       delete window.s[keys];
@@ -573,12 +623,16 @@ class AdobeAnalytics {
     presentKeys.length = 0;
   }
 
+  // update window keys for adobe analytics
+
   updateWindowSKeys(value, key) {
     if (key && value !== undefined && value !== null && value !== "") {
       dynamicKeys.push(key);
       window.s[key] = value;
     }
   }
+
+  // update all the keys for adobe analytics which are common for all calls.
 
   updateCommonWindowSKeys(rudderElement) {
     const { properties, type, context } = rudderElement.message;
@@ -604,6 +658,8 @@ class AdobeAnalytics {
       );
     }
   }
+  // TODO: Need to check why timestamp not setting
+  // DOC: https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/timestamp.html?lang=en
 
   calculateTimestamp(rudderElement) {
     const { properties, originalTimestamp, timestamp } = rudderElement.message;
@@ -625,6 +681,12 @@ class AdobeAnalytics {
       }
     }
   }
+
+  /**
+   * @param  {} rudderElement
+   * Context data variables let you define custom variables on each page that processing rules can read.
+   * DOC: https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/contextdata.html?lang=en
+   */
 
   handleContextData(rudderElement) {
     window.s.contextData = {};
@@ -652,10 +714,23 @@ class AdobeAnalytics {
     }
   }
 
+  /**
+   * @param  {} contextDataKey
+   * @param  {} contextDataValue
+   * Context data variables let you define custom variables on each page that processing rules can read.
+   * DOC: https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/contextdata.html?lang=en
+   */
+
   setContextData(contextDataKey, contextDataValue) {
     window.s.contextData[contextDataKey] = contextDataValue;
     dynamicKeys.push(`contextData.${contextDataKey}`);
   }
+  /**
+   * @param  {} rudderElement
+   * eVars are custom variables that you can use however you’d like.
+   * Updates eVar variable of window.s
+   * DOC: https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/evar.html?lang=en
+   */
 
   handleEVars(rudderElement) {
     const { properties } = rudderElement.message;
@@ -672,6 +747,13 @@ class AdobeAnalytics {
       }, properties);
     }
   }
+  /**
+   * @param  {} rudderElement
+   * Hierarchy variables are custom variables that let you see a site’s structure.
+   * Updates hier varaible of window.s
+   *
+   * DOC: https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/hier.html?lang=en
+   */
 
   handleHier(rudderElement) {
     const { properties } = rudderElement.message;
@@ -688,6 +770,18 @@ class AdobeAnalytics {
       }, properties);
     }
   }
+
+  /**
+   * @param  {} rudderElement
+   * List variables are custom variables that you can use however you’d like.
+   * They work similarly to eVars, except they can contain multiple values in the same hit.
+   *
+   * If there are many values to be appended in a particular list it will be separated by
+   * the delimiter set.
+   *
+   * Sets list variable of window.s
+   * DOC: https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/list.html?lang=en
+   */
 
   handleLists(rudderElement) {
     const { properties } = rudderElement.message;
@@ -712,6 +806,14 @@ class AdobeAnalytics {
       }, properties);
     }
   }
+
+  /**
+   * @param  {} rudderElement
+   * @description Props are custom variables that you can use however you’d like.
+   * They do not persist beyond the hit that they are set.
+   * prop variable of window.s is updated
+   * DOC: https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/prop.html?lang=en
+   */
 
   handleCustomProps(rudderElement) {
     const { properties } = rudderElement.message;
@@ -739,6 +841,13 @@ class AdobeAnalytics {
     }
   }
 
+  /**
+   * @param  {} event
+   * @param  {} properties
+   * @description Function to set event string of Ecomm events
+   * Updates the "events" property of window.s
+   */
+
   setEventsString(event, properties, adobeEventName) {
     // adobe events are taken as comma separated string
     let adobeEventArray = adobeEventName ? adobeEventName.split(",") : [];
@@ -750,6 +859,11 @@ class AdobeAnalytics {
     });
     const adobeEvent = adobeEventArray.join(",");
     this.updateWindowSKeys(adobeEvent, "events");
+
+    /**
+     * The s.linkTrackEvents variable is a string containing a comma-delimited list of
+     *  events that you want to include in link tracking image requests
+     */
     window.s.linkTrackEvents = adobeEvent;
   }
 
@@ -785,6 +899,12 @@ class AdobeAnalytics {
     return merchMap;
   }
 
+  /**
+   * @param  {} event
+   * @param  {} properties
+   * @description Function to set product string for product level of Ecomm events
+   */
+
   setProductString(event, properties) {
     const productMerchEventToAdobeEventHashmap = getHashFromArray(
       this.productMerchEventToAdobeEvent
@@ -803,6 +923,14 @@ class AdobeAnalytics {
       this.mapProducts(event, prodFields, adobeEvent);
     }
   }
+
+  /**
+   * @param  {} event
+   * @param  {} prodFields
+   * @param  {} adobeEvent
+   * @description set products key for window.s
+   * DOC: https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/products.html?lang=en
+   */
 
   mapProducts(event, prodFields, adobeEvent) {
     const prodString = [];
@@ -852,10 +980,21 @@ class AdobeAnalytics {
     this.updateWindowSKeys(prodString, "products");
   }
 
+  /**
+   * @param  {} event
+   * @param  {} properties
+   * @param  {} adobeEvent
+   * @description Creates the merchendising product eventsString for each product which will be added to the
+   * key products along with the evars as set.
+   * DOC: https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/products.html?lang=en
+   * @returns [] merchMap
+   */
+
   mapMerchProductEvents(event, properties, adobeEvent) {
     const productMerchEventToAdobeEventHashmap = getHashFromArray(
       this.productMerchEventToAdobeEvent
     );
+    // converting string to array if more than 1 event is there.
     adobeEvent = adobeEvent.split(",");
     const merchMap = [];
     let eventString;
@@ -867,8 +1006,11 @@ class AdobeAnalytics {
     }
 
     each((rudderProp) => {
+      // if property mapped with products. as starting handle differently
       if (rudderProp.productMerchProperties.startsWith("products.")) {
-        const value = _.get(properties, rudderProp);
+        const key = rudderProp.productMerchProperties.split(".");
+        // take the keys after products. and find the value in properties
+        const value = _.get(properties, key[1]);
         if (value && value !== "undefined") {
           each((val) => {
             eventString = `${val}=${value}`;
@@ -887,30 +1029,40 @@ class AdobeAnalytics {
     return merchMap;
   }
 
+  /**
+   * @param  {} properties
+   * @description set eVars for product level properties
+   * DOC: https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/evar-merchandising.html?lang=en
+   * @returns eVars as a string with delimiter "|"
+   */
+
   mapMerchProductEVars(properties) {
     const productMerchEvarsMapHashmap = getHashFromArray(
       this.productMerchEvarsMap
     );
     const eVars = [];
-    const props = [];
     each((value, key) => {
+      // if property mapped with products. as starting handle differently
       if (key.startsWith("products.")) {
         key = key.split(".");
-        const productValue = _.get(key[1], properties);
+        // take the keys after products. and find the value in properties
+        const productValue = _.get(properties, key[1]);
         if (productValue && productValue !== "undefined") {
           eVars.push(`eVar${value}=${productValue}`);
-          props.push(productValue);
-        } else if (key in properties) {
-          eVars.push(`eVar${value}=${[properties[key]]}`);
-          props.push([properties[key]]);
         }
       } else if (key in properties) {
         eVars.push(`eVar${value}=${[properties[key]]}`);
-        props.push([properties[key]]);
       }
     }, productMerchEvarsMapHashmap);
     return eVars.join("|");
   }
+
+  /**
+   * @param  {} rudderElement
+   * @description Checks if the incoming rudder event is an Ecomm Event. Return true or false accordingly.
+   * DOC: https://docs.rudderstack.com/rudderstack-api-spec/rudderstack-ecommerce-events-specification
+   * @returns ret
+   */
 
   checkIfRudderEcommEvent(rudderElement) {
     const { event } = rudderElement.message;
@@ -944,6 +1096,13 @@ class AdobeAnalytics {
     }
     return ret;
   }
+
+  /**
+   * @param  {} heartBeatFunction
+   * @param  {} rudderElement
+   *
+   * @description Function to process mapped video events in webapp with adobe video events.
+   */
 
   processHeartbeatMappedEvents(heartBeatFunction, rudderElement) {
     if (heartBeatFunction) {
