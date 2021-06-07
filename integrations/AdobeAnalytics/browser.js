@@ -23,21 +23,22 @@ class AdobeAnalytics {
     this.timestampOption = config.timestampOption;
     this.preferVisitorId = config.preferVisitorId;
     this.rudderEventsToAdobeEvents = config.rudderEventsToAdobeEvents || [];
-    this.trackPageName = config.trackPageName; // to be added
-    this.contextDataMapping = config.contextDataMapping || []; // to be added
-    this.eVarMapping = config.eVarMapping || []; // to be added
-    this.hierMapping = config.hierMapping || []; // to be added
-    this.listMapping = config.listMapping || []; // to be added
-    this.listDelimiter = config.listDelimiter || []; // to be added
-    this.customPropsMapping = config.customPropsMapping || []; // to be added
-    this.propsDelimiter = config.propsDelimiter || []; // to be added
-    this.eventMerchEventToAdobeEvent = config.eventMerchEventToAdobeEvent || []; // to be added
-    this.eventMerchProperties = config.eventMerchProperties || []; // to be added
+    this.trackPageName = config.trackPageName;
+    this.contextDataMapping = config.contextDataMapping || [];
+    this.eVarMapping = config.eVarMapping || [];
+    this.hierMapping = config.hierMapping || [];
+    this.listMapping = config.listMapping || [];
+    this.listDelimiter = config.listDelimiter || [];
+    this.customPropsMapping = config.customPropsMapping || [];
+    this.propsDelimiter = config.propsDelimiter || [];
+    this.eventMerchEventToAdobeEvent = config.eventMerchEventToAdobeEvent || [];
+    this.eventMerchProperties = config.eventMerchProperties || [];
     this.productMerchEventToAdobeEvent =
-      config.productMerchEventToAdobeEvent || []; // to be added
-    this.productMerchProperties = config.productMerchProperties || []; // to be added
-    this.productMerchEvarsMap = config.productMerchEvarsMap || []; // to be added
-    this.productIdentifier = config.productIdentifier; // to be added
+      config.productMerchEventToAdobeEvent || [];
+    this.productMerchProperties = config.productMerchProperties || [];
+    this.productMerchEvarsMap = config.productMerchEvarsMap || [];
+    this.productIdentifier = config.productIdentifier;
+    this.contextDataPrefix = config.contextDataPrefix || []; // to be added
     this.pageName = "";
     this.name = "ADOBE_ANALYTICS";
   }
@@ -769,16 +770,18 @@ class AdobeAnalytics {
 
     let eventString;
     each((rudderProp) => {
-      if (rudderProp in properties) {
+      if (rudderProp.eventMerchProperties in properties) {
         each((value) => {
-          eventString = `${value}=${String(properties[rudderProp])}`;
+          if (properties[rudderProp.eventMerchProperties])
+            eventString = `${value}=${
+              properties[rudderProp.eventMerchProperties]
+            }`;
           merchMap.push(eventString);
         }, adobeEvent);
       } else {
         merchMap = merchMap.concat(adobeEvent);
       }
     }, this.eventMerchProperties);
-
     return merchMap;
   }
 
@@ -796,16 +799,16 @@ class AdobeAnalytics {
         (adobeEvent === "prodView" &&
           event.toLowerCase() !== "product list viewed") ||
         !Array.isArray(properties.products);
-      const prodFields = isSingleProdEvent ? [properties] : properties.prducts;
+      const prodFields = isSingleProdEvent ? [properties] : properties.products;
       this.mapProducts(event, prodFields, adobeEvent);
     }
   }
 
   mapProducts(event, prodFields, adobeEvent) {
-    let prodString;
+    const prodString = [];
     prodFields.forEach((value) => {
       const category = value.category || "";
-      const quantity = value.quantity() != null ? value.quantity : 1;
+      const quantity = value.quantity || 1;
       const total = value.price ? (value.price * quantity).toFixed(2) : 0;
       let item;
       if (this.productIdentifier === "id") {
@@ -818,7 +821,7 @@ class AdobeAnalytics {
         value,
         adobeEvent
       ).join("|");
-      const prodEVarsString = this.mapMerchProductEVars(value).join("|");
+      const prodEVarsString = this.mapMerchProductEVars(value);
       if (eventString !== "" || prodEVarsString !== "") {
         const test = [
           category,
@@ -833,16 +836,18 @@ class AdobeAnalytics {
           }
           return val;
         });
-        prodString = test.join(";");
+        prodString.push(test.join(";"));
+      } else {
+        const test = [category, item, quantity, total]
+          .map((val) => {
+            if (val === null) {
+              return String(val);
+            }
+            return val;
+          })
+          .join(";");
+        prodString.push(test);
       }
-      prodString = [category, item, quantity, total]
-        .map((val) => {
-          if (val === null) {
-            return String(val);
-          }
-          return val;
-        })
-        .join(";");
     });
     this.updateWindowSKeys(prodString, "products");
   }
@@ -851,7 +856,7 @@ class AdobeAnalytics {
     const productMerchEventToAdobeEventHashmap = getHashFromArray(
       this.productMerchEventToAdobeEvent
     );
-
+    adobeEvent = adobeEvent.split(",");
     const merchMap = [];
     let eventString;
     if (
@@ -862,7 +867,7 @@ class AdobeAnalytics {
     }
 
     each((rudderProp) => {
-      if (rudderProp.startsWith("products.")) {
+      if (rudderProp.productMerchProperties.startsWith("products.")) {
         const value = _.get(properties, rudderProp);
         if (value && value !== "undefined") {
           each((val) => {
@@ -870,9 +875,11 @@ class AdobeAnalytics {
             merchMap.push(eventString);
           }, adobeEvent);
         }
-      } else if (rudderProp in properties) {
+      } else if (rudderProp.productMerchProperties in properties) {
         each((val) => {
-          eventString = `${val}=${String(properties[rudderProp])}`;
+          eventString = `${val}=${
+            properties[rudderProp.productMerchProperties]
+          }`;
           merchMap.push(eventString);
         }, adobeEvent);
       }
@@ -881,19 +888,28 @@ class AdobeAnalytics {
   }
 
   mapMerchProductEVars(properties) {
+    const productMerchEvarsMapHashmap = getHashFromArray(
+      this.productMerchEvarsMap
+    );
     const eVars = [];
-    each((key, value) => {
+    const props = [];
+    each((value, key) => {
       if (key.startsWith("products.")) {
         key = key.split(".");
         const productValue = _.get(key[1], properties);
         if (productValue && productValue !== "undefined") {
           eVars.push(`eVar${value}=${productValue}`);
+          props.push(productValue);
         } else if (key in properties) {
-          eVars.push(`eVar${value}=${String[properties[key]]}`);
+          eVars.push(`eVar${value}=${[properties[key]]}`);
+          props.push([properties[key]]);
         }
+      } else if (key in properties) {
+        eVars.push(`eVar${value}=${[properties[key]]}`);
+        props.push([properties[key]]);
       }
-    }, this.productMerchEvarsMap);
-    return eVars;
+    }, productMerchEvarsMapHashmap);
+    return eVars.join("|");
   }
 
   checkIfRudderEcommEvent(rudderElement) {
