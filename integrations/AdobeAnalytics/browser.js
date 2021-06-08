@@ -471,6 +471,16 @@ class AdobeAnalytics {
     this.processEvent(rudderElement, "purchase");
   }
 
+  checkoutStartedHandle(rudderElement) {
+    this.clearWindowSKeys(dynamicKeys);
+    const { properties } = rudderElement.message;
+    const { purchaseId, transactionId, order_id } = properties;
+    this.updateWindowSKeys(purchaseId || order_id, "purchaseID");
+    this.updateWindowSKeys(transactionId || order_id, "transactionID");
+
+    this.processEvent(rudderElement, "scCheckout");
+  }
+
   cartViewedHandle(rudderElement) {
     this.clearWindowSKeys(dynamicKeys);
     this.processEvent(rudderElement, "scView");

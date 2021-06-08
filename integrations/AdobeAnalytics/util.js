@@ -59,7 +59,7 @@ const getDataFromContext = (contextMap, rudderElement) => {
   if (context) {
     Object.keys(contextMap).forEach((value) => {
       if (value) {
-        const val = _.get(context, value);
+        const val = _.get(value, context);
         contextDataMap[contextMap[value]] = val;
       }
     });
