@@ -1,7 +1,12 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-undef */
 import each from "@ndhoule/each";
-import { toIso, getHashFromArray } from "../utils/commonUtils";
+import {
+  toIso,
+  getHashFromArray,
+  isDefinedAndNotNullAndNotEmpty,
+  isDefined,
+} from "../utils/commonUtils";
 import _ from "lodash";
 import logger from "../../utils/logUtil";
 
@@ -132,7 +137,7 @@ const clearWindowSKeys = (dk) => {
 // update window keys for adobe analytics
 
 const updateWindowSKeys = (value, key) => {
-  if (key && value !== undefined && value !== null && value !== "") {
+  if (isDefinedAndNotNullAndNotEmpty(key)) {
     dynamicKeys.push(key);
     window.s[key] = value;
   }
@@ -149,7 +154,8 @@ const updateCommonWindowSKeys = (rudderElement, pageName) => {
     campaign = properties.campaign;
   }
   const channel = rudderElement.message.channel || properties.channel;
-  const { state, zip } = properties;
+  const zip = context.traits.zip || properties.zip;
+  const state = context.traits.state || properties.state;
 
   updateWindowSKeys(channel, "channel");
   updateWindowSKeys(campaign, "campaign");
@@ -199,7 +205,7 @@ const getDataFromContext = (contextMap, rudderElement) => {
   if (context) {
     Object.keys(contextMap).forEach((value) => {
       if (value) {
-        const val = _.get(value, context);
+        const val = _.get(context, value);
         contextDataMap[contextMap[value]] = val;
       }
     });
@@ -249,7 +255,7 @@ const handleContextData = (rudderElement) => {
   );
   if (keyValueContextData) {
     each((value, key) => {
-      if (!key && value !== undefined && value !== null && value !== "") {
+      if (isDefinedAndNotNullAndNotEmpty(key)) {
         setContextData(key, value);
       }
     }, keyValueContextData);
@@ -407,7 +413,7 @@ const mapMerchEvents = (event, properties) => {
     config.eventMerchEventToAdobeEvent
   );
 
-  let merchMap = [];
+  const merchMap = [];
   if (
     !eventMerchEventToAdobeEventHashmap[event.toLowerCase()] ||
     !config.eventMerchProperties
@@ -487,7 +493,7 @@ const mapMerchProductEvents = (event, properties, adobeEvent) => {
       const key = rudderProp.productMerchProperties.split(".");
       // take the keys after products. and find the value in properties
       const value = _.get(properties, key[1]);
-      if (value && value !== "undefined") {
+      if (isDefined(value)) {
         each((val) => {
           eventString = `${val}=${value}`;
           merchMap.push(eventString);
@@ -524,7 +530,7 @@ const mapMerchProductEVars = (properties) => {
       key = key.split(".");
       // take the keys after products. and find the value in properties
       const productValue = _.get(properties, key[1]);
-      if (productValue && productValue !== "undefined") {
+      if (isDefined(productValue)) {
         eVars.push(`eVar${value}=${productValue}`);
       }
     } else if (key in properties) {

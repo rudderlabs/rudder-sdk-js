@@ -73,6 +73,7 @@ const commonNames = {
   "Adobe Analytics": "ADOBE_ANALYITCS",
   ADOBE_ANALYTICS: "ADOBE_ANALYTICS",
   AdobeAnalytics: "ADOBE_ANALYTICS",
+  adobeanalytics: "ADOBE_ANALYTICS",
 };
 
 export { commonNames };

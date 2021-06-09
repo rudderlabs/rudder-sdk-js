@@ -1,18 +1,19 @@
 import _ from "lodash";
 
-/**
- * @param  {} value
- * @param  {} return true or false accordingly if value is empty
- */
+const isDefined = (x) => !_.isUndefined(x);
+const isNotEmpty = (x) => !_.isEmpty(x);
+const isNotNull = (x) => x != null;
+const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
+const isDefinedAndNotNullAndNotEmpty = (x) =>
+  isDefined(x) && isNotNull(x) && isNotEmpty(x);
+const removeUndefinedValues = (obj) => _.pickBy(obj, isDefined);
+const removeNullValues = (obj) => _.pickBy(obj, isNotNull);
+const removeUndefinedAndNullValues = (obj) =>
+  _.pickBy(obj, isDefinedAndNotNull);
+const removeUndefinedAndNullAndEmptyValues = (obj) =>
+  _.pickBy(obj, isDefinedAndNotNullAndNotEmpty);
+const isBlank = (value) => _.isEmpty(_.toString(value));
 
-const isEmpty = (value) => {
-  return (
-    value === undefined ||
-    value === null ||
-    (typeof value === "object" && Object.keys(value).length === 0) ||
-    (typeof value === "string" && value.trim().length === 0)
-  );
-};
 /**
  *
  * Convert an array map to hashmap
@@ -31,7 +32,7 @@ const getHashFromArray = (
   const hashMap = {};
   if (Array.isArray(arrays)) {
     arrays.forEach((array) => {
-      if (isEmpty(array[fromKey])) return;
+      if (!isNotEmpty(array[fromKey])) return;
       hashMap[isLowerCase ? array[fromKey].toLowerCase() : array[fromKey]] =
         array[toKey];
     });
@@ -46,4 +47,17 @@ const toIso = (timestamp) => {
   return new Date(timestamp).toISOString();
 };
 
-export { getHashFromArray, toIso };
+export {
+  getHashFromArray,
+  toIso,
+  removeUndefinedValues,
+  removeUndefinedAndNullValues,
+  removeNullValues,
+  removeUndefinedAndNullAndEmptyValues,
+  isDefined,
+  isNotEmpty,
+  isNotNull,
+  isDefinedAndNotNull,
+  isDefinedAndNotNullAndNotEmpty,
+  isBlank,
+};

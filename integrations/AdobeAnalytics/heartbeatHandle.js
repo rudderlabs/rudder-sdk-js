@@ -78,7 +78,7 @@ const initHeartbeat = (rudderElement) => {
   hearbeatSessionStart(rudderElement);
 };
 
-const populatHeartbeat = (rudderElement) => {
+const populateHeartbeat = (rudderElement) => {
   const { properties } = rudderElement.message;
   const { session_id, channel, video_player } = properties;
   const mediaHeartbeat = mediaHeartbeats[session_id || "default"];
@@ -94,7 +94,7 @@ const populatHeartbeat = (rudderElement) => {
 };
 
 const heartbeatVideoStart = (rudderElement) => {
-  populatHeartbeat(rudderElement);
+  populateHeartbeat(rudderElement);
   const { properties } = rudderElement.message;
   const { va } = window.ADB;
   const { session_id, chapter_name, position, length, start_time } = properties;
@@ -119,13 +119,13 @@ const heartbeatVideoStart = (rudderElement) => {
 };
 
 const heartbeatVideoPaused = (rudderElement) => {
-  populatHeartbeat(rudderElement);
+  populateHeartbeat(rudderElement);
   const { properties } = rudderElement.message;
   mediaHeartbeats[properties.session_id || "default"].hearbeat.trackPause();
 };
 
 const heartbeatVideoComplete = (rudderElement) => {
-  populatHeartbeat(rudderElement);
+  populateHeartbeat(rudderElement);
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   mediaHeartbeats[properties.session_id || "defualt"].trackEvent(
@@ -135,7 +135,7 @@ const heartbeatVideoComplete = (rudderElement) => {
 };
 
 const heartbeatSessionEnd = (rudderElement) => {
-  populatHeartbeat(rudderElement);
+  populateHeartbeat(rudderElement);
   const { properties } = rudderElement.message;
   const { session_id } = properties;
   mediaHeartbeats[session_id || "default"].hearbeat.trackComplete();
@@ -212,7 +212,7 @@ const heartbeatAdSkipped = (rudderElement) => {
 };
 
 const heartbeatSeekStarted = (rudderElement) => {
-  populatHeartbeat(rudderElement);
+  populateHeartbeat(rudderElement);
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   const { session_id } = properties;
@@ -222,7 +222,7 @@ const heartbeatSeekStarted = (rudderElement) => {
 };
 
 const heartbeatSeekCompleted = (rudderElement) => {
-  populatHeartbeat(rudderElement);
+  populateHeartbeat(rudderElement);
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   const { session_id } = properties;
@@ -232,7 +232,7 @@ const heartbeatSeekCompleted = (rudderElement) => {
 };
 
 const heartbeatBufferStarted = (rudderElement) => {
-  populatHeartbeat(rudderElement);
+  populateHeartbeat(rudderElement);
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   const { session_id } = properties;
@@ -252,7 +252,7 @@ const heartbeatUpdatePlayhead = (rudderElement) => {
 };
 
 const heartbeatBufferCompleted = (rudderElement) => {
-  populatHeartbeat(rudderElement);
+  populateHeartbeat(rudderElement);
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   const { session_id } = properties;
@@ -262,7 +262,7 @@ const heartbeatBufferCompleted = (rudderElement) => {
 };
 
 export {
-  populatHeartbeat,
+  populateHeartbeat,
   initHeartbeat,
   hearbeatSessionStart,
   heartbeatVideoStart,

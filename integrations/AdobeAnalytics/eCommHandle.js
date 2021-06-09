@@ -7,7 +7,7 @@ const productViewHandle = (rudderElement, pageName) => {
   utils.processEvent(rudderElement, "prodView", pageName);
 };
 
-const productAddedHandle = (rudderElement) => {
+const productAddedHandle = (rudderElement, pageName) => {
   utils.clearWindowSKeys(utils.getDynamicKeys());
   utils.processEvent(rudderElement, "scAdd", pageName);
 };
