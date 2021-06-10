@@ -111,7 +111,7 @@ class FacebookPixel {
       return filtered;
     }, []);
 
-    if (![].concat(standard, legacy).length) {
+    if (![].concat(standardTo, legacyTo).length) {
       window.fbq("trackSingleCustom", self.pixelId, event, payload, {
         eventID: rudderElement.message.messageId,
       });
