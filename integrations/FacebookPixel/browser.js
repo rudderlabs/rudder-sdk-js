@@ -111,6 +111,13 @@ class FacebookPixel {
       return filtered;
     }, []);
 
+    if (![].concat(standardTo, legacyTo).length) {
+      window.fbq("trackSingleCustom", self.pixelId, event, payload, {
+        eventID: rudderElement.message.messageId,
+      });
+      return;
+    }
+
     each((event) => {
       payload.currency = rudderElement.message.properties.currency || "USD";
 
