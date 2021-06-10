@@ -226,22 +226,31 @@ class AdobeAnalytics {
         case "initHeartbeat":
           heartbeatUtils.initHeartbeat(rudderElement);
           break;
+        case "heartbeatPlaybackStarted":
+        case "heartbeatPlaybackResumed":
+        case "heartbeatContentStarted":
         case "heartbeatVideoStart":
           heartbeatUtils.heartbeatVideoStart(rudderElement);
           break;
+        case "heartbeatPlaybackPaused":
+        case "heartbeatPlaybackInterrupted":
         case "heartbeatVideoPaused":
           heartbeatUtils.heartbeatVideoPaused(rudderElement);
           break;
+        case "heartbeatContentComplete":
         case "heartbeatVideoComplete":
           heartbeatUtils.heartbeatVideoComplete(rudderElement);
           break;
         case "heartbeatSessionEnd":
+        case "heartbeatPlaybackCompleted":
           heartbeatUtils.heartbeatSessionEnd(rudderElement);
           break;
         case "heartbeatAdStarted":
+        case "heartbeatAdBreakStarted":
           heartbeatUtils.heartbeatAdStarted(rudderElement);
           break;
         case "heartbeatAdCompleted":
+        case "heartbeatAdBreakCompleted":
           heartbeatUtils.heartbeatAdCompleted(rudderElement);
           break;
         case "heartbeatAdSkipped":

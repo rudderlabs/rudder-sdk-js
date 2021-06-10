@@ -29,6 +29,8 @@ const getConfig = () => {
   return config;
 };
 
+const topLevelProperties = ["messageId", "anonymousId", "event"];
+
 /* eslint-disable camelcase */
 /**
  *
@@ -194,22 +196,30 @@ const calculateTimestamp = (rudderElement) => {
 /**
  * @param  {} contextMap { "page.name" : "pName", "page.url": "pUrl"}
  * @param  {} rudderElement
- *  Find page.name, page.url from context of rudder message.
+ *  Find page.name, page.url from context/properties of rudder message.
+ *  If key is one of anonymousId/userId/messageId it will fetch from message.
  *  If context = {"page": {"name": "Home Page", "url":"https://example.com"},{"path", "/page1"}}
  * @param  {} return a hash map of {"pName": "Home Page", "pUrl": "https://example.com"}
  */
 
 const getDataFromContext = (contextMap, rudderElement) => {
-  const { context } = rudderElement.message;
+  const { context, properties } = rudderElement.message;
   const contextDataMap = {};
-  if (context) {
-    Object.keys(contextMap).forEach((value) => {
-      if (value) {
-        const val = _.get(context, value);
+  Object.keys(contextMap).forEach((value) => {
+    let val;
+    if (value) {
+      if (topLevelProperties.includes(value)) {
+        val = rudderElement.message[value];
+      } else {
+        val = _.get(context, value)
+          ? _.get(context, value)
+          : _.get(properties, value);
+      }
+      if (val) {
         contextDataMap[contextMap[value]] = val;
       }
-    });
-  }
+    }
+  });
   return contextDataMap;
 };
 
@@ -220,9 +230,15 @@ const getDataFromContext = (contextMap, rudderElement) => {
  * DOC: https://experienceleague.adobe.com/docs/analytics/implementation/vars/page-vars/contextdata.html?lang=en
  */
 
-const setContextData = (contextDataKey, contextDataValue) => {
+const setContextData = (contextDataKey, contextDataValue, video = false) => {
+  const contextData = {};
   window.s.contextData[contextDataKey] = contextDataValue;
   dynamicKeys.push(`contextData.${contextDataKey}`);
+  if (video) {
+    contextData[contextDataKey] = contextDataValue;
+    return contextData;
+  }
+  return null;
 };
 
 /**
@@ -452,6 +468,15 @@ const setEventsString = (event, properties, adobeEventName) => {
   adobeEventArray = adobeEventArray.filter((item) => {
     return !!item;
   });
+
+  const productMerchEventToAdobeEventHashmap = getHashFromArray(
+    config.productMerchEventToAdobeEvent
+  );
+  if (productMerchEventToAdobeEventHashmap) {
+    each((value) => {
+      adobeEventArray.push(value);
+    }, productMerchEventToAdobeEventHashmap);
+  }
   const adobeEvent = adobeEventArray.join(",");
   updateWindowSKeys(adobeEvent, "events");
 
@@ -660,6 +685,40 @@ const processEvent = (rudderElement, adobeEventName, pageName) => {
   window.s.tl(true, "o", event);
 };
 
+const handleVideoContextData = (rudderElement) => {
+  let contextData;
+  const { properties } = rudderElement.message;
+  const contextDataPrefixValue = config.contextDataPrefix
+    ? `${config.contextDataPrefix}.`
+    : "";
+  if (properties) {
+    each((value, key) => {
+      contextData = {
+        ...contextData,
+        ...setContextData(contextDataPrefixValue + key, value, true),
+      };
+    }, properties);
+  }
+  const contextDataMappingHashmap = getHashFromArray(
+    config.contextDataMapping,
+    "from",
+    "to",
+    false
+  );
+  const keyValueContextData = getDataFromContext(
+    contextDataMappingHashmap,
+    rudderElement
+  );
+  if (keyValueContextData) {
+    each((value, key) => {
+      if (isDefinedAndNotNullAndNotEmpty(key)) {
+        contextData = { ...contextData, ...setContextData(key, value, true) };
+      }
+    }, keyValueContextData);
+  }
+  return contextData;
+};
+
 export {
   processEvent,
   createQos,
@@ -686,4 +745,5 @@ export {
   getDynamicKeys,
   setConfig,
   getConfig,
+  handleVideoContextData,
 };

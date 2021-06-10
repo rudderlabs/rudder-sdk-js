@@ -7,14 +7,13 @@ const mediaHeartbeats = {};
 let playhead = 0;
 const adBreakCounts = {};
 let adBreakProgress = false;
-
 // Begin heartbeat implementation
 
 // Handling Video Type Events
 // DOC: https://experienceleague.adobe.com/docs/media-analytics/using/sdk-implement/setup/setup-javascript/set-up-js-2.html?lang=en
 // DOC: https://experienceleague.adobe.com/docs/media-analytics/using/sdk-implement/track-av-playback/track-core-overview.html?lang=en
 
-const hearbeatSessionStart = (rudderElement) => {
+const heartbeatSessionStart = (rudderElement) => {
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   const { livestream, title, asset_id, total_length, session_id } = properties;
@@ -27,10 +26,10 @@ const hearbeatSessionStart = (rudderElement) => {
     total_length || 0,
     streamType
   );
-  const contextData = utils.handleContextData(rudderElement);
+  const contextData = utils.handleVideoContextData(rudderElement);
   utils.standardVideoMetadata(rudderElement, mediaObj);
 
-  mediaHeartbeats[session_id || "default"].hearbeat.trackSessionStart(
+  mediaHeartbeats[session_id || "default"].heartbeat.trackSessionStart(
     mediaObj,
     contextData
   );
@@ -66,7 +65,7 @@ const initHeartbeat = (rudderElement) => {
   };
 
   mediaHeartbeats[session_id || "default"] = {
-    hearbeat: new va.MediaHeartbeat(
+    heartbeat: new va.MediaHeartbeat(
       mediaHeartbeatDelegate,
       mediaHeartbeatConfig,
       window.s
@@ -75,14 +74,13 @@ const initHeartbeat = (rudderElement) => {
     config: mediaHeartbeatConfig,
   };
   qosData = utils.createQos(rudderElement);
-  hearbeatSessionStart(rudderElement);
+  heartbeatSessionStart(rudderElement);
 };
 
 const populateHeartbeat = (rudderElement) => {
   const { properties } = rudderElement.message;
   const { session_id, channel, video_player } = properties;
   const mediaHeartbeat = mediaHeartbeats[session_id || "default"];
-
   if (!mediaHeartbeat) {
     initHeartbeat(rudderElement);
   } else {
@@ -98,10 +96,8 @@ const heartbeatVideoStart = (rudderElement) => {
   const { properties } = rudderElement.message;
   const { va } = window.ADB;
   const { session_id, chapter_name, position, length, start_time } = properties;
-
-  mediaHeartbeats[session_id || "default"].hearbeat.trackPlay();
-  const contextData = utils.handleContextData(rudderElement);
-
+  mediaHeartbeats[session_id || "default"].heartbeat.trackPlay();
+  const contextData = utils.handleVideoContextData(rudderElement);
   if (!mediaHeartbeats[session_id || "default"].chapterInProgress) {
     const chapterObj = va.MediaHeartbeat.createChapterObject(
       chapter_name || "no chapter name",
@@ -109,7 +105,7 @@ const heartbeatVideoStart = (rudderElement) => {
       length || 6000,
       start_time || 0
     );
-    mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
+    mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
       va.MediaHeartbeat.Event.ChapterStart,
       chapterObj,
       contextData
@@ -121,14 +117,14 @@ const heartbeatVideoStart = (rudderElement) => {
 const heartbeatVideoPaused = (rudderElement) => {
   populateHeartbeat(rudderElement);
   const { properties } = rudderElement.message;
-  mediaHeartbeats[properties.session_id || "default"].hearbeat.trackPause();
+  mediaHeartbeats[properties.session_id || "default"].heartbeat.trackPause();
 };
 
 const heartbeatVideoComplete = (rudderElement) => {
   populateHeartbeat(rudderElement);
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
-  mediaHeartbeats[properties.session_id || "defualt"].trackEvent(
+  mediaHeartbeats[properties.session_id || "defualt"].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.ChapterComplete
   );
   mediaHeartbeats[properties.session_id || "default"].chapterInProgress = false;
@@ -138,8 +134,8 @@ const heartbeatSessionEnd = (rudderElement) => {
   populateHeartbeat(rudderElement);
   const { properties } = rudderElement.message;
   const { session_id } = properties;
-  mediaHeartbeats[session_id || "default"].hearbeat.trackComplete();
-  mediaHeartbeats[session_id || "default"].hearbeat.trackSessionEnd();
+  mediaHeartbeats[session_id || "default"].heartbeat.trackComplete();
+  mediaHeartbeats[session_id || "default"].heartbeat.trackSessionEnd();
 
   delete mediaHeartbeats[session_id || "default"];
   delete adBreakCounts[session_id || "default"];
@@ -159,7 +155,8 @@ const heartbeatAdStarted = (rudderElement) => {
     adSessionCount,
     position || 1
   );
-  mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
+
+  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.AdBreakStart,
     adBreakObj
   );
@@ -172,7 +169,8 @@ const heartbeatAdStarted = (rudderElement) => {
     total_length || 0
   );
   utils.standardAdMetadata(rudderElement, adObject);
-  mediaHeartbeats[session_id || "deafult"].hearbeat.trackEvent(
+
+  mediaHeartbeats[session_id || "deafult"].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.AdStart,
     adObject,
     content || {}
@@ -186,10 +184,11 @@ const heartbeatAdCompleted = (rudderElement) => {
   if (!adBreakProgress) {
     heartbeatAdStarted(rudderElement);
   }
-  mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
+  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.AdComplete
   );
-  mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
+
+  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.AdBreakComplete
   );
   adBreakProgress = false;
@@ -202,10 +201,10 @@ const heartbeatAdSkipped = (rudderElement) => {
   if (!adBreakProgress) {
     heartbeatAdStarted(rudderElement);
   }
-  mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
+  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.AdSkip
   );
-  mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
+  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.AdBreakComplete
   );
   adBreakProgress = false;
@@ -216,7 +215,7 @@ const heartbeatSeekStarted = (rudderElement) => {
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   const { session_id } = properties;
-  mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
+  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.SeekStart
   );
 };
@@ -226,7 +225,7 @@ const heartbeatSeekCompleted = (rudderElement) => {
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   const { session_id } = properties;
-  mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
+  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.SeekComplete
   );
 };
@@ -236,7 +235,8 @@ const heartbeatBufferStarted = (rudderElement) => {
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   const { session_id } = properties;
-  mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
+
+  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.BufferStart
   );
 };
@@ -246,9 +246,12 @@ const heartbeatQualityUpdated = (rudderElement) => {
 };
 
 const heartbeatUpdatePlayhead = (rudderElement) => {
-  playhead = rudderElement.message.properties
-    ? rudderElement.message.properties.position
-    : null;
+  if (rudderElement.message.properties) {
+    playhead =
+      rudderElement.message.properties.position ||
+      rudderElement.message.properties.playhead ||
+      null;
+  }
 };
 
 const heartbeatBufferCompleted = (rudderElement) => {
@@ -256,7 +259,8 @@ const heartbeatBufferCompleted = (rudderElement) => {
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   const { session_id } = properties;
-  mediaHeartbeats[session_id || "default"].hearbeat.trackEvent(
+
+  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.BufferComplete
   );
 };
@@ -264,7 +268,7 @@ const heartbeatBufferCompleted = (rudderElement) => {
 export {
   populateHeartbeat,
   initHeartbeat,
-  hearbeatSessionStart,
+  heartbeatSessionStart,
   heartbeatVideoStart,
   heartbeatVideoPaused,
   heartbeatVideoComplete,
