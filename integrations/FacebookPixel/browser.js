@@ -112,7 +112,9 @@ class FacebookPixel {
     }, []);
 
     if (![].concat(standardTo, legacyTo).length) {
-      window.fbq("trackSingleCustom", self.pixelId, event, payload, {
+      const payloadVal = this.buildPayLoad(rudderElement, false);
+      payloadVal.value = revenue;
+      window.fbq("trackSingleCustom", self.pixelId, event, payloadVal, {
         eventID: rudderElement.message.messageId,
       });
       return;
@@ -599,7 +601,6 @@ class FacebookPixel {
     }
     const payload = {};
     const { properties } = rudderElement.message;
-
     for (const property in properties) {
       if (!properties.hasOwnProperty(property)) {
         continue;
