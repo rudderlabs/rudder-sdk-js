@@ -127,17 +127,17 @@ class AdobeAnalytics {
       }
     }
     // update values in window.s
-    this.updateWindowSKeys(this.pageName, "events");
-    this.updateWindowSKeys(url, "pageURL");
-    this.updateCommonWindowSKeys(rudderElement, this.pageName);
+    utils.updateWindowSKeys(this.pageName, "events");
+    utils.updateWindowSKeys(url, "pageURL");
+    utils.updateCommonWindowSKeys(rudderElement, this.pageName);
 
-    this.calculateTimestamp(rudderElement);
+    utils.calculateTimestamp(rudderElement);
 
-    this.handleContextData(rudderElement);
-    this.handleEVars(rudderElement);
-    this.handleHier(rudderElement);
-    this.handleLists(rudderElement);
-    this.handleCustomProps(rudderElement);
+    utils.handleContextData(rudderElement);
+    utils.handleEVars(rudderElement);
+    utils.handleHier(rudderElement);
+    utils.handleLists(rudderElement);
+    utils.handleCustomProps(rudderElement);
     /** The t() method is an important core component to Adobe Analytics. It takes all Analytics variables defined on the page,
      *  compiles them into an image request, and sends that data to Adobe data collection servers.
      * */
@@ -166,7 +166,6 @@ class AdobeAnalytics {
         utils.processEvent(
           rudderElement,
           rudderEventsToAdobeEventsHashmap[event.toLowerCase()].trim(),
-          utils.getDynamicKeys(),
           this.pageName
         );
       }

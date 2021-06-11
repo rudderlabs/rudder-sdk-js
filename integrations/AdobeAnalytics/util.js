@@ -472,7 +472,7 @@ const setEventsString = (event, properties, adobeEventName) => {
   const productMerchEventToAdobeEventHashmap = getHashFromArray(
     config.productMerchEventToAdobeEvent
   );
-  if (productMerchEventToAdobeEventHashmap) {
+  if (productMerchEventToAdobeEventHashmap[event.toLowerCase()]) {
     each((value) => {
       adobeEventArray.push(value);
     }, productMerchEventToAdobeEventHashmap);
@@ -629,7 +629,6 @@ const setProductString = (event, properties) => {
   const productMerchEventToAdobeEventHashmap = getHashFromArray(
     config.productMerchEventToAdobeEvent
   );
-
   const adobeEvent = productMerchEventToAdobeEventHashmap[event.toLowerCase()];
   if (adobeEvent) {
     const isSingleProdEvent =
@@ -652,13 +651,13 @@ const setProductString = (event, properties) => {
 const processEvent = (rudderElement, adobeEventName, pageName) => {
   const { properties, event } = rudderElement.message;
   const { currency } = properties;
-
   updateCommonWindowSKeys(rudderElement, pageName);
   calculateTimestamp(rudderElement);
   // useful for setting evar as amount value if this is set
   if (currency !== "USD") {
     updateWindowSKeys(currency, "currencyCode");
   }
+
   setEventsString(event, properties, adobeEventName);
   setProductString(event, properties);
 
