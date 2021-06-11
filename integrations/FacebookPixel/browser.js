@@ -590,10 +590,7 @@ class FacebookPixel {
     }
     const payload = {};
     const { properties } = rudderElement.message;
-    console.log(properties)
     for (const property in properties) {
-      console.log(property)
-      console.log(properties[property])
       if (!properties.hasOwnProperty(property)) {
         continue;
       }
@@ -602,7 +599,6 @@ class FacebookPixel {
         continue;
       }
       const value = properties[property];
-      console.log(value)
 
       if (dateFields.indexOf(properties) >= 0) {
         if (is.date(value)) {
@@ -620,7 +616,6 @@ class FacebookPixel {
       const isProperyWhiteListed =
         whitelistPiiProperties.indexOf(property) >= 0;
       if (!isPropertyPii || isProperyWhiteListed) {
-        console.log("inside")
         payload[property] = value;
       }
     }
