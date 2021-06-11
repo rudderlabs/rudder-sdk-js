@@ -70,6 +70,10 @@ const commonNames = {
   PINTEREST_TAG: "PINTEREST_TAG",
   pinterest: "PINTEREST_TAG",
   Pinterest: "PINTEREST_TAG",
+  "Adobe Analytics": "ADOBE_ANALYITCS",
+  ADOBE_ANALYTICS: "ADOBE_ANALYTICS",
+  AdobeAnalytics: "ADOBE_ANALYTICS",
+  adobeanalytics: "ADOBE_ANALYTICS",
 };
 
 export { commonNames };
