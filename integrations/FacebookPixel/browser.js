@@ -606,9 +606,12 @@ class FacebookPixel {
         continue;
       }
 
-      if (isStandardEvent && eventCustomProperties.indexOf(property) < 0) {
+      const customProperties = eventCustomProperties.map(e => e.eventCustomProperties);
+
+      if (isStandardEvent && customProperties.indexOf(property) < 0) {
         continue;
       }
+
       const value = properties[property];
 
       if (dateFields.indexOf(properties) >= 0) {
