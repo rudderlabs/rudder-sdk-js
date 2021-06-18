@@ -22,6 +22,8 @@ class AdobeAnalytics {
     this.timestampOption = config.timestampOption;
     this.preferVisitorId = config.preferVisitorId;
     this.rudderEventsToAdobeEvents = config.rudderEventsToAdobeEvents || [];
+    this.proxyNormalUrl = config.proxyNormalUrl;
+    this.proxyHeartbeatUrl = config.proxyHeartbeatUrl;
     this.pageName = "";
     this.name = "ADOBE_ANALYTICS";
     utils.setConfig(config);
@@ -33,20 +35,20 @@ class AdobeAnalytics {
     // update playhead value of a session
     window.rudderHBPlayheads = {};
     // load separately as heartbeat sdk is large and need not be required if this is off.
+    const heartbeatUrl =
+      this.proxyHeartbeatUrl ||
+      "https://cdn.rudderlabs.com/adobe-analytics-js/adobe-analytics-js-heartbeat.js";
+    const normalUrl =
+      this.proxyNormalUrl ||
+      "https://cdn.rudderlabs.com/adobe-analytics-js/adobe-analytics-js.js";
     if (this.heartbeatTrackingServerUrl) {
-      ScriptLoader(
-        "adobe-analytics-heartbeat",
-        "https://cdn.rudderlabs.com/adobe-analytics-js/adobe-analytics-js-heartbeat.js"
-      );
+      ScriptLoader("adobe-analytics-heartbeat", heartbeatUrl);
       this.setIntervalHandler = setInterval(
         this.initAdobeAnalyticsClient.bind(this),
         1000
       );
     } else {
-      ScriptLoader(
-        "adobe-analytics-heartbeat",
-        "https://cdn.rudderlabs.com/adobe-analytics-js/adobe-analytics-js.js"
-      );
+      ScriptLoader("adobe-analytics-heartbeat", normalUrl);
       this.setIntervalHandler = setInterval(
         this.initAdobeAnalyticsClient.bind(this),
         1000
