@@ -126,7 +126,7 @@ You can also refer to the sample projects for a walkthrough of the above: [Sampl
 
 **SDK-supported Browser Versions**
 
-- Safari >=6
+- Safari >=7
 - IE >=10
 - Edge >=15
 - Mozilla >=40
