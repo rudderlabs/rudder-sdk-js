@@ -77,6 +77,13 @@ const commonNames = {
   ADOBE_ANALYTICS: "ADOBE_ANALYTICS",
   AdobeAnalytics: "ADOBE_ANALYTICS",
   adobeanalytics: "ADOBE_ANALYTICS",
+  "LinkedIn Pixel": "LINKEDIN_PIXEL",
+  LINKEDIN_PIXEL: "LINKEDIN_PIXEL",
+  Linkedin_pixel: "LINKEDIN_PIXEL",
+  LinkedinPixel: "LINKEDIN_PIXEL",
+  LinkedInPixel: "LINKEDIN_PIXEL",
+  Linkedinpixel: "LINKEDIN_PIXEL",
+  LINKEDINPIXEL: "LINKEDIN_PIXEL",
 };
 
 export { commonNames };
