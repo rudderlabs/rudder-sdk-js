@@ -74,13 +74,14 @@ const commonNames = {
   ADOBE_ANALYTICS: "ADOBE_ANALYTICS",
   AdobeAnalytics: "ADOBE_ANALYTICS",
   adobeanalytics: "ADOBE_ANALYTICS",
-  "LinkedIn Pixel": "LINKEDIN_PIXEL",
-  LINKEDIN_PIXEL: "LINKEDIN_PIXEL",
-  Linkedin_pixel: "LINKEDIN_PIXEL",
-  LinkedinPixel: "LINKEDIN_PIXEL",
-  LinkedInPixel: "LINKEDIN_PIXEL",
-  Linkedinpixel: "LINKEDIN_PIXEL",
-  LINKEDINPIXEL: "LINKEDIN_PIXEL",
+  "LinkedIn Insight Tag": "LINKEDIN_INSIGHT_TAG",
+  LINKEDIN_INSIGHT_TAG: "LINKEDIN_INSIGHT_TAG",
+  Linkedin_insight_tag: "LINKEDIN_INSIGHT_TAG",
+  LinkedinInsighttag: "LINKEDIN_INSIGHT_TAG",
+  LinkedinInsightTag: "LINKEDIN_INSIGHT_TAG",
+  LinkedInInsightTag: "LINKEDIN_INSIGHT_TAG",
+  Linkedininsighttag: "LINKEDIN_INSIGHT_TAG",
+  LINKEDININSIGHTTAG: "LINKEDIN_INSIGHT_TAG",
 };
 
 export { commonNames };

@@ -31,7 +31,7 @@ const clientToServerNames = {
   CLEVERTAP: "Clevertap",
   BINGADS: "BingAds",
   PINTEREST_TAG: "PinterestTag",
-  LINKEDIN_PIXEL: "LinkedinPixel"
+  LINKEDIN_INSIGHT_TAG: "LinkedInInsightTag"
 };
 
 export { clientToServerNames };
