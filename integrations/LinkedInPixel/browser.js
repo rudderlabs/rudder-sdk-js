@@ -2,7 +2,7 @@ import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
 class LinkedInPixel{
     constructor(config){
-        this.name="LINKEDINPIXEL";
+        this.name="LINKEDIN_PIXEL";
         this.partnerId=config.partnerId;
     }
     init() {

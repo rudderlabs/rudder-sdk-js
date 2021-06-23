@@ -29,7 +29,7 @@ import * as Clevertap from "./Clevertap";
 import * as BingAds from "./BingAds";
 import * as PinterestTag from "./PinterestTag";
 import * as AdobeAnalytics from "./AdobeAnalytics";
-import * as LinkedInPixel from "./LinkedInPixel"
+import * as LinkedInPixel from "./LinkedInPixel";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -66,7 +66,7 @@ const integrations = {
   BINGADS: BingAds.default,
   PINTEREST_TAG: PinterestTag.default,
   ADOBE_ANALYTICS: AdobeAnalytics.default,
-  LINKEDINPIXEL: LinkedInPixel.default,
+  LINKEDIN_PIXEL: LinkedInPixel.default,
 };
 
 export { integrations };
