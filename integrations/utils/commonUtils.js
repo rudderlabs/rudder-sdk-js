@@ -47,9 +47,41 @@ const toIso = (timestamp) => {
   return new Date(timestamp).toISOString();
 };
 
+// function to flatten a json
+function flattenJson(data) {
+  const result = {};
+  let l;
+
+  // a recursive function to loop through the array of the data
+  function recurse(cur, prop) {
+    let i;
+    if (Object(cur) !== cur) {
+      result[prop] = cur;
+    } else if (Array.isArray(cur)) {
+      for (i = 0, l = cur.length; i < l; i += 1) {
+        recurse(cur[i], `${prop}[${i}]`);
+      }
+      if (l === 0) {
+        result[prop] = [];
+      }
+    } else {
+      let isEmptyFlag = true;
+      Object.keys(cur).forEach(key => {
+        isEmptyFlag = false;
+        recurse(cur[key], prop ? `${prop}.${key}` : key);
+      });
+      if (isEmptyFlag && prop) result[prop] = {};
+    }
+  }
+
+  recurse(data, "");
+  return result;
+}
+
 export {
   getHashFromArray,
   toIso,
+  flattenJson,
   removeUndefinedValues,
   removeUndefinedAndNullValues,
   removeNullValues,

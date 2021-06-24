@@ -77,6 +77,10 @@ const commonNames = {
   ADOBE_ANALYTICS: "ADOBE_ANALYTICS",
   AdobeAnalytics: "ADOBE_ANALYTICS",
   adobeanalytics: "ADOBE_ANALYTICS",
+  Heap: "HEAP",
+  heap: "HEAP",
+  "Heap.io": "HEAP",
+  HEAP: "HEAP",
 };
 
 export { commonNames };
