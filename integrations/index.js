@@ -30,6 +30,7 @@ import * as BingAds from "./BingAds";
 import * as PinterestTag from "./PinterestTag";
 import * as AdobeAnalytics from "./AdobeAnalytics";
 import * as LinkedInInsightTag from "./LinkedInInsightTag";
+import * as Heap from "./Heap";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -67,6 +68,7 @@ const integrations = {
   PINTEREST_TAG: PinterestTag.default,
   ADOBE_ANALYTICS: AdobeAnalytics.default,
   LINKEDIN_INSIGHT_TAG: LinkedInInsightTag.default,
+  HEAP: Heap.default,
 };
 
 export { integrations };

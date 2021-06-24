@@ -31,7 +31,8 @@ const clientToServerNames = {
   CLEVERTAP: "Clevertap",
   BINGADS: "BingAds",
   PINTEREST_TAG: "PinterestTag",
-  LINKEDIN_INSIGHT_TAG: "LinkedInInsightTag"
+  LINKEDIN_INSIGHT_TAG: "LinkedInInsightTag",
+  HEAP: "Heap.io",
 };
 
 export { clientToServerNames };

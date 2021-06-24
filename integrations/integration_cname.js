@@ -82,6 +82,10 @@ const commonNames = {
   LinkedInInsightTag: "LINKEDIN_INSIGHT_TAG",
   Linkedininsighttag: "LINKEDIN_INSIGHT_TAG",
   LINKEDININSIGHTTAG: "LINKEDIN_INSIGHT_TAG",
+  Heap: "HEAP",
+  heap: "HEAP",
+  "Heap.io": "HEAP",
+  HEAP: "HEAP",
 };
 
 export { commonNames };
