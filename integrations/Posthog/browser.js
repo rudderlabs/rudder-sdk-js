@@ -115,6 +115,17 @@ class Posthog {
     posthog.capture(event, properties);
   }
 
+  reset() {
+    logger.debug("inside reset");
+    posthog.persistence.clear()
+    posthog.register_once(
+        {
+            distinct_id: this.analytics.userId,
+            $device_id: this.analytics.userId,
+        },
+        ''
+    )
+  }
   /**
    * 
    *
