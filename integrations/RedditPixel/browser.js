@@ -25,7 +25,7 @@ class RedditPixel {
       }
     })(window, document);
 
-    rdt("init", "${this.advertiserId}");
+    rdt("init", `${this.advertiserId}`);
   }
 
   isLoaded() {
@@ -70,6 +70,7 @@ class RedditPixel {
         window.rdt("track", "Search");
         break;
       default:
+        logger.debug("Track call not supported");
         break;
     }
   }
