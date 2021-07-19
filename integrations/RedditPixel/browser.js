@@ -50,6 +50,12 @@ class RedditPixel {
     logger.debug("In RedditPixel track");
 
     const { event } = rudderElement.message;
+
+    if (!event) {
+      logger.error("Event name is not present");
+      return;
+    }
+
     switch (event.toLowerCase()) {
       case "product added":
         window.rdt("track", "AddToCart");
