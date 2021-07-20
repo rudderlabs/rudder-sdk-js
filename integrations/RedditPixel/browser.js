@@ -3,7 +3,7 @@ import logger from "../../utils/logUtil";
 class RedditPixel {
   constructor(config) {
     this.advertiserId = config.advertiserId;
-    this.name = "REDDITPIXEL";
+    this.name = "REDDIT_PIXEL";
   }
 
   init() {

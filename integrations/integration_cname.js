@@ -1,4 +1,7 @@
 // for sdk side native integration identification
+
+import RedditPixel from "./RedditPixel";
+
 // add a mapping from common names to index.js exported key names as identified by Rudder
 const commonNames = {
   All: "All",
@@ -82,6 +85,13 @@ const commonNames = {
   LinkedInInsightTag: "LINKEDIN_INSIGHT_TAG",
   Linkedininsighttag: "LINKEDIN_INSIGHT_TAG",
   LINKEDININSIGHTTAG: "LINKEDIN_INSIGHT_TAG",
+  Reddit_Pixel: "REDDIT_PIXEL",
+  RedditPixel: "REDDIT_PIXEL",
+  REDDITPIXEL: "REDDIT_PIXEL",
+  redditpixel: "REDDIT_PIXEL",
+  "Reddit Pixel": "REDDIT_PIXEL",
+  "REDDIT PIXEL": "REDDIT_PIXEL",
+  "reddit pixel": "REDDIT_PIXEL",
   Heap: "HEAP",
   heap: "HEAP",
   "Heap.io": "HEAP",

@@ -32,6 +32,7 @@ const clientToServerNames = {
   BINGADS: "BingAds",
   PINTEREST_TAG: "PinterestTag",
   LINKEDIN_INSIGHT_TAG: "LinkedInInsightTag",
+  REDDIT_PIXEL: "Reddit Pixel",
   HEAP: "Heap.io",
 };
 
