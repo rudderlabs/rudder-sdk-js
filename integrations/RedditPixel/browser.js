@@ -3,7 +3,6 @@ import logger from "../../utils/logUtil";
 class RedditPixel {
   constructor(config) {
     this.advertiserId = config.advertiserId;
-
     this.name = "REDDITPIXEL";
   }
 
@@ -30,29 +29,25 @@ class RedditPixel {
 
   isLoaded() {
     logger.debug("===In isLoaded RedditPixel===");
-
     return !!(window.rdt && window.rdt.advertiserID === this.advertiserId);
   }
 
   isReady() {
     logger.debug("===In isReady RedditPixel===");
-
     return !!(window.rdt && window.rdt.advertiserID === this.advertiserId);
   }
 
   identify(rudderElement) {
-    logger.debug("In RedditPixel identity");
-
+    logger.debug("===In RedditPixel identify===");
     window.rdt("track", "SignUp");
   }
 
   track(rudderElement) {
-    logger.debug("In RedditPixel track");
+    logger.debug("===In RedditPixel track===");
 
     const { event } = rudderElement.message;
-
     if (!event) {
-      logger.error("Event name is not present");
+      logger.error(`Event name is not present`);
       return;
     }
 
@@ -82,8 +77,7 @@ class RedditPixel {
   }
 
   page(rudderElement) {
-    logger.debug("In RedditPixel page");
-
+    logger.debug("===In RedditPixel page===");
     window.rdt("track", "PageVisit");
   }
 }
