@@ -19,6 +19,7 @@ export default class GA4 {
     this.sendUserId = config.sendUserId || false;
     this.blockPageView = config.blockPageViewEvent || false;
     this.extendPageViewParams = config.extendPageViewParams || false;
+    this.extendGroupPayload = config.extendGroupPayload || false;
     this.name = "GA4";
   }
 
@@ -214,5 +215,17 @@ export default class GA4 {
     } else {
       window.gtag("event", "page_view", getPageViewProperty(pageProps));
     }
+  }
+
+  group(rudderElement) {
+    const { groupId } = rudderElement.message;
+    const { traits } = rudderElement.message;
+
+    getDestinationEventName(rudderElement.message.type).forEach((events) => {
+      this.sendGAEvent(events.dest, {
+        group_id: groupId,
+        ...(this.extendGroupPayload ? traits : {}),
+      });
+    });
   }
 }
