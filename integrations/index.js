@@ -30,6 +30,7 @@ import * as BingAds from "./BingAds";
 import * as PinterestTag from "./PinterestTag";
 import * as AdobeAnalytics from "./AdobeAnalytics";
 import * as LinkedInInsightTag from "./LinkedInInsightTag";
+import * as RedditPixel from "./RedditPixel";
 import * as Heap from "./Heap";
 
 // the key names should match the destination.name value to keep partity everywhere
@@ -68,6 +69,7 @@ const integrations = {
   PINTEREST_TAG: PinterestTag.default,
   ADOBE_ANALYTICS: AdobeAnalytics.default,
   LINKEDIN_INSIGHT_TAG: LinkedInInsightTag.default,
+  REDDIT_PIXEL: RedditPixel.default,
   HEAP: Heap.default,
 };
 
