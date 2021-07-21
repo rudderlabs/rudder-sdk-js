@@ -93,6 +93,9 @@ const commonNames = {
   heap: "HEAP",
   "Heap.io": "HEAP",
   HEAP: "HEAP",
+  Criteo: "CRITEO",
+  criteo: "CRITEO",
+  CRITEO: "CRITEO"
 };
 
 export { commonNames };
