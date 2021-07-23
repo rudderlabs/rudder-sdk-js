@@ -24,17 +24,17 @@ class RedditPixel {
       }
     })(window, document);
 
-    rdt("init", `${this.advertiserId}`);
+    rdt("init", this.advertiserId);
   }
 
   isLoaded() {
     logger.debug("===In isLoaded RedditPixel===");
-    return !!(window.rdt && window.rdt.advertiserID === this.advertiserId);
+    return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
   }
 
   isReady() {
     logger.debug("===In isReady RedditPixel===");
-    return !!(window.rdt && window.rdt.advertiserID === this.advertiserId);
+    return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
   }
 
   identify(rudderElement) {
@@ -47,7 +47,7 @@ class RedditPixel {
 
     const { event } = rudderElement.message;
     if (!event) {
-      logger.error(`Event name is not present`);
+      logger.error("Event name is not present");
       return;
     }
 
@@ -71,7 +71,7 @@ class RedditPixel {
         window.rdt("track", "Search");
         break;
       default:
-        logger.debug("Track call not supported");
+        logger.error(`Invalid event ${event}. Track call not supported`);
         break;
     }
   }
