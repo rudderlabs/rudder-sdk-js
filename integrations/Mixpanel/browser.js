@@ -253,8 +253,7 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   group(rudderElement) {
-    const { message } = rudderElement;
-    const { userId, groupId, traits } = message;
+    const { userId, groupId, traits } = rudderElement.message;
     if (!userId) {
       logger.debug("===Mixpanel: valid userId is required for group===");
       return;
@@ -263,7 +262,7 @@ class Mixpanel {
       logger.debug("===Mixpanel: valid groupId is required for group===");
       return;
     }
-    if (this.groupIdentifierTraits.length === 0) {
+    if (!this.groupIdentifierTraits || this.groupIdentifierTraits.length === 0) {
       logger.debug("===Mixpanel: groupIdentifierTraits is required for group===");
       return;
     }
@@ -279,6 +278,27 @@ class Mixpanel {
       });
     }
     identifierTraitsList.forEach(trait => window.mixpanel.set_group(trait, [groupId]));
+  }
+
+  /**
+   * @param {*} rudderElement 
+   */
+  alias(rudderElement) {
+    const { previousId, userId } = rudderElement.message;
+    if (!previousId) {
+      logger.debug("===Mixpanel: previousId is required for alias call===");
+      return;
+    }
+    if (!userId) {
+      logger.debug("===Mixpanel: userId is required for alias call===");
+      return;
+    }
+    
+    if (window.mixpanel.get_distinct_id && window.mixpanel.get_distinct_id() === userId) {
+      logger.debug("===Mixpanel: userId is same as previousId. Skipping alias ===");
+      return;
+    }
+    window.mixpanel.alias(userId, previousId);
   }
 
   /**
