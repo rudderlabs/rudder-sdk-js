@@ -36,6 +36,7 @@ class Mixpanel {
     this.propIncrements = config.propIncrements;
     this.sourceName = config.sourceName;
     this.consolidatedPageCalls = config.consolidatedPageCalls;
+    this.groupIdentifierTraits = config.groupIdentifierTraits;
   }
 
   init() {
@@ -246,6 +247,38 @@ class Mixpanel {
     if (isNotEmpty(superProps)) {
       window.mixpanel.register(superProps);
     }
+  }
+
+  /**
+   * @param {*} rudderElement
+   */
+  group(rudderElement) {
+    const { message } = rudderElement;
+    const { userId, groupId, traits } = message;
+    if (!userId) {
+      logger.debug("===Mixpanel: valid userId is required for group===");
+      return;
+    }
+    if (!groupId) {
+      logger.debug("===Mixpanel: valid groupId is required for group===");
+      return;
+    }
+    if (this.groupIdentifierTraits.length === 0) {
+      logger.debug("===Mixpanel: groupIdentifierTraits is required for group===");
+      return;
+    }
+    /**
+     * groupIdentifierTraits: [ {trait: "<trait_value>"}, ... ]
+     */
+    const identifierTraitsList = this.groupIdentifierTraits.map(item => item.trait);
+    if (traits && Object.keys(traits).length) {
+      identifierTraitsList.forEach(trait => {
+        window.mixpanel
+          .get_group(trait, groupId)
+          .set_once(traits);
+      });
+    }
+    identifierTraitsList.forEach(trait => window.mixpanel.set_group(trait, [groupId]));
   }
 
   /**
