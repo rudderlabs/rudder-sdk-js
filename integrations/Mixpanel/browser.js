@@ -30,7 +30,14 @@ import {
   removeUndefinedAndNullValues,
   isNotEmpty,
 } from "../utils/commonUtils";
-
+import {
+  parseConfigArray,
+  inverseObjectArrays,
+  extractTraits,
+  unionArrays,
+  extendTraits,
+  mapTraits,
+} from "./util";
 class Mixpanel {
   constructor(config) {
     this.name = "MIXPANEL";
@@ -151,15 +158,6 @@ class Mixpanel {
     return !!(window.mixpanel && window.mixpanel.config);
   }
 
-  parseConfigArray(arr, key) {
-    if (!arr) {
-      logger.debug("===Mixpanel: arr is undefined or null===");
-      return;
-    }
-    // eslint-disable-next-line consistent-return
-    return arr.map((item) => item[key]);
-  }
-
   /**
    * Identify
    * @param {*} rudderElement
@@ -167,15 +165,9 @@ class Mixpanel {
   identify(rudderElement) {
     logger.debug("in Mixpanel identify");
 
-    let peopleProperties = this.parseConfigArray(
-      this.peopleProperties,
-      "property"
-    );
-    peopleProperties = this.extendTraits(peopleProperties);
-    const superProperties = this.parseConfigArray(
-      this.superProperties,
-      "property"
-    );
+    let peopleProperties = parseConfigArray(this.peopleProperties, "property");
+    peopleProperties = extendTraits(peopleProperties);
+    const superProperties = parseConfigArray(this.superProperties, "property");
 
     // eslint-disable-next-line camelcase
     const user_id =
@@ -186,10 +178,10 @@ class Mixpanel {
     if (user_id) window.mixpanel.identify(user_id);
 
     // name tag
-    const nametag = email || username || id;
+    const nametag = email || username;
     if (nametag) window.mixpanel.name_tag(nametag);
 
-    traits = this.extractTraits(traits, this.traitAliases);
+    traits = extractTraits(traits, this.traitAliases);
     traits = removeUndefinedAndNullValues(traits);
 
     // determine which traits to union to existing properties and which to set as new properties
@@ -205,7 +197,7 @@ class Mixpanel {
         // from mixpanel and manually unioning to it ourselves
         const existingTrait = window.mixpanel.get_property(key);
         if (existingTrait && Array.isArray(existingTrait)) {
-          traits[key] = this.unionArrays(existingTrait, trait);
+          traits[key] = unionArrays(existingTrait, trait);
         }
       } else {
         traitsToSet[key] = trait;
@@ -220,11 +212,11 @@ class Mixpanel {
       }
     } else {
       // explicitly set select traits as people and super properties
-      const mappedSuperProps = this.mapTraits(superProperties);
+      const mappedSuperProps = mapTraits(superProperties);
       const superProps = pick(traits, mappedSuperProps || []);
       if (isNotEmpty(superProps)) window.mixpanel.register(superProps);
       if (this.people) {
-        const mappedPeopleProps = this.mapTraits(peopleProperties);
+        const mappedPeopleProps = mapTraits(peopleProperties);
         const peoplePropsToSet = pick(traitsToSet, mappedPeopleProps || []);
         const peoplePropsToUnion = pick(traitsToUnion, mappedPeopleProps || []);
         if (isNotEmpty(peoplePropsToSet))
@@ -275,21 +267,15 @@ class Mixpanel {
   track(rudderElement) {
     logger.debug("in Mixpanel track");
     const { message } = rudderElement;
-    const eventIncrements = this.parseConfigArray(
-      this.eventIncrements,
-      "property"
-    );
-    const propIncrements = this.parseConfigArray(
-      this.propIncrements,
-      "property"
-    );
+    const eventIncrements = parseConfigArray(this.eventIncrements, "property");
+    const propIncrements = parseConfigArray(this.propIncrements, "property");
     const event = get(message, "event.event");
     const revenue =
       get(message, "event.properties.revenue") ||
       get(message, "properties.total");
     const sourceName = this.sourceName;
     let props = get(message, "event.properties");
-    props = this.inverseObjectArrays(props);
+    props = inverseObjectArrays(props);
     if (sourceName) props.rudderstack_source_name = sourceName;
 
     // delete mixpanel's reserved properties, so they don't conflict
@@ -302,7 +288,7 @@ class Mixpanel {
     // Mixpanel People operations
     if (this.people) {
       // increment event count, check if the current event exists in eventIncrements
-      if (eventIncrements.indexOf(event) != -1) {
+      if (eventIncrements.indexOf(event) !== -1) {
         window.mixpanel.people.increment(event);
         window.mixpanel.people.set("Last " + event, new Date());
       }
@@ -310,11 +296,7 @@ class Mixpanel {
       // eslint-disable-next-line guard-for-in
       for (const key in props) {
         const prop = props[key];
-        if (
-          prop &&
-          typeof prop == "number" &&
-          propIncrements.indexOf(key) != -1
-        ) {
+        if (prop && propIncrements.indexOf(key) != -1) {
           window.mixpanel.people.increment(key, prop);
         }
       }
@@ -364,7 +346,7 @@ class Mixpanel {
     /**
      * groupIdentifierTraits: [ {trait: "<trait_value>"}, ... ]
      */
-    const identifierTraitsList = this.parseConfigArray(
+    const identifierTraitsList = parseConfigArray(
       this.groupKeySettings,
       "groupKey"
     );
@@ -403,109 +385,6 @@ class Mixpanel {
       return;
     }
     window.mixpanel.alias(userId, previousId);
-  }
-
-  /**
-   * Since Mixpanel doesn't support lists of objects, invert each list of objects to a set of lists of object properties.
-   * Treats list transformation atomically, e.g. will only transform if EVERY item in list is an object
-   *
-   * @api private
-   * @param {Object} props
-   * @example
-   * input: {products: [{sku: 32, revenue: 99}, {sku:2, revenue: 103}]}
-   * output: {products_skus: [32, 2], products_revenues: [99, 103]}
-   */
-  inverseObjectArrays(input) {
-    const response = input;
-    Object.keys(input).forEach((key) => {
-      let markToDelete = false;
-      if (Array.isArray(input[key])) {
-        // [{sku: 32, revenue: 99}, {sku:2, revenue: 103}]
-        const tempArray = input[key];
-        tempArray.forEach((obj) => {
-          // operate if object encountered in array
-          if (typeof obj === "object") {
-            // {sku: 32, revenue: 99}
-            Object.entries(obj).forEach((k) => {
-              const attrKey = `${key}_${k[0]}s`;
-              if (attrKey in response) response[attrKey].push(k[1]);
-              else response[attrKey] = [k[1]];
-            });
-            markToDelete = true;
-          }
-        });
-        if (markToDelete) delete response[key];
-      }
-    });
-    return response;
-  }
-
-  extractTraits(traits, traitAliases) {
-    for (const [key, value] of Object.entries(traitAliases)) {
-      traits[value] = traits[key];
-      delete traits[key];
-    }
-    return traits;
-  }
-
-  /**
-   * Return union of two arrays
-   *
-   * @param {Array} x
-   * @param {Array} y
-   * @return {Array} res
-   */
-  unionArrays(x, y) {
-    const res = new Set();
-    // store items of each array as set entries to avoid duplicates
-    x.forEach((value) => {
-      res.add(value);
-    });
-    y.forEach((value) => {
-      res.add(value);
-    });
-    return [...res];
-  }
-
-  /**
-   * extend Mixpanel's special trait keys in the given `arr`.
-   * @param {Array} arr
-   * @return {Array}
-   */
-  extendTraits(arr) {
-    const keys = [];
-    Object.keys(this.traitAliases).forEach((key) => {
-      keys.push(key);
-    });
-
-    keys.forEach((key) => {
-      if (arr.indexOf(key) < 0) {
-        arr.push(key);
-      }
-    });
-
-    return arr;
-  }
-
-  /**
-   * Map Special traits in the given `arr`.
-   * From the TraitAliases for Mixpanel's special props
-   *
-   * @param {Array} arr
-   * @return {Array}
-   */
-  mapTraits(arr) {
-    const ret = new Array(arr.length);
-
-    arr.forEach((key) => {
-      if (this.traitAliases.hasOwnProperty(key)) {
-        ret.push(this.traitAliases[key]);
-      } else {
-        ret.push(key);
-      }
-    });
-
-    return ret;
   }
 }
 export default Mixpanel;
