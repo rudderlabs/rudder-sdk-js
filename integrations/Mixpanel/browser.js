@@ -323,6 +323,7 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   group(rudderElement) {
+    logger.debug("in Mixpanel group");
     const { userId, groupId, traits } = rudderElement.message;
     if (!userId) {
       logger.debug("===Mixpanel: valid userId is required for group===");
@@ -359,6 +360,7 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   alias(rudderElement) {
+    logger.debug("in Mixpanel alias");
     const { previousId, userId } = rudderElement.message;
     if (!previousId) {
       logger.debug("===Mixpanel: previousId is required for alias call===");
