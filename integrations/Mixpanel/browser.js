@@ -143,6 +143,15 @@ class Mixpanel {
     return !!(window.mixpanel && window.mixpanel.config);
   }
 
+  convertToArray(arr) {
+    if (!arr) {
+      logger.debug("===Mixpanel: arr is undefined or null===");
+      return;
+    }
+    // eslint-disable-next-line consistent-return
+    return arr.map(item => item.property);
+  }
+
   /**
    * Identify
    * @param {*} rudderElement
@@ -338,9 +347,7 @@ class Mixpanel {
     /**
      * groupIdentifierTraits: [ {trait: "<trait_value>"}, ... ]
      */
-    const identifierTraitsList = this.groupIdentifierTraits.map(
-      (item) => item.trait
-    );
+    const identifierTraitsList = this.convertToArray(this.groupIdentifierTraits);
     if (traits && Object.keys(traits).length) {
       identifierTraitsList.forEach((trait) => {
         window.mixpanel.get_group(trait, groupId).set_once(traits);
