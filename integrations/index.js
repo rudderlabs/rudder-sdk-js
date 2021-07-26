@@ -31,6 +31,7 @@ import * as PinterestTag from "./PinterestTag";
 import * as AdobeAnalytics from "./AdobeAnalytics";
 import * as LinkedInInsightTag from "./LinkedInInsightTag";
 import * as Heap from "./Heap";
+import * as Mixpanel from "./Mixpanel";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -69,6 +70,7 @@ const integrations = {
   ADOBE_ANALYTICS: AdobeAnalytics.default,
   LINKEDIN_INSIGHT_TAG: LinkedInInsightTag.default,
   HEAP: Heap.default,
+  MIXPANEL: Mixpanel.default,
 };
 
 export { integrations };

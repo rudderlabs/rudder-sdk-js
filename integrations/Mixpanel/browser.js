@@ -1,3 +1,5 @@
+/* eslint-disable no-continue */
+/* eslint-disable no-prototype-builtins */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable block-scoped-var */
 /* eslint-disable no-use-before-define */
@@ -37,6 +39,17 @@ class Mixpanel {
     this.sourceName = config.sourceName;
     this.consolidatedPageCalls = config.consolidatedPageCalls;
     this.groupIdentifierTraits = config.groupIdentifierTraits;
+    this.peopleProperties = config.peopleProperties;
+    this.traitAliases = {
+      created: "$created",
+      email: "$email",
+      firstName: "$first_name",
+      lastName: "$last_name",
+      lastSeen: "$last_seen",
+      name: "$name",
+      username: "$username",
+      phone: "$phone",
+    };
   }
 
   init() {
@@ -132,17 +145,68 @@ class Mixpanel {
 
   /**
    * Identify
-   * @param {*} rudderElement 
+   * @param {*} rudderElement
    */
   identify(rudderElement) {
     logger.debug("in Mixpanel identify");
+    const peopleProperties = extendTraits(this.peopleProperties);
+    const superProperties = this.superProperties;
+
     // eslint-disable-next-line camelcase
     const user_id =
       rudderElement.message.userId || rudderElement.message.anonymousId;
-    const { traits } = rudderElement.message.context;
-    const payload = { user_id, ...traits };
-    this.handleName(payload);
-    window.jstag.send(this.stream, payload);
+    let { traits } = rudderElement.message.context;
+    const { email, username } = traits;
+    // id
+    if (user_id) window.mixpanel.identify(user_id);
+
+    // name tag
+    const nametag = email || username || id;
+    if (nametag) window.mixpanel.name_tag(nametag);
+
+    traits = extractTraits(traits, this.traitAliases);
+
+    // determine which traits to union to existing properties and which to set as new properties
+    const traitsToUnion = {};
+    const traitsToSet = {};
+    for (const key in traits) {
+      if (!traits.hasOwnProperty(key)) continue;
+
+      const trait = traits[key];
+      if (Array.isArray(trait) && trait.length > 0) {
+        traitsToUnion[key] = trait;
+        // since mixpanel doesn't offer a union method for super properties we have to do it manually by retrieving the existing list super property
+        // from mixpanel and manually unioning to it ourselves
+        const existingTrait = window.mixpanel.get_property(key);
+        if (existingTrait && Array.isArray(existingTrait)) {
+          traits[key] = unionArrays(existingTrait, trait);
+        }
+      } else {
+        traitsToSet[key] = trait;
+      }
+    }
+
+    if (this.setAllTraitsByDefault) {
+      window.mixpanel.register(traits);
+      if (this.people) {
+        window.mixpanel.people.set(traitsToSet);
+        window.mixpanel.people.union(traitsToUnion);
+      }
+    } else {
+      // explicitly set select traits as people and super properties
+      const mappedSuperProps = mapTraits(superProperties);
+      const superProps = pick(traits, mappedSuperProps || []);
+      if (!is.empty(superProps)) window.mixpanel.register(superProps);
+      if (this.people) {
+        const mappedPeopleProps = mapTraits(peopleProperties);
+        const peoplePropsToSet = pick(traitsToSet, mappedPeopleProps || []);
+        const peoplePropsToUnion = pick(traitsToUnion, mappedPeopleProps || []);
+        if (!is.empty(peoplePropsToSet))
+          window.mixpanel.people.set(peoplePropsToSet);
+        if (!is.empty(peoplePropsToUnion))
+          window.mixpanel.people.union(peoplePropsToUnion);
+      }
+    }
   }
 
   /**
@@ -262,26 +326,33 @@ class Mixpanel {
       logger.debug("===Mixpanel: valid groupId is required for group===");
       return;
     }
-    if (!this.groupIdentifierTraits || this.groupIdentifierTraits.length === 0) {
-      logger.debug("===Mixpanel: groupIdentifierTraits is required for group===");
+    if (
+      !this.groupIdentifierTraits ||
+      this.groupIdentifierTraits.length === 0
+    ) {
+      logger.debug(
+        "===Mixpanel: groupIdentifierTraits is required for group==="
+      );
       return;
     }
     /**
      * groupIdentifierTraits: [ {trait: "<trait_value>"}, ... ]
      */
-    const identifierTraitsList = this.groupIdentifierTraits.map(item => item.trait);
+    const identifierTraitsList = this.groupIdentifierTraits.map(
+      (item) => item.trait
+    );
     if (traits && Object.keys(traits).length) {
-      identifierTraitsList.forEach(trait => {
-        window.mixpanel
-          .get_group(trait, groupId)
-          .set_once(traits);
+      identifierTraitsList.forEach((trait) => {
+        window.mixpanel.get_group(trait, groupId).set_once(traits);
       });
     }
-    identifierTraitsList.forEach(trait => window.mixpanel.set_group(trait, [groupId]));
+    identifierTraitsList.forEach((trait) =>
+      window.mixpanel.set_group(trait, [groupId])
+    );
   }
 
   /**
-   * @param {*} rudderElement 
+   * @param {*} rudderElement
    */
   alias(rudderElement) {
     const { previousId, userId } = rudderElement.message;
@@ -293,9 +364,14 @@ class Mixpanel {
       logger.debug("===Mixpanel: userId is required for alias call===");
       return;
     }
-    
-    if (window.mixpanel.get_distinct_id && window.mixpanel.get_distinct_id() === userId) {
-      logger.debug("===Mixpanel: userId is same as previousId. Skipping alias ===");
+
+    if (
+      window.mixpanel.get_distinct_id &&
+      window.mixpanel.get_distinct_id() === userId
+    ) {
+      logger.debug(
+        "===Mixpanel: userId is same as previousId. Skipping alias ==="
+      );
       return;
     }
     window.mixpanel.alias(userId, previousId);
@@ -334,6 +410,74 @@ class Mixpanel {
       }
     });
     return response;
+  }
+
+  extractTraits(traits, traitAliases) {
+    for (const [key, value] of Object.entries(traitAliases)) {
+      traits[value] = traits[key];
+      delete traits[key];
+    }
+    return traits;
+  }
+
+  /**
+   * Return union of two arrays
+   *
+   * @param {Array} x
+   * @param {Array} y
+   * @return {Array} res
+   */
+  unionArrays(x, y) {
+    const res = new Set();
+    // store items of each array as set entries to avoid duplicates
+    x.forEach((value) => {
+      res.add(value);
+    });
+    y.forEach((value) => {
+      res.add(value);
+    });
+    return [...res];
+  }
+
+  /**
+   * extend Mixpanel's special trait keys in the given `arr`.
+   * @param {Array} arr
+   * @return {Array}
+   */
+  extendTraits(arr) {
+    const keys = [];
+    Object.keys(this.traitAliases).forEach((key) => {
+      keys.push(key);
+    });
+
+    keys.forEach((key) => {
+      if (arr.indexOf(key) < 0) {
+        arr.push(key);
+      }
+    });
+
+    return arr;
+  }
+
+  /**
+   * Map Special traits in the given `arr`.
+   * From the TraitAliases for Mixpanel's special props
+   *
+   * @param {Array} arr
+   * @return {Array}
+   */
+  mapTraits(arr) {
+    const ret = new Array(arr.length);
+
+    arr.forEach((key) => {
+      if (this.traitAliases.hasOwnProperty(key)) {
+        ret.push(traitAliases[key]);
+      } else {
+        ret.push(key);
+      }
+    });
+
+    return ret;
   }
 }
 export default Mixpanel;

@@ -33,6 +33,7 @@ const clientToServerNames = {
   PINTEREST_TAG: "PinterestTag",
   LINKEDIN_INSIGHT_TAG: "LinkedInInsightTag",
   HEAP: "Heap.io",
+  MIXPANEL: "Mixpanel",
 };
 
 export { clientToServerNames };
