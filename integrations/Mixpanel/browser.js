@@ -40,7 +40,7 @@ class Mixpanel {
     this.consolidatedPageCalls = config.consolidatedPageCalls;
     this.trackCategorizedPages = config.trackCategorizedPages;
     this.trackNamedPages = config.trackNamedPages;
-    this.groupIdentifierTraits = config.groupIdentifierTraits;
+    this.groupKeySettings = config.groupKeySettings;
     this.peopleProperties = config.peopleProperties;
     this.traitAliases = {
       created: "$created",
@@ -145,13 +145,13 @@ class Mixpanel {
     return !!(window.mixpanel && window.mixpanel.config);
   }
 
-  convertToArray(arr) {
+  parseConfigArray(arr, key) {
     if (!arr) {
       logger.debug("===Mixpanel: arr is undefined or null===");
       return;
     }
     // eslint-disable-next-line consistent-return
-    return arr.map(item => item.property);
+    return arr.map(item => item[key]);
   }
 
   /**
@@ -338,8 +338,8 @@ class Mixpanel {
       return;
     }
     if (
-      !this.groupIdentifierTraits ||
-      this.groupIdentifierTraits.length === 0
+      !this.groupKeySettings ||
+      this.groupKeySettings.length === 0
     ) {
       logger.debug(
         "===Mixpanel: groupIdentifierTraits is required for group==="
@@ -349,7 +349,7 @@ class Mixpanel {
     /**
      * groupIdentifierTraits: [ {trait: "<trait_value>"}, ... ]
      */
-    const identifierTraitsList = this.convertToArray(this.groupIdentifierTraits);
+    const identifierTraitsList = this.parseConfigArray(this.groupKeySettings, "groupKey");
     if (traits && Object.keys(traits).length) {
       identifierTraitsList.forEach((trait) => {
         window.mixpanel.get_group(trait, groupId).set_once(traits);
