@@ -25,7 +25,11 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
 import logger from "../../utils/logUtil";
-import { pick, isNotEmpty } from "../utils/commonUtils";
+import {
+  pick,
+  removeUndefinedAndNullValues,
+  isNotEmpty,
+} from "../utils/commonUtils";
 
 class Mixpanel {
   constructor(config) {
@@ -34,6 +38,7 @@ class Mixpanel {
     this.token = config.token;
     this.people = config.people;
     this.dataResidency = config.dataResidency;
+    this.setAllTraitsByDefault = config.setAllTraitsByDefault;
     this.superProperties = config.superProperties;
     this.eventIncrements = config.eventIncrements;
     this.propIncrements = config.propIncrements;
@@ -127,7 +132,7 @@ class Mixpanel {
       }
     })(document, window.mixpanel || []);
     const options = {};
-    if (this.options.enableEuropeanUnionEndpoint) {
+    if (this.dataResidency == "eu") {
       // https://developer.mixpanel.com/docs/implement-mixpanel#section-implementing-mixpanel-in-the-european-union-eu
       options.api_host = "https://api-eu.mixpanel.com";
     }
@@ -152,7 +157,7 @@ class Mixpanel {
       return;
     }
     // eslint-disable-next-line consistent-return
-    return arr.map(item => item[key]);
+    return arr.map((item) => item[key]);
   }
 
   /**
@@ -161,8 +166,16 @@ class Mixpanel {
    */
   identify(rudderElement) {
     logger.debug("in Mixpanel identify");
-    const peopleProperties = extendTraits(this.peopleProperties);
-    const superProperties = this.superProperties;
+
+    let peopleProperties = this.parseConfigArray(
+      this.peopleProperties,
+      "property"
+    );
+    peopleProperties = this.extendTraits(peopleProperties);
+    const superProperties = this.parseConfigArray(
+      this.superProperties,
+      "property"
+    );
 
     // eslint-disable-next-line camelcase
     const user_id =
@@ -176,7 +189,8 @@ class Mixpanel {
     const nametag = email || username || id;
     if (nametag) window.mixpanel.name_tag(nametag);
 
-    traits = extractTraits(traits, this.traitAliases);
+    traits = this.extractTraits(traits, this.traitAliases);
+    traits = removeUndefinedAndNullValues(traits);
 
     // determine which traits to union to existing properties and which to set as new properties
     const traitsToUnion = {};
@@ -191,7 +205,7 @@ class Mixpanel {
         // from mixpanel and manually unioning to it ourselves
         const existingTrait = window.mixpanel.get_property(key);
         if (existingTrait && Array.isArray(existingTrait)) {
-          traits[key] = unionArrays(existingTrait, trait);
+          traits[key] = this.unionArrays(existingTrait, trait);
         }
       } else {
         traitsToSet[key] = trait;
@@ -206,16 +220,16 @@ class Mixpanel {
       }
     } else {
       // explicitly set select traits as people and super properties
-      const mappedSuperProps = mapTraits(superProperties);
+      const mappedSuperProps = this.mapTraits(superProperties);
       const superProps = pick(traits, mappedSuperProps || []);
-      if (!is.empty(superProps)) window.mixpanel.register(superProps);
+      if (isNotEmpty(superProps)) window.mixpanel.register(superProps);
       if (this.people) {
-        const mappedPeopleProps = mapTraits(peopleProperties);
+        const mappedPeopleProps = this.mapTraits(peopleProperties);
         const peoplePropsToSet = pick(traitsToSet, mappedPeopleProps || []);
         const peoplePropsToUnion = pick(traitsToUnion, mappedPeopleProps || []);
-        if (!is.empty(peoplePropsToSet))
+        if (isNotEmpty(peoplePropsToSet))
           window.mixpanel.people.set(peoplePropsToSet);
-        if (!is.empty(peoplePropsToUnion))
+        if (isNotEmpty(peoplePropsToUnion))
           window.mixpanel.people.union(peoplePropsToUnion);
       }
     }
@@ -227,8 +241,8 @@ class Mixpanel {
    */
   page(rudderElement) {
     logger.debug("in Mixpanel page");
-    const { name, category, properties } = rudderElement.message;
-
+    const { name, properties } = rudderElement.message;
+    const { category } = properties;
     // consolidated Page Calls
     if (this.consolidatedPageCalls) {
       window.mixpanel.track("Loaded a Page", properties);
@@ -261,13 +275,21 @@ class Mixpanel {
   track(rudderElement) {
     logger.debug("in Mixpanel track");
     const { message } = rudderElement;
-    const eventIncrements = this.eventIncrements;
-    const propIncrements = this.propIncrements;
-    const event = get(message, "event");
-    const revenue = get(message, "properties.revenue") || get(message, "properties.total");
+    const eventIncrements = this.parseConfigArray(
+      this.eventIncrements,
+      "property"
+    );
+    const propIncrements = this.parseConfigArray(
+      this.propIncrements,
+      "property"
+    );
+    const event = get(message, "event.event");
+    const revenue =
+      get(message, "event.properties.revenue") ||
+      get(message, "properties.total");
     const sourceName = this.sourceName;
-    let props = get(message, properties);
-    props = inverseObjectArrays(props);
+    let props = get(message, "event.properties");
+    props = this.inverseObjectArrays(props);
     if (sourceName) props.rudderstack_source_name = sourceName;
 
     // delete mixpanel's reserved properties, so they don't conflict
@@ -278,7 +300,7 @@ class Mixpanel {
     delete props.token;
 
     // Mixpanel People operations
-    if (people) {
+    if (this.people) {
       // increment event count, check if the current event exists in eventIncrements
       if (eventIncrements.indexOf(event) != -1) {
         window.mixpanel.people.increment(event);
@@ -333,10 +355,7 @@ class Mixpanel {
       logger.debug("===Mixpanel: valid groupId is required for group===");
       return;
     }
-    if (
-      !this.groupKeySettings ||
-      this.groupKeySettings.length === 0
-    ) {
+    if (!this.groupKeySettings || this.groupKeySettings.length === 0) {
       logger.debug(
         "===Mixpanel: groupIdentifierTraits is required for group==="
       );
@@ -345,7 +364,10 @@ class Mixpanel {
     /**
      * groupIdentifierTraits: [ {trait: "<trait_value>"}, ... ]
      */
-    const identifierTraitsList = this.parseConfigArray(this.groupKeySettings, "groupKey");
+    const identifierTraitsList = this.parseConfigArray(
+      this.groupKeySettings,
+      "groupKey"
+    );
     if (traits && Object.keys(traits).length) {
       identifierTraitsList.forEach((trait) => {
         window.mixpanel.get_group(trait, groupId).set_once(traits);
@@ -399,7 +421,7 @@ class Mixpanel {
       let markToDelete = false;
       if (Array.isArray(input[key])) {
         // [{sku: 32, revenue: 99}, {sku:2, revenue: 103}]
-        tempArray = input[key];
+        const tempArray = input[key];
         tempArray.forEach((obj) => {
           // operate if object encountered in array
           if (typeof obj === "object") {
@@ -477,7 +499,7 @@ class Mixpanel {
 
     arr.forEach((key) => {
       if (this.traitAliases.hasOwnProperty(key)) {
-        ret.push(traitAliases[key]);
+        ret.push(this.traitAliases[key]);
       } else {
         ret.push(key);
       }
