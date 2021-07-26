@@ -269,16 +269,20 @@ class Mixpanel {
     const { message } = rudderElement;
     const eventIncrements = parseConfigArray(this.eventIncrements, "property");
     const propIncrements = parseConfigArray(this.propIncrements, "property");
-    const event = get(message, "event.event");
+    const event = get(message, "event");
     const revenue =
-      get(message, "event.properties.revenue") ||
-      get(message, "properties.total");
+      get(message, "properties.revenue") || get(message, "properties.total");
     const sourceName = this.sourceName;
-    let props = get(message, "event.properties");
-    props = inverseObjectArrays(props);
-    if (sourceName) props.rudderstack_source_name = sourceName;
+    let props = get(message, "properties");
+    if (isNotEmpty(props)) {
+      props = inverseObjectArrays(props);
+    }
+    if (sourceName) {
+      props = { ...props };
+      props.rudderstack_source_name = sourceName;
+    }
 
-    // delete mixpanel's reserved properties, so they don't conflict
+    // delete mixpanel's reserved prosperties, so they don't conflict
     delete props.distinct_id;
     delete props.ip;
     delete props.mp_name_tag;
