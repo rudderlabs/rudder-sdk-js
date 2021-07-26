@@ -38,6 +38,8 @@ class Mixpanel {
     this.propIncrements = config.propIncrements;
     this.sourceName = config.sourceName;
     this.consolidatedPageCalls = config.consolidatedPageCalls;
+    this.trackCategorizedPages = config.trackCategorizedPages;
+    this.trackNamedPages = config.trackNamedPages;
     this.groupIdentifierTraits = config.groupIdentifierTraits;
     this.peopleProperties = config.peopleProperties;
     this.traitAliases = {
