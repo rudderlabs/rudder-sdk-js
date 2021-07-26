@@ -18,6 +18,7 @@ class Criteo {
       ? "m"
       : "d";
     this.fieldMapping = config.fieldMapping;
+    this.OPERATOR_LIST = ["eq", "gt", "lt", "ge", "le", "in"];
   }
 
   init() {
@@ -123,7 +124,7 @@ class Criteo {
         availability: properties.availability,
       };
       if (!viewItemObject.item) {
-        // productId is madatory
+        // productId is mandatory
         return;
       }
       finalPayload.push(viewItemObject);
@@ -191,7 +192,7 @@ class Criteo {
         properties.name &&
         properties.value &&
         properties.operator &&
-        OPERATOR_LIST.includes(properties.operator)
+        this.OPERATOR_LIST.includes(properties.operator)
       ) {
         filterObject.name = properties.name;
         filterObject.value = properties.value;
