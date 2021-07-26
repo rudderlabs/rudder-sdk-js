@@ -263,9 +263,8 @@ class Mixpanel {
     const { message } = rudderElement;
     const eventIncrements = this.eventIncrements;
     const propIncrements = this.propIncrements;
-    const event = get(message, "event").toLowerCase();
-    const revenue = get(message, "properties.revenue");
-    const superProps = pick(props, this.superProperties);
+    const event = get(message, "event");
+    const revenue = get(message, "properties.revenue") || get(message, "properties.total");
     const sourceName = this.sourceName;
     let props = get(message, properties);
     props = inverseObjectArrays(props);
@@ -317,11 +316,6 @@ class Mixpanel {
       window.mixpanel.track_forms(query, event, props);
     } else {
       window.mixpanel.track(event, props);
-    }
-
-    // register super properties if present
-    if (isNotEmpty(superProps)) {
-      window.mixpanel.register(superProps);
     }
   }
 
