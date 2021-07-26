@@ -29,6 +29,7 @@ import { pick, isNotEmpty } from "../utils/commonUtils";
 
 class Mixpanel {
   constructor(config) {
+    this.name = "MIXPANEL";
     this.accountId = config.accountId;
     this.token = config.token;
     this.people = config.people;

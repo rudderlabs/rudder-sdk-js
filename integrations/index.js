@@ -70,7 +70,7 @@ const integrations = {
   ADOBE_ANALYTICS: AdobeAnalytics.default,
   LINKEDIN_INSIGHT_TAG: LinkedInInsightTag.default,
   HEAP: Heap.default,
-  MIXPANEL: Mixpanel.default,
+  MP: Mixpanel.default,
 };
 
 export { integrations };
