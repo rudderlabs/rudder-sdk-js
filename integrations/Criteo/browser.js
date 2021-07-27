@@ -6,7 +6,7 @@ import ScriptLoader from "../ScriptLoader";
 class Criteo {
   constructor(config) {
     this.name = "Criteo";
-    this.hash_method = config.hashMethod;
+    this.hashMethod = config.hashMethod;
     this.accountId = config.accountId;
     this.url = config.homePageUrl;
     // eslint-disable-next-line no-nested-ternary
@@ -61,10 +61,10 @@ class Criteo {
     ];
 
     if (properties.email) {
+      const email = properties.email.trim().toLowerCase();
       setEmail.event = "setEmail";
       setEmail.hash_method = this.hashMethod;
-      setEmail.email =
-        this.hashMethod === "md5" ? md5(properties.email) : properties.email;
+      setEmail.email = this.hashMethod === "md5" ? md5(email) : email;
       finalRequest.push(setEmail);
     }
 
@@ -77,35 +77,21 @@ class Criteo {
     return finalRequest;
   }
 
-  // extraData (rudderElement) {
-  //   const {message} = rudderElement;
-  //   const extraData = {};
-  //   const fieldMapHashmap = getHashFromArray(this.fieldMapping);
-  //   for (var field in fieldMapHashmap) {
-  //     if (fieldMapHashmap.hasOwnProperty(field)) {
-  //         if(message.properties[field]) {
-  //           extraData[fieldMapHashmap[field]] = message.properties[field];
-  //         }
-  //     }
-  // }
-  // return extraData;
-  // }
-
   page(rudderElement) {
-    const { event } = rudderElement.message;
+    const { name, properties } = rudderElement.message;
 
     const finalPayload = this.handleCommonFields(rudderElement);
 
-    if (event === "home" || (this.url && this.url === window.location.href)) {
+    if (
+      name === "home" ||
+      (this.url && this.url === window.location.href) ||
+      properties.url === this.url
+    ) {
       const homeEvent = {
         event: "viewHome",
       };
       finalPayload.push(homeEvent);
     }
-    // const extraDataObject = this.extraData(rudderElement)
-    //   if (Object.keys(extraDataObject).length !== 0) {
-    //     finalPayload.push({event : 'setData',extraDataObject});
-    //   }
 
     window.criteo_q.push(finalPayload);
   }
@@ -120,9 +106,15 @@ class Criteo {
       const viewItemObject = {
         event: "viewItem",
         item: String(properties.product_id),
-        price: properties.price,
-        availability: properties.availability,
       };
+
+      if (properties.price && !Number.isNaN(parseFloat(properties.price))) {
+        viewItemObject.price = parseFloat(properties.price);
+      }
+
+      if (properties.availability === 1 || properties.availability === 0) {
+        viewItemObject.availability = properties.availability;
+      }
       if (!viewItemObject.item) {
         // productId is mandatory
         return;
@@ -130,53 +122,57 @@ class Criteo {
       finalPayload.push(viewItemObject);
     }
 
-    // Basket/cart tag
-    if (event === "Cart Viewed") {
+    // Basket/cart tag && sales tag
+    if (event === "Cart Viewed" || event === "Order Completed") {
       const productInfo = [];
       let elementaryProduct;
       properties.products.forEach((product) => {
         elementaryProduct = {
           id: String(product.product_id),
-          price: product.price,
-          quantity: product.quantity,
+          price: parseFloat(product.price),
+          quantity: parseInt(product.quantity, 10),
         };
 
-        if (productInfo.id) {
-          // productId is madatory
+        if (
+          elementaryProduct.id &&
+          elementaryProduct.price &&
+          !Number.isNaN(parseFloat(elementaryProduct.price)) &&
+          elementaryProduct.quantity &&
+          !Number.isNaN(parseInt(elementaryProduct.quantity, 10))
+        ) {
+          // all the above fields are mandatory
           productInfo.push(elementaryProduct);
         }
       });
-      const viewBasketObject = {
-        event: "viewBasket",
-        item: productInfo,
-      };
-      finalPayload.push(viewBasketObject);
-    }
-    // sales tag
-    if (event === "Order Completed") {
-      const productInfo = [];
-      let elementaryProduct;
-      properties.products.forEach((product) => {
-        elementaryProduct = {
-          id: String(product.product_id),
-          price: product.price,
-          quantity: product.quantity,
-        };
-        if (elementaryProduct.id) {
-          // productId is madatory
-          productInfo.push(elementaryProduct);
+      if (event === "Cart Viewed") {
+        if (productInfo.length > 0) {
+          const viewBasketObject = {
+            event: "viewBasket",
+            item: productInfo,
+          };
+          finalPayload.push(viewBasketObject);
         }
-      });
-      const trackTransactionObject = {
-        event: "trackTransaction",
-        id: String(properties.order_id),
-        new_customer: properties.new_customer,
-        deduplication: properties.deduplication,
-        item: productInfo,
-      };
-      finalPayload.push(trackTransactionObject);
-    }
+      }
 
+      if (event === "Order Completed") {
+        const trackTransactionObject = {
+          event: "trackTransaction",
+          id: String(properties.order_id),
+          item: productInfo,
+        };
+        if (!trackTransactionObject.id) {
+          logger.error("order_id (Transaction Id) is a mandatory field");
+          return;
+        }
+        if (properties.new_customer === 1 || properties.new_customer === 0) {
+          trackTransactionObject.new_customer = properties.new_customer;
+        }
+        if (properties.deduplication === 1 || properties.deduplication === 0) {
+          trackTransactionObject.deduplication = properties.deduplication;
+        }
+        finalPayload.push(trackTransactionObject);
+      }
+    }
     // Category/keyword search/listing tag
     if (event === "Product List Viewed") {
       const productIdList = [];
@@ -184,7 +180,7 @@ class Criteo {
       const viewListObj = {};
       properties.products.forEach((product) => {
         if (product.product_id) {
-          productIdList.push(product.product_id);
+          productIdList.push(String(product.product_id));
         }
       });
 
@@ -201,20 +197,25 @@ class Criteo {
       }
 
       viewListObj.event = "viewList";
-      viewListObj.item = productIdList;
-      viewListObj.category = properties.category;
-      viewListObj.keywords = properties.keywords;
-      viewListObj.page_number = properties.page_number;
+      if (productIdList.length > 0) {
+        viewListObj.item = productIdList;
+      } else {
+        // product ID is mandatoryf
+        return;
+      }
+
+      viewListObj.category = String(properties.category);
+      viewListObj.keywords = String(properties.keywords);
+      if (
+        properties.page_number &&
+        !Number.isNaN(parseInt(properties.page_number, 10))
+      ) {
+        viewListObj.page_number = parseInt(properties.page_number, 10);
+      }
 
       finalPayload.push(viewListObj);
     }
-    // const extraDataObject = this.extraData(rudderElement)
-    // if (Object.keys(extraDataObject).length !== 0) {
-    //   let extraDataEvent = {
-    //     event : 'setData',extraD
-    //   }
-    //   finalPayload.push(extend(extraData, { event: 'setData' }));
-    // }
+
     window.criteo_q.push(finalPayload);
   }
 }

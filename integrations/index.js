@@ -72,7 +72,7 @@ const integrations = {
   LINKEDIN_INSIGHT_TAG: LinkedInInsightTag.default,
   REDDIT_PIXEL: RedditPixel.default,
   HEAP: Heap.default,
-  CRITEO: Criteo.default
+  CRITEO: Criteo.default,
 };
 
 export { integrations };
