@@ -2,6 +2,24 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-prototype-builtins */
 import logger from "../../utils/logUtil";
+import { getDefinedTraits, extractCustomFields } from "../../utils/utils";
+
+const keysToExtract = ["context.traits"];
+const exclusionKeys = [
+  "email",
+  "E-mail",
+  "Email",
+  "phone",
+  "Phone",
+  "name",
+  "Name",
+  "lastName",
+  "lastname",
+  "last_name",
+  "firstName",
+  "firstname",
+  "first_name",
+];
 
 const traitAliases = {
   created: "$created",
@@ -12,6 +30,29 @@ const traitAliases = {
   name: "$name",
   username: "$username",
   phone: "$phone",
+};
+
+const formatTraits = (message) => {
+  const { email, firstName, lastName, phone, name } = getDefinedTraits(message);
+  let outgoingTraits = {
+    email,
+    firstName,
+    lastName,
+    phone,
+    name,
+  };
+  // Extract other K-V property from traits about user custom properties
+  try {
+    outgoingTraits = extractCustomFields(
+      message,
+      outgoingTraits,
+      keysToExtract,
+      exclusionKeys
+    );
+  } catch (err) {
+    logger.debug(`Error occured at extractCustomFields ${err}`);
+  }
+  return outgoingTraits;
 };
 
 const parseConfigArray = (arr, key) => {
@@ -133,4 +174,5 @@ export {
   unionArrays,
   extendTraits,
   mapTraits,
+  formatTraits,
 };

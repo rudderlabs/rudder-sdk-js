@@ -37,7 +37,9 @@ import {
   unionArrays,
   extendTraits,
   mapTraits,
+  formatTraits,
 } from "./util";
+
 class Mixpanel {
   constructor(config) {
     this.name = "MIXPANEL";
@@ -172,7 +174,7 @@ class Mixpanel {
     // eslint-disable-next-line camelcase
     const user_id =
       rudderElement.message.userId || rudderElement.message.anonymousId;
-    let { traits } = rudderElement.message.context;
+    let traits = formatTraits(rudderElement.message);
     const { email, username } = traits;
     // id
     if (user_id) window.mixpanel.identify(user_id);
