@@ -93,6 +93,8 @@ const commonNames = {
   heap: "HEAP",
   "Heap.io": "HEAP",
   HEAP: "HEAP",
+  MIXPANEL: "MP",
+  Mixpanel: "MP",
 };
 
 export { commonNames };
