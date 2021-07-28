@@ -499,7 +499,8 @@ class FacebookPixel {
   }
 
   getContentType(rudderElement, defaultValue) {
-    const { options, properties } = rudderElement.message;
+    const { properties } = rudderElement.message;
+    const options = rudderElement?.message?.integrations?.FACEBOOK_PIXEL;
     if (options && options.contentType) {
       return [options.contentType];
     }
