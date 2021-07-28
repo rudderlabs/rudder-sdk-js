@@ -85,10 +85,19 @@ const commonNames = {
   LinkedInInsightTag: "LINKEDIN_INSIGHT_TAG",
   Linkedininsighttag: "LINKEDIN_INSIGHT_TAG",
   LINKEDININSIGHTTAG: "LINKEDIN_INSIGHT_TAG",
+  Reddit_Pixel: "REDDIT_PIXEL",
+  RedditPixel: "REDDIT_PIXEL",
+  REDDITPIXEL: "REDDIT_PIXEL",
+  redditpixel: "REDDIT_PIXEL",
+  "Reddit Pixel": "REDDIT_PIXEL",
+  "REDDIT PIXEL": "REDDIT_PIXEL",
+  "reddit pixel": "REDDIT_PIXEL",
   Heap: "HEAP",
   heap: "HEAP",
   "Heap.io": "HEAP",
   HEAP: "HEAP",
+  MIXPANEL: "MP",
+  Mixpanel: "MP",
 };
 
 export { commonNames };
