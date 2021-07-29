@@ -318,7 +318,9 @@ class Criteo {
             filterArray.push(filterObject);
           });
         }
-        viewListObj.filters = filterArray;
+        if (filterArray.length > 0) {
+          viewListObj.filters = filterArray;
+        }
         finalPayload.push(viewListObj);
       }
       const extraDataObject = generateExtraData(
