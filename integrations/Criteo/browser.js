@@ -320,9 +320,7 @@ class Criteo {
             filterArray.push(filterObject);
           });
         }
-        if (filterArray.length > 0) {
-          viewListObj.filters = filterArray;
-        }
+        viewListObj.filters = filterArray;
         finalPayload.push(viewListObj);
       }
       const extraDataObject = generateExtraData(
