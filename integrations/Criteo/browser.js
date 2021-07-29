@@ -113,8 +113,10 @@ class Criteo {
       return;
     }
 
+    const eventType = event.toLowerCase().trim();
+
     // Product tag
-    if (event === "Product Viewed") {
+    if (eventType === "product viewed") {
       if (properties.product_id) {
         const viewItemObject = {
           event: "viewItem",
@@ -160,7 +162,7 @@ class Criteo {
     }
 
     // Basket/cart tag && sales tag
-    if (event === "Cart Viewed" || event === "Order Completed") {
+    if (eventType === "cart viewed" || eventType === "order completed") {
       const productInfo = [];
       let elementaryProduct;
       if (properties && properties.products && properties.products.length > 0) {
@@ -196,7 +198,7 @@ class Criteo {
         );
         return;
       }
-      if (event === "Cart Viewed") {
+      if (eventType === "cart viewed") {
         const viewBasketObject = {
           event: "viewBasket",
           item: productInfo,
@@ -228,7 +230,7 @@ class Criteo {
         // );
       }
 
-      if (event === "Order Completed") {
+      if (eventType === "order completed") {
         const trackTransactionObject = {
           event: "trackTransaction",
           id: String(properties.order_id),
@@ -267,7 +269,7 @@ class Criteo {
         // }
       }
       // Category/keyword search/listing tag
-      if (event === "Product List Viewed") {
+      if (eventType === "product list viewed") {
         const productIdList = [];
         const filterArray = [];
         const viewListObj = {};
