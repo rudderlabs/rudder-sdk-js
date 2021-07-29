@@ -57,6 +57,9 @@ class Mixpanel {
     this.trackNamedPages = config.trackNamedPages;
     this.groupKeySettings = config.groupKeySettings;
     this.peopleProperties = config.peopleProperties;
+    this.crossSubdomainCookie = config.crossSubdomainCookie;
+    this.secureCookie = config.secureCookie;
+    this.persistence = config.persistence;
     this.traitAliases = {
       created: "$created",
       email: "$email",
@@ -140,7 +143,11 @@ class Mixpanel {
         g.parentNode.insertBefore(e, g);
       }
     })(document, window.mixpanel || []);
-    const options = {};
+    const options = {
+      persistence_name: this.persistence || "cookie",
+      cross_subdomain_cookie: this.crossSubdomainCookie || false,
+      secure_cookie: this.secureCookie || false,
+    };
     if (this.dataResidency == "eu") {
       // https://developer.mixpanel.com/docs/implement-mixpanel#section-implementing-mixpanel-in-the-european-union-eu
       options.api_host = "https://api-eu.mixpanel.com";
