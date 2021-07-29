@@ -13,6 +13,7 @@ const removeUndefinedAndNullValues = (obj) =>
 const removeUndefinedAndNullAndEmptyValues = (obj) =>
   _.pickBy(obj, isDefinedAndNotNullAndNotEmpty);
 const isBlank = (value) => _.isEmpty(_.toString(value));
+const pick = (argObj, argArr) => _.pick(argObj, argArr);
 
 /**
  *
@@ -66,7 +67,7 @@ function flattenJson(data) {
       }
     } else {
       let isEmptyFlag = true;
-      Object.keys(cur).forEach(key => {
+      Object.keys(cur).forEach((key) => {
         isEmptyFlag = false;
         recurse(cur[key], prop ? `${prop}.${key}` : key);
       });
@@ -92,4 +93,5 @@ export {
   isDefinedAndNotNull,
   isDefinedAndNotNullAndNotEmpty,
   isBlank,
+  pick,
 };

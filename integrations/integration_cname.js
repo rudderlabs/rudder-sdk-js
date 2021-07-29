@@ -96,6 +96,8 @@ const commonNames = {
   Criteo: "CRITEO",
   criteo: "CRITEO",
   CRITEO: "CRITEO",
+  MIXPANEL: "MP",
+  Mixpanel: "MP",
 };
 
 export { commonNames };

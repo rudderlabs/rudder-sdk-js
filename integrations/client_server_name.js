@@ -35,6 +35,7 @@ const clientToServerNames = {
   REDDIT_PIXEL: "Reddit Pixel",
   HEAP: "Heap.io",
   CRITEO: "Criteo",
+  MP: "Mixpanel",
 };
 
 export { clientToServerNames };
