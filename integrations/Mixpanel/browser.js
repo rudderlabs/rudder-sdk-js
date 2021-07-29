@@ -45,21 +45,21 @@ class Mixpanel {
     this.name = "MIXPANEL";
     this.accountId = config.accountId;
     this.token = config.token;
-    this.people = config.people;
-    this.dataResidency = config.dataResidency;
-    this.setAllTraitsByDefault = config.setAllTraitsByDefault;
-    this.superProperties = config.superProperties;
-    this.eventIncrements = config.eventIncrements;
-    this.propIncrements = config.propIncrements;
+    this.people = config.people || false;
+    this.dataResidency = config.dataResidency || "us";
+    this.setAllTraitsByDefault = config.setAllTraitsByDefault || false;
+    this.superProperties = config.superProperties || [];
+    this.eventIncrements = config.eventIncrements || [];
+    this.propIncrements = config.propIncrements || [];
     this.sourceName = config.sourceName;
-    this.consolidatedPageCalls = config.consolidatedPageCalls;
-    this.trackCategorizedPages = config.trackCategorizedPages;
-    this.trackNamedPages = config.trackNamedPages;
-    this.groupKeySettings = config.groupKeySettings;
-    this.peopleProperties = config.peopleProperties;
-    this.crossSubdomainCookie = config.crossSubdomainCookie;
-    this.secureCookie = config.secureCookie;
-    this.persistence = config.persistence;
+    this.consolidatedPageCalls = config.consolidatedPageCalls || true;
+    this.trackCategorizedPages = config.trackCategorizedPages || false;
+    this.trackNamedPages = config.trackNamedPages || false;
+    this.groupKeySettings = config.groupKeySettings || [];
+    this.peopleProperties = config.peopleProperties || [];
+    this.crossSubdomainCookie = config.crossSubdomainCookie || false;
+    this.secureCookie = config.secureCookie || false;
+    this.persistence = config.persistence || "none";
     this.traitAliases = {
       created: "$created",
       email: "$email",
@@ -148,7 +148,7 @@ class Mixpanel {
       secure_cookie: this.secureCookie || false,
     };
     if (this.persistence !== "none") {
-      options.persistence_name = this.persistence || "cookie";
+      options.persistence_name = this.persistence;
     }
     if (this.dataResidency == "eu") {
       // https://developer.mixpanel.com/docs/implement-mixpanel#section-implementing-mixpanel-in-the-european-union-eu
