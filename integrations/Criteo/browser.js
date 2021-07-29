@@ -1,5 +1,5 @@
+/* eslint-disable lines-between-class-members */
 /* eslint-disable no-unused-expressions */
-
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
 import { handleCommonFields, generateExtraData } from "./utils";
@@ -20,9 +20,6 @@ class Criteo {
       : "d";
     this.fieldMapping = config.fieldMapping;
     this.OPERATOR_LIST = ["eq", "gt", "lt", "ge", "le", "in"];
-    this.extraDataEvent = {
-      event: "setData",
-    };
   }
 
   init() {
@@ -32,7 +29,6 @@ class Criteo {
       return;
     }
     window.criteo_q = window.criteo_q || [];
-
     ScriptLoader(
       "Criteo",
       `//dynamic.criteo.com/js/ld/ld.js?a=${this.accountId}`
@@ -55,9 +51,7 @@ class Criteo {
 
   page(rudderElement) {
     const { name, properties } = rudderElement.message;
-
     const finalPayload = handleCommonFields(rudderElement, this.hashMethod);
-
     if (
       name === "home" ||
       (properties && properties.name === "home") ||
@@ -72,14 +66,11 @@ class Criteo {
       logger.debug("Home page is not detected");
       return;
     }
-
     const extraDataObject = generateExtraData(rudderElement, this.fieldMapping);
     if (Object.keys(extraDataObject).length !== 0) {
-      finalPayload.push({ ...this.extraDataEvent, ...extraDataObject });
+      finalPayload.push({ event: "setData", ...extraDataObject });
     }
-
     window.criteo_q.push(finalPayload);
-
     // Final example payload supported by destination
     // window.criteo_q.push(
     //   { event: "setAccount", account: YOUR_PARTNER_ID},
@@ -98,33 +89,28 @@ class Criteo {
 
   track(rudderElement) {
     const { event, properties } = rudderElement.message;
-
     const finalPayload = handleCommonFields(rudderElement);
-
     if (!event) {
       logger.debug("Event name from track call is missing!!");
       return;
     }
-
     if (!properties || Object.keys(properties).length === 0) {
       logger.debug(
         "Either properties object is missing or empty in the track call"
       );
       return;
     }
-
+    const eventType = event.toLowerCase().trim();
     // Product tag
-    if (event === "Product Viewed") {
+    if (eventType === "product viewed") {
       if (properties.product_id) {
         const viewItemObject = {
           event: "viewItem",
           item: String(properties.product_id),
         };
-
         if (properties.price && !Number.isNaN(parseFloat(properties.price))) {
           viewItemObject.price = parseFloat(properties.price);
         }
-
         if (
           properties.availability &&
           (properties.availability === 1 || properties.availability === 0)
@@ -158,9 +144,8 @@ class Criteo {
       //   }
       // );
     }
-
     // Basket/cart tag && sales tag
-    if (event === "Cart Viewed" || event === "Order Completed") {
+    if (eventType === "cart viewed" || eventType === "order completed") {
       const productInfo = [];
       let elementaryProduct;
       if (properties && properties.products && properties.products.length > 0) {
@@ -196,7 +181,7 @@ class Criteo {
         );
         return;
       }
-      if (event === "Cart Viewed") {
+      if (eventType === "cart viewed") {
         const viewBasketObject = {
           event: "viewBasket",
           item: productInfo,
@@ -227,8 +212,7 @@ class Criteo {
         //   }
         // );
       }
-
-      if (event === "Order Completed") {
+      if (eventType === "order completed") {
         const trackTransactionObject = {
           event: "trackTransaction",
           id: String(properties.order_id),
@@ -245,7 +229,6 @@ class Criteo {
           trackTransactionObject.deduplication = properties.deduplication;
         }
         finalPayload.push(trackTransactionObject);
-
         // final example payload supported by destination
         //   window.criteo_q.push(
         //     { event: "setAccount", account: YOUR_PARTNER_ID},
@@ -263,92 +246,84 @@ class Criteo {
         //        //add a line for each additional line in the basket
         //      ]}
         //   );
-
         // }
       }
-      // Category/keyword search/listing tag
-      if (event === "Product List Viewed") {
-        const productIdList = [];
-        const filterArray = [];
-        const viewListObj = {};
-
-        if (properties.product && properties.product.length > 0) {
-          properties.products.forEach((product) => {
-            if (product.product_id) {
-              productIdList.push(String(product.product_id));
-            }
-          });
-          if (productIdList.length === 0) {
-            logger.debug("None of the product information had product_id");
-            return;
+    }
+    // Category/keyword search/listing tag
+    if (eventType === "product list viewed") {
+      const productIdList = [];
+      const filterArray = [];
+      const viewListObj = {};
+      if (properties.products && properties.products.length > 0) {
+        properties.products.forEach((product) => {
+          if (product.product_id) {
+            productIdList.push(String(product.product_id));
           }
-        } else {
-          logger.debug(
-            "The payload should consist of atleast one product information"
-          );
+        });
+        if (productIdList.length === 0) {
+          logger.debug("None of the product information had product_id");
           return;
         }
-
-        viewListObj.event = "viewList";
-        viewListObj.item = productIdList;
-        viewListObj.category = String(properties.category);
-        viewListObj.keywords = String(properties.keywords);
-        if (
-          properties.page_number &&
-          !Number.isNaN(parseInt(properties.page_number, 10))
-        ) {
-          viewListObj.page_number = parseInt(properties.page_number, 10);
-        }
-
-        if (properties.filters) {
-          properties.filters.forEach((filter) => {
-            const filterObject = {};
-            if (filter.name) {
-              filterObject.name = filter.name;
-            }
-            if (
-              filter.operator &&
-              this.OPERATOR_LIST.includes(filter.operator)
-            ) {
-              filterObject.operator = filter.operator;
-            }
-            if (filter.value) {
-              filterObject.value = filter.value;
-            }
-            filterArray.push(filterObject);
-          });
-        }
+      } else {
+        logger.debug(
+          "The payload should consist of atleast one product information"
+        );
+        return;
+      }
+      viewListObj.event = "viewList";
+      viewListObj.item = productIdList;
+      viewListObj.category = String(properties.category);
+      viewListObj.keywords = String(properties.keywords);
+      if (
+        properties.page_number &&
+        !Number.isNaN(parseInt(properties.page_number, 10))
+      ) {
+        viewListObj.page_number = parseInt(properties.page_number, 10);
+      }
+      if (properties.filters) {
+        properties.filters.forEach((filter) => {
+          const filterObject = {};
+          if (filter.name) {
+            filterObject.name = filter.name;
+          }
+          if (filter.operator && this.OPERATOR_LIST.includes(filter.operator)) {
+            filterObject.operator = filter.operator;
+          }
+          if (filter.value) {
+            filterObject.value = filter.value;
+          }
+          filterArray.push(filterObject);
+        });
+      }
+      if (filterArray.length > 0) {
         viewListObj.filters = filterArray;
-        finalPayload.push(viewListObj);
       }
-      const extraDataObject = generateExtraData(
-        rudderElement,
-        this.fieldMapping
-      );
-      if (Object.keys(extraDataObject).length !== 0) {
-        finalPayload.push({ ...this.extraDataEvent, ...extraDataObject });
-      }
-      window.criteo_q.push(finalPayload);
-      // final example payload supported by destination
-      // window.criteo_q.push(
-      //   { event: "setAccount", account: YOUR_PARTNER_ID},
-      //   { event: "setEmail", email: "##Email Address##", hash_method: "##Hash Method##" },
-      //   { event: "setSiteType", type: deviceType},
-      //   { event: "setCustomerId", id: "##Customer Id##" },
-      //   { event: "setRetailerVisitorId", id: "##Visitor Id##"},
-      //   { event: "setZipcode", zipcode: "##Zip Code##" },
-      //   { event: "viewList",
-      //     item: [ "##Product Id 1##", "##Product Id 2##", "##Product Id 3##" ],
-      //     category: "##Category Id##",
-      //     keywords: "##Search Keyword##",
-      //     page_number: ##Page Number##,
-      //     filters:[
-      //       {name: "#Filter Name#", operator: "#Filter Operator#", value: "#Filter Value#"},
-      //       //add a line for each additional filter
-      //     ]
-      //   }
-      // );
+      finalPayload.push(viewListObj);
     }
+    const extraDataObject = generateExtraData(rudderElement, this.fieldMapping);
+    if (Object.keys(extraDataObject).length !== 0) {
+      finalPayload.push({ event: "setData", ...extraDataObject });
+    }
+    window.criteo_q.push(finalPayload);
+    // final example payload supported by destination
+    // window.criteo_q.push(
+    //   { event: "setAccount", account: YOUR_PARTNER_ID},
+    //   { event: "setEmail", email: "##Email Address##", hash_method: "##Hash Method##" },
+    //   { event: "setSiteType", type: deviceType},
+    //   { event: "setCustomerId", id: "##Customer Id##" },
+    //   { event: "setRetailerVisitorId", id: "##Visitor Id##"},
+    //   { event: "setZipcode", zipcode: "##Zip Code##" },
+    //   { event: "viewList",
+    //     item: [ "##Product Id 1##", "##Product Id 2##", "##Product Id 3##" ],
+    //     category: "##Category Id##",
+    //     keywords: "##Search Keyword##",
+    //     page_number: ##Page Number##,
+    //     filters:[
+    //       {name: "#Filter Name#", operator: "#Filter Operator#", value: "#Filter Value#"},
+    //       //add a line for each additional filter
+    //     ]
+    //   }
+    // );
   }
 }
 export default Criteo;
