@@ -1,7 +1,7 @@
 import md5 from "md5";
 import { getHashFromArray, isDefinedAndNotNull } from "../utils/commonUtils";
 
-const handleCommonFields = (rudderElement) => {
+const handleCommonFields = (rudderElement, hashMethod) => {
   const { message } = rudderElement;
   const { properties } = message;
 
@@ -16,8 +16,8 @@ const handleCommonFields = (rudderElement) => {
   if (properties && properties.email) {
     const email = properties.email.trim().toLowerCase();
     setEmail.event = "setEmail";
-    setEmail.hash_method = this.hashMethod;
-    setEmail.email = this.hashMethod === "md5" ? md5(email) : email;
+    setEmail.hash_method = hashMethod;
+    setEmail.email = hashMethod === "md5" ? md5(email) : email;
     finalRequest.push(setEmail);
   }
 
@@ -29,15 +29,10 @@ const handleCommonFields = (rudderElement) => {
 
   return finalRequest;
 };
-const generateExtraData = (rudderElement) => {
+const generateExtraData = (rudderElement, fieldMapping) => {
   const { message } = rudderElement;
   const extraData = {};
-  const fieldMapHashmap = getHashFromArray(
-    this.fieldMapping,
-    "from",
-    "to",
-    false
-  );
+  const fieldMapHashmap = getHashFromArray(fieldMapping, "from", "to", false);
 
   Object.keys(fieldMapHashmap).forEach((field) => {
     if (isDefinedAndNotNull(message.properties[field])) {
