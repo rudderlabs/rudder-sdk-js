@@ -2,6 +2,7 @@
 import md5 from "md5";
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
+import { getHashFromArray } from "../utils/commonUtils";
 
 class Criteo {
   constructor(config) {
@@ -19,6 +20,9 @@ class Criteo {
       : "d";
     this.fieldMapping = config.fieldMapping;
     this.OPERATOR_LIST = ["eq", "gt", "lt", "ge", "le", "in"];
+    this.extraDataEvent = {
+      event: "setData",
+    };
   }
 
   init() {
@@ -60,7 +64,7 @@ class Criteo {
       { event: "setRetailerVisitorId", id: md5(message.anonymousId) },
     ];
 
-    if (properties.email) {
+    if (properties && properties.email) {
       const email = properties.email.trim().toLowerCase();
       setEmail.event = "setEmail";
       setEmail.hash_method = this.hashMethod;
@@ -68,13 +72,29 @@ class Criteo {
       finalRequest.push(setEmail);
     }
 
-    if (properties.zipCode) {
+    if (properties && properties.zipCode) {
       setZipcode.event = "setZipcode";
       setZipcode.zipCode = properties.zipCode || properties.zip;
       finalRequest.push(setZipcode);
     }
 
     return finalRequest;
+  }
+
+  extraData(rudderElement) {
+    const { message } = rudderElement;
+    const extraData = {};
+    const fieldMapHashmap = getHashFromArray(this.fieldMapping);
+    let field;
+    // eslint-disable-next-line no-restricted-syntax
+    for (field in fieldMapHashmap) {
+      if (Object.prototype.hasOwnProperty.call(fieldMapHashmap, field)) {
+        if (message.properties[field]) {
+          extraData[fieldMapHashmap[field]] = message.properties[field];
+        }
+      }
+    }
+    return extraData;
   }
 
   page(rudderElement) {
@@ -84,13 +104,21 @@ class Criteo {
 
     if (
       name === "home" ||
+      (properties && properties.name === "home") ||
       (this.url && this.url === window.location.href) ||
-      properties.url === this.url
+      (properties && properties.url === this.url)
     ) {
       const homeEvent = {
         event: "viewHome",
       };
       finalPayload.push(homeEvent);
+    } else {
+      return;
+    }
+
+    const extraDataObject = this.extraData(rudderElement);
+    if (Object.keys(extraDataObject).length !== 0) {
+      finalPayload.push({ ...this.extraDataEvent, ...extraDataObject });
     }
 
     window.criteo_q.push(finalPayload);
@@ -101,49 +129,60 @@ class Criteo {
 
     const finalPayload = this.handleCommonFields(rudderElement);
 
+    if (!properties || Object.keys(properties).length === 0) {
+      return;
+    }
+
     // Product tag
     if (event === "Product Viewed") {
-      const viewItemObject = {
-        event: "viewItem",
-        item: String(properties.product_id),
-      };
+      if (properties.product_id) {
+        const viewItemObject = {
+          event: "viewItem",
+          item: String(properties.product_id),
+        };
 
-      if (properties.price && !Number.isNaN(parseFloat(properties.price))) {
-        viewItemObject.price = parseFloat(properties.price);
-      }
+        if (properties.price && !Number.isNaN(parseFloat(properties.price))) {
+          viewItemObject.price = parseFloat(properties.price);
+        }
 
-      if (properties.availability === 1 || properties.availability === 0) {
-        viewItemObject.availability = properties.availability;
-      }
-      if (!viewItemObject.item) {
-        // productId is mandatory
+        if (
+          properties.availability &&
+          (properties.availability === 1 || properties.availability === 0)
+        ) {
+          viewItemObject.availability = properties.availability;
+        }
+        finalPayload.push(viewItemObject);
+      } else {
         return;
       }
-      finalPayload.push(viewItemObject);
     }
 
     // Basket/cart tag && sales tag
     if (event === "Cart Viewed" || event === "Order Completed") {
       const productInfo = [];
       let elementaryProduct;
-      properties.products.forEach((product) => {
-        elementaryProduct = {
-          id: String(product.product_id),
-          price: parseFloat(product.price),
-          quantity: parseInt(product.quantity, 10),
-        };
+      if (properties && properties.products && properties.products.length > 0) {
+        properties.products.forEach((product) => {
+          elementaryProduct = {
+            id: String(product.product_id),
+            price: parseFloat(product.price),
+            quantity: parseInt(product.quantity, 10),
+          };
 
-        if (
-          elementaryProduct.id &&
-          elementaryProduct.price &&
-          !Number.isNaN(parseFloat(elementaryProduct.price)) &&
-          elementaryProduct.quantity &&
-          !Number.isNaN(parseInt(elementaryProduct.quantity, 10))
-        ) {
-          // all the above fields are mandatory
-          productInfo.push(elementaryProduct);
-        }
-      });
+          if (
+            elementaryProduct.id &&
+            elementaryProduct.price &&
+            !Number.isNaN(parseFloat(elementaryProduct.price)) &&
+            elementaryProduct.quantity &&
+            !Number.isNaN(parseInt(elementaryProduct.quantity, 10))
+          ) {
+            // all the above fields are mandatory
+            productInfo.push(elementaryProduct);
+          }
+        });
+      } else {
+        return;
+      }
       if (event === "Cart Viewed") {
         if (productInfo.length > 0) {
           const viewBasketObject = {
@@ -151,10 +190,15 @@ class Criteo {
             item: productInfo,
           };
           finalPayload.push(viewBasketObject);
+        } else {
+          return;
         }
       }
 
       if (event === "Order Completed") {
+        if (!properties) {
+          return;
+        }
         const trackTransactionObject = {
           event: "trackTransaction",
           id: String(properties.order_id),
@@ -175,14 +219,22 @@ class Criteo {
     }
     // Category/keyword search/listing tag
     if (event === "Product List Viewed") {
+      if (!properties) {
+        return;
+      }
       const productIdList = [];
       const filterObject = {};
       const viewListObj = {};
-      properties.products.forEach((product) => {
-        if (product.product_id) {
-          productIdList.push(String(product.product_id));
-        }
-      });
+
+      if (properties.product && properties.product.length > 0) {
+        properties.products.forEach((product) => {
+          if (product.product_id) {
+            productIdList.push(String(product.product_id));
+          }
+        });
+      } else {
+        return;
+      }
 
       if (
         properties.name &&
@@ -200,7 +252,7 @@ class Criteo {
       if (productIdList.length > 0) {
         viewListObj.item = productIdList;
       } else {
-        // product ID is mandatoryf
+        // product ID is mandatory
         return;
       }
 
@@ -215,7 +267,10 @@ class Criteo {
 
       finalPayload.push(viewListObj);
     }
-
+    const extraDataObject = this.extraData(rudderElement);
+    if (Object.keys(extraDataObject).length !== 0) {
+      finalPayload.push({ ...this.extraDataEvent, ...extraDataObject });
+    }
     window.criteo_q.push(finalPayload);
   }
 }
