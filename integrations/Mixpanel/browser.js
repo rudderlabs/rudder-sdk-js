@@ -144,10 +144,12 @@ class Mixpanel {
       }
     })(document, window.mixpanel || []);
     const options = {
-      persistence_name: this.persistence || "cookie",
       cross_subdomain_cookie: this.crossSubdomainCookie || false,
       secure_cookie: this.secureCookie || false,
     };
+    if (this.persistence !== "none") {
+      options.persistence_name = this.persistence || "cookie";
+    }
     if (this.dataResidency == "eu") {
       // https://developer.mixpanel.com/docs/implement-mixpanel#section-implementing-mixpanel-in-the-european-union-eu
       options.api_host = "https://api-eu.mixpanel.com";
