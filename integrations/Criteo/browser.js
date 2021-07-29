@@ -301,7 +301,7 @@ class Criteo {
         }
 
         if (properties.filters) {
-          properties.filter.forEach((filter) => {
+          properties.filters.forEach((filter) => {
             const filterObject = {};
             if (filter.name) {
               filterObject.name = filter.name;
