@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-expressions */
-import md5 from "md5";
+
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import { getHashFromArray } from "../utils/commonUtils";
+import { handleCommonFields, generateExtraData } from "./utils";
 
 class Criteo {
   constructor(config) {
@@ -52,55 +52,10 @@ class Criteo {
     return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);
   }
 
-  handleCommonFields(rudderElement) {
-    const { message } = rudderElement;
-    const { properties } = message;
-
-    const setEmail = {};
-    const setZipcode = {};
-
-    const finalRequest = [
-      { event: "setCustomerId", id: md5(message.userId) },
-      { event: "setRetailerVisitorId", id: md5(message.anonymousId) },
-    ];
-
-    if (properties && properties.email) {
-      const email = properties.email.trim().toLowerCase();
-      setEmail.event = "setEmail";
-      setEmail.hash_method = this.hashMethod;
-      setEmail.email = this.hashMethod === "md5" ? md5(email) : email;
-      finalRequest.push(setEmail);
-    }
-
-    if (properties && properties.zipCode) {
-      setZipcode.event = "setZipcode";
-      setZipcode.zipCode = properties.zipCode || properties.zip;
-      finalRequest.push(setZipcode);
-    }
-
-    return finalRequest;
-  }
-
-  extraData(rudderElement) {
-    const { message } = rudderElement;
-    const extraData = {};
-    const fieldMapHashmap = getHashFromArray(this.fieldMapping);
-    let field;
-    // eslint-disable-next-line no-restricted-syntax
-    for (field in fieldMapHashmap) {
-      if (Object.prototype.hasOwnProperty.call(fieldMapHashmap, field)) {
-        if (message.properties[field]) {
-          extraData[fieldMapHashmap[field]] = message.properties[field];
-        }
-      }
-    }
-    return extraData;
-  }
-
   page(rudderElement) {
     const { name, properties } = rudderElement.message;
 
-    const finalPayload = this.handleCommonFields(rudderElement);
+    const finalPayload = handleCommonFields(rudderElement);
 
     if (
       name === "home" ||
@@ -116,7 +71,7 @@ class Criteo {
       return;
     }
 
-    const extraDataObject = this.extraData(rudderElement);
+    const extraDataObject = generateExtraData(rudderElement);
     if (Object.keys(extraDataObject).length !== 0) {
       finalPayload.push({ ...this.extraDataEvent, ...extraDataObject });
     }
@@ -127,7 +82,7 @@ class Criteo {
   track(rudderElement) {
     const { event, properties } = rudderElement.message;
 
-    const finalPayload = this.handleCommonFields(rudderElement);
+    const finalPayload = handleCommonFields(rudderElement);
 
     if (!properties || Object.keys(properties).length === 0) {
       return;
@@ -267,7 +222,7 @@ class Criteo {
 
       finalPayload.push(viewListObj);
     }
-    const extraDataObject = this.extraData(rudderElement);
+    const extraDataObject = generateExtraData(rudderElement);
     if (Object.keys(extraDataObject).length !== 0) {
       finalPayload.push({ ...this.extraDataEvent, ...extraDataObject });
     }
