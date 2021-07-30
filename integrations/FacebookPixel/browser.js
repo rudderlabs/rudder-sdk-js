@@ -1,7 +1,9 @@
+/* eslint-disable class-methods-use-this */
 import is from "is";
 import each from "@ndhoule/each";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
+import { getHashFromArray } from "../utils/commonUtils";
 
 class FacebookPixel {
   constructor(config) {
@@ -65,20 +67,29 @@ class FacebookPixel {
     return !!(window.fbq && window.fbq.callMethod);
   }
 
-  page(rudderElement) {
+  page() {
     window.fbq("track", "PageView");
   }
 
   identify(rudderElement) {
     if (this.advancedMapping) {
-      window.fbq("init", this.pixelId, rudderElement.message.context.traits);
+      const traits = rudderElement.message.context
+        ? rudderElement.message.context.traits
+        : undefined;
+      window.fbq("init", this.pixelId, traits);
     }
   }
 
   track(rudderElement) {
     const self = this;
-    const { event } = rudderElement.message;
-    var revenue = this.formatRevenue(rudderElement.message.properties.revenue);
+    const { event, properties, messageId } = rudderElement.message;
+    let revValue;
+    let currVal;
+    if (properties) {
+      const { revenue, currency } = properties;
+      revValue = this.formatRevenue(revenue);
+      currVal = currency || "USD";
+    }
     const payload = this.buildPayLoad(rudderElement, true);
 
     if (this.categoryToContent === undefined) {
@@ -91,75 +102,57 @@ class FacebookPixel {
       this.userIdAsPixelId = [];
     }
 
-    payload.value = revenue;
+    payload.value = revValue;
     const standard = this.eventsToEvents;
     const legacy = this.legacyConversionPixelId;
-    let standardTo;
-    let legacyTo;
-
-    standardTo = standard.reduce((filtered, standard) => {
-      if (standard.from === event) {
-        filtered.push(standard.to);
-      }
-      return filtered;
-    }, []);
-
-    legacyTo = legacy.reduce((filtered, legacy) => {
-      if (legacy.from === event) {
-        filtered.push(legacy.to);
-      }
-      return filtered;
-    }, []);
-
-    each((event) => {
-      payload.currency = rudderElement.message.properties.currency || "USD";
-
-      window.fbq("trackSingle", self.pixelId, event, payload, {
-        eventID: rudderElement.message.messageId,
-      });
-    }, standardTo);
-
-    each((event) => {
-      window.fbq(
-        "trackSingle",
-        self.pixelId,
-        event,
-        {
-          currency: rudderElement.message.properties.currency,
-          value: revenue,
-        },
-        {
-          eventID: rudderElement.message.messageId,
-        }
-      );
-    }, legacyTo);
-
+    const standardTo = getHashFromArray(standard);
+    const legacyTo = getHashFromArray(legacy);
+    const useValue = this.valueFieldIdentifier === "properties.value";
+    let products;
+    let quantity;
+    let category;
+    let prodId;
+    let prodName;
+    let value;
+    let price;
+    let query;
+    if (properties) {
+      products = properties.products;
+      quantity = properties.quantity;
+      category = properties.category;
+      prodId = properties.product_id || properties.id || properties.sku || "";
+      prodName = properties.product_name;
+      value = properties.value;
+      price = properties.price;
+      query = properties.query;
+    }
+    const customProperties = this.buildPayLoad(rudderElement, true);
     if (event === "Product List Viewed") {
-      var contentType;
-      var contentIds;
-      var contents = [];
-      var { products } = rudderElement.message.properties;
-      var customProperties = this.buildPayLoad(rudderElement, true);
+      let contentType;
+      const contentIds = [];
+      const contents = [];
 
-      if (Array.isArray(products)) {
-        products.forEach(function (product) {
+      if (products && Array.isArray(products)) {
+        products.forEach((product) => {
           const productId = product.product_id;
           if (productId) {
             contentIds.push(productId);
             contents.push({
               id: productId,
-              quantity: rudderElement.message.properties.quantity,
+              quantity: quantity || 1,
             });
           }
         });
+      } else {
+        logger.error("No product array found");
       }
 
       if (contentIds.length) {
         contentType = ["product"];
       } else {
-        contentIds.push(rudderElement.message.properties.category || "");
+        contentIds.push(category || "");
         contents.push({
-          id: rudderElement.message.properties.category || "",
+          id: category || "",
           quantity: 1,
         });
         contentType = ["product_group"];
@@ -177,342 +170,351 @@ class FacebookPixel {
           customProperties
         ),
         {
-          eventID: rudderElement.message.messageId,
+          eventID: messageId,
         }
       );
-
-      each((event) => {
-        window.fbq(
-          "trackSingle",
-          self.pixelId,
-          event,
-          {
-            currency: rudderElement.message.properties.currency,
-            value: this.formatRevenue(rudderElement.message.properties.revenue),
-          },
-          {
-            eventID: rudderElement.message.messageId,
-          }
-        );
+      each((val, key) => {
+        if (key === event.toLowerCase()) {
+          window.fbq(
+            "trackSingle",
+            self.pixelId,
+            val,
+            {
+              currency: currVal,
+              value: revValue,
+            },
+            {
+              eventID: messageId,
+            }
+          );
+        }
       }, legacyTo);
     } else if (event === "Product Viewed") {
-      var useValue = this.valueFieldIdentifier === "properties.value";
-      var customProperties = this.buildPayLoad(rudderElement, true);
-
       window.fbq(
         "trackSingle",
         self.pixelId,
         "ViewContent",
         this.merge(
           {
-            content_ids: [
-              rudderElement.message.properties.product_id ||
-                rudderElement.message.properties.id ||
-                rudderElement.message.properties.sku ||
-                "",
-            ],
+            content_ids: [prodId],
             content_type: this.getContentType(rudderElement, ["product"]),
-            content_name: rudderElement.message.properties.product_name || "",
-            content_category: rudderElement.message.properties.category || "",
-            currency: rudderElement.message.properties.currency,
+            content_name: prodName || "",
+            content_category: category || "",
+            currency: currVal,
             value: useValue
-              ? this.formatRevenue(rudderElement.message.properties.value)
-              : this.formatRevenue(rudderElement.message.properties.price),
+              ? this.formatRevenue(value)
+              : this.formatRevenue(price),
             contents: [
               {
-                id:
-                  rudderElement.message.properties.product_id ||
-                  rudderElement.message.properties.id ||
-                  rudderElement.message.properties.sku ||
-                  "",
-                quantity: rudderElement.message.properties.quantity,
-                item_price: rudderElement.message.properties.price,
+                id: prodId,
+                quantity,
+                item_price: price,
               },
             ],
           },
           customProperties
         ),
         {
-          eventID: rudderElement.message.messageId,
+          eventID: messageId,
         }
       );
 
-      each((event) => {
-        window.fbq(
-          "trackSingle",
-          self.pixelId,
-          event,
-          {
-            currency: rudderElement.message.properties.currency,
-            value: useValue
-              ? this.formatRevenue(rudderElement.message.properties.value)
-              : this.formatRevenue(rudderElement.message.properties.price),
-          },
-          {
-            eventID: rudderElement.message.messageId,
-          }
-        );
+      each((val, key) => {
+        if (key === event.toLowerCase()) {
+          window.fbq(
+            "trackSingle",
+            self.pixelId,
+            val,
+            {
+              currency: currVal,
+              value: useValue
+                ? this.formatRevenue(value)
+                : this.formatRevenue(price),
+            },
+            {
+              eventID: messageId,
+            }
+          );
+        }
       }, legacyTo);
     } else if (event === "Product Added") {
-      var useValue = this.valueFieldIdentifier === "properties.value";
-      var customProperties = this.buildPayLoad(rudderElement, true);
       window.fbq(
         "trackSingle",
         self.pixelId,
         "AddToCart",
         this.merge(
           {
-            content_ids: [
-              rudderElement.message.properties.product_id ||
-                rudderElement.message.properties.id ||
-                rudderElement.message.properties.sku ||
-                "",
-            ],
+            content_ids: [prodId],
             content_type: this.getContentType(rudderElement, ["product"]),
 
-            content_name: rudderElement.message.properties.product_name || "",
-            content_category: rudderElement.message.properties.category || "",
-            currency: rudderElement.message.properties.currency,
+            content_name: prodName || "",
+            content_category: category || "",
+            currency: currVal,
             value: useValue
-              ? this.formatRevenue(rudderElement.message.properties.value)
-              : this.formatRevenue(rudderElement.message.properties.price),
+              ? this.formatRevenue(value)
+              : this.formatRevenue(price),
             contents: [
               {
-                id:
-                  rudderElement.message.properties.product_id ||
-                  rudderElement.message.properties.id ||
-                  rudderElement.message.properties.sku ||
-                  "",
-                quantity: rudderElement.message.properties.quantity,
-                item_price: rudderElement.message.properties.price,
+                id: prodId,
+                quantity,
+                item_price: price,
               },
             ],
           },
           customProperties
         ),
         {
-          eventID: rudderElement.message.messageId,
+          eventID: messageId,
         }
       );
 
-      each((event) => {
-        window.fbq(
-          "trackSingle",
-          self.pixelId,
-          event,
-          {
-            currency: rudderElement.message.properties.currency,
-            value: useValue
-              ? this.formatRevenue(rudderElement.message.properties.value)
-              : this.formatRevenue(rudderElement.message.properties.price),
-          },
-          {
-            eventID: rudderElement.message.messageId,
-          }
-        );
+      each((val, key) => {
+        if (key === event.toLowerCase()) {
+          window.fbq(
+            "trackSingle",
+            self.pixelId,
+            val,
+            {
+              currency: currVal,
+              value: useValue
+                ? this.formatRevenue(value)
+                : this.formatRevenue(price),
+            },
+            {
+              eventID: messageId,
+            }
+          );
+        }
       }, legacyTo);
       this.merge(
         {
-          content_ids: [
-            rudderElement.message.properties.product_id ||
-              rudderElement.message.properties.id ||
-              rudderElement.message.properties.sku ||
-              "",
-          ],
+          content_ids: [prodId],
           content_type: this.getContentType(rudderElement, ["product"]),
 
-          content_name: rudderElement.message.properties.product_name || "",
-          content_category: rudderElement.message.properties.category || "",
-          currency: rudderElement.message.properties.currency,
+          content_name: prodName || "",
+          content_category: category || "",
+          currency: currVal,
           value: useValue
-            ? this.formatRevenue(rudderElement.message.properties.value)
-            : this.formatRevenue(rudderElement.message.properties.price),
+            ? this.formatRevenue(value)
+            : this.formatRevenue(price),
           contents: [
             {
-              id:
-                rudderElement.message.properties.product_id ||
-                rudderElement.message.properties.id ||
-                rudderElement.message.properties.sku ||
-                "",
-              quantity: rudderElement.message.properties.quantity,
-              item_price: rudderElement.message.properties.price,
+              id: prodId,
+              quantity,
+              item_price: price,
             },
           ],
         },
         customProperties
       );
     } else if (event === "Order Completed") {
-      var { products } = rudderElement.message.properties;
-      var customProperties = this.buildPayLoad(rudderElement, true);
-      var revenue = this.formatRevenue(
-        rudderElement.message.properties.revenue
-      );
+      const contentType = this.getContentType(rudderElement, ["product"]);
+      const contentIds = [];
+      const contents = [];
+      if (products) {
+        for (let i = 0; i < products.length; i++) {
+          const pId = products[i].product_id;
+          contentIds.push(pId);
+          const content = {
+            id: pId,
+            quantity,
+          };
 
-      var contentType = this.getContentType(rudderElement, ["product"]);
-      var contentIds = [];
-      var contents = [];
+          content.item_price = price;
 
-      for (var i = 0; i < products.length; i++) {
-        var pId = products[i].product_id;
-        contentIds.push(pId);
-        var content = {
-          id: pId,
-          quantity: rudderElement.message.properties.quantity,
-        };
-        if (rudderElement.message.properties.price) {
-          content.item_price = rudderElement.message.properties.price;
+          contents.push(content);
         }
-        contents.push(content);
-      }
-      window.fbq(
-        "trackSingle",
-        self.pixelId,
-        "Purchase",
-        this.merge(
-          {
-            content_ids: contentIds,
-            content_type: contentType,
-            currency: rudderElement.message.properties.currency,
-            value: revenue,
-            contents,
-            num_items: contentIds.length,
-          },
-          customProperties
-        ),
-        {
-          eventID: rudderElement.message.messageId,
-        }
-      );
-
-      each((event) => {
         window.fbq(
           "trackSingle",
           self.pixelId,
-          event,
+          "Purchase",
+          this.merge(
+            {
+              content_ids: contentIds,
+              content_type: contentType,
+              currency: currVal,
+              value: revValue,
+              contents,
+              num_items: contentIds.length,
+            },
+            customProperties
+          ),
           {
-            currency: rudderElement.message.properties.currency,
-            value: this.formatRevenue(rudderElement.message.properties.revenue),
-          },
-          {
-            eventID: rudderElement.message.messageId,
+            eventID: messageId,
           }
         );
-      }, legacyTo);
+
+        each((val, key) => {
+          if (key === event.toLowerCase()) {
+            window.fbq(
+              "trackSingle",
+              self.pixelId,
+              val,
+              {
+                currency: currVal,
+                value: revValue,
+              },
+              {
+                eventID: messageId,
+              }
+            );
+          }
+        }, legacyTo);
+      } else {
+        logger.error("No product array found");
+      }
     } else if (event === "Products Searched") {
-      var customProperties = this.buildPayLoad(rudderElement, true);
       window.fbq(
         "trackSingle",
         self.pixelId,
         "Search",
         this.merge(
           {
-            search_string: rudderElement.message.properties.query,
+            search_string: query,
           },
           customProperties
         ),
         {
-          eventID: rudderElement.message.messageId,
+          eventID: messageId,
         }
       );
 
-      each((event) => {
-        window.fbq(
-          "trackSingle",
-          self.pixelId,
-          event,
-          {
-            currency: rudderElement.message.properties.currency,
-            value: formatRevenue(rudderElement.message.properties.revenue),
-          },
-          {
-            eventID: rudderElement.message.messageId,
-          }
-        );
+      each((val, key) => {
+        if (key === event.toLowerCase()) {
+          window.fbq(
+            "trackSingle",
+            self.pixelId,
+            val,
+            {
+              currency: currVal,
+              value: revValue,
+            },
+            {
+              eventID: messageId,
+            }
+          );
+        }
       }, legacyTo);
     } else if (event === "Checkout Started") {
-      var { products } = rudderElement.message.properties;
-      var customProperties = this.buildPayLoad(rudderElement, true);
-      var revenue = this.formatRevenue(
-        rudderElement.message.properties.revenue
-      );
-      let contentCategory = rudderElement.message.properties.category;
-      var contentIds = [];
-      var contents = [];
+      let contentCategory = category;
+      const contentIds = [];
+      const contents = [];
+      if (products) {
+        for (let i = 0; i < products.length; i++) {
+          const product = products[i];
+          const pId = product.product_id;
+          contentIds.push(pId);
+          const content = {
+            id: pId,
+            quantity,
+            item_price: price,
+          };
 
-      for (var i = 0; i < products.length; i++) {
-        const product = products[i];
-        var pId = product.product_id;
-        contentIds.push(pId);
-        var content = {
-          id: pId,
-          quantity: rudderElement.message.properties.quantity,
-          item_price: rudderElement.message.properties.price,
-        };
-        if (rudderElement.message.properties.price) {
-          content.item_price = rudderElement.message.properties.price;
-        }
-        contents.push(content);
-      }
-      if (!contentCategory && products[0] && products[0].category) {
-        contentCategory = products[0].category;
-      }
-      window.fbq(
-        "trackSingle",
-        self.pixelId,
-        "InitiateCheckout",
-        this.merge(
-          {
-            content_category: contentCategory,
-            content_ids: contentIds,
-            content_type: this.getContentType(rudderElement, ["product"]),
-            currency: rudderElement.message.properties.currency,
-            value: revenue,
-            contents,
-            num_items: contentIds.length,
-          },
-          customProperties
-        ),
-        {
-          eventID: rudderElement.message.messageId,
-        }
-      );
+          content.item_price = price;
 
-      each((event) => {
+          contents.push(content);
+        }
+
+        if (!contentCategory && products[0] && products[0].category) {
+          contentCategory = products[0].category;
+        }
         window.fbq(
           "trackSingle",
           self.pixelId,
-          event,
+          "InitiateCheckout",
+          this.merge(
+            {
+              content_category: contentCategory,
+              content_ids: contentIds,
+              content_type: this.getContentType(rudderElement, ["product"]),
+              currency: currVal,
+              value: revValue,
+              contents,
+              num_items: contentIds.length,
+            },
+            customProperties
+          ),
           {
-            currency: rudderElement.message.properties.currency,
-            value: this.formatRevenue(rudderElement.message.properties.revenue),
-          },
-          {
-            eventID: rudderElement.message.messageId,
+            eventID: messageId,
           }
         );
-      }, legacyTo);
+
+        each((val, key) => {
+          if (key === event.toLowerCase()) {
+            window.fbq(
+              "trackSingle",
+              self.pixelId,
+              val,
+              {
+                currency: currVal,
+                value: revValue,
+              },
+              {
+                eventID: messageId,
+              }
+            );
+          }
+        }, legacyTo);
+      } else {
+        logger.error("No product array found");
+      }
+    } else {
+      console.log("inside custom");
+      if (!standardTo[event.toLowerCase()] && !legacyTo[event.toLowerCase()]) {
+        console.log("inside custom not mapped");
+        const payloadVal = this.buildPayLoad(rudderElement, false);
+        payloadVal.value = revValue;
+        window.fbq("trackSingleCustom", self.pixelId, event, payloadVal, {
+          eventID: messageId,
+        });
+      } else {
+        each((val, key) => {
+          if (key === event.toLowerCase()) {
+            payload.currency = currVal;
+
+            window.fbq("trackSingle", self.pixelId, val, payload, {
+              eventID: messageId,
+            });
+          }
+        }, standardTo);
+
+        each((val, key) => {
+          if (key === event.toLowerCase()) {
+            window.fbq(
+              "trackSingle",
+              self.pixelId,
+              val,
+              {
+                currency: currVal,
+                value: revValue,
+              },
+              {
+                eventID: messageId,
+              }
+            );
+          }
+        }, legacyTo);
+      }
     }
   }
 
   getContentType(rudderElement, defaultValue) {
-    const { options } = rudderElement.message;
+    const { options, properties } = rudderElement.message;
     if (options && options.contentType) {
       return [options.contentType];
     }
-
-    let { category } = rudderElement.message.properties;
+    let { category } = properties;
+    const { products } = properties;
     if (!category) {
-      const { products } = rudderElement.message.properties;
       if (products && products.length) {
         category = products[0].category;
       }
     }
     if (category) {
       const mapped = this.categoryToContent;
-      let mappedTo;
-      mappedTo = mapped.reduce((filtered, mapped) => {
-        if (mapped.from == category) {
-          filtered.push(mapped.to);
+      const mappedTo = mapped.reduce((filtered, mappedVal) => {
+        if (mappedVal.from === category) {
+          filtered.push(mappedVal.to);
         }
         return filtered;
       }, []);
@@ -581,15 +583,17 @@ class FacebookPixel {
     }
     const payload = {};
     const { properties } = rudderElement.message;
-
     for (const property in properties) {
       if (!properties.hasOwnProperty(property)) {
         continue;
       }
 
-      if (isStandardEvent && eventCustomProperties.indexOf(property) < 0) {
+      const customProperties = eventCustomProperties.map(e => e.eventCustomProperties);
+
+      if (isStandardEvent && customProperties.indexOf(property) < 0) {
         continue;
       }
+
       const value = properties[property];
 
       if (dateFields.indexOf(properties) >= 0) {

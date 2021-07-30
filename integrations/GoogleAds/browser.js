@@ -7,9 +7,9 @@ class GoogleAds {
     this.pageLoadConversions = config.pageLoadConversions;
     this.clickEventConversions = config.clickEventConversions;
     this.defaultPageConversion = config.defaultPageConversion;
-    this.sendPageView = config.sendPageView;
-    this.conversionLinker = config.conversionLinker;
-    this.disableAdPersonalization = config.disableAdPersonalization;
+    this.sendPageView = config.sendPageView || true;
+    this.conversionLinker = config.conversionLinker || true;
+    this.disableAdPersonalization = config.disableAdPersonalization || false;
     this.name = "GOOGLEADS";
   }
 
