@@ -46,13 +46,13 @@ class Criteo {
 
   // eslint-disable-next-line class-methods-use-this
   isLoaded() {
-    logger.debug("in Criteo isLoaded");
+    logger.debug("===in Criteo isLoaded===");
     return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);
   }
 
   // eslint-disable-next-line class-methods-use-this
   isReady() {
-    logger.debug("in Criteo isReady");
+    logger.debug("===in Criteo isReady===");
     return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);
   }
 
@@ -72,7 +72,7 @@ class Criteo {
       };
       finalPayload.push(homeEvent);
     } else {
-      logger.debug("Home page is not detected");
+      logger.debug("[Criteo] Home page is not detected");
       return;
     }
 
@@ -105,13 +105,13 @@ class Criteo {
     const finalPayload = handleCommonFields(rudderElement, this.hashMethod);
 
     if (!event) {
-      logger.debug("Event name from track call is missing!!");
+      logger.debug("[Criteo] Event name from track call is missing!!===");
       return;
     }
 
     if (!properties || Object.keys(properties).length === 0) {
       logger.debug(
-        "Either properties object is missing or empty in the track call"
+        "[Criteo] Either properties object is missing or empty in the track call"
       );
       return;
     }
@@ -129,7 +129,7 @@ class Criteo {
         handleListView(rudderElement.message, finalPayload, this.OPERATOR_LIST);
         break;
       default:
-        logger.debug("This event Type is not supported");
+        logger.debug(`[Criteo] event ${eventType} is not supported`);
         return;
     }
     const extraDataObject = generateExtraData(rudderElement, this.fieldMapping);

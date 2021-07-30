@@ -64,10 +64,8 @@ const handleProductView = (message, finalPayload) => {
     finalPayload.push(viewItemObject);
   } else {
     logger.debug(
-      "product_id is a mandatory field to use Product Tag in criteo"
+      "[Criteo] product_id is a mandatory field to use Product Tag in criteo"
     );
-    // eslint-disable-next-line no-useless-return
-    return;
   }
 
   // Final example payload supported by destination
@@ -113,18 +111,20 @@ const handlingEventDuo = (message, finalPayload) => {
         }
       } else {
         logger.debug(
-          `product at index ${index} is skipped for insufficient information`
+          `[Criteo] product at index ${index} is skipped for insufficient information`
         );
       }
     });
     if (productInfo.length === 0) {
       logger.debug(
-        "None of the products had sufficient information or information is wrongly formatted"
+        "[Criteo] None of the products had sufficient information or information is wrongly formatted"
       );
       return;
     }
   } else {
-    logger.debug("Payload should consist of at least one product information");
+    logger.debug(
+      "[Criteo] Payload should consist of at least one product information"
+    );
     return;
   }
   if (eventType === "cart viewed") {
@@ -166,7 +166,7 @@ const handlingEventDuo = (message, finalPayload) => {
       item: productInfo,
     };
     if (!trackTransactionObject.id) {
-      logger.debug("order_id (Transaction Id) is a mandatory field");
+      logger.debug("[Criteo] order_id (Transaction Id) is a mandatory field");
       return;
     }
     if (properties.new_customer === 1 || properties.new_customer === 0) {
@@ -213,12 +213,12 @@ const handleListView = (message, finalPayload, OPERATOR_LIST) => {
       }
     });
     if (productIdList.length === 0) {
-      logger.debug("None of the product information had product_id");
+      logger.debug("[Criteo] None of the product information had product_id");
       return;
     }
   } else {
     logger.debug(
-      "The payload should consist of atleast one product information"
+      "[Criteo] The payload should consist of atleast one product information"
     );
     return;
   }
