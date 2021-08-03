@@ -92,7 +92,7 @@ class Lytics {
       stream: this.stream,
       sessecs: 1800,
       src:
-        document.location.protocal === "https:"
+        document.location.protocol === "https:"
           ? `https://c.lytics.io/api/tag/${this.accountId}/latest.min.js`
           : `http://c.lytics.io/api/tag/${this.accountId}/latest.min.js`,
     });
