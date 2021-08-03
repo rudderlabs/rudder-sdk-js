@@ -101,6 +101,9 @@ const commonNames = {
   CRITEO: "CRITEO",
   MIXPANEL: "MP",
   Mixpanel: "MP",
+  Qualtrics: "QUALTRICS",
+  qualtrics: "QUALTRICS",
+  QUALTRICS: "QUALTRICS",
 };
 
 export { commonNames };
