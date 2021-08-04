@@ -35,13 +35,13 @@ class Drip {
       return;
     }
 
-    const email = message.context.traits;
+    const { email } = message.context.traits;
     if (!email) {
       logger.error("email is required for the call");
       return;
     }
 
-    const euConsent = message.context.traits;
+    const { euConsent } = message.context.traits;
     if (
       !(
         euConsent.toLowercase() === "granted" ||
@@ -68,35 +68,30 @@ class Drip {
     };
     payload = removeUndefinedAndNullValues(payload);
 
-    const campaignId = message.context.traits;
-
-    if (campaignId) {
-      if (this.campaignId == campaignId) {
-        let campaign_payload = {
-          campaign_id: campaignId,
-          fields: get(message, "context.traits.fields"),
-          double_optin: get(message, "context.traits.doubleOptin"),
-          success: function (response) {
-            // Call a method with the response object
-            // Success callback is optional
-            logger.debug(
-              "Subscription to an Email Series Campaign was success"
-            );
-          },
-        };
-        campaign_payload = removeUndefinedAndNullValues(campaign_payload);
-
-        _dcq.push(["identify", payload]);
-        _dcq.push(["subscribe", campaign_payload]);
-      } else {
-        logger.error(
-          "config campaignId doesn't match with user traits campaignId"
-        );
-        return;
-      }
-    }
+    const campaignId =
+      get(message, "context.traits.campaignId") || this.campaignId;
 
     _dcq.push(["identify", payload]);
+
+    if (campaignId) {
+      const fields = get(message, "context.traits");
+      delete fields.campaignId;
+      delete fields.doubleOptin;
+
+      let campaign_payload = {
+        campaign_id: campaignId,
+        fields: fields,
+        double_optin: get(message, "context.traits.doubleOptin"),
+        success: function (response) {
+          // Call a method with the response object
+          // Success callback is optional
+          logger.debug("Subscription to an Email Series Campaign was success");
+        },
+      };
+      campaign_payload = removeUndefinedAndNullValues(campaign_payload);
+
+      _dcq.push(["subscribe", campaign_payload]);
+    }
   }
 
   track(rudderElement) {
