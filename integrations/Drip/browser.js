@@ -12,9 +12,9 @@ class Drip {
   init() {
     logger.debug("===In init Drip===");
 
-    var _dcq = _dcq || [];
-    var _dcs = _dcs || {};
-    _dcs.account = this.accountId;
+    window._dcq = _dcq || [];
+    window._dcs = _dcs || {};
+    window._dcs.account = this.accountId;
 
     (function () {
       var dc = document.createElement("script");
@@ -43,6 +43,7 @@ class Drip {
 
     const { euConsent } = message.context.traits;
     if (
+      euConsent &&
       !(
         euConsent.toLowercase() === "granted" ||
         euConsent.toLowercase() === "denied"
@@ -60,7 +61,7 @@ class Drip {
       prospect: get(message, "context.traits.prospect"),
       eu_consent: euConsent,
       eu_consent_message: get(message, "context.traits.euConsentMessage"),
-      success: function (response) {
+      success: (response) => {
         // Call a method with the response object
         // Success callback is optional
         logger.debug("identify call was success");
@@ -71,7 +72,7 @@ class Drip {
     const campaignId =
       get(message, "context.traits.campaignId") || this.campaignId;
 
-    _dcq.push(["identify", payload]);
+    window._dcq.push(["identify", payload]);
 
     if (campaignId) {
       const fields = get(message, "context.traits");
@@ -82,7 +83,7 @@ class Drip {
         campaign_id: campaignId,
         fields: fields,
         double_optin: get(message, "context.traits.doubleOptin"),
-        success: function (response) {
+        success: (response) => {
           // Call a method with the response object
           // Success callback is optional
           logger.debug("Subscription to an Email Series Campaign was success");
@@ -90,7 +91,7 @@ class Drip {
       };
       campaign_payload = removeUndefinedAndNullValues(campaign_payload);
 
-      _dcq.push(["subscribe", campaign_payload]);
+      window._dcq.push(["subscribe", campaign_payload]);
     }
   }
 
@@ -116,7 +117,7 @@ class Drip {
         brand: get(message, "properties.brand"),
         categories: get(message, "properties.categories"),
         price: get(message, "properties.price"),
-        success: function (response) {
+        success: (response) => {
           // Call a method with the response object
           // Success callback is optional
           logger.debug("track call was success");
@@ -125,7 +126,7 @@ class Drip {
 
       payload = removeUndefinedAndNullValues(payload);
 
-      _dcq.push(["track", "Viewed a Product", payload]);
+      window._dcq.push(["track", "Viewed a Product", payload]);
     } else {
       payload = {
         value: get(message, "properties.value"),
@@ -133,7 +134,7 @@ class Drip {
           get(message, "occurredAt") ||
           get(message, "timestamp") ||
           get(message, "originalTimestamp"),
-        success: function (response) {
+        success: (response) => {
           // Call a method with the response object
           // Success callback is optional
           logger.debug("track call was success");
@@ -142,7 +143,7 @@ class Drip {
 
       payload = removeUndefinedAndNullValues(payload);
 
-      _dcq.push(["track", event, payload]);
+      window._dcq.push(["track", event, payload]);
     }
   }
 
