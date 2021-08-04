@@ -36,15 +36,15 @@ class Drip {
     }
 
     let payload = {
-      $email: get(message, "context.traits.email"),
-      $new_email: get(message, "context.traits.new_email"),
-      $user_id: get(message, "user_id"),
-      $tags: get(message, "context.traits.tags"),
-      $remove_tags: get(message, "context.traits.remove_tags"),
-      $prospect: get(message, "context.traits.prospect"),
-      $eu_consent: get(message, "context.traits.eu_consent"),
-      $eu_consent_message: get(message, "context.traits.eu_consent_message"),
-      $success: function (response) {
+      email: get(message, "context.traits.email"),
+      new_email: get(message, "context.traits.new_email"),
+      user_id: get(message, "user_id"),
+      tags: get(message, "context.traits.tags"),
+      remove_tags: get(message, "context.traits.remove_tags"),
+      prospect: get(message, "context.traits.prospect"),
+      eu_consent: get(message, "context.traits.eu_consent"),
+      eu_consent_message: get(message, "context.traits.eu_consent_message"),
+      success: function (response) {
         // Call a method with the response object
         // Success callback is optional
         logger.debug("identify call was success");
@@ -57,10 +57,10 @@ class Drip {
     }
 
     let campaign_payload = {
-      $campaign_id: get(message, "context.traits.campaign_id"),
-      $fields: get(message, "context.traits.fields"),
-      $double_optin: get(message, "context.traits.double_optin"),
-      $success: function (response) {
+      campaign_id: get(message, "context.traits.campaign_id"),
+      fields: get(message, "context.traits.fields"),
+      double_optin: get(message, "context.traits.double_optin"),
+      success: function (response) {
         // Call a method with the response object
         // Success callback is optional
         logger.debug("Subscription to an Email Series Campaign was success");
