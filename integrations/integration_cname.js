@@ -89,6 +89,8 @@ const commonNames = {
   "Reddit Pixel": "REDDIT_PIXEL",
   "REDDIT PIXEL": "REDDIT_PIXEL",
   "reddit pixel": "REDDIT_PIXEL",
+  Drip: "DRIP",
+  drip: "DRIP",
   Heap: "HEAP",
   heap: "HEAP",
   "Heap.io": "HEAP",
