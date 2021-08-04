@@ -35,54 +35,68 @@ class Drip {
       return;
     }
 
+    const email = message.context.traits;
+    if (!email) {
+      logger.error("email is required for the call");
+      return;
+    }
+
+    const euConsent = message.context.traits;
+    if (
+      !(
+        euConsent.toLowercase() === "granted" ||
+        euConsent.toLowercase() === "denied"
+      )
+    ) {
+      euConsent = "";
+    }
+
     let payload = {
-      email: get(message, "context.traits.email"),
-      new_email: get(message, "context.traits.new_email"),
-      user_id: get(message, "user_id"),
+      email: email,
+      new_email: get(message, "context.traits.newEmail"),
+      user_id: get(message, "userId"),
       tags: get(message, "context.traits.tags"),
-      remove_tags: get(message, "context.traits.remove_tags"),
+      remove_tags: get(message, "context.traits.removeTags"),
       prospect: get(message, "context.traits.prospect"),
-      eu_consent: get(message, "context.traits.eu_consent"),
-      eu_consent_message: get(message, "context.traits.eu_consent_message"),
+      eu_consent: euConsent,
+      eu_consent_message: get(message, "context.traits.euConsentMessage"),
       success: function (response) {
         // Call a method with the response object
         // Success callback is optional
         logger.debug("identify call was success");
       },
     };
-
-    if (!email) {
-      logger.error("email is required for the call");
-      return;
-    }
-
-    let campaign_payload = {
-      campaign_id: get(message, "context.traits.campaign_id"),
-      fields: get(message, "context.traits.fields"),
-      double_optin: get(message, "context.traits.double_optin"),
-      success: function (response) {
-        // Call a method with the response object
-        // Success callback is optional
-        logger.debug("Subscription to an Email Series Campaign was success");
-      },
-    };
-
     payload = removeUndefinedAndNullValues(payload);
-    campaign_payload = removeUndefinedAndNullValues(campaign_payload);
 
-    if (campaign_id && this.campaignId != campaign_id) {
-      logger.error(
-        "config campaignId doesn't match with user traits campaignId"
-      );
-      return;
+    const campaignId = message.context.traits;
+
+    if (campaignId) {
+      if (this.campaignId == campaignId) {
+        let campaign_payload = {
+          campaign_id: campaignId,
+          fields: get(message, "context.traits.fields"),
+          double_optin: get(message, "context.traits.doubleOptin"),
+          success: function (response) {
+            // Call a method with the response object
+            // Success callback is optional
+            logger.debug(
+              "Subscription to an Email Series Campaign was success"
+            );
+          },
+        };
+        campaign_payload = removeUndefinedAndNullValues(campaign_payload);
+
+        _dcq.push(["identify", payload]);
+        _dcq.push(["subscribe", campaign_payload]);
+      } else {
+        logger.error(
+          "config campaignId doesn't match with user traits campaignId"
+        );
+        return;
+      }
     }
 
-    if (campaign_id) {
-      _dcq.push(["identify", payload]);
-      _dcq.push(["subscribe", campaign_payload]);
-    } else {
-      _dcq.push(["identify", payload]);
-    }
+    _dcq.push(["identify", payload]);
   }
 
   track(rudderElement) {
@@ -100,8 +114,8 @@ class Drip {
 
     if (event.toLowercase() === "product viewed") {
       payload = {
-        product_id: get(message, "properties.product_id"),
-        product_variant_id: get(message, "properties.product_variant_id"),
+        product_id: get(message, "properties.productId"),
+        product_variant_id: get(message, "properties.productVariantId"),
         sku: get(message, "properties.sku"),
         name: get(message, "properties.name"),
         brand: get(message, "properties.brand"),
@@ -121,7 +135,7 @@ class Drip {
       payload = {
         value: get(message, "properties.value"),
         occurred_at:
-          get(message, "occurred_at") ||
+          get(message, "occurredAt") ||
           get(message, "timestamp") ||
           get(message, "originalTimestamp"),
         success: function (response) {
