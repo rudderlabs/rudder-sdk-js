@@ -12,7 +12,6 @@ class Qualtrics {
 
   init() {
     logger.debug("===in init Qualtrics===");
-    let div;
     if (!this.projectId) {
       logger.debug("Project ID missing");
       return;
@@ -36,7 +35,7 @@ class Qualtrics {
       };
       try { (new g(100, "r", `QSI_S_${this.projectId}`, `https://${projectIdFormatted}-${this.brandId}.siteintercept.qualtrics.com/SIE/?Q_ZID=${this.projectId}`)).start() } catch (i) { }
     })();
-    div = document.createElement('div');
+   const div = document.createElement('div');
     div.setAttribute("id", this.projectId);
     window._qsie = window._qsie || [];
 
@@ -55,11 +54,17 @@ class Qualtrics {
   }
 
   page (rudderElement) {
-    const {message} = rudderElement;
+    const { name, category, properties } = rudderElement.message;
+    const categoryField = category ? category : (properties && properties.category) ? properties.category : undefined;
     if(this.enableGenericPageTitle) {
       window._qsie.push("viewed a page");
     } else {
-      window._qsie.push(`Viewed a ${message.name} page`);
+      if(categoryField && name) {
+            window._qsie.push(`viewed page ${name}${categoryField}`);
+          } else {
+            window._qsie.push(`viewed page ${name}`);
+          }
+      
     }
   }
 
