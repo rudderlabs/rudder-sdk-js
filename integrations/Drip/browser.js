@@ -1,6 +1,9 @@
 import get from "get-value";
 import logger from "../../utils/logUtil";
-import { removeUndefinedAndNullValues } from "../utils/commonUtils";
+import {
+  isDefinedAndNotNull,
+  removeUndefinedAndNullValues,
+} from "../utils/commonUtils";
 import { getDestinationExternalID } from "./utils";
 
 class Drip {
@@ -41,13 +44,8 @@ class Drip {
     logger.debug("===In Drip identify===");
 
     const { message } = rudderElement;
-    if (!message.context) {
-      logger.error("user context not present");
-      return;
-    }
-
-    if (!message.context.traits) {
-      logger.error("user traits not present");
+    if (!message.context || !message.context.traits) {
+      logger.error("user context or traits not present");
       return;
     }
 
@@ -57,7 +55,7 @@ class Drip {
       return;
     }
 
-    const euConsent = get(message, "context.traits.euConsent");
+    let euConsent = get(message, "context.traits.euConsent");
     if (
       euConsent &&
       !(
@@ -69,7 +67,7 @@ class Drip {
     }
 
     let payload = {
-      email: email,
+      email,
       new_email: get(message, "context.traits.newEmail"),
       user_id: get(message, "userId") || get(message, "anonymousId"),
       tags: get(message, "context.traits.tags"),
@@ -94,9 +92,9 @@ class Drip {
       delete fields.campaignId;
       delete fields.doubleOptin;
 
-      let campaign_payload = {
+      let campaignPayload = {
+        fields,
         campaign_id: campaignId,
-        fields: fields,
         double_optin: get(message, "context.traits.doubleOptin"),
         success: (response) => {
           // Call a method with the response object
@@ -104,9 +102,8 @@ class Drip {
           logger.debug("Subscription to an Email Series Campaign was success");
         },
       };
-      campaign_payload = removeUndefinedAndNullValues(campaign_payload);
-
-      window._dcq.push(["subscribe", campaign_payload]);
+      campaignPayload = removeUndefinedAndNullValues(campaignPayload);
+      window._dcq.push(["subscribe", campaignPayload]);
     }
   }
 
@@ -121,43 +118,39 @@ class Drip {
       return;
     }
 
-    let payload;
-
-    if (event.toLowercase() === "product viewed") {
-      payload = {
-        product_id: get(message, "properties.productId"),
-        product_variant_id: get(message, "properties.productVariantId"),
-        sku: get(message, "properties.sku"),
-        name: get(message, "properties.name"),
-        brand: get(message, "properties.brand"),
-        categories: get(message, "properties.categories"),
-        price: get(message, "properties.price"),
-        success: (response) => {
-          // Call a method with the response object
-          // Success callback is optional
-          logger.debug("track call was success");
-        },
-      };
-
-      payload = removeUndefinedAndNullValues(payload);
-      window._dcq.push(["track", "Viewed a Product", payload]);
-    } else {
-      payload = {
-        value: get(message, "properties.value"),
-        occurred_at:
-          get(message, "occurredAt") ||
-          get(message, "timestamp") ||
-          get(message, "originalTimestamp"),
-        success: (response) => {
-          // Call a method with the response object
-          // Success callback is optional
-          logger.debug("track call was success");
-        },
-      };
-
-      payload = removeUndefinedAndNullValues(payload);
-      window._dcq.push(["track", event, payload]);
+    const email =
+      get(message, "properties.email") || get(message, "context.traits.email");
+    if (!email) {
+      logger.error("email is required for track");
+      return;
     }
+
+    let payload = get(message, "properties");
+
+    if (isDefinedAndNotNull(payload.revenue)) {
+      const cents = Math.round(payload.revenue * 100);
+      if (cents) payload.value = cents;
+
+      // remove redundant data
+      delete payload.revenue;
+    }
+
+    payload = {
+      ...payload,
+      email,
+      occurred_at:
+        get(message, "properties.occurred_at") ||
+        get(message, "timestamp") ||
+        get(message, "originalTimestamp"),
+      success: (response) => {
+        // Call a method with the response object
+        // Success callback is optional
+        logger.debug("track call was success");
+      },
+    };
+
+    payload = removeUndefinedAndNullValues(payload);
+    window._dcq.push(["track", event, payload]);
   }
 }
 
