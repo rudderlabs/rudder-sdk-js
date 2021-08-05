@@ -58,14 +58,26 @@ class Qualtrics {
     const categoryField = category ? category : (properties && properties.category) ? properties.category : undefined;
     if(this.enableGenericPageTitle) {
       window._qsie.push("viewed a page");
-    } else {
-      if(categoryField && name) {
+      return;
+    } 
+    if(categoryField && name) {
             window._qsie.push(`viewed page ${name}${categoryField}`);
           } else {
             window._qsie.push(`viewed page ${name}`);
-          }
-      
     }
+    
+  }
+
+  page (rudderElement) {
+    const { name, category, properties } = rudderElement.message;
+    const categoryField = category ? category : ((properties && properties.category) ? properties.category : undefined);
+    if(this.enableGenericPageTitle) {
+      window._qsie.push("viewed a page");
+      return;
+    } 
+    const dynamicTitle = (categoryField && name) ? `viewed page ${name}${categoryField}` : `viewed page ${name}`;
+      
+    window._qsie.push(dynamicTitle);
   }
 
   track(rudderElement) {
