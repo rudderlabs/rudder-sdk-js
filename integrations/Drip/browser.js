@@ -1,6 +1,7 @@
 import get from "get-value";
 import logger from "../../utils/logUtil";
 import { removeUndefinedAndNullValues } from "../utils/commonUtils";
+import { getDestinationExternalID } from "./utils";
 
 class Drip {
   constructor(config) {
@@ -26,22 +27,37 @@ class Drip {
     })();
   }
 
+  isLoaded() {
+    logger.debug("===In isLoaded Drip===");
+    return !!(window._dcq && window._dcq.push !== Array.prototype.push);
+  }
+
+  isReady() {
+    logger.debug("===In isReady Drip===");
+    return !!(window._dcq && window._dcq.push !== Array.prototype.push);
+  }
+
   identify(rudderElement) {
     logger.debug("===In Drip identify===");
 
     const { message } = rudderElement;
+    if (!message.context) {
+      logger.error("user context not present");
+      return;
+    }
+
     if (!message.context.traits) {
       logger.error("user traits not present");
       return;
     }
 
-    const { email } = message.context.traits;
+    const email = get(message, "context.traits.email");
     if (!email) {
-      logger.error("email is required for the call");
+      logger.error("email is required for identify");
       return;
     }
 
-    const { euConsent } = message.context.traits;
+    const euConsent = get(message, "context.traits.euConsent");
     if (
       euConsent &&
       !(
@@ -49,13 +65,13 @@ class Drip {
         euConsent.toLowercase() === "denied"
       )
     ) {
-      euConsent = "";
+      euConsent = null;
     }
 
     let payload = {
       email: email,
       new_email: get(message, "context.traits.newEmail"),
-      user_id: get(message, "userId"),
+      user_id: get(message, "userId") || get(message, "anonymousId"),
       tags: get(message, "context.traits.tags"),
       remove_tags: get(message, "context.traits.removeTags"),
       prospect: get(message, "context.traits.prospect"),
@@ -68,11 +84,10 @@ class Drip {
       },
     };
     payload = removeUndefinedAndNullValues(payload);
+    window._dcq.push(["identify", payload]);
 
     const campaignId =
-      get(message, "context.traits.campaignId") || this.campaignId;
-
-    window._dcq.push(["identify", payload]);
+      getDestinationExternalID(message, "dripCampaignId") || this.campaignId;
 
     if (campaignId) {
       const fields = get(message, "context.traits");
@@ -125,7 +140,6 @@ class Drip {
       };
 
       payload = removeUndefinedAndNullValues(payload);
-
       window._dcq.push(["track", "Viewed a Product", payload]);
     } else {
       payload = {
@@ -142,20 +156,9 @@ class Drip {
       };
 
       payload = removeUndefinedAndNullValues(payload);
-
       window._dcq.push(["track", event, payload]);
     }
   }
-
-  isLoaded() {
-    logger.debug("===In isLoaded Drip===");
-    return !!(window._dcq && window._dcq.push !== Array.prototype.push);
-  }
-
-  isReady() {
-    logger.debug("===In isReady Drip===");
-    return !!(window._dcq && window._dcq.push !== Array.prototype.push);
-  }
 }
 
-export { Drip };
+export default Drip;
