@@ -36,6 +36,7 @@ const clientToServerNames = {
   HEAP: "Heap.io",
   CRITEO: "Criteo",
   MP: "Mixpanel",
+  QUALTRICS: "Qualtrics",
 };
 
 export { clientToServerNames };
