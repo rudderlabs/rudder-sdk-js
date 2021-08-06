@@ -1,3 +1,5 @@
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-underscore-dangle */
 import get from "get-value";
 import logger from "../../utils/logUtil";
 import {
