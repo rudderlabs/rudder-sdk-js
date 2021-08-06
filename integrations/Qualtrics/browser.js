@@ -1,3 +1,4 @@
+/* eslint-disable new-cap */
 /* eslint-disable no-empty */
 /* eslint-disable no-unneeded-ternary */
 /* eslint-disable class-methods-use-this */
@@ -66,19 +67,29 @@ class Qualtrics {
   }
 
   page(rudderElement) {
-    const { name, category, properties } = rudderElement.message;
-    const categoryField = category
-      ? category
-      : properties && properties.category
-      ? properties.category
-      : undefined;
+    logger.debug("===in Qualtrics page===");
+    const { message } = rudderElement;
+    if (!message) {
+      logger.debug("Message field is missing");
+      return;
+    }
+
     if (this.enableGenericPageTitle) {
       window._qsie.push("viewed a page");
       return;
     }
 
+    const { name, category, properties } = message;
+    const categoryField = category
+      ? category
+      : properties && properties.category
+      ? properties.category
+      : null;
+
     if (!categoryField && !name) {
-      logger.debug("No name or category field found");
+      logger.debug(
+        "generic title is disabled and no name or category field found"
+      );
       return;
     }
     const dynamicTitle =
@@ -90,6 +101,7 @@ class Qualtrics {
   }
 
   track(rudderElement) {
+    logger.debug("===in Qualtrics track===");
     const { message } = rudderElement;
     if (!message) {
       logger.debug("Message field is missing");
