@@ -31,6 +31,7 @@ import * as PinterestTag from "./PinterestTag";
 import * as AdobeAnalytics from "./AdobeAnalytics";
 import * as LinkedInInsightTag from "./LinkedInInsightTag";
 import * as RedditPixel from "./RedditPixel";
+import * as Drip from "./Drip";
 import * as Heap from "./Heap";
 import * as Criteo from "./Criteo";
 import * as Mixpanel from "./Mixpanel";
@@ -73,6 +74,7 @@ const integrations = {
   ADOBE_ANALYTICS: AdobeAnalytics.default,
   LINKEDIN_INSIGHT_TAG: LinkedInInsightTag.default,
   REDDIT_PIXEL: RedditPixel.default,
+  DRIP: Drip.default,
   HEAP: Heap.default,
   CRITEO: Criteo.default,
   MP: Mixpanel.default,
