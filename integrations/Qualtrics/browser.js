@@ -1,5 +1,11 @@
+/* eslint-disable no-empty */
+/* eslint-disable no-unneeded-ternary */
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-nested-ternary */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-unused-expressions */
+// eslint-disable-next-line no-nested-ternary
+// eslint-disable-next-line class-methods-use-this
 
 import logger from "../../utils/logUtil";
 
@@ -46,16 +52,14 @@ class Qualtrics {
     const div = document.createElement("div");
     div.setAttribute("id", String(this.projectId));
     window._qsie = window._qsie || [];
-    const e = document.getElementsByTagName("head")[0].appendChild(div);
+    document.getElementsByTagName("head")[0].appendChild(div);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   isLoaded() {
     logger.debug("===in Qualtrics isLoaded===");
     return !!(window._qsie && window.QSI && window.QSI.API);
   }
 
-  // eslint-disable-next-line class-methods-use-this
   isReady() {
     logger.debug("===in Qualtrics isReady===");
     return !!(window._qsie && window.QSI && window.QSI.API);
@@ -63,7 +67,6 @@ class Qualtrics {
 
   page(rudderElement) {
     const { name, category, properties } = rudderElement.message;
-    // eslint-disable-next-line no-nested-ternary
     const categoryField = category
       ? category
       : properties && properties.category
@@ -88,7 +91,11 @@ class Qualtrics {
 
   track(rudderElement) {
     const { message } = rudderElement;
-    if(!message.event) {
+    if (!message) {
+      logger.debug("Message field is missing");
+      return;
+    }
+    if (!message.event) {
       logger.debug("Event field is undefined");
       return;
     }
