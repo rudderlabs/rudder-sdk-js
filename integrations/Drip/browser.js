@@ -16,15 +16,15 @@ class Drip {
   init() {
     logger.debug("===In init Drip===");
 
-    window._dcq = _dcq || [];
-    window._dcs = _dcs || {};
+    window._dcq = window._dcq || [];
+    window._dcs = window._dcs || {};
     window._dcs.account = this.accountId;
 
     (function () {
       var dc = document.createElement("script");
       dc.type = "text/javascript";
       dc.async = true;
-      dc.src = `//tag.getdrip.com/${this.accountId}.js`;
+      dc.src = `//tag.getdrip.com/${window._dcs.account}.js`;
       var s = document.getElementsByTagName("script")[0];
       s.parentNode.insertBefore(dc, s);
     })();
@@ -32,12 +32,12 @@ class Drip {
 
   isLoaded() {
     logger.debug("===In isLoaded Drip===");
-    return !!(window._dcq && window._dcq.push !== Array.prototype.push);
+    return !!window._dcq;
   }
 
   isReady() {
     logger.debug("===In isReady Drip===");
-    return !!(window._dcq && window._dcq.push !== Array.prototype.push);
+    return !!window._dcq;
   }
 
   identify(rudderElement) {
@@ -75,11 +75,6 @@ class Drip {
       prospect: get(message, "context.traits.prospect"),
       eu_consent: euConsent,
       eu_consent_message: get(message, "context.traits.euConsentMessage"),
-      success: (response) => {
-        // Call a method with the response object
-        // Success callback is optional
-        logger.debug("identify call was success");
-      },
     };
     payload = removeUndefinedAndNullValues(payload);
     window._dcq.push(["identify", payload]);
@@ -96,11 +91,6 @@ class Drip {
         fields,
         campaign_id: campaignId,
         double_optin: get(message, "context.traits.doubleOptin"),
-        success: (response) => {
-          // Call a method with the response object
-          // Success callback is optional
-          logger.debug("Subscription to an Email Series Campaign was success");
-        },
       };
       campaignPayload = removeUndefinedAndNullValues(campaignPayload);
       window._dcq.push(["subscribe", campaignPayload]);
@@ -131,7 +121,6 @@ class Drip {
       const cents = Math.round(payload.revenue * 100);
       if (cents) payload.value = cents;
 
-      // remove redundant data
       delete payload.revenue;
     }
 
@@ -140,13 +129,7 @@ class Drip {
       email,
       occurred_at:
         get(message, "properties.occurred_at") ||
-        get(message, "timestamp") ||
         get(message, "originalTimestamp"),
-      success: (response) => {
-        // Call a method with the response object
-        // Success callback is optional
-        logger.debug("track call was success");
-      },
     };
 
     payload = removeUndefinedAndNullValues(payload);
