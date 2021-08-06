@@ -73,6 +73,11 @@ class Qualtrics {
       window._qsie.push("viewed a page");
       return;
     }
+
+    if (!categoryField && !name) {
+      logger.debug("No name or category field found");
+      return;
+    }
     const dynamicTitle =
       categoryField && name
         ? `viewed page ${name}${categoryField}`
@@ -83,6 +88,10 @@ class Qualtrics {
 
   track(rudderElement) {
     const { message } = rudderElement;
+    if(!message.event) {
+      logger.debug("Event field is undefined");
+      return;
+    }
     window._qsie.push(message.event);
   }
 }
