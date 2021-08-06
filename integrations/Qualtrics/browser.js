@@ -94,8 +94,8 @@ class Qualtrics {
     }
     const dynamicTitle =
       categoryField && name
-        ? `viewed page ${name}${categoryField}`
-        : `viewed page ${name}`;
+        ? `Viewed ${categoryField} ${name} Page`
+        : `Viewed ${name} Page`;
 
     window._qsie.push(dynamicTitle);
   }
