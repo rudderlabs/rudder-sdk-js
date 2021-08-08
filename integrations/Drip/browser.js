@@ -61,8 +61,8 @@ class Drip {
     if (
       euConsent &&
       !(
-        euConsent.toLowercase() === "granted" ||
-        euConsent.toLowercase() === "denied"
+        euConsent.toLowerCase() === "granted" ||
+        euConsent.toLowerCase() === "denied"
       )
     ) {
       euConsent = null;
