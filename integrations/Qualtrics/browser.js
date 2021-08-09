@@ -75,16 +75,14 @@ class Qualtrics {
     }
 
     if (this.enableGenericPageTitle) {
-      window._qsie.push("viewed a page");
+      window._qsie.push("Viewed a Page");
       return;
     }
 
     const { name, category, properties } = message;
-    const categoryField = category
-      ? category
-      : properties && properties.category
-      ? properties.category
-      : null;
+    const categoryField =
+      category ||
+      (properties && properties.category ? properties.category : null);
 
     if (!categoryField && !name) {
       logger.debug(
