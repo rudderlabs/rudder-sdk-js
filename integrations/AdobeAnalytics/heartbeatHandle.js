@@ -47,7 +47,7 @@ const initHeartbeat = (rudderElement) => {
 
   mediaHeartbeatConfig.trackingServer = config.heartbeatTrackingServerUrl;
   mediaHeartbeatConfig.channel = channel || "";
-  mediaHeartbeatConfig.ovp = properties.ovp || "unknown";
+  mediaHeartbeatConfig.ovp = "unknown";
   mediaHeartbeatConfig.appVersion = context.app.version || "unknown";
   mediaHeartbeatConfig.playerName = video_player || "unknown";
   mediaHeartbeatConfig.ssl = config.sslHeartbeat;
