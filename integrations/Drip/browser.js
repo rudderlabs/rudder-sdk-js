@@ -121,7 +121,9 @@ class Drip {
 
     if (isDefinedAndNotNull(payload.revenue)) {
       const cents = Math.round(payload.revenue * 100);
-      if (cents) payload.value = cents;
+      if (cents) {
+        payload.value = cents;
+      }
 
       delete payload.revenue;
     }
