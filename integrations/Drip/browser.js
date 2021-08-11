@@ -8,6 +8,8 @@ import {
 } from "../utils/commonUtils";
 import { getDestinationExternalID } from "./utils";
 
+import { extractCustomFields } from "../../utils/utils";
+
 class Drip {
   constructor(config) {
     this.accountId = config.accountId;
@@ -78,6 +80,33 @@ class Drip {
       eu_consent: euConsent,
       eu_consent_message: get(message, "context.traits.euConsentMessage"),
     };
+
+    let extraFields = {};
+    const EXCLUSION_FIELDS = [
+      "email",
+      "new_email",
+      "newEmail",
+      "tags",
+      "remove_tags",
+      "removeTags",
+      "prospect",
+      "eu_consent",
+      "euConsent",
+      "eu_consent_message",
+      "euConsentMessage",
+    ];
+    extraFields = extractCustomFields(
+      message,
+      extraFields,
+      ["context.traits"],
+      EXCLUSION_FIELDS
+    );
+
+    payload = {
+      ...payload,
+      ...extraFields,
+    };
+
     payload = removeUndefinedAndNullValues(payload);
     window._dcq.push(["identify", payload]);
 
