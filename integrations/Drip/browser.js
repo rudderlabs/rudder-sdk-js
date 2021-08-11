@@ -8,11 +8,26 @@ import {
 } from "../utils/commonUtils";
 import { getDestinationExternalID } from "./utils";
 
+import { extractCustomFields } from "../../utils/utils";
+
 class Drip {
   constructor(config) {
     this.accountId = config.accountId;
     this.campaignId = config.campaignId;
     this.name = "DRIP";
+    this.exclusionFields = [
+      "email",
+      "new_email",
+      "newEmail",
+      "tags",
+      "remove_tags",
+      "removeTags",
+      "prospect",
+      "eu_consent",
+      "euConsent",
+      "eu_consent_message",
+      "euConsentMessage",
+    ];
   }
 
   init() {
@@ -78,6 +93,24 @@ class Drip {
       eu_consent: euConsent,
       eu_consent_message: get(message, "context.traits.euConsentMessage"),
     };
+
+    let extraFields = {};
+    try {
+      extraFields = extractCustomFields(
+        message,
+        extraFields,
+        ["context.traits"],
+        this.exclusionFields
+      );
+    } catch (err) {
+      logger.debug(`Error occured at extractCustomFields ${err}`);
+    }
+
+    payload = {
+      ...payload,
+      ...extraFields,
+    };
+
     payload = removeUndefinedAndNullValues(payload);
     window._dcq.push(["identify", payload]);
 
