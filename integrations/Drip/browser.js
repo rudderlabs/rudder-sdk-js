@@ -118,7 +118,6 @@ class Drip {
       getDestinationExternalID(message, "dripCampaignId") || this.campaignId;
 
     if (campaignId) {
-      // const fields = get(message, "context.traits");
       const fields = payload;
       delete fields.campaignId;
       delete fields.doubleOptin;
