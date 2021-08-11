@@ -15,6 +15,19 @@ class Drip {
     this.accountId = config.accountId;
     this.campaignId = config.campaignId;
     this.name = "DRIP";
+    this.exclusionFields = [
+      "email",
+      "new_email",
+      "newEmail",
+      "tags",
+      "remove_tags",
+      "removeTags",
+      "prospect",
+      "eu_consent",
+      "euConsent",
+      "eu_consent_message",
+      "euConsentMessage",
+    ];
   }
 
   init() {
@@ -82,25 +95,16 @@ class Drip {
     };
 
     let extraFields = {};
-    const EXCLUSION_FIELDS = [
-      "email",
-      "new_email",
-      "newEmail",
-      "tags",
-      "remove_tags",
-      "removeTags",
-      "prospect",
-      "eu_consent",
-      "euConsent",
-      "eu_consent_message",
-      "euConsentMessage",
-    ];
-    extraFields = extractCustomFields(
-      message,
-      extraFields,
-      ["context.traits"],
-      EXCLUSION_FIELDS
-    );
+    try {
+      extraFields = extractCustomFields(
+        message,
+        extraFields,
+        ["context.traits"],
+        this.exclusionFields
+      );
+    } catch (err) {
+      logger.debug(`Error occured at extractCustomFields ${err}`);
+    }
 
     payload = {
       ...payload,
