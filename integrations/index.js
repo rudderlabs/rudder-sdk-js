@@ -34,6 +34,7 @@ import * as RedditPixel from "./RedditPixel";
 import * as Heap from "./Heap";
 import * as Criteo from "./Criteo";
 import * as Mixpanel from "./Mixpanel";
+import * as Qualtrics from "./Qualtrics";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -75,6 +76,7 @@ const integrations = {
   HEAP: Heap.default,
   CRITEO: Criteo.default,
   MP: Mixpanel.default,
+  QUALTRICS: Qualtrics.default,
 };
 
 export { integrations };
