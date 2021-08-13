@@ -34,7 +34,12 @@ class RudderContext {
       screen.width = window.screen.width;
       screen.height = window.screen.height;
       screen.density = window.devicePixelRatio;
-      this.userAgent = navigator.userAgent;
+      if (navigator.brave && navigator.brave.isBrave.name === "isBrave") {
+        const version = navigator.userAgent.match(/(Chrome)\/([\w\.]+)/i)[2];
+        this.userAgent = `${navigator.userAgent} Brave/${version}`;
+      } else {
+        this.userAgent = navigator.userAgent;
+      }
       // property name differs based on browser version
       this.locale = navigator.language || navigator.browserLanguage;
       screen.innerWidth = window.innerWidth;
