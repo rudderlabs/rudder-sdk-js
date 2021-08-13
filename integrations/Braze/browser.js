@@ -8,6 +8,8 @@ class Braze {
     this.analytics = analytics;
     this.appKey = config.appKey;
     this.enableHtmlInAppMessages = config.enableHtmlInAppMessages || false;
+    this.allowUserSuppliedJavascript =
+      config.allowUserSuppliedJavascript || false;
     if (!config.appKey) this.appKey = "";
     this.endPoint = "";
     if (config.dataCenter) {
@@ -91,6 +93,7 @@ class Braze {
       enableLogging: true,
       baseUrl: this.endPoint,
       enableHtmlInAppMessages: this.enableHtmlInAppMessages,
+      allowUserSuppliedJavascript: this.allowUserSuppliedJavascript,
     });
     window.appboy.display.automaticallyShowNewInAppMessages();
 
