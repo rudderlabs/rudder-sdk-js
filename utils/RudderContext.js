@@ -35,7 +35,7 @@ class RudderContext {
       screen.height = window.screen.height;
       screen.density = window.devicePixelRatio;
       // detect brave browser and append to the user agent
-      if (navigator.brave && navigator.brave.isBrave.name === "isBrave") {
+      if (navigator.brave && Object.getPrototypeOf(navigator.brave).isBrave) {
         const version = navigator.userAgent.match(/(Chrome)\/([\w\.]+)/i)[2];
         this.userAgent = `${navigator.userAgent} Brave/${version}`;
       } else {
