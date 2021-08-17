@@ -31,7 +31,8 @@ import {
 import {
   CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
-  INTEGRATION_LOAD_CHECK_INTERVAL
+  INTEGRATION_LOAD_CHECK_INTERVAL,
+  CDN_BASE_URL,
 } from "./utils/constants";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
@@ -206,11 +207,14 @@ class Analytics {
   }
 
   /*
-  * Dyanamically load the required client integration from CDN
-  */
+   * Dyanamically load the required client integration from CDN
+   */
   loadIntegrationModule(modName) {
-    const cdnURL = `https://cdn.rudderstack.com/v2/js-integrations/${modName}.js`;
-    /*import(cdnURL)
+    // const cdnURL = `${CDN_BASE_URL}/${modName}.js`;
+    // For testing purposes only
+    const cdnURL =
+      "https://ddim5kcy73icz.cloudfront.net/integration/AdobeAnalytics.js";
+    fetch(cdnURL)
       .then((modObj) => {
         this.dynamicallyLoadedIntegrations[modName] = modObj;
       })
@@ -220,7 +224,7 @@ class Analytics {
           modName,
           err
         );
-      });*/
+      });
   }
 
   /**
