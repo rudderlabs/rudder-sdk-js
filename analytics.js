@@ -33,7 +33,6 @@ import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL
 } from "./utils/constants";
-import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
@@ -96,6 +95,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.dynamicallyLoadedIntegrations = {};
   }
 
   /**
@@ -180,9 +180,14 @@ class Analytics {
         this.clientIntegrations
       );
 
+      // Load all the client integrations dynamically
+      this.clientIntegrations.forEach((intg) => {
+        this.loadIntegrationModule(intg);
+      });
+
       // remove from the list which don't have support yet in SDK
-      this.clientIntegrations = this.clientIntegrations.filter(intg => {
-        return integrations[intg.name] != undefined;
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+        return this.dynamicallyLoadedIntegrations[intg.name] != undefined;
       });
 
       this.init(this.clientIntegrations);
@@ -200,6 +205,24 @@ class Analytics {
     }
   }
 
+  /*
+  * Dyanamically load the required client integration from CDN
+  */
+  loadIntegrationModule(modName) {
+    const cdnURL = `https://cdn.rudderstack.com/v2/js-integrations/${modName}.js`;
+    /*import(cdnURL)
+      .then((modObj) => {
+        this.dynamicallyLoadedIntegrations[modName] = modObj;
+      })
+      .catch((err) => {
+        logger.debug(
+          "[Analytics] loadIntegrationModule :: failed trying to dynamically load integration module:: ",
+          modName,
+          err
+        );
+      });*/
+  }
+
   /**
    * Initialize integrations by addinfg respective scripts
    * keep the instances reference in core
@@ -210,8 +233,10 @@ class Analytics {
    */
   init(intgArray) {
     const self = this;
-    logger.debug("supported intgs ", integrations);
-    // this.clientIntegrationObjects = [];
+    logger.debug(
+      "Dyanmically loaded intgs ",
+      this.dynamicallyLoadedIntegrations
+    );
 
     if (!intgArray || intgArray.length == 0) {
       if (this.readyCallback) {
@@ -227,7 +252,7 @@ class Analytics {
           "[Analytics] init :: trying to initialize integration name:: ",
           intg.name
         );
-        const intgClass = integrations[intg.name];
+        const intgClass = this.dynamicallyLoadedIntegrations[intg.name];
         const destConfig = intg.config;
         intgInstance = new intgClass(destConfig, self);
         intgInstance.init();
@@ -241,7 +266,7 @@ class Analytics {
           intg.name
         );
         this.failedToBeLoadedIntegration.push(intgInstance);
-      }
+      } 
     });
   }
 
