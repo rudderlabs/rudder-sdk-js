@@ -214,12 +214,20 @@ class Analytics {
     // For testing purposes only
     const cdnURL =
       "https://ddim5kcy73icz.cloudfront.net/integration/AdobeAnalytics.js";
-    fetch(cdnURL)
+    fetch(cdnURL, {
+      method: "GET",
+      mode: "no-cors",
+    })
       .then((modObj) => {
+        logger.debug(
+          "[Analytics] loadIntegrationModule :: modObj :: ",
+          modName,
+          modObj
+        );
         this.dynamicallyLoadedIntegrations[modName] = modObj;
       })
       .catch((err) => {
-        logger.debug(
+        logger.error(
           "[Analytics] loadIntegrationModule :: failed trying to dynamically load integration module:: ",
           modName,
           err
