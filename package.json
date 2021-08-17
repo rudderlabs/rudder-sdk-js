@@ -25,7 +25,7 @@
     "size-build": "npm run buildProdBrowser",
     "size": "npm run size-build && size-limit",
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc ",
-    "buildDevIntegration": "NODE_ENV=false uglify=false rollup --config rollup.intgConfig.js"
+    "buildDevIntegration": "NODE_ENV=false uglify=false INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js"
   },
   "pre-commit": [
     "prodTest",
