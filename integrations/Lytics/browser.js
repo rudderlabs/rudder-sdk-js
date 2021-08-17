@@ -95,6 +95,11 @@ class Lytics {
         document.location.protocol === "https:"
           ? `https://c.lytics.io/api/tag/${this.accountId}/latest.min.js`
           : `http://c.lytics.io/api/tag/${this.accountId}/latest.min.js`,
+      pageAnalysis: {
+        dataLayerPull: {
+          disabled: true,
+        }
+      }
     });
   }
 
