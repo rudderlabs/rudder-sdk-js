@@ -13,7 +13,7 @@ import brotli from "rollup-plugin-brotli";
 import visualizer from "rollup-plugin-visualizer";
 import * as webPackage from "./package.json";
 
-const distFileName = "dist/integrations/AdobeAnalytics.js";
+const distFileName = `dist/integrations/${process.env.INTG_NAME}.js`;
 const { version } = webPackage;
 const moduleType = "web";
 
@@ -21,7 +21,7 @@ const outputFiles = [];
 outputFiles.push({
   file: distFileName,
   format: "iife",
-  name: "AdobeAnalytics",
+  name: `${process.env.INTG_NAME}`,
   sourcemap:
     process.env.PROD_DEBUG_INLINE === "true"
       ? "inline"
@@ -29,7 +29,7 @@ outputFiles.push({
 });
 
 export default {
-  input: "./integrations/AdobeAnalytics/index.js",
+  input: `./integrations/${process.env.INTG_NAME}/index.js`,
   external: ["Xmlhttprequest", "universal-analytics"],
   output: outputFiles,
   plugins: [
