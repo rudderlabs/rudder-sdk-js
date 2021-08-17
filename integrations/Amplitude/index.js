@@ -1,3 +1,4 @@
 import Amplitude from "./browser";
 
-export default Amplitude;
+// eslint-disable-next-line import/prefer-default-export
+export { Amplitude };

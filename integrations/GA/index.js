@@ -1,4 +1,5 @@
-import { GANode } from "./node";
+// import { GANode } from "./node";
 import GA from "./browser";
 
-export default process.browser ? GA : GANode;
+// eslint-disable-next-line import/prefer-default-export
+export { GA };
