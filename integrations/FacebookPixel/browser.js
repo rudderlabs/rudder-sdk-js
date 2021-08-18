@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import is from "is";
 import each from "@ndhoule/each";
+import sha256 from "crypto-js/sha256";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import { getHashFromArray } from "../utils/commonUtils";
@@ -588,7 +589,9 @@ class FacebookPixel {
         continue;
       }
 
-      const customProperties = eventCustomProperties.map(e => e.eventCustomProperties);
+      const customProperties = eventCustomProperties.map(
+        (e) => e.eventCustomProperties
+      );
 
       if (isStandardEvent && customProperties.indexOf(property) < 0) {
         continue;
