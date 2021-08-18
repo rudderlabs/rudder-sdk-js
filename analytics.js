@@ -210,29 +210,13 @@ class Analytics {
    * Dyanamically load the required client integration from CDN
    */
   loadIntegrationModule(modName) {
-    // const cdnURL = `${CDN_BASE_URL}/${modName}.js`;
+    const modURL = `${CDN_BASE_URL}/${modName}.js`;
+
     // For testing purposes only
-    const cdnURL =
-      "https://ddim5kcy73icz.cloudfront.net/integration/AdobeAnalytics.js";
-    fetch(cdnURL, {
-      method: "GET",
-      mode: "no-cors",
-    })
-      .then((modObj) => {
-        logger.debug(
-          "[Analytics] loadIntegrationModule :: modObj :: ",
-          modName,
-          modObj
-        );
-        this.dynamicallyLoadedIntegrations[modName] = modObj;
-      })
-      .catch((err) => {
-        logger.error(
-          "[Analytics] loadIntegrationModule :: failed trying to dynamically load integration module:: ",
-          modName,
-          err
-        );
-      });
+    // const modURL = "https://ddim5kcy73icz.cloudfront.net/integration/AdobeAnalytics.js";
+    // const modURL = "https://cdn.rudderlabs.com/v1/rudder-analytics.min.js";
+
+    ScriptLoader(modName, modURL);
   }
 
   /**
