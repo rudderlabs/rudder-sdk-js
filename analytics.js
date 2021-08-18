@@ -183,7 +183,40 @@ class Analytics {
 
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
-        this.loadIntegrationModule(intg);
+        // const modURL = `${CDN_BASE_URL}/${modName}.js`;
+
+        // For testing purposes only
+        const modURL = "https://ddim5kcy73icz.cloudfront.net/integration/AdobeAnalytics.js";
+        // const modURL = "https://cdn.rudderlabs.com/v1/rudder-analytics.min.js";
+        const tempMap = { ADOBE_ANALYTICS: "AdobeAnalytics" };
+        const modName = tempMap[intg.name];
+        ScriptLoader(modName, modURL);
+
+        var self = this;
+        const interval = setInterval(function () {
+          logger.debug(modName, " Inside setInterval handler for module");
+          logger.debug(modName, " window: ", window);
+          if (window.hasOwnProperty(modName)) {
+            logger.debug(modName, " has been attached to Window object");
+            const intMod = window[modName];
+            logger.debug(modName, " Module: ", intMod);
+            clearInterval(interval);
+            logger.debug(modName, " Cleared interval");
+            logger.debug(
+              modName,
+              " dynamicallyLoadedIntegrations ",
+              self.dynamicallyLoadedIntegrations
+            );
+            self.dynamicallyLoadedIntegrations[modName] = intMod[modName];
+            logger.debug(
+              modName,
+              " dynamicallyLoadedIntegrations ",
+              self.dynamicallyLoadedIntegrations
+            );
+            logger.debug(modName, "Creating object ", new intMod[modName]({a: 'c'}));
+          }
+          logger.debug(modName, " exiting setInterval");
+        }, 100);
       });
 
       // remove from the list which don't have support yet in SDK
@@ -204,19 +237,6 @@ class Analytics {
         this.autoTrackHandlersRegistered = true;
       }
     }
-  }
-
-  /*
-   * Dyanamically load the required client integration from CDN
-   */
-  loadIntegrationModule(modName) {
-    const modURL = `${CDN_BASE_URL}/${modName}.js`;
-
-    // For testing purposes only
-    // const modURL = "https://ddim5kcy73icz.cloudfront.net/integration/AdobeAnalytics.js";
-    // const modURL = "https://cdn.rudderlabs.com/v1/rudder-analytics.min.js";
-
-    ScriptLoader(modName, modURL);
   }
 
   /**
