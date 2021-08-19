@@ -3,6 +3,11 @@ import logger from "../utils/logUtil";
 
 const ScriptLoader = (id, src) => {
   logger.debug(`in script loader=== ${id}`);
+  const exists = document.getElementById(id);
+  if (exists) {
+    logger.debug("script already loaded");
+    return;
+  }
   const js = document.createElement("script");
   js.src = src;
   js.async = true;
