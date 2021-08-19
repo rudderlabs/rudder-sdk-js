@@ -140,6 +140,41 @@ class Analytics {
     }
   }
 
+  allModulesInitialized(time = 0) {
+    const tempMap = {
+      ADOBE_ANALYTICS: "AdobeAnalytics",
+      AM: "Amplitude",
+      BRAZE: "Braze",
+      GA: "GA",
+    };
+    return new Promise((resolve) => {
+      if (
+        this.clientIntegrations.every(
+          (intg) =>
+            this.dynamicallyLoadedIntegrations[tempMap[intg.name]] != undefined
+        )
+      ) {
+        logger.debug(
+          "All integrations loaded dynamically",
+          this.dynamicallyLoadedIntegrations
+        );
+        return resolve(this);
+      }
+      if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
+        logger.debug("max wait for dynamical integrations over");
+        return resolve(this);
+      }
+
+      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+        logger.debug("Try again after pause");
+        return this.allModulesInitialized(
+          time + INTEGRATION_LOAD_CHECK_INTERVAL
+        ).then(resolve);
+      });
+    });
+  }
+
+
   /**
    * Process the response from control plane and
    * call initialize for integrations
@@ -183,48 +218,46 @@ class Analytics {
 
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
-        // const modURL = `${CDN_BASE_URL}/${modName}.js`;
-
-        // For testing purposes only
-        const modURL = "https://ddim5kcy73icz.cloudfront.net/integration/AdobeAnalytics.js";
-        // const modURL = "https://cdn.rudderlabs.com/v1/rudder-analytics.min.js";
-        const tempMap = { ADOBE_ANALYTICS: "AdobeAnalytics" };
+        const tempMap = {
+          ADOBE_ANALYTICS: "AdobeAnalytics",
+          AM: "Amplitude",
+          BRAZE: "Braze",
+          GA: "GA",
+        };
         const modName = tempMap[intg.name];
+        // const modURL = `${CDN_BASE_URL}/${modName}.js`;
+        // Dev only
+        const modURL = `https://ddim5kcy73icz.cloudfront.net/integration/${modName}.js`;
+
+        // Skip if the module has already been loaded
+        if (window.hasOwnProperty(modName)) return;
+
         ScriptLoader(modName, modURL);
 
-        var self = this;
+        const self = this;
         const interval = setInterval(function () {
-          logger.debug(modName, " Inside setInterval handler for module");
-          logger.debug(modName, " window: ", window);
           if (window.hasOwnProperty(modName)) {
-            logger.debug(modName, " has been attached to Window object");
             const intMod = window[modName];
-            logger.debug(modName, " Module: ", intMod);
             clearInterval(interval);
-            logger.debug(modName, " Cleared interval");
-            logger.debug(
-              modName,
-              " dynamicallyLoadedIntegrations ",
-              self.dynamicallyLoadedIntegrations
-            );
+
+            // Add the integration class into collection for later use
             self.dynamicallyLoadedIntegrations[modName] = intMod[modName];
+
             logger.debug(
               modName,
               " dynamicallyLoadedIntegrations ",
               self.dynamicallyLoadedIntegrations
             );
-            logger.debug(modName, "Creating object ", new intMod[modName]({a: 'c'}));
           }
           logger.debug(modName, " exiting setInterval");
         }, 100);
+
+        setTimeout(() => {
+          clearInterval(interval);
+        }, MAX_WAIT_FOR_INTEGRATION_LOAD);
       });
 
-      // remove from the list which don't have support yet in SDK
-      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
-        return this.dynamicallyLoadedIntegrations[intg.name] != undefined;
-      });
-
-      this.init(this.clientIntegrations);
+      this.allModulesInitialized().then(this.init);
     } catch (error) {
       handleError(error);
       logger.debug("===handling config BE response processing error===");
@@ -247,42 +280,60 @@ class Analytics {
    * @returns
    * @memberof Analytics
    */
-  init(intgArray) {
-    const self = this;
+  init(object) {
+    const tempMap = {
+      ADOBE_ANALYTICS: "AdobeAnalytics",
+      AM: "Amplitude",
+      BRAZE: "Braze",
+      GA: "GA",
+    };
+    // remove from the list which don't have support yet in SDK
+    object.clientIntegrations = object.clientIntegrations.filter((intg) => {
+      return (
+        object.dynamicallyLoadedIntegrations[tempMap[intg.name]] != undefined
+      );
+    });
+    const intgArray = object.clientIntegrations;
+    const self = object;
     logger.debug(
-      "Dyanmically loaded intgs ",
-      this.dynamicallyLoadedIntegrations
+      "Dynamically loaded intgs ",
+      object.dynamicallyLoadedIntegrations
     );
 
+    logger.debug("ClientIntegrations: ", intgArray);
     if (!intgArray || intgArray.length == 0) {
-      if (this.readyCallback) {
-        this.readyCallback();
+      if (object.readyCallback) {
+        object.readyCallback();
       }
-      this.toBeProcessedByIntegrationArray = [];
+      object.toBeProcessedByIntegrationArray = [];
       return;
     }
+
     let intgInstance;
-    intgArray.forEach(intg => {
+    logger.debug("Iterating intgArray: ", intgArray);
+    intgArray.forEach((intg) => {
       try {
         logger.debug(
           "[Analytics] init :: trying to initialize integration name:: ",
           intg.name
         );
-        const intgClass = this.dynamicallyLoadedIntegrations[intg.name];
+        const intgClass =
+          object.dynamicallyLoadedIntegrations[tempMap[intg.name]];
         const destConfig = intg.config;
         intgInstance = new intgClass(destConfig, self);
         intgInstance.init();
 
         logger.debug("initializing destination: ", intg);
 
-        this.isInitialized(intgInstance).then(this.replayEvents);
+        object.isInitialized(intgInstance).then(object.replayEvents);
       } catch (e) {
         logger.error(
           "[Analytics] initialize integration (integration.init()) failed :: ",
-          intg.name
+          intg.name,
+          e
         );
-        this.failedToBeLoadedIntegration.push(intgInstance);
-      } 
+        object.failedToBeLoadedIntegration.push(intgInstance);
+      }
     });
   }
 
