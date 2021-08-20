@@ -1,7 +1,10 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
+import is from "is";
 import sha256 from "crypto-js/sha256";
+import Storage from "../../utils/storage";
 import logger from "../../utils/logUtil";
+
 import {
   isDefinedAndNotNull,
   removeUndefinedAndNullValues,
@@ -40,12 +43,13 @@ class SnapPixel {
       "LIST_VIEW",
     ];
 
-    this.customEvents = [];
-    this.customEvents.push(config.customEvent1);
-    this.customEvents.push(config.customEvent2);
-    this.customEvents.push(config.customEvent3);
-    this.customEvents.push(config.customEvent4);
-    this.customEvents.push(config.customEvent5);
+    this.customEvents = [
+      config.customEvent1,
+      config.customEvent2,
+      config.customEvent3,
+      config.customEvent4,
+      config.customEvent5,
+    ];
   }
 
   init() {
@@ -66,6 +70,34 @@ class SnapPixel {
       var u = t.getElementsByTagName(s)[0];
       u.parentNode.insertBefore(r, u);
     })(window, document, "https://sc-static.net/scevent.min.js");
+
+    const cookieData = Storage.getUserTraits();
+
+    let payload = {
+      user_email: cookieData.email,
+      user_phone_number: cookieData.phone,
+    };
+
+    if (!payload.user_email && !payload.user_phone_number) {
+      logger.debug(
+        "User parameter (email or phone number) not found in cookie"
+      );
+      return;
+    }
+
+    if (this.hashMethod === "sha256") {
+      if (isDefinedAndNotNull(payload.user_email)) {
+        payload.user_email = sha256(payload.user_email).toString();
+      }
+      if (isDefinedAndNotNull(payload.user_phone_number)) {
+        payload.user_phone_number = sha256(
+          payload.user_phone_number
+        ).toString();
+      }
+    }
+
+    payload = removeUndefinedAndNullValues(payload);
+    window.snaptr("init", this.pixelId, payload);
   }
 
   isLoaded() {
@@ -88,6 +120,11 @@ class SnapPixel {
       user_phone_number: get(message, "context.traits.phone"),
     };
 
+    if (!payload.user_email && !payload.user_phone_number) {
+      logger.error("User parameter (email or phone number) is required");
+      return;
+    }
+
     if (this.hashMethod === "sha256") {
       if (isDefinedAndNotNull(payload.user_email)) {
         payload.user_email = sha256(payload.user_email).toString();
@@ -97,11 +134,6 @@ class SnapPixel {
           payload.user_phone_number
         ).toString();
       }
-    }
-
-    if (!payload.user_email && !payload.user_phone_number) {
-      logger.error("User parameter (email or phone number) is required");
-      return;
     }
 
     payload = removeUndefinedAndNullValues(payload);
@@ -119,7 +151,26 @@ class SnapPixel {
       return;
     }
 
-    let payload = get(message, "properties");
+    let payload = {
+      price: get(message, "properties.price"),
+      currency: get(message, "properties.currency"),
+      transaction_id: get(message, "properties.transactionId"),
+      item_ids: get(message, "properties.itemId"),
+      item_category: get(message, "properties.category"),
+      description: get(message, "properties.description"),
+      search_string: get(message, "properties.search"),
+      number_items: get(message, "properties.numberItems"),
+      payment_info_available: get(message, "properties.paymentInfoAvailable"),
+      sign_up_method: get(message, "properties.signUpMethod"),
+      success: get(message, "properties.success"),
+    };
+
+    if (!is.boolean(payload.payment_info_available)) {
+      payload.payment_info_available = null;
+    }
+    if (!is.boolean(payload.success)) {
+      payload.success = null;
+    }
     payload = removeUndefinedAndNullValues(payload);
 
     switch (event.toLowerCase()) {
@@ -162,7 +213,26 @@ class SnapPixel {
 
     const { message } = rudderElement;
 
-    let payload = get(message, "properties");
+    let payload = {
+      price: get(message, "properties.price"),
+      currency: get(message, "properties.currency"),
+      transaction_id: get(message, "properties.transactionId"),
+      item_ids: get(message, "properties.itemId"),
+      item_category: get(message, "properties.category"),
+      description: get(message, "properties.description"),
+      search_string: get(message, "properties.search"),
+      number_items: get(message, "properties.numberItems"),
+      payment_info_available: get(message, "properties.paymentInfoAvailable"),
+      sign_up_method: get(message, "properties.signUpMethod"),
+      success: get(message, "properties.success"),
+    };
+
+    if (!is.boolean(payload.payment_info_available)) {
+      payload.payment_info_available = null;
+    }
+    if (!is.boolean(payload.success)) {
+      payload.success = null;
+    }
     payload = removeUndefinedAndNullValues(payload);
 
     window.snaptr("track", "PAGE_VIEW", payload);
