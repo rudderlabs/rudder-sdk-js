@@ -605,7 +605,7 @@ class FacebookPixel {
       }
       if (customPiiProperties.hasOwnProperty(property)) {
         if (customPiiProperties[property] && typeof value === "string") {
-          payload[property] = sha256(value);
+          payload[property] = sha256(value).toString();
         }
         continue;
       }
