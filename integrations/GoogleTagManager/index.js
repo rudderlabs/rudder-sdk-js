@@ -1,3 +1,4 @@
 import { GoogleTagManager } from "./browser";
 
-export default GoogleTagManager;
+// eslint-disable-next-line import/prefer-default-export
+export { GoogleTagManager };

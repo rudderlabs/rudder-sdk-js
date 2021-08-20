@@ -1,3 +1,4 @@
 import Drip from "./browser";
 
-export default Drip;
+// eslint-disable-next-line import/prefer-default-export
+export { Drip };

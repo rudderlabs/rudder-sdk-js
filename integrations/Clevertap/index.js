@@ -1,3 +1,4 @@
 import Clevertap from "./browser";
 
-export default Clevertap;
+// eslint-disable-next-line import/prefer-default-export
+export { Clevertap };

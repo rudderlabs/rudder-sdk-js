@@ -1,3 +1,4 @@
 import Klaviyo from "./browser";
 
-export default Klaviyo;
+// eslint-disable-next-line import/prefer-default-export
+export { Klaviyo };

@@ -1,3 +1,4 @@
 import TVSquared from "./browser";
 
-export default TVSquared;
+// eslint-disable-next-line import/prefer-default-export
+export { TVSquared };

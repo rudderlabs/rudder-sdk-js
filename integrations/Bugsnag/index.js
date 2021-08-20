@@ -1,3 +1,4 @@
 import { Bugsnag } from "./browser";
 
-export default Bugsnag; 
+// eslint-disable-next-line import/prefer-default-export
+export { Bugsnag };

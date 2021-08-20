@@ -1,3 +1,4 @@
 import { Chartbeat } from "./browser";
 
-export default Chartbeat;
+// eslint-disable-next-line import/prefer-default-export
+export { Chartbeat };
