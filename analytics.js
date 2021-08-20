@@ -41,6 +41,7 @@ import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
+import { configToIntNames } from "./config_to_integration_names.js";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -141,17 +142,12 @@ class Analytics {
   }
 
   allModulesInitialized(time = 0) {
-    const tempMap = {
-      ADOBE_ANALYTICS: "AdobeAnalytics",
-      AM: "Amplitude",
-      BRAZE: "Braze",
-      GA: "GA",
-    };
     return new Promise((resolve) => {
       if (
         this.clientIntegrations.every(
           (intg) =>
-            this.dynamicallyLoadedIntegrations[tempMap[intg.name]] != undefined
+            this.dynamicallyLoadedIntegrations[configToIntNames[intg.name]] !=
+            undefined
         )
       ) {
         logger.debug(
@@ -210,21 +206,17 @@ class Analytics {
       }, this);
 
       logger.debug("this.clientIntegrations: ", this.clientIntegrations);
+      logger.debug("this.loadOnlyIntegrations: ", this.loadOnlyIntegrations);
       // intersection of config-plane native sdk destinations with sdk load time destination list
       this.clientIntegrations = findAllEnabledDestinations(
         this.loadOnlyIntegrations,
         this.clientIntegrations
       );
-
+      
+      logger.debug("this.clientIntegrations: ", this.clientIntegrations);
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
-        const tempMap = {
-          ADOBE_ANALYTICS: "AdobeAnalytics",
-          AM: "Amplitude",
-          BRAZE: "Braze",
-          GA: "GA",
-        };
-        const modName = tempMap[intg.name];
+        const modName = configToIntNames[intg.name];
         // const modURL = `${CDN_BASE_URL}/${modName}.js`;
         // Dev only
         const modURL = `https://ddim5kcy73icz.cloudfront.net/integration/${modName}.js`;
@@ -281,16 +273,10 @@ class Analytics {
    * @memberof Analytics
    */
   init(object) {
-    const tempMap = {
-      ADOBE_ANALYTICS: "AdobeAnalytics",
-      AM: "Amplitude",
-      BRAZE: "Braze",
-      GA: "GA",
-    };
     // remove from the list which don't have support yet in SDK
     object.clientIntegrations = object.clientIntegrations.filter((intg) => {
       return (
-        object.dynamicallyLoadedIntegrations[tempMap[intg.name]] != undefined
+        object.dynamicallyLoadedIntegrations[configToIntNames[intg.name]] != undefined
       );
     });
     const intgArray = object.clientIntegrations;
@@ -318,7 +304,7 @@ class Analytics {
           intg.name
         );
         const intgClass =
-          object.dynamicallyLoadedIntegrations[tempMap[intg.name]];
+          object.dynamicallyLoadedIntegrations[configToIntNames[intg.name]];
         const destConfig = intg.config;
         intgInstance = new intgClass(destConfig, self);
         intgInstance.init();
