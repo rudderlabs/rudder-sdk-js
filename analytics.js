@@ -22,7 +22,7 @@ import {
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
-  tranformToRudderNames,
+  transformToRudderNames,
   transformToServerNames,
   checkReservedKeywords,
   getReferrer,
@@ -372,7 +372,7 @@ class Analytics {
 
           // convert common names to sdk identified name
           if (Object.keys(event[0].message.integrations).length > 0) {
-            tranformToRudderNames(event[0].message.integrations);
+            transformToRudderNames(event[0].message.integrations);
           }
 
           // if not specified at event level, All: true is default
@@ -776,7 +776,7 @@ class Analytics {
 
       // structure user supplied integrations object to rudder format
       if (Object.keys(rudderElement.message.integrations).length > 0) {
-        tranformToRudderNames(rudderElement.message.integrations);
+        transformToRudderNames(rudderElement.message.integrations);
       }
 
       // if not specified at event level, All: true is default
@@ -1010,7 +1010,7 @@ class Analytics {
     }
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
-      tranformToRudderNames(this.loadOnlyIntegrations);
+      transformToRudderNames(this.loadOnlyIntegrations);
     }
     if (options && options.configUrl) {
       configUrl = getUserProvidedConfigUrl(options.configUrl);

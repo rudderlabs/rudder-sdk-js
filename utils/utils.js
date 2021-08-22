@@ -238,8 +238,8 @@ function getRevenue(properties, eventName) {
  *
  * @param {*} integrationObject
  */
-function tranformToRudderNames(integrationObject) {
-  Object.keys(integrationObject).forEach(key => {
+function transformToRudderNames(integrationObject) {
+  Object.keys(integrationObject).forEach((key) => {
     if (integrationObject.hasOwnProperty(key)) {
       if (commonNames[key]) {
         integrationObject[commonNames[key]] = integrationObject[key];
@@ -662,7 +662,7 @@ export {
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
-  tranformToRudderNames,
+  transformToRudderNames,
   transformToServerNames,
   handleError,
   rejectArr,
