@@ -1,12 +1,12 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
-import is from "is";
 import sha256 from "crypto-js/sha256";
 import Storage from "../../utils/storage";
 import logger from "../../utils/logUtil";
 
 import {
   isDefinedAndNotNull,
+  isNotEmpty,
   removeUndefinedAndNullValues,
 } from "../utils/commonUtils";
 
@@ -165,35 +165,67 @@ class SnapPixel {
       success: get(message, "properties.success"),
     };
 
-    if (!is.boolean(payload.payment_info_available)) {
+    if (
+      payload.payment_info_available !== 0 &&
+      payload.payment_info_available !== 1
+    ) {
       payload.payment_info_available = null;
     }
-    if (!is.boolean(payload.success)) {
+    if (payload.success !== 0 && payload.success !== 1) {
       payload.success = null;
     }
+
     payload = removeUndefinedAndNullValues(payload);
 
     switch (event.toLowerCase()) {
       case "order completed":
-        window.snaptr("track", "PURCHASE", payload);
+        if (isNotEmpty(payload)) {
+          window.snaptr("track", "PURCHASE", payload);
+        } else {
+          window.snaptr("track", "PURCHASE");
+        }
         break;
       case "checkout started":
-        window.snaptr("track", "START_CHECKOUT", payload);
+        if (isNotEmpty(payload)) {
+          window.snaptr("track", "START_CHECKOUT", payload);
+        } else {
+          window.snaptr("track", "START_CHECKOUT");
+        }
         break;
       case "product added":
-        window.snaptr("track", "ADD_CART", payload);
+        if (isNotEmpty(payload)) {
+          window.snaptr("track", "ADD_CART", payload);
+        } else {
+          window.snaptr("track", "ADD_CART");
+        }
         break;
       case "payment info entered":
-        window.snaptr("track", "ADD_CART", payload);
+        if (isNotEmpty(payload)) {
+          window.snaptr("track", "ADD_BILLING", payload);
+        } else {
+          window.snaptr("track", "ADD_BILLING");
+        }
         break;
       case "promotion clicked":
-        window.snaptr("track", "AD_CLICK", payload);
+        if (isNotEmpty(payload)) {
+          window.snaptr("track", "AD_CLICK", payload);
+        } else {
+          window.snaptr("track", "AD_CLICK");
+        }
         break;
       case "promotion viewed":
-        window.snaptr("track", "AD_VIEW", payload);
+        if (isNotEmpty(payload)) {
+          window.snaptr("track", "AD_VIEW", payload);
+        } else {
+          window.snaptr("track", "AD_VIEW");
+        }
         break;
       case "product added to wishlist":
-        window.snaptr("track", "ADD_TO_WISHLIST", payload);
+        if (isNotEmpty(payload)) {
+          window.snaptr("track", "ADD_TO_WISHLIST", payload);
+        } else {
+          window.snaptr("track", "ADD_TO_WISHLIST");
+        }
         break;
       default:
         if (
@@ -203,7 +235,11 @@ class SnapPixel {
           logger.error("Event doesn't match with Snap Pixel Events!");
           return;
         }
-        window.snaptr("track", event, payload);
+        if (isNotEmpty(payload)) {
+          window.snaptr("track", event, payload);
+        } else {
+          window.snaptr("track", event);
+        }
         break;
     }
   }
@@ -227,15 +263,22 @@ class SnapPixel {
       success: get(message, "properties.success"),
     };
 
-    if (!is.boolean(payload.payment_info_available)) {
+    if (
+      payload.payment_info_available !== 0 &&
+      payload.payment_info_available !== 1
+    ) {
       payload.payment_info_available = null;
     }
-    if (!is.boolean(payload.success)) {
+    if (payload.success !== 0 && payload.success !== 1) {
       payload.success = null;
     }
     payload = removeUndefinedAndNullValues(payload);
 
-    window.snaptr("track", "PAGE_VIEW", payload);
+    if (isNotEmpty(payload)) {
+      window.snaptr("track", "PAGE_VIEW", payload);
+    } else {
+      window.snaptr("track", "PAGE_VIEW");
+    }
   }
 }
 
