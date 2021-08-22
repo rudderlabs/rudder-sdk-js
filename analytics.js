@@ -161,7 +161,7 @@ class Analytics {
         return resolve(this);
       }
 
-      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+      return this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
         logger.debug("Try again after pause");
         return this.allModulesInitialized(
           time + INTEGRATION_LOAD_CHECK_INTERVAL
@@ -216,9 +216,7 @@ class Analytics {
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
         const modName = configToIntNames[intg.name];
-        // const modURL = `${CDN_BASE_URL}/${modName}.js`;
-        // Dev only
-        const modURL = `https://ddim5kcy73icz.cloudfront.net/integration/${modName}.js`;
+        const modURL = `${CDN_BASE_URL}/${modName}.js`;
 
         // Skip if the module has already been loaded
         if (window.hasOwnProperty(modName)) return;
@@ -440,7 +438,7 @@ class Analytics {
         return resolve(this);
       }
 
-      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+      return this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
         logger.debug("====after pause, again checking====");
         return this.isInitialized(
           instance,
@@ -1099,7 +1097,9 @@ class Analytics {
         const res = options.getSourceConfig();
 
         if (res instanceof Promise) {
-          res.then((res) => this.processResponse(200, res)).catch(errorHandler);
+          res
+            .then((pRes) => this.processResponse(200, pRes))
+            .catch(errorHandler);
         } else {
           this.processResponse(200, res);
         }
@@ -1231,6 +1231,8 @@ class Analytics {
   }
 }
 
+const instance = new Analytics();
+
 function pushQueryStringDataToAnalyticsArray(obj) {
   if (obj.anonymousId) {
     if (obj.userId) {
@@ -1252,7 +1254,7 @@ function pushQueryStringDataToAnalyticsArray(obj) {
 
 function processDataInAnalyticsArray(analytics) {
   if (instance.loaded) {
-    for (let i = 0; i < analytics.toBeProcessedArray.length; i++) {
+    for (let i = 0; i < analytics.toBeProcessedArray.length; i += 1) {
       const event = [...analytics.toBeProcessedArray[i]];
       const method = event[0];
       event.shift();
@@ -1263,8 +1265,6 @@ function processDataInAnalyticsArray(analytics) {
     instance.toBeProcessedArray = [];
   }
 }
-
-const instance = new Analytics();
 
 Emitter(instance);
 
@@ -1312,7 +1312,7 @@ const parsedQueryObject = instance.parseQueryString(window.location.search);
 pushQueryStringDataToAnalyticsArray(parsedQueryObject);
 
 if (argumentsArray && argumentsArray.length > 0) {
-  for (let i = 0; i < argumentsArray.length; i++) {
+  for (let i = 0; i < argumentsArray.length; i += 1) {
     instance.toBeProcessedArray.push(argumentsArray[i]);
   }
 }
