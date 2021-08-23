@@ -6,9 +6,9 @@ import logger from "../../utils/logUtil";
 
 import {
   isDefinedAndNotNull,
-  isNotEmpty,
   removeUndefinedAndNullValues,
 } from "../utils/commonUtils";
+import { ecommEventPayload, eventPayload, sendEvent } from "./util";
 
 class SnapPixel {
   constructor(config) {
@@ -151,81 +151,27 @@ class SnapPixel {
       return;
     }
 
-    let payload = {
-      price: get(message, "properties.price"),
-      currency: get(message, "properties.currency"),
-      transaction_id: get(message, "properties.transactionId"),
-      item_ids: get(message, "properties.itemId"),
-      item_category: get(message, "properties.category"),
-      description: get(message, "properties.description"),
-      search_string: get(message, "properties.search"),
-      number_items: get(message, "properties.numberItems"),
-      payment_info_available: get(message, "properties.paymentInfoAvailable"),
-      sign_up_method: get(message, "properties.signUpMethod"),
-      success: get(message, "properties.success"),
-    };
-
-    if (
-      payload.payment_info_available !== 0 &&
-      payload.payment_info_available !== 1
-    ) {
-      payload.payment_info_available = null;
-    }
-    if (payload.success !== 0 && payload.success !== 1) {
-      payload.success = null;
-    }
-
-    payload = removeUndefinedAndNullValues(payload);
-
     switch (event.toLowerCase()) {
       case "order completed":
-        if (isNotEmpty(payload)) {
-          window.snaptr("track", "PURCHASE", payload);
-        } else {
-          window.snaptr("track", "PURCHASE");
-        }
+        sendEvent("PURCHASE", ecommEventPayload(event, message));
         break;
       case "checkout started":
-        if (isNotEmpty(payload)) {
-          window.snaptr("track", "START_CHECKOUT", payload);
-        } else {
-          window.snaptr("track", "START_CHECKOUT");
-        }
+        sendEvent("START_CHECKOUT", ecommEventPayload(event, message));
         break;
       case "product added":
-        if (isNotEmpty(payload)) {
-          window.snaptr("track", "ADD_CART", payload);
-        } else {
-          window.snaptr("track", "ADD_CART");
-        }
+        sendEvent("ADD_CART", ecommEventPayload(event, message));
         break;
       case "payment info entered":
-        if (isNotEmpty(payload)) {
-          window.snaptr("track", "ADD_BILLING", payload);
-        } else {
-          window.snaptr("track", "ADD_BILLING");
-        }
+        sendEvent("ADD_BILLING", ecommEventPayload(event, message));
         break;
       case "promotion clicked":
-        if (isNotEmpty(payload)) {
-          window.snaptr("track", "AD_CLICK", payload);
-        } else {
-          window.snaptr("track", "AD_CLICK");
-        }
+        sendEvent("AD_CLICK", ecommEventPayload(event, message));
         break;
       case "promotion viewed":
-        if (isNotEmpty(payload)) {
-          window.snaptr("track", "AD_VIEW", payload);
-        } else {
-          window.snaptr("track", "AD_VIEW");
-        }
+        sendEvent("AD_VIEW", ecommEventPayload(event, message));
         break;
       case "product added to wishlist":
-        if (isNotEmpty(payload)) {
-          window.snaptr("track", "ADD_TO_WISHLIST", payload);
-        } else {
-          window.snaptr("track", "ADD_TO_WISHLIST");
-        }
+        sendEvent("ADD_TO_WISHLIST", ecommEventPayload(event, message));
         break;
       default:
         if (
@@ -235,11 +181,7 @@ class SnapPixel {
           logger.error("Event doesn't match with Snap Pixel Events!");
           return;
         }
-        if (isNotEmpty(payload)) {
-          window.snaptr("track", event, payload);
-        } else {
-          window.snaptr("track", event);
-        }
+        sendEvent(event, eventPayload(message));
         break;
     }
   }
@@ -248,37 +190,7 @@ class SnapPixel {
     logger.debug("===In SnapPixel page===");
 
     const { message } = rudderElement;
-
-    let payload = {
-      price: get(message, "properties.price"),
-      currency: get(message, "properties.currency"),
-      transaction_id: get(message, "properties.transactionId"),
-      item_ids: get(message, "properties.itemId"),
-      item_category: get(message, "properties.category"),
-      description: get(message, "properties.description"),
-      search_string: get(message, "properties.search"),
-      number_items: get(message, "properties.numberItems"),
-      payment_info_available: get(message, "properties.paymentInfoAvailable"),
-      sign_up_method: get(message, "properties.signUpMethod"),
-      success: get(message, "properties.success"),
-    };
-
-    if (
-      payload.payment_info_available !== 0 &&
-      payload.payment_info_available !== 1
-    ) {
-      payload.payment_info_available = null;
-    }
-    if (payload.success !== 0 && payload.success !== 1) {
-      payload.success = null;
-    }
-    payload = removeUndefinedAndNullValues(payload);
-
-    if (isNotEmpty(payload)) {
-      window.snaptr("track", "PAGE_VIEW", payload);
-    } else {
-      window.snaptr("track", "PAGE_VIEW");
-    }
+    sendEvent("PAGE_VIEW", eventPayload(message));
   }
 }
 
