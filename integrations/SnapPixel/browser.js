@@ -151,7 +151,7 @@ class SnapPixel {
       return;
     }
 
-    switch (event.toLowerCase()) {
+    switch (event.toLowerCase().trim()) {
       case "order completed":
         sendEvent("PURCHASE", ecommEventPayload(event, message));
         break;

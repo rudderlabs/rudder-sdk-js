@@ -55,7 +55,7 @@ const ecommEventPayload = (event, message) => {
     success: get(message, "properties.success"),
   };
 
-  switch (event.toLowerCase()) {
+  switch (event.toLowerCase().trim()) {
     case "order completed": {
       let itemIds = [];
       const products = get(message, "properties.products");
