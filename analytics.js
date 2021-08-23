@@ -27,12 +27,14 @@ import {
   checkReservedKeywords,
   getReferrer,
   getReferringDomain,
+  getCleanURL,
 } from "./utils/utils";
 import {
   CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
   CDN_BASE_URL,
+  CDN_INT_DIR,
 } from "./utils/constants";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
@@ -98,6 +100,7 @@ class Analytics {
     this.loaded = false;
     this.loadIntegration = true;
     this.dynamicallyLoadedIntegrations = {};
+    this.intCdnBaseURL = CDN_BASE_URL;
   }
 
   /**
@@ -216,7 +219,7 @@ class Analytics {
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
         const modName = configToIntNames[intg.name];
-        const modURL = `${CDN_BASE_URL}/${modName}.js`;
+        const modURL = `${this.intCdnBaseURL}/${modName}.js`;
 
         // Skip if the module has already been loaded
         if (window.hasOwnProperty(modName)) return;
@@ -1087,6 +1090,24 @@ class Analytics {
       handleError(error);
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
         addDomEventHandlers(this);
+      }
+    }
+
+    if (options && options.cdnBaseURL) {
+      this.intCdnBaseURL = getCleanURL(options.cdnBaseURL);
+    } else {
+      // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
+      const scripts = document.getElementsByTagName("script");
+      for (let i = 0; i < scripts.length; i += 1) {
+        const curScriptSrc = getCleanURL(scripts[i].getAttribute("src"));
+        if (curScriptSrc.endsWith("rudder-analytics.min.js")) {
+          this.intCdnBaseURL = curScriptSrc
+            .split("/")
+            .slice(0, -1)
+            .push(CDN_INT_DIR)
+            .join("/");
+          break;
+        }
       }
     }
 

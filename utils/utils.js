@@ -23,6 +23,14 @@ function replacer(key, value) {
 }
 
 /**
+ * Utility method to remove '/' at the end of URL
+ * @param {*} inURL
+ */
+function getCleanURL(inURL) {
+  return inURL.endsWith("/") ? getCleanURL(inURL.slice(0, -1)) : inURL;
+}
+
+/**
  *
  * Utility function for UUID genration
  * @returns
@@ -678,4 +686,5 @@ export {
   isArray,
   isDefinedAndNotNull,
   getDataFromSource,
+  getCleanURL,
 };
