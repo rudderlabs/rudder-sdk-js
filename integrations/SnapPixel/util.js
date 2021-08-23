@@ -1,5 +1,9 @@
 import get from "get-value";
-import { isNotEmpty, removeUndefinedAndNullValues } from "../utils/commonUtils";
+import {
+  isDefinedAndNotNull,
+  isNotEmpty,
+  removeUndefinedAndNullValues,
+} from "../utils/commonUtils";
 
 const sendEvent = (event, payload) => {
   if (isNotEmpty(payload)) {
@@ -53,11 +57,15 @@ const ecommEventPayload = (event, message) => {
 
   switch (event.toLowerCase()) {
     case "order completed": {
-      const itemIds = [];
+      let itemIds = [];
       const products = get(message, "properties.products");
-      for (let i = 0; i < products.length; i++) {
-        const pId = products[i].product_id;
-        itemIds.push(pId);
+      if (isDefinedAndNotNull(products)) {
+        products.forEach((element) => {
+          const pId = element.productId;
+          itemIds.push(pId);
+        });
+      } else {
+        itemIds = null;
       }
       payload = {
         ...payload,
@@ -67,11 +75,15 @@ const ecommEventPayload = (event, message) => {
       break;
     }
     case "checkout started": {
-      const itemIds = [];
+      let itemIds = [];
       const products = get(message, "properties.products");
-      for (let i = 0; i < products.length; i++) {
-        const pId = products[i].product_id;
-        itemIds.push(pId);
+      if (isDefinedAndNotNull(products)) {
+        products.forEach((element) => {
+          const pId = element.productId;
+          itemIds.push(pId);
+        });
+      } else {
+        itemIds = null;
       }
       payload = {
         ...payload,
@@ -81,8 +93,13 @@ const ecommEventPayload = (event, message) => {
       break;
     }
     case "product added": {
-      const itemIds = [];
-      itemIds.push(get(message, "properties.productId"));
+      let itemIds = [];
+      const pId = get(message, "properties.productId");
+      if (isDefinedAndNotNull(pId)) {
+        itemIds.push(pId);
+      } else {
+        itemIds = null;
+      }
       payload = {
         ...payload,
         transaction_id: get(message, "properties.transactionId"),
@@ -112,8 +129,13 @@ const ecommEventPayload = (event, message) => {
       };
       break;
     case "product added to wishlist": {
-      const itemIds = [];
-      itemIds.push(get(message, "properties.productId"));
+      let itemIds = [];
+      const pId = get(message, "properties.productId");
+      if (isDefinedAndNotNull(pId)) {
+        itemIds.push(pId);
+      } else {
+        itemIds = null;
+      }
       payload = {
         ...payload,
         transaction_id: get(message, "properties.transactionId"),
