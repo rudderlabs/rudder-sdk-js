@@ -12,21 +12,64 @@ import gzipPlugin from "rollup-plugin-gzip";
 import brotli from "rollup-plugin-brotli";
 import visualizer from "rollup-plugin-visualizer";
 import * as webPackage from "./package.json";
+import * as npmPackage from "./dist/rudder-sdk-js/package.json";
 
-const distFileName = `dist/integrations/${process.env.INTG_NAME}.js`;
-const { version } = webPackage;
-const moduleType = "web";
+let distFileName = "";
+let { version } = webPackage;
+let moduleType = "web";
+
+switch (process.env.ENV) {
+  case "prod":
+    switch (process.env.ENC) {
+      case "gzip":
+        if (process.env.PROD_DEBUG_INLINE === "true") {
+          distFileName = `dist/integrations/${process.env.INTG_NAME}-map.min.gzip.js`;
+        } else {
+          distFileName = `dist/integrations/${process.env.INTG_NAME}.min.gzip.js`;
+        }
+        break;
+      case "br":
+        if (process.env.PROD_DEBUG_INLINE === "true") {
+          distFileName = `dist/integrations/${process.env.INTG_NAME}-map.min.br.js`;
+        } else {
+          distFileName = `dist/integrations/${process.env.INTG_NAME}.min.br.js`;
+        }
+        break;
+      default:
+        if (process.env.PROD_DEBUG_INLINE === "true") {
+          distFileName = `dist/integrations/${process.env.INTG_NAME}-map.min.js`;
+        } else {
+          distFileName = `dist/integrations/${process.env.INTG_NAME}.min.js`;
+        }
+        break;
+    }
+    break;
+  default:
+    distFileName = `dist/integrations/${process.env.INTG_NAME}.js`;
+    break;
+}
 
 const outputFiles = [];
-outputFiles.push({
-  file: distFileName,
-  format: "iife",
-  name: `${process.env.INTG_NAME}`,
-  sourcemap:
-    process.env.PROD_DEBUG_INLINE === "true"
-      ? "inline"
-      : !!process.env.PROD_DEBUG,
-});
+
+if (process.env.NPM === "true") {
+  outputFiles.push({
+    file: `dist/integrations/${process.env.INTG_NAME}/index.js`,
+    format: "umd",
+    name: `${process.env.INTG_NAME}`,
+  });
+  version = npmPackage.version;
+  moduleType = "npm";
+} else {
+  outputFiles.push({
+    file: distFileName,
+    format: "iife",
+    name: `${process.env.INTG_NAME}`,
+    sourcemap:
+      process.env.PROD_DEBUG_INLINE === "true"
+        ? "inline"
+        : !!process.env.PROD_DEBUG,
+  });
+}
 
 export default {
   input: `./integrations/${process.env.INTG_NAME}/index.js`,
