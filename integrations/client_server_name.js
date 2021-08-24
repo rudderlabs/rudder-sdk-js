@@ -31,6 +31,7 @@ const clientToServerNames = {
   CLEVERTAP: "Clevertap",
   BINGADS: "BingAds",
   PINTEREST_TAG: "PinterestTag",
+  SNAP_PIXEL: "Snap Pixel",
   LINKEDIN_INSIGHT_TAG: "LinkedInInsightTag",
   REDDIT_PIXEL: "Reddit Pixel",
   DRIP: "Drip",
