@@ -26,8 +26,8 @@ function replacer(key, value) {
  * Utility method to remove '/' at the end of URL
  * @param {*} inURL
  */
-function getCleanURL(inURL) {
-  return inURL.endsWith("/") ? getCleanURL(inURL.slice(0, -1)) : inURL;
+function stripTrailingSlashes(inURL) {
+  return inURL.endsWith("/") ? inURL.replace(/\/+$/, "") : inURL;
 }
 
 /**
@@ -686,5 +686,5 @@ export {
   isArray,
   isDefinedAndNotNull,
   getDataFromSource,
-  getCleanURL,
+  stripTrailingSlashes,
 };

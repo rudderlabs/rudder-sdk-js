@@ -27,7 +27,7 @@ import {
   checkReservedKeywords,
   getReferrer,
   getReferringDomain,
-  getCleanURL,
+  stripTrailingSlashes,
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -1094,13 +1094,18 @@ class Analytics {
     }
 
     if (options && options.cdnBaseURL) {
-      this.intCdnBaseURL = getCleanURL(options.cdnBaseURL);
+      this.intCdnBaseURL = stripTrailingSlashes(options.cdnBaseURL);
     } else {
       // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
       const scripts = document.getElementsByTagName("script");
       for (let i = 0; i < scripts.length; i += 1) {
-        const curScriptSrc = getCleanURL(scripts[i].getAttribute("src"));
-        if (curScriptSrc.endsWith("rudder-analytics.min.js")) {
+        const curScriptSrc = stripTrailingSlashes(
+          scripts[i].getAttribute("src")
+        );
+        if (
+          curScriptSrc.startsWith("http") &&
+          curScriptSrc.endsWith("rudder-analytics.min.js")
+        ) {
           this.intCdnBaseURL = curScriptSrc
             .split("/")
             .slice(0, -1)
