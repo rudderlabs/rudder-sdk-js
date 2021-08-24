@@ -207,8 +207,6 @@ class Analytics {
         }
       }, this);
 
-      logger.debug("this.clientIntegrations: ", this.clientIntegrations);
-      logger.debug("this.loadOnlyIntegrations: ", this.loadOnlyIntegrations);
       // intersection of config-plane native sdk destinations with sdk load time destination list
       this.clientIntegrations = findAllEnabledDestinations(
         this.loadOnlyIntegrations,
@@ -221,9 +219,6 @@ class Analytics {
         const modName = configToIntNames[intg.name];
         const modURL = `${this.intCdnBaseURL}/${modName}.min.js`;
 
-        // Skip if the module has already been loaded
-        if (window.hasOwnProperty(modName)) return;
-
         ScriptLoader(modName, modURL);
 
         const self = this;
@@ -232,16 +227,32 @@ class Analytics {
             const intMod = window[modName];
             clearInterval(interval);
 
-            // Add the integration class into collection for later use
-            self.dynamicallyLoadedIntegrations[modName] = intMod[modName];
+            logger.debug(modName, " dynamically loaded integration SDK");
 
-            logger.debug(
-              modName,
-              " dynamicallyLoadedIntegrations ",
-              self.dynamicallyLoadedIntegrations
-            );
+            let intgInstance;
+            try {
+              logger.debug(
+                modName,
+                " [Analytics] processResponse :: trying to initialize integration ::"
+              );
+              intgInstance = new intMod[modName](intg.config, self);
+              intgInstance.init();
+
+              logger.debug(modName, " initializing destination");
+
+              self.isInitialized(intgInstance).then(() => {
+                logger.debug(modName, " module init sequence complete");
+                self.dynamicallyLoadedIntegrations[modName] = intMod[modName];
+              });
+            } catch (e) {
+              logger.error(
+                modName,
+                " [Analytics] initialize integration (integration.init()) failed",
+                e
+              );
+              self.failedToBeLoadedIntegration.push(intgInstance);
+            }
           }
-          logger.debug(modName, " exiting setInterval");
         }, 100);
 
         setTimeout(() => {
@@ -249,7 +260,26 @@ class Analytics {
         }, MAX_WAIT_FOR_INTEGRATION_LOAD);
       });
 
-      this.allModulesInitialized().then(this.init);
+      const self = this;
+      this.allModulesInitialized().then(() => {
+        // remove from the list which don't have support yet in SDK
+        self.clientIntegrations = self.clientIntegrations.filter((intg) => {
+          return (
+            self.dynamicallyLoadedIntegrations[configToIntNames[intg.name]] !=
+            undefined
+          );
+        });
+
+        if (!self.clientIntegrations || self.clientIntegrations.length == 0) {
+          if (self.readyCallback) {
+            self.readyCallback();
+          }
+          self.toBeProcessedByIntegrationArray = [];
+          return;
+        }
+
+        self.replayEvents(self);
+      });
     } catch (error) {
       handleError(error);
       logger.debug("===handling config BE response processing error===");
@@ -262,66 +292,6 @@ class Analytics {
         this.autoTrackHandlersRegistered = true;
       }
     }
-  }
-
-  /**
-   * Initialize integrations by addinfg respective scripts
-   * keep the instances reference in core
-   *
-   * @param {*} intgArray
-   * @returns
-   * @memberof Analytics
-   */
-  init(object) {
-    // remove from the list which don't have support yet in SDK
-    object.clientIntegrations = object.clientIntegrations.filter((intg) => {
-      return (
-        object.dynamicallyLoadedIntegrations[configToIntNames[intg.name]] !=
-        undefined
-      );
-    });
-    const intgArray = object.clientIntegrations;
-    const self = object;
-    logger.debug(
-      "Dynamically loaded intgs ",
-      object.dynamicallyLoadedIntegrations
-    );
-
-    logger.debug("ClientIntegrations: ", intgArray);
-    if (!intgArray || intgArray.length == 0) {
-      if (object.readyCallback) {
-        object.readyCallback();
-      }
-      object.toBeProcessedByIntegrationArray = [];
-      return;
-    }
-
-    let intgInstance;
-    logger.debug("Iterating intgArray: ", intgArray);
-    intgArray.forEach((intg) => {
-      try {
-        logger.debug(
-          "[Analytics] init :: trying to initialize integration name:: ",
-          intg.name
-        );
-        const intgClass =
-          object.dynamicallyLoadedIntegrations[configToIntNames[intg.name]];
-        const destConfig = intg.config;
-        intgInstance = new intgClass(destConfig, self);
-        intgInstance.init();
-
-        logger.debug("initializing destination: ", intg);
-
-        object.isInitialized(intgInstance).then(object.replayEvents);
-      } catch (e) {
-        logger.error(
-          "[Analytics] initialize integration (integration.init()) failed :: ",
-          intg.name,
-          e
-        );
-        object.failedToBeLoadedIntegration.push(intgInstance);
-      }
-    });
   }
 
   // eslint-disable-next-line class-methods-use-this
