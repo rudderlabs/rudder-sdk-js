@@ -19,7 +19,6 @@ class SnapPixel {
     this.snapPixelEventNames = [
       "SIGN_UP",
       "OPEN_APP",
-      "PAGE_VIEW",
       "SAVE",
       "VIEW_CONTENT",
       "SEARCH",
