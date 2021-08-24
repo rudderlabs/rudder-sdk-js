@@ -1130,6 +1130,7 @@ class Analytics {
           this.processResponse(200, res);
         }
 
+        // eslint-disable-next-line no-use-before-define
         processDataInAnalyticsArray(this);
       }
       return;
@@ -1140,6 +1141,7 @@ class Analytics {
     } catch (error) {
       errorHandler(error);
     }
+    // eslint-disable-next-line no-use-before-define
     processDataInAnalyticsArray(this);
   }
 
