@@ -1,4 +1,5 @@
 import get from "get-value";
+import logger from "../../utils/logUtil";
 import {
   isDefinedAndNotNull,
   isNotEmpty,
@@ -17,7 +18,7 @@ const eventPayload = (message) => {
   let payload = {
     price: get(message, "properties.price"),
     currency: get(message, "properties.currency"),
-    transaction_id: get(message, "properties.transactionId"),
+    transaction_id: get(message, "properties.transaction_id"),
     item_ids: get(message, "properties.itemIds"),
     item_category: get(message, "properties.category"),
     description: get(message, "properties.description"),
@@ -60,16 +61,20 @@ const ecommEventPayload = (event, message) => {
       let itemIds = [];
       const products = get(message, "properties.products");
       if (isDefinedAndNotNull(products)) {
-        products.forEach((element) => {
-          const pId = element.productId;
-          itemIds.push(pId);
+        products.forEach((element, index) => {
+          const pId = element.product_id;
+          if (pId) {
+            itemIds.push(pId);
+          } else {
+            logger.debug(`Product pId not present at index ${index}`);
+          }
         });
       } else {
         itemIds = null;
       }
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.orderId"),
+        transaction_id: get(message, "properties.order_id"),
         item_ids: itemIds,
       };
       break;
@@ -78,31 +83,36 @@ const ecommEventPayload = (event, message) => {
       let itemIds = [];
       const products = get(message, "properties.products");
       if (isDefinedAndNotNull(products)) {
-        products.forEach((element) => {
-          const pId = element.productId;
-          itemIds.push(pId);
+        products.forEach((element, index) => {
+          const pId = element.product_id;
+          if (pId) {
+            itemIds.push(pId);
+          } else {
+            logger.debug(`Product pId not present at index ${index}`);
+          }
         });
       } else {
         itemIds = null;
       }
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.orderId"),
+        transaction_id: get(message, "properties.order_id"),
         item_ids: itemIds,
       };
       break;
     }
     case "product added": {
       let itemIds = [];
-      const pId = get(message, "properties.productId");
+      const pId = get(message, "properties.product_id");
       if (isDefinedAndNotNull(pId)) {
         itemIds.push(pId);
       } else {
+        logger.debug("product_id is not present");
         itemIds = null;
       }
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.transactionId"),
+        transaction_id: get(message, "properties.transaction_id"),
         item_ids: itemIds,
       };
       break;
@@ -110,35 +120,36 @@ const ecommEventPayload = (event, message) => {
     case "payment info entered":
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.checkoutId"),
+        transaction_id: get(message, "properties.checkout_id"),
         item_ids: get(message, "properties.itemIds"),
       };
       break;
     case "promotion clicked":
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.transactionId"),
+        transaction_id: get(message, "properties.transaction_id"),
         item_ids: get(message, "properties.itemIds"),
       };
       break;
     case "promotion viewed":
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.transactionId"),
+        transaction_id: get(message, "properties.transaction_id"),
         item_ids: get(message, "properties.itemIds"),
       };
       break;
     case "product added to wishlist": {
       let itemIds = [];
-      const pId = get(message, "properties.productId");
+      const pId = get(message, "properties.product_id");
       if (isDefinedAndNotNull(pId)) {
         itemIds.push(pId);
       } else {
+        logger.debug("product_id is not present");
         itemIds = null;
       }
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.transactionId"),
+        transaction_id: get(message, "properties.transaction_id"),
         item_ids: itemIds,
       };
       break;
