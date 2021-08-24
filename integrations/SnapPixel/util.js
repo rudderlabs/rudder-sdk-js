@@ -19,13 +19,13 @@ const eventPayload = (message) => {
     price: get(message, "properties.price"),
     currency: get(message, "properties.currency"),
     transaction_id: get(message, "properties.transaction_id"),
-    item_ids: get(message, "properties.itemIds"),
+    item_ids: get(message, "properties.item_ids"),
     item_category: get(message, "properties.category"),
     description: get(message, "properties.description"),
-    search_string: get(message, "properties.searchString"),
-    number_items: get(message, "properties.numberItems"),
-    payment_info_available: get(message, "properties.paymentInfoAvailable"),
-    sign_up_method: get(message, "properties.signUpMethod"),
+    search_string: get(message, "properties.search_string"),
+    number_items: get(message, "properties.number_items"),
+    payment_info_available: get(message, "properties.payment_info_available"),
+    sign_up_method: get(message, "properties.sign_up_method"),
     success: get(message, "properties.success"),
   };
 
@@ -49,10 +49,10 @@ const ecommEventPayload = (event, message) => {
     currency: get(message, "properties.currency"),
     item_category: get(message, "properties.category"),
     description: get(message, "properties.description"),
-    search_string: get(message, "properties.searchString"),
-    number_items: get(message, "properties.numberItems"),
-    payment_info_available: get(message, "properties.paymentInfoAvailable"),
-    sign_up_method: get(message, "properties.signUpMethod"),
+    search_string: get(message, "properties.search_string"),
+    number_items: get(message, "properties.number_items"),
+    payment_info_available: get(message, "properties.payment_info_available"),
+    sign_up_method: get(message, "properties.sign_up_method"),
     success: get(message, "properties.success"),
   };
 
@@ -66,7 +66,9 @@ const ecommEventPayload = (event, message) => {
           if (pId) {
             itemIds.push(pId);
           } else {
-            logger.debug(`Product pId not present at index ${index}`);
+            logger.debug(
+              `product_id not present for product at index ${index}`
+            );
           }
         });
       } else {
@@ -88,7 +90,9 @@ const ecommEventPayload = (event, message) => {
           if (pId) {
             itemIds.push(pId);
           } else {
-            logger.debug(`Product pId not present at index ${index}`);
+            logger.debug(
+              `product_id not present for product at index ${index}`
+            );
           }
         });
       } else {
@@ -121,21 +125,21 @@ const ecommEventPayload = (event, message) => {
       payload = {
         ...payload,
         transaction_id: get(message, "properties.checkout_id"),
-        item_ids: get(message, "properties.itemIds"),
+        item_ids: get(message, "properties.item_ids"),
       };
       break;
     case "promotion clicked":
       payload = {
         ...payload,
         transaction_id: get(message, "properties.transaction_id"),
-        item_ids: get(message, "properties.itemIds"),
+        item_ids: get(message, "properties.item_ids"),
       };
       break;
     case "promotion viewed":
       payload = {
         ...payload,
         transaction_id: get(message, "properties.transaction_id"),
-        item_ids: get(message, "properties.itemIds"),
+        item_ids: get(message, "properties.item_ids"),
       };
       break;
     case "product added to wishlist": {

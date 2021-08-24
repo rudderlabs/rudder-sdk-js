@@ -20,23 +20,16 @@ class SnapPixel {
       "SIGN_UP",
       "OPEN_APP",
       "PAGE_VIEW",
-      "PURCHASE",
       "SAVE",
-      "START_CHECKOUT",
-      "ADD_CART",
       "VIEW_CONTENT",
-      "ADD_BILLING",
       "SEARCH",
       "SUBSCRIBE",
-      "AD_CLICK",
-      "AD_VIEW",
       "COMPLETE_TUTORIAL",
       "INVITE",
       "LOGIN",
       "SHARE",
       "RESERVE",
       "ACHIEVEMENT_UNLOCKED",
-      "ADD_TO_WISHLIST",
       "SPENT_CREDITS",
       "RATE",
       "START_TRIAL",
@@ -80,7 +73,7 @@ class SnapPixel {
 
     if (!payload.user_email && !payload.user_phone_number) {
       logger.debug(
-        "User parameter (email or phone number) not found in cookie"
+        "User parameter (email or phone number) not found in cookie. identify is required"
       );
       return;
     }
