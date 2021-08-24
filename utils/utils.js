@@ -27,7 +27,7 @@ function replacer(key, value) {
  * @param {*} inURL
  */
 function stripTrailingSlashes(inURL) {
-  return inURL.endsWith("/") ? inURL.replace(/\/+$/, "") : inURL;
+  return inURL && inURL.endsWith("/") ? inURL.replace(/\/+$/, "") : inURL;
 }
 
 /**
