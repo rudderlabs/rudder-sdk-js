@@ -219,7 +219,7 @@ class Analytics {
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
         const modName = configToIntNames[intg.name];
-        const modURL = `${this.intCdnBaseURL}/${modName}.js`;
+        const modURL = `${this.intCdnBaseURL}/${modName}.min.js`;
 
         // Skip if the module has already been loaded
         if (window.hasOwnProperty(modName)) return;
@@ -1025,8 +1025,8 @@ class Analytics {
       }
     }
     if (options && options.clientSuppliedCallbacks) {
-      // convert to rudder recognised method names
-      const tranformedCallbackMapping = {};
+      // convert to rudder recognized method names
+      const transformedCallbackMapping = {};
       Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
         if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
           if (
@@ -1034,14 +1034,14 @@ class Analytics {
               this.methodToCallbackMapping[methodName]
             ]
           ) {
-            tranformedCallbackMapping[methodName] =
+            transformedCallbackMapping[methodName] =
               options.clientSuppliedCallbacks[
                 this.methodToCallbackMapping[methodName]
               ];
           }
         }
       });
-      Object.assign(this.clientSuppliedCallbacks, tranformedCallbackMapping);
+      Object.assign(this.clientSuppliedCallbacks, transformedCallbackMapping);
       this.registerCallbacks(true);
     }
 
@@ -1061,9 +1061,8 @@ class Analytics {
     }
 
     this.eventRepository.writeKey = writeKey;
-    if (serverUrl) {
-      this.eventRepository.url = serverUrl;
-    }
+    this.eventRepository.url = serverUrl;
+
     this.initializeUser();
     this.setInitialPageProperties();
     this.loaded = true;
@@ -1095,6 +1094,12 @@ class Analytics {
 
     if (options && options.cdnBaseURL) {
       this.intCdnBaseURL = stripTrailingSlashes(options.cdnBaseURL);
+      if (!this.intCdnBaseURL) {
+        handleError({
+          message: "[Analytics] load:: CDN base URL is not valid",
+        });
+        throw Error("failed to load");
+      }
     } else {
       // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
       const scripts = document.getElementsByTagName("script");
@@ -1103,6 +1108,7 @@ class Analytics {
           scripts[i].getAttribute("src")
         );
         if (
+          curScriptSrc &&
           curScriptSrc.startsWith("http") &&
           curScriptSrc.endsWith("rudder-analytics.min.js")
         ) {
