@@ -1080,7 +1080,8 @@ class Analytics {
         if (
           curScriptSrc &&
           curScriptSrc.startsWith("http") &&
-          curScriptSrc.endsWith("rudder-analytics.min.js")
+          (curScriptSrc.endsWith("rudder-analytics.min.js") ||
+            curScriptSrc.endsWith("rudder-analytics.js"))
         ) {
           this.intCdnBaseURL = curScriptSrc
             .split("/")
