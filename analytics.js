@@ -159,7 +159,7 @@ class Analytics {
         );
         return resolve(this);
       }
-      if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
+      if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
         logger.debug("max wait for dynamical integrations over");
         return resolve(this);
       }
