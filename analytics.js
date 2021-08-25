@@ -1085,7 +1085,7 @@ class Analytics {
           this.intCdnBaseURL = curScriptSrc
             .split("/")
             .slice(0, -1)
-            .push(CDN_INT_DIR)
+            .concat(CDN_INT_DIR)
             .join("/");
           break;
         }
