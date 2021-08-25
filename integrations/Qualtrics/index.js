@@ -1,3 +1,4 @@
 import Qualtrics from "./browser";
 
-export default Qualtrics;
+// eslint-disable-next-line import/prefer-default-export
+export { Qualtrics };

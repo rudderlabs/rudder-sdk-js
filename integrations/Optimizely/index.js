@@ -1,3 +1,4 @@
 import Optimizely from "./browser";
 
-export default Optimizely;
+// eslint-disable-next-line import/prefer-default-export
+export { Optimizely };

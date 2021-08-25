@@ -57,7 +57,7 @@ The non-minified version of the code is shown below:
 		"ready",
 		"reset",
 		"getAnonymousId",
-    		"setAnonymousId"
+    "setAnonymousId"
 	];
 
 	for (var i = 0; i < methods.length; i++) {

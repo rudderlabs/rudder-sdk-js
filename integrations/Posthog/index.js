@@ -1,3 +1,4 @@
 import Posthog from "./browser";
 
-export default Posthog;
+// eslint-disable-next-line import/prefer-default-export
+export { Posthog };

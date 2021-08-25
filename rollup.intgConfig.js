@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import babel from "rollup-plugin-babel";
 import commonjs from "rollup-plugin-commonjs";
 import resolve from "rollup-plugin-node-resolve";
@@ -16,43 +17,45 @@ import * as npmPackage from "./dist/rudder-sdk-js/package.json";
 let distFileName = "";
 let { version } = webPackage;
 let moduleType = "web";
+
 switch (process.env.ENV) {
   case "prod":
     switch (process.env.ENC) {
       case "gzip":
-        if (process.env.PROD_DEBUG_INLINE == "true") {
-          distFileName = "dist/rudder-analytics-map.min.gzip.js";
+        if (process.env.PROD_DEBUG_INLINE === "true") {
+          distFileName = `dist/integrations/${process.env.INTG_NAME}-map.min.gzip.js`;
         } else {
-          distFileName = "dist/rudder-analytics.min.gzip.js";
+          distFileName = `dist/integrations/${process.env.INTG_NAME}.min.gzip.js`;
         }
         break;
       case "br":
-        if (process.env.PROD_DEBUG_INLINE == "true") {
-          distFileName = "dist/rudder-analytics-map.min.br.js";
+        if (process.env.PROD_DEBUG_INLINE === "true") {
+          distFileName = `dist/integrations/${process.env.INTG_NAME}-map.min.br.js`;
         } else {
-          distFileName = "dist/rudder-analytics.min.br.js";
+          distFileName = `dist/integrations/${process.env.INTG_NAME}.min.br.js`;
         }
         break;
       default:
-        if (process.env.PROD_DEBUG_INLINE == "true") {
-          distFileName = "dist/rudder-analytics-map.min.js";
+        if (process.env.PROD_DEBUG_INLINE === "true") {
+          distFileName = `dist/integrations/${process.env.INTG_NAME}-map.min.js`;
         } else {
-          distFileName = "dist/rudder-analytics.min.js";
+          distFileName = `dist/integrations/${process.env.INTG_NAME}.min.js`;
         }
         break;
     }
     break;
   default:
-    distFileName = "dist/rudder-analytics.js";
+    distFileName = `dist/integrations/${process.env.INTG_NAME}.js`;
     break;
 }
 
 const outputFiles = [];
-if (process.env.NPM == "true") {
+
+if (process.env.NPM === "true") {
   outputFiles.push({
-    file: "dist/rudder-sdk-js/index.js",
+    file: `dist/integrations/${process.env.INTG_NAME}/index.js`,
     format: "umd",
-    name: "rudderanalytics",
+    name: `${process.env.INTG_NAME}`,
   });
   version = npmPackage.version;
   moduleType = "npm";
@@ -60,23 +63,23 @@ if (process.env.NPM == "true") {
   outputFiles.push({
     file: distFileName,
     format: "iife",
-    name: "rudderanalytics",
+    name: `${process.env.INTG_NAME}`,
     sourcemap:
-      process.env.PROD_DEBUG_INLINE == "true"
+      process.env.PROD_DEBUG_INLINE === "true"
         ? "inline"
         : !!process.env.PROD_DEBUG,
   });
 }
 
 export default {
-  input: "analytics.js",
+  input: `./integrations/${process.env.INTG_NAME}/index.js`,
   external: ["Xmlhttprequest", "universal-analytics"],
   output: outputFiles,
   plugins: [
     sourcemaps(),
     replace({
-      "process.browser": process.env.NODE_ENV != "true",
-      "process.prod": process.env.ENV == "prod",
+      "process.browser": process.env.NODE_ENV !== "true",
+      "process.prod": process.env.ENV === "prod",
       "process.package_version": version,
       "process.module_type": moduleType,
     }),
@@ -89,11 +92,11 @@ export default {
     commonjs({
       include: "node_modules/**",
       /* namedExports: {
-        // left-hand side can be an absolute path, a path
-        // relative to the current directory, or the name
-        // of a module in node_modules
-        Xmlhttprequest: ["Xmlhttprequest"]
-      } */
+      // left-hand side can be an absolute path, a path
+      // relative to the current directory, or the name
+      // of a module in node_modules
+      Xmlhttprequest: ["Xmlhttprequest"]
+    } */
     }),
 
     json(),
@@ -111,7 +114,7 @@ export default {
           },
         ],
         ["@babel/plugin-transform-arrow-functions"],
-        ["@babel/plugin-transform-object-assign"]
+        ["@babel/plugin-transform-object-assign"],
       ],
     }),
     process.env.uglify === "true" && terser(),

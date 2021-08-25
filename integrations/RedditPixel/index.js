@@ -1,3 +1,4 @@
 import RedditPixel from "./browser";
 
-export default RedditPixel;
+// eslint-disable-next-line import/prefer-default-export
+export { RedditPixel };

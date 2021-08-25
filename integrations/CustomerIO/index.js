@@ -1,3 +1,4 @@
 import { CustomerIO } from "./browser";
 
-export default CustomerIO;
+// eslint-disable-next-line import/prefer-default-export
+export { CustomerIO };

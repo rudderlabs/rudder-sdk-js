@@ -1,3 +1,4 @@
 import Appcues from "./browser";
 
-export default Appcues; 
+// eslint-disable-next-line import/prefer-default-export
+export { Appcues };
