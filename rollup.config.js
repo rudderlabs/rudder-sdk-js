@@ -43,7 +43,7 @@ switch (process.env.ENV) {
     }
     break;
   default:
-    distFileName = "dist/browser.js";
+    distFileName = "dist/rudder-analytics.js";
     break;
 }
 
@@ -111,7 +111,7 @@ export default {
           },
         ],
         ["@babel/plugin-transform-arrow-functions"],
-        ["@babel/plugin-transform-object-assign"]
+        ["@babel/plugin-transform-object-assign"],
       ],
     }),
     process.env.uglify === "true" && terser(),

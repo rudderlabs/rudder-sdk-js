@@ -159,7 +159,7 @@ class Analytics {
         );
         return resolve(this);
       }
-      if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
+      if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
         logger.debug("max wait for dynamical integrations over");
         return resolve(this);
       }
@@ -1080,7 +1080,8 @@ class Analytics {
         if (
           curScriptSrc &&
           curScriptSrc.startsWith("http") &&
-          curScriptSrc.endsWith("rudder-analytics.min.js")
+          (curScriptSrc.endsWith("rudder-analytics.min.js") ||
+            curScriptSrc.endsWith("rudder-analytics.js"))
         ) {
           this.intCdnBaseURL = curScriptSrc
             .split("/")
@@ -1193,42 +1194,31 @@ class Analytics {
    * @param {*} query
    */
   parseQueryString(query) {
-    function getTraitsFromQueryObject(qObj) {
-      const traits = {};
+    function getDataFromQueryObj(qObj, dataType) {
+      const data = {};
       Object.keys(qObj).forEach((key) => {
-        if (key.substr(0, queryDefaults.trait.length) == queryDefaults.trait) {
-          traits[key.substr(queryDefaults.trait.length)] = qObj[key];
+        if (key.startsWith(dataType)) {
+          data[key.substr(dataType.length)] = qObj[key];
         }
       });
-
-      return traits;
-    }
-
-    function getEventPropertiesFromQueryObject(qObj) {
-      const props = {};
-      Object.keys(qObj).forEach((key) => {
-        if (key.substr(0, queryDefaults.prop.length) == queryDefaults.prop) {
-          props[key.substr(queryDefaults.prop.length)] = qObj[key];
-        }
-      });
-
-      return props;
+      return data;
     }
 
     const returnObj = {};
     const queryObject = querystring.parse(query);
-    const userTraits = getTraitsFromQueryObject(queryObject);
-    const eventProps = getEventPropertiesFromQueryObject(queryObject);
     if (queryObject.ajs_uid) {
       returnObj.userId = queryObject.ajs_uid;
-      returnObj.traits = userTraits;
+      returnObj.traits = getDataFromQueryObj(queryObject, queryDefaults.trait);
     }
     if (queryObject.ajs_aid) {
       returnObj.anonymousId = queryObject.ajs_aid;
     }
     if (queryObject.ajs_event) {
       returnObj.event = queryObject.ajs_event;
-      returnObj.properties = eventProps;
+      returnObj.properties = getDataFromQueryObj(
+        queryObject,
+        queryDefaults.prop
+      );
     }
 
     return returnObj;
@@ -1238,19 +1228,10 @@ class Analytics {
 const instance = new Analytics();
 
 function pushQueryStringDataToAnalyticsArray(obj) {
-  if (obj.anonymousId) {
-    if (obj.userId) {
-      instance.toBeProcessedArray.push(
-        ["setAnonymousId", obj.anonymousId],
-        ["identify", obj.userId, obj.traits]
-      );
-    } else {
-      instance.toBeProcessedArray.push(["setAnonymousId", obj.anonymousId]);
-    }
-  } else if (obj.userId) {
+  if (obj.anonymousId)
+    instance.toBeProcessedArray.push(["setAnonymousId", obj.anonymousId]);
+  if (obj.userId)
     instance.toBeProcessedArray.push(["identify", obj.userId, obj.traits]);
-  }
-
   if (obj.event) {
     instance.toBeProcessedArray.push(["track", obj.event, obj.properties]);
   }

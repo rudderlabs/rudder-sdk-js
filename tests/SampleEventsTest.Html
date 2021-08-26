@@ -23,21 +23,50 @@
                         };
                       }(method);
             }
-            rudderanalytics.load("1weqc5iqxRkpaUXHgDgYo3g34mg", "http://localhost:8080", { logLevel: "INFO"});
+            rudderanalytics.load("1weqc5iqxRkpaUXHgDgYo3g34mg", "http://localhost:8080", { logLevel: "DEBUG"});
             rudderanalytics.page();
+
+            // TODO: Call other APIs here
         </script>
 
-        <!-- V1 JS SDK -->
-        <!-- <script src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script> -->
-        <!-- <script src="../dist/base/rudder-analytics.min.js"></script> -->
-        
-        <!-- V2 JS SDK -->
-        <!-- DEV -->
-        <!-- <script src="https://ddim5kcy73icz.cloudfront.net/v2/rudder-analytics.min.js"></script> -->
-        <!-- <script src="https://ddim5kcy73icz.cloudfront.net/v2/browser.js"></script> -->
-        
-        <!-- <script src="../dist/rudder-analytics.min.js"></script> -->
-        <script src="../dist/browser.js"></script>
+        <!-- ============ V1 ============ -->
+            <!-- <script src="https://cdn.rudderlabs.com/rudder-analytics.min.js"></script> -->
+            <!-- <script src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script> -->
+        <!-- ============ V1 ============ -->
+
+
+        <!-- ============ V3 ============ -->
+            <!-- ============ CDN ============ -->
+                <!-- Prod -->
+                    <!-- MINIFIED -->
+                    <!-- <script src="https://cdn.rudderlabs.com/v2/rudder-analytics.min.js"></script> -->
+
+                    <!-- UNMINIFIED -->
+                    <!-- <script src="https://cdn.rudderlabs.com/v2/rudder-analytics.js"></script> -->
+
+                <!-- Dev -->
+                    <!-- MINIFIED -->
+                    <script src="https://ddim5kcy73icz.cloudfront.net/v2/rudder-analytics.min.js"></script>
+
+                    <!-- UNMINIFIED -->
+                    <!-- <script src="https://ddim5kcy73icz.cloudfront.net/v2/rudder-analytics.js"></script> -->
+
+            <!-- ============ S3 ============ -->
+                <!-- MINIFIED -->
+                <!-- <script src="https://js-sdk-staging-test.s3.amazonaws.com/v2/rudder-analytics.min.js"></script> -->
+
+                <!-- UNMINIFIED -->
+                <!-- <script src="https://js-sdk-staging-test.s3.amazonaws.com/v2/rudder-analytics.js"></script> -->
+        <!-- ============ V3 ============ -->
+
+
+        <!-- ============ LOCAl ================= -->
+            <!-- Local MINIFIED -->
+            <!-- <script src="../dist/rudder-analytics.min.js"></script> -->
+
+            <!-- Local UNMINIFIED -->
+            <!-- <script src="../dist/rudder-analytics.js"></script> -->
+        <!-- ============ LOCAl ================= -->
     </head>
     <body>
         <h1>Page Loaded</h1>
