@@ -14,7 +14,7 @@ const configToIntNames = {
   CUSTOMERIO: "CustomerIO",
   CHARTBEAT: "Chartbeat",
   COMSCORE: "Comscore",
-  FACEBOOK_PIXEL: "FBPixel",
+  FACEBOOK_PIXEL: "FacebookPixel",
   LOTAME: "Lotame",
   OPTIMIZELY: "Optimizely",
   BUGSNAG: "Bugsnag",
