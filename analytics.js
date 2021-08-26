@@ -95,7 +95,9 @@ class Analytics {
       syncPixel: "syncPixelCallback"
     };
     this.loaded = false;
+    this.loadedConfig = false;
     this.loadIntegration = true;
+    this.configResponse = null
   }
 
   /**
@@ -184,7 +186,11 @@ class Analytics {
       this.clientIntegrations = this.clientIntegrations.filter(intg => {
         return integrations[intg.name] != undefined;
       });
-
+      if (response.source.env && Object.keys(response.source.env).length) {
+        this.configResponse = { source: { env: response.source.env } }
+      } else {
+        this.configResponse = null
+      }
       this.init(this.clientIntegrations);
     } catch (error) {
       handleError(error);
@@ -216,6 +222,7 @@ class Analytics {
     if (!intgArray || intgArray.length == 0) {
       if (this.readyCallback) {
         this.readyCallback();
+        this.readyCallback = () => {};
       }
       this.toBeProcessedByIntegrationArray = [];
       return;
@@ -861,6 +868,13 @@ class Analytics {
     return this.userTraits;
   }
 
+  getEnv() {
+    if (this.configResponse && this.configResponse.source && this.configResponse.source.env && Object.keys(this.configResponse.source.env).length) {
+      return this.configResponse.source.env
+    }
+    return null
+  }
+
   /**
    * Sets anonymous id in the followin precedence:
    * 1. anonymousId: Id directly provided to the function.
@@ -903,6 +917,54 @@ class Analytics {
       return false;
     }
     return true;
+  }
+
+
+  processConfigResponse(status, response) {
+    try {
+      logger.debug(`===in process config response=== ${status}`);
+      if (typeof response === "string") {
+        response = JSON.parse(response);
+      }
+      this.configResponse = response
+      this.init();
+    } catch (error) {
+      handleError(error);
+      logger.debug("===handling config BE response processing error===");
+    }
+  }
+
+
+  /**
+   * Call control pane to get client configs
+   *
+   * @param {*} writeKey
+   * @memberof Analytics
+   */
+  loadConfig(writeKey, serverUrl) {
+    logger.debug("inside load config ");
+    if (this.loadedConfig) return;
+    let configUrl = CONFIG_URL;
+    if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
+      handleError({
+        message:
+          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
+      });
+      throw Error("failed to initialize");
+    }
+    function errorHandler(error) {
+      handleError(error);
+      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+        addDomEventHandlers(this);
+      }
+    }
+    try {
+      getJSONTrimmed(this, configUrl, writeKey, this.processConfigResponse);
+      this.loadedConfig = true
+    } catch (error) {
+      errorHandler(error);
+    }
+    processDataInAnalyticsArray(this);
   }
 
   /**
@@ -1030,15 +1092,19 @@ class Analytics {
     }
 
     try {
-      getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
+      if (this.configResponse) {
+        this.processResponse(200, this.configResponse)
+      } else {
+        getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
+      }
     } catch (error) {
       errorHandler(error);
-    }
-    processDataInAnalyticsArray(this);
+    }      
+    processDataInAnalyticsArray(this);  
   }
 
   ready(callback) {
-    if (!this.loaded) return;
+    if (!this.loaded && !this.loadedConfig) return;
     if (typeof callback === "function") {
       this.readyCallback = callback;
       return;
@@ -1171,7 +1237,7 @@ function pushQueryStringDataToAnalyticsArray(obj) {
 }
 
 function processDataInAnalyticsArray(analytics) {
-  if (instance.loaded) {
+  if (instance.loaded || instance.loadedConfig) {
     for (let i = 0; i < analytics.toBeProcessedArray.length; i++) {
       const event = [...analytics.toBeProcessedArray[i]];
       const method = event[0];
@@ -1211,13 +1277,13 @@ const eventsPushedAlready =
 
 const argumentsArray = window.rudderanalytics;
 
-while (argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load") {
+while (argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load" && argumentsArray[0][0] !== "loadConfig") {
   argumentsArray.shift();
 }
 if (
   argumentsArray &&
   argumentsArray.length > 0 &&
-  argumentsArray[0][0] === "load"
+  (argumentsArray[0][0] === "load" || argumentsArray[0][0] === "loadConfig")
 ) {
   const method = argumentsArray[0][0];
   argumentsArray[0].shift();
@@ -1248,17 +1314,20 @@ const track = instance.track.bind(instance);
 const alias = instance.alias.bind(instance);
 const group = instance.group.bind(instance);
 const reset = instance.reset.bind(instance);
+const loadConfig = instance.loadConfig.bind(instance);
 const load = instance.load.bind(instance);
 const initialized = (instance.initialized = true);
 const getUserTraits = instance.getUserTraits.bind(instance);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
+const getEnv = instance.getEnv.bind(instance);
 
 export {
   initialized,
   ready,
   page,
   track,
+  loadConfig,
   load,
   identify,
   reset,
@@ -1266,5 +1335,6 @@ export {
   group,
   getUserTraits,
   getAnonymousId,
-  setAnonymousId
+  setAnonymousId,
+  getEnv
 };
