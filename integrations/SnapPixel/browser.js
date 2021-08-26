@@ -36,11 +36,11 @@ class SnapPixel {
     ];
 
     this.customEvents = [
-      config.customEvent1,
-      config.customEvent2,
-      config.customEvent3,
-      config.customEvent4,
-      config.customEvent5,
+      "custom_event_1",
+      "custom_event_2",
+      "custom_event_3",
+      "custom_event_4",
+      "custom_event_5",
     ];
   }
 
@@ -168,7 +168,7 @@ class SnapPixel {
       default:
         if (
           !this.snapPixelEventNames.includes(event) &&
-          !this.customEvents.includes(event)
+          !this.customEvents.includes(event.trim().toLowerCase())
         ) {
           logger.error("Event doesn't match with Snap Pixel Events!");
           return;
