@@ -83,10 +83,10 @@ const BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
 const CONFIG_URL =
   "https://api.rudderlabs.com/sourceConfig/?p=process.module_type&v=process.package_version";
 const CDN_INT_DIR = "js-integrations";
-// const CDN_BASE_URL = `https://cdn.rudderstack.com/v2/${CDN_INT_DIR}`;
+const CDN_BASE_URL = `https://cdn.rudderstack.com/v3/${CDN_INT_DIR}`;
 
 // TODO: Dev only, remove before prod release
-const CDN_BASE_URL = `https://ddim5kcy73icz.cloudfront.net/v2/${CDN_INT_DIR}`;
+// const CDN_BASE_URL = `https://ddim5kcy73icz.cloudfront.net/v2/${CDN_INT_DIR}`;
 // const CDN_BASE_URL = `https://ddim5kcy73icz.cloudfront.net/v2/${CDN_INT_DIR}/dev`;
 
 const FLUSH_QUEUE_SIZE = 30;
