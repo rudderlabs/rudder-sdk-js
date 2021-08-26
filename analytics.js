@@ -1,3 +1,4 @@
+// added this commit to test build pipeline
 /* eslint-disable new-cap */
 /* eslint-disable func-names */
 /* eslint-disable eqeqeq */
