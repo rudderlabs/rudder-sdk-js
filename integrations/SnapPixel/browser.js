@@ -16,7 +16,7 @@ class SnapPixel {
     this.hashMethod = config.hashMethod;
     this.name = "SNAP_PIXEL";
 
-    this.snapPixelEventNames = [
+    this.trackEvents = [
       "SIGN_UP",
       "OPEN_APP",
       "SAVE",
@@ -34,6 +34,16 @@ class SnapPixel {
       "START_TRIAL",
       "LIST_VIEW",
     ];
+
+    this.ecomEvents = {
+      PURCHASE: "PURCHASE",
+      START_CHECKOUT: "START_CHECKOUT",
+      ADD_CART: "ADD_CART",
+      ADD_BILLING: "ADD_BILLING",
+      AD_CLICK: "AD_CLICK",
+      AD_VIEW: "AD_VIEW",
+      ADD_TO_WISHLIST: "ADD_TO_WISHLIST",
+    };
 
     this.customEvents = [
       "custom_event_1",
@@ -145,29 +155,38 @@ class SnapPixel {
 
     switch (event.toLowerCase().trim()) {
       case "order completed":
-        sendEvent("PURCHASE", ecommEventPayload(event, message));
+        sendEvent(this.ecomEvents.PURCHASE, ecommEventPayload(event, message));
         break;
       case "checkout started":
-        sendEvent("START_CHECKOUT", ecommEventPayload(event, message));
+        sendEvent(
+          this.ecomEvents.START_CHECKOUT,
+          ecommEventPayload(event, message)
+        );
         break;
       case "product added":
-        sendEvent("ADD_CART", ecommEventPayload(event, message));
+        sendEvent(this.ecomEvents.ADD_CART, ecommEventPayload(event, message));
         break;
       case "payment info entered":
-        sendEvent("ADD_BILLING", ecommEventPayload(event, message));
+        sendEvent(
+          this.ecomEvents.ADD_BILLING,
+          ecommEventPayload(event, message)
+        );
         break;
       case "promotion clicked":
-        sendEvent("AD_CLICK", ecommEventPayload(event, message));
+        sendEvent(this.ecomEvents.AD_CLICK, ecommEventPayload(event, message));
         break;
       case "promotion viewed":
-        sendEvent("AD_VIEW", ecommEventPayload(event, message));
+        sendEvent(this.ecomEvents.AD_VIEW, ecommEventPayload(event, message));
         break;
       case "product added to wishlist":
-        sendEvent("ADD_TO_WISHLIST", ecommEventPayload(event, message));
+        sendEvent(
+          this.ecomEvents.ADD_TO_WISHLIST,
+          ecommEventPayload(event, message)
+        );
         break;
       default:
         if (
-          !this.snapPixelEventNames.includes(event) &&
+          !this.trackEvents.includes(event) &&
           !this.customEvents.includes(event.trim().toLowerCase())
         ) {
           logger.error("Event doesn't match with Snap Pixel Events!");
