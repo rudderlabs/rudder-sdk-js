@@ -26,7 +26,9 @@
     "size": "npm run size-build && size-limit",
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc ",
     "buildDevIntegration": "NODE_ENV=false uglify=false INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
-    "buildProdIntegration": "NODE_ENV=false ENV=prod uglify=true INTG_NAME=Keen rollup --config rollup.intgConfig.js"
+    "buildDevIntegrationCLI": "NODE_ENV=false uglify=false INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
+    "buildProdIntegration": "NODE_ENV=false ENV=prod uglify=true INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
+    "buildProdIntegrationCLI": "NODE_ENV=false ENV=prod uglify=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js"
   },
   "pre-commit": [
     "prodTest",
@@ -61,6 +63,7 @@
     "core-js": "^3.6.5",
     "crypto-js": "3.1.9-1",
     "each": "^1.2.2",
+    "esm": "^3.2.25",
     "fs": "0.0.1-security",
     "get-value": "^3.0.1",
     "gh-release": "^3.5.0",

@@ -24,7 +24,49 @@
                       }(method);
             }
             rudderanalytics.load("1weqc5iqxRkpaUXHgDgYo3g34mg", "http://localhost:8080", { logLevel: "DEBUG"});
-            rudderanalytics.page();
+            rudderanalytics.page(
+                "Home",
+                "Cart Viewed",
+                {
+                    path: "",
+                    referrer: "",
+                    search: "",
+                    title: "",
+                    url: "",
+                },
+                () => {
+                    console.log("in page call");
+                });
+
+                rudderanalytics.track(
+                    "test track event 1",
+                    {
+                        revenue:  30,
+                        currency:  'USD' ,
+                        user_actual_id:  12345
+                    }, 
+                    () => {console.log("in track call 1");}
+                    );
+
+                    rudderanalytics.track(
+                    "test track event 2",
+                    {
+                        revenue:  45,
+                        currency:  'INR' ,
+                        user_actual_id:  333
+                    }, 
+                    () => {console.log("in track call 2");}
+                    );
+
+                    rudderanalytics.track(
+                    "test track event 3",
+                    {
+                        revenue:  10003,
+                        currency:  'EUR' ,
+                        user_actual_id:  5678
+                    }, 
+                    () => {console.log("in track call 3");}
+                    );
 
             // TODO: Call other APIs here
         </script>
@@ -39,14 +81,14 @@
             <!-- ============ CDN ============ -->
                 <!-- Prod -->
                     <!-- MINIFIED -->
-                    <!-- <script src="https://cdn.rudderlabs.com/v2/rudder-analytics.min.js"></script> -->
+                    <script src="https://cdn.rudderlabs.com/v3/rudder-analytics.min.js"></script>
 
                     <!-- UNMINIFIED -->
-                    <!-- <script src="https://cdn.rudderlabs.com/v2/rudder-analytics.js"></script> -->
+                    <!-- <script src="https://cdn.rudderlabs.com/v3/rudder-analytics.js"></script> -->
 
                 <!-- Dev -->
                     <!-- MINIFIED -->
-                    <script src="https://ddim5kcy73icz.cloudfront.net/v2/rudder-analytics.min.js"></script>
+                    <!-- <script src="https://ddim5kcy73icz.cloudfront.net/v2/rudder-analytics.min.js"></script> -->
 
                     <!-- UNMINIFIED -->
                     <!-- <script src="https://ddim5kcy73icz.cloudfront.net/v2/rudder-analytics.js"></script> -->
