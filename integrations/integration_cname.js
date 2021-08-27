@@ -106,6 +106,13 @@ const commonNames = {
   Qualtrics: "QUALTRICS",
   qualtrics: "QUALTRICS",
   QUALTRICS: "QUALTRICS",
+  Snap_Pixel: "SNAP_PIXEL",
+  SnapPixel: "SNAP_PIXEL",
+  SNAPPIXEL: "SNAP_PIXEL",
+  snappixel: "SNAP_PIXEL",
+  "Snap Pixel": "SNAP_PIXEL",
+  "SNAP PIXEL": "SNAP_PIXEL",
+  "snap pixel": "SNAP_PIXEL",
 };
 
 export { commonNames };
