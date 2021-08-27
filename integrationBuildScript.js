@@ -2,6 +2,7 @@ import { exec } from "child_process";
 import logger from "./utils/logUtil";
 import { configToIntNames } from "./config_to_integration_names";
 
+// added comment to test build pipeline
 Object.keys(configToIntNames).forEach((key) => {
   exec(
     `npm run buildProdIntegrationCLI --intg=${configToIntNames[key]}`,
