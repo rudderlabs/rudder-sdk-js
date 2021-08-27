@@ -16,7 +16,7 @@ phases:
       # - mv dist/prod.js dist/rudder-analytics.min.js
       # - aws s3 cp dist/rudder-analytics.min.js s3://$S3_BUCKET_NAME/v3/rudder-analytics.min.js --cache-control max-age=3600 --acl public-read
       # - aws s3 cp dist/rudder-analytics.js s3://$S3_BUCKET_NAME/v3/rudder-analytics.js --cache-control max-age=3600 --acl public-read
-      - aws s3 cp dist/integrations/* s3://$S3_BUCKET_NAME/v3/js-integrations/ --cache-control max-age=3600 --acl public-read
+      - aws s3 cp dist/integrations/ s3://$S3_BUCKET_NAME/v3/js-integrations/ --recursive --cache-control max-age=3600 --acl public-read
       # - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/v3/rudder-analytics.min.js"
       # - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/v3/rudder-analytics.js"
       - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/v3/js-integrations"
