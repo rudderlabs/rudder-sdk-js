@@ -50,20 +50,6 @@ const queryDefaults = {
   prop: "ajs_prop_",
 };
 
-// https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
-
-/**
- * Add the rudderelement object to flush queue
- *
- * @param {RudderElement} rudderElement
- */
-function enqueue(rudderElement, type) {
-  if (!this.eventRepository) {
-    this.eventRepository = EventRepository;
-  }
-  this.eventRepository.enqueue(rudderElement, type);
-}
-
 /**
  * class responsible for handling core
  * event tracking functionalities
@@ -107,40 +93,33 @@ class Analytics {
    * initialize the user after load config
    */
   initializeUser() {
-    this.userId =
-      this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
+    // save once for storing older values to encrypted
+    this.userId = this.storage.getUserId() || "";
+    this.storage.setUserId(this.userId);
 
-    this.userTraits =
-      this.storage.getUserTraits() != undefined
-        ? this.storage.getUserTraits()
-        : {};
+    this.userTraits = this.storage.getUserTraits() || {};
+    this.storage.setUserTraits(this.userTraits);
 
-    this.groupId =
-      this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
+    this.groupId = this.storage.getGroupId() || "";
+    this.storage.setGroupId(this.groupId);
 
-    this.groupTraits =
-      this.storage.getGroupTraits() != undefined
-        ? this.storage.getGroupTraits()
-        : {};
+    this.groupTraits = this.storage.getGroupTraits() || {};
+    this.storage.setGroupTraits(this.groupTraits);
 
     this.anonymousId = this.getAnonymousId();
-
-    // save once for storing older values to encrypted
-    this.storage.setUserId(this.userId);
     this.storage.setAnonymousId(this.anonymousId);
-    this.storage.setGroupId(this.groupId);
-    this.storage.setUserTraits(this.userTraits);
-    this.storage.setGroupTraits(this.groupTraits);
   }
 
   setInitialPageProperties() {
-    let initialReferrer = this.storage.getInitialReferrer();
-    let initialReferringDomain = this.storage.getInitialReferringDomain();
-    if (initialReferrer == null && initialReferringDomain == null) {
-      initialReferrer = getReferrer();
-      initialReferringDomain = getReferringDomain(initialReferrer);
+    if (
+      this.storage.getInitialReferrer() == null &&
+      this.storage.getInitialReferringDomain() == null
+    ) {
+      const initialReferrer = getReferrer();
       this.storage.setInitialReferrer(initialReferrer);
-      this.storage.setInitialReferringDomain(initialReferringDomain);
+      this.storage.setInitialReferringDomain(
+        getReferringDomain(initialReferrer)
+      );
     }
   }
 
@@ -160,12 +139,12 @@ class Analytics {
         return resolve(this);
       }
       if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
-        logger.debug("max wait for dynamical integrations over");
+        logger.debug("Max wait for dynamically loaded integrations over");
         return resolve(this);
       }
 
       return this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        logger.debug("Try again after pause");
+        logger.debug("Check if all integration SDKs are loaded after pause");
         return this.allModulesInitialized(
           time + INTEGRATION_LOAD_CHECK_INTERVAL
         ).then(resolve);
@@ -473,7 +452,7 @@ class Analytics {
   }
 
   /**
-   * Process identify params and forward to indentify  call
+   * Process identify params and forward to identify  call
    *
    * @param {*} userId
    * @param {*} traits
@@ -573,12 +552,10 @@ class Analytics {
       properties = {};
     }
     if (name) {
-      rudderElement.message.name = name;
-      properties.name = name;
+      rudderElement.message.name = properties.name = name;
     }
     if (category) {
-      rudderElement.message.category = category;
-      properties.category = category;
+      rudderElement.message.category = properties.category = category;
     }
     rudderElement.message.properties = this.getPageProperties(properties); // properties;
 
@@ -786,7 +763,7 @@ class Analytics {
       transformToServerNames(rudderElement.message.integrations);
 
       // self analytics process, send to rudder
-      enqueue.call(this, rudderElement, type);
+      this.eventRepository.enqueue(rudderElement, type);
 
       logger.debug(`${type} is called `);
       if (callback) {
@@ -833,13 +810,13 @@ class Analytics {
         ? this.getContextPageProperties(properties)
         : this.getContextPageProperties();
 
-    const toplevelElements = [
+    const topLevelElements = [
       "integrations",
       "anonymousId",
       "originalTimestamp",
     ];
     for (const key in options) {
-      if (toplevelElements.includes(key)) {
+      if (topLevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== "context") {
         rudderElement.message.context = merge(rudderElement.message.context, {
