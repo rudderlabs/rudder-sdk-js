@@ -294,74 +294,53 @@ function findAllEnabledDestinations(
   const enabledList = [];
   if (
     !configPlaneEnabledIntegrations ||
-    configPlaneEnabledIntegrations.length == 0
+    configPlaneEnabledIntegrations.length === 0
   ) {
     return enabledList;
   }
   let allValue = true;
+  if (sdkSuppliedIntegrations.All !== undefined) {
+    allValue = sdkSuppliedIntegrations.All;
+  }
+  const intgData = {};
   if (typeof configPlaneEnabledIntegrations[0] === "string") {
-    if (sdkSuppliedIntegrations.All != undefined) {
-      allValue = sdkSuppliedIntegrations.All;
-    }
     configPlaneEnabledIntegrations.forEach((intg) => {
-      if (!allValue) {
-        // All false ==> check if intg true supplied
-        if (
-          sdkSuppliedIntegrations[intg] != undefined &&
-          sdkSuppliedIntegrations[intg] == true
-        ) {
-          enabledList.push(intg);
-        }
-      } else {
-        // All true ==> intg true by default
-        let intgValue = true;
-        // check if intg false supplied
-        if (
-          sdkSuppliedIntegrations[intg] != undefined &&
-          sdkSuppliedIntegrations[intg] == false
-        ) {
-          intgValue = false;
-        }
-        if (intgValue) {
-          enabledList.push(intg);
-        }
-      }
+      intgData[intg] = intg;
     });
-
-    return enabledList;
   }
 
   if (typeof configPlaneEnabledIntegrations[0] === "object") {
-    if (sdkSuppliedIntegrations.All != undefined) {
-      allValue = sdkSuppliedIntegrations.All;
-    }
     configPlaneEnabledIntegrations.forEach((intg) => {
-      if (!allValue) {
-        // All false ==> check if intg true supplied
-        if (
-          sdkSuppliedIntegrations[intg.name] != undefined &&
-          sdkSuppliedIntegrations[intg.name] == true
-        ) {
-          enabledList.push(intg);
-        }
-      } else {
-        // All true ==> intg true by default
-        let intgValue = true;
-        // check if intg false supplied
-        if (
-          sdkSuppliedIntegrations[intg.name] != undefined &&
-          sdkSuppliedIntegrations[intg.name] == false
-        ) {
-          intgValue = false;
-        }
-        if (intgValue) {
-          enabledList.push(intg);
-        }
-      }
+      intgData[intg.name] = intg;
     });
-
-    return enabledList;
   }
+
+  intgData.forEach((intgName) => {
+    if (!allValue) {
+      // All false ==> check if intg true supplied
+      if (
+        sdkSuppliedIntegrations[intgName] != undefined &&
+        sdkSuppliedIntegrations[intgName] == true
+      ) {
+        enabledList.push(intgData[intgName]);
+      }
+    } else {
+      // All true ==> intg true by default
+      let intgValue = true;
+      // check if intg false supplied
+      if (
+        sdkSuppliedIntegrations[intgName] != undefined &&
+        sdkSuppliedIntegrations[intgName] == false
+      ) {
+        intgValue = false;
+      }
+      if (intgValue) {
+        enabledList.push(intgData[intgName]);
+      }
+    }
+  });
+
+  return enabledList;
 }
 
 /**
