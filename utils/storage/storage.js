@@ -13,7 +13,7 @@ const defaults = {
   page_storage_init_referrer: "rl_page_init_referrer",
   page_storage_init_referring_domain: "rl_page_init_referring_domain",
   prefix: "RudderEncrypt:",
-  key: "Rudder"
+  key: "Rudder",
 };
 
 /**
@@ -21,18 +21,38 @@ const defaults = {
  */
 class Storage {
   constructor() {
-    // First try setting the storage to cookie else to localstorage
+    // Check for cookie support
+    let cookieSupportExists = false;
     Cookie.set("rudder_cookies", true);
-
     if (Cookie.get("rudder_cookies")) {
       Cookie.remove("rudder_cookies");
-      this.storage = Cookie;
+      cookieSupportExists = true;
+    }
+
+    // First try setting the storage to local storage else to cookies
+    if (Store.enabled) {
+      this.storage = Store;
+
+      // Migrate any existing cookie data to local storage
+      // for backward compatibility
+      if (cookieSupportExists) {
+        const cookieNames = Object.values(defaults).filter((val) =>
+          val.startsWith("rl_")
+        );
+        logger.debug(cookieNames);
+        cookieNames.forEach((cName) => {
+          const cVal = Cookie.get(cName);
+          if (this.isValidStorageVal(cVal)) {
+            Store.set(cName, cVal);
+            Cookie.remove(cName);
+          }
+        });
+      }
       return;
     }
 
-    // localStorage is enabled.
-    if (Store.enabled) {
-      this.storage = Store;
+    if (cookieSupportExists) {
+      this.storage = Cookie;
     }
   }
 
@@ -53,7 +73,7 @@ class Storage {
    * @param {*} value
    */
   parse(value) {
-    // if not parseable, return as is without json parse
+    // if not parsable, return as is without json parse
     try {
       return value ? JSON.parse(value) : null;
     } catch (e) {
@@ -91,7 +111,7 @@ class Storage {
    * @param {*} value
    */
   decryptValue(value) {
-    if (!value || (typeof value === "string" && this.trim(value) == "")) {
+    if (!this.isValidStorageVal(value)) {
       return value;
     }
     if (value.substring(0, defaults.prefix.length) == defaults.prefix) {
@@ -101,6 +121,10 @@ class Storage {
       ).toString(Utf8);
     }
     return value;
+  }
+
+  isValidStorageVal(value) {
+    return !(!value || (typeof value === "string" && this.trim(value) === ""));
   }
 
   /**
