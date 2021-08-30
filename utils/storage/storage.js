@@ -36,10 +36,10 @@ class Storage {
       // Migrate any existing cookie data to local storage
       // for backward compatibility
       if (cookieSupportExists) {
+        logger.debug("Migrating cookies data to local storage");
         const cookieNames = Object.values(defaults).filter((val) =>
           val.startsWith("rl_")
         );
-        logger.debug(cookieNames);
         cookieNames.forEach((cName) => {
           const cVal = Cookie.get(cName);
           if (this.isValidStorageVal(cVal)) {
