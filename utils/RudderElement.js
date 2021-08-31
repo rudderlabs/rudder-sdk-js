@@ -26,10 +26,6 @@ class RudderElement {
     this.message.event = eventName;
   }
 
-  updateTraits(traits) {
-    this.message.context.traits = traits;
-  }
-
   getElementContent() {
     return this.message;
   }

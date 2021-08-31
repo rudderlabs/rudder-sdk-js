@@ -890,11 +890,11 @@ class Analytics {
   }
 
   /**
-   * Sets anonymous id in the followin precedence:
+   * Sets anonymous id in the following precedence:
    * 1. anonymousId: Id directly provided to the function.
    * 2. rudderAmpLinkerParm: value generated from linker query parm (rudderstack)
    *    using praseLinker util.
-   * 3. generateUUID: A new uniquie id is generated and assigned.
+   * 3. generateUUID: A new unique id is generated and assigned.
    *
    * @param {string} anonymousId
    * @param {string} rudderAmpLinkerParm
