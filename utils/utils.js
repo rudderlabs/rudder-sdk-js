@@ -315,7 +315,7 @@ function findAllEnabledDestinations(
     });
   }
 
-  intgData.forEach((intgName) => {
+  Object.keys(intgData).forEach((intgName) => {
     if (!allValue) {
       // All false ==> check if intg true supplied
       if (
