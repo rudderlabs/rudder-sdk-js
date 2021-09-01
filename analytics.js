@@ -196,8 +196,9 @@ class Analytics {
       this.clientIntegrations.forEach((intg) => {
         const modName = configToIntNames[intg.name];
         const modURL = `${this.intCdnBaseURL}/${modName}.min.js`;
-
-        ScriptLoader(modName, modURL);
+        if (!window.hasOwnProperty(modName)) {
+          ScriptLoader(modName, modURL);
+        }
 
         const self = this;
         const interval = setInterval(function () {
