@@ -32,7 +32,7 @@ function stripTrailingSlashes(inURL) {
 
 /**
  *
- * Utility function for UUID genration
+ * Utility function for UUID generation
  * @returns
  */
 function generateUUID() {
@@ -86,7 +86,7 @@ function getJSON(url, wrappers, isLoaded, callback) {
   xhr.onload = function () {
     const { status } = xhr;
     if (status == 200) {
-      logger.debug("status 200");
+      // logger.debug("status 200");
       callback(null, xhr.responseText, wrappers, isLoaded);
     } else {
       callback(status);
@@ -114,7 +114,7 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   xhr.onload = function () {
     const { status } = xhr;
     if (status == 200) {
-      logger.debug("status 200 " + "calling callback");
+      // logger.debug("status 200 " + "calling callback");
       cb_(200, xhr.responseText);
     } else {
       handleError(

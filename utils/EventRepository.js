@@ -103,9 +103,9 @@ class EventRepository {
               )
             );
           } else {
-            logger.debug(
-              `====== request processed successfully: ${xhr.status}`
-            );
+            // logger.debug(
+            //   `====== request processed successfully: ${xhr.status}`
+            // );
             queueFn(null, xhr.status);
           }
         }
@@ -125,13 +125,6 @@ class EventRepository {
    */
   enqueue(rudderElement, type) {
     const message = rudderElement.getElementContent();
-
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Basic ${btoa(`${this.writeKey}:`)}`,
-      AnonymousId: btoa(message.anonymousId),
-    };
-
     message.originalTimestamp = getCurrentTimeFormatted();
     message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
 
@@ -142,6 +135,12 @@ class EventRepository {
         message
       );
     }
+
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Basic ${btoa(`${this.writeKey}:`)}`,
+      AnonymousId: btoa(message.anonymousId),
+    };
 
     // modify the url for event specific endpoints
     const url = stripTrailingSlashes(this.url);
