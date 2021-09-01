@@ -799,8 +799,8 @@ class Analytics {
 
   /**
    * process options parameter
-   * Apart from top level keys merge everyting under context
-   * context.page's default properties are overriden by same keys of
+   * Apart from top level keys merge everything under context
+   * context.page's default properties are overridden by same keys of
    * provided properties in case of page call
    *
    * @param {*} rudderElement

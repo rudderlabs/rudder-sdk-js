@@ -508,9 +508,9 @@ function flattenJsonPayload(data) {
  * @param {*} destination
  * @param {*} keys
  * @param {*} exclusionFields
- * Extract fileds from message with exclusions
+ * Extract fields from message with exclusions
  * Pass the keys of message for extraction and
- * exclusion fields to exlude and the payload to map into
+ * exclusion fields to exclude and the payload to map into
  * -----------------Example-------------------
  * extractCustomFields(message,payload,["traits", "context.traits", "properties"], "email",
  * ["firstName",
@@ -526,7 +526,7 @@ function flattenJsonPayload(data) {
  * "timezone"])
  * -------------------------------------------
  * The above call will map the fields other than the
- * exlusion list from the given keys to the destination payload
+ * exclusion list from the given keys to the destination payload
  *
  */
 
@@ -553,7 +553,7 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
  *
  * @param {*} message
  *
- * Use get-value to retrieve defined trais from message traits
+ * Use get-value to retrieve defined traits from message traits
  */
 function getDefinedTraits(message) {
   const traitsValue = {
