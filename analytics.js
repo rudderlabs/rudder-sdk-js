@@ -171,8 +171,7 @@ class Analytics {
         !this.autoTrackHandlersRegistered
       ) {
         this.autoTrackFeatureEnabled = true;
-        addDomEventHandlers(this);
-        this.autoTrackHandlersRegistered = true;
+        this.registerAutoTrackHandlers();
       }
       response.source.destinations.forEach(function (destination, index) {
         // logger.debug(
@@ -266,10 +265,18 @@ class Analytics {
       //   "autoTrackHandlersRegistered",
       //   this.autoTrackHandlersRegistered
       // );
-      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(this);
-        this.autoTrackHandlersRegistered = true;
-      }
+      this.registerAutoTrackHandlers();
+    }
+  }
+
+  registerAutoTrackHandlers() {
+    if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+      addDomEventHandlers(this);
+      this.autoTrackHandlersRegistered = true;
+      // logger.debug(
+      //   "autoTrackHandlersRegistered",
+      //   this.autoTrackHandlersRegistered
+      // );
     }
   }
 
@@ -1022,21 +1029,12 @@ class Analytics {
     }
     if (options && options.useAutoTracking) {
       this.autoTrackFeatureEnabled = true;
-      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(this);
-        this.autoTrackHandlersRegistered = true;
-        // logger.debug(
-        //   "autoTrackHandlersRegistered",
-        //   this.autoTrackHandlersRegistered
-        // );
-      }
+      this.registerAutoTrackHandlers();
     }
 
     function errorHandler(error) {
       handleError(error);
-      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(this);
-      }
+      this.registerAutoTrackHandlers();
     }
 
     if (options && options.cdnBaseURL) {

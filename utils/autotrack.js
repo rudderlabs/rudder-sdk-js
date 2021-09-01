@@ -11,6 +11,18 @@ function registerEvent(element, type, handler, useCapture) {
   element.addEventListener(type, handler, !!useCapture);
 }
 
+function isTag(el, tag) {
+  return el && el.tagName && el.tagName.toLowerCase() === tag.toLowerCase();
+}
+
+function isElementNode(el) {
+  return el && el.nodeType === 1; // Node.ELEMENT_NODE - use integer constant for browser portability
+}
+
+function isTextNode(el) {
+  return el && el.nodeType === 3; // Node.TEXT_NODE - use integer constant for browser portability
+}
+
 function shouldTrackDomEvent(el, event) {
   if (!el || isTag(el, "html") || !isElementNode(el)) {
     return false;
@@ -35,16 +47,16 @@ function shouldTrackDomEvent(el, event) {
   }
 }
 
-function isTag(el, tag) {
-  return el && el.tagName && el.tagName.toLowerCase() === tag.toLowerCase();
-}
-
-function isElementNode(el) {
-  return el && el.nodeType === 1; // Node.ELEMENT_NODE - use integer constant for browser portability
-}
-
-function isTextNode(el) {
-  return el && el.nodeType === 3; // Node.TEXT_NODE - use integer constant for browser portability
+function getClassName(el) {
+  switch (typeof el.className) {
+    case "string":
+      return el.className;
+    case "object": // handle cases where className might be SVGAnimatedString or some other type
+      return el.className.baseVal || el.getAttribute("class") || "";
+    default:
+      // future proof
+      return "";
+  }
 }
 
 // excerpt from https://github.com/mixpanel/mixpanel-js/blob/master/src/autotrack-utils.js
@@ -116,18 +128,6 @@ function shouldTrackElement(el) {
   return true;
 }
 
-function getClassName(el) {
-  switch (typeof el.className) {
-    case "string":
-      return el.className;
-    case "object": // handle cases where className might be SVGAnimatedString or some other type
-      return el.className.baseVal || el.getAttribute("class") || "";
-    default:
-      // future proof
-      return "";
-  }
-}
-
 function isExplicitNoTrack(el) {
   const classes = getClassName(el).split(" ");
   if (classes.indexOf("rudder-no-track") >= 0) {
@@ -182,7 +182,7 @@ function isValueToBeTracked(value) {
  */
 function isValueToBeTrackedFromTrackingList(el, includeList) {
   const elAttributesLength = el.attributes.length;
-  for (let i = 0; i < elAttributesLength; i++) {
+  for (let i = 0; i < elAttributesLength; i += 1) {
     const { value } = el.attributes[i];
     if (includeList.indexOf(value) > -1) {
       return true;
@@ -212,6 +212,16 @@ function getText(el) {
   return text.trim();
 }
 
+function previousElementSibling(el) {
+  if (el.previousElementSibling) {
+    return el.previousElementSibling;
+  }
+  do {
+    el = el.previousSibling;
+  } while (el && !isElementNode(el));
+  return el;
+}
+
 function getPropertiesFromElement(elem, rudderanalytics) {
   const props = {
     classes: getClassName(elem).split(" "),
@@ -219,18 +229,18 @@ function getPropertiesFromElement(elem, rudderanalytics) {
   };
 
   const attrLength = elem.attributes.length;
-  for (let i = 0; i < attrLength; i++) {
+  for (let i = 0; i < attrLength; i += 1) {
     const { name } = elem.attributes[i];
     const { value } = elem.attributes[i];
     if (value && isValueToBeTracked(value)) {
       props[`attr__${name}`] = value;
     }
     if (
-      (name == "name" || name == "id") &&
+      (name === "name" || name === "id") &&
       isValueToBeTrackedFromTrackingList(elem, rudderanalytics.trackValues)
     ) {
       props.field_value =
-        name == "id"
+        name === "id"
           ? document.getElementById(value).value
           : document.getElementsByName(value)[0].value;
 
@@ -244,25 +254,15 @@ function getPropertiesFromElement(elem, rudderanalytics) {
   let nthOfType = 1;
   let currentElem = elem;
   while ((currentElem = previousElementSibling(currentElem))) {
-    nthChild++;
+    nthChild += 1;
     if (currentElem.tagName === elem.tagName) {
-      nthOfType++;
+      nthOfType += 1;
     }
   }
   props.nth_child = nthChild;
   props.nth_of_type = nthOfType;
 
   return props;
-}
-
-function previousElementSibling(el) {
-  if (el.previousElementSibling) {
-    return el.previousElementSibling;
-  }
-  do {
-    el = el.previousSibling;
-  } while (el && !isElementNode(el));
-  return el;
 }
 
 function trackWindowEvent(e, rudderanalytics) {
