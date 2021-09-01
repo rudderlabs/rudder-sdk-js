@@ -255,7 +255,7 @@ class Storage {
   /**
    * get stored initial referrer
    */
-  getInitialReferrer(value) {
+  getInitialReferrer() {
     return this.parse(
       this.decryptValue(this.storage.get(defaults.page_storage_init_referrer))
     );
@@ -264,7 +264,7 @@ class Storage {
   /**
    * get stored initial referring domain
    */
-  getInitialReferringDomain(value) {
+  getInitialReferringDomain() {
     return this.parse(
       this.decryptValue(
         this.storage.get(defaults.page_storage_init_referring_domain)

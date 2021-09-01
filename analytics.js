@@ -132,19 +132,19 @@ class Analytics {
             undefined
         )
       ) {
-        logger.debug(
-          "All integrations loaded dynamically",
-          this.dynamicallyLoadedIntegrations
-        );
+        // logger.debug(
+        //   "All integrations loaded dynamically",
+        //   this.dynamicallyLoadedIntegrations
+        // );
         return resolve(this);
       }
       if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
-        logger.debug("Max wait for dynamically loaded integrations over");
+        // logger.debug("Max wait for dynamically loaded integrations over")
         return resolve(this);
       }
 
       return this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        logger.debug("Check if all integration SDKs are loaded after pause");
+        // logger.debug("Check if all integration SDKs are loaded after pause")
         return this.allModulesInitialized(
           time + INTEGRATION_LOAD_CHECK_INTERVAL
         ).then(resolve);
@@ -162,7 +162,7 @@ class Analytics {
    */
   processResponse(status, response) {
     try {
-      logger.debug(`===in process response=== ${status}`);
+      // logger.debug(`===in process response=== ${status}`)
       if (typeof response === "string") {
         response = JSON.parse(response);
       }
@@ -171,13 +171,12 @@ class Analytics {
         !this.autoTrackHandlersRegistered
       ) {
         this.autoTrackFeatureEnabled = true;
-        addDomEventHandlers(this);
-        this.autoTrackHandlersRegistered = true;
+        this.registerAutoTrackHandlers();
       }
       response.source.destinations.forEach(function (destination, index) {
-        logger.debug(
-          `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
-        );
+        // logger.debug(
+        //   `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
+        // );
         if (destination.enabled) {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
@@ -192,13 +191,14 @@ class Analytics {
         this.clientIntegrations
       );
 
-      logger.debug("this.clientIntegrations: ", this.clientIntegrations);
+      // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
         const modName = configToIntNames[intg.name];
         const modURL = `${this.intCdnBaseURL}/${modName}.min.js`;
-
-        ScriptLoader(modName, modURL);
+        if (!window.hasOwnProperty(modName)) {
+          ScriptLoader(modName, modURL);
+        }
 
         const self = this;
         const interval = setInterval(function () {
@@ -206,21 +206,21 @@ class Analytics {
             const intMod = window[modName];
             clearInterval(interval);
 
-            logger.debug(modName, " dynamically loaded integration SDK");
+            // logger.debug(modName, " dynamically loaded integration SDK")
 
             let intgInstance;
             try {
-              logger.debug(
-                modName,
-                " [Analytics] processResponse :: trying to initialize integration ::"
-              );
+              // logger.debug(
+              //   modName,
+              //   " [Analytics] processResponse :: trying to initialize integration ::"
+              // );
               intgInstance = new intMod[modName](intg.config, self);
               intgInstance.init();
 
-              logger.debug(modName, " initializing destination");
+              // logger.debug(modName, " initializing destination")
 
               self.isInitialized(intgInstance).then(() => {
-                logger.debug(modName, " module init sequence complete");
+                // logger.debug(modName, " module init sequence complete")
                 self.dynamicallyLoadedIntegrations[modName] = intMod[modName];
               });
             } catch (e) {
@@ -261,15 +261,23 @@ class Analytics {
       });
     } catch (error) {
       handleError(error);
-      logger.debug("===handling config BE response processing error===");
-      logger.debug(
-        "autoTrackHandlersRegistered",
-        this.autoTrackHandlersRegistered
-      );
-      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(this);
-        this.autoTrackHandlersRegistered = true;
-      }
+      // logger.debug("===handling config BE response processing error===")
+      // logger.debug(
+      //   "autoTrackHandlersRegistered",
+      //   this.autoTrackHandlersRegistered
+      // );
+      this.registerAutoTrackHandlers();
+    }
+  }
+
+  registerAutoTrackHandlers() {
+    if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
+      addDomEventHandlers(this);
+      this.autoTrackHandlersRegistered = true;
+      // logger.debug(
+      //   "autoTrackHandlersRegistered",
+      //   this.autoTrackHandlersRegistered
+      // );
     }
   }
 
@@ -281,35 +289,35 @@ class Analytics {
         object.clientIntegrations.length &&
       !object.areEventsReplayed
     ) {
-      logger.debug(
-        "===replay events called====",
-        " successfully loaded count: ",
-        object.successfullyLoadedIntegration.length,
-        " failed loaded count: ",
-        object.failedToBeLoadedIntegration.length
-      );
+      // logger.debug(
+      //   "===replay events called====",
+      //   " successfully loaded count: ",
+      //   object.successfullyLoadedIntegration.length,
+      //   " failed loaded count: ",
+      //   object.failedToBeLoadedIntegration.length
+      // );
       // eslint-disable-next-line no-param-reassign
       object.clientIntegrationObjects = [];
       // eslint-disable-next-line no-param-reassign
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
 
-      logger.debug(
-        "==registering after callback===",
-        " after to be called after count : ",
-        object.clientIntegrationObjects.length
-      );
+      // logger.debug(
+      //   "==registering after callback===",
+      //   " after to be called after count : ",
+      //   object.clientIntegrationObjects.length
+      // );
       object.executeReadyCallback = after(
         object.clientIntegrationObjects.length,
         object.readyCallback
       );
 
-      logger.debug("==registering ready callback===");
+      // logger.debug("==registering ready callback===")
       object.on("ready", object.executeReadyCallback);
 
       object.clientIntegrationObjects.forEach((intg) => {
-        logger.debug("===looping over each successful integration====");
+        // logger.debug("===looping over each successful integration====")
         if (!intg.isReady || intg.isReady()) {
-          logger.debug("===letting know I am ready=====", intg.name);
+          // logger.debug("===letting know I am ready=====", intg.name)
           object.emit("ready");
         }
       });
@@ -380,18 +388,18 @@ class Analytics {
   isInitialized(instance, time = 0) {
     return new Promise((resolve) => {
       if (instance.isLoaded()) {
-        logger.debug("===integration loaded successfully====", instance.name);
+        // logger.debug("===integration loaded successfully====", instance.name)
         this.successfullyLoadedIntegration.push(instance);
         return resolve(this);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
-        logger.debug("====max wait over====");
+        // logger.debug("====max wait over====")
         this.failedToBeLoadedIntegration.push(instance);
         return resolve(this);
       }
 
       return this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        logger.debug("====after pause, again checking====");
+        // logger.debug("====after pause, again checking====")
         return this.isInitialized(
           instance,
           time + INTEGRATION_LOAD_CHECK_INTERVAL
@@ -699,7 +707,7 @@ class Analytics {
         ...this.userTraits,
       };
 
-      logger.debug("anonymousId: ", this.anonymousId);
+      // logger.debug("anonymousId: ", this.anonymousId)
       rudderElement.message.anonymousId = this.anonymousId;
       rudderElement.message.userId = rudderElement.message.userId
         ? rudderElement.message.userId
@@ -717,7 +725,7 @@ class Analytics {
       }
 
       this.processOptionsParam(rudderElement, options);
-      logger.debug(JSON.stringify(rudderElement));
+      // logger.debug(JSON.stringify(rudderElement))
 
       // check for reserved keys and log
       checkReservedKeywords(rudderElement.message, type);
@@ -754,7 +762,7 @@ class Analytics {
       // config plane native enabled destinations, still not completely loaded
       // in the page, add the events to a queue and process later
       if (!this.clientIntegrationObjects) {
-        logger.debug("pushing in replay queue");
+        // logger.debug("pushing in replay queue")
         // new event processing after analytics initialized  but integrations not fetched from BE
         this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
       }
@@ -765,7 +773,7 @@ class Analytics {
       // self analytics process, send to rudder
       this.eventRepository.enqueue(rudderElement, type);
 
-      logger.debug(`${type} is called `);
+      // logger.debug(`${type} is called `)
       if (callback) {
         callback();
       }
@@ -791,8 +799,8 @@ class Analytics {
 
   /**
    * process options parameter
-   * Apart from top level keys merge everyting under context
-   * context.page's default properties are overriden by same keys of
+   * Apart from top level keys merge everything under context
+   * context.page's default properties are overridden by same keys of
    * provided properties in case of page call
    *
    * @param {*} rudderElement
@@ -890,11 +898,11 @@ class Analytics {
   }
 
   /**
-   * Sets anonymous id in the followin precedence:
+   * Sets anonymous id in the following precedence:
    * 1. anonymousId: Id directly provided to the function.
    * 2. rudderAmpLinkerParm: value generated from linker query parm (rudderstack)
    *    using praseLinker util.
-   * 3. generateUUID: A new uniquie id is generated and assigned.
+   * 3. generateUUID: A new unique id is generated and assigned.
    *
    * @param {string} anonymousId
    * @param {string} rudderAmpLinkerParm
@@ -940,7 +948,7 @@ class Analytics {
    * @memberof Analytics
    */
   load(writeKey, serverUrl, options) {
-    logger.debug("inside load ");
+    // logger.debug("inside load ")
     if (this.loaded) return;
     let configUrl = CONFIG_URL;
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
@@ -1022,21 +1030,12 @@ class Analytics {
     }
     if (options && options.useAutoTracking) {
       this.autoTrackFeatureEnabled = true;
-      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(this);
-        this.autoTrackHandlersRegistered = true;
-        logger.debug(
-          "autoTrackHandlersRegistered",
-          this.autoTrackHandlersRegistered
-        );
-      }
+      this.registerAutoTrackHandlers();
     }
 
     function errorHandler(error) {
       handleError(error);
-      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(this);
-      }
+      this.registerAutoTrackHandlers();
     }
 
     if (options && options.cdnBaseURL) {
@@ -1149,11 +1148,11 @@ class Analytics {
 
     Object.keys(this.clientSuppliedCallbacks).forEach((methodName) => {
       if (this.clientSuppliedCallbacks.hasOwnProperty(methodName)) {
-        logger.debug(
-          "registerCallbacks",
-          methodName,
-          this.clientSuppliedCallbacks[methodName]
-        );
+        // logger.debug(
+        //   "registerCallbacks",
+        //   methodName,
+        //   this.clientSuppliedCallbacks[methodName]
+        // );
         this.on(methodName, this.clientSuppliedCallbacks[methodName]);
       }
     });
@@ -1220,7 +1219,7 @@ function processDataInAnalyticsArray(analytics) {
       const event = [...analytics.toBeProcessedArray[i]];
       const method = event[0];
       event.shift();
-      logger.debug("=====from analytics array, calling method:: ", method);
+      // logger.debug("=====from analytics array, calling method:: ", method)
       analytics[method](...event);
     }
 
@@ -1263,7 +1262,7 @@ if (
 ) {
   const method = argumentsArray[0][0];
   argumentsArray[0].shift();
-  logger.debug("=====from init, calling method:: ", method);
+  // logger.debug("=====from init, calling method:: ", method)
   instance[method](...argumentsArray[0]);
   argumentsArray.shift();
 }
