@@ -5,7 +5,7 @@ const ScriptLoader = (id, src) => {
   logger.debug(`in script loader=== ${id}`);
   const exists = document.getElementById(id);
   if (exists) {
-    logger.debug("script already loaded");
+    // logger.debug("script already loaded");
     return;
   }
   const js = document.createElement("script");
@@ -14,8 +14,8 @@ const ScriptLoader = (id, src) => {
   js.type = "text/javascript";
   js.id = id;
   const e = document.getElementsByTagName("script")[0];
-  logger.debug("==parent script==", e);
-  logger.debug("==adding script==", js);
+  // logger.debug("==parent script==", e);
+  // logger.debug("==adding script==", js);
   e.parentNode.insertBefore(js, e);
 };
 
