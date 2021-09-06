@@ -11,10 +11,8 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 import Emitter from "component-emitter";
-import after from "after";
-import querystring from "component-querystring";
+import { parse } from "component-querystring";
 import merge from "lodash.merge";
-import utm from "@segment/utm-params";
 import {
   getJSONTrimmed,
   generateUUID,
@@ -40,15 +38,10 @@ import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
-import { addDomEventHandlers } from "./utils/autotrack.js";
+import { addDomEventHandlers } from "./utils/autotrack";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
-import { configToIntNames } from "./config_to_integration_names.js";
-
-const queryDefaults = {
-  trait: "ajs_trait_",
-  prop: "ajs_prop_",
-};
+import { configToIntNames } from "./config_to_integration_names";
 
 /**
  * class responsible for handling core
@@ -306,21 +299,18 @@ class Analytics {
       //   " after to be called after count : ",
       //   object.clientIntegrationObjects.length
       // );
-      object.executeReadyCallback = after(
-        object.clientIntegrationObjects.length,
-        object.readyCallback
-      );
 
-      // logger.debug("==registering ready callback===")
-      object.on("ready", object.executeReadyCallback);
-
+      let readyIntgCount = 0;
       object.clientIntegrationObjects.forEach((intg) => {
         // logger.debug("===looping over each successful integration====")
         if (!intg.isReady || intg.isReady()) {
+          readyIntgCount += 1;
           // logger.debug("===letting know I am ready=====", intg.name)
-          object.emit("ready");
         }
       });
+
+      if (readyIntgCount == object.clientIntegrationObjects.length)
+        object.readyCallback();
 
       if (object.toBeProcessedByIntegrationArray.length > 0) {
         // send the queued events to the fetched integration
@@ -782,13 +772,38 @@ class Analytics {
     }
   }
 
+  utm(query) {
+    // Remove leading ? if present
+    if (query.charAt(0) === "?") {
+      query = query.substring(1);
+    }
+
+    query = query.replace(/\?/g, "&");
+
+    let param;
+    const params = parse(query);
+    const results = {};
+
+    for (const key in params) {
+      if (Object.prototype.hasOwnProperty.call(params, key)) {
+        if (key.substr(0, 4) === "utm_") {
+          param = key.substr(4);
+          if (param === "campaign") param = "name";
+          results[param] = params[key];
+        }
+      }
+    }
+
+    return results;
+  }
+
   /**
    * add campaign parsed details under context
    * @param {*} rudderElement
    */
   addCampaignInfo(rudderElement) {
     const { search } = getDefaultPageProperties();
-    const campaign = utm(search);
+    const campaign = this.utm(search);
     if (
       rudderElement.message.context &&
       typeof rudderElement.message.context === "object"
@@ -1170,6 +1185,11 @@ class Analytics {
    * @param {*} query
    */
   parseQueryString(query) {
+    const queryDefaults = {
+      trait: "ajs_trait_",
+      prop: "ajs_prop_",
+    };
+
     function getDataFromQueryObj(qObj, dataType) {
       const data = {};
       Object.keys(qObj).forEach((key) => {
@@ -1181,7 +1201,7 @@ class Analytics {
     }
 
     const returnObj = {};
-    const queryObject = querystring.parse(query);
+    const queryObject = parse(query);
     if (queryObject.ajs_uid) {
       returnObj.userId = queryObject.ajs_uid;
       returnObj.traits = getDataFromQueryObj(queryObject, queryDefaults.trait);

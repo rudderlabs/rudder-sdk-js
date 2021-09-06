@@ -242,20 +242,15 @@ function getRevenue(properties, eventName) {
   return getCurrency(revenue);
 }
 
-/**
- *
- *
- * @param {*} integrationObject
- */
-function transformToRudderNames(integrationObject) {
+function transformNamesCore(integrationObject, namesObj) {
   Object.keys(integrationObject).forEach((key) => {
     if (integrationObject.hasOwnProperty(key)) {
-      if (commonNames[key]) {
-        integrationObject[commonNames[key]] = integrationObject[key];
+      if (namesObj[key]) {
+        integrationObject[namesObj[key]] = integrationObject[key];
       }
       if (key != "All") {
         // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
-        if (commonNames[key] != undefined && commonNames[key] != key) {
+        if (namesObj[key] != undefined && namesObj[key] != key) {
           delete integrationObject[key];
         }
       }
@@ -263,23 +258,17 @@ function transformToRudderNames(integrationObject) {
   });
 }
 
+/**
+ *
+ *
+ * @param {*} integrationObject
+ */
+function transformToRudderNames(integrationObject) {
+  transformNamesCore(integrationObject, commonNames);
+}
+
 function transformToServerNames(integrationObject) {
-  Object.keys(integrationObject).forEach((key) => {
-    if (integrationObject.hasOwnProperty(key)) {
-      if (clientToServerNames[key]) {
-        integrationObject[clientToServerNames[key]] = integrationObject[key];
-      }
-      if (key != "All") {
-        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
-        if (
-          clientToServerNames[key] != undefined &&
-          clientToServerNames[key] != key
-        ) {
-          delete integrationObject[key];
-        }
-      }
-    }
-  });
+  transformNamesCore(integrationObject, clientToServerNames);
 }
 
 /**
@@ -307,9 +296,7 @@ function findAllEnabledDestinations(
     configPlaneEnabledIntegrations.forEach((intg) => {
       intgData[intg] = intg;
     });
-  }
-
-  if (typeof configPlaneEnabledIntegrations[0] === "object") {
+  } else if (typeof configPlaneEnabledIntegrations[0] === "object") {
     configPlaneEnabledIntegrations.forEach((intg) => {
       intgData[intg.name] = intg;
     });
@@ -417,17 +404,16 @@ function type(val) {
 
 function getUserProvidedConfigUrl(configUrl) {
   let url = configUrl;
-  if (configUrl.indexOf("sourceConfig") == -1) {
-    url = url.slice(-1) == "/" ? url.slice(0, -1) : url;
-    url = `${url}/sourceConfig/`;
+  if (url.indexOf("sourceConfig") === -1) {
+    url = `${stripTrailingSlashes(url)}/sourceConfig/`;
   }
-  url = url.slice(-1) == "/" ? url : `${url}/`;
-  if (url.indexOf("?") > -1) {
-    if (url.split("?")[1] !== CONFIG_URL.split("?")[1]) {
-      url = `${url.split("?")[0]}?${CONFIG_URL.split("?")[1]}`;
-    }
+  url = url.slice(-1) === "/" ? url : `${url}/`;
+  const defQueryParams = CONFIG_URL.split("?")[1];
+  const urlSplitItems = url.split("?");
+  if (urlSplitItems.length > 1 && urlSplitItems[1] !== defQueryParams) {
+    url = `${urlSplitItems[0]}?${defQueryParams}`;
   } else {
-    url = `${url}?${CONFIG_URL.split("?")[1]}`;
+    url = `${url}?${defQueryParams}`;
   }
   return url;
 }
@@ -440,7 +426,6 @@ function getUserProvidedConfigUrl(configUrl) {
 function checkReservedKeywords(message, messageType) {
   //  properties, traits, contextualTraits are either undefined or object
   const { properties, traits } = message;
-  const contextualTraits = message.context.traits;
   if (properties) {
     Object.keys(properties).forEach((property) => {
       if (ReservedPropertyKeywords.indexOf(property.toLowerCase()) >= 0) {
@@ -459,6 +444,7 @@ function checkReservedKeywords(message, messageType) {
       }
     });
   }
+  const contextualTraits = message.context.traits;
   if (contextualTraits) {
     Object.keys(contextualTraits).forEach((contextTrait) => {
       if (ReservedPropertyKeywords.indexOf(contextTrait.toLowerCase()) >= 0) {
@@ -472,7 +458,7 @@ function checkReservedKeywords(message, messageType) {
 
 /* ------- Start FlattenJson -----------
  * This function flatten given json object to single level.
- * So if there is nested object or array, all will apear in first level properties of an object.
+ * So if there is nested object or array, all will appear in first level properties of an object.
  * Following is case we are handling in this function ::
  * condition 1: String
  * condition 2: Array
