@@ -30,6 +30,20 @@
         "http://localhost:8080",
         { logLevel: "DEBUG" }
       );
+      rudderanalytics.identify("customUserID", {
+        name: "John Doe",
+        title: "CEO",
+        email: "name.surname@domain.com",
+        company: "Company123",
+        phone: "123-456-7890",
+        state: "Texas",
+        rating: "Hot",
+        city: "Austin",
+        postalCode: "12345",
+        country: "US",
+        street: "Sample Address",
+        state: "TX",
+      });
       rudderanalytics.page(
         "Home",
         "Cart Viewed",
