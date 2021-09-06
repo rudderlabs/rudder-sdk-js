@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test case 1</title>
+
+    <!-- Case 1: Customer uses rudderstack's CDN to load the SDK and the device mode integration -->
+
+    <script>
+      rudderanalytics = window.rudderanalytics = [];
+
+      var methods = [
+        "load",
+        "page",
+        "track",
+        "identify",
+        "alias",
+        "group",
+        "ready",
+        "reset",
+        "getAnonymousId",
+        "setAnonymousId",
+      ];
+
+      for (var i = 0; i < methods.length; i++) {
+        var method = methods[i];
+        rudderanalytics[method] = (function (methodName) {
+          return function () {
+            rudderanalytics.push(
+              [methodName].concat(Array.prototype.slice.call(arguments))
+            );
+          };
+        })(method);
+      }
+
+      rudderanalytics.load(
+        "1xXRrCtFweOR54PIyMRCLQfFjBN",
+        "http://localhost:8080/",
+        {
+          configUrl:
+            "https://api.dev.rudderlabs.com/sourceConfig/?p=web&v=1.1.18",
+        }
+      );
+    </script>
+
+    <!-- ============ V3 ============ -->
+    <script src="https://cdn.rudderlabs.com/v3/rudder-analytics.min.js"></script>
+  </head>
+
+  <body>
+    <div style="text-align: center">
+      <h2>
+        Case 1: Customer uses rudderstack's CDN to load the SDK and the device
+        mode integration
+      </h2>
+      <br />
+      <br />
+      <button onclick="myFunction()">Click me</button>
+
+      <p id="demo"></p>
+    </div>
+
+    <script>
+      function myFunction() {
+        document.getElementById("demo").innerHTML = "Hello World";
+        rudderanalytics.page();
+
+        rudderanalytics.identify(
+          "moumita123",
+          { email: "name@domain.com" },
+          {
+            page: {
+              path: "",
+              referrer: "",
+              search: "",
+              title: "",
+              url: "",
+            },
+          },
+          () => {
+            console.log("in identify call");
+          }
+        );
+        rudderanalytics.track(
+          "test track event GA3",
+          {
+            revenue: 30,
+            currency: "USD",
+            user_actual_id: 12345,
+          },
+          () => {
+            console.log("in track call");
+          }
+        );
+      }
+    </script>
+  </body>
+</html>
