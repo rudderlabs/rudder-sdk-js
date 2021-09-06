@@ -1,8 +1,8 @@
 /* eslint-disable no-use-before-define */
-import logger from "../utils/logUtil";
+// import logger from "../utils/logUtil";
 
 const ScriptLoader = (id, src) => {
-  logger.debug(`in script loader=== ${id}`);
+  // logger.debug(`in script loader=== ${id}`);
   const exists = document.getElementById(id);
   if (exists) {
     // logger.debug("script already loaded");
