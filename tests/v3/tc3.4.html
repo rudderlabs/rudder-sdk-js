@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test case 3(4)</title>
+
+    <!-- Case 3: Customer downloaded all the sdks and uploaded in their own CDN -->
+    <!-- Case 3.4: File names of integration SDKs modified -->
+
+    <script>
+      rudderanalytics = window.rudderanalytics = [];
+
+      var methods = [
+        "load",
+        "page",
+        "track",
+        "identify",
+        "alias",
+        "group",
+        "ready",
+        "reset",
+        "getAnonymousId",
+        "setAnonymousId",
+      ];
+
+      for (var i = 0; i < methods.length; i++) {
+        var method = methods[i];
+        rudderanalytics[method] = (function (methodName) {
+          return function () {
+            rudderanalytics.push(
+              [methodName].concat(Array.prototype.slice.call(arguments))
+            );
+          };
+        })(method);
+      }
+
+      rudderanalytics.load(
+        "1xXRrCtFweOR54PIyMRCLQfFjBN",
+        "http://localhost:8080/",
+        {
+          configUrl:
+            "https://api.dev.rudderlabs.com/sourceConfig/?p=web&v=1.1.18",
+          cdnBaseURL: "https://ddim5kcy73icz.cloudfront.net/v2/test/", //destination sdk name changed from GA.min.js to GAB.min.js
+        }
+      );
+    </script>
+
+    <!-- ============ Cuustomer's own CDN ============ -->
+    <!-- ============ SDK name remains same as  rudder-analytics.min.js ============ -->
+
+    <script src="https://ddim5kcy73icz.cloudfront.net/v2/rudder-analytics.min.js"></script>
+  </head>
+
+  <body>
+    <div style="text-align: center">
+      <h2>
+        Case 3: Customer downloaded all the sdks and uploaded in their own CDN
+      </h2>
+      <h3>
+        3.4: File names of integration SDKs modified(name changed from GA.min.js
+        to GAB.min.js)
+      </h3>
+      <br />
+      <br />
+      <button onclick="myFunction()">Click me</button>
+
+      <p id="demo"></p>
+    </div>
+
+    <script>
+      function myFunction() {
+        document.getElementById("demo").innerHTML = "Hello World";
+        rudderanalytics.page();
+
+        rudderanalytics.identify(
+          "moumita123",
+          { email: "name@domain.com" },
+          {
+            page: {
+              path: "",
+              referrer: "",
+              search: "",
+              title: "",
+              url: "",
+            },
+          },
+          () => {
+            console.log("in identify call");
+          }
+        );
+        rudderanalytics.track(
+          "test track event GA3",
+          {
+            revenue: 30,
+            currency: "USD",
+            user_actual_id: 12345,
+          },
+          () => {
+            console.log("in track call");
+          }
+        );
+      }
+    </script>
+  </body>
+</html>
