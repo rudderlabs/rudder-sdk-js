@@ -138,10 +138,12 @@ class EventRepository {
 
     const headers = {
       "Content-Type": "application/json",
-      Authorization: `Basic ${Buffer.from(`${this.writeKey}:`).toString(
-        "base64"
-      )}`,
-      AnonymousId: Buffer.from(message.anonymousId).toString("base64"),
+      Authorization: `Basic ${btoa(`${this.writeKey}:`)}`,
+      // Authorization: `Basic ${Buffer.from(`${this.writeKey}:`).toString(
+      //   "base64"
+      // )}`,
+      AnonymousId: btoa(message.anonymousId),
+      // AnonymousId: Buffer.from(message.anonymousId).toString("base64"),
     };
 
     // modify the url for event specific endpoints
