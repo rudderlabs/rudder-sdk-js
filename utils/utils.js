@@ -109,7 +109,10 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   const xhr = new XMLHttpRequest();
 
   xhr.open("GET", url, true);
-  xhr.setRequestHeader("Authorization", `Basic ${btoa(`${writeKey}:`)}`);
+  xhr.setRequestHeader(
+    "Authorization",
+    `Basic ${Buffer.from(`${writeKey}:`).toString("base64")}`
+  );
 
   xhr.onload = function () {
     const { status } = xhr;
