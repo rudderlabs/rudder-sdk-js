@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Test case 5</title>
+    <title>Test case 6</title>
 
-    <!-- Case 5: Customer downloaded the sdk and a few integrations (say GA) and uploaded in their own cdn. Later on added another(Amplitude) integration as device mode destination from the control plane but didn't upload the integration in their cdn. -->
+    <!-- Case 6: At least one of the intg. SDK load timed out. (network issue) -->
 
     <script>
       rudderanalytics = window.rudderanalytics = [];
@@ -41,7 +41,7 @@
         {
           configUrl:
             "https://api.dev.rudderlabs.com/sourceConfig/?p=web&v=1.1.18",
-          cdnBaseURL: "https://ddim5kcy73icz.cloudfront.net/v2/intg/", //destination sdk path
+          cdnBaseURL: "https://ddim5kcy73icz.cloudfront.net/v2/js-integrations",
         }
       );
     </script>
@@ -54,10 +54,7 @@
   <body>
     <div style="text-align: center">
       <h3>
-        Case 5: Customer downloaded the sdk and a few integrations (say GA) and
-        uploaded in their own cdn. Later on added another(say Amplitude)
-        integration as device mode destination from the control plane but didn't
-        upload the integration in their cdn.
+        Case 6: At least one of the intg. SDK load timed out. (network issue)
       </h3>
       <br />
       <br />
