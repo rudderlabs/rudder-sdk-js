@@ -41,7 +41,7 @@ import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
-import { configToIntNames } from "./config_to_integration_names";
+import { configToIntNames } from "./utils/config_to_integration_names";
 
 /**
  * class responsible for handling core
@@ -300,71 +300,62 @@ class Analytics {
       //   object.clientIntegrationObjects.length
       // );
 
-      let readyIntgCount = 0;
-      object.clientIntegrationObjects.forEach((intg) => {
-        // logger.debug("===looping over each successful integration====")
-        if (!intg.isReady || intg.isReady()) {
-          readyIntgCount += 1;
-          // logger.debug("===letting know I am ready=====", intg.name)
+      if (
+        object.clientIntegrationObjects.every(
+          (intg) => !intg.isReady || intg.isReady()
+        )
+      ) {
+        object.readyCallback();
+      }
+
+      // send the queued events to the fetched integration
+      object.toBeProcessedByIntegrationArray.forEach((event) => {
+        const methodName = event[0];
+        event.shift();
+
+        // convert common names to sdk identified name
+        if (Object.keys(event[0].message.integrations).length > 0) {
+          transformToRudderNames(event[0].message.integrations);
+        }
+
+        // if not specified at event level, All: true is default
+        const clientSuppliedIntegrations = event[0].message.integrations;
+
+        // get intersection between config plane native enabled destinations
+        // (which were able to successfully load on the page) vs user supplied integrations
+        const succesfulLoadedIntersectClientSuppliedIntegrations =
+          findAllEnabledDestinations(
+            clientSuppliedIntegrations,
+            object.clientIntegrationObjects
+          );
+
+        // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
+        for (
+          let i = 0;
+          i < succesfulLoadedIntersectClientSuppliedIntegrations.length;
+          i += 1
+        ) {
+          try {
+            if (
+              !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
+              !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
+            ) {
+              if (
+                succesfulLoadedIntersectClientSuppliedIntegrations[i][
+                  methodName
+                ]
+              ) {
+                succesfulLoadedIntersectClientSuppliedIntegrations[i][
+                  methodName
+                ](...event);
+              }
+            }
+          } catch (error) {
+            handleError(error);
+          }
         }
       });
-
-      if (readyIntgCount == object.clientIntegrationObjects.length)
-        object.readyCallback();
-
-      if (object.toBeProcessedByIntegrationArray.length > 0) {
-        // send the queued events to the fetched integration
-        object.toBeProcessedByIntegrationArray.forEach((event) => {
-          const methodName = event[0];
-          event.shift();
-
-          // convert common names to sdk identified name
-          if (Object.keys(event[0].message.integrations).length > 0) {
-            transformToRudderNames(event[0].message.integrations);
-          }
-
-          // if not specified at event level, All: true is default
-          const clientSuppliedIntegrations = event[0].message.integrations;
-
-          // get intersection between config plane native enabled destinations
-          // (which were able to successfully load on the page) vs user supplied integrations
-          const succesfulLoadedIntersectClientSuppliedIntegrations =
-            findAllEnabledDestinations(
-              clientSuppliedIntegrations,
-              object.clientIntegrationObjects
-            );
-
-          // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-          for (
-            let i = 0;
-            i < succesfulLoadedIntersectClientSuppliedIntegrations.length;
-            i += 1
-          ) {
-            try {
-              if (
-                !succesfulLoadedIntersectClientSuppliedIntegrations[i]
-                  .isFailed ||
-                !succesfulLoadedIntersectClientSuppliedIntegrations[
-                  i
-                ].isFailed()
-              ) {
-                if (
-                  succesfulLoadedIntersectClientSuppliedIntegrations[i][
-                    methodName
-                  ]
-                ) {
-                  succesfulLoadedIntersectClientSuppliedIntegrations[i][
-                    methodName
-                  ](...event);
-                }
-              }
-            } catch (error) {
-              handleError(error);
-            }
-          }
-        });
-        object.toBeProcessedByIntegrationArray = [];
-      }
+      object.toBeProcessedByIntegrationArray = [];
       object.areEventsReplayed = true;
     }
   }
@@ -574,11 +565,7 @@ class Analytics {
     if (event) {
       rudderElement.setEventName(event);
     }
-    if (properties) {
-      rudderElement.setProperty(properties);
-    } else {
-      rudderElement.setProperty({});
-    }
+    rudderElement.setProperty(properties || {});
     this.trackEvent(rudderElement, options, callback);
   }
 
@@ -598,16 +585,15 @@ class Analytics {
     this.userId = userId;
     this.storage.setUserId(this.userId);
 
-    const rudderElement = new RudderElementBuilder()
-      .setType("identify")
-      .build();
     if (traits) {
       for (const key in traits) {
         this.userTraits[key] = traits[key];
       }
       this.storage.setUserTraits(this.userTraits);
     }
-
+    const rudderElement = new RudderElementBuilder()
+      .setType("identify")
+      .build();
     this.identifyUser(rudderElement, options, callback);
   }
 
@@ -721,33 +707,7 @@ class Analytics {
       checkReservedKeywords(rudderElement.message, type);
 
       // structure user supplied integrations object to rudder format
-      if (Object.keys(rudderElement.message.integrations).length > 0) {
-        transformToRudderNames(rudderElement.message.integrations);
-      }
-
-      // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = rudderElement.message.integrations;
-
-      // get intersection between config plane native enabled destinations
-      // (which were able to successfully load on the page) vs user supplied integrations
-      const succesfulLoadedIntersectClientSuppliedIntegrations =
-        findAllEnabledDestinations(
-          clientSuppliedIntegrations,
-          this.clientIntegrationObjects
-        );
-
-      // try to first send to all integrations, if list populated from BE
-      try {
-        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
-          if (!obj.isFailed || !obj.isFailed()) {
-            if (obj[type]) {
-              obj[type](rudderElement);
-            }
-          }
-        });
-      } catch (err) {
-        handleError({ message: `[sendToNative]:${err}` });
-      }
+      transformToRudderNames(rudderElement.message.integrations);
 
       // config plane native enabled destinations, still not completely loaded
       // in the page, add the events to a queue and process later
@@ -755,6 +715,30 @@ class Analytics {
         // logger.debug("pushing in replay queue")
         // new event processing after analytics initialized  but integrations not fetched from BE
         this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
+      } else {
+        // if not specified at event level, All: true is default
+        const clientSuppliedIntegrations = rudderElement.message.integrations;
+
+        // get intersection between config plane native enabled destinations
+        // (which were able to successfully load on the page) vs user supplied integrations
+        const succesfulLoadedIntersectClientSuppliedIntegrations =
+          findAllEnabledDestinations(
+            clientSuppliedIntegrations,
+            this.clientIntegrationObjects
+          );
+
+        // try to first send to all integrations, if list populated from BE
+        try {
+          succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+            if (!obj.isFailed || !obj.isFailed()) {
+              if (obj[type]) {
+                obj[type](rudderElement);
+              }
+            }
+          });
+        } catch (err) {
+          handleError({ message: `[sendToNative]:${err}` });
+        }
       }
 
       // convert integrations object to server identified names, kind of hack now!
@@ -802,13 +786,10 @@ class Analytics {
    * @param {*} rudderElement
    */
   addCampaignInfo(rudderElement) {
-    const { search } = getDefaultPageProperties();
-    const campaign = this.utm(search);
-    if (
-      rudderElement.message.context &&
-      typeof rudderElement.message.context === "object"
-    ) {
-      rudderElement.message.context.campaign = campaign;
+    const msgContext = rudderElement.message.context;
+    if (msgContext && typeof msgContext === "object") {
+      const { search } = getDefaultPageProperties();
+      rudderElement.message.context.campaign = this.utm(search);
     }
   }
 
@@ -828,10 +809,9 @@ class Analytics {
     this.addCampaignInfo(rudderElement);
 
     // assign page properties to context.page
-    rudderElement.message.context.page =
-      type == "page"
-        ? this.getContextPageProperties(properties)
-        : this.getContextPageProperties();
+    rudderElement.message.context.page = this.getContextPageProperties(
+      type === "page" ? properties : undefined
+    );
 
     const topLevelElements = [
       "integrations",
@@ -965,11 +945,10 @@ class Analytics {
   load(writeKey, serverUrl, options) {
     // logger.debug("inside load ")
     if (this.loaded) return;
-    let configUrl = CONFIG_URL;
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
       handleError({
         message:
-          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl",
+          "[Analytics] load:: Unable to load due to invalid writeKey or serverUrl",
       });
       throw Error("failed to initialize");
     }
@@ -983,16 +962,16 @@ class Analytics {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       transformToRudderNames(this.loadOnlyIntegrations);
     }
-    if (options && options.configUrl) {
-      configUrl = getUserProvidedConfigUrl(options.configUrl);
-    }
+
     if (options && options.sendAdblockPage) {
       this.sendAdblockPage = true;
     }
-    if (options && options.sendAdblockPageOptions) {
-      if (typeof options.sendAdblockPageOptions === "object") {
-        this.sendAdblockPageOptions = options.sendAdblockPageOptions;
-      }
+    if (
+      options &&
+      options.sendAdblockPageOptions &&
+      typeof options.sendAdblockPageOptions === "object"
+    ) {
+      this.sendAdblockPageOptions = options.sendAdblockPageOptions;
     }
     if (options && options.clientSuppliedCallbacks) {
       // convert to rudder recognized method names
@@ -1015,11 +994,13 @@ class Analytics {
       this.registerCallbacks(true);
     }
 
+    this.eventRepository.url = serverUrl;
+    this.eventRepository.writeKey = writeKey;
     if (
       options &&
       options.queueOptions &&
       options.queueOptions != null &&
-      typeof options.queueOptions == "object"
+      typeof options.queueOptions === "object"
     ) {
       this.eventRepository.startQueue(options.queueOptions);
     } else {
@@ -1029,9 +1010,6 @@ class Analytics {
     if (options && options.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
     }
-
-    this.eventRepository.writeKey = writeKey;
-    this.eventRepository.url = serverUrl;
 
     this.initializeUser();
     this.setInitialPageProperties();
@@ -1102,6 +1080,11 @@ class Analytics {
         processDataInAnalyticsArray(this);
       }
       return;
+    }
+
+    let configUrl = CONFIG_URL;
+    if (options && options.configUrl) {
+      configUrl = getUserProvidedConfigUrl(options.configUrl);
     }
 
     try {

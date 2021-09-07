@@ -3,8 +3,8 @@ import { parse } from "component-url";
 import get from "get-value";
 import set from "set-value";
 import logger from "./logUtil";
-import { commonNames } from "../integrations/integration_cname";
-import { clientToServerNames } from "../integrations/client_server_name";
+import { commonNames } from "./integration_cname";
+import { clientToServerNames } from "./client_server_name";
 import { CONFIG_URL, ReservedPropertyKeywords } from "./constants";
 import Storage from "./storage";
 
@@ -109,7 +109,11 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   const xhr = new XMLHttpRequest();
 
   xhr.open("GET", url, true);
-  xhr.setRequestHeader("Authorization", `Basic ${btoa(`${writeKey}:`)}`);
+  xhr.setRequestHeader(
+    "Authorization",
+    `Basic ${btoa(`${writeKey}:`)}`
+    // `Basic ${Buffer.from(`${writeKey}:`).toString("base64")}`
+  );
 
   xhr.onload = function () {
     const { status } = xhr;
