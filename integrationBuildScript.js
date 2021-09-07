@@ -1,6 +1,6 @@
 import { execSync } from "child_process";
 import logger from "./utils/logUtil";
-import { configToIntNames } from "./config_to_integration_names";
+import { configToIntNames } from "./utils/config_to_integration_names";
 
 logger.setLogLevel("DEBUG");
 const intgNamesArr = Object.values(configToIntNames);
