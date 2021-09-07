@@ -41,7 +41,7 @@ import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
-import { configToIntNames } from "./config_to_integration_names";
+import { configToIntNames } from "./utils/config_to_integration_names";
 
 /**
  * class responsible for handling core
