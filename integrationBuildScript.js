@@ -5,6 +5,7 @@ import { configToIntNames } from "./utils/config_to_integration_names";
 logger.setLogLevel("DEBUG");
 const intgNamesArr = Object.values(configToIntNames);
 let curInt = 1;
+let errCount = 0;
 intgNamesArr.forEach((intgName) => {
   try {
     logger.debug(
@@ -17,8 +18,12 @@ intgNamesArr.forEach((intgName) => {
     logger.debug("Done!");
     logger.info("Command output: ", cmdOutput);
   } catch (err) {
+    errCount += 1;
     logger.error(`${intgName} build failed!!!`);
     logger.error("ERROR: ", err);
   }
   curInt += 1;
 });
+logger.debug(
+  `Summary: ${errCount} of ${intgNamesArr.length} integration builds failed`
+);
