@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Test case 3(2)</title>
+    <title>Test case 2(2)</title>
 
-    <!-- Case 3: Customer downloaded all the sdks and uploaded in their own CDN -->
-    <!-- Case 3.2: Core SDK file name changed -->
+    <!-- Case 2: Customer forwards SDKs CDN -->
+    <!-- Case 2.2: Forwards core + intg. SDKs. (whole /v3 folder is forwarded) -->
 
     <script>
       rudderanalytics = window.rudderanalytics = [];
@@ -42,26 +42,18 @@
         {
           configUrl:
             "https://api.dev.rudderlabs.com/sourceConfig/?p=web&v=1.1.18",
-          //   cdnBaseURL:
-          // "https://ddim5kcy73icz.cloudfront.net/v2/js-integrations/", //path to destination sdks
         }
       );
     </script>
 
-    <!-- ============ Cuustomer's own CDN ============ -->
-    <!-- ============ SDK name changed from rudder-analytics.min.js to custom-analytics.min.js ============ -->
-    <script src="https://ddim5kcy73icz.cloudfront.net/v2/custom-analytics.min.js"></script>
+    <!-- ============ Customer CDN forwarding d3939rm5up60zi.cloudfront.net: cdn.rudderlabs.com/v3/ ============ -->
+    <script src="https://d3939rm5up60zi.cloudfront.net/rudder-analytics.min.js"></script>
   </head>
 
   <body>
     <div style="text-align: center">
-      <h2>
-        Case 3: Customer downloaded all the sdks and uploaded in their own CDN
-      </h2>
-      <h3>
-        3.2: Core SDK file name changed(from rudder-analytics.min.js to
-        custom-analytics.min.js)
-      </h3>
+      <h2>Case 2: Customer forwards SDKs CDN</h2>
+      <h3>Forwards core + intg. SDKs. (whole /v3 folder is forwarded)</h3>
       <br />
       <br />
       <button onclick="myFunction()">Click me</button>

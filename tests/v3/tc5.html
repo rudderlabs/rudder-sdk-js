@@ -4,10 +4,9 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Test case 3(2)</title>
+    <title>Test case 5</title>
 
-    <!-- Case 3: Customer downloaded all the sdks and uploaded in their own CDN -->
-    <!-- Case 3.2: Core SDK file name changed -->
+    <!-- Case 5: Customer downloaded the sdk and a few integrations (say GA) and uploaded in their own cdn. Later on added another(Amplitude) integration as device mode destination from the control plane but didn't upload the integration in their cdn. -->
 
     <script>
       rudderanalytics = window.rudderanalytics = [];
@@ -42,25 +41,23 @@
         {
           configUrl:
             "https://api.dev.rudderlabs.com/sourceConfig/?p=web&v=1.1.18",
-          //   cdnBaseURL:
-          // "https://ddim5kcy73icz.cloudfront.net/v2/js-integrations/", //path to destination sdks
+          cdnBaseURL: "https://ddim5kcy73icz.cloudfront.net/v2/intg/", //destination sdk path
         }
       );
     </script>
 
     <!-- ============ Cuustomer's own CDN ============ -->
-    <!-- ============ SDK name changed from rudder-analytics.min.js to custom-analytics.min.js ============ -->
-    <script src="https://ddim5kcy73icz.cloudfront.net/v2/custom-analytics.min.js"></script>
+
+    <script src="https://ddim5kcy73icz.cloudfront.net/v2/rudder-analytics.min.js"></script>
   </head>
 
   <body>
     <div style="text-align: center">
-      <h2>
-        Case 3: Customer downloaded all the sdks and uploaded in their own CDN
-      </h2>
       <h3>
-        3.2: Core SDK file name changed(from rudder-analytics.min.js to
-        custom-analytics.min.js)
+        Case 5: Customer downloaded the sdk and a few integrations (say GA) and
+        uploaded in their own cdn. Later on added another(say Amplitude)
+        integration as device mode destination from the control plane but didn't
+        upload the integration in their cdn.
       </h3>
       <br />
       <br />

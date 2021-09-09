@@ -31,7 +31,7 @@ import {
   CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-  CDN_BASE_URL,
+  DEST_SDK_BASE_URL,
   CDN_INT_DIR,
 } from "./utils/constants";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -76,7 +76,7 @@ class Analytics {
     this.loaded = false;
     this.loadIntegration = true;
     this.dynamicallyLoadedIntegrations = {};
-    this.intCdnBaseURL = CDN_BASE_URL;
+    this.destSDKBaseURL = DEST_SDK_BASE_URL;
   }
 
   /**
@@ -181,7 +181,7 @@ class Analytics {
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
         const modName = configToIntNames[intg.name];
-        const modURL = `${this.intCdnBaseURL}/${modName}.min.js`;
+        const modURL = `${this.destSDKBaseURL}/${modName}.min.js`;
         if (!window.hasOwnProperty(modName)) {
           ScriptLoader(modName, modURL);
         }
@@ -1005,9 +1005,9 @@ class Analytics {
       handleError(error);
     }
 
-    if (options && options.cdnBaseURL) {
-      this.intCdnBaseURL = stripTrailingSlashes(options.cdnBaseURL);
-      if (!this.intCdnBaseURL) {
+    if (options && options.destSDKBaseURL) {
+      this.destSDKBaseURL = stripTrailingSlashes(options.destSDKBaseURL);
+      if (!this.destSDKBaseURL) {
         handleError({
           message: "[Analytics] load:: CDN base URL is not valid",
         });
@@ -1026,7 +1026,7 @@ class Analytics {
           (curScriptSrc.endsWith("rudder-analytics.min.js") ||
             curScriptSrc.endsWith("rudder-analytics.js"))
         ) {
-          this.intCdnBaseURL = curScriptSrc
+          this.destSDKBaseURL = curScriptSrc
             .split("/")
             .slice(0, -1)
             .concat(CDN_INT_DIR)

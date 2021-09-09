@@ -68,7 +68,7 @@ const ECommerceEvents = {
 const CONFIG_URL =
   "https://api.rudderlabs.com/sourceConfig/?p=process.module_type&v=process.package_version";
 const CDN_INT_DIR = "js-integrations";
-const CDN_BASE_URL = `https://cdn.rudderlabs.com/v3/${CDN_INT_DIR}`;
+const DEST_SDK_BASE_URL = `https://cdn.rudderlabs.com/v3/${CDN_INT_DIR}`;
 
 const MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
 const INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
@@ -78,8 +78,8 @@ export {
   ECommerceParamNames,
   ECommerceEvents,
   CONFIG_URL,
-  CDN_BASE_URL,
   CDN_INT_DIR,
+  DEST_SDK_BASE_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
 };
