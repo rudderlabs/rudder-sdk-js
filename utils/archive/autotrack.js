@@ -1,5 +1,5 @@
-import { getDefaultPageProperties } from "./utils";
-import logger from "./logUtil";
+import { getDefaultPageProperties } from "../utils";
+import logger from "../logUtil";
 
 function registerEvent(element, type, handler, useCapture) {
   if (!element) {
