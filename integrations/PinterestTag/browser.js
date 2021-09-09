@@ -4,6 +4,7 @@ import {
   eventMapping,
   searchPropertyMapping,
   productPropertyMapping,
+  propertyMapping,
   pinterestPropertySupport,
 } from "./propertyMappingConfig";
 import {
@@ -103,8 +104,15 @@ export default class PinterestTag {
   getRawPayload(properties) {
     const data = {};
     Object.keys(properties).forEach((p) => {
-      if (pinterestPropertySupport.includes(p)) {
-        data[p] = properties[p];
+      let destKey;
+      const foundMapping = propertyMapping.find((i) => i.src === p);
+      if (foundMapping) {
+        destKey = foundMapping.dest;
+      } else {
+        destKey = p;
+      }
+      if (pinterestPropertySupport.includes(destKey)) {
+        data[destKey] = properties[p];
       }
     });
     // This logic maps rudder query to search_query for Products Searched events

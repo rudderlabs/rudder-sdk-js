@@ -26,6 +26,10 @@ const productPropertyMapping = [
   { src: "brand", dest: "product_brand" },
 ];
 
+const propertyMapping = [
+  { src: "revenue", dest: "value" }
+]
+
 const pinterestPropertySupport = [
   "value",
   "order_quantity",
@@ -50,5 +54,6 @@ export {
   eventMapping,
   searchPropertyMapping,
   productPropertyMapping,
+  propertyMapping,
   pinterestPropertySupport,
 };
