@@ -38,7 +38,6 @@ import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
-import { addDomEventHandlers } from "./utils/autotrack";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import { configToIntNames } from "./utils/config_to_integration_names";
@@ -53,8 +52,6 @@ class Analytics {
    * @memberof Analytics
    */
   constructor() {
-    this.autoTrackHandlersRegistered = false;
-    this.autoTrackFeatureEnabled = false;
     this.initialized = false;
     this.areEventsReplayed = false;
     this.trackValues = [];
@@ -159,12 +156,8 @@ class Analytics {
       if (typeof response === "string") {
         response = JSON.parse(response);
       }
-      if (
-        response.source.useAutoTracking &&
-        !this.autoTrackHandlersRegistered
-      ) {
-        this.autoTrackFeatureEnabled = true;
-        this.registerAutoTrackHandlers();
+      if (response.source.useAutoTracking) {
+        logger.error("Autotrack feature has been deprecated");
       }
       response.source.destinations.forEach(function (destination, index) {
         // logger.debug(
@@ -254,23 +247,6 @@ class Analytics {
       });
     } catch (error) {
       handleError(error);
-      // logger.debug("===handling config BE response processing error===")
-      // logger.debug(
-      //   "autoTrackHandlersRegistered",
-      //   this.autoTrackHandlersRegistered
-      // );
-      this.registerAutoTrackHandlers();
-    }
-  }
-
-  registerAutoTrackHandlers() {
-    if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-      addDomEventHandlers(this);
-      this.autoTrackHandlersRegistered = true;
-      // logger.debug(
-      //   "autoTrackHandlersRegistered",
-      //   this.autoTrackHandlersRegistered
-      // );
     }
   }
 
@@ -1022,13 +998,11 @@ class Analytics {
       this.trackValues = options.valTrackingList;
     }
     if (options && options.useAutoTracking) {
-      this.autoTrackFeatureEnabled = true;
-      this.registerAutoTrackHandlers();
+      logger.error("Autotrack feature has been deprecated");
     }
 
     function errorHandler(error) {
       handleError(error);
-      this.registerAutoTrackHandlers();
     }
 
     if (options && options.destSDKBaseURL) {
