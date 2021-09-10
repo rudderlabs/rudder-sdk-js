@@ -37,6 +37,7 @@ import * as Criteo from "./Criteo";
 import * as Mixpanel from "./Mixpanel";
 import * as Qualtrics from "./Qualtrics";
 import * as SnapPixel from "./SnapPixel";
+import * as ProfitWell from "./ProfitWell";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -81,6 +82,7 @@ const integrations = {
   MP: Mixpanel.default,
   QUALTRICS: Qualtrics.default,
   SNAP_PIXEL: SnapPixel.default,
+  PROFITWELL: ProfitWell.default,
 };
 
 export { integrations };
