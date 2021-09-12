@@ -460,9 +460,9 @@ class FacebookPixel {
         logger.error("No product array found");
       }
     } else {
-      console.log("inside custom");
+      logger.debug("inside custom");
       if (!standardTo[event.toLowerCase()] && !legacyTo[event.toLowerCase()]) {
-        console.log("inside custom not mapped");
+        logger.debug("inside custom not mapped");
         const payloadVal = this.buildPayLoad(rudderElement, false);
         payloadVal.value = revValue;
         window.fbq("trackSingleCustom", self.pixelId, event, payloadVal, {
