@@ -82,16 +82,20 @@ export default class PinterestTag {
    * @param {*} mappings
    * @returns Pinterest Products
    */
-  getMappingObject(properties, mappings) {
+  getMappingObject(properties, mappings, isPersist = false) {
     let pinterestObject = {};
     mappings.forEach((mapping) => {
-      Object.keys(properties).forEach((p) => {
-        pinterestObject = {
-          ...getDataFromSource(mapping.src, mapping.dest, p, properties),
-          ...pinterestObject,
-        };
-      });
-    });
+      pinterestObject = {
+        ...getDataFromSource(mapping.src, mapping.dest, properties),
+        ...pinterestObject,
+      };
+    })
+    if (isPersist) {
+      return {
+        ...pinterestObject,
+        ...properties
+      }
+    }
     return pinterestObject;
   }
 
@@ -103,16 +107,10 @@ export default class PinterestTag {
    */
   getRawPayload(properties) {
     const data = {};
-    Object.keys(properties).forEach((p) => {
-      let destKey;
-      const foundMapping = propertyMapping.find((i) => i.src === p);
-      if (foundMapping) {
-        destKey = foundMapping.dest;
-      } else {
-        destKey = p;
-      }
-      if (pinterestPropertySupport.includes(destKey)) {
-        data[destKey] = properties[p];
+    const mappedProps = this.getMappingObject(properties, propertyMapping, true)
+    Object.keys(mappedProps).forEach((p) => {
+      if (pinterestPropertySupport.includes(p)) {
+        data[p] = mappedProps[p];
       }
     });
     // This logic maps rudder query to search_query for Products Searched events

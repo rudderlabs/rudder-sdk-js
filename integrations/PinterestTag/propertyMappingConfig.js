@@ -17,7 +17,7 @@ const eventMapping = [
 const searchPropertyMapping = { src: "query", dest: "search_query" };
 
 const productPropertyMapping = [
-  { src: ["product_id", "sku"], dest: "product_id" },
+  { src: ["sku", "product_id"], dest: "product_id" },
   { src: "name", dest: "product_name" },
   { src: "price", dest: "product_price" },
   { src: "category", dest: "product_category" },
