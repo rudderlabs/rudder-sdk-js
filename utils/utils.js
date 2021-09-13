@@ -641,7 +641,7 @@ const getDataFromSource = (src, dest, properties) => {
           // return only if the value is valid.
           // else look for next possible source in precedence
           return data;
-        }       
+        }
       }
     }
   } else if (typeof src === "string") {
