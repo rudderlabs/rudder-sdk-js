@@ -113,6 +113,9 @@ const commonNames = {
   "Snap Pixel": "SNAP_PIXEL",
   "SNAP PIXEL": "SNAP_PIXEL",
   "snap pixel": "SNAP_PIXEL",
+  AWIN: "AWIN",
+  Awin: "AWIN",
+  awin: "AWIN",
 };
 
 export { commonNames };
