@@ -2,16 +2,24 @@
 import get from "get-value";
 import logger from "../../utils/logUtil";
 import Storage from "../../utils/storage";
-import { removeUndefinedAndNullValues } from "../utils/commonUtils";
+import { generateUUID } from "../../utils/utils";
 
 class ProfitWell {
   constructor(config) {
-    this.publicApiToken = config.publicApiToken;
+    this.publicApiKey = config.publicApiKey;
+    this.siteType = config.siteType;
     this.name = "ProfitWell";
   }
 
   init() {
     logger.debug("===In init ProfitWell===");
+
+    window.publicApiKey = this.publicApiKey;
+
+    const scriptTag = document.createElement("script");
+    scriptTag.setAttribute("id", "profitwell-js");
+    scriptTag.setAttribute("data-pw-auth", window.publicApiKey);
+    document.body.appendChild(scriptTag);
 
     (function (i, s, o, g, r, a, m) {
       i[o] =
@@ -22,10 +30,7 @@ class ProfitWell {
       a = s.createElement(g);
       m = s.getElementsByTagName(g)[0];
       a.async = 1;
-      a.src =
-        r +
-        "?auth=" +
-        s.getElementById(o + "-js").getAttribute(this.publicApiToken);
+      a.src = r + "?auth=" + window.publicApiKey;
       m.parentNode.insertBefore(a, m);
     })(
       window,
@@ -35,28 +40,27 @@ class ProfitWell {
       "https://public.profitwell.com/js/profitwell.js"
     );
 
-    const cookieData = Storage.getUserTraits();
+    const userId = generateUUID().toString();
+    if (this.siteType === "marketing") {
+      window.profitwell("start", { user_id: userId });
+      return;
+    }
 
-    let payload = {
-      user_email: cookieData.email,
-      user_id: cookieData.userId,
-    };
+    const cookieUserId = Storage.getUserId();
+    const cookieEmail = Storage.getUserTraits().email;
 
-    if (!payload.user_email && !payload.user_id) {
+    if (!cookieUserId && !cookieEmail) {
       logger.debug(
-        "User parameter (email or id) not found in cookie. identify is required"
+        "User parameter (email or id) not found in cookie. Identify is required"
       );
       return;
     }
 
-    if (payload.user_email) {
-      delete payload.user_id;
+    if (cookieUserId) {
+      window.profitwell("start", { user_id: cookieUserId });
     } else {
-      delete payload.user_email;
+      window.profitwell("start", { user_email: cookieEmail });
     }
-
-    payload = removeUndefinedAndNullValues(payload);
-    window.profitwell("start", payload);
   }
 
   isLoaded() {
@@ -75,22 +79,20 @@ class ProfitWell {
     const { message } = rudderElement;
 
     let payload = {
-      user_email: get(message, "context.traits.email"),
-      user_id: get(message, "context.userId"),
+      user_id: get(message, "userId"),
     };
 
-    if (!payload.user_email && !payload.user_id) {
+    if (!payload.user_id) {
+      payload = {
+        user_email: get(message, "context.traits.email"),
+      };
+    }
+
+    if (!payload.user_id && !payload.user_email) {
       logger.error("User parameter (email or id) is required");
       return;
     }
 
-    if (payload.user_email) {
-      delete payload.user_id;
-    } else {
-      delete payload.user_email;
-    }
-
-    payload = removeUndefinedAndNullValues(payload);
     window.profitwell("start", payload);
   }
 }
