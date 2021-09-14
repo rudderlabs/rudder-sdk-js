@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
 import logger from "../../utils/logUtil";
-import Storage from "../../utils/storage";
 import { generateUUID } from "../../utils/utils";
 
 class ProfitWell {
@@ -13,6 +12,11 @@ class ProfitWell {
 
   init() {
     logger.debug("===In init ProfitWell===");
+
+    if (!this.publicApiKey) {
+      logger.error("Public API Key not found!");
+      return;
+    }
 
     window.publicApiKey = this.publicApiKey;
 
@@ -42,23 +46,6 @@ class ProfitWell {
 
     if (this.siteType === "marketing") {
       window.profitwell("start", { user_id: generateUUID().toString() });
-      return;
-    }
-
-    const cookieUserId = Storage.getUserId();
-    const cookieEmail = Storage.getUserTraits().email;
-
-    if (!cookieUserId && !cookieEmail) {
-      logger.debug(
-        "User parameter (email or id) not found in cookie. Identify is required"
-      );
-      return;
-    }
-
-    if (cookieUserId) {
-      window.profitwell("start", { user_id: cookieUserId });
-    } else {
-      window.profitwell("start", { user_email: cookieEmail });
     }
   }
 
@@ -78,18 +65,13 @@ class ProfitWell {
     const { message } = rudderElement;
 
     let payload = {
-      user_id: get(message, "userId"),
+      user_email: get(message, "context.traits.email"),
     };
 
-    if (!payload.user_id) {
+    if (!payload.email) {
       payload = {
-        user_email: get(message, "context.traits.email"),
+        user_id: get(message, "anonymousId"),
       };
-    }
-
-    if (!payload.user_id && !payload.user_email) {
-      logger.error("User parameter (email or id) is required");
-      return;
     }
 
     window.profitwell("start", payload);
