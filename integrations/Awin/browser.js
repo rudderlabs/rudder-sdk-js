@@ -50,6 +50,15 @@ class Awin {
     script.innerText = window.AWIN;
     document.getElementsByTagName("body")[0].appendChild(script);
   }
+
+  isLoaded() {
+    logger.debug("in Awin isLoaded");
+    return true;
+  }
+
+  isReady() {
+    return true;
+  }
 }
 
 export default Awin;
