@@ -49,3 +49,5 @@ class Awin {
     document.getElementsByTagName("body")[0].appendChild(script);
   }
 }
+
+export default Awin;
