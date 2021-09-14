@@ -14,7 +14,7 @@ class ProfitWell {
     logger.debug("===In init ProfitWell===");
 
     if (!this.publicApiKey) {
-      logger.error("Public API Key not found!");
+      logger.error("Public API Key not found");
       return;
     }
 
@@ -68,7 +68,7 @@ class ProfitWell {
       user_email: get(message, "context.traits.email"),
     };
 
-    if (!payload.email) {
+    if (!payload.user_email) {
       payload = {
         user_id: get(message, "anonymousId"),
       };
