@@ -15,7 +15,7 @@ class ProfitWell {
 
     if (!this.publicApiKey) {
       logger.error("Public API Key not found!");
-      throw new Error("Public API Key not found!");
+      return;
     }
 
     window.publicApiKey = this.publicApiKey;
