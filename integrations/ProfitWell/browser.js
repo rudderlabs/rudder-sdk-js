@@ -40,9 +40,8 @@ class ProfitWell {
       "https://public.profitwell.com/js/profitwell.js"
     );
 
-    const userId = generateUUID().toString();
     if (this.siteType === "marketing") {
-      window.profitwell("start", { user_id: userId });
+      window.profitwell("start", { user_id: generateUUID().toString() });
       return;
     }
 
