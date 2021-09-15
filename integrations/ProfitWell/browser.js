@@ -13,7 +13,7 @@ class ProfitWell {
     logger.debug("===In init ProfitWell===");
 
     if (!this.publicApiKey) {
-      logger.error("==[ProfitWell]: Public API Key not found===");
+      logger.debug("==[ProfitWell]: Public API Key not found===");
       return;
     }
 
@@ -79,7 +79,7 @@ class ProfitWell {
       return;
     }
 
-    logger.info("===[ProfitWell: email or userId is required for identify===");
+    logger.debug("===[ProfitWell: email or userId is required for identify===");
   }
 }
 
