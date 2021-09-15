@@ -42,10 +42,6 @@ class ProfitWell {
       "script",
       "https://public.profitwell.com/js/profitwell.js"
     );
-
-    if (this.siteType === "marketing") {
-      window.profitwell("start", {});
-    }
   }
 
   isLoaded() {
@@ -60,6 +56,11 @@ class ProfitWell {
 
   identify(rudderElement) {
     logger.debug("===In ProfitWell identify===");
+
+    if (this.siteType === "marketing") {
+      window.profitwell("start", {});
+      return;
+    }
 
     const { message } = rudderElement;
     const email = get(message, "context.traits.email");
