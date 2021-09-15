@@ -9,11 +9,11 @@ class Awin {
 
   init() {
     logger.debug("===in init  Awin===");
-    ScriptLoader("Awin", `https://www.dwin1.com/${this.advertiserId}`);
     if (!this.advertiserId) {
       logger.debug("advertiserId missing");
       return;
     }
+    ScriptLoader("Awin", `https://www.dwin1.com/${this.advertiserId}.js`);
     window.AWIN = {};
     window.AWIN.Tracking = {};
     window.AWIN.Tracking.Sale = {};
