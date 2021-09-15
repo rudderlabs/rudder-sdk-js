@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
 import logger from "../../utils/logUtil";
-import { generateUUID } from "../../utils/utils";
 
 class ProfitWell {
   constructor(config) {
@@ -14,7 +13,7 @@ class ProfitWell {
     logger.debug("===In init ProfitWell===");
 
     if (!this.publicApiKey) {
-      logger.error("Public API Key not found");
+      logger.error("==[ProfitWell]: Public API Key not found===");
       return;
     }
 
@@ -45,7 +44,7 @@ class ProfitWell {
     );
 
     if (this.siteType === "marketing") {
-      window.profitwell("start", { user_id: generateUUID().toString() });
+      window.profitwell("start", {});
     }
   }
 
@@ -63,18 +62,23 @@ class ProfitWell {
     logger.debug("===In ProfitWell identify===");
 
     const { message } = rudderElement;
-
-    let payload = {
-      user_email: get(message, "context.traits.email"),
-    };
-
-    if (!payload.user_email) {
-      payload = {
-        user_id: get(message, "anonymousId"),
-      };
+    const email = get(message, "context.traits.email");
+    if (email) {
+      window.profitwell("start", {
+        user_email: email,
+      });
+      return;
     }
 
-    window.profitwell("start", payload);
+    const userId = get(message, "userId");
+    if (userId) {
+      window.profitwell("start", {
+        user_id: userId,
+      });
+      return;
+    }
+
+    logger.info("===[ProfitWell: email or userId is required for identify===");
   }
 }
 
