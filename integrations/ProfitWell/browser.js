@@ -46,12 +46,12 @@ class ProfitWell {
 
   isLoaded() {
     logger.debug("===In isLoaded ProfitWell===");
-    return !!window.profitwell;
+    return !!(window.profitwell && window.profitwell.length !== 0);
   }
 
   isReady() {
     logger.debug("===In isReady ProfitWell===");
-    return !!window.profitwell;
+    return !!(window.profitwell && window.profitwell.length !== 0);
   }
 
   identify(rudderElement) {
