@@ -27,6 +27,7 @@ const clientToServerNames = {
   LYTICS: "Lytics",
   APPCUES: "Appcues",
   POSTHOG: "PostHog",
+  PROFITWELL: "ProfitWell",
   KLAVIYO: "Klaviyo",
   CLEVERTAP: "Clevertap",
   BINGADS: "BingAds",
