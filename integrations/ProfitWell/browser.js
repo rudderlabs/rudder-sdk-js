@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
 import logger from "../../utils/logUtil";
-import { generateUUID } from "../../utils/utils";
 
 class ProfitWell {
   constructor(config) {
