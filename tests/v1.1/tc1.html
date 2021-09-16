@@ -4,10 +4,9 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Test case 2(1)</title>
+    <title>Test case 1</title>
 
-    <!-- Case 2: Customer forwards SDKs CDN -->
-    <!-- Case 2.1: Forwards only core SDK -->
+    <!-- Case 1: Customer uses rudderstack's CDN to load the SDK and the device mode integration -->
 
     <script>
       rudderanalytics = window.rudderanalytics = [];
@@ -42,13 +41,12 @@
         {
           configUrl:
             "https://api.dev.rudderlabs.com/sourceConfig/?p=web&v=1.1.18",
-          // destSDKBaseURL: "https://cdn.rudderlabs.com/v3/js-integrations", //RS's cdn base url for destination SDKs
         }
       );
     </script>
 
-    <!-- ============ Customer CDN forwarding d3939rm5up60zi.cloudfront.net: cdn.rudderlabs.com ============ -->
-    <script src="https://d3939rm5up60zi.cloudfront.net/rudder-analytics.min.js"></script>
+    <!-- ============ V1.1 ============ -->
+    <script src="https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js"></script>
   </head>
 
   <body>
@@ -65,8 +63,10 @@
         text-align: center;
       "
     >
-      <h2>Case 2: Customer forwards SDKs CDN</h2>
-      <h3>Forwards only core SDK</h3>
+      <h2>
+        Case 1: Customer uses rudderstack's CDN to load the SDK and the device
+        mode integration
+      </h2>
     </div>
     <div
       style="
@@ -83,17 +83,17 @@
     >
       <p>
         <b>Note:</b> Rudderstack's JS SDK CDN:
-        https://cdn.rudderlabs.com/v3/rudder-analytics.min.js
+        https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js
       </p>
       <p>
         Rudderstack's destination SDKs url :
-        https://cdn.rudderlabs.com/v3/js-integration
+        https://cdn.rudderlabs.com/v1.1/js-integration
       </p>
       <p>
         Refer this link for more info:
         <a
-          href="https://www.notion.so/rudderstacks/Setup-for-V3-JS-SDK-test-cases-9d37e8c02fb84716b2f417018e8f1eba"
-          >Setup-for-V3-JS-SDK-test-cases</a
+          href="https://www.notion.so/rudderstacks/Setup-for-V1.1-JS-SDK-test-cases-9d37e8c02fb84716b2f417018e8f1eba"
+          >Setup-for-V1.1-JS-SDK-test-cases</a
         >
       </p>
     </div>

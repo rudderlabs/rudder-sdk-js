@@ -4,9 +4,10 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Test case 4</title>
+    <title>Test case 3(2)</title>
 
-    <!-- Case 4: SDK is loaded from a right path (rudderstack/customer cdn) but wrong CDN path provided for integrations -->
+    <!-- Case 3: Customer downloaded all the sdks and uploaded in their own CDN -->
+    <!-- Case 3.2: Core SDK file name changed -->
 
     <script>
       rudderanalytics = window.rudderanalytics = [];
@@ -41,14 +42,15 @@
         {
           configUrl:
             "https://api.dev.rudderlabs.com/sourceConfig/?p=web&v=1.1.18",
-          destSDKBaseURL: "https://ddim5kcy73icz.cloudfront.net/v2/abcd/", //wrong destination sdk path
+          // destSDKBaseURL:
+          // "https://ddim5kcy73icz.cloudfront.net/v2/js-integrations", //path to destination sdks
         }
       );
     </script>
 
     <!-- ============ Cuustomer's own CDN ============ -->
-
-    <script src="https://ddim5kcy73icz.cloudfront.net/v2/rudder-analytics.min.js"></script>
+    <!-- ============ SDK name changed from rudder-analytics.min.js to custom-analytics.min.js ============ -->
+    <script src="https://ddim5kcy73icz.cloudfront.net/v2/custom-analytics.min.js"></script>
   </head>
 
   <body>
@@ -65,10 +67,13 @@
         text-align: center;
       "
     >
-      <h2>
-        Case 4: SDK is loaded from a right path (rudderstack/customer cdn) but
-        wrong CDN path provided for integrations
-      </h2>
+      <h3>
+        Case 3: Customer downloaded all the sdks and uploaded in their own CDN
+      </h3>
+      <h3>
+        3.2: Core SDK file name changed(from rudder-analytics.min.js to
+        custom-analytics.min.js)
+      </h3>
     </div>
     <div
       style="
@@ -85,17 +90,17 @@
     >
       <p>
         <b>Note:</b> Rudderstack's JS SDK CDN:
-        https://cdn.rudderlabs.com/v3/rudder-analytics.min.js
+        https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js
       </p>
       <p>
         Rudderstack's destination SDKs url :
-        https://cdn.rudderlabs.com/v3/js-integration
+        https://cdn.rudderlabs.com/v1.1/js-integration
       </p>
       <p>
         Refer this link for more info:
         <a
-          href="https://www.notion.so/rudderstacks/Setup-for-V3-JS-SDK-test-cases-9d37e8c02fb84716b2f417018e8f1eba"
-          >Setup-for-V3-JS-SDK-test-cases</a
+          href="https://www.notion.so/rudderstacks/Setup-for-V1.1-JS-SDK-test-cases-9d37e8c02fb84716b2f417018e8f1eba"
+          >Setup-for-V1.1-JS-SDK-test-cases</a
         >
       </p>
     </div>
