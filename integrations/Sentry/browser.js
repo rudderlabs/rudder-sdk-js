@@ -4,7 +4,6 @@ import logger from "../../utils/logUtil";
 import {SentryScriptLoader, identifierPayloadBuilder} from "./utils";
 import {getDefinedTraits} from "../../utils/utils";
 
-
 class Sentry {
   constructor(config) {
     this.name = "Sentry";
