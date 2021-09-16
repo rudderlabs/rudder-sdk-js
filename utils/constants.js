@@ -1,4 +1,4 @@
-// Reserved Keywords for properties/triats
+// Reserved Keywords for properties/traits
 const ReservedPropertyKeywords = [
   "anonymous_id",
   "id",
@@ -9,13 +9,6 @@ const ReservedPropertyKeywords = [
   "event_text",
   "event",
 ];
-// Message Type enumeration
-const MessageType = {
-  TRACK: "track",
-  PAGE: "page",
-  // SCREEN: "screen",
-  IDENTIFY: "identify",
-};
 
 // ECommerce Parameter Names Enumeration
 const ECommerceParamNames = {
@@ -72,42 +65,21 @@ const ECommerceEvents = {
   PRODUCT_REVIEWED: "Product Reviewed",
 };
 
-// Enumeration for integrations supported
-const RudderIntegrationPlatform = {
-  RUDDERLABS: "rudderlabs",
-  GA: "ga",
-  AMPLITUDE: "amplitude",
-};
-
-const BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
 const CONFIG_URL =
   "https://api.rudderlabs.com/sourceConfig/?p=process.module_type&v=process.package_version";
 const CDN_INT_DIR = "js-integrations";
-const CDN_BASE_URL = `https://cdn.rudderstack.com/v3/${CDN_INT_DIR}`;
-
-// TODO: Dev only, remove before prod release
-// const CDN_BASE_URL = `https://ddim5kcy73icz.cloudfront.net/v2/${CDN_INT_DIR}`;
-// const CDN_BASE_URL = `https://ddim5kcy73icz.cloudfront.net/v2/${CDN_INT_DIR}/dev`;
-
-const FLUSH_QUEUE_SIZE = 30;
-
-const FLUSH_INTERVAL_DEFAULT = 5000;
+const DEST_SDK_BASE_URL = `https://cdn.rudderlabs.com/v3/${CDN_INT_DIR}`;
 
 const MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
 const INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
 
 export {
   ReservedPropertyKeywords,
-  MessageType,
   ECommerceParamNames,
   ECommerceEvents,
-  RudderIntegrationPlatform,
-  BASE_URL,
   CONFIG_URL,
-  CDN_BASE_URL,
   CDN_INT_DIR,
-  FLUSH_QUEUE_SIZE,
-  FLUSH_INTERVAL_DEFAULT,
+  DEST_SDK_BASE_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
 };

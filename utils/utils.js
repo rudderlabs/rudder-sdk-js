@@ -3,8 +3,8 @@ import { parse } from "component-url";
 import get from "get-value";
 import set from "set-value";
 import logger from "./logUtil";
-import { commonNames } from "../integrations/integration_cname";
-import { clientToServerNames } from "../integrations/client_server_name";
+import { commonNames } from "./integration_cname";
+import { clientToServerNames } from "./client_server_name";
 import { CONFIG_URL, ReservedPropertyKeywords } from "./constants";
 import Storage from "./storage";
 
@@ -32,7 +32,7 @@ function stripTrailingSlashes(inURL) {
 
 /**
  *
- * Utility function for UUID genration
+ * Utility function for UUID generation
  * @returns
  */
 function generateUUID() {
@@ -86,7 +86,7 @@ function getJSON(url, wrappers, isLoaded, callback) {
   xhr.onload = function () {
     const { status } = xhr;
     if (status == 200) {
-      logger.debug("status 200");
+      // logger.debug("status 200");
       callback(null, xhr.responseText, wrappers, isLoaded);
     } else {
       callback(status);
@@ -109,12 +109,16 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   const xhr = new XMLHttpRequest();
 
   xhr.open("GET", url, true);
-  xhr.setRequestHeader("Authorization", `Basic ${btoa(`${writeKey}:`)}`);
+  xhr.setRequestHeader(
+    "Authorization",
+    `Basic ${btoa(`${writeKey}:`)}`
+    // `Basic ${Buffer.from(`${writeKey}:`).toString("base64")}`
+  );
 
   xhr.onload = function () {
     const { status } = xhr;
     if (status == 200) {
-      logger.debug("status 200 " + "calling callback");
+      // logger.debug("status 200 " + "calling callback");
       cb_(200, xhr.responseText);
     } else {
       handleError(
@@ -242,20 +246,15 @@ function getRevenue(properties, eventName) {
   return getCurrency(revenue);
 }
 
-/**
- *
- *
- * @param {*} integrationObject
- */
-function transformToRudderNames(integrationObject) {
+function transformNamesCore(integrationObject, namesObj) {
   Object.keys(integrationObject).forEach((key) => {
     if (integrationObject.hasOwnProperty(key)) {
-      if (commonNames[key]) {
-        integrationObject[commonNames[key]] = integrationObject[key];
+      if (namesObj[key]) {
+        integrationObject[namesObj[key]] = integrationObject[key];
       }
       if (key != "All") {
         // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
-        if (commonNames[key] != undefined && commonNames[key] != key) {
+        if (namesObj[key] != undefined && namesObj[key] != key) {
           delete integrationObject[key];
         }
       }
@@ -263,23 +262,17 @@ function transformToRudderNames(integrationObject) {
   });
 }
 
+/**
+ *
+ *
+ * @param {*} integrationObject
+ */
+function transformToRudderNames(integrationObject) {
+  transformNamesCore(integrationObject, commonNames);
+}
+
 function transformToServerNames(integrationObject) {
-  Object.keys(integrationObject).forEach((key) => {
-    if (integrationObject.hasOwnProperty(key)) {
-      if (clientToServerNames[key]) {
-        integrationObject[clientToServerNames[key]] = integrationObject[key];
-      }
-      if (key != "All") {
-        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
-        if (
-          clientToServerNames[key] != undefined &&
-          clientToServerNames[key] != key
-        ) {
-          delete integrationObject[key];
-        }
-      }
-    }
-  });
+  transformNamesCore(integrationObject, clientToServerNames);
 }
 
 /**
@@ -294,74 +287,51 @@ function findAllEnabledDestinations(
   const enabledList = [];
   if (
     !configPlaneEnabledIntegrations ||
-    configPlaneEnabledIntegrations.length == 0
+    configPlaneEnabledIntegrations.length === 0
   ) {
     return enabledList;
   }
   let allValue = true;
+  if (sdkSuppliedIntegrations.All !== undefined) {
+    allValue = sdkSuppliedIntegrations.All;
+  }
+  const intgData = {};
   if (typeof configPlaneEnabledIntegrations[0] === "string") {
-    if (sdkSuppliedIntegrations.All != undefined) {
-      allValue = sdkSuppliedIntegrations.All;
-    }
     configPlaneEnabledIntegrations.forEach((intg) => {
-      if (!allValue) {
-        // All false ==> check if intg true supplied
-        if (
-          sdkSuppliedIntegrations[intg] != undefined &&
-          sdkSuppliedIntegrations[intg] == true
-        ) {
-          enabledList.push(intg);
-        }
-      } else {
-        // All true ==> intg true by default
-        let intgValue = true;
-        // check if intg false supplied
-        if (
-          sdkSuppliedIntegrations[intg] != undefined &&
-          sdkSuppliedIntegrations[intg] == false
-        ) {
-          intgValue = false;
-        }
-        if (intgValue) {
-          enabledList.push(intg);
-        }
-      }
+      intgData[intg] = intg;
     });
-
-    return enabledList;
+  } else if (typeof configPlaneEnabledIntegrations[0] === "object") {
+    configPlaneEnabledIntegrations.forEach((intg) => {
+      intgData[intg.name] = intg;
+    });
   }
 
-  if (typeof configPlaneEnabledIntegrations[0] === "object") {
-    if (sdkSuppliedIntegrations.All != undefined) {
-      allValue = sdkSuppliedIntegrations.All;
-    }
-    configPlaneEnabledIntegrations.forEach((intg) => {
-      if (!allValue) {
-        // All false ==> check if intg true supplied
-        if (
-          sdkSuppliedIntegrations[intg.name] != undefined &&
-          sdkSuppliedIntegrations[intg.name] == true
-        ) {
-          enabledList.push(intg);
-        }
-      } else {
-        // All true ==> intg true by default
-        let intgValue = true;
-        // check if intg false supplied
-        if (
-          sdkSuppliedIntegrations[intg.name] != undefined &&
-          sdkSuppliedIntegrations[intg.name] == false
-        ) {
-          intgValue = false;
-        }
-        if (intgValue) {
-          enabledList.push(intg);
-        }
+  Object.keys(intgData).forEach((intgName) => {
+    if (!allValue) {
+      // All false ==> check if intg true supplied
+      if (
+        sdkSuppliedIntegrations[intgName] != undefined &&
+        sdkSuppliedIntegrations[intgName] == true
+      ) {
+        enabledList.push(intgData[intgName]);
       }
-    });
+    } else {
+      // All true ==> intg true by default
+      let intgValue = true;
+      // check if intg false supplied
+      if (
+        sdkSuppliedIntegrations[intgName] != undefined &&
+        sdkSuppliedIntegrations[intgName] == false
+      ) {
+        intgValue = false;
+      }
+      if (intgValue) {
+        enabledList.push(intgData[intgName]);
+      }
+    }
+  });
 
-    return enabledList;
-  }
+  return enabledList;
 }
 
 /**
@@ -438,17 +408,16 @@ function type(val) {
 
 function getUserProvidedConfigUrl(configUrl) {
   let url = configUrl;
-  if (configUrl.indexOf("sourceConfig") == -1) {
-    url = url.slice(-1) == "/" ? url.slice(0, -1) : url;
-    url = `${url}/sourceConfig/`;
+  if (url.indexOf("sourceConfig") === -1) {
+    url = `${stripTrailingSlashes(url)}/sourceConfig/`;
   }
-  url = url.slice(-1) == "/" ? url : `${url}/`;
-  if (url.indexOf("?") > -1) {
-    if (url.split("?")[1] !== CONFIG_URL.split("?")[1]) {
-      url = `${url.split("?")[0]}?${CONFIG_URL.split("?")[1]}`;
-    }
+  url = url.slice(-1) === "/" ? url : `${url}/`;
+  const defQueryParams = CONFIG_URL.split("?")[1];
+  const urlSplitItems = url.split("?");
+  if (urlSplitItems.length > 1 && urlSplitItems[1] !== defQueryParams) {
+    url = `${urlSplitItems[0]}?${defQueryParams}`;
   } else {
-    url = `${url}?${CONFIG_URL.split("?")[1]}`;
+    url = `${url}?${defQueryParams}`;
   }
   return url;
 }
@@ -461,7 +430,6 @@ function getUserProvidedConfigUrl(configUrl) {
 function checkReservedKeywords(message, messageType) {
   //  properties, traits, contextualTraits are either undefined or object
   const { properties, traits } = message;
-  const contextualTraits = message.context.traits;
   if (properties) {
     Object.keys(properties).forEach((property) => {
       if (ReservedPropertyKeywords.indexOf(property.toLowerCase()) >= 0) {
@@ -480,6 +448,7 @@ function checkReservedKeywords(message, messageType) {
       }
     });
   }
+  const contextualTraits = message.context.traits;
   if (contextualTraits) {
     Object.keys(contextualTraits).forEach((contextTrait) => {
       if (ReservedPropertyKeywords.indexOf(contextTrait.toLowerCase()) >= 0) {
@@ -493,7 +462,7 @@ function checkReservedKeywords(message, messageType) {
 
 /* ------- Start FlattenJson -----------
  * This function flatten given json object to single level.
- * So if there is nested object or array, all will apear in first level properties of an object.
+ * So if there is nested object or array, all will appear in first level properties of an object.
  * Following is case we are handling in this function ::
  * condition 1: String
  * condition 2: Array
@@ -529,9 +498,9 @@ function flattenJsonPayload(data) {
  * @param {*} destination
  * @param {*} keys
  * @param {*} exclusionFields
- * Extract fileds from message with exclusions
+ * Extract fields from message with exclusions
  * Pass the keys of message for extraction and
- * exclusion fields to exlude and the payload to map into
+ * exclusion fields to exclude and the payload to map into
  * -----------------Example-------------------
  * extractCustomFields(message,payload,["traits", "context.traits", "properties"], "email",
  * ["firstName",
@@ -547,7 +516,7 @@ function flattenJsonPayload(data) {
  * "timezone"])
  * -------------------------------------------
  * The above call will map the fields other than the
- * exlusion list from the given keys to the destination payload
+ * exclusion list from the given keys to the destination payload
  *
  */
 
@@ -574,7 +543,7 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
  *
  * @param {*} message
  *
- * Use get-value to retrieve defined trais from message traits
+ * Use get-value to retrieve defined traits from message traits
  */
 function getDefinedTraits(message) {
   const traitsValue = {

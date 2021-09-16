@@ -1,7 +1,6 @@
 import clone from "@ndhoule/clone";
 import cookie from "rudder-component-cookie";
 import defaults from "@ndhoule/defaults";
-import json from "json3";
 import topDomain from "@segment/top-domain";
 import logger from "../logUtil";
 

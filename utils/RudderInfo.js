@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 // Library information class
 class RudderLibraryInfo {
   constructor() {
