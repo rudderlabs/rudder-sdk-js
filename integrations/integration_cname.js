@@ -116,6 +116,9 @@ const commonNames = {
   PROFITWELL: "PROFITWELL",
   ProfitWell: "PROFITWELL",
   profitwell: "PROFITWELL",
+  SENTRY: "SENTRY",
+  sentry: "SENTRY",
+  Sentry: "SENTRY",
 };
 
 export { commonNames };

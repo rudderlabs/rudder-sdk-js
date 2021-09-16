@@ -40,6 +40,7 @@ const clientToServerNames = {
   CRITEO: "Criteo",
   MP: "Mixpanel",
   QUALTRICS: "Qualtrics",
+  SENTRY: "Sentry",
 };
 
 export { clientToServerNames };
