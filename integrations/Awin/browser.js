@@ -40,28 +40,29 @@ class Awin {
   }
 
   propertiesValidator(properties){
+    let finalProperties =properties;
     if(!properties.amount ){
-      properties.amount= null;
+      finalProperties.amount= null;
     }
     if(!properties.orderRef){
-      properties.orderRef=null;
+      finalProperties.orderRef=null;
     }
     if(!properties.parts){
-      properties.parts=null;
+      finalProperties.parts=null;
     }
     if(!properties.voucher){
-      properties.voucher=null;
+      finalProperties.voucher=null;
     }
     if(!properties.currency){
-      properties.currency=null;
+      finalProperties.currency=null;
     }
     if(!properties.test){
-      properties.test=null;
+      finalProperties.test=null;
     }
     if(!properties.channel){
-      properties.channel=null;
+      finalProperties.channel=null;
     }
-    return properties;
+    return finalProperties;
   }
 
   track(rudderElement) {
