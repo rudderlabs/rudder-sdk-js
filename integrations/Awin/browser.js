@@ -17,7 +17,6 @@ class Awin {
     window.AWIN = {};
     window.AWIN.Tracking = {};
     window.AWIN.Tracking.Sale = {};
-    window.image = document.createElement("img");
   }
 
   isLoaded() {
@@ -29,12 +28,12 @@ class Awin {
     return !!window.AWIN;
   }
 
-  addPixel(url) {
+  addPixel(image,url) {
     logger.debug("Adding image pixel");
-    window.image.src = url;
-    window.image.setAttribute("border",0);
-    window.image.setAttribute("width", 0);
-    window.image.setAttribute("height", 0);
+    image.src = url;
+    image.setAttribute("border",0);
+    image.setAttribute("width", 0);
+    image.setAttribute("height", 0);
 
     logger.debug(`Image Pixel :: ${window.image}`);
     document.getElementsByTagName("body")[0].appendChild(window.image);
@@ -67,11 +66,15 @@ class Awin {
 
   track(rudderElement) {
     logger.debug("===in track Awin===");
-
+    let image = document.createElement("img");
     const { properties } = rudderElement.message;
-    properties = propertiesValidator(properties);
+    if(!properties){
+      logger.debug("properties are mandatory");
+      return;
+    }
+    properties = this.propertiesValidator(properties);
     const url = `https://www.awin1.com/sread.img?tt=ns&tv=2&merchant=${this.advertiserId}&amount=${properties.amount}&cr=${properties.currency}&ref=${properties.orderRef}&parts=${properties.parts}&vc=${properties.voucher}&ch=${properties.channel}&testmode=${properties.test}`
-    this.addPixel(url);
+    this.addPixel(image,url);
     window.AWIN.Tracking.Sale.amount = properties.amount || "";
     window.AWIN.Tracking.Sale.orderRef = properties.orderRef || "";
     window.AWIN.Tracking.Sale.parts = properties.parts || "";
