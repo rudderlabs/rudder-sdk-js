@@ -2,7 +2,7 @@
 
 import logger from "../../utils/logUtil";
 import {SentryScriptLoader, identifierPayloadBuilder} from "./utils";
-import {getDefinedTraits} from "../../utils/utils";
+import {getDefinedTraits, isObject} from "../../utils/utils";
 
 class Sentry {
   constructor(config) {
@@ -11,7 +11,7 @@ class Sentry {
     this.debugMode = config.debugMode;
     this.environment = config.environment;
     this.ignoreErrors = config.ignoreErrors;
-    this.includePaths = config.includePaths;
+    this.includePathsArray = config.includePaths;
     this.logger = config.Logger;
     this.allowUrls = config.allowUrls;
     this.denyUrls = config.denyUrls;
@@ -39,21 +39,56 @@ class Sentry {
         allowUrls:this.allowUrls,
         denyUrls: this.denyUrls,
         ignoreErrors: this.ignoreErrors,
-        includePaths: this.includePaths,
-    }
+        integrations: [],
+    };
+
+    let includePaths = [];
+
+    if (this.includePathsArray.length > 0) {
+        includePaths = this.includePathsArray.map(function(path) {
+          var regex;
+          try {
+            regex = new RegExp(path);
+          } catch (e) {
+            
+          }
+          return regex;
+        });
+      }
+
+      if (includePaths.length > 0) {
+        config.integrations.push(
+          new window.Sentry.Integrations.RewriteFrames({
+            iteratee: function(frame) {
+              for (var i = 0; i < includePaths.length; i++) {
+                try {
+                  if (frame.filename.match(includePaths[i])) {
+                    frame.in_app = true; 
+                    return frame;
+                  }
+                } catch (e) {
+                  
+                }
+              }
+              frame.in_app = false; 
+              return frame;
+            }
+          })
+        );
+      }
     
   }
 
   // eslint-disable-next-line class-methods-use-this
   isLoaded() {
     logger.debug("===in Sentry isLoaded===");
-    return !!(window.Sentry && window.Sentry.setUser !== Array.prototype.push);
+    return !!(window.Sentry && isObject(window.Sentry) && window.Sentry.setUser);
   }
 
   // eslint-disable-next-line class-methods-use-this
   isReady() {
     logger.debug("===in Sentry isReady===");
-    return !!(window.Sentry && window.Sentry.setUser !== Array.prototype.push);
+    return !!(window.Sentry && isObject(window.Sentry) && window.Sentry.setUser);
   }
 
   identify(rudderElement) {
