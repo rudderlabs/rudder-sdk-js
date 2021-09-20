@@ -37,6 +37,12 @@ class Sentry {
       `sha384-S3qfdh3AsT1UN84WIYNuOX9vVOoFg3nB17Jp5/pTFGDBGBt+dtz7MGAV845efkZr`
     );
 
+    SentryScriptLoader(
+      "Sentry",
+      `https://browser.sentry-cdn.com/6.12.0/rewriteframes.min.js`,
+      `sha384-WOm9k3kzVt1COFAB/zCXOFx4lDMtJh/2vmEizIwgog7OW0P/dPwl3s8f6MdwrD7q`
+    );
+
     const formattedAllowUrls = convertObjectToArray(this.allowUrls);
     const formattedDenyUrls = convertObjectToArray(this.denyUrls);
     const formattedIgnoreErrors = convertObjectToArray(this.ignoreErrors);
@@ -126,6 +132,14 @@ class Sentry {
     const ipAddress =
       get(rudderElement.message, "traits.ip_address") ||
       get(rudderElement.message, "context.traits.ip_address");
+
+    if (!userId && !email && !name && !ipAddress) {
+      // if no user identification property is present the event will be dropped
+      logger.debug(
+        "Any one of userId, email, name and ip_address is mandatory"
+      );
+      return;
+    }
 
     const finalPayload = {
       id: userId,
