@@ -23,6 +23,7 @@ class Sentry {
     this.allowUrls = config.allowUrls;
     this.denyUrls = config.denyUrls;
     this.release = config.release;
+    this.customVersionProperty = config.customVersionProperty;
     this.serverName = config.serverName;
   }
 
@@ -41,11 +42,15 @@ class Sentry {
     const formattedDenyUrls = convertObjectToArray(this.denyUrls);
     const formattedIgnoreErrors = convertObjectToArray(this.ignoreErrors);
 
+    const customRelease = this.customVersionProperty
+      ? window[this.customVersionProperty]
+      : null;
+
     window.Sentry = {
       dsn: this.dsn,
       debug: this.debugMode,
       environment: this.environment,
-      release: this.release,
+      release: customRelease || this.release,
       serverName: this.serverName,
       allowUrls: formattedAllowUrls,
       denyUrls: formattedDenyUrls,
