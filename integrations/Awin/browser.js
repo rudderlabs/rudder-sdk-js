@@ -30,52 +30,53 @@ class Awin {
 
   addPixel(image,url) {
     logger.debug("Adding image pixel");
+    let image = document.createElement("img");
     image.src = url;
     image.setAttribute("border",0);
     image.setAttribute("width", 0);
     image.setAttribute("height", 0);
 
-    logger.debug(`Image Pixel :: ${window.image}`);
-    document.getElementsByTagName("body")[0].appendChild(window.image);
+    logger.debug(`Image Pixel :: ${image}`);
+    document.getElementsByTagName("body")[0].appendChild(image);
   }
 
-  propertiesValidator(properties){
-    let finalProperties =properties;
-    if(!properties.amount ){
-      finalProperties.amount= null;
-    }
-    if(!properties.orderRef){
-      finalProperties.orderRef=null;
-    }
-    if(!properties.parts){
-      finalProperties.parts=null;
-    }
-    if(!properties.voucher){
-      finalProperties.voucher=null;
-    }
-    if(!properties.currency){
-      finalProperties.currency=null;
-    }
-    if(!properties.test){
-      finalProperties.test=null;
-    }
-    if(!properties.channel){
-      finalProperties.channel=null;
-    }
-    return finalProperties;
-  }
+  // propertiesValidator(properties){
+  //   let finalProperties =properties;
+  //   if(!properties.amount ){
+  //     finalProperties.amount= null;
+  //   }
+  //   if(!properties.orderRef){
+  //     finalProperties.orderRef=null;
+  //   }
+  //   if(!properties.parts){
+  //     finalProperties.parts=null;
+  //   }
+  //   if(!properties.voucher){
+  //     finalProperties.voucher=null;
+  //   }
+  //   if(!properties.currency){
+  //     finalProperties.currency=null;
+  //   }
+  //   if(!properties.test){
+  //     finalProperties.test=null;
+  //   }
+  //   if(!properties.channel){
+  //     finalProperties.channel=null;
+  //   }
+  //   return finalProperties;
+  // }
 
   track(rudderElement) {
     logger.debug("===in track Awin===");
-    let image = document.createElement("img");
+    
     const { properties } = rudderElement.message;
     if(!properties){
       logger.debug("properties are mandatory");
       return;
     }
-    properties = this.propertiesValidator(properties);
+    // properties = this.propertiesValidator(properties);
     const url = `https://www.awin1.com/sread.img?tt=ns&tv=2&merchant=${this.advertiserId}&amount=${properties.amount}&cr=${properties.currency}&ref=${properties.orderRef}&parts=${properties.parts}&vc=${properties.voucher}&ch=${properties.channel}&testmode=${properties.test}`
-    this.addPixel(image,url);
+    this.addPixel(url);
     window.AWIN.Tracking.Sale.amount = properties.amount || "";
     window.AWIN.Tracking.Sale.orderRef = properties.orderRef || "";
     window.AWIN.Tracking.Sale.parts = properties.parts || "";
