@@ -922,6 +922,11 @@ class Analytics {
       });
       throw Error("failed to initialize");
     }
+
+    if (options && options.defStorageType)
+      this.storage.init(options.defStorageType);
+    else this.storage.init();
+
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }

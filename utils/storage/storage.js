@@ -13,27 +13,106 @@ const defaults = {
   page_storage_init_referrer: "rl_page_init_referrer",
   page_storage_init_referring_domain: "rl_page_init_referring_domain",
   prefix: "RudderEncrypt:",
-  key: "Rudder"
+  key: "Rudder",
 };
+
+const storageTypes = {
+  COOKIES: { name: "cookies", instance: Cookie },
+  LOCAL_STORAGE: { name: "localstorage", instance: Store },
+};
+
+const DEF_STORAGE_NAME = storageTypes.COOKIES.name;
 
 /**
  * An object that handles persisting key-val from Analytics
  */
 class Storage {
   constructor() {
+    this.cookieSupportExists = false;
+    this.lsSupportExists = false;
+
+    // Check cookie support
     // First try setting the storage to cookie else to localstorage
     Cookie.set("rudder_cookies", true);
-
     if (Cookie.get("rudder_cookies")) {
       Cookie.remove("rudder_cookies");
-      this.storage = Cookie;
-      return;
+      this.cookieSupportExists = true;
     }
 
+    // Check local storage support
     // localStorage is enabled.
     if (Store.enabled) {
-      this.storage = Store;
+      this.lsSupportExists = true;
     }
+
+    this.storage = undefined;
+  }
+
+  init(defStorageName = DEF_STORAGE_NAME) {
+    // Data validation and setting to defaults
+    let storageName;
+    if (typeof defStorageName === "string" && defStorageName)
+      storageName = defStorageName.trim().toLowerCase();
+    else storageName = DEF_STORAGE_NAME;
+
+    if (!Object.values(storageTypes).some((x) => x.name === storageName))
+      storageName = DEF_STORAGE_NAME;
+
+    // Reset storage instance
+    this.storage = undefined;
+
+    let prevStorage;
+
+    // Determine storage type
+    switch (storageName) {
+      case storageTypes.COOKIES.name:
+        if (this.cookieSupportExists) {
+          this.storage = storageTypes.COOKIES.instance;
+          if (this.lsSupportExists)
+            prevStorage = storageTypes.LOCAL_STORAGE.instance;
+        } else if (this.lsSupportExists) {
+          this.storage = storageTypes.LOCAL_STORAGE.instance;
+          if (this.cookieSupportExists)
+            prevStorage = storageTypes.COOKIES.instance;
+        }
+        break;
+      case storageTypes.LOCAL_STORAGE.name:
+        if (this.lsSupportExists) {
+          this.storage = storageTypes.LOCAL_STORAGE.instance;
+          if (this.cookieSupportExists)
+            prevStorage = storageTypes.COOKIES.instance;
+        } else if (this.cookieSupportExists) {
+          this.storage = storageTypes.COOKIES.instance;
+          if (this.lsSupportExists)
+            prevStorage = storageTypes.LOCAL_STORAGE.instance;
+        }
+        break;
+      default:
+        break;
+    }
+
+    // Migrate any valid data from previous storage type to current
+    if (this.storage) {
+      this.migrateData(prevStorage, this.storage);
+    }
+  }
+
+  migrateData(prevStorage, curStorage) {
+    logger.debug("Migrating data from previous storage to current");
+    const dataNames = Object.values(defaults).filter((val) =>
+      val.startsWith("rl_")
+    );
+    dataNames.forEach((dName) => {
+      const dVal = prevStorage.get(dName);
+      if (this.isValidData(dVal)) {
+        curStorage.set(dName, dVal);
+      }
+      prevStorage.remove(dName);
+    });
+  }
+
+  isValidData(val) {
+    return !(!val || (typeof val === "string" && this.trim(val) === ""));
   }
 
   options(options = {}) {
@@ -91,7 +170,7 @@ class Storage {
    * @param {*} value
    */
   decryptValue(value) {
-    if (!value || (typeof value === "string" && this.trim(value) == "")) {
+    if (!this.isValidData(value)) {
       return value;
     }
     if (value.substring(0, defaults.prefix.length) == defaults.prefix) {
