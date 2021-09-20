@@ -1,14 +1,12 @@
+/* eslint-disable object-shorthand */
 /* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-expressions */
 
 import get from "get-value";
 import logger from "../../utils/logUtil";
-import {
-  SentryScriptLoader,
-  identifierPayloadBuilder,
-  convertObjectToArray,
-} from "./utils";
+import { SentryScriptLoader, convertObjectToArray } from "./utils";
+import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 import { getDefinedTraits, isObject } from "../../utils/utils";
 
 class Sentry {
@@ -35,7 +33,8 @@ class Sentry {
     }
     SentryScriptLoader(
       "Sentry",
-      `https://browser.sentry-cdn.com/6.12.0/bundle.min.js`
+      `https://browser.sentry-cdn.com/6.12.0/bundle.min.js`,
+      `sha384-S3qfdh3AsT1UN84WIYNuOX9vVOoFg3nB17Jp5/pTFGDBGBt+dtz7MGAV845efkZr`
     );
 
     const formattedAllowUrls = convertObjectToArray(this.allowUrls);
@@ -73,14 +72,14 @@ class Sentry {
     }
 
     if (includePaths.length > 0) {
-      this.integrations.push(
+      window.Sentry.integrations.push(
         new window.Sentry.Integrations.RewriteFrames({
           // eslint-disable-next-line object-shorthand
           iteratee: function (frame) {
             // eslint-disable-next-line consistent-return
-            includePaths.forEach((i) => {
+            includePaths.forEach((path) => {
               try {
-                if (frame.filename.match(includePaths[i])) {
+                if (frame.filename.match(path)) {
                   // eslint-disable-next-line no-param-reassign
                   frame.in_app = true;
                   return frame;
@@ -127,20 +126,17 @@ class Sentry {
       get(rudderElement.message, "traits.ip_address") ||
       get(rudderElement.message, "context.traits.ip_address");
 
-    const userIdentifierPayload = identifierPayloadBuilder(
-      userId,
-      email,
-      name,
-      ipAddress
-    );
     const finalPayload = {
-      ...userIdentifierPayload,
+      id: userId,
+      email: email,
+      username: name,
+      ip_address: ipAddress,
       ...traits,
     };
     if (this.logger) {
       window.Sentry.setTag("logger", logger);
     }
-    window.Sentry.setUser(finalPayload);
+    window.Sentry.setUser(removeUndefinedAndNullValues(finalPayload));
   }
 }
 export default Sentry;
