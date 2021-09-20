@@ -17,7 +17,7 @@ class Sentry {
     this.environment = config.environment;
     this.ignoreErrors = config.ignoreErrors;
     this.includePathsArray = config.includePaths;
-    this.logger = config.Logger;
+    this.logger = config.logger;
     this.allowUrls = config.allowUrls;
     this.denyUrls = config.denyUrls;
     this.release = config.release;
@@ -43,25 +43,38 @@ class Sentry {
       `sha384-WOm9k3kzVt1COFAB/zCXOFx4lDMtJh/2vmEizIwgog7OW0P/dPwl3s8f6MdwrD7q`
     );
 
-    const formattedAllowUrls = convertObjectToArray(this.allowUrls);
-    const formattedDenyUrls = convertObjectToArray(this.denyUrls);
-    const formattedIgnoreErrors = convertObjectToArray(this.ignoreErrors);
-    const formattedIncludePaths = convertObjectToArray(this.includePathsArray);
+    const formattedAllowUrls = convertObjectToArray(
+      this.allowUrls,
+      "allowUrls"
+    ).filter((e) => e);
+    const formattedDenyUrls = convertObjectToArray(
+      this.denyUrls,
+      "denyUrls"
+    ).filter((e) => e);
+    const formattedIgnoreErrors = convertObjectToArray(
+      this.ignoreErrors,
+      "ignoreErrors"
+    ).filter((e) => e);
+    const formattedIncludePaths = convertObjectToArray(
+      this.includePathsArray,
+      "includePathsArray"
+    ).filter((e) => e);
 
     const customRelease = this.customVersionProperty
       ? window[this.customVersionProperty]
       : null;
 
+    const releaseValue = customRelease || (this.release ? this.release : null);
+
     window.Sentry = {
       dsn: this.dsn,
       debug: this.debugMode,
-      environment: this.environment,
-      release: customRelease || this.release,
-      serverName: this.serverName,
+      environment: this.environment || null,
+      release: releaseValue,
+      serverName: this.serverName || null,
       allowUrls: formattedAllowUrls,
       denyUrls: formattedDenyUrls,
       ignoreErrors: formattedIgnoreErrors,
-      integrations: [],
     };
 
     let includePaths = [];
@@ -79,6 +92,7 @@ class Sentry {
     }
 
     if (includePaths.length > 0) {
+      window.Sentry.integrations = [];
       window.Sentry.integrations.push(
         new window.Sentry.Integrations.RewriteFrames({
           // eslint-disable-next-line object-shorthand
@@ -141,17 +155,19 @@ class Sentry {
       return;
     }
 
-    const finalPayload = {
+    const combinedPayload = {
       id: userId,
       email: email,
       username: name,
       ip_address: ipAddress,
       ...traits,
     };
+
+    const finalPayload = removeUndefinedAndNullValues(combinedPayload);
     if (this.logger) {
-      window.Sentry.setTag("logger", logger);
+      window.Sentry.setTag("logger", this.logger);
     }
-    window.Sentry.setUser(removeUndefinedAndNullValues(finalPayload));
+    window.Sentry.setUser(finalPayload);
   }
 }
 export default Sentry;

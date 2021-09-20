@@ -1,7 +1,7 @@
 import logger from "../../utils/logUtil";
 
-const convertObjectToArray = (objectInput) => {
-  return objectInput.map((objectItem) => objectItem.eventCustomProperties);
+const convertObjectToArray = (objectInput, propertyName) => {
+  return objectInput.map((objectItem) => objectItem[propertyName]);
 };
 
 const SentryScriptLoader = (id, src, integrity) => {
@@ -9,8 +9,7 @@ const SentryScriptLoader = (id, src, integrity) => {
   const js = document.createElement("script");
   js.src = src;
   js.integrity = integrity;
-  js.crossorigin = "anonymous";
-  js.async = true;
+  js.crossOrigin = "anonymous";
   js.type = "text/javascript";
   js.id = id;
   const e = document.getElementsByTagName("script")[0];
