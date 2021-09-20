@@ -1,8 +1,15 @@
+/* eslint-disable func-names */
+/* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-expressions */
 
+import get from "get-value";
 import logger from "../../utils/logUtil";
-import {SentryScriptLoader, identifierPayloadBuilder} from "./utils";
-import {getDefinedTraits, isObject} from "../../utils/utils";
+import {
+  SentryScriptLoader,
+  identifierPayloadBuilder,
+  convertObjectToArray,
+} from "./utils";
+import { getDefinedTraits, isObject } from "../../utils/utils";
 
 class Sentry {
   constructor(config) {
@@ -26,90 +33,116 @@ class Sentry {
       return;
     }
     SentryScriptLoader(
-        "Sentry",
-        `https://browser.sentry-cdn.com/6.12.0/bundle.min.js`
-      );
+      "Sentry",
+      `https://browser.sentry-cdn.com/6.12.0/bundle.min.js`
+    );
+
+    const formattedAllowUrls = convertObjectToArray(this.allowUrls);
+    const formattedDenyUrls = convertObjectToArray(this.denyUrls);
+    const formattedIgnoreErrors = convertObjectToArray(this.ignoreErrors);
 
     window.Sentry = {
-        dsn: this.dsn,
-        debug: this.debugMode,
-        environment: this.environment,
-        release: this.release,
-        serverName: this.serverName,
-        allowUrls:this.allowUrls,
-        denyUrls: this.denyUrls,
-        ignoreErrors: this.ignoreErrors,
-        integrations: [],
+      dsn: this.dsn,
+      debug: this.debugMode,
+      environment: this.environment,
+      release: this.release,
+      serverName: this.serverName,
+      allowUrls: formattedAllowUrls,
+      denyUrls: formattedDenyUrls,
+      ignoreErrors: formattedIgnoreErrors,
+      integrations: [],
     };
 
     let includePaths = [];
 
     if (this.includePathsArray.length > 0) {
-        includePaths = this.includePathsArray.map(function(path) {
-          var regex;
-          try {
-            regex = new RegExp(path);
-          } catch (e) {
-            
-          }
-          return regex;
-        });
-      }
+      includePaths = this.includePathsArray.map(function (path) {
+        let regex;
+        try {
+          regex = new RegExp(path);
+        } catch (e) {
+          // ignored
+        }
+        return regex;
+      });
+    }
 
-      if (includePaths.length > 0) {
-        config.integrations.push(
-          new window.Sentry.Integrations.RewriteFrames({
-            iteratee: function(frame) {
-              for (var i = 0; i < includePaths.length; i++) {
-                try {
-                  if (frame.filename.match(includePaths[i])) {
-                    frame.in_app = true; 
-                    return frame;
-                  }
-                } catch (e) {
-                  
+    if (includePaths.length > 0) {
+      this.integrations.push(
+        new window.Sentry.Integrations.RewriteFrames({
+          // eslint-disable-next-line object-shorthand
+          iteratee: function (frame) {
+            // eslint-disable-next-line consistent-return
+            includePaths.forEach((i) => {
+              try {
+                if (frame.filename.match(includePaths[i])) {
+                  // eslint-disable-next-line no-param-reassign
+                  frame.in_app = true;
+                  return frame;
                 }
+              } catch (e) {
+                // ignored
               }
-              frame.in_app = false; 
-              return frame;
-            }
-          })
-        );
-      }
-    
+            });
+            // eslint-disable-next-line no-param-reassign
+            frame.in_app = false;
+            return frame;
+          },
+        })
+      );
+    }
   }
 
   // eslint-disable-next-line class-methods-use-this
   isLoaded() {
     logger.debug("===in Sentry isLoaded===");
-    return !!(window.Sentry && isObject(window.Sentry) && window.Sentry.setUser);
+    return !!(
+      window.Sentry &&
+      isObject(window.Sentry) &&
+      window.Sentry.setUser &&
+      window.Sentry.Integrations.RewriteFrames
+    );
   }
 
   // eslint-disable-next-line class-methods-use-this
   isReady() {
     logger.debug("===in Sentry isReady===");
-    return !!(window.Sentry && isObject(window.Sentry) && window.Sentry.setUser);
+    return !!(
+      window.Sentry &&
+      isObject(window.Sentry) &&
+      window.Sentry.setUser &&
+      window.Sentry.Integrations.RewriteFrames
+    );
   }
 
   identify(rudderElement) {
     const { traits } = rudderElement.message;
     const { userId, email, name } = getDefinedTraits(rudderElement.message); // userId sent as id and username sent as name
-    const ip_address = get (message,"traits.ip_address") || get (message,"context.traits.ip_address");
-    
+    const ipAddress =
+      get(rudderElement.message, "traits.ip_address") ||
+      get(rudderElement.message, "context.traits.ip_address");
 
-    if( ! userId && ! email && ! name && ! ip_address ) { // if no user identification property is present the event will be dropped
-        logger.debug("Any one of userId, email, name and ip_address is mandatory");
-        return;
+    if (!userId && !email && !name && !ipAddress) {
+      // if no user identification property is present the event will be dropped
+      logger.debug(
+        "Any one of userId, email, name and ip_address is mandatory"
+      );
+      return;
     }
-    const userIdentifierPayload = identifierPayloadBuilder (userId, email, name, ip_address);
-    
+    const userIdentifierPayload = identifierPayloadBuilder(
+      userId,
+      email,
+      name,
+      ipAddress
+    );
     const finalPayload = {
-        ... userIdentifierPayload,
-        ...traits
+      ...userIdentifierPayload,
+      ...traits,
+    };
+    if (this.logger) {
+      window.Sentry.setTag("logger", logger);
     }
     window.Sentry.setUser(finalPayload);
-
-
   }
 }
 export default Sentry;
