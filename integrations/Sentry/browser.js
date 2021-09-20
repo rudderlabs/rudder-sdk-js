@@ -122,13 +122,6 @@ class Sentry {
       get(rudderElement.message, "traits.ip_address") ||
       get(rudderElement.message, "context.traits.ip_address");
 
-    if (!userId && !email && !name && !ipAddress) {
-      // if no user identification property is present the event will be dropped
-      logger.debug(
-        "Any one of userId, email, name and ip_address is mandatory"
-      );
-      return;
-    }
     const userIdentifierPayload = identifierPayloadBuilder(
       userId,
       email,
