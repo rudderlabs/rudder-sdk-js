@@ -40,6 +40,7 @@ class Sentry {
     const formattedAllowUrls = convertObjectToArray(this.allowUrls);
     const formattedDenyUrls = convertObjectToArray(this.denyUrls);
     const formattedIgnoreErrors = convertObjectToArray(this.ignoreErrors);
+    const formattedIncludePaths = convertObjectToArray(this.includePathsArray);
 
     const customRelease = this.customVersionProperty
       ? window[this.customVersionProperty]
@@ -59,8 +60,8 @@ class Sentry {
 
     let includePaths = [];
 
-    if (this.includePathsArray.length > 0) {
-      includePaths = this.includePathsArray.map(function (path) {
+    if (formattedIncludePaths.length > 0) {
+      includePaths = formattedIncludePaths.map(function (path) {
         let regex;
         try {
           regex = new RegExp(path);
