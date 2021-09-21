@@ -28,18 +28,18 @@ class Sentry {
   init() {
     logger.debug("===in init Sentry===");
     if (!this.dsn) {
-      logger.debug("===[Sentry]: DSN is a mandatory field===");
+      logger.debug("DSN is a mandatory field");
       return;
     }
     SentryScriptLoader(
       "Sentry",
-      `https://browser.sentry-cdn.com/6.12.0/bundle.min.js`,
-      `sha384-S3qfdh3AsT1UN84WIYNuOX9vVOoFg3nB17Jp5/pTFGDBGBt+dtz7MGAV845efkZr`
+      `https://browser.sentry-cdn.com/6.13.1/bundle.min.js`,
+      `sha384-vUP3nL55ipf9vVr3gDgKyDuYwcwOC8nZGAksntVhezPcr2QXl1Ls81oolaVSkPm+`
     );
 
     SentryScriptLoader(
       "Sentry",
-      `https://browser.sentry-cdn.com/6.12.0/rewriteframes.min.js`,
+      `https://browser.sentry-cdn.com/6.13.1/rewriteframes.min.js`,
       `sha384-WOm9k3kzVt1COFAB/zCXOFx4lDMtJh/2vmEizIwgog7OW0P/dPwl3s8f6MdwrD7q`
     );
 
@@ -63,7 +63,7 @@ class Sentry {
 
     const releaseValue = customRelease || (this.release ? this.release : null);
 
-    window.Sentry = {
+    const sentryConfig = {
       dsn: this.dsn,
       debug: this.debugMode,
       environment: this.environment || null,
@@ -89,8 +89,8 @@ class Sentry {
     }
 
     if (includePaths.length > 0) {
-      window.Sentry.integrations = [];
-      window.Sentry.integrations.push(
+      sentryConfig.integrations = [];
+      sentryConfig.integrations.push(
         new window.Sentry.Integrations.RewriteFrames({
           // eslint-disable-next-line object-shorthand
           iteratee: function (frame) {
@@ -113,6 +113,7 @@ class Sentry {
         })
       );
     }
+    window.Sentry.init(sentryConfig);
   }
 
   // eslint-disable-next-line class-methods-use-this
