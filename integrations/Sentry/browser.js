@@ -5,7 +5,7 @@
 
 import get from "get-value";
 import logger from "../../utils/logUtil";
-import { SentryScriptLoader, convertObjectToArray } from "./utils";
+import { SentryScriptLoader, sentryInit } from "./utils";
 import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 import { getDefinedTraits, isObject } from "../../utils/utils";
 
@@ -64,77 +64,18 @@ class Sentry {
       window.Sentry.setUser &&
       window.Sentry.Integrations.RewriteFrames
     ) {
-      const formattedAllowUrls = convertObjectToArray(
+      const sentryConfig = sentryInit(
         this.allowUrls,
-        "allowUrls"
-      );
-      const formattedDenyUrls = convertObjectToArray(this.denyUrls, "denyUrls");
-      const formattedIgnoreErrors = convertObjectToArray(
+        this.denyUrls,
         this.ignoreErrors,
-        "ignoreErrors"
-      );
-      const formattedIncludePaths = convertObjectToArray(
         this.includePathsArray,
-        "includePaths"
+        this.customVersionProperty,
+        this.release,
+        this.dsn,
+        this.debugMode,
+        this.environment,
+        this.serverName
       );
-
-      const customRelease = this.customVersionProperty
-        ? window[this.customVersionProperty]
-        : null;
-
-      const releaseValue =
-        customRelease || (this.release ? this.release : null);
-
-      const sentryConfig = {
-        dsn: this.dsn,
-        debug: this.debugMode,
-        environment: this.environment || null,
-        release: releaseValue,
-        serverName: this.serverName || null,
-        allowUrls: formattedAllowUrls,
-        denyUrls: formattedDenyUrls,
-        ignoreErrors: formattedIgnoreErrors,
-      };
-
-      let includePaths = [];
-
-      if (formattedIncludePaths.length > 0) {
-        includePaths = formattedIncludePaths.map(function (path) {
-          let regex;
-          try {
-            regex = new RegExp(path);
-          } catch (e) {
-            // ignored
-          }
-          return regex;
-        });
-      }
-
-      if (includePaths.length > 0) {
-        sentryConfig.integrations = [];
-        sentryConfig.integrations.push(
-          new window.Sentry.Integrations.RewriteFrames({
-            // eslint-disable-next-line object-shorthand
-            iteratee: function (frame) {
-              // eslint-disable-next-line consistent-return
-              includePaths.forEach((path) => {
-                try {
-                  if (frame.filename.match(path)) {
-                    // eslint-disable-next-line no-param-reassign
-                    frame.in_app = true;
-                    return frame;
-                  }
-                } catch (e) {
-                  // ignored
-                }
-              });
-              // eslint-disable-next-line no-param-reassign
-              frame.in_app = false;
-              return frame;
-            },
-          })
-        );
-      }
       window.Sentry.init(sentryConfig);
       return true;
     }
