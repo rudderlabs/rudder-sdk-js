@@ -46,19 +46,16 @@ class Sentry {
     const formattedAllowUrls = convertObjectToArray(
       this.allowUrls,
       "allowUrls"
-    ).filter((e) => e);
-    const formattedDenyUrls = convertObjectToArray(
-      this.denyUrls,
-      "denyUrls"
-    ).filter((e) => e);
+    );
+    const formattedDenyUrls = convertObjectToArray(this.denyUrls, "denyUrls");
     const formattedIgnoreErrors = convertObjectToArray(
       this.ignoreErrors,
       "ignoreErrors"
-    ).filter((e) => e);
+    );
     const formattedIncludePaths = convertObjectToArray(
       this.includePathsArray,
-      "includePathsArray"
-    ).filter((e) => e);
+      "includePaths"
+    );
 
     const customRelease = this.customVersionProperty
       ? window[this.customVersionProperty]
@@ -141,11 +138,9 @@ class Sentry {
   }
 
   identify(rudderElement) {
-    const { traits } = rudderElement.message;
+    const { traits } = rudderElement.message.context;
     const { userId, email, name } = getDefinedTraits(rudderElement.message); // userId sent as id and username sent as name
-    const ipAddress =
-      get(rudderElement.message, "traits.ip_address") ||
-      get(rudderElement.message, "context.traits.ip_address");
+    const ipAddress = get(rudderElement.message, "context.traits.ip_address");
 
     if (!userId && !email && !name && !ipAddress) {
       // if no user identification property is present the event will be dropped
