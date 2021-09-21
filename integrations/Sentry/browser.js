@@ -28,7 +28,7 @@ class Sentry {
   init() {
     logger.debug("===in init Sentry===");
     if (!this.dsn) {
-      logger.debug("DSN is a mandatory field");
+      logger.debug("===[Sentry]: DSN is a mandatory field===");
       return;
     }
     SentryScriptLoader(
@@ -145,7 +145,7 @@ class Sentry {
     if (!userId && !email && !name && !ipAddress) {
       // if no user identification property is present the event will be dropped
       logger.debug(
-        "Any one of userId, email, name and ip_address is mandatory"
+        "===[Sentry]: Any one of userId, email, name and ip_address is mandatory==="
       );
       return;
     }
