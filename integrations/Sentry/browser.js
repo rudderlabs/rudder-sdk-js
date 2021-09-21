@@ -42,78 +42,6 @@ class Sentry {
       `https://browser.sentry-cdn.com/6.13.1/rewriteframes.min.js`,
       `sha384-WOm9k3kzVt1COFAB/zCXOFx4lDMtJh/2vmEizIwgog7OW0P/dPwl3s8f6MdwrD7q`
     );
-
-    const formattedAllowUrls = convertObjectToArray(
-      this.allowUrls,
-      "allowUrls"
-    );
-    const formattedDenyUrls = convertObjectToArray(this.denyUrls, "denyUrls");
-    const formattedIgnoreErrors = convertObjectToArray(
-      this.ignoreErrors,
-      "ignoreErrors"
-    );
-    const formattedIncludePaths = convertObjectToArray(
-      this.includePathsArray,
-      "includePaths"
-    );
-
-    const customRelease = this.customVersionProperty
-      ? window[this.customVersionProperty]
-      : null;
-
-    const releaseValue = customRelease || (this.release ? this.release : null);
-
-    const sentryConfig = {
-      dsn: this.dsn,
-      debug: this.debugMode,
-      environment: this.environment || null,
-      release: releaseValue,
-      serverName: this.serverName || null,
-      allowUrls: formattedAllowUrls,
-      denyUrls: formattedDenyUrls,
-      ignoreErrors: formattedIgnoreErrors,
-    };
-
-    let includePaths = [];
-
-    if (formattedIncludePaths.length > 0) {
-      includePaths = formattedIncludePaths.map(function (path) {
-        let regex;
-        try {
-          regex = new RegExp(path);
-        } catch (e) {
-          // ignored
-        }
-        return regex;
-      });
-    }
-
-    if (includePaths.length > 0) {
-      sentryConfig.integrations = [];
-      sentryConfig.integrations.push(
-        new window.Sentry.Integrations.RewriteFrames({
-          // eslint-disable-next-line object-shorthand
-          iteratee: function (frame) {
-            // eslint-disable-next-line consistent-return
-            includePaths.forEach((path) => {
-              try {
-                if (frame.filename.match(path)) {
-                  // eslint-disable-next-line no-param-reassign
-                  frame.in_app = true;
-                  return frame;
-                }
-              } catch (e) {
-                // ignored
-              }
-            });
-            // eslint-disable-next-line no-param-reassign
-            frame.in_app = false;
-            return frame;
-          },
-        })
-      );
-    }
-    window.Sentry.init(sentryConfig);
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -130,12 +58,87 @@ class Sentry {
   // eslint-disable-next-line class-methods-use-this
   isReady() {
     logger.debug("===in Sentry isReady===");
-    return !!(
+    if (
       window.Sentry &&
       isObject(window.Sentry) &&
       window.Sentry.setUser &&
       window.Sentry.Integrations.RewriteFrames
-    );
+    ) {
+      const formattedAllowUrls = convertObjectToArray(
+        this.allowUrls,
+        "allowUrls"
+      );
+      const formattedDenyUrls = convertObjectToArray(this.denyUrls, "denyUrls");
+      const formattedIgnoreErrors = convertObjectToArray(
+        this.ignoreErrors,
+        "ignoreErrors"
+      );
+      const formattedIncludePaths = convertObjectToArray(
+        this.includePathsArray,
+        "includePaths"
+      );
+
+      const customRelease = this.customVersionProperty
+        ? window[this.customVersionProperty]
+        : null;
+
+      const releaseValue =
+        customRelease || (this.release ? this.release : null);
+
+      const sentryConfig = {
+        dsn: this.dsn,
+        debug: this.debugMode,
+        environment: this.environment || null,
+        release: releaseValue,
+        serverName: this.serverName || null,
+        allowUrls: formattedAllowUrls,
+        denyUrls: formattedDenyUrls,
+        ignoreErrors: formattedIgnoreErrors,
+      };
+
+      let includePaths = [];
+
+      if (formattedIncludePaths.length > 0) {
+        includePaths = formattedIncludePaths.map(function (path) {
+          let regex;
+          try {
+            regex = new RegExp(path);
+          } catch (e) {
+            // ignored
+          }
+          return regex;
+        });
+      }
+
+      if (includePaths.length > 0) {
+        sentryConfig.integrations = [];
+        sentryConfig.integrations.push(
+          new window.Sentry.Integrations.RewriteFrames({
+            // eslint-disable-next-line object-shorthand
+            iteratee: function (frame) {
+              // eslint-disable-next-line consistent-return
+              includePaths.forEach((path) => {
+                try {
+                  if (frame.filename.match(path)) {
+                    // eslint-disable-next-line no-param-reassign
+                    frame.in_app = true;
+                    return frame;
+                  }
+                } catch (e) {
+                  // ignored
+                }
+              });
+              // eslint-disable-next-line no-param-reassign
+              frame.in_app = false;
+              return frame;
+            },
+          })
+        );
+      }
+      window.Sentry.init(sentryConfig);
+      return true;
+    }
+    return false;
   }
 
   identify(rudderElement) {
