@@ -48,13 +48,11 @@ const sentryInit = (
     ? window[customVersionProperty]
     : null;
 
-  const releaseValue = customRelease || release || null;
-
   const sentryConfig = {
     dsn: DSN,
     debug: debugMode,
     environment: environment || null,
-    release: releaseValue,
+    release: customRelease || release || null,
     serverName: serverName || null,
     allowUrls: formattedAllowUrls,
     denyUrls: formattedDenyUrls,

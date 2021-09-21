@@ -95,7 +95,7 @@ class Sentry {
       return;
     }
 
-    const combinedPayload = {
+    const payload = {
       id: userId,
       email: email,
       username: name,
@@ -103,11 +103,10 @@ class Sentry {
       ...traits,
     };
 
-    const finalPayload = removeUndefinedAndNullValues(combinedPayload);
     if (this.logger) {
       window.Sentry.setTag("logger", this.logger);
     }
-    window.Sentry.setUser(finalPayload);
+    window.Sentry.setUser(removeUndefinedAndNullValues(payload));
   }
 }
 export default Sentry;
