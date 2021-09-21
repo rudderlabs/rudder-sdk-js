@@ -1,7 +1,10 @@
 import logger from "../../utils/logUtil";
+import { isDefinedAndNotNullAndNotEmpty } from "../utils/commonUtils";
 
 const convertObjectToArray = (objectInput, propertyName) => {
-  return objectInput.map((objectItem) => objectItem[propertyName]);
+  return objectInput
+    .map((objectItem) => objectItem[propertyName])
+    .filter((e) => isDefinedAndNotNullAndNotEmpty(e));
 };
 
 const SentryScriptLoader = (id, src, integrity) => {
