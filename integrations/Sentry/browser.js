@@ -5,7 +5,7 @@
 
 import get from "get-value";
 import logger from "../../utils/logUtil";
-import { SentryScriptLoader, convertObjectToArray } from "./utils";
+import { SentryScriptLoader, sentryInit } from "./utils";
 import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 import { getDefinedTraits, isObject } from "../../utils/utils";
 
@@ -28,91 +28,20 @@ class Sentry {
   init() {
     logger.debug("===in init Sentry===");
     if (!this.dsn) {
-      logger.debug("===[Sentry]: DSN is a mandatory field===");
+      logger.debug("DSN is a mandatory field");
       return;
     }
     SentryScriptLoader(
       "Sentry",
-      `https://browser.sentry-cdn.com/6.12.0/bundle.min.js`,
-      `sha384-S3qfdh3AsT1UN84WIYNuOX9vVOoFg3nB17Jp5/pTFGDBGBt+dtz7MGAV845efkZr`
+      `https://browser.sentry-cdn.com/6.13.1/bundle.min.js`,
+      `sha384-vUP3nL55ipf9vVr3gDgKyDuYwcwOC8nZGAksntVhezPcr2QXl1Ls81oolaVSkPm+`
     );
 
     SentryScriptLoader(
       "Sentry",
-      `https://browser.sentry-cdn.com/6.12.0/rewriteframes.min.js`,
+      `https://browser.sentry-cdn.com/6.13.1/rewriteframes.min.js`,
       `sha384-WOm9k3kzVt1COFAB/zCXOFx4lDMtJh/2vmEizIwgog7OW0P/dPwl3s8f6MdwrD7q`
     );
-
-    const formattedAllowUrls = convertObjectToArray(
-      this.allowUrls,
-      "allowUrls"
-    );
-    const formattedDenyUrls = convertObjectToArray(this.denyUrls, "denyUrls");
-    const formattedIgnoreErrors = convertObjectToArray(
-      this.ignoreErrors,
-      "ignoreErrors"
-    );
-    const formattedIncludePaths = convertObjectToArray(
-      this.includePathsArray,
-      "includePaths"
-    );
-
-    const customRelease = this.customVersionProperty
-      ? window[this.customVersionProperty]
-      : null;
-
-    const releaseValue = customRelease || (this.release ? this.release : null);
-
-    window.Sentry = {
-      dsn: this.dsn,
-      debug: this.debugMode,
-      environment: this.environment || null,
-      release: releaseValue,
-      serverName: this.serverName || null,
-      allowUrls: formattedAllowUrls,
-      denyUrls: formattedDenyUrls,
-      ignoreErrors: formattedIgnoreErrors,
-    };
-
-    let includePaths = [];
-
-    if (formattedIncludePaths.length > 0) {
-      includePaths = formattedIncludePaths.map(function (path) {
-        let regex;
-        try {
-          regex = new RegExp(path);
-        } catch (e) {
-          // ignored
-        }
-        return regex;
-      });
-    }
-
-    if (includePaths.length > 0) {
-      window.Sentry.integrations = [];
-      window.Sentry.integrations.push(
-        new window.Sentry.Integrations.RewriteFrames({
-          // eslint-disable-next-line object-shorthand
-          iteratee: function (frame) {
-            // eslint-disable-next-line consistent-return
-            includePaths.forEach((path) => {
-              try {
-                if (frame.filename.match(path)) {
-                  // eslint-disable-next-line no-param-reassign
-                  frame.in_app = true;
-                  return frame;
-                }
-              } catch (e) {
-                // ignored
-              }
-            });
-            // eslint-disable-next-line no-param-reassign
-            frame.in_app = false;
-            return frame;
-          },
-        })
-      );
-    }
   }
 
   // eslint-disable-next-line class-methods-use-this
@@ -129,12 +58,28 @@ class Sentry {
   // eslint-disable-next-line class-methods-use-this
   isReady() {
     logger.debug("===in Sentry isReady===");
-    return !!(
+    if (
       window.Sentry &&
       isObject(window.Sentry) &&
       window.Sentry.setUser &&
       window.Sentry.Integrations.RewriteFrames
-    );
+    ) {
+      const sentryConfig = sentryInit(
+        this.allowUrls,
+        this.denyUrls,
+        this.ignoreErrors,
+        this.includePathsArray,
+        this.customVersionProperty,
+        this.release,
+        this.dsn,
+        this.debugMode,
+        this.environment,
+        this.serverName
+      );
+      window.Sentry.init(sentryConfig);
+      return true;
+    }
+    return false;
   }
 
   identify(rudderElement) {
@@ -150,7 +95,7 @@ class Sentry {
       return;
     }
 
-    const combinedPayload = {
+    const payload = {
       id: userId,
       email: email,
       username: name,
@@ -158,11 +103,10 @@ class Sentry {
       ...traits,
     };
 
-    const finalPayload = removeUndefinedAndNullValues(combinedPayload);
     if (this.logger) {
       window.Sentry.setTag("logger", this.logger);
     }
-    window.Sentry.setUser(finalPayload);
+    window.Sentry.setUser(removeUndefinedAndNullValues(payload));
   }
 }
 export default Sentry;
