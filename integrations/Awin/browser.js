@@ -83,12 +83,12 @@ class Awin {
     //   "https://www.awin1.com/sread.img?tt=ns&tv=2&merchant=12270&amount=340.44&cr=GBP&ref=4-801279246&parts=DEFAULT:340.44&vc=HALFPRICE&ch=aw&testmode=0";
     this.addPixel(url);
     window.AWIN.Tracking.Sale.amount = properties.amount || "";
-    window.AWIN.Tracking.Sale.orderRef = properties.amount || "";
-    window.AWIN.Tracking.Sale.parts = properties.amount || "";
-    window.AWIN.Tracking.Sale.voucher = properties.amount || "";
-    window.AWIN.Tracking.Sale.currency = properties.amount || "";
-    window.AWIN.Tracking.Sale.test = properties.amount || "";
-    window.AWIN.Tracking.Sale.channel = properties.amount || "";
+    window.AWIN.Tracking.Sale.orderRef = properties.orderRef || "";
+    window.AWIN.Tracking.Sale.parts = properties.parts || "";
+    window.AWIN.Tracking.Sale.voucher = properties.voucher || "";
+    window.AWIN.Tracking.Sale.currency = properties.currency || "";
+    window.AWIN.Tracking.Sale.test = properties.test || "";
+    window.AWIN.Tracking.Sale.channel = properties.channel || "";
     // window.AWIN.Tracking.Sale.amount = "340.44";
     // window.AWIN.Tracking.Sale.orderRef = "4-801279246";
     // window.AWIN.Tracking.Sale.parts = "DEFAULT:340.44";
