@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable object-shorthand */
 import logger from "../../utils/logUtil";
 import { isDefinedAndNotNullAndNotEmpty } from "../utils/commonUtils";
 
@@ -78,13 +80,10 @@ const sentryInit = (
     sentryConfig.integrations = [];
     sentryConfig.integrations.push(
       new window.Sentry.Integrations.RewriteFrames({
-        // eslint-disable-next-line object-shorthand
         iteratee: function (frame) {
-          // eslint-disable-next-line consistent-return
           includePaths.forEach((path) => {
             try {
               if (frame.filename.match(path)) {
-                // eslint-disable-next-line no-param-reassign
                 frame.in_app = true;
                 return frame;
               }
@@ -92,7 +91,6 @@ const sentryInit = (
               // ignored
             }
           });
-          // eslint-disable-next-line no-param-reassign
           frame.in_app = false;
           return frame;
         },
