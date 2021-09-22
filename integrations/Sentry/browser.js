@@ -77,15 +77,20 @@ class Sentry {
         this.serverName
       );
       window.Sentry.init(sentryConfig);
+      if (this.logger) {
+        window.Sentry.setTag("logger", this.logger);
+      }
       return true;
     }
     return false;
   }
 
   identify(rudderElement) {
-    const { traits } = rudderElement.message.context;
-    const { userId, email, name } = getDefinedTraits(rudderElement.message); // userId sent as id and username sent as name
-    const ipAddress = get(rudderElement.message, "context.traits.ip_address");
+    const { message } = rudderElement;
+    const { traits } = message.context;
+    const { email, name } = getDefinedTraits(message); // userId sent as id and username sent as name
+    const userId = get(message, "userId");
+    const ipAddress = get(message, "context.traits.ip_address");
 
     if (!userId && !email && !name && !ipAddress) {
       // if no user identification property is present the event will be dropped
@@ -103,9 +108,6 @@ class Sentry {
       ...traits,
     };
 
-    if (this.logger) {
-      window.Sentry.setTag("logger", this.logger);
-    }
     window.Sentry.setUser(removeUndefinedAndNullValues(payload));
   }
 }
