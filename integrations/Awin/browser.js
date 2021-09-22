@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
 
@@ -13,10 +14,10 @@ class Awin {
       logger.debug("advertiserId missing");
       return;
     }
-    ScriptLoader("Awin", `https://www.dwin1.com/${this.advertiserId}.js`);
-    window.AWIN = {};
-    window.AWIN.Tracking = {};
-    window.AWIN.Tracking.Sale = {};
+    ScriptLoader("Awin", `https://www.dwin1.com/12270.js`);
+    // window.AWIN = {};
+    // window.AWIN.Tracking = {};
+    // window.AWIN.Tracking.Sale = {};
   }
 
   isLoaded() {
@@ -28,11 +29,11 @@ class Awin {
     return !!window.AWIN;
   }
 
-  addPixel(image,url) {
+  addPixel(url) {
     logger.debug("Adding image pixel");
-    let image = document.createElement("img");
+    const image = document.createElement("img");
     image.src = url;
-    image.setAttribute("border",0);
+    image.setAttribute("border", 0);
     image.setAttribute("width", 0);
     image.setAttribute("height", 0);
 
@@ -40,50 +41,61 @@ class Awin {
     document.getElementsByTagName("body")[0].appendChild(image);
   }
 
-  // propertiesValidator(properties){
-  //   let finalProperties =properties;
-  //   if(!properties.amount ){
-  //     finalProperties.amount= null;
-  //   }
-  //   if(!properties.orderRef){
-  //     finalProperties.orderRef=null;
-  //   }
-  //   if(!properties.parts){
-  //     finalProperties.parts=null;
-  //   }
-  //   if(!properties.voucher){
-  //     finalProperties.voucher=null;
-  //   }
-  //   if(!properties.currency){
-  //     finalProperties.currency=null;
-  //   }
-  //   if(!properties.test){
-  //     finalProperties.test=null;
-  //   }
-  //   if(!properties.channel){
-  //     finalProperties.channel=null;
-  //   }
-  //   return finalProperties;
-  // }
+  propertiesValidator(properties) {
+    const finalProperties = properties;
+    if (!properties.amount) {
+      finalProperties.amount = null;
+    }
+    if (!properties.orderRef) {
+      finalProperties.orderRef = null;
+    }
+    if (!properties.parts) {
+      finalProperties.parts = null;
+    }
+    if (!properties.voucher) {
+      finalProperties.voucher = null;
+    }
+    if (!properties.currency) {
+      finalProperties.currency = null;
+    }
+    if (!properties.test) {
+      finalProperties.test = null;
+    }
+    if (!properties.channel) {
+      finalProperties.channel = null;
+    }
+    return finalProperties;
+  }
 
   track(rudderElement) {
     logger.debug("===in track Awin===");
-    
-    const { properties } = rudderElement.message;
-    if(!properties){
+    window.AWIN = {};
+    window.AWIN.Tracking = {};
+    window.AWIN.Tracking.Sale = {};
+    let { properties } = rudderElement.message;
+    if (!properties) {
       logger.debug("properties are mandatory");
       return;
     }
-    // properties = this.propertiesValidator(properties);
-    const url = `https://www.awin1.com/sread.img?tt=ns&tv=2&merchant=${this.advertiserId}&amount=${properties.amount}&cr=${properties.currency}&ref=${properties.orderRef}&parts=${properties.parts}&vc=${properties.voucher}&ch=${properties.channel}&testmode=${properties.test}`
+    properties = this.propertiesValidator(properties);
+    const url = `https://www.awin1.com/sread.img?tt=ns&tv=2&merchant=${this.advertiserId}&amount=${properties.amount}&cr=${properties.currency}&ref=${properties.orderRef}&parts=${properties.parts}&vc=${properties.voucher}&ch=${properties.channel}&testmode=${properties.test}`;
+    // const url =
+    //   "https://www.awin1.com/sread.img?tt=ns&tv=2&merchant=12270&amount=340.44&cr=GBP&ref=4-801279246&parts=DEFAULT:340.44&vc=HALFPRICE&ch=aw&testmode=0";
     this.addPixel(url);
     window.AWIN.Tracking.Sale.amount = properties.amount || "";
-    window.AWIN.Tracking.Sale.orderRef = properties.orderRef || "";
-    window.AWIN.Tracking.Sale.parts = properties.parts || "";
-    window.AWIN.Tracking.Sale.voucher = properties.voucher || "";
-    window.AWIN.Tracking.Sale.currency = properties.currency || "";
-    window.AWIN.Tracking.Sale.test = properties.test || "";
-    window.AWIN.Tracking.Sale.channel = properties.channel || "";
+    window.AWIN.Tracking.Sale.orderRef = properties.amount || "";
+    window.AWIN.Tracking.Sale.parts = properties.amount || "";
+    window.AWIN.Tracking.Sale.voucher = properties.amount || "";
+    window.AWIN.Tracking.Sale.currency = properties.amount || "";
+    window.AWIN.Tracking.Sale.test = properties.amount || "";
+    window.AWIN.Tracking.Sale.channel = properties.amount || "";
+    // window.AWIN.Tracking.Sale.amount = "340.44";
+    // window.AWIN.Tracking.Sale.orderRef = "4-801279246";
+    // window.AWIN.Tracking.Sale.parts = "DEFAULT:340.44";
+    // window.AWIN.Tracking.Sale.voucher = "HALFPRICE";
+    // window.AWIN.Tracking.Sale.currency = "GBP";
+    // window.AWIN.Tracking.Sale.test = "0";
+    // window.AWIN.Tracking.Sale.channel = "aw";
 
     logger.debug("track completed");
   }
