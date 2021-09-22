@@ -32,13 +32,13 @@ class Sentry {
       return;
     }
     SentryScriptLoader(
-      "Sentry",
+      "sentry",
       `https://browser.sentry-cdn.com/6.13.1/bundle.min.js`,
       `sha384-vUP3nL55ipf9vVr3gDgKyDuYwcwOC8nZGAksntVhezPcr2QXl1Ls81oolaVSkPm+`
     );
 
     SentryScriptLoader(
-      "Sentry",
+      "plugin",
       `https://browser.sentry-cdn.com/6.13.1/rewriteframes.min.js`,
       `sha384-WOm9k3kzVt1COFAB/zCXOFx4lDMtJh/2vmEizIwgog7OW0P/dPwl3s8f6MdwrD7q`
     );
