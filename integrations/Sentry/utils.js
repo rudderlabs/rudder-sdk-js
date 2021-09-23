@@ -81,7 +81,8 @@ const sentryInit = (
     sentryConfig.integrations.push(
       new window.Sentry.Integrations.RewriteFrames({
         iteratee: function (frame) {
-          includePaths.forEach((path) => {
+          // eslint-disable-next-line no-restricted-syntax
+          for (const path of includePaths) {
             try {
               if (frame.filename.match(path)) {
                 frame.in_app = true;
@@ -90,7 +91,7 @@ const sentryInit = (
             } catch (e) {
               // ignored
             }
-          });
+          }
           frame.in_app = false;
           return frame;
         },
