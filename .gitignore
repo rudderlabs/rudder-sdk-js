@@ -15,5 +15,7 @@ local.properties
 package-lock.json
 build.sh
 publish.sh
+dist/*
+!dist/rudder-sdk-js
 coverage/**
 __tests__/prodsdk.js
