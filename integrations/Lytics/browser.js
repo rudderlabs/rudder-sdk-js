@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 // disabled these for Lytics js tag
 /* eslint-disable no-plusplus */
@@ -26,6 +27,8 @@ class Lytics {
     this.blockload = config.blockload;
     this.loadid = config.loadid;
     this.name = "LYTICS";
+    this.forFirstName = ["firstname", "firstName"];
+    this.forLastName = ["lastname", "lastName"];
   }
 
   loadLyticsScript() {
@@ -89,7 +92,7 @@ class Lytics {
       stream: this.stream,
       sessecs: 1800,
       src:
-        document.location.protocal === "https:"
+        document.location.protocol === "https:"
           ? `https://c.lytics.io/api/tag/${this.accountId}/latest.min.js`
           : `http://c.lytics.io/api/tag/${this.accountId}/latest.min.js`,
     });
@@ -120,6 +123,7 @@ class Lytics {
       rudderElement.message.userId || rudderElement.message.anonymousId;
     const { traits } = rudderElement.message.context;
     const payload = { user_id, ...traits };
+    this.handleName(payload);
     window.jstag.send(this.stream, payload);
   }
 
@@ -127,6 +131,7 @@ class Lytics {
     logger.debug("in Lytics page");
     const { properties } = rudderElement.message;
     const payload = { event: rudderElement.message.name, ...properties };
+    this.handleName(payload);
     window.jstag.pageView(this.stream, payload);
   }
 
@@ -134,7 +139,24 @@ class Lytics {
     logger.debug("in Lytics track");
     const { properties } = rudderElement.message;
     const payload = { _e: rudderElement.message.event, ...properties };
+    this.handleName(payload);
     window.jstag.send(this.stream, payload);
+  }
+
+  handleName(payload) {
+    this.forFirstName.forEach((key) => {
+      if (payload[key]) {
+        payload.first_name = payload[key];
+        delete payload[key];
+      }
+    });
+    this.forLastName.forEach((key) => {
+      if (payload[key]) {
+        payload.last_name = payload[key];
+        delete payload[key];
+      }
+    });
+    return payload;
   }
 }
 export default Lytics;

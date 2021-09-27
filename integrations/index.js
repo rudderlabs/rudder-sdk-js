@@ -26,6 +26,19 @@ import * as Appcues from "./Appcues";
 import * as Posthog from "./Posthog";
 import * as Klaviyo from "./Klaviyo";
 import * as Clevertap from "./Clevertap";
+import * as BingAds from "./BingAds";
+import * as PinterestTag from "./PinterestTag";
+import * as AdobeAnalytics from "./AdobeAnalytics";
+import * as LinkedInInsightTag from "./LinkedInInsightTag";
+import * as RedditPixel from "./RedditPixel";
+import * as Drip from "./Drip";
+import * as Heap from "./Heap";
+import * as Criteo from "./Criteo";
+import * as Mixpanel from "./Mixpanel";
+import * as Qualtrics from "./Qualtrics";
+import * as SnapPixel from "./SnapPixel";
+import * as ProfitWell from "./ProfitWell";
+import * as Sentry from "./Sentry";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -58,7 +71,20 @@ const integrations = {
   APPCUES: Appcues.default,
   POSTHOG: Posthog.default,
   KLAVIYO: Klaviyo.default,
-  CLEVERTAP: Clevertap.default
+  CLEVERTAP: Clevertap.default,
+  BINGADS: BingAds.default,
+  PINTEREST_TAG: PinterestTag.default,
+  ADOBE_ANALYTICS: AdobeAnalytics.default,
+  LINKEDIN_INSIGHT_TAG: LinkedInInsightTag.default,
+  REDDIT_PIXEL: RedditPixel.default,
+  DRIP: Drip.default,
+  HEAP: Heap.default,
+  CRITEO: Criteo.default,
+  MP: Mixpanel.default,
+  QUALTRICS: Qualtrics.default,
+  SNAP_PIXEL: SnapPixel.default,
+  PROFITWELL: ProfitWell.default,
+  SENTRY: Sentry.default,
 };
 
 export { integrations };

@@ -128,10 +128,10 @@ class Analytics {
     this.storage.setGroupTraits(this.groupTraits);
   }
 
-  setInitialPageProperties(){
+  setInitialPageProperties() {
     let initialReferrer = this.storage.getInitialReferrer();
     let initialReferringDomain = this.storage.getInitialReferringDomain();
-    if(initialReferrer == null && initialReferringDomain == null){
+    if (initialReferrer == null && initialReferringDomain == null) {
       initialReferrer = getReferrer();
       initialReferringDomain = getReferringDomain(initialReferrer);
       this.storage.setInitialReferrer(initialReferrer);
@@ -150,7 +150,7 @@ class Analytics {
   processResponse(status, response) {
     try {
       logger.debug(`===in process response=== ${status}`);
-      if (typeof response === 'string') {
+      if (typeof response === "string") {
         response = JSON.parse(response);
       }
       if (
@@ -248,9 +248,9 @@ class Analytics {
   // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
     if (
-      (object.successfullyLoadedIntegration.length +
+      object.successfullyLoadedIntegration.length +
         object.failedToBeLoadedIntegration.length ===
-        object.clientIntegrations.length) &&
+        object.clientIntegrations.length &&
       !object.areEventsReplayed
     ) {
       logger.debug(
@@ -809,8 +809,6 @@ class Analytics {
   getPageProperties(properties, options) {
     const defaultPageProperties = getDefaultPageProperties();
     const optionPageProperties = options && options.page ? options.page : {};
-    defaultPageProperties.initial_referrer = this.storage.getInitialReferrer();
-    defaultPageProperties.initial_referring_domain = this.storage.getInitialReferringDomain();
     for (const key in defaultPageProperties) {
       if (properties[key] === undefined) {
         properties[key] =
@@ -838,13 +836,16 @@ class Analytics {
    *
    * @memberof Analytics
    */
-  reset() {
+  reset(flag) {
     if (!this.loaded) return;
+    if (flag) {
+      this.anonymousId = "";
+    }
     this.userId = "";
     this.userTraits = {};
     this.groupId = "";
     this.groupTraits = {};
-    this.storage.clear();
+    this.storage.clear(flag);
   }
 
   getAnonymousId() {
@@ -854,6 +855,10 @@ class Analytics {
       this.setAnonymousId();
     }
     return this.anonymousId;
+  }
+
+  getUserTraits() {
+    return this.userTraits;
   }
 
   /**
@@ -921,7 +926,7 @@ class Analytics {
       logger.setLogLevel(options.logLevel);
     }
     if (options && options.setCookieDomain) {
-      this.storage.options({domain: options.setCookieDomain});
+      this.storage.options({ domain: options.setCookieDomain });
     }
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
@@ -1014,9 +1019,7 @@ class Analytics {
         const res = options.getSourceConfig();
 
         if (res instanceof Promise) {
-          res
-            .then(res => this.processResponse(200, res))
-            .catch(errorHandler)
+          res.then(res => this.processResponse(200, res)).catch(errorHandler);
         } else {
           this.processResponse(200, res);
         }
@@ -1029,7 +1032,7 @@ class Analytics {
     try {
       getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
     } catch (error) {
-      errorHandler(error)
+      errorHandler(error);
     }
     processDataInAnalyticsArray(this);
   }
@@ -1247,6 +1250,7 @@ const group = instance.group.bind(instance);
 const reset = instance.reset.bind(instance);
 const load = instance.load.bind(instance);
 const initialized = (instance.initialized = true);
+const getUserTraits = instance.getUserTraits.bind(instance);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
 
@@ -1260,6 +1264,7 @@ export {
   reset,
   alias,
   group,
+  getUserTraits,
   getAnonymousId,
   setAnonymousId
 };

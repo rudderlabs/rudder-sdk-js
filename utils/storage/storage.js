@@ -13,7 +13,7 @@ const defaults = {
   page_storage_init_referrer: "rl_page_init_referrer",
   page_storage_init_referring_domain: "rl_page_init_referring_domain",
   prefix: "RudderEncrypt:",
-  key: "Rudder",
+  key: "Rudder"
 };
 
 /**
@@ -182,7 +182,7 @@ class Storage {
   /**
    * @param {*} value
    */
-  setInitialReferrer(value){
+  setInitialReferrer(value) {
     this.storage.set(
       defaults.page_storage_init_referrer,
       this.encryptValue(this.stringify(value))
@@ -192,7 +192,7 @@ class Storage {
   /**
    * @param {*} value
    */
-  setInitialReferringDomain(value){
+  setInitialReferringDomain(value) {
     this.storage.set(
       defaults.page_storage_init_referring_domain,
       this.encryptValue(this.stringify(value))
@@ -255,7 +255,7 @@ class Storage {
   /**
    * get stored initial referrer
    */
-  getInitialReferrer(value){
+  getInitialReferrer(value) {
     return this.parse(
       this.decryptValue(this.storage.get(defaults.page_storage_init_referrer))
     );
@@ -264,9 +264,11 @@ class Storage {
   /**
    * get stored initial referring domain
    */
-  getInitialReferringDomain(value){
+  getInitialReferringDomain(value) {
     return this.parse(
-      this.decryptValue(this.storage.get(defaults.page_storage_init_referring_domain))
+      this.decryptValue(
+        this.storage.get(defaults.page_storage_init_referring_domain)
+      )
     );
   }
 
@@ -281,12 +283,14 @@ class Storage {
   /**
    * remove stored keys
    */
-  clear() {
+  clear(flag) {
     this.storage.remove(defaults.user_storage_key);
     this.storage.remove(defaults.user_storage_trait);
     this.storage.remove(defaults.group_storage_key);
     this.storage.remove(defaults.group_storage_trait);
-    // this.storage.remove(defaults.user_storage_anonymousId);
+    if (flag) {
+      this.storage.remove(defaults.user_storage_anonymousId);
+    }
   }
 }
 
