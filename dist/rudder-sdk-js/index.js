@@ -3571,7 +3571,7 @@
     PinterestAds: "PINTEREST_TAG",
     Pinterest_Ads: "PINTEREST_TAG",
     Pinterest: "PINTEREST_TAG",
-    "Adobe Analytics": "ADOBE_ANALYITCS",
+    "Adobe Analytics": "ADOBE_ANALYTICS",
     ADOBE_ANALYTICS: "ADOBE_ANALYTICS",
     AdobeAnalytics: "ADOBE_ANALYTICS",
     adobeanalytics: "ADOBE_ANALYTICS",
