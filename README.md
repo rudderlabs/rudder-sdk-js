@@ -18,7 +18,7 @@ More information on RudderStack can be found [here](https://github.com/rudderlab
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#what-is-the-rudderstack-javascript-sdk)What Is the RudderStack JavaScript SDK?
 
-The RudderStack JavaScript SDK (released under [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)) allows you to utilize our npm module `rudder-sdk-js` or `rudder-analytics.js` library to start sending event data from your website to RudderStack. After integrating this SDK, you will also be able to connect to multiple destinations such as Amplitude, Google Analytics, etc. to send your data.
+The RudderStack JavaScript SDK allows you to utilize our npm module `rudder-sdk-js` or `rudder-analytics.js` library to start sending event data from your website to RudderStack. After integrating this SDK, you will also be able to connect to multiple destinations such as Amplitude, Google Analytics, etc. to send your data.
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).
 
