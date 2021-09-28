@@ -181,48 +181,52 @@ class Analytics {
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
         const modName = configToIntNames[intg.name];
-        const modURL = `${this.destSDKBaseURL}/${modName}.min.js`;
-        if (!window.hasOwnProperty(modName)) {
-          ScriptLoader(modName, modURL);
-        }
-
-        const self = this;
-        const interval = setInterval(function () {
-          if (window.hasOwnProperty(modName)) {
-            const intMod = window[modName];
-            clearInterval(interval);
-
-            // logger.debug(modName, " dynamically loaded integration SDK")
-
-            let intgInstance;
-            try {
-              // logger.debug(
-              //   modName,
-              //   " [Analytics] processResponse :: trying to initialize integration ::"
-              // );
-              intgInstance = new intMod[modName](intg.config, self);
-              intgInstance.init();
-
-              // logger.debug(modName, " initializing destination")
-
-              self.isInitialized(intgInstance).then(() => {
-                // logger.debug(modName, " module init sequence complete")
-                self.dynamicallyLoadedIntegrations[modName] = intMod[modName];
-              });
-            } catch (e) {
-              logger.error(
-                modName,
-                " [Analytics] initialize integration (integration.init()) failed",
-                e
-              );
-              self.failedToBeLoadedIntegration.push(intgInstance);
-            }
+        if (process.browser) {
+          const modURL = `${this.destSDKBaseURL}/${modName}.min.js`;
+          if (!window.hasOwnProperty(modName)) {
+            ScriptLoader(modName, modURL);
           }
-        }, 100);
 
-        setTimeout(() => {
-          clearInterval(interval);
-        }, MAX_WAIT_FOR_INTEGRATION_LOAD);
+          const self = this;
+          const interval = setInterval(function () {
+            if (window.hasOwnProperty(modName)) {
+              const intMod = window[modName];
+              clearInterval(interval);
+
+              // logger.debug(modName, " dynamically loaded integration SDK")
+
+              let intgInstance;
+              try {
+                // logger.debug(
+                //   modName,
+                //   " [Analytics] processResponse :: trying to initialize integration ::"
+                // );
+                intgInstance = new intMod[modName](intg.config, self);
+                intgInstance.init();
+
+                // logger.debug(modName, " initializing destination")
+
+                self.isInitialized(intgInstance).then(() => {
+                  // logger.debug(modName, " module init sequence complete")
+                  self.dynamicallyLoadedIntegrations[modName] = intMod[modName];
+                });
+              } catch (e) {
+                logger.error(
+                  modName,
+                  " [Analytics] initialize integration (integration.init()) failed",
+                  e
+                );
+                self.failedToBeLoadedIntegration.push(intgInstance);
+              }
+            }
+          }, 100);
+
+          setTimeout(() => {
+            clearInterval(interval);
+          }, MAX_WAIT_FOR_INTEGRATION_LOAD);
+        } else {
+          // npm package specific logic goes here
+        }
       });
 
       const self = this;
