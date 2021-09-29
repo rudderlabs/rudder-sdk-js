@@ -27,10 +27,20 @@ const clientToServerNames = {
   LYTICS: "Lytics",
   APPCUES: "Appcues",
   POSTHOG: "PostHog",
+  PROFITWELL: "ProfitWell",
   KLAVIYO: "Klaviyo",
   CLEVERTAP: "Clevertap",
   BINGADS: "BingAds",
   PINTEREST_TAG: "PinterestTag",
+  SNAP_PIXEL: "Snap Pixel",
+  LINKEDIN_INSIGHT_TAG: "LinkedInInsightTag",
+  REDDIT_PIXEL: "Reddit Pixel",
+  DRIP: "Drip",
+  HEAP: "Heap.io",
+  CRITEO: "Criteo",
+  MP: "Mixpanel",
+  QUALTRICS: "Qualtrics",
+  SENTRY: "Sentry",
 };
 
 export { clientToServerNames };

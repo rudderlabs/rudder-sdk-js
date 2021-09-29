@@ -7,7 +7,9 @@ class GoogleAds {
     this.pageLoadConversions = config.pageLoadConversions;
     this.clickEventConversions = config.clickEventConversions;
     this.defaultPageConversion = config.defaultPageConversion;
-
+    this.sendPageView = config.sendPageView || true;
+    this.conversionLinker = config.conversionLinker || true;
+    this.disableAdPersonalization = config.disableAdPersonalization || false;
     this.name = "GOOGLEADS";
   }
 
@@ -30,7 +32,18 @@ class GoogleAds {
       window.dataLayer.push(arguments);
     };
     window.gtag("js", new Date());
-    window.gtag("config", this.conversionId);
+
+    // Additional Settings
+
+    const config = {};
+    config.send_page_view = this.sendPageView;
+    config.conversion_linker = this.conversionLinker;
+
+    if (this.disableAdPersonalization) {
+      window.gtag("set", "allow_ad_personalization_signals", false);
+    }
+
+    window.gtag("config", this.conversionId, config);
 
     logger.debug("===in init Google Ads===");
   }

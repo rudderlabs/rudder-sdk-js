@@ -18,6 +18,8 @@ class RudderScreenInfo {
     this.density = 0;
     this.width = 0;
     this.height = 0;
+    this.innerWidth = 0;
+    this.innerHeight = 0;
   }
 }
 // Device information class
