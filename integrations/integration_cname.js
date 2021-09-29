@@ -119,6 +119,11 @@ const commonNames = {
   SENTRY: "SENTRY",
   sentry: "SENTRY",
   Sentry: "SENTRY",
+  "Quantum Metric": "QUANTUMMETRIC",
+  QuantumMetric: "QUANTUMMETRIC",
+  quantumMetric: "QUANTUMMETRIC",
+  quantummetric: "QUANTUMMETRIC",
+  Quantum_Metric: "QUANTUMMETRIC",
 };
 
 export { commonNames };

@@ -26,10 +26,6 @@
     "size": "npm run size-build && size-limit",
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc "
   },
-  "pre-commit": [
-    "prodTest",
-    "test"
-  ],
   "author": "",
   "license": "ISC",
   "repository": {
