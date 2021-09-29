@@ -28,6 +28,7 @@ import * as Klaviyo from "./Klaviyo";
 import * as Clevertap from "./Clevertap";
 import * as BingAds from "./BingAds";
 import * as PinterestTag from "./PinterestTag";
+import * as QuantumMetric from "./QuantumMetric";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -63,6 +64,7 @@ const integrations = {
   CLEVERTAP: Clevertap.default,
   BINGADS: BingAds.default,
   PINTEREST_TAG: PinterestTag.default,
+  QUANTUMMETRIC: QuantumMetric.default
 };
 
 export { integrations };

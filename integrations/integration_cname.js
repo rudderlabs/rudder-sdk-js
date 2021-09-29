@@ -70,6 +70,10 @@ const commonNames = {
   PINTEREST_TAG: "PINTEREST_TAG",
   pinterest: "PINTEREST_TAG",
   Pinterest: "PINTEREST_TAG",
+  QuantumMetric: "QUANTUMMETRIC",
+  quantumMetric: "QUANTUMMETRIC",
+  quantummetric: "QUANTUMMETRIC",
+  Quantum_Metric: "QUANTUMMETRIC",
 };
 
 export { commonNames };
