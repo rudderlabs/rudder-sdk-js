@@ -28,6 +28,7 @@ import * as Klaviyo from "./Klaviyo";
 import * as Clevertap from "./Clevertap";
 import * as BingAds from "./BingAds";
 import * as PinterestTag from "./PinterestTag";
+import * as QuantumMetric from "./QuantumMetric";
 import * as AdobeAnalytics from "./AdobeAnalytics";
 import * as LinkedInInsightTag from "./LinkedInInsightTag";
 import * as RedditPixel from "./RedditPixel";
@@ -74,6 +75,7 @@ const integrations = {
   CLEVERTAP: Clevertap.default,
   BINGADS: BingAds.default,
   PINTEREST_TAG: PinterestTag.default,
+  QUANTUMMETRIC: QuantumMetric.default,
   ADOBE_ANALYTICS: AdobeAnalytics.default,
   LINKEDIN_INSIGHT_TAG: LinkedInInsightTag.default,
   REDDIT_PIXEL: RedditPixel.default,
