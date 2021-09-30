@@ -1,37 +1,40 @@
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-underscore-dangle */
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
 
 class QuantumMetric {
   constructor(config) {
-    this.siteId = config.siteID; // 1549611
+    this.siteId = "rudderstack"; // 1549611
     this.name = "QUANTUMMETRIC";
     this._ready = false;
   }
 
   init() {
     if (window.QuantumMetricAPI) {
-      return
+      return;
     }
 
     ScriptLoader(
-      'Quantum Metric',
+      "Quantum Metric",
       `https://cdn.quantummetric.com/qscripts/quantum-${this.siteId}.js`
-    )
-
-    this._ready = true;
+    );
+    if (window.QuantumMetricAPI) {
+      this._ready = true;
+    }
 
     logger.debug("===in init Quantum Metric===");
   }
 
-  identify(rudderElement) {
+  identify() {
     logger.debug("[QuantumMetric] track:: method not supported");
   }
 
-  track(rudderElement) {
+  track() {
     logger.debug("[QuantumMetric] track:: method not supported");
   }
 
-  page(rudderElement) {
+  page() {
     logger.debug("[QuantumMetric] page:: method not supported");
   }
 
@@ -44,4 +47,4 @@ class QuantumMetric {
   }
 }
 
-export { QuantumMetric };
+export default QuantumMetric;
