@@ -5,7 +5,7 @@ import ScriptLoader from "../ScriptLoader";
 
 class QuantumMetric {
   constructor(config) {
-    this.siteId = "rudderstack"; // 1549611
+    this.siteId = config.siteID; // 1549611
     this.name = "QUANTUMMETRIC";
     this._ready = false;
   }
