@@ -1,94 +1,107 @@
 declare module "rudder-sdk-js" {
-  function load(writeKey: string, dataPlaneUrl: string, options?: any): any;
+  function load(writeKey: string, dataPlaneUrl: string, options?: object): void;
 
-  function ready(callback: any): any;
+  function ready(callback: () => void): void;
 
   function page(
     category?: string,
     name?: string,
-    properties?: any,
-    options?: any,
-    callback?: any
-  ): any;
+    properties?: object,
+    options?: object,
+    callback?: () => void
+  ): void;
 
   function page(
     category: string,
     name: string,
-    properties: any,
-    callback: any
-  ): any;
+    properties: object,
+    callback: () => void
+  ): void;
 
-  function page(category: string, name: string, callback: any): any;
+  function page(category: string, name: string, callback: () => void): void;
 
   function page(
     name: string,
-    properties?: any,
-    options?: any,
-    callback?: any
-  ): any;
+    properties?: object,
+    options?: object,
+    callback?: () => void
+  ): void;
 
-  function page(name: string, properties: any, callback: any): any;
+  function page(name: string, properties: object, callback: () => void): void;
 
-  function page(name: string, callback: any): any;
+  function page(name: string, callback: () => void): void;
 
-  function page(properties: any, options: any, callback?: any): any;
+  function page(
+    properties: object,
+    options: object,
+    callback?: () => void
+  ): void;
 
-  function page(properties: any, callback?: any): any;
+  function page(properties: object, callback?: () => void): void;
 
   function track(
     event: string,
-    properties?: any,
-    options?: any,
-    callback?: any
-  ): any;
+    properties?: object,
+    options?: object,
+    callback?: () => void
+  ): void;
 
-  function track(event: string, properties: any, callback: any): any;
+  function track(event: string, properties: object, callback: () => void): void;
 
-  function track(event: string, callback: any): any;
+  function track(event: string, callback: () => void): void;
 
   function identify(
-    id?: string,
-    traits?: any,
-    options?: any,
-    callback?: any
-  ): any;
+    userId?: string,
+    traits?: object,
+    options?: object,
+    callback?: () => void
+  ): void;
 
-  function identify(id: string, traits: any, callback: any): any;
+  function identify(userId: string, traits: object, callback: () => void): void;
 
-  function identify(id: string, callback: any): any;
+  function identify(userId: string, callback: () => void): void;
 
-  function identify(traits: any, options: any, callback?: any): any;
+  function identify(
+    traits: object,
+    options: object,
+    callback?: () => void
+  ): void;
 
-  function identify(traits: any, callback?: any): any;
+  function identify(traits: object, callback?: () => void): void;
 
-  function alias(to: string, from?: string, options?: any, callback?: any): any;
+  function alias(
+    to: string,
+    from?: string,
+    options?: object,
+    callback?: () => void
+  ): void;
 
-  function alias(to: string, from: string, callback: any): any;
+  function alias(to: string, from: string, callback: () => void): void;
 
-  function alias(to: string, callback: any): any;
+  function alias(to: string, callback: () => void): void;
 
-  function alias(to: string, options: any, callback?: any): any;
+  function alias(to: string, options: object, callback?: () => void): void;
 
   function group(
-    group: string,
-    traits?: any,
-    options?: any,
-    callback?: any
-  ): any;
+    groupId: string,
+    traits?: object,
+    options?: object,
+    callback?: () => void
+  ): void;
 
-  function group(group: string, traits: any, callback: any): any;
+  function group(groupId: string, traits: object, callback: () => void): void;
 
-  function group(group: string, callback: any): any;
+  function group(groupId: string, callback: () => void): void;
 
-  function group(traits: any, options: any, callback?: any): any;
+  function group(traits: object, options: object, callback?: () => void): void;
 
-  function group(traits: any, callback?: any): any;
+  function group(traits: object, callback?: () => void): void;
 
   function getAnonymousId(): any;
 
-  function setAnonymousId(id?: string): any;
+  function setAnonymousId(id?: string): void;
 
-  function reset(): any;
+  function reset(): void;
 
   export {
     load,
