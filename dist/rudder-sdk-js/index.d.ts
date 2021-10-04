@@ -101,7 +101,7 @@ declare module "rudder-sdk-js" {
 
   function setAnonymousId(id?: string): void;
 
-  function reset(): void;
+  function reset(flag?: boolean): void;
 
   export {
     load,
