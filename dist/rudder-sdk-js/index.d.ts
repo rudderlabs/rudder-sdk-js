@@ -1,109 +1,177 @@
 declare module "rudder-sdk-js" {
-  function load(writeKey: string, dataPlaneUrl: string, options?: object): void;
+  interface integrationOptions {
+    All?: boolean; // default true
+    [index: string]: boolean | undefined;
+  }
 
-  function ready(callback: () => void): void;
+  interface queueOptions {
+    maxRetryDelay?: number; // Upper cap on maximum delay for an event
+    minRetryDelay?: number; // minimum delay before sending an event
+    backoffFactor?: number; // exponential base
+    maxAttempts?: number; // max attempts
+    maxItems?: number; // max number of events in storage
+  }
+
+  interface loadOptions {
+    integrations?: integrationOptions;
+    configUrl?: string; // defaults to https://api.rudderlabs.com
+    queueOptions?: queueOptions;
+    loadIntegration?: boolean; // defaults to true.
+  }
+
+  interface apiOptions {
+    integrations?: integrationOptions;
+    anonymousId?: string;
+    originalTimestamp?: string;
+    [index: string]:
+      | string
+      | number
+      | apiObject
+      | integrationOptions
+      | undefined;
+  }
+
+  interface apiObject {
+    [index: string]: string | number | apiObject;
+  }
+
+  function load(
+    writeKey: string,
+    dataPlaneUrl: string,
+    options?: loadOptions
+  ): void;
+
+  type apiCallback = () => void;
+
+  function ready(callback: apiCallback): void;
 
   function page(
     category?: string,
     name?: string,
-    properties?: object,
-    options?: object,
-    callback?: () => void
+    properties?: apiObject,
+    options?: apiOptions,
+    callback?: apiCallback
   ): void;
 
   function page(
     category: string,
     name: string,
-    properties: object,
-    callback: () => void
+    properties: apiObject,
+    callback: apiCallback
   ): void;
 
-  function page(category: string, name: string, callback: () => void): void;
+  function page(category: string, name: string, callback: apiCallback): void;
 
   function page(
     name: string,
-    properties?: object,
-    options?: object,
-    callback?: () => void
+    properties?: apiObject,
+    options?: apiOptions,
+    callback?: apiCallback
   ): void;
-
-  function page(name: string, properties: object, callback: () => void): void;
-
-  function page(name: string, callback: () => void): void;
 
   function page(
-    properties: object,
-    options: object,
-    callback?: () => void
+    name: string,
+    properties: apiObject,
+    callback: apiCallback
   ): void;
 
-  function page(properties: object, callback?: () => void): void;
+  function page(name: string, callback: apiCallback): void;
+
+  function page(
+    properties: apiObject,
+    options: apiOptions,
+    callback?: apiCallback
+  ): void;
+
+  function page(properties: apiObject, callback?: apiCallback): void;
 
   function track(
     event: string,
-    properties?: object,
-    options?: object,
-    callback?: () => void
+    properties?: apiObject,
+    options?: apiOptions,
+    callback?: apiCallback
   ): void;
 
-  function track(event: string, properties: object, callback: () => void): void;
+  function track(
+    event: string,
+    properties: apiObject,
+    callback: apiCallback
+  ): void;
 
-  function track(event: string, callback: () => void): void;
+  function track(event: string, callback: apiCallback): void;
 
   function identify(
     userId?: string,
-    traits?: object,
-    options?: object,
-    callback?: () => void
+    traits?: apiObject,
+    options?: apiOptions,
+    callback?: apiCallback
   ): void;
-
-  function identify(userId: string, traits: object, callback: () => void): void;
-
-  function identify(userId: string, callback: () => void): void;
 
   function identify(
-    traits: object,
-    options: object,
-    callback?: () => void
+    userId: string,
+    traits: apiObject,
+    callback: apiCallback
   ): void;
 
-  function identify(traits: object, callback?: () => void): void;
+  function identify(userId: string, callback: apiCallback): void;
+
+  function identify(
+    traits: apiObject,
+    options: apiOptions,
+    callback?: apiCallback
+  ): void;
+
+  function identify(traits: apiObject, callback?: apiCallback): void;
 
   function alias(
     to: string,
     from?: string,
-    options?: object,
-    callback?: () => void
+    options?: apiOptions,
+    callback?: apiCallback
   ): void;
 
-  function alias(to: string, from: string, callback: () => void): void;
+  function alias(to: string, from: string, callback: apiCallback): void;
 
-  function alias(to: string, callback: () => void): void;
+  function alias(to: string, callback: apiCallback): void;
 
-  function alias(to: string, options: object, callback?: () => void): void;
+  function alias(to: string, options: apiOptions, callback?: apiCallback): void;
 
   function group(
     groupId: string,
-    traits?: object,
-    options?: object,
-    callback?: () => void
+    traits?: apiObject,
+    options?: apiOptions,
+    callback?: apiCallback
   ): void;
 
-  function group(groupId: string, traits: object, callback: () => void): void;
+  function group(
+    groupId: string,
+    traits: apiObject,
+    callback: apiCallback
+  ): void;
 
-  function group(groupId: string, callback: () => void): void;
+  function group(groupId: string, callback: apiCallback): void;
 
-  function group(traits: object, options: object, callback?: () => void): void;
+  function group(
+    traits: apiObject,
+    options: apiOptions,
+    callback?: apiCallback
+  ): void;
 
-  function group(traits: object, callback?: () => void): void;
+  function group(traits: apiObject, callback?: apiCallback): void;
 
-  function getAnonymousId(): any;
+  function getAnonymousId(): string;
 
   function setAnonymousId(id?: string): void;
 
   function reset(flag?: boolean): void;
 
   export {
+    integrationOptions,
+    loadOptions,
+    apiOptions,
+    queueOptions,
+    apiObject,
+    apiCallback,
     load,
     ready,
     reset,
