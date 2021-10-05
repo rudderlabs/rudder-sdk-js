@@ -121,6 +121,20 @@ rudderanalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>);
 exports.rudderanalytics = rudderanalytics;
 ```
 
+For destinations where you don't want the SDK to load the third-party scripts separately, modify the `load` call as shown:
+
+```javascript
+rudderanalytics.load(<YOUR_WRITE_KEY>, <DATA_PLANE_URL>, {loadIntegration:  false})
+```
+
+> For more information on the `load()` method, refer to the detailed [**JavaScript SDK documentation**](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).
+
+A few important things to note:
+
+- The SDK expects the destination global queue or function for pushing the events is already present for the particular destination/s.
+- Currently, `loadIntegration` is supported only for Amplitude and Google Analytics.
+- The JavaScript SDK expects `window.amplitude` and `window.ga` to be already defined by the user separately for the sending the events to these destinations.
+
 ### Exported APIs
 
 The APIs exported by the module are:
