@@ -44,6 +44,10 @@ declare module "rudder-sdk-js" {
       | apiObject
       | Promise<apiObject>
       | Promise<string>;
+    setCookieDomain?: string;
+    sendAdblockPage?: boolean;
+    sendAdblockPageOptions?: apiOptions;
+    clientSuppliedCallbacks?: { string: () => void };
   }
 
   /**
