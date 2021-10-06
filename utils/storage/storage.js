@@ -72,8 +72,6 @@ class Storage {
             prevStorage = storageTypes.LOCAL_STORAGE.instance;
         } else if (this.lsSupportExists) {
           this.storage = storageTypes.LOCAL_STORAGE.instance;
-          if (this.cookieSupportExists)
-            prevStorage = storageTypes.COOKIES.instance;
         }
         break;
       case storageTypes.LOCAL_STORAGE.name:
@@ -83,8 +81,6 @@ class Storage {
             prevStorage = storageTypes.COOKIES.instance;
         } else if (this.cookieSupportExists) {
           this.storage = storageTypes.COOKIES.instance;
-          if (this.lsSupportExists)
-            prevStorage = storageTypes.LOCAL_STORAGE.instance;
         }
         break;
       default:
@@ -92,7 +88,7 @@ class Storage {
     }
 
     // Migrate any valid data from previous storage type to current
-    if (this.storage) {
+    if (this.storage && prevStorage) {
       this.migrateData(prevStorage, this.storage);
     }
   }
