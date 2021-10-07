@@ -49,14 +49,13 @@ const eventParametersConfigArray = {
   Shipping: { src: "shipping", dest: "shipping" },
   Tax: { src: "tax", dest: "tax" },
   Total: { src: "total", dest: "value" },
-  CheckoutId: { src: "checkout_id", dest: "transaction_id" },
+  OrderId: { src: "order_id", dest: "transaction_id" },
   ShippingMethod: { src: "shipping_method", dest: "shipping_tier" },
   PaymentMethod: { src: "payment_method", dest: "payment_type" },
 };
 
 const itemParametersConfigArray = [
   { src: "product_id", dest: "item_id" },
-  { src: "order_id", dest: "item_id" },
   { src: "name", dest: "item_name" },
   { src: "coupon", dest: "coupon" },
   { src: "category", dest: "item_category" },
@@ -205,7 +204,7 @@ const eventNamesConfigArray = [
       eventParametersConfigArray.Affiliation,
       eventParametersConfigArray.Coupon,
       eventParametersConfigArray.Currency,
-      eventParametersConfigArray.CheckoutId,
+      eventParametersConfigArray.OrderId,
       eventParametersConfigArray.Shipping,
       eventParametersConfigArray.Tax,
       eventParametersConfigArray.Total,
@@ -219,7 +218,7 @@ const eventNamesConfigArray = [
       eventParametersConfigArray.Affiliation,
       eventParametersConfigArray.Coupon,
       eventParametersConfigArray.Currency,
-      eventParametersConfigArray.CheckoutId,
+      eventParametersConfigArray.OrderId,
       eventParametersConfigArray.Shipping,
       eventParametersConfigArray.Tax,
       eventParametersConfigArray.Total,
