@@ -102,7 +102,23 @@ export default {
 
     babel({
       exclude: ["node_modules/@babel/**", "node_modules/core-js/**"],
-      presets: [["@babel/env"]],
+      presets: [
+        [
+          "@babel/env",
+          {
+            corejs: "3.6",
+            useBuiltIns: "entry",
+            targets: {
+              edge: "15",
+              firefox: "40",
+              ie: "10",
+              chrome: "37",
+              safari: "7",
+              opera: "23",
+            },
+          },
+        ],
+      ],
       plugins: [
         [
           "@babel/plugin-proposal-class-properties",
@@ -111,7 +127,7 @@ export default {
           },
         ],
         ["@babel/plugin-transform-arrow-functions"],
-        ["@babel/plugin-transform-object-assign"]
+        ["@babel/plugin-transform-object-assign"],
       ],
     }),
     process.env.uglify === "true" && terser(),
