@@ -168,7 +168,7 @@ function getDefaultPageProperties() {
     url,
     tab_url,
     initial_referrer,
-    initial_referring_domain,
+    initial_referring_domain
   };
 }
 
@@ -223,8 +223,7 @@ function getCurrency(val) {
 
 function getRevenue(properties, eventName) {
   let { revenue } = properties;
-  const orderCompletedRegExp =
-    /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
+  const orderCompletedRegExp = /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
 
   // it's always revenue, unless it's called during an order completion.
   if (!revenue && eventName && eventName.match(orderCompletedRegExp)) {
@@ -240,7 +239,7 @@ function getRevenue(properties, eventName) {
  * @param {*} integrationObject
  */
 function tranformToRudderNames(integrationObject) {
-  Object.keys(integrationObject).forEach((key) => {
+  Object.keys(integrationObject).forEach(key => {
     if (integrationObject.hasOwnProperty(key)) {
       if (commonNames[key]) {
         integrationObject[commonNames[key]] = integrationObject[key];
@@ -256,7 +255,7 @@ function tranformToRudderNames(integrationObject) {
 }
 
 function transformToServerNames(integrationObject) {
-  Object.keys(integrationObject).forEach((key) => {
+  Object.keys(integrationObject).forEach(key => {
     if (integrationObject.hasOwnProperty(key)) {
       if (clientToServerNames[key]) {
         integrationObject[clientToServerNames[key]] = integrationObject[key];
@@ -295,7 +294,7 @@ function findAllEnabledDestinations(
     if (sdkSuppliedIntegrations.All != undefined) {
       allValue = sdkSuppliedIntegrations.All;
     }
-    configPlaneEnabledIntegrations.forEach((intg) => {
+    configPlaneEnabledIntegrations.forEach(intg => {
       if (!allValue) {
         // All false ==> check if intg true supplied
         if (
@@ -327,7 +326,7 @@ function findAllEnabledDestinations(
     if (sdkSuppliedIntegrations.All != undefined) {
       allValue = sdkSuppliedIntegrations.All;
     }
-    configPlaneEnabledIntegrations.forEach((intg) => {
+    configPlaneEnabledIntegrations.forEach(intg => {
       if (!allValue) {
         // All false ==> check if intg true supplied
         if (
@@ -455,7 +454,7 @@ function checkReservedKeywords(message, messageType) {
   const { properties, traits } = message;
   const contextualTraits = message.context.traits;
   if (properties) {
-    Object.keys(properties).forEach((property) => {
+    Object.keys(properties).forEach(property => {
       if (ReservedPropertyKeywords.indexOf(property.toLowerCase()) >= 0) {
         logger.error(
           `Warning! : Reserved keyword used in properties--> ${property} with ${messageType} call`
@@ -464,7 +463,7 @@ function checkReservedKeywords(message, messageType) {
     });
   }
   if (traits) {
-    Object.keys(traits).forEach((trait) => {
+    Object.keys(traits).forEach(trait => {
       if (ReservedPropertyKeywords.indexOf(trait.toLowerCase()) >= 0) {
         logger.error(
           `Warning! : Reserved keyword used in traits--> ${trait} with ${messageType} call`
@@ -473,7 +472,7 @@ function checkReservedKeywords(message, messageType) {
     });
   }
   if (contextualTraits) {
-    Object.keys(contextualTraits).forEach((contextTrait) => {
+    Object.keys(contextualTraits).forEach(contextTrait => {
       if (ReservedPropertyKeywords.indexOf(contextTrait.toLowerCase()) >= 0) {
         logger.error(
           `Warning! : Reserved keyword used in traits --> ${contextTrait} with ${messageType} call`
@@ -502,7 +501,7 @@ function recurse(cur, prop, result) {
     if (l === 0) res[prop] = [];
   } else {
     let isEmpty = true;
-    Object.keys(cur).forEach((key) => {
+    Object.keys(cur).forEach(key => {
       isEmpty = false;
       recurse(cur[key], prop ? `${prop}.${key}` : key, res);
     });
@@ -544,16 +543,16 @@ function flattenJsonPayload(data) {
  */
 
 function extractCustomFields(message, destination, keys, exclusionFields) {
-  keys.map((key) => {
+  keys.map(key => {
     const messageContext = get(message, key);
     if (messageContext) {
       const objKeys = [];
-      Object.keys(messageContext).map((k) => {
+      Object.keys(messageContext).map(k => {
         if (exclusionFields.indexOf(k) < 0) {
           objKeys.push(k);
         }
       });
-      objKeys.map((k) => {
+      objKeys.map(k => {
         if (!(typeof messageContext[k] === "undefined")) {
           set(destination, k, get(messageContext, k));
         }
@@ -597,7 +596,7 @@ function getDefinedTraits(message) {
       get(message, "context.traits.City"),
     country:
       get(message, "context.traits.country") ||
-      get(message, "context.traits.Country"),
+      get(message, "context.traits.Country")
   };
 
   if (
@@ -617,14 +616,14 @@ function getDefinedTraits(message) {
 /**
  * To check if a variable is storing object or not
  */
-const isObject = (obj) => {
+const isObject = obj => {
   return type(obj) === "object";
 };
 
 /**
  * To check if a variable is storing array or not
  */
-const isArray = (obj) => {
+const isArray = obj => {
   return type(obj) === "array";
 };
 

@@ -13,7 +13,7 @@ const defaults = {
   page_storage_init_referrer: "rl_page_init_referrer",
   page_storage_init_referring_domain: "rl_page_init_referring_domain",
   prefix: "RudderEncrypt:",
-  key: "Rudder",
+  key: "Rudder"
 };
 
 /**
