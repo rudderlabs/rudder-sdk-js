@@ -309,6 +309,9 @@ class Storage {
         this.storage.get(defaults.page_storage_init_referring_domain)
       )
     );
+    const decryptedValue = this.decryptValue(anonymousId);
+    const parsedValue = this.parse(decryptedValue);
+    return parsedValue;
   }
 
   /**
@@ -330,6 +333,10 @@ class Storage {
     if (flag) {
       this.storage.remove(defaults.user_storage_anonymousId);
     }
+  }
+
+  getPrefix() {
+    return defaults.prefix;
   }
 
   getPrefix() {

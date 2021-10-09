@@ -674,6 +674,26 @@ function validatePayload(message) {
   return message;
 }
 
+function validatePayload(message) {
+  const prefix = Storage.getPrefix(); // "RudderEncrypt:";
+  const { traits } = message.context;
+  const { userId, anonymousId } = message;
+  if (traits && typeof traits !== "object") {
+    message = undefined;
+  }
+  if (userId && typeof userId === "string" && userId.indexOf(prefix) >= 0) {
+    message = undefined;
+  }
+  if (
+    anonymousId &&
+    typeof anonymousId === "string" &&
+    anonymousId.indexOf(prefix) >= 0
+  ) {
+    message = undefined;
+  }
+  return message;
+}
+
 export {
   replacer,
   generateUUID,
