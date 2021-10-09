@@ -1,7 +1,3 @@
-/* eslint-disable import/prefer-default-export */
-/* eslint-disable eqeqeq */
-/* eslint-disable class-methods-use-this */
-/* eslint-disable no-param-reassign */
 import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
 import logger from "../logUtil";
@@ -18,14 +14,6 @@ const defaults = {
   page_storage_init_referring_domain: "rl_page_init_referring_domain",
   prefix: "RudderEncrypt:",
   key: "Rudder",
-};
-
-const v1Defaults = {
-  user_storage_key: "rl_user_id_v1",
-  user_storage_trait: "rl_trait_v1",
-  user_storage_anonymousId: "rl_anonymous_id_v1",
-  group_storage_key: "rl_group_id_v1",
-  group_storage_trait: "rl_group_trait_v1",
 };
 
 /**
@@ -69,7 +57,7 @@ class Storage {
     try {
       return value ? JSON.parse(value) : null;
     } catch (e) {
-      logger.debug(e);
+      logger.error(e);
       return value || null;
     }
   }
@@ -103,19 +91,14 @@ class Storage {
    * @param {*} value
    */
   decryptValue(value) {
-    if (
-      !value ||
-      (typeof value === "string" && this.trim(value) === "") ||
-      typeof value !== "string"
-    ) {
+    if (!value || (typeof value === "string" && this.trim(value) == "")) {
       return value;
     }
-    // value = this.parse(value);
-    while (value.indexOf(defaults.prefix) >= 0) {
-      const index = value.indexOf(defaults.prefix);
-      const substring = value.substring(index + defaults.prefix.length);
-      const dvalue = AES.decrypt(substring, defaults.key).toString(Utf8);
-      value = dvalue;
+    if (value.substring(0, defaults.prefix.length) == defaults.prefix) {
+      return AES.decrypt(
+        value.substring(defaults.prefix.length),
+        defaults.key
+      ).toString(Utf8);
     }
     return value;
   }
@@ -133,13 +116,13 @@ class Storage {
    *
    * @param {*} value
    */
-  setUserId(value, migrate) {
+  setUserId(value) {
     if (typeof value !== "string") {
       logger.error("[Storage] setUserId:: userId should be string");
       return;
     }
     this.storage.set(
-      migrate ? defaults.user_storage_key : v1Defaults.user_storage_key,
+      defaults.user_storage_key,
       this.encryptValue(this.stringify(value))
     );
   }
@@ -148,9 +131,9 @@ class Storage {
    *
    * @param {*} value
    */
-  setUserTraits(value, migrate) {
+  setUserTraits(value) {
     this.storage.set(
-      migrate ? defaults.user_storage_trait : v1Defaults.user_storage_trait,
+      defaults.user_storage_trait,
       this.encryptValue(this.stringify(value))
     );
   }
@@ -159,13 +142,13 @@ class Storage {
    *
    * @param {*} value
    */
-  setGroupId(value, migrate) {
+  setGroupId(value) {
     if (typeof value !== "string") {
       logger.error("[Storage] setGroupId:: groupId should be string");
       return;
     }
     this.storage.set(
-      migrate ? defaults.group_storage_key : v1Defaults.group_storage_key,
+      defaults.group_storage_key,
       this.encryptValue(this.stringify(value))
     );
   }
@@ -174,9 +157,9 @@ class Storage {
    *
    * @param {*} value
    */
-  setGroupTraits(value, migrate) {
+  setGroupTraits(value) {
     this.storage.set(
-      migrate ? defaults.group_storage_trait : v1Defaults.group_storage_trait,
+      defaults.group_storage_trait,
       this.encryptValue(this.stringify(value))
     );
   }
@@ -185,15 +168,13 @@ class Storage {
    *
    * @param {*} value
    */
-  setAnonymousId(value, migrate) {
+  setAnonymousId(value) {
     if (typeof value !== "string") {
       logger.error("[Storage] setAnonymousId:: anonymousId should be string");
       return;
     }
     this.storage.set(
-      migrate
-        ? defaults.user_storage_anonymousId
-        : v1Defaults.user_storage_anonymousId,
+      defaults.user_storage_anonymousId,
       this.encryptValue(this.stringify(value))
     );
   }
@@ -223,72 +204,52 @@ class Storage {
    * @param {*} key
    */
   getItem(key) {
-    const item = this.storage.get(key);
-    const decryptedValue = this.decryptValue(item);
-    const parsedValue = this.parse(decryptedValue);
-    return parsedValue;
+    return this.parse(this.decryptValue(this.storage.get(key)));
   }
 
   /**
    * get the stored userId
    */
-  getUserId(migrate) {
-    const userId = this.storage.get(
-      migrate ? defaults.user_storage_key : v1Defaults.user_storage_key
+  getUserId() {
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.user_storage_key))
     );
-    const decryptedValue = this.decryptValue(userId);
-    const parsedValue = this.parse(decryptedValue);
-    return parsedValue;
   }
 
   /**
    * get the stored user traits
    */
-  getUserTraits(migrate) {
-    const traits = this.storage.get(
-      migrate ? defaults.user_storage_trait : v1Defaults.user_storage_trait
+  getUserTraits() {
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.user_storage_trait))
     );
-    const decryptedValue = this.decryptValue(traits);
-    const parsedValue = this.parse(decryptedValue);
-    return parsedValue;
   }
 
   /**
    * get the stored userId
    */
-  getGroupId(migrate) {
-    const groupId = this.storage.get(
-      migrate ? defaults.group_storage_key : v1Defaults.group_storage_key
+  getGroupId() {
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.group_storage_key))
     );
-    const decryptedValue = this.decryptValue(groupId);
-    const parsedValue = this.parse(decryptedValue);
-    return parsedValue;
   }
 
   /**
    * get the stored user traits
    */
-  getGroupTraits(migrate) {
-    const groupTraits = this.storage.get(
-      migrate ? defaults.group_storage_trait : v1Defaults.group_storage_trait
+  getGroupTraits() {
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.group_storage_trait))
     );
-    const decryptedValue = this.decryptValue(groupTraits);
-    const parsedValue = this.parse(decryptedValue);
-    return parsedValue;
   }
 
   /**
    * get stored anonymous id
    */
-  getAnonymousId(migrate) {
-    const anonymousId = this.storage.get(
-      migrate
-        ? defaults.user_storage_anonymousId
-        : v1Defaults.user_storage_anonymousId
+  getAnonymousId() {
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
     );
-    const decryptedValue = this.decryptValue(anonymousId);
-    const parsedValue = this.parse(decryptedValue);
-    return parsedValue;
   }
 
   /**
@@ -309,9 +270,6 @@ class Storage {
         this.storage.get(defaults.page_storage_init_referring_domain)
       )
     );
-    const decryptedValue = this.decryptValue(anonymousId);
-    const parsedValue = this.parse(decryptedValue);
-    return parsedValue;
   }
 
   /**
@@ -333,14 +291,6 @@ class Storage {
     if (flag) {
       this.storage.remove(defaults.user_storage_anonymousId);
     }
-  }
-
-  getPrefix() {
-    return defaults.prefix;
-  }
-
-  getPrefix() {
-    return defaults.prefix;
   }
 }
 

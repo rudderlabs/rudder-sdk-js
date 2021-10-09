@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
 import { parse } from "component-url";
 import get from "get-value";
@@ -653,46 +652,6 @@ const getDataFromSource = (src, dest, key, properties) => {
     }
   return data;
 };
-
-function validatePayload(message) {
-  const prefix = Storage.getPrefix(); // "RudderEncrypt:";
-  const { traits } = message.context;
-  const { userId, anonymousId } = message;
-  if (traits && typeof traits !== "object") {
-    message = undefined;
-  }
-  if (userId && typeof userId === "string" && userId.indexOf(prefix) >= 0) {
-    message = undefined;
-  }
-  if (
-    anonymousId &&
-    typeof anonymousId === "string" &&
-    anonymousId.indexOf(prefix) >= 0
-  ) {
-    message = undefined;
-  }
-  return message;
-}
-
-function validatePayload(message) {
-  const prefix = Storage.getPrefix(); // "RudderEncrypt:";
-  const { traits } = message.context;
-  const { userId, anonymousId } = message;
-  if (traits && typeof traits !== "object") {
-    message = undefined;
-  }
-  if (userId && typeof userId === "string" && userId.indexOf(prefix) >= 0) {
-    message = undefined;
-  }
-  if (
-    anonymousId &&
-    typeof anonymousId === "string" &&
-    anonymousId.indexOf(prefix) >= 0
-  ) {
-    message = undefined;
-  }
-  return message;
-}
 
 export {
   replacer,

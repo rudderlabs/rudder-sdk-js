@@ -1,171 +1,297 @@
-/* eslint-disable eqeqeq */
-/* eslint-disable import/prefer-default-export */
-/* eslint-disable import/no-mutable-exports */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable guard-for-in */
-/* eslint-disable consistent-return */
-/* eslint-disable func-names */
-/* eslint-disable no-use-before-define */
-/* eslint-disable no-param-reassign */
-import Queue from "@segment/localstorage-retry";
-import {
-  getCurrentTimeFormatted,
-  handleError,
-  replacer,
-  validatePayload,
-} from "./utils";
-import logger from "./logUtil";
+import AES from "crypto-js/aes";
+import Utf8 from "crypto-js/enc-utf8";
+import logger from "../logUtil";
+import { Cookie } from "./cookie";
+import { Store } from "./store";
 
-const queueOptions = {
-  maxRetryDelay: 360000,
-  minRetryDelay: 1000,
-  backoffFactor: 2,
-  maxAttempts: 10,
-  maxItems: 100,
+const defaults = {
+  user_storage_key: "rl_user_id",
+  user_storage_trait: "rl_trait",
+  user_storage_anonymousId: "rl_anonymous_id",
+  group_storage_key: "rl_group_id",
+  group_storage_trait: "rl_group_trait",
+  page_storage_init_referrer: "rl_page_init_referrer",
+  page_storage_init_referring_domain: "rl_page_init_referring_domain",
+  prefix: "RudderEncrypt:",
+  key: "Rudder",
 };
 
-const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
-
 /**
- *
- * @class EventRepository responsible for adding events into
- * flush queue and sending data to rudder backend
- * in batch and maintains order of the event.
+ * An object that handles persisting key-val from Analytics
  */
-class EventRepository {
-  /**
-   *Creates an instance of EventRepository.
-   * @memberof EventRepository
-   */
-  constructor(options) {
-    this.eventsBuffer = [];
-    this.writeKey = "";
-    this.url = "";
-    this.state = "READY";
-    this.batchSize = 0;
+class Storage {
+  constructor() {
+    // First try setting the storage to cookie else to localstorage
+    Cookie.set("rudder_cookies", true);
 
-    // previous implementation
-    // setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
-  }
-
-  startQueue(options) {
-    if (options) {
-      // TODO: add checks for value - has to be +ve?
-      Object.assign(queueOptions, options);
+    if (Cookie.get("rudder_cookies")) {
+      Cookie.remove("rudder_cookies");
+      this.storage = Cookie;
+      return;
     }
-    this.payloadQueue = new Queue("rudder", queueOptions, function (
-      item,
-      done
-    ) {
-      // apply sentAt at flush time and reset on each retry
-      item.message.sentAt = getCurrentTimeFormatted();
-      // send this item for processing, with a callback to enable queue to get the done status
 
-      item.message = validatePayload(item.message);
-      if (item.message === undefined) {
-        logger.debug("dropping invalid event");
-        return;
-      }
-      eventRepository.processQueueElement(
-        item.url,
-        item.headers,
-        item.message,
-        10 * 1000,
-        function (err, res) {
-          if (err) {
-            return done(err);
-          }
-          done(null, res);
-        }
-      );
-    });
+    // localStorage is enabled.
+    if (Store.enabled) {
+      this.storage = Store;
+    }
+  }
 
-    // start queue
-    this.payloadQueue.start();
+  options(options = {}) {
+    this.storage.options(options);
   }
 
   /**
-   * the queue item proceesor
-   * @param {*} url to send requests to
-   * @param {*} headers
-   * @param {*} message
-   * @param {*} timeout
-   * @param {*} queueFn the function to call after request completion
+   * Json stringify the given value
+   * @param {*} value
    */
-  // eslint-disable-next-line class-methods-use-this
-  processQueueElement(url, headers, message, timeout, queueFn) {
+  stringify(value) {
+    return JSON.stringify(value);
+  }
+
+  /**
+   * JSON parse the value
+   * @param {*} value
+   */
+  parse(value) {
+    // if not parseable, return as is without json parse
     try {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", url, true);
-      for (const k in headers) {
-        xhr.setRequestHeader(k, headers[k]);
-      }
-      xhr.timeout = timeout;
-      xhr.ontimeout = queueFn;
-      xhr.onerror = queueFn;
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600)) {
-            handleError(
-              new Error(
-                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`
-              )
-            );
-            queueFn(
-              new Error(
-                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`
-              )
-            );
-          } else {
-            logger.debug(
-              `====== request processed successfully: ${xhr.status}`
-            );
-            queueFn(null, xhr.status);
-          }
-        }
-      };
-
-      xhr.send(JSON.stringify(message, replacer));
-    } catch (error) {
-      queueFn(error);
+      return value ? JSON.parse(value) : null;
+    } catch (e) {
+      logger.error(e);
+      return value || null;
     }
   }
 
   /**
-   *
-   *
-   * @param {RudderElement} rudderElement
-   * @memberof EventRepository
+   * trim using regex for browser polyfill
+   * @param {*} value
    */
-  enqueue(rudderElement, type) {
-    const message = rudderElement.getElementContent();
+  trim(value) {
+    return value.replace(/^\s+|\s+$/gm, "");
+  }
 
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Basic ${btoa(`${this.writeKey}:`)}`,
-      AnonymousId: btoa(message.anonymousId),
-    };
-
-    message.originalTimestamp = getCurrentTimeFormatted();
-    message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
-
-    // check message size, if greater log an error
-    if (JSON.stringify(message).length > MESSAGE_LENGTH) {
-      logger.error(
-        "[EventRepository] enqueue:: message length greater 32 Kb ",
-        message
-      );
+  /**
+   * AES encrypt value with constant prefix
+   * @param {*} value
+   */
+  encryptValue(value) {
+    if (this.trim(value) == "") {
+      return value;
     }
+    const prefixedVal = `${defaults.prefix}${AES.encrypt(
+      value,
+      defaults.key
+    ).toString()}`;
 
-    // modify the url for event specific endpoints
-    const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
-    // add items to the queue
-    this.payloadQueue.addItem({
-      url: `${url}/v1/${type}`,
-      headers,
-      message,
-    });
+    return prefixedVal;
+  }
+
+  /**
+   * decrypt value
+   * @param {*} value
+   */
+  decryptValue(value) {
+    if (!value || (typeof value === "string" && this.trim(value) == "")) {
+      return value;
+    }
+    if (value.substring(0, defaults.prefix.length) == defaults.prefix) {
+      return AES.decrypt(
+        value.substring(defaults.prefix.length),
+        defaults.key
+      ).toString(Utf8);
+    }
+    return value;
+  }
+
+  /**
+   *
+   * @param {*} key
+   * @param {*} value
+   */
+  setItem(key, value) {
+    this.storage.set(key, this.encryptValue(this.stringify(value)));
+  }
+
+  /**
+   *
+   * @param {*} value
+   */
+  setUserId(value) {
+    if (typeof value !== "string") {
+      logger.error("[Storage] setUserId:: userId should be string");
+      return;
+    }
+    this.storage.set(
+      defaults.user_storage_key,
+      this.encryptValue(this.stringify(value))
+    );
+  }
+
+  /**
+   *
+   * @param {*} value
+   */
+  setUserTraits(value) {
+    this.storage.set(
+      defaults.user_storage_trait,
+      this.encryptValue(this.stringify(value))
+    );
+  }
+
+  /**
+   *
+   * @param {*} value
+   */
+  setGroupId(value) {
+    if (typeof value !== "string") {
+      logger.error("[Storage] setGroupId:: groupId should be string");
+      return;
+    }
+    this.storage.set(
+      defaults.group_storage_key,
+      this.encryptValue(this.stringify(value))
+    );
+  }
+
+  /**
+   *
+   * @param {*} value
+   */
+  setGroupTraits(value) {
+    this.storage.set(
+      defaults.group_storage_trait,
+      this.encryptValue(this.stringify(value))
+    );
+  }
+
+  /**
+   *
+   * @param {*} value
+   */
+  setAnonymousId(value) {
+    if (typeof value !== "string") {
+      logger.error("[Storage] setAnonymousId:: anonymousId should be string");
+      return;
+    }
+    this.storage.set(
+      defaults.user_storage_anonymousId,
+      this.encryptValue(this.stringify(value))
+    );
+  }
+
+  /**
+   * @param {*} value
+   */
+  setInitialReferrer(value) {
+    this.storage.set(
+      defaults.page_storage_init_referrer,
+      this.encryptValue(this.stringify(value))
+    );
+  }
+
+  /**
+   * @param {*} value
+   */
+  setInitialReferringDomain(value) {
+    this.storage.set(
+      defaults.page_storage_init_referring_domain,
+      this.encryptValue(this.stringify(value))
+    );
+  }
+
+  /**
+   *
+   * @param {*} key
+   */
+  getItem(key) {
+    return this.parse(this.decryptValue(this.storage.get(key)));
+  }
+
+  /**
+   * get the stored userId
+   */
+  getUserId() {
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.user_storage_key))
+    );
+  }
+
+  /**
+   * get the stored user traits
+   */
+  getUserTraits() {
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.user_storage_trait))
+    );
+  }
+
+  /**
+   * get the stored userId
+   */
+  getGroupId() {
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.group_storage_key))
+    );
+  }
+
+  /**
+   * get the stored user traits
+   */
+  getGroupTraits() {
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.group_storage_trait))
+    );
+  }
+
+  /**
+   * get stored anonymous id
+   */
+  getAnonymousId() {
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
+    );
+  }
+
+  /**
+   * get stored initial referrer
+   */
+  getInitialReferrer(value) {
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.page_storage_init_referrer))
+    );
+  }
+
+  /**
+   * get stored initial referring domain
+   */
+  getInitialReferringDomain(value) {
+    return this.parse(
+      this.decryptValue(
+        this.storage.get(defaults.page_storage_init_referring_domain)
+      )
+    );
+  }
+
+  /**
+   *
+   * @param {*} key
+   */
+  removeItem(key) {
+    return this.storage.remove(key);
+  }
+
+  /**
+   * remove stored keys
+   */
+  clear(flag) {
+    this.storage.remove(defaults.user_storage_key);
+    this.storage.remove(defaults.user_storage_trait);
+    this.storage.remove(defaults.group_storage_key);
+    this.storage.remove(defaults.group_storage_trait);
+    if (flag) {
+      this.storage.remove(defaults.user_storage_anonymousId);
+    }
   }
 }
-let eventRepository = new EventRepository();
-export { eventRepository as EventRepository };
+
+export { Storage };

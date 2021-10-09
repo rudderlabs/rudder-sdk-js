@@ -1,6 +1,3 @@
-/* eslint-disable class-methods-use-this */
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable no-param-reassign */
 import clone from "@ndhoule/clone";
 import cookie from "rudder-component-cookie";
 import defaults from "@ndhoule/defaults";
@@ -15,20 +12,6 @@ class CookieLocal {
   constructor(options) {
     this._options = {};
     this.options(options);
-  }
-
-  /**
-   * JSON parse the value
-   * @param {*} value
-   */
-  parse(value) {
-    // if not parseable, return as is without json parse
-    try {
-      return value ? JSON.parse(value) : null;
-    } catch (e) {
-      logger.debug(e);
-      return value || null;
-    }
   }
 
   /**
@@ -64,7 +47,6 @@ class CookieLocal {
    */
   set(key, value) {
     try {
-      value = json.stringify(value);
       cookie(key, value, clone(this._options));
       return true;
     } catch (e) {
@@ -78,9 +60,7 @@ class CookieLocal {
    * @param {*} key
    */
   get(key) {
-    let value = cookie(key);
-    value = this.parse(value);
-    return value;
+    return cookie(key);
   }
 
   /**
