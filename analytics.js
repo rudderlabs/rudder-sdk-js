@@ -13,6 +13,8 @@
 import Emitter from "component-emitter";
 import after from "after";
 import querystring from "component-querystring";
+import merge from "lodash.merge";
+import utm from "@segment/utm-params";
 import {
   getJSONTrimmed,
   generateUUID,
@@ -23,11 +25,14 @@ import {
   findAllEnabledDestinations,
   tranformToRudderNames,
   transformToServerNames,
+  checkReservedKeywords,
+  getReferrer,
+  getReferringDomain
 } from "./utils/utils";
 import {
   CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
-  INTEGRATION_LOAD_CHECK_INTERVAL,
+  INTEGRATION_LOAD_CHECK_INTERVAL
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -36,10 +41,11 @@ import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
+import parseLinker from "./utils/linker";
 
 const queryDefaults = {
   trait: "ajs_trait_",
-  prop: "ajs_prop_",
+  prop: "ajs_prop_"
 };
 
 // https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
@@ -69,6 +75,7 @@ class Analytics {
     this.autoTrackHandlersRegistered = false;
     this.autoTrackFeatureEnabled = false;
     this.initialized = false;
+    this.areEventsReplayed = false;
     this.trackValues = [];
     this.eventsBuffer = [];
     this.clientIntegrations = [];
@@ -86,9 +93,10 @@ class Analytics {
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
-      syncPixel: "syncPixelCallback",
+      syncPixel: "syncPixelCallback"
     };
     this.loaded = false;
+    this.loadIntegration = true;
   }
 
   /**
@@ -121,6 +129,17 @@ class Analytics {
     this.storage.setGroupTraits(this.groupTraits);
   }
 
+  setInitialPageProperties() {
+    let initialReferrer = this.storage.getInitialReferrer();
+    let initialReferringDomain = this.storage.getInitialReferringDomain();
+    if (initialReferrer == null && initialReferringDomain == null) {
+      initialReferrer = getReferrer();
+      initialReferringDomain = getReferringDomain(initialReferrer);
+      this.storage.setInitialReferrer(initialReferrer);
+      this.storage.setInitialReferringDomain(initialReferringDomain);
+    }
+  }
+
   /**
    * Process the response from control plane and
    * call initialize for integrations
@@ -132,7 +151,9 @@ class Analytics {
   processResponse(status, response) {
     try {
       logger.debug(`===in process response=== ${status}`);
-      response = JSON.parse(response);
+      if (typeof response === "string") {
+        response = JSON.parse(response);
+      }
       if (
         response.source.useAutoTracking &&
         !this.autoTrackHandlersRegistered
@@ -143,12 +164,12 @@ class Analytics {
       }
       response.source.destinations.forEach(function (destination, index) {
         logger.debug(
-          `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? ${destination.config.useNativeSDK}`
+          `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
         );
         if (destination.enabled) {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
-            config: destination.config,
+            config: destination.config
           });
         }
       }, this);
@@ -161,7 +182,7 @@ class Analytics {
       );
 
       // remove from the list which don't have support yet in SDK
-      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+      this.clientIntegrations = this.clientIntegrations.filter(intg => {
         return integrations[intg.name] != undefined;
       });
 
@@ -200,8 +221,8 @@ class Analytics {
       this.toBeProcessedByIntegrationArray = [];
       return;
     }
-
-    intgArray.forEach((intg) => {
+    let intgInstance;
+    intgArray.forEach(intg => {
       try {
         logger.debug(
           "[Analytics] init :: trying to initialize integration name:: ",
@@ -209,7 +230,7 @@ class Analytics {
         );
         const intgClass = integrations[intg.name];
         const destConfig = intg.config;
-        const intgInstance = new intgClass(destConfig, self);
+        intgInstance = new intgClass(destConfig, self);
         intgInstance.init();
 
         logger.debug("initializing destination: ", intg);
@@ -220,6 +241,7 @@ class Analytics {
           "[Analytics] initialize integration (integration.init()) failed :: ",
           intg.name
         );
+        this.failedToBeLoadedIntegration.push(intgInstance);
       }
     });
   }
@@ -229,11 +251,14 @@ class Analytics {
     if (
       object.successfullyLoadedIntegration.length +
         object.failedToBeLoadedIntegration.length ===
-      object.clientIntegrations.length
+        object.clientIntegrations.length &&
+      !object.areEventsReplayed
     ) {
       logger.debug(
         "===replay events called====",
+        " successfully loaded count: ",
         object.successfullyLoadedIntegration.length,
+        " failed loaded count: ",
         object.failedToBeLoadedIntegration.length
       );
       // eslint-disable-next-line no-param-reassign
@@ -243,6 +268,7 @@ class Analytics {
 
       logger.debug(
         "==registering after callback===",
+        " after to be called after count : ",
         object.clientIntegrationObjects.length
       );
       object.executeReadyCallback = after(
@@ -253,7 +279,7 @@ class Analytics {
       logger.debug("==registering ready callback===");
       object.on("ready", object.executeReadyCallback);
 
-      object.clientIntegrationObjects.forEach((intg) => {
+      object.clientIntegrationObjects.forEach(intg => {
         logger.debug("===looping over each successful integration====");
         if (!intg.isReady || intg.isReady()) {
           logger.debug("===letting know I am ready=====", intg.name);
@@ -263,7 +289,7 @@ class Analytics {
 
       if (object.toBeProcessedByIntegrationArray.length > 0) {
         // send the queued events to the fetched integration
-        object.toBeProcessedByIntegrationArray.forEach((event) => {
+        object.toBeProcessedByIntegrationArray.forEach(event => {
           const methodName = event[0];
           event.shift();
 
@@ -313,17 +339,18 @@ class Analytics {
         });
         object.toBeProcessedByIntegrationArray = [];
       }
+      object.areEventsReplayed = true;
     }
   }
 
   pause(time) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       setTimeout(resolve, time);
     });
   }
 
   isInitialized(instance, time = 0) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       if (instance.isLoaded()) {
         logger.debug("===integration loaded successfully====", instance.name);
         this.successfullyLoadedIntegration.push(instance);
@@ -568,7 +595,6 @@ class Analytics {
     } else {
       rudderElement.setProperty({});
     }
-
     this.trackEvent(rudderElement, options, callback);
   }
 
@@ -621,7 +647,7 @@ class Analytics {
       rudderElement.message.context.traits
     ) {
       this.userTraits = {
-        ...rudderElement.message.context.traits,
+        ...rudderElement.message.context.traits
       };
       this.storage.setUserTraits(this.userTraits);
     }
@@ -684,7 +710,7 @@ class Analytics {
       // rudderElement.message.context.page = getDefaultPageProperties();
 
       rudderElement.message.context.traits = {
-        ...this.userTraits,
+        ...this.userTraits
       };
 
       logger.debug("anonymousId: ", this.anonymousId);
@@ -699,13 +725,16 @@ class Analytics {
         }
         if (this.groupTraits) {
           rudderElement.message.traits = {
-            ...this.groupTraits,
+            ...this.groupTraits
           };
         }
       }
 
       this.processOptionsParam(rudderElement, options);
       logger.debug(JSON.stringify(rudderElement));
+
+      // check for reserved keys and log
+      checkReservedKeywords(rudderElement.message, type);
 
       // structure user supplied integrations object to rudder format
       if (Object.keys(rudderElement.message.integrations).length > 0) {
@@ -724,7 +753,7 @@ class Analytics {
 
       // try to first send to all integrations, if list populated from BE
       try {
-        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+        succesfulLoadedIntersectClientSuppliedIntegrations.forEach(obj => {
           if (!obj.isFailed || !obj.isFailed()) {
             if (obj[type]) {
               obj[type](rudderElement);
@@ -759,7 +788,25 @@ class Analytics {
   }
 
   /**
+   * add campaign parsed details under context
+   * @param {*} rudderElement
+   */
+  addCampaignInfo(rudderElement) {
+    const { search } = getDefaultPageProperties();
+    const campaign = utm(search);
+    if (
+      rudderElement.message.context &&
+      typeof rudderElement.message.context === "object"
+    ) {
+      rudderElement.message.context.campaign = campaign;
+    }
+  }
+
+  /**
    * process options parameter
+   * Apart from top level keys merge everyting under context
+   * context.page's default properties are overriden by same keys of
+   * provided properties in case of page call
    *
    * @param {*} rudderElement
    * @param {*} options
@@ -767,31 +814,37 @@ class Analytics {
    */
   processOptionsParam(rudderElement, options) {
     const { type, properties } = rudderElement.message;
+
+    this.addCampaignInfo(rudderElement);
+
+    // assign page properties to context.page
+    rudderElement.message.context.page =
+      type == "page"
+        ? this.getContextPageProperties(properties)
+        : this.getContextPageProperties();
+
     const toplevelElements = [
       "integrations",
       "anonymousId",
-      "originalTimestamp",
+      "originalTimestamp"
     ];
     for (const key in options) {
       if (toplevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
-        // special handle for ananymousId as transformation expects anonymousId in traits.
-        /* if (key === "anonymousId") {
-          rudderElement.message.context.traits["anonymousId"] = options[key];
-        } */
-      } else if (key !== "context")
-        rudderElement.message.context[key] = options[key];
-      else {
-        for (const k in options[key]) {
-          rudderElement.message.context[k] = options[key][k];
-        }
+      } else if (key !== "context") {
+        rudderElement.message.context = merge(rudderElement.message.context, {
+          [key]: options[key]
+        });
+      } else if (typeof options[key] === "object" && options[key] != null) {
+        rudderElement.message.context = merge(rudderElement.message.context, {
+          ...options[key]
+        });
+      } else {
+        logger.error(
+          "[Analytics: processOptionsParam] context passed in options is not object"
+        );
       }
     }
-    // assign page properties to context.page
-    rudderElement.message.context.page =
-      type == "page"
-        ? this.getContextPageProperties(options, properties)
-        : this.getContextPageProperties(options);
   }
 
   getPageProperties(properties, options) {
@@ -807,16 +860,14 @@ class Analytics {
   }
 
   // Assign page properties to context.page if the same property is not provided under context.page
-  getContextPageProperties(options, properties) {
+  getContextPageProperties(properties) {
     const defaultPageProperties = getDefaultPageProperties();
-    const contextPageProperties = options && options.page ? options.page : {};
+    const contextPageProperties = {};
     for (const key in defaultPageProperties) {
-      if (contextPageProperties[key] === undefined) {
-        contextPageProperties[key] =
-          properties && properties[key]
-            ? properties[key]
-            : defaultPageProperties[key];
-      }
+      contextPageProperties[key] =
+        properties && properties[key]
+          ? properties[key]
+          : defaultPageProperties[key];
     }
     return contextPageProperties;
   }
@@ -826,13 +877,16 @@ class Analytics {
    *
    * @memberof Analytics
    */
-  reset() {
+  reset(flag) {
     if (!this.loaded) return;
+    if (flag) {
+      this.anonymousId = "";
+    }
     this.userId = "";
     this.userTraits = {};
     this.groupId = "";
     this.groupTraits = {};
-    this.storage.clear();
+    this.storage.clear(flag);
   }
 
   getAnonymousId() {
@@ -844,9 +898,29 @@ class Analytics {
     return this.anonymousId;
   }
 
-  setAnonymousId(anonymousId) {
+  getUserTraits() {
+    return this.userTraits;
+  }
+
+  /**
+   * Sets anonymous id in the followin precedence:
+   * 1. anonymousId: Id directly provided to the function.
+   * 2. rudderAmpLinkerParm: value generated from linker query parm (rudderstack)
+   *    using praseLinker util.
+   * 3. generateUUID: A new uniquie id is generated and assigned.
+   *
+   * @param {string} anonymousId
+   * @param {string} rudderAmpLinkerParm
+   */
+  setAnonymousId(anonymousId, rudderAmpLinkerParm) {
     // if (!this.loaded) return;
-    this.anonymousId = anonymousId || generateUUID();
+    const parsedAnonymousIdObj = rudderAmpLinkerParm
+      ? parseLinker(rudderAmpLinkerParm)
+      : null;
+    const parsedAnonymousId = parsedAnonymousIdObj
+      ? parsedAnonymousIdObj.rs_amp_id
+      : null;
+    this.anonymousId = anonymousId || parsedAnonymousId || generateUUID();
     this.storage.setAnonymousId(this.anonymousId);
   }
 
@@ -885,12 +959,15 @@ class Analytics {
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
       handleError({
         message:
-          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl",
+          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
       });
       throw Error("failed to initialize");
     }
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
+    }
+    if (options && options.setCookieDomain) {
+      this.storage.options({ domain: options.setCookieDomain });
     }
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
@@ -910,7 +987,7 @@ class Analytics {
     if (options && options.clientSuppliedCallbacks) {
       // convert to rudder recognised method names
       const tranformedCallbackMapping = {};
-      Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
+      Object.keys(this.methodToCallbackMapping).forEach(methodName => {
         if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
           if (
             options.clientSuppliedCallbacks[
@@ -928,11 +1005,27 @@ class Analytics {
       this.registerCallbacks(true);
     }
 
+    if (
+      options &&
+      options.queueOptions &&
+      options.queueOptions != null &&
+      typeof options.queueOptions == "object"
+    ) {
+      this.eventRepository.startQueue(options.queueOptions);
+    } else {
+      this.eventRepository.startQueue({});
+    }
+
+    if (options && options.loadIntegration != undefined) {
+      this.loadIntegration = !!options.loadIntegration;
+    }
+
     this.eventRepository.writeKey = writeKey;
     if (serverUrl) {
       this.eventRepository.url = serverUrl;
     }
     this.initializeUser();
+    this.setInitialPageProperties();
     this.loaded = true;
     if (
       options &&
@@ -952,14 +1045,37 @@ class Analytics {
         );
       }
     }
-    try {
-      getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
-    } catch (error) {
+
+    function errorHandler(error) {
       handleError(error);
       if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
         addDomEventHandlers(this);
       }
     }
+
+    if (options && options.getSourceConfig) {
+      if (typeof options.getSourceConfig !== "function") {
+        handleError('option "getSourceConfig" must be a function');
+      } else {
+        const res = options.getSourceConfig();
+
+        if (res instanceof Promise) {
+          res.then(res => this.processResponse(200, res)).catch(errorHandler);
+        } else {
+          this.processResponse(200, res);
+        }
+
+        processDataInAnalyticsArray(this);
+      }
+      return;
+    }
+
+    try {
+      getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
+    } catch (error) {
+      errorHandler(error);
+    }
+    processDataInAnalyticsArray(this);
   }
 
   ready(callback) {
@@ -972,7 +1088,7 @@ class Analytics {
   }
 
   initializeCallbacks() {
-    Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
+    Object.keys(this.methodToCallbackMapping).forEach(methodName => {
       if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
         this.on(methodName, () => {});
       }
@@ -981,7 +1097,7 @@ class Analytics {
 
   registerCallbacks(calledFromLoad) {
     if (!calledFromLoad) {
-      Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
+      Object.keys(this.methodToCallbackMapping).forEach(methodName => {
         if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
           if (window.rudderanalytics) {
             if (
@@ -1010,7 +1126,7 @@ class Analytics {
       });
     }
 
-    Object.keys(this.clientSuppliedCallbacks).forEach((methodName) => {
+    Object.keys(this.clientSuppliedCallbacks).forEach(methodName => {
       if (this.clientSuppliedCallbacks.hasOwnProperty(methodName)) {
         logger.debug(
           "registerCallbacks",
@@ -1036,7 +1152,7 @@ class Analytics {
   parseQueryString(query) {
     function getTraitsFromQueryObject(qObj) {
       const traits = {};
-      Object.keys(qObj).forEach((key) => {
+      Object.keys(qObj).forEach(key => {
         if (key.substr(0, queryDefaults.trait.length) == queryDefaults.trait) {
           traits[key.substr(queryDefaults.trait.length)] = qObj[key];
         }
@@ -1047,7 +1163,7 @@ class Analytics {
 
     function getEventPropertiesFromQueryObject(qObj) {
       const props = {};
-      Object.keys(qObj).forEach((key) => {
+      Object.keys(qObj).forEach(key => {
         if (key.substr(0, queryDefaults.prop.length) == queryDefaults.prop) {
           props[key.substr(queryDefaults.prop.length)] = qObj[key];
         }
@@ -1076,22 +1192,36 @@ class Analytics {
   }
 }
 
-function pushDataToAnalyticsArray(argumentsArray, obj) {
+function pushQueryStringDataToAnalyticsArray(obj) {
   if (obj.anonymousId) {
     if (obj.userId) {
-      argumentsArray.unshift(
+      instance.toBeProcessedArray.push(
         ["setAnonymousId", obj.anonymousId],
         ["identify", obj.userId, obj.traits]
       );
     } else {
-      argumentsArray.unshift(["setAnonymousId", obj.anonymousId]);
+      instance.toBeProcessedArray.push(["setAnonymousId", obj.anonymousId]);
     }
   } else if (obj.userId) {
-    argumentsArray.unshift(["identify", obj.userId, obj.traits]);
+    instance.toBeProcessedArray.push(["identify", obj.userId, obj.traits]);
   }
 
   if (obj.event) {
-    argumentsArray.push(["track", obj.event, obj.properties]);
+    instance.toBeProcessedArray.push(["track", obj.event, obj.properties]);
+  }
+}
+
+function processDataInAnalyticsArray(analytics) {
+  if (instance.loaded) {
+    for (let i = 0; i < analytics.toBeProcessedArray.length; i++) {
+      const event = [...analytics.toBeProcessedArray[i]];
+      const method = event[0];
+      event.shift();
+      logger.debug("=====from analytics array, calling method:: ", method);
+      analytics[method](...event);
+    }
+
+    instance.toBeProcessedArray = [];
   }
 }
 
@@ -1101,7 +1231,7 @@ Emitter(instance);
 
 window.addEventListener(
   "error",
-  (e) => {
+  e => {
     handleError(e, instance);
   },
   true
@@ -1140,21 +1270,15 @@ if (
 // once loaded, parse querystring of the page url to send events
 const parsedQueryObject = instance.parseQueryString(window.location.search);
 
-pushDataToAnalyticsArray(argumentsArray, parsedQueryObject);
+pushQueryStringDataToAnalyticsArray(parsedQueryObject);
 
-if (eventsPushedAlready && argumentsArray && argumentsArray.length > 0) {
+if (argumentsArray && argumentsArray.length > 0) {
   for (let i = 0; i < argumentsArray.length; i++) {
     instance.toBeProcessedArray.push(argumentsArray[i]);
   }
-
-  for (let i = 0; i < instance.toBeProcessedArray.length; i++) {
-    const event = [...instance.toBeProcessedArray[i]];
-    const method = event[0];
-    event.shift();
-    logger.debug("=====from init, calling method:: ", method);
-    instance[method](...event);
-  }
-  instance.toBeProcessedArray = [];
+}
+if (eventsPushedAlready) {
+  processDataInAnalyticsArray(instance);
 }
 // }
 
@@ -1168,6 +1292,7 @@ const group = instance.group.bind(instance);
 const reset = instance.reset.bind(instance);
 const load = instance.load.bind(instance);
 const initialized = (instance.initialized = true);
+const getUserTraits = instance.getUserTraits.bind(instance);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
 
@@ -1182,6 +1307,7 @@ export {
   alias,
   merge,
   group,
+  getUserTraits,
   getAnonymousId,
-  setAnonymousId,
+  setAnonymousId
 };
