@@ -39,11 +39,14 @@ class QuantumMetric {
   }
 
   isLoaded() {
+    if (!this._ready && window.QuantumMetricAPI) {
+      this._ready = true;
+    }
     return this._ready;
   }
 
   isReady() {
-    return this._ready;
+    return this.isLoaded();
   }
 }
 

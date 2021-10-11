@@ -77,7 +77,7 @@ const commonNames = {
   quantumMetric: "QUANTUMMETRIC",
   quantummetric: "QUANTUMMETRIC",
   Quantum_Metric: "QUANTUMMETRIC",
-  "Adobe Analytics": "ADOBE_ANALYITCS",
+  "Adobe Analytics": "ADOBE_ANALYTICS",
   ADOBE_ANALYTICS: "ADOBE_ANALYTICS",
   AdobeAnalytics: "ADOBE_ANALYTICS",
   adobeanalytics: "ADOBE_ANALYTICS",
@@ -123,6 +123,11 @@ const commonNames = {
   SENTRY: "SENTRY",
   sentry: "SENTRY",
   Sentry: "SENTRY",
+  "Quantum Metric": "QUANTUMMETRIC",
+  QuantumMetric: "QUANTUMMETRIC",
+  quantumMetric: "QUANTUMMETRIC",
+  quantummetric: "QUANTUMMETRIC",
+  Quantum_Metric: "QUANTUMMETRIC",
 };
 
 export { commonNames };
