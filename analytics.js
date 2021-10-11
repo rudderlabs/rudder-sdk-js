@@ -13,7 +13,6 @@
 import Emitter from "component-emitter";
 import after from "after";
 import querystring from "component-querystring";
-import merge from "lodash.merge";
 import utm from "@segment/utm-params";
 import {
   getJSONTrimmed,
@@ -27,7 +26,8 @@ import {
   transformToServerNames,
   checkReservedKeywords,
   getReferrer,
-  getReferringDomain
+  getReferringDomain,
+  lMerge
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -832,11 +832,11 @@ class Analytics {
       if (toplevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== "context") {
-        rudderElement.message.context = merge(rudderElement.message.context, {
+        rudderElement.message.context = lMerge(rudderElement.message.context, {
           [key]: options[key]
         });
       } else if (typeof options[key] === "object" && options[key] != null) {
-        rudderElement.message.context = merge(rudderElement.message.context, {
+        rudderElement.message.context = lMerge(rudderElement.message.context, {
           ...options[key]
         });
       } else {

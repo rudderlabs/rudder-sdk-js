@@ -2,6 +2,7 @@
 import { parse } from "component-url";
 import get from "get-value";
 import set from "set-value";
+import merge from "lodash.merge";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
@@ -659,6 +660,10 @@ function isNil(val) {
   return false;
 }
 
+function lMerge(source1, source2) {
+  return merge(source1, source2);
+}
+
 export {
   replacer,
   generateUUID,
@@ -685,4 +690,5 @@ export {
   isArray,
   isDefinedAndNotNull,
   getDataFromSource,
+  lMerge,
 };
