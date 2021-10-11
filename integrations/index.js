@@ -35,7 +35,6 @@ import * as QuantumMetric from "./QuantumMetric";
 import * as Posthog from "./Posthog";
 import * as ProfitWell from "./ProfitWell";
 import * as Qualtrics from "./Qualtrics";
-import * as QuantumMetric from "./QuantumMetric";
 import * as RedditPixel from "./RedditPixel";
 import * as Sentry from "./Sentry";
 import * as SnapPixel from "./SnapPixel";
@@ -83,7 +82,6 @@ const integrations = {
   POSTHOG: Posthog.default,
   PROFITWELL: ProfitWell.default,
   QUALTRICS: Qualtrics.default,
-  QUANTUMMETRIC: QuantumMetric.default,
   REDDIT_PIXEL: RedditPixel.default,
   SENTRY: Sentry.default,
   SNAP_PIXEL: SnapPixel.default,
