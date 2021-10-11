@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 import logger from "../utils/logUtil";
 
 const ScriptLoader = (id, src) => {
@@ -8,7 +9,8 @@ const ScriptLoader = (id, src) => {
   js.type = "text/javascript";
   js.id = id;
   const e = document.getElementsByTagName("script")[0];
-  logger.debug("==script==", e);
+  logger.debug("==parent script==", e);
+  logger.debug("==adding script==", js);
   e.parentNode.insertBefore(js, e);
 };
 

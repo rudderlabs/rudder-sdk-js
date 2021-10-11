@@ -1,9 +1,11 @@
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
 import { parse } from "component-url";
+import get from "get-value";
+import set from "set-value";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
-import { CONFIG_URL } from "./constants";
+import { CONFIG_URL, ReservedPropertyKeywords } from "./constants";
 import Storage from "./storage";
 
 /**
@@ -147,18 +149,39 @@ function getDefaultPageProperties() {
   const path = canonicalUrl
     ? parse(canonicalUrl).pathname
     : window.location.pathname;
-  const { referrer } = document;
+  //const { referrer } = document;
   const { search } = window.location;
   const { title } = document;
   const url = getUrl(search);
+  const tab_url = window.location.href;
 
+  const referrer = getReferrer();
+  const referring_domain = getReferringDomain(referrer);
+  const initial_referrer = Storage.getInitialReferrer();
+  const initial_referring_domain = Storage.getInitialReferringDomain();
   return {
     path,
     referrer,
+    referring_domain,
     search,
     title,
     url,
+    tab_url,
+    initial_referrer,
+    initial_referring_domain
   };
+}
+
+function getReferrer() {
+  return document.referrer || "$direct";
+}
+
+function getReferringDomain(referrer) {
+  var split = referrer.split("/");
+  if (split.length >= 3) {
+    return split[2];
+  }
+  return "";
 }
 
 function getUrl(search) {
@@ -216,7 +239,7 @@ function getRevenue(properties, eventName) {
  * @param {*} integrationObject
  */
 function tranformToRudderNames(integrationObject) {
-  Object.keys(integrationObject).forEach((key) => {
+  Object.keys(integrationObject).forEach(key => {
     if (integrationObject.hasOwnProperty(key)) {
       if (commonNames[key]) {
         integrationObject[commonNames[key]] = integrationObject[key];
@@ -232,7 +255,7 @@ function tranformToRudderNames(integrationObject) {
 }
 
 function transformToServerNames(integrationObject) {
-  Object.keys(integrationObject).forEach((key) => {
+  Object.keys(integrationObject).forEach(key => {
     if (integrationObject.hasOwnProperty(key)) {
       if (clientToServerNames[key]) {
         integrationObject[clientToServerNames[key]] = integrationObject[key];
@@ -271,7 +294,7 @@ function findAllEnabledDestinations(
     if (sdkSuppliedIntegrations.All != undefined) {
       allValue = sdkSuppliedIntegrations.All;
     }
-    configPlaneEnabledIntegrations.forEach((intg) => {
+    configPlaneEnabledIntegrations.forEach(intg => {
       if (!allValue) {
         // All false ==> check if intg true supplied
         if (
@@ -303,7 +326,7 @@ function findAllEnabledDestinations(
     if (sdkSuppliedIntegrations.All != undefined) {
       allValue = sdkSuppliedIntegrations.All;
     }
-    configPlaneEnabledIntegrations.forEach((intg) => {
+    configPlaneEnabledIntegrations.forEach(intg => {
       if (!allValue) {
         // All false ==> check if intg true supplied
         if (
@@ -420,6 +443,214 @@ function getUserProvidedConfigUrl(configUrl) {
   }
   return url;
 }
+/**
+ * Check if a reserved keyword is present in properties/traits
+ * @param {*} properties
+ * @param {*} reservedKeywords
+ * @param {*} type
+ */
+function checkReservedKeywords(message, messageType) {
+  //  properties, traits, contextualTraits are either undefined or object
+  const { properties, traits } = message;
+  const contextualTraits = message.context.traits;
+  if (properties) {
+    Object.keys(properties).forEach(property => {
+      if (ReservedPropertyKeywords.indexOf(property.toLowerCase()) >= 0) {
+        logger.error(
+          `Warning! : Reserved keyword used in properties--> ${property} with ${messageType} call`
+        );
+      }
+    });
+  }
+  if (traits) {
+    Object.keys(traits).forEach(trait => {
+      if (ReservedPropertyKeywords.indexOf(trait.toLowerCase()) >= 0) {
+        logger.error(
+          `Warning! : Reserved keyword used in traits--> ${trait} with ${messageType} call`
+        );
+      }
+    });
+  }
+  if (contextualTraits) {
+    Object.keys(contextualTraits).forEach(contextTrait => {
+      if (ReservedPropertyKeywords.indexOf(contextTrait.toLowerCase()) >= 0) {
+        logger.error(
+          `Warning! : Reserved keyword used in traits --> ${contextTrait} with ${messageType} call`
+        );
+      }
+    });
+  }
+}
+
+/* ------- Start FlattenJson -----------
+ * This function flatten given json object to single level.
+ * So if there is nested object or array, all will apear in first level properties of an object.
+ * Following is case we are handling in this function ::
+ * condition 1: String
+ * condition 2: Array
+ * condition 3: Nested object
+ */
+function recurse(cur, prop, result) {
+  const res = result;
+  if (Object(cur) !== cur) {
+    res[prop] = cur;
+  } else if (Array.isArray(cur)) {
+    const l = cur.length;
+    for (let i = 0; i < l; i += 1)
+      recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res);
+    if (l === 0) res[prop] = [];
+  } else {
+    let isEmpty = true;
+    Object.keys(cur).forEach(key => {
+      isEmpty = false;
+      recurse(cur[key], prop ? `${prop}.${key}` : key, res);
+    });
+    if (isEmpty) res[prop] = {};
+  }
+  return res;
+}
+
+function flattenJsonPayload(data) {
+  return recurse(data, "", {});
+}
+/* ------- End FlattenJson ----------- */
+/**
+ *
+ * @param {*} message
+ * @param {*} destination
+ * @param {*} keys
+ * @param {*} exclusionFields
+ * Extract fileds from message with exclusions
+ * Pass the keys of message for extraction and
+ * exclusion fields to exlude and the payload to map into
+ * -----------------Example-------------------
+ * extractCustomFields(message,payload,["traits", "context.traits", "properties"], "email",
+ * ["firstName",
+ * "lastName",
+ * "phone",
+ * "title",
+ * "organization",
+ * "city",
+ * "region",
+ * "country",
+ * "zip",
+ * "image",
+ * "timezone"])
+ * -------------------------------------------
+ * The above call will map the fields other than the
+ * exlusion list from the given keys to the destination payload
+ *
+ */
+
+function extractCustomFields(message, destination, keys, exclusionFields) {
+  keys.map(key => {
+    const messageContext = get(message, key);
+    if (messageContext) {
+      const objKeys = [];
+      Object.keys(messageContext).map(k => {
+        if (exclusionFields.indexOf(k) < 0) {
+          objKeys.push(k);
+        }
+      });
+      objKeys.map(k => {
+        if (!(typeof messageContext[k] === "undefined")) {
+          set(destination, k, get(messageContext, k));
+        }
+      });
+    }
+  });
+  return destination;
+}
+/**
+ *
+ * @param {*} message
+ *
+ * Use get-value to retrieve defined trais from message traits
+ */
+function getDefinedTraits(message) {
+  const traitsValue = {
+    userId:
+      get(message, "userId") ||
+      get(message, "context.traits.userId") ||
+      get(message, "anonymousId"),
+    email:
+      get(message, "context.traits.email") ||
+      get(message, "context.traits.Email") ||
+      get(message, "context.traits.E-mail"),
+    phone:
+      get(message, "context.traits.phone") ||
+      get(message, "context.traits.Phone"),
+    firstName:
+      get(message, "context.traits.firstName") ||
+      get(message, "context.traits.firstname") ||
+      get(message, "context.traits.first_name"),
+    lastName:
+      get(message, "context.traits.lastName") ||
+      get(message, "context.traits.lastname") ||
+      get(message, "context.traits.last_name"),
+    name:
+      get(message, "context.traits.name") ||
+      get(message, "context.traits.Name"),
+    city:
+      get(message, "context.traits.city") ||
+      get(message, "context.traits.City"),
+    country:
+      get(message, "context.traits.country") ||
+      get(message, "context.traits.Country")
+  };
+
+  if (
+    !get(traitsValue, "name") &&
+    get(traitsValue, "firstName") &&
+    get(traitsValue, "lastName")
+  ) {
+    set(
+      traitsValue,
+      "name",
+      `${get(traitsValue, "firstName")} ${get(traitsValue, "lastName")}`
+    );
+  }
+  return traitsValue;
+}
+
+/**
+ * To check if a variable is storing object or not
+ */
+const isObject = obj => {
+  return type(obj) === "object";
+};
+
+/**
+ * To check if a variable is storing array or not
+ */
+const isArray = obj => {
+  return type(obj) === "array";
+};
+
+const isDefined = (x) => x !== undefined;
+const isNotNull = (x) => x !== null;
+const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
+
+const getDataFromSource = (src, dest, key, properties) => {
+  const data = {};
+  if (isArray(src)) {
+    for (let index = 0; index < src.length; index += 1) {
+      if (src[index] === key.toLowerCase()) {
+        data[dest] = properties[key].toString();
+        if (data) {
+          // return only if the value is valid.
+          // else look for next possible source in precedence
+          return data;
+        }
+      }
+    }
+  } else if (typeof src === "string")
+    if (src === key.toLowerCase()) {
+      data[dest] = properties[key].toString();
+      // eslint-disable-next-line no-param-reassign
+    }
+  return data;
+};
 
 function validatePayload(message) {
   const prefix = Storage.getPrefix(); // "RudderEncrypt:";
@@ -456,4 +687,15 @@ export {
   handleError,
   rejectArr,
   validatePayload,
+  type,
+  flattenJsonPayload,
+  checkReservedKeywords,
+  getReferrer,
+  getReferringDomain,
+  extractCustomFields,
+  getDefinedTraits,
+  isObject,
+  isArray,
+  isDefinedAndNotNull,
+  getDataFromSource,
 };

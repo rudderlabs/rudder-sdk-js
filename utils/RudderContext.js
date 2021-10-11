@@ -31,12 +31,20 @@ class RudderContext {
       this.locale = null;
     } else {
       // running within browser
-      screen.width = window.width;
-      screen.height = window.height;
+      screen.width = window.screen.width;
+      screen.height = window.screen.height;
       screen.density = window.devicePixelRatio;
-      this.userAgent = navigator.userAgent;
+      // detect brave browser and append to the user agent
+      if (navigator.brave && Object.getPrototypeOf(navigator.brave).isBrave) {
+        const version = navigator.userAgent.match(/(Chrome)\/([\w\.]+)/i)[2];
+        this.userAgent = `${navigator.userAgent} Brave/${version}`;
+      } else {
+        this.userAgent = navigator.userAgent;
+      }
       // property name differs based on browser version
       this.locale = navigator.language || navigator.browserLanguage;
+      screen.innerWidth = window.innerWidth;
+      screen.innerHeight = window.innerHeight;
     }
     this.os = os;
     this.screen = screen;
