@@ -31,6 +31,7 @@ import * as MoEngage from "./MoEngage";
 import * as Optimizely from "./Optimizely";
 import * as Pendo from "./Pendo";
 import * as PinterestTag from "./PinterestTag";
+import * as QuantumMetric from "./QuantumMetric";
 import * as Posthog from "./Posthog";
 import * as ProfitWell from "./ProfitWell";
 import * as Qualtrics from "./Qualtrics";
@@ -78,6 +79,7 @@ const integrations = {
   OPTIMIZELY: Optimizely.default,
   PENDO: Pendo.default,
   PINTEREST_TAG: PinterestTag.default,
+  QUANTUMMETRIC: QuantumMetric.default,
   POSTHOG: Posthog.default,
   PROFITWELL: ProfitWell.default,
   QUALTRICS: Qualtrics.default,

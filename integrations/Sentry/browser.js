@@ -44,6 +44,7 @@ class Sentry {
     );
   }
 
+  // eslint-disable-next-line class-methods-use-this
   isLoaded() {
     logger.debug("===in Sentry isLoaded===");
     return !!(
@@ -54,6 +55,7 @@ class Sentry {
     );
   }
 
+  // eslint-disable-next-line class-methods-use-this
   isReady() {
     logger.debug("===in Sentry isReady===");
     if (
@@ -86,11 +88,12 @@ class Sentry {
   identify(rudderElement) {
     const { message } = rudderElement;
     const { traits } = message.context;
-    const { email, name } = getDefinedTraits(message);
+    const { email, name } = getDefinedTraits(message); // userId sent as id and username sent as name
     const userId = get(message, "userId");
     const ipAddress = get(message, "context.traits.ip_address");
 
     if (!userId && !email && !name && !ipAddress) {
+      // if no user identification property is present the event will be dropped
       logger.debug(
         "===[Sentry]: Any one of userId, email, name and ip_address is mandatory==="
       );

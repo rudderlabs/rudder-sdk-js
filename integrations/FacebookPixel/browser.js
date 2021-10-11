@@ -592,7 +592,9 @@ class FacebookPixel {
         continue;
       }
 
-      const customProperties = eventCustomProperties.map(e => e.eventCustomProperties);
+      const customProperties = eventCustomProperties.map(
+        (e) => e.eventCustomProperties
+      );
 
       if (isStandardEvent && customProperties.indexOf(property) < 0) {
         continue;
