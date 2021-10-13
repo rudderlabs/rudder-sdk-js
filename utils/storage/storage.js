@@ -40,7 +40,7 @@ class Storage {
 
     // Check cookie support
     // First try setting the storage to cookie else to localstorage
-    let cookieInst = storageTypes.COOKIES.instance;
+    const cookieInst = storageTypes.COOKIES.instance;
     cookieInst.set("rudder_cookies", true);
     if (cookieInst.get("rudder_cookies")) {
       cookieInst.remove("rudder_cookies");
@@ -49,26 +49,23 @@ class Storage {
 
     // Check local storage support
     // localStorage is enabled.
-    let lsInst = storageTypes.LOCAL_STORAGE.instance;
+    const lsInst = storageTypes.LOCAL_STORAGE.instance;
     if (lsInst.enabled) {
       this.lsSupportExists = true;
     }
 
     // Assign storage object
     // Local Storage > Cookies
-    let prevStorage;
     if (this.lsSupportExists) {
       this.storage = lsInst;
       this.storageName = storageTypes.LOCAL_STORAGE.name;
-      if (this.cookieSupportExists) prevStorage = Cookie;
+      // Migrate any valid data
+      if (this.cookieSupportExists) {
+        this.migrateData(cookieInst, this.storage);
+      }
     } else if (this.cookieSupportExists) {
       this.storage = cookieInst;
       this.storageName = storageTypes.COOKIES.name;
-    }
-
-    // Migrate any valid data from previous storage type to current
-    if (this.storage && prevStorage) {
-      this.migrateData(prevStorage, this.storage);
     }
   }
 
@@ -77,12 +74,13 @@ class Storage {
     // that only 2 storage types are supported in the SDK
     // TODO: Need to rewrite as this solution is not extendable.
 
-    // Data validation and setting to defaults
+    // Validate storage name
     let reqStorageName;
     if (typeof defStorageName === "string" && defStorageName)
       reqStorageName = defStorageName.trim().toLowerCase();
     else reqStorageName = DEF_STORAGE_NAME;
 
+    // Allow only defined storage types
     if (!Object.values(storageTypes).some((x) => x.name === reqStorageName))
       reqStorageName = DEF_STORAGE_NAME;
 
