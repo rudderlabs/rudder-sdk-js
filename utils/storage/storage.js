@@ -1,3 +1,4 @@
+import { tsImportEqualsDeclaration } from "@babel/types";
 import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
 import logger from "../logUtil";
@@ -30,67 +31,87 @@ class Storage {
   constructor() {
     this.cookieSupportExists = false;
     this.lsSupportExists = false;
+    this.storage = undefined;
+    this.storageName = "";
+
+    // Note: The logic below heavily relies on the fact
+    // that only 2 storage types are supported in the SDK
+    // TODO: Need to rewrite as this solution is not extendable.
 
     // Check cookie support
     // First try setting the storage to cookie else to localstorage
-    Cookie.set("rudder_cookies", true);
-    if (Cookie.get("rudder_cookies")) {
-      Cookie.remove("rudder_cookies");
+    let cookieInst = storageTypes.COOKIES.instance;
+    cookieInst.set("rudder_cookies", true);
+    if (cookieInst.get("rudder_cookies")) {
+      cookieInst.remove("rudder_cookies");
       this.cookieSupportExists = true;
     }
 
     // Check local storage support
     // localStorage is enabled.
-    if (Store.enabled) {
+    let lsInst = storageTypes.LOCAL_STORAGE.instance;
+    if (lsInst.enabled) {
       this.lsSupportExists = true;
     }
 
-    this.storage = undefined;
-  }
-
-  init(defStorageName = DEF_STORAGE_NAME) {
-    // Data validation and setting to defaults
-    let storageName;
-    if (typeof defStorageName === "string" && defStorageName)
-      storageName = defStorageName.trim().toLowerCase();
-    else storageName = DEF_STORAGE_NAME;
-
-    if (!Object.values(storageTypes).some((x) => x.name === storageName))
-      storageName = DEF_STORAGE_NAME;
-
-    // Reset storage instance
-    this.storage = undefined;
-
+    // Assign storage object
+    // Local Storage > Cookies
     let prevStorage;
-
-    // Determine storage type
-    switch (storageName) {
-      case storageTypes.COOKIES.name:
-        if (this.cookieSupportExists) {
-          this.storage = storageTypes.COOKIES.instance;
-          if (this.lsSupportExists)
-            prevStorage = storageTypes.LOCAL_STORAGE.instance;
-        } else if (this.lsSupportExists) {
-          this.storage = storageTypes.LOCAL_STORAGE.instance;
-        }
-        break;
-      case storageTypes.LOCAL_STORAGE.name:
-        if (this.lsSupportExists) {
-          this.storage = storageTypes.LOCAL_STORAGE.instance;
-          if (this.cookieSupportExists)
-            prevStorage = storageTypes.COOKIES.instance;
-        } else if (this.cookieSupportExists) {
-          this.storage = storageTypes.COOKIES.instance;
-        }
-        break;
-      default:
-        break;
+    if (this.lsSupportExists) {
+      this.storage = lsInst;
+      this.storageName = storageTypes.LOCAL_STORAGE.name;
+      if (this.cookieSupportExists) prevStorage = Cookie;
+    } else if (this.cookieSupportExists) {
+      this.storage = cookieInst;
+      this.storageName = storageTypes.COOKIES.name;
     }
 
     // Migrate any valid data from previous storage type to current
     if (this.storage && prevStorage) {
       this.migrateData(prevStorage, this.storage);
     }
+  }
+
+  init(defStorageName = DEF_STORAGE_NAME) {
+    // Note: The logic below heavily relies on the fact
+    // that only 2 storage types are supported in the SDK
+    // TODO: Need to rewrite as this solution is not extendable.
+
+    // Data validation and setting to defaults
+    let reqStorageName;
+    if (typeof defStorageName === "string" && defStorageName)
+      reqStorageName = defStorageName.trim().toLowerCase();
+    else reqStorageName = DEF_STORAGE_NAME;
+
+    if (!Object.values(storageTypes).some((x) => x.name === reqStorageName))
+      reqStorageName = DEF_STORAGE_NAME;
+
+    // If the storage type has not changed, don't proceed further
+    if (reqStorageName === this.storageName) return;
+
+    let prevStorage = this.storage;
+
+    if (reqStorageName === storageTypes.COOKIES.name) {
+      if (this.cookieSupportExists) {
+        this.storage = storageTypes.COOKIES.instance;
+      } else if (this.lsSupportExists) {
+        // To stop data migration below
+        prevStorage = undefined;
+      }
+    } else if (reqStorageName === storageTypes.LOCAL_STORAGE.name) {
+      if (this.lsSupportExists) {
+        this.storage = storageTypes.LOCAL_STORAGE.instance;
+      } else if (this.cookieSupportExists) {
+        // To stop data migration below
+        prevStorage = undefined;
+      }
+    }
+
+    // Migrate any valid data from previous storage type to current
+    if (this.storage && prevStorage) {
+      this.migrateData(prevStorage, this.storage);
+    }
+    this.storageName = reqStorageName;
   }
 
   migrateData(prevStorage, curStorage) {
