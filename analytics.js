@@ -668,7 +668,7 @@ class Analytics {
 
       // Check if the current event is blacklisted
       if (
-        typeof blackListedEvents === "array" &&
+        Array.isArray(blackListedEvents) &&
         blackListedEvents.find(
           (eName) => typeof eName === "string" && eName === eventName
         )
