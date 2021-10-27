@@ -14,6 +14,7 @@ import Emitter from "component-emitter";
 import after from "after";
 import querystring from "component-querystring";
 import merge from "lodash.merge";
+import cloneDeep from "lodash.clonedeep";
 import utm from "@segment/utm-params";
 import {
   getJSONTrimmed,
@@ -326,9 +327,10 @@ class Analytics {
                     methodName
                   ]
                 ) {
+                  const clonedBufferEvent = cloneDeep(event);
                   succesfulLoadedIntersectClientSuppliedIntegrations[i][
                     methodName
-                  ](...event);
+                  ](...clonedBufferEvent);
                 }
               }
             } catch (error) {
@@ -712,10 +714,11 @@ class Analytics {
 
       // try to first send to all integrations, if list populated from BE
       try {
-        succesfulLoadedIntersectClientSuppliedIntegrations.forEach(obj => {
+        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
           if (!obj.isFailed || !obj.isFailed()) {
             if (obj[type]) {
-              obj[type](rudderElement);
+              const copyOfRudderElements = cloneDeep(rudderElement);
+              obj[type](copyOfRudderElements);
             }
           }
         });
