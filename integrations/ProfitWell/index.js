@@ -1,3 +1,4 @@
 import ProfitWell from "./browser";
 
-export default ProfitWell;
+// eslint-disable-next-line import/prefer-default-export
+export { ProfitWell };

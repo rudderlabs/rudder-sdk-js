@@ -1,3 +1,4 @@
 import SnapPixel from "./browser";
 
-export default SnapPixel;
+// eslint-disable-next-line import/prefer-default-export
+export { SnapPixel };

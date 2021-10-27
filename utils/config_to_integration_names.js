@@ -39,6 +39,10 @@ const configToIntNames = {
   CRITEO: "Criteo",
   MP: "Mixpanel",
   QUALTRICS: "Qualtrics",
+  PROFITWELL: "ProfitWell",
+  SENTRY: "Sentry",
+  QUANTUMMETRIC: "QuantumMetric",
+  SNAP_PIXEL: "SnapPixel",
 };
 
 // eslint-disable-next-line import/prefer-default-export

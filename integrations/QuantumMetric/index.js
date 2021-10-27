@@ -1,3 +1,4 @@
 import QuantumMetric from "./browser";
 
-export default QuantumMetric;
+// eslint-disable-next-line import/prefer-default-export
+export { QuantumMetric };
