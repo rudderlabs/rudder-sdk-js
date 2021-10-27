@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import is from "is";
 import each from "@ndhoule/each";
+import sha256 from "crypto-js/sha256";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import { getHashFromArray } from "../utils/commonUtils";
@@ -459,9 +460,9 @@ class FacebookPixel {
         logger.error("No product array found");
       }
     } else {
-      console.log("inside custom");
+      logger.debug("inside custom");
       if (!standardTo[event.toLowerCase()] && !legacyTo[event.toLowerCase()]) {
-        console.log("inside custom not mapped");
+        logger.debug("inside custom not mapped");
         const payloadVal = this.buildPayLoad(rudderElement, false);
         payloadVal.value = revValue;
         window.fbq("trackSingleCustom", self.pixelId, event, payloadVal, {
@@ -498,30 +499,33 @@ class FacebookPixel {
     }
   }
 
+  /**
+   * Get the Facebook Content Type
+   * 
+   * Can be `product`, `destination`, `flight` or `hotel`.
+   * 
+   * This can be overridden within the message
+   * `options.integrations.FACEBOOK_PIXEL.contentType`, or alternatively you can
+   * set the "Map Categories to Facebook Content Types" setting within
+   * RudderStack config and then set the corresponding commerce category in
+   * `track()` properties.
+   * 
+   * https://www.facebook.com/business/help/606577526529702?id=1205376682832142
+   */
   getContentType(rudderElement, defaultValue) {
-    const { options, properties } = rudderElement.message;
-    if (options && options.contentType) {
-      return [options.contentType];
-    }
-    let { category } = properties;
-    const { products } = properties;
-    if (!category) {
-      if (products && products.length) {
-        category = products[0].category;
-      }
-    }
+    // Get the message-specific override if it exists in the options parameter of `track()`
+    const contentTypeMessageOverride = rudderElement.message.integrations?.FACEBOOK_PIXEL?.contentType;
+    if (contentTypeMessageOverride) return [contentTypeMessageOverride];
+
+    // Otherwise check if there is a replacement set for all Facebook Pixel
+    // track calls of this category
+    const category = rudderElement.message.properties.category;
     if (category) {
-      const mapped = this.categoryToContent;
-      const mappedTo = mapped.reduce((filtered, mappedVal) => {
-        if (mappedVal.from === category) {
-          filtered.push(mappedVal.to);
-        }
-        return filtered;
-      }, []);
-      if (mappedTo.length) {
-        return mappedTo;
-      }
+      const categoryMapping = this.categoryToContent?.find(i => i.from === category);
+      if (categoryMapping?.to) return [categoryMapping.to];
     }
+
+    // Otherwise return the default value
     return defaultValue;
   }
 
@@ -588,7 +592,9 @@ class FacebookPixel {
         continue;
       }
 
-      const customProperties = eventCustomProperties.map(e => e.eventCustomProperties);
+      const customProperties = eventCustomProperties.map(
+        (e) => e.eventCustomProperties
+      );
 
       if (isStandardEvent && customProperties.indexOf(property) < 0) {
         continue;
@@ -604,7 +610,7 @@ class FacebookPixel {
       }
       if (customPiiProperties.hasOwnProperty(property)) {
         if (customPiiProperties[property] && typeof value === "string") {
-          payload[property] = sha256(value);
+          payload[property] = sha256(value).toString();
         }
         continue;
       }

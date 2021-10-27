@@ -13,6 +13,7 @@
 import Emitter from "component-emitter";
 import { parse } from "component-querystring";
 import merge from "lodash.merge";
+import cloneDeep from "lodash.clonedeep";
 import {
   getJSONTrimmed,
   generateUUID,
@@ -325,9 +326,10 @@ class Analytics {
                   methodName
                 ]
               ) {
+                const clonedBufferEvent = cloneDeep(event);
                 succesfulLoadedIntersectClientSuppliedIntegrations[i][
                   methodName
-                ](...event);
+                ](...clonedBufferEvent);
               }
             }
           } catch (error) {
@@ -932,6 +934,7 @@ class Analytics {
       });
       throw Error("failed to initialize");
     }
+
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
