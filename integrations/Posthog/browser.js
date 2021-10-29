@@ -1,9 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
+import { removeTrailingSlash } from "../../utils/utils";
 
-const removeTrailingSlash = (str) => {
-  return str && str.endsWith("/") ? str.replace(/\/+$/, "") : str;
-};
 class Posthog {
   constructor(config, analytics) {
     this.name = "POSTHOG";

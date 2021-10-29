@@ -652,6 +652,10 @@ const getDataFromSource = (src, dest, properties) => {
   return data;
 };
 
+const removeTrailingSlash = (str) => {
+  return str && str.endsWith("/") ? str.replace(/\/+$/, "") : str;
+};
+
 export {
   replacer,
   generateUUID,
@@ -677,4 +681,5 @@ export {
   isArray,
   isDefinedAndNotNull,
   getDataFromSource,
+  removeTrailingSlash,
 };
