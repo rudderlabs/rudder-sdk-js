@@ -1,15 +1,15 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 
+const removeTrailingSlash = (str) => {
+  return str && str.endsWith("/") ? str.slice(0, -1) : str;
+};
 class Posthog {
   constructor(config, analytics) {
     this.name = "POSTHOG";
     this.analytics = analytics;
     this.teamApiKey = config.teamApiKey;
-    if (config.yourInstance && config.yourInstance.endsWith("/")) {
-      config.yourInstance.slice(0, -1);
-    }
-    this.yourInstance = config.yourInstance || "https://app.posthog.com";
+    this.yourInstance = removeTrailingSlash(config.yourInstance) || "https://app.posthog.com";
     this.autocapture = config.autocapture || false;
     this.capturePageView = config.capturePageView || false;
     this.disableSessionRecording = config.disableSessionRecording || false;
