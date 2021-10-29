@@ -2,7 +2,7 @@
 import logger from "../../utils/logUtil";
 
 const removeTrailingSlash = (str) => {
-  return str && str.endsWith("/") ? str.slice(0, -1) : str;
+  return str && str.endsWith("/") ? str.replace(/\/+$/, "") : str;
 };
 class Posthog {
   constructor(config, analytics) {
