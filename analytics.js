@@ -714,7 +714,8 @@ class Analytics {
           succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
             if (!obj.isFailed || !obj.isFailed()) {
               if (obj[type]) {
-                obj[type](rudderElement);
+                const clonedRudderElement = cloneDeep(rudderElement);
+                obj[type](clonedRudderElement);
               }
             }
           });
