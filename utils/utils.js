@@ -652,7 +652,7 @@ const getDataFromSource = (src, dest, properties) => {
   return data;
 };
 
-const removeTrailingSlash = (str) => {
+const removeTrailingSlashes = (str) => {
   return str && str.endsWith("/") ? str.replace(/\/+$/, "") : str;
 };
 
@@ -681,5 +681,5 @@ export {
   isArray,
   isDefinedAndNotNull,
   getDataFromSource,
-  removeTrailingSlash,
+  removeTrailingSlashes,
 };
