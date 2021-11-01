@@ -27,6 +27,7 @@ const clientToServerNames = {
   LYTICS: "Lytics",
   APPCUES: "Appcues",
   POSTHOG: "PostHog",
+  PROFITWELL: "ProfitWell",
   KLAVIYO: "Klaviyo",
   CLEVERTAP: "Clevertap",
   BINGADS: "BingAds",
@@ -39,6 +40,7 @@ const clientToServerNames = {
   CRITEO: "Criteo",
   MP: "Mixpanel",
   QUALTRICS: "Qualtrics",
+  SENTRY: "Sentry",
 };
 
 export { clientToServerNames };

@@ -73,7 +73,7 @@ const commonNames = {
   PinterestAds: "PINTEREST_TAG",
   Pinterest_Ads: "PINTEREST_TAG",
   Pinterest: "PINTEREST_TAG",
-  "Adobe Analytics": "ADOBE_ANALYITCS",
+  "Adobe Analytics": "ADOBE_ANALYTICS",
   ADOBE_ANALYTICS: "ADOBE_ANALYTICS",
   AdobeAnalytics: "ADOBE_ANALYTICS",
   adobeanalytics: "ADOBE_ANALYTICS",
@@ -113,6 +113,17 @@ const commonNames = {
   "Snap Pixel": "SNAP_PIXEL",
   "SNAP PIXEL": "SNAP_PIXEL",
   "snap pixel": "SNAP_PIXEL",
+  PROFITWELL: "PROFITWELL",
+  ProfitWell: "PROFITWELL",
+  profitwell: "PROFITWELL",
+  SENTRY: "SENTRY",
+  sentry: "SENTRY",
+  Sentry: "SENTRY",
+  "Quantum Metric": "QUANTUMMETRIC",
+  QuantumMetric: "QUANTUMMETRIC",
+  quantumMetric: "QUANTUMMETRIC",
+  quantummetric: "QUANTUMMETRIC",
+  Quantum_Metric: "QUANTUMMETRIC",
 };
 
 export { commonNames };

@@ -13,7 +13,7 @@ class GoogleTagManager {
       w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
       const f = d.getElementsByTagName(s)[0];
       const j = d.createElement(s);
-      const dl = l != "dataLayer" ? `&l=${l}` : "";
+      const dl = l !== "dataLayer" ? `&l=${l}` : "";
       j.async = true;
       j.src = `https://www.googletagmanager.com/gtm.js?id=${i}${dl}`;
       f.parentNode.insertBefore(j, f);
@@ -21,7 +21,11 @@ class GoogleTagManager {
   }
 
   identify(rudderElement) {
-    logger.debug("[GTM] identify:: method not supported");
+    // set the traits to the datalayer and put everything under the key traits
+    // keeping it under the traits key as destructing might conflict with `message.properties`
+    const rudderMessage = rudderElement.message;
+    const props = { traits: rudderMessage.context.traits };
+    this.sendToGTMDatalayer(props);
   }
 
   track(rudderElement) {
@@ -31,6 +35,9 @@ class GoogleTagManager {
       event: rudderMessage.event,
       userId: rudderMessage.userId,
       anonymousId: rudderMessage.anonymousId,
+      // set the traits as well if there is any
+      // it'll be null/undefined before identify call is made
+      traits: rudderMessage.context.traits,
       ...rudderMessage.properties,
     };
     this.sendToGTMDatalayer(props);
@@ -60,6 +67,9 @@ class GoogleTagManager {
       event: eventName,
       userId: rudderMessage.userId,
       anonymousId: rudderMessage.anonymousId,
+      // set the traits as well if there is any
+      // it'll be null/undefined before identify call is made
+      traits: rudderMessage.context.traits,
       ...rudderMessage.properties,
     };
 

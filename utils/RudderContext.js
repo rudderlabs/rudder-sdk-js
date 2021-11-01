@@ -37,6 +37,7 @@ class RudderContext {
       } else {
         this.userAgent = navigator.userAgent;
       }
+
       // property name differs based on browser version
       this.locale = navigator.language || navigator.browserLanguage;
     }

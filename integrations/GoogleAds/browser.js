@@ -64,10 +64,10 @@ class GoogleAds {
       const { eventName } = conversionData;
       const sendToValue = `${this.conversionId}/${conversionLabel}`;
       const properties = {};
-      if (rudderElement.properties) {
-        properties.value = rudderElement.properties.revenue;
-        properties.currency = rudderElement.properties.currency;
-        properties.transaction_id = rudderElement.properties.order_id;
+      if (rudderElement.message.properties) {
+        properties.value = rudderElement.message.properties.revenue;
+        properties.currency = rudderElement.message.properties.currency;
+        properties.transaction_id = rudderElement.message.properties.order_id;
       }
       properties.send_to = sendToValue;
       window.gtag("event", eventName, properties);
