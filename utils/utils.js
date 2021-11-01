@@ -677,4 +677,5 @@ export {
   isArray,
   isDefinedAndNotNull,
   getDataFromSource,
+  commonNames,
 };

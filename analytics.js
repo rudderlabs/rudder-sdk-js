@@ -27,6 +27,7 @@ import {
   checkReservedKeywords,
   getReferrer,
   getReferringDomain,
+  commonNames,
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -661,9 +662,10 @@ class Analytics {
 
   IsEventBlackListed(eventName, intgName) {
     if (typeof eventName === "string" && eventName) {
+      const sdkIntgName = commonNames[intgName];
       // Identify blacklisted events array from destination config
       const blackListedEvents = this.clientIntegrations.find(
-        (intg) => intg.name === intgName
+        (intg) => intg.name === sdkIntgName
       ).config.blackListedEvents;
 
       // Check if the current event is blacklisted
