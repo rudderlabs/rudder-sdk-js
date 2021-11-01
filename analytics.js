@@ -667,10 +667,13 @@ class Analytics {
       ).config.blackListedEvents;
 
       // Check if the current event is blacklisted
+      // blackListedEvents: [
+      //    {eventName: "blockedEvent1"}, {eventName: "blockedEvent2"}, {eventName: "Home Page View"}
+      // ]
       if (
         Array.isArray(blackListedEvents) &&
         blackListedEvents.find(
-          (eName) => typeof eName === "string" && eName === eventName
+          (eName) => typeof eName.eventName === "string" && eName.eventName === eventName
         )
       ) {
         return true;
