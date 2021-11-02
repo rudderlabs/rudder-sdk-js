@@ -663,22 +663,44 @@ class Analytics {
   IsEventBlackListed(eventName, intgName) {
     if (typeof eventName === "string" && eventName) {
       const sdkIntgName = commonNames[intgName];
-      // Identify blacklisted events array from destination config
-      const blackListedEvents = this.clientIntegrations.find(
+      const intgConfig = this.clientIntegrations.find(
         (intg) => intg.name === sdkIntgName
-      ).config.blackListedEvents;
+      ).config;
 
-      // Check if the current event is blacklisted
       // blackListedEvents: [
       //    {eventName: "blockedEvent1"}, {eventName: "blockedEvent2"}, {eventName: "Home Page View"}
       // ]
+      // whiteListedEvents: [
+      //    {eventName: "allowed event 1"}, {eventName: "allowedEvent2"}
+      // ]
+      const eventsBlacklist = intgConfig.blackListedEvents;
+      const eventsWhitelist = intgConfig.whiteListedEvents;
+
+      // Proceed to validate event blacklist status ONLY if
+      // either of lists are defined
       if (
-        Array.isArray(blackListedEvents) &&
-        blackListedEvents.find(
-          (eName) => typeof eName.eventName === "string" && eName.eventName === eventName
-        )
+        eventsBlacklist &&
+        Array.isArray(eventsBlacklist) &&
+        eventsWhitelist &&
+        Array.isArray(eventsWhitelist) &&
+        ((eventsBlacklist.length !== 0 && eventsWhitelist.length === 0) ||
+          (eventsBlacklist.length === 0 && eventsWhitelist.length !== 0))
       ) {
-        return true;
+        if (eventsBlacklist.length !== 0 && eventsWhitelist.length === 0) {
+          return eventsBlacklist.find(
+            (eventObj) => eventObj.eventName === eventName
+          ) === undefined
+            ? false
+            : true;
+        } else {
+          return eventsWhitelist.find(
+            (eventObj) => eventObj.eventName === eventName
+          ) === undefined
+            ? true
+            : false;
+        }
+      } else {
+        return false;
       }
     }
     return false;
