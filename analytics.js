@@ -663,42 +663,36 @@ class Analytics {
   IsEventBlackListed(eventName, intgName) {
     if (typeof eventName === "string" && eventName) {
       const sdkIntgName = commonNames[intgName];
-      const intgConfig = this.clientIntegrations.find(
+      const intg = this.clientIntegrations.find(
         (intg) => intg.name === sdkIntgName
-      ).config;
+      );
 
-      // blackListedEvents: [
-      //    {eventName: "blockedEvent1"}, {eventName: "blockedEvent2"}, {eventName: "Home Page View"}
-      // ]
-      // whiteListedEvents: [
-      //    {eventName: "allowed event 1"}, {eventName: "allowedEvent2"}
-      // ]
-      const eventsBlacklist = intgConfig.blackListedEvents;
-      const eventsWhitelist = intgConfig.whiteListedEvents;
+      const { eventsBlacklist, eventsWhitelist } = intg.config;
+
+      const isValidBlackList =
+        eventsBlacklist &&
+        Array.isArray(eventsBlacklist) &&
+        eventsBlacklist.every((x) => x.eventName !== "");
+
+      const isValidWhiteList =
+        eventsWhitelist &&
+        Array.isArray(eventsWhitelist) &&
+        eventsWhitelist.some((x) => x.eventName !== "");
 
       // Proceed to validate event blacklist status ONLY if
       // either of lists are defined
-      if (
-        eventsBlacklist &&
-        Array.isArray(eventsBlacklist) &&
-        eventsWhitelist &&
-        Array.isArray(eventsWhitelist) &&
-        ((eventsBlacklist.length !== 0 && eventsWhitelist.length === 0) ||
-          (eventsBlacklist.length === 0 && eventsWhitelist.length !== 0))
-      ) {
-        if (eventsBlacklist.length !== 0 && eventsWhitelist.length === 0) {
-          return eventsBlacklist.find(
-            (eventObj) => eventObj.eventName === eventName
-          ) === undefined
-            ? false
-            : true;
-        } else {
-          return eventsWhitelist.find(
-            (eventObj) => eventObj.eventName === eventName
-          ) === undefined
-            ? true
-            : false;
-        }
+      if (isValidBlackList && !isValidWhiteList) {
+        return eventsBlacklist.find(
+          (eventObj) => eventObj.eventName === eventName
+        ) === undefined
+          ? false
+          : true;
+      } else if (!isValidBlackList && isValidWhiteList) {
+        return eventsWhitelist.find(
+          (eventObj) => eventObj.eventName === eventName
+        ) === undefined
+          ? true
+          : false;
       } else {
         return false;
       }
