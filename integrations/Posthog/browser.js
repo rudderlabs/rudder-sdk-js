@@ -1,12 +1,13 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
+import { removeTrailingSlashes } from "../../utils/utils";
 
 class Posthog {
   constructor(config, analytics) {
     this.name = "POSTHOG";
     this.analytics = analytics;
     this.teamApiKey = config.teamApiKey;
-    this.yourInstance = config.yourInstance || "https://app.posthog.com";
+    this.yourInstance = removeTrailingSlashes(config.yourInstance) || "https://app.posthog.com";
     this.autocapture = config.autocapture || false;
     this.capturePageView = config.capturePageView || false;
     this.disableSessionRecording = config.disableSessionRecording || false;

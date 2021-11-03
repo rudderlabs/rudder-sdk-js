@@ -614,7 +614,7 @@ const getDataFromSource = (src, dest, properties) => {
   if (isArray(src)) {
     for (let index = 0; index < src.length; index += 1) {
       if (properties[src[index]]) {
-        data[dest] = properties[src[index]]
+        data[dest] = properties[src[index]];
         if (data) {
           // return only if the value is valid.
           // else look for next possible source in precedence
@@ -624,10 +624,14 @@ const getDataFromSource = (src, dest, properties) => {
     }
   } else if (typeof src === "string") {
     if (properties[src]) {
-      data[dest] = properties[src]
+      data[dest] = properties[src];
     }
   }
   return data;
+};
+
+const removeTrailingSlashes = (str) => {
+  return str && str.endsWith("/") ? str.replace(/\/+$/, "") : str;
 };
 
 export {
@@ -656,4 +660,5 @@ export {
   isDefinedAndNotNull,
   getDataFromSource,
   stripTrailingSlashes,
+  removeTrailingSlashes,
 };
