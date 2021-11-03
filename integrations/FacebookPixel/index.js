@@ -1,3 +1,4 @@
 import { FacebookPixel } from "./browser";
 
-export default FacebookPixel;
+// eslint-disable-next-line import/prefer-default-export
+export { FacebookPixel };

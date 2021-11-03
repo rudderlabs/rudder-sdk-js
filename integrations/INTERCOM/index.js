@@ -1,3 +1,4 @@
 import { INTERCOM } from "./browser";
 
-export default INTERCOM;
+// eslint-disable-next-line import/prefer-default-export
+export { INTERCOM };

@@ -1,3 +1,4 @@
 import { Pendo } from "./browser";
 
-export default Pendo;
+// eslint-disable-next-line import/prefer-default-export
+export { Pendo };

@@ -14,8 +14,7 @@ The [**RudderStack**](https://rudderstack.com/) JavaScript SDK leverages the `ru
 - [**Adding your own integrations**](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-your-own-integrations)
 
 | **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If you still wish to use it for your project, refer to [**this repository**](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-
+| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#installing-the-javascript-sdk)Installing the JavaScript SDK
 
@@ -28,6 +27,7 @@ e.load(<WRITE_KEY>,<DATA_PLANE_URL>),
 e.page()}();
 </script>
 ```
+
 <br>
 
 > The above snippet lets you integrate the SDK with your website and load it asynchronously to keep your page load time unaffected.
@@ -38,7 +38,7 @@ To load `rudder-analytics.js` on to your page synchronously, you can refer to th
 
 ```html
 <script>
-rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],i=0;i<methods.length;i++){var method=methods[i];rudderanalytics[method]=function(a){return function(){rudderanalytics.push([a].concat(Array.prototype.slice.call(arguments)))}}(method)}rudderanalytics.load(<WRITE_KEY>,<DATA_PLANE_URL>),rudderanalytics.page();
+  rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],i=0;i<methods.length;i++){var method=methods[i];rudderanalytics[method]=function(a){return function(){rudderanalytics.push([a].concat(Array.prototype.slice.call(arguments)))}}(method)}rudderanalytics.load(<WRITE_KEY>,<DATA_PLANE_URL>),rudderanalytics.page();
 </script>
 
 <script src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script>
@@ -49,6 +49,7 @@ rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track"
 ```html
 <script>
   rudderanalytics = window.rudderanalytics = [];
+
   var methods = [
     "load",
     "page",
@@ -61,6 +62,7 @@ rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track"
     "getAnonymousId",
     "setAnonymousId",
   ];
+
   for (var i = 0; i < methods.length; i++) {
     var method = methods[i];
     rudderanalytics[method] = (function (methodName) {
@@ -71,7 +73,7 @@ rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track"
       };
     })(method);
   }
-  rudderanalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>);
+  rudderanalytics.load(YOUR_WRITE_KEY, DATA_PLANE_URL);
   //For example,
   //rudderanalytics.load("1Qb1F3jSWv0eKFBPZcrM7ypgjVo", "http://localhost:8080");
   rudderanalytics.page();
@@ -88,7 +90,7 @@ To integrate and initialize the JavaScript SDK, you will need the source write k
 
 - To get the source write key, follow [**this guide**](https://docs.rudderstack.com/get-started/installing-and-setting-up-rudderstack/sending-test-events#get-the-source-write-key).
 - To get the data plane URL, follow [**this guide**](https://docs.rudderstack.com/get-started/installing-and-setting-up-rudderstack#what-is-a-data-plane-url-where-do-i-get-it).
-	
+
 ### Alternative installation using NPM
 
 Although we recommend using the snippets mentioned above to use the JavaScript SDK with your website, you can also use this [**NPM module**](https://www.npmjs.com/package/rudder-sdk-js) to package RudderStack directly into your project.
@@ -150,7 +152,6 @@ The APIs exported by the module are:
 - `getAnonymousId`
 - `setAnonymousId`
 
-
 ### Sample implementations
 
 Refer to the following projects for a detailed walk-through of the above steps:
@@ -160,18 +161,17 @@ Refer to the following projects for a detailed walk-through of the above steps:
 
 ### Supported browser versions
 
-| **Browser**         | **Supported Versions** |
-| :------------------ | :--------------------- |
-| Safari              | v7 or later            |
-| IE                  | v10 or later           |
-| Edge                | v15 or later           |
-| Mozilla Firefox     | v40 or later           |
-| Chrome              | v37 or later           |
-| Opera               | v23 or later           |
-| Yandex              | v14.12 or later        |
+| **Browser**     | **Supported Versions** |
+| :-------------- | :--------------------- |
+| Safari          | v7 or later            |
+| IE              | v10 or later           |
+| Edge            | v15 or later           |
+| Mozilla Firefox | v40 or later           |
+| Chrome          | v37 or later           |
+| Opera           | v23 or later           |
+| Yandex          | v14.12 or later        |
 
 > If the SDK does not work on the browser versions that you are targeting, verify if adding the browser polyfills to your application solves the issue.
-
 
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#identifying-users)Identifying users
 
@@ -181,9 +181,11 @@ A sample `identify()` call is shown below:
 
 ```javascript
 rudderanalytics.identify(
-  "12345", {
-    email: "name@domain.com"
-  }, {
+  "12345",
+  {
+    email: "name@domain.com",
+  },
+  {
     page: {
       path: "",
       referrer: "",
@@ -200,7 +202,6 @@ rudderanalytics.identify(
 
 In the above example, the user-related information like the `userId` and `email` along with the [**contextual information**](https://docs.rudderstack.com/rudderstack-api/api-specification/rudderstack-spec/common-fields#javascript-sdk) is captured.
 
-
 > There is no need to call `identify()` for anonymous visitors to your website. Such visitors are automatically assigned an `anonymousId`.
 
 For more information on how to use the `identify` call, refer to the [**JavaScript SDK documentation**](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).
@@ -213,7 +214,8 @@ A sample `track` call is shown below:
 
 ```javascript
 rudderanalytics.track(
-  "test track event GA3", {
+  "test track event GA3",
+  {
     revenue: 30,
     currency: "USD",
     user_actual_id: 12345,
@@ -242,7 +244,6 @@ rudderanalytics.ready(() => {
 
 > For more information on the other supported methods, refer to the [**JavaScript SDK APIs**](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk#supported-apis).
 
-
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#self-hosted-control-plane)Self-Hosted control plane
 
 If you are using a device mode destination like Heap, FullStory, etc., the JavaScript SDK needs to fetch the required configuration from the [**control plane**](https://docs.rudderstack.com/get-started/rudderstack-architecture#control-plane).
@@ -258,7 +259,7 @@ rudderanalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, {
 > More information on how to get the `CONTROL_PLANE_URL` can be found [**here**](https://docs.rudderstack.com/get-started/control-plane-lite#what-is-the-control-plane-url).
 
 | **For detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, check out our [docs](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).** |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-your-own-integrations)Adding your own integrations
 

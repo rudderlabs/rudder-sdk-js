@@ -43,7 +43,7 @@ switch (process.env.ENV) {
     }
     break;
   default:
-    distFileName = "dist/browser.js";
+    distFileName = "dist/rudder-analytics.js";
     break;
 }
 

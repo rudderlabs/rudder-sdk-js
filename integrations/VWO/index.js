@@ -1,3 +1,4 @@
 import { VWO } from "./browser";
 
-export default VWO;
+// eslint-disable-next-line import/prefer-default-export
+export { VWO };

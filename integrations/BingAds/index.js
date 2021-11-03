@@ -1,3 +1,4 @@
 import { BingAds } from "./browser";
 
-export default BingAds;
+// eslint-disable-next-line import/prefer-default-export
+export { BingAds };

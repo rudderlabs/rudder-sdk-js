@@ -1,3 +1,4 @@
 import { Kissmetrics } from "./browser";
 
-export default Kissmetrics;
+// eslint-disable-next-line import/prefer-default-export
+export { Kissmetrics };

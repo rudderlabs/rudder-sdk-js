@@ -1,3 +1,4 @@
 import Mixpanel from "./browser";
 
-export default Mixpanel;
+// eslint-disable-next-line import/prefer-default-export
+export { Mixpanel };
