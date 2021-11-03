@@ -26,7 +26,7 @@ import {
   checkReservedKeywords,
   getReferrer,
   getReferringDomain,
-  stripTrailingSlashes,
+  removeTrailingSlashes,
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -1014,7 +1014,7 @@ class Analytics {
     }
 
     if (options && options.destSDKBaseURL) {
-      this.destSDKBaseURL = stripTrailingSlashes(options.destSDKBaseURL);
+      this.destSDKBaseURL = removeTrailingSlashes(options.destSDKBaseURL);
       if (!this.destSDKBaseURL) {
         handleError({
           message: "[Analytics] load:: CDN base URL is not valid",
@@ -1025,7 +1025,7 @@ class Analytics {
       // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
       const scripts = document.getElementsByTagName("script");
       for (let i = 0; i < scripts.length; i += 1) {
-        const curScriptSrc = stripTrailingSlashes(
+        const curScriptSrc = removeTrailingSlashes(
           scripts[i].getAttribute("src")
         );
         if (

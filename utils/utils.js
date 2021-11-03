@@ -26,7 +26,7 @@ function replacer(key, value) {
  * Utility method to remove '/' at the end of URL
  * @param {*} inURL
  */
-function stripTrailingSlashes(inURL) {
+function removeTrailingSlashes(inURL) {
   return inURL && inURL.endsWith("/") ? inURL.replace(/\/+$/, "") : inURL;
 }
 
@@ -409,7 +409,7 @@ function type(val) {
 function getUserProvidedConfigUrl(configUrl) {
   let url = configUrl;
   if (url.indexOf("sourceConfig") === -1) {
-    url = `${stripTrailingSlashes(url)}/sourceConfig/`;
+    url = `${removeTrailingSlashes(url)}/sourceConfig/`;
   }
   url = url.slice(-1) === "/" ? url : `${url}/`;
   const defQueryParams = CONFIG_URL.split("?")[1];
@@ -630,10 +630,6 @@ const getDataFromSource = (src, dest, properties) => {
   return data;
 };
 
-const removeTrailingSlashes = (str) => {
-  return str && str.endsWith("/") ? str.replace(/\/+$/, "") : str;
-};
-
 export {
   replacer,
   generateUUID,
@@ -659,6 +655,5 @@ export {
   isArray,
   isDefinedAndNotNull,
   getDataFromSource,
-  stripTrailingSlashes,
   removeTrailingSlashes,
 };
