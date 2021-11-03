@@ -3,7 +3,7 @@ import {
   getCurrentTimeFormatted,
   handleError,
   replacer,
-  stripTrailingSlashes,
+  removeTrailingSlashes,
 } from "./utils";
 
 import logger from "./logUtil";
@@ -147,7 +147,7 @@ class EventRepository {
     };
 
     // modify the url for event specific endpoints
-    const url = stripTrailingSlashes(this.url);
+    const url = removeTrailingSlashes(this.url);
     // add items to the queue
     this.payloadQueue.addItem({
       url: `${url}/v1/${type}`,
