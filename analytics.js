@@ -667,28 +667,28 @@ class Analytics {
         (intg) => intg.name === sdkIntgName
       );
 
-      const { eventsBlacklist, eventsWhitelist } = intg.config;
+      const { blackListedEvents, whiteListedEvents } = intg.config;
 
       const isValidBlackList =
-        eventsBlacklist &&
-        Array.isArray(eventsBlacklist) &&
-        eventsBlacklist.every((x) => x.eventName !== "");
+        blackListedEvents &&
+        Array.isArray(blackListedEvents) &&
+        blackListedEvents.every((x) => x.eventName !== "");
 
       const isValidWhiteList =
-        eventsWhitelist &&
-        Array.isArray(eventsWhitelist) &&
-        eventsWhitelist.some((x) => x.eventName !== "");
+        whiteListedEvents &&
+        Array.isArray(whiteListedEvents) &&
+        whiteListedEvents.some((x) => x.eventName !== "");
 
       // Proceed to validate event blacklist status ONLY if
       // either of lists are defined
       if (isValidBlackList && !isValidWhiteList) {
-        return eventsBlacklist.find(
+        return blackListedEvents.find(
           (eventObj) => eventObj.eventName === eventName
         ) === undefined
           ? false
           : true;
       } else if (!isValidBlackList && isValidWhiteList) {
-        return eventsWhitelist.find(
+        return whiteListedEvents.find(
           (eventObj) => eventObj.eventName === eventName
         ) === undefined
           ? true
