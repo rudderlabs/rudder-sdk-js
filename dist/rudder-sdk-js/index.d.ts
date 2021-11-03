@@ -62,6 +62,7 @@ declare module "rudder-sdk-js" {
     [index: string]:
       | string
       | number
+      | boolean
       | apiObject
       | integrationOptions
       | undefined;
@@ -72,7 +73,7 @@ declare module "rudder-sdk-js" {
    * Use for parameters like properties, traits etc.
    */
   interface apiObject {
-    [index: string]: string | number | apiObject;
+    [index: string]: string | number | boolean | apiObject;
   }
 
   /**
