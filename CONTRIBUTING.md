@@ -7,6 +7,7 @@ Thanks for taking the time and for your help in improving this project!
 - [**RudderStack Contributor Agreement**](#rudderstack-contributor-agreement)
 - [**Contribute to this project**](#contribute-to-this-project)
 - [**Submitting a pull request**](#submitting-a-pull-request)
+- [**Adding your own integrations**](#adding-your-own-integrations)
 - [**Committing**](#committing)
 - [**Installing and setting up RudderStack**](#installing-and-setting-up-rudderstack)
 - [**Getting help**](#getting-help)
