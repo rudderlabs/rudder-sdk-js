@@ -17,6 +17,6 @@ build.sh
 publish.sh
 dist/*
 !dist/rudder-sdk-js/*
-dist/rudder-skd-js/index.js
+dist/rudder-sdk-js/index.js
 coverage/**
 __tests__/prodsdk.js

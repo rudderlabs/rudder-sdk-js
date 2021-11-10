@@ -14,6 +14,7 @@ import Emitter from "component-emitter";
 import after from "after";
 import querystring from "component-querystring";
 import merge from "lodash.merge";
+import cloneDeep from "lodash.clonedeep";
 import utm from "@segment/utm-params";
 import {
   getJSONTrimmed,
@@ -334,10 +335,12 @@ class Analytics {
                   );
 
                   // Block the event if it is blacklisted for the device-mode destination
-                  if (sendEvent)
+                  if (sendEvent) {
+                    const clonedBufferEvent = cloneDeep(event);
                     succesfulLoadedIntersectClientSuppliedIntegrations[i][
                       methodName
-                    ](...event);
+                    ](...clonedBufferEvent);
+                  }
                 }
               }
             } catch (error) {
@@ -771,7 +774,10 @@ class Analytics {
               );
 
               // Block the event if it is blacklisted for the device-mode destination
-              if (sendEvent) obj[type](rudderElement);
+              if (sendEvent) {
+                const clonedRudderElement = cloneDeep(rudderElement);
+                obj[type](clonedRudderElement);
+              }
             }
           }
         });
