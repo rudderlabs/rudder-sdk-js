@@ -174,7 +174,7 @@ declare module "rudder-sdk-js" {
    * @param name
    * @param callback
    */
-  function page(name: string, callback: apiCallback): void;
+  function page(name: string, callback?: apiCallback): void;
 
   /**
    *
@@ -194,6 +194,13 @@ declare module "rudder-sdk-js" {
    * @param callback
    */
   function page(properties: apiObject, callback?: apiCallback): void;
+
+  /**
+   * To record a page view event
+   * @param category
+   * @param callback
+   */
+  function page(category: string, callback?: apiCallback): void;
 
   /**
    * To record a user track event
@@ -226,7 +233,7 @@ declare module "rudder-sdk-js" {
    * @param event
    * @param callback
    */
-  function track(event: string, callback: apiCallback): void;
+  function track(event: string, callback?: apiCallback): void;
 
   /**
    * To record a user identification event
@@ -259,7 +266,7 @@ declare module "rudder-sdk-js" {
    * @param userId
    * @param callback
    */
-  function identify(userId: string, callback: apiCallback): void;
+  function identify(userId: string, callback?: apiCallback): void;
 
   /**
    *
@@ -307,7 +314,7 @@ declare module "rudder-sdk-js" {
    * @param to
    * @param callback
    */
-  function alias(to: string, callback: apiCallback): void;
+  function alias(to: string, callback?: apiCallback): void;
 
   /**
    * To record a user alias event
@@ -348,7 +355,7 @@ declare module "rudder-sdk-js" {
    * @param groupId
    * @param callback
    */
-  function group(groupId: string, callback: apiCallback): void;
+  function group(groupId: string, callback?: apiCallback): void;
 
   /**
    * To record a user group event
