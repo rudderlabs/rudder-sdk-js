@@ -49,7 +49,7 @@ class Amplitude {
   }
 
   init() {
-    if(this.analytics.loadIntegration){
+    if (this.analytics.loadIntegration) {
       (function (e, t) {
         const n = e.amplitude || {
           _q: [],
@@ -69,7 +69,7 @@ class Amplitude {
         };
         const i = t.getElementsByTagName("script")[0];
         i.parentNode.insertBefore(r, i);
-  
+
         function s(e, t) {
           e.prototype[t] = function () {
             this._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
@@ -132,7 +132,7 @@ class Amplitude {
           "setSessionId",
           "resetSessionId",
         ];
-  
+
         function v(e) {
           function t(t) {
             e[t] = function () {
@@ -338,7 +338,7 @@ class Amplitude {
     this.setDeviceId(rudderElement);
 
     const { properties, name, category } = rudderElement.message;
-
+    const { useNewPageEventNameFormat } = rudderElement.message.context;
     // all pages
     if (this.trackAllPages) {
       const event = "Loaded a page";
@@ -347,13 +347,17 @@ class Amplitude {
 
     // categorized pages
     if (category && this.trackCategorizedPages) {
-      const event = `Viewed page ${category}`;
+      let event;
+      if (!useNewPageEventNameFormat) event = `Viewed page ${category}`;
+      else event = `Viewed ${category} Page`;
       amplitude.getInstance().logEvent(event, properties);
     }
 
     // named pages
     if (name && this.trackNamedPages) {
-      const event = `Viewed page ${name}`;
+      let event;
+      if (!useNewPageEventNameFormat) event = `Viewed page ${name}`;
+      else event = `Viewed ${name} Page`;
       amplitude.getInstance().logEvent(event, properties);
     }
   }
