@@ -64,6 +64,7 @@ declare module "rudder-sdk-js" {
       | string
       | number
       | boolean
+      | Date
       | apiObject
       | (string | number | boolean | apiObject)[]
       | integrationOptions
@@ -79,6 +80,7 @@ declare module "rudder-sdk-js" {
       | string
       | number
       | boolean
+      | Date
       | apiObject
       | (string | number | boolean | apiObject)[];
   }
