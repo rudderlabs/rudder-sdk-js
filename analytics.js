@@ -55,7 +55,6 @@ class Analytics {
   constructor() {
     this.initialized = false;
     this.areEventsReplayed = false;
-    this.trackValues = [];
     this.eventsBuffer = [];
     this.clientIntegrations = [];
     this.loadOnlyIntegrations = {};
@@ -157,9 +156,7 @@ class Analytics {
       if (typeof response === "string") {
         response = JSON.parse(response);
       }
-      if (response.source.useAutoTracking) {
-        logger.error("Autotrack feature has been deprecated");
-      }
+
       response.source.destinations.forEach(function (destination, index) {
         // logger.debug(
         //   `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
@@ -998,16 +995,6 @@ class Analytics {
     this.initializeUser();
     this.setInitialPageProperties();
     this.loaded = true;
-    if (
-      options &&
-      options.valTrackingList &&
-      options.valTrackingList.push == Array.prototype.push
-    ) {
-      this.trackValues = options.valTrackingList;
-    }
-    if (options && options.useAutoTracking) {
-      logger.error("Autotrack feature has been deprecated");
-    }
 
     function errorHandler(error) {
       handleError(error);
@@ -1031,8 +1018,7 @@ class Analytics {
         if (
           curScriptSrc &&
           curScriptSrc.startsWith("http") &&
-          (curScriptSrc.endsWith("rudder-analytics.min.js") ||
-            curScriptSrc.endsWith("rudder-analytics.js"))
+          curScriptSrc.endsWith("rudder-analytics.min.js")
         ) {
           this.destSDKBaseURL = curScriptSrc
             .split("/")
@@ -1057,9 +1043,6 @@ class Analytics {
         } else {
           this.processResponse(200, res);
         }
-
-        // eslint-disable-next-line no-use-before-define
-        processDataInAnalyticsArray(this);
       }
       return;
     }
@@ -1074,8 +1057,6 @@ class Analytics {
     } catch (error) {
       errorHandler(error);
     }
-    // eslint-disable-next-line no-use-before-define
-    processDataInAnalyticsArray(this);
   }
 
   ready(callback) {
@@ -1262,10 +1243,8 @@ if (argumentsArray && argumentsArray.length > 0) {
     instance.toBeProcessedArray.push(argumentsArray[i]);
   }
 }
-if (eventsPushedAlready) {
-  processDataInAnalyticsArray(instance);
-}
-// }
+
+processDataInAnalyticsArray(instance);
 
 const ready = instance.ready.bind(instance);
 const identify = instance.identify.bind(instance);
