@@ -1,3 +1,23 @@
+<p align="center">
+  <a href="https://rudderstack.com/">
+    <img src="https://user-images.githubusercontent.com/59817155/121357083-1c571300-c94f-11eb-8cc7-ce6df13855c9.png">
+  </a>
+</p>
+
+<p align="center"><b>The Customer Data Platform for Developers</b></p>
+
+<p align="center">
+  <b>
+    <a href="https://rudderstack.com">Website</a>
+    ·
+    <a href="https://rudderstack.com/docs/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk/">Documentation</a>
+    ·
+    <a href="https://rudderstack.com/join-rudderstack-slack-community">Community Slack</a>
+  </b>
+</p>
+
+---
+
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#rudderstack-javascript-sdk)RudderStack JavaScript SDK
 
 The [**RudderStack**](https://rudderstack.com/) JavaScript SDK leverages the `rudder-analytics.js` library to track and send user events from your website to RudderStack. You can then further transform and route this event data to the destination platform of your choice.
@@ -276,6 +296,10 @@ You can start adding integrations of your choice for sending the data through th
 > We use **rollup** to build our SDKs. The configuration for it is present in `rollup.config.js` in the repo directory.
 
 - For adding or removing integrations, modify the imports in `index.js` under the `integrations` folder.
+
+## Contribute
+
+We would love to see you contribute to this project. Get more information on how to contribute [**here**](./CONTRIBUTING.md).
 
 ## Contact us
 
