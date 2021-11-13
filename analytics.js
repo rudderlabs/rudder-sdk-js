@@ -55,7 +55,6 @@ class Analytics {
   constructor() {
     this.initialized = false;
     this.areEventsReplayed = false;
-    this.eventsBuffer = [];
     this.clientIntegrations = [];
     this.loadOnlyIntegrations = {};
     this.clientIntegrationObjects = undefined;
@@ -69,7 +68,6 @@ class Analytics {
     this.sendAdblockPageOptions = {};
     this.clientSuppliedCallbacks = {};
     this.readyCallback = () => {};
-    this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
       syncPixel: "syncPixelCallback",
     };
@@ -398,7 +396,25 @@ class Analytics {
     if (this.sendAdblockPage && category != "RudderJS-Initiated") {
       this.sendSampleRequest();
     }
-    this.processPage(category, name, properties, options, callback);
+
+    const rudderElement = new RudderElementBuilder().setType("page").build();
+    if (!properties) {
+      properties = {};
+    }
+    if (name) {
+      rudderElement.message.name = properties.name = name;
+    }
+    if (category) {
+      rudderElement.message.category = properties.category = category;
+    }
+    rudderElement.message.properties = this.getPageProperties(properties);
+
+    this.processAndSendDataToDestinations(
+      "page",
+      rudderElement,
+      options,
+      callback
+    );
   }
 
   /**
@@ -416,7 +432,18 @@ class Analytics {
     if (typeof properties === "function")
       (callback = properties), (options = null), (properties = null);
 
-    this.processTrack(event, properties, options, callback);
+    const rudderElement = new RudderElementBuilder().setType("track").build();
+    if (event) {
+      rudderElement.setEventName(event);
+    }
+    rudderElement.setProperty(properties || {});
+
+    this.processAndSendDataToDestinations(
+      "track",
+      rudderElement,
+      options,
+      callback
+    );
   }
 
   /**
@@ -436,7 +463,28 @@ class Analytics {
     if (typeof userId === "object")
       (options = traits), (traits = userId), (userId = this.userId);
 
-    this.processIdentify(userId, traits, options, callback);
+    if (userId && this.userId && userId !== this.userId) {
+      this.reset();
+    }
+    this.userId = userId;
+    this.storage.setUserId(this.userId);
+
+    if (traits) {
+      for (const key in traits) {
+        this.userTraits[key] = traits[key];
+      }
+      this.storage.setUserTraits(this.userTraits);
+    }
+    const rudderElement = new RudderElementBuilder()
+      .setType("identify")
+      .build();
+
+    this.processAndSendDataToDestinations(
+      "identify",
+      rudderElement,
+      options,
+      callback
+    );
   }
 
   /**
@@ -498,143 +546,6 @@ class Analytics {
 
     this.processAndSendDataToDestinations(
       "group",
-      rudderElement,
-      options,
-      callback
-    );
-  }
-
-  /**
-   * Send page call to Rudder BE and to initialized integrations
-   *
-   * @param {*} category
-   * @param {*} name
-   * @param {*} properties
-   * @param {*} options
-   * @param {*} callback
-   * @memberof Analytics
-   */
-  processPage(category, name, properties, options, callback) {
-    const rudderElement = new RudderElementBuilder().setType("page").build();
-    if (!properties) {
-      properties = {};
-    }
-    if (name) {
-      rudderElement.message.name = properties.name = name;
-    }
-    if (category) {
-      rudderElement.message.category = properties.category = category;
-    }
-    rudderElement.message.properties = this.getPageProperties(properties); // properties;
-
-    this.trackPage(rudderElement, options, callback);
-  }
-
-  /**
-   * Send track call to Rudder BE and to initialized integrations
-   *
-   * @param {*} event
-   * @param {*} properties
-   * @param {*} options
-   * @param {*} callback
-   * @memberof Analytics
-   */
-  processTrack(event, properties, options, callback) {
-    const rudderElement = new RudderElementBuilder().setType("track").build();
-    if (event) {
-      rudderElement.setEventName(event);
-    }
-    rudderElement.setProperty(properties || {});
-    this.trackEvent(rudderElement, options, callback);
-  }
-
-  /**
-   * Send identify call to Rudder BE and to initialized integrations
-   *
-   * @param {*} userId
-   * @param {*} traits
-   * @param {*} options
-   * @param {*} callback
-   * @memberof Analytics
-   */
-  processIdentify(userId, traits, options, callback) {
-    if (userId && this.userId && userId !== this.userId) {
-      this.reset();
-    }
-    this.userId = userId;
-    this.storage.setUserId(this.userId);
-
-    if (traits) {
-      for (const key in traits) {
-        this.userTraits[key] = traits[key];
-      }
-      this.storage.setUserTraits(this.userTraits);
-    }
-    const rudderElement = new RudderElementBuilder()
-      .setType("identify")
-      .build();
-    this.identifyUser(rudderElement, options, callback);
-  }
-
-  /**
-   * Identify call supporting rudderelement from builder
-   *
-   * @param {*} rudderElement
-   * @param {*} callback
-   * @memberof Analytics
-   */
-  identifyUser(rudderElement, options, callback) {
-    if (rudderElement.message.userId) {
-      this.userId = rudderElement.message.userId;
-      this.storage.setUserId(this.userId);
-    }
-
-    if (
-      rudderElement &&
-      rudderElement.message &&
-      rudderElement.message.context &&
-      rudderElement.message.context.traits
-    ) {
-      this.userTraits = {
-        ...rudderElement.message.context.traits,
-      };
-      this.storage.setUserTraits(this.userTraits);
-    }
-
-    this.processAndSendDataToDestinations(
-      "identify",
-      rudderElement,
-      options,
-      callback
-    );
-  }
-
-  /**
-   * Page call supporting rudderelement from builder
-   *
-   * @param {*} rudderElement
-   * @param {*} callback
-   * @memberof Analytics
-   */
-  trackPage(rudderElement, options, callback) {
-    this.processAndSendDataToDestinations(
-      "page",
-      rudderElement,
-      options,
-      callback
-    );
-  }
-
-  /**
-   * Track call supporting rudderelement from builder
-   *
-   * @param {*} rudderElement
-   * @param {*} callback
-   * @memberof Analytics
-   */
-  trackEvent(rudderElement, options, callback) {
-    this.processAndSendDataToDestinations(
-      "track",
       rudderElement,
       options,
       callback
@@ -1125,12 +1036,27 @@ class Analytics {
       "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
     );
   }
+}
+
+const instance = new Analytics();
+
+function processDataInAnalyticsArray(analytics) {
+  analytics.toBeProcessedArray.forEach((x) => {
+    var event = [...x];
+    const method = event[0];
+    event.shift();
+    // logger.debug("=====from analytics array, calling method:: ", method)
+    analytics[method](...event);
+  });
+
+  instance.toBeProcessedArray = [];
+}
 
   /**
    * parse the given query string into usable Rudder object
    * @param {*} query
    */
-  parseQueryString(query) {
+function parseQueryString(query) {
     const queryDefaults = {
       trait: "ajs_trait_",
       prop: "ajs_prop_",
@@ -1146,50 +1072,25 @@ class Analytics {
       return data;
     }
 
-    const returnObj = {};
     const queryObject = parse(query);
-    if (queryObject.ajs_uid) {
-      returnObj.userId = queryObject.ajs_uid;
-      returnObj.traits = getDataFromQueryObj(queryObject, queryDefaults.trait);
-    }
     if (queryObject.ajs_aid) {
-      returnObj.anonymousId = queryObject.ajs_aid;
-    }
-    if (queryObject.ajs_event) {
-      returnObj.event = queryObject.ajs_event;
-      returnObj.properties = getDataFromQueryObj(
-        queryObject,
-        queryDefaults.prop
-      );
-    }
-
-    return returnObj;
-  }
+    instance.toBeProcessedArray.push(["setAnonymousId", queryObject.ajs_aid]);
 }
 
-const instance = new Analytics();
-
-function pushQueryStringDataToAnalyticsArray(obj) {
-  if (obj.anonymousId)
-    instance.toBeProcessedArray.push(["setAnonymousId", obj.anonymousId]);
-  if (obj.userId)
-    instance.toBeProcessedArray.push(["identify", obj.userId, obj.traits]);
-  if (obj.event) {
-    instance.toBeProcessedArray.push(["track", obj.event, obj.properties]);
-  }
-}
-
-function processDataInAnalyticsArray(analytics) {
-  if (instance.loaded) {
-    for (let i = 0; i < analytics.toBeProcessedArray.length; i += 1) {
-      const event = [...analytics.toBeProcessedArray[i]];
-      const method = event[0];
-      event.shift();
-      // logger.debug("=====from analytics array, calling method:: ", method)
-      analytics[method](...event);
+  if (queryObject.ajs_uid) {
+    instance.toBeProcessedArray.push([
+      "identify",
+      queryObject.ajs_uid,
+      getDataFromQueryObj(queryObject, queryDefaults.trait),
+    ]);
     }
 
-    instance.toBeProcessedArray = [];
+  if (queryObject.ajs_event) {
+    instance.toBeProcessedArray.push([
+      "track",
+      queryObject.ajs_event,
+      getDataFromQueryObj(queryObject, queryDefaults.prop),
+    ]);
   }
 }
 
@@ -1203,46 +1104,29 @@ window.addEventListener(
   true
 );
 
-// if (process.browser) {
-// test for adblocker
-// instance.sendSampleRequest()
-
 // initialize supported callbacks
 instance.initializeCallbacks();
 
 // register supported callbacks
 instance.registerCallbacks(false);
-const eventsPushedAlready =
-  !!window.rudderanalytics &&
-  window.rudderanalytics.push == Array.prototype.push;
 
-const argumentsArray = window.rudderanalytics;
+const defaultMethod = "load";
+const argumentsArray = window.rudderanalytics || [];
 
-while (argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load") {
+// Skip all the methods queued prior to the 'defaultMethod'
+while (argumentsArray.length > 0) {
+  if (argumentsArray[0][0] === defaultMethod) {
+    instance.toBeProcessedArray.push(argumentsArray[0]);
   argumentsArray.shift();
+    break;
 }
-if (
-  argumentsArray &&
-  argumentsArray.length > 0 &&
-  argumentsArray[0][0] === "load"
-) {
-  const method = argumentsArray[0][0];
-  argumentsArray[0].shift();
-  // logger.debug("=====from init, calling method:: ", method)
-  instance[method](...argumentsArray[0]);
   argumentsArray.shift();
 }
 
-// once loaded, parse querystring of the page url to send events
-const parsedQueryObject = instance.parseQueryString(window.location.search);
+// parse querystring of the page url to send events
+parseQueryString(window.location.search);
 
-pushQueryStringDataToAnalyticsArray(parsedQueryObject);
-
-if (argumentsArray && argumentsArray.length > 0) {
-  for (let i = 0; i < argumentsArray.length; i += 1) {
-    instance.toBeProcessedArray.push(argumentsArray[i]);
-  }
-}
+argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
 
 processDataInAnalyticsArray(instance);
 
