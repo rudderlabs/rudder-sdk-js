@@ -7,9 +7,10 @@ declare module "rudder-sdk-js" {
    */
   interface integrationOptions {
     // Defaults to true
+    // If set to false, specific integration should be set to true to send the event
     All?: boolean;
-    // Destination name: Enable/Disable
-    [index: string]: boolean | undefined;
+    // Destination name: true/false/integration specific information
+    [index: string]: boolean | undefined | apiObject;
   }
 
   /**
@@ -64,6 +65,7 @@ declare module "rudder-sdk-js" {
       | number
       | boolean
       | apiObject
+      | (string | number | boolean | apiObject)[]
       | integrationOptions
       | undefined;
   }
@@ -73,7 +75,12 @@ declare module "rudder-sdk-js" {
    * Use for parameters like properties, traits etc.
    */
   interface apiObject {
-    [index: string]: string | number | boolean | apiObject;
+    [index: string]:
+      | string
+      | number
+      | boolean
+      | apiObject
+      | (string | number | boolean | apiObject)[];
   }
 
   /**
