@@ -1,3 +1,4 @@
+// test commit
 const ghRelease = require("gh-release");
 const homedir = require("os").homedir();
 const fs = require("fs");
