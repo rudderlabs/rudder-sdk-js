@@ -1052,30 +1052,30 @@ function processDataInAnalyticsArray(analytics) {
   instance.toBeProcessedArray = [];
 }
 
-  /**
-   * parse the given query string into usable Rudder object
-   * @param {*} query
-   */
+/**
+ * parse the given query string into usable Rudder object
+ * @param {*} query
+ */
 function parseQueryString(query) {
-    const queryDefaults = {
-      trait: "ajs_trait_",
-      prop: "ajs_prop_",
-    };
+  const queryDefaults = {
+    trait: "ajs_trait_",
+    prop: "ajs_prop_",
+  };
 
-    function getDataFromQueryObj(qObj, dataType) {
-      const data = {};
-      Object.keys(qObj).forEach((key) => {
-        if (key.startsWith(dataType)) {
-          data[key.substr(dataType.length)] = qObj[key];
-        }
-      });
-      return data;
-    }
+  function getDataFromQueryObj(qObj, dataType) {
+    const data = {};
+    Object.keys(qObj).forEach((key) => {
+      if (key.startsWith(dataType)) {
+        data[key.substr(dataType.length)] = qObj[key];
+      }
+    });
+    return data;
+  }
 
-    const queryObject = parse(query);
-    if (queryObject.ajs_aid) {
+  const queryObject = parse(query);
+  if (queryObject.ajs_aid) {
     instance.toBeProcessedArray.push(["setAnonymousId", queryObject.ajs_aid]);
-}
+  }
 
   if (queryObject.ajs_uid) {
     instance.toBeProcessedArray.push([
@@ -1083,7 +1083,7 @@ function parseQueryString(query) {
       queryObject.ajs_uid,
       getDataFromQueryObj(queryObject, queryDefaults.trait),
     ]);
-    }
+  }
 
   if (queryObject.ajs_event) {
     instance.toBeProcessedArray.push([
@@ -1117,9 +1117,9 @@ const argumentsArray = window.rudderanalytics || [];
 while (argumentsArray.length > 0) {
   if (argumentsArray[0][0] === defaultMethod) {
     instance.toBeProcessedArray.push(argumentsArray[0]);
-  argumentsArray.shift();
+    argumentsArray.shift();
     break;
-}
+  }
   argumentsArray.shift();
 }
 
