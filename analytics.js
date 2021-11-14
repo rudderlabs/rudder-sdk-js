@@ -730,7 +730,7 @@ class Analytics {
 
   getPageProperties(properties, options) {
     const defaultPageProperties = getDefaultPageProperties();
-    const optionPageProperties = options && options.page ? options.page : {};
+    const optionPageProperties = (options && options.page) || {};
     for (const key in defaultPageProperties) {
       if (properties[key] === undefined) {
         properties[key] =
