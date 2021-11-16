@@ -6,7 +6,7 @@ test("Check SDK is loaded as object and api calls reaching to hit network", () =
     send: jest.fn(),
     readyState: 4,
     responseText: JSON.stringify({}),
-    status: 200
+    status: 200,
   };
 
   window.XMLHttpRequest = jest.fn(() => xhrMock);
@@ -23,7 +23,7 @@ test("Check SDK is loaded as object and api calls reaching to hit network", () =
         "group",
         "identify",
         "ready",
-        "reset"
+        "reset",
       ],
       i = 0;
     i < methods.length;
@@ -43,8 +43,6 @@ test("Check SDK is loaded as object and api calls reaching to hit network", () =
     rudderanalytics.page();
 
   require("./prodsdk.js");
-
-  console.log(rudderanalytics);
 
   rudderanalytics.page();
   rudderanalytics.track("test-event");

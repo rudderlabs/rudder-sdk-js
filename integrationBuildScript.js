@@ -24,6 +24,7 @@ intgNamesArr.forEach((intgName) => {
   }
   curInt += 1;
 });
+logger.debug(`Final Status: ${errCount > 0 ? "FAILURE" : "SUCCESS"}`);
 logger.debug(
   `Summary: ${errCount} of ${intgNamesArr.length} integration builds failed`
 );

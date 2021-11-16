@@ -1,13 +1,13 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import babel from "rollup-plugin-babel";
-import commonjs from "rollup-plugin-commonjs";
-import resolve from "rollup-plugin-node-resolve";
-import replace from "rollup-plugin-replace";
+import babel from "@rollup/plugin-babel";
+import commonjs from "@rollup/plugin-commonjs";
+import resolve from "@rollup/plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
 import { terser } from "rollup-plugin-terser";
 import sourcemaps from "rollup-plugin-sourcemaps";
 import builtins from "rollup-plugin-node-builtins";
 import globals from "rollup-plugin-node-globals";
-import json from "rollup-plugin-json";
+import json from "@rollup/plugin-json";
 import gzipPlugin from "rollup-plugin-gzip";
 import brotli from "rollup-plugin-brotli";
 import visualizer from "rollup-plugin-visualizer";
@@ -78,6 +78,7 @@ export default {
   plugins: [
     sourcemaps(),
     replace({
+      preventAssignment: true,
       "process.browser": process.env.NODE_ENV !== "true",
       "process.prod": process.env.ENV === "prod",
       "process.package_version": version,
@@ -104,11 +105,24 @@ export default {
     builtins(),
 
     babel({
+      babelHelpers: "bundled",
       exclude: ["node_modules/@babel/**", "node_modules/core-js/**"],
       presets: [["@babel/env"]],
       plugins: [
         [
           "@babel/plugin-proposal-class-properties",
+          {
+            loose: true,
+          },
+        ],
+        [
+          "@babel/plugin-proposal-private-property-in-object",
+          {
+            loose: true,
+          },
+        ],
+        [
+          "@babel/plugin-proposal-private-methods",
           {
             loose: true,
           },
