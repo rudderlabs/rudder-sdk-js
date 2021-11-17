@@ -34,6 +34,7 @@ import {
   INTEGRATION_LOAD_CHECK_INTERVAL,
   DEST_SDK_BASE_URL,
   CDN_INT_DIR,
+  INTG_SUFFIX,
 } from "./utils/constants";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
@@ -116,8 +117,9 @@ class Analytics {
       if (
         this.clientIntegrations.every(
           (intg) =>
-            this.dynamicallyLoadedIntegrations[configToIntNames[intg.name]] !=
-            undefined
+            this.dynamicallyLoadedIntegrations[
+              `${configToIntNames[intg.name]}${INTG_SUFFIX}`
+            ] != undefined
         )
       ) {
         // logger.debug(
@@ -177,38 +179,40 @@ class Analytics {
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
         const modName = configToIntNames[intg.name];
+        const scriptName = `${modName}${INTG_SUFFIX}`;
         if (process.browser) {
           const modURL = `${this.destSDKBaseURL}/${modName}.min.js`;
-          if (!window.hasOwnProperty(modName)) {
-            ScriptLoader(modName, modURL);
+          if (!window.hasOwnProperty(scriptName)) {
+            ScriptLoader(scriptName, modURL);
           }
 
           const self = this;
           const interval = setInterval(function () {
-            if (window.hasOwnProperty(modName)) {
-              const intMod = window[modName];
+            if (window.hasOwnProperty(scriptName)) {
+              const intMod = window[scriptName];
               clearInterval(interval);
 
-              // logger.debug(modName, " dynamically loaded integration SDK")
+              // logger.debug(scriptName, " dynamically loaded integration SDK")
 
               let intgInstance;
               try {
                 // logger.debug(
-                //   modName,
+                //   scriptName,
                 //   " [Analytics] processResponse :: trying to initialize integration ::"
                 // );
-                intgInstance = new intMod[modName](intg.config, self);
+                intgInstance = new intMod[scriptName](intg.config, self);
                 intgInstance.init();
 
-                // logger.debug(modName, " initializing destination")
+                // logger.debug(scriptName, " initializing destination")
 
                 self.isInitialized(intgInstance).then(() => {
-                  // logger.debug(modName, " module init sequence complete")
-                  self.dynamicallyLoadedIntegrations[modName] = intMod[modName];
+                  // logger.debug(scriptName, " module init sequence complete")
+                  self.dynamicallyLoadedIntegrations[scriptName] =
+                    intMod[scriptName];
                 });
               } catch (e) {
                 logger.error(
-                  modName,
+                  scriptName,
                   " [Analytics] initialize integration (integration.init()) failed",
                   e
                 );
@@ -230,8 +234,9 @@ class Analytics {
         // remove from the list which don't have support yet in SDK
         self.clientIntegrations = self.clientIntegrations.filter((intg) => {
           return (
-            self.dynamicallyLoadedIntegrations[configToIntNames[intg.name]] !=
-            undefined
+            self.dynamicallyLoadedIntegrations[
+              `${configToIntNames[intg.name]}${INTG_SUFFIX}`
+            ] != undefined
           );
         });
 

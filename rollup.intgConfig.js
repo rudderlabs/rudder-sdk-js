@@ -63,7 +63,7 @@ if (process.env.NPM === "true") {
   outputFiles.push({
     file: distFileName,
     format: "iife",
-    name: `${process.env.INTG_NAME}`,
+    name: `${process.env.INTG_NAME}_RS`,
     sourcemap:
       process.env.PROD_DEBUG_INLINE === "true"
         ? "inline"
