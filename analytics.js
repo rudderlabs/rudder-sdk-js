@@ -192,7 +192,7 @@ class Analytics {
               const intMod = window[modName];
               clearInterval(interval);
 
-              // logger.debug(modName, " dynamically loaded integration SDK")
+              // logger.debug(modName, " dynamically loaded integration SDK");
 
               let intgInstance;
               try {
@@ -200,14 +200,15 @@ class Analytics {
                 //   modName,
                 //   " [Analytics] processResponse :: trying to initialize integration ::"
                 // );
-                intgInstance = new intMod[modName](intg.config, self);
+                intgInstance = new intMod[scriptName](intg.config, self);
                 intgInstance.init();
 
-                // logger.debug(modName, " initializing destination")
+                // logger.debug(modName, " initializing destination");
 
                 self.isInitialized(intgInstance).then(() => {
-                  // logger.debug(modName, " module init sequence complete")
-                  self.dynamicallyLoadedIntegrations[modName] = intMod[modName];
+                  // logger.debug(modName, " module init sequence complete");
+                  self.dynamicallyLoadedIntegrations[modName] =
+                    intMod[scriptName];
                 });
               } catch (e) {
                 logger.error(
