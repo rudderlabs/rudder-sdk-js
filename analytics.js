@@ -178,41 +178,41 @@ class Analytics {
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
-        const scriptName = configToIntNames[intg.name];
-        const modName = `${scriptName}${INTG_SUFFIX}`;
+        const modName = configToIntNames[intg.name]; // script URL can be constructed from this
+        const pluginName = `${modName}${INTG_SUFFIX}`; // this is the name of the object loaded on the window
         if (process.browser) {
-          const modURL = `${this.destSDKBaseURL}/${scriptName}.min.js`;
-          if (!window.hasOwnProperty(modName)) {
-            ScriptLoader(modName, modURL);
+          const modURL = `${this.destSDKBaseURL}/${modName}.min.js`;
+          if (!window.hasOwnProperty(pluginName)) {
+            ScriptLoader(pluginName, modURL);
           }
 
           const self = this;
           const interval = setInterval(function () {
-            if (window.hasOwnProperty(modName)) {
-              const intMod = window[modName];
+            if (window.hasOwnProperty(pluginName)) {
+              const intMod = window[pluginName];
               clearInterval(interval);
 
-              // logger.debug(modName, " dynamically loaded integration SDK");
+              // logger.debug(pluginName, " dynamically loaded integration SDK");
 
               let intgInstance;
               try {
                 // logger.debug(
-                //   modName,
+                //   pluginName,
                 //   " [Analytics] processResponse :: trying to initialize integration ::"
                 // );
-                intgInstance = new intMod[scriptName](intg.config, self);
+                intgInstance = new intMod[modName](intg.config, self);
                 intgInstance.init();
 
-                // logger.debug(modName, " initializing destination");
+                // logger.debug(pluginName, " initializing destination");
 
                 self.isInitialized(intgInstance).then(() => {
-                  // logger.debug(modName, " module init sequence complete");
-                  self.dynamicallyLoadedIntegrations[modName] =
-                    intMod[scriptName];
+                  // logger.debug(pluginName, " module init sequence complete");
+                  self.dynamicallyLoadedIntegrations[pluginName] =
+                    intMod[modName];
                 });
               } catch (e) {
                 logger.error(
-                  modName,
+                  pluginName,
                   " [Analytics] initialize integration (integration.init()) failed",
                   e
                 );
