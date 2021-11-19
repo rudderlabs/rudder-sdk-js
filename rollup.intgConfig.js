@@ -13,6 +13,7 @@ import brotli from "rollup-plugin-brotli";
 import visualizer from "rollup-plugin-visualizer";
 import * as webPackage from "./package.json";
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
+import { INTG_SUFFIX } from "./utils/constants";
 
 let distFileName = "";
 let { version } = webPackage;
@@ -63,7 +64,7 @@ if (process.env.NPM === "true") {
   outputFiles.push({
     file: distFileName,
     format: "iife",
-    name: `${process.env.INTG_NAME}`,
+    name: `${process.env.INTG_NAME}${INTG_SUFFIX}`,
     sourcemap:
       process.env.PROD_DEBUG_INLINE === "true"
         ? "inline"
