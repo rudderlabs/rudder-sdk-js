@@ -1,8 +1,9 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
 import get from "get-value";
+import updateSaleObject from "./utils";
+import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
-import ScriptLoader from "./util";
 
 class PostAffiliatePro {
   constructor(config) {
@@ -29,7 +30,7 @@ class PostAffiliatePro {
       logger.debug("URL is missing");
       return;
     }
-    ScriptLoader(this.url);
+    ScriptLoader("pap_x2s6df8d", this.url);
   }
 
   isLoaded() {
@@ -101,51 +102,33 @@ class PostAffiliatePro {
     if (event === "Order Completed") {
       const productsArr =
         properties && properties.products ? properties.products : null;
-      if (!productsArr) {
-        logger.debug(
-          "===Required properties and products for Order Completed event."
-        );
-        return;
-      }
-
-      /* if mergeProduct is enabled we will merge the products */
-
-      if (this.mergeProducts) {
-        window.sale = window.PostAffTracker.createSale();
-        if (properties.total) window.sale.setTotalCost(properties.total);
-        if (properties.fixedCost)
-          window.sale.setFixedCost(properties.fixedCost);
-        if (properties.order_id) window.sale.setOrderID(properties.order_id);
-        if (properties.data1) window.sale.setData1(properties.data1);
-        if (properties.data2) window.sale.setData2(properties.data2);
-        if (properties.data3) window.sale.setData3(properties.data3);
-        if (properties.data4) window.sale.setData4(properties.data4);
-        if (properties.data5) window.sale.setData5(properties.data5);
-        if (
-          properties.doNotDeleteCookies &&
-          properties.doNotDeleteCookies === true
-        )
-          window.sale.doNotDeleteCookies();
-        if (properties.status) window.sale.setStatus(properties.status);
-        if (properties.currency) window.sale.setCurrency(properties.currency);
-        if (properties.customCommision)
-          window.sale.setCustomCommission(properties.customCommision);
-        if (properties.channel) window.sale.setChannelID(properties.channel);
-        if (properties.coupon) window.sale.setCoupon(properties.coupon);
-        if (properties.campaignId)
-          window.sale.setCampaignID(properties.campaignId);
-        if (properties.affiliateId)
-          window.sale.setAffiliateID(properties.affiliateId);
-        const mergedProductId = [];
-        for (let i = 0; i < productsArr.length; i += 1)
-          mergedProductId.push(productsArr[i].product_id);
-        const merged = mergedProductId.join();
-        window.sale.setProductID(merged);
-        window.PostAffTracker.register();
+      if (productsArr) {
+        if (this.mergeProducts) {
+          window.sale = window.PostAffTracker.createSale();
+          if (window.sale) updateSaleObject(window.sale, properties);
+          const mergedProductId = [];
+          for (let i = 0; i < productsArr.length; i += 1)
+            if (productsArr[i].product_id)
+              mergedProductId.push(productsArr[i].product_id);
+          const merged = mergedProductId.join();
+          if (merged) window.sale.setProductID(merged);
+        } else {
+          for (let i = 0; i < productsArr.length; i += 1) {
+            window[`sale${i}`] = window.PostAffTracker.createSale();
+            updateSaleObject(window[`sale${i}`], properties);
+            if (productsArr[i].product_id)
+              window[`sale${i}`].setProductID(productsArr[i].product_id);
+          }
+        }
       } else {
-        logger.debug("===TO DO===");
+        window.sale = window.PostAffTracker.createSale();
       }
+      window.PostAffTracker.register();
     }
   }
+
+  // reset() {
+  //   window.PostAffTracker.setVisitorId(null);
+  // }
 }
 export default PostAffiliatePro;
