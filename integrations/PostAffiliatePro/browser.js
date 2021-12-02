@@ -7,7 +7,7 @@ import logger from "../../utils/logUtil";
 
 class PostAffiliatePro {
   constructor(config) {
-    this.name = "POSTAFFILIATEPRO";
+    this.name = "POST_AFFILIATE_PRO";
     this.url = config.url;
     this.mergeProducts = config.mergeProducts;
     this.accountId = config.accountId;

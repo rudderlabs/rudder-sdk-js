@@ -124,11 +124,12 @@ const commonNames = {
   quantumMetric: "QUANTUMMETRIC",
   quantummetric: "QUANTUMMETRIC",
   Quantum_Metric: "QUANTUMMETRIC",
-  PostAffiliatePro: "POSTAFFILIATEPRO",
-  Post_affiliate_pro: "POSTAFFILIATEPRO",
-  POST_AFFILIATE_PRO: "POSTAFFILIATEPRO",
-  postaffiliatepro: "POSTAFFILIATEPRO",
-  POSTAFFILIATEPRO: "POSTAFFILIATEPRO",
+  PostAffiliatePro: "POST_AFFILIATE_PRO",
+  Post_affiliate_pro: "POST_AFFILIATE_PRO",
+  "Post Affiliate Pro": "POST_AFFILIATE_PRO",
+  postaffiliatepro: "POST_AFFILIATE_PRO",
+  POSTAFFILIATEPRO: "POST_AFFILIATE_PRO",
+  POST_AFFILIATE_PRO: "POST_AFFILIATE_PRO",
 };
 
 export { commonNames };

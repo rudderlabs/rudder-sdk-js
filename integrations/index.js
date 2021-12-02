@@ -86,7 +86,7 @@ const integrations = {
   SNAP_PIXEL: SnapPixel.default,
   TVSQUARED: TVSquared.default,
   VWO: VWO.default,
-  POSTAFFILIATEPRO: PostAffiliatePro.default,
+  POST_AFFILIATE_PRO: PostAffiliatePro.default,
 };
 
 export { integrations };
