@@ -88,6 +88,7 @@ class PostAffiliatePro {
     const { message } = rudderElement;
     const { event } = message;
     const { properties } = message;
+    // We are going to call click event, for the events given in dashboard only.
     if (clickEventsArr && clickEventsArr.includes(event)) {
       if (properties) {
         if (properties.data1) window.Data1 = properties.data1;
@@ -99,6 +100,7 @@ class PostAffiliatePro {
       }
       window.PostAffTracker.track();
     }
+    // We are supporting only one event for sale.
     if (event === "Order Completed") {
       const productsArr =
         properties && properties.products ? properties.products : null;
@@ -121,6 +123,7 @@ class PostAffiliatePro {
           }
         }
       } else {
+        // If any product is not available.
         window.sale = window.PostAffTracker.createSale();
       }
       window.PostAffTracker.register();

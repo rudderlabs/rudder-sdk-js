@@ -3,6 +3,7 @@ const updateSaleObject = (sale, properties) => {
   if (properties.total) sale.setTotalCost(properties.total);
   if (properties.fixedCost) sale.setFixedCost(properties.fixedCost);
   if (properties.order_id) sale.setOrderID(properties.order_id);
+  // Post Affiliate Pro supports five extra data only.
   if (properties.data1) sale.setData1(properties.data1);
   if (properties.data2) sale.setData2(properties.data2);
   if (properties.data3) sale.setData3(properties.data3);
