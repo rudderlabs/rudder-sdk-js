@@ -28,10 +28,22 @@ class GoogleOptimize {
     if (!this.containerId) {
       return;
     }
-    ScriptLoader(
-      "Google Optimize",
-      `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`
-    );
+    if (this.async) {
+      ScriptLoader(
+        "Google Optimize",
+        `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`
+      );
+    } else {
+      const js = document.createElement("script");
+      js.src = src;
+      js.async = false;
+      js.type = "text/javascript";
+      js.id = id;
+      const e = document.getElementsByTagName("script")[0];
+      logger.debug("==parent script==", e);
+      logger.debug("==adding script==", js);
+      e.parentNode.insertBefore(js, e);
+    }
   }
 }
 export default GoogleOptimize;
