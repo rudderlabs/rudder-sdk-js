@@ -41,6 +41,7 @@ const clientToServerNames = {
   MP: "Mixpanel",
   QUALTRICS: "Qualtrics",
   SENTRY: "Sentry",
+  GOOGLE_OPTIMIZE: "GoogleOptimize",
 };
 
 export { clientToServerNames };

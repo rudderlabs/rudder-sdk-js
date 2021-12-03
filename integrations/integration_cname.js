@@ -124,6 +124,11 @@ const commonNames = {
   quantumMetric: "QUANTUMMETRIC",
   quantummetric: "QUANTUMMETRIC",
   Quantum_Metric: "QUANTUMMETRIC",
+  "Google Optimize": "GOOGLE_OPTIMIZE",
+  GOOGLE_OPTIMIZE: "GOOGLE_OPTIMIZE",
+  GoogleOptimize: "GOOGLE_OPTIMIZE",
+  Googleoptimize: "GOOGLE_OPTIMIZE",
+  GOOGLEOPTIMIZE: "GOOGLE_OPTIMIZE",
 };
 
 export { commonNames };
