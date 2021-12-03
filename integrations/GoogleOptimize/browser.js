@@ -35,10 +35,10 @@ class GoogleOptimize {
       );
     } else {
       const js = document.createElement("script");
-      js.src = src;
+      js.src = `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`;
       js.async = false;
       js.type = "text/javascript";
-      js.id = id;
+      js.id = "Google Optimize";
       const e = document.getElementsByTagName("script")[0];
       logger.debug("==parent script==", e);
       logger.debug("==adding script==", js);
