@@ -36,7 +36,7 @@ class GoogleOptimize {
         `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`,
         this.async
       );
-    if (this.aflicker && !this.async) {
+    if (this.aflicker) {
       (function (a, s, y, n, c, h, i, d, e) {
         s.className += " " + y;
         h.start = 1 * new Date();
@@ -50,9 +50,19 @@ class GoogleOptimize {
         }, c);
         h.timeout = c;
       })(window, document.documentElement, "async-hide", "dataLayer", 4000, {
-        this.containerId: true
+        `${this.containerId}` : true
       });
     }
+  }
+
+  isLoaded() {
+    logger.debug("=== in isLoaded Google Optimize===");
+    return !!window.dataLayer;
+  }
+
+  isReady() {
+    logger.debug("=== in isReady Google Optimize===");
+    return !!window.dataLayer;
   }
 }
 export default GoogleOptimize;
