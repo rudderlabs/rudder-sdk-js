@@ -13,6 +13,9 @@ class GoogleOptimize {
 
   init() {
     logger.debug("===in init Google Optimize===");
+    if (!this.containerId) {
+      return;
+    }
     if (this.ga) {
       if (!this.trackingId) {
         return;
@@ -28,23 +31,12 @@ class GoogleOptimize {
       gtag("js", new Date());
       gtag("config", `${this.trackingId}`);
     }
-    if (!this.containerId) {
-      return;
-    }
-    if (this.async) {
-      ScriptLoader(
+    ScriptLoader(
         "Google Optimize",
         `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`,
-        true
+        this.async
       );
-    } else {
-      ScriptLoader(
-        "Google Optimize",
-        `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`,
-        false
-      );
-    }
-    if (this.aflicker) {
+    if (this.aflicker && !this.async) {
       (function (a, s, y, n, c, h, i, d, e) {
         s.className += " " + y;
         h.start = 1 * new Date();
@@ -58,7 +50,7 @@ class GoogleOptimize {
         }, c);
         h.timeout = c;
       })(window, document.documentElement, "async-hide", "dataLayer", 4000, {
-        this.containerId: true,
+        this.containerId: true
       });
     }
   }
