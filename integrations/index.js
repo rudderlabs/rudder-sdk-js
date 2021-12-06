@@ -41,8 +41,10 @@ import * as SnapPixel from "./SnapPixel";
 import * as TVSquared from "./TVSquared";
 import * as VWO from "./VWO";
 import * as PostAffiliatePro from "./PostAffiliatePro";
+
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
+
 const integrations = {
   ADOBE_ANALYTICS: AdobeAnalytics.default,
   AM: Amplitude.default,

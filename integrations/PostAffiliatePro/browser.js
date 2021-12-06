@@ -88,7 +88,7 @@ class PostAffiliatePro {
     const { message } = rudderElement;
     const { event } = message;
     const { properties } = message;
-    // We are going to call click event, for the events given in dashboard only.
+    // We are going to call click event, for the event list given in dashboard only.
     if (clickEventsArr && clickEventsArr.includes(event)) {
       if (properties) {
         if (properties.data1) window.Data1 = properties.data1;
