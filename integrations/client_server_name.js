@@ -41,6 +41,7 @@ const clientToServerNames = {
   MP: "Mixpanel",
   QUALTRICS: "Qualtrics",
   SENTRY: "Sentry",
+  POST_AFFILIATE_PRO: "PostAffiliatePro",
 };
 
 export { clientToServerNames };
