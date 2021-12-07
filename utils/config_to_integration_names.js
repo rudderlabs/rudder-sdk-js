@@ -43,6 +43,7 @@ const configToIntNames = {
   SENTRY: "Sentry",
   QUANTUMMETRIC: "QuantumMetric",
   SNAP_PIXEL: "SnapPixel",
+  POST_AFFILIATE_PRO: "PostAffiliatePro",
 };
 
 // eslint-disable-next-line import/prefer-default-export
