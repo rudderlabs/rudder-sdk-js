@@ -1,4 +1,5 @@
 import logger from "../../utils/logUtil";
+
 import ScriptLoader from "../ScriptLoader";
 
 class GoogleOptimize {
@@ -29,14 +30,17 @@ class GoogleOptimize {
         dataLayer.push(arguments);
       }
       gtag("js", new Date());
-      gtag("config", `${this.trackingId}`);
+      gtag("config", "UA-199648645-1");
     }
     ScriptLoader(
-        "Google Optimize",
-        `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`,
-        this.async
-      );
+      "Google Optimize",
+      `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`,
+      this.async
+    );
+
     if (this.aflicker) {
+      const flickerObj = {};
+      flickerObj[`${this.containerId}`] = true;
       (function (a, s, y, n, c, h, i, d, e) {
         s.className += " " + y;
         h.start = 1 * new Date();
@@ -49,9 +53,14 @@ class GoogleOptimize {
           h.end = null;
         }, c);
         h.timeout = c;
-      })(window, document.documentElement, "async-hide", "dataLayer", 4000, {
-        `${this.containerId}` : true
-      });
+      })(
+        window,
+        document.documentElement,
+        "async-hide",
+        "dataLayer",
+        4000,
+        flickerObj
+      );
     }
   }
 
