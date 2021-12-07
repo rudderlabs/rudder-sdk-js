@@ -42,6 +42,7 @@ const clientToServerNames = {
   QUALTRICS: "Qualtrics",
   SENTRY: "Sentry",
   GOOGLE_OPTIMIZE: "GoogleOptimize",
+  POST_AFFILIATE_PRO: "PostAffiliatePro",
 };
 
 export { clientToServerNames };

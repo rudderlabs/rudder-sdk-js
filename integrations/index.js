@@ -41,6 +41,7 @@ import * as SnapPixel from "./SnapPixel";
 import * as TVSquared from "./TVSquared";
 import * as VWO from "./VWO";
 import * as GoogleOptimize from "./GoogleOptimize";
+import * as PostAffiliatePro from "./PostAffiliatePro";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -89,6 +90,7 @@ const integrations = {
   TVSQUARED: TVSquared.default,
   VWO: VWO.default,
   GOOGLE_OPTIMIZE: GoogleOptimize.default,
+  POST_AFFILIATE_PRO: PostAffiliatePro.default,
 };
 
 export { integrations };
