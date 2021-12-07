@@ -17,6 +17,12 @@ class GoogleOptimize {
     if (!this.containerId) {
       return;
     }
+    // load optimize script first
+    ScriptLoader(
+      "Google Optimize",
+      `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`,
+      this.async
+    );
     if (this.ga) {
       if (!this.trackingId) {
         return;
@@ -32,35 +38,14 @@ class GoogleOptimize {
       gtag("js", new Date());
       gtag("config", "UA-199648645-1");
     }
-    ScriptLoader(
-      "Google Optimize",
-      `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`,
-      this.async
-    );
 
     if (this.aflicker) {
       const flickerObj = {};
       flickerObj[`${this.containerId}`] = true;
-      (function (a, s, y, n, c, h, i, d, e) {
-        s.className += " " + y;
-        h.start = 1 * new Date();
-        h.end = i = function () {
-          s.className = s.className.replace(RegExp(" ?" + y), "");
-        };
-        (a[n] = a[n] || []).hide = h;
-        setTimeout(function () {
-          i();
-          h.end = null;
-        }, c);
-        h.timeout = c;
-      })(
-        window,
-        document.documentElement,
-        "async-hide",
-        "dataLayer",
-        4000,
-        flickerObj
-      );
+      const js = document.createElement("script");
+      js.innerHTML = `(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};(a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;})(window,document.documentElement,'async-hide','dataLayer',4000,{'${this.containerId}':true});`;
+      const e = document.getElementsByTagName("script")[0];
+      e.parentNode.insertBefore(js, e);
     }
   }
 
