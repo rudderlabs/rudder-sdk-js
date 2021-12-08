@@ -44,6 +44,7 @@ const configToIntNames = {
   QUANTUMMETRIC: "QuantumMetric",
   SNAP_PIXEL: "SnapPixel",
   POST_AFFILIATE_PRO: "PostAffiliatePro",
+  GOOGLE_OPTIMIZE: "GoogleOptimize",
 };
 
 // eslint-disable-next-line import/prefer-default-export
