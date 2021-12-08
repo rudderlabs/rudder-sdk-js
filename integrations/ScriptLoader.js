@@ -5,8 +5,7 @@ const ScriptLoader = (id, src, async) => {
   logger.debug(`in script loader=== ${id}`);
   const js = document.createElement("script");
   js.src = src;
-  async = async === undefined ? true : async;
-  js.async = async;
+  js.async = async === undefined ? true : async;
   js.type = "text/javascript";
   js.id = id;
   const e = document.getElementsByTagName("script")[0];
