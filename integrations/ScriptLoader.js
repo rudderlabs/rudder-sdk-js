@@ -1,8 +1,7 @@
 /* eslint-disable no-use-before-define */
-// import logger from "../utils/logUtil";
+const defaultAsyncState = true;
 
-const ScriptLoader = (id, src) => {
-  // logger.debug(`in script loader=== ${id}`);
+const ScriptLoader = (id, src, async = defaultAsyncState) => {
   const exists = document.getElementById(id);
   if (exists) {
     // logger.debug("script already loaded");
@@ -10,7 +9,7 @@ const ScriptLoader = (id, src) => {
   }
   const js = document.createElement("script");
   js.src = src;
-  js.async = true;
+  js.async = async === undefined ? defaultAsyncState : async;
   js.type = "text/javascript";
   js.id = id;
   const e = document.getElementsByTagName("script")[0];
