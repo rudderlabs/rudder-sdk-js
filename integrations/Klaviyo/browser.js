@@ -4,6 +4,7 @@ import get from "get-value";
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
 import { extractCustomFields, getDefinedTraits } from "../../utils/utils";
+import ecommEventPayload from "./util";
 
 class Klaviyo {
   constructor(config) {
@@ -39,6 +40,19 @@ class Klaviyo {
       "userId",
       "properties",
     ];
+    this.ecomEvents = [
+      "product viewed",
+      "product clicked",
+      "product added",
+      "order cancelled",
+      "checkout started",
+    ];
+    this.eventNameMapping = {
+      "product viewed": "Viewed Product",
+      "product clicked": "Viewed Product",
+      "product added": "Added to Cart",
+      "checkout started": "Started Checkout",
+    };
   }
 
   init() {
@@ -68,15 +82,8 @@ class Klaviyo {
       return;
     }
 
-    const {
-      userId,
-      email,
-      phone,
-      firstName,
-      lastName,
-      city,
-      country,
-    } = getDefinedTraits(message);
+    const { userId, email, phone, firstName, lastName, city, country } =
+      getDefinedTraits(message);
 
     let payload = {
       $id: userId,
@@ -116,6 +123,14 @@ class Klaviyo {
   track(rudderElement) {
     const { message } = rudderElement;
     if (message.properties) {
+      // ecomm events
+      let { event } = message.event;
+      event = event ? event.trim().toLowerCase() : event;
+      if (this.ecomEvents.includes(event)) {
+        const payload = ecommEventPayload(event, message);
+        window._learnq.push(["track", this.eventNameMapping[event], payload]);
+        return;
+      }
       const propsPayload = message.properties;
       if (propsPayload.revenue) {
         propsPayload.$value = propsPayload.revenue;
