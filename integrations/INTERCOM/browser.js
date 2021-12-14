@@ -157,7 +157,9 @@ class INTERCOM {
       : null;
     properties.forEach((property) => {
       const value = message.properties[property];
-      rawPayload[property] = value;
+      if (value && typeof value !== "object" && !Array.isArray(value)) {
+        rawPayload[property] = value;
+      }
     });
 
     if (message.event) {
