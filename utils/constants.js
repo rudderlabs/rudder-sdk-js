@@ -72,7 +72,7 @@ const DEST_SDK_BASE_URL = `https://cdn.rudderlabs.com/v1.1/${CDN_INT_DIR}`;
 
 const MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
 const INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
-const INTG_SUFFIX = "";
+const INTG_SUFFIX = "_RS";
 export {
   ReservedPropertyKeywords,
   ECommerceParamNames,
