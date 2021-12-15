@@ -630,6 +630,14 @@ const getDataFromSource = (src, dest, properties) => {
   return data;
 };
 
+const getConfigUrlWithWritekey = (writeKey) => {
+  if (writeKey) {
+    return `https://api.rudderlabs.com/sourceConfig/?p=process.module_type${writeKey}&v=process.package_version`;
+  } else {
+    return CONFIG_URL;
+  }
+};
+
 export {
   replacer,
   generateUUID,
@@ -656,4 +664,5 @@ export {
   isDefinedAndNotNull,
   getDataFromSource,
   removeTrailingSlashes,
+  getConfigUrlWithWritekey,
 };

@@ -27,6 +27,7 @@ import {
   getReferrer,
   getReferringDomain,
   removeTrailingSlashes,
+  getConfigUrlWithWritekey,
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -963,7 +964,7 @@ class Analytics {
       return;
     }
 
-    let configUrl = CONFIG_URL;
+    let configUrl = getConfigUrlWithWritekey(writeKey);
     if (options && options.configUrl) {
       configUrl = getUserProvidedConfigUrl(options.configUrl);
     }
