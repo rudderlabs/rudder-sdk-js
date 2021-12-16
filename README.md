@@ -33,7 +33,7 @@ The [**RudderStack**](https://rudderstack.com/) JavaScript SDK leverages the `ru
 - [**Self-hosted control plane**](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#self-hosted-control-plane)
 - [**Adding your own integrations**](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-your-own-integrations)
 
-| **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If you still wish to use it for your project, refer to [**this repository**](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). |
+| **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. Soon it will be removed. If you still wish to use it for your project, refer to [**this repository**](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). |
 | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 
