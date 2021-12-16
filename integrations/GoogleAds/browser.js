@@ -1,6 +1,5 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
-import { extractCustomFields } from "../../utils/utils";
 import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 
 class GoogleAds {
