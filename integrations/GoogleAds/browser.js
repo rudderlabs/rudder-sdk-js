@@ -72,11 +72,7 @@ class GoogleAds {
         const sendToValue = `${this.conversionId}/${conversionLabel}`;
         let properties = {};
         if (rudderElement.message.properties) {
-          // mapping value from (revenue or value) as value data is generic during
-          // dynamic remarketing and current user does not get mixed with it
-          properties.value =
-            rudderElement.message.properties.revenue ||
-            rudderElement.message.properties.value;
+          properties.value = rudderElement.message.properties.revenue;
           properties.currency = rudderElement.message.properties.currency;
           properties.transaction_id = rudderElement.message.properties.order_id;
         }
@@ -92,30 +88,13 @@ class GoogleAds {
       }
 
       let payload = {};
+      const sendToValue = this.conversionId;
+
       if (rudderElement.message.properties) {
-        const sendToValue = this.conversionId;
-        payload.value =
-          rudderElement.message.properties.revenue ||
-          rudderElement.message.properties.value;
-
-        // extracting all properties excluding existing data
-        let extraFields = {};
-        try {
-          extraFields = extractCustomFields(
-            rudderElement.message,
-            extraFields,
-            ["properties"],
-            ["revenue", "value"]
-          );
-        } catch (err) {
-          logger.debug(`Error occured at extractCustomFields ${err}`);
-        }
-
-        payload = { ...payload, ...extraFields };
-        payload.send_to = sendToValue;
-        payload = removeUndefinedAndNullValues(payload);
+        payload = rudderElement.message.properties;
       }
 
+      payload.send_to = sendToValue;
       window.gtag("event", event, payload);
     }
   }
@@ -144,13 +123,13 @@ class GoogleAds {
       }
 
       let payload = {};
+      const sendToValue = this.conversionId;
+
       if (rudderElement.message.properties) {
-        const sendToValue = this.conversionId;
         payload = rudderElement.message.properties;
-        payload.send_to = sendToValue;
-        payload = removeUndefinedAndNullValues(payload);
       }
 
+      payload.send_to = sendToValue;
       window.gtag("event", event, payload);
     }
   }
