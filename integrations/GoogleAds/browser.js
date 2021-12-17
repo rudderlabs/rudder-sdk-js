@@ -1,4 +1,6 @@
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
+import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 
 class GoogleAds {
   constructor(config) {
@@ -7,6 +9,7 @@ class GoogleAds {
     this.pageLoadConversions = config.pageLoadConversions;
     this.clickEventConversions = config.clickEventConversions;
     this.defaultPageConversion = config.defaultPageConversion;
+    this.dynamicRemarketing = config.dynamicRemarketing;
     this.sendPageView = config.sendPageView || true;
     this.conversionLinker = config.conversionLinker || true;
     this.disableAdPersonalization = config.disableAdPersonalization || false;
@@ -48,44 +51,85 @@ class GoogleAds {
     logger.debug("===in init Google Ads===");
   }
 
-  identify(rudderElement) {
+  identify() {
     logger.debug("[GoogleAds] identify:: method not supported");
   }
 
   // https://developers.google.com/gtagjs/reference/event
   track(rudderElement) {
     logger.debug("in GoogleAdsAnalyticsManager track");
-    const conversionData = this.getConversionData(
-      this.clickEventConversions,
-      rudderElement.message.event
-    );
-    if (conversionData.conversionLabel) {
-      const { conversionLabel } = conversionData;
-      const { eventName } = conversionData;
-      const sendToValue = `${this.conversionId}/${conversionLabel}`;
-      const properties = {};
-      if (rudderElement.message.properties) {
-        properties.value = rudderElement.message.properties.revenue;
-        properties.currency = rudderElement.message.properties.currency;
-        properties.transaction_id = rudderElement.message.properties.order_id;
+
+    // Dynamic remarketing disabled
+    if (!this.dynamicRemarketing) {
+      const conversionData = this.getConversionData(
+        this.clickEventConversions,
+        rudderElement.message.event
+      );
+      if (conversionData.conversionLabel) {
+        const { conversionLabel } = conversionData;
+        const { eventName } = conversionData;
+        const sendToValue = `${this.conversionId}/${conversionLabel}`;
+        let properties = {};
+        if (rudderElement.message.properties) {
+          properties.value = rudderElement.message.properties.revenue;
+          properties.currency = rudderElement.message.properties.currency;
+          properties.transaction_id = rudderElement.message.properties.order_id;
+        }
+        properties.send_to = sendToValue;
+        properties = removeUndefinedAndNullValues(properties);
+        window.gtag("event", eventName, properties);
       }
-      properties.send_to = sendToValue;
-      window.gtag("event", eventName, properties);
+    } else {
+      const { event } = rudderElement.message;
+      if (!event) {
+        logger.error("Event name not present");
+        return;
+      }
+
+      let payload = {};
+      const sendToValue = this.conversionId;
+
+      if (rudderElement.message.properties) {
+        payload = rudderElement.message.properties;
+      }
+
+      payload.send_to = sendToValue;
+      window.gtag("event", event, payload);
     }
   }
 
   page(rudderElement) {
     logger.debug("in GoogleAdsAnalyticsManager page");
-    const conversionData = this.getConversionData(
-      this.pageLoadConversions,
-      rudderElement.message.name
-    );
-    if (conversionData.conversionLabel) {
-      const { conversionLabel } = conversionData;
-      const { eventName } = conversionData;
-      window.gtag("event", eventName, {
-        send_to: `${this.conversionId}/${conversionLabel}`,
-      });
+
+    // Dynamic re-marketing is disabled
+    if (!this.dynamicRemarketing) {
+      const conversionData = this.getConversionData(
+        this.pageLoadConversions,
+        rudderElement.message.name
+      );
+      if (conversionData.conversionLabel) {
+        const { conversionLabel } = conversionData;
+        const { eventName } = conversionData;
+        window.gtag("event", eventName, {
+          send_to: `${this.conversionId}/${conversionLabel}`,
+        });
+      }
+    } else {
+      const event = rudderElement.message.name;
+      if (!event) {
+        logger.error("Event name not present");
+        return;
+      }
+
+      let payload = {};
+      const sendToValue = this.conversionId;
+
+      if (rudderElement.message.properties) {
+        payload = rudderElement.message.properties;
+      }
+
+      payload.send_to = sendToValue;
+      window.gtag("event", event, payload);
     }
   }
 
