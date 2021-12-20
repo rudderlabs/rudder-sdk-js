@@ -1,25 +1,26 @@
 /* eslint-disable no-param-reassign */
 import get from "get-value";
-import { removeUndefinedAndNullValues } from "../utils/commonUtils";
+import { isNotEmpty, removeUndefinedAndNullValues } from "../utils/commonUtils";
 
-const itemsPayload = (message, payload) => {
-  payload.Items.ProductID = get(message, "properties.items.product_id");
-  payload.Items.SKU = get(message, "properties.items.sku");
-  payload.Items.ProductName = get(message, "properties.items.name");
-  payload.Items.Quantity = get(message, "properties.items.quantity");
-  payload.Items.ItemPrice = get(message, "properties.items.price");
-  payload.Items.RowTotal = get(message, "properties.items.total");
-  payload.Items.ProductURL = get(message, "properties.items.url");
-  payload.Items.ImageURL = get(message, "properties.items.image_url");
-  payload.Items.ProductCategories = get(message, "properties.items.categories");
-  payload.Items = removeUndefinedAndNullValues(payload.Items);
-  return payload;
+const itemsPayload = (item) => {
+  let itemObj = {};
+  itemObj.ProductID = item.product_id;
+  itemObj.SKU = item.sku;
+  itemObj.ProductName = item.name;
+  itemObj.Quantity = item.quantity;
+  itemObj.ItemPrice = item.price;
+  itemObj.RowTotal = item.total;
+  itemObj.ProductURL = item.url;
+  itemObj.ImageURL = item.image_url;
+  itemObj.ProductCategories = item.categories;
+  itemObj = removeUndefinedAndNullValues(itemObj);
+  return itemObj;
 };
 
 const ecommEventPayload = (event, message) => {
   let payload = {};
-  switch (event.toLowerCase().trim()) {
-    case "product viewed": {
+  switch (event) {
+    case "Viewed Product": {
       payload.ProductName = get(message, "properties.name");
       payload.ProductID = get(message, "properties.product_id");
       payload.SKU = get(message, "properties.sku");
@@ -28,10 +29,11 @@ const ecommEventPayload = (event, message) => {
       payload.Brand = get(message, "properties.brand");
       payload.Price = get(message, "properties.price");
       payload.CompareAtPrice = get(message, "properties.compare_at_price");
+      payload.Categories = get(message, "properties.categories");
       break;
     }
-    case "product added": {
-      payload.$value = get(message, "properties.price");
+    case "Added to Cart": {
+      payload.$value = get(message, "properties.value");
       payload.AddedItemProductName = get(message, "properties.name");
       payload.AddedItemProductID = get(message, "properties.product_id");
       payload.AddedItemSKU = get(message, "properties.sku");
@@ -40,23 +42,37 @@ const ecommEventPayload = (event, message) => {
       payload.AddedItemPrice = get(message, "properties.price");
       payload.AddedItemQuantity = get(message, "properties.quantity");
       payload.AddedItemCategories = get(message, "properties.categories");
-      payload.ItemNames = get(message, "properties.categories");
+      payload.ItemNames = get(message, "properties.item_names");
       payload.CheckoutURL = get(message, "properties.checkout_url");
-      payload.Items = get(message, "properties.items");
-      if (payload.Items) {
-        itemsPayload(message, payload);
+      if (message.properties.items && Array.isArray(message.properties.items)) {
+        const itemArr = [];
+        message.properties.items.forEach((element) => {
+          let item = itemsPayload(element);
+          item = removeUndefinedAndNullValues(item);
+          if (isNotEmpty(item)) {
+            itemArr.push(item);
+          }
+        });
+        payload.Items = itemArr;
       }
       break;
     }
-    case "checkout started": {
+    case "Started Checkout": {
       payload.$event_id = get(message, "properties.order_id");
       payload.$value = get(message, "properties.value");
       payload.Categories = get(message, "properties.categories");
       payload.CheckoutURL = get(message, "properties.checkout_url");
-      payload.ItemNames = get(message, "product_names");
-      payload.Items = get(message, "properties.products");
-      if (payload.Items) {
-        itemsPayload(message, payload);
+      payload.ItemNames = get(message, "item_names");
+      if (message.properties.items && Array.isArray(message.properties.items)) {
+        const itemArr = [];
+        message.properties.items.forEach((element) => {
+          let item = itemsPayload(element);
+          item = removeUndefinedAndNullValues(item);
+          if (isNotEmpty(item)) {
+            itemArr.push(item);
+          }
+        });
+        payload.Items = itemArr;
       }
       break;
     }

@@ -5,6 +5,7 @@ import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
 import { extractCustomFields, getDefinedTraits } from "../../utils/utils";
 import ecommEventPayload from "./util";
+import { isNotEmpty } from "../utils/commonUtils";
 
 class Klaviyo {
   constructor(config) {
@@ -40,11 +41,30 @@ class Klaviyo {
       "userId",
       "properties",
     ];
+    this.ecomExclusionKeys = [
+      "name",
+      "product_id",
+      "sku",
+      "image_url",
+      "url",
+      "brand",
+      "price",
+      "compare_at_price",
+      "quantity",
+      "categories",
+      "products",
+      "product_names",
+      "order_id",
+      "value",
+      "checkout_url",
+      "item_names",
+      "items",
+      "checkout_url",
+    ];
     this.ecomEvents = [
       "product viewed",
       "product clicked",
       "product added",
-      "order cancelled",
       "checkout started",
     ];
     this.eventNameMapping = {
@@ -124,19 +144,32 @@ class Klaviyo {
     const { message } = rudderElement;
     if (message.properties) {
       // ecomm events
-      let { event } = message.event;
+      let event = get(message, "event");
       event = event ? event.trim().toLowerCase() : event;
-      if (this.ecomEvents.includes(event)) {
-        const payload = ecommEventPayload(event, message);
-        window._learnq.push(["track", this.eventNameMapping[event], payload]);
-        return;
+      if (this.ecomEvents.includes(event) && message.properties) {
+        let payload = ecommEventPayload(this.eventNameMapping[event], message);
+        const eventName = this.eventNameMapping[event];
+        let customProperties = {};
+        customProperties = extractCustomFields(
+          message,
+          customProperties,
+          ["properties"],
+          this.ecomExclusionKeys
+        );
+        if (isNotEmpty(customProperties)) {
+          payload = { ...payload, ...customProperties };
+        }
+        if (isNotEmpty(payload)) {
+          window._learnq.push(["track", eventName, payload]);
+        }
+      } else {
+        const propsPayload = message.properties;
+        if (propsPayload.revenue) {
+          propsPayload.$value = propsPayload.revenue;
+          delete propsPayload.revenue;
+        }
+        window._learnq.push(["track", message.event, propsPayload]);
       }
-      const propsPayload = message.properties;
-      if (propsPayload.revenue) {
-        propsPayload.$value = propsPayload.revenue;
-        delete propsPayload.revenue;
-      }
-      window._learnq.push(["track", message.event, propsPayload]);
     } else window._learnq.push(["track", message.event]);
   }
 
