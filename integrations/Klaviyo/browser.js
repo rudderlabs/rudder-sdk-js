@@ -146,7 +146,7 @@ class Klaviyo {
       // ecomm events
       let event = get(message, "event");
       event = event ? event.trim().toLowerCase() : event;
-      if (this.ecomEvents.includes(event) && message.properties) {
+      if (this.ecomEvents.includes(event)) {
         let payload = ecommEventPayload(this.eventNameMapping[event], message);
         const eventName = this.eventNameMapping[event];
         let customProperties = {};
