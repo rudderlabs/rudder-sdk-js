@@ -3,7 +3,7 @@ import get from "get-value";
 import { isNotEmpty, removeUndefinedAndNullValues } from "../utils/commonUtils";
 
 const itemsPayload = (item) => {
-  let itemObj = {};
+  const itemObj = {};
   itemObj.ProductID = item.product_id;
   itemObj.SKU = item.sku;
   itemObj.ProductName = item.name;
@@ -13,7 +13,6 @@ const itemsPayload = (item) => {
   itemObj.ProductURL = item.url;
   itemObj.ImageURL = item.image_url;
   itemObj.ProductCategories = item.categories;
-  itemObj = removeUndefinedAndNullValues(itemObj);
   return itemObj;
 };
 
