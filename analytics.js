@@ -42,7 +42,7 @@ import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
-import { cookieConsent } from "./cookieConsent";
+import { getIntegrationsAfterCookieConsent } from "./cookieConsent";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -141,17 +141,6 @@ class Analytics {
     }
   }
 
-  callCookieConsentManager(response, destConfig) {
-    const sourceConfig = response.source.config;
-    let cookieConsentInstance;
-    // if (sourceConfig.cookieConsentManager.oneTrust.enabled) {
-    const cookieConsentClass = cookieConsent.OneTrust;
-    cookieConsentInstance = new cookieConsentClass(sourceConfig, destConfig);
-    const enable = cookieConsentInstance.init();
-    return enable;
-    // }
-  }
-
   /**
    * Process the response from control plane and
    * call initialize for integrations
@@ -197,7 +186,11 @@ class Analytics {
       this.clientIntegrations = this.clientIntegrations.filter((intg) => {
         return integrations[intg.name] != undefined;
       });
-      this.init(this.clientIntegrations, response);
+      const enabledIntegrations = getIntegrationsAfterCookieConsent(
+        this.clientIntegrations,
+        response
+      );
+      this.init(enabledIntegrations);
     } catch (error) {
       handleError(error);
       logger.debug("===handling config BE response processing error===");
@@ -220,11 +213,10 @@ class Analytics {
    * @returns
    * @memberof Analytics
    */
-  init(intgArray, response) {
+  init(intgArray) {
     const self = this;
     logger.debug("supported intgs ", integrations);
     // this.clientIntegrationObjects = [];
-
     if (!intgArray || intgArray.length == 0) {
       if (this.readyCallback) {
         this.readyCallback();
@@ -241,17 +233,10 @@ class Analytics {
         );
         const intgClass = integrations[intg.name];
         const destConfig = intg.config;
-        const enable = this.callCookieConsentManager(response, destConfig);
         intgInstance = new intgClass(destConfig, self);
-        if (enable) {
-          intgInstance.init();
-
-          logger.debug("initializing destination: ", intg);
-
-          this.isInitialized(intgInstance).then(this.replayEvents);
-        } else {
-          logger.debug("Cookie consent not given for this destination");
-        }
+        intgInstance.init();
+        logger.debug("initializing destination: ", intg);
+        this.isInitialized(intgInstance).then(this.replayEvents);
       } catch (e) {
         logger.error(
           "[Analytics] initialize integration (integration.init()) failed :: ",
