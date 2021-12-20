@@ -5,12 +5,28 @@ class OneTrust {
   }
 
   init() {
-    console.log("=============");
-    console.log(this.destConfig.oneTrustConsentGroup); // mapping of the destination with the consent group name
-    const userSetConsentGroupIds = window.OnetrustActiveGroups;
-    const oneTrustAllGroupsInfo = window.OneTrust.GetDomainData().Groups;
-    console.log(oneTrustAllGroupsInfo); // info about all the groups created in the onetrust account
-    console.log(userSetConsentGroupIds); // Content ids user has rejected
+    const { oneTrustConsentGroup } = this.destConfig; // mapping of the destination with the consent group name
+    const userSetConsentGroupIds = window.OnetrustActiveGroups.split(","); // Content ids user has rejected
+    const oneTrustAllGroupsInfo = window.OneTrust.GetDomainData().Groups; // info about all the groups created in the onetrust account
+    const userSetConsentGroupNames = [];
+    oneTrustAllGroupsInfo.forEach((group) => {
+      const { CustomGroupId, GroupName } = group;
+      if (userSetConsentGroupIds.includes(CustomGroupId)) {
+        userSetConsentGroupNames.push(GroupName);
+      }
+    });
+    const oneTrustConsentGroupArr = oneTrustConsentGroup.map(
+      (c) => c.oneTrustConsentGroup
+    );
+    for (let consentGroupName in oneTrustConsentGroupArr) {
+      if (
+        userSetConsentGroupNames.includes(
+          oneTrustConsentGroupArr[consentGroupName]
+        )
+      ) {
+        return false;
+      }
+    }
     return true;
   }
 }

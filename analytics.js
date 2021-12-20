@@ -249,6 +249,8 @@ class Analytics {
           logger.debug("initializing destination: ", intg);
 
           this.isInitialized(intgInstance).then(this.replayEvents);
+        } else {
+          logger.debug("Cookie consent not given for this destination");
         }
       } catch (e) {
         logger.error(
