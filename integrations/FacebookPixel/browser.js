@@ -68,8 +68,9 @@ class FacebookPixel {
     return !!(window.fbq && window.fbq.callMethod);
   }
 
-  page() {
-    window.fbq("track", "PageView");
+  page(rudderElement) {
+    const { properties, messageId } = rudderElement.message;
+    window.fbq("track", "PageView", properties, { eventID: messageId });
   }
 
   identify(rudderElement) {
@@ -501,27 +502,30 @@ class FacebookPixel {
 
   /**
    * Get the Facebook Content Type
-   * 
+   *
    * Can be `product`, `destination`, `flight` or `hotel`.
-   * 
+   *
    * This can be overridden within the message
    * `options.integrations.FACEBOOK_PIXEL.contentType`, or alternatively you can
    * set the "Map Categories to Facebook Content Types" setting within
    * RudderStack config and then set the corresponding commerce category in
    * `track()` properties.
-   * 
+   *
    * https://www.facebook.com/business/help/606577526529702?id=1205376682832142
    */
   getContentType(rudderElement, defaultValue) {
     // Get the message-specific override if it exists in the options parameter of `track()`
-    const contentTypeMessageOverride = rudderElement.message.integrations?.FACEBOOK_PIXEL?.contentType;
+    const contentTypeMessageOverride =
+      rudderElement.message.integrations?.FACEBOOK_PIXEL?.contentType;
     if (contentTypeMessageOverride) return [contentTypeMessageOverride];
 
     // Otherwise check if there is a replacement set for all Facebook Pixel
     // track calls of this category
     const category = rudderElement.message.properties.category;
     if (category) {
-      const categoryMapping = this.categoryToContent?.find(i => i.from === category);
+      const categoryMapping = this.categoryToContent?.find(
+        (i) => i.from === category
+      );
       if (categoryMapping?.to) return [categoryMapping.to];
     }
 
