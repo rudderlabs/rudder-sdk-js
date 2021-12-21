@@ -47,6 +47,7 @@ class EventRepository {
     this.url = "";
     this.state = "READY";
     this.batchSize = 0;
+    this.useBeacon = false;
 
     // previous implementation
     // setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
@@ -227,12 +228,17 @@ class EventRepository {
 
     // modify the url for event specific endpoints
     const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
-    // add items to the queue
-    this.payloadQueue.addItem({
-      url: `${url}/v1/${type}`,
-      headers,
-      message,
-    });
+    if (this.useBeacon) {
+      const targetUrl = `${url}/beacon/v1/batch`;
+      this.beaconQueue.enqueue(targetUrl, headers, message, this.writeKey);
+    } else {
+      // add items to the queue
+      this.payloadQueue.addItem({
+        url: `${url}/v1/${type}`,
+        headers,
+        message,
+      });
+    }
   }
 }
 let eventRepository = new EventRepository();
