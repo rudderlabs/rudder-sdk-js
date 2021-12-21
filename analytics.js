@@ -929,19 +929,21 @@ class Analytics {
       throw Error("failed to initialize");
     }
 
-    let optionalValues = {};
+    let storageOptions = {};
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
 
     if (options && options.setCookieDomain) {
-      optionalValues = { ...optionalValues, domain: options.setCookieDomain };
+      storageOptions = { ...storageOptions, domain: options.setCookieDomain };
     }
+
     if (options && options.secureCookie) {
-      optionalValues = { ...optionalValues, secure: options.secureCookie };
+      storageOptions = { ...storageOptions, secure: options.secureCookie };
     }
-    if (isNotEmpty(optionalValues)) {
-      this.storage.options(optionalValues);
+    
+    if (isNotEmpty(storageOptions)) {
+      this.storage.options(storageOptions);
     }
 
     if (options && options.integrations) {
