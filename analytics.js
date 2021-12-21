@@ -43,6 +43,7 @@ import logger from "./utils/logUtil";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import { configToIntNames } from "./utils/config_to_integration_names";
+import { isNotEmpty } from "./integrations/utils/commonUtils";
 
 /**
  * class responsible for handling core
@@ -849,12 +850,23 @@ class Analytics {
       throw Error("failed to initialize");
     }
 
+    let storageOptions = {};
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
+
     if (options && options.setCookieDomain) {
-      this.storage.options({ domain: options.setCookieDomain });
+      storageOptions = { ...storageOptions, domain: options.setCookieDomain };
     }
+
+    if (options && options.secureCookie) {
+      storageOptions = { ...storageOptions, secure: options.secureCookie };
+    }
+    
+    if (isNotEmpty(storageOptions)) {
+      this.storage.options(storageOptions);
+    }
+
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       transformToRudderNames(this.loadOnlyIntegrations);
