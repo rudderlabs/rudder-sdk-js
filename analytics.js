@@ -42,6 +42,7 @@ import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
+import { isNotEmpty } from "./integrations/utils/commonUtils";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -97,7 +98,6 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
-    this.secureCookie = true;
   }
 
   /**
@@ -929,17 +929,21 @@ class Analytics {
       throw Error("failed to initialize");
     }
 
+    let optionalValues = {};
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
+
     if (options && options.setCookieDomain) {
-      this.storage.options({ domain: options.setCookieDomain });
+      optionalValues = { ...optionalValues, domain: options.setCookieDomain };
     }
     if (options && options.secureCookie) {
-      this.storage.options({ secure: options.secureCookie });
-    } else {
-      this.storage.options({ secure: this.secureCookie });
+      optionalValues = { ...optionalValues, secure: options.secureCookie };
     }
+    if (isNotEmpty(optionalValues)) {
+      this.storage.options(optionalValues);
+    }
+
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       tranformToRudderNames(this.loadOnlyIntegrations);
