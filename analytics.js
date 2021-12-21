@@ -42,7 +42,7 @@ import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
-import { getIntegrationsAfterCookieConsent } from "./cookieConsent";
+import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -182,15 +182,15 @@ class Analytics {
         this.clientIntegrations
       );
 
+      this.cookieConsent = new CookieConsentFactory(response);
       // remove from the list which don't have support yet in SDK
       this.clientIntegrations = this.clientIntegrations.filter((intg) => {
-        return integrations[intg.name] != undefined;
+        return (
+          integrations[intg.name] != undefined &&
+          this.cookieConsent.isEnabled(intg.config)
+        );
       });
-      const enabledIntegrations = getIntegrationsAfterCookieConsent(
-        this.clientIntegrations,
-        response
-      );
-      this.init(enabledIntegrations);
+      this.init(this.clientIntegrations);
     } catch (error) {
       handleError(error);
       logger.debug("===handling config BE response processing error===");
