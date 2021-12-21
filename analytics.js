@@ -936,9 +936,10 @@ class Analytics {
       this.storage.options({ domain: options.setCookieDomain });
     }
     if (options && options.secureCookie) {
-      this.secureCookie = options.secureCookie;
+      this.storage.options({ secure: options.secureCookie });
+    } else {
+      this.storage.options({ secure: this.secureCookie });
     }
-    this.storage.options({ secure: this.secureCookie });
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       tranformToRudderNames(this.loadOnlyIntegrations);
