@@ -43,6 +43,7 @@ import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
+import { isNotEmpty } from "./integrations/utils/commonUtils";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -939,12 +940,23 @@ class Analytics {
       throw Error("failed to initialize");
     }
 
+    let storageOptions = {};
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
+
     if (options && options.setCookieDomain) {
-      this.storage.options({ domain: options.setCookieDomain });
+      storageOptions = { ...storageOptions, domain: options.setCookieDomain };
     }
+
+    if (options && options.secureCookie) {
+      storageOptions = { ...storageOptions, secure: options.secureCookie };
+    }
+    
+    if (isNotEmpty(storageOptions)) {
+      this.storage.options(storageOptions);
+    }
+
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       tranformToRudderNames(this.loadOnlyIntegrations);
