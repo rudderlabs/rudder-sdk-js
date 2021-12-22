@@ -198,7 +198,7 @@ class Analytics {
       this.clientIntegrations = this.clientIntegrations.filter((intg) => {
         return (
           integrations[intg.name] != undefined &&
-          (!this.cookieConsent ||
+          (!this.cookieConsent || // check if cookieconsent object is present and then do filtering
             (this.cookieConsent && this.cookieConsent.isEnabled(intg.config)))
         );
       });
