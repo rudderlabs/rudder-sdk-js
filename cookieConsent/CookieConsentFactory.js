@@ -4,7 +4,7 @@ const cookieConsent = {
   OneTrust: OneTrust.default,
 };
 class CookieConsentFactory {
-  constructor(sourceConfig, options) {
+  static initialize(sourceConfig, options) {
     /**
      *
      * check which type of cookie consent manager needs to be called if enabled
@@ -31,6 +31,7 @@ class CookieConsentFactory {
 
       // }
     }
+    return null;
   }
 }
 

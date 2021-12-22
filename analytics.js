@@ -187,7 +187,10 @@ class Analytics {
       if (this.options.cookieConsentManager) {
         // Call the cookie consent factory to initialise and return the type of cookie
         // consent being set. For now we only support OneTrust.
-        this.cookieConsent = new CookieConsentFactory(response, this.options);
+        this.cookieConsent = CookieConsentFactory.initialize(
+          response,
+          this.options
+        );
       }
 
       // If cookie consent object is return we filter according to consents given by user
