@@ -98,6 +98,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.options = {};
   }
 
   /**
@@ -181,15 +182,23 @@ class Analytics {
         this.loadOnlyIntegrations,
         this.clientIntegrations
       );
+      if (this.options.cookieConsentManager) {
+        this.cookieConsent = new CookieConsentFactory(response, this.options);
+      }
 
-      this.cookieConsent = new CookieConsentFactory(response);
       // remove from the list which don't have support yet in SDK
-      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
-        return (
-          integrations[intg.name] != undefined &&
-          this.cookieConsent.isEnabled(intg.config)
-        );
-      });
+      if (this.cookieConsent) {
+        this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+          return (
+            integrations[intg.name] != undefined &&
+            this.cookieConsent.isEnabled(intg.config)
+          );
+        });
+      } else {
+        this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+          return integrations[intg.name] != undefined;
+        });
+      }
       this.init(this.clientIntegrations);
     } catch (error) {
       handleError(error);
@@ -919,6 +928,7 @@ class Analytics {
    */
   load(writeKey, serverUrl, options) {
     logger.debug("inside load ");
+    this.options = options;
     if (this.loaded) return;
     let configUrl = CONFIG_URL;
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
