@@ -39,6 +39,8 @@ declare module "rudder-sdk-js" {
     queueOptions?: queueOptions;
     // Defaults to true
     loadIntegration?: boolean;
+    // Defaults to false
+    secureCookie?: boolean;
     logLevel?: string;
     getSourceConfig?: () =>
       | string
