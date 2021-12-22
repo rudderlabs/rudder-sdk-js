@@ -195,19 +195,13 @@ class Analytics {
 
       // If cookie consent object is return we filter according to consents given by user
       // else we do not consider any filtering for cookie consent.
-      if (this.cookieConsent) {
-        this.clientIntegrations = this.clientIntegrations.filter((intg) => {
-          return (
-            // remove from the list which don't have support yet in SDK
-            integrations[intg.name] != undefined &&
-            this.cookieConsent.isEnabled(intg.config)
-          );
-        });
-      } else {
-        this.clientIntegrations = this.clientIntegrations.filter((intg) => {
-          return integrations[intg.name] != undefined;
-        });
-      }
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+        return (
+          integrations[intg.name] != undefined &&
+          (!this.cookieConsent ||
+            (this.cookieConsent && this.cookieConsent.isEnabled(intg.config)))
+        );
+      });
       this.init(this.clientIntegrations);
     } catch (error) {
       handleError(error);
