@@ -183,14 +183,19 @@ class Analytics {
         this.loadOnlyIntegrations,
         this.clientIntegrations
       );
+      // Check if cookie consent manager is being set through load options
       if (this.options.cookieConsentManager) {
+        // Call the cookie consent factory to initialise and return the type of cookie
+        // consent being set. For now we only support OneTrust.
         this.cookieConsent = new CookieConsentFactory(response, this.options);
       }
 
-      // remove from the list which don't have support yet in SDK
+      // If cookie consent object is return we filter according to consents given by user
+      // else we do not consider any filtering for cookie consent.
       if (this.cookieConsent) {
         this.clientIntegrations = this.clientIntegrations.filter((intg) => {
           return (
+            // remove from the list which don't have support yet in SDK
             integrations[intg.name] != undefined &&
             this.cookieConsent.isEnabled(intg.config)
           );
@@ -952,7 +957,7 @@ class Analytics {
     if (options && options.secureCookie) {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
     }
-    
+
     if (isNotEmpty(storageOptions)) {
       this.storage.options(storageOptions);
     }

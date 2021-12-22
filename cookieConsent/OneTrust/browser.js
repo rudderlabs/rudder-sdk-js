@@ -5,27 +5,77 @@ class OneTrust {
   }
 
   isEnabled(destConfig) {
+    // If user does not load onetrust sdk before loading rudderstack sdk
+    // we will not be filtering any of the destinations.
+
     if (!window.OneTrust && !window.OnetrustActiveGroups) {
       return true;
     }
+
+    /**
+     * Structure of onetrust consent group destination config.
+     * 
+     * "oneTrustConsentGroup": [
+                        {
+                            "oneTrustConsentGroup": "Performance Cookies"
+                        },
+                        {
+                            "oneTrustConsentGroup": "Functional Cookies"
+                        },
+                        {
+                            "oneTrustConsentGroup": ""
+                        }
+                    ]
+      *
+     */
+
     const { oneTrustConsentGroup } = destConfig; // mapping of the destination with the consent group name
-    const userSetConsentGroupIds = window.OnetrustActiveGroups.split(","); // Content ids user has rejected
-    const oneTrustAllGroupsInfo = window.OneTrust.GetDomainData().Groups; // info about all the groups created in the onetrust account
+
+    // If the destination do not have this mapping events will be sent.
+
+    if (!oneTrustConsentGroup) {
+      return true;
+    }
+    // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
+    // the cookie categories that the user has consented to.
+    // Eg: ',C0001,C0003,'
+    // We split it and save it as an array.
+
+    const userSetConsentGroupIds = window.OnetrustActiveGroups.split(","); // Ids user has consented
+
+    // Get information about the cookie script - data includes, consent models, cookies in preference centre, etc.
+    // We get the groups(cookie categorization), user has created in one trust account.
+
+    const oneTrustAllGroupsInfo = window.OneTrust.GetDomainData().Groups;
     const userSetConsentGroupNames = [];
+
+    // Get the names of the cookies consented by the user in the browser.
+
     oneTrustAllGroupsInfo.forEach((group) => {
       const { CustomGroupId, GroupName } = group;
       if (userSetConsentGroupIds.includes(CustomGroupId)) {
         userSetConsentGroupNames.push(GroupName.toUpperCase().trim());
       }
     });
+
+    // Change the structure of oneTrustConsentGroup as an array and filter values if empty string
+    // Eg:
+    // ["Performance Cookies", "Functional Cookies"]
+
     const oneTrustConsentGroupArr = oneTrustConsentGroup
       .map((c) => c.oneTrustConsentGroup)
       .filter((n) => n);
     let containsAllConsent = true;
+
+    // Check if any value is there in the destination's cookie groups.
+    // If not events will go anyway to the destination.
+
     if (
       Array.isArray(oneTrustConsentGroupArr) &&
       oneTrustConsentGroupArr.length
     ) {
+      // Check if all the destination's mapped cookie categories are consented by the user in the browser.
+
       containsAllConsent = oneTrustConsentGroupArr.every((element) =>
         userSetConsentGroupNames.includes(element.toUpperCase().trim())
       );
