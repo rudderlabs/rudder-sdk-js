@@ -8,6 +8,7 @@ import { getCurrentTimeFormatted, handleError, replacer } from "./utils";
 
 import { RudderPayload } from "./RudderPayload";
 import logger from "./logUtil";
+import beaconQueue from "./storage/beaconQueue";
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
 
 let XMLHttpRequestNode;
@@ -48,6 +49,7 @@ class EventRepository {
     this.state = "READY";
     this.batchSize = 0;
     this.useBeacon = false;
+    this.beaconQueue = beaconQueue;
 
     // previous implementation
     // setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
@@ -206,7 +208,7 @@ class EventRepository {
    * @param {RudderElement} rudderElement
    * @memberof EventRepository
    */
-  enqueue(rudderElement, type, beaconQueue) {
+  enqueue(rudderElement, type) {
     const message = rudderElement.getElementContent();
 
     const headers = {
@@ -228,7 +230,7 @@ class EventRepository {
 
     // modify the url for event specific endpoints
     const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
-    if (this.useBeacon && beaconQueue != undefined) {
+    if (this.useBeacon) {
       const targetUrl = `${url}/beacon/v1/batch`;
       beaconQueue.enqueue(targetUrl, headers, message, this.writeKey);
     } else {
@@ -239,6 +241,19 @@ class EventRepository {
         message,
       });
     }
+  }
+
+  sendQueueDataForBeacon() {
+    this.beaconQueue.sendDataFromQueueAndDestroyQueue();
+  }
+
+  initializeTransportMechanism() {
+    const sendQueueData = this.sendQueueDataForBeacon.bind(this);
+    const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
+    const targetUrl = `${url}/beacon/v1/batch`;
+    this.beaconQueue.url = targetUrl;
+    this.beaconQueue.writekey = this.writeKey;
+    window.addEventListener("unload", sendQueueData);
   }
 }
 let eventRepository = new EventRepository();

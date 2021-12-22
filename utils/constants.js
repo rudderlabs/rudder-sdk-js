@@ -83,8 +83,6 @@ const BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
 const CONFIG_URL =
   "https://api.rudderlabs.com/sourceConfig/?p=process.module_type&v=process.package_version";
 
-const BEACON_PLUGIN_URL = "https://cdn.rudderlabs.com/plugins/beaconQueue.js";
-
 const FLUSH_QUEUE_SIZE = 30;
 
 const FLUSH_INTERVAL_DEFAULT = 5000;
@@ -104,7 +102,6 @@ export {
   FLUSH_INTERVAL_DEFAULT,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-  BEACON_PLUGIN_URL,
 };
 /* module.exports = {
   MessageType: MessageType,

@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
-import logger from "./logUtil";
-import { Store } from "./storage/store";
+import logger from "../logUtil";
+import { Store } from "./store";
 
 const defaults = {
   queue: "queue",
@@ -42,8 +42,6 @@ class BeaconQueue {
   }
 
   enqueue(url, headers, message, writekey) {
-    this.url = url;
-    this.writekey = writekey;
     let queue = this.getQueue() || [];
     queue = queue.slice(-(this.maxItems - 1));
     queue.push(message);
@@ -111,5 +109,5 @@ class BeaconQueue {
     }
   }
 }
-
-export default BeaconQueue;
+const beaconQueue = new BeaconQueue();
+export default beaconQueue;
