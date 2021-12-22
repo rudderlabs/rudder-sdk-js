@@ -1,5 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import logger from "./logUtil";
+import { Store } from "./storage/store";
 
 const defaults = {
   queue: "queue",
@@ -7,7 +8,7 @@ const defaults = {
 };
 
 class BeaconQueue {
-  constructor(Store) {
+  constructor() {
     this.storage = Store;
     this.maxItems = 10;
     this.flushQueueTimeOut = undefined;
@@ -41,6 +42,8 @@ class BeaconQueue {
   }
 
   enqueue(url, headers, message, writekey) {
+    this.url = url;
+    this.writekey = writekey;
     let queue = this.getQueue() || [];
     queue = queue.slice(-(this.maxItems - 1));
     queue.push(message);

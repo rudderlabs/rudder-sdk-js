@@ -60,7 +60,7 @@ function enqueue(rudderElement, type) {
   if (!this.eventRepository) {
     this.eventRepository = EventRepository;
   }
-  this.eventRepository.enqueue(rudderElement, type);
+  this.eventRepository.enqueue(rudderElement, type, this.beaconPlugin);
 }
 
 /**
@@ -98,7 +98,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
-    this.useBeacon = false;
+    this.beaconPlugin = undefined;
   }
 
   /**
@@ -1014,7 +1014,27 @@ class Analytics {
     }
 
     if (options && options.useBeacon === true) {
-      ScriptLoader("beaconPlugin", BEACON_PLUGIN_URL);
+      const pluginName = "beaconQueue";
+      ScriptLoader(pluginName, BEACON_PLUGIN_URL);
+      const interval = setInterval(
+        function () {
+          if (window.hasOwnProperty(pluginName)) {
+            const intMod = window[pluginName];
+            clearInterval(interval);
+            try {
+              this.beaconPlugin = new intMod();
+              this.eventRepository.useBeacon = options.useBeacon;
+            } catch (e) {
+              logger.error(pluginName, " initialization failed", e);
+            }
+          }
+        }.bind(this),
+        100
+      );
+
+      setTimeout(() => {
+        clearInterval(interval);
+      }, MAX_WAIT_FOR_INTEGRATION_LOAD);
     }
 
     function errorHandler(error) {

@@ -16,6 +16,11 @@ import * as npmPackage from "./dist/rudder-sdk-js/package.json";
 let distFileName = "";
 let { version } = webPackage;
 let moduleType = "web";
+let inputFileName = "analytics.js";
+
+if (process.env.TRANSPORT == "beacon") {
+  inputFileName = "./utils/beaconQueue.js";
+}
 switch (process.env.ENV) {
   case "prod":
     switch (process.env.ENC) {
@@ -43,7 +48,13 @@ switch (process.env.ENV) {
     }
     break;
   default:
-    distFileName = "dist/browser.js";
+    switch (process.env.TRANSPORT) {
+      case "beacon":
+        distFileName = "dist/plugin/beaconQueue.js";
+        break;
+      default:
+        distFileName = "dist/browser.js";
+    }
     break;
 }
 
@@ -57,10 +68,16 @@ if (process.env.NPM == "true") {
   version = npmPackage.version;
   moduleType = "npm";
 } else {
+  let iifeFileName;
+  if (process.env.TRANSPORT == "beacon") {
+    iifeFileName = "beaconQueue";
+  } else {
+    iifeFileName = "rudderanalytics";
+  }
   outputFiles.push({
     file: distFileName,
     format: "iife",
-    name: "rudderanalytics",
+    name: iifeFileName,
     sourcemap:
       process.env.PROD_DEBUG_INLINE == "true"
         ? "inline"
@@ -69,7 +86,7 @@ if (process.env.NPM == "true") {
 }
 
 export default {
-  input: "analytics.js",
+  input: inputFileName,
   external: ["Xmlhttprequest", "universal-analytics"],
   output: outputFiles,
   plugins: [

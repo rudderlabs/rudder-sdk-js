@@ -206,7 +206,7 @@ class EventRepository {
    * @param {RudderElement} rudderElement
    * @memberof EventRepository
    */
-  enqueue(rudderElement, type) {
+  enqueue(rudderElement, type, beaconQueue) {
     const message = rudderElement.getElementContent();
 
     const headers = {
@@ -228,9 +228,9 @@ class EventRepository {
 
     // modify the url for event specific endpoints
     const url = this.url.slice(-1) == "/" ? this.url.slice(0, -1) : this.url;
-    if (this.useBeacon) {
+    if (this.useBeacon && beaconQueue != undefined) {
       const targetUrl = `${url}/beacon/v1/batch`;
-      this.beaconQueue.enqueue(targetUrl, headers, message, this.writeKey);
+      beaconQueue.enqueue(targetUrl, headers, message, this.writeKey);
     } else {
       // add items to the queue
       this.payloadQueue.addItem({
