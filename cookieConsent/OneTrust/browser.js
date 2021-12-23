@@ -31,11 +31,11 @@ class OneTrust {
       *
      */
 
-      const { oneTrustConsentGroup } = destConfig; // mapping of the destination with the consent group name
+      const { oneTrustCookieCategories } = destConfig; // mapping of the destination with the consent group name
 
       // If the destination do not have this mapping events will be sent.
 
-      if (!oneTrustConsentGroup) {
+      if (!oneTrustCookieCategories) {
         return true;
       }
       // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
@@ -64,8 +64,8 @@ class OneTrust {
       // Eg:
       // ["Performance Cookies", "Functional Cookies"]
 
-      const oneTrustConsentGroupArr = oneTrustConsentGroup
-        .map((c) => c.oneTrustConsentGroup)
+      const oneTrustConsentGroupArr = oneTrustCookieCategories
+        .map((c) => c.oneTrustCookieCategory)
         .filter((n) => n);
       let containsAllConsent = true;
 
