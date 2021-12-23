@@ -11,6 +11,9 @@ class OneTrust {
     // we will not be filtering any of the destinations.
     try {
       if (!window.OneTrust || !window.OnetrustActiveGroups) {
+        logger.debug(
+          `Onetrust window objects not retrieved. Thus events are sent.`
+        );
         return true;
       }
 
@@ -36,6 +39,9 @@ class OneTrust {
       // If the destination do not have this mapping events will be sent.
 
       if (!oneTrustCookieCategories) {
+        logger.debug(
+          "No onetrust cookie category set for the destination. Thus events are sent."
+        );
         return true;
       }
       // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
