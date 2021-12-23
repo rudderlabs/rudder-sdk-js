@@ -10,7 +10,7 @@ class OneTrust {
     // If user does not load onetrust sdk before loading rudderstack sdk
     // we will not be filtering any of the destinations.
     try {
-      if (!window.OneTrust && !window.OnetrustActiveGroups) {
+      if (!window.OneTrust || !window.OnetrustActiveGroups) {
         return true;
       }
 
@@ -77,7 +77,6 @@ class OneTrust {
         oneTrustConsentGroupArr.length
       ) {
         // Check if all the destination's mapped cookie categories are consented by the user in the browser.
-
         containsAllConsent = oneTrustConsentGroupArr.every((element) =>
           userSetConsentGroupNames.includes(element.toUpperCase().trim())
         );
