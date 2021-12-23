@@ -17,8 +17,13 @@ const queueOptions = {
   maxItems: 100,
 };
 
-class XHR {
-  startQueue(options) {
+class XHRQueue {
+  constructor() {
+    this.url = "";
+  }
+
+  init(url, options) {
+    this.url = url;
     if (options) {
       // TODO: add checks for value - has to be +ve?
       Object.assign(queueOptions, options);
@@ -31,7 +36,7 @@ class XHR {
       item.message.sentAt = getCurrentTimeFormatted();
       // send this item for processing, with a callback to enable queue to get the done status
       // eslint-disable-next-line no-use-before-define
-      xhr.processQueueElement(
+      xhrQueue.processQueueElement(
         item.url,
         item.headers,
         item.message,
@@ -96,15 +101,15 @@ class XHR {
     }
   }
 
-  enqueue(url, type, headers, message) {
+  enqueue(headers, message, type) {
     // add items to the queue
     this.payloadQueue.addItem({
-      url: `${url}/v1/${type}`,
+      url: `${this.url}/v1/${type}`,
       headers,
       message,
     });
   }
 }
 
-const xhr = new XHR();
-export default xhr;
+const xhrQueue = new XHRQueue();
+export default xhrQueue;

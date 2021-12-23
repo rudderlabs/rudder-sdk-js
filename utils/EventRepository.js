@@ -1,7 +1,7 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable class-methods-use-this */
 import logger from "./logUtil";
-import xhr from "./xhrModule";
+import xhrQueue from "./xhrModule";
 import beaconQueue from "./storage/beaconQueue";
 import { getCurrentTimeFormatted } from "./utils";
 
@@ -21,25 +21,38 @@ class EventRepository {
   constructor() {
     this.writeKey = "";
     this.url = "";
-    this.useBeacon = false;
+    this.queue = undefined;
   }
 
-  initialize(options) {
-    if (options && options.useBeacon) this.useBeacon = options.useBeacon;
+  initialize(writeKey, url, options) {
     let queueOptions = {};
-    if (
-      options &&
-      options.queueOptions &&
-      options.queueOptions != null &&
-      typeof options.queueOptions === "object"
-    ) {
-      queueOptions = options.queueOptions;
-    }
-    if (this.useBeacon) {
-      beaconQueue.init(this.url, this.writeKey, queueOptions);
+    let targetUrl;
+    this.writeKey = writeKey;
+    this.url = url.slice(-1) === "/" ? url.slice(0, -1) : url;
+    if (options && options.useBeacon) {
+      if (
+        options &&
+        options.beaconQueue &&
+        options.beaconQueue != null &&
+        typeof options.beaconQueue === "object"
+      ) {
+        queueOptions = options.beaconQueue;
+      }
+      targetUrl = `${this.url}/beacon/v1/batch`;
+      this.queue = beaconQueue;
     } else {
-      xhr.startQueue(queueOptions);
+      if (
+        options &&
+        options.queueOptions &&
+        options.queueOptions != null &&
+        typeof options.queueOptions === "object"
+      ) {
+        queueOptions = options.queueOptions;
+      }
+      targetUrl = this.url;
+      this.queue = xhrQueue;
     }
+    this.queue.init(targetUrl, queueOptions, this.writeKey);
   }
 
   /**
@@ -68,15 +81,7 @@ class EventRepository {
       );
     }
 
-    // modify the url for event specific endpoints
-    const url = this.url.slice(-1) === "/" ? this.url.slice(0, -1) : this.url;
-    if (this.useBeacon) {
-      const targetUrl = `${url}/beacon/v1/batch`;
-      beaconQueue.enqueue(targetUrl, headers, message, this.writeKey);
-    } else {
-      // add items to the queue
-      xhr.enqueue(url, type, headers, message);
-    }
+    this.queue.enqueue(headers, message, type);
   }
 }
 const eventRepository = new EventRepository();

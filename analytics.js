@@ -986,11 +986,7 @@ class Analytics {
       this.loadIntegration = !!options.loadIntegration;
     }
 
-    this.eventRepository.writeKey = writeKey;
-    if (serverUrl) {
-      this.eventRepository.url = serverUrl;
-    }
-    this.eventRepository.initialize(options);
+    this.eventRepository.initialize(writeKey, serverUrl, options);
     this.initializeUser();
     this.setInitialPageProperties();
     this.loaded = true;

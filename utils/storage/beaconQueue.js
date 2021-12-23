@@ -24,15 +24,13 @@ class BeaconQueue {
     this.sendDataFromQueueAndDestroyQueue();
   }
 
-  init(url, writekey, options) {
+  init(url, options, writekey) {
+    this.url = url;
+    this.writekey = writekey;
     if (options.maxItems) this.maxItems = options.maxItems;
     if (options.flushQueueInterval)
       this.flushQueueTimeOutInterval = options.flushQueueInterval;
     const sendQueueData = this.sendQueueDataForBeacon.bind(this);
-    const updatedUrl = url.slice(-1) == "/" ? url.slice(0, -1) : url;
-    const targetUrl = `${updatedUrl}/beacon/v1/batch`;
-    this.url = targetUrl;
-    this.writekey = writekey;
     window.addEventListener("unload", sendQueueData);
   }
 
@@ -58,7 +56,7 @@ class BeaconQueue {
     return value;
   }
 
-  enqueue(url, headers, message, writekey) {
+  enqueue(headers, message) {
     let queue = this.getQueue() || [];
     queue = queue.slice(-(this.maxItems - 1));
     queue.push(message);
@@ -67,7 +65,7 @@ class BeaconQueue {
     const dataToSend = JSON.stringify(data, this.replacer);
     if (dataToSend.length > defaults.maxPayloadSize) {
       batch = queue.slice(0, queue.length - 1);
-      this.flushQueue(headers, batch, url, writekey);
+      this.flushQueue(headers, batch);
       queue = this.getQueue();
       queue.push(message);
     }
@@ -75,7 +73,7 @@ class BeaconQueue {
     this.setTimer();
 
     if (queue.length === this.maxItems) {
-      this.flushQueue(headers, batch, url, writekey);
+      this.flushQueue(headers, batch);
     }
   }
 
@@ -89,11 +87,11 @@ class BeaconQueue {
     if (queue && queue.length > 0) {
       const batch = queue.slice(0, queue.length);
       const headers = {};
-      this.flushQueue(headers, batch, this.url, this.writekey);
+      this.flushQueue(headers, batch);
     }
   }
 
-  flushQueue(headers, batch, url, writekey) {
+  flushQueue(headers, batch) {
     headers.type = "application/json";
     batch.map((event) => {
       event.sentAt = new Date().toISOString();
@@ -101,7 +99,10 @@ class BeaconQueue {
     const data = { batch };
     const payload = JSON.stringify(data, this.replacer);
     const blob = new Blob([payload], headers);
-    const isPushed = navigator.sendBeacon(`${url}?writeKey=${writekey}`, blob);
+    const isPushed = navigator.sendBeacon(
+      `${this.url}?writeKey=${this.writekey}`,
+      blob
+    );
     if (!isPushed) {
       logger.debug("Unable to send data");
     }
