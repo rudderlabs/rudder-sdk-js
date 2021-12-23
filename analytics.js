@@ -60,7 +60,7 @@ function enqueue(rudderElement, type) {
   if (!this.eventRepository) {
     this.eventRepository = EventRepository;
   }
-  this.eventRepository.enqueue(rudderElement, type, this.beaconPlugin);
+  this.eventRepository.enqueue(rudderElement, type);
 }
 
 /**
@@ -982,17 +982,6 @@ class Analytics {
       this.registerCallbacks(true);
     }
 
-    if (
-      options &&
-      options.queueOptions &&
-      options.queueOptions != null &&
-      typeof options.queueOptions == "object"
-    ) {
-      this.eventRepository.startQueue(options.queueOptions);
-    } else {
-      this.eventRepository.startQueue({});
-    }
-
     if (options && options.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
     }
@@ -1001,6 +990,7 @@ class Analytics {
     if (serverUrl) {
       this.eventRepository.url = serverUrl;
     }
+    this.eventRepository.initialize(options);
     this.initializeUser();
     this.setInitialPageProperties();
     this.loaded = true;
@@ -1021,11 +1011,6 @@ class Analytics {
           this.autoTrackHandlersRegistered
         );
       }
-    }
-
-    if (options && options.useBeacon === true) {
-      this.eventRepository.useBeacon = options.useBeacon;
-      this.eventRepository.initializeTransportMechanism();
     }
 
     function errorHandler(error) {

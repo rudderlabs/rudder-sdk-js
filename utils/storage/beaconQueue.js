@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 import logger from "../logUtil";
 import { Store } from "./store";
@@ -17,6 +18,22 @@ class BeaconQueue {
     this.url = "";
     this.writekey = "";
     this.queueName = `${defaults.queue}.${Date.now()}`;
+  }
+
+  sendQueueDataForBeacon() {
+    this.sendDataFromQueueAndDestroyQueue();
+  }
+
+  init(url, writekey, options) {
+    if (options.maxItems) this.maxItems = options.maxItems;
+    if (options.flushQueueInterval)
+      this.flushQueueTimeOutInterval = options.flushQueueInterval;
+    const sendQueueData = this.sendQueueDataForBeacon.bind(this);
+    const updatedUrl = url.slice(-1) == "/" ? url.slice(0, -1) : url;
+    const targetUrl = `${updatedUrl}/beacon/v1/batch`;
+    this.url = targetUrl;
+    this.writekey = writekey;
+    window.addEventListener("unload", sendQueueData);
   }
 
   getQueue() {
