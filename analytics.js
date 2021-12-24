@@ -36,6 +36,7 @@ import {
   CDN_INT_DIR,
   INTG_SUFFIX,
 } from "./utils/constants";
+import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
@@ -43,6 +44,7 @@ import logger from "./utils/logUtil";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import { configToIntNames } from "./utils/config_to_integration_names";
+import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
 import { isNotEmpty } from "./integrations/utils/commonUtils";
 
 /**
@@ -75,6 +77,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.options = {};
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
   }
@@ -175,6 +178,23 @@ class Analytics {
         this.loadOnlyIntegrations,
         this.clientIntegrations
       );
+      // Check if cookie consent manager is being set through load options
+      if (this.options.cookieConsentManager) {
+        // Call the cookie consent factory to initialise and return the type of cookie
+        // consent being set. For now we only support OneTrust.
+        this.cookieConsent = CookieConsentFactory.initialize(
+          response,
+          this.options
+        );
+      }
+      // If cookie consent object is return we filter according to consents given by user
+       // else we do not consider any filtering for cookie consent.
+       this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+        return (
+          (!this.cookieConsent || // check if cookieconsent object is present and then do filtering
+            (this.cookieConsent && this.cookieConsent.isEnabled(intg.config)))
+        );
+      });
 
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically
@@ -842,6 +862,7 @@ class Analytics {
   load(writeKey, serverUrl, options) {
     // logger.debug("inside load ")
     if (this.loaded) return;
+    this.options = options;
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
       handleError({
         message:
