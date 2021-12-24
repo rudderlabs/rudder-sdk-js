@@ -4,6 +4,14 @@ import logger from "../../utils/logUtil";
 class OneTrust {
   constructor(sourceConfig) {
     this.sourceConfig = sourceConfig;
+    // If user does not load onetrust sdk before loading rudderstack sdk
+    // we will not be filtering any of the destinations.
+    if (!window.OneTrust || !window.OnetrustActiveGroups) {
+      logger.debug(
+        `Onetrust window objects not retrieved. Thus events are sent.`
+      );
+      return true;
+    }
     // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
     // the cookie categories that the user has consented to.
     // Eg: ',C0001,C0003,'
@@ -22,24 +30,13 @@ class OneTrust {
     oneTrustAllGroupsInfo.forEach((group) => {
       const { CustomGroupId, GroupName } = group;
       if (userSetConsentGroupIds.includes(CustomGroupId)) {
-        this.userSetConsentGroupNames.push(
-          GroupName.toUpperCase().trim()
-        );
+        this.userSetConsentGroupNames.push(GroupName.toUpperCase().trim());
       }
     });
   }
 
   isEnabled(destConfig) {
-    // If user does not load onetrust sdk before loading rudderstack sdk
-    // we will not be filtering any of the destinations.
     try {
-      if (!window.OneTrust || !window.OnetrustActiveGroups) {
-        logger.debug(
-          `Onetrust window objects not retrieved. Thus events are sent.`
-        );
-        return true;
-      }
-
       /**
      * Structure of onetrust consent group destination config.
      * 
@@ -86,9 +83,7 @@ class OneTrust {
       ) {
         // Check if all the destination's mapped cookie categories are consented by the user in the browser.
         containsAllConsent = oneTrustConsentGroupArr.every((element) =>
-          this.userSetConsentGroupNames.includes(
-            element.toUpperCase().trim()
-          )
+          this.userSetConsentGroupNames.includes(element.toUpperCase().trim())
         );
       }
       return containsAllConsent;
