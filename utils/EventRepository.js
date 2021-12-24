@@ -20,25 +20,23 @@ class EventRepository {
    */
   constructor() {
     this.writeKey = "";
-    this.url = "";
     this.queue = undefined;
   }
 
   initialize(writeKey, url, options) {
     let queueOptions = {};
-    let targetUrl;
+    let targetUrl = url.slice(-1) === "/" ? url.slice(0, -1) : url;
     this.writeKey = writeKey;
-    this.url = url.slice(-1) === "/" ? url.slice(0, -1) : url;
     if (options && options.useBeacon) {
       if (
         options &&
-        options.beaconQueue &&
-        options.beaconQueue != null &&
-        typeof options.beaconQueue === "object"
+        options.beaconQueueOptions &&
+        options.beaconQueueOptions != null &&
+        typeof options.beaconQueueOptions === "object"
       ) {
-        queueOptions = options.beaconQueue;
+        queueOptions = options.beaconQueueOptions;
       }
-      targetUrl = `${this.url}/beacon/v1/batch`;
+      targetUrl = `${targetUrl}/beacon/v1/batch`;
       this.queue = new BeaconQueue();
     } else {
       if (
@@ -49,7 +47,6 @@ class EventRepository {
       ) {
         queueOptions = options.queueOptions;
       }
-      targetUrl = this.url;
       this.queue = new XHRQueue();
     }
     this.queue.init(targetUrl, queueOptions, this.writeKey);
