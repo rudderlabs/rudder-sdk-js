@@ -32,6 +32,7 @@
     "buildProdIntegrationCLI": "NODE_ENV=false ENV=prod uglify=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js"
   },
   "pre-commit": [
+    "size",
     "prodTest",
     "test"
   ],
