@@ -4,6 +4,27 @@ import logger from "../../utils/logUtil";
 class OneTrust {
   constructor(sourceConfig) {
     this.sourceConfig = sourceConfig;
+    // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
+    // the cookie categories that the user has consented to.
+    // Eg: ',C0001,C0003,'
+    // We split it and save it as an array.
+
+    const userSetConsentGroupIds = window.OnetrustActiveGroups.split(","); // Ids user has consented
+
+    // Get information about the cookie script - data includes, consent models, cookies in preference centre, etc.
+    // We get the groups(cookie categorization), user has created in one trust account.
+
+    const oneTrustAllGroupsInfo = window.OneTrust.GetDomainData().Groups;
+    this.userSetConsentGroupNames = [];
+
+    // Get the names of the cookies consented by the user in the browser.
+
+    oneTrustAllGroupsInfo.forEach((group) => {
+      const { CustomGroupId, GroupName } = group;
+      if (userSetConsentGroupIds.includes(CustomGroupId)) {
+        this.userSetConsentGroupNames.push(GroupName.toUpperCase().trim());
+      }
+    });
   }
 
   isEnabled(destConfig) {
@@ -44,27 +65,6 @@ class OneTrust {
         );
         return true;
       }
-      // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
-      // the cookie categories that the user has consented to.
-      // Eg: ',C0001,C0003,'
-      // We split it and save it as an array.
-
-      const userSetConsentGroupIds = window.OnetrustActiveGroups.split(","); // Ids user has consented
-
-      // Get information about the cookie script - data includes, consent models, cookies in preference centre, etc.
-      // We get the groups(cookie categorization), user has created in one trust account.
-
-      const oneTrustAllGroupsInfo = window.OneTrust.GetDomainData().Groups;
-      const userSetConsentGroupNames = [];
-
-      // Get the names of the cookies consented by the user in the browser.
-
-      oneTrustAllGroupsInfo.forEach((group) => {
-        const { CustomGroupId, GroupName } = group;
-        if (userSetConsentGroupIds.includes(CustomGroupId)) {
-          userSetConsentGroupNames.push(GroupName.toUpperCase().trim());
-        }
-      });
 
       // Change the structure of oneTrustConsentGroup as an array and filter values if empty string
       // Eg:
@@ -84,12 +84,12 @@ class OneTrust {
       ) {
         // Check if all the destination's mapped cookie categories are consented by the user in the browser.
         containsAllConsent = oneTrustConsentGroupArr.every((element) =>
-          userSetConsentGroupNames.includes(element.toUpperCase().trim())
+          this.userSetConsentGroupNames.includes(element.toUpperCase().trim())
         );
       }
       return containsAllConsent;
     } catch (e) {
-      logger.debug(`Error during onetrust cookie consent management ${e}`);
+      logger.error(`Error during onetrust cookie consent management ${e}`);
     }
   }
 }
