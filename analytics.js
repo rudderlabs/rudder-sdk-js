@@ -36,7 +36,6 @@ import {
   CDN_INT_DIR,
   INTG_SUFFIX,
 } from "./utils/constants";
-import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
