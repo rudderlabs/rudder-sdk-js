@@ -112,5 +112,4 @@ class XHRQueue {
   }
 }
 
-// const xhrQueue = new XHRQueue();
 export default XHRQueue;
