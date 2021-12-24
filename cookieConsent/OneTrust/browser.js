@@ -22,7 +22,9 @@ class OneTrust {
     oneTrustAllGroupsInfo.forEach((group) => {
       const { CustomGroupId, GroupName } = group;
       if (userSetConsentGroupIds.includes(CustomGroupId)) {
-        this.userSetConsentGroupNames.push(GroupName.toUpperCase().trim());
+        this.userSetConsentGroupNames.push(
+          GroupName.toUpperCase().replace(/\s+/g, "")
+        );
       }
     });
   }
@@ -84,7 +86,9 @@ class OneTrust {
       ) {
         // Check if all the destination's mapped cookie categories are consented by the user in the browser.
         containsAllConsent = oneTrustConsentGroupArr.every((element) =>
-          this.userSetConsentGroupNames.includes(element.toUpperCase().trim())
+          this.userSetConsentGroupNames.includes(
+            element.toUpperCase().replace(/\s+/g, "")
+          )
         );
       }
       return containsAllConsent;
