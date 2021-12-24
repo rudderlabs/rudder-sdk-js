@@ -19,14 +19,12 @@ class EventRepository {
    * @memberof EventRepository
    */
   constructor() {
-    this.writeKey = "";
     this.queue = undefined;
   }
 
   initialize(writeKey, url, options) {
     let queueOptions = {};
     let targetUrl = url.slice(-1) === "/" ? url.slice(0, -1) : url;
-    this.writeKey = writeKey;
     if (options && options.useBeacon) {
       if (
         options &&
@@ -49,7 +47,7 @@ class EventRepository {
       }
       this.queue = new XHRQueue();
     }
-    this.queue.init(targetUrl, queueOptions, this.writeKey);
+    this.queue.init(writeKey, targetUrl, queueOptions);
   }
 
   /**
@@ -60,13 +58,6 @@ class EventRepository {
    */
   enqueue(rudderElement, type) {
     const message = rudderElement.getElementContent();
-
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Basic ${btoa(`${this.writeKey}:`)}`,
-      AnonymousId: btoa(message.anonymousId),
-    };
-
     message.originalTimestamp = getCurrentTimeFormatted();
     message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
 
@@ -78,7 +69,7 @@ class EventRepository {
       );
     }
 
-    this.queue.enqueue(headers, message, type);
+    this.queue.enqueue(message, type);
   }
 }
 const eventRepository = new EventRepository();

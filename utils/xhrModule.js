@@ -20,10 +20,12 @@ const queueOptions = {
 class XHRQueue {
   constructor() {
     this.url = "";
+    this.writeKey = "";
   }
 
-  init(url, options) {
+  init(writeKey, url, options) {
     this.url = url;
+    this.writeKey = writeKey;
     if (options) {
       // TODO: add checks for value - has to be +ve?
       Object.assign(queueOptions, options);
@@ -102,7 +104,12 @@ class XHRQueue {
     }
   }
 
-  enqueue(headers, message, type) {
+  enqueue(message, type) {
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Basic ${btoa(`${this.writeKey}:`)}`,
+      AnonymousId: btoa(message.anonymousId),
+    };
     // add items to the queue
     this.payloadQueue.addItem({
       url: `${this.url}/v1/${type}`,

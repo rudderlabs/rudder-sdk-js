@@ -24,7 +24,7 @@ class BeaconQueue {
     this.sendDataFromQueueAndDestroyQueue();
   }
 
-  init(url, options, writekey) {
+  init(writekey, url, options) {
     this.url = url;
     this.writekey = writekey;
     if (options.maxItems) this.maxItems = options.maxItems;
@@ -56,7 +56,7 @@ class BeaconQueue {
     return value;
   }
 
-  enqueue(headers, message) {
+  enqueue(message) {
     let queue = this.getQueue() || [];
     queue = queue.slice(-(this.maxItems - 1));
     queue.push(message);
@@ -65,7 +65,7 @@ class BeaconQueue {
     const dataToSend = JSON.stringify(data, this.replacer);
     if (dataToSend.length > defaults.maxPayloadSize) {
       batch = queue.slice(0, queue.length - 1);
-      this.flushQueue(headers, batch);
+      this.flushQueue(batch);
       queue = this.getQueue();
       queue.push(message);
     }
@@ -73,7 +73,7 @@ class BeaconQueue {
     this.setTimer();
 
     if (queue.length === this.maxItems) {
-      this.flushQueue(headers, batch);
+      this.flushQueue(batch);
     }
   }
 
@@ -86,19 +86,17 @@ class BeaconQueue {
     const queue = this.getQueue();
     if (queue && queue.length > 0) {
       const batch = queue.slice(0, queue.length);
-      const headers = {};
-      this.flushQueue(headers, batch);
+      this.flushQueue(batch);
     }
   }
 
-  flushQueue(headers, batch) {
-    headers.type = "application/json";
+  flushQueue(batch) {
     batch.map((event) => {
       event.sentAt = new Date().toISOString();
     });
     const data = { batch };
     const payload = JSON.stringify(data, this.replacer);
-    const blob = new Blob([payload], headers);
+    const blob = new Blob([payload], { type: "application/json" });
     const isPushed = navigator.sendBeacon(
       `${this.url}?writeKey=${this.writekey}`,
       blob
