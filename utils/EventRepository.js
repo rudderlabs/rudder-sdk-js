@@ -2,7 +2,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from "./logUtil";
 import xhrQueue from "./xhrModule";
-import beaconQueue from "./storage/beaconQueue";
+import BeaconQueue from "./storage/beaconQueue";
 import { getCurrentTimeFormatted } from "./utils";
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
@@ -39,7 +39,7 @@ class EventRepository {
         queueOptions = options.beaconQueue;
       }
       targetUrl = `${this.url}/beacon/v1/batch`;
-      this.queue = beaconQueue;
+      this.queue = new BeaconQueue();
     } else {
       if (
         options &&

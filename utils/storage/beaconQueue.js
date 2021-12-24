@@ -127,5 +127,4 @@ class BeaconQueue {
     }
   }
 }
-const beaconQueue = new BeaconQueue();
-export default beaconQueue;
+export default BeaconQueue;
