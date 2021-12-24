@@ -1,7 +1,7 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable class-methods-use-this */
 import logger from "./logUtil";
-import xhrQueue from "./xhrModule";
+import XHRQueue from "./xhrModule";
 import BeaconQueue from "./storage/beaconQueue";
 import { getCurrentTimeFormatted } from "./utils";
 
@@ -50,7 +50,7 @@ class EventRepository {
         queueOptions = options.queueOptions;
       }
       targetUrl = this.url;
-      this.queue = xhrQueue;
+      this.queue = new XHRQueue();
     }
     this.queue.init(targetUrl, queueOptions, this.writeKey);
   }
