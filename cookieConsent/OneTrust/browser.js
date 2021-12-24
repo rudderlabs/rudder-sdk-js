@@ -88,6 +88,7 @@ class OneTrust {
       }
       return containsAllConsent;
     } catch (e) {
+      return true;
       logger.error(`Error during onetrust cookie consent management ${e}`);
     }
   }
