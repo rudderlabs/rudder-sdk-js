@@ -27,10 +27,9 @@ import {
   getReferrer,
   getReferringDomain,
   removeTrailingSlashes,
-  getConfigUrlWithWritekey,
+  getConfigUrl,
 } from "./utils/utils";
 import {
-  CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
   DEST_SDK_BASE_URL,
@@ -964,9 +963,9 @@ class Analytics {
       return;
     }
 
-    let configUrl = getConfigUrlWithWritekey(writeKey);
+    let configUrl = getConfigUrl(writeKey);
     if (options && options.configUrl) {
-      configUrl = getUserProvidedConfigUrl(options.configUrl);
+      configUrl = getUserProvidedConfigUrl(options.configUrl, configUrl);
     }
 
     try {

@@ -406,13 +406,13 @@ function type(val) {
   return typeof val;
 }
 
-function getUserProvidedConfigUrl(configUrl) {
+function getUserProvidedConfigUrl(configUrl, defConfigUrl) {
   let url = configUrl;
   if (url.indexOf("sourceConfig") === -1) {
     url = `${removeTrailingSlashes(url)}/sourceConfig/`;
   }
   url = url.slice(-1) === "/" ? url : `${url}/`;
-  const defQueryParams = CONFIG_URL.split("?")[1];
+  const defQueryParams = defConfigUrl.split("?")[1];
   const urlSplitItems = url.split("?");
   if (urlSplitItems.length > 1 && urlSplitItems[1] !== defQueryParams) {
     url = `${urlSplitItems[0]}?${defQueryParams}`;
@@ -630,7 +630,7 @@ const getDataFromSource = (src, dest, properties) => {
   return data;
 };
 
-const getConfigUrlWithWritekey = (writeKey) => {
+const getConfigUrl = (writeKey) => {
   return CONFIG_URL.concat(CONFIG_URL.includes("?") ? "&" : "?").concat(
     writeKey ? `writeKey=${writeKey}` : ""
   );
@@ -662,5 +662,5 @@ export {
   isDefinedAndNotNull,
   getDataFromSource,
   removeTrailingSlashes,
-  getConfigUrlWithWritekey,
+  getConfigUrl,
 };
