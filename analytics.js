@@ -99,7 +99,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
-    this.options = {};
+    this.cookieConsentOptions = {};
   }
 
   /**
@@ -184,12 +184,12 @@ class Analytics {
         this.clientIntegrations
       );
       // Check if cookie consent manager is being set through load options
-      if (this.options.cookieConsentManager) {
+      if (this.cookieConsentOptions) {
         // Call the cookie consent factory to initialise and return the type of cookie
         // consent being set. For now we only support OneTrust.
         this.cookieConsent = CookieConsentFactory.initialize(
           response,
-          this.options
+          this.cookieConsentOptions
         );
       }
 
@@ -931,7 +931,8 @@ class Analytics {
    */
   load(writeKey, serverUrl, options) {
     logger.debug("inside load ");
-    this.options = options;
+    if (options && options.cookieConsentManager)
+      this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
     if (this.loaded) return;
     let configUrl = CONFIG_URL;
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
