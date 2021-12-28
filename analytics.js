@@ -75,7 +75,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
-    this.options = {};
+    this.cookieConsentOptions = {};
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
   }
@@ -177,12 +177,12 @@ class Analytics {
         this.clientIntegrations
       );
       // Check if cookie consent manager is being set through load options
-      if (this.options.cookieConsentManager) {
+      if (this.cookieConsentOptions) {
         // Call the cookie consent factory to initialise and return the type of cookie
         // consent being set. For now we only support OneTrust.
         this.cookieConsent = CookieConsentFactory.initialize(
           response,
-          this.options
+          this.cookieConsentOptions
         );
       }
       // If cookie consent object is return we filter according to consents given by user
@@ -860,7 +860,8 @@ class Analytics {
   load(writeKey, serverUrl, options) {
     // logger.debug("inside load ")
     if (this.loaded) return;
-    this.options = options;
+    if (options && options.cookieConsentManager)
+      this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
       handleError({
         message:
