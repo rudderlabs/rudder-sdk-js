@@ -27,9 +27,9 @@ import {
   getReferrer,
   getReferringDomain,
   removeTrailingSlashes,
+  getConfigUrl,
 } from "./utils/utils";
 import {
-  CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
   DEST_SDK_BASE_URL,
@@ -44,7 +44,6 @@ import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import { configToIntNames } from "./utils/config_to_integration_names";
 import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
-import { isNotEmpty } from "./integrations/utils/commonUtils";
 
 /**
  * class responsible for handling core
@@ -187,11 +186,11 @@ class Analytics {
         );
       }
       // If cookie consent object is return we filter according to consents given by user
-       // else we do not consider any filtering for cookie consent.
-       this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+      // else we do not consider any filtering for cookie consent.
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
         return (
-          (!this.cookieConsent || // check if cookieconsent object is present and then do filtering
-            (this.cookieConsent && this.cookieConsent.isEnabled(intg.config)))
+          !this.cookieConsent || // check if cookieconsent object is present and then do filtering
+          (this.cookieConsent && this.cookieConsent.isEnabled(intg.config))
         );
       });
 
@@ -882,10 +881,7 @@ class Analytics {
     if (options && options.secureCookie) {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
     }
-    
-    if (isNotEmpty(storageOptions)) {
-      this.storage.options(storageOptions);
-    }
+    this.storage.options(storageOptions);
 
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
@@ -995,9 +991,9 @@ class Analytics {
       return;
     }
 
-    let configUrl = CONFIG_URL;
+    let configUrl = getConfigUrl(writeKey);
     if (options && options.configUrl) {
-      configUrl = getUserProvidedConfigUrl(options.configUrl);
+      configUrl = getUserProvidedConfigUrl(options.configUrl, configUrl);
     }
 
     try {
