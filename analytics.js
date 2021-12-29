@@ -978,25 +978,11 @@ class Analytics {
       this.registerCallbacks(true);
     }
 
-    if (
-      options &&
-      options.queueOptions &&
-      options.queueOptions != null &&
-      typeof options.queueOptions == "object"
-    ) {
-      this.eventRepository.startQueue(options.queueOptions);
-    } else {
-      this.eventRepository.startQueue({});
-    }
-
     if (options && options.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
     }
 
-    this.eventRepository.writeKey = writeKey;
-    if (serverUrl) {
-      this.eventRepository.url = serverUrl;
-    }
+    this.eventRepository.initialize(writeKey, serverUrl, options);
     this.initializeUser();
     this.setInitialPageProperties();
     this.loaded = true;
