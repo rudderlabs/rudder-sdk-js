@@ -59,9 +59,6 @@ class OneTrust {
       // If the destination do not have this mapping events will be sent.
 
       if (!oneTrustCookieCategories) {
-        logger.debug(
-          "No onetrust cookie category set for the destination. Thus events are sent."
-        );
         return true;
       }
 
