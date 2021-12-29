@@ -62,9 +62,6 @@ class OneTrust {
       // If the destination do not have this mapping events will be sent.
 
       if (!oneTrustCookieCategories) {
-        logger.debug(
-          "No onetrust cookie category set for the destination. Thus events are sent."
-        );
         return true;
       }
 
@@ -80,10 +77,7 @@ class OneTrust {
       // Check if any value is there in the destination's cookie groups.
       // If not events will go anyway to the destination.
 
-      if (
-        Array.isArray(oneTrustConsentGroupArr) &&
-        oneTrustConsentGroupArr.length
-      ) {
+      if (oneTrustConsentGroupArr.length) {
         // Check if all the destination's mapped cookie categories are consented by the user in the browser.
         containsAllConsent = oneTrustConsentGroupArr.every((element) =>
           this.userSetConsentGroupNames.includes(
