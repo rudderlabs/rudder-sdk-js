@@ -24,7 +24,7 @@ class EventRepository {
 
   initialize(writeKey, url, options) {
     let queueOptions = {};
-    let targetUrl = url.slice(-1) === "/" ? url.slice(0, -1) : url;
+    let targetUrl = removeTrailingSlashes(url);
     if (options && options.useBeacon) {
       if (
         options &&
