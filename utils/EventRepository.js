@@ -1,21 +1,9 @@
-import Queue from "@segment/localstorage-retry";
-import {
-  getCurrentTimeFormatted,
-  handleError,
-  replacer,
-  removeTrailingSlashes,
-} from "./utils";
-
+/* eslint-disable no-lonely-if */
+/* eslint-disable class-methods-use-this */
 import logger from "./logUtil";
-// import * as XMLHttpRequestNode from "Xmlhttprequest";
-
-const queueOptions = {
-  maxRetryDelay: 360000,
-  minRetryDelay: 1000,
-  backoffFactor: 2,
-  maxAttempts: 10,
-  maxItems: 100,
-};
+import XHRQueue from "./xhrModule";
+import BeaconQueue from "./storage/beaconQueue";
+import { getCurrentTimeFormatted, removeTrailingSlashes } from "./utils";
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 
@@ -31,90 +19,35 @@ class EventRepository {
    * @memberof EventRepository
    */
   constructor() {
-    this.eventsBuffer = [];
-    this.writeKey = "";
-    this.url = "";
-    this.state = "READY";
-    this.batchSize = 0;
-
-    // previous implementation
-    // setInterval(this.preaparePayloadAndFlush, FLUSH_INTERVAL_DEFAULT, this);
+    this.queue = undefined;
   }
 
-  startQueue(options) {
-    if (options) {
-      // TODO: add checks for value - has to be +ve?
-      Object.assign(queueOptions, options);
-    }
-    this.payloadQueue = new Queue("rudder", queueOptions, function (
-      item,
-      done
-    ) {
-      // apply sentAt at flush time and reset on each retry
-      item.message.sentAt = getCurrentTimeFormatted();
-      // send this item for processing, with a callback to enable queue to get the done status
-      eventRepository.processQueueElement(
-        item.url,
-        item.headers,
-        item.message,
-        10 * 1000,
-        function (err, res) {
-          if (err) {
-            return done(err);
-          }
-          done(null, res);
-        }
-      );
-    });
-
-    // start queue
-    this.payloadQueue.start();
-  }
-
-  /**
-   * the queue item processor
-   * @param {*} url to send requests to
-   * @param {*} headers
-   * @param {*} message
-   * @param {*} timeout
-   * @param {*} queueFn the function to call after request completion
-   */
-  processQueueElement(url, headers, message, timeout, queueFn) {
-    try {
-      const xhr = new XMLHttpRequest();
-      xhr.open("POST", url, true);
-      for (const k in headers) {
-        xhr.setRequestHeader(k, headers[k]);
+  initialize(writeKey, url, options) {
+    let queueOptions = {};
+    let targetUrl = removeTrailingSlashes(url);
+    if (options && options.useBeacon) {
+      if (
+        options &&
+        options.beaconQueueOptions &&
+        options.beaconQueueOptions != null &&
+        typeof options.beaconQueueOptions === "object"
+      ) {
+        queueOptions = options.beaconQueueOptions;
       }
-      xhr.timeout = timeout;
-      xhr.ontimeout = queueFn;
-      xhr.onerror = queueFn;
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-          if (xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600)) {
-            handleError(
-              new Error(
-                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`
-              )
-            );
-            queueFn(
-              new Error(
-                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`
-              )
-            );
-          } else {
-            // logger.debug(
-            //   `====== request processed successfully: ${xhr.status}`
-            // );
-            queueFn(null, xhr.status);
-          }
-        }
-      };
-
-      xhr.send(JSON.stringify(message, replacer));
-    } catch (error) {
-      queueFn(error);
+      targetUrl = `${targetUrl}/beacon/v1/batch`;
+      this.queue = new BeaconQueue();
+    } else {
+      if (
+        options &&
+        options.queueOptions &&
+        options.queueOptions != null &&
+        typeof options.queueOptions === "object"
+      ) {
+        queueOptions = options.queueOptions;
+      }
+      this.queue = new XHRQueue();
     }
+    this.queue.init(writeKey, targetUrl, queueOptions);
   }
 
   /**
@@ -136,25 +69,9 @@ class EventRepository {
       );
     }
 
-    const headers = {
-      "Content-Type": "application/json",
-      Authorization: `Basic ${btoa(`${this.writeKey}:`)}`,
-      // Authorization: `Basic ${Buffer.from(`${this.writeKey}:`).toString(
-      //   "base64"
-      // )}`,
-      AnonymousId: btoa(message.anonymousId),
-      // AnonymousId: Buffer.from(message.anonymousId).toString("base64"),
-    };
-
-    // modify the url for event specific endpoints
-    const url = removeTrailingSlashes(this.url);
-    // add items to the queue
-    this.payloadQueue.addItem({
-      url: `${url}/v1/${type}`,
-      headers,
-      message,
-    });
+    this.queue.enqueue(message, type);
   }
 }
 const eventRepository = new EventRepository();
+// eslint-disable-next-line import/prefer-default-export
 export { eventRepository as EventRepository };
