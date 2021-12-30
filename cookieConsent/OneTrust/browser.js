@@ -74,12 +74,11 @@ class OneTrust {
       // Check if any value is there in the destination's cookie groups.
       // If not events will go anyway to the destination.
 
-      if (oneTrustConsentGroupArr.length) {
-        // Check if all the destination's mapped cookie categories are consented by the user in the browser.
-        containsAllConsent = oneTrustConsentGroupArr.every((element) =>
-          this.userSetConsentGroupNames.includes(element.toUpperCase().trim())
-        );
-      }
+      // Check if all the destination's mapped cookie categories are consented by the user in the browser.
+      containsAllConsent = oneTrustConsentGroupArr.every((element) =>
+        this.userSetConsentGroupNames.includes(element.toUpperCase().trim())
+      );
+
       return containsAllConsent;
     } catch (e) {
       logger.error(`Error during onetrust cookie consent management ${e}`);
