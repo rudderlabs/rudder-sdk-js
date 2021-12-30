@@ -43,6 +43,7 @@ import logger from "./utils/logUtil";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import { configToIntNames } from "./utils/config_to_integration_names";
+import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
 
 /**
  * class responsible for handling core
@@ -76,6 +77,7 @@ class Analytics {
     this.loadIntegration = true;
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
+    this.cookieConsentOptions = {};
   }
 
   /**
@@ -174,6 +176,24 @@ class Analytics {
         this.loadOnlyIntegrations,
         this.clientIntegrations
       );
+      let cookieConsent = undefined;
+      // Check if cookie consent manager is being set through load options
+      if (this.cookieConsentOptions) {
+        // Call the cookie consent factory to initialise and return the type of cookie
+        // consent being set. For now we only support OneTrust.
+        cookieConsent = CookieConsentFactory.initialize(
+          this.cookieConsentOptions
+        );
+      }
+
+      // If cookie consent object is return we filter according to consents given by user
+      // else we do not consider any filtering for cookie consent.
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+        return (
+          !cookieConsent || // check if cookieconsent object is present and then do filtering
+          (cookieConsent && cookieConsent.isEnabled(intg.config))
+        );
+      });
 
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically
@@ -841,6 +861,8 @@ class Analytics {
   load(writeKey, serverUrl, options) {
     // logger.debug("inside load ")
     if (this.loaded) return;
+    if (options && options.cookieConsentManager)
+      this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
       handleError({
         message:
@@ -941,7 +963,6 @@ class Analytics {
         }
       }
     }
-
     if (options && options.getSourceConfig) {
       if (typeof options.getSourceConfig !== "function") {
         handleError('option "getSourceConfig" must be a function');

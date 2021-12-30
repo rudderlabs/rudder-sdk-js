@@ -90,9 +90,9 @@ class XHRQueue {
               )
             );
           } else {
-            logger.debug(
-              `====== request processed successfully: ${xhr.status}`
-            );
+            // logger.debug(
+            //   `====== request processed successfully: ${xhr.status}`
+            // );
             queueFn(null, xhr.status);
           }
         }
