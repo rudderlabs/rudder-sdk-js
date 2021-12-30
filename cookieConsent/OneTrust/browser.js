@@ -71,9 +71,6 @@ class OneTrust {
         .filter((n) => n);
       let containsAllConsent = true;
 
-      // Check if any value is there in the destination's cookie groups.
-      // If not events will go anyway to the destination.
-
       // Check if all the destination's mapped cookie categories are consented by the user in the browser.
       containsAllConsent = oneTrustConsentGroupArr.every((element) =>
         this.userSetConsentGroupNames.includes(element.toUpperCase().trim())
