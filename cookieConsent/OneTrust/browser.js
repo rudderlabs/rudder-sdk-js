@@ -6,9 +6,9 @@ class OneTrust {
     // If user does not load onetrust sdk before loading rudderstack sdk
     // we will not be filtering any of the destinations.
     if (!window.OneTrust || !window.OnetrustActiveGroups) {
-      logger.debug(
-        `Onetrust window objects not retrieved. Thus events are sent.`
-      );
+      // logger.debug(
+      //   `Onetrust window objects not retrieved. Thus events are sent.`
+      // );
       return true;
     }
     // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
