@@ -42,6 +42,7 @@ import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
+import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -97,6 +98,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.cookieConsentOptions = {};
   }
 
   /**
@@ -180,12 +182,26 @@ class Analytics {
         this.loadOnlyIntegrations,
         this.clientIntegrations
       );
+      let cookieConsent = undefined;
+      // Check if cookie consent manager is being set through load options
+      if (Object.keys(this.cookieConsentOptions).length) {
+        // Call the cookie consent factory to initialise and return the type of cookie
+        // consent being set. For now we only support OneTrust.
+        cookieConsent = CookieConsentFactory.initialize(
+          response,
+          this.cookieConsentOptions
+        );
+      }
 
-      // remove from the list which don't have support yet in SDK
+      // If cookie consent object is return we filter according to consents given by user
+      // else we do not consider any filtering for cookie consent.
       this.clientIntegrations = this.clientIntegrations.filter((intg) => {
-        return integrations[intg.name] != undefined;
+        return (
+          integrations[intg.name] != undefined &&
+          (!cookieConsent || // check if cookieconsent object is present and then do filtering
+            (cookieConsent && cookieConsent.isEnabled(intg.config)))
+        );
       });
-
       this.init(this.clientIntegrations);
     } catch (error) {
       handleError(error);
@@ -213,7 +229,6 @@ class Analytics {
     const self = this;
     logger.debug("supported intgs ", integrations);
     // this.clientIntegrationObjects = [];
-
     if (!intgArray || intgArray.length == 0) {
       if (this.readyCallback) {
         this.readyCallback();
@@ -232,9 +247,7 @@ class Analytics {
         const destConfig = intg.config;
         intgInstance = new intgClass(destConfig, self);
         intgInstance.init();
-
         logger.debug("initializing destination: ", intg);
-
         this.isInitialized(intgInstance).then(this.replayEvents);
       } catch (e) {
         logger.error(
@@ -918,6 +931,8 @@ class Analytics {
    */
   load(writeKey, serverUrl, options) {
     logger.debug("inside load ");
+    if (options && options.cookieConsentManager)
+      this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
     if (this.loaded) return;
     let configUrl = CONFIG_URL;
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
@@ -978,25 +993,11 @@ class Analytics {
       this.registerCallbacks(true);
     }
 
-    if (
-      options &&
-      options.queueOptions &&
-      options.queueOptions != null &&
-      typeof options.queueOptions == "object"
-    ) {
-      this.eventRepository.startQueue(options.queueOptions);
-    } else {
-      this.eventRepository.startQueue({});
-    }
-
     if (options && options.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
     }
 
-    this.eventRepository.writeKey = writeKey;
-    if (serverUrl) {
-      this.eventRepository.url = serverUrl;
-    }
+    this.eventRepository.initialize(writeKey, serverUrl, options);
     this.initializeUser();
     this.setInitialPageProperties();
     this.loaded = true;
@@ -1025,7 +1026,6 @@ class Analytics {
         addDomEventHandlers(this);
       }
     }
-
     if (options && options.getSourceConfig) {
       if (typeof options.getSourceConfig !== "function") {
         handleError('option "getSourceConfig" must be a function');
