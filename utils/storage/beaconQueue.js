@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import logger from "../logUtil";
+// import logger from "../logUtil";
 import { Store } from "./store";
 
 const defaults = {
@@ -101,9 +101,9 @@ class BeaconQueue {
       `${this.url}?writeKey=${this.writekey}`,
       blob
     );
-    if (!isPushed) {
-      logger.debug("Unable to send data");
-    }
+    // if (!isPushed) {
+    //   logger.debug("Unable to send data");
+    // }
     this.setQueue([]);
     this.clearTimer();
   }
