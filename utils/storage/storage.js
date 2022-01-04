@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
 import logger from "../logUtil";
@@ -96,6 +97,10 @@ class Storage {
     // localStorage is enabled.
     if (Store.enabled) {
       this.storage = Store;
+    }
+
+    if (!this.storage) {
+      throw Error("Could not initialize the SDK :: no storage is available");
     }
   }
 

@@ -178,10 +178,11 @@ class Analytics {
       );
       let cookieConsent = undefined;
       // Check if cookie consent manager is being set through load options
-      if (this.cookieConsentOptions) {
+      if (Object.keys(this.cookieConsentOptions).length) {
         // Call the cookie consent factory to initialise and return the type of cookie
         // consent being set. For now we only support OneTrust.
         cookieConsent = CookieConsentFactory.initialize(
+          response,
           this.cookieConsentOptions
         );
       }
