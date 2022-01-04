@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
 import logger from "../logUtil";
@@ -13,7 +14,7 @@ const defaults = {
   page_storage_init_referrer: "rl_page_init_referrer",
   page_storage_init_referring_domain: "rl_page_init_referring_domain",
   prefix: "RudderEncrypt:",
-  key: "Rudder"
+  key: "Rudder",
 };
 
 /**
@@ -33,6 +34,10 @@ class Storage {
     // localStorage is enabled.
     if (Store.enabled) {
       this.storage = Store;
+    }
+
+    if (!this.storage) {
+      throw Error("Could not initialize the SDK :: no storage is available");
     }
   }
 
