@@ -953,7 +953,8 @@ class Analytics {
         if (
           curScriptSrc &&
           curScriptSrc.startsWith("http") &&
-          curScriptSrc.endsWith("rudder-analytics.min.js")
+          (curScriptSrc.endsWith("rudder-analytics.min.js") ||
+            curScriptSrc.endsWith("rudder-analytics-staging.min.js"))
         ) {
           this.destSDKBaseURL = curScriptSrc
             .split("/")
