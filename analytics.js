@@ -273,7 +273,6 @@ class Analytics {
 
         self.replayEvents(self);
       });
-      this.init(this.clientIntegrations);
     } catch (error) {
       handleError(error);
     }
