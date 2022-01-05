@@ -1,3 +1,4 @@
+import logger from "../../utils/logUtil";
 /* eslint-disable class-methods-use-this */
 class OneTrust {
   constructor() {
@@ -74,6 +75,7 @@ class OneTrust {
 
       return containsAllConsent;
     } catch (e) {
+      logger.error(`Error during onetrust cookie consent management ${e}`);
       return true;
     }
   }
