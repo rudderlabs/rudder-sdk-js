@@ -135,6 +135,11 @@ const commonNames = {
   postaffiliatepro: "POST_AFFILIATE_PRO",
   POSTAFFILIATEPRO: "POST_AFFILIATE_PRO",
   POST_AFFILIATE_PRO: "POST_AFFILIATE_PRO",
+  LaunchDarkly:"LAUNCHDARKLY",
+  Launch_Darkly:"LAUNCHDARKLY",
+  LAUNCHDARKLY:"LAUNCHDARKLY",
+  "Launch Darkly":"LAUNCHDARKLY",
+  launchDarkly:"LAUNCHDARKLY"
 };
 
 export { commonNames };
