@@ -15,7 +15,7 @@ class Posthog {
     this.disableCookie = config.disableCookie || false;
     this.propertyBlackList = [];
     this.xhrHeaders = {};
-    this.persistence = config.persistence;
+    this.enableLocalStoragePersistence = config.enableLocalStoragePersistence;
 
     if (config.xhrHeaders && config.xhrHeaders.length > 0) {
       config.xhrHeaders.forEach((header) => {
@@ -71,7 +71,7 @@ class Posthog {
     if (this.xhrHeaders && Object.keys(this.xhrHeaders).length > 0) {
       configObject.xhr_headers = this.xhrHeaders;
     }
-    if (this.persistence) {
+    if (this.enableLocalStoragePersistence) {
       configObject.persistence = "localStorage+cookie";
     }
 
