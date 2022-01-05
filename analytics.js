@@ -176,25 +176,26 @@ class Analytics {
         this.loadOnlyIntegrations,
         this.clientIntegrations
       );
-      let cookieConsent = undefined;
       // Check if cookie consent manager is being set through load options
       if (Object.keys(this.cookieConsentOptions).length) {
         // Call the cookie consent factory to initialise and return the type of cookie
         // consent being set. For now we only support OneTrust.
-        cookieConsent = CookieConsentFactory.initialize(
-          response,
-          this.cookieConsentOptions
-        );
+        try {
+          let cookieConsent = CookieConsentFactory.initialize(
+            this.cookieConsentOptions
+          );
+          // If cookie consent object is return we filter according to consents given by user
+          // else we do not consider any filtering for cookie consent.
+          this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+            return (
+              !cookieConsent || // check if cookieconsent object is present and then do filtering
+              (cookieConsent && cookieConsent.isEnabled(intg.config))
+            );
+          });
+        } catch (e) {
+          logger.error(e);
+        }
       }
-
-      // If cookie consent object is return we filter according to consents given by user
-      // else we do not consider any filtering for cookie consent.
-      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
-        return (
-          !cookieConsent || // check if cookieconsent object is present and then do filtering
-          (cookieConsent && cookieConsent.isEnabled(intg.config))
-        );
-      });
 
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically

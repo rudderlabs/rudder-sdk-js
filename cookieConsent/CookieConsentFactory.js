@@ -1,7 +1,7 @@
 import { OneTrust } from "./OneTrust";
 
 class CookieConsentFactory {
-  static initialize(sourceConfig, cookieConsentOptions) {
+  static initialize(cookieConsentOptions) {
     /**
      *
      * check which type of cookie consent manager needs to be called if enabled
