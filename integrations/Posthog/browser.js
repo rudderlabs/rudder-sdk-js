@@ -15,6 +15,7 @@ class Posthog {
     this.disableCookie = config.disableCookie || false;
     this.propertyBlackList = [];
     this.xhrHeaders = {};
+    this.persistence = config.persistence;
 
     if (config.xhrHeaders && config.xhrHeaders.length > 0) {
       config.xhrHeaders.forEach((header) => {
@@ -66,10 +67,12 @@ class Posthog {
       disable_session_recording: this.disableSessionRecording,
       property_blacklist: this.propertyBlackList,
       disable_cookie: this.disableCookie,
-      persistence: "localStorage+cookie",
     };
     if (this.xhrHeaders && Object.keys(this.xhrHeaders).length > 0) {
       configObject.xhr_headers = this.xhrHeaders;
+    }
+    if (this.persistence) {
+      configObject.persistence = "localStorage+cookie";
     }
 
     posthog.init(this.teamApiKey, configObject);
