@@ -5,7 +5,7 @@ class OneTrust {
     // we will not be filtering any of the destinations.
     if (!window.OneTrust || !window.OnetrustActiveGroups) {
       throw new Error(
-        "Onetrust window objects not retrieved. Thus events are sent."
+        "OneTrust resources are not accessible. Thus all the destinations will be loaded"
       );
     }
     // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
