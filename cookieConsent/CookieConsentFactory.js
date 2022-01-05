@@ -1,7 +1,7 @@
 import { OneTrust } from "./OneTrust";
 
 class CookieConsentFactory {
-  static initialize(sourceConfig, cookieConsentOptions) {
+  static initialize(cookieConsentOptions) {
     /**
      *
      * check which type of cookie consent manager needs to be called if enabled
@@ -11,7 +11,6 @@ class CookieConsentFactory {
      * load options
      *
      */
-
     if (cookieConsentOptions?.oneTrust?.enabled) {
       // This is P1. When we have an ui in source side to turn on/off of cookie consent
       // if (sourceConfig &&
