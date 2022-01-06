@@ -197,8 +197,7 @@ class Analytics {
         }
       }
 
-
-      let staging_env = false; // by default staging env is set to false
+      let suffix = ""; // by default staging env is set to false
 
       // Get the CDN base URL from the script tag
       const scripts = document.getElementsByTagName("script");
@@ -212,7 +211,7 @@ class Analytics {
           curScriptSrc.startsWith("http") &&
           curScriptSrc.endsWith("rudder-analytics-staging.min.js")
         ) {
-          staging_env = true;
+          suffix = "-staging";
         }
       }
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
@@ -221,12 +220,8 @@ class Analytics {
         const modName = configToIntNames[intg.name]; // script URL can be constructed from this
         const pluginName = `${modName}${INTG_SUFFIX}`; // this is the name of the object loaded on the window
         if (process.browser) {
-          let modURL;
-          if (staging_env) {
-            modURL = `${this.destSDKBaseURL}/${modName}-staging.min.js`;
-          } else {
-            modURL = `${this.destSDKBaseURL}/${modName}.min.js`;
-          }
+          const modURL = `${this.destSDKBaseURL}/${modName}${suffix}.min.js`;
+
           if (!window.hasOwnProperty(pluginName)) {
             ScriptLoader(pluginName, modURL);
           }
