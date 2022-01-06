@@ -34,8 +34,7 @@ The [**RudderStack**](https://rudderstack.com/) JavaScript SDK leverages the `ru
 - [**Adding your own integrations**](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-your-own-integrations)
 
 | **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK and it will soon be removed. If you still wish to use it for your project, refer to [**this repository**](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-
+| :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ## [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#installing-the-javascript-sdk)Installing the JavaScript SDK
 
@@ -43,7 +42,7 @@ To integrate the JavaScript SDK with your website, place the following code snip
 
 ```javascript
 <script type="text/javascript">
-!function(){var e=window.rudderanalytics=window.rudderanalytics||[];e.methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],e.factory=function(t){return function(){var r=Array.prototype.slice.call(arguments);return r.unshift(t),e.push(r),e}};for(var t=0;t<e.methods.length;t++){var r=e.methods[t];e[r]=e.factory(r)}e.loadJS=function(e,t){var r=document.createElement("script");r.type="text/javascript",r.async=!0,r.src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(r,a)},e.loadJS(),
+!function(){var e=window.rudderanalytics=window.rudderanalytics||[];e.methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],e.factory=function(t){return function(){var r=Array.prototype.slice.call(arguments);return r.unshift(t),e.push(r),e}};for(var t=0;t<e.methods.length;t++){var r=e.methods[t];e[r]=e.factory(r)}e.loadJS=function(e,t){var r=document.createElement("script");r.type="text/javascript",r.async=!0,r.src="https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js";var a=document.getElementsByTagName("script")[0];a.parentNode.insertBefore(r,a)},e.loadJS(),
 e.load(<WRITE_KEY>,<DATA_PLANE_URL>),
 e.page()}();
 </script>
@@ -62,7 +61,7 @@ To load `rudder-analytics.js` on to your page synchronously, you can refer to th
   rudderanalytics=window.rudderanalytics=[];for(var methods=["load","page","track","identify","alias","group","ready","reset","getAnonymousId","setAnonymousId"],i=0;i<methods.length;i++){var method=methods[i];rudderanalytics[method]=function(a){return function(){rudderanalytics.push([a].concat(Array.prototype.slice.call(arguments)))}}(method)}rudderanalytics.load(<WRITE_KEY>,<DATA_PLANE_URL>),rudderanalytics.page();
 </script>
 
-<script src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script>
+<script src="https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js"></script>
 ```
 
 ### Non-minified code
@@ -100,7 +99,7 @@ To load `rudder-analytics.js` on to your page synchronously, you can refer to th
   rudderanalytics.page();
 </script>
 
-<script src="https://cdn.rudderlabs.com/v1/rudder-analytics.min.js"></script>
+<script src="https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js"></script>
 ```
 
 In all the above versions, there is an explicit `page` call at the end. This is added to ensure that whenever the SDK loads in a page, a `page` call is sent. You can remove this call completely or modify it with the extra page properties to suit your requirement. You can also add `page` calls in your application in places not tied directly to page load, e.g., virtual page views, page renders on route change such as in SPAs, etc.
