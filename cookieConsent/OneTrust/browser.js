@@ -6,10 +6,9 @@ class OneTrust {
     // If user does not load onetrust sdk before loading rudderstack sdk
     // we will not be filtering any of the destinations.
     if (!window.OneTrust || !window.OnetrustActiveGroups) {
-      // logger.debug(
-      //   `Onetrust window objects not retrieved. Thus events are sent.`
-      // );
-      return true;
+      throw new Error(
+        "OneTrust resources are not accessible. Thus all the destinations will be loaded"
+      );
     }
     // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
     // the cookie categories that the user has consented to.
@@ -69,12 +68,10 @@ class OneTrust {
         .map((c) => c.oneTrustCookieCategory)
         .filter((n) => n);
       let containsAllConsent = true;
-
       // Check if all the destination's mapped cookie categories are consented by the user in the browser.
       containsAllConsent = oneTrustConsentGroupArr.every((element) =>
         this.userSetConsentGroupNames.includes(element.toUpperCase().trim())
       );
-
       return containsAllConsent;
     } catch (e) {
       logger.error(`Error during onetrust cookie consent management ${e}`);
