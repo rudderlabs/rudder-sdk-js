@@ -189,8 +189,9 @@ class Analytics {
           // else we do not consider any filtering for cookie consent.
           this.clientIntegrations = this.clientIntegrations.filter((intg) => {
             return (
-              !cookieConsent || // check if cookieconsent object is present and then do filtering
-              (cookieConsent && cookieConsent.isEnabled(intg.config))
+              integrations[intg.name] != undefined &&
+              (!cookieConsent || // check if cookieconsent object is present and then do filtering
+                (cookieConsent && cookieConsent.isEnabled(intg.config)))
             );
           });
         } catch (e) {
