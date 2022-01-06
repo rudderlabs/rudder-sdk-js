@@ -958,7 +958,7 @@ class Analytics {
       // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
       const { rudderSDK } = checkSDKUrl();
       if (rudderSDK) {
-        this.destSDKBaseURL = curScriptSrc
+        this.destSDKBaseURL = rudderSDK
           .split("/")
           .slice(0, -1)
           .concat(CDN_INT_DIR)

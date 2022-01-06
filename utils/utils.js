@@ -638,7 +638,7 @@ const getConfigUrl = (writeKey) => {
 
 const checkSDKUrl = () => {
   const scripts = document.getElementsByTagName("script");
-  let rudderSDK = false;
+  let rudderSDK = undefined;
   let staging = false;
   for (let i = 0; i < scripts.length; i += 1) {
     const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute("src"));
@@ -649,7 +649,7 @@ const checkSDKUrl = () => {
       (curScriptSrc.endsWith("rudder-analytics.min.js") ||
         curScriptSrc.endsWith("rudder-analytics-staging.min.js"))
     ) {
-      rudderSDK = true;
+      rudderSDK = curScriptSrc;
       if (curScriptSrc.endsWith("rudder-analytics-staging.min.js")) {
         staging = true;
       }
