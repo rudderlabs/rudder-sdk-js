@@ -636,6 +636,29 @@ const getConfigUrl = (writeKey) => {
   );
 };
 
+const checkSDKUrl = () => {
+  const scripts = document.getElementsByTagName("script");
+  let rudderSDK = false;
+  let staging = false;
+  for (let i = 0; i < scripts.length; i += 1) {
+    const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute("src"));
+    // only in case of staging SDK staging env will be set to true
+    if (
+      curScriptSrc &&
+      curScriptSrc.startsWith("http") &&
+      (curScriptSrc.endsWith("rudder-analytics.min.js") ||
+        curScriptSrc.endsWith("rudder-analytics-staging.min.js"))
+    ) {
+      rudderSDK = true;
+      if (curScriptSrc.endsWith("rudder-analytics-staging.min.js")) {
+        staging = true;
+      }
+      break;
+    }
+  }
+  return { rudderSDK, staging };
+};
+
 export {
   replacer,
   generateUUID,
@@ -663,4 +686,5 @@ export {
   getDataFromSource,
   removeTrailingSlashes,
   getConfigUrl,
+  checkSDKUrl,
 };
