@@ -21,8 +21,7 @@ class LaunchDarkly {
   }
   isReady() {
     logger.debug("===In isReady LaunchDarkly===");
-    if (window.LDClient) return true;
-    else return false;
+    return this.isLoaded();
   }
   identify(rudderElement) {
     window.user = {};
