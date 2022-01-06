@@ -196,13 +196,35 @@ class Analytics {
         );
       });
 
+      let staging_env = false; // by default staging env is set to false
+
+      // Get the CDN base URL from the script tag
+      const scripts = document.getElementsByTagName("script");
+      for (let i = 0; i < scripts.length; i += 1) {
+        const curScriptSrc = removeTrailingSlashes(
+          scripts[i].getAttribute("src")
+        );
+        // only in case of staging SDK staging env will be set to true
+        if (
+          curScriptSrc &&
+          curScriptSrc.startsWith("http") &&
+          curScriptSrc.endsWith("rudder-analytics-staging.min.js")
+        ) {
+          staging_env = true;
+        }
+      }
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
         const modName = configToIntNames[intg.name]; // script URL can be constructed from this
         const pluginName = `${modName}${INTG_SUFFIX}`; // this is the name of the object loaded on the window
         if (process.browser) {
-          const modURL = `${this.destSDKBaseURL}/${modName}.min.js`;
+          let modURL;
+          if (staging_env) {
+            modURL = `${this.destSDKBaseURL}/${modName}-staging.min.js`;
+          } else {
+            modURL = `${this.destSDKBaseURL}/${modName}.min.js`;
+          }
           if (!window.hasOwnProperty(pluginName)) {
             ScriptLoader(pluginName, modURL);
           }
