@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import { removeTrailingSlashes } from "../../utils/utils";
@@ -14,17 +15,24 @@ class Posthog {
     this.disableCookie = config.disableCookie || false;
     this.propertyBlackList = [];
     this.xhrHeaders = {};
+    this.enableLocalStoragePersistence = config.enableLocalStoragePersistence;
 
     if (config.xhrHeaders && config.xhrHeaders.length > 0) {
-      config.xhrHeaders.forEach(header => {
-        if(header && header.key && header.value && header.key.trim() != "" && header.value.trim() != ""){
+      config.xhrHeaders.forEach((header) => {
+        if (
+          header &&
+          header.key &&
+          header.value &&
+          header.key.trim() !== "" &&
+          header.value.trim() !== ""
+        ) {
           this.xhrHeaders[header.key] = header.value;
         }
       });
     }
     if (config.propertyBlackList && config.propertyBlackList.length > 0) {
-      config.propertyBlackList.forEach(element => {
-        if(element && element.property && element.property.trim() != ""){
+      config.propertyBlackList.forEach((element) => {
+        if (element && element.property && element.property.trim() !== "") {
           this.propertyBlackList.push(element.property);
         }
       });
@@ -52,15 +60,19 @@ class Posthog {
       }, e.__SV = 1)
     }(document, window.posthog || []);
 
-    const configObject = {api_host: this.yourInstance,
+    const configObject = {
+      api_host: this.yourInstance,
       autocapture: this.autocapture,
       capture_pageview: this.capturePageView,
       disable_session_recording: this.disableSessionRecording,
       property_blacklist: this.propertyBlackList,
-      disable_cookie: this.disableCookie
+      disable_cookie: this.disableCookie,
     };
-    if(this.xhrHeaders && Object.keys(this.xhrHeaders).length > 0){
+    if (this.xhrHeaders && Object.keys(this.xhrHeaders).length > 0) {
       configObject.xhr_headers = this.xhrHeaders;
+    }
+    if (this.enableLocalStoragePersistence) {
+      configObject.persistence = "localStorage+cookie";
     }
 
     posthog.init(this.teamApiKey, configObject);
@@ -72,24 +84,24 @@ class Posthog {
    * To remove the superproperties, we call unregister api.
    */
   processSuperProperties(rudderElement){
-    const integrations = rudderElement.message.integrations;
-    if(integrations && integrations.POSTHOG){
-      const {superProperties, setOnceProperties, unsetProperties} = integrations.POSTHOG;
-      if(superProperties && Object.keys(superProperties).length > 0){
+    const { integrations } = rudderElement.message;
+    if (integrations && integrations.POSTHOG) {
+      const { superProperties, setOnceProperties, unsetProperties } =
+        integrations.POSTHOG;
+      if (superProperties && Object.keys(superProperties).length > 0) {
         posthog.register(superProperties);
       }
-      if(setOnceProperties && Object.keys(setOnceProperties).length > 0){
+      if (setOnceProperties && Object.keys(setOnceProperties).length > 0) {
         posthog.register_once(setOnceProperties);
       }
-      if(unsetProperties && unsetProperties.length > 0){
-        unsetProperties.forEach(property => {
-          if(property && property.trim() != ""){
+      if (unsetProperties && unsetProperties.length > 0) {
+        unsetProperties.forEach((property) => {
+          if (property && property.trim() !== "") {
             posthog.unregister(property);
           }
         });
       }
     }
-
   }
 
   identify(rudderElement) {
@@ -117,7 +129,7 @@ class Posthog {
   }
 
   /**
-   * 
+   *
    *
    * @memberof Posthog
    */
