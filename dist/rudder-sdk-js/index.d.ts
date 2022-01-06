@@ -30,6 +30,26 @@ declare module "rudder-sdk-js" {
   }
 
   /**
+   * Represents the beacon queue options parameter in loadOptions type
+   */
+  interface beaconQueueOptions {
+    // Maximum number of events in storage
+    maxItems?: number;
+    // Time in milliseconds to flush the queue autometically
+    flushQueueInterval?: number;
+  }
+
+  /**
+   * Represents the beacon queue options parameter in loadOptions type
+   */
+  interface cookieConsentManager {
+    // OneTrust
+    oneTrust?: {
+      enabled: boolean;
+    };
+  }
+
+  /**
    * Represents the options parameter in the load API
    */
   interface loadOptions {
@@ -51,6 +71,9 @@ declare module "rudder-sdk-js" {
     sendAdblockPage?: boolean;
     sendAdblockPageOptions?: apiOptions;
     clientSuppliedCallbacks?: { string: () => void };
+    useBeacon?: boolean; // Defaults to false
+    beaconQueueOptions?: beaconQueueOptions;
+    cookieConsentManager?: cookieConsentManager;
   }
 
   /**
