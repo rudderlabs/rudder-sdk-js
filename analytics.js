@@ -196,7 +196,7 @@ class Analytics {
             return (
               integrations[intg.name] != undefined &&
               (!cookieConsent || // check if cookieconsent object is present and then do filtering
-              (cookieConsent && cookieConsent.isEnabled(intg.config)))
+                (cookieConsent && cookieConsent.isEnabled(intg.config)))
             );
           });
         } catch (e) {
