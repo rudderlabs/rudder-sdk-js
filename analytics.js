@@ -28,6 +28,7 @@ import {
   getReferringDomain,
   removeTrailingSlashes,
   getConfigUrl,
+  checkSDKUrl,
 } from "./utils/utils";
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
@@ -197,6 +198,13 @@ class Analytics {
         }
       }
 
+      let suffix = ""; // default suffix
+
+      // Get the CDN base URL is rudder staging url
+      const { rudderSDK, staging } = checkSDKUrl();
+      if (rudderSDK && staging) {
+        suffix = "-staging"; // stagging suffix
+      }
 
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically
@@ -204,7 +212,8 @@ class Analytics {
         const modName = configToIntNames[intg.name]; // script URL can be constructed from this
         const pluginName = `${modName}${INTG_SUFFIX}`; // this is the name of the object loaded on the window
         if (process.browser) {
-          const modURL = `${this.destSDKBaseURL}/${modName}.min.js`;
+          const modURL = `${this.destSDKBaseURL}/${modName}${suffix}.min.js`;
+
           if (!window.hasOwnProperty(pluginName)) {
             ScriptLoader(pluginName, modURL);
           }
@@ -947,23 +956,13 @@ class Analytics {
       }
     } else {
       // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
-      const scripts = document.getElementsByTagName("script");
-      for (let i = 0; i < scripts.length; i += 1) {
-        const curScriptSrc = removeTrailingSlashes(
-          scripts[i].getAttribute("src")
-        );
-        if (
-          curScriptSrc &&
-          curScriptSrc.startsWith("http") &&
-          curScriptSrc.endsWith("rudder-analytics.min.js")
-        ) {
-          this.destSDKBaseURL = curScriptSrc
-            .split("/")
-            .slice(0, -1)
-            .concat(CDN_INT_DIR)
-            .join("/");
-          break;
-        }
+      const { rudderSDK } = checkSDKUrl();
+      if (rudderSDK) {
+        this.destSDKBaseURL = curScriptSrc
+          .split("/")
+          .slice(0, -1)
+          .concat(CDN_INT_DIR)
+          .join("/");
       }
     }
     if (options && options.getSourceConfig) {
