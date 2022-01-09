@@ -1,13 +1,17 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 
 class Hotjar {
   constructor(config) {
-    this.siteId = config.siteID; // 1549611
+    this.siteId = config.siteID;
     this.name = "HOTJAR";
     this._ready = false;
   }
 
   init() {
+    logger.debug("===In init Hotjar===");
+
     window.hotjarSiteId = this.siteId;
     (function (h, o, t, j, a, r) {
       h.hj =
@@ -23,11 +27,11 @@ class Hotjar {
       a.appendChild(r);
     })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
     this._ready = true;
-
-    logger.debug("===in init Hotjar===");
   }
 
   identify(rudderElement) {
+    logger.debug("===In Hotjar identify===");
+
     const userId =
       rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
@@ -40,19 +44,23 @@ class Hotjar {
     window.hj("identify", rudderElement.message.userId, traits);
   }
 
-  track(rudderElement) {
+  track() {
+    logger.debug("===In Hotjar track===");
     logger.debug("[Hotjar] track:: method not supported");
   }
 
-  page(rudderElement) {
+  page() {
+    logger.debug("===In Hotjar page===");
     logger.debug("[Hotjar] page:: method not supported");
   }
 
   isLoaded() {
+    logger.debug("===In isLoaded Hotjar===");
     return this._ready;
   }
 
   isReady() {
+    logger.debug("===In isReady Hotjar===");
     return this._ready;
   }
 }
