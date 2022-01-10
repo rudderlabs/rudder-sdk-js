@@ -44,9 +44,17 @@ class Hotjar {
     window.hj("identify", rudderElement.message.userId, traits);
   }
 
-  track() {
+  track(rudderElement) {
     logger.debug("===In Hotjar track===");
-    logger.debug("[Hotjar] track:: method not supported");
+
+    const { event } = rudderElement.message;
+
+    if (!event) {
+      logger.error("Event name not present");
+      return;
+    }
+
+    window.hj("event", event);
   }
 
   page() {
