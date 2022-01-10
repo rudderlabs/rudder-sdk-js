@@ -7,9 +7,10 @@ declare module "rudder-sdk-js" {
    */
   interface integrationOptions {
     // Defaults to true
+    // If set to false, specific integration should be set to true to send the event
     All?: boolean;
-    // Destination name: Enable/Disable
-    [index: string]: boolean | undefined;
+    // Destination name: true/false/integration specific information
+    [index: string]: boolean | undefined | apiObject;
   }
 
   /**
@@ -29,6 +30,26 @@ declare module "rudder-sdk-js" {
   }
 
   /**
+   * Represents the beacon queue options parameter in loadOptions type
+   */
+  interface beaconQueueOptions {
+    // Maximum number of events in storage
+    maxItems?: number;
+    // Time in milliseconds to flush the queue autometically
+    flushQueueInterval?: number;
+  }
+
+  /**
+   * Represents the beacon queue options parameter in loadOptions type
+   */
+  interface cookieConsentManager {
+    // OneTrust
+    oneTrust?: {
+      enabled: boolean;
+    };
+  }
+
+  /**
    * Represents the options parameter in the load API
    */
   interface loadOptions {
@@ -38,6 +59,8 @@ declare module "rudder-sdk-js" {
     queueOptions?: queueOptions;
     // Defaults to true
     loadIntegration?: boolean;
+    // Defaults to false
+    secureCookie?: boolean;
     logLevel?: string;
     getSourceConfig?: () =>
       | string
@@ -48,6 +71,9 @@ declare module "rudder-sdk-js" {
     sendAdblockPage?: boolean;
     sendAdblockPageOptions?: apiOptions;
     clientSuppliedCallbacks?: { string: () => void };
+    useBeacon?: boolean; // Defaults to false
+    beaconQueueOptions?: beaconQueueOptions;
+    cookieConsentManager?: cookieConsentManager;
   }
 
   /**

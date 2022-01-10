@@ -124,6 +124,17 @@ const commonNames = {
   quantumMetric: "QUANTUMMETRIC",
   quantummetric: "QUANTUMMETRIC",
   Quantum_Metric: "QUANTUMMETRIC",
+  "Google Optimize": "GOOGLE_OPTIMIZE",
+  GOOGLE_OPTIMIZE: "GOOGLE_OPTIMIZE",
+  GoogleOptimize: "GOOGLE_OPTIMIZE",
+  Googleoptimize: "GOOGLE_OPTIMIZE",
+  GOOGLEOPTIMIZE: "GOOGLE_OPTIMIZE",
+  PostAffiliatePro: "POST_AFFILIATE_PRO",
+  Post_affiliate_pro: "POST_AFFILIATE_PRO",
+  "Post Affiliate Pro": "POST_AFFILIATE_PRO",
+  postaffiliatepro: "POST_AFFILIATE_PRO",
+  POSTAFFILIATEPRO: "POST_AFFILIATE_PRO",
+  POST_AFFILIATE_PRO: "POST_AFFILIATE_PRO",
 };
 
 export { commonNames };

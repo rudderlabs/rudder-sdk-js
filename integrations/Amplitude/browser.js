@@ -338,7 +338,9 @@ class Amplitude {
     this.setDeviceId(rudderElement);
 
     const { properties, name, category } = rudderElement.message;
-    const { useNewPageEventNameFormat } = rudderElement.message.context;
+    const useNewPageEventNameFormat =
+      rudderElement.message.integrations?.AM?.useNewPageEventNameFormat ||
+      false;
     // all pages
     if (this.trackAllPages) {
       const event = "Loaded a page";

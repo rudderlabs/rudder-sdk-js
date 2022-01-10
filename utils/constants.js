@@ -80,7 +80,8 @@ const RudderIntegrationPlatform = {
 };
 
 const BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
-const CONFIG_URL = "https://api.rudderlabs.com/sourceConfig/?p=process.module_type&v=process.package_version";
+const CONFIG_URL =
+  "https://api.rudderlabs.com/sourceConfig/?p=process.module_type&v=process.package_version";
 
 const FLUSH_QUEUE_SIZE = 30;
 
