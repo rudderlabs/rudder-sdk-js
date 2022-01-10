@@ -55,7 +55,11 @@ class Hotjar {
     }
 
     // event name must not exceed 750 characters and can only contain alphanumeric, underscores, and dashes.
-    window.hj("event", event.substring(0, 750).replaceAll(" ", "_"));
+    // Ref - https://help.hotjar.com/hc/en-us/articles/4405109971095#the-events-api-call
+    window.hj(
+      "event",
+      event.replace(/\s\s+/g, " ").substring(0, 750).replaceAll(" ", "_")
+    );
   }
 
   page() {
