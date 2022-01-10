@@ -685,32 +685,48 @@ class Analytics {
         (intg) => intg.name === sdkIntgName
       );
 
-      const { blackListedEvents, whiteListedEvents } = intg.config;
+      const { blackListedEvents, whiteListedEvents, eventFilteringOption } =
+        intg.config;
 
-      const isValidBlackList =
-        blackListedEvents &&
-        Array.isArray(blackListedEvents) &&
-        blackListedEvents.every((x) => x.eventName !== "");
+      if (eventFilteringOption) {
+        switch (eventFilteringOption) {
+          // disabled filtering
+          case "disable":
+            return false;
+          // Blacklist is choosen for filtering events
+          case "blackListedEvents":
+            const isValidBlackList =
+              blackListedEvents &&
+              Array.isArray(blackListedEvents) &&
+              blackListedEvents.every((x) => x.eventName !== "");
 
-      const isValidWhiteList =
-        whiteListedEvents &&
-        Array.isArray(whiteListedEvents) &&
-        whiteListedEvents.some((x) => x.eventName !== "");
-
-      // Proceed to validate event blacklist status ONLY if
-      // either of lists are defined
-      if (isValidBlackList && !isValidWhiteList) {
-        return blackListedEvents.find(
-          (eventObj) => eventObj.eventName === eventName
-        ) === undefined
-          ? false
-          : true;
-      } else if (!isValidBlackList && isValidWhiteList) {
-        return whiteListedEvents.find(
-          (eventObj) => eventObj.eventName === eventName
-        ) === undefined
-          ? true
-          : false;
+            if (isValidBlackList) {
+              return blackListedEvents.find(
+                (eventObj) => eventObj.eventName === eventName
+              ) === undefined
+                ? false
+                : true;
+            } else {
+              return false;
+            }
+          // Whitelist is choosen for filtering events
+          case "whiteListedEvents":
+            const isValidWhiteList =
+              whiteListedEvents &&
+              Array.isArray(whiteListedEvents) &&
+              whiteListedEvents.some((x) => x.eventName !== "");
+            if (isValidWhiteList) {
+              return whiteListedEvents.find(
+                (eventObj) => eventObj.eventName === eventName
+              ) === undefined
+                ? true
+                : false;
+            } else {
+              return true;
+            }
+          default:
+            return false;
+        }
       } else {
         return false;
       }
