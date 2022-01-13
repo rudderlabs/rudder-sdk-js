@@ -1,6 +1,7 @@
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 
-import ScriptLoaderHead from "./util";
+import ScriptLoader from "../ScriptLoader";
 
 class GoogleOptimize {
   constructor(config) {
@@ -18,7 +19,7 @@ class GoogleOptimize {
       return;
     }
     // load optimize script first
-    ScriptLoaderHead(
+    ScriptLoader(
       "Google Optimize",
       `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`,
       this.async
@@ -27,7 +28,7 @@ class GoogleOptimize {
       if (!this.trackingId) {
         return;
       }
-      ScriptLoaderHead(
+      ScriptLoader(
         "Google Tag Manager",
         `https://www.googletagmanager.com/gtag/js?id=${this.trackingId}`
       );
