@@ -10,7 +10,7 @@ const ScriptLoader = (id, src, async = defaultAsyncState) => {
   js.async = async === undefined ? defaultAsyncState : async;
   js.type = "text/javascript";
   js.id = id;
-  const headElems = document.getElementsByTagName("head");
+  const headElems = document.getElementsByTagName("head")[0];
   if (Object.keys(headElems).length !== 0) {
     logger.debug("==adding script==", js);
     headElems.insertBefore(js, headElems.firstChild);
