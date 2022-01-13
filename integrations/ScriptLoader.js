@@ -13,7 +13,7 @@ const ScriptLoader = (id, src, async = defaultAsyncState) => {
   const headElems = document.getElementsByTagName("head");
   if (Object.keys(headElems).length !== 0) {
     logger.debug("==adding script==", js);
-    headElems.appendChild(js);
+    headElems.insertBefore(js, headElems.firstChild);
   } else {
     const e = document.getElementsByTagName("script")[0];
     logger.debug("==parent script==", e);
