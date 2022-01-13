@@ -14,7 +14,7 @@ const ScriptLoader = (id, src, async = defaultAsyncState) => {
   const e = h.getElementsByTagName("script")[0];
   logger.debug("==parent script==", e);
   logger.debug("==adding script==", js);
-  e.parentNode.insertBefore(js, e);
+  h.insertBefore(js, e);
 };
 
 export default ScriptLoader;
