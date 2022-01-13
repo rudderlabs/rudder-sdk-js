@@ -1,6 +1,6 @@
 import logger from "../../utils/logUtil";
 
-import ScriptLoader from "../ScriptLoader";
+import ScriptLoaderHead from "./util";
 
 class GoogleOptimize {
   constructor(config) {
@@ -18,7 +18,7 @@ class GoogleOptimize {
       return;
     }
     // load optimize script first
-    ScriptLoader(
+    ScriptLoaderHead(
       "Google Optimize",
       `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`,
       this.async
@@ -27,7 +27,7 @@ class GoogleOptimize {
       if (!this.trackingId) {
         return;
       }
-      ScriptLoader(
+      ScriptLoaderHead(
         "Google Tag Manager",
         `https://www.googletagmanager.com/gtag/js?id=${this.trackingId}`
       );
@@ -62,4 +62,5 @@ class GoogleOptimize {
     return !!window.dataLayer;
   }
 }
+
 export default GoogleOptimize;
