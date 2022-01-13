@@ -74,7 +74,7 @@ class Posthog {
     if (this.enableLocalStoragePersistence) {
       configObject.persistence = "localStorage+cookie";
     }
-
+    window.posthog = posthog
     posthog.init(this.teamApiKey, configObject);
   }
 
