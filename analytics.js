@@ -57,7 +57,6 @@ class Analytics {
    */
   constructor() {
     this.initialized = false;
-    this.areEventsReplayed = false;
     this.clientIntegrations = [];
     this.loadOnlyIntegrations = {};
     this.clientIntegrationObjects = undefined;
@@ -263,15 +262,6 @@ class Analytics {
 
       const self = this;
       this.allModulesInitialized().then(() => {
-        // remove from the list which don't have support yet in SDK
-        self.clientIntegrations = self.clientIntegrations.filter((intg) => {
-          return (
-            self.dynamicallyLoadedIntegrations[
-              `${configToIntNames[intg.name]}${INTG_SUFFIX}`
-            ] != undefined
-          );
-        });
-
         if (!self.clientIntegrations || self.clientIntegrations.length == 0) {
           if (self.readyCallback) {
             self.readyCallback();
@@ -289,89 +279,79 @@ class Analytics {
 
   // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
+    // logger.debug(
+    //   "===replay events called====",
+    //   " successfully loaded count: ",
+    //   object.successfullyLoadedIntegration.length,
+    //   " failed loaded count: ",
+    //   object.failedToBeLoadedIntegration.length
+    // );
+    // eslint-disable-next-line no-param-reassign
+    object.clientIntegrationObjects = [];
+    // eslint-disable-next-line no-param-reassign
+    object.clientIntegrationObjects = object.successfullyLoadedIntegration;
+
+    // logger.debug(
+    //   "==registering after callback===",
+    //   " after to be called after count : ",
+    //   object.clientIntegrationObjects.length
+    // );
+
     if (
-      object.successfullyLoadedIntegration.length +
-        object.failedToBeLoadedIntegration.length ===
-        object.clientIntegrations.length &&
-      !object.areEventsReplayed
+      object.clientIntegrationObjects.every(
+        (intg) => !intg.isReady || intg.isReady()
+      )
     ) {
-      // logger.debug(
-      //   "===replay events called====",
-      //   " successfully loaded count: ",
-      //   object.successfullyLoadedIntegration.length,
-      //   " failed loaded count: ",
-      //   object.failedToBeLoadedIntegration.length
-      // );
-      // eslint-disable-next-line no-param-reassign
-      object.clientIntegrationObjects = [];
-      // eslint-disable-next-line no-param-reassign
-      object.clientIntegrationObjects = object.successfullyLoadedIntegration;
+      object.readyCallback();
+    }
 
-      // logger.debug(
-      //   "==registering after callback===",
-      //   " after to be called after count : ",
-      //   object.clientIntegrationObjects.length
-      // );
+    // send the queued events to the fetched integration
+    object.toBeProcessedByIntegrationArray.forEach((event) => {
+      const methodName = event[0];
+      event.shift();
 
-      if (
-        object.clientIntegrationObjects.every(
-          (intg) => !intg.isReady || intg.isReady()
-        )
-      ) {
-        object.readyCallback();
+      // convert common names to sdk identified name
+      if (Object.keys(event[0].message.integrations).length > 0) {
+        transformToRudderNames(event[0].message.integrations);
       }
 
-      // send the queued events to the fetched integration
-      object.toBeProcessedByIntegrationArray.forEach((event) => {
-        const methodName = event[0];
-        event.shift();
+      // if not specified at event level, All: true is default
+      const clientSuppliedIntegrations = event[0].message.integrations;
 
-        // convert common names to sdk identified name
-        if (Object.keys(event[0].message.integrations).length > 0) {
-          transformToRudderNames(event[0].message.integrations);
-        }
+      // get intersection between config plane native enabled destinations
+      // (which were able to successfully load on the page) vs user supplied integrations
+      const succesfulLoadedIntersectClientSuppliedIntegrations =
+        findAllEnabledDestinations(
+          clientSuppliedIntegrations,
+          object.clientIntegrationObjects
+        );
 
-        // if not specified at event level, All: true is default
-        const clientSuppliedIntegrations = event[0].message.integrations;
-
-        // get intersection between config plane native enabled destinations
-        // (which were able to successfully load on the page) vs user supplied integrations
-        const succesfulLoadedIntersectClientSuppliedIntegrations =
-          findAllEnabledDestinations(
-            clientSuppliedIntegrations,
-            object.clientIntegrationObjects
-          );
-
-        // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-        for (
-          let i = 0;
-          i < succesfulLoadedIntersectClientSuppliedIntegrations.length;
-          i += 1
-        ) {
-          try {
+      // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
+      for (
+        let i = 0;
+        i < succesfulLoadedIntersectClientSuppliedIntegrations.length;
+        i += 1
+      ) {
+        try {
+          if (
+            !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
+            !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
+          ) {
             if (
-              !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
-              !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
+              succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]
             ) {
-              if (
-                succesfulLoadedIntersectClientSuppliedIntegrations[i][
-                  methodName
-                ]
-              ) {
-                const clonedBufferEvent = cloneDeep(event);
-                succesfulLoadedIntersectClientSuppliedIntegrations[i][
-                  methodName
-                ](...clonedBufferEvent);
-              }
+              const clonedBufferEvent = cloneDeep(event);
+              succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
+                ...clonedBufferEvent
+              );
             }
-          } catch (error) {
-            handleError(error);
           }
+        } catch (error) {
+          handleError(error);
         }
-      });
-      object.toBeProcessedByIntegrationArray = [];
-      object.areEventsReplayed = true;
-    }
+      }
+    });
+    object.toBeProcessedByIntegrationArray = [];
   }
 
   pause(time) {

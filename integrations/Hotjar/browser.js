@@ -1,13 +1,17 @@
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 
 class Hotjar {
   constructor(config) {
-    this.siteId = config.siteID; // 1549611
+    this.siteId = config.siteID;
     this.name = "HOTJAR";
     this._ready = false;
   }
 
   init() {
+    logger.debug("===In init Hotjar===");
+
     window.hotjarSiteId = this.siteId;
     (function (h, o, t, j, a, r) {
       h.hj =
@@ -23,11 +27,11 @@ class Hotjar {
       a.appendChild(r);
     })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
     this._ready = true;
-
-    logger.debug("===in init Hotjar===");
   }
 
   identify(rudderElement) {
+    logger.debug("===In Hotjar identify===");
+
     const userId =
       rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
@@ -41,18 +45,35 @@ class Hotjar {
   }
 
   track(rudderElement) {
-    logger.debug("[Hotjar] track:: method not supported");
+    logger.debug("===In Hotjar track===");
+
+    const { event } = rudderElement.message;
+
+    if (!event) {
+      logger.error("Event name not present");
+      return;
+    }
+
+    // event name must not exceed 750 characters and can only contain alphanumeric, underscores, and dashes.
+    // Ref - https://help.hotjar.com/hc/en-us/articles/4405109971095#the-events-api-call
+    window.hj(
+      "event",
+      event.replace(/\s\s+/g, " ").substring(0, 750).replaceAll(" ", "_")
+    );
   }
 
-  page(rudderElement) {
+  page() {
+    logger.debug("===In Hotjar page===");
     logger.debug("[Hotjar] page:: method not supported");
   }
 
   isLoaded() {
+    logger.debug("===In isLoaded Hotjar===");
     return this._ready;
   }
 
   isReady() {
+    logger.debug("===In isReady Hotjar===");
     return this._ready;
   }
 }

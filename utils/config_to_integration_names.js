@@ -45,6 +45,7 @@ const configToIntNames = {
   SNAP_PIXEL: "SnapPixel",
   POST_AFFILIATE_PRO: "PostAffiliatePro",
   GOOGLE_OPTIMIZE: "GoogleOptimize",
+  LAUNCHDARKLY: "LaunchDarkly",
 };
 
 // eslint-disable-next-line import/prefer-default-export
