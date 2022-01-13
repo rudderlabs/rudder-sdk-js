@@ -112,80 +112,82 @@ class Fullstory {
         };
     })(window, document, window._fs_namespace, "script", "user");
 
-    const { loadOnlyIntegrations } = this.analytics;
-    const { FULLSTORY } = loadOnlyIntegrations;
+    const { FULLSTORY } = this.analytics.loadOnlyIntegrations;
     // Checking if crossDomainSupport is their or not.
-    if (FULLSTORY) {
-      const { crossDomainSupport } = FULLSTORY;
-      if (crossDomainSupport) {
-        // This function will check if the customer hash is available or not in localStorage
-        window._fs_identity = function () {
-          if (localStorage.tata_customer_hash) {
+    if (FULLSTORY?.crossDomainSupport === true) {
+      // This function will check if the customer hash is available or not in localStorage
+      window._fs_identity = function () {
+        if (window.localStorage) {
+          const { tata_customer_hash } = window.localStorage;
+          if (tata_customer_hash) {
             return {
-              uid: localStorage.tata_customer_hash,
-              displayName: localStorage.tata_customer_hash,
+              uid: tata_customer_hash,
+              displayName: tata_customer_hash,
             };
           }
-          return null;
-        };
+        } else {
+          logger.debug("Unable to access locaStorage");
+        }
 
-        (function () {
-          function fs(api) {
-            if (!window._fs_namespace) {
-              console.error(
-                'FullStory unavailable, window["_fs_namespace"] must be defined'
-              );
-              return undefined;
+        return null;
+      };
+
+      (function () {
+        function fs(api) {
+          if (!window._fs_namespace) {
+            console.error(
+              'FullStory unavailable, window["_fs_namespace"] must be defined'
+            );
+            return undefined;
+          }
+          return api
+            ? window[window._fs_namespace][api]
+            : window[window._fs_namespace];
+        }
+        function waitUntil(predicateFn, callbackFn, timeout, timeoutFn) {
+          let totalTime = 0;
+          let delay = 64;
+          const resultFn = function () {
+            if (typeof predicateFn === "function" && predicateFn()) {
+              callbackFn();
+              return;
             }
-            return api
-              ? window[window._fs_namespace][api]
-              : window[window._fs_namespace];
-          }
-          function waitUntil(predicateFn, callbackFn, timeout, timeoutFn) {
-            let totalTime = 0;
-            let delay = 64;
-            const resultFn = function () {
-              if (typeof predicateFn === "function" && predicateFn()) {
-                callbackFn();
-                return;
+            delay = Math.min(delay * 2, 1024);
+            if (totalTime > timeout) {
+              if (timeoutFn) {
+                timeoutFn();
               }
-              delay = Math.min(delay * 2, 1024);
-              if (totalTime > timeout) {
-                if (timeoutFn) {
-                  timeoutFn();
-                }
-              }
-              totalTime += delay;
-              setTimeout(resultFn, delay);
-            };
-            resultFn();
-          }
-          // Checking if timeout is provided or not.
-          const timeout = FULLSTORY.timeout || 2000;
+            }
+            totalTime += delay;
+            setTimeout(resultFn, delay);
+          };
+          resultFn();
+        }
+        // Checking if timeout is provided or not.
+        const timeout = FULLSTORY.timeout || 2000;
 
-          function identify() {
-            if (typeof window._fs_identity === "function") {
-              const userVars = window._fs_identity();
-              if (
-                typeof userVars === "object" &&
-                typeof userVars.uid === "string"
-              ) {
-                fs("setUserVars")(userVars);
-                fs("restart")();
-              } else {
-                fs("log")(
-                  "error",
-                  "FS.setUserVars requires an object that contains uid"
-                );
-              }
+        function identify() {
+          if (typeof window._fs_identity === "function") {
+            const userVars = window._fs_identity();
+            if (
+              typeof userVars === "object" &&
+              typeof userVars.uid === "string"
+            ) {
+              fs("setUserVars")(userVars);
+              fs("restart")();
             } else {
-              fs("log")("error", 'window["_fs_identity"] function not found');
+              fs("log")(
+                "error",
+                "FS.setUserVars requires an object that contains uid"
+              );
             }
+          } else {
+            fs("log")("error", 'window["_fs_identity"] function not found');
           }
-          fs("shutdown")();
-          waitUntil(window._fs_identity, identify, timeout, fs("restart"));
-        })();
-      }
+        }
+        fs("shutdown")();
+        waitUntil(window._fs_identity, identify, timeout, fs("restart"));
+      })();
     }
   }
 
