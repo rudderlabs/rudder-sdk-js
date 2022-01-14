@@ -1,6 +1,6 @@
 const eventMapping = [
   {
-    src: ["checkout step completed", "order completed"],
+    src: ["order completed"],
     dest: "Checkout",
   },
   {
@@ -26,9 +26,7 @@ const productPropertyMapping = [
   { src: "brand", dest: "product_brand" },
 ];
 
-const propertyMapping = [
-  { src: "revenue", dest: "value" }
-]
+const propertyMapping = [{ src: "revenue", dest: "value" }];
 
 const pinterestPropertySupport = [
   "value",
