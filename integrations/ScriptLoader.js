@@ -14,10 +14,10 @@ const ScriptLoader = (id, src, async = defaultAsyncState) => {
   js.async = async === undefined ? defaultAsyncState : async;
   js.type = "text/javascript";
   js.id = id;
-  const headElems = document.getElementsByTagName("head");
-  if (Object.keys(headElems).length !== 0) {
+  const headElmColl = document.getElementsByTagName("head");
+  if (headElmColl.length !== 0) {
     // logger.debug("==adding script==", js);
-    headElems.insertBefore(js, headElems.firstChild);
+    headElmColl[0].insertBefore(js, headElmColl[0].firstChild);
   } else {
     const e = document.getElementsByTagName("script")[0];
     // logger.debug("==parent script==", e);
