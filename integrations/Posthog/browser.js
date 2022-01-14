@@ -13,6 +13,7 @@ class Posthog {
     this.disableCookie = config.disableCookie || false;
     this.propertyBlackList = [];
     this.xhrHeaders = {};
+    this.loaded = config.loaded; // Function that will be run once PostHog loads
 
     if (config.xhrHeaders && config.xhrHeaders.length > 0) {
       config.xhrHeaders.forEach(header => {
@@ -56,7 +57,8 @@ class Posthog {
       capture_pageview: this.capturePageView,
       disable_session_recording: this.disableSessionRecording,
       property_blacklist: this.propertyBlackList,
-      disable_cookie: this.disableCookie
+      disable_cookie: this.disableCookie,
+      loaded: this.loaded
     };
     if(this.xhrHeaders && Object.keys(this.xhrHeaders).length > 0){
       configObject.xhr_headers = this.xhrHeaders;
