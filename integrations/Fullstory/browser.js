@@ -1,11 +1,13 @@
+/* eslint-disable no-undef */
 import camelcase from "camelcase";
 import logger from "../../utils/logUtil";
 
 class Fullstory {
-  constructor(config) {
+  constructor(config, analytics) {
     this.fs_org = config.fs_org;
     this.fs_debug_mode = config.fs_debug_mode;
     this.name = "FULLSTORY";
+    this.analytics = analytics;
   }
 
   static getFSProperties(properties) {
@@ -46,7 +48,6 @@ class Fullstory {
 
   init() {
     logger.debug("===in init FULLSTORY===");
-
     window._fs_debug = this.fs_debug_mode;
     window._fs_host = "fullstory.com";
     window._fs_script = "edge.fullstory.com/s/fs.js";
@@ -110,6 +111,84 @@ class Fullstory {
           return g._w[y].apply(this, arguments);
         };
     })(window, document, window._fs_namespace, "script", "user");
+
+    const { FULLSTORY } = this.analytics.loadOnlyIntegrations;
+    // Checking if crossDomainSupport is their or not.
+    if (FULLSTORY?.crossDomainSupport === true) {
+      // This function will check if the customer hash is available or not in localStorage
+      window._fs_identity = function () {
+        if (window.localStorage) {
+          const { tata_customer_hash } = window.localStorage;
+          if (tata_customer_hash) {
+            return {
+              uid: tata_customer_hash,
+              displayName: tata_customer_hash,
+            };
+          }
+        } else {
+          logger.debug("Unable to access locaStorage");
+        }
+
+        return null;
+      };
+
+      (function () {
+        function fs(api) {
+          if (!window._fs_namespace) {
+            console.error(
+              'FullStory unavailable, window["_fs_namespace"] must be defined'
+            );
+            return undefined;
+          }
+          return api
+            ? window[window._fs_namespace][api]
+            : window[window._fs_namespace];
+        }
+        function waitUntil(predicateFn, callbackFn, timeout, timeoutFn) {
+          let totalTime = 0;
+          let delay = 64;
+          const resultFn = function () {
+            if (typeof predicateFn === "function" && predicateFn()) {
+              callbackFn();
+              return;
+            }
+            delay = Math.min(delay * 2, 1024);
+            if (totalTime > timeout) {
+              if (timeoutFn) {
+                timeoutFn();
+              }
+            }
+            totalTime += delay;
+            setTimeout(resultFn, delay);
+          };
+          resultFn();
+        }
+        // Checking if timeout is provided or not.
+        const timeout = FULLSTORY.timeout || 2000;
+
+        function identify() {
+          if (typeof window._fs_identity === "function") {
+            const userVars = window._fs_identity();
+            if (
+              typeof userVars === "object" &&
+              typeof userVars.uid === "string"
+            ) {
+              fs("setUserVars")(userVars);
+              fs("restart")();
+            } else {
+              fs("log")(
+                "error",
+                "FS.setUserVars requires an object that contains uid"
+              );
+            }
+          } else {
+            fs("log")("error", 'window["_fs_identity"] function not found');
+          }
+        }
+        fs("shutdown")();
+        waitUntil(window._fs_identity, identify, timeout, fs("restart"));
+      })();
+    }
   }
 
   page(rudderElement) {
