@@ -13,13 +13,13 @@ phases:
       - node -r esm integrationBuildScript.js
       - sed 's|//# sourceMappingURL=rudder-analytics.min.js.map||' dist/rudder-analytics.min.js  > dist/prod.js
       - mv dist/prod.js dist/rudder-analytics.min.js
-      - aws s3 cp dist/rudder-analytics.min.js s3://$S3_BUCKET_NAME/v1.1/rudder-analytics.min.js --cache-control max-age=3600 --acl public-read
+      - aws s3 cp dist/rudder-analytics.min.js s3://$S3_BUCKET_NAME/v1.1/rudder-analytics-staging.min.js --cache-control max-age=3600 --acl public-read
       - mkdir dist/temp
       - cp dist/integrations/* dist/temp
       - for file in dist/temp/* ; do old_name=$(basename "$file"); new_name=$(echo $old_name | awk '{split($0, tmp, "."); print sprintf("%s-staging.%s.%s", tmp[1], tmp[2], tmp[3])}'); mv "dist/temp/$old_name" "dist/temp/$new_name"; done
       - aws s3 cp dist/temp/ s3://$S3_BUCKET_NAME/v1.1/js-integrations/ --recursive --cache-control max-age=3600 --acl public-read
       - rm -rf dist/temp
-      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/v1.1/rudder-analytics.min.js"
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/v1.1/rudder-analytics-staging.min.js"
       - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/v1.1/js-integrations"
 artifacts:
   files:
