@@ -702,7 +702,9 @@ class Analytics {
 
             if (isValidBlackList) {
               return blackListedEvents.find(
-                (eventObj) => eventObj.eventName === eventName
+                (eventObj) =>
+                  eventObj.eventName.trim().toUpperCase() ===
+                  eventName.trim().toUpperCase()
               ) === undefined
                 ? false
                 : true;
@@ -717,7 +719,9 @@ class Analytics {
               whiteListedEvents.some((x) => x.eventName !== "");
             if (isValidWhiteList) {
               return whiteListedEvents.find(
-                (eventObj) => eventObj.eventName === eventName
+                (eventObj) =>
+                  eventObj.eventName.trim().toUpperCase() ===
+                  eventName.trim().toUpperCase()
               ) === undefined
                 ? true
                 : false;
