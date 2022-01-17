@@ -45,8 +45,9 @@ class CustomerIO {
     const traits = rudderElement.message.context.traits
       ? rudderElement.message.context.traits
       : {};
-    if (!traits.created_at) {
-      traits.created_at = Math.floor(new Date().getTime() / 1000);
+    const createAt = traits.createdAt
+    if (createAt) {
+      traits.created_at = Math.floor(new Date(createAt).getTime() / 1000)
     }
     traits.id = userId;
     window._cio.identify(traits);

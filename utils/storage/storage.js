@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
 import logger from "../logUtil";
@@ -33,6 +34,10 @@ class Storage {
     // localStorage is enabled.
     if (Store.enabled) {
       this.storage = Store;
+    }
+
+    if (!this.storage) {
+      throw Error("Could not initialize the SDK :: no storage is available");
     }
   }
 
@@ -182,7 +187,7 @@ class Storage {
   /**
    * @param {*} value
    */
-  setInitialReferrer(value){
+  setInitialReferrer(value) {
     this.storage.set(
       defaults.page_storage_init_referrer,
       this.encryptValue(this.stringify(value))
@@ -192,7 +197,7 @@ class Storage {
   /**
    * @param {*} value
    */
-  setInitialReferringDomain(value){
+  setInitialReferringDomain(value) {
     this.storage.set(
       defaults.page_storage_init_referring_domain,
       this.encryptValue(this.stringify(value))
@@ -255,7 +260,7 @@ class Storage {
   /**
    * get stored initial referrer
    */
-  getInitialReferrer(value){
+  getInitialReferrer(value) {
     return this.parse(
       this.decryptValue(this.storage.get(defaults.page_storage_init_referrer))
     );
@@ -264,9 +269,11 @@ class Storage {
   /**
    * get stored initial referring domain
    */
-  getInitialReferringDomain(value){
+  getInitialReferringDomain(value) {
     return this.parse(
-      this.decryptValue(this.storage.get(defaults.page_storage_init_referring_domain))
+      this.decryptValue(
+        this.storage.get(defaults.page_storage_init_referring_domain)
+      )
     );
   }
 
@@ -281,12 +288,14 @@ class Storage {
   /**
    * remove stored keys
    */
-  clear() {
+  clear(flag) {
     this.storage.remove(defaults.user_storage_key);
     this.storage.remove(defaults.user_storage_trait);
     this.storage.remove(defaults.group_storage_key);
     this.storage.remove(defaults.group_storage_trait);
-    // this.storage.remove(defaults.user_storage_anonymousId);
+    if (flag) {
+      this.storage.remove(defaults.user_storage_anonymousId);
+    }
   }
 }
 

@@ -33,18 +33,18 @@ class TVSquared {
   };
 
   page = () => {
+    window._tvq.push([
+      function () {
+        this.deleteCustomVariable(5, "page");
+      },
+    ]);
     window._tvq.push(["trackPageView"]);
   };
 
   track(rudderElement) {
     const { event, userId, anonymousId } = rudderElement.message;
-    const {
-      revenue,
-      productType,
-      category,
-      order_id,
-      promotion_id,
-    } = rudderElement.message.properties;
+    const { revenue, productType, category, order_id, promotion_id } =
+      rudderElement.message.properties;
     let i;
     let j;
     let whitelist = this.eventWhiteList.slice();
@@ -92,8 +92,14 @@ class TVSquared {
         },
       ]);
       window._tvq.push(["trackPageView"]);
+    } else {
+      window._tvq.push([
+        function () {
+          this.deleteCustomVariable(5, "page");
+        },
+      ]);
     }
-  };
+  }
 
   formatRevenue = (revenue) => {
     let rev = revenue;

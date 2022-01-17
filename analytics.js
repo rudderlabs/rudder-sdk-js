@@ -14,6 +14,7 @@ import Emitter from "component-emitter";
 import after from "after";
 import querystring from "component-querystring";
 import merge from "lodash.merge";
+import cloneDeep from "lodash.clonedeep";
 import utm from "@segment/utm-params";
 import {
   getJSONTrimmed,
@@ -26,12 +27,12 @@ import {
   transformToServerNames,
   checkReservedKeywords,
   getReferrer,
-  getReferringDomain
+  getReferringDomain,
 } from "./utils/utils";
 import {
   CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
-  INTEGRATION_LOAD_CHECK_INTERVAL
+  INTEGRATION_LOAD_CHECK_INTERVAL,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -41,10 +42,11 @@ import logger from "./utils/logUtil";
 import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
+import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
 
 const queryDefaults = {
   trait: "ajs_trait_",
-  prop: "ajs_prop_"
+  prop: "ajs_prop_",
 };
 
 // https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
@@ -92,10 +94,11 @@ class Analytics {
     this.readyCallback = () => {};
     this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
-      syncPixel: "syncPixelCallback"
+      syncPixel: "syncPixelCallback",
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.cookieConsentOptions = {};
   }
 
   /**
@@ -128,10 +131,10 @@ class Analytics {
     this.storage.setGroupTraits(this.groupTraits);
   }
 
-  setInitialPageProperties(){
+  setInitialPageProperties() {
     let initialReferrer = this.storage.getInitialReferrer();
     let initialReferringDomain = this.storage.getInitialReferringDomain();
-    if(initialReferrer == null && initialReferringDomain == null){
+    if (initialReferrer == null && initialReferringDomain == null) {
       initialReferrer = getReferrer();
       initialReferringDomain = getReferringDomain(initialReferrer);
       this.storage.setInitialReferrer(initialReferrer);
@@ -150,7 +153,7 @@ class Analytics {
   processResponse(status, response) {
     try {
       logger.debug(`===in process response=== ${status}`);
-      if (typeof response === 'string') {
+      if (typeof response === "string") {
         response = JSON.parse(response);
       }
       if (
@@ -168,7 +171,7 @@ class Analytics {
         if (destination.enabled) {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
-            config: destination.config
+            config: destination.config,
           });
         }
       }, this);
@@ -180,9 +183,25 @@ class Analytics {
         this.clientIntegrations
       );
 
-      // remove from the list which don't have support yet in SDK
-      this.clientIntegrations = this.clientIntegrations.filter(intg => {
-        return integrations[intg.name] != undefined;
+      var cookieConsent;
+      // Call the cookie consent factory to initialize and return the type of cookie
+      // consent being set. For now we only support OneTrust.
+      try {
+        cookieConsent = CookieConsentFactory.initialize(
+          this.cookieConsentOptions
+        );
+      } catch (e) {
+        logger.error(e);
+      }
+
+      // If cookie consent object is return we filter according to consents given by user
+      // else we do not consider any filtering for cookie consent.
+      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+        return (
+          integrations[intg.name] != undefined &&
+          (!cookieConsent || // check if cookie consent object is present and then do filtering
+            (cookieConsent && cookieConsent.isEnabled(intg.config)))
+        );
       });
 
       this.init(this.clientIntegrations);
@@ -212,7 +231,6 @@ class Analytics {
     const self = this;
     logger.debug("supported intgs ", integrations);
     // this.clientIntegrationObjects = [];
-
     if (!intgArray || intgArray.length == 0) {
       if (this.readyCallback) {
         this.readyCallback();
@@ -221,7 +239,7 @@ class Analytics {
       return;
     }
     let intgInstance;
-    intgArray.forEach(intg => {
+    intgArray.forEach((intg) => {
       try {
         logger.debug(
           "[Analytics] init :: trying to initialize integration name:: ",
@@ -231,9 +249,7 @@ class Analytics {
         const destConfig = intg.config;
         intgInstance = new intgClass(destConfig, self);
         intgInstance.init();
-
         logger.debug("initializing destination: ", intg);
-
         this.isInitialized(intgInstance).then(this.replayEvents);
       } catch (e) {
         logger.error(
@@ -248,9 +264,9 @@ class Analytics {
   // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
     if (
-      (object.successfullyLoadedIntegration.length +
+      object.successfullyLoadedIntegration.length +
         object.failedToBeLoadedIntegration.length ===
-        object.clientIntegrations.length) &&
+        object.clientIntegrations.length &&
       !object.areEventsReplayed
     ) {
       logger.debug(
@@ -278,7 +294,7 @@ class Analytics {
       logger.debug("==registering ready callback===");
       object.on("ready", object.executeReadyCallback);
 
-      object.clientIntegrationObjects.forEach(intg => {
+      object.clientIntegrationObjects.forEach((intg) => {
         logger.debug("===looping over each successful integration====");
         if (!intg.isReady || intg.isReady()) {
           logger.debug("===letting know I am ready=====", intg.name);
@@ -288,7 +304,7 @@ class Analytics {
 
       if (object.toBeProcessedByIntegrationArray.length > 0) {
         // send the queued events to the fetched integration
-        object.toBeProcessedByIntegrationArray.forEach(event => {
+        object.toBeProcessedByIntegrationArray.forEach((event) => {
           const methodName = event[0];
           event.shift();
 
@@ -302,10 +318,11 @@ class Analytics {
 
           // get intersection between config plane native enabled destinations
           // (which were able to successfully load on the page) vs user supplied integrations
-          const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
-            clientSuppliedIntegrations,
-            object.clientIntegrationObjects
-          );
+          const succesfulLoadedIntersectClientSuppliedIntegrations =
+            findAllEnabledDestinations(
+              clientSuppliedIntegrations,
+              object.clientIntegrationObjects
+            );
 
           // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
           for (
@@ -326,9 +343,10 @@ class Analytics {
                     methodName
                   ]
                 ) {
+                  const clonedBufferEvent = cloneDeep(event);
                   succesfulLoadedIntersectClientSuppliedIntegrations[i][
                     methodName
-                  ](...event);
+                  ](...clonedBufferEvent);
                 }
               }
             } catch (error) {
@@ -343,13 +361,13 @@ class Analytics {
   }
 
   pause(time) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(resolve, time);
     });
   }
 
   isInitialized(instance, time = 0) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (instance.isLoaded()) {
         logger.debug("===integration loaded successfully====", instance.name);
         this.successfullyLoadedIntegration.push(instance);
@@ -606,7 +624,7 @@ class Analytics {
       rudderElement.message.context.traits
     ) {
       this.userTraits = {
-        ...rudderElement.message.context.traits
+        ...rudderElement.message.context.traits,
       };
       this.storage.setUserTraits(this.userTraits);
     }
@@ -669,7 +687,7 @@ class Analytics {
       // rudderElement.message.context.page = getDefaultPageProperties();
 
       rudderElement.message.context.traits = {
-        ...this.userTraits
+        ...this.userTraits,
       };
 
       logger.debug("anonymousId: ", this.anonymousId);
@@ -684,7 +702,7 @@ class Analytics {
         }
         if (this.groupTraits) {
           rudderElement.message.traits = {
-            ...this.groupTraits
+            ...this.groupTraits,
           };
         }
       }
@@ -705,17 +723,19 @@ class Analytics {
 
       // get intersection between config plane native enabled destinations
       // (which were able to successfully load on the page) vs user supplied integrations
-      const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
-        clientSuppliedIntegrations,
-        this.clientIntegrationObjects
-      );
+      const succesfulLoadedIntersectClientSuppliedIntegrations =
+        findAllEnabledDestinations(
+          clientSuppliedIntegrations,
+          this.clientIntegrationObjects
+        );
 
       // try to first send to all integrations, if list populated from BE
       try {
-        succesfulLoadedIntersectClientSuppliedIntegrations.forEach(obj => {
+        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
           if (!obj.isFailed || !obj.isFailed()) {
             if (obj[type]) {
-              obj[type](rudderElement);
+              const clonedRudderElement = cloneDeep(rudderElement);
+              obj[type](clonedRudderElement);
             }
           }
         });
@@ -785,18 +805,18 @@ class Analytics {
     const toplevelElements = [
       "integrations",
       "anonymousId",
-      "originalTimestamp"
+      "originalTimestamp",
     ];
     for (const key in options) {
       if (toplevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== "context") {
         rudderElement.message.context = merge(rudderElement.message.context, {
-          [key]: options[key]
+          [key]: options[key],
         });
       } else if (typeof options[key] === "object" && options[key] != null) {
         rudderElement.message.context = merge(rudderElement.message.context, {
-          ...options[key]
+          ...options[key],
         });
       } else {
         logger.error(
@@ -809,8 +829,6 @@ class Analytics {
   getPageProperties(properties, options) {
     const defaultPageProperties = getDefaultPageProperties();
     const optionPageProperties = options && options.page ? options.page : {};
-    defaultPageProperties.initial_referrer = this.storage.getInitialReferrer();
-    defaultPageProperties.initial_referring_domain = this.storage.getInitialReferringDomain();
     for (const key in defaultPageProperties) {
       if (properties[key] === undefined) {
         properties[key] =
@@ -838,13 +856,16 @@ class Analytics {
    *
    * @memberof Analytics
    */
-  reset() {
+  reset(flag) {
     if (!this.loaded) return;
+    if (flag) {
+      this.anonymousId = "";
+    }
     this.userId = "";
     this.userTraits = {};
     this.groupId = "";
     this.groupTraits = {};
-    this.storage.clear();
+    this.storage.clear(flag);
   }
 
   getAnonymousId() {
@@ -854,6 +875,10 @@ class Analytics {
       this.setAnonymousId();
     }
     return this.anonymousId;
+  }
+
+  getUserTraits() {
+    return this.userTraits;
   }
 
   /**
@@ -908,21 +933,32 @@ class Analytics {
    */
   load(writeKey, serverUrl, options) {
     logger.debug("inside load ");
+    if (options && options.cookieConsentManager)
+      this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
     if (this.loaded) return;
     let configUrl = CONFIG_URL;
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
       handleError({
         message:
-          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl"
+          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl",
       });
       throw Error("failed to initialize");
     }
+
+    let storageOptions = {};
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
     }
+
     if (options && options.setCookieDomain) {
-      this.storage.options({domain: options.setCookieDomain});
+      storageOptions = { ...storageOptions, domain: options.setCookieDomain };
     }
+
+    if (options && options.secureCookie) {
+      storageOptions = { ...storageOptions, secure: options.secureCookie };
+    }
+    this.storage.options(storageOptions);
+
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       tranformToRudderNames(this.loadOnlyIntegrations);
@@ -941,7 +977,7 @@ class Analytics {
     if (options && options.clientSuppliedCallbacks) {
       // convert to rudder recognised method names
       const tranformedCallbackMapping = {};
-      Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+      Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
         if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
           if (
             options.clientSuppliedCallbacks[
@@ -959,25 +995,11 @@ class Analytics {
       this.registerCallbacks(true);
     }
 
-    if (
-      options &&
-      options.queueOptions &&
-      options.queueOptions != null &&
-      typeof options.queueOptions == "object"
-    ) {
-      this.eventRepository.startQueue(options.queueOptions);
-    } else {
-      this.eventRepository.startQueue({});
-    }
-
     if (options && options.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
     }
 
-    this.eventRepository.writeKey = writeKey;
-    if (serverUrl) {
-      this.eventRepository.url = serverUrl;
-    }
+    this.eventRepository.initialize(writeKey, serverUrl, options);
     this.initializeUser();
     this.setInitialPageProperties();
     this.loaded = true;
@@ -1006,7 +1028,6 @@ class Analytics {
         addDomEventHandlers(this);
       }
     }
-
     if (options && options.getSourceConfig) {
       if (typeof options.getSourceConfig !== "function") {
         handleError('option "getSourceConfig" must be a function');
@@ -1014,9 +1035,7 @@ class Analytics {
         const res = options.getSourceConfig();
 
         if (res instanceof Promise) {
-          res
-            .then(res => this.processResponse(200, res))
-            .catch(errorHandler)
+          res.then((res) => this.processResponse(200, res)).catch(errorHandler);
         } else {
           this.processResponse(200, res);
         }
@@ -1029,7 +1048,7 @@ class Analytics {
     try {
       getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
     } catch (error) {
-      errorHandler(error)
+      errorHandler(error);
     }
     processDataInAnalyticsArray(this);
   }
@@ -1044,7 +1063,7 @@ class Analytics {
   }
 
   initializeCallbacks() {
-    Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+    Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
       if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
         this.on(methodName, () => {});
       }
@@ -1053,7 +1072,7 @@ class Analytics {
 
   registerCallbacks(calledFromLoad) {
     if (!calledFromLoad) {
-      Object.keys(this.methodToCallbackMapping).forEach(methodName => {
+      Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
         if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
           if (window.rudderanalytics) {
             if (
@@ -1082,7 +1101,7 @@ class Analytics {
       });
     }
 
-    Object.keys(this.clientSuppliedCallbacks).forEach(methodName => {
+    Object.keys(this.clientSuppliedCallbacks).forEach((methodName) => {
       if (this.clientSuppliedCallbacks.hasOwnProperty(methodName)) {
         logger.debug(
           "registerCallbacks",
@@ -1108,7 +1127,7 @@ class Analytics {
   parseQueryString(query) {
     function getTraitsFromQueryObject(qObj) {
       const traits = {};
-      Object.keys(qObj).forEach(key => {
+      Object.keys(qObj).forEach((key) => {
         if (key.substr(0, queryDefaults.trait.length) == queryDefaults.trait) {
           traits[key.substr(queryDefaults.trait.length)] = qObj[key];
         }
@@ -1119,7 +1138,7 @@ class Analytics {
 
     function getEventPropertiesFromQueryObject(qObj) {
       const props = {};
-      Object.keys(qObj).forEach(key => {
+      Object.keys(qObj).forEach((key) => {
         if (key.substr(0, queryDefaults.prop.length) == queryDefaults.prop) {
           props[key.substr(queryDefaults.prop.length)] = qObj[key];
         }
@@ -1187,7 +1206,7 @@ Emitter(instance);
 
 window.addEventListener(
   "error",
-  e => {
+  (e) => {
     handleError(e, instance);
   },
   true
@@ -1247,6 +1266,7 @@ const group = instance.group.bind(instance);
 const reset = instance.reset.bind(instance);
 const load = instance.load.bind(instance);
 const initialized = (instance.initialized = true);
+const getUserTraits = instance.getUserTraits.bind(instance);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
 
@@ -1260,6 +1280,7 @@ export {
   reset,
   alias,
   group,
+  getUserTraits,
   getAnonymousId,
-  setAnonymousId
+  setAnonymousId,
 };

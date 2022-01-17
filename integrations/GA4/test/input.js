@@ -201,16 +201,14 @@ rudderanalytics.track("Checkout Started", {
 });
 
 rudderanalytics.track("Payment Info Entered", {
-  checkout_id: "12344",
-  order_id: "123",
+  order_id: "12344",
   step: "3",
   shipping_method: "ekart",
   payment_method: "card",
 });
 
 rudderanalytics.track("Order Completed", {
-  checkout_id: "12345",
-  order_id: "1234",
+  order_id: "12345",
   affiliation: "Apple Store",
   total: 20,
   revenue: 15.0,

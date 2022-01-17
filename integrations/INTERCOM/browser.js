@@ -85,6 +85,13 @@ class INTERCOM {
       }
     }
 
+    // populate name if firstname and lastname is populated
+    // if name is not set
+    const { firstName, lastName, name } = context.traits;
+    if (!name && (firstName || lastName)) {
+      context.traits.name = `${firstName} ${lastName}`.trim();
+    }
+
     // map rudderPayload to desired
     Object.keys(context.traits).forEach((field) => {
       if (context.traits.hasOwnProperty(field)) {
@@ -150,7 +157,9 @@ class INTERCOM {
       : null;
     properties.forEach((property) => {
       const value = message.properties[property];
-      rawPayload[property] = value;
+      if (value && typeof value !== "object" && !Array.isArray(value)) {
+        rawPayload[property] = value;
+      }
     });
 
     if (message.event) {
