@@ -1,13 +1,27 @@
 import logger from "../../utils/logUtil";
+import { ServerSideScriptLoader } from "./utils";
 
 class GoogleTagManager {
   constructor(config) {
     this.containerID = config.containerID;
     this.name = "GOOGLETAGMANAGER";
+    this.sendServerSide = config.sendServerSide;
+    this.serverUrl = config.serverUrl;
   }
 
   init() {
     logger.debug("===in init GoogleTagManager===");
+
+    const defaultUrl = `https://www.googletagmanager.com`;
+
+    // ref: https://developers.google.com/tag-platform/tag-manager/server-side/send-data#update_the_gtmjs_source_domain
+
+    if (this.sendServerSide && this.serverUrl) {
+      window.finalUrl = this.serverUrl;
+    } else {
+      window.finalUrl = defaultUrl;
+    }
+
     (function (w, d, s, l, i) {
       w[l] = w[l] || [];
       w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
@@ -15,9 +29,17 @@ class GoogleTagManager {
       const j = d.createElement(s);
       const dl = l !== "dataLayer" ? `&l=${l}` : "";
       j.async = true;
-      j.src = `https://www.googletagmanager.com/gtm.js?id=${i}${dl}`;
+      j.src = `${window.finalUrl}/gtm.js?id=${i}${dl}`;
       f.parentNode.insertBefore(j, f);
     })(window, document, "script", "dataLayer", this.containerID);
+
+    if (this.sendServerSide) {
+      // when user opts for server side
+      ServerSideScriptLoader(
+        "Tag Manager Server Side",
+        `${window.finalUrl}/ns.html?id=${this.containerID}/`
+      );
+    }
   }
 
   identify(rudderElement) {
