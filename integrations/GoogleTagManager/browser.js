@@ -1,11 +1,9 @@
 import logger from "../../utils/logUtil";
-import { ServerSideScriptLoader } from "./utils";
 
 class GoogleTagManager {
   constructor(config) {
     this.containerID = config.containerID;
     this.name = "GOOGLETAGMANAGER";
-    this.sendServerSide = config.sendServerSide;
     this.serverUrl = config.serverUrl;
   }
 
@@ -16,11 +14,7 @@ class GoogleTagManager {
 
     // ref: https://developers.google.com/tag-platform/tag-manager/server-side/send-data#update_the_gtmjs_source_domain
 
-    if (this.sendServerSide && this.serverUrl) {
-      window.finalUrl = this.serverUrl;
-    } else {
-      window.finalUrl = defaultUrl;
-    }
+    window.finalUrl = this.serverUrl ? this.serverUrl : defaultUrl;
 
     (function (w, d, s, l, i) {
       w[l] = w[l] || [];
@@ -32,14 +26,6 @@ class GoogleTagManager {
       j.src = `${window.finalUrl}/gtm.js?id=${i}${dl}`;
       f.parentNode.insertBefore(j, f);
     })(window, document, "script", "dataLayer", this.containerID);
-
-    if (this.sendServerSide) {
-      // when user opts for server side
-      ServerSideScriptLoader(
-        "Tag Manager Server Side",
-        `${window.finalUrl}/ns.html?id=${this.containerID}/`
-      );
-    }
   }
 
   identify(rudderElement) {
