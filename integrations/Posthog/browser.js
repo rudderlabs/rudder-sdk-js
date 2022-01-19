@@ -60,6 +60,8 @@ class Posthog {
       }, e.__SV = 1)
     }(document, window.posthog || []);
 
+    const { POSTHOG } = this.analytics.loadOnlyIntegrations;
+
     const configObject = {
       api_host: this.yourInstance,
       autocapture: this.autocapture,
@@ -68,6 +70,10 @@ class Posthog {
       property_blacklist: this.propertyBlackList,
       disable_cookie: this.disableCookie,
     };
+
+    if (POSTHOG && POSTHOG.loaded) {
+      configObject.loaded = POSTHOG.loaded;
+    }
     if (this.xhrHeaders && Object.keys(this.xhrHeaders).length > 0) {
       configObject.xhr_headers = this.xhrHeaders;
     }
