@@ -692,49 +692,49 @@ class Analytics {
 
     if (!eventFilteringOption) {
       return false;
-    } else {
-      switch (eventFilteringOption) {
-        // disabled filtering
-        case "disable":
-          return false;
-        // Blacklist is choosen for filtering events
-        case "blacklistedEvents":
-          const isValidBlackList =
-            blacklistedEvents &&
-            Array.isArray(blacklistedEvents) &&
-            blacklistedEvents.every((x) => x.eventName !== "");
+    }
 
-          if (isValidBlackList) {
-            return blacklistedEvents.find(
-              (eventObj) =>
-                eventObj.eventName.trim().toUpperCase() ===
-                eventName.trim().toUpperCase()
-            ) === undefined
-              ? false
-              : true;
-          } else {
-            return false;
-          }
-        // Whitelist is choosen for filtering events
-        case "whitelistedEvents":
-          const isValidWhiteList =
-            whitelistedEvents &&
-            Array.isArray(whitelistedEvents) &&
-            whitelistedEvents.some((x) => x.eventName !== "");
-          if (isValidWhiteList) {
-            return whitelistedEvents.find(
-              (eventObj) =>
-                eventObj.eventName.trim().toUpperCase() ===
-                eventName.trim().toUpperCase()
-            ) === undefined
-              ? true
-              : false;
-          } else {
-            return true;
-          }
-        default:
+    switch (eventFilteringOption) {
+      // disabled filtering
+      case "disable":
+        return false;
+      // Blacklist is choosen for filtering events
+      case "blacklistedEvents":
+        const isValidBlackList =
+          blacklistedEvents &&
+          Array.isArray(blacklistedEvents) &&
+          blacklistedEvents.every((x) => x.eventName !== "");
+
+        if (isValidBlackList) {
+          return blacklistedEvents.find(
+            (eventObj) =>
+              eventObj.eventName.trim().toUpperCase() ===
+              eventName.trim().toUpperCase()
+          ) === undefined
+            ? false
+            : true;
+        } else {
           return false;
-      }
+        }
+      // Whitelist is choosen for filtering events
+      case "whitelistedEvents":
+        const isValidWhiteList =
+          whitelistedEvents &&
+          Array.isArray(whitelistedEvents) &&
+          whitelistedEvents.some((x) => x.eventName !== "");
+        if (isValidWhiteList) {
+          return whitelistedEvents.find(
+            (eventObj) =>
+              eventObj.eventName.trim().toUpperCase() ===
+              eventName.trim().toUpperCase()
+          ) === undefined
+            ? true
+            : false;
+        } else {
+          return true;
+        }
+      default:
+        return false;
     }
   }
 
