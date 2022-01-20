@@ -685,7 +685,7 @@ class Analytics {
         (intg) => intg.name === sdkIntgName
       );
 
-      const { blackListedEvents, whiteListedEvents, eventFilteringOption } =
+      const { blacklistedEvents, whitelistedEvents, eventFilteringOption } =
         intg.config;
 
       if (eventFilteringOption) {
@@ -694,14 +694,14 @@ class Analytics {
           case "disable":
             return false;
           // Blacklist is choosen for filtering events
-          case "blackListedEvents":
+          case "blacklistedEvents":
             const isValidBlackList =
-              blackListedEvents &&
-              Array.isArray(blackListedEvents) &&
-              blackListedEvents.every((x) => x.eventName !== "");
+              blacklistedEvents &&
+              Array.isArray(blacklistedEvents) &&
+              blacklistedEvents.every((x) => x.eventName !== "");
 
             if (isValidBlackList) {
-              return blackListedEvents.find(
+              return blacklistedEvents.find(
                 (eventObj) =>
                   eventObj.eventName.trim().toUpperCase() ===
                   eventName.trim().toUpperCase()
@@ -712,13 +712,13 @@ class Analytics {
               return false;
             }
           // Whitelist is choosen for filtering events
-          case "whiteListedEvents":
+          case "whitelistedEvents":
             const isValidWhiteList =
-              whiteListedEvents &&
-              Array.isArray(whiteListedEvents) &&
-              whiteListedEvents.some((x) => x.eventName !== "");
+              whitelistedEvents &&
+              Array.isArray(whitelistedEvents) &&
+              whitelistedEvents.some((x) => x.eventName !== "");
             if (isValidWhiteList) {
-              return whiteListedEvents.find(
+              return whitelistedEvents.find(
                 (eventObj) =>
                   eventObj.eventName.trim().toUpperCase() ===
                   eventName.trim().toUpperCase()
