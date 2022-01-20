@@ -679,7 +679,9 @@ class Analytics {
   }
 
   IsEventBlackListed(eventName, intgName) {
-    if (typeof eventName === "string" && eventName) {
+    if (!eventName || !(typeof eventName === "string")) {
+      return false;
+    } else {
       const sdkIntgName = commonNames[intgName];
       const intg = this.clientIntegrations.find(
         (intg) => intg.name === sdkIntgName
@@ -688,7 +690,9 @@ class Analytics {
       const { blacklistedEvents, whitelistedEvents, eventFilteringOption } =
         intg.config;
 
-      if (eventFilteringOption) {
+      if (!eventFilteringOption) {
+        return false;
+      } else {
         switch (eventFilteringOption) {
           // disabled filtering
           case "disable":
@@ -731,11 +735,8 @@ class Analytics {
           default:
             return false;
         }
-      } else {
-        return false;
       }
     }
-    return false;
   }
 
   /**
