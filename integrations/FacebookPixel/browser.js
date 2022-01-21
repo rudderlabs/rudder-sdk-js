@@ -19,7 +19,7 @@ class FacebookPixel {
     this.legacyConversionPixelId = config.legacyConversionPixelId;
     this.userIdAsPixelId = config.userIdAsPixelId;
     this.whitelistPiiProperties = config.whitelistPiiProperties;
-    this.name = "FB_PIXEL";
+    this.name = "FACEBOOK_PIXEL";
   }
 
   init() {

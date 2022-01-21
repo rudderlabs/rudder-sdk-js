@@ -11,7 +11,7 @@ import { getDefinedTraits, isObject } from "../../utils/utils";
 
 class Sentry {
   constructor(config) {
-    this.name = "Sentry";
+    this.name = "SENTRY";
     this.dsn = config.dsn;
     this.debugMode = config.debugMode;
     this.environment = config.environment;
