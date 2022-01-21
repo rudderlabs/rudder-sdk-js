@@ -19,7 +19,7 @@ const commonNames = {
   "FB Pixel": "FACEBOOK_PIXEL",
   "Facebook Pixel": "FACEBOOK_PIXEL",
   FB_PIXEL: "FACEBOOK_PIXEL",
-  "Google Tag Manager": "GOOGLETAGMANAGER",
+  "Google Tag Manager": "GTM",
   GTM: "GTM",
   Hotjar: "HOTJAR",
   hotjar: "HOTJAR",
