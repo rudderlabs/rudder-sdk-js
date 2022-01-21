@@ -83,6 +83,7 @@ class FacebookPixel {
   }
 
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     const self = this;
     const { event, properties, messageId } = rudderElement.message;
     let revValue;

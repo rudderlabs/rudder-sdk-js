@@ -121,6 +121,7 @@ class Pendo {
   /* Once user is identified Pendo makes Track call to track user activity.
    */
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     const { event } = rudderElement.message;
     if (!event) {
       throw Error("Cannot call un-named track event");

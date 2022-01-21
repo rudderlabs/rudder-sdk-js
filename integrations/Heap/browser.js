@@ -80,6 +80,7 @@ class Heap {
   // DOC: https://developers.heap.io/reference#track
 
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     const { event, properties } = rudderElement.message;
     window.heap.track(event, processHeapProperties(properties));
   }

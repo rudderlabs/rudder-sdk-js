@@ -89,12 +89,12 @@ export default class PinterestTag {
         ...getDataFromSource(mapping.src, mapping.dest, properties),
         ...pinterestObject,
       };
-    })
+    });
     if (isPersist) {
       return {
         ...pinterestObject,
-        ...properties
-      }
+        ...properties,
+      };
     }
     return pinterestObject;
   }
@@ -107,7 +107,11 @@ export default class PinterestTag {
    */
   getRawPayload(properties) {
     const data = {};
-    const mappedProps = this.getMappingObject(properties, propertyMapping, true)
+    const mappedProps = this.getMappingObject(
+      properties,
+      propertyMapping,
+      true
+    );
     Object.keys(mappedProps).forEach((p) => {
       if (pinterestPropertySupport.includes(p)) {
         data[p] = mappedProps[p];
@@ -157,9 +161,8 @@ export default class PinterestTag {
         // This check fails if user is sending boolean value as false
         // Adding toString because if the property value is boolean then it never gets reflected in destination
         if (isDefinedAndNotNull(flattenPayload[custom.properties])) {
-          pinterestObject[custom.properties] = flattenPayload[
-            custom.properties
-          ].toString();
+          pinterestObject[custom.properties] =
+            flattenPayload[custom.properties].toString();
         }
       });
     }
@@ -192,6 +195,7 @@ export default class PinterestTag {
   }
 
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     if (!rudderElement.message || !rudderElement.message.event) {
       return;
     }

@@ -137,6 +137,7 @@ class VWO {
   }
 
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     const eventName = rudderElement.message.event;
     if (eventName === "Order Completed") {
       const total = rudderElement.message.properties

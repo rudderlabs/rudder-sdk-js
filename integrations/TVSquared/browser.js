@@ -42,6 +42,7 @@ class TVSquared {
   };
 
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     const { event, userId, anonymousId } = rudderElement.message;
     const { revenue, productType, category, order_id, promotion_id } =
       rudderElement.message.properties;

@@ -221,6 +221,7 @@ class Braze {
   }
 
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;

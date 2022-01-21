@@ -117,7 +117,7 @@ class MoEngage {
   };
 
   track(rudderElement) {
-    logger.debug("inside track");
+    logger.debug(`===in track call: ${this.name}===`);
     // Check if the user id is same as previous session if not a new session will start
     if (!rudderElement.message) {
       logger.error("Payload not correct");

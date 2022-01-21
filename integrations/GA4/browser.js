@@ -163,6 +163,7 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     const { event } = rudderElement.message;
     const { properties } = rudderElement.message;
     const { products } = properties;

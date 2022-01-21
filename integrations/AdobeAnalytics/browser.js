@@ -148,6 +148,7 @@ class AdobeAnalytics {
   }
 
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     utils.clearWindowSKeys(utils.getDynamicKeys());
     const { event } = rudderElement.message;
     if (this.heartbeatTrackingServerUrl) {

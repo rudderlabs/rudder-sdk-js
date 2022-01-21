@@ -149,6 +149,7 @@ class INTERCOM {
   }
 
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     const rawPayload = {};
     const { message } = rudderElement;
 

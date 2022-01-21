@@ -141,6 +141,7 @@ class Klaviyo {
   }
 
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     const { message } = rudderElement;
     if (message.properties) {
       // ecomm events

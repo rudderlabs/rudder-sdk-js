@@ -45,6 +45,7 @@ class LaunchDarkly {
   }
 
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     const { event, properties } = rudderElement.message;
     if (window.ldclient) {
       window.ldclient.track(event, properties);

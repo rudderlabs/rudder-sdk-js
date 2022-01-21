@@ -100,6 +100,7 @@ class Criteo {
   }
 
   track(rudderElement) {
+    logger.debug(`===in track call: ${this.name}===`);
     const { event, properties } = rudderElement.message;
 
     const finalPayload = handleCommonFields(rudderElement, this.hashMethod);
