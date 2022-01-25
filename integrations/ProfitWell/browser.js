@@ -6,7 +6,7 @@ class ProfitWell {
   constructor(config) {
     this.publicApiKey = config.publicApiKey;
     this.siteType = config.siteType;
-    this.name = "ProfitWell";
+    this.name = "PROFITWELL";
   }
 
   init() {
@@ -79,7 +79,9 @@ class ProfitWell {
       return;
     }
 
-    logger.debug("===[ProfitWell]: email or userId is required for identify===");
+    logger.debug(
+      "===[ProfitWell]: email or userId is required for identify==="
+    );
   }
 }
 

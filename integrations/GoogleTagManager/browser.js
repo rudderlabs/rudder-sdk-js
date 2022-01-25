@@ -3,7 +3,7 @@ import logger from "../../utils/logUtil";
 class GoogleTagManager {
   constructor(config) {
     this.containerID = config.containerID;
-    this.name = "GOOGLETAGMANAGER";
+    this.name = "GTM";
     this.serverUrl = config.serverUrl;
   }
 

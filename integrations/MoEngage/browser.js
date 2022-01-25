@@ -21,7 +21,7 @@ class MoEngage {
     this.apiId = config.apiId;
     this.debug = config.debug;
     this.region = config.region;
-    this.name = "MoEngage";
+    this.name = "MOENGAGE";
     this.analyticsinstance = analyticsinstance;
   }
 

@@ -12,7 +12,7 @@ import {
 
 class Criteo {
   constructor(config) {
-    this.name = "Criteo";
+    this.name = "CRITEO";
     this.hashMethod = config.hashMethod;
     this.accountId = config.accountId;
     this.url = config.homePageUrl;

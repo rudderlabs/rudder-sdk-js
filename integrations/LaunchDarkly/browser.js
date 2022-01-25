@@ -5,7 +5,7 @@ import createUser from "./utils";
 
 class LaunchDarkly {
   constructor(config) {
-    this.name = "LaunchDarkly";
+    this.name = "LAUNCHDARKLY";
     this.clientSideId = config.clientSideId;
   }
 
