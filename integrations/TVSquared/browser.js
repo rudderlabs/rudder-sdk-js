@@ -9,7 +9,7 @@ class TVSquared {
     this.clientId = config.clientId;
     this.eventWhiteList = config.eventWhiteList || [];
     this.customMetrics = config.customMetrics || [];
-    this.name = "TVSquared";
+    this.name = "TVSQUARED";
   }
 
   init() {

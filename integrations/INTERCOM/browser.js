@@ -3,7 +3,7 @@ import logger from "../../utils/logUtil";
 
 class INTERCOM {
   constructor(config) {
-    this.NAME = "INTERCOM";
+    this.name = "INTERCOM";
     this.API_KEY = config.apiKey;
     this.APP_ID = config.appId;
     this.MOBILE_APP_ID = config.mobileAppId;
