@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 
 import processHeapProperties from "./util";
+import logger from "../../utils/logUtil";
 
 class Heap {
   constructor(config) {
