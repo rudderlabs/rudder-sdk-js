@@ -42,7 +42,7 @@ import {
 
 class Mixpanel {
   constructor(config) {
-    this.name = "MIXPANEL";
+    this.name = "MP";
     this.accountId = config.accountId;
     this.token = config.token;
     this.people = config.people || false;
