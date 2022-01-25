@@ -684,6 +684,7 @@ export {
   isArray,
   isDefinedAndNotNull,
   getDataFromSource,
+  commonNames,
   removeTrailingSlashes,
   getConfigUrl,
   checkSDKUrl,
