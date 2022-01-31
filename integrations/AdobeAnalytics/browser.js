@@ -9,7 +9,7 @@ import * as heartbeatUtils from "./heartbeatHandle";
 import { getHashFromArray } from "../utils/commonUtils";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { commonNames.ADOBE_ANALYTICS as NAME } from "../integration_cname";
 
 class AdobeAnalytics {
   constructor(config) {
