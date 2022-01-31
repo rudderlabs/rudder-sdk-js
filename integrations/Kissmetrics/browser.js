@@ -1,15 +1,15 @@
 import is from "is";
 import extend from "@ndhoule/extend";
-import { del } from "obj-case";
 import each from "component-each";
 import { getRevenue } from "../../utils/utils";
 import logger from "../../utils/logUtil";
+import { commonNames } from "../integration_cname";
 
 class Kissmetrics {
   constructor(config) {
     this.apiKey = config.apiKey;
     this.prefixProperties = config.prefixProperties;
-    this.name = "KISSMETRICS";
+    this.name = commonNames.KISSMETRICS;
   }
 
   init() {

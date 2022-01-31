@@ -19,6 +19,7 @@
 /* eslint-disable lines-around-directive */
 /* eslint-disable strict */
 import logger from "../../utils/logUtil";
+import { commonNames } from "../integration_cname";
 
 class Lytics {
   constructor(config) {
@@ -26,7 +27,7 @@ class Lytics {
     this.stream = config.stream;
     this.blockload = config.blockload;
     this.loadid = config.loadid;
-    this.name = "LYTICS";
+    this.name = commonNames.LYTICS;
     this.forFirstName = ["firstname", "firstName"];
     this.forLastName = ["lastname", "lastName"];
   }
@@ -98,8 +99,8 @@ class Lytics {
       pageAnalysis: {
         dataLayerPull: {
           disabled: true,
-        }
-      }
+        },
+      },
     });
   }
 

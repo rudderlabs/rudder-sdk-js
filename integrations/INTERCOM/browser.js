@@ -1,9 +1,11 @@
+/* eslint-disable class-methods-use-this */
 import md5 from "md5";
 import logger from "../../utils/logUtil";
+import { commonNames } from "../integration_cname";
 
 class INTERCOM {
   constructor(config) {
-    this.name = "INTERCOM";
+    this.name = commonNames.INTERCOM;
     this.API_KEY = config.apiKey;
     this.APP_ID = config.appId;
     this.MOBILE_APP_ID = config.mobileAppId;

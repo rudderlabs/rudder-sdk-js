@@ -1,9 +1,11 @@
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
+import { commonNames } from "../integration_cname";
 
 class LinkedInInsightTag {
   constructor(config) {
-    this.name = "LINKEDIN_INSIGHT_TAG";
+    this.name = commonNames.LINKEDIN_INSIGHT_TAG;
     this.partnerId = config.partnerId;
   }
 

@@ -1,12 +1,13 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable lines-between-class-members */
 import logger from "../../utils/logUtil";
+import { commonNames } from "../integration_cname";
 
 class Pendo {
   constructor(config, analytics) {
     this.analytics = analytics;
     this.apiKey = !config.apiKey ? "" : config.apiKey;
-    this.name = "PENDO";
+    this.name = commonNames.PENDO;
     logger.debug("Config ", config);
   }
 

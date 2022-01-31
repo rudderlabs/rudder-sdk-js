@@ -39,10 +39,11 @@ import {
   mapTraits,
   formatTraits,
 } from "./util";
+import { commonNames } from "../integration_cname";
 
 class Mixpanel {
   constructor(config) {
-    this.name = "MP";
+    this.name = commonNames.MP;
     this.accountId = config.accountId;
     this.token = config.token;
     this.people = config.people || false;
