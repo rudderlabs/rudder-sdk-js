@@ -2,11 +2,12 @@
 /* eslint-disable no-underscore-dangle */
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
+import { commonNames } from "../integration_cname";
 
 class QuantumMetric {
   constructor(config) {
     this.siteId = config.siteID; // 1549611
-    this.name = "QUANTUMMETRIC";
+    this.name = commonNames.QUANTUMMETRIC;
     this._ready = false;
   }
 
