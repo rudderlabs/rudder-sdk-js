@@ -9,12 +9,13 @@ import {
 import { getDestinationExternalID } from "./utils";
 
 import { extractCustomFields } from "../../utils/utils";
+import { commonNames } from "../integration_cname";
 
 class Drip {
   constructor(config) {
     this.accountId = config.accountId;
     this.campaignId = config.campaignId;
-    this.name = "DRIP";
+    this.name = commonNames.DRIP;
     this.exclusionFields = [
       "email",
       "new_email",

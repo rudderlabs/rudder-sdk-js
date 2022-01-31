@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import { removeUndefinedAndNullValues } from "../utils/commonUtils";
+import { commonNames } from "../integration_cname";
 
 class GoogleAds {
   constructor(config) {
@@ -13,7 +14,7 @@ class GoogleAds {
     this.sendPageView = config.sendPageView || true;
     this.conversionLinker = config.conversionLinker || true;
     this.disableAdPersonalization = config.disableAdPersonalization || false;
-    this.name = "GOOGLEADS";
+    this.name = commonNames.GOOGLEADS;
   }
 
   init() {

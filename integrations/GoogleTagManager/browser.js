@@ -1,9 +1,11 @@
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
+import { commonNames } from "../integration_cname";
 
 class GoogleTagManager {
   constructor(config) {
     this.containerID = config.containerID;
-    this.name = "GTM";
+    this.name = commonNames.GTM;
     this.serverUrl = config.serverUrl;
   }
 
