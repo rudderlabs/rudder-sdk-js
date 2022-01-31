@@ -1,9 +1,11 @@
+/* eslint-disable class-methods-use-this */
 import onBody from "on-body";
 import logger from "../../utils/logUtil";
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from "../../utils/constants";
+import { commonNames } from "../integration_cname";
 
 class Chartbeat {
   constructor(config, analytics) {
@@ -19,7 +21,7 @@ class Chartbeat {
     this.replayEvents = [];
     this.failed = false;
     this.isFirstPageCallMade = false;
-    this.name = "CHARTBEAT";
+    this.name = commonNames.CHARTBEAT;
   }
 
   init() {

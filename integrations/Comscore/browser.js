@@ -1,8 +1,10 @@
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from "../../utils/constants";
+import { commonNames } from "../integration_cname";
 
 class Comscore {
   constructor(config, analytics) {
@@ -15,7 +17,7 @@ class Comscore {
     this.failed = false;
     this.comScoreParams = {};
     this.replayEvents = [];
-    this.name = "COMSCORE";
+    this.name = commonNames.COMSCORE;
   }
 
   init() {
