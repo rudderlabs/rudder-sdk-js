@@ -9,14 +9,7 @@ import * as heartbeatUtils from "./heartbeatHandle";
 import { getHashFromArray } from "../utils/commonUtils";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
-
-const NAME = "ADOBE_ANALYTICS";
-const AdobeAnalyticsCNameMapping = {
-  "Adobe Analytics": NAME,
-  [NAME]: NAME,
-  AdobeAnalytics: NAME,
-  adobeanalytics: NAME,
-};
+import { NAME } from "./constants";
 
 class AdobeAnalytics {
   constructor(config) {
@@ -291,4 +284,3 @@ class AdobeAnalytics {
 }
 
 export default AdobeAnalytics;
-export { AdobeAnalyticsCNameMapping };

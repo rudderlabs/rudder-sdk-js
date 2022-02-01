@@ -4,7 +4,7 @@ import each from "component-each";
 import logger from "../../utils/logUtil";
 import { rejectArr } from "../../utils/utils";
 import ScriptLoader from "../ScriptLoader";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 export default class GA {
   constructor(config, analytics) {
@@ -33,7 +33,7 @@ export default class GA {
     this.resetCustomDimensionsOnPage = config.resetCustomDimensionsOnPage || [];
     this.enhancedEcommerceLoaded = 0;
     this.namedTracker = config.namedTracker || false;
-    this.name = commonNames.GA;
+    this.name = NAME;
     this.eventWithCategoryFieldProductScoped = [
       "product clicked",
       "product added",

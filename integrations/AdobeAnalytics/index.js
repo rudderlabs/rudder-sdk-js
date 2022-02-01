@@ -1,4 +1,3 @@
-import AdobeAnalytics, { AdobeAnalyticsCNameMapping } from "./browser";
+import AdobeAnalytics from "./browser";
 
 export default AdobeAnalytics;
-export { AdobeAnalyticsCNameMapping };

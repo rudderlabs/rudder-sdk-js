@@ -4,7 +4,7 @@ import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from "../../utils/constants";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Comscore {
   constructor(config, analytics) {
@@ -17,7 +17,7 @@ class Comscore {
     this.failed = false;
     this.comScoreParams = {};
     this.replayEvents = [];
-    this.name = commonNames.COMSCORE;
+    this.name = NAME;
   }
 
   init() {

@@ -1,29 +1,41 @@
-import { AdobeAnalyticsCNameMapping } from "./AdobeAnalytics/index";
+import { CNameMapping as AdobeAnalytics } from "./AdobeAnalytics/constants";
+import { CNameMapping as Amplitude } from "./Amplitude/constants";
+import { CNameMapping as Appcues } from "./Appcues/constants";
+import { CNameMapping as BingAds } from "./BingAds/constants";
+import { CNameMapping as Braze } from "./Braze/constants";
+import { CNameMapping as Bugsnag } from "./Bugsnag/constants";
+import { CNameMapping as Chartbeat } from "./Chartbeat/constants";
+import { CNameMapping as Clevertap } from "./Clevertap/constants";
+import { CNameMapping as Comscore } from "./Comscore/constants";
+import { CNameMapping as Criteo } from "./Criteo/constants";
+import { CNameMapping as CustomerIO } from "./CustomerIO/constants";
+import { CNameMapping as Drip } from "./Drip/constants";
+import { CNameMapping as FacebookPixel } from "./FacebookPixel/constants";
+import { CNameMapping as Fullstory } from "./Fullstory/constants";
+import { CNameMapping as GA } from "./GA/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
 const commonNames = {
   All: "All",
-  ...AdobeAnalyticsCNameMapping,
-  "Google Analytics": "GA",
-  GoogleAnalytics: "GA",
-  GA: "GA",
+  ...AdobeAnalytics,
+  ...Amplitude,
+  ...Appcues,
+  ...BingAds,
+  ...Braze,
+  ...Bugsnag,
+  ...Chartbeat,
+  ...Clevertap,
+  ...Comscore,
+  ...Criteo,
+  ...CustomerIO,
+  ...Drip,
+  ...FacebookPixel,
+  ...Fullstory,
+  ...GA,
   "Google Ads": "GOOGLEADS",
   GoogleAds: "GOOGLEADS",
   GOOGLEADS: "GOOGLEADS",
-  Braze: "BRAZE",
-  BRAZE: "BRAZE",
-  Chartbeat: "CHARTBEAT",
-  CHARTBEAT: "CHARTBEAT",
-  Comscore: "COMSCORE",
-  COMSCORE: "COMSCORE",
-  Customerio: "CUSTOMERIO",
-  CUSTOMERIO: "CUSTOMERIO",
-  "Customer.io": "CUSTOMERIO",
-  "FB Pixel": "FACEBOOK_PIXEL",
-  "Facebook Pixel": "FACEBOOK_PIXEL",
-  FB_PIXEL: "FACEBOOK_PIXEL",
-  FACEBOOK_PIXEL: "FACEBOOK_PIXEL",
   "Google Tag Manager": "GTM",
   GTM: "GTM",
   Hotjar: "HOTJAR",
@@ -45,10 +57,6 @@ const commonNames = {
   VWO: "VWO",
   OPTIMIZELY: "OPTIMIZELY",
   Optimizely: "OPTIMIZELY",
-  FULLSTORY: "FULLSTORY",
-  Fullstory: "FULLSTORY",
-  FullStory: "FULLSTORY",
-  BUGSNAG: "BUGSNAG",
   TVSQUARED: "TVSQUARED",
   TVSquared: "TVSQUARED",
   "Google Analytics 4": "GA4",
@@ -70,10 +78,6 @@ const commonNames = {
   Posthog: "POSTHOG",
   KLAVIYO: "KLAVIYO",
   Klaviyo: "KLAVIYO",
-  CLEVERTAP: "CLEVERTAP",
-  Clevertap: "CLEVERTAP",
-  BingAds: "BINGADS",
-  BINGADS: "BINGADS",
   PinterestTag: "PINTEREST_TAG",
   Pinterest_Tag: "PINTEREST_TAG",
   PINTERESTTAG: "PINTEREST_TAG",
@@ -98,16 +102,10 @@ const commonNames = {
   "Reddit Pixel": "REDDIT_PIXEL",
   "REDDIT PIXEL": "REDDIT_PIXEL",
   "reddit pixel": "REDDIT_PIXEL",
-  Drip: "DRIP",
-  drip: "DRIP",
-  DRIP: "DRIP",
   Heap: "HEAP",
   heap: "HEAP",
   "Heap.io": "HEAP",
   HEAP: "HEAP",
-  Criteo: "CRITEO",
-  criteo: "CRITEO",
-  CRITEO: "CRITEO",
   MIXPANEL: "MP",
   Mixpanel: "MP",
   MP: "MP",

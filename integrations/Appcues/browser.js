@@ -1,13 +1,13 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Appcues {
   constructor(config) {
     this.accountId = config.accountId;
     this.apiKey = config.apiKey;
-    this.name = commonNames.APPCUES;
+    this.name = NAME;
     // this.sendToAllDestinations = config.sendToAll;
   }
 

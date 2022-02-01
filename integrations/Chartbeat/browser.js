@@ -5,7 +5,7 @@ import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from "../../utils/constants";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Chartbeat {
   constructor(config, analytics) {
@@ -21,7 +21,7 @@ class Chartbeat {
     this.replayEvents = [];
     this.failed = false;
     this.isFirstPageCallMade = false;
-    this.name = commonNames.CHARTBEAT;
+    this.name = NAME;
   }
 
   init() {

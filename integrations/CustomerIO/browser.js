@@ -1,12 +1,12 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class CustomerIO {
   constructor(config) {
     this.siteID = config.siteID;
     this.apiKey = config.apiKey;
-    this.name = commonNames.CUSTOMERIO;
+    this.name = NAME;
   }
 
   init() {

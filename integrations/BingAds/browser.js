@@ -1,10 +1,10 @@
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class BingAds {
   constructor(config) {
     this.tagID = config.tagID;
-    this.name = commonNames.BINGADS;
+    this.name = NAME;
   }
 
   loadBingadsScript = () => {

@@ -2,13 +2,13 @@
 /* eslint-disable no-undef */
 import camelcase from "camelcase";
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Fullstory {
   constructor(config, analytics) {
     this.fs_org = config.fs_org;
     this.fs_debug_mode = config.fs_debug_mode;
-    this.name = commonNames.FULLSTORY;
+    this.name = NAME;
     this.analytics = analytics;
   }
 
