@@ -13,7 +13,7 @@ import logger from "../../utils/logUtil";
 const NAME = "ADOBE_ANALYTICS";
 const AdobeAnalyticsCNameMapping = {
   "Adobe Analytics": NAME,
-  ADOBE_ANALYTICS: NAME,
+  [NAME]: NAME,
   AdobeAnalytics: NAME,
   adobeanalytics: NAME,
 };
