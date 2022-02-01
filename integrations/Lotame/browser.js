@@ -1,11 +1,11 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import { LotameStorage } from "./LotameStorage";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Lotame {
   constructor(config, analytics) {
-    this.name = commonNames.LOTAME;
+    this.name = NAME;
     this.analytics = analytics;
     this.storage = LotameStorage;
     this.bcpUrlSettingsPixel = config.bcpUrlSettingsPixel;

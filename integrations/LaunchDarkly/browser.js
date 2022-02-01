@@ -2,11 +2,11 @@
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
 import createUser from "./utils";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class LaunchDarkly {
   constructor(config) {
-    this.name = commonNames.LAUNCHDARKLY;
+    this.name = NAME;
     this.clientSideId = config.clientSideId;
   }
 

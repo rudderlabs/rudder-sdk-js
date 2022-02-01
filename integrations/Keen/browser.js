@@ -1,6 +1,6 @@
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Keen {
   constructor(config) {
@@ -11,7 +11,7 @@ class Keen {
     this.urlAddon = config.urlAddon;
     this.referrerAddon = config.referrerAddon;
     this.client = null;
-    this.name = commonNames.KEEN;
+    this.name = NAME;
   }
 
   init() {

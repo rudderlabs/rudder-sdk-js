@@ -1,12 +1,12 @@
 /* eslint-disable class-methods-use-this */
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class HubSpot {
   constructor(config) {
     this.hubId = config.hubID; // 6405167
-    this.name = commonNames.HS;
+    this.name = NAME;
   }
 
   init() {

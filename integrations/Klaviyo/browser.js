@@ -6,7 +6,7 @@ import ScriptLoader from "../ScriptLoader";
 import { extractCustomFields, getDefinedTraits } from "../../utils/utils";
 import ecommEventPayload from "./util";
 import { isNotEmpty } from "../utils/commonUtils";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Klaviyo {
   constructor(config) {
@@ -14,7 +14,7 @@ class Klaviyo {
     this.sendPageAsTrack = config.sendPageAsTrack;
     this.additionalPageInfo = config.additionalPageInfo;
     this.enforceEmailAsPrimary = config.enforceEmailAsPrimary;
-    this.name = commonNames.KLAVIYO;
+    this.name = NAME;
     this.keysToExtract = ["context.traits"];
     this.exclusionKeys = [
       "email",

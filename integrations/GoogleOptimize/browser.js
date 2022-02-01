@@ -2,11 +2,11 @@
 import logger from "../../utils/logUtil";
 
 import ScriptLoader from "../ScriptLoader";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class GoogleOptimize {
   constructor(config) {
-    this.name = commonNames.GOOGLE_OPTIMIZE;
+    this.name = NAME;
     this.ga = config.ga;
     this.trackingId = config.trackingId;
     this.containerId = config.containerId;

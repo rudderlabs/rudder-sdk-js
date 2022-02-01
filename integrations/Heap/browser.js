@@ -1,12 +1,12 @@
 /* eslint-disable class-methods-use-this */
 
 import processHeapProperties from "./util";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Heap {
   constructor(config) {
     this.appId = config.appId;
-    this.name = commonNames.HEAP;
+    this.name = NAME;
   }
 
   /**

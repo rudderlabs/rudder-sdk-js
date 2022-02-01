@@ -1,12 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Hotjar {
   constructor(config) {
     this.siteId = config.siteID;
-    this.name = commonNames.HOTJAR;
+    this.name = NAME;
     this._ready = false;
   }
 

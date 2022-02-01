@@ -3,13 +3,13 @@ import extend from "@ndhoule/extend";
 import each from "component-each";
 import { getRevenue } from "../../utils/utils";
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Kissmetrics {
   constructor(config) {
     this.apiKey = config.apiKey;
     this.prefixProperties = config.prefixProperties;
-    this.name = commonNames.KISSMETRICS;
+    this.name = NAME;
   }
 
   init() {
