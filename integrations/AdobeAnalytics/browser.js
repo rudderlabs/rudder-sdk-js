@@ -9,7 +9,14 @@ import * as heartbeatUtils from "./heartbeatHandle";
 import { getHashFromArray } from "../utils/commonUtils";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
-import { commonNames.ADOBE_ANALYTICS as NAME } from "../integration_cname";
+
+const NAME = "ADOBE_ANALYTICS";
+const AdobeAnalyticsCNameMapping = {
+  "Adobe Analytics": NAME,
+  ADOBE_ANALYTICS: NAME,
+  AdobeAnalytics: NAME,
+  adobeanalytics: NAME,
+};
 
 class AdobeAnalytics {
   constructor(config) {
@@ -26,7 +33,7 @@ class AdobeAnalytics {
     this.proxyNormalUrl = config.proxyNormalUrl;
     this.proxyHeartbeatUrl = config.proxyHeartbeatUrl;
     this.pageName = "";
-    this.name = commonNames.ADOBE_ANALYTICS;
+    this.name = NAME;
     utils.setConfig(config);
   }
 
@@ -284,3 +291,4 @@ class AdobeAnalytics {
 }
 
 export default AdobeAnalytics;
+export { AdobeAnalyticsCNameMapping };

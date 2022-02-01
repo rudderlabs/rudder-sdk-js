@@ -1,7 +1,10 @@
+import { AdobeAnalyticsCNameMapping } from "./AdobeAnalytics/index";
+
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
 const commonNames = {
   All: "All",
+  ...AdobeAnalyticsCNameMapping,
   "Google Analytics": "GA",
   GoogleAnalytics: "GA",
   GA: "GA",
@@ -79,10 +82,6 @@ const commonNames = {
   PinterestAds: "PINTEREST_TAG",
   Pinterest_Ads: "PINTEREST_TAG",
   Pinterest: "PINTEREST_TAG",
-  "Adobe Analytics": "ADOBE_ANALYTICS",
-  ADOBE_ANALYTICS: "ADOBE_ANALYTICS",
-  AdobeAnalytics: "ADOBE_ANALYTICS",
-  adobeanalytics: "ADOBE_ANALYTICS",
   "LinkedIn Insight Tag": "LINKEDIN_INSIGHT_TAG",
   LINKEDIN_INSIGHT_TAG: "LINKEDIN_INSIGHT_TAG",
   Linkedin_insight_tag: "LINKEDIN_INSIGHT_TAG",
