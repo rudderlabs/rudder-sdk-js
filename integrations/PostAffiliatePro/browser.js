@@ -4,11 +4,11 @@ import get from "get-value";
 import updateSaleObject from "./utils";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class PostAffiliatePro {
   constructor(config) {
-    this.name = commonNames.POST_AFFILIATE_PRO;
+    this.name = NAME;
     this.url = config.url;
     this.mergeProducts = config.mergeProducts;
     this.accountId = config.accountId;

@@ -2,11 +2,11 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import { removeTrailingSlashes } from "../../utils/utils";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Posthog {
   constructor(config, analytics) {
-    this.name = commonNames.POSTHOG;
+    this.name = NAME;
     this.analytics = analytics;
     this.teamApiKey = config.teamApiKey;
     this.yourInstance =

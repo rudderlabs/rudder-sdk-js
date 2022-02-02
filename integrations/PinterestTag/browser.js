@@ -12,7 +12,7 @@ import {
   isDefinedAndNotNull,
   getDataFromSource,
 } from "../../utils/utils";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 export default class PinterestTag {
   constructor(config, analytics) {
@@ -21,7 +21,7 @@ export default class PinterestTag {
     this.enhancedMatch = config.enhancedMatch || false;
     this.customProperties = config.customProperties || [];
     this.userDefinedEventsMapping = config.eventsMapping || [];
-    this.name = commonNames.PINTEREST_TAG;
+    this.name = NAME;
     logger.debug("config", config);
   }
 

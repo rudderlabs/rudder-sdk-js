@@ -2,7 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class TVSquared {
   constructor(config) {
@@ -10,7 +10,7 @@ class TVSquared {
     this.clientId = config.clientId;
     this.eventWhiteList = config.eventWhiteList || [];
     this.customMetrics = config.customMetrics || [];
-    this.name = commonNames.TVSQUARED;
+    this.name = NAME;
   }
 
   init() {

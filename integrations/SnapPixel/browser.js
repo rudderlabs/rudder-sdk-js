@@ -9,13 +9,13 @@ import {
   removeUndefinedAndNullValues,
 } from "../utils/commonUtils";
 import { ecommEventPayload, eventPayload, sendEvent } from "./util";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class SnapPixel {
   constructor(config) {
     this.pixelId = config.pixelId;
     this.hashMethod = config.hashMethod;
-    this.name = commonNames.SNAP_PIXEL;
+    this.name = NAME;
 
     this.trackEvents = [
       "SIGN_UP",

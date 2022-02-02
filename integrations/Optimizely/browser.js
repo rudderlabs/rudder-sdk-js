@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Optimizely {
   constructor(config, analytics) {
@@ -19,7 +19,7 @@ class Optimizely {
     this.customExperimentProperties = config.customExperimentProperties
       ? config.customExperimentProperties
       : [];
-    this.name = commonNames.OPTIMIZELY;
+    this.name = NAME;
   }
 
   init() {

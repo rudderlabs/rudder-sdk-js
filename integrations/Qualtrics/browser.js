@@ -10,11 +10,11 @@
 // eslint-disable-next-line class-methods-use-this
 
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class Qualtrics {
   constructor(config) {
-    this.name = commonNames.QUALTRICS;
+    this.name = NAME;
     this.projectId = config.projectId;
     this.brandId = config.brandId;
     this.enableGenericPageTitle = config.enableGenericPageTitle;

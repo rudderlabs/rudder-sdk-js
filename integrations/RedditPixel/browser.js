@@ -8,12 +8,12 @@
 /* eslint-disable vars-on-top */
 /* eslint-disable no-unused-expressions */
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 class RedditPixel {
   constructor(config) {
     this.advertiserId = config.advertiserId;
-    this.name = commonNames.REDDIT_PIXEL;
+    this.name = NAME;
   }
 
   init() {

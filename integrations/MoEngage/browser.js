@@ -1,6 +1,6 @@
 import each from "@ndhoule/each";
 import logger from "../../utils/logUtil";
-import { commonNames } from "../integration_cname";
+import { NAME } from "./constants";
 
 // custom traits mapping context.traits --> moengage properties
 const traitsMap = {
@@ -22,7 +22,7 @@ class MoEngage {
     this.apiId = config.apiId;
     this.debug = config.debug;
     this.region = config.region;
-    this.name = commonNames.MOENGAGE;
+    this.name = NAME;
     this.analyticsinstance = analyticsinstance;
   }
 

@@ -28,6 +28,21 @@ import { CNameMapping as LaunchDarkly } from "./LaunchDarkly/constants";
 import { CNameMapping as LinkedInInsightTag } from "./LinkedInInsightTag/constants";
 import { CNameMapping as Lotame } from "./Lotame/constants";
 import { CNameMapping as Lytics } from "./Lytics/constants";
+import { CNameMapping as Mixpanel } from "./Mixpanel/constants";
+import { CNameMapping as MoEngage } from "./MoEngage/constants";
+import { CNameMapping as Optimizely } from "./Optimizely/constants";
+import { CNameMapping as Pendo } from "./Pendo/constants";
+import { CNameMapping as PinterestTag } from "./PinterestTag/constants";
+import { CNameMapping as PostAffiliatePro } from "./PostAffiliatePro/constants";
+import { CNameMapping as Posthog } from "./Posthog/constants";
+import { CNameMapping as ProfitWell } from "./ProfitWell/constants";
+import { CNameMapping as Qualtrics } from "./Qualtrics/constants";
+import { CNameMapping as QuantumMetric } from "./QuantumMetric/constants";
+import { CNameMapping as RedditPixel } from "./RedditPixel/constants";
+import { CNameMapping as Sentry } from "./Sentry/constants";
+import { CNameMapping as SnapPixel } from "./SnapPixel/constants";
+import { CNameMapping as TVSquared } from "./TVSquared/constants";
+import { CNameMapping as VWO } from "./VWO/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -63,67 +78,21 @@ const commonNames = {
   ...LinkedInInsightTag,
   ...Lotame,
   ...Lytics,
-  "Visual Website Optimizer": "VWO",
-  VWO: "VWO",
-  OPTIMIZELY: "OPTIMIZELY",
-  Optimizely: "OPTIMIZELY",
-  TVSQUARED: "TVSQUARED",
-  TVSquared: "TVSQUARED",
-  MoEngage: "MOENGAGE",
-  MOENGAGE: "MOENGAGE",
-  Pendo: "PENDO",
-  PENDO: "PENDO",
-  POSTHOG: "POSTHOG",
-  PostHog: "POSTHOG",
-  Posthog: "POSTHOG",
-  PinterestTag: "PINTEREST_TAG",
-  Pinterest_Tag: "PINTEREST_TAG",
-  PINTERESTTAG: "PINTEREST_TAG",
-  PINTEREST_TAG: "PINTEREST_TAG",
-  pinterest: "PINTEREST_TAG",
-  PinterestAds: "PINTEREST_TAG",
-  Pinterest_Ads: "PINTEREST_TAG",
-  Pinterest: "PINTEREST_TAG",
-  Reddit_Pixel: "REDDIT_PIXEL",
-  REDDIT_PIXEL: "REDDIT_PIXEL",
-  RedditPixel: "REDDIT_PIXEL",
-  REDDITPIXEL: "REDDIT_PIXEL",
-  redditpixel: "REDDIT_PIXEL",
-  "Reddit Pixel": "REDDIT_PIXEL",
-  "REDDIT PIXEL": "REDDIT_PIXEL",
-  "reddit pixel": "REDDIT_PIXEL",
-  MIXPANEL: "MP",
-  Mixpanel: "MP",
-  MP: "MP",
-  Qualtrics: "QUALTRICS",
-  qualtrics: "QUALTRICS",
-  QUALTRICS: "QUALTRICS",
-  Snap_Pixel: "SNAP_PIXEL",
-  SnapPixel: "SNAP_PIXEL",
-  SNAPPIXEL: "SNAP_PIXEL",
-  snappixel: "SNAP_PIXEL",
-  SNAP_PIXEL: "SNAP_PIXEL",
-  "Snap Pixel": "SNAP_PIXEL",
-  "SNAP PIXEL": "SNAP_PIXEL",
-  "snap pixel": "SNAP_PIXEL",
-  PROFITWELL: "PROFITWELL",
-  ProfitWell: "PROFITWELL",
-  profitwell: "PROFITWELL",
-  SENTRY: "SENTRY",
-  sentry: "SENTRY",
-  Sentry: "SENTRY",
-  "Quantum Metric": "QUANTUMMETRIC",
-  QuantumMetric: "QUANTUMMETRIC",
-  quantumMetric: "QUANTUMMETRIC",
-  quantummetric: "QUANTUMMETRIC",
-  Quantum_Metric: "QUANTUMMETRIC",
-  QUANTUMMETRIC: "QUANTUMMETRIC",
-  PostAffiliatePro: "POST_AFFILIATE_PRO",
-  Post_affiliate_pro: "POST_AFFILIATE_PRO",
-  "Post Affiliate Pro": "POST_AFFILIATE_PRO",
-  postaffiliatepro: "POST_AFFILIATE_PRO",
-  POSTAFFILIATEPRO: "POST_AFFILIATE_PRO",
-  POST_AFFILIATE_PRO: "POST_AFFILIATE_PRO",
+  ...Mixpanel,
+  ...MoEngage,
+  ...Optimizely,
+  ...Pendo,
+  ...PinterestTag,
+  ...PostAffiliatePro,
+  ...Posthog,
+  ...ProfitWell,
+  ...Qualtrics,
+  ...QuantumMetric,
+  ...RedditPixel,
+  ...Sentry,
+  ...SnapPixel,
+  ...TVSquared,
+  ...VWO,
 };
 
 export { commonNames };
