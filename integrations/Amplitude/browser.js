@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import { type } from "../../utils/utils";
@@ -448,6 +449,11 @@ class Amplitude {
 
     if (productId) {
       amplitudeRevenue.setProductId(productId);
+    }
+    if (amplitudeRevenue._properties) {
+      delete amplitudeRevenue._properties.price;
+      delete amplitudeRevenue._properties.productId;
+      delete amplitudeRevenue._properties.quantity;
     }
     window.amplitude.getInstance().logRevenueV2(amplitudeRevenue);
   }
