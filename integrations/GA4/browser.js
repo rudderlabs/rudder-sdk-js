@@ -11,6 +11,7 @@ import {
   hasRequiredParameters,
 } from "./utils";
 import { type, flattenJsonPayload } from "../../utils/utils";
+import { NAME } from "./constants";
 
 export default class GA4 {
   constructor(config, analytics) {
@@ -20,7 +21,7 @@ export default class GA4 {
     this.blockPageView = config.blockPageViewEvent || false;
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.extendGroupPayload = config.extendGroupPayload || false;
-    this.name = "GA4";
+    this.name = NAME;
   }
 
   loadScript(measurementId, userId) {

@@ -1,4 +1,5 @@
 import logger from "../../utils/logUtil";
+import { NAME } from "./constants";
 
 class VWO {
   constructor(config, analytics) {
@@ -9,7 +10,7 @@ class VWO {
     this.useExistingJquery = config.useExistingJquery;
     this.sendExperimentTrack = config.sendExperimentTrack;
     this.sendExperimentIdentify = config.sendExperimentIdentify;
-    this.name = "VWO";
+    this.name = NAME;
     this.analytics = analytics;
     logger.debug("Config ", config);
   }

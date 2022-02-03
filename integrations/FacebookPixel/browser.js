@@ -5,6 +5,7 @@ import sha256 from "crypto-js/sha256";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import { getHashFromArray } from "../utils/commonUtils";
+import { NAME } from "./constants";
 
 class FacebookPixel {
   constructor(config) {
@@ -19,7 +20,7 @@ class FacebookPixel {
     this.legacyConversionPixelId = config.legacyConversionPixelId;
     this.userIdAsPixelId = config.userIdAsPixelId;
     this.whitelistPiiProperties = config.whitelistPiiProperties;
-    this.name = "FACEBOOK_PIXEL";
+    this.name = NAME;
   }
 
   init() {

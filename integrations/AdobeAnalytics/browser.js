@@ -9,6 +9,7 @@ import * as heartbeatUtils from "./heartbeatHandle";
 import { getHashFromArray } from "../utils/commonUtils";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
+import { NAME } from "./constants";
 
 class AdobeAnalytics {
   constructor(config) {
@@ -25,7 +26,7 @@ class AdobeAnalytics {
     this.proxyNormalUrl = config.proxyNormalUrl;
     this.proxyHeartbeatUrl = config.proxyHeartbeatUrl;
     this.pageName = "";
-    this.name = "ADOBE_ANALYTICS";
+    this.name = NAME;
     utils.setConfig(config);
   }
 
