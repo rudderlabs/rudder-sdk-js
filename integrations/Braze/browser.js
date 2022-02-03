@@ -1,4 +1,6 @@
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
+import { NAME } from "./constants";
 
 /*
 E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
@@ -21,7 +23,7 @@ class Braze {
       }
     }
 
-    this.name = "BRAZE";
+    this.name = NAME;
 
     logger.debug("Config ", config);
   }

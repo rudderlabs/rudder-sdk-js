@@ -2,6 +2,7 @@
 /* eslint-disable no-underscore-dangle */
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
+import { NAME } from "./constants";
 
 class TVSquared {
   constructor(config) {
@@ -9,7 +10,7 @@ class TVSquared {
     this.clientId = config.clientId;
     this.eventWhiteList = config.eventWhiteList || [];
     this.customMetrics = config.customMetrics || [];
-    this.name = "TVSQUARED";
+    this.name = NAME;
   }
 
   init() {

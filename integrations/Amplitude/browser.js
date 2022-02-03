@@ -2,10 +2,11 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import { type } from "../../utils/utils";
+import { NAME } from "./constants";
 
 class Amplitude {
   constructor(config, analytics) {
-    this.name = "AM";
+    this.name = NAME;
     this.analytics = analytics;
     this.apiKey = config.apiKey;
     this.trackAllPages = config.trackAllPages || false;

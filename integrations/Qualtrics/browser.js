@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 /* eslint-disable new-cap */
 /* eslint-disable no-empty */
 /* eslint-disable no-unneeded-ternary */
@@ -9,10 +10,11 @@
 // eslint-disable-next-line class-methods-use-this
 
 import logger from "../../utils/logUtil";
+import { NAME } from "./constants";
 
 class Qualtrics {
   constructor(config) {
-    this.name = "QUALTRICS";
+    this.name = NAME;
     this.projectId = config.projectId;
     this.brandId = config.brandId;
     this.enableGenericPageTitle = config.enableGenericPageTitle;

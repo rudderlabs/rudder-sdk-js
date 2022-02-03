@@ -1,20 +1,19 @@
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
+import { NAME } from "./constants";
 
 class Appcues {
   constructor(config) {
     this.accountId = config.accountId;
     this.apiKey = config.apiKey;
-    this.name = "APPCUES";
-    //this.sendToAllDestinations = config.sendToAll;
+    this.name = NAME;
+    // this.sendToAllDestinations = config.sendToAll;
   }
 
   init() {
     logger.debug("===in init Appcues===");
-    ScriptLoader(
-      "appcues-id",
-      `https://fast.appcues.com/${this.accountId}.js`
-    );
+    ScriptLoader("appcues-id", `https://fast.appcues.com/${this.accountId}.js`);
   }
 
   isLoaded() {
@@ -39,12 +38,8 @@ class Appcues {
   }
 
   identify(rudderElement) {
-    const {
-      traits
-    } = rudderElement.message.context;
-    const {
-      userId
-    } = rudderElement.message;
+    const { traits } = rudderElement.message.context;
+    const { userId } = rudderElement.message;
     if (userId) {
       window.Appcues.identify(userId, traits);
     } else {
@@ -54,9 +49,7 @@ class Appcues {
 
   track(rudderElement) {
     const eventName = rudderElement.message.event;
-    let {
-      properties
-    } = rudderElement.message;
+    const { properties } = rudderElement.message;
     if (eventName) {
       window.Appcues.track(eventName, properties);
     } else {
@@ -65,18 +58,14 @@ class Appcues {
   }
 
   page(rudderElement) {
-    const {
-      properties,
-      name
-    } = rudderElement.message;
+    const { properties, name } = rudderElement.message;
     window.Appcues.page(name, properties);
   }
-  
+
   // To be uncommented after adding Reset feature to our SDK
   // reset() {
   //   window.Appcues.reset();
   // }
-
 }
 
 export default Appcues;
