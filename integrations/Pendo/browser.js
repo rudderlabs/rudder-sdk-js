@@ -1,12 +1,13 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable lines-between-class-members */
 import logger from "../../utils/logUtil";
+import { NAME } from "./constants";
 
 class Pendo {
   constructor(config, analytics) {
     this.analytics = analytics;
     this.apiKey = !config.apiKey ? "" : config.apiKey;
-    this.name = "PENDO";
+    this.name = NAME;
     logger.debug("Config ", config);
   }
 

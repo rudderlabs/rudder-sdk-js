@@ -1,12 +1,13 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
 import logger from "../../utils/logUtil";
+import { NAME } from "./constants";
 
 class ProfitWell {
   constructor(config) {
     this.publicApiKey = config.publicApiKey;
     this.siteType = config.siteType;
-    this.name = "PROFITWELL";
+    this.name = NAME;
   }
 
   init() {

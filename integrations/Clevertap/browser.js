@@ -8,12 +8,13 @@ import {
   isArray,
   isObject,
 } from "../../utils/utils";
+import { NAME } from "./constants";
 
 class Clevertap {
   constructor(config) {
     this.accountId = config.accountId;
     this.apiKey = config.passcode;
-    this.name = "CLEVERTAP";
+    this.name = NAME;
     this.region = config.region;
     this.keysToExtract = ["context.traits"];
     this.exclusionKeys = [

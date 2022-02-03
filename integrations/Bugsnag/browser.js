@@ -1,11 +1,13 @@
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
+import { NAME } from "./constants";
 
 class Bugsnag {
   constructor(config) {
     this.releaseStage = config.releaseStage;
     this.apiKey = config.apiKey;
-    this.name = "BUGSNAG";
+    this.name = NAME;
     this.setIntervalHandler = undefined;
   }
 
