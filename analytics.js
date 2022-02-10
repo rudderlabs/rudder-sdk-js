@@ -1150,12 +1150,10 @@ class Analytics {
       !Promise ||
       !Object.entries
     ) {
-      if (!window.hasOwnProperty("polyfill")) {
-        ScriptLoader(
-          "polyfill",
-          "https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries"
-        );
-      }
+      ScriptLoader(
+        "polyfill",
+        "https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries"
+      );
       const self = this;
       const interval = setInterval(function () {
         // check if the polyfill is loaded
