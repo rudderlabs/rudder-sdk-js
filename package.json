@@ -50,7 +50,6 @@
     "babel-eslint": "^10.1.0",
     "babel-polyfill": "^6.26.0",
     "btoa": "^1.2.1",
-    "camelcase": "^6.0.0",
     "component-cookie": "^1.1.4",
     "component-each": "^0.2.6",
     "component-emitter": "github:component/emitter",
@@ -72,7 +71,7 @@
     "regenerator-runtime": "^0.13.7",
     "rudder-component-cookie": "0.0.1",
     "semver": "^7.1.3",
-    "set-value": "^4.1.0",
+    "set-value": "3.0.2",
     "universal-analytics": "^0.4.20",
     "xmlhttprequest": "^1.8.0"
   },
