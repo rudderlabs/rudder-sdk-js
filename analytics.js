@@ -1137,7 +1137,8 @@ class Analytics {
    * @memberof Analytics
    */
   load(writeKey, serverUrl, options) {
-    logger.debug("inside load ");
+    // logger.debug("inside load ");
+
     // check if the below features are available in the browser or not
     // If not present dynamically load from the polyfill cdn
     if (
