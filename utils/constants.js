@@ -90,6 +90,9 @@ const FLUSH_INTERVAL_DEFAULT = 5000;
 const MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
 const INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
 
+const POLYFILL_URL =
+  "https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries";
+
 export {
   ReservedPropertyKeywords,
   MessageType,
@@ -102,6 +105,7 @@ export {
   FLUSH_INTERVAL_DEFAULT,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
+  POLYFILL_URL,
 };
 /* module.exports = {
   MessageType: MessageType,

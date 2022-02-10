@@ -34,6 +34,7 @@ import {
   CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
+  POLYFILL_URL,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -1150,10 +1151,7 @@ class Analytics {
       !Promise ||
       !Object.entries
     ) {
-      ScriptLoader(
-        "polyfill",
-        "https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries"
-      );
+      ScriptLoader("polyfill", POLYFILL_URL);
       const self = this;
       const interval = setInterval(function () {
         // check if the polyfill is loaded
