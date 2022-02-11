@@ -1,7 +1,6 @@
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
 import { parse } from "component-url";
 import get from "get-value";
-import set from "set-value";
 import logger from "./logUtil";
 import { commonNames } from "./integration_cname";
 import { clientToServerNames } from "./client_server_name";
@@ -532,7 +531,13 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
       });
       objKeys.map((k) => {
         if (!(typeof messageContext[k] === "undefined")) {
-          set(destination, k, get(messageContext, k));
+          if (destination) {
+            destination[k] = get(messageContext, k);
+          } else {
+            destination = {
+              k: get(messageContext, k),
+            };
+          }
         }
       });
     }
@@ -582,11 +587,10 @@ function getDefinedTraits(message) {
     get(traitsValue, "firstName") &&
     get(traitsValue, "lastName")
   ) {
-    set(
+    traitsValue.name = `${get(traitsValue, "firstName")} ${get(
       traitsValue,
-      "name",
-      `${get(traitsValue, "firstName")} ${get(traitsValue, "lastName")}`
-    );
+      "lastName"
+    )}`;
   }
   return traitsValue;
 }

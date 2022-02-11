@@ -73,6 +73,9 @@ const DEST_SDK_BASE_URL = `https://cdn.rudderlabs.com/v1.1/${CDN_INT_DIR}`;
 const MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
 const INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
 const INTG_SUFFIX = "_RS";
+const POLYFILL_URL =
+  "https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries";
+
 export {
   ReservedPropertyKeywords,
   ECommerceParamNames,
@@ -83,6 +86,7 @@ export {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
   INTG_SUFFIX,
+  POLYFILL_URL,
 };
 /* module.exports = {
   MessageType: MessageType,

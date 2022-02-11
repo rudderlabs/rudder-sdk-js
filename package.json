@@ -52,7 +52,6 @@
     "@segment/top-domain": "^3.0.1",
     "auto-changelog": "^2.3.0",
     "babel-eslint": "^10.1.0",
-    "camelcase": "^6.2.0",
     "component-each": "^0.2.6",
     "component-emitter": "github:component/emitter",
     "component-querystring": "^2.0.1",
@@ -68,7 +67,6 @@
     "obj-case": "^0.2.1",
     "on-body": "0.0.1",
     "rudder-component-cookie": "0.0.1",
-    "set-value": "^4.1.0",
     "universal-analytics": "^0.4.23"
   },
   "devDependencies": {
