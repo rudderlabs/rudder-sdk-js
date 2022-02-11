@@ -37,6 +37,7 @@ import {
   DEST_SDK_BASE_URL,
   CDN_INT_DIR,
   INTG_SUFFIX,
+  POLYFILL_URL,
 } from "./utils/constants";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
@@ -922,14 +923,13 @@ class Analytics {
   }
 
   /**
-   * Call control pane to get client configs
-   *
+   * Load after polyfills are loaded
    * @param {*} writeKey
-   * @memberof Analytics
+   * @param {*} serverUrl
+   * @param {*} options
+   * @returns
    */
-  load(writeKey, serverUrl, options) {
-    // logger.debug("inside load ")
-    if (this.loaded) return;
+  loadAfterPolyfill(writeKey, serverUrl, options) {
     if (options && options.cookieConsentManager)
       this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
@@ -1048,6 +1048,45 @@ class Analytics {
       getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
     } catch (error) {
       errorHandler(error);
+    }
+  }
+
+  /**
+   * Call control pane to get client configs
+   *
+   * @param {*} writeKey
+   * @memberof Analytics
+   */
+  load(writeKey, serverUrl, options) {
+    // logger.debug("inside load ");
+    if (this.loaded) return;
+
+    // check if the below features are available in the browser or not
+    // If not present dynamically load from the polyfill cdn
+    if (
+      !String.prototype.endsWith ||
+      !String.prototype.startsWith ||
+      !String.prototype.includes ||
+      !Array.prototype.find ||
+      !Array.prototype.includes ||
+      !Promise ||
+      !Object.entries
+    ) {
+      ScriptLoader("polyfill", POLYFILL_URL);
+      const self = this;
+      const interval = setInterval(function () {
+        // check if the polyfill is loaded
+        if (window.hasOwnProperty("polyfill")) {
+          clearInterval(interval);
+          self.loadAfterPolyfill(writeKey, serverUrl, options);
+        }
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(interval);
+      }, MAX_WAIT_FOR_INTEGRATION_LOAD);
+    } else {
+      this.loadAfterPolyfill(writeKey, serverUrl, options);
     }
   }
 
