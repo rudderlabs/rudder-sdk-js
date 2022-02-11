@@ -1013,7 +1013,6 @@ class Analytics {
   loadAfterPolyfill(writeKey, serverUrl, options) {
     if (options && options.cookieConsentManager)
       this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
-    if (this.loaded) return;
     let configUrl = CONFIG_URL;
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
       handleError({
@@ -1139,6 +1138,7 @@ class Analytics {
    */
   load(writeKey, serverUrl, options) {
     // logger.debug("inside load ");
+    if (this.loaded) return;
 
     // check if the below features are available in the browser or not
     // If not present dynamically load from the polyfill cdn
