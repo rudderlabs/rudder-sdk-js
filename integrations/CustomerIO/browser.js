@@ -1,11 +1,12 @@
+/* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
+import { NAME } from "./constants";
 
 class CustomerIO {
   constructor(config) {
     this.siteID = config.siteID;
     this.apiKey = config.apiKey;
-
-    this.name = "CUSTOMERIO";
+    this.name = NAME;
   }
 
   init() {
@@ -45,9 +46,9 @@ class CustomerIO {
     const traits = rudderElement.message.context.traits
       ? rudderElement.message.context.traits
       : {};
-    const createAt = traits.createdAt
+    const createAt = traits.createdAt;
     if (createAt) {
-      traits.created_at = Math.floor(new Date(createAt).getTime() / 1000)
+      traits.created_at = Math.floor(new Date(createAt).getTime() / 1000);
     }
     traits.id = userId;
     window._cio.identify(traits);

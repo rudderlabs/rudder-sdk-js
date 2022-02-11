@@ -8,10 +8,11 @@ import logger from "../../utils/logUtil";
 import { SentryScriptLoader, sentryInit } from "./utils";
 import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 import { getDefinedTraits, isObject } from "../../utils/utils";
+import { NAME } from "./constants";
 
 class Sentry {
   constructor(config) {
-    this.name = "Sentry";
+    this.name = NAME;
     this.dsn = config.dsn;
     this.debugMode = config.debugMode;
     this.environment = config.environment;

@@ -1,145 +1,98 @@
+import { CNameMapping as AdobeAnalytics } from "./AdobeAnalytics/constants";
+import { CNameMapping as Amplitude } from "./Amplitude/constants";
+import { CNameMapping as Appcues } from "./Appcues/constants";
+import { CNameMapping as BingAds } from "./BingAds/constants";
+import { CNameMapping as Braze } from "./Braze/constants";
+import { CNameMapping as Bugsnag } from "./Bugsnag/constants";
+import { CNameMapping as Chartbeat } from "./Chartbeat/constants";
+import { CNameMapping as Clevertap } from "./Clevertap/constants";
+import { CNameMapping as Comscore } from "./Comscore/constants";
+import { CNameMapping as Criteo } from "./Criteo/constants";
+import { CNameMapping as CustomerIO } from "./CustomerIO/constants";
+import { CNameMapping as Drip } from "./Drip/constants";
+import { CNameMapping as FacebookPixel } from "./FacebookPixel/constants";
+import { CNameMapping as Fullstory } from "./Fullstory/constants";
+import { CNameMapping as GA } from "./GA/constants";
+import { CNameMapping as GA4 } from "./GA4/constants";
+import { CNameMapping as GoogleAds } from "./GoogleAds/constants";
+import { CNameMapping as GoogleOptimize } from "./GoogleOptimize/constants";
+import { CNameMapping as GoogleTagManager } from "./GoogleTagManager/constants";
+import { CNameMapping as Heap } from "./Heap/constants";
+import { CNameMapping as Hotjar } from "./Hotjar/constants";
+import { CNameMapping as HubSpot } from "./HubSpot/constants";
+import { CNameMapping as INTERCOM } from "./INTERCOM/constants";
+import { CNameMapping as Keen } from "./Keen/constants";
+import { CNameMapping as Kissmetrics } from "./Kissmetrics/constants";
+import { CNameMapping as Klaviyo } from "./Klaviyo/constants";
+import { CNameMapping as LaunchDarkly } from "./LaunchDarkly/constants";
+import { CNameMapping as LinkedInInsightTag } from "./LinkedInInsightTag/constants";
+import { CNameMapping as Lotame } from "./Lotame/constants";
+import { CNameMapping as Lytics } from "./Lytics/constants";
+import { CNameMapping as Mixpanel } from "./Mixpanel/constants";
+import { CNameMapping as MoEngage } from "./MoEngage/constants";
+import { CNameMapping as Optimizely } from "./Optimizely/constants";
+import { CNameMapping as Pendo } from "./Pendo/constants";
+import { CNameMapping as PinterestTag } from "./PinterestTag/constants";
+import { CNameMapping as PostAffiliatePro } from "./PostAffiliatePro/constants";
+import { CNameMapping as Posthog } from "./Posthog/constants";
+import { CNameMapping as ProfitWell } from "./ProfitWell/constants";
+import { CNameMapping as Qualtrics } from "./Qualtrics/constants";
+import { CNameMapping as QuantumMetric } from "./QuantumMetric/constants";
+import { CNameMapping as RedditPixel } from "./RedditPixel/constants";
+import { CNameMapping as Sentry } from "./Sentry/constants";
+import { CNameMapping as SnapPixel } from "./SnapPixel/constants";
+import { CNameMapping as TVSquared } from "./TVSquared/constants";
+import { CNameMapping as VWO } from "./VWO/constants";
+
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
 const commonNames = {
   All: "All",
-  "Google Analytics": "GA",
-  GoogleAnalytics: "GA",
-  GA: "GA",
-  "Google Ads": "GOOGLEADS",
-  GoogleAds: "GOOGLEADS",
-  GOOGLEADS: "GOOGLEADS",
-  Braze: "BRAZE",
-  BRAZE: "BRAZE",
-  Chartbeat: "CHARTBEAT",
-  CHARTBEAT: "CHARTBEAT",
-  Comscore: "COMSCORE",
-  COMSCORE: "COMSCORE",
-  Customerio: "CUSTOMERIO",
-  "Customer.io": "CUSTOMERIO",
-  "FB Pixel": "FACEBOOK_PIXEL",
-  "Facebook Pixel": "FACEBOOK_PIXEL",
-  FB_PIXEL: "FACEBOOK_PIXEL",
-  "Google Tag Manager": "GOOGLETAGMANAGER",
-  GTM: "GTM",
-  Hotjar: "HOTJAR",
-  hotjar: "HOTJAR",
-  HOTJAR: "HOTJAR",
-  Hubspot: "HS",
-  HUBSPOT: "HS",
-  Intercom: "INTERCOM",
-  INTERCOM: "INTERCOM",
-  Keen: "KEEN",
-  "Keen.io": "KEEN",
-  KEEN: "KEEN",
-  Kissmetrics: "KISSMETRICS",
-  KISSMETRICS: "KISSMETRICS",
-  Lotame: "LOTAME",
-  LOTAME: "LOTAME",
-  "Visual Website Optimizer": "VWO",
-  VWO: "VWO",
-  OPTIMIZELY: "OPTIMIZELY",
-  Optimizely: "OPTIMIZELY",
-  FULLSTORY: "FULLSTORY",
-  Fullstory: "FULLSTORY",
-  FullStory: "FULLSTORY",
-  BUGSNAG: "BUGSNAG",
-  TVSQUARED: "TVSQUARED",
-  "Google Analytics 4": "GA4",
-  GoogleAnalytics4: "GA4",
-  GA4: "GA4",
-  MOENGAGE: "MoEngage",
-  AM: "AM",
-  AMPLITUDE: "AM",
-  Amplitude: "AM",
-  Pendo: "PENDO",
-  PENDO: "PENDO",
-  Lytics: "Lytics",
-  LYTICS: "Lytics",
-  Appcues: "APPCUES",
-  APPCUES: "APPCUES",
-  POSTHOG: "POSTHOG",
-  PostHog: "POSTHOG",
-  Posthog: "POSTHOG",
-  KLAVIYO: "KLAVIYO",
-  Klaviyo: "KLAVIYO",
-  CLEVERTAP: "CLEVERTAP",
-  Clevertap: "CLEVERTAP",
-  BingAds: "BINGADS",
-  PinterestTag: "PINTEREST_TAG",
-  Pinterest_Tag: "PINTEREST_TAG",
-  PINTERESTTAG: "PINTEREST_TAG",
-  PINTEREST_TAG: "PINTEREST_TAG",
-  pinterest: "PINTEREST_TAG",
-  PinterestAds: "PINTEREST_TAG",
-  Pinterest_Ads: "PINTEREST_TAG",
-  Pinterest: "PINTEREST_TAG",
-  "Adobe Analytics": "ADOBE_ANALYTICS",
-  ADOBE_ANALYTICS: "ADOBE_ANALYTICS",
-  AdobeAnalytics: "ADOBE_ANALYTICS",
-  adobeanalytics: "ADOBE_ANALYTICS",
-  "LinkedIn Insight Tag": "LINKEDIN_INSIGHT_TAG",
-  LINKEDIN_INSIGHT_TAG: "LINKEDIN_INSIGHT_TAG",
-  Linkedin_insight_tag: "LINKEDIN_INSIGHT_TAG",
-  LinkedinInsighttag: "LINKEDIN_INSIGHT_TAG",
-  LinkedinInsightTag: "LINKEDIN_INSIGHT_TAG",
-  LinkedInInsightTag: "LINKEDIN_INSIGHT_TAG",
-  Linkedininsighttag: "LINKEDIN_INSIGHT_TAG",
-  LINKEDININSIGHTTAG: "LINKEDIN_INSIGHT_TAG",
-  Reddit_Pixel: "REDDIT_PIXEL",
-  RedditPixel: "REDDIT_PIXEL",
-  REDDITPIXEL: "REDDIT_PIXEL",
-  redditpixel: "REDDIT_PIXEL",
-  "Reddit Pixel": "REDDIT_PIXEL",
-  "REDDIT PIXEL": "REDDIT_PIXEL",
-  "reddit pixel": "REDDIT_PIXEL",
-  Drip: "DRIP",
-  drip: "DRIP",
-  Heap: "HEAP",
-  heap: "HEAP",
-  "Heap.io": "HEAP",
-  HEAP: "HEAP",
-  Criteo: "CRITEO",
-  criteo: "CRITEO",
-  CRITEO: "CRITEO",
-  MIXPANEL: "MP",
-  Mixpanel: "MP",
-  Qualtrics: "QUALTRICS",
-  qualtrics: "QUALTRICS",
-  QUALTRICS: "QUALTRICS",
-  Snap_Pixel: "SNAP_PIXEL",
-  SnapPixel: "SNAP_PIXEL",
-  SNAPPIXEL: "SNAP_PIXEL",
-  snappixel: "SNAP_PIXEL",
-  "Snap Pixel": "SNAP_PIXEL",
-  "SNAP PIXEL": "SNAP_PIXEL",
-  "snap pixel": "SNAP_PIXEL",
-  PROFITWELL: "PROFITWELL",
-  ProfitWell: "PROFITWELL",
-  profitwell: "PROFITWELL",
-  SENTRY: "SENTRY",
-  sentry: "SENTRY",
-  Sentry: "SENTRY",
-  "Quantum Metric": "QUANTUMMETRIC",
-  QuantumMetric: "QUANTUMMETRIC",
-  quantumMetric: "QUANTUMMETRIC",
-  quantummetric: "QUANTUMMETRIC",
-  Quantum_Metric: "QUANTUMMETRIC",
-  "Google Optimize": "GOOGLE_OPTIMIZE",
-  GOOGLE_OPTIMIZE: "GOOGLE_OPTIMIZE",
-  GoogleOptimize: "GOOGLE_OPTIMIZE",
-  Googleoptimize: "GOOGLE_OPTIMIZE",
-  GOOGLEOPTIMIZE: "GOOGLE_OPTIMIZE",
-  PostAffiliatePro: "POST_AFFILIATE_PRO",
-  Post_affiliate_pro: "POST_AFFILIATE_PRO",
-  "Post Affiliate Pro": "POST_AFFILIATE_PRO",
-  postaffiliatepro: "POST_AFFILIATE_PRO",
-  POSTAFFILIATEPRO: "POST_AFFILIATE_PRO",
-  POST_AFFILIATE_PRO: "POST_AFFILIATE_PRO",
-  LaunchDarkly:"LAUNCHDARKLY",
-  Launch_Darkly:"LAUNCHDARKLY",
-  LAUNCHDARKLY:"LAUNCHDARKLY",
-  "Launch Darkly":"LAUNCHDARKLY",
-  launchDarkly:"LAUNCHDARKLY"
+  ...AdobeAnalytics,
+  ...Amplitude,
+  ...Appcues,
+  ...BingAds,
+  ...Braze,
+  ...Bugsnag,
+  ...Chartbeat,
+  ...Clevertap,
+  ...Comscore,
+  ...Criteo,
+  ...CustomerIO,
+  ...Drip,
+  ...FacebookPixel,
+  ...Fullstory,
+  ...GA,
+  ...GA4,
+  ...GoogleAds,
+  ...GoogleOptimize,
+  ...GoogleTagManager,
+  ...Heap,
+  ...Hotjar,
+  ...HubSpot,
+  ...INTERCOM,
+  ...Keen,
+  ...Kissmetrics,
+  ...Klaviyo,
+  ...LaunchDarkly,
+  ...LinkedInInsightTag,
+  ...Lotame,
+  ...Lytics,
+  ...Mixpanel,
+  ...MoEngage,
+  ...Optimizely,
+  ...Pendo,
+  ...PinterestTag,
+  ...PostAffiliatePro,
+  ...Posthog,
+  ...ProfitWell,
+  ...Qualtrics,
+  ...QuantumMetric,
+  ...RedditPixel,
+  ...Sentry,
+  ...SnapPixel,
+  ...TVSquared,
+  ...VWO,
 };
 
 export { commonNames };

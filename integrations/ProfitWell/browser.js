@@ -1,12 +1,13 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
 import logger from "../../utils/logUtil";
+import { NAME } from "./constants";
 
 class ProfitWell {
   constructor(config) {
     this.publicApiKey = config.publicApiKey;
     this.siteType = config.siteType;
-    this.name = "ProfitWell";
+    this.name = NAME;
   }
 
   init() {
@@ -79,7 +80,9 @@ class ProfitWell {
       return;
     }
 
-    logger.debug("===[ProfitWell]: email or userId is required for identify===");
+    logger.debug(
+      "===[ProfitWell]: email or userId is required for identify==="
+    );
   }
 }
 

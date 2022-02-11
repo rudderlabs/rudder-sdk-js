@@ -9,10 +9,11 @@ import {
   handlingEventDuo,
   handleListView,
 } from "./utils";
+import { NAME } from "./constants";
 
 class Criteo {
   constructor(config) {
-    this.name = "Criteo";
+    this.name = NAME;
     this.hashMethod = config.hashMethod;
     this.accountId = config.accountId;
     this.url = config.homePageUrl;
