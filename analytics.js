@@ -955,6 +955,10 @@ class Analytics {
     return this.anonymousId;
   }
 
+  getUserId() {
+    return this.userId;
+  }
+
   getUserTraits() {
     return this.userTraits;
   }
@@ -1382,6 +1386,7 @@ const group = instance.group.bind(instance);
 const reset = instance.reset.bind(instance);
 const load = instance.load.bind(instance);
 const initialized = (instance.initialized = true);
+const getUserId = instance.getUserId.bind(instance);
 const getUserTraits = instance.getUserTraits.bind(instance);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
@@ -1396,6 +1401,7 @@ export {
   reset,
   alias,
   group,
+  getUserId,
   getUserTraits,
   getAnonymousId,
   setAnonymousId,
