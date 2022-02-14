@@ -1,8 +1,7 @@
-import clone from "@ndhoule/clone";
 import cookie from "rudder-component-cookie";
-import defaults from "@ndhoule/defaults";
 import topDomain from "@segment/top-domain";
 import logger from "../logUtil";
+import { cloneDeep, defaults } from "../object";
 
 /**
  * An object utility to persist values in cookies
@@ -46,7 +45,7 @@ class CookieLocal {
    */
   set(key, value) {
     try {
-      cookie(key, value, clone(this._options));
+      cookie(key, value, cloneDeep(this._options));
       return true;
     } catch (e) {
       logger.error(e);

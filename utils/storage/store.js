@@ -1,5 +1,5 @@
-import defaults from "@ndhoule/defaults";
-import store from "@segment/store";
+import store from "storejs";
+import { defaults } from "../object";
 
 /**
  * An object utility to persist user and other values in localstorage

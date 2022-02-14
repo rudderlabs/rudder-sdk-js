@@ -12,8 +12,6 @@
 /* eslint-disable no-param-reassign */
 import Emitter from "component-emitter";
 import { parse } from "component-querystring";
-import merge from "lodash.merge";
-import cloneDeep from "lodash.clonedeep";
 import {
   getJSONTrimmed,
   generateUUID,
@@ -31,6 +29,10 @@ import {
   checkSDKUrl,
   commonNames,
 } from "./utils/utils";
+import {
+  cloneDeep,
+  merge,
+} from './utils/object';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,

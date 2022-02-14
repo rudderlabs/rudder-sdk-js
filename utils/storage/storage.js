@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
-import AES from "crypto-js/aes";
-import Utf8 from "crypto-js/enc-utf8";
+import { AES } from 'crypto-es/lib/aes';
+import { Utf8 } from "crypto-es/lib/core";
 import logger from "../logUtil";
 import { Cookie } from "./cookie";
 import { Store } from "./store";

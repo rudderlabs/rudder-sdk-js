@@ -10,6 +10,7 @@ import json from "@rollup/plugin-json";
 import gzipPlugin from "rollup-plugin-gzip";
 import brotli from "rollup-plugin-brotli";
 import visualizer from "rollup-plugin-visualizer";
+import filesize from 'rollup-plugin-filesize';
 import * as webPackage from "./package.json";
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
 
@@ -150,5 +151,6 @@ export default {
     process.env.visualizer === "true" &&
       process.env.uglify === "true" &&
       visualizer({ sourcemap: true }),
+    filesize(),
   ],
 };
