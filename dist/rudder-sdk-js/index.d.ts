@@ -105,7 +105,8 @@ declare module "rudder-sdk-js" {
       | number
       | boolean
       | apiObject
-      | (string | number | boolean | apiObject)[];
+      | (string | number | boolean | apiObject)[]
+      | undefined;
   }
 
   /**
