@@ -956,6 +956,7 @@ class Analytics {
   }
 
   getUserId() {
+    this.userId = this.storage.getUserId();
     return this.userId;
   }
 
