@@ -38,7 +38,7 @@ class EventRepository {
       this.queue = new BeaconQueue();
     } else {
       if (options && options.useBeacon) {
-        logger.debug(
+        logger.info(
           "[EventRepository] sendBeacon feature not available in this browser :: fallback to XHR"
         );
       }
