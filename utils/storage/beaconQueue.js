@@ -96,7 +96,7 @@ class BeaconQueue {
     });
     const data = { batch };
     const payload = JSON.stringify(data, this.replacer);
-    const blob = new Blob([payload], { type: "application/json" });
+    const blob = new Blob([payload], { type: "text/plain" });
     const isPushed = navigator.sendBeacon(
       `${this.url}?writeKey=${this.writekey}`,
       blob
