@@ -1,3 +1,3 @@
-import { VWO } from "./browser";
+import VWO from "./browser";
 
 export default VWO;
