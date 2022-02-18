@@ -80,6 +80,8 @@ class VWO {
         };
       })();
       window._vwo_settings_timer = window._vwo_code.init();
+    } else {
+      logger.debug("===[VWO]loadIntegration flag is disabled===");
     }
     // Send track or iddentify when
     if (this.sendExperimentTrack || this.experimentViewedIdentify) {
