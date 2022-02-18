@@ -20,7 +20,7 @@ class VWO {
 
   init() {
     logger.debug("===In init VWO===");
-    if (this.analytics.loadOnlyIntegrations.VWO.loadIntegration) {
+    if (this.analytics.loadOnlyIntegrations?.VWO?.loadIntegration) {
       const account_id = this.accountId;
       const settings_tolerance = this.settingsTolerance;
       const library_tolerance = this.libraryTolerance;
@@ -80,11 +80,10 @@ class VWO {
         };
       })();
       window._vwo_settings_timer = window._vwo_code.init();
-
-      // Send track or iddentify when
-      if (this.sendExperimentTrack || this.experimentViewedIdentify) {
-        this.experimentViewed();
-      }
+    }
+    // Send track or iddentify when
+    if (this.sendExperimentTrack || this.experimentViewedIdentify) {
+      this.experimentViewed();
     }
   }
 
@@ -171,4 +170,4 @@ class VWO {
   }
 }
 
-export default VWO;
+export { VWO };
