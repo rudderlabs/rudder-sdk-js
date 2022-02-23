@@ -212,54 +212,50 @@ class Analytics {
       this.clientIntegrations.forEach((intg) => {
         const modName = configToIntNames[intg.name]; // script URL can be constructed from this
         const pluginName = `${modName}${INTG_SUFFIX}`; // this is the name of the object loaded on the window
-        if (process.browser) {
-          const modURL = `${this.destSDKBaseURL}/${modName}${suffix}.min.js`;
+        const modURL = `${this.destSDKBaseURL}/${modName}${suffix}.min.js`;
 
-          if (!window.hasOwnProperty(pluginName)) {
-            ScriptLoader(pluginName, modURL);
-          }
-
-          const self = this;
-          const interval = setInterval(function () {
-            if (window.hasOwnProperty(pluginName)) {
-              const intMod = window[pluginName];
-              clearInterval(interval);
-
-              // logger.debug(pluginName, " dynamically loaded integration SDK");
-
-              let intgInstance;
-              try {
-                // logger.debug(
-                //   pluginName,
-                //   " [Analytics] processResponse :: trying to initialize integration ::"
-                // );
-                intgInstance = new intMod[modName](intg.config, self);
-                intgInstance.init();
-
-                // logger.debug(pluginName, " initializing destination");
-
-                self.isInitialized(intgInstance).then(() => {
-                  // logger.debug(pluginName, " module init sequence complete");
-                  self.dynamicallyLoadedIntegrations[pluginName] =
-                    intMod[modName];
-                });
-              } catch (e) {
-                logger.error(
-                  pluginName,
-                  " [Analytics] initialize integration (integration.init()) failed",
-                  e
-                );
-                self.failedToBeLoadedIntegration.push(intgInstance);
-              }
-            }
-          }, 100);
-
-          setTimeout(() => {
-            clearInterval(interval);
-          }, MAX_WAIT_FOR_INTEGRATION_LOAD);
-        } else {
-          // npm package specific logic goes here
+        if (!window.hasOwnProperty(pluginName)) {
+          ScriptLoader(pluginName, modURL);
         }
+
+        const self = this;
+        const interval = setInterval(function () {
+          if (window.hasOwnProperty(pluginName)) {
+            const intMod = window[pluginName];
+            clearInterval(interval);
+
+            // logger.debug(pluginName, " dynamically loaded integration SDK");
+
+            let intgInstance;
+            try {
+              // logger.debug(
+              //   pluginName,
+              //   " [Analytics] processResponse :: trying to initialize integration ::"
+              // );
+              intgInstance = new intMod[modName](intg.config, self);
+              intgInstance.init();
+
+              // logger.debug(pluginName, " initializing destination");
+
+              self.isInitialized(intgInstance).then(() => {
+                // logger.debug(pluginName, " module init sequence complete");
+                self.dynamicallyLoadedIntegrations[pluginName] =
+                  intMod[modName];
+              });
+            } catch (e) {
+              logger.error(
+                pluginName,
+                " [Analytics] initialize integration (integration.init()) failed",
+                e
+              );
+              self.failedToBeLoadedIntegration.push(intgInstance);
+            }
+          }
+        }, 100);
+
+        setTimeout(() => {
+          clearInterval(interval);
+        }, MAX_WAIT_FOR_INTEGRATION_LOAD);
       });
 
       const self = this;
@@ -930,6 +926,9 @@ class Analytics {
    * @returns
    */
   loadAfterPolyfill(writeKey, serverUrl, options) {
+    if (options && options.logLevel) {
+      logger.setLogLevel(options.logLevel);
+    }
     if (options && options.cookieConsentManager)
       this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
@@ -941,9 +940,6 @@ class Analytics {
     }
 
     let storageOptions = {};
-    if (options && options.logLevel) {
-      logger.setLogLevel(options.logLevel);
-    }
 
     if (options && options.setCookieDomain) {
       storageOptions = { ...storageOptions, domain: options.setCookieDomain };
