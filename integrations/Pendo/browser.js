@@ -5,6 +5,9 @@ import { NAME } from "./constants";
 
 class Pendo {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.analytics = analytics;
     this.apiKey = !config.apiKey ? "" : config.apiKey;
     this.name = NAME;

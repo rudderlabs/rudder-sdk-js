@@ -4,7 +4,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class Hotjar {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.siteId = config.siteID;
     this.name = NAME;
     this._ready = false;

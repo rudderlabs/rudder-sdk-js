@@ -8,7 +8,10 @@ import { getHashFromArray } from "../utils/commonUtils";
 import { NAME } from "./constants";
 
 class FacebookPixel {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.blacklistPiiProperties = config.blacklistPiiProperties;
     this.categoryToContent = config.categoryToContent;
     this.pixelId = config.pixelId;

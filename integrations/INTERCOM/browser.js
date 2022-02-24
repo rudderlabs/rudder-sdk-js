@@ -4,7 +4,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class INTERCOM {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.API_KEY = config.apiKey;
     this.APP_ID = config.appId;

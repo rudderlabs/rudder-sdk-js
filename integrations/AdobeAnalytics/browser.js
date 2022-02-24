@@ -12,7 +12,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class AdobeAnalytics {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.trackingServerUrl = config.trackingServerUrl || "";
     this.reportSuiteIds = config.reportSuiteIds;
     this.heartbeatTrackingServerUrl = config.heartbeatTrackingServerUrl || "";

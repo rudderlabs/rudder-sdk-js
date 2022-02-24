@@ -11,7 +11,10 @@ import { getDefinedTraits, isObject } from "../../utils/utils";
 import { NAME } from "./constants";
 
 class Sentry {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.dsn = config.dsn;
     this.debugMode = config.debugMode;

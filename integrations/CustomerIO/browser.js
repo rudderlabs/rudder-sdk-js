@@ -3,7 +3,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class CustomerIO {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.siteID = config.siteID;
     this.apiKey = config.apiKey;
     this.name = NAME;

@@ -7,6 +7,9 @@ E-commerce support required for logPurchase support & other e-commerce events as
 */
 class Braze {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.analytics = analytics;
     this.appKey = config.appKey;
     this.enableHtmlInAppMessages = config.enableHtmlInAppMessages || false;

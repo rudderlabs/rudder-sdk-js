@@ -8,6 +8,9 @@ import { NAME } from "./constants";
 
 class Comscore {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.c2ID = config.c2ID;
     this.analytics = analytics;
     this.comScoreBeaconParam = config.comScoreBeaconParam

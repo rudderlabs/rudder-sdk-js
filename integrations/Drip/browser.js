@@ -12,7 +12,10 @@ import { extractCustomFields } from "../../utils/utils";
 import { NAME } from "./constants";
 
 class Drip {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.accountId = config.accountId;
     this.campaignId = config.campaignId;
     this.name = NAME;

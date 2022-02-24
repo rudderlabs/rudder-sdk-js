@@ -80,6 +80,7 @@ class Analytics {
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
     this.cookieConsentOptions = {};
+    this.logLevel = undefined;
   }
 
   /**
@@ -927,6 +928,7 @@ class Analytics {
    */
   loadAfterPolyfill(writeKey, serverUrl, options) {
     if (options && options.logLevel) {
+      this.logLevel = options.logLevel;
       logger.setLogLevel(options.logLevel);
     }
     if (options && options.cookieConsentManager)
