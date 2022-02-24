@@ -5,7 +5,10 @@ import ScriptLoader from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class QuantumMetric {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.siteId = config.siteID; // 1549611
     this.name = NAME;
     this._ready = false;

@@ -42,7 +42,10 @@ import {
 import { NAME } from "./constants";
 
 class Mixpanel {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.accountId = config.accountId;
     this.token = config.token;

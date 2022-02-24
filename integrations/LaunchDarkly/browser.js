@@ -5,7 +5,10 @@ import createUser from "./utils";
 import { NAME } from "./constants";
 
 class LaunchDarkly {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.clientSideId = config.clientSideId;
   }

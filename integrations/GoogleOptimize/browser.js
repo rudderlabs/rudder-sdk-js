@@ -5,7 +5,10 @@ import ScriptLoader from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class GoogleOptimize {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.ga = config.ga;
     this.trackingId = config.trackingId;

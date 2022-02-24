@@ -4,7 +4,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class HubSpot {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.hubId = config.hubID; // 6405167
     this.name = NAME;
   }

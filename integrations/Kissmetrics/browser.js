@@ -6,7 +6,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class Kissmetrics {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.apiKey = config.apiKey;
     this.prefixProperties = config.prefixProperties;
     this.name = NAME;

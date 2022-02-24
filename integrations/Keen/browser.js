@@ -3,7 +3,10 @@ import ScriptLoader from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class Keen {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.projectID = config.projectID;
     this.writeKey = config.writeKey;
     this.ipAddon = config.ipAddon;

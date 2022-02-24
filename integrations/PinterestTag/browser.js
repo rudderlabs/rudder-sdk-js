@@ -16,6 +16,9 @@ import { NAME } from "./constants";
 
 export default class PinterestTag {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.analytics = analytics;
     this.tagId = !config.tagId ? "" : config.tagId;
     this.enhancedMatch = config.enhancedMatch || false;

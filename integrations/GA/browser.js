@@ -8,6 +8,9 @@ import { NAME } from "./constants";
 
 export default class GA {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.analytics = analytics;
     this.trackingID = config.trackingID;
     this.sendUserId = config.sendUserId || false;

@@ -12,7 +12,10 @@ import {
 import { NAME } from "./constants";
 
 class Criteo {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.hashMethod = config.hashMethod;
     this.accountId = config.accountId;

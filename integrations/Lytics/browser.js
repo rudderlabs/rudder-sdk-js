@@ -22,7 +22,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class Lytics {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.accountId = config.accountId;
     this.stream = config.stream;
     this.blockload = config.blockload;

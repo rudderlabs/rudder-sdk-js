@@ -9,7 +9,10 @@ import { isNotEmpty } from "../utils/commonUtils";
 import { NAME } from "./constants";
 
 class Klaviyo {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.publicApiKey = config.publicApiKey;
     this.sendPageAsTrack = config.sendPageAsTrack;
     this.additionalPageInfo = config.additionalPageInfo;
