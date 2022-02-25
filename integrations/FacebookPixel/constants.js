@@ -20,57 +20,57 @@ const traitsMapper = [
   },
   {
     destKey: "em",
-    sourceKeys: ["traits.email", "context.traits.email"],
+    sourceKeys: ["context.traits.email", "traits.email"],
   },
   {
     destKey: "ph",
-    sourceKeys: ["traits.phone", "context.traits.phone"],
+    sourceKeys: ["context.traits.phone", "traits.phone"],
   },
   {
     destKey: "ge",
-    sourceKeys: ["traits.gender", "context.traits.gender"],
+    sourceKeys: ["context.traits.gender", "traits.gender"],
   },
   {
     destKey: "db",
-    sourceKeys: ["traits.birthday", "context.traits.birthday"],
+    sourceKeys: ["context.traits.birthday", "traits.birthday"],
   },
   {
     destKey: "ln",
     sourceKeys: [
-      "traits.lastname",
-      "traits.lastName",
-      "traits.last_name",
       "context.traits.lastname",
       "context.traits.lastName",
       "context.traits.last_name",
+      "traits.lastname",
+      "traits.lastName",
+      "traits.last_name",
     ],
   },
   {
     destKey: "fn",
     sourceKeys: [
-      "traits.firstname",
-      "traits.firstName",
-      "traits.first_name",
       "context.traits.firstname",
       "context.traits.firstName",
       "context.traits.first_name",
+      "traits.firstname",
+      "traits.firstName",
+      "traits.first_name",
     ],
   },
   {
     destKey: "ct",
-    sourceKeys: ["traits.address.city", "context.traits.address.city"],
+    sourceKeys: ["context.traits.address.city", "traits.address.city"],
   },
   {
     destKey: "st",
-    sourceKeys: ["traits.address.state", "context.traits.address.state"],
+    sourceKeys: ["context.traits.address.state", "traits.address.state"],
   },
   {
     destKey: "zp",
-    sourceKeys: ["traits.address.zip", "context.traits.address.zip"],
+    sourceKeys: ["context.traits.address.zip", "traits.address.zip"],
   },
   {
     destKey: "country",
-    sourceKeys: ["traits.address.country", "context.traits.address.country"],
+    sourceKeys: ["context.traits.address.country", "traits.address.country"],
   },
 ];
 
