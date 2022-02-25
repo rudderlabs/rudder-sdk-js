@@ -11,8 +11,6 @@ const traitsMapper = [
     destKey: "external_id",
     sourceKeys: [
       "userId",
-      "traits.userId",
-      "traits.id",
       "context.traits.userId",
       "context.traits.id",
       "anonymousId",
@@ -20,19 +18,19 @@ const traitsMapper = [
   },
   {
     destKey: "em",
-    sourceKeys: ["context.traits.email", "traits.email"],
+    sourceKeys: "context.traits.email",
   },
   {
     destKey: "ph",
-    sourceKeys: ["context.traits.phone", "traits.phone"],
+    sourceKeys: "context.traits.phone",
   },
   {
     destKey: "ge",
-    sourceKeys: ["context.traits.gender", "traits.gender"],
+    sourceKeys: "context.traits.gender",
   },
   {
     destKey: "db",
-    sourceKeys: ["context.traits.birthday", "traits.birthday"],
+    sourceKeys: "context.traits.birthday",
   },
   {
     destKey: "ln",
@@ -40,9 +38,6 @@ const traitsMapper = [
       "context.traits.lastname",
       "context.traits.lastName",
       "context.traits.last_name",
-      "traits.lastname",
-      "traits.lastName",
-      "traits.last_name",
     ],
   },
   {
@@ -51,26 +46,23 @@ const traitsMapper = [
       "context.traits.firstname",
       "context.traits.firstName",
       "context.traits.first_name",
-      "traits.firstname",
-      "traits.firstName",
-      "traits.first_name",
     ],
   },
   {
     destKey: "ct",
-    sourceKeys: ["context.traits.address.city", "traits.address.city"],
+    sourceKeys: ["context.traits.address.city", "context.traits.city"],
   },
   {
     destKey: "st",
-    sourceKeys: ["context.traits.address.state", "traits.address.state"],
+    sourceKeys: ["context.traits.address.state", "context.traits.state"],
   },
   {
     destKey: "zp",
-    sourceKeys: ["context.traits.address.zip", "traits.address.zip"],
+    sourceKeys: ["context.traits.address.zip", "context.traits.zip"],
   },
   {
     destKey: "country",
-    sourceKeys: ["context.traits.address.country", "traits.address.country"],
+    sourceKeys: ["context.traits.address.country", "context.traits.country"],
   },
 ];
 
