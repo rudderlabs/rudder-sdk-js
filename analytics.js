@@ -931,6 +931,9 @@ class Analytics {
       this.logLevel = options.logLevel;
       logger.setLogLevel(options.logLevel);
     }
+    if (!this.storage || Object.keys(this.storage).length === 0) {
+      throw Error("No storage is available could not proceed with the SDK");
+    }
     if (options && options.cookieConsentManager)
       this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {

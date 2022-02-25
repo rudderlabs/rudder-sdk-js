@@ -100,7 +100,9 @@ class Storage {
     }
 
     if (!this.storage) {
-      throw Error("Could not initialize the SDK :: no storage is available");
+      logger.error(
+        "No storage is available :: initializing the SDK without storage"
+      );
     }
   }
 
