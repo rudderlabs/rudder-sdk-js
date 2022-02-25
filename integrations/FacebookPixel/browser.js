@@ -5,7 +5,8 @@ import sha256 from "crypto-js/sha256";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import { getHashFromArray } from "../utils/commonUtils";
-import { NAME } from "./constants";
+import { NAME, traitsMapper } from "./constants";
+import constructPayload from "./util";
 
 class FacebookPixel {
   constructor(config) {
@@ -76,10 +77,30 @@ class FacebookPixel {
 
   identify(rudderElement) {
     if (this.advancedMapping) {
+      const reserve = [
+        "email",
+        "lastName",
+        "firstName",
+        "phone",
+        "external_id",
+        "city",
+        "birthday",
+        "gender",
+        "street",
+        "zip",
+        "country",
+      ];
+      // this construcPayload will help to map the traits in the same way as cloud mode
+      let payload = constructPayload(rudderElement.message, traitsMapper);
       const traits = rudderElement.message.context
         ? rudderElement.message.context.traits
         : undefined;
-      window.fbq("init", this.pixelId, traits);
+      // here we are sending other traits apart from the reserved ones.
+      reserve.forEach((element) => {
+        delete traits[element];
+      });
+      payload = { ...payload, ...traits };
+      window.fbq("init", this.pixelId, payload);
     }
   }
 
