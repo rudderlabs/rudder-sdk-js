@@ -1,3 +1,4 @@
 import PinterestTag from "./browser";
 
-export default PinterestTag;
+// eslint-disable-next-line import/prefer-default-export
+export { PinterestTag };

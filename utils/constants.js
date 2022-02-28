@@ -1,4 +1,4 @@
-// Reserved Keywords for properties/triats
+// Reserved Keywords for properties/traits
 const ReservedPropertyKeywords = [
   "anonymous_id",
   "id",
@@ -9,13 +9,6 @@ const ReservedPropertyKeywords = [
   "event_text",
   "event",
 ];
-// Message Type enumeration
-const MessageType = {
-  TRACK: "track",
-  PAGE: "page",
-  // SCREEN: "screen",
-  IDENTIFY: "identify",
-};
 
 // ECommerce Parameter Names Enumeration
 const ECommerceParamNames = {
@@ -72,39 +65,27 @@ const ECommerceEvents = {
   PRODUCT_REVIEWED: "Product Reviewed",
 };
 
-// Enumeration for integrations supported
-const RudderIntegrationPlatform = {
-  RUDDERLABS: "rudderlabs",
-  GA: "ga",
-  AMPLITUDE: "amplitude",
-};
-
-const BASE_URL = "https://hosted.rudderlabs.com"; // default to RudderStack
 const CONFIG_URL =
   "https://api.rudderlabs.com/sourceConfig/?p=process.module_type&v=process.package_version";
-
-const FLUSH_QUEUE_SIZE = 30;
-
-const FLUSH_INTERVAL_DEFAULT = 5000;
+const CDN_INT_DIR = "js-integrations";
+const DEST_SDK_BASE_URL = `https://cdn.rudderlabs.com/v1.1/${CDN_INT_DIR}`;
 
 const MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
 const INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
-
+const INTG_SUFFIX = "_RS";
 const POLYFILL_URL =
   "https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries";
 
 export {
   ReservedPropertyKeywords,
-  MessageType,
   ECommerceParamNames,
   ECommerceEvents,
-  RudderIntegrationPlatform,
-  BASE_URL,
   CONFIG_URL,
-  FLUSH_QUEUE_SIZE,
-  FLUSH_INTERVAL_DEFAULT,
+  CDN_INT_DIR,
+  DEST_SDK_BASE_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
+  INTG_SUFFIX,
   POLYFILL_URL,
 };
 /* module.exports = {

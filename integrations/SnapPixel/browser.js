@@ -12,7 +12,10 @@ import { ecommEventPayload, eventPayload, sendEvent } from "./util";
 import { NAME } from "./constants";
 
 class SnapPixel {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.pixelId = config.pixelId;
     this.hashMethod = config.hashMethod;
     this.name = NAME;

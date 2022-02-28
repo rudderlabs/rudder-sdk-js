@@ -4,7 +4,10 @@ import ScriptLoader from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class Bugsnag {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.releaseStage = config.releaseStage;
     this.apiKey = config.apiKey;
     this.name = NAME;

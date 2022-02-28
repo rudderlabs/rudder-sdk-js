@@ -1,3 +1,4 @@
 import Sentry from "./browser";
 
-export default Sentry;
+// eslint-disable-next-line import/prefer-default-export
+export { Sentry };

@@ -1,3 +1,4 @@
 import { Fullstory } from "./browser";
 
-export default Fullstory;
+// eslint-disable-next-line import/prefer-default-export
+export { Fullstory };

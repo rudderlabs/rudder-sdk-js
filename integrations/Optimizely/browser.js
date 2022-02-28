@@ -5,6 +5,9 @@ import { NAME } from "./constants";
 
 class Optimizely {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.analytics = analytics;
     this.sendExperimentTrack = config.sendExperimentTrack;
     this.sendExperimentIdentify = config.sendExperimentIdentify;

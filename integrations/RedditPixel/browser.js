@@ -11,7 +11,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class RedditPixel {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.advertiserId = config.advertiserId;
     this.name = NAME;
   }

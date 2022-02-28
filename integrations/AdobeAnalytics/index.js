@@ -1,3 +1,4 @@
 import AdobeAnalytics from "./browser";
 
-export default AdobeAnalytics;
+// eslint-disable-next-line import/prefer-default-export
+export { AdobeAnalytics };

@@ -4,7 +4,10 @@ import ScriptLoader from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class Appcues {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.accountId = config.accountId;
     this.apiKey = config.apiKey;
     this.name = NAME;

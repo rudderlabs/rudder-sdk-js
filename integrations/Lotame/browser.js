@@ -5,6 +5,9 @@ import { NAME } from "./constants";
 
 class Lotame {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.analytics = analytics;
     this.storage = LotameStorage;

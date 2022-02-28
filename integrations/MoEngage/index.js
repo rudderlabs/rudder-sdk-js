@@ -1,3 +1,4 @@
 import MoEngage from "./browser";
 
-export default MoEngage;
+// eslint-disable-next-line import/prefer-default-export
+export { MoEngage };

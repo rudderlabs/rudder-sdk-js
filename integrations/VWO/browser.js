@@ -6,6 +6,9 @@ import { NAME } from "./constants";
 
 class VWO {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.accountId = config.accountId; // 1549611
     this.settingsTolerance = config.settingsTolerance;
     this.isSPA = config.isSPA;
