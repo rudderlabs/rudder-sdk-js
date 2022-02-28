@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 import get from "get-value";
 
 const constructPayload = (object, mapper) => {

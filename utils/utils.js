@@ -661,6 +661,50 @@ const removeTrailingSlashes = (str) => {
   return str && str.endsWith("/") ? str.replace(/\/+$/, "") : str;
 };
 
+/**
+ * Using this function we can create a payload from a mapping object.
+ * @param {*} object = {
+   traits:{
+     name: "abcd efgh",
+     address: {
+       city: "xyz"
+     }
+   }
+  }
+ * @param {*} mapper = [
+  {
+    destKey: "userName",
+    sourceKeys: "traits.name",
+  },
+  {
+    destKey: "city",
+    sourceKeys: "traits.address.city",
+  },
+]
+ * @returns {
+   userName : "abcd efgh",
+   city : "xyz"
+ }
+
+*/
+const constructPayload = (object, mapper) => {
+  const payload = {};
+  if (object)
+    mapper.forEach((element) => {
+      if (!Array.isArray(element.sourceKeys)) {
+        payload[element.destKey] = get(object, element.sourceKeys);
+      } else {
+        for (let i = 0; i < element.sourceKeys.length; i += 1) {
+          if (get(object, element.sourceKeys[i])) {
+            payload[element.destKey] = get(object, element.sourceKeys[i]);
+            break;
+          }
+        }
+      }
+    });
+  return payload;
+};
+
 export {
   replacer,
   generateUUID,
@@ -688,4 +732,5 @@ export {
   getDataFromSource,
   commonNames,
   removeTrailingSlashes,
+  constructPayload,
 };
