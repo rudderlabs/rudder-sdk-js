@@ -9,6 +9,9 @@ import { NAME } from "./constants";
 
 class Chartbeat {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.analytics = analytics; // use this to modify failed integrations or for passing events from callback to other destinations
     this._sf_async_config = window._sf_async_config =
       window._sf_async_config || {};

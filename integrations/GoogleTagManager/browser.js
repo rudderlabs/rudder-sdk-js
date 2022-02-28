@@ -3,7 +3,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class GoogleTagManager {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.containerID = config.containerID;
     this.name = NAME;
     this.serverUrl = config.serverUrl;

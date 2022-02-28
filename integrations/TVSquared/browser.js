@@ -5,7 +5,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class TVSquared {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.brandId = config.brandId;
     this.clientId = config.clientId;
     this.eventWhiteList = config.eventWhiteList || [];

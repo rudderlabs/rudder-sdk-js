@@ -7,7 +7,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class PostAffiliatePro {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.url = config.url;
     this.mergeProducts = config.mergeProducts;

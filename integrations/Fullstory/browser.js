@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-undef */
-import camelcase from "camelcase";
+import camelcase from "../../utils/camelcase";
 import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 

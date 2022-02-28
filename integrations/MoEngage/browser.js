@@ -19,6 +19,9 @@ const traitsMap = {
 };
 class MoEngage {
   constructor(config, analyticsinstance) {
+    if (analyticsinstance.logLevel) {
+      logger.setLogLevel(analyticsinstance.logLevel);
+    }
     this.apiId = config.apiId;
     this.debug = config.debug;
     this.region = config.region;

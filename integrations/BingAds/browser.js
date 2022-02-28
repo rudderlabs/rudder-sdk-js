@@ -2,7 +2,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class BingAds {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.tagID = config.tagID;
     this.name = NAME;
   }

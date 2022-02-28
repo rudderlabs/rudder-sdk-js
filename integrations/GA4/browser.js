@@ -15,6 +15,9 @@ import { NAME } from "./constants";
 
 export default class GA4 {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.measurementId = config.measurementId;
     this.analytics = analytics;
     this.sendUserId = config.sendUserId || false;

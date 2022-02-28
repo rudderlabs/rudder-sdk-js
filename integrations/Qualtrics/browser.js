@@ -13,7 +13,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class Qualtrics {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.projectId = config.projectId;
     this.brandId = config.brandId;
