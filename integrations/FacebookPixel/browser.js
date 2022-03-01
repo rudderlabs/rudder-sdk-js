@@ -9,7 +9,10 @@ import { NAME, traitsMapper } from "./constants";
 import { constructPayload } from "../../utils/utils";
 
 class FacebookPixel {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.blacklistPiiProperties = config.blacklistPiiProperties;
     this.categoryToContent = config.categoryToContent;
     this.pixelId = config.pixelId;

@@ -11,7 +11,10 @@ import {
 import { NAME } from "./constants";
 
 class Clevertap {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.accountId = config.accountId;
     this.apiKey = config.passcode;
     this.name = NAME;

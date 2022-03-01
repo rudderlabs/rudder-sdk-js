@@ -1,3 +1,4 @@
 import Criteo from "./browser";
 
-export default Criteo;
+// eslint-disable-next-line import/prefer-default-export
+export { Criteo };

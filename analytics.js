@@ -11,11 +11,9 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 import Emitter from "component-emitter";
-import after from "after";
-import querystring from "component-querystring";
+import { parse } from "component-querystring";
 import merge from "lodash.merge";
 import cloneDeep from "lodash.clonedeep";
-import utm from "@segment/utm-params";
 import {
   getJSONTrimmed,
   generateUUID,
@@ -23,47 +21,32 @@ import {
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
-  tranformToRudderNames,
+  transformToRudderNames,
   transformToServerNames,
   checkReservedKeywords,
   getReferrer,
   getReferringDomain,
+  removeTrailingSlashes,
+  getConfigUrl,
+  checkSDKUrl,
   commonNames,
 } from "./utils/utils";
 import {
-  CONFIG_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
+  DEST_SDK_BASE_URL,
+  CDN_INT_DIR,
+  INTG_SUFFIX,
   POLYFILL_URL,
 } from "./utils/constants";
-import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
 import Storage from "./utils/storage";
 import { EventRepository } from "./utils/EventRepository";
 import logger from "./utils/logUtil";
-import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
+import { configToIntNames } from "./utils/config_to_integration_names";
 import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
-
-const queryDefaults = {
-  trait: "ajs_trait_",
-  prop: "ajs_prop_",
-};
-
-// https://unpkg.com/test-rudder-sdk@1.0.5/dist/browser.js
-
-/**
- * Add the rudderelement object to flush queue
- *
- * @param {RudderElement} rudderElement
- */
-function enqueue(rudderElement, type) {
-  if (!this.eventRepository) {
-    this.eventRepository = EventRepository;
-  }
-  this.eventRepository.enqueue(rudderElement, type);
-}
 
 /**
  * class responsible for handling core
@@ -75,12 +58,7 @@ class Analytics {
    * @memberof Analytics
    */
   constructor() {
-    this.autoTrackHandlersRegistered = false;
-    this.autoTrackFeatureEnabled = false;
     this.initialized = false;
-    this.areEventsReplayed = false;
-    this.trackValues = [];
-    this.eventsBuffer = [];
     this.clientIntegrations = [];
     this.loadOnlyIntegrations = {};
     this.clientIntegrationObjects = undefined;
@@ -94,54 +72,79 @@ class Analytics {
     this.sendAdblockPageOptions = {};
     this.clientSuppliedCallbacks = {};
     this.readyCallback = () => {};
-    this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
       syncPixel: "syncPixelCallback",
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.dynamicallyLoadedIntegrations = {};
+    this.destSDKBaseURL = DEST_SDK_BASE_URL;
     this.cookieConsentOptions = {};
+    this.logLevel = undefined;
   }
 
   /**
    * initialize the user after load config
    */
   initializeUser() {
-    this.userId =
-      this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
+    // save once for storing older values to encrypted
+    this.userId = this.storage.getUserId() || "";
+    this.storage.setUserId(this.userId);
 
-    this.userTraits =
-      this.storage.getUserTraits() != undefined
-        ? this.storage.getUserTraits()
-        : {};
+    this.userTraits = this.storage.getUserTraits() || {};
+    this.storage.setUserTraits(this.userTraits);
 
-    this.groupId =
-      this.storage.getGroupId() != undefined ? this.storage.getGroupId() : "";
+    this.groupId = this.storage.getGroupId() || "";
+    this.storage.setGroupId(this.groupId);
 
-    this.groupTraits =
-      this.storage.getGroupTraits() != undefined
-        ? this.storage.getGroupTraits()
-        : {};
+    this.groupTraits = this.storage.getGroupTraits() || {};
+    this.storage.setGroupTraits(this.groupTraits);
 
     this.anonymousId = this.getAnonymousId();
-
-    // save once for storing older values to encrypted
-    this.storage.setUserId(this.userId);
     this.storage.setAnonymousId(this.anonymousId);
-    this.storage.setGroupId(this.groupId);
-    this.storage.setUserTraits(this.userTraits);
-    this.storage.setGroupTraits(this.groupTraits);
   }
 
   setInitialPageProperties() {
-    let initialReferrer = this.storage.getInitialReferrer();
-    let initialReferringDomain = this.storage.getInitialReferringDomain();
-    if (initialReferrer == null && initialReferringDomain == null) {
-      initialReferrer = getReferrer();
-      initialReferringDomain = getReferringDomain(initialReferrer);
+    if (
+      this.storage.getInitialReferrer() == null &&
+      this.storage.getInitialReferringDomain() == null
+    ) {
+      const initialReferrer = getReferrer();
       this.storage.setInitialReferrer(initialReferrer);
-      this.storage.setInitialReferringDomain(initialReferringDomain);
+      this.storage.setInitialReferringDomain(
+        getReferringDomain(initialReferrer)
+      );
     }
+  }
+
+  allModulesInitialized(time = 0) {
+    return new Promise((resolve) => {
+      if (
+        this.clientIntegrations.every(
+          (intg) =>
+            this.dynamicallyLoadedIntegrations[
+              `${configToIntNames[intg.name]}${INTG_SUFFIX}`
+            ] != undefined
+        )
+      ) {
+        // logger.debug(
+        //   "All integrations loaded dynamically",
+        //   this.dynamicallyLoadedIntegrations
+        // );
+        return resolve(this);
+      }
+      if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
+        // logger.debug("Max wait for dynamically loaded integrations over")
+        return resolve(this);
+      }
+
+      return this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+        // logger.debug("Check if all integration SDKs are loaded after pause")
+        return this.allModulesInitialized(
+          time + INTEGRATION_LOAD_CHECK_INTERVAL
+        ).then(resolve);
+      });
+    });
   }
 
   /**
@@ -154,22 +157,15 @@ class Analytics {
    */
   processResponse(status, response) {
     try {
-      logger.debug(`===in process response=== ${status}`);
+      // logger.debug(`===in process response=== ${status}`)
       if (typeof response === "string") {
         response = JSON.parse(response);
       }
-      if (
-        response.source.useAutoTracking &&
-        !this.autoTrackHandlersRegistered
-      ) {
-        this.autoTrackFeatureEnabled = true;
-        addDomEventHandlers(this);
-        this.autoTrackHandlersRegistered = true;
-      }
+
       response.source.destinations.forEach(function (destination, index) {
-        logger.debug(
-          `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
-        );
+        // logger.debug(
+        //   `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
+        // );
         if (destination.enabled) {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
@@ -178,196 +174,191 @@ class Analytics {
         }
       }, this);
 
-      logger.debug("this.clientIntegrations: ", this.clientIntegrations);
       // intersection of config-plane native sdk destinations with sdk load time destination list
       this.clientIntegrations = findAllEnabledDestinations(
         this.loadOnlyIntegrations,
         this.clientIntegrations
       );
-
-      var cookieConsent;
-      // Call the cookie consent factory to initialize and return the type of cookie
-      // consent being set. For now we only support OneTrust.
-      try {
-        cookieConsent = CookieConsentFactory.initialize(
-          this.cookieConsentOptions
-        );
-      } catch (e) {
-        logger.error(e);
+      // Check if cookie consent manager is being set through load options
+      if (Object.keys(this.cookieConsentOptions).length) {
+        // Call the cookie consent factory to initialise and return the type of cookie
+        // consent being set. For now we only support OneTrust.
+        try {
+          const cookieConsent = CookieConsentFactory.initialize(
+            this.cookieConsentOptions
+          );
+          // If cookie consent object is return we filter according to consents given by user
+          // else we do not consider any filtering for cookie consent.
+          this.clientIntegrations = this.clientIntegrations.filter((intg) => {
+            return (
+              !cookieConsent || // check if cookieconsent object is present and then do filtering
+              (cookieConsent && cookieConsent.isEnabled(intg.config))
+            );
+          });
+        } catch (e) {
+          logger.error(e);
+        }
       }
 
-      // If cookie consent object is return we filter according to consents given by user
-      // else we do not consider any filtering for cookie consent.
-      this.clientIntegrations = this.clientIntegrations.filter((intg) => {
-        return (
-          integrations[intg.name] != undefined &&
-          (!cookieConsent || // check if cookie consent object is present and then do filtering
-            (cookieConsent && cookieConsent.isEnabled(intg.config)))
-        );
+      let suffix = ""; // default suffix
+
+      // Get the CDN base URL is rudder staging url
+      const { rudderSDK, staging } = checkSDKUrl();
+      if (rudderSDK && staging) {
+        suffix = "-staging"; // stagging suffix
+      }
+
+      // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
+      // Load all the client integrations dynamically
+      this.clientIntegrations.forEach((intg) => {
+        const modName = configToIntNames[intg.name]; // script URL can be constructed from this
+        const pluginName = `${modName}${INTG_SUFFIX}`; // this is the name of the object loaded on the window
+        const modURL = `${this.destSDKBaseURL}/${modName}${suffix}.min.js`;
+
+        if (!window.hasOwnProperty(pluginName)) {
+          ScriptLoader(pluginName, modURL);
+        }
+
+        const self = this;
+        const interval = setInterval(function () {
+          if (window.hasOwnProperty(pluginName)) {
+            const intMod = window[pluginName];
+            clearInterval(interval);
+
+            // logger.debug(pluginName, " dynamically loaded integration SDK");
+
+            let intgInstance;
+            try {
+              // logger.debug(
+              //   pluginName,
+              //   " [Analytics] processResponse :: trying to initialize integration ::"
+              // );
+              intgInstance = new intMod[modName](intg.config, self);
+              intgInstance.init();
+
+              // logger.debug(pluginName, " initializing destination");
+
+              self.isInitialized(intgInstance).then(() => {
+                // logger.debug(pluginName, " module init sequence complete");
+                self.dynamicallyLoadedIntegrations[pluginName] =
+                  intMod[modName];
+              });
+            } catch (e) {
+              logger.error(
+                pluginName,
+                " [Analytics] initialize integration (integration.init()) failed",
+                e
+              );
+              self.failedToBeLoadedIntegration.push(intgInstance);
+            }
+          }
+        }, 100);
+
+        setTimeout(() => {
+          clearInterval(interval);
+        }, MAX_WAIT_FOR_INTEGRATION_LOAD);
       });
 
-      this.init(this.clientIntegrations);
+      const self = this;
+      this.allModulesInitialized().then(() => {
+        if (!self.clientIntegrations || self.clientIntegrations.length == 0) {
+          if (self.readyCallback) {
+            self.readyCallback();
+          }
+          self.toBeProcessedByIntegrationArray = [];
+          return;
+        }
+
+        self.replayEvents(self);
+      });
     } catch (error) {
       handleError(error);
-      logger.debug("===handling config BE response processing error===");
-      logger.debug(
-        "autoTrackHandlersRegistered",
-        this.autoTrackHandlersRegistered
-      );
-      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(this);
-        this.autoTrackHandlersRegistered = true;
-      }
     }
-  }
-
-  /**
-   * Initialize integrations by addinfg respective scripts
-   * keep the instances reference in core
-   *
-   * @param {*} intgArray
-   * @returns
-   * @memberof Analytics
-   */
-  init(intgArray) {
-    const self = this;
-    logger.debug("supported intgs ", integrations);
-    // this.clientIntegrationObjects = [];
-    if (!intgArray || intgArray.length == 0) {
-      if (this.readyCallback) {
-        this.readyCallback();
-      }
-      this.toBeProcessedByIntegrationArray = [];
-      return;
-    }
-    let intgInstance;
-    intgArray.forEach((intg) => {
-      try {
-        logger.debug(
-          "[Analytics] init :: trying to initialize integration name:: ",
-          intg.name
-        );
-        const intgClass = integrations[intg.name];
-        const destConfig = intg.config;
-        intgInstance = new intgClass(destConfig, self);
-        intgInstance.init();
-        logger.debug("initializing destination: ", intg);
-        this.isInitialized(intgInstance).then(this.replayEvents);
-      } catch (e) {
-        logger.error(
-          "[Analytics] initialize integration (integration.init()) failed :: ",
-          intg.name
-        );
-        this.failedToBeLoadedIntegration.push(intgInstance);
-      }
-    });
   }
 
   // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
+    // logger.debug(
+    //   "===replay events called====",
+    //   " successfully loaded count: ",
+    //   object.successfullyLoadedIntegration.length,
+    //   " failed loaded count: ",
+    //   object.failedToBeLoadedIntegration.length
+    // );
+    // eslint-disable-next-line no-param-reassign
+    object.clientIntegrationObjects = [];
+    // eslint-disable-next-line no-param-reassign
+    object.clientIntegrationObjects = object.successfullyLoadedIntegration;
+
+    // logger.debug(
+    //   "==registering after callback===",
+    //   " after to be called after count : ",
+    //   object.clientIntegrationObjects.length
+    // );
+
     if (
-      object.successfullyLoadedIntegration.length +
-        object.failedToBeLoadedIntegration.length ===
-        object.clientIntegrations.length &&
-      !object.areEventsReplayed
+      object.clientIntegrationObjects.every(
+        (intg) => !intg.isReady || intg.isReady()
+      )
     ) {
-      logger.debug(
-        "===replay events called====",
-        " successfully loaded count: ",
-        object.successfullyLoadedIntegration.length,
-        " failed loaded count: ",
-        object.failedToBeLoadedIntegration.length
-      );
-      // eslint-disable-next-line no-param-reassign
-      object.clientIntegrationObjects = [];
-      // eslint-disable-next-line no-param-reassign
-      object.clientIntegrationObjects = object.successfullyLoadedIntegration;
+      object.readyCallback();
+    }
 
-      logger.debug(
-        "==registering after callback===",
-        " after to be called after count : ",
-        object.clientIntegrationObjects.length
-      );
-      object.executeReadyCallback = after(
-        object.clientIntegrationObjects.length,
-        object.readyCallback
-      );
+    // send the queued events to the fetched integration
+    object.toBeProcessedByIntegrationArray.forEach((event) => {
+      const methodName = event[0];
+      event.shift();
 
-      logger.debug("==registering ready callback===");
-      object.on("ready", object.executeReadyCallback);
+      // convert common names to sdk identified name
+      if (Object.keys(event[0].message.integrations).length > 0) {
+        transformToRudderNames(event[0].message.integrations);
+      }
 
-      object.clientIntegrationObjects.forEach((intg) => {
-        logger.debug("===looping over each successful integration====");
-        if (!intg.isReady || intg.isReady()) {
-          logger.debug("===letting know I am ready=====", intg.name);
-          object.emit("ready");
-        }
-      });
+      // if not specified at event level, All: true is default
+      const clientSuppliedIntegrations = event[0].message.integrations;
 
-      if (object.toBeProcessedByIntegrationArray.length > 0) {
-        // send the queued events to the fetched integration
-        object.toBeProcessedByIntegrationArray.forEach((event) => {
-          const methodName = event[0];
-          event.shift();
+      // get intersection between config plane native enabled destinations
+      // (which were able to successfully load on the page) vs user supplied integrations
+      const succesfulLoadedIntersectClientSuppliedIntegrations =
+        findAllEnabledDestinations(
+          clientSuppliedIntegrations,
+          object.clientIntegrationObjects
+        );
 
-          // convert common names to sdk identified name
-          if (Object.keys(event[0].message.integrations).length > 0) {
-            tranformToRudderNames(event[0].message.integrations);
-          }
-
-          // if not specified at event level, All: true is default
-          const clientSuppliedIntegrations = event[0].message.integrations;
-
-          // get intersection between config plane native enabled destinations
-          // (which were able to successfully load on the page) vs user supplied integrations
-          const succesfulLoadedIntersectClientSuppliedIntegrations =
-            findAllEnabledDestinations(
-              clientSuppliedIntegrations,
-              object.clientIntegrationObjects
-            );
-
-          // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-          for (
-            let i = 0;
-            i < succesfulLoadedIntersectClientSuppliedIntegrations.length;
-            i += 1
+      // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
+      for (
+        let i = 0;
+        i < succesfulLoadedIntersectClientSuppliedIntegrations.length;
+        i += 1
+      ) {
+        try {
+          if (
+            !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
+            !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
           ) {
-            try {
-              if (
-                !succesfulLoadedIntersectClientSuppliedIntegrations[i]
-                  .isFailed ||
-                !succesfulLoadedIntersectClientSuppliedIntegrations[
-                  i
-                ].isFailed()
-              ) {
-                if (
-                  succesfulLoadedIntersectClientSuppliedIntegrations[i][
-                    methodName
-                  ]
-                ) {
-                  const sendEvent = !object.IsEventBlackListed(
-                    event[0].message.event,
-                    succesfulLoadedIntersectClientSuppliedIntegrations[i].name
-                  );
+            if (
+              succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]
+            ) {
+              const sendEvent = !object.IsEventBlackListed(
+                event[0].message.event,
+                succesfulLoadedIntersectClientSuppliedIntegrations[i].name
+              );
 
-                  // Block the event if it is blacklisted for the device-mode destination
-                  if (sendEvent) {
-                    const clonedBufferEvent = cloneDeep(event);
-                    succesfulLoadedIntersectClientSuppliedIntegrations[i][
-                      methodName
-                    ](...clonedBufferEvent);
-                  }
-                }
+              // Block the event if it is blacklisted for the device-mode destination
+              if (sendEvent) {
+                const clonedBufferEvent = cloneDeep(event);
+                succesfulLoadedIntersectClientSuppliedIntegrations[i][
+                  methodName
+                ](...clonedBufferEvent);
               }
-            } catch (error) {
-              handleError(error);
             }
           }
-        });
-        object.toBeProcessedByIntegrationArray = [];
+        } catch (error) {
+          handleError(error);
+        }
       }
-      object.areEventsReplayed = true;
-    }
+    });
+    object.toBeProcessedByIntegrationArray = [];
   }
 
   pause(time) {
@@ -379,18 +370,18 @@ class Analytics {
   isInitialized(instance, time = 0) {
     return new Promise((resolve) => {
       if (instance.isLoaded()) {
-        logger.debug("===integration loaded successfully====", instance.name);
+        // logger.debug("===integration loaded successfully====", instance.name)
         this.successfullyLoadedIntegration.push(instance);
         return resolve(this);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
-        logger.debug("====max wait over====");
+        // logger.debug("====max wait over====")
         this.failedToBeLoadedIntegration.push(instance);
         return resolve(this);
       }
 
-      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        logger.debug("====after pause, again checking====");
+      return this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+        // logger.debug("====after pause, again checking====")
         return this.isInitialized(
           instance,
           time + INTEGRATION_LOAD_CHECK_INTERVAL
@@ -429,7 +420,25 @@ class Analytics {
     if (this.sendAdblockPage && category != "RudderJS-Initiated") {
       this.sendSampleRequest();
     }
-    this.processPage(category, name, properties, options, callback);
+
+    const rudderElement = new RudderElementBuilder().setType("page").build();
+    if (!properties) {
+      properties = {};
+    }
+    if (name) {
+      rudderElement.message.name = properties.name = name;
+    }
+    if (category) {
+      rudderElement.message.category = properties.category = category;
+    }
+    rudderElement.message.properties = this.getPageProperties(properties);
+
+    this.processAndSendDataToDestinations(
+      "page",
+      rudderElement,
+      options,
+      callback
+    );
   }
 
   /**
@@ -447,11 +456,22 @@ class Analytics {
     if (typeof properties === "function")
       (callback = properties), (options = null), (properties = null);
 
-    this.processTrack(event, properties, options, callback);
+    const rudderElement = new RudderElementBuilder().setType("track").build();
+    if (event) {
+      rudderElement.setEventName(event);
+    }
+    rudderElement.setProperty(properties || {});
+
+    this.processAndSendDataToDestinations(
+      "track",
+      rudderElement,
+      options,
+      callback
+    );
   }
 
   /**
-   * Process identify params and forward to indentify  call
+   * Process identify params and forward to identify  call
    *
    * @param {*} userId
    * @param {*} traits
@@ -467,7 +487,28 @@ class Analytics {
     if (typeof userId === "object")
       (options = traits), (traits = userId), (userId = this.userId);
 
-    this.processIdentify(userId, traits, options, callback);
+    if (userId && this.userId && userId !== this.userId) {
+      this.reset();
+    }
+    this.userId = userId;
+    this.storage.setUserId(this.userId);
+
+    if (traits) {
+      for (const key in traits) {
+        this.userTraits[key] = traits[key];
+      }
+      this.storage.setUserTraits(this.userTraits);
+    }
+    const rudderElement = new RudderElementBuilder()
+      .setType("identify")
+      .build();
+
+    this.processAndSendDataToDestinations(
+      "identify",
+      rudderElement,
+      options,
+      callback
+    );
   }
 
   /**
@@ -529,150 +570,6 @@ class Analytics {
 
     this.processAndSendDataToDestinations(
       "group",
-      rudderElement,
-      options,
-      callback
-    );
-  }
-
-  /**
-   * Send page call to Rudder BE and to initialized integrations
-   *
-   * @param {*} category
-   * @param {*} name
-   * @param {*} properties
-   * @param {*} options
-   * @param {*} callback
-   * @memberof Analytics
-   */
-  processPage(category, name, properties, options, callback) {
-    const rudderElement = new RudderElementBuilder().setType("page").build();
-    if (!properties) {
-      properties = {};
-    }
-    if (name) {
-      rudderElement.message.name = name;
-      properties.name = name;
-    }
-    if (category) {
-      rudderElement.message.category = category;
-      properties.category = category;
-    }
-    rudderElement.message.properties = this.getPageProperties(properties); // properties;
-
-    this.trackPage(rudderElement, options, callback);
-  }
-
-  /**
-   * Send track call to Rudder BE and to initialized integrations
-   *
-   * @param {*} event
-   * @param {*} properties
-   * @param {*} options
-   * @param {*} callback
-   * @memberof Analytics
-   */
-  processTrack(event, properties, options, callback) {
-    const rudderElement = new RudderElementBuilder().setType("track").build();
-    if (event) {
-      rudderElement.setEventName(event);
-    }
-    if (properties) {
-      rudderElement.setProperty(properties);
-    } else {
-      rudderElement.setProperty({});
-    }
-    this.trackEvent(rudderElement, options, callback);
-  }
-
-  /**
-   * Send identify call to Rudder BE and to initialized integrations
-   *
-   * @param {*} userId
-   * @param {*} traits
-   * @param {*} options
-   * @param {*} callback
-   * @memberof Analytics
-   */
-  processIdentify(userId, traits, options, callback) {
-    if (userId && this.userId && userId !== this.userId) {
-      this.reset();
-    }
-    this.userId = userId;
-    this.storage.setUserId(this.userId);
-
-    const rudderElement = new RudderElementBuilder()
-      .setType("identify")
-      .build();
-    if (traits) {
-      for (const key in traits) {
-        this.userTraits[key] = traits[key];
-      }
-      this.storage.setUserTraits(this.userTraits);
-    }
-
-    this.identifyUser(rudderElement, options, callback);
-  }
-
-  /**
-   * Identify call supporting rudderelement from builder
-   *
-   * @param {*} rudderElement
-   * @param {*} callback
-   * @memberof Analytics
-   */
-  identifyUser(rudderElement, options, callback) {
-    if (rudderElement.message.userId) {
-      this.userId = rudderElement.message.userId;
-      this.storage.setUserId(this.userId);
-    }
-
-    if (
-      rudderElement &&
-      rudderElement.message &&
-      rudderElement.message.context &&
-      rudderElement.message.context.traits
-    ) {
-      this.userTraits = {
-        ...rudderElement.message.context.traits,
-      };
-      this.storage.setUserTraits(this.userTraits);
-    }
-
-    this.processAndSendDataToDestinations(
-      "identify",
-      rudderElement,
-      options,
-      callback
-    );
-  }
-
-  /**
-   * Page call supporting rudderelement from builder
-   *
-   * @param {*} rudderElement
-   * @param {*} callback
-   * @memberof Analytics
-   */
-  trackPage(rudderElement, options, callback) {
-    this.processAndSendDataToDestinations(
-      "page",
-      rudderElement,
-      options,
-      callback
-    );
-  }
-
-  /**
-   * Track call supporting rudderelement from builder
-   *
-   * @param {*} rudderElement
-   * @param {*} callback
-   * @memberof Analytics
-   */
-  trackEvent(rudderElement, options, callback) {
-    this.processAndSendDataToDestinations(
-      "track",
       rudderElement,
       options,
       callback
@@ -760,7 +657,7 @@ class Analytics {
         ...this.userTraits,
       };
 
-      logger.debug("anonymousId: ", this.anonymousId);
+      // logger.debug("anonymousId: ", this.anonymousId)
       rudderElement.message.anonymousId = this.anonymousId;
       rudderElement.message.userId = rudderElement.message.userId
         ? rudderElement.message.userId
@@ -778,64 +675,62 @@ class Analytics {
       }
 
       this.processOptionsParam(rudderElement, options);
-      logger.debug(JSON.stringify(rudderElement));
+      // logger.debug(JSON.stringify(rudderElement))
 
       // check for reserved keys and log
       checkReservedKeywords(rudderElement.message, type);
 
       // structure user supplied integrations object to rudder format
-      if (Object.keys(rudderElement.message.integrations).length > 0) {
-        tranformToRudderNames(rudderElement.message.integrations);
-      }
-
-      // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = rudderElement.message.integrations;
-
-      // get intersection between config plane native enabled destinations
-      // (which were able to successfully load on the page) vs user supplied integrations
-      const succesfulLoadedIntersectClientSuppliedIntegrations =
-        findAllEnabledDestinations(
-          clientSuppliedIntegrations,
-          this.clientIntegrationObjects
-        );
-
-      // try to first send to all integrations, if list populated from BE
-      try {
-        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
-          if (!obj.isFailed || !obj.isFailed()) {
-            if (obj[type]) {
-              let sendEvent = !this.IsEventBlackListed(
-                rudderElement.message.event,
-                obj.name
-              );
-
-              // Block the event if it is blacklisted for the device-mode destination
-              if (sendEvent) {
-                const clonedRudderElement = cloneDeep(rudderElement);
-                obj[type](clonedRudderElement);
-              }
-            }
-          }
-        });
-      } catch (err) {
-        handleError({ message: `[sendToNative]:${err}` });
-      }
+      transformToRudderNames(rudderElement.message.integrations);
 
       // config plane native enabled destinations, still not completely loaded
       // in the page, add the events to a queue and process later
       if (!this.clientIntegrationObjects) {
-        logger.debug("pushing in replay queue");
+        // logger.debug("pushing in replay queue")
         // new event processing after analytics initialized  but integrations not fetched from BE
         this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
+      } else {
+        // if not specified at event level, All: true is default
+        const clientSuppliedIntegrations = rudderElement.message.integrations;
+
+        // get intersection between config plane native enabled destinations
+        // (which were able to successfully load on the page) vs user supplied integrations
+        const succesfulLoadedIntersectClientSuppliedIntegrations =
+          findAllEnabledDestinations(
+            clientSuppliedIntegrations,
+            this.clientIntegrationObjects
+          );
+
+        // try to first send to all integrations, if list populated from BE
+        try {
+          succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+            if (!obj.isFailed || !obj.isFailed()) {
+              if (obj[type]) {
+                let sendEvent = !this.IsEventBlackListed(
+                  rudderElement.message.event,
+                  obj.name
+                );
+
+                // Block the event if it is blacklisted for the device-mode destination
+                if (sendEvent) {
+                  const clonedRudderElement = cloneDeep(rudderElement);
+                  obj[type](clonedRudderElement);
+                }
+              }
+            }
+          });
+        } catch (err) {
+          handleError({ message: `[sendToNative]:${err}` });
+        }
       }
 
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
 
       // self analytics process, send to rudder
-      enqueue.call(this, rudderElement, type);
+      this.eventRepository.enqueue(rudderElement, type);
 
-      logger.debug(`${type} is called `);
+      // logger.debug(`${type} is called `)
       if (callback) {
         callback();
       }
@@ -844,25 +739,47 @@ class Analytics {
     }
   }
 
+  utm(query) {
+    // Remove leading ? if present
+    if (query.charAt(0) === "?") {
+      query = query.substring(1);
+    }
+
+    query = query.replace(/\?/g, "&");
+
+    let param;
+    const params = parse(query);
+    const results = {};
+
+    for (const key in params) {
+      if (Object.prototype.hasOwnProperty.call(params, key)) {
+        if (key.substr(0, 4) === "utm_") {
+          param = key.substr(4);
+          if (param === "campaign") param = "name";
+          results[param] = params[key];
+        }
+      }
+    }
+
+    return results;
+  }
+
   /**
    * add campaign parsed details under context
    * @param {*} rudderElement
    */
   addCampaignInfo(rudderElement) {
-    const { search } = getDefaultPageProperties();
-    const campaign = utm(search);
-    if (
-      rudderElement.message.context &&
-      typeof rudderElement.message.context === "object"
-    ) {
-      rudderElement.message.context.campaign = campaign;
+    const msgContext = rudderElement.message.context;
+    if (msgContext && typeof msgContext === "object") {
+      const { search } = getDefaultPageProperties();
+      rudderElement.message.context.campaign = this.utm(search);
     }
   }
 
   /**
    * process options parameter
-   * Apart from top level keys merge everyting under context
-   * context.page's default properties are overriden by same keys of
+   * Apart from top level keys merge everything under context
+   * context.page's default properties are overridden by same keys of
    * provided properties in case of page call
    *
    * @param {*} rudderElement
@@ -875,18 +792,17 @@ class Analytics {
     this.addCampaignInfo(rudderElement);
 
     // assign page properties to context.page
-    rudderElement.message.context.page =
-      type == "page"
-        ? this.getContextPageProperties(properties)
-        : this.getContextPageProperties();
+    rudderElement.message.context.page = this.getContextPageProperties(
+      type === "page" ? properties : undefined
+    );
 
-    const toplevelElements = [
+    const topLevelElements = [
       "integrations",
       "anonymousId",
       "originalTimestamp",
     ];
     for (const key in options) {
-      if (toplevelElements.includes(key)) {
+      if (topLevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== "context") {
         rudderElement.message.context = merge(rudderElement.message.context, {
@@ -906,7 +822,7 @@ class Analytics {
 
   getPageProperties(properties, options) {
     const defaultPageProperties = getDefaultPageProperties();
-    const optionPageProperties = options && options.page ? options.page : {};
+    const optionPageProperties = (options && options.page) || {};
     for (const key in defaultPageProperties) {
       if (properties[key] === undefined) {
         properties[key] =
@@ -955,16 +871,21 @@ class Analytics {
     return this.anonymousId;
   }
 
+  getUserId() {
+    this.userId = this.storage.getUserId();
+    return this.userId;
+  }
+
   getUserTraits() {
     return this.userTraits;
   }
 
   /**
-   * Sets anonymous id in the followin precedence:
+   * Sets anonymous id in the following precedence:
    * 1. anonymousId: Id directly provided to the function.
    * 2. rudderAmpLinkerParm: value generated from linker query parm (rudderstack)
    *    using praseLinker util.
-   * 3. generateUUID: A new uniquie id is generated and assigned.
+   * 3. generateUUID: A new unique id is generated and assigned.
    *
    * @param {string} anonymousId
    * @param {string} rudderAmpLinkerParm
@@ -1011,21 +932,24 @@ class Analytics {
    * @returns
    */
   loadAfterPolyfill(writeKey, serverUrl, options) {
+    if (options && options.logLevel) {
+      this.logLevel = options.logLevel;
+      logger.setLogLevel(options.logLevel);
+    }
+    if (!this.storage || Object.keys(this.storage).length === 0) {
+      throw Error("Cannot proceed as no storage is available");
+    }
     if (options && options.cookieConsentManager)
       this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
-    let configUrl = CONFIG_URL;
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
       handleError({
         message:
-          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl",
+          "[Analytics] load:: Unable to load due to invalid writeKey or serverUrl",
       });
       throw Error("failed to initialize");
     }
 
     let storageOptions = {};
-    if (options && options.logLevel) {
-      logger.setLogLevel(options.logLevel);
-    }
 
     if (options && options.setCookieDomain) {
       storageOptions = { ...storageOptions, domain: options.setCookieDomain };
@@ -1038,22 +962,22 @@ class Analytics {
 
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
-      tranformToRudderNames(this.loadOnlyIntegrations);
+      transformToRudderNames(this.loadOnlyIntegrations);
     }
-    if (options && options.configUrl) {
-      configUrl = getUserProvidedConfigUrl(options.configUrl);
-    }
+
     if (options && options.sendAdblockPage) {
       this.sendAdblockPage = true;
     }
-    if (options && options.sendAdblockPageOptions) {
-      if (typeof options.sendAdblockPageOptions === "object") {
-        this.sendAdblockPageOptions = options.sendAdblockPageOptions;
-      }
+    if (
+      options &&
+      options.sendAdblockPageOptions &&
+      typeof options.sendAdblockPageOptions === "object"
+    ) {
+      this.sendAdblockPageOptions = options.sendAdblockPageOptions;
     }
     if (options && options.clientSuppliedCallbacks) {
-      // convert to rudder recognised method names
-      const tranformedCallbackMapping = {};
+      // convert to rudder recognized method names
+      const transformedCallbackMapping = {};
       Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
         if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
           if (
@@ -1061,14 +985,14 @@ class Analytics {
               this.methodToCallbackMapping[methodName]
             ]
           ) {
-            tranformedCallbackMapping[methodName] =
+            transformedCallbackMapping[methodName] =
               options.clientSuppliedCallbacks[
                 this.methodToCallbackMapping[methodName]
               ];
           }
         }
       });
-      Object.assign(this.clientSuppliedCallbacks, tranformedCallbackMapping);
+      Object.assign(this.clientSuppliedCallbacks, transformedCallbackMapping);
       this.registerCallbacks(true);
     }
 
@@ -1080,29 +1004,28 @@ class Analytics {
     this.initializeUser();
     this.setInitialPageProperties();
     this.loaded = true;
-    if (
-      options &&
-      options.valTrackingList &&
-      options.valTrackingList.push == Array.prototype.push
-    ) {
-      this.trackValues = options.valTrackingList;
-    }
-    if (options && options.useAutoTracking) {
-      this.autoTrackFeatureEnabled = true;
-      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(this);
-        this.autoTrackHandlersRegistered = true;
-        logger.debug(
-          "autoTrackHandlersRegistered",
-          this.autoTrackHandlersRegistered
-        );
-      }
-    }
 
     function errorHandler(error) {
       handleError(error);
-      if (this.autoTrackFeatureEnabled && !this.autoTrackHandlersRegistered) {
-        addDomEventHandlers(this);
+    }
+
+    if (options && options.destSDKBaseURL) {
+      this.destSDKBaseURL = removeTrailingSlashes(options.destSDKBaseURL);
+      if (!this.destSDKBaseURL) {
+        handleError({
+          message: "[Analytics] load:: CDN base URL is not valid",
+        });
+        throw Error("failed to load");
+      }
+    } else {
+      // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
+      const { rudderSDK } = checkSDKUrl();
+      if (rudderSDK) {
+        this.destSDKBaseURL = rudderSDK
+          .split("/")
+          .slice(0, -1)
+          .concat(CDN_INT_DIR)
+          .join("/");
       }
     }
     if (options && options.getSourceConfig) {
@@ -1112,14 +1035,19 @@ class Analytics {
         const res = options.getSourceConfig();
 
         if (res instanceof Promise) {
-          res.then((res) => this.processResponse(200, res)).catch(errorHandler);
+          res
+            .then((pRes) => this.processResponse(200, pRes))
+            .catch(errorHandler);
         } else {
           this.processResponse(200, res);
         }
-
-        processDataInAnalyticsArray(this);
       }
       return;
+    }
+
+    let configUrl = getConfigUrl(writeKey);
+    if (options && options.configUrl) {
+      configUrl = getUserProvidedConfigUrl(options.configUrl, configUrl);
     }
 
     try {
@@ -1127,7 +1055,6 @@ class Analytics {
     } catch (error) {
       errorHandler(error);
     }
-    processDataInAnalyticsArray(this);
   }
 
   /**
@@ -1219,11 +1146,11 @@ class Analytics {
 
     Object.keys(this.clientSuppliedCallbacks).forEach((methodName) => {
       if (this.clientSuppliedCallbacks.hasOwnProperty(methodName)) {
-        logger.debug(
-          "registerCallbacks",
-          methodName,
-          this.clientSuppliedCallbacks[methodName]
-        );
+        // logger.debug(
+        //   "registerCallbacks",
+        //   methodName,
+        //   this.clientSuppliedCallbacks[methodName]
+        // );
         this.on(methodName, this.clientSuppliedCallbacks[methodName]);
       }
     });
@@ -1235,88 +1162,63 @@ class Analytics {
       "//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
     );
   }
-
-  /**
-   * parse the given query string into usable Rudder object
-   * @param {*} query
-   */
-  parseQueryString(query) {
-    function getTraitsFromQueryObject(qObj) {
-      const traits = {};
-      Object.keys(qObj).forEach((key) => {
-        if (key.substr(0, queryDefaults.trait.length) == queryDefaults.trait) {
-          traits[key.substr(queryDefaults.trait.length)] = qObj[key];
-        }
-      });
-
-      return traits;
-    }
-
-    function getEventPropertiesFromQueryObject(qObj) {
-      const props = {};
-      Object.keys(qObj).forEach((key) => {
-        if (key.substr(0, queryDefaults.prop.length) == queryDefaults.prop) {
-          props[key.substr(queryDefaults.prop.length)] = qObj[key];
-        }
-      });
-
-      return props;
-    }
-
-    const returnObj = {};
-    const queryObject = querystring.parse(query);
-    const userTraits = getTraitsFromQueryObject(queryObject);
-    const eventProps = getEventPropertiesFromQueryObject(queryObject);
-    if (queryObject.ajs_uid) {
-      returnObj.userId = queryObject.ajs_uid;
-      returnObj.traits = userTraits;
-    }
-    if (queryObject.ajs_aid) {
-      returnObj.anonymousId = queryObject.ajs_aid;
-    }
-    if (queryObject.ajs_event) {
-      returnObj.event = queryObject.ajs_event;
-      returnObj.properties = eventProps;
-    }
-
-    return returnObj;
-  }
-}
-
-function pushQueryStringDataToAnalyticsArray(obj) {
-  if (obj.anonymousId) {
-    if (obj.userId) {
-      instance.toBeProcessedArray.push(
-        ["setAnonymousId", obj.anonymousId],
-        ["identify", obj.userId, obj.traits]
-      );
-    } else {
-      instance.toBeProcessedArray.push(["setAnonymousId", obj.anonymousId]);
-    }
-  } else if (obj.userId) {
-    instance.toBeProcessedArray.push(["identify", obj.userId, obj.traits]);
-  }
-
-  if (obj.event) {
-    instance.toBeProcessedArray.push(["track", obj.event, obj.properties]);
-  }
-}
-
-function processDataInAnalyticsArray(analytics) {
-  if (instance.loaded) {
-    for (let i = 0; i < analytics.toBeProcessedArray.length; i++) {
-      const event = [...analytics.toBeProcessedArray[i]];
-      const method = event[0];
-      event.shift();
-      logger.debug("=====from analytics array, calling method:: ", method);
-      analytics[method](...event);
-    }
-
-    instance.toBeProcessedArray = [];
-  }
 }
 
 const instance = new Analytics();
+
+function processDataInAnalyticsArray(analytics) {
+  analytics.toBeProcessedArray.forEach((x) => {
+    var event = [...x];
+    const method = event[0];
+    event.shift();
+    // logger.debug("=====from analytics array, calling method:: ", method)
+    analytics[method](...event);
+  });
+
+  instance.toBeProcessedArray = [];
+}
+
+/**
+ * parse the given query string into usable Rudder object
+ * @param {*} query
+ */
+function parseQueryString(query) {
+  const queryDefaults = {
+    trait: "ajs_trait_",
+    prop: "ajs_prop_",
+  };
+
+  function getDataFromQueryObj(qObj, dataType) {
+    const data = {};
+    Object.keys(qObj).forEach((key) => {
+      if (key.startsWith(dataType)) {
+        data[key.substr(dataType.length)] = qObj[key];
+      }
+    });
+    return data;
+  }
+
+  const queryObject = parse(query);
+  if (queryObject.ajs_aid) {
+    instance.toBeProcessedArray.push(["setAnonymousId", queryObject.ajs_aid]);
+  }
+
+  if (queryObject.ajs_uid) {
+    instance.toBeProcessedArray.push([
+      "identify",
+      queryObject.ajs_uid,
+      getDataFromQueryObj(queryObject, queryDefaults.trait),
+    ]);
+  }
+
+  if (queryObject.ajs_event) {
+    instance.toBeProcessedArray.push([
+      "track",
+      queryObject.ajs_event,
+      getDataFromQueryObj(queryObject, queryDefaults.prop),
+    ]);
+  }
+}
 
 Emitter(instance);
 
@@ -1328,50 +1230,31 @@ window.addEventListener(
   true
 );
 
-// if (process.browser) {
-// test for adblocker
-// instance.sendSampleRequest()
-
 // initialize supported callbacks
 instance.initializeCallbacks();
 
 // register supported callbacks
 instance.registerCallbacks(false);
-const eventsPushedAlready =
-  !!window.rudderanalytics &&
-  window.rudderanalytics.push == Array.prototype.push;
 
-const argumentsArray = window.rudderanalytics;
+const defaultMethod = "load";
+const argumentsArray = window.rudderanalytics || [];
 
-while (argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load") {
-  argumentsArray.shift();
-}
-if (
-  argumentsArray &&
-  argumentsArray.length > 0 &&
-  argumentsArray[0][0] === "load"
-) {
-  const method = argumentsArray[0][0];
-  argumentsArray[0].shift();
-  logger.debug("=====from init, calling method:: ", method);
-  instance[method](...argumentsArray[0]);
-  argumentsArray.shift();
-}
-
-// once loaded, parse querystring of the page url to send events
-const parsedQueryObject = instance.parseQueryString(window.location.search);
-
-pushQueryStringDataToAnalyticsArray(parsedQueryObject);
-
-if (argumentsArray && argumentsArray.length > 0) {
-  for (let i = 0; i < argumentsArray.length; i++) {
-    instance.toBeProcessedArray.push(argumentsArray[i]);
+// Skip all the methods queued prior to the 'defaultMethod'
+while (argumentsArray.length > 0) {
+  if (argumentsArray[0][0] === defaultMethod) {
+    instance.toBeProcessedArray.push(argumentsArray[0]);
+    argumentsArray.shift();
+    break;
   }
+  argumentsArray.shift();
 }
-if (eventsPushedAlready) {
-  processDataInAnalyticsArray(instance);
-}
-// }
+
+// parse querystring of the page url to send events
+parseQueryString(window.location.search);
+
+argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
+
+processDataInAnalyticsArray(instance);
 
 const ready = instance.ready.bind(instance);
 const identify = instance.identify.bind(instance);
@@ -1382,6 +1265,7 @@ const group = instance.group.bind(instance);
 const reset = instance.reset.bind(instance);
 const load = instance.load.bind(instance);
 const initialized = (instance.initialized = true);
+const getUserId = instance.getUserId.bind(instance);
 const getUserTraits = instance.getUserTraits.bind(instance);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
@@ -1396,6 +1280,7 @@ export {
   reset,
   alias,
   group,
+  getUserId,
   getUserTraits,
   getAnonymousId,
   setAnonymousId,

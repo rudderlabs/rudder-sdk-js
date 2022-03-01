@@ -4,7 +4,10 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class ProfitWell {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.publicApiKey = config.publicApiKey;
     this.siteType = config.siteType;
     this.name = NAME;

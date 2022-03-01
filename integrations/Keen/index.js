@@ -1,3 +1,4 @@
 import { Keen } from "./browser";
 
-export default Keen;
+// eslint-disable-next-line import/prefer-default-export
+export { Keen };

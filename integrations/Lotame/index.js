@@ -1,3 +1,4 @@
 import { Lotame } from "./browser";
 
-export default Lotame;
+// eslint-disable-next-line import/prefer-default-export
+export { Lotame };

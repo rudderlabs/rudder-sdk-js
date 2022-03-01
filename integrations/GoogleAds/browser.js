@@ -4,7 +4,10 @@ import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 import { NAME } from "./constants";
 
 class GoogleAds {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     // this.accountId = config.accountId;//AW-696901813
     this.conversionId = config.conversionID;
     this.pageLoadConversions = config.pageLoadConversions;

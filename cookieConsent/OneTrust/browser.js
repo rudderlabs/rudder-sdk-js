@@ -2,8 +2,7 @@ import logger from "../../utils/logUtil";
 
 /* eslint-disable class-methods-use-this */
 class OneTrust {
-  constructor(sourceConfig) {
-    this.sourceConfig = sourceConfig;
+  constructor() {
     // If user does not load onetrust sdk before loading rudderstack sdk
     // we will not be filtering any of the destinations.
     if (!window.OneTrust || !window.OnetrustActiveGroups) {

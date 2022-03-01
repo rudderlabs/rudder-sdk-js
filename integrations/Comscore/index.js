@@ -1,3 +1,4 @@
 import { Comscore } from "./browser";
 
-export default Comscore;
+// eslint-disable-next-line import/prefer-default-export
+export { Comscore };
