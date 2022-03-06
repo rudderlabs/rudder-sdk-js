@@ -624,6 +624,7 @@ export default class GA {
 
     // named pages
     if (name && this.trackNamedPages) {
+      rudderElement.message.name = `Viewed ${name} page`;
       this.track(rudderElement, { nonInteraction: 1 });
     }
     this.pageCalled = true;
