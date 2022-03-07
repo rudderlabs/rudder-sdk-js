@@ -29,6 +29,7 @@ export default class GA {
     this.sampleRate = config.sampleRate || 100;
     this.trackCategorizedPages = config.trackCategorizedPages || true;
     this.trackNamedPages = config.trackNamedPages || true;
+    this.useRichEventNames = config.useRichEventNames || false;
     this.optimizeContainerId = config.optimize || "";
     this.resetCustomDimensionsOnPage = config.resetCustomDimensionsOnPage || [];
     this.enhancedEcommerceLoaded = 0;
@@ -619,11 +620,17 @@ export default class GA {
 
     // categorized pages
     if (category && this.trackCategorizedPages) {
+      if (this.useRichEventNames) {
+        rudderElement.message.category = `Viewed ${category} Page`;
+      }
       this.track(rudderElement, { nonInteraction: 1 });
     }
 
     // named pages
     if (name && this.trackNamedPages) {
+      if (this.useRichEventNames) {
+        rudderElement.message.name = `Viewed ${name} Page`;
+      }
       this.track(rudderElement, { nonInteraction: 1 });
     }
     this.pageCalled = true;
