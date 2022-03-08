@@ -417,6 +417,11 @@ declare module "rudder-sdk-js" {
    */
   function reset(flag?: boolean): void;
 
+  /**
+   * To get userId set in the SDK
+   */
+  function getUserId(): string;
+
   export {
     integrationOptions,
     loadOptions,
@@ -434,5 +439,6 @@ declare module "rudder-sdk-js" {
     group,
     setAnonymousId,
     getAnonymousId,
+    getUserId,
   };
 }
