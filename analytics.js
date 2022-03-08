@@ -955,6 +955,11 @@ class Analytics {
     return this.anonymousId;
   }
 
+  getUserId() {
+    this.userId = this.storage.getUserId();
+    return this.userId;
+  }
+
   getUserTraits() {
     return this.userTraits;
   }
