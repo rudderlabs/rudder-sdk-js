@@ -621,7 +621,8 @@ export default class GA {
     // categorized pages
     if (category && this.trackCategorizedPages) {
       if (this.useRichEventNames) {
-        rudderElement.message.category = `Viewed ${category} Page`;
+        rudderElement.message.event = `Viewed ${category} Page`;
+        rudderElement.message.type = "track";
       }
       this.track(rudderElement, { nonInteraction: 1 });
     }
@@ -629,7 +630,8 @@ export default class GA {
     // named pages
     if (name && this.trackNamedPages) {
       if (this.useRichEventNames) {
-        rudderElement.message.name = `Viewed ${name} Page`;
+        rudderElement.message.event = `Viewed ${name} Page`;
+        rudderElement.message.type = "track";
       }
       this.track(rudderElement, { nonInteraction: 1 });
     }
