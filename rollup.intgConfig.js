@@ -13,13 +13,12 @@ import brotli from "rollup-plugin-brotli";
 import visualizer from "rollup-plugin-visualizer";
 import * as webPackage from "./package.json";
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
-import { INTG_SUFFIX } from "./utils/constants";
 import filesize from 'rollup-plugin-filesize';
+import { INTG_SUFFIX } from "./utils/constants";
 
 let distFileName = "";
 let { version } = webPackage;
 let moduleType = "web";
-
 switch (process.env.ENV) {
   case "prod":
     switch (process.env.ENC) {
@@ -52,7 +51,6 @@ switch (process.env.ENV) {
 }
 
 const outputFiles = [];
-
 if (process.env.NPM === "true") {
   outputFiles.push({
     file: `dist/integrations/${process.env.INTG_NAME}/index.js`,
@@ -75,7 +73,7 @@ if (process.env.NPM === "true") {
 
 export default {
   input: `./integrations/${process.env.INTG_NAME}/index.js`,
-  external: ["Xmlhttprequest", "universal-analytics"],
+  external: [],
   output: outputFiles,
   plugins: [
     sourcemaps(),
@@ -95,11 +93,11 @@ export default {
     commonjs({
       include: "node_modules/**",
       /* namedExports: {
-      // left-hand side can be an absolute path, a path
-      // relative to the current directory, or the name
-      // of a module in node_modules
-      Xmlhttprequest: ["Xmlhttprequest"]
-    } */
+        // left-hand side can be an absolute path, a path
+        // relative to the current directory, or the name
+        // of a module in node_modules
+        Xmlhttprequest: ["Xmlhttprequest"]
+      } */
     }),
 
     json(),
@@ -109,7 +107,23 @@ export default {
     babel({
       babelHelpers: "bundled",
       exclude: ["node_modules/@babel/**", "node_modules/core-js/**"],
-      presets: [["@babel/env"]],
+      presets: [
+        [
+          "@babel/env",
+          {
+            corejs: "3.6",
+            useBuiltIns: "entry",
+            targets: {
+              edge: "15",
+              firefox: "40",
+              ie: "10",
+              chrome: "37",
+              safari: "7",
+              opera: "23",
+            },
+          },
+        ],
+      ],
       plugins: [
         [
           "@babel/plugin-proposal-class-properties",

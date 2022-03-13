@@ -21,21 +21,21 @@ switch (process.env.ENV) {
   case "prod":
     switch (process.env.ENC) {
       case "gzip":
-        if (process.env.PROD_DEBUG_INLINE == "true") {
+        if (process.env.PROD_DEBUG_INLINE === "true") {
           distFileName = "dist/rudder-analytics-map.min.gzip.js";
         } else {
           distFileName = "dist/rudder-analytics.min.gzip.js";
         }
         break;
       case "br":
-        if (process.env.PROD_DEBUG_INLINE == "true") {
+        if (process.env.PROD_DEBUG_INLINE === "true") {
           distFileName = "dist/rudder-analytics-map.min.br.js";
         } else {
           distFileName = "dist/rudder-analytics.min.br.js";
         }
         break;
       default:
-        if (process.env.PROD_DEBUG_INLINE == "true") {
+        if (process.env.PROD_DEBUG_INLINE === "true") {
           distFileName = "dist/rudder-analytics-map.min.js";
         } else {
           distFileName = "dist/rudder-analytics.min.js";
@@ -49,7 +49,7 @@ switch (process.env.ENV) {
 }
 
 const outputFiles = [];
-if (process.env.NPM == "true") {
+if (process.env.NPM === "true") {
   outputFiles.push({
     file: "dist/rudder-sdk-js/index.js",
     format: "umd",
@@ -63,7 +63,7 @@ if (process.env.NPM == "true") {
     format: "iife",
     name: "rudderanalytics",
     sourcemap:
-      process.env.PROD_DEBUG_INLINE == "true"
+      process.env.PROD_DEBUG_INLINE === "true"
         ? "inline"
         : !!process.env.PROD_DEBUG,
   });
@@ -77,8 +77,8 @@ export default {
     sourcemaps(),
     replace({
       preventAssignment: true,
-      "process.browser": process.env.NODE_ENV != "true",
-      "process.prod": process.env.ENV == "prod",
+      "process.browser": process.env.NODE_ENV !== "true",
+      "process.prod": process.env.ENV === "prod",
       "process.package_version": version,
       "process.module_type": moduleType,
     }),
