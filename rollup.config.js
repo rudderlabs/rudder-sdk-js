@@ -12,6 +12,7 @@ import brotli from "rollup-plugin-brotli";
 import visualizer from "rollup-plugin-visualizer";
 import * as webPackage from "./package.json";
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
+import filesize from 'rollup-plugin-filesize';
 
 let distFileName = "";
 let { version } = webPackage;
@@ -70,7 +71,7 @@ if (process.env.NPM == "true") {
 
 export default {
   input: "analytics.js",
-  external: ["Xmlhttprequest", "universal-analytics"],
+  external: [],
   output: outputFiles,
   plugins: [
     sourcemaps(),
@@ -150,5 +151,6 @@ export default {
     process.env.visualizer === "true" &&
       process.env.uglify === "true" &&
       visualizer({ sourcemap: true }),
+    filesize(),
   ],
 };

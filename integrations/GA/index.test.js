@@ -1,4 +1,4 @@
-import  GA from "./browser";
+import GA from "./browser";
 import logger from "../../utils/logUtil";
 
 beforeAll(() => {});

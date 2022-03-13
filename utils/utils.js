@@ -1,4 +1,3 @@
-// import * as XMLHttpRequestNode from "Xmlhttprequest";
 import { parse } from "component-url";
 import get from "get-value";
 import logger from "./logUtil";
