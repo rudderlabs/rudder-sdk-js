@@ -14,6 +14,7 @@ import visualizer from "rollup-plugin-visualizer";
 import * as webPackage from "./package.json";
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
 import { INTG_SUFFIX } from "./utils/constants";
+import filesize from 'rollup-plugin-filesize';
 
 let distFileName = "";
 let { version } = webPackage;
@@ -138,5 +139,6 @@ export default {
     process.env.visualizer === "true" &&
       process.env.uglify === "true" &&
       visualizer({ sourcemap: true }),
+    filesize(),
   ],
 };
