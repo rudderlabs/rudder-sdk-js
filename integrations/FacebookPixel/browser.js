@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import is from "is";
 import each from "@ndhoule/each";
-import { sha256 } from 'crypto-es/lib/sha256';
+import sha256 from "crypto-js/sha256";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import { getHashFromArray } from "../utils/commonUtils";
