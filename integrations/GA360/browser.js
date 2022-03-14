@@ -6,7 +6,7 @@
  * underlying GA method will get called.
  */
 /* eslint-disable class-methods-use-this */
-import GA from "../GA";
+import { GA } from "../GA";
 import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
