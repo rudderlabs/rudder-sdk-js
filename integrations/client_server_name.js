@@ -43,7 +43,8 @@ const clientToServerNames = {
   SENTRY: "Sentry",
   GOOGLE_OPTIMIZE: "GoogleOptimize",
   POST_AFFILIATE_PRO: "PostAffiliatePro",
-  LAUNCHDARKLY:"LaunchDarkly"
+  LAUNCHDARKLY: "LaunchDarkly",
+  GA360: "Google Analytics 360",
 };
 
 export { clientToServerNames };
