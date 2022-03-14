@@ -6,12 +6,15 @@
  * underlying GA method will get called.
  */
 /* eslint-disable class-methods-use-this */
-import GA from "../GA";
+import { GA } from "../GA";
 import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class GA360 extends GA {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     super(config, analytics);
     this.name = NAME;
   }
