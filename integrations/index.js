@@ -43,6 +43,7 @@ import * as VWO from "./VWO";
 import * as GoogleOptimize from "./GoogleOptimize";
 import * as PostAffiliatePro from "./PostAffiliatePro";
 import * as LaunchDarkly from "./LaunchDarkly";
+import * as GA360 from "./GA360";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -92,7 +93,8 @@ const integrations = {
   VWO: VWO.default,
   GOOGLE_OPTIMIZE: GoogleOptimize.default,
   POST_AFFILIATE_PRO: PostAffiliatePro.default,
-  LAUNCHDARKLY: LaunchDarkly.default
+  LAUNCHDARKLY: LaunchDarkly.default,
+  GA360: GA360.default,
 };
 
 export { integrations };
