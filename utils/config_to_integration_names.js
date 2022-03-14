@@ -46,6 +46,7 @@ const configToIntNames = {
   POST_AFFILIATE_PRO: "PostAffiliatePro",
   GOOGLE_OPTIMIZE: "GoogleOptimize",
   LAUNCHDARKLY: "LaunchDarkly",
+  GA360: "GA360",
 };
 
 // eslint-disable-next-line import/prefer-default-export
