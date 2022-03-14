@@ -1,3 +1,10 @@
+/**
+ * Purpose of this integration:
+ * GA 360 is the enterprise version of Google Analytics. It is not different from GA. But in order Work GA 360 as
+ * device-mode integration and maintain the same structure with others created this integration.
+ * This GA360 class inherited all the properties from the GA class and whenever a method of this class is called,
+ * underlying GA method will get called.
+ */
 /* eslint-disable class-methods-use-this */
 import GA from "../GA";
 import logger from "../../utils/logUtil";
