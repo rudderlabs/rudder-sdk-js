@@ -1,4 +1,4 @@
-import clone from "@ndhoule/clone";
+import cloneDeep from "lodash.clonedeep";
 import cookie from "rudder-component-cookie";
 import defaults from "@ndhoule/defaults";
 import topDomain from "@segment/top-domain";
@@ -46,7 +46,7 @@ class CookieLocal {
    */
   set(key, value) {
     try {
-      cookie(key, value, clone(this._options));
+      cookie(key, value, cloneDeep(this._options));
       return true;
     } catch (e) {
       logger.error(e);

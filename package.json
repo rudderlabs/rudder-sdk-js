@@ -32,7 +32,8 @@
     "buildProdIntegrationCLI": "NODE_ENV=false ENV=prod uglify=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
     "bundle-size-visual-integration": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
     "bundle-size-visual-integration-cli": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
-    "buildAllIntegrations": "node -r esm integrationBuildScript.js"
+    "buildAllIntegrations": "node -r esm integrationBuildScript.js",
+    "core-size": "npm run buildProdBrowser && size-limit"
   },
   "pre-commit": [
     "size",
@@ -46,7 +47,6 @@
     "url": "https://github.com/rudderlabs/rudder-sdk-js.git"
   },
   "dependencies": {
-    "@ndhoule/clone": "^1.0.0",
     "@ndhoule/defaults": "^2.0.1",
     "@ndhoule/each": "^2.0.1",
     "@ndhoule/extend": "^2.0.0",
