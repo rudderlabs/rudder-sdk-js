@@ -1,30 +1,31 @@
 import { execSync } from "child_process";
-import logger from "./utils/logUtil";
 import { configToIntNames } from "./utils/config_to_integration_names";
 
-logger.setLogLevel("DEBUG");
+const BUNDLE_SIZE_VISUALIZER = false;
+
 const intgNamesArr = Object.values(configToIntNames);
 let curInt = 1;
 let errCount = 0;
 intgNamesArr.forEach((intgName) => {
   try {
-    logger.debug(
+    console.log(
       `\nBuilding integration module: ${intgName} (${curInt} of ${intgNamesArr.length})`
     );
-    const cmdOutput = execSync(
-      `npm run buildProdIntegrationCLI --intg=${intgName}`,
-      { encoding: "utf-8" }
-    );
-    logger.debug(cmdOutput);
-    logger.debug("Done!");
+    var cmd = `npm run buildProdIntegrationCLI --intg=${intgName}`;
+    if (BUNDLE_SIZE_VISUALIZER) {
+      cmd = `${cmd} && npm run bundle-size-visual-integration-cli --intg=${intgName}`;
+    }
+    const cmdOutput = execSync(cmd, { encoding: "utf-8" });
+    console.log(cmdOutput);
+    console.log("Done!");
   } catch (err) {
     errCount += 1;
-    logger.error(`${intgName} build failed!!!`);
-    logger.error("ERROR: ", err);
+    console.log(`${intgName} build failed!!!`);
+    console.log("ERROR: ", err);
   }
   curInt += 1;
 });
-logger.debug(`Final Status: ${errCount > 0 ? "FAILURE" : "SUCCESS"}`);
-logger.debug(
+console.log(`Final Status: ${errCount > 0 ? "FAILURE" : "SUCCESS"}`);
+console.log(
   `Summary: ${errCount} of ${intgNamesArr.length} integration builds failed`
 );

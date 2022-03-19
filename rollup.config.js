@@ -12,7 +12,7 @@ import brotli from "rollup-plugin-brotli";
 import visualizer from "rollup-plugin-visualizer";
 import * as webPackage from "./package.json";
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
-import filesize from 'rollup-plugin-filesize';
+import filesize from "rollup-plugin-filesize";
 
 let distFileName = "";
 let { version } = webPackage;
@@ -150,7 +150,14 @@ export default {
     process.env.ENC === "br" && brotli(),
     process.env.visualizer === "true" &&
       process.env.uglify === "true" &&
-      visualizer({ sourcemap: true }),
+      visualizer({
+        filename: "./stats/rudder-analytics.html",
+        title: "Rollup Visualizer - rudder-analytics",
+        sourcemap: true,
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+      }),
     filesize(),
   ],
 };

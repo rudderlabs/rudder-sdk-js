@@ -12,7 +12,7 @@ import brotli from "rollup-plugin-brotli";
 import visualizer from "rollup-plugin-visualizer";
 import * as webPackage from "./package.json";
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
-import filesize from 'rollup-plugin-filesize';
+import filesize from "rollup-plugin-filesize";
 import { INTG_SUFFIX } from "./utils/constants";
 
 let distFileName = "";
@@ -151,7 +151,14 @@ export default {
     process.env.ENC === "br" && brotli(),
     process.env.visualizer === "true" &&
       process.env.uglify === "true" &&
-      visualizer({ sourcemap: true }),
+      visualizer({
+        filename: `./stats/${process.env.INTG_NAME}.html`,
+        title: `Rollup Visualizer - ${process.env.INTG_NAME}`,
+        sourcemap: true,
+        open: false,
+        gzipSize: true,
+        brotliSize: true,
+      }),
     filesize(),
   ],
 };
