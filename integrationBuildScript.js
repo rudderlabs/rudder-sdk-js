@@ -15,8 +15,8 @@ intgNamesArr.forEach((intgName) => {
       `npm run buildProdIntegrationCLI --intg=${intgName}`,
       { encoding: "utf-8" }
     );
+    logger.debug(cmdOutput);
     logger.debug("Done!");
-    logger.info("Command output: ", cmdOutput);
   } catch (err) {
     errCount += 1;
     logger.error(`${intgName} build failed!!!`);
