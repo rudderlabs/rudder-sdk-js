@@ -11,7 +11,7 @@ const filePaths = Object.values(configToIntNames).map(
 );
 
 const limits = {
-  size: "512000", // 500 kB
+  size: "563200", // 550 kB
 };
 
 sizeLimit
