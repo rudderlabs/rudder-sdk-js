@@ -3,6 +3,7 @@ on:
   pull_request:
     branches:
       - production
+      - production-staging
 jobs:
   size:
     runs-on: ubuntu-latest
