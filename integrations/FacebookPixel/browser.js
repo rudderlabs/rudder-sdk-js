@@ -151,10 +151,10 @@ class FacebookPixel {
     if (properties) {
       products = properties.products;
       quantity = properties.quantity;
-      category = properties.category;
+      category = properties.category || "";
       prodId = properties.product_id || properties.id || properties.sku || "";
-      prodName = properties.product_name;
-      value = properties.value;
+      prodName = properties.product_name || properties.name || "";
+      value = properties.value || properties.price;
       price = properties.price;
       query = properties.query;
     }
