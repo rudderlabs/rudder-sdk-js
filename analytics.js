@@ -1248,7 +1248,8 @@ while (argumentsArray.length > 0) {
 // parse querystring of the page url to send events
 parseQueryString(window.location.search);
 
-argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
+if (Array.isArray(argumentsArray))
+  argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
 
 processDataInAnalyticsArray(instance);
 

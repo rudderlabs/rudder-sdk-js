@@ -43,6 +43,7 @@ import { CNameMapping as Sentry } from "../integrations/Sentry/constants";
 import { CNameMapping as SnapPixel } from "../integrations/SnapPixel/constants";
 import { CNameMapping as TVSquared } from "../integrations/TVSquared/constants";
 import { CNameMapping as VWO } from "../integrations/VWO/constants";
+import { CNameMapping as GA360 } from "../integrations/GA360/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -64,6 +65,7 @@ const commonNames = {
   ...Fullstory,
   ...GA,
   ...GA4,
+  ...GA360,
   ...GoogleAds,
   ...GoogleOptimize,
   ...GoogleTagManager,
