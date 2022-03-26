@@ -3,7 +3,7 @@ import get from "get-value";
 import logger from "./logUtil";
 import { commonNames } from "./integration_cname";
 import { clientToServerNames } from "./client_server_name";
-import { CONFIG_URL, ReservedPropertyKeywords } from "./constants";
+import { CONFIG_URL, RESERVED_KEYS } from "./constants";
 import Storage from "./storage";
 
 /**
@@ -419,43 +419,33 @@ function getUserProvidedConfigUrl(configUrl, defConfigUrl) {
   }
   return url;
 }
+
+/**
+ * Check if a reserved keyword is present in the given object
+ * @param {*} inpObj
+ * @param {*} msgType
+ */
+function checkForReservedKeywords(inpObj, msgType) {
+  if (inpObj) {
+    Object.keys(inpObj).forEach((key) => {
+      if (RESERVED_KEYS.includes(key.toLowerCase())) {
+        logger.error(`Reserved keyword '${key}' is used in '${msgType}' call`);
+      }
+    });
+  }
+}
+
 /**
  * Check if a reserved keyword is present in properties/traits
- * @param {*} properties
- * @param {*} reservedKeywords
- * @param {*} type
+ * @param {*} message
+ * @param {*} msgType
  */
-function checkReservedKeywords(message, messageType) {
-  //  properties, traits, contextualTraits are either undefined or object
-  const { properties, traits } = message;
-  if (properties) {
-    Object.keys(properties).forEach((property) => {
-      if (ReservedPropertyKeywords.indexOf(property.toLowerCase()) >= 0) {
-        logger.error(
-          `Warning! : Reserved keyword used in properties--> ${property} with ${messageType} call`
-        );
-      }
-    });
-  }
-  if (traits) {
-    Object.keys(traits).forEach((trait) => {
-      if (ReservedPropertyKeywords.indexOf(trait.toLowerCase()) >= 0) {
-        logger.error(
-          `Warning! : Reserved keyword used in traits--> ${trait} with ${messageType} call`
-        );
-      }
-    });
-  }
-  const contextualTraits = message.context.traits;
-  if (contextualTraits) {
-    Object.keys(contextualTraits).forEach((contextTrait) => {
-      if (ReservedPropertyKeywords.indexOf(contextTrait.toLowerCase()) >= 0) {
-        logger.error(
-          `Warning! : Reserved keyword used in traits --> ${contextTrait} with ${messageType} call`
-        );
-      }
-    });
-  }
+function checkReservedKeywords(message, msgType) {
+  // properties, traits, contextualTraits are either undefined or object
+  const objArr = [message.properties, message.traits, message.context.traits];
+  objArr.forEach((obj) => {
+    checkForReservedKeywords(obj, msgType);
+  });
 }
 
 /* ------- Start FlattenJson -----------
