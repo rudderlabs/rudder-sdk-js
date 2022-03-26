@@ -5,7 +5,6 @@
   "main": "./dist/browser.min.js",
   "size-limit": [
     {
-      "name": "Core SDK",
       "path": "dist/rudder-analytics.min.js",
       "import": "{ createComponent }",
       "gzip": true,
