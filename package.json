@@ -23,6 +23,7 @@
     "buildProdNode": "NODE_ENV=true ENV=prod uglify=true rollup -c",
     "buildForNpm": "NPM=true rollup -c",
     "bundle-size-visual": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true rollup -c",
+    "size-build": "npm run buildProdBrowser",
     "coreSize": "npm run buildProdBrowser && size-limit",
     "integrationsSize": "npm run buildAllIntegrations && node -r esm integrations-size-limit.js",
     "size": "npm run coreSize && npm run integrationsSize",
