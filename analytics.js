@@ -28,7 +28,7 @@ import {
   getReferringDomain,
   removeTrailingSlashes,
   getConfigUrl,
-  checkSDKUrl,
+  getSDKUrlInfo,
   commonNames,
 } from "./utils/utils";
 import {
@@ -203,8 +203,8 @@ class Analytics {
       let suffix = ""; // default suffix
 
       // Get the CDN base URL is rudder staging url
-      const { rudderSDK, staging } = checkSDKUrl();
-      if (rudderSDK && staging) {
+      const { sdkURL, isStaging } = getSDKUrlInfo();
+      if (sdkURL && isStaging) {
         suffix = "-staging"; // stagging suffix
       }
 
@@ -1005,10 +1005,6 @@ class Analytics {
     this.setInitialPageProperties();
     this.loaded = true;
 
-    function errorHandler(error) {
-      handleError(error);
-    }
-
     if (options && options.destSDKBaseURL) {
       this.destSDKBaseURL = removeTrailingSlashes(options.destSDKBaseURL);
       if (!this.destSDKBaseURL) {
@@ -1019,9 +1015,9 @@ class Analytics {
       }
     } else {
       // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
-      const { rudderSDK } = checkSDKUrl();
-      if (rudderSDK) {
-        this.destSDKBaseURL = rudderSDK
+      const { sdkURL } = getSDKUrlInfo();
+      if (sdkURL) {
+        this.destSDKBaseURL = sdkURL
           .split("/")
           .slice(0, -1)
           .concat(CDN_INT_DIR)
@@ -1037,7 +1033,7 @@ class Analytics {
         if (res instanceof Promise) {
           res
             .then((pRes) => this.processResponse(200, pRes))
-            .catch(errorHandler);
+            .catch(handleError);
         } else {
           this.processResponse(200, res);
         }
@@ -1053,7 +1049,7 @@ class Analytics {
     try {
       getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
     } catch (error) {
-      errorHandler(error);
+      handleError(error);
     }
   }
 

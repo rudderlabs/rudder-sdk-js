@@ -629,10 +629,10 @@ const getConfigUrl = (writeKey) => {
   );
 };
 
-const checkSDKUrl = () => {
+const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName("script");
-  let rudderSDK = undefined;
-  let staging = false;
+  let sdkURL = undefined;
+  let isStaging = false;
   for (let i = 0; i < scripts.length; i += 1) {
     const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute("src"));
     // only in case of staging SDK staging env will be set to true
@@ -642,14 +642,14 @@ const checkSDKUrl = () => {
       (curScriptSrc.endsWith("rudder-analytics.min.js") ||
         curScriptSrc.endsWith("rudder-analytics-staging.min.js"))
     ) {
-      rudderSDK = curScriptSrc;
+      sdkURL = curScriptSrc;
       if (curScriptSrc.endsWith("rudder-analytics-staging.min.js")) {
-        staging = true;
+        isStaging = true;
       }
       break;
     }
   }
-  return { rudderSDK, staging };
+  return { sdkURL, isStaging };
 };
 
 /**
@@ -725,5 +725,5 @@ export {
   removeTrailingSlashes,
   constructPayload,
   getConfigUrl,
-  checkSDKUrl,
+  getSDKUrlInfo,
 };
