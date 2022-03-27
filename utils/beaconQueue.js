@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-// import logger from "../logUtil";
+import logger from "./logUtil";
 import { Store } from "./storage/store";
 
 const defaults = {
@@ -91,7 +91,7 @@ class BeaconQueue {
   }
 
   flushQueue(batch) {
-    batch.map((event) => {
+    batch.forEach((event) => {
       event.sentAt = new Date().toISOString();
     });
     const data = { batch };
@@ -101,9 +101,9 @@ class BeaconQueue {
       `${this.url}?writeKey=${this.writekey}`,
       blob
     );
-    // if (!isPushed) {
-    //   logger.debug("Unable to send data");
-    // }
+    if (!isPushed) {
+      logger.error("Unable to send data to Beacon queue");
+    }
     this.setQueue([]);
     this.clearTimer();
   }

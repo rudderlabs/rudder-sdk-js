@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 import { parse } from "component-url";
 import get from "get-value";
 import logger from "./logUtil";
@@ -5,6 +6,32 @@ import { commonNames } from "./integration_cname";
 import { clientToServerNames } from "./client_server_name";
 import { CONFIG_URL, RESERVED_KEYS } from "./constants";
 import Storage from "./storage";
+
+function handleError(error, analyticsInstance) {
+  let errorMessage = error.message ? error.message : undefined;
+  let sampleAdBlockTest;
+  try {
+    if (error instanceof Event) {
+      if (error.target && error.target.localName === "script") {
+        errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
+        if (analyticsInstance && error.target.src.includes("adsbygoogle")) {
+          sampleAdBlockTest = true;
+          analyticsInstance.page(
+            "RudderJS-Initiated",
+            "ad-block page request",
+            { path: "/ad-blocked", title: errorMessage },
+            analyticsInstance.sendAdblockPageOptions
+          );
+        }
+      }
+    }
+    if (errorMessage && !sampleAdBlockTest) {
+      logger.error("[Util] handleError:: ", errorMessage);
+    }
+  } catch (e) {
+    logger.error("[Util] handleError:: ", e);
+  }
+}
 
 /**
  *
@@ -42,7 +69,7 @@ function generateUUID() {
   ) {
     d += performance.now(); // use high-precision timer if available
   }
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (d + Math.random() * 16) % 16 | 0;
     d = Math.floor(d / 16);
     return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
@@ -81,9 +108,9 @@ function getJSON(url, wrappers, isLoaded, callback) {
   const xhr = new XMLHttpRequest();
 
   xhr.open("GET", url, false);
-  xhr.onload = function () {
+  xhr.onload = () => {
     const { status } = xhr;
-    if (status == 200) {
+    if (status === 200) {
       // logger.debug("status 200");
       callback(null, xhr.responseText, wrappers, isLoaded);
     } else {
@@ -102,7 +129,7 @@ function getJSON(url, wrappers, isLoaded, callback) {
  */
 function getJSONTrimmed(context, url, writeKey, callback) {
   // server-side integration, XHR is node module
-  const cb_ = callback.bind(context);
+  const cb = callback.bind(context);
 
   const xhr = new XMLHttpRequest();
 
@@ -113,45 +140,53 @@ function getJSONTrimmed(context, url, writeKey, callback) {
     // `Basic ${Buffer.from(`${writeKey}:`).toString("base64")}`
   );
 
-  xhr.onload = function () {
+  xhr.onload = () => {
     const { status } = xhr;
-    if (status == 200) {
+    if (status === 200) {
       // logger.debug("status 200 " + "calling callback");
-      cb_(200, xhr.responseText);
+      cb(200, xhr.responseText);
     } else {
       handleError(
         new Error(`request failed with status: ${xhr.status} for url: ${url}`)
       );
-      cb_(status);
+      cb(status);
     }
   };
   xhr.send();
 }
 
-function handleError(error, analyticsInstance) {
-  let errorMessage = error.message ? error.message : undefined;
-  let sampleAdBlockTest;
-  try {
-    if (error instanceof Event) {
-      if (error.target && error.target.localName == "script") {
-        errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
-        if (analyticsInstance && error.target.src.includes("adsbygoogle")) {
-          sampleAdBlockTest = true;
-          analyticsInstance.page(
-            "RudderJS-Initiated",
-            "ad-block page request",
-            { path: "/ad-blocked", title: errorMessage },
-            analyticsInstance.sendAdblockPageOptions
-          );
-        }
-      }
-    }
-    if (errorMessage && !sampleAdBlockTest) {
-      logger.error("[Util] handleError:: ", errorMessage);
-    }
-  } catch (e) {
-    logger.error("[Util] handleError:: ", e);
+function getReferrer() {
+  return document.referrer || "$direct";
+}
+
+function getReferringDomain(referrer) {
+  const split = referrer.split("/");
+  if (split.length >= 3) {
+    return split[2];
   }
+  return "";
+}
+
+function getCanonicalUrl() {
+  const tags = document.getElementsByTagName("link");
+  for (let i = 0; i < tags.length; i += 1) {
+    const tag = tags[i];
+    if (!tag) break;
+    if (tag.getAttribute("rel") === "canonical") {
+      return tag.getAttribute("href");
+    }
+  }
+  return undefined;
+}
+
+function getUrl(search) {
+  const canonicalUrl = getCanonicalUrl();
+  let url = window.location.href;
+  if (canonicalUrl) {
+    url = canonicalUrl.indexOf("?") > -1 ? canonicalUrl : canonicalUrl + search;
+  }
+  const hashIndex = url.indexOf("#");
+  return hashIndex > -1 ? url.slice(0, hashIndex) : url;
 }
 
 function getDefaultPageProperties() {
@@ -182,38 +217,6 @@ function getDefaultPageProperties() {
   };
 }
 
-function getReferrer() {
-  return document.referrer || "$direct";
-}
-
-function getReferringDomain(referrer) {
-  const split = referrer.split("/");
-  if (split.length >= 3) {
-    return split[2];
-  }
-  return "";
-}
-
-function getUrl(search) {
-  const canonicalUrl = getCanonicalUrl();
-  const url = canonicalUrl
-    ? canonicalUrl.indexOf("?") > -1
-      ? canonicalUrl
-      : canonicalUrl + search
-    : window.location.href;
-  const hashIndex = url.indexOf("#");
-  return hashIndex > -1 ? url.slice(0, hashIndex) : url;
-}
-
-function getCanonicalUrl() {
-  const tags = document.getElementsByTagName("link");
-  for (var i = 0, tag; (tag = tags[i]); i++) {
-    if (tag.getAttribute("rel") === "canonical") {
-      return tag.getAttribute("href");
-    }
-  }
-}
-
 function getCurrency(val) {
   if (!val) return;
   if (typeof val === "number") {
@@ -226,7 +229,7 @@ function getCurrency(val) {
   val = val.replace(/\$/g, "");
   val = parseFloat(val);
 
-  if (!isNaN(val)) {
+  if (!Number.isNaN(val)) {
     return val;
   }
 }
@@ -246,13 +249,14 @@ function getRevenue(properties, eventName) {
 
 function transformNamesCore(integrationObject, namesObj) {
   Object.keys(integrationObject).forEach((key) => {
-    if (integrationObject.hasOwnProperty(key)) {
+    if (integrationObject[key]) {
       if (namesObj[key]) {
         integrationObject[namesObj[key]] = integrationObject[key];
       }
-      if (key != "All") {
-        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
-        if (namesObj[key] != undefined && namesObj[key] != key) {
+      if (key !== "All") {
+        // delete user supplied keys except All and if except those where
+        // old keys are not present or old keys are same as transformed keys
+        if (namesObj[key] !== undefined && namesObj[key] !== key) {
           delete integrationObject[key];
         }
       }
@@ -333,29 +337,19 @@ function findAllEnabledDestinations(
 }
 
 /**
- * reject all null values from array/object
- * @param  {} obj
- * @param  {} fn
- */
-function rejectArr(obj, fn) {
-  fn = fn || compact;
-  return type(obj) == "array" ? rejectarray(obj, fn) : rejectobject(obj, fn);
-}
-
-/**
  * particular case when rejecting an array
  * @param  {} arr
  * @param  {} fn
  */
-var rejectarray = function (arr, fn) {
+function rejectarray(arr, fn) {
   const ret = [];
 
-  for (let i = 0; i < arr.length; ++i) {
+  for (let i = 0; i < arr.length; i += 1) {
     if (!fn(arr[i], i)) ret[ret.length] = arr[i];
   }
 
   return ret;
-};
+}
 
 /**
  * Rejecting null from any object other than arrays
@@ -363,7 +357,7 @@ var rejectarray = function (arr, fn) {
  * @param  {} fn
  *
  */
-var rejectobject = function (obj, fn) {
+function rejectobject(obj, fn) {
   const ret = {};
 
   for (const k in obj) {
@@ -373,7 +367,7 @@ var rejectobject = function (obj, fn) {
   }
 
   return ret;
-};
+}
 
 function compact(value) {
   return value == null;
@@ -395,6 +389,8 @@ function type(val) {
       return "arguments";
     case "[object Array]":
       return "array";
+    default:
+      break;
   }
 
   if (val === null) return "null";
@@ -402,6 +398,16 @@ function type(val) {
   if (val === Object(val)) return "object";
 
   return typeof val;
+}
+
+/**
+ * reject all null values from array/object
+ * @param  {} obj
+ * @param  {} fn
+ */
+function rejectArr(obj, fn) {
+  fn = fn || compact;
+  return type(obj) === "array" ? rejectarray(obj, fn) : rejectobject(obj, fn);
 }
 
 function getUserProvidedConfigUrl(configUrl, defConfigUrl) {
@@ -509,16 +515,16 @@ function flattenJsonPayload(data) {
  */
 
 function extractCustomFields(message, destination, keys, exclusionFields) {
-  keys.map((key) => {
+  keys.forEach((key) => {
     const messageContext = get(message, key);
     if (messageContext) {
       const objKeys = [];
-      Object.keys(messageContext).map((k) => {
+      Object.keys(messageContext).forEach((k) => {
         if (exclusionFields.indexOf(k) < 0) {
           objKeys.push(k);
         }
       });
-      objKeys.map((k) => {
+      objKeys.forEach((k) => {
         if (!(typeof messageContext[k] === "undefined")) {
           if (destination) {
             destination[k] = get(messageContext, k);
@@ -631,7 +637,7 @@ const getConfigUrl = (writeKey) => {
 
 const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName("script");
-  let sdkURL = undefined;
+  let sdkURL;
   let isStaging = false;
   for (let i = 0; i < scripts.length; i += 1) {
     const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute("src"));

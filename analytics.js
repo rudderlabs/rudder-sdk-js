@@ -604,16 +604,16 @@ class Analytics {
           blacklistedEvents.every((x) => x.eventName !== "");
 
         if (isValidBlackList) {
-          return blacklistedEvents.find(
-            (eventObj) =>
-              eventObj.eventName.trim().toUpperCase() ===
-              eventName.trim().toUpperCase()
-          ) === undefined
-            ? false
-            : true;
-        } else {
-          return false;
+          return (
+            blacklistedEvents.find(
+              (eventObj) =>
+                eventObj.eventName.trim().toUpperCase() ===
+                eventName.trim().toUpperCase()
+            ) !== undefined
+          );
         }
+        return false;
+
       // Whitelist is choosen for filtering events
       case "whitelistedEvents":
         const isValidWhiteList =
@@ -621,16 +621,16 @@ class Analytics {
           Array.isArray(whitelistedEvents) &&
           whitelistedEvents.some((x) => x.eventName !== "");
         if (isValidWhiteList) {
-          return whitelistedEvents.find(
-            (eventObj) =>
-              eventObj.eventName.trim().toUpperCase() ===
-              eventName.trim().toUpperCase()
-          ) === undefined
-            ? true
-            : false;
-        } else {
-          return true;
+          return (
+            whitelistedEvents.find(
+              (eventObj) =>
+                eventObj.eventName.trim().toUpperCase() ===
+                eventName.trim().toUpperCase()
+            ) === undefined
+          );
         }
+        return true;
+
       default:
         return false;
     }
@@ -706,7 +706,7 @@ class Analytics {
           succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
             if (!obj.isFailed || !obj.isFailed()) {
               if (obj[type]) {
-                let sendEvent = !this.IsEventBlackListed(
+                const sendEvent = !this.IsEventBlackListed(
                   rudderElement.message.event,
                   obj.name
                 );
@@ -1164,7 +1164,7 @@ const instance = new Analytics();
 
 function processDataInAnalyticsArray(analytics) {
   analytics.toBeProcessedArray.forEach((x) => {
-    var event = [...x];
+    const event = [...x];
     const method = event[0];
     event.shift();
     // logger.debug("=====from analytics array, calling method:: ", method)

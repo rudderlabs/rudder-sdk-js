@@ -50,7 +50,7 @@ class Clevertap {
   init() {
     logger.debug("===in init Clevertap===");
     const sourceUrl =
-      document.location.protocol == "https:"
+      document.location.protocol === "https:"
         ? "https://d2r1yp2w7bby2u.cloudfront.net/js/a.js"
         : "http://static.clevertap.com/js/a.js";
 
@@ -114,10 +114,9 @@ class Clevertap {
     } catch (err) {
       logger.debug(`Error occured at extractCustomFields ${err}`);
     }
-    Object.keys(payload).map((key) => {
+    Object.keys(payload).forEach((key) => {
       if (isObject(payload[key])) {
         logger.debug("cannot process, unsupported traits");
-        return;
       }
     });
     window.clevertap.onUserLogin.push({
@@ -148,10 +147,9 @@ class Clevertap {
         }
         window.clevertap.event.push("Charged", ecomProperties);
       } else {
-        Object.keys(properties).map((key) => {
+        Object.keys(properties).forEach((key) => {
           if (isObject(properties[key]) || isArray(properties[key])) {
             logger.debug("cannot process, unsupported event");
-            return;
           }
         });
         window.clevertap.event.push(event, properties);
@@ -175,10 +173,9 @@ class Clevertap {
       eventName = "WebPage Viewed";
     }
     if (properties) {
-      Object.keys(properties).map((key) => {
+      Object.keys(properties).forEach((key) => {
         if (isObject(properties[key]) || isArray(properties[key])) {
           logger.debug("cannot process, unsupported event");
-          return;
         }
       });
       window.clevertap.event.push(eventName, properties);

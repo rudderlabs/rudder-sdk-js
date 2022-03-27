@@ -551,7 +551,7 @@ class FacebookPixel {
 
     // Otherwise check if there is a replacement set for all Facebook Pixel
     // track calls of this category
-    const category = rudderElement.message.properties.category;
+    const { category } = rudderElement.message.properties;
     if (category) {
       const categoryMapping = this.categoryToContent?.find(
         (i) => i.from === category
@@ -567,18 +567,14 @@ class FacebookPixel {
     const res = {};
 
     // All properties of obj1
-    for (const propObj1 in obj1) {
-      if (obj1.hasOwnProperty(propObj1)) {
-        res[propObj1] = obj1[propObj1];
-      }
-    }
+    Object.keys(obj1).forEach((key) => {
+      res[key] = obj1[key];
+    });
 
     // Extra properties of obj2
-    for (const propObj2 in obj2) {
-      if (obj2.hasOwnProperty(propObj2) && !res.hasOwnProperty(propObj2)) {
-        res[propObj2] = obj2[propObj2];
-      }
-    }
+    Object.keys(obj2).forEach((key) => {
+      if (!Object.prototype.hasOwnProperty.call(res, key)) res[key] = obj2[key];
+    });
 
     return res;
   }
@@ -614,7 +610,7 @@ class FacebookPixel {
     const blacklistPiiProperties = this.blacklistPiiProperties || [];
     const eventCustomProperties = this.eventCustomProperties || [];
     const customPiiProperties = {};
-    for (let i = 0; i < blacklistPiiProperties[i]; i++) {
+    for (let i = 0; i < blacklistPiiProperties[i]; i += 1) {
       const configuration = blacklistPiiProperties[i];
       customPiiProperties[configuration.blacklistPiiProperties] =
         configuration.blacklistPiiHash;
@@ -649,9 +645,9 @@ class FacebookPixel {
         continue;
       }
       const isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
-      const isProperyWhiteListed =
+      const isPropertyWhiteListed =
         whitelistPiiProperties.indexOf(property) >= 0;
-      if (!isPropertyPii || isProperyWhiteListed) {
+      if (!isPropertyPii || isPropertyWhiteListed) {
         payload[property] = value;
       }
     }

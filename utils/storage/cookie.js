@@ -1,6 +1,7 @@
 import cookie from "rudder-component-cookie";
 import defaults from "@ndhoule/defaults";
 import topDomain from "@segment/top-domain";
+import cloneDeep from "lodash.clonedeep";
 import logger from "../logUtil";
 
 /**
@@ -8,22 +9,22 @@ import logger from "../logUtil";
  */
 class CookieLocal {
   constructor(options) {
-    this._options = {};
+    this.cOptions = {};
     this.options(options);
   }
 
   /**
    *
-   * @param {*} options
+   * @param {*} inOptions
    */
-  options(options = {}) {
-    if (arguments.length === 0) return this._options;
+  options(inOptions = {}) {
+    if (arguments.length === 0) return this.cOptions;
 
     let domain = `.${topDomain(window.location.href)}`;
     if (domain === ".") domain = null;
 
     // the default maxage and path
-    this._options = defaults(options, {
+    this.cOptions = defaults(inOptions, {
       maxage: 31536000000,
       path: "/",
       domain,
@@ -33,7 +34,7 @@ class CookieLocal {
     // try setting a cookie first
     this.set("test_rudder", true);
     if (!this.get("test_rudder")) {
-      this._options.domain = null;
+      this.cOptions.domain = null;
     }
     this.remove("test_rudder");
   }
@@ -45,7 +46,7 @@ class CookieLocal {
    */
   set(key, value) {
     try {
-      cookie(key, value, this._options);
+      cookie(key, value, cloneDeep(this.cOptions));
       return true;
     } catch (e) {
       logger.error(e);
@@ -67,7 +68,7 @@ class CookieLocal {
    */
   remove(key) {
     try {
-      cookie(key, null, clone(this._options));
+      cookie(key, null, cloneDeep(this.cOptions));
       return true;
     } catch (e) {
       return false;

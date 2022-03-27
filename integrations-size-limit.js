@@ -2,10 +2,9 @@ import * as sizeLimit from "size-limit";
 import * as bigLibPlugin from "@size-limit/preset-big-lib";
 import * as webpackPlugin from "@size-limit/webpack";
 import * as timePlugin from "@size-limit/time";
+import { configToIntNames } from "./utils/config_to_integration_names";
 
 console.log("\nChecking integrations size limit...");
-
-import { configToIntNames } from "./utils/config_to_integration_names";
 const filePaths = Object.values(configToIntNames).map(
   (intgName) => `/dist/integrations/${intgName}.min.js`
 );
