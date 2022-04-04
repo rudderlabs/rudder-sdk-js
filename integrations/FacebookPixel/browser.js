@@ -115,7 +115,7 @@ class FacebookPixel {
       payload.currency = rudderElement.message.properties.currency || "USD";
 
       window.fbq("trackSingle", self.pixelId, event, payload, {
-        eventID: rudderElement.message.messageId,
+        event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
       });
     }, standardTo);
 
@@ -129,7 +129,7 @@ class FacebookPixel {
           value: revenue,
         },
         {
-          eventID: rudderElement.message.messageId,
+          event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
         }
       );
     }, legacyTo);
@@ -177,7 +177,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          eventID: rudderElement.message.messageId,
+          event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
         }
       );
 
@@ -191,7 +191,7 @@ class FacebookPixel {
             value: this.formatRevenue(rudderElement.message.properties.revenue),
           },
           {
-            eventID: rudderElement.message.messageId,
+            event_id: traits.event_id || context.traits.event_id || properties.event_id || rudderElement.message.messageId,
           }
         );
       }, legacyTo);
@@ -233,7 +233,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          eventID: rudderElement.message.messageId,
+          event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
         }
       );
 
@@ -249,7 +249,7 @@ class FacebookPixel {
               : this.formatRevenue(rudderElement.message.properties.price),
           },
           {
-            eventID: rudderElement.message.messageId,
+            event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
           }
         );
       }, legacyTo);
@@ -291,7 +291,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          eventID: rudderElement.message.messageId,
+          event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
         }
       );
 
@@ -307,7 +307,7 @@ class FacebookPixel {
               : this.formatRevenue(rudderElement.message.properties.price),
           },
           {
-            eventID: rudderElement.message.messageId,
+            event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
           }
         );
       }, legacyTo);
@@ -380,7 +380,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          eventID: rudderElement.message.messageId,
+          event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
         }
       );
 
@@ -394,7 +394,7 @@ class FacebookPixel {
             value: this.formatRevenue(rudderElement.message.properties.revenue),
           },
           {
-            eventID: rudderElement.message.messageId,
+            event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
           }
         );
       }, legacyTo);
@@ -411,7 +411,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          eventID: rudderElement.message.messageId,
+          event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
         }
       );
 
@@ -425,7 +425,7 @@ class FacebookPixel {
             value: formatRevenue(rudderElement.message.properties.revenue),
           },
           {
-            eventID: rudderElement.message.messageId,
+            event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
           }
         );
       }, legacyTo);
@@ -473,7 +473,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          eventID: rudderElement.message.messageId,
+          event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
         }
       );
 
@@ -487,7 +487,7 @@ class FacebookPixel {
             value: this.formatRevenue(rudderElement.message.properties.revenue),
           },
           {
-            eventID: rudderElement.message.messageId,
+            event_id: traits.event_id ||context.traits.event_id || properties.event_id || rudderElement.message.messageId,
           }
         );
       }, legacyTo);
