@@ -73,7 +73,7 @@ class FacebookPixel {
 
   page(rudderElement) {
     const { properties, messageId } = rudderElement.message;
-    window.fbq("track", "PageView", properties, { eventID: messageId });
+    window.fbq("track", "PageView", properties, { event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId });
   }
 
   identify(rudderElement) {
@@ -199,7 +199,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          eventID: messageId,
+          event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
         }
       );
       each((val, key) => {
@@ -213,7 +213,7 @@ class FacebookPixel {
               value: revValue,
             },
             {
-              eventID: messageId,
+              event_id: messageId,
             }
           );
         }
@@ -244,7 +244,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          eventID: messageId,
+          event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
         }
       );
 
@@ -261,7 +261,7 @@ class FacebookPixel {
                 : this.formatRevenue(price),
             },
             {
-              eventID: messageId,
+              event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
             }
           );
         }
@@ -293,7 +293,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          eventID: messageId,
+          event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
         }
       );
 
@@ -310,7 +310,7 @@ class FacebookPixel {
                 : this.formatRevenue(price),
             },
             {
-              eventID: messageId,
+              event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
             }
           );
         }
@@ -369,7 +369,7 @@ class FacebookPixel {
             customProperties
           ),
           {
-            eventID: messageId,
+            event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
           }
         );
 
@@ -384,7 +384,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                eventID: messageId,
+                event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
               }
             );
           }
@@ -404,7 +404,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          eventID: messageId,
+          event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
         }
       );
 
@@ -419,7 +419,7 @@ class FacebookPixel {
               value: revValue,
             },
             {
-              eventID: messageId,
+              event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
             }
           );
         }
@@ -464,7 +464,7 @@ class FacebookPixel {
             customProperties
           ),
           {
-            eventID: messageId,
+            event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
           }
         );
 
@@ -479,7 +479,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                eventID: messageId,
+                event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
               }
             );
           }
@@ -494,7 +494,7 @@ class FacebookPixel {
         const payloadVal = this.buildPayLoad(rudderElement, false);
         payloadVal.value = revValue;
         window.fbq("trackSingleCustom", self.pixelId, event, payloadVal, {
-          eventID: messageId,
+          event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
         });
       } else {
         each((val, key) => {
@@ -502,7 +502,7 @@ class FacebookPixel {
             payload.currency = currVal;
 
             window.fbq("trackSingle", self.pixelId, val, payload, {
-              eventID: messageId,
+              event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
             });
           }
         }, standardTo);
@@ -518,7 +518,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                eventID: messageId,
+                event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
               }
             );
           }
