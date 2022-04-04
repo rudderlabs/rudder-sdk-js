@@ -12,8 +12,7 @@
     }
   ],
   "scripts": {
-    "test": "jest --coverage",
-    "prodTest": "npm run buildProdBrowser && sed 's/var rudderanalytics/rudderanalytics/g' dist/rudder-analytics.min.js > __tests__/prodsdk.js && jest script.test.js",
+    "test": "npm run buildProdBrowser && sed 's/var rudderanalytics/rudderanalytics/g' dist/rudder-analytics.min.js > __tests__/prodsdk.js && jest --coverage",
     "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",
     "buildProdBrowser": "NODE_ENV=false PROD_DEBUG=true ENV=prod uglify=true rollup -c",
     "buildProdBrowserDebug": "NODE_ENV=false ENV=prod PROD_DEBUG_INLINE=true uglify=true rollup -c",
@@ -31,11 +30,12 @@
     "buildProdIntegration": "NODE_ENV=false ENV=prod uglify=true INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
     "buildProdIntegrationCLI": "NODE_ENV=false ENV=prod uglify=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js"
   },
-  "pre-commit": [
-    "size",
-    "prodTest",
-    "test"
-  ],
+  "pre-commit": {
+    "run": [
+      "size",
+      "test"
+    ]
+  },
   "author": "",
   "license": "ISC",
   "repository": {
