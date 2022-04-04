@@ -4,6 +4,7 @@ import each from "@ndhoule/each";
 import sha256 from "crypto-js/sha256";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
+import getEventId from "../../utils/getEventId.js";
 import { getHashFromArray } from "../utils/commonUtils";
 import { NAME, traitsMapper } from "./constants";
 import { constructPayload } from "../../utils/utils";
@@ -73,7 +74,7 @@ class FacebookPixel {
 
   page(rudderElement) {
     const { properties, messageId } = rudderElement.message;
-    window.fbq("track", "PageView", properties, { event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId });
+    window.fbq("track", "PageView", properties, { getEventId(message) });
   }
 
   identify(rudderElement) {
@@ -199,7 +200,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+          event_id: getEventId(message),
         }
       );
       each((val, key) => {
@@ -244,7 +245,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+          event_id: getEventId(message),
         }
       );
 
@@ -261,7 +262,7 @@ class FacebookPixel {
                 : this.formatRevenue(price),
             },
             {
-              event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+              event_id: getEventId(message),
             }
           );
         }
@@ -293,7 +294,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+          event_id: getEventId(message),
         }
       );
 
@@ -310,7 +311,7 @@ class FacebookPixel {
                 : this.formatRevenue(price),
             },
             {
-              event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+              event_id: getEventId(message),
             }
           );
         }
@@ -369,7 +370,7 @@ class FacebookPixel {
             customProperties
           ),
           {
-            event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+            event_id: getEventId(message),
           }
         );
 
@@ -384,7 +385,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+                event_id: getEventId(message),
               }
             );
           }
@@ -404,7 +405,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+          event_id: getEventId(message),
         }
       );
 
@@ -419,7 +420,7 @@ class FacebookPixel {
               value: revValue,
             },
             {
-              event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+              event_id: getEventId(message),
             }
           );
         }
@@ -464,7 +465,7 @@ class FacebookPixel {
             customProperties
           ),
           {
-            event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+            event_id: getEventId(message),
           }
         );
 
@@ -479,7 +480,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+                event_id: getEventId(message),
               }
             );
           }
@@ -494,7 +495,7 @@ class FacebookPixel {
         const payloadVal = this.buildPayLoad(rudderElement, false);
         payloadVal.value = revValue;
         window.fbq("trackSingleCustom", self.pixelId, event, payloadVal, {
-          event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+          event_id: getEventId(message),
         });
       } else {
         each((val, key) => {
@@ -502,7 +503,7 @@ class FacebookPixel {
             payload.currency = currVal;
 
             window.fbq("trackSingle", self.pixelId, val, payload, {
-              event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+              event_id: getEventId(message),
             });
           }
         }, standardTo);
@@ -518,7 +519,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: traits.event_id || context.traits.event_id || properties.event_id || messageId,
+                event_id: getEventId(message),
               }
             );
           }
