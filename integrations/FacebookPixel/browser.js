@@ -4,7 +4,7 @@ import each from "@ndhoule/each";
 import sha256 from "crypto-js/sha256";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
-import getEventId from "../../utils/getEventId.js";
+import getEventId from "./utils";
 import { getHashFromArray } from "../utils/commonUtils";
 import { NAME, traitsMapper } from "./constants";
 import { constructPayload } from "../../utils/utils";
