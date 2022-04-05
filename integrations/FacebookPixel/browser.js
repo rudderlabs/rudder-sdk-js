@@ -157,6 +157,7 @@ class FacebookPixel {
       query = properties.query;
     }
     const customProperties = this.buildPayLoad(rudderElement, true);
+    const eventID = getEventId(rudderElement.message);
     if (event === "Product List Viewed") {
       let contentType;
       const contentIds = [];
@@ -200,7 +201,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: getEventId(rudderElement.message),
+          event_id: eventID,
         }
       );
       each((val, key) => {
@@ -214,7 +215,7 @@ class FacebookPixel {
               value: revValue,
             },
             {
-              event_id: getEventId(rudderElement.message),
+              event_id: eventID,
             }
           );
         }
@@ -245,7 +246,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: getEventId(rudderElement.message),
+          event_id: eventID,
         }
       );
 
@@ -262,7 +263,7 @@ class FacebookPixel {
                 : this.formatRevenue(price),
             },
             {
-              event_id: getEventId(rudderElement.message),
+              event_id: eventID,
             }
           );
         }
@@ -294,7 +295,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: getEventId(rudderElement.message),
+          event_id: eventID,
         }
       );
 
@@ -311,7 +312,7 @@ class FacebookPixel {
                 : this.formatRevenue(price),
             },
             {
-              event_id: getEventId(rudderElement.message),
+              event_id: eventID,
             }
           );
         }
@@ -370,7 +371,7 @@ class FacebookPixel {
             customProperties
           ),
           {
-            event_id: getEventId(rudderElement.message),
+            event_id: eventID,
           }
         );
 
@@ -385,7 +386,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: getEventId(rudderElement.message),
+                event_id: eventID,
               }
             );
           }
@@ -405,7 +406,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: getEventId(rudderElement.message),
+          event_id: eventID,
         }
       );
 
@@ -420,7 +421,7 @@ class FacebookPixel {
               value: revValue,
             },
             {
-              event_id: getEventId(rudderElement.message),
+              event_id: eventID,
             }
           );
         }
@@ -465,7 +466,7 @@ class FacebookPixel {
             customProperties
           ),
           {
-            event_id: getEventId(rudderElement.message),
+            event_id: eventID,
           }
         );
 
@@ -480,7 +481,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: getEventId(rudderElement.message),
+                event_id: eventID,
               }
             );
           }
@@ -495,7 +496,7 @@ class FacebookPixel {
         const payloadVal = this.buildPayLoad(rudderElement, false);
         payloadVal.value = revValue;
         window.fbq("trackSingleCustom", self.pixelId, event, payloadVal, {
-          event_id: getEventId(rudderElement.message),
+          event_id: eventID,
         });
       } else {
         each((val, key) => {
@@ -503,7 +504,7 @@ class FacebookPixel {
             payload.currency = currVal;
 
             window.fbq("trackSingle", self.pixelId, val, payload, {
-              event_id: getEventId(rudderElement.message),
+              event_id: eventID,
             });
           }
         }, standardTo);
@@ -519,7 +520,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: getEventId(rudderElement.message),
+                event_id: eventID,
               }
             );
           }
