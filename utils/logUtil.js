@@ -1,10 +1,9 @@
+/* eslint-disable no-console */
 const LOG_LEVEL_INFO = 1;
 const LOG_LEVEL_DEBUG = 2;
 const LOG_LEVEL_WARN = 3;
 const LOG_LEVEL_ERROR = 4;
 let LOG_LEVEL = LOG_LEVEL_ERROR;
-
-const Console = console;
 
 const logger = {
   setLogLevel(logLevel) {
@@ -26,25 +25,25 @@ const logger = {
 
   info(...args) {
     if (LOG_LEVEL <= LOG_LEVEL_INFO) {
-      Console.log(...args);
+      console.log(...args);
     }
   },
 
   debug(...args) {
     if (LOG_LEVEL <= LOG_LEVEL_DEBUG) {
-      Console.log(...args);
+      console.log(...args);
     }
   },
 
   warn(...args) {
     if (LOG_LEVEL <= LOG_LEVEL_WARN) {
-      Console.log(...args);
+      console.log(...args);
     }
   },
 
   error(...args) {
     if (LOG_LEVEL <= LOG_LEVEL_ERROR) {
-      Console.log(...args);
+      console.log(...args);
     }
   },
 };
