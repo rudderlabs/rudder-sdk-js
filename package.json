@@ -24,7 +24,7 @@
     "bundle-size-visual": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true rollup -c",
     "size-build": "npm run buildProdBrowser",
     "coreSize": "npm run size-build && size-limit",
-    "integrationsSize": "npm run buildAllIntegrations && node -r esm integrations-size-limit.js",
+    "integrationsSize": "BUNDLE_SIZE_VISUALIZER=false npm run buildAllIntegrations && node -r esm integrations-size-limit.js",
     "size": "npm run coreSize && npm run integrationsSize",
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc",
     "buildDevIntegration": "NODE_ENV=false uglify=false INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
