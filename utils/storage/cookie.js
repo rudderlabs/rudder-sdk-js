@@ -8,9 +8,9 @@ import logger from "../logUtil";
  * An object utility to persist values in cookies
  */
 class CookieLocal {
-  constructor(options) {
+  constructor(opts) {
     this.cOptions = {};
-    this.options(options);
+    this.options(opts);
   }
 
   /**
@@ -37,6 +37,7 @@ class CookieLocal {
       this.cOptions.domain = null;
     }
     this.remove("test_rudder");
+    return this.cOptions;
   }
 
   /**
@@ -58,6 +59,7 @@ class CookieLocal {
    *
    * @param {*} key
    */
+  // eslint-disable-next-line class-methods-use-this
   get(key) {
     return cookie(key);
   }

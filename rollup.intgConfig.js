@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import babel from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
@@ -12,6 +13,7 @@ import brotli from "rollup-plugin-brotli";
 import visualizer from "rollup-plugin-visualizer";
 import filesize from "rollup-plugin-filesize";
 import * as webPackage from "./package.json";
+// eslint-disable-next-line import/no-relative-packages
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
 import { INTG_SUFFIX } from "./utils/constants";
 

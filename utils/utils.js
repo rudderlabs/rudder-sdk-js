@@ -198,40 +198,49 @@ function getDefaultPageProperties() {
   const { search } = window.location;
   const { title } = document;
   const url = getUrl(search);
+  // eslint-disable-next-line camelcase
   const tab_url = window.location.href;
 
   const referrer = getReferrer();
+  // eslint-disable-next-line camelcase
   const referring_domain = getReferringDomain(referrer);
+  // eslint-disable-next-line camelcase
   const initial_referrer = Storage.getInitialReferrer();
+  // eslint-disable-next-line camelcase
   const initial_referring_domain = Storage.getInitialReferringDomain();
   return {
     path,
     referrer,
+    // eslint-disable-next-line camelcase
     referring_domain,
     search,
     title,
     url,
+    // eslint-disable-next-line camelcase
     tab_url,
+    // eslint-disable-next-line camelcase
     initial_referrer,
+    // eslint-disable-next-line camelcase
     initial_referring_domain,
   };
 }
 
 function getCurrency(val) {
-  if (!val) return;
+  if (!val) return undefined;
   if (typeof val === "number") {
     return val;
   }
   if (typeof val !== "string") {
-    return;
+    return undefined;
   }
 
-  val = val.replace(/\$/g, "");
-  val = parseFloat(val);
+  let curVal = val.replace(/\$/g, "");
+  curVal = parseFloat(curVal);
 
-  if (!Number.isNaN(val)) {
-    return val;
+  if (!Number.isNaN(curVal)) {
+    return curVal;
   }
+  return undefined;
 }
 
 function getRevenue(properties, eventName) {
@@ -251,12 +260,14 @@ function transformNamesCore(integrationObject, namesObj) {
   Object.keys(integrationObject).forEach((key) => {
     if (integrationObject[key]) {
       if (namesObj[key]) {
+        // eslint-disable-next-line no-param-reassign
         integrationObject[namesObj[key]] = integrationObject[key];
       }
       if (key !== "All") {
         // delete user supplied keys except All and if except those where
         // old keys are not present or old keys are same as transformed keys
         if (namesObj[key] !== undefined && namesObj[key] !== key) {
+          // eslint-disable-next-line no-param-reassign
           delete integrationObject[key];
         }
       }
@@ -360,12 +371,11 @@ function rejectarray(arr, fn) {
 function rejectobject(obj, fn) {
   const ret = {};
 
-  for (const k in obj) {
-    if (obj.hasOwnProperty(k) && !fn(obj[k], k)) {
-      ret[k] = obj[k];
+  Object.keys(obj).forEach((key) => {
+    if (!fn(obj[key], key)) {
+      ret[key] = obj[key];
     }
-  }
-
+  });
   return ret;
 }
 
@@ -406,8 +416,10 @@ function type(val) {
  * @param  {} fn
  */
 function rejectArr(obj, fn) {
-  fn = fn || compact;
-  return type(obj) === "array" ? rejectarray(obj, fn) : rejectobject(obj, fn);
+  const func = fn || compact;
+  return type(obj) === "array"
+    ? rejectarray(obj, func)
+    : rejectobject(obj, func);
 }
 
 function getUserProvidedConfigUrl(configUrl, defConfigUrl) {
@@ -527,8 +539,10 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
       objKeys.forEach((k) => {
         if (!(typeof messageContext[k] === "undefined")) {
           if (destination) {
+            // eslint-disable-next-line no-param-reassign
             destination[k] = get(messageContext, k);
           } else {
+            // eslint-disable-next-line no-param-reassign
             destination = {
               k: get(messageContext, k),
             };

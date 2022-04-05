@@ -131,18 +131,18 @@ class Analytics {
         //   "All integrations loaded dynamically",
         //   this.dynamicallyLoadedIntegrations
         // );
-        return resolve(this);
+        resolve(this);
       }
       if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
         // logger.debug("Max wait for dynamically loaded integrations over")
-        return resolve(this);
+        resolve(this);
       }
 
-      return this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
         // logger.debug("Check if all integration SDKs are loaded after pause")
-        return this.allModulesInitialized(
-          time + INTEGRATION_LOAD_CHECK_INTERVAL
-        ).then(resolve);
+        this.allModulesInitialized(time + INTEGRATION_LOAD_CHECK_INTERVAL).then(
+          resolve
+        );
       });
     });
   }
@@ -162,7 +162,7 @@ class Analytics {
         response = JSON.parse(response);
       }
 
-      response.source.destinations.forEach(function (destination, index) {
+      response.source.destinations.forEach(function (destination) {
         // logger.debug(
         //   `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
         // );
@@ -372,17 +372,17 @@ class Analytics {
       if (instance.isLoaded()) {
         // logger.debug("===integration loaded successfully====", instance.name)
         this.successfullyLoadedIntegration.push(instance);
-        return resolve(this);
+        resolve(this);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
         // logger.debug("====max wait over====")
         this.failedToBeLoadedIntegration.push(instance);
-        return resolve(this);
+        resolve(this);
       }
 
-      return this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
         // logger.debug("====after pause, again checking====")
-        return this.isInitialized(
+        this.isInitialized(
           instance,
           time + INTEGRATION_LOAD_CHECK_INTERVAL
         ).then(resolve);
@@ -582,7 +582,7 @@ class Analytics {
     }
     const sdkIntgName = commonNames[intgName];
     const intg = this.clientIntegrations.find(
-      (intg) => intg.name === sdkIntgName
+      (cIntg) => cIntg.name === sdkIntgName
     );
 
     const { blacklistedEvents, whitelistedEvents, eventFilteringOption } =
@@ -596,14 +596,13 @@ class Analytics {
       // disabled filtering
       case "disable":
         return false;
-      // Blacklist is choosen for filtering events
+      // Blacklist is chosen for filtering events
       case "blacklistedEvents":
-        const isValidBlackList =
+        if (
           blacklistedEvents &&
           Array.isArray(blacklistedEvents) &&
-          blacklistedEvents.every((x) => x.eventName !== "");
-
-        if (isValidBlackList) {
+          blacklistedEvents.every((x) => x.eventName !== "")
+        ) {
           return (
             blacklistedEvents.find(
               (eventObj) =>
@@ -614,13 +613,13 @@ class Analytics {
         }
         return false;
 
-      // Whitelist is choosen for filtering events
+      // Whitelist is chosen for filtering events
       case "whitelistedEvents":
-        const isValidWhiteList =
+        if (
           whitelistedEvents &&
           Array.isArray(whitelistedEvents) &&
-          whitelistedEvents.some((x) => x.eventName !== "");
-        if (isValidWhiteList) {
+          whitelistedEvents.some((x) => x.eventName !== "")
+        ) {
           return (
             whitelistedEvents.find(
               (eventObj) =>
@@ -649,9 +648,6 @@ class Analytics {
       if (!this.anonymousId) {
         this.setAnonymousId();
       }
-
-      // assign page properties to context
-      // rudderElement.message.context.page = getDefaultPageProperties();
 
       rudderElement.message.context.traits = {
         ...this.userTraits,

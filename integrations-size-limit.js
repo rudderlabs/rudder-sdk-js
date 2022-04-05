@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable import/no-extraneous-dependencies */
 import * as sizeLimit from "size-limit";
 import * as bigLibPlugin from "@size-limit/preset-big-lib";
 import * as webpackPlugin from "@size-limit/webpack";

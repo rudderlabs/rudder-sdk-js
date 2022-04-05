@@ -49,5 +49,4 @@ const configToIntNames = {
   GA360: "GA360",
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export { configToIntNames };

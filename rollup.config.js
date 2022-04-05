@@ -12,6 +12,7 @@ import brotli from "rollup-plugin-brotli";
 import visualizer from "rollup-plugin-visualizer";
 import filesize from "rollup-plugin-filesize";
 import * as webPackage from "./package.json";
+// eslint-disable-next-line import/no-relative-packages
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
 
 let distFileName = "";
