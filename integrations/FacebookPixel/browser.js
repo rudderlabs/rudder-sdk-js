@@ -74,7 +74,7 @@ class FacebookPixel {
 
   page(rudderElement) {
     const { properties, messageId } = rudderElement.message;
-    window.fbq("track", "PageView", properties, { getEventId(message) });
+    window.fbq("track", "PageView", properties, { event_id: getEventId(rudderElement.message) });
   }
 
   identify(rudderElement) {
@@ -200,7 +200,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: getEventId(message),
+          event_id: getEventId(rudderElement.message),
         }
       );
       each((val, key) => {
@@ -214,7 +214,7 @@ class FacebookPixel {
               value: revValue,
             },
             {
-              event_id: messageId,
+              event_id: getEventId(rudderElement.message),
             }
           );
         }
@@ -245,7 +245,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: getEventId(message),
+          event_id: getEventId(rudderElement.message),
         }
       );
 
@@ -262,7 +262,7 @@ class FacebookPixel {
                 : this.formatRevenue(price),
             },
             {
-              event_id: getEventId(message),
+              event_id: getEventId(rudderElement.message),
             }
           );
         }
@@ -294,7 +294,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: getEventId(message),
+          event_id: getEventId(rudderElement.message),
         }
       );
 
@@ -311,7 +311,7 @@ class FacebookPixel {
                 : this.formatRevenue(price),
             },
             {
-              event_id: getEventId(message),
+              event_id: getEventId(rudderElement.message),
             }
           );
         }
@@ -370,7 +370,7 @@ class FacebookPixel {
             customProperties
           ),
           {
-            event_id: getEventId(message),
+            event_id: getEventId(rudderElement.message),
           }
         );
 
@@ -385,7 +385,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: getEventId(message),
+                event_id: getEventId(rudderElement.message),
               }
             );
           }
@@ -405,7 +405,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: getEventId(message),
+          event_id: getEventId(rudderElement.message),
         }
       );
 
@@ -420,7 +420,7 @@ class FacebookPixel {
               value: revValue,
             },
             {
-              event_id: getEventId(message),
+              event_id: getEventId(rudderElement.message),
             }
           );
         }
@@ -465,7 +465,7 @@ class FacebookPixel {
             customProperties
           ),
           {
-            event_id: getEventId(message),
+            event_id: getEventId(rudderElement.message),
           }
         );
 
@@ -480,7 +480,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: getEventId(message),
+                event_id: getEventId(rudderElement.message),
               }
             );
           }
@@ -495,7 +495,7 @@ class FacebookPixel {
         const payloadVal = this.buildPayLoad(rudderElement, false);
         payloadVal.value = revValue;
         window.fbq("trackSingleCustom", self.pixelId, event, payloadVal, {
-          event_id: getEventId(message),
+          event_id: getEventId(rudderElement.message),
         });
       } else {
         each((val, key) => {
@@ -503,7 +503,7 @@ class FacebookPixel {
             payload.currency = currVal;
 
             window.fbq("trackSingle", self.pixelId, val, payload, {
-              event_id: getEventId(message),
+              event_id: getEventId(rudderElement.message),
             });
           }
         }, standardTo);
@@ -519,7 +519,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: getEventId(message),
+                event_id: getEventId(rudderElement.message),
               }
             );
           }
