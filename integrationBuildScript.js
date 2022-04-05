@@ -11,8 +11,8 @@ intgNamesArr.forEach((intgName) => {
       `\nBuilding integration module: ${intgName} (${curInt} of ${intgNamesArr.length})`
     );
     let cmd = `npm run buildProdIntegrationCLI --intg=${intgName}`;
-    if (process.env.BUNDLE_SIZE_VISUALIZER) {
-      cmd = `${cmd} && npm run bundle-size-visual-integration-cli --intg=${intgName}`;
+    if (process.env.BUNDLE_SIZE_VISUALIZER === "true") {
+      cmd = `npm run bundle-size-visual-integration-cli --intg=${intgName}`;
     }
     const cmdOutput = execSync(cmd, { encoding: "utf-8" });
     console.log(cmdOutput);
