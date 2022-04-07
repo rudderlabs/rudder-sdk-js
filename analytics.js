@@ -702,10 +702,7 @@ class Analytics {
         return false;
       // Blacklist is choosen for filtering events
       case "blacklistedEvents":
-        const isValidBlackList =
-          blacklistedEvents && Array.isArray(blacklistedEvents);
-
-        if (isValidBlackList) {
+        if (Array.isArray(blacklistedEvents)) {
           return blacklistedEvents.find(
             (eventObj) =>
               eventObj.eventName.trim().toUpperCase() === formattedEventName
@@ -717,9 +714,7 @@ class Analytics {
         }
       // Whitelist is choosen for filtering events
       case "whitelistedEvents":
-        const isValidWhiteList =
-          whitelistedEvents && Array.isArray(whitelistedEvents);
-        if (isValidWhiteList) {
+        if (Array.isArray(whitelistedEvents)) {
           return whitelistedEvents.find(
             (eventObj) =>
               eventObj.eventName.trim().toUpperCase() === formattedEventName
