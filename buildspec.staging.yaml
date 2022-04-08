@@ -8,7 +8,7 @@ phases:
     commands:
       - ls
       - npm install --unsafe-perm
-      - npm run prodTest && npm test
+      - npm run test
       - npm run buildProdBrowser
       - node -r esm integrationBuildScript.js
       - sed 's|//# sourceMappingURL=rudder-analytics.min.js.map||' dist/rudder-analytics.min.js  > dist/prod.js
