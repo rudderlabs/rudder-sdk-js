@@ -592,22 +592,17 @@ class Analytics {
       return false;
     }
 
+    const formattedEventName = eventName.trim().toUpperCase();
     switch (eventFilteringOption) {
       // disabled filtering
       case "disable":
         return false;
       // Blacklist is choosen for filtering events
       case "blacklistedEvents":
-        const isValidBlackList =
-          blacklistedEvents &&
-          Array.isArray(blacklistedEvents) &&
-          blacklistedEvents.every((x) => x.eventName !== "");
-
-        if (isValidBlackList) {
+        if (Array.isArray(blacklistedEvents)) {
           return blacklistedEvents.find(
             (eventObj) =>
-              eventObj.eventName.trim().toUpperCase() ===
-              eventName.trim().toUpperCase()
+              eventObj.eventName.trim().toUpperCase() === formattedEventName
           ) === undefined
             ? false
             : true;
@@ -616,15 +611,10 @@ class Analytics {
         }
       // Whitelist is choosen for filtering events
       case "whitelistedEvents":
-        const isValidWhiteList =
-          whitelistedEvents &&
-          Array.isArray(whitelistedEvents) &&
-          whitelistedEvents.some((x) => x.eventName !== "");
-        if (isValidWhiteList) {
+        if (Array.isArray(whitelistedEvents)) {
           return whitelistedEvents.find(
             (eventObj) =>
-              eventObj.eventName.trim().toUpperCase() ===
-              eventName.trim().toUpperCase()
+              eventObj.eventName.trim().toUpperCase() === formattedEventName
           ) === undefined
             ? true
             : false;
