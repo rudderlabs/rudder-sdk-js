@@ -63,7 +63,8 @@ class EventRepository {
    */
   enqueue(rudderElement, type) {
     const message = rudderElement.getElementContent();
-    message.originalTimestamp = getCurrentTimeFormatted();
+    message.originalTimestamp =
+      message.originalTimestamp || getCurrentTimeFormatted();
     message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
 
     // check message size, if greater log an error

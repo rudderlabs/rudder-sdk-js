@@ -592,22 +592,18 @@ class Analytics {
       return false;
     }
 
+    const formattedEventName = eventName.trim().toUpperCase();
     switch (eventFilteringOption) {
       // disabled filtering
       case "disable":
         return false;
       // Blacklist is chosen for filtering events
       case "blacklistedEvents":
-        if (
-          blacklistedEvents &&
-          Array.isArray(blacklistedEvents) &&
-          blacklistedEvents.every((x) => x.eventName !== "")
-        ) {
+        if (Array.isArray(blacklistedEvents)) {
           return (
             blacklistedEvents.find(
               (eventObj) =>
-                eventObj.eventName.trim().toUpperCase() ===
-                eventName.trim().toUpperCase()
+                eventObj.eventName.trim().toUpperCase() === formattedEventName
             ) !== undefined
           );
         }
@@ -615,16 +611,11 @@ class Analytics {
 
       // Whitelist is chosen for filtering events
       case "whitelistedEvents":
-        if (
-          whitelistedEvents &&
-          Array.isArray(whitelistedEvents) &&
-          whitelistedEvents.some((x) => x.eventName !== "")
-        ) {
+        if (Array.isArray(whitelistedEvents)) {
           return (
             whitelistedEvents.find(
               (eventObj) =>
-                eventObj.eventName.trim().toUpperCase() ===
-                eventName.trim().toUpperCase()
+                eventObj.eventName.trim().toUpperCase() === formattedEventName
             ) === undefined
           );
         }
