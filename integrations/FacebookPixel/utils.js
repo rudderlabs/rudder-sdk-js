@@ -1,9 +1,8 @@
 function getEventId(message) {
-  return (
-    message.traits.event_id ||
-    message.context.traits.event_id ||
-    message.properties.event_id ||
-    message.messageId
-  );
+  if (message.traits) return message.traits.event_id;
+  if (message.context && message.context.traits)
+    return message.context.traits.event_id;
+  if (message.properties) return message.properties.event_id;
+  return message.messageId;
 }
 export default getEventId;
