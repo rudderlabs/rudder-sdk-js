@@ -12,7 +12,7 @@ let index = 0;
 
 // At any given time, create only processes for
 // max CPUs available
-const maxAtOnce = numCPUs - 1;
+const maxAtOnce = numCPUs > 1 ? numCPUs - 1 : 1;
 
 console.log(`Maximum number of concurrent processes: ${maxAtOnce}`);
 
