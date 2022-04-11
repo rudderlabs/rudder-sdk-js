@@ -14,6 +14,8 @@ let index = 0;
 // max CPUs available
 const maxAtOnce = numCPUs - 1;
 
+console.log(`Maximum number of concurrent processes: ${maxAtOnce}`);
+
 function buildIntegrations() {
   // if there are more waiting, run them
   while (numRunning < maxAtOnce && index < intgNamesArr.length) {
