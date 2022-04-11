@@ -3,14 +3,6 @@
   "version": "2.3.4",
   "description": "",
   "main": "./dist/browser.min.js",
-  "size-limit": [
-    {
-      "path": "dist/rudder-analytics.min.js",
-      "import": "{ createComponent }",
-      "gzip": true,
-      "limit": "37 kB"
-    }
-  ],
   "scripts": {
     "test": "npm run buildProdBrowser && sed 's/var rudderanalytics/rudderanalytics/g' dist/rudder-analytics.min.js > __tests__/prodsdk.js && jest --coverage",
     "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",
@@ -22,9 +14,7 @@
     "buildProdNode": "NODE_ENV=true ENV=prod uglify=true rollup -c",
     "buildForNpm": "NPM=true rollup -c",
     "bundle-size-visual": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true rollup -c",
-    "coreSize": "npm run buildProdBrowser && size-limit",
-    "integrationsSize": "BUNDLE_SIZE_VISUALIZER=false npm run buildAllIntegrations && node -r esm integrations-size-limit.js",
-    "size": "npm run coreSize && npm run integrationsSize",
+    "size": "npm run buildProdBrowser && npm run buildAllIntegrations && npm run buildForNpm && size-limit",
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc",
     "buildDevIntegration": "NODE_ENV=false uglify=false INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
     "buildDevIntegrationCLI": "NODE_ENV=false uglify=false INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
@@ -32,7 +22,7 @@
     "buildProdIntegrationCLI": "NODE_ENV=false ENV=prod uglify=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
     "bundle-size-visual-integration": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
     "bundle-size-visual-integration-cli": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
-    "buildAllIntegrations": "node -r esm integrationBuildScript.js"
+    "buildAllIntegrations": "BUNDLE_SIZE_VISUALIZER=false node -r esm integrationBuildScript.js"
   },
   "pre-commit": {
     "run": [
@@ -82,7 +72,7 @@
     "@rollup/plugin-replace": "^4.0.0",
     "@size-limit/preset-big-lib": "^7.0.8",
     "auto-changelog": "^2.4.0",
-    "eslint": "^8.12.0",
+    "eslint": "^8.13.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-import": "^2.26.0",
