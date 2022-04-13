@@ -17,7 +17,7 @@ const defaults = {
   key: "Rudder",
 };
 
-const anonymousIdKeyMapper = {
+const anonymousIdKeyMap = {
   segment: "ajs_anonymous_id",
 };
 
