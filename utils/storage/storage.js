@@ -273,7 +273,7 @@ class Storage {
    * get stored anonymous id
    */
   getAnonymousId(key) {
-    if (typeof key === "string" && anonymousIdKeyMapper[key]) {
+    if (Object.keys(anonymousIdKeyMapper).includes(key)) {
       const anonId = this.fetchAnonymousId(key);
       if (anonId) return anonId;
     }
