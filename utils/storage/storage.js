@@ -17,6 +17,10 @@ const defaults = {
   key: "Rudder",
 };
 
+const anonymousIdKeyMapper = {
+  segment: "ajs_anonymous_id",
+};
+
 /**
  * An object that handles persisting key-val from Analytics
  */
@@ -248,10 +252,31 @@ class Storage {
     );
   }
 
+  fetchAnonymousId(key) {
+    let anonId;
+    switch (key) {
+      case "segment":
+        if (Store.enabled) {
+          anonId = Store.get(anonymousIdKeyMapper.segment);
+        }
+        if (!anonId) {
+          anonId = Cookie.get(anonymousIdKeyMapper.segment);
+        }
+        return anonId;
+
+      default:
+        return undefined;
+    }
+  }
+
   /**
    * get stored anonymous id
    */
-  getAnonymousId() {
+  getAnonymousId(key) {
+    if (typeof key === "string" && anonymousIdKeyMapper[key]) {
+      const anonId = this.fetchAnonymousId(key);
+      if (anonId) return anonId;
+    }
     return this.parse(
       this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
     );
