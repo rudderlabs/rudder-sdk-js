@@ -158,16 +158,19 @@ const ecommEventPayload = (event, message) => {
       };
       break;
     }
-    case "product viewed":
+    case "product viewed": {
+      const itemIds = [];
+      itemIds.push(get(message, "properties.product_id"));
       payload = {
         ...payload,
-        item_ids: get(message, "properties.product_id"),
+        item_ids: itemIds,
       };
       break;
+    }
     case "product list viewed": {
       let itemIds = [];
       const products = get(message, "properties.products");
-      if (isDefinedAndNotNull(products)) {
+      if (products && Array.isArray(products)) {
         products.forEach((element, index) => {
           const pId = element.product_id;
           if (pId) {
