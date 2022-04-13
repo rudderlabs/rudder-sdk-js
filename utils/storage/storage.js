@@ -257,7 +257,7 @@ class Storage {
     switch (key) {
       case "segment":
         if (Store.enabled) {
-          anonId = Store.get(anonymousIdKeyMapper.segment);
+          anonId = Store.get(anonymousIdKeyMapper[key]);
         }
         if (!anonId) {
           anonId = Cookie.get(anonymousIdKeyMapper.segment);
