@@ -44,6 +44,8 @@ class SnapPixel {
       AD_CLICK: "AD_CLICK",
       AD_VIEW: "AD_VIEW",
       ADD_TO_WISHLIST: "ADD_TO_WISHLIST",
+      VIEW_CONTENT: "VIEW_CONTENT",
+      SEARCH: "SEARCH",
     };
 
     this.customEvents = [
@@ -185,9 +187,19 @@ class SnapPixel {
           ecommEventPayload(event, message)
         );
         break;
+      case "product viewed":
+      case "product list viewed":
+        sendEvent(
+          this.ecomEvents.VIEW_CONTENT,
+          ecommEventPayload(event, message)
+        );
+        break;
+      case "products searched":
+        sendEvent(this.ecomEvents.SEARCH, ecommEventPayload(event, message));
+        break;
       default:
         if (
-          !this.trackEvents.includes(event) &&
+          !this.trackEvents.includes(event.trim().toUpperCase()) &&
           !this.customEvents.includes(event.trim().toLowerCase())
         ) {
           logger.error("Event doesn't match with Snap Pixel Events!");

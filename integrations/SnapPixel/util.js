@@ -158,6 +158,41 @@ const ecommEventPayload = (event, message) => {
       };
       break;
     }
+    case "product viewed":
+      payload = {
+        ...payload,
+        item_ids: get(message, "properties.product_id"),
+      };
+      break;
+    case "product list viewed": {
+      let itemIds = [];
+      const products = get(message, "properties.products");
+      if (isDefinedAndNotNull(products)) {
+        products.forEach((element, index) => {
+          const pId = element.product_id;
+          if (pId) {
+            itemIds.push(pId);
+          } else {
+            logger.debug(
+              `product_id not present for product at index ${index}`
+            );
+          }
+        });
+      } else {
+        itemIds = null;
+      }
+      payload = {
+        ...payload,
+        item_ids: itemIds,
+      };
+      break;
+    }
+    case "products searched":
+      payload = {
+        ...payload,
+        search_string: get(message, "properties.query"),
+      };
+      break;
     default:
       break;
   }
