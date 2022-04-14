@@ -257,10 +257,10 @@ class Storage {
     switch (key) {
       case "segment":
         if (Store.enabled) {
-          anonId = Store.get(anonymousIdKeyMapper[key]);
+          anonId = Store.get(anonymousIdKeyMap[key]);
         }
         if (!anonId) {
-          anonId = Cookie.get(anonymousIdKeyMapper.segment);
+          anonId = Cookie.get(anonymousIdKeyMap[key]);
         }
         return anonId;
 
@@ -273,7 +273,7 @@ class Storage {
    * get stored anonymous id
    */
   getAnonymousId(key) {
-    if (Object.keys(anonymousIdKeyMapper).includes(key)) {
+    if (Object.keys(anonymousIdKeyMap).includes(key)) {
       const anonId = this.fetchAnonymousId(key);
       if (anonId) return anonId;
     }

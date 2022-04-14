@@ -1072,11 +1072,7 @@ class Analytics {
     }
 
     this.eventRepository.initialize(writeKey, serverUrl, options);
-    if (options && options.autoAssignAnonId) {
-      this.initializeUser(options.autoAssignAnonId);
-    } else {
-      this.initializeUser();
-    }
+    this.initializeUser(options ? options.autoAssignAnonId : undefined);
     this.setInitialPageProperties();
     this.loaded = true;
     if (
