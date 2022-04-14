@@ -254,7 +254,7 @@ class Storage {
 
   fetchAnonymousId(key) {
     let anonId;
-    switch (key.toLowerCase()) {
+    switch (key) {
       case "segment":
         if (Store.enabled) {
           anonId = Store.get(anonymousIdKeyMap[key]);
@@ -277,11 +277,20 @@ class Storage {
   /**
    * get stored anonymous id
    */
-  getAnonymousId(key) {
-    if (Object.keys(anonymousIdKeyMap).includes(key)) {
-      const anonId = this.fetchAnonymousId(key);
-      if (anonId) return anonId;
+  getAnonymousId(anonymousIdOptions) {
+    if (
+      anonymousIdOptions &&
+      anonymousIdOptions.autoCapture &&
+      anonymousIdOptions.autoCapture.enabled &&
+      typeof anonymousIdOptions.autoCapture.source === "string"
+    ) {
+      const source = anonymousIdOptions.autoCapture.source.toLowerCase();
+      if (Object.keys(anonymousIdKeyMap).includes(source)) {
+        const anonId = this.fetchAnonymousId(source);
+        if (anonId) return anonId;
+      }
     }
+
     return this.parse(
       this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
     );

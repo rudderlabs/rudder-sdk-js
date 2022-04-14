@@ -106,7 +106,7 @@ class Analytics {
   /**
    * initialize the user after load config
    */
-  initializeUser(autoAssignAnonId) {
+  initializeUser(anonymousIdOptions) {
     this.userId =
       this.storage.getUserId() != undefined ? this.storage.getUserId() : "";
 
@@ -123,7 +123,7 @@ class Analytics {
         ? this.storage.getGroupTraits()
         : {};
 
-    this.anonymousId = this.getAnonymousId(autoAssignAnonId);
+    this.anonymousId = this.getAnonymousId(anonymousIdOptions);
 
     // save once for storing older values to encrypted
     this.storage.setUserId(this.userId);
@@ -936,9 +936,9 @@ class Analytics {
     this.storage.clear(flag);
   }
 
-  getAnonymousId(autoAssignAnonId) {
+  getAnonymousId(anonymousIdOptions) {
     // if (!this.loaded) return;
-    this.anonymousId = this.storage.getAnonymousId(autoAssignAnonId);
+    this.anonymousId = this.storage.getAnonymousId(anonymousIdOptions);
     if (!this.anonymousId) {
       this.setAnonymousId();
     }
@@ -1072,7 +1072,7 @@ class Analytics {
     }
 
     this.eventRepository.initialize(writeKey, serverUrl, options);
-    this.initializeUser(options ? options.autoAssignAnonId : undefined);
+    this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
     this.loaded = true;
     if (

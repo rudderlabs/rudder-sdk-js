@@ -74,6 +74,17 @@ declare module "rudder-sdk-js" {
     useBeacon?: boolean; // Defaults to false
     beaconQueueOptions?: beaconQueueOptions;
     cookieConsentManager?: cookieConsentManager;
+    anonymousIdOptions?: anonymousIdOptions;
+  }
+
+  /**
+   * Represents the options parameter for anonymousId
+   */
+  interface anonymousIdOptions {
+    autoCapture: {
+      enabled: boolean;
+      source: string;
+    };
   }
 
   /**
@@ -399,7 +410,9 @@ declare module "rudder-sdk-js" {
   /**
    * To get anonymousId set in the SDK
    */
-  function getAnonymousId(): string;
+  function getAnonymousId(
+    anonymousIdOptions: undefined | anonymousIdOptions
+  ): string;
 
   /**
    * To set anonymousId
