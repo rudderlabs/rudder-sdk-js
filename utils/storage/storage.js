@@ -254,7 +254,7 @@ class Storage {
 
   fetchAnonymousId(key) {
     let anonId;
-    switch (key) {
+    switch (key.toLowerCase()) {
       case "segment":
         if (Store.enabled) {
           anonId = Store.get(anonymousIdKeyMap[key]);
