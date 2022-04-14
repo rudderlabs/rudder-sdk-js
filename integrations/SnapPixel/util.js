@@ -16,18 +16,18 @@ const sendEvent = (event, payload) => {
 
 const eventPayload = (message) => {
   let payload = {
-    price: get(message, "properties.price"),
+    price: parseFloat(get(message, "properties.price")),
+    client_deduplication_id: get(message, "properties.client_deduplication_id"),
     currency: get(message, "properties.currency"),
     transaction_id: get(message, "properties.transaction_id"),
     item_ids: get(message, "properties.item_ids"),
     item_category: get(message, "properties.category"),
     description: get(message, "properties.description"),
     search_string: get(message, "properties.search_string"),
-    number_items: get(message, "properties.number_items"),
+    number_items: parseInt(get(message, "properties.number_items"), 10),
     payment_info_available: get(message, "properties.payment_info_available"),
     sign_up_method: get(message, "properties.sign_up_method"),
     success: get(message, "properties.success"),
-    client_deduplication_id: get(message, "properties.client_deduplication_id"),
   };
 
   if (
@@ -46,23 +46,24 @@ const eventPayload = (message) => {
 
 const ecommEventPayload = (event, message) => {
   let payload = {
-    price: get(message, "properties.price"),
+    price: parseFloat(get(message, "properties.price")),
+    client_deduplication_id: get(message, "properties.client_deduplication_id"),
     currency: get(message, "properties.currency"),
+    transaction_id: get(message, "properties.transaction_id"),
     item_category: get(message, "properties.category"),
     description: get(message, "properties.description"),
     search_string: get(message, "properties.search_string"),
-    number_items: get(message, "properties.number_items"),
+    number_items: parseInt(get(message, "properties.number_items"), 10),
     payment_info_available: get(message, "properties.payment_info_available"),
     sign_up_method: get(message, "properties.sign_up_method"),
     success: get(message, "properties.success"),
-    transaction_id: get(message, "properties.transaction_id"),
   };
 
   switch (event.toLowerCase().trim()) {
     case "order completed": {
       let itemIds = [];
       const products = get(message, "properties.products");
-      if (isDefinedAndNotNull(products)) {
+      if (products && Array.isArray(products)) {
         products.forEach((element, index) => {
           const pId = element.product_id;
           if (pId) {
@@ -86,7 +87,7 @@ const ecommEventPayload = (event, message) => {
     case "checkout started": {
       let itemIds = [];
       const products = get(message, "properties.products");
-      if (isDefinedAndNotNull(products)) {
+      if (products && Array.isArray(products)) {
         products.forEach((element, index) => {
           const pId = element.product_id;
           if (pId) {
@@ -157,8 +158,14 @@ const ecommEventPayload = (event, message) => {
       break;
     }
     case "product viewed": {
-      const itemIds = [];
-      itemIds.push(get(message, "properties.product_id"));
+      let itemIds = [];
+      const pId = get(message, "properties.product_id");
+      if (isDefinedAndNotNull(pId)) {
+        itemIds.push(pId);
+      } else {
+        logger.debug("product_id is not present");
+        itemIds = null;
+      }
       payload = {
         ...payload,
         item_ids: itemIds,
@@ -192,6 +199,7 @@ const ecommEventPayload = (event, message) => {
       payload = {
         ...payload,
         search_string: get(message, "properties.query"),
+        item_ids: get(message, "properties.item_ids"),
       };
       break;
     default:
