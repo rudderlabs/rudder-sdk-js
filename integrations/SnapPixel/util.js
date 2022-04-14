@@ -118,7 +118,6 @@ const ecommEventPayload = (event, message) => {
       }
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.transaction_id"),
         item_ids: itemIds,
       };
       break;
@@ -133,14 +132,12 @@ const ecommEventPayload = (event, message) => {
     case "promotion clicked":
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.transaction_id"),
         item_ids: get(message, "properties.item_ids"),
       };
       break;
     case "promotion viewed":
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.transaction_id"),
         item_ids: get(message, "properties.item_ids"),
       };
       break;
@@ -155,7 +152,6 @@ const ecommEventPayload = (event, message) => {
       }
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.transaction_id"),
         item_ids: itemIds,
       };
       break;
