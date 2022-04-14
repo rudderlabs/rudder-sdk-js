@@ -260,7 +260,12 @@ class Storage {
           anonId = Store.get(anonymousIdKeyMap[key]);
         }
         if (!anonId) {
-          anonId = Cookie.get(anonymousIdKeyMap[key]);
+          Cookie.set("rudder_cookies", true);
+
+          if (Cookie.get("rudder_cookies")) {
+            Cookie.remove("rudder_cookies");
+            anonId = Cookie.get(anonymousIdKeyMap[key]);
+          }
         }
         return anonId;
 
