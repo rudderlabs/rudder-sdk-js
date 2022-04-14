@@ -132,10 +132,12 @@ class Analytics {
         //   this.dynamicallyLoadedIntegrations
         // );
         resolve(this);
+        return;
       }
       if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
         // logger.debug("Max wait for dynamically loaded integrations over")
         resolve(this);
+        return;
       }
 
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
@@ -373,11 +375,13 @@ class Analytics {
         // logger.debug("===integration loaded successfully====", instance.name)
         this.successfullyLoadedIntegration.push(instance);
         resolve(this);
+        return;
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
         // logger.debug("====max wait over====")
         this.failedToBeLoadedIntegration.push(instance);
         resolve(this);
+        return;
       }
 
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
