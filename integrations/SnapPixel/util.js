@@ -19,7 +19,9 @@ const eventPayload = (message) => {
     price: parseFloat(get(message, "properties.price")),
     client_deduplication_id: get(message, "properties.client_deduplication_id"),
     currency: get(message, "properties.currency"),
-    transaction_id: get(message, "properties.transaction_id"),
+    transaction_id:
+      get(message, "properties.transactionId") ||
+      get(message, "properties.transaction_id"),
     item_ids: get(message, "properties.item_ids"),
     item_category: get(message, "properties.category"),
     description: get(message, "properties.description"),
@@ -49,7 +51,9 @@ const ecommEventPayload = (event, message) => {
     price: parseFloat(get(message, "properties.price")),
     client_deduplication_id: get(message, "properties.client_deduplication_id"),
     currency: get(message, "properties.currency"),
-    transaction_id: get(message, "properties.transaction_id"),
+    transaction_id:
+      get(message, "properties.transactionId") ||
+      get(message, "properties.transaction_id"),
     item_category: get(message, "properties.category"),
     description: get(message, "properties.description"),
     search_string: get(message, "properties.search_string"),
