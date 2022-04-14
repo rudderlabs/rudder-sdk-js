@@ -27,6 +27,7 @@ const eventPayload = (message) => {
     payment_info_available: get(message, "properties.payment_info_available"),
     sign_up_method: get(message, "properties.sign_up_method"),
     success: get(message, "properties.success"),
+    client_deduplication_id: get(message, "properties.client_deduplication_id"),
   };
 
   if (
@@ -54,6 +55,7 @@ const ecommEventPayload = (event, message) => {
     payment_info_available: get(message, "properties.payment_info_available"),
     sign_up_method: get(message, "properties.sign_up_method"),
     success: get(message, "properties.success"),
+    transaction_id: get(message, "properties.transaction_id"),
   };
 
   switch (event.toLowerCase().trim()) {
@@ -172,7 +174,7 @@ const ecommEventPayload = (event, message) => {
       const products = get(message, "properties.products");
       if (products && Array.isArray(products)) {
         products.forEach((element, index) => {
-          const pId = element.product_id;
+          const pId = get(element, "product_id");
           if (pId) {
             itemIds.push(pId);
           } else {
