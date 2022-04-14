@@ -1,4 +1,4 @@
-test("Check SDK is loaded as object and api calls reaching to hit network", () => {
+describe("Tests for SDK load and API calls", () => {
   const xhrMock = {
     open: jest.fn(),
     setRequestHeader: jest.fn(),
@@ -9,47 +9,71 @@ test("Check SDK is loaded as object and api calls reaching to hit network", () =
     status: 200,
   };
 
-  window.XMLHttpRequest = jest.fn(() => xhrMock);
+  describe("Tests for queued API calls", () => {
+    it("If SDK script is 'required' (imported), then check that it is loaded and queued API calls are processed", () => {
+      rudderanalytics.page();
+      require("./prodsdk.js");
 
-  document.head.innerHTML = `
-    `;
-  rudderanalytics = window.rudderanalytics = [];
-  for (
-    var methods = [
-        "load",
-        "page",
-        "track",
-        "alias",
-        "group",
-        "identify",
-        "ready",
-        "reset",
-      ],
-      i = 0;
-    i < methods.length;
-    i++
-  ) {
-    var method = methods[i];
-    rudderanalytics[method] = (function (d) {
-      return function () {
-        rudderanalytics.push([d, ...arguments]);
-      };
-    })(method);
-  }
-  rudderanalytics.load(
-    "1d4Qof5j9WqTuFhvUkmLaHe4EV3",
-    "https://hosted.rudderlabs.com"
-  ),
+      expect(global.rudderanalytics.push).not.toBe(Array.prototype.push);
+
+      // one source config endpoint call and one implicit page call
+      // Refer to above 'beforeEach'
+      expect(xhrMock.send).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  beforeAll(() => {
+    window.XMLHttpRequest = jest.fn(() => xhrMock);
+
+    document.head.innerHTML = ` `;
+    rudderanalytics = window.rudderanalytics = [];
+    for (
+      var methods = [
+          "load",
+          "page",
+          "track",
+          "alias",
+          "group",
+          "identify",
+          "ready",
+          "reset",
+        ],
+        i = 0;
+      i < methods.length;
+      i++
+    ) {
+      var method = methods[i];
+      rudderanalytics[method] = (function (d) {
+        return function () {
+          rudderanalytics.push([d, ...arguments]);
+        };
+      })(method);
+    }
+    rudderanalytics.load(
+      "1d4Qof5j9WqTuFhvUkmLaHe4EV3",
+      "https://hosted.rudderlabs.com"
+    );
+  });
+
+  beforeEach(() => {
+    require("./prodsdk.js");
+  });
+
+  it("If APIs are called, then appropriate network requests are made", () => {
     rudderanalytics.page();
+    rudderanalytics.track("test-event");
+    rudderanalytics.identify("jest-user");
+    rudderanalytics.group("jest-group");
+    rudderanalytics.alias("new-jest-user", "jest-user");
 
-  require("./prodsdk.js");
+    expect(xhrMock.send).toHaveBeenCalledTimes(5);
+  });
 
-  rudderanalytics.page();
-  rudderanalytics.track("test-event");
-  rudderanalytics.identify("jest-user");
+  it("If 'getAnonymousId' API is invoked, then the return value conforms to the UUID format", () => {
+    const anonId = rudderanalytics.getAnonymousId();
 
-  // check the sdk loaded successfully
-  expect(global.rudderanalytics.push).not.toBe(Array.prototype.push);
-  // one source config endpoint call, one implicit page call, three explicit calls
-  expect(xhrMock.send).toHaveBeenCalledTimes(5);
+    const uuidRegEx =
+      /^[a-z0-9]{8}-[a-z0-9]{4}-4[a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{12}$/;
+    expect(anonId).toMatch(uuidRegEx);
+  });
 });
