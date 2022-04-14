@@ -142,9 +142,9 @@ class Analytics {
 
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
         // logger.debug("Check if all integration SDKs are loaded after pause")
-        this.allModulesInitialized(time + INTEGRATION_LOAD_CHECK_INTERVAL).then(
-          resolve
-        );
+        return this.allModulesInitialized(
+          time + INTEGRATION_LOAD_CHECK_INTERVAL
+        ).then(resolve);
       });
     });
   }
@@ -386,7 +386,7 @@ class Analytics {
 
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
         // logger.debug("====after pause, again checking====")
-        this.isInitialized(
+        return this.isInitialized(
           instance,
           time + INTEGRATION_LOAD_CHECK_INTERVAL
         ).then(resolve);
