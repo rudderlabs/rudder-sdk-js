@@ -9,20 +9,9 @@ describe("Tests for SDK load and API calls", () => {
     status: 200,
   };
 
-  describe("Tests for queued API calls", () => {
-    it("If SDK script is 'required' (imported), then check that it is loaded and queued API calls are processed", () => {
-      rudderanalytics.page();
-      require("./prodsdk.js");
+  beforeEach(() => {
+    jest.resetModules();
 
-      expect(global.rudderanalytics.push).not.toBe(Array.prototype.push);
-
-      // one source config endpoint call and one implicit page call
-      // Refer to above 'beforeEach'
-      expect(xhrMock.send).toHaveBeenCalledTimes(2);
-    });
-  });
-
-  beforeAll(() => {
     window.XMLHttpRequest = jest.fn(() => xhrMock);
 
     document.head.innerHTML = ` `;
@@ -37,6 +26,10 @@ describe("Tests for SDK load and API calls", () => {
           "identify",
           "ready",
           "reset",
+          "getUserTraits",
+          "getAnonymousId",
+          "getUserId",
+          "setAnonymousId",
         ],
         i = 0;
       i < methods.length;
@@ -49,14 +42,22 @@ describe("Tests for SDK load and API calls", () => {
         };
       })(method);
     }
-    rudderanalytics.load(
-      "1d4Qof5j9WqTuFhvUkmLaHe4EV3",
-      "https://hosted.rudderlabs.com"
-    );
+    rudderanalytics.load("WRITE_KEY", "DATA_PLANE_URL");
+    require("./prodsdk.js");
   });
 
-  beforeEach(() => {
+  it("If SDK script is 'required' (imported), then check that it is loaded and queued API calls are processed", () => {
+    // Only done for this case to test the
+    // API calls queuing functionality
+    jest.resetModules();
+    rudderanalytics.page();
     require("./prodsdk.js");
+
+    expect(global.rudderanalytics.push).not.toBe(Array.prototype.push);
+
+    // one source config endpoint call and one implicit page call
+    // Refer to above 'beforeEach'
+    expect(xhrMock.send).toHaveBeenCalledTimes(2);
   });
 
   it("If APIs are called, then appropriate network requests are made", () => {
@@ -66,7 +67,8 @@ describe("Tests for SDK load and API calls", () => {
     rudderanalytics.group("jest-group");
     rudderanalytics.alias("new-jest-user", "jest-user");
 
-    expect(xhrMock.send).toHaveBeenCalledTimes(5);
+    // one source config endpoint call and above API requests
+    expect(xhrMock.send).toHaveBeenCalledTimes(6);
   });
 
   it("If 'getAnonymousId' API is invoked, then the return value conforms to the UUID format", () => {
