@@ -1,4 +1,4 @@
-describe("Tests for SDK load and API calls", () => {
+describe("Test suite for the SDK", () => {
   const xhrMock = {
     open: jest.fn(),
     setRequestHeader: jest.fn(),
@@ -7,6 +7,18 @@ describe("Tests for SDK load and API calls", () => {
     readyState: 4,
     responseText: JSON.stringify({}),
     status: 200,
+  };
+
+  const userId = "jest-user-id";
+  const userTraits = {
+    "jest-user-trait-key-1": "jest-user-trait-value-1",
+    "jest-user-trait-key-2": "jest-user-trait-value-2",
+  };
+
+  const groupUserId = "jest-group-id";
+  const groupTraits = {
+    "jest-group-trait-key-1": "jest-group-trait-value-1",
+    "jest-group-trait-key-2": "jest-group-trait-value-2",
   };
 
   beforeEach(() => {
@@ -29,6 +41,9 @@ describe("Tests for SDK load and API calls", () => {
           "getUserTraits",
           "getAnonymousId",
           "getUserId",
+          "getUserTraits",
+          "getGroupId",
+          "getGroupTraits",
           "setAnonymousId",
         ],
         i = 0;
@@ -71,11 +86,68 @@ describe("Tests for SDK load and API calls", () => {
     expect(xhrMock.send).toHaveBeenCalledTimes(6);
   });
 
-  it("If 'getAnonymousId' API is invoked, then the return value conforms to the UUID format", () => {
-    const anonId = rudderanalytics.getAnonymousId();
+  describe("Test group for 'getAnonymousId' API", () => {
+    it("If 'getAnonymousId' API is invoked with no prior persisted data, then a UUID value is returned", () => {
+      const anonId = rudderanalytics.getAnonymousId();
 
-    const uuidRegEx =
-      /^[a-z0-9]{8}-[a-z0-9]{4}-4[a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{12}$/;
-    expect(anonId).toMatch(uuidRegEx);
+      const uuidRegEx =
+        /^[a-z0-9]{8}-[a-z0-9]{4}-4[a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{12}$/;
+      expect(anonId).toMatch(uuidRegEx);
+    });
+
+    it("If SDK generates anonymous ID, then it'll be persisted", () => {
+      const anonIdRes1 = rudderanalytics.getAnonymousId();
+
+      // SDK remembers the previously generated anonymous ID and returns the same value
+      const anonIdRes2 = rudderanalytics.getAnonymousId();
+
+      expect(anonIdRes1).toEqual(anonIdRes2);
+    });
+  });
+
+  describe("Test group for 'reset' API", () => {
+    it("If 'reset' API is invoked without setting the flag, then all persisted data except for anonymous ID is cleared", () => {
+      // Make identify and group API calls to let the SDK persist
+      // user (ID and traits) and group data (ID and traits)
+      rudderanalytics.identify(userId, userTraits);
+      rudderanalytics.group(groupUserId, groupTraits);
+
+      const anonId = "jest-anon-ID";
+      rudderanalytics.setAnonymousId(anonId);
+
+      // SDK clears all the persisted data except for anonymous ID
+      rudderanalytics.reset();
+
+      // SDK remembers the previously generated anonymous ID and returns the same value
+      const anonIdRes = rudderanalytics.getAnonymousId();
+
+      expect(anonId).toEqual(anonIdRes);
+      expect(rudderanalytics.getUserId()).toEqual("");
+      expect(rudderanalytics.getUserTraits()).toEqual({});
+      expect(rudderanalytics.getGroupId()).toEqual("");
+      expect(rudderanalytics.getGroupTraits()).toEqual({});
+    });
+
+    it("If 'reset' API is invoked with the flag set to 'true', then all the persisted data is cleared", () => {
+      // Make identify and group API calls to let the SDK persist
+      // user (ID and traits) and group data (ID and traits)
+      rudderanalytics.identify(userId, userTraits);
+      rudderanalytics.group(groupUserId, groupTraits);
+
+      const anonId = "jest-anon-ID";
+      rudderanalytics.setAnonymousId(anonId);
+
+      // SDK clears all the persisted data
+      rudderanalytics.reset(true);
+
+      // SDK remembers the previously generated anonymous ID and returns the same value
+      const anonIdRes = rudderanalytics.getAnonymousId();
+
+      expect(anonId).not.toEqual(anonIdRes);
+      expect(rudderanalytics.getUserId()).toEqual("");
+      expect(rudderanalytics.getUserTraits()).toEqual({});
+      expect(rudderanalytics.getGroupId()).toEqual("");
+      expect(rudderanalytics.getGroupTraits()).toEqual({});
+    });
   });
 });
