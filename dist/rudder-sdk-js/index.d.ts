@@ -422,6 +422,21 @@ declare module "rudder-sdk-js" {
    */
   function getUserId(): string;
 
+  /**
+   * To get user traits set in the SDK
+   */
+  function getUserTraits(): apiObject;
+
+  /**
+   * To get groupId set in the SDK
+   */
+  function getGroupId(): string;
+
+  /**
+   * To get group traits set in the SDK
+   */
+  function getGroupTraits(): apiObject;
+
   export {
     integrationOptions,
     loadOptions,
@@ -440,5 +455,8 @@ declare module "rudder-sdk-js" {
     setAnonymousId,
     getAnonymousId,
     getUserId,
+    getUserTraits,
+    getGroupId,
+    getGroupTraits,
   };
 }
