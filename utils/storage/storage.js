@@ -1,7 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
-import get from "get-value";
 import logger from "../logUtil";
 import { Cookie } from "./cookie";
 import { Store } from "./store";
@@ -259,7 +258,7 @@ class Storage {
   fetchExternalAnonymousId(key) {
     let anonId;
 
-    if (Object.keys(anonymousIdKeyMap).includes(key)) {
+    if (!Object.keys(anonymousIdKeyMap).includes(key)) {
       return anonId;
     }
     switch (key) {
@@ -281,9 +280,15 @@ class Storage {
    * get stored anonymous id
    */
   getAnonymousId(anonymousIdOptions) {
-    const source = get(anonymousIdOptions, "source");
-    if (get(anonymousIdOptions, "enabled") && typeof source === "string") {
-      const anonId = this.fetchExternalAnonymousId(source.toLowerCase());
+    if (
+      anonymousIdOptions &&
+      anonymousIdOptions.autoCapture &&
+      anonymousIdOptions.autoCapture.enabled &&
+      typeof anonymousIdOptions.autoCapture.source === "string"
+    ) {
+      const anonId = this.fetchExternalAnonymousId(
+        anonymousIdOptions.autoCapture.source.toLowerCase()
+      );
       if (anonId) return anonId;
     }
 
