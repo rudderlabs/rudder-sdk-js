@@ -75,6 +75,20 @@ class CookieLocal {
       return false;
     }
   }
+
+  /**
+   * Function to check cookie support exists or not
+   * @returns boolean
+   */
+  IsCookieSupported() {
+    this.set("rudder_cookies", true);
+
+    if (this.get("rudder_cookies")) {
+      this.remove("rudder_cookies");
+      return true;
+    }
+    return false;
+  }
 }
 
 // Exporting only the instance

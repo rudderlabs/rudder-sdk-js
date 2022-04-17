@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
+import get from "get-value";
 import logger from "../logUtil";
 import { Cookie } from "./cookie";
 import { Store } from "./store";
@@ -27,10 +28,8 @@ const anonymousIdKeyMap = {
 class Storage {
   constructor() {
     // First try setting the storage to cookie else to localstorage
-    Cookie.set("rudder_cookies", true);
 
-    if (Cookie.get("rudder_cookies")) {
-      Cookie.remove("rudder_cookies");
+    if (Cookie.IsCookieSupported()) {
       this.storage = Cookie;
       return;
     }
@@ -252,25 +251,29 @@ class Storage {
     );
   }
 
+  /**
+   * Function to fetch anonymousId from external source
+   * @param {string} key source of the anonymousId
+   * @returns string
+   */
   fetchExternalAnonymousId(key) {
     let anonId;
+
+    if (Object.keys(anonymousIdKeyMap).includes(key)) {
+      return anonId;
+    }
     switch (key) {
       case "segment":
         if (Store.enabled) {
           anonId = Store.get(anonymousIdKeyMap[key]);
         }
-        if (!anonId) {
-          Cookie.set("rudder_cookies", true);
-
-          if (Cookie.get("rudder_cookies")) {
-            Cookie.remove("rudder_cookies");
-            anonId = Cookie.get(anonymousIdKeyMap[key]);
-          }
+        if (!anonId && Cookie.IsCookieSupported()) {
+          anonId = Cookie.get(anonymousIdKeyMap[key]);
         }
         return anonId;
 
       default:
-        return undefined;
+        return anonId;
     }
   }
 
@@ -278,17 +281,10 @@ class Storage {
    * get stored anonymous id
    */
   getAnonymousId(anonymousIdOptions) {
-    if (
-      anonymousIdOptions &&
-      anonymousIdOptions.autoCapture &&
-      anonymousIdOptions.autoCapture.enabled &&
-      typeof anonymousIdOptions.autoCapture.source === "string"
-    ) {
-      const source = anonymousIdOptions.autoCapture.source.toLowerCase();
-      if (Object.keys(anonymousIdKeyMap).includes(source)) {
-        const anonId = this.fetchAnonymousId(source);
-        if (anonId) return anonId;
-      }
+    const source = get(anonymousIdOptions, "source");
+    if (get(anonymousIdOptions, "enabled") && typeof source === "string") {
+      const anonId = this.fetchExternalAnonymousId(source.toLowerCase());
+      if (anonId) return anonId;
     }
 
     return this.parse(
