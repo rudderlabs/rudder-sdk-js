@@ -252,7 +252,7 @@ class Storage {
     );
   }
 
-  fetchAnonymousId(key) {
+  fetchExternalAnonymousId(key) {
     let anonId;
     switch (key) {
       case "segment":
