@@ -255,9 +255,9 @@ class Storage {
    * @param {string} key source of the anonymousId
    * @returns string
    */
-  fetchExternalAnonymousId(key) {
+  fetchExternalAnonymousId(source) {
     let anonId;
-
+    const key = source.toLowerCase();
     if (!Object.keys(anonymousIdKeyMap).includes(key)) {
       return anonId;
     }
@@ -287,7 +287,7 @@ class Storage {
       typeof anonymousIdOptions.autoCapture.source === "string"
     ) {
       const anonId = this.fetchExternalAnonymousId(
-        anonymousIdOptions.autoCapture.source.toLowerCase()
+        anonymousIdOptions.autoCapture.source
       );
       if (anonId) return anonId;
     }

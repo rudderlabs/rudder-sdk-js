@@ -33,11 +33,9 @@ class CookieLocal {
     });
 
     // try setting a cookie first
-    this.set("test_rudder", true);
-    if (!this.get("test_rudder")) {
+    if (this.IsCookieSupported()) {
       this._options.domain = null;
     }
-    this.remove("test_rudder");
   }
 
   /**
