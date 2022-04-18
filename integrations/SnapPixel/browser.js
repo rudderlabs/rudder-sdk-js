@@ -21,8 +21,6 @@ class SnapPixel {
       "SIGN_UP",
       "OPEN_APP",
       "SAVE",
-      "VIEW_CONTENT",
-      "SEARCH",
       "SUBSCRIBE",
       "COMPLETE_TUTORIAL",
       "INVITE",
