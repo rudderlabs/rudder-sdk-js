@@ -26,9 +26,12 @@ const commonEventPayload = (message) => {
     description: get(message, "properties.description"),
     search_string: get(message, "properties.search_string"),
     number_items: parseInt(get(message, "properties.number_items"), 10),
-    payment_info_available: get(message, "properties.payment_info_available"),
+    payment_info_available: parseInt(
+      get(message, "properties.payment_info_available"),
+      10
+    ),
     sign_up_method: get(message, "properties.sign_up_method"),
-    success: get(message, "properties.success"),
+    success: parseInt(get(message, "properties.success"), 10),
   };
   if (
     payload.payment_info_available !== 0 &&
