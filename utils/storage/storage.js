@@ -263,6 +263,10 @@ class Storage {
     }
     switch (key) {
       case "segment":
+        /**
+         * First check the local storage for anonymousId
+         * Ref: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#identify
+         */
         if (Store.enabled) {
           anonId = Store.get(anonymousIdKeyMap[key]);
         }
