@@ -287,7 +287,7 @@ class Storage {
   getAnonymousId(anonymousIdOptions) {
     const source = get(anonymousIdOptions, "autoCapture.source");
     if (
-      get(anonymousIdOptions, "autoCapture.enabled") &&
+      get(anonymousIdOptions, "autoCapture.enabled") === true &&
       typeof source === "string"
     ) {
       const anonId = this.fetchExternalAnonymousId(source);
