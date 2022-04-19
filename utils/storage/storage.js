@@ -271,6 +271,8 @@ class Storage {
         if (Store.enabled) {
           anonId = Store.get(anonymousIdKeyMap[key]);
         }
+        // If anonymousId is not present in local storage and check cookie support exists
+        // fetch it from cookie
         if (!anonId && Cookie.IsCookieSupported()) {
           anonId = Cookie.get(anonymousIdKeyMap[key]);
         }
@@ -295,26 +297,35 @@ class Storage {
    * Finally if no anonymous Id is present in the source it will return undefined.
    *
    * anonymousIdOptions example:
-   *
+   *  {
+        autoCapture: {
+          enabled: true,
+          source: "segment",
+        },
+      }
    *
    */
   getAnonymousId(anonymousIdOptions) {
+    // fetch the rl_anonymous_id from storage
     const rlAnonymousId = this.parse(
       this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
     );
     if (rlAnonymousId) {
-      return rlAnonymousId;
+      return rlAnonymousId; // return if already present
     }
+    // validate the provided anonymousIdOptions argument
     const source = get(anonymousIdOptions, "autoCapture.source");
     if (
       get(anonymousIdOptions, "autoCapture.enabled") === true &&
       typeof source === "string"
     ) {
+      // fetch the anonymousId from the external source
+      // ex - segment
       const anonId = this.fetchExternalAnonymousId(source);
-      if (anonId) return anonId;
+      if (anonId) return anonId; // return anonymousId if present
     }
 
-    return rlAnonymousId;
+    return rlAnonymousId; // return undefined
   }
 
   /**
