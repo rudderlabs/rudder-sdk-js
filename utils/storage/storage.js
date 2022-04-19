@@ -283,8 +283,28 @@ class Storage {
 
   /**
    * get stored anonymous id
+   *
+   * Use cases:
+   * 1. getAnonymousId() ->  anonymousIdOptions is undefined this function will return rl_anonymous_id
+   * if present otherwise undefined
+   *
+   * 2. getAnonymousId(anonymousIdOptions) -> In case anonymousIdOptions is present this function will check
+   * if rl_anonymous_id is present then it will return that
+   *
+   * otherwise it will validate the anonymousIdOptions and try to fetch the anonymous Id from the provided source.
+   * Finally if no anonymous Id is present in the source it will return undefined.
+   *
+   * anonymousIdOptions example:
+   *
+   *
    */
   getAnonymousId(anonymousIdOptions) {
+    const rlAnonymousId = this.parse(
+      this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
+    );
+    if (rlAnonymousId) {
+      return rlAnonymousId;
+    }
     const source = get(anonymousIdOptions, "autoCapture.source");
     if (
       get(anonymousIdOptions, "autoCapture.enabled") === true &&
@@ -294,9 +314,7 @@ class Storage {
       if (anonId) return anonId;
     }
 
-    return this.parse(
-      this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
-    );
+    return rlAnonymousId;
   }
 
   /**
