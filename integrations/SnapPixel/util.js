@@ -14,7 +14,7 @@ const sendEvent = (event, payload) => {
   }
 };
 
-const commonEventPayload = (message) => {
+const getCommonEventPayload = (message) => {
   let payload = {
     price: parseFloat(get(message, "properties.price")),
     client_deduplication_id: get(message, "properties.client_deduplication_id"),
@@ -48,14 +48,14 @@ const commonEventPayload = (message) => {
 };
 
 const eventPayload = (message) => {
-  let payload = commonEventPayload(message);
+  let payload = getCommonEventPayload(message);
   payload.item_ids = get(message, "properties.item_ids");
   payload = removeUndefinedAndNullValues(payload);
   return payload;
 };
 
 const ecommEventPayload = (event, message) => {
-  let payload = commonEventPayload(message);
+  let payload = getCommonEventPayload(message);
 
   switch (event.toLowerCase().trim()) {
     case "order completed": {
