@@ -165,12 +165,13 @@ class FacebookPixel {
 
       if (products && Array.isArray(products)) {
         products.forEach((product) => {
-          const productId = product.product_id;
+          const productId = product.product_id || product.sku || product.id;
           if (productId) {
             contentIds.push(productId);
             contents.push({
               id: productId,
-              quantity: quantity || 1,
+              quantity: product.quantity || 1,
+              item_price: product.price
             });
           }
         });
@@ -344,11 +345,12 @@ class FacebookPixel {
       const contents = [];
       if (products) {
         for (let i = 0; i < products.length; i++) {
-          const pId = products[i].product_id;
+          const pId = products[i].product_id || products[i].sku || products[i].id;
           contentIds.push(pId);
           const content = {
             id: pId,
-            quantity,
+            quantity: products[i].quantity,
+            item_price: products[i].price
           };
 
           content.item_price = price;
@@ -433,12 +435,12 @@ class FacebookPixel {
       if (products) {
         for (let i = 0; i < products.length; i++) {
           const product = products[i];
-          const pId = product.product_id;
+          const pId = product.product_id || product.sku || product.id;
           contentIds.push(pId);
           const content = {
             id: pId,
-            quantity,
-            item_price: price,
+            quantity: product.quantity,
+            item_price: product.price,
           };
 
           content.item_price = price;
