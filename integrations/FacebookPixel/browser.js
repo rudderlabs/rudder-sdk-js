@@ -353,8 +353,6 @@ class FacebookPixel {
             item_price: products[i].price
           };
 
-          content.item_price = price;
-
           contents.push(content);
         }
         window.fbq(
@@ -442,9 +440,6 @@ class FacebookPixel {
             quantity: product.quantity,
             item_price: product.price,
           };
-
-          content.item_price = price;
-
           contents.push(content);
         }
 
