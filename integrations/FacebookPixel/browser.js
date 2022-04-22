@@ -397,23 +397,7 @@ class FacebookPixel {
           }
         }, legacyTo);
       } else {
-        // ref: https://developers.facebook.com/docs/meta-pixel/get-started/dynamic-ads
-        // According to the above reference for "purchase" events content_type and 
-        // either content_ids or contents will be required
-        window.fbq(
-          "trackSingle",
-          self.pixelId,
-          "Purchase",
-          {
-            content_ids: [prodId],
-            content_type: contentType,
-            value: revValue,
-            currency: currVal,
-          },
-          {
-            eventID: derivedEventID,
-          }
-        );
+        logger.error("No product array found");
       }
     } else if (event === "Products Searched") {
       window.fbq(
