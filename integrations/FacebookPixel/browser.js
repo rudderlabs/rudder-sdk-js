@@ -74,7 +74,9 @@ class FacebookPixel {
 
   page(rudderElement) {
     const { properties } = rudderElement.message;
-    window.fbq("track", "PageView", properties, { event_id: getEventId(rudderElement.message) });
+    window.fbq("track", "PageView", properties, {
+      eventID: getEventId(rudderElement.message),
+    });
   }
 
   identify(rudderElement) {
@@ -157,7 +159,7 @@ class FacebookPixel {
       query = properties.query;
     }
     const customProperties = this.buildPayLoad(rudderElement, true);
-    const eventID = getEventId(rudderElement.message);
+    const derivedEventID = getEventId(rudderElement.message);
     if (event === "Product List Viewed") {
       let contentType;
       const contentIds = [];
@@ -201,7 +203,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: eventID,
+          eventID: derivedEventID,
         }
       );
       each((val, key) => {
@@ -215,7 +217,7 @@ class FacebookPixel {
               value: revValue,
             },
             {
-              event_id: eventID,
+              eventID: derivedEventID,
             }
           );
         }
@@ -246,7 +248,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: eventID,
+          eventID: derivedEventID,
         }
       );
 
@@ -263,7 +265,7 @@ class FacebookPixel {
                 : this.formatRevenue(price),
             },
             {
-              event_id: eventID,
+              eventID: derivedEventID,
             }
           );
         }
@@ -295,7 +297,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: eventID,
+          eventID: derivedEventID,
         }
       );
 
@@ -312,7 +314,7 @@ class FacebookPixel {
                 : this.formatRevenue(price),
             },
             {
-              event_id: eventID,
+              eventID: derivedEventID,
             }
           );
         }
@@ -355,6 +357,9 @@ class FacebookPixel {
 
           contents.push(content);
         }
+        // ref: https://developers.facebook.com/docs/meta-pixel/implementation/marketing-api#purchase
+        // "trackSingle" feature is :
+        // https://developers.facebook.com/ads/blog/post/v2/2017/11/28/event-tracking-with-multiple-pixels-tracksingle/
         window.fbq(
           "trackSingle",
           self.pixelId,
@@ -371,7 +376,7 @@ class FacebookPixel {
             customProperties
           ),
           {
-            event_id: eventID,
+            eventID: derivedEventID,
           }
         );
 
@@ -386,7 +391,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: eventID,
+                eventID: derivedEventID,
               }
             );
           }
@@ -406,7 +411,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: eventID,
+          eventID: derivedEventID,
         }
       );
 
@@ -421,7 +426,7 @@ class FacebookPixel {
               value: revValue,
             },
             {
-              event_id: eventID,
+              eventID: derivedEventID,
             }
           );
         }
@@ -466,7 +471,7 @@ class FacebookPixel {
             customProperties
           ),
           {
-            event_id: eventID,
+            eventID: derivedEventID,
           }
         );
 
@@ -481,7 +486,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: eventID,
+                eventID: derivedEventID,
               }
             );
           }
@@ -496,7 +501,7 @@ class FacebookPixel {
         const payloadVal = this.buildPayLoad(rudderElement, false);
         payloadVal.value = revValue;
         window.fbq("trackSingleCustom", self.pixelId, event, payloadVal, {
-          event_id: eventID,
+          eventID: derivedEventID,
         });
       } else {
         each((val, key) => {
@@ -504,7 +509,7 @@ class FacebookPixel {
             payload.currency = currVal;
 
             window.fbq("trackSingle", self.pixelId, val, payload, {
-              event_id: eventID,
+              eventID: derivedEventID,
             });
           }
         }, standardTo);
@@ -520,7 +525,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: eventID,
+                eventID: derivedEventID,
               }
             );
           }
@@ -583,7 +588,11 @@ class FacebookPixel {
   }
 
   formatRevenue(revenue) {
-    return Number(revenue || 0).toFixed(2);
+    const formattedRevenue = parseFloat(parseFloat(revenue || 0).toFixed(2));
+    if (!Number.isNaN(formattedRevenue)) {
+      return formattedRevenue;
+    }
+    logger.error("Revenue could not be converted to number")
   }
 
   buildPayLoad(rudderElement, isStandardEvent) {
