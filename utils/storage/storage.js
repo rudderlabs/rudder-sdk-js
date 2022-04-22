@@ -310,9 +310,12 @@ class Storage {
     const rlAnonymousId = this.parse(
       this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
     );
-    /**
-     * If rl_anonymous_id is already present return the value rather then executing the rest of the block
-     */
+    // If RS's anonymous ID is available, return from here.
+    // The user, while migrating from a different analytics SDK, will only need to auto-capture the anonymous ID when the RS SDK loads for the first time. 
+    // The captured anonymous ID would be available in RS's persistent storage for all the subsequent SDK runs. 
+    // So, instead of always grabbing the ID from the migration source when the options are specified, it is first checked in the RS's persistent storage.
+    // Moreover, the user can also clear the anonymous ID from the storage via the 'reset' API, which renders the migration source's data useless.
+    ```
     if (rlAnonymousId) {
       return rlAnonymousId;
     }
