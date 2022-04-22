@@ -44,6 +44,7 @@ import * as GoogleOptimize from "./GoogleOptimize";
 import * as PostAffiliatePro from "./PostAffiliatePro";
 import * as LaunchDarkly from "./LaunchDarkly";
 import * as GA360 from "./GA360";
+import * as Adroll from "./Adroll";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -95,6 +96,7 @@ const integrations = {
   POST_AFFILIATE_PRO: PostAffiliatePro.default,
   LAUNCHDARKLY: LaunchDarkly.default,
   GA360: GA360.default,
+  ADROLL: Adroll.default,
 };
 
 export { integrations };
