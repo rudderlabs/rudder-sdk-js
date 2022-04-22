@@ -29,7 +29,7 @@ class Storage {
   constructor() {
     // First try setting the storage to cookie else to localstorage
 
-    if (Cookie.IsCookieSupported()) {
+    if (Cookie.cookieSupported) {
       this.storage = Cookie;
       return;
     }

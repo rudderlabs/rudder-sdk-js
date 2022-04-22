@@ -12,6 +12,7 @@ class CookieLocal {
   constructor(options) {
     this._options = {};
     this.options(options);
+    this.cookieSupported = this.IsCookieSupported();
   }
 
   /**
@@ -31,11 +32,6 @@ class CookieLocal {
       domain,
       samesite: "Lax",
     });
-
-    // try setting a cookie first
-    if (this.IsCookieSupported()) {
-      this._options.domain = null;
-    }
   }
 
   /**
