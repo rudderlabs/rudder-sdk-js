@@ -12,7 +12,7 @@ class CookieLocal {
   constructor(options) {
     this._options = {};
     this.options(options);
-    this.cookieSupported = this.IsCookieSupported();
+    this.isSupportAvailable = this.isSupportAvailable();
   }
 
   /**
@@ -74,11 +74,12 @@ class CookieLocal {
    * Function to check cookie support exists or not
    * @returns boolean
    */
-  IsCookieSupported() {
-    this.set("rudder_cookies", true);
+  isSupportAvailable() {
+    const name = "test_rudder_cookie";
+    this.set(name, true);
 
-    if (this.get("rudder_cookies")) {
-      this.remove("rudder_cookies");
+    if (this.get(name)) {
+      this.remove(name);
       return true;
     }
     return false;

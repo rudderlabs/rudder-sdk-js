@@ -29,7 +29,7 @@ class Storage {
   constructor() {
     // First try setting the storage to cookie else to localstorage
 
-    if (Cookie.cookieSupported) {
+    if (Cookie.isSupportAvailable) {
       this.storage = Cookie;
       return;
     }
@@ -310,8 +310,11 @@ class Storage {
     const rlAnonymousId = this.parse(
       this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
     );
+    /**
+     * If rl_anonymous_id is already present return the value rather then executing the rest of the block
+     */
     if (rlAnonymousId) {
-      return rlAnonymousId; // return if already present
+      return rlAnonymousId;
     }
     // validate the provided anonymousIdOptions argument
     const source = get(anonymousIdOptions, "autoCapture.source");
