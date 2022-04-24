@@ -12,7 +12,7 @@ class CookieLocal {
   constructor(options) {
     this._options = {};
     this.options(options);
-    this.isSupportAvailable = this.isSupportAvailable();
+    this.isSupportAvailable = this.checkSupportAvailability();
   }
 
   /**
@@ -74,7 +74,7 @@ class CookieLocal {
    * Function to check cookie support exists or not
    * @returns boolean
    */
-  isSupportAvailable() {
+  checkSupportAvailability() {
     const name = "test_rudder_cookie";
     this.set(name, true);
 
