@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import AES from "crypto-js/aes";
 import Utf8 from "crypto-js/enc-utf8";
+import get from "get-value";
 import logger from "../logUtil";
 import { Cookie } from "./cookie";
 import { Store } from "./store";
@@ -15,6 +16,10 @@ const defaults = {
   page_storage_init_referring_domain: "rl_page_init_referring_domain",
   prefix: "RudderEncrypt:",
   key: "Rudder",
+};
+
+const anonymousIdKeyMap = {
+  segment: "ajs_anonymous_id",
 };
 
 /**
@@ -86,10 +91,8 @@ function encryptValue(value) {
 class Storage {
   constructor() {
     // First try setting the storage to cookie else to localstorage
-    Cookie.set("rudder_cookies", true);
 
-    if (Cookie.get("rudder_cookies")) {
-      Cookie.remove("rudder_cookies");
+    if (Cookie.isSupportAvailable) {
       this.storage = Cookie;
       return;
     }
@@ -223,10 +226,95 @@ class Storage {
   }
 
   /**
-   * get stored anonymous id
+   * Function to fetch anonymousId from external source
+   * @param {string} key source of the anonymousId
+   * @returns string
    */
-  getAnonymousId() {
-    return this.getItem(defaults.user_storage_anonymousId);
+  fetchExternalAnonymousId(source) {
+    let anonId;
+    const key = source.toLowerCase();
+    if (!Object.keys(anonymousIdKeyMap).includes(key)) {
+      return anonId;
+    }
+    switch (key) {
+      case "segment":
+        /**
+         * First check the local storage for anonymousId
+         * Ref: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#identify
+         */
+        if (Store.enabled) {
+          anonId = Store.get(anonymousIdKeyMap[key]);
+        }
+        // If anonymousId is not present in local storage and check cookie support exists
+        // fetch it from cookie
+        if (!anonId && Cookie.IsCookieSupported()) {
+          anonId = Cookie.get(anonymousIdKeyMap[key]);
+        }
+        return anonId;
+
+      default:
+        return anonId;
+    }
+  }
+
+  /**
+   * get stored anonymous id
+   *
+   * Use cases:
+   * 1. getAnonymousId() ->  anonymousIdOptions is undefined this function will return rl_anonymous_id
+   * if present otherwise undefined
+   *
+   * 2. getAnonymousId(anonymousIdOptions) -> In case anonymousIdOptions is present this function will check
+   * if rl_anonymous_id is present then it will return that
+   *
+   * otherwise it will validate the anonymousIdOptions and try to fetch the anonymous Id from the provided source.
+   * Finally if no anonymous Id is present in the source it will return undefined.
+   *
+   * anonymousIdOptions example:
+   *  {
+        autoCapture: {
+          enabled: true,
+          source: "segment",
+        },
+      }
+   *
+   */
+  getAnonymousId(anonymousIdOptions) {
+    // fetch the rl_anonymous_id from storage
+    const rlAnonymousId = parse(
+      decryptValue(this.storage.get(defaults.user_storage_anonymousId))
+    );
+    /**
+     * If RS's anonymous ID is available, return from here.
+     *
+     * The user, while migrating from a different analytics SDK,
+     * will only need to auto-capture the anonymous ID when the RS SDK
+     * loads for the first time.
+     *
+     * The captured anonymous ID would be available in RS's persistent storage
+     * for all the subsequent SDK runs.
+     * So, instead of always grabbing the ID from the migration source when
+     * the options are specified, it is first checked in the RS's persistent storage.
+     *
+     * Moreover, the user can also clear the anonymous ID from the storage via
+     * the 'reset' API, which renders the migration source's data useless.
+     */
+    if (rlAnonymousId) {
+      return rlAnonymousId;
+    }
+    // validate the provided anonymousIdOptions argument
+    const source = get(anonymousIdOptions, "autoCapture.source");
+    if (
+      get(anonymousIdOptions, "autoCapture.enabled") === true &&
+      typeof source === "string"
+    ) {
+      // fetch the anonymousId from the external source
+      // ex - segment
+      const anonId = this.fetchExternalAnonymousId(source);
+      if (anonId) return anonId; // return anonymousId if present
+    }
+
+    return rlAnonymousId; // return undefined
   }
 
   /**
