@@ -1336,10 +1336,13 @@ const eventsPushedAlready =
   !!window.rudderanalytics &&
   window.rudderanalytics.push == Array.prototype.push;
 
-const argumentsArray = window.rudderanalytics;
+let argumentsArray = window.rudderanalytics;
+
+const apiCallsBeforeLoad = [];
 
 while (argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load") {
-  argumentsArray.shift();
+  // Collect the methods that are called before load in "apiCallsBeforeLoad" array
+  apiCallsBeforeLoad.push(argumentsArray.shift());
 }
 if (
   argumentsArray &&
@@ -1351,6 +1354,14 @@ if (
   logger.debug("=====from init, calling method:: ", method);
   instance[method](...argumentsArray[0]);
   argumentsArray.shift();
+  /**
+   * After load is called
+   * Check if the array has any method that is called before load
+   * If present, Push the calls at the front of the call stack
+   */
+  if (apiCallsBeforeLoad.length) {
+    argumentsArray = apiCallsBeforeLoad.concat(argumentsArray);
+  }
 }
 
 // once loaded, parse querystring of the page url to send events
