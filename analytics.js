@@ -1338,6 +1338,10 @@ const eventsPushedAlready =
 
 let argumentsArray = window.rudderanalytics;
 
+/**
+ * Usage of the below variable:
+ * It will be used to store the methods that are called before load.
+ */
 const apiCallsBeforeLoad = [];
 
 while (argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load") {
@@ -1358,6 +1362,9 @@ if (
    * After load is called
    * Check if the array has any method that is called before load
    * If present, Push the calls at the front of the call stack
+   *
+   * Ex: Say the call stack currently have [page, identify, load, track]
+   * It will become [load, page, identify, track]
    */
   if (apiCallsBeforeLoad.length) {
     argumentsArray = apiCallsBeforeLoad.concat(argumentsArray);
