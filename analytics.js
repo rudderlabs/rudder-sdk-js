@@ -1336,18 +1336,21 @@ const eventsPushedAlready =
   !!window.rudderanalytics &&
   window.rudderanalytics.push == Array.prototype.push;
 
-let argumentsArray = window.rudderanalytics;
-
+const argumentsArray = window.rudderanalytics;
 /**
- * Usage of the below variable:
- * It will be used to store the methods that are called before load.
+ * Iterate the call stack until we find load call and
+ * then shift it to the beginning.
+ *
+ * Ex: Say the call stack currently have [page, identify, load, track]
+ * It will become [load, page, identify, track]
  */
-const apiCallsBeforeLoad = [];
-
-while (argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load") {
-  // Collect the methods that are called before load in "apiCallsBeforeLoad" array
-  apiCallsBeforeLoad.push(argumentsArray.shift());
+for (let i = 0; i < argumentsArray.length; i++) {
+  if (argumentsArray[i] && argumentsArray[i][0] === "load") {
+    argumentsArray.unshift(argumentsArray.splice(i, 1)[0]);
+    break;
+  }
 }
+
 if (
   argumentsArray &&
   argumentsArray.length > 0 &&
@@ -1358,17 +1361,6 @@ if (
   logger.debug("=====from init, calling method:: ", method);
   instance[method](...argumentsArray[0]);
   argumentsArray.shift();
-  /**
-   * After load is called
-   * Check if the array has any method that is called before load
-   * If present, Push the calls at the front of the call stack
-   *
-   * Ex: Say the call stack currently have [page, identify, load, track]
-   * It will become [load, page, identify, track]
-   */
-  if (apiCallsBeforeLoad.length) {
-    argumentsArray = apiCallsBeforeLoad.concat(argumentsArray);
-  }
 }
 
 // once loaded, parse querystring of the page url to send events
