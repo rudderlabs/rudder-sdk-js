@@ -294,63 +294,49 @@ function findAllEnabledDestinations(
   if (sdkSuppliedIntegrations.All !== undefined) {
     allValue = sdkSuppliedIntegrations.All;
   }
+  const intgData = [];
   if (typeof configPlaneEnabledIntegrations[0] === "string") {
     configPlaneEnabledIntegrations.forEach((intg) => {
-      if (!allValue) {
-        // All false ==> check if intg true supplied
-        if (
-          sdkSuppliedIntegrations[intg] != undefined &&
-          sdkSuppliedIntegrations[intg] == true
-        ) {
-          enabledList.push(intg);
-        }
-      } else {
-        // All true ==> intg true by default
-        let intgValue = true;
-        // check if intg false supplied
-        if (
-          sdkSuppliedIntegrations[intg] != undefined &&
-          sdkSuppliedIntegrations[intg] == false
-        ) {
-          intgValue = false;
-        }
-        if (intgValue) {
-          enabledList.push(intg);
-        }
-      }
+      intgData.push({
+        name: intg,
+        intObj: intg,
+      });
     });
-
-    return enabledList;
-  }
-
-  if (typeof configPlaneEnabledIntegrations[0] === "object") {
+  } else if (typeof configPlaneEnabledIntegrations[0] === "object") {
     configPlaneEnabledIntegrations.forEach((intg) => {
-      if (!allValue) {
-        // All false ==> check if intg true supplied
-        if (
-          sdkSuppliedIntegrations[intg.name] != undefined &&
-          sdkSuppliedIntegrations[intg.name] == true
-        ) {
-          enabledList.push(intg);
-        }
-      } else {
-        // All true ==> intg true by default
-        let intgValue = true;
-        // check if intg false supplied
-        if (
-          sdkSuppliedIntegrations[intg.name] != undefined &&
-          sdkSuppliedIntegrations[intg.name] == false
-        ) {
-          intgValue = false;
-        }
-        if (intgValue) {
-          enabledList.push(intg);
-        }
-      }
+      intgData.push({
+        name: intg.name,
+        intObj: intg,
+      });
     });
-
-    return enabledList;
   }
+
+  intgData.forEach((intgName, intObj) => {
+    if (!allValue) {
+      // All false ==> check if intg true supplied
+      if (
+        sdkSuppliedIntegrations[intgName] != undefined &&
+        sdkSuppliedIntegrations[intgName] == true
+      ) {
+        enabledList.push(intObj);
+      }
+    } else {
+      // All true ==> intg true by default
+      let intgValue = true;
+      // check if intg false supplied
+      if (
+        sdkSuppliedIntegrations[intgName] != undefined &&
+        sdkSuppliedIntegrations[intgName] == false
+      ) {
+        intgValue = false;
+      }
+      if (intgValue) {
+        enabledList.push(intObj);
+      }
+    }
+  });
+
+  return enabledList;
 }
 
 /**
