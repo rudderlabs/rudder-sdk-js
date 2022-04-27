@@ -298,20 +298,20 @@ function findAllEnabledDestinations(
   if (typeof configPlaneEnabledIntegrations[0] === "string") {
     configPlaneEnabledIntegrations.forEach((intg) => {
       intgData.push({
-        name: intg,
+        intgName: intg,
         intObj: intg,
       });
     });
   } else if (typeof configPlaneEnabledIntegrations[0] === "object") {
     configPlaneEnabledIntegrations.forEach((intg) => {
       intgData.push({
-        name: intg.name,
+        intgName: intg.name,
         intObj: intg,
       });
     });
   }
 
-  intgData.forEach((intgName, intObj) => {
+  intgData.forEach(({ intgName, intObj }) => {
     if (!allValue) {
       // All false ==> check if intg true supplied
       if (
