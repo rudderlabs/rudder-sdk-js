@@ -1344,11 +1344,13 @@ const argumentsArray = window.rudderanalytics;
  * Ex: Say the call stack currently have [page, identify, load, track]
  * It will become [load, page, identify, track]
  */
-for (let i = 0; i < argumentsArray.length; i++) {
+let i = 0;
+while (i < argumentsArray.length) {
   if (argumentsArray[i] && argumentsArray[i][0] === "load") {
     argumentsArray.unshift(argumentsArray.splice(i, 1)[0]);
     break;
   }
+  i += 1;
 }
 
 if (
