@@ -1345,7 +1345,7 @@ const argumentsArray = window.rudderanalytics;
  * It will become [load, page, identify, track]
  */
 let i = 0;
-while (argumentsArray && i < argumentsArray.length) {
+while (Array.isArray(argumentsArray) && i < argumentsArray.length) {
   if (argumentsArray[i] && argumentsArray[i][0] === "load") {
     argumentsArray.unshift(argumentsArray.splice(i, 1)[0]);
     break;
@@ -1354,7 +1354,7 @@ while (argumentsArray && i < argumentsArray.length) {
 }
 
 if (
-  argumentsArray &&
+  Array.isArray(argumentsArray) &&
   argumentsArray.length > 0 &&
   argumentsArray[0][0] === "load"
 ) {
