@@ -1345,12 +1345,20 @@ const argumentsArray = window.rudderanalytics;
  * It will become [load, page, identify, track]
  */
 let i = 0;
+let loadPresent = false;
 while (i < argumentsArray.length) {
   if (argumentsArray[i] && argumentsArray[i][0] === "load") {
     argumentsArray.unshift(argumentsArray.splice(i, 1)[0]);
+    loadPresent = true;
     break;
   }
   i += 1;
+}
+/**
+ * When load is not present in the call stack restrict other events from proceeding
+ */
+if (!loadPresent) {
+  argumentsArray.length = 0;
 }
 
 if (
