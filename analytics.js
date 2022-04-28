@@ -1370,7 +1370,7 @@ const parsedQueryObject = instance.parseQueryString(window.location.search);
 
 pushQueryStringDataToAnalyticsArray(parsedQueryObject);
 
-if (argumentsArray && argumentsArray.length > 0) {
+if (Array.isArray(argumentsArray) && argumentsArray.length > 0) {
   for (let i = 0; i < argumentsArray.length; i++) {
     instance.toBeProcessedArray.push(argumentsArray[i]);
   }
