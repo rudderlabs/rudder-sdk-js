@@ -1337,20 +1337,31 @@ const eventsPushedAlready =
   window.rudderanalytics.push == Array.prototype.push;
 
 const argumentsArray = window.rudderanalytics;
+const isArray = Array.isArray(argumentsArray);
+if (isArray) {
+  /**
+   * Iterate the call stack until we find load call and
+   * then shift it to the beginning.
+   *
+   * Ex: Say the call stack currently have [page, identify, load, track]
+   * It will become [load, page, identify, track]
+   */
+  let i = 0;
+  while (i < argumentsArray.length) {
+    if (argumentsArray[i] && argumentsArray[i][0] === "load") {
+      argumentsArray.unshift(argumentsArray.splice(i, 1)[0]);
+      break;
+    }
+    i += 1;
+  }
 
-while (argumentsArray && argumentsArray[0] && argumentsArray[0][0] !== "load") {
-  argumentsArray.shift();
-}
-if (
-  argumentsArray &&
-  argumentsArray.length > 0 &&
-  argumentsArray[0][0] === "load"
-) {
-  const method = argumentsArray[0][0];
-  argumentsArray[0].shift();
-  logger.debug("=====from init, calling method:: ", method);
-  instance[method](...argumentsArray[0]);
-  argumentsArray.shift();
+  if (argumentsArray.length > 0 && argumentsArray[0][0] === "load") {
+    const method = argumentsArray[0][0];
+    argumentsArray[0].shift();
+    logger.debug("=====from init, calling method:: ", method);
+    instance[method](...argumentsArray[0]);
+    argumentsArray.shift();
+  }
 }
 
 // once loaded, parse querystring of the page url to send events
@@ -1358,7 +1369,7 @@ const parsedQueryObject = instance.parseQueryString(window.location.search);
 
 pushQueryStringDataToAnalyticsArray(parsedQueryObject);
 
-if (argumentsArray && argumentsArray.length > 0) {
+if (isArray && argumentsArray.length > 0) {
   for (let i = 0; i < argumentsArray.length; i++) {
     instance.toBeProcessedArray.push(argumentsArray[i]);
   }
