@@ -168,6 +168,9 @@ class FacebookPixel {
       if (products && Array.isArray(products)) {
         products.forEach((product) => {
           const productId = product.product_id || product.sku || product.id;
+          if (!isDefined(productId)) {
+            logger.error ("Product id is required. Event not sent");
+          }
           if (productId) {
             contentIds.push(productId);
             contents.push({
@@ -224,6 +227,9 @@ class FacebookPixel {
         }
       }, legacyTo);
     } else if (event === "Product Viewed") {
+      if(!isDefinedAndNotNullAndNotEmpty(prodId)) {
+        logger.error("Product id is required. Event not sent");
+      }
       window.fbq(
         "trackSingle",
         self.pixelId,
@@ -272,6 +278,9 @@ class FacebookPixel {
         }
       }, legacyTo);
     } else if (event === "Product Added") {
+      if(!isDefinedAndNotNullAndNotEmpty(prodId)) {
+        logger.error("Product id is required. Event not sent");
+      }
       window.fbq(
         "trackSingle",
         self.pixelId,
@@ -354,6 +363,9 @@ class FacebookPixel {
             quantity: products[i].quantity || 1,
             item_price: products[i].price
           };
+          if (!isDefined(content.id)) {
+            logger.error("Product id is required. Event not sent")
+          }
 
           contents.push(content);
         }
@@ -445,6 +457,9 @@ class FacebookPixel {
             quantity: product.quantity || 1,
             item_price: product.price,
           };
+          if (!isDefined(content.id)) {
+            logger.error("Product id is required. Event not sent")
+          }
           contents.push(content);
         }
 
