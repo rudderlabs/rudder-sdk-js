@@ -351,7 +351,7 @@ class FacebookPixel {
           contentIds.push(pId);
           const content = {
             id: pId,
-            quantity: products[i].quantity,
+            quantity: products[i].quantity || 1,
             item_price: products[i].price
           };
 
@@ -442,7 +442,7 @@ class FacebookPixel {
           contentIds.push(pId);
           const content = {
             id: pId,
-            quantity: product.quantity,
+            quantity: product.quantity || 1,
             item_price: product.price,
           };
           contents.push(content);
