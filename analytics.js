@@ -1227,22 +1227,28 @@ instance.initializeCallbacks();
 instance.registerCallbacks(false);
 
 const defaultMethod = "load";
-const argumentsArray = window.rudderanalytics || [];
-
-// Skip all the methods queued prior to the 'defaultMethod'
-while (argumentsArray.length > 0) {
-  if (argumentsArray[0][0] === defaultMethod) {
-    instance.toBeProcessedArray.push(argumentsArray[0]);
-    argumentsArray.shift();
-    break;
+const argumentsArray = window.rudderanalytics;
+const isValidArgsArray = Array.isArray(argumentsArray);
+if (isValidArgsArray) {
+  /**
+   * Iterate the buffered API calls until we find load call and 
+   * queue it first for processing
+   */
+  let i = 0;
+  while (i < argumentsArray.length) {
+    if (argumentsArray[i] && argumentsArray[i][0] === defaultMethod) {
+      instance.toBeProcessedArray.push(argumentsArray[i]);
+      argumentsArray.splice(i, 1);
+      break;
+    }
+    i += 1;
   }
-  argumentsArray.shift();
 }
 
 // parse querystring of the page url to send events
 parseQueryString(window.location.search);
 
-if (Array.isArray(argumentsArray))
+if (isValidArgsArray)
   argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
 
 processDataInAnalyticsArray(instance);
