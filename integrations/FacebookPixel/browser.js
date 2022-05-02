@@ -153,7 +153,7 @@ class FacebookPixel {
       quantity = properties.quantity;
       category = properties.category;
       prodId = properties.product_id || properties.id || properties.sku || "";
-      prodName = properties.product_name;
+      prodName = properties.product_name || properties.name;
       value = properties.value;
       price = properties.price;
       query = properties.query;
