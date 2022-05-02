@@ -175,7 +175,7 @@ class FacebookPixel {
             contentIds.push(productId);
             contents.push({
               id: productId,
-              quantity: product.quantity || 1,
+              quantity: product.quantity || quantity || 1,
               item_price: product.price
             });
           }
@@ -360,8 +360,8 @@ class FacebookPixel {
           contentIds.push(pId);
           const content = {
             id: pId,
-            quantity: products[i].quantity || 1,
-            item_price: products[i].price
+            quantity: products[i].quantity || quantity || 1,
+            item_price: products[i].price || price
           };
           if (!isDefined(content.id)) {
             logger.error("Product id is required. Event not sent")
@@ -454,8 +454,8 @@ class FacebookPixel {
           contentIds.push(pId);
           const content = {
             id: pId,
-            quantity: product.quantity || 1,
-            item_price: product.price,
+            quantity: product.quantity || qunatity || 1,
+            item_price: product.price || price,
           };
           if (!isDefined(content.id)) {
             logger.error("Product id is required. Event not sent")
