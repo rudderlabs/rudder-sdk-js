@@ -5,7 +5,11 @@ import sha256 from "crypto-js/sha256";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import getEventId from "./utils";
-import { getHashFromArray } from "../utils/commonUtils";
+import {
+  getHashFromArray,
+  isDefinedAndNotNullAndNotEmpty,
+  isDefined,
+} from "../utils/commonUtils";
 import { NAME, traitsMapper } from "./constants";
 import { constructPayload } from "../../utils/utils";
 
@@ -169,14 +173,14 @@ class FacebookPixel {
         products.forEach((product) => {
           const productId = product.product_id || product.sku || product.id;
           if (!isDefined(productId)) {
-            logger.error ("Product id is required. Event not sent");
+            logger.error("Product id is required. Event not sent");
           }
           if (productId) {
             contentIds.push(productId);
             contents.push({
               id: productId,
               quantity: product.quantity || quantity || 1,
-              item_price: product.price
+              item_price: product.price,
             });
           }
         });
@@ -227,7 +231,7 @@ class FacebookPixel {
         }
       }, legacyTo);
     } else if (event === "Product Viewed") {
-      if(!isDefinedAndNotNullAndNotEmpty(prodId)) {
+      if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
         logger.error("Product id is required. Event not sent");
       }
       window.fbq(
@@ -278,7 +282,7 @@ class FacebookPixel {
         }
       }, legacyTo);
     } else if (event === "Product Added") {
-      if(!isDefinedAndNotNullAndNotEmpty(prodId)) {
+      if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
         logger.error("Product id is required. Event not sent");
       }
       window.fbq(
@@ -356,15 +360,16 @@ class FacebookPixel {
       const contents = [];
       if (products) {
         for (let i = 0; i < products.length; i++) {
-          const pId = products[i].product_id || products[i].sku || products[i].id;
+          const pId =
+            products[i].product_id || products[i].sku || products[i].id;
           contentIds.push(pId);
           const content = {
             id: pId,
             quantity: products[i].quantity || quantity || 1,
-            item_price: products[i].price || price
+            item_price: products[i].price || price,
           };
           if (!isDefined(content.id)) {
-            logger.error("Product id is required. Event not sent")
+            logger.error("Product id is required. Event not sent");
           }
 
           contents.push(content);
@@ -454,11 +459,11 @@ class FacebookPixel {
           contentIds.push(pId);
           const content = {
             id: pId,
-            quantity: product.quantity || qunatity || 1,
+            quantity: product.quantity || properties.quantity || 1,
             item_price: product.price || price,
           };
           if (!isDefined(content.id)) {
-            logger.error("Product id is required. Event not sent")
+            logger.error("Product id is required. Event not sent");
           }
           contents.push(content);
         }
