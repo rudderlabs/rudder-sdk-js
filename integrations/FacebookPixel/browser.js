@@ -170,10 +170,12 @@ class FacebookPixel {
       const contents = [];
 
       if (products && Array.isArray(products)) {
-        products.forEach((product) => {
+        products.forEach((product, index) => {
           const productId = product.product_id || product.sku || product.id;
           if (!isDefined(productId)) {
-            logger.error("Product id is required. Event not sent");
+            logger.error(
+              `Product id is required for product ${index}. Event not sent`
+            );
           }
           if (productId) {
             contentIds.push(productId);
@@ -232,6 +234,7 @@ class FacebookPixel {
       }, legacyTo);
     } else if (event === "Product Viewed") {
       if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
+        // not adding index, as only one product is supposed to be present here
         logger.error("Product id is required. Event not sent");
       }
       window.fbq(
@@ -283,6 +286,7 @@ class FacebookPixel {
       }, legacyTo);
     } else if (event === "Product Added") {
       if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
+        // not adding index, as only one product is supposed to be present here
         logger.error("Product id is required. Event not sent");
       }
       window.fbq(
@@ -369,7 +373,9 @@ class FacebookPixel {
             item_price: products[i].price || price,
           };
           if (!isDefined(content.id)) {
-            logger.error("Product id is required. Event not sent");
+            logger.error(
+              `Product id is required for product ${i}. Event not sent`
+            );
           }
 
           contents.push(content);
@@ -463,7 +469,9 @@ class FacebookPixel {
             item_price: product.price || price,
           };
           if (!isDefined(content.id)) {
-            logger.error("Product id is required. Event not sent");
+            logger.error(
+              `Product id is required for product ${i}. Event not sent`
+            );
           }
           contents.push(content);
         }
