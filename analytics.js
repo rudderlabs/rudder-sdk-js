@@ -45,6 +45,7 @@ import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
+import loadBugsnag from "./metrics/error-report";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -157,6 +158,9 @@ class Analytics {
       logger.debug(`===in process response=== ${status}`);
       if (typeof response === "string") {
         response = JSON.parse(response);
+      }
+      if (true) {
+        // logic to be added
       }
       if (
         response.source.useAutoTracking &&
