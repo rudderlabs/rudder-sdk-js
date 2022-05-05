@@ -2,6 +2,7 @@
 import is from "is";
 import each from "@ndhoule/each";
 import sha256 from "crypto-js/sha256";
+import get from "get-value";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import getEventId from "./utils";
@@ -105,6 +106,9 @@ class FacebookPixel {
         ];
         // this construcPayload will help to map the traits in the same way as cloud mode
         payload = constructPayload(rudderElement.message, traitsMapper);
+        if (payload.external_id) {
+          payload.external_id = sha256(payload.external_id);
+        }
 
         // here we are sending other traits apart from the reserved ones.
         reserve.forEach((element) => {
@@ -153,14 +157,18 @@ class FacebookPixel {
     let price;
     let query;
     if (properties) {
-      products = properties.products;
-      quantity = properties.quantity;
-      category = properties.category;
-      prodId = properties.product_id || properties.id || properties.sku || "";
-      prodName = properties.product_name || properties.name;
-      value = properties.value;
-      price = properties.price;
-      query = properties.query;
+      products = get(properties, "products");
+      quantity = get(properties, "quantity");
+      category = get(properties, "category");
+      prodId =
+        get(properties, "product_id") ||
+        get(properties, "id") ||
+        get(properties, "sku") ||
+        "";
+      prodName = get(properties, "product_name") || get(properties, "name");
+      value = get(properties, "value");
+      price = get(properties, "price");
+      query = get(properties, "query");
     }
     const customProperties = this.buildPayLoad(rudderElement, true);
     const derivedEventID = getEventId(rudderElement.message);
@@ -171,7 +179,10 @@ class FacebookPixel {
 
       if (products && Array.isArray(products)) {
         products.forEach((product, index) => {
-          const productId = product.product_id || product.sku || product.id;
+          const productId =
+            get(product, "product_id") ||
+            get(product, "sku") ||
+            get(product, "id");
           if (!isDefined(productId)) {
             logger.error(
               `Product id is required for product ${index}. Event not sent`
@@ -181,8 +192,8 @@ class FacebookPixel {
             contentIds.push(productId);
             contents.push({
               id: productId,
-              quantity: product.quantity || quantity || 1,
-              item_price: product.price,
+              quantity: get(product, "quantity") || quantity || 1,
+              item_price: get(product, "price"),
             });
           }
         });
@@ -363,23 +374,24 @@ class FacebookPixel {
       const contentIds = [];
       const contents = [];
       if (products) {
-        for (let i = 0; i < products.length; i++) {
+        products.forEach((product, index) => {
           const pId =
-            products[i].product_id || products[i].sku || products[i].id;
+            get(product, "product_id") ||
+            get(product, "sku") ||
+            get(product, "id");
           contentIds.push(pId);
           const content = {
             id: pId,
-            quantity: products[i].quantity || quantity || 1,
-            item_price: products[i].price || price,
+            quantity: get(product, "quantity") || quantity || 1,
+            item_price: get(product, "price") || price,
           };
           if (!isDefined(content.id)) {
             logger.error(
-              `Product id is required for product ${i}. Event not sent`
+              `Product id is required for product ${index}. Event not sent`
             );
           }
-
           contents.push(content);
-        }
+        });
         // ref: https://developers.facebook.com/docs/meta-pixel/implementation/marketing-api#purchase
         // "trackSingle" feature is :
         // https://developers.facebook.com/ads/blog/post/v2/2017/11/28/event-tracking-with-multiple-pixels-tracksingle/
@@ -461,12 +473,15 @@ class FacebookPixel {
       if (products) {
         for (let i = 0; i < products.length; i++) {
           const product = products[i];
-          const pId = product.product_id || product.sku || product.id;
+          const pId =
+            get(product, "product_id") ||
+            get(product, "sku") ||
+            get(product, "id");
           contentIds.push(pId);
           const content = {
             id: pId,
-            quantity: product.quantity || properties.quantity || 1,
-            item_price: product.price || price,
+            quantity: get(product, "quantity") || quantity || 1,
+            item_price: get(product, "price") || price,
           };
           if (!isDefined(content.id)) {
             logger.error(
