@@ -128,6 +128,9 @@ class FacebookPixel {
     if (properties) {
       const { revenue, currency } = properties;
       revValue = this.formatRevenue(revenue);
+      if (!isDefined(revValue)) {
+        return;
+      }
       currVal = currency || "USD";
     }
     const payload = this.buildPayLoad(rudderElement, true);
@@ -157,18 +160,14 @@ class FacebookPixel {
     let price;
     let query;
     if (properties) {
-      products = get(properties, "products");
-      quantity = get(properties, "quantity");
-      category = get(properties, "category");
-      prodId =
-        get(properties, "product_id") ||
-        get(properties, "id") ||
-        get(properties, "sku") ||
-        "";
-      prodName = get(properties, "product_name") || get(properties, "name");
-      value = get(properties, "value");
-      price = get(properties, "price");
-      query = get(properties, "query");
+      products = properties.products;
+      quantity = properties.quantity;
+      category = properties.category;
+      prodId = properties.product_id || properties.id || properties.sku || "";
+      prodName = properties.product_name;
+      value = properties.value;
+      price = properties.price;
+      query = properties.query;
     }
     const customProperties = this.buildPayLoad(rudderElement, true);
     const derivedEventID = getEventId(rudderElement.message);
@@ -178,15 +177,17 @@ class FacebookPixel {
       const contents = [];
 
       if (products && Array.isArray(products)) {
-        products.forEach((product, index) => {
+        for (let i = 0; i < products.length; i++) {
+          const product = products[i];
           const productId =
             get(product, "product_id") ||
             get(product, "sku") ||
             get(product, "id");
           if (!isDefined(productId)) {
             logger.error(
-              `Product id is required for product ${index}. Event not sent`
+              `Product id is required for product ${i}. Event not sent`
             );
+            return;
           }
           if (productId) {
             contentIds.push(productId);
@@ -196,7 +197,7 @@ class FacebookPixel {
               item_price: get(product, "price"),
             });
           }
-        });
+        }
       } else {
         logger.error("No product array found");
       }
@@ -247,6 +248,7 @@ class FacebookPixel {
       if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
         // not adding index, as only one product is supposed to be present here
         logger.error("Product id is required. Event not sent");
+        return;
       }
       window.fbq(
         "trackSingle",
@@ -299,6 +301,7 @@ class FacebookPixel {
       if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
         // not adding index, as only one product is supposed to be present here
         logger.error("Product id is required. Event not sent");
+        return;
       }
       window.fbq(
         "trackSingle",
@@ -374,7 +377,8 @@ class FacebookPixel {
       const contentIds = [];
       const contents = [];
       if (products) {
-        products.forEach((product, index) => {
+        for (let i = 0; i < products.length; i++) {
+          const product = products[i];
           const pId =
             get(product, "product_id") ||
             get(product, "sku") ||
@@ -387,11 +391,12 @@ class FacebookPixel {
           };
           if (!isDefined(content.id)) {
             logger.error(
-              `Product id is required for product ${index}. Event not sent`
+              `Product id is required for product ${i}. Event not sent`
             );
+            return;
           }
           contents.push(content);
-        });
+        }
         // ref: https://developers.facebook.com/docs/meta-pixel/implementation/marketing-api#purchase
         // "trackSingle" feature is :
         // https://developers.facebook.com/ads/blog/post/v2/2017/11/28/event-tracking-with-multiple-pixels-tracksingle/
@@ -487,6 +492,7 @@ class FacebookPixel {
             logger.error(
               `Product id is required for product ${i}. Event not sent`
             );
+            return;
           }
           contents.push(content);
         }
@@ -632,7 +638,7 @@ class FacebookPixel {
     if (!Number.isNaN(formattedRevenue)) {
       return formattedRevenue;
     }
-    logger.error("Revenue could not be converted to number")
+    logger.error("Revenue could not be converted to number");
   }
 
   buildPayLoad(rudderElement, isStandardEvent) {
