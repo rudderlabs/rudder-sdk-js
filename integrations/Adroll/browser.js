@@ -50,6 +50,7 @@ class Adroll {
       get(message, "context.traits.email") || get(message, "traits.email");
     window.__adroll.record_adroll_email("segment");
   }
+  // record_adroll_email is used to attach a image pixel to the page connected to the user identified
 
   track(rudderElement) {
     const { userId, event } = rudderElement.message;
@@ -81,6 +82,8 @@ class Adroll {
       );
     }
   }
+  // record_user fires the correct pixel in accordance with the event configured in the dashboard
+  // and the segment associated in adroll
 }
 
 export default Adroll;
