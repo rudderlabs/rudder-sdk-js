@@ -15,7 +15,7 @@ class Adroll {
     this.name = NAME;
     window.adroll_adv_id = this.advId;
     window.adroll_pix_id = this.pixId;
-    this.events = config.eventsMap || [];
+    this.eventsMap = config.eventsMap || [];
   }
 
   init() {
@@ -46,32 +46,25 @@ class Adroll {
       logger.error("User parameter (email) is required for identify call");
       return;
     }
-    window._adroll_email =
-      get(message, "context.traits.email") || get(message, "traits.email");
+    window._adroll_email = email;
     window.__adroll.record_adroll_email("segment");
   }
   // record_adroll_email is used to attach a image pixel to the page connected to the user identified
 
   track(rudderElement) {
-    const { userId, event } = rudderElement.message;
-    const { properties } = rudderElement.message;
-    properties.adroll_conversion_value = get(
-      rudderElement.message.properties,
-      "revenue"
-    );
+    const { message } = rudderElement;
+    const { userId, event, properties } = message;
+    properties.adroll_conversion_value =
+      get(message, "properties.revenue") || 0;
     if (userId) {
       properties.user_id = userId;
-    }
-    if (properties.price) {
-      properties.adroll_conversion_value = properties.price;
-      delete properties.price;
     }
     if (properties.productId) {
       properties.product_id = properties.productId;
       delete properties.productId;
     }
 
-    const eventsHashmap = getHashFromArray(this.events);
+    const eventsHashmap = getHashFromArray(this.eventsMap);
     if (eventsHashmap[event.toLowerCase()]) {
       const segmentId = eventsHashmap[event.toLowerCase()];
       properties.adroll_segments = segmentId;
