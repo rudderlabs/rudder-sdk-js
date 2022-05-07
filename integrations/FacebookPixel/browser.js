@@ -129,6 +129,7 @@ class FacebookPixel {
       const { revenue, currency } = properties;
       revValue = this.formatRevenue(revenue);
       if (!isDefined(revValue)) {
+        logger.error("Revenue could not be converted to number");
         return;
       }
       currVal = currency || "USD";
@@ -179,23 +180,22 @@ class FacebookPixel {
       if (products && Array.isArray(products)) {
         for (let i = 0; i < products.length; i++) {
           const product = products[i];
-          const productId =
-            get(product, "product_id") ||
-            get(product, "sku") ||
-            get(product, "id");
-          if (!isDefined(productId)) {
-            logger.error(
-              `Product id is required for product ${i}. Event not sent`
-            );
-            return;
-          }
-          if (productId) {
-            contentIds.push(productId);
-            contents.push({
-              id: productId,
-              quantity: get(product, "quantity") || quantity || 1,
-              item_price: get(product, "price"),
-            });
+          if (product) {
+            const productId = product.product_id || product.sku || product.id;
+            if (!isDefined(productId)) {
+              logger.error(
+                `Product id is required for product ${i}. Event not sent`
+              );
+              return;
+            }
+            if (productId) {
+              contentIds.push(productId);
+              contents.push({
+                id: productId,
+                quantity: product.quantity || quantity || 1,
+                item_price: product.price,
+              });
+            }
           }
         }
       } else {
@@ -379,23 +379,22 @@ class FacebookPixel {
       if (products) {
         for (let i = 0; i < products.length; i++) {
           const product = products[i];
-          const pId =
-            get(product, "product_id") ||
-            get(product, "sku") ||
-            get(product, "id");
-          contentIds.push(pId);
-          const content = {
-            id: pId,
-            quantity: get(product, "quantity") || quantity || 1,
-            item_price: get(product, "price") || price,
-          };
-          if (!isDefined(content.id)) {
-            logger.error(
-              `Product id is required for product ${i}. Event not sent`
-            );
-            return;
+          if (product) {
+            const pId = product.product_id || product.sku || product.id;
+            if (!isDefined(pId)) {
+              logger.error(
+                `Product id is required for product ${i}. Event not sent`
+              );
+              return;
+            }
+            contentIds.push(pId);
+            const content = {
+              id: pId,
+              quantity: product.quantity || quantity || 1,
+              item_price: product.price || price,
+            };
+            contents.push(content);
           }
-          contents.push(content);
         }
         // ref: https://developers.facebook.com/docs/meta-pixel/implementation/marketing-api#purchase
         // "trackSingle" feature is :
@@ -478,23 +477,22 @@ class FacebookPixel {
       if (products) {
         for (let i = 0; i < products.length; i++) {
           const product = products[i];
-          const pId =
-            get(product, "product_id") ||
-            get(product, "sku") ||
-            get(product, "id");
-          contentIds.push(pId);
-          const content = {
-            id: pId,
-            quantity: get(product, "quantity") || quantity || 1,
-            item_price: get(product, "price") || price,
-          };
-          if (!isDefined(content.id)) {
-            logger.error(
-              `Product id is required for product ${i}. Event not sent`
-            );
-            return;
+          if (product) {
+            const pId = product.product_id || product.sku || product.id;
+            if (!isDefined(pId)) {
+              logger.error(
+                `Product id is required for product ${i}. Event not sent`
+              );
+              return;
+            }
+            contentIds.push(pId);
+            const content = {
+              id: pId,
+              quantity: product.quantity || quantity || 1,
+              item_price: product.price || price,
+            };
+            contents.push(content);
           }
-          contents.push(content);
         }
 
         if (!contentCategory && products[0] && products[0].category) {
@@ -638,7 +636,6 @@ class FacebookPixel {
     if (!Number.isNaN(formattedRevenue)) {
       return formattedRevenue;
     }
-    logger.error("Revenue could not be converted to number");
   }
 
   buildPayLoad(rudderElement, isStandardEvent) {
