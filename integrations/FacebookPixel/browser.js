@@ -107,7 +107,7 @@ class FacebookPixel {
         // this construcPayload will help to map the traits in the same way as cloud mode
         payload = constructPayload(rudderElement.message, traitsMapper);
         if (payload.external_id) {
-          payload.external_id = sha256(payload.external_id);
+          payload.external_id = sha256(payload.external_id).toString();
         }
 
         // here we are sending other traits apart from the reserved ones.
