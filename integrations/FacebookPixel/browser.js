@@ -481,7 +481,7 @@ class FacebookPixel {
             const pId = product.product_id || product.sku || product.id;
             if (!isDefined(pId)) {
               logger.error(
-                `Product id is required for product ${i}. Event not sent`
+                `Product ID is missing for product ${i}. Event dropped.`
               );
               return;
             }
