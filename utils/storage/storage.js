@@ -273,7 +273,7 @@ class Storage {
         }
         // If anonymousId is not present in local storage and check cookie support exists
         // fetch it from cookie
-        if (!anonId && Cookie.IsCookieSupported()) {
+        if (!anonId && Cookie.isSupportAvailable) {
           anonId = Cookie.get(anonymousIdKeyMap[key]);
         }
         return anonId;
