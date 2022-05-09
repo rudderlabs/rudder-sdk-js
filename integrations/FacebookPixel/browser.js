@@ -300,7 +300,7 @@ class FacebookPixel {
     } else if (event === "Product Added") {
       if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
         // not adding index, as only one product is supposed to be present here
-        logger.error("Product id is required. Event not sent");
+        logger.error("Product ID is required. Event dropped.");
         return;
       }
       window.fbq(
