@@ -2,10 +2,15 @@
 import is from "is";
 import each from "@ndhoule/each";
 import sha256 from "crypto-js/sha256";
+import get from "get-value";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import getEventId from "./utils";
-import { getHashFromArray } from "../utils/commonUtils";
+import {
+  getHashFromArray,
+  isDefinedAndNotNullAndNotEmpty,
+  isDefined,
+} from "../utils/commonUtils";
 import { NAME, traitsMapper } from "./constants";
 import { constructPayload } from "../../utils/utils";
 
@@ -104,6 +109,9 @@ class FacebookPixel {
         ];
         // this construcPayload will help to map the traits in the same way as cloud mode
         payload = constructPayload(rudderElement.message, traitsMapper);
+        if (payload.external_id) {
+          payload.external_id = sha256(payload.external_id).toString();
+        }
 
         // here we are sending other traits apart from the reserved ones.
         reserve.forEach((element) => {
@@ -123,6 +131,10 @@ class FacebookPixel {
     if (properties) {
       const { revenue, currency } = properties;
       revValue = this.formatRevenue(revenue);
+      if (!isDefined(revValue)) {
+        logger.error("'properties.revenue' could not be converted to a number");
+        return;
+      }
       currVal = currency || "USD";
     }
     const payload = this.buildPayLoad(rudderElement, true);
@@ -169,16 +181,25 @@ class FacebookPixel {
       const contents = [];
 
       if (products && Array.isArray(products)) {
-        products.forEach((product) => {
-          const productId = product.product_id;
-          if (productId) {
-            contentIds.push(productId);
-            contents.push({
-              id: productId,
-              quantity: quantity || 1,
-            });
+        for (let i = 0; i < products.length; i++) {
+          const product = products[i];
+          if (product) {
+            const productId = product.product_id || product.sku || product.id;
+            if (isDefined(productId)) {
+              contentIds.push(productId);
+              contents.push({
+                id: productId,
+                quantity: product.quantity || quantity || 1,
+                item_price: product.price,
+              });
+            } else {
+              logger.error(
+                `Product ID is missing for product ${i}. Event dropped.`
+              );
+              return;
+            }
           }
-        });
+        }
       } else {
         logger.error("No product array found");
       }
@@ -226,6 +247,11 @@ class FacebookPixel {
         }
       }, legacyTo);
     } else if (event === "Product Viewed") {
+      if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
+        // not adding index, as only one product is supposed to be present here
+        logger.error("Product ID is required. Event dropped.");
+        return;
+      }
       window.fbq(
         "trackSingle",
         self.pixelId,
@@ -274,6 +300,11 @@ class FacebookPixel {
         }
       }, legacyTo);
     } else if (event === "Product Added") {
+      if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
+        // not adding index, as only one product is supposed to be present here
+        logger.error("Product ID is required. Event dropped.");
+        return;
+      }
       window.fbq(
         "trackSingle",
         self.pixelId,
@@ -349,16 +380,23 @@ class FacebookPixel {
       const contents = [];
       if (products) {
         for (let i = 0; i < products.length; i++) {
-          const pId = products[i].product_id;
-          contentIds.push(pId);
-          const content = {
-            id: pId,
-            quantity,
-          };
-
-          content.item_price = price;
-
-          contents.push(content);
+          const product = products[i];
+          if (product) {
+            const pId = product.product_id || product.sku || product.id;
+            if (!isDefined(pId)) {
+              logger.error(
+                `Product ID is missing for product ${i}. Event dropped.`
+              );
+              return;
+            }
+            contentIds.push(pId);
+            const content = {
+              id: pId,
+              quantity: product.quantity || quantity || 1,
+              item_price: product.price || price,
+            };
+            contents.push(content);
+          }
         }
         // ref: https://developers.facebook.com/docs/meta-pixel/implementation/marketing-api#purchase
         // "trackSingle" feature is :
@@ -441,17 +479,22 @@ class FacebookPixel {
       if (products) {
         for (let i = 0; i < products.length; i++) {
           const product = products[i];
-          const pId = product.product_id;
-          contentIds.push(pId);
-          const content = {
-            id: pId,
-            quantity,
-            item_price: price,
-          };
-
-          content.item_price = price;
-
-          contents.push(content);
+          if (product) {
+            const pId = product.product_id || product.sku || product.id;
+            if (!isDefined(pId)) {
+              logger.error(
+                `Product ID is missing for product ${i}. Event dropped.`
+              );
+              return;
+            }
+            contentIds.push(pId);
+            const content = {
+              id: pId,
+              quantity: product.quantity || quantity || 1,
+              item_price: product.price || price,
+            };
+            contents.push(content);
+          }
         }
 
         if (!contentCategory && products[0] && products[0].category) {
@@ -595,7 +638,6 @@ class FacebookPixel {
     if (!Number.isNaN(formattedRevenue)) {
       return formattedRevenue;
     }
-    logger.error("Revenue could not be converted to number")
   }
 
   buildPayLoad(rudderElement, isStandardEvent) {
