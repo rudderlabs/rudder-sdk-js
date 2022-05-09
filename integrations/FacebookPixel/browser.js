@@ -182,19 +182,18 @@ class FacebookPixel {
           const product = products[i];
           if (product) {
             const productId = product.product_id || product.sku || product.id;
-            if (!isDefined(productId)) {
-              logger.error(
-                `Product ID is missing for product ${i}. Event dropped.`
-              );
-              return;
-            }
-            if (productId) {
+            if (isDefined(productId)) {
               contentIds.push(productId);
               contents.push({
                 id: productId,
                 quantity: product.quantity || quantity || 1,
                 item_price: product.price,
               });
+            } else {
+              logger.error(
+                `Product ID is missing for product ${i}. Event dropped.`
+              );
+              return;
             }
           }
         }
