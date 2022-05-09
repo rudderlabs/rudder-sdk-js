@@ -129,7 +129,7 @@ class FacebookPixel {
       const { revenue, currency } = properties;
       revValue = this.formatRevenue(revenue);
       if (!isDefined(revValue)) {
-        logger.error("Revenue could not be converted to number");
+        logger.error("'properties.revenue' could not be converted to a number");
         return;
       }
       currVal = currency || "USD";
