@@ -8,6 +8,7 @@ const clientToServerNames = {
   CHARTBEAT: "Chartbeat",
   COMSCORE: "Comscore",
   CUSTOMERIO: "Customer IO",
+  DCM_Floodlight: "DCM Floodlight",
   FACEBOOK_PIXEL: "Facebook Pixel",
   GTM: "Google Tag Manager",
   HOTJAR: "Hotjar",

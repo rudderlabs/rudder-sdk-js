@@ -44,6 +44,7 @@ import { CNameMapping as SnapPixel } from "./SnapPixel/constants";
 import { CNameMapping as TVSquared } from "./TVSquared/constants";
 import { CNameMapping as VWO } from "./VWO/constants";
 import { CNameMapping as GA360 } from "./GA360/constants";
+import { CNameMapping as DCMFloodlight } from "./DCMFloodlight/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -60,6 +61,7 @@ const commonNames = {
   ...Comscore,
   ...Criteo,
   ...CustomerIO,
+  ...DCMFloodlight,
   ...Drip,
   ...FacebookPixel,
   ...Fullstory,

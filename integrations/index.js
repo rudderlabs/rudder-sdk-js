@@ -44,6 +44,7 @@ import * as GoogleOptimize from "./GoogleOptimize";
 import * as PostAffiliatePro from "./PostAffiliatePro";
 import * as LaunchDarkly from "./LaunchDarkly";
 import * as GA360 from "./GA360";
+import * as DCMFloodlight from "./DCMFloodlight";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -60,6 +61,7 @@ const integrations = {
   COMSCORE: Comscore.default,
   CRITEO: Criteo.default,
   CUSTOMERIO: CustomerIO.default,
+  DCM_FLOODLIGHT: DCMFloodlight.default,
   DRIP: Drip.default,
   FACEBOOK_PIXEL: FBPixel.default,
   FULLSTORY: Fullstory.default,
