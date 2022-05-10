@@ -154,57 +154,70 @@ class SnapPixel {
       return;
     }
 
-    switch (event.toLowerCase().trim()) {
-      case "order completed":
-        sendEvent(this.ecomEvents.PURCHASE, ecommEventPayload(event, message));
-        break;
-      case "checkout started":
-        sendEvent(
-          this.ecomEvents.START_CHECKOUT,
-          ecommEventPayload(event, message)
-        );
-        break;
-      case "product added":
-        sendEvent(this.ecomEvents.ADD_CART, ecommEventPayload(event, message));
-        break;
-      case "payment info entered":
-        sendEvent(
-          this.ecomEvents.ADD_BILLING,
-          ecommEventPayload(event, message)
-        );
-        break;
-      case "promotion clicked":
-        sendEvent(this.ecomEvents.AD_CLICK, ecommEventPayload(event, message));
-        break;
-      case "promotion viewed":
-        sendEvent(this.ecomEvents.AD_VIEW, ecommEventPayload(event, message));
-        break;
-      case "product added to wishlist":
-        sendEvent(
-          this.ecomEvents.ADD_TO_WISHLIST,
-          ecommEventPayload(event, message)
-        );
-        break;
-      case "product viewed":
-      case "product list viewed":
-        sendEvent(
-          this.ecomEvents.VIEW_CONTENT,
-          ecommEventPayload(event, message)
-        );
-        break;
-      case "products searched":
-        sendEvent(this.ecomEvents.SEARCH, ecommEventPayload(event, message));
-        break;
-      default:
-        if (
-          !this.trackEvents.includes(event.trim().toUpperCase()) &&
-          !this.customEvents.includes(event.trim().toLowerCase())
-        ) {
-          logger.error("Event doesn't match with Snap Pixel Events!");
-          return;
-        }
-        sendEvent(event, eventPayload(message));
-        break;
+    try {
+      switch (event.toLowerCase().trim()) {
+        case "order completed":
+          sendEvent(
+            this.ecomEvents.PURCHASE,
+            ecommEventPayload(event, message)
+          );
+          break;
+        case "checkout started":
+          sendEvent(
+            this.ecomEvents.START_CHECKOUT,
+            ecommEventPayload(event, message)
+          );
+          break;
+        case "product added":
+          sendEvent(
+            this.ecomEvents.ADD_CART,
+            ecommEventPayload(event, message)
+          );
+          break;
+        case "payment info entered":
+          sendEvent(
+            this.ecomEvents.ADD_BILLING,
+            ecommEventPayload(event, message)
+          );
+          break;
+        case "promotion clicked":
+          sendEvent(
+            this.ecomEvents.AD_CLICK,
+            ecommEventPayload(event, message)
+          );
+          break;
+        case "promotion viewed":
+          sendEvent(this.ecomEvents.AD_VIEW, ecommEventPayload(event, message));
+          break;
+        case "product added to wishlist":
+          sendEvent(
+            this.ecomEvents.ADD_TO_WISHLIST,
+            ecommEventPayload(event, message)
+          );
+          break;
+        case "product viewed":
+        case "product list viewed":
+          sendEvent(
+            this.ecomEvents.VIEW_CONTENT,
+            ecommEventPayload(event, message)
+          );
+          break;
+        case "products searched":
+          sendEvent(this.ecomEvents.SEARCH, ecommEventPayload(event, message));
+          break;
+        default:
+          if (
+            !this.trackEvents.includes(event.trim().toUpperCase()) &&
+            !this.customEvents.includes(event.trim().toLowerCase())
+          ) {
+            logger.error("Event doesn't match with Snap Pixel Events!");
+            return;
+          }
+          sendEvent(event, eventPayload(message));
+          break;
+      }
+    } catch (err) {
+      logger.error("[Snap Pixel] track failed with following error", err);
     }
   }
 
