@@ -144,14 +144,14 @@ class DCMFloodlight {
     );
 
     payload = {
+      src: this.advertiserId,
+      cat: this.activityTag,
+      type: this.groupTag,
       ord:
         get(message, "properties.orderId") ||
         get(message, "context.traits.order_id"),
       qty: get(message, "properties.quantity"),
       cost: get(message, "properties.revenue"),
-      src: this.advertiserId,
-      cat: this.activityTag,
-      type: this.groupTag,
     };
 
     let eventSnippetPayload;
@@ -253,7 +253,7 @@ class DCMFloodlight {
       tag_for_child_directed_treatment:
         payload.tag_for_child_directed_treatment,
       tfua: payload.tfua,
-      npa: payload.name,
+      npa: payload.npa,
     };
     dcCustomParams = removeUndefinedAndNullValues(dcCustomParams);
 
