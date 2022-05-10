@@ -170,11 +170,13 @@ class DCMFloodlight {
         }
       }
 
-      eventSnippetPayload = {
-        ...eventSnippetPayload,
-        value: parseFloat(payload.cost),
-        transaction_id: parseFloat(payload.ord),
-      };
+      if (payload.cost && payload.ord) {
+        eventSnippetPayload = {
+          ...eventSnippetPayload,
+          value: parseFloat(payload.cost),
+          transaction_id: parseFloat(payload.ord),
+        };
+      }
 
       // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-event-snippets-for-sales-tags
       switch (countingMethod) {
@@ -182,10 +184,12 @@ class DCMFloodlight {
           payload.qty = 1;
           break;
         case "items_sold":
-          eventSnippetPayload = {
-            ...eventSnippetPayload,
-            quantity: parseFloat(payload.qty),
-          };
+          if (payload.qty) {
+            eventSnippetPayload = {
+              ...eventSnippetPayload,
+              quantity: parseFloat(payload.qty),
+            };
+          }
           break;
         default:
           logger.error("[DCM Floodlight] Sales Tag:: invalid counting method");
@@ -243,27 +247,35 @@ class DCMFloodlight {
     }
 
     // Ref - https://support.google.com/campaignmanager/answer/7554821?hl=en#zippy=%2Ccustom-fields
-    const dcCustomParams = {
+    let dcCustomParams = {
       ord: payload.ord,
       num: payload.num,
       tag_for_child_directed_treatment:
         payload.tag_for_child_directed_treatment,
       tfua: payload.tfua,
       npa: payload.name,
-      match_id: [get(message, "properties.matchId")],
     };
+    dcCustomParams = removeUndefinedAndNullValues(dcCustomParams);
+
+    const matchId = get(message, "properties.matchId");
+    if (matchId) {
+      payload.match_id = [matchId];
+    }
 
     eventSnippetPayload = {
       allow_custom_scripts: true,
       ...eventSnippetPayload,
       ...customFloodlightVariable,
       send_to: `DC-${this.advertiserId}/${this.groupTag}/${this.activityTag}+${countingMethod}`,
-      dc_custom_params: dcCustomParams,
     };
+
+    if (Object.keys(dcCustomParams).length > 0) {
+      eventSnippetPayload.dc_custom_params = dcCustomParams;
+    }
+    eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
 
     // event snippet
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-the-event-snippet---overview
-    // eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
     window.gtag("event", "conversion", eventSnippetPayload);
 
     payload = removeUndefinedAndNullValues(payload);
