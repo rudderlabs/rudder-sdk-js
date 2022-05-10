@@ -89,9 +89,28 @@ class Adroll {
   page(rudderElement) {
     logger.debug("=== In Adroll Page ===");
     const { message } = rudderElement;
+    const eventsHashmap = getHashFromArray(this.eventsMap);
+    let pageFullName;
+    if (!message.name && !message.category) {
+      pageFullName = `Viewed a Page`;
+    } else if (!message.name && message.category) {
+      pageFullName = `Viewed ${message.category} Page`;
+    } else if (message.name && !message.category) {
+      pageFullName = `Viewed ${message.name} Page`;
+    } else {
+      pageFullName = `Viewed ${message.name} ${message.category} Page`;
+    }
+    const segmentId = eventsHashmap[pageFullName.toLowerCase()];
 
-    message.event = `Viewed ${message.name} ${message.category} Page`;
-    this.track(rudderElement);
+    window.__adroll.record_user({
+      adroll_segments: segmentId,
+      name: pageFullName,
+      path: window.location.pathname,
+      referrer: window.document.referrer,
+      search: window.location.search,
+      title: window.document.title,
+      url: window.location.href,
+    });
   }
 }
 
