@@ -1,6 +1,14 @@
 /* eslint-disable no-param-reassign */
 
 // here we map the properties which give information about a singleproduct
+const PRODUCT_EVENTS = ["product clicked", "product viewed", "product added"];
+const ORDER_EVENTS = [
+  "cart viewed",
+  "checkout started",
+  "order completed",
+  "order cancelled",
+  "order updated",
+];
 
 const productEvent = (properties) => {
   if (properties.price) {
@@ -37,4 +45,4 @@ const orderEvent = (properties) => {
   return properties;
 };
 
-export { productEvent, orderEvent };
+export { PRODUCT_EVENTS, ORDER_EVENTS, productEvent, orderEvent };

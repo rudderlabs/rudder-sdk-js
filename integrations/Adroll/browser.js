@@ -7,7 +7,7 @@ import { getHashFromArray } from "../utils/commonUtils";
 
 import { NAME } from "./constants";
 import ScriptLoader from "../ScriptLoader";
-import { productEvent, orderEvent } from "./util";
+import { PRODUCT_EVENTS, ORDER_EVENTS, productEvent, orderEvent } from "./util";
 
 class Adroll {
   constructor(config) {
@@ -53,37 +53,19 @@ class Adroll {
   // record_adroll_email is used to attach a image pixel to the page connected to the user identified
 
   track(rudderElement) {
-    const PRODUCT_EVENTS = [
-      "product clicked",
-      "product viewed",
-      "product added",
-    ];
-    const ORDER_EVENTS = [
-      "cart viewed",
-      "checkout started",
-      "order completed",
-      "order cancelled",
-      "order updated",
-    ];
     const { message } = rudderElement;
     const { userId, event, properties } = message;
     const eventsHashmap = getHashFromArray(this.eventsMap);
     let data;
     if (eventsHashmap[event.toLowerCase()]) {
+      if (userId) {
+        properties.user_id = userId;
+      }
       if (PRODUCT_EVENTS.indexOf(event.toLowerCase()) !== -1) {
-        if (userId) {
-          properties.user_id = userId;
-        }
         data = productEvent(properties);
       } else if (ORDER_EVENTS.indexOf(event.toLowerCase()) !== -1) {
-        if (userId) {
-          properties.user_id = userId;
-        }
         data = orderEvent(properties);
       } else {
-        if (userId) {
-          properties.user_id = userId;
-        }
         if (properties.revenue) {
           properties.adroll_conversion_value = properties.revenue;
           delete properties.revenue;
