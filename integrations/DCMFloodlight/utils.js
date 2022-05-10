@@ -36,4 +36,18 @@ function appendProperties(endpoint, payload) {
   return endpoint;
 }
 
-export { transformCustomVariable, appendProperties };
+// valid flag should be provided [1|true] or [0|false]
+function isValidFlag(key, value) {
+  if (["true", "1"].includes(value.toString())) {
+    return 1;
+  }
+  if (["false", "0"].includes(value.toString())) {
+    return 0;
+  }
+
+  throw Error(
+    `[DCM Floodlight]:: ${key}: valid parameters are [1|true] or [0|false]`
+  );
+}
+
+export { transformCustomVariable, appendProperties, isValidFlag };

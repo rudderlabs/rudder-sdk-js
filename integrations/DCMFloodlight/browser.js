@@ -3,9 +3,17 @@
 import get from "get-value";
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import { isNotEmpty, removeUndefinedAndNullValues } from "../utils/commonUtils";
+import {
+  isDefinedAndNotNull,
+  isNotEmpty,
+  removeUndefinedAndNullValues,
+} from "../utils/commonUtils";
 import { NAME } from "./constants";
-import { transformCustomVariable, appendProperties } from "./utils";
+import {
+  transformCustomVariable,
+  appendProperties,
+  isValidFlag,
+} from "./utils";
 
 class DCMFloodlight {
   constructor(config, analytics) {
@@ -164,8 +172,8 @@ class DCMFloodlight {
 
       eventSnippetPayload = {
         ...eventSnippetPayload,
-        value: payload.cost,
-        transaction_id: payload.ord,
+        value: parseFloat(payload.cost),
+        transaction_id: parseFloat(payload.ord),
       };
 
       // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-event-snippets-for-sales-tags
@@ -176,7 +184,7 @@ class DCMFloodlight {
         case "items_sold":
           eventSnippetPayload = {
             ...eventSnippetPayload,
-            quantity: payload.qty,
+            quantity: parseFloat(payload.qty),
           };
           break;
         default:
@@ -199,11 +207,11 @@ class DCMFloodlight {
           payload.num = 1;
           break;
         case "per_session":
-          payload.ord = this.analytics.anonymousId;
+          payload.ord = get(message, "properties.sessionId");
 
           eventSnippetPayload = {
             ...eventSnippetPayload,
-            session_id: this.analytics.anonymousId,
+            session_id: get(message, "properties.sessionId"),
           };
           break;
         default:
@@ -214,15 +222,48 @@ class DCMFloodlight {
       }
     }
 
+    // COPPA, GDPR, npa must be provided inside integration object
+    const { DCM_FLOODLIGHT } = this.analytics.loadOnlyIntegrations;
+
+    if (DCM_FLOODLIGHT) {
+      if (isDefinedAndNotNull(DCM_FLOODLIGHT.COPPA)) {
+        payload.tag_for_child_directed_treatment = isValidFlag(
+          "COPPA",
+          DCM_FLOODLIGHT.COPPA
+        );
+      }
+
+      if (isDefinedAndNotNull(DCM_FLOODLIGHT.GDPR)) {
+        payload.tfua = isValidFlag("GDPR", DCM_FLOODLIGHT.GDPR);
+      }
+
+      if (isDefinedAndNotNull(DCM_FLOODLIGHT.npa)) {
+        payload.npa = isValidFlag("npa", DCM_FLOODLIGHT.npa);
+      }
+    }
+
+    // Ref - https://support.google.com/campaignmanager/answer/7554821?hl=en#zippy=%2Ccustom-fields
+    const dcCustomParams = {
+      ord: payload.ord,
+      num: payload.num,
+      tag_for_child_directed_treatment:
+        payload.tag_for_child_directed_treatment,
+      tfua: payload.tfua,
+      npa: payload.name,
+      match_id: [get(message, "properties.matchId")],
+    };
+
     eventSnippetPayload = {
       allow_custom_scripts: true,
       ...eventSnippetPayload,
       ...customFloodlightVariable,
       send_to: `DC-${this.advertiserId}/${this.groupTag}/${this.activityTag}+${countingMethod}`,
+      dc_custom_params: dcCustomParams,
     };
 
     // event snippet
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-the-event-snippet---overview
+    // eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
     window.gtag("event", "conversion", eventSnippetPayload);
 
     payload = removeUndefinedAndNullValues(payload);
@@ -240,7 +281,6 @@ class DCMFloodlight {
     const image = document.createElement("img");
     image.src = dcmEndpoint;
     noscript.append(image);
-    logger.debug(`[DCM Floodlight] Floodlight activity noscript:: ${noscript}`);
     document.getElementsByTagName("head")[0].appendChild(noscript);
   }
 
