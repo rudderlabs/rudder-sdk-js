@@ -100,7 +100,14 @@ class Adroll {
     } else {
       pageFullName = `Viewed ${message.name} ${message.category} Page`;
     }
+
     const segmentId = eventsHashmap[pageFullName.toLowerCase()];
+    if (!segmentId) {
+      logger.error(
+        `The event ${pageFullName} is not mapped to any segmentId. Aborting!`
+      );
+      return;
+    }
 
     window.__adroll.record_user({
       adroll_segments: segmentId,
