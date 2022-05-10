@@ -70,12 +70,12 @@ class Adroll {
     const eventsHashmap = getHashFromArray(this.eventsMap);
     let data;
     if (eventsHashmap[event.toLowerCase()]) {
-      if (PRODUCT_EVENTS.includes(event.toLowerCase())) {
+      if (PRODUCT_EVENTS.indexOf(event.toLowerCase()) !== -1) {
         if (userId) {
           properties.user_id = userId;
         }
         data = productEvent(properties);
-      } else if (ORDER_EVENTS.includes(event.toLowerCase())) {
+      } else if (ORDER_EVENTS.indexOf(event.toLowerCase()) !== -1) {
         if (userId) {
           properties.user_id = userId;
         }
@@ -91,7 +91,6 @@ class Adroll {
         const segmentId = eventsHashmap[event.toLowerCase()];
         properties.adroll_segments = segmentId;
         data = properties;
-        window.__adroll.record_user(properties);
       }
       const segmentId = eventsHashmap[event.toLowerCase()];
       data.adroll_segments = segmentId;

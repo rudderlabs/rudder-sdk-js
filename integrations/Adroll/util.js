@@ -1,4 +1,7 @@
 /* eslint-disable no-param-reassign */
+
+// here we map the properties which give information about a singleproduct
+
 const productEvent = (properties) => {
   if (properties.price) {
     properties.adroll_conversion_value = properties.price;
@@ -6,6 +9,9 @@ const productEvent = (properties) => {
   }
   return properties;
 };
+
+// here we map the properties which give information about the order
+// like order_id or revenue
 
 const orderEvent = (properties) => {
   if (properties.orderId) {
@@ -23,6 +29,10 @@ const orderEvent = (properties) => {
       });
     }
     properties.adroll_conversion_value = productRevenue;
+  }
+  if (properties.currency) {
+    properties.adroll_currency = properties.currency;
+    delete properties.currency;
   }
   return properties;
 };
