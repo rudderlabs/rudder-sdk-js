@@ -2,10 +2,15 @@
 import is from "is";
 import each from "@ndhoule/each";
 import sha256 from "crypto-js/sha256";
+import get from "get-value";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import getEventId from "./utils";
-import { getHashFromArray } from "../utils/commonUtils";
+import {
+  getHashFromArray,
+  isDefinedAndNotNullAndNotEmpty,
+  isDefined,
+} from "../utils/commonUtils";
 import { NAME, traitsMapper } from "./constants";
 import { constructPayload } from "../../utils/utils";
 
@@ -77,7 +82,9 @@ class FacebookPixel {
 
   page(rudderElement) {
     const { properties } = rudderElement.message;
-    window.fbq("track", "PageView", properties, { event_id: getEventId(rudderElement.message) });
+    window.fbq("track", "PageView", properties, {
+      eventID: getEventId(rudderElement.message),
+    });
   }
 
   identify(rudderElement) {
@@ -102,6 +109,9 @@ class FacebookPixel {
         ];
         // this construcPayload will help to map the traits in the same way as cloud mode
         payload = constructPayload(rudderElement.message, traitsMapper);
+        if (payload.external_id) {
+          payload.external_id = sha256(payload.external_id).toString();
+        }
 
         // here we are sending other traits apart from the reserved ones.
         reserve.forEach((element) => {
@@ -121,6 +131,10 @@ class FacebookPixel {
     if (properties) {
       const { revenue, currency } = properties;
       revValue = this.formatRevenue(revenue);
+      if (!isDefined(revValue)) {
+        logger.error("'properties.revenue' could not be converted to a number");
+        return;
+      }
       currVal = currency || "USD";
     }
     const payload = this.buildPayLoad(rudderElement, true);
@@ -160,23 +174,32 @@ class FacebookPixel {
       query = properties.query;
     }
     const customProperties = this.buildPayLoad(rudderElement, true);
-    const eventID = getEventId(rudderElement.message);
+    const derivedEventID = getEventId(rudderElement.message);
     if (event === "Product List Viewed") {
       let contentType;
       const contentIds = [];
       const contents = [];
 
       if (products && Array.isArray(products)) {
-        products.forEach((product) => {
-          const productId = product.product_id;
-          if (productId) {
-            contentIds.push(productId);
-            contents.push({
-              id: productId,
-              quantity: quantity || 1,
-            });
+        for (let i = 0; i < products.length; i++) {
+          const product = products[i];
+          if (product) {
+            const productId = product.product_id || product.sku || product.id;
+            if (isDefined(productId)) {
+              contentIds.push(productId);
+              contents.push({
+                id: productId,
+                quantity: product.quantity || quantity || 1,
+                item_price: product.price,
+              });
+            } else {
+              logger.error(
+                `Product ID is missing for product ${i}. Event dropped.`
+              );
+              return;
+            }
           }
-        });
+        }
       } else {
         logger.error("No product array found");
       }
@@ -204,7 +227,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: eventID,
+          eventID: derivedEventID,
         }
       );
       each((val, key) => {
@@ -218,12 +241,17 @@ class FacebookPixel {
               value: revValue,
             },
             {
-              event_id: eventID,
+              eventID: derivedEventID,
             }
           );
         }
       }, legacyTo);
     } else if (event === "Product Viewed") {
+      if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
+        // not adding index, as only one product is supposed to be present here
+        logger.error("Product ID is required. Event dropped.");
+        return;
+      }
       window.fbq(
         "trackSingle",
         self.pixelId,
@@ -249,7 +277,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: eventID,
+          eventID: derivedEventID,
         }
       );
 
@@ -266,12 +294,17 @@ class FacebookPixel {
                 : this.formatRevenue(price),
             },
             {
-              event_id: eventID,
+              eventID: derivedEventID,
             }
           );
         }
       }, legacyTo);
     } else if (event === "Product Added") {
+      if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
+        // not adding index, as only one product is supposed to be present here
+        logger.error("Product ID is required. Event dropped.");
+        return;
+      }
       window.fbq(
         "trackSingle",
         self.pixelId,
@@ -298,7 +331,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: eventID,
+          eventID: derivedEventID,
         }
       );
 
@@ -315,7 +348,7 @@ class FacebookPixel {
                 : this.formatRevenue(price),
             },
             {
-              event_id: eventID,
+              eventID: derivedEventID,
             }
           );
         }
@@ -347,17 +380,27 @@ class FacebookPixel {
       const contents = [];
       if (products) {
         for (let i = 0; i < products.length; i++) {
-          const pId = products[i].product_id;
-          contentIds.push(pId);
-          const content = {
-            id: pId,
-            quantity,
-          };
-
-          content.item_price = price;
-
-          contents.push(content);
+          const product = products[i];
+          if (product) {
+            const pId = product.product_id || product.sku || product.id;
+            if (!isDefined(pId)) {
+              logger.error(
+                `Product ID is missing for product ${i}. Event dropped.`
+              );
+              return;
+            }
+            contentIds.push(pId);
+            const content = {
+              id: pId,
+              quantity: product.quantity || quantity || 1,
+              item_price: product.price || price,
+            };
+            contents.push(content);
+          }
         }
+        // ref: https://developers.facebook.com/docs/meta-pixel/implementation/marketing-api#purchase
+        // "trackSingle" feature is :
+        // https://developers.facebook.com/ads/blog/post/v2/2017/11/28/event-tracking-with-multiple-pixels-tracksingle/
         window.fbq(
           "trackSingle",
           self.pixelId,
@@ -374,7 +417,7 @@ class FacebookPixel {
             customProperties
           ),
           {
-            event_id: eventID,
+            eventID: derivedEventID,
           }
         );
 
@@ -389,7 +432,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: eventID,
+                eventID: derivedEventID,
               }
             );
           }
@@ -409,7 +452,7 @@ class FacebookPixel {
           customProperties
         ),
         {
-          event_id: eventID,
+          eventID: derivedEventID,
         }
       );
 
@@ -424,7 +467,7 @@ class FacebookPixel {
               value: revValue,
             },
             {
-              event_id: eventID,
+              eventID: derivedEventID,
             }
           );
         }
@@ -436,17 +479,22 @@ class FacebookPixel {
       if (products) {
         for (let i = 0; i < products.length; i++) {
           const product = products[i];
-          const pId = product.product_id;
-          contentIds.push(pId);
-          const content = {
-            id: pId,
-            quantity,
-            item_price: price,
-          };
-
-          content.item_price = price;
-
-          contents.push(content);
+          if (product) {
+            const pId = product.product_id || product.sku || product.id;
+            if (!isDefined(pId)) {
+              logger.error(
+                `Product ID is missing for product ${i}. Event dropped.`
+              );
+              return;
+            }
+            contentIds.push(pId);
+            const content = {
+              id: pId,
+              quantity: product.quantity || quantity || 1,
+              item_price: product.price || price,
+            };
+            contents.push(content);
+          }
         }
 
         if (!contentCategory && products[0] && products[0].category) {
@@ -469,7 +517,7 @@ class FacebookPixel {
             customProperties
           ),
           {
-            event_id: eventID,
+            eventID: derivedEventID,
           }
         );
 
@@ -484,7 +532,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: eventID,
+                eventID: derivedEventID,
               }
             );
           }
@@ -499,7 +547,7 @@ class FacebookPixel {
         const payloadVal = this.buildPayLoad(rudderElement, false);
         payloadVal.value = revValue;
         window.fbq("trackSingleCustom", self.pixelId, event, payloadVal, {
-          event_id: eventID,
+          eventID: derivedEventID,
         });
       } else {
         each((val, key) => {
@@ -507,7 +555,7 @@ class FacebookPixel {
             payload.currency = currVal;
 
             window.fbq("trackSingle", self.pixelId, val, payload, {
-              event_id: eventID,
+              eventID: derivedEventID,
             });
           }
         }, standardTo);
@@ -523,7 +571,7 @@ class FacebookPixel {
                 value: revValue,
               },
               {
-                event_id: eventID,
+                eventID: derivedEventID,
               }
             );
           }
@@ -582,7 +630,10 @@ class FacebookPixel {
   }
 
   formatRevenue(revenue) {
-    return Number(revenue || 0).toFixed(2);
+    const formattedRevenue = parseFloat(parseFloat(revenue || 0).toFixed(2));
+    if (!Number.isNaN(formattedRevenue)) {
+      return formattedRevenue;
+    }
   }
 
   buildPayLoad(rudderElement, isStandardEvent) {

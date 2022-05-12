@@ -14,21 +14,25 @@ const sendEvent = (event, payload) => {
   }
 };
 
-const eventPayload = (message) => {
+const getCommonEventPayload = (message) => {
   let payload = {
-    price: get(message, "properties.price"),
+    price: parseFloat(get(message, "properties.price")),
+    client_deduplication_id: get(message, "properties.client_deduplication_id"),
     currency: get(message, "properties.currency"),
-    transaction_id: get(message, "properties.transaction_id"),
-    item_ids: get(message, "properties.item_ids"),
+    transaction_id:
+      get(message, "properties.transactionId") ||
+      get(message, "properties.transaction_id"),
     item_category: get(message, "properties.category"),
     description: get(message, "properties.description"),
     search_string: get(message, "properties.search_string"),
-    number_items: get(message, "properties.number_items"),
-    payment_info_available: get(message, "properties.payment_info_available"),
+    number_items: parseInt(get(message, "properties.number_items"), 10),
+    payment_info_available: parseInt(
+      get(message, "properties.payment_info_available"),
+      10
+    ),
     sign_up_method: get(message, "properties.sign_up_method"),
-    success: get(message, "properties.success"),
+    success: parseInt(get(message, "properties.success"), 10),
   };
-
   if (
     payload.payment_info_available !== 0 &&
     payload.payment_info_available !== 1
@@ -43,24 +47,21 @@ const eventPayload = (message) => {
   return payload;
 };
 
+const eventPayload = (message) => {
+  let payload = getCommonEventPayload(message);
+  payload.item_ids = get(message, "properties.item_ids");
+  payload = removeUndefinedAndNullValues(payload);
+  return payload;
+};
+
 const ecommEventPayload = (event, message) => {
-  let payload = {
-    price: get(message, "properties.price"),
-    currency: get(message, "properties.currency"),
-    item_category: get(message, "properties.category"),
-    description: get(message, "properties.description"),
-    search_string: get(message, "properties.search_string"),
-    number_items: get(message, "properties.number_items"),
-    payment_info_available: get(message, "properties.payment_info_available"),
-    sign_up_method: get(message, "properties.sign_up_method"),
-    success: get(message, "properties.success"),
-  };
+  let payload = getCommonEventPayload(message);
 
   switch (event.toLowerCase().trim()) {
     case "order completed": {
       let itemIds = [];
       const products = get(message, "properties.products");
-      if (isDefinedAndNotNull(products)) {
+      if (products && Array.isArray(products)) {
         products.forEach((element, index) => {
           const pId = element.product_id;
           if (pId) {
@@ -84,7 +85,7 @@ const ecommEventPayload = (event, message) => {
     case "checkout started": {
       let itemIds = [];
       const products = get(message, "properties.products");
-      if (isDefinedAndNotNull(products)) {
+      if (products && Array.isArray(products)) {
         products.forEach((element, index) => {
           const pId = element.product_id;
           if (pId) {
@@ -116,7 +117,6 @@ const ecommEventPayload = (event, message) => {
       }
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.transaction_id"),
         item_ids: itemIds,
       };
       break;
@@ -131,14 +131,12 @@ const ecommEventPayload = (event, message) => {
     case "promotion clicked":
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.transaction_id"),
         item_ids: get(message, "properties.item_ids"),
       };
       break;
     case "promotion viewed":
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.transaction_id"),
         item_ids: get(message, "properties.item_ids"),
       };
       break;
@@ -153,23 +151,57 @@ const ecommEventPayload = (event, message) => {
       }
       payload = {
         ...payload,
-        transaction_id: get(message, "properties.transaction_id"),
         item_ids: itemIds,
       };
       break;
     }
+    case "product viewed": {
+      let itemIds = [];
+      const pId = get(message, "properties.product_id");
+      if (pId) {
+        itemIds.push(pId);
+      } else {
+        logger.debug("product_id is not present");
+        itemIds = null;
+      }
+      payload = {
+        ...payload,
+        item_ids: itemIds,
+      };
+      break;
+    }
+    case "product list viewed": {
+      let itemIds = [];
+      const products = get(message, "properties.products");
+      if (products && Array.isArray(products)) {
+        products.forEach((element, index) => {
+          const pId = get(element, "product_id");
+          if (pId) {
+            itemIds.push(pId);
+          } else {
+            logger.debug(
+              `product_id not present for product at index ${index}`
+            );
+          }
+        });
+      } else {
+        itemIds = null;
+      }
+      payload = {
+        ...payload,
+        item_ids: itemIds,
+      };
+      break;
+    }
+    case "products searched":
+      payload = {
+        ...payload,
+        search_string: get(message, "properties.query"),
+        item_ids: get(message, "properties.item_ids"),
+      };
+      break;
     default:
       break;
-  }
-
-  if (
-    payload.payment_info_available !== 0 &&
-    payload.payment_info_available !== 1
-  ) {
-    payload.payment_info_available = null;
-  }
-  if (payload.success !== 0 && payload.success !== 1) {
-    payload.success = null;
   }
 
   payload = removeUndefinedAndNullValues(payload);

@@ -11,6 +11,7 @@ class CookieLocal {
   constructor(opts) {
     this.cOptions = {};
     this.options(opts);
+    this.isSupportAvailable = this.checkSupportAvailability();
   }
 
   /**
@@ -30,13 +31,6 @@ class CookieLocal {
       domain,
       samesite: "Lax",
     });
-
-    // try setting a cookie first
-    this.set("test_rudder", true);
-    if (!this.get("test_rudder")) {
-      this.cOptions.domain = null;
-    }
-    this.remove("test_rudder");
     return this.cOptions;
   }
 
@@ -75,6 +69,21 @@ class CookieLocal {
     } catch (e) {
       return false;
     }
+  }
+
+  /**
+   * Function to check cookie support exists or not
+   * @returns boolean
+   */
+  checkSupportAvailability() {
+    const name = "test_rudder_cookie";
+    this.set(name, true);
+
+    if (this.get(name)) {
+      this.remove(name);
+      return true;
+    }
+    return false;
   }
 }
 

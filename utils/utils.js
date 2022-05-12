@@ -308,25 +308,31 @@ function findAllEnabledDestinations(
   if (sdkSuppliedIntegrations.All !== undefined) {
     allValue = sdkSuppliedIntegrations.All;
   }
-  const intgData = {};
+  const intgData = [];
   if (typeof configPlaneEnabledIntegrations[0] === "string") {
     configPlaneEnabledIntegrations.forEach((intg) => {
-      intgData[intg] = intg;
+      intgData.push({
+        intgName: intg,
+        intObj: intg,
+      });
     });
   } else if (typeof configPlaneEnabledIntegrations[0] === "object") {
     configPlaneEnabledIntegrations.forEach((intg) => {
-      intgData[intg.name] = intg;
+      intgData.push({
+        intgName: intg.name,
+        intObj: intg,
+      });
     });
   }
 
-  Object.keys(intgData).forEach((intgName) => {
+  intgData.forEach(({ intgName, intObj }) => {
     if (!allValue) {
       // All false ==> check if intg true supplied
       if (
         sdkSuppliedIntegrations[intgName] != undefined &&
         sdkSuppliedIntegrations[intgName] == true
       ) {
-        enabledList.push(intgData[intgName]);
+        enabledList.push(intObj);
       }
     } else {
       // All true ==> intg true by default
@@ -339,7 +345,7 @@ function findAllEnabledDestinations(
         intgValue = false;
       }
       if (intgValue) {
-        enabledList.push(intgData[intgName]);
+        enabledList.push(intObj);
       }
     }
   });
