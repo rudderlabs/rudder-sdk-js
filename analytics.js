@@ -1235,7 +1235,7 @@ const argumentsArray = window.rudderanalytics;
 const isValidArgsArray = Array.isArray(argumentsArray);
 if (isValidArgsArray) {
   /**
-   * Iterate the buffered API calls until we find load call and 
+   * Iterate the buffered API calls until we find load call and
    * queue it first for processing
    */
   let i = 0;
