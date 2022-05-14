@@ -130,7 +130,6 @@ class FacebookPixel {
       revValue = this.formatRevenue(revenue);
       if (!isDefined(revValue)) {
         logger.error("'properties.revenue' could not be converted to a number");
-        return;
       }
       currVal = currency || "USD";
     }
@@ -190,10 +189,7 @@ class FacebookPixel {
                 item_price: product.price,
               });
             } else {
-              logger.error(
-                `Product ID is missing for product ${i}. Event dropped.`
-              );
-              return;
+              logger.error(`Product ID is missing for product ${i}.`);
             }
           }
         }
@@ -246,8 +242,7 @@ class FacebookPixel {
     } else if (event === "Product Viewed") {
       if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
         // not adding index, as only one product is supposed to be present here
-        logger.error("Product ID is required. Event dropped.");
-        return;
+        logger.error("Product ID is missing.");
       }
       window.fbq(
         "trackSingle",
@@ -299,8 +294,7 @@ class FacebookPixel {
     } else if (event === "Product Added") {
       if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
         // not adding index, as only one product is supposed to be present here
-        logger.error("Product ID is required. Event dropped.");
-        return;
+        logger.error("Product ID is missing.");
       }
       window.fbq(
         "trackSingle",
@@ -381,10 +375,7 @@ class FacebookPixel {
           if (product) {
             const pId = product.product_id || product.sku || product.id;
             if (!isDefined(pId)) {
-              logger.error(
-                `Product ID is missing for product ${i}. Event dropped.`
-              );
-              return;
+              logger.error(`Product ID is missing for product ${i}.`);
             }
             contentIds.push(pId);
             const content = {
@@ -479,10 +470,7 @@ class FacebookPixel {
           if (product) {
             const pId = product.product_id || product.sku || product.id;
             if (!isDefined(pId)) {
-              logger.error(
-                `Product ID is missing for product ${i}. Event dropped.`
-              );
-              return;
+              logger.error(`Product ID is missing for product ${i}.`);
             }
             contentIds.push(pId);
             const content = {
@@ -632,9 +620,10 @@ class FacebookPixel {
 
   formatRevenue(revenue) {
     const formattedRevenue = parseFloat(parseFloat(revenue || 0).toFixed(2));
-    if (!Number.isNaN(formattedRevenue)) {
-      return formattedRevenue;
+    if (Number.isNaN(formattedRevenue)) {
+      logger.error("Revenue could not be converted to number");
     }
+    return formattedRevenue;
   }
 
   buildPayLoad(rudderElement, isStandardEvent) {
