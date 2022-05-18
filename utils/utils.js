@@ -137,9 +137,18 @@ function handleError(error, analyticsInstance) {
     }
     if (errorMessage && !sampleAdBlockTest) {
       logger.error("[Util] handleError:: ", errorMessage);
+      if (window.newBugsnag) {
+        window.newBugsnag.leaveBreadcrumb(
+          `[Util] handleError:: ${errorMessage}`
+        );
+        window.newBugsnag.notify(error);
+      }
     }
   } catch (e) {
     logger.error("[Util] handleError:: ", e);
+    if (window.newBugsnag) {
+      window.newBugsnag.notify(e);
+    }
   }
 }
 

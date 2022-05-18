@@ -1,8 +1,9 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable no-prototype-builtins */
+import AES from "crypto-js/aes";
+import Utf8 from "crypto-js/enc-utf8";
 import ScriptLoader from "../../integrations/ScriptLoader";
 // import RudderApp from "../../utils/RudderApp";
-import { MAX_WAIT_FOR_INTEGRATION_LOAD } from "../../utils/constants";
 
 const metaData = {
   SDK: {
@@ -13,41 +14,56 @@ const metaData = {
 };
 
 const credentials = {
-  apiKey: "",
+  apiKey:
+    "U2FsdGVkX182Myeej4DKayK1qKvTaxfa/9g4oz/kMD1hkuPCBKmyrWZB74x3N0qf6xuPtH8QRq4YRnIh15AaNg==", // "0d96a60df267f4a13f808bbaa54e535c"
   appVersion: "1.0.0",
   releaseStage: "development",
+  key: "Rudder",
 };
 
-const loadBugsnag = (pluginName = "bugsnag") => {
+const sdkNames = [
+  "browser.js",
+  "rudder-analytics.min.js",
+  "rudder-analytics-staging.min.js",
+  "rudder-analytics.js",
+];
+
+const loadBugsnag = () => {
+  const pluginName = "bugsnag";
   if (!window.hasOwnProperty(pluginName)) {
     ScriptLoader(
       pluginName,
       "https://d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js"
     );
   }
-
-  //   const self = this;
-  const interval = setInterval(function () {
-    if (window.hasOwnProperty(pluginName)) {
-      clearInterval(interval);
-
-      if (window.Bugsnag !== undefined) {
-        window.errorReporterClient = window.Bugsnag.start({
-          apiKey: credentials.apiKey,
-          metadata: metaData,
-          onError: function (event) {
-            console.log(event);
-            // Modify event here
-            // Return false to discard the event
-          },
-        });
-      }
-    }
-  }, 100);
-
-  setTimeout(() => {
-    clearInterval(interval);
-  }, MAX_WAIT_FOR_INTEGRATION_LOAD);
 };
 
-export { loadBugsnag };
+const initialize = (sourceId) => {
+  const interval = setInterval(function () {
+    if (window.Bugsnag !== undefined) {
+      clearInterval(interval);
+      window.newBugsnag = window.Bugsnag.start({
+        apiKey: AES.decrypt(credentials.apiKey, credentials.key).toString(Utf8),
+        metadata: metaData,
+        // eslint-disable-next-line consistent-return
+        onError(event) {
+          if (typeof event.errors[0].stacktrace[0].file === "string") {
+            const index = event.errors[0].stacktrace[0].file.lastIndexOf("/");
+            if (
+              !sdkNames.includes(
+                event.errors[0].stacktrace[0].file.substr(index + 1)
+              )
+            )
+              return false; // Return false to discard the event
+          }
+          event.addMetadata("source", {
+            sourceId,
+          });
+        },
+        autoTrackSessions: false,
+      });
+    }
+  }, 100);
+};
+
+export { loadBugsnag, initialize };

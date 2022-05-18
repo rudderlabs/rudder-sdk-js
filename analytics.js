@@ -45,7 +45,7 @@ import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
-import loadBugsnag from "./metrics/error-report";
+import { loadBugsnag, initialize } from "./metrics/error-report";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -160,7 +160,17 @@ class Analytics {
         response = JSON.parse(response);
       }
       if (true) {
-        // logic to be added
+        initialize(response.source.connections[0].sourceId);
+        // const self = this;
+        // const interval = setInterval(function () {
+        //   if (window.newBugsnag !== undefined) {
+        //     self.bugsnag = window.newBugsnag;
+        //     clearInterval(interval);
+        //   }
+        // }, 100);
+        // setTimeout(() => {
+        //   clearInterval(interval);
+        // }, MAX_WAIT_FOR_INTEGRATION_LOAD);
       }
       if (
         response.source.useAutoTracking &&
@@ -198,6 +208,12 @@ class Analytics {
         );
       } catch (e) {
         logger.error(e);
+        if (window.newBugsnag) {
+          window.newBugsnag.leaveBreadcrumb(
+            `cookieConsent initialization failed`
+          );
+          window.newBugsnag.notify(e);
+        }
       }
 
       // If cookie consent object is return we filter according to consents given by user
@@ -262,6 +278,12 @@ class Analytics {
           "[Analytics] initialize integration (integration.init()) failed :: ",
           intg.name
         );
+        if (window.newBugsnag) {
+          window.newBugsnag.leaveBreadcrumb(
+            `[Analytics] initialize integration (integration.init()) failed :: ${intg.name}`
+          );
+          window.newBugsnag.notify(e);
+        }
         this.failedToBeLoadedIntegration.push(intgInstance);
       }
     });
@@ -1139,6 +1161,8 @@ class Analytics {
     // logger.debug("inside load ");
     if (this.loaded) return;
 
+    // Load Bugsnag client SDK
+    loadBugsnag();
     // check if the below features are available in the browser or not
     // If not present dynamically load from the polyfill cdn
     if (
