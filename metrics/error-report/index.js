@@ -28,7 +28,7 @@ const sdkNames = [
   "rudder-analytics.js",
 ];
 
-const loadBugsnag = () => {
+const load = () => {
   const pluginName = "bugsnag";
   if (!window.hasOwnProperty(pluginName)) {
     ScriptLoader(
