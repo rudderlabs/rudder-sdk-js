@@ -42,7 +42,7 @@ const initialize = (sourceId) => {
   const interval = setInterval(function () {
     if (window.Bugsnag !== undefined) {
       clearInterval(interval);
-      window.newBugsnag = window.Bugsnag.start({
+      window.rsBugsnagClient = window.Bugsnag.start({
         apiKey: AES.decrypt(credentials.apiKey, credentials.key).toString(Utf8),
         metadata: metaData,
         // eslint-disable-next-line consistent-return
