@@ -15,9 +15,8 @@ const metaData = {
 
 const credentials = {
   apiKey:
-    "U2FsdGVkX182Myeej4DKayK1qKvTaxfa/9g4oz/kMD1hkuPCBKmyrWZB74x3N0qf6xuPtH8QRq4YRnIh15AaNg==", // "0d96a60df267f4a13f808bbaa54e535c"
-  appVersion: "1.0.0",
-  releaseStage: "development",
+    "U2FsdGVkX19K3RnPqGrspnaeUbUpcr/haX+IwxU+/6N4W9VbBFSpO+EmfxhYrEL0mt9qTStZFS/XmCikZJ4DVQ==", // "0d96a60df267f4a13f808bbaa54e535c"
+  releaseStage: "production",
   key: "RudderStack",
 };
 
@@ -28,7 +27,7 @@ const sdkNames = [
   "rudder-analytics.js",
 ];
 
-const load = () => {
+const loadBugsnag = () => {
   const pluginName = "bugsnag";
   if (!window.hasOwnProperty(pluginName)) {
     ScriptLoader(
@@ -39,31 +38,32 @@ const load = () => {
 };
 
 const initialize = (sourceId) => {
-  const interval = setInterval(function () {
-    if (window.Bugsnag !== undefined) {
-      clearInterval(interval);
-      window.rsBugsnagClient = window.Bugsnag.start({
-        apiKey: AES.decrypt(credentials.apiKey, credentials.key).toString(Utf8),
-        metadata: metaData,
-        // eslint-disable-next-line consistent-return
-        onError(event) {
-          if (typeof event.errors[0].stacktrace[0].file === "string") {
-            const index = event.errors[0].stacktrace[0].file.lastIndexOf("/");
-            if (
-              !sdkNames.includes(
-                event.errors[0].stacktrace[0].file.substr(index + 1)
-              )
-            )
-              return false; // Return false to discard the event
-          }
-          event.addMetadata("source", {
-            sourceId,
-          });
-        },
-        autoTrackSessions: false,
-      });
-    }
-  }, 100);
+  if (!window.hasOwnProperty("rsBugsnagClient")) {
+    const interval = setInterval(function () {
+      if (window.Bugsnag !== undefined) {
+        clearInterval(interval);
+        window.rsBugsnagClient = window.Bugsnag.start({
+          apiKey: AES.decrypt(credentials.apiKey, credentials.key).toString(
+            Utf8
+          ),
+          metadata: metaData,
+          // eslint-disable-next-line consistent-return
+          onError(event) {
+            const errorOrigin = event.errors[0].stacktrace[0].file;
+            if (typeof errorOrigin === "string") {
+              const index = errorOrigin.lastIndexOf("/");
+              if (!sdkNames.includes(errorOrigin.substring(index + 1)))
+                return false; // Return false to discard the event
+            }
+            event.addMetadata("source", {
+              sourceId,
+            });
+          },
+          autoTrackSessions: false,
+        });
+      }
+    }, 100);
+  }
 };
 
 export { loadBugsnag, initialize };

@@ -137,17 +137,17 @@ function handleError(error, analyticsInstance) {
     }
     if (errorMessage && !sampleAdBlockTest) {
       logger.error("[Util] handleError:: ", errorMessage);
-      if (window.newBugsnag) {
-        window.newBugsnag.leaveBreadcrumb(
+      if (window.rsBugsnagClient) {
+        window.rsBugsnagClient.leaveBreadcrumb(
           `[Util] handleError:: ${errorMessage}`
         );
-        window.newBugsnag.notify(error);
+        window.rsBugsnagClient.notify(error);
       }
     }
   } catch (e) {
     logger.error("[Util] handleError:: ", e);
-    if (window.newBugsnag) {
-      window.newBugsnag.notify(e);
+    if (window.rsBugsnagClient) {
+      window.rsBugsnagClient.notify(e);
     }
   }
 }

@@ -161,16 +161,6 @@ class Analytics {
       }
       if (true) {
         initialize(response.source.connections[0].sourceId);
-        // const self = this;
-        // const interval = setInterval(function () {
-        //   if (window.newBugsnag !== undefined) {
-        //     self.bugsnag = window.newBugsnag;
-        //     clearInterval(interval);
-        //   }
-        // }, 100);
-        // setTimeout(() => {
-        //   clearInterval(interval);
-        // }, MAX_WAIT_FOR_INTEGRATION_LOAD);
       }
       if (
         response.source.useAutoTracking &&
@@ -208,11 +198,11 @@ class Analytics {
         );
       } catch (e) {
         logger.error(e);
-        if (window.newBugsnag) {
-          window.newBugsnag.leaveBreadcrumb(
+        if (window.rsBugsnagClient) {
+          window.rsBugsnagClient.leaveBreadcrumb(
             `cookieConsent initialization failed`
           );
-          window.newBugsnag.notify(e);
+          window.rsBugsnagClient.notify(e);
         }
       }
 
@@ -278,11 +268,11 @@ class Analytics {
           "[Analytics] initialize integration (integration.init()) failed :: ",
           intg.name
         );
-        if (window.newBugsnag) {
-          window.newBugsnag.leaveBreadcrumb(
+        if (window.rsBugsnagClient) {
+          window.rsBugsnagClient.leaveBreadcrumb(
             `[Analytics] initialize integration (integration.init()) failed :: ${intg.name}`
           );
-          window.newBugsnag.notify(e);
+          window.rsBugsnagClient.notify(e);
         }
         this.failedToBeLoadedIntegration.push(intgInstance);
       }
