@@ -61,6 +61,7 @@ const initialize = (sourceId) => {
           },
           autoTrackSessions: false,
         });
+        window.rsBugsnagClient.releaseStage = credentials.releaseStage;
       }
     }, 100);
   }
