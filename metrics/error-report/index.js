@@ -18,7 +18,7 @@ const credentials = {
     "U2FsdGVkX182Myeej4DKayK1qKvTaxfa/9g4oz/kMD1hkuPCBKmyrWZB74x3N0qf6xuPtH8QRq4YRnIh15AaNg==", // "0d96a60df267f4a13f808bbaa54e535c"
   appVersion: "1.0.0",
   releaseStage: "development",
-  key: "Rudder",
+  key: "RudderStack",
 };
 
 const sdkNames = [
