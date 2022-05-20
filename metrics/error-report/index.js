@@ -1,9 +1,6 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable no-prototype-builtins */
-import AES from "crypto-js/aes";
-import Utf8 from "crypto-js/enc-utf8";
 import ScriptLoader from "../../integrations/ScriptLoader";
-// import RudderApp from "../../utils/RudderApp";
 
 const metaData = {
   SDK: {
@@ -14,10 +11,8 @@ const metaData = {
 };
 
 const credentials = {
-  apiKey:
-    "U2FsdGVkX19K3RnPqGrspnaeUbUpcr/haX+IwxU+/6N4W9VbBFSpO+EmfxhYrEL0mt9qTStZFS/XmCikZJ4DVQ==", // "0d96a60df267f4a13f808bbaa54e535c"
+  apiKey: "0d96a60df267f4a13f808bbaa54e535c",
   releaseStage: "production",
-  key: "RudderStack",
 };
 
 const sdkNames = [
@@ -43,9 +38,7 @@ const initialize = (sourceId) => {
       if (window.Bugsnag !== undefined) {
         clearInterval(interval);
         window.rsBugsnagClient = window.Bugsnag.start({
-          apiKey: AES.decrypt(credentials.apiKey, credentials.key).toString(
-            Utf8
-          ),
+          apiKey: credentials.apiKey,
           metadata: metaData,
           // eslint-disable-next-line consistent-return
           onError(event) {

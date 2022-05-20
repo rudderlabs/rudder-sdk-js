@@ -20,6 +20,7 @@ import {
   getJSONTrimmed,
   generateUUID,
   handleError,
+  handleErrorWithBugsnag,
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
@@ -198,12 +199,7 @@ class Analytics {
         );
       } catch (e) {
         logger.error(e);
-        if (window.rsBugsnagClient) {
-          window.rsBugsnagClient.leaveBreadcrumb(
-            `cookieConsent initialization failed`
-          );
-          window.rsBugsnagClient.notify(e);
-        }
+        handleErrorWithBugsnag(e, "cookieConsent initialization failed");
       }
 
       // If cookie consent object is return we filter according to consents given by user
@@ -268,12 +264,10 @@ class Analytics {
           "[Analytics] initialize integration (integration.init()) failed :: ",
           intg.name
         );
-        if (window.rsBugsnagClient) {
-          window.rsBugsnagClient.leaveBreadcrumb(
-            `[Analytics] initialize integration (integration.init()) failed :: ${intg.name}`
-          );
-          window.rsBugsnagClient.notify(e);
-        }
+        handleErrorWithBugsnag(
+          e,
+          `[Analytics] initialize integration (integration.init()) failed :: ${intg.name}`
+        );
         this.failedToBeLoadedIntegration.push(intgInstance);
       }
     });
@@ -806,11 +800,13 @@ class Analytics {
         );
 
       // try to first send to all integrations, if list populated from BE
+      let index;
       try {
-        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj, i) => {
+          index = i;
           if (!obj.isFailed || !obj.isFailed()) {
             if (obj[type]) {
-              let sendEvent = !this.IsEventBlackListed(
+              const sendEvent = !this.IsEventBlackListed(
                 rudderElement.message.event,
                 obj.name
               );
@@ -824,7 +820,11 @@ class Analytics {
           }
         });
       } catch (err) {
-        handleError({ message: `[sendToNative]:${err}` });
+        const destWithErr =
+          succesfulLoadedIntersectClientSuppliedIntegrations[index];
+        handleError({
+          message: `[sendToNative]:${err}. Destination:${destWithErr.name}. Event type:${type}`,
+        });
       }
 
       // config plane native enabled destinations, still not completely loaded
