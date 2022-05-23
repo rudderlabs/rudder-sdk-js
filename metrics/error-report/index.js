@@ -33,7 +33,8 @@ const loadBugsnag = () => {
 };
 
 const initialize = (sourceId) => {
-  if (!window.hasOwnProperty("rsBugsnagClient")) {
+  if (window.hasOwnProperty("rsBugsnagClient"))
+    return;
     const interval = setInterval(function () {
       if (window.Bugsnag !== undefined) {
         clearInterval(interval);
