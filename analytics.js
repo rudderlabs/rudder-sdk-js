@@ -20,7 +20,7 @@ import {
   getJSONTrimmed,
   generateUUID,
   handleError,
-  handleErrorWithBugsnag,
+  notifyError,
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
@@ -199,7 +199,8 @@ class Analytics {
         );
       } catch (e) {
         logger.error(e);
-        handleErrorWithBugsnag(e, "cookieConsent initialization failed");
+        e.message = "cookieConsent initialization failed";
+        notifyError(e);
       }
 
       // If cookie consent object is return we filter according to consents given by user
@@ -264,10 +265,8 @@ class Analytics {
           "[Analytics] initialize integration (integration.init()) failed :: ",
           intg.name
         );
-        handleErrorWithBugsnag(
-          e,
-          `[Analytics] initialize integration (integration.init()) failed :: ${intg.name}`
-        );
+        e.message = `[Analytics] initialize integration (integration.init()) failed :: ${intg.name}`;
+        notifyError(e);
         this.failedToBeLoadedIntegration.push(intgInstance);
       }
     });
@@ -1118,7 +1117,7 @@ class Analytics {
     }
     if (options && options.getSourceConfig) {
       if (typeof options.getSourceConfig !== "function") {
-        handleError('option "getSourceConfig" must be a function');
+        handleError({ message: 'option "getSourceConfig" must be a function' });
       } else {
         const res = options.getSourceConfig();
 

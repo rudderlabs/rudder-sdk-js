@@ -117,9 +117,14 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   xhr.send();
 }
 
-function notifyError(error, breadcrumb) {
+function leaveBreadcrumb(breadcrumb) {
   if (window.rsBugsnagClient) {
     window.rsBugsnagClient.leaveBreadcrumb(breadcrumb);
+  }
+}
+
+function notifyError(error) {
+  if (window.rsBugsnagClient) {
     window.rsBugsnagClient.notify(error);
   }
 }
@@ -144,11 +149,11 @@ function handleError(error, analyticsInstance) {
     }
     if (errorMessage && !sampleAdBlockTest) {
       logger.error("[Util] handleError:: ", errorMessage);
-      handleErrorWithBugsnag(error, `[Util] handleError:: ${errorMessage}`);
+      notifyError(new Error(`[Util] handleError:: ${errorMessage}`));
     }
   } catch (e) {
     logger.error("[Util] handleError:: ", e);
-    handleErrorWithBugsnag(e);
+    notifyError(e);
   }
 }
 
@@ -742,5 +747,6 @@ export {
   commonNames,
   removeTrailingSlashes,
   constructPayload,
-  handleErrorWithBugsnag,
+  notifyError,
+  leaveBreadcrumb,
 };
