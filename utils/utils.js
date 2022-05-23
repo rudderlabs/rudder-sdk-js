@@ -117,7 +117,7 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   xhr.send();
 }
 
-function handleErrorWithBugsnag(error, breadcrumb) {
+function notifyError(error, breadcrumb) {
   if (window.rsBugsnagClient) {
     window.rsBugsnagClient.leaveBreadcrumb(breadcrumb);
     window.rsBugsnagClient.notify(error);
