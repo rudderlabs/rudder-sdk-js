@@ -162,7 +162,7 @@ class Analytics {
       if (typeof response === "string") {
         response = JSON.parse(response);
       }
-      // For testing added manually
+
       // response.source.config = {
       //   metrics: {
       //     bugsnag: {
@@ -170,9 +170,12 @@ class Analytics {
       //     },
       //   },
       // };
-      if (get(response.source.config, "metrics.bugsnag.enabled") === true) {
+      const bsEnabled = get(response.source.config, "metrics.bugsnag.enabled");
+      // Load Bugsnag by default unless disabled in the source config
+      if (bsEnabled !== false) {
         initialize(response.source.connections[0].sourceId);
       }
+
       if (
         response.source.useAutoTracking &&
         !this.autoTrackHandlersRegistered
@@ -200,7 +203,7 @@ class Analytics {
         this.clientIntegrations
       );
 
-      var cookieConsent;
+      let cookieConsent;
       // Call the cookie consent factory to initialize and return the type of cookie
       // consent being set. For now we only support OneTrust.
       try {
@@ -731,27 +734,27 @@ class Analytics {
       // Blacklist is choosen for filtering events
       case "blacklistedEvents":
         if (Array.isArray(blacklistedEvents)) {
-          return blacklistedEvents.find(
-            (eventObj) =>
-              eventObj.eventName.trim().toUpperCase() === formattedEventName
-          ) === undefined
-            ? false
-            : true;
-        } else {
-          return false;
+          return (
+            blacklistedEvents.find(
+              (eventObj) =>
+                eventObj.eventName.trim().toUpperCase() === formattedEventName
+            ) !== undefined
+          );
         }
+        return false;
+
       // Whitelist is choosen for filtering events
       case "whitelistedEvents":
         if (Array.isArray(whitelistedEvents)) {
-          return whitelistedEvents.find(
-            (eventObj) =>
-              eventObj.eventName.trim().toUpperCase() === formattedEventName
-          ) === undefined
-            ? true
-            : false;
-        } else {
-          return true;
+          return (
+            whitelistedEvents.find(
+              (eventObj) =>
+                eventObj.eventName.trim().toUpperCase() === formattedEventName
+            ) === undefined
+          );
         }
+        return true;
+
       default:
         return false;
     }
