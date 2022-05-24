@@ -2,7 +2,7 @@
 /* eslint-disable no-prototype-builtins */
 import ScriptLoader from "../../integrations/ScriptLoader";
 
-const metaData = {
+const META_DATA = {
   SDK: {
     name: "RudderStack JavaScript SDK",
     version: "process.package_version",
@@ -10,12 +10,10 @@ const metaData = {
   },
 };
 
-const credentials = {
-  apiKey: "0d96a60df267f4a13f808bbaa54e535c",
-  releaseStage: "production",
-};
+// This API key token is parsed in the CI pipeline
+const API_KEY = "{{RS_BUGSNAG_API_KEY}}";
 
-const sdkNames = [
+const SDK_FILE_NAMES = [
   "browser.js",
   "rudder-analytics.min.js",
   "rudder-analytics-staging.min.js",
@@ -35,14 +33,19 @@ const load = () => {
 function initClient(sourceId) {
   if (window.Bugsnag === undefined) return;
 
+  // If the API key token is not parsed yet, don't proceed to initialize the client
+  // This also prevents unnecessary errors sent to Bugsnag during development phase.
+  const apiKeyRegex = /{{.+}}/;
+  if (API_KEY.match(apiKeyRegex) !== null) return;
+
   window.rsBugsnagClient = window.Bugsnag.start({
-    apiKey: credentials.apiKey,
-    metadata: metaData,
+    apiKey: API_KEY,
+    metadata: META_DATA,
     onError: (event) => {
       const errorOrigin = event.errors[0].stacktrace[0].file;
       if (typeof errorOrigin === "string") {
         const index = errorOrigin.lastIndexOf("/");
-        if (!sdkNames.includes(errorOrigin.substring(index + 1))) return false; // Return false to discard the event
+        if (!SDK_FILE_NAMES.includes(errorOrigin.substring(index + 1))) return false; // Return false to discard the event
       }
       event.addMetadata("source", {
         sourceId,
@@ -52,7 +55,7 @@ function initClient(sourceId) {
     autoTrackSessions: false,
   });
 
-  window.rsBugsnagClient.releaseStage = credentials.releaseStage;
+  window.rsBugsnagClient.releaseStage = "production";
 }
 
 const init = (sourceId) => {
