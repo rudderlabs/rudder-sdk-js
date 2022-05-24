@@ -48,7 +48,7 @@ import { addDomEventHandlers } from "./utils/autotrack.js";
 import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
-import { loadBugsnag, initialize } from "./metrics/error-report";
+import * as BugsnagLib from "./metrics/error-report/Bugsnag";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -173,7 +173,7 @@ class Analytics {
       const bsEnabled = get(response.source.config, "metrics.bugsnag.enabled");
       // Load Bugsnag by default unless disabled in the source config
       if (bsEnabled !== false) {
-        initialize(response.source.connections[0].sourceId);
+        BugsnagLib.init(response.source.connections[0].sourceId);
       }
 
       if (
@@ -1175,7 +1175,7 @@ class Analytics {
     if (this.loaded) return;
 
     // Load Bugsnag client SDK
-    loadBugsnag();
+    BugsnagLib.load();
     // check if the below features are available in the browser or not
     // If not present dynamically load from the polyfill cdn
     if (
