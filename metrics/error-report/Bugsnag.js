@@ -33,7 +33,7 @@ const load = () => {
 };
 
 function initClient(sourceId) {
-  if (window.Bugsnag === undefined) return false;
+  if (window.Bugsnag === undefined) return;
 
   window.rsBugsnagClient = window.Bugsnag.start({
     apiKey: credentials.apiKey,
@@ -53,7 +53,6 @@ function initClient(sourceId) {
   });
 
   window.rsBugsnagClient.releaseStage = credentials.releaseStage;
-  return true;
 }
 
 const init = (sourceId) => {
