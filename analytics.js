@@ -16,11 +16,13 @@ import querystring from "component-querystring";
 import merge from "lodash.merge";
 import cloneDeep from "lodash.clonedeep";
 import utm from "@segment/utm-params";
+import get from "get-value";
 import {
   getJSONTrimmed,
   generateUUID,
   handleError,
   notifyError,
+  leaveBreadcrumb,
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
@@ -160,7 +162,15 @@ class Analytics {
       if (typeof response === "string") {
         response = JSON.parse(response);
       }
-      if (true) {
+      // For testing added manually
+      // response.source.config = {
+      //   metrics: {
+      //     bugsnag: {
+      //       enabled: true,
+      //     },
+      //   },
+      // };
+      if (get(response.source.config, "metrics.bugsnag.enabled") === true) {
         initialize(response.source.connections[0].sourceId);
       }
       if (
@@ -199,7 +209,7 @@ class Analytics {
         );
       } catch (e) {
         logger.error(e);
-        e.message = "cookieConsent initialization failed";
+        e.message = `${e.message} [cookieConsent initialization failed]`;
         notifyError(e);
       }
 
@@ -212,7 +222,7 @@ class Analytics {
             (cookieConsent && cookieConsent.isEnabled(intg.config)))
         );
       });
-
+      leaveBreadcrumb("Starting device-mode initialization");
       this.init(this.clientIntegrations);
     } catch (error) {
       handleError(error);
@@ -254,6 +264,9 @@ class Analytics {
           "[Analytics] init :: trying to initialize integration name:: ",
           intg.name
         );
+        leaveBreadcrumb(
+          `[Analytics] init :: trying to initialize integration name:: ${intg.name}`
+        );
         const intgClass = integrations[intg.name];
         const destConfig = intg.config;
         intgInstance = new intgClass(destConfig, self);
@@ -265,7 +278,7 @@ class Analytics {
           "[Analytics] initialize integration (integration.init()) failed :: ",
           intg.name
         );
-        e.message = `[Analytics] initialize integration (integration.init()) failed :: ${intg.name}`;
+        e.message = `${e.message} [[Analytics] initialize integration (integration.init()) failed :: ${intg.name}`;
         notifyError(e);
         this.failedToBeLoadedIntegration.push(intgInstance);
       }
@@ -287,6 +300,7 @@ class Analytics {
         " failed loaded count: ",
         object.failedToBeLoadedIntegration.length
       );
+      leaveBreadcrumb(`Inside replayEvents fn`);
       // eslint-disable-next-line no-param-reassign
       object.clientIntegrationObjects = [];
       // eslint-disable-next-line no-param-reassign
@@ -419,6 +433,7 @@ class Analytics {
    * @memberof Analytics
    */
   page(category, name, properties, options, callback) {
+    leaveBreadcrumb(`Page event`);
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
@@ -451,6 +466,7 @@ class Analytics {
    * @memberof Analytics
    */
   track(event, properties, options, callback) {
+    leaveBreadcrumb(`Track event`);
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
@@ -469,6 +485,7 @@ class Analytics {
    * @memberof Analytics
    */
   identify(userId, traits, options, callback) {
+    leaveBreadcrumb(`Identify event`);
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof traits === "function")
@@ -487,6 +504,7 @@ class Analytics {
    * @param {*} callback
    */
   alias(to, from, options, callback) {
+    leaveBreadcrumb(`Alias event`);
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof from === "function")
@@ -514,6 +532,7 @@ class Analytics {
    * @param {*} callback
    */
   group(groupId, traits, options, callback) {
+    leaveBreadcrumb(`Group event`);
     if (!this.loaded) return;
     if (!arguments.length) return;
 
@@ -754,7 +773,7 @@ class Analytics {
 
       // assign page properties to context
       // rudderElement.message.context.page = getDefaultPageProperties();
-
+      leaveBreadcrumb("Inside processAndSendDataToDestinations fn");
       rudderElement.message.context.traits = {
         ...this.userTraits,
       };
@@ -940,6 +959,8 @@ class Analytics {
    * @memberof Analytics
    */
   reset(flag) {
+    leaveBreadcrumb(`reset fn called with flag: ${flag}`);
+
     if (!this.loaded) return;
     if (flag) {
       this.anonymousId = "";
