@@ -5,8 +5,7 @@ import ScriptLoader from "../../integrations/ScriptLoader";
 // This SDK meta data will be send along with the error for more insight
 const META_DATA = {
   SDK: {
-    name: "RudderStack JavaScript SDK",
-    version: "process.package_version",
+    name: "JS",
     installType: process.browser ? "cdn" : "npm",
   },
 };
@@ -52,7 +51,7 @@ function initClient(sourceId) {
 
   window.rsBugsnagClient = window.Bugsnag.start({
     apiKey: API_KEY,
-    appVersion: META_DATA.SDK.version,
+    appVersion: "process.package_version", // Set SDK version as the app version
     metadata: META_DATA,
     onError: (event) => {
       const errorOrigin = event.errors[0].stacktrace[0].file;
@@ -68,8 +67,8 @@ function initClient(sourceId) {
       event.severity = "error";
       return true;
     },
-    autoTrackSessions: false,
-    collectUserIp: false,
+    autoTrackSessions: false, // auto tracking sessions is disabled
+    collectUserIp: false, // collecting user's IP is disabled
     enabledBreadcrumbTypes: ["error", "log", "user"],
   });
 
