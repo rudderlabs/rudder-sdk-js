@@ -20,22 +20,6 @@ function transformCustomVariable(customFloodlightVariable) {
   return customVariable;
 }
 
-/**
- * append properties to endpoint
- * eg: ${endpoint}key1=value1;key2=value2;....
- * @param {*} endpoint
- * @param {*} payload
- * @returns
- */
-function appendProperties(endpoint, payload) {
-  Object.keys(payload).forEach((key) => {
-    // eslint-disable-next-line no-param-reassign
-    endpoint += `${key}=${payload[key]};`;
-  });
-
-  return endpoint;
-}
-
 // valid flag should be provided [1|true] or [0|false]
 function isValidFlag(key, value) {
   if (["true", "1"].includes(value.toString())) {
@@ -50,4 +34,4 @@ function isValidFlag(key, value) {
   );
 }
 
-export { transformCustomVariable, appendProperties, isValidFlag };
+export { transformCustomVariable, isValidFlag };

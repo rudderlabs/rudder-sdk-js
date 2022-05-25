@@ -9,11 +9,7 @@ import {
   removeUndefinedAndNullValues,
 } from "../utils/commonUtils";
 import { NAME } from "./constants";
-import {
-  transformCustomVariable,
-  appendProperties,
-  isValidFlag,
-} from "./utils";
+import { transformCustomVariable, isValidFlag } from "./utils";
 
 class DCMFloodlight {
   constructor(config, analytics) {
@@ -88,11 +84,8 @@ class DCMFloodlight {
 
     const { message } = rudderElement;
     let { event } = rudderElement.message;
-    let payload;
-    let customFloodlightVariable;
     let salesTag;
-
-    const baseEndpoint = "https://ad.doubleclick.net/ddm/activity/";
+    let customFloodlightVariable;
 
     if (!event) {
       logger.error("[DCM Floodlight]:: event is required for track call");
@@ -143,19 +136,27 @@ class DCMFloodlight {
       customFloodlightVariable
     );
 
-    payload = {
-      src: this.advertiserId,
-      cat: this.activityTag,
-      type: this.groupTag,
-      ord:
-        get(message, "properties.orderId") ||
-        get(message, "context.traits.order_id"),
-      qty: get(message, "properties.quantity"),
-      cost: get(message, "properties.revenue"),
+    // Ref - https://support.google.com/campaignmanager/answer/7554821?hl=en#zippy=%2Ccustom-fields
+    let dcCustomParams = {
+      ord: get(message, "properties.ord"),
+      dc_lat: get(message, "context.device.adTrackingEnabled"),
     };
 
     let eventSnippetPayload;
     if (salesTag) {
+      // sales tag
+      dcCustomParams.ord =
+        get(message, "properties.orderId") ||
+        get(message, "context.traits.order_id");
+      let qty = get(message, "properties.quantity");
+      const revenue = get(message, "properties.revenue");
+
+      eventSnippetPayload = {
+        ...eventSnippetPayload,
+        value: revenue,
+        transaction_id: dcCustomParams.ord,
+      };
+
       // sums quantity from products array or fallback to properties.quantity
       const products = get(message, "properties.products");
       if (isNotEmpty(products) && Array.isArray(products)) {
@@ -166,28 +167,19 @@ class DCMFloodlight {
           return accumulator;
         }, 0);
         if (quantities) {
-          payload.qty = quantities;
+          qty = quantities;
         }
-      }
-
-      if (payload.cost && payload.ord) {
-        eventSnippetPayload = {
-          ...eventSnippetPayload,
-          value: parseFloat(payload.cost),
-          transaction_id: parseFloat(payload.ord),
-        };
       }
 
       // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-event-snippets-for-sales-tags
       switch (countingMethod) {
         case "transactions":
-          payload.qty = 1;
           break;
         case "items_sold":
-          if (payload.qty) {
+          if (qty) {
             eventSnippetPayload = {
               ...eventSnippetPayload,
-              quantity: parseFloat(payload.qty),
+              quantity: parseFloat(qty),
             };
           }
           break;
@@ -197,21 +189,18 @@ class DCMFloodlight {
       }
     } else {
       // for counter tag
-      payload.ord = get(message, "messageId");
-      delete payload.qty;
-      delete payload.cost;
-
       // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-event-snippets-for-counter-tags
       switch (countingMethod) {
         case "standard":
-          payload.ord = 1;
           break;
         case "unique":
-          payload.ord = 1;
-          payload.num = 1;
+          dcCustomParams = {
+            ...dcCustomParams,
+            num: get(message, "properties.num"),
+          };
           break;
         case "per_session":
-          payload.ord = get(message, "properties.sessionId");
+          dcCustomParams.ord = get(message, "properties.sessionId");
 
           eventSnippetPayload = {
             ...eventSnippetPayload,
@@ -231,35 +220,30 @@ class DCMFloodlight {
 
     if (DCM_FLOODLIGHT) {
       if (isDefinedAndNotNull(DCM_FLOODLIGHT.COPPA)) {
-        payload.tag_for_child_directed_treatment = isValidFlag(
+        dcCustomParams.tag_for_child_directed_treatment = isValidFlag(
           "COPPA",
           DCM_FLOODLIGHT.COPPA
         );
       }
 
       if (isDefinedAndNotNull(DCM_FLOODLIGHT.GDPR)) {
-        payload.tfua = isValidFlag("GDPR", DCM_FLOODLIGHT.GDPR);
+        dcCustomParams.tfua = isValidFlag("GDPR", DCM_FLOODLIGHT.GDPR);
       }
 
       if (isDefinedAndNotNull(DCM_FLOODLIGHT.npa)) {
-        payload.npa = isValidFlag("npa", DCM_FLOODLIGHT.npa);
+        dcCustomParams.npa = isValidFlag("npa", DCM_FLOODLIGHT.npa);
       }
     }
 
-    // Ref - https://support.google.com/campaignmanager/answer/7554821?hl=en#zippy=%2Ccustom-fields
-    let dcCustomParams = {
-      ord: payload.ord,
-      num: payload.num,
-      tag_for_child_directed_treatment:
-        payload.tag_for_child_directed_treatment,
-      tfua: payload.tfua,
-      npa: payload.npa,
-    };
+    if (isDefinedAndNotNull(dcCustomParams.dc_lat)) {
+      dcCustomParams.dc_lat = isValidFlag("dc_lat", dcCustomParams.dc_lat);
+    }
+
     dcCustomParams = removeUndefinedAndNullValues(dcCustomParams);
 
     const matchId = get(message, "properties.matchId");
     if (matchId) {
-      payload.match_id = [matchId];
+      dcCustomParams.match_id = [matchId];
     }
 
     eventSnippetPayload = {
@@ -273,27 +257,17 @@ class DCMFloodlight {
       eventSnippetPayload.dc_custom_params = dcCustomParams;
     }
     eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
+    logger.debug(
+      `[DCM] eventSnippetPayload:: ${JSON.stringify(eventSnippetPayload)}`
+    );
 
     // event snippet
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-the-event-snippet---overview
     window.gtag("event", "conversion", eventSnippetPayload);
 
-    payload = removeUndefinedAndNullValues(payload);
     customFloodlightVariable = removeUndefinedAndNullValues(
       customFloodlightVariable
     );
-
-    let dcmEndpoint = appendProperties(baseEndpoint, payload);
-    dcmEndpoint = appendProperties(dcmEndpoint, customFloodlightVariable)
-      .slice(0, -1)
-      .concat("?");
-
-    // create noscript tag for
-    const noscript = document.createElement("noscript");
-    const image = document.createElement("img");
-    image.src = dcmEndpoint;
-    noscript.append(image);
-    document.getElementsByTagName("head")[0].appendChild(noscript);
   }
 
   page(rudderElement) {
