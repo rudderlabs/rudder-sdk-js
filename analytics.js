@@ -170,6 +170,8 @@ class Analytics {
       //     },
       //   },
       // };
+
+      // Fetch Bugsnag enable option from sourceConfig
       const bsEnabled = get(response.source.config, "metrics.bugsnag.enabled");
       // Load Bugsnag by default unless disabled in the source config
       if (bsEnabled !== false) {

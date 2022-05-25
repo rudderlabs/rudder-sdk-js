@@ -5,7 +5,7 @@ import ScriptLoader from "../../integrations/ScriptLoader";
 // This SDK meta data will be send along with the error for more insight
 const META_DATA = {
   SDK: {
-    name: "RudderStack JavaScript SDK",
+    name: "JS",
     version: "process.package_version",
     installType: process.browser ? "cdn" : "npm",
   },
@@ -68,8 +68,8 @@ function initClient(sourceId) {
       event.severity = "error";
       return true;
     },
-    autoTrackSessions: false,
-    collectUserIp: false,
+    autoTrackSessions: false, // auto tracking sessions is disabled
+    collectUserIp: false, // collecting user's IP is disabled
     enabledBreadcrumbTypes: ["error", "log", "user"],
   });
 

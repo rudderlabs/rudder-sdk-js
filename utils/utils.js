@@ -117,12 +117,20 @@ function getJSONTrimmed(context, url, writeKey, callback) {
   xhr.send();
 }
 
+/**
+ * This function is to add breadcrumbs
+ * @param {string} breadcrumb Message to add insight of an user's journey before the error occurred
+ */
 function leaveBreadcrumb(breadcrumb) {
   if (window.rsBugsnagClient) {
     window.rsBugsnagClient.leaveBreadcrumb(breadcrumb);
   }
 }
 
+/**
+ * This function is to send handled errors to Bugsnag if Bugsnag client is available
+ * @param {Error} error Error instance from handled error
+ */
 function notifyError(error) {
   if (window.rsBugsnagClient) {
     window.rsBugsnagClient.notify(error);
@@ -148,8 +156,9 @@ function handleError(error, analyticsInstance) {
       }
     }
     if (errorMessage && !sampleAdBlockTest) {
-      logger.error("[Util] handleError:: ", errorMessage);
-      notifyError(new Error(`[Util] handleError:: ${errorMessage}`));
+      const errMessage = `[Util] handleError:: ${errorMessage}`;
+      logger.error(errMessage);
+      notifyError(new Error(errMessage));
     }
   } catch (e) {
     logger.error("[Util] handleError:: ", e);
