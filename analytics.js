@@ -212,7 +212,7 @@ class Analytics {
         );
       } catch (e) {
         logger.error(e);
-        e.message = `${e.message} [cookieConsent initialization failed]`;
+        e.message = `[cookieConsent initialization failed]:: ${e.message}`;
         notifyError(e);
       }
 
@@ -281,7 +281,7 @@ class Analytics {
           "[Analytics] initialize integration (integration.init()) failed :: ",
           intg.name
         );
-        e.message = `${e.message} [[Analytics] initialize integration (integration.init()) failed :: ${intg.name}`;
+        e.message = `[Analytics] initialize integration (integration.init()) failed :: ${intg.name} :: ${e.message}`;
         notifyError(e);
         this.failedToBeLoadedIntegration.push(intgInstance);
       }

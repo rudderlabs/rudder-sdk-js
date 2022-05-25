@@ -52,6 +52,7 @@ function initClient(sourceId) {
 
   window.rsBugsnagClient = window.Bugsnag.start({
     apiKey: API_KEY,
+    appVersion: META_DATA.SDK.version,
     metadata: META_DATA,
     onError: (event) => {
       const errorOrigin = event.errors[0].stacktrace[0].file;
@@ -63,9 +64,13 @@ function initClient(sourceId) {
       event.addMetadata("source", {
         sourceId,
       });
+      // eslint-disable-next-line no-param-reassign
+      event.severity = "error";
       return true;
     },
     autoTrackSessions: false,
+    collectUserIp: false,
+    enabledBreadcrumbTypes: ["error", "log", "user"],
   });
 
   window.rsBugsnagClient.releaseStage = "production"; // set the release stage
