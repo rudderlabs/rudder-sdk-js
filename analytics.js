@@ -770,7 +770,7 @@ class Analytics {
 
       // assign page properties to context
       // rudderElement.message.context.page = getDefaultPageProperties();
-      leaveBreadcrumb("Inside processAndSendDataToDestinations fn");
+      leaveBreadcrumb("Started sending data to destinations");
       rudderElement.message.context.traits = {
         ...this.userTraits,
       };
