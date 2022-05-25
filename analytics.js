@@ -206,7 +206,7 @@ class Analytics {
         );
       } catch (e) {
         logger.error(e);
-        e.message = `[cookieConsent initialization failed]:: ${e.message}`;
+        e.message = `[cookieConsent init failed]:: ${e.message}`;
         notifyError(e);
       }
 
