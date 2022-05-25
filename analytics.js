@@ -956,7 +956,7 @@ class Analytics {
    * @memberof Analytics
    */
   reset(flag) {
-    leaveBreadcrumb(`reset fn called with flag: ${flag}`);
+    leaveBreadcrumb(`reset API :: flag: ${flag}`);
 
     if (!this.loaded) return;
     if (flag) {
