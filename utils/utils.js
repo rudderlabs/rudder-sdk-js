@@ -758,4 +758,5 @@ export {
   constructPayload,
   notifyError,
   leaveBreadcrumb,
+  get
 };

@@ -16,7 +16,6 @@ import querystring from "component-querystring";
 import merge from "lodash.merge";
 import cloneDeep from "lodash.clonedeep";
 import utm from "@segment/utm-params";
-import get from "get-value";
 import {
   getJSONTrimmed,
   generateUUID,
@@ -32,6 +31,7 @@ import {
   getReferrer,
   getReferringDomain,
   commonNames,
+  get
 } from "./utils/utils";
 import {
   CONFIG_URL,
