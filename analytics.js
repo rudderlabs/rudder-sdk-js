@@ -303,7 +303,7 @@ class Analytics {
         " failed loaded count: ",
         object.failedToBeLoadedIntegration.length
       );
-      leaveBreadcrumb(`Inside replayEvents fn`);
+      leaveBreadcrumb(`Started replaying buffered events`);
       // eslint-disable-next-line no-param-reassign
       object.clientIntegrationObjects = [];
       // eslint-disable-next-line no-param-reassign
