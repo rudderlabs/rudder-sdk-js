@@ -6,7 +6,6 @@ import ScriptLoader from "../../integrations/ScriptLoader";
 const META_DATA = {
   SDK: {
     name: "JS",
-    version: "process.package_version",
     installType: process.browser ? "cdn" : "npm",
   },
 };
@@ -52,7 +51,7 @@ function initClient(sourceId) {
 
   window.rsBugsnagClient = window.Bugsnag.start({
     apiKey: API_KEY,
-    appVersion: META_DATA.SDK.version,
+    appVersion: "process.package_version", // Set SDK version as the app version
     metadata: META_DATA,
     onError: (event) => {
       const errorOrigin = event.errors[0].stacktrace[0].file;
