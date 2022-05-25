@@ -163,14 +163,6 @@ class Analytics {
         response = JSON.parse(response);
       }
 
-      // response.source.config = {
-      //   metrics: {
-      //     bugsnag: {
-      //       enabled: true,
-      //     },
-      //   },
-      // };
-
       // Fetch Bugsnag enable option from sourceConfig
       const bsEnabled = get(response.source.config, "metrics.bugsnag.enabled");
       // Load Bugsnag by default unless disabled in the source config
