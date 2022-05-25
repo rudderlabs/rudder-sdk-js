@@ -2,17 +2,19 @@
 /* eslint-disable no-prototype-builtins */
 import ScriptLoader from "../../integrations/ScriptLoader";
 
+// This SDK meta data will be send along with the error for more insight
 const META_DATA = {
   SDK: {
     name: "RudderStack JavaScript SDK",
     version: "process.package_version",
-    installType: process.browser ? "CDN" : "NPM",
+    installType: process.browser ? "cdn" : "npm",
   },
 };
 
 // This API key token is parsed in the CI pipeline
 const API_KEY = "{{RS_BUGSNAG_API_KEY}}";
 
+// Errors only from Below SDKs are allowed to reach Bugsnag
 const SDK_FILE_NAMES = [
   "browser.js",
   "rudder-analytics.min.js",
@@ -20,6 +22,10 @@ const SDK_FILE_NAMES = [
   "rudder-analytics.js",
 ];
 
+/**
+ * This function will load the Bugsnag native SDK through CDN
+ * Once loaded it will be available in window.Bugsnag
+ */
 const load = () => {
   const pluginName = "bugsnag";
   if (!window.hasOwnProperty(pluginName)) {
@@ -30,6 +36,12 @@ const load = () => {
   }
 };
 
+/**
+ * This function is to initialize the bugsnag with apiKey, SDK meta data
+ * and custom configuration for onError method.
+ * After initialization Bugsnag instance will be available in window.rsBugsnagClient
+ * @param {string} sourceId
+ */
 function initClient(sourceId) {
   if (window.Bugsnag === undefined) return;
 
@@ -45,7 +57,8 @@ function initClient(sourceId) {
       const errorOrigin = event.errors[0].stacktrace[0].file;
       if (typeof errorOrigin === "string") {
         const index = errorOrigin.lastIndexOf("/");
-        if (!SDK_FILE_NAMES.includes(errorOrigin.substring(index + 1))) return false; // Return false to discard the event
+        if (!SDK_FILE_NAMES.includes(errorOrigin.substring(index + 1)))
+          return false; // Return false to discard the event
       }
       event.addMetadata("source", {
         sourceId,
@@ -55,17 +68,23 @@ function initClient(sourceId) {
     autoTrackSessions: false,
   });
 
-  window.rsBugsnagClient.releaseStage = "production";
+  window.rsBugsnagClient.releaseStage = "production"; // set the release stage
 }
 
+/**
+ * The responsibility of this function is to check Bugsnag native SDK
+ * has been loaded or not in a certain interval.
+ * If already loaded initialize the SDK.
+ * @param {*} sourceId
+ */
 const init = (sourceId) => {
-  if (window.hasOwnProperty("rsBugsnagClient")) return;
+  if (window.hasOwnProperty("rsBugsnagClient")) return; // return if already initialized
 
   if (window.Bugsnag !== undefined) {
     initClient(sourceId);
   } else {
     // Check if Bugsnag is loaded every '100'ms
-    const interval = setInterval(function () {
+    const interval = setInterval(() => {
       if (window.Bugsnag !== undefined) {
         clearInterval(interval);
 
