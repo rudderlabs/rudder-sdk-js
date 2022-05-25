@@ -46,6 +46,7 @@ const clientToServerNames = {
   POST_AFFILIATE_PRO: "Post Affiliate Pro",
   LAUNCHDARKLY: "LaunchDarkly",
   GA360: "Google Analytics 360",
+  ADROLL: "Adroll",
 };
 
 export { clientToServerNames };
