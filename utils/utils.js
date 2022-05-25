@@ -158,7 +158,11 @@ function handleError(error, analyticsInstance) {
     if (errorMessage && !sampleAdBlockTest) {
       const errMessage = `[Util] handleError:: ${errorMessage}`;
       logger.error(errMessage);
-      notifyError(new Error(errMessage));
+      if (error instanceof Error) {
+        notifyError(error);
+      } else {
+        notifyError(new Error(errMessage));
+      }
     }
   } catch (e) {
     logger.error("[Util] handleError:: ", e);
@@ -758,5 +762,5 @@ export {
   constructPayload,
   notifyError,
   leaveBreadcrumb,
-  get
+  get,
 };

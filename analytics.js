@@ -20,7 +20,6 @@ import {
   getJSONTrimmed,
   generateUUID,
   handleError,
-  notifyError,
   leaveBreadcrumb,
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
@@ -31,7 +30,7 @@ import {
   getReferrer,
   getReferringDomain,
   commonNames,
-  get
+  get,
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -205,9 +204,8 @@ class Analytics {
           this.cookieConsentOptions
         );
       } catch (e) {
-        logger.error(e);
         e.message = `[cookieConsent init failed]:: ${e.message}`;
-        notifyError(e);
+        handleError(e);
       }
 
       // If cookie consent object is return we filter according to consents given by user
@@ -257,13 +255,9 @@ class Analytics {
     let intgInstance;
     intgArray.forEach((intg) => {
       try {
-        logger.debug(
-          "[Analytics] init :: trying to initialize integration name:: ",
-          intg.name
-        );
-        leaveBreadcrumb(
-          `[Analytics] init :: trying to initialize integration name:: ${intg.name}`
-        );
+        const msg = `[Analytics] init :: trying to initialize integration name:: ${intg.name}`;
+        logger.debug(msg);
+        leaveBreadcrumb(msg);
         const intgClass = integrations[intg.name];
         const destConfig = intg.config;
         intgInstance = new intgClass(destConfig, self);
@@ -271,12 +265,8 @@ class Analytics {
         logger.debug("initializing destination: ", intg);
         this.isInitialized(intgInstance).then(this.replayEvents);
       } catch (e) {
-        logger.error(
-          "[Analytics] initialize integration (integration.init()) failed :: ",
-          intg.name
-        );
         e.message = `[Analytics] 'integration.init()' failed :: ${intg.name} :: ${e.message}`;
-        notifyError(e);
+        handleError(e);
         this.failedToBeLoadedIntegration.push(intgInstance);
       }
     });
@@ -815,10 +805,9 @@ class Analytics {
         );
 
       // try to first send to all integrations, if list populated from BE
-      let index;
-      try {
-        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj, i) => {
-          index = i;
+
+      succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+        try {
           if (!obj.isFailed || !obj.isFailed()) {
             if (obj[type]) {
               const sendEvent = !this.IsEventBlackListed(
@@ -833,14 +822,11 @@ class Analytics {
               }
             }
           }
-        });
-      } catch (err) {
-        const destWithErr =
-          succesfulLoadedIntersectClientSuppliedIntegrations[index];
-        handleError({
-          message: `[sendToNative]:${err}. Destination:${destWithErr.name}.`,
-        });
-      }
+        } catch (err) {
+          err.message = `[sendToNative]::[Destination:${obj.name}]:: ${err}`;
+          handleError(err);
+        }
+      });
 
       // config plane native enabled destinations, still not completely loaded
       // in the page, add the events to a queue and process later
