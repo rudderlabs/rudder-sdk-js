@@ -275,7 +275,7 @@ class Analytics {
           "[Analytics] initialize integration (integration.init()) failed :: ",
           intg.name
         );
-        e.message = `[Analytics] initialize integration (integration.init()) failed :: ${intg.name} :: ${e.message}`;
+        e.message = `[Analytics] 'integration.init()' failed :: ${intg.name} :: ${e.message}`;
         notifyError(e);
         this.failedToBeLoadedIntegration.push(intgInstance);
       }
