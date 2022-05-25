@@ -138,7 +138,7 @@ function notifyError(error) {
 }
 
 function handleError(error, analyticsInstance) {
-  let errorMessage = error.message ? error.message : undefined;
+  let errorMessage = error.message || undefined;
   let sampleAdBlockTest;
   try {
     if (error instanceof Event) {
