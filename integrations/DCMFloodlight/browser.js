@@ -147,7 +147,7 @@ class DCMFloodlight {
       // sales tag
       dcCustomParams.ord =
         get(message, "properties.orderId") ||
-        get(message, "context.traits.order_id");
+        get(message, "properties.order_id");
       let qty = get(message, "properties.quantity");
       const revenue = get(message, "properties.revenue");
 
