@@ -887,6 +887,14 @@ class Analytics {
     return this.userTraits;
   }
 
+  getGroupId() {
+    return this.groupId;
+  }
+
+  getGroupTraits() {
+    return this.groupTraits;
+  }
+
   /**
    * Sets anonymous id in the following precedence:
    * 1. anonymousId: Id directly provided to the function.
@@ -1292,6 +1300,8 @@ const getUserId = instance.getUserId.bind(instance);
 const getUserTraits = instance.getUserTraits.bind(instance);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
+const getGroupId = instance.getGroupId.bind(instance);
+const getGroupTraits = instance.getGroupTraits.bind(instance);
 
 export {
   initialized,
@@ -1307,4 +1317,6 @@ export {
   getUserTraits,
   getAnonymousId,
   setAnonymousId,
+  getGroupId,
+  getGroupTraits,
 };
