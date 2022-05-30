@@ -149,8 +149,8 @@ class Analytics {
    * Function to execute the ready method callbacks
    * @param {Analytics} self
    */
-  executeReadyCallback(self) {
-    self.readyCallbacks.forEach((callback) => callback());
+  executeReadyCallback() {
+    this.readyCallbacks.forEach((callback) => callback());
   }
 
   /**
@@ -247,7 +247,7 @@ class Analytics {
       // set clientIntegrationsReady to be true
       this.clientIntegrationsReady = true;
       // Execute the callbacks if any
-      this.executeReadyCallback(this);
+      this.executeReadyCallback();
       this.toBeProcessedByIntegrationArray = [];
       return;
     }
@@ -303,7 +303,7 @@ class Analytics {
         // set clientIntegrationsReady to be true
         object.clientIntegrationsReady = true;
         // Execute the callbacks if any
-        object.executeReadyCallback(object);
+        object.executeReadyCallback();
       }
 
       if (object.toBeProcessedByIntegrationArray.length > 0) {
