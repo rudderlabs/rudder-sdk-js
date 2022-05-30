@@ -241,7 +241,7 @@ class Analytics {
       this.clientIntegrationObjectsReady = true;
       // Execute the callbacks if any
       if (this.readyCallbackArr.length) {
-        this.readyCallbackArr.forEach((each) => each());
+        this.readyCallbackArr.forEach((callback) => callback());
       }
       this.toBeProcessedByIntegrationArray = [];
       return;
