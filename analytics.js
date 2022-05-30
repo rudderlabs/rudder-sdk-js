@@ -94,14 +94,13 @@ class Analytics {
     this.clientSuppliedCallbacks = {};
     // Array to store the callback functions registered in the ready API
     this.readyCallbacks = [];
-    this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
       syncPixel: "syncPixelCallback",
     };
     this.loaded = false;
     this.loadIntegration = true;
     this.cookieConsentOptions = {};
-    // flag to indicate client integrations` ready status    
+    // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
   }
 
@@ -143,6 +142,16 @@ class Analytics {
       initialReferringDomain = getReferringDomain(initialReferrer);
       this.storage.setInitialReferrer(initialReferrer);
       this.storage.setInitialReferringDomain(initialReferringDomain);
+    }
+  }
+
+  /**
+   * Function to execute the ready method callbacks
+   * @param {Analytics} self
+   */
+  executeReadyCallback(self) {
+    if (self.readyCallbacks.length) {
+      self.readyCallbacks.forEach((callback) => callback());
     }
   }
 
@@ -237,12 +246,10 @@ class Analytics {
     // this.clientIntegrationObjects = [];
     if (!intgArray || intgArray.length == 0) {
       // If no integrations are there to be loaded
-      // set clientIntegrationObjectsReady to be true
-      this.clientIntegrationObjectsReady = true;
+      // set clientIntegrationsReady to be true
+      this.clientIntegrationsReady = true;
       // Execute the callbacks if any
-      if (this.readyCallbackArr.length) {
-        this.readyCallbackArr.forEach((callback) => callback());
-      }
+      this.executeReadyCallback(this);
       this.toBeProcessedByIntegrationArray = [];
       return;
     }
@@ -289,24 +296,16 @@ class Analytics {
       // eslint-disable-next-line no-param-reassign
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
 
-      logger.debug(
-        "==registering after callback===",
-        " after to be called after count : ",
-        object.clientIntegrationObjects.length
-      );
-
       if (
         object.clientIntegrationObjects.every(
           (intg) => !intg.isReady || intg.isReady()
         )
       ) {
         // Integrations are ready
-        // set clientIntegrationObjectsReady to be true
-        object.clientIntegrationObjectsReady = true;
+        // set clientIntegrationsReady to be true
+        object.clientIntegrationsReady = true;
         // Execute the callbacks if any
-        if (object.readyCallbackArr.length) {
-          object.readyCallbackArr.forEach((each) => each());
-        }
+        object.executeReadyCallback(object);
       }
 
       if (object.toBeProcessedByIntegrationArray.length > 0) {
@@ -1177,10 +1176,10 @@ class Analytics {
        * execute the callback immediately
        * else push the callbacks to a queue that will be executed after loading completes
        */
-      if (this.clientIntegrationObjectsReady) {
+      if (this.clientIntegrationsReady) {
         callback();
       } else {
-        this.readyCallbackArr.push(callback);
+        this.readyCallbacks.push(callback);
       }
       return;
     }
