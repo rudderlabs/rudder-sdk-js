@@ -71,7 +71,8 @@ class Analytics {
     this.sendAdblockPage = false;
     this.sendAdblockPageOptions = {};
     this.clientSuppliedCallbacks = {};
-    this.readyCallback = () => {};
+    // Array to store the callback functions registered in the ready API
+    this.readyCallbacks = [];
     this.methodToCallbackMapping = {
       syncPixel: "syncPixelCallback",
     };
@@ -81,6 +82,8 @@ class Analytics {
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
     this.cookieConsentOptions = {};
     this.logLevel = undefined;
+    // flag to indicate client integrations` ready status
+    this.clientIntegrationsReady = false;
   }
 
   /**
@@ -147,6 +150,14 @@ class Analytics {
         ).then(resolve);
       });
     });
+  }
+
+  /**
+   * Function to execute the ready method callbacks
+   * @param {Analytics} self
+   */
+  executeReadyCallback() {
+    this.readyCallbacks.forEach((callback) => callback());
   }
 
   /**
@@ -264,10 +275,12 @@ class Analytics {
       const self = this;
       this.allModulesInitialized().then(() => {
         if (!self.clientIntegrations || self.clientIntegrations.length == 0) {
-          if (self.readyCallback) {
-            self.readyCallback();
-          }
-          self.toBeProcessedByIntegrationArray = [];
+          // If no integrations are there to be loaded
+          // set clientIntegrationsReady to be true
+          this.clientIntegrationsReady = true;
+          // Execute the callbacks if any
+          this.executeReadyCallback();
+          this.toBeProcessedByIntegrationArray = [];
           return;
         }
 
@@ -303,7 +316,11 @@ class Analytics {
         (intg) => !intg.isReady || intg.isReady()
       )
     ) {
-      object.readyCallback();
+        // Integrations are ready
+        // set clientIntegrationsReady to be true
+        object.clientIntegrationsReady = true;
+        // Execute the callbacks if any
+        object.executeReadyCallback();
     }
 
     // send the queued events to the fetched integration
@@ -1093,7 +1110,16 @@ class Analytics {
   ready(callback) {
     if (!this.loaded) return;
     if (typeof callback === "function") {
-      this.readyCallback = callback;
+      /**
+       * If integrations are loaded or no integration is available for loading
+       * execute the callback immediately
+       * else push the callbacks to a queue that will be executed after loading completes
+       */
+      if (this.clientIntegrationsReady) {
+        callback();
+      } else {
+        this.readyCallbacks.push(callback);
+      }
       return;
     }
     logger.error("ready callback is not a function");
