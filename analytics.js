@@ -92,7 +92,8 @@ class Analytics {
     this.sendAdblockPage = false;
     this.sendAdblockPageOptions = {};
     this.clientSuppliedCallbacks = {};
-    this.readyCallbackArr = []; // array to store callback fn provided in ready method
+    // Array to store the callback functions registered in the ready API
+    this.readyCallbacks = [];
     this.executeReadyCallback = undefined;
     this.methodToCallbackMapping = {
       syncPixel: "syncPixelCallback",
