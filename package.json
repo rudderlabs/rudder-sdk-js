@@ -21,14 +21,15 @@
     "buildDevNode": "NODE_ENV=true uglify=false rollup -c",
     "buildProdNode": "NODE_ENV=true ENV=prod uglify=true rollup -c",
     "buildForNpm": "NPM=true rollup -c",
-    "bundle-size-visual": "NODE_ENV=true ENV=prod PROD_DEBUG=true uglify=true visualizer=true rollup -c",
+    "bundle-size-visual": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true rollup -c",
     "size-build": "npm run buildProdBrowser",
     "size": "npm run size-build && size-limit",
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc ",
     "buildDevIntegration": "NODE_ENV=false uglify=false INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
     "buildDevIntegrationCLI": "NODE_ENV=false uglify=false INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
-    "buildProdIntegration": "NODE_ENV=false ENV=prod uglify=true INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
-    "buildProdIntegrationCLI": "NODE_ENV=false ENV=prod uglify=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js"
+    "buildProdIntegrationCLI": "NODE_ENV=false ENV=prod uglify=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
+    "bundle-size-visual-integration": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
+    "bundle-size-visual-integration-cli": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js"
   },
   "pre-commit": {
     "run": [
@@ -91,12 +92,13 @@
     "prettier": "^2.4.1",
     "rollup": "^2.60.0",
     "rollup-plugin-brotli": "^3.1.0",
+    "rollup-plugin-filesize": "^9.1.2",
     "rollup-plugin-gzip": "^3.0.0",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-sourcemaps": "^0.6.3",
     "rollup-plugin-terser": "^7.0.2",
-    "rollup-plugin-visualizer": "^5.5.2",
+    "rollup-plugin-visualizer": "^5.6.0",
     "size-limit": "^6.0.4"
   }
 }
