@@ -150,9 +150,7 @@ class Analytics {
    * @param {Analytics} self
    */
   executeReadyCallback(self) {
-    if (self.readyCallbacks.length) {
-      self.readyCallbacks.forEach((callback) => callback());
-    }
+    self.readyCallbacks.forEach((callback) => callback());
   }
 
   /**
