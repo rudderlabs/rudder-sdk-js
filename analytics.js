@@ -101,9 +101,8 @@ class Analytics {
     this.loaded = false;
     this.loadIntegration = true;
     this.cookieConsentOptions = {};
-    // class property to understand all integrations are loaded or not
-    // default is false
-    this.clientIntegrationObjectsReady = false;
+    // flag to indicate client integrations` ready status    
+    this.clientIntegrationsReady = false;
   }
 
   /**
