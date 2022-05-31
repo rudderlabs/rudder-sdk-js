@@ -1,6 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable no-prototype-builtins */
 import ScriptLoader from "../../integrations/ScriptLoader";
+import { configToIntNames } from "../../utils/config_to_integration_names";
 
 // This SDK meta data will be send along with the error for more insight
 const META_DATA = {
@@ -19,6 +20,8 @@ const SDK_FILE_NAMES = [
   "rudder-analytics.min.js",
   "rudder-analytics-staging.min.js",
   "rudder-analytics.js",
+  ...Object.values(configToIntNames).map((e) => `${e}.min.js`),
+  ...Object.values(configToIntNames).map((e) => `${e}-staging.min.js`),
 ];
 
 /**
