@@ -20,7 +20,7 @@ const SDK_FILE_NAMES = [
   "rudder-analytics.min.js",
   "rudder-analytics-staging.min.js",
   "rudder-analytics.js",
-  ...Object.values(configToIntNames).map((e) => `${e}.min.js`),
+  ...Object.values(configToIntNames).map((intgName) => `${intgName}.min.js`),
   ...Object.values(configToIntNames).map((e) => `${e}-staging.min.js`),
 ];
 
