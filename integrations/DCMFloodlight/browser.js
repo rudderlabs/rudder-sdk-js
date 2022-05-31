@@ -278,21 +278,22 @@ class DCMFloodlight {
     const { category } = rudderElement.message.properties;
     const { name } = rudderElement.message || rudderElement.message.properties;
 
+    if (!category && !name) {
+      logger.error("[DCM Floodlight]:: category or name is required for page");
+      return;
+    }
+
     if (category && name) {
       rudderElement.message.event = `Viewed ${category} ${name} Page`;
       rudderElement.message.type = "track";
       this.track(rudderElement);
-    }
-
-    // categorized pages
-    if (category) {
+    } else if (category) {
+      // categorized pages
       rudderElement.message.event = `Viewed ${category} Page`;
       rudderElement.message.type = "track";
       this.track(rudderElement);
-    }
-
-    // named pages
-    if (name) {
+    } else {
+      // named pages
       rudderElement.message.event = `Viewed ${name} Page`;
       rudderElement.message.type = "track";
       this.track(rudderElement);
