@@ -2,7 +2,17 @@ import { isNotEmpty } from "../utils/commonUtils";
 
 /**
  * transform webapp dynamicForm custom floodlight variable
- * into {u1: [value], u2: [value], ...}
+ * [
+      {
+        "from": "1",
+        "to": "value1"
+      },
+      {
+        "from": "2",
+        "to": "value2"
+      }
+  ]
+ * into {u1: [value1], u2: [value2], ...}
  * @param {*} customFloodlightVariable
  * @returns
  */

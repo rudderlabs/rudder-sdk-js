@@ -104,6 +104,7 @@ class DCMFloodlight {
 
     // find conversion event
     // some() stops execution if at least one condition is passed and returns bool
+    // knowing cat (activityTag), type (groupTag), (counter or sales), customVariable from config
     event = event.trim().toLowerCase();
     const conversionEventFound = this.conversionEvents.some(
       (conversionEvent) => {
@@ -137,6 +138,8 @@ class DCMFloodlight {
     );
 
     // Ref - https://support.google.com/campaignmanager/answer/7554821?hl=en#zippy=%2Ccustom-fields
+    // we can pass custom variables to DCM and any values passed in it will override its default value
+    // Total 7 properties - ord, num, dc_lat, tag_for_child_directed_treatment, tfua, npa, match_id
     let dcCustomParams = {
       ord: get(message, "properties.ord"),
       dc_lat: get(message, "context.device.adTrackingEnabled"),
@@ -239,12 +242,16 @@ class DCMFloodlight {
       dcCustomParams.dc_lat = isValidFlag("dc_lat", dcCustomParams.dc_lat);
     }
 
-    dcCustomParams = removeUndefinedAndNullValues(dcCustomParams);
-
     const matchId = get(message, "properties.matchId");
     if (matchId) {
       dcCustomParams.match_id = [matchId];
     }
+
+    dcCustomParams = removeUndefinedAndNullValues(dcCustomParams);
+
+    customFloodlightVariable = removeUndefinedAndNullValues(
+      customFloodlightVariable
+    );
 
     eventSnippetPayload = {
       allow_custom_scripts: true,
@@ -264,16 +271,12 @@ class DCMFloodlight {
     // event snippet
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-the-event-snippet---overview
     window.gtag("event", "conversion", eventSnippetPayload);
-
-    customFloodlightVariable = removeUndefinedAndNullValues(
-      customFloodlightVariable
-    );
   }
 
   page(rudderElement) {
     logger.debug("===In DCMFloodlight page===");
     const { category } = rudderElement.message.properties;
-    const { name } = rudderElement.message;
+    const { name } = rudderElement.message || rudderElement.message.properties;
 
     if (category && name) {
       rudderElement.message.event = `Viewed ${category} ${name} Page`;
