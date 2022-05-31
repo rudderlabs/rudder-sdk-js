@@ -18,6 +18,7 @@ import {
   getJSONTrimmed,
   generateUUID,
   handleError,
+  leaveBreadcrumb,
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
@@ -30,6 +31,7 @@ import {
   getConfigUrl,
   checkSDKUrl,
   commonNames,
+  get,
 } from "./utils/utils";
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
@@ -47,6 +49,7 @@ import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import { configToIntNames } from "./utils/config_to_integration_names";
 import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
+import * as BugsnagLib from "./metrics/error-report/Bugsnag";
 
 /**
  * class responsible for handling core
@@ -173,6 +176,13 @@ class Analytics {
         response = JSON.parse(response);
       }
 
+      // Fetch Bugsnag enable option from sourceConfig
+      const bsEnabled = get(response.source.config, "metrics.bugsnag.enabled");
+      // Load Bugsnag by default unless disabled in the source config
+      if (bsEnabled !== false) {
+        BugsnagLib.init(response.source.connections[0].sourceId);
+      }
+
       response.source.destinations.forEach(function (destination, index) {
         // logger.debug(
         //   `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
@@ -219,6 +229,7 @@ class Analytics {
         suffix = "-staging"; // stagging suffix
       }
 
+      leaveBreadcrumb("Starting device-mode initialization");
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
@@ -240,10 +251,9 @@ class Analytics {
 
             let intgInstance;
             try {
-              // logger.debug(
-              //   pluginName,
-              //   " [Analytics] processResponse :: trying to initialize integration ::"
-              // );
+              const msg = `[Analytics] processResponse :: trying to initialize integration name:: ${pluginName}`;
+              // logger.debug(msg);
+              leaveBreadcrumb(msg);
               intgInstance = new intMod[modName](intg.config, self);
               intgInstance.init();
 
@@ -255,11 +265,8 @@ class Analytics {
                   intMod[modName];
               });
             } catch (e) {
-              logger.error(
-                pluginName,
-                " [Analytics] initialize integration (integration.init()) failed",
-                e
-              );
+              e.message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
+              handleError(e);
               self.failedToBeLoadedIntegration.push(intgInstance);
             }
           }
@@ -298,6 +305,7 @@ class Analytics {
     //   " failed loaded count: ",
     //   object.failedToBeLoadedIntegration.length
     // );
+    leaveBreadcrumb(`Started replaying buffered events`);
     // eslint-disable-next-line no-param-reassign
     object.clientIntegrationObjects = [];
     // eslint-disable-next-line no-param-reassign
@@ -314,11 +322,11 @@ class Analytics {
         (intg) => !intg.isReady || intg.isReady()
       )
     ) {
-        // Integrations are ready
-        // set clientIntegrationsReady to be true
-        object.clientIntegrationsReady = true;
-        // Execute the callbacks if any
-        object.executeReadyCallback();
+      // Integrations are ready
+      // set clientIntegrationsReady to be true
+      object.clientIntegrationsReady = true;
+      // Execute the callbacks if any
+      object.executeReadyCallback();
     }
 
     // send the queued events to the fetched integration
@@ -418,6 +426,7 @@ class Analytics {
    * @memberof Analytics
    */
   page(category, name, properties, options, callback) {
+    leaveBreadcrumb(`Page event`);
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
@@ -468,6 +477,7 @@ class Analytics {
    * @memberof Analytics
    */
   track(event, properties, options, callback) {
+    leaveBreadcrumb(`Track event`);
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof properties === "function")
@@ -497,6 +507,7 @@ class Analytics {
    * @memberof Analytics
    */
   identify(userId, traits, options, callback) {
+    leaveBreadcrumb(`Identify event`);
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof traits === "function")
@@ -536,6 +547,7 @@ class Analytics {
    * @param {*} callback
    */
   alias(to, from, options, callback) {
+    leaveBreadcrumb(`Alias event`);
     if (!this.loaded) return;
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof from === "function")
@@ -563,6 +575,7 @@ class Analytics {
    * @param {*} callback
    */
   group(groupId, traits, options, callback) {
+    leaveBreadcrumb(`Group event`);
     if (!this.loaded) return;
     if (!arguments.length) return;
 
@@ -617,27 +630,27 @@ class Analytics {
       // Blacklist is choosen for filtering events
       case "blacklistedEvents":
         if (Array.isArray(blacklistedEvents)) {
-          return blacklistedEvents.find(
-            (eventObj) =>
-              eventObj.eventName.trim().toUpperCase() === formattedEventName
-          ) === undefined
-            ? false
-            : true;
-        } else {
-          return false;
+          return (
+            blacklistedEvents.find(
+              (eventObj) =>
+                eventObj.eventName.trim().toUpperCase() === formattedEventName
+            ) !== undefined
+          );
         }
+        return false;
+
       // Whitelist is choosen for filtering events
       case "whitelistedEvents":
         if (Array.isArray(whitelistedEvents)) {
-          return whitelistedEvents.find(
-            (eventObj) =>
-              eventObj.eventName.trim().toUpperCase() === formattedEventName
-          ) === undefined
-            ? true
-            : false;
-        } else {
-          return true;
+          return (
+            whitelistedEvents.find(
+              (eventObj) =>
+                eventObj.eventName.trim().toUpperCase() === formattedEventName
+            ) === undefined
+          );
         }
+        return true;
+
       default:
         return false;
     }
@@ -659,7 +672,7 @@ class Analytics {
 
       // assign page properties to context
       // rudderElement.message.context.page = getDefaultPageProperties();
-
+      leaveBreadcrumb("Started sending data to destinations");
       rudderElement.message.context.traits = {
         ...this.userTraits,
       };
@@ -709,8 +722,8 @@ class Analytics {
           );
 
         // try to first send to all integrations, if list populated from BE
-        try {
-          succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+          try {
             if (!obj.isFailed || !obj.isFailed()) {
               if (obj[type]) {
                 let sendEvent = !this.IsEventBlackListed(
@@ -725,10 +738,11 @@ class Analytics {
                 }
               }
             }
-          });
-        } catch (err) {
-          handleError({ message: `[sendToNative]:${err}` });
-        }
+          } catch (err) {
+            err.message = `[sendToNative]::[Destination:${obj.name}]:: ${err}`;
+            handleError(err);
+          }
+        });
       }
 
       // convert integrations object to server identified names, kind of hack now!
@@ -858,6 +872,8 @@ class Analytics {
    * @memberof Analytics
    */
   reset(flag) {
+    leaveBreadcrumb(`reset API :: flag: ${flag}`);
+
     if (!this.loaded) return;
     if (flag) {
       this.anonymousId = "";
@@ -1037,7 +1053,7 @@ class Analytics {
     }
     if (options && options.getSourceConfig) {
       if (typeof options.getSourceConfig !== "function") {
-        handleError('option "getSourceConfig" must be a function');
+        handleError({ message: 'option "getSourceConfig" must be a function' });
       } else {
         const res = options.getSourceConfig();
 
@@ -1074,6 +1090,8 @@ class Analytics {
     // logger.debug("inside load ");
     if (this.loaded) return;
 
+    // Load Bugsnag client SDK
+    BugsnagLib.load();
     // check if the below features are available in the browser or not
     // If not present dynamically load from the polyfill cdn
     if (
@@ -1257,7 +1275,7 @@ const argumentsArray = window.rudderanalytics;
 const isValidArgsArray = Array.isArray(argumentsArray);
 if (isValidArgsArray) {
   /**
-   * Iterate the buffered API calls until we find load call and 
+   * Iterate the buffered API calls until we find load call and
    * queue it first for processing
    */
   let i = 0;
