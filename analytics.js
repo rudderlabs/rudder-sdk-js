@@ -11,7 +11,6 @@
 /* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
 import Emitter from "component-emitter";
-import after from "after";
 import querystring from "component-querystring";
 import merge from "lodash.merge";
 import cloneDeep from "lodash.clonedeep";
@@ -96,14 +95,16 @@ class Analytics {
     this.sendAdblockPage = false;
     this.sendAdblockPageOptions = {};
     this.clientSuppliedCallbacks = {};
-    this.readyCallback = () => {};
-    this.executeReadyCallback = undefined;
+    // Array to store the callback functions registered in the ready API
+    this.readyCallbacks = [];
     this.methodToCallbackMapping = {
       syncPixel: "syncPixelCallback",
     };
     this.loaded = false;
     this.loadIntegration = true;
     this.cookieConsentOptions = {};
+    // flag to indicate client integrations` ready status
+    this.clientIntegrationsReady = false;
   }
 
   /**
@@ -145,6 +146,14 @@ class Analytics {
       this.storage.setInitialReferrer(initialReferrer);
       this.storage.setInitialReferringDomain(initialReferringDomain);
     }
+  }
+
+  /**
+   * Function to execute the ready method callbacks
+   * @param {Analytics} self
+   */
+  executeReadyCallback() {
+    this.readyCallbacks.forEach((callback) => callback());
   }
 
   /**
@@ -246,9 +255,11 @@ class Analytics {
     logger.debug("supported intgs ", integrations);
     // this.clientIntegrationObjects = [];
     if (!intgArray || intgArray.length == 0) {
-      if (this.readyCallback) {
-        this.readyCallback();
-      }
+      // If no integrations are there to be loaded
+      // set clientIntegrationsReady to be true
+      this.clientIntegrationsReady = true;
+      // Execute the callbacks if any
+      this.executeReadyCallback();
       this.toBeProcessedByIntegrationArray = [];
       return;
     }
@@ -293,26 +304,17 @@ class Analytics {
       // eslint-disable-next-line no-param-reassign
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
 
-      logger.debug(
-        "==registering after callback===",
-        " after to be called after count : ",
-        object.clientIntegrationObjects.length
-      );
-      object.executeReadyCallback = after(
-        object.clientIntegrationObjects.length,
-        object.readyCallback
-      );
-
-      logger.debug("==registering ready callback===");
-      object.on("ready", object.executeReadyCallback);
-
-      object.clientIntegrationObjects.forEach((intg) => {
-        logger.debug("===looping over each successful integration====");
-        if (!intg.isReady || intg.isReady()) {
-          logger.debug("===letting know I am ready=====", intg.name);
-          object.emit("ready");
-        }
-      });
+      if (
+        object.clientIntegrationObjects.every(
+          (intg) => !intg.isReady || intg.isReady()
+        )
+      ) {
+        // Integrations are ready
+        // set clientIntegrationsReady to be true
+        object.clientIntegrationsReady = true;
+        // Execute the callbacks if any
+        object.executeReadyCallback();
+      }
 
       if (object.toBeProcessedByIntegrationArray.length > 0) {
         // send the queued events to the fetched integration
@@ -1188,7 +1190,16 @@ class Analytics {
   ready(callback) {
     if (!this.loaded) return;
     if (typeof callback === "function") {
-      this.readyCallback = callback;
+      /**
+       * If integrations are loaded or no integration is available for loading
+       * execute the callback immediately
+       * else push the callbacks to a queue that will be executed after loading completes
+       */
+      if (this.clientIntegrationsReady) {
+        callback();
+      } else {
+        this.readyCallbacks.push(callback);
+      }
       return;
     }
     logger.error("ready callback is not a function");
