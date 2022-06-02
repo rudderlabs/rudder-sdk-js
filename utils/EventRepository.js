@@ -4,6 +4,7 @@ import logger from "./logUtil";
 import XHRQueue from "./xhrModule";
 import BeaconQueue from "./storage/beaconQueue";
 import { getCurrentTimeFormatted, removeTrailingSlashes } from "./utils";
+import { Store } from "./storage/store";
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 
@@ -50,6 +51,10 @@ class EventRepository {
       ) {
         queueOptions = options.queueOptions;
       }
+      if (options && options.batchMode != undefined) {
+        this.batchMode = options.batchMode
+        this.batchFactor = options.batchFactor
+      }
       this.queue = new XHRQueue();
     }
     this.queue.init(writeKey, targetUrl, queueOptions);
@@ -75,9 +80,35 @@ class EventRepository {
       );
     }
 
-    this.queue.enqueue(message, type);
+    if (this.batchMode & (type == "track" || type == "page" || type == "identify")) {
+      type = "batch"
+      var storeRegex = RegExp("^batch");
+      const batchKeys = function () {
+        return Object.keys(localStorage).map(function (element, _) {
+          if (storeRegex.exec(element) !== null) return element;
+        }).filter(function (element) {
+          return element;
+        })
+      }
+
+      var key = "batch_" + message.originalTimestamp;
+      Store.set(key, JSON.stringify(message));
+
+      if (batchKeys().length >= this.batchFactor) {
+        var batchPayload = [];
+
+        for (var i = batchKeys().length - 1; i >= 0; i--) {
+          batchPayload.push(JSON.parse(Store.get(batchKeys()[i])));
+          Store.remove(batchKeys()[i]);
+        }
+        this.queue.enqueue(batchPayload, type);
+      }
+    } else {
+      this.queue.enqueue(message, type);
+    }
   }
 }
+
 const eventRepository = new EventRepository();
 // eslint-disable-next-line import/prefer-default-export
 export { eventRepository as EventRepository };

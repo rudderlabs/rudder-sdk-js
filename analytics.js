@@ -84,6 +84,10 @@ class Analytics {
     this.logLevel = undefined;
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
+    // flag to dispatch events in batch mode
+    this.batchMode = true;
+    // batch size
+    this.batchFactor = 10
   }
 
   /**
@@ -126,7 +130,7 @@ class Analytics {
         this.clientIntegrations.every(
           (intg) =>
             this.dynamicallyLoadedIntegrations[
-              `${configToIntNames[intg.name]}${INTG_SUFFIX}`
+            `${configToIntNames[intg.name]}${INTG_SUFFIX}`
             ] != undefined
         )
       ) {
@@ -314,11 +318,11 @@ class Analytics {
         (intg) => !intg.isReady || intg.isReady()
       )
     ) {
-        // Integrations are ready
-        // set clientIntegrationsReady to be true
-        object.clientIntegrationsReady = true;
-        // Execute the callbacks if any
-        object.executeReadyCallback();
+      // Integrations are ready
+      // set clientIntegrationsReady to be true
+      object.clientIntegrationsReady = true;
+      // Execute the callbacks if any
+      object.executeReadyCallback();
     }
 
     // send the queued events to the fetched integration
@@ -989,12 +993,12 @@ class Analytics {
         if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
           if (
             options.clientSuppliedCallbacks[
-              this.methodToCallbackMapping[methodName]
+            this.methodToCallbackMapping[methodName]
             ]
           ) {
             transformedCallbackMapping[methodName] =
               options.clientSuppliedCallbacks[
-                this.methodToCallbackMapping[methodName]
+              this.methodToCallbackMapping[methodName]
               ];
           }
         }
@@ -1005,6 +1009,14 @@ class Analytics {
 
     if (options && options.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
+    }
+
+    if (options && options.batchMode != undefined) {
+      this.batchMode = !!options.batchMode;
+    }
+
+    if (options && options.batchMode == true && options.batchFactor == undefined) {
+      options.batchFactor = this.batchFactor;
     }
 
     this.eventRepository.initialize(writeKey, serverUrl, options);
@@ -1124,7 +1136,7 @@ class Analytics {
   initializeCallbacks() {
     Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
       if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
-        this.on(methodName, () => {});
+        this.on(methodName, () => { });
       }
     });
   }
@@ -1136,12 +1148,12 @@ class Analytics {
           if (window.rudderanalytics) {
             if (
               typeof window.rudderanalytics[
-                this.methodToCallbackMapping[methodName]
+              this.methodToCallbackMapping[methodName]
               ] === "function"
             ) {
               this.clientSuppliedCallbacks[methodName] =
                 window.rudderanalytics[
-                  this.methodToCallbackMapping[methodName]
+                this.methodToCallbackMapping[methodName]
                 ];
             }
           }
