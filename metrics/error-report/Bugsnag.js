@@ -1,6 +1,7 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable no-prototype-builtins */
 import ScriptLoader from "../../integrations/ScriptLoader";
+import { MAX_WAIT_FOR_INTEGRATION_LOAD } from "../../utils/constants";
 
 // This SDK meta data will be send along with the error for more insight
 const META_DATA = {
@@ -19,6 +20,15 @@ const SDK_FILE_NAMES = [
   "rudder-analytics.min.js",
   "rudder-analytics-staging.min.js",
   "rudder-analytics.js",
+];
+
+// list of not allowed errors
+const errorsToIgnore = [
+  "ResizeObserver loop completed",
+  "ResizeObserver loop limit",
+  "ResizeObserver loop limit exceeded",
+  "error in script loading:: src::",
+  "Document is not focused",
 ];
 
 /**
@@ -54,11 +64,18 @@ function initClient(sourceId) {
     appVersion: "process.package_version", // Set SDK version as the app version
     metadata: META_DATA,
     onError: (event) => {
-      const errorOrigin = event.errors[0].stacktrace[0].file;
-      if (typeof errorOrigin === "string") {
-        const index = errorOrigin.lastIndexOf("/");
-        if (!SDK_FILE_NAMES.includes(errorOrigin.substring(index + 1)))
+      const errorOrigin = event.errors[0]?.stacktrace[0];
+      const msg = event.errors[0].errorMessage;
+      if (!errorOrigin || Object.keys(errorOrigin).length === 0) return false;
+
+      if (typeof errorOrigin.file === "string") {
+        const index = errorOrigin.file.lastIndexOf("/");
+        if (!SDK_FILE_NAMES.includes(errorOrigin.file.substring(index + 1)))
           return false; // Return false to discard the event
+      }
+      // filter error based on error message
+      if (errorsToIgnore.some((err) => msg.includes(err))) {
+        return false;
       }
       event.addMetadata("source", {
         sourceId,
@@ -95,6 +112,9 @@ const init = (sourceId) => {
         initClient(sourceId);
       }
     }, 100);
+    setTimeout(() => {
+      clearInterval(interval);
+    }, MAX_WAIT_FOR_INTEGRATION_LOAD);
   }
 };
 

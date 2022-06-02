@@ -175,7 +175,7 @@ class Analytics {
       const bsEnabled = get(response.source.config, "metrics.bugsnag.enabled");
       // Load Bugsnag by default unless disabled in the source config
       if (bsEnabled !== false) {
-        BugsnagLib.init(response.source.connections[0].sourceId);
+        BugsnagLib.init(response.source.id);
       }
 
       if (
