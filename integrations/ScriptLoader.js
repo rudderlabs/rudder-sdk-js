@@ -3,7 +3,7 @@ import logger from "../utils/logUtil";
 
 const defaultAsyncState = true;
 
-export const SCRIPT_LOADER = "RS_JS_SDK";
+export const LOAD_ORIGIN = "RS_JS_SDK";
 
 const ScriptLoader = (id, src, async = defaultAsyncState) => {
   logger.debug(`in script loader=== ${id}`);
@@ -12,7 +12,7 @@ const ScriptLoader = (id, src, async = defaultAsyncState) => {
   js.async = async === undefined ? defaultAsyncState : async;
   js.type = "text/javascript";
   js.id = id;
-  js.dataset.loader = SCRIPT_LOADER;
+  js.dataset.loader = LOAD_ORIGIN;
   const headElmColl = document.getElementsByTagName("head");
   if (headElmColl.length !== 0) {
     logger.debug("==adding script==", js);

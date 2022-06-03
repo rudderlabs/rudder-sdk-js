@@ -1,6 +1,7 @@
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
 import { parse } from "component-url";
 import get from "get-value";
+import { LOAD_ORIGIN } from "../integrations/ScriptLoader";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
@@ -149,6 +150,9 @@ function handleError(error, analyticsInstance) {
       error.target &&
       error.target.localName === "script"
     ) {
+      // Discard errors of scripts that are not loaded by the SDK
+      if (error.target.dataset.loader !== LOAD_ORIGIN) return;
+
       const errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
       errorObj = { message: errorMessage };
 
