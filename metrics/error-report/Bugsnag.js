@@ -66,13 +66,15 @@ function initClient(sourceId) {
     onError: (event) => {
       const errorOrigin = event.errors[0]?.stacktrace[0];
       const msg = event.errors[0].errorMessage;
-      if (!errorOrigin || Object.keys(errorOrigin).length === 0) return false;
+      const msg = event.errors[0].errorMessage;
+      // Skip errors that do not have a valid stack trace
+      if (!errorOrigin || !errorOrigin.file || typeof errorOrigin.file !== "string") return false;
 
-      if (typeof errorOrigin.file === "string") {
-        const index = errorOrigin.file.lastIndexOf("/");
-        if (!SDK_FILE_NAMES.includes(errorOrigin.file.substring(index + 1)))
-          return false; // Return false to discard the event
-      }
+      const srcFilePath = errorOrigin.file;
+      const srcFileName = srcFilePath.substring(srcFilePath.lastIndexOf("/") + 1);
+      if (!SDK_FILE_NAMES.includes(srcFileName))
+        // Discard the event if it's not originated at the SDK
+        return false;
       // filter error based on error message
       if (errorsToIgnore.some((err) => msg.includes(err))) {
         return false;
