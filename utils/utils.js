@@ -138,35 +138,39 @@ function notifyError(error) {
 }
 
 function handleError(error, analyticsInstance) {
-  let errorMessage = error.message || undefined;
-  let sampleAdBlockTest;
+  // Discard UI errors
+  if (error instanceof UIEvent) return;
+
+  let errorObj = error;
   try {
-    if (error instanceof Event) {
-      if (error.target && error.target.localName == "script") {
-        errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
-        if (analyticsInstance && error.target.src.includes("adsbygoogle")) {
-          sampleAdBlockTest = true;
-          analyticsInstance.page(
-            "RudderJS-Initiated",
-            "ad-block page request",
-            { path: "/ad-blocked", title: errorMessage },
-            analyticsInstance.sendAdblockPageOptions
-          );
-        }
+    // Script loading errors
+    if (
+      error instanceof Event &&
+      error.target &&
+      error.target.localName === "script"
+    ) {
+      const errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
+      errorObj = { message: errorMessage };
+
+      // Ad-blocker script
+      if (analyticsInstance && error.target.src.includes("adsbygoogle")) {
+        analyticsInstance.page(
+          "RudderJS-Initiated",
+          "ad-block page request",
+          { path: "/ad-blocked", title: errorMessage },
+          analyticsInstance.sendAdblockPageOptions
+        );
+        // No need to proceed further for Ad-block errors
+        return;
       }
     }
-    if (errorMessage && !sampleAdBlockTest) {
-      const errMessage = `[Util] handleError:: ${errorMessage}`;
-      logger.error(errMessage);
-      if (error instanceof Error) {
-        notifyError(error);
-      } else {
-        notifyError(new Error(errMessage));
-      }
-    }
-  } catch (e) {
-    logger.error("[Util] handleError:: ", e);
-    notifyError(e);
+
+    errorObj.message = `[handleError]:: "${errorObj.message}"`;
+    logger.error(errorObj.message);
+    notifyError(errorObj);
+  } catch (err) {
+    logger.error("[handleError] Exception:: ", err);
+    notifyError(err);
   }
 }
 
@@ -175,7 +179,7 @@ function getDefaultPageProperties() {
   const path = canonicalUrl
     ? parse(canonicalUrl).pathname
     : window.location.pathname;
-  //const { referrer } = document;
+  // const { referrer } = document;
   const { search } = window.location;
   const { title } = document;
   const url = getUrl(search);
@@ -203,7 +207,7 @@ function getReferrer() {
 }
 
 function getReferringDomain(referrer) {
-  var split = referrer.split("/");
+  const split = referrer.split("/");
   if (split.length >= 3) {
     return split[2];
   }

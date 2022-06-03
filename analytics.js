@@ -213,7 +213,6 @@ class Analytics {
           this.cookieConsentOptions
         );
       } catch (e) {
-        e.message = `[cookieConsent init failed]:: ${e.message}`;
         handleError(e);
       }
 
@@ -276,7 +275,6 @@ class Analytics {
         logger.debug("initializing destination: ", intg);
         this.isInitialized(intgInstance).then(this.replayEvents);
       } catch (e) {
-        e.message = `[Analytics] 'integration.init()' failed :: ${intg.name} :: ${e.message}`;
         handleError(e);
         this.failedToBeLoadedIntegration.push(intgInstance);
       }
@@ -825,7 +823,7 @@ class Analytics {
             }
           }
         } catch (err) {
-          err.message = `[sendToNative]::[Destination:${obj.name}]:: ${err}`;
+          err.message = `[sendToNative]:: [Destination: ${obj.name}]:: "${err.message}"`;
           handleError(err);
         }
       });
@@ -1031,11 +1029,9 @@ class Analytics {
       this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
     let configUrl = CONFIG_URL;
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
-      handleError({
-        message:
-          "[Analytics] load:: Unable to load due to wrong writeKey or serverUrl",
-      });
-      throw Error("failed to initialize");
+      throw Error(
+        "Unable to load the SDK due to invalid writeKey or serverUrl"
+      );
     }
 
     let storageOptions = {};
@@ -1123,7 +1119,7 @@ class Analytics {
     }
     if (options && options.getSourceConfig) {
       if (typeof options.getSourceConfig !== "function") {
-        handleError({ message: 'option "getSourceConfig" must be a function' });
+        handleError(new Error('option "getSourceConfig" must be a function'));
       } else {
         const res = options.getSourceConfig();
 
