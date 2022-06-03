@@ -66,10 +66,9 @@ function initClient(sourceId) {
     metadata: META_DATA,
     onError: (event) => {
       const errorOrigin = get(event.errors[0], "stacktrace.0.file");
-      const msg = event.errors[0].errorMessage;
-
       // Skip errors that do not have a valid stack trace
       if (!errorOrigin || typeof errorOrigin !== "string") return false;
+      const msg = event.errors[0].errorMessage;
 
       const srcFileName = errorOrigin.substring(
         errorOrigin.lastIndexOf("/") + 1
