@@ -139,19 +139,15 @@ function notifyError(error) {
 }
 
 function handleError(error, analyticsInstance) {
-  // Discard UI errors
-  if (error instanceof UIEvent) return;
-
   let errorObj = error;
   try {
-    // Script loading errors
-    if (
-      error instanceof Event &&
-      error.target &&
-      error.target.localName === "script"
-    ) {
+    if (error instanceof Event) {
+      // Discard all the non-script loading errors
+      if (error.target && error.target.localName !== "script") return;
+
       // Discard errors of scripts that are not loaded by the SDK
-      if (error.target.dataset.loader !== LOAD_ORIGIN) return;
+      if (error.target.dataset && error.target.dataset.loader !== LOAD_ORIGIN)
+        return;
 
       const errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
       errorObj = { message: errorMessage };
