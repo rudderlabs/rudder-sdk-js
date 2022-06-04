@@ -156,8 +156,8 @@ function handleError(error, analyticsInstance) {
       const errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
       errorObj = { message: errorMessage };
 
-      // Ad-blocker script
-      if (analyticsInstance && error.target.src.includes("adsbygoogle")) {
+      // SDK triggered ad-blocker script
+      if (error.target.id === "ad-block") {
         analyticsInstance.page(
           "RudderJS-Initiated",
           "ad-block page request",
