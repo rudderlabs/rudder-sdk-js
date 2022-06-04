@@ -23,15 +23,6 @@ const SDK_FILE_NAMES = [
   "rudder-analytics.js",
 ];
 
-// list of not allowed errors
-const errorsToIgnore = [
-  "ResizeObserver loop completed",
-  "ResizeObserver loop limit",
-  "ResizeObserver loop limit exceeded",
-  "error in script loading:: src::",
-  "Document is not focused",
-];
-
 /**
  * This function will load the Bugsnag native SDK through CDN
  * Once loaded it will be available in window.Bugsnag
@@ -76,10 +67,7 @@ function initClient(sourceId) {
       if (!SDK_FILE_NAMES.includes(srcFileName))
         // Discard the event if it's not originated at the SDK
         return false;
-      // filter error based on error message
-      if (errorsToIgnore.some((err) => msg.includes(err))) {
-        return false;
-      }
+
       event.addMetadata("source", {
         sourceId,
       });
