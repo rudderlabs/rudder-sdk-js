@@ -139,7 +139,7 @@ function notifyError(error) {
 }
 
 function handleError(error, analyticsInstance) {
-  let errorObj = error;
+  let errorMessage = error.message;
   try {
     if (error instanceof Event) {
       // Discard all the non-script loading errors
@@ -149,8 +149,7 @@ function handleError(error, analyticsInstance) {
       if (error.target.dataset && error.target.dataset.loader !== LOAD_ORIGIN)
         return;
 
-      const errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
-      errorObj = { message: errorMessage };
+      errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
 
       // SDK triggered ad-blocker script
       if (error.target.id === "ad-block") {
@@ -165,8 +164,10 @@ function handleError(error, analyticsInstance) {
       }
     }
 
-    errorObj.message = `[handleError]:: "${errorObj.message}"`;
-    logger.error(errorObj.message);
+    errorMessage = `[handleError]:: "${errorMessage}"`;
+    logger.error(errorMessage);
+    let errorObj = error;
+    if (!(error instanceof Error)) errorObj = new Error(errorMessage);
     notifyError(errorObj);
   } catch (err) {
     logger.error("[handleError] Exception:: ", err);
