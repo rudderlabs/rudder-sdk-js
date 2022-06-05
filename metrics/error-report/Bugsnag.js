@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable no-prototype-builtins */
 import ScriptLoader from "../../integrations/ScriptLoader";
@@ -70,7 +71,14 @@ function initClient(sourceId) {
       event.addMetadata("source", {
         sourceId,
       });
-      // eslint-disable-next-line no-param-reassign
+
+      const errMsg = event.errors[0].errorMessage;
+      event.context = errMsg;
+      // Hack for easily grouping the script load errors
+      // on the dashboard
+      if (errMsg.includes("error in script loading"))
+        event.context = "Script load failures";
+
       event.severity = "error";
       return true;
     },
