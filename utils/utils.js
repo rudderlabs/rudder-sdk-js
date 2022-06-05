@@ -1,6 +1,7 @@
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
 import { parse } from "component-url";
 import get from "get-value";
+import { LOAD_ORIGIN } from "../integrations/ScriptLoader";
 import logger from "./logUtil";
 import { commonNames } from "./integration_cname";
 import { clientToServerNames } from "./client_server_name";
@@ -150,35 +151,38 @@ function notifyError(error) {
 }
 
 function handleError(error, analyticsInstance) {
-  let errorMessage = error.message || undefined;
-  let sampleAdBlockTest;
+  let errorObj = error;
   try {
     if (error instanceof Event) {
-      if (error.target && error.target.localName == "script") {
-        errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
-        if (analyticsInstance && error.target.src.includes("adsbygoogle")) {
-          sampleAdBlockTest = true;
-          analyticsInstance.page(
-            "RudderJS-Initiated",
-            "ad-block page request",
-            { path: "/ad-blocked", title: errorMessage },
-            analyticsInstance.sendAdblockPageOptions
-          );
-        }
+      // Discard all the non-script loading errors
+      if (error.target && error.target.localName !== "script") return;
+
+      // Discard errors of scripts that are not loaded by the SDK
+      if (error.target.dataset && error.target.dataset.loader !== LOAD_ORIGIN)
+        return;
+
+      const errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
+      errorObj = { message: errorMessage };
+
+      // SDK triggered ad-blocker script
+      if (error.target.id === "ad-block") {
+        analyticsInstance.page(
+          "RudderJS-Initiated",
+          "ad-block page request",
+          { path: "/ad-blocked", title: errorMessage },
+          analyticsInstance.sendAdblockPageOptions
+        );
+        // No need to proceed further for Ad-block errors
+        return;
       }
     }
-    if (errorMessage && !sampleAdBlockTest) {
-      const errMessage = `[Util] handleError:: ${errorMessage}`;
-      logger.error(errMessage);
-      if (error instanceof Error) {
-        notifyError(error);
-      } else {
-        notifyError(new Error(errMessage));
-      }
-    }
-  } catch (e) {
-    logger.error("[Util] handleError:: ", e);
-    notifyError(e);
+
+    errorObj.message = `[handleError]:: "${errorObj.message}"`;
+    logger.error(errorObj.message);
+    notifyError(errorObj);
+  } catch (err) {
+    logger.error("[handleError] Exception:: ", err);
+    notifyError(err);
   }
 }
 

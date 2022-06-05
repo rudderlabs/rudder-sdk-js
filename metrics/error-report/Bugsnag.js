@@ -2,6 +2,8 @@
 /* eslint-disable no-prototype-builtins */
 import ScriptLoader from "../../integrations/ScriptLoader";
 import { configToIntNames } from "../../utils/config_to_integration_names";
+import { MAX_WAIT_FOR_INTEGRATION_LOAD } from "../../utils/constants";
+import { get } from "../../utils/utils";
 
 // This SDK meta data will be send along with the error for more insight
 const META_DATA = {
@@ -60,11 +62,20 @@ function initClient(sourceId) {
     appVersion: "process.package_version", // Set SDK version as the app version
     metadata: META_DATA,
     onError: (event) => {
-      const errorOrigin = event.errors[0].stacktrace[0].file;
-      if (typeof errorOrigin === "string") {
-        const index = errorOrigin.lastIndexOf("/");
-        if (!SDK_FILE_NAMES.includes(errorOrigin.substring(index + 1)))
-          return false; // Return false to discard the event
+      const errorOrigin = get(event.errors[0], "stacktrace.0.file");
+      // Skip errors that do not have a valid stack trace
+      if (!errorOrigin || typeof errorOrigin !== "string") return false;
+      const msg = event.errors[0].errorMessage;
+
+      const srcFileName = errorOrigin.substring(
+        errorOrigin.lastIndexOf("/") + 1
+      );
+      if (!SDK_FILE_NAMES.includes(srcFileName))
+        // Discard the event if it's not originated at the SDK
+        return false;
+      // filter error based on error message
+      if (errorsToIgnore.some((err) => msg.includes(err))) {
+        return false;
       }
       event.addMetadata("source", {
         sourceId,
@@ -101,6 +112,9 @@ const init = (sourceId) => {
         initClient(sourceId);
       }
     }, 100);
+    setTimeout(() => {
+      clearInterval(interval);
+    }, MAX_WAIT_FOR_INTEGRATION_LOAD);
   }
 };
 

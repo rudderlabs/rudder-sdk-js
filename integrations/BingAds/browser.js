@@ -1,4 +1,5 @@
 import logger from "../../utils/logUtil";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class BingAds {
@@ -23,6 +24,7 @@ class BingAds {
         (n = d.createElement(t)),
         (n.src = r),
         (n.async = 1),
+        (n.dataset.loader = LOAD_ORIGIN)
         (n.onload = n.onreadystatechange =
           function () {
             let s = this.readyState;

@@ -180,7 +180,7 @@ class Analytics {
       const bsEnabled = get(response.source.config, "metrics.bugsnag.enabled");
       // Load Bugsnag by default unless disabled in the source config
       if (bsEnabled !== false) {
-        BugsnagLib.init(response.source.connections[0].sourceId);
+        BugsnagLib.init(response.source.id);
       }
 
       response.source.destinations.forEach(function (destination, index) {
@@ -217,7 +217,7 @@ class Analytics {
             );
           });
         } catch (e) {
-          logger.error(e);
+          handleError(e);
         }
       }
 
@@ -965,11 +965,9 @@ class Analytics {
     if (options && options.cookieConsentManager)
       this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
-      handleError({
-        message:
-          "[Analytics] load:: Unable to load due to invalid writeKey or serverUrl",
-      });
-      throw Error("failed to initialize");
+      throw Error(
+        "Unable to load the SDK due to invalid writeKey or serverUrl"
+      );
     }
 
     let storageOptions = {};
@@ -1053,7 +1051,7 @@ class Analytics {
     }
     if (options && options.getSourceConfig) {
       if (typeof options.getSourceConfig !== "function") {
-        handleError({ message: 'option "getSourceConfig" must be a function' });
+        handleError(new Error('option "getSourceConfig" must be a function'));
       } else {
         const res = options.getSourceConfig();
 

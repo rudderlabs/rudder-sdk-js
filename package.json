@@ -8,7 +8,7 @@
       "path": "dist/rudder-analytics.min.js",
       "import": "{ createComponent }",
       "gzip": true,
-      "limit": "38 kB"
+      "limit": "38.5 kB"
     }
   ],
   "scripts": {
