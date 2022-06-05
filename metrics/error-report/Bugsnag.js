@@ -8,7 +8,7 @@ import { get } from "../../utils/utils";
 const META_DATA = {
   SDK: {
     name: "JS",
-    installType: process.browser ? "cdn" : "npm",
+    installType: "process.module_type",
   },
 };
 
