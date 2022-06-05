@@ -80,7 +80,7 @@ class EventRepository {
       );
     }
 
-    if (this.batchMode & (type == "track" || type == "page" || type == "identify")) {
+    if (this.batchMode) {
       type = "batch"
       var storeRegex = RegExp("^batch");
       const batchKeys = function () {
