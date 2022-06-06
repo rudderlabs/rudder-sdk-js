@@ -3,7 +3,7 @@
 import logger from "./logUtil";
 import XHRQueue from "./xhrModule";
 import BeaconQueue from "./storage/beaconQueue";
-import { getCurrentTimeFormatted, removeTrailingSlashes } from "./utils";
+import { getCurrentTimeFormatted, removeTrailingSlashes, replacer } from "./utils";
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 
@@ -68,7 +68,7 @@ class EventRepository {
     message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
 
     // check message size, if greater log an error
-    if (JSON.stringify(message).length > MESSAGE_LENGTH) {
+    if (JSON.stringify(message, replacer).length > MESSAGE_LENGTH) {
       logger.error(
         "[EventRepository] enqueue:: message length greater 32 Kb ",
         message
