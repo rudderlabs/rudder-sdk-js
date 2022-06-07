@@ -29,7 +29,7 @@ const transformCustomVariable = (customFloodlightVariable, message) => {
       let itemValue = get(message, `properties.${item.to.trim()}`);
       // this condition adds support for numeric 0
       if (!isDefinedAndNotNull(itemValue)) {
-        const { traits } = message || message.context;
+        const traits = message.traits || message.context?.traits;
         if (traits) {
           itemValue = traits[item.to.trim()];
         }

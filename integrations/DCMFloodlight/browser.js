@@ -134,7 +134,8 @@ class DCMFloodlight {
     }
 
     customFloodlightVariable = transformCustomVariable(
-      customFloodlightVariable
+      customFloodlightVariable,
+      message
     );
 
     // Ref - https://support.google.com/campaignmanager/answer/7554821?hl=en#zippy=%2Ccustom-fields
