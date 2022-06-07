@@ -9,7 +9,7 @@ import {
   removeUndefinedAndNullValues,
 } from "../utils/commonUtils";
 import { NAME } from "./constants";
-import { transformCustomVariable, isValidFlag } from "./utils";
+import { transformCustomVariable, mapFlagValue } from "./utils";
 
 class DCMFloodlight {
   constructor(config, analytics) {
@@ -223,23 +223,23 @@ class DCMFloodlight {
 
     if (DCM_FLOODLIGHT) {
       if (isDefinedAndNotNull(DCM_FLOODLIGHT.COPPA)) {
-        dcCustomParams.tag_for_child_directed_treatment = isValidFlag(
+        dcCustomParams.tag_for_child_directed_treatment = mapFlagValue(
           "COPPA",
           DCM_FLOODLIGHT.COPPA
         );
       }
 
       if (isDefinedAndNotNull(DCM_FLOODLIGHT.GDPR)) {
-        dcCustomParams.tfua = isValidFlag("GDPR", DCM_FLOODLIGHT.GDPR);
+        dcCustomParams.tfua = mapFlagValue("GDPR", DCM_FLOODLIGHT.GDPR);
       }
 
       if (isDefinedAndNotNull(DCM_FLOODLIGHT.npa)) {
-        dcCustomParams.npa = isValidFlag("npa", DCM_FLOODLIGHT.npa);
+        dcCustomParams.npa = mapFlagValue("npa", DCM_FLOODLIGHT.npa);
       }
     }
 
     if (isDefinedAndNotNull(dcCustomParams.dc_lat)) {
-      dcCustomParams.dc_lat = isValidFlag("dc_lat", dcCustomParams.dc_lat);
+      dcCustomParams.dc_lat = mapFlagValue("dc_lat", dcCustomParams.dc_lat);
     }
 
     const matchId = get(message, "properties.matchId");
@@ -285,19 +285,17 @@ class DCMFloodlight {
 
     if (category && name) {
       rudderElement.message.event = `Viewed ${category} ${name} Page`;
-      rudderElement.message.type = "track";
-      this.track(rudderElement);
     } else if (category) {
       // categorized pages
       rudderElement.message.event = `Viewed ${category} Page`;
-      rudderElement.message.type = "track";
-      this.track(rudderElement);
-    } else {
+    } else if (name) {
       // named pages
       rudderElement.message.event = `Viewed ${name} Page`;
-      rudderElement.message.type = "track";
-      this.track(rudderElement);
+    } else {
+      rudderElement.message.event = `Viewed Page`;
     }
+    rudderElement.message.type = "track";
+    this.track(rudderElement);
   }
 }
 
