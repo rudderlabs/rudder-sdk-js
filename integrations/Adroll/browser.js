@@ -98,7 +98,7 @@ class Adroll {
     } else if (message.name && !message.category) {
       pageFullName = `Viewed ${message.name} Page`;
     } else {
-      pageFullName = `Viewed ${message.name} ${message.category} Page`;
+      pageFullName = `Viewed ${message.category} ${message.name} Page`;
     }
 
     const segmentId = eventsHashmap[pageFullName.toLowerCase()];
