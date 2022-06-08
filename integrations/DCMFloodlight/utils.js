@@ -6,45 +6,46 @@ import { isDefinedAndNotNull, isNotEmpty } from "../utils/commonUtils";
  * transform webapp dynamicForm custom floodlight variable
  * [
       {
-        "from": "1",
-        "to": "value1"
+        "from": "property1",
+        "to": "1"
       },
       {
-        "from": "2",
-        "to": "value2"
+        "from": "property2",
+        "to": "2"
       }
   ]
- * into {u1: [value1], u2: [value2], ...}
+ * into { property1: u1, property2: u2, ... }
  * Ref - https://support.google.com/campaignmanager/answer/2823222?hl=en
  * @param {*} customFloodlightVariable
  * @returns
  */
 const transformCustomVariable = (customFloodlightVariable, message) => {
   const customVariable = {};
+  const BLACKLISTED_CHARACTERS = ['"', "<", ">", "#"];
   customFloodlightVariable.forEach((item) => {
     if (item && isNotEmpty(item.from) && isNotEmpty(item.to)) {
       // remove u if already there
       // first we consider taking custom variable from properties
       // if not found we will take it from root level i.e message.*
-      let itemValue = get(message, `properties.${item.to.trim()}`);
+      let itemValue = get(message, `properties.${item.from.trim()}`);
       // this condition adds support for numeric 0
       if (!isDefinedAndNotNull(itemValue)) {
         const traits = message.traits || message.context?.traits;
         if (traits) {
-          itemValue = traits[item.to.trim()];
+          itemValue = traits[item.from.trim()];
         }
       }
       if (
         itemValue &&
         typeof itemValue === "string" &&
-        ['"', "<", ">", "#"].some((key) => itemValue.includes(key))
+        BLACKLISTED_CHARACTERS.some((key) => itemValue.includes(key))
       ) {
         logger.info('", < , > or # string variable is not acceptable');
         itemValue = undefined;
       }
       // supported data types are number and string
       if (isDefinedAndNotNull(itemValue) && typeof itemValue !== "boolean") {
-        customVariable[`u${item.from.trim().replace(/u/g, "")}`] =
+        customVariable[`u${item.to.trim().replace(/u/g, "")}`] =
           encodeURIComponent(itemValue);
       }
     }

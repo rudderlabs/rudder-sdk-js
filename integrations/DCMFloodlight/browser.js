@@ -245,7 +245,7 @@ class DCMFloodlight {
 
     const matchId = get(message, "properties.matchId");
     if (matchId) {
-      dcCustomParams.match_id = [matchId];
+      dcCustomParams.match_id = matchId;
     }
 
     dcCustomParams = removeUndefinedAndNullValues(dcCustomParams);
