@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 // import logger from "../logUtil";
-import { Store } from "./store";
+import { Store } from "./storage/store";
 
 const defaults = {
   queue: "queue",
