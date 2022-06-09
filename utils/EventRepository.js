@@ -2,7 +2,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from "./logUtil";
 import XHRQueue from "./xhrModule";
-import BeaconQueue from "./storage/beaconQueue";
+import BeaconQueue from "./beaconQueue";
 import {
   getCurrentTimeFormatted,
   removeTrailingSlashes,
@@ -83,5 +83,4 @@ class EventRepository {
   }
 }
 const eventRepository = new EventRepository();
-// eslint-disable-next-line import/prefer-default-export
 export { eventRepository as EventRepository };

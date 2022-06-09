@@ -895,12 +895,19 @@ class Analytics {
   }
 
   getUserId() {
-    this.userId = this.storage.getUserId();
     return this.userId;
   }
 
   getUserTraits() {
     return this.userTraits;
+  }
+
+  getGroupId() {
+    return this.groupId;
+  }
+
+  getGroupTraits() {
+    return this.groupTraits;
   }
 
   /**
@@ -1308,6 +1315,8 @@ const getUserId = instance.getUserId.bind(instance);
 const getUserTraits = instance.getUserTraits.bind(instance);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
+const getGroupId = instance.getGroupId.bind(instance);
+const getGroupTraits = instance.getGroupTraits.bind(instance);
 
 export {
   initialized,
@@ -1323,4 +1332,6 @@ export {
   getUserTraits,
   getAnonymousId,
   setAnonymousId,
+  getGroupId,
+  getGroupTraits,
 };
