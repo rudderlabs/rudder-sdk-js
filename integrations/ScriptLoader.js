@@ -9,17 +9,17 @@ const ScriptLoader = (id, src, async = defaultAsyncState) => {
     // logger.debug("script already loaded");
     return;
   }
-  const js = document.createElement("script");
+  const js = document.createElement('script');
   js.src = src;
   js.async = async === undefined ? defaultAsyncState : async;
-  js.type = "text/javascript";
+  js.type = 'text/javascript';
   js.id = id;
-  const headElmColl = document.getElementsByTagName("head");
+  const headElmColl = document.getElementsByTagName('head');
   if (headElmColl.length !== 0) {
     // logger.debug("==adding script==", js);
     headElmColl[0].insertBefore(js, headElmColl[0].firstChild);
   } else {
-    const e = document.getElementsByTagName("script")[0];
+    const e = document.getElementsByTagName('script')[0];
     // logger.debug("==parent script==", e);
     // logger.debug("==adding script==", js);
     e.parentNode.insertBefore(js, e);

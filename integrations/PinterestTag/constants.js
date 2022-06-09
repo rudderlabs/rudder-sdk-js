@@ -1,4 +1,4 @@
-const NAME = "PINTEREST_TAG";
+const NAME = 'PINTEREST_TAG';
 const CNameMapping = {
   [NAME]: NAME,
   PinterestTag: NAME,

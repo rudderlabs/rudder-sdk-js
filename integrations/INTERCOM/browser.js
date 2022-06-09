@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import md5 from "md5";
-import logger from "../../utils/logUtil";
-import { NAME } from "./constants";
+import md5 from 'md5';
+import logger from '../../utils/logUtil';
+import { NAME } from './constants';
 
 class INTERCOM {
   constructor(config, analytics) {
@@ -12,7 +12,7 @@ class INTERCOM {
     this.API_KEY = config.apiKey;
     this.APP_ID = config.appId;
     this.MOBILE_APP_ID = config.mobileAppId;
-    logger.debug("Config ", config);
+    logger.debug('Config ', config);
   }
 
   init() {
@@ -23,9 +23,9 @@ class INTERCOM {
     (function () {
       const w = window;
       const ic = w.Intercom;
-      if (typeof ic === "function") {
-        ic("reattach_activator");
-        ic("update", w.intercomSettings);
+      if (typeof ic === 'function') {
+        ic('reattach_activator');
+        ic('update', w.intercomSettings);
       } else {
         const d = document;
         var i = function () {
@@ -37,21 +37,21 @@ class INTERCOM {
         };
         w.Intercom = i;
         const l = function () {
-          const s = d.createElement("script");
-          s.type = "text/javascript";
+          const s = d.createElement('script');
+          s.type = 'text/javascript';
           s.async = true;
           s.src = `https://widget.intercom.io/widget/${window.intercomSettings.app_id}`;
-          const x = d.getElementsByTagName("script")[0];
+          const x = d.getElementsByTagName('script')[0];
           x.parentNode.insertBefore(s, x);
         };
-        if (document.readyState === "complete") {
+        if (document.readyState === 'complete') {
           l();
           window.intercom_code = true;
         } else if (w.attachEvent) {
-          w.attachEvent("onload", l);
+          w.attachEvent('onload', l);
           window.intercom_code = true;
         } else {
-          w.addEventListener("load", l, false);
+          w.addEventListener('load', l, false);
           window.intercom_code = true;
         }
       }
@@ -60,21 +60,17 @@ class INTERCOM {
 
   page() {
     // Get new messages of the current user
-    window.Intercom("update");
+    window.Intercom('update');
   }
 
   identify(rudderElement) {
     const rawPayload = {};
     const { context } = rudderElement.message;
 
-    const identityVerificationProps = context.Intercom
-      ? context.Intercom
-      : null;
+    const identityVerificationProps = context.Intercom ? context.Intercom : null;
     if (identityVerificationProps != null) {
       // user hash
-      const userHash = context.Intercom.user_hash
-        ? context.Intercom.user_hash
-        : null;
+      const userHash = context.Intercom.user_hash ? context.Intercom.user_hash : null;
 
       if (userHash != null) {
         rawPayload.user_hash = userHash;
@@ -102,20 +98,18 @@ class INTERCOM {
       if (context.traits.hasOwnProperty(field)) {
         const value = context.traits[field];
 
-        if (field === "company") {
+        if (field === 'company') {
           const companies = [];
           const company = {};
           // special handling string
-          if (typeof context.traits[field] === "string") {
+          if (typeof context.traits[field] === 'string') {
             company.company_id = md5(context.traits[field]);
           }
           const companyFields =
-            (typeof context.traits[field] === "object" &&
-              Object.keys(context.traits[field])) ||
-            [];
+            (typeof context.traits[field] === 'object' && Object.keys(context.traits[field])) || [];
           companyFields.forEach((key) => {
             if (companyFields.hasOwnProperty(key)) {
-              if (key != "id") {
+              if (key != 'id') {
                 company[key] = context.traits[field][key];
               } else {
                 company.company_id = context.traits[field][key];
@@ -123,10 +117,7 @@ class INTERCOM {
             }
           });
 
-          if (
-            typeof context.traits[field] === "object" &&
-            !companyFields.includes("id")
-          ) {
+          if (typeof context.traits[field] === 'object' && !companyFields.includes('id')) {
             company.company_id = md5(company.name);
           }
 
@@ -137,10 +128,10 @@ class INTERCOM {
         }
 
         switch (field) {
-          case "createdAt":
+          case 'createdAt':
             rawPayload.created_at = value;
             break;
-          case "anonymousId":
+          case 'anonymousId':
             rawPayload.user_id = value;
             break;
 
@@ -150,19 +141,17 @@ class INTERCOM {
       }
     });
     rawPayload.user_id = rudderElement.message.userId;
-    window.Intercom("update", rawPayload);
+    window.Intercom('update', rawPayload);
   }
 
   track(rudderElement) {
     const rawPayload = {};
     const { message } = rudderElement;
 
-    const properties = message.properties
-      ? Object.keys(message.properties)
-      : null;
+    const properties = message.properties ? Object.keys(message.properties) : null;
     properties.forEach((property) => {
       const value = message.properties[property];
-      if (value && typeof value !== "object" && !Array.isArray(value)) {
+      if (value && typeof value !== 'object' && !Array.isArray(value)) {
         rawPayload[property] = value;
       }
     });
@@ -171,10 +160,8 @@ class INTERCOM {
       rawPayload.event_name = message.event;
     }
     rawPayload.user_id = message.userId ? message.userId : message.anonymousId;
-    rawPayload.created_at = Math.floor(
-      new Date(message.originalTimestamp).getTime() / 1000
-    );
-    window.Intercom("trackEvent", rawPayload.event_name, rawPayload);
+    rawPayload.created_at = Math.floor(new Date(message.originalTimestamp).getTime() / 1000);
+    window.Intercom('trackEvent', rawPayload.event_name, rawPayload);
   }
 
   isLoaded() {

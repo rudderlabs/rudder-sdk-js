@@ -1,10 +1,10 @@
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
+import logger from '../../utils/logUtil';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-} from "../../utils/constants";
-import { NAME } from "./constants";
+} from '../../utils/constants';
+import { NAME } from './constants';
 
 class Comscore {
   constructor(config, analytics) {
@@ -13,9 +13,7 @@ class Comscore {
     }
     this.c2ID = config.c2ID;
     this.analytics = analytics;
-    this.comScoreBeaconParam = config.comScoreBeaconParam
-      ? config.comScoreBeaconParam
-      : {};
+    this.comScoreBeaconParam = config.comScoreBeaconParam ? config.comScoreBeaconParam : {};
     this.isFirstPageCallMade = false;
     this.failed = false;
     this.comScoreParams = {};
@@ -24,19 +22,19 @@ class Comscore {
   }
 
   init() {
-    logger.debug("===in init Comscore init===");
+    logger.debug('===in init Comscore init===');
   }
 
   identify(rudderElement) {
-    logger.debug("in Comscore identify");
+    logger.debug('in Comscore identify');
   }
 
   track(rudderElement) {
-    logger.debug("in Comscore track");
+    logger.debug('in Comscore track');
   }
 
   page(rudderElement) {
-    logger.debug("in Comscore page");
+    logger.debug('in Comscore page');
 
     this.loadConfig(rudderElement);
 
@@ -49,7 +47,7 @@ class Comscore {
         return;
       }
       if (!this.isLoaded() && !this.failed) {
-        this.replayEvents.push(["page", rudderElement]);
+        this.replayEvents.push(['page', rudderElement]);
         return;
       }
       const { properties } = rudderElement.message;
@@ -60,22 +58,20 @@ class Comscore {
   }
 
   loadConfig(rudderElement) {
-    logger.debug("=====in loadConfig=====");
-    this.comScoreParams = this.mapComscoreParams(
-      rudderElement.message.properties
-    );
+    logger.debug('=====in loadConfig=====');
+    this.comScoreParams = this.mapComscoreParams(rudderElement.message.properties);
     window._comscore = window._comscore || [];
     window._comscore.push(this.comScoreParams);
   }
 
   initAfterPage() {
-    logger.debug("=====in initAfterPage=====");
+    logger.debug('=====in initAfterPage=====');
     (function () {
-      const s = document.createElement("script");
-      const el = document.getElementsByTagName("script")[0];
+      const s = document.createElement('script');
+      const el = document.getElementsByTagName('script')[0];
       s.async = true;
       s.src = `${
-        document.location.protocol == "https:" ? "https://sb" : "http://b"
+        document.location.protocol == 'https:' ? 'https://sb' : 'http://b'
       }.scorecardresearch.com/beacon.js`;
       el.parentNode.insertBefore(s, el);
     })();
@@ -97,7 +93,7 @@ class Comscore {
     return new Promise((resolve) => {
       if (this.isLoaded()) {
         this.failed = false;
-        instance.analytics.emit("ready");
+        instance.analytics.emit('ready');
         return resolve(instance);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
@@ -105,16 +101,13 @@ class Comscore {
         return resolve(instance);
       }
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        return this._isReady(
-          instance,
-          time + INTEGRATION_LOAD_CHECK_INTERVAL
-        ).then(resolve);
+        return this._isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
       });
     });
   }
 
   mapComscoreParams(properties) {
-    logger.debug("=====in mapComscoreParams=====");
+    logger.debug('=====in mapComscoreParams=====');
     const comScoreBeaconParamsMap = this.comScoreBeaconParam;
 
     const comScoreParams = {};
@@ -127,17 +120,17 @@ class Comscore {
       }
     });
 
-    comScoreParams.c1 = "2";
+    comScoreParams.c1 = '2';
     comScoreParams.c2 = this.c2ID;
     /* if (this.options.comscorekw.length) {
       comScoreParams.comscorekw = this.options.comscorekw;
     } */
-    logger.debug("=====in mapComscoreParams=====", comScoreParams);
+    logger.debug('=====in mapComscoreParams=====', comScoreParams);
     return comScoreParams;
   }
 
   isLoaded() {
-    logger.debug("in Comscore isLoaded");
+    logger.debug('in Comscore isLoaded');
     if (!this.isFirstPageCallMade) {
       return true;
     }

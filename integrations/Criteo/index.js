@@ -1,3 +1,3 @@
-import Criteo from "./browser";
+import Criteo from './browser';
 
 export { Criteo };

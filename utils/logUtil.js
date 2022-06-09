@@ -7,13 +7,13 @@ let LOG_LEVEL = LOG_LEVEL_ERROR;
 const logger = {
   setLogLevel(logLevel) {
     switch (logLevel.toUpperCase()) {
-      case "INFO":
+      case 'INFO':
         LOG_LEVEL = LOG_LEVEL_INFO;
         return;
-      case "DEBUG":
+      case 'DEBUG':
         LOG_LEVEL = LOG_LEVEL_DEBUG;
         return;
-      case "WARN":
+      case 'WARN':
         LOG_LEVEL = LOG_LEVEL_WARN;
     }
   },

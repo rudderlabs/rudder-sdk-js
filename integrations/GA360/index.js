@@ -1,3 +1,3 @@
-import { GA360 } from "./browser";
+import { GA360 } from './browser';
 
 export { GA360 };

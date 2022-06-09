@@ -1,3 +1,3 @@
-import { Keen } from "./browser";
+import { Keen } from './browser';
 
 export { Keen };

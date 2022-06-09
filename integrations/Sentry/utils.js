@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable object-shorthand */
-import logger from "../../utils/logUtil";
-import { isDefinedAndNotNullAndNotEmpty } from "../utils/commonUtils";
+import logger from '../../utils/logUtil';
+import { isDefinedAndNotNullAndNotEmpty } from '../utils/commonUtils';
 
 const convertObjectToArray = (objectInput, propertyName) => {
   return objectInput
@@ -11,15 +11,15 @@ const convertObjectToArray = (objectInput, propertyName) => {
 
 const SentryScriptLoader = (id, src, integrity) => {
   logger.debug(`in script loader=== ${id}`);
-  const js = document.createElement("script");
+  const js = document.createElement('script');
   js.src = src;
   js.integrity = integrity;
-  js.crossOrigin = "anonymous";
-  js.type = "text/javascript";
+  js.crossOrigin = 'anonymous';
+  js.type = 'text/javascript';
   js.id = id;
-  const e = document.getElementsByTagName("script")[0];
-  logger.debug("==parent script==", e);
-  logger.debug("==adding script==", js);
+  const e = document.getElementsByTagName('script')[0];
+  logger.debug('==parent script==', e);
+  logger.debug('==adding script==', js);
   e.parentNode.insertBefore(js, e);
 };
 
@@ -33,22 +33,14 @@ const sentryInit = (
   DSN,
   debugMode,
   environment,
-  serverName
+  serverName,
 ) => {
-  const formattedAllowUrls = convertObjectToArray(allowUrls, "allowUrls");
-  const formattedDenyUrls = convertObjectToArray(denyUrls, "denyUrls");
-  const formattedIgnoreErrors = convertObjectToArray(
-    ignoreErrors,
-    "ignoreErrors"
-  );
-  const formattedIncludePaths = convertObjectToArray(
-    includePathsArray,
-    "includePaths"
-  );
+  const formattedAllowUrls = convertObjectToArray(allowUrls, 'allowUrls');
+  const formattedDenyUrls = convertObjectToArray(denyUrls, 'denyUrls');
+  const formattedIgnoreErrors = convertObjectToArray(ignoreErrors, 'ignoreErrors');
+  const formattedIncludePaths = convertObjectToArray(includePathsArray, 'includePaths');
 
-  const customRelease = customVersionProperty
-    ? window[customVersionProperty]
-    : null;
+  const customRelease = customVersionProperty ? window[customVersionProperty] : null;
 
   const sentryConfig = {
     dsn: DSN,
@@ -95,7 +87,7 @@ const sentryInit = (
           frame.in_app = false;
           return frame;
         },
-      })
+      }),
     );
   }
   return sentryConfig;

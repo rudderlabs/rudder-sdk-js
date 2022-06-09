@@ -1,3 +1,3 @@
-import { Storage } from "./storage";
+import { Storage } from './storage';
 
 export default new Storage();

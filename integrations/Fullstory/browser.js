@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-undef */
-import camelcase from "../../utils/camelcase";
-import logger from "../../utils/logUtil";
-import { NAME } from "./constants";
+import camelcase from '../../utils/camelcase';
+import logger from '../../utils/logUtil';
+import { NAME } from './constants';
 
 class Fullstory {
   constructor(config, analytics) {
@@ -16,9 +16,7 @@ class Fullstory {
     const FS_properties = {};
     Object.keys(properties).map(function (key, index) {
       FS_properties[
-        key === "displayName" || key === "email"
-          ? key
-          : Fullstory.camelCaseField(key)
+        key === 'displayName' || key === 'email' ? key : Fullstory.camelCaseField(key)
       ] = properties[key];
     });
     return FS_properties;
@@ -26,21 +24,21 @@ class Fullstory {
 
   static camelCaseField(fieldName) {
     // Do not camel case across type suffixes.
-    const parts = fieldName.split("_");
+    const parts = fieldName.split('_');
     if (parts.length > 1) {
       const typeSuffix = parts.pop();
       switch (typeSuffix) {
-        case "str":
-        case "int":
-        case "date":
-        case "real":
-        case "bool":
-        case "strs":
-        case "ints":
-        case "dates":
-        case "reals":
-        case "bools":
-          return `${camelcase(parts.join("_"))}_${typeSuffix}`;
+        case 'str':
+        case 'int':
+        case 'date':
+        case 'real':
+        case 'bool':
+        case 'strs':
+        case 'ints':
+        case 'dates':
+        case 'reals':
+        case 'bools':
+          return `${camelcase(parts.join('_'))}_${typeSuffix}`;
         default: // passthrough
       }
     }
@@ -49,18 +47,16 @@ class Fullstory {
   }
 
   init() {
-    logger.debug("===in init FULLSTORY===");
+    logger.debug('===in init FULLSTORY===');
     window._fs_debug = this.fs_debug_mode;
-    window._fs_host = "fullstory.com";
-    window._fs_script = "edge.fullstory.com/s/fs.js";
+    window._fs_host = 'fullstory.com';
+    window._fs_script = 'edge.fullstory.com/s/fs.js';
     window._fs_org = this.fs_org;
-    window._fs_namespace = "FS";
+    window._fs_namespace = 'FS';
     (function (m, n, e, t, l, o, g, y) {
       if (e in m) {
         if (m.console && m.console.log) {
-          m.console.log(
-            'FullStory namespace conflict. Please set window["_fs_namespace"].'
-          );
+          m.console.log('FullStory namespace conflict. Please set window["_fs_namespace"].');
         }
         return;
       }
@@ -70,7 +66,7 @@ class Fullstory {
       g.q = [];
       o = n.createElement(t);
       o.async = 1;
-      o.crossOrigin = "anonymous";
+      o.crossOrigin = 'anonymous';
       o.src = `https://${_fs_script}`;
       y = n.getElementsByTagName(t)[0];
       y.parentNode.insertBefore(o, y);
@@ -82,37 +78,37 @@ class Fullstory {
         g(l, v, s);
       };
       g.event = function (i, v, s) {
-        g("event", { n: i, p: v }, s);
+        g('event', { n: i, p: v }, s);
       };
       g.shutdown = function () {
-        g("rec", !1);
+        g('rec', !1);
       };
       g.restart = function () {
-        g("rec", !0);
+        g('rec', !0);
       };
       g.log = function (a, b) {
-        g("log", [a, b]);
+        g('log', [a, b]);
       };
       g.consent = function (a) {
-        g("consent", !arguments.length || a);
+        g('consent', !arguments.length || a);
       };
       g.identifyAccount = function (i, v) {
-        o = "account";
+        o = 'account';
         v = v || {};
         v.acctId = i;
         g(o, v);
       };
       g.clearUserCookie = function () {};
       g._w = {};
-      y = "XMLHttpRequest";
+      y = 'XMLHttpRequest';
       g._w[y] = m[y];
-      y = "fetch";
+      y = 'fetch';
       g._w[y] = m[y];
       if (m[y])
         m[y] = function () {
           return g._w[y].apply(this, arguments);
         };
-    })(window, document, window._fs_namespace, "script", "user");
+    })(window, document, window._fs_namespace, 'script', 'user');
 
     const { FULLSTORY } = this.analytics.loadOnlyIntegrations;
     // Checking if crossDomainSupport is their or not.
@@ -128,7 +124,7 @@ class Fullstory {
             };
           }
         } else {
-          logger.debug("Unable to access locaStorage");
+          logger.debug('Unable to access locaStorage');
         }
 
         return null;
@@ -137,20 +133,16 @@ class Fullstory {
       (function () {
         function fs(api) {
           if (!window._fs_namespace) {
-            console.error(
-              'FullStory unavailable, window["_fs_namespace"] must be defined'
-            );
+            console.error('FullStory unavailable, window["_fs_namespace"] must be defined');
             return undefined;
           }
-          return api
-            ? window[window._fs_namespace][api]
-            : window[window._fs_namespace];
+          return api ? window[window._fs_namespace][api] : window[window._fs_namespace];
         }
         function waitUntil(predicateFn, callbackFn, timeout, timeoutFn) {
           let totalTime = 0;
           let delay = 64;
           const resultFn = function () {
-            if (typeof predicateFn === "function" && predicateFn()) {
+            if (typeof predicateFn === 'function' && predicateFn()) {
               callbackFn();
               return;
             }
@@ -169,32 +161,26 @@ class Fullstory {
         const timeout = FULLSTORY.timeout || 2000;
 
         function identify() {
-          if (typeof window._fs_identity === "function") {
+          if (typeof window._fs_identity === 'function') {
             const userVars = window._fs_identity();
-            if (
-              typeof userVars === "object" &&
-              typeof userVars.uid === "string"
-            ) {
-              fs("setUserVars")(userVars);
-              fs("restart")();
+            if (typeof userVars === 'object' && typeof userVars.uid === 'string') {
+              fs('setUserVars')(userVars);
+              fs('restart')();
             } else {
-              fs("log")(
-                "error",
-                "FS.setUserVars requires an object that contains uid"
-              );
+              fs('log')('error', 'FS.setUserVars requires an object that contains uid');
             }
           } else {
-            fs("log")("error", 'window["_fs_identity"] function not found');
+            fs('log')('error', 'window["_fs_identity"] function not found');
           }
         }
-        fs("shutdown")();
-        waitUntil(window._fs_identity, identify, timeout, fs("restart"));
+        fs('shutdown')();
+        waitUntil(window._fs_identity, identify, timeout, fs('restart'));
       })();
     }
   }
 
   page(rudderElement) {
-    logger.debug("in FULLSORY page");
+    logger.debug('in FULLSORY page');
     const rudderMessage = rudderElement.message;
     const pageName = rudderMessage.name;
     const props = {
@@ -202,11 +188,11 @@ class Fullstory {
       ...rudderMessage.properties,
     };
 
-    window.FS.event("Viewed a Page", Fullstory.getFSProperties(props));
+    window.FS.event('Viewed a Page', Fullstory.getFSProperties(props));
   }
 
   identify(rudderElement) {
-    logger.debug("in FULLSORY identify");
+    logger.debug('in FULLSORY identify');
     let { userId } = rudderElement.message;
     const { traits } = rudderElement.message.context;
     if (!userId) userId = rudderElement.message.anonymousId;
@@ -217,15 +203,15 @@ class Fullstory {
   }
 
   track(rudderElement) {
-    logger.debug("in FULLSTORY track");
+    logger.debug('in FULLSTORY track');
     window.FS.event(
       rudderElement.message.event,
-      Fullstory.getFSProperties(rudderElement.message.properties)
+      Fullstory.getFSProperties(rudderElement.message.properties),
     );
   }
 
   isLoaded() {
-    logger.debug("in FULLSTORY isLoaded");
+    logger.debug('in FULLSTORY isLoaded');
     return !!window.FS;
   }
 }

@@ -1,11 +1,11 @@
 /* eslint-disable no-console */
-import { exec } from "child_process";
-import { configToIntNames } from "./utils/config_to_integration_names";
+import { exec } from 'child_process';
+import { configToIntNames } from './utils/config_to_integration_names';
 
 const intgNamesArr = Object.values(configToIntNames);
 let errCount = 0;
 let curInt = 0;
-const numCPUs = require("os").cpus().length;
+const numCPUs = require('os').cpus().length;
 
 let numRunning = 0;
 let index = 0;
@@ -25,7 +25,7 @@ function buildIntegrations() {
     index += 1;
 
     let cmd = `npm run buildProdIntegrationCLI --intg=${intgName}`;
-    if (process.env.BUNDLE_SIZE_VISUALIZER === "true") {
+    if (process.env.BUNDLE_SIZE_VISUALIZER === 'true') {
       cmd = `npm run bundle-size-visual-integration-cli --intg=${intgName}`;
     }
 
@@ -33,7 +33,7 @@ function buildIntegrations() {
     exec(cmd, (error, stdout, stderr) => {
       curInt += 1;
       console.log(
-        `\nCompleted building integration: ${intgName} (${curInt} of ${intgNamesArr.length})`
+        `\nCompleted building integration: ${intgName} (${curInt} of ${intgNamesArr.length})`,
       );
       console.log(stdout);
       console.log(stderr);
@@ -41,7 +41,7 @@ function buildIntegrations() {
         errCount += 1;
 
         console.log(`${intgName} build failed!!!`);
-        console.log("ERROR: ", error);
+        console.log('ERROR: ', error);
       }
       numRunning -= 1;
 
@@ -52,10 +52,8 @@ function buildIntegrations() {
 
   if (numRunning === 0) {
     // All the integrations are built
-    console.log(`Final Status: ${errCount > 0 ? "FAILURE" : "SUCCESS"}`);
-    console.log(
-      `Summary: ${errCount} of ${intgNamesArr.length} integration builds failed`
-    );
+    console.log(`Final Status: ${errCount > 0 ? 'FAILURE' : 'SUCCESS'}`);
+    console.log(`Summary: ${errCount} of ${intgNamesArr.length} integration builds failed`);
   }
 }
 

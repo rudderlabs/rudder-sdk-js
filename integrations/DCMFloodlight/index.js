@@ -1,3 +1,3 @@
-import DCMFloodlight from "./browser";
+import DCMFloodlight from './browser';
 
 export default DCMFloodlight;
