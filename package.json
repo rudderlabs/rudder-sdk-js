@@ -22,7 +22,10 @@
     "buildProdIntegrationCLI": "NODE_ENV=false ENV=prod uglify=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
     "buildAllIntegrations": "BUNDLE_SIZE_VISUALIZER=false node -r esm integrationBuildScript.js",
     "bundle-size-visual-integration": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
-    "bundle-size-visual-integration-cli": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js"
+    "bundle-size-visual-integration-cli": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
+    "format": "prettier --write '**/*.js'",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint . || exit 1"
   },
   "pre-commit": {
     "run": [
