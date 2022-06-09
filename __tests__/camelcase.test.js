@@ -19,3 +19,11 @@ test("convert uppercase string to camelcase format", () => {
 test("convert string with first letter capital for each word to camelcase format", () => {
   expect(camelcase("Camel Case")).toBe("camelCase");
 });
+
+test("convert non-string values", () => {
+  expect(camelcase(123)).toBe("123");
+});
+
+test("convert invalid values", () => {
+  expect(camelcase()).toBe("");
+});

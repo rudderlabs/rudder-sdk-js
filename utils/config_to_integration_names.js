@@ -50,5 +50,4 @@ const configToIntNames = {
   ADROLL: "Adroll"
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export { configToIntNames };
