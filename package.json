@@ -25,13 +25,8 @@
     "bundle-size-visual-integration-cli": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
     "format": "prettier --write '**/*.js'",
     "lint": "eslint . --fix",
-    "lint:check": "eslint . || exit 1"
-  },
-  "pre-commit": {
-    "run": [
-      "size",
-      "test"
-    ]
+    "lint:check": "eslint . || exit 1",
+    "prepare": "husky install"
   },
   "author": "",
   "license": "ISC",
@@ -82,14 +77,14 @@
     "eslint-plugin-prettier": "^4.0.0",
     "esm": "^3.2.25",
     "gh-release": "^6.0.4",
+    "husky": "^8.0.0",
     "jest": "^28.1.0",
     "jest-environment-jsdom": "^28.1.0",
-    "pre-commit": "^1.2.2",
     "prettier": "^2.6.2",
     "rollup": "^2.75.3",
     "rollup-plugin-brotli": "^3.1.0",
-    "rollup-plugin-gzip": "^3.0.1",
     "rollup-plugin-filesize": "^9.1.2",
+    "rollup-plugin-gzip": "^3.0.1",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-sourcemaps": "^0.6.3",
