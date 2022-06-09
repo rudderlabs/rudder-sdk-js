@@ -1,4 +1,4 @@
-describe("Test suite for the SDK", () => {
+describe('Test suite for the SDK', () => {
   const xhrMock = {
     open: jest.fn(),
     setRequestHeader: jest.fn(),
@@ -9,16 +9,16 @@ describe("Test suite for the SDK", () => {
     status: 200,
   };
 
-  const userId = "jest-user-id";
+  const userId = 'jest-user-id';
   const userTraits = {
-    "jest-user-trait-key-1": "jest-user-trait-value-1",
-    "jest-user-trait-key-2": "jest-user-trait-value-2",
+    'jest-user-trait-key-1': 'jest-user-trait-value-1',
+    'jest-user-trait-key-2': 'jest-user-trait-value-2',
   };
 
-  const groupUserId = "jest-group-id";
+  const groupUserId = 'jest-group-id';
   const groupTraits = {
-    "jest-group-trait-key-1": "jest-group-trait-value-1",
-    "jest-group-trait-key-2": "jest-group-trait-value-2",
+    'jest-group-trait-key-1': 'jest-group-trait-value-1',
+    'jest-group-trait-key-2': 'jest-group-trait-value-2',
   };
 
   beforeEach(() => {
@@ -30,21 +30,21 @@ describe("Test suite for the SDK", () => {
     rudderanalytics = window.rudderanalytics = [];
     for (
       var methods = [
-          "load",
-          "page",
-          "track",
-          "alias",
-          "group",
-          "identify",
-          "ready",
-          "reset",
-          "getUserTraits",
-          "getAnonymousId",
-          "getUserId",
-          "getUserTraits",
-          "getGroupId",
-          "getGroupTraits",
-          "setAnonymousId",
+          'load',
+          'page',
+          'track',
+          'alias',
+          'group',
+          'identify',
+          'ready',
+          'reset',
+          'getUserTraits',
+          'getAnonymousId',
+          'getUserId',
+          'getUserTraits',
+          'getGroupId',
+          'getGroupTraits',
+          'setAnonymousId',
         ],
         i = 0;
       i < methods.length;
@@ -57,8 +57,8 @@ describe("Test suite for the SDK", () => {
         };
       })(method);
     }
-    rudderanalytics.load("WRITE_KEY", "DATA_PLANE_URL");
-    require("./prodsdk.js");
+    rudderanalytics.load('WRITE_KEY', 'DATA_PLANE_URL');
+    require('./prodsdk.js');
   });
 
   it("If SDK script is 'required' (imported), then check that it is loaded and queued API calls are processed", () => {
@@ -66,7 +66,7 @@ describe("Test suite for the SDK", () => {
     // API calls queuing functionality
     jest.resetModules();
     rudderanalytics.page();
-    require("./prodsdk.js");
+    require('./prodsdk.js');
 
     expect(global.rudderanalytics.push).not.toBe(Array.prototype.push);
 
@@ -75,12 +75,12 @@ describe("Test suite for the SDK", () => {
     expect(xhrMock.send).toHaveBeenCalledTimes(2);
   });
 
-  it("If APIs are called, then appropriate network requests are made", () => {
+  it('If APIs are called, then appropriate network requests are made', () => {
     rudderanalytics.page();
-    rudderanalytics.track("test-event");
-    rudderanalytics.identify("jest-user");
-    rudderanalytics.group("jest-group");
-    rudderanalytics.alias("new-jest-user", "jest-user");
+    rudderanalytics.track('test-event');
+    rudderanalytics.identify('jest-user');
+    rudderanalytics.group('jest-group');
+    rudderanalytics.alias('new-jest-user', 'jest-user');
 
     // one source config endpoint call and above API requests
     expect(xhrMock.send).toHaveBeenCalledTimes(6);
@@ -90,8 +90,7 @@ describe("Test suite for the SDK", () => {
     it("If 'getAnonymousId' API is invoked with no prior persisted data, then a UUID value is returned", () => {
       const anonId = rudderanalytics.getAnonymousId();
 
-      const uuidRegEx =
-        /^[a-z0-9]{8}-[a-z0-9]{4}-4[a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{12}$/;
+      const uuidRegEx = /^[a-z0-9]{8}-[a-z0-9]{4}-4[a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{12}$/;
       expect(anonId).toMatch(uuidRegEx);
     });
 
@@ -112,7 +111,7 @@ describe("Test suite for the SDK", () => {
       rudderanalytics.identify(userId, userTraits);
       rudderanalytics.group(groupUserId, groupTraits);
 
-      const anonId = "jest-anon-ID";
+      const anonId = 'jest-anon-ID';
       rudderanalytics.setAnonymousId(anonId);
 
       // SDK clears all the persisted data except for anonymous ID
@@ -122,7 +121,7 @@ describe("Test suite for the SDK", () => {
       const anonIdRes = rudderanalytics.getAnonymousId();
 
       expect(anonId).toEqual(anonIdRes);
-      expect(rudderanalytics.getUserId()).toEqual("");
+      expect(rudderanalytics.getUserId()).toEqual('');
       expect(rudderanalytics.getUserTraits()).toEqual({});
       // expect(rudderanalytics.getGroupId()).toEqual("");
       // expect(rudderanalytics.getGroupTraits()).toEqual({});
@@ -134,7 +133,7 @@ describe("Test suite for the SDK", () => {
       rudderanalytics.identify(userId, userTraits);
       rudderanalytics.group(groupUserId, groupTraits);
 
-      const anonId = "jest-anon-ID";
+      const anonId = 'jest-anon-ID';
       rudderanalytics.setAnonymousId(anonId);
 
       // SDK clears all the persisted data
@@ -144,7 +143,7 @@ describe("Test suite for the SDK", () => {
       const anonIdRes = rudderanalytics.getAnonymousId();
 
       expect(anonId).not.toEqual(anonIdRes);
-      expect(rudderanalytics.getUserId()).toEqual("");
+      expect(rudderanalytics.getUserId()).toEqual('');
       expect(rudderanalytics.getUserTraits()).toEqual({});
       // expect(rudderanalytics.getGroupId()).toEqual("");
       // expect(rudderanalytics.getGroupTraits()).toEqual({});
