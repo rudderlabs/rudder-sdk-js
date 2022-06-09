@@ -12,7 +12,7 @@
     }
   ],
   "scripts": {
-    "test": "npm run buildProdBrowser && sed 's/var rudderanalytics/rudderanalytics/g' dist/rudder-analytics.min.js > __tests__/prodsdk.js && jest --coverage",
+    "test": "npm run buildProdBrowser && sed 's/var rudderanalytics/rudderanalytics/g' dist/rudder-analytics.min.js > __tests__/prodsdk.js && jest --coverage --verbose",
     "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",
     "buildProdBrowser": "NODE_ENV=false PROD_DEBUG=true ENV=prod uglify=true rollup -c",
     "buildProdBrowserDebug": "NODE_ENV=false ENV=prod PROD_DEBUG_INLINE=true uglify=true rollup -c",
