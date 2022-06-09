@@ -79,5 +79,4 @@ class EventRepository {
   }
 }
 const eventRepository = new EventRepository();
-// eslint-disable-next-line import/prefer-default-export
 export { eventRepository as EventRepository };
