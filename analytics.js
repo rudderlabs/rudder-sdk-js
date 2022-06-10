@@ -176,11 +176,22 @@ class Analytics {
         response = JSON.parse(response);
       }
 
-      // Fetch Bugsnag enable option from sourceConfig
-      const bsEnabled = get(response.source.config, "metrics.bugsnag.enabled");
+      // Fetch Error reporting enable option from sourceConfig
+      const IsErrorReportEnabled = get(
+        response.source.config,
+        "statsCollection.errorReports.enabled"
+      );
+
       // Load Bugsnag only if it is enabled in the source config
-      if (bsEnabled === true) {
-        BugsnagLib.init(response.source.id);
+      if (IsErrorReportEnabled === true) {
+        // Fetch the name of the Error reporter from sourceConfig
+        const provider = get(
+          response.source.config,
+          "statsCollection.errorReports.provider"
+        );
+        if (provider === "bugsnag") {
+          BugsnagLib.init(response.source.id);
+        }
       }
 
       response.source.destinations.forEach(function (destination, index) {
