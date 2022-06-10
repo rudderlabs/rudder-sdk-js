@@ -284,17 +284,9 @@ class DCMFloodlight {
       return;
     }
 
-    if (category && name) {
-      rudderElement.message.event = `Viewed ${category} ${name} Page`;
-    } else if (category) {
-      // categorized pages
-      rudderElement.message.event = `Viewed ${category} Page`;
-    } else if (name) {
-      // named pages
-      rudderElement.message.event = `Viewed ${name} Page`;
-    } else {
-      rudderElement.message.event = `Viewed Page`;
-    }
+    const categoryVal = category ? `${category} ` : "";
+    const nameVal = name ? `${name} ` : "";
+    rudderElement.message.event = `Viewed ${categoryVal}${nameVal}Page`;
 
     rudderElement.message.type = "track";
     this.track(rudderElement);

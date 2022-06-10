@@ -30,7 +30,7 @@ const transformCustomVariable = (customFloodlightVariable, message) => {
     if (item && isNotEmpty(item.from) && isNotEmpty(item.to)) {
       // remove u if already there
       // first we consider taking custom variable from properties
-      // if not found we will take it from root level i.e message.*
+      // if not found we will take it from traits
       let itemValue = get(message, `properties.${item.from.trim()}`);
       // this condition adds support for numeric 0
       if (!isDefinedAndNotNull(itemValue)) {
