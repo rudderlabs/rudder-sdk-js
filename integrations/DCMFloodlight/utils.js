@@ -1,4 +1,8 @@
 import get from "get-value";
+import {
+  GENERIC_FALSE_VALUES,
+  GENERIC_TRUE_VALUES,
+} from "../../utils/constants";
 import logger from "../../utils/logUtil";
 import { isDefinedAndNotNull, isNotEmpty } from "../utils/commonUtils";
 
@@ -21,7 +25,7 @@ import { isDefinedAndNotNull, isNotEmpty } from "../utils/commonUtils";
  */
 const transformCustomVariable = (customFloodlightVariable, message) => {
   const customVariable = {};
-  const BLACKLISTED_CHARACTERS = ['"', "<", ">", "#"];
+  const DENIED_CHARACTERS = ['"', "<", ">", "#"];
   customFloodlightVariable.forEach((item) => {
     if (item && isNotEmpty(item.from) && isNotEmpty(item.to)) {
       // remove u if already there
@@ -38,9 +42,9 @@ const transformCustomVariable = (customFloodlightVariable, message) => {
       if (
         itemValue &&
         typeof itemValue === "string" &&
-        BLACKLISTED_CHARACTERS.some((key) => itemValue.includes(key))
+        DENIED_CHARACTERS.some((key) => itemValue.includes(key))
       ) {
-        logger.info('", < , > or # string variable is not acceptable');
+        logger.info(`${DENIED_CHARACTERS} string variable is not acceptable`);
         itemValue = undefined;
       }
       // supported data types are number and string
@@ -56,10 +60,10 @@ const transformCustomVariable = (customFloodlightVariable, message) => {
 
 // valid flag should be provided [1|true] or [0|false]
 const mapFlagValue = (key, value) => {
-  if (["true", "1"].includes(value.toString())) {
+  if (GENERIC_TRUE_VALUES.includes(value.toString())) {
     return 1;
   }
-  if (["false", "0"].includes(value.toString())) {
+  if (GENERIC_FALSE_VALUES.includes(value.toString())) {
     return 0;
   }
 

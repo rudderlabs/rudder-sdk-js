@@ -295,6 +295,7 @@ class DCMFloodlight {
     } else {
       rudderElement.message.event = `Viewed Page`;
     }
+
     rudderElement.message.type = "track";
     this.track(rudderElement);
   }
