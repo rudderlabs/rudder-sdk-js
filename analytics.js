@@ -36,6 +36,8 @@ import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
   POLYFILL_URL,
+  PROVIDERS,
+  DEFAULT_PROVIDER,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -47,6 +49,9 @@ import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
 import * as BugsnagLib from "./metrics/error-report/Bugsnag";
+
+// Load Bugsnag client SDK while SDK initialisation
+BugsnagLib.load();
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -178,13 +183,14 @@ class Analytics {
       );
 
       // Load Bugsnag only if it is enabled in the source config
-      if (IsErrorReportEnabled === true) {
+      if (isErrorReportEnabled === true) {
         // Fetch the name of the Error reporter from sourceConfig
-        const provider = get(
+        let provider = get(
           response.source.config,
           "statsCollection.errorReports.provider"
         );
-        if (provider === "bugsnag") {
+        if (!provider) provider = DEFAULT_PROVIDER; // Set bugsnag as the default provider
+        if (PROVIDERS.includes(provider) && provider === "bugsnag") {
           BugsnagLib.init(response.source.id);
         }
       }
@@ -1163,8 +1169,6 @@ class Analytics {
     // logger.debug("inside load ");
     if (this.loaded) return;
 
-    // Load Bugsnag client SDK
-    BugsnagLib.load();
     // check if the below features are available in the browser or not
     // If not present dynamically load from the polyfill cdn
     if (
