@@ -172,7 +172,7 @@ class Analytics {
       }
 
       // Fetch Error reporting enable option from sourceConfig
-      const IsErrorReportEnabled = get(
+      const isErrorReportEnabled = get(
         response.source.config,
         "statsCollection.errorReports.enabled"
       );
