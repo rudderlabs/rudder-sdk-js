@@ -21,6 +21,9 @@ const INTG_SUFFIX = "_RS";
 const POLYFILL_URL =
   "https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries%2CObject.values%2CElement.prototype.dataset";
 
+const PROVIDERS = ["bugsnag"];
+const DEFAULT_PROVIDER = "bugsnag";
+
 export {
   RESERVED_KEYS,
   CONFIG_URL,
@@ -30,4 +33,6 @@ export {
   INTEGRATION_LOAD_CHECK_INTERVAL,
   INTG_SUFFIX,
   POLYFILL_URL,
+  PROVIDERS,
+  DEFAULT_PROVIDER,
 };
