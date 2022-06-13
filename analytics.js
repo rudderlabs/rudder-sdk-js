@@ -36,8 +36,8 @@ import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
   POLYFILL_URL,
-  PROVIDERS,
-  DEFAULT_PROVIDER,
+  DEFAULT_ERROR_REPORT_PROVIDER,
+  ERROR_REPORT_PROVIDERS,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -49,9 +49,6 @@ import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
 import * as BugsnagLib from "./metrics/error-report/Bugsnag";
-
-// Load Bugsnag client SDK while SDK initialisation
-BugsnagLib.load();
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -185,12 +182,15 @@ class Analytics {
       // Load Bugsnag only if it is enabled in the source config
       if (isErrorReportEnabled === true) {
         // Fetch the name of the Error reporter from sourceConfig
-        let provider = get(
+        const provider = get(
           response.source.config,
           "statsCollection.errorReports.provider"
-        );
-        if (!provider) provider = DEFAULT_PROVIDER; // Set bugsnag as the default provider
-        if (PROVIDERS.includes(provider) && provider === "bugsnag") {
+        ) || DEFAULT_ERROR_REPORT_PROVIDER;
+        if (!ERROR_REPORT_PROVIDERS.includes(provider)) {
+          logger.error("Invalid error reporting provider value");
+        }
+
+        if (provider === "bugsnag") {
           BugsnagLib.init(response.source.id);
         }
       }
@@ -1168,6 +1168,9 @@ class Analytics {
   load(writeKey, serverUrl, options) {
     // logger.debug("inside load ");
     if (this.loaded) return;
+
+    // Load Bugsnag client SDK
+    BugsnagLib.load();
 
     // check if the below features are available in the browser or not
     // If not present dynamically load from the polyfill cdn
