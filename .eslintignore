@@ -1,2 +1,5 @@
 **/*test.js
 /**/*.d.ts
+/node_modules/
+/dist/**/*.js
+**/archive/
