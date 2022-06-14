@@ -47,8 +47,8 @@ const configToIntNames = {
   GOOGLE_OPTIMIZE: "GoogleOptimize",
   LAUNCHDARKLY: "LaunchDarkly",
   GA360: "GA360",
-  ADROLL: "Adroll"
+  ADROLL: "Adroll",
+  DCM_FLOODLIGHT: "DCMFloodlight"
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export { configToIntNames };

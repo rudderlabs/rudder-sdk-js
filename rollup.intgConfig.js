@@ -4,21 +4,21 @@ import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import { terser } from "rollup-plugin-terser";
-import sourcemaps from "rollup-plugin-sourcemaps";
 import builtins from "rollup-plugin-node-builtins";
 import globals from "rollup-plugin-node-globals";
 import json from "@rollup/plugin-json";
 import gzipPlugin from "rollup-plugin-gzip";
 import brotli from "rollup-plugin-brotli";
 import visualizer from "rollup-plugin-visualizer";
+import filesize from "rollup-plugin-filesize";
 import * as webPackage from "./package.json";
+// eslint-disable-next-line import/no-relative-packages
 import * as npmPackage from "./dist/rudder-sdk-js/package.json";
 import { INTG_SUFFIX } from "./utils/constants";
 
 let distFileName = "";
 let { version } = webPackage;
 let moduleType = "web";
-
 switch (process.env.ENV) {
   case "prod":
     switch (process.env.ENC) {
@@ -51,7 +51,6 @@ switch (process.env.ENV) {
 }
 
 const outputFiles = [];
-
 if (process.env.NPM === "true") {
   outputFiles.push({
     file: `dist/integrations/${process.env.INTG_NAME}/index.js`,
@@ -73,11 +72,10 @@ if (process.env.NPM === "true") {
 }
 
 export default {
-  input: `./integrations/${process.env.INTG_NAME}/index.js`,
-  external: ["Xmlhttprequest", "universal-analytics"],
+  input: `integrations/${process.env.INTG_NAME}/index.js`,
+  external: [],
   output: outputFiles,
   plugins: [
-    sourcemaps(),
     replace({
       preventAssignment: true,
       "process.browser": process.env.NODE_ENV !== "true",
@@ -94,11 +92,11 @@ export default {
     commonjs({
       include: "node_modules/**",
       /* namedExports: {
-      // left-hand side can be an absolute path, a path
-      // relative to the current directory, or the name
-      // of a module in node_modules
-      Xmlhttprequest: ["Xmlhttprequest"]
-    } */
+        // left-hand side can be an absolute path, a path
+        // relative to the current directory, or the name
+        // of a module in node_modules
+        Xmlhttprequest: ["Xmlhttprequest"]
+      } */
     }),
 
     json(),
@@ -106,9 +104,26 @@ export default {
     builtins(),
 
     babel({
+      inputSourceMap: true,
       babelHelpers: "bundled",
       exclude: ["node_modules/@babel/**", "node_modules/core-js/**"],
-      presets: [["@babel/env"]],
+      presets: [
+        [
+          "@babel/env",
+          {
+            corejs: "3.6",
+            useBuiltIns: "entry",
+            targets: {
+              edge: "15",
+              firefox: "40",
+              ie: "10",
+              chrome: "37",
+              safari: "7",
+              opera: "23",
+            },
+          },
+        ],
+      ],
       plugins: [
         [
           "@babel/plugin-proposal-class-properties",
@@ -137,6 +152,14 @@ export default {
     process.env.ENC === "br" && brotli(),
     process.env.visualizer === "true" &&
       process.env.uglify === "true" &&
-      visualizer({ sourcemap: true }),
+      visualizer({
+        filename: `./stats/${process.env.INTG_NAME}.html`,
+        title: `Rollup Visualizer - ${process.env.INTG_NAME}`,
+        sourcemap: true,
+        open: false,
+        gzipSize: true,
+        brotliSize: true,
+      }),
+    filesize(),
   ],
 };

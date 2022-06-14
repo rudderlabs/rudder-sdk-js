@@ -4,7 +4,7 @@ import get from "get-value";
 import logger from "./logUtil";
 import { commonNames } from "./integration_cname";
 import { clientToServerNames } from "./client_server_name";
-import { CONFIG_URL, ReservedPropertyKeywords } from "./constants";
+import { CONFIG_URL, RESERVED_KEYS } from "./constants";
 import Storage from "./storage";
 
 /**
@@ -437,7 +437,7 @@ function checkReservedKeywords(message, messageType) {
   const { properties, traits } = message;
   if (properties) {
     Object.keys(properties).forEach((property) => {
-      if (ReservedPropertyKeywords.indexOf(property.toLowerCase()) >= 0) {
+      if (RESERVED_KEYS.indexOf(property.toLowerCase()) >= 0) {
         logger.error(
           `Warning! : Reserved keyword used in properties--> ${property} with ${messageType} call`
         );
@@ -446,7 +446,7 @@ function checkReservedKeywords(message, messageType) {
   }
   if (traits) {
     Object.keys(traits).forEach((trait) => {
-      if (ReservedPropertyKeywords.indexOf(trait.toLowerCase()) >= 0) {
+      if (RESERVED_KEYS.indexOf(trait.toLowerCase()) >= 0) {
         logger.error(
           `Warning! : Reserved keyword used in traits--> ${trait} with ${messageType} call`
         );
@@ -456,7 +456,7 @@ function checkReservedKeywords(message, messageType) {
   const contextualTraits = message.context.traits;
   if (contextualTraits) {
     Object.keys(contextualTraits).forEach((contextTrait) => {
-      if (ReservedPropertyKeywords.indexOf(contextTrait.toLowerCase()) >= 0) {
+      if (RESERVED_KEYS.indexOf(contextTrait.toLowerCase()) >= 0) {
         logger.error(
           `Warning! : Reserved keyword used in traits --> ${contextTrait} with ${messageType} call`
         );
