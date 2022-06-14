@@ -93,6 +93,9 @@ const INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
 const POLYFILL_URL =
   "https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries";
 
+const GENERIC_TRUE_VALUES = ["true", "True", "TRUE", "t", "T", "1"];
+const GENERIC_FALSE_VALUES = ["false", "False", "FALSE", "f", "F", "0"];
+
 export {
   ReservedPropertyKeywords,
   MessageType,
@@ -106,7 +109,10 @@ export {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
   POLYFILL_URL,
+  GENERIC_TRUE_VALUES,
+  GENERIC_FALSE_VALUES,
 };
+
 /* module.exports = {
   MessageType: MessageType,
   ECommerceParamNames: ECommerceParamNames,
