@@ -27,7 +27,7 @@
     "lint": "eslint . --fix",
     "lint:check": "eslint . || exit 1",
     "prepare": "husky install",
-    "clean": "git clean -fd"
+    "clean": "rm -rf dist/integrations && rm -f dist/*.js*"
   },
   "author": "",
   "license": "ISC",
