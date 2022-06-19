@@ -4,7 +4,7 @@ import logger from "./logUtil";
 import XHRQueue from "./xhrModule";
 import BeaconQueue from "./storage/beaconQueue";
 import { getCurrentTimeFormatted, removeTrailingSlashes } from "./utils";
-import { Store } from "./storage/store";
+import EventBatching from "./EventBatching";
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 
@@ -82,26 +82,11 @@ class EventRepository {
 
     if (this.batchMode) {
       type = "batch"
-      var storeRegex = RegExp("^batch");
-      const batchKeys = function () {
-        return Object.keys(localStorage).map(function (element, _) {
-          if (storeRegex.exec(element) !== null) return element;
-        }).filter(function (element) {
-          return element;
-        })
-      }
 
-      var key = "batch_" + message.originalTimestamp;
-      Store.set(key, JSON.stringify(message));
-
-      if (batchKeys().length >= this.batchFactor) {
-        var batchPayload = [];
-
-        for (var i = batchKeys().length - 1; i >= 0; i--) {
-          batchPayload.push(JSON.parse(Store.get(batchKeys()[i])));
-          Store.remove(batchKeys()[i]);
-        }
-        this.queue.enqueue(batchPayload, type);
+      const Batching = new EventBatching(this.batchFactor, "rudder_batch_");
+      Batching.storeNewEvent(message)
+      if (Batching.isEqualToBatchFactor()){
+        this.queue.enqueue(Batching.createBatchPayload(), type);
       }
     } else {
       this.queue.enqueue(message, type);

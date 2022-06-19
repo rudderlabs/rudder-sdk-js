@@ -51,6 +51,11 @@ class StoreLocal {
     if (!this.enabled) return false;
     return store.remove(key);
   }
+
+  getAllKeys(){
+    if (!this.enabled) return false;
+    return Object.keys(store.getAll());
+  }
 }
 
 // Exporting only the instance
