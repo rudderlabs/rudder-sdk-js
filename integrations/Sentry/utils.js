@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable object-shorthand */
 import logger from "../../utils/logUtil";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { isDefinedAndNotNullAndNotEmpty } from "../utils/commonUtils";
 
 const convertObjectToArray = (objectInput, propertyName) => {
@@ -17,6 +18,7 @@ const SentryScriptLoader = (id, src, integrity) => {
   js.crossOrigin = "anonymous";
   js.type = "text/javascript";
   js.id = id;
+  js.dataset.loader = LOAD_ORIGIN;
   const e = document.getElementsByTagName("script")[0];
   logger.debug("==parent script==", e);
   logger.debug("==adding script==", js);

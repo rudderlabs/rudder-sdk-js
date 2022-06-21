@@ -5,6 +5,7 @@ import {
   INTEGRATION_LOAD_CHECK_INTERVAL,
 } from "../../utils/constants";
 import { NAME } from "./constants";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class Comscore {
   constructor(config, analytics) {
@@ -74,6 +75,7 @@ class Comscore {
       const s = document.createElement("script");
       const el = document.getElementsByTagName("script")[0];
       s.async = true;
+      s.dataset.loader = LOAD_ORIGIN;
       s.src = `${
         document.location.protocol == "https:" ? "https://sb" : "http://b"
       }.scorecardresearch.com/beacon.js`;

@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import md5 from "md5";
 import logger from "../../utils/logUtil";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class INTERCOM {
@@ -38,6 +39,7 @@ class INTERCOM {
         w.Intercom = i;
         const l = function () {
           const s = d.createElement("script");
+          s.dataset.loader = LOAD_ORIGIN;
           s.type = "text/javascript";
           s.async = true;
           s.src = `https://widget.intercom.io/widget/${window.intercomSettings.app_id}`;

@@ -2,6 +2,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import { type } from "../../utils/utils";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class Amplitude {
@@ -66,6 +67,7 @@ class Amplitude {
           "sha384-girahbTbYZ9tT03PWWj0mEVgyxtZoyDF9KVZdL+R53PP5wCY0PiVUKq0jeRlMx9M";
         r.crossOrigin = "anonymous";
         r.async = true;
+        r.dataset.loader = LOAD_ORIGIN;
         r.src = "https://cdn.amplitude.com/libs/amplitude-7.2.1-min.gz.js";
         r.onload = function () {
           if (!e.amplitude.runQueuedFunctions) {

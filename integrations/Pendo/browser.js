@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable lines-between-class-members */
 import logger from "../../utils/logUtil";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class Pendo {
@@ -32,6 +33,7 @@ class Pendo {
               };
           })(v[w]);
         y = e.createElement(n);
+        y.dataset.loader = LOAD_ORIGIN;
         y.async = !0;
         y.src = `https://cdn.pendo.io/agent/static/${apiKey}/pendo.js`;
         z = e.getElementsByTagName(n)[0];
