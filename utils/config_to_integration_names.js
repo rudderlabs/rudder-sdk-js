@@ -47,7 +47,8 @@ const configToIntNames = {
   GOOGLE_OPTIMIZE: "GoogleOptimize",
   LAUNCHDARKLY: "LaunchDarkly",
   GA360: "GA360",
-  ADROLL: "Adroll"
+  ADROLL: "Adroll",
+  DCM_FLOODLIGHT: "DCMFloodlight"
 };
 
 export { configToIntNames };
