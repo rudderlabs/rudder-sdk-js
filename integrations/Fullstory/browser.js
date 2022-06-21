@@ -2,6 +2,7 @@
 /* eslint-disable no-undef */
 import camelcase from "../../utils/camelcase";
 import logger from "../../utils/logUtil";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class Fullstory {
@@ -72,6 +73,7 @@ class Fullstory {
       o.async = 1;
       o.crossOrigin = "anonymous";
       o.src = `https://${_fs_script}`;
+      o.dataset.loader = LOAD_ORIGIN;
       y = n.getElementsByTagName(t)[0];
       y.parentNode.insertBefore(o, y);
       g.identify = function (i, v, s) {

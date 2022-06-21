@@ -2,6 +2,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import { removeTrailingSlashes } from "../../utils/utils";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class Posthog {
@@ -60,6 +61,7 @@ class Posthog {
           }
           ((p = t.createElement("script")).type = "text/javascript"),
             (p.async = !0),
+            (p.dataset.loader = LOAD_ORIGIN),
             (p.src = s.api_host + "/static/array.js"),
             (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(
               p,
