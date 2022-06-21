@@ -1,8 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable camelcase */
-import logger from '../../utils/logUtil';
-import { NAME } from './constants';
+import logger from "../../utils/logUtil";
+import { LOAD_ORIGIN } from "../ScriptLoader";
+import { NAME } from "./constants";
 
 class VWO {
   constructor(config, analytics) {
@@ -52,7 +53,8 @@ class VWO {
           load(a) {
             const b = d.createElement('script');
             b.src = a;
-            b.type = 'text/javascript';
+            b.type = "text/javascript";
+            b.dataset.loader = LOAD_ORIGIN;
             b.innerText;
             b.onerror = function () {
               _vwo_code.finish();

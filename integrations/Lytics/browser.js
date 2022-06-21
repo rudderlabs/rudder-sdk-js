@@ -18,8 +18,9 @@
 /* eslint-disable one-var */
 /* eslint-disable lines-around-directive */
 /* eslint-disable strict */
-import logger from '../../utils/logUtil';
-import { NAME } from './constants';
+import logger from "../../utils/logUtil";
+import { LOAD_ORIGIN } from "../ScriptLoader";
+import { NAME } from "./constants";
 
 class Lytics {
   constructor(config, analytics) {
@@ -59,9 +60,9 @@ class Lytics {
         n('once'),
         n('call'),
         (o.loadScript = function (n, t, i) {
-          var e = document.createElement('script');
-          (e.async = !0), (e.src = n), (e.onload = t), (e.onerror = i);
-          var o = document.getElementsByTagName('script')[0],
+          var e = document.createElement("script");
+          (e.async = !0), (e.src = n), (e.onload = t), (e.onerror = i), (e.dataset.loader = LOAD_ORIGIN);
+          var o = document.getElementsByTagName("script")[0],
             r = (o && o.parentNode) || document.head || document.body,
             c = o || r.lastChild;
           return null != c ? r.insertBefore(e, c) : r.appendChild(e), this;

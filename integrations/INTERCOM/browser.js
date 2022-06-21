@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import md5 from 'md5';
-import logger from '../../utils/logUtil';
-import { NAME } from './constants';
+import md5 from "md5";
+import logger from "../../utils/logUtil";
+import { LOAD_ORIGIN } from "../ScriptLoader";
+import { NAME } from "./constants";
 
 class INTERCOM {
   constructor(config, analytics) {
@@ -37,8 +38,9 @@ class INTERCOM {
         };
         w.Intercom = i;
         const l = function () {
-          const s = d.createElement('script');
-          s.type = 'text/javascript';
+          const s = d.createElement("script");
+          s.dataset.loader = LOAD_ORIGIN;
+          s.type = "text/javascript";
           s.async = true;
           s.src = `https://widget.intercom.io/widget/${window.intercomSettings.app_id}`;
           const x = d.getElementsByTagName('script')[0];

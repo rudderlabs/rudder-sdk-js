@@ -1,8 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import logger from '../../utils/logUtil';
-import { type } from '../../utils/utils';
-import { NAME } from './constants';
+import logger from "../../utils/logUtil";
+import { type } from "../../utils/utils";
+import { LOAD_ORIGIN } from "../ScriptLoader";
+import { NAME } from "./constants";
 
 class Amplitude {
   constructor(config, analytics) {
@@ -62,7 +63,8 @@ class Amplitude {
         r.integrity = 'sha384-girahbTbYZ9tT03PWWj0mEVgyxtZoyDF9KVZdL+R53PP5wCY0PiVUKq0jeRlMx9M';
         r.crossOrigin = 'anonymous';
         r.async = true;
-        r.src = 'https://cdn.amplitude.com/libs/amplitude-7.2.1-min.gz.js';
+        r.dataset.loader = LOAD_ORIGIN;
+        r.src = "https://cdn.amplitude.com/libs/amplitude-7.2.1-min.gz.js";
         r.onload = function () {
           if (!e.amplitude.runQueuedFunctions) {
             console.log('[Amplitude] Error: could not load SDK');

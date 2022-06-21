@@ -1,5 +1,6 @@
-import logger from '../../utils/logUtil';
-import { NAME } from './constants';
+import logger from "../../utils/logUtil";
+import { LOAD_ORIGIN } from "../ScriptLoader";
+import { NAME } from "./constants";
 
 class BingAds {
   constructor(config, analytics) {
@@ -25,6 +26,7 @@ class BingAds {
         (n = d.createElement(t)),
         (n.src = r),
         (n.async = 1),
+        (n.dataset.loader = LOAD_ORIGIN),
         (n.onload = n.onreadystatechange =
           function () {
             const s = this.readyState;

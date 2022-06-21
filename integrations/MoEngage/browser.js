@@ -1,6 +1,7 @@
-import each from '@ndhoule/each';
-import logger from '../../utils/logUtil';
-import { NAME } from './constants';
+import each from "@ndhoule/each";
+import logger from "../../utils/logUtil";
+import { LOAD_ORIGIN } from "../ScriptLoader";
+import { NAME } from "./constants";
 
 // custom traits mapping context.traits --> moengage properties
 const traitsMap = {
@@ -70,6 +71,7 @@ class MoEngage {
       a = s.createElement(o);
       m = s.getElementsByTagName(o)[0];
       a.async = 1;
+      a.dataset.loader = LOAD_ORIGIN;
       a.src = g;
       m.parentNode.insertBefore(a, m);
       i.moe =

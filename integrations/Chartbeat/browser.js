@@ -4,8 +4,9 @@ import logger from '../../utils/logUtil';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-} from '../../utils/constants';
-import { NAME } from './constants';
+} from "../../utils/constants";
+import { NAME } from "./constants";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class Chartbeat {
   constructor(config, analytics) {
@@ -110,6 +111,7 @@ class Chartbeat {
         e.type = 'text/javascript';
         e.async = true;
         e.src = `//static.chartbeat.com/js/${script}`;
+        e.dataset.loader = LOAD_ORIGIN;
         n.parentNode.insertBefore(e, n);
       }
       loadChartbeat();

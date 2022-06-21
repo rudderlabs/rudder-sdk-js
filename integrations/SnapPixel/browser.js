@@ -1,12 +1,16 @@
 /* eslint-disable class-methods-use-this */
-import get from 'get-value';
-import sha256 from 'crypto-js/sha256';
-import Storage from '../../utils/storage';
-import logger from '../../utils/logUtil';
+import get from "get-value";
+import sha256 from "crypto-js/sha256";
+import Storage from "../../utils/storage";
+import logger from "../../utils/logUtil";
 
-import { isDefinedAndNotNull, removeUndefinedAndNullValues } from '../utils/commonUtils';
-import { ecommEventPayload, eventPayload, sendEvent } from './util';
-import { NAME } from './constants';
+import {
+  isDefinedAndNotNull,
+  removeUndefinedAndNullValues,
+} from "../utils/commonUtils";
+import { ecommEventPayload, eventPayload, sendEvent } from "./util";
+import { NAME } from "./constants";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class SnapPixel {
   constructor(config, analytics) {
@@ -68,7 +72,8 @@ class SnapPixel {
       const r = t.createElement(s);
       r.async = !0;
       r.src = n;
-      const u = t.getElementsByTagName(s)[0];
+      r.dataset.loader = LOAD_ORIGIN;
+      var u = t.getElementsByTagName(s)[0];
       u.parentNode.insertBefore(r, u);
     })(window, document, 'https://sc-static.net/scevent.min.js');
 

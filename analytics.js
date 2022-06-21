@@ -18,6 +18,7 @@ import {
   getJSONTrimmed,
   generateUUID,
   handleError,
+  leaveBreadcrumb,
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
@@ -30,6 +31,7 @@ import {
   getConfigUrl,
   checkSDKUrl,
   commonNames,
+  get,
 } from './utils/utils';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
@@ -38,6 +40,8 @@ import {
   CDN_INT_DIR,
   INTG_SUFFIX,
   POLYFILL_URL,
+  DEFAULT_ERROR_REPORT_PROVIDER,
+  ERROR_REPORT_PROVIDERS,
 } from './utils/constants';
 import RudderElementBuilder from './utils/RudderElementBuilder';
 import Storage from './utils/storage';
@@ -47,6 +51,7 @@ import ScriptLoader from './integrations/ScriptLoader';
 import parseLinker from './utils/linker';
 import { configToIntNames } from './utils/config_to_integration_names';
 import CookieConsentFactory from './cookieConsent/CookieConsentFactory';
+import * as BugsnagLib from './metrics/error-report/Bugsnag';
 
 /**
  * class responsible for handling core
@@ -168,6 +173,29 @@ class Analytics {
         response = JSON.parse(response);
       }
 
+      // Fetch Error reporting enable option from sourceConfig
+      const isErrorReportEnabled = get(
+        response.source.config,
+        'statsCollection.errorReports.enabled',
+      );
+
+      // Load Bugsnag only if it is enabled in the source config
+      if (isErrorReportEnabled === true) {
+        // Fetch the name of the Error reporter from sourceConfig
+        const provider =
+          get(response.source.config, 'statsCollection.errorReports.provider') ||
+          DEFAULT_ERROR_REPORT_PROVIDER;
+        if (!ERROR_REPORT_PROVIDERS.includes(provider)) {
+          logger.error('Invalid error reporting provider value');
+        }
+
+        if (provider === 'bugsnag') {
+          // Load Bugsnag client SDK
+          BugsnagLib.load();
+          BugsnagLib.init(response.source.id);
+        }
+      }
+
       response.source.destinations.forEach(function (destination, index) {
         // logger.debug(
         //   `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
@@ -200,7 +228,7 @@ class Analytics {
             );
           });
         } catch (e) {
-          logger.error(e);
+          handleError(e);
         }
       }
 
@@ -212,6 +240,7 @@ class Analytics {
         suffix = '-staging'; // stagging suffix
       }
 
+      leaveBreadcrumb('Starting device-mode initialization');
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
@@ -233,10 +262,9 @@ class Analytics {
 
             let intgInstance;
             try {
-              // logger.debug(
-              //   pluginName,
-              //   " [Analytics] processResponse :: trying to initialize integration ::"
-              // );
+              const msg = `[Analytics] processResponse :: trying to initialize integration name:: ${pluginName}`;
+              // logger.debug(msg);
+              leaveBreadcrumb(msg);
               intgInstance = new intMod[modName](intg.config, self);
               intgInstance.init();
 
@@ -247,11 +275,8 @@ class Analytics {
                 self.dynamicallyLoadedIntegrations[pluginName] = intMod[modName];
               });
             } catch (e) {
-              logger.error(
-                pluginName,
-                ' [Analytics] initialize integration (integration.init()) failed',
-                e,
-              );
+              e.message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
+              handleError(e);
               self.failedToBeLoadedIntegration.push(intgInstance);
             }
           }
@@ -290,6 +315,7 @@ class Analytics {
     //   " failed loaded count: ",
     //   object.failedToBeLoadedIntegration.length
     // );
+    leaveBreadcrumb(`Started replaying buffered events`);
     // eslint-disable-next-line no-param-reassign
     object.clientIntegrationObjects = [];
     // eslint-disable-next-line no-param-reassign
@@ -396,6 +422,7 @@ class Analytics {
    * @memberof Analytics
    */
   page(category, name, properties, options, callback) {
+    leaveBreadcrumb(`Page event`);
     if (!this.loaded) return;
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof properties === 'function') (callback = properties), (options = properties = null);
@@ -435,6 +462,7 @@ class Analytics {
    * @memberof Analytics
    */
   track(event, properties, options, callback) {
+    leaveBreadcrumb(`Track event`);
     if (!this.loaded) return;
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof properties === 'function')
@@ -459,6 +487,7 @@ class Analytics {
    * @memberof Analytics
    */
   identify(userId, traits, options, callback) {
+    leaveBreadcrumb(`Identify event`);
     if (!this.loaded) return;
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
@@ -489,6 +518,7 @@ class Analytics {
    * @param {*} callback
    */
   alias(to, from, options, callback) {
+    leaveBreadcrumb(`Alias event`);
     if (!this.loaded) return;
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof from === 'function') (callback = from), (options = null), (from = null);
@@ -509,6 +539,7 @@ class Analytics {
    * @param {*} callback
    */
   group(groupId, traits, options, callback) {
+    leaveBreadcrumb(`Group event`);
     if (!this.loaded) return;
     if (!arguments.length) return;
 
@@ -594,7 +625,7 @@ class Analytics {
 
       // assign page properties to context
       // rudderElement.message.context.page = getDefaultPageProperties();
-
+      leaveBreadcrumb('Started sending data to destinations');
       rudderElement.message.context.traits = {
         ...this.userTraits,
       };
@@ -643,8 +674,8 @@ class Analytics {
         );
 
         // try to first send to all integrations, if list populated from BE
-        try {
-          succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+          try {
             if (!obj.isFailed || !obj.isFailed()) {
               if (obj[type]) {
                 const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, obj.name);
@@ -656,10 +687,11 @@ class Analytics {
                 }
               }
             }
-          });
-        } catch (err) {
-          handleError({ message: `[sendToNative]:${err}` });
-        }
+          } catch (err) {
+            err.message = `[sendToNative]::[Destination:${obj.name}]:: ${err}`;
+            handleError(err);
+          }
+        });
       }
 
       // convert integrations object to server identified names, kind of hack now!
@@ -780,6 +812,8 @@ class Analytics {
    * @memberof Analytics
    */
   reset(flag) {
+    leaveBreadcrumb(`reset API :: flag: ${flag}`);
+
     if (!this.loaded) return;
     if (flag) {
       this.anonymousId = '';
@@ -866,10 +900,7 @@ class Analytics {
     if (options && options.cookieConsentManager)
       this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
-      handleError({
-        message: '[Analytics] load:: Unable to load due to invalid writeKey or serverUrl',
-      });
-      throw Error('failed to initialize');
+      throw Error('Unable to load the SDK due to invalid writeKey or serverUrl');
     }
 
     let storageOptions = {};
@@ -943,7 +974,7 @@ class Analytics {
     }
     if (options && options.getSourceConfig) {
       if (typeof options.getSourceConfig !== 'function') {
-        handleError('option "getSourceConfig" must be a function');
+        handleError(new Error('option "getSourceConfig" must be a function'));
       } else {
         const res = options.getSourceConfig();
 

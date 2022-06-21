@@ -1,8 +1,9 @@
 /* eslint-disable no-undef */
 /* eslint-disable class-methods-use-this */
-import logger from '../../utils/logUtil';
-import { removeTrailingSlashes } from '../../utils/utils';
-import { NAME } from './constants';
+import logger from "../../utils/logUtil";
+import { removeTrailingSlashes } from "../../utils/utils";
+import { LOAD_ORIGIN } from "../ScriptLoader";
+import { NAME } from "./constants";
 
 class Posthog {
   constructor(config, analytics) {
@@ -62,9 +63,13 @@ class Posthog {
           }
           ((p = t.createElement('script')).type = 'text/javascript'),
             (p.async = !0),
-            (p.src = `${s.api_host}/static/array.js`),
-            (r = t.getElementsByTagName('script')[0]).parentNode.insertBefore(p, r);
-          let u = e;
+            (p.dataset.loader = LOAD_ORIGIN),
+            (p.src = s.api_host + "/static/array.js"),
+            (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(
+              p,
+              r
+            );
+          var u = e;
           for (
             void 0 !== a ? (u = e[a] = []) : (a = 'posthog'),
               u.people = u.people || [],

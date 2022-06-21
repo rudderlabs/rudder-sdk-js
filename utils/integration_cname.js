@@ -45,6 +45,7 @@ import { CNameMapping as TVSquared } from '../integrations/TVSquared/constants';
 import { CNameMapping as VWO } from '../integrations/VWO/constants';
 import { CNameMapping as GA360 } from '../integrations/GA360/constants';
 import { CNameMapping as Adroll } from '../integrations/Adroll/constants';
+import { CNameMapping as DCMFloodlight } from "../integrations/DCMFloodlight/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -97,6 +98,7 @@ const commonNames = {
   ...TVSquared,
   ...VWO,
   ...Adroll,
+  ...DCMFloodlight,
 };
 
 export { commonNames };

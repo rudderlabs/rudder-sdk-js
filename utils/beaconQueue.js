@@ -1,7 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 // import logger from "../logUtil";
-import { Store } from './storage/store';
+import { Store } from "./storage/store";
+import { replacer } from "./utils";
 
 const defaults = {
   queue: 'queue',
@@ -41,27 +42,13 @@ class BeaconQueue {
     this.storage.set(this.queueName, value);
   }
 
-  /**
-   *
-   * Utility method for excluding null and empty values in JSON
-   * @param {*} _key
-   * @param {*} value
-   * @returns
-   */
-  replacer(_key, value) {
-    if (value === null || value === undefined) {
-      return undefined;
-    }
-    return value;
-  }
-
   enqueue(message) {
     let queue = this.getQueue() || [];
     queue = queue.slice(-(this.maxItems - 1));
     queue.push(message);
     let batch = queue.slice(0);
     const data = { batch };
-    const dataToSend = JSON.stringify(data, this.replacer);
+    const dataToSend = JSON.stringify(data, replacer);
     if (dataToSend.length > defaults.maxPayloadSize) {
       batch = queue.slice(0, queue.length - 1);
       this.flushQueue(batch);
@@ -94,9 +81,12 @@ class BeaconQueue {
       event.sentAt = new Date().toISOString();
     });
     const data = { batch };
-    const payload = JSON.stringify(data, this.replacer);
-    const blob = new Blob([payload], { type: 'text/plain' });
-    const isPushed = navigator.sendBeacon(`${this.url}?writeKey=${this.writekey}`, blob);
+    const payload = JSON.stringify(data, replacer);
+    const blob = new Blob([payload], { type: "text/plain" });
+    const isPushed = navigator.sendBeacon(
+      `${this.url}?writeKey=${this.writekey}`,
+      blob
+    );
     // if (!isPushed) {
     //   logger.debug("Unable to send data");
     // }
