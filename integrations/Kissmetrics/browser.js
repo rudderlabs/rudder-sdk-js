@@ -4,6 +4,7 @@ import each from "component-each";
 import { getRevenue } from "../../utils/utils";
 import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class Kissmetrics {
   constructor(config) {
@@ -24,6 +25,7 @@ class Kissmetrics {
         const s = d.createElement("script");
         s.type = "text/javascript";
         s.async = true;
+        s.dataset.loader = LOAD_ORIGIN;
         s.src = u;
         f.parentNode.insertBefore(s, f);
       }, 1);
