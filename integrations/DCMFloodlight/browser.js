@@ -7,9 +7,9 @@ import {
   isDefinedAndNotNull,
   isNotEmpty,
   removeUndefinedAndNullValues,
-} from "../utils/commonUtils";
-import { NAME } from "./constants";
-import { transformCustomVariable, mapFlagValue } from "./utils";
+} from '../utils/commonUtils';
+import { NAME } from './constants';
+import { transformCustomVariable, mapFlagValue } from './utils';
 
 class DCMFloodlight {
   constructor(config, analytics) {
@@ -129,10 +129,7 @@ class DCMFloodlight {
       return;
     }
 
-    customFloodlightVariable = transformCustomVariable(
-      customFloodlightVariable,
-      message
-    );
+    customFloodlightVariable = transformCustomVariable(customFloodlightVariable, message);
 
     // Ref - https://support.google.com/campaignmanager/answer/7554821?hl=en#zippy=%2Ccustom-fields
     // we can pass custom variables to DCM and any values passed in it will override its default value
@@ -218,22 +215,22 @@ class DCMFloodlight {
     if (DCM_FLOODLIGHT) {
       if (isDefinedAndNotNull(DCM_FLOODLIGHT.COPPA)) {
         dcCustomParams.tag_for_child_directed_treatment = mapFlagValue(
-          "COPPA",
-          DCM_FLOODLIGHT.COPPA
+          'COPPA',
+          DCM_FLOODLIGHT.COPPA,
         );
       }
 
       if (isDefinedAndNotNull(DCM_FLOODLIGHT.GDPR)) {
-        dcCustomParams.tfua = mapFlagValue("GDPR", DCM_FLOODLIGHT.GDPR);
+        dcCustomParams.tfua = mapFlagValue('GDPR', DCM_FLOODLIGHT.GDPR);
       }
 
       if (isDefinedAndNotNull(DCM_FLOODLIGHT.npa)) {
-        dcCustomParams.npa = mapFlagValue("npa", DCM_FLOODLIGHT.npa);
+        dcCustomParams.npa = mapFlagValue('npa', DCM_FLOODLIGHT.npa);
       }
     }
 
     if (isDefinedAndNotNull(dcCustomParams.dc_lat)) {
-      dcCustomParams.dc_lat = mapFlagValue("dc_lat", dcCustomParams.dc_lat);
+      dcCustomParams.dc_lat = mapFlagValue('dc_lat', dcCustomParams.dc_lat);
     }
 
     const matchId = get(message, 'properties.matchId');
@@ -273,11 +270,11 @@ class DCMFloodlight {
       return;
     }
 
-    const categoryVal = category ? `${category} ` : "";
-    const nameVal = name ? `${name} ` : "";
+    const categoryVal = category ? `${category} ` : '';
+    const nameVal = name ? `${name} ` : '';
     rudderElement.message.event = `Viewed ${categoryVal}${nameVal}Page`;
 
-    rudderElement.message.type = "track";
+    rudderElement.message.type = 'track';
     this.track(rudderElement);
   }
 }

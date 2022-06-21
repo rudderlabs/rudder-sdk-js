@@ -3,7 +3,7 @@
 
 const defaultAsyncState = true;
 
-export const LOAD_ORIGIN = "RS_JS_SDK";
+export const LOAD_ORIGIN = 'RS_JS_SDK';
 
 const ScriptLoader = (id, src, async = defaultAsyncState) => {
   const exists = document.getElementById(id);
@@ -17,7 +17,7 @@ const ScriptLoader = (id, src, async = defaultAsyncState) => {
   js.type = 'text/javascript';
   js.id = id;
   js.dataset.loader = LOAD_ORIGIN;
-  const headElmColl = document.getElementsByTagName("head");
+  const headElmColl = document.getElementsByTagName('head');
   if (headElmColl.length !== 0) {
     // logger.debug("==adding script==", js);
     headElmColl[0].insertBefore(js, headElmColl[0].firstChild);

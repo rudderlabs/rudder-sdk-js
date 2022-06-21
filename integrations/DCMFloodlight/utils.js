@@ -1,10 +1,7 @@
-import get from "get-value";
-import {
-  GENERIC_FALSE_VALUES,
-  GENERIC_TRUE_VALUES,
-} from "../../utils/constants";
-import logger from "../../utils/logUtil";
-import { isDefinedAndNotNull, isNotEmpty } from "../utils/commonUtils";
+import get from 'get-value';
+import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
+import logger from '../../utils/logUtil';
+import { isDefinedAndNotNull, isNotEmpty } from '../utils/commonUtils';
 
 /**
  * transform webapp dynamicForm custom floodlight variable
@@ -25,7 +22,7 @@ import { isDefinedAndNotNull, isNotEmpty } from "../utils/commonUtils";
  */
 const transformCustomVariable = (customFloodlightVariable, message) => {
   const customVariable = {};
-  const DENIED_CHARACTERS = ['"', "<", ">", "#"];
+  const DENIED_CHARACTERS = ['"', '<', '>', '#'];
   customFloodlightVariable.forEach((item) => {
     if (item && isNotEmpty(item.from) && isNotEmpty(item.to)) {
       // remove u if already there
@@ -41,16 +38,15 @@ const transformCustomVariable = (customFloodlightVariable, message) => {
       }
       if (
         itemValue &&
-        typeof itemValue === "string" &&
+        typeof itemValue === 'string' &&
         DENIED_CHARACTERS.some((key) => itemValue.includes(key))
       ) {
         logger.info(`${DENIED_CHARACTERS} string variable is not acceptable`);
         itemValue = undefined;
       }
       // supported data types are number and string
-      if (isDefinedAndNotNull(itemValue) && typeof itemValue !== "boolean") {
-        customVariable[`u${item.to.trim().replace(/u/g, "")}`] =
-          encodeURIComponent(itemValue);
+      if (isDefinedAndNotNull(itemValue) && typeof itemValue !== 'boolean') {
+        customVariable[`u${item.to.trim().replace(/u/g, '')}`] = encodeURIComponent(itemValue);
       }
     }
   });
@@ -67,9 +63,7 @@ const mapFlagValue = (key, value) => {
     return 0;
   }
 
-  throw Error(
-    `[DCM Floodlight]:: ${key}: valid parameters are [1|true] or [0|false]`
-  );
+  throw Error(`[DCM Floodlight]:: ${key}: valid parameters are [1|true] or [0|false]`);
 };
 
 export { transformCustomVariable, mapFlagValue };

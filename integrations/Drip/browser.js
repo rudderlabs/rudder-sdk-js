@@ -5,9 +5,9 @@ import logger from '../../utils/logUtil';
 import { isDefinedAndNotNull, removeUndefinedAndNullValues } from '../utils/commonUtils';
 import { getDestinationExternalID } from './utils';
 
-import { extractCustomFields } from "../../utils/utils";
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import { extractCustomFields } from '../../utils/utils';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Drip {
   constructor(config, analytics) {
@@ -40,8 +40,8 @@ class Drip {
     window._dcs.account = this.accountId;
 
     (function () {
-      var dc = document.createElement("script");
-      dc.type = "text/javascript";
+      const dc = document.createElement('script');
+      dc.type = 'text/javascript';
       dc.dataset.loader = LOAD_ORIGIN;
       dc.async = true;
       dc.src = `//tag.getdrip.com/${window._dcs.account}.js`;

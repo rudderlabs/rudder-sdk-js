@@ -34,9 +34,9 @@ import {
   extendTraits,
   mapTraits,
   formatTraits,
-} from "./util";
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+} from './util';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Mixpanel {
   constructor(config, analytics) {

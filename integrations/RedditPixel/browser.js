@@ -7,9 +7,9 @@
 /* eslint-disable no-var */
 /* eslint-disable vars-on-top */
 /* eslint-disable no-unused-expressions */
-import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 class RedditPixel {
   constructor(config, analytics) {
@@ -29,10 +29,10 @@ class RedditPixel {
           p.sendEvent ? p.sendEvent.apply(p, arguments) : p.callQueue.push(arguments);
         });
         p.callQueue = [];
-        var t = d.createElement("script");
-        (t.src = "https://www.redditstatic.com/ads/pixel.js"), (t.async = !0);
-        (t.dataset.loader = LOAD_ORIGIN);
-        var s = d.getElementsByTagName("script")[0];
+        var t = d.createElement('script');
+        (t.src = 'https://www.redditstatic.com/ads/pixel.js'), (t.async = !0);
+        t.dataset.loader = LOAD_ORIGIN;
+        var s = d.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(t, s);
       }
     })(window, document);

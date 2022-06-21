@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 class GoogleTagManager {
   constructor(config, analytics) {
@@ -27,7 +27,7 @@ class GoogleTagManager {
       w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
       const f = d.getElementsByTagName(s)[0];
       const j = d.createElement(s);
-      const dl = l !== "dataLayer" ? `&l=${l}` : "";
+      const dl = l !== 'dataLayer' ? `&l=${l}` : '';
       j.dataset.loader = LOAD_ORIGIN;
       j.async = true;
       j.src = `${window.finalUrl}/gtm.js?id=${i}${dl}`;

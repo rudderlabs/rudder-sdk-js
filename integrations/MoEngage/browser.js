@@ -1,7 +1,7 @@
-import each from "@ndhoule/each";
-import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import each from '@ndhoule/each';
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 // custom traits mapping context.traits --> moengage properties
 const traitsMap = {

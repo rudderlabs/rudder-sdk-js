@@ -9,9 +9,9 @@
 // eslint-disable-next-line no-nested-ternary
 // eslint-disable-next-line class-methods-use-this
 
-import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 class Qualtrics {
   constructor(config, analytics) {
@@ -76,8 +76,8 @@ class Qualtrics {
         };
         this.go = function () {
           if (this.check()) {
-            var a = document.createElement("script");
-            a.type = "text/javascript";
+            var a = document.createElement('script');
+            a.type = 'text/javascript';
             a.dataset.loader = LOAD_ORIGIN;
             a.src = g;
             document.body && document.body.appendChild(a);

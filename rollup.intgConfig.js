@@ -18,7 +18,7 @@ import { INTG_SUFFIX } from './utils/constants';
 
 let distFileName = '';
 let { version } = webPackage;
-let moduleType = "cdn";
+let moduleType = 'cdn';
 
 switch (process.env.ENV) {
   case 'prod':

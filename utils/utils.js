@@ -1,12 +1,12 @@
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
-import { parse } from "component-url";
-import get from "get-value";
-import { LOAD_ORIGIN } from "../integrations/ScriptLoader";
-import logger from "./logUtil";
-import { commonNames } from "./integration_cname";
-import { clientToServerNames } from "./client_server_name";
-import { CONFIG_URL, RESERVED_KEYS } from "./constants";
-import Storage from "./storage";
+import { parse } from 'component-url';
+import get from 'get-value';
+import { LOAD_ORIGIN } from '../integrations/ScriptLoader';
+import logger from './logUtil';
+import { commonNames } from './integration_cname';
+import { clientToServerNames } from './client_server_name';
+import { CONFIG_URL, RESERVED_KEYS } from './constants';
+import Storage from './storage';
 
 /**
  *
@@ -150,21 +150,20 @@ function handleError(error, analyticsInstance) {
   try {
     if (error instanceof Event) {
       // Discard all the non-script loading errors
-      if (error.target && error.target.localName !== "script") return;
+      if (error.target && error.target.localName !== 'script') return;
 
       // Discard errors of scripts that are not loaded by the SDK
-      if (error.target.dataset && error.target.dataset.loader !== LOAD_ORIGIN)
-        return;
+      if (error.target.dataset && error.target.dataset.loader !== LOAD_ORIGIN) return;
 
       errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
 
       // SDK triggered ad-blocker script
-      if (error.target.id === "ad-block") {
+      if (error.target.id === 'ad-block') {
         analyticsInstance.page(
-          "RudderJS-Initiated",
-          "ad-block page request",
-          { path: "/ad-blocked", title: errorMessage },
-          analyticsInstance.sendAdblockPageOptions
+          'RudderJS-Initiated',
+          'ad-block page request',
+          { path: '/ad-blocked', title: errorMessage },
+          analyticsInstance.sendAdblockPageOptions,
         );
         // No need to proceed further for Ad-block errors
         return;
@@ -177,7 +176,7 @@ function handleError(error, analyticsInstance) {
     if (!(error instanceof Error)) errorObj = new Error(errorMessage);
     notifyError(errorObj);
   } catch (err) {
-    logger.error("[handleError] Exception:: ", err);
+    logger.error('[handleError] Exception:: ', err);
     notifyError(err);
   }
 }

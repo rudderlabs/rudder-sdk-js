@@ -1,13 +1,9 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable class-methods-use-this */
-import logger from "./logUtil";
-import XHRQueue from "./xhrModule";
-import BeaconQueue from "./beaconQueue";
-import {
-  getCurrentTimeFormatted,
-  removeTrailingSlashes,
-  replacer,
-} from "./utils";
+import logger from './logUtil';
+import XHRQueue from './xhrModule';
+import BeaconQueue from './beaconQueue';
+import { getCurrentTimeFormatted, removeTrailingSlashes, replacer } from './utils';
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 
@@ -72,10 +68,7 @@ class EventRepository {
 
     // check message size, if greater log an error
     if (JSON.stringify(message, replacer).length > MESSAGE_LENGTH) {
-      logger.error(
-        "[EventRepository] enqueue:: message length greater 32 Kb ",
-        message
-      );
+      logger.error('[EventRepository] enqueue:: message length greater 32 Kb ', message);
     }
 
     this.queue.enqueue(message, type);

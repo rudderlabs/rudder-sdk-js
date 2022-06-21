@@ -3,9 +3,9 @@ import logger from '../../utils/logUtil';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-} from "../../utils/constants";
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+} from '../../utils/constants';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Comscore {
   constructor(config, analytics) {

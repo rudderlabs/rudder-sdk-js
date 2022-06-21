@@ -16,7 +16,7 @@ import * as npmPackage from './dist/rudder-sdk-js/package.json';
 
 let distFileName = '';
 let { version } = webPackage;
-let moduleType = "cdn";
+let moduleType = 'cdn';
 switch (process.env.ENV) {
   case 'prod':
     switch (process.env.ENC) {
