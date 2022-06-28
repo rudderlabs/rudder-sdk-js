@@ -13,6 +13,7 @@ import {
   getDataFromSource,
 } from "../../utils/utils";
 import { NAME } from "./constants";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
 export default class PinterestTag {
   constructor(config, analytics) {
@@ -36,9 +37,9 @@ export default class PinterestTag {
         };
         const n = window.pintrk;
         (n.queue = []), (n.version = "3.0");
-        const t = document.createElement("script");
-        (t.async = !0), (t.src = e);
-        const r = document.getElementsByTagName("script")[0];
+        var t = document.createElement("script");
+        (t.async = !0), (t.src = e), (t.dataset.loader = LOAD_ORIGIN);
+        var r = document.getElementsByTagName("script")[0];
         r.parentNode.insertBefore(t, r);
       }
     })("https://s.pinimg.com/ct/core.js");

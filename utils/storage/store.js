@@ -6,8 +6,8 @@ import store from "storejs";
  */
 class StoreLocal {
   constructor(options) {
-    this.sOptions = {};
-    this.enabled = false;
+    this._options = {};
+    this.enabled = this.checkSupportAvailability();
     this.options(options);
   }
 
@@ -20,9 +20,8 @@ class StoreLocal {
 
     defaults(options, { enabled: true });
 
-    this.enabled = options.enabled && store.enabled;
-    this.sOptions = options;
-    return this.sOptions;
+    this.enabled = options.enabled && this.enabled;
+    this._options = options;
   }
 
   /**
@@ -31,7 +30,6 @@ class StoreLocal {
    * @param {*} value
    */
   set(key, value) {
-    if (!this.enabled) return false;
     return store.set(key, value);
   }
 
@@ -40,7 +38,6 @@ class StoreLocal {
    * @param {*} key
    */
   get(key) {
-    if (!this.enabled) return null;
     return store.get(key);
   }
 
@@ -49,8 +46,22 @@ class StoreLocal {
    * @param {*} key
    */
   remove(key) {
-    if (!this.enabled) return false;
     return store.remove(key);
+  }
+
+  /**
+   * Function to check local storage is accessible or not
+   * @returns boolean
+   */
+  checkSupportAvailability() {
+    const name = "test_rudder_ls";
+    this.set(name, true);
+
+    if (this.get(name)) {
+      this.remove(name);
+      return true;
+    }
+    return false;
   }
 }
 

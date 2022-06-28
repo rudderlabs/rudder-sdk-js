@@ -1,5 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 /*
@@ -18,9 +19,10 @@ class Braze {
     if (!config.appKey) this.appKey = "";
     this.endPoint = "";
     if (config.dataCenter) {
+      // ref: https://www.braze.com/docs/user_guide/administrative/access_braze/braze_instances
       const dataCenterArr = config.dataCenter.trim().split("-");
       if (dataCenterArr[0].toLowerCase() === "eu") {
-        this.endPoint = "sdk.fra-01.braze.eu";
+        this.endPoint = `sdk.fra-${dataCenterArr[1]}.braze.eu`;
       } else {
         this.endPoint = `sdk.iad-${dataCenterArr[1]}.braze.com`;
       }
@@ -90,6 +92,7 @@ class Braze {
       };
       (y = p.createElement(P)).type = "text/javascript";
       y.src = "https://js.appboycdn.com/web-sdk/2.4/appboy.min.js";
+      y.dataset.loader = LOAD_ORIGIN;
       y.async = 1;
       (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
     })(window, document, "script");

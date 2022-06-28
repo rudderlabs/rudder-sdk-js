@@ -1,35 +1,58 @@
 /* eslint-disable no-bitwise */
 import { parse } from "component-url";
 import get from "get-value";
+import { LOAD_ORIGIN } from "../integrations/ScriptLoader";
 import logger from "./logUtil";
 import { commonNames } from "./integration_cname";
 import { clientToServerNames } from "./client_server_name";
 import { CONFIG_URL, RESERVED_KEYS } from "./constants";
 import Storage from "./storage";
 
+
+/**
+ * This function is to send handled errors to Bugsnag if Bugsnag client is available
+ * @param {Error} error Error instance from handled error
+ */
+ function notifyError(error) {
+  if (window.rsBugsnagClient) {
+    window.rsBugsnagClient.notify(error);
+  }
+}
+
 function handleError(error, analyticsInstance) {
-  let errorMessage = error.message ? error.message : undefined;
-  let sampleAdBlockTest;
+  let errorMessage = error.message;
   try {
     if (error instanceof Event) {
-      if (error.target && error.target.localName === "script") {
-        errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
-        if (analyticsInstance && error.target.src.includes("adsbygoogle")) {
-          sampleAdBlockTest = true;
-          analyticsInstance.page(
-            "RudderJS-Initiated",
-            "ad-block page request",
-            { path: "/ad-blocked", title: errorMessage },
-            analyticsInstance.sendAdblockPageOptions
-          );
-        }
+      // Discard all the non-script loading errors
+      if (error.target && error.target.localName !== "script") return;
+
+      // Discard errors of scripts that are not loaded by the SDK
+      if (error.target.dataset && error.target.dataset.loader !== LOAD_ORIGIN)
+        return;
+
+      errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
+
+      // SDK triggered ad-blocker script
+      if (error.target.id === "ad-block") {
+        analyticsInstance.page(
+          "RudderJS-Initiated",
+          "ad-block page request",
+          { path: "/ad-blocked", title: errorMessage },
+          analyticsInstance.sendAdblockPageOptions
+        );
+        // No need to proceed further for Ad-block errors
+        return;
       }
     }
-    if (errorMessage && !sampleAdBlockTest) {
-      logger.error("[Util] handleError:: ", errorMessage);
-    }
-  } catch (e) {
-    logger.error("[Util] handleError:: ", e);
+
+    errorMessage = `[handleError]:: "${errorMessage}"`;
+    logger.error(errorMessage);
+    let errorObj = error;
+    if (!(error instanceof Error)) errorObj = new Error(errorMessage);
+    notifyError(errorObj);
+  } catch (err) {
+    logger.error("[handleError] Exception:: ", err);
+    notifyError(err);
   }
 }
 
@@ -176,7 +199,16 @@ function getCanonicalUrl() {
       return tag.getAttribute("href");
     }
   }
-  return undefined;
+}
+
+/**
+ * This function is to add breadcrumbs
+ * @param {string} breadcrumb Message to add insight of an user's journey before the error occurred
+ */
+function leaveBreadcrumb(breadcrumb) {
+  if (window.rsBugsnagClient) {
+    window.rsBugsnagClient.leaveBreadcrumb(breadcrumb);
+  }
 }
 
 function getUrl(search) {
@@ -752,4 +784,7 @@ export {
   constructPayload,
   getConfigUrl,
   getSDKUrlInfo,
+  notifyError,
+  leaveBreadcrumb,
+  get,
 };

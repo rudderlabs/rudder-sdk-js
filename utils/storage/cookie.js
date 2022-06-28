@@ -8,30 +8,31 @@ import logger from "../logUtil";
  * An object utility to persist values in cookies
  */
 class CookieLocal {
-  constructor(opts) {
-    this.cOptions = {};
-    this.options(opts);
+  constructor(options) {
+    this.cOpts = {};
+    this.options(options);
     this.isSupportAvailable = this.checkSupportAvailability();
   }
 
   /**
    *
-   * @param {*} inOptions
+   * @param {*} inOpts
    */
-  options(inOptions = {}) {
-    if (arguments.length === 0) return this.cOptions;
+  options(inOpts = {}) {
+    if (arguments.length === 0) return this.cOpts;
 
     let domain = `.${topDomain(window.location.href)}`;
     if (domain === ".") domain = null;
 
     // the default maxage and path
-    this.cOptions = defaults(inOptions, {
+    this.cOpts = defaults(inOpts, {
       maxage: 31536000000,
       path: "/",
       domain,
       samesite: "Lax",
     });
-    return this.cOptions;
+
+    return this.cOpts;
   }
 
   /**
@@ -41,7 +42,7 @@ class CookieLocal {
    */
   set(key, value) {
     try {
-      cookie(key, value, cloneDeep(this.cOptions));
+      cookie(key, value, cloneDeep(this.cOpts));
       return true;
     } catch (e) {
       logger.error(e);
@@ -64,7 +65,7 @@ class CookieLocal {
    */
   remove(key) {
     try {
-      cookie(key, null, cloneDeep(this.cOptions));
+      cookie(key, null, cloneDeep(this.cOpts));
       return true;
     } catch (e) {
       return false;

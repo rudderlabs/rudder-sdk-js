@@ -4,7 +4,6 @@ import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import { terser } from "rollup-plugin-terser";
-import sourcemaps from "rollup-plugin-sourcemaps";
 import builtins from "rollup-plugin-node-builtins";
 import globals from "rollup-plugin-node-globals";
 import json from "@rollup/plugin-json";
@@ -19,7 +18,8 @@ import { INTG_SUFFIX } from "./utils/constants";
 
 let distFileName = "";
 let { version } = webPackage;
-let moduleType = "web";
+let moduleType = "cdn";
+
 switch (process.env.ENV) {
   case "prod":
     switch (process.env.ENC) {
@@ -77,7 +77,6 @@ export default {
   external: [],
   output: outputFiles,
   plugins: [
-    sourcemaps(),
     replace({
       preventAssignment: true,
       "process.browser": process.env.NODE_ENV !== "true",
@@ -106,6 +105,7 @@ export default {
     builtins(),
 
     babel({
+      inputSourceMap: true,
       babelHelpers: "bundled",
       exclude: ["node_modules/@babel/**", "node_modules/core-js/**"],
       presets: [
