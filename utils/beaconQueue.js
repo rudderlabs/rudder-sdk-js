@@ -89,7 +89,7 @@ class BeaconQueue {
       blob
     );
     if (!isPushed) {
-      logger.error("Unable to send data to Beacon queue");
+      logger.error("Unable to queue data to browser's beacon queue");
     }
     this.setQueue([]);
     this.clearTimer();

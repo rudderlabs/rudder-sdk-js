@@ -967,9 +967,9 @@ class Analytics {
       }
     } else {
       // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
-      const { rudderSDK } = getSDKUrlInfo();
-      if (rudderSDK) {
-        this.destSDKBaseURL = rudderSDK.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/');
+      const { sdkUrl } = getSDKUrlInfo();
+      if (sdkUrl) {
+        this.destSDKBaseURL = sdkUrl.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/');
       }
     }
     if (options && options.getSourceConfig) {
@@ -979,7 +979,7 @@ class Analytics {
         const res = options.getSourceConfig();
 
         if (res instanceof Promise) {
-          res.then((pRes) => this.processResponse(200, pRes)).catch(errorHandler);
+          res.then((pRes) => this.processResponse(200, pRes)).catch(handleError);
         } else {
           this.processResponse(200, res);
         }
