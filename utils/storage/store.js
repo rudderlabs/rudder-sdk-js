@@ -6,7 +6,7 @@ import store from "storejs";
  */
 class StoreLocal {
   constructor(options) {
-    this._options = {};
+    this.sOpts = {};
     this.enabled = this.checkSupportAvailability();
     this.options(options);
   }
@@ -16,12 +16,12 @@ class StoreLocal {
    * @param {*} options
    */
   options(options = {}) {
-    if (arguments.length === 0) return this.sOptions;
+    if (arguments.length === 0) return this.sOpts;
 
     defaults(options, { enabled: true });
 
     this.enabled = options.enabled && this.enabled;
-    this._options = options;
+    this.sOpts = options;
   }
 
   /**

@@ -65,7 +65,7 @@ function handleError(error, analyticsInstance) {
  */
 function replacer(key, value) {
   if (value === null || value === undefined) {
-    return undefined;
+    return;
   }
   return value;
 }
@@ -258,12 +258,12 @@ function getDefaultPageProperties() {
 }
 
 function getCurrency(val) {
-  if (!val) return undefined;
+  if (!val) return;
   if (typeof val === "number") {
     return val;
   }
   if (typeof val !== "string") {
-    return undefined;
+    return;
   }
 
   let curVal = val.replace(/\$/g, "");
@@ -272,7 +272,7 @@ function getCurrency(val) {
   if (!Number.isNaN(curVal)) {
     return curVal;
   }
-  return undefined;
+  return;
 }
 
 function getRevenue(properties, eventName) {
