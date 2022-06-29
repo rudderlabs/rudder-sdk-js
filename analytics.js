@@ -137,18 +137,15 @@ class Analytics {
         //   this.dynamicallyLoadedIntegrations
         // );
         resolve(this);
-        return;
-      }
-      if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
+      } else if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
         // logger.debug("Max wait for dynamically loaded integrations over")
         resolve(this);
-        return;
+      } else {
+        this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+          // logger.debug("Check if all integration SDKs are loaded after pause")
+          this.allModulesInitialized(time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
+        });
       }
-
-      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        // logger.debug("Check if all integration SDKs are loaded after pause")
-        return this.allModulesInitialized(time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
-      });
     });
   }
 
@@ -399,19 +396,16 @@ class Analytics {
         // logger.debug("===integration loaded successfully====", instance.name)
         this.successfullyLoadedIntegration.push(instance);
         resolve(this);
-        return;
-      }
-      if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
+      } else if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
         // logger.debug("====max wait over====")
         this.failedToBeLoadedIntegration.push(instance);
         resolve(this);
-        return;
+      } else {
+        this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+          // logger.debug("====after pause, again checking====")
+          this.isInitialized(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
+        });
       }
-
-      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        // logger.debug("====after pause, again checking====")
-        return this.isInitialized(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
-      });
     });
   }
 
