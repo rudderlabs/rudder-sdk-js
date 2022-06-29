@@ -234,8 +234,8 @@ class Analytics {
       let suffix = ''; // default suffix
 
       // Get the CDN base URL is rudder staging url
-      const { sdkURL, isStaging } = getSDKUrlInfo();
-      if (sdkURL && isStaging) {
+      const { isStaging } = getSDKUrlInfo();
+      if (isStaging) {
         suffix = "-staging"; // stagging suffix
       }
 
