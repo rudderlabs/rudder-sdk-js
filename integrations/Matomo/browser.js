@@ -33,22 +33,35 @@ class Matomo {
     // <script>
     const _paq = (window._paq = window._paq || []);
     /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-    _paq.push(["trackPageView"]);
-    _paq.push(["enableLinkTracking"]);
-    (function () {
-      const u = this.serverUrl;
-      _paq.push(["setTrackerUrl", `${u}matomo.php`]);
-      _paq.push(["setSiteId", this.siteId]);
-      const d = document;
-      const g = d.createElement("script");
-      const s = d.getElementsByTagName("script")[0];
+    //https://rudderstack123.matomo.cloud/
+    (function (serverUrl, siteId) {
+      var u = serverUrl;
+      window._paq.push(["setTrackerUrl", u, "matomo.php"]);
+      window._paq.push(["setSiteId", siteId]);
+      var d = document;
+      var g = d.createElement("script");
+      var s = d.getElementsByTagName("script")[0];
       g.async = true;
-      g.src = "//cdn.matomo.cloud/rudderstack-rohith.matomo.cloud/matomo.js";
+      u = u.replace("https://", "");
+      g.src = `//cdn.matomo.cloud/${u}matomo.js`;
       s.parentNode.insertBefore(g, s);
-    })();
-    // </script>
-    // <!-- End Matomo Code -->
-    // })(this.serverUrl);
+    })(this.serverUrl, this.siteId);
+
+    // var _paq = (window._paq = window._paq || []);
+    // /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+    // _paq.push(["trackPageView"]);
+    // _paq.push(["enableLinkTracking"]);
+    // (function () {
+    //   var u = "https://rudderstack123.matomo.cloud/";
+    //   _paq.push(["setTrackerUrl", u + "matomo.php"]);
+    //   _paq.push(["setSiteId", "1"]);
+    //   var d = document,
+    //     g = d.createElement("script"),
+    //     s = d.getElementsByTagName("script")[0];
+    //   g.async = true;
+    //   g.src = "//cdn.matomo.cloud/rudderstack123.matomo.cloud/matomo.js";
+    //   s.parentNode.insertBefore(g, s);
+    // })();
   }
 
   init() {
