@@ -693,18 +693,15 @@ const getSDKUrlInfo = () => {
   let isStaging = false;
   for (let i = 0; i < scripts.length; i += 1) {
     const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute("src"));
-    // only in case of staging SDK staging env will be set to true
-    if (
-      curScriptSrc &&
-      curScriptSrc.startsWith("http") &&
-      (curScriptSrc.endsWith("rudder-analytics.min.js") ||
-        curScriptSrc.endsWith("rudder-analytics-staging.min.js"))
-    ) {
-      sdkURL = curScriptSrc;
-      if (curScriptSrc.endsWith("rudder-analytics-staging.min.js")) {
-        isStaging = true;
+    if (curScriptSrc) {
+      const urlMatches = curScriptSrc.match(
+        /^(https?:)?\/\/.*rudder-analytics(-staging)?(\.min)?\.js$/,
+      );
+      if (urlMatches) {
+        sdkURL = curScriptSrc;
+        isStaging = urlMatches[1] !== undefined;
+        break;
       }
-      break;
     }
   }
   return { sdkURL, isStaging };
