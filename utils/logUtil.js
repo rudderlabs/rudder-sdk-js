@@ -7,38 +7,38 @@ let LOG_LEVEL = LOG_LEVEL_ERROR;
 const logger = {
   setLogLevel(logLevel) {
     switch (logLevel.toUpperCase()) {
-      case "INFO":
+      case 'INFO':
         LOG_LEVEL = LOG_LEVEL_INFO;
         return;
-      case "DEBUG":
+      case 'DEBUG':
         LOG_LEVEL = LOG_LEVEL_DEBUG;
         return;
-      case "WARN":
+      case 'WARN':
         LOG_LEVEL = LOG_LEVEL_WARN;
     }
   },
 
   info() {
     if (LOG_LEVEL <= LOG_LEVEL_INFO) {
-      console.log(...arguments);
+      console.info(...arguments);
     }
   },
 
   debug() {
     if (LOG_LEVEL <= LOG_LEVEL_DEBUG) {
-      console.log(...arguments);
+      console.debug(...arguments);
     }
   },
 
   warn() {
     if (LOG_LEVEL <= LOG_LEVEL_WARN) {
-      console.log(...arguments);
+      console.warn(...arguments);
     }
   },
 
   error() {
     if (LOG_LEVEL <= LOG_LEVEL_ERROR) {
-      console.log(...arguments);
+      console.error(...arguments);
     }
   },
 };
