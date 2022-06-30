@@ -808,12 +808,13 @@ class Analytics {
       checkReservedKeywords(rudderElement.message, type);
 
       // structure user supplied integrations object to rudder format
-      if (Object.keys(rudderElement.message.integrations).length > 0) {
-        tranformToRudderNames(rudderElement.message.integrations);
+      const { integrations } = rudderElement.message;
+      if (typeof integrations === 'object' && Object.keys(integrations).length > 0) {
+        tranformToRudderNames(integrations);
       }
 
       // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = rudderElement.message.integrations;
+      const clientSuppliedIntegrations = integrations;
 
       // get intersection between config plane native enabled destinations
       // (which were able to successfully load on the page) vs user supplied integrations
