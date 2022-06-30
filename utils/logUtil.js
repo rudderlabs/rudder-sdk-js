@@ -26,7 +26,7 @@ const logger = {
 
   debug() {
     if (LOG_LEVEL <= LOG_LEVEL_DEBUG) {
-      console.debug(...arguments);
+      console.log(...arguments);
     }
   },
 
