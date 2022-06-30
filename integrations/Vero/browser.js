@@ -12,8 +12,7 @@ class Vero {
 
   init() {
     logger.debug("===In init Vero===");
-    var _veroq = _veroq || [];
-
+    window._veroq = window._veroq || [];
     (function () {
       var ve = document.createElement("script");
       ve.type = "text/javascript";
@@ -22,7 +21,7 @@ class Vero {
       var s = document.getElementsByTagName("script")[0];
       s.parentNode.insertBefore(ve, s);
     })();
-    _veroq.push(["init", { api_key: this.apiKey }]);
+    window._veroq.push(["init", { api_key: this.apiKey }]);
   }
 
   isLoaded() {
@@ -32,6 +31,7 @@ class Vero {
 
   isReady() {
     logger.debug("in Vero isReady");
+    return !!window._veroq && !!window._veroq.ready;
   }
 
   identify(rudderElement) {
