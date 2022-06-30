@@ -15,7 +15,7 @@ class Matomo {
     this.serverUrl = config.serverUrl;
     this.siteId = config.siteId;
     this.name = NAME;
-
+    this.trackAllContentImpressions = config.trackAllContentImpressions;
     this.ecomEvents = {
       SET_ECOMMERCE_VIEW: "SET_ECOMMERCE_VIEW",
       ADD_ECOMMERCE_ITEM: "ADD_ECOMMERCE_ITEM",
@@ -28,15 +28,10 @@ class Matomo {
   }
 
   loadScript() {
-    // !(function (e) {
-    // <!-- Matomo -->
-    // <script>
     const _paq = (window._paq = window._paq || []);
-    /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-    //https://rudderstack123.matomo.cloud/
     (function (serverUrl, siteId) {
       var u = serverUrl;
-      window._paq.push(["setTrackerUrl", u, "matomo.php"]);
+      window._paq.push(["setTrackerUrl", u + "matomo.php"]);
       window._paq.push(["setSiteId", siteId]);
       var d = document;
       var g = d.createElement("script");
@@ -46,48 +41,32 @@ class Matomo {
       g.src = `//cdn.matomo.cloud/${u}matomo.js`;
       s.parentNode.insertBefore(g, s);
     })(this.serverUrl, this.siteId);
-
-    // var _paq = (window._paq = window._paq || []);
-    // /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-    // _paq.push(["trackPageView"]);
-    // _paq.push(["enableLinkTracking"]);
-    // (function () {
-    //   var u = "https://rudderstack123.matomo.cloud/";
-    //   _paq.push(["setTrackerUrl", u + "matomo.php"]);
-    //   _paq.push(["setSiteId", "1"]);
-    //   var d = document,
-    //     g = d.createElement("script"),
-    //     s = d.getElementsByTagName("script")[0];
-    //   g.async = true;
-    //   g.src = "//cdn.matomo.cloud/rudderstack123.matomo.cloud/matomo.js";
-    //   s.parentNode.insertBefore(g, s);
-    // })();
   }
 
   init() {
     logger.debug("===In init Matomo===");
     this.loadScript();
-    // ScriptLoader(
-    //   "adroll roundtrip",
-    //   `https://s.adroll.com/j/${this.advId}/roundtrip.js`
-    // );
   }
 
   isLoaded() {
     logger.debug("===In isLoaded Matomo===");
-    return !!window.__matomo;
+    return !!(window._paq && window._paq.push !== Array.prototype.push);
   }
 
   isReady() {
     logger.debug("===In isReady Matomo===");
-    return !!window.__matomo;
+    if (!!(window._paq && window._paq.push !== Array.prototype.push)) {
+      if (this.trackAllContentImpressions) {
+        window._paq.push(["trackAllContentImpressions"]);
+      }
+    }
+    return false;
   }
 
   identify(rudderElement) {
     logger.debug("===In Matomo Identify===");
-    const { message } = rudderElement;
-    const { anonymousId, userId } = message;
-    const matomoUserId = anonymousId || userId;
+    const { anonymousId, userId } = rudderElement.message;
+    const matomoUserId = userId || anonymousId;
     if (!matomoUserId) {
       logger.error(
         "User parameter (anonymousId or userId) is required for identify call"
@@ -95,8 +74,6 @@ class Matomo {
       return;
     }
     window._paq.push(["setUserId", matomoUserId]);
-    // window._matomo_email = email;
-    // window.__adroll.record_adroll_email("segment");
   }
   // record_adroll_email is used to attach a image pixel to the page connected to the user identified
 
@@ -104,8 +81,8 @@ class Matomo {
     logger.debug("===In Matomo track===");
 
     const { message } = rudderElement;
-    const { event } = message;
-
+    const { event, properties } = message;
+    window._paq.op;
     if (!event) {
       logger.error("Event name not present");
       return;
