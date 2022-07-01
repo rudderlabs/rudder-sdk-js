@@ -52,6 +52,7 @@ import parseLinker from './utils/linker';
 import { configToIntNames } from './utils/config_to_integration_names';
 import CookieConsentFactory from './cookieConsent/CookieConsentFactory';
 import * as BugsnagLib from './metrics/error-report/Bugsnag';
+import { processTransformation } from './utils/DMTHandler';
 
 /**
  * class responsible for handling core
@@ -204,6 +205,8 @@ class Analytics {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
             config: destination.config,
+            areTransformationsConnected: destination.areTransformationsConnected,
+            destinationId: destination.id,
           });
         }
       }, this);
@@ -355,31 +358,43 @@ class Analytics {
         object.clientIntegrationObjects,
       );
 
+      const intgWithoutTransformation = [];
+      const intgWithTransformation = [];
+      const destinationIds = [];
+      succesfulLoadedIntersectClientSuppliedIntegrations.forEach((intg) => {
+        if (intg.areTransformationsConnected) {
+          intgWithTransformation.push(intg);
+          destinationIds.push(intg.id);
+        } else {
+          intgWithoutTransformation.push(intg);
+        }
+      });
+
       // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-      for (let i = 0; i < succesfulLoadedIntersectClientSuppliedIntegrations.length; i += 1) {
+      for (let i = 0; i < intgWithoutTransformation.length; i += 1) {
         try {
-          if (
-            !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
-            !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
-          ) {
-            if (succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
+          if (!intgWithoutTransformation[i].isFailed || !intgWithoutTransformation[i].isFailed()) {
+            if (intgWithoutTransformation[i][methodName]) {
               const sendEvent = !object.IsEventBlackListed(
                 event[0].message.event,
-                succesfulLoadedIntersectClientSuppliedIntegrations[i].name,
+                intgWithoutTransformation[i].name,
               );
 
               // Block the event if it is blacklisted for the device-mode destination
               if (sendEvent) {
                 const clonedBufferEvent = cloneDeep(event);
-                succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
-                  ...clonedBufferEvent,
-                );
+                intgWithoutTransformation[i][methodName](...clonedBufferEvent);
               }
             }
           }
         } catch (error) {
           handleError(error);
         }
+      }
+      if (intgWithTransformation.length) {
+        // TODO
+        // call processTransformation
+        processTransformation(event, destinationIds);
       }
     });
     object.toBeProcessedByIntegrationArray = [];
@@ -673,8 +688,20 @@ class Analytics {
           this.clientIntegrationObjects,
         );
 
+        const intgWithoutTransformation = [];
+        const intgWithTransformation = [];
+        const destinationIds = [];
+        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((intg) => {
+          if (intg.areTransformationsConnected) {
+            intgWithTransformation.push(intg);
+            destinationIds.push(intg.id);
+          } else {
+            intgWithoutTransformation.push(intg);
+          }
+        });
+
         // try to first send to all integrations, if list populated from BE
-        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+        intgWithoutTransformation.forEach((obj) => {
           try {
             if (!obj.isFailed || !obj.isFailed()) {
               if (obj[type]) {
@@ -692,6 +719,11 @@ class Analytics {
             handleError(err);
           }
         });
+        if (intgWithTransformation.length) {
+          // TODO
+          // call processTransformation
+          processTransformation(rudderElement, destinationIds);
+        }
       }
 
       // convert integrations object to server identified names, kind of hack now!
