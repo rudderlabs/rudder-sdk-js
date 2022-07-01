@@ -699,7 +699,7 @@ const getSDKUrlInfo = () => {
       );
       if (urlMatches) {
         sdkURL = curScriptSrc;
-        isStaging = urlMatches[1] !== undefined;
+        isStaging = urlMatches[2] !== undefined;
         break;
       }
     }
