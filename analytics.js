@@ -807,15 +807,12 @@ class Analytics {
       // check for reserved keys and log
       checkReservedKeywords(rudderElement.message, type);
 
+      // if not specified at event level, All: true is default
+      const clientSuppliedIntegrations = rudderElement.message.integrations || { 'All' : true };
+
       // structure user supplied integrations object to rudder format
-      const clientSuppliedIntegrations = rudderElement.message.integrations ?? { 'All' : true };
       tranformToRudderNames(clientSuppliedIntegrations);
       rudderElement.message.integrations = clientSuppliedIntegrations;
-      
-      }
-
-      // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = integrations;
 
       // get intersection between config plane native enabled destinations
       // (which were able to successfully load on the page) vs user supplied integrations
