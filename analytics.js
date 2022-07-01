@@ -808,9 +808,10 @@ class Analytics {
       checkReservedKeywords(rudderElement.message, type);
 
       // structure user supplied integrations object to rudder format
-      const { integrations } = rudderElement.message;
-      if (typeof integrations === 'object' && Object.keys(integrations).length > 0) {
-        tranformToRudderNames(integrations);
+      const clientSuppliedIntegrations = rudderElement.message.integrations ?? { 'All' : true };
+      tranformToRudderNames(clientSuppliedIntegrations);
+      rudderElement.message.integrations = clientSuppliedIntegrations;
+      
       }
 
       // if not specified at event level, All: true is default
