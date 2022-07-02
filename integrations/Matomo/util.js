@@ -1,12 +1,114 @@
 import get from "get-value";
+import each from "@ndhoule/each";
 import logger from "../../utils/logUtil";
-import {
-  isDefinedAndNotNull,
-  isNotEmpty,
-  removeUndefinedAndNullValues,
-} from "../utils/commonUtils";
 
-const ecom = (event, message) => {
+/** If any event name matches with the goals list provided by the dashboard
+ * we will call the trackGoal with the id provided in the mapping.
+ */
+const goalIdMapping = (event, goalListTo) => {
+  try {
+    each((val, key) => {
+      if (key === event.toLowerCase()) {
+        // val is the goalId provided in the dashboard
+        window._paq.push(["trackGoal", val]);
+      }
+    }, goalListTo);
+  } catch (err) {
+    logger.error("[Matomo] track failed with following error", err);
+  }
+};
+
+/** Mapping Standard Events 
+ If any event name matches with the standard events list provided in the dashboard
+ */
+const standardEventsMapping = (event, standardTo, properties) => {
+  each((val, key) => {
+    if (key === event.toLowerCase()) {
+      let url;
+      let linkType;
+      let keyword;
+      let category;
+      let resultsCount;
+      let contentInteraction;
+      let contentName;
+      let contentPiece;
+      let contentTarget;
+      try {
+        switch (val) {
+          case "trackLink":
+            url = get(properties, "url");
+            linkType = get(properties, "linkType");
+            window._paq.push(["trackLink", url, linkType]);
+            break;
+
+          case "trackSiteSearch":
+            keyword = get(properties, "keyword");
+            category = get(properties, "category");
+            resultsCount = get(properties, "resultsCount");
+            window._paq.push([
+              "trackSiteSearch",
+              keyword,
+              category,
+              resultsCount,
+            ]);
+            break;
+
+          case "ping":
+            window._paq.push(["ping"]);
+            break;
+
+          case "trackContentImpressionsWithinNode":
+            window._paq.push(["trackContentImpressionsWithinNode", document]);
+            break;
+
+          case "trackContentInteractionNode":
+            contentInteraction = get(properties, "contentInteraction");
+            window._paq.push([
+              "trackContentInteractionNode",
+              document,
+              contentInteraction,
+            ]);
+            break;
+
+          case "trackContentImpression":
+            contentName = get(properties, "contentName");
+            contentPiece = get(properties, "contentPiece");
+            contentTarget = get(properties, "contentTarget");
+            window._paq.push([
+              "trackContentImpression",
+              contentName,
+              contentPiece,
+              contentTarget,
+            ]);
+            break;
+
+          case "trackContentInteraction":
+            contentInteraction = get(properties, "contentInteraction");
+            contentName = get(properties, "contentName");
+            contentPiece = get(properties, "contentPiece");
+            contentTarget = get(properties, "contentTarget");
+            window._paq.push([
+              "trackContentInteraction",
+              contentInteraction,
+              contentName,
+              contentPiece,
+              contentTarget,
+            ]);
+            break;
+
+          default:
+            break;
+        }
+      } catch (err) {
+        logger.error("[Matomo] track failed with following error", err);
+      }
+    }
+  }, standardTo);
+};
+
+/** Mapping Ecommerce Events
+ */
+const ecommerceEventsMapping = (event, message) => {
   try {
     let productSKU;
     let productName;
@@ -128,6 +230,7 @@ const ecom = (event, message) => {
         window._paq.push(["clearEcommerceCart"]);
         break;
       default:
+        // Generic track Event
         category = get(message, "properties.category");
         if (!category) {
           logger.error("User parameter category is required");
@@ -150,4 +253,4 @@ const ecom = (event, message) => {
   }
 };
 
-export { ecom };
+export { goalIdMapping, ecommerceEventsMapping, standardEventsMapping };

@@ -1,41 +1,56 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-// import get from "get-value";
+
 import logger from "../../utils/logUtil";
 
-// import { getHashFromArray } from "../utils/commonUtils";
-
 import { NAME } from "./constants";
-// import ScriptLoader from "../ScriptLoader";
-import { ecom } from "./util";
+import {
+  goalIdMapping,
+  ecommerceEventsMapping,
+  standardEventsMapping,
+} from "./util";
+import { getHashFromArray } from "../utils/commonUtils";
 
 class Matomo {
   constructor(config) {
-    // this.advId = config.advId;
     this.serverUrl = config.serverUrl;
     this.siteId = config.siteId;
+    this.eventsMapToGoalId = config.eventsMapToGoalId;
+    this.eventsToStandard = config.eventsToStandard;
     this.name = NAME;
     this.trackAllContentImpressions = config.trackAllContentImpressions;
+    this.trackVisibleContentImpressions = config.trackVisibleContentImpressions;
+    this.checkOnScroll = config.checkOnScroll;
+    this.timeIntervalInMs = config.timeIntervalInMs;
+    this.logAllContentBlocksOnPage = config.logAllContentBlocksOnPage;
+    this.enableHeartBeatTimer = config.enableHeartBeatTimer;
+    this.activeTimeInseconds = config.activeTimeInseconds;
+    this.enableLinkTracking = config.enableLinkTracking;
+    this.disablePerformanceTracking = config.disablePerformanceTracking;
+    this.enableCrossDomainLinking = config.enableCrossDomainLinking;
+    this.setCrossDomainLinkingTimeout = config.setCrossDomainLinkingTimeout;
+    this.timeout = config.timeout;
+    this.getCrossDomainLinkingUrlParameter =
+      config.getCrossDomainLinkingUrlParameter;
+    this.disableBrowserFeatureDetection = config.disableBrowserFeatureDetection;
+
     this.ecomEvents = {
       SET_ECOMMERCE_VIEW: "SET_ECOMMERCE_VIEW",
       ADD_ECOMMERCE_ITEM: "ADD_ECOMMERCE_ITEM",
       REMOVE_ECOMMERCE_ITEM: "REMOVE_ECOMMERCE_ITEM",
       TRACK_ECOMMERCE_ORDER: "TRACK_ECOMMERCE_ORDER",
     };
-    // window.adroll_adv_id = this.advId;
-    // window.adroll_pix_id = this.pixId;
-    // this.eventsMap = config.eventsMap || [];
   }
 
   loadScript() {
     const _paq = (window._paq = window._paq || []);
     (function (serverUrl, siteId) {
-      var u = serverUrl;
-      window._paq.push(["setTrackerUrl", u + "matomo.php"]);
+      let u = serverUrl;
+      window._paq.push(["setTrackerUrl", `${u}matomo.php`]);
       window._paq.push(["setSiteId", siteId]);
-      var d = document;
-      var g = d.createElement("script");
-      var s = d.getElementsByTagName("script")[0];
+      const d = document;
+      const g = d.createElement("script");
+      const s = d.getElementsByTagName("script")[0];
       g.async = true;
       u = u.replace("https://", "");
       g.src = `//cdn.matomo.cloud/${u}matomo.js`;
@@ -55,9 +70,46 @@ class Matomo {
 
   isReady() {
     logger.debug("===In isReady Matomo===");
-    if (!!(window._paq && window._paq.push !== Array.prototype.push)) {
+
+    // Dasboard Event Settings
+    if (window._paq && window._paq.push !== Array.prototype.push) {
       if (this.trackAllContentImpressions) {
         window._paq.push(["trackAllContentImpressions"]);
+      }
+      if (
+        this.trackVisibleContentImpressions &&
+        this.checkOnScroll &&
+        this.timeIntervalInMs
+      ) {
+        window._paq.push([
+          "trackVisibleContentImpressions",
+          this.checkOnScroll,
+          this.timeIntervalInMs,
+        ]);
+      }
+      if (this.logAllContentBlocksOnPage) {
+        window._paq.push(["logAllContentBlocksOnPage"]);
+      }
+      if (this.enableHeartBeatTimer && this.activeTimeInseconds) {
+        window._paq.push(["enableHeartBeatTimer", this.activeTimeInseconds]);
+      }
+      if (this.enableLinkTracking) {
+        window._paq.push(["enableLinkTracking", true]);
+      }
+      if (this.disablePerformanceTracking) {
+        window._paq.push(["disablePerformanceTracking"]);
+      }
+      if (this.enableCrossDomainLinking) {
+        window._paq.push(["enableCrossDomainLinking"]);
+      }
+      if (this.setCrossDomainLinkingTimeout && this.timeout) {
+        window._paq.push(["setCrossDomainLinkingTimeout", this.timeout]);
+      }
+      if (this.getCrossDomainLinkingUrlParameter) {
+        window._paq.push(["getCrossDomainLinkingUrlParameter"]);
+      }
+      if (this.disableBrowserFeatureDetection) {
+        window._paq.push(["disableBrowserFeatureDetection"]);
       }
     }
     return false;
@@ -75,44 +127,63 @@ class Matomo {
     }
     window._paq.push(["setUserId", matomoUserId]);
   }
-  // record_adroll_email is used to attach a image pixel to the page connected to the user identified
 
   track(rudderElement) {
     logger.debug("===In Matomo track===");
 
     const { message } = rudderElement;
     const { event, properties } = message;
-    window._paq.op;
+    const goalList = this.eventsMapToGoalId;
+    const goalListTo = getHashFromArray(goalList);
+    const standard = this.eventsToStandard;
+    const standardTo = getHashFromArray(standard);
+
     if (!event) {
       logger.error("Event name not present");
       return;
     }
 
-    try {
-      switch (event.toLowerCase().trim()) {
-        case "product viewed":
-          ecom(this.ecomEvents.SET_ECOMMERCE_VIEW, message);
-          break;
-        case "product added":
-          ecom(this.ecomEvents.ADD_ECOMMERCE_ITEM, message);
-          break;
-        case "product removed":
-          ecom(this.ecomEvents.REMOVE_ECOMMERCE_ITEM, message);
-          break;
-        case "order completed":
-          ecom(this.ecomEvents.TRACK_ECOMMERCE_ORDER, message);
-          break;
+    // For every type of track calls we consider the trackGoal function.
+    if (goalListTo[event.toLowerCase()]) {
+      goalIdMapping(event, goalListTo);
+    }
 
-        default:
-          ecom("trackEvent", message);
-          break;
+    // Mapping Standard Events
+    if (standardTo[event.toLowerCase()]) {
+      standardEventsMapping(event, standardTo, properties);
+    } else {
+      // Mapping Ecommerce Events
+      try {
+        switch (event.toLowerCase().trim()) {
+          case "product viewed":
+            ecommerceEventsMapping(this.ecomEvents.SET_ECOMMERCE_VIEW, message);
+            break;
+          case "product added":
+            ecommerceEventsMapping(this.ecomEvents.ADD_ECOMMERCE_ITEM, message);
+            break;
+          case "product removed":
+            ecommerceEventsMapping(
+              this.ecomEvents.REMOVE_ECOMMERCE_ITEM,
+              message
+            );
+            break;
+          case "order completed":
+            ecommerceEventsMapping(
+              this.ecomEvents.TRACK_ECOMMERCE_ORDER,
+              message
+            );
+            break;
+
+          default:
+            // Generic Track Event
+            ecommerceEventsMapping("trackEvent", message);
+            break;
+        }
+      } catch (err) {
+        logger.error("[Matomo] track failed with following error", err);
       }
-    } catch (err) {
-      logger.error("[Matomo] track failed with following error", err);
     }
   }
-  // record_user fires the correct pixel in accordance with the event configured in the dashboard
-  // and the segment associated in adroll
 
   page(rudderElement) {
     logger.debug("=== In Matomo Page ===");
