@@ -2,7 +2,7 @@
 import is from "is";
 import each from "component-each";
 import logger from "../../utils/logUtil";
-import { rejectArr } from "../../utils/utils";
+import { rejectArr } from "../utils/commonUtils";
 import ScriptLoader from "../ScriptLoader";
 import { NAME } from "./constants";
 

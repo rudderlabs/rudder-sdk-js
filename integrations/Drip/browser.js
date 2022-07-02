@@ -8,7 +8,7 @@ import {
 } from "../utils/commonUtils";
 import { getDestinationExternalID } from "./utils";
 
-import { extractCustomFields } from "../../utils/utils";
+import { extractCustomFields } from "../utils/commonUtils";
 import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 

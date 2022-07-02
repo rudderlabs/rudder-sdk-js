@@ -1,7 +1,7 @@
 import is from "is";
 import extend from "@ndhoule/extend";
 import each from "component-each";
-import { getRevenue } from "../../utils/utils";
+import { getRevenue } from "../utils/commonUtils";
 import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";

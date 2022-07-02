@@ -7,7 +7,7 @@ import {
   getDefinedTraits,
   isArray,
   isObject,
-} from "../../utils/utils";
+} from "../utils/commonUtils";
 import { NAME } from "./constants";
 
 class Clevertap {
