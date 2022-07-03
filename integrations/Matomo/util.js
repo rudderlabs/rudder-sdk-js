@@ -268,10 +268,10 @@ const ecommerceEventsMapping = (event, message) => {
 const checkCustomDimensions = (message) => {
   if (
     message.integrations &&
-    message.integrations.Matomo &&
-    message.integrations.Matomo.customDimension
+    message.integrations.MATOMO &&
+    message.integrations.MATOMO.customDimension
   ) {
-    const customDimensions = message.integrations.Matomo.customDimension;
+    const customDimensions = message.integrations.MATOMO.customDimension;
     const customDimensionsTo = getHashFromArray(
       customDimensions,
       "dimensionId",
