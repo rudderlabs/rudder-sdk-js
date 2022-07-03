@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
+// Research Spec: https://www.notion.so/rudderstacks/Matomo-c5a76c7838b94190a3374887b94a176e
 
 import logger from "../../utils/logUtil";
 
@@ -8,6 +9,7 @@ import {
   goalIdMapping,
   ecommerceEventsMapping,
   standardEventsMapping,
+  checkCustomDimensions,
 } from "./util";
 import { getHashFromArray } from "../utils/commonUtils";
 
@@ -153,36 +155,35 @@ class Matomo {
       standardEventsMapping(event, standardTo, properties);
     } else {
       // Mapping Ecommerce Events
-      try {
-        switch (event.toLowerCase().trim()) {
-          case "product viewed":
-            ecommerceEventsMapping(this.ecomEvents.SET_ECOMMERCE_VIEW, message);
-            break;
-          case "product added":
-            ecommerceEventsMapping(this.ecomEvents.ADD_ECOMMERCE_ITEM, message);
-            break;
-          case "product removed":
-            ecommerceEventsMapping(
-              this.ecomEvents.REMOVE_ECOMMERCE_ITEM,
-              message
-            );
-            break;
-          case "order completed":
-            ecommerceEventsMapping(
-              this.ecomEvents.TRACK_ECOMMERCE_ORDER,
-              message
-            );
-            break;
+      switch (event.toLowerCase().trim()) {
+        case "product viewed":
+          ecommerceEventsMapping(this.ecomEvents.SET_ECOMMERCE_VIEW, message);
+          break;
+        case "product added":
+          ecommerceEventsMapping(this.ecomEvents.ADD_ECOMMERCE_ITEM, message);
+          break;
+        case "product removed":
+          ecommerceEventsMapping(
+            this.ecomEvents.REMOVE_ECOMMERCE_ITEM,
+            message
+          );
+          break;
+        case "order completed":
+          ecommerceEventsMapping(
+            this.ecomEvents.TRACK_ECOMMERCE_ORDER,
+            message
+          );
+          break;
 
-          default:
-            // Generic Track Event
-            ecommerceEventsMapping("trackEvent", message);
-            break;
-        }
-      } catch (err) {
-        logger.error("[Matomo] track failed with following error", err);
+        default:
+          // Generic Track Event
+          ecommerceEventsMapping("trackEvent", message);
+          break;
       }
     }
+
+    // Checks for custom dimensions in the payload, if present makes appropriate calls
+    checkCustomDimensions(message);
   }
 
   page(rudderElement) {
