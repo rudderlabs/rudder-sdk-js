@@ -59,15 +59,14 @@ class Vero {
   identify(rudderElement) {
     const { message } = rudderElement;
     const { traits } = message.context || message;
-    const email =
-      get(message, "context.traits.email") || get(message, "traits.email");
-    const userId = message.userId || email || message.anonymousId;
+    const userId = message.userId || message.anonymousId;
     let payload = traits;
-    if (userId) payload = { id: userId, ...payload };
+    if (userId) {
+      payload = { id: userId, ...payload };
+    }
     window._veroq.push(["user", payload]);
     const tags = message.context.integerations?.[("vero", "Vero")]?.tags;
-    const id = userId || email;
-    if (isDefinedAndNotNull(tags)) this.addOrRemoveTags(tags, id);
+    if (isDefinedAndNotNull(tags)) this.addOrRemoveTags(tags, userId);
   }
 
   /**
@@ -90,11 +89,7 @@ class Vero {
       logger.error("[Vero]: Event name from track call is missing!!===");
       return;
     }
-    const email =
-      get(message, "context.traits.email") ||
-      get(message, "traits.email") ||
-      get(message, "properties.email");
-    const userId = message.userId || email || message.anonymousId;
+    const userId = message.userId || message.anonymousId;
     switch (event.toLowerCase()) {
       case "unsubscribe":
         window._veroq.push(["unsubscribe", userId]);
