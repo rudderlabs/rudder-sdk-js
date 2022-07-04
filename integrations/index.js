@@ -100,7 +100,7 @@ const integrations = {
   LAUNCHDARKLY: LaunchDarkly.default,
   GA360: GA360.default,
   ADROLL: Adroll.default,
-  VERO: Vero.default
+  VERO: Vero.default,
 };
 
 export { integrations };
