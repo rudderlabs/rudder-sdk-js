@@ -135,15 +135,16 @@ class Matomo {
 
     const { message } = rudderElement;
     const { event, properties } = message;
-    const goalList = this.eventsMapToGoalId;
-    const goalListTo = getHashFromArray(goalList);
-    const standard = this.eventsToStandard;
-    const standardTo = getHashFromArray(standard);
+    const goalListTo = getHashFromArray(this.eventsMapToGoalId);
+    const standardTo = getHashFromArray(this.eventsToStandard);
 
     if (!event) {
       logger.error("Event name not present");
       return;
     }
+
+    // Checks for custom dimensions in the payload, if present makes appropriate calls
+    checkCustomDimensions(message);
 
     // For every type of track calls we consider the trackGoal function.
     if (goalListTo[event.toLowerCase()]) {
@@ -181,9 +182,6 @@ class Matomo {
           break;
       }
     }
-
-    // Checks for custom dimensions in the payload, if present makes appropriate calls
-    checkCustomDimensions(message);
   }
 
   page(rudderElement) {

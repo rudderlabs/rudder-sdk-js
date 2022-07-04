@@ -30,6 +30,7 @@ const standardEventsMapping = (event, standardTo, properties) => {
       let contentName;
       let contentPiece;
       let contentTarget;
+      let domId;
 
       switch (val) {
         case "trackLink":
@@ -55,14 +56,19 @@ const standardEventsMapping = (event, standardTo, properties) => {
           break;
 
         case "trackContentImpressionsWithinNode":
-          window._paq.push(["trackContentImpressionsWithinNode", document]);
+          domId = get(properties, "domId") || get(properties, "dom_id");
+          window._paq.push([
+            "trackContentImpressionsWithinNode",
+            document.getElementById(domId),
+          ]);
           break;
 
         case "trackContentInteractionNode":
+          domId = get(properties, "domId") || get(properties, "dom_id");
           contentInteraction = get(properties, "contentInteraction");
           window._paq.push([
             "trackContentInteractionNode",
-            document,
+            document.getElementById(domId),
             contentInteraction,
           ]);
           break;
@@ -201,7 +207,7 @@ const ecommerceEventsMapping = (event, message) => {
        * If grandTotal is not found inside the properties, we are calculating it manually
        */
       if (!grandTotal) {
-        if (products && products.length > 0) {
+        if (products && Array.isArray(products) && products.length > 0) {
           grandTotal = 0;
           // iterating through the products array and calculating grandTotal
           for (let product = 0; product < products.length; product++) {
@@ -225,7 +231,8 @@ const ecommerceEventsMapping = (event, message) => {
       discount = get(message, "properties.discount");
 
       // ref: https://matomo.org/faq/reports/analyse-ecommerce-reporting-to-improve-your-sales/#conversions-overview
-      grandTotal += shipping + tax;
+      if (shipping && typeof shipping === "number") grandTotal += shipping;
+      if (tax && typeof tax === "number") grandTotal += tax;
 
       window._paq.push([
         "trackEcommerceOrder",
@@ -264,14 +271,11 @@ const ecommerceEventsMapping = (event, message) => {
 /**
  * Checks for custom dimensions in the payload
  * If present, we make setCustomDimension() function call
+ * @param
  */
 const checkCustomDimensions = (message) => {
-  if (
-    message.integrations &&
-    message.integrations.MATOMO &&
-    message.integrations.MATOMO.customDimension
-  ) {
-    const customDimensions = message.integrations.MATOMO.customDimension;
+  const customDimensions = get(message, "integrations.MATOMO.customDimension");
+  if (customDimensions) {
     const customDimensionsTo = getHashFromArray(
       customDimensions,
       "dimensionId",
