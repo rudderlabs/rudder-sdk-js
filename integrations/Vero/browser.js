@@ -1,9 +1,11 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
 import { NAME } from "./constants";
 import logger from "../../utils/logUtil";
 import { isDefinedAndNotNull } from "../utils/commonUtils";
+import ScriptLoader from "../ScriptLoader";
 
 class Vero {
   constructor(config) {
@@ -14,14 +16,7 @@ class Vero {
   init() {
     logger.debug("===In init Vero===");
     window._veroq = window._veroq || [];
-    (function () {
-      var ve = document.createElement("script");
-      ve.type = "text/javascript";
-      ve.async = true;
-      ve.src = "https://d3qxef4rp70elm.cloudfront.net/m.js";
-      var s = document.getElementsByTagName("script")[0];
-      s.parentNode.insertBefore(ve, s);
-    })();
+    ScriptLoader(null, "https://d3qxef4rp70elm.cloudfront.net/m.js", true);
     window._veroq.push(["init", { api_key: this.apiKey }]);
   }
 
@@ -37,10 +32,9 @@ class Vero {
 
   /**
    * AddOrRemoveTags.
+   * This block handles any tag addition or removal requests.
+   * Ref - http://developers.getvero.com/?javascript#tags
    *
-   * http://developers.getvero.com/?javascript#tags
-   *
-   * @api public
    * @param {Object} tags
    */
   addOrRemoveTags(tags, userId) {
@@ -58,44 +52,37 @@ class Vero {
 
   /**
    * Identify.
+   * Ref - https://developers.getvero.com/?javascript#users-identify
    *
-   * https://developers.getvero.com/?javascript#users-identify
-   *
-   * @api public
    * @param {Identify} identify
    */
   identify(rudderElement) {
     const { message } = rudderElement;
     const { traits } = message.context || message;
-    const userId = message.userId || message.anonymousId;
-    /*
-      userId OR email address are required by Vero's API. When userId isn't present,
-      email will be used as the userId.
-     */
     const email =
       get(message, "context.traits.email") || get(message, "traits.email");
-    if (!userId && !email) {
-      logger.error("[Vero]: User parameter userId or email is required.");
-      return;
-    }
+    const userId = message.userId || email || message.anonymousId;
     let payload = traits;
     if (userId) payload = { id: userId, ...payload };
     window._veroq.push(["user", payload]);
-    const tags = message.context.integerations?.Vero?.tags;
+    const tags = message.context.integerations?.[("vero", "Vero")]?.tags;
     const id = userId || email;
     if (isDefinedAndNotNull(tags)) this.addOrRemoveTags(tags, id);
   }
 
   /**
-   * Track.
+   * Track - tracks an event for a specific user
+   * for event `unsubscribe`
+   * Ref - https://developers.getvero.com/?javascript#users-unsubscribe
+   * for event `resubscribe`
+   * Ref - https://developers.getvero.com/?javascript#users-resubscribe
+   * else
+   * Ref - https://developers.getvero.com/?javascript#events-track
    *
-   * https://developers.getvero.com/?javascript#events-track
-   *
-   * @api public
    * @param {Track} track
    */
   track(rudderElement) {
-    logger.debug("===In Vero track===");
+    logger.debug("=== In Vero track ===");
 
     const { message } = rudderElement;
     const { event, properties } = message;
@@ -103,29 +90,69 @@ class Vero {
       logger.error("[Vero]: Event name from track call is missing!!===");
       return;
     }
-    window._veroq.push(["track", event, properties]);
-    const tags = message.context.integerations?.Vero?.tags;
     const email =
       get(message, "context.traits.email") ||
       get(message, "traits.email") ||
       get(message, "properties.email");
-    const userId = message.userId || message.anonymousId || email;
+    const userId = message.userId || email || message.anonymousId;
+    switch (event.toLowerCase()) {
+      case "unsubscribe":
+        window._veroq.push(["unsubscribe", userId]);
+        break;
+      case "resubscribe":
+        window._veroq.push(["resubscribe", userId]);
+        break;
+      default:
+        window._veroq.push(["track", event, properties]);
+    }
+
+    const tags = message.context.integerations?.[("vero", "Vero")]?.tags;
     if (isDefinedAndNotNull(tags)) this.addOrRemoveTags(tags, userId);
   }
 
   /**
+   * Page.
+   *
+   * @param {Page} page
+   */
+  page(rudderElement) {
+    logger.debug("=== In Vero Page ===");
+    const { message } = rudderElement;
+    let eventName;
+    if (!message.name && !message.category) {
+      eventName = `Viewed a Page`;
+    } else if (!message.name && message.category) {
+      eventName = `Viewed ${message.category} Page`;
+    } else if (message.name && !message.category) {
+      eventName = `Viewed ${message.name} Page`;
+    } else {
+      eventName = `Viewed ${message.category} ${message.name} Page`;
+    }
+    rudderElement.message.event = eventName;
+    this.track(rudderElement);
+  }
+
+  /**
    * Alias.
+   * Ref - https://www.getvero.com/api/http/#users
    *
-   * https://www.getvero.com/api/http/#users
-   *
-   * @api public
    * @param {Alias} alias
    */
   alias(rudderElement) {
     const { message } = rudderElement;
     const { userId, previousId } = message;
-    window._veroq.push(["reidentify", userId, previousId]);
-    const tags = message.context.integerations?.Vero?.tags;
+    if (!previousId) {
+      logger.debug("===Vero: previousId is required for alias call===");
+    }
+    if (!userId) {
+      logger.debug("===Vero: userId is required for alias call===");
+      return;
+    }
+    if (userId && previousId) {
+      window._veroq.push(["reidentify", userId, previousId]);
+    }
+
+    const tags = message.context.integerations?.[("vero", "Vero")]?.tags;
     if (isDefinedAndNotNull(tags)) this.addOrRemoveTags(tags, userId);
   }
 }
