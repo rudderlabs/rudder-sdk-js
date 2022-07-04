@@ -5,20 +5,25 @@ import { getHashFromArray } from "../utils/commonUtils";
 
 /** If any event name matches with the goals list provided by the dashboard
  * we will call the trackGoal with the id provided in the mapping.
+ * @param  {} event
+ * @param  {} goalListMap
  */
-const goalIdMapping = (event, goalListTo) => {
+const goalIdMapping = (event, goalListMap) => {
   each((val, key) => {
     if (key === event.toLowerCase()) {
       // val is the goalId provided in the dashboard
       window._paq.push(["trackGoal", val]);
     }
-  }, goalListTo);
+  }, goalListMap);
 };
 
 /** Mapping Standard Events 
  If any event name matches with the standard events list provided in the dashboard
+ @param  {} event
+ @param  {} standardEventsMap
+ @param  {} message
  */
-const standardEventsMapping = (event, standardTo, properties) => {
+const standardEventsMapping = (event, standardEventsMap, message) => {
   each((val, key) => {
     if (key === event.toLowerCase()) {
       let url;
@@ -31,16 +36,22 @@ const standardEventsMapping = (event, standardTo, properties) => {
       let contentPiece;
       let contentTarget;
       let domId;
+      const properties = get(message, "properties");
 
       switch (val) {
         case "trackLink":
-          url = get(properties, "url");
+          url = get(properties, "url") || get(message, "context.page.url");
           linkType = get(properties, "linkType");
+          if (linkType !== "link" || linkType !== "download") {
+            logger.error("linkType can only be ('link' or 'download'");
+            break;
+          }
           window._paq.push(["trackLink", url, linkType]);
           break;
 
         case "trackSiteSearch":
-          keyword = get(properties, "keyword");
+          keyword =
+            get(properties, "keyword") || get(message, "context.page.search");
           category = get(properties, "category");
           resultsCount = get(properties, "resultsCount");
           window._paq.push([
@@ -103,10 +114,12 @@ const standardEventsMapping = (event, standardTo, properties) => {
           break;
       }
     }
-  }, standardTo);
+  }, standardEventsMap);
 };
 
 /** Mapping Ecommerce Events
+ * @param  {} event
+ * @param  {} message
  */
 const ecommerceEventsMapping = (event, message) => {
   let productSKU;
@@ -271,7 +284,7 @@ const ecommerceEventsMapping = (event, message) => {
 /**
  * Checks for custom dimensions in the payload
  * If present, we make setCustomDimension() function call
- * @param
+ * @param  {} message
  */
 const checkCustomDimensions = (message) => {
   const customDimensions = get(message, "integrations.MATOMO.customDimension");

@@ -75,9 +75,12 @@ class Matomo {
 
     // Dasboard Event Settings
     if (window._paq && window._paq.push !== Array.prototype.push) {
+      // Scans the entire DOM for all content blocks and tracks all impressions once the DOM ready event has been triggered.
       if (this.trackAllContentImpressions) {
         window._paq.push(["trackAllContentImpressions"]);
       }
+
+      // Scans the entire DOM for all content blocks when the page is loaded. Tracks an impression only if a content block is actually visible.
       if (
         this.trackVisibleContentImpressions &&
         this.checkOnScroll &&
@@ -89,27 +92,44 @@ class Matomo {
           this.timeIntervalInMs,
         ]);
       }
+
+      // Logs all content blocks found within a page to the console.
       if (this.logAllContentBlocksOnPage) {
         window._paq.push(["logAllContentBlocksOnPage"]);
       }
+
+      // Installs a heart beat timer to send additional requests to Matomo to measure the time spent in the visit.
       if (this.enableHeartBeatTimer && this.activeTimeInseconds) {
         window._paq.push(["enableHeartBeatTimer", this.activeTimeInseconds]);
       }
+
+      //  Installs link tracking on all applicable link elements.
       if (this.enableLinkTracking) {
         window._paq.push(["enableLinkTracking", true]);
       }
+
+      // Disables page performance tracking.
       if (this.disablePerformanceTracking) {
         window._paq.push(["disablePerformanceTracking"]);
       }
+
+      // Enables cross domain linking. It is useful if you own multiple domains and would like to track all the actions and
+      // pageviews of a specific visitor into the same visit.
       if (this.enableCrossDomainLinking) {
         window._paq.push(["enableCrossDomainLinking"]);
       }
+
+      // Sets the cross domain linking timeout (in seconds).
       if (this.setCrossDomainLinkingTimeout && this.timeout) {
         window._paq.push(["setCrossDomainLinkingTimeout", this.timeout]);
       }
+
+      // Gets the query parameter to append to the links to handle cross domain linking.
       if (this.getCrossDomainLinkingUrlParameter) {
         window._paq.push(["getCrossDomainLinkingUrlParameter"]);
       }
+
+      // Disables the browser feature detection.
       if (this.disableBrowserFeatureDetection) {
         window._paq.push(["disableBrowserFeatureDetection"]);
       }
@@ -134,9 +154,15 @@ class Matomo {
     logger.debug("===In Matomo track===");
 
     const { message } = rudderElement;
-    const { event, properties } = message;
-    const goalListTo = getHashFromArray(this.eventsMapToGoalId);
-    const standardTo = getHashFromArray(this.eventsToStandard);
+    const { event } = message;
+    const goalListMap = getHashFromArray(this.eventsMapToGoalId);
+    const standardEventsMap = getHashFromArray(this.eventsToStandard);
+    const ecommerceMapping = new Map([
+      ["product viewed", this.ecomEvents.SET_ECOMMERCE_VIEW],
+      ["product added", this.ecomEvents.ADD_ECOMMERCE_ITEM],
+      ["product removed", this.ecomEvents.REMOVE_ECOMMERCE_ITEM],
+      ["order completed", this.ecomEvents.TRACK_ECOMMERCE_ORDER],
+    ]);
 
     if (!event) {
       logger.error("Event name not present");
@@ -147,39 +173,20 @@ class Matomo {
     checkCustomDimensions(message);
 
     // For every type of track calls we consider the trackGoal function.
-    if (goalListTo[event.toLowerCase()]) {
-      goalIdMapping(event, goalListTo);
+    if (goalListMap[event.toLowerCase()]) {
+      goalIdMapping(event, goalListMap);
     }
 
     // Mapping Standard Events
-    if (standardTo[event.toLowerCase()]) {
-      standardEventsMapping(event, standardTo, properties);
+    if (standardEventsMap[event.toLowerCase()]) {
+      standardEventsMapping(event, standardEventsMap, message);
     } else {
       // Mapping Ecommerce Events
-      switch (event.toLowerCase().trim()) {
-        case "product viewed":
-          ecommerceEventsMapping(this.ecomEvents.SET_ECOMMERCE_VIEW, message);
-          break;
-        case "product added":
-          ecommerceEventsMapping(this.ecomEvents.ADD_ECOMMERCE_ITEM, message);
-          break;
-        case "product removed":
-          ecommerceEventsMapping(
-            this.ecomEvents.REMOVE_ECOMMERCE_ITEM,
-            message
-          );
-          break;
-        case "order completed":
-          ecommerceEventsMapping(
-            this.ecomEvents.TRACK_ECOMMERCE_ORDER,
-            message
-          );
-          break;
-
-        default:
-          // Generic Track Event
-          ecommerceEventsMapping("trackEvent", message);
-          break;
+      const trimmedEvent = event.toLowerCase().trim();
+      if (ecommerceMapping.has(trimmedEvent)) {
+        ecommerceEventsMapping(ecommerceMapping.get(trimmedEvent), message);
+      } else {
+        ecommerceEventsMapping("trackEvent", message);
       }
     }
   }
