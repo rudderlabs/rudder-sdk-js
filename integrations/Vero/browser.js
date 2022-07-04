@@ -115,7 +115,7 @@ class Vero {
     const { message } = rudderElement;
     let eventName;
     if (!message.name && !message.category) {
-      eventName = `Viewed a Page`;
+      eventName = `Viewed Page`;
     } else if (!message.name && message.category) {
       eventName = `Viewed ${message.category} Page`;
     } else if (message.name && !message.category) {
