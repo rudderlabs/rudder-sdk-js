@@ -23,13 +23,12 @@ class Vero {
 
   isLoaded() {
     logger.debug("===In isLoaded Vero===");
-    logger.debug(typeof window._veroq);
-    return typeof window._veroq === "object";
+    return !!window._veroq && typeof window._veroq === "object";
   }
 
   isReady() {
     logger.debug("===In isReady Vero===");
-    return this.isLoaded();
+    return !!window._veroq && !!window._veroq.ready;
   }
 
   /**
