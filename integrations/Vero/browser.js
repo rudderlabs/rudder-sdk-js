@@ -1,4 +1,3 @@
-/* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
@@ -129,8 +128,10 @@ class Vero {
     } else {
       eventName = `Viewed ${category} ${name} Page`;
     }
-    rudderElement.message.event = eventName;
-    this.track(rudderElement);
+    const elemClone = { ...rudderElement };
+    elemClone.message = { ...rudderElement.message };
+    elemClone.message.event = eventName;
+    this.track(elemClone);
   }
 
   /**
