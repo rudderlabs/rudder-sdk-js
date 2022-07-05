@@ -22,15 +22,14 @@ class Vero {
   }
 
   isLoaded() {
-    if (typeof window._veroq === "object") {
-      logger.debug("in Vero isLoaded");
-    }
-    return !!window._veroq;
+    logger.debug("===In isLoaded Vero===");
+    logger.debug(typeof window._veroq);
+    return typeof window._veroq === "object";
   }
 
   isReady() {
-    logger.debug("in Vero isReady");
-    return !!window._veroq && !!window._veroq.ready;
+    logger.debug("===In isReady Vero===");
+    return this.isLoaded();
   }
 
   /**
