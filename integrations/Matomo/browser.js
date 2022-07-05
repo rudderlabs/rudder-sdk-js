@@ -45,7 +45,7 @@ class Matomo {
   }
 
   loadScript() {
-    const _paq = (window._paq = window._paq || []);
+    window._paq = window._paq || [];
     (function (serverUrl, siteId) {
       let u = serverUrl;
       window._paq.push(["setTrackerUrl", `${u}matomo.php`]);

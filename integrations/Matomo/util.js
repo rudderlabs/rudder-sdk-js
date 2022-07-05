@@ -225,6 +225,8 @@ const ecommerceEventsMapping = (event, message) => {
           // iterating through the products array and calculating grandTotal
           for (let product = 0; product < products.length; product++) {
             if (product.price && product.quantity) {
+              if (typeof price === "string") price = parseFloat(price);
+              if (typeof quantity === "string") quantity = parseFloat(quantity);
               grandTotal += product.price * product.quantity;
             }
           }
@@ -244,8 +246,14 @@ const ecommerceEventsMapping = (event, message) => {
       discount = get(message, "properties.discount");
 
       // ref: https://matomo.org/faq/reports/analyse-ecommerce-reporting-to-improve-your-sales/#conversions-overview
-      if (shipping && typeof shipping === "number") grandTotal += shipping;
-      if (tax && typeof tax === "number") grandTotal += tax;
+      if (shipping) {
+        if (typeof shipping === "string") shipping = parseFloat(shipping);
+        grandTotal += shipping;
+      }
+      if (tax) {
+        if (typeof tax === "string") tax = parseFloat(tax);
+        grandTotal += tax;
+      }
 
       window._paq.push([
         "trackEcommerceOrder",
