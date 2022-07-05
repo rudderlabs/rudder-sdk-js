@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import get from "get-value";
 import { NAME } from "./constants";
 import logger from "../../utils/logUtil";
 import { isDefinedAndNotNull } from "../utils/commonUtils";
@@ -42,11 +41,11 @@ class Vero {
    * @param {Object} tags
    */
   addOrRemoveTags(message) {
-    const tags = message.integrations?.[("vero", "Vero", "VERO")]?.tags;
+    const tags = message.integrations?.[NAME]?.tags;
     if (isDefinedAndNotNull(tags)) {
       const userId = message.userId || message.anonymousId;
-      const addTags = get(tags, "add") || [];
-      const removeTags = get(tags, "remove") || [];
+      const addTags = tags.add || [];
+      const removeTags = tags.remove || [];
       window._veroq.push([
         "tags",
         {
