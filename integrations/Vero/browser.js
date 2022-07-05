@@ -16,12 +16,17 @@ class Vero {
   init() {
     logger.debug("===In init Vero===");
     window._veroq = window._veroq || [];
-    ScriptLoader(null, "https://d3qxef4rp70elm.cloudfront.net/m.js", true);
+    ScriptLoader(
+      "vero-integration",
+      "https://d3qxef4rp70elm.cloudfront.net/m.js"
+    );
     window._veroq.push(["init", { api_key: this.apiKey }]);
   }
 
   isLoaded() {
-    logger.debug("in Vero isLoaded");
+    if (typeof window._veroq === "object") {
+      logger.debug("in Vero isLoaded");
+    }
     return !!window._veroq;
   }
 
@@ -37,17 +42,21 @@ class Vero {
    *
    * @param {Object} tags
    */
-  addOrRemoveTags(tags, userId) {
-    const addTags = get(tags, "add");
-    const removeTags = get(tags, "remove");
-    window._veroq.push([
-      "tags",
-      {
-        id: userId,
-        add: addTags,
-        remove: removeTags,
-      },
-    ]);
+  addOrRemoveTags(message) {
+    const tags = message.integrations?.[("vero", "Vero", "VERO")]?.tags;
+    if (isDefinedAndNotNull(tags)) {
+      const userId = message.userId || message.anonymousId;
+      const addTags = get(tags, "add");
+      const removeTags = get(tags, "remove");
+      window._veroq.push([
+        "tags",
+        {
+          id: userId,
+          add: addTags,
+          remove: removeTags,
+        },
+      ]);
+    }
   }
 
   /**
@@ -65,8 +74,7 @@ class Vero {
       payload = { id: userId, ...payload };
     }
     window._veroq.push(["user", payload]);
-    const tags = message.context.integerations?.[("vero", "Vero")]?.tags;
-    if (isDefinedAndNotNull(tags)) this.addOrRemoveTags(tags, userId);
+    this.addOrRemoveTags(message);
   }
 
   /**
@@ -100,9 +108,7 @@ class Vero {
       default:
         window._veroq.push(["track", event, properties]);
     }
-
-    const tags = message.context.integerations?.[("vero", "Vero")]?.tags;
-    if (isDefinedAndNotNull(tags)) this.addOrRemoveTags(tags, userId);
+    this.addOrRemoveTags(message);
   }
 
   /**
@@ -112,16 +118,16 @@ class Vero {
    */
   page(rudderElement) {
     logger.debug("=== In Vero Page ===");
-    const { message } = rudderElement;
+    const { name, category } = rudderElement.message;
     let eventName;
-    if (!message.name && !message.category) {
+    if (!name && !category) {
       eventName = `Viewed Page`;
-    } else if (!message.name && message.category) {
-      eventName = `Viewed ${message.category} Page`;
-    } else if (message.name && !message.category) {
-      eventName = `Viewed ${message.name} Page`;
+    } else if (!name && category) {
+      eventName = `Viewed ${category} Page`;
+    } else if (name && !category) {
+      eventName = `Viewed ${name} Page`;
     } else {
-      eventName = `Viewed ${message.category} ${message.name} Page`;
+      eventName = `Viewed ${category} ${name} Page`;
     }
     rudderElement.message.event = eventName;
     this.track(rudderElement);
@@ -137,18 +143,15 @@ class Vero {
     const { message } = rudderElement;
     const { userId, previousId } = message;
     if (!previousId) {
-      logger.debug("===Vero: previousId is required for alias call===");
-    }
-    if (!userId) {
-      logger.debug("===Vero: userId is required for alias call===");
+      logger.error("===Vero: previousId is required for alias call===");
       return;
     }
-    if (userId && previousId) {
-      window._veroq.push(["reidentify", userId, previousId]);
+    if (!userId) {
+      logger.error("===Vero: userId is required for alias call===");
+      return;
     }
-
-    const tags = message.context.integerations?.[("vero", "Vero")]?.tags;
-    if (isDefinedAndNotNull(tags)) this.addOrRemoveTags(tags, userId);
+    window._veroq.push(["reidentify", userId, previousId]);
+    this.addOrRemoveTags(message);
   }
 }
 
