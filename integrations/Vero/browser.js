@@ -46,8 +46,8 @@ class Vero {
     const tags = message.integrations?.[("vero", "Vero", "VERO")]?.tags;
     if (isDefinedAndNotNull(tags)) {
       const userId = message.userId || message.anonymousId;
-      const addTags = get(tags, "add");
-      const removeTags = get(tags, "remove");
+      const addTags = get(tags, "add") || [];
+      const removeTags = get(tags, "remove") || [];
       window._veroq.push([
         "tags",
         {
