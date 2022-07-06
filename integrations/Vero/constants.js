@@ -1,8 +1,4 @@
 const NAME = "VERO";
-const CNameMapping = {
-  [NAME]: NAME,
-  Vero: NAME,
-  vero: NAME,
-};
+const CNameMapping = [NAME, "Vero", "vero"];
 
 export { NAME, CNameMapping };

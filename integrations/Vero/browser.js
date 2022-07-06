@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from "./constants";
+import { NAME, CNameMapping } from "./constants";
 import logger from "../../utils/logUtil";
 import { isDefinedAndNotNull } from "../utils/commonUtils";
 import ScriptLoader from "../ScriptLoader";
@@ -39,19 +39,29 @@ class Vero {
    * @param {Object} tags
    */
   addOrRemoveTags(message) {
-    const tags = message.integrations?.[NAME]?.tags;
-    if (isDefinedAndNotNull(tags)) {
-      const userId = message.userId || message.anonymousId;
-      const addTags = tags.add || [];
-      const removeTags = tags.remove || [];
-      window._veroq.push([
-        "tags",
-        {
-          id: userId,
-          add: addTags,
-          remove: removeTags,
-        },
-      ]);
+    let name;
+    const keys = Object.keys(message.integrations);
+    for (let i = 0; i < keys.length; i += 1) {
+      if (CNameMapping.indexOf(keys[i]) > -1) {
+        name = keys[i];
+        break;
+      }
+    }
+    if (name) {
+      const tags = message.integrations?.[name]?.tags;
+      if (isDefinedAndNotNull(tags)) {
+        const userId = message.userId || message.anonymousId;
+        const addTags = Array.isArray(tags.add) ? tags.add : [];
+        const removeTags = Array.isArray(tags.remove) ? tags.remove : [];
+        window._veroq.push([
+          "tags",
+          {
+            id: userId,
+            add: addTags,
+            remove: removeTags,
+          },
+        ]);
+      }
     }
   }
 
