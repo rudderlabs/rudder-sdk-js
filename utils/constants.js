@@ -9,6 +9,10 @@ const ReservedPropertyKeywords = [
   "event_text",
   "event",
 ];
+
+const DestCanonicalNames = {
+  matomo: ["matomo", "Matomo", "MATOMO"],
+};
 // Message Type enumeration
 const MessageType = {
   TRACK: "track",
@@ -101,6 +105,7 @@ const GENERIC_FALSE_VALUES = ["false", "False", "FALSE", "f", "F", "0"];
 
 export {
   ReservedPropertyKeywords,
+  DestCanonicalNames,
   MessageType,
   ECommerceParamNames,
   ECommerceEvents,

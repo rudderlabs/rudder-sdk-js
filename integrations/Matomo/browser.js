@@ -11,7 +11,7 @@ import {
   standardEventsMapping,
   checkCustomDimensions,
 } from "./util";
-import { getHashFromArray } from "../utils/commonUtils";
+import { getHashFromArrayWithDuplicate } from "../utils/commonUtils";
 
 class Matomo {
   constructor(config) {
@@ -41,6 +41,8 @@ class Matomo {
       ADD_ECOMMERCE_ITEM: "ADD_ECOMMERCE_ITEM",
       REMOVE_ECOMMERCE_ITEM: "REMOVE_ECOMMERCE_ITEM",
       TRACK_ECOMMERCE_ORDER: "TRACK_ECOMMERCE_ORDER",
+      CLEAR_ECOMMERCE_CART: "CLEAR_ECOMMERCE_CART",
+      TRACK_ECOMMERCE_CART_UPDATE: "TRACK_ECOMMERCE_CART_UPDATE",
     };
   }
 
@@ -155,13 +157,17 @@ class Matomo {
 
     const { message } = rudderElement;
     const { event } = message;
-    const goalListMap = getHashFromArray(this.eventsMapToGoalId);
-    const standardEventsMap = getHashFromArray(this.eventsToStandard);
+    const goalListMap = getHashFromArrayWithDuplicate(this.eventsMapToGoalId);
+    const standardEventsMap = getHashFromArrayWithDuplicate(
+      this.eventsToStandard
+    );
     const ecommerceMapping = new Map([
       ["product viewed", this.ecomEvents.SET_ECOMMERCE_VIEW],
       ["product added", this.ecomEvents.ADD_ECOMMERCE_ITEM],
       ["product removed", this.ecomEvents.REMOVE_ECOMMERCE_ITEM],
       ["order completed", this.ecomEvents.TRACK_ECOMMERCE_ORDER],
+      ["cart cleared", this.ecomEvents.CLEAR_ECOMMERCE_CART],
+      ["update cart", this.ecomEvents.TRACK_ECOMMERCE_CART_UPDATE],
     ]);
 
     if (!event) {
@@ -174,20 +180,19 @@ class Matomo {
 
     // For every type of track calls we consider the trackGoal function.
     if (goalListMap[event.toLowerCase()]) {
-      goalIdMapping(event, goalListMap);
+      goalIdMapping(event, goalListMap, message);
     }
 
     // Mapping Standard Events
     if (standardEventsMap[event.toLowerCase()]) {
       standardEventsMapping(event, standardEventsMap, message);
+    }
+    // Mapping Ecommerce Events
+    const trimmedEvent = event.toLowerCase().trim();
+    if (ecommerceMapping.has(trimmedEvent)) {
+      ecommerceEventsMapping(ecommerceMapping.get(trimmedEvent), message);
     } else {
-      // Mapping Ecommerce Events
-      const trimmedEvent = event.toLowerCase().trim();
-      if (ecommerceMapping.has(trimmedEvent)) {
-        ecommerceEventsMapping(ecommerceMapping.get(trimmedEvent), message);
-      } else {
-        ecommerceEventsMapping("trackEvent", message);
-      }
+      ecommerceEventsMapping("trackEvent", message);
     }
   }
 

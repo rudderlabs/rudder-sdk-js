@@ -1,18 +1,22 @@
 import get from "get-value";
 import each from "@ndhoule/each";
 import logger from "../../utils/logUtil";
-import { getHashFromArray } from "../utils/commonUtils";
+import { getHashFromArray, getIntegrationsObj } from "../utils/commonUtils";
 
 /** If any event name matches with the goals list provided by the dashboard
  * we will call the trackGoal with the id provided in the mapping.
  * @param  {} event
  * @param  {} goalListMap
  */
-const goalIdMapping = (event, goalListMap) => {
+const goalIdMapping = (event, goalListMap, message) => {
+  const revenue = get(message, "properties.revenue");
   each((val, key) => {
     if (key === event.toLowerCase()) {
-      // val is the goalId provided in the dashboard
-      window._paq.push(["trackGoal", val]);
+      val.forEach((v) => {
+        if (revenue) window._paq.push(["trackGoal", v, revenue]);
+        else window._paq.push(["trackGoal", v]);
+      });
+      // window._paq.push(["trackGoal", val]);
     }
   }, goalListMap);
 };
@@ -37,82 +41,83 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
       let contentTarget;
       let domId;
       const properties = get(message, "properties");
-
-      switch (val) {
-        case "trackLink":
-          url = get(properties, "url") || get(message, "context.page.url");
-          linkType = get(properties, "linkType");
-          if (linkType !== "link" || linkType !== "download") {
-            logger.error("linkType can only be ('link' or 'download'");
+      val.forEach((v) => {
+        switch (v) {
+          case "trackLink":
+            url = get(properties, "url") || get(message, "context.page.url");
+            linkType = get(properties, "linkType");
+            if (linkType !== "link" || linkType !== "download") {
+              logger.error("linkType can only be ('link' or 'download'");
+              break;
+            }
+            window._paq.push(["trackLink", url, linkType]);
             break;
-          }
-          window._paq.push(["trackLink", url, linkType]);
-          break;
 
-        case "trackSiteSearch":
-          keyword =
-            get(properties, "keyword") || get(message, "context.page.search");
-          category = get(properties, "category");
-          resultsCount = get(properties, "resultsCount");
-          window._paq.push([
-            "trackSiteSearch",
-            keyword,
-            category,
-            resultsCount,
-          ]);
-          break;
+          case "trackSiteSearch":
+            keyword =
+              get(properties, "keyword") || get(message, "context.page.search");
+            category = get(properties, "category");
+            resultsCount = get(properties, "resultsCount");
+            window._paq.push([
+              "trackSiteSearch",
+              keyword,
+              category,
+              resultsCount,
+            ]);
+            break;
 
-        case "ping":
-          window._paq.push(["ping"]);
-          break;
+          case "ping":
+            window._paq.push(["ping"]);
+            break;
 
-        case "trackContentImpressionsWithinNode":
-          domId = get(properties, "domId") || get(properties, "dom_id");
-          window._paq.push([
-            "trackContentImpressionsWithinNode",
-            document.getElementById(domId),
-          ]);
-          break;
+          case "trackContentImpressionsWithinNode":
+            domId = get(properties, "domId") || get(properties, "dom_id");
+            window._paq.push([
+              "trackContentImpressionsWithinNode",
+              document.getElementById(domId),
+            ]);
+            break;
 
-        case "trackContentInteractionNode":
-          domId = get(properties, "domId") || get(properties, "dom_id");
-          contentInteraction = get(properties, "contentInteraction");
-          window._paq.push([
-            "trackContentInteractionNode",
-            document.getElementById(domId),
-            contentInteraction,
-          ]);
-          break;
+          case "trackContentInteractionNode":
+            domId = get(properties, "domId") || get(properties, "dom_id");
+            contentInteraction = get(properties, "contentInteraction");
+            window._paq.push([
+              "trackContentInteractionNode",
+              document.getElementById(domId),
+              contentInteraction,
+            ]);
+            break;
 
-        case "trackContentImpression":
-          contentName = get(properties, "contentName");
-          contentPiece = get(properties, "contentPiece");
-          contentTarget = get(properties, "contentTarget");
-          window._paq.push([
-            "trackContentImpression",
-            contentName,
-            contentPiece,
-            contentTarget,
-          ]);
-          break;
+          case "trackContentImpression":
+            contentName = get(properties, "contentName");
+            contentPiece = get(properties, "contentPiece");
+            contentTarget = get(properties, "contentTarget");
+            window._paq.push([
+              "trackContentImpression",
+              contentName,
+              contentPiece,
+              contentTarget,
+            ]);
+            break;
 
-        case "trackContentInteraction":
-          contentInteraction = get(properties, "contentInteraction");
-          contentName = get(properties, "contentName");
-          contentPiece = get(properties, "contentPiece");
-          contentTarget = get(properties, "contentTarget");
-          window._paq.push([
-            "trackContentInteraction",
-            contentInteraction,
-            contentName,
-            contentPiece,
-            contentTarget,
-          ]);
-          break;
+          case "trackContentInteraction":
+            contentInteraction = get(properties, "contentInteraction");
+            contentName = get(properties, "contentName");
+            contentPiece = get(properties, "contentPiece");
+            contentTarget = get(properties, "contentTarget");
+            window._paq.push([
+              "trackContentInteraction",
+              contentInteraction,
+              contentName,
+              contentPiece,
+              contentTarget,
+            ]);
+            break;
 
-        default:
-          break;
-      }
+          default:
+            break;
+        }
+      });
     }
   }, standardEventsMap);
 };
@@ -264,8 +269,17 @@ const ecommerceEventsMapping = (event, message) => {
         shipping,
         discount,
       ]);
-      window._paq.push(["clearEcommerceCart"]);
+      break;
 
+    case "CLEAR_ECOMMERCE_CART":
+      window._paq.push(["clearEcommerceCart"]);
+      break;
+
+    case "TRACK_ECOMMERCE_CART_UPDATE":
+      grandTotal =
+        get(message, "properties.total") || get(message, "properties.revenue");
+
+      window._paq.push(["trackEcommerceCartUpdate", grandTotal]);
       break;
 
     default:
@@ -295,7 +309,9 @@ const ecommerceEventsMapping = (event, message) => {
  * @param  {} message
  */
 const checkCustomDimensions = (message) => {
-  const customDimensions = get(message, "integrations.MATOMO.customDimension");
+  const integrationsObj = getIntegrationsObj(message, "matomo");
+  const { customDimensions } = integrationsObj;
+
   if (customDimensions) {
     const customDimensionsTo = getHashFromArray(
       customDimensions,
