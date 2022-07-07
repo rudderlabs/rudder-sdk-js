@@ -39,31 +39,21 @@ class Vero {
    * @param {Object} tags
    */
   addOrRemoveTags(message) {
-    let name;
     const { integrations } = message;
     if (integrations) {
-      const keys = Object.keys(integrations);
-      for (let i = 0; i < keys.length; i += 1) {
-        if (CNameMapping.indexOf(keys[i]) > -1) {
-          name = keys[i];
-          break;
-        }
-      }
-      if (name) {
-        const { tags } = integrations[name];
-        if (isDefinedAndNotNull(tags)) {
-          const userId = message.userId || message.anonymousId;
-          const addTags = Array.isArray(tags.add) ? tags.add : [];
-          const removeTags = Array.isArray(tags.remove) ? tags.remove : [];
-          window._veroq.push([
-            "tags",
-            {
-              id: userId,
-              add: addTags,
-              remove: removeTags,
-            },
-          ]);
-        }
+      const { tags } = integrations[NAME];
+      if (isDefinedAndNotNull(tags)) {
+        const userId = message.userId || message.anonymousId;
+        const addTags = Array.isArray(tags.add) ? tags.add : [];
+        const removeTags = Array.isArray(tags.remove) ? tags.remove : [];
+        window._veroq.push([
+          "tags",
+          {
+            id: userId,
+            add: addTags,
+            remove: removeTags,
+          },
+        ]);
       }
     }
   }
