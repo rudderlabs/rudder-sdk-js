@@ -47,6 +47,7 @@ const clientToServerNames = {
   LAUNCHDARKLY: "LaunchDarkly",
   GA360: "Google Analytics 360",
   ADROLL: "Adroll",
+  VERO: "Vero",
   MATOMO: "Matomo",
 };
 
