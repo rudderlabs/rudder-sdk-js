@@ -1,4 +1,3 @@
-import each from "@ndhoule/each";
 import logger from "../../utils/logUtil";
 import { getHashFromArray } from "../utils/commonUtils";
 import { NAME } from "./constants";
@@ -11,14 +10,14 @@ import { NAME } from "./constants";
 const goalIdMapping = (event, goalListMap, message) => {
   let revenue;
   if (message.properties) revenue = message.properties.revenue;
-  each((val, key) => {
+  goalListMap.forEach((val, key) => {
     if (key === event) {
       val.forEach((v) => {
         if (revenue) window._paq.push(["trackGoal", v, revenue]);
         else window._paq.push(["trackGoal", v]);
       });
     }
-  }, goalListMap);
+  });
 };
 
 /** Mapping Standard Events 
@@ -28,7 +27,7 @@ const goalIdMapping = (event, goalListMap, message) => {
  @param  {} message
  */
 const standardEventsMapping = (event, standardEventsMap, message) => {
-  each((val, key) => {
+  standardEventsMap.forEach((val, key) => {
     if (key === event) {
       let url;
       let linkType;
@@ -134,7 +133,7 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
         }
       });
     }
-  }, standardEventsMap);
+  });
 };
 
 /** Mapping Ecommerce Events
@@ -169,7 +168,7 @@ const ecommerceEventsMapping = (event, message) => {
       if (properties) {
         productSKU = properties.sku || properties.product_id;
         productName = properties.name;
-        categoryName = properties.categoryName;
+        categoryName = properties.category;
         price = properties.price;
       }
       if (!productSKU) {
@@ -205,7 +204,7 @@ const ecommerceEventsMapping = (event, message) => {
       if (properties) {
         productSKU = properties.sku || properties.product_id;
         productName = properties.name;
-        categoryName = properties.categoryName;
+        categoryName = properties.category;
         price = properties.price;
         quantity = properties.quantity;
       }
@@ -264,24 +263,24 @@ const ecommerceEventsMapping = (event, message) => {
             }
           }
         }
-      }
 
-      /** subTotal is not a listed property in "Order Completed" event
-       * if user doesn't provide this property, then we are calculating it from grandTotal
-       * ref: https://matomo.org/faq/reports/analyse-ecommerce-reporting-to-improve-your-sales/#conversions-overview
-       */
-      if (!subTotal) {
-        subTotal = grandTotal;
-      }
+        /** subTotal is not a listed property in "Order Completed" event
+         * if user doesn't provide this property, then we are calculating it from grandTotal
+         * ref: https://matomo.org/faq/reports/analyse-ecommerce-reporting-to-improve-your-sales/#conversions-overview
+         */
+        if (!subTotal) {
+          subTotal = grandTotal;
+        }
 
-      // ref: https://matomo.org/faq/reports/analyse-ecommerce-reporting-to-improve-your-sales/#conversions-overview
-      if (shipping) {
-        if (typeof shipping === "string") shipping = parseFloat(shipping);
-        grandTotal += shipping;
-      }
-      if (tax) {
-        if (typeof tax === "string") tax = parseFloat(tax);
-        grandTotal += tax;
+        // ref: https://matomo.org/faq/reports/analyse-ecommerce-reporting-to-improve-your-sales/#conversions-overview
+        if (shipping) {
+          if (typeof shipping === "string") shipping = parseFloat(shipping);
+          grandTotal += shipping;
+        }
+        if (tax) {
+          if (typeof tax === "string") tax = parseFloat(tax);
+          grandTotal += tax;
+        }
       }
 
       window._paq.push([
@@ -315,7 +314,6 @@ const ecommerceEventsMapping = (event, message) => {
         logger.error("User parameter category is required");
         break;
       }
-
       if (!action) {
         logger.error("User parameter action is required");
         break;
@@ -342,9 +340,9 @@ const checkCustomDimensions = (message) => {
         "dimensionId",
         "dimensionValue"
       );
-      each((val, key) => {
+      customDimensionsMap.forEach((val, key) => {
         window._paq.push(["setCustomDimension", key, val]);
-      }, customDimensionsMap);
+      });
     }
   }
 };
