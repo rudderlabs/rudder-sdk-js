@@ -1,6 +1,5 @@
 import _ from "lodash";
-import get from "get-value";
-import { DestCanonicalNames } from "../../utils/constants";
+import logger from "../../utils/logUtil";
 
 const isDefined = (x) => !_.isUndefined(x);
 const isNotEmpty = (x) => !_.isEmpty(x);
@@ -36,7 +35,9 @@ const getHashFromArrayWithDuplicate = (
   if (Array.isArray(arrays)) {
     arrays.forEach((array) => {
       if (!isNotEmpty(array[fromKey])) return;
-      const key = isLowerCase ? array[fromKey].toLowerCase() : array[fromKey];
+      const key = isLowerCase
+        ? array[fromKey].toLowerCase().trim()
+        : array[fromKey].trim();
 
       if (hashMap.has(key)) {
         const valueArray = hashMap.get(key);
@@ -74,25 +75,6 @@ const getHashFromArray = (
     });
   }
   return hashMap;
-};
-
-// Given a destinationName according to the destination definition names,
-// It'll look for the canonical names for that integration and return the
-// `integrations` object for that destination, else null
-const getIntegrationsObj = (message, destinationName = null) => {
-  if (destinationName) {
-    const canonicalNames = DestCanonicalNames[destinationName];
-    for (let index = 0; index < canonicalNames.length; index += 1) {
-      const integrationsObj = get(
-        message,
-        `integrations.${canonicalNames[index]}`
-      );
-      if (integrationsObj) {
-        return integrationsObj;
-      }
-    }
-  }
-  return null;
 };
 
 /**
@@ -137,7 +119,6 @@ function flattenJson(data) {
 export {
   getHashFromArrayWithDuplicate,
   getHashFromArray,
-  getIntegrationsObj,
   toIso,
   flattenJson,
   removeUndefinedValues,

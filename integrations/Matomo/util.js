@@ -1,6 +1,7 @@
 import each from "@ndhoule/each";
 import logger from "../../utils/logUtil";
-import { getHashFromArray, getIntegrationsObj } from "../utils/commonUtils";
+import { getHashFromArray } from "../utils/commonUtils";
+import { NAME } from "./constants";
 
 /** If any event name matches with the goals list provided by the dashboard
  * we will call the trackGoal with the id provided in the mapping.
@@ -332,18 +333,19 @@ const ecommerceEventsMapping = (event, message) => {
  * @param  {} message
  */
 const checkCustomDimensions = (message) => {
-  const integrationsObj = getIntegrationsObj(message, "matomo");
-  const { customDimensions } = integrationsObj;
-
-  if (customDimensions) {
-    const customDimensionsMap = getHashFromArray(
-      customDimensions,
-      "dimensionId",
-      "dimensionValue"
-    );
-    each((val, key) => {
-      window._paq.push(["setCustomDimension", key, val]);
-    }, customDimensionsMap);
+  const { integrations } = message;
+  if (integrations) {
+    const customDimension = integrations[NAME]?.customDimension;
+    if (customDimension) {
+      const customDimensionsMap = getHashFromArray(
+        customDimension,
+        "dimensionId",
+        "dimensionValue"
+      );
+      each((val, key) => {
+        window._paq.push(["setCustomDimension", key, val]);
+      }, customDimensionsMap);
+    }
   }
 };
 
