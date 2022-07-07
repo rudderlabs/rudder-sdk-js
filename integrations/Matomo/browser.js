@@ -178,17 +178,19 @@ class Matomo {
     // Checks for custom dimensions in the payload, if present makes appropriate calls
     checkCustomDimensions(message);
 
+    const trimmedEvent = event.toLowerCase().trim();
+
     // For every type of track calls we consider the trackGoal function.
-    if (goalListMap[event.toLowerCase()]) {
-      goalIdMapping(event, goalListMap, message);
+    if (goalListMap[trimmedEvent]) {
+      goalIdMapping(trimmedEvent, goalListMap, message);
     }
 
     // Mapping Standard Events
-    if (standardEventsMap[event.toLowerCase()]) {
-      standardEventsMapping(event, standardEventsMap, message);
+    if (standardEventsMap[trimmedEvent]) {
+      standardEventsMapping(trimmedEvent, standardEventsMap, message);
     }
+
     // Mapping Ecommerce Events
-    const trimmedEvent = event.toLowerCase().trim();
     if (ecommerceMapping.has(trimmedEvent)) {
       ecommerceEventsMapping(ecommerceMapping.get(trimmedEvent), message);
     } else {

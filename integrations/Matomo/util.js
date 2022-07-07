@@ -1,4 +1,3 @@
-import get from "get-value";
 import each from "@ndhoule/each";
 import logger from "../../utils/logUtil";
 import { getHashFromArray, getIntegrationsObj } from "../utils/commonUtils";
@@ -9,14 +8,14 @@ import { getHashFromArray, getIntegrationsObj } from "../utils/commonUtils";
  * @param  {} goalListMap
  */
 const goalIdMapping = (event, goalListMap, message) => {
-  const revenue = get(message, "properties.revenue");
+  let revenue;
+  if (message.properties) revenue = message.properties.revenue;
   each((val, key) => {
-    if (key === event.toLowerCase()) {
+    if (key === event) {
       val.forEach((v) => {
         if (revenue) window._paq.push(["trackGoal", v, revenue]);
         else window._paq.push(["trackGoal", v]);
       });
-      // window._paq.push(["trackGoal", val]);
     }
   }, goalListMap);
 };
@@ -29,7 +28,7 @@ const goalIdMapping = (event, goalListMap, message) => {
  */
 const standardEventsMapping = (event, standardEventsMap, message) => {
   each((val, key) => {
-    if (key === event.toLowerCase()) {
+    if (key === event) {
       let url;
       let linkType;
       let keyword;
@@ -40,12 +39,15 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
       let contentPiece;
       let contentTarget;
       let domId;
-      const properties = get(message, "properties");
+      const { properties } = message;
       val.forEach((v) => {
         switch (v) {
           case "trackLink":
-            url = get(properties, "url") || get(message, "context.page.url");
-            linkType = get(properties, "linkType");
+            if (properties) url = properties.url;
+            if (!url)
+              url = message.context ? message.context.page.url : undefined;
+
+            if (properties) linkType = properties.linkType;
             if (linkType !== "link" || linkType !== "download") {
               logger.error("linkType can only be ('link' or 'download'");
               break;
@@ -54,10 +56,16 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
             break;
 
           case "trackSiteSearch":
-            keyword =
-              get(properties, "keyword") || get(message, "context.page.search");
-            category = get(properties, "category");
-            resultsCount = get(properties, "resultsCount");
+            if (properties) {
+              keyword = properties.keyword;
+              category = properties.category;
+              resultsCount = properties.resultsCount;
+            }
+            if (!keyword)
+              keyword = message.context
+                ? message.context.page.search
+                : undefined;
+
             window._paq.push([
               "trackSiteSearch",
               keyword,
@@ -71,7 +79,7 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
             break;
 
           case "trackContentImpressionsWithinNode":
-            domId = get(properties, "domId") || get(properties, "dom_id");
+            if (properties) domId = properties.domId || properties.dom_id;
             window._paq.push([
               "trackContentImpressionsWithinNode",
               document.getElementById(domId),
@@ -79,8 +87,10 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
             break;
 
           case "trackContentInteractionNode":
-            domId = get(properties, "domId") || get(properties, "dom_id");
-            contentInteraction = get(properties, "contentInteraction");
+            if (properties) {
+              domId = properties.domId || properties.dom_id;
+              contentInteraction = properties.contentInteraction;
+            }
             window._paq.push([
               "trackContentInteractionNode",
               document.getElementById(domId),
@@ -89,9 +99,11 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
             break;
 
           case "trackContentImpression":
-            contentName = get(properties, "contentName");
-            contentPiece = get(properties, "contentPiece");
-            contentTarget = get(properties, "contentTarget");
+            if (properties) {
+              contentName = properties.contentName;
+              contentPiece = properties.contentPiece;
+              contentTarget = properties.contentTarget;
+            }
             window._paq.push([
               "trackContentImpression",
               contentName,
@@ -101,10 +113,12 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
             break;
 
           case "trackContentInteraction":
-            contentInteraction = get(properties, "contentInteraction");
-            contentName = get(properties, "contentName");
-            contentPiece = get(properties, "contentPiece");
-            contentTarget = get(properties, "contentTarget");
+            if (properties) {
+              contentInteraction = properties.contentInteraction;
+              contentName = properties.contentName;
+              contentPiece = properties.contentPiece;
+              contentTarget = properties.contentTarget;
+            }
             window._paq.push([
               "trackContentInteraction",
               contentInteraction,
@@ -142,30 +156,36 @@ const ecommerceEventsMapping = (event, message) => {
   let action;
   let name;
   let value;
-  const products = get(message, "properties.products"); // used for TRACK_ECOMMERCE_ORDER event
+  let products; // used for TRACK_ECOMMERCE_ORDER event
+
+  const { properties } = message;
+  if (properties) {
+    products = properties.products;
+  }
 
   switch (event) {
     case "SET_ECOMMERCE_VIEW":
-      productSKU =
-        get(message, "properties.sku") || get(message, "properties.product_id");
+      if (properties) {
+        productSKU = properties.sku || properties.product_id;
+        productName = properties.name;
+        categoryName = properties.categoryName;
+        price = properties.price;
+      }
       if (!productSKU) {
         logger.error("User parameter (sku or product_id) is required");
         break;
       }
 
-      productName = get(message, "properties.name");
       if (!productName) {
         logger.error("User parameter name is required");
         break;
       }
 
-      categoryName = get(message, "properties.category");
       if (!categoryName) {
         logger.error("User parameter category is required");
         break;
       }
 
-      price = get(message, "properties.price");
       if (!price) {
         logger.error("User parameter (sku or product_id) is required");
         break;
@@ -181,17 +201,18 @@ const ecommerceEventsMapping = (event, message) => {
       break;
 
     case "ADD_ECOMMERCE_ITEM":
-      productSKU =
-        get(message, "properties.sku") || get(message, "properties.product_id");
+      if (properties) {
+        productSKU = properties.sku || properties.product_id;
+        productName = properties.name;
+        categoryName = properties.categoryName;
+        price = properties.price;
+        quantity = properties.quantity;
+      }
       if (!productSKU) {
         logger.error("User parameter (sku or product_id) is required");
         break;
       }
 
-      productName = get(message, "properties.name");
-      categoryName = get(message, "properties.category");
-      price = get(message, "properties.price");
-      quantity = get(message, "properties.quantity");
       window._paq.push([
         "addEcommerceItem",
         productSKU,
@@ -203,8 +224,9 @@ const ecommerceEventsMapping = (event, message) => {
       break;
 
     case "REMOVE_ECOMMERCE_ITEM":
-      productSKU =
-        get(message, "properties.sku") || get(message, "properties.product_id");
+      if (properties) {
+        productSKU = properties.sku || properties.product_id;
+      }
       if (!productSKU) {
         logger.error("User parameter (sku or product_id) is required");
         break;
@@ -213,14 +235,19 @@ const ecommerceEventsMapping = (event, message) => {
       break;
 
     case "TRACK_ECOMMERCE_ORDER":
-      orderId = get(message, "properties.order_id");
+      if (properties) {
+        orderId = properties.order_id || properties.orderId;
+        grandTotal = properties.total || properties.revenue;
+        subTotal = properties.subTotal;
+        tax = properties.tax;
+        shipping = properties.shipping;
+        discount = properties.discount;
+      }
       if (!orderId) {
         logger.error("User parameter order_id is required");
         break;
       }
 
-      grandTotal =
-        get(message, "properties.total") || get(message, "properties.revenue");
       /** grandTotal is a mandatory field
        * If grandTotal is not found inside the properties, we are calculating it manually
        */
@@ -242,13 +269,9 @@ const ecommerceEventsMapping = (event, message) => {
        * if user doesn't provide this property, then we are calculating it from grandTotal
        * ref: https://matomo.org/faq/reports/analyse-ecommerce-reporting-to-improve-your-sales/#conversions-overview
        */
-      subTotal = get(message, "properties.subTotal");
       if (!subTotal) {
         subTotal = grandTotal;
       }
-      tax = get(message, "properties.tax");
-      shipping = get(message, "properties.shipping");
-      discount = get(message, "properties.discount");
 
       // ref: https://matomo.org/faq/reports/analyse-ecommerce-reporting-to-improve-your-sales/#conversions-overview
       if (shipping) {
@@ -276,28 +299,28 @@ const ecommerceEventsMapping = (event, message) => {
       break;
 
     case "TRACK_ECOMMERCE_CART_UPDATE":
-      grandTotal =
-        get(message, "properties.total") || get(message, "properties.revenue");
-
+      if (properties) grandTotal = properties.total || properties.revenue;
       window._paq.push(["trackEcommerceCartUpdate", grandTotal]);
       break;
 
     default:
       // Generic track Event
-      category = get(message, "properties.category");
+      if (properties) {
+        category = properties.category;
+        action = properties.action;
+        value = properties.value;
+      }
       if (!category) {
         logger.error("User parameter category is required");
         break;
       }
 
-      action = get(message, "properties.action");
       if (!action) {
         logger.error("User parameter action is required");
         break;
       }
 
-      name = get(message, "event");
-      value = get(message, "properties.value");
+      name = message.event;
       window._paq.push(["trackEvent", category, action, name, value]);
       break;
   }
@@ -313,14 +336,14 @@ const checkCustomDimensions = (message) => {
   const { customDimensions } = integrationsObj;
 
   if (customDimensions) {
-    const customDimensionsTo = getHashFromArray(
+    const customDimensionsMap = getHashFromArray(
       customDimensions,
       "dimensionId",
       "dimensionValue"
     );
     each((val, key) => {
       window._paq.push(["setCustomDimension", key, val]);
-    }, customDimensionsTo);
+    }, customDimensionsMap);
   }
 };
 
