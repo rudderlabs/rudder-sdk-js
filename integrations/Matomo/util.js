@@ -57,14 +57,13 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
 
           case "trackSiteSearch":
             if (properties) {
-              keyword = properties.keyword || properties.search;
               category = properties.category;
               resultsCount = properties.resultsCount;
             }
-            if (!keyword || keyword === "")
-              keyword = message.context
-                ? message.context.page.search
-                : undefined;
+            keyword =
+              properties?.keyword ||
+              properties?.search ||
+              message.context.page?.search;
 
             window._paq.push([
               "trackSiteSearch",
