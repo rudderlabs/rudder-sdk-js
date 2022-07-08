@@ -61,9 +61,9 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
               resultsCount = properties.resultsCount;
             }
             keyword =
-              properties?.keyword ||
-              properties?.search ||
-              message.context.page?.search;
+              properties.keyword ||
+              properties.search ||
+              message.context?.page?.search;
 
             window._paq.push([
               "trackSiteSearch",
