@@ -57,11 +57,11 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
 
           case "trackSiteSearch":
             if (properties) {
-              keyword = properties.keyword;
+              keyword = properties.keyword || properties.search;
               category = properties.category;
               resultsCount = properties.resultsCount;
             }
-            if (!keyword)
+            if (!keyword || keyword === "")
               keyword = message.context
                 ? message.context.page.search
                 : undefined;
@@ -187,7 +187,7 @@ const ecommerceEventsMapping = (event, message) => {
       }
 
       if (!price) {
-        logger.error("User parameter (sku or product_id) is required");
+        logger.error("User parameter price is required");
         break;
       }
       window._paq.push([
@@ -281,6 +281,11 @@ const ecommerceEventsMapping = (event, message) => {
           if (typeof tax === "string") tax = parseFloat(tax);
           grandTotal += tax;
         }
+      }
+
+      if (!grandTotal) {
+        logger.error("User parameter (total or revenue) is required");
+        break;
       }
 
       window._paq.push([
