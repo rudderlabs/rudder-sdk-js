@@ -48,8 +48,8 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
               url = message.context ? message.context.page.url : undefined;
 
             if (properties) linkType = properties.linkType;
-            if (linkType !== "link" || linkType !== "download") {
-              logger.error("linkType can only be ('link' or 'download'");
+            if (linkType !== "link" && linkType !== "download") {
+              logger.error("linkType can only be ('link' or 'download')");
               break;
             }
             window._paq.push(["trackLink", url, linkType]);
