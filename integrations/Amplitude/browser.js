@@ -13,6 +13,8 @@ class Amplitude {
     this.name = NAME;
     this.analytics = analytics;
     this.apiKey = config.apiKey;
+    this.areTransformationsConnected = config.areTransformationsConnected;
+    this.destinationId = config.destinationId;
     this.trackAllPages = config.trackAllPages || false;
     this.trackNamedPages = config.trackNamedPages || false;
     this.trackCategorizedPages = config.trackCategorizedPages || false;

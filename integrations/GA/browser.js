@@ -12,6 +12,8 @@ export default class GA {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics;
+    this.areTransformationsConnected = config.areTransformationsConnected;
+    this.destinationId = config.destinationId;
     this.trackingID = config.trackingID;
     this.sendUserId = config.sendUserId || false;
     this.dimensions = config.dimensions || [];

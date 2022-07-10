@@ -204,9 +204,11 @@ class Analytics {
         if (destination.enabled) {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
-            config: destination.config,
-            areTransformationsConnected: destination.areTransformationsConnected,
-            destinationId: destination.id,
+            config: {
+              ...destination.config,
+              areTransformationsConnected: destination.areTransformationsConnected || false,
+              destinationId: destination.id,
+            },
           });
         }
       }, this);
@@ -360,41 +362,41 @@ class Analytics {
 
       const intgWithoutTransformation = [];
       const intgWithTransformation = [];
-      const destinationIds = [];
+      // const destinationIds = [];
+
+      // Depending on transformation is connected or not
+      // create two sets of destinations
       succesfulLoadedIntersectClientSuppliedIntegrations.forEach((intg) => {
         if (intg.areTransformationsConnected) {
           intgWithTransformation.push(intg);
-          destinationIds.push(intg.id);
+          // destinationIds.push(intg.destinationId);
         } else {
           intgWithoutTransformation.push(intg);
         }
       });
 
-      // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-      for (let i = 0; i < intgWithoutTransformation.length; i += 1) {
-        try {
-          if (!intgWithoutTransformation[i].isFailed || !intgWithoutTransformation[i].isFailed()) {
-            if (intgWithoutTransformation[i][methodName]) {
-              const sendEvent = !object.IsEventBlackListed(
-                event[0].message.event,
-                intgWithoutTransformation[i].name,
-              );
+      // loop through destinations that doesn't have
+      // transformation connected with it and send events from the 'toBeProcessedByIntegrationArray' replay queue
+      intgWithoutTransformation.forEach((intg) => {
+        this.sendDataToDestination(intg, event[0], methodName);
+      });
 
-              // Block the event if it is blacklisted for the device-mode destination
-              if (sendEvent) {
-                const clonedBufferEvent = cloneDeep(event);
-                intgWithoutTransformation[i][methodName](...clonedBufferEvent);
-              }
-            }
-          }
-        } catch (error) {
-          handleError(error);
-        }
-      }
       if (intgWithTransformation.length) {
-        // TODO
-        // call processTransformation
-        processTransformation(event, destinationIds);
+        // Process Transformation
+        processTransformation(event[0], (transformedPayload) => {
+          if (transformedPayload) {
+            intgWithTransformation.forEach((intg) => {
+              // filter the transformed event for that destination
+              const transformedEvents = transformedPayload.filter(
+                (e) => e.destination.id === intg.destinationId,
+              )[0].destination.payload;
+              // send transformed event to destination
+              transformedEvents.forEach((tEvent) => {
+                this.sendDataToDestination(intg, tEvent, methodName);
+              });
+            });
+          }
+        });
       }
     });
     object.toBeProcessedByIntegrationArray = [];
@@ -625,6 +627,31 @@ class Analytics {
   }
 
   /**
+   * A function to send single event to a destination
+   * @param {instance} destination
+   * @param {Object} rudderElement
+   * @param {String} type
+   */
+  sendDataToDestination(destination, rudderElement, type) {
+    try {
+      if (!destination.isFailed || !destination.isFailed()) {
+        if (destination[type]) {
+          const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, destination.name);
+
+          // Block the event if it is blacklisted for the device-mode destination
+          if (sendEvent) {
+            const clonedRudderElement = cloneDeep(rudderElement);
+            destination[type](clonedRudderElement);
+          }
+        }
+      }
+    } catch (err) {
+      err.message = `[sendToNative]::[Destination:${destination.name}]:: ${err}`;
+      handleError(err);
+    }
+  }
+
+  /**
    * Process and send data to destinations along with rudder BE
    *
    * @param {*} type
@@ -691,38 +718,40 @@ class Analytics {
         const intgWithoutTransformation = [];
         const intgWithTransformation = [];
         const destinationIds = [];
+
+        // Depending on transformation is connected or not
+        // create two sets of destinations
         succesfulLoadedIntersectClientSuppliedIntegrations.forEach((intg) => {
           if (intg.areTransformationsConnected) {
             intgWithTransformation.push(intg);
-            destinationIds.push(intg.id);
+            destinationIds.push(intg.destinationId);
           } else {
             intgWithoutTransformation.push(intg);
           }
         });
 
-        // try to first send to all integrations, if list populated from BE
-        intgWithoutTransformation.forEach((obj) => {
-          try {
-            if (!obj.isFailed || !obj.isFailed()) {
-              if (obj[type]) {
-                let sendEvent = !this.IsEventBlackListed(rudderElement.message.event, obj.name);
-
-                // Block the event if it is blacklisted for the device-mode destination
-                if (sendEvent) {
-                  const clonedRudderElement = cloneDeep(rudderElement);
-                  obj[type](clonedRudderElement);
-                }
-              }
-            }
-          } catch (err) {
-            err.message = `[sendToNative]::[Destination:${obj.name}]:: ${err}`;
-            handleError(err);
-          }
+        // loop through destinations that doesn't have
+        // transformation connected with it and send events
+        intgWithoutTransformation.forEach((intg) => {
+          this.sendDataToDestination(intg, rudderElement, type);
         });
+
         if (intgWithTransformation.length) {
-          // TODO
-          // call processTransformation
-          processTransformation(rudderElement, destinationIds);
+          // Process Transformation
+          processTransformation(rudderElement, destinationIds, (transformedPayload) => {
+            if (transformedPayload) {
+              intgWithTransformation.forEach((intg) => {
+                // filter the transformed event for that destination
+                const transformedEvents = transformedPayload.filter(
+                  (e) => e.destination.id === intg.destinationId,
+                )[0].destination.payload;
+                // send transformed event to destination
+                transformedEvents.forEach((tEvent) => {
+                  this.sendDataToDestination(intg, tEvent, type);
+                });
+              });
+            }
+          });
         }
       }
 
