@@ -36,6 +36,7 @@
     "url": "https://github.com/rudderlabs/rudder-sdk-js.git"
   },
   "dependencies": {
+    "@lukeed/uuid": "^2.0.0",
     "@ndhoule/defaults": "^2.0.1",
     "@ndhoule/each": "^2.0.1",
     "@ndhoule/extend": "^2.0.0",
