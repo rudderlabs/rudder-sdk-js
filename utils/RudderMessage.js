@@ -4,12 +4,15 @@ import { MessageType, ECommerceEvents } from "./constants";
 import RudderContext from "./RudderContext";
 
 function generateMessageId() {
-  let ts = new Date().getTime();
+  let ts = 1000 * new Date().getTime();
+  // use high-precision timer if available
   if (
     typeof performance !== "undefined" &&
     typeof performance.now === "function"
   ) {
-    ts = performance.now(); // use high-precision timer if available
+    const pNow = performance.now();
+    const microSec = 1000 * (pNow - Math.floor(pNow));
+    ts += microSec;
   }
 
   const uuid = generateUUID();
