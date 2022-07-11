@@ -3,13 +3,26 @@ import { generateUUID } from "./utils";
 import { MessageType, ECommerceEvents } from "./constants";
 import RudderContext from "./RudderContext";
 
+function generateMessageId() {
+  let ts = new Date().getTime();
+  if (
+    typeof performance !== "undefined" &&
+    typeof performance.now === "function"
+  ) {
+    ts = performance.now(); // use high-precision timer if available
+  }
+
+  const uuid = generateUUID();
+  return `${ts}-${uuid}`;
+}
+
 class RudderMessage {
   constructor() {
     this.channel = "web";
     this.context = new RudderContext();
     this.type = null;
     this.action = null;
-    this.messageId = generateUUID().toString();
+    this.messageId = generateMessageId();
     this.originalTimestamp = new Date().toISOString();
     this.anonymousId = null;
     this.userId = null;
