@@ -50,7 +50,7 @@ const configToIntNames = {
   ADROLL: "Adroll",
   DCM_FLOODLIGHT: "DCMFloodlight",
   MATOMO: "Matomo",
-  VERO: "VERO",
+  VERO: "Vero",
 };
 
 export { configToIntNames };
