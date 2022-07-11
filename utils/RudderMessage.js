@@ -4,8 +4,10 @@ import { MessageType, ECommerceEvents } from "./constants";
 import RudderContext from "./RudderContext";
 
 function generateMessageId() {
+  // Convert timestamp to microseconds
   let ts = 1000 * new Date().getTime();
-  // use high-precision timer if available
+  // Add actual microseconds
+  // if high-precision timer if available
   if (
     typeof performance !== "undefined" &&
     typeof performance.now === "function"
