@@ -1,4 +1,5 @@
 import _ from "lodash";
+import logger from "../../utils/logUtil";
 
 const isDefined = (x) => !_.isUndefined(x);
 const isNotEmpty = (x) => !_.isEmpty(x);
@@ -14,6 +15,41 @@ const removeUndefinedAndNullAndEmptyValues = (obj) =>
   _.pickBy(obj, isDefinedAndNotNullAndNotEmpty);
 const isBlank = (value) => _.isEmpty(_.toString(value));
 const pick = (argObj, argArr) => _.pick(argObj, argArr);
+
+/**
+ *
+ * Convert an array map to hashmap(value as an array)
+ * @param  {} arrays [{"from":"prop1","to":"val1"},{"from":"prop1","to":"val2"},{"from":"prop2","to":"val2"}]
+ * @param  {} fromKey="from"
+ * @param  {} toKey="to"
+ * @param  {} isLowerCase=true
+ * @param  {} return hashmap {"prop1":["val1","val2"],"prop2":["val2"]}
+ */
+const getHashFromArrayWithDuplicate = (
+  arrays,
+  fromKey = "from",
+  toKey = "to",
+  isLowerCase = true
+) => {
+  const hashMap = new Map();
+  if (Array.isArray(arrays)) {
+    arrays.forEach((array) => {
+      if (!isNotEmpty(array[fromKey])) return;
+      const key = isLowerCase
+        ? array[fromKey].toLowerCase().trim()
+        : array[fromKey].trim();
+
+      if (hashMap.has(key)) {
+        const valueArray = hashMap.get(key);
+        valueArray.push(array[toKey]);
+        hashMap.set(key, valueArray);
+      } else {
+        hashMap.set(key, [array[toKey]]);
+      }
+    });
+  }
+  return hashMap;
+};
 
 /**
  *
@@ -40,6 +76,7 @@ const getHashFromArray = (
   }
   return hashMap;
 };
+
 /**
  * @param  {} timestamp
  * @param  {} return iso format of date
@@ -80,6 +117,7 @@ function flattenJson(data) {
 }
 
 export {
+  getHashFromArrayWithDuplicate,
   getHashFromArray,
   toIso,
   flattenJson,
