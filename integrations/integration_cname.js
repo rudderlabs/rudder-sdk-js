@@ -47,6 +47,7 @@ import { CNameMapping as GA360 } from "./GA360/constants";
 import { CNameMapping as DCMFloodlight } from "./DCMFloodlight/constants";
 import { CNameMapping as Adroll } from "./Adroll/constants";
 import { CNameMapping as Vero } from "./Vero/constants";
+import { CNameMapping as Matomo } from "./Matomo/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -85,6 +86,7 @@ const commonNames = {
   ...LinkedInInsightTag,
   ...Lotame,
   ...Lytics,
+  ...Matomo,
   ...Mixpanel,
   ...MoEngage,
   ...Optimizely,

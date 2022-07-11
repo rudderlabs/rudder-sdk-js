@@ -9,6 +9,7 @@ const ReservedPropertyKeywords = [
   "event_text",
   "event",
 ];
+
 // Message Type enumeration
 const MessageType = {
   TRACK: "track",

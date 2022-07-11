@@ -47,7 +47,8 @@ const clientToServerNames = {
   LAUNCHDARKLY: "LaunchDarkly",
   GA360: "Google Analytics 360",
   ADROLL: "Adroll",
-  VERO: "Vero"
+  VERO: "Vero",
+  MATOMO: "Matomo",
 };
 
 export { clientToServerNames };

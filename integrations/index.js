@@ -47,6 +47,7 @@ import * as GA360 from "./GA360";
 import * as DCMFloodlight from "./DCMFloodlight";
 import * as Adroll from "./Adroll";
 import * as Vero from "./Vero";
+import * as Matomo from "./Matomo";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -101,6 +102,7 @@ const integrations = {
   GA360: GA360.default,
   ADROLL: Adroll.default,
   VERO: Vero.default,
+  MATOMO: Matomo.default,
 };
 
 export { integrations };
