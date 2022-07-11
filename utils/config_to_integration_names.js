@@ -49,7 +49,8 @@ const configToIntNames = {
   GA360: "GA360",
   ADROLL: "Adroll",
   DCM_FLOODLIGHT: "DCMFloodlight",
-  MATOMO: "Matomo"
+  MATOMO: "Matomo",
+  VERO: "VERO",
 };
 
 export { configToIntNames };
