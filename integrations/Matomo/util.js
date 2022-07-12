@@ -10,7 +10,7 @@ import { NAME } from "./constants";
  */
 const goalIdMapping = (event, goalListMap, message) => {
   let revenue;
-  if (message.properties) revenue = message.properties.revenue;
+  revenue = message.properties?.revenue;
   each((val, key) => {
     if (key === event) {
       val.forEach((v) => {
