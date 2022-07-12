@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME, CNameMapping } from "./constants";
+import { NAME } from "./constants";
 import logger from "../../utils/logUtil";
 import { isDefinedAndNotNull } from "../utils/commonUtils";
 import ScriptLoader from "../ScriptLoader";
@@ -40,7 +40,7 @@ class Vero {
    */
   addOrRemoveTags(message) {
     const { integrations } = message;
-    if (integrations) {
+    if (integrations && integrations[NAME]) {
       const { tags } = integrations[NAME];
       if (isDefinedAndNotNull(tags)) {
         const userId = message.userId || message.anonymousId;
