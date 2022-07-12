@@ -17,4 +17,4 @@ phases:
       - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/v1.1/rudder-analytics.min.js" "/v1.1/rudder-analytics.min.js.map" "/v1.1/js-integrations*"
 artifacts:
   files:
-    - '**/*'
+    - "**/*"
