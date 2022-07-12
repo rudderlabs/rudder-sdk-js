@@ -181,12 +181,12 @@ class Matomo {
     const trimmedEvent = event.toLowerCase().trim();
 
     // For every type of track calls we consider the trackGoal function.
-    if (goalListMap.has(trimmedEvent)) {
+    if (goalListMap[trimmedEvent]) {
       goalIdMapping(trimmedEvent, goalListMap, message);
     }
 
     // Mapping Standard Events
-    if (standardEventsMap.has(trimmedEvent)) {
+    if (standardEventsMap[trimmedEvent]) {
       standardEventsMapping(trimmedEvent, standardEventsMap, message);
     }
 
