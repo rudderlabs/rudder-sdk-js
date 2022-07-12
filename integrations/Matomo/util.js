@@ -1,3 +1,4 @@
+import each from "@ndhoule/each";
 import logger from "../../utils/logUtil";
 import { getHashFromArray } from "../utils/commonUtils";
 import { NAME } from "./constants";
@@ -9,15 +10,15 @@ import { NAME } from "./constants";
  */
 const goalIdMapping = (event, goalListMap, message) => {
   let revenue;
-  if (message.properties) revenue = message.properties.revenue;
-  goalListMap.forEach((val, key) => {
+  revenue = message.properties?.revenue;
+  each((val, key) => {
     if (key === event) {
       val.forEach((v) => {
         if (revenue) window._paq.push(["trackGoal", v, revenue]);
         else window._paq.push(["trackGoal", v]);
       });
     }
-  });
+  }, goalListMap);
 };
 
 /** Mapping Standard Events 
@@ -27,7 +28,7 @@ const goalIdMapping = (event, goalListMap, message) => {
  @param  {} message
  */
 const standardEventsMapping = (event, standardEventsMap, message) => {
-  standardEventsMap.forEach((val, key) => {
+  each((val, key) => {
     if (key === event) {
       let url;
       let linkType;
@@ -132,7 +133,7 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
         }
       });
     }
-  });
+  }, standardEventsMap);
 };
 
 /** Mapping Ecommerce Events
@@ -344,9 +345,9 @@ const checkCustomDimensions = (message) => {
         "dimensionId",
         "dimensionValue"
       );
-      customDimensionsMap.forEach((val, key) => {
+      each((val, key) => {
         window._paq.push(["setCustomDimension", key, val]);
-      });
+      }, customDimensionsMap);
     }
   }
 };
