@@ -31,7 +31,7 @@ const getHashFromArrayWithDuplicate = (
   toKey = "to",
   isLowerCase = true
 ) => {
-  const hashMap = new Map();
+  const hashMap = {};
   if (Array.isArray(arrays)) {
     arrays.forEach((array) => {
       if (!isNotEmpty(array[fromKey])) return;
@@ -39,12 +39,10 @@ const getHashFromArrayWithDuplicate = (
         ? array[fromKey].toLowerCase().trim()
         : array[fromKey].trim();
 
-      if (hashMap.has(key)) {
-        const valueArray = hashMap.get(key);
-        valueArray.push(array[toKey]);
-        hashMap.set(key, valueArray);
+      if (hashMap[key]) {
+        hashMap[key].push(array[toKey]);
       } else {
-        hashMap.set(key, [array[toKey]]);
+        hashMap[key]= [array[toKey]];
       }
     });
   }
