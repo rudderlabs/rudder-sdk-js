@@ -1,3 +1,4 @@
+import each from "@ndhoule/each";
 import logger from "../../utils/logUtil";
 import { getHashFromArray } from "../utils/commonUtils";
 import { NAME } from "./constants";
@@ -344,9 +345,9 @@ const checkCustomDimensions = (message) => {
         "dimensionId",
         "dimensionValue"
       );
-      customDimensionsMap.forEach((val, key) => {
+      each((val, key) => {
         window._paq.push(["setCustomDimension", key, val]);
-      });
+      }, customDimensionsMap);
     }
   }
 };
