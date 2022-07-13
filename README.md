@@ -20,7 +20,7 @@
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#rudderstack-javascript-sdk)RudderStack JavaScript SDK
 
-The [**RudderStack**](https://rudderstack.com/) JavaScript SDK leverages the `rudder-analytics.js` library to track and send user events from your website to RudderStack. You can then further transform and route this event data to the destination platform of your choice.
+The [**RudderStack**](https://rudderstack.com/) JavaScript SDK leverages the `analytics.js` library to track and send user events from your website to RudderStack. You can then further transform and route this event data to the destination platform of your choice.
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).
 
