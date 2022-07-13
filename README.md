@@ -20,7 +20,7 @@
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#rudderstack-javascript-sdk)RudderStack JavaScript SDK
 
-The RudderStack JavaScript SDK lets you track and send user events from your website to RudderStack. You can then further transform and route this event data to the destination platform of your choice.
+The JavaScript SDK lets you track customer event data from your websites and send it to your specified destinations via RudderStack.
 
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).
 
