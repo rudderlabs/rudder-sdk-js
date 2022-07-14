@@ -38,7 +38,6 @@ const sendEventForTransformation = (payload, writeKey, retryCount) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', url, true);
       Object.keys(headers).forEach((k) => xhr.setRequestHeader(k, headers[k]));
-      xhr.send(JSON.stringify(payload, replacer));
 
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4) {
@@ -47,16 +46,40 @@ const sendEventForTransformation = (payload, writeKey, retryCount) => {
             if (typeof xhr.response === 'string') {
               response = JSON.parse(xhr.response);
             }
-            // If event transformation is successful for all the destination
-            // send the response back
+            /**
+             * Sample Response format:
+             * {
+                "transformedBatch" :[
+                  {
+                    "destination": {
+                      "id": "destination-id",
+                      "status": "200",
+                      "payload": [
+                        {
+                          "orderNo":1,
+                          "event": {
+                            "message": { ...}
+                        }]
+                    }
+                  }]
+                } 
+             */
+            /**
+             * If event transformation is successful for all the destination
+             * send the response back
+             */
             if (response.transformedBatch.every((tEvent) => tEvent.destination.status === '200'))
               return resolve(response.transformedBatch);
           }
+
+          // If the request is not successful
+          // one or more transformation is unsuccessfull
+          // retry till the retryCount is exhausted
           if (retryCount > 0) {
             const newRetryCount = retryCount - 1;
             setTimeout(() => {
               return resolve(sendEventForTransformation(payload, writeKey, newRetryCount));
-            }, 1000);
+            }, 1000 * (Math.floor(Math.random() * 3) + 1));
           } else {
             // Even after all the retries event transformation
             // is not successful, ignore the event
@@ -64,6 +87,8 @@ const sendEventForTransformation = (payload, writeKey, retryCount) => {
           }
         }
       };
+
+      xhr.send(JSON.stringify(payload, replacer));
     } catch (error) {
       reject(error);
     }
