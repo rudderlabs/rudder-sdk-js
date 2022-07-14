@@ -14,7 +14,7 @@
     "buildProdNode": "NODE_ENV=true ENV=prod uglify=true rollup -c",
     "buildForNpm": "NPM=true rollup -c",
     "bundle-size-visual": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true rollup -c",
-    "size": "npm run clean && npm run buildProdBrowser && npm run buildAllIntegrations && npm run buildForNpm && (count=0; until size-limit || (( count++ >= 10 )); do echo ; echo Attempt: $(( $count + 1 )); sleep 3; done)",
+    "size": "npm run clean && npm run buildProdBrowser && npm run buildAllIntegrations && npm run buildForNpm && size-limit",
     "changelog": "auto-changelog -p -t keepachangelog -u true -l false --sort-commits date-desc ",
     "buildDevIntegration": "PROD_DEBUG=true NODE_ENV=false uglify=false INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
     "buildDevIntegrationCLI": "PROD_DEBUG=true NODE_ENV=false uglify=false INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
