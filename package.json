@@ -52,7 +52,6 @@
     "lodash.merge": "^4.6.2",
     "md5": "^2.3.0",
     "on-body": "0.0.1",
-    "retry": "^0.13.1",
     "rudder-component-cookie": "0.0.1",
     "storejs": "^2.0.1",
     "uuid": "^8.3.2"

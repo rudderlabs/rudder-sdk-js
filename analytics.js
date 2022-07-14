@@ -90,6 +90,7 @@ class Analytics {
     this.logLevel = undefined;
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
+    this.writeKey = undefined;
   }
 
   /**
@@ -206,7 +207,7 @@ class Analytics {
             name: destination.destinationDefinition.name,
             config: {
               ...destination.config,
-              areTransformationsConnected: destination.areTransformationsConnected || false,
+              areTransformationsConnected: destination.areTransformationsConnected || true,
               destinationId: destination.id,
             },
           });
@@ -362,14 +363,12 @@ class Analytics {
 
       const intgWithoutTransformation = [];
       const intgWithTransformation = [];
-      // const destinationIds = [];
 
       // Depending on transformation is connected or not
       // create two sets of destinations
       succesfulLoadedIntersectClientSuppliedIntegrations.forEach((intg) => {
         if (intg.areTransformationsConnected) {
           intgWithTransformation.push(intg);
-          // destinationIds.push(intg.destinationId);
         } else {
           intgWithoutTransformation.push(intg);
         }
@@ -383,7 +382,7 @@ class Analytics {
 
       if (intgWithTransformation.length) {
         // Process Transformation
-        processTransformation(event[0], (transformedPayload) => {
+        processTransformation(event[0], this.writeKey, (transformedPayload) => {
           if (transformedPayload) {
             intgWithTransformation.forEach((intg) => {
               // filter the transformed event for that destination
@@ -392,7 +391,7 @@ class Analytics {
               )[0].destination.payload;
               // send transformed event to destination
               transformedEvents.forEach((tEvent) => {
-                this.sendDataToDestination(intg, tEvent, methodName);
+                this.sendDataToDestination(intg, tEvent.event, methodName);
               });
             });
           }
@@ -717,14 +716,12 @@ class Analytics {
 
         const intgWithoutTransformation = [];
         const intgWithTransformation = [];
-        const destinationIds = [];
 
         // Depending on transformation is connected or not
         // create two sets of destinations
         succesfulLoadedIntersectClientSuppliedIntegrations.forEach((intg) => {
           if (intg.areTransformationsConnected) {
             intgWithTransformation.push(intg);
-            destinationIds.push(intg.destinationId);
           } else {
             intgWithoutTransformation.push(intg);
           }
@@ -738,7 +735,7 @@ class Analytics {
 
         if (intgWithTransformation.length) {
           // Process Transformation
-          processTransformation(rudderElement, destinationIds, (transformedPayload) => {
+          processTransformation(rudderElement, this.writeKey, (transformedPayload) => {
             if (transformedPayload) {
               intgWithTransformation.forEach((intg) => {
                 // filter the transformed event for that destination
@@ -747,7 +744,7 @@ class Analytics {
                 )[0].destination.payload;
                 // send transformed event to destination
                 transformedEvents.forEach((tEvent) => {
-                  this.sendDataToDestination(intg, tEvent, type);
+                  this.sendDataToDestination(intg, tEvent.event, type);
                 });
               });
             }
@@ -963,6 +960,8 @@ class Analytics {
     if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
       throw Error('Unable to load the SDK due to invalid writeKey or serverUrl');
     }
+
+    this.writeKey = writeKey;
 
     let storageOptions = {};
 

@@ -1,5 +1,5 @@
+/* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable consistent-return */
-import retry from 'retry';
 import { replacer } from './utils';
 import logger from './logUtil';
 
@@ -15,7 +15,6 @@ const createPayload = (event) => {
       {
         orderNo,
         event,
-        // destinationIds,
       },
     ],
   };
@@ -28,31 +27,47 @@ const createPayload = (event) => {
  * and return the response
  *
  */
-const sendEventForTransformation = (payload, writeKey, cb) => {
-  const url = 'https://1939f7f9-dbec-4189-9c94-4603cf391d42.mock1.pstmn.io/v1/transform';
-  const headers = {
-    'Content-Type': 'application/json',
-    Authorization: `Basic ${btoa(`${writeKey}:`)}`,
-  };
-  try {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', url, true);
-    Object.keys(headers).forEach((k) => xhr.setRequestHeader(k, headers[k]));
-
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          return cb(null, xhr.response);
-        }
-        return cb(
-          new Error(`request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`),
-        );
-      }
+const sendEventForTransformation = (payload, writeKey, retryCount) => {
+  return new Promise((resolve, reject) => {
+    const url = 'https://1939f7f9-dbec-4189-9c94-4603cf391d42.mock.pstmn.io/v1/transform';
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Basic ${btoa(`${writeKey}:`)}`,
     };
-    xhr.send(JSON.stringify(payload, replacer));
-  } catch (error) {
-    return cb(error);
-  }
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url, true);
+      Object.keys(headers).forEach((k) => xhr.setRequestHeader(k, headers[k]));
+      xhr.send(JSON.stringify(payload, replacer));
+
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState === 4) {
+          if (xhr.status === 200) {
+            let response;
+            if (typeof xhr.response === 'string') {
+              response = JSON.parse(xhr.response);
+            }
+            // If event transformation is successful for all the destination
+            // send the response back
+            if (response.transformedBatch.every((tEvent) => tEvent.destination.status === '200'))
+              return resolve(response.transformedBatch);
+          }
+          if (retryCount > 0) {
+            const newRetryCount = retryCount - 1;
+            setTimeout(() => {
+              return resolve(sendEventForTransformation(payload, writeKey, newRetryCount));
+            }, 1000);
+          } else {
+            // Even after all the retries event transformation
+            // is not successful, ignore the event
+            return reject(`Retry failed. Dropping the event`);
+          }
+        }
+      };
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
 
 /**
@@ -60,45 +75,27 @@ const sendEventForTransformation = (payload, writeKey, cb) => {
  * and return the transformed event payload
  *
  */
-const processTransformation = (event, cb, writeKey) => {
+const processTransformation = (event, writeKey, cb) => {
   // createPayload
   const payload = createPayload(event);
 
   // default values for retry
   const retryCount = 3;
-  const operation = retry.operation({
-    retries: retryCount + 1,
-    factor: 2,
-    minTimeout: 1 * 1000,
-    maxTimeout: 3 * 1000,
-  });
-  operation.attempt((currentAttempt) => {
-    // Even after all the retries event transformation
-    // is not successful, ignore the event
-    // send null as response
-    if (currentAttempt === retryCount + 2) {
-      logger.error(`Retry also failed. Dropping the event`);
-      operation.stop();
-      return cb(null);
-    }
-    // Send event for transformation with payload, writekey and a callback fn.
-    sendEventForTransformation(payload, writeKey, (err, res) => {
-      if (err) {
-        operation.retry(err);
+
+  // Send event for transformation with payload, writekey and retryCount
+  sendEventForTransformation(payload, writeKey, retryCount)
+    .then((transformedBatch) => {
+      return cb(transformedBatch);
+    })
+    .catch((err) => {
+      if (typeof err === 'string') {
+        logger.error(err);
       } else {
-        let response;
-        if (typeof res === 'string') {
-          response = JSON.parse(res);
-        }
-        // If event transformation is successful for all the destination
-        // send the response back
-        // else retry
-        if (response.transformedBatch.every((tEvent) => tEvent.status === 200))
-          return cb(response.transformedBatch);
-        operation.retry(new Error(`One or more event transformation is unsuccessful`));
+        logger.error(err.message);
       }
+      // send null as response in case of error or retry fail
+      return cb(null);
     });
-  });
 };
 
 export { createPayload, sendEventForTransformation, processTransformation };
