@@ -91,7 +91,7 @@ class Analytics {
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
     this.writeKey = undefined;
-    this.serverUrl = undefined;
+    this.dataPlaneUrl = undefined;
   }
 
   /**
@@ -386,7 +386,7 @@ class Analytics {
 
       if (intgWithTransformation.length) {
         // Process Transformation
-        processTransformation(event[0], this.writeKey, this.serverUrl, (transformedPayload) => {
+        processTransformation(event[0], this.writeKey, this.dataPlaneUrl, (transformedPayload) => {
           if (transformedPayload) {
             intgWithTransformation.forEach((intg) => {
               // filter the transformed event for that destination
@@ -742,7 +742,7 @@ class Analytics {
           processTransformation(
             rudderElement,
             this.writeKey,
-            this.serverUrl,
+            this.dataPlaneUrl,
             (transformedPayload) => {
               if (transformedPayload) {
                 intgWithTransformation.forEach((intg) => {
@@ -971,7 +971,7 @@ class Analytics {
     }
 
     this.writeKey = writeKey;
-    this.serverUrl = serverUrl;
+    this.dataPlaneUrl = serverUrl;
 
     let storageOptions = {};
 

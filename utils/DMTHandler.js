@@ -27,9 +27,9 @@ const createPayload = (event) => {
  * and return the response
  *
  */
-const sendEventForTransformation = (payload, writeKey, serverUrl, retryCount) => {
+const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount) => {
   return new Promise((resolve, reject) => {
-    // const url = `${serverUrl}/v1/transform`;
+    // const url = `${dataPlaneUrl}/v1/transform`;
     const url = 'https://1939f7f9-dbec-4189-9c94-4603cf391d42.mock.pstmn.io/v1/transform';
     const headers = {
       'Content-Type': 'application/json',
@@ -102,7 +102,7 @@ const sendEventForTransformation = (payload, writeKey, serverUrl, retryCount) =>
  * and return the transformed event payload
  *
  */
-const processTransformation = (event, writeKey, serverUrl, cb) => {
+const processTransformation = (event, writeKey, dataPlaneUrl, cb) => {
   // createPayload
   const payload = createPayload(event);
 
@@ -110,7 +110,7 @@ const processTransformation = (event, writeKey, serverUrl, cb) => {
   const retryCount = 3;
 
   // Send event for transformation with payload, writekey and retryCount
-  sendEventForTransformation(payload, writeKey, serverUrl, retryCount)
+  sendEventForTransformation(payload, writeKey, dataPlaneUrl, retryCount)
     .then((transformedBatch) => {
       return cb(transformedBatch);
     })
