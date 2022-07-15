@@ -387,8 +387,8 @@ class Analytics {
             intgWithTransformation.forEach((intg) => {
               // filter the transformed event for that destination
               const transformedEvents = transformedPayload.filter(
-                (e) => e.destination.id === intg.destinationId,
-              )[0].destination.payload;
+                (e) => e.id === intg.destinationId,
+              )[0].payload;
               // send transformed event to destination
               transformedEvents.forEach((tEvent) => {
                 this.sendDataToDestination(intg, tEvent.event, methodName);
@@ -740,8 +740,8 @@ class Analytics {
               intgWithTransformation.forEach((intg) => {
                 // filter the transformed event for that destination
                 const transformedEvents = transformedPayload.filter(
-                  (e) => e.destination.id === intg.destinationId,
-                )[0].destination.payload;
+                  (e) => e.id === intg.destinationId,
+                )[0].payload;
                 // send transformed event to destination
                 transformedEvents.forEach((tEvent) => {
                   this.sendDataToDestination(intg, tEvent.event, type);
