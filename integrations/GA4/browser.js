@@ -51,6 +51,9 @@ export default class GA4 {
     } else {
       window.gtag("config", measurementId, gtagParameterObject);
     }
+    // To disable debug mode, exclude the 'debug_mode' parameter;
+    // Setting the parameter to false doesn't disable debug mode.
+    // Ref: https://support.google.com/analytics/answer/7201382?hl=en#zippy=%2Cglobal-site-tag-websites
 
     ScriptLoader(
       "google-analytics 4",
