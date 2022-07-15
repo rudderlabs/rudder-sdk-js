@@ -78,7 +78,7 @@ const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount)
           if (retryCount > 0) {
             const newRetryCount = retryCount - 1;
             setTimeout(() => {
-              sendEventForTransformation(payload, writeKey, newRetryCount)
+              sendEventForTransformation(payload, writeKey, dataPlaneUrl, newRetryCount)
                 .then((transformedBatch) => resolve(transformedBatch))
                 .catch(() => reject(retryFailMsg));
             }, 1000 * (Math.floor(Math.random() * 3) + 1));
