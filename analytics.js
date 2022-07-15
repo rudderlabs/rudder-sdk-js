@@ -91,6 +91,7 @@ class Analytics {
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
     this.writeKey = undefined;
+    this.serverUrl = undefined;
   }
 
   /**
@@ -205,11 +206,9 @@ class Analytics {
         if (destination.enabled) {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
-            config: {
-              ...destination.config,
-              areTransformationsConnected: destination.areTransformationsConnected || true,
-              destinationId: destination.id,
-            },
+            config: destination.config,
+            areTransformationsConnected: destination.areTransformationsConnected || true, // TODO: change it to false after development is done
+            destinationId: destination.id,
           });
         }
       }, this);
@@ -271,7 +270,12 @@ class Analytics {
               const msg = `[Analytics] processResponse :: trying to initialize integration name:: ${pluginName}`;
               // logger.debug(msg);
               leaveBreadcrumb(msg);
-              intgInstance = new intMod[modName](intg.config, self);
+              intgInstance = new intMod[modName](
+                intg.config,
+                self,
+                intg.areTransformationsConnected,
+                intg.destinationId,
+              );
               intgInstance.init();
 
               // logger.debug(pluginName, " initializing destination");
@@ -382,7 +386,7 @@ class Analytics {
 
       if (intgWithTransformation.length) {
         // Process Transformation
-        processTransformation(event[0], this.writeKey, (transformedPayload) => {
+        processTransformation(event[0], this.writeKey, this.serverUrl, (transformedPayload) => {
           if (transformedPayload) {
             intgWithTransformation.forEach((intg) => {
               // filter the transformed event for that destination
@@ -735,20 +739,25 @@ class Analytics {
 
         if (intgWithTransformation.length) {
           // Process Transformation
-          processTransformation(rudderElement, this.writeKey, (transformedPayload) => {
-            if (transformedPayload) {
-              intgWithTransformation.forEach((intg) => {
-                // filter the transformed event for that destination
-                const transformedEvents = transformedPayload.filter(
-                  (e) => e.id === intg.destinationId,
-                )[0].payload;
-                // send transformed event to destination
-                transformedEvents.forEach((tEvent) => {
-                  this.sendDataToDestination(intg, tEvent.event, type);
+          processTransformation(
+            rudderElement,
+            this.writeKey,
+            this.serverUrl,
+            (transformedPayload) => {
+              if (transformedPayload) {
+                intgWithTransformation.forEach((intg) => {
+                  // filter the transformed event for that destination
+                  const transformedEvents = transformedPayload.filter(
+                    (e) => e.id === intg.destinationId,
+                  )[0].payload;
+                  // send transformed event to destination
+                  transformedEvents.forEach((tEvent) => {
+                    this.sendDataToDestination(intg, tEvent.event, type);
+                  });
                 });
-              });
-            }
-          });
+              }
+            },
+          );
         }
       }
 
@@ -962,6 +971,7 @@ class Analytics {
     }
 
     this.writeKey = writeKey;
+    this.serverUrl = serverUrl;
 
     let storageOptions = {};
 
