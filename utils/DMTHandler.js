@@ -39,6 +39,7 @@ const sendEventForTransformation = (payload, writeKey, retryCount) => {
       xhr.open('POST', url, true);
       Object.keys(headers).forEach((k) => xhr.setRequestHeader(k, headers[k]));
 
+      const retryFailMsg = 'Retry failed. Dropping the event';
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4) {
           if (xhr.status === 200) {
@@ -51,16 +52,14 @@ const sendEventForTransformation = (payload, writeKey, retryCount) => {
              * {
                 "transformedBatch" :[
                   {
-                    "destination": {
-                      "id": "destination-id",
-                      "status": "200",
-                      "payload": [
-                        {
-                          "orderNo":1,
-                          "event": {
-                            "message": { ...}
-                        }]
-                    }
+                    "id": "destination-id",
+                    "status": "200",
+                    "payload": [
+                      {
+                        "orderNo":1,
+                        "event": {
+                          "message": { ...}
+                      }]
                   }]
                 } 
              */
@@ -68,7 +67,7 @@ const sendEventForTransformation = (payload, writeKey, retryCount) => {
              * If event transformation is successful for all the destination
              * send the response back
              */
-            if (response.transformedBatch.every((tEvent) => tEvent.destination.status === '200'))
+            if (response.transformedBatch.every((tEvent) => tEvent.status === '200'))
               return resolve(response.transformedBatch);
           }
 
@@ -78,12 +77,14 @@ const sendEventForTransformation = (payload, writeKey, retryCount) => {
           if (retryCount > 0) {
             const newRetryCount = retryCount - 1;
             setTimeout(() => {
-              return resolve(sendEventForTransformation(payload, writeKey, newRetryCount));
+              sendEventForTransformation(payload, writeKey, newRetryCount)
+                .then((transformedBatch) => resolve(transformedBatch))
+                .catch(() => reject(retryFailMsg));
             }, 1000 * (Math.floor(Math.random() * 3) + 1));
           } else {
             // Even after all the retries event transformation
             // is not successful, ignore the event
-            return reject(`Retry failed. Dropping the event`);
+            return reject(retryFailMsg);
           }
         }
       };
