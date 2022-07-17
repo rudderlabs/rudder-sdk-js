@@ -371,10 +371,15 @@ class Analytics {
       // Depending on transformation is connected or not
       // create two sets of destinations
       succesfulLoadedIntersectClientSuppliedIntegrations.forEach((intg) => {
-        if (intg.areTransformationsConnected) {
-          intgWithTransformation.push(intg);
-        } else {
-          intgWithoutTransformation.push(intg);
+        const sendEvent = !this.IsEventBlackListed(event[0].message.event, intg.name);
+
+        // Block the event if it is blacklisted for the device-mode destination
+        if (sendEvent) {
+          if (intg.areTransformationsConnected) {
+            intgWithTransformation.push(intg);
+          } else {
+            intgWithoutTransformation.push(intg);
+          }
         }
       });
 
@@ -639,13 +644,8 @@ class Analytics {
     try {
       if (!destination.isFailed || !destination.isFailed()) {
         if (destination[type]) {
-          const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, destination.name);
-
-          // Block the event if it is blacklisted for the device-mode destination
-          if (sendEvent) {
-            const clonedRudderElement = cloneDeep(rudderElement);
-            destination[type](clonedRudderElement);
-          }
+          const clonedRudderElement = cloneDeep(rudderElement);
+          destination[type](clonedRudderElement);
         }
       }
     } catch (err) {
@@ -724,10 +724,15 @@ class Analytics {
         // Depending on transformation is connected or not
         // create two sets of destinations
         succesfulLoadedIntersectClientSuppliedIntegrations.forEach((intg) => {
-          if (intg.areTransformationsConnected) {
-            intgWithTransformation.push(intg);
-          } else {
-            intgWithoutTransformation.push(intg);
+          const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, intg.name);
+
+          // Block the event if it is blacklisted for the device-mode destination
+          if (sendEvent) {
+            if (intg.areTransformationsConnected) {
+              intgWithTransformation.push(intg);
+            } else {
+              intgWithoutTransformation.push(intg);
+            }
           }
         });
 
