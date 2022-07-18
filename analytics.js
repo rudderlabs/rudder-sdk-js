@@ -167,13 +167,10 @@ class Analytics {
    */
   integrationSDKLoaded(pluginName, modName) {
     try {
-      if (
+      return (
         window.hasOwnProperty(pluginName) &&
         typeof window[pluginName][modName].prototype.constructor !== 'undefined'
-      ) {
-        return true;
-      }
-      return false;
+      );
     } catch (e) {
       handleError(e);
       return false;
