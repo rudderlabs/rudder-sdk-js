@@ -1,6 +1,6 @@
 const createUser = (message) => {
   const user = {};
-  user.key = message.userId || message.anonymousId;
+  user.key = message.integrations.LaunchDarkly.key || message.userId || message.anonymousId;
   const { traits } = message.context;
   if (traits.anonymous !== undefined) {
     user.anonymous = traits.anonymous;
