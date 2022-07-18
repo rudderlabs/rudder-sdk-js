@@ -196,7 +196,7 @@ function getReferrer() {
   // This error handling is in place to avoid accessing dead object(document)
   try {
     return document.referrer || "$direct";
-  } catch(e){
+  } catch(e) {
     return "$direct";
   }
 }
