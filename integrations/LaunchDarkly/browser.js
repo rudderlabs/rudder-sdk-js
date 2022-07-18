@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import get from "get-value"
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
 import createUser from "./utils";
@@ -11,6 +12,7 @@ class LaunchDarkly {
     }
     this.name = NAME;
     this.clientSideId = config.clientSideId;
+    this.anonymousUsersSharedKey = config.anonymousUsersSharedKey
   }
 
   init() {
@@ -36,7 +38,8 @@ class LaunchDarkly {
 
   identify(rudderElement) {
     const { message } = rudderElement;
-    window.user = createUser(message);
+    const keyOverride = get(message, `integrations.${NAME}.key`) || this.anonymousUsersSharedKey;
+    window.user = createUser(message, keyOverride);
 
     if (window.ldclient) {
       window.ldclient.identify(window.user);

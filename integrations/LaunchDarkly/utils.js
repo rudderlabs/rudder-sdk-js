@@ -1,9 +1,6 @@
-import get from "get-value";
-import { NAME } from "./constants";
-
-const createUser = (message) => {
+const createUser = (message, keyOverride = undefined) => {
   const user = {};
-  user.key = get(message, `integrations.${NAME}.key`) || message.userId || message.anonymousId;
+  user.key = keyOverride || message.userId || message.anonymousId;
   const { traits } = message.context;
   if (traits.anonymous !== undefined) {
     user.anonymous = traits.anonymous;
@@ -21,4 +18,5 @@ const createUser = (message) => {
   if (traits.secondary !== undefined) user.secondary = traits.secondary;
   return user;
 };
+
 export default createUser;
