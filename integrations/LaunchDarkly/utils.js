@@ -1,6 +1,9 @@
+import get from "get-value";
+import { NAME } from "./constants";
+
 const createUser = (message) => {
   const user = {};
-  user.key = message.integrations.LaunchDarkly.key || message.userId || message.anonymousId;
+  user.key = get(message, `integrations.${NAME}.key`) || message.userId || message.anonymousId;
   const { traits } = message.context;
   if (traits.anonymous !== undefined) {
     user.anonymous = traits.anonymous;
