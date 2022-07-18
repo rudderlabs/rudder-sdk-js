@@ -194,10 +194,12 @@ function getDefaultPageProperties() {
 
 function getReferrer() {
   // This error handling is in place to avoid accessing dead object(document)
+  const referrer = "$direct";
   try {
-    return document.referrer || "$direct";
-  } catch(e) {
-    return "$direct";
+    return document.referrer || referrer;
+  } catch (e) {
+    logger.error(e);
+    return referrer;
   }
 }
 
