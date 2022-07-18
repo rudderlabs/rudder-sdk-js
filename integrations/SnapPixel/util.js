@@ -14,10 +14,10 @@ const sendEvent = (event, payload) => {
   }
 };
 
-const getCommonEventPayload = (message) => {
+const getCommonEventPayload = (message, deduplicationKey) => {
   let payload = {
     price: parseFloat(get(message, "properties.price")),
-    client_deduplication_id: get(message, "properties.client_deduplication_id"),
+    client_deduplication_id: get(message, `${deduplicationKey || "messageId"}`),
     currency: get(message, "properties.currency"),
     transaction_id:
       get(message, "properties.transactionId") ||
@@ -47,16 +47,15 @@ const getCommonEventPayload = (message) => {
   return payload;
 };
 
-const eventPayload = (message) => {
-  let payload = getCommonEventPayload(message);
+const eventPayload = (message, deduplicationKey) => {
+  let payload = getCommonEventPayload(message, deduplicationKey);
   payload.item_ids = get(message, "properties.item_ids");
   payload = removeUndefinedAndNullValues(payload);
   return payload;
 };
 
-const ecommEventPayload = (event, message) => {
-  let payload = getCommonEventPayload(message);
-
+const ecommEventPayload = (event, message, deduplicationKey) => {
+  let payload = getCommonEventPayload(message, deduplicationKey);
   switch (event.toLowerCase().trim()) {
     case "order completed": {
       let itemIds = [];
