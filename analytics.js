@@ -254,7 +254,10 @@ class Analytics {
 
         const self = this;
         const interval = setInterval(function () {
-          if (window.hasOwnProperty(pluginName)) {
+          if (
+            window.hasOwnProperty(pluginName) &&
+            typeof window[pluginName][modName].prototype.constructor !== 'undefined'
+          ) {
             const intMod = window[pluginName];
             clearInterval(interval);
 
