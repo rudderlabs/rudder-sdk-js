@@ -198,7 +198,7 @@ function getReferrer() {
   try {
     return document.referrer || referrer;
   } catch (e) {
-    logger.error(e);
+    logger.error("Error trying to access 'document.referrer': ", e);
     return referrer;
   }
 }
