@@ -17,7 +17,9 @@ const sendEvent = (event, payload) => {
 const getCommonEventPayload = (message, deduplicationKey) => {
   let payload = {
     price: parseFloat(get(message, "properties.price")),
-    client_deduplication_id: get(message, `${deduplicationKey || "messageId"}`),
+    client_deduplication_id:
+      get(message, "properties.client_deduplication_id") ||
+      get(message, `${deduplicationKey || "messageId"}`),
     currency: get(message, "properties.currency"),
     transaction_id:
       get(message, "properties.transactionId") ||
