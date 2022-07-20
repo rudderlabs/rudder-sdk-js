@@ -38,8 +38,8 @@ class LaunchDarkly {
 
   identify(rudderElement) {
     const { message } = rudderElement;
-    const keyOverride = get(message, `integrations.${NAME}.key`) || this.anonymousUsersSharedKey;
-    window.user = createUser(message, keyOverride);
+    const anonymousUsersSharedKey = get(message, `integrations.${NAME}.key`) || this.anonymousUsersSharedKey;
+    window.user = createUser(message, anonymousUsersSharedKey);
 
     if (window.ldclient) {
       window.ldclient.identify(window.user);

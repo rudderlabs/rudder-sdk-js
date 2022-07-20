@@ -1,9 +1,10 @@
-const createUser = (message, keyOverride = undefined) => {
+const createUser = (message, anonymousUsersSharedKey = undefined) => {
   const user = {};
-  user.key = keyOverride || message.userId || message.anonymousId;
+  user.key = message.userId || message.anonymousId;
   const { traits } = message.context;
   if (traits.anonymous !== undefined) {
     user.anonymous = traits.anonymous;
+    if (!!anonymousUsersSharedKey) user.key = anonymousUsersSharedKey;
   }
   if (traits.avatar !== undefined) user.avatar = traits.avatar;
   if (traits.country !== undefined) user.country = traits.country;
