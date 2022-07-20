@@ -1,4 +1,5 @@
 import get from "get-value";
+import sha256 from "crypto-js/sha256";
 import logger from "../../utils/logUtil";
 import {
   isDefinedAndNotNull,
@@ -14,12 +15,14 @@ const sendEvent = (event, payload) => {
   }
 };
 
-const getCommonEventPayload = (message, deduplicationKey) => {
+const getCommonEventPayload = (
+  message,
+  deduplicationKey,
+  enableDeduplication
+) => {
   let payload = {
     price: parseFloat(get(message, "properties.price")),
-    client_deduplication_id:
-      get(message, "properties.client_deduplication_id") ||
-      get(message, `${deduplicationKey || "messageId"}`),
+    client_deduplication_id: get(message, "properties.client_deduplication_id"),
     currency: get(message, "properties.currency"),
     transaction_id:
       get(message, "properties.transactionId") ||
@@ -44,20 +47,39 @@ const getCommonEventPayload = (message, deduplicationKey) => {
   if (payload.success !== 0 && payload.success !== 1) {
     payload.success = null;
   }
+  if (enableDeduplication) {
+    payload.client_deduplication_id = get(
+      message,
+      `${deduplicationKey || "messageId"}`
+    );
+  }
 
   payload = removeUndefinedAndNullValues(payload);
   return payload;
 };
 
-const eventPayload = (message, deduplicationKey) => {
-  let payload = getCommonEventPayload(message, deduplicationKey);
+const eventPayload = (message, deduplicationKey, enableDeduplication) => {
+  let payload = getCommonEventPayload(
+    message,
+    deduplicationKey,
+    enableDeduplication
+  );
   payload.item_ids = get(message, "properties.item_ids");
   payload = removeUndefinedAndNullValues(payload);
   return payload;
 };
 
-const ecommEventPayload = (event, message, deduplicationKey) => {
-  let payload = getCommonEventPayload(message, deduplicationKey);
+const ecommEventPayload = (
+  event,
+  message,
+  deduplicationKey,
+  enableDeduplication
+) => {
+  let payload = getCommonEventPayload(
+    message,
+    deduplicationKey,
+    enableDeduplication
+  );
   switch (event.toLowerCase().trim()) {
     case "order completed": {
       let itemIds = [];
@@ -209,4 +231,24 @@ const ecommEventPayload = (event, message, deduplicationKey) => {
   return payload;
 };
 
-export { sendEvent, ecommEventPayload, eventPayload };
+const getUserEmailAndPhone = (hashMethod, userEmail, userPhoneNumber) => {
+  const payload = {};
+  if (hashMethod === "sha256") {
+    if (userEmail) {
+      payload.user_hashed_email = sha256(userEmail).toString();
+    }
+    if (userPhoneNumber) {
+      payload.user_hashed_phone_number = sha256(userPhoneNumber).toString();
+    }
+  } else {
+    if (userEmail) {
+      payload.user_email = userEmail;
+    }
+    if (userPhoneNumber) {
+      payload.user_phone_number = userPhoneNumber;
+    }
+  }
+  return payload;
+};
+
+export { sendEvent, ecommEventPayload, eventPayload, getUserEmailAndPhone };
