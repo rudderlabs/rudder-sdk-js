@@ -115,7 +115,7 @@ class SnapPixel {
 
     if (!userEmail && !userPhoneNumber && !ipAddress) {
       logger.error(
-        "User parameter (email or phone number or ip address) is required"
+        "User parameter (email or phone number or ip address) is required for Identify call."
       );
       return;
     }
