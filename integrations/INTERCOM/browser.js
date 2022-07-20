@@ -116,7 +116,7 @@ class INTERCOM {
               Object.keys(context.traits[field])) ||
             [];
           companyFields.forEach((key) => {
-            if (!companyFields.hasOwnProperty(key)) {
+            if (companyFields.includes(key)) {
               if (key != "id") {
                 company[key] = context.traits[field][key];
               } else {
