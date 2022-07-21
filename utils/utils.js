@@ -208,10 +208,10 @@ function getReferrer() {
   // This error handling is in place to avoid accessing dead object(document)
   const defaultReferrer = "$direct";
   try {
-    return document.referrer || referrer;
+    return document.referrer || defaultReferrer;
   } catch (e) {
     logger.error("Error trying to access 'document.referrer': ", e);
-    return referrer;
+    return defaultReferrer;
   }
 }
 
