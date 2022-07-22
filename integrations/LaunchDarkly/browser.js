@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import get from "get-value"
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
 import createUser from "./utils";
@@ -33,14 +34,15 @@ class LaunchDarkly {
 
   identify(rudderElement) {
     const { message } = rudderElement;
-    window.user = createUser(message);
+    const anonymousUsersSharedKey = get(message, `integrations.${NAME}.key`) || this.anonymousUsersSharedKey;
+    this.launchDarklyUser = createUser(message, anonymousUsersSharedKey);
 
     if (window.ldclient) {
-      window.ldclient.identify(window.user);
+      window.ldclient.identify(this.launchDarklyUser);
     } else {
       window.ldclient = window.LDClient.initialize(
         this.clientSideId,
-        window.user
+        this.launchDarklyUser
       );
     }
   }
@@ -60,7 +62,7 @@ class LaunchDarkly {
     const newUser = { key: message.userId };
 
     if (window.ldclient) {
-      window.ldclient.alias(newUser, window.user);
+      window.ldclient.alias(newUser, this.launchDarklyUser);
     } else
       logger.error(
         "=== In LaunchDarkly, alias is not supported before identify ==="
