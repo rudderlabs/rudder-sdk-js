@@ -39,14 +39,14 @@ class LaunchDarkly {
   identify(rudderElement) {
     const { message } = rudderElement;
     const anonymousUsersSharedKey = get(message, `integrations.${NAME}.key`) || this.anonymousUsersSharedKey;
-    window.rudderUser = createUser(message, anonymousUsersSharedKey);
+    this.launchDarklyUser = createUser(message, anonymousUsersSharedKey);
 
     if (window.ldclient) {
-      window.ldclient.identify(window.rudderUser);
+      window.ldclient.identify(this.launchDarklyUser);
     } else {
       window.ldclient = window.LDClient.initialize(
         this.clientSideId,
-        window.rudderUser
+        this.launchDarklyUser
       );
     }
   }
@@ -66,7 +66,7 @@ class LaunchDarkly {
     const newUser = { key: message.userId };
 
     if (window.ldclient) {
-      window.ldclient.alias(newUser, window.rudderUser);
+      window.ldclient.alias(newUser, this.launchDarklyUser);
     } else
       logger.error(
         "=== In LaunchDarkly, alias is not supported before identify ==="
