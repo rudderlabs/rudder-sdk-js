@@ -14,7 +14,7 @@ phases:
       - aws s3 cp dist/rudder-analytics.min.js s3://$S3_BUCKET_NAME/v1.1/rudder-analytics.min.js --cache-control max-age=3600 --acl public-read
       - aws s3 cp dist/rudder-analytics.min.js.map s3://$S3_BUCKET_NAME/v1.1/rudder-analytics.min.js.map --cache-control max-age=3600 --acl public-read
       - aws s3 cp dist/integrations/ s3://$S3_BUCKET_NAME/v1.1/js-integrations/ --recursive --cache-control max-age=3600 --acl public-read
-      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/v1.1/rudder-analytics.min.js" "/v1.1/rudder-analytics.min.js.map" "/v1.1/js-integrations"
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/v1.1/rudder-analytics.min.js" "/v1.1/rudder-analytics.min.js.map" "/v1.1/js-integrations*"
 artifacts:
   files:
     - "**/*"

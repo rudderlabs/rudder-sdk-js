@@ -20,7 +20,7 @@ const logger = {
 
   info() {
     if (LOG_LEVEL <= LOG_LEVEL_INFO) {
-      console.log(...arguments);
+      console.info(...arguments);
     }
   },
 
@@ -32,13 +32,13 @@ const logger = {
 
   warn() {
     if (LOG_LEVEL <= LOG_LEVEL_WARN) {
-      console.log(...arguments);
+      console.warn(...arguments);
     }
   },
 
   error() {
     if (LOG_LEVEL <= LOG_LEVEL_ERROR) {
-      console.log(...arguments);
+      console.error(...arguments);
     }
   },
 };

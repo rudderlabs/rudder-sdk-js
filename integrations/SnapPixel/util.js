@@ -1,4 +1,5 @@
 import get from 'get-value';
+import sha256 from 'crypto-js/sha256';
 import logger from '../../utils/logUtil';
 import {
   isDefinedAndNotNull,
@@ -14,7 +15,7 @@ const sendEvent = (event, payload) => {
   }
 };
 
-const getCommonEventPayload = (message) => {
+const getCommonEventPayload = (message, deduplicationKey, enableDeduplication) => {
   let payload = {
     price: parseFloat(get(message, 'properties.price')),
     client_deduplication_id: get(message, 'properties.client_deduplication_id'),
@@ -35,21 +36,23 @@ const getCommonEventPayload = (message) => {
   if (payload.success !== 0 && payload.success !== 1) {
     payload.success = null;
   }
+  if (enableDeduplication) {
+    payload.client_deduplication_id = get(message, `${deduplicationKey || 'messageId'}`);
+  }
 
   payload = removeUndefinedAndNullValues(payload);
   return payload;
 };
 
-const eventPayload = (message) => {
-  let payload = getCommonEventPayload(message);
+const eventPayload = (message, deduplicationKey, enableDeduplication) => {
+  let payload = getCommonEventPayload(message, deduplicationKey, enableDeduplication);
   payload.item_ids = get(message, 'properties.item_ids');
   payload = removeUndefinedAndNullValues(payload);
   return payload;
 };
 
-const ecommEventPayload = (event, message) => {
-  let payload = getCommonEventPayload(message);
-
+const ecommEventPayload = (event, message, deduplicationKey, enableDeduplication) => {
+  let payload = getCommonEventPayload(message, deduplicationKey, enableDeduplication);
   switch (event.toLowerCase().trim()) {
     case 'order completed': {
       let itemIds = [];
@@ -195,4 +198,29 @@ const ecommEventPayload = (event, message) => {
   return payload;
 };
 
-export { sendEvent, ecommEventPayload, eventPayload };
+/*
+ Here, We take user parameters in payload i.e. userEmail and userPhoneNumber and hashMethod, so if hashMethod is `sha256`, 
+ then we convert the userEmail and userPhoneNumber to user_hashed_email and user_hashed_phone_number respectively in `sha256` format.
+ Otherwise if hashMethod not in `sha256` then we pass the userEmail and userPhoneNumber as user_email and user_phone_number respectively.
+*/
+const getUserEmailAndPhone = (hashMethod, userEmail, userPhoneNumber) => {
+  const payload = {};
+  if (hashMethod === 'sha256') {
+    if (userEmail) {
+      payload.user_hashed_email = sha256(userEmail).toString();
+    }
+    if (userPhoneNumber) {
+      payload.user_hashed_phone_number = sha256(userPhoneNumber).toString();
+    }
+  } else {
+    if (userEmail) {
+      payload.user_email = userEmail;
+    }
+    if (userPhoneNumber) {
+      payload.user_phone_number = userPhoneNumber;
+    }
+  }
+  return payload;
+};
+
+export { sendEvent, ecommEventPayload, eventPayload, getUserEmailAndPhone };
