@@ -118,7 +118,7 @@ function isCheckSumValid(serializedIds, checksum) {
   }
   return false;
 }
- 
+
 /**
  * Return the key value pairs
  * @param {string} value

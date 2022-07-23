@@ -13,10 +13,12 @@ class BingAds {
 
   loadBingadsScript = () => {
     ((w, d, t, r, u) => {
-      let f, n, i;
+      let f;
+      let n;
+      let i;
       (w[u] = w[u] || []),
         (f = () => {
-          let o = {
+          const o = {
             ti: this.tagID,
           };
           (o.q = w[u]), (w[u] = new UET(o));
@@ -27,7 +29,7 @@ class BingAds {
         (n.dataset.loader = LOAD_ORIGIN),
         (n.onload = n.onreadystatechange =
           function () {
-            let s = this.readyState;
+            const s = this.readyState;
             (s && s !== "loaded" && s !== "complete") ||
               (f(), (n.onload = n.onreadystatechange = null));
           }),

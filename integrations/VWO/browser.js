@@ -154,7 +154,7 @@ class VWO {
     if (eventName === "Order Completed") {
       const total = rudderElement.message.properties
         ? rudderElement.message.properties.total ||
-        rudderElement.message.properties.revenue
+          rudderElement.message.properties.revenue
         : 0;
       logger.debug("Revenue", total);
       window.VWO = window.VWO || [];

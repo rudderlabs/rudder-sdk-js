@@ -117,7 +117,6 @@ class Clevertap {
     Object.keys(payload).map((key) => {
       if (isObject(payload[key])) {
         logger.debug("cannot process, unsupported traits");
-        return;
       }
     });
     window.clevertap.onUserLogin.push({
@@ -151,7 +150,6 @@ class Clevertap {
         Object.keys(properties).map((key) => {
           if (isObject(properties[key]) || isArray(properties[key])) {
             logger.debug("cannot process, unsupported event");
-            return;
           }
         });
         window.clevertap.event.push(event, properties);
@@ -178,7 +176,6 @@ class Clevertap {
       Object.keys(properties).map((key) => {
         if (isObject(properties[key]) || isArray(properties[key])) {
           logger.debug("cannot process, unsupported event");
-          return;
         }
       });
       window.clevertap.event.push(eventName, properties);

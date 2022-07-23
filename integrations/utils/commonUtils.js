@@ -42,7 +42,7 @@ const getHashFromArrayWithDuplicate = (
       if (hashMap[key]) {
         hashMap[key].push(array[toKey]);
       } else {
-        hashMap[key]= [array[toKey]];
+        hashMap[key] = [array[toKey]];
       }
     });
   }

@@ -72,12 +72,12 @@ class SnapPixel {
           : a.queue.push(arguments);
       });
       a.queue = [];
-      var s = "script";
-      var r = t.createElement(s);
+      const s = "script";
+      const r = t.createElement(s);
       r.async = !0;
       r.src = n;
       r.dataset.loader = LOAD_ORIGIN;
-      var u = t.getElementsByTagName(s)[0];
+      const u = t.getElementsByTagName(s)[0];
       u.parentNode.insertBefore(r, u);
     })(window, document, "https://sc-static.net/scevent.min.js");
 

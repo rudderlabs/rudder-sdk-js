@@ -18,7 +18,11 @@ class Pendo {
   init() {
     (function (apiKey) {
       (function (p, e, n, d, o) {
-        var v, w, x, y, z;
+        let v;
+        let w;
+        let x;
+        let y;
+        let z;
         o = p[d] = p[d] || {};
         o._q = [];
         v = ["initialize", "identify", "updateOptions", "pageLoad", "track"];

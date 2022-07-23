@@ -47,36 +47,36 @@ class Qualtrics {
       var g = function (e, h, f, g) {
         this.get = function (a) {
           for (
-            var a = a + "=",
+            var a = `${a}=`,
               c = document.cookie.split(";"),
               b = 0,
               e = c.length;
             b < e;
             b++
           ) {
-            for (var d = c[b]; " " == d.charAt(0); )
+            for (var d = c[b]; d.charAt(0) == " "; )
               d = d.substring(1, d.length);
-            if (0 == d.indexOf(a)) return d.substring(a.length, d.length);
+            if (d.indexOf(a) == 0) return d.substring(a.length, d.length);
           }
           return null;
         };
         this.set = function (a, c) {
-          var b = "",
-            b = new Date();
+          var b = "";
+          var b = new Date();
           b.setTime(b.getTime() + 6048e5);
-          b = "; expires=" + b.toGMTString();
-          document.cookie = a + "=" + c + b + "; path=/; ";
+          b = `; expires=${b.toGMTString()}`;
+          document.cookie = `${a}=${c}${b}; path=/; `;
         };
         this.check = function () {
           var a = this.get(f);
           if (a) a = a.split(":");
-          else if (100 != e)
-            "v" == h && (e = Math.random() >= e / 100 ? 0 : 100),
+          else if (e != 100)
+            h == "v" && (e = Math.random() >= e / 100 ? 0 : 100),
               (a = [h, e, 0]),
               this.set(f, a.join(":"));
           else return !0;
           var c = a[1];
-          if (100 == c) return !0;
+          if (c == 100) return !0;
           switch (a[0]) {
             case "v":
               return !1;
@@ -101,7 +101,7 @@ class Qualtrics {
         };
         this.start = function () {
           var t = this;
-          "complete" !== document.readyState
+          document.readyState !== "complete"
             ? window.addEventListener
               ? window.addEventListener(
                   "load",

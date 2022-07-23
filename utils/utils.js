@@ -676,7 +676,7 @@ const getConfigUrl = (writeKey) => {
 
 const checkSDKUrl = () => {
   const scripts = document.getElementsByTagName("script");
-  let rudderSDK = undefined;
+  let rudderSDK;
   let staging = false;
   for (let i = 0; i < scripts.length; i += 1) {
     const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute("src"));

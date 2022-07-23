@@ -252,7 +252,7 @@ window.gtag("event", "purchase", {
   tax: 1,
   coupon: "ImagePro",
   currency: "USD",
-  transaction_id: "12345"
+  transaction_id: "12345",
 });
 
 window.gtag("event", "refund", {
@@ -276,7 +276,7 @@ window.gtag("event", "refund", {
     },
   ],
   currency: "USD",
-  transaction_id: "1234"
+  transaction_id: "1234",
 });
 
 window.gtag("event", "add_to_wishlist", {

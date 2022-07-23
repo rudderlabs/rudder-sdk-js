@@ -1,13 +1,13 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-undef */
 import each from "@ndhoule/each";
+import _ from "lodash";
 import {
   toIso,
   getHashFromArray,
   isDefinedAndNotNullAndNotEmpty,
   isDefined,
 } from "../utils/commonUtils";
-import _ from "lodash";
 import logger from "../../utils/logUtil";
 
 let dynamicKeys = [];

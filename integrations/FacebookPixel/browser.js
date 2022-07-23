@@ -589,7 +589,7 @@ class FacebookPixel {
 
     // Otherwise check if there is a replacement set for all Facebook Pixel
     // track calls of this category
-    const category = rudderElement.message.properties.category;
+    const { category } = rudderElement.message.properties;
     if (category) {
       const categoryMapping = this.categoryToContent?.find(
         (i) => i.from === category
