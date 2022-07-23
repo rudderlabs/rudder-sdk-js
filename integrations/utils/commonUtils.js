@@ -18,6 +18,39 @@ const pick = (argObj, argArr) => _.pick(argObj, argArr);
 
 /**
  *
+ * Convert an array map to hashmap(value as an array)
+ * @param  {} arrays [{"from":"prop1","to":"val1"},{"from":"prop1","to":"val2"},{"from":"prop2","to":"val2"}]
+ * @param  {} fromKey="from"
+ * @param  {} toKey="to"
+ * @param  {} isLowerCase=true
+ * @param  {} return hashmap {"prop1":["val1","val2"],"prop2":["val2"]}
+ */
+const getHashFromArrayWithDuplicate = (
+  arrays,
+  fromKey = "from",
+  toKey = "to",
+  isLowerCase = true
+) => {
+  const hashMap = {};
+  if (Array.isArray(arrays)) {
+    arrays.forEach((array) => {
+      if (!isNotEmpty(array[fromKey])) return;
+      const key = isLowerCase
+        ? array[fromKey].toLowerCase().trim()
+        : array[fromKey].trim();
+
+      if (hashMap[key]) {
+        hashMap[key].push(array[toKey]);
+      } else {
+        hashMap[key]= [array[toKey]];
+      }
+    });
+  }
+  return hashMap;
+};
+
+/**
+ *
  * Convert an array map to hashmap
  * @param  {} arrays [{"from":"prop1","to":"val1"},{"from":"prop2","to":"val2"}]
  * @param  {} fromKey="from"
@@ -41,6 +74,7 @@ const getHashFromArray = (
   }
   return hashMap;
 };
+
 /**
  * @param  {} timestamp
  * @param  {} return iso format of date
@@ -403,6 +437,7 @@ const getDataFromSource = (src, dest, properties) => {
 };
 
 export {
+  getHashFromArrayWithDuplicate,
   getHashFromArray,
   toIso,
   flattenJson,

@@ -8,7 +8,7 @@ let LOG_LEVEL = LOG_LEVEL_ERROR;
 const logger = {
   setLogLevel(logLevel) {
     switch (logLevel.toUpperCase()) {
-      case "INFO":
+      case 'INFO':
         LOG_LEVEL = LOG_LEVEL_INFO;
         break;
       case "DEBUG":

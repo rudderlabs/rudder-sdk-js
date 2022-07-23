@@ -46,6 +46,8 @@ import { CNameMapping as VWO } from "../integrations/VWO/constants";
 import { CNameMapping as GA360 } from "../integrations/GA360/constants";
 import { CNameMapping as Adroll } from "../integrations/Adroll/constants";
 import { CNameMapping as DCMFloodlight } from "../integrations/DCMFloodlight/constants";
+import { CNameMapping as Matomo } from "../integrations/Matomo/constants";
+import { CNameMapping as Vero } from "../integrations/Vero/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -99,6 +101,8 @@ const commonNames = {
   ...VWO,
   ...Adroll,
   ...DCMFloodlight,
+  ...Matomo,
+  ...Vero,
 };
 
 export { commonNames };

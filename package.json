@@ -1,6 +1,6 @@
 {
   "name": "rudder-analytics",
-  "version": "2.8.0",
+  "version": "2.9.2",
   "description": "",
   "main": "./dist/browser.min.js",
   "scripts": {
@@ -36,6 +36,7 @@
     "url": "https://github.com/rudderlabs/rudder-sdk-js.git"
   },
   "dependencies": {
+    "@lukeed/uuid": "^2.0.0",
     "@ndhoule/defaults": "^2.0.1",
     "@ndhoule/each": "^2.0.1",
     "@ndhoule/extend": "^2.0.0",
@@ -78,7 +79,6 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-prettier": "^4.0.0",
     "esm": "^3.2.25",
-    "gh-release": "^6.0.4",
     "husky": "^8.0.0",
     "jest": "^28.1.0",
     "jest-environment-jsdom": "^28.1.0",
