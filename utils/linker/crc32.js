@@ -1,42 +1,42 @@
+/* eslint-disable no-bitwise */
 /**
  * @description This is utility function for crc32 algorithm
- * @version v1.0.0 
+ * @version v1.0.0
  */
 
 /**
  * @description generate crc table
  * @params none
- * @returns arrray of CRC table
+ * @returns array of CRC table
  */
 
-const makeCRCTable = function () {
-  const crcTable = []
-  let c
-  for (var n = 0; n < 256; n++) {
-    c = n
-    for (var k = 0; k < 8; k++) {
-      c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
+const makeCRCTable = () => {
+  const crcTable = [];
+  let c;
+  for (let n = 0; n < 256; n += 1) {
+    c = n;
+    for (let k = 0; k < 8; k += 1) {
+      c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
     }
-    crcTable[n] = c
+    crcTable[n] = c;
   }
-  return crcTable
-}
-
+  return crcTable;
+};
 
 /**
- * 
+ *
  * @param {string} str
- * @returns {Bystream} crc32
+ * @returns {Bytestream} crc32
  */
-const crc32 = function (str) {
-  const crcTable = makeCRCTable()
-  let crc = 0 ^ -1
+const crc32 = (str) => {
+  const crcTable = makeCRCTable();
+  let crc = 0 ^ -1;
 
-  for (let i = 0; i < str.length; i++) {
-    crc = (crc >>> 8) ^ crcTable[(crc ^ str.charCodeAt(i)) & 0xff]
+  for (let i = 0; i < str.length; i += 1) {
+    crc = (crc >>> 8) ^ crcTable[(crc ^ str.charCodeAt(i)) & 0xff];
   }
 
-  return (crc ^ -1) >>> 0
-}
+  return (crc ^ -1) >>> 0;
+};
 
-export default crc32
+export default crc32;
