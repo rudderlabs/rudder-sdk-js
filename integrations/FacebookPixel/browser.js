@@ -12,7 +12,7 @@ import {
   isDefined,
 } from "../utils/commonUtils";
 import { NAME, traitsMapper } from "./constants";
-import { constructPayload } from "../../utils/utils";
+import { constructPayload } from "../utils/commonUtils";
 
 class FacebookPixel {
   constructor(config, analytics) {

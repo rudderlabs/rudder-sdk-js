@@ -11,7 +11,7 @@ import {
   flattenJsonPayload,
   isDefinedAndNotNull,
   getDataFromSource,
-} from "../../utils/utils";
+} from "../utils/commonUtils";
 import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 
