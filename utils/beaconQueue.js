@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import logger from "../logUtil";
+import logger from "./logUtil";
 import { Store } from "./storage/store";
 import { replacer } from "./utils";
 
