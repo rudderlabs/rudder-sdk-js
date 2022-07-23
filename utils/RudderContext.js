@@ -32,7 +32,7 @@ class RudderContext {
 
       // detect brave browser and append to the user agent
       if (navigator.brave && Object.getPrototypeOf(navigator.brave).isBrave) {
-        const version = navigator.userAgent.match(/(Chrome)\/([\w\.]+)/i)[2];
+        const version = navigator.userAgent.match(/(Chrome)\/([\w.]+)/i)[2];
         this.userAgent = `${navigator.userAgent} Brave/${version}`;
       } else {
         this.userAgent = navigator.userAgent;
