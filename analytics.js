@@ -159,6 +159,25 @@ class Analytics {
   }
 
   /**
+   * A function to validate integration SDK is available in window
+   * and integration constructor is not undefined
+   * @param {string} pluginName
+   * @param {string} modName
+   * @returns boolean
+   */
+  integrationSDKLoaded(pluginName, modName) {
+    try {
+      return (
+        window.hasOwnProperty(pluginName) &&
+        typeof window[pluginName][modName].prototype.constructor !== 'undefined'
+      );
+    } catch (e) {
+      handleError(e);
+      return false;
+    }
+  }
+
+  /**
    * Process the response from control plane and
    * call initialize for integrations
    *
@@ -254,7 +273,7 @@ class Analytics {
 
         const self = this;
         const interval = setInterval(function () {
-          if (window.hasOwnProperty(pluginName)) {
+          if (self.integrationSDKLoaded(pluginName, modName)) {
             const intMod = window[pluginName];
             clearInterval(interval);
 
@@ -654,7 +673,7 @@ class Analytics {
       checkReservedKeywords(rudderElement.message, type);
 
       // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = rudderElement.message.integrations || { 'All' : true };
+      const clientSuppliedIntegrations = rudderElement.message.integrations || { All: true };
 
       // structure user supplied integrations object to rudder format
       transformToRudderNames(clientSuppliedIntegrations);
@@ -667,7 +686,6 @@ class Analytics {
         // new event processing after analytics initialized  but integrations not fetched from BE
         this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
       } else {
-
         // get intersection between config plane native enabled destinations
         // (which were able to successfully load on the page) vs user supplied integrations
         const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
