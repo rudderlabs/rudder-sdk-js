@@ -61,7 +61,6 @@ class Qualtrics {
           return null;
         };
         this.set = function (a, c) {
-          var b = "";
           var b = new Date();
           b.setTime(b.getTime() + 6048e5);
           b = `; expires=${b.toGMTString()}`;
