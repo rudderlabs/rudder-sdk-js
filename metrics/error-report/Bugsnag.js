@@ -48,6 +48,8 @@ function initClient(sourceId) {
   // This also prevents unnecessary errors sent to Bugsnag during development phase.
   const apiKeyRegex = /{{.+}}/;
   if (API_KEY.match(apiKeyRegex) !== null) return;
+  const host = window.location.hostname;
+  const devHosts = ['localhost', '127.0.0.1'];
 
   window.rsBugsnagClient = window.Bugsnag.start({
     apiKey: API_KEY,
@@ -55,7 +57,7 @@ function initClient(sourceId) {
     metadata: META_DATA,
     onError: (event) => {
       try {
-        const errorOrigin = get(event.errors[0], 'stacktrace.0.file');
+        const errorOrigin = get(event, 'errors.0.stacktrace.0.file');
         // Skip errors that do not have a valid stack trace
         if (!errorOrigin || typeof errorOrigin !== 'string') return false;
 
@@ -83,14 +85,9 @@ function initClient(sourceId) {
     autoTrackSessions: false, // auto tracking sessions is disabled
     collectUserIp: false, // collecting user's IP is disabled
     enabledBreadcrumbTypes: ['error', 'log', 'user'],
+    maxEvents: 100,
+    releaseStage: host && devHosts.includes(host) ? 'development' : 'production', // set the release stage
   });
-
-  const host = window.location.hostname;
-  if (host && host === '127.0.0.1') {
-    window.rsBugsnagClient.releaseStage = 'development'; // set the release stage
-  } else {
-    window.rsBugsnagClient.releaseStage = 'production'; // set the release stage
-  }
 }
 
 /**
