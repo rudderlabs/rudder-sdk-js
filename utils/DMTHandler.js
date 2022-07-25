@@ -30,7 +30,8 @@ const createPayload = (event) => {
 const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount) => {
   return new Promise((resolve, reject) => {
     // const url = `${dataPlaneUrl}/v1/transform`;
-    const url = 'https://1939f7f9-dbec-4189-9c94-4603cf391d42.mock.pstmn.io/v1/transform';
+    // const url = 'https://1939f7f9-dbec-4189-9c94-4603cf391d42.mock.pstmn.io/v1/transform';
+    const url = 'http://localhost:8000/v1/batch';
     const headers = {
       'Content-Type': 'application/json',
       Authorization: `Basic ${btoa(`${writeKey}:`)}`,
@@ -43,49 +44,59 @@ const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount)
       const retryFailMsg = 'Retry failed. Dropping the event';
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4) {
-          if (xhr.status === 200) {
-            let response;
-            if (typeof xhr.response === 'string') {
-              response = JSON.parse(xhr.response);
+          try {
+            if (xhr.status === 200) {
+              let { response } = xhr;
+              if (response && typeof response === 'string') {
+                response = JSON.parse(response);
+              } else {
+                return reject('Not a valid response');
+              }
+              /**
+               * Sample Response format:
+               * {
+                  "transformedBatch" :[
+                    {
+                      "id": "destination-id",
+                      "status": "200",
+                      "payload": [
+                        {
+                          "orderNo":1,
+                          "event": {
+                            "message": { ...}
+                        }]
+                    }]
+                  } 
+               */
+              /**
+               * If event transformation is successful for all the destination
+               * send the response back
+               */
+              if (
+                response.transformedBatch.every((dest) =>
+                  dest.payload.every((tEvent) => tEvent.status === '200'),
+                )
+              )
+                return resolve(response.transformedBatch);
             }
-            /**
-             * Sample Response format:
-             * {
-                "transformedBatch" :[
-                  {
-                    "id": "destination-id",
-                    "status": "200",
-                    "payload": [
-                      {
-                        "orderNo":1,
-                        "event": {
-                          "message": { ...}
-                      }]
-                  }]
-                } 
-             */
-            /**
-             * If event transformation is successful for all the destination
-             * send the response back
-             */
-            if (response.transformedBatch.every((tEvent) => tEvent.status === '200'))
-              return resolve(response.transformedBatch);
-          }
 
-          // If the request is not successful
-          // one or more transformation is unsuccessfull
-          // retry till the retryCount is exhausted
-          if (retryCount > 0) {
-            const newRetryCount = retryCount - 1;
-            setTimeout(() => {
-              return sendEventForTransformation(payload, writeKey, dataPlaneUrl, newRetryCount)
-                .then(resolve)
-                .catch(reject);
-            }, 1000 * (Math.floor(Math.random() * 3) + 1));
-          } else {
-            // Even after all the retries event transformation
-            // is not successful, ignore the event
-            return reject(retryFailMsg);
+            // If the request is not successful
+            // one or more transformation is unsuccessfull
+            // retry till the retryCount is exhausted
+            if (retryCount > 0) {
+              const newRetryCount = retryCount - 1;
+              setTimeout(() => {
+                return sendEventForTransformation(payload, writeKey, dataPlaneUrl, newRetryCount)
+                  .then(resolve)
+                  .catch(reject);
+              }, 1000 * (Math.floor(Math.random() * 3) + 1));
+            } else {
+              // Even after all the retries event transformation
+              // is not successful, ignore the event
+              return reject(retryFailMsg);
+            }
+          } catch (err) {
+            return reject(err);
           }
         }
       };
