@@ -169,6 +169,11 @@ class Analytics {
   processResponse(status, response) {
     try {
       logger.debug(`===in process response=== ${status}`);
+      if (!response) {
+        logger.debug(`No config found`);
+        return;
+      }
+
       if (typeof response === "string") {
         response = JSON.parse(response);
       }
