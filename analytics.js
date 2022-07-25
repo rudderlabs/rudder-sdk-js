@@ -29,7 +29,7 @@ import {
   getReferringDomain,
   removeTrailingSlashes,
   getConfigUrl,
-  checkSDKUrl,
+  getSDKUrlInfo,
   commonNames,
   get,
 } from './utils/utils';
@@ -254,8 +254,8 @@ class Analytics {
       let suffix = ''; // default suffix
 
       // Get the CDN base URL is rudder staging url
-      const { rudderSDK, staging } = checkSDKUrl();
-      if (rudderSDK && staging) {
+      const { isStaging } = getSDKUrlInfo();
+      if (isStaging) {
         suffix = '-staging'; // stagging suffix
       }
 
@@ -987,9 +987,9 @@ class Analytics {
       }
     } else {
       // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
-      const { rudderSDK } = checkSDKUrl();
-      if (rudderSDK) {
-        this.destSDKBaseURL = rudderSDK.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/');
+      const { sdkURL } = getSDKUrlInfo();
+      if (sdkURL) {
+        this.destSDKBaseURL = sdkURL.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/');
       }
     }
     if (options && options.getSourceConfig) {
@@ -1132,7 +1132,7 @@ const instance = new Analytics();
 
 function processDataInAnalyticsArray(analytics) {
   analytics.toBeProcessedArray.forEach((x) => {
-    var event = [...x];
+    const event = [...x];
     const method = event[0];
     event.shift();
     // logger.debug("=====from analytics array, calling method:: ", method)
