@@ -1,6 +1,7 @@
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
 import { parse } from "component-url";
 import get from "get-value";
+import { v4 as uuid } from "@lukeed/uuid";
 import { LOAD_ORIGIN } from "../integrations/ScriptLoader";
 import logger from "./logUtil";
 import { commonNames } from "./integration_cname";
@@ -36,19 +37,7 @@ function removeTrailingSlashes(inURL) {
  * @returns
  */
 function generateUUID() {
-  // Public Domain/MIT
-  let d = new Date().getTime();
-  if (
-    typeof performance !== "undefined" &&
-    typeof performance.now === "function"
-  ) {
-    d += performance.now(); // use high-precision timer if available
-  }
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (d + Math.random() * 16) % 16 | 0;
-    d = Math.floor(d / 16);
-    return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
-  });
+  return uuid();
 }
 
 /**
@@ -216,7 +205,14 @@ function getDefaultPageProperties() {
 }
 
 function getReferrer() {
-  return document.referrer || "$direct";
+  // This error handling is in place to avoid accessing dead object(document)
+  const defaultReferrer = "$direct";
+  try {
+    return document.referrer || defaultReferrer;
+  } catch (e) {
+    logger.error("Error trying to access 'document.referrer': ", e);
+    return defaultReferrer;
+  }
 }
 
 function getReferringDomain(referrer) {
@@ -678,27 +674,24 @@ const getConfigUrl = (writeKey) => {
   );
 };
 
-const checkSDKUrl = () => {
+const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName("script");
-  let rudderSDK = undefined;
-  let staging = false;
+  let sdkURL;
+  let isStaging = false;
   for (let i = 0; i < scripts.length; i += 1) {
     const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute("src"));
-    // only in case of staging SDK staging env will be set to true
-    if (
-      curScriptSrc &&
-      curScriptSrc.startsWith("http") &&
-      (curScriptSrc.endsWith("rudder-analytics.min.js") ||
-        curScriptSrc.endsWith("rudder-analytics-staging.min.js"))
-    ) {
-      rudderSDK = curScriptSrc;
-      if (curScriptSrc.endsWith("rudder-analytics-staging.min.js")) {
-        staging = true;
+    if (curScriptSrc) {
+      const urlMatches = curScriptSrc.match(
+        /^(https?:)?\/\/.*rudder-analytics(-staging)?(\.min)?\.js$/,
+      );
+      if (urlMatches) {
+        sdkURL = curScriptSrc;
+        isStaging = urlMatches[2] !== undefined;
+        break;
       }
-      break;
     }
   }
-  return { rudderSDK, staging };
+  return { sdkURL, isStaging };
 };
 
 /**
@@ -774,7 +767,7 @@ export {
   removeTrailingSlashes,
   constructPayload,
   getConfigUrl,
-  checkSDKUrl,
+  getSDKUrlInfo,
   notifyError,
   leaveBreadcrumb,
   get,

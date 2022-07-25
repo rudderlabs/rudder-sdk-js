@@ -1,14 +1,15 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
-import sha256 from "crypto-js/sha256";
 import Storage from "../../utils/storage";
 import logger from "../../utils/logUtil";
 
+import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 import {
-  isDefinedAndNotNull,
-  removeUndefinedAndNullValues,
-} from "../utils/commonUtils";
-import { ecommEventPayload, eventPayload, sendEvent } from "./util";
+  ecommEventPayload,
+  eventPayload,
+  getUserEmailAndPhone,
+  sendEvent,
+} from "./util";
 import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 
@@ -20,7 +21,8 @@ class SnapPixel {
     this.pixelId = config.pixelId;
     this.hashMethod = config.hashMethod;
     this.name = NAME;
-
+    this.deduplicationKey = config.deduplicationKey;
+    this.enableDeduplication = config.enableDeduplication;
     this.trackEvents = [
       "SIGN_UP",
       "OPEN_APP",
@@ -81,28 +83,14 @@ class SnapPixel {
 
     const cookieData = Storage.getUserTraits();
 
-    let payload = {
-      user_email: cookieData.email,
-      user_phone_number: cookieData.phone,
-    };
+    const userEmail = cookieData.email;
+    const userPhoneNumber = cookieData.phone;
 
-    if (!payload.user_email && !payload.user_phone_number) {
-      logger.debug(
-        "User parameter (email or phone number) not found in cookie. identify is required"
-      );
-      return;
-    }
-
-    if (this.hashMethod === "sha256") {
-      if (isDefinedAndNotNull(payload.user_email)) {
-        payload.user_email = sha256(payload.user_email).toString();
-      }
-      if (isDefinedAndNotNull(payload.user_phone_number)) {
-        payload.user_phone_number = sha256(
-          payload.user_phone_number
-        ).toString();
-      }
-    }
+    let payload = getUserEmailAndPhone(
+      this.hashMethod,
+      userEmail,
+      userPhoneNumber
+    );
 
     payload = removeUndefinedAndNullValues(payload);
     window.snaptr("init", this.pixelId, payload);
@@ -123,26 +111,20 @@ class SnapPixel {
 
     const { message } = rudderElement;
 
-    let payload = {
-      user_email: get(message, "context.traits.email"),
-      user_phone_number: get(message, "context.traits.phone"),
-    };
+    const userEmail = get(message, "context.traits.email");
+    const userPhoneNumber = get(message, "context.traits.phone");
+    const ipAddress = get(message, "context.ip") || get(message, "request_ip");
+    let payload = {};
 
-    if (!payload.user_email && !payload.user_phone_number) {
-      logger.error("User parameter (email or phone number) is required");
+    if (!userEmail && !userPhoneNumber && !ipAddress) {
+      logger.error(
+        "User parameter (email or phone number or ip address) is required for Identify call."
+      );
       return;
     }
 
-    if (this.hashMethod === "sha256") {
-      if (isDefinedAndNotNull(payload.user_email)) {
-        payload.user_email = sha256(payload.user_email).toString();
-      }
-      if (isDefinedAndNotNull(payload.user_phone_number)) {
-        payload.user_phone_number = sha256(
-          payload.user_phone_number
-        ).toString();
-      }
-    }
+    payload = getUserEmailAndPhone(this.hashMethod, userEmail, userPhoneNumber);
+    payload = { ...payload, ip_address: ipAddress };
 
     payload = removeUndefinedAndNullValues(payload);
     window.snaptr("init", this.pixelId, payload);
@@ -164,51 +146,102 @@ class SnapPixel {
         case "order completed":
           sendEvent(
             this.ecomEvents.PURCHASE,
-            ecommEventPayload(event, message)
+            ecommEventPayload(
+              event,
+              message,
+              this.deduplicationKey,
+              this.enableDeduplication
+            )
           );
           break;
         case "checkout started":
           sendEvent(
             this.ecomEvents.START_CHECKOUT,
-            ecommEventPayload(event, message)
+            ecommEventPayload(
+              event,
+              message,
+              this.deduplicationKey,
+              this.enableDeduplication
+            )
           );
           break;
         case "product added":
           sendEvent(
             this.ecomEvents.ADD_CART,
-            ecommEventPayload(event, message)
+            ecommEventPayload(
+              event,
+              message,
+              this.deduplicationKey,
+              this.enableDeduplication
+            )
           );
           break;
         case "payment info entered":
           sendEvent(
             this.ecomEvents.ADD_BILLING,
-            ecommEventPayload(event, message)
+            ecommEventPayload(
+              event,
+              message,
+              this.deduplicationKey,
+              this.enableDeduplication
+            )
           );
           break;
         case "promotion clicked":
           sendEvent(
             this.ecomEvents.AD_CLICK,
-            ecommEventPayload(event, message)
+            ecommEventPayload(
+              event,
+              message,
+              this.deduplicationKey,
+              this.enableDeduplication
+            )
           );
           break;
         case "promotion viewed":
-          sendEvent(this.ecomEvents.AD_VIEW, ecommEventPayload(event, message));
+          sendEvent(
+            this.ecomEvents.AD_VIEW,
+            ecommEventPayload(
+              event,
+              message,
+              this.deduplicationKey,
+              this.enableDeduplication
+            )
+          );
           break;
         case "product added to wishlist":
           sendEvent(
             this.ecomEvents.ADD_TO_WISHLIST,
-            ecommEventPayload(event, message)
+            ecommEventPayload(
+              event,
+              message,
+              this.deduplicationKey,
+              this.enableDeduplication
+            )
           );
           break;
         case "product viewed":
         case "product list viewed":
           sendEvent(
             this.ecomEvents.VIEW_CONTENT,
-            ecommEventPayload(event, message)
+            ecommEventPayload(
+              event,
+              message,
+              this.deduplicationKey,
+              this.enableDeduplication
+            )
           );
           break;
         case "products searched":
-          sendEvent(this.ecomEvents.SEARCH, ecommEventPayload(event, message));
+          sendEvent(
+            this.ecomEvents.SEARCH,
+            ecommEventPayload(
+              event,
+              message,
+              this.deduplicationKey,
+              this.enableDeduplication
+            )
+          );
           break;
         default:
           if (
@@ -218,7 +251,14 @@ class SnapPixel {
             logger.error("Event doesn't match with Snap Pixel Events!");
             return;
           }
-          sendEvent(event, eventPayload(message));
+          sendEvent(
+            event,
+            eventPayload(
+              message,
+              this.deduplicationKey,
+              this.enableDeduplication
+            )
+          );
           break;
       }
     } catch (err) {
@@ -230,7 +270,10 @@ class SnapPixel {
     logger.debug("===In SnapPixel page===");
 
     const { message } = rudderElement;
-    sendEvent("PAGE_VIEW", eventPayload(message));
+    sendEvent(
+      "PAGE_VIEW",
+      eventPayload(message, this.deduplicationKey, this.enableDeduplication)
+    );
   }
 }
 

@@ -24,6 +24,7 @@ export default class GA4 {
     this.blockPageView = config.blockPageViewEvent || false;
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.extendGroupPayload = config.extendGroupPayload || false;
+    this.debugMode = config.debugMode || false;
     this.name = NAME;
   }
 
@@ -36,27 +37,26 @@ export default class GA4 {
         window.dataLayer.push(arguments);
       };
     window.gtag("js", new Date());
-
+    const gtagParameterObject = {};
     // This condition is not working, even after disabling page view
     // page_view is even getting called on page load
     if (this.blockPageView) {
-      if (this.sendUserId) {
-        window.gtag("config", measurementId, {
-          user_id: userId,
-          send_page_view: false,
-        });
-      } else {
-        window.gtag("config", measurementId, {
-          send_page_view: false,
-        });
-      }
-    } else if (this.sendUserId) {
-      window.gtag("config", measurementId, {
-        user_id: userId,
-      });
-    } else {
-      window.gtag("config", measurementId);
+      gtagParameterObject.send_page_view = false;
     }
+    if (this.sendUserId) {
+      gtagParameterObject.user_id = userId;
+    }
+    if (this.debugMode) {
+      gtagParameterObject.debug_mode = true;
+    }
+    if (Object.keys(gtagParameterObject).length === 0) {
+      window.gtag("config", measurementId);
+    } else {
+      window.gtag("config", measurementId, gtagParameterObject);
+    }
+    // To disable debug mode, exclude the 'debug_mode' parameter;
+    // Setting the parameter to false doesn't disable debug mode.
+    // Ref: https://support.google.com/analytics/answer/7201382?hl=en#zippy=%2Cglobal-site-tag-websites
 
     ScriptLoader(
       "google-analytics 4",

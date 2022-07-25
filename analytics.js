@@ -29,7 +29,7 @@ import {
   getReferringDomain,
   removeTrailingSlashes,
   getConfigUrl,
-  checkSDKUrl,
+  getSDKUrlInfo,
   commonNames,
   get,
 } from './utils/utils';
@@ -162,6 +162,25 @@ class Analytics {
   }
 
   /**
+   * A function to validate integration SDK is available in window
+   * and integration constructor is not undefined
+   * @param {string} pluginName
+   * @param {string} modName
+   * @returns boolean
+   */
+  integrationSDKLoaded(pluginName, modName) {
+    try {
+      return (
+        window.hasOwnProperty(pluginName) &&
+        typeof window[pluginName][modName].prototype.constructor !== 'undefined'
+      );
+    } catch (e) {
+      handleError(e);
+      return false;
+    }
+  }
+
+  /**
    * Process the response from control plane and
    * call initialize for integrations
    *
@@ -240,8 +259,8 @@ class Analytics {
       let suffix = ''; // default suffix
 
       // Get the CDN base URL is rudder staging url
-      const { rudderSDK, staging } = checkSDKUrl();
-      if (rudderSDK && staging) {
+      const { isStaging } = getSDKUrlInfo();
+      if (isStaging) {
         suffix = '-staging'; // stagging suffix
       }
 
@@ -259,7 +278,7 @@ class Analytics {
 
         const self = this;
         const interval = setInterval(function () {
-          if (window.hasOwnProperty(pluginName)) {
+          if (self.integrationSDKLoaded(pluginName, modName)) {
             const intMod = window[pluginName];
             clearInterval(interval);
 
@@ -698,8 +717,12 @@ class Analytics {
       // check for reserved keys and log
       checkReservedKeywords(rudderElement.message, type);
 
+      // if not specified at event level, All: true is default
+      const clientSuppliedIntegrations = rudderElement.message.integrations || { All: true };
+
       // structure user supplied integrations object to rudder format
-      transformToRudderNames(rudderElement.message.integrations);
+      transformToRudderNames(clientSuppliedIntegrations);
+      rudderElement.message.integrations = clientSuppliedIntegrations;
 
       // config plane native enabled destinations, still not completely loaded
       // in the page, add the events to a queue and process later
@@ -708,9 +731,6 @@ class Analytics {
         // new event processing after analytics initialized  but integrations not fetched from BE
         this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
       } else {
-        // if not specified at event level, All: true is default
-        const clientSuppliedIntegrations = rudderElement.message.integrations;
-
         // get intersection between config plane native enabled destinations
         // (which were able to successfully load on the page) vs user supplied integrations
         const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
@@ -1042,9 +1062,9 @@ class Analytics {
       }
     } else {
       // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
-      const { rudderSDK } = checkSDKUrl();
-      if (rudderSDK) {
-        this.destSDKBaseURL = rudderSDK.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/');
+      const { sdkURL } = getSDKUrlInfo();
+      if (sdkURL) {
+        this.destSDKBaseURL = sdkURL.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/');
       }
     }
     if (options && options.getSourceConfig) {
@@ -1187,7 +1207,7 @@ const instance = new Analytics();
 
 function processDataInAnalyticsArray(analytics) {
   analytics.toBeProcessedArray.forEach((x) => {
-    var event = [...x];
+    const event = [...x];
     const method = event[0];
     event.shift();
     // logger.debug("=====from analytics array, calling method:: ", method)
