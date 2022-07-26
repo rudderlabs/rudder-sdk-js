@@ -17,12 +17,7 @@ const META_DATA = {
 const API_KEY = '{{RS_BUGSNAG_API_KEY}}';
 
 // Errors only from Below SDKs are allowed to reach Bugsnag
-const SDK_FILE_NAMES = [
-  'browser.js',
-  'rudder-analytics.min.js',
-  'rudder-analytics-staging.min.js',
-  'rudder-analytics.js',
-];
+const SDK_FILE_NAMES = ['rudder-analytics.min.js'];
 
 /**
  * This function will load the Bugsnag native SDK through CDN
@@ -49,7 +44,7 @@ function initClient(sourceId) {
   const apiKeyRegex = /{{.+}}/;
   if (API_KEY.match(apiKeyRegex) !== null) return;
   const host = window.location.hostname;
-  const devHosts = ['localhost', '127.0.0.1'];
+  const devHosts = ['localhost', '127.0.0.1', '::1'];
 
   window.rsBugsnagClient = window.Bugsnag.start({
     apiKey: API_KEY,
