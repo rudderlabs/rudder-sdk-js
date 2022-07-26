@@ -29,6 +29,7 @@ class RudderContext {
       this.screen.density = window.devicePixelRatio;
       this.screen.innerWidth = window.innerWidth;
       this.screen.innerHeight = window.innerHeight;
+      this.userAgent = navigator.userAgent;
 
       // For supporting Brave browser detection,
       // add "Brave/<version>" to the user agent with the version value from the Chrome component
