@@ -169,6 +169,7 @@ class Analytics {
     try {
       return (
         window.hasOwnProperty(pluginName) &&
+        window[pluginName][modName] &&
         typeof window[pluginName][modName].prototype.constructor !== 'undefined'
       );
     } catch (e) {
