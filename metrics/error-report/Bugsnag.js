@@ -79,6 +79,8 @@ function initClient(sourceId) {
         event.severity = 'error';
         return true;
       } catch {
+        // Drop the error event if it couldn't be filtered as
+        // it is most likely a non-SDK error
         return false;
       }
     },
