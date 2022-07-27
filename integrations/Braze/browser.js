@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 /*
@@ -90,6 +90,7 @@ class Braze {
       (y = p.createElement(P)).type = "text/javascript";
       y.src = "https://js.appboycdn.com/web-sdk/2.4/appboy.min.js";
       y.dataset.loader = LOAD_ORIGIN;
+      y.dataset.isNative = IS_NATIVE_SCRIPT;
       y.async = 1;
       (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
     })(window, document, "script");

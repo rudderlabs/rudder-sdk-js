@@ -40,7 +40,7 @@ import {
   formatTraits,
 } from "./util";
 import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
 
 class Mixpanel {
   constructor(config) {
@@ -135,6 +135,7 @@ class Mixpanel {
         e.type = "text/javascript";
         e.async = !0;
         e.dataset.loader = LOAD_ORIGIN;
+        e.dataset.isNative = IS_NATIVE_SCRIPT;
         e.src =
           "undefined" !== typeof MIXPANEL_CUSTOM_LIB_URL
             ? MIXPANEL_CUSTOM_LIB_URL

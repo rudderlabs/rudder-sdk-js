@@ -1,5 +1,5 @@
 import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class BingAds {
@@ -22,6 +22,7 @@ class BingAds {
         (n.src = r),
         (n.async = 1),
         (n.dataset.loader = LOAD_ORIGIN),
+        (n.dataset.isNative = IS_NATIVE_SCRIPT),
         (n.onload = n.onreadystatechange =
           function () {
             let s = this.readyState;

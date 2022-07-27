@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class CustomerIO {
@@ -33,6 +33,7 @@ class CustomerIO {
       const s = document.getElementsByTagName("script")[0];
       t.async = true;
       t.dataset.loader = LOAD_ORIGIN;
+      t.dataset.isNative = IS_NATIVE_SCRIPT;
       t.id = "cio-tracker";
       t.setAttribute("data-site-id", siteID);
       t.src = "https://assets.customer.io/assets/track.js";

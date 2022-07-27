@@ -13,7 +13,7 @@ import {
   getDataFromSource,
 } from "../../utils/utils";
 import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
 
 export default class PinterestTag {
   constructor(config, analytics) {
@@ -35,7 +35,7 @@ export default class PinterestTag {
         var n = window.pintrk;
         (n.queue = []), (n.version = "3.0");
         var t = document.createElement("script");
-        (t.async = !0), (t.src = e), (t.dataset.loader = LOAD_ORIGIN);
+        (t.async = !0), (t.src = e), (t.dataset.loader = LOAD_ORIGIN), (t.dataset.isNative = IS_NATIVE_SCRIPT);
         var r = document.getElementsByTagName("script")[0];
         r.parentNode.insertBefore(t, r);
       }

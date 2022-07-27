@@ -2,7 +2,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import { type } from "../../utils/utils";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class Amplitude {
@@ -65,6 +65,7 @@ class Amplitude {
         r.crossOrigin = "anonymous";
         r.async = true;
         r.dataset.loader = LOAD_ORIGIN;
+        r.dataset.isNative = IS_NATIVE_SCRIPT;
         r.src = "https://cdn.amplitude.com/libs/amplitude-7.2.1-min.gz.js";
         r.onload = function () {
           if (!e.amplitude.runQueuedFunctions) {

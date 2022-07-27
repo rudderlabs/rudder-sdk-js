@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class Hotjar {
@@ -25,6 +25,7 @@ class Hotjar {
       a = o.getElementsByTagName("head")[0];
       r = o.createElement("script");
       r.dataset.loader = LOAD_ORIGIN;
+      r.dataset.isNative = IS_NATIVE_SCRIPT;
       r.async = 1;
       r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
       a.appendChild(r);

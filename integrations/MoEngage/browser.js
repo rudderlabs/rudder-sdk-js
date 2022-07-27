@@ -1,6 +1,6 @@
 import each from "@ndhoule/each";
 import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 // custom traits mapping context.traits --> moengage properties
@@ -69,6 +69,7 @@ class MoEngage {
       m = s.getElementsByTagName(o)[0];
       a.async = 1;
       a.dataset.loader = LOAD_ORIGIN;
+      a.dataset.isNative = IS_NATIVE_SCRIPT;
       a.src = g;
       m.parentNode.insertBefore(a, m);
       i.moe =
