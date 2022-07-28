@@ -104,7 +104,12 @@ class INTERCOM {
       if (context.traits.hasOwnProperty(field)) {
         const value = context.traits[field];
 
-        if (field === "company") {
+        // map the avatar url to support intercom format
+        if (field === "avatar") {
+          rawPayload.avatar = {}
+          rawPayload.avatar.type = "avatar";
+          rawPayload.avatar.image_url = value;
+        } else if (field === "company") {
           const companies = [];
           const company = {};
           // special handling string
