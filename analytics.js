@@ -174,9 +174,19 @@ class Analytics {
         return;
       }
 
-      if (typeof response === "string") {
-        response = JSON.parse(response);
-      }
+var response = responseVal;
+try {
+  if (typeof responseVal === "string") {
+    response = JSON.parse(responseVal);
+  }
+  
+  // Do not proceed if the ultimate response value is not an object
+  if (!response || typeof response !== "object" || Array.isArray(response)) {
+    throw new Error("Invalid source configuration");
+  }
+} catch (err) {
+  handleError(err);
+}
 
       // Fetch Error reporting enable option from sourceConfig
       const isErrorReportEnabled = get(
