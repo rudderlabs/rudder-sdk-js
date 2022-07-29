@@ -48,6 +48,7 @@ import { CNameMapping as DCMFloodlight } from "./DCMFloodlight/constants";
 import { CNameMapping as Adroll } from "./Adroll/constants";
 import { CNameMapping as Vero } from "./Vero/constants";
 import { CNameMapping as Matomo } from "./Matomo/constants";
+import { CNameMapping as Mouseflow } from "./Mouseflow/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -89,6 +90,7 @@ const commonNames = {
   ...Matomo,
   ...Mixpanel,
   ...MoEngage,
+  ...Mouseflow,
   ...Optimizely,
   ...Pendo,
   ...PinterestTag,
