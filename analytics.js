@@ -166,27 +166,24 @@ class Analytics {
    * @param {*} response
    * @memberof Analytics
    */
-  processResponse(status, response) {
+  processResponse(status, responseVal) {
     try {
       logger.debug(`===in process response=== ${status}`);
-      if (!response) {
-        logger.debug(`No config found`);
+
+      var response = responseVal;
+      try {
+        if (typeof responseVal === "string") {
+          response = JSON.parse(responseVal);
+        }
+        
+        // Do not proceed if the ultimate response value is not an object
+        if (!response || typeof response !== "object" || Array.isArray(response)) {
+          throw new Error("Invalid source configuration");
+        }
+      } catch (err) {
+        handleError(err);
         return;
       }
-
-var response = responseVal;
-try {
-  if (typeof responseVal === "string") {
-    response = JSON.parse(responseVal);
-  }
-  
-  // Do not proceed if the ultimate response value is not an object
-  if (!response || typeof response !== "object" || Array.isArray(response)) {
-    throw new Error("Invalid source configuration");
-  }
-} catch (err) {
-  handleError(err);
-}
 
       // Fetch Error reporting enable option from sourceConfig
       const isErrorReportEnabled = get(
