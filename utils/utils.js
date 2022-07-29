@@ -134,11 +134,8 @@ function handleError(error, analyticsInstance) {
       // Discard all the non-script loading errors
       if (error.target && error.target.localName !== "script") return;
 
-      // Discard errors of scripts that are not loaded by the SDK
-      if (error.target.dataset && error.target.dataset.loader !== LOAD_ORIGIN)
-        return;
-      // Discard script loading errors generated from native SDKs
-      if (error.target.dataset && error.target.dataset.isNative === IS_NATIVE_SCRIPT)
+      // Discard all script errors unless they are of integration SDK scripts
+      if (error.target.dataset && (error.target.dataset.loader !== LOAD_ORIGIN || error.target.dataset.isNative === IS_NATIVE_SCRIPT))
         return;
 
       errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
