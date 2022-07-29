@@ -44,7 +44,7 @@ function initClient(sourceId) {
   const apiKeyRegex = /{{.+}}/;
   if (API_KEY.match(apiKeyRegex) !== null) return;
   const host = window.location.hostname;
-  const devHosts = ['localhost', '127.0.0.1', '::1'];
+  const devHosts = ['localhost', '127.0.0.1', '[::1]'];
 
   window.rsBugsnagClient = window.Bugsnag.start({
     apiKey: API_KEY,
