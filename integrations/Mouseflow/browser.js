@@ -3,7 +3,6 @@
 import get from "get-value";
 import { NAME } from "./constants";
 import logger from "../../utils/logUtil";
-import ScriptLoader from "../ScriptLoader";
 
 class Mouseflow {
   constructor(config) {
@@ -14,17 +13,13 @@ class Mouseflow {
   init() {
     logger.debug("===In init mouseflow===");
     window._mfq = window._mfq || [];
-    // ScriptLoader(
-    //   "mouseflow-integration",
-    //   `https://cdn.mouseflow.com/projects/${this.websiteId}.js`
-    // );
-    (function () {
+    (function (websiteId) {
       var mf = document.createElement("script");
       mf.type = "text/javascript";
       mf.defer = true;
-      mf.src = `//cdn.mouseflow.com/projects/${this.websiteId}.js`;
+      mf.src = `https://cdn.mouseflow.com/projects/${websiteId}.js`;
       document.getElementsByTagName("head")[0].appendChild(mf);
-    })();
+    })(this.websiteId);
   }
 
   isLoaded() {
