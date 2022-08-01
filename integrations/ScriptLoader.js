@@ -2,18 +2,10 @@
 import logger from "../utils/logUtil";
 
 const defaultAsyncState = true;
-const defaultNonNativeSDKState = "false";
 
 export const LOAD_ORIGIN = "RS_JS_SDK";
 
-const ScriptLoader = (
-  id,
-  src,
-  options = {
-    async: defaultAsyncState,
-    isNonNativeSDK: defaultNonNativeSDKState,
-  }
-) => {
+const ScriptLoader = (id, src, options) => {
   logger.debug(`in script loader=== ${id}`);
   const js = document.createElement("script");
   js.src = src;
@@ -21,7 +13,7 @@ const ScriptLoader = (
   js.type = "text/javascript";
   js.id = id;
   js.dataset.loader = LOAD_ORIGIN;
-  if (options.isNonNativeSDK) {
+  if (options.isNonNativeSDK !== undefined) {
     js.dataset.isNonNativeSDK = options.isNonNativeSDK;
   }
   const headElmColl = document.getElementsByTagName("head");
