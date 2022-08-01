@@ -9,6 +9,7 @@ class LaunchDarkly {
   constructor(config) {
     this.name = NAME;
     this.clientSideId = config.clientSideId;
+    this.anonymousUsersSharedKey = config.anonymousUsersSharedKey;
   }
 
   init() {
