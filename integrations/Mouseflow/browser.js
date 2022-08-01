@@ -38,12 +38,9 @@ class Mouseflow {
    * Ref: https://js-api-docs.mouseflow.com/#setting-a-custom-variable
    */
   addTags(message) {
-    const { integrations } = message;
-    if (integrations && integrations[NAME]) {
-      const tags = integrations[NAME];
-      if (isDefinedAndNotNull(tags)) {
-        setCustomVariables(tags);
-      }
+    const tags = get(message, `integrations.${NAME}.tags`);
+    if (isDefinedAndNotNull(tags)) {
+      setCustomVariables(tags);
     }
   }
 
@@ -62,7 +59,7 @@ class Mouseflow {
       get(message, "context.traits.email") || get(message, "traits.email");
     const userId = message.userId || email;
     window._mfq.push(["stop"]);
-    if (userId) window.mouseflow.identify(userId);
+    if (userId) window._mfq.push(["identify", userId]);
     window.mouseflow.start();
     setCustomVariables(traits);
     this.addTags(message);
@@ -99,7 +96,7 @@ class Mouseflow {
   page(rudderElement) {
     logger.debug("=== In mouseflow Page ===");
     const tabPath =
-      rudderElement.message.properties?.path ||
+      rudderElement.message.properties.path ||
       rudderElement.message.context.path;
     if (tabPath) window._mfq.push(["newPageView", tabPath]);
   }
