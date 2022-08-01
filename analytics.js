@@ -1179,13 +1179,16 @@ class Analytics {
       !Array.prototype.find ||
       !Array.prototype.includes ||
       !Promise ||
-      !Object.entries
+      !Object.entries ||
+      !Object.values ||
+      !String.prototype.replaceAll
     ) {
-      ScriptLoader("polyfill", POLYFILL_URL);
+      const id = "polyfill";
+      ScriptLoader(id, POLYFILL_URL);
       const self = this;
       const interval = setInterval(function () {
         // check if the polyfill is loaded
-        if (window.hasOwnProperty("polyfill")) {
+        if (document.getElementById(id) !== null) {
           clearInterval(interval);
           self.loadAfterPolyfill(writeKey, serverUrl, options);
         }
