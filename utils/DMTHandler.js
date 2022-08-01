@@ -77,7 +77,16 @@ const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount)
                   dest.payload.every((tEvent) => tEvent.status === '200'),
                 )
               )
-                return resolve(response.transformedBatch);
+                return resolve({
+                  transformedBatch: response.transformedBatch,
+                  transformationServerAccess: true,
+                });
+            }
+            if (xhr.status === 404) {
+              return resolve({
+                transformedBatch: payload.batch,
+                transformationServerAccess: false,
+              });
             }
 
             // If the request is not successful
@@ -122,8 +131,8 @@ const processTransformation = (event, writeKey, dataPlaneUrl, cb) => {
 
   // Send event for transformation with payload, writekey and retryCount
   sendEventForTransformation(payload, writeKey, dataPlaneUrl, retryCount)
-    .then((transformedBatch) => {
-      return cb(transformedBatch);
+    .then((outcome) => {
+      return cb(outcome.transformedBatch, outcome.transformationServerAccess);
     })
     .catch((err) => {
       if (typeof err === 'string') {
