@@ -5,7 +5,7 @@ const defaultAsyncState = true;
 
 export const LOAD_ORIGIN = "RS_JS_SDK";
 
-const ScriptLoader = (id, src, options) => {
+const ScriptLoader = (id, src, options = {}) => {
   logger.debug(`in script loader=== ${id}`);
   const js = document.createElement("script");
   js.src = src;
