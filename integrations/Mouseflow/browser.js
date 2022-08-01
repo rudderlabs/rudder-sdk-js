@@ -4,6 +4,7 @@ import get from "get-value";
 import { NAME } from "./constants";
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
+import setCustomVariables from "./utils";
 import { isDefinedAndNotNull } from "../utils/commonUtils";
 
 class Mouseflow {
@@ -41,35 +42,37 @@ class Mouseflow {
     if (integrations && integrations[NAME]) {
       const tags = integrations[NAME];
       if (isDefinedAndNotNull(tags)) {
-        Object.entries(tags).forEach((item) => {
-          const [key, value] = item;
-          if (typeof value === "string")
-            window._mfq.push(["setVariable", key, value]);
-        });
+        setCustomVariables(tags);
       }
     }
   }
 
   /**
    * Identify.
+   * for supporting userId or email
    * Ref: https://js-api-docs.mouseflow.com/#identifying-a-user
+   * for supporting user traits and tags
+   * Ref: https://js-api-docs.mouseflow.com/#setting-a-custom-variable
    * @param {Identify} identify
    */
   identify(rudderElement) {
     const { message } = rudderElement;
+    const { traits } = message.context;
     const email =
       get(message, "context.traits.email") || get(message, "traits.email");
     const userId = message.userId || email;
     window._mfq.push(["stop"]);
     if (userId) window.mouseflow.identify(userId);
     window.mouseflow.start();
+    setCustomVariables(traits);
+    this.addTags(message);
   }
 
   /**
    * Track - tracks an event for a specific user
-   * Set custom tags
+   * for supporting event
    * Ref: https://js-api-docs.mouseflow.com/#tagging-a-recording
-   * Set custom Variables
+   * for supporting properties and tags
    * Ref: https://js-api-docs.mouseflow.com/#setting-a-custom-variable
    * @param {Track} track
    */
@@ -83,16 +86,13 @@ class Mouseflow {
       return;
     }
     window._mfq.push(["tag", event]);
-    Object.entries(properties).forEach((item) => {
-      const [key, value] = item;
-      if (typeof value === "string")
-        window._mfq.push(["setVariable", key, value]);
-    });
+    setCustomVariables(properties);
     this.addTags(message);
   }
 
   /**
    * Page.
+   * for supporting path of Page
    * Ref: https://js-api-docs.mouseflow.com/#setting-a-virtual-path
    * @param {Page} page
    */
