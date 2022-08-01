@@ -4,9 +4,9 @@ import logger from "../utils/logUtil";
 const defaultAsyncState = true;
 
 export const LOAD_ORIGIN = "RS_JS_SDK";
-export const IS_NATIVE_SCRIPT = "true";
+export const defaultNonNativeSDKState = "false";
 
-const ScriptLoader = (id, src, async = defaultAsyncState) => {
+const ScriptLoader = (id, src, async = defaultAsyncState, isNonNativeSDK = defaultNonNativeSDKState) => {
   logger.debug(`in script loader=== ${id}`);
   const js = document.createElement("script");
   js.src = src;
@@ -14,7 +14,7 @@ const ScriptLoader = (id, src, async = defaultAsyncState) => {
   js.type = "text/javascript";
   js.id = id;
   js.dataset.loader = LOAD_ORIGIN;
-  js.dataset.isNative = IS_NATIVE_SCRIPT;
+  js.dataset.isNonNativeSDK = isNonNativeSDK;
   const headElmColl = document.getElementsByTagName("head");
   if (headElmColl.length !== 0) {
     logger.debug("==adding script==", js);

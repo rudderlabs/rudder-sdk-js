@@ -33,7 +33,9 @@ const load = () => {
   if (!window.hasOwnProperty(pluginName)) {
     ScriptLoader(
       pluginName,
-      "https://d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js"
+      "https://d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js",
+      true,
+      "true"
     );
   }
 };

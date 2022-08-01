@@ -2,7 +2,7 @@
 import { parse } from "component-url";
 import get from "get-value";
 import { v4 as uuid } from "@lukeed/uuid";
-import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../integrations/ScriptLoader";
+import { LOAD_ORIGIN, defaultNonNativeSDKState } from "../integrations/ScriptLoader";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
@@ -135,7 +135,7 @@ function handleError(error, analyticsInstance) {
       if (error.target && error.target.localName !== "script") return;
 
       // Discard all script errors unless they are of integration SDK scripts
-      if (error.target.dataset && (error.target.dataset.loader !== LOAD_ORIGIN || error.target.dataset.isNative === IS_NATIVE_SCRIPT))
+      if (error.target.dataset && (error.target.dataset.loader !== LOAD_ORIGIN || error.target.dataset.isNonNativeSDK === defaultNonNativeSDKState))
         return;
 
       errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
