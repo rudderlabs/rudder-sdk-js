@@ -11,7 +11,7 @@ import {
   sendEvent,
 } from "./util";
 import { NAME } from "./constants";
-import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class SnapPixel {
   constructor(config) {
@@ -74,7 +74,6 @@ class SnapPixel {
       r.async = !0;
       r.src = n;
       r.dataset.loader = LOAD_ORIGIN;
-      r.dataset.isNative = IS_NATIVE_SCRIPT;
       var u = t.getElementsByTagName(s)[0];
       u.parentNode.insertBefore(r, u);
     })(window, document, "https://sc-static.net/scevent.min.js");

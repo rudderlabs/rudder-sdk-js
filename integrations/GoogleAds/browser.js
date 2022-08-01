@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 import { NAME } from "./constants";
 
@@ -26,7 +26,6 @@ class GoogleAds {
       js.src = src;
       js.async = 1;
       js.dataset.loader = LOAD_ORIGIN;
-      js.dataset.isNative = IS_NATIVE_SCRIPT;
       js.type = "text/javascript";
       js.id = id;
       const e = document.getElementsByTagName("head")[0];

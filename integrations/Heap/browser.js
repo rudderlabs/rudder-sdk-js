@@ -2,7 +2,7 @@
 
 import processHeapProperties from "./util";
 import { NAME } from "./constants";
-import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class Heap {
   constructor(config) {
@@ -23,7 +23,6 @@ class Heap {
         (r.type = "text/javascript"),
           (r.async = !0),
           (r.dataset.loader = LOAD_ORIGIN),
-          (r.dataset.isNative = IS_NATIVE_SCRIPT),
           (r.src = "https://cdn.heapanalytics.com/js/heap-" + e + ".js");
         var a = document.getElementsByTagName("script")[0];
         a.parentNode.insertBefore(r, a);

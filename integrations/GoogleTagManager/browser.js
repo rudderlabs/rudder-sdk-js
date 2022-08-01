@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class GoogleTagManager {
@@ -26,7 +26,6 @@ class GoogleTagManager {
       const j = d.createElement(s);
       const dl = l !== "dataLayer" ? `&l=${l}` : "";
       j.dataset.loader = LOAD_ORIGIN;
-      j.dataset.isNative = IS_NATIVE_SCRIPT;
       j.async = true;
       j.src = `${window.finalUrl}/gtm.js?id=${i}${dl}`;
       f.parentNode.insertBefore(j, f);

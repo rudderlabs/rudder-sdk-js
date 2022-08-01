@@ -10,7 +10,7 @@ import { getDestinationExternalID } from "./utils";
 
 import { extractCustomFields } from "../../utils/utils";
 import { NAME } from "./constants";
-import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class Drip {
   constructor(config) {
@@ -43,7 +43,6 @@ class Drip {
       var dc = document.createElement("script");
       dc.type = "text/javascript";
       dc.dataset.loader = LOAD_ORIGIN;
-      dc.dataset.isNative = IS_NATIVE_SCRIPT;
       dc.async = true;
       dc.src = `//tag.getdrip.com/${window._dcs.account}.js`;
       var s = document.getElementsByTagName("script")[0];

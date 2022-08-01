@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
 import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class ProfitWell {
@@ -36,7 +36,6 @@ class ProfitWell {
       m = s.getElementsByTagName(g)[0];
       a.async = 1;
       a.dataset.loader = LOAD_ORIGIN;
-      a.dataset.isNative = IS_NATIVE_SCRIPT;
       a.src = r + "?auth=" + window.publicApiKey;
       m.parentNode.insertBefore(a, m);
     })(

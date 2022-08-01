@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 
-import ScriptLoader, { LOAD_ORIGIN, IS_NATIVE_SCRIPT } from "../ScriptLoader";
+import ScriptLoader, { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class GoogleOptimize {
@@ -48,7 +48,6 @@ class GoogleOptimize {
       flick.innerHTML = ".async-hide { opacity: 0 !important}";
       const js = document.createElement("script");
       js.dataset.loader = LOAD_ORIGIN;
-      js.dataset.isNative = IS_NATIVE_SCRIPT;
       js.innerHTML = `(function(a,s,y,n,c,h,i,d,e){s.className+=' '+y;h.start=1*new Date;h.end=i=function(){s.className=s.className.replace(RegExp(' ?'+y),'')};(a[n]=a[n]||[]).hide=h;setTimeout(function(){i();h.end=null},c);h.timeout=c;})(window,document.documentElement,'async-hide','dataLayer',4000,{'${this.containerId}':true});`;
       const e = document.getElementsByTagName("script")[0];
       e.parentNode.insertBefore(flick, e); // style tag in anti flicker snippet should be before the a-flicker script as per docs
