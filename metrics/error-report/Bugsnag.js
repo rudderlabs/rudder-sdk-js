@@ -34,8 +34,7 @@ const load = () => {
     ScriptLoader(
       pluginName,
       "https://d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js",
-      true,
-      "true"
+      { isNonNativeSDK: "true" }
     );
   }
 };

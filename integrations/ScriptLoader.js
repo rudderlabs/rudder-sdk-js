@@ -6,15 +6,22 @@ const defaultAsyncState = true;
 export const LOAD_ORIGIN = "RS_JS_SDK";
 export const defaultNonNativeSDKState = "false";
 
-const ScriptLoader = (id, src, async = defaultAsyncState, isNonNativeSDK = defaultNonNativeSDKState) => {
+const ScriptLoader = (
+  id,
+  src,
+  options = {
+    async: defaultAsyncState,
+    isNonNativeSDK: defaultNonNativeSDKState,
+  }
+) => {
   logger.debug(`in script loader=== ${id}`);
   const js = document.createElement("script");
   js.src = src;
-  js.async = async === undefined ? defaultAsyncState : async;
+  js.async = options.async === undefined ? defaultAsyncState : options.async;
   js.type = "text/javascript";
   js.id = id;
   js.dataset.loader = LOAD_ORIGIN;
-  js.dataset.isNonNativeSDK = isNonNativeSDK;
+  js.dataset.isNonNativeSDK = options.isNonNativeSDK;
   const headElmColl = document.getElementsByTagName("head");
   if (headElmColl.length !== 0) {
     logger.debug("==adding script==", js);
