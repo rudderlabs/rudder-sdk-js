@@ -3,6 +3,8 @@
 import get from "get-value";
 import { NAME } from "./constants";
 import logger from "../../utils/logUtil";
+import ScriptLoader from "../ScriptLoader";
+import { isDefinedAndNotNull } from "../utils/commonUtils";
 
 class Mouseflow {
   constructor(config) {
@@ -13,13 +15,10 @@ class Mouseflow {
   init() {
     logger.debug("===In init mouseflow===");
     window._mfq = window._mfq || [];
-    (function (websiteId) {
-      var mf = document.createElement("script");
-      mf.type = "text/javascript";
-      mf.defer = true;
-      mf.src = `https://cdn.mouseflow.com/projects/${websiteId}.js`;
-      document.getElementsByTagName("head")[0].appendChild(mf);
-    })(this.websiteId);
+    ScriptLoader(
+      "mouseflow-integraions",
+      `https://cdn.mouseflow.com/projects/${this.websiteId}.js`
+    );
   }
 
   isLoaded() {
@@ -32,6 +31,25 @@ class Mouseflow {
     return !!window._mfq;
   }
 
+  /*
+   * Add tags
+   * Set custom Variables
+   * Ref: https://js-api-docs.mouseflow.com/#setting-a-custom-variable
+   */
+  addTags(message) {
+    const { integrations } = message;
+    if (integrations && integrations[NAME]) {
+      const tags = integrations[NAME];
+      if (isDefinedAndNotNull(tags)) {
+        Object.entries(tags).forEach((item) => {
+          const [key, value] = item;
+          if (typeof value === "string")
+            window._mfq.push(["setVariable", key, value]);
+        });
+      }
+    }
+  }
+
   /**
    * Identify.
    * Ref: https://js-api-docs.mouseflow.com/#identifying-a-user
@@ -42,9 +60,9 @@ class Mouseflow {
     const email =
       get(message, "context.traits.email") || get(message, "traits.email");
     const userId = message.userId || email;
-    _mfq.push(["stop"]);
+    window._mfq.push(["stop"]);
     if (userId) window.mouseflow.identify(userId);
-    mouseflow.start();
+    window.mouseflow.start();
   }
 
   /**
@@ -65,10 +83,12 @@ class Mouseflow {
       return;
     }
     window._mfq.push(["tag", event]);
-    Object.entries(properties).forEach((_ref) => {
-      const [_key, _value] = _ref;
-      window._mfq.push(["setVariable", _key, _value]);
+    Object.entries(properties).forEach((item) => {
+      const [key, value] = item;
+      if (typeof value === "string")
+        window._mfq.push(["setVariable", key, value]);
     });
+    this.addTags(message);
   }
 
   /**
@@ -78,22 +98,10 @@ class Mouseflow {
    */
   page(rudderElement) {
     logger.debug("=== In mouseflow Page ===");
-    const { name, category, properties } = rudderElement.message;
-    let eventName;
-    if (!name && !category) {
-      eventName = `Viewed Page`;
-    } else if (!name && category) {
-      eventName = `Viewed ${category} Page`;
-    } else if (name && !category) {
-      eventName = `Viewed ${name} Page`;
-    } else {
-      eventName = `Viewed ${category} ${name} Page`;
-    }
-    window._mfq.push(["newPageView", eventName]);
-    Object.entries(properties).forEach((_ref) => {
-      const [_key, _value] = _ref;
-      window._mfq.push(["setVariable", _key, _value]);
-    });
+    const tabPath =
+      rudderElement.message.properties?.path ||
+      rudderElement.message.context.path;
+    if (tabPath) window._mfq.push(["newPageView", tabPath]);
   }
 }
 
