@@ -16,7 +16,7 @@ class INTERCOM {
     logger.debug("Config ", config);
   }
   
-  static flattenEventObject(ob) {
+  static flattenEventObject(ob, keyPrefix) {
     // The object which contains the final result
     const result = {};
 
@@ -29,13 +29,13 @@ class INTERCOM {
         const temp = INTERCOM.flattenEventObject(ob[key]);
         Object.keys(temp).forEach((tempKey) => {
           // Store temp in result
-          result[`${key}_${tempKey}`] = temp[tempKey];
+          result[`${keyPrefix}_${key}_${tempKey}`] = temp[tempKey];
         });
       }
 
       // Else if not an array store ob[key] in result directly
       else if (!Array.isArray(ob[key])) {
-        result[key] = ob[key];
+        result[`${keyPrefix}_${key}`] = ob[key];
       }
     });
     return result;
@@ -192,7 +192,7 @@ class INTERCOM {
       if (value && typeof value !== "object" && !Array.isArray(value)) {
         rawPayload[property] = value;
       } else if (value && typeof value === "object"){
-        Object.assign(rawPayload, INTERCOM.flattenEventObject(value))
+        Object.assign(rawPayload, INTERCOM.flattenEventObject(value, property))
       }
     });
 
