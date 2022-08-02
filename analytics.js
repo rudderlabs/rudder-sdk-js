@@ -1193,7 +1193,7 @@ class Analytics {
       !Promise ||
       !Object.entries
     ) {
-      ScriptLoader("polyfill", POLYFILL_URL);
+      ScriptLoader("polyfill", POLYFILL_URL, { isNonNativeSDK: "true" });
       const self = this;
       const interval = setInterval(function () {
         // check if the polyfill is loaded
