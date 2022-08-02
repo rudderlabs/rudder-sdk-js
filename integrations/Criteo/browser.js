@@ -9,8 +9,8 @@ import {
   handlingEventDuo,
   handleListView,
 } from "./utils";
-import { NAME } from "./constants";
-import {getHashFromArrayWithDuplicate} from '../utils/commonUtils';
+import { NAME, supportedEvents } from "./constants";
+import { getHashFromArrayWithDuplicate } from "../utils/commonUtils";
 
 class Criteo {
   constructor(config) {
@@ -121,16 +121,23 @@ class Criteo {
 
     const eventMapping = getHashFromArrayWithDuplicate(this.eventsToStandard);
     const trimmedEvent = event.toLowerCase().trim();
-   
-    if(!eventMapping[trimmedEvent]){
+
+    if (
+      !supportedEvents.includes(trimmedEvent) &&
+      !eventMapping[trimmedEvent]
+    ) {
       logger.debug(`[Criteo] event ${eventType} is not supported`);
       return;
     }
+    let events = [];
+    if (supportedEvents.includes(trimmedEvent)) {
+      events.push(trimmedEvent);
+    } else {
+      events = eventMapping[trimmedEvent];
+    }
 
-    const events = eventMapping[trimmedEvent];
-
-    if(events.length > 0){
-      events.forEach(eventType => {
+    if (events.length > 0) {
+      events.forEach((eventType) => {
         switch (eventType) {
           case "product viewed":
             handleProductView(rudderElement.message, finalPayload);
@@ -140,7 +147,11 @@ class Criteo {
             handlingEventDuo(rudderElement.message, finalPayload);
             break;
           case "product list viewed":
-            handleListView(rudderElement.message, finalPayload, this.OPERATOR_LIST);
+            handleListView(
+              rudderElement.message,
+              finalPayload,
+              this.OPERATOR_LIST
+            );
             break;
         }
       });
