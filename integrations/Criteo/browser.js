@@ -126,14 +126,14 @@ class Criteo {
       !supportedEvents.includes(trimmedEvent) &&
       !eventMapping[trimmedEvent]
     ) {
-      logger.debug(`[Criteo] event ${eventType} is not supported`);
+      logger.debug(`[Criteo] event ${trimmedEvent} is not supported`);
       return;
     }
     let events = [];
     if (supportedEvents.includes(trimmedEvent)) {
       events.push(trimmedEvent);
     } else {
-      events = eventMapping[trimmedEvent];
+      events = Array.from(eventMapping[trimmedEvent]);
     }
 
     if (events.length > 0) {
@@ -152,6 +152,8 @@ class Criteo {
               finalPayload,
               this.OPERATOR_LIST
             );
+            break;
+          default:
             break;
         }
       });
