@@ -25,10 +25,9 @@ const setCustomVariables = (userProperties) => {
 const addTags = (message) => {
   const tags = get(message, `integrations.${NAME}.tags`);
   if (isDefinedAndNotNull(tags) && Array.isArray(tags)) {
-    for (let i = 0; i < tags.length; i++) {
-      const value = tags[i];
+    tags.forEach((value) => {
       if (typeof value === "string") window._mfq.push(["tag", value]);
-    }
+    });
   }
 };
 
