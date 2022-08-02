@@ -1,14 +1,35 @@
 /* eslint-disable no-underscore-dangle */
+import get from "get-value";
+import { isDefinedAndNotNull } from "../utils/commonUtils";
+import { NAME } from "./constants";
+
 /*
  * Here, we are iterating each key-value pair of object 'Obj' and
  * checks if typeof value is string then we pass it as custom variable in mouseflow.
  */
-const setCustomVariables = (Obj) => {
-  Object.entries(Obj).forEach((item) => {
-    const [key, value] = item;
-    if (typeof value === "string")
-      window._mfq.push(["setVariable", key, value]);
-  });
+const setCustomVariables = (userProperties) => {
+  if (userProperties && typeof userProperties === "object") {
+    Object.entries(userProperties).forEach((item) => {
+      const [key, value] = item;
+      if (typeof value === "string")
+        window._mfq.push(["setVariable", key, value]);
+    });
+  }
 };
 
-export default setCustomVariables;
+/*
+ * Add tags
+ * Set custom Variables
+ * Ref: https://js-api-docs.mouseflow.com/#setting-a-custom-variable
+ */
+const addTags = (message) => {
+  const tags = get(message, `integrations.${NAME}.tags`);
+  if (isDefinedAndNotNull(tags) && Array.isArray(tags)) {
+    for (let i = 0; i < tags.length; i++) {
+      const value = tags[i];
+      if (typeof value === "string") window._mfq.push(["tag", value]);
+    }
+  }
+};
+
+export { setCustomVariables, addTags };

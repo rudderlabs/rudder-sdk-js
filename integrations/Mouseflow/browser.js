@@ -1,11 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import get from "get-value";
 import { NAME } from "./constants";
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import setCustomVariables from "./utils";
-import { isDefinedAndNotNull } from "../utils/commonUtils";
+import { setCustomVariables, addTags } from "./utils";
 
 class Mouseflow {
   constructor(config) {
@@ -32,18 +30,6 @@ class Mouseflow {
     return !!window._mfq;
   }
 
-  /*
-   * Add tags
-   * Set custom Variables
-   * Ref: https://js-api-docs.mouseflow.com/#setting-a-custom-variable
-   */
-  addTags(message) {
-    const tags = get(message, `integrations.${NAME}.tags`);
-    if (isDefinedAndNotNull(tags)) {
-      setCustomVariables(tags);
-    }
-  }
-
   /**
    * Identify.
    * for supporting userId or email
@@ -55,14 +41,13 @@ class Mouseflow {
   identify(rudderElement) {
     const { message } = rudderElement;
     const { traits } = message.context;
-    const email =
-      get(message, "context.traits.email") || get(message, "traits.email");
+    const email = message.context.traits?.email || message.traits?.email;
     const userId = message.userId || email;
     window._mfq.push(["stop"]);
     if (userId) window._mfq.push(["identify", userId]);
     window.mouseflow.start();
     setCustomVariables(traits);
-    this.addTags(message);
+    addTags(message);
   }
 
   /**
@@ -84,7 +69,7 @@ class Mouseflow {
     }
     window._mfq.push(["tag", event]);
     setCustomVariables(properties);
-    this.addTags(message);
+    addTags(message);
   }
 
   /**
