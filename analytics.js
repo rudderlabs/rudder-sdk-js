@@ -1035,6 +1035,16 @@ class Analytics {
     return true;
   }
 
+  isDatasetAvailable() {
+    try {
+      const element = document.createElement("script");
+      element.dataset.test = "test";
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /**
    * Load after polyfills are loaded
    * @param {*} writeKey
@@ -1181,14 +1191,18 @@ class Analytics {
       !Promise ||
       !Object.entries ||
       !Object.values ||
-      !String.prototype.replaceAll
+      !String.prototype.replaceAll ||
+      !this.isDatasetAvailable()
     ) {
       const id = "polyfill";
       ScriptLoader(id, POLYFILL_URL);
       const self = this;
       const interval = setInterval(function () {
         // check if the polyfill is loaded
-        if (document.getElementById(id) !== null) {
+        // In chrome 83 and below versions ID of a script is not part of window's scope
+        // even though it is loaded and returns false for <window.hasOwnProperty("polyfill")> this.
+        // So, added another checking to fulfill that purpose.
+        if (window.hasOwnProperty(id) || document.getElementById(id) !== null) {
           clearInterval(interval);
           self.loadAfterPolyfill(writeKey, serverUrl, options);
         }
