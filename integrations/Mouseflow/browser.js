@@ -15,7 +15,7 @@ class Mouseflow {
     logger.debug("===In init mouseflow===");
     window._mfq = window._mfq || [];
     ScriptLoader(
-      "mouseflow-integraions",
+      "mouseflow-integration",
       `https://cdn.mouseflow.com/projects/${this.websiteId}.js`
     );
   }
