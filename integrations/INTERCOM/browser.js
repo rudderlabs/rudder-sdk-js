@@ -15,6 +15,31 @@ class INTERCOM {
     this.MOBILE_APP_ID = config.mobileAppId;
     logger.debug("Config ", config);
   }
+  
+  static flattenEventObject(ob) {
+    // The object which contains the final result
+    const result = {};
+
+    // loop through the object "ob"
+    Object.keys(ob).forEach((key) => {
+      // We check the type of the i using
+      // typeof() function and recursively
+      // call the function again
+      if (typeof ob[key] === 'object' && !Array.isArray(ob[key])) {
+        const temp = INTERCOM.flattenEventObject(ob[key]);
+        Object.keys(temp).forEach((tempKey) => {
+          // Store temp in result
+          result[`${key}_${tempKey}`] = temp[tempKey];
+        });
+      }
+
+      // Else store ob[key] in result directly
+      else {
+        result[key] = ob[key];
+      }
+    });
+    return result;
+  }
 
   init() {
     window.intercomSettings = {
@@ -166,6 +191,8 @@ class INTERCOM {
       const value = message.properties[property];
       if (value && typeof value !== "object" && !Array.isArray(value)) {
         rawPayload[property] = value;
+      } else if (value && typeof value === "object"){
+        Object.assign(rawPayload, INTERCOM.flattenEventObject(value))
       }
     });
 
