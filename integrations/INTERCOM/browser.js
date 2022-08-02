@@ -33,8 +33,8 @@ class INTERCOM {
         });
       }
 
-      // Else store ob[key] in result directly
-      else {
+      // Else if not an array store ob[key] in result directly
+      else if (!Array.isArray(ob[key])) {
         result[key] = ob[key];
       }
     });
