@@ -23,7 +23,7 @@ class GoogleOptimize {
     ScriptLoader(
       "Google Optimize",
       `https://www.googleoptimize.com/optimize.js?id=${this.containerId}`,
-      this.async
+      { async: this.async }
     );
     if (this.ga) {
       if (!this.trackingId) {

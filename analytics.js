@@ -166,11 +166,23 @@ class Analytics {
    * @param {*} response
    * @memberof Analytics
    */
-  processResponse(status, response) {
+  processResponse(status, responseVal) {
     try {
       logger.debug(`===in process response=== ${status}`);
-      if (typeof response === "string") {
-        response = JSON.parse(response);
+
+      var response = responseVal;
+      try {
+        if (typeof responseVal === "string") {
+          response = JSON.parse(responseVal);
+        }
+        
+        // Do not proceed if the ultimate response value is not an object
+        if (!response || typeof response !== "object" || Array.isArray(response)) {
+          throw new Error("Invalid source configuration");
+        }
+      } catch (err) {
+        handleError(err);
+        return;
       }
 
       // Fetch Error reporting enable option from sourceConfig
@@ -1195,7 +1207,7 @@ class Analytics {
       !this.isDatasetAvailable()
     ) {
       const id = "polyfill";
-      ScriptLoader(id, POLYFILL_URL);
+      ScriptLoader(id, POLYFILL_URL, { isNonNativeSDK: "true" });
       const self = this;
       const interval = setInterval(function () {
         // check if the polyfill is loaded
