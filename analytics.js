@@ -1207,7 +1207,7 @@ class Analytics {
       !this.isDatasetAvailable()
     ) {
       const id = "polyfill";
-      ScriptLoader(id, POLYFILL_URL);
+      ScriptLoader(id, POLYFILL_URL, { polyfillLoad: true });
       const self = this;
       const interval = setInterval(function () {
         // check if the polyfill is loaded
