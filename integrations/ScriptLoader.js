@@ -6,12 +6,12 @@ const defaultAsyncState = true;
 export const LOAD_ORIGIN = "RS_JS_SDK";
 /**
  * Script loader
- * @param {String} id                       Id of the script
- * @param {String} src                      URL of the script
- * @param {Object} options                  Object containing different configuaration
- * @param {Boolean} options.async           Determines script will be loaded asynchronously or not
- * @param {Boolean} options.isNonNativeSDK  Determines whether the script that will be loaded is one of RS's own
- * @param {Boolean} options.polyfillLoad    Determines ScriptLoader is called for loading the polyfill
+ * @param {String} id                               Id of the script
+ * @param {String} src                              URL of the script
+ * @param {Object} options                          Object containing different configuaration
+ * @param {Boolean} options.async                   Determines script will be loaded asynchronously or not
+ * @param {Boolean} options.isNonNativeSDK          Determines whether the script that will be loaded is one of RS's own
+ * @param {Boolean} options.skipDatasetAttributes   Determines whether to add or skip dataset attribute
  */
 const ScriptLoader = (id, src, options = {}) => {
   logger.debug(`in script loader=== ${id}`);
@@ -20,11 +20,11 @@ const ScriptLoader = (id, src, options = {}) => {
   js.async = options.async === undefined ? defaultAsyncState : options.async;
   js.type = "text/javascript";
   js.id = id;
-  if (options.polyfillLoad !== true) {
+  if (options.skipDatasetAttributes !== true) {
     js.dataset.loader = LOAD_ORIGIN;
-  }
-  if (options.isNonNativeSDK !== undefined) {
-    js.dataset.isNonNativeSDK = options.isNonNativeSDK;
+    if (options.isNonNativeSDK !== undefined) {
+      js.dataset.isNonNativeSDK = options.isNonNativeSDK;
+    }
   }
   const headElmColl = document.getElementsByTagName("head");
   if (headElmColl.length !== 0) {
