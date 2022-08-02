@@ -20,6 +20,7 @@ const ScriptLoader = (id, src, options = {}) => {
   js.async = options.async === undefined ? defaultAsyncState : options.async;
   js.type = "text/javascript";
   js.id = id;
+  // This checking is in place to skip the dataset attribute for some cases(while loading polyfill)
   if (options.skipDatasetAttributes !== true) {
     js.dataset.loader = LOAD_ORIGIN;
     if (options.isNonNativeSDK !== undefined) {
