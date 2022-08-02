@@ -10,6 +10,7 @@ import {
   handleListView,
 } from "./utils";
 import { NAME } from "./constants";
+import {getHashFromArrayWithDuplicate} from '../utils/commonUtils';
 
 class Criteo {
   constructor(config) {
@@ -26,6 +27,7 @@ class Criteo {
       ? "m"
       : "d";
     this.fieldMapping = config.fieldMapping;
+    this.eventsToStandard = config.eventsToStandard;
     this.OPERATOR_LIST = ["eq", "gt", "lt", "ge", "le", "in"];
   }
 
@@ -116,23 +118,34 @@ class Criteo {
       );
       return;
     }
-    const eventType = event.toLowerCase().trim();
 
-    switch (eventType) {
-      case "product viewed":
-        handleProductView(rudderElement.message, finalPayload);
-        break;
-      case "cart viewed":
-      case "order completed":
-        handlingEventDuo(rudderElement.message, finalPayload);
-        break;
-      case "product list viewed":
-        handleListView(rudderElement.message, finalPayload, this.OPERATOR_LIST);
-        break;
-      default:
-        logger.debug(`[Criteo] event ${eventType} is not supported`);
-        return;
+    const eventMapping = getHashFromArrayWithDuplicate(this.eventsToStandard);
+    const trimmedEvent = event.toLowerCase().trim();
+   
+    if(!eventMapping[trimmedEvent]){
+      logger.debug(`[Criteo] event ${eventType} is not supported`);
+      return;
     }
+
+    const events = eventMapping[trimmedEvent];
+
+    if(events.length > 0){
+      events.forEach(eventType => {
+        switch (eventType) {
+          case "product viewed":
+            handleProductView(rudderElement.message, finalPayload);
+            break;
+          case "cart viewed":
+          case "order completed":
+            handlingEventDuo(rudderElement.message, finalPayload);
+            break;
+          case "product list viewed":
+            handleListView(rudderElement.message, finalPayload, this.OPERATOR_LIST);
+            break;
+        }
+      });
+    }
+
     const extraDataObject = generateExtraData(rudderElement, this.fieldMapping);
     if (Object.keys(extraDataObject).length !== 0) {
       finalPayload.push({ event: "setData", ...extraDataObject });
