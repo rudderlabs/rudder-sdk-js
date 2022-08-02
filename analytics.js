@@ -1207,7 +1207,7 @@ class Analytics {
       !this.isDatasetAvailable()
     ) {
       const id = "polyfill";
-      ScriptLoader(id, POLYFILL_URL, { isNonNativeSDK: "true" });
+      ScriptLoader(id, POLYFILL_URL);
       const self = this;
       const interval = setInterval(function () {
         // check if the polyfill is loaded
