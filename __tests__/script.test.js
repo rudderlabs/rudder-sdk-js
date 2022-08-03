@@ -1,4 +1,10 @@
-test("Check SDK is loaded as object and api calls reaching to hit network", () => {
+function wait(time){
+  return new Promise((resolve) => {
+    setTimeout(resolve, time);
+  });
+}
+
+test("Check SDK is loaded as object and api calls reaching to hit network", async () => {
   const xhrMock = {
     open: jest.fn(),
     setRequestHeader: jest.fn(),
@@ -36,6 +42,7 @@ test("Check SDK is loaded as object and api calls reaching to hit network", () =
       };
     })(method);
   }
+
   rudderanalytics.load(
     "1d4Qof5j9WqTuFhvUkmLaHe4EV3",
     "https://hosted.rudderlabs.com"
@@ -43,12 +50,15 @@ test("Check SDK is loaded as object and api calls reaching to hit network", () =
     rudderanalytics.page();
 
   require("./prodsdk.js");
+  await wait(500);
+
 
   console.log(rudderanalytics);
 
   rudderanalytics.page();
   rudderanalytics.track("test-event");
   rudderanalytics.identify("jest-user");
+
 
   // check the sdk loaded successfully
   expect(global.rudderanalytics.push).not.toBe(Array.prototype.push);
