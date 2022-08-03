@@ -1048,13 +1048,10 @@ class Analytics {
   }
 
   isDatasetAvailable() {
-    try {
-      const element = document.createElement("script");
-      element.dataset.test = "test";
-      return true;
-    } catch (e) {
-      return false;
-    }
+    const t = document.createElement("div");
+    return (
+      t.setAttribute("data-a-b", "c"), t.dataset ? t.dataset.aB === "c" : false
+    );
   }
 
   /**
