@@ -6,11 +6,7 @@ import get from "get-value";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import getEventId from "./utils";
-import {
-  getHashFromArray,
-  isDefinedAndNotNullAndNotEmpty,
-  isDefined,
-} from "../utils/commonUtils";
+import { getHashFromArray, isDefined } from "../utils/commonUtils";
 import { NAME, traitsMapper } from "./constants";
 import { constructPayload } from "../../utils/utils";
 
@@ -188,13 +184,9 @@ class FacebookPixel {
                 quantity: product.quantity || quantity || 1,
                 item_price: product.price,
               });
-            } else {
-              logger.error(`Product ID is missing for product ${i}.`);
             }
           }
         }
-      } else {
-        logger.error("No product array found");
       }
 
       if (contentIds.length) {
@@ -241,10 +233,6 @@ class FacebookPixel {
         }
       }, legacyTo);
     } else if (event === "Product Viewed") {
-      if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
-        // not adding index, as only one product is supposed to be present here
-        logger.error("Product ID is missing.");
-      }
       window.fbq(
         "trackSingle",
         self.pixelId,
@@ -293,10 +281,6 @@ class FacebookPixel {
         }
       }, legacyTo);
     } else if (event === "Product Added") {
-      if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
-        // not adding index, as only one product is supposed to be present here
-        logger.error("Product ID is missing.");
-      }
       const contentIds = [];
       const contents = [];
 
@@ -356,9 +340,6 @@ class FacebookPixel {
           const product = products[i];
           if (product) {
             const pId = product.product_id || product.sku || product.id;
-            if (!isDefined(pId)) {
-              logger.error(`Product ID is missing for product ${i}.`);
-            }
             if (pId) {
               contentIds.push(pId);
               const content = {
@@ -468,8 +449,6 @@ class FacebookPixel {
         if (!contentCategory && products[0] && products[0].category) {
           contentCategory = products[0].category;
         }
-      } else {
-        logger.debug("No product array found");
       }
 
       const productInfo = {
