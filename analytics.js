@@ -190,15 +190,15 @@ class Analytics {
     try {
       // logger.debug(`===in process response=== ${status}`);
 
-      var response = responseVal;
+      let response = responseVal;
       try {
-        if (typeof responseVal === "string") {
+        if (typeof responseVal === 'string') {
           response = JSON.parse(responseVal);
         }
-        
+
         // Do not proceed if the ultimate response value is not an object
-        if (!response || typeof response !== "object" || Array.isArray(response)) {
-          throw new Error("Invalid source configuration");
+        if (!response || typeof response !== 'object' || Array.isArray(response)) {
+          throw new Error('Invalid source configuration');
         }
       } catch (err) {
         handleError(err);
@@ -281,7 +281,7 @@ class Analytics {
         const modURL = `${this.destSDKBaseURL}/${modName}${suffix}.min.js`;
 
         if (!window.hasOwnProperty(pluginName)) {
-          ScriptLoader(pluginName, modURL);
+          ScriptLoader(pluginName, modURL, { isNonNativeSDK: true });
         }
 
         const self = this;
