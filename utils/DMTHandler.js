@@ -29,9 +29,10 @@ const createPayload = (event) => {
  */
 const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount) => {
   return new Promise((resolve, reject) => {
-    // const url = `${dataPlaneUrl}/v1/transform`;
-    // const url = 'https://1939f7f9-dbec-4189-9c94-4603cf391d42.mock.pstmn.io/v1/transform';
-    const url = 'http://localhost:8000/v1/batch';
+    // const url = `${dataPlaneUrl}/transform`;
+    // const url = 'https://1939f7f9-dbec-4189-9c94-4603cf391d42.mock1.pstmn.io/v1/transform';
+    // const url = 'http://localhost:8000/transform';
+    const url = 'https://shadowfax-dataplane.dev-rudder.rudderlabs.com/transform';
     const headers = {
       'Content-Type': 'application/json',
       Authorization: `Basic ${btoa(`${writeKey}:`)}`,

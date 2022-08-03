@@ -41,9 +41,66 @@ describe('Test suite for device mode transformation feature', () => {
   };
   const payload = createPayload(event);
   const retryCount = 3;
-  sendEventForTransformation(payload, '2CHyKEa3T9kF1Fa2nCqjptA1QIH', 'data-plane-url', retryCount)
-    .then()
-    .catch();
+  const samplePayloadSuccess = {
+	"transformedBatch": [{
+		"id": "2CO2YmLozA3SZe6JtmdmMKTrCOl",
+		"payload": [{
+			"orderNo": 1659505271417,
+			"status": "200",
+			"event": {
+				"message": {
+					"anonymousId": "7105960b-0174-4d31-a7a1-561925dedde3",
+					"channel": "web",
+					"context": {
+						"library": {
+							"name": "RudderLabs JavaScript SDK",
+							"version": "2.9.2"
+						},
+					},
+					"integrations": {
+						"All": true
+					},
+					"messageId": "1659505271412300-2d882451-7f50-4f23-b5ac-919fa8a1957d",
+					"name": "page view 123",
+					"originalTimestamp": "2022-08-03T05:41:11.412Z",
+					"properties": {
+					},
+					"type": "page",
+				}
+			}
+		}]
+	}]
+};
+  const xhrMockSuccess = {
+    open: jest.fn(),
+    setRequestHeader: jest.fn(),
+    onreadystatechange: jest.fn(),
+    send: jest.fn(),
+    readyState: 4,
+    responseText: JSON.stringify({}),
+    status: 200,
+  };
+
+  const xhrMockAccessDenied = {
+    open: jest.fn(),
+    setRequestHeader: jest.fn(),
+    onreadystatechange: jest.fn(),
+    send: jest.fn(),
+    readyState: 4,
+    responseText: JSON.stringify({}),
+    status: 404,
+  };
+
+  const xhrMockAccessServerDown = {
+    open: jest.fn(),
+    setRequestHeader: jest.fn(),
+    onreadystatechange: jest.fn(),
+    send: jest.fn(),
+    readyState: 4,
+    responseText: null,
+    status: 500,
+  };
+  
 
   it('Validate payload format', () => {
     expect(typeof payload).toBe('object');
@@ -53,5 +110,13 @@ describe('Test suite for device mode transformation feature', () => {
     expect(payload.batch[0].event).toBe(event);
   });
 
-  it('Transformation server returning response in right format', () => {});
+  it('Transformation server returning response in right format in case of successful transformation', () => {
+    // window.XMLHttpRequest = jest.fn(() => xhrMockSuccess);
+    sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
+    .then((transformedPayload)=>{
+        // console.log(transformedPayload);
+        // expect(Array.isArray(transformedPayload)).toBe(true);
+    })
+    .catch();
+  });
 });
