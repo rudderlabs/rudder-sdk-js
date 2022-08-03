@@ -42,9 +42,9 @@ class Mouseflow {
     const { message } = rudderElement;
     const { traits } = message.context;
     const email = message.context.traits?.email || message.traits?.email;
-    const userId = message.userId || email;
+    const userId = message.userId || email || message.anonymousId;
     window._mfq.push(["stop"]);
-    if (userId) window._mfq.push(["identify", userId]);
+    if (userId) window.mouseflow.identify(userId);
     window.mouseflow.start();
     setCustomVariables(traits);
     addTags(message);
