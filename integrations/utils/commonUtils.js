@@ -39,10 +39,12 @@ const getHashFromArrayWithDuplicate = (
         : array[fromKey].trim();
 
       if (hashMap[key]) {
-        hashMap[key].push(array[toKey]);
+        const val = hashMap[key];
+        if (!val.includes(toKey)) {
+          hashMap[key].push(array[toKey]);
+        }
       } else {
-        hashMap[key] = new Set();
-        hashMap[key].add(array[toKey]);
+        hashMap[key] = [array[toKey]];
       }
     });
   }

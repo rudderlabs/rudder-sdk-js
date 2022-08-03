@@ -133,7 +133,7 @@ class Criteo {
     if (supportedEvents.includes(trimmedEvent)) {
       events.push(trimmedEvent);
     } else {
-      events = Array.from(eventMapping[trimmedEvent]);
+      events = eventMapping[trimmedEvent];
     }
 
     if (events.length > 0) {
