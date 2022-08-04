@@ -112,7 +112,7 @@ class Chartbeat {
         e.type = "text/javascript";
         e.async = true;
         e.src = `//static.chartbeat.com/js/${script}`;
-        e.dataset.loader = LOAD_ORIGIN;
+        e.setAttribute("data-loader", LOAD_ORIGIN);
         n.parentNode.insertBefore(e, n);
       }
       loadChartbeat();
