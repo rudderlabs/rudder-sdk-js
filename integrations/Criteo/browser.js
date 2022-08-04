@@ -136,28 +136,26 @@ class Criteo {
       events = eventMapping[trimmedEvent];
     }
 
-    if (events.length > 0) {
-      events.forEach((eventType) => {
-        switch (eventType) {
-          case "product viewed":
-            handleProductView(rudderElement.message, finalPayload);
-            break;
-          case "cart viewed":
-          case "order completed":
-            handlingEventDuo(rudderElement.message, finalPayload);
-            break;
-          case "product list viewed":
-            handleListView(
-              rudderElement.message,
-              finalPayload,
-              this.OPERATOR_LIST
-            );
-            break;
-          default:
-            break;
-        }
-      });
-    }
+    events.forEach((eventType) => {
+      switch (eventType) {
+        case "product viewed":
+          handleProductView(rudderElement.message, finalPayload);
+          break;
+        case "cart viewed":
+        case "order completed":
+          handlingEventDuo(rudderElement.message, finalPayload);
+          break;
+        case "product list viewed":
+          handleListView(
+            rudderElement.message,
+            finalPayload,
+            this.OPERATOR_LIST
+          );
+          break;
+        default:
+          break;
+      }
+    });
 
     const extraDataObject = generateExtraData(rudderElement, this.fieldMapping);
     if (Object.keys(extraDataObject).length !== 0) {
