@@ -10,7 +10,7 @@ const setCustomVariables = (userProperties) => {
   if (userProperties && typeof userProperties === "object") {
     Object.entries(userProperties).forEach((item) => {
       const [key, value] = item;
-      if (typeof value === "string")
+      if (typeof value === "string" || typeof value === "number")
         window._mfq.push(["setVariable", key, value]);
     });
   }
