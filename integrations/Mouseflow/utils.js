@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 import get from "get-value";
-import { isDefinedAndNotNull } from "../utils/commonUtils";
 import { NAME } from "./constants";
 
 /*
@@ -18,17 +17,11 @@ const setCustomVariables = (userProperties) => {
 };
 
 /*
- * Add tags
- * Set custom Variables
- * Ref: https://js-api-docs.mouseflow.com/#setting-a-custom-variable
+ * Set custom Variables from integrations Object
  */
-const addTags = (message) => {
-  const tags = get(message, `integrations.${NAME}.tags`);
-  if (isDefinedAndNotNull(tags) && Array.isArray(tags)) {
-    tags.forEach((value) => {
-      if (typeof value === "string") window._mfq.push(["tag", value]);
-    });
-  }
+const addCustomVariables = (message) => {
+  const customVariables = get(message, `integrations.${NAME}.customVariables`);
+  setCustomVariables(customVariables);
 };
 
-export { setCustomVariables, addTags };
+export { setCustomVariables, addCustomVariables };

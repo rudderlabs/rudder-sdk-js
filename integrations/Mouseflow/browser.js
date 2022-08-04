@@ -3,7 +3,7 @@
 import { NAME } from "./constants";
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import { setCustomVariables, addTags } from "./utils";
+import { setCustomVariables, addCustomVariables } from "./utils";
 
 class Mouseflow {
   constructor(config) {
@@ -34,11 +34,12 @@ class Mouseflow {
    * Identify.
    * for supporting userId or email
    * Ref: https://js-api-docs.mouseflow.com/#identifying-a-user
-   * for supporting user traits and tags
+   * for supporting user traits and customVariables
    * Ref: https://js-api-docs.mouseflow.com/#setting-a-custom-variable
    * @param {Identify} identify
    */
   identify(rudderElement) {
+    logger.debug("===In mouseflow Identify===");
     const { message } = rudderElement;
     const { traits } = message.context;
     const email = message.context.traits?.email || message.traits?.email;
@@ -47,20 +48,19 @@ class Mouseflow {
     if (userId) window.mouseflow.identify(userId);
     window.mouseflow.start();
     setCustomVariables(traits);
-    addTags(message);
+    addCustomVariables(message);
   }
 
   /**
    * Track - tracks an event for a specific user
    * for supporting event
    * Ref: https://js-api-docs.mouseflow.com/#tagging-a-recording
-   * for supporting properties and tags
+   * for supporting properties and customVariables
    * Ref: https://js-api-docs.mouseflow.com/#setting-a-custom-variable
    * @param {Track} track
    */
   track(rudderElement) {
-    logger.debug("=== In mouseflow track ===");
-
+    logger.debug("===In mouseflow Track===");
     const { message } = rudderElement;
     const { event, properties } = message;
     if (!event) {
@@ -69,7 +69,7 @@ class Mouseflow {
     }
     window._mfq.push(["tag", event]);
     setCustomVariables(properties);
-    addTags(message);
+    addCustomVariables(message);
   }
 
   /**
@@ -79,7 +79,7 @@ class Mouseflow {
    * @param {Page} page
    */
   page(rudderElement) {
-    logger.debug("=== In mouseflow Page ===");
+    logger.debug("===In mouseflow Page===");
     const tabPath =
       rudderElement.message.properties.path ||
       rudderElement.message.context.path;
