@@ -59,7 +59,7 @@ class Lytics {
         n("call"),
         (o.loadScript = function (n, t, i) {
           var e = document.createElement("script");
-          (e.async = !0), (e.src = n), (e.onload = t), (e.onerror = i), (e.dataset.loader = LOAD_ORIGIN);
+          (e.async = !0), (e.src = n), (e.onload = t), (e.onerror = i), (e.setAttribute("data-loader", LOAD_ORIGIN));
           var o = document.getElementsByTagName("script")[0],
             r = (o && o.parentNode) || document.head || document.body,
             c = o || r.lastChild;

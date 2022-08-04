@@ -89,7 +89,7 @@ class Braze {
       };
       (y = p.createElement(P)).type = "text/javascript";
       y.src = "https://js.appboycdn.com/web-sdk/2.4/appboy.min.js";
-      y.dataset.loader = LOAD_ORIGIN;
+      y.setAttribute("data-loader", LOAD_ORIGIN);
       y.async = 1;
       (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
     })(window, document, "script");

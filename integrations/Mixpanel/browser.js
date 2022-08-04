@@ -134,7 +134,7 @@ class Mixpanel {
         e = f.createElement("script");
         e.type = "text/javascript";
         e.async = !0;
-        e.dataset.loader = LOAD_ORIGIN;
+        e.setAttribute("data-loader", LOAD_ORIGIN);
         e.src =
           "undefined" !== typeof MIXPANEL_CUSTOM_LIB_URL
             ? MIXPANEL_CUSTOM_LIB_URL

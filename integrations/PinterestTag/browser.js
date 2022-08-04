@@ -35,7 +35,7 @@ export default class PinterestTag {
         var n = window.pintrk;
         (n.queue = []), (n.version = "3.0");
         var t = document.createElement("script");
-        (t.async = !0), (t.src = e), (t.dataset.loader = LOAD_ORIGIN);
+        (t.async = !0), (t.src = e), (t.setAttribute("data-loader", LOAD_ORIGIN));
         var r = document.getElementsByTagName("script")[0];
         r.parentNode.insertBefore(t, r);
       }
