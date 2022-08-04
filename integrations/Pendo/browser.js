@@ -33,7 +33,7 @@ class Pendo {
               };
           })(v[w]);
         y = e.createElement(n);
-        y.dataset.loader = LOAD_ORIGIN;
+        y.setAttribute("data-loader", LOAD_ORIGIN);
         y.async = !0;
         y.src = `https://cdn.pendo.io/agent/static/${apiKey}/pendo.js`;
         z = e.getElementsByTagName(n)[0];
