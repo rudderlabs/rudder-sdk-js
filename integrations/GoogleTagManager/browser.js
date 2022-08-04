@@ -25,7 +25,7 @@ class GoogleTagManager {
       const f = d.getElementsByTagName(s)[0];
       const j = d.createElement(s);
       const dl = l !== "dataLayer" ? `&l=${l}` : "";
-      j.dataset.loader = LOAD_ORIGIN;
+      j.setAttribute("data-loader", LOAD_ORIGIN);
       j.async = true;
       j.src = `${window.finalUrl}/gtm.js?id=${i}${dl}`;
       f.parentNode.insertBefore(j, f);

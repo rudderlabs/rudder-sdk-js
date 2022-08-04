@@ -73,7 +73,7 @@ class Fullstory {
       o.async = 1;
       o.crossOrigin = "anonymous";
       o.src = `https://${_fs_script}`;
-      o.dataset.loader = LOAD_ORIGIN;
+      o.setAttribute("data-loader", LOAD_ORIGIN);
       y = n.getElementsByTagName(t)[0];
       y.parentNode.insertBefore(o, y);
       g.identify = function (i, v, s) {
