@@ -40,7 +40,7 @@ const getHashFromArrayWithDuplicate = (
 
       if (hashMap[key]) {
         const val = hashMap[key];
-        if (!val.includes(toKey)) {
+        if (!val.includes(array[toKey])) {
           hashMap[key].push(array[toKey]);
         }
       } else {
