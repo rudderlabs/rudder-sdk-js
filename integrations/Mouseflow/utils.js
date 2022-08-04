@@ -20,7 +20,7 @@ const setCustomVariables = (userProperties) => {
  * Set custom Variables from integrations Object
  */
 const addCustomVariables = (message) => {
-  const customVariables = get(message, `integrations.${NAME}.customVariable`);
+  const customVariables = get(message, `integrations.${NAME}.customVariables`);
   setCustomVariables(customVariables);
 };
 
