@@ -19,12 +19,8 @@ const API_KEY = '{{RS_BUGSNAG_API_KEY}}';
 
 // Errors only from Below SDKs are allowed to reach Bugsnag
 const SDK_FILE_NAMES = [
-  "rudder-analytics.min.js",
-  ...Object.values(configToIntNames).map((intgName) => `${intgName}.js`),
-  ...Object.values(configToIntNames).map((intgName) => `${intgName}.min.js`),
-  ...Object.values(configToIntNames).map(
-    (intgName) => `${intgName}-staging.min.js`
-  ),
+  'rudder-analytics.min.js',
+  ...Object.keys(configToIntNames).map((intgName) => `${configToIntNames[intgName]}.min.js`),
 ];
 
 /**
