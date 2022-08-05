@@ -148,7 +148,12 @@ export default {
         ["@babel/plugin-transform-object-assign"],
       ],
     }),
-    process.env.uglify === "true" && terser(),
+    process.env.uglify === "true" && terser({
+        // remove all comments
+        format: {
+          comments: false,
+        },
+      }),
     process.env.ENC === "gzip" && gzipPlugin(),
     process.env.ENC === "br" && brotli(),
     process.env.visualizer === "true" &&
