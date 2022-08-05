@@ -2,6 +2,7 @@ import {
   createPayload,
   sendEventForTransformation,
   processTransformation,
+  mockMeHuman
 } from '../utils/DMTHandler';
 
 describe('Test suite for device mode transformation feature', () => {
@@ -71,36 +72,31 @@ describe('Test suite for device mode transformation feature', () => {
 		}]
 	}]
 };
-  const xhrMockSuccess = {
+
+  const xhrMock = {
     open: jest.fn(),
     setRequestHeader: jest.fn(),
     onreadystatechange: jest.fn(),
     send: jest.fn(),
-    readyState: 4,
-    responseText: JSON.stringify({}),
+    readyState: 4
+  };
+  const xhrMockSuccess = {
+    ...xhrMock,
+    response: JSON.stringify(samplePayloadSuccess),
     status: 200,
   };
 
   const xhrMockAccessDenied = {
-    open: jest.fn(),
-    setRequestHeader: jest.fn(),
-    onreadystatechange: jest.fn(),
-    send: jest.fn(),
-    readyState: 4,
-    responseText: JSON.stringify({}),
+    ...xhrMock,
+    response: JSON.stringify({}),
     status: 404,
   };
 
-  const xhrMockAccessServerDown = {
-    open: jest.fn(),
-    setRequestHeader: jest.fn(),
-    onreadystatechange: jest.fn(),
-    send: jest.fn(),
-    readyState: 4,
-    responseText: null,
+  const xhrMockServerDown = {
+    ...xhrMock,
+    response: null,
     status: 500,
   };
-  
 
   it('Validate payload format', () => {
     expect(typeof payload).toBe('object');
@@ -110,13 +106,70 @@ describe('Test suite for device mode transformation feature', () => {
     expect(payload.batch[0].event).toBe(event);
   });
 
-  it('Transformation server returning response in right format in case of successful transformation', () => {
-    // window.XMLHttpRequest = jest.fn(() => xhrMockSuccess);
+  it('Transformation server returning response in right format in case of successful transformation', async () => {
+    
+    window.XMLHttpRequest = jest.fn(() => xhrMockSuccess);
+    setTimeout(() => {
+      xhrMockSuccess.onreadystatechange();
+    }, 0);
+    return sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
+    .then((response)=>{
+      console.log("CALLED", response);
+      expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
+      expect(Array.isArray(response.transformedBatch)).toEqual(true);
+      expect(typeof response.transformationServerAccess).toEqual('boolean');
+
+      const destObj = response.transformedBatch[0];
+
+      expect(typeof destObj).toEqual('object');
+      expect(destObj.hasOwnProperty('id')).toEqual(true);
+      expect(destObj.hasOwnProperty('payload')).toEqual(true);
+    });
+    // .catch(e => console.log(e));
+  });
+
+  it('Validate whether the SDK is sending the orginal event in case server returns 404', () => {
+    window.XMLHttpRequest = jest.fn(() => xhrMockAccessDenied);
+    setTimeout(() => {
+      xhrMockAccessDenied.onreadystatechange();
+    }, 0);
+    return sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
+    .then((response)=>{
+      expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
+      expect(response.transformedBatch).toEqual(payload.batch);
+
+      const destObj = response.transformedBatch[0];
+
+      expect(destObj.hasOwnProperty('event')).toBe(true);
+      expect(destObj.hasOwnProperty('orderNo')).toBe(true);
+      expect(destObj.hasOwnProperty('id')).toBe(false);
+      expect(destObj.hasOwnProperty('payload')).toEqual(false);
+
+    });
+  });
+
+  it('Validate whether the SDK is retrying the request in case failures', () => {
+    window.XMLHttpRequest = jest.fn(() => xhrMockServerDown);
+    setTimeout(() => {
+      xhrMockServerDown.onreadystatechange();
+    }, 0);
     sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
-    .then((transformedPayload)=>{
-        // console.log(transformedPayload);
-        // expect(Array.isArray(transformedPayload)).toBe(true);
+    .then((response)=>{
+      // expect(xhrMockSuccess.send).toHaveBeenCalledTimes(4);
+      // expect(transformedBatch).toEqual(payload.batch);
+
+      // const destObj = transformedBatch[0];
+
+      // expect(destObj.hasOwnProperty('id')).toBe(false);
+      // expect(destObj.hasOwnProperty('payload')).toEqual(false);
     })
-    .catch();
+    .catch((e)=>{
+      console.log(e);
+      expect(typeof e).toBe('string');
+    });
+  });
+
+  it('Validate whether the SDK is retrying the request in case not all the transformation is successful', () => {
+
   });
 });
