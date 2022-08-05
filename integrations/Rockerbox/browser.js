@@ -1,18 +1,17 @@
 /* eslint-disable class-methods-use-this */
+import get from "get-value";
 import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
-
-/* <script_element>.dataset.loader = LOAD_ORIGIN; */
-import ScriptLoader from "../ScriptLoader";
+import { getHashFromArray } from "../utils/commonUtils";
 
 class Rockerbox {
   constructor(config) {
     this.clientAuthId = config.clientAuthId;
     this.name = NAME;
-    // TODO: add to config customDomain and enableCookieSync
     this.customDomain = config.customDomain;
     this.enableCookieSync = config.enableCookieSync;
+    this.eventsMap = config.eventsMap || [];
   }
 
   init() {
@@ -39,6 +38,7 @@ class Rockerbox {
         a.src = `https://${host}/assets/${library}.js`;
         f = d.getElementsByTagName("script")[0];
         f.parentNode.insertBefore(a, f);
+        f.dataset.loader = LOAD_ORIGIN;
       }
     })(document, window.RB || {});
     window.RB.disablePushState = true;
@@ -53,16 +53,48 @@ class Rockerbox {
 
   isReady() {
     logger.debug("===In isReady Rockerbox===");
+    return !!window.RB;
   }
 
   identify(rudderElement) {
     logger.debug("===In Rockerbox Identify===");
-    const { userId, email, phone } = rudderElement.message;
+    const { message } = rudderElement;
+    const { userId } = message;
+    const email =
+      get(message, "context.traits.email") || get(message, "traits.email");
     window.RB.track("identify", {
       external_id: userId,
       email,
-      phone_number: phone,
+      phone_number: message.context.traits.phone,
     });
+  }
+
+  track(rudderElement) {
+    logger.debug("===In Rockerbox track===");
+
+    const { message } = rudderElement;
+    const { event } = message;
+
+    if (!event) {
+      logger.error("Event name not present");
+      return;
+    }
+
+    const eventsHashmap = getHashFromArray(this.eventsMap);
+    const rbEvent = eventsHashmap[event.toLowerCase()];
+    if (rbEvent) {
+      window.RB.track(rbEvent, message.properties);
+    } else {
+      logger.error(
+        `The event ${message.event} is not mapped to any Rockerbox Event. Aborting!`
+      );
+    }
+  }
+
+  page(rudderElement) {
+    logger.debug("=== In Rockerbox Page ===");
+    const { message } = rudderElement;
+    window.RB.track("view", message.properties);
   }
 }
 
