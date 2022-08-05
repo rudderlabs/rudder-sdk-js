@@ -166,6 +166,9 @@ export default {
         gzipSize: true,
         brotliSize: true,
       }),
-    filesize(),
+    filesize({
+      showBeforeSizes: "build",
+      showBrotliSize: true,
+    }),
   ],
 };
