@@ -1,5 +1,4 @@
 import _ from "lodash";
-import logger from "../../utils/logUtil";
 
 const isDefined = (x) => !_.isUndefined(x);
 const isNotEmpty = (x) => !_.isEmpty(x);
@@ -40,9 +39,12 @@ const getHashFromArrayWithDuplicate = (
         : array[fromKey].trim();
 
       if (hashMap[key]) {
-        hashMap[key].push(array[toKey]);
+        const val = hashMap[key];
+        if (!val.includes(array[toKey])) {
+          hashMap[key].push(array[toKey]);
+        }
       } else {
-        hashMap[key]= [array[toKey]];
+        hashMap[key] = [array[toKey]];
       }
     });
   }
