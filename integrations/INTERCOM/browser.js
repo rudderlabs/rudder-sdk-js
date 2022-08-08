@@ -103,7 +103,6 @@ class INTERCOM {
     Object.keys(context.traits).forEach((field) => {
       if (context.traits.hasOwnProperty(field)) {
         const value = context.traits[field];
-
         switch (field) {
           case "createdAt":
             rawPayload.created_at = value;
