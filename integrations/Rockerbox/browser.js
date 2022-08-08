@@ -1,6 +1,5 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable class-methods-use-this */
-import get from "get-value";
 import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
@@ -61,18 +60,24 @@ class Rockerbox {
     logger.debug("===In Rockerbox Identify===");
     const { message } = rudderElement;
     const { userId } = message;
-    const email =
-      get(message, "context.traits.email") || get(message, "traits.email");
+    if (!userId) {
+      logger.debug(
+        "userId is needed. A primary identifier is expected by RockerBox"
+      );
+    }
+    const email = message.traits?.email || message.context?.traits?.email;
     window.RB.track("identify", {
       external_id: userId,
       email,
-      phone_number: message.context.traits.phone,
+      phone_number: message.traits?.phone || message.context?.traits?.phone,
     });
   }
 
   track(rudderElement) {
     if (!this.useNativeSDKToSend) {
-      logger.info("The toggle is disabled. Track call will not be sent");
+      logger.info(
+        "The useNativeSDKToSend toggle is disabled. Track call will not be sent via device mode."
+      );
       return;
     }
     logger.debug("===In Rockerbox track===");
