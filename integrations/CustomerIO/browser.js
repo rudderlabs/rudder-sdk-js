@@ -35,7 +35,7 @@ class CustomerIO {
       const t = document.createElement("script");
       const s = document.getElementsByTagName("script")[0];
       t.async = true;
-      t.dataset.loader = LOAD_ORIGIN;
+      t.setAttribute("data-loader", LOAD_ORIGIN);
       t.id = "cio-tracker";
       t.setAttribute("data-site-id", siteID);
       t.src = "https://assets.customer.io/assets/track.js";

@@ -1,3 +1,9 @@
+function wait(time){
+  return new Promise((resolve) => {
+    setTimeout(resolve, time);
+  });
+}
+
 describe("Test suite for the SDK", () => {
   const xhrMock = {
     open: jest.fn(),
@@ -21,7 +27,7 @@ describe("Test suite for the SDK", () => {
     "jest-group-trait-key-2": "jest-group-trait-value-2",
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
     jest.resetModules();
 
     window.XMLHttpRequest = jest.fn(() => xhrMock);
@@ -59,6 +65,7 @@ describe("Test suite for the SDK", () => {
     }
     rudderanalytics.load("WRITE_KEY", "DATA_PLANE_URL");
     require("./prodsdk.js");
+    await wait(500);
   });
 
   it("If SDK script is 'required' (imported), then check that it is loaded and queued API calls are processed", () => {
