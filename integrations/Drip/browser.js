@@ -42,7 +42,7 @@ class Drip {
     (function () {
       var dc = document.createElement("script");
       dc.type = "text/javascript";
-      dc.dataset.loader = LOAD_ORIGIN;
+      dc.setAttribute("data-loader", LOAD_ORIGIN);
       dc.async = true;
       dc.src = `//tag.getdrip.com/${window._dcs.account}.js`;
       var s = document.getElementsByTagName("script")[0];

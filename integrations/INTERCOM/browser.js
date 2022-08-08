@@ -36,7 +36,7 @@ class INTERCOM {
         w.Intercom = i;
         const l = function () {
           const s = d.createElement("script");
-          s.dataset.loader = LOAD_ORIGIN;
+          s.setAttribute("data-loader", LOAD_ORIGIN);
           s.type = "text/javascript";
           s.async = true;
           s.src = `https://widget.intercom.io/widget/${window.intercomSettings.app_id}`;

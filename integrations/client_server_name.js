@@ -50,6 +50,7 @@ const clientToServerNames = {
   VERO: "Vero",
   MATOMO: "Matomo",
   ROCKERBOX: "Rockerbox",
+  MOUSEFLOW: "Mouseflow",
 };
 
 export { clientToServerNames };
