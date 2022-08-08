@@ -16,6 +16,9 @@ class Rockerbox {
 
   init() {
     logger.debug("=== In init Rockerbox ===");
+    const host = this.customDomain ? this.customDomain : "getrockerbox.com";
+    const library =
+      this.customDomain && this.enableCookieSync ? "wxyz.rb" : "wxyz.v2";
     window.RB = {};
     (function (d, RB) {
       if (!window.RB) {
@@ -30,15 +33,12 @@ class Rockerbox {
           RB.source = s;
         };
         var a = d.createElement("script");
-        const host = this.customDomain ? this.customDomain : "getrockerbox.com";
-        const library =
-          this.customDomain && this.enableCookieSync ? "wxyz.rb" : "wxyz.v2";
         a.type = "text/javascript";
         a.async = !0;
         a.src = `https://${host}/assets/${library}.js`;
+        a.dataset.loader = LOAD_ORIGIN;
         f = d.getElementsByTagName("script")[0];
         f.parentNode.insertBefore(a, f);
-        f.dataset.loader = LOAD_ORIGIN;
       }
     })(document, window.RB || {});
     window.RB.disablePushState = true;
