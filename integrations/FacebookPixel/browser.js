@@ -6,11 +6,7 @@ import get from "get-value";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import getEventId from "./utils";
-import {
-  getHashFromArray,
-  isDefinedAndNotNullAndNotEmpty,
-  isDefined,
-} from "../utils/commonUtils";
+import { getHashFromArray, isDefined } from "../utils/commonUtils";
 import { NAME, traitsMapper } from "./constants";
 import { constructPayload } from "../../utils/utils";
 
@@ -165,10 +161,10 @@ class FacebookPixel {
     if (properties) {
       products = properties.products;
       quantity = properties.quantity;
-      category = properties.category || "";
-      prodId = properties.product_id || properties.id || properties.sku || "";
-      prodName = properties.product_name || properties.name || "";
-      value = properties.value || properties.price;
+      category = properties.category;
+      prodId = properties.product_id || properties.id || properties.sku;
+      prodName = properties.product_name;
+      value = properties.value;
       price = properties.price;
       query = properties.query;
     }
@@ -191,25 +187,22 @@ class FacebookPixel {
                 quantity: product.quantity || quantity || 1,
                 item_price: product.price,
               });
-            } else {
-              logger.error(`Product ID is missing for product ${i}.`);
             }
           }
         }
-      } else {
-        logger.error("No product array found");
       }
 
       if (contentIds.length) {
         contentType = ["product"];
-      } else {
-        contentIds.push(category || "");
+      } else if (category) {
+        contentIds.push(category);
         contents.push({
-          id: category || "",
+          id: category,
           quantity: 1,
         });
         contentType = ["product_group"];
       }
+
       window.fbq(
         "trackSingle",
         self.pixelId,
@@ -243,10 +236,6 @@ class FacebookPixel {
         }
       }, legacyTo);
     } else if (event === "Product Viewed") {
-      if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
-        // not adding index, as only one product is supposed to be present here
-        logger.error("Product ID is missing.");
-      }
       window.fbq(
         "trackSingle",
         self.pixelId,
@@ -295,35 +284,32 @@ class FacebookPixel {
         }
       }, legacyTo);
     } else if (event === "Product Added") {
-      if (!isDefinedAndNotNullAndNotEmpty(prodId)) {
-        // not adding index, as only one product is supposed to be present here
-        logger.error("Product ID is missing.");
+      const contentIds = [];
+      const contents = [];
+
+      if (prodId) {
+        contentIds.push(prodId);
+        contents.push({
+          id: prodId,
+          quantity,
+          item_price: price,
+        });
       }
+      const productInfo = {
+        content_ids: contentIds,
+        content_type: this.getContentType(rudderElement, ["product"]),
+
+        content_name: prodName || "",
+        content_category: category || "",
+        currency: currVal,
+        value: useValue ? this.formatRevenue(value) : this.formatRevenue(price),
+        contents,
+      };
       window.fbq(
         "trackSingle",
         self.pixelId,
         "AddToCart",
-        this.merge(
-          {
-            content_ids: [prodId],
-            content_type: this.getContentType(rudderElement, ["product"]),
-
-            content_name: prodName || "",
-            content_category: category || "",
-            currency: currVal,
-            value: useValue
-              ? this.formatRevenue(value)
-              : this.formatRevenue(price),
-            contents: [
-              {
-                id: prodId,
-                quantity,
-                item_price: price,
-              },
-            ],
-          },
-          customProperties
-        ),
+        this.merge(productInfo, customProperties),
         {
           eventID: derivedEventID,
         }
@@ -347,27 +333,7 @@ class FacebookPixel {
           );
         }
       }, legacyTo);
-      this.merge(
-        {
-          content_ids: [prodId],
-          content_type: this.getContentType(rudderElement, ["product"]),
-
-          content_name: prodName || "",
-          content_category: category || "",
-          currency: currVal,
-          value: useValue
-            ? this.formatRevenue(value)
-            : this.formatRevenue(price),
-          contents: [
-            {
-              id: prodId,
-              quantity,
-              item_price: price,
-            },
-          ],
-        },
-        customProperties
-      );
+      this.merge(productInfo, customProperties);
     } else if (event === "Order Completed") {
       const contentType = this.getContentType(rudderElement, ["product"]);
       const contentIds = [];
@@ -377,60 +343,59 @@ class FacebookPixel {
           const product = products[i];
           if (product) {
             const pId = product.product_id || product.sku || product.id;
-            if (!isDefined(pId)) {
-              logger.error(`Product ID is missing for product ${i}.`);
+            if (pId) {
+              contentIds.push(pId);
+              const content = {
+                id: pId,
+                quantity: product.quantity || quantity || 1,
+                item_price: product.price || price,
+              };
+              contents.push(content);
             }
-            contentIds.push(pId);
-            const content = {
-              id: pId,
-              quantity: product.quantity || quantity || 1,
-              item_price: product.price || price,
-            };
-            contents.push(content);
           }
         }
-        // ref: https://developers.facebook.com/docs/meta-pixel/implementation/marketing-api#purchase
-        // "trackSingle" feature is :
-        // https://developers.facebook.com/ads/blog/post/v2/2017/11/28/event-tracking-with-multiple-pixels-tracksingle/
-        window.fbq(
-          "trackSingle",
-          self.pixelId,
-          "Purchase",
-          this.merge(
+      } else {
+        logger.debug("No product array found");
+      }
+      // ref: https://developers.facebook.com/docs/meta-pixel/implementation/marketing-api#purchase
+      // "trackSingle" feature is :
+      // https://developers.facebook.com/ads/blog/post/v2/2017/11/28/event-tracking-with-multiple-pixels-tracksingle/
+
+      const productInfo = {
+        content_ids: contentIds,
+        content_type: contentType,
+        currency: currVal,
+        value: revValue,
+        contents,
+        num_items: contentIds.length,
+      };
+
+      window.fbq(
+        "trackSingle",
+        self.pixelId,
+        "Purchase",
+        this.merge(productInfo, customProperties),
+        {
+          eventID: derivedEventID,
+        },
+      );
+
+      each((val, key) => {
+        if (key === event.toLowerCase()) {
+          window.fbq(
+            "trackSingle",
+            self.pixelId,
+            val,
             {
-              content_ids: contentIds,
-              content_type: contentType,
               currency: currVal,
               value: revValue,
-              contents,
-              num_items: contentIds.length,
             },
-            customProperties
-          ),
-          {
-            eventID: derivedEventID,
-          }
-        );
-
-        each((val, key) => {
-          if (key === event.toLowerCase()) {
-            window.fbq(
-              "trackSingle",
-              self.pixelId,
-              val,
-              {
-                currency: currVal,
-                value: revValue,
-              },
-              {
-                eventID: derivedEventID,
-              }
-            );
-          }
-        }, legacyTo);
-      } else {
-        logger.error("No product array found");
-      }
+            {
+              eventID: derivedEventID,
+            },
+          );
+        }
+      }, legacyTo);
     } else if (event === "Products Searched") {
       window.fbq(
         "trackSingle",
@@ -472,62 +437,57 @@ class FacebookPixel {
           const product = products[i];
           if (product) {
             const pId = product.product_id || product.sku || product.id;
-            if (!isDefined(pId)) {
-              logger.error(`Product ID is missing for product ${i}.`);
+            if (pId) {
+              contentIds.push(pId);
+              const content = {
+                id: pId,
+                quantity: product.quantity || quantity || 1,
+                item_price: product.price || price,
+              };
+              contents.push(content);
             }
-            contentIds.push(pId);
-            const content = {
-              id: pId,
-              quantity: product.quantity || quantity || 1,
-              item_price: product.price || price,
-            };
-            contents.push(content);
           }
         }
 
         if (!contentCategory && products[0] && products[0].category) {
           contentCategory = products[0].category;
         }
-        window.fbq(
-          "trackSingle",
-          self.pixelId,
-          "InitiateCheckout",
-          this.merge(
+      }
+
+      const productInfo = {
+        content_ids: contentIds,
+        content_type: this.getContentType(rudderElement, ["product"]),
+        currency: currVal,
+        value: revValue,
+        contents,
+        num_items: contentIds.length,
+      };
+      window.fbq(
+        "trackSingle",
+        self.pixelId,
+        "InitiateCheckout",
+        this.merge(productInfo, customProperties),
+        {
+          eventID: derivedEventID,
+        },
+      );
+
+      each((val, key) => {
+        if (key === event.toLowerCase()) {
+          window.fbq(
+            "trackSingle",
+            self.pixelId,
+            val,
             {
-              content_category: contentCategory,
-              content_ids: contentIds,
-              content_type: this.getContentType(rudderElement, ["product"]),
               currency: currVal,
               value: revValue,
-              contents,
-              num_items: contentIds.length,
             },
-            customProperties
-          ),
-          {
-            eventID: derivedEventID,
-          }
-        );
-
-        each((val, key) => {
-          if (key === event.toLowerCase()) {
-            window.fbq(
-              "trackSingle",
-              self.pixelId,
-              val,
-              {
-                currency: currVal,
-                value: revValue,
-              },
-              {
-                eventID: derivedEventID,
-              }
-            );
-          }
-        }, legacyTo);
-      } else {
-        logger.error("No product array found");
-      }
+            {
+              eventID: derivedEventID,
+            },
+          );
+        }
+      }, legacyTo);
     } else {
       logger.debug("inside custom");
       if (!standardTo[event.toLowerCase()] && !legacyTo[event.toLowerCase()]) {
