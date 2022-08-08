@@ -48,6 +48,7 @@ import * as DCMFloodlight from "./DCMFloodlight";
 import * as Adroll from "./Adroll";
 import * as Vero from "./Vero";
 import * as Matomo from "./Matomo";
+import * as Rockerbox from "./Rockerbox";
 import * as Mouseflow from "./Mouseflow";
 
 // the key names should match the destination.name value to keep partity everywhere
@@ -104,6 +105,7 @@ const integrations = {
   ADROLL: Adroll.default,
   VERO: Vero.default,
   MATOMO: Matomo.default,
+  ROCKERBOX: Rockerbox.default,
   MOUSEFLOW: Mouseflow.default,
 };
 

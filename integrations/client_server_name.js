@@ -49,6 +49,7 @@ const clientToServerNames = {
   ADROLL: "Adroll",
   VERO: "Vero",
   MATOMO: "Matomo",
+  ROCKERBOX: "Rockerbox",
   MOUSEFLOW: "Mouseflow",
 };
 

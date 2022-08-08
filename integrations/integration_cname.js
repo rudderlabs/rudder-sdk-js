@@ -48,6 +48,7 @@ import { CNameMapping as DCMFloodlight } from "./DCMFloodlight/constants";
 import { CNameMapping as Adroll } from "./Adroll/constants";
 import { CNameMapping as Vero } from "./Vero/constants";
 import { CNameMapping as Matomo } from "./Matomo/constants";
+import { CNameMapping as Rockerbox } from "./Rockerbox/constants";
 import { CNameMapping as Mouseflow } from "./Mouseflow/constants";
 
 // for sdk side native integration identification
@@ -100,6 +101,7 @@ const commonNames = {
   ...Qualtrics,
   ...QuantumMetric,
   ...RedditPixel,
+  ...Rockerbox,
   ...Sentry,
   ...SnapPixel,
   ...TVSquared,
