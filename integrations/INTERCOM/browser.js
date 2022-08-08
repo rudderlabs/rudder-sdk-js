@@ -22,14 +22,14 @@ class INTERCOM {
 
     // loop through the object "ob"
     Object.keys(ob).forEach((key) => {
-      // We check the type of the i using
+      // We check the type of the obj using
       // typeof() function and recursively
       // call the function again
       if (typeof ob[key] === 'object' && !Array.isArray(ob[key])) {
-        const temp = INTERCOM.flattenEventObject(ob[key]);
+        const temp = INTERCOM.flattenEventObject(ob[key], key);
         Object.keys(temp).forEach((tempKey) => {
           // Store temp in result
-          result[`${keyPrefix}_${key}_${tempKey}`] = temp[tempKey];
+          result[`${keyPrefix}_${tempKey}`] = temp[tempKey];
         });
       }
 
