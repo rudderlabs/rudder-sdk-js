@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
 import logger from "../../utils/logUtil";
@@ -12,6 +13,7 @@ class Rockerbox {
     this.customDomain = config.customDomain;
     this.enableCookieSync = config.enableCookieSync;
     this.eventsMap = config.eventsMap || [];
+    this.useNativeSDKToSend = config.useNativeSDKToSend;
   }
 
   init() {
@@ -19,7 +21,6 @@ class Rockerbox {
     const host = this.customDomain ? this.customDomain : "getrockerbox.com";
     const library =
       this.customDomain && this.enableCookieSync ? "wxyz.rb" : "wxyz.v2";
-    window.RB = {};
     (function (d, RB) {
       if (!window.RB) {
         window.RB = RB;
@@ -37,7 +38,7 @@ class Rockerbox {
         a.async = !0;
         a.src = `https://${host}/assets/${library}.js`;
         a.dataset.loader = LOAD_ORIGIN;
-        f = d.getElementsByTagName("script")[0];
+        const f = d.getElementsByTagName("script")[0];
         f.parentNode.insertBefore(a, f);
       }
     })(document, window.RB || {});
@@ -70,6 +71,10 @@ class Rockerbox {
   }
 
   track(rudderElement) {
+    if (!this.useNativeSDKToSend) {
+      logger.info("The toggle is disabled. Track call will not be sent");
+      return;
+    }
     logger.debug("===In Rockerbox track===");
 
     const { message } = rudderElement;
