@@ -5,13 +5,15 @@ import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class ProfitWell {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.publicApiKey = config.publicApiKey;
     this.siteType = config.siteType;
     this.name = NAME;
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

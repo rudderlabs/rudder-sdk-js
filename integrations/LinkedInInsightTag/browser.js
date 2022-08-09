@@ -4,12 +4,14 @@ import ScriptLoader from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class LinkedInInsightTag {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
     this.partnerId = config.partnerId;
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

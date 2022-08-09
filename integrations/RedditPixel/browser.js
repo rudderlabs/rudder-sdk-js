@@ -12,12 +12,14 @@ import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class RedditPixel {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.advertiserId = config.advertiserId;
     this.name = NAME;
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

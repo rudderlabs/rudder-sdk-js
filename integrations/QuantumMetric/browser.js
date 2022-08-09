@@ -5,13 +5,15 @@ import ScriptLoader from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class QuantumMetric {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.siteId = config.siteID; // 1549611
     this.name = NAME;
     this._ready = false;
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

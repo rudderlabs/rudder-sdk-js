@@ -11,7 +11,7 @@ import { NAME, traitsMapper } from "./constants";
 import { constructPayload } from "../../utils/utils";
 
 class FacebookPixel {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -28,6 +28,8 @@ class FacebookPixel {
     this.whitelistPiiProperties = config.whitelistPiiProperties;
     this.useUpdatedMapping = config.useUpdatedMapping;
     this.name = NAME;
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

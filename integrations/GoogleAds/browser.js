@@ -5,7 +5,7 @@ import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 import { NAME } from "./constants";
 
 class GoogleAds {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -19,6 +19,8 @@ class GoogleAds {
     this.conversionLinker = config.conversionLinker || true;
     this.disableAdPersonalization = config.disableAdPersonalization || false;
     this.name = NAME;
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

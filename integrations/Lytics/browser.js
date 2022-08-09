@@ -23,7 +23,7 @@ import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class Lytics {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -34,6 +34,8 @@ class Lytics {
     this.name = NAME;
     this.forFirstName = ["firstname", "firstName"];
     this.forLastName = ["lastname", "lastName"];
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   loadLyticsScript() {

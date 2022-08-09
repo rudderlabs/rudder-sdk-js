@@ -3,7 +3,7 @@ import ScriptLoader from "../ScriptLoader";
 import { NAME } from "./constants";
 
 class Keen {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -15,6 +15,8 @@ class Keen {
     this.referrerAddon = config.referrerAddon;
     this.client = null;
     this.name = NAME;
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

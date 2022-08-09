@@ -8,7 +8,7 @@ import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class Comscore {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -22,6 +22,8 @@ class Comscore {
     this.comScoreParams = {};
     this.replayEvents = [];
     this.name = NAME;
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

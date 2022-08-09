@@ -4,7 +4,7 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class Optimizely {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -23,6 +23,8 @@ class Optimizely {
       ? config.customExperimentProperties
       : [];
     this.name = NAME;
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

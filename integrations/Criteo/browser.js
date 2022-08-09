@@ -13,7 +13,7 @@ import { NAME, supportedEvents } from "./constants";
 import { getHashFromArrayWithDuplicate } from "../utils/commonUtils";
 
 class Criteo {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -24,14 +24,14 @@ class Criteo {
     // eslint-disable-next-line no-nested-ternary
     this.deviceType = /iPad/.test(navigator.userAgent)
       ? "t"
-      : /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/.test(
-          navigator.userAgent
-        )
+      : /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/.test(navigator.userAgent)
       ? "m"
       : "d";
     this.fieldMapping = config.fieldMapping;
     this.eventsToStandard = config.eventsToStandard;
     this.OPERATOR_LIST = ["eq", "gt", "lt", "ge", "le", "in"];
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

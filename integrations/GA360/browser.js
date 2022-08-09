@@ -11,12 +11,14 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 class GA360 extends GA {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     super(config, analytics);
     this.name = NAME;
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

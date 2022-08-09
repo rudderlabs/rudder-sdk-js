@@ -14,7 +14,7 @@ import { type, flattenJsonPayload } from "../../utils/utils";
 import { NAME } from "./constants";
 
 export default class GA4 {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -26,6 +26,8 @@ export default class GA4 {
     this.extendGroupPayload = config.extendGroupPayload || false;
     this.debugMode = config.debugMode || false;
     this.name = NAME;
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   loadScript(measurementId, userId) {

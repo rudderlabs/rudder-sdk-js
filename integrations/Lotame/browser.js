@@ -4,7 +4,7 @@ import { LotameStorage } from "./LotameStorage";
 import { NAME } from "./constants";
 
 class Lotame {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -21,6 +21,8 @@ class Lotame {
       const { value } = mapping;
       this.mappings[key] = value;
     });
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

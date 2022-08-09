@@ -16,7 +16,7 @@ import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 
 export default class PinterestTag {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -26,6 +26,8 @@ export default class PinterestTag {
     this.customProperties = config.customProperties || [];
     this.userDefinedEventsMapping = config.eventsMapping || [];
     this.name = NAME;
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
     logger.debug("config", config);
   }
 

@@ -11,7 +11,7 @@ import {
 import { NAME } from "./constants";
 
 class Clevertap {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -45,6 +45,8 @@ class Clevertap {
       "married",
       "customerType",
     ];
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

@@ -43,7 +43,7 @@ import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class Mixpanel {
-  constructor(config, analytics) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -75,6 +75,8 @@ class Mixpanel {
       username: "$username",
       phone: "$phone",
     };
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   init() {

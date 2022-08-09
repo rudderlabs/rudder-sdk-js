@@ -15,7 +15,10 @@ import { getHashFromArrayWithDuplicate } from "../utils/commonUtils";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class Matomo {
-  constructor(config) {
+  constructor(config, analytics, areTransformationsConnected, destinationId) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.serverUrl = config.serverUrl;
     this.siteId = config.siteId;
     this.eventsMapToGoalId = config.eventsMapToGoalId;
@@ -33,8 +36,7 @@ class Matomo {
     this.enableCrossDomainLinking = config.enableCrossDomainLinking;
     this.setCrossDomainLinkingTimeout = config.setCrossDomainLinkingTimeout;
     this.timeout = config.timeout;
-    this.getCrossDomainLinkingUrlParameter =
-      config.getCrossDomainLinkingUrlParameter;
+    this.getCrossDomainLinkingUrlParameter = config.getCrossDomainLinkingUrlParameter;
     this.disableBrowserFeatureDetection = config.disableBrowserFeatureDetection;
 
     this.ecomEvents = {
@@ -45,6 +47,8 @@ class Matomo {
       CLEAR_ECOMMERCE_CART: "CLEAR_ECOMMERCE_CART",
       TRACK_ECOMMERCE_CART_UPDATE: "TRACK_ECOMMERCE_CART_UPDATE",
     };
+    this.areTransformationsConnected = areTransformationsConnected;
+    this.destinationId = destinationId;
   }
 
   loadScript() {
