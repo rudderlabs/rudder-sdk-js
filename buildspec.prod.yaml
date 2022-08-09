@@ -6,9 +6,10 @@ phases:
       nodejs: 12
   build:
     commands:
-      - npm install --unsafe-perm
+      - npm ci
       - npm run test
       - npm run buildProdBrowser
+      - npm run buildAllIntegrations
       - node -r esm integrationBuildScript.js
       - sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$RS_BUGSNAG_API_KEY'|' dist/rudder-analytics.min.js
       - aws s3 cp dist/rudder-analytics.min.js s3://$S3_BUCKET_NAME/v1.1/rudder-analytics.min.js --cache-control max-age=3600 --acl public-read
