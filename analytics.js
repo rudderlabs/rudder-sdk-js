@@ -239,7 +239,7 @@ class Analytics {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
             config: destination.config,
-            areTransformationsConnected: destination.areTransformationsConnected || true, // TODO: change it to false after development is done
+            areTransformationsConnected: destination.areTransformationsConnected || false,
             destinationId: destination.id,
           });
         }
