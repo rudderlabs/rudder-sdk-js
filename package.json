@@ -27,7 +27,7 @@
     "lint": "eslint . --fix",
     "lint:check": "eslint . || exit 1",
     "prepare": "husky install",
-    "clean": "rm -rf dist/integrations && rm -rf dist/*.js dist/*.js.map"
+    "clean": "find dist -type f -name '*.js' -delete && find dist -type f -name '*.js.map' -delete && rm -rf dist/integrations"
   },
   "author": "",
   "license": "ISC",
