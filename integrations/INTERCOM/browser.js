@@ -103,50 +103,57 @@ class INTERCOM {
     Object.keys(context.traits).forEach((field) => {
       if (context.traits.hasOwnProperty(field)) {
         const value = context.traits[field];
-
-        if (field === "company") {
-          const companies = [];
-          const company = {};
-          // special handling string
-          if (typeof context.traits[field] === "string") {
-            company.company_id = md5(context.traits[field]);
-          }
-          const companyFields =
-            (typeof context.traits[field] === "object" &&
-              Object.keys(context.traits[field])) ||
-            [];
-          companyFields.forEach((key) => {
-            if (companyFields.includes(key)) {
-              if (key != "id") {
-                company[key] = context.traits[field][key];
-              } else {
-                company.company_id = context.traits[field][key];
-              }
-            }
-          });
-
-          if (
-            typeof context.traits[field] === "object" &&
-            !companyFields.includes("id")
-          ) {
-            company.company_id = md5(company.name);
-          }
-
-          companies.push(company);
-          rawPayload.companies = companies;
-        } else {
-          rawPayload[field] = context.traits[field];
-        }
-
         switch (field) {
           case "createdAt":
             rawPayload.created_at = value;
+            rawPayload[field] = context.traits[field];
             break;
           case "anonymousId":
             rawPayload.user_id = value;
+            rawPayload[field] = context.traits[field];
             break;
+          case "company":
+            {
+              const companies = [];
+              const company = {};
+              // special handling string
+              if (typeof context.traits[field] === "string") {
+                company.company_id = md5(context.traits[field]);
+              }
+              const companyFields =
+                (typeof context.traits[field] === "object" &&
+                  Object.keys(context.traits[field])) ||
+                [];
+              companyFields.forEach((key) => {
+                if (companyFields.includes(key)) {
+                  if (key != "id") {
+                    company[key] = context.traits[field][key];
+                  } else {
+                    company.company_id = context.traits[field][key];
+                  }
+                }
+              });
 
+              if (
+                typeof context.traits[field] === "object" &&
+                !companyFields.includes("id")
+              ) {
+                company.company_id = md5(company.name);
+              }
+
+              companies.push(company);
+              rawPayload.companies = companies;
+            }
+            break;
+          case "avatar":
+            {
+              rawPayload.avatar = {};
+              rawPayload.avatar.type = "avatar";
+              rawPayload.avatar.image_url = value;
+            }
+            break;
           default:
+            rawPayload[field] = context.traits[field];
             break;
         }
       }
