@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npm run buildProdBrowser && sed 's/var rudderanalytics/rudderanalytics/g' dist/rudder-analytics.min.js > __tests__/prodsdk.js && jest --coverage --verbose",
     "buildDevBrowser": "NODE_ENV=false uglify=false rollup -c",
-    "buildProdBrowser": "NODE_ENV=false PROD_DEBUG=true ENV=prod uglify=true rollup -c",
+    "buildProdBrowser": "NODE_ENV=false PROD_DEBUG=true STAGING=$npm_config_staging ENV=prod uglify=true rollup -c",
     "buildProdBrowserDebug": "NODE_ENV=false ENV=prod PROD_DEBUG_INLINE=true uglify=true rollup -c",
     "buildProdBrowserGzip": "NODE_ENV=false  ENV=prod ENC=gzip uglify=true rollup -c",
     "buildProdBrowserBrotli": "NODE_ENV=false  ENV=prod ENC=br uglify=true rollup -c",
@@ -20,14 +20,14 @@
     "buildDevIntegrationCLI": "PROD_DEBUG=true NODE_ENV=false uglify=false INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
     "buildProdIntegration": "PROD_DEBUG=true NODE_ENV=false ENV=prod uglify=true INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
     "buildProdIntegrationCLI": "PROD_DEBUG=true NODE_ENV=false ENV=prod uglify=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
-    "buildAllIntegrations": "BUNDLE_SIZE_VISUALIZER=false node -r esm integrationBuildScript.js",
+    "buildAllIntegrations": "BUNDLE_SIZE_VISUALIZER=false STAGING=$npm_config_staging node -r esm integrationBuildScript.js",
     "bundle-size-visual-integration": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true INTG_NAME=AdobeAnalytics rollup --config rollup.intgConfig.js",
     "bundle-size-visual-integration-cli": "ENV=prod PROD_DEBUG=true uglify=true visualizer=true INTG_NAME=$npm_config_intg rollup --config rollup.intgConfig.js",
     "format": "prettier --write '**/*.js'",
     "lint": "eslint . --fix",
     "lint:check": "eslint . || exit 1",
     "prepare": "husky install",
-    "clean": "rm -rf dist/integrations && rm -f dist/*.js*"
+    "clean": "find dist -type f -name '*.js' -delete && find dist -type f -name '*.js.map' -delete && rm -rf dist/integrations"
   },
   "author": "",
   "license": "ISC",

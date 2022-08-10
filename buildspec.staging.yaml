@@ -6,21 +6,15 @@ phases:
       nodejs: 12
   build:
     commands:
-      - npm install --unsafe-perm
+      - npm ci
       - npm run test
-      - npm run buildProdBrowser
-      - node -r esm integrationBuildScript.js
-      - sed -i -e 's|rudder-analytics.min.js.map|rudder-analytics-staging.min.js.map|' -e 's|{{RS_BUGSNAG_API_KEY}}|'$RS_BUGSNAG_API_KEY'|' dist/rudder-analytics.min.js
-      - aws s3 cp dist/rudder-analytics.min.js s3://$S3_BUCKET_NAME/v1.1/rudder-analytics-staging.min.js --cache-control max-age=3600 --acl public-read
-      - aws s3 cp dist/rudder-analytics.min.js.map s3://$S3_BUCKET_NAME/v1.1/rudder-analytics-staging.min.js.map --cache-control max-age=3600 --acl public-read
-      - mkdir dist/temp
-      - cp dist/integrations/* dist/temp
-      - for file in dist/temp/*.min.js ; do old_name=$(basename "$file"); old_name=$(echo $old_name.map); new_name=$(echo $old_name | awk '{split($0, tmp, "."); print sprintf("%s-staging.%s.%s.%s", tmp[1], tmp[2], tmp[3], tmp[4])}'); sed -i 's|'$old_name'|'$new_name'|' $file; done
-      - for file in dist/temp/*.min.js ; do old_name=$(basename "$file"); new_name=$(echo $old_name | awk '{split($0, tmp, "."); print sprintf("%s-staging.%s.%s", tmp[1], tmp[2], tmp[3])}'); mv "dist/temp/$old_name" "dist/temp/$new_name"; done
-      - for file in dist/temp/*.min.js.map ; do old_name=$(basename "$file"); new_name=$(echo $old_name | awk '{split($0, tmp, "."); print sprintf("%s-staging.%s.%s.%s", tmp[1], tmp[2], tmp[3], tmp[4])}'); mv "dist/temp/$old_name" "dist/temp/$new_name"; done
-      - aws s3 cp dist/temp/ s3://$S3_BUCKET_NAME/v1.1/js-integrations/ --recursive --cache-control max-age=3600 --acl public-read
-      - rm -rf dist/temp
-      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/v1.1/rudder-analytics-staging.min.js" "/v1.1/rudder-analytics-staging.min.js.map" "/v1.1/js-integrations"
+      - npm run buildProdBrowser --staging=true
+      - npm run buildAllIntegrations --staging=true
+      - sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$RS_BUGSNAG_API_KEY'|' dist/rudder-analytics-staging.min.js
+      - aws s3 cp dist/rudder-analytics-staging.min.js s3://$S3_BUCKET_NAME/v1.1/rudder-analytics-staging.min.js --cache-control max-age=3600 --acl public-read
+      - aws s3 cp dist/rudder-analytics-staging.min.js.map s3://$S3_BUCKET_NAME/v1.1/rudder-analytics-staging.min.js.map --cache-control max-age=3600 --acl public-read
+      - aws s3 cp dist/integrations/ s3://$S3_BUCKET_NAME/v1.1/js-integrations/ --recursive --cache-control max-age=3600 --acl public-read
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/v1.1/rudder-analytics-staging.min.js" "/v1.1/rudder-analytics-staging.min.js.map" "/v1.1/js-integrations*"
 artifacts:
   files:
     - '**/*'
