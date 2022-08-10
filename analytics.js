@@ -991,10 +991,6 @@ class Analytics {
     this.setInitialPageProperties();
     this.loaded = true;
 
-    function errorHandler(error) {
-      handleError(error);
-    }
-
     if (options && options.destSDKBaseURL) {
       this.destSDKBaseURL = removeTrailingSlashes(options.destSDKBaseURL);
       if (!this.destSDKBaseURL) {
@@ -1017,7 +1013,7 @@ class Analytics {
         const res = options.getSourceConfig();
 
         if (res instanceof Promise) {
-          res.then((pRes) => this.processResponse(200, pRes)).catch(errorHandler);
+          res.then((pRes) => this.processResponse(200, pRes)).catch(handleError);
         } else {
           this.processResponse(200, res);
         }
@@ -1033,7 +1029,7 @@ class Analytics {
     try {
       getJSONTrimmed(this, configUrl, writeKey, this.processResponse);
     } catch (error) {
-      errorHandler(error);
+      handleError(error);
     }
   }
 
