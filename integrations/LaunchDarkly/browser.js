@@ -12,6 +12,7 @@ class LaunchDarkly {
     }
     this.name = NAME;
     this.clientSideId = config.clientSideId;
+    this.anonymousUsersSharedKey = config.anonymousUsersSharedKey;
   }
 
   init() {

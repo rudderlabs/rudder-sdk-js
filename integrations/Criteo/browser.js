@@ -9,7 +9,8 @@ import {
   handlingEventDuo,
   handleListView,
 } from './utils';
-import { NAME } from './constants';
+import { NAME, supportedEvents } from './constants';
+import { getHashFromArrayWithDuplicate } from '../utils/commonUtils';
 
 class Criteo {
   constructor(config, analytics) {
@@ -27,6 +28,7 @@ class Criteo {
       ? 'm'
       : 'd';
     this.fieldMapping = config.fieldMapping;
+    this.eventsToStandard = config.eventsToStandard;
     this.OPERATOR_LIST = ['eq', 'gt', 'lt', 'ge', 'le', 'in'];
   }
 
@@ -112,23 +114,38 @@ class Criteo {
       logger.debug('[Criteo] Either properties object is missing or empty in the track call');
       return;
     }
-    const eventType = event.toLowerCase().trim();
 
-    switch (eventType) {
-      case 'product viewed':
-        handleProductView(rudderElement.message, finalPayload);
-        break;
-      case 'cart viewed':
-      case 'order completed':
-        handlingEventDuo(rudderElement.message, finalPayload);
-        break;
-      case 'product list viewed':
-        handleListView(rudderElement.message, finalPayload, this.OPERATOR_LIST);
-        break;
-      default:
-        logger.debug(`[Criteo] event ${eventType} is not supported`);
-        return;
+    const eventMapping = getHashFromArrayWithDuplicate(this.eventsToStandard);
+    const trimmedEvent = event.toLowerCase().trim();
+
+    if (!supportedEvents.includes(trimmedEvent) && !eventMapping[trimmedEvent]) {
+      logger.debug(`[Criteo] event ${trimmedEvent} is not supported`);
+      return;
     }
+    let events = [];
+    if (supportedEvents.includes(trimmedEvent)) {
+      events.push(trimmedEvent);
+    } else {
+      events = eventMapping[trimmedEvent];
+    }
+
+    events.forEach((eventType) => {
+      switch (eventType) {
+        case 'product viewed':
+          handleProductView(rudderElement.message, finalPayload);
+          break;
+        case 'cart viewed':
+        case 'order completed':
+          handlingEventDuo(rudderElement.message, finalPayload);
+          break;
+        case 'product list viewed':
+          handleListView(rudderElement.message, finalPayload, this.OPERATOR_LIST);
+          break;
+        default:
+          break;
+      }
+    });
+
     const extraDataObject = generateExtraData(rudderElement, this.fieldMapping);
     if (Object.keys(extraDataObject).length !== 0) {
       finalPayload.push({ event: 'setData', ...extraDataObject });

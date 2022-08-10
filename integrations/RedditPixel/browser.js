@@ -31,7 +31,7 @@ class RedditPixel {
         p.callQueue = [];
         var t = d.createElement('script');
         (t.src = 'https://www.redditstatic.com/ads/pixel.js'), (t.async = !0);
-        t.dataset.loader = LOAD_ORIGIN;
+        t.setAttribute('data-loader', LOAD_ORIGIN);
         var s = d.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(t, s);
       }

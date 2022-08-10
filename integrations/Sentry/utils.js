@@ -18,7 +18,7 @@ const SentryScriptLoader = (id, src, integrity) => {
   js.crossOrigin = 'anonymous';
   js.type = 'text/javascript';
   js.id = id;
-  js.dataset.loader = LOAD_ORIGIN;
+  js.setAttribute('data-loader', LOAD_ORIGIN);
   const e = document.getElementsByTagName('script')[0];
   logger.debug('==parent script==', e);
   logger.debug('==adding script==', js);

@@ -12,6 +12,7 @@ import {
   checkCustomDimensions,
 } from './util';
 import { getHashFromArrayWithDuplicate } from '../utils/commonUtils';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Matomo {
   constructor(config) {
@@ -57,6 +58,7 @@ class Matomo {
       g.async = true;
       u = u.replace('https://', '');
       g.src = `//cdn.matomo.cloud/${u}matomo.js`;
+      g.setAttribute('data-loader', LOAD_ORIGIN);
       s.parentNode.insertBefore(g, s);
     })(this.serverUrl, this.siteId);
   }

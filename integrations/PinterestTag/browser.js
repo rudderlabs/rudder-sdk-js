@@ -31,11 +31,11 @@ export default class PinterestTag {
         window.pintrk = function () {
           window.pintrk.queue.push(Array.prototype.slice.call(arguments));
         };
-        const n = window.pintrk;
+        var n = window.pintrk;
         (n.queue = []), (n.version = '3.0');
-        const t = document.createElement('script');
-        (t.async = !0), (t.src = e), (t.dataset.loader = LOAD_ORIGIN);
-        const r = document.getElementsByTagName('script')[0];
+        var t = document.createElement('script');
+        (t.async = !0), (t.src = e), t.setAttribute('data-loader', LOAD_ORIGIN);
+        var r = document.getElementsByTagName('script')[0];
         r.parentNode.insertBefore(t, r);
       }
     })('https://s.pinimg.com/ct/core.js');

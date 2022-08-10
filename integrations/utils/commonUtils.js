@@ -34,7 +34,10 @@ const getHashFromArrayWithDuplicate = (
       const key = isLowerCase ? array[fromKey].toLowerCase().trim() : array[fromKey].trim();
 
       if (hashMap[key]) {
-        hashMap[key].push(array[toKey]);
+        const val = hashMap[key];
+        if (!val.includes(array[toKey])) {
+          hashMap[key].push(array[toKey]);
+        }
       } else {
         hashMap[key] = [array[toKey]];
       }

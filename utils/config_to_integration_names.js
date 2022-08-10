@@ -51,6 +51,7 @@ const configToIntNames = {
   DCM_FLOODLIGHT: 'DCMFloodlight',
   MATOMO: 'Matomo',
   VERO: 'Vero',
+  MOUSEFLOW: 'Mouseflow',
 };
 
 export { configToIntNames };

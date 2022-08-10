@@ -25,13 +25,17 @@ class RudderContext {
       this.screen.density = window.devicePixelRatio;
       this.screen.innerWidth = window.innerWidth;
       this.screen.innerHeight = window.innerHeight;
+      this.userAgent = navigator.userAgent;
 
-      // detect brave browser and append to the user agent
+      // For supporting Brave browser detection,
+      // add "Brave/<version>" to the user agent with the version value from the Chrome component
       if (navigator.brave && Object.getPrototypeOf(navigator.brave).isBrave) {
-        const version = navigator.userAgent.match(/(Chrome)\/([\w\.]+)/i)[2];
-        this.userAgent = `${navigator.userAgent} Brave/${version}`;
-      } else {
-        this.userAgent = navigator.userAgent;
+        // Example:
+        // Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36
+        const matchedArr = this.userAgent.match(/(Chrome)\/([\w\.]+)/i);
+        if (matchedArr) {
+          this.userAgent = `${this.userAgent} Brave/${matchedArr[2]}`;
+        }
       }
 
       // property name differs based on browser version

@@ -40,9 +40,9 @@ class Drip {
     window._dcs.account = this.accountId;
 
     (function () {
-      const dc = document.createElement('script');
+      var dc = document.createElement('script');
       dc.type = 'text/javascript';
-      dc.dataset.loader = LOAD_ORIGIN;
+      dc.setAttribute('data-loader', LOAD_ORIGIN);
       dc.async = true;
       dc.src = `//tag.getdrip.com/${window._dcs.account}.js`;
       const s = document.getElementsByTagName('script')[0];

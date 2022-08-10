@@ -78,7 +78,7 @@ class Qualtrics {
           if (this.check()) {
             var a = document.createElement('script');
             a.type = 'text/javascript';
-            a.dataset.loader = LOAD_ORIGIN;
+            a.setAttribute('data-loader', LOAD_ORIGIN);
             a.src = g;
             document.body && document.body.appendChild(a);
           }

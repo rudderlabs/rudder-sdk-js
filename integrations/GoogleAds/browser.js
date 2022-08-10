@@ -28,7 +28,7 @@ class GoogleAds {
       const js = document.createElement('script');
       js.src = src;
       js.async = 1;
-      js.dataset.loader = LOAD_ORIGIN;
+      js.setAttribute('data-loader', LOAD_ORIGIN);
       js.type = 'text/javascript';
       js.id = id;
       const e = document.getElementsByTagName('head')[0];

@@ -54,7 +54,7 @@ class VWO {
             const b = d.createElement('script');
             b.src = a;
             b.type = 'text/javascript';
-            b.dataset.loader = LOAD_ORIGIN;
+            b.setAttribute('data-loader', LOAD_ORIGIN);
             b.innerText;
             b.onerror = function () {
               _vwo_code.finish();
