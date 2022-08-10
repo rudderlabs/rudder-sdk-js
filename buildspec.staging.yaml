@@ -6,7 +6,7 @@ phases:
       nodejs: 12
   build:
     commands:
-      - npm ci
+      - npm ci --unsafe-perm
       - npm run test
       - npm run buildProdBrowser --staging=true
       - npm run buildAllIntegrations --staging=true
