@@ -1,8 +1,6 @@
 import {
   createPayload,
   sendEventForTransformation,
-  processTransformation,
-  mockMeHuman
 } from '../utils/DMTHandler';
 
 describe('Test suite for device mode transformation feature', () => {
@@ -73,6 +71,43 @@ describe('Test suite for device mode transformation feature', () => {
 	}]
 };
 
+const samplePayloadPartialSuccess = {
+	"transformedBatch": [{
+		"id": "2CO2YmLozA3SZe6JtmdmMKTrCOl",
+		"payload": [{
+			"orderNo": 1659505271417,
+			"status": "200",
+			"event": {
+				"message": {
+					"anonymousId": "7105960b-0174-4d31-a7a1-561925dedde3",
+					"channel": "web",
+					"context": {
+						"library": {
+							"name": "RudderLabs JavaScript SDK",
+							"version": "2.9.2"
+						},
+					},
+					"integrations": {
+						"All": true
+					},
+					"messageId": "1659505271412300-2d882451-7f50-4f23-b5ac-919fa8a1957d",
+					"name": "page view 123",
+					"originalTimestamp": "2022-08-03T05:41:11.412Z",
+					"properties": {
+					},
+					"type": "page",
+				}
+			}
+		}]
+	},{
+		"id": "2CO2YmLozA3SZe6JtmdmMKTrCKr",
+		"payload": [{
+			"orderNo": 1659505271418,
+			"status": "400"
+		}]
+	}]
+};
+
   const xhrMock = {
     open: jest.fn(),
     setRequestHeader: jest.fn(),
@@ -86,16 +121,36 @@ describe('Test suite for device mode transformation feature', () => {
     status: 200,
   };
 
+  let xhrMockPartialSuccess = {
+    ...xhrMock,
+    attempt: 0,
+    response: JSON.stringify(samplePayloadPartialSuccess),
+    status: 200,
+  };
+
+  xhrMockPartialSuccess['send'] = ()=>{
+    xhrMockPartialSuccess.onreadystatechange();
+    xhrMockPartialSuccess.attempt++;
+  };
+
   const xhrMockAccessDenied = {
     ...xhrMock,
     response: JSON.stringify({}),
     status: 404,
   };
 
-  const xhrMockServerDown = {
-    ...xhrMock,
+  let xhrMockServerDown = {
+    attempt: 0,
+    open: jest.fn(),
+    setRequestHeader: jest.fn(),
+    onreadystatechange: jest.fn(),
+    readyState: 4,
     response: null,
-    status: 500,
+    status: 500
+  };
+  xhrMockServerDown['send'] = ()=>{
+    xhrMockServerDown.onreadystatechange();
+    xhrMockServerDown.attempt++;
   };
 
   it('Validate payload format', () => {
@@ -106,7 +161,7 @@ describe('Test suite for device mode transformation feature', () => {
     expect(payload.batch[0].event).toBe(event);
   });
 
-  it('Transformation server returning response in right format in case of successful transformation', async () => {
+  it('Transformation server returning response in right format in case of successful transformation', () => {
     
     window.XMLHttpRequest = jest.fn(() => xhrMockSuccess);
     setTimeout(() => {
@@ -114,7 +169,6 @@ describe('Test suite for device mode transformation feature', () => {
     }, 0);
     return sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
     .then((response)=>{
-      console.log("CALLED", response);
       expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
       expect(Array.isArray(response.transformedBatch)).toEqual(true);
       expect(typeof response.transformationServerAccess).toEqual('boolean');
@@ -125,7 +179,6 @@ describe('Test suite for device mode transformation feature', () => {
       expect(destObj.hasOwnProperty('id')).toEqual(true);
       expect(destObj.hasOwnProperty('payload')).toEqual(true);
     });
-    // .catch(e => console.log(e));
   });
 
   it('Validate whether the SDK is sending the orginal event in case server returns 404', () => {
@@ -148,28 +201,29 @@ describe('Test suite for device mode transformation feature', () => {
     });
   });
 
-  it('Validate whether the SDK is retrying the request in case failures', () => {
+  it('Validate whether the SDK is retrying the request in case failures', async() => {
     window.XMLHttpRequest = jest.fn(() => xhrMockServerDown);
-    setTimeout(() => {
-      xhrMockServerDown.onreadystatechange();
-    }, 0);
-    sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
+
+    await sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
     .then((response)=>{
-      // expect(xhrMockSuccess.send).toHaveBeenCalledTimes(4);
-      // expect(transformedBatch).toEqual(payload.batch);
-
-      // const destObj = transformedBatch[0];
-
-      // expect(destObj.hasOwnProperty('id')).toBe(false);
-      // expect(destObj.hasOwnProperty('payload')).toEqual(false);
     })
     .catch((e)=>{
       console.log(e);
       expect(typeof e).toBe('string');
+      expect(xhrMockServerDown.attempt).toEqual(retryCount+1); //retryCount+ first attempt
     });
   });
 
-  it('Validate whether the SDK is retrying the request in case not all the transformation is successful', () => {
+  it('Validate whether the SDK is retrying the request in case not all the transformation is successful', async() => {
+    window.XMLHttpRequest = jest.fn(() => xhrMockPartialSuccess);
 
+    await sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
+    .then((response)=>{
+    })
+    .catch((e)=>{
+      console.log(e);
+      expect(typeof e).toBe('string');
+      expect(xhrMockPartialSuccess.attempt).toEqual(retryCount+1); //retryCount+ first attempt
+    });
   });
 });

@@ -56,10 +56,10 @@ const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount)
                   "transformedBatch" :[
                     {
                       "id": "destination-id",
-                      "status": "200",
                       "payload": [
                         {
                           "orderNo":1,
+                          "status": "200",
                           "event": {
                             "message": { ...}
                         }]
@@ -96,7 +96,7 @@ const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount)
                 return sendEventForTransformation(payload, writeKey, dataPlaneUrl, newRetryCount)
                   .then(resolve)
                   .catch(reject);
-              }, 1000 * (Math.floor(Math.random() * 3) + 1));
+              }, 1000);
             } else {
               // Even after all the retries event transformation
               // is not successful, ignore the event
