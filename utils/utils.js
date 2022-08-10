@@ -146,8 +146,12 @@ function handleError(error, analyticsInstance) {
       // Discard all the non-script loading errors
       if (error.target && error.target.localName !== "script") return;
 
-      // Discard errors of scripts that are not loaded by the SDK
-      if (error.target.dataset && error.target.dataset.loader !== LOAD_ORIGIN)
+      // Discard script errors that are not originated at SDK or from native SDKs
+      if (
+        error.target.dataset &&
+        (error.target.dataset.loader !== LOAD_ORIGIN ||
+          error.target.dataset.isNonNativeSDK !== "true")
+      )
         return;
 
       errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
@@ -674,27 +678,22 @@ const getConfigUrl = (writeKey) => {
   );
 };
 
-const checkSDKUrl = () => {
+const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName("script");
-  let rudderSDK = undefined;
-  let staging = false;
+  let sdkURL;
+  let isStaging = false;
   for (let i = 0; i < scripts.length; i += 1) {
     const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute("src"));
-    // only in case of staging SDK staging env will be set to true
-    if (
-      curScriptSrc &&
-      curScriptSrc.startsWith("http") &&
-      (curScriptSrc.endsWith("rudder-analytics.min.js") ||
-        curScriptSrc.endsWith("rudder-analytics-staging.min.js"))
-    ) {
-      rudderSDK = curScriptSrc;
-      if (curScriptSrc.endsWith("rudder-analytics-staging.min.js")) {
-        staging = true;
+    if (curScriptSrc) {
+      const urlMatches = curScriptSrc.match(/^.*rudder-analytics(-staging)?(\.min)?\.js$/);
+      if (urlMatches) {
+        sdkURL = curScriptSrc;
+        isStaging = urlMatches[1] !== undefined;
+        break;
       }
-      break;
     }
   }
-  return { rudderSDK, staging };
+  return { sdkURL, isStaging };
 };
 
 /**
@@ -770,7 +769,7 @@ export {
   removeTrailingSlashes,
   constructPayload,
   getConfigUrl,
-  checkSDKUrl,
+  getSDKUrlInfo,
   notifyError,
   leaveBreadcrumb,
   get,
