@@ -711,7 +711,7 @@ class Analytics {
           try {
             if (!obj.isFailed || !obj.isFailed()) {
               if (obj[type]) {
-                let sendEvent = !this.IsEventBlackListed(rudderElement.message.event, obj.name);
+                const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, obj.name);
 
                 // Block the event if it is blacklisted for the device-mode destination
                 if (sendEvent) {
@@ -916,10 +916,8 @@ class Analytics {
   }
 
   isDatasetAvailable() {
-    const t = document.createElement("div");
-    return (
-      t.setAttribute("data-a-b", "c"), t.dataset ? t.dataset.aB === "c" : false
-    );
+    const t = document.createElement('div');
+    return t.setAttribute('data-a-b', 'c'), t.dataset ? t.dataset.aB === 'c' : false;
   }
 
   /**
@@ -1063,7 +1061,7 @@ class Analytics {
       !String.prototype.replaceAll ||
       !this.isDatasetAvailable()
     ) {
-      const id = "polyfill";
+      const id = 'polyfill';
       ScriptLoader(id, POLYFILL_URL, { skipDatasetAttributes: true });
       const self = this;
       const interval = setInterval(function () {

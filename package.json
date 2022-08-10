@@ -95,6 +95,6 @@
     "size-limit": "^7.0.8"
   },
   "lint-staged": {
-    "*.{js}": "eslint --cache --fix"
+    "*.js": "prettier --write"
   }
 }

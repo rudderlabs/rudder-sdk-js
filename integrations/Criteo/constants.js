@@ -1,4 +1,4 @@
-const NAME = "CRITEO";
+const NAME = 'CRITEO';
 
 const CNameMapping = {
   [NAME]: NAME,
@@ -6,11 +6,6 @@ const CNameMapping = {
   criteo: NAME,
 };
 
-const supportedEvents = [
-  "product viewed",
-  "cart viewed",
-  "order completed",
-  "product list viewed",
-];
+const supportedEvents = ['product viewed', 'cart viewed', 'order completed', 'product list viewed'];
 
 export { NAME, CNameMapping, supportedEvents };

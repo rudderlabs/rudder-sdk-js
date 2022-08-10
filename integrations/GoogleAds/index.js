@@ -1,3 +1,3 @@
-import { GoogleAds } from "./browser";
+import { GoogleAds } from './browser';
 
 export { GoogleAds };

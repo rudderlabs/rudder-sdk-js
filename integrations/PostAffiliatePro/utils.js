@@ -13,8 +13,7 @@ const updateSaleObject = (sale, properties) => {
     sale.doNotDeleteCookies();
   if (properties.status) sale.setStatus(properties.status);
   if (properties.currency) sale.setCurrency(properties.currency);
-  if (properties.customCommision)
-    sale.setCustomCommission(properties.customCommision);
+  if (properties.customCommision) sale.setCustomCommission(properties.customCommision);
   if (properties.channel) sale.setChannelID(properties.channel);
   if (properties.coupon) sale.setCoupon(properties.coupon);
   if (properties.campaignId) sale.setCampaignID(properties.campaignId);

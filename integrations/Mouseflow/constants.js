@@ -1,4 +1,4 @@
-const NAME = "MOUSEFLOW";
+const NAME = 'MOUSEFLOW';
 const CNameMapping = {
   [NAME]: NAME,
   Mouseflow: NAME,

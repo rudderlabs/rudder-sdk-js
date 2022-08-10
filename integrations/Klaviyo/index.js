@@ -1,3 +1,3 @@
-import Klaviyo from "./browser";
+import Klaviyo from './browser';
 
 export { Klaviyo };

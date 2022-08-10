@@ -1,4 +1,4 @@
-const NAME = "OPTIMIZELY";
+const NAME = 'OPTIMIZELY';
 const CNameMapping = {
   [NAME]: NAME,
   Optimizely: NAME,

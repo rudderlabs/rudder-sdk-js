@@ -1,8 +1,8 @@
-import cookie from "rudder-component-cookie";
-import defaults from "@ndhoule/defaults";
-import topDomain from "@segment/top-domain";
-import cloneDeep from "lodash.clonedeep";
-import logger from "../logUtil";
+import cookie from 'rudder-component-cookie';
+import defaults from '@ndhoule/defaults';
+import topDomain from '@segment/top-domain';
+import cloneDeep from 'lodash.clonedeep';
+import logger from '../logUtil';
 
 /**
  * An object utility to persist values in cookies
@@ -22,14 +22,14 @@ class CookieLocal {
     if (arguments.length === 0) return this.cOpts;
 
     let domain = `.${topDomain(window.location.href)}`;
-    if (domain === ".") domain = null;
+    if (domain === '.') domain = null;
 
     // the default maxage and path
     this.cOpts = defaults(inOpts, {
       maxage: 31536000000,
-      path: "/",
+      path: '/',
       domain,
-      samesite: "Lax",
+      samesite: 'Lax',
     });
 
     return this.cOpts;
@@ -76,7 +76,7 @@ class CookieLocal {
    * @returns boolean
    */
   checkSupportAvailability() {
-    const name = "test_rudder_cookie";
+    const name = 'test_rudder_cookie';
     this.set(name, true);
 
     if (this.get(name)) {

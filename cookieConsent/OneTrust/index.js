@@ -1,3 +1,3 @@
-import OneTrust from "./browser";
+import OneTrust from './browser';
 
 export { OneTrust };
