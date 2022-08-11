@@ -1,6 +1,7 @@
 import cookie from "rudder-component-cookie";
 import defaults from "@ndhoule/defaults";
 import topDomain from "@segment/top-domain";
+import { parse } from "component-url";
 import cloneDeep from "lodash.clonedeep";
 import logger from "../logUtil";
 
@@ -29,7 +30,8 @@ class CookieLocal {
       maxage: 31536000000,
       path: "/",
       domain,
-      samesite: "Lax",
+      samesite: "None",
+      secure: parse(window.location.href).protocol === "https:",
     });
 
     return this.cOpts;
