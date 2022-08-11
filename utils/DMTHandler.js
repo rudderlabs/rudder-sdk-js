@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable consistent-return */
 import { replacer } from './utils';
@@ -67,18 +68,16 @@ const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount)
                   } 
                */
               /**
-               * If event transformation is successful for all the destination
-               * send the response back
+               * Filter the successful transformed event
                */
-              if (
-                response.transformedBatch.every((dest) =>
-                  dest.payload.every((tEvent) => tEvent.status === '200'),
-                )
-              )
-                return resolve({
-                  transformedBatch: response.transformedBatch,
-                  transformationServerAccess: true,
-                });
+              response.transformedBatch.forEach((dest) => {
+                dest.payload = dest.payload.filter((tEvent) => tEvent.status === '200');
+              });
+
+              return resolve({
+                transformedBatch: response.transformedBatch,
+                transformationServerAccess: true,
+              });
             }
             if (xhr.status === 404) {
               return resolve({
@@ -96,7 +95,7 @@ const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount)
                 return sendEventForTransformation(payload, writeKey, dataPlaneUrl, newRetryCount)
                   .then(resolve)
                   .catch(reject);
-              }, 1000);
+              }, 500);
             } else {
               // Even after all the retries event transformation
               // is not successful, ignore the event

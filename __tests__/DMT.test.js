@@ -214,16 +214,16 @@ const samplePayloadPartialSuccess = {
     });
   });
 
-  it('Validate whether the SDK is retrying the request in case not all the transformation is successful', async() => {
-    window.XMLHttpRequest = jest.fn(() => xhrMockPartialSuccess);
+  // it('Validate whether the SDK is retrying the request in case not all the transformation is successful', async() => {
+  //   window.XMLHttpRequest = jest.fn(() => xhrMockPartialSuccess);
 
-    await sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
-    .then((response)=>{
-    })
-    .catch((e)=>{
-      console.log(e);
-      expect(typeof e).toBe('string');
-      expect(xhrMockPartialSuccess.attempt).toEqual(retryCount+1); //retryCount+ first attempt
-    });
-  });
+  //   await sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
+  //   .then((response)=>{
+  //   })
+  //   .catch((e)=>{
+  //     console.log(e);
+  //     expect(typeof e).toBe('string');
+  //     expect(xhrMockPartialSuccess.attempt).toEqual(retryCount+1); //retryCount+ first attempt
+  //   });
+  // });
 });
