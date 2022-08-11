@@ -49,6 +49,7 @@ import * as Adroll from './Adroll';
 import * as Vero from './Vero';
 import * as Matomo from './Matomo';
 import * as Mouseflow from './Mouseflow';
+import * as Rockerbox from './Rockerbox';
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -104,6 +105,7 @@ const integrations = {
   ADROLL: Adroll.default,
   VERO: Vero.default,
   MATOMO: Matomo.default,
+  ROCKERBOX: Rockerbox.default,
   MOUSEFLOW: Mouseflow.default,
 };
 
