@@ -1,4 +1,4 @@
-import { OneTrust } from "./OneTrust";
+import { OneTrust } from './OneTrust';
 
 class CookieConsentFactory {
   static initialize(cookieConsentOptions) {

@@ -1,5 +1,5 @@
-import defaults from "@ndhoule/defaults";
-import store from "storejs";
+import defaults from '@ndhoule/defaults';
+import store from 'storejs';
 
 /**
  * An object utility to persist user and other values in localstorage
@@ -55,7 +55,7 @@ class StoreLocal {
    * @returns boolean
    */
   checkSupportAvailability() {
-    const name = "test_rudder_ls";
+    const name = 'test_rudder_ls';
     this.set(name, true);
 
     if (this.get(name)) {

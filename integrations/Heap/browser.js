@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 
-import processHeapProperties from "./util";
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import processHeapProperties from './util';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Heap {
   constructor(config) {
@@ -19,12 +19,12 @@ class Heap {
     (window.heap = window.heap || []),
       (heap.load = function (e, t) {
         (window.heap.appid = e), (window.heap.config = t = t || {});
-        const r = document.createElement("script");
-        (r.type = "text/javascript"),
+        const r = document.createElement('script');
+        (r.type = 'text/javascript'),
           (r.async = !0),
-          (r.dataset.loader = LOAD_ORIGIN),
+          r.setAttribute('data-loader', LOAD_ORIGIN),
           (r.src = `https://cdn.heapanalytics.com/js/heap-${e}.js`);
-        const a = document.getElementsByTagName("script")[0];
+        const a = document.getElementsByTagName('script')[0];
         a.parentNode.insertBefore(r, a);
         for (
           let n = function (e) {
@@ -33,15 +33,15 @@ class Heap {
               };
             },
             p = [
-              "addEventProperties",
-              "addUserProperties",
-              "clearEventProperties",
-              "identify",
-              "resetIdentity",
-              "removeEventProperty",
-              "setEventProperties",
-              "track",
-              "unsetEventProperty",
+              'addEventProperties',
+              'addUserProperties',
+              'clearEventProperties',
+              'identify',
+              'resetIdentity',
+              'removeEventProperty',
+              'setEventProperties',
+              'track',
+              'unsetEventProperty',
             ],
             o = 0;
           o < p.length;

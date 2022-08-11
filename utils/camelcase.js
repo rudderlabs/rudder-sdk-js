@@ -1,13 +1,13 @@
 // util function to convert the input to string type
 function convertToString(input) {
   if (input) {
-    if (typeof input === "string") {
+    if (typeof input === 'string') {
       return input;
     }
 
     return String(input);
   }
-  return "";
+  return '';
 }
 
 // convert string to words
@@ -20,7 +20,7 @@ function toWords(input) {
 
 // convert the input array to camel case
 function toCamelCase(inputArray) {
-  let result = "";
+  let result = '';
   if (!inputArray) return result;
 
   for (let i = 0, len = inputArray.length; i < len; i += 1) {

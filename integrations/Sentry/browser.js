@@ -3,12 +3,12 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-unused-expressions */
 
-import get from "get-value";
-import logger from "../../utils/logUtil";
-import { SentryScriptLoader, sentryInit } from "./utils";
-import { removeUndefinedAndNullValues } from "../utils/commonUtils";
-import { getDefinedTraits, isObject } from "../../utils/utils";
-import { NAME } from "./constants";
+import get from 'get-value';
+import logger from '../../utils/logUtil';
+import { SentryScriptLoader, sentryInit } from './utils';
+import { removeUndefinedAndNullValues } from '../utils/commonUtils';
+import { getDefinedTraits, isObject } from '../../utils/utils';
+import { NAME } from './constants';
 
 class Sentry {
   constructor(config, analytics) {
@@ -30,27 +30,27 @@ class Sentry {
   }
 
   init() {
-    logger.debug("===in init Sentry===");
+    logger.debug('===in init Sentry===');
     if (!this.dsn) {
-      logger.debug("DSN is a mandatory field");
+      logger.debug('DSN is a mandatory field');
       return;
     }
     SentryScriptLoader(
-      "sentry",
+      'sentry',
       `https://browser.sentry-cdn.com/6.13.1/bundle.min.js`,
-      `sha384-vUP3nL55ipf9vVr3gDgKyDuYwcwOC8nZGAksntVhezPcr2QXl1Ls81oolaVSkPm+`
+      `sha384-vUP3nL55ipf9vVr3gDgKyDuYwcwOC8nZGAksntVhezPcr2QXl1Ls81oolaVSkPm+`,
     );
 
     SentryScriptLoader(
-      "plugin",
+      'plugin',
       `https://browser.sentry-cdn.com/6.13.1/rewriteframes.min.js`,
-      `sha384-WOm9k3kzVt1COFAB/zCXOFx4lDMtJh/2vmEizIwgog7OW0P/dPwl3s8f6MdwrD7q`
+      `sha384-WOm9k3kzVt1COFAB/zCXOFx4lDMtJh/2vmEizIwgog7OW0P/dPwl3s8f6MdwrD7q`,
     );
   }
 
   // eslint-disable-next-line class-methods-use-this
   isLoaded() {
-    logger.debug("===in Sentry isLoaded===");
+    logger.debug('===in Sentry isLoaded===');
     return !!(
       window.Sentry &&
       isObject(window.Sentry) &&
@@ -61,7 +61,7 @@ class Sentry {
 
   // eslint-disable-next-line class-methods-use-this
   isReady() {
-    logger.debug("===in Sentry isReady===");
+    logger.debug('===in Sentry isReady===');
     if (
       window.Sentry &&
       isObject(window.Sentry) &&
@@ -78,11 +78,11 @@ class Sentry {
         this.dsn,
         this.debugMode,
         this.environment,
-        this.serverName
+        this.serverName,
       );
       window.Sentry.init(sentryConfig);
       if (this.logger) {
-        window.Sentry.setTag("logger", this.logger);
+        window.Sentry.setTag('logger', this.logger);
       }
       return true;
     }
@@ -93,14 +93,12 @@ class Sentry {
     const { message } = rudderElement;
     const { traits } = message.context;
     const { email, name } = getDefinedTraits(message); // userId sent as id and username sent as name
-    const userId = get(message, "userId");
-    const ipAddress = get(message, "context.traits.ip_address");
+    const userId = get(message, 'userId');
+    const ipAddress = get(message, 'context.traits.ip_address');
 
     if (!userId && !email && !name && !ipAddress) {
       // if no user identification property is present the event will be dropped
-      logger.debug(
-        "===[Sentry]: Any one of userId, email, name and ip_address is mandatory==="
-      );
+      logger.debug('===[Sentry]: Any one of userId, email, name and ip_address is mandatory===');
       return;
     }
 

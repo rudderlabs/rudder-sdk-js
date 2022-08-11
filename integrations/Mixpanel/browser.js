@@ -23,13 +23,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable prettier/prettier */
 /* eslint-disable class-methods-use-this */
-import get from "get-value";
-import logger from "../../utils/logUtil";
-import {
-  pick,
-  removeUndefinedAndNullValues,
-  isNotEmpty,
-} from "../utils/commonUtils";
+import get from 'get-value';
+import logger from '../../utils/logUtil';
+import { pick, removeUndefinedAndNullValues, isNotEmpty } from '../utils/commonUtils';
 import {
   parseConfigArray,
   inverseObjectArrays,
@@ -38,9 +34,9 @@ import {
   extendTraits,
   mapTraits,
   formatTraits,
-} from "./util";
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+} from './util';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Mixpanel {
   constructor(config, analytics) {
@@ -51,7 +47,7 @@ class Mixpanel {
     this.accountId = config.accountId;
     this.token = config.token;
     this.people = config.people || false;
-    this.dataResidency = config.dataResidency || "us";
+    this.dataResidency = config.dataResidency || 'us';
     this.setAllTraitsByDefault = config.setAllTraitsByDefault || false;
     this.superProperties = config.superProperties || [];
     this.eventIncrements = config.eventIncrements || [];
@@ -64,21 +60,21 @@ class Mixpanel {
     this.peopleProperties = config.peopleProperties || [];
     this.crossSubdomainCookie = config.crossSubdomainCookie || false;
     this.secureCookie = config.secureCookie || false;
-    this.persistence = config.persistence || "none";
+    this.persistence = config.persistence || 'none';
     this.traitAliases = {
-      created: "$created",
-      email: "$email",
-      firstName: "$first_name",
-      lastName: "$last_name",
-      lastSeen: "$last_seen",
-      name: "$name",
-      username: "$username",
-      phone: "$phone",
+      created: '$created',
+      email: '$email',
+      firstName: '$first_name',
+      lastName: '$last_name',
+      lastSeen: '$last_seen',
+      name: '$name',
+      username: '$username',
+      phone: '$phone',
     };
   }
 
   init() {
-    logger.debug("===in init Mixpanel===");
+    logger.debug('===in init Mixpanel===');
     // eslint-disable-next-line no-var
     (function (f, b) {
       if (!b.__SV) {
@@ -87,30 +83,30 @@ class Mixpanel {
         b._i = [];
         b.init = function (e, f, c) {
           function g(a, d) {
-            var b = d.split(".");
+            var b = d.split('.');
             2 == b.length && ((a = a[b[0]]), (d = b[1]));
             a[d] = function () {
               a.push([d].concat(Array.prototype.slice.call(arguments, 0)));
             };
           }
           var a = b;
-          "undefined" !== typeof c ? (a = b[c] = []) : (c = "mixpanel");
+          'undefined' !== typeof c ? (a = b[c] = []) : (c = 'mixpanel');
           a.people = a.people || [];
           a.toString = function (a) {
-            var d = "mixpanel";
-            "mixpanel" !== c && (d += "." + c);
-            a || (d += " (stub)");
+            var d = 'mixpanel';
+            'mixpanel' !== c && (d += '.' + c);
+            a || (d += ' (stub)');
             return d;
           };
           a.people.toString = function () {
-            return a.toString(1) + ".people (stub)";
+            return a.toString(1) + '.people (stub)';
           };
           i =
-            "disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove".split(
-              " "
+            'disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove'.split(
+              ' ',
             );
           for (h = 0; h < i.length; h++) g(a, i[h]);
-          var j = "set set_once union unset remove delete".split(" ");
+          var j = 'set set_once union unset remove delete'.split(' ');
           a.get_group = function () {
             function b(c) {
               d[c] = function () {
@@ -120,11 +116,7 @@ class Mixpanel {
               };
             }
             for (
-              var d = {},
-                e = ["get_group"].concat(
-                  Array.prototype.slice.call(arguments, 0)
-                ),
-                c = 0;
+              var d = {}, e = ['get_group'].concat(Array.prototype.slice.call(arguments, 0)), c = 0;
               c < j.length;
               c++
             )
@@ -134,18 +126,18 @@ class Mixpanel {
           b._i.push([e, f, c]);
         };
         b.__SV = 1.2;
-        e = f.createElement("script");
-        e.type = "text/javascript";
+        e = f.createElement('script');
+        e.type = 'text/javascript';
         e.async = !0;
-        e.dataset.loader = LOAD_ORIGIN;
+        e.setAttribute('data-loader', LOAD_ORIGIN);
         e.src =
-          "undefined" !== typeof MIXPANEL_CUSTOM_LIB_URL
+          'undefined' !== typeof MIXPANEL_CUSTOM_LIB_URL
             ? MIXPANEL_CUSTOM_LIB_URL
-            : "file:" === f.location.protocol &&
-              "//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)
-            ? "https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js"
-            : "//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";
-        g = f.getElementsByTagName("script")[0];
+            : 'file:' === f.location.protocol &&
+              '//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js'.match(/^\/\//)
+            ? 'https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js'
+            : '//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js';
+        g = f.getElementsByTagName('script')[0];
         g.parentNode.insertBefore(e, g);
       }
     })(document, window.mixpanel || []);
@@ -153,25 +145,25 @@ class Mixpanel {
       cross_subdomain_cookie: this.crossSubdomainCookie || false,
       secure_cookie: this.secureCookie || false,
     };
-    if (this.persistence !== "none") {
+    if (this.persistence !== 'none') {
       options.persistence_name = this.persistence;
     }
-    if (this.dataResidency == "eu") {
+    if (this.dataResidency == 'eu') {
       // https://developer.mixpanel.com/docs/implement-mixpanel#section-implementing-mixpanel-in-the-european-union-eu
-      options.api_host = "https://api-eu.mixpanel.com";
+      options.api_host = 'https://api-eu.mixpanel.com';
     }
     window.mixpanel.init(this.token, options);
   }
 
   isLoaded() {
-    logger.debug("in Mixpanel isLoaded");
+    logger.debug('in Mixpanel isLoaded');
     logger.debug(!!(window.mixpanel && window.mixpanel.config));
-    window.mixpanel.register({ mp_lib: "Rudderstack: web" });
+    window.mixpanel.register({ mp_lib: 'Rudderstack: web' });
     return !!(window.mixpanel && window.mixpanel.config);
   }
 
   isReady() {
-    logger.debug("in Mixpanel isReady");
+    logger.debug('in Mixpanel isReady');
     return !!(window.mixpanel && window.mixpanel.config);
   }
 
@@ -180,15 +172,14 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   identify(rudderElement) {
-    logger.debug("in Mixpanel identify");
+    logger.debug('in Mixpanel identify');
 
-    let peopleProperties = parseConfigArray(this.peopleProperties, "property");
+    let peopleProperties = parseConfigArray(this.peopleProperties, 'property');
     peopleProperties = extendTraits(peopleProperties);
-    const superProperties = parseConfigArray(this.superProperties, "property");
+    const superProperties = parseConfigArray(this.superProperties, 'property');
 
     // eslint-disable-next-line camelcase
-    const user_id =
-      rudderElement.message.userId || rudderElement.message.anonymousId;
+    const user_id = rudderElement.message.userId || rudderElement.message.anonymousId;
     let traits = formatTraits(rudderElement.message);
     const { email, username } = traits;
     // id
@@ -236,10 +227,8 @@ class Mixpanel {
         const mappedPeopleProps = mapTraits(peopleProperties);
         const peoplePropsToSet = pick(traitsToSet, mappedPeopleProps || []);
         const peoplePropsToUnion = pick(traitsToUnion, mappedPeopleProps || []);
-        if (isNotEmpty(peoplePropsToSet))
-          window.mixpanel.people.set(peoplePropsToSet);
-        if (isNotEmpty(peoplePropsToUnion))
-          window.mixpanel.people.union(peoplePropsToUnion);
+        if (isNotEmpty(peoplePropsToSet)) window.mixpanel.people.set(peoplePropsToSet);
+        if (isNotEmpty(peoplePropsToUnion)) window.mixpanel.people.union(peoplePropsToUnion);
       }
     }
   }
@@ -249,12 +238,12 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   page(rudderElement) {
-    logger.debug("in Mixpanel page");
+    logger.debug('in Mixpanel page');
     const { name, properties } = rudderElement.message;
     const { category } = properties;
     // consolidated Page Calls
     if (this.consolidatedPageCalls) {
-      window.mixpanel.track("Loaded a Page", properties);
+      window.mixpanel.track('Loaded a Page', properties);
       return;
     }
 
@@ -282,15 +271,14 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   track(rudderElement) {
-    logger.debug("in Mixpanel track");
+    logger.debug('in Mixpanel track');
     const { message } = rudderElement;
-    const eventIncrements = parseConfigArray(this.eventIncrements, "property");
-    const propIncrements = parseConfigArray(this.propIncrements, "property");
-    const event = get(message, "event");
-    const revenue =
-      get(message, "properties.revenue") || get(message, "properties.total");
+    const eventIncrements = parseConfigArray(this.eventIncrements, 'property');
+    const propIncrements = parseConfigArray(this.propIncrements, 'property');
+    const event = get(message, 'event');
+    const revenue = get(message, 'properties.revenue') || get(message, 'properties.total');
     const sourceName = this.sourceName;
-    let props = get(message, "properties");
+    let props = get(message, 'properties');
     if (isNotEmpty(props)) {
       props = inverseObjectArrays(props);
     }
@@ -311,7 +299,7 @@ class Mixpanel {
       // increment event count, check if the current event exists in eventIncrements
       if (eventIncrements.indexOf(event) !== -1) {
         window.mixpanel.people.increment(event);
-        window.mixpanel.people.set("Last " + event, new Date());
+        window.mixpanel.people.set('Last ' + event, new Date());
       }
       // increment property counts
       // eslint-disable-next-line guard-for-in
@@ -348,61 +336,49 @@ class Mixpanel {
    * @param {*} rudderElement
    */
   group(rudderElement) {
-    logger.debug("in Mixpanel group");
+    logger.debug('in Mixpanel group');
     const { userId, groupId, traits } = rudderElement.message;
     if (!userId) {
-      logger.debug("===Mixpanel: valid userId is required for group===");
+      logger.debug('===Mixpanel: valid userId is required for group===');
       return;
     }
     if (!groupId) {
-      logger.debug("===Mixpanel: valid groupId is required for group===");
+      logger.debug('===Mixpanel: valid groupId is required for group===');
       return;
     }
     if (!this.groupKeySettings || this.groupKeySettings.length === 0) {
-      logger.debug(
-        "===Mixpanel: groupIdentifierTraits is required for group==="
-      );
+      logger.debug('===Mixpanel: groupIdentifierTraits is required for group===');
       return;
     }
     /**
      * groupIdentifierTraits: [ {trait: "<trait_value>"}, ... ]
      */
-    const identifierTraitsList = parseConfigArray(
-      this.groupKeySettings,
-      "groupKey"
-    );
+    const identifierTraitsList = parseConfigArray(this.groupKeySettings, 'groupKey');
     if (traits && Object.keys(traits).length) {
       identifierTraitsList.forEach((trait) => {
         window.mixpanel.get_group(trait, groupId).set_once(traits);
       });
     }
-    identifierTraitsList.forEach((trait) =>
-      window.mixpanel.set_group(trait, [groupId])
-    );
+    identifierTraitsList.forEach((trait) => window.mixpanel.set_group(trait, [groupId]));
   }
 
   /**
    * @param {*} rudderElement
    */
   alias(rudderElement) {
-    logger.debug("in Mixpanel alias");
+    logger.debug('in Mixpanel alias');
     const { previousId, userId } = rudderElement.message;
     if (!previousId) {
-      logger.debug("===Mixpanel: previousId is required for alias call===");
+      logger.debug('===Mixpanel: previousId is required for alias call===');
       return;
     }
     if (!userId) {
-      logger.debug("===Mixpanel: userId is required for alias call===");
+      logger.debug('===Mixpanel: userId is required for alias call===');
       return;
     }
 
-    if (
-      window.mixpanel.get_distinct_id &&
-      window.mixpanel.get_distinct_id() === userId
-    ) {
-      logger.debug(
-        "===Mixpanel: userId is same as previousId. Skipping alias ==="
-      );
+    if (window.mixpanel.get_distinct_id && window.mixpanel.get_distinct_id() === userId) {
+      logger.debug('===Mixpanel: userId is same as previousId. Skipping alias ===');
       return;
     }
     window.mixpanel.alias(userId, previousId);

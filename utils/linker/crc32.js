@@ -10,12 +10,12 @@
  * @returns array of CRC table
  */
 
-const makeCRCTable = () => {
+const makeCRCTable = function () {
   const crcTable = [];
   let c;
-  for (let n = 0; n < 256; n += 1) {
+  for (let n = 0; n < 256; n++) {
     c = n;
-    for (let k = 0; k < 8; k += 1) {
+    for (let k = 0; k < 8; k++) {
       c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
     }
     crcTable[n] = c;
@@ -28,11 +28,11 @@ const makeCRCTable = () => {
  * @param {string} str
  * @returns {Bytestream} crc32
  */
-const crc32 = (str) => {
+const crc32 = function (str) {
   const crcTable = makeCRCTable();
   let crc = 0 ^ -1;
 
-  for (let i = 0; i < str.length; i += 1) {
+  for (let i = 0; i < str.length; i++) {
     crc = (crc >>> 8) ^ crcTable[(crc ^ str.charCodeAt(i)) & 0xff];
   }
 

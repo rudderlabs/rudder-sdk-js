@@ -1,13 +1,13 @@
 /* eslint-disable no-param-reassign */
 
 // here we map the properties which give information about a singleproduct
-const PRODUCT_EVENTS = ["product clicked", "product viewed", "product added"];
+const PRODUCT_EVENTS = ['product clicked', 'product viewed', 'product added'];
 const ORDER_EVENTS = [
-  "cart viewed",
-  "checkout started",
-  "order completed",
-  "order cancelled",
-  "order updated",
+  'cart viewed',
+  'checkout started',
+  'order completed',
+  'order cancelled',
+  'order updated',
 ];
 
 const productEvent = (properties) => {

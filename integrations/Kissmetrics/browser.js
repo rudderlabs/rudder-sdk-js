@@ -1,10 +1,10 @@
-import is from "is";
-import extend from "@ndhoule/extend";
-import each from "component-each";
-import { getRevenue } from "../../utils/utils";
-import logger from "../../utils/logUtil";
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import is from 'is';
+import extend from '@ndhoule/extend';
+import each from 'component-each';
+import { getRevenue } from '../../utils/utils';
+import logger from '../../utils/logUtil';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Kissmetrics {
   constructor(config, analytics) {
@@ -17,27 +17,27 @@ class Kissmetrics {
   }
 
   init() {
-    logger.debug("===in init Kissmetrics===");
+    logger.debug('===in init Kissmetrics===');
     window._kmq = window._kmq || [];
 
     const _kmk = window._kmk || this.apiKey;
     function _kms(u) {
       setTimeout(function () {
         const d = document;
-        const f = d.getElementsByTagName("script")[0];
-        const s = d.createElement("script");
-        s.type = "text/javascript";
+        const f = d.getElementsByTagName('script')[0];
+        const s = d.createElement('script');
+        s.type = 'text/javascript';
         s.async = true;
-        s.dataset.loader = LOAD_ORIGIN;
+        s.setAttribute('data-loader', LOAD_ORIGIN);
         s.src = u;
         f.parentNode.insertBefore(s, f);
       }, 1);
     }
-    _kms("//i.kissmetrics.com/i.js");
+    _kms('//i.kissmetrics.com/i.js');
     _kms(`//scripts.kissmetrics.com/${_kmk}.2.js`);
 
     if (this.isEnvMobile()) {
-      window._kmq.push(["set", { "Mobile Session": "Yes" }]);
+      window._kmq.push(['set', { 'Mobile Session': 'Yes' }]);
     }
   }
 
@@ -65,7 +65,7 @@ class Kissmetrics {
     for (const k in obj) {
       if (obj.hasOwnProperty(k)) {
         const value = obj[k];
-        if (value === null || typeof value === "undefined") continue;
+        if (value === null || typeof value === 'undefined') continue;
 
         // convert date to unix
         if (is.date(value)) {
@@ -87,7 +87,7 @@ class Kissmetrics {
 
         // convert non objects to strings
         logger.debug(value.toString());
-        if (value.toString() !== "[object Object]") {
+        if (value.toString() !== '[object Object]') {
           ret[k] = value.toString();
           continue;
         }
@@ -116,7 +116,7 @@ class Kissmetrics {
   flatten(target, opts) {
     opts = opts || {};
 
-    const delimiter = opts.delimiter || ".";
+    const delimiter = opts.delimiter || '.';
     let { maxDepth } = opts;
     let currentDepth = 1;
     const output = {};
@@ -127,8 +127,7 @@ class Kissmetrics {
           const value = object[key];
           const isarray = opts.safe && is.array(value);
           const type = Object.prototype.toString.call(value);
-          const isobject =
-            type === "[object Object]" || type === "[object Array]";
+          const isobject = type === '[object Object]' || type === '[object Array]';
           const arr = [];
 
           const newKey = prev ? prev + delimiter + key : key;
@@ -162,11 +161,11 @@ class Kissmetrics {
   prefix(event, properties) {
     const prefixed = {};
     each(properties, function (key, val) {
-      if (key === "Billing Amount") {
+      if (key === 'Billing Amount') {
         prefixed[key] = val;
-      } else if (key === "revenue") {
+      } else if (key === 'revenue') {
         prefixed[`${event} - ${key}`] = val;
-        prefixed["Billing Amount"] = val;
+        prefixed['Billing Amount'] = val;
       } else {
         prefixed[`${event} - ${key}`] = val;
       }
@@ -175,28 +174,26 @@ class Kissmetrics {
   }
 
   identify(rudderElement) {
-    logger.debug("in Kissmetrics identify");
+    logger.debug('in Kissmetrics identify');
     const traits = this.clean(rudderElement.message.context.traits);
     const userId =
-      rudderElement.message.userId && rudderElement.message.userId != ""
+      rudderElement.message.userId && rudderElement.message.userId != ''
         ? rudderElement.message.userId
         : undefined;
 
     if (userId) {
-      window._kmq.push(["identify", userId]);
+      window._kmq.push(['identify', userId]);
     }
     if (traits) {
-      window._kmq.push(["set", traits]);
+      window._kmq.push(['set', traits]);
     }
   }
 
   track(rudderElement) {
-    logger.debug("in Kissmetrics track");
+    logger.debug('in Kissmetrics track');
 
     const { event } = rudderElement.message;
-    let properties = JSON.parse(
-      JSON.stringify(rudderElement.message.properties)
-    );
+    let properties = JSON.parse(JSON.stringify(rudderElement.message.properties));
     const timestamp = this.toUnixTimestamp(new Date());
 
     const revenue = getRevenue(properties);
@@ -215,7 +212,7 @@ class Kissmetrics {
     if (this.prefixProperties) {
       properties = this.prefix(event, properties);
     }
-    window._kmq.push(["record", event, properties]);
+    window._kmq.push(['record', event, properties]);
 
     const iterator = function pushItem(product, i) {
       let item = product;
@@ -233,12 +230,12 @@ class Kissmetrics {
   }
 
   page(rudderElement) {
-    logger.debug("in Kissmetrics page");
+    logger.debug('in Kissmetrics page');
     const pageName = rudderElement.message.name;
     const pageCategory = rudderElement.message.properties
       ? rudderElement.message.properties.category
       : undefined;
-    let name = "Loaded a Page";
+    let name = 'Loaded a Page';
     if (pageName) {
       name = `Viewed ${pageName} page`;
     }
@@ -248,27 +245,27 @@ class Kissmetrics {
 
     let { properties } = rudderElement.message;
     if (this.prefixProperties) {
-      properties = this.prefix("Page", properties);
+      properties = this.prefix('Page', properties);
     }
 
-    window._kmq.push(["record", name, properties]);
+    window._kmq.push(['record', name, properties]);
   }
 
   alias(rudderElement) {
     const prev = rudderElement.message.previousId;
     const { userId } = rudderElement.message;
-    window._kmq.push(["alias", userId, prev]);
+    window._kmq.push(['alias', userId, prev]);
   }
 
   group(rudderElement) {
     const { groupId } = rudderElement.message;
     let groupTraits = rudderElement.message.traits;
-    groupTraits = this.prefix("Group", groupTraits);
+    groupTraits = this.prefix('Group', groupTraits);
     if (groupId) {
-      groupTraits["Group - id"] = groupId;
+      groupTraits['Group - id'] = groupId;
     }
-    window._kmq.push(["set", groupTraits]);
-    logger.debug("in Kissmetrics group");
+    window._kmq.push(['set', groupTraits]);
+    logger.debug('in Kissmetrics group');
   }
 
   isLoaded() {

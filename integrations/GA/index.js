@@ -1,3 +1,3 @@
-import GA from "./browser";
+import GA from './browser';
 
 export { GA };

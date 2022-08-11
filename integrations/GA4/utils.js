@@ -1,11 +1,8 @@
-import {
-  eventNamesConfigArray,
-  itemParametersConfigArray,
-} from "./ECommerceEventConfig";
+import { eventNamesConfigArray, itemParametersConfigArray } from './ECommerceEventConfig';
 
-import { pageEventParametersConfigArray } from "./PageEventConfig";
-import { type } from "../../utils/utils";
-import logger from "../../utils/logUtil";
+import { pageEventParametersConfigArray } from './PageEventConfig';
+import { type } from '../../utils/utils';
+import logger from '../../utils/logUtil';
 
 /**
  * Check if event name is not one of the following reserved names
@@ -13,28 +10,28 @@ import logger from "../../utils/logUtil";
  */
 function isReservedName(name) {
   const reservedEventNames = [
-    "ad_activeview",
-    "ad_click",
-    "ad_exposure",
-    "ad_impression",
-    "ad_query",
-    "adunit_exposure",
-    "app_clear_data",
-    "app_install",
-    "app_update",
-    "app_remove",
-    "error",
-    "first_open",
-    "first_visit",
-    "in_app_purchase",
-    "notification_dismiss",
-    "notification_foreground",
-    "notification_open",
-    "notification_receive",
-    "os_update",
-    "screen_view",
-    "session_start",
-    "user_engagement",
+    'ad_activeview',
+    'ad_click',
+    'ad_exposure',
+    'ad_impression',
+    'ad_query',
+    'adunit_exposure',
+    'app_clear_data',
+    'app_install',
+    'app_update',
+    'app_remove',
+    'error',
+    'first_open',
+    'first_visit',
+    'in_app_purchase',
+    'notification_dismiss',
+    'notification_foreground',
+    'notification_open',
+    'notification_receive',
+    'os_update',
+    'screen_view',
+    'session_start',
+    'user_engagement',
   ];
 
   return reservedEventNames.includes(name);
@@ -45,9 +42,7 @@ function isReservedName(name) {
  * @param {*} event
  */
 function getDestinationEventName(event) {
-  return eventNamesConfigArray.filter((p) =>
-    p.src.includes(event.toLowerCase())
-  );
+  return eventNamesConfigArray.filter((p) => p.src.includes(event.toLowerCase()));
 }
 
 /**
@@ -117,22 +112,14 @@ function hasRequiredParameters(props, eventMappingObj) {
   "item_list_name": "games"
 }
 */
-function getDestinationEventProperties(
-  props,
-  destParameterConfig,
-  hasItem = true
-) {
+function getDestinationEventProperties(props, destParameterConfig, hasItem = true) {
   let destinationProperties = {};
   Object.keys(props).forEach((key) => {
     destParameterConfig.forEach((param) => {
       if (key === param.src) {
         // handle case where the key needs to go inside items as well as top level params in GA4
         if (param.inItems && hasItem) {
-          destinationProperties = createItemProperty(
-            destinationProperties,
-            param.dest,
-            props[key]
-          );
+          destinationProperties = createItemProperty(destinationProperties, param.dest, props[key]);
         }
         destinationProperties[param.dest] = props[key];
       }
@@ -149,7 +136,7 @@ function getDestinationEventProperties(
 function getDestinationItemProperties(products, item) {
   const items = [];
   let obj = {};
-  if (type(products) !== "array") {
+  if (type(products) !== 'array') {
     logger.debug("Event payload doesn't have products array");
   } else {
     // get the dest keys from itemParameters config
@@ -157,7 +144,7 @@ function getDestinationItemProperties(products, item) {
     products.forEach((p) => {
       obj = {
         ...getDestinationEventProperties(p, itemParametersConfigArray),
-        ...((item && type(item) === "array" && item[0]) || {}),
+        ...((item && type(item) === 'array' && item[0]) || {}),
       };
       items.push(obj);
     });

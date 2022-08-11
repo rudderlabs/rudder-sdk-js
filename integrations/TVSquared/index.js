@@ -1,3 +1,3 @@
-import TVSquared from "./browser";
+import TVSquared from './browser';
 
 export { TVSquared };

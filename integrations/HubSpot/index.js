@@ -1,3 +1,3 @@
-import { HubSpot } from "./browser";
+import { HubSpot } from './browser';
 
 export { HubSpot };

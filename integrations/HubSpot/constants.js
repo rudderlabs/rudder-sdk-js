@@ -1,4 +1,4 @@
-const NAME = "HS";
+const NAME = 'HS';
 const CNameMapping = {
   [NAME]: NAME,
   Hubspot: NAME,

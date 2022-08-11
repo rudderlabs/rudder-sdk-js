@@ -1,3 +1,3 @@
-import Appcues from "./browser";
+import Appcues from './browser';
 
 export { Appcues };

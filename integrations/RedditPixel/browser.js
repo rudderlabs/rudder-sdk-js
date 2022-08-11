@@ -7,9 +7,9 @@
 /* eslint-disable no-var */
 /* eslint-disable vars-on-top */
 /* eslint-disable no-unused-expressions */
-import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 class RedditPixel {
   constructor(config, analytics) {
@@ -21,69 +21,67 @@ class RedditPixel {
   }
 
   init() {
-    logger.debug("===In init RedditPixel===");
+    logger.debug('===In init RedditPixel===');
 
     !(function (w, d) {
       if (!w.rdt) {
         var p = (w.rdt = function () {
-          p.sendEvent
-            ? p.sendEvent.apply(p, arguments)
-            : p.callQueue.push(arguments);
+          p.sendEvent ? p.sendEvent.apply(p, arguments) : p.callQueue.push(arguments);
         });
         p.callQueue = [];
-        var t = d.createElement("script");
-        (t.src = "https://www.redditstatic.com/ads/pixel.js"), (t.async = !0);
-        t.dataset.loader = LOAD_ORIGIN;
-        var s = d.getElementsByTagName("script")[0];
+        var t = d.createElement('script');
+        (t.src = 'https://www.redditstatic.com/ads/pixel.js'), (t.async = !0);
+        t.setAttribute('data-loader', LOAD_ORIGIN);
+        var s = d.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(t, s);
       }
     })(window, document);
 
-    window.rdt("init", this.advertiserId);
+    window.rdt('init', this.advertiserId);
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded RedditPixel===");
+    logger.debug('===In isLoaded RedditPixel===');
     return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
   }
 
   isReady() {
-    logger.debug("===In isReady RedditPixel===");
+    logger.debug('===In isReady RedditPixel===');
     return !!(window.rdt && window.rdt.advertiserId === this.advertiserId);
   }
 
   identify(rudderElement) {
-    logger.debug("===In RedditPixel identify===");
-    window.rdt("track", "SignUp");
+    logger.debug('===In RedditPixel identify===');
+    window.rdt('track', 'SignUp');
   }
 
   track(rudderElement) {
-    logger.debug("===In RedditPixel track===");
+    logger.debug('===In RedditPixel track===');
 
     const { event } = rudderElement.message;
     if (!event) {
-      logger.error("Event name is not present");
+      logger.error('Event name is not present');
       return;
     }
 
     switch (event.toLowerCase()) {
-      case "product added":
-        window.rdt("track", "AddToCart");
+      case 'product added':
+        window.rdt('track', 'AddToCart');
         break;
-      case "product added to wishlist":
-        window.rdt("track", "AddToWishlist");
+      case 'product added to wishlist':
+        window.rdt('track', 'AddToWishlist');
         break;
-      case "order completed":
-        window.rdt("track", "Purchase");
+      case 'order completed':
+        window.rdt('track', 'Purchase');
         break;
-      case "lead":
-        window.rdt("track", "Lead");
+      case 'lead':
+        window.rdt('track', 'Lead');
         break;
-      case "view content":
-        window.rdt("track", "ViewContent");
+      case 'view content':
+        window.rdt('track', 'ViewContent');
         break;
-      case "search":
-        window.rdt("track", "Search");
+      case 'search':
+        window.rdt('track', 'Search');
         break;
       default:
         logger.error(`Invalid event ${event}. Track call not supported`);
@@ -92,8 +90,8 @@ class RedditPixel {
   }
 
   page(rudderElement) {
-    logger.debug("===In RedditPixel page===");
-    window.rdt("track", "PageVisit");
+    logger.debug('===In RedditPixel page===');
+    window.rdt('track', 'PageVisit');
   }
 }
 
