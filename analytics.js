@@ -422,31 +422,35 @@ class Analytics {
       });
 
       if (intgWithTransformation.length) {
-        // Process Transformation
-        processTransformation(
-          event[0],
-          this.writeKey,
-          this.dataPlaneUrl,
-          (transformedPayload, transformationServerAccess) => {
-            if (transformedPayload) {
-              intgWithTransformation.forEach((intg) => {
-                let transformedEvents;
-                if (transformationServerAccess) {
-                  // filter the transformed event for that destination
-                  transformedEvents = transformedPayload.filter(
-                    (e) => e.id === intg.destinationId,
-                  )[0].payload;
-                } else {
-                  transformedEvents = transformedPayload;
-                }
-                // send transformed event to destination
-                transformedEvents.forEach((tEvent) => {
-                  this.sendDataToDestination(intg, tEvent.event, methodName);
+        try {
+          // Process Transformation
+          processTransformation(
+            event[0],
+            this.writeKey,
+            this.dataPlaneUrl,
+            (transformedPayload, transformationServerAccess) => {
+              if (transformedPayload) {
+                intgWithTransformation.forEach((intg) => {
+                  let transformedEvents;
+                  if (transformationServerAccess) {
+                    // filter the transformed event for that destination
+                    transformedEvents = transformedPayload.filter(
+                      (e) => e.id === intg.destinationId,
+                    )[0].payload;
+                  } else {
+                    transformedEvents = transformedPayload;
+                  }
+                  // send transformed event to destination
+                  transformedEvents.forEach((tEvent) => {
+                    this.sendDataToDestination(intg, tEvent.event, methodName);
+                  });
                 });
-              });
-            }
-          },
-        );
+              }
+            },
+          );
+        } catch (e) {
+          handleError(e);
+        }
       }
     });
     object.toBeProcessedByIntegrationArray = [];
@@ -786,31 +790,35 @@ class Analytics {
         });
 
         if (intgWithTransformation.length) {
-          // Process Transformation
-          processTransformation(
-            rudderElement,
-            this.writeKey,
-            this.dataPlaneUrl,
-            (transformedPayload, transformationServerAccess) => {
-              if (transformedPayload) {
-                intgWithTransformation.forEach((intg) => {
-                  let transformedEvents;
-                  if (transformationServerAccess) {
-                    // filter the transformed event for that destination
-                    transformedEvents = transformedPayload.filter(
-                      (e) => e.id === intg.destinationId,
-                    )[0].payload;
-                  } else {
-                    transformedEvents = transformedPayload;
-                  }
-                  // send transformed event to destination
-                  transformedEvents.forEach((tEvent) => {
-                    this.sendDataToDestination(intg, tEvent.event, type);
+          try {
+            // Process Transformation
+            processTransformation(
+              rudderElement,
+              this.writeKey,
+              this.dataPlaneUrl,
+              (transformedPayload, transformationServerAccess) => {
+                if (transformedPayload) {
+                  intgWithTransformation.forEach((intg) => {
+                    let transformedEvents;
+                    if (transformationServerAccess) {
+                      // filter the transformed event for that destination
+                      transformedEvents = transformedPayload.filter(
+                        (e) => e.id === intg.destinationId,
+                      )[0].payload;
+                    } else {
+                      transformedEvents = transformedPayload;
+                    }
+                    // send transformed event to destination
+                    transformedEvents.forEach((tEvent) => {
+                      this.sendDataToDestination(intg, tEvent.event, type);
+                    });
                   });
-                });
-              }
-            },
-          );
+                }
+              },
+            );
+          } catch (e) {
+            handleError(e);
+          }
         }
       }
 
