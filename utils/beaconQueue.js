@@ -85,7 +85,7 @@ class BeaconQueue {
     const blob = new Blob([payload], { type: 'text/plain' });
     const isPushed = navigator.sendBeacon(`${this.url}?writeKey=${this.writekey}`, blob);
     if (!isPushed) {
-      logger.error("Unable to queue data to Beacon");
+      logger.error("Unable to queue data to browser's beacon queue");
     }
     this.setQueue([]);
     this.clearTimer();
