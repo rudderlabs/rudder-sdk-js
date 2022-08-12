@@ -52,6 +52,7 @@ const configToIntNames = {
   MATOMO: 'Matomo',
   VERO: 'Vero',
   MOUSEFLOW: 'Mouseflow',
+  ROCKERBOX: 'Rockerbox',
 };
 
 export { configToIntNames };
