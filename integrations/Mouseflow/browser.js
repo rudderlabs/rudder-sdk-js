@@ -1,9 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from "./constants";
-import logger from "../../utils/logUtil";
-import ScriptLoader from "../ScriptLoader";
-import { setCustomVariables, addCustomVariables } from "./utils";
+import { NAME } from './constants';
+import logger from '../../utils/logUtil';
+import ScriptLoader from '../ScriptLoader';
+import { setCustomVariables, addCustomVariables } from './utils';
 
 class Mouseflow {
   constructor(config, analytics, areTransformationsConnected, destinationId) {
@@ -17,21 +17,21 @@ class Mouseflow {
   }
 
   init() {
-    logger.debug("===In init mouseflow===");
+    logger.debug('===In init mouseflow===');
     window._mfq = window._mfq || [];
     ScriptLoader(
-      "mouseflow-integration",
-      `https://cdn.mouseflow.com/projects/${this.websiteId}.js`
+      'mouseflow-integration',
+      `https://cdn.mouseflow.com/projects/${this.websiteId}.js`,
     );
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded mouseflow===");
-    return !!window.mouseflow && typeof window.mouseflow === "object";
+    logger.debug('===In isLoaded mouseflow===');
+    return !!window.mouseflow && typeof window.mouseflow === 'object';
   }
 
   isReady() {
-    logger.debug("===In isReady mouseflow===");
+    logger.debug('===In isReady mouseflow===');
     return !!window._mfq;
   }
 
@@ -44,12 +44,12 @@ class Mouseflow {
    * @param {Identify} identify
    */
   identify(rudderElement) {
-    logger.debug("===In mouseflow Identify===");
+    logger.debug('===In mouseflow Identify===');
     const { message } = rudderElement;
     const { traits } = message.context;
     const email = message.context.traits?.email || message.traits?.email;
     const userId = message.userId || email || message.anonymousId;
-    window._mfq.push(["stop"]);
+    window._mfq.push(['stop']);
     if (userId) window.mouseflow.identify(userId);
     window.mouseflow.start();
     setCustomVariables(traits);
@@ -65,14 +65,14 @@ class Mouseflow {
    * @param {Track} track
    */
   track(rudderElement) {
-    logger.debug("===In mouseflow Track===");
+    logger.debug('===In mouseflow Track===');
     const { message } = rudderElement;
     const { event, properties } = message;
     if (!event) {
-      logger.error("[mouseflow]: Event name from track call is missing!!===");
+      logger.error('[mouseflow]: Event name from track call is missing!!===');
       return;
     }
-    window._mfq.push(["tag", event]);
+    window._mfq.push(['tag', event]);
     setCustomVariables(properties);
     addCustomVariables(message);
   }
@@ -84,11 +84,9 @@ class Mouseflow {
    * @param {Page} page
    */
   page(rudderElement) {
-    logger.debug("===In mouseflow Page===");
-    const tabPath =
-      rudderElement.message.properties.path ||
-      rudderElement.message.context.path;
-    if (tabPath) window._mfq.push(["newPageView", tabPath]);
+    logger.debug('===In mouseflow Page===');
+    const tabPath = rudderElement.message.properties.path || rudderElement.message.context.path;
+    if (tabPath) window._mfq.push(['newPageView', tabPath]);
   }
 }
 

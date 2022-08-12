@@ -1,4 +1,4 @@
-const NAME = "BINGADS";
+const NAME = 'BINGADS';
 const CNameMapping = {
   [NAME]: NAME,
   BingAds: NAME,

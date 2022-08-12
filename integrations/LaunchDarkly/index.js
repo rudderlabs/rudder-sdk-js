@@ -1,3 +1,3 @@
-import LaunchDarkly from "./browser";
+import LaunchDarkly from './browser';
 
 export { LaunchDarkly };

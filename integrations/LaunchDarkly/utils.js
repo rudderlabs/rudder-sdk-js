@@ -4,7 +4,7 @@ const createUser = (message, anonymousUsersSharedKey = undefined) => {
   const { traits } = message.context;
   if (traits.anonymous !== undefined) {
     user.anonymous = traits.anonymous;
-    if (!!anonymousUsersSharedKey) user.key = anonymousUsersSharedKey;
+    if (anonymousUsersSharedKey) user.key = anonymousUsersSharedKey;
   }
   if (traits.avatar !== undefined) user.avatar = traits.avatar;
   if (traits.country !== undefined) user.country = traits.country;

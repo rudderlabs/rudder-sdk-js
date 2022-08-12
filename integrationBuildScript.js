@@ -1,11 +1,12 @@
 /* eslint-disable no-console */
-import { exec } from "child_process";
-import { configToIntNames } from "./utils/config_to_integration_names";
+import { exec } from 'child_process';
+import { configToIntNames } from './utils/config_to_integration_names';
 
 const intgNamesArr = Object.values(configToIntNames);
-let errCount = 0;
+const totalIntgCount = intgNamesArr.length;
+let passCount = 0;
 let curInt = 0;
-const numCPUs = require("os").cpus().length;
+const numCPUs = require('os').cpus().length;
 
 let numRunning = 0;
 let index = 0;
@@ -15,17 +16,18 @@ let index = 0;
 // Intentionally using 1 less CPU
 const maxAtOnce = numCPUs > 1 ? numCPUs - 1 : 1;
 
+console.log(`Total integrations to build: ${totalIntgCount}`);
 console.log(`Maximum number of concurrent processes: ${maxAtOnce}`);
 
 function buildIntegrations() {
   // if there are more waiting, run them
-  while (numRunning < maxAtOnce && index < intgNamesArr.length) {
+  while (numRunning < maxAtOnce && index < totalIntgCount) {
     numRunning += 1;
     const intgName = intgNamesArr[index];
     index += 1;
 
     let cmd = `npm run buildProdIntegrationCLI --intg=${intgName}`;
-    if (process.env.BUNDLE_SIZE_VISUALIZER === "true") {
+    if (process.env.BUNDLE_SIZE_VISUALIZER === 'true') {
       cmd = `npm run bundle-size-visual-integration-cli --intg=${intgName}`;
     }
 
@@ -33,15 +35,15 @@ function buildIntegrations() {
     exec(cmd, (error, stdout, stderr) => {
       curInt += 1;
       console.log(
-        `\nCompleted building integration: ${intgName} (${curInt} of ${intgNamesArr.length})`
+        `\nCompleted building integration: ${intgName} (${curInt} out of ${totalIntgCount})`,
       );
       console.log(stdout);
       console.log(stderr);
       if (error) {
-        errCount += 1;
-
         console.log(`${intgName} build failed!!!`);
-        console.log("ERROR: ", error);
+        console.log('ERROR: ', error);
+      } else {
+        passCount += 1;
       }
       numRunning -= 1;
 
@@ -52,10 +54,15 @@ function buildIntegrations() {
 
   if (numRunning === 0) {
     // All the integrations are built
-    console.log(`Final Status: ${errCount > 0 ? "FAILURE" : "SUCCESS"}`);
+    console.log(`Final Status: ${passCount !== totalIntgCount ? 'FAILURE' : 'SUCCESS'}`);
     console.log(
-      `Summary: ${errCount} of ${intgNamesArr.length} integration builds failed`
+      `Summary: ${passCount} out of ${totalIntgCount} integration builds were successful`,
     );
+
+    if (passCount !== totalIntgCount) {
+      // Force exit to indicate failure
+      process.exit(1);
+    }
   }
 }
 

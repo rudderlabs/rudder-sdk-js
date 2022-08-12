@@ -1,4 +1,4 @@
-const NAME = "MP";
+const NAME = 'MP';
 const CNameMapping = {
   [NAME]: NAME,
   MIXPANEL: NAME,

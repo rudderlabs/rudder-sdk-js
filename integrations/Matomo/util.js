@@ -1,7 +1,7 @@
-import each from "@ndhoule/each";
-import logger from "../../utils/logUtil";
-import { getHashFromArray } from "../utils/commonUtils";
-import { NAME } from "./constants";
+import each from '@ndhoule/each';
+import logger from '../../utils/logUtil';
+import { getHashFromArray } from '../utils/commonUtils';
+import { NAME } from './constants';
 
 /** If any event name matches with the goals list provided by the dashboard
  * we will call the trackGoal with the id provided in the mapping.
@@ -14,8 +14,8 @@ const goalIdMapping = (event, goalListMap, message) => {
   each((val, key) => {
     if (key === event) {
       val.forEach((v) => {
-        if (revenue) window._paq.push(["trackGoal", v, revenue]);
-        else window._paq.push(["trackGoal", v]);
+        if (revenue) window._paq.push(['trackGoal', v, revenue]);
+        else window._paq.push(['trackGoal', v]);
       });
     }
   }, goalListMap);
@@ -43,76 +43,59 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
       const { properties } = message;
       val.forEach((v) => {
         switch (v) {
-          case "trackLink":
+          case 'trackLink':
             if (properties) url = properties.url;
-            if (!url)
-              url = message.context ? message.context.page.url : undefined;
+            if (!url) url = message.context ? message.context.page.url : undefined;
 
             if (properties) linkType = properties.linkType;
-            if (linkType !== "link" && linkType !== "download") {
+            if (linkType !== 'link' && linkType !== 'download') {
               logger.error("linkType can only be ('link' or 'download')");
               break;
             }
-            window._paq.push(["trackLink", url, linkType]);
+            window._paq.push(['trackLink', url, linkType]);
             break;
 
-          case "trackSiteSearch":
+          case 'trackSiteSearch':
             if (properties) {
               category = properties.category;
               resultsCount = properties.resultsCount;
             }
-            keyword =
-              properties.keyword ||
-              properties.search ||
-              message.context?.page?.search;
+            keyword = properties.keyword || properties.search || message.context?.page?.search;
 
-            window._paq.push([
-              "trackSiteSearch",
-              keyword,
-              category,
-              resultsCount,
-            ]);
+            window._paq.push(['trackSiteSearch', keyword, category, resultsCount]);
             break;
 
-          case "ping":
-            window._paq.push(["ping"]);
+          case 'ping':
+            window._paq.push(['ping']);
             break;
 
-          case "trackContentImpressionsWithinNode":
+          case 'trackContentImpressionsWithinNode':
             if (properties) domId = properties.domId || properties.dom_id;
-            window._paq.push([
-              "trackContentImpressionsWithinNode",
-              document.getElementById(domId),
-            ]);
+            window._paq.push(['trackContentImpressionsWithinNode', document.getElementById(domId)]);
             break;
 
-          case "trackContentInteractionNode":
+          case 'trackContentInteractionNode':
             if (properties) {
               domId = properties.domId || properties.dom_id;
               contentInteraction = properties.contentInteraction;
             }
             window._paq.push([
-              "trackContentInteractionNode",
+              'trackContentInteractionNode',
               document.getElementById(domId),
               contentInteraction,
             ]);
             break;
 
-          case "trackContentImpression":
+          case 'trackContentImpression':
             if (properties) {
               contentName = properties.contentName;
               contentPiece = properties.contentPiece;
               contentTarget = properties.contentTarget;
             }
-            window._paq.push([
-              "trackContentImpression",
-              contentName,
-              contentPiece,
-              contentTarget,
-            ]);
+            window._paq.push(['trackContentImpression', contentName, contentPiece, contentTarget]);
             break;
 
-          case "trackContentInteraction":
+          case 'trackContentInteraction':
             if (properties) {
               contentInteraction = properties.contentInteraction;
               contentName = properties.contentName;
@@ -120,7 +103,7 @@ const standardEventsMapping = (event, standardEventsMap, message) => {
               contentTarget = properties.contentTarget;
             }
             window._paq.push([
-              "trackContentInteraction",
+              'trackContentInteraction',
               contentInteraction,
               contentName,
               contentPiece,
@@ -164,7 +147,7 @@ const ecommerceEventsMapping = (event, message) => {
   }
 
   switch (event) {
-    case "SET_ECOMMERCE_VIEW":
+    case 'SET_ECOMMERCE_VIEW':
       if (properties) {
         productSKU = properties.sku || properties.product_id;
         productName = properties.name;
@@ -172,35 +155,29 @@ const ecommerceEventsMapping = (event, message) => {
         price = properties.price;
       }
       if (!productSKU) {
-        logger.error("User parameter (sku or product_id) is required");
+        logger.error('User parameter (sku or product_id) is required');
         break;
       }
 
       if (!productName) {
-        logger.error("User parameter name is required");
+        logger.error('User parameter name is required');
         break;
       }
 
       if (!categoryName) {
-        logger.error("User parameter category is required");
+        logger.error('User parameter category is required');
         break;
       }
 
       if (!price) {
-        logger.error("User parameter price is required");
+        logger.error('User parameter price is required');
         break;
       }
-      window._paq.push([
-        "setEcommerceView",
-        productSKU,
-        productName,
-        categoryName,
-        price,
-      ]);
-      window._paq.push(["trackPageView"]);
+      window._paq.push(['setEcommerceView', productSKU, productName, categoryName, price]);
+      window._paq.push(['trackPageView']);
       break;
 
-    case "ADD_ECOMMERCE_ITEM":
+    case 'ADD_ECOMMERCE_ITEM':
       if (properties) {
         productSKU = properties.sku || properties.product_id;
         productName = properties.name;
@@ -209,12 +186,12 @@ const ecommerceEventsMapping = (event, message) => {
         quantity = properties.quantity;
       }
       if (!productSKU) {
-        logger.error("User parameter (sku or product_id) is required");
+        logger.error('User parameter (sku or product_id) is required');
         break;
       }
 
       window._paq.push([
-        "addEcommerceItem",
+        'addEcommerceItem',
         productSKU,
         productName,
         categoryName,
@@ -223,18 +200,18 @@ const ecommerceEventsMapping = (event, message) => {
       ]);
       break;
 
-    case "REMOVE_ECOMMERCE_ITEM":
+    case 'REMOVE_ECOMMERCE_ITEM':
       if (properties) {
         productSKU = properties.sku || properties.product_id;
       }
       if (!productSKU) {
-        logger.error("User parameter (sku or product_id) is required");
+        logger.error('User parameter (sku or product_id) is required');
         break;
       }
-      window._paq.push(["removeEcommerceItem", productSKU]);
+      window._paq.push(['removeEcommerceItem', productSKU]);
       break;
 
-    case "TRACK_ECOMMERCE_ORDER":
+    case 'TRACK_ECOMMERCE_ORDER':
       if (properties) {
         orderId = properties.order_id || properties.orderId;
         grandTotal = properties.total || properties.revenue;
@@ -244,7 +221,7 @@ const ecommerceEventsMapping = (event, message) => {
         discount = properties.discount;
       }
       if (!orderId) {
-        logger.error("User parameter order_id is required");
+        logger.error('User parameter order_id is required');
         break;
       }
 
@@ -257,8 +234,8 @@ const ecommerceEventsMapping = (event, message) => {
           // iterating through the products array and calculating grandTotal
           for (let product = 0; product < products.length; product++) {
             if (product.price && product.quantity) {
-              if (typeof price === "string") price = parseFloat(price);
-              if (typeof quantity === "string") quantity = parseFloat(quantity);
+              if (typeof price === 'string') price = parseFloat(price);
+              if (typeof quantity === 'string') quantity = parseFloat(quantity);
               grandTotal += product.price * product.quantity;
             }
           }
@@ -274,22 +251,22 @@ const ecommerceEventsMapping = (event, message) => {
 
         // ref: https://matomo.org/faq/reports/analyse-ecommerce-reporting-to-improve-your-sales/#conversions-overview
         if (shipping) {
-          if (typeof shipping === "string") shipping = parseFloat(shipping);
+          if (typeof shipping === 'string') shipping = parseFloat(shipping);
           grandTotal += shipping;
         }
         if (tax) {
-          if (typeof tax === "string") tax = parseFloat(tax);
+          if (typeof tax === 'string') tax = parseFloat(tax);
           grandTotal += tax;
         }
       }
 
       if (!grandTotal) {
-        logger.error("User parameter (total or revenue) is required");
+        logger.error('User parameter (total or revenue) is required');
         break;
       }
 
       window._paq.push([
-        "trackEcommerceOrder",
+        'trackEcommerceOrder',
         orderId,
         grandTotal,
         subTotal,
@@ -299,13 +276,13 @@ const ecommerceEventsMapping = (event, message) => {
       ]);
       break;
 
-    case "CLEAR_ECOMMERCE_CART":
-      window._paq.push(["clearEcommerceCart"]);
+    case 'CLEAR_ECOMMERCE_CART':
+      window._paq.push(['clearEcommerceCart']);
       break;
 
-    case "TRACK_ECOMMERCE_CART_UPDATE":
+    case 'TRACK_ECOMMERCE_CART_UPDATE':
       if (properties) grandTotal = properties.total || properties.revenue;
-      window._paq.push(["trackEcommerceCartUpdate", grandTotal]);
+      window._paq.push(['trackEcommerceCartUpdate', grandTotal]);
       break;
 
     default:
@@ -316,16 +293,16 @@ const ecommerceEventsMapping = (event, message) => {
         value = properties.value;
       }
       if (!category) {
-        logger.error("User parameter category is required");
+        logger.error('User parameter category is required');
         break;
       }
       if (!action) {
-        logger.error("User parameter action is required");
+        logger.error('User parameter action is required');
         break;
       }
 
       name = message.event;
-      window._paq.push(["trackEvent", category, action, name, value]);
+      window._paq.push(['trackEvent', category, action, name, value]);
       break;
   }
 };
@@ -342,19 +319,14 @@ const checkCustomDimensions = (message) => {
     if (customDimension) {
       const customDimensionsMap = getHashFromArray(
         customDimension,
-        "dimensionId",
-        "dimensionValue"
+        'dimensionId',
+        'dimensionValue',
       );
       each((val, key) => {
-        window._paq.push(["setCustomDimension", key, val]);
+        window._paq.push(['setCustomDimension', key, val]);
       }, customDimensionsMap);
     }
   }
 };
 
-export {
-  goalIdMapping,
-  ecommerceEventsMapping,
-  standardEventsMapping,
-  checkCustomDimensions,
-};
+export { goalIdMapping, ecommerceEventsMapping, standardEventsMapping, checkCustomDimensions };

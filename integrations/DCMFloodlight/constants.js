@@ -1,9 +1,9 @@
-const NAME = "DCM_FLOODLIGHT";
+const NAME = 'DCM_FLOODLIGHT';
 const CNameMapping = {
   [NAME]: NAME,
-  "DCM Floodlight": NAME,
-  "dcm floodlight": NAME,
-  "Dcm Floodlight": NAME,
+  'DCM Floodlight': NAME,
+  'dcm floodlight': NAME,
+  'Dcm Floodlight': NAME,
   DCMFloodlight: NAME,
   dcmfloodlight: NAME,
   DcmFloodlight: NAME,

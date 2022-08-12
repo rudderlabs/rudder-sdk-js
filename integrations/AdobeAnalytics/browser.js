@@ -3,32 +3,32 @@
 /* eslint-disable camelcase */
 /* eslint-disable class-methods-use-this */
 
-import * as utils from "./util";
-import * as ecommUtils from "./eCommHandle";
-import * as heartbeatUtils from "./heartbeatHandle";
-import { getHashFromArray } from "../utils/commonUtils";
-import ScriptLoader from "../ScriptLoader";
-import logger from "../../utils/logUtil";
-import { NAME } from "./constants";
+import * as utils from './util';
+import * as ecommUtils from './eCommHandle';
+import * as heartbeatUtils from './heartbeatHandle';
+import { getHashFromArray } from '../utils/commonUtils';
+import ScriptLoader from '../ScriptLoader';
+import logger from '../../utils/logUtil';
+import { NAME } from './constants';
 
 class AdobeAnalytics {
   constructor(config, analytics, areTransformationsConnected, destinationId) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
-    this.trackingServerUrl = config.trackingServerUrl || "";
+    this.trackingServerUrl = config.trackingServerUrl || '';
     this.reportSuiteIds = config.reportSuiteIds;
-    this.heartbeatTrackingServerUrl = config.heartbeatTrackingServerUrl || "";
+    this.heartbeatTrackingServerUrl = config.heartbeatTrackingServerUrl || '';
     this.eventsToTypes = config.eventsToTypes || [];
-    this.marketingCloudOrgId = config.marketingCloudOrgId || "";
+    this.marketingCloudOrgId = config.marketingCloudOrgId || '';
     this.dropVisitorId = config.dropVisitorId;
-    this.trackingServerSecureUrl = config.trackingServerSecureUrl || "";
+    this.trackingServerSecureUrl = config.trackingServerSecureUrl || '';
     this.timestampOption = config.timestampOption;
     this.preferVisitorId = config.preferVisitorId;
     this.rudderEventsToAdobeEvents = config.rudderEventsToAdobeEvents || [];
     this.proxyNormalUrl = config.proxyNormalUrl;
     this.proxyHeartbeatUrl = config.proxyHeartbeatUrl;
-    this.pageName = "";
+    this.pageName = '';
     this.name = NAME;
     this.areTransformationsConnected = areTransformationsConnected;
     this.destinationId = destinationId;
@@ -43,50 +43,41 @@ class AdobeAnalytics {
     // load separately as heartbeat sdk is large and need not be required if this is off.
     const heartbeatUrl =
       this.proxyHeartbeatUrl ||
-      "https://cdn.rudderlabs.com/adobe-analytics-js/adobe-analytics-js-heartbeat.js";
+      'https://cdn.rudderlabs.com/adobe-analytics-js/adobe-analytics-js-heartbeat.js';
     const normalUrl =
-      this.proxyNormalUrl ||
-      "https://cdn.rudderlabs.com/adobe-analytics-js/adobe-analytics-js.js";
+      this.proxyNormalUrl || 'https://cdn.rudderlabs.com/adobe-analytics-js/adobe-analytics-js.js';
     if (this.heartbeatTrackingServerUrl) {
-      ScriptLoader("adobe-analytics-heartbeat", heartbeatUrl);
-      this.setIntervalHandler = setInterval(
-        this.initAdobeAnalyticsClient.bind(this),
-        1000
-      );
+      ScriptLoader('adobe-analytics-heartbeat', heartbeatUrl);
+      this.setIntervalHandler = setInterval(this.initAdobeAnalyticsClient.bind(this), 1000);
     } else {
-      ScriptLoader("adobe-analytics-heartbeat", normalUrl);
-      this.setIntervalHandler = setInterval(
-        this.initAdobeAnalyticsClient.bind(this),
-        1000
-      );
+      ScriptLoader('adobe-analytics-heartbeat', normalUrl);
+      this.setIntervalHandler = setInterval(this.initAdobeAnalyticsClient.bind(this), 1000);
     }
   }
 
   initAdobeAnalyticsClient() {
     const { s } = window;
     s.trackingServer = s.trackingServer || this.trackingServerUrl;
-    s.trackingServerSecure =
-      s.trackingServerSecure || this.trackingServerSecureUrl;
+    s.trackingServerSecure = s.trackingServerSecure || this.trackingServerSecureUrl;
     if (
       this.marketingCloudOrgId &&
       window.Visitor &&
-      typeof window.Visitor.getInstance === "function"
+      typeof window.Visitor.getInstance === 'function'
     ) {
       s.visitor = window.Visitor.getInstance(this.marketingCloudOrgId, {
         trackingServer: window.s.trackingServer || this.trackingServerUrl,
-        trackingServerSecure:
-          window.s.trackingServerSecure || this.trackingServerSecureUrl,
+        trackingServerSecure: window.s.trackingServerSecure || this.trackingServerSecureUrl,
       });
     }
   }
 
   isLoaded() {
-    logger.debug("in AdobeAnalytics isLoaded");
+    logger.debug('in AdobeAnalytics isLoaded');
     return !!(window.s_gi && window.s_gi !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug("in AdobeAnalytics isReady");
+    logger.debug('in AdobeAnalytics isReady');
     return !!(window.s_gi && window.s_gi !== Array.prototype.push);
   }
 
@@ -101,7 +92,7 @@ class AdobeAnalytics {
       name = rudderElement.message.properties.name;
     }
 
-    this.pageName = name ? `Viewed Page ${name}` : "Viewed Page";
+    this.pageName = name ? `Viewed Page ${name}` : 'Viewed Page';
 
     window.s.pageName = this.pageName;
 
@@ -125,18 +116,18 @@ class AdobeAnalytics {
     if (!this.dropVisitorId) {
       const { userId } = rudderElement.message;
       if (userId) {
-        if (this.timestampOption === "disabled") {
+        if (this.timestampOption === 'disabled') {
           window.s.visitorID = userId;
         }
         // If timestamp hybrid option and visitor id preferred is on visitorID is set
-        if (this.timestampOption === "hybrid" && this.preferVisitorId) {
+        if (this.timestampOption === 'hybrid' && this.preferVisitorId) {
           window.s.visitorID = userId;
         }
       }
     }
     // update values in window.s
-    utils.updateWindowSKeys(this.pageName, "events");
-    utils.updateWindowSKeys(url, "pageURL");
+    utils.updateWindowSKeys(this.pageName, 'events');
+    utils.updateWindowSKeys(url, 'pageURL');
     utils.updateCommonWindowSKeys(rudderElement, this.pageName);
 
     utils.calculateTimestamp(rudderElement);
@@ -167,14 +158,12 @@ class AdobeAnalytics {
     const isProcessed = this.checkIfRudderEcommEvent(rudderElement);
     // process mapped events
     if (!isProcessed) {
-      const rudderEventsToAdobeEventsHashmap = getHashFromArray(
-        this.rudderEventsToAdobeEvents
-      );
+      const rudderEventsToAdobeEventsHashmap = getHashFromArray(this.rudderEventsToAdobeEvents);
       if (rudderEventsToAdobeEventsHashmap[event.toLowerCase()]) {
         utils.processEvent(
           rudderElement,
           rudderEventsToAdobeEventsHashmap[event.toLowerCase()].trim(),
-          this.pageName
+          this.pageName,
         );
       }
     }
@@ -191,27 +180,27 @@ class AdobeAnalytics {
     const { event } = rudderElement.message;
     let ret = true;
     switch (event.toLowerCase()) {
-      case "product viewed":
-      case "product list viewed":
+      case 'product viewed':
+      case 'product list viewed':
         ecommUtils.productViewHandle(rudderElement, this.pageName);
         break;
-      case "product added":
+      case 'product added':
         ecommUtils.productAddedHandle(rudderElement, this.pageName);
         break;
-      case "product removed":
+      case 'product removed':
         ecommUtils.productRemovedHandle(rudderElement, this.pageName);
         break;
-      case "order completed":
+      case 'order completed':
         ecommUtils.orderCompletedHandle(rudderElement, this.pageName);
         break;
-      case "cart viewed":
+      case 'cart viewed':
         ecommUtils.cartViewedHandle(rudderElement, this.pageName);
         break;
-      case "checkout started":
+      case 'checkout started':
         ecommUtils.checkoutStartedHandle(rudderElement, this.pageName);
         break;
-      case "cart opened":
-      case "opened cart":
+      case 'cart opened':
+      case 'opened cart':
         ecommUtils.cartOpenedHandle(rudderElement, this.pageName);
         break;
       default:
@@ -230,59 +219,59 @@ class AdobeAnalytics {
   processHeartbeatMappedEvents(heartBeatFunction, rudderElement) {
     if (heartBeatFunction) {
       switch (heartBeatFunction) {
-        case "initHeartbeat":
+        case 'initHeartbeat':
           heartbeatUtils.initHeartbeat(rudderElement);
           break;
-        case "heartbeatPlaybackStarted":
-        case "heartbeatPlaybackResumed":
-        case "heartbeatContentStarted":
-        case "heartbeatVideoStart":
+        case 'heartbeatPlaybackStarted':
+        case 'heartbeatPlaybackResumed':
+        case 'heartbeatContentStarted':
+        case 'heartbeatVideoStart':
           heartbeatUtils.heartbeatVideoStart(rudderElement);
           break;
-        case "heartbeatPlaybackPaused":
-        case "heartbeatPlaybackInterrupted":
-        case "heartbeatVideoPaused":
+        case 'heartbeatPlaybackPaused':
+        case 'heartbeatPlaybackInterrupted':
+        case 'heartbeatVideoPaused':
           heartbeatUtils.heartbeatVideoPaused(rudderElement);
           break;
-        case "heartbeatContentComplete":
-        case "heartbeatVideoComplete":
+        case 'heartbeatContentComplete':
+        case 'heartbeatVideoComplete':
           heartbeatUtils.heartbeatVideoComplete(rudderElement);
           break;
-        case "heartbeatSessionEnd":
-        case "heartbeatPlaybackCompleted":
+        case 'heartbeatSessionEnd':
+        case 'heartbeatPlaybackCompleted':
           heartbeatUtils.heartbeatSessionEnd(rudderElement);
           break;
-        case "heartbeatAdStarted":
-        case "heartbeatAdBreakStarted":
+        case 'heartbeatAdStarted':
+        case 'heartbeatAdBreakStarted':
           heartbeatUtils.heartbeatAdStarted(rudderElement);
           break;
-        case "heartbeatAdCompleted":
-        case "heartbeatAdBreakCompleted":
+        case 'heartbeatAdCompleted':
+        case 'heartbeatAdBreakCompleted':
           heartbeatUtils.heartbeatAdCompleted(rudderElement);
           break;
-        case "heartbeatAdSkipped":
+        case 'heartbeatAdSkipped':
           heartbeatUtils.heartbeatAdSkipped(rudderElement);
           break;
-        case "heartbeatSeekStarted":
+        case 'heartbeatSeekStarted':
           heartbeatUtils.heartbeatSeekStarted(rudderElement);
           break;
-        case "heartbeatSeekCompleted":
+        case 'heartbeatSeekCompleted':
           heartbeatUtils.heartbeatSeekCompleted(rudderElement);
           break;
-        case "heartbeatBufferStarted":
+        case 'heartbeatBufferStarted':
           heartbeatUtils.heartbeatBufferStarted(rudderElement);
           break;
-        case "heartbeatBufferCompleted":
+        case 'heartbeatBufferCompleted':
           heartbeatUtils.heartbeatBufferCompleted(rudderElement);
           break;
-        case "heartbeatQualityUpdated":
+        case 'heartbeatQualityUpdated':
           heartbeatUtils.heartbeatQualityUpdated(rudderElement);
           break;
-        case "heartbeatUpdatePlayhead":
+        case 'heartbeatUpdatePlayhead':
           heartbeatUtils.heartbeatUpdatePlayhead(rudderElement);
           break;
         default:
-          logger.error("No heartbeat function for this event");
+          logger.error('No heartbeat function for this event');
       }
     }
   }

@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { NAME } from './constants';
 
 class Optimizely {
   constructor(config, analytics, areTransformationsConnected, destinationId) {
@@ -11,8 +11,7 @@ class Optimizely {
     this.analytics = analytics;
     this.sendExperimentTrack = config.sendExperimentTrack;
     this.sendExperimentIdentify = config.sendExperimentIdentify;
-    this.sendExperimentTrackAsNonInteractive =
-      config.sendExperimentTrackAsNonInteractive;
+    this.sendExperimentTrackAsNonInteractive = config.sendExperimentTrackAsNonInteractive;
     this.revenueOnlyOnOrderCompleted = config.revenueOnlyOnOrderCompleted;
     this.trackCategorizedPages = config.trackCategorizedPages;
     this.trackNamedPages = config.trackNamedPages;
@@ -28,11 +27,8 @@ class Optimizely {
   }
 
   init() {
-    logger.debug("=== in optimizely init ===");
-    this.initOptimizelyIntegration(
-      this.referrerOverride,
-      this.sendDataToRudder
-    );
+    logger.debug('=== in optimizely init ===');
+    this.initOptimizelyIntegration(this.referrerOverride, this.sendDataToRudder);
   }
 
   referrerOverride = (referrer) => {
@@ -57,7 +53,7 @@ class Optimizely {
     });
 
     const audienceIds = Object.keys(audiencesMap).sort().join();
-    const audienceNames = Object.values(audiencesMap).sort().join(", ");
+    const audienceNames = Object.values(audiencesMap).sort().join(', ');
 
     if (this.sendExperimentTrack) {
       const props = {
@@ -88,14 +84,10 @@ class Optimizely {
       // const data = window.optimizely && window.optimizely.get("data");
       const data = campaignState;
       if (data && this.customCampaignProperties.length > 0) {
-        for (
-          let index = 0;
-          index < this.customCampaignProperties.length;
-          index += 1
-        ) {
+        for (let index = 0; index < this.customCampaignProperties.length; index += 1) {
           const rudderProp = this.customCampaignProperties[index].from;
           const optimizelyProp = this.customCampaignProperties[index].to;
-          if (typeof props[optimizelyProp] !== "undefined") {
+          if (typeof props[optimizelyProp] !== 'undefined') {
             props[rudderProp] = props[optimizelyProp];
             delete props[optimizelyProp];
           }
@@ -103,7 +95,7 @@ class Optimizely {
       }
 
       // Send to Rudder
-      this.analytics.track("Experiment Viewed", props, context);
+      this.analytics.track('Experiment Viewed', props, context);
     }
     if (this.sendExperimentIdentify) {
       const traits = {};
@@ -116,7 +108,7 @@ class Optimizely {
 
   initOptimizelyIntegration(referrerOverride, sendCampaignData) {
     const newActiveCampaign = (id, referrer) => {
-      const state = window.optimizely.get && window.optimizely.get("state");
+      const state = window.optimizely.get && window.optimizely.get('state');
       if (state) {
         const activeCampaigns = state.getCampaignStates({
           isActive: true,
@@ -128,10 +120,9 @@ class Optimizely {
     };
 
     const checkReferrer = () => {
-      const state = window.optimizely.get && window.optimizely.get("state");
+      const state = window.optimizely.get && window.optimizely.get('state');
       if (state) {
-        const referrer =
-          state.getRedirectInfo() && state.getRedirectInfo().referrer;
+        const referrer = state.getRedirectInfo() && state.getRedirectInfo().referrer;
 
         if (referrer) {
           referrerOverride(referrer);
@@ -144,10 +135,10 @@ class Optimizely {
     const registerFutureActiveCampaigns = () => {
       window.optimizely = window.optimizely || [];
       window.optimizely.push({
-        type: "addListener",
+        type: 'addListener',
         filter: {
-          type: "lifecycle",
-          name: "campaignDecided",
+          type: 'lifecycle',
+          name: 'campaignDecided',
         },
         handler(event) {
           const { id } = event.data.campaign;
@@ -158,7 +149,7 @@ class Optimizely {
 
     const registerCurrentlyActiveCampaigns = () => {
       window.optimizely = window.optimizely || [];
-      const state = window.optimizely.get && window.optimizely.get("state");
+      const state = window.optimizely.get && window.optimizely.get('state');
       if (state) {
         const referrer = checkReferrer();
         const activeCampaigns = state.getCampaignStates({
@@ -173,10 +164,10 @@ class Optimizely {
         });
       } else {
         window.optimizely.push({
-          type: "addListener",
+          type: 'addListener',
           filter: {
-            type: "lifecycle",
-            name: "initialized",
+            type: 'lifecycle',
+            name: 'initialized',
           },
           handler() {
             checkReferrer();
@@ -189,19 +180,19 @@ class Optimizely {
   }
 
   track(rudderElement) {
-    logger.debug("in Optimizely web track");
+    logger.debug('in Optimizely web track');
     const eventProperties = rudderElement.message.properties;
     const { event } = rudderElement.message;
     if (eventProperties.revenue && this.revenueOnlyOnOrderCompleted) {
-      if (event === "Order Completed") {
+      if (event === 'Order Completed') {
         eventProperties.revenue = Math.round(eventProperties.revenue * 100);
-      } else if (event !== "Order Completed") {
+      } else if (event !== 'Order Completed') {
         delete eventProperties.revenue;
       }
     }
-    const eventName = event.replace(/:/g, "_"); // can't have colons so replacing with underscores
+    const eventName = event.replace(/:/g, '_'); // can't have colons so replacing with underscores
     const payload = {
-      type: "event",
+      type: 'event',
       eventName,
       tags: eventProperties,
     };
@@ -210,7 +201,7 @@ class Optimizely {
   }
 
   page(rudderElement) {
-    logger.debug("in Optimizely web page");
+    logger.debug('in Optimizely web page');
     const { category } = rudderElement.message.properties;
     const { name } = rudderElement.message;
     /* const contextOptimizely = {
@@ -221,7 +212,7 @@ class Optimizely {
     if (category && this.trackCategorizedPages) {
       // this.analytics.track(`Viewed ${category} page`, {}, contextOptimizely);
       rudderElement.message.event = `Viewed ${category} page`;
-      rudderElement.message.type = "track";
+      rudderElement.message.type = 'track';
       this.track(rudderElement);
     }
 
@@ -229,21 +220,17 @@ class Optimizely {
     if (name && this.trackNamedPages) {
       // this.analytics.track(`Viewed ${name} page`, {}, contextOptimizely);
       rudderElement.message.event = `Viewed ${name} page`;
-      rudderElement.message.type = "track";
+      rudderElement.message.type = 'track';
       this.track(rudderElement);
     }
   }
 
   isLoaded() {
-    return !!(
-      window.optimizely && window.optimizely.push !== Array.prototype.push
-    );
+    return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
   }
 
   isReady() {
-    return !!(
-      window.optimizely && window.optimizely.push !== Array.prototype.push
-    );
+    return !!(window.optimizely && window.optimizely.push !== Array.prototype.push);
   }
 }
 
