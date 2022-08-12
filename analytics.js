@@ -1137,18 +1137,7 @@ class Analytics {
     }
   }
 
-  /**
-   * Call control pane to get client configs
-   *
-   * @param {*} writeKey
-   * @memberof Analytics
-   */
-  load(writeKey, serverUrl, options) {
-    // logger.debug("inside load ");
-    if (this.loaded) return;
-
-    // check if the below features are available in the browser or not
-    // If not present dynamically load from the polyfill cdn
+  isPolyfillPresent() {
     if (
       !String.prototype.endsWith ||
       !String.prototype.startsWith ||
@@ -1161,15 +1150,32 @@ class Analytics {
       !String.prototype.replaceAll ||
       !this.isDatasetAvailable()
     ) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Call control pane to get client configs
+   *
+   * @param {*} writeKey
+   * @memberof Analytics
+   */
+  load(writeKey, serverUrl, options) {
+    // logger.debug("inside load ");
+    if (this.loaded) return;
+
+    // check if the below features are available in the browser or not
+    // If not present dynamically load from the polyfill cdn
+    if (!this.isPolyfillPresent()) {
       const id = "polyfill";
       ScriptLoader(id, POLYFILL_URL, { skipDatasetAttributes: true });
       const self = this;
       const interval = setInterval(function () {
         // check if the polyfill is loaded
-        // In chrome 83 and below versions ID of a script is not part of window's scope
-        // even though it is loaded and returns false for <window.hasOwnProperty("polyfill")> this.
-        // So, added another checking to fulfill that purpose.
-        if (window.hasOwnProperty(id) || document.getElementById(id) !== null) {
+        // In chrome 83 and below versions <window.hasOwnProperty("polyfill")> this is returning false
+        // even though it is loaded. So, added another checking to fulfill that purpose.
+        if (window.hasOwnProperty(id) || self.isPolyfillPresent()) {
           clearInterval(interval);
           self.loadAfterPolyfill(writeKey, serverUrl, options);
         }
