@@ -853,7 +853,14 @@ class Analytics {
             }
           }
         } catch (err) {
-          err.message = `[sendToNative]:: [Destination: ${obj.name}]:: "${err.message}"`;
+          if (err instanceof Error) {
+            err.message = `[sendToNative]:: [Destination: ${obj.name}]:: "${err.message}"`;
+          } else if (typeof err === 'string') {
+            // eslint-disable-next-line no-ex-assign
+            err = {
+              message: `[sendToNative]:: [Destination: ${obj.name}]:: "${err}"`,
+            };
+          }
           handleError(err);
         }
       });
