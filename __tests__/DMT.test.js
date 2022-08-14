@@ -1,7 +1,4 @@
-import {
-  createPayload,
-  sendEventForTransformation,
-} from '../utils/DMTHandler';
+import { createPayload, sendEventForTransformation } from '../utils/DMTHandler';
 
 describe('Test suite for device mode transformation feature', () => {
   const event = {
@@ -41,79 +38,88 @@ describe('Test suite for device mode transformation feature', () => {
   const payload = createPayload(event);
   const retryCount = 3;
   const samplePayloadSuccess = {
-	"transformedBatch": [{
-		"id": "2CO2YmLozA3SZe6JtmdmMKTrCOl",
-		"payload": [{
-			"orderNo": 1659505271417,
-			"status": "200",
-			"event": {
-				"message": {
-					"anonymousId": "7105960b-0174-4d31-a7a1-561925dedde3",
-					"channel": "web",
-					"context": {
-						"library": {
-							"name": "RudderLabs JavaScript SDK",
-							"version": "2.9.2"
-						},
-					},
-					"integrations": {
-						"All": true
-					},
-					"messageId": "1659505271412300-2d882451-7f50-4f23-b5ac-919fa8a1957d",
-					"name": "page view 123",
-					"originalTimestamp": "2022-08-03T05:41:11.412Z",
-					"properties": {
-					},
-					"type": "page",
-				}
-			}
-		}]
-	}]
-};
+    transformedBatch: [
+      {
+        id: '2CO2YmLozA3SZe6JtmdmMKTrCOl',
+        payload: [
+          {
+            orderNo: 1659505271417,
+            status: '200',
+            event: {
+              message: {
+                anonymousId: '7105960b-0174-4d31-a7a1-561925dedde3',
+                channel: 'web',
+                context: {
+                  library: {
+                    name: 'RudderLabs JavaScript SDK',
+                    version: '2.9.2',
+                  },
+                },
+                integrations: {
+                  All: true,
+                },
+                messageId: '1659505271412300-2d882451-7f50-4f23-b5ac-919fa8a1957d',
+                name: 'page view 123',
+                originalTimestamp: '2022-08-03T05:41:11.412Z',
+                properties: {},
+                type: 'page',
+              },
+            },
+          },
+        ],
+      },
+    ],
+  };
 
-const samplePayloadPartialSuccess = {
-	"transformedBatch": [{
-		"id": "2CO2YmLozA3SZe6JtmdmMKTrCOl",
-		"payload": [{
-			"orderNo": 1659505271417,
-			"status": "200",
-			"event": {
-				"message": {
-					"anonymousId": "7105960b-0174-4d31-a7a1-561925dedde3",
-					"channel": "web",
-					"context": {
-						"library": {
-							"name": "RudderLabs JavaScript SDK",
-							"version": "2.9.2"
-						},
-					},
-					"integrations": {
-						"All": true
-					},
-					"messageId": "1659505271412300-2d882451-7f50-4f23-b5ac-919fa8a1957d",
-					"name": "page view 123",
-					"originalTimestamp": "2022-08-03T05:41:11.412Z",
-					"properties": {
-					},
-					"type": "page",
-				}
-			}
-		}]
-	},{
-		"id": "2CO2YmLozA3SZe6JtmdmMKTrCKr",
-		"payload": [{
-			"orderNo": 1659505271418,
-			"status": "400"
-		}]
-	}]
-};
+  const samplePayloadPartialSuccess = {
+    transformedBatch: [
+      {
+        id: '2CO2YmLozA3SZe6JtmdmMKTrCOl',
+        payload: [
+          {
+            orderNo: 1659505271417,
+            status: '200',
+            event: {
+              message: {
+                anonymousId: '7105960b-0174-4d31-a7a1-561925dedde3',
+                channel: 'web',
+                context: {
+                  library: {
+                    name: 'RudderLabs JavaScript SDK',
+                    version: '2.9.2',
+                  },
+                },
+                integrations: {
+                  All: true,
+                },
+                messageId: '1659505271412300-2d882451-7f50-4f23-b5ac-919fa8a1957d',
+                name: 'page view 123',
+                originalTimestamp: '2022-08-03T05:41:11.412Z',
+                properties: {},
+                type: 'page',
+              },
+            },
+          },
+        ],
+      },
+      {
+        id: '2CO2YmLozA3SZe6JtmdmMKTrCKr',
+        payload: [
+          {
+            orderNo: 1659505271418,
+            status: '400',
+          },
+        ],
+      },
+    ],
+  };
 
   const xhrMock = {
     open: jest.fn(),
     setRequestHeader: jest.fn(),
     onreadystatechange: jest.fn(),
     send: jest.fn(),
-    readyState: 4
+    readyState: 4,
   };
   const xhrMockSuccess = {
     ...xhrMock,
@@ -128,7 +134,7 @@ const samplePayloadPartialSuccess = {
     status: 200,
   };
 
-  xhrMockPartialSuccess['send'] = ()=>{
+  xhrMockPartialSuccess['send'] = () => {
     xhrMockPartialSuccess.onreadystatechange();
     xhrMockPartialSuccess.attempt++;
   };
@@ -146,9 +152,9 @@ const samplePayloadPartialSuccess = {
     onreadystatechange: jest.fn(),
     readyState: 4,
     response: null,
-    status: 500
+    status: 500,
   };
-  xhrMockServerDown['send'] = ()=>{
+  xhrMockServerDown['send'] = () => {
     xhrMockServerDown.onreadystatechange();
     xhrMockServerDown.attempt++;
   };
@@ -162,23 +168,23 @@ const samplePayloadPartialSuccess = {
   });
 
   it('Transformation server returning response in right format in case of successful transformation', () => {
-    
     window.XMLHttpRequest = jest.fn(() => xhrMockSuccess);
     setTimeout(() => {
       xhrMockSuccess.onreadystatechange();
     }, 0);
-    return sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
-    .then((response)=>{
-      expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
-      expect(Array.isArray(response.transformedBatch)).toEqual(true);
-      expect(typeof response.transformationServerAccess).toEqual('boolean');
+    return sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount).then(
+      (response) => {
+        expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
+        expect(Array.isArray(response.transformedPayload)).toEqual(true);
+        expect(typeof response.transformationServerAccess).toEqual('boolean');
 
-      const destObj = response.transformedBatch[0];
+        const destObj = response.transformedPayload[0];
 
-      expect(typeof destObj).toEqual('object');
-      expect(destObj.hasOwnProperty('id')).toEqual(true);
-      expect(destObj.hasOwnProperty('payload')).toEqual(true);
-    });
+        expect(typeof destObj).toEqual('object');
+        expect(destObj.hasOwnProperty('id')).toEqual(true);
+        expect(destObj.hasOwnProperty('payload')).toEqual(true);
+      },
+    );
   });
 
   it('Validate whether the SDK is sending the orginal event in case server returns 404', () => {
@@ -186,31 +192,30 @@ const samplePayloadPartialSuccess = {
     setTimeout(() => {
       xhrMockAccessDenied.onreadystatechange();
     }, 0);
-    return sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
-    .then((response)=>{
-      expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
-      expect(response.transformedBatch).toEqual(payload.batch);
+    return sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount).then(
+      (response) => {
+        expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
+        expect(response.transformedPayload).toEqual(payload.batch);
 
-      const destObj = response.transformedBatch[0];
+        const destObj = response.transformedPayload[0];
 
-      expect(destObj.hasOwnProperty('event')).toBe(true);
-      expect(destObj.hasOwnProperty('orderNo')).toBe(true);
-      expect(destObj.hasOwnProperty('id')).toBe(false);
-      expect(destObj.hasOwnProperty('payload')).toEqual(false);
-
-    });
+        expect(destObj.hasOwnProperty('event')).toBe(true);
+        expect(destObj.hasOwnProperty('orderNo')).toBe(true);
+        expect(destObj.hasOwnProperty('id')).toBe(false);
+        expect(destObj.hasOwnProperty('payload')).toEqual(false);
+      },
+    );
   });
 
-  it('Validate whether the SDK is retrying the request in case failures', async() => {
+  it('Validate whether the SDK is retrying the request in case failures', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockServerDown);
 
     await sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
-    .then((response)=>{
-    })
-    .catch((e)=>{
-      console.log(e);
-      expect(typeof e).toBe('string');
-      expect(xhrMockServerDown.attempt).toEqual(retryCount+1); //retryCount+ first attempt
-    });
+      .then((response) => {})
+      .catch((e) => {
+        console.log(e);
+        expect(typeof e).toBe('string');
+        expect(xhrMockServerDown.attempt).toEqual(retryCount + 1); //retryCount+ first attempt
+      });
   });
 });

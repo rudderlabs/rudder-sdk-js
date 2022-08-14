@@ -3,14 +3,14 @@ import { LOAD_ORIGIN } from '../ScriptLoader';
 import { NAME } from './constants';
 
 class BingAds {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.tagID = config.tagID;
     this.name = NAME;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   loadBingadsScript = () => {

@@ -5,7 +5,7 @@ import ScriptLoader, { LOAD_ORIGIN } from '../ScriptLoader';
 import { NAME } from './constants';
 
 class GoogleOptimize {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -15,8 +15,8 @@ class GoogleOptimize {
     this.containerId = config.containerId;
     this.async = config.async;
     this.aflicker = config.aflicker;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   init() {

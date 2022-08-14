@@ -4,6 +4,9 @@
 import { replacer } from './utils';
 import logger from './logUtil';
 
+// default values for retry
+const retryCount = 3;
+
 /**
  * A helper function that will take rudderEelement as an event and generate
  * a batch payload that will be sent to transformation server
@@ -30,7 +33,8 @@ const createPayload = (event) => {
  */
 const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount) => {
   return new Promise((resolve, reject) => {
-    const url = `${dataPlaneUrl}/transform`;
+    // const url = `${dataPlaneUrl}/transform`;
+    const url = 'https://shadowfax-dataplane.dev-rudder.rudderlabs.com/transform';
     const headers = {
       'Content-Type': 'application/json',
       Authorization: `Basic ${btoa(`${writeKey}:`)}`,
@@ -40,16 +44,17 @@ const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount)
       xhr.open('POST', url, true);
       Object.keys(headers).forEach((k) => xhr.setRequestHeader(k, headers[k]));
 
-      const retryFailMsg = 'Retry failed. Dropping the event';
       xhr.onreadystatechange = () => {
         if (xhr.readyState === 4) {
           try {
-            if (xhr.status === 200) {
+            const { status } = xhr;
+            if (status === 200) {
               let { response } = xhr;
               if (response && typeof response === 'string') {
                 response = JSON.parse(response);
               } else {
-                return reject('Not a valid response');
+                reject(`[Transformation]:: Transformation failed. Invalid response from server.`);
+                return;
               }
               /**
                * Sample Response format:
@@ -70,20 +75,26 @@ const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount)
               /**
                * Filter the successful transformed event
                */
+              const transformationResponse = [];
               response.transformedBatch.forEach((dest) => {
-                dest.payload = dest.payload.filter((tEvent) => tEvent.status === '200');
+                transformationResponse.push({
+                  id: dest.id,
+                  payload: dest.payload.filter((tEvent) => tEvent.status === '200'),
+                });
               });
 
-              return resolve({
-                transformedBatch: response.transformedBatch,
+              resolve({
+                transformedPayload: transformationResponse,
                 transformationServerAccess: true,
               });
+              return;
             }
-            if (xhr.status === 404) {
-              return resolve({
-                transformedBatch: payload.batch,
+            if (status === 404) {
+              resolve({
+                transformedPayload: payload.batch,
                 transformationServerAccess: false,
               });
+              return;
             }
 
             // If the request is not successful
@@ -99,10 +110,11 @@ const sendEventForTransformation = (payload, writeKey, dataPlaneUrl, retryCount)
             } else {
               // Even after all the retries event transformation
               // is not successful, ignore the event
-              return reject(retryFailMsg);
+              reject(`[Transformation]:: Transformation failed with status ${status}`);
+              return;
             }
           } catch (err) {
-            return reject(err);
+            reject(err);
           }
         }
       };
@@ -123,13 +135,10 @@ const processTransformation = (event, writeKey, dataPlaneUrl, cb) => {
   // createPayload
   const payload = createPayload(event);
 
-  // default values for retry
-  const retryCount = 3;
-
   // Send event for transformation with payload, writekey and retryCount
   sendEventForTransformation(payload, writeKey, dataPlaneUrl, retryCount)
     .then((outcome) => {
-      return cb(outcome.transformedBatch, outcome.transformationServerAccess);
+      return cb(outcome);
     })
     .catch((err) => {
       if (typeof err === 'string') {

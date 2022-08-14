@@ -7,7 +7,7 @@ import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 
 class PostAffiliatePro {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -26,8 +26,8 @@ class PostAffiliatePro {
     this.disableTrackingMethod = config.disableTrackingMethod;
     this.paramNameUserId = config.paramNameUserId;
     this.clickEvents = config.clickEvents;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   init() {

@@ -5,15 +5,15 @@ import { LOAD_ORIGIN } from '../ScriptLoader';
 import { NAME } from './constants';
 
 class Pendo {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics;
     this.apiKey = !config.apiKey ? '' : config.apiKey;
     this.name = NAME;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
     logger.debug('Config ', config);
   }
 

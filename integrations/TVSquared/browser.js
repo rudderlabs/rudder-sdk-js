@@ -5,7 +5,7 @@ import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 
 class TVSquared {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -14,8 +14,8 @@ class TVSquared {
     this.eventWhiteList = config.eventWhiteList || [];
     this.customMetrics = config.customMetrics || [];
     this.name = NAME;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   init() {

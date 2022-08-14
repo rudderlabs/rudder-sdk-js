@@ -10,7 +10,7 @@ import ScriptLoader from '../ScriptLoader';
 import { PRODUCT_EVENTS, ORDER_EVENTS, productEvent, orderEvent } from './util';
 
 class Adroll {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -20,8 +20,8 @@ class Adroll {
     window.adroll_adv_id = this.advId;
     window.adroll_pix_id = this.pixId;
     this.eventsMap = config.eventsMap || [];
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   init() {

@@ -6,15 +6,15 @@ import createUser from './utils';
 import { NAME } from './constants';
 
 class LaunchDarkly {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
     this.clientSideId = config.clientSideId;
     this.anonymousUsersSharedKey = config.anonymousUsersSharedKey;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   init() {

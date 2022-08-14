@@ -6,7 +6,7 @@ import { LOAD_ORIGIN } from '../ScriptLoader';
 import { NAME } from './constants';
 
 class Fullstory {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -14,8 +14,8 @@ class Fullstory {
     this.fs_debug_mode = config.fs_debug_mode;
     this.name = NAME;
     this.analytics = analytics;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   static getFSProperties(properties) {

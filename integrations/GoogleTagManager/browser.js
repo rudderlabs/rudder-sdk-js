@@ -4,15 +4,15 @@ import { LOAD_ORIGIN } from '../ScriptLoader';
 import { NAME } from './constants';
 
 class GoogleTagManager {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.containerID = config.containerID;
     this.name = NAME;
     this.serverUrl = config.serverUrl;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   init() {

@@ -12,7 +12,7 @@ import { NAME } from './constants';
 import { transformCustomVariable, mapFlagValue } from './utils';
 
 class DCMFloodlight {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -26,8 +26,8 @@ class DCMFloodlight {
     this.doubleclickId = config.doubleclickId;
     this.googleNetworkId = config.googleNetworkId;
     this.name = NAME;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   /**

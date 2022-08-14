@@ -11,7 +11,7 @@ import { getDefinedTraits, isObject } from '../../utils/utils';
 import { NAME } from './constants';
 
 class Sentry {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -27,8 +27,8 @@ class Sentry {
     this.release = config.release;
     this.customVersionProperty = config.customVersionProperty;
     this.serverName = config.serverName;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   init() {

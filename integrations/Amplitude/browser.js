@@ -6,15 +6,15 @@ import { LOAD_ORIGIN } from '../ScriptLoader';
 import { NAME } from './constants';
 
 class Amplitude {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
     this.analytics = analytics;
     this.apiKey = config.apiKey;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
     this.trackAllPages = config.trackAllPages || false;
     this.trackNamedPages = config.trackNamedPages || false;
     this.trackCategorizedPages = config.trackCategorizedPages || false;

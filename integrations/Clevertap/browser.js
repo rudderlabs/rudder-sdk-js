@@ -6,7 +6,7 @@ import { extractCustomFields, getDefinedTraits, isArray, isObject } from '../../
 import { NAME } from './constants';
 
 class Clevertap {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -40,8 +40,8 @@ class Clevertap {
       'married',
       'customerType',
     ];
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   init() {

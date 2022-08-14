@@ -7,13 +7,13 @@ import ScriptLoader from '../ScriptLoader';
 import { NAME } from './constants';
 
 export default class GA {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
     this.trackingID = config.trackingID;
     this.sendUserId = config.sendUserId || false;
     this.dimensions = config.dimensions || [];

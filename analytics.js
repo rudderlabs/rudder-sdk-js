@@ -239,8 +239,10 @@ class Analytics {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
             config: destination.config,
-            areTransformationsConnected: destination.areTransformationsConnected || false,
-            destinationId: destination.id,
+            destinationDetails: {
+              areTransformationsConnected: destination.areTransformationsConnected || false,
+              destinationId: destination.id,
+            },
           });
         }
       }, this);
@@ -302,12 +304,7 @@ class Analytics {
               const msg = `[Analytics] processResponse :: trying to initialize integration name:: ${pluginName}`;
               // logger.debug(msg);
               leaveBreadcrumb(msg);
-              intgInstance = new intMod[modName](
-                intg.config,
-                self,
-                intg.areTransformationsConnected,
-                intg.destinationId,
-              );
+              intgInstance = new intMod[modName](intg.config, self, intg.destinationDetails);
               intgInstance.init();
 
               // logger.debug(pluginName, " initializing destination");
@@ -345,6 +342,94 @@ class Analytics {
       });
     } catch (error) {
       handleError(error);
+    }
+  }
+
+  /**
+   * A function to send single event to a destination
+   * @param {instance} destination
+   * @param {Object} rudderElement
+   * @param {String} methodName
+   */
+   sendDataToDestination(destination, rudderElement, methodName) {
+    try {
+      if (!destination.isFailed || !destination.isFailed()) {
+        if (destination[methodName]) {
+          const clonedRudderElement = cloneDeep(rudderElement);
+          destination[methodName](clonedRudderElement);
+        }
+      }
+    } catch (err) {
+      err.message = `[sendToNative]::[Destination:${destination.name}]:: ${err}`;
+      handleError(err);
+    }
+  }
+
+  processAndSendDataToDeviceMode(destinations, rudderElement, methodName) {
+    const destWithoutTransformation = [];
+    const destWithTransformation = [];
+
+    // Depending on transformation is connected or not
+    // create two sets of destinations
+    destinations.forEach((intg) => {
+      const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, intg.name);
+
+      // Block the event if it is blacklisted for the device-mode destination
+      if (sendEvent) {
+        if (intg.areTransformationsConnected) {
+          destWithTransformation.push(intg);
+        } else {
+          destWithoutTransformation.push(intg);
+        }
+      }
+    });
+
+    // loop through destinations that doesn't have
+    // transformation connected with it and send events
+    destWithoutTransformation.forEach((intg) => {
+      this.sendDataToDestination(intg, rudderElement, methodName);
+    });
+
+    if (destWithTransformation.length) {
+      try {
+        // Process Transformation
+        processTransformation(
+          rudderElement,
+          this.writeKey,
+          this.dataPlaneUrl,
+          ({ transformedPayload, transformationServerAccess }) => {
+            if (transformedPayload) {
+              destWithTransformation.forEach((intg) => {
+                try {
+                  let transformedEvents;
+                  if (transformationServerAccess) {
+                    // filter the transformed event for that destination
+                    transformedEvents = transformedPayload.filter(
+                      (e) => e.id === intg.destinationId,
+                    )[0].payload;
+                  } else {
+                    transformedEvents = transformedPayload;
+                  }
+                  // send transformed event to destination
+                  transformedEvents.forEach((tEvent) => {
+                    this.sendDataToDestination(intg, tEvent.event, methodName);
+                  });
+                } catch (e) {
+                  if (e instanceof Error) {
+                    e.message = `[DMT]::[Destination:${intg.name}]:: ${e.message}`;
+                  }
+                  handleError(e);
+                }
+              });
+            }
+          },
+        );
+      } catch (e) {
+        if (e instanceof Error) {
+          e.message = `[DMT]:: ${e.message}`;
+        }
+        handleError(e);
+      }
     }
   }
 
@@ -397,61 +482,11 @@ class Analytics {
         object.clientIntegrationObjects,
       );
 
-      const intgWithoutTransformation = [];
-      const intgWithTransformation = [];
-
-      // Depending on transformation is connected or not
-      // create two sets of destinations
-      succesfulLoadedIntersectClientSuppliedIntegrations.forEach((intg) => {
-        const sendEvent = !this.IsEventBlackListed(event[0].message.event, intg.name);
-
-        // Block the event if it is blacklisted for the device-mode destination
-        if (sendEvent) {
-          if (intg.areTransformationsConnected) {
-            intgWithTransformation.push(intg);
-          } else {
-            intgWithoutTransformation.push(intg);
-          }
-        }
-      });
-
-      // loop through destinations that doesn't have
-      // transformation connected with it and send events from the 'toBeProcessedByIntegrationArray' replay queue
-      intgWithoutTransformation.forEach((intg) => {
-        this.sendDataToDestination(intg, event[0], methodName);
-      });
-
-      if (intgWithTransformation.length) {
-        try {
-          // Process Transformation
-          processTransformation(
-            event[0],
-            this.writeKey,
-            this.dataPlaneUrl,
-            (transformedPayload, transformationServerAccess) => {
-              if (transformedPayload) {
-                intgWithTransformation.forEach((intg) => {
-                  let transformedEvents;
-                  if (transformationServerAccess) {
-                    // filter the transformed event for that destination
-                    transformedEvents = transformedPayload.filter(
-                      (e) => e.id === intg.destinationId,
-                    )[0].payload;
-                  } else {
-                    transformedEvents = transformedPayload;
-                  }
-                  // send transformed event to destination
-                  transformedEvents.forEach((tEvent) => {
-                    this.sendDataToDestination(intg, tEvent.event, methodName);
-                  });
-                });
-              }
-            },
-          );
-        } catch (e) {
-          handleError(e);
-        }
-      }
+      this.processAndSendDataToDeviceMode(
+        succesfulLoadedIntersectClientSuppliedIntegrations,
+        event[0],
+        methodName,
+      );
     });
     object.toBeProcessedByIntegrationArray = [];
   }
@@ -681,26 +716,6 @@ class Analytics {
   }
 
   /**
-   * A function to send single event to a destination
-   * @param {instance} destination
-   * @param {Object} rudderElement
-   * @param {String} type
-   */
-  sendDataToDestination(destination, rudderElement, type) {
-    try {
-      if (!destination.isFailed || !destination.isFailed()) {
-        if (destination[type]) {
-          const clonedRudderElement = cloneDeep(rudderElement);
-          destination[type](clonedRudderElement);
-        }
-      }
-    } catch (err) {
-      err.message = `[sendToNative]::[Destination:${destination.name}]:: ${err}`;
-      handleError(err);
-    }
-  }
-
-  /**
    * Process and send data to destinations along with rudder BE
    *
    * @param {*} type
@@ -765,61 +780,11 @@ class Analytics {
           this.clientIntegrationObjects,
         );
 
-        const intgWithoutTransformation = [];
-        const intgWithTransformation = [];
-
-        // Depending on transformation is connected or not
-        // create two sets of destinations
-        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((intg) => {
-          const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, intg.name);
-
-          // Block the event if it is blacklisted for the device-mode destination
-          if (sendEvent) {
-            if (intg.areTransformationsConnected) {
-              intgWithTransformation.push(intg);
-            } else {
-              intgWithoutTransformation.push(intg);
-            }
-          }
-        });
-
-        // loop through destinations that doesn't have
-        // transformation connected with it and send events
-        intgWithoutTransformation.forEach((intg) => {
-          this.sendDataToDestination(intg, rudderElement, type);
-        });
-
-        if (intgWithTransformation.length) {
-          try {
-            // Process Transformation
-            processTransformation(
-              rudderElement,
-              this.writeKey,
-              this.dataPlaneUrl,
-              (transformedPayload, transformationServerAccess) => {
-                if (transformedPayload) {
-                  intgWithTransformation.forEach((intg) => {
-                    let transformedEvents;
-                    if (transformationServerAccess) {
-                      // filter the transformed event for that destination
-                      transformedEvents = transformedPayload.filter(
-                        (e) => e.id === intg.destinationId,
-                      )[0].payload;
-                    } else {
-                      transformedEvents = transformedPayload;
-                    }
-                    // send transformed event to destination
-                    transformedEvents.forEach((tEvent) => {
-                      this.sendDataToDestination(intg, tEvent.event, type);
-                    });
-                  });
-                }
-              },
-            );
-          } catch (e) {
-            handleError(e);
-          }
-        }
+        this.processAndSendDataToDeviceMode(
+          succesfulLoadedIntersectClientSuppliedIntegrations,
+          rudderElement,
+          type,
+        );
       }
 
       // convert integrations object to server identified names, kind of hack now!
@@ -1131,8 +1096,8 @@ class Analytics {
     }
   }
 
-  isPolyfillPresent() {
-    if (
+  arePolyfillsRequired() {
+    return (
       !String.prototype.endsWith ||
       !String.prototype.startsWith ||
       !String.prototype.includes ||
@@ -1143,10 +1108,7 @@ class Analytics {
       !Object.values ||
       !String.prototype.replaceAll ||
       !this.isDatasetAvailable()
-    ) {
-      return false;
-    }
-    return true;
+    );
   }
 
   /**
@@ -1161,15 +1123,13 @@ class Analytics {
 
     // check if the below features are available in the browser or not
     // If not present dynamically load from the polyfill cdn
-    if (!this.isPolyfillPresent()) {
+    if (this.arePolyfillsRequired()) {
       const id = 'polyfill';
       ScriptLoader(id, POLYFILL_URL, { skipDatasetAttributes: true });
       const self = this;
       const interval = setInterval(function () {
         // check if the polyfill is loaded
-        // In chrome 83 and below versions <window.hasOwnProperty("polyfill")> this is returning false
-        // even though it is loaded. So, added another checking to fulfill that purpose.
-        if (window.hasOwnProperty(id) || self.isPolyfillPresent()) {
+        if (!self.arePolyfillsRequired()) {
           clearInterval(interval);
           self.loadAfterPolyfill(writeKey, serverUrl, options);
         }

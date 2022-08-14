@@ -5,7 +5,7 @@ import { LOAD_ORIGIN } from '../ScriptLoader';
 import { NAME } from './constants';
 
 class INTERCOM {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -13,8 +13,8 @@ class INTERCOM {
     this.API_KEY = config.apiKey;
     this.APP_ID = config.appId;
     this.MOBILE_APP_ID = config.mobileAppId;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
     logger.debug('Config ', config);
   }
 

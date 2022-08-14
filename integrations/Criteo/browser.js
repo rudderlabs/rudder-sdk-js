@@ -13,7 +13,7 @@ import { NAME, supportedEvents } from './constants';
 import { getHashFromArrayWithDuplicate } from '../utils/commonUtils';
 
 class Criteo {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -30,8 +30,8 @@ class Criteo {
     this.fieldMapping = config.fieldMapping;
     this.eventsToStandard = config.eventsToStandard;
     this.OPERATOR_LIST = ['eq', 'gt', 'lt', 'ge', 'le', 'in'];
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   init() {

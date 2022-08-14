@@ -7,15 +7,15 @@ import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Kissmetrics {
-  constructor(config, analytics, areTransformationsConnected, destinationId) {
+  constructor(config, analytics, destinationDetails) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.apiKey = config.apiKey;
     this.prefixProperties = config.prefixProperties;
     this.name = NAME;
-    this.areTransformationsConnected = areTransformationsConnected;
-    this.destinationId = destinationId;
+    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
+    this.destinationId = destinationDetails.destinationId;
   }
 
   init() {
