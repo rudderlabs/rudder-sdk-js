@@ -1,3 +1,5 @@
+import { getHashFromArray } from "../utils/commonUtils";
+
 // default mapping for the events
 const standardEventsListMapping = {
   cfReady: "CTA Ready",
@@ -30,4 +32,24 @@ const makeACall = (standardEventsMap, eventName, data) => {
   });
 };
 
-export default makeACall;
+const trigger = () => {
+  const standardEventsMap = getHashFromArray(this.eventsMappping);
+  const standardEventsList = [
+    "cfReady",
+    "cfView",
+    "cfConversion",
+    "cfCompletion",
+    "cfSubmit",
+    "cfAddToCart",
+    "cfClosed",
+  ];
+  standardEventsList.forEach((events) => {
+    window.addEventListener(events, function (event, data) {
+      if (this.eventsList === events) {
+        makeACall(standardEventsMap, events, data);
+      }
+    });
+  });
+};
+
+export { makeACall, trigger };
