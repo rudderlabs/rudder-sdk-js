@@ -49,8 +49,8 @@ const trigger = () => {
   ];
   standardEventsList.forEach((events) => {
     window.addEventListener(events, function (event, data) {
-      if (this.eventsList === events) {
-        makeACall(standardEventsMap, events, data);
+      if (this.eventsList === event) {
+        makeACall(standardEventsMap, event, data);
       }
     });
   });
