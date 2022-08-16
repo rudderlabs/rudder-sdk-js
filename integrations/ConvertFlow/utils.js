@@ -25,11 +25,15 @@ const makeACall = (standardEventsMap, eventName, data) => {
       updatedEvent = event;
     }
   });
-  window.rudderanalytics.track(updatedEvent, {
-    name: data.cta.name,
-    cta_type: data.cta.cta_type,
-    id: data.cta.id,
-  });
+  if (data && data.cta) {
+    window.rudderanalytics.track(updatedEvent, {
+      name: data.cta.name,
+      cta_type: data.cta.cta_type,
+      id: data.cta.id,
+    });
+  } else {
+    window.rudderanalytics.track(updatedEvent);
+  }
 };
 
 const trigger = () => {
