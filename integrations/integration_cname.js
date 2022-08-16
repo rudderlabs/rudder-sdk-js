@@ -50,6 +50,7 @@ import { CNameMapping as Vero } from "./Vero/constants";
 import { CNameMapping as Matomo } from "./Matomo/constants";
 import { CNameMapping as Rockerbox } from "./Rockerbox/constants";
 import { CNameMapping as Mouseflow } from "./Mouseflow/constants";
+import { CNameMapping as SnapEngage } from "./SnapEngage/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -103,6 +104,7 @@ const commonNames = {
   ...RedditPixel,
   ...Rockerbox,
   ...Sentry,
+  ...SnapEngage,
   ...SnapPixel,
   ...TVSquared,
   ...Vero,
