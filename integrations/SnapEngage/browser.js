@@ -8,7 +8,7 @@ import { recordingLiveChatEvents } from "./util";
 import { getHashFromArrayWithDuplicate } from "../utils/commonUtils";
 // import { LOAD_ORIGIN } from "../ScriptLoader";
 
-class Matomo {
+class SnapEngage {
   constructor(config) {
     this.widgetId = config.widgetId;
     this.recordLiveChatEvents = config.recordLiveChatEvents;
@@ -84,4 +84,4 @@ class Matomo {
   }
 }
 
-export default Matomo;
+export default SnapEngage;
