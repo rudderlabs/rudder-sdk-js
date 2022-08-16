@@ -1,4 +1,7 @@
-import { getHashFromArray } from "../utils/commonUtils";
+import {
+  getHashFromArray,
+  isDefinedAndNotNullAndNotEmpty,
+} from "../utils/commonUtils";
 
 // default mapping for the events
 const standardEventsListMapping = {
@@ -25,12 +28,23 @@ const makeACall = (standardEventsMap, eventName, data) => {
       updatedEvent = event;
     }
   });
-  if (data && data.cta) {
-    window.rudderanalytics.track(updatedEvent, {
-      name: data.cta.name,
-      cta_type: data.cta.cta_type,
-      id: data.cta.id,
-    });
+  const properties = {};
+  if (data) {
+    if (data.cta) {
+      const { cta } = data;
+      properties.cta_name = cta.name;
+      properties.cta_type = cta.cta_type;
+      properties.cta_id = cta.id;
+    }
+    if (data.variant) {
+      properties.cta_variant = data.variant.variation;
+    }
+    if (data.step) {
+      properties.cta_step = data.step.position;
+    }
+  }
+  if (isDefinedAndNotNullAndNotEmpty(properties)) {
+    window.rudderanalytics.track(updatedEvent, properties);
   } else {
     window.rudderanalytics.track(updatedEvent);
   }

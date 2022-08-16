@@ -19,13 +19,13 @@ class ConvertFlow {
       "convertflow-integration",
       `https://js.convertflow.co/production/websites/${this.websiteId}.js`
     );
-    if (this.toggleToSendData) {
-      this.trigger();
-    }
   }
 
   isLoaded() {
     logger.debug("===In isLoaded convertflow===");
+    if (this.toggleToSendData) {
+      this.trigger();
+    }
     return !!window.convertflow && typeof window.convertflow === "object";
   }
 
