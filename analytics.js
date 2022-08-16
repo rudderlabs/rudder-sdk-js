@@ -52,7 +52,7 @@ import parseLinker from './utils/linker';
 import { configToIntNames } from './utils/config_to_integration_names';
 import CookieConsentFactory from './cookieConsent/CookieConsentFactory';
 import * as BugsnagLib from './metrics/error-report/Bugsnag';
-import { processTransformation } from './utils/DMTHandler';
+import DMTHandler from './utils/DMTHandler';
 
 /**
  * class responsible for handling core
@@ -92,6 +92,7 @@ class Analytics {
     this.clientIntegrationsReady = false;
     this.writeKey = undefined;
     this.dataPlaneUrl = undefined;
+    this.transformationHandler = undefined;
   }
 
   /**
@@ -351,7 +352,7 @@ class Analytics {
    * @param {Object} rudderElement
    * @param {String} methodName
    */
-   sendDataToDestination(destination, rudderElement, methodName) {
+  sendDataToDestination(destination, rudderElement, methodName) {
     try {
       if (!destination.isFailed || !destination.isFailed()) {
         if (destination[methodName]) {
@@ -365,7 +366,13 @@ class Analytics {
     }
   }
 
-  processAndSendDataToDeviceMode(destinations, rudderElement, methodName) {
+  /**
+   * A function to process and send events to device mode destinations
+   * @param {instance} destinations
+   * @param {Object} rudderElement
+   * @param {String} methodName
+   */
+  processAndSendEventsToDeviceMode(destinations, rudderElement, methodName) {
     const destWithoutTransformation = [];
     const destWithTransformation = [];
 
@@ -393,7 +400,7 @@ class Analytics {
     if (destWithTransformation.length) {
       try {
         // Process Transformation
-        processTransformation(
+        this.transformationHandler.processTransformation(
           rudderElement,
           this.writeKey,
           this.dataPlaneUrl,
@@ -482,7 +489,7 @@ class Analytics {
         object.clientIntegrationObjects,
       );
 
-      this.processAndSendDataToDeviceMode(
+      this.processAndSendEventsToDeviceMode(
         succesfulLoadedIntersectClientSuppliedIntegrations,
         event[0],
         methodName,
@@ -780,7 +787,7 @@ class Analytics {
           this.clientIntegrationObjects,
         );
 
-        this.processAndSendDataToDeviceMode(
+        this.processAndSendEventsToDeviceMode(
           succesfulLoadedIntersectClientSuppliedIntegrations,
           rudderElement,
           type,
@@ -1052,6 +1059,7 @@ class Analytics {
     this.eventRepository.initialize(writeKey, serverUrl, options);
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
+    this.transformationHandler = new DMTHandler(this.writeKey, this.dataPlaneUrl);
     this.loaded = true;
 
     if (options && options.destSDKBaseURL) {
@@ -1129,7 +1137,7 @@ class Analytics {
       const self = this;
       const interval = setInterval(function () {
         // check if the polyfill is loaded
-        if (!self.arePolyfillsRequired()) {
+        if (window.hasOwnProperty(id) || !self.arePolyfillsRequired()) {
           clearInterval(interval);
           self.loadAfterPolyfill(writeKey, serverUrl, options);
         }

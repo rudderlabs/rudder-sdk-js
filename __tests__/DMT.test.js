@@ -1,6 +1,8 @@
-import { createPayload, sendEventForTransformation } from '../utils/DMTHandler';
+import DMTHandler from '../utils/DMTHandler';
 
 describe('Test suite for device mode transformation feature', () => {
+  const dmtHandler = new DMTHandler('write-key', 'data-plane-url');
+
   const event = {
     message: {
       channel: 'web',
@@ -35,7 +37,7 @@ describe('Test suite for device mode transformation feature', () => {
       name: 'page view',
     },
   };
-  const payload = createPayload(event);
+  const payload = dmtHandler.createPayload(event);
   const retryCount = 3;
   const samplePayloadSuccess = {
     transformedBatch: [
@@ -172,19 +174,17 @@ describe('Test suite for device mode transformation feature', () => {
     setTimeout(() => {
       xhrMockSuccess.onreadystatechange();
     }, 0);
-    return sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount).then(
-      (response) => {
-        expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
-        expect(Array.isArray(response.transformedPayload)).toEqual(true);
-        expect(typeof response.transformationServerAccess).toEqual('boolean');
+    return dmtHandler.sendEventForTransformation(payload, retryCount).then((response) => {
+      expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
+      expect(Array.isArray(response.transformedPayload)).toEqual(true);
+      expect(typeof response.transformationServerAccess).toEqual('boolean');
 
-        const destObj = response.transformedPayload[0];
+      const destObj = response.transformedPayload[0];
 
-        expect(typeof destObj).toEqual('object');
-        expect(destObj.hasOwnProperty('id')).toEqual(true);
-        expect(destObj.hasOwnProperty('payload')).toEqual(true);
-      },
-    );
+      expect(typeof destObj).toEqual('object');
+      expect(destObj.hasOwnProperty('id')).toEqual(true);
+      expect(destObj.hasOwnProperty('payload')).toEqual(true);
+    });
   });
 
   it('Validate whether the SDK is sending the orginal event in case server returns 404', () => {
@@ -192,25 +192,24 @@ describe('Test suite for device mode transformation feature', () => {
     setTimeout(() => {
       xhrMockAccessDenied.onreadystatechange();
     }, 0);
-    return sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount).then(
-      (response) => {
-        expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
-        expect(response.transformedPayload).toEqual(payload.batch);
+    return dmtHandler.sendEventForTransformation(payload, retryCount).then((response) => {
+      expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
+      expect(response.transformedPayload).toEqual(payload.batch);
 
-        const destObj = response.transformedPayload[0];
+      const destObj = response.transformedPayload[0];
 
-        expect(destObj.hasOwnProperty('event')).toBe(true);
-        expect(destObj.hasOwnProperty('orderNo')).toBe(true);
-        expect(destObj.hasOwnProperty('id')).toBe(false);
-        expect(destObj.hasOwnProperty('payload')).toEqual(false);
-      },
-    );
+      expect(destObj.hasOwnProperty('event')).toBe(true);
+      expect(destObj.hasOwnProperty('orderNo')).toBe(true);
+      expect(destObj.hasOwnProperty('id')).toBe(false);
+      expect(destObj.hasOwnProperty('payload')).toEqual(false);
+    });
   });
 
   it('Validate whether the SDK is retrying the request in case failures', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockServerDown);
 
-    await sendEventForTransformation(payload, 'write-key', 'data-plane-url', retryCount)
+    await dmtHandler
+      .sendEventForTransformation(payload, retryCount)
       .then((response) => {})
       .catch((e) => {
         console.log(e);
