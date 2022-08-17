@@ -129,7 +129,7 @@ function notifyError(error) {
 
 function handleError(error, analyticsInstance) {
   try {
-    let errorMessage = error.message;
+    let errorMessage = typeof error === "string" ? error : error.message;
     if (error instanceof Event) {
       // Discard all the non-script loading errors
       if (error.target && error.target.localName !== "script") return;
