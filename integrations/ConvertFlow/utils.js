@@ -14,6 +14,14 @@ const standardEventsListMapping = {
   cfClosed: "CTA Closed",
 };
 
+const swapKeyValuePairs = (standardEventsMap) => {
+  const swappedEventsMap = {};
+  Object.keys(standardEventsMap).forEach((key) => {
+    swappedEventsMap[standardEventsMap[key]] = key;
+  });
+  return swappedEventsMap;
+};
+
 /**
  * This function is used to populate properties to be sent in track call using the event data
  * @param {*} data - data here, contains all the details about the event.
@@ -52,16 +60,11 @@ const populatingProperties = (data) => {
  * }
  */
 const makeACall = (standardEventsMap, eventName, data) => {
-  // storing all the supported standard event names
-  const eventNames = Object.keys(standardEventsMap);
+  // Updating the event name with any mapping from the webapp if available else
   // storing default event name in the updatedEvent
-  let updatedEvent = standardEventsListMapping[eventName];
-  // Updating the event name with any mapping from the webapp
-  eventNames.forEach((event) => {
-    if (standardEventsMap[event] === eventName) {
-      updatedEvent = event;
-    }
-  });
+  const updatedEvent = standardEventsMap[eventName]
+    ? standardEventsMap[eventName]
+    : standardEventsListMapping[eventName];
 
   // Populating Properties
   let properties = {};
@@ -82,7 +85,8 @@ const makeACall = (standardEventsMap, eventName, data) => {
  * @param {*} userDefinedEventsList - List of requested events by the user.
  */
 const trigger = (userDefinedEventsMappping, userDefinedEventsList) => {
-  const standardEventsMap = getHashFromArray(userDefinedEventsMappping);
+  let standardEventsMap = getHashFromArray(userDefinedEventsMappping);
+  standardEventsMap = swapKeyValuePairs(standardEventsMap);
   const standardEventsList = [
     "cfReady",
     "cfView",
