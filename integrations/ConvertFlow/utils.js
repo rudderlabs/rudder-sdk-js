@@ -97,11 +97,11 @@ const trigger = (userDefinedEventsMappping, userDefinedEventsList) => {
     "cfClosed",
   ];
   standardEventsList.forEach((events) => {
-    window.addEventListener(events, function (event) {
-      if (userDefinedEventsList.includes(event.type)) {
+    if (userDefinedEventsList.includes(events)) {
+      window.addEventListener(events, function (event) {
         makeACall(standardEventsMap, event.type, event.detail);
-      }
-    });
+      });
+    }
   });
 };
 
