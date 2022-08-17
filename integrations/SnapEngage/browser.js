@@ -57,7 +57,10 @@ class SnapEngage {
     // Dasboard Other Settings
     if (this.recordLiveChatEvents) {
       const standardEventsMap = getHashFromArray(this.eventsToStandard);
-      if (standardEventsMap === {}) {
+      if (
+        Object.keys(standardEventsMap).length === 0 &&
+        standardEventsMap.constructor === Object
+      ) {
         this.recordingLiveChatEvents();
       } else {
         this.recordingLiveChatEventsWithMapping(
