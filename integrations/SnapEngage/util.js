@@ -1,121 +1,78 @@
-import each from "@ndhoule/each";
-
 const integrationContext = {
   name: "snapengage",
   version: "1.0.0",
 };
 
-function recordingLiveChatEventsWithMapping(
-  updateEventNames,
-  standardEventsMap
-) {
-  each((val, key) => {
-    window.SnapEngage.setCallback("StartChat", function () {
-      let eventName = "Live Chat Conversation Started";
-      if (updateEventNames && val === "startChat") {
-        eventName = key;
-      }
-      window.rudderanalytics.track(
-        `${eventName}`,
-        {},
-        { context: { integration: integrationContext } }
-      );
-    });
+/**
+ * Exchanges key with value
+ * @param {*} data
+ * @returns
+ */
+const flip = (data) =>
+  Object.fromEntries(Object.entries(data).map(([key, value]) => [value, key]));
 
-    window.SnapEngage.setCallback("ChatMessageReceived", function (agent) {
-      let eventName = "Live Chat Message Received";
-      if (updateEventNames && val === "chatMessageReceived") {
-        eventName = key;
-      }
-      window.rudderanalytics.track(
-        `${eventName}`,
-        { agentUsername: agent },
-        { context: { integration: integrationContext } }
-      );
-    });
+function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
+  const eventNames = flip(standardEventsMap);
 
-    window.SnapEngage.setCallback("ChatMessageSent", function () {
-      let eventName = "Live Chat Message Sent";
-      if (updateEventNames && val === "chatMessageSent") {
-        eventName = key;
-      }
-      window.rudderanalytics.track(
-        `${eventName}`,
-        {},
-        { context: { integration: integrationContext } }
-      );
-    });
-
-    window.SnapEngage.setCallback("Close", function () {
-      let eventName = "Live Chat Conversation Ended";
-      if (updateEventNames && val === "close") {
-        eventName = key;
-      }
-      window.rudderanalytics.track(
-        `${eventName}`,
-        {},
-        { context: { integration: integrationContext } }
-      );
-    });
-
-    window.SnapEngage.setCallback("InlineButtonClicked", function () {
-      let eventName = "Inline Button Clicked";
-      if (updateEventNames && val === "inlineButtonClicked") {
-        eventName = key;
-      }
-      window.rudderanalytics.track(
-        `${eventName}`,
-        {},
-        { context: { integration: integrationContext } }
-      );
-    });
-  }, standardEventsMap);
-}
-
-function recordingLiveChatEvents() {
   window.SnapEngage.setCallback("StartChat", function () {
+    let eventName = "Live Chat Conversation Started";
+    if (updateEventNames && eventNames?.startChat) {
+      eventName = eventNames.startChat;
+    }
     window.rudderanalytics.track(
-      "Live Chat Conversation Started",
+      `${eventName}`,
       {},
       { context: { integration: integrationContext } }
     );
   });
 
   window.SnapEngage.setCallback("ChatMessageReceived", function (agent) {
+    let eventName = "Live Chat Message Received";
+    if (updateEventNames && eventNames?.chatMessageReceived) {
+      eventName = eventNames.chatMessageReceived;
+    }
     window.rudderanalytics.track(
-      "Live Chat Message Received",
+      `${eventName}`,
       { agentUsername: agent },
       { context: { integration: integrationContext } }
     );
   });
 
   window.SnapEngage.setCallback("ChatMessageSent", function () {
+    let eventName = "Live Chat Message Sent";
+    if (updateEventNames && eventNames?.chatMessageSent) {
+      eventName = eventNames.chatMessageSent;
+    }
     window.rudderanalytics.track(
-      "Live Chat Message Sent",
+      `${eventName}`,
       {},
       { context: { integration: integrationContext } }
     );
   });
 
   window.SnapEngage.setCallback("Close", function () {
+    let eventName = "Live Chat Conversation Ended";
+    if (updateEventNames && eventNames?.close) {
+      eventName = eventNames.close;
+    }
     window.rudderanalytics.track(
-      "Live Chat Conversation Ended",
+      `${eventName}`,
       {},
       { context: { integration: integrationContext } }
     );
   });
 
   window.SnapEngage.setCallback("InlineButtonClicked", function () {
+    let eventName = "Inline Button Clicked";
+    if (updateEventNames && eventNames?.inlineButtonClicked) {
+      eventName = eventNames.inlineButtonClicked;
+    }
     window.rudderanalytics.track(
-      "Inline Button Clicked",
+      `${eventName}`,
       {},
       { context: { integration: integrationContext } }
     );
   });
 }
 
-export {
-  integrationContext,
-  recordingLiveChatEventsWithMapping,
-  recordingLiveChatEvents,
-};
+export { integrationContext, recordingLiveChatEvents };
