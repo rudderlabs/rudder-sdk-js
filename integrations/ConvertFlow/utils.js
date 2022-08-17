@@ -15,15 +15,46 @@ const standardEventsListMapping = {
 };
 
 /**
+ * This function is used to populate properties to be sent in track call using the event data
+ * @param {*} data - data here, contains all the details about the event.
+ * eg. For event CTA Viewed
+ * data: {
+ * cta_name: {cta.name}
+ * cta_type: {cta.cta_type}
+ * }
+ */
+const populatingProperties = (data) => {
+  const rudderProperties = {};
+  if (data.cta) {
+    const { cta } = data;
+    rudderProperties.cta_name = cta.name;
+    rudderProperties.cta_type = cta.cta_type;
+    rudderProperties.cta_id = cta.id;
+  }
+  if (data.variant) {
+    rudderProperties.cta_variant = data.variant;
+  }
+  if (data.step) {
+    rudderProperties.cta_step = data.step;
+  }
+  return rudderProperties;
+};
+
+/**
  * This function is used to trigger a callback.
  * @param {*} standardEventsMap - mapping of events done by the user
  * @param {*} eventName - standard event name
- * @param {*} data
+ * @param {*} data - data here, contains all the details about the event.
+ * eg. For event CTA Viewed
+ * data: {
+ * cta_name: {cta.name}
+ * cta_type: {cta.cta_type}
+ * }
  */
 const makeACall = (standardEventsMap, eventName, data) => {
-  // stroring all the supported standard event names
+  // storing all the supported standard event names
   const eventNames = Object.keys(standardEventsMap);
-  // stroing default event name in the updatedEvent
+  // storing default event name in the updatedEvent
   let updatedEvent = standardEventsListMapping[eventName];
   // Updating the event name with any mapping from the webapp
   eventNames.forEach((event) => {
@@ -31,21 +62,11 @@ const makeACall = (standardEventsMap, eventName, data) => {
       updatedEvent = event;
     }
   });
+
   // Populating Properties
-  const properties = {};
+  let properties = {};
   if (data) {
-    if (data.cta) {
-      const { cta } = data;
-      properties.cta_name = cta.name;
-      properties.cta_type = cta.cta_type;
-      properties.cta_id = cta.id;
-    }
-    if (data.variant) {
-      properties.cta_variant = data.variant;
-    }
-    if (data.step) {
-      properties.cta_step = data.step;
-    }
+    properties = populatingProperties(data);
   }
   if (isDefinedAndNotNullAndNotEmpty(properties)) {
     window.rudderanalytics.track(updatedEvent, properties);
@@ -57,11 +78,11 @@ const makeACall = (standardEventsMap, eventName, data) => {
 /**
  * This function has event listners for the occuring events and to make a call for the event after
  * collecting the data.
- * @param {*} eventsMappping - Mapping of events in the webapp by the user
- * @param {*} eventsList - List of requested events by the user.
+ * @param {*} userDefinedEventsMappping - Mapping of events in the webapp by the user
+ * @param {*} userDefinedEventsList - List of requested events by the user.
  */
-const trigger = (eventsMappping, eventsList) => {
-  const standardEventsMap = getHashFromArray(eventsMappping);
+const trigger = (userDefinedEventsMappping, userDefinedEventsList) => {
+  const standardEventsMap = getHashFromArray(userDefinedEventsMappping);
   const standardEventsList = [
     "cfReady",
     "cfView",
@@ -73,7 +94,7 @@ const trigger = (eventsMappping, eventsList) => {
   ];
   standardEventsList.forEach((events) => {
     window.addEventListener(events, function (event) {
-      if (eventsList.includes(event.type)) {
+      if (userDefinedEventsList.includes(event.type)) {
         makeACall(standardEventsMap, event.type, event.detail);
       }
     });
