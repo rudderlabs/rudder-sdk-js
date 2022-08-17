@@ -15,19 +15,23 @@ const standardEventsListMapping = {
 };
 
 /**
- * This function is used to make a track Call to rudderstack.
+ * This function is used to trigger a callback.
  * @param {*} standardEventsMap - mapping of events done by the user
  * @param {*} eventName - standard event name
  * @param {*} data
  */
 const makeACall = (standardEventsMap, eventName, data) => {
+  // stroring all the supported standard event names
   const eventNames = Object.keys(standardEventsMap);
+  // stroing default event name in the updatedEvent
   let updatedEvent = standardEventsListMapping[eventName];
+  // Updating the event name with any mapping from the webapp
   eventNames.forEach((event) => {
-    if (standardEventsMap[event].includes(eventName)) {
+    if (standardEventsMap[event] === eventName) {
       updatedEvent = event;
     }
   });
+  // Populating Properties
   const properties = {};
   if (data) {
     if (data.cta) {
@@ -37,10 +41,10 @@ const makeACall = (standardEventsMap, eventName, data) => {
       properties.cta_id = cta.id;
     }
     if (data.variant) {
-      properties.cta_variant = data.variant.variation;
+      properties.cta_variant = data.variant;
     }
     if (data.step) {
-      properties.cta_step = data.step.position;
+      properties.cta_step = data.step;
     }
   }
   if (isDefinedAndNotNullAndNotEmpty(properties)) {
@@ -50,8 +54,14 @@ const makeACall = (standardEventsMap, eventName, data) => {
   }
 };
 
-const trigger = () => {
-  const standardEventsMap = getHashFromArray(this.eventsMappping);
+/**
+ * This function has event listners for the occuring events and to make a call for the event after
+ * collecting the data.
+ * @param {*} eventsMappping - Mapping of events in the webapp by the user
+ * @param {*} eventsList - List of requested events by the user.
+ */
+const trigger = (eventsMappping, eventsList) => {
+  const standardEventsMap = getHashFromArray(eventsMappping);
   const standardEventsList = [
     "cfReady",
     "cfView",
@@ -62,9 +72,9 @@ const trigger = () => {
     "cfClosed",
   ];
   standardEventsList.forEach((events) => {
-    window.addEventListener(events, function (event, data) {
-      if (this.eventsList === event) {
-        makeACall(standardEventsMap, event, data);
+    window.addEventListener(events, function (event) {
+      if (eventsList.includes(event.type)) {
+        makeACall(standardEventsMap, event.type, event.detail);
       }
     });
   });

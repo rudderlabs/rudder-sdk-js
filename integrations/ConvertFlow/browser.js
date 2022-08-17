@@ -3,6 +3,7 @@
 import { NAME } from "./constants";
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
+import { trigger } from "./utils";
 
 class ConvertFlow {
   constructor(config) {
@@ -24,7 +25,7 @@ class ConvertFlow {
   isLoaded() {
     logger.debug("===In isLoaded convertflow===");
     if (this.toggleToSendData) {
-      this.trigger();
+      trigger(this.eventsMappping, this.eventsList);
     }
     return !!window.convertflow && typeof window.convertflow === "object";
   }
