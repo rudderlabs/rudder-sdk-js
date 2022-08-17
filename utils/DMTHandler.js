@@ -11,6 +11,17 @@ class DMTHandler {
     this.writeKey = writeKey;
     this.retryCount = 3; // default value for retry
     this.queue = [];
+    this.isTransformationProcessing = false;
+    this.isTimerStarted = false;
+  }
+
+  // Enqueue the events and callbacks
+  enqueue(event, cb) {
+    this.queue.push({
+      event,
+      cb,
+    });
+    this.start();
   }
 
   /**
@@ -137,14 +148,16 @@ class DMTHandler {
    * and return the transformed event payload
    *
    */
-  processTransformation(event, cb) {
-    // createPayload
-    const payload = this.createPayload(event);
+  processTransformation() {
+    this.isTransformationProcessing = true;
+    const cur = this.queue.shift();
+    const payload = this.createPayload(cur.event);
 
     // Send event for transformation with payload, writekey and retryCount
     this.sendEventForTransformation(payload, this.retryCount)
       .then((outcome) => {
-        return cb(outcome);
+        this.isTransformationProcessing = false;
+        return cur.cb(outcome);
       })
       .catch((err) => {
         if (typeof err === 'string') {
@@ -152,9 +165,28 @@ class DMTHandler {
         } else {
           logger.error(err.message);
         }
+        this.isTransformationProcessing = false;
         // send null as response in case of error or retry fail
-        return cb(null);
+        return cur.cb({ transformedPayload: null });
       });
+  }
+
+  start() {
+    if (this.isTransformationProcessing && !this.isTimerStarted) {
+      const self = this;
+      const interval = setInterval(() => {
+        this.isTimerStarted = true;
+        if (self.queue.length === 0) {
+          clearInterval(interval);
+          this.isTimerStarted = false;
+        }
+        if (!self.isTransformationProcessing) {
+          self.processTransformation();
+        }
+      }, 100);
+    } else if (this.queue.length > 0 && !this.isTransformationProcessing) {
+      this.processTransformation();
+    }
   }
 }
 

@@ -400,10 +400,8 @@ class Analytics {
     if (destWithTransformation.length) {
       try {
         // Process Transformation
-        this.transformationHandler.processTransformation(
+        this.transformationHandler.enqueue(
           rudderElement,
-          this.writeKey,
-          this.dataPlaneUrl,
           ({ transformedPayload, transformationServerAccess }) => {
             if (transformedPayload) {
               destWithTransformation.forEach((intg) => {
