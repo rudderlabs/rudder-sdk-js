@@ -50,6 +50,7 @@ import * as Vero from "./Vero";
 import * as Matomo from "./Matomo";
 import * as Rockerbox from "./Rockerbox";
 import * as Mouseflow from "./Mouseflow";
+import * as ConvertFlow from "./ConvertFlow";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -107,6 +108,7 @@ const integrations = {
   MATOMO: Matomo.default,
   ROCKERBOX: Rockerbox.default,
   MOUSEFLOW: Mouseflow.default,
+  CONVERTFLOW: ConvertFlow.default,
 };
 
 export { integrations };
