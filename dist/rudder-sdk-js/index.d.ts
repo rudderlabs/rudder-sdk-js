@@ -71,6 +71,8 @@ declare module "rudder-sdk-js" {
     loadIntegration?: boolean;
     // Defaults to false
     secureCookie?: boolean;
+    // Defaults to "Lax" (see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite)
+    sameSiteCookie?: string;
     logLevel?: string;
     getSourceConfig?: () =>
       | string

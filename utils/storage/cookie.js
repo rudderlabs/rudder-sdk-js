@@ -30,8 +30,7 @@ class CookieLocal {
       maxage: 31536000000,
       path: "/",
       domain,
-      samesite: "None",
-      secure: parse(window.location.href).protocol === "https:",
+      samesite: "Lax",
     });
 
     return this.cOpts;

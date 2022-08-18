@@ -952,6 +952,10 @@ class Analytics {
     if (options && options.secureCookie) {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
     }
+
+    if (options && options.sameSiteCookie) {
+      storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
+    }
     this.storage.options(storageOptions);
 
     if (options && options.integrations) {
