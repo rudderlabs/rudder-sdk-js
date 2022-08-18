@@ -6,6 +6,7 @@ import logger from "../../utils/logUtil";
 import { recordingLiveChatEvents } from "./util";
 import { getHashFromArray } from "../utils/commonUtils";
 import { isObject } from "../../utils/utils";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class SnapEngage {
   constructor(config) {
@@ -21,6 +22,7 @@ class SnapEngage {
       se.type = "text/javascript";
       se.async = true;
       se.src = `https://storage.googleapis.com/code.snapengage.com/js/${widgetId}.js`;
+      se.setAttribute("data-loader", LOAD_ORIGIN);
       let done = false;
       se.onload = se.onreadystatechange = function () {
         if (
