@@ -37,7 +37,7 @@ describe('Test suite for device mode transformation feature', () => {
       name: 'page view',
     },
   };
-  const payload = dmtHandler.createPayload(event);
+  let payload;
   const retryCount = 3;
   const samplePayloadSuccess = {
     transformedBatch: [
@@ -120,13 +120,25 @@ describe('Test suite for device mode transformation feature', () => {
     open: jest.fn(),
     setRequestHeader: jest.fn(),
     onreadystatechange: jest.fn(),
-    send: jest.fn(),
     readyState: 4,
   };
+
   const xhrMockSuccess = {
     ...xhrMock,
     response: JSON.stringify(samplePayloadSuccess),
     status: 200,
+  };
+  xhrMockSuccess['send'] = () => {
+    xhrMockSuccess.onreadystatechange();
+  };
+
+  const xhrMockSuccessWithInvalidResponse = {
+    ...xhrMock,
+    response: samplePayloadSuccess,
+    status: 200,
+  };
+  xhrMockSuccessWithInvalidResponse['send'] = () => {
+    xhrMockSuccessWithInvalidResponse.onreadystatechange();
   };
 
   let xhrMockPartialSuccess = {
@@ -146,6 +158,9 @@ describe('Test suite for device mode transformation feature', () => {
     response: JSON.stringify({}),
     status: 404,
   };
+  xhrMockAccessDenied['send'] = () => {
+    xhrMockAccessDenied.onreadystatechange();
+  };
 
   let xhrMockServerDown = {
     attempt: 0,
@@ -161,6 +176,10 @@ describe('Test suite for device mode transformation feature', () => {
     xhrMockServerDown.attempt++;
   };
 
+  beforeEach(() => {
+    payload = dmtHandler.createPayload(event);
+  });
+
   it('Validate payload format', () => {
     expect(typeof payload).toBe('object');
     expect(payload.hasOwnProperty('batch')).toBe(true);
@@ -169,15 +188,13 @@ describe('Test suite for device mode transformation feature', () => {
     expect(payload.batch[0].event).toBe(event);
   });
 
-  it('Transformation server returning response in right format in case of successful transformation', () => {
+  it('Transformation server returning response in right format in case of successful transformation', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockSuccess);
-    setTimeout(() => {
-      xhrMockSuccess.onreadystatechange();
-    }, 0);
-    return dmtHandler.sendEventForTransformation(payload, retryCount).then((response) => {
-      expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
-      expect(Array.isArray(response.transformedPayload)).toEqual(true);
+
+    await dmtHandler.sendEventForTransformation(payload, retryCount).then((response) => {
       expect(typeof response.transformationServerAccess).toEqual('boolean');
+      expect(response.transformationServerAccess).toEqual(true);
+      expect(Array.isArray(response.transformedPayload)).toEqual(true);
 
       const destObj = response.transformedPayload[0];
 
@@ -187,13 +204,23 @@ describe('Test suite for device mode transformation feature', () => {
     });
   });
 
-  it('Validate whether the SDK is sending the orginal event in case server returns 404', () => {
+  it('Transformation server response is in wrong format in case of successful transformation', async () => {
+    window.XMLHttpRequest = jest.fn(() => xhrMockSuccessWithInvalidResponse);
+
+    await dmtHandler
+      .sendEventForTransformation(payload, retryCount)
+      .then((response) => {})
+      .catch((e) => {
+        expect(typeof e).toBe('string');
+      });
+  });
+
+  it('Validate whether the SDK is sending the orginal event in case server returns 404', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockAccessDenied);
-    setTimeout(() => {
-      xhrMockAccessDenied.onreadystatechange();
-    }, 0);
-    return dmtHandler.sendEventForTransformation(payload, retryCount).then((response) => {
-      expect(xhrMockSuccess.send).toHaveBeenCalledTimes(1);
+
+    await dmtHandler.sendEventForTransformation(payload, retryCount).then((response) => {
+      expect(typeof response.transformationServerAccess).toEqual('boolean');
+      expect(response.transformationServerAccess).toEqual(false);
       expect(response.transformedPayload).toEqual(payload.batch);
 
       const destObj = response.transformedPayload[0];
@@ -212,7 +239,6 @@ describe('Test suite for device mode transformation feature', () => {
       .sendEventForTransformation(payload, retryCount)
       .then((response) => {})
       .catch((e) => {
-        console.log(e);
         expect(typeof e).toBe('string');
         expect(xhrMockServerDown.attempt).toEqual(retryCount + 1); //retryCount+ first attempt
       });
