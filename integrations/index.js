@@ -51,6 +51,7 @@ import * as Matomo from "./Matomo";
 import * as Rockerbox from "./Rockerbox";
 import * as Mouseflow from "./Mouseflow";
 import * as ConvertFlow from "./ConvertFlow";
+import * as SnapEngage from "./SnapEngage";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -109,6 +110,7 @@ const integrations = {
   ROCKERBOX: Rockerbox.default,
   MOUSEFLOW: Mouseflow.default,
   CONVERTFLOW: ConvertFlow.default,
+  SNAPENGAGE: SnapEngage.default,
 };
 
 export { integrations };

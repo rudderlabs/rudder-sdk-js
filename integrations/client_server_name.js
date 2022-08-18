@@ -52,6 +52,7 @@ const clientToServerNames = {
   ROCKERBOX: "Rockerbox",
   MOUSEFLOW: "Mouseflow",
   CONVERTFLOW: "ConvertFlow",
+  SNAPENGAGE: "SnapEngage",
 };
 
 export { clientToServerNames };
