@@ -51,6 +51,7 @@ const clientToServerNames = {
   MATOMO: "Matomo",
   ROCKERBOX: "Rockerbox",
   MOUSEFLOW: "Mouseflow",
+  CONVERTFLOW: "ConvertFlow",
   SNAPENGAGE: "SnapEngage",
 };
 

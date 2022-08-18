@@ -50,6 +50,7 @@ import * as Vero from "./Vero";
 import * as Matomo from "./Matomo";
 import * as Rockerbox from "./Rockerbox";
 import * as Mouseflow from "./Mouseflow";
+import * as ConvertFlow from "./ConvertFlow";
 import * as SnapEngage from "./SnapEngage";
 
 // the key names should match the destination.name value to keep partity everywhere
@@ -108,6 +109,7 @@ const integrations = {
   MATOMO: Matomo.default,
   ROCKERBOX: Rockerbox.default,
   MOUSEFLOW: Mouseflow.default,
+  CONVERTFLOW: ConvertFlow.default,
   SNAPENGAGE: SnapEngage.default,
 };
 
