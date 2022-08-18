@@ -14,7 +14,6 @@ class VWO {
     this.useExistingJquery = config.useExistingJquery;
     this.sendExperimentTrack = config.sendExperimentTrack;
     this.sendExperimentIdentify = config.sendExperimentIdentify;
-    this.analytics.loadOnlyIntegrations.VWO.loadIntegration = true;
     this.name = NAME;
     this.analytics = analytics;
     logger.debug("Config ", config);
@@ -25,11 +24,11 @@ class VWO {
     // support a global loadIntegration option, and hierarchically destination
     // specific load option
     if (!this.analytics.loadIntegration) {
-      logger.debug('===Analytics loadIntegration option is disabled===');
+      logger.debug('===Analytics loadIntegration option is disabled. Destination SDKs will not be fetched by the SDK===');
       return;
     }
-    if (!this.analytics.loadOnlyIntegrations?.VWO?.loadIntegration) {
-      logger.debug('===[VWO]loadIntegration option is disabled===');
+    if (!this.analytics.loadOnlyIntegrations.VWO.loadIntegration) {
+      logger.debug('===[VWO] loadIntegration option is disabled in the integrations object===');
       return;
     }
     const account_id = this.accountId;
