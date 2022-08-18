@@ -8,8 +8,9 @@ const integrationContext = {
  * @param {*} data
  * @returns
  */
-const flip = (data) =>
+function flip(data) {
   Object.fromEntries(Object.entries(data).map(([key, value]) => [value, key]));
+}
 
 function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
   const eventNames = flip(standardEventsMap);
