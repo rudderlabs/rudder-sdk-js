@@ -240,7 +240,7 @@ class Analytics {
           this.clientIntegrations.push({
             name: destination.destinationDefinition.name,
             config: destination.config,
-            destinationDetails: {
+            destinationInfo: {
               areTransformationsConnected: destination.areTransformationsConnected || false,
               destinationId: destination.id,
             },
