@@ -354,11 +354,9 @@ class Analytics {
    */
   sendDataToDestination(destination, rudderElement, methodName) {
     try {
-      if (!destination.isFailed || !destination.isFailed()) {
-        if (destination[methodName]) {
-          const clonedRudderElement = cloneDeep(rudderElement);
-          destination[methodName](clonedRudderElement);
-        }
+      if (destination[methodName]) {
+        const clonedRudderElement = cloneDeep(rudderElement);
+        destination[methodName](clonedRudderElement);
       }
     } catch (err) {
       err.message = `[sendToNative]::[Destination:${destination.name}]:: ${err}`;
@@ -1280,6 +1278,7 @@ Emitter(instance);
 window.addEventListener(
   'error',
   (e) => {
+    // console.log('general error listener', e);
     handleError(e, instance);
   },
   true,
