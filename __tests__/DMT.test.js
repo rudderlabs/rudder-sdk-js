@@ -38,6 +38,48 @@ describe('Test suite for device mode transformation feature', () => {
     },
   };
   let payload;
+  const createPayloadResponse = {
+    batch: [
+      {
+        orderNo: 1660923784907,
+        event: {
+          message: {
+            channel: 'web',
+            context: {
+              library: {
+                name: 'RudderLabs JavaScript SDK',
+                version: '2.5.2',
+              },
+            },
+            type: 'page',
+            messageId: 'a65e19c7-a937-4c7a-8349-8d1c7e9bbf9f',
+            originalTimestamp: '2022-07-23T15:18:36.998Z',
+            anonymousId: '1f7618d8-6ada-4d1c-b2c8-923fbfdd142d',
+            userId: '',
+            event: null,
+            properties: {
+              name: 'page view',
+              path: '/',
+              referrer: '$direct',
+              referring_domain: '',
+              search: '',
+              title: 'Document',
+              url: 'http://localhost:4000/',
+              tab_url: 'http://localhost:4000/',
+              initial_referrer: '$direct',
+              initial_referring_domain: '',
+            },
+            integrations: {
+              All: true,
+            },
+            user_properties: null,
+            name: 'page view',
+          },
+        },
+      },
+    ],
+  };
+
   const retryCount = 3;
   const samplePayloadSuccess = {
     transformedBatch: [
@@ -192,7 +234,6 @@ describe('Test suite for device mode transformation feature', () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockSuccess);
 
     await dmtHandler.sendEventForTransformation(payload, retryCount).then((response) => {
-      expect(typeof response.transformationServerAccess).toEqual('boolean');
       expect(response.transformationServerAccess).toEqual(true);
       expect(Array.isArray(response.transformedPayload)).toEqual(true);
 
@@ -219,7 +260,6 @@ describe('Test suite for device mode transformation feature', () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockAccessDenied);
 
     await dmtHandler.sendEventForTransformation(payload, retryCount).then((response) => {
-      expect(typeof response.transformationServerAccess).toEqual('boolean');
       expect(response.transformationServerAccess).toEqual(false);
       expect(response.transformedPayload).toEqual(payload.batch);
 
