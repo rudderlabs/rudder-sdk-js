@@ -5,11 +5,11 @@ import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Heap {
-  constructor(config, analytics, destinationDetails) {
+  constructor(config, analytics, destinationInfo) {
     this.appId = config.appId;
     this.name = NAME;
-    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
-    this.destinationId = destinationDetails.destinationId;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   /**

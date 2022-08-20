@@ -305,7 +305,7 @@ class Analytics {
               const msg = `[Analytics] processResponse :: trying to initialize integration name:: ${pluginName}`;
               // logger.debug(msg);
               leaveBreadcrumb(msg);
-              intgInstance = new intMod[modName](intg.config, self, intg.destinationDetails);
+              intgInstance = new intMod[modName](intg.config, self, intg.destinationInfo);
               intgInstance.init();
 
               // logger.debug(pluginName, " initializing destination");

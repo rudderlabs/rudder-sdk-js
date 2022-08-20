@@ -4,14 +4,14 @@ import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 
 class HubSpot {
-  constructor(config, analytics, destinationDetails) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.hubId = config.hubID; // 6405167
     this.name = NAME;
-    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
-    this.destinationId = destinationDetails.destinationId;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

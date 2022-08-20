@@ -9,7 +9,7 @@ import { isNotEmpty } from '../utils/commonUtils';
 import { NAME } from './constants';
 
 class Klaviyo {
-  constructor(config, analytics, destinationDetails) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -72,8 +72,8 @@ class Klaviyo {
       'product added': 'Added to Cart',
       'checkout started': 'Started Checkout',
     };
-    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
-    this.destinationId = destinationDetails.destinationId;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

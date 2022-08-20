@@ -9,7 +9,7 @@ import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class SnapPixel {
-  constructor(config, analytics, destinationDetails) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -54,8 +54,8 @@ class SnapPixel {
       'custom_event_4',
       'custom_event_5',
     ];
-    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
-    this.destinationId = destinationDetails.destinationId;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

@@ -6,14 +6,14 @@ import ScriptLoader from '../ScriptLoader';
 import { setCustomVariables, addCustomVariables } from './utils';
 
 class Mouseflow {
-  constructor(config, analytics, destinationDetails) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.websiteId = config.websiteId;
     this.name = NAME;
-    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
-    this.destinationId = destinationDetails.destinationId;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

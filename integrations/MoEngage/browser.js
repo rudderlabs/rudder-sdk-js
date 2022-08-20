@@ -19,7 +19,7 @@ const traitsMap = {
   id: null,
 };
 class MoEngage {
-  constructor(config, analyticsinstance, destinationDetails) {
+  constructor(config, analyticsinstance, destinationInfo) {
     if (analyticsinstance.logLevel) {
       logger.setLogLevel(analyticsinstance.logLevel);
     }
@@ -28,8 +28,8 @@ class MoEngage {
     this.region = config.region;
     this.name = NAME;
     this.analyticsinstance = analyticsinstance;
-    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
-    this.destinationId = destinationDetails.destinationId;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

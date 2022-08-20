@@ -9,7 +9,7 @@ import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Chartbeat {
-  constructor(config, analytics, destinationDetails) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -25,8 +25,8 @@ class Chartbeat {
     this.failed = false;
     this.isFirstPageCallMade = false;
     this.name = NAME;
-    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
-    this.destinationId = destinationDetails.destinationId;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

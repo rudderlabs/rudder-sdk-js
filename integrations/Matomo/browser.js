@@ -15,7 +15,7 @@ import { getHashFromArrayWithDuplicate } from '../utils/commonUtils';
 import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Matomo {
-  constructor(config, analytics, destinationDetails) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -47,8 +47,8 @@ class Matomo {
       CLEAR_ECOMMERCE_CART: 'CLEAR_ECOMMERCE_CART',
       TRACK_ECOMMERCE_CART_UPDATE: 'TRACK_ECOMMERCE_CART_UPDATE',
     };
-    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
-    this.destinationId = destinationDetails.destinationId;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   loadScript() {

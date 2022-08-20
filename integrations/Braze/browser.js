@@ -7,7 +7,7 @@ import { NAME } from './constants';
 E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
 */
 class Braze {
-  constructor(config, analytics, destinationDetails) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -28,8 +28,8 @@ class Braze {
     }
 
     this.name = NAME;
-    this.areTransformationsConnected = destinationDetails.areTransformationsConnected;
-    this.destinationId = destinationDetails.destinationId;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
     logger.debug('Config ', config);
   }
 
