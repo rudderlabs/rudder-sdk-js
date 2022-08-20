@@ -1,7 +1,7 @@
-import DMTHandler from '../utils/DMTHandler';
+import TransformationsHandler from '../utils/DMTHandler';
 
 describe('Test suite for device mode transformation feature', () => {
-  const dmtHandler = new DMTHandler('write-key', 'data-plane-url');
+  const dmtHandler = new TransformationsHandler('write-key', 'data-plane-url');
 
   const event = {
     message: {

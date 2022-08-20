@@ -52,7 +52,7 @@ import parseLinker from './utils/linker';
 import { configToIntNames } from './utils/config_to_integration_names';
 import CookieConsentFactory from './cookieConsent/CookieConsentFactory';
 import * as BugsnagLib from './metrics/error-report/Bugsnag';
-import DMTHandler from './utils/DMTHandler';
+import TransformationsHandler from './utils/DMTHandler';
 
 /**
  * class responsible for handling core
@@ -1055,7 +1055,7 @@ class Analytics {
     this.eventRepository.initialize(writeKey, serverUrl, options);
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
-    this.transformationHandler = new DMTHandler(this.writeKey, this.dataPlaneUrl);
+    this.transformationHandler = new TransformationsHandler(this.writeKey, this.dataPlaneUrl);
     this.loaded = true;
 
     if (options && options.destSDKBaseURL) {

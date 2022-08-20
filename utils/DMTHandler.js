@@ -9,7 +9,7 @@ class TransformationsHandler {
   constructor(writeKey, dataPlaneUrl) {
     this.dataPlaneUrl = removeTrailingSlashes(dataPlaneUrl);
     this.writeKey = writeKey;
-    this.retryCount = 3; // default value for retry
+    this.retryAttempt = 3; // default value for retry
     this.queue = [];
     this.isTransformationProcessing = false;
     this.isTimerStarted = false;
@@ -116,11 +116,11 @@ class TransformationsHandler {
 
               // If the request is not successful
               // one or more transformation is unsuccessfull
-              // retry till the retryCount is exhausted
-              if (retryCount > 0) {
-                const newRetryCount = retryCount - 1;
+              // retry till the retryAttempt is exhausted
+              if (retryAttempt > 0) {
+                const newretryAttempt = retryAttempt - 1;
                 setTimeout(() => {
-                  return this.sendEventForTransformation(payload, newRetryCount)
+                  return this.sendEventForTransformation(payload, newretryAttempt)
                     .then(resolve)
                     .catch(reject);
                 }, 500);
@@ -150,14 +150,14 @@ class TransformationsHandler {
    */
   process() {
     this.isTransformationProcessing = true;
-    const cur = this.queue.shift();
-    const payload = this.createPayload(cur.event);
+    const firstElement = this.queue.shift();
+    const payload = this.createPayload(firstElement.event);
 
-    // Send event for transformation with payload, writekey and retryCount
-    this.sendEventForTransformation(payload, this.retryCount)
+    // Send event for transformation with payload, writekey and retryAttempt
+    this.sendEventForTransformation(payload, this.retryAttempt)
       .then((outcome) => {
         this.isTransformationProcessing = false;
-        return cur.cb(outcome);
+        return firstElement.cb(outcome);
       })
       .catch((err) => {
         if (typeof err === 'string') {
@@ -167,7 +167,7 @@ class TransformationsHandler {
         }
         this.isTransformationProcessing = false;
         // send null as response in case of error or retry fail
-        return cur.cb({ transformedPayload: null });
+        return firstElement.cb({ transformedPayload: null });
       });
   }
 
@@ -181,13 +181,13 @@ class TransformationsHandler {
           this.isTimerStarted = false;
         }
         if (!self.isTransformationProcessing) {
-          self.processTransformation();
+          self.process();
         }
       }, 100);
     } else if (this.queue.length > 0 && !this.isTransformationProcessing) {
-      this.processTransformation();
+      this.process();
     }
   }
 }
 
-export default DMTHandler;
+export default TransformationsHandler;
