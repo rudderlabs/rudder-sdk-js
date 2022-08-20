@@ -48,7 +48,7 @@ class TransformationsHandler {
    * and return the response
    *
    */
-  sendEventForTransformation(payload, retryCount) {
+  sendEventForTransformation(payload, retryAttempt) {
     return new Promise((resolve, reject) => {
       // const url = `${this.dataPlaneUrl}/transform`;
       const url = 'https://shadowfax-dataplane.dev-rudder.rudderlabs.com/transform';
