@@ -5,7 +5,7 @@
 import { replacer, removeTrailingSlashes } from './utils';
 import logger from './logUtil';
 
-class DMTHandler {
+class TransformationsHandler {
   constructor(writeKey, dataPlaneUrl) {
     this.dataPlaneUrl = removeTrailingSlashes(dataPlaneUrl);
     this.writeKey = writeKey;
