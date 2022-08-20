@@ -52,7 +52,7 @@ import parseLinker from './utils/linker';
 import { configToIntNames } from './utils/config_to_integration_names';
 import CookieConsentFactory from './cookieConsent/CookieConsentFactory';
 import * as BugsnagLib from './metrics/error-report/Bugsnag';
-import TransformationsHandler from './utils/DMTHandler';
+import { TransformationsHandler } from './utils/DMTHandler';
 
 /**
  * class responsible for handling core
@@ -92,7 +92,7 @@ class Analytics {
     this.clientIntegrationsReady = false;
     this.writeKey = undefined;
     this.dataPlaneUrl = undefined;
-    this.transformationHandler = undefined;
+    this.transformationHandler = TransformationsHandler;
   }
 
   /**
@@ -1055,7 +1055,7 @@ class Analytics {
     this.eventRepository.initialize(writeKey, serverUrl, options);
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
-    this.transformationHandler = new TransformationsHandler(this.writeKey, this.dataPlaneUrl);
+    this.transformationHandler.init(this.writeKey, this.dataPlaneUrl);
     this.loaded = true;
 
     if (options && options.destSDKBaseURL) {

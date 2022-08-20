@@ -6,13 +6,16 @@ import { replacer, removeTrailingSlashes } from './utils';
 import logger from './logUtil';
 
 class TransformationsHandler {
-  constructor(writeKey, dataPlaneUrl) {
-    this.dataPlaneUrl = removeTrailingSlashes(dataPlaneUrl);
-    this.writeKey = writeKey;
+  constructor() {
     this.retryAttempt = 3; // default value for retry
     this.queue = [];
     this.isTransformationProcessing = false;
     this.isTimerStarted = false;
+  }
+
+  init(writeKey, dataPlaneUrl) {
+    this.dataPlaneUrl = removeTrailingSlashes(dataPlaneUrl);
+    this.writeKey = writeKey;
   }
 
   // Enqueue the events and callbacks
@@ -50,8 +53,7 @@ class TransformationsHandler {
    */
   sendEventForTransformation(payload, retryAttempt) {
     return new Promise((resolve, reject) => {
-      // const url = `${this.dataPlaneUrl}/transform`;
-      const url = 'https://shadowfax-dataplane.dev-rudder.rudderlabs.com/transform';
+      const url = `${this.dataPlaneUrl}/transform`;
       const headers = {
         'Content-Type': 'application/json',
         Authorization: `Basic ${btoa(`${this.writeKey}:`)}`,
@@ -190,4 +192,6 @@ class TransformationsHandler {
   }
 }
 
-export default TransformationsHandler;
+const transformationsHandler = new TransformationsHandler();
+
+export { transformationsHandler as TransformationsHandler };

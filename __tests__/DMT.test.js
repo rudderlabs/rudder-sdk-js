@@ -1,7 +1,7 @@
-import TransformationsHandler from '../utils/DMTHandler';
+import { TransformationsHandler } from '../utils/DMTHandler';
 
 describe('Test suite for device mode transformation feature', () => {
-  const dmtHandler = new TransformationsHandler('write-key', 'data-plane-url');
+  TransformationsHandler.init('write-key', 'data-plane-url');
 
   const event = {
     message: {
@@ -219,7 +219,7 @@ describe('Test suite for device mode transformation feature', () => {
   };
 
   beforeEach(() => {
-    payload = dmtHandler.createPayload(event);
+    payload = TransformationsHandler.createPayload(event);
   });
 
   it('Validate payload format', () => {
@@ -233,23 +233,24 @@ describe('Test suite for device mode transformation feature', () => {
   it('Transformation server returning response in right format in case of successful transformation', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockSuccess);
 
-    await dmtHandler.sendEventForTransformation(payload, retryCount).then((response) => {
-      expect(response.transformationServerAccess).toEqual(true);
-      expect(Array.isArray(response.transformedPayload)).toEqual(true);
+    await TransformationsHandler.sendEventForTransformation(payload, retryCount).then(
+      (response) => {
+        expect(response.transformationServerAccess).toEqual(true);
+        expect(Array.isArray(response.transformedPayload)).toEqual(true);
 
-      const destObj = response.transformedPayload[0];
+        const destObj = response.transformedPayload[0];
 
-      expect(typeof destObj).toEqual('object');
-      expect(destObj.hasOwnProperty('id')).toEqual(true);
-      expect(destObj.hasOwnProperty('payload')).toEqual(true);
-    });
+        expect(typeof destObj).toEqual('object');
+        expect(destObj.hasOwnProperty('id')).toEqual(true);
+        expect(destObj.hasOwnProperty('payload')).toEqual(true);
+      },
+    );
   });
 
   it('Transformation server response is in wrong format in case of successful transformation', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockSuccessWithInvalidResponse);
 
-    await dmtHandler
-      .sendEventForTransformation(payload, retryCount)
+    await TransformationsHandler.sendEventForTransformation(payload, retryCount)
       .then((response) => {})
       .catch((e) => {
         expect(typeof e).toBe('string');
@@ -259,24 +260,25 @@ describe('Test suite for device mode transformation feature', () => {
   it('Validate whether the SDK is sending the orginal event in case server returns 404', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockAccessDenied);
 
-    await dmtHandler.sendEventForTransformation(payload, retryCount).then((response) => {
-      expect(response.transformationServerAccess).toEqual(false);
-      expect(response.transformedPayload).toEqual(payload.batch);
+    await TransformationsHandler.sendEventForTransformation(payload, retryCount).then(
+      (response) => {
+        expect(response.transformationServerAccess).toEqual(false);
+        expect(response.transformedPayload).toEqual(payload.batch);
 
-      const destObj = response.transformedPayload[0];
+        const destObj = response.transformedPayload[0];
 
-      expect(destObj.hasOwnProperty('event')).toBe(true);
-      expect(destObj.hasOwnProperty('orderNo')).toBe(true);
-      expect(destObj.hasOwnProperty('id')).toBe(false);
-      expect(destObj.hasOwnProperty('payload')).toEqual(false);
-    });
+        expect(destObj.hasOwnProperty('event')).toBe(true);
+        expect(destObj.hasOwnProperty('orderNo')).toBe(true);
+        expect(destObj.hasOwnProperty('id')).toBe(false);
+        expect(destObj.hasOwnProperty('payload')).toEqual(false);
+      },
+    );
   });
 
   it('Validate whether the SDK is retrying the request in case failures', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockServerDown);
 
-    await dmtHandler
-      .sendEventForTransformation(payload, retryCount)
+    await TransformationsHandler.sendEventForTransformation(payload, retryCount)
       .then((response) => {})
       .catch((e) => {
         expect(typeof e).toBe('string');
