@@ -148,7 +148,7 @@ class TransformationsHandler {
    * and return the transformed event payload
    *
    */
-  processTransformation() {
+  process() {
     this.isTransformationProcessing = true;
     const cur = this.queue.shift();
     const payload = this.createPayload(cur.event);
