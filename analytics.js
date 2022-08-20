@@ -1278,7 +1278,6 @@ Emitter(instance);
 window.addEventListener(
   'error',
   (e) => {
-    // console.log('general error listener', e);
     handleError(e, instance);
   },
   true,
