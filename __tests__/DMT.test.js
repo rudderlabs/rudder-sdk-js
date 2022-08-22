@@ -185,7 +185,6 @@ describe('Test suite for device mode transformation feature', () => {
 
   let xhrMockPartialSuccess = {
     ...xhrMock,
-    attempt: 0,
     response: JSON.stringify(samplePayloadPartialSuccess),
     status: 200,
   };
@@ -303,6 +302,7 @@ describe('Test suite for device mode transformation feature', () => {
   });
 
   it('Transformation server returns success after intermediate retry', async () => {
+    xhrMockServerDown.attempt = 0;
     window.XMLHttpRequest = jest.fn(() => xhrMockServerDown);
 
     setTimeout(() => {
@@ -312,6 +312,7 @@ describe('Test suite for device mode transformation feature', () => {
 
     await TransformationsHandler.sendEventForTransformation(payload, retryCount).then(
       (response) => {
+        expect(xhrMockServerDown.attempt).toBeGreaterThan(1);
         expect(response.transformationServerAccess).toEqual(true);
         expect(Array.isArray(response.transformedPayload)).toEqual(true);
 
