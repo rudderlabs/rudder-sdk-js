@@ -192,7 +192,6 @@ describe('Test suite for device mode transformation feature', () => {
 
   xhrMockPartialSuccess['send'] = () => {
     xhrMockPartialSuccess.onreadystatechange();
-    xhrMockPartialSuccess.attempt++;
   };
 
   const xhrMockAccessDenied = {
@@ -284,5 +283,44 @@ describe('Test suite for device mode transformation feature', () => {
         expect(typeof e).toBe('string');
         expect(xhrMockServerDown.attempt).toEqual(retryCount + 1); //retryCount+ first attempt
       });
+  });
+
+  it('Transformation server returning response for partial success,SDK silently drops the unsuccessful events and procced', async () => {
+    window.XMLHttpRequest = jest.fn(() => xhrMockPartialSuccess);
+
+    await TransformationsHandler.sendEventForTransformation(payload, retryCount).then(
+      (response) => {
+        expect(response.transformationServerAccess).toEqual(true);
+        expect(Array.isArray(response.transformedPayload)).toEqual(true);
+
+        const destObj = response.transformedPayload[0];
+
+        expect(typeof destObj).toEqual('object');
+        expect(destObj.hasOwnProperty('id')).toEqual(true);
+        expect(destObj.hasOwnProperty('payload')).toEqual(true);
+      },
+    );
+  });
+
+  it('Transformation server returns success after intermediate retry', async () => {
+    window.XMLHttpRequest = jest.fn(() => xhrMockServerDown);
+
+    setTimeout(() => {
+      xhrMockServerDown['status'] = 200;
+      xhrMockServerDown['response'] = JSON.stringify(samplePayloadSuccess);
+    }, 1000);
+
+    await TransformationsHandler.sendEventForTransformation(payload, retryCount).then(
+      (response) => {
+        expect(response.transformationServerAccess).toEqual(true);
+        expect(Array.isArray(response.transformedPayload)).toEqual(true);
+
+        const destObj = response.transformedPayload[0];
+
+        expect(typeof destObj).toEqual('object');
+        expect(destObj.hasOwnProperty('id')).toEqual(true);
+        expect(destObj.hasOwnProperty('payload')).toEqual(true);
+      },
+    );
   });
 });
