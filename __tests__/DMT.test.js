@@ -216,6 +216,15 @@ describe('Test suite for device mode transformation feature', () => {
     xhrMockServerDown.attempt++;
   };
 
+  const xhrMockBadReq = {
+    ...xhrMock,
+    response: 'order number must be an integar',
+    status: 400,
+  };
+  xhrMockBadReq['send'] = () => {
+    xhrMockBadReq.onreadystatechange();
+  };
+
   beforeEach(() => {
     payload = TransformationsHandler.createPayload(event);
   });
@@ -323,5 +332,15 @@ describe('Test suite for device mode transformation feature', () => {
         expect(destObj.hasOwnProperty('payload')).toEqual(true);
       },
     );
+  });
+
+  it('Transformation server returns bad request error', async () => {
+    window.XMLHttpRequest = jest.fn(() => xhrMockBadReq);
+
+    await TransformationsHandler.sendEventForTransformation(payload, retryCount)
+      .then((response) => {})
+      .catch((e) => {
+        expect(typeof e).toBe('string');
+      });
   });
 });

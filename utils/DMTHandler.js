@@ -67,8 +67,9 @@ class TransformationsHandler {
           if (xhr.readyState === 4) {
             try {
               const { status } = xhr;
+              let { response } = xhr;
+
               if (status === 200) {
-                let { response } = xhr;
                 if (response && typeof response === 'string') {
                   response = JSON.parse(response);
                 } else {
@@ -106,6 +107,13 @@ class TransformationsHandler {
                   transformedPayload: transformationResponse,
                   transformationServerAccess: true,
                 });
+                return;
+              }
+              if (status === 400) {
+                const errorMessage = response
+                  ? `[Transformation]:: ${response}`
+                  : `[Transformation]:: Invalid request payload`;
+                reject(errorMessage);
                 return;
               }
               if (status === 404) {
