@@ -174,18 +174,20 @@ class TransformationsHandler {
   }
 
   start() {
-    if (this.isTransformationProcessing && !this.isTimerStarted) {
-      const self = this;
-      const interval = setInterval(() => {
-        this.isTimerStarted = true;
-        if (self.queue.length === 0) {
-          clearInterval(interval);
-          this.isTimerStarted = false;
-        }
-        if (!self.isTransformationProcessing) {
-          self.process();
-        }
-      }, 100);
+    if (this.isTransformationProcessing) {
+      if (!this.isTimerStarted) {
+        const self = this;
+        const interval = setInterval(() => {
+          self.isTimerStarted = true;
+          if (self.queue.length === 0) {
+            clearInterval(interval);
+            self.isTimerStarted = false;
+          }
+          if (!self.isTransformationProcessing) {
+            self.process();
+          }
+        }, 100);
+      }
     } else if (this.queue.length > 0 && !this.isTransformationProcessing) {
       this.process();
     }
