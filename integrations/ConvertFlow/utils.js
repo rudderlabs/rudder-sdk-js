@@ -11,7 +11,7 @@ const standardEventsListMapping = {
   cfCompletion: "CTA Completed",
   cfSubmit: "CTA Form Submitted",
   cfAddToCart: "Product Added to Cart",
-  cfClosed: "CTA Closed",
+  cfClose: "CTA Closed",
 };
 
 const swapKeyValuePairs = (standardEventsMap) => {
@@ -94,7 +94,7 @@ const trigger = (userDefinedEventsMappping, userDefinedEventsList) => {
     "cfCompletion",
     "cfSubmit",
     "cfAddToCart",
-    "cfClosed",
+    "cfClose",
   ];
   standardEventsList.forEach((events) => {
     if (userDefinedEventsList.includes(events)) {
