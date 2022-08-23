@@ -4,6 +4,7 @@
 /* eslint-disable consistent-return */
 import { replacer, removeTrailingSlashes } from '../utils/utils';
 import logger from '../utils/logUtil';
+import { createPayload } from './util';
 
 class TransformationsHandler {
   constructor() {
@@ -24,25 +25,6 @@ class TransformationsHandler {
       event,
       cb,
     });
-  }
-
-  /**
-   * A helper function that will take rudderEelement as an event and generate
-   * a batch payload that will be sent to transformation server
-   *
-   */
-  createPayload(event) {
-    const orderNo = Date.now();
-    const payload = {
-      batch: [
-        {
-          orderNo,
-          event,
-        },
-      ],
-    };
-
-    return payload;
   }
 
   /**
@@ -166,7 +148,7 @@ class TransformationsHandler {
   process() {
     this.isTransformationProcessing = true;
     const firstElement = this.queue.shift();
-    const payload = this.createPayload(firstElement.event);
+    const payload = createPayload(firstElement.event);
 
     // Send event for transformation with payload, writekey and retryAttempt
     this.sendEventForTransformation(payload, this.retryAttempt)

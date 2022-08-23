@@ -42,40 +42,7 @@ describe('Test suite for device mode transformation feature', () => {
     batch: [
       {
         orderNo: 1660923784907,
-        event: {
-          message: {
-            channel: 'web',
-            context: {
-              library: {
-                name: 'RudderLabs JavaScript SDK',
-                version: '2.5.2',
-              },
-            },
-            type: 'page',
-            messageId: 'a65e19c7-a937-4c7a-8349-8d1c7e9bbf9f',
-            originalTimestamp: '2022-07-23T15:18:36.998Z',
-            anonymousId: '1f7618d8-6ada-4d1c-b2c8-923fbfdd142d',
-            userId: '',
-            event: null,
-            properties: {
-              name: 'page view',
-              path: '/',
-              referrer: '$direct',
-              referring_domain: '',
-              search: '',
-              title: 'Document',
-              url: 'http://localhost:4000/',
-              tab_url: 'http://localhost:4000/',
-              initial_referrer: '$direct',
-              initial_referring_domain: '',
-            },
-            integrations: {
-              All: true,
-            },
-            user_properties: null,
-            name: 'page view',
-          },
-        },
+        event: { ...event },
       },
     ],
   };
@@ -225,23 +192,21 @@ describe('Test suite for device mode transformation feature', () => {
     xhrMockBadReq.onreadystatechange();
   };
 
+  const mockCreatePayload = jest.fn(() => createPayloadResponse);
+
   beforeEach(() => {
-    payload = TransformationsHandler.createPayload(event);
+    payload = mockCreatePayload(event);
   });
 
   it('Validate payload format', () => {
-    expect(typeof payload).toBe('object');
-    expect(payload.hasOwnProperty('batch')).toBe(true);
-    expect(typeof payload.batch[0]).toBe('object');
-    expect(typeof payload.batch[0].orderNo).toBe('number');
-    expect(payload.batch[0].event).toBe(event);
+    expect(payload).toEqual(createPayloadResponse);
   });
 
   it('Transformation server returning response in right format in case of successful transformation', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockSuccess);
 
-    await TransformationsHandler.sendEventForTransformation(payload, retryCount).then(
-      (response) => {
+    await TransformationsHandler.sendEventForTransformation(payload, retryCount)
+      .then((response) => {
         expect(response.transformationServerAccess).toEqual(true);
         expect(Array.isArray(response.transformedPayload)).toEqual(true);
 
@@ -250,15 +215,21 @@ describe('Test suite for device mode transformation feature', () => {
         expect(typeof destObj).toEqual('object');
         expect(destObj.hasOwnProperty('id')).toEqual(true);
         expect(destObj.hasOwnProperty('payload')).toEqual(true);
-      },
-    );
+      })
+      .catch((e) => {
+        console.log(e);
+        expect('to').toBe('fail');
+      });
   });
 
   it('Transformation server response is in wrong format in case of successful transformation', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockSuccessWithInvalidResponse);
 
     await TransformationsHandler.sendEventForTransformation(payload, retryCount)
-      .then((response) => {})
+      .then((response) => {
+        console.log(response);
+        expect('to').toBe('fail');
+      })
       .catch((e) => {
         expect(typeof e).toBe('string');
       });
@@ -267,8 +238,8 @@ describe('Test suite for device mode transformation feature', () => {
   it('Validate whether the SDK is sending the orginal event in case server returns 404', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockAccessDenied);
 
-    await TransformationsHandler.sendEventForTransformation(payload, retryCount).then(
-      (response) => {
+    await TransformationsHandler.sendEventForTransformation(payload, retryCount)
+      .then((response) => {
         expect(response.transformationServerAccess).toEqual(false);
         expect(response.transformedPayload).toEqual(payload.batch);
 
@@ -278,15 +249,21 @@ describe('Test suite for device mode transformation feature', () => {
         expect(destObj.hasOwnProperty('orderNo')).toBe(true);
         expect(destObj.hasOwnProperty('id')).toBe(false);
         expect(destObj.hasOwnProperty('payload')).toEqual(false);
-      },
-    );
+      })
+      .catch((e) => {
+        console.log(e);
+        expect('to').toBe('fail');
+      });
   });
 
   it('Validate whether the SDK is retrying the request in case failures', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockServerDown);
 
     await TransformationsHandler.sendEventForTransformation(payload, retryCount)
-      .then((response) => {})
+      .then((response) => {
+        console.log(response);
+        expect('to').toBe('fail');
+      })
       .catch((e) => {
         expect(typeof e).toBe('string');
         expect(xhrMockServerDown.attempt).toEqual(retryCount + 1); //retryCount+ first attempt
@@ -296,31 +273,39 @@ describe('Test suite for device mode transformation feature', () => {
   it('Transformation server returning response for partial success,SDK silently drops the unsuccessful events and procced', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockPartialSuccess);
 
-    await TransformationsHandler.sendEventForTransformation(payload, retryCount).then(
-      (response) => {
-        expect(response.transformationServerAccess).toEqual(true);
-        expect(Array.isArray(response.transformedPayload)).toEqual(true);
-
-        const destObj = response.transformedPayload[0];
-
-        expect(typeof destObj).toEqual('object');
-        expect(destObj.hasOwnProperty('id')).toEqual(true);
-        expect(destObj.hasOwnProperty('payload')).toEqual(true);
-      },
-    );
+    await TransformationsHandler.sendEventForTransformation(payload, retryCount)
+      .then((response) => {
+        let totalTranformedEvents = 0;
+        let successfulTranformedEvents = 0;
+        samplePayloadPartialSuccess.transformedBatch.forEach((dest) => {
+          totalTranformedEvents = totalTranformedEvents + dest.payload.length;
+        });
+        response.transformedPayload.forEach((dest) => {
+          dest.payload.forEach((tEvent) => {
+            if (tEvent.status === '200') successfulTranformedEvents++;
+          });
+        });
+        expect(successfulTranformedEvents).toBeLessThan(totalTranformedEvents);
+      })
+      .catch((e) => {
+        console.log(e);
+        expect('to').toBe('fail');
+      });
   });
 
   it('Transformation server returns success after intermediate retry', async () => {
     xhrMockServerDown.attempt = 0;
     window.XMLHttpRequest = jest.fn(() => xhrMockServerDown);
 
+    // After first attempt fails SDK retries after 500 milliseconds.
+    // So, used a delay of 1 sec to get success after first attempt and atleast one retry.
     setTimeout(() => {
       xhrMockServerDown['status'] = 200;
       xhrMockServerDown['response'] = JSON.stringify(samplePayloadSuccess);
     }, 1000);
 
-    await TransformationsHandler.sendEventForTransformation(payload, retryCount).then(
-      (response) => {
+    await TransformationsHandler.sendEventForTransformation(payload, retryCount)
+      .then((response) => {
         expect(xhrMockServerDown.attempt).toBeGreaterThan(1);
         expect(response.transformationServerAccess).toEqual(true);
         expect(Array.isArray(response.transformedPayload)).toEqual(true);
@@ -330,15 +315,21 @@ describe('Test suite for device mode transformation feature', () => {
         expect(typeof destObj).toEqual('object');
         expect(destObj.hasOwnProperty('id')).toEqual(true);
         expect(destObj.hasOwnProperty('payload')).toEqual(true);
-      },
-    );
+      })
+      .catch((e) => {
+        console.log(e);
+        expect('to').toBe('fail');
+      });
   });
 
   it('Transformation server returns bad request error', async () => {
     window.XMLHttpRequest = jest.fn(() => xhrMockBadReq);
 
     await TransformationsHandler.sendEventForTransformation(payload, retryCount)
-      .then((response) => {})
+      .then((response) => {
+        console.log(response);
+        expect('to').toBe('fail');
+      })
       .catch((e) => {
         expect(typeof e).toBe('string');
       });
