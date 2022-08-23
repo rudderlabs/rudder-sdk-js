@@ -52,7 +52,7 @@ import parseLinker from './utils/linker';
 import { configToIntNames } from './utils/config_to_integration_names';
 import CookieConsentFactory from './cookieConsent/CookieConsentFactory';
 import * as BugsnagLib from './metrics/error-report/Bugsnag';
-import { TransformationsHandler } from './utils/DMTHandler';
+import { TransformationsHandler } from './DMT/DMTHandler';
 
 /**
  * class responsible for handling core

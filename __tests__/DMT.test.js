@@ -1,4 +1,4 @@
-import { TransformationsHandler } from '../utils/DMTHandler';
+import { TransformationsHandler } from '../DMT/DMTHandler';
 
 describe('Test suite for device mode transformation feature', () => {
   TransformationsHandler.init('write-key', 'data-plane-url');

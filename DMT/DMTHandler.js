@@ -2,20 +2,20 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable consistent-return */
-import { replacer, removeTrailingSlashes } from './utils';
-import logger from './logUtil';
+import { replacer, removeTrailingSlashes } from '../utils/utils';
+import logger from '../utils/logUtil';
 
 class TransformationsHandler {
   constructor() {
     this.retryAttempt = 3; // default value for retry
     this.queue = [];
     this.isTransformationProcessing = false;
-    this.isTimerStarted = false;
   }
 
   init(writeKey, dataPlaneUrl) {
     this.dataPlaneUrl = removeTrailingSlashes(dataPlaneUrl);
     this.writeKey = writeKey;
+    this.start();
   }
 
   // Enqueue the events and callbacks
@@ -24,7 +24,6 @@ class TransformationsHandler {
       event,
       cb,
     });
-    this.start();
   }
 
   /**
@@ -153,6 +152,12 @@ class TransformationsHandler {
     });
   }
 
+  checkQueueLengthAndProcess() {
+    if (this.queue.length > 0) {
+      this.process();
+    }
+  }
+
   /**
    * A helper function that will process the transformation
    * and return the transformed event payload
@@ -167,7 +172,8 @@ class TransformationsHandler {
     this.sendEventForTransformation(payload, this.retryAttempt)
       .then((outcome) => {
         this.isTransformationProcessing = false;
-        return firstElement.cb(outcome);
+        firstElement.cb(outcome);
+        this.checkQueueLengthAndProcess();
       })
       .catch((err) => {
         if (typeof err === 'string') {
@@ -177,28 +183,18 @@ class TransformationsHandler {
         }
         this.isTransformationProcessing = false;
         // send null as response in case of error or retry fail
-        return firstElement.cb({ transformedPayload: null });
+        firstElement.cb({ transformedPayload: null });
+        this.checkQueueLengthAndProcess();
       });
   }
 
   start() {
-    if (this.isTransformationProcessing) {
-      if (!this.isTimerStarted) {
-        const self = this;
-        const interval = setInterval(() => {
-          self.isTimerStarted = true;
-          if (self.queue.length === 0) {
-            clearInterval(interval);
-            self.isTimerStarted = false;
-          }
-          if (!self.isTransformationProcessing) {
-            self.process();
-          }
-        }, 100);
+    const self = this;
+    setInterval(() => {
+      if (!self.isTransformationProcessing && self.queue.length > 0) {
+        self.process();
       }
-    } else if (this.queue.length > 0 && !this.isTransformationProcessing) {
-      this.process();
-    }
+    }, 100);
   }
 }
 
