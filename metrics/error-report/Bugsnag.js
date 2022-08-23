@@ -1,10 +1,10 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable no-prototype-builtins */
-import ScriptLoader from "../../integrations/ScriptLoader";
-import { configToIntNames } from "../../utils/config_to_integration_names";
-import { MAX_WAIT_FOR_INTEGRATION_LOAD } from "../../utils/constants";
-import { get } from "../../utils/utils";
+import ScriptLoader from '../../integrations/ScriptLoader';
+import { configToIntNames } from '../../utils/config_to_integration_names';
+import { MAX_WAIT_FOR_INTEGRATION_LOAD } from '../../utils/constants';
+import { get } from '../../utils/utils';
 
 // This SDK meta data will be send along with the error for more insight
 const META_DATA = {
@@ -30,11 +30,9 @@ const SDK_FILE_NAMES = [
 const load = () => {
   const pluginName = 'bugsnag';
   if (!window.hasOwnProperty(pluginName)) {
-    ScriptLoader(
-      pluginName,
-      "https://d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js",
-      { isNonNativeSDK: "true" }
-    );
+    ScriptLoader(pluginName, 'https://d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js', {
+      isNonNativeSDK: 'true',
+    });
   }
 };
 

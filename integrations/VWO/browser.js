@@ -1,9 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable camelcase */
-import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 class VWO {
   constructor(config, analytics) {
@@ -19,7 +19,7 @@ class VWO {
     this.sendExperimentIdentify = config.sendExperimentIdentify;
     this.name = NAME;
     this.analytics = analytics;
-    logger.debug("Config ", config);
+    logger.debug('Config ', config);
   }
 
   init() {
@@ -98,46 +98,44 @@ class VWO {
     window.VWO = window.VWO || [];
     const self = this;
     window.VWO.push([
-      "onVariationApplied",
+      'onVariationApplied',
       (data) => {
         if (!data) {
           return;
         }
-        logger.debug("Variation Applied");
+        logger.debug('Variation Applied');
         const expId = data[1];
         const variationId = data[2];
         logger.debug(
-          "experiment id:",
+          'experiment id:',
           expId,
-          "Variation Name:",
-          _vwo_exp[expId].comb_n[variationId]
+          'Variation Name:',
+          _vwo_exp[expId].comb_n[variationId],
         );
         if (
-          typeof _vwo_exp[expId].comb_n[variationId] !== "undefined" &&
-          ["VISUAL_AB", "VISUAL", "SPLIT_URL", "SURVEY"].indexOf(
-            _vwo_exp[expId].type
-          ) > -1
+          typeof _vwo_exp[expId].comb_n[variationId] !== 'undefined' &&
+          ['VISUAL_AB', 'VISUAL', 'SPLIT_URL', 'SURVEY'].indexOf(_vwo_exp[expId].type) > -1
         ) {
           try {
             if (self.sendExperimentTrack) {
-              logger.debug("Tracking...");
-              this.analytics.track("Experiment Viewed", {
+              logger.debug('Tracking...');
+              this.analytics.track('Experiment Viewed', {
                 experimentId: expId,
                 variationName: _vwo_exp[expId].comb_n[variationId],
               });
             }
           } catch (error) {
-            logger.error("[VWO] experimentViewed:: ", error);
+            logger.error('[VWO] experimentViewed:: ', error);
           }
           try {
             if (self.sendExperimentIdentify) {
-              logger.debug("Identifying...");
+              logger.debug('Identifying...');
               this.analytics.identify({
                 [`Experiment: ${expId}`]: _vwo_exp[expId].comb_n[variationId],
               });
             }
           } catch (error) {
-            logger.error("[VWO] experimentViewed:: ", error);
+            logger.error('[VWO] experimentViewed:: ', error);
           }
         }
       },
@@ -145,34 +143,33 @@ class VWO {
   }
 
   identify() {
-    logger.debug("[VWO] identify:: method not supported");
+    logger.debug('[VWO] identify:: method not supported');
   }
 
   track(rudderElement) {
-    logger.debug("===In VWO track===");
+    logger.debug('===In VWO track===');
     const eventName = rudderElement.message.event;
-    if (eventName === "Order Completed") {
+    if (eventName === 'Order Completed') {
       const total = rudderElement.message.properties
-        ? rudderElement.message.properties.total ||
-        rudderElement.message.properties.revenue
+        ? rudderElement.message.properties.total || rudderElement.message.properties.revenue
         : 0;
-      logger.debug("Revenue", total);
+      logger.debug('Revenue', total);
       window.VWO = window.VWO || [];
-      window.VWO.push(["track.revenueConversion", total]);
+      window.VWO.push(['track.revenueConversion', total]);
     }
   }
 
   page() {
-    logger.debug("[VWO] page:: method not supported");
+    logger.debug('[VWO] page:: method not supported');
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded VWO===");
+    logger.debug('===In isLoaded VWO===');
     return !!window._vwo_code;
   }
 
   isReady() {
-    logger.debug("===In isReady VWO===");
+    logger.debug('===In isReady VWO===');
     return !!window._vwo_code;
   }
 }

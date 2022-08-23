@@ -1,3 +1,3 @@
-import GA4 from "./browser";
+import GA4 from './browser';
 
 export { GA4 };

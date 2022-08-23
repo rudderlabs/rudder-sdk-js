@@ -1,10 +1,6 @@
 // Context class
-import RudderApp from "./RudderApp";
-import {
-  RudderLibraryInfo,
-  RudderOSInfo,
-  RudderScreenInfo,
-} from "./RudderInfo";
+import RudderApp from './RudderApp';
+import { RudderLibraryInfo, RudderOSInfo, RudderScreenInfo } from './RudderInfo';
 
 class RudderContext {
   constructor() {

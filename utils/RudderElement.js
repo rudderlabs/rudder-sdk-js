@@ -1,4 +1,4 @@
-import RudderMessage from "./RudderMessage";
+import RudderMessage from './RudderMessage';
 // Individual element class containing Rudder Message
 class RudderElement {
   constructor() {

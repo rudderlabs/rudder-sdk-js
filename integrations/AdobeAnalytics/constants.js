@@ -1,6 +1,6 @@
-const NAME = "ADOBE_ANALYTICS";
+const NAME = 'ADOBE_ANALYTICS';
 const CNameMapping = {
-  "Adobe Analytics": NAME,
+  'Adobe Analytics': NAME,
   [NAME]: NAME,
   AdobeAnalytics: NAME,
   adobeanalytics: NAME,

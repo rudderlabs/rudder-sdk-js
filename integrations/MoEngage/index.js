@@ -1,3 +1,3 @@
-import MoEngage from "./browser";
+import MoEngage from './browser';
 
 export { MoEngage };

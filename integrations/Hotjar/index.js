@@ -1,3 +1,3 @@
-import { Hotjar } from "./browser";
+import { Hotjar } from './browser';
 
 export { Hotjar };

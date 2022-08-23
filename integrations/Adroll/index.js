@@ -1,3 +1,3 @@
-import Adroll from "./browser";
+import Adroll from './browser';
 
 export { Adroll };

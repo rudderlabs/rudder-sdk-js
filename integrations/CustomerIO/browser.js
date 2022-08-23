@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 class CustomerIO {
   constructor(config, analytics) {
@@ -14,7 +14,7 @@ class CustomerIO {
   }
 
   init() {
-    logger.debug("===in init Customer IO init===");
+    logger.debug('===in init Customer IO init===');
     window._cio = window._cio || [];
     const { siteID } = this;
     (function () {
@@ -23,34 +23,30 @@ class CustomerIO {
       let c;
       a = function (f) {
         return function () {
-          window._cio.push(
-            [f].concat(Array.prototype.slice.call(arguments, 0))
-          );
+          window._cio.push([f].concat(Array.prototype.slice.call(arguments, 0)));
         };
       };
-      b = ["load", "identify", "sidentify", "track", "page"];
+      b = ['load', 'identify', 'sidentify', 'track', 'page'];
       for (c = 0; c < b.length; c++) {
         window._cio[b[c]] = a(b[c]);
       }
-      const t = document.createElement("script");
-      const s = document.getElementsByTagName("script")[0];
+      const t = document.createElement('script');
+      const s = document.getElementsByTagName('script')[0];
       t.async = true;
-      t.setAttribute("data-loader", LOAD_ORIGIN);
-      t.id = "cio-tracker";
-      t.setAttribute("data-site-id", siteID);
-      t.src = "https://assets.customer.io/assets/track.js";
+      t.setAttribute('data-loader', LOAD_ORIGIN);
+      t.id = 'cio-tracker';
+      t.setAttribute('data-site-id', siteID);
+      t.src = 'https://assets.customer.io/assets/track.js';
       s.parentNode.insertBefore(t, s);
     })();
   }
 
   identify(rudderElement) {
-    logger.debug("in Customer IO identify");
+    logger.debug('in Customer IO identify');
     const userId = rudderElement.message.userId
       ? rudderElement.message.userId
       : rudderElement.message.anonymousId;
-    const traits = rudderElement.message.context.traits
-      ? rudderElement.message.context.traits
-      : {};
+    const traits = rudderElement.message.context.traits ? rudderElement.message.context.traits : {};
     const createAt = traits.createdAt;
     if (createAt) {
       traits.created_at = Math.floor(new Date(createAt).getTime() / 1000);
@@ -60,7 +56,7 @@ class CustomerIO {
   }
 
   track(rudderElement) {
-    logger.debug("in Customer IO track");
+    logger.debug('in Customer IO track');
 
     const eventName = rudderElement.message.event;
     const { properties } = rudderElement.message;
@@ -68,10 +64,9 @@ class CustomerIO {
   }
 
   page(rudderElement) {
-    logger.debug("in Customer IO page");
+    logger.debug('in Customer IO page');
 
-    const name =
-      rudderElement.message.name || rudderElement.message.properties.url;
+    const name = rudderElement.message.name || rudderElement.message.properties.url;
     window._cio.page(name, rudderElement.message.properties);
   }
 

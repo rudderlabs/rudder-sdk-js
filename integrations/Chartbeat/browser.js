@@ -1,12 +1,12 @@
 /* eslint-disable class-methods-use-this */
-import onBody from "on-body";
-import logger from "../../utils/logUtil";
+import onBody from 'on-body';
+import logger from '../../utils/logUtil';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
-} from "../../utils/constants";
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+} from '../../utils/constants';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Chartbeat {
   constructor(config, analytics) {
@@ -14,8 +14,7 @@ class Chartbeat {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics; // use this to modify failed integrations or for passing events from callback to other destinations
-    this._sf_async_config = window._sf_async_config =
-      window._sf_async_config || {};
+    this._sf_async_config = window._sf_async_config = window._sf_async_config || {};
     window._sf_async_config.useCanonical = true;
     window._sf_async_config.uid = config.uid;
     window._sf_async_config.domain = config.domain;
@@ -29,19 +28,19 @@ class Chartbeat {
   }
 
   init() {
-    logger.debug("===in init Chartbeat===");
+    logger.debug('===in init Chartbeat===');
   }
 
   identify(rudderElement) {
-    logger.debug("in Chartbeat identify");
+    logger.debug('in Chartbeat identify');
   }
 
   track(rudderElement) {
-    logger.debug("in Chartbeat track");
+    logger.debug('in Chartbeat track');
   }
 
   page(rudderElement) {
-    logger.debug("in Chartbeat page");
+    logger.debug('in Chartbeat page');
     this.loadConfig(rudderElement);
 
     if (!this.isFirstPageCallMade) {
@@ -49,23 +48,23 @@ class Chartbeat {
       this.initAfterPage();
     } else {
       if (this.failed) {
-        logger.debug("===ignoring cause failed integration===");
+        logger.debug('===ignoring cause failed integration===');
         this.replayEvents = [];
         return;
       }
       if (!this.isLoaded() && !this.failed) {
-        logger.debug("===pushing to replay queue for chartbeat===");
-        this.replayEvents.push(["page", rudderElement]);
+        logger.debug('===pushing to replay queue for chartbeat===');
+        this.replayEvents.push(['page', rudderElement]);
         return;
       }
-      logger.debug("===processing page event in chartbeat===");
+      logger.debug('===processing page event in chartbeat===');
       const { properties } = rudderElement.message;
       window.pSUPERFLY.virtualPage(properties.path);
     }
   }
 
   isLoaded() {
-    logger.debug("in Chartbeat isLoaded");
+    logger.debug('in Chartbeat isLoaded');
     if (!this.isFirstPageCallMade) {
       return true;
     }
@@ -105,21 +104,21 @@ class Chartbeat {
 
   initAfterPage() {
     onBody(() => {
-      const script = this.isVideo ? "chartbeat_video.js" : "chartbeat.js";
+      const script = this.isVideo ? 'chartbeat_video.js' : 'chartbeat.js';
       function loadChartbeat() {
-        const e = document.createElement("script");
-        const n = document.getElementsByTagName("script")[0];
-        e.type = "text/javascript";
+        const e = document.createElement('script');
+        const n = document.getElementsByTagName('script')[0];
+        e.type = 'text/javascript';
         e.async = true;
         e.src = `//static.chartbeat.com/js/${script}`;
-        e.setAttribute("data-loader", LOAD_ORIGIN);
+        e.setAttribute('data-loader', LOAD_ORIGIN);
         n.parentNode.insertBefore(e, n);
       }
       loadChartbeat();
     });
 
     this._isReady(this).then((instance) => {
-      logger.debug("===replaying on chartbeat===");
+      logger.debug('===replaying on chartbeat===');
       instance.replayEvents.forEach((event) => {
         instance[event[0]](event[1]);
       });
@@ -136,20 +135,17 @@ class Chartbeat {
     return new Promise((resolve) => {
       if (this.isLoaded()) {
         this.failed = false;
-        logger.debug("===chartbeat loaded successfully===");
-        instance.analytics.emit("ready");
+        logger.debug('===chartbeat loaded successfully===');
+        instance.analytics.emit('ready');
         return resolve(instance);
       }
       if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
         this.failed = true;
-        logger.debug("===chartbeat failed===");
+        logger.debug('===chartbeat failed===');
         return resolve(instance);
       }
       this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        return this._isReady(
-          instance,
-          time + INTEGRATION_LOAD_CHECK_INTERVAL
-        ).then(resolve);
+        return this._isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
       });
     });
   }

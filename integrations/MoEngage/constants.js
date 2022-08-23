@@ -1,4 +1,4 @@
-const NAME = "MOENGAGE";
+const NAME = 'MOENGAGE';
 const CNameMapping = {
   [NAME]: NAME,
   MoEngage: NAME,
