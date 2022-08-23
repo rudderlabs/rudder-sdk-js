@@ -1,4 +1,5 @@
 import { TransformationsHandler } from '../DMT/DMTHandler';
+import { createPayload } from '../DMT/util';
 
 describe('Test suite for device mode transformation feature', () => {
   TransformationsHandler.init('write-key', 'data-plane-url');
@@ -38,14 +39,6 @@ describe('Test suite for device mode transformation feature', () => {
     },
   };
   let payload;
-  const createPayloadResponse = {
-    batch: [
-      {
-        orderNo: 1660923784907,
-        event: { ...event },
-      },
-    ],
-  };
 
   const retryCount = 3;
   const samplePayloadSuccess = {
@@ -192,14 +185,19 @@ describe('Test suite for device mode transformation feature', () => {
     xhrMockBadReq.onreadystatechange();
   };
 
-  const mockCreatePayload = jest.fn(() => createPayloadResponse);
-
   beforeEach(() => {
-    payload = mockCreatePayload(event);
+    payload = createPayload(event);
   });
 
   it('Validate payload format', () => {
-    expect(payload).toEqual(createPayloadResponse);
+    expect(payload).toEqual({
+      batch: [
+        {
+          orderNo: expect.any(Number),
+          event: event,
+        },
+      ],
+    });
   });
 
   it('Transformation server returning response in right format in case of successful transformation', async () => {
