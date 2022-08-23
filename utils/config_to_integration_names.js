@@ -53,6 +53,7 @@ const configToIntNames = {
   VERO: 'Vero',
   MOUSEFLOW: 'Mouseflow',
   ROCKERBOX: 'Rockerbox',
+  SNAPENGAGE: 'SnapEngage',
 };
 
 export { configToIntNames };
