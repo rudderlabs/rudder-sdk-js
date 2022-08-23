@@ -25,7 +25,7 @@ class VWO {
   }
 
   init() {
-    logger.debug('===In init VWO===');
+    logger.debug("===In init VWO===");
     if (this.analytics.loadOnlyIntegrations?.VWO?.loadIntegration) {
       const account_id = this.accountId;
       const settings_tolerance = this.settingsTolerance;
@@ -45,7 +45,7 @@ class VWO {
           finish() {
             if (!f) {
               f = true;
-              const a = d.getElementById('_vis_opt_path_hides');
+              const a = d.getElementById("_vis_opt_path_hides");
               if (a) a.parentNode.removeChild(a);
             }
           },
@@ -53,31 +53,34 @@ class VWO {
             return f;
           },
           load(a) {
-            const b = d.createElement('script');
+            const b = d.createElement("script");
             b.src = a;
-            b.type = 'text/javascript';
-            b.setAttribute('data-loader', LOAD_ORIGIN);
+            b.type = "text/javascript";
+            b.setAttribute("data-loader", LOAD_ORIGIN);
             b.innerText;
             b.onerror = function () {
               _vwo_code.finish();
             };
-            d.getElementsByTagName('head')[0].appendChild(b);
+            d.getElementsByTagName("head")[0].appendChild(b);
           },
           init() {
-            const settings_timer = setTimeout('_vwo_code.finish()', settings_tolerance);
-            const a = d.createElement('style');
+            const settings_timer = setTimeout(
+              "_vwo_code.finish()",
+              settings_tolerance
+            );
+            const a = d.createElement("style");
             const b =
-              'body{opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;}';
-            const h = d.getElementsByTagName('head')[0];
-            a.setAttribute('id', '_vis_opt_path_hides');
-            a.setAttribute('type', 'text/css');
+              "body{opacity:0 !important;filter:alpha(opacity=0) !important;background:none !important;}";
+            const h = d.getElementsByTagName("head")[0];
+            a.setAttribute("id", "_vis_opt_path_hides");
+            a.setAttribute("type", "text/css");
             if (a.styleSheet) a.styleSheet.cssText = b;
             else a.appendChild(d.createTextNode(b));
             h.appendChild(a);
             this.load(
               `//dev.visualwebsiteoptimizer.com/j.php?a=${account_id}&u=${encodeURIComponent(
-                d.URL,
-              )}&r=${Math.random()}&f=${+isSPA}`,
+                d.URL
+              )}&r=${Math.random()}&f=${+isSPA}`
             );
             return settings_timer;
           },
@@ -85,7 +88,7 @@ class VWO {
       })();
       window._vwo_settings_timer = window._vwo_code.init();
     } else {
-      logger.debug('===[VWO]loadIntegration flag is disabled===');
+      logger.debug("===[VWO]loadIntegration flag is disabled===");
     }
     // Send track or iddentify when
     if (this.sendExperimentTrack || this.experimentViewedIdentify) {
