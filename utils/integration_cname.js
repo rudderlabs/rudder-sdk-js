@@ -51,6 +51,7 @@ import { CNameMapping as Vero } from '../integrations/Vero/constants';
 import { CNameMapping as Mouseflow } from '../integrations/Mouseflow/constants';
 import { CNameMapping as Rockerbox } from '../integrations/Rockerbox/constants';
 import { CNameMapping as ConvertFlow } from '../integrations/ConvertFlow/constants';
+import { CNameMapping as SnapEngage } from '../integrations/SnapEngage/constants';
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -108,6 +109,7 @@ const commonNames = {
   ...Vero,
   ...Mouseflow,
   ...ConvertFlow,
+  ...SnapEngage,
 };
 
 export { commonNames };

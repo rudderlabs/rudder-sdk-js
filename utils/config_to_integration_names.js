@@ -54,6 +54,7 @@ const configToIntNames = {
   MOUSEFLOW: 'Mouseflow',
   ROCKERBOX: 'Rockerbox',
   CONVERTFLOW: 'ConvertFlow',
+  SNAPENGAGE: 'SnapEngage',
 };
 
 export { configToIntNames };
