@@ -53,7 +53,7 @@ class Mixpanel {
     this.eventIncrements = config.eventIncrements || [];
     this.propIncrements = config.propIncrements || [];
     this.sourceName = config.sourceName;
-    this.consolidatedPageCalls = config.consolidatedPageCalls || true;
+    this.consolidatedPageCalls = Object.prototype.hasOwnProperty.call(config, 'consolidatedPageCalls') ? config.consolidatedPageCalls : true;
     this.trackCategorizedPages = config.trackCategorizedPages || false;
     this.trackNamedPages = config.trackNamedPages || false;
     this.groupKeySettings = config.groupKeySettings || [];

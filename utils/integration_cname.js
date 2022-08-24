@@ -50,6 +50,7 @@ import { CNameMapping as Matomo } from '../integrations/Matomo/constants';
 import { CNameMapping as Vero } from '../integrations/Vero/constants';
 import { CNameMapping as Mouseflow } from '../integrations/Mouseflow/constants';
 import { CNameMapping as Rockerbox } from '../integrations/Rockerbox/constants';
+import { CNameMapping as ConvertFlow } from '../integrations/ConvertFlow/constants';
 import { CNameMapping as SnapEngage } from '../integrations/SnapEngage/constants';
 
 // for sdk side native integration identification
@@ -107,6 +108,7 @@ const commonNames = {
   ...Matomo,
   ...Vero,
   ...Mouseflow,
+  ...ConvertFlow,
   ...SnapEngage,
 };
 
