@@ -194,7 +194,7 @@ describe('Test suite for device mode transformation feature', () => {
       batch: [
         {
           orderNo: expect.any(Number),
-          event: event,
+          event: event.message,
         },
       ],
     });

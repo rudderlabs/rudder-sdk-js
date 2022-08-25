@@ -397,6 +397,9 @@ class Analytics {
 
     if (destWithTransformation.length) {
       try {
+        // convert integrations object to server identified names, kind of hack now!
+        transformToServerNames(rudderElement.message.integrations);
+
         // Process Transformation
         this.transformationHandler.enqueue(
           rudderElement,
@@ -415,7 +418,7 @@ class Analytics {
                   }
                   // send transformed event to destination
                   transformedEvents.forEach((tEvent) => {
-                    this.sendDataToDestination(intg, tEvent.event, methodName);
+                    this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
                   });
                 } catch (e) {
                   if (e instanceof Error) {
