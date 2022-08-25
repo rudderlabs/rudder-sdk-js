@@ -79,9 +79,9 @@ class SnapPixel {
     })(window, document, "https://sc-static.net/scevent.min.js");
 
     const cookieData = Storage.getUserTraits();
-
-    const userEmail = cookieData.email;
-    const userPhoneNumber = cookieData.phone;
+    
+    const userEmail = cookieData?.email;
+    const userPhoneNumber = cookieData?.phone;
 
     let payload = getUserEmailAndPhone(
       this.hashMethod,
