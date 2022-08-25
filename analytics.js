@@ -38,6 +38,7 @@ import {
   POLYFILL_URL,
   DEFAULT_ERROR_REPORT_PROVIDER,
   ERROR_REPORT_PROVIDERS,
+  SAMESITE_COOKIE,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -1080,8 +1081,16 @@ class Analytics {
       storageOptions = { ...storageOptions, domain: options.setCookieDomain };
     }
 
-    if (options && options.secureCookie) {
+    if (options && typeof options.secureCookie === 'boolean') {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
+    }
+
+    if (
+      options &&
+      typeof options.sameSiteCookie === 'string' &&
+      SAMESITE_COOKIE.includes(options.sameSiteCookie)
+    ) {
+      storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
     }
     this.storage.options(storageOptions);
 
