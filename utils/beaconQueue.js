@@ -77,7 +77,7 @@ class BeaconQueue {
   }
 
   flushQueue(batch) {
-    batch.map((event) => {
+    batch.forEach((event) => {
       event.sentAt = new Date().toISOString();
     });
     const data = { batch };

@@ -130,8 +130,8 @@ describe('Test suite for the SDK', () => {
       expect(anonId).toEqual(anonIdRes);
       expect(rudderanalytics.getUserId()).toEqual('');
       expect(rudderanalytics.getUserTraits()).toEqual({});
-      // expect(rudderanalytics.getGroupId()).toEqual("");
-      // expect(rudderanalytics.getGroupTraits()).toEqual({});
+      expect(rudderanalytics.getGroupId()).toEqual("");
+      expect(rudderanalytics.getGroupTraits()).toEqual({});
     });
 
     it("If 'reset' API is invoked with the flag set to 'true', then all the persisted data is cleared", () => {
@@ -152,8 +152,8 @@ describe('Test suite for the SDK', () => {
       expect(anonId).not.toEqual(anonIdRes);
       expect(rudderanalytics.getUserId()).toEqual('');
       expect(rudderanalytics.getUserTraits()).toEqual({});
-      // expect(rudderanalytics.getGroupId()).toEqual("");
-      // expect(rudderanalytics.getGroupTraits()).toEqual({});
+      expect(rudderanalytics.getGroupId()).toEqual("");
+      expect(rudderanalytics.getGroupTraits()).toEqual({});
     });
   });
 });
