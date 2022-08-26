@@ -5,14 +5,11 @@ const isDefined = (x) => !_.isUndefined(x);
 const isNotEmpty = (x) => !_.isEmpty(x);
 const isNotNull = (x) => x != null;
 const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
-const isDefinedAndNotNullAndNotEmpty = (x) =>
-  isDefined(x) && isNotNull(x) && isNotEmpty(x);
+const isDefinedAndNotNullAndNotEmpty = (x) => isDefined(x) && isNotNull(x) && isNotEmpty(x);
 const removeUndefinedValues = (obj) => _.pickBy(obj, isDefined);
 const removeNullValues = (obj) => _.pickBy(obj, isNotNull);
-const removeUndefinedAndNullValues = (obj) =>
-  _.pickBy(obj, isDefinedAndNotNull);
-const removeUndefinedAndNullAndEmptyValues = (obj) =>
-  _.pickBy(obj, isDefinedAndNotNullAndNotEmpty);
+const removeUndefinedAndNullValues = (obj) => _.pickBy(obj, isDefinedAndNotNull);
+const removeUndefinedAndNullAndEmptyValues = (obj) => _.pickBy(obj, isDefinedAndNotNullAndNotEmpty);
 const isBlank = (value) => _.isEmpty(_.toString(value));
 const pick = (argObj, argArr) => _.pick(argObj, argArr);
 
@@ -27,22 +24,23 @@ const pick = (argObj, argArr) => _.pick(argObj, argArr);
  */
 const getHashFromArrayWithDuplicate = (
   arrays,
-  fromKey = "from",
-  toKey = "to",
-  isLowerCase = true
+  fromKey = 'from',
+  toKey = 'to',
+  isLowerCase = true,
 ) => {
   const hashMap = {};
   if (Array.isArray(arrays)) {
     arrays.forEach((array) => {
       if (!isNotEmpty(array[fromKey])) return;
-      const key = isLowerCase
-        ? array[fromKey].toLowerCase().trim()
-        : array[fromKey].trim();
+      const key = isLowerCase ? array[fromKey].toLowerCase().trim() : array[fromKey].trim();
 
       if (hashMap[key]) {
-        hashMap[key].push(array[toKey]);
+        const val = hashMap[key];
+        if (!val.includes(array[toKey])) {
+          hashMap[key].push(array[toKey]);
+        }
       } else {
-        hashMap[key]= [array[toKey]];
+        hashMap[key] = [array[toKey]];
       }
     });
   }
@@ -58,18 +56,12 @@ const getHashFromArrayWithDuplicate = (
  * @param  {} isLowerCase=true
  * @param  {} return hashmap {"prop1":"val1","prop2:"val2"}
  */
-const getHashFromArray = (
-  arrays,
-  fromKey = "from",
-  toKey = "to",
-  isLowerCase = true
-) => {
+const getHashFromArray = (arrays, fromKey = 'from', toKey = 'to', isLowerCase = true) => {
   const hashMap = {};
   if (Array.isArray(arrays)) {
     arrays.forEach((array) => {
       if (!isNotEmpty(array[fromKey])) return;
-      hashMap[isLowerCase ? array[fromKey].toLowerCase() : array[fromKey]] =
-        array[toKey];
+      hashMap[isLowerCase ? array[fromKey].toLowerCase() : array[fromKey]] = array[toKey];
     });
   }
   return hashMap;
@@ -110,7 +102,7 @@ function flattenJson(data) {
     }
   }
 
-  recurse(data, "");
+  recurse(data, '');
   return result;
 }
 

@@ -1,3 +1,3 @@
-import PostAffiliatePro from "./browser";
+import PostAffiliatePro from './browser';
 
 export { PostAffiliatePro };

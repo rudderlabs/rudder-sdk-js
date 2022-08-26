@@ -1,6 +1,6 @@
 // Class responsible for building up the individual elements in a batch
 // that is transmitted by the SDK
-import RudderElement from "./RudderElement";
+import RudderElement from './RudderElement';
 
 class RudderElementBuilder {
   constructor() {

@@ -9,9 +9,9 @@
 // eslint-disable-next-line no-nested-ternary
 // eslint-disable-next-line class-methods-use-this
 
-import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 class Qualtrics {
   constructor(config, analytics) {
@@ -25,21 +25,18 @@ class Qualtrics {
   }
 
   init() {
-    logger.debug("===in init Qualtrics===");
+    logger.debug('===in init Qualtrics===');
     if (!this.projectId) {
-      logger.debug("Project ID missing");
+      logger.debug('Project ID missing');
       return;
     }
 
     if (!this.brandId) {
-      logger.debug("Brand ID missing");
+      logger.debug('Brand ID missing');
       return;
     }
 
-    const projectIdFormatted = this.projectId
-      .replace(/_/g, "")
-      .toLowerCase()
-      .trim();
+    const projectIdFormatted = this.projectId.replace(/_/g, '').toLowerCase().trim();
     const requestUrlFormatted = `https://${projectIdFormatted}-${this.brandId}.siteintercept.qualtrics.com/SIE/?Q_ZID=${this.projectId}`;
     const requestIdFormatted = `QSI_S_${this.projectId}`;
 
@@ -72,20 +69,15 @@ class Qualtrics {
           else if (e != 100)
             h == "v" && (e = Math.random() >= e / 100 ? 0 : 100),
               (a = [h, e, 0]),
-              this.set(f, a.join(":"));
+              this.set(f, a.join(':'));
           else return !0;
           var c = a[1];
           if (c == 100) return !0;
           switch (a[0]) {
-            case "v":
+            case 'v':
               return !1;
-            case "r":
-              return (
-                (c = a[2] % Math.floor(100 / c)),
-                a[2]++,
-                this.set(f, a.join(":")),
-                !c
-              );
+            case 'r':
+              return (c = a[2] % Math.floor(100 / c)), a[2]++, this.set(f, a.join(':')), !c;
           }
           return !0;
         };
@@ -103,81 +95,76 @@ class Qualtrics {
           document.readyState !== "complete"
             ? window.addEventListener
               ? window.addEventListener(
-                  "load",
+                  'load',
                   function () {
                     t.go();
                   },
-                  !1
+                  !1,
                 )
               : window.attachEvent &&
-                window.attachEvent("onload", function () {
+                window.attachEvent('onload', function () {
                   t.go();
                 })
             : t.go();
         };
       };
       try {
-        new g(100, "r", requestIdFormatted, requestUrlFormatted).start();
+        new g(100, 'r', requestIdFormatted, requestUrlFormatted).start();
       } catch (i) {}
     })();
 
-    const div = document.createElement("div");
-    div.setAttribute("id", String(this.projectId));
+    const div = document.createElement('div');
+    div.setAttribute('id', String(this.projectId));
     window._qsie = window._qsie || [];
-    document.getElementsByTagName("head")[0].appendChild(div);
+    document.getElementsByTagName('head')[0].appendChild(div);
   }
 
   isLoaded() {
-    logger.debug("===in Qualtrics isLoaded===");
+    logger.debug('===in Qualtrics isLoaded===');
     return !!(window._qsie && window.QSI && window.QSI.API);
   }
 
   isReady() {
-    logger.debug("===in Qualtrics isReady===");
+    logger.debug('===in Qualtrics isReady===');
     return !!(window._qsie && window.QSI && window.QSI.API);
   }
 
   page(rudderElement) {
-    logger.debug("===in Qualtrics page===");
+    logger.debug('===in Qualtrics page===');
     const { message } = rudderElement;
     if (!message) {
-      logger.debug("Message field is missing");
+      logger.debug('Message field is missing');
       return;
     }
 
     if (this.enableGenericPageTitle) {
-      window._qsie.push("Viewed a Page");
+      window._qsie.push('Viewed a Page');
       return;
     }
 
     const { name, category, properties } = message;
     const categoryField =
-      category ||
-      (properties && properties.category ? properties.category : null);
+      category || (properties && properties.category ? properties.category : null);
 
     if (!categoryField && !name) {
-      logger.debug(
-        "generic title is disabled and no name or category field found"
-      );
+      logger.debug('generic title is disabled and no name or category field found');
       return;
     }
     const dynamicTitle =
-      categoryField && name
-        ? `Viewed ${categoryField} ${name} Page`
-        : `Viewed ${name} Page`;
+      categoryField && name ? `Viewed ${categoryField} ${name} Page` : `Viewed ${name} Page`;
 
     window._qsie.push(dynamicTitle);
   }
 
   track(rudderElement) {
-    logger.debug("===in Qualtrics track===");
+    logger.debug('===in Qualtrics track===');
     const { message } = rudderElement;
     if (!message) {
-      logger.debug("Message field is missing");
+      logger.debug('Message field is missing');
       return;
     }
     if (!message.event) {
-      logger.debug("Event field is undefined");
+      logger.debug('Event field is undefined');
       return;
     }
     window._qsie.push(message.event);

@@ -42,6 +42,7 @@ import {
   POLYFILL_URL,
   DEFAULT_ERROR_REPORT_PROVIDER,
   ERROR_REPORT_PROVIDERS,
+  SAMESITE_COOKIE_OPTS,
 } from './utils/constants';
 import RudderElementBuilder from './utils/RudderElementBuilder';
 import Storage from './utils/storage';
@@ -168,6 +169,7 @@ class Analytics {
     try {
       return (
         window.hasOwnProperty(pluginName) &&
+        window[pluginName][modName] &&
         typeof window[pluginName][modName].prototype.constructor !== 'undefined'
       );
     } catch (e) {
@@ -184,11 +186,23 @@ class Analytics {
    * @param {*} response
    * @memberof Analytics
    */
-  processResponse(status, response) {
+  processResponse(status, responseVal) {
     try {
-      // logger.debug(`===in process response=== ${status}`)
-      if (typeof response === 'string') {
-        response = JSON.parse(response);
+      // logger.debug(`===in process response=== ${status}`);
+
+      let response = responseVal;
+      try {
+        if (typeof responseVal === 'string') {
+          response = JSON.parse(responseVal);
+        }
+
+        // Do not proceed if the ultimate response value is not an object
+        if (!response || typeof response !== 'object' || Array.isArray(response)) {
+          throw new Error('Invalid source configuration');
+        }
+      } catch (err) {
+        handleError(err);
+        return;
       }
 
       // Fetch Error reporting enable option from sourceConfig
@@ -255,7 +269,7 @@ class Analytics {
       // Get the CDN base URL is rudder staging url
       const { isStaging } = getSDKUrlInfo();
       if (isStaging) {
-        suffix = "-staging"; // stagging suffix
+        suffix = '-staging'; // stagging suffix
       }
 
       leaveBreadcrumb('Starting device-mode initialization');
@@ -267,7 +281,7 @@ class Analytics {
         const modURL = `${this.destSDKBaseURL}/${modName}${suffix}.min.js`;
 
         if (!window.hasOwnProperty(pluginName)) {
-          ScriptLoader(pluginName, modURL);
+          ScriptLoader(pluginName, modURL, { isNonNativeSDK: true });
         }
 
         const self = this;
@@ -696,7 +710,7 @@ class Analytics {
           try {
             if (!obj.isFailed || !obj.isFailed()) {
               if (obj[type]) {
-                let sendEvent = !this.IsEventBlackListed(rudderElement.message.event, obj.name);
+                const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, obj.name);
 
                 // Block the event if it is blacklisted for the device-mode destination
                 if (sendEvent) {
@@ -900,6 +914,11 @@ class Analytics {
     return true;
   }
 
+  isDatasetAvailable() {
+    const t = document.createElement('div');
+    return t.setAttribute('data-a-b', 'c'), t.dataset ? t.dataset.aB === 'c' : false;
+  }
+
   /**
    * Load after polyfills are loaded
    * @param {*} writeKey
@@ -927,8 +946,12 @@ class Analytics {
       storageOptions = { ...storageOptions, domain: options.setCookieDomain };
     }
 
-    if (options && options.secureCookie) {
+    if (options && typeof options.secureCookie === 'boolean') {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
+    }
+
+    if (options && SAMESITE_COOKIE_OPTS.includes(options.sameSiteCookie)) {
+      storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
     }
     this.storage.options(storageOptions);
 
@@ -981,9 +1004,9 @@ class Analytics {
       }
     } else {
       // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
-      const { sdkUrl } = getSDKUrlInfo();
-      if (sdkUrl) {
-        this.destSDKBaseURL = sdkUrl.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/');
+      const { sdkURL } = getSDKUrlInfo();
+      if (sdkURL) {
+        this.destSDKBaseURL = sdkURL.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/');
       }
     }
     if (options && options.getSourceConfig) {
@@ -1032,13 +1055,20 @@ class Analytics {
       !Array.prototype.find ||
       !Array.prototype.includes ||
       !Promise ||
-      !Object.entries
+      !Object.entries ||
+      !Object.values ||
+      !String.prototype.replaceAll ||
+      !this.isDatasetAvailable()
     ) {
-      ScriptLoader('polyfill', POLYFILL_URL);
+      const id = 'polyfill';
+      ScriptLoader(id, POLYFILL_URL, { skipDatasetAttributes: true });
       const self = this;
       const interval = setInterval(function () {
         // check if the polyfill is loaded
-        if (window.hasOwnProperty('polyfill')) {
+        // In chrome 83 and below versions ID of a script is not part of window's scope
+        // even though it is loaded and returns false for <window.hasOwnProperty("polyfill")> this.
+        // So, added another checking to fulfill that purpose.
+        if (window.hasOwnProperty(id) || document.getElementById(id) !== null) {
           clearInterval(interval);
           self.loadAfterPolyfill(writeKey, serverUrl, options);
         }

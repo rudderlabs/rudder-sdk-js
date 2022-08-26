@@ -1,3 +1,3 @@
-import SnapPixel from "./browser";
+import SnapPixel from './browser';
 
 export { SnapPixel };

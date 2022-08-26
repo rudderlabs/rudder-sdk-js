@@ -4,9 +4,9 @@
  * @author Parth Mahajan, Ayush Mehra
  */
 
-import crc32 from "./crc32";
-import USER_INTERFACE from "./userLib";
-import decode from "./base64decoder";
+import crc32 from './crc32';
+import USER_INTERFACE from './userLib';
+import decode from './base64decoder';
 
 const KEY_VALIDATOR = /^[a-zA-Z0-9\-_.]+$/;
 const CHECKSUM_OFFSET_MAX_MIN = 1;
@@ -43,6 +43,7 @@ function parseLinkerParamValue(value) {
 }
 
 /**
+>>>>>>> origin/production-staging
  * Deserialize the serializedIds and return keyValue pairs.
  * @param {string} serializedIds
  * @return {!Object<string, string>}

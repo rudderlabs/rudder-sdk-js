@@ -1,9 +1,9 @@
 /* eslint-disable no-undef */
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
-import { removeTrailingSlashes } from "../../utils/utils";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { removeTrailingSlashes } from '../../utils/utils';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 class Posthog {
   constructor(config, analytics) {
@@ -13,8 +13,7 @@ class Posthog {
     this.name = NAME;
     this.analytics = analytics;
     this.teamApiKey = config.teamApiKey;
-    this.yourInstance =
-      removeTrailingSlashes(config.yourInstance) || "https://app.posthog.com";
+    this.yourInstance = removeTrailingSlashes(config.yourInstance) || 'https://app.posthog.com';
     this.autocapture = config.autocapture || false;
     this.capturePageView = config.capturePageView || false;
     this.disableSessionRecording = config.disableSessionRecording || false;
@@ -29,8 +28,8 @@ class Posthog {
           header &&
           header.key &&
           header.value &&
-          header.key.trim() !== "" &&
-          header.value.trim() !== ""
+          header.key.trim() !== '' &&
+          header.value.trim() !== ''
         ) {
           this.xhrHeaders[header.key] = header.value;
         }
@@ -38,7 +37,7 @@ class Posthog {
     }
     if (config.propertyBlackList && config.propertyBlackList.length > 0) {
       config.propertyBlackList.forEach((element) => {
-        if (element && element.property && element.property.trim() !== "") {
+        if (element && element.property && element.property.trim() !== '') {
           this.propertyBlackList.push(element.property);
         }
       });
@@ -62,7 +61,7 @@ class Posthog {
                 t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
               });
           }
-          ((p = t.createElement("script")).type = "text/javascript"),
+          ((p = t.createElement('script')).type = 'text/javascript'),
             (p.async = !0),
             (p.dataset.loader = LOAD_ORIGIN),
             (p.src = s.api_host + "/static/array.js"),
@@ -72,7 +71,7 @@ class Posthog {
             );
           let u = e;
           for (
-            void 0 !== a ? (u = e[a] = []) : (a = "posthog"),
+            void 0 !== a ? (u = e[a] = []) : (a = 'posthog'),
               u.people = u.people || [],
               u.toString = function (t) {
                 let e = "posthog";
@@ -84,8 +83,8 @@ class Posthog {
                 return `${u.toString(1)}.people (stub)`;
               },
               o =
-                "capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags".split(
-                  " "
+                'capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags'.split(
+                  ' ',
                 ),
               n = 0;
             n < o.length;
@@ -115,7 +114,7 @@ class Posthog {
       configObject.xhr_headers = this.xhrHeaders;
     }
     if (this.enableLocalStoragePersistence) {
-      configObject.persistence = "localStorage+cookie";
+      configObject.persistence = 'localStorage+cookie';
     }
 
     posthog.init(this.teamApiKey, configObject);
@@ -129,8 +128,7 @@ class Posthog {
   processSuperProperties(rudderElement) {
     const { integrations } = rudderElement.message;
     if (integrations && integrations.POSTHOG) {
-      const { superProperties, setOnceProperties, unsetProperties } =
-        integrations.POSTHOG;
+      const { superProperties, setOnceProperties, unsetProperties } = integrations.POSTHOG;
       if (superProperties && Object.keys(superProperties).length > 0) {
         posthog.register(superProperties);
       }
@@ -139,7 +137,7 @@ class Posthog {
       }
       if (unsetProperties && unsetProperties.length > 0) {
         unsetProperties.forEach((property) => {
-          if (property && property.trim() !== "") {
+          if (property && property.trim() !== '') {
             posthog.unregister(property);
           }
         });
@@ -148,7 +146,7 @@ class Posthog {
   }
 
   identify(rudderElement) {
-    logger.debug("in Posthog identify");
+    logger.debug('in Posthog identify');
 
     // rudderElement.message.context will always be present as part of identify event payload.
     const { traits } = rudderElement.message.context;
@@ -162,7 +160,7 @@ class Posthog {
   }
 
   track(rudderElement) {
-    logger.debug("in Posthog track");
+    logger.debug('in Posthog track');
 
     const { event, properties } = rudderElement.message;
 
@@ -177,15 +175,15 @@ class Posthog {
    * @memberof Posthog
    */
   page(rudderElement) {
-    logger.debug("in Posthog page");
+    logger.debug('in Posthog page');
 
     this.processSuperProperties(rudderElement);
 
-    posthog.capture("$pageview");
+    posthog.capture('$pageview');
   }
 
   isLoaded() {
-    logger.debug("in Posthog isLoaded");
+    logger.debug('in Posthog isLoaded');
     return !!(window.posthog && window.posthog.__loaded);
   }
 

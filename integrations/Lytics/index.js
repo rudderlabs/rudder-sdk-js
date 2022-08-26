@@ -1,3 +1,3 @@
-import Lytics from "./browser";
+import Lytics from './browser';
 
 export { Lytics };

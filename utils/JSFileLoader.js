@@ -12,16 +12,12 @@ const loadScript = (url, id, timeout, async = true) => {
     try {
       const exists = document.getElementById(id);
       if (exists) {
-        reject(
-          new Error(
-            `A script with the id "${id}" is already loaded. Hence, skipping it.`
-          )
-        );
+        reject(new Error(`A script with the id "${id}" is already loaded. Hence, skipping it.`));
       }
 
       // Create the DOM element to load the script
-      const scriptElem = document.createElement("script");
-      scriptElem.type = "text/javascript";
+      const scriptElem = document.createElement('script');
+      scriptElem.type = 'text/javascript';
       scriptElem.src = url;
       scriptElem.id = id;
       scriptElem.async = async || true;
@@ -39,19 +35,19 @@ const loadScript = (url, id, timeout, async = true) => {
 
       // Add it to the document
       // First try to add it to the head
-      const headElmColl = document.getElementsByTagName("head");
+      const headElmColl = document.getElementsByTagName('head');
       if (headElmColl.length > 0) {
         headElmColl[0].insertBefore(scriptElem, headElmColl[0].firstChild);
       } else {
         // Add it before the first script tag
-        const scriptsColl = document.getElementsByTagName("script");
+        const scriptsColl = document.getElementsByTagName('script');
         if (scriptsColl.length > 0) {
           scriptsColl[0].parentNode.insertBefore(scriptElem, scriptsColl[0]);
         } else {
           // Create a head element and the script
-          const headElem = document.createElement("head");
+          const headElem = document.createElement('head');
           headElem.appendChild(scriptElem);
-          const htmlElem = document.getElementsByTagName("html")[0];
+          const htmlElem = document.getElementsByTagName('html')[0];
           htmlElem.insertBefore(headElem, htmlElem.firstChild);
         }
       }
@@ -59,18 +55,10 @@ const loadScript = (url, id, timeout, async = true) => {
       // Set the timer
       const delay = timeout || DEFAULT_TIMEOUT;
       timeoutID = setTimeout(() => {
-        reject(
-          new Error(
-            `Timeout (${delay} ms) occurred. Couldn't load the script: "${url}".`
-          )
-        );
+        reject(new Error(`Timeout (${delay} ms) occurred. Couldn't load the script: "${url}".`));
       }, delay);
     } catch (err) {
-      reject(
-        new Error(
-          `Exception occurred while loading the script "${url}": "${err}"`
-        )
-      );
+      reject(new Error(`Exception occurred while loading the script "${url}": "${err}"`));
     }
   });
 };

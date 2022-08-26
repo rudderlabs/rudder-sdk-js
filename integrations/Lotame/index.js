@@ -1,3 +1,3 @@
-import { Lotame } from "./browser";
+import { Lotame } from './browser';
 
 export { Lotame };

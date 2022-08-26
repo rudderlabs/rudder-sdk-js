@@ -1,4 +1,4 @@
-const NAME = "AM";
+const NAME = 'AM';
 const CNameMapping = {
   [NAME]: NAME,
   AMPLITUDE: NAME,

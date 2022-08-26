@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable camelcase */
-import * as utils from "./util";
+import * as utils from './util';
 
 let qosData = {};
 const mediaHeartbeats = {};
@@ -21,18 +21,15 @@ const heartbeatSessionStart = (rudderElement) => {
     ? va.MediaHeartbeat.StreamType.LIVE
     : va.MediaHeartbeat.StreamType.VOD;
   const mediaObj = va.MediaHeartbeat.createMediaObject(
-    title || "",
-    asset_id || "unknown video id",
+    title || '',
+    asset_id || 'unknown video id',
     total_length || 0,
-    streamType
+    streamType,
   );
   const contextData = utils.handleVideoContextData(rudderElement);
   utils.standardVideoMetadata(rudderElement, mediaObj);
 
-  mediaHeartbeats[session_id || "default"].heartbeat.trackSessionStart(
-    mediaObj,
-    contextData
-  );
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackSessionStart(mediaObj, contextData);
 };
 
 const initHeartbeat = (rudderElement) => {
@@ -46,10 +43,10 @@ const initHeartbeat = (rudderElement) => {
   const mediaHeartbeatDelegate = new va.MediaHeartbeatDelegate();
 
   mediaHeartbeatConfig.trackingServer = config.heartbeatTrackingServerUrl;
-  mediaHeartbeatConfig.channel = channel || "";
-  mediaHeartbeatConfig.ovp = properties.ovp || "unknown";
-  mediaHeartbeatConfig.appVersion = context.app.version || "unknown";
-  mediaHeartbeatConfig.playerName = video_player || "unknown";
+  mediaHeartbeatConfig.channel = channel || '';
+  mediaHeartbeatConfig.ovp = properties.ovp || 'unknown';
+  mediaHeartbeatConfig.appVersion = context.app.version || 'unknown';
+  mediaHeartbeatConfig.playerName = video_player || 'unknown';
   mediaHeartbeatConfig.ssl = config.sslHeartbeat;
   mediaHeartbeatConfig.debugLogging = !!window._enableHeartbeatDebugLogging;
 
@@ -64,12 +61,8 @@ const initHeartbeat = (rudderElement) => {
     return qosData;
   };
 
-  mediaHeartbeats[session_id || "default"] = {
-    heartbeat: new va.MediaHeartbeat(
-      mediaHeartbeatDelegate,
-      mediaHeartbeatConfig,
-      window.s
-    ),
+  mediaHeartbeats[session_id || 'default'] = {
+    heartbeat: new va.MediaHeartbeat(mediaHeartbeatDelegate, mediaHeartbeatConfig, window.s),
     delegate: mediaHeartbeatDelegate,
     config: mediaHeartbeatConfig,
   };
@@ -80,14 +73,13 @@ const initHeartbeat = (rudderElement) => {
 const populateHeartbeat = (rudderElement) => {
   const { properties } = rudderElement.message;
   const { session_id, channel, video_player } = properties;
-  const mediaHeartbeat = mediaHeartbeats[session_id || "default"];
+  const mediaHeartbeat = mediaHeartbeats[session_id || 'default'];
   if (!mediaHeartbeat) {
     initHeartbeat(rudderElement);
   } else {
     const mediaHeartbeatConfig = mediaHeartbeat.config;
     mediaHeartbeatConfig.channel = channel || mediaHeartbeatConfig.channel;
-    mediaHeartbeatConfig.playerName =
-      video_player || mediaHeartbeatConfig.playerName;
+    mediaHeartbeatConfig.playerName = video_player || mediaHeartbeatConfig.playerName;
   }
 };
 
@@ -96,84 +88,83 @@ const heartbeatVideoStart = (rudderElement) => {
   const { properties } = rudderElement.message;
   const { va } = window.ADB;
   const { session_id, chapter_name, position, length, start_time } = properties;
-  mediaHeartbeats[session_id || "default"].heartbeat.trackPlay();
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackPlay();
   const contextData = utils.handleVideoContextData(rudderElement);
-  if (!mediaHeartbeats[session_id || "default"].chapterInProgress) {
+  if (!mediaHeartbeats[session_id || 'default'].chapterInProgress) {
     const chapterObj = va.MediaHeartbeat.createChapterObject(
-      chapter_name || "no chapter name",
+      chapter_name || 'no chapter name',
       position || 1,
       length || 6000,
-      start_time || 0
+      start_time || 0,
     );
-    mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
+    mediaHeartbeats[session_id || 'default'].heartbeat.trackEvent(
       va.MediaHeartbeat.Event.ChapterStart,
       chapterObj,
-      contextData
+      contextData,
     );
-    mediaHeartbeats[session_id || "default"].chapterInProgress = true;
+    mediaHeartbeats[session_id || 'default'].chapterInProgress = true;
   }
 };
 
 const heartbeatVideoPaused = (rudderElement) => {
   populateHeartbeat(rudderElement);
   const { properties } = rudderElement.message;
-  mediaHeartbeats[properties.session_id || "default"].heartbeat.trackPause();
+  mediaHeartbeats[properties.session_id || 'default'].heartbeat.trackPause();
 };
 
 const heartbeatVideoComplete = (rudderElement) => {
   populateHeartbeat(rudderElement);
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
-  mediaHeartbeats[properties.session_id || "defualt"].heartbeat.trackEvent(
-    va.MediaHeartbeat.Event.ChapterComplete
+  mediaHeartbeats[properties.session_id || 'defualt'].heartbeat.trackEvent(
+    va.MediaHeartbeat.Event.ChapterComplete,
   );
-  mediaHeartbeats[properties.session_id || "default"].chapterInProgress = false;
+  mediaHeartbeats[properties.session_id || 'default'].chapterInProgress = false;
 };
 
 const heartbeatSessionEnd = (rudderElement) => {
   populateHeartbeat(rudderElement);
   const { properties } = rudderElement.message;
   const { session_id } = properties;
-  mediaHeartbeats[session_id || "default"].heartbeat.trackComplete();
-  mediaHeartbeats[session_id || "default"].heartbeat.trackSessionEnd();
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackComplete();
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackSessionEnd();
 
-  delete mediaHeartbeats[session_id || "default"];
-  delete adBreakCounts[session_id || "default"];
+  delete mediaHeartbeats[session_id || 'default'];
+  delete adBreakCounts[session_id || 'default'];
 };
 
 const heartbeatAdStarted = (rudderElement) => {
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
-  const { session_id, type, position, title, asset_id, total_length, content } =
-    properties;
-  let adSessionCount = adBreakCounts[session_id || "deafult"];
+  const { session_id, type, position, title, asset_id, total_length, content } = properties;
+  let adSessionCount = adBreakCounts[session_id || 'deafult'];
   adSessionCount = adSessionCount
-    ? adBreakCounts[session_id || "default"] + 1
-    : (adBreakCounts[session_id || "default"] = 1);
+    ? adBreakCounts[session_id || 'default'] + 1
+    : (adBreakCounts[session_id || 'default'] = 1);
   const adBreakObj = va.MediaHeartbeat.createAdBreakObject(
-    type || "unknown",
+    type || 'unknown',
     adSessionCount,
-    position || 1
+    position || 1,
   );
 
-  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.AdBreakStart,
-    adBreakObj
+    adBreakObj,
   );
   adBreakProgress = true;
 
   const adObject = va.MediaHeartbeat.createAdObject(
-    title || "no title",
-    asset_id.toString() || "default ad",
+    title || 'no title',
+    asset_id.toString() || 'default ad',
     position || 1,
-    total_length || 0
+    total_length || 0,
   );
   utils.standardAdMetadata(rudderElement, adObject);
 
-  mediaHeartbeats[session_id || "deafult"].heartbeat.trackEvent(
+  mediaHeartbeats[session_id || 'deafult'].heartbeat.trackEvent(
     va.MediaHeartbeat.Event.AdStart,
     adObject,
-    content || {}
+    content || {},
   );
 };
 
@@ -184,12 +175,10 @@ const heartbeatAdCompleted = (rudderElement) => {
   if (!adBreakProgress) {
     heartbeatAdStarted(rudderElement);
   }
-  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
-    va.MediaHeartbeat.Event.AdComplete
-  );
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackEvent(va.MediaHeartbeat.Event.AdComplete);
 
-  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
-    va.MediaHeartbeat.Event.AdBreakComplete
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackEvent(
+    va.MediaHeartbeat.Event.AdBreakComplete,
   );
   adBreakProgress = false;
 };
@@ -201,11 +190,9 @@ const heartbeatAdSkipped = (rudderElement) => {
   if (!adBreakProgress) {
     heartbeatAdStarted(rudderElement);
   }
-  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
-    va.MediaHeartbeat.Event.AdSkip
-  );
-  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
-    va.MediaHeartbeat.Event.AdBreakComplete
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackEvent(va.MediaHeartbeat.Event.AdSkip);
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackEvent(
+    va.MediaHeartbeat.Event.AdBreakComplete,
   );
   adBreakProgress = false;
 };
@@ -215,9 +202,7 @@ const heartbeatSeekStarted = (rudderElement) => {
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   const { session_id } = properties;
-  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
-    va.MediaHeartbeat.Event.SeekStart
-  );
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackEvent(va.MediaHeartbeat.Event.SeekStart);
 };
 
 const heartbeatSeekCompleted = (rudderElement) => {
@@ -225,8 +210,8 @@ const heartbeatSeekCompleted = (rudderElement) => {
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   const { session_id } = properties;
-  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
-    va.MediaHeartbeat.Event.SeekComplete
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackEvent(
+    va.MediaHeartbeat.Event.SeekComplete,
   );
 };
 
@@ -236,8 +221,8 @@ const heartbeatBufferStarted = (rudderElement) => {
   const { properties } = rudderElement.message;
   const { session_id } = properties;
 
-  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
-    va.MediaHeartbeat.Event.BufferStart
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackEvent(
+    va.MediaHeartbeat.Event.BufferStart,
   );
 };
 
@@ -260,8 +245,8 @@ const heartbeatBufferCompleted = (rudderElement) => {
   const { properties } = rudderElement.message;
   const { session_id } = properties;
 
-  mediaHeartbeats[session_id || "default"].heartbeat.trackEvent(
-    va.MediaHeartbeat.Event.BufferComplete
+  mediaHeartbeats[session_id || 'default'].heartbeat.trackEvent(
+    va.MediaHeartbeat.Event.BufferComplete,
   );
 };
 

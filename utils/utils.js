@@ -1,13 +1,13 @@
-/* eslint-disable no-bitwise */
-import { parse } from "component-url";
-import get from "get-value";
-import { v4 as uuid } from "@lukeed/uuid";
-import { LOAD_ORIGIN } from "../integrations/ScriptLoader";
-import logger from "./logUtil";
-import { commonNames } from "./integration_cname";
-import { clientToServerNames } from "./client_server_name";
-import { CONFIG_URL, RESERVED_KEYS } from "./constants";
-import Storage from "./storage";
+// import * as XMLHttpRequestNode from "Xmlhttprequest";
+import { parse } from 'component-url';
+import get from 'get-value';
+import { v4 as uuid } from '@lukeed/uuid';
+import { LOAD_ORIGIN } from '../integrations/ScriptLoader';
+import logger from './logUtil';
+import { commonNames } from './integration_cname';
+import { clientToServerNames } from './client_server_name';
+import { CONFIG_URL, RESERVED_KEYS } from './constants';
+import Storage from './storage';
 
 
 /**
@@ -76,7 +76,7 @@ function replacer(key, value) {
  * @param {*} inURL
  */
 function removeTrailingSlashes(inURL) {
-  return inURL && inURL.endsWith("/") ? inURL.replace(/\/+$/, "") : inURL;
+  return inURL && inURL.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
 }
 
 /**
@@ -145,10 +145,10 @@ function getJSONTrimmed(context, url, writeKey, callback) {
 
   const xhr = new XMLHttpRequest();
 
-  xhr.open("GET", url, true);
+  xhr.open('GET', url, true);
   xhr.setRequestHeader(
-    "Authorization",
-    `Basic ${btoa(`${writeKey}:`)}`
+    'Authorization',
+    `Basic ${btoa(`${writeKey}:`)}`,
     // `Basic ${Buffer.from(`${writeKey}:`).toString("base64")}`
   );
 
@@ -212,9 +212,7 @@ function getUrl(search) {
 
 function getDefaultPageProperties() {
   const canonicalUrl = getCanonicalUrl();
-  const path = canonicalUrl
-    ? parse(canonicalUrl).pathname
-    : window.location.pathname;
+  const path = canonicalUrl ? parse(canonicalUrl).pathname : window.location.pathname;
   // const { referrer } = document;
   const { search } = window.location;
   const { title } = document;
@@ -283,15 +281,9 @@ function transformToServerNames(integrationObject) {
  * @param {*} sdkSuppliedIntegrations
  * @param {*} configPlaneEnabledIntegrations
  */
-function findAllEnabledDestinations(
-  sdkSuppliedIntegrations,
-  configPlaneEnabledIntegrations
-) {
+function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledIntegrations) {
   const enabledList = [];
-  if (
-    !configPlaneEnabledIntegrations ||
-    configPlaneEnabledIntegrations.length === 0
-  ) {
+  if (!configPlaneEnabledIntegrations || configPlaneEnabledIntegrations.length === 0) {
     return enabledList;
   }
   let allValue = true;
@@ -299,14 +291,14 @@ function findAllEnabledDestinations(
     allValue = sdkSuppliedIntegrations.All;
   }
   const intgData = [];
-  if (typeof configPlaneEnabledIntegrations[0] === "string") {
+  if (typeof configPlaneEnabledIntegrations[0] === 'string') {
     configPlaneEnabledIntegrations.forEach((intg) => {
       intgData.push({
         intgName: intg,
         intObj: intg,
       });
     });
-  } else if (typeof configPlaneEnabledIntegrations[0] === "object") {
+  } else if (typeof configPlaneEnabledIntegrations[0] === 'object') {
     configPlaneEnabledIntegrations.forEach((intg) => {
       intgData.push({
         intgName: intg.name,
@@ -345,12 +337,12 @@ function findAllEnabledDestinations(
 
 function getUserProvidedConfigUrl(configUrl, defConfigUrl) {
   let url = configUrl;
-  if (url.indexOf("sourceConfig") === -1) {
+  if (url.indexOf('sourceConfig') === -1) {
     url = `${removeTrailingSlashes(url)}/sourceConfig/`;
   }
-  url = url.slice(-1) === "/" ? url : `${url}/`;
-  const defQueryParams = defConfigUrl.split("?")[1];
-  const urlSplitItems = url.split("?");
+  url = url.slice(-1) === '/' ? url : `${url}/`;
+  const defQueryParams = defConfigUrl.split('?')[1];
+  const urlSplitItems = url.split('?');
   if (urlSplitItems.length > 1 && urlSplitItems[1] !== defQueryParams) {
     url = `${urlSplitItems[0]}?${defQueryParams}`;
   } else {
@@ -388,24 +380,22 @@ function checkReservedKeywords(message, msgType) {
 }
 
 const getConfigUrl = (writeKey) => {
-  return CONFIG_URL.concat(CONFIG_URL.includes("?") ? "&" : "?").concat(
-    writeKey ? `writeKey=${writeKey}` : ""
+  return CONFIG_URL.concat(CONFIG_URL.includes('?') ? '&' : '?').concat(
+    writeKey ? `writeKey=${writeKey}` : '',
   );
 };
 
 const getSDKUrlInfo = () => {
-  const scripts = document.getElementsByTagName("script");
+  const scripts = document.getElementsByTagName('script');
   let sdkURL;
   let isStaging = false;
   for (let i = 0; i < scripts.length; i += 1) {
-    const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute("src"));
+    const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute('src'));
     if (curScriptSrc) {
-      const urlMatches = curScriptSrc.match(
-        /^(https?:)?\/\/.*rudder-analytics(-staging)?(\.min)?\.js$/,
-      );
+      const urlMatches = curScriptSrc.match(/^.*rudder-analytics(-staging)?(\.min)?\.js$/);
       if (urlMatches) {
         sdkURL = curScriptSrc;
-        isStaging = urlMatches[2] !== undefined;
+        isStaging = urlMatches[1] !== undefined;
         break;
       }
     }

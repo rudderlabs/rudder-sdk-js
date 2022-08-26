@@ -1,3 +1,3 @@
-import Mixpanel from "./browser";
+import Mixpanel from './browser';
 
 export { Mixpanel };
