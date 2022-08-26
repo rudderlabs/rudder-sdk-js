@@ -30,7 +30,7 @@ class BingAds {
         (n.onload = n.onreadystatechange =
           function () {
             const s = this.readyState;
-            (s && s !== "loaded" && s !== "complete") ||
+            (s && s !== 'loaded' && s !== 'complete') ||
               (f(), (n.onload = n.onreadystatechange = null));
           }),
         (i = d.getElementsByTagName(t)[0]),

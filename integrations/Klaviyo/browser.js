@@ -1,12 +1,12 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
-import get from "get-value";
-import logger from "../../utils/logUtil";
-import ScriptLoader from "../ScriptLoader";
-import { extractCustomFields, getDefinedTraits } from "../utils/commonUtils";
-import ecommEventPayload from "./util";
-import { isNotEmpty } from "../utils/commonUtils";
-import { NAME } from "./constants";
+import get from 'get-value';
+import logger from '../../utils/logUtil';
+import ScriptLoader from '../ScriptLoader';
+import { extractCustomFields, getDefinedTraits } from '../utils/commonUtils';
+import ecommEventPayload from './util';
+import { isNotEmpty } from '../utils/commonUtils';
+import { NAME } from './constants';
 
 class Klaviyo {
   constructor(config, analytics) {

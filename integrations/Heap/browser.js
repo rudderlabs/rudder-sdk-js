@@ -19,8 +19,8 @@ class Heap {
     (window.heap = window.heap || []),
       (heap.load = function (e, t) {
         (window.heap.appid = e), (window.heap.config = t = t || {});
-        const r = document.createElement("script");
-        (r.type = "text/javascript"),
+        const r = document.createElement('script');
+        (r.type = 'text/javascript'),
           (r.async = !0),
           r.setAttribute('data-loader', LOAD_ORIGIN),
           (r.src = `https://cdn.heapanalytics.com/js/heap-${e}.js`);

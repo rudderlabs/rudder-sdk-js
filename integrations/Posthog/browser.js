@@ -55,7 +55,7 @@ class Posthog {
         (e._i = []),
         (e.init = function (i, s, a) {
           function g(t, e) {
-            const o = e.split(".");
+            const o = e.split('.');
             o.length == 2 && ((t = t[o[0]]), (e = o[1])),
               (t[e] = function () {
                 t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
@@ -71,10 +71,8 @@ class Posthog {
             void 0 !== a ? (u = e[a] = []) : (a = 'posthog'),
               u.people = u.people || [],
               u.toString = function (t) {
-                let e = "posthog";
-                return (
-                  a !== "posthog" && (e += `.${a}`), t || (e += " (stub)"), e
-                );
+                let e = 'posthog';
+                return a !== 'posthog' && (e += `.${a}`), t || (e += ' (stub)'), e;
               },
               u.people.toString = function () {
                 return `${u.toString(1)}.people (stub)`;

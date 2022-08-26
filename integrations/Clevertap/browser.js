@@ -45,9 +45,9 @@ class Clevertap {
   init() {
     logger.debug('===in init Clevertap===');
     const sourceUrl =
-      document.location.protocol === "https:"
-        ? "https://d2r1yp2w7bby2u.cloudfront.net/js/a.js"
-        : "http://static.clevertap.com/js/a.js";
+      document.location.protocol === 'https:'
+        ? 'https://d2r1yp2w7bby2u.cloudfront.net/js/a.js'
+        : 'http://static.clevertap.com/js/a.js';
 
     window.clevertap = {
       event: [],
@@ -106,7 +106,7 @@ class Clevertap {
     }
     Object.keys(payload).forEach((key) => {
       if (isObject(payload[key])) {
-        logger.debug("cannot process, unsupported traits");
+        logger.debug('cannot process, unsupported traits');
       }
     });
     window.clevertap.onUserLogin.push({
@@ -139,7 +139,7 @@ class Clevertap {
       } else {
         Object.keys(properties).forEach((key) => {
           if (isObject(properties[key]) || isArray(properties[key])) {
-            logger.debug("cannot process, unsupported event");
+            logger.debug('cannot process, unsupported event');
           }
         });
         window.clevertap.event.push(event, properties);
@@ -165,7 +165,7 @@ class Clevertap {
     if (properties) {
       Object.keys(properties).forEach((key) => {
         if (isObject(properties[key]) || isArray(properties[key])) {
-          logger.debug("cannot process, unsupported event");
+          logger.debug('cannot process, unsupported event');
         }
       });
       window.clevertap.event.push(eventName, properties);

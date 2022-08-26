@@ -1,5 +1,5 @@
-import _ from "lodash";
-import get from "get-value";
+import _ from 'lodash';
+import get from 'get-value';
 
 const isDefined = (x) => !_.isUndefined(x);
 const isNotEmpty = (x) => !_.isEmpty(x);
@@ -110,23 +110,23 @@ function flattenJson(data) {
  * check type of object incoming in the rejectArr function
  * @param  {} val
  */
- function type(val) {
+function type(val) {
   switch (Object.prototype.toString.call(val)) {
-    case "[object Function]":
-      return "function";
-    case "[object Date]":
-      return "date";
-    case "[object RegExp]":
-      return "regexp";
-    case "[object Arguments]":
-      return "arguments";
-    case "[object Array]":
-      return "array";
+    case '[object Function]':
+      return 'function';
+    case '[object Date]':
+      return 'date';
+    case '[object RegExp]':
+      return 'regexp';
+    case '[object Arguments]':
+      return 'arguments';
+    case '[object Array]':
+      return 'array';
   }
 
-  if (val === null) return "null";
-  if (val === undefined) return "undefined";
-  if (val === Object(val)) return "object";
+  if (val === null) return 'null';
+  if (val === undefined) return 'undefined';
+  if (val === Object(val)) return 'object';
 
   return typeof val;
 }
@@ -160,7 +160,7 @@ function flattenJson(data) {
  *
  */
 
- function extractCustomFields(message, destination, keys, exclusionFields) {
+function extractCustomFields(message, destination, keys, exclusionFields) {
   keys.map((key) => {
     const messageContext = get(message, key);
     if (messageContext) {
@@ -171,7 +171,7 @@ function flattenJson(data) {
         }
       });
       objKeys.map((k) => {
-        if (!(typeof messageContext[k] === "undefined")) {
+        if (!(typeof messageContext[k] === 'undefined')) {
           if (destination) {
             destination[k] = get(messageContext, k);
           } else {
@@ -195,44 +195,29 @@ function flattenJson(data) {
 function getDefinedTraits(message) {
   const traitsValue = {
     userId:
-      get(message, "userId") ||
-      get(message, "context.traits.userId") ||
-      get(message, "anonymousId"),
+      get(message, 'userId') ||
+      get(message, 'context.traits.userId') ||
+      get(message, 'anonymousId'),
     email:
-      get(message, "context.traits.email") ||
-      get(message, "context.traits.Email") ||
-      get(message, "context.traits.E-mail"),
-    phone:
-      get(message, "context.traits.phone") ||
-      get(message, "context.traits.Phone"),
+      get(message, 'context.traits.email') ||
+      get(message, 'context.traits.Email') ||
+      get(message, 'context.traits.E-mail'),
+    phone: get(message, 'context.traits.phone') || get(message, 'context.traits.Phone'),
     firstName:
-      get(message, "context.traits.firstName") ||
-      get(message, "context.traits.firstname") ||
-      get(message, "context.traits.first_name"),
+      get(message, 'context.traits.firstName') ||
+      get(message, 'context.traits.firstname') ||
+      get(message, 'context.traits.first_name'),
     lastName:
-      get(message, "context.traits.lastName") ||
-      get(message, "context.traits.lastname") ||
-      get(message, "context.traits.last_name"),
-    name:
-      get(message, "context.traits.name") ||
-      get(message, "context.traits.Name"),
-    city:
-      get(message, "context.traits.city") ||
-      get(message, "context.traits.City"),
-    country:
-      get(message, "context.traits.country") ||
-      get(message, "context.traits.Country"),
+      get(message, 'context.traits.lastName') ||
+      get(message, 'context.traits.lastname') ||
+      get(message, 'context.traits.last_name'),
+    name: get(message, 'context.traits.name') || get(message, 'context.traits.Name'),
+    city: get(message, 'context.traits.city') || get(message, 'context.traits.City'),
+    country: get(message, 'context.traits.country') || get(message, 'context.traits.Country'),
   };
 
-  if (
-    !get(traitsValue, "name") &&
-    get(traitsValue, "firstName") &&
-    get(traitsValue, "lastName")
-  ) {
-    traitsValue.name = `${get(traitsValue, "firstName")} ${get(
-      traitsValue,
-      "lastName"
-    )}`;
+  if (!get(traitsValue, 'name') && get(traitsValue, 'firstName') && get(traitsValue, 'lastName')) {
+    traitsValue.name = `${get(traitsValue, 'firstName')} ${get(traitsValue, 'lastName')}`;
   }
   return traitsValue;
 }
@@ -241,16 +226,15 @@ function getDefinedTraits(message) {
  * To check if a variable is storing object or not
  */
 const isObject = (obj) => {
-  return type(obj) === "object";
+  return type(obj) === 'object';
 };
 
 /**
  * To check if a variable is storing array or not
  */
 const isArray = (obj) => {
-  return type(obj) === "array";
+  return type(obj) === 'array';
 };
-
 
 /**
  * Using this function we can create a payload from a mapping object.
@@ -303,9 +287,9 @@ const constructPayload = (object, mapper) => {
  * @param  {} obj
  * @param  {} fn
  */
- function rejectArr(obj, fn) {
+function rejectArr(obj, fn) {
   fn = fn || compact;
-  return type(obj) == "array" ? rejectarray(obj, fn) : rejectobject(obj, fn);
+  return type(obj) == 'array' ? rejectarray(obj, fn) : rejectobject(obj, fn);
 }
 
 /**
@@ -359,8 +343,7 @@ function recurse(cur, prop, result) {
     res[prop] = cur;
   } else if (Array.isArray(cur)) {
     const l = cur.length;
-    for (let i = 0; i < l; i += 1)
-      recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res);
+    for (let i = 0; i < l; i += 1) recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res);
     if (l === 0) res[prop] = [];
   } else {
     let isEmpty = true;
@@ -374,19 +357,19 @@ function recurse(cur, prop, result) {
 }
 
 function flattenJsonPayload(data) {
-  return recurse(data, "", {});
+  return recurse(data, '', {});
 }
 
 function getCurrency(val) {
   if (!val) return;
-  if (typeof val === "number") {
+  if (typeof val === 'number') {
     return val;
   }
-  if (typeof val !== "string") {
+  if (typeof val !== 'string') {
     return;
   }
 
-  val = val.replace(/\$/g, "");
+  val = val.replace(/\$/g, '');
   val = parseFloat(val);
 
   if (!isNaN(val)) {
@@ -396,8 +379,7 @@ function getCurrency(val) {
 
 function getRevenue(properties, eventName) {
   let { revenue } = properties;
-  const orderCompletedRegExp =
-    /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
+  const orderCompletedRegExp = /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
 
   // it's always revenue, unless it's called during an order completion.
   if (!revenue && eventName && eventName.match(orderCompletedRegExp)) {
@@ -420,7 +402,7 @@ const getDataFromSource = (src, dest, properties) => {
         }
       }
     }
-  } else if (typeof src === "string") {
+  } else if (typeof src === 'string') {
     if (properties[src]) {
       data[dest] = properties[src];
     }

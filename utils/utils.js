@@ -9,12 +9,11 @@ import { clientToServerNames } from './client_server_name';
 import { CONFIG_URL, RESERVED_KEYS } from './constants';
 import Storage from './storage';
 
-
 /**
  * This function is to send handled errors to Bugsnag if Bugsnag client is available
  * @param {Error} error Error instance from handled error
  */
- function notifyError(error) {
+function notifyError(error) {
   if (window.rsBugsnagClient) {
     window.rsBugsnagClient.notify(error);
   }
@@ -25,21 +24,20 @@ function handleError(error, analyticsInstance) {
   try {
     if (error instanceof Event) {
       // Discard all the non-script loading errors
-      if (error.target && error.target.localName !== "script") return;
+      if (error.target && error.target.localName !== 'script') return;
 
       // Discard errors of scripts that are not loaded by the SDK
-      if (error.target.dataset && error.target.dataset.loader !== LOAD_ORIGIN)
-        return;
+      if (error.target.dataset && error.target.dataset.loader !== LOAD_ORIGIN) return;
 
       errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
 
       // SDK triggered ad-blocker script
-      if (error.target.id === "ad-block") {
+      if (error.target.id === 'ad-block') {
         analyticsInstance.page(
-          "RudderJS-Initiated",
-          "ad-block page request",
-          { path: "/ad-blocked", title: errorMessage },
-          analyticsInstance.sendAdblockPageOptions
+          'RudderJS-Initiated',
+          'ad-block page request',
+          { path: '/ad-blocked', title: errorMessage },
+          analyticsInstance.sendAdblockPageOptions,
         );
         // No need to proceed further for Ad-block errors
         return;
@@ -52,7 +50,7 @@ function handleError(error, analyticsInstance) {
     if (!(error instanceof Error)) errorObj = new Error(errorMessage);
     notifyError(errorObj);
   } catch (err) {
-    logger.error("[handleError] Exception:: ", err);
+    logger.error('[handleError] Exception:: ', err);
     notifyError(err);
   }
 }
@@ -119,7 +117,7 @@ function getJSON(url, wrappers, isLoaded, callback) {
 
   const xhr = new XMLHttpRequest();
 
-  xhr.open("GET", url, false);
+  xhr.open('GET', url, false);
   xhr.onload = () => {
     const { status } = xhr;
     if (status === 200) {
@@ -158,9 +156,7 @@ function getJSONTrimmed(context, url, writeKey, callback) {
       // logger.debug("status 200 " + "calling callback");
       cb(200, xhr.responseText);
     } else {
-      handleError(
-        new Error(`request failed with status: ${xhr.status} for url: ${url}`)
-      );
+      handleError(new Error(`request failed with status: ${xhr.status} for url: ${url}`));
       cb(status);
     }
   };
@@ -168,24 +164,24 @@ function getJSONTrimmed(context, url, writeKey, callback) {
 }
 
 function getReferrer() {
-  return document.referrer || "$direct";
+  return document.referrer || '$direct';
 }
 
 function getReferringDomain(referrer) {
-  const split = referrer.split("/");
+  const split = referrer.split('/');
   if (split.length >= 3) {
     return split[2];
   }
-  return "";
+  return '';
 }
 
 function getCanonicalUrl() {
-  const tags = document.getElementsByTagName("link");
+  const tags = document.getElementsByTagName('link');
   for (let i = 0; i < tags.length; i += 1) {
     const tag = tags[i];
     if (!tag) break;
-    if (tag.getAttribute("rel") === "canonical") {
-      return tag.getAttribute("href");
+    if (tag.getAttribute('rel') === 'canonical') {
+      return tag.getAttribute('href');
     }
   }
 }
@@ -204,9 +200,9 @@ function getUrl(search) {
   const canonicalUrl = getCanonicalUrl();
   let url = window.location.href;
   if (canonicalUrl) {
-    url = canonicalUrl.indexOf("?") > -1 ? canonicalUrl : canonicalUrl + search;
+    url = canonicalUrl.indexOf('?') > -1 ? canonicalUrl : canonicalUrl + search;
   }
-  const hashIndex = url.indexOf("#");
+  const hashIndex = url.indexOf('#');
   return hashIndex > -1 ? url.slice(0, hashIndex) : url;
 }
 
@@ -251,7 +247,7 @@ function transformNamesCore(integrationObject, namesObj) {
         // eslint-disable-next-line no-param-reassign
         integrationObject[namesObj[key]] = integrationObject[key];
       }
-      if (key !== "All") {
+      if (key !== 'All') {
         // delete user supplied keys except All and if except those where
         // old keys are not present or old keys are same as transformed keys
         if (namesObj[key] !== undefined && namesObj[key] !== key) {
@@ -402,7 +398,6 @@ const getSDKUrlInfo = () => {
   }
   return { sdkURL, isStaging };
 };
-
 
 export {
   replacer,

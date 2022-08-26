@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
-import { type } from "../utils/commonUtils";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { type } from '../utils/commonUtils';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 class Amplitude {
   constructor(config, analytics) {
@@ -84,15 +84,7 @@ class Amplitude {
           this._q = [];
           return this;
         };
-        const a = [
-          "add",
-          "append",
-          "clearAll",
-          "prepend",
-          "set",
-          "setOnce",
-          "unset",
-        ];
+        const a = ['add', 'append', 'clearAll', 'prepend', 'set', 'setOnce', 'unset'];
         for (let c = 0; c < a.length; c += 1) {
           s(o, a[c]);
         }
@@ -231,7 +223,7 @@ class Amplitude {
 
     // For track products once, we will send the products in a single call.
     if (this.trackProductsOnce) {
-      if (products && type(products) === "array") {
+      if (products && type(products) === 'array') {
         // track all the products in a single event.
         const allProducts = [];
 
@@ -259,7 +251,7 @@ class Amplitude {
       return;
     }
 
-    if (products && type(products) === "array") {
+    if (products && type(products) === 'array') {
       // track events iterating over product array individually.
 
       // Log the actual event without products array. We will subsequently track each product with 'Product Purchased' event.
@@ -277,11 +269,7 @@ class Amplitude {
     }
   }
 
-  trackingEventAndRevenuePerProduct(
-    trackEventMessage,
-    products,
-    shouldTrackEventPerProduct
-  ) {
+  trackingEventAndRevenuePerProduct(trackEventMessage, products, shouldTrackEventPerProduct) {
     // eslint-disable-next-line camelcase
     const { revenue, revenueType, revenue_type } = trackEventMessage.properties;
     // eslint-disable-next-line camelcase
@@ -332,7 +320,7 @@ class Amplitude {
       rudderElement.message.integrations?.AM?.useNewPageEventNameFormat || false;
     // all pages
     if (this.trackAllPages) {
-      const event = "Loaded a page";
+      const event = 'Loaded a page';
       window.amplitude.getInstance().logEvent(event, properties);
     }
 

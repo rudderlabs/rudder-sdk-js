@@ -1,18 +1,14 @@
 /* eslint-disable class-methods-use-this */
-import is from "is";
-import each from "@ndhoule/each";
-import sha256 from "crypto-js/sha256";
-import get from "get-value";
-import ScriptLoader from "../ScriptLoader";
-import logger from "../../utils/logUtil";
-import getEventId from "./utils";
-import {
-  getHashFromArray,
-  isDefinedAndNotNullAndNotEmpty,
-  isDefined,
-} from "../utils/commonUtils";
-import { NAME, traitsMapper } from "./constants";
-import { constructPayload } from "../utils/commonUtils";
+import is from 'is';
+import each from '@ndhoule/each';
+import sha256 from 'crypto-js/sha256';
+import get from 'get-value';
+import ScriptLoader from '../ScriptLoader';
+import logger from '../../utils/logUtil';
+import getEventId from './utils';
+import { getHashFromArray, isDefinedAndNotNullAndNotEmpty, isDefined } from '../utils/commonUtils';
+import { NAME, traitsMapper } from './constants';
+import { constructPayload } from '../utils/commonUtils';
 
 class FacebookPixel {
   constructor(config, analytics) {
@@ -637,8 +633,7 @@ class FacebookPixel {
         continue;
       }
       const isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
-      const isPropertyWhiteListed =
-        whitelistPiiProperties.indexOf(property) >= 0;
+      const isPropertyWhiteListed = whitelistPiiProperties.indexOf(property) >= 0;
       if (!isPropertyPii || isPropertyWhiteListed) {
         payload[property] = value;
       }

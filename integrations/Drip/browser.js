@@ -45,7 +45,7 @@ class Drip {
       dc.setAttribute('data-loader', LOAD_ORIGIN);
       dc.async = true;
       dc.src = `//tag.getdrip.com/${window._dcs.account}.js`;
-      const s = document.getElementsByTagName("script")[0];
+      const s = document.getElementsByTagName('script')[0];
       s.parentNode.insertBefore(dc, s);
     })();
   }

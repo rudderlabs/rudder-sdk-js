@@ -65,7 +65,7 @@ class SnapPixel {
         a.handleRequest ? a.handleRequest.apply(a, arguments) : a.queue.push(arguments);
       });
       a.queue = [];
-      const s = "script";
+      const s = 'script';
       const r = t.createElement(s);
       r.async = !0;
       r.src = n;

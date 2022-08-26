@@ -43,16 +43,8 @@ class Qualtrics {
     (function () {
       var g = function (e, h, f, g) {
         this.get = function (a) {
-          for (
-            var a = `${a}=`,
-              c = document.cookie.split(";"),
-              b = 0,
-              e = c.length;
-            b < e;
-            b++
-          ) {
-            for (var d = c[b]; d.charAt(0) == " "; )
-              d = d.substring(1, d.length);
+          for (var a = `${a}=`, c = document.cookie.split(';'), b = 0, e = c.length; b < e; b++) {
+            for (var d = c[b]; d.charAt(0) == ' '; ) d = d.substring(1, d.length);
             if (d.indexOf(a) == 0) return d.substring(a.length, d.length);
           }
           return null;
@@ -65,9 +57,9 @@ class Qualtrics {
         };
         this.check = function () {
           var a = this.get(f);
-          if (a) a = a.split(":");
+          if (a) a = a.split(':');
           else if (e != 100)
-            h == "v" && (e = Math.random() >= e / 100 ? 0 : 100),
+            h == 'v' && (e = Math.random() >= e / 100 ? 0 : 100),
               (a = [h, e, 0]),
               this.set(f, a.join(':'));
           else return !0;
@@ -83,8 +75,8 @@ class Qualtrics {
         };
         this.go = function () {
           if (this.check()) {
-            const a = document.createElement("script");
-            a.type = "text/javascript";
+            const a = document.createElement('script');
+            a.type = 'text/javascript';
             a.dataset.loader = LOAD_ORIGIN;
             a.src = g;
             document.body && document.body.appendChild(a);
@@ -92,7 +84,7 @@ class Qualtrics {
         };
         this.start = function () {
           var t = this;
-          document.readyState !== "complete"
+          document.readyState !== 'complete'
             ? window.addEventListener
               ? window.addEventListener(
                   'load',

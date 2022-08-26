@@ -9,9 +9,9 @@ import {
   getDestinationItemProperties,
   getPageViewProperty,
   hasRequiredParameters,
-} from "./utils";
-import { type, flattenJsonPayload } from "../utils/commonUtils";
-import { NAME } from "./constants";
+} from './utils';
+import { type, flattenJsonPayload } from '../utils/commonUtils';
+import { NAME } from './constants';
 
 export default class GA4 {
   constructor(config, analytics) {

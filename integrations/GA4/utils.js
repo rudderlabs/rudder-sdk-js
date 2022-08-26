@@ -1,8 +1,8 @@
 import { eventNamesConfigArray, itemParametersConfigArray } from './ECommerceEventConfig';
 
-import { pageEventParametersConfigArray } from "./PageEventConfig";
-import { type } from "../utils/commonUtils";
-import logger from "../../utils/logUtil";
+import { pageEventParametersConfigArray } from './PageEventConfig';
+import { type } from '../utils/commonUtils';
+import logger from '../../utils/logUtil';
 
 /**
  * Check if event name is not one of the following reserved names

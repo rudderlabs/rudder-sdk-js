@@ -6,14 +6,10 @@ import {
   productPropertyMapping,
   propertyMapping,
   pinterestPropertySupport,
-} from "./propertyMappingConfig";
-import {
-  flattenJsonPayload,
-  isDefinedAndNotNull,
-  getDataFromSource,
-} from "../utils/commonUtils";
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+} from './propertyMappingConfig';
+import { flattenJsonPayload, isDefinedAndNotNull, getDataFromSource } from '../utils/commonUtils';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 export default class PinterestTag {
   constructor(config, analytics) {
