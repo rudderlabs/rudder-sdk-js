@@ -100,7 +100,7 @@ const ERROR_REPORT_PROVIDERS = [DEFAULT_ERROR_REPORT_PROVIDER];
 const GENERIC_TRUE_VALUES = ["true", "True", "TRUE", "t", "T", "1"];
 const GENERIC_FALSE_VALUES = ["false", "False", "FALSE", "f", "F", "0"];
 
-const SAMESITE_COOKIE = ['Lax', 'None', 'Strict'];
+const SAMESITE_COOKIE_OPTS = ['Lax', 'None', 'Strict'];
 
 export {
   ReservedPropertyKeywords,
