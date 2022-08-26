@@ -7,7 +7,6 @@
 /* eslint-disable class-methods-use-this */
 import Queue from '@segment/localstorage-retry';
 import { getCurrentTimeFormatted, handleError, replacer } from './utils';
-import logger from './logUtil';
 
 const queueOptions = {
   maxRetryDelay: 360000,
