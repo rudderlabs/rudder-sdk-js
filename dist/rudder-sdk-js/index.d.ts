@@ -87,6 +87,8 @@ declare module "rudder-sdk-js" {
     beaconQueueOptions?: beaconQueueOptions;
     cookieConsentManager?: cookieConsentManager;
     anonymousIdOptions?: anonymousIdOptions;
+    // defaults to https://cdn.rudderlabs.com/v1.1/js-integrations
+    destSDKBaseURL?: string;
   }
 
   /**
