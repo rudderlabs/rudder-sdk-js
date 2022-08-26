@@ -2,44 +2,50 @@ const LOG_LEVEL_INFO = 1;
 const LOG_LEVEL_DEBUG = 2;
 const LOG_LEVEL_WARN = 3;
 const LOG_LEVEL_ERROR = 4;
-let LOG_LEVEL = LOG_LEVEL_ERROR;
+const DEF_LOG_LEVEL = LOG_LEVEL_ERROR;
+let LOG_LEVEL = DEF_LOG_LEVEL;
 
 const logger = {
   setLogLevel(logLevel) {
     switch (logLevel.toUpperCase()) {
       case 'INFO':
         LOG_LEVEL = LOG_LEVEL_INFO;
-        return;
+        break;
       case 'DEBUG':
         LOG_LEVEL = LOG_LEVEL_DEBUG;
-        return;
+        break;
       case 'WARN':
         LOG_LEVEL = LOG_LEVEL_WARN;
+        break;
+      default:
+        LOG_LEVEL = DEF_LOG_LEVEL;
+        break;
     }
   },
 
-  info() {
+  info(...args) {
     if (LOG_LEVEL <= LOG_LEVEL_INFO) {
-      console.info(...arguments);
+      console.info(...args);
     }
   },
 
-  debug() {
+  debug(...args) {
     if (LOG_LEVEL <= LOG_LEVEL_DEBUG) {
-      console.log(...arguments);
+      console.log(...args);
     }
   },
 
-  warn() {
+  warn(...args) {
     if (LOG_LEVEL <= LOG_LEVEL_WARN) {
-      console.warn(...arguments);
+      console.warn(...args);
     }
   },
 
-  error() {
+  error(...args) {
     if (LOG_LEVEL <= LOG_LEVEL_ERROR) {
-      console.error(...arguments);
+      console.error(...args);
     }
   },
 };
+
 export default logger;
