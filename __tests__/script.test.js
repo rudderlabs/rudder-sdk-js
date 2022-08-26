@@ -130,7 +130,7 @@ describe('Test suite for the SDK', () => {
       expect(anonId).toEqual(anonIdRes);
       expect(rudderanalytics.getUserId()).toEqual('');
       expect(rudderanalytics.getUserTraits()).toEqual({});
-      expect(rudderanalytics.getGroupId()).toEqual("");
+      expect(rudderanalytics.getGroupId()).toEqual('');
       expect(rudderanalytics.getGroupTraits()).toEqual({});
     });
 
@@ -152,7 +152,7 @@ describe('Test suite for the SDK', () => {
       expect(anonId).not.toEqual(anonIdRes);
       expect(rudderanalytics.getUserId()).toEqual('');
       expect(rudderanalytics.getUserTraits()).toEqual({});
-      expect(rudderanalytics.getGroupId()).toEqual("");
+      expect(rudderanalytics.getGroupId()).toEqual('');
       expect(rudderanalytics.getGroupTraits()).toEqual({});
     });
   });
