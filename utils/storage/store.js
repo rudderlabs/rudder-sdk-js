@@ -22,6 +22,7 @@ class StoreLocal {
 
     this.enabled = options.enabled && this.enabled;
     this.sOpts = options;
+    return this.sOpts;
   }
 
   /**

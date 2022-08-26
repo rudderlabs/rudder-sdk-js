@@ -11,7 +11,7 @@ import decode from './base64decoder';
 const KEY_VALIDATOR = /^[a-zA-Z0-9\-_.]+$/;
 const CHECKSUM_OFFSET_MAX_MIN = 1;
 const VALID_VERSION = 1;
-const DELIMITER = "*";
+const DELIMITER = '*';
 
 /**
  * Parse the linker param value to version checksum and serializedParams
@@ -43,7 +43,6 @@ function parseLinkerParamValue(value) {
 }
 
 /**
->>>>>>> origin/production-staging
  * Deserialize the serializedIds and return keyValue pairs.
  * @param {string} serializedIds
  * @return {!Object<string, string>}
@@ -107,12 +106,7 @@ function isCheckSumValid(serializedIds, checksum) {
   const userAgent = USER_INTERFACE.getUserAgent();
   const language = USER_INTERFACE.getUserLanguage();
   for (let i = 0; i <= CHECKSUM_OFFSET_MAX_MIN; i += 1) {
-    const calculateCheckSum = getCheckSum(
-      serializedIds,
-      i,
-      userAgent,
-      language
-    );
+    const calculateCheckSum = getCheckSum(serializedIds, i, userAgent, language);
     if (calculateCheckSum === checksum) {
       return true;
     }

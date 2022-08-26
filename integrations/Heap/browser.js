@@ -23,8 +23,8 @@ class Heap {
         (r.type = "text/javascript"),
           (r.async = !0),
           r.setAttribute('data-loader', LOAD_ORIGIN),
-          (r.src = 'https://cdn.heapanalytics.com/js/heap-' + e + '.js');
-        var a = document.getElementsByTagName('script')[0];
+          (r.src = `https://cdn.heapanalytics.com/js/heap-${e}.js`);
+        const a = document.getElementsByTagName('script')[0];
         a.parentNode.insertBefore(r, a);
         for (
           let n = function (e) {
