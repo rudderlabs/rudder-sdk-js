@@ -1,8 +1,7 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-// import logger from "../logUtil";
 import { Store } from './storage/store';
-import { replacer } from './utils';
+import { replacer, handleError } from './utils';
 
 const defaults = {
   queue: 'queue',
@@ -85,7 +84,7 @@ class BeaconQueue {
     const blob = new Blob([payload], { type: 'text/plain' });
     const isPushed = navigator.sendBeacon(`${this.url}?writeKey=${this.writekey}`, blob);
     if (!isPushed) {
-      logger.error("Unable to queue data to browser's beacon queue");
+      handleError(new Error("Unable to queue data to browser's beacon queue"));
     }
     this.setQueue([]);
     this.clearTimer();
