@@ -40,7 +40,7 @@ class Drip {
     window._dcs.account = this.accountId;
 
     (function () {
-      var dc = document.createElement('script');
+      const dc = document.createElement('script');
       dc.type = 'text/javascript';
       dc.setAttribute('data-loader', LOAD_ORIGIN);
       dc.async = true;
