@@ -36,7 +36,7 @@ class Rockerbox {
         RB.initialize = function (s) {
           RB.source = s;
         };
-        var a = d.createElement('script');
+        const a = d.createElement('script');
         a.type = 'text/javascript';
         a.async = !0;
         a.src = `https://${host}/assets/${library}.js`;

@@ -41,7 +41,7 @@ class ProfitWell {
       m = s.getElementsByTagName(g)[0];
       a.async = 1;
       a.setAttribute('data-loader', LOAD_ORIGIN);
-      a.src = r + '?auth=' + window.publicApiKey;
+      a.src = `${r}?auth=${window.publicApiKey}`;
       m.parentNode.insertBefore(a, m);
     })(window, document, 'profitwell', 'script', 'https://public.profitwell.com/js/profitwell.js');
   }
