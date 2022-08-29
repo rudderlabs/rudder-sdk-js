@@ -53,6 +53,7 @@ const clientToServerNames = {
   MOUSEFLOW: "Mouseflow",
   CONVERTFLOW: "ConvertFlow",
   SNAPENGAGE: "SnapEngage",
+  LIVECHAT: "LiveChat",
 };
 
 export { clientToServerNames };

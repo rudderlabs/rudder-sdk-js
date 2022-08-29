@@ -52,6 +52,7 @@ import * as Rockerbox from "./Rockerbox";
 import * as Mouseflow from "./Mouseflow";
 import * as ConvertFlow from "./ConvertFlow";
 import * as SnapEngage from "./SnapEngage";
+import * as LiveChat from "./LiveChat";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -111,6 +112,7 @@ const integrations = {
   MOUSEFLOW: Mouseflow.default,
   CONVERTFLOW: ConvertFlow.default,
   SNAPENGAGE: SnapEngage.default,
+  LIVECHAT: LiveChat.default,
 };
 
 export { integrations };
