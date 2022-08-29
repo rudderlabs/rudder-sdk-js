@@ -85,6 +85,7 @@ declare module "rudder-sdk-js" {
     beaconQueueOptions?: beaconQueueOptions;
     cookieConsentManager?: cookieConsentManager;
     anonymousIdOptions?: anonymousIdOptions;
+    sameSiteCookie?: string;
   }
 
   /**
