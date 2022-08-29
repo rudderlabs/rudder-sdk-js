@@ -11,7 +11,8 @@ test_patterns = [
 
 exclude_patterns = [
   "node_modules/*",
-  "archive/*",
+  "**/archive/*",
   "dist/*",
-  "stats/*"
+  "stats/*",
+  "integrationBuildScript.js",
 ]
