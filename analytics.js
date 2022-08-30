@@ -42,6 +42,7 @@ import {
   POLYFILL_URL,
   DEFAULT_ERROR_REPORT_PROVIDER,
   ERROR_REPORT_PROVIDERS,
+  SAMESITE_COOKIE_OPTS,
 } from './utils/constants';
 import RudderElementBuilder from './utils/RudderElementBuilder';
 import Storage from './utils/storage';
@@ -136,17 +137,16 @@ class Analytics {
         //   "All integrations loaded dynamically",
         //   this.dynamicallyLoadedIntegrations
         // );
-        return resolve(this);
-      }
-      if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
+        resolve(this);
+      } else if (time >= 2 * MAX_WAIT_FOR_INTEGRATION_LOAD) {
         // logger.debug("Max wait for dynamically loaded integrations over")
-        return resolve(this);
+        resolve(this);
+      } else {
+        this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+          // logger.debug("Check if all integration SDKs are loaded after pause")
+          return this.allModulesInitialized(time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
+        });
       }
-
-      return this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        // logger.debug("Check if all integration SDKs are loaded after pause")
-        return this.allModulesInitialized(time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
-      });
     });
   }
 
@@ -428,18 +428,17 @@ class Analytics {
       if (instance.isLoaded()) {
         // logger.debug("===integration loaded successfully====", instance.name)
         this.successfullyLoadedIntegration.push(instance);
-        return resolve(this);
-      }
-      if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
+        resolve(this);
+      } else if (time >= MAX_WAIT_FOR_INTEGRATION_LOAD) {
         // logger.debug("====max wait over====")
         this.failedToBeLoadedIntegration.push(instance);
-        return resolve(this);
+        resolve(this);
+      } else {
+        this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+          // logger.debug("====after pause, again checking====")
+          return this.isInitialized(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
+        });
       }
-
-      return this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        // logger.debug("====after pause, again checking====")
-        return this.isInitialized(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
-      });
     });
   }
 
@@ -947,8 +946,12 @@ class Analytics {
       storageOptions = { ...storageOptions, domain: options.setCookieDomain };
     }
 
-    if (options && options.secureCookie) {
+    if (options && typeof options.secureCookie === 'boolean') {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
+    }
+
+    if (options && SAMESITE_COOKIE_OPTS.includes(options.sameSiteCookie)) {
+      storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
     }
     this.storage.options(storageOptions);
 

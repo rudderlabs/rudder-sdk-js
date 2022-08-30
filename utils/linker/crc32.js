@@ -1,3 +1,4 @@
+/* eslint-disable no-bitwise */
 /**
  * @description This is utility function for crc32 algorithm
  * @version v1.0.0
@@ -6,7 +7,7 @@
 /**
  * @description generate crc table
  * @params none
- * @returns arrray of CRC table
+ * @returns array of CRC table
  */
 
 const makeCRCTable = function () {
@@ -25,7 +26,7 @@ const makeCRCTable = function () {
 /**
  *
  * @param {string} str
- * @returns {Bystream} crc32
+ * @returns {Bytestream} crc32
  */
 const crc32 = function (str) {
   const crcTable = makeCRCTable();

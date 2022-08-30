@@ -70,14 +70,14 @@ class SnapPixel {
       r.async = !0;
       r.src = n;
       r.setAttribute('data-loader', LOAD_ORIGIN);
-      var u = t.getElementsByTagName(s)[0];
+      const u = t.getElementsByTagName(s)[0];
       u.parentNode.insertBefore(r, u);
     })(window, document, 'https://sc-static.net/scevent.min.js');
 
-    const cookieData = Storage.getUserTraits();
+    const userTraits = Storage.getUserTraits();
 
-    const userEmail = cookieData.email;
-    const userPhoneNumber = cookieData.phone;
+    const userEmail = userTraits?.email;
+    const userPhoneNumber = userTraits?.phone;
 
     let payload = getUserEmailAndPhone(this.hashMethod, userEmail, userPhoneNumber);
 
