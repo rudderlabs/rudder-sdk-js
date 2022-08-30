@@ -7,6 +7,7 @@ class Shynet {
     const { heartBeatFrequencyInMs } = config;
     const { shynetServiceUrl } = config;
     this.scriptCheck = false;
+    this.name = NAME;
 
     this.shynetScript = {
       idempotency: null,
