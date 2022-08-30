@@ -76,10 +76,10 @@ class SnapPixel {
       u.parentNode.insertBefore(r, u);
     })(window, document, 'https://sc-static.net/scevent.min.js');
 
-    const cookieData = Storage.getUserTraits();
+    const userTraits = Storage.getUserTraits();
 
-    const userEmail = cookieData.email;
-    const userPhoneNumber = cookieData.phone;
+    const userEmail = userTraits?.email;
+    const userPhoneNumber = userTraits?.phone;
 
     let payload = getUserEmailAndPhone(this.hashMethod, userEmail, userPhoneNumber);
 
