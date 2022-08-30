@@ -14,6 +14,7 @@ class SnapEngage {
     this.recordLiveChatEvents = config.recordLiveChatEvents;
     this.eventsToStandard = config.eventsToStandard;
     this.updateEventNames = config.updateEventNames;
+    this.name = NAME;
   }
 
   loadScript() {
