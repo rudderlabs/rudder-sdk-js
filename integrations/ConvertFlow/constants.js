@@ -1,4 +1,4 @@
-const NAME = "CONVERTFLOW";
+const NAME = 'CONVERTFLOW';
 const CNameMapping = {
   [NAME]: NAME,
   Convertflow: NAME,

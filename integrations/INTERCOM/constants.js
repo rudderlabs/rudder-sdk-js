@@ -1,4 +1,4 @@
-const NAME = "INTERCOM";
+const NAME = 'INTERCOM';
 const CNameMapping = {
   [NAME]: NAME,
   Intercom: NAME,

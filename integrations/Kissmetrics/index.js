@@ -1,3 +1,3 @@
-import { Kissmetrics } from "./browser";
+import { Kissmetrics } from './browser';
 
-export default Kissmetrics;
+export { Kissmetrics };

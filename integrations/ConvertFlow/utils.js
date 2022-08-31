@@ -1,17 +1,14 @@
-import {
-  getHashFromArray,
-  isDefinedAndNotNullAndNotEmpty,
-} from "../utils/commonUtils";
+import { getHashFromArray, isDefinedAndNotNullAndNotEmpty } from '../utils/commonUtils';
 
 // default mapping for the events
 const standardEventsListMapping = {
-  cfReady: "CTA Ready",
-  cfView: "CTA Viewed",
-  cfConversion: "CTA Converted",
-  cfCompletion: "CTA Completed",
-  cfSubmit: "CTA Form Submitted",
-  cfAddToCart: "Product Added to Cart",
-  cfClose: "CTA Closed",
+  cfReady: 'CTA Ready',
+  cfView: 'CTA Viewed',
+  cfConversion: 'CTA Converted',
+  cfCompletion: 'CTA Completed',
+  cfSubmit: 'CTA Form Submitted',
+  cfAddToCart: 'Product Added to Cart',
+  cfClose: 'CTA Closed',
 };
 
 const swapKeyValuePairs = (standardEventsMap) => {
@@ -88,13 +85,13 @@ const trigger = (userDefinedEventsMappping, userDefinedEventsList) => {
   let standardEventsMap = getHashFromArray(userDefinedEventsMappping);
   standardEventsMap = swapKeyValuePairs(standardEventsMap);
   const standardEventsList = [
-    "cfReady",
-    "cfView",
-    "cfConversion",
-    "cfCompletion",
-    "cfSubmit",
-    "cfAddToCart",
-    "cfClose",
+    'cfReady',
+    'cfView',
+    'cfConversion',
+    'cfCompletion',
+    'cfSubmit',
+    'cfAddToCart',
+    'cfClose',
   ];
   standardEventsList.forEach((events) => {
     if (userDefinedEventsList.includes(events)) {

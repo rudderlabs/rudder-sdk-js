@@ -1,3 +1,3 @@
-import Clevertap from "./browser";
+import Clevertap from './browser';
 
-export default Clevertap;
+export { Clevertap };

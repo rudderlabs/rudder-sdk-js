@@ -2,6 +2,7 @@
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable no-prototype-builtins */
 import ScriptLoader from '../../integrations/ScriptLoader';
+import { configToIntNames } from '../../utils/config_to_integration_names';
 import { MAX_WAIT_FOR_INTEGRATION_LOAD } from '../../utils/constants';
 import { get } from '../../utils/utils';
 
@@ -17,7 +18,10 @@ const META_DATA = {
 const API_KEY = '{{RS_BUGSNAG_API_KEY}}';
 
 // Errors only from Below SDKs are allowed to reach Bugsnag
-const SDK_FILE_NAMES = ['rudder-analytics.min.js'];
+const SDK_FILE_NAMES = [
+  'rudder-analytics.min.js',
+  ...Object.keys(configToIntNames).map((intgName) => `${configToIntNames[intgName]}.min.js`),
+];
 
 /**
  * This function will load the Bugsnag native SDK through CDN
@@ -26,11 +30,9 @@ const SDK_FILE_NAMES = ['rudder-analytics.min.js'];
 const load = () => {
   const pluginName = 'bugsnag';
   if (!window.hasOwnProperty(pluginName)) {
-    ScriptLoader(
-      pluginName,
-      "https://d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js",
-      { isNonNativeSDK: "true" }
-    );
+    ScriptLoader(pluginName, 'https://d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js', {
+      isNonNativeSDK: 'true',
+    });
   }
 };
 

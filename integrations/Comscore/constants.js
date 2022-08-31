@@ -1,4 +1,4 @@
-const NAME = "COMSCORE";
+const NAME = 'COMSCORE';
 const CNameMapping = {
   [NAME]: NAME,
   Comscore: NAME,

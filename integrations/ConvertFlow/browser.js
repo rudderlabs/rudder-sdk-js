@@ -1,9 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from "./constants";
-import logger from "../../utils/logUtil";
-import ScriptLoader from "../ScriptLoader";
-import { trigger } from "./utils";
+import { NAME } from './constants';
+import logger from '../../utils/logUtil';
+import ScriptLoader from '../ScriptLoader';
+import { trigger } from './utils';
 
 class ConvertFlow {
   constructor(config) {
@@ -15,33 +15,33 @@ class ConvertFlow {
   }
 
   init() {
-    logger.debug("===In init convertflow===");
+    logger.debug('===In init convertflow===');
     ScriptLoader(
-      "convertflow-integration",
-      `https://js.convertflow.co/production/websites/${this.websiteId}.js`
+      'convertflow-integration',
+      `https://js.convertflow.co/production/websites/${this.websiteId}.js`,
     );
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded convertflow===");
+    logger.debug('===In isLoaded convertflow===');
     if (this.toggleToSendData) {
       trigger(this.eventsMappping, this.eventsList);
     }
-    return !!window.convertflow && typeof window.convertflow === "object";
+    return !!window.convertflow && typeof window.convertflow === 'object';
   }
 
   isReady() {
-    logger.debug("===In isReady convertflow===");
+    logger.debug('===In isReady convertflow===');
     return !!window.convertflow;
   }
 
   // identify call to Convertflow
   identify(rudderElement) {
-    logger.debug("===In convertflow Identify===");
+    logger.debug('===In convertflow Identify===');
     const { message } = rudderElement;
     const email = message.context.traits?.email || message.traits?.email;
     if (!email) {
-      logger.error("email is rquired for identify call");
+      logger.error('email is rquired for identify call');
     }
     const payload = { email, override: true };
     window.convertflow.identify(payload);

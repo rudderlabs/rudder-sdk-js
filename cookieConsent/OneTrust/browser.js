@@ -1,14 +1,13 @@
-import logger from "../../utils/logUtil";
+import logger from '../../utils/logUtil';
 
 /* eslint-disable class-methods-use-this */
 class OneTrust {
-  constructor(sourceConfig) {
-    this.sourceConfig = sourceConfig;
+  constructor() {
     // If user does not load onetrust sdk before loading rudderstack sdk
     // we will not be filtering any of the destinations.
     if (!window.OneTrust || !window.OnetrustActiveGroups) {
       throw new Error(
-        "OneTrust resources are not accessible. Thus all the destinations will be loaded"
+        'OneTrust resources are not accessible. Thus all the destinations will be loaded',
       );
     }
     // OneTrust Cookie Compliance populates a data layer object OnetrustActiveGroups with
@@ -16,7 +15,7 @@ class OneTrust {
     // Eg: ',C0001,C0003,'
     // We split it and save it as an array.
 
-    const userSetConsentGroupIds = window.OnetrustActiveGroups.split(","); // Ids user has consented
+    const userSetConsentGroupIds = window.OnetrustActiveGroups.split(','); // Ids user has consented
 
     // Get information about the cookie script - data includes, consent models, cookies in preference centre, etc.
     // We get the groups(cookie categorization), user has created in one trust account.
@@ -71,7 +70,7 @@ class OneTrust {
       let containsAllConsent = true;
       // Check if all the destination's mapped cookie categories are consented by the user in the browser.
       containsAllConsent = oneTrustConsentGroupArr.every((element) =>
-        this.userSetConsentGroupNames.includes(element.toUpperCase().trim())
+        this.userSetConsentGroupNames.includes(element.toUpperCase().trim()),
       );
       return containsAllConsent;
     } catch (e) {

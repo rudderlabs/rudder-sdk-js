@@ -1,9 +1,9 @@
 /* eslint-disable prefer-destructuring */
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { getHashFromArray } from "../utils/commonUtils";
+import logger from '../../utils/logUtil';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { getHashFromArray } from '../utils/commonUtils';
 
 class Rockerbox {
   constructor(config) {
@@ -16,10 +16,9 @@ class Rockerbox {
   }
 
   init() {
-    logger.debug("=== In init Rockerbox ===");
-    const host = this.customDomain ? this.customDomain : "getrockerbox.com";
-    const library =
-      this.customDomain && this.enableCookieSync ? "wxyz.rb" : "wxyz.v2";
+    logger.debug('=== In init Rockerbox ===');
+    const host = this.customDomain ? this.customDomain : 'getrockerbox.com';
+    const library = this.customDomain && this.enableCookieSync ? 'wxyz.rb' : 'wxyz.v2';
     (function (d, RB) {
       if (!window.RB) {
         window.RB = RB;
@@ -32,12 +31,12 @@ class Rockerbox {
         RB.initialize = function (s) {
           RB.source = s;
         };
-        var a = d.createElement("script");
-        a.type = "text/javascript";
+        const a = d.createElement('script');
+        a.type = 'text/javascript';
         a.async = !0;
         a.src = `https://${host}/assets/${library}.js`;
         a.dataset.loader = LOAD_ORIGIN;
-        const f = d.getElementsByTagName("script")[0];
+        const f = d.getElementsByTagName('script')[0];
         f.parentNode.insertBefore(a, f);
       }
     })(document, window.RB || {});
@@ -47,26 +46,24 @@ class Rockerbox {
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded Rockerbox===");
+    logger.debug('===In isLoaded Rockerbox===');
     return !!window.RB && !!window.RB.loaded;
   }
 
   isReady() {
-    logger.debug("===In isReady Rockerbox===");
+    logger.debug('===In isReady Rockerbox===');
     return !!window.RB;
   }
 
   identify(rudderElement) {
-    logger.debug("===In Rockerbox Identify===");
+    logger.debug('===In Rockerbox Identify===');
     const { message } = rudderElement;
     const { userId } = message;
     if (!userId) {
-      logger.debug(
-        "userId is needed. A primary identifier is expected by RockerBox"
-      );
+      logger.debug('userId is needed. A primary identifier is expected by RockerBox');
     }
     const email = message.traits?.email || message.context?.traits?.email;
-    window.RB.track("identify", {
+    window.RB.track('identify', {
       external_id: userId,
       email,
       phone_number: message.traits?.phone || message.context?.traits?.phone,
@@ -76,17 +73,17 @@ class Rockerbox {
   track(rudderElement) {
     if (!this.useNativeSDKToSend) {
       logger.info(
-        "The useNativeSDKToSend toggle is disabled. Track call will not be sent via device mode."
+        'The useNativeSDKToSend toggle is disabled. Track call will not be sent via device mode.',
       );
       return;
     }
-    logger.debug("===In Rockerbox track===");
+    logger.debug('===In Rockerbox track===');
 
     const { message } = rudderElement;
     const { event } = message;
 
     if (!event) {
-      logger.error("Event name not present");
+      logger.error('Event name not present');
       return;
     }
 
@@ -95,16 +92,14 @@ class Rockerbox {
     if (rbEvent) {
       window.RB.track(rbEvent, message.properties);
     } else {
-      logger.error(
-        `The event ${message.event} is not mapped to any Rockerbox Event. Aborting!`
-      );
+      logger.error(`The event ${message.event} is not mapped to any Rockerbox Event. Aborting!`);
     }
   }
 
   page(rudderElement) {
-    logger.debug("=== In Rockerbox Page ===");
+    logger.debug('=== In Rockerbox Page ===');
     const { message } = rudderElement;
-    window.RB.track("view", message.properties);
+    window.RB.track('view', message.properties);
   }
 }
 

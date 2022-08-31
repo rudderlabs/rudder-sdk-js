@@ -1,3 +1,3 @@
-import Drip from "./browser";
+import Drip from './browser';
 
-export default Drip;
+export { Drip };

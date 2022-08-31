@@ -12,7 +12,6 @@
 local.properties
 *.apk
 *.zip
-package-lock.json
 build.sh
 publish.sh
 dist/*
@@ -20,3 +19,4 @@ dist/*
 dist/rudder-sdk-js/index.js
 coverage/**
 __tests__/prodsdk.js
+.eslintcache
