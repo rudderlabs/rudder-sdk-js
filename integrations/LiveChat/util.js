@@ -5,26 +5,13 @@ const integrationContext = {
   version: "1.0.0",
 };
 
-// default mapping for the events
-const standardEventsListMapping = {
-  onReady: "ready",
-  onAvailabilityChanged: "availability_changed",
-  onVisibilityChanged: "visibility_changed",
-  onCustomerStatusChanged: "customer_status_changed",
-  onNewEvent: "new_event",
-  onFormSubmitted: "form_submitted",
-  onRatingSubmitted: "rating_submitted",
-  onGreetingDisplayed: "greeting_displayed",
-  onGreetingHidden: "greeting_hidden",
-  onRichMessageButtonClicked: "rich_message_button_clicked",
-};
-
-const makeACall = (standardEventsMap, eventName) => {
+const makeACall = (standardEventsMap, eventName, updateEventNames) => {
   // Updating the event name with any mapping from the webapp if available else
   // storing default event name in the updatedEvent
-  const updatedEvent = standardEventsMap[eventName]
-    ? standardEventsMap[eventName]
-    : standardEventsListMapping[eventName];
+  const updatedEvent =
+    standardEventsMap[eventName] && updateEventNames
+      ? standardEventsMap[eventName]
+      : eventName;
 
   window.rudderanalytics.track(
     `${updatedEvent}`,
@@ -48,24 +35,26 @@ function recordingLiveChatEvents(
 ) {
   let standardEventsMap = getHashFromArray(userDefinedEventsMapping);
   standardEventsMap = swapKeyValuePairs(standardEventsMap);
-  const standardEventsList = [
-    "onReady",
-    "onAvailabilityChanged",
-    "onVisibilityChanged",
-    "onCustomerStatusChanged",
-    "onNewEvent",
-    "onFormSubmitted",
-    "onRatingSubmitted",
-    "onGreetingDisplayed",
-    "onGreetingHidden",
-    "onRichMessageButtonClicked",
-  ];
-  standardEventsList.forEach((events) => {
-    if (userDefinedEventsList.includes(events)) {
-      window.LiveChatWidget.on(standardEventsListMapping[events], events);
-      makeACall(standardEventsMap, events);
-    }
-  });
+  (function (api) {
+    [
+      "ready",
+      "new_event",
+      "form_submitted",
+      "greeting_hidden",
+      "rating_submitted",
+      "visibility_changed",
+      "greeting_displayed",
+      "availability_changed",
+      "customer_status_changed",
+      "rich_message_button_clicked",
+    ].forEach(function (eventName) {
+      if (userDefinedEventsList.includes(eventName)) {
+        api.on(eventName, function (payload) {
+          makeACall(standardEventsMap, eventName, updateEventNames);
+        });
+      }
+    });
+  })(window.LiveChatWidget);
 }
 
 export { integrationContext, recordingLiveChatEvents };
