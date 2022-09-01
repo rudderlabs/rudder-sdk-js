@@ -51,7 +51,7 @@ class Shynet {
         // taking default as 5 sec as used in shynet doc
         this.heartBeatTaskId = setInterval(
           this.sendHeartBeat,
-          heartBeatFrequencyInMs || 5000
+          parseInt(heartBeatFrequencyInMs || 5000)
         );
         this.sendHeartBeat(referrer, url);
       },
