@@ -1,0 +1,18 @@
+version = 1
+
+[[analyzers]]
+name = "javascript"
+enabled = true
+
+test_patterns = [
+    "__tests__/*",
+    "tests/*"
+]
+
+exclude_patterns = [
+  "node_modules/*",
+  "**/archive/*",
+  "dist/*",
+  "stats/*",
+  "integrationBuildScript.js",
+]
