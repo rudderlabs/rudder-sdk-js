@@ -87,7 +87,6 @@ class LiveChat {
 
     if (!email) {
       logger.error("User parameter (email) is required for identify call");
-      return;
     }
     window.LiveChatWidget.call("set_customer_email", email);
 
@@ -97,6 +96,7 @@ class LiveChat {
     if (name) {
       window.LiveChatWidget.call("set_customer_name", name);
     }
+    window.LiveChatWidget.call("set_session_variables", get(message, "traits");
   }
 }
 
