@@ -506,7 +506,7 @@ function recurse(cur, prop, result) {
   return res;
 }
 
-function flattenJsonPayload(data, property = "") {
+function flattenJsonPayload(data, property = '') {
   return recurse(data, property, {});
 }
 /* ------- End FlattenJson ----------- */

@@ -99,7 +99,7 @@ class Rockerbox {
     logger.debug('=== In Rockerbox Page ===');
     const { message } = rudderElement;
     const { anonymousId } = message;
-    window.RB.track("view", { ...message.properties, anonymousId });
+    window.RB.track('view', { ...message.properties, anonymousId });
   }
 }
 

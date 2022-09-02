@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import get from "get-value";
-import logger from "../../utils/logUtil";
-import { NAME } from "./constants";
+import get from 'get-value';
+import logger from '../../utils/logUtil';
+import { NAME } from './constants';
 
 import { recordingLiveChatEvents } from './util';
 import { getHashFromArray } from '../utils/commonUtils';
