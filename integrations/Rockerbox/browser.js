@@ -89,11 +89,10 @@ class Rockerbox {
       logger.error("Event name not present");
       return;
     }
-    message.properties.anonymousId = anonymousId;
     const eventsHashmap = getHashFromArray(this.eventsMap);
     const rbEvent = eventsHashmap[event.toLowerCase()];
     if (rbEvent) {
-      window.RB.track(rbEvent, message.properties);
+      window.RB.track(rbEvent, { ...message.properties, anonymousId });
     } else {
       logger.error(
         `The event ${message.event} is not mapped to any Rockerbox Event. Aborting!`
@@ -105,8 +104,7 @@ class Rockerbox {
     logger.debug("=== In Rockerbox Page ===");
     const { message } = rudderElement;
     const { anonymousId } = message;
-    message.properties.anonymousId = anonymousId;
-    window.RB.track("view", message.properties);
+    window.RB.track("view", { ...message.properties, anonymousId });
   }
 }
 
