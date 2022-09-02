@@ -82,6 +82,7 @@ class LiveChat {
   identify(rudderElement) {
     logger.debug("===In LiveChat Identify===");
     const { message } = rudderElement;
+    const { traits } = rudderElement.message.context;
     const email =
       get(message, "context.traits.email") || get(message, "traits.email");
 
@@ -96,7 +97,9 @@ class LiveChat {
     if (name) {
       window.LiveChatWidget.call("set_customer_name", name);
     }
-    window.LiveChatWidget.call("set_session_variables", get(message, "traits");
+    if (traits) {
+      window.LiveChatWidget.call("set_session_variables", traits);
+    }
   }
 }
 
