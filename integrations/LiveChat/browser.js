@@ -5,6 +5,7 @@ import logger from "../../utils/logUtil";
 
 import { recordingLiveChatEvents } from "./util";
 import { isObject } from "../../utils/utils";
+import { flattenJson } from "../utils/commonUtils";
 import { NAME } from "./constants";
 
 class LiveChat {
@@ -98,7 +99,7 @@ class LiveChat {
       window.LiveChatWidget.call("set_customer_name", name);
     }
     if (traits) {
-      window.LiveChatWidget.call("set_session_variables", traits);
+      window.LiveChatWidget.call("set_session_variables", flattenJson(traits));
     }
   }
 }
