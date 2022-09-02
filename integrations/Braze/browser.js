@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import { del } from "obj-case";
 import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from '../ScriptLoader';
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { BrazeOperationString, NAME } from "./constants";
 
 /*
