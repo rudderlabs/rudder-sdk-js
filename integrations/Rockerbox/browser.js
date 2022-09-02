@@ -58,13 +58,14 @@ class Rockerbox {
   identify(rudderElement) {
     logger.debug('===In Rockerbox Identify===');
     const { message } = rudderElement;
-    const { userId } = message;
+    const { userId, anonymousId } = message;
     if (!userId) {
       logger.debug('userId is needed. A primary identifier is expected by RockerBox');
     }
     const email = message.traits?.email || message.context?.traits?.email;
     window.RB.track('identify', {
       external_id: userId,
+      anonymousId,
       email,
       phone_number: message.traits?.phone || message.context?.traits?.phone,
     });
@@ -80,17 +81,15 @@ class Rockerbox {
     logger.debug('===In Rockerbox track===');
 
     const { message } = rudderElement;
-    const { event } = message;
-
+    const { event, anonymousId } = message;
     if (!event) {
       logger.error('Event name not present');
       return;
     }
-
     const eventsHashmap = getHashFromArray(this.eventsMap);
     const rbEvent = eventsHashmap[event.toLowerCase()];
     if (rbEvent) {
-      window.RB.track(rbEvent, message.properties);
+      window.RB.track(rbEvent, { ...message.properties, anonymousId });
     } else {
       logger.error(`The event ${message.event} is not mapped to any Rockerbox Event. Aborting!`);
     }
@@ -99,7 +98,8 @@ class Rockerbox {
   page(rudderElement) {
     logger.debug('=== In Rockerbox Page ===');
     const { message } = rudderElement;
-    window.RB.track('view', message.properties);
+    const { anonymousId } = message;
+    window.RB.track("view", { ...message.properties, anonymousId });
   }
 }
 
