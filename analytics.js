@@ -1130,6 +1130,7 @@ class Analytics {
     this.userTraits = {};
     this.groupId = "";
     this.groupTraits = {};
+    this.sessionInfo = {};
     this.storage.clear(flag);
   }
 
