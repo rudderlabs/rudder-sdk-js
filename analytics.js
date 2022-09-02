@@ -245,8 +245,8 @@ class Analytics {
    * @returns
    */
   startSession(sessionId) {
-    if (!sessionId || typeof sessionId !== 'string') {
-      logger.error(`[Session]:: Invalid sessionId`);
+    if (sessionId && typeof sessionId !== 'string') {
+      logger.error(`[Session]:: "sessionId" should be in string format`);
       return;
     }
     if (
@@ -255,7 +255,7 @@ class Analytics {
       !this.sessionInfo.id
     ) {
       this.sessionInfo = {
-        id: sessionId,
+        id: sessionId || Date.now(),
         sessionStart: false,
         manuallyTrackSession: true,
       };
