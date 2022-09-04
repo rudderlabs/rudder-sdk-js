@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import get from "get-value";
 import logger from "../../utils/logUtil";
 import {
   eventMapping,
@@ -217,7 +218,8 @@ export default class PinterestTag {
       destEvent?.hasEmptyProducts,
       destEvent?.isUserDefinedEvent
     );
-    pinterestObject.event_id = this.deduplicationKey || messageId;
+    pinterestObject.event_id =
+      get(rudderElement.message, this.deduplicationKey) || messageId;
 
     this.sendPinterestTrack(eventName, pinterestObject);
   }
