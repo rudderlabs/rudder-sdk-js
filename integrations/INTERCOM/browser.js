@@ -3,6 +3,7 @@ import md5 from 'md5';
 import logger from '../../utils/logUtil';
 import { LOAD_ORIGIN } from '../ScriptLoader';
 import { NAME } from './constants';
+import { flattenJsonPayload } from '../../utils/utils';
 
 class INTERCOM {
   constructor(config, analytics) {
@@ -163,6 +164,8 @@ class INTERCOM {
       const value = message.properties[property];
       if (value && typeof value !== 'object' && !Array.isArray(value)) {
         rawPayload[property] = value;
+      } else if (value && typeof value === 'object') {
+        Object.assign(rawPayload, flattenJsonPayload(value, property));
       }
     });
 
