@@ -817,7 +817,7 @@ class Analytics {
       }
       // If auto/manual session tracking is enabled sessionId will be sent in the context
       if (
-        this.session.autoTrackSession ||
+        this.session.autoTrack ||
         this.session.sessionInfo.manuallyTrackSession
       ) {
         try {
@@ -1002,7 +1002,7 @@ class Analytics {
     this.groupTraits = {};
     const { manuallyTrackSession } = this.session.sessionInfo;
     this.session.sessionInfo = {};
-    if (this.session.autoTrackSession) {
+    if (this.session.autoTrack) {
       this.session.startAutoTracking();
     }
     if (manuallyTrackSession) {

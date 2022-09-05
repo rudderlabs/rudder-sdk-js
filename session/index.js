@@ -9,7 +9,7 @@ import {
 class Session {
   constructor() {
     this.storage = Storage;
-    this.sessionTimeout = DEFAULT_SESSION_TIMEOUT;
+    this.timeout = DEFAULT_SESSION_TIMEOUT;
   }
 
   /**
@@ -20,42 +20,44 @@ class Session {
     // Fetch session information from storage if any or initialize with an empty object
     this.sessionInfo = this.storage.getSessionInfo() || {};
     /**
-     * By default this.autoTrackSession will be true
-     * Cases where this.autoTrackSession will be false:
-     * 1. User explicitly set autoTrackSession load option to false
+     * By default this.autoTrack will be true
+     * Cases where this.autoTrack will be false:
+     * 1. User explicitly set autoTrack load option to false
      * 2. When user is manually tracking the session
      *
-     * Depending on the use case, this.autoTrackSession is set to true/false.
+     * Depending on the use case, this.autoTrack is set to true/false.
      */
-    this.autoTrackSession = !(
-      (options && options.autoTrackSession === false) ||
+    this.autoTrack = !(
+      (options && options.sessions && options.sessions.autoTrack === false) ||
       this.sessionInfo.manuallyTrackSession
     );
     /**
-     * Validate "sessionTimeout" input. Should be provided in milliseconds.
+     * Validate "timeout" input. Should be provided in milliseconds.
      * Session timeout: By default, a session lasts until there's 30 minutes of inactivity,
-     * but you can configure this limit using "sessionTimeout" load option
+     * but you can configure this limit using "timeout" load option
      */
-    if (options && typeof options.sessionTimeout === 'number') {
-      // In case user provides 0 as the sessionTimeout, auto session tracking will be disabled
-      if (options.sessionTimeout === 0) {
+    if (
+      options &&
+      options.sessions &&
+      typeof options.sessions.timeout === "number"
+    ) {
+      const { timeout } = options.sessions;
+      // In case user provides 0 as the timeout, auto session tracking will be disabled
+      if (timeout === 0) {
         logger.warn(
-          '[Session]:: Provided sessionTimeout value 0 will disable the auto session tracking feature.',
+          '[Session]:: Provided timeout value 0 will disable the auto session tracking feature.',
         );
-        this.autoTrackSession = false;
+        this.autoTrack = false;
       }
       // In case user provides a setTimeout value greater than 0 but less than 10 seconds SDK will show a warning
       // and will proceed with it
-      if (
-        options.sessionTimeout > 0 &&
-        options.sessionTimeout < MIN_SESSION_TIMEOUT
-      ) {
-        logger.warn('[Session]:: It is not advised to set "sessionTimeout" less than 10 seconds');
+      if (timeout > 0 && timeout < MIN_SESSION_TIMEOUT) {
+        logger.warn('[Session]:: It is not advised to set "timeout" less than 10 seconds');
       }
-      this.sessionTimeout = options.sessionTimeout;
+      this.timeout = timeout;
     }
     // If auto session tracking is enabled start the session tracking
-    if (this.autoTrackSession) {
+    if (this.autoTrack) {
       this.startAutoTracking();
     } else if (
       Object.keys(this.sessionInfo).length &&
@@ -85,7 +87,7 @@ class Session {
     const timestamp = Date.now();
     if (!this.isValidSession(timestamp)) {
       this.sessionInfo.id = timestamp.toString(); // set the current timestamp
-      this.sessionInfo.expiresAt = timestamp + this.sessionTimeout; // set the expiry time of the session
+      this.sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session
       this.sessionInfo.sessionStart = false;
     }
     this.storage.setSessionInfo(this.sessionInfo);
@@ -106,7 +108,7 @@ class Session {
       !Object.keys(this.sessionInfo).length ||
       !this.sessionInfo.id
     ) {
-      this.autoTrackSession = false;
+      this.autoTrack = false;
       this.sessionInfo = {
         id: sessionId || Date.now(),
         sessionStart: false,
@@ -129,7 +131,7 @@ class Session {
    */
   update(timestamp) {
     if (!this.sessionInfo.manuallyTrackSession)
-      this.sessionInfo.expiresAt = timestamp + this.sessionTimeout; // set the expiry time of the session
+      this.sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session
     if (!this.sessionInfo.sessionStart) this.sessionInfo.sessionStart = true;
     this.storage.setSessionInfo(this.sessionInfo);
   }
