@@ -87,8 +87,8 @@ declare module "rudder-sdk-js" {
     anonymousIdOptions?: anonymousIdOptions;
     sameSiteCookie?: string;
     sessions?: {
-      autoTrackSession?: boolean; // Defaults to true
-      sessionTimeout?: number; // Defaults to 30 mins
+      autoTrack?: boolean; // Defaults to true
+      timeout?: number; // Defaults to 30 mins
     }
   }
 
