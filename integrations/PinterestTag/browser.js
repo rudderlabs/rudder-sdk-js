@@ -207,7 +207,8 @@ export default class PinterestTag {
     if (!rudderElement.message || !rudderElement.message.event) {
       return;
     }
-    const { properties, event, messageId } = rudderElement.message;
+    const { message } = rudderElement;
+    const { properties, event, messageId } = message;
     let eventName = event;
     const destEvent = this.getDestinationEventName(event);
     if (isDefinedAndNotNull(destEvent)) {
@@ -219,7 +220,7 @@ export default class PinterestTag {
       destEvent?.isUserDefinedEvent
     );
     pinterestObject.event_id =
-      get(rudderElement.message, this.deduplicationKey) || messageId;
+      get(message, `${this.deduplicationKey}`) || messageId;
 
     this.sendPinterestTrack(eventName, pinterestObject);
   }
