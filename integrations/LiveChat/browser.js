@@ -83,23 +83,27 @@ class LiveChat {
   identify(rudderElement) {
     logger.debug("===In LiveChat Identify===");
     const { message } = rudderElement;
+    const { userId } = message;
     const { traits } = rudderElement.message.context;
-    const email =
-      get(message, "context.traits.email") || get(message, "traits.email");
+    const email = get(message, "context.traits.email");
 
-    if (!email) {
-      logger.error("User parameter (email) is required for identify call");
+    if (email) {
+      window.LiveChatWidget.call("set_customer_email", email);
+    } else {
+      logger.error(
+        "User parameter (email) ,required for identify call, not found."
+      );
     }
-    window.LiveChatWidget.call("set_customer_email", email);
 
-    const name =
-      get(message, "context.traits.name") || get(message, "traits.name");
+    const name = get(message, "context.traits.name");
 
     if (name) {
       window.LiveChatWidget.call("set_customer_name", name);
     }
     if (traits) {
-      window.LiveChatWidget.call("set_session_variables", flattenJson(traits));
+      const flattenTraits = flattenJson(traits);
+      if (userId) flattenTraits.userId = userId;
+      window.LiveChatWidget.call("set_session_variables", flattenTraits);
     }
   }
 }
