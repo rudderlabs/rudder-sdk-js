@@ -16,6 +16,31 @@ class INTERCOM {
     this.MOBILE_APP_ID = config.mobileAppId;
     logger.debug('Config ', config);
   }
+  
+  static flattenEventObject(ob, keyPrefix) {
+    // The object which contains the final result
+    const result = {};
+
+    // loop through the object "ob"
+    Object.keys(ob).forEach((key) => {
+      // We check the type of the obj using
+      // typeof() function and recursively
+      // call the function again
+      if (typeof ob[key] === 'object' && !Array.isArray(ob[key])) {
+        const temp = INTERCOM.flattenEventObject(ob[key], key);
+        Object.keys(temp).forEach((tempKey) => {
+          // Store temp in result
+          result[`${keyPrefix}_${tempKey}`] = temp[tempKey];
+        });
+      }
+
+      // Else if not an array store ob[key] in result directly
+      else if (!Array.isArray(ob[key])) {
+        result[`${keyPrefix}_${key}`] = ob[key];
+      }
+    });
+    return result;
+  }
 
   init() {
     window.intercomSettings = {
