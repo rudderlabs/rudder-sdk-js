@@ -164,6 +164,5 @@ class UserSession {
   }
 }
 
-const userSession = new UserSession();
 
-export { userSession as UserSession };
+export { new UserSession() as UserSession };
