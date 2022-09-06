@@ -53,6 +53,8 @@ import * as Mouseflow from "./Mouseflow";
 import * as ConvertFlow from "./ConvertFlow";
 import * as SnapEngage from "./SnapEngage";
 import * as LiveChat from "./LiveChat";
+import * as Shynet from "./Shynet";
+
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -113,6 +115,7 @@ const integrations = {
   CONVERTFLOW: ConvertFlow.default,
   SNAPENGAGE: SnapEngage.default,
   LIVECHAT: LiveChat.default,
+  SHYNET: Shynet.default,
 };
 
 export { integrations };

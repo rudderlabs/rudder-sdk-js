@@ -54,6 +54,8 @@ const clientToServerNames = {
   CONVERTFLOW: "ConvertFlow",
   SNAPENGAGE: "SnapEngage",
   LIVECHAT: "LiveChat",
+  SHYNET: "Shynet",
+
 };
 
 export { clientToServerNames };
