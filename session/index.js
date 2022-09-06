@@ -11,6 +11,9 @@ class UserSession {
   constructor() {
     this.storage = Storage;
     this.timeout = DEFAULT_SESSION_TIMEOUT;
+    this.sessionInfo = {
+      autoTrack: true,
+    };
   }
 
   /**
