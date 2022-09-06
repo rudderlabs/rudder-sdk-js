@@ -55,6 +55,7 @@ const configToIntNames = {
   ROCKERBOX: 'Rockerbox',
   CONVERTFLOW: 'ConvertFlow',
   SNAPENGAGE: 'SnapEngage',
+  LIVECHAT: 'LiveChat',
 };
 
 export { configToIntNames };
