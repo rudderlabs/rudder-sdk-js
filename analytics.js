@@ -817,7 +817,7 @@ class Analytics {
       }
       // If auto/manual session tracking is enabled sessionId will be sent in the context
       try {
-        const { sessionId, sessionStart } = this.session.getSession();
+        const { sessionId, sessionStart } = this.session.getSessionInfo();
         rudderElement.message.context.sessionId = sessionId;
         if (sessionStart) rudderElement.message.context.sessionStart = true;
       } catch (e) {

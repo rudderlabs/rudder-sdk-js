@@ -33,8 +33,7 @@ class UserSession {
        * Depending on the use case, this.autoTrack is set to true/false.
        */
       this.sessionInfo.autoTrack = !(
-        options?.sessions?.autoTrack === false ||
-        this.sessionInfo.manuallyTrackSession
+        options?.sessions?.autoTrack === false || this.sessionInfo.manualTrack
       );
       /**
        * Validate "timeout" input. Should be provided in milliseconds.
@@ -42,9 +41,8 @@ class UserSession {
        * but you can configure this limit using "timeout" load option
        */
       if (
-        options &&
-        options.sessions &&
-        typeof options.sessions.timeout === "number"
+        options?.sessions?.timeout &&
+        !Number.isNaN(options.sessions.timeout)
       ) {
         const { timeout } = options.sessions;
         // In case user provides 0 as the timeout, auto session tracking will be disabled
@@ -65,8 +63,8 @@ class UserSession {
       if (this.sessionInfo.autoTrack) {
         this.startAutoTracking();
       } else if (
-        Object.keys(this.sessionInfo).length > 1 &&
-        !this.sessionInfo.manuallyTrackSession
+        this.sessionInfo.autoTrack === false &&
+        !this.sessionInfo.manualTrack
       ) {
         /**
          * Use case:
@@ -96,6 +94,7 @@ class UserSession {
   startAutoTracking() {
     const timestamp = Date.now();
     if (!this.isValidSession(timestamp)) {
+      this.sessionInfo = {};
       this.sessionInfo.id = timestamp.toString(); // set the current timestamp
       this.sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session
       this.sessionInfo.sessionStart = true;
@@ -110,7 +109,6 @@ class UserSession {
    * @returns
    */
   start(sessionId) {
-    if (this.sessionInfo.manuallyTrackSession) return;
     if (sessionId && typeof sessionId !== 'string') {
       logger.error(`[Session]:: "sessionId" should be in string format`);
       return;
@@ -118,7 +116,7 @@ class UserSession {
     this.sessionInfo = {
       id: sessionId || Date.now().toString(),
       sessionStart: true,
-      manuallyTrackSession: true,
+      manualTrack: true,
       autoTrack: false,
     };
     this.storage.setSessionInfo(this.sessionInfo);
@@ -135,11 +133,11 @@ class UserSession {
   /**
    * A function get ongoing sessionId.
    */
-  getSession() {
+  getSessionInfo() {
     const session = {};
-    if (this.sessionInfo.autoTrack || this.sessionInfo.manuallyTrackSession) {
+    if (this.sessionInfo.autoTrack || this.sessionInfo.manualTrack) {
       const timestamp = Date.now();
-      if (!this.sessionInfo.manuallyTrackSession) {
+      if (!this.sessionInfo.manualTrack) {
         if (!this.isValidSession(timestamp)) this.startAutoTracking();
         else {
           this.sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session
@@ -156,11 +154,11 @@ class UserSession {
   }
 
   reset() {
-    const { manuallyTrackSession, autoTrack } = this.sessionInfo;
+    const { manualTrack, autoTrack } = this.sessionInfo;
     this.sessionInfo = {};
     if (autoTrack) {
       this.startAutoTracking();
-    } else if (manuallyTrackSession) {
+    } else if (manualTrack) {
       this.start();
     }
   }
