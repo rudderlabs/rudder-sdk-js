@@ -109,7 +109,7 @@ class Analytics {
     this.cookieConsentOptions = {};
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
-    this.session = UserSession;
+    this.uSession = UserSession;
   }
 
   /**
