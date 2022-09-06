@@ -23,7 +23,7 @@ class UserSession {
   initialize(options) {
     try {
       // Fetch session information from storage if any or initialize with an empty object
-      this.sessionInfo = this.storage.getSessionInfo() || {};
+      this.sessionInfo = this.storage.getSessionInfo() || this.sessionInfo;
       /**
        * By default this.autoTrack will be true
        * Cases where this.autoTrack will be false:
