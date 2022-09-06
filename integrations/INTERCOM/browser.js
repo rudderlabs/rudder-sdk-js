@@ -16,7 +16,7 @@ class INTERCOM {
     this.MOBILE_APP_ID = config.mobileAppId;
     logger.debug('Config ', config);
   }
-  
+
   static flattenEventObject(ob, keyPrefix) {
     // The object which contains the final result
     const result = {};
