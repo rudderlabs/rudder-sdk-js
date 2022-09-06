@@ -1,7 +1,8 @@
 /* eslint-disable class-methods-use-this */
+import { del } from "obj-case";
 import logger from "../../utils/logUtil";
 import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import { BrazeOperationString, NAME } from "./constants";
 
 /*
 E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
@@ -42,31 +43,24 @@ class Braze {
     const otherGenders = ["other", "o"];
 
     if (femaleGenders.indexOf(gender.toLowerCase()) > -1)
-      return window.appboy.ab.User.Genders.FEMALE;
+      return window.braze.User.Genders.FEMALE;
     if (maleGenders.indexOf(gender.toLowerCase()) > -1)
-      return window.appboy.ab.User.Genders.MALE;
+      return window.braze.User.Genders.MALE;
     if (otherGenders.indexOf(gender.toLowerCase()) > -1)
-      return window.appboy.ab.User.Genders.OTHER;
+      return window.braze.User.Genders.OTHER;
   }
 
   init() {
     logger.debug("===in init Braze===");
 
-    // load appboy
+    // load braze
+    // eslint-disable-next-line func-names
     +(function (a, p, P, b, y) {
-      a.appboy = {};
-      a.appboyQueue = [];
-      for (
-        let s =
-            "initialize destroy getDeviceId toggleAppboyLogging setLogger openSession changeUser requestImmediateDataFlush requestFeedRefresh subscribeToFeedUpdates requestContentCardsRefresh subscribeToContentCardsUpdates logCardImpressions logCardClick logCardDismissal logFeedDisplayed logContentCardsDisplayed logInAppMessageImpression logInAppMessageClick logInAppMessageButtonClick logInAppMessageHtmlClick subscribeToNewInAppMessages subscribeToInAppMessage removeSubscription removeAllSubscriptions logCustomEvent logPurchase isPushSupported isPushBlocked isPushGranted isPushPermissionGranted registerAppboyPushMessages unregisterAppboyPushMessages trackLocation stopWebTracking resumeWebTracking wipeData ab ab.DeviceProperties ab.User ab.User.Genders ab.User.NotificationSubscriptionTypes ab.User.prototype.getUserId ab.User.prototype.setFirstName ab.User.prototype.setLastName ab.User.prototype.setEmail ab.User.prototype.setGender ab.User.prototype.setDateOfBirth ab.User.prototype.setCountry ab.User.prototype.setHomeCity ab.User.prototype.setLanguage ab.User.prototype.setEmailNotificationSubscriptionType ab.User.prototype.setPushNotificationSubscriptionType ab.User.prototype.setPhoneNumber ab.User.prototype.setAvatarImageUrl ab.User.prototype.setLastKnownLocation ab.User.prototype.setUserAttribute ab.User.prototype.setCustomUserAttribute ab.User.prototype.addToCustomAttributeArray ab.User.prototype.removeFromCustomAttributeArray ab.User.prototype.incrementCustomUserAttribute ab.User.prototype.addAlias ab.User.prototype.setCustomLocationAttribute ab.InAppMessage ab.InAppMessage.SlideFrom ab.InAppMessage.ClickAction ab.InAppMessage.DismissType ab.InAppMessage.OpenTarget ab.InAppMessage.ImageStyle ab.InAppMessage.TextAlignment ab.InAppMessage.Orientation ab.InAppMessage.CropType ab.InAppMessage.prototype.subscribeToClickedEvent ab.InAppMessage.prototype.subscribeToDismissedEvent ab.InAppMessage.prototype.removeSubscription ab.InAppMessage.prototype.removeAllSubscriptions ab.InAppMessage.prototype.closeMessage ab.InAppMessage.Button ab.InAppMessage.Button.prototype.subscribeToClickedEvent ab.InAppMessage.Button.prototype.removeSubscription ab.InAppMessage.Button.prototype.removeAllSubscriptions ab.SlideUpMessage ab.ModalMessage ab.FullScreenMessage ab.HtmlMessage ab.ControlMessage ab.Feed ab.Feed.prototype.getUnreadCardCount ab.ContentCards ab.ContentCards.prototype.getUnviewedCardCount ab.Card ab.Card.prototype.dismissCard ab.ClassicCard ab.CaptionedImage ab.Banner ab.ControlCard ab.WindowUtils display display.automaticallyShowNewInAppMessages display.showInAppMessage display.showFeed display.destroyFeed display.toggleFeed display.showContentCards display.hideContentCards display.toggleContentCards sharedLib".split(
-              " "
-            ),
-          i = 0;
-        i < s.length;
-        i++
-      ) {
+      a.braze = {};
+      a.brazeQueue = [];
+      for (let s = BrazeOperationString.split(" "), i = 0; i < s.length; i++) {
         for (
-          var m = s[i], k = a.appboy, l = m.split("."), j = 0;
+          var m = s[i], k = a.braze, l = m.split("."), j = 0;
           j < l.length - 1;
           j++
         )
@@ -75,38 +69,39 @@ class Braze {
           `return function ${m.replace(
             /\./g,
             "_"
-          )}(){window.appboyQueue.push(arguments); return true}`
+          )}(){window.brazeQueue.push(arguments); return true}`
         )();
       }
-      window.appboy.getUser = function () {
-        return new window.appboy.ab.User();
+      window.braze.getCachedContentCards = function () {
+        return new window.braze.ContentCards();
       };
-      window.appboy.getCachedFeed = function () {
-        return new window.appboy.ab.Feed();
+      window.braze.getCachedFeed = function () {
+        return new window.braze.Feed();
       };
-      window.appboy.getCachedContentCards = function () {
-        return new window.appboy.ab.ContentCards();
+      window.braze.getUser = function () {
+        return new window.braze.User();
       };
       (y = p.createElement(P)).type = "text/javascript";
-      y.src = "https://js.appboycdn.com/web-sdk/2.4/appboy.min.js";
-      y.setAttribute("data-loader", LOAD_ORIGIN);
+      y.src = "https://js.appboycdn.com/web-sdk/4.2/braze.min.js";
       y.async = 1;
+      y.setAttribute("data-loader", LOAD_ORIGIN);
       (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
     })(window, document, "script");
 
-    window.appboy.initialize(this.appKey, {
+    window.braze.initialize(this.appKey, {
       enableLogging: true,
       baseUrl: this.endPoint,
       enableHtmlInAppMessages: this.enableHtmlInAppMessages,
       allowUserSuppliedJavascript: this.allowUserSuppliedJavascript,
     });
-    window.appboy.display.automaticallyShowNewInAppMessages();
+    window.braze.automaticallyShowInAppMessages();
 
     const { userId } = this.analytics;
     // send userId if you have it https://js.appboycdn.com/web-sdk/latest/doc/module-appboy.html#.changeUser
-    if (userId) appboy.changeUser(userId);
-
-    window.appboy.openSession();
+    if (userId) {
+      window.braze.changeUser(userId);
+    }
+    window.braze.openSession();
   }
 
   handleReservedProperties(props) {
@@ -122,6 +117,7 @@ class Braze {
     ];
 
     reserved.forEach((element) => {
+      // eslint-disable-next-line no-param-reassign
       delete props[element];
     });
     return props;
@@ -130,7 +126,6 @@ class Braze {
   identify(rudderElement) {
     const { userId } = rudderElement.message;
     const { address } = rudderElement.message.context.traits;
-    const { avatar } = rudderElement.message.context.traits;
     const { birthday } = rudderElement.message.context.traits;
     const { email } = rudderElement.message.context.traits;
     const { firstname } = rudderElement.message.context.traits;
@@ -143,19 +138,20 @@ class Braze {
       JSON.stringify(rudderElement.message.context.traits)
     );
 
-    window.appboy.changeUser(userId);
-    window.appboy.getUser().setAvatarImageUrl(avatar);
-    if (email) window.appboy.getUser().setEmail(email);
-    if (firstname) window.appboy.getUser().setFirstName(firstname);
-    if (gender) window.appboy.getUser().setGender(this.formatGender(gender));
-    if (lastname) window.appboy.getUser().setLastName(lastname);
-    if (phone) window.appboy.getUser().setPhoneNumber(phone);
+    window.braze.changeUser(userId);
+    // method removed from v4 https://www.braze.com/docs/api/objects_filters/user_attributes_object#braze-user-profile-fields
+    // window.braze.getUser().setAvatarImageUrl(avatar);
+    if (email) window.braze.getUser().setEmail(email);
+    if (firstname) window.braze.getUser().setFirstName(firstname);
+    if (gender) window.braze.getUser().setGender(this.formatGender(gender));
+    if (lastname) window.braze.getUser().setLastName(lastname);
+    if (phone) window.braze.getUser().setPhoneNumber(phone);
     if (address) {
-      window.appboy.getUser().setCountry(address.country);
-      window.appboy.getUser().setHomeCity(address.city);
+      window.braze.getUser().setCountry(address.country);
+      window.braze.getUser().setHomeCity(address.city);
     }
     if (birthday) {
-      window.appboy
+      window.braze
         .getUser()
         .setDateOfBirth(
           birthday.getUTCFullYear(),
@@ -195,7 +191,7 @@ class Braze {
     });
 
     Object.keys(traits).forEach((key) => {
-      window.appboy.getUser().setCustomUserAttribute(key, traits[key]);
+      window.braze.getUser().setCustomUserAttribute(key, traits[key]);
     });
   }
 
@@ -203,7 +199,7 @@ class Braze {
     const { products } = properties;
     const currencyCode = properties.currency;
 
-    window.appboy.changeUser(userId);
+    window.braze.changeUser(userId);
 
     // del used properties
     del(properties, "products");
@@ -215,7 +211,7 @@ class Braze {
       const { price } = product;
       const { quantity } = product;
       if (quantity && price && productId)
-        window.appboy.logPurchase(
+        window.braze.logPurchase(
           productId,
           price,
           currencyCode,
@@ -230,13 +226,12 @@ class Braze {
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;
 
-    window.appboy.changeUser(userId);
-
-    if (eventName.toLowerCase() === "order completed") {
+    window.braze.changeUser(userId);
+    if (eventName && eventName.toLowerCase() === "order completed") {
       this.handlePurchase(properties, userId);
     } else {
       properties = this.handleReservedProperties(properties);
-      window.appboy.logCustomEvent(eventName, properties);
+      window.braze.logCustomEvent(eventName, properties);
     }
   }
 
@@ -244,19 +239,17 @@ class Braze {
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.name;
     let { properties } = rudderElement.message;
-
     properties = this.handleReservedProperties(properties);
-
-    window.appboy.changeUser(userId);
-    window.appboy.logCustomEvent(eventName, properties);
+    window.braze.changeUser(userId);
+    window.braze.logCustomEvent(eventName, properties);
   }
 
   isLoaded() {
-    return window.appboyQueue === null;
+    return window.brazeQueue === null;
   }
 
   isReady() {
-    return window.appboyQueue === null;
+    return window.brazeQueue === null;
   }
 }
 
