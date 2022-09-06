@@ -52,6 +52,9 @@ import { CNameMapping as Rockerbox } from "./Rockerbox/constants";
 import { CNameMapping as Mouseflow } from "./Mouseflow/constants";
 import { CNameMapping as ConvertFlow } from "./ConvertFlow/constants";
 import { CNameMapping as SnapEngage } from "./SnapEngage/constants";
+import { CNameMapping as LiveChat } from "./LiveChat/constants";
+import { CNameMapping as Shynet } from "./Shynet/constants";
+
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -111,6 +114,8 @@ const commonNames = {
   ...TVSquared,
   ...Vero,
   ...VWO,
+  ...LiveChat,
+  ...Shynet,
 };
 
 export { commonNames };
