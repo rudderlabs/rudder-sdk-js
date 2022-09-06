@@ -50,7 +50,7 @@ import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
 import * as BugsnagLib from "./metrics/error-report/Bugsnag";
-import { Session } from "./session";
+import { UserSession } from "./session";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -109,7 +109,7 @@ class Analytics {
     this.cookieConsentOptions = {};
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
-    this.session = Session;
+    this.session = UserSession;
   }
 
   /**
@@ -816,19 +816,12 @@ class Analytics {
         }
       }
       // If auto/manual session tracking is enabled sessionId will be sent in the context
-      if (
-        this.session.autoTrack ||
-        this.session.sessionInfo.manuallyTrackSession
-      ) {
-        try {
-          const timestamp = Date.now();
-          rudderElement.message.context.sessionId = this.session.getSessionId(timestamp);
-          if (!this.session.sessionInfo.sessionStart)
-            rudderElement.message.context.sessionStart = true;
-          this.session.update(timestamp);
-        } catch (e) {
-          handleError(e);
-        }
+      try {
+        const { sessionId, sessionStart } = this.session.getSession();
+        rudderElement.message.context.sessionId = sessionId;
+        if (sessionStart) rudderElement.message.context.sessionStart = true;
+      } catch (e) {
+        handleError(e);
       }
 
       this.processOptionsParam(rudderElement, options);
@@ -1000,14 +993,7 @@ class Analytics {
     this.userTraits = {};
     this.groupId = "";
     this.groupTraits = {};
-    const { manuallyTrackSession } = this.session.sessionInfo;
-    this.session.sessionInfo = {};
-    if (this.session.autoTrack) {
-      this.session.startAutoTracking();
-    }
-    if (manuallyTrackSession) {
-      this.session.start();
-    }
+    this.session.reset();
     this.storage.clear(flag);
   }
 
@@ -1130,13 +1116,8 @@ class Analytics {
         this.sendAdblockPageOptions = options.sendAdblockPageOptions;
       }
     }
-
     // Session initialization
-    try {
-      this.session.initialize(options);
-    } catch (e) {
-      handleError(e);
-    }
+    this.session.initialize(options);
 
     if (options && options.clientSuppliedCallbacks) {
       // convert to rudder recognised method names
