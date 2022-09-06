@@ -817,7 +817,7 @@ class Analytics {
       }
       // If auto/manual session tracking is enabled sessionId will be sent in the context
       try {
-        const { sessionId, sessionStart } = this.session.getSessionInfo();
+        const { sessionId, sessionStart } = this.uSession.getSessionInfo();
         rudderElement.message.context.sessionId = sessionId;
         if (sessionStart) rudderElement.message.context.sessionStart = true;
       } catch (e) {
@@ -993,7 +993,7 @@ class Analytics {
     this.userTraits = {};
     this.groupId = "";
     this.groupTraits = {};
-    this.session.reset();
+    this.uSession.reset();
     this.storage.clear(flag);
   }
 
@@ -1117,7 +1117,7 @@ class Analytics {
       }
     }
     // Session initialization
-    this.session.initialize(options);
+    this.uSession.initialize(options);
 
     if (options && options.clientSuppliedCallbacks) {
       // convert to rudder recognised method names
@@ -1372,14 +1372,14 @@ class Analytics {
    * @returns
    */
   startSession(sessionId) {
-    this.session.start(sessionId);
+    this.uSession.start(sessionId);
   }
 
   /**
    * A public method to end an ongoing session.
    */
   endSession() {
-    this.session.end();
+    this.uSession.end();
   }
 }
 

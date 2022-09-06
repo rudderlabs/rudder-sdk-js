@@ -89,6 +89,14 @@ class UserSession {
   }
 
   /**
+   * A function to generate session id
+   * @returns string
+   */
+  generateSessionId() {
+      return Date.now().toString();
+  }
+
+  /**
    * A function to check for existing session details and depending on that create a new session.
    */
   startAutoTracking() {
@@ -114,10 +122,9 @@ class UserSession {
       return;
     }
     this.sessionInfo = {
-      id: sessionId || Date.now().toString(),
+      id: sessionId || generateSessionId(),
       sessionStart: true,
       manualTrack: true,
-      autoTrack: false,
     };
     this.storage.setSessionInfo(this.sessionInfo);
   }
@@ -136,26 +143,32 @@ class UserSession {
   getSessionInfo() {
     const session = {};
     if (this.sessionInfo.autoTrack || this.sessionInfo.manualTrack) {
-      const timestamp = Date.now();
-      if (!this.sessionInfo.manualTrack) {
-        if (!this.isValidSession(timestamp)) this.startAutoTracking();
-        else {
-          this.sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session
-        }
+      // renew or create a new auto-tracking session
+      if (this.sessionInfo.autoTrack) {
+          const timestamp = Date.now();
+          if (!this.isValidSession(timestamp)) {
+              this.startAutoTracking();
+          }
+          else {
+              this.sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session
+          }
       }
-      if (this.sessionInfo.sessionStart) {
-        this.sessionInfo.sessionStart = false;
+    
+     if (this.sessionInfo.sessionStart) {
         session.sessionStart = true;
+        this.sessionInfo.sessionStart = false;
       }
+      session.sessionId = this.sessionInfo.id;        
       this.storage.setSessionInfo(this.sessionInfo);
-      session.sessionId = this.sessionInfo.id;
     }
     return session;
   }
 
+  /**
+   * Refresh session info on reset API call
+   */
   reset() {
     const { manualTrack, autoTrack } = this.sessionInfo;
-    this.sessionInfo = {};
     if (autoTrack) {
       this.startAutoTracking();
     } else if (manualTrack) {
@@ -164,5 +177,5 @@ class UserSession {
   }
 }
 
-
-export { new UserSession() as UserSession };
+const userSession = new UserSession();
+export { userSession as UserSession };
