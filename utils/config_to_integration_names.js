@@ -56,6 +56,7 @@ const configToIntNames = {
   CONVERTFLOW: 'ConvertFlow',
   SNAPENGAGE: 'SnapEngage',
   LIVECHAT: 'LiveChat',
+  SHYNET: 'Shynet',
 };
 
 export { configToIntNames };
