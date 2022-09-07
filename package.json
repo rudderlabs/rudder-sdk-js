@@ -53,6 +53,7 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.2",
     "md5": "^2.3.0",
+    "obj-case": "^0.2.1",
     "on-body": "^0.0.1",
     "rudder-component-cookie": "^0.0.1",
     "storejs": "^2.0.1",
