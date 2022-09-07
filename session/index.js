@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 /* eslint-disable import/prefer-default-export */
 import Storage from '../utils/storage';
 import logger from '../utils/logUtil';
@@ -93,7 +94,7 @@ class UserSession {
    * @returns string
    */
   generateSessionId() {
-      return Date.now().toString();
+    return Date.now().toString();
   }
 
   /**
@@ -122,7 +123,7 @@ class UserSession {
       return;
     }
     this.sessionInfo = {
-      id: sessionId || generateSessionId(),
+      id: sessionId || this.generateSessionId(),
       sessionStart: true,
       manualTrack: true,
     };
@@ -145,20 +146,19 @@ class UserSession {
     if (this.sessionInfo.autoTrack || this.sessionInfo.manualTrack) {
       // renew or create a new auto-tracking session
       if (this.sessionInfo.autoTrack) {
-          const timestamp = Date.now();
-          if (!this.isValidSession(timestamp)) {
-              this.startAutoTracking();
-          }
-          else {
-              this.sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session
-          }
+        const timestamp = Date.now();
+        if (!this.isValidSession(timestamp)) {
+          this.startAutoTracking();
+        } else {
+          this.sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session
+        }
       }
-    
-     if (this.sessionInfo.sessionStart) {
+
+      if (this.sessionInfo.sessionStart) {
         session.sessionStart = true;
         this.sessionInfo.sessionStart = false;
       }
-      session.sessionId = this.sessionInfo.id;        
+      session.sessionId = this.sessionInfo.id;
       this.storage.setSessionInfo(this.sessionInfo);
     }
     return session;
@@ -170,6 +170,7 @@ class UserSession {
   reset() {
     const { manualTrack, autoTrack } = this.sessionInfo;
     if (autoTrack) {
+      this.sessionInfo = {};
       this.startAutoTracking();
     } else if (manualTrack) {
       this.start();
