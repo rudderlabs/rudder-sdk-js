@@ -53,6 +53,7 @@ const clientToServerNames = {
   ROCKERBOX: 'Rockerbox',
   CONVERTFLOW: 'ConvertFlow',
   SNAPENGAGE: 'SnapEngage',
+  LIVECHAT: 'LiveChat',
 };
 
 export { clientToServerNames };
