@@ -54,6 +54,7 @@ import * as ConvertFlow from "./ConvertFlow";
 import * as SnapEngage from "./SnapEngage";
 import * as LiveChat from "./LiveChat";
 import * as Shynet from "./Shynet";
+import * as Woopra from "./Woopra";
 
 
 // the key names should match the destination.name value to keep partity everywhere
@@ -116,6 +117,7 @@ const integrations = {
   SNAPENGAGE: SnapEngage.default,
   LIVECHAT: LiveChat.default,
   SHYNET: Shynet.default,
+  WOOPRA: Woopra.default,
 };
 
 export { integrations };

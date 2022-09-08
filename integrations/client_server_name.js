@@ -55,7 +55,7 @@ const clientToServerNames = {
   SNAPENGAGE: "SnapEngage",
   LIVECHAT: "LiveChat",
   SHYNET: "Shynet",
-
+  WOOPRA: "Woopra",
 };
 
 export { clientToServerNames };
