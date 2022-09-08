@@ -1,7 +1,11 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import { LOAD_ORIGIN } from "../ScriptLoader";
-import { removeUndefinedAndNullValues } from "../utils/commonUtils";
+import {
+  getHashFromArray,
+  removeUndefinedAndNullValues,
+  eventMappingFromConfig,
+} from "../utils/commonUtils";
 import { NAME } from "./constants";
 
 class GoogleAds {
@@ -16,6 +20,7 @@ class GoogleAds {
     this.conversionLinker = config.conversionLinker || true;
     this.disableAdPersonalization = config.disableAdPersonalization || false;
     this.name = NAME;
+    this.eventsMap = config.eventsMap;
   }
 
   init() {
@@ -83,7 +88,10 @@ class GoogleAds {
         window.gtag("event", eventName, properties);
       }
     } else {
-      const { event } = rudderElement.message;
+      let { event } = rudderElement.message;
+      // modify the event name to mapped event name from the config
+      const eventsHashmap = getHashFromArray(this.eventsMap);
+      event = eventMappingFromConfig(event, eventsHashmap);
       if (!event) {
         logger.error("Event name not present");
         return;
