@@ -10,11 +10,15 @@
 import logger from "../../utils/logUtil";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
+import {
+  getHashFromArray,
+} from "../utils/commonUtils";
 
 class RedditPixel {
   constructor(config) {
     this.advertiserId = config.advertiserId;
     this.name = NAME;
+    this.eventMappingFromConfig = config.eventMappingFromConfig;
   }
 
   init() {
@@ -62,29 +66,38 @@ class RedditPixel {
       logger.error("Event name is not present");
       return;
     }
-
-    switch (event.toLowerCase()) {
-      case "product added":
-        window.rdt("track", "AddToCart");
-        break;
-      case "product added to wishlist":
-        window.rdt("track", "AddToWishlist");
-        break;
-      case "order completed":
-        window.rdt("track", "Purchase");
-        break;
-      case "lead":
-        window.rdt("track", "Lead");
-        break;
-      case "view content":
-        window.rdt("track", "ViewContent");
-        break;
-      case "search":
-        window.rdt("track", "Search");
-        break;
-      default:
-        logger.error(`Invalid event ${event}. Track call not supported`);
-        break;
+    const eventMappingFromConfigMap = getHashFromArray(
+      this.eventMappingFromConfig,
+      "from",
+      "to",
+      false 
+    );
+    if (eventMappingFromConfigMap[event]){
+      window.rdt("track", eventMappingFromConfigMap[event])
+    } else {
+      switch (event.toLowerCase()) {
+        case "product added":
+          window.rdt("track", "AddToCart");
+          break;
+        case "product added to wishlist":
+          window.rdt("track", "AddToWishlist");
+          break;
+        case "order completed":
+          window.rdt("track", "Purchase");
+          break;
+        case "lead":
+          window.rdt("track", "Lead");
+          break;
+        case "view content":
+          window.rdt("track", "ViewContent");
+          break;
+        case "search":
+          window.rdt("track", "Search");
+          break;
+        default:
+          logger.error(`Invalid event ${event}. Track call not supported`);
+          break;
+      }
     }
   }
 
