@@ -26,8 +26,6 @@ class RollBar {
       captureUnhandledRejections: this.captureUnhandledRejections,
       payload: {
         environment: this.environment,
-        //context: 'home/index',
-        //trace_id: 'abc123',
         client: {
           javascript: {
             code_version: this.codeVersion,
