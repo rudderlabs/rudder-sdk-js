@@ -1,0 +1,59 @@
+/* eslint-disable */
+import logger from "../../utils/logUtil";
+import { NAME } from "./constants";
+import { getHashFromArray } from "../utils/commonUtils";
+
+class QuoraPixel {
+  constructor(config) {
+    this.name = NAME;
+    this.pixelId = config.pixelId;
+    this.eventsToQPEvents = config.eventsToQPEvents;
+  }
+
+  loadScript() {
+    !(function (q, e, v, n, t, s) {
+      if (q.qp) return;
+      n = q.qp = function () {
+        n.qp ? n.qp.apply(n, arguments) : n.queue.push(arguments);
+      };
+      n.queue = [];
+      t = document.createElement(e);
+      t.async = !0;
+      t.src = v;
+      s = document.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, "script", "https://a.quora.com/qevents.js");
+    window.qp("init", this.pixelId);
+    window.qp("track", "ViewContent");
+  }
+
+  init() {
+    logger.debug("===In init Quora Pixel===");
+    this.loadScript();
+  }
+
+  isLoaded() {
+    logger.debug("===In isLoaded Quora Pixel===");
+    return !!(window.qp && window.qp.push !== Array.prototype.push);
+  }
+
+  isReady() {
+    logger.debug("===In isReady Quora Pixel===");
+    return !!(window.qp && window.qp.push !== Array.prototype.push);
+  }
+
+  track(rudderElement) {
+    logger.debug("===In Quora Pixel track===");
+    const { event } = rudderElement.message;
+    const eventsMapping = getHashFromArray(this.eventsToQPEvents);
+    const trimmedEvent = event.toLowerCase().trim();
+    const qpEvent = eventsMapping[trimmedEvent];
+    if (!qpEvent) {
+      window.qp("track", "Generic");
+    } else if (qpEvent !== "Custom") {
+      window.qp("track", qpEvent);
+    }
+  }
+}
+
+export default QuoraPixel;
