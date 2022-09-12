@@ -167,7 +167,10 @@ class FacebookPixel {
     }
     const customProperties = this.buildPayLoad(rudderElement, true);
     const derivedEventID = getEventId(rudderElement.message);
-    if (event === "Product List Viewed") {
+    if (
+      this.eventsToEvents[event] === "ViewContent" ||
+      event === "Product List Viewed"
+    ) {
       let contentType;
       const contentIds = [];
       const contents = [];
@@ -280,7 +283,10 @@ class FacebookPixel {
           );
         }
       }, legacyTo);
-    } else if (event === "Product Added") {
+    } else if (
+      this.eventsToEvents[event] === "AddToCart" ||
+      event === "Product Added"
+    ) {
       const contentIds = [];
       const contents = [];
 
@@ -331,7 +337,10 @@ class FacebookPixel {
         }
       }, legacyTo);
       this.merge(productInfo, customProperties);
-    } else if (event === "Order Completed") {
+    } else if (
+      this.eventsToEvents[event] === "Purchase" ||
+      event === "Order Completed"
+    ) {
       const contentType = this.getContentType(rudderElement, ["product"]);
       const contentIds = [];
       const contents = [];
@@ -393,7 +402,10 @@ class FacebookPixel {
           );
         }
       }, legacyTo);
-    } else if (event === "Products Searched") {
+    } else if (
+      this.eventsToEvents[event] === "Search" ||
+      event === "Products Searched"
+    ) {
       window.fbq(
         "trackSingle",
         self.pixelId,
@@ -425,7 +437,10 @@ class FacebookPixel {
           );
         }
       }, legacyTo);
-    } else if (event === "Checkout Started") {
+    } else if (
+      this.eventsToEvents[event] === "InitiateCheckout" ||
+      event === "Checkout Started"
+    ) {
       let contentCategory = category;
       const contentIds = [];
       const contents = [];
