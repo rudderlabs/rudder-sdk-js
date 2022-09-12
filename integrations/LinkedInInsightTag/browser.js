@@ -8,7 +8,7 @@ class LinkedInInsightTag {
   constructor(config) {
     this.name = NAME;
     this.partnerId = config.partnerId;
-    this.eventConversionId = config.eventConversionId;
+    this.eventToConversionIdMap = config.eventConversionId;
   }
 
   init() {
@@ -19,9 +19,6 @@ class LinkedInInsightTag {
     );
     if (!this.partnerId) {
       return;
-    }
-    if (this.eventConversionId === undefined) {
-      this.eventConversionId = [];
     }
     window._linkedin_data_partner_id = this.partnerId;
   }
@@ -48,7 +45,7 @@ class LinkedInInsightTag {
     }
     const trimmedEvent = event.trim();
     const eventMapping = getHashFromArrayWithDuplicate(
-      this.eventConversionId,
+      this.eventToConversionIdMap,
       "from",
       "to",
       false
