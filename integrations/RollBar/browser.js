@@ -12,7 +12,7 @@ class RollBar {
     this.captureUncaughtException = config.captureUncaughtException;
     this.captureUnhandledRejections = config.captureUnhandledRejections;
     this.guessUncaughtFrames = config.guessUncaughtFrames;
-    this.codeVersion = !config.codeVersion ? "1.1.1" : config.codeVersion;
+    this.codeVersion = !config.codeVersion ? "" : config.codeVersion;
     this.ignoredMessages = config.ignoredMessages;
     this.environment = config.environment;
     this.sourceMapEnabled = config.sourceMapEnabled;
