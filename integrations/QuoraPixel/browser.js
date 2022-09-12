@@ -1,7 +1,7 @@
 /* eslint-disable */
 import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
-import { getHashFromArray } from "../utils/commonUtils";
+import { getHashFromArrayWithDuplicate } from "../utils/commonUtils";
 
 class QuoraPixel {
   constructor(config) {
@@ -45,14 +45,22 @@ class QuoraPixel {
   track(rudderElement) {
     logger.debug("===In Quora Pixel track===");
     const { event } = rudderElement.message;
-    const eventsMapping = getHashFromArray(this.eventsToQPEvents);
+    const eventsMapping = getHashFromArrayWithDuplicate(this.eventsToQPEvents);
     const trimmedEvent = event.toLowerCase().trim();
-    const qpEvent = eventsMapping[trimmedEvent];
-    if (!qpEvent) {
+    const events = eventsMapping[trimmedEvent];
+
+    if (!events || events.length === 0) {
       window.qp("track", "Generic");
-    } else if (qpEvent !== "Custom") {
-      window.qp("track", qpEvent);
+      return;
     }
+
+    events.forEach((qpEvent) => {
+      if (!qpEvent) {
+        window.qp("track", "Generic");
+      } else if (qpEvent !== "Custom") {
+        window.qp("track", qpEvent);
+      }
+    });
   }
 }
 
