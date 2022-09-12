@@ -12,7 +12,7 @@ class RollBar {
     this.captureUncaughtException = config.captureUncaughtException;
     this.captureUnhandledRejections = config.captureUnhandledRejections;
     this.guessUncaughtFrames = config.guessUncaughtFrames;
-    this.codeVersion = config.codeVersion;
+    this.codeVersion = !config.codeVersion ? "1.1.1" : config.codeVersion;
     this.ignoredMessages = config.ignoredMessages;
     this.environment = config.environment;
     this.sourceMapEnabled = config.sourceMapEnabled;
@@ -464,7 +464,6 @@ class RollBar {
       },
     ]);
     // End Rollbar Snippet
-    console.log(window.Rollbar);
   }
 
   isLoaded() {
@@ -483,12 +482,14 @@ class RollBar {
     const { message } = rudderElement;
     const { userId } = message;
     const { traits } = rudderElement.message.context;
-    if (userId === null || userId === undefined) return;
 
     var rollbar = window.Rollbar;
     const person = traits;
-    person.id = userId;
-
+    if (userId) person.id = userId;
+    else
+      logger.debug(
+        "=== userId is not found. no new user will be created in rollbar"
+      );
     rollbar.configure({ payload: { person: person } });
   }
 }
