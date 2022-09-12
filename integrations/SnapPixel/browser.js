@@ -4,6 +4,7 @@ import Storage from "../../utils/storage";
 import logger from "../../utils/logUtil";
 
 import {
+  setEventMappingFromConfig,
   removeUndefinedAndNullValues,
   getHashFromArray,
 } from "../utils/commonUtils";
@@ -135,12 +136,12 @@ class SnapPixel {
     logger.debug("===In SnapPixel track===");
 
     const { message } = rudderElement;
-    const { event } = message;
+    let { event } = message;
     const eventMappingFromConfigMap = getHashFromArray(
       this.eventMappingFromConfig,
       "from",
       "to",
-      false 
+      false
     );
 
     if (!event) {
@@ -150,9 +151,10 @@ class SnapPixel {
 
     try {
       if (eventMappingFromConfigMap[event]) {
-        // mapping event
+        // mapping event from UI
+        event = setEventMappingFromConfig(event, eventMappingFromConfigMap);
         sendEvent(
-          eventMappingFromConfigMap[event],
+          event,
           ecommEventPayload(
             event,
             message,

@@ -4,7 +4,7 @@ import { LOAD_ORIGIN } from "../ScriptLoader";
 import {
   getHashFromArray,
   removeUndefinedAndNullValues,
-  eventMappingFromConfig,
+  setEventMappingFromConfig,
 } from "../utils/commonUtils";
 import { NAME } from "./constants";
 
@@ -90,8 +90,13 @@ class GoogleAds {
     } else {
       let { event } = rudderElement.message;
       // modify the event name to mapped event name from the config
-      const eventsHashmap = getHashFromArray(this.eventsMap);
-      event = eventMappingFromConfig(event, eventsHashmap);
+      const eventsHashmap = getHashFromArray(
+        this.eventsMap,
+        "from",
+        "to",
+        false
+      );
+      event = setEventMappingFromConfig(event, eventsHashmap);
       if (!event) {
         logger.error("Event name not present");
         return;

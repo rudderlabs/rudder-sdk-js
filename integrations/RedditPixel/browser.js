@@ -12,6 +12,7 @@ import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 import {
   getHashFromArray,
+  setEventMappingFromConfig,
 } from "../utils/commonUtils";
 
 class RedditPixel {
@@ -34,7 +35,7 @@ class RedditPixel {
         p.callQueue = [];
         var t = d.createElement("script");
         (t.src = "https://www.redditstatic.com/ads/pixel.js"), (t.async = !0);
-        (t.setAttribute("data-loader", LOAD_ORIGIN));
+        t.setAttribute("data-loader", LOAD_ORIGIN);
         var s = d.getElementsByTagName("script")[0];
         s.parentNode.insertBefore(t, s);
       }
@@ -61,7 +62,7 @@ class RedditPixel {
   track(rudderElement) {
     logger.debug("===In RedditPixel track===");
 
-    const { event } = rudderElement.message;
+    let { event } = rudderElement.message;
     if (!event) {
       logger.error("Event name is not present");
       return;
@@ -70,10 +71,12 @@ class RedditPixel {
       this.eventMappingFromConfig,
       "from",
       "to",
-      false 
+      false
     );
-    if (eventMappingFromConfigMap[event]){
-      window.rdt("track", eventMappingFromConfigMap[event])
+    if (eventMappingFromConfigMap[event]) {
+      // mapping event from UI
+      event = setEventMappingFromConfig(event, eventMappingFromConfigMap);
+      window.rdt("track", eventMappingFromConfigMap[event]);
     } else {
       switch (event.toLowerCase()) {
         case "product added":
