@@ -8,7 +8,7 @@ class LinkedInInsightTag {
   constructor(config) {
     this.name = NAME;
     this.partnerId = config.partnerId;
-    this.eventToConversionIdMap = config.eventConversionId;
+    this.eventToConversionIdMap = config.eventToConversionIdMap;
   }
 
   init() {
