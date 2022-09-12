@@ -40,7 +40,8 @@ class RollBar {
       var ret = [];
       // clean out array
       for (var x = 0; x < msg.length; x++) {
-        if (msg[x] !== null && msg[x] !== "") ret.push(msg[x]);
+        if (msg[x] !== null && msg[x].singleIgnoredMessage !== "")
+          ret.push(msg[x].singleIgnoredMessage);
       }
       _rollbarConfig.ignoredMessages = ret;
     }
