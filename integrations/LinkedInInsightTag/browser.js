@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import { getHashFromArray } from "../utils/commonUtils";
+import { getHashFromArrayWithDuplicate } from "../utils/commonUtils";
 import { NAME } from "./constants";
 
 class LinkedInInsightTag {
@@ -47,7 +47,7 @@ class LinkedInInsightTag {
       return;
     }
     const trimmedEvent = event.trim();
-    const eventMapping = getHashFromArray(
+    const eventMapping = getHashFromArrayWithDuplicate(
       this.eventConversionId,
       "from",
       "to",
@@ -59,7 +59,10 @@ class LinkedInInsightTag {
       );
       return;
     }
-    window.lintrk("track", { conversion_id: eventMapping[trimmedEvent] });
+    const eventArray = eventMapping[trimmedEvent] || [];
+    eventArray.forEach((eventValue) => {
+      window.lintrk("track", { conversion_id: eventValue });
+    });
   }
 }
 
