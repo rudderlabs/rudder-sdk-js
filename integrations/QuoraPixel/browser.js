@@ -51,7 +51,6 @@ class QuoraPixel {
 
     if (!events || events.length === 0) {
       window.qp("track", "Generic");
-      return;
     }
 
     events.forEach((qpEvent) => {
