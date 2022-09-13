@@ -1,16 +1,25 @@
+/* eslint-disable func-names */
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-// Research Spec: https://www.notion.so/rudderstacks/Woopra-Device-Mode-Research-Spec-adc482ccf8094965b539bce2453822a7
+import logger from "../../utils/logUtil";
 
-import logger from '../../utils/logUtil';
-
-import { NAME } from './constants';
+import { NAME } from "./constants";
 
 class Woopra {
   constructor(config) {
     this.projectName = config.projectName;
     this.name = NAME;
+    this.cookieName = config.cookieName;
+    this.cookiePath = config.cookiePath;
+    this.cookieDomain = config.cookieDomain;
+    this.clickTracking = config.clickTracking;
+    this.downloadTracking = config.downloadTracking;
+    this.hideCampaign = config.hideCampaign;
+    this.idleTimeout = config.idleTimeout;
+    this.ignoreQueryUrl = config.ignoreQueryUrl;
+    this.outgoingIgnoreSubdomain = config.outgoingIgnoreSubdomain;
+    this.outgoingTracking = config.outgoingTracking;
   }
 
   loadScript() {
@@ -21,25 +30,30 @@ class Woopra {
         e = window,
         n = document,
         r = arguments,
-        a = 'script',
+        a = "script",
         i = [
-          'call',
-          'cancelAction',
-          'config',
-          'identify',
-          'push',
-          'track',
-          'trackClick',
-          'trackForm',
-          'update',
-          'visit',
+          "call",
+          "cancelAction",
+          "config",
+          "identify",
+          "push",
+          "track",
+          "trackClick",
+          "trackForm",
+          "update",
+          "visit",
         ],
         s = function () {
           var t,
             o = this,
             c = function (t) {
               o[t] = function () {
-                return o._e.push([t].concat(Array.prototype.slice.call(arguments, 0))), o;
+                return (
+                  o._e.push(
+                    [t].concat(Array.prototype.slice.call(arguments, 0))
+                  ),
+                  o
+                );
               };
             };
           for (o._e = [], t = 0; t < i.length; t++) c(i[t]);
@@ -47,45 +61,67 @@ class Woopra {
       for (e.__woo = e.__woo || {}, t = 0; t < r.length; t++)
         e.__woo[r[t]] = e[r[t]] = e[r[t]] || new s();
       ((o = n.createElement(a)).async = 1),
-        (o.src = 'https://static.woopra.com/w.js'),
+        (o.src = "https://static.woopra.com/w.js"),
         (c = n.getElementsByTagName(a)[0]).parentNode.insertBefore(o, c);
-    })('Woopra');
+    })("Woopra");
     window.Woopra.config({
-      domain: this.projectName, // This is the minimum required config
+      domain: this.projectName,
+      cookie_name: this.cookieName,
+      cookie_path: this.cookiePath,
+      cookie_domain: this.cookieDomain,
+      click_tracking: this.clickTracking,
+      download_tracking: this.downloadTracking,
+      hide_campaign: this.hideCampaign,
+      idle_timeout: this.idleTimeout,
+      ignore_query_url: this.ignoreQueryUrl,
+      outgoing_ignore_subdomain: this.outgoingIgnoreSubdomain,
+      outgoing_tracking: this.outgoingTracking,
     });
   }
 
   init() {
-    logger.debug('===In init Woopra===');
+    logger.debug("===In init Woopra===");
     this.loadScript();
   }
 
   isLoaded() {
-    logger.debug('===In isLoaded Woopra===');
-    return !!(window.Woopra && window.Woopra.push !== Array.prototype.push);
+    logger.debug("===In isLoaded Woopra===");
+    return !!(window.Woopra && window.Woopra.loaded);
   }
 
   isReady() {
-    logger.debug('===In isReady Woopra===');
+    logger.debug("===In isReady Woopra===");
     return window.Woopra;
   }
 
   identify(rudderElement) {
-    console.log('in identify sdk');
-    logger.debug('===In Woopra Identify===');
-    const { traits } = rudderElement.message;
-    window.Woopra.identify(traits).push();
+    logger.debug("===In Woopra Identify===");
+    const { traits } = rudderElement.message.context;
+    if (traits) {
+      window.Woopra.identify(traits).push();
+    }
   }
 
   track(rudderElement) {
-    logger.debug('===In Woopra track===');
+    logger.debug("===In Woopra track===");
     const { event, properties } = rudderElement.message;
     window.Woopra.track(event, properties);
   }
 
   page(rudderElement) {
-    const { name, properties } = rudderElement.message;
-    window.Woopra.track(name, properties);
+    logger.debug("===In Page track===");
+    const { name, properties, category } = rudderElement.message;
+    let eventName;
+    if (!name && !category) {
+      eventName = `Viewed Page`;
+    } else if (!name && category) {
+      eventName = `Viewed ${category} Page`;
+    } else if (name && !category) {
+      eventName = `Viewed ${name} Page`;
+    } else {
+      eventName = `Viewed ${category} ${name} Page`;
+    }
+    window.Woopra.track(eventName, properties);
   }
 }
 
