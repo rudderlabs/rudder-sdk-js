@@ -2,6 +2,7 @@
 import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 import { getHashFromArrayWithDuplicate } from "../utils/commonUtils";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class QuoraPixel {
   constructor(config) {
@@ -20,6 +21,7 @@ class QuoraPixel {
       t = document.createElement(e);
       t.async = !0;
       t.src = v;
+      t.setAttribute("data-loader", LOAD_ORIGIN);
       s = document.getElementsByTagName(e)[0];
       s.parentNode.insertBefore(t, s);
     })(window, "script", "https://a.quora.com/qevents.js");
