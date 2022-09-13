@@ -126,11 +126,13 @@ function flattenJson(data) {
 function setEventMappingFromConfig(event, eventsHashmap) {
   // if the event name is mapped in the config, use the mapped name
   // else use the original event name
+  const events = [];
   if (eventsHashmap[event]) {
-    const mappedEventName = eventsHashmap[event];
-    return mappedEventName;
+    eventsHashmap.forEach((ev) => {
+      events.push(ev);
+    });
   }
-  return event;
+  return events;
 }
 
 export {

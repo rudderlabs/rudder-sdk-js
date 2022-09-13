@@ -12,6 +12,7 @@ import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 import {
   getHashFromArray,
+  getHashFromArrayWithDuplicate,
   setEventMappingFromConfig,
 } from "../utils/commonUtils";
 
@@ -62,12 +63,12 @@ class RedditPixel {
   track(rudderElement) {
     logger.debug("===In RedditPixel track===");
 
-    let { event } = rudderElement.message;
+    const { event } = rudderElement.message;
     if (!event) {
       logger.error("Event name is not present");
       return;
     }
-    const eventMappingFromConfigMap = getHashFromArray(
+    const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
       this.eventMappingFromConfig,
       "from",
       "to",
@@ -75,8 +76,13 @@ class RedditPixel {
     );
     if (eventMappingFromConfigMap[event]) {
       // mapping event from UI
-      event = setEventMappingFromConfig(event, eventMappingFromConfigMap);
-      window.rdt("track", eventMappingFromConfigMap[event]);
+      const events = setEventMappingFromConfig(
+        event,
+        eventMappingFromConfigMap
+      );
+      events.forEach((ev) => {
+        window.rdt("track", events[ev]);
+      });
     } else {
       switch (event.toLowerCase()) {
         case "product added":

@@ -3,6 +3,7 @@ import logger from "../../utils/logUtil";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 import {
   getHashFromArray,
+  getHashFromArrayWithDuplicate,
   removeUndefinedAndNullValues,
   setEventMappingFromConfig,
 } from "../utils/commonUtils";
@@ -90,7 +91,7 @@ class GoogleAds {
     } else {
       let { event } = rudderElement.message;
       // modify the event name to mapped event name from the config
-      const eventsHashmap = getHashFromArray(
+      const eventsHashmap = getHashFromArrayWithDuplicate(
         this.eventsMap,
         "from",
         "to",

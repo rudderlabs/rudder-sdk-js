@@ -7,6 +7,7 @@ import {
   setEventMappingFromConfig,
   removeUndefinedAndNullValues,
   getHashFromArray,
+  getHashFromArrayWithDuplicate,
 } from "../utils/commonUtils";
 import {
   ecommEventPayload,
@@ -136,8 +137,8 @@ class SnapPixel {
     logger.debug("===In SnapPixel track===");
 
     const { message } = rudderElement;
-    let { event } = message;
-    const eventMappingFromConfigMap = getHashFromArray(
+    const { event } = message;
+    const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
       this.eventMappingFromConfig,
       "from",
       "to",
@@ -152,16 +153,21 @@ class SnapPixel {
     try {
       if (eventMappingFromConfigMap[event]) {
         // mapping event from UI
-        event = setEventMappingFromConfig(event, eventMappingFromConfigMap);
-        sendEvent(
+        const events = setEventMappingFromConfig(
           event,
-          ecommEventPayload(
-            event,
-            message,
-            this.deduplicationKey,
-            this.enableDeduplication
-          )
+          eventMappingFromConfigMap
         );
+        events.forEach((ev) => {
+          sendEvent(
+            events[ev],
+            ecommEventPayload(
+              event,
+              message,
+              this.deduplicationKey,
+              this.enableDeduplication
+            )
+          );
+        });
       } else {
         switch (event.toLowerCase().trim()) {
           case "order completed":
