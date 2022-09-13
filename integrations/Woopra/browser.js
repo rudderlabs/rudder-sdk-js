@@ -1,10 +1,11 @@
-/* eslint-disable func-names */
+/* eslint-disable*/
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
 
 import { NAME } from "./constants";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class Woopra {
   constructor(config) {
@@ -22,7 +23,8 @@ class Woopra {
     this.outgoingTracking = config.outgoingTracking;
   }
 
-  loadScript() {
+  init() {
+    logger.debug("===In init Woopra===");
     !(function () {
       var t,
         o,
@@ -62,6 +64,7 @@ class Woopra {
         e.__woo[r[t]] = e[r[t]] = e[r[t]] || new s();
       ((o = n.createElement(a)).async = 1),
         (o.src = "https://static.woopra.com/w.js"),
+        o.setAttribute("data-loader", LOAD_ORIGIN),
         (c = n.getElementsByTagName(a)[0]).parentNode.insertBefore(o, c);
     })("Woopra");
     window.Woopra.config({
@@ -79,11 +82,6 @@ class Woopra {
     });
   }
 
-  init() {
-    logger.debug("===In init Woopra===");
-    this.loadScript();
-  }
-
   isLoaded() {
     logger.debug("===In isLoaded Woopra===");
     return !!(window.Woopra && window.Woopra.loaded);
@@ -91,7 +89,7 @@ class Woopra {
 
   isReady() {
     logger.debug("===In isReady Woopra===");
-    return window.Woopra;
+    return !!window.Woopra;
   }
 
   identify(rudderElement) {
@@ -103,19 +101,17 @@ class Woopra {
   }
 
   track(rudderElement) {
-    logger.debug("===In Woopra track===");
+    logger.debug("===In Woopra Track===");
     const { event, properties } = rudderElement.message;
     window.Woopra.track(event, properties);
   }
 
   page(rudderElement) {
-    logger.debug("===In Page track===");
+    logger.debug("===In Woopra Page ===");
     const { name, properties, category } = rudderElement.message;
-    let eventName;
-    const pageCat = category ? `${category} `: '';
-    const pageName = name ? `${name} `: '';
-    
-    eventName = `Viewed ${pageCat}${pageName}Page`;
+    const pageCat = category ? `${category} ` : "";
+    const pageName = name ? `${name} ` : "";
+    const eventName = `Viewed ${pageCat}${pageName}Page`;
     window.Woopra.track(eventName, properties);
   }
 }
