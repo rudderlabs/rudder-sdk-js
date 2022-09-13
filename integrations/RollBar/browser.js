@@ -486,6 +486,10 @@ class RollBar {
 
     var rollbar = window.Rollbar;
     const person = traits;
+    if (person.name) {
+      person.username = person.name;
+      delete person.name;
+    }
     if (userId) person.id = userId;
     else
       logger.debug(
