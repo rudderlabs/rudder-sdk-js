@@ -55,6 +55,8 @@ import { CNameMapping as SnapEngage } from "./SnapEngage/constants";
 import { CNameMapping as LiveChat } from "./LiveChat/constants";
 import { CNameMapping as Shynet } from "./Shynet/constants";
 import { CNameMapping as Woopra } from "./Woopra/constants";
+import { CNameMapping as QuoraPixel } from "./QuoraPixel/constants";
+
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -117,6 +119,7 @@ const commonNames = {
   ...LiveChat,
   ...Shynet,
   ...Woopra,
+  ...QuoraPixel,
 };
 
 export { commonNames };
