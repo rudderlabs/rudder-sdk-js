@@ -55,7 +55,7 @@ const clientToServerNames = {
   SNAPENGAGE: "SnapEngage",
   LIVECHAT: "LiveChat",
   SHYNET: "Shynet",
-
+  QUORA_PIXEL: "Quora Pixel",
 };
 
 export { clientToServerNames };
