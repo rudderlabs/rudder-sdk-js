@@ -112,15 +112,10 @@ class Woopra {
     logger.debug("===In Page track===");
     const { name, properties, category } = rudderElement.message;
     let eventName;
-    if (!name && !category) {
-      eventName = `Viewed Page`;
-    } else if (!name && category) {
-      eventName = `Viewed ${category} Page`;
-    } else if (name && !category) {
-      eventName = `Viewed ${name} Page`;
-    } else {
-      eventName = `Viewed ${category} ${name} Page`;
-    }
+    const pageCat = category ? `${category} `: '';
+    const pageName = name ? `${name} `: '';
+    
+    eventName = `Viewed ${pageCat}${pageName}Page`;
     window.Woopra.track(eventName, properties);
   }
 }
