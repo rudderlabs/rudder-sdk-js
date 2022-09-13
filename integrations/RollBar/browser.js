@@ -484,7 +484,6 @@ class RollBar {
     const { userId } = message;
     const { traits } = rudderElement.message.context;
 
-    var rollbar = ;
     const person = traits;
     if (person.name) {
       person.username = person.name;
@@ -495,7 +494,7 @@ class RollBar {
       logger.debug(
         "=== userId is not found. no new user will be created in rollbar"
       );
-      window.Rollbar.configure({ payload: {  person } });
+    window.Rollbar.configure({ payload: { person } });
   }
 }
 
