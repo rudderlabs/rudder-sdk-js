@@ -159,7 +159,7 @@ class SnapPixel {
         );
         events.forEach((ev) => {
           sendEvent(
-            events[ev],
+            ev,
             ecommEventPayload(
               event,
               message,

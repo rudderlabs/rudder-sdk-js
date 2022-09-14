@@ -81,7 +81,7 @@ class RedditPixel {
         eventMappingFromConfigMap
       );
       events.forEach((ev) => {
-        window.rdt("track", events[ev]);
+        window.rdt("track", ev);
       });
     } else {
       switch (event.toLowerCase()) {
