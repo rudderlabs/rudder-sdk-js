@@ -4,7 +4,7 @@ import Storage from "../../utils/storage";
 import logger from "../../utils/logUtil";
 
 import {
-  setEventMappingFromConfig,
+  getEventMappingFromConfig,
   removeUndefinedAndNullValues,
   getHashFromArrayWithDuplicate,
 } from "../utils/commonUtils";
@@ -152,7 +152,7 @@ class SnapPixel {
     try {
       if (eventMappingFromConfigMap[event]) {
         // mapping event from UI
-        const events = setEventMappingFromConfig(
+        const events = getEventMappingFromConfig(
           event,
           eventMappingFromConfigMap
         );

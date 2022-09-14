@@ -4,7 +4,7 @@ import { LOAD_ORIGIN } from "../ScriptLoader";
 import {
   getHashFromArrayWithDuplicate,
   removeUndefinedAndNullValues,
-  setEventMappingFromConfig,
+  getEventMappingFromConfig,
 } from "../utils/commonUtils";
 import { NAME } from "./constants";
 
@@ -88,7 +88,7 @@ class GoogleAds {
         window.gtag("event", eventName, properties);
       }
     } else {
-      let { event } = rudderElement.message;
+      const { event } = rudderElement.message;
       if (!event) {
         logger.error("Event name not present");
         return;
@@ -108,7 +108,7 @@ class GoogleAds {
       }
       payload.send_to = sendToValue;
 
-      const events = setEventMappingFromConfig(event, eventsHashmap);
+      const events = getEventMappingFromConfig(event, eventsHashmap);
       if (events) {
         events.forEach((ev) => {
           window.gtag("event", ev, payload);

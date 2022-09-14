@@ -123,7 +123,7 @@ function flattenJson(data) {
  * @param {*} eventsHashmap
  * @returns mappedEventName
  */
-function setEventMappingFromConfig(event, eventsHashmap) {
+function getEventMappingFromConfig(event, eventsHashmap) {
   // if the event name is mapped in the config, use the mapped name
   // else use the original event name
   if (eventsHashmap[event]) {
@@ -133,7 +133,7 @@ function setEventMappingFromConfig(event, eventsHashmap) {
 }
 
 export {
-  setEventMappingFromConfig,
+  getEventMappingFromConfig,
   getHashFromArrayWithDuplicate,
   getHashFromArray,
   toIso,

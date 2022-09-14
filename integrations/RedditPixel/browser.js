@@ -12,7 +12,7 @@ import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 import {
   getHashFromArrayWithDuplicate,
-  setEventMappingFromConfig,
+  getEventMappingFromConfig,
 } from "../utils/commonUtils";
 
 class RedditPixel {
@@ -75,7 +75,7 @@ class RedditPixel {
     );
     if (eventMappingFromConfigMap[event]) {
       // mapping event from UI
-      const events = setEventMappingFromConfig(
+      const events = getEventMappingFromConfig(
         event,
         eventMappingFromConfigMap
       );
