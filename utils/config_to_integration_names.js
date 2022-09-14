@@ -58,6 +58,7 @@ const configToIntNames = {
   LIVECHAT: 'LiveChat',
   SHYNET: 'Shynet',
   WOOPRA: 'Woopra',
+  QUORA_PIXEL: 'QuoraPixel',
 };
 
 export { configToIntNames };

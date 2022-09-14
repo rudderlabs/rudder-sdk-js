@@ -56,6 +56,7 @@ const clientToServerNames = {
   LIVECHAT: 'LiveChat',
   SHYNET: 'Shynet',
   WOOPRA: 'Woopra',
+  QUORA_PIXEL: 'Quora Pixel',
 };
 
 export { clientToServerNames };
