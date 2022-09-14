@@ -6,7 +6,6 @@ import logger from "../../utils/logUtil";
 import {
   setEventMappingFromConfig,
   removeUndefinedAndNullValues,
-  getHashFromArray,
   getHashFromArrayWithDuplicate,
 } from "../utils/commonUtils";
 import {

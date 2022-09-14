@@ -11,7 +11,6 @@ import logger from "../../utils/logUtil";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 import {
-  getHashFromArray,
   getHashFromArrayWithDuplicate,
   setEventMappingFromConfig,
 } from "../utils/commonUtils";

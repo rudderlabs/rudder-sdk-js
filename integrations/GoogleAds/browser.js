@@ -2,7 +2,6 @@
 import logger from "../../utils/logUtil";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 import {
-  getHashFromArray,
   getHashFromArrayWithDuplicate,
   removeUndefinedAndNullValues,
   setEventMappingFromConfig,
@@ -109,8 +108,7 @@ class GoogleAds {
       }
       payload.send_to = sendToValue;
 
-      let events = [];
-      events = setEventMappingFromConfig(event, eventsHashmap);
+      const events = setEventMappingFromConfig(event, eventsHashmap);
       if (events) {
         events.forEach((ev) => {
           window.gtag("event", ev, payload);
