@@ -57,6 +57,7 @@ const configToIntNames = {
   SNAPENGAGE: 'SnapEngage',
   LIVECHAT: 'LiveChat',
   SHYNET: 'Shynet',
+  ROLLBAR: 'RollBar',
 };
 
 export { configToIntNames };
