@@ -55,6 +55,7 @@ import { CNameMapping as SnapEngage } from "./SnapEngage/constants";
 import { CNameMapping as LiveChat } from "./LiveChat/constants";
 import { CNameMapping as Shynet } from "./Shynet/constants";
 import { CNameMapping as Woopra } from "./Woopra/constants";
+import { CNameMapping as RollBar } from "./RollBar/constants";
 import { CNameMapping as QuoraPixel } from "./QuoraPixel/constants";
 
 
@@ -119,7 +120,9 @@ const commonNames = {
   ...LiveChat,
   ...Shynet,
   ...Woopra,
+  ...RollBar,
   ...QuoraPixel,
+
 };
 
 export { commonNames };
