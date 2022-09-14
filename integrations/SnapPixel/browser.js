@@ -18,6 +18,7 @@ class SnapPixel {
     this.name = NAME;
     this.deduplicationKey = config.deduplicationKey;
     this.enableDeduplication = config.enableDeduplication;
+    this.eventMappingFromConfig = config.eventMappingFromConfig;
     this.trackEvents = [
       'SIGN_UP',
       'OPEN_APP',
@@ -124,6 +125,12 @@ class SnapPixel {
 
     const { message } = rudderElement;
     const { event } = message;
+    const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
+      this.eventMappingFromConfig,
+      'from',
+      'to',
+      false,
+    );
 
     if (!event) {
       logger.error('Event name not present');
