@@ -18,6 +18,7 @@ class RedditPixel {
     }
     this.advertiserId = config.advertiserId;
     this.name = NAME;
+    this.eventMappingFromConfig = config.eventMappingFromConfig;
   }
 
   init() {

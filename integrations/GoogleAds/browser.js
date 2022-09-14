@@ -19,6 +19,7 @@ class GoogleAds {
     this.conversionLinker = config.conversionLinker || true;
     this.disableAdPersonalization = config.disableAdPersonalization || false;
     this.name = NAME;
+    this.eventMappingFromConfig = config.eventMappingFromConfig;
   }
 
   init() {
@@ -91,14 +92,19 @@ class GoogleAds {
         logger.error('Event name not present');
         return;
       }
-
+      // modify the event name to mapped event name from the config
+      const eventsHashmap = getHashFromArrayWithDuplicate(
+        this.eventMappingFromConfig,
+        'from',
+        'to',
+        false,
+      );
       let payload = {};
       const sendToValue = this.conversionId;
 
       if (rudderElement.message.properties) {
         payload = rudderElement.message.properties;
       }
-
       payload.send_to = sendToValue;
       window.gtag('event', event, payload);
     }
