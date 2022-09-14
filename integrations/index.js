@@ -54,6 +54,9 @@ import * as ConvertFlow from './ConvertFlow';
 import * as SnapEngage from './SnapEngage';
 import * as LiveChat from './LiveChat';
 import * as Shynet from './Shynet';
+import * as Woopra from './Woopra';
+import * as RollBar from './RollBar';
+import * as QuoraPixel from './QuoraPixel';
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -115,6 +118,9 @@ const integrations = {
   SNAPENGAGE: SnapEngage.default,
   LIVECHAT: LiveChat.default,
   SHYNET: Shynet.default,
+  WOOPRA: Woopra.default,
+  ROLLBAR: RollBar.default,
+  QUORA_PIXEL: QuoraPixel.default,
 };
 
 export { integrations };
