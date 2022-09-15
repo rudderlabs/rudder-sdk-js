@@ -54,6 +54,7 @@ import { CNameMapping as ConvertFlow } from '../integrations/ConvertFlow/constan
 import { CNameMapping as SnapEngage } from '../integrations/SnapEngage/constants';
 import { CNameMapping as LiveChat } from '../integrations/LiveChat/constants';
 import { CNameMapping as Shynet } from '../integrations/Shynet/constants';
+import { CNameMapping as RollBar } from '../integrations/RollBar/constants';
 import { CNameMapping as QuoraPixel } from '../integrations/QuoraPixel/constants';
 
 // for sdk side native integration identification
@@ -115,6 +116,7 @@ const commonNames = {
   ...SnapEngage,
   ...LiveChat,
   ...Shynet,
+  ...RollBar,
   ...QuoraPixel,
 };
 

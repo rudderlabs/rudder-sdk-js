@@ -55,6 +55,7 @@ const clientToServerNames = {
   SNAPENGAGE: 'SnapEngage',
   LIVECHAT: 'LiveChat',
   SHYNET: 'Shynet',
+  ROLLBAR: 'RollBar',
   QUORA_PIXEL: 'Quora Pixel',
 };
 

@@ -57,6 +57,7 @@ const configToIntNames = {
   SNAPENGAGE: 'SnapEngage',
   LIVECHAT: 'LiveChat',
   SHYNET: 'Shynet',
+  ROLLBAR: 'RollBar',
   QUORA_PIXEL: 'QuoraPixel',
 };
 
