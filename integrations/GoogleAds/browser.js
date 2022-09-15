@@ -1,7 +1,11 @@
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import { LOAD_ORIGIN } from '../ScriptLoader';
-import { removeUndefinedAndNullValues } from '../utils/commonUtils';
+import {
+  getHashFromArrayWithDuplicate,
+  removeUndefinedAndNullValues,
+  getEventMappingFromConfig,
+} from '../utils/commonUtils';
 import { NAME } from './constants';
 
 class GoogleAds {
@@ -106,7 +110,14 @@ class GoogleAds {
         payload = rudderElement.message.properties;
       }
       payload.send_to = sendToValue;
-      window.gtag('event', event, payload);
+      const events = getEventMappingFromConfig(event, eventsHashmap);
+      if (events) {
+        events.forEach((ev) => {
+          window.gtag('event', ev, payload);
+        });
+      } else {
+        window.gtag('event', event, payload);
+      }
     }
   }
 
