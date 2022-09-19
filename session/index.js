@@ -5,8 +5,9 @@ import logger from '../utils/logUtil';
 import {
   DEFAULT_SESSION_TIMEOUT,
   MIN_SESSION_TIMEOUT,
+  MIN_SESSION_ID_LENGTH,
 } from "../utils/constants";
-import { handleError } from "../utils/utils";
+import { handleError, countDigits } from "../utils/utils";
 
 class UserSession {
   constructor() {
@@ -91,7 +92,7 @@ class UserSession {
    * @returns string
    */
   generateSessionId() {
-    return Date.now().toString();
+    return Date.now();
   }
 
   /**
@@ -101,7 +102,7 @@ class UserSession {
     const timestamp = Date.now();
     if (!this.isValidSession(timestamp)) {
       this.sessionInfo = {};
-      this.sessionInfo.id = timestamp.toString(); // set the current timestamp
+      this.sessionInfo.id = timestamp; // set the current timestamp
       this.sessionInfo.expiresAt = timestamp + this.timeout; // set the expiry time of the session
       this.sessionInfo.sessionStart = true;
       this.sessionInfo.autoTrack = true;
@@ -111,12 +112,18 @@ class UserSession {
 
   /**
    * A public method to start a session
-   * @param {string} sessionId     session identifier
+   * @param {number} sessionId     session identifier
    * @returns
    */
   start(sessionId) {
-    if (sessionId && typeof sessionId !== 'string') {
-      logger.error(`[Session]:: "sessionId" should be in string format`);
+    if (sessionId && typeof sessionId !== 'number') {
+      logger.error(`[Session]:: "sessionId" should be in number format`);
+      return;
+    }
+    if (sessionId && countDigits(sessionId) < MIN_SESSION_ID_LENGTH) {
+      logger.error(
+        `[Session]:: "sessionId" should contain ${MIN_SESSION_ID_LENGTH} or more numbers`
+      );
       return;
     }
     this.sessionInfo = {
