@@ -117,7 +117,7 @@ class UserSession {
    */
   start(sessionId) {
     if (sessionId && typeof sessionId !== 'number') {
-      logger.error(`[Session]:: "sessionId" should be in number format`);
+      logger.error(`[Session]:: "sessionId" should be a number`);
       return;
     }
     if (sessionId && countDigits(sessionId) < MIN_SESSION_ID_LENGTH) {
