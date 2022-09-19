@@ -120,7 +120,7 @@ class UserSession {
       logger.error(`[Session]:: "sessionId" should be a number`);
       return;
     }
-    if (sessionId && countDigits(sessionId) < MIN_SESSION_ID_LENGTH) {
+    if (countDigits(sessionId) < MIN_SESSION_ID_LENGTH) {
       logger.error(
         `[Session]:: "sessionId" should at least be "${MIN_SESSION_ID_LENGTH}" digits long`
       );
