@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable import/prefer-default-export */
 import Storage from '../utils/storage';
@@ -89,7 +90,7 @@ class UserSession {
 
   /**
    * A function to generate session id
-   * @returns string
+   * @returns number
    */
   generateSessionId() {
     return Date.now();
@@ -111,21 +112,35 @@ class UserSession {
   }
 
   /**
-   * A public method to start a session
-   * @param {number} sessionId     session identifier
+   * Function to validate user provided sessionId
+   * @param {number} sessionId
    * @returns
    */
-  start(sessionId) {
-    if (sessionId && typeof sessionId !== 'number') {
+  validateSessionId(sessionId) {
+    if (typeof sessionId !== 'number') {
       logger.error(`[Session]:: "sessionId" should be a number`);
       return;
     }
-    if (countDigits(sessionId) < MIN_SESSION_ID_LENGTH) {
+    const id = Math.trunc(sessionId);
+    if (countDigits(id) < MIN_SESSION_ID_LENGTH) {
       logger.error(
         `[Session]:: "sessionId" should at least be "${MIN_SESSION_ID_LENGTH}" digits long`
       );
       return;
     }
+    return id;
+  }
+
+  /**
+   * A public method to start a session
+   * @param {number} sessionId     session identifier
+   * @returns
+   */
+  start(id) {
+    const sessionId = id
+      ? this.validateSessionId(id)
+      : this.generateSessionId();
+
     this.sessionInfo = {
       id: sessionId || this.generateSessionId(),
       sessionStart: true,
