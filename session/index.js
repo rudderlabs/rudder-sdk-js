@@ -117,18 +117,17 @@ class UserSession {
    * @returns
    */
   validateSessionId(sessionId) {
-    if (typeof sessionId !== 'number') {
-      logger.error(`[Session]:: "sessionId" should be a number`);
+    if (typeof sessionId !== 'number' || sessionId % 1 !== 0) {
+      logger.error(`[Session]:: "sessionId" should only contain neumerical digits`);
       return;
     }
-    const id = Math.trunc(sessionId);
-    if (countDigits(id) < MIN_SESSION_ID_LENGTH) {
+    if (countDigits(sessionId) < MIN_SESSION_ID_LENGTH) {
       logger.error(
         `[Session]:: "sessionId" should at least be "${MIN_SESSION_ID_LENGTH}" digits long`
       );
       return;
     }
-    return id;
+    return sessionId;
   }
 
   /**
