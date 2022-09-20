@@ -38,9 +38,7 @@ class LinkedInInsightTag {
     const { message } = rudderElement;
     const { event } = message;
     if (!event) {
-      logger.error(
-        "[LinkedIn Insight Tag]: Event name is missing for track call."
-      );
+      logger.error("[LinkedIn Insight Tag]: Event name is missing");
       return;
     }
     const trimmedEvent = event.trim();
@@ -52,7 +50,7 @@ class LinkedInInsightTag {
     );
     if (!eventMapping[trimmedEvent]) {
       logger.debug(
-        `Event ${trimmedEvent} doesn't matches with LinkedIn Insight Tag. Aborting!===`
+        `The "${event}" event is not mapped in the destination dashboard. It'll be skipped.`
       );
       return;
     }
