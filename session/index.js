@@ -118,7 +118,7 @@ class UserSession {
    */
   validateSessionId(sessionId) {
     if (typeof sessionId !== 'number' || sessionId % 1 !== 0) {
-      logger.error(`[Session]:: "sessionId" should only contain neumerical digits`);
+      logger.error(`[Session]:: "sessionId" should only be a positive integer`);
       return;
     }
     if (countDigits(sessionId) < MIN_SESSION_ID_LENGTH) {
