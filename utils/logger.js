@@ -73,16 +73,30 @@ class Logger {
    */
   getLogData(logArgs) {
     if (Array.isArray(logArgs) && logArgs.length > 0) {
-      let msg = `%c RS SDK `;
+      // prefix SDK identifier
+      let msg = `%c RS SDK`;
+
       // format the log message using `scope`
       if (this.scope) {
-        msg = `${msg}- ${this.scope}`;
+        msg = `${msg} - ${this.scope}`;
       }
-      msg = `${msg} %c ${logArgs[0].trim()}`;
+
+      // trim whitespaces
+      const orgMsg = logArgs[0].trim();
+
+      // prepare the final message
+      msg = `${msg} %c ${orgMsg}`;
+
       const retArgs = [];
       retArgs.push(msg);
+
+      // add style for the prefix
       retArgs.push("font-weight: bold; background: black; color: white;");
+
+      // reset the style for the actual message
       retArgs.push("font-weight: normal;");
+
+      // append rest of the original arguments
       retArgs.push(...logArgs.slice(1));
       return retArgs;
     }
