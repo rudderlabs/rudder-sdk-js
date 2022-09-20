@@ -737,6 +737,10 @@ const constructPayload = (object, mapper) => {
   return payload;
 };
 
+const countDigits = (number) => {
+  return number ? number.toString().length : 0;
+};
+
 export {
   replacer,
   generateUUID,
@@ -768,4 +772,5 @@ export {
   notifyError,
   leaveBreadcrumb,
   get,
+  countDigits,
 };
