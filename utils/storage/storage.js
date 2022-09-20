@@ -14,6 +14,7 @@ const defaults = {
   group_storage_trait: "rl_group_trait",
   page_storage_init_referrer: "rl_page_init_referrer",
   page_storage_init_referring_domain: "rl_page_init_referring_domain",
+  session_info: "rl_session",
   prefix: "RudderEncrypt:",
   key: "Rudder",
 };
@@ -208,6 +209,17 @@ class Storage {
   }
 
   /**
+   * Set session information
+   * @param {*} value
+   */
+  setSessionInfo(value) {
+    this.storage.set(
+      defaults.session_info,
+      this.encryptValue(this.stringify(value))
+    );
+  }
+
+  /**
    *
    * @param {*} key
    */
@@ -364,11 +376,24 @@ class Storage {
   }
 
   /**
+   * get the stored session info
+   */
+  getSessionInfo() {
+    return this.parse(
+      this.decryptValue(this.storage.get(defaults.session_info))
+    );
+  }
+
+  /**
    *
    * @param {*} key
    */
   removeItem(key) {
     return this.storage.remove(key);
+  }
+
+  removeSessionInfo() {
+    this.removeItem(defaults.session_info);
   }
 
   /**
