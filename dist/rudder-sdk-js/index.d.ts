@@ -446,7 +446,7 @@ declare module "rudder-sdk-js" {
    /**
    * To manually end user session in the SDK
    */
-  function endSession(): void;
+   function endSession(): void;
 
   export {
     integrationOptions,
