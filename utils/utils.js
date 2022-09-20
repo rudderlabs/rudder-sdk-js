@@ -738,7 +738,7 @@ const constructPayload = (object, mapper) => {
 };
 
 const countDigits = (number) => {
-  return number.toString().length;
+  return number ? number.toString().length : 0;
 };
 
 export {
