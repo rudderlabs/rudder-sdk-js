@@ -1,31 +1,28 @@
 /* eslint-disable class-methods-use-this */
-import get from "get-value";
-import logger from "../../utils/logUtil";
+import get from 'get-value';
+import logger from '../../utils/logUtil';
 import {
   eventMapping,
   searchPropertyMapping,
   productPropertyMapping,
   propertyMapping,
   pinterestPropertySupport,
-} from "./propertyMappingConfig";
-import {
-  flattenJsonPayload,
-  isDefinedAndNotNull,
-  getDataFromSource,
-} from "../../utils/utils";
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+} from './propertyMappingConfig';
+import { flattenJsonPayload, isDefinedAndNotNull, getDataFromSource } from '../../utils/utils';
+import { getHashFromArrayWithDuplicate, isDefined } from '../utils/commonUtils';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 export default class PinterestTag {
   constructor(config, analytics) {
     this.analytics = analytics;
-    this.tagId = !config.tagId ? "" : config.tagId;
+    this.tagId = !config.tagId ? '' : config.tagId;
     this.enhancedMatch = config.enhancedMatch || false;
     this.customProperties = config.customProperties || [];
     this.userDefinedEventsMapping = config.eventsMapping || [];
     this.name = NAME;
     this.deduplicationKey = config.deduplicationKey;
-    logger.debug("config", config);
+    logger.debug('config', config);
   }
 
   loadScript() {
@@ -34,14 +31,14 @@ export default class PinterestTag {
         window.pintrk = function () {
           window.pintrk.queue.push(Array.prototype.slice.call(arguments));
         };
-        var n = window.pintrk;
-        (n.queue = []), (n.version = "3.0");
-        var t = document.createElement("script");
-        (t.async = !0), (t.src = e), (t.setAttribute("data-loader", LOAD_ORIGIN));
-        var r = document.getElementsByTagName("script")[0];
+        const n = window.pintrk;
+        (n.queue = []), (n.version = '3.0');
+        const t = document.createElement('script');
+        (t.async = !0), (t.src = e), t.setAttribute('data-loader', LOAD_ORIGIN);
+        const r = document.getElementsByTagName('script')[0];
         r.parentNode.insertBefore(t, r);
       }
-    })("https://s.pinimg.com/ct/core.js");
+    })('https://s.pinimg.com/ct/core.js');
   }
 
   handleEnhancedMatch() {
@@ -111,11 +108,7 @@ export default class PinterestTag {
    */
   getRawPayload(properties) {
     const data = {};
-    const mappedProps = this.getMappingObject(
-      properties,
-      propertyMapping,
-      true
-    );
+    const mappedProps = this.getMappingObject(properties, propertyMapping, true);
     Object.keys(mappedProps).forEach((p) => {
       if (pinterestPropertySupport.includes(p)) {
         data[p] = mappedProps[p];
@@ -139,11 +132,11 @@ export default class PinterestTag {
    * @param {*} hasEmptyProducts
    * @returns
    */
-  generatePinterestObject(properties, hasEmptyProducts = false) {
+  generatePinterestObject(properties) {
     const pinterestObject = this.getRawPayload(properties);
 
     let { products } = properties;
-    if (hasEmptyProducts && !products) {
+    if (!products) {
       products = [properties];
     }
     if (products) {
@@ -155,18 +148,14 @@ export default class PinterestTag {
       pinterestObject.line_items = lineItems;
     }
 
-    if (
-      this.customProperties.length > 0 &&
-      Object.keys(properties).length > 0
-    ) {
+    if (this.customProperties.length > 0 && Object.keys(properties).length > 0) {
       const flattenPayload = flattenJsonPayload(properties);
 
       this.customProperties.forEach((custom) => {
         // This check fails if user is sending boolean value as false
         // Adding toString because if the property value is boolean then it never gets reflected in destination
         if (isDefinedAndNotNull(flattenPayload[custom.properties])) {
-          pinterestObject[custom.properties] =
-            flattenPayload[custom.properties].toString();
+          pinterestObject[custom.properties] = flattenPayload[custom.properties].toString();
         }
       });
     }
@@ -180,27 +169,64 @@ export default class PinterestTag {
    * @param {rudder event name} event
    * @returns
    */
+  // getDestinationEventName(event) {
+  //   if (this.userDefinedEventsMapping.length > 0) {
+  //     const userDefinedEvent = this.userDefinedEventsMapping.find(
+  //       (e) => e.from.toLowerCase() === event.toLowerCase(),
+  //     );
+  //     if (userDefinedEvent && userDefinedEvent.to) {
+  //       return {
+  //         dest: userDefinedEvent.to,
+  //         isUserDefinedEvent: true,
+  //       };
+  //     }
+  //   }
+  //   const destinationEvent = eventMapping.find((p) => p.src.includes(event.toLowerCase()));
+  //   if (!destinationEvent) {
+  //     return {
+  //       dest: 'custom',
+  //     };
+  //   }
+  //   return destinationEvent;
+  // }
   getDestinationEventName(event) {
+    let eventName;
+    /*
+    Step 1: At first we will look for
+            the event mapping in the UI. In case it is similar, will map to that.
+     */
     if (this.userDefinedEventsMapping.length > 0) {
-      const userDefinedEvent = this.userDefinedEventsMapping.find(
-        (e) => e.from.toLowerCase() === event.toLowerCase()
+      const keyMap = getHashFromArrayWithDuplicate(
+        this.userDefinedEventsMapping,
+        "from",
+        "to",
+        false,
       );
-      if (userDefinedEvent && userDefinedEvent.to) {
-        return {
-          dest: userDefinedEvent.to,
-          isUserDefinedEvent: true,
-        };
+      eventName = keyMap[event];
+    }
+    if (isDefined(eventName)) {
+      return [...eventName];
+    }
+    /*
+    Step 2: To find if the particular event is amongst the list of standard
+            Rudderstack ecommerce events, used specifically for Pinterest Conversion API
+            mappings.
+    */
+    if (!eventName) {
+      const eventMapInfo = eventMapping.find((eventMap) => {
+        if (eventMap.src.includes(event.toLowerCase())) {
+          return eventMap;
+        }
+        return false;
+      });
+      if (isDefinedAndNotNull(eventMapInfo)) {
+        return [eventMapInfo.dest];
       }
     }
-    const destinationEvent = eventMapping.find((p) =>
-      p.src.includes(event.toLowerCase())
-    );
-    if (!destinationEvent) {
-      return {
-        dest: "custom",
-      };
-    }
-    return destinationEvent;
+    /*
+    Step 3: In case both of the above stated cases fail, will mark the event as "custom"
+   */
+    return ["custom"];
   }
 
   track(rudderElement) {
@@ -209,20 +235,12 @@ export default class PinterestTag {
     }
     const { message } = rudderElement;
     const { properties, event, messageId } = message;
-    let eventName = event;
-    const destEvent = this.getDestinationEventName(event);
-    if (isDefinedAndNotNull(destEvent)) {
-      eventName = destEvent.dest;
-    }
-    const pinterestObject = this.generatePinterestObject(
-      properties,
-      destEvent?.hasEmptyProducts,
-      destEvent?.isUserDefinedEvent
-    );
-    pinterestObject.event_id =
-      get(message, `${this.deduplicationKey}`) || messageId;
-
-    this.sendPinterestTrack(eventName, pinterestObject);
+    const destEventArray = this.getDestinationEventName(event);
+    destEventArray.forEach((eventName) => {
+      const pinterestObject = this.generatePinterestObject(properties);
+      pinterestObject.event_id = get(message, `${this.deduplicationKey}`) || messageId;
+      this.sendPinterestTrack(eventName, pinterestObject);
+    });
   }
 
   page(rudderElement) {
