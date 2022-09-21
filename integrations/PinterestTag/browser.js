@@ -125,11 +125,9 @@ export default class PinterestTag {
    * This function will generate required pinterest object to be sent.
    * getRawPayload() will generate all the destination property excepts lineItems
    * If rudder payload has products array then line_items is generated
-   * In case if the call is for event which has flag hasEmptyProducts to true, it will generate all
-   * properties including lineItems even if it does not have products array in it ex: Product Added
+   * It will generate all properties including lineItems even if it does not have products array in it ex: Product Added
    *
    * @param {rudder payload} properties
-   * @param {*} hasEmptyProducts
    * @returns
    */
   generatePinterestObject(properties) {
@@ -162,33 +160,6 @@ export default class PinterestTag {
     return pinterestObject;
   }
 
-  /**
-   * This gives destination events .
-   * Logics: If our eventMapping is not able to map the event that is sent by user payload then it will look into
-   * userDefinedEventsMapping array. In case if it is not found there as well, it will return "custom".
-   * @param {rudder event name} event
-   * @returns
-   */
-  // getDestinationEventName(event) {
-  //   if (this.userDefinedEventsMapping.length > 0) {
-  //     const userDefinedEvent = this.userDefinedEventsMapping.find(
-  //       (e) => e.from.toLowerCase() === event.toLowerCase(),
-  //     );
-  //     if (userDefinedEvent && userDefinedEvent.to) {
-  //       return {
-  //         dest: userDefinedEvent.to,
-  //         isUserDefinedEvent: true,
-  //       };
-  //     }
-  //   }
-  //   const destinationEvent = eventMapping.find((p) => p.src.includes(event.toLowerCase()));
-  //   if (!destinationEvent) {
-  //     return {
-  //       dest: 'custom',
-  //     };
-  //   }
-  //   return destinationEvent;
-  // }
   getDestinationEventName(event) {
     let eventName;
     /*
@@ -198,8 +169,8 @@ export default class PinterestTag {
     if (this.userDefinedEventsMapping.length > 0) {
       const keyMap = getHashFromArrayWithDuplicate(
         this.userDefinedEventsMapping,
-        "from",
-        "to",
+        'from',
+        'to',
         false,
       );
       eventName = keyMap[event];
@@ -226,7 +197,7 @@ export default class PinterestTag {
     /*
     Step 3: In case both of the above stated cases fail, will mark the event as "custom"
    */
-    return ["custom"];
+    return ['custom'];
   }
 
   track(rudderElement) {
