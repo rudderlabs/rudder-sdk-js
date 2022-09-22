@@ -28,9 +28,10 @@ class Logger {
   }
 
   setLogLevel(levelStr) {
-    this.level = levelStr
-      ? LogLevel[levelStr.toString().toUpperCase()].value
-      : this.level;
+    if (levelStr && typeof levelStr === "string") {
+      const lvlStr = levelStr.toUpperCase();
+      this.level = LogLevel[lvlStr] ? LogLevel[lvlStr].value : this.level;
+    }
   }
 
   setScope(scopeVal) {
