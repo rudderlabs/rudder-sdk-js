@@ -58,6 +58,7 @@ const clientToServerNames = {
   WOOPRA: "Woopra",
   ROLLBAR: "RollBar",
   QUORA_PIXEL: "Quora Pixel",
+  ENGAGE: "Engage",
 };
 
 export { clientToServerNames };
