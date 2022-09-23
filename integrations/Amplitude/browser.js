@@ -1,14 +1,17 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
+import Logger from "../../utils/logger";
 import { type } from "../../utils/utils";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
+
+const logger = new Logger(NAME);
 
 class Amplitude {
   constructor(config, analytics) {
     this.name = NAME;
     this.analytics = analytics;
+    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.apiKey = config.apiKey;
     this.trackAllPages = config.trackAllPages || false;
     this.trackNamedPages = config.trackNamedPages || false;
@@ -431,7 +434,9 @@ class Amplitude {
     // If price not present set price as revenue's value and force quantity to be 1.
     // Ultimately set quantity to 1 if not already present from above logic.
     if (!revenue && !price) {
-      console.debug("revenue or price is not present.");
+      logger.warn(
+        'Neither "revenue" nor "price" is available. Hence, not logging revenue'
+      );
       return;
     }
 
