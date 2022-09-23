@@ -1086,6 +1086,7 @@ class Analytics {
     let storageOptions = {};
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
+      this.logLevel = options.logLevel;
     }
 
     if (options && options.setCookieDomain) {
