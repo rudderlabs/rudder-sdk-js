@@ -52,7 +52,7 @@ class QuoraPixel {
     const events = eventsMapping[trimmedEvent] || [];
 
     if (events.length === 0) {
-      logger.debug(
+      logger.warn(
         `===No Quora Pixel mapped event found. Sending Generic as the default event===`
       );
       window.qp("track", "Generic");
