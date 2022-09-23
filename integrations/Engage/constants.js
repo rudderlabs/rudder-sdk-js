@@ -3,5 +3,13 @@ const CNameMapping = {
   [NAME]: NAME,
   Engage: NAME,
 };
-
-export { NAME, CNameMapping };
+const identifyExcludeFields = [
+  "firstName",
+  "firstname",
+  "first_name",
+  "lastName",
+  "lastname",
+  "last_name",
+  "phone",
+];
+export { NAME, CNameMapping, identifyExcludeFields };

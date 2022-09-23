@@ -1,15 +1,4 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import set from "lodash";
-
-const identifyExcludeFields = [
-  "firstName",
-  "firstname",
-  "first_name",
-  "lastName",
-  "lastname",
-  "last_name",
-  "phone",
-];
+import { identifyExcludeFields } from "./constants";
 /**
  * Flatens the input payload
  * @param {*} payload Input payload that needs to be flattened
@@ -39,14 +28,12 @@ const flattenPayload = (payload) => {
  */
 const refinePayload = (attributes, identifyFlag = false) => {
   const flattenedPayload = flattenPayload(attributes);
-  console.log("in", flattenedPayload);
   const payload = {};
   Object.keys(flattenedPayload).forEach((v) => {
     if (!identifyFlag || !identifyExcludeFields.includes(v)) {
       payload[v] = flattenedPayload[v];
     }
   });
-  console.log("return: ", payload);
   return payload;
 };
 
