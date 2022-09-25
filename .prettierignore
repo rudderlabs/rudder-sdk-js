@@ -1,0 +1,7 @@
+dist/
+node_modules/
+stats/
+coverage/
+archive/
+tests/
+__tests__/prodsdk.js

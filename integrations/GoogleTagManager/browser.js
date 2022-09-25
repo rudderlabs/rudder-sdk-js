@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 class GoogleTagManager {
   constructor(config, analytics) {
@@ -13,7 +14,7 @@ class GoogleTagManager {
   }
 
   init() {
-    logger.debug("===in init GoogleTagManager===");
+    logger.debug('===in init GoogleTagManager===');
 
     const defaultUrl = `https://www.googletagmanager.com`;
 
@@ -23,14 +24,15 @@ class GoogleTagManager {
 
     (function (w, d, s, l, i) {
       w[l] = w[l] || [];
-      w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+      w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
       const f = d.getElementsByTagName(s)[0];
       const j = d.createElement(s);
-      const dl = l !== "dataLayer" ? `&l=${l}` : "";
+      const dl = l !== 'dataLayer' ? `&l=${l}` : '';
+      j.setAttribute('data-loader', LOAD_ORIGIN);
       j.async = true;
       j.src = `${window.finalUrl}/gtm.js?id=${i}${dl}`;
       f.parentNode.insertBefore(j, f);
-    })(window, document, "script", "dataLayer", this.containerID);
+    })(window, document, 'script', 'dataLayer', this.containerID);
   }
 
   identify(rudderElement) {
@@ -42,7 +44,7 @@ class GoogleTagManager {
   }
 
   track(rudderElement) {
-    logger.debug("===in track GoogleTagManager===");
+    logger.debug('===in track GoogleTagManager===');
     const rudderMessage = rudderElement.message;
     const props = {
       event: rudderMessage.event,
@@ -57,12 +59,10 @@ class GoogleTagManager {
   }
 
   page(rudderElement) {
-    logger.debug("===in page GoogleTagManager===");
+    logger.debug('===in page GoogleTagManager===');
     const rudderMessage = rudderElement.message;
     const pageName = rudderMessage.name;
-    const pageCategory = rudderMessage.properties
-      ? rudderMessage.properties.category
-      : undefined;
+    const pageCategory = rudderMessage.properties ? rudderMessage.properties.category : undefined;
 
     let eventName;
 
@@ -74,7 +74,7 @@ class GoogleTagManager {
       eventName = `Viewed ${pageCategory} ${pageName} page`;
     }
     if (!eventName) {
-      eventName = "Viewed a Page";
+      eventName = 'Viewed a Page';
     }
     const props = {
       event: eventName,
@@ -90,9 +90,7 @@ class GoogleTagManager {
   }
 
   isLoaded() {
-    return !!(
-      window.dataLayer && Array.prototype.push !== window.dataLayer.push
-    );
+    return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
   }
 
   sendToGTMDatalayer(props) {
@@ -100,9 +98,7 @@ class GoogleTagManager {
   }
 
   isReady() {
-    return !!(
-      window.dataLayer && Array.prototype.push !== window.dataLayer.push
-    );
+    return !!(window.dataLayer && Array.prototype.push !== window.dataLayer.push);
   }
 }
 

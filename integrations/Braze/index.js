@@ -1,4 +1,3 @@
-import { Braze } from "./browser";
+import { Braze } from './browser';
 
-// eslint-disable-next-line import/prefer-default-export
 export { Braze };

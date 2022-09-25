@@ -1,10 +1,10 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
-// import logger from "../logUtil";
-import { Store } from "./store";
+import { Store } from './storage/store';
+import { replacer, handleError } from './utils';
 
 const defaults = {
-  queue: "queue",
+  queue: 'queue',
   maxPayloadSize: 64 * 1000,
 };
 
@@ -15,8 +15,8 @@ class BeaconQueue {
     this.flushQueueTimeOut = undefined;
     this.timeOutActive = false;
     this.flushQueueTimeOutInterval = 1000 * 60 * 10; // 10 mins
-    this.url = "";
-    this.writekey = "";
+    this.url = '';
+    this.writekey = '';
     this.queueName = `${defaults.queue}.${Date.now()}`;
   }
 
@@ -28,10 +28,9 @@ class BeaconQueue {
     this.url = url;
     this.writekey = writekey;
     if (options.maxItems) this.maxItems = options.maxItems;
-    if (options.flushQueueInterval)
-      this.flushQueueTimeOutInterval = options.flushQueueInterval;
+    if (options.flushQueueInterval) this.flushQueueTimeOutInterval = options.flushQueueInterval;
     const sendQueueData = this.sendQueueDataForBeacon.bind(this);
-    window.addEventListener("unload", sendQueueData);
+    window.addEventListener('unload', sendQueueData);
   }
 
   getQueue() {
@@ -42,27 +41,13 @@ class BeaconQueue {
     this.storage.set(this.queueName, value);
   }
 
-  /**
-   *
-   * Utility method for excluding null and empty values in JSON
-   * @param {*} _key
-   * @param {*} value
-   * @returns
-   */
-  replacer(_key, value) {
-    if (value === null || value === undefined) {
-      return undefined;
-    }
-    return value;
-  }
-
   enqueue(message) {
     let queue = this.getQueue() || [];
     queue = queue.slice(-(this.maxItems - 1));
     queue.push(message);
     let batch = queue.slice(0);
     const data = { batch };
-    const dataToSend = JSON.stringify(data, this.replacer);
+    const dataToSend = JSON.stringify(data, replacer);
     if (dataToSend.length > defaults.maxPayloadSize) {
       batch = queue.slice(0, queue.length - 1);
       this.flushQueue(batch);
@@ -91,19 +76,16 @@ class BeaconQueue {
   }
 
   flushQueue(batch) {
-    batch.map((event) => {
+    batch.forEach((event) => {
       event.sentAt = new Date().toISOString();
     });
     const data = { batch };
-    const payload = JSON.stringify(data, this.replacer);
-    const blob = new Blob([payload], { type: "text/plain" });
-    const isPushed = navigator.sendBeacon(
-      `${this.url}?writeKey=${this.writekey}`,
-      blob
-    );
-    // if (!isPushed) {
-    //   logger.debug("Unable to send data");
-    // }
+    const payload = JSON.stringify(data, replacer);
+    const blob = new Blob([payload], { type: 'text/plain' });
+    const isPushed = navigator.sendBeacon(`${this.url}?writeKey=${this.writekey}`, blob);
+    if (!isPushed) {
+      handleError(new Error("Unable to queue data to browser's beacon queue"));
+    }
     this.setQueue([]);
     this.clearTimer();
   }
@@ -112,7 +94,7 @@ class BeaconQueue {
     if (!this.timeOutActive) {
       this.flushQueueTimeOut = setTimeout(
         this.sendDataFromQueue.bind(this),
-        this.flushQueueTimeOutInterval
+        this.flushQueueTimeOutInterval,
       );
       this.timeOutActive = true;
     }

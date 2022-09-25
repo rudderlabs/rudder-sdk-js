@@ -1,18 +1,16 @@
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
+import get from 'get-value';
+import logger from '../../utils/logUtil';
 import {
   eventMapping,
   searchPropertyMapping,
   productPropertyMapping,
   propertyMapping,
   pinterestPropertySupport,
-} from "./propertyMappingConfig";
-import {
-  flattenJsonPayload,
-  isDefinedAndNotNull,
-  getDataFromSource,
-} from "../../utils/utils";
-import { NAME } from "./constants";
+} from './propertyMappingConfig';
+import { flattenJsonPayload, isDefinedAndNotNull, getDataFromSource } from '../../utils/utils';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 export default class PinterestTag {
   constructor(config, analytics) {
@@ -20,12 +18,13 @@ export default class PinterestTag {
       logger.setLogLevel(analytics.logLevel);
     }
     this.analytics = analytics;
-    this.tagId = !config.tagId ? "" : config.tagId;
+    this.tagId = !config.tagId ? '' : config.tagId;
     this.enhancedMatch = config.enhancedMatch || false;
     this.customProperties = config.customProperties || [];
     this.userDefinedEventsMapping = config.eventsMapping || [];
     this.name = NAME;
-    logger.debug("config", config);
+    this.deduplicationKey = config.deduplicationKey;
+    logger.debug('config', config);
   }
 
   loadScript() {
@@ -34,50 +33,50 @@ export default class PinterestTag {
         window.pintrk = function () {
           window.pintrk.queue.push(Array.prototype.slice.call(arguments));
         };
-        var n = window.pintrk;
-        (n.queue = []), (n.version = "3.0");
-        var t = document.createElement("script");
-        (t.async = !0), (t.src = e);
-        var r = document.getElementsByTagName("script")[0];
+        const n = window.pintrk;
+        (n.queue = []), (n.version = '3.0');
+        const t = document.createElement('script');
+        (t.async = !0), (t.src = e), t.setAttribute('data-loader', LOAD_ORIGIN);
+        const r = document.getElementsByTagName('script')[0];
         r.parentNode.insertBefore(t, r);
       }
-    })("https://s.pinimg.com/ct/core.js");
+    })('https://s.pinimg.com/ct/core.js');
   }
 
   handleEnhancedMatch() {
     const email = this.analytics.userTraits && this.analytics.userTraits.email;
     if (email && this.enhancedMatch) {
-      window.pintrk("load", this.tagId, {
+      window.pintrk('load', this.tagId, {
         em: email,
       });
     } else {
-      window.pintrk("load", this.tagId);
+      window.pintrk('load', this.tagId);
     }
-    window.pintrk("page");
+    window.pintrk('page');
   }
 
   init() {
-    logger.debug("===in init Pinterest Tag===");
+    logger.debug('===in init Pinterest Tag===');
     this.loadScript();
     this.handleEnhancedMatch();
   }
 
   /* utility functions ---Start here ---  */
   isLoaded() {
-    logger.debug("===in isLoaded Pinterest Tag===");
+    logger.debug('===in isLoaded Pinterest Tag===');
 
     return !!(window.pintrk && window.pintrk.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug("===in isReady Pinterest Tag===");
+    logger.debug('===in isReady Pinterest Tag===');
 
     return !!(window.pintrk && window.pintrk.push !== Array.prototype.push);
   }
   /* utility functions --- Ends here ---  */
 
   sendPinterestTrack(eventName, pinterestObject) {
-    window.pintrk("track", eventName, pinterestObject);
+    window.pintrk('track', eventName, pinterestObject);
   }
 
   /**
@@ -111,11 +110,7 @@ export default class PinterestTag {
    */
   getRawPayload(properties) {
     const data = {};
-    const mappedProps = this.getMappingObject(
-      properties,
-      propertyMapping,
-      true
-    );
+    const mappedProps = this.getMappingObject(properties, propertyMapping, true);
     Object.keys(mappedProps).forEach((p) => {
       if (pinterestPropertySupport.includes(p)) {
         data[p] = mappedProps[p];
@@ -155,18 +150,14 @@ export default class PinterestTag {
       pinterestObject.line_items = lineItems;
     }
 
-    if (
-      this.customProperties.length > 0 &&
-      Object.keys(properties).length > 0
-    ) {
+    if (this.customProperties.length > 0 && Object.keys(properties).length > 0) {
       const flattenPayload = flattenJsonPayload(properties);
 
       this.customProperties.forEach((custom) => {
         // This check fails if user is sending boolean value as false
         // Adding toString because if the property value is boolean then it never gets reflected in destination
         if (isDefinedAndNotNull(flattenPayload[custom.properties])) {
-          pinterestObject[custom.properties] =
-            flattenPayload[custom.properties].toString();
+          pinterestObject[custom.properties] = flattenPayload[custom.properties].toString();
         }
       });
     }
@@ -176,17 +167,14 @@ export default class PinterestTag {
   /**
    * This gives destination events .
    * Logics: If our eventMapping is not able to map the event that is sent by user payload then it will look into
-   * userDefinedEventsMapping array. In case if it is not found there as well, it will return undefined.
+   * userDefinedEventsMapping array. In case if it is not found there as well, it will return "custom".
    * @param {rudder event name} event
    * @returns
    */
   getDestinationEventName(event) {
-    const destinationEvent = eventMapping.find((p) =>
-      p.src.includes(event.toLowerCase())
-    );
-    if (!destinationEvent && this.userDefinedEventsMapping.length > 0) {
+    if (this.userDefinedEventsMapping.length > 0) {
       const userDefinedEvent = this.userDefinedEventsMapping.find(
-        (e) => e.from.toLowerCase() === event.toLowerCase()
+        (e) => e.from.toLowerCase() === event.toLowerCase(),
       );
       if (userDefinedEvent && userDefinedEvent.to) {
         return {
@@ -195,6 +183,12 @@ export default class PinterestTag {
         };
       }
     }
+    const destinationEvent = eventMapping.find((p) => p.src.includes(event.toLowerCase()));
+    if (!destinationEvent) {
+      return {
+        dest: 'custom',
+      };
+    }
     return destinationEvent;
   }
 
@@ -202,7 +196,8 @@ export default class PinterestTag {
     if (!rudderElement.message || !rudderElement.message.event) {
       return;
     }
-    const { properties, event } = rudderElement.message;
+    const { message } = rudderElement;
+    const { properties, event, messageId } = message;
     let eventName = event;
     const destEvent = this.getDestinationEventName(event);
     if (isDefinedAndNotNull(destEvent)) {
@@ -211,27 +206,28 @@ export default class PinterestTag {
     const pinterestObject = this.generatePinterestObject(
       properties,
       destEvent?.hasEmptyProducts,
-      destEvent?.isUserDefinedEvent
+      destEvent?.isUserDefinedEvent,
     );
+    pinterestObject.event_id = get(message, `${this.deduplicationKey}`) || messageId;
 
     this.sendPinterestTrack(eventName, pinterestObject);
   }
 
   page(rudderElement) {
     const { category, name } = rudderElement.message;
-    const pageObject = { name: name || "" };
-    let event = "PageVisit";
+    const pageObject = { name: name || '' };
+    let event = 'PageVisit';
     if (category) {
       pageObject.category = category;
-      event = "ViewCategory";
+      event = 'ViewCategory';
     }
-    window.pintrk("track", event, pageObject);
+    window.pintrk('track', event, pageObject);
   }
 
   identify() {
     const email = this.analytics.userTraits && this.analytics.userTraits.email;
     if (email) {
-      window.pintrk("set", { em: email });
+      window.pintrk('set', { em: email });
     }
   }
 }

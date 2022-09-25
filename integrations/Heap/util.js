@@ -1,5 +1,5 @@
-import is from "is";
-import { toIso, isDefinedAndNotNull, flattenJson } from "../utils/commonUtils";
+import is from 'is';
+import { toIso, isDefinedAndNotNull, flattenJson } from '../utils/commonUtils';
 
 // Heap accepts only string, boolean and number
 

@@ -1,8 +1,8 @@
-import logger from "../../utils/logUtil";
-import Storage from "../../utils/storage";
+import logger from '../../utils/logUtil';
+import Storage from '../../utils/storage';
 
 const defaults = {
-  lotame_synch_time_key: "lt_synch_timestamp",
+  lotame_synch_time_key: 'lt_synch_timestamp',
 };
 
 class LotameStorage {

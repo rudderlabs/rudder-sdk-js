@@ -1,4 +1,4 @@
-const NAME = "HOTJAR";
+const NAME = 'HOTJAR';
 const CNameMapping = {
   [NAME]: NAME,
   Hotjar: NAME,

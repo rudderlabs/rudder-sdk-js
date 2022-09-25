@@ -1,7 +1,12 @@
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
-import { removeUndefinedAndNullValues } from "../utils/commonUtils";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import {
+  getHashFromArrayWithDuplicate,
+  removeUndefinedAndNullValues,
+  getEventMappingFromConfig,
+} from '../utils/commonUtils';
+import { NAME } from './constants';
 
 class GoogleAds {
   constructor(config, analytics) {
@@ -18,27 +23,29 @@ class GoogleAds {
     this.conversionLinker = config.conversionLinker || true;
     this.disableAdPersonalization = config.disableAdPersonalization || false;
     this.name = NAME;
+    this.eventMappingFromConfig = config.eventMappingFromConfig;
   }
 
   init() {
     const sourceUrl = `https://www.googletagmanager.com/gtag/js?id=${this.conversionId}`;
     (function (id, src, document) {
       logger.debug(`in script loader=== ${id}`);
-      const js = document.createElement("script");
+      const js = document.createElement('script');
       js.src = src;
       js.async = 1;
-      js.type = "text/javascript";
+      js.setAttribute('data-loader', LOAD_ORIGIN);
+      js.type = 'text/javascript';
       js.id = id;
-      const e = document.getElementsByTagName("head")[0];
-      logger.debug("==script==", e);
+      const e = document.getElementsByTagName('head')[0];
+      logger.debug('==script==', e);
       e.appendChild(js);
-    })("googleAds-integration", sourceUrl, document);
+    })('googleAds-integration', sourceUrl, document);
 
     window.dataLayer = window.dataLayer || [];
     window.gtag = function () {
       window.dataLayer.push(arguments);
     };
-    window.gtag("js", new Date());
+    window.gtag('js', new Date());
 
     // Additional Settings
 
@@ -47,27 +54,27 @@ class GoogleAds {
     config.conversion_linker = this.conversionLinker;
 
     if (this.disableAdPersonalization) {
-      window.gtag("set", "allow_ad_personalization_signals", false);
+      window.gtag('set', 'allow_ad_personalization_signals', false);
     }
 
-    window.gtag("config", this.conversionId, config);
+    window.gtag('config', this.conversionId, config);
 
-    logger.debug("===in init Google Ads===");
+    logger.debug('===in init Google Ads===');
   }
 
   identify() {
-    logger.debug("[GoogleAds] identify:: method not supported");
+    logger.debug('[GoogleAds] identify:: method not supported');
   }
 
   // https://developers.google.com/gtagjs/reference/event
   track(rudderElement) {
-    logger.debug("in GoogleAdsAnalyticsManager track");
+    logger.debug('in GoogleAdsAnalyticsManager track');
 
     // Dynamic remarketing disabled
     if (!this.dynamicRemarketing) {
       const conversionData = this.getConversionData(
         this.clickEventConversions,
-        rudderElement.message.event
+        rudderElement.message.event,
       );
       if (conversionData.conversionLabel) {
         const { conversionLabel } = conversionData;
@@ -81,47 +88,59 @@ class GoogleAds {
         }
         properties.send_to = sendToValue;
         properties = removeUndefinedAndNullValues(properties);
-        window.gtag("event", eventName, properties);
+        window.gtag('event', eventName, properties);
       }
     } else {
       const { event } = rudderElement.message;
       if (!event) {
-        logger.error("Event name not present");
+        logger.error('Event name not present');
         return;
       }
-
+      // modify the event name to mapped event name from the config
+      const eventsHashmap = getHashFromArrayWithDuplicate(
+        this.eventMappingFromConfig,
+        'from',
+        'to',
+        false,
+      );
       let payload = {};
       const sendToValue = this.conversionId;
 
       if (rudderElement.message.properties) {
         payload = rudderElement.message.properties;
       }
-
       payload.send_to = sendToValue;
-      window.gtag("event", event, payload);
+      const events = getEventMappingFromConfig(event, eventsHashmap);
+      if (events) {
+        events.forEach((ev) => {
+          window.gtag('event', ev, payload);
+        });
+      } else {
+        window.gtag('event', event, payload);
+      }
     }
   }
 
   page(rudderElement) {
-    logger.debug("in GoogleAdsAnalyticsManager page");
+    logger.debug('in GoogleAdsAnalyticsManager page');
 
     // Dynamic re-marketing is disabled
     if (!this.dynamicRemarketing) {
       const conversionData = this.getConversionData(
         this.pageLoadConversions,
-        rudderElement.message.name
+        rudderElement.message.name,
       );
       if (conversionData.conversionLabel) {
         const { conversionLabel } = conversionData;
         const { eventName } = conversionData;
-        window.gtag("event", eventName, {
+        window.gtag('event', eventName, {
           send_to: `${this.conversionId}/${conversionLabel}`,
         });
       }
     } else {
       const event = rudderElement.message.name;
       if (!event) {
-        logger.error("Event name not present");
+        logger.error('Event name not present');
         return;
       }
 
@@ -133,7 +152,7 @@ class GoogleAds {
       }
 
       payload.send_to = sendToValue;
-      window.gtag("event", event, payload);
+      window.gtag('event', event, payload);
     }
   }
 
@@ -142,18 +161,15 @@ class GoogleAds {
     if (eventTypeConversions) {
       if (eventName) {
         eventTypeConversions.forEach((eventTypeConversion) => {
-          if (
-            eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()
-          ) {
+          if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
             // rudderElement["message"]["name"]
-            conversionData.conversionLabel =
-              eventTypeConversion.conversionLabel;
+            conversionData.conversionLabel = eventTypeConversion.conversionLabel;
             conversionData.eventName = eventTypeConversion.name;
           }
         });
       } else if (this.defaultPageConversion) {
         conversionData.conversionLabel = this.defaultPageConversion;
-        conversionData.eventName = "Viewed a Page";
+        conversionData.eventName = 'Viewed a Page';
       }
     }
     return conversionData;

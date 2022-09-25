@@ -1,4 +1,3 @@
-import LinkedInInsightTag from "./browser";
+import LinkedInInsightTag from './browser';
 
-// eslint-disable-next-line import/prefer-default-export
 export { LinkedInInsightTag };

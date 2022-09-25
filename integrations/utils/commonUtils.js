@@ -1,19 +1,50 @@
-import _ from "lodash";
+import _ from 'lodash';
 
 const isDefined = (x) => !_.isUndefined(x);
 const isNotEmpty = (x) => !_.isEmpty(x);
 const isNotNull = (x) => x != null;
 const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
-const isDefinedAndNotNullAndNotEmpty = (x) =>
-  isDefined(x) && isNotNull(x) && isNotEmpty(x);
+const isDefinedAndNotNullAndNotEmpty = (x) => isDefined(x) && isNotNull(x) && isNotEmpty(x);
 const removeUndefinedValues = (obj) => _.pickBy(obj, isDefined);
 const removeNullValues = (obj) => _.pickBy(obj, isNotNull);
-const removeUndefinedAndNullValues = (obj) =>
-  _.pickBy(obj, isDefinedAndNotNull);
-const removeUndefinedAndNullAndEmptyValues = (obj) =>
-  _.pickBy(obj, isDefinedAndNotNullAndNotEmpty);
+const removeUndefinedAndNullValues = (obj) => _.pickBy(obj, isDefinedAndNotNull);
+const removeUndefinedAndNullAndEmptyValues = (obj) => _.pickBy(obj, isDefinedAndNotNullAndNotEmpty);
 const isBlank = (value) => _.isEmpty(_.toString(value));
 const pick = (argObj, argArr) => _.pick(argObj, argArr);
+
+/**
+ *
+ * Convert an array map to hashmap(value as an array)
+ * @param  {} arrays [{"from":"prop1","to":"val1"},{"from":"prop1","to":"val2"},{"from":"prop2","to":"val2"}]
+ * @param  {} fromKey="from"
+ * @param  {} toKey="to"
+ * @param  {} isLowerCase=true
+ * @param  {} return hashmap {"prop1":["val1","val2"],"prop2":["val2"]}
+ */
+const getHashFromArrayWithDuplicate = (
+  arrays,
+  fromKey = 'from',
+  toKey = 'to',
+  isLowerCase = true,
+) => {
+  const hashMap = {};
+  if (Array.isArray(arrays)) {
+    arrays.forEach((array) => {
+      if (!isNotEmpty(array[fromKey])) return;
+      const key = isLowerCase ? array[fromKey].toLowerCase().trim() : array[fromKey].trim();
+
+      if (hashMap[key]) {
+        const val = hashMap[key];
+        if (!val.includes(array[toKey])) {
+          hashMap[key].push(array[toKey]);
+        }
+      } else {
+        hashMap[key] = [array[toKey]];
+      }
+    });
+  }
+  return hashMap;
+};
 
 /**
  *
@@ -24,22 +55,17 @@ const pick = (argObj, argArr) => _.pick(argObj, argArr);
  * @param  {} isLowerCase=true
  * @param  {} return hashmap {"prop1":"val1","prop2:"val2"}
  */
-const getHashFromArray = (
-  arrays,
-  fromKey = "from",
-  toKey = "to",
-  isLowerCase = true
-) => {
+const getHashFromArray = (arrays, fromKey = 'from', toKey = 'to', isLowerCase = true) => {
   const hashMap = {};
   if (Array.isArray(arrays)) {
     arrays.forEach((array) => {
       if (!isNotEmpty(array[fromKey])) return;
-      hashMap[isLowerCase ? array[fromKey].toLowerCase() : array[fromKey]] =
-        array[toKey];
+      hashMap[isLowerCase ? array[fromKey].toLowerCase() : array[fromKey]] = array[toKey];
     });
   }
   return hashMap;
 };
+
 /**
  * @param  {} timestamp
  * @param  {} return iso format of date
@@ -75,11 +101,29 @@ function flattenJson(data) {
     }
   }
 
-  recurse(data, "");
+  recurse(data, '');
   return result;
 }
 
+/**
+ * Check whether the passed eventname is mapped in the config
+ * and return the mapped event name.
+ * @param {*} event
+ * @param {*} eventsHashmap
+ * @returns mappedEventName
+ */
+function getEventMappingFromConfig(event, eventsHashmap) {
+  // if the event name is mapped in the config, use the mapped name
+  // else use the original event name
+  if (eventsHashmap[event]) {
+    return eventsHashmap[event];
+  }
+  return null;
+}
+
 export {
+  getEventMappingFromConfig,
+  getHashFromArrayWithDuplicate,
   getHashFromArray,
   toIso,
   flattenJson,

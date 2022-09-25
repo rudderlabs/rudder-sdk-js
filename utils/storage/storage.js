@@ -1,25 +1,26 @@
 /* eslint-disable class-methods-use-this */
-import AES from "crypto-js/aes";
-import Utf8 from "crypto-js/enc-utf8";
-import get from "get-value";
-import logger from "../logUtil";
-import { Cookie } from "./cookie";
-import { Store } from "./store";
+import AES from 'crypto-js/aes';
+import Utf8 from 'crypto-js/enc-utf8';
+import get from 'get-value';
+import logger from '../logUtil';
+import { Cookie } from './cookie';
+import { Store } from './store';
 
 const defaults = {
-  user_storage_key: "rl_user_id",
-  user_storage_trait: "rl_trait",
-  user_storage_anonymousId: "rl_anonymous_id",
-  group_storage_key: "rl_group_id",
-  group_storage_trait: "rl_group_trait",
-  page_storage_init_referrer: "rl_page_init_referrer",
-  page_storage_init_referring_domain: "rl_page_init_referring_domain",
-  prefix: "RudderEncrypt:",
-  key: "Rudder",
+  user_storage_key: 'rl_user_id',
+  user_storage_trait: 'rl_trait',
+  user_storage_anonymousId: 'rl_anonymous_id',
+  group_storage_key: 'rl_group_id',
+  group_storage_trait: 'rl_group_trait',
+  page_storage_init_referrer: 'rl_page_init_referrer',
+  page_storage_init_referring_domain: 'rl_page_init_referring_domain',
+  session_info: 'rl_session',
+  prefix: 'RudderEncrypt:',
+  key: 'Rudder',
 };
 
 const anonymousIdKeyMap = {
-  segment: "ajs_anonymous_id",
+  segment: 'ajs_anonymous_id',
 };
 
 /**
@@ -49,7 +50,7 @@ function parse(value) {
  * @param {*} value
  */
 function trim(value) {
-  return value.replace(/^\s+|\s+$/gm, "");
+  return value.replace(/^\s+|\s+$/gm, '');
 }
 
 /**
@@ -57,14 +58,11 @@ function trim(value) {
  * @param {*} value
  */
 function decryptValue(value) {
-  if (!value || (typeof value === "string" && trim(value) === "")) {
+  if (!value || (typeof value === 'string' && trim(value) === '')) {
     return value;
   }
   if (value.substring(0, defaults.prefix.length) === defaults.prefix) {
-    return AES.decrypt(
-      value.substring(defaults.prefix.length),
-      defaults.key
-    ).toString(Utf8);
+    return AES.decrypt(value.substring(defaults.prefix.length), defaults.key).toString(Utf8);
   }
   return value;
 }
@@ -74,13 +72,10 @@ function decryptValue(value) {
  * @param {*} value
  */
 function encryptValue(value) {
-  if (trim(value) === "") {
+  if (trim(value) === '') {
     return value;
   }
-  const prefixedVal = `${defaults.prefix}${AES.encrypt(
-    value,
-    defaults.key
-  ).toString()}`;
+  const prefixedVal = `${defaults.prefix}${AES.encrypt(value, defaults.key).toString()}`;
 
   return prefixedVal;
 }
@@ -103,9 +98,7 @@ class Storage {
     }
 
     if (!this.storage) {
-      logger.error(
-        "No storage is available :: initializing the SDK without storage"
-      );
+      logger.error('No storage is available :: initializing the SDK without storage');
     }
   }
 
@@ -128,7 +121,7 @@ class Storage {
    * @param {*} value
    */
   setStringItem(key, value) {
-    if (typeof value !== "string") {
+    if (typeof value !== 'string') {
       logger.error(`[Storage] ${key} should be string`);
       return;
     }
@@ -190,6 +183,14 @@ class Storage {
   }
 
   /**
+   * Set session information
+   * @param {*} value
+   */
+  setSessionInfo(value) {
+    this.setItem(defaults.session_info, value);
+  }
+
+  /**
    *
    * @param {*} key
    */
@@ -237,7 +238,7 @@ class Storage {
       return anonId;
     }
     switch (key) {
-      case "segment":
+      case 'segment':
         /**
          * First check the local storage for anonymousId
          * Ref: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#identify
@@ -281,9 +282,7 @@ class Storage {
    */
   getAnonymousId(anonymousIdOptions) {
     // fetch the rl_anonymous_id from storage
-    const rlAnonymousId = parse(
-      decryptValue(this.storage.get(defaults.user_storage_anonymousId))
-    );
+    const rlAnonymousId = parse(decryptValue(this.storage.get(defaults.user_storage_anonymousId)));
     /**
      * If RS's anonymous ID is available, return from here.
      *
@@ -303,11 +302,8 @@ class Storage {
       return rlAnonymousId;
     }
     // validate the provided anonymousIdOptions argument
-    const source = get(anonymousIdOptions, "autoCapture.source");
-    if (
-      get(anonymousIdOptions, "autoCapture.enabled") === true &&
-      typeof source === "string"
-    ) {
+    const source = get(anonymousIdOptions, 'autoCapture.source');
+    if (get(anonymousIdOptions, 'autoCapture.enabled') === true && typeof source === 'string') {
       // fetch the anonymousId from the external source
       // ex - segment
       const anonId = this.fetchExternalAnonymousId(source);
@@ -332,11 +328,22 @@ class Storage {
   }
 
   /**
+   * get the stored session info
+   */
+  getSessionInfo() {
+    return this.getItem(defaults.session_info);
+  }
+
+  /**
    *
    * @param {*} key
    */
   removeItem(key) {
     return this.storage.remove(key);
+  }
+
+  removeSessionInfo() {
+    this.removeItem(defaults.session_info);
   }
 
   /**
@@ -353,5 +360,4 @@ class Storage {
   }
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export { Storage };

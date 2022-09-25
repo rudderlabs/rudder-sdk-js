@@ -1,4 +1,3 @@
-import GA4 from "./browser";
+import GA4 from './browser';
 
-// eslint-disable-next-line import/prefer-default-export
 export { GA4 };
