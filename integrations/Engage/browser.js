@@ -1,9 +1,9 @@
 /* eslint-disable*/
 import logger from "../../utils/logUtil";
-import get from "get-value";
 import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 import { refinePayload } from "./utils.js";
+import { getDefinedTraits } from "../../utils/utils";
 import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 
 class Engage {
@@ -62,23 +62,12 @@ class Engage {
     logger.debug("===In Engage identify");
 
     const { message } = rudderElement;
-    let { userId, originalTimestamp } = message;
+    const { userId, fName, number, lName } = getDefinedTraits(message);
     if (!userId) {
-      userId = get(message, "context.traits.userId");
-      if (!userId) {
-        logger.error("userId is required for Identify call.");
-        return;
-      }
+      logger.error("userId is required for Identify call.");
+      return;
     }
-    const number = get(message, "context.traits.phone");
-    const fName =
-      get(message, "context.traits.firstName") ||
-      get(message, "context.traits.firstname") ||
-      get(message, "context.traits.first_name");
-    const lName =
-      get(message, "context.traits.lastName") ||
-      get(message, "context.traits.lastname") ||
-      get(message, "context.traits.last_name");
+    let { originalTimestamp } = message;
 
     const { traits } = message.context;
     let payload = refinePayload(traits, (this.identifyFlag = true));
@@ -95,13 +84,12 @@ class Engage {
   track(rudderElement) {
     logger.debug("===In Engage track===");
     const { message } = rudderElement;
-    const { event, properties, originalTimestamp, userId } = message;
+    const { event, properties, originalTimestamp } = message;
+    const { userId } = getDefinedTraits(message);
+
     if (!userId) {
-      userId = get(message, "context.traits.userId");
-      if (!userId) {
-        logger.error("userId is required for Identify call.");
-        return;
-      }
+      logger.error("userId is required for track call.");
+      return;
     }
 
     if (!event) {
@@ -120,13 +108,12 @@ class Engage {
   page(rudderElement) {
     logger.debug("===In Engage page===");
     const { message } = rudderElement;
-    const { name, properties, originalTimestamp, category, userId } = message;
+    const { name, properties, originalTimestamp, category } = message;
+    const { userId } = getDefinedTraits(message);
+
     if (!userId) {
-      userId = get(message, "context.traits.userId");
-      if (!userId) {
-        logger.error("userId is required for Identify call.");
-        return;
-      }
+      logger.error("userId is required for track call.");
+      return;
     }
     let payload = refinePayload(properties);
     payload = removeUndefinedAndNullValues(payload);
