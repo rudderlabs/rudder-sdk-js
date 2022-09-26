@@ -60,6 +60,12 @@ export function getOutputConfiguration(outDir, modName, outFilePath) {
       format: 'umd',
       name: modName,
     });
+  } else if (process.env.ES === 'true') {
+    outputFiles.push({
+      file: `${outDir}/index.js`,
+      format: 'es',
+      name: modName,
+    });
   } else {
     outputFiles.push({
       file: outFilePath,
