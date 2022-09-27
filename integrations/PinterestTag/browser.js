@@ -108,7 +108,11 @@ export default class PinterestTag {
    */
   getRawPayload(properties) {
     const data = {};
-    const mappedProps = this.getMappingObject(properties, propertyMapping, true);
+    const mappedProps = this.getMappingObject(
+      properties,
+      propertyMapping,
+      true
+    );
     Object.keys(mappedProps).forEach((p) => {
       if (pinterestPropertySupport.includes(p)) {
         data[p] = mappedProps[p];
@@ -146,7 +150,10 @@ export default class PinterestTag {
       pinterestObject.line_items = lineItems;
     }
 
-    if (this.customProperties.length > 0 && Object.keys(properties).length > 0) {
+    if (
+      this.customProperties.length > 0 &&
+      Object.keys(properties).length > 0
+    ) {
       const flattenPayload = flattenJsonPayload(properties);
 
       this.customProperties.forEach((custom) => {
@@ -161,7 +168,7 @@ export default class PinterestTag {
   }
 
   getDestinationEventName(event) {
-    let eventName;
+    let eventNames;
     /*
     Step 1: At first we will look for
             the event mapping in the UI. In case it is similar, will map to that.
@@ -171,19 +178,19 @@ export default class PinterestTag {
         this.userDefinedEventsMapping,
         'from',
         'to',
-        false,
+        false
       );
-      eventName = keyMap[event];
+      eventNames = keyMap[event];
     }
-    if (isDefined(eventName)) {
-      return [...eventName];
+    if (isDefined(eventNames)) {
+      return eventNames;
     }
     /*
     Step 2: To find if the particular event is amongst the list of standard
             Rudderstack ecommerce events, used specifically for Pinterest Conversion API
             mappings.
     */
-    if (!eventName) {
+    if (!eventNames) {
       const eventMapInfo = eventMapping.find((eventMap) => {
         if (eventMap.src.includes(event.toLowerCase())) {
           return eventMap;
