@@ -17,7 +17,7 @@ publish.sh
 dist/*
 !dist/rudder-sdk-js/*
 dist/rudder-sdk-js/index.js
-dist/rudder-sdk-js/worker/
+dist/rudder-sdk-js/service-worker/
 coverage/**
 __tests__/prodsdk.js
 .eslintcache
