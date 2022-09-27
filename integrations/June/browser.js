@@ -3,6 +3,7 @@ import logger from "../../utils/logUtil";
 import get from "get-value";
 import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
+import { getDestinationExternalID } from "../utils/commonUtils";
 
 class June {
   constructor(config) {
@@ -64,9 +65,12 @@ class June {
   track(rudderElement) {
     logger.debug("===In June track===");
     let groupId;
-    const { event } = rudderElement.message;
-    let { properties } = rudderElement.message;
+    const { message } = rudderElement;
+    const externalGroupId = getDestinationExternalID(message, "juneGroupId");
+    const { event } = message;
+    let { properties } = message;
     ({ groupId, ...properties } = properties || {});
+    groupId = externalGroupId || groupId;
 
     if (groupId) {
       window.analytics.track(event, properties, { groupId });
