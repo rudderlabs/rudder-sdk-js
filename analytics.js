@@ -864,8 +864,20 @@ class Analytics {
             }
           }
         } catch (err) {
-          err.message = `[sendToNative]:: [Destination: ${obj.name}]:: "${err.message}"`;
-          handleError(err);
+          const message = `[sendToNative]:: [Destination: ${obj.name}]:: `;
+          let newErr;
+          if (err instanceof Error) {
+            err.message = `${message}"${err.message}"`;
+            newErr = err;
+          } else if (typeof err === 'string') {
+            // eslint-disable-next-line no-ex-assign
+            newErr = {
+              message: `${message}"${err}"`,
+            };
+          } else {
+            newErr = err;
+          }
+          handleError(newErr);
         }
       });
 
