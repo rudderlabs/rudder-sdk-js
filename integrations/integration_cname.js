@@ -50,6 +50,14 @@ import { CNameMapping as Vero } from "./Vero/constants";
 import { CNameMapping as Matomo } from "./Matomo/constants";
 import { CNameMapping as Rockerbox } from "./Rockerbox/constants";
 import { CNameMapping as Mouseflow } from "./Mouseflow/constants";
+import { CNameMapping as ConvertFlow } from "./ConvertFlow/constants";
+import { CNameMapping as SnapEngage } from "./SnapEngage/constants";
+import { CNameMapping as LiveChat } from "./LiveChat/constants";
+import { CNameMapping as Shynet } from "./Shynet/constants";
+import { CNameMapping as Woopra } from "./Woopra/constants";
+import { CNameMapping as RollBar } from "./RollBar/constants";
+import { CNameMapping as QuoraPixel } from "./QuoraPixel/constants";
+
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -65,6 +73,7 @@ const commonNames = {
   ...Chartbeat,
   ...Clevertap,
   ...Comscore,
+  ...ConvertFlow,
   ...Criteo,
   ...CustomerIO,
   ...DCMFloodlight,
@@ -103,10 +112,17 @@ const commonNames = {
   ...RedditPixel,
   ...Rockerbox,
   ...Sentry,
+  ...SnapEngage,
   ...SnapPixel,
   ...TVSquared,
   ...Vero,
   ...VWO,
+  ...LiveChat,
+  ...Shynet,
+  ...Woopra,
+  ...RollBar,
+  ...QuoraPixel,
+
 };
 
 export { commonNames };

@@ -555,8 +555,8 @@ function recurse(cur, prop, result) {
   return res;
 }
 
-function flattenJsonPayload(data) {
-  return recurse(data, "", {});
+function flattenJsonPayload(data, property = "") {
+  return recurse(data, property, {});
 }
 /* ------- End FlattenJson ----------- */
 /**
@@ -750,6 +750,10 @@ const constructPayload = (object, mapper) => {
   return payload;
 };
 
+const countDigits = (number) => {
+  return number ? number.toString().length : 0;
+};
+
 export {
   replacer,
   generateUUID,
@@ -781,4 +785,5 @@ export {
   notifyError,
   leaveBreadcrumb,
   get,
+  countDigits,
 };

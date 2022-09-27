@@ -3,7 +3,11 @@ import get from "get-value";
 import Storage from "../../utils/storage";
 import logger from "../../utils/logUtil";
 
-import { removeUndefinedAndNullValues } from "../utils/commonUtils";
+import {
+  getEventMappingFromConfig,
+  removeUndefinedAndNullValues,
+  getHashFromArrayWithDuplicate,
+} from "../utils/commonUtils";
 import {
   ecommEventPayload,
   eventPayload,
@@ -20,6 +24,7 @@ class SnapPixel {
     this.name = NAME;
     this.deduplicationKey = config.deduplicationKey;
     this.enableDeduplication = config.enableDeduplication;
+    this.eventMappingFromConfig = config.eventMappingFromConfig;
     this.trackEvents = [
       "SIGN_UP",
       "OPEN_APP",
@@ -78,10 +83,10 @@ class SnapPixel {
       u.parentNode.insertBefore(r, u);
     })(window, document, "https://sc-static.net/scevent.min.js");
 
-    const cookieData = Storage.getUserTraits();
+    const userTraits = Storage.getUserTraits();
 
-    const userEmail = cookieData.email;
-    const userPhoneNumber = cookieData.phone;
+    const userEmail = userTraits?.email;
+    const userPhoneNumber = userTraits?.phone;
 
     let payload = getUserEmailAndPhone(
       this.hashMethod,
@@ -132,6 +137,12 @@ class SnapPixel {
 
     const { message } = rudderElement;
     const { event } = message;
+    const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
+      this.eventMappingFromConfig,
+      "from",
+      "to",
+      false
+    );
 
     if (!event) {
       logger.error("Event name not present");
@@ -139,10 +150,15 @@ class SnapPixel {
     }
 
     try {
-      switch (event.toLowerCase().trim()) {
-        case "order completed":
+      if (eventMappingFromConfigMap[event]) {
+        // mapping event from UI
+        const events = getEventMappingFromConfig(
+          event,
+          eventMappingFromConfigMap
+        );
+        events.forEach((ev) => {
           sendEvent(
-            this.ecomEvents.PURCHASE,
+            ev,
             ecommEventPayload(
               event,
               message,
@@ -150,113 +166,127 @@ class SnapPixel {
               this.enableDeduplication
             )
           );
-          break;
-        case "checkout started":
-          sendEvent(
-            this.ecomEvents.START_CHECKOUT,
-            ecommEventPayload(
+        });
+      } else {
+        switch (event.toLowerCase().trim()) {
+          case "order completed":
+            sendEvent(
+              this.ecomEvents.PURCHASE,
+              ecommEventPayload(
+                event,
+                message,
+                this.deduplicationKey,
+                this.enableDeduplication
+              )
+            );
+            break;
+          case "checkout started":
+            sendEvent(
+              this.ecomEvents.START_CHECKOUT,
+              ecommEventPayload(
+                event,
+                message,
+                this.deduplicationKey,
+                this.enableDeduplication
+              )
+            );
+            break;
+          case "product added":
+            sendEvent(
+              this.ecomEvents.ADD_CART,
+              ecommEventPayload(
+                event,
+                message,
+                this.deduplicationKey,
+                this.enableDeduplication
+              )
+            );
+            break;
+          case "payment info entered":
+            sendEvent(
+              this.ecomEvents.ADD_BILLING,
+              ecommEventPayload(
+                event,
+                message,
+                this.deduplicationKey,
+                this.enableDeduplication
+              )
+            );
+            break;
+          case "promotion clicked":
+            sendEvent(
+              this.ecomEvents.AD_CLICK,
+              ecommEventPayload(
+                event,
+                message,
+                this.deduplicationKey,
+                this.enableDeduplication
+              )
+            );
+            break;
+          case "promotion viewed":
+            sendEvent(
+              this.ecomEvents.AD_VIEW,
+              ecommEventPayload(
+                event,
+                message,
+                this.deduplicationKey,
+                this.enableDeduplication
+              )
+            );
+            break;
+          case "product added to wishlist":
+            sendEvent(
+              this.ecomEvents.ADD_TO_WISHLIST,
+              ecommEventPayload(
+                event,
+                message,
+                this.deduplicationKey,
+                this.enableDeduplication
+              )
+            );
+            break;
+          case "product viewed":
+          case "product list viewed":
+            sendEvent(
+              this.ecomEvents.VIEW_CONTENT,
+              ecommEventPayload(
+                event,
+                message,
+                this.deduplicationKey,
+                this.enableDeduplication
+              )
+            );
+            break;
+          case "products searched":
+            sendEvent(
+              this.ecomEvents.SEARCH,
+              ecommEventPayload(
+                event,
+                message,
+                this.deduplicationKey,
+                this.enableDeduplication
+              )
+            );
+            break;
+          default:
+            if (
+              !this.trackEvents.includes(event.trim().toUpperCase()) &&
+              !this.customEvents.includes(event.trim().toLowerCase())
+            ) {
+              logger.error("Event doesn't match with Snap Pixel Events!");
+              return;
+            }
+            sendEvent(
               event,
-              message,
-              this.deduplicationKey,
-              this.enableDeduplication
-            )
-          );
-          break;
-        case "product added":
-          sendEvent(
-            this.ecomEvents.ADD_CART,
-            ecommEventPayload(
-              event,
-              message,
-              this.deduplicationKey,
-              this.enableDeduplication
-            )
-          );
-          break;
-        case "payment info entered":
-          sendEvent(
-            this.ecomEvents.ADD_BILLING,
-            ecommEventPayload(
-              event,
-              message,
-              this.deduplicationKey,
-              this.enableDeduplication
-            )
-          );
-          break;
-        case "promotion clicked":
-          sendEvent(
-            this.ecomEvents.AD_CLICK,
-            ecommEventPayload(
-              event,
-              message,
-              this.deduplicationKey,
-              this.enableDeduplication
-            )
-          );
-          break;
-        case "promotion viewed":
-          sendEvent(
-            this.ecomEvents.AD_VIEW,
-            ecommEventPayload(
-              event,
-              message,
-              this.deduplicationKey,
-              this.enableDeduplication
-            )
-          );
-          break;
-        case "product added to wishlist":
-          sendEvent(
-            this.ecomEvents.ADD_TO_WISHLIST,
-            ecommEventPayload(
-              event,
-              message,
-              this.deduplicationKey,
-              this.enableDeduplication
-            )
-          );
-          break;
-        case "product viewed":
-        case "product list viewed":
-          sendEvent(
-            this.ecomEvents.VIEW_CONTENT,
-            ecommEventPayload(
-              event,
-              message,
-              this.deduplicationKey,
-              this.enableDeduplication
-            )
-          );
-          break;
-        case "products searched":
-          sendEvent(
-            this.ecomEvents.SEARCH,
-            ecommEventPayload(
-              event,
-              message,
-              this.deduplicationKey,
-              this.enableDeduplication
-            )
-          );
-          break;
-        default:
-          if (
-            !this.trackEvents.includes(event.trim().toUpperCase()) &&
-            !this.customEvents.includes(event.trim().toLowerCase())
-          ) {
-            logger.error("Event doesn't match with Snap Pixel Events!");
-            return;
-          }
-          sendEvent(
-            event,
-            eventPayload(
-              message,
-              this.deduplicationKey,
-              this.enableDeduplication
-            )
-          );
-          break;
+              eventPayload(
+                message,
+                this.deduplicationKey,
+                this.enableDeduplication
+              )
+            );
+            break;
+        }
       }
     } catch (err) {
       logger.error("[Snap Pixel] track failed with following error", err);

@@ -38,6 +38,7 @@ import {
   POLYFILL_URL,
   DEFAULT_ERROR_REPORT_PROVIDER,
   ERROR_REPORT_PROVIDERS,
+  SAMESITE_COOKIE_OPTS,
 } from "./utils/constants";
 import { integrations } from "./integrations";
 import RudderElementBuilder from "./utils/RudderElementBuilder";
@@ -49,6 +50,7 @@ import ScriptLoader from "./integrations/ScriptLoader";
 import parseLinker from "./utils/linker";
 import CookieConsentFactory from "./cookieConsent/CookieConsentFactory";
 import * as BugsnagLib from "./metrics/error-report/Bugsnag";
+import { UserSession } from "./session";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -107,6 +109,7 @@ class Analytics {
     this.cookieConsentOptions = {};
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
+    this.uSession = UserSession;
   }
 
   /**
@@ -812,6 +815,14 @@ class Analytics {
           };
         }
       }
+      // If auto/manual session tracking is enabled sessionId will be sent in the context
+      try {
+        const { sessionId, sessionStart } = this.uSession.getSessionInfo();
+        rudderElement.message.context.sessionId = sessionId;
+        if (sessionStart) rudderElement.message.context.sessionStart = true;
+      } catch (e) {
+        handleError(e);
+      }
 
       this.processOptionsParam(rudderElement, options);
       logger.debug(JSON.stringify(rudderElement));
@@ -994,6 +1005,7 @@ class Analytics {
     this.userTraits = {};
     this.groupId = "";
     this.groupTraits = {};
+    this.uSession.reset();
     this.storage.clear(flag);
   }
 
@@ -1086,14 +1098,19 @@ class Analytics {
     let storageOptions = {};
     if (options && options.logLevel) {
       logger.setLogLevel(options.logLevel);
+      this.logLevel = options.logLevel;
     }
 
     if (options && options.setCookieDomain) {
       storageOptions = { ...storageOptions, domain: options.setCookieDomain };
     }
 
-    if (options && options.secureCookie) {
+    if (options && typeof options.secureCookie === 'boolean') {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
+    }
+
+    if (options && SAMESITE_COOKIE_OPTS.includes(options.sameSiteCookie)) {
+      storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
     }
     this.storage.options(storageOptions);
 
@@ -1112,6 +1129,9 @@ class Analytics {
         this.sendAdblockPageOptions = options.sendAdblockPageOptions;
       }
     }
+    // Session initialization
+    this.uSession.initialize(options);
+
     if (options && options.clientSuppliedCallbacks) {
       // convert to rudder recognised method names
       const tranformedCallbackMapping = {};
@@ -1358,6 +1378,22 @@ class Analytics {
 
     return returnObj;
   }
+
+  /**
+   * A public method to start a session
+   * @param {string} sessionId     session identifier
+   * @returns
+   */
+  startSession(sessionId) {
+    this.uSession.start(sessionId);
+  }
+
+  /**
+   * A public method to end an ongoing session.
+   */
+  endSession() {
+    this.uSession.end();
+  }
 }
 
 function pushQueryStringDataToAnalyticsArray(obj) {
@@ -1473,6 +1509,8 @@ const initialized = (instance.initialized = true);
 const getUserTraits = instance.getUserTraits.bind(instance);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
+const startSession = instance.startSession.bind(instance);
+const endSession = instance.endSession.bind(instance);
 
 export {
   initialized,
@@ -1487,4 +1525,6 @@ export {
   getUserTraits,
   getAnonymousId,
   setAnonymousId,
+  startSession,
+  endSession,
 };

@@ -85,6 +85,11 @@ declare module "rudder-sdk-js" {
     beaconQueueOptions?: beaconQueueOptions;
     cookieConsentManager?: cookieConsentManager;
     anonymousIdOptions?: anonymousIdOptions;
+    sameSiteCookie?: string;
+    sessions?: {
+      autoTrack?: boolean; // Defaults to true
+      timeout?: number; // Defaults to 30 mins
+    }
   }
 
   /**
@@ -433,6 +438,16 @@ declare module "rudder-sdk-js" {
    */
   function getUserId(): string;
 
+  /**
+   * To manually start user session in the SDK
+   */
+   function startSession(sessionId?: number): void;
+
+   /**
+   * To manually end user session in the SDK
+   */
+   function endSession(): void;
+
   export {
     integrationOptions,
     loadOptions,
@@ -452,5 +467,7 @@ declare module "rudder-sdk-js" {
     setAnonymousId,
     getAnonymousId,
     getUserId,
+    startSession,
+    endSession,
   };
 }
