@@ -863,6 +863,8 @@ class Analytics {
             newErr = {
               message: `${message}"${err}"`,
             };
+          } else {
+            newErr = err;
           }
           handleError(newErr);
         }
