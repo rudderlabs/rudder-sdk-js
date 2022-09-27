@@ -608,44 +608,28 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
 function getDefinedTraits(message) {
   const traitsValue = {
     userId:
-      get(message, "userId") ||
-      get(message, "context.traits.userId") ||
-      get(message, "anonymousId"),
+      message?.userId || message?.context.traits.userId || message?.anonymousId,
     email:
-      get(message, "context.traits.email") ||
-      get(message, "context.traits.Email") ||
+      message?.context?.traits?.email ||
+      message?.context?.traits?.Email ||
       get(message, "context.traits.E-mail"),
-    phone:
-      get(message, "context.traits.phone") ||
-      get(message, "context.traits.Phone"),
+    phone: message?.context?.traits?.phone || message?.context?.traits?.Phone,
     firstName:
-      get(message, "context.traits.firstName") ||
-      get(message, "context.traits.firstname") ||
-      get(message, "context.traits.first_name"),
+      message?.context?.traits?.firstName ||
+      message?.context?.traits?.firstname ||
+      message?.context?.traits?.first_name,
     lastName:
-      get(message, "context.traits.lastName") ||
-      get(message, "context.traits.lastname") ||
-      get(message, "context.traits.last_name"),
-    name:
-      get(message, "context.traits.name") ||
-      get(message, "context.traits.Name"),
-    city:
-      get(message, "context.traits.city") ||
-      get(message, "context.traits.City"),
+      message?.context?.traits?.lastName ||
+      message?.context?.traits?.lastname ||
+      message?.context?.traits?.last_name,
+    name: message?.context?.traits?.name || message?.context?.traits?.Name,
+    city: message?.context?.traits?.city || message?.context?.traits?.City,
     country:
-      get(message, "context.traits.country") ||
-      get(message, "context.traits.Country"),
+      message?.context?.traits?.country || message?.context?.traits?.Country,
   };
 
-  if (
-    !get(traitsValue, "name") &&
-    get(traitsValue, "firstName") &&
-    get(traitsValue, "lastName")
-  ) {
-    traitsValue.name = `${get(traitsValue, "firstName")} ${get(
-      traitsValue,
-      "lastName"
-    )}`;
+  if (!traitsValue?.name && traitsValue?.firstName && traitsValue?.lastName) {
+    traitsValue.name = `${traitsValue?.firstName} ${traitsValue?.lastName}`;
   }
   return traitsValue;
 }
