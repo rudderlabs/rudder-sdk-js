@@ -621,7 +621,9 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
 function getDefinedTraits(message) {
   const traitsValue = {
     userId:
-      message?.userId || message?.context.traits.userId || message?.anonymousId,
+      message?.userId ||
+      message?.context?.traits?.userId ||
+      message?.anonymousId,
     userIdOnly: message?.userId || message?.context.traits.userId,
     email:
       message?.context?.traits?.email ||
@@ -642,7 +644,7 @@ function getDefinedTraits(message) {
       message?.context?.traits?.country || message?.context?.traits?.Country,
   };
 
-  if (!traitsValue?.name && traitsValue?.firstName && traitsValue?.lastName) {
+  if (!traitsValue.name && traitsValue?.firstName && traitsValue?.lastName) {
     traitsValue.name = `${traitsValue?.firstName} ${traitsValue?.lastName}`;
   }
   return traitsValue;
