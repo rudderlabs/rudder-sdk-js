@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import get from "get-value";
 import logger from "../../utils/logUtil";
 import {
   eventMapping,
@@ -23,6 +24,7 @@ export default class PinterestTag {
     this.customProperties = config.customProperties || [];
     this.userDefinedEventsMapping = config.eventsMapping || [];
     this.name = NAME;
+    this.deduplicationKey = config.deduplicationKey;
     logger.debug("config", config);
   }
 
@@ -174,15 +176,12 @@ export default class PinterestTag {
   /**
    * This gives destination events .
    * Logics: If our eventMapping is not able to map the event that is sent by user payload then it will look into
-   * userDefinedEventsMapping array. In case if it is not found there as well, it will return undefined.
+   * userDefinedEventsMapping array. In case if it is not found there as well, it will return "custom".
    * @param {rudder event name} event
    * @returns
    */
   getDestinationEventName(event) {
-    const destinationEvent = eventMapping.find((p) =>
-      p.src.includes(event.toLowerCase())
-    );
-    if (!destinationEvent && this.userDefinedEventsMapping.length > 0) {
+    if (this.userDefinedEventsMapping.length > 0) {
       const userDefinedEvent = this.userDefinedEventsMapping.find(
         (e) => e.from.toLowerCase() === event.toLowerCase()
       );
@@ -193,6 +192,14 @@ export default class PinterestTag {
         };
       }
     }
+    const destinationEvent = eventMapping.find((p) =>
+      p.src.includes(event.toLowerCase())
+    );
+    if (!destinationEvent) {
+      return {
+        dest: "custom",
+      };
+    }
     return destinationEvent;
   }
 
@@ -200,7 +207,8 @@ export default class PinterestTag {
     if (!rudderElement.message || !rudderElement.message.event) {
       return;
     }
-    const { properties, event } = rudderElement.message;
+    const { message } = rudderElement;
+    const { properties, event, messageId } = message;
     let eventName = event;
     const destEvent = this.getDestinationEventName(event);
     if (isDefinedAndNotNull(destEvent)) {
@@ -211,6 +219,8 @@ export default class PinterestTag {
       destEvent?.hasEmptyProducts,
       destEvent?.isUserDefinedEvent
     );
+    pinterestObject.event_id =
+      get(message, `${this.deduplicationKey}`) || messageId;
 
     this.sendPinterestTrack(eventName, pinterestObject);
   }

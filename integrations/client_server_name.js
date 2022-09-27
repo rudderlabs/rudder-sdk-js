@@ -51,6 +51,13 @@ const clientToServerNames = {
   MATOMO: "Matomo",
   ROCKERBOX: "Rockerbox",
   MOUSEFLOW: "Mouseflow",
+  CONVERTFLOW: "ConvertFlow",
+  SNAPENGAGE: "SnapEngage",
+  LIVECHAT: "LiveChat",
+  SHYNET: "Shynet",
+  WOOPRA: "Woopra",
+  ROLLBAR: "RollBar",
+  QUORA_PIXEL: "Quora Pixel",
 };
 
 export { clientToServerNames };
