@@ -128,7 +128,19 @@ function notifyError(error) {
 }
 
 function handleError(error, analyticsInstance) {
-  let errorMessage = error.message;
+  let errorMessage;
+  try {
+    if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    } else {
+      errorMessage = error.message ? error.message : JSON.stringify(error);
+    }
+  } catch (e) {
+    errorMessage = '';
+  }
+
   try {
     if (error instanceof Event) {
       // Discard all the non-script loading errors
@@ -164,6 +176,7 @@ function handleError(error, analyticsInstance) {
     notifyError(errorObj);
   } catch (err) {
     logger.error("[handleError] Exception:: ", err);
+    logger.error("[handleError] Original error:: ", JSON.stringify(error));
     notifyError(err);
   }
 }
