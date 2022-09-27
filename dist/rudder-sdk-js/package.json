@@ -3,6 +3,12 @@
   "version": "2.15.0",
   "description": "RudderStack Javascript SDK",
   "main": "index.js",
+  "module": "index.es.js",
+  "exports": {
+    ".": {
+      "service-worker": "./service-worker/index.es.js"
+    }
+  },
   "types": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
