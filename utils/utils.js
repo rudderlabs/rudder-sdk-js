@@ -609,6 +609,7 @@ function getDefinedTraits(message) {
   const traitsValue = {
     userId:
       message?.userId || message?.context.traits.userId || message?.anonymousId,
+    userIdOnly: message?.userId || message?.context.traits.userId,
     email:
       message?.context?.traits?.email ||
       message?.context?.traits?.Email ||

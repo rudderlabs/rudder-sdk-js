@@ -63,8 +63,8 @@ class Engage {
 
     const { message } = rudderElement;
     const engageId = getDestinationExternalID(message, "engageId");
-    const { userId, firstName, phone, lastName } = getDefinedTraits(message);
-    if (!engageId && !userId) {
+    const { userIdOnly, firstName, phone, lastName } = getDefinedTraits(message);
+    if (!engageId && !userIdOnly) {
       logger.error("externalId or userId is required for Identify call.");
       return;
     }
@@ -78,7 +78,7 @@ class Engage {
     payload.first_name = firstName;
     payload.created_at = originalTimestamp;
     payload = removeUndefinedAndNullValues(payload);
-    payload.id = engageId || userId;
+    payload.id = engageId || userIdOnly;
     window.Engage.identify(payload);
   }
 
@@ -88,8 +88,8 @@ class Engage {
     const { event, properties, originalTimestamp } = message;
     let engageId = getDestinationExternalID(message, "engageId");
     if(!engageId){
-      const { userId } = getDefinedTraits(message);
-      engageId=userId || null;
+      const { userIdOnly } = getDefinedTraits(message);
+      engageId=userIdOnly || null;
     }
     if (!engageId) {
       logger.error("externalId or userId is required for track call.");
@@ -101,8 +101,7 @@ class Engage {
     }
     let payload = refinePayload(properties);
     payload = removeUndefinedAndNullValues(payload);
-    const uid = engageId || userId;
-    window.Engage.track(uid, {
+    window.Engage.track(engageId, {
       event: event,
       timestamp: originalTimestamp,
       properties: payload,
@@ -115,8 +114,8 @@ class Engage {
     const { name, properties, originalTimestamp, category } = message;
     let engageId = getDestinationExternalID(message, "engageId");
     if(!engageId){
-      const { userId } = getDefinedTraits(message);
-      engageId=userId || null;
+      const { userIdOnly } = getDefinedTraits(message);
+      engageId=userIdOnly || null;
     }
     if (!engageId) {
       logger.error("externalId or userId is required for track call.");
