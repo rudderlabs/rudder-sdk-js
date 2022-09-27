@@ -11,6 +11,7 @@ class Braze {
   constructor(config, analytics) {
     this.analytics = analytics;
     this.appKey = config.appKey;
+    this.trackAnonymousUser = config.trackAnonymousUser;
     this.enableHtmlInAppMessages = config.enableHtmlInAppMessages || false;
     this.allowUserSuppliedJavascript =
       config.allowUserSuppliedJavascript || false;
@@ -225,13 +226,21 @@ class Braze {
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;
-
-    window.braze.changeUser(userId);
-    if (eventName && eventName.toLowerCase() === "order completed") {
-      this.handlePurchase(properties, userId);
-    } else {
-      properties = this.handleReservedProperties(properties);
-      window.braze.logCustomEvent(eventName, properties);
+    let canSendCustomEvent = false;
+    if (userId) {
+      window.braze.changeUser(userId);
+      canSendCustomEvent = true;
+    } else if (this.trackAnonymousUser) {
+      window.braze.changeUser(rudderElement.message.anonymousId);
+      canSendCustomEvent = true;
+    }
+    if (eventName && canSendCustomEvent) {
+      if (eventName.toLowerCase() === "order completed") {
+        this.handlePurchase(properties, userId);
+      } else {
+        properties = this.handleReservedProperties(properties);
+        window.braze.logCustomEvent(eventName, properties);
+      }
     }
   }
 
@@ -239,9 +248,17 @@ class Braze {
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.name;
     let { properties } = rudderElement.message;
+    if (userId) {
+      window.braze.changeUser(userId);
+    } else if (this.trackAnonymousUser) {
+      window.braze.changeUser(rudderElement.message.anonymousId);
+    }
     properties = this.handleReservedProperties(properties);
-    window.braze.changeUser(userId);
-    window.braze.logCustomEvent(eventName, properties);
+    if (eventName) {
+      window.braze.logCustomEvent(eventName, properties);
+    } else {
+      window.braze.logCustomEvent("Page View", properties);
+    }
   }
 
   isLoaded() {
