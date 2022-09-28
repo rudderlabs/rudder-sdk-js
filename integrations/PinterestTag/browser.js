@@ -127,9 +127,9 @@ export default class PinterestTag {
 
   /**
    * This function will generate required pinterest object to be sent.
-   * getRawPayload() will generate all the destination property excepts lineItems
+   * getRawPayload() will generate all the destination property excepts lineItems.
    * If rudder payload has products array then line_items is generated
-   * It will generate all properties including lineItems even if it does not have products array in it ex: Product Added
+   * If it does not have product array, it will move the whole message.properties into line items. ex: Product Added
    *
    * @param {rudder payload} properties
    * @returns
@@ -182,7 +182,7 @@ export default class PinterestTag {
       );
       eventNames = keyMap[event];
     }
-    if (isDefined(eventNames)) {
+    if (eventNames) {
       return eventNames;
     }
     /*
@@ -190,17 +190,16 @@ export default class PinterestTag {
             Rudderstack ecommerce events, used specifically for Pinterest Conversion API
             mappings.
     */
-    if (!eventNames) {
-      const eventMapInfo = eventMapping.find((eventMap) => {
-        if (eventMap.src.includes(event.toLowerCase())) {
-          return eventMap;
-        }
-        return false;
-      });
-      if (isDefinedAndNotNull(eventMapInfo)) {
-        return [eventMapInfo.dest];
+    const eventMapInfo = eventMapping.find((eventMap) => {
+      if (eventMap.src.includes(event.toLowerCase())) {
+        return eventMap;
       }
+      return false;
+    });
+    if (isDefinedAndNotNull(eventMapInfo)) {
+      return [eventMapInfo.dest];
     }
+
     /*
     Step 3: In case both of the above stated cases fail, will mark the event as "custom"
    */
