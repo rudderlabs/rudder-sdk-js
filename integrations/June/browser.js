@@ -1,8 +1,10 @@
-/* eslint-disable */
-import logger from "../../utils/logUtil";
+/* eslint-disable class-methods-use-this */
+/* eslint-disable no-underscore-dangle */
+/* eslint-disable prettier/prettier */
 import get from "get-value";
+import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import ScriptLoader from "../ScriptLoader";
 import { getDestinationExternalID } from "../utils/commonUtils";
 
 class June {
@@ -13,17 +15,11 @@ class June {
 
   loadScript() {
     window.analytics = {};
-    function juneify(writeKey) {
-      window.analytics._writeKey = writeKey;
-      const script = document.createElement("script");
-      script.type = "application/javascript";
-      script.src =
-        "https://unpkg.com/@june-so/analytics-next/dist/umd/standalone.js";
-      script.setAttribute("data-loader", LOAD_ORIGIN);
-      const first = document.getElementsByTagName("script")[0];
-      first.parentNode.insertBefore(script, first);
-    }
-    juneify(this.apiKey);
+    ScriptLoader(
+      "june-integration",
+      "https://unpkg.com/@june-so/analytics-next/dist/umd/standalone.js"
+    );
+    window.analytics._writeKey = this.apiKey;
   }
 
   init() {
@@ -38,7 +34,7 @@ class June {
 
   isReady() {
     logger.debug("===In isReady June===");
-    return !!window.analytics;
+    return !!window.analytics && typeof window.analytics === "object";
   }
 
   page(rudderElement) {
@@ -54,11 +50,11 @@ class June {
       get(message, "userId") ||
       get(message, "context.traits.userId") ||
       get(message, "context.traits.Id");
-    const traits = get(message, "context.traits");
     if (!userId) {
       logger.error("userId is required for an identify call");
       return;
     }
+    const traits = get(message, "context.traits");
     window.analytics.identify(userId, traits);
   }
 
@@ -81,11 +77,12 @@ class June {
 
   group(rudderElement) {
     logger.debug("===In June group===");
-    const { groupId, traits } = rudderElement.message;
+    const { groupId } = rudderElement.message;
     if (!groupId) {
       logger.error("groupId is required for group call");
       return;
     }
+    const { traits } = rudderElement.message;
     window.analytics.group(groupId, traits);
   }
 }
