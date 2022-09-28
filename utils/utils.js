@@ -130,7 +130,7 @@ function notifyError(error) {
 function handleError(error, analyticsInstance) {
   let errorMessage;
   try {
-    if (typeof error === 'string') {
+    if (typeof error === "string") {
       errorMessage = error;
     } else if (error instanceof Error) {
       errorMessage = error.message;
@@ -138,7 +138,7 @@ function handleError(error, analyticsInstance) {
       errorMessage = error.message ? error.message : JSON.stringify(error);
     }
   } catch (e) {
-    errorMessage = '';
+    errorMessage = "";
   }
 
   try {
@@ -639,9 +639,16 @@ function getDefinedTraits(message) {
       message?.context?.traits?.lastname ||
       message?.context?.traits?.last_name,
     name: message?.context?.traits?.name || message?.context?.traits?.Name,
-    city: message?.context?.traits?.city || message?.context?.traits?.City,
+    city:
+      message?.context?.traits?.city ||
+      message?.context?.traits?.City ||
+      message?.context?.traits?.address?.city ||
+      message?.context?.traits?.address?.City,
     country:
-      message?.context?.traits?.country || message?.context?.traits?.Country,
+      message?.context?.traits?.country ||
+      message?.context?.traits?.Country ||
+      message?.context?.traits?.address?.country ||
+      message?.context?.traits?.address?.Country,
   };
 
   if (!traitsValue.name && traitsValue?.firstName && traitsValue?.lastName) {
