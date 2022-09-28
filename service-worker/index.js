@@ -60,7 +60,9 @@ class Analytics {
 
     this.logger = {
       error(message, ...args) {
-        console.error(`${new Date().toISOString()} ["Rudder"] error: ${message}`, ...args);
+        if (this.logLevel !== 'off') {
+          console.error(`${new Date().toISOString()} ["Rudder"] error: ${message}`, ...args);
+        }
       },
       info(message, ...args) {
         if (['silly', 'debug', 'info'].includes(this.logLevel)) {
@@ -399,6 +401,7 @@ class Analytics {
         done();
       })
       .catch((err) => {
+        console.log(err);
         this.logger.error(
           `got error while attempting send for 3 times, dropping ${items.length} events`,
         );
