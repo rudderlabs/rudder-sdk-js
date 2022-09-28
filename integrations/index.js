@@ -58,6 +58,7 @@ import * as Woopra from "./Woopra";
 import * as RollBar from "./RollBar";
 import * as QuoraPixel from "./QuoraPixel";
 import * as Engage from "./Engage";
+import * as June from "./June";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -123,6 +124,7 @@ const integrations = {
   ROLLBAR: RollBar.default,
   QUORA_PIXEL: QuoraPixel.default,
   ENGAGE: Engage.default,
+  JUNE: June.default,
 };
 
 export { integrations };
