@@ -57,6 +57,7 @@ import { CNameMapping as Shynet } from "./Shynet/constants";
 import { CNameMapping as Woopra } from "./Woopra/constants";
 import { CNameMapping as RollBar } from "./RollBar/constants";
 import { CNameMapping as QuoraPixel } from "./QuoraPixel/constants";
+import { CNameMapping as Iterable } from "./Iterable/constants";
 
 
 // for sdk side native integration identification
@@ -122,6 +123,7 @@ const commonNames = {
   ...Woopra,
   ...RollBar,
   ...QuoraPixel,
+  ...Iterable,
 
 };
 

@@ -57,6 +57,7 @@ import * as Shynet from "./Shynet";
 import * as Woopra from "./Woopra";
 import * as RollBar from "./RollBar";
 import * as QuoraPixel from "./QuoraPixel";
+import * as Iterable from "./Iterable";
 
 
 // the key names should match the destination.name value to keep partity everywhere
@@ -122,6 +123,7 @@ const integrations = {
   WOOPRA: Woopra.default,
   ROLLBAR: RollBar.default,
   QUORA_PIXEL: QuoraPixel.default,
+  ITERABLE: Iterable.default,
 
 };
 
