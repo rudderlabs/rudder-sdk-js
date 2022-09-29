@@ -59,6 +59,7 @@ const clientToServerNames = {
   ROLLBAR: "RollBar",
   QUORA_PIXEL: "Quora Pixel",
   ITERABLE: "Iterable"
+  JUNE: "June",
 };
 
 export { clientToServerNames };

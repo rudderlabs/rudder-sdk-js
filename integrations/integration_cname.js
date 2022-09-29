@@ -58,7 +58,7 @@ import { CNameMapping as Woopra } from "./Woopra/constants";
 import { CNameMapping as RollBar } from "./RollBar/constants";
 import { CNameMapping as QuoraPixel } from "./QuoraPixel/constants";
 import { CNameMapping as Iterable } from "./Iterable/constants";
-
+import { CNameMapping as June } from "./June/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -124,7 +124,7 @@ const commonNames = {
   ...RollBar,
   ...QuoraPixel,
   ...Iterable,
-
+  ...June,
 };
 
 export { commonNames };
