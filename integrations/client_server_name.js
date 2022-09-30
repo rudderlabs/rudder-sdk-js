@@ -60,6 +60,7 @@ const clientToServerNames = {
   QUORA_PIXEL: "Quora Pixel",
   ENGAGE: "Engage",
   JUNE: "June",
+  YANDEX_METRICA: "Yandex Metrica",
 };
 
 export { clientToServerNames };

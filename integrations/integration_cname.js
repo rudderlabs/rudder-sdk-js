@@ -59,6 +59,7 @@ import { CNameMapping as RollBar } from "./RollBar/constants";
 import { CNameMapping as QuoraPixel } from "./QuoraPixel/constants";
 import { CNameMapping as Engage } from "./Engage/constants";
 import { CNameMapping as June } from "./June/constants";
+import { CNameMapping as YandexMetrica } from "./YandexMetrica/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -125,6 +126,7 @@ const commonNames = {
   ...QuoraPixel,
   ...Engage,
   ...June,
+  ...YandexMetrica,
 };
 
 export { commonNames };

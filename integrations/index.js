@@ -59,6 +59,7 @@ import * as RollBar from "./RollBar";
 import * as QuoraPixel from "./QuoraPixel";
 import * as Engage from "./Engage";
 import * as June from "./June";
+import * as YandexMetrica from "./YandexMetrica";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -125,6 +126,7 @@ const integrations = {
   QUORA_PIXEL: QuoraPixel.default,
   ENGAGE: Engage.default,
   JUNE: June.default,
+  YANDEX_METRICA: YandexMetrica.default,
 };
 
 export { integrations };
