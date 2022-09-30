@@ -1,12 +1,16 @@
 import logger from "../../utils/logUtil";
 
 import {
-  getEventMappingFromConfig,
+  ecommEventPayload,
+  sendEvent,
+  commonEventPayload,
+  eventMapping,
+} from "./utils";
+import {
   removeUndefinedAndNullValues,
   getHashFromArrayWithDuplicate,
 } from "../utils/commonUtils";
 import { NAME } from "./constants";
-import ScriptLoader from "../ScriptLoader";
 
 class YandexMetrica {
   constructor(config) {
@@ -20,6 +24,7 @@ class YandexMetrica {
     this.blacklistedEvents = config.blacklistedEvents;
     this.whitelistedEvents = config.whitelistedEvents;
     this.eventFilteringOption = config.eventFilteringOption;
+    this.name = NAME;
   }
 
   loadScript() {
@@ -77,6 +82,53 @@ class YandexMetrica {
     const payload = { ...traits, UserID: userId };
     window.ym(this.tagId, "setUserID", userId);
     window.ym(this.tagId, "userParams", payload);
+  }
+
+  track(rudderElement) {
+    logger.debug("===In YandexMetrica track===");
+
+    const { message } = rudderElement;
+    const { event } = message;
+    const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
+      this.eventMappingFromConfig,
+      "from",
+      "to",
+      false
+    );
+
+    if (!event) {
+      logger.error("Event name not present");
+      return;
+    }
+    const ecomEvents = Object.keys(eventMapping);
+    if (
+      eventMappingFromConfigMap[event] &&
+      !ecomEvents.includes(event.trim().replace(/\s+/g, "_"))
+    ) {
+      // mapping event from UI
+      sendEvent(
+        this.containerName,
+        commonEventPayload(eventMappingFromConfigMap[event], message.properties)
+      );
+    } else {
+      switch (event.trim().replace(/\s+/g, "_")) {
+        case "order_completed":
+          sendEvent(this.containerName, ecommEventPayload(event, message));
+          break;
+        case "product_added":
+          sendEvent(this.containerName, ecommEventPayload(event, message));
+          break;
+        case "product_removed":
+          sendEvent(this.containerName, ecommEventPayload(event, message));
+          break;
+        case "product_viewed":
+        case "product_list_viewed":
+          sendEvent(this.containerName, ecommEventPayload(event, message));
+          break;
+        default:
+          break;
+      }
+    }
   }
 
   page(rudderElement) {
