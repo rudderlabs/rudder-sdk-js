@@ -44,7 +44,7 @@ const populatePayload = (eventType, properties) => {
     }
     const actionField = {
       id: properties.order_id,
-      coupon: properties.revenue,
+      coupon: properties.coupon,
       goal_id: parseInt(properties.goal_id, 10),
       revenue: parseFloat(properties.revenue),
     };
