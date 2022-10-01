@@ -21,9 +21,6 @@ class YandexMetrica {
     this.webvisor = config.webvisor;
     this.containerName = config.containerName;
     this.eventNameToYandexEvent = config.eventNameToYandexEvent;
-    this.blacklistedEvents = config.blacklistedEvents;
-    this.whitelistedEvents = config.whitelistedEvents;
-    this.eventFilteringOption = config.eventFilteringOption;
     this.name = NAME;
   }
 
@@ -48,10 +45,10 @@ class YandexMetrica {
     })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
     ym(this.tagId, "init", {
-      clickmap: true,
-      trackLinks: true,
-      accurateTrackBounce: true,
-      webvisor: true,
+      clickmap: this.clickMap,
+      trackLinks: this.trackLinks,
+      accurateTrackBounce: this.accurateTrackBounce,
+      webvisor: this.webvisor,
       ecommerce: this.containerName,
     });
     window[`${this.containerName}`] = window[`${this.containerName}`] || [];
