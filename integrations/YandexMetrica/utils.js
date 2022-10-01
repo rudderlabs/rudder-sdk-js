@@ -23,7 +23,7 @@ const itemProperties = (properties) => {
     category: properties.category,
     coupon: properties.coupon,
     position: properties.position,
-    price: parseInt(properties.price, 10),
+    price: parseFloat(properties.price),
     quantity: parseInt(properties.price, 10),
     variant: properties.variant,
   };
@@ -38,6 +38,18 @@ const populatePayload = (eventType, properties) => {
     currencyCode: properties.currency,
     [eventType]: { products },
   };
+  if (eventType === "purchase") {
+    if (!properties.order_id) {
+      logger.error("order_id is required for event type purchase");
+    }
+    const actionField = {
+      id: properties.order_id,
+      coupon: properties.revenue,
+      goal_id: parseInt(properties.goal_id, 10),
+      revenue: parseFloat(properties.revenue),
+    };
+    payload.ecommerce[eventType].actionField = actionField;
+  }
   return payload;
 };
 
