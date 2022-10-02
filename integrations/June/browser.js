@@ -8,10 +8,7 @@ import ScriptLoader from '../ScriptLoader';
 import { getDestinationExternalID } from '../utils/commonUtils';
 
 class June {
-  constructor(config, analytics) {
-    if (analytics.logLevel) {
-      logger.setLogLevel(analytics.logLevel);
-    }
+  constructor(config) {
     this.name = NAME;
     this.apiKey = config.apiKey;
   }
