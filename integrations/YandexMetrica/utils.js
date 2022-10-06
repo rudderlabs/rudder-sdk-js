@@ -67,7 +67,8 @@ const ecommEventPayload = (event, message) => {
   let responsePayload = {};
   const trimmedEvent = event.trim().replace(/\s+/g, "_");
   switch (trimmedEvent) {
-    case "order_completed": {
+    case "order_completed":
+    case "product_list_viewed": {
       const products = get(message, "properties.products");
       if (products && Array.isArray(products)) {
         products.forEach((element, index) => {
@@ -87,7 +88,9 @@ const ecommEventPayload = (event, message) => {
       }
       break;
     }
-    case "product_added": {
+    case "product_added":
+    case "product_removed":
+    case "product_viewed": {
       const { properties } = message;
       if (!(properties.product_id || properties.name)) {
         logger.error(`None of product_id or name is present for the product`);
@@ -96,57 +99,12 @@ const ecommEventPayload = (event, message) => {
           eventMapping[trimmedEvent],
           properties
         );
-      }
-      break;
-    }
-    case "product_removed": {
-      const { properties } = message;
-      if (!(properties.product_id || properties.name)) {
-        logger.error(`None of product_id or name is present for the product`);
-      } else {
-        responsePayload = populatePayload(
-          eventMapping[trimmedEvent],
-          properties
-        );
-      }
-      break;
-    }
-    case "product viewed": {
-      const { properties } = message;
-      if (!(properties.product_id || properties.name)) {
-        logger.error(`None of product_id or name is present for the product`);
-      } else {
-        responsePayload = populatePayload(
-          eventMapping[trimmedEvent],
-          properties
-        );
-      }
-      break;
-    }
-    case "product list viewed": {
-      const products = get(message, "properties.products");
-      if (products && Array.isArray(products)) {
-        products.forEach((element, index) => {
-          if (!(element.product_id || element.name)) {
-            logger.error(
-              `None of product_id or name is present for product at index ${index}`
-            );
-          } else {
-            responsePayload = populatePayload(
-              eventMapping[trimmedEvent],
-              element
-            );
-          }
-        });
-      } else {
-        logger.error(`None of product_id or name is present`);
       }
       break;
     }
     default:
       break;
   }
-
   return removeUndefinedAndNullValues(responsePayload);
 };
 

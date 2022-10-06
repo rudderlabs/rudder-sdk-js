@@ -11,15 +11,21 @@ import {
   getHashFromArrayWithDuplicate,
 } from "../utils/commonUtils";
 import { NAME } from "./constants";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class YandexMetrica {
-  constructor(config) {
+  constructor(config, analytics) {
+    this.analytics = analytics;
+    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.tagId = config.tagId;
     this.clickMap = config.clickMap;
     this.trackLinks = config.trackLinks;
     this.trackBounce = config.trackBounce;
     this.webvisor = config.webvisor;
     this.containerName = config.containerName;
+    if (!config.containerName) {
+      this.containerName = "dataLayer";
+    }
     this.eventNameToYandexEvent = config.eventNameToYandexEvent;
     this.name = NAME;
   }
@@ -41,6 +47,7 @@ class YandexMetrica {
         (a = e.getElementsByTagName(t)[0]),
         (k.async = 1),
         (k.src = r),
+        k.setAttribute("data-loader", LOAD_ORIGIN),
         a.parentNode.insertBefore(k, a);
     })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
@@ -71,7 +78,7 @@ class YandexMetrica {
   }
 
   identify(rudderElement) {
-    logger.debug("===In YandexMetrica Identify");
+    logger.debug("===In YandexMetrica Identify===");
 
     const { message } = rudderElement;
     const userId = message.userId || message.anonymousId;
