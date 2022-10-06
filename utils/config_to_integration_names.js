@@ -60,6 +60,7 @@ const configToIntNames = {
   WOOPRA: 'Woopra',
   ROLLBAR: 'RollBar',
   QUORA_PIXEL: 'QuoraPixel',
+  ENGAGE: 'Engage',
 };
 
 export { configToIntNames };
