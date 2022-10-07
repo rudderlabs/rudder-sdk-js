@@ -18,6 +18,7 @@ class YandexMetrica {
     this.trackBounce = config.trackBounce;
     this.webvisor = config.webvisor;
     this.containerName = config.containerName;
+    this.goalId = config.goalId;
     if (!config.containerName) {
       this.containerName = "dataLayer";
     }
@@ -108,7 +109,7 @@ class YandexMetrica {
         if (eventType !== eventMapping[trimmedEvent]) {
           sendEvent(
             this.containerName,
-            ecommEventPayload(eventType, message.properties)
+            ecommEventPayload(eventType, message.properties, this.goalId)
           );
         }
       });
@@ -116,7 +117,11 @@ class YandexMetrica {
     if (ecomEvents.includes(trimmedEvent)) {
       sendEvent(
         this.containerName,
-        ecommEventPayload(eventMapping[trimmedEvent], message.properties)
+        ecommEventPayload(
+          eventMapping[trimmedEvent],
+          message.properties,
+          this.goalId
+        )
       );
     }
   }

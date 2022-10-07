@@ -28,7 +28,7 @@ const itemProperties = (properties) => {
   };
   return removeUndefinedAndNullValues(productProperties);
 };
-const populatePayload = (eventType, properties) => {
+const populatePayload = (eventType, properties, goalId) => {
   const payload = {};
   const products = [];
   products.push(itemProperties(properties));
@@ -44,7 +44,7 @@ const populatePayload = (eventType, properties) => {
     const actionField = {
       id: properties.order_id,
       coupon: properties.coupon,
-      goal_id: parseInt(properties.goal_id, 10),
+      goal_id: parseInt(goalId, 10),
       revenue: parseFloat(properties.revenue),
     };
     payload.ecommerce[eventType].actionField = actionField;
