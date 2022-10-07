@@ -1,11 +1,5 @@
 import { getDataFromSource } from "../../utils/utils";
 
-async function myAsyncJWTGenerator (email) {
-    return "PLACEHOLDER FOR JWT TOKEN";
-    /*
-        TODO: update JWT function.
-    */
-}
 
 const ITEMS_MAPPING = [
   { src: "product_id", dest: "id" },

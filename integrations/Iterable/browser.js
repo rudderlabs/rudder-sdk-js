@@ -4,6 +4,7 @@ import logger from "../../utils/logUtil";
 import { myAsyncJWTGenerator, formPurchaseEventPayload } from "./utils";
 
 import {
+  isDefinedAndNotNull,
   getEventMappingFromConfig,
   removeUndefinedAndNullValues,
   getHashFromArrayWithDuplicate,
@@ -20,6 +21,7 @@ class Iterable {
     this.name = NAME;
     this.eventMappingFromConfig = config.eventMappingFromConfig;
 
+    this.sendTrackForInapp = config.sendTrackForInapp;
     this.animationDuration = config.animationDuration;
     this.displayInterval = config.displayInterval;
     this.onOpenScreenReaderMessage = config.onOpenScreenReaderMessage;
@@ -58,14 +60,21 @@ class Iterable {
     logger.debug("===In identify Iterable");
 
     const { message } = rudderElement;
+    const { integrations } = message;
     const userEmail = get(message, "context.traits.email");
     const userId = get(message, "userId");
 
+    async function myAsyncJWTGenerator (message) {
+        if (integrations && integrations.ITERABLE) {
+            const { jwt_token } = integrations.ITERABLE;
+            if (isDefinedAndNotNull(jwt_token))
+            return jwt_token;
+        } else {
+            logger.info("The JWT token was not passed, The SDK could not be initialised.")
+        }
+    }
+
     let wd;
-    /*
-        TODO: update initialization using myAsyncJWTGenerator()
-              to use email/userId and api-secret from config to build JWT
-    */
     if(this.useUserId) {
         wd = window['@iterable/web-sdk'].initialize(
             this.apiKey,
@@ -163,6 +172,11 @@ class Iterable {
                 )
             }
             else if (evType === "getInAppMessages") {
+                // send a track call for getinappMessages if option enabled in config
+                if (this.sendTrackForInapp) {
+                    window['@iterable/web-sdk'].track({ email: userEmail, userId, eventName: "Track getInAppMessages", dataFields: eventPayload })
+                    .then(logger.debug("Track a getinappMessages event."));
+                }
                 this.fetchAppEvents();
             }
         });

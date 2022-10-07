@@ -58,7 +58,7 @@ const clientToServerNames = {
   WOOPRA: "Woopra",
   ROLLBAR: "RollBar",
   QUORA_PIXEL: "Quora Pixel",
-  ITERABLE: "Iterable"
+  ITERABLE: "Iterable",
   JUNE: "June",
 };
 
