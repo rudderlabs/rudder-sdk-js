@@ -1,4 +1,3 @@
-import get from "get-value";
 import logger from "../../utils/logUtil";
 
 import { removeUndefinedAndNullValues } from "../utils/commonUtils";
@@ -27,7 +26,7 @@ const itemProperties = (properties) => {
     quantity: parseInt(properties.price, 10),
     variant: properties.variant,
   };
-  return productProperties;
+  return removeUndefinedAndNullValues(productProperties);
 };
 const populatePayload = (eventType, properties) => {
   const payload = {};
@@ -53,9 +52,20 @@ const populatePayload = (eventType, properties) => {
   return payload;
 };
 
-const commonEventPayload = (eventType, properties) => {
+const ecommEventPayload = (eventType, properties) => {
   let responsePayload = {};
-  if (!(properties.product_id || properties.name)) {
+  const { products } = properties;
+  if (products && Array.isArray(products)) {
+    products.forEach((element, index) => {
+      if (!(element.product_id || element.name)) {
+        logger.error(
+          `None of product_id or name is present for product at index ${index}`
+        );
+      } else {
+        responsePayload = populatePayload(eventType, element);
+      }
+    });
+  } else if (!(properties.product_id || properties.name)) {
     logger.error(`None of product_id or name is present for the product`);
   } else {
     responsePayload = populatePayload(eventType, properties);
@@ -63,49 +73,4 @@ const commonEventPayload = (eventType, properties) => {
   return removeUndefinedAndNullValues(responsePayload);
 };
 
-const ecommEventPayload = (event, message) => {
-  let responsePayload = {};
-  const trimmedEvent = event.trim().replace(/\s+/g, "_");
-  switch (trimmedEvent) {
-    case "order_completed":
-    case "product_list_viewed": {
-      const products = get(message, "properties.products");
-      if (products && Array.isArray(products)) {
-        products.forEach((element, index) => {
-          if (!(element.product_id || element.name)) {
-            logger.error(
-              `None of product_id or name is present for product at index ${index}`
-            );
-          } else {
-            responsePayload = populatePayload(
-              eventMapping[trimmedEvent],
-              element
-            );
-          }
-        });
-      } else {
-        logger.error(`None of product_id or name is present`);
-      }
-      break;
-    }
-    case "product_added":
-    case "product_removed":
-    case "product_viewed": {
-      const { properties } = message;
-      if (!(properties.product_id || properties.name)) {
-        logger.error(`None of product_id or name is present for the product`);
-      } else {
-        responsePayload = populatePayload(
-          eventMapping[trimmedEvent],
-          properties
-        );
-      }
-      break;
-    }
-    default:
-      break;
-  }
-  return removeUndefinedAndNullValues(responsePayload);
-};
-
-export { sendEvent, ecommEventPayload, commonEventPayload, eventMapping };
+export { sendEvent, ecommEventPayload, eventMapping };

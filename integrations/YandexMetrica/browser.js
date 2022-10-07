@@ -1,11 +1,6 @@
 import logger from "../../utils/logUtil";
 
-import {
-  ecommEventPayload,
-  sendEvent,
-  commonEventPayload,
-  eventMapping,
-} from "./utils";
+import { ecommEventPayload, sendEvent, eventMapping } from "./utils";
 import {
   removeUndefinedAndNullValues,
   getHashFromArrayWithDuplicate,
@@ -94,7 +89,7 @@ class YandexMetrica {
     const { message } = rudderElement;
     const { event } = message;
     const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
-      this.eventMappingFromConfig,
+      this.eventNameToYandexEvent,
       "from",
       "to",
       false
@@ -105,33 +100,24 @@ class YandexMetrica {
       return;
     }
     const ecomEvents = Object.keys(eventMapping);
-    if (
-      eventMappingFromConfigMap[event] &&
-      !ecomEvents.includes(event.trim().replace(/\s+/g, "_"))
-    ) {
-      // mapping event from UI
+
+    const trimmedEvent = event.trim().replace(/\s+/g, "_");
+
+    if (eventMappingFromConfigMap[event]) {
+      eventMappingFromConfigMap[event].forEach((eventType) => {
+        if (eventType !== eventMapping[trimmedEvent]) {
+          sendEvent(
+            this.containerName,
+            ecommEventPayload(eventType, message.properties)
+          );
+        }
+      });
+    }
+    if (ecomEvents.includes(trimmedEvent)) {
       sendEvent(
         this.containerName,
-        commonEventPayload(eventMappingFromConfigMap[event], message.properties)
+        ecommEventPayload(eventMapping[trimmedEvent], message.properties)
       );
-    } else {
-      switch (event.trim().replace(/\s+/g, "_")) {
-        case "order_completed":
-          sendEvent(this.containerName, ecommEventPayload(event, message));
-          break;
-        case "product_added":
-          sendEvent(this.containerName, ecommEventPayload(event, message));
-          break;
-        case "product_removed":
-          sendEvent(this.containerName, ecommEventPayload(event, message));
-          break;
-        case "product_viewed":
-        case "product_list_viewed":
-          sendEvent(this.containerName, ecommEventPayload(event, message));
-          break;
-        default:
-          break;
-      }
     }
   }
 
