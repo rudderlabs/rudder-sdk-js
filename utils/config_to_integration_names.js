@@ -61,6 +61,7 @@ const configToIntNames = {
   ROLLBAR: 'RollBar',
   QUORA_PIXEL: 'QuoraPixel',
   JUNE: 'June',
+  ENGAGE: 'Engage',
 };
 
 export { configToIntNames };
