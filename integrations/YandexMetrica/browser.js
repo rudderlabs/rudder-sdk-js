@@ -10,7 +10,6 @@ import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class YandexMetrica {
   constructor(config, analytics) {
-    this.analytics = analytics;
     if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.tagId = config.tagId;
     this.clickMap = config.clickMap;
