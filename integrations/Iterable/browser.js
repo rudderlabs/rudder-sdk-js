@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
 import logger from "../../utils/logUtil";
-import { formPurchaseEventPayload } from "./utils";
+import { formPurchaseEventPayload, existsInMapping } from "./utils";
 
 import {
   isDefinedAndNotNull,
@@ -14,7 +14,6 @@ import ScriptLoader from "../ScriptLoader";
 class Iterable {
   constructor(config) {
     this.apiKey = config.apiKey;
-    this.apiSecret = config.apiSecret;
     this.useUserId = config.useUserId;
     this.fetchAppEvents = undefined;
     this.name = NAME;
@@ -152,40 +151,25 @@ class Iterable {
     const eventPayload = removeUndefinedAndNullValues(message.properties);
     const userEmail = get(message, "context.traits.email");
     const userId = get(message, "userId");
-    
     if (!event) {
         logger.error("Event name not present");
         return;
     }
-    let isCustom = true;
-    if (isNotEmpty(this.getInAppEventMapping)) {
-        const mappedEvents = this.getInAppEventMapping;
-        mappedEvents.forEach((e) => {
-            if(e.eventName === event) {
-                this.fetchAppEvents();
-                // send a track call for getinappMessages if option enabled in config
-                if (this.sendTrackForInapp) {
-                    window['@iterable/web-sdk'].track({ email: userEmail, userId, eventName: "Track getInAppMessages", dataFields: eventPayload })
-                    .then(logger.debug("Web in-app push triggered"));
-                }
-                isCustom = false;
-            }
-        })
+    if (isNotEmpty(this.getInAppEventMapping) && existsInMapping(this.getInAppEventMapping, event)) {
+        this.fetchAppEvents();
+        // send a track call for getinappMessages if option enabled in config
+        if (this.sendTrackForInapp) {
+            window['@iterable/web-sdk'].track({ email: userEmail, userId, eventName: "Track getInAppMessages", dataFields: eventPayload })
+            .then(logger.debug("Web in-app push triggered"));
+        }
     }
-    if (isNotEmpty(this.purchaseEventMapping)) {
+    else if (isNotEmpty(this.purchaseEventMapping) && existsInMapping(this.purchaseEventMapping, event)) {
         // purchase events
-        const mappedEvents = this.purchaseEventMapping;
-        mappedEvents.forEach((e) => {
-            if(e.eventName === event) {
-                const purchaseEventPayload = formPurchaseEventPayload(message)
-                window['@iterable/web-sdk'].trackPurchase(
-                purchaseEventPayload,
-                )
-                isCustom = false;
-            }
-        })
-    }
-    if (isCustom) {
+        const purchaseEventPayload = formPurchaseEventPayload(message)
+        window['@iterable/web-sdk'].trackPurchase(
+        purchaseEventPayload,
+        )
+    } else {
         // custom events if event is not mapped
         /* fields available for custom track event
         {

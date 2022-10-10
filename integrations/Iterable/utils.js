@@ -50,4 +50,13 @@ function formPurchaseEventPayload(message) {
     return purchaseEventPayload;
 }
 
-export { formPurchaseEventPayload };
+function existsInMapping(mappedEvents, event) {
+    let mapped = false;
+    mappedEvents.forEach((e) => {
+        if (e.eventName == event)
+            mapped = true;
+    })
+    return mapped;
+}
+
+export { formPurchaseEventPayload, existsInMapping };
