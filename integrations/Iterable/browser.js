@@ -61,16 +61,17 @@ class Iterable {
 
     const { message } = rudderElement;
     const { integrations } = message;
-    const userEmail = get(message, "context.traits.email");
-    const userId = get(message, "userId");
+    const userEmail = message.traits?.email || message.context?.traits?.email;
+    const userId = message.userId;
 
-    async function myAsyncJWTGenerator (message) {
+    async function extractJWT (message) {
         if (integrations && integrations.ITERABLE) {
             const { jwt_token } = integrations.ITERABLE;
             if (isDefinedAndNotNull(jwt_token))
             return jwt_token;
         } else {
-            logger.info("The JWT token was not passed, The SDK could not be initialised.")
+            logger.error("The JWT token was not passed, The SDK could not be initialised.")
+            return;
         }
     }
 
@@ -78,7 +79,7 @@ class Iterable {
     if(this.useUserId) {
         wd = window['@iterable/web-sdk'].initialize(
             this.apiKey,
-            myAsyncJWTGenerator
+            extractJWT
         );
         wd.setUserID(userId).then(() => {
             logger.debug("userId set");
@@ -86,7 +87,7 @@ class Iterable {
     } else {
         wd = window['@iterable/web-sdk'].initialize(
             this.apiKey,
-            myAsyncJWTGenerator
+            extractJWT
         );
         wd.setEmail(userEmail).then(() => {
             logger.debug("userEmail set");
@@ -161,12 +162,12 @@ class Iterable {
         const mappedEvents = this.getInAppEventMapping;
         mappedEvents.forEach((e) => {
             if(e.eventName === event) {
+                this.fetchAppEvents();
                 // send a track call for getinappMessages if option enabled in config
                 if (this.sendTrackForInapp) {
                     window['@iterable/web-sdk'].track({ email: userEmail, userId, eventName: "Track getInAppMessages", dataFields: eventPayload })
-                    .then(logger.debug("Track a getinappMessages event."));
+                    .then(logger.debug("Web in-app push triggered"));
                 }
-                this.fetchAppEvents();
                 isCustom = false;
             }
         })

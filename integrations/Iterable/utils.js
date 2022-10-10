@@ -29,10 +29,23 @@ function formPurchaseEventPayload(message) {
     purchaseEventPayload.total = message.properties.total;
     purchaseEventPayload.items = [];
     const lineItems = [];
-    products.forEach((p) => {
-        const product = getMappingObject(p, ITEMS_MAPPING);
+    if (products) {
+        products.forEach((p) => {
+            const product = getMappingObject(p, ITEMS_MAPPING);
+            lineItems.push(product);
+        });
+    } else {
+        // if product related info is on properties root
+        let product = {};
+        product.id = message.properties.product_id;
+        product.sku = message.properties.sku;
+        product.name = message.properties.name;
+        product.price = message.properties.price;
+        product.quantity = message.properties.quantity;
+        product.imageUrl = message.properties.image_url;
+        product.url = message.properties.url;
         lineItems.push(product);
-    });
+    }
     purchaseEventPayload.items = lineItems;
     return purchaseEventPayload;
 }
