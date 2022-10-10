@@ -58,6 +58,7 @@ import { CNameMapping as Woopra } from "./Woopra/constants";
 import { CNameMapping as RollBar } from "./RollBar/constants";
 import { CNameMapping as QuoraPixel } from "./QuoraPixel/constants";
 import { CNameMapping as Iterable } from "./Iterable/constants";
+import { CNameMapping as Engage } from "./Engage/constants";
 import { CNameMapping as June } from "./June/constants";
 
 // for sdk side native integration identification
@@ -124,6 +125,7 @@ const commonNames = {
   ...RollBar,
   ...QuoraPixel,
   ...Iterable,
+  ...Engage,
   ...June,
 };
 
