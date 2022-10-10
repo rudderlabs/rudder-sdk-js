@@ -37,4 +37,4 @@ function formPurchaseEventPayload(message) {
     return purchaseEventPayload;
 }
 
-export { myAsyncJWTGenerator, formPurchaseEventPayload };
+export { formPurchaseEventPayload };

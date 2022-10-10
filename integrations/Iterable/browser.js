@@ -1,13 +1,12 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
 import logger from "../../utils/logUtil";
-import { myAsyncJWTGenerator, formPurchaseEventPayload } from "./utils";
+import { formPurchaseEventPayload } from "./utils";
 
 import {
   isDefinedAndNotNull,
-  getEventMappingFromConfig,
   removeUndefinedAndNullValues,
-  getHashFromArrayWithDuplicate,
+  isNotEmpty,
 } from "../utils/commonUtils";
 import { NAME } from "./constants";
 import ScriptLoader from "../ScriptLoader";
@@ -19,7 +18,8 @@ class Iterable {
     this.useUserId = config.useUserId;
     this.fetchAppEvents = undefined;
     this.name = NAME;
-    this.eventMappingFromConfig = config.eventMappingFromConfig;
+    this.getInAppEventMapping = config.getInAppEventMapping;
+    this.purchaseEventMapping = config.purchaseEventMapping;
 
     this.sendTrackForInapp = config.sendTrackForInapp;
     this.animationDuration = config.animationDuration;
@@ -151,54 +151,59 @@ class Iterable {
     const eventPayload = removeUndefinedAndNullValues(message.properties);
     const userEmail = get(message, "context.traits.email");
     const userId = get(message, "userId");
-    const eventsHashmap = getHashFromArrayWithDuplicate(
-        this.eventMappingFromConfig,
-        "from",
-        "to",
-        false
-      );
-    const mappedEventTypes = getEventMappingFromConfig(event, eventsHashmap);
+    
     if (!event) {
         logger.error("Event name not present");
         return;
-        }
-    if(mappedEventTypes) {
-        mappedEventTypes.forEach((evType) => {
-            if(evType === "trackPurchase") {
-                // purchase events
-                const purchaseEventPayload = formPurchaseEventPayload(message)
-                window['@iterable/web-sdk'].trackPurchase(
-                    purchaseEventPayload,
-                )
-            }
-            else if (evType === "getInAppMessages") {
+    }
+    let isCustom = true;
+    if (isNotEmpty(this.getInAppEventMapping)) {
+        const mappedEvents = this.getInAppEventMapping;
+        mappedEvents.forEach((e) => {
+            if(e.eventName === event) {
                 // send a track call for getinappMessages if option enabled in config
                 if (this.sendTrackForInapp) {
                     window['@iterable/web-sdk'].track({ email: userEmail, userId, eventName: "Track getInAppMessages", dataFields: eventPayload })
                     .then(logger.debug("Track a getinappMessages event."));
                 }
                 this.fetchAppEvents();
+                isCustom = false;
             }
-        });
-    } else {
+        })
+    }
+    if (isNotEmpty(this.purchaseEventMapping)) {
+        // purchase events
+        const mappedEvents = this.purchaseEventMapping;
+        mappedEvents.forEach((e) => {
+            if(e.eventName === event) {
+                const purchaseEventPayload = formPurchaseEventPayload(message)
+                window['@iterable/web-sdk'].trackPurchase(
+                purchaseEventPayload,
+                )
+                isCustom = false;
+            }
+        })
+    }
+    if (isCustom) {
         // custom events if event is not mapped
-                /* fields available for custom track event
-                {
-                    "email": "string",
-                    "userId": "string",
-                    "eventName": "string",
-                    "id": "string",
-                    "createdAt": 0,
-                    "dataFields": {},
-                    "campaignId": 0,
-                    "templateId": 0
-                }
-                */
-                // Either email or userId must be passed in to identify the user.
-                // If both are passed in, email takes precedence.
+        /* fields available for custom track event
+        {
+            "email": "string",
+            "userId": "string",
+            "eventName": "string",
+            "id": "string",
+            "createdAt": 0,
+            "dataFields": {},
+            "campaignId": 0,
+            "templateId": 0
+        }
+        */
+        // Either email or userId must be passed in to identify the user.
+        // If both are passed in, email takes precedence.
         logger.debug(`The event ${event} is not mapped in the dashboard, firing a custom event`);
         window['@iterable/web-sdk'].track({ email: userEmail, userId, eventName: event, dataFields: eventPayload })
-                .then(logger.debug("Track a custom event."));
+            .then(logger.debug("Track a custom event."));
+    
     }
   }
 }
