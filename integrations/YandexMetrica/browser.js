@@ -70,6 +70,7 @@ class YandexMetrica {
     return !!window.ym;
   }
 
+  // identify call to yandex.metrica
   identify(rudderElement) {
     logger.debug("===In YandexMetrica Identify===");
 
@@ -81,6 +82,7 @@ class YandexMetrica {
     window.ym(this.tagId, "userParams", payload);
   }
 
+  // track call
   track(rudderElement) {
     logger.debug("===In YandexMetrica track===");
 
@@ -123,6 +125,7 @@ class YandexMetrica {
     }
   }
 
+  // page call
   page(rudderElement) {
     logger.debug("===In YandexMetrica Page===");
     const { message } = rudderElement;
