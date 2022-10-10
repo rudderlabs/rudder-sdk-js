@@ -17,11 +17,8 @@ class YandexMetrica {
     this.trackLinks = config.trackLinks;
     this.trackBounce = config.trackBounce;
     this.webvisor = config.webvisor;
-    this.containerName = config.containerName;
+    this.containerName = config.containerName || "dataLayer";
     this.goalId = config.goalId;
-    if (!config.containerName) {
-      this.containerName = "dataLayer";
-    }
     this.eventNameToYandexEvent = config.eventNameToYandexEvent;
     this.name = NAME;
   }
