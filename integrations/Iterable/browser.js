@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
-import logger from "../../utils/logUtil";
+import Logger from "../../utils/logger";
 import { formPurchaseEventPayload, existsInMapping } from "./utils";
 
 import {
@@ -11,12 +11,16 @@ import {
 import { NAME } from "./constants";
 import ScriptLoader from "../ScriptLoader";
 
+const logger = new Logger(NAME);
+
 class Iterable {
-  constructor(config) {
+  constructor(config, analytics) {
     this.apiKey = config.apiKey;
     this.initialisationIdentifier = config.initialisationIdentifier;
     this.fetchAppEvents = undefined;
     this.name = NAME;
+    this.analytics = analytics;
+    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.getInAppEventMapping = config.getInAppEventMapping;
     this.purchaseEventMapping = config.purchaseEventMapping;
 
@@ -75,28 +79,22 @@ class Iterable {
     }
     
     // Initialize the iterable SDK with the proper apiKey and the passed JWT
-    function initializeSDK(initialisationIdentifier, apiKey) {
-        let wd = window['@iterable/web-sdk'].initialize(apiKey, extractJWT)
-        if (initialisationIdentifier === "email") {
+    let wd = window['@iterable/web-sdk'].initialize(this.apiKey, extractJWT)
+    switch (this.initialisationIdentifier) {
+        case "email":
             wd.setEmail(userEmail).then(() => {
                 logger.debug("userEmail set");
-                });
-        } else {
+                });   
+            break;
+        case "userId":
             wd.setUserID(userId).then(() => {
                 logger.debug("userId set");
                 });
-        }
-    }
-
-    switch (this.initialisationIdentifier) {
-        case "email":
-        initializeSDK(this.initialisationIdentifier, this.apiKey)    
-            break;
-        case "userId":
-        initializeSDK(this.initialisationIdentifier, this.apiKey) 
             break;
         default:
-        initializeSDK("email")
+            wd.setEmail(userEmail).then(() => {
+                logger.debug("userEmail set");
+                });
             break;
     }
     /* Available pop-up push notification settings configurable from UI
