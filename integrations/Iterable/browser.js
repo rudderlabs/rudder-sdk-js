@@ -14,7 +14,7 @@ import ScriptLoader from "../ScriptLoader";
 class Iterable {
   constructor(config) {
     this.apiKey = config.apiKey;
-    this.useUserId = config.useUserId;
+    this.initialisationIdentifier = config.initialisationIdentifier;
     this.fetchAppEvents = undefined;
     this.name = NAME;
     this.getInAppEventMapping = config.getInAppEventMapping;
@@ -73,24 +73,31 @@ class Iterable {
             return;
         }
     }
+    
+    // Initialize the iterable SDK with the proper apiKey and the passed JWT
+    function initializeSDK(initialisationIdentifier, apiKey) {
+        let wd = window['@iterable/web-sdk'].initialize(apiKey, extractJWT)
+        if (initialisationIdentifier === "email") {
+            wd.setEmail(userEmail).then(() => {
+                logger.debug("userEmail set");
+                });
+        } else {
+            wd.setUserID(userId).then(() => {
+                logger.debug("userId set");
+                });
+        }
+    }
 
-    let wd;
-    if(this.useUserId) {
-        wd = window['@iterable/web-sdk'].initialize(
-            this.apiKey,
-            extractJWT
-        );
-        wd.setUserID(userId).then(() => {
-            logger.debug("userId set");
-            });
-    } else {
-        wd = window['@iterable/web-sdk'].initialize(
-            this.apiKey,
-            extractJWT
-        );
-        wd.setEmail(userEmail).then(() => {
-            logger.debug("userEmail set");
-            });
+    switch (this.initialisationIdentifier) {
+        case "email":
+        initializeSDK(this.initialisationIdentifier, this.apiKey)    
+            break;
+        case "userId":
+        initializeSDK(this.initialisationIdentifier, this.apiKey) 
+            break;
+        default:
+        initializeSDK("email")
+            break;
     }
     /* Available pop-up push notification settings configurable from UI
         this.animationDuration,
