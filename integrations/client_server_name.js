@@ -58,6 +58,7 @@ const clientToServerNames = {
   WOOPRA: "Woopra",
   ROLLBAR: "RollBar",
   QUORA_PIXEL: "Quora Pixel",
+  ITERABLE: "Iterable",
   ENGAGE: "Engage",
   JUNE: "June",
   YANDEX_METRICA: "Yandex Metrica",
