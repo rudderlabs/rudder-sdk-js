@@ -1,3 +1,3 @@
 import Iterable from './browser';
 
-export default Iterable;
+export { Iterable };
