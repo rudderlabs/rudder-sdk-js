@@ -92,7 +92,10 @@ declare module "rudder-sdk-js" {
     sessions?: {
       autoTrack?: boolean; // Defaults to true
       timeout?: number; // Defaults to 30 mins
-    }
+    },
+    // Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
+    // Defaults to true
+    polyfillIfRequired?: boolean;
   }
 
   /**
