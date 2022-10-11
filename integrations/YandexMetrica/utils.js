@@ -1,6 +1,9 @@
 import logger from "../../utils/logUtil";
 
-import { removeUndefinedAndNullValues } from "../utils/commonUtils";
+import {
+  removeUndefinedAndNullAndEmptyValues,
+  removeUndefinedAndNullValues,
+} from "../utils/commonUtils";
 
 // This function is used for sending the track event to yandex.metrica
 const sendEvent = (container, payload) => {
@@ -99,7 +102,7 @@ const ecommEventPayload = (eventType, properties, goalId) => {
       ? parseFloat(actionField.revenue)
       : actionField.revenue;
     responsePayload.ecommerce[eventType].actionField =
-      removeUndefinedAndNullValues(actionField);
+      removeUndefinedAndNullAndEmptyValues(actionField);
   }
   return removeUndefinedAndNullValues(responsePayload);
 };
