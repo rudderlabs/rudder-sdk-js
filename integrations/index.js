@@ -57,6 +57,7 @@ import * as Shynet from './Shynet';
 import * as Woopra from './Woopra';
 import * as RollBar from './RollBar';
 import * as QuoraPixel from './QuoraPixel';
+import * as Iterable from './Iterable';
 import * as Engage from './Engage';
 import * as June from './June';
 
@@ -123,6 +124,7 @@ const integrations = {
   WOOPRA: Woopra.default,
   ROLLBAR: RollBar.default,
   QUORA_PIXEL: QuoraPixel.default,
+  ITERABLE: Iterable.default,
   ENGAGE: Engage.default,
   JUNE: June.default,
 };
