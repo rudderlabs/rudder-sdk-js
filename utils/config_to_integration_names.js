@@ -62,6 +62,7 @@ const configToIntNames = {
   QUORA_PIXEL: 'QuoraPixel',
   JUNE: 'June',
   ENGAGE: 'Engage',
+  ITERABLE: 'Iterable',
 };
 
 export { configToIntNames };
