@@ -126,6 +126,7 @@ const commonNames = {
   ...June,
   ...Engage,
   ...Iterable,
+  ...Rockerbox,
 };
 
 export { commonNames };
