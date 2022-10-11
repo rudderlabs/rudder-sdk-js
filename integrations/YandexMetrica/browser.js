@@ -1,12 +1,13 @@
 import logger from "../../utils/logUtil";
 
-import { ecommEventPayload, sendEvent, eventMapping } from "./utils";
+import { ecommEventPayload, sendEvent, ecommerceEventMapping } from "./utils";
 import {
   removeUndefinedAndNullValues,
   getHashFromArrayWithDuplicate,
 } from "../utils/commonUtils";
 import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
+import { getDefinedTraits } from "../../utils/utils";
 
 class YandexMetrica {
   constructor(config, analytics) {
@@ -74,9 +75,14 @@ class YandexMetrica {
     logger.debug("===In YandexMetrica Identify===");
 
     const { message } = rudderElement;
-    const userId = message.userId || message.anonymousId;
-    const { traits } = message.context;
-    const payload = { ...traits, UserID: userId };
+    const { userId } = getDefinedTraits(message);
+    let payload = { UserID: userId };
+    if (!(message.context && message.context.traits)) {
+      logger.debug("user traits not present");
+    } else {
+      const { traits } = message.context;
+      payload = { ...payload, ...traits };
+    }
     window.ym(this.tagId, "setUserID", userId);
     window.ym(this.tagId, "userParams", payload);
   }
@@ -98,28 +104,33 @@ class YandexMetrica {
       logger.error("Event name not present");
       return;
     }
-    const ecomEvents = Object.keys(eventMapping);
+    const ecomEvents = Object.keys(ecommerceEventMapping);
 
     const trimmedEvent = event.trim().replace(/\s+/g, "_");
+    if (!message.properties) {
+      logger.error("Properties is not present in the payload");
+      return;
+    }
 
     if (eventMappingFromConfigMap[event]) {
       eventMappingFromConfigMap[event].forEach((eventType) => {
-        if (eventType !== eventMapping[trimmedEvent]) {
-          sendEvent(
-            this.containerName,
-            ecommEventPayload(eventType, message.properties, this.goalId)
-          );
-        }
+        sendEvent(
+          this.containerName,
+          ecommEventPayload(eventType, message.properties, this.goalId)
+        );
       });
-    }
-    if (ecomEvents.includes(trimmedEvent)) {
+    } else if (ecomEvents.includes(trimmedEvent)) {
       sendEvent(
         this.containerName,
         ecommEventPayload(
-          eventMapping[trimmedEvent],
+          ecommerceEventMapping[trimmedEvent],
           message.properties,
           this.goalId
         )
+      );
+    } else {
+      logger.error(
+        "[Yandex Metrica]: Event is neither mapped in UI nor it belongs to the supported ecommerce events"
       );
     }
   }
@@ -128,19 +139,25 @@ class YandexMetrica {
   page(rudderElement) {
     logger.debug("===In YandexMetrica Page===");
     const { message } = rudderElement;
-    const { properties } = message;
-    if (!properties.url) {
+    if (!(message.context && message.context.page)) {
+      logger.error(
+        "page object containing page properties are not present in the payload"
+      );
+      return;
+    }
+    const { page } = message.context;
+    if (!page.url) {
       logger.error("[Yandex Metrica]: url from page call is missing!!===");
       return;
     }
     let payload = {};
     payload = {
       ...payload,
-      title: properties.title,
-      referer: properties.referrer,
+      title: page.title,
+      referer: page.referrer,
     };
     payload = removeUndefinedAndNullValues(payload);
-    window.ym(this.tagId, "hit", properties.url, payload);
+    window.ym(this.tagId, "hit", page.url, payload);
   }
 }
 

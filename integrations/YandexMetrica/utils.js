@@ -11,7 +11,7 @@ const sendEvent = (container, payload) => {
 };
 
 // This object is defined to map the default rudder event to yandex.metrica event
-const eventMapping = {
+const ecommerceEventMapping = {
   order_completed: "purchase",
   product_viewed: "detail",
   product_list_viewed: "detail",
@@ -107,4 +107,4 @@ const ecommEventPayload = (eventType, properties, goalId) => {
   return removeUndefinedAndNullValues(responsePayload);
 };
 
-export { sendEvent, ecommEventPayload, eventMapping };
+export { sendEvent, ecommEventPayload, ecommerceEventMapping };
