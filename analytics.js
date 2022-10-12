@@ -1035,6 +1035,9 @@ class Analytics {
         } else {
           this.processResponse(200, res);
         }
+        /**
+         * In case load API is called later, execute the buffered requests.
+         */
         processDataInAnalyticsArray(this);
       }
       return;
@@ -1050,6 +1053,9 @@ class Analytics {
     } catch (error) {
       handleError(error);
     }
+    /**
+     * In case load API is called later, execute the buffered requests.
+     */
     processDataInAnalyticsArray(this);
   }
 
@@ -1276,6 +1282,9 @@ if (isValidArgsArray) {
     i += 1;
   }
 
+  /**
+   * If defaultMethod is present in the buffered requests execute it.
+   */
   if (argumentsArray.length > 0 && argumentsArray[0][0] === defaultMethod) {
     argumentsArray[0].shift();
     instance[defaultMethod](...argumentsArray[0]);
