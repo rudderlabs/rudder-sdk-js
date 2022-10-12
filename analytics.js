@@ -1053,9 +1053,8 @@ class Analytics {
     } catch (error) {
       handleError(error);
     }
-    /**
-     * In case load API is called later, execute the buffered requests.
-     */
+    // Execute any pending buffered requests
+    // (needed if the load call was not previously buffered)
     processDataInAnalyticsArray(this);
   }
 
