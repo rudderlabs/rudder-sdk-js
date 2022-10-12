@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable new-cap */
 /* eslint-disable func-names */
 /* eslint-disable eqeqeq */
@@ -1034,6 +1035,7 @@ class Analytics {
         } else {
           this.processResponse(200, res);
         }
+        processDataInAnalyticsArray(this);
       }
       return;
     }
@@ -1048,6 +1050,7 @@ class Analytics {
     } catch (error) {
       handleError(error);
     }
+    processDataInAnalyticsArray(this);
   }
 
   /**
@@ -1185,15 +1188,17 @@ class Analytics {
 const instance = new Analytics();
 
 function processDataInAnalyticsArray(analytics) {
-  analytics.toBeProcessedArray.forEach((x) => {
-    const event = [...x];
-    const method = event[0];
-    event.shift();
-    // logger.debug("=====from analytics array, calling method:: ", method)
-    analytics[method](...event);
-  });
+  if (analytics.loaded && analytics.toBeProcessedArray.length) {
+    analytics.toBeProcessedArray.forEach((x) => {
+      const event = [...x];
+      const method = event[0];
+      event.shift();
+      // logger.debug("=====from analytics array, calling method:: ", method)
+      analytics[method](...event);
+    });
 
-  instance.toBeProcessedArray = [];
+    analytics.toBeProcessedArray = [];
+  }
 }
 
 /**
@@ -1265,11 +1270,16 @@ if (isValidArgsArray) {
   let i = 0;
   while (i < argumentsArray.length) {
     if (argumentsArray[i] && argumentsArray[i][0] === defaultMethod) {
-      instance.toBeProcessedArray.push(argumentsArray[i]);
-      argumentsArray.splice(i, 1);
+      argumentsArray.unshift(argumentsArray.splice(i, 1)[0]);
       break;
     }
     i += 1;
+  }
+
+  if (argumentsArray.length > 0 && argumentsArray[0][0] === defaultMethod) {
+    argumentsArray[0].shift();
+    instance[defaultMethod](...argumentsArray[0]);
+    argumentsArray.shift();
   }
 }
 
