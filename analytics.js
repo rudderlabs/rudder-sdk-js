@@ -1192,16 +1192,18 @@ class Analytics {
 const instance = new Analytics();
 
 function processDataInAnalyticsArray(analytics) {
-  // Process the queue only if the default API is its first entry 
+  // Process the queue only if the default API is its first entry
   // or SDK is already loaded
-  if (analytics.toBeProcessedArray.length && (analytics.loaded || analytics.toBeProcessedArray[0][0] === defaultMethod) ) {
-  
+  if (
+    analytics.toBeProcessedArray.length &&
+    (analytics.loaded || analytics.toBeProcessedArray[0][0] === defaultMethod)
+  ) {
     while (analytics.toBeProcessedArray.length > 0) {
       const event = [...analytics.toBeProcessedArray[0]];
-      
+
       // remove the element from the queue
       analytics.toBeProcessedArray.shift();
-      
+
       const method = event[0];
       event.shift();
       // logger.debug("=====from analytics array, calling method:: ", method)
@@ -1279,19 +1281,11 @@ if (isValidArgsArray) {
   let i = 0;
   while (i < argumentsArray.length) {
     if (argumentsArray[i] && argumentsArray[i][0] === defaultMethod) {
-      argumentsArray.unshift(argumentsArray.splice(i, 1)[0]);
+      instance.toBeProcessedArray.push(argumentsArray[i]);
+      argumentsArray.splice(i, 1);
       break;
     }
     i += 1;
-  }
-
-  /**
-   * If defaultMethod is present in the buffered requests execute it.
-   */
-  if (argumentsArray.length > 0 && argumentsArray[0][0] === defaultMethod) {
-    argumentsArray[0].shift();
-    instance[defaultMethod](...argumentsArray[0]);
-    argumentsArray.shift();
   }
 }
 
