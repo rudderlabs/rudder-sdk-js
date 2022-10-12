@@ -1194,16 +1194,21 @@ class Analytics {
 const instance = new Analytics();
 
 function processDataInAnalyticsArray(analytics) {
-  if (analytics.loaded && analytics.toBeProcessedArray.length) {
-    analytics.toBeProcessedArray.forEach((x) => {
-      const event = [...x];
+  // Process the queue only if the default API is its first entry 
+  // or SDK is already loaded
+  if (analytics.toBeProcessedArray.length && (analytics.loaded || analytics.toBeProcessedArray[0][0] === defaultMethod) ) {
+  
+    while (analytics.toBeProcessedArray.length > 0) {
+      const event = [...analytics.toBeProcessedArray[0]];
+      
+      // remove the element from the queue
+      analytics.toBeProcessedArray.shift();
+      
       const method = event[0];
       event.shift();
       // logger.debug("=====from analytics array, calling method:: ", method)
       analytics[method](...event);
-    });
-
-    analytics.toBeProcessedArray = [];
+    }
   }
 }
 
