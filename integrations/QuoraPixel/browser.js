@@ -49,9 +49,10 @@ class QuoraPixel {
     const { event } = rudderElement.message;
     const eventsMapping = getHashFromArrayWithDuplicate(this.eventsToQPEvents);
     const trimmedEvent = event.toLowerCase().trim();
-    const events = eventsMapping[trimmedEvent];
+    const events = eventsMapping[trimmedEvent] || [];
 
-    if (!events || events.length === 0) {
+    if (events.length === 0) {
+      logger.warn(`===No Quora Pixel mapped event found. Sending Generic as the default event===`);
       window.qp('track', 'Generic');
     }
 
