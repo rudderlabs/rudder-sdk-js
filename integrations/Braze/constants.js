@@ -2,6 +2,7 @@ const NAME = "BRAZE";
 const CNameMapping = {
   [NAME]: NAME,
   Braze: NAME,
+  BRAZE: NAME,
 };
 
 const BrazeOperationString =

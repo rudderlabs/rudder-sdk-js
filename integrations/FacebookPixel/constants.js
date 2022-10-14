@@ -1,8 +1,11 @@
 const NAME = "FACEBOOK_PIXEL";
 const CNameMapping = {
   [NAME]: NAME,
-  "FB Pixel": NAME,
-  "Facebook Pixel": NAME,
+  'FB Pixel': NAME,
+  'Facebook Pixel': NAME,
+  'facebook pixel': NAME,
+  fbpixel: NAME,
+  FBPIXEL: NAME,
   FB_PIXEL: NAME,
 };
 
