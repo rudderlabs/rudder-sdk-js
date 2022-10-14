@@ -9,13 +9,15 @@ import { flattenJson } from '../utils/commonUtils';
 import { NAME } from './constants';
 
 class LiveChat {
-  constructor(config) {
+  constructor(config, analytics, destinationInfo) {
     this.name = NAME;
     this.licenseId = config.licenseId;
     this.recordLiveChatEvents = config.recordLiveChatEvents;
     this.eventsToStandard = config.eventsToStandard;
     this.updateEventNames = config.updateEventNames;
     this.eventsList = config.eventsList;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

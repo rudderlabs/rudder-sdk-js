@@ -8,7 +8,7 @@ import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Woopra {
-  constructor(config) {
+  constructor(config, analytics, destinationInfo) {
     this.projectName = config.projectName;
     this.name = NAME;
     this.cookieName = config.cookieName;
@@ -21,6 +21,8 @@ class Woopra {
     this.ignoreQueryUrl = config.ignoreQueryUrl;
     this.outgoingIgnoreSubdomain = config.outgoingIgnoreSubdomain;
     this.outgoingTracking = config.outgoingTracking;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

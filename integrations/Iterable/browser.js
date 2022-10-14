@@ -14,7 +14,7 @@ import ScriptLoader from '../ScriptLoader';
 const logger = new Logger(NAME);
 
 class Iterable {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     this.apiKey = config.apiKey;
     this.initialisationIdentifier = config.initialisationIdentifier;
     this.fetchAppEvents = undefined;
@@ -42,6 +42,8 @@ class Iterable {
     this.iconPath = config.iconPath;
     this.isRequiredToDismissMessage = config.isRequiredToDismissMessage;
     this.closeButtonPosition = config.closeButtonPosition;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {
