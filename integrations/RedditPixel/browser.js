@@ -10,6 +10,7 @@
 import logger from '../../utils/logUtil';
 import { LOAD_ORIGIN } from '../ScriptLoader';
 import { NAME } from './constants';
+import { getHashFromArrayWithDuplicate, getEventMappingFromConfig } from '../utils/commonUtils';
 
 class RedditPixel {
   constructor(config, analytics, destinationInfo) {
@@ -20,6 +21,7 @@ class RedditPixel {
     this.name = NAME;
     this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo.destinationId;
+    this.eventMappingFromConfig = config.eventMappingFromConfig;
   }
 
   init() {
@@ -65,29 +67,42 @@ class RedditPixel {
       logger.error('Event name is not present');
       return;
     }
-
-    switch (event.toLowerCase()) {
-      case 'product added':
-        window.rdt('track', 'AddToCart');
-        break;
-      case 'product added to wishlist':
-        window.rdt('track', 'AddToWishlist');
-        break;
-      case 'order completed':
-        window.rdt('track', 'Purchase');
-        break;
-      case 'lead':
-        window.rdt('track', 'Lead');
-        break;
-      case 'view content':
-        window.rdt('track', 'ViewContent');
-        break;
-      case 'search':
-        window.rdt('track', 'Search');
-        break;
-      default:
-        logger.error(`Invalid event ${event}. Track call not supported`);
-        break;
+    const eventMappingFromConfigMap = getHashFromArrayWithDuplicate(
+      this.eventMappingFromConfig,
+      'from',
+      'to',
+      false,
+    );
+    if (eventMappingFromConfigMap[event]) {
+      // mapping event from UI
+      const events = getEventMappingFromConfig(event, eventMappingFromConfigMap);
+      events.forEach((ev) => {
+        window.rdt('track', ev);
+      });
+    } else {
+      switch (event.toLowerCase()) {
+        case 'product added':
+          window.rdt('track', 'AddToCart');
+          break;
+        case 'product added to wishlist':
+          window.rdt('track', 'AddToWishlist');
+          break;
+        case 'order completed':
+          window.rdt('track', 'Purchase');
+          break;
+        case 'lead':
+          window.rdt('track', 'Lead');
+          break;
+        case 'view content':
+          window.rdt('track', 'ViewContent');
+          break;
+        case 'search':
+          window.rdt('track', 'Search');
+          break;
+        default:
+          logger.error(`Invalid event ${event}. Track call not supported`);
+          break;
+      }
     }
   }
 

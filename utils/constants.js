@@ -29,6 +29,10 @@ const GENERIC_FALSE_VALUES = ['false', 'False', 'FALSE', 'f', 'F', '0'];
 
 const SAMESITE_COOKIE_OPTS = ['Lax', 'None', 'Strict'];
 
+const DEFAULT_SESSION_TIMEOUT = 30 * 60 * 1000; // 30 min in milliseconds
+const MIN_SESSION_TIMEOUT = 10 * 1000; // 10 sec in milliseconds
+const MIN_SESSION_ID_LENGTH = 10;
+
 export {
   RESERVED_KEYS,
   CONFIG_URL,
@@ -43,4 +47,7 @@ export {
   GENERIC_TRUE_VALUES,
   GENERIC_FALSE_VALUES,
   SAMESITE_COOKIE_OPTS,
+  DEFAULT_SESSION_TIMEOUT,
+  MIN_SESSION_TIMEOUT,
+  MIN_SESSION_ID_LENGTH,
 };

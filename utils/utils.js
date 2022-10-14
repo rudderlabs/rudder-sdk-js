@@ -138,7 +138,19 @@ function notifyError(error) {
 }
 
 function handleError(error, analyticsInstance) {
-  let errorMessage = error.message;
+  let errorMessage;
+  try {
+    if (typeof error === 'string') {
+      errorMessage = error;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    } else {
+      errorMessage = error.message ? error.message : JSON.stringify(error);
+    }
+  } catch (e) {
+    errorMessage = '';
+  }
+
   try {
     if (error instanceof Event) {
       // Discard all the non-script loading errors
@@ -174,6 +186,7 @@ function handleError(error, analyticsInstance) {
     notifyError(errorObj);
   } catch (err) {
     logger.error('[handleError] Exception:: ', err);
+    logger.error('[handleError] Original error:: ', JSON.stringify(error));
     notifyError(err);
   }
 }
@@ -506,8 +519,8 @@ function recurse(cur, prop, result) {
   return res;
 }
 
-function flattenJsonPayload(data) {
-  return recurse(data, '', {});
+function flattenJsonPayload(data, property = '') {
+  return recurse(data, property, {});
 }
 /* ------- End FlattenJson ----------- */
 /**
@@ -575,6 +588,7 @@ function getDefinedTraits(message) {
       get(message, 'userId') ||
       get(message, 'context.traits.userId') ||
       get(message, 'anonymousId'),
+    userIdOnly: get(message, 'userId') || get(message, 'context.traits.userId'),
     email:
       get(message, 'context.traits.email') ||
       get(message, 'context.traits.Email') ||
@@ -589,8 +603,16 @@ function getDefinedTraits(message) {
       get(message, 'context.traits.lastname') ||
       get(message, 'context.traits.last_name'),
     name: get(message, 'context.traits.name') || get(message, 'context.traits.Name'),
-    city: get(message, 'context.traits.city') || get(message, 'context.traits.City'),
-    country: get(message, 'context.traits.country') || get(message, 'context.traits.Country'),
+    city:
+      get(message, 'context.traits.city') ||
+      get(message, 'context.traits.City') ||
+      get(message, 'context.traits.address.city') ||
+      get(message, 'context.traits.address.City'),
+    country:
+      get(message, 'context.traits.country') ||
+      get(message, 'context.traits.Country') ||
+      get(message, 'context.traits.address.country') ||
+      get(message, 'context.traits.address.Country'),
   };
 
   if (!get(traitsValue, 'name') && get(traitsValue, 'firstName') && get(traitsValue, 'lastName')) {
@@ -706,6 +728,10 @@ const constructPayload = (object, mapper) => {
   return payload;
 };
 
+const countDigits = (number) => {
+  return number ? number.toString().length : 0;
+};
+
 export {
   replacer,
   generateUUID,
@@ -739,4 +765,5 @@ export {
   notifyError,
   leaveBreadcrumb,
   get,
+  countDigits,
 };

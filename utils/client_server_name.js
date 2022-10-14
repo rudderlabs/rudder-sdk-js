@@ -53,6 +53,14 @@ const clientToServerNames = {
   ROCKERBOX: 'Rockerbox',
   CONVERTFLOW: 'ConvertFlow',
   SNAPENGAGE: 'SnapEngage',
+  LIVECHAT: 'LiveChat',
+  SHYNET: 'Shynet',
+  WOOPRA: 'Woopra',
+  ROLLBAR: 'RollBar',
+  QUORA_PIXEL: 'Quora Pixel',
+  JUNE: 'June',
+  ENGAGE: 'Engage',
+  ITERABLE: 'Iterable',
 };
 
 export { clientToServerNames };

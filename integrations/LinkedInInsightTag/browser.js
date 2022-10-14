@@ -1,6 +1,7 @@
 /* eslint-disable class-methods-use-this */
 import logger from '../../utils/logUtil';
 import ScriptLoader from '../ScriptLoader';
+import { getHashFromArrayWithDuplicate } from '../utils/commonUtils';
 import { NAME } from './constants';
 
 class LinkedInInsightTag {
@@ -12,6 +13,7 @@ class LinkedInInsightTag {
     this.partnerId = config.partnerId;
     this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo.destinationId;
+    this.eventToConversionIdMap = config.eventToConversionIdMap;
   }
 
   init() {
@@ -32,5 +34,33 @@ class LinkedInInsightTag {
     logger.debug('=== in isReady LinkedIn Insight Tag===');
     return !!window._linkedin_data_partner_id;
   }
+
+  track(rudderElement) {
+    logger.debug('===In LinkedIn Insight Tag Track===');
+    const { message } = rudderElement;
+    const { event } = message;
+    if (!event) {
+      logger.error('[LinkedIn Insight Tag]: Event name is missing for track call.');
+      return;
+    }
+    const trimmedEvent = event.trim();
+    const eventMapping = getHashFromArrayWithDuplicate(
+      this.eventToConversionIdMap,
+      'from',
+      'to',
+      false,
+    );
+    if (!eventMapping[trimmedEvent]) {
+      logger.debug(
+        `The "${event}" event is not mapped in the destination dashboard. It'll be skipped.`,
+      );
+      return;
+    }
+    const eventArray = eventMapping[trimmedEvent] || [];
+    eventArray.forEach((eventValue) => {
+      window.lintrk('track', { conversion_id: eventValue });
+    });
+  }
 }
+
 export default LinkedInInsightTag;

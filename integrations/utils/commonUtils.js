@@ -105,9 +105,55 @@ function flattenJson(data) {
   return result;
 }
 
+/**
+ * Check whether the passed eventname is mapped in the config
+ * and return the mapped event name.
+ * @param {*} event
+ * @param {*} eventsHashmap
+ * @returns mappedEventName
+ */
+function getEventMappingFromConfig(event, eventsHashmap) {
+  // if the event name is mapped in the config, use the mapped name
+  // else use the original event name
+  if (eventsHashmap[event]) {
+    return eventsHashmap[event];
+  }
+  return null;
+}
+
+// External ID format
+// {
+//   "context": {
+//     "externalId": [
+//       {
+//         "type": "kustomerId",
+//         "id": "12345678"
+//       }
+//     ]
+//   }
+// }
+// to get destination specific external id passed in context.
+function getDestinationExternalID(message, type) {
+  let externalIdArray = null;
+  let destinationExternalId = null;
+  if (message.context && message.context.externalId) {
+    externalIdArray = message.context.externalId;
+  }
+  if (externalIdArray) {
+    externalIdArray.forEach((extIdObj) => {
+      if (extIdObj.type === type) {
+        destinationExternalId = extIdObj.id;
+      }
+    });
+  }
+  return destinationExternalId;
+}
+
 export {
+  getEventMappingFromConfig,
   getHashFromArrayWithDuplicate,
   getHashFromArray,
+  getDestinationExternalID,
   toIso,
   flattenJson,
   removeUndefinedValues,

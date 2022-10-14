@@ -52,6 +52,14 @@ import { CNameMapping as Mouseflow } from '../integrations/Mouseflow/constants';
 import { CNameMapping as Rockerbox } from '../integrations/Rockerbox/constants';
 import { CNameMapping as ConvertFlow } from '../integrations/ConvertFlow/constants';
 import { CNameMapping as SnapEngage } from '../integrations/SnapEngage/constants';
+import { CNameMapping as LiveChat } from '../integrations/LiveChat/constants';
+import { CNameMapping as Shynet } from '../integrations/Shynet/constants';
+import { CNameMapping as Woopra } from '../integrations/Woopra/constants';
+import { CNameMapping as RollBar } from '../integrations/RollBar/constants';
+import { CNameMapping as QuoraPixel } from '../integrations/QuoraPixel/constants';
+import { CNameMapping as June } from '../integrations/June/constants';
+import { CNameMapping as Engage } from '../integrations/Engage/constants';
+import { CNameMapping as Iterable } from '../integrations/Iterable/constants';
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -110,6 +118,15 @@ const commonNames = {
   ...Mouseflow,
   ...ConvertFlow,
   ...SnapEngage,
+  ...LiveChat,
+  ...Shynet,
+  ...Woopra,
+  ...RollBar,
+  ...QuoraPixel,
+  ...June,
+  ...Engage,
+  ...Iterable,
+  ...Rockerbox,
 };
 
 export { commonNames };

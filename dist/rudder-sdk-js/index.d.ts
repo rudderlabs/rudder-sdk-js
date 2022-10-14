@@ -89,6 +89,10 @@ declare module "rudder-sdk-js" {
     anonymousIdOptions?: anonymousIdOptions;
     // defaults to https://cdn.rudderlabs.com/v1.1/js-integrations
     destSDKBaseURL?: string;
+    sessions?: {
+      autoTrack?: boolean; // Defaults to true
+      timeout?: number; // Defaults to 30 mins
+    }
   }
 
   /**
@@ -452,6 +456,16 @@ declare module "rudder-sdk-js" {
    */
   function getGroupTraits(): apiObject;
 
+  /**
+   * To manually start user session in the SDK
+   */
+   function startSession(sessionId?: number): void;
+
+   /**
+   * To manually end user session in the SDK
+   */
+   function endSession(): void;
+
   export {
     integrationOptions,
     loadOptions,
@@ -474,5 +488,7 @@ declare module "rudder-sdk-js" {
     getUserTraits,
     getGroupId,
     getGroupTraits,
+    startSession,
+    endSession,
   };
 }

@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import get from 'get-value';
 import logger from '../../utils/logUtil';
 import {
   eventMapping,
@@ -8,6 +9,7 @@ import {
   pinterestPropertySupport,
 } from './propertyMappingConfig';
 import { flattenJsonPayload, isDefinedAndNotNull, getDataFromSource } from '../../utils/utils';
+import { getHashFromArrayWithDuplicate, isDefined } from '../utils/commonUtils';
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../ScriptLoader';
 
@@ -24,6 +26,7 @@ export default class PinterestTag {
     this.name = NAME;
     this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
     this.destinationId = destinationInfo.destinationId;
+    this.deduplicationKey = config.deduplicationKey;
     logger.debug('config', config);
   }
 
@@ -125,20 +128,18 @@ export default class PinterestTag {
 
   /**
    * This function will generate required pinterest object to be sent.
-   * getRawPayload() will generate all the destination property excepts lineItems
+   * getRawPayload() will generate all the destination property excepts lineItems.
    * If rudder payload has products array then line_items is generated
-   * In case if the call is for event which has flag hasEmptyProducts to true, it will generate all
-   * properties including lineItems even if it does not have products array in it ex: Product Added
+   * If it does not have product array, it will move the whole message.properties into line items. ex: Product Added
    *
    * @param {rudder payload} properties
-   * @param {*} hasEmptyProducts
    * @returns
    */
-  generatePinterestObject(properties, hasEmptyProducts = false) {
+  generatePinterestObject(properties) {
     const pinterestObject = this.getRawPayload(properties);
 
     let { products } = properties;
-    if (hasEmptyProducts && !products) {
+    if (!products) {
       products = [properties];
     }
     if (products) {
@@ -164,46 +165,57 @@ export default class PinterestTag {
     return pinterestObject;
   }
 
-  /**
-   * This gives destination events .
-   * Logics: If our eventMapping is not able to map the event that is sent by user payload then it will look into
-   * userDefinedEventsMapping array. In case if it is not found there as well, it will return undefined.
-   * @param {rudder event name} event
-   * @returns
-   */
   getDestinationEventName(event) {
-    const destinationEvent = eventMapping.find((p) => p.src.includes(event.toLowerCase()));
-    if (!destinationEvent && this.userDefinedEventsMapping.length > 0) {
-      const userDefinedEvent = this.userDefinedEventsMapping.find(
-        (e) => e.from.toLowerCase() === event.toLowerCase(),
+    let eventNames;
+    /*
+    Step 1: At first we will look for
+            the event mapping in the UI. In case it is similar, will map to that.
+     */
+    if (this.userDefinedEventsMapping.length > 0) {
+      const keyMap = getHashFromArrayWithDuplicate(
+        this.userDefinedEventsMapping,
+        'from',
+        'to',
+        false,
       );
-      if (userDefinedEvent && userDefinedEvent.to) {
-        return {
-          dest: userDefinedEvent.to,
-          isUserDefinedEvent: true,
-        };
-      }
+      eventNames = keyMap[event];
     }
-    return destinationEvent;
+    if (eventNames) {
+      return eventNames;
+    }
+    /*
+    Step 2: To find if the particular event is amongst the list of standard
+            Rudderstack ecommerce events, used specifically for Pinterest Conversion API
+            mappings.
+    */
+    const eventMapInfo = eventMapping.find((eventMap) => {
+      if (eventMap.src.includes(event.toLowerCase())) {
+        return eventMap;
+      }
+      return false;
+    });
+    if (isDefinedAndNotNull(eventMapInfo)) {
+      return [eventMapInfo.dest];
+    }
+
+    /*
+    Step 3: In case both of the above stated cases fail, will mark the event as "custom"
+   */
+    return ['custom'];
   }
 
   track(rudderElement) {
     if (!rudderElement.message || !rudderElement.message.event) {
       return;
     }
-    const { properties, event } = rudderElement.message;
-    let eventName = event;
-    const destEvent = this.getDestinationEventName(event);
-    if (isDefinedAndNotNull(destEvent)) {
-      eventName = destEvent.dest;
-    }
-    const pinterestObject = this.generatePinterestObject(
-      properties,
-      destEvent?.hasEmptyProducts,
-      destEvent?.isUserDefinedEvent,
-    );
-
-    this.sendPinterestTrack(eventName, pinterestObject);
+    const { message } = rudderElement;
+    const { properties, event, messageId } = message;
+    const destEventArray = this.getDestinationEventName(event);
+    destEventArray.forEach((eventName) => {
+      const pinterestObject = this.generatePinterestObject(properties);
+      pinterestObject.event_id = get(message, `${this.deduplicationKey}`) || messageId;
+      this.sendPinterestTrack(eventName, pinterestObject);
+    });
   }
 
   page(rudderElement) {

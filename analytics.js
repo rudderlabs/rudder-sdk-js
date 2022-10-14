@@ -53,6 +53,7 @@ import parseLinker from './utils/linker';
 import { configToIntNames } from './utils/config_to_integration_names';
 import CookieConsentFactory from './cookieConsent/CookieConsentFactory';
 import * as BugsnagLib from './metrics/error-report/Bugsnag';
+import { UserSession } from './session';
 import { TransformationsHandler } from './DMT/DMTHandler';
 
 /**
@@ -91,6 +92,7 @@ class Analytics {
     this.logLevel = undefined;
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
+    this.uSession = UserSession;
     this.writeKey = undefined;
     this.dataPlaneUrl = undefined;
     this.transformationHandler = TransformationsHandler;
@@ -757,6 +759,14 @@ class Analytics {
           };
         }
       }
+      // If auto/manual session tracking is enabled sessionId will be sent in the context
+      try {
+        const { sessionId, sessionStart } = this.uSession.getSessionInfo();
+        rudderElement.message.context.sessionId = sessionId;
+        if (sessionStart) rudderElement.message.context.sessionStart = true;
+      } catch (e) {
+        handleError(e);
+      }
 
       this.processOptionsParam(rudderElement, options);
       // logger.debug(JSON.stringify(rudderElement))
@@ -920,6 +930,7 @@ class Analytics {
     this.userTraits = {};
     this.groupId = '';
     this.groupTraits = {};
+    this.uSession.reset();
     this.storage.clear(flag);
   }
 
@@ -1039,6 +1050,9 @@ class Analytics {
     ) {
       this.sendAdblockPageOptions = options.sendAdblockPageOptions;
     }
+    // Session initialization
+    this.uSession.initialize(options);
+
     if (options && options.clientSuppliedCallbacks) {
       // convert to rudder recognized method names
       const transformedCallbackMapping = {};
@@ -1221,6 +1235,22 @@ class Analytics {
   sendSampleRequest() {
     ScriptLoader('ad-block', '//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js');
   }
+
+  /**
+   * A public method to start a session
+   * @param {string} sessionId     session identifier
+   * @returns
+   */
+  startSession(sessionId) {
+    this.uSession.start(sessionId);
+  }
+
+  /**
+   * A public method to end an ongoing session.
+   */
+  endSession() {
+    this.uSession.end();
+  }
 }
 
 const instance = new Analytics();
@@ -1336,6 +1366,8 @@ const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
 const getGroupId = instance.getGroupId.bind(instance);
 const getGroupTraits = instance.getGroupTraits.bind(instance);
+const startSession = instance.startSession.bind(instance);
+const endSession = instance.endSession.bind(instance);
 
 export {
   initialized,
@@ -1353,4 +1385,6 @@ export {
   setAnonymousId,
   getGroupId,
   getGroupTraits,
+  startSession,
+  endSession,
 };
