@@ -61,6 +61,7 @@ const clientToServerNames = {
   ITERABLE: "Iterable",
   ENGAGE: "Engage",
   JUNE: "June",
+  YANDEX_METRICA: "Yandex Metrica",
 };
 
 export { clientToServerNames };
