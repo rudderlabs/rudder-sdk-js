@@ -7,7 +7,6 @@ const CNameMapping = {
   DCMFloodlight: NAME,
   dcmfloodlight: NAME,
   DcmFloodlight: NAME,
-  DCM_FLOODLIGHT: NAME,
   dcm_floodlight: NAME,
   DCM_Floodlight: NAME,
 };
