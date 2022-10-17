@@ -5,7 +5,6 @@ import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import { terser } from 'rollup-plugin-terser';
 import builtins from 'rollup-plugin-node-builtins';
-import globals from 'rollup-plugin-node-globals';
 import json from '@rollup/plugin-json';
 import gzipPlugin from 'rollup-plugin-gzip';
 import brotli from 'rollup-plugin-brotli';
@@ -107,11 +106,11 @@ export function getDefaultConfig(distName) {
       }),
 
       json(),
-      globals(),
       builtins(),
 
       babel({
         inputSourceMap: true,
+        compact: true,
         babelHelpers: 'bundled',
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
         presets: [
