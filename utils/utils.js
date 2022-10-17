@@ -286,12 +286,17 @@ function getRevenue(properties, eventName) {
 function tranformToRudderNames(integrationObject) {
   Object.keys(integrationObject).forEach((key) => {
     if (integrationObject.hasOwnProperty(key)) {
-      if (commonNames[key]) {
-        integrationObject[commonNames[key]] = integrationObject[key];
+      const sanitizedIntgName = key.toLowerCase().trim();
+      if (commonNames[sanitizedIntgName]) {
+        integrationObject[commonNames[sanitizedIntgName]] =
+          integrationObject[key];
       }
       if (key != "All") {
         // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
-        if (commonNames[key] != undefined && commonNames[key] != key) {
+        if (
+          commonNames[sanitizedIntgName] != undefined &&
+          commonNames[sanitizedIntgName] != key
+        ) {
           delete integrationObject[key];
         }
       }
