@@ -61,6 +61,7 @@ const clientToServerNames = {
   ITERABLE: "Iterable",
   ENGAGE: "Engage",
   JUNE: "June",
+  REFINER: "Refiner",
 };
 
 export { clientToServerNames };
