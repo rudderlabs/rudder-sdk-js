@@ -160,6 +160,22 @@ function getDestinationExternalID(message, type) {
   return destinationExternalId;
 }
 
+function getIntgCommonNames(displayName, name) {
+  const cNames = {};
+  cNames[name] = name;
+
+  const displayNameSanitized = displayName.toLowerCase().trim();
+  // Add the sanitized display name
+  cNames[displayNameSanitized] = name;
+
+  const words = displayNameSanitized.split(" ");
+
+  cNames[words.join("_")] = name;
+  cNames[words.join("")] = name;
+
+  return cNames;
+}
+
 export {
   getEventMappingFromConfig,
   getHashFromArrayWithDuplicate,
@@ -178,4 +194,5 @@ export {
   isDefinedAndNotNullAndNotEmpty,
   isBlank,
   pick,
+  getIntgCommonNames,
 };

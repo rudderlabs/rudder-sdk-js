@@ -1,4 +1,4 @@
-import { CNameMapping as AdobeAnalytics } from "./AdobeAnalytics/constants";
+import * as AdobeAnalytics from "./AdobeAnalytics/constants";
 import { CNameMapping as Amplitude } from "./Amplitude/constants";
 import { CNameMapping as Appcues } from "./Appcues/constants";
 import { CNameMapping as BingAds } from "./BingAds/constants";
@@ -62,11 +62,19 @@ import { CNameMapping as Engage } from "./Engage/constants";
 import { CNameMapping as June } from "./June/constants";
 import { CNameMapping as YandexMetrica } from "./YandexMetrica/constants";
 
+import { getIntgCommonNames } from "./utils/commonUtils";
+
+function getCommonNames(intg) {
+  return {
+    ...getIntgCommonNames(intg.NAME, intg.DISPLAY_NAME),
+    ...(intg.CNameMapping && intg.CNameMapping), // override the autogen common names map
+  };
+}
+
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
 const commonNames = {
-  All: "All",
-  ...AdobeAnalytics,
+  ...getCommonNames(AdobeAnalytics),
   ...Adroll,
   ...Amplitude,
   ...Appcues,
@@ -129,6 +137,7 @@ const commonNames = {
   ...Engage,
   ...June,
   ...YandexMetrica,
+  all: "All",
 };
 
 export { commonNames };
