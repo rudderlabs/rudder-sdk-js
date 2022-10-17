@@ -32,6 +32,7 @@ The JavaScript SDK lets you track customer event data from your website and send
 - [**The `ready` API**](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#the-ready-api)
 - [**Self-hosted control plane**](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#self-hosted-control-plane)
 - [**Adding your own integrations**](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#adding-your-own-integrations)
+- [**Usage in Chrome Extensions**](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#usage-in-chrome-extensions)
 
 | **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK and it will soon be removed. If you still wish to use it for your project, refer to [**this repository**](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). |
 | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -296,6 +297,13 @@ You can start adding integrations of your choice for sending the data through th
 > We use **rollup** to build our SDKs. The configuration for it is present in `rollup.config.js` in the repo directory.
 
 - For adding or removing integrations, modify the imports in `index.js` under the `integrations` folder.
+
+### Usage in Chrome Extensions
+
+RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script or as a background script 
+service worker. 
+
+For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/master/tests/chrome-extension/USAGE.md)
 
 ## Contribute
 
