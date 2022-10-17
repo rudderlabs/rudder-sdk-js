@@ -1,5 +1,4 @@
 import assert from 'assert';
-import removeSlash from 'remove-trailing-slash';
 import looselyValidate from '@segment/loosely-validate-event';
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
@@ -9,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import isString from 'lodash.isstring';
 import cloneDeep from 'lodash.clonedeep';
 import fetchAdapter from '@vespaiach/axios-fetch-adapter';
+import { removeTrailingSlashes } from '../utils/utils';
 import * as packageJson from '../package.json';
 
 const { version } = packageJson;
@@ -41,7 +41,7 @@ class Analytics {
 
     this.queue = [];
     this.writeKey = writeKey;
-    this.host = removeSlash(dataPlaneURL);
+    this.host = removeTrailingSlashes(dataPlaneURL);
     this.timeout = options.timeout || false;
     this.flushAt = Math.max(options.flushAt, 1) || 20;
     this.flushInterval = options.flushInterval || 20000;

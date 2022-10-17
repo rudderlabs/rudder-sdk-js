@@ -10,8 +10,8 @@ import { Analytics } from "./rudderAnalytics.js";
 console.log(Analytics);
 
 const rudderClient = new Analytics(
-    "2EzJEim6arwPqWRy0dEp3ts1Czk",
-    "https://hosted-dev-dataplane.dev-rudder.rudderlabs.com/v1/batch",
+    "<writeKey>",
+    "<dataPlaneURL>/v1/batch",
     {
         logLevel: 'silly'
     }

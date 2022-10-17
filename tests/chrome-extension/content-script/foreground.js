@@ -15287,13 +15287,7 @@
             console.log("we are all set!!!");
         });
 
-        rudderanalytics.load(
-            "2EzJEim6arwPqWRy0dEp3ts1Czk",
-            "https://hosted-dev-dataplane.dev-rudder.rudderlabs.com",
-            {
-                configUrl: "https://api.dev.rudderlabs.com/sourceConfig/?p=web&v=1.1.18",
-            }
-        );
+        rudderanalytics.load("<writeKey>", "<dataPlaneURL>");
     }
 
 
