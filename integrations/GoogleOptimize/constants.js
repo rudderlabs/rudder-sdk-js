@@ -5,9 +5,9 @@ const CNameMapping = {
   GoogleOptimize: NAME,
   Googleoptimize: NAME,
   GOOGLEOPTIMIZE: NAME,
-  'google optimize': NAME,
-  'Google optimize': NAME,
-  'GOOGLE OPTIMIZE': NAME,
+  "google optimize": NAME,
+  "Google optimize": NAME,
+  "GOOGLE OPTIMIZE": NAME,
 };
 
 export { NAME, CNameMapping };

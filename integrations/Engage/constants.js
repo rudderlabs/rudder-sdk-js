@@ -2,6 +2,7 @@ const NAME = "ENGAGE";
 const CNameMapping = {
   [NAME]: NAME,
   Engage: NAME,
+  engage: NAME,
 };
 const identifyExcludeFields = [
   "firstName",
