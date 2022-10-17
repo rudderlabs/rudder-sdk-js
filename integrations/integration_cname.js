@@ -64,17 +64,10 @@ import { CNameMapping as YandexMetrica } from "./YandexMetrica/constants";
 
 import { getIntgCommonNames } from "./utils/commonUtils";
 
-function getCommonNames(intg) {
-  return {
-    ...getIntgCommonNames(intg.NAME, intg.DISPLAY_NAME),
-    ...(intg.CNameMapping && intg.CNameMapping), // override the autogen common names map
-  };
-}
-
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
 const commonNames = {
-  ...getCommonNames(AdobeAnalytics),
+  ...getIntgCommonNames(AdobeAnalytics),
   ...Adroll,
   ...Amplitude,
   ...Appcues,

@@ -160,20 +160,31 @@ function getDestinationExternalID(message, type) {
   return destinationExternalId;
 }
 
-function getIntgCommonNames(displayName, name) {
-  const cNames = {};
-  cNames[name] = name;
+function getIntgCommonNames(intg) {
+  let cNamesMap = {};
+  const { NAME, DISPLAY_NAME, CNameMapping } = intg;
 
-  const displayNameSanitized = displayName.toLowerCase().trim();
-  // Add the sanitized display name
-  cNames[displayNameSanitized] = name;
+  if (NAME) {
+    cNamesMap[NAME] = NAME;
+  }
 
-  const words = displayNameSanitized.split(" ");
+  if (DISPLAY_NAME) {
+    const displayNameSanitized = DISPLAY_NAME.toLowerCase().trim();
+    // Add the sanitized display name
+    cNamesMap[displayNameSanitized] = NAME;
 
-  cNames[words.join("_")] = name;
-  cNames[words.join("")] = name;
+    const words = displayNameSanitized.split(" ");
 
-  return cNames;
+    cNamesMap[words.join("_")] = NAME;
+    cNamesMap[words.join("")] = NAME;
+  }
+
+  // override the autogen common names map if needed
+  if (CNameMapping) {
+    cNamesMap = { ...cNamesMap, ...CNameMapping };
+  }
+
+  return cNamesMap;
 }
 
 export {
