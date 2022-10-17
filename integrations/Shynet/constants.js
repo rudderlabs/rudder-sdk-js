@@ -6,6 +6,10 @@ const CNameMapping = {
   ShyNet: NAME,
   shyNet: NAME,
   Shynet: NAME,
+  'shy net': NAME,
+  'Shy Net': NAME,
+  'shy Net': NAME,
+  'Shy net': NAME,
 };
 
 export { NAME, CNameMapping };
