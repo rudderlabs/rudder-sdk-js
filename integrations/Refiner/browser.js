@@ -1,10 +1,14 @@
 /* eslint-disable */
 import logger from "../../utils/logUtil";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 import { NAME } from "./constants";
 import { replaceUserTraits, replaceAccountTraits } from "./utils";
 
 class Refiner {
-  constructor(config) {
+  constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.apiKey = config.webClientApiKey;
     this.userAttributesMapping = config.userAttributesMapping;
@@ -18,6 +22,7 @@ class Refiner {
     };
     (function () {
       var a = document.createElement("script");
+      a.setAttribute("data-loader", LOAD_ORIGIN);
       a.type = "text/javascript";
       a.async = !0;
       a.src = "https://js.refiner.io/v001/client.js";
