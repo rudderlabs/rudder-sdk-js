@@ -291,11 +291,11 @@ function tranformToRudderNames(integrationObject) {
         integrationObject[commonNames[sanitizedIntgName]] =
           integrationObject[key];
       }
-      if (key != "All") {
+      if (key !== "All") {
         // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
         if (
-          commonNames[sanitizedIntgName] != undefined &&
-          commonNames[sanitizedIntgName] != key
+          commonNames[sanitizedIntgName] !== undefined &&
+          commonNames[sanitizedIntgName] !== key
         ) {
           delete integrationObject[key];
         }
