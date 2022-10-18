@@ -59,7 +59,7 @@ class Posthog {
           }
           ((p = t.createElement("script")).type = "text/javascript"),
             (p.async = !0),
-            p.setAttribute("data-loader", LOAD_ORIGIN),
+            (p.setAttribute("data-loader", LOAD_ORIGIN)),
             (p.src = s.api_host + "/static/array.js"),
             (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(
               p,
