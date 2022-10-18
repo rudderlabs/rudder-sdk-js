@@ -63,6 +63,7 @@ const configToIntNames = {
   JUNE: 'June',
   ENGAGE: 'Engage',
   ITERABLE: 'Iterable',
+  YANDEX_METRICA: 'YandexMetrica',
 };
 
 export { configToIntNames };
