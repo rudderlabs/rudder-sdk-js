@@ -1,5 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable class-methods-use-this */
+import get from "get-value";
 import logger from "../../utils/logUtil";
 import { removeTrailingSlashes } from "../../utils/utils";
 import { LOAD_ORIGIN } from "../ScriptLoader";
@@ -58,7 +59,7 @@ class Posthog {
           }
           ((p = t.createElement("script")).type = "text/javascript"),
             (p.async = !0),
-            (p.setAttribute("data-loader", LOAD_ORIGIN)),
+            p.setAttribute("data-loader", LOAD_ORIGIN),
             (p.src = s.api_host + "/static/array.js"),
             (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(
               p,
@@ -176,6 +177,20 @@ class Posthog {
     this.processSuperProperties(rudderElement);
 
     posthog.capture("$pageview");
+  }
+
+  group(rudderElement) {
+    logger.debug("in Posthog group");
+    const { traits } = rudderElement.message;
+    const { groupType } = rudderElement.message.traits;
+    const groupKey = get(rudderElement.message, "groupId");
+    if (!groupType || !groupKey) {
+      logger.error("groupType and groupKey is required for group call");
+      return;
+    }
+    posthog.group(groupType, groupKey, traits);
+
+    this.processSuperProperties(rudderElement);
   }
 
   isLoaded() {
