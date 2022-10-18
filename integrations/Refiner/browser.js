@@ -95,6 +95,22 @@ class Refiner {
       },
     });
   }
+
+  page(rudderElement) {
+    logger.debug("===In Refiner page===");
+    const { message } = rudderElement;
+    let pageFullName;
+    if (!message.name && !message.category) {
+      pageFullName = `pageView`;
+    } else if (!message.name && message.category) {
+      pageFullName = `Viewed ${message.category} Page`;
+    } else if (message.name && !message.category) {
+      pageFullName = `Viewed ${message.name} Page`;
+    } else {
+      pageFullName = `Viewed ${message.category} ${message.name} Page`;
+    }
+    this._refiner("trackEvent", pageFullName);
+  }
 }
 
 export default Refiner;
