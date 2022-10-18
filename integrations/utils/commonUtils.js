@@ -161,7 +161,7 @@ function getDestinationExternalID(message, type) {
 }
 
 function getIntgCommonNames(intg) {
-  let cNamesMap = {};
+  const cNamesMap = {};
   const { NAME, DISPLAY_NAME, CNameMapping } = intg;
 
   if (NAME) {
@@ -179,9 +179,14 @@ function getIntgCommonNames(intg) {
     cNamesMap[words.join("")] = NAME;
   }
 
-  // override the autogen common names map if needed
+  // add the hard-coded common names
   if (CNameMapping) {
-    cNamesMap = { ...cNamesMap, ...CNameMapping };
+    // convert the keys to lower case to
+    // match the existing common names
+    Object.keys(CNameMapping).forEach((name) => {
+      const sanitizedName = name.toLowerCase().trim();
+      cNamesMap[sanitizedName] = CNameMapping[name];
+    });
   }
 
   return cNamesMap;
