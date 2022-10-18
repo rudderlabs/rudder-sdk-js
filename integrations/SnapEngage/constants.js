@@ -1,7 +1,6 @@
 const NAME = "SNAPENGAGE";
 const CNameMapping = {
   [NAME]: NAME,
-  SNAPENGAGE: NAME,
   SnapEngage: NAME,
   Snap_Engage: NAME,
   snapengage: NAME,

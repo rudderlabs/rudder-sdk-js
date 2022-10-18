@@ -5,6 +5,10 @@ const CNameMapping = {
   mouseflow: NAME,
   mouseFlow: NAME,
   MouseFlow: NAME,
+  "Mouse flow": NAME,
+  "mouse flow": NAME,
+  "mouse Flow": NAME,
+  "Mouse Flow": NAME,
 };
 
 export { NAME, CNameMapping };
