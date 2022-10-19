@@ -55,6 +55,7 @@ class Refiner {
     const email = message.traits?.email || message.context?.traits?.email;
     if (!userId && !email) {
       logger.error("either one userId or email is required");
+      return;
     }
     let userTraits = {
       ...traits,
