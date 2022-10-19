@@ -51,7 +51,9 @@ Sample background script:
 
     # file copied from node_modules/rudder-sdk-js/service-worker/index.es.js
     import { Analytics } from "./rudderAnalytics.js";
-    
+    # Uncomment the below if installed via yarn/npm
+    # import { Analytics } from "rudder-sdk-js/service-worker"; 
+
     const rudderClient = new Analytics("<writeKey>","<dataPlaneURL>/v1/batch");
     
     chrome.tabs.onUpdated.addListener((tabId, tab) => {
