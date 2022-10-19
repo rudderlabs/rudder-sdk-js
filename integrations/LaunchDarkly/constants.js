@@ -5,6 +5,7 @@ const CNameMapping = {
   Launch_Darkly: NAME,
   "Launch Darkly": NAME,
   launchDarkly: NAME,
+  "launch darkly": NAME,
 };
 
 export { NAME, CNameMapping };
