@@ -5,9 +5,7 @@
   "main": "index.js",
   "module": "index.es.js",
   "exports": {
-    ".": {
-      "service-worker": "./service-worker/index.es.js"
-    }
+    "./service-worker": "./service-worker/index.es.js"
   },
   "types": "index.d.ts",
   "scripts": {
