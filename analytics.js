@@ -93,8 +93,6 @@ class Analytics {
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
     this.uSession = UserSession;
-    this.writeKey = undefined;
-    this.dataPlaneUrl = undefined;
     this.transformationHandler = TransformationsHandler;
   }
 
@@ -1017,9 +1015,6 @@ class Analytics {
       throw Error('Unable to load the SDK due to invalid writeKey or serverUrl');
     }
 
-    this.writeKey = writeKey;
-    this.dataPlaneUrl = serverUrl;
-
     let storageOptions = {};
 
     if (options && options.setCookieDomain) {
@@ -1075,7 +1070,7 @@ class Analytics {
     this.eventRepository.initialize(writeKey, serverUrl, options);
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
-    this.transformationHandler.init(this.writeKey, this.dataPlaneUrl);
+    this.transformationHandler.init(writeKey, serverUrl);
     this.loaded = true;
 
     if (options && options.destSDKBaseURL) {
