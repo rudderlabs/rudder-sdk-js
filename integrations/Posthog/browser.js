@@ -59,7 +59,7 @@ class Posthog {
           }
           ((p = t.createElement("script")).type = "text/javascript"),
             (p.async = !0),
-            (p.setAttribute("data-loader", LOAD_ORIGIN)),
+            p.setAttribute("data-loader", LOAD_ORIGIN),
             (p.src = s.api_host + "/static/array.js"),
             (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(
               p,
@@ -181,9 +181,13 @@ class Posthog {
 
   group(rudderElement) {
     logger.debug("in Posthog group");
-    const { traits } = rudderElement.message;
-    const { groupType } = rudderElement.message.traits;
+    const traits = get(rudderElement.message, "traits");
     const groupKey = get(rudderElement.message, "groupId");
+    let groupType;
+    if (traits) {
+      groupType = get(traits, "groupType");
+      delete traits.groupType;
+    }
     if (!groupType || !groupKey) {
       logger.error("groupType and groupKey is required for group call");
       return;
