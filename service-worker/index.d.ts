@@ -1,4 +1,6 @@
-export default Analytics;
+export {
+    Analytics
+};
 
 /**
  * Represents a generic object in the APIs
