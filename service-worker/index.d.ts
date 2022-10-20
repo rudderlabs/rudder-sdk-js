@@ -13,6 +13,7 @@ export interface apiObject {
     | boolean
     | undefined
     | apiObject
+    | unknown
     | (string | number | boolean | apiObject)[];
 }
 

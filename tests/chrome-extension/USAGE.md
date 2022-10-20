@@ -47,10 +47,18 @@ You can react to events that are available in background scripts via the [Chrome
 
 Here is an example to track url changes.
 
-Sample background script:
+Sample background script imports:
 
-    # file copied from node_modules/rudder-sdk-js/service-worker/index.es.js
+    # In case file is copied from node_modules/rudder-sdk-js/service-worker/index.es.js in extension resources folder
     import { Analytics } from "./rudderAnalytics.js";
+
+    # In case the package is imported directly as umd and then bundled in the background script
+    import { Analytics } from "rudder-sdk-js/service-worker";
+
+    # In case the package is imported directly as es-module and then bundled in the background script
+    import { Analytics } from "rudder-sdk-js/service-worker/index.es"; 
+
+Sample background script:
     
     const rudderClient = new Analytics("<writeKey>","<dataPlaneURL>/v1/batch");
     
