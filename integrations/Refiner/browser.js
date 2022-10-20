@@ -51,7 +51,6 @@ class Refiner {
     logger.debug("===In Refiner Identify===");
     const { message } = rudderElement;
     const { userId, traits, context } = message;
-    console.log(window._refiner);
     const email = message.traits?.email || message.context?.traits?.email;
     if (!userId && !email) {
       logger.error("either one userId or email is required");
