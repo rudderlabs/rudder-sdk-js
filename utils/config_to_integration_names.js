@@ -64,6 +64,7 @@ const configToIntNames = {
   ENGAGE: 'Engage',
   ITERABLE: 'Iterable',
   YANDEX_METRICA: 'YandexMetrica',
+  REFINER: 'Refiner',
 };
 
 export { configToIntNames };
