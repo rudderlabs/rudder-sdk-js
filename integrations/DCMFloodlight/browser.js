@@ -125,7 +125,9 @@ class DCMFloodlight {
     // knowing cat (activityTag), type (groupTag), (counter or sales), customVariable from config
     const conversionEvent = this.conversionEvents.find(
       (cnEvent) =>
-        cnEvent?.eventName?.trim()?.toLowerCase() === event.toLowerCase()
+        cnEvent &&
+        cnEvent.eventName &&
+        cnEvent.eventName.trim().toLowerCase() === event.toLowerCase()
     );
 
     if (!conversionEvent) {
