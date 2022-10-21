@@ -168,7 +168,7 @@ export default class GA {
     const { event, properties, name } = rudderElement.message;
     const options = this.extractCheckoutOptions(rudderElement);
     const props = rudderElement.message.properties;
-    const { products } = properties;
+    const { products, revenue } = properties;
     let { total } = properties;
     const data = {};
     const eventCategory = rudderElement.message.properties.category;
@@ -192,7 +192,7 @@ export default class GA {
       window.ga(`${this.trackerName}ecommerce:addTransaction`, {
         affiliation: properties.affiliation,
         shipping: properties.shipping,
-        revenue: total,
+        revenue: total || revenue,
         tax: properties.tax,
         id: orderId,
         currency: properties.currency,
@@ -270,7 +270,7 @@ export default class GA {
           window.ga(`${this.trackerName}ec:setAction`, 'purchase', {
             id: orderId,
             affiliation: props.affiliation,
-            revenue: total,
+            revenue: total || revenue,
             tax: props.tax,
             shipping: props.shipping,
             coupon: props.coupon,
