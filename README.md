@@ -303,7 +303,7 @@ You can start adding integrations of your choice for sending the data through th
 RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script or as a background script 
 service worker. 
 
-For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/master/tests/chrome-extension/USAGE.md)
+For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/production/tests/chrome-extension/USAGE.md)
 
 ## Contribute
 
