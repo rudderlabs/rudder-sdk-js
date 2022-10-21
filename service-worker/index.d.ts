@@ -1,4 +1,6 @@
-export default Analytics;
+export {
+    Analytics
+};
 
 /**
  * Represents a generic object in the APIs
@@ -11,6 +13,7 @@ export interface apiObject {
     | boolean
     | undefined
     | apiObject
+    | unknown
     | (string | number | boolean | apiObject)[];
 }
 
