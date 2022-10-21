@@ -103,8 +103,12 @@ const calculateQuantity = (products) => {
   return 0;
 };
 
-const buildGtagTrackPayload = (message, salesTag, countingMethod) => {
-  const { DCM_FLOODLIGHT } = message.integrations;
+const buildGtagTrackPayload = (
+  message,
+  salesTag,
+  countingMethod,
+  integrationObj
+) => {
   let dcCustomParams = {
     ord: get(message, "properties.ord"),
     dc_lat: get(message, "context.device.adTrackingEnabled"),
@@ -163,6 +167,11 @@ const buildGtagTrackPayload = (message, salesTag, countingMethod) => {
   }
 
   // COPPA, GDPR, npa must be provided inside integration object
+  let { DCM_FLOODLIGHT } = message.integrations;
+  if (!DCM_FLOODLIGHT) {
+    ({ DCM_FLOODLIGHT } = integrationObj);
+  }
+
   if (DCM_FLOODLIGHT) {
     if (isDefinedAndNotNull(DCM_FLOODLIGHT.COPPA)) {
       dcCustomParams.tag_for_child_directed_treatment = mapFlagValue(
@@ -196,8 +205,12 @@ const buildGtagTrackPayload = (message, salesTag, countingMethod) => {
   return eventSnippetPayload;
 };
 
-const buildIframeTrackPayload = (message, salesTag, countingMethod) => {
-  const { DCM_FLOODLIGHT } = message.integrations;
+const buildIframeTrackPayload = (
+  message,
+  salesTag,
+  countingMethod,
+  integrationObj
+) => {
   const randomNum = Math.random() * 10000000000000;
   const customParams = {
     ord: get(message, "properties.ord") || randomNum,
@@ -258,6 +271,11 @@ const buildIframeTrackPayload = (message, salesTag, countingMethod) => {
   }
 
   // COPPA, GDPR, npa must be provided inside integration object
+  let { DCM_FLOODLIGHT } = message.integrations;
+  if (!DCM_FLOODLIGHT) {
+    ({ DCM_FLOODLIGHT } = integrationObj);
+  }
+
   if (DCM_FLOODLIGHT) {
     if (isDefinedAndNotNull(DCM_FLOODLIGHT.COPPA)) {
       customParams.tag_for_child_directed_treatment = mapFlagValue(

@@ -175,7 +175,8 @@ class DCMFloodlight {
     let eventSnippetPayload = buildGtagTrackPayload(
       message,
       salesTag,
-      countingMethod
+      countingMethod,
+      this.analytics.loadOnlyIntegrations
     );
 
     if (!isDefined(eventSnippetPayload)) {
@@ -204,7 +205,8 @@ class DCMFloodlight {
     let eventSnippetPayload = buildIframeTrackPayload(
       message,
       salesTag,
-      countingMethod
+      countingMethod,
+      this.analytics.loadOnlyIntegrations
     );
 
     if (!isDefined(eventSnippetPayload)) {
