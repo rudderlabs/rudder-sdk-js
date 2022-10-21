@@ -1194,10 +1194,7 @@ const instance = new Analytics();
 function processDataInAnalyticsArray(analytics) {
   // Process the queue only if the default API is its first entry
   // or SDK is already loaded
-  if (
-    analytics.toBeProcessedArray.length &&
-    (analytics.loaded || analytics.toBeProcessedArray[0][0] === defaultMethod)
-  ) {
+  if (analytics.toBeProcessedArray.length && analytics.loaded) {
     while (analytics.toBeProcessedArray.length > 0) {
       const event = [...analytics.toBeProcessedArray[0]];
 
@@ -1286,6 +1283,12 @@ if (isValidArgsArray) {
       break;
     }
     i += 1;
+  }
+
+  if (instance.toBeProcessedArray.length && instance.toBeProcessedArray[0][0] === defaultMethod) {
+    instance.toBeProcessedArray[0].shift();
+    instance[defaultMethod](...instance.toBeProcessedArray[0]);
+    instance.toBeProcessedArray.shift();
   }
 }
 
