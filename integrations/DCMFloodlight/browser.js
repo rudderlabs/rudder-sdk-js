@@ -26,7 +26,7 @@ class DCMFloodlight {
     this.allowAdPersonalizationSignals = config.allowAdPersonalizationSignals;
     this.doubleclickId = config.doubleclickId;
     this.googleNetworkId = config.googleNetworkId;
-    this.loadSdkUsingIframe = config.loadSdkUsingIframe;
+    this.tagFormat = config.tagFormat;
     this.name = NAME;
   }
 
@@ -36,7 +36,7 @@ class DCMFloodlight {
   init() {
     logger.debug("===In init DCMFloodlight===");
 
-    if (!this.loadSdkUsingIframe) {
+    if (this.tagFormat === "globalSiteTag") {
       const sourceUrl = `https://www.googletagmanager.com/gtag/js?id=DC-${this.advertiserId}`;
       ScriptLoader("DCMFloodlight-integration", sourceUrl);
 
@@ -81,7 +81,7 @@ class DCMFloodlight {
 
   isLoaded() {
     logger.debug("===In isLoaded DCMFloodlight===");
-    if (!this.loadSdkUsingIframe) {
+    if (this.tagFormat === "globalSiteTag") {
       return window.dataLayer.push !== Array.prototype.push;
     }
     return true;
@@ -89,7 +89,7 @@ class DCMFloodlight {
 
   isReady() {
     logger.debug("===In isReady DCMFloodlight===");
-    if (!this.loadSdkUsingIframe) {
+    if (this.tagFormat === "globalSiteTag") {
       return window.dataLayer.push !== Array.prototype.push;
     }
     return true;
@@ -152,7 +152,7 @@ class DCMFloodlight {
       customFloodlightVariable
     );
 
-    if (!this.loadSdkUsingIframe) {
+    if (this.tagFormat === "globalSiteTag") {
       this.trackWithGtag(
         message,
         salesTag,
