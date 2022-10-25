@@ -27,7 +27,8 @@ class DCMFloodlight {
     this.allowAdPersonalizationSignals = config.allowAdPersonalizationSignals;
     this.doubleclickId = config.doubleclickId;
     this.googleNetworkId = config.googleNetworkId;
-    this.tagFormat = config.tagFormat;
+    this.defaultTag = "globalSiteTag";
+    this.tagFormat = config.tagFormat || this.defaultTag;
     this.name = NAME;
   }
 
@@ -37,7 +38,7 @@ class DCMFloodlight {
   init() {
     logger.debug("===In init DCMFloodlight===");
 
-    if (this.tagFormat === "globalSiteTag") {
+    if (this.tagFormat === this.defaultTag) {
       const sourceUrl = `https://www.googletagmanager.com/gtag/js?id=DC-${this.advertiserId}`;
       ScriptLoader("DCMFloodlight-integration", sourceUrl);
 
@@ -82,7 +83,7 @@ class DCMFloodlight {
 
   isLoaded() {
     logger.debug("===In isLoaded DCMFloodlight===");
-    if (this.tagFormat === "globalSiteTag") {
+    if (this.tagFormat === this.defaultTag) {
       return window.dataLayer.push !== Array.prototype.push;
     }
     return true;
@@ -90,7 +91,7 @@ class DCMFloodlight {
 
   isReady() {
     logger.debug("===In isReady DCMFloodlight===");
-    if (this.tagFormat === "globalSiteTag") {
+    if (this.tagFormat === this.defaultTag) {
       return window.dataLayer.push !== Array.prototype.push;
     }
     return true;
@@ -165,7 +166,7 @@ class DCMFloodlight {
       customFloodlightVariable
     );
 
-    if (this.tagFormat === "globalSiteTag") {
+    if (this.tagFormat === this.defaultTag) {
       this.trackWithGtag(
         message,
         salesTag,
