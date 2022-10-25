@@ -81,7 +81,11 @@ class Podsights {
   page(rudderElement) {
     const { properties } = rudderElement.message;
     logger.debug("===In Podsights Page===");
-    window.pdst("view", properties);
+    window.pdst("view", {
+      url: window.location.href,
+      referrer: window.document.referrer,
+      ...properties,
+    });
   }
 }
 
