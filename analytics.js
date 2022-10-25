@@ -647,7 +647,7 @@ class Analytics {
     if (userId && this.userId && userId !== this.userId) {
       this.reset();
     }
-    this.userId = userId;
+    this.userId = typeof userId === 'string' ? userId : userId.toString();
     this.storage.setUserId(this.userId);
 
     const rudderElement = new RudderElementBuilder()
