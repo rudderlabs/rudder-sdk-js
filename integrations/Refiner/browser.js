@@ -78,8 +78,8 @@ class Refiner {
     logger.debug("===In Refiner Group===");
     const { message } = rudderElement;
     const { userId, groupId, traits } = message;
-    const userEmail = message.context?.traits?.email;
-    if (!userId && !userEmail) {
+    const email = message.traits?.email || message.context?.traits?.email;
+    if (!userId && !email) {
       logger.error("either one userId or email is required");
       return;
     }
@@ -90,7 +90,6 @@ class Refiner {
     );
     this._refiner("identifyUser", {
       id: userId,
-      email: userEmail,
       account: {
         id: groupId,
         ...accountTraits,
