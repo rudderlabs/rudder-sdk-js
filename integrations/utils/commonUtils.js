@@ -160,6 +160,24 @@ function getDestinationExternalID(message, type) {
   return destinationExternalId;
 }
 
+/**
+ * Function to check if value is Defined, Not null and Not Empty.
+ * Created this function, Because existing isDefinedAndNotNullAndNotEmpty(123) is returning false due to lodash _.isEmpty function.
+ * _.isEmpty is used to detect empty collections/objects and it will return true for Integer, Boolean values.
+ * ref: https://github.com/lodash/lodash/issues/496
+ * @param {*} value 123
+ * @returns yes
+ */
+const isDefinedNotNullNotEmpty = (value) => {
+  return !(
+    value === undefined ||
+    value === null ||
+    Number.isNaN(value) ||
+    (typeof value === "object" && Object.keys(value).length === 0) ||
+    (typeof value === "string" && value.trim().length === 0)
+  );
+};
+
 export {
   getEventMappingFromConfig,
   getHashFromArrayWithDuplicate,
@@ -176,6 +194,7 @@ export {
   isNotNull,
   isDefinedAndNotNull,
   isDefinedAndNotNullAndNotEmpty,
+  isDefinedNotNullNotEmpty,
   isBlank,
   pick,
 };

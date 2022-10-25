@@ -3,13 +3,14 @@
 import get from "get-value";
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import { isDefined, removeUndefinedAndNullValues } from "../utils/commonUtils";
+import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 import { NAME } from "./constants";
 import {
   transformCustomVariable,
   flattenPayload,
   buildGtagTrackPayload,
   buildIframeTrackPayload,
+  isValidCountingMethod,
 } from "./utils";
 
 class DCMFloodlight {
@@ -144,6 +145,16 @@ class DCMFloodlight {
     }
 
     const { salesTag } = conversionEvent;
+
+    if (!isValidCountingMethod(salesTag, countingMethod)) {
+      logger.error(
+        `[DCM Floodlight] ${
+          salesTag ? "Sales" : "Counter"
+        } Tag:: invalid counting method`
+      );
+      return;
+    }
+
     customFloodlightVariable = conversionEvent.customVariables || [];
     customFloodlightVariable = transformCustomVariable(
       customFloodlightVariable,
@@ -181,10 +192,6 @@ class DCMFloodlight {
       this.analytics.loadOnlyIntegrations
     );
 
-    if (!isDefined(eventSnippetPayload)) {
-      return;
-    }
-
     eventSnippetPayload = {
       allow_custom_scripts: true,
       ...eventSnippetPayload,
@@ -210,10 +217,6 @@ class DCMFloodlight {
       countingMethod,
       this.analytics.loadOnlyIntegrations
     );
-
-    if (!isDefined(eventSnippetPayload)) {
-      return;
-    }
 
     eventSnippetPayload = {
       ...eventSnippetPayload,

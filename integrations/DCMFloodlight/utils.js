@@ -1,3 +1,4 @@
+/* eslint-disable no-lonely-if */
 /* eslint-disable consistent-return */
 import get from "get-value";
 import {
@@ -8,6 +9,7 @@ import logger from "../../utils/logUtil";
 import {
   isDefinedAndNotNull,
   isNotEmpty,
+  isDefinedNotNullNotEmpty,
   removeUndefinedAndNullValues,
 } from "../utils/commonUtils";
 
@@ -70,7 +72,7 @@ const transformCustomVariable = (customFloodlightVariable, message) => {
 const flattenPayload = (payload) => {
   let rawPayload = "";
   Object.entries(payload).forEach(([key, value]) => {
-    if (key && isDefinedAndNotNull(value)) {
+    if (key && isDefinedNotNullNotEmpty(value)) {
       rawPayload += `${key}=${value};`;
     }
   });
@@ -103,23 +105,87 @@ const calculateQuantity = (products) => {
   return 0;
 };
 
+const isValidCountingMethod = (salesTag, countingMethod) => {
+  // sales tag
+  if (salesTag) {
+    if (countingMethod === "transactions" || countingMethod === "items_sold") {
+      return true;
+    }
+  }
+  // counter tag
+  else if (
+    countingMethod === "standard" ||
+    countingMethod === "unique" ||
+    countingMethod === "per_session"
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
+/**
+ * Function to build custom params using integrations object
+ * {
+  "integrations": {
+    "All": true,
+    "DCM_Floodlight": {
+      "COPPA": "false",
+      "GDPR": "1",
+      "npa": true
+    }
+  }
+}
+ * @param {*} message
+ * @param {*} integrationObj
+ * @returns // {"tag_for_child_directed_treatment":0,"tfua":1,"npa":1}
+ */
+const buildCustomParamsUsingIntegrationsObject = (message, integrationObj) => {
+  const customParams = {};
+  // COPPA, GDPR, npa must be provided inside integration object
+  let { DCM_FLOODLIGHT } = message.integrations;
+  if (!DCM_FLOODLIGHT) {
+    ({ DCM_FLOODLIGHT } = integrationObj);
+  }
+
+  if (DCM_FLOODLIGHT) {
+    if (isDefinedNotNullNotEmpty(DCM_FLOODLIGHT.COPPA)) {
+      customParams.tag_for_child_directed_treatment = mapFlagValue(
+        "COPPA",
+        DCM_FLOODLIGHT.COPPA
+      );
+    }
+
+    if (isDefinedNotNullNotEmpty(DCM_FLOODLIGHT.GDPR)) {
+      customParams.tfua = mapFlagValue("GDPR", DCM_FLOODLIGHT.GDPR);
+    }
+
+    if (isDefinedNotNullNotEmpty(DCM_FLOODLIGHT.npa)) {
+      customParams.npa = mapFlagValue("npa", DCM_FLOODLIGHT.npa);
+    }
+  }
+
+  const matchId = get(message, "properties.matchId");
+  if (matchId) {
+    customParams.match_id = matchId;
+  }
+
+  return customParams;
+};
+
 const buildGtagTrackPayload = (
   message,
   salesTag,
   countingMethod,
   integrationObj
 ) => {
-  let dcCustomParams = {
-    ord: get(message, "properties.ord"),
-    dc_lat: get(message, "context.device.adTrackingEnabled"),
-  };
-
+  let dcCustomParams = {};
   let eventSnippetPayload = {};
+
   if (salesTag) {
     // sales tag
     dcCustomParams.ord =
       get(message, "properties.orderId") || get(message, "properties.order_id");
-    let qty = get(message, "properties.quantity");
 
     eventSnippetPayload = {
       ...eventSnippetPayload,
@@ -127,31 +193,25 @@ const buildGtagTrackPayload = (
       transaction_id: dcCustomParams.ord,
     };
 
-    // sums quantity from products array or fallback to properties.quantity
-    const products = get(message, "properties.products");
-    const quantities = calculateQuantity(products);
-    if (quantities) {
-      qty = quantities;
-    }
-
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-event-snippets-for-sales-tags
-    switch (countingMethod) {
-      case "transactions":
-        break;
-      case "items_sold":
-        if (qty) {
-          eventSnippetPayload.quantity = parseFloat(qty);
-        }
-        break;
-      default:
-        logger.error("[DCM Floodlight] Sales Tag:: invalid counting method");
-        return;
+    if (countingMethod === "items_sold") {
+      let qty = get(message, "properties.quantity");
+      // sums quantity from products array or fallback to properties.quantity
+      const products = get(message, "properties.products");
+      const quantities = calculateQuantity(products);
+      if (quantities) {
+        qty = quantities;
+      }
+      if (qty) {
+        eventSnippetPayload.quantity = parseFloat(qty);
+      }
     }
   } else {
     // counter tag
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-event-snippets-for-counter-tags
     switch (countingMethod) {
       case "standard":
+        dcCustomParams.ord = get(message, "properties.ord");
         break;
       case "unique":
         dcCustomParams.num = get(message, "properties.num");
@@ -161,39 +221,21 @@ const buildGtagTrackPayload = (
         eventSnippetPayload.session_id = dcCustomParams.ord;
         break;
       default:
-        logger.error("[DCM Floodlight] Counter Tag:: invalid counting method");
-        return;
+        break;
     }
   }
 
-  // COPPA, GDPR, npa must be provided inside integration object
-  let { DCM_FLOODLIGHT } = message.integrations;
-  if (!DCM_FLOODLIGHT) {
-    ({ DCM_FLOODLIGHT } = integrationObj);
-  }
+  dcCustomParams = {
+    ...dcCustomParams,
+    ...buildCustomParamsUsingIntegrationsObject(message, integrationObj),
+  };
 
-  if (DCM_FLOODLIGHT) {
-    if (isDefinedAndNotNull(DCM_FLOODLIGHT.COPPA)) {
-      dcCustomParams.tag_for_child_directed_treatment = mapFlagValue(
-        "COPPA",
-        DCM_FLOODLIGHT.COPPA
-      );
-    }
-
-    if (isDefinedAndNotNull(DCM_FLOODLIGHT.GDPR)) {
-      dcCustomParams.tfua = mapFlagValue("GDPR", DCM_FLOODLIGHT.GDPR);
-    }
-
-    if (isDefinedAndNotNull(DCM_FLOODLIGHT.npa)) {
-      dcCustomParams.npa = mapFlagValue("npa", DCM_FLOODLIGHT.npa);
-    }
-  }
-
-  if (isDefinedAndNotNull(dcCustomParams.dc_lat)) {
-    dcCustomParams.dc_lat = mapFlagValue("dc_lat", dcCustomParams.dc_lat);
-  }
-
+  const dcLat = get(message, "context.device.adTrackingEnabled");
   const matchId = get(message, "properties.matchId");
+
+  if (isDefinedNotNullNotEmpty(dcLat)) {
+    dcCustomParams.dc_lat = mapFlagValue("dc_lat", dcLat);
+  }
   if (matchId) {
     dcCustomParams.match_id = matchId;
   }
@@ -212,44 +254,36 @@ const buildIframeTrackPayload = (
   integrationObj
 ) => {
   const randomNum = Math.random() * 10000000000000;
-  const customParams = {
-    ord: get(message, "properties.ord") || randomNum,
-    dc_lat: get(message, "context.device.adTrackingEnabled"),
-  };
+  let customParams = {};
 
   if (salesTag) {
     // sales tag
     customParams.ord =
       get(message, "properties.orderId") || get(message, "properties.order_id");
     customParams.cost = get(message, "properties.revenue");
-    let qty = get(message, "properties.quantity");
-
-    // sums quantity from products array or fallback to properties.quantity
-    const products = get(message, "properties.products");
-    const quantities = calculateQuantity(products);
-    if (quantities) {
-      qty = quantities;
-    }
 
     // Ref - https://support.google.com/campaignmanager/answer/2823450?hl=en#zippy=%2Chow-the-ord-parameter-is-displayed-for-each-counter-type%2Csales-activity-tags
-    switch (countingMethod) {
-      case "transactions":
-        customParams.qty = 1;
-        break;
-      case "items_sold":
-        if (qty) {
-          customParams.qty = parseFloat(qty);
-        }
-        break;
-      default:
-        logger.error("[DCM Floodlight] Sales Tag:: invalid counting method");
-        return;
+    if (countingMethod === "transactions") {
+      customParams.qty = 1;
+    } else {
+      // counting method is item_sold
+      let qty = get(message, "properties.quantity");
+      // sums quantity from products array or fallback to properties.quantity
+      const products = get(message, "properties.products");
+      const quantities = calculateQuantity(products);
+      if (quantities) {
+        qty = quantities;
+      }
+      if (qty) {
+        customParams.qty = parseFloat(qty);
+      }
     }
   } else {
     // counter tag
     // Ref - https://support.google.com/campaignmanager/answer/2823450?hl=en#zippy=%2Ccounter-activity-tags%2Chow-the-ord-parameter-is-displayed-for-each-counter-type
     switch (countingMethod) {
       case "standard":
+        customParams.ord = get(message, "properties.ord") || randomNum;
         break;
       case "unique":
         customParams.ord = 1;
@@ -257,47 +291,23 @@ const buildIframeTrackPayload = (
         break;
       case "per_session":
         customParams.ord = get(message, "properties.sessionId");
-        if (!customParams.ord) {
-          logger.error(
-            "[DCM Floodlight] Counter Tag:: sessionId is missing from properties"
-          );
-          return;
-        }
         break;
       default:
-        logger.error("[DCM Floodlight] Counter Tag:: invalid counting method");
-        return;
+        break;
     }
   }
 
-  // COPPA, GDPR, npa must be provided inside integration object
-  let { DCM_FLOODLIGHT } = message.integrations;
-  if (!DCM_FLOODLIGHT) {
-    ({ DCM_FLOODLIGHT } = integrationObj);
-  }
+  customParams = {
+    ...customParams,
+    ...buildCustomParamsUsingIntegrationsObject(message, integrationObj),
+  };
 
-  if (DCM_FLOODLIGHT) {
-    if (isDefinedAndNotNull(DCM_FLOODLIGHT.COPPA)) {
-      customParams.tag_for_child_directed_treatment = mapFlagValue(
-        "COPPA",
-        DCM_FLOODLIGHT.COPPA
-      );
-    }
-
-    if (isDefinedAndNotNull(DCM_FLOODLIGHT.GDPR)) {
-      customParams.tfua = mapFlagValue("GDPR", DCM_FLOODLIGHT.GDPR);
-    }
-
-    if (isDefinedAndNotNull(DCM_FLOODLIGHT.npa)) {
-      customParams.npa = mapFlagValue("npa", DCM_FLOODLIGHT.npa);
-    }
-  }
-
-  if (isDefinedAndNotNull(customParams.dc_lat)) {
-    customParams.dc_lat = mapFlagValue("dc_lat", customParams.dc_lat);
-  }
-
+  const dcLat = get(message, "context.device.adTrackingEnabled");
   const matchId = get(message, "properties.matchId");
+
+  if (isDefinedNotNullNotEmpty(dcLat)) {
+    customParams.dc_lat = mapFlagValue("dc_lat", dcLat);
+  }
   if (matchId) {
     customParams.match_id = matchId;
   }
@@ -311,4 +321,5 @@ export {
   mapFlagValue,
   buildGtagTrackPayload,
   buildIframeTrackPayload,
+  isValidCountingMethod,
 };
