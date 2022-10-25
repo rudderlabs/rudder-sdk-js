@@ -62,6 +62,7 @@ const clientToServerNames = {
   ENGAGE: "Engage",
   JUNE: "June",
   YANDEX_METRICA: "Yandex Metrica",
+  PODSIGHTS: "Podsights",
 };
 
 export { clientToServerNames };

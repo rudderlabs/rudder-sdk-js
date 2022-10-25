@@ -61,6 +61,7 @@ import { CNameMapping as Iterable } from "./Iterable/constants";
 import { CNameMapping as Engage } from "./Engage/constants";
 import { CNameMapping as June } from "./June/constants";
 import { CNameMapping as YandexMetrica } from "./YandexMetrica/constants";
+import { CNameMapping as Podsights } from "./Podsights/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -107,6 +108,7 @@ const commonNames = {
   ...Optimizely,
   ...Pendo,
   ...PinterestTag,
+  ...Podsights,
   ...PostAffiliatePro,
   ...Posthog,
   ...ProfitWell,
