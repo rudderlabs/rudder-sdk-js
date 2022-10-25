@@ -1,19 +1,22 @@
-import _ from "lodash";
+import _isUndefined from 'lodash.isundefined';
+import _isEmpty from 'lodash.isempty';
+import _pickBy from 'lodash.pickby';
+import _pick from 'lodash.pick';
+import _toString from 'lodash.tostring';
 
-const isDefined = (x) => !_.isUndefined(x);
-const isNotEmpty = (x) => !_.isEmpty(x);
+const isDefined = (x) => !_isUndefined(x);
+const isNotEmpty = (x) => !_isEmpty(x);
 const isNotNull = (x) => x != null;
 const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
 const isDefinedAndNotNullAndNotEmpty = (x) =>
   isDefined(x) && isNotNull(x) && isNotEmpty(x);
-const removeUndefinedValues = (obj) => _.pickBy(obj, isDefined);
-const removeNullValues = (obj) => _.pickBy(obj, isNotNull);
-const removeUndefinedAndNullValues = (obj) =>
-  _.pickBy(obj, isDefinedAndNotNull);
+const removeUndefinedValues = (obj) => _pickBy(obj, isDefined);
+const removeNullValues = (obj) => _pickBy(obj, isNotNull);
+const removeUndefinedAndNullValues = (obj) => _pickBy(obj, isDefinedAndNotNull);
 const removeUndefinedAndNullAndEmptyValues = (obj) =>
-  _.pickBy(obj, isDefinedAndNotNullAndNotEmpty);
-const isBlank = (value) => _.isEmpty(_.toString(value));
-const pick = (argObj, argArr) => _.pick(argObj, argArr);
+  _pickBy(obj, isDefinedAndNotNullAndNotEmpty);
+const isBlank = (value) => _isEmpty(_toString(value));
+const pick = (argObj, argArr) => _pick(argObj, argArr);
 
 /**
  *
