@@ -179,6 +179,9 @@ const buildGtagTrackPayload = (
   countingMethod,
   integrationObj
 ) => {
+  // Ref - https://support.google.com/campaignmanager/answer/7554821?hl=en#zippy=%2Ccustom-fields
+  // we can pass custom variables to DCM and any values passed in it will override its default value
+  // Total 7 properties - ord, num, dc_lat, tag_for_child_directed_treatment, tfua, npa, match_id
   let dcCustomParams = {};
   let eventSnippetPayload = {};
 
@@ -194,6 +197,7 @@ const buildGtagTrackPayload = (
     };
 
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-event-snippets-for-sales-tags
+    // possible values for counting method :- transactions, items_sold
     if (countingMethod === "items_sold") {
       let qty = get(message, "properties.quantity");
       // sums quantity from products array or fallback to properties.quantity
@@ -254,6 +258,9 @@ const buildIframeTrackPayload = (
   integrationObj
 ) => {
   const randomNum = Math.random() * 10000000000000;
+  // Ref - https://support.google.com/campaignmanager/answer/2823450?hl=en#zippy=%2Cother-parameters-for-iframe-and-image-tags:~:text=Other%20parameters%20for%20iFrame%20and%20image%20tags
+  // we can pass custom variables to DCM and any values passed in it will override its default value
+  // Total 7 properties - ord, num, dc_lat, tag_for_child_directed_treatment, tfua, npa, match_id
   let customParams = {};
 
   if (salesTag) {

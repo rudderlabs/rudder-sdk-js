@@ -4,7 +4,7 @@ import get from "get-value";
 import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
 import { removeUndefinedAndNullValues } from "../utils/commonUtils";
-import { NAME } from "./constants";
+import { NAME, GTAG } from "./constants";
 import {
   transformCustomVariable,
   flattenPayload,
@@ -27,8 +27,7 @@ class DCMFloodlight {
     this.allowAdPersonalizationSignals = config.allowAdPersonalizationSignals;
     this.doubleclickId = config.doubleclickId;
     this.googleNetworkId = config.googleNetworkId;
-    this.defaultTag = "globalSiteTag";
-    this.tagFormat = config.tagFormat || this.defaultTag;
+    this.tagFormat = config.tagFormat || GTAG;
     this.name = NAME;
   }
 
@@ -38,7 +37,7 @@ class DCMFloodlight {
   init() {
     logger.debug("===In init DCMFloodlight===");
 
-    if (this.tagFormat === this.defaultTag) {
+    if (this.tagFormat === GTAG) {
       const sourceUrl = `https://www.googletagmanager.com/gtag/js?id=DC-${this.advertiserId}`;
       ScriptLoader("DCMFloodlight-integration", sourceUrl);
 
@@ -83,7 +82,7 @@ class DCMFloodlight {
 
   isLoaded() {
     logger.debug("===In isLoaded DCMFloodlight===");
-    if (this.tagFormat === this.defaultTag) {
+    if (this.tagFormat === GTAG) {
       return window.dataLayer.push !== Array.prototype.push;
     }
     return true;
@@ -91,7 +90,7 @@ class DCMFloodlight {
 
   isReady() {
     logger.debug("===In isReady DCMFloodlight===");
-    if (this.tagFormat === this.defaultTag) {
+    if (this.tagFormat === GTAG) {
       return window.dataLayer.push !== Array.prototype.push;
     }
     return true;
@@ -166,7 +165,7 @@ class DCMFloodlight {
       customFloodlightVariable
     );
 
-    if (this.tagFormat === this.defaultTag) {
+    if (this.tagFormat === GTAG) {
       this.trackWithGtag(
         message,
         salesTag,
