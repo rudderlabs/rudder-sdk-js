@@ -1,15 +1,27 @@
 {
   "name": "rudder-sdk-js",
-  "version": "2.17.0",
+  "version": "2.18.1",
   "description": "RudderStack Javascript SDK",
   "main": "index.js",
   "module": "index.es.js",
   "exports": {
-    ".": {
-      "service-worker": "./service-worker/index.es.js"
+    ".": "./index.js",
+    "./service-worker": "./service-worker/index.js",
+    "./service-worker/index.es": "./service-worker/index.es.js"
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "index.d.ts"
+      ],
+      "service-worker": [
+        "service-worker/index.d.ts"
+      ],
+      "service-worker/index.es": [
+        "service-worker/index.d.ts"
+      ]
     }
   },
-  "types": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
