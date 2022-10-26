@@ -8,10 +8,12 @@ import { v4 as uuidv4 } from 'uuid';
 import isString from 'lodash.isstring';
 import cloneDeep from 'lodash.clonedeep';
 import fetchAdapter from '@vespaiach/axios-fetch-adapter';
-import { removeTrailingSlashes } from '../utils/utils';
 import * as packageJson from '../package.json';
 
 const { version } = packageJson;
+
+const removeTrailingSlashes = (inURL) =>
+  inURL && inURL.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
 
 const setImmediate = global.setImmediate || process.nextTick.bind(process);
 const noop = () => {};

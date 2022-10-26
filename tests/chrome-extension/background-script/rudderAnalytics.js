@@ -2764,6 +2764,2550 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     }();
 })(buffer);
 
+var util = {};
+
+var types = {};
+
+/* eslint complexity: [2, 18], max-statements: [2, 33] */
+
+
+var shams$1 = function hasSymbols() {
+    if (typeof Symbol !== 'function' || typeof Object.getOwnPropertySymbols !== 'function') {
+        return false;
+    }
+
+    if (_typeof(Symbol.iterator) === 'symbol') {
+        return true;
+    }
+
+    var obj = {};
+    var sym = Symbol('test');
+    var symObj = Object(sym);
+
+    if (typeof sym === 'string') {
+        return false;
+    }
+
+    if (Object.prototype.toString.call(sym) !== '[object Symbol]') {
+        return false;
+    }
+
+    if (Object.prototype.toString.call(symObj) !== '[object Symbol]') {
+        return false;
+    } // temp disabled per https://github.com/ljharb/object.assign/issues/17
+    // if (sym instanceof Symbol) { return false; }
+    // temp disabled per https://github.com/WebReflection/get-own-property-symbols/issues/4
+    // if (!(symObj instanceof Symbol)) { return false; }
+    // if (typeof Symbol.prototype.toString !== 'function') { return false; }
+    // if (String(sym) !== Symbol.prototype.toString.call(sym)) { return false; }
+
+
+    var symVal = 42;
+    obj[sym] = symVal;
+
+    for (sym in obj) {
+        return false;
+    } // eslint-disable-line no-restricted-syntax, no-unreachable-loop
+
+
+    if (typeof Object.keys === 'function' && Object.keys(obj).length !== 0) {
+        return false;
+    }
+
+    if (typeof Object.getOwnPropertyNames === 'function' && Object.getOwnPropertyNames(obj).length !== 0) {
+        return false;
+    }
+
+    var syms = Object.getOwnPropertySymbols(obj);
+
+    if (syms.length !== 1 || syms[0] !== sym) {
+        return false;
+    }
+
+    if (!Object.prototype.propertyIsEnumerable.call(obj, sym)) {
+        return false;
+    }
+
+    if (typeof Object.getOwnPropertyDescriptor === 'function') {
+        var descriptor = Object.getOwnPropertyDescriptor(obj, sym);
+
+        if (descriptor.value !== symVal || descriptor.enumerable !== true) {
+            return false;
+        }
+    }
+
+    return true;
+};
+
+var hasSymbols$2 = shams$1;
+
+var shams = function hasToStringTagShams() {
+    return hasSymbols$2() && !!Symbol.toStringTag;
+};
+
+var origSymbol = typeof Symbol !== 'undefined' && Symbol;
+var hasSymbolSham = shams$1;
+
+var hasSymbols$1 = function hasNativeSymbols() {
+    if (typeof origSymbol !== 'function') {
+        return false;
+    }
+
+    if (typeof Symbol !== 'function') {
+        return false;
+    }
+
+    if (_typeof(origSymbol('foo')) !== 'symbol') {
+        return false;
+    }
+
+    if (_typeof(Symbol('bar')) !== 'symbol') {
+        return false;
+    }
+
+    return hasSymbolSham();
+};
+
+/* eslint no-invalid-this: 1 */
+
+
+var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
+var slice = Array.prototype.slice;
+var toStr$3 = Object.prototype.toString;
+var funcType = '[object Function]';
+
+var implementation$1 = function bind(that) {
+    var target = this;
+
+    if (typeof target !== 'function' || toStr$3.call(target) !== funcType) {
+        throw new TypeError(ERROR_MESSAGE + target);
+    }
+
+    var args = slice.call(arguments, 1);
+    var bound;
+
+    var binder = function binder() {
+        if (this instanceof bound) {
+            var result = target.apply(this, args.concat(slice.call(arguments)));
+
+            if (Object(result) === result) {
+                return result;
+            }
+
+            return this;
+        } else {
+            return target.apply(that, args.concat(slice.call(arguments)));
+        }
+    };
+
+    var boundLength = Math.max(0, target.length - args.length);
+    var boundArgs = [];
+
+    for (var i = 0; i < boundLength; i++) {
+        boundArgs.push('$' + i);
+    }
+
+    bound = Function('binder', 'return function (' + boundArgs.join(',') + '){ return binder.apply(this,arguments); }')(binder);
+
+    if (target.prototype) {
+        var Empty = function Empty() {};
+
+        Empty.prototype = target.prototype;
+        bound.prototype = new Empty();
+        Empty.prototype = null;
+    }
+
+    return bound;
+};
+
+var implementation = implementation$1;
+var functionBind = Function.prototype.bind || implementation;
+
+var bind$4 = functionBind;
+var src = bind$4.call(Function.call, Object.prototype.hasOwnProperty);
+
+var undefined$1;
+var $SyntaxError = SyntaxError;
+var $Function = Function;
+var $TypeError = TypeError; // eslint-disable-next-line consistent-return
+
+var getEvalledConstructor = function getEvalledConstructor(expressionSyntax) {
+    try {
+        return $Function('"use strict"; return (' + expressionSyntax + ').constructor;')();
+    } catch (e) {}
+};
+
+var $gOPD = Object.getOwnPropertyDescriptor;
+
+if ($gOPD) {
+    try {
+        $gOPD({}, '');
+    } catch (e) {
+        $gOPD = null; // this is IE 8, which has a broken gOPD
+    }
+}
+
+var throwTypeError = function throwTypeError() {
+    throw new $TypeError();
+};
+
+var ThrowTypeError = $gOPD ? function () {
+    try {
+        // eslint-disable-next-line no-unused-expressions, no-caller, no-restricted-properties
+        arguments.callee; // IE 8 does not throw here
+
+        return throwTypeError;
+    } catch (calleeThrows) {
+        try {
+            // IE 8 throws on Object.getOwnPropertyDescriptor(arguments, '')
+            return $gOPD(arguments, 'callee').get;
+        } catch (gOPDthrows) {
+            return throwTypeError;
+        }
+    }
+}() : throwTypeError;
+var hasSymbols = hasSymbols$1();
+
+var getProto$1 = Object.getPrototypeOf || function (x) {
+    return x.__proto__;
+}; // eslint-disable-line no-proto
+
+
+var needsEval = {};
+var TypedArray = typeof Uint8Array === 'undefined' ? undefined$1 : getProto$1(Uint8Array);
+var INTRINSICS = {
+    '%AggregateError%': typeof AggregateError === 'undefined' ? undefined$1 : AggregateError,
+    '%Array%': Array,
+    '%ArrayBuffer%': typeof ArrayBuffer === 'undefined' ? undefined$1 : ArrayBuffer,
+    '%ArrayIteratorPrototype%': hasSymbols ? getProto$1([][Symbol.iterator]()) : undefined$1,
+    '%AsyncFromSyncIteratorPrototype%': undefined$1,
+    '%AsyncFunction%': needsEval,
+    '%AsyncGenerator%': needsEval,
+    '%AsyncGeneratorFunction%': needsEval,
+    '%AsyncIteratorPrototype%': needsEval,
+    '%Atomics%': typeof Atomics === 'undefined' ? undefined$1 : Atomics,
+    '%BigInt%': typeof BigInt === 'undefined' ? undefined$1 : BigInt,
+    '%Boolean%': Boolean,
+    '%DataView%': typeof DataView === 'undefined' ? undefined$1 : DataView,
+    '%Date%': Date,
+    '%decodeURI%': decodeURI,
+    '%decodeURIComponent%': decodeURIComponent,
+    '%encodeURI%': encodeURI,
+    '%encodeURIComponent%': encodeURIComponent,
+    '%Error%': Error,
+    '%eval%': eval,
+    // eslint-disable-line no-eval
+    '%EvalError%': EvalError,
+    '%Float32Array%': typeof Float32Array === 'undefined' ? undefined$1 : Float32Array,
+    '%Float64Array%': typeof Float64Array === 'undefined' ? undefined$1 : Float64Array,
+    '%FinalizationRegistry%': typeof FinalizationRegistry === 'undefined' ? undefined$1 : FinalizationRegistry,
+    '%Function%': $Function,
+    '%GeneratorFunction%': needsEval,
+    '%Int8Array%': typeof Int8Array === 'undefined' ? undefined$1 : Int8Array,
+    '%Int16Array%': typeof Int16Array === 'undefined' ? undefined$1 : Int16Array,
+    '%Int32Array%': typeof Int32Array === 'undefined' ? undefined$1 : Int32Array,
+    '%isFinite%': isFinite,
+    '%isNaN%': isNaN,
+    '%IteratorPrototype%': hasSymbols ? getProto$1(getProto$1([][Symbol.iterator]())) : undefined$1,
+    '%JSON%': (typeof JSON === "undefined" ? "undefined" : _typeof(JSON)) === 'object' ? JSON : undefined$1,
+    '%Map%': typeof Map === 'undefined' ? undefined$1 : Map,
+    '%MapIteratorPrototype%': typeof Map === 'undefined' || !hasSymbols ? undefined$1 : getProto$1(new Map()[Symbol.iterator]()),
+    '%Math%': Math,
+    '%Number%': Number,
+    '%Object%': Object,
+    '%parseFloat%': parseFloat,
+    '%parseInt%': parseInt,
+    '%Promise%': typeof Promise === 'undefined' ? undefined$1 : Promise,
+    '%Proxy%': typeof Proxy === 'undefined' ? undefined$1 : Proxy,
+    '%RangeError%': RangeError,
+    '%ReferenceError%': ReferenceError,
+    '%Reflect%': typeof Reflect === 'undefined' ? undefined$1 : Reflect,
+    '%RegExp%': RegExp,
+    '%Set%': typeof Set === 'undefined' ? undefined$1 : Set,
+    '%SetIteratorPrototype%': typeof Set === 'undefined' || !hasSymbols ? undefined$1 : getProto$1(new Set()[Symbol.iterator]()),
+    '%SharedArrayBuffer%': typeof SharedArrayBuffer === 'undefined' ? undefined$1 : SharedArrayBuffer,
+    '%String%': String,
+    '%StringIteratorPrototype%': hasSymbols ? getProto$1(''[Symbol.iterator]()) : undefined$1,
+    '%Symbol%': hasSymbols ? Symbol : undefined$1,
+    '%SyntaxError%': $SyntaxError,
+    '%ThrowTypeError%': ThrowTypeError,
+    '%TypedArray%': TypedArray,
+    '%TypeError%': $TypeError,
+    '%Uint8Array%': typeof Uint8Array === 'undefined' ? undefined$1 : Uint8Array,
+    '%Uint8ClampedArray%': typeof Uint8ClampedArray === 'undefined' ? undefined$1 : Uint8ClampedArray,
+    '%Uint16Array%': typeof Uint16Array === 'undefined' ? undefined$1 : Uint16Array,
+    '%Uint32Array%': typeof Uint32Array === 'undefined' ? undefined$1 : Uint32Array,
+    '%URIError%': URIError,
+    '%WeakMap%': typeof WeakMap === 'undefined' ? undefined$1 : WeakMap,
+    '%WeakRef%': typeof WeakRef === 'undefined' ? undefined$1 : WeakRef,
+    '%WeakSet%': typeof WeakSet === 'undefined' ? undefined$1 : WeakSet
+};
+
+var doEval = function doEval(name) {
+    var value;
+
+    if (name === '%AsyncFunction%') {
+        value = getEvalledConstructor('async function () {}');
+    } else if (name === '%GeneratorFunction%') {
+        value = getEvalledConstructor('function* () {}');
+    } else if (name === '%AsyncGeneratorFunction%') {
+        value = getEvalledConstructor('async function* () {}');
+    } else if (name === '%AsyncGenerator%') {
+        var fn = doEval('%AsyncGeneratorFunction%');
+
+        if (fn) {
+            value = fn.prototype;
+        }
+    } else if (name === '%AsyncIteratorPrototype%') {
+        var gen = doEval('%AsyncGenerator%');
+
+        if (gen) {
+            value = getProto$1(gen.prototype);
+        }
+    }
+
+    INTRINSICS[name] = value;
+    return value;
+};
+
+var LEGACY_ALIASES = {
+    '%ArrayBufferPrototype%': ['ArrayBuffer', 'prototype'],
+    '%ArrayPrototype%': ['Array', 'prototype'],
+    '%ArrayProto_entries%': ['Array', 'prototype', 'entries'],
+    '%ArrayProto_forEach%': ['Array', 'prototype', 'forEach'],
+    '%ArrayProto_keys%': ['Array', 'prototype', 'keys'],
+    '%ArrayProto_values%': ['Array', 'prototype', 'values'],
+    '%AsyncFunctionPrototype%': ['AsyncFunction', 'prototype'],
+    '%AsyncGenerator%': ['AsyncGeneratorFunction', 'prototype'],
+    '%AsyncGeneratorPrototype%': ['AsyncGeneratorFunction', 'prototype', 'prototype'],
+    '%BooleanPrototype%': ['Boolean', 'prototype'],
+    '%DataViewPrototype%': ['DataView', 'prototype'],
+    '%DatePrototype%': ['Date', 'prototype'],
+    '%ErrorPrototype%': ['Error', 'prototype'],
+    '%EvalErrorPrototype%': ['EvalError', 'prototype'],
+    '%Float32ArrayPrototype%': ['Float32Array', 'prototype'],
+    '%Float64ArrayPrototype%': ['Float64Array', 'prototype'],
+    '%FunctionPrototype%': ['Function', 'prototype'],
+    '%Generator%': ['GeneratorFunction', 'prototype'],
+    '%GeneratorPrototype%': ['GeneratorFunction', 'prototype', 'prototype'],
+    '%Int8ArrayPrototype%': ['Int8Array', 'prototype'],
+    '%Int16ArrayPrototype%': ['Int16Array', 'prototype'],
+    '%Int32ArrayPrototype%': ['Int32Array', 'prototype'],
+    '%JSONParse%': ['JSON', 'parse'],
+    '%JSONStringify%': ['JSON', 'stringify'],
+    '%MapPrototype%': ['Map', 'prototype'],
+    '%NumberPrototype%': ['Number', 'prototype'],
+    '%ObjectPrototype%': ['Object', 'prototype'],
+    '%ObjProto_toString%': ['Object', 'prototype', 'toString'],
+    '%ObjProto_valueOf%': ['Object', 'prototype', 'valueOf'],
+    '%PromisePrototype%': ['Promise', 'prototype'],
+    '%PromiseProto_then%': ['Promise', 'prototype', 'then'],
+    '%Promise_all%': ['Promise', 'all'],
+    '%Promise_reject%': ['Promise', 'reject'],
+    '%Promise_resolve%': ['Promise', 'resolve'],
+    '%RangeErrorPrototype%': ['RangeError', 'prototype'],
+    '%ReferenceErrorPrototype%': ['ReferenceError', 'prototype'],
+    '%RegExpPrototype%': ['RegExp', 'prototype'],
+    '%SetPrototype%': ['Set', 'prototype'],
+    '%SharedArrayBufferPrototype%': ['SharedArrayBuffer', 'prototype'],
+    '%StringPrototype%': ['String', 'prototype'],
+    '%SymbolPrototype%': ['Symbol', 'prototype'],
+    '%SyntaxErrorPrototype%': ['SyntaxError', 'prototype'],
+    '%TypedArrayPrototype%': ['TypedArray', 'prototype'],
+    '%TypeErrorPrototype%': ['TypeError', 'prototype'],
+    '%Uint8ArrayPrototype%': ['Uint8Array', 'prototype'],
+    '%Uint8ClampedArrayPrototype%': ['Uint8ClampedArray', 'prototype'],
+    '%Uint16ArrayPrototype%': ['Uint16Array', 'prototype'],
+    '%Uint32ArrayPrototype%': ['Uint32Array', 'prototype'],
+    '%URIErrorPrototype%': ['URIError', 'prototype'],
+    '%WeakMapPrototype%': ['WeakMap', 'prototype'],
+    '%WeakSetPrototype%': ['WeakSet', 'prototype']
+};
+var bind$3 = functionBind;
+var hasOwn$1 = src;
+var $concat = bind$3.call(Function.call, Array.prototype.concat);
+var $spliceApply = bind$3.call(Function.apply, Array.prototype.splice);
+var $replace = bind$3.call(Function.call, String.prototype.replace);
+var $strSlice = bind$3.call(Function.call, String.prototype.slice);
+var $exec = bind$3.call(Function.call, RegExp.prototype.exec);
+/* adapted from https://github.com/lodash/lodash/blob/4.17.15/dist/lodash.js#L6735-L6744 */
+
+var rePropName = /[^%.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|%$))/g;
+var reEscapeChar = /\\(\\)?/g;
+/** Used to match backslashes in property paths. */
+
+var stringToPath = function stringToPath(string) {
+    var first = $strSlice(string, 0, 1);
+    var last = $strSlice(string, -1);
+
+    if (first === '%' && last !== '%') {
+        throw new $SyntaxError('invalid intrinsic syntax, expected closing `%`');
+    } else if (last === '%' && first !== '%') {
+        throw new $SyntaxError('invalid intrinsic syntax, expected opening `%`');
+    }
+
+    var result = [];
+    $replace(string, rePropName, function (match, number, quote, subString) {
+        result[result.length] = quote ? $replace(subString, reEscapeChar, '$1') : number || match;
+    });
+    return result;
+};
+/* end adaptation */
+
+
+var getBaseIntrinsic = function getBaseIntrinsic(name, allowMissing) {
+    var intrinsicName = name;
+    var alias;
+
+    if (hasOwn$1(LEGACY_ALIASES, intrinsicName)) {
+        alias = LEGACY_ALIASES[intrinsicName];
+        intrinsicName = '%' + alias[0] + '%';
+    }
+
+    if (hasOwn$1(INTRINSICS, intrinsicName)) {
+        var value = INTRINSICS[intrinsicName];
+
+        if (value === needsEval) {
+            value = doEval(intrinsicName);
+        }
+
+        if (typeof value === 'undefined' && !allowMissing) {
+            throw new $TypeError('intrinsic ' + name + ' exists, but is not available. Please file an issue!');
+        }
+
+        return {
+            alias: alias,
+            name: intrinsicName,
+            value: value
+        };
+    }
+
+    throw new $SyntaxError('intrinsic ' + name + ' does not exist!');
+};
+
+var getIntrinsic = function GetIntrinsic(name, allowMissing) {
+    if (typeof name !== 'string' || name.length === 0) {
+        throw new $TypeError('intrinsic name must be a non-empty string');
+    }
+
+    if (arguments.length > 1 && typeof allowMissing !== 'boolean') {
+        throw new $TypeError('"allowMissing" argument must be a boolean');
+    }
+
+    if ($exec(/^%?[^%]*%?$/g, name) === null) {
+        throw new $SyntaxError('`%` may not be present anywhere but at the beginning and end of the intrinsic name');
+    }
+
+    var parts = stringToPath(name);
+    var intrinsicBaseName = parts.length > 0 ? parts[0] : '';
+    var intrinsic = getBaseIntrinsic('%' + intrinsicBaseName + '%', allowMissing);
+    var intrinsicRealName = intrinsic.name;
+    var value = intrinsic.value;
+    var skipFurtherCaching = false;
+    var alias = intrinsic.alias;
+
+    if (alias) {
+        intrinsicBaseName = alias[0];
+        $spliceApply(parts, $concat([0, 1], alias));
+    }
+
+    for (var i = 1, isOwn = true; i < parts.length; i += 1) {
+        var part = parts[i];
+        var first = $strSlice(part, 0, 1);
+        var last = $strSlice(part, -1);
+
+        if ((first === '"' || first === "'" || first === '`' || last === '"' || last === "'" || last === '`') && first !== last) {
+            throw new $SyntaxError('property names with quotes must have matching quotes');
+        }
+
+        if (part === 'constructor' || !isOwn) {
+            skipFurtherCaching = true;
+        }
+
+        intrinsicBaseName += '.' + part;
+        intrinsicRealName = '%' + intrinsicBaseName + '%';
+
+        if (hasOwn$1(INTRINSICS, intrinsicRealName)) {
+            value = INTRINSICS[intrinsicRealName];
+        } else if (value != null) {
+            if (!(part in value)) {
+                if (!allowMissing) {
+                    throw new $TypeError('base intrinsic for ' + name + ' exists, but the property is not available.');
+                }
+
+                return void undefined$1;
+            }
+
+            if ($gOPD && i + 1 >= parts.length) {
+                var desc = $gOPD(value, part);
+                isOwn = !!desc; // By convention, when a data property is converted to an accessor
+                // property to emulate a data property that does not suffer from
+                // the override mistake, that accessor's getter is marked with
+                // an `originalValue` property. Here, when we detect this, we
+                // uphold the illusion by pretending to see that original data
+                // property, i.e., returning the value rather than the getter
+                // itself.
+
+                if (isOwn && 'get' in desc && !('originalValue' in desc.get)) {
+                    value = desc.get;
+                } else {
+                    value = value[part];
+                }
+            } else {
+                isOwn = hasOwn$1(value, part);
+                value = value[part];
+            }
+
+            if (isOwn && !skipFurtherCaching) {
+                INTRINSICS[intrinsicRealName] = value;
+            }
+        }
+    }
+
+    return value;
+};
+
+var callBind$1 = {exports: {}};
+
+(function (module) {
+
+    var bind = functionBind;
+    var GetIntrinsic = getIntrinsic;
+    var $apply = GetIntrinsic('%Function.prototype.apply%');
+    var $call = GetIntrinsic('%Function.prototype.call%');
+    var $reflectApply = GetIntrinsic('%Reflect.apply%', true) || bind.call($call, $apply);
+    var $gOPD = GetIntrinsic('%Object.getOwnPropertyDescriptor%', true);
+    var $defineProperty = GetIntrinsic('%Object.defineProperty%', true);
+    var $max = GetIntrinsic('%Math.max%');
+
+    if ($defineProperty) {
+        try {
+            $defineProperty({}, 'a', {
+                value: 1
+            });
+        } catch (e) {
+            // IE 8 has a broken defineProperty
+            $defineProperty = null;
+        }
+    }
+
+    module.exports = function callBind(originalFunction) {
+        var func = $reflectApply(bind, $call, arguments);
+
+        if ($gOPD && $defineProperty) {
+            var desc = $gOPD(func, 'length');
+
+            if (desc.configurable) {
+                // original length, plus the receiver, minus any additional arguments (after the receiver)
+                $defineProperty(func, 'length', {
+                    value: 1 + $max(0, originalFunction.length - (arguments.length - 1))
+                });
+            }
+        }
+
+        return func;
+    };
+
+    var applyBind = function applyBind() {
+        return $reflectApply(bind, $apply, arguments);
+    };
+
+    if ($defineProperty) {
+        $defineProperty(module.exports, 'apply', {
+            value: applyBind
+        });
+    } else {
+        module.exports.apply = applyBind;
+    }
+})(callBind$1);
+
+var GetIntrinsic = getIntrinsic;
+var callBind = callBind$1.exports;
+var $indexOf$1 = callBind(GetIntrinsic('String.prototype.indexOf'));
+
+var callBound$3 = function callBoundIntrinsic(name, allowMissing) {
+    var intrinsic = GetIntrinsic(name, !!allowMissing);
+
+    if (typeof intrinsic === 'function' && $indexOf$1(name, '.prototype.') > -1) {
+        return callBind(intrinsic);
+    }
+
+    return intrinsic;
+};
+
+var hasToStringTag$4 = shams();
+var callBound$2 = callBound$3;
+var $toString$2 = callBound$2('Object.prototype.toString');
+
+var isStandardArguments = function isArguments(value) {
+    if (hasToStringTag$4 && value && _typeof(value) === 'object' && Symbol.toStringTag in value) {
+        return false;
+    }
+
+    return $toString$2(value) === '[object Arguments]';
+};
+
+var isLegacyArguments = function isArguments(value) {
+    if (isStandardArguments(value)) {
+        return true;
+    }
+
+    return value !== null && _typeof(value) === 'object' && typeof value.length === 'number' && value.length >= 0 && $toString$2(value) !== '[object Array]' && $toString$2(value.callee) === '[object Function]';
+};
+
+var supportsStandardArguments = function () {
+    return isStandardArguments(arguments);
+}();
+
+isStandardArguments.isLegacyArguments = isLegacyArguments; // for tests
+
+var isArguments$1 = supportsStandardArguments ? isStandardArguments : isLegacyArguments;
+
+var toStr$2 = Object.prototype.toString;
+var fnToStr$1 = Function.prototype.toString;
+var isFnRegex = /^\s*(?:function)?\*/;
+var hasToStringTag$3 = shams();
+var getProto = Object.getPrototypeOf;
+
+var getGeneratorFunc = function getGeneratorFunc() {
+    // eslint-disable-line consistent-return
+    if (!hasToStringTag$3) {
+        return false;
+    }
+
+    try {
+        return Function('return function*() {}')();
+    } catch (e) {}
+};
+
+var GeneratorFunction;
+
+var isGeneratorFunction = function isGeneratorFunction(fn) {
+    if (typeof fn !== 'function') {
+        return false;
+    }
+
+    if (isFnRegex.test(fnToStr$1.call(fn))) {
+        return true;
+    }
+
+    if (!hasToStringTag$3) {
+        var str = toStr$2.call(fn);
+        return str === '[object GeneratorFunction]';
+    }
+
+    if (!getProto) {
+        return false;
+    }
+
+    if (typeof GeneratorFunction === 'undefined') {
+        var generatorFunc = getGeneratorFunc();
+        GeneratorFunction = generatorFunc ? getProto(generatorFunc) : false;
+    }
+
+    return getProto(fn) === GeneratorFunction;
+};
+
+var fnToStr = Function.prototype.toString;
+var reflectApply = (typeof Reflect === "undefined" ? "undefined" : _typeof(Reflect)) === 'object' && Reflect !== null && Reflect.apply;
+var badArrayLike;
+var isCallableMarker;
+
+if (typeof reflectApply === 'function' && typeof Object.defineProperty === 'function') {
+    try {
+        badArrayLike = Object.defineProperty({}, 'length', {
+            get: function get() {
+                throw isCallableMarker;
+            }
+        });
+        isCallableMarker = {}; // eslint-disable-next-line no-throw-literal
+
+        reflectApply(function () {
+            throw 42;
+        }, null, badArrayLike);
+    } catch (_) {
+        if (_ !== isCallableMarker) {
+            reflectApply = null;
+        }
+    }
+} else {
+    reflectApply = null;
+}
+
+var constructorRegex = /^\s*class\b/;
+
+var isES6ClassFn = function isES6ClassFunction(value) {
+    try {
+        var fnStr = fnToStr.call(value);
+        return constructorRegex.test(fnStr);
+    } catch (e) {
+        return false; // not a function
+    }
+};
+
+var tryFunctionObject = function tryFunctionToStr(value) {
+    try {
+        if (isES6ClassFn(value)) {
+            return false;
+        }
+
+        fnToStr.call(value);
+        return true;
+    } catch (e) {
+        return false;
+    }
+};
+
+var toStr$1 = Object.prototype.toString;
+var fnClass = '[object Function]';
+var genClass = '[object GeneratorFunction]';
+var hasToStringTag$2 = typeof Symbol === 'function' && !!Symbol.toStringTag; // better: use `has-tostringtag`
+
+/* globals document: false */
+
+var documentDotAll = (typeof document === "undefined" ? "undefined" : _typeof(document)) === 'object' && typeof document.all === 'undefined' && document.all !== undefined ? document.all : {};
+var isCallable$1 = reflectApply ? function isCallable(value) {
+    if (value === documentDotAll) {
+        return true;
+    }
+
+    if (!value) {
+        return false;
+    }
+
+    if (typeof value !== 'function' && _typeof(value) !== 'object') {
+        return false;
+    }
+
+    if (typeof value === 'function' && !value.prototype) {
+        return true;
+    }
+
+    try {
+        reflectApply(value, null, badArrayLike);
+    } catch (e) {
+        if (e !== isCallableMarker) {
+            return false;
+        }
+    }
+
+    return !isES6ClassFn(value);
+} : function isCallable(value) {
+    if (value === documentDotAll) {
+        return true;
+    }
+
+    if (!value) {
+        return false;
+    }
+
+    if (typeof value !== 'function' && _typeof(value) !== 'object') {
+        return false;
+    }
+
+    if (typeof value === 'function' && !value.prototype) {
+        return true;
+    }
+
+    if (hasToStringTag$2) {
+        return tryFunctionObject(value);
+    }
+
+    if (isES6ClassFn(value)) {
+        return false;
+    }
+
+    var strClass = toStr$1.call(value);
+    return strClass === fnClass || strClass === genClass;
+};
+
+var isCallable = isCallable$1;
+var toStr = Object.prototype.toString;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+var forEachArray = function forEachArray(array, iterator, receiver) {
+    for (var i = 0, len = array.length; i < len; i++) {
+        if (hasOwnProperty.call(array, i)) {
+            if (receiver == null) {
+                iterator(array[i], i, array);
+            } else {
+                iterator.call(receiver, array[i], i, array);
+            }
+        }
+    }
+};
+
+var forEachString = function forEachString(string, iterator, receiver) {
+    for (var i = 0, len = string.length; i < len; i++) {
+        // no such thing as a sparse string.
+        if (receiver == null) {
+            iterator(string.charAt(i), i, string);
+        } else {
+            iterator.call(receiver, string.charAt(i), i, string);
+        }
+    }
+};
+
+var forEachObject = function forEachObject(object, iterator, receiver) {
+    for (var k in object) {
+        if (hasOwnProperty.call(object, k)) {
+            if (receiver == null) {
+                iterator(object[k], k, object);
+            } else {
+                iterator.call(receiver, object[k], k, object);
+            }
+        }
+    }
+};
+
+var forEach$3 = function forEach(list, iterator, thisArg) {
+    if (!isCallable(iterator)) {
+        throw new TypeError('iterator must be a function');
+    }
+
+    var receiver;
+
+    if (arguments.length >= 3) {
+        receiver = thisArg;
+    }
+
+    if (toStr.call(list) === '[object Array]') {
+        forEachArray(list, iterator, receiver);
+    } else if (typeof list === 'string') {
+        forEachString(list, iterator, receiver);
+    } else {
+        forEachObject(list, iterator, receiver);
+    }
+};
+
+var forEach_1 = forEach$3;
+
+var possibleNames = ['BigInt64Array', 'BigUint64Array', 'Float32Array', 'Float64Array', 'Int16Array', 'Int32Array', 'Int8Array', 'Uint16Array', 'Uint32Array', 'Uint8Array', 'Uint8ClampedArray'];
+var g$2 = typeof globalThis === 'undefined' ? commonjsGlobal : globalThis;
+
+var availableTypedArrays$2 = function availableTypedArrays() {
+    var out = [];
+
+    for (var i = 0; i < possibleNames.length; i++) {
+        if (typeof g$2[possibleNames[i]] === 'function') {
+            out[out.length] = possibleNames[i];
+        }
+    }
+
+    return out;
+};
+
+var getOwnPropertyDescriptor;
+var hasRequiredGetOwnPropertyDescriptor;
+
+function requireGetOwnPropertyDescriptor() {
+    if (hasRequiredGetOwnPropertyDescriptor) return getOwnPropertyDescriptor;
+    hasRequiredGetOwnPropertyDescriptor = 1;
+
+    var GetIntrinsic = getIntrinsic;
+    var $gOPD = GetIntrinsic('%Object.getOwnPropertyDescriptor%', true);
+
+    if ($gOPD) {
+        try {
+            $gOPD([], 'length');
+        } catch (e) {
+            // IE 8 has a broken gOPD
+            $gOPD = null;
+        }
+    }
+
+    getOwnPropertyDescriptor = $gOPD;
+    return getOwnPropertyDescriptor;
+}
+
+var forEach$2 = forEach_1;
+var availableTypedArrays$1 = availableTypedArrays$2;
+var callBound$1 = callBound$3;
+var $toString$1 = callBound$1('Object.prototype.toString');
+var hasToStringTag$1 = shams();
+var g$1 = typeof globalThis === 'undefined' ? commonjsGlobal : globalThis;
+var typedArrays$1 = availableTypedArrays$1();
+
+var $indexOf = callBound$1('Array.prototype.indexOf', true) || function indexOf(array, value) {
+    for (var i = 0; i < array.length; i += 1) {
+        if (array[i] === value) {
+            return i;
+        }
+    }
+
+    return -1;
+};
+
+var $slice$1 = callBound$1('String.prototype.slice');
+var toStrTags$1 = {};
+var gOPD$1 = requireGetOwnPropertyDescriptor();
+var getPrototypeOf$1 = Object.getPrototypeOf; // require('getprototypeof');
+
+if (hasToStringTag$1 && gOPD$1 && getPrototypeOf$1) {
+    forEach$2(typedArrays$1, function (typedArray) {
+        var arr = new g$1[typedArray]();
+
+        if (Symbol.toStringTag in arr) {
+            var proto = getPrototypeOf$1(arr);
+            var descriptor = gOPD$1(proto, Symbol.toStringTag);
+
+            if (!descriptor) {
+                var superProto = getPrototypeOf$1(proto);
+                descriptor = gOPD$1(superProto, Symbol.toStringTag);
+            }
+
+            toStrTags$1[typedArray] = descriptor.get;
+        }
+    });
+}
+
+var tryTypedArrays$1 = function tryAllTypedArrays(value) {
+    var anyTrue = false;
+    forEach$2(toStrTags$1, function (getter, typedArray) {
+        if (!anyTrue) {
+            try {
+                anyTrue = getter.call(value) === typedArray;
+            } catch (e) {
+                /**/
+            }
+        }
+    });
+    return anyTrue;
+};
+
+var isTypedArray$2 = function isTypedArray(value) {
+    if (!value || _typeof(value) !== 'object') {
+        return false;
+    }
+
+    if (!hasToStringTag$1 || !(Symbol.toStringTag in value)) {
+        var tag = $slice$1($toString$1(value), 8, -1);
+        return $indexOf(typedArrays$1, tag) > -1;
+    }
+
+    if (!gOPD$1) {
+        return false;
+    }
+
+    return tryTypedArrays$1(value);
+};
+
+var forEach$1 = forEach_1;
+var availableTypedArrays = availableTypedArrays$2;
+var callBound = callBound$3;
+var $toString = callBound('Object.prototype.toString');
+var hasToStringTag = shams();
+var g = typeof globalThis === 'undefined' ? commonjsGlobal : globalThis;
+var typedArrays = availableTypedArrays();
+var $slice = callBound('String.prototype.slice');
+var toStrTags = {};
+var gOPD = requireGetOwnPropertyDescriptor();
+var getPrototypeOf = Object.getPrototypeOf; // require('getprototypeof');
+
+if (hasToStringTag && gOPD && getPrototypeOf) {
+    forEach$1(typedArrays, function (typedArray) {
+        if (typeof g[typedArray] === 'function') {
+            var arr = new g[typedArray]();
+
+            if (Symbol.toStringTag in arr) {
+                var proto = getPrototypeOf(arr);
+                var descriptor = gOPD(proto, Symbol.toStringTag);
+
+                if (!descriptor) {
+                    var superProto = getPrototypeOf(proto);
+                    descriptor = gOPD(superProto, Symbol.toStringTag);
+                }
+
+                toStrTags[typedArray] = descriptor.get;
+            }
+        }
+    });
+}
+
+var tryTypedArrays = function tryAllTypedArrays(value) {
+    var foundName = false;
+    forEach$1(toStrTags, function (getter, typedArray) {
+        if (!foundName) {
+            try {
+                var name = getter.call(value);
+
+                if (name === typedArray) {
+                    foundName = name;
+                }
+            } catch (e) {}
+        }
+    });
+    return foundName;
+};
+
+var isTypedArray$1 = isTypedArray$2;
+
+var whichTypedArray = function whichTypedArray(value) {
+    if (!isTypedArray$1(value)) {
+        return false;
+    }
+
+    if (!hasToStringTag || !(Symbol.toStringTag in value)) {
+        return $slice($toString(value), 8, -1);
+    }
+
+    return tryTypedArrays(value);
+};
+
+(function (exports) {
+
+    var isArgumentsObject = isArguments$1;
+    var isGeneratorFunction$1 = isGeneratorFunction;
+    var whichTypedArray$1 = whichTypedArray;
+    var isTypedArray = isTypedArray$2;
+
+    function uncurryThis(f) {
+        return f.call.bind(f);
+    }
+
+    var BigIntSupported = typeof BigInt !== 'undefined';
+    var SymbolSupported = typeof Symbol !== 'undefined';
+    var ObjectToString = uncurryThis(Object.prototype.toString);
+    var numberValue = uncurryThis(Number.prototype.valueOf);
+    var stringValue = uncurryThis(String.prototype.valueOf);
+    var booleanValue = uncurryThis(Boolean.prototype.valueOf);
+
+    if (BigIntSupported) {
+        var bigIntValue = uncurryThis(BigInt.prototype.valueOf);
+    }
+
+    if (SymbolSupported) {
+        var symbolValue = uncurryThis(Symbol.prototype.valueOf);
+    }
+
+    function checkBoxedPrimitive(value, prototypeValueOf) {
+        if (_typeof(value) !== 'object') {
+            return false;
+        }
+
+        try {
+            prototypeValueOf(value);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    exports.isArgumentsObject = isArgumentsObject;
+    exports.isGeneratorFunction = isGeneratorFunction$1;
+    exports.isTypedArray = isTypedArray; // Taken from here and modified for better browser support
+    // https://github.com/sindresorhus/p-is-promise/blob/cda35a513bda03f977ad5cde3a079d237e82d7ef/index.js
+
+    function isPromise(input) {
+        return typeof Promise !== 'undefined' && input instanceof Promise || input !== null && _typeof(input) === 'object' && typeof input.then === 'function' && typeof input.catch === 'function';
+    }
+
+    exports.isPromise = isPromise;
+
+    function isArrayBufferView(value) {
+        if (typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView) {
+            return ArrayBuffer.isView(value);
+        }
+
+        return isTypedArray(value) || isDataView(value);
+    }
+
+    exports.isArrayBufferView = isArrayBufferView;
+
+    function isUint8Array(value) {
+        return whichTypedArray$1(value) === 'Uint8Array';
+    }
+
+    exports.isUint8Array = isUint8Array;
+
+    function isUint8ClampedArray(value) {
+        return whichTypedArray$1(value) === 'Uint8ClampedArray';
+    }
+
+    exports.isUint8ClampedArray = isUint8ClampedArray;
+
+    function isUint16Array(value) {
+        return whichTypedArray$1(value) === 'Uint16Array';
+    }
+
+    exports.isUint16Array = isUint16Array;
+
+    function isUint32Array(value) {
+        return whichTypedArray$1(value) === 'Uint32Array';
+    }
+
+    exports.isUint32Array = isUint32Array;
+
+    function isInt8Array(value) {
+        return whichTypedArray$1(value) === 'Int8Array';
+    }
+
+    exports.isInt8Array = isInt8Array;
+
+    function isInt16Array(value) {
+        return whichTypedArray$1(value) === 'Int16Array';
+    }
+
+    exports.isInt16Array = isInt16Array;
+
+    function isInt32Array(value) {
+        return whichTypedArray$1(value) === 'Int32Array';
+    }
+
+    exports.isInt32Array = isInt32Array;
+
+    function isFloat32Array(value) {
+        return whichTypedArray$1(value) === 'Float32Array';
+    }
+
+    exports.isFloat32Array = isFloat32Array;
+
+    function isFloat64Array(value) {
+        return whichTypedArray$1(value) === 'Float64Array';
+    }
+
+    exports.isFloat64Array = isFloat64Array;
+
+    function isBigInt64Array(value) {
+        return whichTypedArray$1(value) === 'BigInt64Array';
+    }
+
+    exports.isBigInt64Array = isBigInt64Array;
+
+    function isBigUint64Array(value) {
+        return whichTypedArray$1(value) === 'BigUint64Array';
+    }
+
+    exports.isBigUint64Array = isBigUint64Array;
+
+    function isMapToString(value) {
+        return ObjectToString(value) === '[object Map]';
+    }
+
+    isMapToString.working = typeof Map !== 'undefined' && isMapToString(new Map());
+
+    function isMap(value) {
+        if (typeof Map === 'undefined') {
+            return false;
+        }
+
+        return isMapToString.working ? isMapToString(value) : value instanceof Map;
+    }
+
+    exports.isMap = isMap;
+
+    function isSetToString(value) {
+        return ObjectToString(value) === '[object Set]';
+    }
+
+    isSetToString.working = typeof Set !== 'undefined' && isSetToString(new Set());
+
+    function isSet(value) {
+        if (typeof Set === 'undefined') {
+            return false;
+        }
+
+        return isSetToString.working ? isSetToString(value) : value instanceof Set;
+    }
+
+    exports.isSet = isSet;
+
+    function isWeakMapToString(value) {
+        return ObjectToString(value) === '[object WeakMap]';
+    }
+
+    isWeakMapToString.working = typeof WeakMap !== 'undefined' && isWeakMapToString(new WeakMap());
+
+    function isWeakMap(value) {
+        if (typeof WeakMap === 'undefined') {
+            return false;
+        }
+
+        return isWeakMapToString.working ? isWeakMapToString(value) : value instanceof WeakMap;
+    }
+
+    exports.isWeakMap = isWeakMap;
+
+    function isWeakSetToString(value) {
+        return ObjectToString(value) === '[object WeakSet]';
+    }
+
+    isWeakSetToString.working = typeof WeakSet !== 'undefined' && isWeakSetToString(new WeakSet());
+
+    function isWeakSet(value) {
+        return isWeakSetToString(value);
+    }
+
+    exports.isWeakSet = isWeakSet;
+
+    function isArrayBufferToString(value) {
+        return ObjectToString(value) === '[object ArrayBuffer]';
+    }
+
+    isArrayBufferToString.working = typeof ArrayBuffer !== 'undefined' && isArrayBufferToString(new ArrayBuffer());
+
+    function isArrayBuffer(value) {
+        if (typeof ArrayBuffer === 'undefined') {
+            return false;
+        }
+
+        return isArrayBufferToString.working ? isArrayBufferToString(value) : value instanceof ArrayBuffer;
+    }
+
+    exports.isArrayBuffer = isArrayBuffer;
+
+    function isDataViewToString(value) {
+        return ObjectToString(value) === '[object DataView]';
+    }
+
+    isDataViewToString.working = typeof ArrayBuffer !== 'undefined' && typeof DataView !== 'undefined' && isDataViewToString(new DataView(new ArrayBuffer(1), 0, 1));
+
+    function isDataView(value) {
+        if (typeof DataView === 'undefined') {
+            return false;
+        }
+
+        return isDataViewToString.working ? isDataViewToString(value) : value instanceof DataView;
+    }
+
+    exports.isDataView = isDataView; // Store a copy of SharedArrayBuffer in case it's deleted elsewhere
+
+    var SharedArrayBufferCopy = typeof SharedArrayBuffer !== 'undefined' ? SharedArrayBuffer : undefined;
+
+    function isSharedArrayBufferToString(value) {
+        return ObjectToString(value) === '[object SharedArrayBuffer]';
+    }
+
+    function isSharedArrayBuffer(value) {
+        if (typeof SharedArrayBufferCopy === 'undefined') {
+            return false;
+        }
+
+        if (typeof isSharedArrayBufferToString.working === 'undefined') {
+            isSharedArrayBufferToString.working = isSharedArrayBufferToString(new SharedArrayBufferCopy());
+        }
+
+        return isSharedArrayBufferToString.working ? isSharedArrayBufferToString(value) : value instanceof SharedArrayBufferCopy;
+    }
+
+    exports.isSharedArrayBuffer = isSharedArrayBuffer;
+
+    function isAsyncFunction(value) {
+        return ObjectToString(value) === '[object AsyncFunction]';
+    }
+
+    exports.isAsyncFunction = isAsyncFunction;
+
+    function isMapIterator(value) {
+        return ObjectToString(value) === '[object Map Iterator]';
+    }
+
+    exports.isMapIterator = isMapIterator;
+
+    function isSetIterator(value) {
+        return ObjectToString(value) === '[object Set Iterator]';
+    }
+
+    exports.isSetIterator = isSetIterator;
+
+    function isGeneratorObject(value) {
+        return ObjectToString(value) === '[object Generator]';
+    }
+
+    exports.isGeneratorObject = isGeneratorObject;
+
+    function isWebAssemblyCompiledModule(value) {
+        return ObjectToString(value) === '[object WebAssembly.Module]';
+    }
+
+    exports.isWebAssemblyCompiledModule = isWebAssemblyCompiledModule;
+
+    function isNumberObject(value) {
+        return checkBoxedPrimitive(value, numberValue);
+    }
+
+    exports.isNumberObject = isNumberObject;
+
+    function isStringObject(value) {
+        return checkBoxedPrimitive(value, stringValue);
+    }
+
+    exports.isStringObject = isStringObject;
+
+    function isBooleanObject(value) {
+        return checkBoxedPrimitive(value, booleanValue);
+    }
+
+    exports.isBooleanObject = isBooleanObject;
+
+    function isBigIntObject(value) {
+        return BigIntSupported && checkBoxedPrimitive(value, bigIntValue);
+    }
+
+    exports.isBigIntObject = isBigIntObject;
+
+    function isSymbolObject(value) {
+        return SymbolSupported && checkBoxedPrimitive(value, symbolValue);
+    }
+
+    exports.isSymbolObject = isSymbolObject;
+
+    function isBoxedPrimitive(value) {
+        return isNumberObject(value) || isStringObject(value) || isBooleanObject(value) || isBigIntObject(value) || isSymbolObject(value);
+    }
+
+    exports.isBoxedPrimitive = isBoxedPrimitive;
+
+    function isAnyArrayBuffer(value) {
+        return typeof Uint8Array !== 'undefined' && (isArrayBuffer(value) || isSharedArrayBuffer(value));
+    }
+
+    exports.isAnyArrayBuffer = isAnyArrayBuffer;
+    ['isProxy', 'isExternal', 'isModuleNamespaceObject'].forEach(function (method) {
+        Object.defineProperty(exports, method, {
+            enumerable: false,
+            value: function value() {
+                throw new Error(method + ' is not supported in userland');
+            }
+        });
+    });
+})(types);
+
+var isBufferBrowser = function isBuffer(arg) {
+    return arg && _typeof(arg) === 'object' && typeof arg.copy === 'function' && typeof arg.fill === 'function' && typeof arg.readUInt8 === 'function';
+};
+
+var inherits_browser = {exports: {}};
+
+if (typeof Object.create === 'function') {
+    // implementation from standard node.js 'util' module
+    inherits_browser.exports = function inherits(ctor, superCtor) {
+        if (superCtor) {
+            ctor.super_ = superCtor;
+            ctor.prototype = Object.create(superCtor.prototype, {
+                constructor: {
+                    value: ctor,
+                    enumerable: false,
+                    writable: true,
+                    configurable: true
+                }
+            });
+        }
+    };
+} else {
+    // old school shim for old browsers
+    inherits_browser.exports = function inherits(ctor, superCtor) {
+        if (superCtor) {
+            ctor.super_ = superCtor;
+
+            var TempCtor = function TempCtor() {};
+
+            TempCtor.prototype = superCtor.prototype;
+            ctor.prototype = new TempCtor();
+            ctor.prototype.constructor = ctor;
+        }
+    };
+}
+
+(function (exports) {
+    // Copyright Joyent, Inc. and other Node contributors.
+    //
+    // Permission is hereby granted, free of charge, to any person obtaining a
+    // copy of this software and associated documentation files (the
+    // "Software"), to deal in the Software without restriction, including
+    // without limitation the rights to use, copy, modify, merge, publish,
+    // distribute, sublicense, and/or sell copies of the Software, and to permit
+    // persons to whom the Software is furnished to do so, subject to the
+    // following conditions:
+    //
+    // The above copyright notice and this permission notice shall be included
+    // in all copies or substantial portions of the Software.
+    //
+    // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    // OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+    // NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+    // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+    // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+    // USE OR OTHER DEALINGS IN THE SOFTWARE.
+    var getOwnPropertyDescriptors = Object.getOwnPropertyDescriptors || function getOwnPropertyDescriptors(obj) {
+        var keys = Object.keys(obj);
+        var descriptors = {};
+
+        for (var i = 0; i < keys.length; i++) {
+            descriptors[keys[i]] = Object.getOwnPropertyDescriptor(obj, keys[i]);
+        }
+
+        return descriptors;
+    };
+
+    var formatRegExp = /%[sdj%]/g;
+
+    exports.format = function (f) {
+        if (!isString(f)) {
+            var objects = [];
+
+            for (var i = 0; i < arguments.length; i++) {
+                objects.push(inspect(arguments[i]));
+            }
+
+            return objects.join(' ');
+        }
+
+        var i = 1;
+        var args = arguments;
+        var len = args.length;
+        var str = String(f).replace(formatRegExp, function (x) {
+            if (x === '%%') return '%';
+            if (i >= len) return x;
+
+            switch (x) {
+                case '%s':
+                    return String(args[i++]);
+
+                case '%d':
+                    return Number(args[i++]);
+
+                case '%j':
+                    try {
+                        return JSON.stringify(args[i++]);
+                    } catch (_) {
+                        return '[Circular]';
+                    }
+
+                default:
+                    return x;
+            }
+        });
+
+        for (var x = args[i]; i < len; x = args[++i]) {
+            if (isNull(x) || !isObject(x)) {
+                str += ' ' + x;
+            } else {
+                str += ' ' + inspect(x);
+            }
+        }
+
+        return str;
+    }; // Mark that a method should not be used.
+    // Returns a modified function which warns once by default.
+    // If --no-deprecation is set, then it is a no-op.
+
+
+    exports.deprecate = function (fn, msg) {
+        if (typeof process !== 'undefined' && process.noDeprecation === true) {
+            return fn;
+        } // Allow for deprecating things in the process of starting up.
+
+
+        if (typeof process === 'undefined') {
+            return function () {
+                return exports.deprecate(fn, msg).apply(this, arguments);
+            };
+        }
+
+        var warned = false;
+
+        function deprecated() {
+            if (!warned) {
+                if (process.throwDeprecation) {
+                    throw new Error(msg);
+                } else if (process.traceDeprecation) {
+                    console.trace(msg);
+                } else {
+                    console.error(msg);
+                }
+
+                warned = true;
+            }
+
+            return fn.apply(this, arguments);
+        }
+
+        return deprecated;
+    };
+
+    var debugs = {};
+    var debugEnvRegex = /^$/;
+
+    if (process.env.NODE_DEBUG) {
+        var debugEnv = process.env.NODE_DEBUG;
+        debugEnv = debugEnv.replace(/[|\\{}()[\]^$+?.]/g, '\\$&').replace(/\*/g, '.*').replace(/,/g, '$|^').toUpperCase();
+        debugEnvRegex = new RegExp('^' + debugEnv + '$', 'i');
+    }
+
+    exports.debuglog = function (set) {
+        set = set.toUpperCase();
+
+        if (!debugs[set]) {
+            if (debugEnvRegex.test(set)) {
+                var pid = process.pid;
+
+                debugs[set] = function () {
+                    var msg = exports.format.apply(exports, arguments);
+                    console.error('%s %d: %s', set, pid, msg);
+                };
+            } else {
+                debugs[set] = function () {};
+            }
+        }
+
+        return debugs[set];
+    };
+    /**
+     * Echos the value of a value. Trys to print the value out
+     * in the best way possible given the different types.
+     *
+     * @param {Object} obj The object to print out.
+     * @param {Object} opts Optional options object that alters the output.
+     */
+
+    /* legacy: obj, showHidden, depth, colors*/
+
+
+    function inspect(obj, opts) {
+        // default options
+        var ctx = {
+            seen: [],
+            stylize: stylizeNoColor
+        }; // legacy...
+
+        if (arguments.length >= 3) ctx.depth = arguments[2];
+        if (arguments.length >= 4) ctx.colors = arguments[3];
+
+        if (isBoolean(opts)) {
+            // legacy...
+            ctx.showHidden = opts;
+        } else if (opts) {
+            // got an "options" object
+            exports._extend(ctx, opts);
+        } // set default options
+
+
+        if (isUndefined(ctx.showHidden)) ctx.showHidden = false;
+        if (isUndefined(ctx.depth)) ctx.depth = 2;
+        if (isUndefined(ctx.colors)) ctx.colors = false;
+        if (isUndefined(ctx.customInspect)) ctx.customInspect = true;
+        if (ctx.colors) ctx.stylize = stylizeWithColor;
+        return formatValue(ctx, obj, ctx.depth);
+    }
+
+    exports.inspect = inspect; // http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
+
+    inspect.colors = {
+        'bold': [1, 22],
+        'italic': [3, 23],
+        'underline': [4, 24],
+        'inverse': [7, 27],
+        'white': [37, 39],
+        'grey': [90, 39],
+        'black': [30, 39],
+        'blue': [34, 39],
+        'cyan': [36, 39],
+        'green': [32, 39],
+        'magenta': [35, 39],
+        'red': [31, 39],
+        'yellow': [33, 39]
+    }; // Don't use 'blue' not visible on cmd.exe
+
+    inspect.styles = {
+        'special': 'cyan',
+        'number': 'yellow',
+        'boolean': 'yellow',
+        'undefined': 'grey',
+        'null': 'bold',
+        'string': 'green',
+        'date': 'magenta',
+        // "name": intentionally not styling
+        'regexp': 'red'
+    };
+
+    function stylizeWithColor(str, styleType) {
+        var style = inspect.styles[styleType];
+
+        if (style) {
+            return "\x1B[" + inspect.colors[style][0] + 'm' + str + "\x1B[" + inspect.colors[style][1] + 'm';
+        } else {
+            return str;
+        }
+    }
+
+    function stylizeNoColor(str, styleType) {
+        return str;
+    }
+
+    function arrayToHash(array) {
+        var hash = {};
+        array.forEach(function (val, idx) {
+            hash[val] = true;
+        });
+        return hash;
+    }
+
+    function formatValue(ctx, value, recurseTimes) {
+        // Provide a hook for user-specified inspect functions.
+        // Check that value is an object with an inspect function on it
+        if (ctx.customInspect && value && isFunction(value.inspect) && // Filter out the util module, it's inspect function is special
+            value.inspect !== exports.inspect && // Also filter out any prototype objects using the circular check.
+            !(value.constructor && value.constructor.prototype === value)) {
+            var ret = value.inspect(recurseTimes, ctx);
+
+            if (!isString(ret)) {
+                ret = formatValue(ctx, ret, recurseTimes);
+            }
+
+            return ret;
+        } // Primitive types cannot have properties
+
+
+        var primitive = formatPrimitive(ctx, value);
+
+        if (primitive) {
+            return primitive;
+        } // Look up the keys of the object.
+
+
+        var keys = Object.keys(value);
+        var visibleKeys = arrayToHash(keys);
+
+        if (ctx.showHidden) {
+            keys = Object.getOwnPropertyNames(value);
+        } // IE doesn't make error fields non-enumerable
+        // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
+
+
+        if (isError(value) && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+            return formatError(value);
+        } // Some type of object without properties can be shortcutted.
+
+
+        if (keys.length === 0) {
+            if (isFunction(value)) {
+                var name = value.name ? ': ' + value.name : '';
+                return ctx.stylize('[Function' + name + ']', 'special');
+            }
+
+            if (isRegExp(value)) {
+                return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+            }
+
+            if (isDate(value)) {
+                return ctx.stylize(Date.prototype.toString.call(value), 'date');
+            }
+
+            if (isError(value)) {
+                return formatError(value);
+            }
+        }
+
+        var base = '',
+            array = false,
+            braces = ['{', '}']; // Make Array say that they are Array
+
+        if (isArray(value)) {
+            array = true;
+            braces = ['[', ']'];
+        } // Make functions say that they are functions
+
+
+        if (isFunction(value)) {
+            var n = value.name ? ': ' + value.name : '';
+            base = ' [Function' + n + ']';
+        } // Make RegExps say that they are RegExps
+
+
+        if (isRegExp(value)) {
+            base = ' ' + RegExp.prototype.toString.call(value);
+        } // Make dates with properties first say the date
+
+
+        if (isDate(value)) {
+            base = ' ' + Date.prototype.toUTCString.call(value);
+        } // Make error with message first say the error
+
+
+        if (isError(value)) {
+            base = ' ' + formatError(value);
+        }
+
+        if (keys.length === 0 && (!array || value.length == 0)) {
+            return braces[0] + base + braces[1];
+        }
+
+        if (recurseTimes < 0) {
+            if (isRegExp(value)) {
+                return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
+            } else {
+                return ctx.stylize('[Object]', 'special');
+            }
+        }
+
+        ctx.seen.push(value);
+        var output;
+
+        if (array) {
+            output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
+        } else {
+            output = keys.map(function (key) {
+                return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
+            });
+        }
+
+        ctx.seen.pop();
+        return reduceToSingleString(output, base, braces);
+    }
+
+    function formatPrimitive(ctx, value) {
+        if (isUndefined(value)) return ctx.stylize('undefined', 'undefined');
+
+        if (isString(value)) {
+            var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '').replace(/'/g, "\\'").replace(/\\"/g, '"') + '\'';
+            return ctx.stylize(simple, 'string');
+        }
+
+        if (isNumber(value)) return ctx.stylize('' + value, 'number');
+        if (isBoolean(value)) return ctx.stylize('' + value, 'boolean'); // For some reason typeof null is "object", so special case here.
+
+        if (isNull(value)) return ctx.stylize('null', 'null');
+    }
+
+    function formatError(value) {
+        return '[' + Error.prototype.toString.call(value) + ']';
+    }
+
+    function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
+        var output = [];
+
+        for (var i = 0, l = value.length; i < l; ++i) {
+            if (hasOwnProperty(value, String(i))) {
+                output.push(formatProperty(ctx, value, recurseTimes, visibleKeys, String(i), true));
+            } else {
+                output.push('');
+            }
+        }
+
+        keys.forEach(function (key) {
+            if (!key.match(/^\d+$/)) {
+                output.push(formatProperty(ctx, value, recurseTimes, visibleKeys, key, true));
+            }
+        });
+        return output;
+    }
+
+    function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
+        var name, str, desc;
+        desc = Object.getOwnPropertyDescriptor(value, key) || {
+            value: value[key]
+        };
+
+        if (desc.get) {
+            if (desc.set) {
+                str = ctx.stylize('[Getter/Setter]', 'special');
+            } else {
+                str = ctx.stylize('[Getter]', 'special');
+            }
+        } else {
+            if (desc.set) {
+                str = ctx.stylize('[Setter]', 'special');
+            }
+        }
+
+        if (!hasOwnProperty(visibleKeys, key)) {
+            name = '[' + key + ']';
+        }
+
+        if (!str) {
+            if (ctx.seen.indexOf(desc.value) < 0) {
+                if (isNull(recurseTimes)) {
+                    str = formatValue(ctx, desc.value, null);
+                } else {
+                    str = formatValue(ctx, desc.value, recurseTimes - 1);
+                }
+
+                if (str.indexOf('\n') > -1) {
+                    if (array) {
+                        str = str.split('\n').map(function (line) {
+                            return '  ' + line;
+                        }).join('\n').substr(2);
+                    } else {
+                        str = '\n' + str.split('\n').map(function (line) {
+                            return '   ' + line;
+                        }).join('\n');
+                    }
+                }
+            } else {
+                str = ctx.stylize('[Circular]', 'special');
+            }
+        }
+
+        if (isUndefined(name)) {
+            if (array && key.match(/^\d+$/)) {
+                return str;
+            }
+
+            name = JSON.stringify('' + key);
+
+            if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+                name = name.substr(1, name.length - 2);
+                name = ctx.stylize(name, 'name');
+            } else {
+                name = name.replace(/'/g, "\\'").replace(/\\"/g, '"').replace(/(^"|"$)/g, "'");
+                name = ctx.stylize(name, 'string');
+            }
+        }
+
+        return name + ': ' + str;
+    }
+
+    function reduceToSingleString(output, base, braces) {
+        var length = output.reduce(function (prev, cur) {
+            if (cur.indexOf('\n') >= 0) ;
+            return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
+        }, 0);
+
+        if (length > 60) {
+            return braces[0] + (base === '' ? '' : base + '\n ') + ' ' + output.join(',\n  ') + ' ' + braces[1];
+        }
+
+        return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+    } // NOTE: These type checking functions intentionally don't use `instanceof`
+    // because it is fragile and can be easily faked with `Object.create()`.
+
+
+    exports.types = types;
+
+    function isArray(ar) {
+        return Array.isArray(ar);
+    }
+
+    exports.isArray = isArray;
+
+    function isBoolean(arg) {
+        return typeof arg === 'boolean';
+    }
+
+    exports.isBoolean = isBoolean;
+
+    function isNull(arg) {
+        return arg === null;
+    }
+
+    exports.isNull = isNull;
+
+    function isNullOrUndefined(arg) {
+        return arg == null;
+    }
+
+    exports.isNullOrUndefined = isNullOrUndefined;
+
+    function isNumber(arg) {
+        return typeof arg === 'number';
+    }
+
+    exports.isNumber = isNumber;
+
+    function isString(arg) {
+        return typeof arg === 'string';
+    }
+
+    exports.isString = isString;
+
+    function isSymbol(arg) {
+        return _typeof(arg) === 'symbol';
+    }
+
+    exports.isSymbol = isSymbol;
+
+    function isUndefined(arg) {
+        return arg === void 0;
+    }
+
+    exports.isUndefined = isUndefined;
+
+    function isRegExp(re) {
+        return isObject(re) && objectToString(re) === '[object RegExp]';
+    }
+
+    exports.isRegExp = isRegExp;
+    exports.types.isRegExp = isRegExp;
+
+    function isObject(arg) {
+        return _typeof(arg) === 'object' && arg !== null;
+    }
+
+    exports.isObject = isObject;
+
+    function isDate(d) {
+        return isObject(d) && objectToString(d) === '[object Date]';
+    }
+
+    exports.isDate = isDate;
+    exports.types.isDate = isDate;
+
+    function isError(e) {
+        return isObject(e) && (objectToString(e) === '[object Error]' || e instanceof Error);
+    }
+
+    exports.isError = isError;
+    exports.types.isNativeError = isError;
+
+    function isFunction(arg) {
+        return typeof arg === 'function';
+    }
+
+    exports.isFunction = isFunction;
+
+    function isPrimitive(arg) {
+        return arg === null || typeof arg === 'boolean' || typeof arg === 'number' || typeof arg === 'string' || _typeof(arg) === 'symbol' || // ES6 symbol
+            typeof arg === 'undefined';
+    }
+
+    exports.isPrimitive = isPrimitive;
+    exports.isBuffer = isBufferBrowser;
+
+    function objectToString(o) {
+        return Object.prototype.toString.call(o);
+    }
+
+    function pad(n) {
+        return n < 10 ? '0' + n.toString(10) : n.toString(10);
+    }
+
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; // 26 Feb 16:19:34
+
+    function timestamp() {
+        var d = new Date();
+        var time = [pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())].join(':');
+        return [d.getDate(), months[d.getMonth()], time].join(' ');
+    } // log is just a thin wrapper to console.log that prepends a timestamp
+
+
+    exports.log = function () {
+        console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
+    };
+    /**
+     * Inherit the prototype methods from one constructor into another.
+     *
+     * The Function.prototype.inherits from lang.js rewritten as a standalone
+     * function (not on Function.prototype). NOTE: If this file is to be loaded
+     * during bootstrapping this function needs to be rewritten using some native
+     * functions as prototype setup using normal JavaScript does not work as
+     * expected during bootstrapping (see mirror.js in r114903).
+     *
+     * @param {function} ctor Constructor function which needs to inherit the
+     *     prototype.
+     * @param {function} superCtor Constructor function to inherit prototype from.
+     */
+
+
+    exports.inherits = inherits_browser.exports;
+
+    exports._extend = function (origin, add) {
+        // Don't do anything if add isn't an object
+        if (!add || !isObject(add)) return origin;
+        var keys = Object.keys(add);
+        var i = keys.length;
+
+        while (i--) {
+            origin[keys[i]] = add[keys[i]];
+        }
+
+        return origin;
+    };
+
+    function hasOwnProperty(obj, prop) {
+        return Object.prototype.hasOwnProperty.call(obj, prop);
+    }
+
+    var kCustomPromisifiedSymbol = typeof Symbol !== 'undefined' ? Symbol('util.promisify.custom') : undefined;
+
+    exports.promisify = function promisify(original) {
+        if (typeof original !== 'function') throw new TypeError('The "original" argument must be of type Function');
+
+        if (kCustomPromisifiedSymbol && original[kCustomPromisifiedSymbol]) {
+            var fn = original[kCustomPromisifiedSymbol];
+
+            if (typeof fn !== 'function') {
+                throw new TypeError('The "util.promisify.custom" argument must be of type Function');
+            }
+
+            Object.defineProperty(fn, kCustomPromisifiedSymbol, {
+                value: fn,
+                enumerable: false,
+                writable: false,
+                configurable: true
+            });
+            return fn;
+        }
+
+        function fn() {
+            var promiseResolve, promiseReject;
+            var promise = new Promise(function (resolve, reject) {
+                promiseResolve = resolve;
+                promiseReject = reject;
+            });
+            var args = [];
+
+            for (var i = 0; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+
+            args.push(function (err, value) {
+                if (err) {
+                    promiseReject(err);
+                } else {
+                    promiseResolve(value);
+                }
+            });
+
+            try {
+                original.apply(this, args);
+            } catch (err) {
+                promiseReject(err);
+            }
+
+            return promise;
+        }
+
+        Object.setPrototypeOf(fn, Object.getPrototypeOf(original));
+        if (kCustomPromisifiedSymbol) Object.defineProperty(fn, kCustomPromisifiedSymbol, {
+            value: fn,
+            enumerable: false,
+            writable: false,
+            configurable: true
+        });
+        return Object.defineProperties(fn, getOwnPropertyDescriptors(original));
+    };
+
+    exports.promisify.custom = kCustomPromisifiedSymbol;
+
+    function callbackifyOnRejected(reason, cb) {
+        // `!reason` guard inspired by bluebird (Ref: https://goo.gl/t5IS6M).
+        // Because `null` is a special error value in callbacks which means "no error
+        // occurred", we error-wrap so the callback consumer can distinguish between
+        // "the promise rejected with null" or "the promise fulfilled with undefined".
+        if (!reason) {
+            var newReason = new Error('Promise was rejected with a falsy value');
+            newReason.reason = reason;
+            reason = newReason;
+        }
+
+        return cb(reason);
+    }
+
+    function callbackify(original) {
+        if (typeof original !== 'function') {
+            throw new TypeError('The "original" argument must be of type Function');
+        } // We DO NOT return the promise as it gives the user a false sense that
+        // the promise is actually somehow related to the callback's execution
+        // and that the callback throwing will reject the promise.
+
+
+        function callbackified() {
+            var args = [];
+
+            for (var i = 0; i < arguments.length; i++) {
+                args.push(arguments[i]);
+            }
+
+            var maybeCb = args.pop();
+
+            if (typeof maybeCb !== 'function') {
+                throw new TypeError('The last argument must be of type Function');
+            }
+
+            var self = this;
+
+            var cb = function cb() {
+                return maybeCb.apply(self, arguments);
+            }; // In true node style we process the callback on `nextTick` with all the
+            // implications (stack, `uncaughtException`, `async_hooks`)
+
+
+            original.apply(this, args).then(function (ret) {
+                nextTick(cb.bind(null, null, ret));
+            }, function (rej) {
+                nextTick(callbackifyOnRejected.bind(null, rej, cb));
+            });
+        }
+
+        Object.setPrototypeOf(callbackified, Object.getPrototypeOf(original));
+        Object.defineProperties(callbackified, getOwnPropertyDescriptors(original));
+        return callbackified;
+    }
+
+    exports.callbackify = callbackify;
+})(util);
+
+function compare(a, b) {
+    if (a === b) {
+        return 0;
+    }
+
+    var x = a.length;
+    var y = b.length;
+
+    for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+        if (a[i] !== b[i]) {
+            x = a[i];
+            y = b[i];
+            break;
+        }
+    }
+
+    if (x < y) {
+        return -1;
+    }
+
+    if (y < x) {
+        return 1;
+    }
+
+    return 0;
+}
+
+var hasOwn = Object.prototype.hasOwnProperty;
+
+var objectKeys = Object.keys || function (obj) {
+    var keys = [];
+
+    for (var key in obj) {
+        if (hasOwn.call(obj, key)) keys.push(key);
+    }
+
+    return keys;
+}; // based on node assert, original notice:
+var pSlice = Array.prototype.slice;
+
+var _functionsHaveNames;
+
+function functionsHaveNames() {
+    if (typeof _functionsHaveNames !== 'undefined') {
+        return _functionsHaveNames;
+    }
+
+    return _functionsHaveNames = function () {
+        return function foo() {}.name === 'foo';
+    }();
+}
+
+function pToString(obj) {
+    return Object.prototype.toString.call(obj);
+}
+
+function isView(arrbuf) {
+    if (buffer.isBuffer(arrbuf)) {
+        return false;
+    }
+
+    if (typeof global$1.ArrayBuffer !== 'function') {
+        return false;
+    }
+
+    if (typeof ArrayBuffer.isView === 'function') {
+        return ArrayBuffer.isView(arrbuf);
+    }
+
+    if (!arrbuf) {
+        return false;
+    }
+
+    if (arrbuf instanceof DataView) {
+        return true;
+    }
+
+    if (arrbuf.buffer && arrbuf.buffer instanceof ArrayBuffer) {
+        return true;
+    }
+
+    return false;
+} // 1. The assert module provides functions that throw
+// AssertionError's when particular conditions are not met. The
+// assert module must conform to the following interface.
+
+
+function assert$1(value, message) {
+    if (!value) fail(value, true, message, '==', ok);
+}
+// new assert.AssertionError({ message: message,
+//                             actual: actual,
+//                             expected: expected })
+
+var regex = /\s*function\s+([^\(\s]*)\s*/; // based on https://github.com/ljharb/function.prototype.name/blob/adeeeec8bfcc6068b187d7d9fb3d5bb1d3a30899/implementation.js
+
+function getName(func) {
+    if (!util.isFunction(func)) {
+        return;
+    }
+
+    if (functionsHaveNames()) {
+        return func.name;
+    }
+
+    var str = func.toString();
+    var match = str.match(regex);
+    return match && match[1];
+}
+
+assert$1.AssertionError = AssertionError;
+function AssertionError(options) {
+    this.name = 'AssertionError';
+    this.actual = options.actual;
+    this.expected = options.expected;
+    this.operator = options.operator;
+
+    if (options.message) {
+        this.message = options.message;
+        this.generatedMessage = false;
+    } else {
+        this.message = getMessage(this);
+        this.generatedMessage = true;
+    }
+
+    var stackStartFunction = options.stackStartFunction || fail;
+
+    if (Error.captureStackTrace) {
+        Error.captureStackTrace(this, stackStartFunction);
+    } else {
+        // non v8 browsers so we can have a stacktrace
+        var err = new Error();
+
+        if (err.stack) {
+            var out = err.stack; // try to strip useless frames
+
+            var fn_name = getName(stackStartFunction);
+            var idx = out.indexOf('\n' + fn_name);
+
+            if (idx >= 0) {
+                // once we have located the function frame
+                // we need to strip out everything before it (and its line)
+                var next_line = out.indexOf('\n', idx + 1);
+                out = out.substring(next_line + 1);
+            }
+
+            this.stack = out;
+        }
+    }
+} // assert.AssertionError instanceof Error
+
+util.inherits(AssertionError, Error);
+
+function truncate(s, n) {
+    if (typeof s === 'string') {
+        return s.length < n ? s : s.slice(0, n);
+    } else {
+        return s;
+    }
+}
+
+function inspect(something) {
+    if (functionsHaveNames() || !util.isFunction(something)) {
+        return util.inspect(something);
+    }
+
+    var rawname = getName(something);
+    var name = rawname ? ': ' + rawname : '';
+    return '[Function' + name + ']';
+}
+
+function getMessage(self) {
+    return truncate(inspect(self.actual), 128) + ' ' + self.operator + ' ' + truncate(inspect(self.expected), 128);
+} // At present only the three keys mentioned above are used and
+// understood by the spec. Implementations or sub modules can pass
+// other keys to the AssertionError's constructor - they will be
+// ignored.
+// 3. All of the following functions must throw an AssertionError
+// when a corresponding condition is not met, with a message that
+// may be undefined if not provided.  All assertion methods provide
+// both the actual and expected values to the assertion error for
+// display purposes.
+
+
+function fail(actual, expected, message, operator, stackStartFunction) {
+    throw new AssertionError({
+        message: message,
+        actual: actual,
+        expected: expected,
+        operator: operator,
+        stackStartFunction: stackStartFunction
+    });
+} // EXTENSION! allows for well behaved errors defined elsewhere.
+
+assert$1.fail = fail; // 4. Pure assertion tests whether a value is truthy, as determined
+// by !!guard.
+// assert.ok(guard, message_opt);
+// This statement is equivalent to assert.equal(true, !!guard,
+// message_opt);. To test strictly for the value true, use
+// assert.strictEqual(true, guard, message_opt);.
+
+function ok(value, message) {
+    if (!value) fail(value, true, message, '==', ok);
+}
+assert$1.ok = ok;
+// ==.
+// assert.equal(actual, expected, message_opt);
+
+assert$1.equal = equal;
+function equal(actual, expected, message) {
+    if (actual != expected) fail(actual, expected, message, '==', equal);
+} // 6. The non-equality assertion tests for whether two objects are not equal
+// with != assert.notEqual(actual, expected, message_opt);
+
+assert$1.notEqual = notEqual;
+function notEqual(actual, expected, message) {
+    if (actual == expected) {
+        fail(actual, expected, message, '!=', notEqual);
+    }
+} // 7. The equivalence assertion tests a deep equality relation.
+// assert.deepEqual(actual, expected, message_opt);
+
+assert$1.deepEqual = deepEqual;
+function deepEqual(actual, expected, message) {
+    if (!_deepEqual(actual, expected, false)) {
+        fail(actual, expected, message, 'deepEqual', deepEqual);
+    }
+}
+assert$1.deepStrictEqual = deepStrictEqual;
+function deepStrictEqual(actual, expected, message) {
+    if (!_deepEqual(actual, expected, true)) {
+        fail(actual, expected, message, 'deepStrictEqual', deepStrictEqual);
+    }
+}
+
+function _deepEqual(actual, expected, strict, memos) {
+    // 7.1. All identical values are equivalent, as determined by ===.
+    if (actual === expected) {
+        return true;
+    } else if (buffer.isBuffer(actual) && buffer.isBuffer(expected)) {
+        return compare(actual, expected) === 0; // 7.2. If the expected value is a Date object, the actual value is
+        // equivalent if it is also a Date object that refers to the same time.
+    } else if (util.isDate(actual) && util.isDate(expected)) {
+        return actual.getTime() === expected.getTime(); // 7.3 If the expected value is a RegExp object, the actual value is
+        // equivalent if it is also a RegExp object with the same source and
+        // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
+    } else if (util.isRegExp(actual) && util.isRegExp(expected)) {
+        return actual.source === expected.source && actual.global === expected.global && actual.multiline === expected.multiline && actual.lastIndex === expected.lastIndex && actual.ignoreCase === expected.ignoreCase; // 7.4. Other pairs that do not both pass typeof value == 'object',
+        // equivalence is determined by ==.
+    } else if ((actual === null || _typeof(actual) !== 'object') && (expected === null || _typeof(expected) !== 'object')) {
+        return strict ? actual === expected : actual == expected; // If both values are instances of typed arrays, wrap their underlying
+        // ArrayBuffers in a Buffer each to increase performance
+        // This optimization requires the arrays to have the same type as checked by
+        // Object.prototype.toString (aka pToString). Never perform binary
+        // comparisons for Float*Arrays, though, since e.g. +0 === -0 but their
+        // bit patterns are not identical.
+    } else if (isView(actual) && isView(expected) && pToString(actual) === pToString(expected) && !(actual instanceof Float32Array || actual instanceof Float64Array)) {
+        return compare(new Uint8Array(actual.buffer), new Uint8Array(expected.buffer)) === 0; // 7.5 For all other Object pairs, including Array objects, equivalence is
+        // determined by having the same number of owned properties (as verified
+        // with Object.prototype.hasOwnProperty.call), the same set of keys
+        // (although not necessarily the same order), equivalent values for every
+        // corresponding key, and an identical 'prototype' property. Note: this
+        // accounts for both named and indexed properties on Arrays.
+    } else if (buffer.isBuffer(actual) !== buffer.isBuffer(expected)) {
+        return false;
+    } else {
+        memos = memos || {
+            actual: [],
+            expected: []
+        };
+        var actualIndex = memos.actual.indexOf(actual);
+
+        if (actualIndex !== -1) {
+            if (actualIndex === memos.expected.indexOf(expected)) {
+                return true;
+            }
+        }
+
+        memos.actual.push(actual);
+        memos.expected.push(expected);
+        return objEquiv(actual, expected, strict, memos);
+    }
+}
+
+function isArguments(object) {
+    return Object.prototype.toString.call(object) == '[object Arguments]';
+}
+
+function objEquiv(a, b, strict, actualVisitedObjects) {
+    if (a === null || a === undefined || b === null || b === undefined) return false; // if one is a primitive, the other must be same
+
+    if (util.isPrimitive(a) || util.isPrimitive(b)) return a === b;
+    if (strict && Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)) return false;
+    var aIsArgs = isArguments(a);
+    var bIsArgs = isArguments(b);
+    if (aIsArgs && !bIsArgs || !aIsArgs && bIsArgs) return false;
+
+    if (aIsArgs) {
+        a = pSlice.call(a);
+        b = pSlice.call(b);
+        return _deepEqual(a, b, strict);
+    }
+
+    var ka = objectKeys(a);
+    var kb = objectKeys(b);
+    var key, i; // having the same number of owned properties (keys incorporates
+    // hasOwnProperty)
+
+    if (ka.length !== kb.length) return false; //the same set of keys (although not necessarily the same order),
+
+    ka.sort();
+    kb.sort(); //~~~cheap key test
+
+    for (i = ka.length - 1; i >= 0; i--) {
+        if (ka[i] !== kb[i]) return false;
+    } //equivalent values for every corresponding key, and
+    //~~~possibly expensive deep test
+
+
+    for (i = ka.length - 1; i >= 0; i--) {
+        key = ka[i];
+        if (!_deepEqual(a[key], b[key], strict, actualVisitedObjects)) return false;
+    }
+
+    return true;
+} // 8. The non-equivalence assertion tests for any deep inequality.
+// assert.notDeepEqual(actual, expected, message_opt);
+
+
+assert$1.notDeepEqual = notDeepEqual;
+function notDeepEqual(actual, expected, message) {
+    if (_deepEqual(actual, expected, false)) {
+        fail(actual, expected, message, 'notDeepEqual', notDeepEqual);
+    }
+}
+assert$1.notDeepStrictEqual = notDeepStrictEqual;
+function notDeepStrictEqual(actual, expected, message) {
+    if (_deepEqual(actual, expected, true)) {
+        fail(actual, expected, message, 'notDeepStrictEqual', notDeepStrictEqual);
+    }
+} // 9. The strict equality assertion tests strict equality, as determined by ===.
+// assert.strictEqual(actual, expected, message_opt);
+
+assert$1.strictEqual = strictEqual;
+function strictEqual(actual, expected, message) {
+    if (actual !== expected) {
+        fail(actual, expected, message, '===', strictEqual);
+    }
+} // 10. The strict non-equality assertion tests for strict inequality, as
+// determined by !==.  assert.notStrictEqual(actual, expected, message_opt);
+
+assert$1.notStrictEqual = notStrictEqual;
+function notStrictEqual(actual, expected, message) {
+    if (actual === expected) {
+        fail(actual, expected, message, '!==', notStrictEqual);
+    }
+}
+
+function expectedException(actual, expected) {
+    if (!actual || !expected) {
+        return false;
+    }
+
+    if (Object.prototype.toString.call(expected) == '[object RegExp]') {
+        return expected.test(actual);
+    }
+
+    try {
+        if (actual instanceof expected) {
+            return true;
+        }
+    } catch (e) {// Ignore.  The instanceof check doesn't work for arrow functions.
+    }
+
+    if (Error.isPrototypeOf(expected)) {
+        return false;
+    }
+
+    return expected.call({}, actual) === true;
+}
+
+function _tryBlock(block) {
+    var error;
+
+    try {
+        block();
+    } catch (e) {
+        error = e;
+    }
+
+    return error;
+}
+
+function _throws(shouldThrow, block, expected, message) {
+    var actual;
+
+    if (typeof block !== 'function') {
+        throw new TypeError('"block" argument must be a function');
+    }
+
+    if (typeof expected === 'string') {
+        message = expected;
+        expected = null;
+    }
+
+    actual = _tryBlock(block);
+    message = (expected && expected.name ? ' (' + expected.name + ').' : '.') + (message ? ' ' + message : '.');
+
+    if (shouldThrow && !actual) {
+        fail(actual, expected, 'Missing expected exception' + message);
+    }
+
+    var userProvidedMessage = typeof message === 'string';
+    var isUnwantedException = !shouldThrow && util.isError(actual);
+    var isUnexpectedException = !shouldThrow && actual && !expected;
+
+    if (isUnwantedException && userProvidedMessage && expectedException(actual, expected) || isUnexpectedException) {
+        fail(actual, expected, 'Got unwanted exception' + message);
+    }
+
+    if (shouldThrow && actual && expected && !expectedException(actual, expected) || !shouldThrow && actual) {
+        throw actual;
+    }
+} // 11. Expected to throw an error:
+// assert.throws(block, Error_opt, message_opt);
+
+
+assert$1.throws = throws;
+function throws(block,
+                /*optional*/
+                error,
+                /*optional*/
+                message) {
+    _throws(true, block, error, message);
+} // EXTENSION! This is annoying to write outside this module.
+
+assert$1.doesNotThrow = doesNotThrow;
+function doesNotThrow(block,
+                      /*optional*/
+                      error,
+                      /*optional*/
+                      message) {
+    _throws(false, block, error, message);
+}
+assert$1.ifError = ifError;
+function ifError(err) {
+    if (err) throw err;
+}
+
+var assert$2 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    'default': assert$1,
+    AssertionError: AssertionError,
+    fail: fail,
+    ok: ok,
+    assert: ok,
+    equal: equal,
+    notEqual: notEqual,
+    deepEqual: deepEqual,
+    deepStrictEqual: deepStrictEqual,
+    notDeepEqual: notDeepEqual,
+    notDeepStrictEqual: notDeepStrictEqual,
+    strictEqual: strictEqual,
+    notStrictEqual: notStrictEqual,
+    throws: throws,
+    doesNotThrow: doesNotThrow,
+    ifError: ifError
+});
+
 var lookup = [];
 var revLookup = [];
 var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;
@@ -2966,7 +5510,7 @@ function write(buffer, value, offset, isLE, mLen, nBytes) {
 }
 
 var toString$2 = {}.toString;
-var isArray$3 = Array.isArray || function (arr) {
+var isArray$2 = Array.isArray || function (arr) {
     return toString$2.call(arr) == '[object Array]';
 };
 
@@ -3248,7 +5792,7 @@ function fromObject(that, obj) {
             return fromArrayLike(that, obj);
         }
 
-        if (obj.type === 'Buffer' && isArray$3(obj.data)) {
+        if (obj.type === 'Buffer' && isArray$2(obj.data)) {
             return fromArrayLike(that, obj.data);
         }
     }
@@ -3314,7 +5858,7 @@ Buffer.isEncoding = function isEncoding(encoding) {
 };
 
 Buffer.concat = function concat(list, length) {
-    if (!isArray$3(list)) {
+    if (!isArray$2(list)) {
         throw new TypeError('"list" argument must be an Array of Buffers');
     }
 
@@ -4789,905 +7333,6 @@ function isFastBuffer(obj) {
 function isSlowBuffer$1(obj) {
     return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isFastBuffer(obj.slice(0, 0));
 }
-
-var inherits$1;
-
-if (typeof Object.create === 'function') {
-    inherits$1 = function inherits(ctor, superCtor) {
-        // implementation from standard node.js 'util' module
-        ctor.super_ = superCtor;
-        ctor.prototype = Object.create(superCtor.prototype, {
-            constructor: {
-                value: ctor,
-                enumerable: false,
-                writable: true,
-                configurable: true
-            }
-        });
-    };
-} else {
-    inherits$1 = function inherits(ctor, superCtor) {
-        ctor.super_ = superCtor;
-
-        var TempCtor = function TempCtor() {};
-
-        TempCtor.prototype = superCtor.prototype;
-        ctor.prototype = new TempCtor();
-        ctor.prototype.constructor = ctor;
-    };
-}
-
-var inherits$2 = inherits$1;
-
-/**
- * Echos the value of a value. Trys to print the value out
- * in the best way possible given the different types.
- *
- * @param {Object} obj The object to print out.
- * @param {Object} opts Optional options object that alters the output.
- */
-
-/* legacy: obj, showHidden, depth, colors*/
-
-function inspect$1(obj, opts) {
-    // default options
-    var ctx = {
-        seen: [],
-        stylize: stylizeNoColor
-    }; // legacy...
-
-    if (arguments.length >= 3) ctx.depth = arguments[2];
-    if (arguments.length >= 4) ctx.colors = arguments[3];
-
-    if (isBoolean(opts)) {
-        // legacy...
-        ctx.showHidden = opts;
-    } else if (opts) {
-        // got an "options" object
-        _extend(ctx, opts);
-    } // set default options
-
-
-    if (isUndefined$1(ctx.showHidden)) ctx.showHidden = false;
-    if (isUndefined$1(ctx.depth)) ctx.depth = 2;
-    if (isUndefined$1(ctx.colors)) ctx.colors = false;
-    if (isUndefined$1(ctx.customInspect)) ctx.customInspect = true;
-    if (ctx.colors) ctx.stylize = stylizeWithColor;
-    return formatValue(ctx, obj, ctx.depth);
-} // http://en.wikipedia.org/wiki/ANSI_escape_code#graphics
-
-inspect$1.colors = {
-    'bold': [1, 22],
-    'italic': [3, 23],
-    'underline': [4, 24],
-    'inverse': [7, 27],
-    'white': [37, 39],
-    'grey': [90, 39],
-    'black': [30, 39],
-    'blue': [34, 39],
-    'cyan': [36, 39],
-    'green': [32, 39],
-    'magenta': [35, 39],
-    'red': [31, 39],
-    'yellow': [33, 39]
-}; // Don't use 'blue' not visible on cmd.exe
-
-inspect$1.styles = {
-    'special': 'cyan',
-    'number': 'yellow',
-    'boolean': 'yellow',
-    'undefined': 'grey',
-    'null': 'bold',
-    'string': 'green',
-    'date': 'magenta',
-    // "name": intentionally not styling
-    'regexp': 'red'
-};
-
-function stylizeWithColor(str, styleType) {
-    var style = inspect$1.styles[styleType];
-
-    if (style) {
-        return "\x1B[" + inspect$1.colors[style][0] + 'm' + str + "\x1B[" + inspect$1.colors[style][1] + 'm';
-    } else {
-        return str;
-    }
-}
-
-function stylizeNoColor(str, styleType) {
-    return str;
-}
-
-function arrayToHash(array) {
-    var hash = {};
-    array.forEach(function (val, idx) {
-        hash[val] = true;
-    });
-    return hash;
-}
-
-function formatValue(ctx, value, recurseTimes) {
-    // Provide a hook for user-specified inspect functions.
-    // Check that value is an object with an inspect function on it
-    if (ctx.customInspect && value && isFunction$1(value.inspect) && // Filter out the util module, it's inspect function is special
-        value.inspect !== inspect$1 && // Also filter out any prototype objects using the circular check.
-        !(value.constructor && value.constructor.prototype === value)) {
-        var ret = value.inspect(recurseTimes, ctx);
-
-        if (!isString$2(ret)) {
-            ret = formatValue(ctx, ret, recurseTimes);
-        }
-
-        return ret;
-    } // Primitive types cannot have properties
-
-
-    var primitive = formatPrimitive(ctx, value);
-
-    if (primitive) {
-        return primitive;
-    } // Look up the keys of the object.
-
-
-    var keys = Object.keys(value);
-    var visibleKeys = arrayToHash(keys);
-
-    if (ctx.showHidden) {
-        keys = Object.getOwnPropertyNames(value);
-    } // IE doesn't make error fields non-enumerable
-    // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
-
-
-    if (isError(value) && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
-        return formatError(value);
-    } // Some type of object without properties can be shortcutted.
-
-
-    if (keys.length === 0) {
-        if (isFunction$1(value)) {
-            var name = value.name ? ': ' + value.name : '';
-            return ctx.stylize('[Function' + name + ']', 'special');
-        }
-
-        if (isRegExp(value)) {
-            return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-        }
-
-        if (isDate$1(value)) {
-            return ctx.stylize(Date.prototype.toString.call(value), 'date');
-        }
-
-        if (isError(value)) {
-            return formatError(value);
-        }
-    }
-
-    var base = '',
-        array = false,
-        braces = ['{', '}']; // Make Array say that they are Array
-
-    if (isArray$2(value)) {
-        array = true;
-        braces = ['[', ']'];
-    } // Make functions say that they are functions
-
-
-    if (isFunction$1(value)) {
-        var n = value.name ? ': ' + value.name : '';
-        base = ' [Function' + n + ']';
-    } // Make RegExps say that they are RegExps
-
-
-    if (isRegExp(value)) {
-        base = ' ' + RegExp.prototype.toString.call(value);
-    } // Make dates with properties first say the date
-
-
-    if (isDate$1(value)) {
-        base = ' ' + Date.prototype.toUTCString.call(value);
-    } // Make error with message first say the error
-
-
-    if (isError(value)) {
-        base = ' ' + formatError(value);
-    }
-
-    if (keys.length === 0 && (!array || value.length == 0)) {
-        return braces[0] + base + braces[1];
-    }
-
-    if (recurseTimes < 0) {
-        if (isRegExp(value)) {
-            return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-        } else {
-            return ctx.stylize('[Object]', 'special');
-        }
-    }
-
-    ctx.seen.push(value);
-    var output;
-
-    if (array) {
-        output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
-    } else {
-        output = keys.map(function (key) {
-            return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
-        });
-    }
-
-    ctx.seen.pop();
-    return reduceToSingleString(output, base, braces);
-}
-
-function formatPrimitive(ctx, value) {
-    if (isUndefined$1(value)) return ctx.stylize('undefined', 'undefined');
-
-    if (isString$2(value)) {
-        var simple = '\'' + JSON.stringify(value).replace(/^"|"$/g, '').replace(/'/g, "\\'").replace(/\\"/g, '"') + '\'';
-        return ctx.stylize(simple, 'string');
-    }
-
-    if (isNumber$1(value)) return ctx.stylize('' + value, 'number');
-    if (isBoolean(value)) return ctx.stylize('' + value, 'boolean'); // For some reason typeof null is "object", so special case here.
-
-    if (isNull(value)) return ctx.stylize('null', 'null');
-}
-
-function formatError(value) {
-    return '[' + Error.prototype.toString.call(value) + ']';
-}
-
-function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
-    var output = [];
-
-    for (var i = 0, l = value.length; i < l; ++i) {
-        if (hasOwnProperty(value, String(i))) {
-            output.push(formatProperty(ctx, value, recurseTimes, visibleKeys, String(i), true));
-        } else {
-            output.push('');
-        }
-    }
-
-    keys.forEach(function (key) {
-        if (!key.match(/^\d+$/)) {
-            output.push(formatProperty(ctx, value, recurseTimes, visibleKeys, key, true));
-        }
-    });
-    return output;
-}
-
-function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
-    var name, str, desc;
-    desc = Object.getOwnPropertyDescriptor(value, key) || {
-        value: value[key]
-    };
-
-    if (desc.get) {
-        if (desc.set) {
-            str = ctx.stylize('[Getter/Setter]', 'special');
-        } else {
-            str = ctx.stylize('[Getter]', 'special');
-        }
-    } else {
-        if (desc.set) {
-            str = ctx.stylize('[Setter]', 'special');
-        }
-    }
-
-    if (!hasOwnProperty(visibleKeys, key)) {
-        name = '[' + key + ']';
-    }
-
-    if (!str) {
-        if (ctx.seen.indexOf(desc.value) < 0) {
-            if (isNull(recurseTimes)) {
-                str = formatValue(ctx, desc.value, null);
-            } else {
-                str = formatValue(ctx, desc.value, recurseTimes - 1);
-            }
-
-            if (str.indexOf('\n') > -1) {
-                if (array) {
-                    str = str.split('\n').map(function (line) {
-                        return '  ' + line;
-                    }).join('\n').substr(2);
-                } else {
-                    str = '\n' + str.split('\n').map(function (line) {
-                        return '   ' + line;
-                    }).join('\n');
-                }
-            }
-        } else {
-            str = ctx.stylize('[Circular]', 'special');
-        }
-    }
-
-    if (isUndefined$1(name)) {
-        if (array && key.match(/^\d+$/)) {
-            return str;
-        }
-
-        name = JSON.stringify('' + key);
-
-        if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
-            name = name.substr(1, name.length - 2);
-            name = ctx.stylize(name, 'name');
-        } else {
-            name = name.replace(/'/g, "\\'").replace(/\\"/g, '"').replace(/(^"|"$)/g, "'");
-            name = ctx.stylize(name, 'string');
-        }
-    }
-
-    return name + ': ' + str;
-}
-
-function reduceToSingleString(output, base, braces) {
-    var length = output.reduce(function (prev, cur) {
-        if (cur.indexOf('\n') >= 0) ;
-        return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
-    }, 0);
-
-    if (length > 60) {
-        return braces[0] + (base === '' ? '' : base + '\n ') + ' ' + output.join(',\n  ') + ' ' + braces[1];
-    }
-
-    return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
-} // NOTE: These type checking functions intentionally don't use `instanceof`
-// because it is fragile and can be easily faked with `Object.create()`.
-
-
-function isArray$2(ar) {
-    return Array.isArray(ar);
-}
-function isBoolean(arg) {
-    return typeof arg === 'boolean';
-}
-function isNull(arg) {
-    return arg === null;
-}
-function isNumber$1(arg) {
-    return typeof arg === 'number';
-}
-function isString$2(arg) {
-    return typeof arg === 'string';
-}
-function isUndefined$1(arg) {
-    return arg === void 0;
-}
-function isRegExp(re) {
-    return isObject$1(re) && objectToString$1(re) === '[object RegExp]';
-}
-function isObject$1(arg) {
-    return _typeof(arg) === 'object' && arg !== null;
-}
-function isDate$1(d) {
-    return isObject$1(d) && objectToString$1(d) === '[object Date]';
-}
-function isError(e) {
-    return isObject$1(e) && (objectToString$1(e) === '[object Error]' || e instanceof Error);
-}
-function isFunction$1(arg) {
-    return typeof arg === 'function';
-}
-function isPrimitive(arg) {
-    return arg === null || typeof arg === 'boolean' || typeof arg === 'number' || typeof arg === 'string' || _typeof(arg) === 'symbol' || // ES6 symbol
-        typeof arg === 'undefined';
-}
-
-function objectToString$1(o) {
-    return Object.prototype.toString.call(o);
-}
-function _extend(origin, add) {
-    // Don't do anything if add isn't an object
-    if (!add || !isObject$1(add)) return origin;
-    var keys = Object.keys(add);
-    var i = keys.length;
-
-    while (i--) {
-        origin[keys[i]] = add[keys[i]];
-    }
-
-    return origin;
-}
-
-function hasOwnProperty(obj, prop) {
-    return Object.prototype.hasOwnProperty.call(obj, prop);
-}
-
-function compare(a, b) {
-    if (a === b) {
-        return 0;
-    }
-
-    var x = a.length;
-    var y = b.length;
-
-    for (var i = 0, len = Math.min(x, y); i < len; ++i) {
-        if (a[i] !== b[i]) {
-            x = a[i];
-            y = b[i];
-            break;
-        }
-    }
-
-    if (x < y) {
-        return -1;
-    }
-
-    if (y < x) {
-        return 1;
-    }
-
-    return 0;
-}
-
-var hasOwn = Object.prototype.hasOwnProperty;
-
-var objectKeys = Object.keys || function (obj) {
-    var keys = [];
-
-    for (var key in obj) {
-        if (hasOwn.call(obj, key)) keys.push(key);
-    }
-
-    return keys;
-}; // based on node assert, original notice:
-var pSlice = Array.prototype.slice;
-
-var _functionsHaveNames;
-
-function functionsHaveNames() {
-    if (typeof _functionsHaveNames !== 'undefined') {
-        return _functionsHaveNames;
-    }
-
-    return _functionsHaveNames = function () {
-        return function foo() {}.name === 'foo';
-    }();
-}
-
-function pToString(obj) {
-    return Object.prototype.toString.call(obj);
-}
-
-function isView(arrbuf) {
-    if (buffer.isBuffer(arrbuf)) {
-        return false;
-    }
-
-    if (typeof global$1.ArrayBuffer !== 'function') {
-        return false;
-    }
-
-    if (typeof ArrayBuffer.isView === 'function') {
-        return ArrayBuffer.isView(arrbuf);
-    }
-
-    if (!arrbuf) {
-        return false;
-    }
-
-    if (arrbuf instanceof DataView) {
-        return true;
-    }
-
-    if (arrbuf.buffer && arrbuf.buffer instanceof ArrayBuffer) {
-        return true;
-    }
-
-    return false;
-} // 1. The assert module provides functions that throw
-// AssertionError's when particular conditions are not met. The
-// assert module must conform to the following interface.
-
-
-function assert$1(value, message) {
-    if (!value) fail(value, true, message, '==', ok);
-}
-// new assert.AssertionError({ message: message,
-//                             actual: actual,
-//                             expected: expected })
-
-var regex = /\s*function\s+([^\(\s]*)\s*/; // based on https://github.com/ljharb/function.prototype.name/blob/adeeeec8bfcc6068b187d7d9fb3d5bb1d3a30899/implementation.js
-
-function getName(func) {
-    if (!isFunction$1(func)) {
-        return;
-    }
-
-    if (functionsHaveNames()) {
-        return func.name;
-    }
-
-    var str = func.toString();
-    var match = str.match(regex);
-    return match && match[1];
-}
-
-assert$1.AssertionError = AssertionError;
-function AssertionError(options) {
-    this.name = 'AssertionError';
-    this.actual = options.actual;
-    this.expected = options.expected;
-    this.operator = options.operator;
-
-    if (options.message) {
-        this.message = options.message;
-        this.generatedMessage = false;
-    } else {
-        this.message = getMessage(this);
-        this.generatedMessage = true;
-    }
-
-    var stackStartFunction = options.stackStartFunction || fail;
-
-    if (Error.captureStackTrace) {
-        Error.captureStackTrace(this, stackStartFunction);
-    } else {
-        // non v8 browsers so we can have a stacktrace
-        var err = new Error();
-
-        if (err.stack) {
-            var out = err.stack; // try to strip useless frames
-
-            var fn_name = getName(stackStartFunction);
-            var idx = out.indexOf('\n' + fn_name);
-
-            if (idx >= 0) {
-                // once we have located the function frame
-                // we need to strip out everything before it (and its line)
-                var next_line = out.indexOf('\n', idx + 1);
-                out = out.substring(next_line + 1);
-            }
-
-            this.stack = out;
-        }
-    }
-} // assert.AssertionError instanceof Error
-
-inherits$2(AssertionError, Error);
-
-function truncate(s, n) {
-    if (typeof s === 'string') {
-        return s.length < n ? s : s.slice(0, n);
-    } else {
-        return s;
-    }
-}
-
-function inspect(something) {
-    if (functionsHaveNames() || !isFunction$1(something)) {
-        return inspect$1(something);
-    }
-
-    var rawname = getName(something);
-    var name = rawname ? ': ' + rawname : '';
-    return '[Function' + name + ']';
-}
-
-function getMessage(self) {
-    return truncate(inspect(self.actual), 128) + ' ' + self.operator + ' ' + truncate(inspect(self.expected), 128);
-} // At present only the three keys mentioned above are used and
-// understood by the spec. Implementations or sub modules can pass
-// other keys to the AssertionError's constructor - they will be
-// ignored.
-// 3. All of the following functions must throw an AssertionError
-// when a corresponding condition is not met, with a message that
-// may be undefined if not provided.  All assertion methods provide
-// both the actual and expected values to the assertion error for
-// display purposes.
-
-
-function fail(actual, expected, message, operator, stackStartFunction) {
-    throw new AssertionError({
-        message: message,
-        actual: actual,
-        expected: expected,
-        operator: operator,
-        stackStartFunction: stackStartFunction
-    });
-} // EXTENSION! allows for well behaved errors defined elsewhere.
-
-assert$1.fail = fail; // 4. Pure assertion tests whether a value is truthy, as determined
-// by !!guard.
-// assert.ok(guard, message_opt);
-// This statement is equivalent to assert.equal(true, !!guard,
-// message_opt);. To test strictly for the value true, use
-// assert.strictEqual(true, guard, message_opt);.
-
-function ok(value, message) {
-    if (!value) fail(value, true, message, '==', ok);
-}
-assert$1.ok = ok;
-// ==.
-// assert.equal(actual, expected, message_opt);
-
-assert$1.equal = equal;
-function equal(actual, expected, message) {
-    if (actual != expected) fail(actual, expected, message, '==', equal);
-} // 6. The non-equality assertion tests for whether two objects are not equal
-// with != assert.notEqual(actual, expected, message_opt);
-
-assert$1.notEqual = notEqual;
-function notEqual(actual, expected, message) {
-    if (actual == expected) {
-        fail(actual, expected, message, '!=', notEqual);
-    }
-} // 7. The equivalence assertion tests a deep equality relation.
-// assert.deepEqual(actual, expected, message_opt);
-
-assert$1.deepEqual = deepEqual;
-function deepEqual(actual, expected, message) {
-    if (!_deepEqual(actual, expected, false)) {
-        fail(actual, expected, message, 'deepEqual', deepEqual);
-    }
-}
-assert$1.deepStrictEqual = deepStrictEqual;
-function deepStrictEqual(actual, expected, message) {
-    if (!_deepEqual(actual, expected, true)) {
-        fail(actual, expected, message, 'deepStrictEqual', deepStrictEqual);
-    }
-}
-
-function _deepEqual(actual, expected, strict, memos) {
-    // 7.1. All identical values are equivalent, as determined by ===.
-    if (actual === expected) {
-        return true;
-    } else if (buffer.isBuffer(actual) && buffer.isBuffer(expected)) {
-        return compare(actual, expected) === 0; // 7.2. If the expected value is a Date object, the actual value is
-        // equivalent if it is also a Date object that refers to the same time.
-    } else if (isDate$1(actual) && isDate$1(expected)) {
-        return actual.getTime() === expected.getTime(); // 7.3 If the expected value is a RegExp object, the actual value is
-        // equivalent if it is also a RegExp object with the same source and
-        // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
-    } else if (isRegExp(actual) && isRegExp(expected)) {
-        return actual.source === expected.source && actual.global === expected.global && actual.multiline === expected.multiline && actual.lastIndex === expected.lastIndex && actual.ignoreCase === expected.ignoreCase; // 7.4. Other pairs that do not both pass typeof value == 'object',
-        // equivalence is determined by ==.
-    } else if ((actual === null || _typeof(actual) !== 'object') && (expected === null || _typeof(expected) !== 'object')) {
-        return strict ? actual === expected : actual == expected; // If both values are instances of typed arrays, wrap their underlying
-        // ArrayBuffers in a Buffer each to increase performance
-        // This optimization requires the arrays to have the same type as checked by
-        // Object.prototype.toString (aka pToString). Never perform binary
-        // comparisons for Float*Arrays, though, since e.g. +0 === -0 but their
-        // bit patterns are not identical.
-    } else if (isView(actual) && isView(expected) && pToString(actual) === pToString(expected) && !(actual instanceof Float32Array || actual instanceof Float64Array)) {
-        return compare(new Uint8Array(actual.buffer), new Uint8Array(expected.buffer)) === 0; // 7.5 For all other Object pairs, including Array objects, equivalence is
-        // determined by having the same number of owned properties (as verified
-        // with Object.prototype.hasOwnProperty.call), the same set of keys
-        // (although not necessarily the same order), equivalent values for every
-        // corresponding key, and an identical 'prototype' property. Note: this
-        // accounts for both named and indexed properties on Arrays.
-    } else if (buffer.isBuffer(actual) !== buffer.isBuffer(expected)) {
-        return false;
-    } else {
-        memos = memos || {
-            actual: [],
-            expected: []
-        };
-        var actualIndex = memos.actual.indexOf(actual);
-
-        if (actualIndex !== -1) {
-            if (actualIndex === memos.expected.indexOf(expected)) {
-                return true;
-            }
-        }
-
-        memos.actual.push(actual);
-        memos.expected.push(expected);
-        return objEquiv(actual, expected, strict, memos);
-    }
-}
-
-function isArguments(object) {
-    return Object.prototype.toString.call(object) == '[object Arguments]';
-}
-
-function objEquiv(a, b, strict, actualVisitedObjects) {
-    if (a === null || a === undefined || b === null || b === undefined) return false; // if one is a primitive, the other must be same
-
-    if (isPrimitive(a) || isPrimitive(b)) return a === b;
-    if (strict && Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)) return false;
-    var aIsArgs = isArguments(a);
-    var bIsArgs = isArguments(b);
-    if (aIsArgs && !bIsArgs || !aIsArgs && bIsArgs) return false;
-
-    if (aIsArgs) {
-        a = pSlice.call(a);
-        b = pSlice.call(b);
-        return _deepEqual(a, b, strict);
-    }
-
-    var ka = objectKeys(a);
-    var kb = objectKeys(b);
-    var key, i; // having the same number of owned properties (keys incorporates
-    // hasOwnProperty)
-
-    if (ka.length !== kb.length) return false; //the same set of keys (although not necessarily the same order),
-
-    ka.sort();
-    kb.sort(); //~~~cheap key test
-
-    for (i = ka.length - 1; i >= 0; i--) {
-        if (ka[i] !== kb[i]) return false;
-    } //equivalent values for every corresponding key, and
-    //~~~possibly expensive deep test
-
-
-    for (i = ka.length - 1; i >= 0; i--) {
-        key = ka[i];
-        if (!_deepEqual(a[key], b[key], strict, actualVisitedObjects)) return false;
-    }
-
-    return true;
-} // 8. The non-equivalence assertion tests for any deep inequality.
-// assert.notDeepEqual(actual, expected, message_opt);
-
-
-assert$1.notDeepEqual = notDeepEqual;
-function notDeepEqual(actual, expected, message) {
-    if (_deepEqual(actual, expected, false)) {
-        fail(actual, expected, message, 'notDeepEqual', notDeepEqual);
-    }
-}
-assert$1.notDeepStrictEqual = notDeepStrictEqual;
-function notDeepStrictEqual(actual, expected, message) {
-    if (_deepEqual(actual, expected, true)) {
-        fail(actual, expected, message, 'notDeepStrictEqual', notDeepStrictEqual);
-    }
-} // 9. The strict equality assertion tests strict equality, as determined by ===.
-// assert.strictEqual(actual, expected, message_opt);
-
-assert$1.strictEqual = strictEqual;
-function strictEqual(actual, expected, message) {
-    if (actual !== expected) {
-        fail(actual, expected, message, '===', strictEqual);
-    }
-} // 10. The strict non-equality assertion tests for strict inequality, as
-// determined by !==.  assert.notStrictEqual(actual, expected, message_opt);
-
-assert$1.notStrictEqual = notStrictEqual;
-function notStrictEqual(actual, expected, message) {
-    if (actual === expected) {
-        fail(actual, expected, message, '!==', notStrictEqual);
-    }
-}
-
-function expectedException(actual, expected) {
-    if (!actual || !expected) {
-        return false;
-    }
-
-    if (Object.prototype.toString.call(expected) == '[object RegExp]') {
-        return expected.test(actual);
-    }
-
-    try {
-        if (actual instanceof expected) {
-            return true;
-        }
-    } catch (e) {// Ignore.  The instanceof check doesn't work for arrow functions.
-    }
-
-    if (Error.isPrototypeOf(expected)) {
-        return false;
-    }
-
-    return expected.call({}, actual) === true;
-}
-
-function _tryBlock(block) {
-    var error;
-
-    try {
-        block();
-    } catch (e) {
-        error = e;
-    }
-
-    return error;
-}
-
-function _throws(shouldThrow, block, expected, message) {
-    var actual;
-
-    if (typeof block !== 'function') {
-        throw new TypeError('"block" argument must be a function');
-    }
-
-    if (typeof expected === 'string') {
-        message = expected;
-        expected = null;
-    }
-
-    actual = _tryBlock(block);
-    message = (expected && expected.name ? ' (' + expected.name + ').' : '.') + (message ? ' ' + message : '.');
-
-    if (shouldThrow && !actual) {
-        fail(actual, expected, 'Missing expected exception' + message);
-    }
-
-    var userProvidedMessage = typeof message === 'string';
-    var isUnwantedException = !shouldThrow && isError(actual);
-    var isUnexpectedException = !shouldThrow && actual && !expected;
-
-    if (isUnwantedException && userProvidedMessage && expectedException(actual, expected) || isUnexpectedException) {
-        fail(actual, expected, 'Got unwanted exception' + message);
-    }
-
-    if (shouldThrow && actual && expected && !expectedException(actual, expected) || !shouldThrow && actual) {
-        throw actual;
-    }
-} // 11. Expected to throw an error:
-// assert.throws(block, Error_opt, message_opt);
-
-
-assert$1.throws = throws;
-function throws(block,
-                /*optional*/
-                error,
-                /*optional*/
-                message) {
-    _throws(true, block, error, message);
-} // EXTENSION! This is annoying to write outside this module.
-
-assert$1.doesNotThrow = doesNotThrow;
-function doesNotThrow(block,
-                      /*optional*/
-                      error,
-                      /*optional*/
-                      message) {
-    _throws(false, block, error, message);
-}
-assert$1.ifError = ifError;
-function ifError(err) {
-    if (err) throw err;
-}
-
-var assert$2 = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    'default': assert$1,
-    AssertionError: AssertionError,
-    fail: fail,
-    ok: ok,
-    assert: ok,
-    equal: equal,
-    notEqual: notEqual,
-    deepEqual: deepEqual,
-    deepStrictEqual: deepStrictEqual,
-    notDeepEqual: notDeepEqual,
-    notDeepStrictEqual: notDeepStrictEqual,
-    strictEqual: strictEqual,
-    notStrictEqual: notStrictEqual,
-    throws: throws,
-    doesNotThrow: doesNotThrow,
-    ifError: ifError
-});
-
-var removeTrailingSlash = {exports: {}};
-
-(function (module, exports) {
-    /**
-     * Remove trailing slashes from the given `str`
-     *
-     * @api public
-     * @param {String} str
-     * @return {String}
-     */
-    exports = module.exports = function (str) {
-        return String(str).replace(exports.expr, '');
-    };
-    /**
-     * Expose the regex
-     *
-     * @api private
-     * @type {RegExp}
-     */
-
-
-    exports.expr = /\/+$/;
-})(removeTrailingSlash, removeTrailingSlash.exports);
-
-var removeSlash = removeTrailingSlash.exports;
 
 var toString$1 = Object.prototype.toString;
 /**
@@ -11592,9 +13237,14 @@ function enhanceError(error, config, code, request, response) {
     return error;
 }
 
-var version$1 = "2.15.0";
+var version$1 = "2.18.0";
 
 var version = version$1;
+
+var removeTrailingSlashes = function removeTrailingSlashes(inURL) {
+    return inURL && inURL.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
+};
+
 var setImmediate = global$1.setImmediate || nextTick.bind(process);
 
 var noop = function noop() {};
@@ -11623,7 +13273,7 @@ var Analytics = /*#__PURE__*/function () {
         assert$1(dataPlaneURL, 'You must pass your data plane url.');
         this.queue = [];
         this.writeKey = writeKey;
-        this.host = removeSlash(dataPlaneURL);
+        this.host = removeTrailingSlashes(dataPlaneURL);
         this.timeout = options.timeout || false;
         this.flushAt = Math.max(options.flushAt, 1) || 20;
         this.flushInterval = options.flushInterval || 20000;
@@ -11641,13 +13291,15 @@ var Analytics = /*#__PURE__*/function () {
         });
         this.logger = {
             error: function error(message) {
-                var _console;
+                if (this.logLevel !== 'off') {
+                    var _console;
 
-                for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-                    args[_key - 1] = arguments[_key];
+                    for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+                        args[_key - 1] = arguments[_key];
+                    }
+
+                    (_console = console).error.apply(_console, ["".concat(new Date().toISOString(), " [\"Rudder\"] error: ").concat(message)].concat(args));
                 }
-
-                (_console = console).error.apply(_console, ["".concat(new Date().toISOString(), " [\"Rudder\"] error: ").concat(message)].concat(args));
             },
             info: function info(message) {
                 if (['silly', 'debug', 'info'].includes(this.logLevel)) {
@@ -12020,6 +13672,8 @@ var Analytics = /*#__PURE__*/function () {
                 _this.timer = setTimeout(_this.flush.bind(_this), _this.flushInterval);
                 done();
             }).catch(function (err) {
+                console.log(err);
+
                 _this.logger.error("got error while attempting send for 3 times, dropping ".concat(items.length, " events"));
 
                 _this.timer = setTimeout(_this.flush.bind(_this), _this.flushInterval);
