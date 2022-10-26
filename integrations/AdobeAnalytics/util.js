@@ -1,13 +1,13 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-undef */
 import each from "@ndhoule/each";
+import get from "lodash.get";
 import {
   toIso,
   getHashFromArray,
   isDefinedAndNotNullAndNotEmpty,
   isDefined,
 } from "../utils/commonUtils";
-import _ from "lodash";
 import logger from "../../utils/logUtil";
 
 let dynamicKeys = [];
@@ -211,9 +211,9 @@ const getDataFromContext = (contextMap, rudderElement) => {
       if (topLevelProperties.includes(value)) {
         val = rudderElement.message[value];
       } else {
-        val = _.get(context, value)
-          ? _.get(context, value)
-          : _.get(properties, value);
+        val = get(context, value)
+          ? get(context, value)
+          : get(properties, value);
       }
       if (val) {
         contextDataMap[contextMap[value]] = val;
@@ -517,7 +517,7 @@ const mapMerchProductEvents = (event, properties, adobeEvent) => {
     if (rudderProp.productMerchProperties.startsWith("products.")) {
       const key = rudderProp.productMerchProperties.split(".");
       // take the keys after products. and find the value in properties
-      const value = _.get(properties, key[1]);
+      const value = get(properties, key[1]);
       if (isDefined(value)) {
         each((val) => {
           eventString = `${val}=${value}`;
@@ -554,7 +554,7 @@ const mapMerchProductEVars = (properties) => {
     if (key.startsWith("products.")) {
       key = key.split(".");
       // take the keys after products. and find the value in properties
-      const productValue = _.get(properties, key[1]);
+      const productValue = get(properties, key[1]);
       if (isDefined(productValue)) {
         eVars.push(`eVar${value}=${productValue}`);
       }
