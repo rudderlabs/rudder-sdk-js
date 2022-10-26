@@ -60,6 +60,7 @@ import { CNameMapping as QuoraPixel } from "./QuoraPixel/constants";
 import { CNameMapping as Iterable } from "./Iterable/constants";
 import { CNameMapping as Engage } from "./Engage/constants";
 import { CNameMapping as June } from "./June/constants";
+import { CNameMapping as Refiner } from "./Refiner/constants";
 import { CNameMapping as YandexMetrica } from "./YandexMetrica/constants";
 
 // for sdk side native integration identification
@@ -128,6 +129,7 @@ const commonNames = {
   ...Iterable,
   ...Engage,
   ...June,
+  ...Refiner,
   ...YandexMetrica,
 };
 
