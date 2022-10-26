@@ -535,7 +535,8 @@ class Analytics {
     const rudderElement = new RudderElementBuilder().setType("alias").build();
     rudderElement.message.previousId =
       from || (this.userId ? this.userId : this.getAnonymousId());
-    rudderElement.message.userId = to;
+    rudderElement.message.userId =
+      typeof to === "string" ? to : JSON.stringify(to);
 
     this.processAndSendDataToDestinations(
       "alias",
@@ -563,7 +564,8 @@ class Analytics {
     if (typeof groupId === "object")
       (options = traits), (traits = groupId), (groupId = this.groupId);
 
-    this.groupId = groupId;
+    this.groupId =
+      typeof groupId === "string" ? groupId : JSON.stringify(groupId);
     this.storage.setGroupId(this.groupId);
 
     const rudderElement = new RudderElementBuilder().setType("group").build();
@@ -647,7 +649,7 @@ class Analytics {
     if (userId && this.userId && userId !== this.userId) {
       this.reset();
     }
-    this.userId = typeof userId === 'string' ? userId : userId.toString();
+    this.userId = typeof userId === 'string' ? userId : JSON.stringify(userId);
     this.storage.setUserId(this.userId);
 
     const rudderElement = new RudderElementBuilder()
