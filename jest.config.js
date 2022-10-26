@@ -2,6 +2,7 @@
 // https://jestjs.io/docs/en/configuration.html
 
 module.exports = {
+  prettierPath: 'prettier',
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
@@ -24,7 +25,14 @@ module.exports = {
   coverageDirectory: 'coverage',
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/tests/', '/scripts/', '__tests__'],
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '/dist/',
+    '/tests/',
+    '/scripts/',
+    '__tests__',
+    '__mocks__',
+  ],
 
   // A list of reporter names that Jest uses when writing coverage reports
   coverageReporters: ['json', 'text', 'lcov', 'clover'],
@@ -152,12 +160,12 @@ module.exports = {
   // timers: "real",
 
   // A map from regular expressions to paths to transformers
-  // transform: undefined,
+  transform: {
+    '^.+\\.(js|)?$': 'esbuild-jest',
+  },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-  // transformIgnorePatterns: [
-  //   "/node_modules/"
-  // ],
+  transformIgnorePatterns: ['<rootDir>/.github/', '<rootDir>/.husky/', '<rootDir>/dist/'],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   // unmockedModulePathPatterns: undefined,
@@ -170,4 +178,5 @@ module.exports = {
 
   // Whether to use watchman for file crawling
   // watchman: true,
+  setupFiles: ['jest-date-mock', '<rootDir>/jest/jest.polyfills.js'],
 };

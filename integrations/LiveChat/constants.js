@@ -1,7 +1,6 @@
 const NAME = 'LIVECHAT';
 const CNameMapping = {
   [NAME]: NAME,
-  LIVECHAT: NAME,
   LiveChat: NAME,
   Live_Chat: NAME,
   livechat: NAME,

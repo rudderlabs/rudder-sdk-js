@@ -4,6 +4,8 @@ const CNameMapping = {
   PostAffiliatePro: NAME,
   Post_affiliate_pro: NAME,
   'Post Affiliate Pro': NAME,
+  'Post affiliate pro': NAME,
+  'post affiliate pro': NAME,
   postaffiliatepro: NAME,
   POSTAFFILIATEPRO: NAME,
 };
