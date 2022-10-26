@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
+import get from "get-value";
 import { NAME } from "./constants";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
@@ -9,6 +10,7 @@ class Podsights {
   constructor(config, analytics) {
     this.pixelId = config.pixelId;
     this.eventsToPodsightsEvents = config.eventsToPodsightsEvents;
+    this.enableAliasCall = config.enableAliasCall;
     this.name = NAME;
     if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
   }
@@ -35,7 +37,7 @@ class Podsights {
   }
 
   /**
-   * Track - tracks an event for a specific user
+   * Track - tracks an event for an user
    * @param {Track} track
    */
   track(rudderElement) {
@@ -46,6 +48,18 @@ class Podsights {
       logger.error("[Podsights]: event name from track call is missing.");
       return;
     }
+    if (this.enableAliasCall && event.trim().toLowerCase() === "alias") {
+      const externalId =
+        get(message, "userId") ||
+        get(message, "context.traits.userId") ||
+        get(message, "context.traits.id") ||
+        get(message, "anonymousId");
+      window.pdst("alias", {
+        id: externalId,
+      });
+      return;
+    }
+
     const eventsMapping = getHashFromArrayWithDuplicate(
       this.eventsToPodsightsEvents
     );
@@ -68,11 +82,7 @@ class Podsights {
   page(rudderElement) {
     const { properties } = rudderElement.message;
     logger.debug("===In Podsights Page===");
-    window.pdst("view", {
-      url: window.location.href,
-      referrer: window.document.referrer,
-      ...properties,
-    });
+    window.pdst("view", properties);
   }
 }
 
