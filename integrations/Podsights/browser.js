@@ -1,15 +1,16 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import { NAME } from "./constants";
+import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import { getHashFromArrayWithDuplicate } from "../utils/commonUtils";
-import ScriptLoader from "../ScriptLoader";
 
 class Podsights {
-  constructor(config) {
+  constructor(config, analytics) {
     this.pixelId = config.pixelId;
     this.eventsToPodsightsEvents = config.eventsToPodsightsEvents;
     this.name = NAME;
+    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
   }
 
   init() {
