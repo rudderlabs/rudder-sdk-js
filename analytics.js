@@ -1192,8 +1192,6 @@ class Analytics {
 const instance = new Analytics();
 
 function processDataInAnalyticsArray(analytics) {
-  // Process the queue only if the default API is its first entry
-  // or SDK is already loaded
   if (analytics.toBeProcessedArray.length) {
     while (analytics.toBeProcessedArray.length > 0) {
       const event = [...analytics.toBeProcessedArray[0]];
@@ -1270,6 +1268,7 @@ instance.registerCallbacks(false);
 const defaultMethod = 'load';
 const argumentsArray = window.rudderanalytics;
 const isValidArgsArray = Array.isArray(argumentsArray);
+let defaultEvent;
 if (isValidArgsArray) {
   /**
    * Iterate the buffered API calls until we find load call and
@@ -1278,7 +1277,7 @@ if (isValidArgsArray) {
   let i = 0;
   while (i < argumentsArray.length) {
     if (argumentsArray[i] && argumentsArray[i][0] === defaultMethod) {
-      instance.toBeProcessedArray.push(argumentsArray[i]);
+      defaultEvent = argumentsArray[i];
       argumentsArray.splice(i, 1);
       break;
     }
@@ -1291,10 +1290,10 @@ parseQueryString(window.location.search);
 
 if (isValidArgsArray) argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
 
-if (instance.toBeProcessedArray.length && instance.toBeProcessedArray[0][0] === defaultMethod) {
-  const loadEvent = instance.toBeProcessedArray.shift();
-  loadEvent.shift();
-  instance[defaultMethod](...loadEvent);
+// Process load method if present in the buffered requests
+if (defaultEvent && defaultEvent.length) {
+  defaultEvent.shift();
+  instance[defaultMethod](...defaultEvent);
 }
 
 const ready = instance.ready.bind(instance);
