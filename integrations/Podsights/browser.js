@@ -3,6 +3,7 @@
 import { NAME } from "./constants";
 import logger from "../../utils/logUtil";
 import { getHashFromArrayWithDuplicate } from "../utils/commonUtils";
+import ScriptLoader from "../ScriptLoader";
 
 class Podsights {
   constructor(config) {
@@ -11,30 +12,15 @@ class Podsights {
     this.name = NAME;
   }
 
-  loadScript(pixelId) {
-    (function (w, d) {
-      var id = "pdst-capture",
-        n = "script";
-      if (!d.getElementById(id)) {
-        w.pdst =
-          w.pdst ||
-          function () {
-            (w.pdst.q = w.pdst.q || []).push(arguments);
-          };
-        var e = d.createElement(n);
-        e.id = id;
-        e.async = 1;
-        e.src = "https://cdn.pdst.fm/ping.min.js";
-        var s = d.getElementsByTagName(n)[0];
-        s.parentNode.insertBefore(e, s);
-      }
-      window.pdst("conf", { key: `${pixelId}` });
-    })(window, document);
-  }
-
   init() {
     logger.debug("===In init Podsights===");
-    this.loadScript(this.pixelId);
+    window.pdst =
+      window.pdst ||
+      function () {
+        (window.pdst.q = window.pdst.q || []).push(arguments);
+      };
+    ScriptLoader("pdst-capture", "https://cdn.pdst.fm/ping.min.js");
+    window.pdst("conf", { key: `${this.pixelId}` });
   }
 
   isLoaded() {
