@@ -533,10 +533,16 @@ class Analytics {
     if (typeof from === "object") (options = from), (from = null);
 
     const rudderElement = new RudderElementBuilder().setType("alias").build();
+    const updatedFrom =
+      typeof from === "string" || typeof from === "undefined"
+        ? from
+        : JSON.stringify(from);
     rudderElement.message.previousId =
-      from || (this.userId ? this.userId : this.getAnonymousId());
+      updatedFrom || (this.userId ? this.userId : this.getAnonymousId());
     rudderElement.message.userId =
-      typeof to === "string" ? to : JSON.stringify(to);
+      typeof to === "string" || typeof to === "undefined"
+        ? to
+        : JSON.stringify(to);
 
     this.processAndSendDataToDestinations(
       "alias",
@@ -565,7 +571,9 @@ class Analytics {
       (options = traits), (traits = groupId), (groupId = this.groupId);
 
     this.groupId =
-      typeof groupId === "string" ? groupId : JSON.stringify(groupId);
+      typeof groupId === "string" || typeof groupId === "undefined"
+        ? groupId
+        : JSON.stringify(groupId);
     this.storage.setGroupId(this.groupId);
 
     const rudderElement = new RudderElementBuilder().setType("group").build();
@@ -649,7 +657,10 @@ class Analytics {
     if (userId && this.userId && userId !== this.userId) {
       this.reset();
     }
-    this.userId = typeof userId === 'string' ? userId : JSON.stringify(userId);
+    this.userId =
+      typeof userId === "string" || typeof userId === "undefined"
+        ? userId
+        : JSON.stringify(userId);
     this.storage.setUserId(this.userId);
 
     const rudderElement = new RudderElementBuilder()
