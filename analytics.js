@@ -1194,7 +1194,7 @@ const instance = new Analytics();
 function processDataInAnalyticsArray(analytics) {
   // Process the queue only if the default API is its first entry
   // or SDK is already loaded
-  if (analytics.toBeProcessedArray.length && analytics.loaded) {
+  if (analytics.toBeProcessedArray.length) {
     while (analytics.toBeProcessedArray.length > 0) {
       const event = [...analytics.toBeProcessedArray[0]];
 
@@ -1284,12 +1284,6 @@ if (isValidArgsArray) {
     }
     i += 1;
   }
-
-  if (instance.toBeProcessedArray.length && instance.toBeProcessedArray[0][0] === defaultMethod) {
-    instance.toBeProcessedArray[0].shift();
-    instance[defaultMethod](...instance.toBeProcessedArray[0]);
-    instance.toBeProcessedArray.shift();
-  }
 }
 
 // parse querystring of the page url to send events
@@ -1297,7 +1291,11 @@ parseQueryString(window.location.search);
 
 if (isValidArgsArray) argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
 
-processDataInAnalyticsArray(instance);
+if (instance.toBeProcessedArray.length && instance.toBeProcessedArray[0][0] === defaultMethod) {
+  const loadEvent = instance.toBeProcessedArray.shift();
+  loadEvent.shift();
+  instance[defaultMethod](...loadEvent);
+}
 
 const ready = instance.ready.bind(instance);
 const identify = instance.identify.bind(instance);
