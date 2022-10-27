@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
+import sha256 from "crypto-js/sha256";
 import { NAME } from "./constants";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
@@ -55,7 +56,7 @@ class Podsights {
         get(message, "context.traits.id") ||
         get(message, "anonymousId");
       window.pdst("alias", {
-        id: externalId,
+        id: sha256(externalId).toString(),
       });
       return;
     }
@@ -82,7 +83,11 @@ class Podsights {
   page(rudderElement) {
     const { properties } = rudderElement.message;
     logger.debug("===In Podsights Page===");
-    window.pdst("view", properties);
+    window.pdst("view", {
+      url: window.location.href,
+      referrer: window.document.referrer,
+      ...properties,
+    });
   }
 }
 
