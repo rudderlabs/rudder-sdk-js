@@ -259,8 +259,8 @@ const buildIframeTrackPayload = (
 ) => {
   const randomNum = Math.random() * 10000000000000;
   // Ref - https://support.google.com/campaignmanager/answer/2823450?hl=en#zippy=%2Cother-parameters-for-iframe-and-image-tags:~:text=Other%20parameters%20for%20iFrame%20and%20image%20tags
-  // we can pass custom variables to DCM and any values passed in it will override its default value
-  // Total 7 properties - ord, num, dc_lat, tag_for_child_directed_treatment, tfua, npa, match_id
+  // we can pass custom params to DCM.
+  // Total 9 params - ord, num, cost, qty, dc_lat, tag_for_child_directed_treatment, tfua, npa, match_id
   let customParams = {};
 
   if (salesTag) {
