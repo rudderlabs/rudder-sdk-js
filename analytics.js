@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 /* eslint-disable new-cap */
 /* eslint-disable func-names */
 /* eslint-disable eqeqeq */
@@ -43,6 +44,9 @@ import {
   DEFAULT_ERROR_REPORT_PROVIDER,
   ERROR_REPORT_PROVIDERS,
   SAMESITE_COOKIE_OPTS,
+  DEFAULT_REGION,
+  DEFAULT_DATAPLANE_URL,
+  RESIDENCY_SERVERS,
 } from './utils/constants';
 import RudderElementBuilder from './utils/RudderElementBuilder';
 import Storage from './utils/storage';
@@ -180,6 +184,32 @@ class Analytics {
     }
   }
 
+  isValidResidencyServerInput() {
+    const region = this.options.residencyServer;
+    return typeof region === 'string' && RESIDENCY_SERVERS.includes(region.toUpperCase());
+  }
+
+  checkUrlFromCode() {
+    if (this.serverUrl && this.isValidServerUrl(this.serverUrl)) {
+      return this.serverUrl;
+    }
+    return DEFAULT_DATAPLANE_URL;
+  }
+
+  resolveDataPlaneUrl(dataPlaneUrls = {}) {
+    if (this.options && this.options.residencyServer && this.isValidResidencyServerInput()) {
+      const dataPlaneUrl = dataPlaneUrls[this.options.residencyServer.toUpperCase()];
+      if (dataPlaneUrl) {
+        return dataPlaneUrl;
+      }
+      if (dataPlaneUrls[DEFAULT_REGION]) {
+        return dataPlaneUrls[DEFAULT_REGION];
+      }
+      this.checkUrlFromCode();
+    }
+    this.checkUrlFromCode();
+  }
+
   /**
    * Process the response from control plane and
    * call initialize for integrations
@@ -229,6 +259,12 @@ class Analytics {
           BugsnagLib.init(response.source.id);
         }
       }
+
+      // determine the dataPlaneUrl
+      this.serverUrl = this.resolveDataPlaneUrl(response.source.dataPlaneUrls);
+
+      // this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
+      // this.loaded = true;
 
       response.source.destinations.forEach(function (destination, index) {
         // logger.debug(
@@ -456,7 +492,10 @@ class Analytics {
    */
   page(category, name, properties, options, callback) {
     leaveBreadcrumb(`Page event`);
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['page', category, name, properties, options, callback]);
+      return;
+    }
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof properties === 'function') (callback = properties), (options = properties = null);
     if (typeof name === 'function') (callback = name), (options = properties = name = null);
@@ -496,7 +535,10 @@ class Analytics {
    */
   track(event, properties, options, callback) {
     leaveBreadcrumb(`Track event`);
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['track', event, properties, options, callback]);
+      return;
+    }
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof properties === 'function')
       (callback = properties), (options = null), (properties = null);
@@ -521,7 +563,10 @@ class Analytics {
    */
   identify(userId, traits, options, callback) {
     leaveBreadcrumb(`Identify event`);
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['identify', userId, traits, options, callback]);
+      return;
+    }
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
     if (typeof userId === 'object') (options = traits), (traits = userId), (userId = this.userId);
@@ -552,7 +597,10 @@ class Analytics {
    */
   alias(to, from, options, callback) {
     leaveBreadcrumb(`Alias event`);
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['alias', to, from, options, callback]);
+      return;
+    }
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof from === 'function') (callback = from), (options = null), (from = null);
     if (typeof from === 'object') (options = from), (from = null);
@@ -573,7 +621,10 @@ class Analytics {
    */
   group(groupId, traits, options, callback) {
     leaveBreadcrumb(`Group event`);
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['group', groupId, traits, options, callback]);
+      return;
+    }
     if (!arguments.length) return;
 
     if (typeof options === 'function') (callback = options), (options = null);
@@ -938,6 +989,10 @@ class Analytics {
    * @returns
    */
   loadAfterPolyfill(writeKey, serverUrl, options) {
+    if (typeof serverUrl === 'object') {
+      options = serverUrl;
+      serverUrl = null;
+    }
     if (options && options.logLevel) {
       this.logLevel = options.logLevel;
       logger.setLogLevel(options.logLevel);
@@ -947,9 +1002,13 @@ class Analytics {
     }
     if (options && options.cookieConsentManager)
       this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
-    if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
-      throw Error('Unable to load the SDK due to invalid writeKey or serverUrl');
+    if (!this.isValidWriteKey(writeKey)) {
+      throw Error('Unable to load the SDK due to invalid writeKey');
     }
+
+    this.writeKey = writeKey;
+    this.serverUrl = serverUrl;
+    this.options = options;
 
     let storageOptions = {};
 
@@ -1003,7 +1062,7 @@ class Analytics {
       this.loadIntegration = !!options.loadIntegration;
     }
 
-    this.eventRepository.initialize(writeKey, serverUrl, options);
+    this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
     this.loaded = true;

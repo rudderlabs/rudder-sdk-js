@@ -33,6 +33,11 @@ const DEFAULT_SESSION_TIMEOUT = 30 * 60 * 1000; // 30 min in milliseconds
 const MIN_SESSION_TIMEOUT = 10 * 1000; // 10 sec in milliseconds
 const MIN_SESSION_ID_LENGTH = 10;
 
+const DEFAULT_REGION = 'US';
+const DEFAULT_DATAPLANE_URL = 'https://hosted.rudderlabs.com';
+
+const RESIDENCY_SERVERS = ['US', 'EU'];
+
 export {
   RESERVED_KEYS,
   CONFIG_URL,
@@ -50,4 +55,7 @@ export {
   DEFAULT_SESSION_TIMEOUT,
   MIN_SESSION_TIMEOUT,
   MIN_SESSION_ID_LENGTH,
+  DEFAULT_REGION,
+  DEFAULT_DATAPLANE_URL,
+  RESIDENCY_SERVERS,
 };
