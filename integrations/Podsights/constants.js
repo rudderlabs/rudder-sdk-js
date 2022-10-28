@@ -109,6 +109,10 @@ const CHECK_OUT_EVENT = [
     sourceKeys: "discountCode",
   },
   {
+    destKey: "quantity",
+    sourceKeys: "quantity",
+  },
+  {
     destKey: "line_items",
     sourceKeys: "lineItems",
   },

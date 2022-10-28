@@ -80,7 +80,7 @@ class Podsights {
       get(message, "anonymousId");
     let payload;
     events.forEach((podsightEvent) => {
-      switch (podsightEvent) {
+      switch (podsightEvent.trim().toLowerCase()) {
         case "lead":
           payload = constructPayload(properties, LEAD_EVENT);
           window.pdst(podsightEvent, payload);
