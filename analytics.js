@@ -497,6 +497,17 @@ class Analytics {
   }
 
   /**
+   * A function to convert non-string IDs to string format
+   * @param {any} id
+   * @returns {string} id
+   */
+  getStringId(id) {
+    return typeof id === "string" || typeof id === "undefined"
+      ? id
+      : JSON.stringify(id);
+  }
+
+  /**
    * Process identify params and forward to indentify  call
    *
    * @param {*} userId
@@ -533,16 +544,11 @@ class Analytics {
     if (typeof from === "object") (options = from), (from = null);
 
     const rudderElement = new RudderElementBuilder().setType("alias").build();
-    const updatedFrom =
-      typeof from === "string" || typeof from === "undefined"
-        ? from
-        : JSON.stringify(from);
+
     rudderElement.message.previousId =
-      updatedFrom || (this.userId ? this.userId : this.getAnonymousId());
-    rudderElement.message.userId =
-      typeof to === "string" || typeof to === "undefined"
-        ? to
-        : JSON.stringify(to);
+      this.getStringId(from) ||
+      (this.userId ? this.userId : this.getAnonymousId());
+    rudderElement.message.userId = this.getStringId(to);
 
     this.processAndSendDataToDestinations(
       "alias",
@@ -570,10 +576,7 @@ class Analytics {
     if (typeof groupId === "object")
       (options = traits), (traits = groupId), (groupId = this.groupId);
 
-    this.groupId =
-      typeof groupId === "string" || typeof groupId === "undefined"
-        ? groupId
-        : JSON.stringify(groupId);
+    this.groupId = this.getStringId(groupId);
     this.storage.setGroupId(this.groupId);
 
     const rudderElement = new RudderElementBuilder().setType("group").build();
@@ -657,10 +660,7 @@ class Analytics {
     if (userId && this.userId && userId !== this.userId) {
       this.reset();
     }
-    this.userId =
-      typeof userId === "string" || typeof userId === "undefined"
-        ? userId
-        : JSON.stringify(userId);
+    this.userId = this.getStringId(userId);
     this.storage.setUserId(this.userId);
 
     const rudderElement = new RudderElementBuilder()
