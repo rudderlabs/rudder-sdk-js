@@ -2,13 +2,21 @@
 /* eslint-disable class-methods-use-this */
 import get from "get-value";
 import sha256 from "crypto-js/sha256";
-import { NAME } from "./constants";
+import {
+  ADD_TO_CART_EVENT,
+  CHECK_OUT_EVENT,
+  LEAD_EVENT,
+  NAME,
+  PRODUCT_EVENT,
+  PURCHASE_EVENT,
+} from "./constants";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import {
   getHashFromArrayWithDuplicate,
   removeUndefinedAndNullValues,
 } from "../utils/commonUtils";
+import { constructPayload } from "../../utils/utils";
 
 class Podsights {
   constructor(config, analytics) {
@@ -70,9 +78,38 @@ class Podsights {
       get(message, "context.traits.userId") ||
       get(message, "context.traits.id") ||
       get(message, "anonymousId");
-
+    let payload;
     events.forEach((podsightEvent) => {
+      switch (podsightEvent) {
+        case "lead":
+          payload = constructPayload(properties, LEAD_EVENT);
+          window.pdst(podsightEvent, payload);
+          break;
+        case "purchase":
+          payload = constructPayload(properties, PURCHASE_EVENT);
+          window.pdst(podsightEvent, payload);
+          break;
+        case "product":
+          payload = constructPayload(properties, PRODUCT_EVENT);
+          window.pdst(podsightEvent, payload);
+          break;
+        case "addtocart":
+          payload = constructPayload(properties, ADD_TO_CART_EVENT);
+          window.pdst(podsightEvent, payload);
+          break;
+        case "checkout":
+          payload = constructPayload(properties, CHECK_OUT_EVENT);
+          window.pdst(podsightEvent, payload);
+          break;
+        default:
+          logger.error(
+            `event name ${podsightEvent} not supported. Aborting!===`
+          );
+          break;
+      }
+
       if (podsightEvent === "lead") {
+        payload = constructPayload(properties, LEAD_EVENT);
         window.pdst(podsightEvent, { category: trimmedEvent, ...properties });
       } else {
         window.pdst(podsightEvent, properties);

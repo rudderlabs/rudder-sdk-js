@@ -10,4 +10,147 @@ const CNameMapping = {
   "Pod sights": NAME,
 };
 
-export { NAME, CNameMapping };
+const LEAD_EVENT = [
+  {
+    destKey: "value",
+    sourceKeys: "value",
+  },
+  {
+    destKey: "currency",
+    sourceKeys: "currency",
+  },
+  {
+    destKey: "type",
+    sourceKeys: "type",
+  },
+  {
+    destKey: "category",
+    sourceKeys: "category",
+  },
+];
+
+const PRODUCT_EVENT = [
+  {
+    destKey: "value",
+    sourceKeys: "value",
+  },
+  {
+    destKey: "currency",
+    sourceKeys: "currency",
+  },
+  {
+    destKey: "product_id",
+    sourceKeys: "productId",
+  },
+  {
+    destKey: "product_name",
+    sourceKeys: "productName",
+  },
+  {
+    destKey: "product_type",
+    sourceKeys: "productType",
+  },
+  {
+    destKey: "product_vendor",
+    sourceKeys: "productVendor",
+  },
+];
+
+const ADD_TO_CART_EVENT = [
+  {
+    destKey: "value",
+    sourceKeys: "value",
+  },
+  {
+    destKey: "currency",
+    sourceKeys: "currency",
+  },
+  {
+    destKey: "product_id",
+    sourceKeys: "productId",
+  },
+  {
+    destKey: "product_name",
+    sourceKeys: "productName",
+  },
+  {
+    destKey: "product_type",
+    sourceKeys: "productType",
+  },
+  {
+    destKey: "product_vendor",
+    sourceKeys: "productVendor",
+  },
+  {
+    destKey: "quantity",
+    sourceKeys: "quantity",
+  },
+  {
+    destKey: "variant_id",
+    sourceKeys: "variantId",
+  },
+  {
+    destKey: "variant_name",
+    sourceKeys: "variantName",
+  },
+];
+
+const CHECK_OUT_EVENT = [
+  {
+    destKey: "value",
+    sourceKeys: "value",
+  },
+  {
+    destKey: "currency",
+    sourceKeys: "currency",
+  },
+  {
+    destKey: "discount_code",
+    sourceKeys: "discountCode",
+  },
+  {
+    destKey: "line_items",
+    sourceKeys: "lineItems",
+  },
+];
+
+const PURCHASE_EVENT = [
+  {
+    destKey: "value",
+    sourceKeys: "value",
+  },
+  {
+    destKey: "currency",
+    sourceKeys: "currency",
+  },
+  {
+    destKey: "discount_code",
+    sourceKeys: "discountCode",
+  },
+  {
+    destKey: "line_items",
+    sourceKeys: "lineItems",
+  },
+  {
+    destKey: "order_id",
+    sourceKeys: "orderId",
+  },
+  {
+    destKey: "is_new_customer",
+    sourceKeys: "isNewCustomer",
+  },
+  {
+    destKey: "quantity",
+    sourceKeys: "quantity",
+  },
+];
+
+export {
+  NAME,
+  CNameMapping,
+  LEAD_EVENT,
+  PRODUCT_EVENT,
+  ADD_TO_CART_EVENT,
+  CHECK_OUT_EVENT,
+  PURCHASE_EVENT,
+};
