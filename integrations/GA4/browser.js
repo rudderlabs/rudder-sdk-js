@@ -25,6 +25,7 @@ export default class GA4 {
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.extendGroupPayload = config.extendGroupPayload || false;
     this.debugMode = config.debugMode || false;
+    this.useNativeSDKToSend = config.useNativeSDKToSend || false;
     this.name = NAME;
   }
 
@@ -160,6 +161,11 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   track(rudderElement) {
+    // if Hybrid mode is enabled, don't send data to the device-mode
+    if (this.useNativeSDKToSend) {
+      return;
+    }
+
     const { event } = rudderElement.message;
     const { properties } = rudderElement.message;
     const { products } = properties;
@@ -178,6 +184,11 @@ export default class GA4 {
   }
 
   identify(rudderElement) {
+    // if Hybrid mode is enabled, don't send data to the device-mode
+    if (this.useNativeSDKToSend) {
+      return;
+    }
+
     window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
     if (this.sendUserId && rudderElement.message.userId) {
       const userId = this.analytics.userId || this.analytics.anonymousId;
@@ -197,6 +208,11 @@ export default class GA4 {
   }
 
   page(rudderElement) {
+    // if Hybrid mode is enabled, don't send data to the device-mode
+    if (this.useNativeSDKToSend) {
+      return;
+    }
+
     let pageProps = rudderElement.message.properties;
     if (!pageProps) return;
     pageProps = flattenJsonPayload(pageProps);
@@ -211,6 +227,11 @@ export default class GA4 {
   }
 
   group(rudderElement) {
+    // if Hybrid mode is enabled, don't send data to the device-mode
+    if (this.useNativeSDKToSend) {
+      return;
+    }
+
     const { groupId } = rudderElement.message;
     const { traits } = rudderElement.message;
 
