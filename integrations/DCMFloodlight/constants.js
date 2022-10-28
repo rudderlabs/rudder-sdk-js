@@ -10,5 +10,6 @@ const CNameMapping = {
   dcm_floodlight: NAME,
   DCM_Floodlight: NAME,
 };
+const GTAG = "globalSiteTag";
 
-export { NAME, CNameMapping };
+export { NAME, CNameMapping, GTAG };
