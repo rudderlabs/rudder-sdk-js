@@ -107,13 +107,6 @@ class Podsights {
           );
           break;
       }
-
-      if (podsightEvent === "lead") {
-        payload = constructPayload(properties, LEAD_EVENT);
-        window.pdst(podsightEvent, { category: trimmedEvent, ...properties });
-      } else {
-        window.pdst(podsightEvent, properties);
-      }
       if (this.enableAliasCall && externalId) {
         window.pdst("alias", {
           id: sha256(externalId).toString(),
