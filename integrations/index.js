@@ -60,6 +60,7 @@ import * as QuoraPixel from './QuoraPixel';
 import * as Iterable from './Iterable';
 import * as Engage from './Engage';
 import * as June from './June';
+import * as Refiner from './Refiner';
 import * as YandexMetrica from './YandexMetrica';
 
 // the key names should match the destination.name value to keep partity everywhere
@@ -128,6 +129,7 @@ const integrations = {
   ITERABLE: Iterable.default,
   ENGAGE: Engage.default,
   JUNE: June.default,
+  REFINER: Refiner.default,
   YANDEX_METRICA: YandexMetrica.default,
 };
 

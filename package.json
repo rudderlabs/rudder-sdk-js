@@ -1,6 +1,6 @@
 {
   "name": "rudder-analytics",
-  "version": "2.18.0",
+  "version": "2.18.1",
   "description": "",
   "main": "./dist/browser.min.js",
   "scripts": {
@@ -68,7 +68,6 @@
     "ms": "^2.1.3",
     "obj-case": "^0.2.1",
     "on-body": "^0.0.1",
-    "remove-trailing-slash": "^0.1.1",
     "rudder-component-cookie": "^0.0.1",
     "serialize-javascript": "^6.0.0",
     "storejs": "^2.0.1",
