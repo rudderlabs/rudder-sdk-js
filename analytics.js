@@ -30,6 +30,7 @@ import {
   getReferringDomain,
   commonNames,
   get,
+  getStringId,
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -497,17 +498,6 @@ class Analytics {
   }
 
   /**
-   * A function to convert non-string IDs to string format
-   * @param {any} id
-   * @returns {string} id
-   */
-  getStringId(id) {
-    return typeof id === "string" || typeof id === "undefined"
-      ? id
-      : JSON.stringify(id);
-  }
-
-  /**
    * Process identify params and forward to indentify  call
    *
    * @param {*} userId
@@ -546,9 +536,8 @@ class Analytics {
     const rudderElement = new RudderElementBuilder().setType("alias").build();
 
     rudderElement.message.previousId =
-      this.getStringId(from) ||
-      (this.userId ? this.userId : this.getAnonymousId());
-    rudderElement.message.userId = this.getStringId(to);
+      getStringId(from) || (this.userId ? this.userId : this.getAnonymousId());
+    rudderElement.message.userId = getStringId(to);
 
     this.processAndSendDataToDestinations(
       "alias",
@@ -576,7 +565,7 @@ class Analytics {
     if (typeof groupId === "object")
       (options = traits), (traits = groupId), (groupId = this.groupId);
 
-    this.groupId = this.getStringId(groupId);
+    this.groupId = getStringId(groupId);
     this.storage.setGroupId(this.groupId);
 
     const rudderElement = new RudderElementBuilder().setType("group").build();
@@ -660,7 +649,7 @@ class Analytics {
     if (userId && this.userId && userId !== this.userId) {
       this.reset();
     }
-    this.userId = this.getStringId(userId);
+    this.userId = getStringId(userId);
     this.storage.setUserId(this.userId);
 
     const rudderElement = new RudderElementBuilder()
