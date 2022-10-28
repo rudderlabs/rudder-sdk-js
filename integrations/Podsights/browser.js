@@ -5,7 +5,10 @@ import sha256 from "crypto-js/sha256";
 import { NAME } from "./constants";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
-import { getHashFromArrayWithDuplicate } from "../utils/commonUtils";
+import {
+  getHashFromArrayWithDuplicate,
+  removeUndefinedAndNullValues,
+} from "../utils/commonUtils";
 
 class Podsights {
   constructor(config, analytics) {
@@ -49,29 +52,36 @@ class Podsights {
       logger.error("[Podsights]: event name from track call is missing.");
       return;
     }
-    if (this.enableAliasCall && event.trim().toLowerCase() === "alias") {
-      const externalId =
-        get(message, "userId") ||
-        get(message, "context.traits.userId") ||
-        get(message, "context.traits.id") ||
-        get(message, "anonymousId");
-      window.pdst("alias", {
-        id: sha256(externalId).toString(),
-      });
-      return;
-    }
 
     const eventsMapping = getHashFromArrayWithDuplicate(
-      this.eventsToPodsightsEvents
+      this.eventsToPodsightsEvents,
+      "from",
+      "to",
+      false
     );
-    const trimmedEvent = event.toLowerCase().trim();
+    const trimmedEvent = event.trim();
     const events = eventsMapping[trimmedEvent] || [];
     if (events.length === 0) {
       logger.error(`===No Podsights Pixel mapped event found. Aborting!===`);
       return;
     }
+    const externalId =
+      get(message, "userId") ||
+      get(message, "context.traits.userId") ||
+      get(message, "context.traits.id") ||
+      get(message, "anonymousId");
+
     events.forEach((podsightEvent) => {
-      window.pdst(podsightEvent, properties);
+      if (podsightEvent === "lead") {
+        window.pdst(podsightEvent, { category: trimmedEvent, ...properties });
+      } else {
+        window.pdst(podsightEvent, properties);
+      }
+      if (this.enableAliasCall && externalId) {
+        window.pdst("alias", {
+          id: sha256(externalId).toString(),
+        });
+      }
     });
   }
 
@@ -83,11 +93,17 @@ class Podsights {
   page(rudderElement) {
     const { properties } = rudderElement.message;
     logger.debug("===In Podsights Page===");
-    window.pdst("view", {
-      url: window.location.href,
-      referrer: window.document.referrer,
-      ...properties,
-    });
+    const { page } = rudderElement.message.context;
+    let payload = properties;
+    if (page) {
+      payload = {
+        url: page.url,
+        referrer: page.referrer,
+        ...payload,
+      };
+    }
+    payload = removeUndefinedAndNullValues(payload);
+    window.pdst("view", payload);
   }
 }
 
