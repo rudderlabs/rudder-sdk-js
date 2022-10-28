@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable new-cap */
 /* eslint-disable func-names */
 /* eslint-disable eqeqeq */
@@ -1034,6 +1035,9 @@ class Analytics {
         } else {
           this.processResponse(200, res);
         }
+        // Execute any pending buffered requests
+        // (needed if the load call was not previously buffered)
+        processDataInAnalyticsArray(this);
       }
       return;
     }
@@ -1048,6 +1052,9 @@ class Analytics {
     } catch (error) {
       handleError(error);
     }
+    // Execute any pending buffered requests
+    // (needed if the load call was not previously buffered)
+    processDataInAnalyticsArray(this);
   }
 
   /**
@@ -1185,15 +1192,19 @@ class Analytics {
 const instance = new Analytics();
 
 function processDataInAnalyticsArray(analytics) {
-  analytics.toBeProcessedArray.forEach((x) => {
-    const event = [...x];
-    const method = event[0];
-    event.shift();
-    // logger.debug("=====from analytics array, calling method:: ", method)
-    analytics[method](...event);
-  });
+  if (analytics.toBeProcessedArray.length) {
+    while (analytics.toBeProcessedArray.length > 0) {
+      const event = [...analytics.toBeProcessedArray[0]];
 
-  instance.toBeProcessedArray = [];
+      // remove the element from the queue
+      analytics.toBeProcessedArray.shift();
+
+      const method = event[0];
+      event.shift();
+      // logger.debug("=====from analytics array, calling method:: ", method)
+      analytics[method](...event);
+    }
+  }
 }
 
 /**
@@ -1257,6 +1268,7 @@ instance.registerCallbacks(false);
 const defaultMethod = 'load';
 const argumentsArray = window.rudderanalytics;
 const isValidArgsArray = Array.isArray(argumentsArray);
+let defaultEvent;
 if (isValidArgsArray) {
   /**
    * Iterate the buffered API calls until we find load call and
@@ -1265,7 +1277,7 @@ if (isValidArgsArray) {
   let i = 0;
   while (i < argumentsArray.length) {
     if (argumentsArray[i] && argumentsArray[i][0] === defaultMethod) {
-      instance.toBeProcessedArray.push(argumentsArray[i]);
+      defaultEvent = argumentsArray[i];
       argumentsArray.splice(i, 1);
       break;
     }
@@ -1278,7 +1290,11 @@ parseQueryString(window.location.search);
 
 if (isValidArgsArray) argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
 
-processDataInAnalyticsArray(instance);
+// Process load method if present in the buffered requests
+if (defaultEvent && defaultEvent.length) {
+  defaultEvent.shift();
+  instance[defaultMethod](...defaultEvent);
+}
 
 const ready = instance.ready.bind(instance);
 const identify = instance.identify.bind(instance);
