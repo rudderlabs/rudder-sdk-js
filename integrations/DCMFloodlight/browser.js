@@ -3,16 +3,21 @@
 import get from 'get-value';
 import logger from '../../utils/logUtil';
 import ScriptLoader from '../ScriptLoader';
+import { removeUndefinedAndNullValues } from '../utils/commonUtils';
+import { NAME, GTAG } from './constants';
 import {
-  isDefinedAndNotNull,
-  isNotEmpty,
-  removeUndefinedAndNullValues,
-} from '../utils/commonUtils';
-import { NAME } from './constants';
-import { transformCustomVariable, mapFlagValue } from './utils';
+  transformCustomVariable,
+  flattenPayload,
+  buildGtagTrackPayload,
+  buildIframeTrackPayload,
+  isValidCountingMethod,
+} from './utils';
 
 class DCMFloodlight {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.analytics = analytics;
     this.advertiserId = config.advertiserId;
     this.activityTag = config.activityTag;
@@ -22,6 +27,7 @@ class DCMFloodlight {
     this.allowAdPersonalizationSignals = config.allowAdPersonalizationSignals;
     this.doubleclickId = config.doubleclickId;
     this.googleNetworkId = config.googleNetworkId;
+    this.tagFormat = config.tagFormat || GTAG;
     this.name = NAME;
   }
 
@@ -31,31 +37,40 @@ class DCMFloodlight {
   init() {
     logger.debug('===In init DCMFloodlight===');
 
-    const sourceUrl = `https://www.googletagmanager.com/gtag/js?id=DC-${this.advertiserId}`;
-    ScriptLoader('DCMFloodlight-integration', sourceUrl);
+    if (this.tagFormat === GTAG) {
+      const sourceUrl = `https://www.googletagmanager.com/gtag/js?id=DC-${this.advertiserId}`;
+      ScriptLoader('DCMFloodlight-integration', sourceUrl);
 
-    window.dataLayer = window.dataLayer || [];
-    window.gtag = function gtag() {
-      window.dataLayer.push(arguments);
-    };
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function gtag() {
+        window.dataLayer.push(arguments);
+      };
 
-    // disable ad personalization
-    if (!this.allowAdPersonalizationSignals) {
-      window.gtag('set', 'allow_ad_personalization_signals', false);
+      // disable ad personalization
+      if (!this.allowAdPersonalizationSignals) {
+        window.gtag('set', 'allow_ad_personalization_signals', false);
+      }
+
+      window.gtag('js', new Date());
+
+      if (this.conversionLinker) {
+        window.gtag('config', `DC-${this.advertiserId}`);
+      } else {
+        window.gtag('config', `DC-${this.advertiserId}`, {
+          conversion_linker: false,
+        });
+      }
     }
 
-    window.gtag('js', new Date());
+    this.loadCookieMatching();
+  }
 
-    if (this.conversionLinker) {
-      window.gtag('config', `DC-${this.advertiserId}`);
-    } else {
-      window.gtag('config', `DC-${this.advertiserId}`, {
-        conversion_linker: false,
-      });
-    }
-
-    // Google's cookie matching functionality
-    // Ref - https://developers.google.com/authorized-buyers/rtb/cookie-guide
+  /**
+   * Google's cookie matching functionality
+   * Ref - https://developers.google.com/authorized-buyers/rtb/cookie-guide
+   */
+  loadCookieMatching() {
+    logger.debug('===In loadCookieMatching DCMFloodlight===');
     if (this.doubleclickId && this.googleNetworkId) {
       const image = document.createElement('img');
       image.src = `https://cm.g.doubleclick.net/pixel?google_nid=${
@@ -67,12 +82,18 @@ class DCMFloodlight {
 
   isLoaded() {
     logger.debug('===In isLoaded DCMFloodlight===');
-    return window.dataLayer.push !== Array.prototype.push;
+    if (this.tagFormat === GTAG) {
+      return window.dataLayer.push !== Array.prototype.push;
+    }
+    return true;
   }
 
   isReady() {
     logger.debug('===In isReady DCMFloodlight===');
-    return window.dataLayer.push !== Array.prototype.push;
+    if (this.tagFormat === GTAG) {
+      return window.dataLayer.push !== Array.prototype.push;
+    }
+    return true;
   }
 
   identify() {
@@ -83,8 +104,7 @@ class DCMFloodlight {
     logger.debug('===In DCMFloodlight track===');
 
     const { message } = rudderElement;
-    let { event } = rudderElement.message;
-    let salesTag;
+    const { event } = rudderElement.message;
     let customFloodlightVariable;
 
     if (!event) {
@@ -101,146 +121,54 @@ class DCMFloodlight {
     countingMethod = countingMethod.trim().toLowerCase().replace(/\s+/g, '_');
 
     // find conversion event
-    // some() stops execution if at least one condition is passed and returns bool
     // knowing cat (activityTag), type (groupTag), (counter or sales), customVariable from config
-    event = event.trim().toLowerCase();
-    const conversionEventFound = this.conversionEvents.some((conversionEvent) => {
-      if (
-        conversionEvent &&
-        conversionEvent.eventName &&
-        conversionEvent.eventName.trim().toLowerCase() === event
-      ) {
-        if (
-          isNotEmpty(conversionEvent.floodlightActivityTag) &&
-          isNotEmpty(conversionEvent.floodlightGroupTag)
-        ) {
-          this.activityTag = conversionEvent.floodlightActivityTag.trim();
-          this.groupTag = conversionEvent.floodlightGroupTag.trim();
-        }
-        salesTag = conversionEvent.salesTag;
-        customFloodlightVariable = conversionEvent.customVariables || [];
-        return true;
-      }
-      return false;
-    });
+    const conversionEvent = this.conversionEvents.find(
+      (cnEvent) =>
+        cnEvent &&
+        cnEvent.eventName &&
+        cnEvent.eventName.trim().toLowerCase() === event.toLowerCase(),
+    );
 
-    if (!conversionEventFound) {
+    if (!conversionEvent) {
       logger.error('[DCM Floodlight]:: Conversion event not found');
       return;
     }
 
+    if (conversionEvent.floodlightActivityTag && conversionEvent.floodlightGroupTag) {
+      this.activityTag = conversionEvent.floodlightActivityTag.trim();
+      this.groupTag = conversionEvent.floodlightGroupTag.trim();
+    }
+
+    const { salesTag } = conversionEvent;
+
+    if (!isValidCountingMethod(salesTag, countingMethod)) {
+      logger.error(
+        `[DCM Floodlight] ${salesTag ? 'Sales' : 'Counter'} Tag:: invalid counting method`,
+      );
+      return;
+    }
+
+    customFloodlightVariable = conversionEvent.customVariables || [];
     customFloodlightVariable = transformCustomVariable(customFloodlightVariable, message);
 
-    // Ref - https://support.google.com/campaignmanager/answer/7554821?hl=en#zippy=%2Ccustom-fields
-    // we can pass custom variables to DCM and any values passed in it will override its default value
-    // Total 7 properties - ord, num, dc_lat, tag_for_child_directed_treatment, tfua, npa, match_id
-    let dcCustomParams = {
-      ord: get(message, 'properties.ord'),
-      dc_lat: get(message, 'context.device.adTrackingEnabled'),
-    };
-
-    let eventSnippetPayload;
-    if (salesTag) {
-      // sales tag
-      dcCustomParams.ord =
-        get(message, 'properties.orderId') || get(message, 'properties.order_id');
-      let qty = get(message, 'properties.quantity');
-      const revenue = get(message, 'properties.revenue');
-
-      eventSnippetPayload = {
-        ...eventSnippetPayload,
-        value: revenue,
-        transaction_id: dcCustomParams.ord,
-      };
-
-      // sums quantity from products array or fallback to properties.quantity
-      const products = get(message, 'properties.products');
-      if (isNotEmpty(products) && Array.isArray(products)) {
-        const quantities = products.reduce((accumulator, product) => {
-          if (product.quantity) {
-            return accumulator + product.quantity;
-          }
-          return accumulator;
-        }, 0);
-        if (quantities) {
-          qty = quantities;
-        }
-      }
-
-      // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-event-snippets-for-sales-tags
-      switch (countingMethod) {
-        case 'transactions':
-          break;
-        case 'items_sold':
-          if (qty) {
-            eventSnippetPayload = {
-              ...eventSnippetPayload,
-              quantity: parseFloat(qty),
-            };
-          }
-          break;
-        default:
-          logger.error('[DCM Floodlight] Sales Tag:: invalid counting method');
-          return;
-      }
-    } else {
-      // for counter tag
-      // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-event-snippets-for-counter-tags
-      switch (countingMethod) {
-        case 'standard':
-          break;
-        case 'unique':
-          dcCustomParams = {
-            ...dcCustomParams,
-            num: get(message, 'properties.num'),
-          };
-          break;
-        case 'per_session':
-          dcCustomParams.ord = get(message, 'properties.sessionId');
-
-          eventSnippetPayload = {
-            ...eventSnippetPayload,
-            session_id: get(message, 'properties.sessionId'),
-          };
-          break;
-        default:
-          logger.error('[DCM Floodlight] Counter Tag:: invalid counting method');
-          return;
-      }
-    }
-
-    // COPPA, GDPR, npa must be provided inside integration object
-    const { DCM_FLOODLIGHT } = this.analytics.loadOnlyIntegrations;
-
-    if (DCM_FLOODLIGHT) {
-      if (isDefinedAndNotNull(DCM_FLOODLIGHT.COPPA)) {
-        dcCustomParams.tag_for_child_directed_treatment = mapFlagValue(
-          'COPPA',
-          DCM_FLOODLIGHT.COPPA,
-        );
-      }
-
-      if (isDefinedAndNotNull(DCM_FLOODLIGHT.GDPR)) {
-        dcCustomParams.tfua = mapFlagValue('GDPR', DCM_FLOODLIGHT.GDPR);
-      }
-
-      if (isDefinedAndNotNull(DCM_FLOODLIGHT.npa)) {
-        dcCustomParams.npa = mapFlagValue('npa', DCM_FLOODLIGHT.npa);
-      }
-    }
-
-    if (isDefinedAndNotNull(dcCustomParams.dc_lat)) {
-      dcCustomParams.dc_lat = mapFlagValue('dc_lat', dcCustomParams.dc_lat);
-    }
-
-    const matchId = get(message, 'properties.matchId');
-    if (matchId) {
-      dcCustomParams.match_id = matchId;
-    }
-
-    dcCustomParams = removeUndefinedAndNullValues(dcCustomParams);
-
     customFloodlightVariable = removeUndefinedAndNullValues(customFloodlightVariable);
+
+    if (this.tagFormat === GTAG) {
+      this.trackWithGtag(message, salesTag, customFloodlightVariable, countingMethod);
+    } else {
+      this.trackWithIframe(message, salesTag, customFloodlightVariable, countingMethod);
+    }
+  }
+
+  trackWithGtag(message, salesTag, customFloodlightVariable, countingMethod) {
+    logger.debug('===In DCMFloodlight trackWithGtag===');
+
+    let eventSnippetPayload = buildGtagTrackPayload(
+      message,
+      salesTag,
+      countingMethod,
+      this.analytics.loadOnlyIntegrations,
+    );
 
     eventSnippetPayload = {
       allow_custom_scripts: true,
@@ -249,15 +177,42 @@ class DCMFloodlight {
       send_to: `DC-${this.advertiserId}/${this.groupTag}/${this.activityTag}+${countingMethod}`,
     };
 
-    if (Object.keys(dcCustomParams).length > 0) {
-      eventSnippetPayload.dc_custom_params = dcCustomParams;
-    }
     eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
     logger.debug(`[DCM] eventSnippetPayload:: ${JSON.stringify(eventSnippetPayload)}`);
 
     // event snippet
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-the-event-snippet---overview
     window.gtag('event', 'conversion', eventSnippetPayload);
+  }
+
+  trackWithIframe(message, salesTag, customFloodlightVariable, countingMethod) {
+    logger.debug('===In DCMFloodlight trackWithIframe===');
+    let eventSnippetPayload = buildIframeTrackPayload(
+      message,
+      salesTag,
+      countingMethod,
+      this.analytics.loadOnlyIntegrations,
+    );
+
+    eventSnippetPayload = {
+      ...eventSnippetPayload,
+      ...customFloodlightVariable,
+    };
+    eventSnippetPayload = removeUndefinedAndNullValues(eventSnippetPayload);
+    eventSnippetPayload = flattenPayload(eventSnippetPayload);
+    const src = `https://${this.advertiserId}.fls.doubleclick.net/activityi;src=${this.advertiserId};type=${this.groupTag};cat=${this.activityTag};${eventSnippetPayload}?`;
+    this.addIframe(src);
+  }
+
+  addIframe(src) {
+    logger.debug('===In DCMFloodlight addIframe===');
+    const iframe = document.createElement('iframe');
+    iframe.src = src;
+    iframe.style.width = '1px';
+    iframe.style.height = '1px';
+    iframe.style.display = 'none';
+    iframe.style.border = 0;
+    document.getElementsByTagName('body')[0].appendChild(iframe);
   }
 
   page(rudderElement) {

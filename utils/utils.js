@@ -732,6 +732,17 @@ const countDigits = (number) => {
   return number ? number.toString().length : 0;
 };
 
+/**
+ * A function to convert non-string IDs to string format
+ * @param {any} id
+ * @returns
+ */
+const getStringId = (id) => {
+  return typeof id === 'string' || typeof id === 'undefined' || id === null
+    ? id
+    : JSON.stringify(id);
+};
+
 export {
   replacer,
   generateUUID,
@@ -766,4 +777,5 @@ export {
   leaveBreadcrumb,
   get,
   countDigits,
+  getStringId,
 };
