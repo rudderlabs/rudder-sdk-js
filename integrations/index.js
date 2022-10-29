@@ -62,6 +62,7 @@ import * as Engage from "./Engage";
 import * as June from "./June";
 import * as Refiner from "./Refiner";
 import * as YandexMetrica from "./YandexMetrica";
+import * as Qualaroo from "./Qualaroo";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -131,6 +132,7 @@ const integrations = {
   JUNE: June.default,
   REFINER: Refiner.default,
   YANDEX_METRICA: YandexMetrica.default,
+  QUALAROO: Qualaroo.default,
 };
 
 export { integrations };
