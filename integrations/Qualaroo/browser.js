@@ -62,7 +62,10 @@ class Qualaroo {
     const traits = get(message, "context.traits");
     const transformedTraits = transformUserTraits(traits);
 
+    // If userId is not passed in the request, an empty string will be send for unknown visitors.
+    // ref :- https://help.qualaroo.com/hc/en-us/articles/201956628-Using-the-Identity-API-call#:~:text=echo%20%24current_user%2D%3Eemail%20%3F%3E%27%5D)%3B-,Note,-%3A%20Our%20system
     window._kiq.push(["identify", userId]);
+
     window._kiq.push(["set", transformedTraits]);
   }
 
