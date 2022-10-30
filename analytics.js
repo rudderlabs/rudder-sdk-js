@@ -1,4 +1,4 @@
-/* eslint-disable consistent-return */
+/* eslint-disable no-use-before-define */
 /* eslint-disable new-cap */
 /* eslint-disable func-names */
 /* eslint-disable eqeqeq */
@@ -33,6 +33,7 @@ import {
   getSDKUrlInfo,
   commonNames,
   get,
+  getStringId,
 } from './utils/utils';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
@@ -582,7 +583,7 @@ class Analytics {
     if (userId && this.userId && userId !== this.userId) {
       this.reset();
     }
-    this.userId = userId;
+    this.userId = getStringId(userId);
     this.storage.setUserId(this.userId);
 
     if (traits) {
@@ -614,8 +615,10 @@ class Analytics {
     if (typeof from === 'object') (options = from), (from = null);
 
     const rudderElement = new RudderElementBuilder().setType('alias').build();
-    rudderElement.message.previousId = from || (this.userId ? this.userId : this.getAnonymousId());
-    rudderElement.message.userId = to;
+
+    rudderElement.message.previousId =
+      getStringId(from) || (this.userId ? this.userId : this.getAnonymousId());
+    rudderElement.message.userId = getStringId(to);
 
     this.processAndSendDataToDestinations('alias', rudderElement, options, callback);
   }
@@ -640,7 +643,7 @@ class Analytics {
     if (typeof groupId === 'object')
       (options = traits), (traits = groupId), (groupId = this.groupId);
 
-    this.groupId = groupId;
+    this.groupId = getStringId(groupId);
     this.storage.setGroupId(this.groupId);
 
     const rudderElement = new RudderElementBuilder().setType('group').build();
@@ -1101,6 +1104,9 @@ class Analytics {
         } else {
           this.processResponse(200, res);
         }
+        // Execute any pending buffered requests
+        // (needed if the load call was not previously buffered)
+        processDataInAnalyticsArray(this);
       }
       return;
     }
@@ -1115,6 +1121,9 @@ class Analytics {
     } catch (error) {
       handleError(error);
     }
+    // Execute any pending buffered requests
+    // (needed if the load call was not previously buffered)
+    processDataInAnalyticsArray(this);
   }
 
   /**
@@ -1252,15 +1261,19 @@ class Analytics {
 const instance = new Analytics();
 
 function processDataInAnalyticsArray(analytics) {
-  analytics.toBeProcessedArray.forEach((x) => {
-    const event = [...x];
-    const method = event[0];
-    event.shift();
-    // logger.debug("=====from analytics array, calling method:: ", method)
-    analytics[method](...event);
-  });
+  if (analytics.toBeProcessedArray.length) {
+    while (analytics.toBeProcessedArray.length > 0) {
+      const event = [...analytics.toBeProcessedArray[0]];
 
-  instance.toBeProcessedArray = [];
+      // remove the element from the queue
+      analytics.toBeProcessedArray.shift();
+
+      const method = event[0];
+      event.shift();
+      // logger.debug("=====from analytics array, calling method:: ", method)
+      analytics[method](...event);
+    }
+  }
 }
 
 /**
@@ -1324,6 +1337,7 @@ instance.registerCallbacks(false);
 const defaultMethod = 'load';
 const argumentsArray = window.rudderanalytics;
 const isValidArgsArray = Array.isArray(argumentsArray);
+let defaultEvent;
 if (isValidArgsArray) {
   /**
    * Iterate the buffered API calls until we find load call and
@@ -1332,7 +1346,7 @@ if (isValidArgsArray) {
   let i = 0;
   while (i < argumentsArray.length) {
     if (argumentsArray[i] && argumentsArray[i][0] === defaultMethod) {
-      instance.toBeProcessedArray.push(argumentsArray[i]);
+      defaultEvent = argumentsArray[i];
       argumentsArray.splice(i, 1);
       break;
     }
@@ -1345,7 +1359,11 @@ parseQueryString(window.location.search);
 
 if (isValidArgsArray) argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
 
-processDataInAnalyticsArray(instance);
+// Process load method if present in the buffered requests
+if (defaultEvent && defaultEvent.length) {
+  defaultEvent.shift();
+  instance[defaultMethod](...defaultEvent);
+}
 
 const ready = instance.ready.bind(instance);
 const identify = instance.identify.bind(instance);

@@ -1,3 +1,3 @@
 import Refiner from './browser';
 
-export default Refiner;
+export { Refiner };
