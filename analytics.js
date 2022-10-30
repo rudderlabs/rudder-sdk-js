@@ -184,9 +184,11 @@ class Analytics {
     }
   }
 
-  isValidResidencyServerInput() {
-    const region = this.options.residencyServer;
-    return typeof region === 'string' && RESIDENCY_SERVERS.includes(region.toUpperCase());
+  getResidencyServerInput() {
+    const region = get(this.options, 'residencyServer');
+    return typeof region === 'string' && RESIDENCY_SERVERS.includes(region.toUpperCase())
+      ? region
+      : undefined;
   }
 
   checkUrlFromCode() {
@@ -197,17 +199,19 @@ class Analytics {
   }
 
   resolveDataPlaneUrl(dataPlaneUrls = {}) {
-    if (this.options && this.options.residencyServer && this.isValidResidencyServerInput()) {
-      const dataPlaneUrl = dataPlaneUrls[this.options.residencyServer.toUpperCase()];
+    if (Object.keys(dataPlaneUrls).length) {
+      const inputRegion = this.getResidencyServerInput() || '';
+      const dataPlaneUrl =
+        dataPlaneUrls[inputRegion.toUpperCase()] || dataPlaneUrls[inputRegion.toLowerCase()];
       if (dataPlaneUrl) {
         return dataPlaneUrl;
       }
       if (dataPlaneUrls[DEFAULT_REGION]) {
         return dataPlaneUrls[DEFAULT_REGION];
       }
-      this.checkUrlFromCode();
+      return this.checkUrlFromCode();
     }
-    this.checkUrlFromCode();
+    return this.checkUrlFromCode();
   }
 
   /**
@@ -261,8 +265,12 @@ class Analytics {
       }
 
       // determine the dataPlaneUrl
-      this.serverUrl = this.resolveDataPlaneUrl(response.source.dataPlaneUrls);
-
+      try {
+        this.serverUrl = this.resolveDataPlaneUrl(response.source.dataPlaneUrls);
+      } catch (e) {
+        handleError(e);
+        this.serverUrl = this.serverUrl ? this.serverUrl : DEFAULT_DATAPLANE_URL;
+      }
       // this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
       // this.loaded = true;
 
