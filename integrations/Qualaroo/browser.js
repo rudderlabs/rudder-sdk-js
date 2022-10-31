@@ -60,6 +60,9 @@ class Qualaroo {
       get(message, "context.traits.Id") ||
       "";
     const traits = get(message, "context.traits");
+    if (traits.email) {
+      delete traits.email;
+    }
     const transformedTraits = transformUserTraits(traits);
 
     // If userId is not passed in the request, an empty string will be send for unknown visitors.
