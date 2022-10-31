@@ -274,6 +274,9 @@ class Analytics {
       }
       // this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
       // this.loaded = true;
+      // Execute any pending buffered requests
+      // (needed if the load call was not previously buffered)
+      processDataInAnalyticsArray(this);
 
       response.source.destinations.forEach(function (destination, index) {
         // logger.debug(
@@ -918,7 +921,9 @@ class Analytics {
   reset(flag) {
     leaveBreadcrumb(`reset API :: flag: ${flag}`);
 
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['reset', flag]);
+    }
     if (flag) {
       this.anonymousId = '';
     }
@@ -1104,9 +1109,6 @@ class Analytics {
         } else {
           this.processResponse(200, res);
         }
-        // Execute any pending buffered requests
-        // (needed if the load call was not previously buffered)
-        processDataInAnalyticsArray(this);
       }
       return;
     }
@@ -1121,9 +1123,6 @@ class Analytics {
     } catch (error) {
       handleError(error);
     }
-    // Execute any pending buffered requests
-    // (needed if the load call was not previously buffered)
-    processDataInAnalyticsArray(this);
   }
 
   /**
