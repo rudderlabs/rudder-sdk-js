@@ -167,19 +167,21 @@ function getIntgCommonNames(intg) {
   const cNamesMap = {};
   const { NAME, DISPLAY_NAME, CNameMapping } = intg;
 
+  let nameSanitized;
   if (NAME) {
-    cNamesMap[NAME] = NAME;
+    nameSanitized = NAME.trim();
+    cNamesMap[nameSanitized.toLowerCase()] = nameSanitized;
   }
 
   if (DISPLAY_NAME) {
     const displayNameSanitized = DISPLAY_NAME.toLowerCase().trim();
     // Add the sanitized display name
-    cNamesMap[displayNameSanitized] = NAME;
+    cNamesMap[displayNameSanitized] = nameSanitized;
 
     const words = displayNameSanitized.split(" ");
 
-    cNamesMap[words.join("_")] = NAME;
-    cNamesMap[words.join("")] = NAME;
+    cNamesMap[words.join("_")] = nameSanitized;
+    cNamesMap[words.join("")] = nameSanitized;
   }
 
   // add the hard-coded common names
