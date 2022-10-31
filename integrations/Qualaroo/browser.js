@@ -71,11 +71,19 @@ class Qualaroo {
 
   track(rudderElement) {
     logger.debug("===In Qualaroo track===");
-    const { event } = rudderElement.message;
+    const { message } = rudderElement;
+    const event = get(message, "event");
     if (!event) {
       logger.error("[Qualaroo]:: event is required for track call");
       return;
     }
+
+    const integrationName = get(message, "context.integration.name");
+    if (integrationName === "Qualaroo") {
+      logger.debug(`[Qualaroo]:: dropping callback event: ${event}`);
+      return;
+    }
+
     window._kiq.push(["set", { "Triggered Event": event }]);
   }
 
