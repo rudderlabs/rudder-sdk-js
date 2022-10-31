@@ -30,6 +30,7 @@ import {
   getReferringDomain,
   commonNames,
   get,
+  getStringId,
 } from "./utils/utils";
 import {
   CONFIG_URL,
@@ -533,9 +534,10 @@ class Analytics {
     if (typeof from === "object") (options = from), (from = null);
 
     const rudderElement = new RudderElementBuilder().setType("alias").build();
+
     rudderElement.message.previousId =
-      from || (this.userId ? this.userId : this.getAnonymousId());
-    rudderElement.message.userId = to;
+      getStringId(from) || (this.userId ? this.userId : this.getAnonymousId());
+    rudderElement.message.userId = getStringId(to);
 
     this.processAndSendDataToDestinations(
       "alias",
@@ -563,7 +565,7 @@ class Analytics {
     if (typeof groupId === "object")
       (options = traits), (traits = groupId), (groupId = this.groupId);
 
-    this.groupId = groupId;
+    this.groupId = getStringId(groupId);
     this.storage.setGroupId(this.groupId);
 
     const rudderElement = new RudderElementBuilder().setType("group").build();
@@ -647,7 +649,7 @@ class Analytics {
     if (userId && this.userId && userId !== this.userId) {
       this.reset();
     }
-    this.userId = userId;
+    this.userId = getStringId(userId);
     this.storage.setUserId(this.userId);
 
     const rudderElement = new RudderElementBuilder()
