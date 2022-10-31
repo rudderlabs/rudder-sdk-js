@@ -1,16 +1,20 @@
-import _ from 'lodash';
+import _isUndefined from 'lodash.isundefined';
+import _isEmpty from 'lodash.isempty';
+import _pickBy from 'lodash.pickby';
+import _pick from 'lodash.pick';
+import _toString from 'lodash.tostring';
 
-const isDefined = (x) => !_.isUndefined(x);
-const isNotEmpty = (x) => !_.isEmpty(x);
+const isDefined = (x) => !_isUndefined(x);
+const isNotEmpty = (x) => !_isEmpty(x);
 const isNotNull = (x) => x != null;
 const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
 const isDefinedAndNotNullAndNotEmpty = (x) => isDefined(x) && isNotNull(x) && isNotEmpty(x);
-const removeUndefinedValues = (obj) => _.pickBy(obj, isDefined);
-const removeNullValues = (obj) => _.pickBy(obj, isNotNull);
-const removeUndefinedAndNullValues = (obj) => _.pickBy(obj, isDefinedAndNotNull);
-const removeUndefinedAndNullAndEmptyValues = (obj) => _.pickBy(obj, isDefinedAndNotNullAndNotEmpty);
-const isBlank = (value) => _.isEmpty(_.toString(value));
-const pick = (argObj, argArr) => _.pick(argObj, argArr);
+const removeUndefinedValues = (obj) => _pickBy(obj, isDefined);
+const removeNullValues = (obj) => _pickBy(obj, isNotNull);
+const removeUndefinedAndNullValues = (obj) => _pickBy(obj, isDefinedAndNotNull);
+const removeUndefinedAndNullAndEmptyValues = (obj) => _pickBy(obj, isDefinedAndNotNullAndNotEmpty);
+const isBlank = (value) => _isEmpty(_toString(value));
+const pick = (argObj, argArr) => _pick(argObj, argArr);
 
 /**
  *
@@ -149,6 +153,24 @@ function getDestinationExternalID(message, type) {
   return destinationExternalId;
 }
 
+/**
+ * Function to check if value is Defined, Not null and Not Empty.
+ * Created this function, Because existing isDefinedAndNotNullAndNotEmpty(123) is returning false due to lodash _.isEmpty function.
+ * _.isEmpty is used to detect empty collections/objects and it will return true for Integer, Boolean values.
+ * ref: https://github.com/lodash/lodash/issues/496
+ * @param {*} value 123
+ * @returns yes
+ */
+const isDefinedNotNullNotEmpty = (value) => {
+  return !(
+    value === undefined ||
+    value === null ||
+    Number.isNaN(value) ||
+    (typeof value === 'object' && Object.keys(value).length === 0) ||
+    (typeof value === 'string' && value.trim().length === 0)
+  );
+};
+
 export {
   getEventMappingFromConfig,
   getHashFromArrayWithDuplicate,
@@ -165,6 +187,7 @@ export {
   isNotNull,
   isDefinedAndNotNull,
   isDefinedAndNotNullAndNotEmpty,
+  isDefinedNotNullNotEmpty,
   isBlank,
   pick,
 };
