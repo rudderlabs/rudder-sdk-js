@@ -1,10 +1,10 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import get from "get-value";
 import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 import ScriptLoader from "../ScriptLoader";
 import { recordQualarooEvents, transformUserTraits } from "./utils";
+import { isNotEmpty } from "../utils/commonUtils";
 
 class Qualaroo {
   constructor(config, analytics) {
@@ -53,14 +53,11 @@ class Qualaroo {
   identify(rudderElement) {
     logger.debug("===In Qualaroo identify===");
     const { message } = rudderElement;
+    const { traits } = message.context;
     const userId =
-      get(message, "context.traits.email") ||
-      get(message, "userId") ||
-      get(message, "context.traits.userId") ||
-      get(message, "context.traits.Id") ||
-      "";
-    const traits = get(message, "context.traits");
-    if (traits.email) {
+      traits?.email || message.userId || traits?.userId || traits?.Id || "";
+
+    if (traits?.email) {
       delete traits.email;
     }
     const transformedTraits = transformUserTraits(traits);
@@ -69,20 +66,22 @@ class Qualaroo {
     // ref :- https://help.qualaroo.com/hc/en-us/articles/201956628-Using-the-Identity-API-call#:~:text=echo%20%24current_user%2D%3Eemail%20%3F%3E%27%5D)%3B-,Note,-%3A%20Our%20system
     window._kiq.push(["identify", userId]);
 
-    window._kiq.push(["set", transformedTraits]);
+    if (isNotEmpty(transformedTraits)) {
+      window._kiq.push(["set", transformedTraits]);
+    }
   }
 
   track(rudderElement) {
     logger.debug("===In Qualaroo track===");
     const { message } = rudderElement;
-    const event = get(message, "event");
+    const { event, context } = message;
     if (!event) {
       logger.error("[Qualaroo]:: event is required for track call");
       return;
     }
 
-    const integrationName = get(message, "context.integration.name");
-    if (integrationName === "Qualaroo") {
+    const integrationName = context.integration?.name;
+    if (integrationName && integrationName === "Qualaroo") {
       logger.debug(`[Qualaroo]:: dropping callback event: ${event}`);
       return;
     }
