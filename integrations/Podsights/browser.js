@@ -17,6 +17,7 @@ import {
   removeUndefinedAndNullValues,
 } from "../utils/commonUtils";
 import { constructPayload } from "../../utils/utils";
+import { payloadBuilder, payloadBuilderInList } from "./utils";
 
 class Podsights {
   constructor(config, analytics) {
@@ -48,6 +49,14 @@ class Podsights {
     return !!(window.pdst && typeof window.pdst === "function");
   }
 
+  loadAliasEvent(externalId) {
+    if (this.enableAliasCall && externalId) {
+      window.pdst("alias", {
+        id: sha256(externalId).toString(),
+      });
+    }
+  }
+
   /**
    * Track - tracks an event for an user
    * @param {Track} track
@@ -76,41 +85,51 @@ class Podsights {
     const externalId =
       get(message, "userId") ||
       get(message, "context.traits.userId") ||
-      get(message, "context.traits.id") ||
-      get(message, "anonymousId");
+      get(message, "context.traits.id");
     let payload;
     events.forEach((podsightEvent) => {
       switch (podsightEvent.trim().toLowerCase()) {
         case "lead":
           payload = constructPayload(properties, LEAD_EVENT);
           window.pdst(podsightEvent, payload);
+          this.loadAliasEvent(externalId);
           break;
-        case "purchase":
-          payload = constructPayload(properties, PURCHASE_EVENT);
+        case "purchase": {
+          payload = payloadBuilder(properties, PURCHASE_EVENT);
           window.pdst(podsightEvent, payload);
+          this.loadAliasEvent(externalId);
           break;
-        case "product":
-          payload = constructPayload(properties, PRODUCT_EVENT);
+        }
+        case "product": {
+          const payloadList = payloadBuilderInList(properties, PRODUCT_EVENT);
+          payloadList.forEach((payloadItem) => {
+            window.pdst(podsightEvent, payloadItem);
+            this.loadAliasEvent(externalId);
+          });
+          break;
+        }
+        case "addtocart": {
+          const payloadList = payloadBuilderInList(
+            properties,
+            ADD_TO_CART_EVENT
+          );
+          payloadList.forEach((payloadItem) => {
+            window.pdst(podsightEvent, payloadItem);
+            this.loadAliasEvent(externalId);
+          });
+          break;
+        }
+        case "checkout": {
+          payload = payloadBuilder(properties, CHECK_OUT_EVENT);
           window.pdst(podsightEvent, payload);
+          this.loadAliasEvent(externalId);
           break;
-        case "addtocart":
-          payload = constructPayload(properties, ADD_TO_CART_EVENT);
-          window.pdst(podsightEvent, payload);
-          break;
-        case "checkout":
-          payload = constructPayload(properties, CHECK_OUT_EVENT);
-          window.pdst(podsightEvent, payload);
-          break;
+        }
         default:
           logger.error(
             `event name ${podsightEvent} not supported. Aborting!===`
           );
           break;
-      }
-      if (this.enableAliasCall && externalId) {
-        window.pdst("alias", {
-          id: sha256(externalId).toString(),
-        });
       }
     });
   }

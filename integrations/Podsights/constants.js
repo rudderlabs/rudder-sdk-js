@@ -149,6 +149,41 @@ const PURCHASE_EVENT = [
   },
 ];
 
+const LINE_ITEMS_CONFIG = [
+  {
+    destKey: "product_id",
+    sourceKeys: "productId",
+  },
+  {
+    destKey: "product_name",
+    sourceKeys: "productName",
+  },
+  {
+    destKey: "product_type",
+    sourceKeys: "productType",
+  },
+  {
+    destKey: "product_vendor",
+    sourceKeys: "productVendor",
+  },
+  {
+    destKey: "variant_id",
+    sourceKeys: "variantId",
+  },
+  {
+    destKey: "variant_name",
+    sourceKeys: "variantName",
+  },
+  {
+    destKey: "value",
+    sourceKeys: "value",
+  },
+  {
+    destKey: "quantity",
+    sourceKeys: "quantity",
+  },
+];
+
 export {
   NAME,
   CNameMapping,
@@ -157,4 +192,5 @@ export {
   ADD_TO_CART_EVENT,
   CHECK_OUT_EVENT,
   PURCHASE_EVENT,
+  LINE_ITEMS_CONFIG,
 };
