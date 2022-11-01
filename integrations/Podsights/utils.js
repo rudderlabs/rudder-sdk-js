@@ -2,6 +2,14 @@ import { constructPayload } from "../../utils/utils";
 import { removeUndefinedAndNullValues } from "../utils/commonUtils";
 import { LINE_ITEMS_CONFIG } from "./constants";
 
+/** 
+ * This function is used to build payload with line_items, it will search from 
+ * properties.products if it's an array, then it will mapped the required fields 
+ * and insert in line_items.
+ * @param {*} properties
+ * @param {*} CONFIG_EVENT
+ * return payload 
+ */
 const payloadBuilder = (properties, CONFIG_EVENT) => {
   const payload = constructPayload(properties, CONFIG_EVENT);
   // if line_items is present in message.properties
@@ -28,6 +36,14 @@ const payloadBuilder = (properties, CONFIG_EVENT) => {
   return { ...payload, line_items: lineItems };
 };
 
+/** 
+ * This function is used to build payload in an array. 
+ * If properties.products is an array then it will take necessary fields 
+ * and build payload and returns it with an array.
+ * @param {*} properties
+ * @param {*} CONFIG_EVENT
+ * return payloadList 
+ */
 const payloadBuilderInList = (properties, CONFIG_EVENT) => {
   const payloadList = [];
   const productList = properties?.products;
