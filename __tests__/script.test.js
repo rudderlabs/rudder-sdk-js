@@ -8,12 +8,19 @@ describe('Test suite for the SDK', () => {
   const xhrMock = {
     open: jest.fn(),
     setRequestHeader: jest.fn(),
+    onload: jest.fn(),
     onreadystatechange: jest.fn(),
-    send: jest.fn(),
     readyState: 4,
-    responseText: JSON.stringify({}),
+    responseText: JSON.stringify({
+      source: {
+        config: {},
+        destinations: [],
+      },
+    }),
     status: 200,
   };
+
+  xhrMock['send'] = jest.fn(() => xhrMock.onload());
 
   const userId = 'jest-user-id';
   const userTraits = {

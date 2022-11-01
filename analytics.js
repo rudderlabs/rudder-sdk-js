@@ -272,8 +272,8 @@ class Analytics {
         handleError(e);
         this.serverUrl = this.serverUrl ? this.serverUrl : DEFAULT_DATAPLANE_URL;
       }
-      // this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
-      // this.loaded = true;
+      this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
+      this.loaded = true;
       // Execute any pending buffered requests
       // (needed if the load call was not previously buffered)
       processDataInAnalyticsArray(this);
@@ -1078,10 +1078,8 @@ class Analytics {
       this.loadIntegration = !!options.loadIntegration;
     }
 
-    this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
-    this.loaded = true;
 
     if (options && options.destSDKBaseURL) {
       this.destSDKBaseURL = removeTrailingSlashes(options.destSDKBaseURL);
