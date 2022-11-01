@@ -185,6 +185,10 @@ class Analytics {
     }
   }
 
+  /**
+   * A function to validate and return Residency server input
+   * @returns string/undefined
+   */
   getResidencyServerInput() {
     const region = get(this.options, 'residencyServer');
     return typeof region === 'string' && RESIDENCY_SERVERS.includes(region.toUpperCase())
@@ -192,6 +196,10 @@ class Analytics {
       : undefined;
   }
 
+  /**
+   * A function to return the dataPlaneUrl provided in load API(if available) or the default one
+   * @returns string
+   */
   checkUrlFromCode() {
     if (this.serverUrl && this.isValidServerUrl(this.serverUrl)) {
       return this.serverUrl;
@@ -199,7 +207,13 @@ class Analytics {
     return DEFAULT_DATAPLANE_URL;
   }
 
+  /**
+   * A function to determine the dataPlaneUrl for sending cloud mode calls
+   * @param {Object} dataPlaneUrls An object containing dataPlaneUrl for different region
+   * @returns string
+   */
   resolveDataPlaneUrl(dataPlaneUrls = {}) {
+    // Check if dataPlaneUrls object is present in source config
     if (Object.keys(dataPlaneUrls).length) {
       const inputRegion = this.getResidencyServerInput() || '';
       const dataPlaneUrl =
@@ -272,6 +286,7 @@ class Analytics {
         handleError(e);
         this.serverUrl = this.serverUrl ? this.serverUrl : DEFAULT_DATAPLANE_URL;
       }
+      // Initialize event repository
       this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
       this.loaded = true;
       // Execute any pending buffered requests
