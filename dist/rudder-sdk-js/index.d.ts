@@ -60,6 +60,14 @@ declare module "rudder-sdk-js" {
   }
 
   /**
+   * Represents residency server input the options
+   */
+  enum RESIDENCY_SERVER {
+    US = 'US',
+    EU = 'EU',
+  }
+
+  /**
    * Represents the options parameter in the load API
    */
   interface loadOptions {
@@ -92,7 +100,8 @@ declare module "rudder-sdk-js" {
     sessions?: {
       autoTrack?: boolean; // Defaults to true
       timeout?: number; // Defaults to 30 mins
-    }
+    };
+    residencyServer: RESIDENCY_SERVER.US | RESIDENCY_SERVER.EU;
   }
 
   /**
