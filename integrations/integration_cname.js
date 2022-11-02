@@ -62,6 +62,7 @@ import { CNameMapping as Engage } from "./Engage/constants";
 import { CNameMapping as June } from "./June/constants";
 import { CNameMapping as Refiner } from "./Refiner/constants";
 import { CNameMapping as YandexMetrica } from "./YandexMetrica/constants";
+import { CNameMapping as Qualaroo } from "./Qualaroo/constants";
 
 import { getIntgCommonNames } from "./utils/commonUtils";
 
@@ -132,6 +133,7 @@ const commonNames = {
   ...June,
   ...Refiner,
   ...YandexMetrica,
+  ...Qualaroo,
   all: "All",
 };
 
