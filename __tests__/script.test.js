@@ -72,7 +72,7 @@ describe('Test suite for the SDK', () => {
     }
     rudderanalytics.load('WRITE_KEY', 'DATA_PLANE_URL');
     require('./prodsdk.js');
-    await wait(1000);
+    await wait(500);
   });
 
   it("If SDK script is 'required' (imported), then check that it is loaded and queued API calls are processed", () => {
