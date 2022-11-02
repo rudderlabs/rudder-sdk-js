@@ -194,6 +194,11 @@ function getIntgCommonNames(intg) {
     });
   }
 
+  // Filter entries where key === value
+  Object.keys(cNamesMap).forEach((cName) => {
+    if (cNamesMap[cName] === cName) delete cNamesMap[cName];
+  });
+
   return cNamesMap;
 }
 
