@@ -9,6 +9,7 @@ import {
   NAME,
   PRODUCT_EVENT,
   PURCHASE_EVENT,
+  standardEventsListMapping,
 } from "./constants";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
@@ -58,6 +59,7 @@ class Podsights {
   }
 
   /**
+   * ref: https://podsights.com/docs#conversion-event-pixel-scripts
    * Track - tracks an event for an user
    * @param {Track} track
    */
@@ -70,15 +72,27 @@ class Podsights {
       return;
     }
 
-    const eventsMapping = getHashFromArrayWithDuplicate(
+    const eventsMappingFromCustomEvents = getHashFromArrayWithDuplicate(
       this.eventsToPodsightsEvents,
       "from",
       "to",
       false
     );
+    const eventMappingFromStandardEvents = getHashFromArrayWithDuplicate(
+      standardEventsListMapping,
+      "from",
+      "to",
+      false
+    );
     const trimmedEvent = event.trim();
-    const events = eventsMapping[trimmedEvent] || [];
-    if (events.length === 0) {
+    let events = [];
+    const customEvent = eventsMappingFromCustomEvents[trimmedEvent] || [];
+    const standardEvents = eventMappingFromStandardEvents[trimmedEvent] || [];
+    if (customEvent.length !== 0) {
+      events = customEvent;
+    } else if (standardEvents.length !== 0) {
+      events = standardEvents;
+    } else {
       logger.error(`===No Podsights Pixel mapped event found. Aborting!===`);
       return;
     }

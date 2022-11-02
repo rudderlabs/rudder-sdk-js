@@ -10,6 +10,15 @@ const CNameMapping = {
   "Pod sights": NAME,
 };
 
+// default mapping for the events
+const standardEventsListMapping = [
+  { to: "lead", from: "Signed Up" },
+  { to: "product", from: "Product Viewed" },
+  { to: "addtocart", from: "Product Added" },
+  { to: "checkout", from: "Checkout Started" },
+  { to: "purchase", from: "Order Completed" },
+];
+
 const LEAD_EVENT = [
   {
     destKey: "value",
@@ -187,6 +196,7 @@ const LINE_ITEMS_CONFIG = [
 export {
   NAME,
   CNameMapping,
+  standardEventsListMapping,
   LEAD_EVENT,
   PRODUCT_EVENT,
   ADD_TO_CART_EVENT,
