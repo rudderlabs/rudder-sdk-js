@@ -64,6 +64,7 @@ const clientToServerNames = {
   REFINER: "Refiner",
   YANDEX_METRICA: "Yandex Metrica",
   PODSIGHTS: "Podsights",
+  QUALAROO: "Qualaroo",
 };
 
 export { clientToServerNames };
