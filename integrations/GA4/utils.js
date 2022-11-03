@@ -221,7 +221,11 @@ function getDestinationItemProperties(products, item) {
  * @param {*} props
  */
 function getPageViewProperty(props) {
-  return getDestinationEventProperties(props, pageEventParametersConfigArray);
+  return getDestinationEventProperties(
+    props,
+    pageEventParametersConfigArray,
+    "properties"
+  );
 }
 
 export {

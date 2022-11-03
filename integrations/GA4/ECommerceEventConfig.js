@@ -40,6 +40,7 @@ const EVENT_PROP_EXCLUSION_LIST = [
   "order_id",
   "shipping_method",
   "payment_method",
+  "products",
 ];
 
 const requiredEventParameters = {
