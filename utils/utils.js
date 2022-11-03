@@ -294,7 +294,7 @@ function tranformToRudderNames(integrationObject) {
         integrationObject[commonNames[key]] = integrationObject[key];
       } else if (commonNames[sanitizedIntgName]) {
         integrationObject[commonNames[sanitizedIntgName]] =
-          integrationObject[sanitizedIntgName];
+          integrationObject[key];
       }
 
       if (key !== "All") {
