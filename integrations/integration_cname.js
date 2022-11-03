@@ -62,6 +62,7 @@ import { CNameMapping as Engage } from "./Engage/constants";
 import { CNameMapping as June } from "./June/constants";
 import { CNameMapping as Refiner } from "./Refiner/constants";
 import { CNameMapping as YandexMetrica } from "./YandexMetrica/constants";
+import { CNameMapping as Podsights } from "./Podsights/constants";
 import { CNameMapping as Qualaroo } from "./Qualaroo/constants";
 
 // for sdk side native integration identification
@@ -109,6 +110,7 @@ const commonNames = {
   ...Optimizely,
   ...Pendo,
   ...PinterestTag,
+  ...Podsights,
   ...PostAffiliatePro,
   ...Posthog,
   ...ProfitWell,
