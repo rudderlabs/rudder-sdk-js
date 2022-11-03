@@ -8,6 +8,12 @@ const ITEM_PROP_EXCLUSION_LIST = [
   "price",
   "quantity",
   "index",
+  "product_id",
+  "name",
+  "category",
+  "brand",
+  "variant",
+  "position",
 ];
 
 const EVENT_PROP_EXCLUSION_LIST = [
@@ -27,6 +33,13 @@ const EVENT_PROP_EXCLUSION_LIST = [
   "transaction_id",
   "shipping_tier",
   "payment_type",
+  "list_id",
+  "category",
+  "price",
+  "total",
+  "order_id",
+  "shipping_method",
+  "payment_method",
 ];
 
 const requiredEventParameters = {
