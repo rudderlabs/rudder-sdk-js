@@ -1,3 +1,34 @@
+const ITEM_PROP_EXCLUSION_LIST = [
+  "item_id",
+  "item_name",
+  "coupon",
+  "item_category",
+  "item_brand",
+  "item_variant",
+  "price",
+  "quantity",
+  "index",
+];
+
+const EVENT_PROP_EXCLUSION_LIST = [
+  "promotion_id",
+  "promotion_name",
+  "search_term",
+  "item_id",
+  "item_name",
+  "item_list_id",
+  "item_list_name",
+  "value",
+  "currency",
+  "coupon",
+  "affiliation",
+  "shipping",
+  "tax",
+  "transaction_id",
+  "shipping_tier",
+  "payment_type",
+];
+
 const requiredEventParameters = {
   PromotionId: "promotion_id",
   PromotionName: "promotion_name",
@@ -271,4 +302,6 @@ export {
   eventNamesConfigArray,
   eventParametersConfigArray,
   itemParametersConfigArray,
+  ITEM_PROP_EXCLUSION_LIST,
+  EVENT_PROP_EXCLUSION_LIST,
 };

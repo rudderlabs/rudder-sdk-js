@@ -1,6 +1,8 @@
 import {
   eventNamesConfigArray,
   itemParametersConfigArray,
+  ITEM_PROP_EXCLUSION_LIST,
+  EVENT_PROP_EXCLUSION_LIST,
 } from "./ECommerceEventConfig";
 
 import { pageEventParametersConfigArray } from "./PageEventConfig";
@@ -96,6 +98,48 @@ function hasRequiredParameters(props, eventMappingObj) {
   return true;
 }
 
+function extractCustomFields(message, destination, keys, exclusionFields) {
+  const mappingKeys = [];
+  if (keys === "root") {
+    Object.keys(message).map(k => {
+      if (!exclusionFields.includes(k)) mappingKeys.push(k);
+    });
+    mappingKeys.map(mappingKey => {
+      if (!(typeof message[mappingKey] === "undefined")) {
+        destination [mappingKey] = message[mappingKey];
+        // set(destination, mappingKey, get(message, mappingKey));
+      }
+    });
+  } else {
+    console.log("unable to parse keys");
+  }
+
+  return destination;
+}
+
+function addCustomVariables(destinationProperties, props, contextOp) {
+  logger.debug("within addCustomVariables");
+  let updatedProperties = {};
+  if (contextOp === "product") {
+    updatedProperties = extractCustomFields(
+      props,
+      destinationProperties,
+      "root",
+      ITEM_PROP_EXCLUSION_LIST
+    );
+  } else if (contextOp === "properties") {
+    updatedProperties = extractCustomFields(
+      props,
+      destinationProperties,
+      "root",
+      EVENT_PROP_EXCLUSION_LIST
+    );
+  } else {
+    updatedProperties = destinationProperties;
+  }
+  return updatedProperties;
+}
+
 /**
  * TO DO Future Improvement ::::
  * Here we only support mapping single level object mapping.
@@ -120,6 +164,7 @@ function hasRequiredParameters(props, eventMappingObj) {
 function getDestinationEventProperties(
   props,
   destParameterConfig,
+  contextOp,
   hasItem = true
 ) {
   let destinationProperties = {};
@@ -138,7 +183,12 @@ function getDestinationEventProperties(
       }
     });
   });
-  return destinationProperties;
+  const propsWithCustomFields = addCustomVariables(
+    destinationProperties,
+    props,
+    contextOp
+  );
+  return propsWithCustomFields;
 }
 
 /**
@@ -149,19 +199,20 @@ function getDestinationEventProperties(
 function getDestinationItemProperties(products, item) {
   const items = [];
   let obj = {};
-  if (type(products) !== "array") {
-    logger.debug("Event payload doesn't have products array");
-  } else {
-    // get the dest keys from itemParameters config
-    // append the already created item object keys (this is done to get the keys that are actually top level props in Rudder payload but GA expects them under items too)
-    products.forEach((p) => {
-      obj = {
-        ...getDestinationEventProperties(p, itemParametersConfigArray),
-        ...((item && type(item) === "array" && item[0]) || {}),
-      };
-      items.push(obj);
-    });
-  }
+  const contextOp = type(products) !== "array" ? "properties" : "product";
+  const finalProducts = type(products) !== "array" ? [products] : products;
+  finalProducts.forEach((p) => {
+    obj = {
+      ...getDestinationEventProperties(
+        p,
+        itemParametersConfigArray,
+        contextOp,
+        true
+      ),
+      ...((item && type(item) === "array" && item[0]) || {}),
+    };
+    items.push(obj);
+  });
   return items;
 }
 

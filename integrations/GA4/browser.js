@@ -90,14 +90,18 @@ export default class GA4 {
     destinationProperties = getDestinationEventProperties(
       properties,
       includeList,
+      "properties",
       hasItem
     );
 
     if (hasItem) {
       // only for events where GA requires an items array to be sent
       // get the product related destination keys || if products is not present use the rudder message properties to get the product related destination keys
+      if (products && type(products) !== "array") {
+        logger.debug("Event payload doesn't have products array");
+      }
       destinationProperties.items = getDestinationItemProperties(
-        products || [properties],
+        products || properties,
         destinationProperties.items
       );
     }
@@ -164,6 +168,7 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   track(rudderElement) {
+    logger.debug("in GoogleAnalytics 4 track");
     const { event } = rudderElement.message;
     const { properties } = rudderElement.message;
     const { products } = properties;
