@@ -63,6 +63,7 @@ const clientToServerNames = {
   ITERABLE: 'Iterable',
   YANDEX_METRICA: 'Yandex.Metrica',
   REFINER: 'Refiner',
+  QUALAROO: 'Qualaroo',
 };
 
 export { clientToServerNames };
