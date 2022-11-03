@@ -98,40 +98,48 @@ function hasRequiredParameters(props, eventMappingObj) {
   return true;
 }
 
-function extractCustomFields(message, destination, keys, exclusionFields) {
+/**
+ *
+ * @param {*} rootObj
+ * @param {*} destination
+ * @param {*} exclusionFields
+ * @returns screens custom variables from rootObj by excluding exclusionFields and adds 
+ * those to destination object
+ */
+function extractCustomVariables(rootObj, destination, exclusionFields) {
   const mappingKeys = [];
-  if (keys === "root") {
-    Object.keys(message).map(k => {
-      if (!exclusionFields.includes(k)) mappingKeys.push(k);
-    });
-    mappingKeys.map(mappingKey => {
-      if (!(typeof message[mappingKey] === "undefined")) {
-        destination [mappingKey] = message[mappingKey];
-        // set(destination, mappingKey, get(message, mappingKey));
-      }
-    });
-  } else {
-    console.log("unable to parse keys");
-  }
-
+  Object.keys(rootObj).map((k) => {
+    if (!exclusionFields.includes(k)) mappingKeys.push(k);
+  });
+  mappingKeys.map((mappingKey) => {
+    if (!(typeof rootObj[mappingKey] === "undefined")) {
+      destination[mappingKey] = rootObj[mappingKey];
+    }
+  });
   return destination;
 }
 
+/**
+ *
+ * @param {*} destinationProperties
+ * @param {*} props
+ * @param {*} contextOp "properties" or "products"
+ * @returns decides the exclusion criteria for adding custom variables
+ * in properties or product type objects and returns the final output.
+ */
 function addCustomVariables(destinationProperties, props, contextOp) {
   logger.debug("within addCustomVariables");
   let updatedProperties = {};
   if (contextOp === "product") {
-    updatedProperties = extractCustomFields(
+    updatedProperties = extractCustomVariables(
       props,
       destinationProperties,
-      "root",
       ITEM_PROP_EXCLUSION_LIST
     );
   } else if (contextOp === "properties") {
-    updatedProperties = extractCustomFields(
+    updatedProperties = extractCustomVariables(
       props,
       destinationProperties,
-      "root",
       EVENT_PROP_EXCLUSION_LIST
     );
   } else {
