@@ -65,6 +65,7 @@ const configToIntNames = {
   ITERABLE: 'Iterable',
   YANDEX_METRICA: 'YandexMetrica',
   REFINER: 'Refiner',
+  QUALAROO: 'Qualaroo',
 };
 
 export { configToIntNames };

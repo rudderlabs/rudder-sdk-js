@@ -62,6 +62,7 @@ import { CNameMapping as Engage } from '../integrations/Engage/constants';
 import { CNameMapping as Iterable } from '../integrations/Iterable/constants';
 import { CNameMapping as YandexMetrica } from '../integrations/YandexMetrica/constants';
 import { CNameMapping as Refiner } from '../integrations/Refiner/constants';
+import { CNameMapping as Qualaroo } from '../integrations/Qualaroo/constants';
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -131,6 +132,7 @@ const commonNames = {
   ...Rockerbox,
   ...YandexMetrica,
   ...Refiner,
+  ...Qualaroo,
 };
 
 export { commonNames };
