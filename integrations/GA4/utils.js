@@ -209,6 +209,8 @@ function getDestinationItemProperties(products, item) {
   let obj = {};
   const contextOp = type(products) !== "array" ? "properties" : "product";
   const finalProducts = type(products) !== "array" ? [products] : products;
+  // get the dest keys from itemParameters config
+  // append the already created item object keys (this is done to get the keys that are actually top level props in Rudder payload but GA expects them under items too)
   finalProducts.forEach((p) => {
     obj = {
       ...getDestinationEventProperties(
