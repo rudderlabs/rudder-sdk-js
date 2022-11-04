@@ -64,6 +64,7 @@ const clientToServerNames = {
   YANDEX_METRICA: 'Yandex.Metrica',
   REFINER: 'Refiner',
   QUALAROO: 'Qualaroo',
+  PODSIGHTS: 'Podsights',
 };
 
 export { clientToServerNames };
