@@ -1,5 +1,5 @@
 import copy from 'rollup-plugin-copy';
-import { getOutputConfiguration, getOutputFilePath, getDefaultConfig } from './utilities';
+import { getOutputConfiguration, getOutputFilePath, getDefaultConfig } from './rollup.utilities';
 
 const outDir = 'dist';
 const distName = 'index';

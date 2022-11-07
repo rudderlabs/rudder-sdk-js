@@ -1,4 +1,4 @@
-import { getOutputConfiguration, getOutputFilePath, getDefaultConfig } from './utilities';
+import { getOutputConfiguration, getOutputFilePath, getDefaultConfig } from './rollup.utilities';
 import { INTG_SUFFIX } from '../utils/constants';
 
 const outDir = 'dist/integrations';
