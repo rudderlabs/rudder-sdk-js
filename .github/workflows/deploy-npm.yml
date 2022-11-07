@@ -1,0 +1,37 @@
+name: Deploy to NPM
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
+  contents: read # This is required for actions/checkout
+
+jobs:
+  deploy-tag:
+    name: Deploy to NPM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Build fils
+        env:
+          HUSKY: 0
+        run: |
+          npm ci
+          npm run build:npm
+
+      - name: Publish package to NPM
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd dist/rudder-js-sdk
+          npm publish

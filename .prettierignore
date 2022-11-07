@@ -1,6 +1,7 @@
 dist/
 node_modules/
 stats/
+reports/
 coverage/
 archive/
 tests/

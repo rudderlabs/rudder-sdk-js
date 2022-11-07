@@ -14,7 +14,7 @@ Thanks for taking the time and for your help in improving this project!
 
 ## RudderStack Contributor Agreement
 
-To contribute to this project, we need you to sign the [**Contributor License Agreement (“CLA”)**][CLA] for the first commit you make. By agreeing to the [**CLA**][CLA]
+To contribute to this project, we need you to sign the [**Contributor License Agreement (“CLA”)**][cla] for the first commit you make. By agreeing to the [**CLA**][cla]
 we can add you to list of approved contributors and review the changes proposed by you.
 
 ## Contribute to this project
@@ -54,8 +54,7 @@ For any questions, concerns, or queries, you can start by asking a question on o
 
 ### We look forward to your feedback on improving this project!
 
-
 <!----variables---->
 
 [issue]: https://github.com/rudderlabs/rudder-sdk-js/issues/new
-[CLA]: https://rudderlabs.wufoo.com/forms/rudderlabs-contributor-license-agreement
+[cla]: https://rudderlabs.wufoo.com/forms/rudderlabs-contributor-license-agreement

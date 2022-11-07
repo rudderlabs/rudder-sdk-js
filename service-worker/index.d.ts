@@ -1,6 +1,4 @@
-export {
-    Analytics
-};
+export { Analytics };
 
 /**
  * Represents a generic object in the APIs
@@ -61,11 +59,7 @@ declare class Analytics {
    * @param {Boolean=true} options.enable (default: true)
    * @param {Number=20000} options.maxInternalQueueSize
    */
-  constructor(
-    writeKey: string,
-    dataPlaneURL: string,
-    options?: constructorOptions
-  );
+  constructor(writeKey: string, dataPlaneURL: string, options?: constructorOptions);
 
   /**
    * Send an identify `message`.
@@ -89,7 +83,7 @@ declare class Analytics {
       integrations?: integrationOptions;
       timestamp?: Date;
     },
-    callback?: apiCallback
+    callback?: apiCallback,
   ): Analytics;
   /**
    * Send a group `message`.
@@ -115,7 +109,7 @@ declare class Analytics {
       integrations?: integrationOptions;
       timestamp?: Date;
     },
-    callback?: apiCallback
+    callback?: apiCallback,
   ): Analytics;
   /**
    * Send a track `message`.
@@ -141,7 +135,7 @@ declare class Analytics {
       integrations?: integrationOptions;
       timestamp?: Date;
     },
-    callback?: apiCallback
+    callback?: apiCallback,
   ): Analytics;
   /**
    * Send a page `message`.
@@ -167,7 +161,7 @@ declare class Analytics {
       integrations?: integrationOptions;
       timestamp?: Date;
     },
-    callback?: apiCallback
+    callback?: apiCallback,
   ): Analytics;
 
   /**
@@ -194,7 +188,7 @@ declare class Analytics {
       integrations?: integrationOptions;
       timestamp?: Date;
     },
-    callback?: apiCallback
+    callback?: apiCallback,
   ): Analytics;
 
   /**
