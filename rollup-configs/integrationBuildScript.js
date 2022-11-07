@@ -26,7 +26,7 @@ function buildIntegrations() {
     const intgName = intgNamesArr[index];
     index += 1;
 
-    let cmd = `npm run build:integration:prod:cli --intg=${intgName}`;
+    let cmd = `npm run build:integration:cli --intg=${intgName}`;
 
     if (process.env.VISUALIZER === 'true') {
       cmd = `npm run build:integration:bundle-size:cli --intg=${intgName}`;
