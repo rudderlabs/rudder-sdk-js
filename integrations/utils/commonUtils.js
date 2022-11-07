@@ -163,6 +163,45 @@ function getDestinationExternalID(message, type) {
   return destinationExternalId;
 }
 
+function getIntgCommonNames(intg) {
+  const cNamesMap = {};
+  const { NAME, DISPLAY_NAME, CNameMapping } = intg;
+
+  let nameSanitized;
+  if (NAME) {
+    nameSanitized = NAME.trim();
+    cNamesMap[nameSanitized.toLowerCase()] = nameSanitized;
+  }
+
+  if (DISPLAY_NAME) {
+    const displayNameSanitized = DISPLAY_NAME.toLowerCase().trim();
+    // Add the sanitized display name
+    cNamesMap[displayNameSanitized] = nameSanitized;
+
+    const words = displayNameSanitized.split(" ");
+
+    cNamesMap[words.join("_")] = nameSanitized;
+    cNamesMap[words.join("")] = nameSanitized;
+  }
+
+  // add the hard-coded common names
+  if (CNameMapping) {
+    // convert the keys to lower case to
+    // match the existing common names
+    Object.keys(CNameMapping).forEach((name) => {
+      const sanitizedName = name.toLowerCase().trim();
+      cNamesMap[sanitizedName] = CNameMapping[name];
+    });
+  }
+
+  // Filter entries where key === value
+  Object.keys(cNamesMap).forEach((cName) => {
+    if (cNamesMap[cName] === cName) delete cNamesMap[cName];
+  });
+
+  return cNamesMap;
+}
+
 /**
  * Function to check if value is Defined, Not null and Not Empty.
  * Created this function, Because existing isDefinedAndNotNullAndNotEmpty(123) is returning false due to lodash _.isEmpty function.
@@ -200,4 +239,5 @@ export {
   isDefinedNotNullNotEmpty,
   isBlank,
   pick,
+  getIntgCommonNames,
 };

@@ -1,7 +1,10 @@
+import * as AdobeAnalytics from "./AdobeAnalytics/constants";
+
 // from client native integration name to server identified display name
 // add a mapping from Rudder identified key names to Rudder server recognizable names
 const clientToServerNames = {
   All: "All",
+  [AdobeAnalytics.NAME]: AdobeAnalytics.DISPLAY_NAME,
   GA: "Google Analytics",
   GOOGLEADS: "Google Ads",
   BRAZE: "Braze",

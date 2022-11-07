@@ -1,4 +1,4 @@
-import { CNameMapping as AdobeAnalytics } from "./AdobeAnalytics/constants";
+import * as AdobeAnalytics from "./AdobeAnalytics/constants";
 import { CNameMapping as Amplitude } from "./Amplitude/constants";
 import { CNameMapping as Appcues } from "./Appcues/constants";
 import { CNameMapping as BingAds } from "./BingAds/constants";
@@ -65,11 +65,12 @@ import { CNameMapping as YandexMetrica } from "./YandexMetrica/constants";
 import { CNameMapping as Podsights } from "./Podsights/constants";
 import { CNameMapping as Qualaroo } from "./Qualaroo/constants";
 
+import { getIntgCommonNames } from "./utils/commonUtils";
+
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
 const commonNames = {
-  All: "All",
-  ...AdobeAnalytics,
+  ...getIntgCommonNames(AdobeAnalytics),
   ...Adroll,
   ...Amplitude,
   ...Appcues,
@@ -135,6 +136,7 @@ const commonNames = {
   ...Refiner,
   ...YandexMetrica,
   ...Qualaroo,
+  all: "All",
 };
 
 export { commonNames };
