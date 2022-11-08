@@ -22,7 +22,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Build fils
+      - name: Build files
         env:
           HUSKY: 0
         run: |

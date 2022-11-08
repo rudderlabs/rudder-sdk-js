@@ -41,7 +41,7 @@ jobs:
           npm run build:browser:dev
           npm run build:integration:all
 
-      - name: Fix BugSnug API key
+      - name: Fix Bugsnag API key
         run: |
           sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$RS_DEV_BUGSNAG_API_KEY'|' dist/rudder-analytics.js
 

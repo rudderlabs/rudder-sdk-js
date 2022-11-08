@@ -6,3 +6,4 @@ __mocks__/
 *.md
 *.d.ts
 **/archive/
+node_modules/

@@ -36,7 +36,7 @@ jobs:
           npm run build:browser --staging=true
           npm run build:integration:all --staging=true
 
-      - name: Fix BugSnug API key
+      - name: Fix Bugsnag API key
         run: |
           sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$RS_BUGSNAG_STAGING_API_KEY'|' dist/rudder-analytics-staging.min.js
 

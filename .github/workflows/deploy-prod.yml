@@ -41,7 +41,7 @@ jobs:
           npm run build:browser
           npm run build:integration:all
 
-      - name: Fix BugSnug API key
+      - name: Fix Bugsnag API key
         run: |
           sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$RS_BUGSNAG_API_KEY'|' dist/rudder-analytics.min.js
 
@@ -58,3 +58,41 @@ jobs:
           aws s3 cp dist/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js.map --cache-control max-age=3600
           aws s3 cp dist/integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/js-integrations/ --recursive --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/latest*"
+
+      - name: Get new version number
+        run: |
+          current_version=$(jq -r .version package.json)
+          echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
+          echo "DATE=$(date)" >> $GITHUB_ENV
+
+      - name: Send message to Slack channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          PROJECT_NAME: 'JS SDK Browser Package'
+          CDN_URL: 'https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js'
+        with:
+          channel-id: 'C03N2GK8QR2'
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Release: <${{ env.CDN_URL }}|${{ env.CURRENT_VERSION_VALUE }}>*\n${{ env.DATE }}"
+                  }
+                }
+              ]
+            }

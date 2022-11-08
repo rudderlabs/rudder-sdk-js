@@ -6,3 +6,5 @@ coverage/
 archive/
 tests/
 __tests__/prodsdk.js
+CHANGELOG.md
+CONTRIBUTING.md
