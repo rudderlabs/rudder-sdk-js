@@ -39,7 +39,9 @@ jobs:
         run: |
           npm ci
           npm run build:browser
+          npm run build:browser:modern
           npm run build:integration:all
+          npm run build:integration:all:modern
 
       - name: Fix Bugsnag API key
         run: |
@@ -50,6 +52,7 @@ jobs:
           aws s3 cp dist/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js --cache-control max-age=3600
           aws s3 cp dist/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js.map --cache-control max-age=3600
           aws s3 cp dist/integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp dist/modern/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/modern/ --recursive --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/v1.1*"
 
       - name: Sync files to S3 latest
@@ -57,6 +60,7 @@ jobs:
           aws s3 cp dist/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js --cache-control max-age=3600
           aws s3 cp dist/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js.map --cache-control max-age=3600
           aws s3 cp dist/integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp dist/modern/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/modern/ --recursive --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/latest*"
 
       - name: Get new version number

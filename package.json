@@ -10,6 +10,7 @@
     "start": "rollup --config rollup-configs/rollup.sdk.js --watch --environment DEV_SERVER",
     "build:browser:dev": "rollup --config rollup-configs/rollup.sdk.js",
     "build:browser": "rollup --config rollup-configs/rollup.sdk.js --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,STAGING:$npm_config_staging,ENV:prod",
+    "build:browser:modern": "BROWSERSLIST_ENV=modern rollup --config rollup-configs/rollup.sdk.js --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG,STAGING:$npm_config_staging,ENV:prod",
     "build:browser:debug": "rollup --config rollup-configs/rollup.sdk.js --environment VERSION:$npm_package_version,UGLIFY,PROD_DEBUG:inline,ENV:prod",
     "build:browser:bundle-size": "VISUALIZER=true npm run build:browser",
     "build:node:dev": "rollup --config rollup-configs/rollup.sdk.js --environment VERSION:$npm_package_version,NODE_ENV,NPM",
@@ -21,6 +22,7 @@
     "build:integration": "rollup --config rollup-configs/rollup.integrations.config.js --environment PROD_DEBUG,ENV:prod,UGLIFY,INTG_NAME:AdobeAnalytics",
     "build:integration:cli": "rollup --config rollup-configs/rollup.integrations.config.js --environment PROD_DEBUG,ENV:prod,UGLIFY,INTG_NAME:$npm_config_intg",
     "build:integration:all": "VISUALIZER=false STAGING=$npm_config_staging node -r esm rollup-configs/integrationBuildScript.js",
+    "build:integration:all:modern": "VISUALIZER=false BROWSERSLIST_ENV=modern STAGING=$npm_config_staging node -r esm rollup-configs/integrationBuildScript.js",
     "build:integration:bundle-size": "VISUALIZER=true npm run build:integration",
     "build:integration:bundle-size:cli": "VISUALIZER=true npm run build:integration:cli",
     "clean": "rm -rf dist",
@@ -159,6 +161,9 @@
       "Chrome >= 37",
       "Safari >= 7",
       "Opera >= 23"
+    ],
+    "modern": [
+      "defaults"
     ],
     "development": [
       "last 1 chrome version",

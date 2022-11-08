@@ -1,7 +1,8 @@
 import { getOutputConfiguration, getOutputFilePath, getDefaultConfig } from './rollup.utilities';
 import { INTG_SUFFIX } from '../utils/constants';
 
-const outDir = 'dist/integrations';
+const variantSubfolder = process.env.BROWSERSLIST_ENV === 'modern' ? 'modern/' : '';
+const outDir = `dist/${variantSubfolder}integrations`;
 const distName = process.env.INTG_NAME;
 
 const outFilePath = getOutputFilePath(outDir, distName);
