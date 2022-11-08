@@ -101,7 +101,7 @@
     "@rollup/plugin-json": "5.0.1",
     "@rollup/plugin-node-resolve": "15.0.1",
     "@rollup/plugin-replace": "5.0.1",
-    "@size-limit/preset-small-lib": "8.1.0",
+    "@size-limit/preset-big-lib": "8.1.0",
     "auto-changelog": "2.4.0",
     "babel-eslint": "10.1.0",
     "commitizen": "4.2.5",
