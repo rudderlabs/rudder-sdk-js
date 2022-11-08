@@ -21,4 +21,10 @@ module.exports = [
     gzip: true,
     limit: '41 kB',
   },
+  {
+    name: 'Service Worker - NPM',
+    path: 'dist/rudder-sdk-js/service-worker/index.js',
+    gzip: true,
+    limit: '43 kB',
+  },
 ];

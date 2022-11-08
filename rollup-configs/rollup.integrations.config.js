@@ -1,5 +1,5 @@
-import { getOutputConfiguration, getOutputFilePath, getDefaultConfig } from './rollupUtils';
-import { INTG_SUFFIX } from './utils/constants';
+import { getOutputConfiguration, getOutputFilePath, getDefaultConfig } from './rollup.utilities';
+import { INTG_SUFFIX } from '../utils/constants';
 
 const outDir = 'dist/integrations';
 const distName = process.env.INTG_NAME;

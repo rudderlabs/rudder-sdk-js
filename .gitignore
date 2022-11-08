@@ -1,24 +1,36 @@
-**/.DS_Store
+/node_modules
+npm-debug.log*
+
+# testing
+/reports
+
+# production
+dist/*
+!dist/rudder-sdk-js/*
+dist/rudder-sdk-js/index.js
+dist/rudder-sdk-js/service-worker/
+__tests__/prodsdk.js
+
+# code analysis tools
+.scannerwork
+dependency-check-bin/
+dependency-check-reports/
+.eslintcache
+
+# misc
+.DS_Store
+.env
+.idea/
+.vscode/
 **/bin/
 **/obj/
 **/.vs
-**/.vscode
 **/.classpath
 **/.settings/
 **/.project
 *.iml
-**/node_modules
-**/**/node_modules
 local.properties
 *.apk
 *.zip
 build.sh
 publish.sh
-dist/*
-!dist/rudder-sdk-js/*
-dist/rudder-sdk-js/index.js
-dist/rudder-sdk-js/service-worker/
-coverage/**
-__tests__/prodsdk.js
-.eslintcache
-.idea

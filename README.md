@@ -72,25 +72,23 @@ To load `rudder-analytics.js` on to your page synchronously, you can refer to th
   rudderanalytics = window.rudderanalytics = [];
 
   var methods = [
-    "load",
-    "page",
-    "track",
-    "identify",
-    "alias",
-    "group",
-    "ready",
-    "reset",
-    "getAnonymousId",
-    "setAnonymousId",
+    'load',
+    'page',
+    'track',
+    'identify',
+    'alias',
+    'group',
+    'ready',
+    'reset',
+    'getAnonymousId',
+    'setAnonymousId',
   ];
 
   for (var i = 0; i < methods.length; i++) {
     var method = methods[i];
     rudderanalytics[method] = (function (methodName) {
       return function () {
-        rudderanalytics.push(
-          [methodName].concat(Array.prototype.slice.call(arguments))
-        );
+        rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
       };
     })(method);
   }
@@ -202,22 +200,22 @@ A sample `identify()` call is shown below:
 
 ```javascript
 rudderanalytics.identify(
-  "12345",
+  '12345',
   {
-    email: "name@domain.com",
+    email: 'name@domain.com',
   },
   {
     page: {
-      path: "",
-      referrer: "",
-      search: "",
-      title: "",
-      url: "",
+      path: '',
+      referrer: '',
+      search: '',
+      title: '',
+      url: '',
     },
   },
   () => {
-    console.log("in identify call");
-  }
+    console.log('in identify call');
+  },
 );
 ```
 
@@ -235,15 +233,15 @@ A sample `track` call is shown below:
 
 ```javascript
 rudderanalytics.track(
-  "test track event GA3",
+  'test track event GA3',
   {
     revenue: 30,
-    currency: "USD",
+    currency: 'USD',
     user_actual_id: 12345,
   },
   () => {
-    console.log("in track call");
-  }
+    console.log('in track call');
+  },
 );
 ```
 
@@ -259,7 +257,7 @@ An example is shown in the following snippet:
 
 ```javascript
 rudderanalytics.ready(() => {
-  console.log("we are all set!!!");
+  console.log('we are all set!!!');
 });
 ```
 
@@ -290,18 +288,18 @@ You can start adding integrations of your choice for sending the data through th
 
 - Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are updated in the `dist` folder of the directory. Among the others, some of the important ones are:
 
-  - `npm run buildProdBrowser`: This outputs **rudder-analytics.min.js**.
-  - `npm run buildProdBrowserBrotli`: This outputs two files - **rudder-analytics.min.br.js** (the original minified file, same as above) and **rudder-analytics.min.br.js.br** (the Brotli-compressed file).
-  - `npm run buildProdBrowserGzip`: This outputs two files, **rudder-analytics.min.gzip.js** (the original minified file, same as above) and **rudder-analytics.min.gzip.js.gz** (the gzipped compressed file).
+  - `npm run build:browser`: This outputs **rudder-analytics.min.js**.
+  - `npm run build:npm`: This outputs **rudder-sdk-js** folder that contains the npm package contents.
+  - `npm run build:integration:all`: This outputs **integrations** folder that contains the integrations.
 
-> We use **rollup** to build our SDKs. The configuration for it is present in `rollup.config.js` in the repo directory.
+> We use **rollup** to build our SDKs. The configuration for it is present in `rollup-configs` folder.
 
 - For adding or removing integrations, modify the imports in `index.js` under the `integrations` folder.
 
 ### Usage in Chrome Extensions
 
-RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script or as a background script 
-service worker. 
+RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script or as a background script
+service worker.
 
 For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/production/tests/chrome-extension/USAGE.md)
 
