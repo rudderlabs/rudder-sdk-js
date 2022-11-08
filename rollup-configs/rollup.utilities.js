@@ -118,7 +118,7 @@ export function getDefaultConfig(distName) {
       process.env.VISUALIZER === 'true' &&
         process.env.UGLIFY === 'true' &&
         visualizer({
-          filename: `./reports/stats/${distName}.html`,
+          filename: `./stats/${distName}.html`,
           title: `Rollup Visualizer - ${distName}`,
           sourcemap: true,
           open: true,
