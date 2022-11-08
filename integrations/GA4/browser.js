@@ -162,7 +162,7 @@ export default class GA4 {
    */
   track(rudderElement) {
     // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.useNativeSDKToSend) {
+    if (this.isHybridModeEnabled) {
       return;
     }
 
@@ -185,7 +185,7 @@ export default class GA4 {
 
   identify(rudderElement) {
     // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.useNativeSDKToSend) {
+    if (this.isHybridModeEnabled) {
       return;
     }
 
@@ -209,7 +209,7 @@ export default class GA4 {
 
   page(rudderElement) {
     // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.useNativeSDKToSend) {
+    if (this.isHybridModeEnabled) {
       return;
     }
 
@@ -228,7 +228,7 @@ export default class GA4 {
 
   group(rudderElement) {
     // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.useNativeSDKToSend) {
+    if (this.isHybridModeEnabled) {
       return;
     }
 
