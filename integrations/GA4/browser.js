@@ -25,7 +25,7 @@ export default class GA4 {
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.extendGroupPayload = config.extendGroupPayload || false;
     this.debugMode = config.debugMode || false;
-    this.useNativeSDKToSend = config.useNativeSDKToSend || false;
+    this.isHybridModeEnabled = config.useNativeSDKToSend || false;
     this.name = NAME;
   }
 
