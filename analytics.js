@@ -203,22 +203,11 @@ class Analytics {
   }
 
   /**
-   * A function to return the dataPlaneUrl provided in load API(if available) or the default one
-   * @returns string
-   */
-  checkUrlFromCode() {
-    if (this.serverUrl && this.isValidServerUrl(this.serverUrl)) {
-      return this.serverUrl;
-    }
-    return DEFAULT_DATAPLANE_URL;
-  }
-
-  /**
    * A function to get url from source config response
    * @param {array} urls    An array of objects containing urls
    * @returns
    */
-  getUrl(urls) {
+  getDefaultUrlofRegion(urls) {
     let url;
     if (Array.isArray(urls) && urls.length) {
       const obj = urls.find((elem) => elem.default === true);
@@ -234,28 +223,31 @@ class Analytics {
    * @param {Object} dataPlaneUrls An object containing dataPlaneUrl for different region
    * @returns string
    */
-  resolveDataPlaneUrl(dataPlaneUrls = {}) {
-    // Check if dataPlaneUrls object is present in source config
-    if (Object.keys(dataPlaneUrls).length) {
-      const inputRegion = this.getResidencyServer() || '';
-      const dataPlaneUrl = dataPlaneUrls[inputRegion];
+  resolveDataPlaneUrl(response) {
+    try {
+      const dataPlaneUrls = response.source.dataplanes || {};
+      // Check if dataPlaneUrls object is present in source config
+      if (Object.keys(dataPlaneUrls).length) {
+        const inputRegion = this.getResidencyServer() || DEFAULT_REGION;
+        const regionUrlArr = dataPlaneUrls[inputRegion];
 
-      if (dataPlaneUrl) {
-        const defaultUrl = this.getUrl(dataPlaneUrl);
-        if (defaultUrl) {
-          return defaultUrl;
+        if (regionUrlArr) {
+          const defaultUrl = this.getDefaultUrlofRegion(regionUrlArr);
+          if (defaultUrl) {
+            return defaultUrl;
+          }
         }
       }
-      const defaultRegion = dataPlaneUrls[DEFAULT_REGION];
-      if (defaultRegion) {
-        const defaultUrl = this.getUrl(defaultRegion);
-        if (defaultUrl) {
-          return defaultUrl;
-        }
+      // return the dataPlaneUrl provided in load API(if available)
+      if (this.serverUrl && this.isValidServerUrl(this.serverUrl)) {
+        return this.serverUrl;
       }
-      return this.checkUrlFromCode();
+      // return the default dataPlaneUrl
+      return DEFAULT_DATAPLANE_URL;
+    } catch (e) {
+      handleError(e);
+      return this.serverUrl || DEFAULT_DATAPLANE_URL;
     }
-    return this.checkUrlFromCode();
   }
 
   /**
@@ -309,12 +301,8 @@ class Analytics {
       }
 
       // determine the dataPlaneUrl
-      try {
-        this.serverUrl = this.resolveDataPlaneUrl(response.source.dataplanes);
-      } catch (e) {
-        handleError(e);
-        this.serverUrl = this.serverUrl || DEFAULT_DATAPLANE_URL;
-      }
+      this.serverUrl = this.resolveDataPlaneUrl(response);
+
       // Initialize event repository
       this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
       this.loaded = true;
