@@ -192,10 +192,13 @@ class Analytics {
    */
   getResidencyServer() {
     const region = this.options ? this.options.residencyServer : undefined;
-    if (typeof region === 'string' && RESIDENCY_SERVERS.includes(region.toUpperCase())) {
+    if (region) {
+      if (typeof region !== 'string' || !RESIDENCY_SERVERS.includes(region.toUpperCase())) {
+        logger.error('Invalid residencyServer input');
+        return undefined;
+      }
       return region.toUpperCase();
     }
-    logger.error('Invalid residencyServer input');
     return undefined;
   }
 
