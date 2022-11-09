@@ -19,6 +19,7 @@ dependency-check-reports/
 
 # misc
 .DS_Store
+.env
 .idea/
 .vscode/
 **/bin/
