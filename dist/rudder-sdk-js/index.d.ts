@@ -101,7 +101,7 @@ declare module "rudder-sdk-js" {
       autoTrack?: boolean; // Defaults to true
       timeout?: number; // Defaults to 30 mins
     };
-    residencyServer?: RESIDENCY_SERVER.US | RESIDENCY_SERVER.EU;
+    residencyServer?: RESIDENCY_SERVER;
   }
 
   /**
@@ -499,5 +499,6 @@ declare module "rudder-sdk-js" {
     getGroupTraits,
     startSession,
     endSession,
+    RESIDENCY_SERVER,
   };
 }
