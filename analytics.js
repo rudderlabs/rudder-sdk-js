@@ -1,3 +1,4 @@
+/* eslint-disable prefer-rest-params */
 /* eslint-disable no-use-before-define */
 /* eslint-disable new-cap */
 /* eslint-disable func-names */
@@ -189,10 +190,10 @@ class Analytics {
    * A function to validate and return Residency server input
    * @returns string/undefined
    */
-  getResidencyServerInput() {
-    const region = get(this.options, 'residencyServer');
+  getResidencyServer() {
+    const region = this.options ? this.options.residencyServer : undefined;
     return typeof region === 'string' && RESIDENCY_SERVERS.includes(region.toUpperCase())
-      ? region
+      ? region.toUpperCase()
       : undefined;
   }
 
@@ -208,21 +209,44 @@ class Analytics {
   }
 
   /**
-   * A function to determine the dataPlaneUrl for sending cloud mode calls
+   * A function to get url from source config response
+   * @param {array} urls    An array of objects containing urls
+   * @returns
+   */
+  getUrl(urls) {
+    let url;
+    if (Array.isArray(urls) && urls.length) {
+      const obj = urls.find((elem) => elem.default === true);
+      if (obj && obj.url) {
+        return obj.url;
+      }
+    }
+    return url;
+  }
+
+  /**
+   * A function to determine the dataPlaneUrl
    * @param {Object} dataPlaneUrls An object containing dataPlaneUrl for different region
    * @returns string
    */
   resolveDataPlaneUrl(dataPlaneUrls = {}) {
     // Check if dataPlaneUrls object is present in source config
     if (Object.keys(dataPlaneUrls).length) {
-      const inputRegion = this.getResidencyServerInput() || '';
-      const dataPlaneUrl =
-        dataPlaneUrls[inputRegion.toUpperCase()] || dataPlaneUrls[inputRegion.toLowerCase()];
+      const inputRegion = this.getResidencyServer() || '';
+      const dataPlaneUrl = dataPlaneUrls[inputRegion];
+
       if (dataPlaneUrl) {
-        return dataPlaneUrl;
+        const defaultUrl = this.getUrl(dataPlaneUrl);
+        if (defaultUrl) {
+          return defaultUrl;
+        }
       }
-      if (dataPlaneUrls[DEFAULT_REGION]) {
-        return dataPlaneUrls[DEFAULT_REGION];
+      const defaultRegion = dataPlaneUrls[DEFAULT_REGION];
+      if (defaultRegion) {
+        const defaultUrl = this.getUrl(defaultRegion);
+        if (defaultUrl) {
+          return defaultUrl;
+        }
       }
       return this.checkUrlFromCode();
     }
@@ -281,10 +305,10 @@ class Analytics {
 
       // determine the dataPlaneUrl
       try {
-        this.serverUrl = this.resolveDataPlaneUrl(response.source.dataPlaneUrls);
+        this.serverUrl = this.resolveDataPlaneUrl(response.source.dataplanes);
       } catch (e) {
         handleError(e);
-        this.serverUrl = this.serverUrl ? this.serverUrl : DEFAULT_DATAPLANE_URL;
+        this.serverUrl = this.serverUrl || DEFAULT_DATAPLANE_URL;
       }
       // Initialize event repository
       this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
@@ -520,7 +544,7 @@ class Analytics {
   page(category, name, properties, options, callback) {
     leaveBreadcrumb(`Page event`);
     if (!this.loaded) {
-      this.toBeProcessedArray.push(['page', category, name, properties, options, callback]);
+      this.toBeProcessedArray.push(['page', ...arguments]);
       return;
     }
     if (typeof options === 'function') (callback = options), (options = null);
@@ -563,7 +587,7 @@ class Analytics {
   track(event, properties, options, callback) {
     leaveBreadcrumb(`Track event`);
     if (!this.loaded) {
-      this.toBeProcessedArray.push(['track', event, properties, options, callback]);
+      this.toBeProcessedArray.push(['track', ...arguments]);
       return;
     }
     if (typeof options === 'function') (callback = options), (options = null);
@@ -591,7 +615,7 @@ class Analytics {
   identify(userId, traits, options, callback) {
     leaveBreadcrumb(`Identify event`);
     if (!this.loaded) {
-      this.toBeProcessedArray.push(['identify', userId, traits, options, callback]);
+      this.toBeProcessedArray.push(['identify', ...arguments]);
       return;
     }
     if (typeof options === 'function') (callback = options), (options = null);
@@ -625,7 +649,7 @@ class Analytics {
   alias(to, from, options, callback) {
     leaveBreadcrumb(`Alias event`);
     if (!this.loaded) {
-      this.toBeProcessedArray.push(['alias', to, from, options, callback]);
+      this.toBeProcessedArray.push(['alias', ...arguments]);
       return;
     }
     if (typeof options === 'function') (callback = options), (options = null);
@@ -651,7 +675,7 @@ class Analytics {
   group(groupId, traits, options, callback) {
     leaveBreadcrumb(`Group event`);
     if (!this.loaded) {
-      this.toBeProcessedArray.push(['group', groupId, traits, options, callback]);
+      this.toBeProcessedArray.push(['group', ...arguments]);
       return;
     }
     if (!arguments.length) return;
@@ -1028,14 +1052,14 @@ class Analytics {
       this.logLevel = options.logLevel;
       logger.setLogLevel(options.logLevel);
     }
+    if (!this.isValidWriteKey(writeKey)) {
+      throw Error('Unable to load the SDK due to invalid writeKey');
+    }
     if (!this.storage || Object.keys(this.storage).length === 0) {
       throw Error('Cannot proceed as no storage is available');
     }
     if (options && options.cookieConsentManager)
       this.cookieConsentOptions = cloneDeep(options.cookieConsentManager);
-    if (!this.isValidWriteKey(writeKey)) {
-      throw Error('Unable to load the SDK due to invalid writeKey');
-    }
 
     this.writeKey = writeKey;
     this.serverUrl = serverUrl;

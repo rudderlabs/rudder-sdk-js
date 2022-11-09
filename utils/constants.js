@@ -36,7 +36,7 @@ const MIN_SESSION_ID_LENGTH = 10;
 const DEFAULT_REGION = 'US';
 const DEFAULT_DATAPLANE_URL = 'https://hosted.rudderlabs.com';
 
-const RESIDENCY_SERVERS = ['US', 'EU'];
+const RESIDENCY_SERVERS = [DEFAULT_REGION, 'EU'];
 
 export {
   RESERVED_KEYS,
