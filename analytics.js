@@ -219,7 +219,7 @@ class Analytics {
     let url;
     if (Array.isArray(urls) && urls.length) {
       const obj = urls.find((elem) => elem.default === true);
-      if (obj && obj.url) {
+      if (obj && obj.url && this.isValidServerUrl(obj.url)) {
         return obj.url;
       }
     }
@@ -964,6 +964,7 @@ class Analytics {
 
     if (!this.loaded) {
       this.toBeProcessedArray.push(['reset', flag]);
+      return;
     }
     if (flag) {
       this.anonymousId = '';
