@@ -35,6 +35,7 @@ import {
   commonNames,
   get,
   getStringId,
+  resolveDataPlaneUrl,
 } from './utils/utils';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
@@ -46,9 +47,6 @@ import {
   DEFAULT_ERROR_REPORT_PROVIDER,
   ERROR_REPORT_PROVIDERS,
   SAMESITE_COOKIE_OPTS,
-  DEFAULT_REGION,
-  DEFAULT_DATAPLANE_URL,
-  RESIDENCY_SERVERS,
 } from './utils/constants';
 import RudderElementBuilder from './utils/RudderElementBuilder';
 import Storage from './utils/storage';
@@ -187,70 +185,6 @@ class Analytics {
   }
 
   /**
-   * A function to validate and return Residency server input
-   * @returns string/undefined
-   */
-  getResidencyServer() {
-    const region = this.options ? this.options.residencyServer : undefined;
-    if (region) {
-      if (typeof region !== 'string' || !RESIDENCY_SERVERS.includes(region.toUpperCase())) {
-        logger.error('Invalid residencyServer input');
-        return undefined;
-      }
-      return region.toUpperCase();
-    }
-    return undefined;
-  }
-
-  /**
-   * A function to get url from source config response
-   * @param {array} urls    An array of objects containing urls
-   * @returns
-   */
-  getDefaultUrlofRegion(urls) {
-    let url;
-    if (Array.isArray(urls) && urls.length) {
-      const obj = urls.find((elem) => elem.default === true);
-      if (obj && obj.url && this.isValidServerUrl(obj.url)) {
-        return obj.url;
-      }
-    }
-    return url;
-  }
-
-  /**
-   * A function to determine the dataPlaneUrl
-   * @param {Object} dataPlaneUrls An object containing dataPlaneUrl for different region
-   * @returns string
-   */
-  resolveDataPlaneUrl(response) {
-    try {
-      const dataPlaneUrls = response.source.dataplanes || {};
-      // Check if dataPlaneUrls object is present in source config
-      if (Object.keys(dataPlaneUrls).length) {
-        const inputRegion = this.getResidencyServer() || DEFAULT_REGION;
-        const regionUrlArr = dataPlaneUrls[inputRegion];
-
-        if (regionUrlArr) {
-          const defaultUrl = this.getDefaultUrlofRegion(regionUrlArr);
-          if (defaultUrl) {
-            return defaultUrl;
-          }
-        }
-      }
-      // return the dataPlaneUrl provided in load API(if available)
-      if (this.serverUrl && this.isValidServerUrl(this.serverUrl)) {
-        return this.serverUrl;
-      }
-      // return the default dataPlaneUrl
-      return DEFAULT_DATAPLANE_URL;
-    } catch (e) {
-      handleError(e);
-      return this.serverUrl || DEFAULT_DATAPLANE_URL;
-    }
-  }
-
-  /**
    * Process the response from control plane and
    * call initialize for integrations
    *
@@ -301,7 +235,7 @@ class Analytics {
       }
 
       // determine the dataPlaneUrl
-      this.serverUrl = this.resolveDataPlaneUrl(response);
+      this.serverUrl = resolveDataPlaneUrl(response);
 
       // Initialize event repository
       this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
@@ -1013,13 +947,6 @@ class Analytics {
 
   isValidWriteKey(writeKey) {
     if (!writeKey || typeof writeKey !== 'string' || writeKey.trim().length == 0) {
-      return false;
-    }
-    return true;
-  }
-
-  isValidServerUrl(serverUrl) {
-    if (!serverUrl || typeof serverUrl !== 'string' || serverUrl.trim().length == 0) {
       return false;
     }
     return true;

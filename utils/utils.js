@@ -6,7 +6,13 @@ import { LOAD_ORIGIN } from '../integrations/ScriptLoader';
 import logger from './logUtil';
 import { commonNames } from './integration_cname';
 import { clientToServerNames } from './client_server_name';
-import { CONFIG_URL, RESERVED_KEYS } from './constants';
+import {
+  CONFIG_URL,
+  RESERVED_KEYS,
+  DEFAULT_REGION,
+  DEFAULT_DATAPLANE_URL,
+  RESIDENCY_SERVERS,
+} from './constants';
 import Storage from './storage';
 
 /**
@@ -743,6 +749,77 @@ const getStringId = (id) => {
     : JSON.stringify(id);
 };
 
+/**
+ * A function to validate and return Residency server input
+ * @returns string/undefined
+ */
+const getResidencyServer = (options) => {
+  const region = options ? options.residencyServer : undefined;
+  if (region) {
+    if (typeof region !== 'string' || !RESIDENCY_SERVERS.includes(region.toUpperCase())) {
+      logger.error('Invalid residencyServer input');
+      return undefined;
+    }
+    return region.toUpperCase();
+  }
+  return undefined;
+};
+
+const isValidServerUrl = (serverUrl) => {
+  if (!serverUrl || typeof serverUrl !== 'string' || serverUrl.trim().length === 0) {
+    return false;
+  }
+  return true;
+};
+
+/**
+ * A function to get url from source config response
+ * @param {array} urls    An array of objects containing urls
+ * @returns
+ */
+const getDefaultUrlofRegion = (urls) => {
+  let url;
+  if (Array.isArray(urls) && urls.length) {
+    const obj = urls.find((elem) => elem.default === true);
+    if (obj && obj.url && isValidServerUrl(obj.url)) {
+      return obj.url;
+    }
+  }
+  return url;
+};
+
+/**
+ * A function to determine the dataPlaneUrl
+ * @param {Object} dataPlaneUrls An object containing dataPlaneUrl for different region
+ * @returns string
+ */
+const resolveDataPlaneUrl = (response, serverUrl, options) => {
+  try {
+    const dataPlaneUrls = response.source.dataplanes || {};
+    // Check if dataPlaneUrls object is present in source config
+    if (Object.keys(dataPlaneUrls).length) {
+      const inputRegion = getResidencyServer(options);
+      const regionUrlArr = dataPlaneUrls[inputRegion] || dataPlaneUrls[DEFAULT_REGION];
+
+      if (regionUrlArr) {
+        const defaultUrl = getDefaultUrlofRegion(regionUrlArr);
+        if (defaultUrl) {
+          return defaultUrl;
+        }
+      }
+    }
+    // return the dataPlaneUrl provided in load API(if available)
+    if (serverUrl && isValidServerUrl(serverUrl)) {
+      return serverUrl;
+    }
+    // return the default dataPlaneUrl
+    return DEFAULT_DATAPLANE_URL;
+  } catch (e) {
+    handleError(e);
+    return serverUrl || DEFAULT_DATAPLANE_URL;
+  }
+};
+
 export {
   replacer,
   generateUUID,
@@ -778,4 +855,5 @@ export {
   get,
   countDigits,
   getStringId,
+  resolveDataPlaneUrl,
 };
