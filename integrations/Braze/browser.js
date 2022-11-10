@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import cloneDeep from "lodash.clonedeep";
 import { del } from "obj-case";
 import logger from "../../utils/logUtil";
 import { LOAD_ORIGIN } from "../ScriptLoader";
@@ -28,7 +29,7 @@ class Braze {
     }
 
     this.name = NAME;
-
+    this.previousPayload = null;
     logger.debug("Config ", config);
   }
 
@@ -134,33 +135,6 @@ class Braze {
     const { lastname } = rudderElement.message.context.traits;
     const { phone } = rudderElement.message.context.traits;
 
-    // This is a hack to make a deep copy that is not recommended because it will often fail:
-    const traits = JSON.parse(
-      JSON.stringify(rudderElement.message.context.traits)
-    );
-
-    window.braze.changeUser(userId);
-    // method removed from v4 https://www.braze.com/docs/api/objects_filters/user_attributes_object#braze-user-profile-fields
-    // window.braze.getUser().setAvatarImageUrl(avatar);
-    if (email) window.braze.getUser().setEmail(email);
-    if (firstname) window.braze.getUser().setFirstName(firstname);
-    if (gender) window.braze.getUser().setGender(this.formatGender(gender));
-    if (lastname) window.braze.getUser().setLastName(lastname);
-    if (phone) window.braze.getUser().setPhoneNumber(phone);
-    if (address) {
-      window.braze.getUser().setCountry(address.country);
-      window.braze.getUser().setHomeCity(address.city);
-    }
-    if (birthday) {
-      window.braze
-        .getUser()
-        .setDateOfBirth(
-          birthday.getUTCFullYear(),
-          birthday.getUTCMonth() + 1,
-          birthday.getUTCDate()
-        );
-    }
-
     // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
     const reserved = [
       "avatar",
@@ -187,13 +161,104 @@ class Braze {
       "push_subscribe",
     ];
 
+    // deep clone the traits object
+    const traits = cloneDeep(rudderElement.message.context.traits);
+
     reserved.forEach((element) => {
       delete traits[element];
     });
 
-    Object.keys(traits).forEach((key) => {
-      window.braze.getUser().setCustomUserAttribute(key, traits[key]);
-    });
+    if (previousPayload !== null) {
+      const prevUserId = get(previousPayload, "message.userId");
+      const prevAddress = get(
+        previousPayload,
+        "message.context.traits.address"
+      );
+      const prevBirthday = get(
+        previousPayload,
+        "message.context.traits.birthday"
+      );
+      const prevEmail = get(previousPayload, "message.context.traits.email");
+      const prevFirstname = get(
+        previousPayload,
+        "message.context.traits.firstname"
+      );
+      const prevGender = get(previousPayload, "message.context.traits.gender");
+      const prevLastname = get(
+        previousPayload,
+        "message.context.traits.lastname"
+      );
+      const prevPhone = get(previousPayload, "message.context.traits.phone");
+
+      if (!prevUserId || userId !== prevUserId) {
+        window.braze.changeUser(userId);
+      }
+      if (!prevAddress || address !== prevAddress) {
+        window.braze.getUser().setCountry(address.country);
+        window.braze.getUser().setHomeCity(address.city);
+      }
+      if (!prevBirthday || birthday !== prevBirthday) {
+        window.braze
+          .getUser()
+          .setDateOfBirth(
+            birthday.getUTCFullYear(),
+            birthday.getUTCMonth() + 1,
+            birthday.getUTCDate()
+          );
+      }
+      if (email && email !== prevEmail) {
+        window.braze.getUser().setEmail(email);
+      }
+      if (firstname && firstname !== prevFirstname) {
+        window.braze.getUser().setFirstName(firstname);
+      }
+      if (gender && gender !== prevGender) {
+        window.braze.getUser().setGender(this.formatGender(gender));
+      }
+      if (lastname && lastname !== prevLastname) {
+        window.braze.getUser().setLastName(lastname);
+      }
+      if (phone && phone !== prevPhone) {
+        window.braze.getUser().setPhoneNumber(phone);
+      }
+      // const prevtraits = cloneDeep();
+      Object.keys(traits).forEach((key) => {
+        const prevtraitsObj = get(
+          this.previousPayload,
+          `message.context.traits.${key}`
+        );
+        if (!prevtraitsObj || prevtraitsObj !== traits[key]) {
+          window.braze.getUser().setCustomUserAttribute(key, traits[key]);
+        }
+      });
+    } else {
+      window.braze.changeUser(userId);
+      // method removed from v4 https://www.braze.com/docs/api/objects_filters/user_attributes_object#braze-user-profile-fields
+      // window.braze.getUser().setAvatarImageUrl(avatar);
+      if (email) window.braze.getUser().setEmail(email);
+      if (firstname) window.braze.getUser().setFirstName(firstname);
+      if (gender) window.braze.getUser().setGender(this.formatGender(gender));
+      if (lastname) window.braze.getUser().setLastName(lastname);
+      if (phone) window.braze.getUser().setPhoneNumber(phone);
+      if (address) {
+        window.braze.getUser().setCountry(address.country);
+        window.braze.getUser().setHomeCity(address.city);
+      }
+      if (birthday) {
+        window.braze
+          .getUser()
+          .setDateOfBirth(
+            birthday.getUTCFullYear(),
+            birthday.getUTCMonth() + 1,
+            birthday.getUTCDate()
+          );
+      }
+
+      Object.keys(traits).forEach((key) => {
+        window.braze.getUser().setCustomUserAttribute(key, traits[key]);
+      });
+    }
+    previousPayload = { ...this.previousPayload, rudderElement };
   }
 
   handlePurchase(properties, userId) {
