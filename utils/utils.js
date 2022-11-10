@@ -781,7 +781,7 @@ const getDefaultUrlofRegion = (urls) => {
   let url;
   if (Array.isArray(urls) && urls.length) {
     const obj = urls.find((elem) => elem.default === true);
-    if (obj && obj.url && isValidServerUrl(obj.url)) {
+    if (obj && isValidServerUrl(obj.url)) {
       return obj.url;
     }
   }
@@ -795,11 +795,11 @@ const getDefaultUrlofRegion = (urls) => {
  */
 const resolveDataPlaneUrl = (response, serverUrl, options) => {
   try {
-    const dataPlaneUrls = response.source.dataplanes || {};
-    // Check if dataPlaneUrls object is present in source config
-    if (Object.keys(dataPlaneUrls).length) {
+    const dataPlanes = response.source.dataplanes || {};
+    // Check if dataPlanes object is present in source config
+    if (Object.keys(dataPlanes).length) {
       const inputRegion = getResidencyServer(options);
-      const regionUrlArr = dataPlaneUrls[inputRegion] || dataPlaneUrls[DEFAULT_REGION];
+      const regionUrlArr = dataPlanes[inputRegion] || dataPlanes[DEFAULT_REGION];
 
       if (regionUrlArr) {
         const defaultUrl = getDefaultUrlofRegion(regionUrlArr);
@@ -809,14 +809,14 @@ const resolveDataPlaneUrl = (response, serverUrl, options) => {
       }
     }
     // return the dataPlaneUrl provided in load API(if available)
-    if (serverUrl && isValidServerUrl(serverUrl)) {
+    if (isValidServerUrl(serverUrl)) {
       return serverUrl;
     }
     // return the default dataPlaneUrl
     return DEFAULT_DATAPLANE_URL;
   } catch (e) {
     handleError(e);
-    return serverUrl || DEFAULT_DATAPLANE_URL;
+    return isValidServerUrl(serverUrl) ? serverUrl : DEFAULT_DATAPLANE_URL;
   }
 };
 

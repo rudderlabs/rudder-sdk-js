@@ -235,7 +235,7 @@ class Analytics {
       }
 
       // determine the dataPlaneUrl
-      this.serverUrl = resolveDataPlaneUrl(response);
+      this.serverUrl = resolveDataPlaneUrl(response, this.serverUrl, this.options);
 
       // Initialize event repository
       this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
