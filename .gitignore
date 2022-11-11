@@ -5,6 +5,7 @@ npm-debug.log*
 /reports
 
 # production
+dist/
 __tests__/prodsdk.js
 
 # code analysis tools
