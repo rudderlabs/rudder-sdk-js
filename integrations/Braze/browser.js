@@ -4,6 +4,7 @@ import { del } from "obj-case";
 import logger from "../../utils/logUtil";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 import { BrazeOperationString, NAME } from "./constants";
+import get from "get-value";
 
 /*
 E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
@@ -30,6 +31,7 @@ class Braze {
 
     this.name = NAME;
     this.previousPayload = null;
+    this.supportDedup = true;
     logger.debug("Config ", config);
   }
 
@@ -137,7 +139,6 @@ class Braze {
 
     // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
     const reserved = [
-      "avatar",
       "address",
       "birthday",
       "email",
@@ -146,17 +147,11 @@ class Braze {
       "gender",
       "lastname",
       "phone",
-      "facebook",
-      "twitter",
-      "first_name",
-      "last_name",
       "dob",
       "external_id",
       "country",
       "home_city",
       "bio",
-      "gender",
-      "phone",
       "email_subscribe",
       "push_subscribe",
     ];
@@ -167,37 +162,46 @@ class Braze {
     reserved.forEach((element) => {
       delete traits[element];
     });
-
-    if (previousPayload !== null) {
-      const prevUserId = get(previousPayload, "message.userId");
+    
+    if (this.supportDedup && this.previousPayload !== null) {
+      const prevUserId = get(this.previousPayload, "message.userId");
       const prevAddress = get(
-        previousPayload,
+        this.previousPayload,
         "message.context.traits.address"
       );
       const prevBirthday = get(
-        previousPayload,
+        this.previousPayload,
         "message.context.traits.birthday"
       );
-      const prevEmail = get(previousPayload, "message.context.traits.email");
+      const prevEmail = get(
+        this.previousPayload,
+        "message.context.traits.email"
+      );
       const prevFirstname = get(
-        previousPayload,
+        this.previousPayload,
         "message.context.traits.firstname"
       );
-      const prevGender = get(previousPayload, "message.context.traits.gender");
+      const prevGender = get(
+        this.previousPayload,
+        "message.context.traits.gender"
+      );
       const prevLastname = get(
-        previousPayload,
+        this.previousPayload,
         "message.context.traits.lastname"
       );
-      const prevPhone = get(previousPayload, "message.context.traits.phone");
+      const prevPhone = get(
+        this.previousPayload,
+        "message.context.traits.phone"
+      );
 
-      if (!prevUserId || userId !== prevUserId) {
+      if (userId && userId !== prevUserId) {
         window.braze.changeUser(userId);
       }
-      if (!prevAddress || address !== prevAddress) {
+      if (address && address !== prevAddress) {
         window.braze.getUser().setCountry(address.country);
         window.braze.getUser().setHomeCity(address.city);
       }
-      if (!prevBirthday || birthday !== prevBirthday) {
+      if (birthday && birthday !== prevBirthday) {
         window.braze
           .getUser()
           .setDateOfBirth(
@@ -258,7 +262,7 @@ class Braze {
         window.braze.getUser().setCustomUserAttribute(key, traits[key]);
       });
     }
-    previousPayload = { ...this.previousPayload, rudderElement };
+    this.previousPayload = { ...this.previousPayload, rudderElement };
   }
 
   handlePurchase(properties, userId) {
