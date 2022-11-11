@@ -130,11 +130,17 @@ class Braze {
   identify(rudderElement) {
     const { userId } = rudderElement.message;
     const { address } = rudderElement.message.context.traits;
-    const { birthday } = rudderElement.message.context.traits;
+    const birthday =
+      rudderElement.message.context.traits?.birthday ||
+      rudderElement.message.context.traits?.dob;
     const { email } = rudderElement.message.context.traits;
-    const { firstname } = rudderElement.message.context.traits;
+    const firstname =
+      rudderElement.message.context.traits?.firstname ||
+      rudderElement.message.context.traits?.firstName;
     const { gender } = rudderElement.message.context.traits;
-    const { lastname } = rudderElement.message.context.traits;
+    const lastname =
+      rudderElement.message.context.traits?.lastname ||
+      rudderElement.message.context.traits?.lastName;
     const { phone } = rudderElement.message.context.traits;
 
     // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
@@ -163,35 +169,16 @@ class Braze {
       delete traits[element];
     });
     if (this.supportDedup && this.previousPayload !== null) {
-      const prevUserId = get(this.previousPayload, "rudderElement.message.userId");
-      const prevAddress = get(
-        this.previousPayload,
-        "rudderElement.message.context.traits.address"
-      );
-      const prevBirthday = get(
-        this.previousPayload,
-        "rudderElement.message.context.traits.birthday"
-      );
-      const prevEmail = get(
-        this.previousPayload,
-        "rudderElement.message.context.traits.email"
-      );
-      const prevFirstname = get(
-        this.previousPayload,
-        "rudderElement.message.context.traits.firstname"
-      );
-      const prevGender = get(
-        this.previousPayload,
-        "rudderElement.message.context.traits.gender"
-      );
-      const prevLastname = get(
-        this.previousPayload,
-        "rudderElement.message.context.traits.lastname"
-      );
-      const prevPhone = get(
-        this.previousPayload,
-        "rudderElement.message.context.traits.phone"
-      );
+      const prevMessage = this.previousPayload.rudderElement.message;
+      const prevTraits = prevMessage.context.traits;
+      const prevUserId = prevMessage.userId;
+      const prevAddress = prevTraits?.address;
+      const prevBirthday = prevTraits?.birthday || prevTraits?.dob;
+      const prevEmail = prevTraits?.email;
+      const prevFirstname = prevTraits?.firstname || prevTraits?.firstName;
+      const prevGender = prevTraits?.gender;
+      const prevLastname = prevTraits?.lastname || prevTraits?.lastName;
+      const prevPhone = prevTraits?.phone;
 
       if (userId && userId !== prevUserId) {
         window.braze.changeUser(userId);
@@ -226,11 +213,7 @@ class Braze {
       }
       // const prevtraits = cloneDeep();
       Object.keys(traits).forEach((key) => {
-        const prevtraitsObj = get(
-          this.previousPayload,
-          `rudderElement.message.context.traits.${key}`
-        );
-        if (!prevtraitsObj || prevtraitsObj !== traits[key]) {
+        if (!prevTraits[key] || prevTraits[key] !== traits[key]) {
           window.braze.getUser().setCustomUserAttribute(key, traits[key]);
         }
       });
