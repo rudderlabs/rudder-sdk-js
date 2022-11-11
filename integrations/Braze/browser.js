@@ -163,7 +163,7 @@ class Braze {
       delete traits[element];
     });
     if (this.supportDedup && this.previousPayload !== null) {
-      const prevUserId = get(this.previousPayload, "message.userId");
+      const prevUserId = get(this.previousPayload, "rudderElement.message.userId");
       const prevAddress = get(
         this.previousPayload,
         "rudderElement.message.context.traits.address"
