@@ -1,13 +1,13 @@
 /* eslint-disable no-underscore-dangle */
-import { getHashFromArray } from "../utils/commonUtils";
+import { getHashFromArray } from '../utils/commonUtils';
 
 const integrationContext = {
-  name: "Qualaroo",
-  version: "1.0.0",
+  name: 'Qualaroo',
+  version: '1.0.0',
 };
 
 // supported callback events
-const standardEventsList = ["show", "close", "submit", "noTargetMatch"];
+const standardEventsList = ['show', 'close', 'submit', 'noTargetMatch'];
 
 const swapKeyValuePairs = (standardEventsMap) => {
   const swappedEventsMap = {};
@@ -25,11 +25,9 @@ const swapKeyValuePairs = (standardEventsMap) => {
  */
 const triggerCallback = (standardEventsMap, eventName, updateEventNames) => {
   const updatedEvent =
-    standardEventsMap[eventName] && updateEventNames
-      ? standardEventsMap[eventName]
-      : eventName;
+    standardEventsMap[eventName] && updateEventNames ? standardEventsMap[eventName] : eventName;
   window._kiq.push([
-    "eventHandler",
+    'eventHandler',
     eventName,
     function () {
       window.rudderanalytics.track(
@@ -37,7 +35,7 @@ const triggerCallback = (standardEventsMap, eventName, updateEventNames) => {
         {},
         {
           context: { integration: integrationContext },
-        }
+        },
       );
     },
   ]);
@@ -52,7 +50,7 @@ const triggerCallback = (standardEventsMap, eventName, updateEventNames) => {
 const recordQualarooEvents = (
   updateEventNames,
   userDefinedEventsList,
-  userDefinedEventsMapping
+  userDefinedEventsMapping,
 ) => {
   let standardEventsMap = getHashFromArray(userDefinedEventsMapping);
   standardEventsMap = swapKeyValuePairs(standardEventsMap);
@@ -72,7 +70,7 @@ const recordQualarooEvents = (
 const transformUserTraits = (traits) => {
   const transformedTraits = {};
   Object.keys(traits).forEach((traitName) => {
-    const transformedTrait = traitName.replace(/-/g, "_");
+    const transformedTrait = traitName.replace(/-/g, '_');
     transformedTraits[transformedTrait] = traits[traitName];
   });
   return transformedTraits;

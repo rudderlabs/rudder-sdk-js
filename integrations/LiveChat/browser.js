@@ -1,12 +1,12 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import get from "get-value";
-import logger from "../../utils/logUtil";
+import get from 'get-value';
+import logger from '../../utils/logUtil';
 
-import { recordingLiveChatEvents } from "./util";
-import { isObject } from "../../utils/utils";
-import { flattenJson } from "../utils/commonUtils";
-import { NAME } from "./constants";
+import { recordingLiveChatEvents } from './util';
+import { isObject } from '../../utils/utils';
+import { flattenJson } from '../utils/commonUtils';
+import { NAME } from './constants';
 
 class LiveChat {
   constructor(config) {
@@ -19,7 +19,7 @@ class LiveChat {
   }
 
   init() {
-    logger.debug("===in init Livechat===");
+    logger.debug('===in init Livechat===');
     window.__lc = window.__lc || {};
     window.__lc.license = this.licenseId;
     (function (n, t, c) {
@@ -29,31 +29,28 @@ class LiveChat {
       var e = {
         _q: [],
         _h: null,
-        _v: "2.0",
+        _v: '2.0',
         on: function () {
-          i(["on", c.call(arguments)]);
+          i(['on', c.call(arguments)]);
         },
         once: function () {
-          i(["once", c.call(arguments)]);
+          i(['once', c.call(arguments)]);
         },
         off: function () {
-          i(["off", c.call(arguments)]);
+          i(['off', c.call(arguments)]);
         },
         get: function () {
-          if (!e._h)
-            throw new Error(
-              "[LiveChatWidget] You can't use getters before load."
-            );
-          return i(["get", c.call(arguments)]);
+          if (!e._h) throw new Error("[LiveChatWidget] You can't use getters before load.");
+          return i(['get', c.call(arguments)]);
         },
         call: function () {
-          i(["call", c.call(arguments)]);
+          i(['call', c.call(arguments)]);
         },
         init: function () {
-          var n = t.createElement("script");
+          var n = t.createElement('script');
           (n.async = !0),
-            (n.type = "text/javascript"),
-            (n.src = "https://cdn.livechatinc.com/tracking.js"),
+            (n.type = 'text/javascript'),
+            (n.src = 'https://cdn.livechatinc.com/tracking.js'),
             t.head.appendChild(n);
         },
       };
@@ -62,48 +59,42 @@ class LiveChat {
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded LiveChat===");
+    logger.debug('===In isLoaded LiveChat===');
     return !!(window.LiveChatWidget && isObject(window.LiveChatWidget));
   }
 
   isReady() {
-    logger.debug("===In isReady LiveChat===");
+    logger.debug('===In isReady LiveChat===');
 
     // Dasboard Other Settings
     if (this.recordLiveChatEvents) {
-      recordingLiveChatEvents(
-        this.updateEventNames,
-        this.eventsList,
-        this.eventsToStandard
-      );
+      recordingLiveChatEvents(this.updateEventNames, this.eventsList, this.eventsToStandard);
     }
     return !!window.LiveChatWidget;
   }
 
   identify(rudderElement) {
-    logger.debug("===In LiveChat Identify===");
+    logger.debug('===In LiveChat Identify===');
     const { message } = rudderElement;
     const { userId } = message;
     const { traits } = rudderElement.message.context;
-    const email = get(message, "context.traits.email");
+    const email = get(message, 'context.traits.email');
 
     if (email) {
-      window.LiveChatWidget.call("set_customer_email", email);
+      window.LiveChatWidget.call('set_customer_email', email);
     } else {
-      logger.error(
-        "User parameter (email) ,required for identify call, not found."
-      );
+      logger.error('User parameter (email) ,required for identify call, not found.');
     }
 
-    const name = get(message, "context.traits.name");
+    const name = get(message, 'context.traits.name');
 
     if (name) {
-      window.LiveChatWidget.call("set_customer_name", name);
+      window.LiveChatWidget.call('set_customer_name', name);
     }
     if (traits) {
       const flattenTraits = flattenJson(traits);
       if (userId) flattenTraits.userId = userId;
-      window.LiveChatWidget.call("set_session_variables", flattenTraits);
+      window.LiveChatWidget.call('set_session_variables', flattenTraits);
     }
   }
 }

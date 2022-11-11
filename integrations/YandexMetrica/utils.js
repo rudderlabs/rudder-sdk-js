@@ -1,9 +1,9 @@
-import logger from "../../utils/logUtil";
+import logger from '../../utils/logUtil';
 
 import {
   removeUndefinedAndNullAndEmptyValues,
   removeUndefinedAndNullValues,
-} from "../utils/commonUtils";
+} from '../utils/commonUtils';
 
 // This function is used for sending the track event to yandex.metrica
 const sendEvent = (container, payload) => {
@@ -12,11 +12,11 @@ const sendEvent = (container, payload) => {
 
 // This object is defined to map the default rudder event to yandex.metrica event
 const ecommerceEventMapping = {
-  order_completed: "purchase",
-  product_viewed: "detail",
-  product_list_viewed: "detail",
-  product_added: "add",
-  product_removed: "remove",
+  order_completed: 'purchase',
+  product_viewed: 'detail',
+  product_list_viewed: 'detail',
+  product_added: 'add',
+  product_removed: 'remove',
 };
 
 // This function is used to map the product properties
@@ -71,9 +71,7 @@ const ecommEventPayload = (eventType, properties, goalId) => {
   if (products && Array.isArray(products)) {
     products.forEach((element, index) => {
       if (!(element.product_id || element.name)) {
-        logger.error(
-          `None of product_id or name is present for product at index ${index}`
-        );
+        logger.error(`None of product_id or name is present for product at index ${index}`);
       } else {
         responsePayload = populatePayload(eventType, element, productsArray);
       }
@@ -84,9 +82,9 @@ const ecommEventPayload = (eventType, properties, goalId) => {
     responsePayload = populatePayload(eventType, properties, productsArray);
   }
   // populating actionField object required for purchase event type
-  if (eventType === "purchase") {
+  if (eventType === 'purchase') {
     if (!properties.order_id) {
-      logger.error("order_id is required for event type purchase");
+      logger.error('order_id is required for event type purchase');
     }
     const actionField = {
       id: properties.order_id,

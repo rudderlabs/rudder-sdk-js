@@ -1,4 +1,4 @@
-import { getHashFromArray } from "../utils/commonUtils";
+import { getHashFromArray } from '../utils/commonUtils';
 
 /**
  * Replace the attributes name using webapp configuration mapping
@@ -26,12 +26,7 @@ const replaceDestAttributes = (attributesMap, destinationPayload) => {
  * @returns
  */
 const replaceUserTraits = (userTraits, userAttributesMapping) => {
-  const userAttributesMap = getHashFromArray(
-    userAttributesMapping,
-    "from",
-    "to",
-    false
-  );
+  const userAttributesMap = getHashFromArray(userAttributesMapping, 'from', 'to', false);
   return replaceDestAttributes(userAttributesMap, userTraits);
 };
 
@@ -42,12 +37,7 @@ const replaceUserTraits = (userTraits, userAttributesMapping) => {
  * @returns
  */
 const replaceAccountTraits = (accountTraits, accountAttributesMapping) => {
-  const accountAttributesMap = getHashFromArray(
-    accountAttributesMapping,
-    "from",
-    "to",
-    false
-  );
+  const accountAttributesMap = getHashFromArray(accountAttributesMapping, 'from', 'to', false);
   return replaceDestAttributes(accountAttributesMap, accountTraits);
 };
 

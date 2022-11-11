@@ -1,3 +1,3 @@
-import { Pendo } from "./browser";
+import { Pendo } from './browser';
 
-export default Pendo;
+export { Pendo };

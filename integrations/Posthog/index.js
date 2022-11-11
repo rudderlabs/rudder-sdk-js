@@ -1,3 +1,3 @@
-import Posthog from "./browser";
+import Posthog from './browser';
 
-export default Posthog;
+export { Posthog };

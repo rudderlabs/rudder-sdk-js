@@ -1,3 +1,3 @@
-import RollBar from "./browser";
+import RollBar from './browser';
 
-export default RollBar;
+export { RollBar };

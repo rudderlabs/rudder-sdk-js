@@ -1,9 +1,9 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { NAME } from "./constants";
-import logger from "../../utils/logUtil";
-import { isDefinedAndNotNull } from "../utils/commonUtils";
-import ScriptLoader from "../ScriptLoader";
+import { NAME } from './constants';
+import logger from '../../utils/logUtil';
+import { isDefinedAndNotNull } from '../utils/commonUtils';
+import ScriptLoader from '../ScriptLoader';
 
 class Vero {
   constructor(config) {
@@ -12,22 +12,19 @@ class Vero {
   }
 
   init() {
-    logger.debug("===In init Vero===");
+    logger.debug('===In init Vero===');
     window._veroq = window._veroq || [];
-    ScriptLoader(
-      "vero-integration",
-      "https://d3qxef4rp70elm.cloudfront.net/m.js"
-    );
-    window._veroq.push(["init", { api_key: this.apiKey }]);
+    ScriptLoader('vero-integration', 'https://d3qxef4rp70elm.cloudfront.net/m.js');
+    window._veroq.push(['init', { api_key: this.apiKey }]);
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded Vero===");
-    return !!window._veroq && typeof window._veroq === "object";
+    logger.debug('===In isLoaded Vero===');
+    return !!window._veroq && typeof window._veroq === 'object';
   }
 
   isReady() {
-    logger.debug("===In isReady Vero===");
+    logger.debug('===In isReady Vero===');
     return !!window._veroq && !!window._veroq.ready;
   }
 
@@ -47,7 +44,7 @@ class Vero {
         const addTags = Array.isArray(tags.add) ? tags.add : [];
         const removeTags = Array.isArray(tags.remove) ? tags.remove : [];
         window._veroq.push([
-          "tags",
+          'tags',
           {
             id: userId,
             add: addTags,
@@ -72,7 +69,7 @@ class Vero {
     if (userId) {
       payload = { id: userId, ...payload };
     }
-    window._veroq.push(["user", payload]);
+    window._veroq.push(['user', payload]);
     this.addOrRemoveTags(message);
   }
 
@@ -88,24 +85,24 @@ class Vero {
    * @param {Track} track
    */
   track(rudderElement) {
-    logger.debug("=== In Vero track ===");
+    logger.debug('=== In Vero track ===');
 
     const { message } = rudderElement;
     const { event, properties } = message;
     if (!event) {
-      logger.error("[Vero]: Event name from track call is missing!!===");
+      logger.error('[Vero]: Event name from track call is missing!!===');
       return;
     }
     const userId = message.userId || message.anonymousId;
     switch (event.toLowerCase()) {
-      case "unsubscribe":
-        window._veroq.push(["unsubscribe", userId]);
+      case 'unsubscribe':
+        window._veroq.push(['unsubscribe', userId]);
         break;
-      case "resubscribe":
-        window._veroq.push(["resubscribe", userId]);
+      case 'resubscribe':
+        window._veroq.push(['resubscribe', userId]);
         break;
       default:
-        window._veroq.push(["track", event, properties]);
+        window._veroq.push(['track', event, properties]);
     }
     this.addOrRemoveTags(message);
   }
@@ -116,7 +113,7 @@ class Vero {
    * @param {Page} page
    */
   page(rudderElement) {
-    logger.debug("=== In Vero Page ===");
+    logger.debug('=== In Vero Page ===');
     const { name, category } = rudderElement.message;
     let eventName;
     if (!name && !category) {
@@ -144,14 +141,14 @@ class Vero {
     const { message } = rudderElement;
     const { userId, previousId } = message;
     if (!previousId) {
-      logger.error("===Vero: previousId is required for alias call===");
+      logger.error('===Vero: previousId is required for alias call===');
       return;
     }
     if (!userId) {
-      logger.error("===Vero: userId is required for alias call===");
+      logger.error('===Vero: userId is required for alias call===');
       return;
     }
-    window._veroq.push(["reidentify", userId, previousId]);
+    window._veroq.push(['reidentify', userId, previousId]);
     this.addOrRemoveTags(message);
   }
 }

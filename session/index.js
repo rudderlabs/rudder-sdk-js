@@ -7,8 +7,8 @@ import {
   DEFAULT_SESSION_TIMEOUT,
   MIN_SESSION_TIMEOUT,
   MIN_SESSION_ID_LENGTH,
-} from "../utils/constants";
-import { handleError, countDigits } from "../utils/utils";
+} from '../utils/constants';
+import { handleError, countDigits } from '../utils/utils';
 
 class UserSession {
   constructor() {
@@ -62,10 +62,7 @@ class UserSession {
       // If auto session tracking is enabled start the session tracking
       if (this.sessionInfo.autoTrack) {
         this.startAutoTracking();
-      } else if (
-        this.sessionInfo.autoTrack === false &&
-        !this.sessionInfo.manualTrack
-      ) {
+      } else if (this.sessionInfo.autoTrack === false && !this.sessionInfo.manualTrack) {
         /**
          * Use case:
          * By default user session is enabled which means storage will have session data.
@@ -123,7 +120,7 @@ class UserSession {
     }
     if (countDigits(sessionId) < MIN_SESSION_ID_LENGTH) {
       logger.error(
-        `[Session]:: "sessionId" should at least be "${MIN_SESSION_ID_LENGTH}" digits long`
+        `[Session]:: "sessionId" should at least be "${MIN_SESSION_ID_LENGTH}" digits long`,
       );
       return;
     }
@@ -136,9 +133,7 @@ class UserSession {
    * @returns
    */
   start(id) {
-    const sessionId = id
-      ? this.validateSessionId(id)
-      : this.generateSessionId();
+    const sessionId = id ? this.validateSessionId(id) : this.generateSessionId();
 
     this.sessionInfo = {
       id: sessionId || this.generateSessionId(),

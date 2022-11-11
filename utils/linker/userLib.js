@@ -10,11 +10,11 @@ const USER_INTERFACE = {
    */
   getUserLanguage: () => navigator && navigator.language,
 
-  /** 
-   * @param {*} req 
+  /**
+   * @param {*} req
    * @returns {string} userAgent
    */
-  getUserAgent:  () => navigator && navigator.userAgent
-}
+  getUserAgent: () => navigator && navigator.userAgent,
+};
 
 export default USER_INTERFACE;

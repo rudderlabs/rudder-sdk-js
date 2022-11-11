@@ -1,8 +1,8 @@
-import { getHashFromArray } from "../utils/commonUtils";
+import { getHashFromArray } from '../utils/commonUtils';
 
 const integrationContext = {
-  name: "LiveChat",
-  version: "1.0.0",
+  name: 'LiveChat',
+  version: '1.0.0',
 };
 
 /**
@@ -15,14 +15,12 @@ const makeACall = (standardEventsMap, eventName, updateEventNames) => {
   // Updating the event name with any mapping from the webapp if available else
   // storing default event name in the updatedEvent
   const updatedEvent =
-    standardEventsMap[eventName] && updateEventNames
-      ? standardEventsMap[eventName]
-      : eventName;
+    standardEventsMap[eventName] && updateEventNames ? standardEventsMap[eventName] : eventName;
 
   window.rudderanalytics.track(
     `${updatedEvent}`,
     {},
-    { context: { integration: integrationContext } }
+    { context: { integration: integrationContext } },
   );
 };
 
@@ -44,22 +42,22 @@ const swapKeyValuePairs = (standardEventsMap) => {
 function recordingLiveChatEvents(
   updateEventNames,
   userDefinedEventsList,
-  userDefinedEventsMapping
+  userDefinedEventsMapping,
 ) {
   let standardEventsMap = getHashFromArray(userDefinedEventsMapping);
   standardEventsMap = swapKeyValuePairs(standardEventsMap);
   (function (api) {
     [
-      "ready",
-      "new_event",
-      "form_submitted",
-      "greeting_hidden",
-      "rating_submitted",
-      "visibility_changed",
-      "greeting_displayed",
-      "availability_changed",
-      "customer_status_changed",
-      "rich_message_button_clicked",
+      'ready',
+      'new_event',
+      'form_submitted',
+      'greeting_hidden',
+      'rating_submitted',
+      'visibility_changed',
+      'greeting_displayed',
+      'availability_changed',
+      'customer_status_changed',
+      'rich_message_button_clicked',
     ].forEach(function (eventName) {
       if (userDefinedEventsList.includes(eventName)) {
         api.on(eventName, function (payload) {

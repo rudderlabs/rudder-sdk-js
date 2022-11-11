@@ -1,3 +1,3 @@
-import QuoraPixel from "./browser";
+import QuoraPixel from './browser';
 
-export default QuoraPixel;
+export { QuoraPixel };

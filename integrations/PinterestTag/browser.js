@@ -15,6 +15,9 @@ import { LOAD_ORIGIN } from '../ScriptLoader';
 
 export default class PinterestTag {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.analytics = analytics;
     this.tagId = !config.tagId ? '' : config.tagId;
     this.enhancedMatch = config.enhancedMatch || false;
@@ -44,37 +47,37 @@ export default class PinterestTag {
   handleEnhancedMatch() {
     const email = this.analytics.userTraits && this.analytics.userTraits.email;
     if (email && this.enhancedMatch) {
-      window.pintrk("load", this.tagId, {
+      window.pintrk('load', this.tagId, {
         em: email,
       });
     } else {
-      window.pintrk("load", this.tagId);
+      window.pintrk('load', this.tagId);
     }
-    window.pintrk("page");
+    window.pintrk('page');
   }
 
   init() {
-    logger.debug("===in init Pinterest Tag===");
+    logger.debug('===in init Pinterest Tag===');
     this.loadScript();
     this.handleEnhancedMatch();
   }
 
   /* utility functions ---Start here ---  */
   isLoaded() {
-    logger.debug("===in isLoaded Pinterest Tag===");
+    logger.debug('===in isLoaded Pinterest Tag===');
 
     return !!(window.pintrk && window.pintrk.push !== Array.prototype.push);
   }
 
   isReady() {
-    logger.debug("===in isReady Pinterest Tag===");
+    logger.debug('===in isReady Pinterest Tag===');
 
     return !!(window.pintrk && window.pintrk.push !== Array.prototype.push);
   }
   /* utility functions --- Ends here ---  */
 
   sendPinterestTrack(eventName, pinterestObject) {
-    window.pintrk("track", eventName, pinterestObject);
+    window.pintrk('track', eventName, pinterestObject);
   }
 
   /**
@@ -108,11 +111,7 @@ export default class PinterestTag {
    */
   getRawPayload(properties) {
     const data = {};
-    const mappedProps = this.getMappingObject(
-      properties,
-      propertyMapping,
-      true
-    );
+    const mappedProps = this.getMappingObject(properties, propertyMapping, true);
     Object.keys(mappedProps).forEach((p) => {
       if (pinterestPropertySupport.includes(p)) {
         data[p] = mappedProps[p];
@@ -150,10 +149,7 @@ export default class PinterestTag {
       pinterestObject.line_items = lineItems;
     }
 
-    if (
-      this.customProperties.length > 0 &&
-      Object.keys(properties).length > 0
-    ) {
+    if (this.customProperties.length > 0 && Object.keys(properties).length > 0) {
       const flattenPayload = flattenJsonPayload(properties);
 
       this.customProperties.forEach((custom) => {
@@ -178,7 +174,7 @@ export default class PinterestTag {
         this.userDefinedEventsMapping,
         'from',
         'to',
-        false
+        false,
       );
       eventNames = keyMap[event];
     }
@@ -223,19 +219,19 @@ export default class PinterestTag {
 
   page(rudderElement) {
     const { category, name } = rudderElement.message;
-    const pageObject = { name: name || "" };
-    let event = "PageVisit";
+    const pageObject = { name: name || '' };
+    let event = 'PageVisit';
     if (category) {
       pageObject.category = category;
-      event = "ViewCategory";
+      event = 'ViewCategory';
     }
-    window.pintrk("track", event, pageObject);
+    window.pintrk('track', event, pageObject);
   }
 
   identify() {
     const email = this.analytics.userTraits && this.analytics.userTraits.email;
     if (email) {
-      window.pintrk("set", { em: email });
+      window.pintrk('set', { em: email });
     }
   }
 }

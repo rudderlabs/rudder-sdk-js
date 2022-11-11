@@ -1,3 +1,3 @@
-import LinkedInInsightTag from "./browser";
+import LinkedInInsightTag from './browser';
 
-export default LinkedInInsightTag;
+export { LinkedInInsightTag };

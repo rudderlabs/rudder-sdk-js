@@ -1,13 +1,13 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import get from "get-value";
-import logger from "../../utils/logUtil";
+import get from 'get-value';
+import logger from '../../utils/logUtil';
 
-import { getHashFromArray } from "../utils/commonUtils";
+import { getHashFromArray } from '../utils/commonUtils';
 
-import { NAME } from "./constants";
-import ScriptLoader from "../ScriptLoader";
-import { PRODUCT_EVENTS, ORDER_EVENTS, productEvent, orderEvent } from "./util";
+import { NAME } from './constants';
+import ScriptLoader from '../ScriptLoader';
+import { PRODUCT_EVENTS, ORDER_EVENTS, productEvent, orderEvent } from './util';
 
 class Adroll {
   constructor(config) {
@@ -20,35 +20,31 @@ class Adroll {
   }
 
   init() {
-    logger.debug("===In init Adroll===");
-    ScriptLoader(
-      "adroll roundtrip",
-      `https://s.adroll.com/j/${this.advId}/roundtrip.js`
-    );
+    logger.debug('===In init Adroll===');
+    ScriptLoader('adroll roundtrip', `https://s.adroll.com/j/${this.advId}/roundtrip.js`);
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded Adroll===");
+    logger.debug('===In isLoaded Adroll===');
     return !!window.__adroll;
   }
 
   isReady() {
-    logger.debug("===In isReady Adroll===");
+    logger.debug('===In isReady Adroll===');
     return !!window.__adroll;
   }
 
   identify(rudderElement) {
-    logger.debug("===In Adroll Identify===");
+    logger.debug('===In Adroll Identify===');
     const { message } = rudderElement;
-    const email =
-      get(message, "context.traits.email") || get(message, "traits.email");
+    const email = get(message, 'context.traits.email') || get(message, 'traits.email');
 
     if (!email) {
-      logger.error("User parameter (email) is required for identify call");
+      logger.error('User parameter (email) is required for identify call');
       return;
     }
     window._adroll_email = email;
-    window.__adroll.record_adroll_email("segment");
+    window.__adroll.record_adroll_email('segment');
   }
   // record_adroll_email is used to attach a image pixel to the page connected to the user identified
 
@@ -78,16 +74,14 @@ class Adroll {
       data.adroll_segments = segmentId;
       window.__adroll.record_user(data);
     } else {
-      logger.error(
-        `The event ${message.event} is not mapped to any segmentId. Aborting!`
-      );
+      logger.error(`The event ${message.event} is not mapped to any segmentId. Aborting!`);
     }
   }
   // record_user fires the correct pixel in accordance with the event configured in the dashboard
   // and the segment associated in adroll
 
   page(rudderElement) {
-    logger.debug("=== In Adroll Page ===");
+    logger.debug('=== In Adroll Page ===');
     const { message } = rudderElement;
     const eventsHashmap = getHashFromArray(this.eventsMap);
     let pageFullName;
@@ -103,9 +97,7 @@ class Adroll {
 
     const segmentId = eventsHashmap[pageFullName.toLowerCase()];
     if (!segmentId) {
-      logger.error(
-        `The event ${pageFullName} is not mapped to any segmentId. Aborting!`
-      );
+      logger.error(`The event ${pageFullName} is not mapped to any segmentId. Aborting!`);
       return;
     }
 

@@ -1,4 +1,4 @@
-import Matomo from "./browser";
+import Matomo from './browser';
 
 // eslint-disable-next-line import/prefer-default-export
-export default Matomo;
+export { Matomo };

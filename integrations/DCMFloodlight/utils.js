@@ -1,17 +1,14 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable consistent-return */
-import get from "get-value";
-import {
-  GENERIC_FALSE_VALUES,
-  GENERIC_TRUE_VALUES,
-} from "../../utils/constants";
-import logger from "../../utils/logUtil";
+import get from 'get-value';
+import { GENERIC_FALSE_VALUES, GENERIC_TRUE_VALUES } from '../../utils/constants';
+import logger from '../../utils/logUtil';
 import {
   isDefinedAndNotNull,
   isNotEmpty,
   isDefinedNotNullNotEmpty,
   removeUndefinedAndNullValues,
-} from "../utils/commonUtils";
+} from '../utils/commonUtils';
 
 /**
  * transform webapp dynamicForm custom floodlight variable
@@ -32,7 +29,7 @@ import {
  */
 const transformCustomVariable = (customFloodlightVariable, message) => {
   const customVariable = {};
-  const DENIED_CHARACTERS = ['"', "<", ">", "#"];
+  const DENIED_CHARACTERS = ['"', '<', '>', '#'];
   customFloodlightVariable.forEach((item) => {
     if (item && isNotEmpty(item.from) && isNotEmpty(item.to)) {
       // remove u if already there
@@ -48,16 +45,15 @@ const transformCustomVariable = (customFloodlightVariable, message) => {
       }
       if (
         itemValue &&
-        typeof itemValue === "string" &&
+        typeof itemValue === 'string' &&
         DENIED_CHARACTERS.some((key) => itemValue.includes(key))
       ) {
         logger.info(`${DENIED_CHARACTERS} string variable is not acceptable`);
         itemValue = undefined;
       }
       // supported data types are number and string
-      if (isDefinedAndNotNull(itemValue) && typeof itemValue !== "boolean") {
-        customVariable[`u${item.to.trim().replace(/u/g, "")}`] =
-          encodeURIComponent(itemValue);
+      if (isDefinedAndNotNull(itemValue) && typeof itemValue !== 'boolean') {
+        customVariable[`u${item.to.trim().replace(/u/g, '')}`] = encodeURIComponent(itemValue);
       }
     }
   });
@@ -70,13 +66,13 @@ const transformCustomVariable = (customFloodlightVariable, message) => {
  * @returns a=1;b=xyz
  */
 const flattenPayload = (payload) => {
-  let rawPayload = "";
+  let rawPayload = '';
   Object.entries(payload).forEach(([key, value]) => {
     if (key && isDefinedNotNullNotEmpty(value)) {
       rawPayload += `${key}=${value};`;
     }
   });
-  return rawPayload.replace(/.$/, "");
+  return rawPayload.replace(/.$/, '');
 };
 
 // valid flag should be provided [1|true] or [0|false]
@@ -88,9 +84,7 @@ const mapFlagValue = (key, value) => {
     return 0;
   }
 
-  throw Error(
-    `[DCM Floodlight]:: ${key}: valid parameters are [1|true] or [0|false]`
-  );
+  throw Error(`[DCM Floodlight]:: ${key}: valid parameters are [1|true] or [0|false]`);
 };
 
 const calculateQuantity = (products) => {
@@ -108,15 +102,15 @@ const calculateQuantity = (products) => {
 const isValidCountingMethod = (salesTag, countingMethod) => {
   // sales tag
   if (salesTag) {
-    if (countingMethod === "transactions" || countingMethod === "items_sold") {
+    if (countingMethod === 'transactions' || countingMethod === 'items_sold') {
       return true;
     }
   }
   // counter tag
   else if (
-    countingMethod === "standard" ||
-    countingMethod === "unique" ||
-    countingMethod === "per_session"
+    countingMethod === 'standard' ||
+    countingMethod === 'unique' ||
+    countingMethod === 'per_session'
   ) {
     return true;
   }
@@ -150,22 +144,19 @@ const buildCustomParamsUsingIntegrationsObject = (message, integrationObj) => {
 
   if (DCM_FLOODLIGHT) {
     if (isDefinedNotNullNotEmpty(DCM_FLOODLIGHT.COPPA)) {
-      customParams.tag_for_child_directed_treatment = mapFlagValue(
-        "COPPA",
-        DCM_FLOODLIGHT.COPPA
-      );
+      customParams.tag_for_child_directed_treatment = mapFlagValue('COPPA', DCM_FLOODLIGHT.COPPA);
     }
 
     if (isDefinedNotNullNotEmpty(DCM_FLOODLIGHT.GDPR)) {
-      customParams.tfua = mapFlagValue("GDPR", DCM_FLOODLIGHT.GDPR);
+      customParams.tfua = mapFlagValue('GDPR', DCM_FLOODLIGHT.GDPR);
     }
 
     if (isDefinedNotNullNotEmpty(DCM_FLOODLIGHT.npa)) {
-      customParams.npa = mapFlagValue("npa", DCM_FLOODLIGHT.npa);
+      customParams.npa = mapFlagValue('npa', DCM_FLOODLIGHT.npa);
     }
   }
 
-  const matchId = get(message, "properties.matchId");
+  const matchId = get(message, 'properties.matchId');
   if (matchId) {
     customParams.match_id = matchId;
   }
@@ -173,12 +164,7 @@ const buildCustomParamsUsingIntegrationsObject = (message, integrationObj) => {
   return customParams;
 };
 
-const buildGtagTrackPayload = (
-  message,
-  salesTag,
-  countingMethod,
-  integrationObj
-) => {
+const buildGtagTrackPayload = (message, salesTag, countingMethod, integrationObj) => {
   // Ref - https://support.google.com/campaignmanager/answer/7554821?hl=en#zippy=%2Ccustom-fields
   // we can pass custom variables to DCM and any values passed in it will override its default value
   // Total 7 properties - ord, num, dc_lat, tag_for_child_directed_treatment, tfua, npa, match_id
@@ -187,21 +173,20 @@ const buildGtagTrackPayload = (
 
   if (salesTag) {
     // sales tag
-    dcCustomParams.ord =
-      get(message, "properties.orderId") || get(message, "properties.order_id");
+    dcCustomParams.ord = get(message, 'properties.orderId') || get(message, 'properties.order_id');
 
     eventSnippetPayload = {
       ...eventSnippetPayload,
-      value: get(message, "properties.revenue"),
+      value: get(message, 'properties.revenue'),
       transaction_id: dcCustomParams.ord,
     };
 
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-event-snippets-for-sales-tags
     // possible values for counting method :- transactions, items_sold
-    if (countingMethod === "items_sold") {
-      let qty = get(message, "properties.quantity");
+    if (countingMethod === 'items_sold') {
+      let qty = get(message, 'properties.quantity');
       // sums quantity from products array or fallback to properties.quantity
-      const products = get(message, "properties.products");
+      const products = get(message, 'properties.products');
       const quantities = calculateQuantity(products);
       if (quantities) {
         qty = quantities;
@@ -214,14 +199,14 @@ const buildGtagTrackPayload = (
     // counter tag
     // Ref - https://support.google.com/campaignmanager/answer/7554821#zippy=%2Cfields-in-event-snippets-for-counter-tags
     switch (countingMethod) {
-      case "standard":
-        dcCustomParams.ord = get(message, "properties.ord");
+      case 'standard':
+        dcCustomParams.ord = get(message, 'properties.ord');
         break;
-      case "unique":
-        dcCustomParams.num = get(message, "properties.num");
+      case 'unique':
+        dcCustomParams.num = get(message, 'properties.num');
         break;
-      case "per_session":
-        dcCustomParams.ord = get(message, "properties.sessionId");
+      case 'per_session':
+        dcCustomParams.ord = get(message, 'properties.sessionId');
         eventSnippetPayload.session_id = dcCustomParams.ord;
         break;
       default:
@@ -234,11 +219,11 @@ const buildGtagTrackPayload = (
     ...buildCustomParamsUsingIntegrationsObject(message, integrationObj),
   };
 
-  const dcLat = get(message, "context.device.adTrackingEnabled");
-  const matchId = get(message, "properties.matchId");
+  const dcLat = get(message, 'context.device.adTrackingEnabled');
+  const matchId = get(message, 'properties.matchId');
 
   if (isDefinedNotNullNotEmpty(dcLat)) {
-    dcCustomParams.dc_lat = mapFlagValue("dc_lat", dcLat);
+    dcCustomParams.dc_lat = mapFlagValue('dc_lat', dcLat);
   }
   if (matchId) {
     dcCustomParams.match_id = matchId;
@@ -251,12 +236,7 @@ const buildGtagTrackPayload = (
   return eventSnippetPayload;
 };
 
-const buildIframeTrackPayload = (
-  message,
-  salesTag,
-  countingMethod,
-  integrationObj
-) => {
+const buildIframeTrackPayload = (message, salesTag, countingMethod, integrationObj) => {
   const randomNum = Math.random() * 10000000000000;
   // Ref - https://support.google.com/campaignmanager/answer/2823450?hl=en#zippy=%2Cother-parameters-for-iframe-and-image-tags:~:text=Other%20parameters%20for%20iFrame%20and%20image%20tags
   // we can pass custom params to DCM.
@@ -265,18 +245,17 @@ const buildIframeTrackPayload = (
 
   if (salesTag) {
     // sales tag
-    customParams.ord =
-      get(message, "properties.orderId") || get(message, "properties.order_id");
-    customParams.cost = get(message, "properties.revenue");
+    customParams.ord = get(message, 'properties.orderId') || get(message, 'properties.order_id');
+    customParams.cost = get(message, 'properties.revenue');
 
     // Ref - https://support.google.com/campaignmanager/answer/2823450?hl=en#zippy=%2Chow-the-ord-parameter-is-displayed-for-each-counter-type%2Csales-activity-tags
-    if (countingMethod === "transactions") {
+    if (countingMethod === 'transactions') {
       customParams.qty = 1;
     } else {
       // counting method is item_sold
-      let qty = get(message, "properties.quantity");
+      let qty = get(message, 'properties.quantity');
       // sums quantity from products array or fallback to properties.quantity
-      const products = get(message, "properties.products");
+      const products = get(message, 'properties.products');
       const quantities = calculateQuantity(products);
       if (quantities) {
         qty = quantities;
@@ -289,15 +268,15 @@ const buildIframeTrackPayload = (
     // counter tag
     // Ref - https://support.google.com/campaignmanager/answer/2823450?hl=en#zippy=%2Ccounter-activity-tags%2Chow-the-ord-parameter-is-displayed-for-each-counter-type
     switch (countingMethod) {
-      case "standard":
-        customParams.ord = get(message, "properties.ord") || randomNum;
+      case 'standard':
+        customParams.ord = get(message, 'properties.ord') || randomNum;
         break;
-      case "unique":
+      case 'unique':
         customParams.ord = 1;
-        customParams.num = get(message, "properties.num") || randomNum;
+        customParams.num = get(message, 'properties.num') || randomNum;
         break;
-      case "per_session":
-        customParams.ord = get(message, "properties.sessionId");
+      case 'per_session':
+        customParams.ord = get(message, 'properties.sessionId');
         break;
       default:
         break;
@@ -309,11 +288,11 @@ const buildIframeTrackPayload = (
     ...buildCustomParamsUsingIntegrationsObject(message, integrationObj),
   };
 
-  const dcLat = get(message, "context.device.adTrackingEnabled");
-  const matchId = get(message, "properties.matchId");
+  const dcLat = get(message, 'context.device.adTrackingEnabled');
+  const matchId = get(message, 'properties.matchId');
 
   if (isDefinedNotNullNotEmpty(dcLat)) {
-    customParams.dc_lat = mapFlagValue("dc_lat", dcLat);
+    customParams.dc_lat = mapFlagValue('dc_lat', dcLat);
   }
   if (matchId) {
     customParams.match_id = matchId;

@@ -1,3 +1,3 @@
-import Vero from "./browser";
+import Vero from './browser';
 
-export default Vero;
+export { Vero };

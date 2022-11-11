@@ -1,3 +1,3 @@
-import June from "./browser";
+import June from './browser';
 
-export default June;
+export { June };

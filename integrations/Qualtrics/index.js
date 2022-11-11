@@ -1,3 +1,3 @@
-import Qualtrics from "./browser";
+import Qualtrics from './browser';
 
-export default Qualtrics;
+export { Qualtrics };

@@ -8,13 +8,11 @@ const isDefined = (x) => !_isUndefined(x);
 const isNotEmpty = (x) => !_isEmpty(x);
 const isNotNull = (x) => x != null;
 const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
-const isDefinedAndNotNullAndNotEmpty = (x) =>
-  isDefined(x) && isNotNull(x) && isNotEmpty(x);
+const isDefinedAndNotNullAndNotEmpty = (x) => isDefined(x) && isNotNull(x) && isNotEmpty(x);
 const removeUndefinedValues = (obj) => _pickBy(obj, isDefined);
 const removeNullValues = (obj) => _pickBy(obj, isNotNull);
 const removeUndefinedAndNullValues = (obj) => _pickBy(obj, isDefinedAndNotNull);
-const removeUndefinedAndNullAndEmptyValues = (obj) =>
-  _pickBy(obj, isDefinedAndNotNullAndNotEmpty);
+const removeUndefinedAndNullAndEmptyValues = (obj) => _pickBy(obj, isDefinedAndNotNullAndNotEmpty);
 const isBlank = (value) => _isEmpty(_toString(value));
 const pick = (argObj, argArr) => _pick(argObj, argArr);
 
@@ -29,17 +27,15 @@ const pick = (argObj, argArr) => _pick(argObj, argArr);
  */
 const getHashFromArrayWithDuplicate = (
   arrays,
-  fromKey = "from",
-  toKey = "to",
-  isLowerCase = true
+  fromKey = 'from',
+  toKey = 'to',
+  isLowerCase = true,
 ) => {
   const hashMap = {};
   if (Array.isArray(arrays)) {
     arrays.forEach((array) => {
       if (!isNotEmpty(array[fromKey])) return;
-      const key = isLowerCase
-        ? array[fromKey].toLowerCase().trim()
-        : array[fromKey].trim();
+      const key = isLowerCase ? array[fromKey].toLowerCase().trim() : array[fromKey].trim();
 
       if (hashMap[key]) {
         const val = hashMap[key];
@@ -63,18 +59,12 @@ const getHashFromArrayWithDuplicate = (
  * @param  {} isLowerCase=true
  * @param  {} return hashmap {"prop1":"val1","prop2:"val2"}
  */
-const getHashFromArray = (
-  arrays,
-  fromKey = "from",
-  toKey = "to",
-  isLowerCase = true
-) => {
+const getHashFromArray = (arrays, fromKey = 'from', toKey = 'to', isLowerCase = true) => {
   const hashMap = {};
   if (Array.isArray(arrays)) {
     arrays.forEach((array) => {
       if (!isNotEmpty(array[fromKey])) return;
-      hashMap[isLowerCase ? array[fromKey].toLowerCase() : array[fromKey]] =
-        array[toKey];
+      hashMap[isLowerCase ? array[fromKey].toLowerCase() : array[fromKey]] = array[toKey];
     });
   }
   return hashMap;
@@ -115,7 +105,7 @@ function flattenJson(data) {
     }
   }
 
-  recurse(data, "");
+  recurse(data, '');
   return result;
 }
 
@@ -176,8 +166,8 @@ const isDefinedNotNullNotEmpty = (value) => {
     value === undefined ||
     value === null ||
     Number.isNaN(value) ||
-    (typeof value === "object" && Object.keys(value).length === 0) ||
-    (typeof value === "string" && value.trim().length === 0)
+    (typeof value === 'object' && Object.keys(value).length === 0) ||
+    (typeof value === 'string' && value.trim().length === 0)
   );
 };
 

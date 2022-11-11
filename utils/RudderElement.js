@@ -1,4 +1,4 @@
-import RudderMessage from "./RudderMessage";
+import RudderMessage from './RudderMessage';
 // Individual element class containing Rudder Message
 class RudderElement {
   constructor() {
@@ -24,10 +24,6 @@ class RudderElement {
 
   setEventName(eventName) {
     this.message.event = eventName;
-  }
-
-  updateTraits(traits) {
-    this.message.context.traits = traits;
   }
 
   getElementContent() {

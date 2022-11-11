@@ -24,11 +24,11 @@ const LogLevel = {
 class Logger {
   constructor(scope, level) {
     this.level = +level || LogLevel.ERROR.value;
-    this.scope = scope || "";
+    this.scope = scope || '';
   }
 
   setLogLevel(levelStr) {
-    if (levelStr && typeof levelStr === "string") {
+    if (levelStr && typeof levelStr === 'string') {
       const lvlStr = levelStr.toUpperCase();
       this.level = LogLevel[lvlStr] ? LogLevel[lvlStr].value : this.level;
     }
@@ -60,9 +60,7 @@ class Logger {
 
   logBase(args, logLevel) {
     if (this.level <= logLevel) {
-      const logVal = Object.values(LogLevel).find(
-        (val) => val.value === logLevel
-      );
+      const logVal = Object.values(LogLevel).find((val) => val.value === logLevel);
       logVal.method(...this.getLogData(args));
     }
   }
@@ -92,10 +90,10 @@ class Logger {
       retArgs.push(msg);
 
       // add style for the prefix
-      retArgs.push("font-weight: bold; background: black; color: white;");
+      retArgs.push('font-weight: bold; background: black; color: white;');
 
       // reset the style for the actual message
-      retArgs.push("font-weight: normal;");
+      retArgs.push('font-weight: normal;');
 
       // append rest of the original arguments
       retArgs.push(...logArgs.slice(1));

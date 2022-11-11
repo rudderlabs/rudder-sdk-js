@@ -1,14 +1,17 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import Logger from "../../utils/logger";
-import { type } from "../../utils/utils";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import Logger from '../../utils/logger';
+import { type } from '../../utils/utils';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 const logger = new Logger(NAME);
 
 class Amplitude {
   constructor(config, analytics) {
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
     this.analytics = analytics;
     if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
@@ -23,31 +26,28 @@ class Amplitude {
     this.eventUploadPeriodMillis = +config.eventUploadPeriodMillis || 30000;
     this.forceHttps = config.forceHttps || false;
     this.trackGclid = config.trackGclid || false;
-    this.saveParamsReferrerOncePerSession =
-      config.saveParamsReferrerOncePerSession || false;
+    this.saveParamsReferrerOncePerSession = config.saveParamsReferrerOncePerSession || false;
     this.deviceIdFromUrlParam = config.deviceIdFromUrlParam || false;
     // this.mapQueryParams = config.mapQueryParams;
     this.trackRevenuePerProduct = config.trackRevenuePerProduct || false;
-    this.preferAnonymousIdForDeviceId =
-      config.preferAnonymousIdForDeviceId || false;
+    this.preferAnonymousIdForDeviceId = config.preferAnonymousIdForDeviceId || false;
     this.traitsToSetOnce = [];
     this.traitsToIncrement = [];
     this.appendFieldsToEventProps = config.appendFieldsToEventProps || false;
-    this.unsetParamsReferrerOnNewSession =
-      config.unsetParamsReferrerOnNewSession || false;
+    this.unsetParamsReferrerOnNewSession = config.unsetParamsReferrerOnNewSession || false;
     this.trackProductsOnce = config.trackProductsOnce || false;
     this.versionName = config.versionName;
 
     if (config.traitsToSetOnce && config.traitsToSetOnce.length > 0) {
       config.traitsToSetOnce.forEach((element) => {
-        if (element && element.traits && element.traits !== "") {
+        if (element && element.traits && element.traits !== '') {
           this.traitsToSetOnce.push(element.traits);
         }
       });
     }
     if (config.traitsToIncrement && config.traitsToIncrement.length > 0) {
       config.traitsToIncrement.forEach((element) => {
-        if (element && element.traits && element.traits !== "") {
+        if (element && element.traits && element.traits !== '') {
           this.traitsToIncrement.push(element.traits);
         }
       });
@@ -61,20 +61,19 @@ class Amplitude {
           _q: [],
           _iq: {},
         };
-        const r = t.createElement("script");
-        r.type = "text/javascript";
-        r.integrity =
-          "sha384-girahbTbYZ9tT03PWWj0mEVgyxtZoyDF9KVZdL+R53PP5wCY0PiVUKq0jeRlMx9M";
-        r.crossOrigin = "anonymous";
+        const r = t.createElement('script');
+        r.type = 'text/javascript';
+        r.integrity = 'sha384-girahbTbYZ9tT03PWWj0mEVgyxtZoyDF9KVZdL+R53PP5wCY0PiVUKq0jeRlMx9M';
+        r.crossOrigin = 'anonymous';
         r.async = true;
-        r.setAttribute("data-loader", LOAD_ORIGIN);
-        r.src = "https://cdn.amplitude.com/libs/amplitude-7.2.1-min.gz.js";
+        r.setAttribute('data-loader', LOAD_ORIGIN);
+        r.src = 'https://cdn.amplitude.com/libs/amplitude-7.2.1-min.gz.js';
         r.onload = function () {
           if (!e.amplitude.runQueuedFunctions) {
-            console.log("[Amplitude] Error: could not load SDK");
+            console.log('[Amplitude] Error: could not load SDK');
           }
         };
-        const i = t.getElementsByTagName("script")[0];
+        const i = t.getElementsByTagName('script')[0];
         i.parentNode.insertBefore(r, i);
 
         function s(e, t) {
@@ -87,15 +86,7 @@ class Amplitude {
           this._q = [];
           return this;
         };
-        const a = [
-          "add",
-          "append",
-          "clearAll",
-          "prepend",
-          "set",
-          "setOnce",
-          "unset",
-        ];
+        const a = ['add', 'append', 'clearAll', 'prepend', 'set', 'setOnce', 'unset'];
         for (let c = 0; c < a.length; c++) {
           s(o, a[c]);
         }
@@ -105,39 +96,39 @@ class Amplitude {
           return this;
         };
         const l = [
-          "setProductId",
-          "setQuantity",
-          "setPrice",
-          "setRevenueType",
-          "setEventProperties",
+          'setProductId',
+          'setQuantity',
+          'setPrice',
+          'setRevenueType',
+          'setEventProperties',
         ];
         for (let p = 0; p < l.length; p++) {
           s(u, l[p]);
         }
         n.Revenue = u;
         const d = [
-          "init",
-          "logEvent",
-          "logRevenue",
-          "setUserId",
-          "setUserProperties",
-          "setOptOut",
-          "setVersionName",
-          "setDomain",
-          "setDeviceId",
-          "enableTracking",
-          "setGlobalUserProperties",
-          "identify",
-          "clearUserProperties",
-          "setGroup",
-          "logRevenueV2",
-          "regenerateDeviceId",
-          "groupIdentify",
-          "onInit",
-          "logEventWithTimestamp",
-          "logEventWithGroups",
-          "setSessionId",
-          "resetSessionId",
+          'init',
+          'logEvent',
+          'logRevenue',
+          'setUserId',
+          'setUserProperties',
+          'setOptOut',
+          'setVersionName',
+          'setDomain',
+          'setDeviceId',
+          'enableTracking',
+          'setGlobalUserProperties',
+          'identify',
+          'clearUserProperties',
+          'setGroup',
+          'logRevenueV2',
+          'regenerateDeviceId',
+          'groupIdentify',
+          'onInit',
+          'logEventWithTimestamp',
+          'logEventWithGroups',
+          'setSessionId',
+          'resetSessionId',
         ];
 
         function v(e) {
@@ -152,7 +143,7 @@ class Amplitude {
         }
         v(n);
         n.getInstance = function (e) {
-          e = (!e || e.length === 0 ? "$default_instance" : e).toLowerCase();
+          e = (!e || e.length === 0 ? '$default_instance' : e).toLowerCase();
           if (!n._iq.hasOwnProperty(e)) {
             n._iq[e] = {
               _q: [],
@@ -177,9 +168,7 @@ class Amplitude {
       deviceIdFromUrlParam: this.deviceIdFromUrlParam,
       unsetParamsReferrerOnNewSession: this.unsetParamsReferrerOnNewSession,
       deviceId:
-        this.preferAnonymousIdForDeviceId &&
-        this.analytics &&
-        this.analytics.getAnonymousId(),
+        this.preferAnonymousIdForDeviceId && this.analytics && this.analytics.getAnonymousId(),
     };
     window.amplitude.getInstance().init(this.apiKey, null, initOptions);
     if (this.versionName) {
@@ -188,7 +177,7 @@ class Amplitude {
   }
 
   identify(rudderElement) {
-    logger.debug("in Amplitude identify");
+    logger.debug('in Amplitude identify');
 
     this.setDeviceId(rudderElement);
 
@@ -227,7 +216,7 @@ class Amplitude {
   }
 
   track(rudderElement) {
-    logger.debug("in Amplitude track");
+    logger.debug('in Amplitude track');
     this.setDeviceId(rudderElement);
 
     const { properties } = rudderElement.message;
@@ -240,7 +229,7 @@ class Amplitude {
 
     // For track products once, we will send the products in a single call.
     if (this.trackProductsOnce) {
-      if (products && type(products) == "array") {
+      if (products && type(products) == 'array') {
         // track all the products in a single event.
         const allProducts = [];
 
@@ -253,20 +242,13 @@ class Amplitude {
 
         clonedTrackEvent.properties.products = allProducts;
 
-        this.logEventAndCorrespondingRevenue(
-          clonedTrackEvent,
-          this.trackRevenuePerProduct
-        ); // we do not want to track revenue as a whole if trackRevenuePerProduct is enabled.
+        this.logEventAndCorrespondingRevenue(clonedTrackEvent, this.trackRevenuePerProduct); // we do not want to track revenue as a whole if trackRevenuePerProduct is enabled.
 
         // If trackRevenuePerProduct is enabled, track revenues per product.
         if (this.trackRevenuePerProduct) {
           const trackEventMessage = {};
           Object.assign(trackEventMessage, clonedTrackEvent);
-          this.trackingEventAndRevenuePerProduct(
-            trackEventMessage,
-            products,
-            false
-          ); // also track revenue only and not event per product.
+          this.trackingEventAndRevenuePerProduct(trackEventMessage, products, false); // also track revenue only and not event per product.
         }
       } else {
         // track event and revenue as a whole as products array is not available.
@@ -275,15 +257,12 @@ class Amplitude {
       return;
     }
 
-    if (products && type(products) == "array") {
+    if (products && type(products) == 'array') {
       // track events iterating over product array individually.
 
       // Log the actuall event without products array. We will subsequently track each product with 'Product Purchased' event.
       delete clonedTrackEvent.properties.products;
-      this.logEventAndCorrespondingRevenue(
-        clonedTrackEvent,
-        this.trackRevenuePerProduct
-      );
+      this.logEventAndCorrespondingRevenue(clonedTrackEvent, this.trackRevenuePerProduct);
 
       const trackEventMessage = {};
       Object.assign(trackEventMessage, clonedTrackEvent);
@@ -296,17 +275,13 @@ class Amplitude {
     }
   }
 
-  trackingEventAndRevenuePerProduct(
-    trackEventMessage,
-    products,
-    shouldTrackEventPerProduct
-  ) {
+  trackingEventAndRevenuePerProduct(trackEventMessage, products, shouldTrackEventPerProduct) {
     let { revenue, revenueType, revenue_type } = trackEventMessage.properties;
     revenueType = revenueType || revenue_type;
     for (let index = 0; index < products.length; index++) {
       const product = products[index];
       trackEventMessage.properties = product;
-      trackEventMessage.event = "Product Purchased";
+      trackEventMessage.event = 'Product Purchased';
       if (this.trackRevenuePerProduct) {
         if (revenueType) {
           trackEventMessage.properties.revenueType = revenueType;
@@ -341,16 +316,15 @@ class Amplitude {
    * @memberof Amplitude
    */
   page(rudderElement) {
-    logger.debug("in Amplitude page");
+    logger.debug('in Amplitude page');
     this.setDeviceId(rudderElement);
 
     const { properties, name, category } = rudderElement.message;
     const useNewPageEventNameFormat =
-      rudderElement.message.integrations?.AM?.useNewPageEventNameFormat ||
-      false;
+      rudderElement.message.integrations?.AM?.useNewPageEventNameFormat || false;
     // all pages
     if (this.trackAllPages) {
-      const event = "Loaded a page";
+      const event = 'Loaded a page';
       amplitude.getInstance().logEvent(event, properties);
     }
 
@@ -372,7 +346,7 @@ class Amplitude {
   }
 
   group(rudderElement) {
-    logger.debug("in Amplitude group");
+    logger.debug('in Amplitude group');
 
     this.setDeviceId(rudderElement);
 
@@ -390,7 +364,7 @@ class Amplitude {
       window.amplitude.getInstance().setGroup(groupTypeTrait, groupValueTrait);
     } else if (groupId) {
       // Similar as segment but not sure whether we need it as our cloud mode supports only the above if block
-      window.amplitude.getInstance().setGroup("[Rudderstack] Group", groupId);
+      window.amplitude.getInstance().setGroup('[Rudderstack] Group', groupId);
     }
 
     // https://developers.amplitude.com/docs/setting-user-properties#setting-group-properties
@@ -415,17 +389,15 @@ class Amplitude {
    */
   trackRevenue(rudderMessage) {
     const mapRevenueType = {
-      "order completed": "Purchase",
-      "completed order": "Purchase",
-      "product purchased": "Purchase",
+      'order completed': 'Purchase',
+      'completed order': 'Purchase',
+      'product purchased': 'Purchase',
     };
 
     const { properties, event } = rudderMessage;
     let { price, productId, quantity, revenue, product_id } = properties;
     const revenueType =
-      properties.revenueType ||
-      properties.revenue_type ||
-      mapRevenueType[event.toLowerCase()];
+      properties.revenueType || properties.revenue_type || mapRevenueType[event.toLowerCase()];
 
     productId = productId || product_id;
 
@@ -434,9 +406,7 @@ class Amplitude {
     // If price not present set price as revenue's value and force quantity to be 1.
     // Ultimately set quantity to 1 if not already present from above logic.
     if (!revenue && !price) {
-      logger.warn(
-        'Neither "revenue" nor "price" is available. Hence, not logging revenue'
-      );
+      logger.warn('Neither "revenue" nor "price" is available. Hence, not logging revenue');
       return;
     }
 
@@ -478,7 +448,7 @@ class Amplitude {
   }
 
   isLoaded() {
-    logger.debug("in Amplitude isLoaded");
+    logger.debug('in Amplitude isLoaded');
     return !!(window.amplitude && window.amplitude.getInstance().options);
   }
 

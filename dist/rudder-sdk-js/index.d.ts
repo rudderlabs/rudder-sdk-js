@@ -71,6 +71,8 @@ declare module "rudder-sdk-js" {
     loadIntegration?: boolean;
     // Defaults to false
     secureCookie?: boolean;
+    // Defaults to "Lax" (see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite)
+    sameSiteCookie?: string;
     logLevel?: string;
     getSourceConfig?: () =>
       | string
@@ -85,7 +87,8 @@ declare module "rudder-sdk-js" {
     beaconQueueOptions?: beaconQueueOptions;
     cookieConsentManager?: cookieConsentManager;
     anonymousIdOptions?: anonymousIdOptions;
-    sameSiteCookie?: string;
+    // defaults to https://cdn.rudderlabs.com/v1.1/js-integrations
+    destSDKBaseURL?: string;
     sessions?: {
       autoTrack?: boolean; // Defaults to true
       timeout?: number; // Defaults to 30 mins
@@ -439,6 +442,21 @@ declare module "rudder-sdk-js" {
   function getUserId(): string;
 
   /**
+   * To get user traits set in the SDK
+   */
+  function getUserTraits(): apiObject;
+
+  /**
+   * To get groupId set in the SDK
+   */
+  function getGroupId(): string;
+
+  /**
+   * To get group traits set in the SDK
+   */
+  function getGroupTraits(): apiObject;
+
+  /**
    * To manually start user session in the SDK
    */
    function startSession(sessionId?: number): void;
@@ -467,6 +485,9 @@ declare module "rudder-sdk-js" {
     setAnonymousId,
     getAnonymousId,
     getUserId,
+    getUserTraits,
+    getGroupId,
+    getGroupTraits,
     startSession,
     endSession,
   };

@@ -1,9 +1,9 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable class-methods-use-this */
-import logger from "./logUtil";
-import XHRQueue from "./xhrModule";
-import BeaconQueue from "./storage/beaconQueue";
-import { getCurrentTimeFormatted, replacer } from "./utils";
+import logger from './logUtil';
+import XHRQueue from './xhrModule';
+import BeaconQueue from './beaconQueue';
+import { getCurrentTimeFormatted, removeTrailingSlashes, replacer } from './utils';
 
 const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 
@@ -24,13 +24,13 @@ class EventRepository {
 
   initialize(writeKey, url, options) {
     let queueOptions = {};
-    let targetUrl = url.slice(-1) === "/" ? url.slice(0, -1) : url;
+    let targetUrl = removeTrailingSlashes(url);
     if (options && options.useBeacon && navigator.sendBeacon) {
       if (
         options &&
         options.beaconQueueOptions &&
         options.beaconQueueOptions != null &&
-        typeof options.beaconQueueOptions === "object"
+        typeof options.beaconQueueOptions === 'object'
       ) {
         queueOptions = options.beaconQueueOptions;
       }
@@ -39,14 +39,14 @@ class EventRepository {
     } else {
       if (options && options.useBeacon) {
         logger.info(
-          "[EventRepository] sendBeacon feature not available in this browser :: fallback to XHR"
+          '[EventRepository] sendBeacon feature not available in this browser :: fallback to XHR',
         );
       }
       if (
         options &&
         options.queueOptions &&
         options.queueOptions != null &&
-        typeof options.queueOptions === "object"
+        typeof options.queueOptions === 'object'
       ) {
         queueOptions = options.queueOptions;
       }
@@ -63,21 +63,16 @@ class EventRepository {
    */
   enqueue(rudderElement, type) {
     const message = rudderElement.getElementContent();
-    message.originalTimestamp =
-      message.originalTimestamp || getCurrentTimeFormatted();
+    message.originalTimestamp = message.originalTimestamp || getCurrentTimeFormatted();
     message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
 
     // check message size, if greater log an error
     if (JSON.stringify(message, replacer).length > MESSAGE_LENGTH) {
-      logger.error(
-        "[EventRepository] enqueue:: message length greater 32 Kb ",
-        message
-      );
+      logger.error('[EventRepository] enqueue:: message length greater 32 Kb ', message);
     }
 
     this.queue.enqueue(message, type);
   }
 }
 const eventRepository = new EventRepository();
-// eslint-disable-next-line import/prefer-default-export
 export { eventRepository as EventRepository };

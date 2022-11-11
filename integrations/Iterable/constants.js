@@ -1,4 +1,4 @@
-const NAME = "ITERABLE";
+const NAME = 'ITERABLE';
 const CNameMapping = {
   [NAME]: NAME,
   Iterable: NAME,
