@@ -20,7 +20,7 @@
     "build:integration:dev:cli": "rollup --config rollup-configs/rollup.integrations.config.js --environment PROD_DEBUG,INTG_NAME:$npm_config_intg",
     "build:integration": "rollup --config rollup-configs/rollup.integrations.config.js --environment PROD_DEBUG,ENV:prod,UGLIFY,INTG_NAME:AdobeAnalytics",
     "build:integration:cli": "rollup --config rollup-configs/rollup.integrations.config.js --environment PROD_DEBUG,ENV:prod,UGLIFY,INTG_NAME:$npm_config_intg",
-    "build:integration:all": "VISUALIZER=false STAGING=$npm_config_staging node -r esm rollup-configs/integrationBuildScript.js",
+    "build:integration:all": "VISUALIZER=false STAGING=$npm_config_staging node -r esm scripts/integrationBuildScript.js",
     "build:integration:bundle-size": "VISUALIZER=true npm run build:integration",
     "build:integration:bundle-size:cli": "VISUALIZER=true npm run build:integration:cli",
     "clean": "rm -rf dist",
@@ -154,7 +154,7 @@
       "path": "./node_modules/@digitalroute/cz-conventional-changelog-for-jira",
       "jiraMode": false,
       "jiraOptional": true,
-      "skipScope": false,
+      "skipScope": true,
       "defaultType": "feat"
     }
   }
