@@ -16,6 +16,8 @@
   </b>
 </p>
 
+## [![Releases](https://img.shields.io/github/release/rudderlabs/rudder-sdk-js.svg)](https://github.com/rudderlabs/rudder-sdk-js/releases) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rudderlabs_rudder-sdk-js&metric=coverage)](https://sonarcloud.io/summary/new_code?id=rudderlabs_rudder-sdk-js)
+
 ---
 
 # [](https://github.com/rudderlabs/rudder-sdk-js/blob/master/README.md#rudderstack-javascript-sdk)RudderStack JavaScript SDK

@@ -34,7 +34,7 @@ import {
   commonNames,
   get,
   getStringId,
-} from './utils/utils';
+} from '../utils/utils';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
@@ -45,17 +45,17 @@ import {
   DEFAULT_ERROR_REPORT_PROVIDER,
   ERROR_REPORT_PROVIDERS,
   SAMESITE_COOKIE_OPTS,
-} from './utils/constants';
-import RudderElementBuilder from './utils/RudderElementBuilder';
-import Storage from './utils/storage';
-import { EventRepository } from './utils/EventRepository';
-import logger from './utils/logUtil';
-import ScriptLoader from './integrations/ScriptLoader';
-import parseLinker from './utils/linker';
-import { configToIntNames } from './utils/config_to_integration_names';
-import CookieConsentFactory from './cookieConsent/CookieConsentFactory';
-import * as BugsnagLib from './metrics/error-report/Bugsnag';
-import { UserSession } from './session';
+} from '../utils/constants';
+import RudderElementBuilder from '../utils/RudderElementBuilder';
+import Storage from '../utils/storage';
+import { EventRepository } from '../utils/EventRepository';
+import logger from '../utils/logUtil';
+import ScriptLoader from '../integrations/ScriptLoader';
+import parseLinker from '../utils/linker';
+import { configToIntNames } from '../utils/config_to_integration_names';
+import CookieConsentFactory from '../cookieConsent/CookieConsentFactory';
+import * as BugsnagLib from '../metrics/error-report/Bugsnag';
+import { UserSession } from '../session';
 
 /**
  * class responsible for handling core

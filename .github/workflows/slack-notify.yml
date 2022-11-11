@@ -1,0 +1,41 @@
+name: Notify Slack Channel
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  notify-slack:
+    name: Notify Slack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send message to Slack channel
+        id: slack
+        uses: slackapi/slack-github-action@v1.23.0
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          PROJECT_NAME: 'JS SDK (v1.1)'
+        with:
+          channel-id: 'C03N2GK8QR2'
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "New release: ${{ env.PROJECT_NAME }}"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Release: <${{ github.event.release.html_url }}|${{ github.event.release.tag_name }}>*\n${{ github.event.release.created_at }}"
+                  }
+                }
+              ]
+            }
