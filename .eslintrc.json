@@ -1,14 +1,40 @@
 {
   "env": {
     "browser": true,
-    "es2020": true
+    "es2020": true,
+    "jest": true
   },
-  "plugins": ["prettier"],
-  "extends": ["airbnb-base", "plugin:prettier/recommended"],
+  "extends": ["airbnb-base", "plugin:sonarjs/recommended", "prettier", "plugin:compat/recommended"],
+  "plugins": ["unicorn", "compat"],
   "parser": "@babel/eslint-parser",
+  "globals": {},
   "parserOptions": {
     "ecmaVersion": 11,
     "sourceType": "module"
   },
-  "rules": { "import/prefer-default-export": "off" }
+  "rules": {
+    "import/prefer-default-export": "off",
+    "unicorn/filename-case": [
+      "error",
+      { "cases": { "camelCase": true, "pascalCase": true, "kebabCase": true } }
+    ],
+    "unicorn/no-instanceof-array": "error",
+    "unicorn/no-static-only-class": "error",
+    "unicorn/consistent-destructuring": "error",
+    "unicorn/better-regex": "error",
+    "unicorn/no-for-loop": "error",
+    "unicorn/prefer-array-some": "error",
+    "unicorn/explicit-length-check": "error",
+    "unicorn/prefer-array-find": "error",
+    "unicorn/no-lonely-if": "error",
+    "unicorn/prefer-includes": "error",
+    "unicorn/prefer-array-flat-map": "error",
+    "unicorn/no-useless-spread": "error",
+    "unicorn/no-useless-length-check": "error",
+    "unicorn/prefer-export-from": "error",
+    "sonarjs/prefer-immediate-return": "off",
+    "sonarjs/no-nested-template-literals": "off",
+    "sonarjs/max-switch-cases": "off",
+    "sonarjs/cognitive-complexity": ["error", 40]
+  }
 }

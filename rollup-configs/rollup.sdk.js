@@ -1,4 +1,4 @@
-import { getOutputConfiguration, getOutputFilePath, getDefaultConfig } from './rollupUtils';
+import { getOutputConfiguration, getOutputFilePath, getDefaultConfig } from './rollup.utilities';
 
 const outDir = 'dist';
 const distName = 'rudder-analytics';

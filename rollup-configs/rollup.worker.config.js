@@ -1,5 +1,6 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import copy from 'rollup-plugin-copy';
-import { getOutputConfiguration, getOutputFilePath, getDefaultConfig } from './rollupUtils';
+import { getOutputConfiguration, getOutputFilePath, getDefaultConfig } from './rollup.utilities';
 
 const outDir = 'dist';
 const distName = 'index';
