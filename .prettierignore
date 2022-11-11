@@ -2,7 +2,6 @@ dist/
 node_modules/
 stats/
 reports/
-coverage/
 archive/
 tests/
 __tests__/prodsdk.js

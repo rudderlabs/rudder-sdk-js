@@ -183,7 +183,7 @@ Refer to the following projects for a detailed walk-through of the above steps:
 ### Supported browser versions
 
 | **Browser**     | **Supported Versions** |
-| :-------------- |:-----------------------|
+| :-------------- | :--------------------- |
 | Safari          | v7 or later            |
 | IE              | v11 or later           |
 | Edge            | v15 or later           |
@@ -290,11 +290,11 @@ You can start adding integrations of your choice for sending the data through th
 
 - Look for run scripts in the `package.json` file for getting the browser minified and non-minified builds. The builds are updated in the `dist` folder of the directory. Among the others, some of the important ones are:
 
-  - `npm run buildProdBrowser`: This outputs **rudder-analytics.min.js**.
-  - `npm run buildProdBrowserBrotli`: This outputs two files - **rudder-analytics.min.br.js** (the original minified file, same as above) and **rudder-analytics.min.br.js.br** (the Brotli-compressed file).
-  - `npm run buildProdBrowserGzip`: This outputs two files, **rudder-analytics.min.gzip.js** (the original minified file, same as above) and **rudder-analytics.min.gzip.js.gz** (the gzipped compressed file).
+  - `npm run build:browser`: This outputs **rudder-analytics.min.js**.
+  - `npm run build:npm`: This outputs **rudder-sdk-js** folder that contains the npm package contents.
+  - `npm run build:integration:all`: This outputs **integrations** folder that contains the integrations.
 
-> We use **rollup** to build our SDKs. The configuration for it is present in `rollup.config.js` in the repo directory.
+> We use **rollup** to build our SDKs. The configuration for it is present in `rollup-configs` folder.
 
 - For adding or removing integrations, modify the imports in `index.js` under the `integrations` folder.
 

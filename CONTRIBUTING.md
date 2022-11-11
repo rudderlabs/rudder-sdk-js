@@ -6,7 +6,6 @@ Thanks for taking the time and for your help in improving this project!
 
 - [**RudderStack Contributor Agreement**](#rudderstack-contributor-agreement)
 - [**Contribute to this project**](#contribute-to-this-project)
-- [**Submitting a pull request**](#submitting-a-pull-request)
 - [**Adding your own integrations**](#adding-your-own-integrations)
 - [**Committing**](#committing)
 - [**Installing and setting up RudderStack**](#installing-and-setting-up-rudderstack)
@@ -35,7 +34,7 @@ One way you can contribute to this project is by adding integrations of your cho
   - `npm run build:npm`: This outputs **rudder-sdk-js** folder that contains the npm package contents.
   - `npm run build:integration:all`: This outputs **integrations** folder that contains the integrations.
 
-> We use **rollup** to build our SDKs. The configurations for them are present in `rollup-configs` in the repo directory.
+> We use **rollup** to build our SDKs. The configurations for them are present in `rollup-configs` folder.
 
 - For adding or removing integrations, modify the imports in `index.js` under the `integrations` folder.
 

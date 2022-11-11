@@ -1,5 +1,4 @@
 /* eslint-disable import/no-extraneous-dependencies */
-
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
@@ -17,14 +16,11 @@ import * as dotenv from 'dotenv';
 
 export function getOutputFilePath(dirPath, distName) {
   const fileNamePrefix = `${distName}${process.env.STAGING === 'true' ? '-staging' : ''}`;
+  const fileNameSuffix = process.env.PROD_DEBUG === 'inline' ? '-map' : '';
   let outFilePath = '';
 
   if (process.env.ENV === 'prod') {
-    if (process.env.PROD_DEBUG === 'inline') {
-      outFilePath = `${dirPath}/${fileNamePrefix}-map.min.js`;
-    } else {
-      outFilePath = `${dirPath}/${fileNamePrefix}.min.js`;
-    }
+    outFilePath = `${dirPath}/${fileNamePrefix}${fileNameSuffix}.min.js`;
   } else {
     outFilePath = `${dirPath}/${fileNamePrefix}.js`;
   }

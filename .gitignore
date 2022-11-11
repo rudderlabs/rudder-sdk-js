@@ -1,11 +1,11 @@
 /node_modules
+npm-debug.log*
 
 # testing
 /reports
 
 # production
 /dist
-.eslintcache
 __tests__/prodsdk.js
 
 # misc
@@ -14,12 +14,11 @@ __tests__/prodsdk.js
 .idea/
 .vscode/
 
-npm-debug.log*
-
 # code analysis tools
 .scannerwork
 dependency-check-bin/
 dependency-check-reports/
+.eslintcache
 
 **/bin/
 **/obj/
