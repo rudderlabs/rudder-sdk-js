@@ -37,17 +37,19 @@ jobs:
           npm run build:integration:all --staging=true
 
       - name: Fix Bugsnag API key
+        env:
+          BUGSNAG_API_KEY: ${{ secrets.RS_BUGSNAG_STAGING_API_KEY }}
         run: |
-          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$RS_BUGSNAG_STAGING_API_KEY'|' dist/rudder-analytics-staging.min.js
+          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$BUGSNAG_API_KEY'|' dist/legacy/rudder-analytics-staging.min.js
 
 #      - name: Fix sourcemap paths
 #        run: |
-#          sed 's|rudder-analytics-staging.min.js.map|https://cdn.rudderlabs.com/rudder-analytics-staging.min.js.map|' dist/rudder-analytics-staging.min.js  > dist/staging.js
-#          mv dist/staging.js dist/rudder-analytics-staging.min.js
+#          sed 's|rudder-analytics-staging.min.js.map|https://cdn.rudderlabs.com/rudder-analytics-staging.min.js.map|' dist/legacy/rudder-analytics-staging.min.js  > dist/legacy/staging.js
+#          mv dist/legacy/staging.js dist/legacy/rudder-analytics-staging.min.js
 
       - name: Sync files to S3
         run: |
-          aws s3 cp dist/rudder-analytics-staging.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/rudder-analytics-staging.min.js --cache-control max-age=3600
-          aws s3 cp dist/rudder-analytics-staging.min.js.map s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/rudder-analytics-staging.min.js.map --cache-control max-age=3600
-          aws s3 cp dist/integrations/ s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp dist/legacy/rudder-analytics-staging.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/rudder-analytics-staging.min.js --cache-control max-age=3600
+          aws s3 cp dist/legacy/rudder-analytics-staging.min.js.map s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/rudder-analytics-staging.min.js.map --cache-control max-age=3600
+          aws s3 cp dist/legacy/integrations/ s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/latest/js-integrations/ --recursive --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }} --paths "/staging/latest*"

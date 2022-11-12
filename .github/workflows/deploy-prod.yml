@@ -44,23 +44,25 @@ jobs:
           npm run build:integration:all:modern
 
       - name: Fix Bugsnag API key
+        env:
+          BUGSNAG_API_KEY: ${{ secrets.RS_BUGSNAG_API_KEY }}
         run: |
-          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$RS_BUGSNAG_API_KEY'|' dist/rudder-analytics.min.js
-          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$RS_BUGSNAG_API_KEY'|' dist/modern/rudder-analytics.min.js
+          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$BUGSNAG_API_KEY'|' dist/legacy/rudder-analytics.min.js
+          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$BUGSNAG_API_KEY'|' dist/modern/rudder-analytics.min.js
 
       - name: Sync files to S3 v1.1
         run: |
-          aws s3 cp dist/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js --cache-control max-age=3600
-          aws s3 cp dist/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js.map --cache-control max-age=3600
-          aws s3 cp dist/integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp dist/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js --cache-control max-age=3600
+          aws s3 cp dist/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/rudder-analytics.min.js.map --cache-control max-age=3600
+          aws s3 cp dist/legacy/integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/js-integrations/ --recursive --cache-control max-age=3600
           aws s3 cp dist/modern/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1.1/modern/ --recursive --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/v1.1*"
 
       - name: Sync files to S3 latest
         run: |
-          aws s3 cp dist/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js --cache-control max-age=3600
-          aws s3 cp dist/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js.map --cache-control max-age=3600
-          aws s3 cp dist/integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp dist/legacy/rudder-analytics.min.js s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js --cache-control max-age=3600
+          aws s3 cp dist/legacy/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/rudder-analytics.min.js.map --cache-control max-age=3600
+          aws s3 cp dist/legacy/integrations/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/js-integrations/ --recursive --cache-control max-age=3600
           aws s3 cp dist/modern/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/latest/modern/ --recursive --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/latest*"
 
@@ -78,7 +80,7 @@ jobs:
           PROJECT_NAME: 'JS SDK Browser Package'
           CDN_URL: 'https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js'
         with:
-          channel-id: 'C03N2GK8QR2'
+          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
           payload: |
             {
               "blocks": [

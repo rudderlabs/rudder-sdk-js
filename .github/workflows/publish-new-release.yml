@@ -33,7 +33,7 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Create Github Release
+      - name: Create GitHub Release
         id: create_release
         env:
           HUSKY: 0
