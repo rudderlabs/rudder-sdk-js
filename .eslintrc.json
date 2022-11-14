@@ -35,6 +35,7 @@
     "sonarjs/prefer-immediate-return": "off",
     "sonarjs/no-nested-template-literals": "off",
     "sonarjs/max-switch-cases": "off",
-    "sonarjs/cognitive-complexity": ["error", 40]
+    "sonarjs/cognitive-complexity": ["error", 40],
+    "compat/compat": "warn"
   }
 }

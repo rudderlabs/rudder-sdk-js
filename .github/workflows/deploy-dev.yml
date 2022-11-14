@@ -42,11 +42,13 @@ jobs:
           npm run build:integration:all
 
       - name: Fix Bugsnag API key
+        env:
+          BUGSNAG_API_KEY: ${{ secrets.RS_DEV_BUGSNAG_API_KEY }}
         run: |
-          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$RS_DEV_BUGSNAG_API_KEY'|' dist/rudder-analytics.js
+          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$BUGSNAG_API_KEY'|' dist/legacy/rudder-analytics.js
 
       - name: Sync files to S3
         run: |
-          aws s3 cp dist/rudder-analytics.js s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/rudder-analytics.js --cache-control max-age=3600
-          aws s3 cp dist/integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp dist/legacy/rudder-analytics.js s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/rudder-analytics.js --cache-control max-age=3600
+          aws s3 cp dist/legacy/integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/js-integrations/ --recursive --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DEV_CF_DISTRIBUTION_ID }} --paths "/dev/latest*"

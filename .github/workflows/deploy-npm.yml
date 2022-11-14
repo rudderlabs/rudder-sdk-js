@@ -33,7 +33,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          cd dist/rudder-js-sdk
+          cd dist/npm-lib
           npm publish
 
       - name: Get new version number
@@ -50,7 +50,7 @@ jobs:
           PROJECT_NAME: 'JS SDK NPM Package'
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/rudder-sdk-js'
         with:
-          channel-id: 'C03N2GK8QR2'
+          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
           payload: |
             {
               "blocks": [
