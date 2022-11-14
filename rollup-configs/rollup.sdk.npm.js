@@ -2,10 +2,10 @@
 import copy from 'rollup-plugin-copy';
 import { getDefaultConfig } from './rollup.utilities';
 
-const outDir = 'dist';
-const distName = 'index';
-const modName = 'rudderServiceWorker';
-const npmPackageOutDir = `${outDir}/npm-lib/service-worker`;
+const outDir = `dist`;
+const npmPackageOutDir = `${outDir}/npm-lib`;
+const distName = 'rudder-analytics';
+const modName = 'rudderanalytics';
 
 const outputFiles = [
   {
@@ -26,12 +26,18 @@ const buildConfig = {
 
 buildConfig.plugins.push(
   copy({
-    targets: [{ src: 'service-worker/index.d.ts', dest: `${outDir}/npm-lib/service-worker` }],
+    targets: [
+      { src: 'packages/npm/index.d.ts', dest: npmPackageOutDir },
+      { src: 'packages/npm/package.json', dest: npmPackageOutDir },
+      { src: 'packages/npm/README.md', dest: npmPackageOutDir },
+      { src: 'CHANGELOG.md', dest: npmPackageOutDir },
+      { src: 'LICENCE', dest: npmPackageOutDir },
+    ],
   }),
 );
 
 export default {
   ...buildConfig,
-  input: `service-worker/index.js`,
+  input: 'src/analytics.js',
   output: outputFiles,
 };

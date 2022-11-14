@@ -27,33 +27,6 @@ export function getOutputFilePath(dirPath, distName) {
   return outFilePath;
 }
 
-export function getOutputConfiguration(outDir, modName, outFilePath) {
-  const outputFiles = [];
-
-  if (process.env.NPM === 'true') {
-    outputFiles.push({
-      file: `${outDir}/index.js`,
-      format: 'umd',
-      name: modName,
-    });
-
-    outputFiles.push({
-      file: `${outDir}/index.es.js`,
-      format: 'esm',
-      name: modName,
-    });
-  } else {
-    outputFiles.push({
-      file: outFilePath,
-      format: 'iife',
-      name: modName,
-      sourcemap: process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true',
-    });
-  }
-
-  return outputFiles;
-}
-
 export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
   const moduleType = process.env.NPM === 'true' ? 'npm' : 'cdn';
@@ -95,12 +68,6 @@ export function getDefaultConfig(distName) {
       }),
       commonjs({
         include: 'node_modules/**',
-        /* namedExports: {
-        // left-hand side can be an absolute path, a path
-        // relative to the current directory, or the name
-        // of a module in node_modules
-        Xmlhttprequest: ["Xmlhttprequest"]
-      } */
       }),
       json(),
       globals(),

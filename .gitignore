@@ -5,10 +5,7 @@ npm-debug.log*
 /reports
 
 # production
-dist/*
-!dist/rudder-sdk-js/*
-dist/rudder-sdk-js/index.js
-dist/rudder-sdk-js/service-worker/
+dist/
 __tests__/prodsdk.js
 
 # code analysis tools
