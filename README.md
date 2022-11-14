@@ -185,7 +185,7 @@ Refer to the following projects for a detailed walk-through of the above steps:
 | **Browser**     | **Supported Versions** |
 | :-------------- | :--------------------- |
 | Safari          | v7 or later            |
-| IE              | v11 or later           |
+| IE              | v10 or later           |
 | Edge            | v15 or later           |
 | Mozilla Firefox | v40 or later           |
 | Chrome          | v37 or later           |

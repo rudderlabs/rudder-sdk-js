@@ -8,18 +8,17 @@ npm-debug.log*
 dist/
 __tests__/prodsdk.js
 
-# misc
-.DS_Store
-.env
-.idea/
-.vscode/
-
 # code analysis tools
 .scannerwork
 dependency-check-bin/
 dependency-check-reports/
 .eslintcache
 
+# misc
+.DS_Store
+.env
+.idea/
+.vscode/
 **/bin/
 **/obj/
 **/.vs
