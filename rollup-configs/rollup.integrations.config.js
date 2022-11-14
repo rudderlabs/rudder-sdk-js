@@ -1,5 +1,5 @@
 import { getOutputFilePath, getDefaultConfig } from './rollup.utilities';
-import { INTG_SUFFIX } from '../utils/constants';
+import { INTG_SUFFIX } from '../src/utils/constants';
 
 const variantSubfolder = process.env.BROWSERSLIST_ENV === 'modern' ? '/modern' : '/legacy';
 const sourceMapType =
@@ -21,6 +21,6 @@ const outputFiles = [
 
 export default {
   ...getDefaultConfig(distName),
-  input: `integrations/${process.env.INTG_NAME}/index.js`,
+  input: `src/integrations/${process.env.INTG_NAME}/index.js`,
   output: outputFiles,
 };

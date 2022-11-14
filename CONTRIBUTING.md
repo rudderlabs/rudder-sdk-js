@@ -36,7 +36,7 @@ One way you can contribute to this project is by adding integrations of your cho
 
 > We use **rollup** to build our SDKs. The configurations for them are present in `rollup-configs` folder.
 
-- For adding or removing integrations, modify the imports in `index.js` under the `integrations` folder.
+- For adding or removing integrations, modify the imports in `index.js` under the `src/integrations` folder.
 
 ## Committing
 

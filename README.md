@@ -296,14 +296,14 @@ You can start adding integrations of your choice for sending the data through th
 
 > We use **rollup** to build our SDKs. The configuration for it is present in `rollup-configs` folder.
 
-- For adding or removing integrations, modify the imports in `index.js` under the `integrations` folder.
+- For adding or removing integrations, modify the imports in `index.js` under the `src/integrations` folder.
 
 ### Usage in Chrome Extensions
 
 RudderStack JS SDK can be used in Chrome Extensions with manifest v3, both as a content script or as a background script
 service worker.
 
-For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/production/tests/chrome-extension/USAGE.md)
+For examples and specific details look into [Chrome Extensions Usage](https://github.com/rudderlabs/rudder-sdk-js/blob/production/examples/chrome-extension/USAGE.md)
 
 ## Contribute
 

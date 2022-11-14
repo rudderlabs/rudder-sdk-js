@@ -26,12 +26,12 @@ const buildConfig = {
 
 buildConfig.plugins.push(
   copy({
-    targets: [{ src: 'service-worker/index.d.ts', dest: `${outDir}/npm-lib/service-worker` }],
+    targets: [{ src: 'src/service-worker/index.d.ts', dest: `${outDir}/npm-lib/service-worker` }],
   }),
 );
 
 export default {
   ...buildConfig,
-  input: `service-worker/index.js`,
+  input: `src/service-worker/index.js`,
   output: outputFiles,
 };
