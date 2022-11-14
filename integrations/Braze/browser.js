@@ -198,7 +198,10 @@ class Braze {
     }
 
     // deep clone the traits object
-    const traits = cloneDeep(rudderElement.message?.context?.traits);
+    let traits = {};
+    if (rudderElement.message?.context?.traits) {
+      traits = cloneDeep(rudderElement.message.context.traits);
+    }
 
     reserved.forEach((element) => {
       delete traits[element];
