@@ -26,8 +26,8 @@
         })(method);
       }
       rudderanalytics.load(
-        "1weqc5iqxRkpaUXHgDgYo3g34mg",
-        "http://localhost:8080",
+        '__WRITE_KEY__',
+        '__DATAPLANE_URL__',
         { logLevel: "DEBUG" }
       );
       rudderanalytics.identify(
@@ -38,7 +38,6 @@
           email: "name.surname@domain.com",
           company: "Company123",
           phone: "123-456-7890",
-          state: "Texas",
           rating: "Hot",
           city: "Austin",
           postalCode: "12345",
@@ -113,7 +112,7 @@
     <!-- ============ CDN ============ -->
     <!-- Prod -->
     <!-- MINIFIED -->
-    <script src="https://cdn.rudderlabs.com/v3/rudder-analytics.min.js"></script>
+    <!-- <script src="https://cdn.rudderlabs.com/v3/rudder-analytics.min.js"></script> -->
 
     <!-- UNMINIFIED -->
     <!-- <script src="https://cdn.rudderlabs.com/v3/rudder-analytics.js"></script> -->
@@ -138,7 +137,7 @@
     <!-- <script src="../dist/rudder-analytics.min.js"></script> -->
 
     <!-- Local UNMINIFIED -->
-    <!-- <script src="../dist/rudder-analytics.js"></script> -->
+    <script src="./rudder-analytics.js"></script>
     <!-- ============ LOCAl ================= -->
   </head>
   <body>

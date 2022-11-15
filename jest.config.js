@@ -10,7 +10,7 @@ module.exports = {
   // bail: 0,
 
   // The directory where Jest should store its cached dependency information
-  // cacheDirectory: "/private/var/folders/tx/xm0ncpnx3cddx9blptw3w8x80000gn/T/jest_dx",
+  cacheDirectory: '<rootDir>/node_modules/.cache/unit-tests',
 
   // Automatically clear mock calls and instances between every test
   clearMocks: true,
@@ -19,10 +19,20 @@ module.exports = {
   // collectCoverage: false,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
-  // collectCoverageFrom: undefined,
+  collectCoverageFrom: [
+    'cookieConsent/**/*.{js,}',
+    'integrations/**/*.{js,}',
+    'metrics/**/*.{js,}',
+    'packages/**/*.{js,}',
+    'service-worker/**/*.{js,}',
+    'session/**/*.{js,}',
+    'src/**/*.{js,}',
+    'utils/**/*.{js,}',
+    '!**/*.test.js',
+  ],
 
   // The directory where Jest should output its coverage files
-  coverageDirectory: 'coverage',
+  coverageDirectory: 'reports/coverage',
 
   // An array of regexp pattern strings used to skip coverage collection
   coveragePathIgnorePatterns: [
@@ -32,13 +42,24 @@ module.exports = {
     '/scripts/',
     '__tests__',
     '__mocks__',
+    'archive',
+    'jest',
+    'rollup-configs',
+    'stats',
   ],
 
   // A list of reporter names that Jest uses when writing coverage reports
-  coverageReporters: ['json', 'text', 'lcov', 'clover'],
+  coverageReporters: ['json', 'text', ['lcov', { projectRoot: '/' }], 'clover'],
 
   // An object that configures minimum threshold enforcement for coverage results
-  // coverageThreshold: undefined,
+  coverageThreshold: {
+    global: {
+      branches: 0,
+      functions: 0,
+      lines: 0,
+      statements: 0,
+    },
+  },
 
   // A path to a custom dependency extractor
   // dependencyExtractor: undefined,
@@ -50,7 +71,7 @@ module.exports = {
   // forceCoverageMatch: [],
 
   // A path to a module which exports an async function that is triggered once before all test suites
-  // globalSetup: undefined,
+  globalSetup: './jest/jest.global-setup',
 
   // A path to a module which exports an async function that is triggered once after all test suites
   // globalTeardown: undefined,
@@ -80,7 +101,7 @@ module.exports = {
   // moduleNameMapper: {},
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
-  // modulePathIgnorePatterns: [],
+  modulePathIgnorePatterns: ['<rootDir>/dist'],
 
   // Activates notifications for test results
   // notify: false,
@@ -95,7 +116,18 @@ module.exports = {
   // projects: undefined,
 
   // Use this configuration option to add custom reporters to Jest
-  // reporters: undefined,
+  reporters: [
+    'default',
+    [
+      'jest-sonar',
+      {
+        outputDirectory: 'reports/sonar',
+        outputName: 'results-report.xml',
+        reportedFilePath: 'relative',
+        relativeRootDir: './',
+      },
+    ],
+  ],
 
   // Automatically reset mock state between every test
   // resetMocks: false,
@@ -121,10 +153,10 @@ module.exports = {
   // runner: "jest-runner",
 
   // The paths to modules that run some code to configure or set up the testing environment before each test
-  // setupFiles: [],
+  setupFiles: ['jest-date-mock', '<rootDir>/jest/jest.polyfills.js'],
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
-  // setupFilesAfterEnv: [],
+  setupFilesAfterEnv: ['<rootDir>/jest/jest.setup-dom.js'],
 
   // A list of paths to snapshot serializer modules Jest should use for snapshot testing
   // snapshotSerializers: [],
@@ -133,7 +165,11 @@ module.exports = {
   testEnvironment: 'jest-environment-jsdom',
 
   // Options that will be passed to the testEnvironment
-  // testEnvironmentOptions: {},
+  testEnvironmentOptions: {
+    url: 'https://www.test-host.com',
+    runScripts: 'dangerously',
+    resources: 'usable',
+  },
 
   // Adds a location field to test results
   // testLocationInResults: false,
@@ -151,7 +187,7 @@ module.exports = {
   // testResultsProcessor: undefined,
 
   // This option allows use of a custom test runner
-  // testRunner: "jasmine2",
+  testRunner: 'jest-circus/runner',
 
   // This option sets the URL for the jsdom environment. It is reflected in properties such as location.href
   // testURL: "http://localhost",
@@ -161,7 +197,7 @@ module.exports = {
 
   // A map from regular expressions to paths to transformers
   transform: {
-    '^.+\\.(js|)?$': 'esbuild-jest',
+    '^.+\\.js?$': ['esbuild-jest', { sourcemap: true }],
   },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
@@ -171,12 +207,11 @@ module.exports = {
   // unmockedModulePathPatterns: undefined,
 
   // Indicates whether each individual test should be reported during the run
-  // verbose: undefined,
+  verbose: true,
 
   // An array of regexp patterns that are matched against all source file paths before re-running tests in watch mode
   // watchPathIgnorePatterns: [],
 
   // Whether to use watchman for file crawling
   // watchman: true,
-  setupFiles: ['jest-date-mock', '<rootDir>/jest/jest.polyfills.js'],
 };
