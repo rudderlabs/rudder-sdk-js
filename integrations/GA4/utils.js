@@ -99,12 +99,12 @@ function hasRequiredParameters(props, eventMappingObj) {
 }
 
 /**
- *
+ * screens custom variables from rootObj by excluding exclusionFields and adds
+ * those to destination object
  * @param {*} rootObj
  * @param {*} destination
  * @param {*} exclusionFields
- * @returns screens custom variables from rootObj by excluding exclusionFields and adds 
- * those to destination object
+ * @returns
  */
 function extractCustomVariables(rootObj, destination, exclusionFields) {
   const mappingKeys = [];
@@ -129,23 +129,20 @@ function extractCustomVariables(rootObj, destination, exclusionFields) {
  */
 function addCustomVariables(destinationProperties, props, contextOp) {
   logger.debug("within addCustomVariables");
-  let updatedProperties = {};
   if (contextOp === "product") {
-    updatedProperties = extractCustomVariables(
+    return extractCustomVariables(
       props,
       destinationProperties,
       ITEM_PROP_EXCLUSION_LIST
     );
   } else if (contextOp === "properties") {
-    updatedProperties = extractCustomVariables(
+    return extractCustomVariables(
       props,
       destinationProperties,
       EVENT_PROP_EXCLUSION_LIST
     );
-  } else {
-    updatedProperties = destinationProperties;
   }
-  return updatedProperties;
+  return destinationProperties;
 }
 
 /**
@@ -155,20 +152,8 @@ function addCustomVariables(destinationProperties, props, contextOp) {
  * @param {*} props { product_id: 123456_abcdef, name: "chess-board", list_id: "ls_abcdef", category: games }
  * @param {*} destParameterConfig
  * Defined Parameter present GA4/utils.js ex: [{ src: "category", dest: "item_list_name", inItems: true }]
- * @param {*} includeRequiredParams contains object of required parameter to be mapped from source payload
- * output: {
-  "item_list_id": "ls_abcdef",
-  "items": [
-    {
-      "item_id": "123456_abcdef",
-      "item_name": "chess-board",
-      "item_list_id": "ls_abc",
-      "item_list_name": "games"
-    }
-  ],
-  "item_list_name": "games"
-}
-*/
+ * @param {*} contextOp "properties" or "product"
+ */
 function getDestinationEventProperties(
   props,
   destParameterConfig,
@@ -211,10 +196,10 @@ function getDestinationItemProperties(products, item) {
   const finalProducts = type(products) !== "array" ? [products] : products;
   // get the dest keys from itemParameters config
   // append the already created item object keys (this is done to get the keys that are actually top level props in Rudder payload but GA expects them under items too)
-  finalProducts.forEach((p) => {
+  finalProducts.forEach((product) => {
     obj = {
       ...getDestinationEventProperties(
-        p,
+        product,
         itemParametersConfigArray,
         contextOp,
         true
