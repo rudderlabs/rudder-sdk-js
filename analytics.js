@@ -885,6 +885,10 @@ class Analytics {
     return this.userId;
   }
 
+  getSessionId() {
+    this.uSession.getSessionId();
+  }
+
   getUserTraits() {
     return this.userTraits;
   }

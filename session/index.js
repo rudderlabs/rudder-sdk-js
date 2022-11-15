@@ -143,6 +143,10 @@ class UserSession {
     this.storage.setSessionInfo(this.sessionInfo);
   }
 
+  getSessionId() {
+    return this.sessionInfo?.id || undefined; 
+  }
+
   /**
    * A public method to end an ongoing session.
    */
