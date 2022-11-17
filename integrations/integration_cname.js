@@ -60,7 +60,10 @@ import { CNameMapping as QuoraPixel } from "./QuoraPixel/constants";
 import { CNameMapping as Iterable } from "./Iterable/constants";
 import { CNameMapping as Engage } from "./Engage/constants";
 import { CNameMapping as June } from "./June/constants";
+import { CNameMapping as Refiner } from "./Refiner/constants";
 import { CNameMapping as YandexMetrica } from "./YandexMetrica/constants";
+import { CNameMapping as Podsights } from "./Podsights/constants";
+import { CNameMapping as Qualaroo } from "./Qualaroo/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -107,6 +110,7 @@ const commonNames = {
   ...Optimizely,
   ...Pendo,
   ...PinterestTag,
+  ...Podsights,
   ...PostAffiliatePro,
   ...Posthog,
   ...ProfitWell,
@@ -128,7 +132,9 @@ const commonNames = {
   ...Iterable,
   ...Engage,
   ...June,
+  ...Refiner,
   ...YandexMetrica,
+  ...Qualaroo,
 };
 
 export { commonNames };
