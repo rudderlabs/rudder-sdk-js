@@ -1,3 +1,4 @@
+import _difference from "lodash.difference";
 import {
   eventNamesConfigArray,
   itemParametersConfigArray,
@@ -107,12 +108,9 @@ function hasRequiredParameters(props, eventMappingObj) {
  * @returns
  */
 function extractCustomVariables(rootObj, destination, exclusionFields) {
-  const mappingKeys = [];
-  Object.keys(rootObj).map((k) => {
-    if (!exclusionFields.includes(k)) mappingKeys.push(k);
-  });
+  const mappingKeys = _difference(Object.keys(rootObj), exclusionFields);
   mappingKeys.map((mappingKey) => {
-    if (!(typeof rootObj[mappingKey] === "undefined")) {
+    if (typeof rootObj[mappingKey] !== "undefined") {
       destination[mappingKey] = rootObj[mappingKey];
     }
   });
@@ -194,6 +192,7 @@ function getDestinationItemProperties(products, item) {
   let obj = {};
   const contextOp = type(products) !== "array" ? "properties" : "product";
   const finalProducts = type(products) !== "array" ? [products] : products;
+  const finalItemObj = item && type(item) === "array" && item[0] ? item[0] : {};
   // get the dest keys from itemParameters config
   // append the already created item object keys (this is done to get the keys that are actually top level props in Rudder payload but GA expects them under items too)
   finalProducts.forEach((product) => {
@@ -204,7 +203,7 @@ function getDestinationItemProperties(products, item) {
         contextOp,
         true
       ),
-      ...((item && type(item) === "array" && item[0]) || {}),
+      ...finalItemObj,
     };
     items.push(obj);
   });
