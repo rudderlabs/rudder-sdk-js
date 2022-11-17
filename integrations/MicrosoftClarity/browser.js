@@ -50,6 +50,12 @@ class MicrosoftClarity {
     logger.debug("===In Microsoft Clarity Identify===");
     const { message } = rudderElement;
     const { userId, context } = message;
+    if (!userId) {
+      logger.error(
+        "[Microsoft Clarity] :: userId is required for an identify call"
+      );
+      return;
+    }
     let sessionId;
     let customPageId;
     if (context?.sessionId) {
