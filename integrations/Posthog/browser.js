@@ -46,9 +46,7 @@ class Posthog {
   init() {
     const { POSTHOG } = this.analytics.loadOnlyIntegrations;
     if (POSTHOG && !POSTHOG.loadIntegration) {
-      logger.debug(
-        "===[POSTHOG]: useGloballyAvailableIntegration flag is disabled==="
-      );
+      logger.debug("===[POSTHOG]: loadIntegration flag is disabled===");
     } else {
       !(function (t, e) {
         var o, n, p, r;
