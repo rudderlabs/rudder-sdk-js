@@ -61,8 +61,8 @@ class MicrosoftClarity {
     if (context?.sessionId) {
       sessionId = context.sessionId;
     }
-    if (message?.traits?.customPageId) {
-      customPageId = message.traits.customPageId;
+    if (context?.traits?.customPageId) {
+      customPageId = context.traits.customPageId;
     }
     window.clarity("identify", userId, sessionId, customPageId);
     if (context?.traits) {
