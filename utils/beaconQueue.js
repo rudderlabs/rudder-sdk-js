@@ -18,6 +18,7 @@ class BeaconQueue {
     this.url = '';
     this.writekey = '';
     this.queueName = `${defaults.queue}.${Date.now()}`;
+    this.send = navigator.sendBeacon && navigator.sendBeacon.bind(navigator);
   }
 
   sendQueueDataForBeacon() {
@@ -82,8 +83,9 @@ class BeaconQueue {
     const data = { batch };
     const payload = JSON.stringify(data, replacer);
     const blob = new Blob([payload], { type: 'text/plain' });
-    const isPushed = navigator.sendBeacon(`${this.url}?writeKey=${this.writekey}`, blob);
-    if (!isPushed) {
+    try {
+      this.send(`${this.url}?writeKey=${this.writekey}`, blob);
+    } catch (e) {
       handleError(new Error("Unable to queue data to browser's beacon queue"));
     }
     this.setQueue([]);
