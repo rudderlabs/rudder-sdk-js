@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { exec } from 'child_process';
-import { configToIntNames } from './utils/config_to_integration_names';
+import { configToIntNames } from '../utils/config_to_integration_names';
 
 const intgNamesArr = Object.values(configToIntNames);
 const totalIntgCount = intgNamesArr.length;
@@ -26,9 +26,10 @@ function buildIntegrations() {
     const intgName = intgNamesArr[index];
     index += 1;
 
-    let cmd = `npm run buildProdIntegrationCLI --intg=${intgName}`;
-    if (process.env.BUNDLE_SIZE_VISUALIZER === 'true') {
-      cmd = `npm run bundle-size-visual-integration-cli --intg=${intgName}`;
+    let cmd = `npm run build:integration:cli --intg=${intgName}`;
+
+    if (process.env.VISUALIZER === 'true') {
+      cmd = `npm run build:integration:bundle-size:cli --intg=${intgName}`;
     }
 
     // eslint-disable-next-line no-loop-func
