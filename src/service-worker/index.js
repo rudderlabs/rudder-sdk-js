@@ -3,8 +3,7 @@ import looselyValidate from '@segment/loosely-validate-event';
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
 import ms from 'ms';
-import md5 from 'md5';
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuid } from '@lukeed/uuid';
 import isString from 'lodash.isstring';
 import cloneDeep from 'lodash.clonedeep';
 import fetchAdapter from '@vespaiach/axios-fetch-adapter';
@@ -277,7 +276,7 @@ class Analytics {
     }
 
     if (!lMessage.messageId) {
-      lMessage.messageId = `service-worker-${md5(JSON.stringify(lMessage))}-${uuidv4()}`;
+      lMessage.messageId = uuid();
     }
 
     // Historically this library has accepted strings and numbers as IDs.
