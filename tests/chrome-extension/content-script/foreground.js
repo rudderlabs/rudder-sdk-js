@@ -11050,21 +11050,6 @@
             }
         });
 
-        function generateMessageId() {
-            // Convert timestamp to microseconds
-            var ts = 1000 * new Date().getTime(); // Add actual microseconds
-            // if high-precision timer if available
-
-            if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
-                var pNow = performance.now();
-                var microSec = 1000 * (pNow - Math.floor(pNow));
-                ts += microSec;
-            }
-
-            var uuid = generateUUID();
-            return "".concat(ts, "-").concat(uuid);
-        }
-
         var RudderMessage = /*#__PURE__*/function () {
             function RudderMessage() {
                 _classCallCheck(this, RudderMessage);
@@ -11072,7 +11057,7 @@
                 this.channel = 'web';
                 this.context = new RudderContext();
                 this.type = null;
-                this.messageId = generateMessageId();
+                this.messageId = generateUUID();
                 this.originalTimestamp = new Date().toISOString();
                 this.anonymousId = null;
                 this.userId = null;
