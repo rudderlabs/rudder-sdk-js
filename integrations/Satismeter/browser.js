@@ -1,36 +1,43 @@
 /* eslint-disable no-var */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
+import Logger from "../../utils/logger";
+import { recordSatismeterEvents } from "./util";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 
+const logger = new Logger(NAME);
 class Satismeter {
   constructor(config, analytics) {
-    logger.debug("in satismetwr const");
+    this.analytics = analytics;
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
     this.writeKey = config.writeKey;
+    this.recordSatismeterEvents = config.recordSatismeterEvents;
+    this.eventsToStandard = config.eventsToStandard;
+    this.updateEventNames = config.updateEventNames;
+    this.eventsList = config.eventsList;
   }
 
   init() {
     logger.debug("===In init Satismeter===");
     (function () {
-      var script = document.createElement("script");
-      var parent = document.getElementsByTagName("script")[0].parentNode;
       window.satismeter =
         window.satismeter ||
         function () {
           (window.satismeter.q = window.satismeter.q || []).push(arguments);
         };
       window.satismeter.l = 1 * new Date();
+      var script = document.createElement("script");
+      var parent = document.getElementsByTagName("script")[0].parentNode;
       script.async = 1;
       script.src = "https://app.satismeter.com/js";
-      script.setAttribute("data-loader", LOAD_ORIGIN);
-      parent.appendChild(script);
+      script.setAttribute("data-loader", LOAD_ORIGIN),
+        parent.appendChild(script);
     })();
+
     window.satismeter({
       writeKey: this.writeKey,
     });
@@ -43,6 +50,13 @@ class Satismeter {
 
   isReady() {
     logger.debug("===In isReady Satismeter===");
+    if (this.recordSatismeterEvents) {
+      recordSatismeterEvents(
+        this.updateEventNames,
+        this.eventsList,
+        this.eventsToStandard
+      );
+    }
     return !!window.satismeter;
   }
 
@@ -73,9 +87,14 @@ class Satismeter {
   track(rudderElement) {
     logger.debug("===In Satismeter track===");
     const { message } = rudderElement;
-    const { event } = message;
+    const { event, context } = message;
     if (!event) {
       logger.error("[Satismeter]:: event is required for track call");
+    }
+    const integrationName = context.integration?.name;
+    if (integrationName && integrationName.toLowerCase() === "satismeter") {
+      logger.debug(`[Satismeter]:: dropping callback event: ${event}`);
+      return;
     }
     window.satismeter("track", { event });
   }
