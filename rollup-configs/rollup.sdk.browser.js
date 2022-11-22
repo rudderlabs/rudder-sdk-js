@@ -24,6 +24,6 @@ const buildConfig = {
 
 export default {
   ...buildConfig,
-  input: 'src/analytics.js',
+  input: 'src/core/analytics.js',
   output: outputFiles,
 };

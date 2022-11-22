@@ -35,14 +35,8 @@ export function getDefaultConfig(distName) {
   return {
     watch: {
       include: [
-        'utils/**',
         'src/**',
-        'metrics/**',
-        'session/**',
-        'service-worker/**',
         'packages/**',
-        'integrations/**',
-        'cookieConsent/**',
       ],
     },
     external: [],
@@ -100,7 +94,7 @@ export function getDefaultConfig(distName) {
       }),
       process.env.DEV_SERVER &&
         htmlTemplate({
-          template: 'tests/html/script-test.html',
+          template: 'examples/html/script-test.html',
           target: 'index.html',
           attrs: ['async', 'defer'],
           replaceVars: {
@@ -111,7 +105,7 @@ export function getDefaultConfig(distName) {
       process.env.DEV_SERVER &&
         serve({
           open: true,
-          openPage: '/index.html',
+          openPage: '/legacy/index.html',
           contentBase: ['dist'],
           host: 'localhost',
           port: 3001,

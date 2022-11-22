@@ -1,5 +1,5 @@
 import { advanceTo } from 'jest-date-mock';
-import { Analytics } from '../../service-worker';
+import { Analytics } from '../../src/service-worker';
 import { server } from './__mocks__/msw.server';
 import {
   aliasRequestPayload,

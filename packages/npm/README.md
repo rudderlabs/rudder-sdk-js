@@ -5,7 +5,7 @@ The [**RudderStack**](https://rudderstack.com/) JavaScript SDK leverages the `ru
 > For detailed documentation on the RudderStack JavaScript SDK, click [**here**](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).
 
 | **IMPORTANT**: We have deprecated the Autotrack feature for the RudderStack JavaScript SDK. If you still wish to use it for your project, refer to [**this repository**](https://github.com/rudderlabs/rudder-sdk-js-autotrack#autotrack). |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ## Installing the JavaScript SDK
 
@@ -68,7 +68,6 @@ The APIs exported by the module are:
 - `getAnonymousId`
 - `setAnonymousId`
 
-
 ### Sample implementations
 
 Refer to the following projects for a detailed walk-through of the above steps:
@@ -78,15 +77,15 @@ Refer to the following projects for a detailed walk-through of the above steps:
 
 ### Supported browser versions
 
-| **Browser**         | **Supported Versions** |
-| :------------------ | :--------------------- |
-| Safari              | v7 or later            |
-| IE                  | v10 or later           |
-| Edge                | v15 or later           |
-| Mozilla Firefox     | v40 or later           |
-| Chrome              | v37 or later           |
-| Opera               | v23 or later           |
-| Yandex              | v14.12 or later        |
+| **Browser**     | **Supported Versions** |
+| :-------------- | :--------------------- |
+| Safari          | v7 or later            |
+| IE              | v10 or later           |
+| Edge            | v15 or later           |
+| Mozilla Firefox | v40 or later           |
+| Chrome          | v37 or later           |
+| Opera           | v23 or later           |
+| Yandex          | v14.12 or later        |
 
 > If the SDK does not work on the browser versions that you are targeting, verify if adding the browser polyfills to your application solves the issue.
 
@@ -98,25 +97,26 @@ A sample `identify()` call is shown below:
 
 ```javascript
 rudderanalytics.identify(
-  "12345", {
-    email: "name@domain.com"
-  }, {
+  '12345',
+  {
+    email: 'name@domain.com',
+  },
+  {
     page: {
-      path: "",
-      referrer: "",
-      search: "",
-      title: "",
-      url: "",
+      path: '',
+      referrer: '',
+      search: '',
+      title: '',
+      url: '',
     },
   },
   () => {
-    console.log("in identify call");
-  }
+    console.log('in identify call');
+  },
 );
 ```
 
 In the above example, the user-related information like the `userId` and `email` along with the [**contextual information**](https://docs.rudderstack.com/rudderstack-api/api-specification/rudderstack-spec/common-fields#javascript-sdk) is captured.
-
 
 > There is no need to call `identify()` for anonymous visitors to your website. Such visitors are automatically assigned an `anonymousId`.
 
@@ -130,14 +130,15 @@ A sample `track` call is shown below:
 
 ```javascript
 rudderanalytics.track(
-  "test track event GA3", {
+  'test track event GA3',
+  {
     revenue: 30,
-    currency: "USD",
+    currency: 'USD',
     user_actual_id: 12345,
   },
   () => {
-    console.log("in track call");
-  }
+    console.log('in track call');
+  },
 );
 ```
 
@@ -153,12 +154,11 @@ An example is shown in the following snippet:
 
 ```javascript
 rudderanalytics.ready(() => {
-  console.log("we are all set!!!");
+  console.log('we are all set!!!');
 });
 ```
 
 > For more information on the other supported methods, refer to the [**JavaScript SDK APIs**](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk#supported-apis).
-
 
 ## Self-Hosted control plane
 
@@ -175,7 +175,7 @@ rudderanalytics.load(<WRITE_KEY>, <DATA_PLANE_URL>, {
 > More information on how to get the `CONTROL_PLANE_URL` can be found [**here**](https://docs.rudderstack.com/get-started/control-plane-lite#what-is-the-control-plane-url).
 
 | **For detailed technical documentation and troubleshooting guide on the RudderStack’s JavaScript SDK, check out our [docs](https://docs.rudderstack.com/stream-sources/rudderstack-sdk-integration-guides/rudderstack-javascript-sdk).** |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 ## Contact us
 

@@ -1,4 +1,4 @@
-declare module "rudder-sdk-js" {
+declare module 'rudder-sdk-js' {
   /**
    * Represents the integration options object
    * Example usages:
@@ -74,11 +74,7 @@ declare module "rudder-sdk-js" {
     // Defaults to "Lax" (see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite)
     sameSiteCookie?: string;
     logLevel?: string;
-    getSourceConfig?: () =>
-      | string
-      | apiObject
-      | Promise<apiObject>
-      | Promise<string>;
+    getSourceConfig?: () => string | apiObject | Promise<apiObject> | Promise<string>;
     setCookieDomain?: string;
     sendAdblockPage?: boolean;
     sendAdblockPageOptions?: apiOptions;
@@ -92,7 +88,7 @@ declare module "rudder-sdk-js" {
     sessions?: {
       autoTrack?: boolean; // Defaults to true
       timeout?: number; // Defaults to 30 mins
-    }
+    };
   }
 
   /**
@@ -139,11 +135,7 @@ declare module "rudder-sdk-js" {
    * @param dataPlaneUrl
    * @param options
    */
-  function load(
-    writeKey: string,
-    dataPlaneUrl: string,
-    options?: loadOptions
-  ): void;
+  function load(writeKey: string, dataPlaneUrl: string, options?: loadOptions): void;
 
   /**
    * To register a callback for SDK ready state
@@ -164,7 +156,7 @@ declare module "rudder-sdk-js" {
     name?: string,
     properties?: apiObject,
     options?: apiOptions,
-    callback?: apiCallback
+    callback?: apiCallback,
   ): void;
 
   /**
@@ -174,12 +166,7 @@ declare module "rudder-sdk-js" {
    * @param properties
    * @param callback
    */
-  function page(
-    category: string,
-    name: string,
-    properties: apiObject,
-    callback: apiCallback
-  ): void;
+  function page(category: string, name: string, properties: apiObject, callback: apiCallback): void;
 
   /**
    * To record a page view event
@@ -200,7 +187,7 @@ declare module "rudder-sdk-js" {
     name: string,
     properties?: apiObject,
     options?: apiOptions,
-    callback?: apiCallback
+    callback?: apiCallback,
   ): void;
 
   /**
@@ -209,11 +196,7 @@ declare module "rudder-sdk-js" {
    * @param properties
    * @param callback
    */
-  function page(
-    name: string,
-    properties: apiObject,
-    callback: apiCallback
-  ): void;
+  function page(name: string, properties: apiObject, callback: apiCallback): void;
 
   /**
    *
@@ -228,11 +211,7 @@ declare module "rudder-sdk-js" {
    * @param options
    * @param callback
    */
-  function page(
-    properties: apiObject,
-    options: apiOptions,
-    callback?: apiCallback
-  ): void;
+  function page(properties: apiObject, options: apiOptions, callback?: apiCallback): void;
 
   /**
    * To record a page view event
@@ -252,7 +231,7 @@ declare module "rudder-sdk-js" {
     event: string,
     properties?: apiObject,
     options?: apiOptions,
-    callback?: apiCallback
+    callback?: apiCallback,
   ): void;
 
   /**
@@ -261,11 +240,7 @@ declare module "rudder-sdk-js" {
    * @param properties
    * @param callback
    */
-  function track(
-    event: string,
-    properties: apiObject,
-    callback: apiCallback
-  ): void;
+  function track(event: string, properties: apiObject, callback: apiCallback): void;
 
   /**
    * To record a user track event
@@ -285,7 +260,7 @@ declare module "rudder-sdk-js" {
     userId?: string,
     traits?: apiObject,
     options?: apiOptions,
-    callback?: apiCallback
+    callback?: apiCallback,
   ): void;
 
   /**
@@ -294,11 +269,7 @@ declare module "rudder-sdk-js" {
    * @param traits
    * @param callback
    */
-  function identify(
-    userId: string,
-    traits: apiObject,
-    callback: apiCallback
-  ): void;
+  function identify(userId: string, traits: apiObject, callback: apiCallback): void;
 
   /**
    * To record a user identification event
@@ -313,11 +284,7 @@ declare module "rudder-sdk-js" {
    * @param options
    * @param callback
    */
-  function identify(
-    traits: apiObject,
-    options: apiOptions,
-    callback?: apiCallback
-  ): void;
+  function identify(traits: apiObject, options: apiOptions, callback?: apiCallback): void;
 
   /**
    *
@@ -333,12 +300,7 @@ declare module "rudder-sdk-js" {
    * @param options
    * @param callback
    */
-  function alias(
-    to: string,
-    from?: string,
-    options?: apiOptions,
-    callback?: apiCallback
-  ): void;
+  function alias(to: string, from?: string, options?: apiOptions, callback?: apiCallback): void;
 
   /**
    * To record a user alias event
@@ -374,7 +336,7 @@ declare module "rudder-sdk-js" {
     groupId: string,
     traits?: apiObject,
     options?: apiOptions,
-    callback?: apiCallback
+    callback?: apiCallback,
   ): void;
 
   /**
@@ -383,11 +345,7 @@ declare module "rudder-sdk-js" {
    * @param traits
    * @param callback
    */
-  function group(
-    groupId: string,
-    traits: apiObject,
-    callback: apiCallback
-  ): void;
+  function group(groupId: string, traits: apiObject, callback: apiCallback): void;
 
   /**
    * To record a user group event
@@ -402,11 +360,7 @@ declare module "rudder-sdk-js" {
    * @param options
    * @param callback
    */
-  function group(
-    traits: apiObject,
-    options: apiOptions,
-    callback?: apiCallback
-  ): void;
+  function group(traits: apiObject, options: apiOptions, callback?: apiCallback): void;
 
   /**
    * To record a user group event
@@ -425,10 +379,7 @@ declare module "rudder-sdk-js" {
    * @param anonymousId
    * @param rudderAmpLinkerParm AMP Linker ID string
    */
-  function setAnonymousId(
-    anonymousId?: string,
-    rudderAmpLinkerParm?: string
-  ): void;
+  function setAnonymousId(anonymousId?: string, rudderAmpLinkerParm?: string): void;
 
   /**
    * Clear user information
@@ -459,12 +410,12 @@ declare module "rudder-sdk-js" {
   /**
    * To manually start user session in the SDK
    */
-   function startSession(sessionId?: number): void;
+  function startSession(sessionId?: number): void;
 
-   /**
+  /**
    * To manually end user session in the SDK
    */
-   function endSession(): void;
+  function endSession(): void;
 
   export {
     integrationOptions,

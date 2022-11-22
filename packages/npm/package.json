@@ -30,7 +30,7 @@
     "rudder"
   ],
   "author": "RudderStack",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rudderlabs/rudder-sdk-js.git"

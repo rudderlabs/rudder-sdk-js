@@ -20,15 +20,10 @@ module.exports = {
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
   collectCoverageFrom: [
-    'cookieConsent/**/*.{js,}',
-    'integrations/**/*.{js,}',
-    'metrics/**/*.{js,}',
     'packages/**/*.{js,}',
-    'service-worker/**/*.{js,}',
-    'session/**/*.{js,}',
     'src/**/*.{js,}',
-    'utils/**/*.{js,}',
     '!**/*.test.js',
+    '!**/test/*.js',
   ],
 
   // The directory where Jest should output its coverage files
@@ -36,16 +31,6 @@ module.exports = {
 
   // An array of regexp pattern strings used to skip coverage collection
   coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/dist/',
-    '/tests/',
-    '/scripts/',
-    '__tests__',
-    '__mocks__',
-    'archive',
-    'jest',
-    'rollup-configs',
-    'stats',
   ],
 
   // A list of reporter names that Jest uses when writing coverage reports

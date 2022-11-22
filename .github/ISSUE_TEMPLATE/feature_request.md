@@ -4,7 +4,6 @@ about: Suggest an idea for this project
 title: 'Feature Request: <Title>'
 labels: open source
 assignees: saikumarrs
-
 ---
 
 **Is your feature request related to a problem? Please describe.**

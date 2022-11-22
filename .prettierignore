@@ -1,9 +1,7 @@
 dist/
 node_modules/
-stats/
 reports/
-archive/
-tests/
-__tests__/prodsdk.js
+stats/
+prodsdk.js
 CHANGELOG.md
 CONTRIBUTING.md
