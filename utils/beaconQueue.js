@@ -84,9 +84,12 @@ class BeaconQueue {
     const payload = JSON.stringify(data, replacer);
     const blob = new Blob([payload], { type: 'text/plain' });
     try {
-      this.send(`${this.url}?writeKey=${this.writekey}`, blob);
+      const isPushed = this.send(`${this.url}?writeKey=${this.writekey}`, blob);
+      if (!isPushed) {
+        handleError(new Error("Unable to queue data to browser's beacon queue"));
+      }
     } catch (e) {
-      handleError(new Error("Unable to queue data to browser's beacon queue"));
+      handleError(e);
     }
     this.setQueue([]);
     this.clearTimer();
