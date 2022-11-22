@@ -128,6 +128,37 @@ class Braze {
     return props;
   }
 
+  /**
+   * As each users will have unique session, So if the supportDedup is enabled from config,
+   * then we are comparing from the previous payload and tried to reduce the redundant data.
+   * If supportDedup is enabled,
+   * Examples:
+   * - If userId is different from previous call, then it will make new call and store the payload.
+   * - It will deeply check all other attributes and pass the unique or changed fields.
+   *   1st- payload                                                                                     2nd- payload
+   * rudderanalytics.identify("rudderUserId100", {                                                   rudderanalytics.identify("rudderUserId100", {
+   *  name: "Rudder Keener",                                                                          name: "Rudder Keener",
+   *  email: "rudder100@example.com",                                                                 email: "rudder100@example.com",
+   *  primaryEmail: "test350@email.com",                                                              primaryEmail: "test350@email.com",
+   *  country: "USA",                                                                                 country: "USA",
+   *  subscription: "youtube-prime-6",                                                                subscription: "youtube-prime-6",
+   *  channelName: ["b", "d", "e", "f"],                                                              channelName: ["b", "d", "e", "f"],
+   *  gender: "male",                                                                                 gender: "male",
+   *  facebook: "https://www.facebook.com/rudder.123",                                                facebook: "https://www.facebook.com/rudder.345",
+   *  birthday: new Date("2000-10-23"),                                                               birthday: new Date("2000-10-24"),
+   *  firstname: "Rudder",                                                                            firstname: "Rudder",
+   *  lastname: "Keener",                                                                             lastname: "Usertest",
+   *  phone: "9112345631",                                                                            phone: "9112345631",
+   *  key1: "value4",                                                                                 key1: "value5",
+   *  address: {                                                                                      address: {
+   *   city: "Manali",                                                                                 city: "Shimla",
+   *   country: "India",                                                                               country: "India",
+   *  },                                                                                              },
+   * });                                                                                             });
+   * As both payload have same userId so it will deeply check all other attributes and pass the unique fields
+   * or the updated fields.
+   * @param {*} rudderElement
+   */
   identify(rudderElement) {
     const { userId } = rudderElement.message;
     const { address } = rudderElement.message.context.traits;
