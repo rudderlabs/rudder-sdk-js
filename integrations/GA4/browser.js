@@ -12,7 +12,6 @@ import {
 } from "./utils";
 import { type, flattenJsonPayload } from "../../utils/utils";
 import { NAME } from "./constants";
-import { isDefinedAndNotNull } from "../utils/commonUtils";
 
 export default class GA4 {
   constructor(config, analytics) {
@@ -26,9 +25,7 @@ export default class GA4 {
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.extendGroupPayload = config.extendGroupPayload || false;
     this.debugMode = config.debugMode || false;
-    this.isHybridModeEnabled = isDefinedAndNotNull(config.useNativeSDKToSend)
-      ? !config.useNativeSDKToSend
-      : false;
+    this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
     this.name = NAME;
   }
 
