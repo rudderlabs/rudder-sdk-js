@@ -15,7 +15,6 @@ class MicrosoftClarity {
   }
 
   loadScript() {
-    console.log("inside sdk");
     (function (c, l, a, r, i, t, y) {
       c[a] =
         c[a] ||
