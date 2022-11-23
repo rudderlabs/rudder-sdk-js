@@ -66,6 +66,7 @@ const clientToServerNames = {
   PODSIGHTS: "Podsights",
   QUALAROO: "Qualaroo",
   SATISMETER: "Satismeter",
+  MICROSOFT_CLARITY: "Microsoft Clarity",
 };
 
 export { clientToServerNames };
