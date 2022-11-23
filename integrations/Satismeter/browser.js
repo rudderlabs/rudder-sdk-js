@@ -15,6 +15,7 @@ class Satismeter {
     }
     this.name = NAME;
     this.writeKey = config.writeKey;
+    this.identifyAnonymousUsers = config.identifyAnonymousUsers;
     this.recordSatismeterEvents = config.recordSatismeterEvents;
     this.eventsToStandard = config.eventsToStandard;
     this.updateEventNames = config.updateEventNames;
@@ -64,24 +65,26 @@ class Satismeter {
     logger.debug("===In Satismeter identify===");
     const { message } = rudderElement;
     const { traits } = message.context;
-    const userId = message.userId || traits?.userId;
-    if (!userId) {
-      logger.error("[Satismeter]:: userId is not found for Identify Call");
+    let userId = message.userId || traits.userId;
+    if (!userId && this.identifyAnonymousUsers) {
+      userId = message.anonymousId || traits?.anonymousId;
     }
-    if (!traits?.createdAt) {
+    if (userId) {
+      if (!traits?.createdAt) {
+        window.satismeter({
+          writeKey: this.writeKey,
+          userId,
+          type: "identify",
+          traits: { ...traits, createdAt: message.sentAt },
+        });
+      }
       window.satismeter({
         writeKey: this.writeKey,
         userId,
         type: "identify",
-        traits: { ...traits, createdAt: message.sentAt },
+        traits,
       });
     }
-    window.satismeter({
-      writeKey: this.writeKey,
-      userId,
-      type: "identify",
-      traits,
-    });
   }
 
   track(rudderElement) {
@@ -93,7 +96,7 @@ class Satismeter {
     }
     const integrationName = context.integration?.name;
     if (integrationName && integrationName.toLowerCase() === "satismeter") {
-      logger.debug(`[Satismeter]:: dropping callback event: ${event}`);
+      logger.info(`[Satismeter]:: dropping callback event: ${event}`);
       return;
     }
     window.satismeter("track", { event });
