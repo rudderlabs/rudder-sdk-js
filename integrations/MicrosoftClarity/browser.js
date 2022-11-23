@@ -1,7 +1,9 @@
 /* eslint-disable */
-import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
+import Logger from "../../utils/logger";
+import { LOAD_ORIGIN } from "../ScriptLoader";
 
+const logger = new Logger(NAME);
 class MicrosoftClarity {
   constructor(config, analytics) {
     if (analytics.logLevel) {
@@ -23,6 +25,7 @@ class MicrosoftClarity {
       t = l.createElement(r);
       t.async = 1;
       t.src = "https://www.clarity.ms/tag/" + i;
+      t.setAttribute("data-loader", LOAD_ORIGIN);
       y = l.getElementsByTagName(r)[0];
       y.parentNode.insertBefore(t, y);
     })(window, document, "clarity", "script", this.projectId);
