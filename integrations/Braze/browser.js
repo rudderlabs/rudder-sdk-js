@@ -3,16 +3,18 @@
 import cloneDeep from "lodash.clonedeep";
 import isEqual from "lodash.isequal";
 import { del } from "obj-case";
-import logger from "../../utils/logUtil";
+import Logger from "../../utils/logger";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 import { BrazeOperationString, NAME } from "./constants";
 
+const logger = new Logger(NAME);
 /*
 E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
 */
 class Braze {
   constructor(config, analytics) {
     this.analytics = analytics;
+    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.appKey = config.appKey;
     this.trackAnonymousUser = config.trackAnonymousUser;
     this.enableHtmlInAppMessages = config.enableHtmlInAppMessages || false;
@@ -160,6 +162,7 @@ class Braze {
    * @param {*} rudderElement
    */
   identify(rudderElement) {
+    logger.debug("in Braze identify");
     const { userId } = rudderElement.message;
     const { address } = rudderElement.message.context.traits;
     const birthday =
@@ -314,6 +317,7 @@ class Braze {
   }
 
   track(rudderElement) {
+    logger.debug("in Braze track");
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;
@@ -336,6 +340,7 @@ class Braze {
   }
 
   page(rudderElement) {
+    logger.debug("in Braze page");
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.name;
     let { properties } = rudderElement.message;
