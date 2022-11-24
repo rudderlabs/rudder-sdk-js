@@ -58,23 +58,23 @@ class BingAds {
     const { type, properties, event } = rudderElement.message;
     const { category, currency, value, revenue, total } = properties;
     const payload = {
-      ea: type,
-      el: event,
+      event: type,
+      event_label: event,
     };
     if (category) {
-      payload.ec = category;
+      payload.event_category = category;
     }
     if (currency) {
-      payload.gc = currency;
+      payload.currency = currency;
     }
     if (value) {
-      payload.gv = value;
+      payload.revenue_value = value;
     }
     if (revenue) {
-      payload.gv = revenue;
+      payload.revenue_value = revenue;
     }
     if (total) {
-      payload.gv = total;
+      payload.revenue_value = total;
     }
     window.uetq.push(payload);
   };
