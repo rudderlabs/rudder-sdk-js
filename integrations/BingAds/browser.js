@@ -8,6 +8,7 @@ class BingAds {
     this.name = NAME;
   }
 
+  // Destination ref - https://help.ads.microsoft.com/#apex/ads/en/56686/2
   loadBingadsScript = () => {
     ((w, d, t, r, u) => {
       let f, n, i;
@@ -51,7 +52,8 @@ class BingAds {
   /*
     Visit here(for details Parameter details): https://help.ads.microsoft.com/#apex/3/en/53056/2
     Under: What data does UET collect once I install it on my website?
-    It conatins info about parameters ea,ec,gc,gv,el
+    It conatins info about parameters ea,ec,gc,gv,el (refer below link for updated parameter names)
+    Updated syntax doc ref - https://help.ads.microsoft.com/#apex/ads/en/56916/2-500
   */
 
   track = (rudderElement) => {
