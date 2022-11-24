@@ -9,14 +9,6 @@ const integrationContext = {
 // supported callback events
 const standardEventsList = ["display", "progress", "complete", "dismiss"];
 
-const swapKeyValuePairs = (standardEventsMap) => {
-  const swappedEventsMap = {};
-  Object.keys(standardEventsMap).forEach((key) => {
-    swappedEventsMap[standardEventsMap[key]] = key;
-  });
-  return swappedEventsMap;
-};
-
 /**
  * This function is used to trigger a callback
  * @param {*} standardEventsMap mapping of events done by the user
@@ -52,8 +44,7 @@ const recordSatismeterEvents = (
   userDefinedEventsList,
   userDefinedEventsMapping
 ) => {
-  let standardEventsMap = getHashFromArray(userDefinedEventsMapping);
-  standardEventsMap = swapKeyValuePairs(standardEventsMap);
+  const standardEventsMap = getHashFromArray(userDefinedEventsMapping);
   let events = {};
   standardEventsList.forEach((eventName) => {
     if (userDefinedEventsList.includes(eventName)) {
