@@ -65,6 +65,7 @@ import { CNameMapping as YandexMetrica } from "./YandexMetrica/constants";
 import { CNameMapping as Podsights } from "./Podsights/constants";
 import { CNameMapping as Qualaroo } from "./Qualaroo/constants";
 import { CNameMapping as MicrosoftClarity } from "./MicrosoftClarity/constants";
+import { CNameMapping as Axeptio } from "./Axeptio/constants";
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -137,6 +138,7 @@ const commonNames = {
   ...YandexMetrica,
   ...Qualaroo,
   ...MicrosoftClarity,
+  ...Axeptio,
 };
 
 export { commonNames };
