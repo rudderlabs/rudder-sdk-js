@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
+import Logger from "../../utils/logger";
 
 import {
   isReservedName,
@@ -14,6 +14,7 @@ import {
 import { type, flattenJsonPayload } from "../../utils/utils";
 import { NAME } from "./constants";
 
+const logger = new Logger(NAME);
 export default class GA4 {
   constructor(config, analytics) {
     if (analytics.logLevel) {
