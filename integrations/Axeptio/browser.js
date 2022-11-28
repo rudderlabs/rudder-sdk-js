@@ -1,14 +1,21 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import { NAME } from "./constants";
-import logger from "../../utils/logUtil";
+import Logger from "../../utils/logger";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 import makeACall from "./utils";
 
+const logger = new Logger(NAME);
+
 class Axeptio {
-  constructor(config) {
-    this.clientId = config.clientId;
+  constructor(config, analytics) {
+    this.analytics = analytics;
+    if (analytics.logLevel) {
+      logger.setLogLevel(analytics.logLevel);
+    }
     this.name = NAME;
+    this.clientId = config.clientId;
+    this.toggleToActivateCallback = config.toggleToActivateCallback;
   }
 
   loadScript() {
@@ -37,7 +44,9 @@ class Axeptio {
 
   isReady() {
     logger.debug("===In isReady Axeptio===");
-    this.recordAxeptioEvents();
+    if (this.toggleToActivateCallback) {
+      this.recordAxeptioEvents();
+    }
     return !!window.__axeptioSDK;
   }
 
