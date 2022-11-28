@@ -15,6 +15,9 @@ const outputFiles = [
     format: 'iife',
     name: modName,
     sourcemap: sourceMapType,
+    generatedCode: {
+      preset: process.env.BROWSERSLIST_ENV === 'modern' ? 'es2015' : 'es5',
+    },
   },
 ];
 
