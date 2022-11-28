@@ -64,6 +64,7 @@ import * as Refiner from "./Refiner";
 import * as YandexMetrica from "./YandexMetrica";
 import * as Podsights from "./Podsights";
 import * as Qualaroo from "./Qualaroo";
+import * as Satismeter from "./Satismeter";
 import * as MicrosoftClarity from "./MicrosoftClarity";
 import * as Axeptio from "./Axeptio";
 
@@ -137,6 +138,7 @@ const integrations = {
   YANDEX_METRICA: YandexMetrica.default,
   PODSIGHTS: Podsights.default,
   QUALAROO: Qualaroo.default,
+  SATISMETER: Satismeter.default,
   MICROSOFT_CLARITY: MicrosoftClarity.default,
   AXEPTIO: Axeptio.default,
 };

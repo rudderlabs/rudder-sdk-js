@@ -65,6 +65,7 @@ const clientToServerNames = {
   YANDEX_METRICA: "Yandex Metrica",
   PODSIGHTS: "Podsights",
   QUALAROO: "Qualaroo",
+  SATISMETER: "Satismeter",
   MICROSOFT_CLARITY: "Microsoft Clarity",
   AXEPTIO: "Axeptio",
 };

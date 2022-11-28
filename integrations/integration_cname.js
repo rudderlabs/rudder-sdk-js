@@ -64,6 +64,7 @@ import { CNameMapping as Refiner } from "./Refiner/constants";
 import { CNameMapping as YandexMetrica } from "./YandexMetrica/constants";
 import { CNameMapping as Podsights } from "./Podsights/constants";
 import { CNameMapping as Qualaroo } from "./Qualaroo/constants";
+import { CNameMapping as Satismeter } from "./Satismeter/constants";
 import { CNameMapping as MicrosoftClarity } from "./MicrosoftClarity/constants";
 import { CNameMapping as Axeptio } from "./Axeptio/constants";
 
@@ -137,6 +138,7 @@ const commonNames = {
   ...Refiner,
   ...YandexMetrica,
   ...Qualaroo,
+  ...Satismeter,
   ...MicrosoftClarity,
   ...Axeptio,
 };
