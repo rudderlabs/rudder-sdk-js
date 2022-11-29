@@ -64,6 +64,8 @@ import * as Refiner from "./Refiner";
 import * as YandexMetrica from "./YandexMetrica";
 import * as Podsights from "./Podsights";
 import * as Qualaroo from "./Qualaroo";
+import * as Satismeter from "./Satismeter";
+import * as MicrosoftClarity from "./MicrosoftClarity";
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -135,6 +137,8 @@ const integrations = {
   YANDEX_METRICA: YandexMetrica.default,
   PODSIGHTS: Podsights.default,
   QUALAROO: Qualaroo.default,
+  SATISMETER: Satismeter.default,
+  MICROSOFT_CLARITY: MicrosoftClarity.default,
 };
 
 export { integrations };
