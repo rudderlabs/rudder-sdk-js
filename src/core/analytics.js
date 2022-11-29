@@ -55,6 +55,7 @@ import { configToIntNames } from '../utils/config_to_integration_names';
 import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFactory';
 import * as BugsnagLib from '../features/core/metrics/error-report/Bugsnag';
 import { UserSession } from '../features/core/session';
+import { mergeDeepRight } from "../utils/ObjectUtils";
 
 /**
  * class responsible for handling core
@@ -816,11 +817,11 @@ class Analytics {
       if (topLevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== 'context') {
-        rudderElement.message.context = R.mergeDeepRight(rudderElement.message.context, {
+        rudderElement.message.context = mergeDeepRight(rudderElement.message.context, {
           [key]: options[key],
         });
       } else if (typeof options[key] === 'object' && options[key] != null) {
-        rudderElement.message.context = R.mergeDeepRight(rudderElement.message.context, {
+        rudderElement.message.context = mergeDeepRight(rudderElement.message.context, {
           ...options[key],
         });
       } else {
