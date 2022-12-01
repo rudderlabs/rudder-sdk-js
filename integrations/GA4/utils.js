@@ -10,6 +10,7 @@ import {
 import { pageEventParametersConfigArray } from "./PageEventConfig";
 import { type } from "../../utils/utils";
 import logger from "../../utils/logUtil";
+import { Cookie } from "../../utils/storage/cookie";
 
 /**
  * Check if event name is not one of the following reserved names
@@ -229,17 +230,10 @@ function getPageViewProperty(props) {
  * @param {*} measurementId
  */
 const getGa4SessionId = (measurementId) => {
-  const cookieArr = document.cookie.split(";");
-  const cookieObj = {};
-  cookieArr.forEach((cookieEle) => {
-    const cookieElements = cookieEle.split("=");
-    const [first, second] = cookieElements;
-    cookieObj[first.trim()] = second;
-  });
   const measurementIdArr = measurementId.split("-");
   let sessionId;
-  if (cookieObj[`_ga_${measurementIdArr[1]}`]) {
-    sessionId = cookieObj[`_ga_${measurementIdArr[1]}`].split(".");
+  if (Cookie.get(`_ga_${measurementIdArr[1]}`)) {
+    sessionId = Cookie.get(`_ga_${measurementIdArr[1]}`).split(".");
     return sessionId[2];
   }
   return "";
