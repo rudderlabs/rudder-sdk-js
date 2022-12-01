@@ -917,11 +917,11 @@ class Analytics {
       }
 
       // convert integrations object to server identified names, kind of hack now!
-      transformToServerNames(rudderElement.message.integrations);
       rudderElement.message.integrations = merge(
         this.integrationsData,
         clientSuppliedIntegrations
       );
+      transformToServerNames(rudderElement.message.integrations);
 
       // self analytics process, send to rudder
       enqueue.call(this, rudderElement, type);
