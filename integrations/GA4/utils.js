@@ -228,8 +228,7 @@ function getPageViewProperty(props) {
  * @param {*} rudderElement
  * @param {*} measurementId
  */
-const proceedCloudMode = (rudderElement, measurementId) => {
-  const payload = rudderElement;
+const getGa4SessionId = (measurementId) => {
   const cookieArr = document.cookie.split(";");
   const cookieObj = {};
   cookieArr.forEach((cookieEle) => {
@@ -241,11 +240,9 @@ const proceedCloudMode = (rudderElement, measurementId) => {
   let sessionId;
   if (cookieObj[`_ga_${measurementIdArr[1]}`]) {
     sessionId = cookieObj[`_ga_${measurementIdArr[1]}`].split(".");
-    const GA4 = { sessionId: sessionId[2] };
-    payload.message.integrations = { All: true, GA4 };
-    return payload;
+    return { sessionId: sessionId[2] };
   }
-  return payload;
+  return {};
 };
 
 export {
@@ -255,5 +252,5 @@ export {
   getDestinationItemProperties,
   getPageViewProperty,
   hasRequiredParameters,
-  proceedCloudMode,
+  getGa4SessionId,
 };

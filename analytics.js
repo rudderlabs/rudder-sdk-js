@@ -107,6 +107,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.integrationsData = {};
     this.cookieConsentOptions = {};
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
@@ -179,9 +180,13 @@ class Analytics {
         if (typeof responseVal === "string") {
           response = JSON.parse(responseVal);
         }
-        
+
         // Do not proceed if the ultimate response value is not an object
-        if (!response || typeof response !== "object" || Array.isArray(response)) {
+        if (
+          !response ||
+          typeof response !== "object" ||
+          Array.isArray(response)
+        ) {
           throw new Error("Invalid source configuration");
         }
       } catch (err) {
@@ -198,10 +203,11 @@ class Analytics {
       // Load Bugsnag only if it is enabled in the source config
       if (isErrorReportEnabled === true) {
         // Fetch the name of the Error reporter from sourceConfig
-        const provider = get(
-          response.source.config,
-          "statsCollection.errorReports.provider"
-        ) || DEFAULT_ERROR_REPORT_PROVIDER;
+        const provider =
+          get(
+            response.source.config,
+            "statsCollection.errorReports.provider"
+          ) || DEFAULT_ERROR_REPORT_PROVIDER;
         if (!ERROR_REPORT_PROVIDERS.includes(provider)) {
           logger.error("Invalid error reporting provider value");
         }
@@ -277,6 +283,20 @@ class Analytics {
   }
 
   /**
+   * Prepares the data for integrationsObj
+   *
+   * @param {*} integration
+   * @param {*} integrationInstance
+   * @memberof Analytics
+   */
+  prepareDataForIntegrationsObj(integration, integrationInstance) {
+    if (integration.name === "GA4" && integrationInstance.isReady()) {
+      this.integrationsData[integration.name] =
+        integrationInstance.getDataForIntegrationsObject();
+    }
+  }
+
+  /**
    * Initialize integrations by addinfg respective scripts
    * keep the instances reference in core
    *
@@ -307,6 +327,7 @@ class Analytics {
         const destConfig = intg.config;
         intgInstance = new intgClass(destConfig, self);
         intgInstance.init();
+        this.prepareDataForIntegrationsObj(intg, intgInstance);
         logger.debug("initializing destination: ", intg);
         this.isInitialized(intgInstance).then(this.replayEvents);
       } catch (e) {
@@ -833,11 +854,16 @@ class Analytics {
       checkReservedKeywords(rudderElement.message, type);
 
       // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = rudderElement.message.integrations || { 'All' : true };
+      const clientSuppliedIntegrations = rudderElement.message.integrations || {
+        All: true,
+      };
 
       // structure user supplied integrations object to rudder format
       tranformToRudderNames(clientSuppliedIntegrations);
-      rudderElement.message.integrations = clientSuppliedIntegrations;
+      rudderElement.message.integrations = {
+        ...this.integrationsData,
+        ...clientSuppliedIntegrations,
+      };
 
       // get intersection between config plane native enabled destinations
       // (which were able to successfully load on the page) vs user supplied integrations
@@ -871,7 +897,7 @@ class Analytics {
           if (err instanceof Error) {
             err.message = `${message}"${err.message}"`;
             newErr = err;
-          } else if (typeof err === 'string') {
+          } else if (typeof err === "string") {
             // eslint-disable-next-line no-ex-assign
             newErr = {
               message: `${message}"${err}"`,
@@ -1107,7 +1133,7 @@ class Analytics {
       storageOptions = { ...storageOptions, domain: options.setCookieDomain };
     }
 
-    if (options && typeof options.secureCookie === 'boolean') {
+    if (options && typeof options.secureCookie === "boolean") {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
     }
 

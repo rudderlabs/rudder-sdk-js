@@ -9,7 +9,7 @@ import {
   getDestinationItemProperties,
   getPageViewProperty,
   hasRequiredParameters,
-  proceedCloudMode,
+  getGa4SessionId,
 } from "./utils";
 import { type, flattenJsonPayload } from "../../utils/utils";
 import { NAME } from "./constants";
@@ -176,7 +176,7 @@ export default class GA4 {
   track(rudderElement) {
     // if Hybrid mode is enabled, don't send data to the device-mode
     if (this.isHybridModeEnabled) {
-      return proceedCloudMode(rudderElement, this.measurementId);
+      return;
     }
     const { event } = rudderElement.message;
     const { properties } = rudderElement.message;
@@ -198,7 +198,7 @@ export default class GA4 {
   identify(rudderElement) {
     // if Hybrid mode is enabled, don't send data to the device-mode
     if (this.isHybridModeEnabled) {
-      return proceedCloudMode(rudderElement, this.measurementId);
+      return;
     }
 
     window.gtag(
@@ -226,7 +226,7 @@ export default class GA4 {
   page(rudderElement) {
     // if Hybrid mode is enabled, don't send data to the device-mode
     if (this.isHybridModeEnabled) {
-      return proceedCloudMode(rudderElement, this.measurementId);
+      return;
     }
 
     let pageProps = rudderElement.message.properties;
@@ -245,7 +245,7 @@ export default class GA4 {
   group(rudderElement) {
     // if Hybrid mode is enabled, don't send data to the device-mode
     if (this.isHybridModeEnabled) {
-      return proceedCloudMode(rudderElement, this.measurementId);
+      return;
     }
 
     const { groupId } = rudderElement.message;
@@ -257,5 +257,9 @@ export default class GA4 {
         ...(this.extendGroupPayload ? traits : {}),
       });
     });
+  }
+
+  getDataForIntegrationsObject() {
+    return getGa4SessionId(this.measurementId);
   }
 }
