@@ -240,9 +240,9 @@ const getGa4SessionId = (measurementId) => {
   let sessionId;
   if (cookieObj[`_ga_${measurementIdArr[1]}`]) {
     sessionId = cookieObj[`_ga_${measurementIdArr[1]}`].split(".");
-    return { sessionId: sessionId[2] };
+    return sessionId[2];
   }
-  return {};
+  return "";
 };
 
 export {

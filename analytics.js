@@ -289,11 +289,15 @@ class Analytics {
    * @param {*} integrationInstance
    * @memberof Analytics
    */
-  prepareDataForIntegrationsObj(integration, integrationInstance) {
-    if (integration.name === "GA4" && integrationInstance.isReady()) {
-      this.integrationsData[integration.name] =
-        integrationInstance.getDataForIntegrationsObject();
-    }
+  prepareDataForIntegrationsObj(integrationInstances) {
+    integrationInstances.forEach((integrationInstance) => {
+      if (integrationInstance.getDataForIntegrationsObject) {
+        this.integrationsData = {
+          ...this.integrationsData,
+          ...integrationInstance.getDataForIntegrationsObject(),
+        };
+      }
+    });
   }
 
   /**
@@ -327,7 +331,6 @@ class Analytics {
         const destConfig = intg.config;
         intgInstance = new intgClass(destConfig, self);
         intgInstance.init();
-        this.prepareDataForIntegrationsObj(intg, intgInstance);
         logger.debug("initializing destination: ", intg);
         this.isInitialized(intgInstance).then(this.replayEvents);
       } catch (e) {
@@ -357,7 +360,6 @@ class Analytics {
       object.clientIntegrationObjects = [];
       // eslint-disable-next-line no-param-reassign
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
-
       if (
         object.clientIntegrationObjects.every(
           (intg) => !intg.isReady || intg.isReady()
@@ -365,6 +367,7 @@ class Analytics {
       ) {
         // Integrations are ready
         // set clientIntegrationsReady to be true
+        object.prepareDataForIntegrationsObj(object.clientIntegrationObjects);
         object.clientIntegrationsReady = true;
         // Execute the callbacks if any
         object.executeReadyCallback();
@@ -860,10 +863,6 @@ class Analytics {
 
       // structure user supplied integrations object to rudder format
       tranformToRudderNames(clientSuppliedIntegrations);
-      rudderElement.message.integrations = {
-        ...this.integrationsData,
-        ...clientSuppliedIntegrations,
-      };
 
       // get intersection between config plane native enabled destinations
       // (which were able to successfully load on the page) vs user supplied integrations
@@ -919,6 +918,10 @@ class Analytics {
 
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
+      rudderElement.message.integrations = merge(
+        this.integrationsData,
+        clientSuppliedIntegrations
+      );
 
       // self analytics process, send to rudder
       enqueue.call(this, rudderElement, type);
