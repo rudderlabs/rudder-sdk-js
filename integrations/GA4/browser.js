@@ -261,7 +261,7 @@ export default class GA4 {
 
   getDataForIntegrationsObject() {
     return {
-      GA4: {
+      "Google Analytics 4": {
         sessionId: getGa4SessionId(this.measurementId),
       },
     };
