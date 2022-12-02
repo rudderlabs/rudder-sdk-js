@@ -16,7 +16,7 @@ jobs:
   deploy-tag:
     name: Deploy to STAGING
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/v1-staging')
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/v1-staging') || github.event.pull_request.merged == true
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -36,7 +36,7 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npm ci
+          npm install
           npm run prodTest && npm test
           npm run buildProdBrowser
 
