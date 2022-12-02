@@ -65,6 +65,7 @@ const clientToServerNames = {
   REFINER: 'Refiner',
   QUALAROO: 'Qualaroo',
   PODSIGHTS: 'Podsights',
+  AXEPTIO: 'Axeptio',
 };
 
 export { clientToServerNames };

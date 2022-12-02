@@ -67,6 +67,7 @@ const configToIntNames = {
   REFINER: 'Refiner',
   QUALAROO: 'Qualaroo',
   PODSIGHTS: 'Podsights',
+  AXEPTIO: 'Axeptio',
 };
 
 export { configToIntNames };
