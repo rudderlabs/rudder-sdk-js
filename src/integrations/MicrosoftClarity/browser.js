@@ -1,7 +1,7 @@
 /* eslint-disable */
 import { NAME } from './constants';
 import Logger from '../../utils/logger';
-import { LOAD_ORIGIN } from '../ScriptLoader';
+import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 const logger = new Logger(NAME);
 class MicrosoftClarity {
