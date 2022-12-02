@@ -137,7 +137,7 @@ const commonNames = {
   ...Refiner,
   ...Qualaroo,
   ...Podsights,
-  ...SatisMeter
+  ...SatisMeter,
   ...MicrosoftClarity,
 };
 
