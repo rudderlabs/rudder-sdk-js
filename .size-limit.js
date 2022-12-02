@@ -25,7 +25,7 @@ module.exports = [
     name: 'All Integrations - CDN (modern only)',
     path: 'dist/modern/integrations/*.min.js',
     gzip: true,
-    limit: '466 kB',
+    limit: '470 kB',
   },
   {
     name: 'Core - NPM',
