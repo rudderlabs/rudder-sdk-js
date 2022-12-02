@@ -67,7 +67,6 @@ const configToIntNames = {
   REFINER: 'Refiner',
   QUALAROO: 'Qualaroo',
   PODSIGHTS: 'Podsights',
-  MICROSOFT_CLARITY: 'MicrosoftClarity',
 };
 
 export { configToIntNames };

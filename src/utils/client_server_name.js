@@ -65,7 +65,6 @@ const clientToServerNames = {
   REFINER: 'Refiner',
   QUALAROO: 'Qualaroo',
   PODSIGHTS: 'Podsights',
-  MICROSOFT_CLARITY: 'Microsoft Clarity',
 };
 
 export { clientToServerNames };
