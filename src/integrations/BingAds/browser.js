@@ -56,30 +56,34 @@ class BingAds {
   /*
     Visit here(for details Parameter details): https://help.ads.microsoft.com/#apex/3/en/53056/2
     Under: What data does UET collect once I install it on my website?
-    It conatins info about parameters ea,ec,gc,gv,el
+    It conatins info about parameters ea,ec,gc,gv,el (refer below link for updated parameter names)
+    Updated syntax doc ref - https://help.ads.microsoft.com/#apex/ads/en/56916/2-500
   */
 
   track = (rudderElement) => {
     const { type, properties, event } = rudderElement.message;
-    const { category, currency, value, revenue, total } = properties;
+    const { category, currency, value, revenue, total, eventValue } = properties;
     const payload = {
-      ea: type,
-      el: event,
+      event: type,
+      event_label: event,
     };
     if (category) {
-      payload.ec = category;
+      payload.event_category = category;
     }
     if (currency) {
-      payload.gc = currency;
+      payload.currency = currency;
     }
     if (value) {
-      payload.gv = value;
+      payload.revenue_value = value;
     }
     if (revenue) {
-      payload.gv = revenue;
+      payload.revenue_value = revenue;
     }
     if (total) {
-      payload.gv = total;
+      payload.revenue_value = total;
+    }
+    if (eventValue) {
+      payload.event_value = eventValue;
     }
     window.uetq.push(payload);
   };
