@@ -137,7 +137,7 @@ const integrations = {
   YANDEX_METRICA: YandexMetrica.default,
   PODSIGHTS: Podsights.default,
   QUALAROO: Qualaroo.default,
-  AXEPTIO: Axeptio.deault,
+  AXEPTIO: Axeptio.default,
   MICROSOFT_CLARITY: MicrosoftClarity.default,
 };
 
