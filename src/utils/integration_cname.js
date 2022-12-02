@@ -64,6 +64,7 @@ import { CNameMapping as YandexMetrica } from '../integrations/YandexMetrica/con
 import { CNameMapping as Refiner } from '../integrations/Refiner/constants';
 import { CNameMapping as Qualaroo } from '../integrations/Qualaroo/constants';
 import { CNameMapping as Podsights } from '../integrations/Podsights/constants';
+import { CNameMapping as SatisMeter } from '../integrations/SatisMeter/constants';
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -135,6 +136,7 @@ const commonNames = {
   ...Refiner,
   ...Qualaroo,
   ...Podsights,
+  ...SatisMeter
 };
 
 export { commonNames };
