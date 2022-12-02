@@ -76,7 +76,7 @@
     "lodash.difference": "4.5.0",
     "lodash.get": "4.4.2",
     "lodash.isempty": "4.4.0",
-    "lodash.isequal": "^4.5.0",
+    "lodash.isequal": "4.5.0",
     "lodash.isstring": "4.0.1",
     "lodash.isundefined": "3.0.1",
     "lodash.merge": "4.6.2",
