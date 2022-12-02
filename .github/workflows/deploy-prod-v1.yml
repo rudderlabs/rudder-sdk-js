@@ -36,7 +36,7 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npm ci
+          npm install
           npm run prodTest && npm test
           npm run buildProdBrowser
 
