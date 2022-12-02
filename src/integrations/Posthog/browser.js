@@ -46,74 +46,74 @@ class Posthog {
   }
 
   init() {
-    const { POSTHOG } = this.analytics.loadOnlyIntegrations;
-    if (POSTHOG && !POSTHOG.loadIntegration) {
+    const options = this.analytics.loadOnlyIntegrations[this.name];
+    if (options && !options.loadIntegration) {
       logger.debug('===[POSTHOG]: loadIntegration flag is disabled===');
-    } else {
-      !(function (t, e) {
-        var o, n, p, r;
-        e.__SV ||
-          ((window.posthog = e),
-          (e._i = []),
-          (e.init = function (i, s, a) {
-            function g(t, e) {
-              var o = e.split('.');
-              2 == o.length && ((t = t[o[0]]), (e = o[1])),
-                (t[e] = function () {
-                  t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
-                });
-            }
-            ((p = t.createElement('script')).type = 'text/javascript'),
-              (p.async = !0),
-              p.setAttribute('data-loader', LOAD_ORIGIN),
-              (p.src = s.api_host + '/static/array.js'),
-              (r = t.getElementsByTagName('script')[0]).parentNode.insertBefore(p, r);
-            var u = e;
-            for (
-              void 0 !== a ? (u = e[a] = []) : (a = 'posthog'),
-                u.people = u.people || [],
-                u.toString = function (t) {
-                  var e = 'posthog';
-                  return 'posthog' !== a && (e += '.' + a), t || (e += ' (stub)'), e;
-                },
-                u.people.toString = function () {
-                  return u.toString(1) + '.people (stub)';
-                },
-                o =
-                  'capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags'.split(
-                    ' ',
-                  ),
-                n = 0;
-              n < o.length;
-              n++
-            )
-              g(u, o[n]);
-            e._i.push([i, s, a]);
-          }),
-          (e.__SV = 1));
-      })(document, window.posthog || []);
-
-      const configObject = {
-        api_host: this.yourInstance,
-        autocapture: this.autocapture,
-        capture_pageview: this.capturePageView,
-        disable_session_recording: this.disableSessionRecording,
-        property_blacklist: this.propertyBlackList,
-        disable_cookie: this.disableCookie,
-      };
-
-      if (POSTHOG && POSTHOG.loaded) {
-        configObject.loaded = POSTHOG.loaded;
-      }
-      if (this.xhrHeaders && Object.keys(this.xhrHeaders).length > 0) {
-        configObject.xhr_headers = this.xhrHeaders;
-      }
-      if (this.enableLocalStoragePersistence) {
-        configObject.persistence = 'localStorage+cookie';
-      }
-
-      posthog.init(this.teamApiKey, configObject);
+      return;
     }
+    !(function (t, e) {
+      var o, n, p, r;
+      e.__SV ||
+        ((window.posthog = e),
+        (e._i = []),
+        (e.init = function (i, s, a) {
+          function g(t, e) {
+            var o = e.split('.');
+            2 == o.length && ((t = t[o[0]]), (e = o[1])),
+              (t[e] = function () {
+                t.push([e].concat(Array.prototype.slice.call(arguments, 0)));
+              });
+          }
+          ((p = t.createElement('script')).type = 'text/javascript'),
+            (p.async = !0),
+            p.setAttribute('data-loader', LOAD_ORIGIN),
+            (p.src = s.api_host + '/static/array.js'),
+            (r = t.getElementsByTagName('script')[0]).parentNode.insertBefore(p, r);
+          var u = e;
+          for (
+            void 0 !== a ? (u = e[a] = []) : (a = 'posthog'),
+              u.people = u.people || [],
+              u.toString = function (t) {
+                var e = 'posthog';
+                return 'posthog' !== a && (e += '.' + a), t || (e += ' (stub)'), e;
+              },
+              u.people.toString = function () {
+                return u.toString(1) + '.people (stub)';
+              },
+              o =
+                'capture identify alias people.set people.set_once set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags'.split(
+                  ' ',
+                ),
+              n = 0;
+            n < o.length;
+            n++
+          )
+            g(u, o[n]);
+          e._i.push([i, s, a]);
+        }),
+        (e.__SV = 1));
+    })(document, window.posthog || []);
+
+    const configObject = {
+      api_host: this.yourInstance,
+      autocapture: this.autocapture,
+      capture_pageview: this.capturePageView,
+      disable_session_recording: this.disableSessionRecording,
+      property_blacklist: this.propertyBlackList,
+      disable_cookie: this.disableCookie,
+    };
+
+    if (options && options.loaded) {
+      configObject.loaded = options.loaded;
+    }
+    if (this.xhrHeaders && Object.keys(this.xhrHeaders).length > 0) {
+      configObject.xhr_headers = this.xhrHeaders;
+    }
+    if (this.enableLocalStoragePersistence) {
+      configObject.persistence = 'localStorage+cookie';
+    }
+
+    posthog.init(this.teamApiKey, configObject);
   }
 
   /**
