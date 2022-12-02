@@ -16,7 +16,7 @@ jobs:
   deploy-tag:
     name: Deploy to STAGING
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/v1-staging')
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/v1-staging') || github.event.pull_request.merged == true
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -31,13 +31,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 14
-          cache: 'npm'
 
       - name: Build and sync files to S3
         env:
           HUSKY: 0
         run: |
-          npm ci
+          npm install
           npm run prodTest && npm test
           npm run buildProdBrowser
 
@@ -58,4 +57,3 @@ jobs:
           aws s3 cp s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/v1/rudder-analytics-staging.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/rudder-analytics-staging.min.js --cache-control max-age=3600
           aws s3 cp s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/v1/rudder-analytics-staging.min.js.map s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/rudder-analytics-staging.min.js.map --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }} --paths "/v1/rudder-analytics-staging.min.js" "/v1/rudder-analytics-staging.min.js.map" "/rudder-analytics-staging.min.js" "/rudder-analytics-staging.min.js.map"
-
