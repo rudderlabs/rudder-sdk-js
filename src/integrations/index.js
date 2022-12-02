@@ -65,6 +65,7 @@ import * as YandexMetrica from './YandexMetrica';
 import * as Podsights from './Podsights';
 import * as Qualaroo from './Qualaroo';
 import * as Axeptio from './Axeptio';
+import * as MicrosoftClarity from './MicrosoftClarity';
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -137,6 +138,7 @@ const integrations = {
   PODSIGHTS: Podsights.default,
   QUALAROO: Qualaroo.default,
   AXEPTIO: Axeptio.deault,
+  MICROSOFT_CLARITY: MicrosoftClarity.default,
 };
 
 export { integrations };
