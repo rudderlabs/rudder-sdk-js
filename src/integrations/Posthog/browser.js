@@ -3,7 +3,7 @@
 import get from 'get-value';
 import logger from '../../utils/logUtil';
 import { removeTrailingSlashes } from '../../utils/utils';
-import { LOAD_ORIGIN } from '../ScriptLoader';
+import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 
 class Posthog {
