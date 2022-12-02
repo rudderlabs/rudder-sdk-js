@@ -1,3 +1,7 @@
 import Satismeter from "./browser";
 
-export default Satismeter;
+export { Satismeter };
+
+import Refiner from './browser';
+
+export { Refiner };
