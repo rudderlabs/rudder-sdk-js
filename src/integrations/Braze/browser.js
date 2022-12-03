@@ -34,7 +34,8 @@ class Braze {
     }
 
     this.name = NAME;
-
+    this.previousPayload = null;
+    this.supportDedup = config.supportDedup || false;
     logger.debug('Config ', config);
   }
 
