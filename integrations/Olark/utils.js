@@ -21,7 +21,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
     );
   });
 
-  window.olark("chat.onMessageToOperator", function () {
+  window.olark("api.chat.onMessageToOperator", function () {
     let eventName = "Live Chat Message Sent";
     if (updateEventNames && eventNames?.chatMessageSent) {
       eventName = eventNames.chatMessageSent;
@@ -37,7 +37,7 @@ function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
     );
   });
 
-  window.olark("chat.onMessageToVisitor", function () {
+  window.olark("api.chat.onMessageToVisitor", function () {
     let eventName = "Live Chat Message Received";
     if (updateEventNames && eventNames?.chatMessageReceived) {
       eventName = eventNames.chatMessageReceived;

@@ -3,7 +3,7 @@
 import { NAME } from "./constants";
 import Logger from "../../utils/logger";
 import { LOAD_ORIGIN } from "../ScriptLoader";
-import { recordingLiveChatEvents } from "./util";
+import { recordingLiveChatEvents } from "./utils";
 import { getHashFromArray } from "../utils/commonUtils";
 import { getDefinedTraits } from "../../utils/utils";
 
