@@ -70,6 +70,7 @@ const configToIntNames = {
   AXEPTIO: 'Axeptio',
   SATISMETER: 'Satismeter',
   MICROSOFT_CLARITY: 'MicrosoftClarity',
+  OLARK: 'Olark',
 };
 
 export { configToIntNames };
