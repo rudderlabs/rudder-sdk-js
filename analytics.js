@@ -861,7 +861,7 @@ class Analytics {
       checkReservedKeywords(rudderElement.message, type);
 
       // if not specified at event level, All: true is default
-      let clientSuppliedIntegrations = rudderElement.message.integrations || {
+      const clientSuppliedIntegrations = rudderElement.message.integrations || {
         All: true,
       };
       // structure user supplied integrations object to rudder format
@@ -923,7 +923,9 @@ class Analytics {
       transformToServerNames(rudderElement.message.integrations);
 
       // Removing true values from clientSuppliedIntegrations except All
-      clientSuppliedIntegrations = Object.keys(clientSuppliedIntegrations)
+      const tempClientSuppliedIntegrations = Object.keys(
+        clientSuppliedIntegrations
+      )
         .filter(
           (integration) =>
             integration !== "All" &&
@@ -937,7 +939,7 @@ class Analytics {
       const tempIntegrationsData = cloneDeep(this.integrationsData);
       rudderElement.message.integrations = merge(
         tempIntegrationsData,
-        clientSuppliedIntegrations
+        tempClientSuppliedIntegrations
       );
 
       // self analytics process, send to rudder
