@@ -1,4 +1,10 @@
-import { eventNamesConfigArray, itemParametersConfigArray } from './ECommerceEventConfig';
+import _difference from "lodash.difference";
+import {
+  eventNamesConfigArray,
+  itemParametersConfigArray,
+  ITEM_PROP_EXCLUSION_LIST,
+  EVENT_PROP_EXCLUSION_LIST,
+} from "./ECommerceEventConfig";
 
 import { pageEventParametersConfigArray } from './PageEventConfig';
 import { type } from '../../utils/commonUtils';
@@ -92,27 +98,64 @@ function hasRequiredParameters(props, eventMappingObj) {
 }
 
 /**
+ * screens custom variables from rootObj by excluding exclusionFields and adds
+ * those to destination object
+ * @param {*} rootObj
+ * @param {*} destination
+ * @param {*} exclusionFields
+ * @returns
+ */
+ function extractCustomVariables(rootObj, destination, exclusionFields) {
+  const mappingKeys = _difference(Object.keys(rootObj), exclusionFields);
+  mappingKeys.map((mappingKey) => {
+    if (typeof rootObj[mappingKey] !== "undefined") {
+      destination[mappingKey] = rootObj[mappingKey];
+    }
+  });
+  return destination;
+}
+
+/**
+ *
+ * @param {*} destinationProperties
+ * @param {*} props
+ * @param {*} contextOp "properties" or "products"
+ * @returns decides the exclusion criteria for adding custom variables
+ * in properties or product type objects and returns the final output.
+ */
+function addCustomVariables(destinationProperties, props, contextOp) {
+  logger.debug("within addCustomVariables");
+  if (contextOp === "product") {
+    return extractCustomVariables(
+      props,
+      destinationProperties,
+      ITEM_PROP_EXCLUSION_LIST
+    );
+  } else if (contextOp === "properties") {
+    return extractCustomVariables(
+      props,
+      destinationProperties,
+      EVENT_PROP_EXCLUSION_LIST
+    );
+  }
+  return destinationProperties;
+}
+
+/**
  * TO DO Future Improvement ::::
  * Here we only support mapping single level object mapping.
  * Implement using recursion to handle multi level prop mapping.
  * @param {*} props { product_id: 123456_abcdef, name: "chess-board", list_id: "ls_abcdef", category: games }
  * @param {*} destParameterConfig
  * Defined Parameter present GA4/utils.js ex: [{ src: "category", dest: "item_list_name", inItems: true }]
- * @param {*} includeRequiredParams contains object of required parameter to be mapped from source payload
- * output: {
-  "item_list_id": "ls_abcdef",
-  "items": [
-    {
-      "item_id": "123456_abcdef",
-      "item_name": "chess-board",
-      "item_list_id": "ls_abc",
-      "item_list_name": "games"
-    }
-  ],
-  "item_list_name": "games"
-}
+ * @param {*} contextOp "properties" or "product"
 */
-function getDestinationEventProperties(props, destParameterConfig, hasItem = true) {
+function getDestinationEventProperties(
+  props,
+  destParameterConfig,
+  contextOp,
+  hasItem = true
+) {
   let destinationProperties = {};
   Object.keys(props).forEach((key) => {
     destParameterConfig.forEach((param) => {
@@ -125,7 +168,12 @@ function getDestinationEventProperties(props, destParameterConfig, hasItem = tru
       }
     });
   });
-  return destinationProperties;
+  const propsWithCustomFields = addCustomVariables(
+    destinationProperties,
+    props,
+    contextOp
+  );
+  return propsWithCustomFields;
 }
 
 /**
@@ -133,22 +181,26 @@ function getDestinationEventProperties(props, destParameterConfig, hasItem = tru
  * @param {*} products
  * @param {*} item
  */
-function getDestinationItemProperties(products, item) {
+ function getDestinationItemProperties(products, item) {
   const items = [];
   let obj = {};
-  if (type(products) !== 'array') {
-    logger.debug("Event payload doesn't have products array");
-  } else {
-    // get the dest keys from itemParameters config
-    // append the already created item object keys (this is done to get the keys that are actually top level props in Rudder payload but GA expects them under items too)
-    products.forEach((p) => {
-      obj = {
-        ...getDestinationEventProperties(p, itemParametersConfigArray),
-        ...((item && type(item) === 'array' && item[0]) || {}),
-      };
-      items.push(obj);
-    });
-  }
+  const contextOp = type(products) !== "array" ? "properties" : "product";
+  const finalProducts = type(products) !== "array" ? [products] : products;
+  const finalItemObj = item && type(item) === "array" && item[0] ? item[0] : {};
+  // get the dest keys from itemParameters config
+  // append the already created item object keys (this is done to get the keys that are actually top level props in Rudder payload but GA expects them under items too)
+  finalProducts.forEach((product) => {
+    obj = {
+      ...getDestinationEventProperties(
+        product,
+        itemParametersConfigArray,
+        contextOp,
+        true
+      ),
+      ...finalItemObj,
+    };
+    items.push(obj);
+  });
   return items;
 }
 
@@ -156,8 +208,12 @@ function getDestinationItemProperties(products, item) {
  * Generate ga4 page_view events payload
  * @param {*} props
  */
-function getPageViewProperty(props) {
-  return getDestinationEventProperties(props, pageEventParametersConfigArray);
+ function getPageViewProperty(props) {
+  return getDestinationEventProperties(
+    props,
+    pageEventParametersConfigArray,
+    "properties"
+  );
 }
 
 export {

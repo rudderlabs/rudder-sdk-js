@@ -67,6 +67,9 @@ const clientToServerNames = {
   REFINER: 'Refiner',
   QUALAROO: 'Qualaroo',
   PODSIGHTS: 'Podsights',
+  AXEPTIO: 'Axeptio',
+  SATISMETER: 'Satismeter',
+  MICROSOFT_CLARITY: 'Microsoft Clarity',
   [AdobeAnalytics.NAME]: AdobeAnalytics.DISPLAY_NAME,
 };
 
