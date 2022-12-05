@@ -68,6 +68,7 @@ const clientToServerNames = {
   SATISMETER: "Satismeter",
   MICROSOFT_CLARITY: "Microsoft Clarity",
   AXEPTIO: "Axeptio",
+  OLARK: "Olark",
 };
 
 export { clientToServerNames };
