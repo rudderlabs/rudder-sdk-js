@@ -1,4 +1,4 @@
-import { CNameMapping as AdobeAnalytics } from '../integrations/AdobeAnalytics/constants';
+import * as AdobeAnalytics from "../integrations/AdobeAnalytics/constants";
 import { CNameMapping as Amplitude } from '../integrations/Amplitude/constants';
 import { CNameMapping as Appcues } from '../integrations/Appcues/constants';
 import { CNameMapping as BingAds } from '../integrations/BingAds/constants';
@@ -65,11 +65,48 @@ import { CNameMapping as Refiner } from '../integrations/Refiner/constants';
 import { CNameMapping as Qualaroo } from '../integrations/Qualaroo/constants';
 import { CNameMapping as Podsights } from '../integrations/Podsights/constants';
 
+function getIntgCommonNames(intg) {
+  const cNamesMap = {};
+  const { NAME, DISPLAY_NAME, CNameMapping } = intg;
+
+  let nameSanitized;
+  if (NAME) {
+    nameSanitized = NAME.trim();
+    cNamesMap[nameSanitized.toLowerCase()] = nameSanitized;
+  }
+
+  if (DISPLAY_NAME) {
+    const displayNameSanitized = DISPLAY_NAME.toLowerCase().trim();
+    // Add the sanitized display name
+    cNamesMap[displayNameSanitized] = nameSanitized;
+
+    const words = displayNameSanitized.split(" ");
+
+    cNamesMap[words.join("_")] = nameSanitized;
+    cNamesMap[words.join("")] = nameSanitized;
+  }
+
+  // add the hard-coded common names
+  if (CNameMapping) {
+    // convert the keys to lower case to
+    // match the existing common names
+    Object.keys(CNameMapping).forEach((name) => {
+      const sanitizedName = name.toLowerCase().trim();
+      cNamesMap[sanitizedName] = CNameMapping[name];
+    });
+  }
+
+  // Filter entries where key === value
+  Object.keys(cNamesMap).forEach((cName) => {
+    if (cNamesMap[cName] === cName) delete cNamesMap[cName];
+  });
+
+  return cNamesMap;
+}
+
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
 const commonNames = {
-  All: 'All',
-  ...AdobeAnalytics,
   ...Amplitude,
   ...Appcues,
   ...BingAds,
@@ -135,6 +172,8 @@ const commonNames = {
   ...Refiner,
   ...Qualaroo,
   ...Podsights,
+  ...getIntgCommonNames(AdobeAnalytics),
+  all: "All",
 };
 
 export { commonNames };
