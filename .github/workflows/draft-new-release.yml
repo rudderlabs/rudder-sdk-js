@@ -40,7 +40,9 @@ jobs:
           git merge origin/production
           current_version=$(jq -r .version package.json)
 
+          git tag -l | grep -vE 'v([2-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$' | xargs git tag -d 
           npx standard-version --skip.commit --skip.tag --skip.changelog
+          git fetch origin --tags
           new_version=$(jq -r .version package.json)
           git reset --hard
 
@@ -65,6 +67,7 @@ jobs:
         env:
           HUSKY: 0
         run: |
+          git tag -l | grep -vE 'v([2-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$' | xargs git tag -d 
           npm i -g conventional-changelog-cli
           SUMMARY=$(((npx conventional-changelog -u) 2>&1) | sed "s/*/<br> */g" | sed "s/#/ /g" | tr -d '\n' || true)
           echo $SUMMARY
@@ -74,6 +77,7 @@ jobs:
           npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
           git add sonar-project.properties
           npx standard-version -a
+          git fetch origin --tags
 
       - name: Push new version in release branch & tag
         run: |
@@ -84,7 +88,7 @@ jobs:
         with:
           source_branch: ${{ steps.create-release.outputs.branch_name }}
           destination_branch: 'production'
-          github_token: ${{ secrets.PAT }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           pr_title: 'chore(release): pulling ${{ steps.create-release.outputs.branch_name }} into production'
           pr_body: ":crown: *An automated PR*\n\n${{ steps.finish-release.outputs.commit_summary }}"
           pr_reviewer: 'gbardis'
