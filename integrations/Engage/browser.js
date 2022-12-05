@@ -1,10 +1,10 @@
 /* eslint-disable*/
-import logger from "../../utils/logUtil";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import { NAME } from './constants';
 import { LOAD_ORIGIN } from "../ScriptLoader";
-import { refinePayload, getDestinationExternalID } from "./utils.js";
-import { getDefinedTraits } from "../../utils/utils";
-import { removeUndefinedAndNullValues } from "../utils/commonUtils";
+import { refinePayload, getDestinationExternalID } from './utils.js';
+import { getDefinedTraits } from '../utils/commonUtils';
+import { removeUndefinedAndNullValues } from '../utils/commonUtils';
 
 class Engage {
   constructor(config) {

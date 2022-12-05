@@ -1,4 +1,4 @@
-import { getDataFromSource } from "../../utils/utils";
+import { getDataFromSource } from "../utils/commonUtils";
 
 
 const ITEMS_MAPPING = [

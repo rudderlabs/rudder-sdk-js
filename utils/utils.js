@@ -412,78 +412,6 @@ function findAllEnabledDestinations(
   }
 }
 
-/**
- * reject all null values from array/object
- * @param  {} obj
- * @param  {} fn
- */
-function rejectArr(obj, fn) {
-  fn = fn || compact;
-  return type(obj) == "array" ? rejectarray(obj, fn) : rejectobject(obj, fn);
-}
-
-/**
- * particular case when rejecting an array
- * @param  {} arr
- * @param  {} fn
- */
-var rejectarray = function (arr, fn) {
-  const ret = [];
-
-  for (let i = 0; i < arr.length; ++i) {
-    if (!fn(arr[i], i)) ret[ret.length] = arr[i];
-  }
-
-  return ret;
-};
-
-/**
- * Rejecting null from any object other than arrays
- * @param  {} obj
- * @param  {} fn
- *
- */
-var rejectobject = function (obj, fn) {
-  const ret = {};
-
-  for (const k in obj) {
-    if (obj.hasOwnProperty(k) && !fn(obj[k], k)) {
-      ret[k] = obj[k];
-    }
-  }
-
-  return ret;
-};
-
-function compact(value) {
-  return value == null;
-}
-
-/**
- * check type of object incoming in the rejectArr function
- * @param  {} val
- */
-function type(val) {
-  switch (Object.prototype.toString.call(val)) {
-    case "[object Function]":
-      return "function";
-    case "[object Date]":
-      return "date";
-    case "[object RegExp]":
-      return "regexp";
-    case "[object Arguments]":
-      return "arguments";
-    case "[object Array]":
-      return "array";
-  }
-
-  if (val === null) return "null";
-  if (val === undefined) return "undefined";
-  if (val === Object(val)) return "object";
-
-  return typeof val;
-}
-
 function getUserProvidedConfigUrl(configUrl) {
   let url = configUrl;
   if (configUrl.indexOf("sourceConfig") == -1) {
@@ -624,89 +552,6 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
   });
   return destination;
 }
-/**
- *
- * @param {*} message
- *
- * Use get-value to retrieve defined trais from message traits
- */
-function getDefinedTraits(message) {
-  const traitsValue = {
-    userId:
-      message?.userId ||
-      message?.context?.traits?.userId ||
-      message?.anonymousId,
-    userIdOnly: message?.userId || message?.context.traits.userId,
-    email:
-      message?.context?.traits?.email ||
-      message?.context?.traits?.Email ||
-      get(message, "context.traits.E-mail"),
-    phone: message?.context?.traits?.phone || message?.context?.traits?.Phone,
-    firstName:
-      message?.context?.traits?.firstName ||
-      message?.context?.traits?.firstname ||
-      message?.context?.traits?.first_name,
-    lastName:
-      message?.context?.traits?.lastName ||
-      message?.context?.traits?.lastname ||
-      message?.context?.traits?.last_name,
-    name: message?.context?.traits?.name || message?.context?.traits?.Name,
-    city:
-      message?.context?.traits?.city ||
-      message?.context?.traits?.City ||
-      message?.context?.traits?.address?.city ||
-      message?.context?.traits?.address?.City,
-    country:
-      message?.context?.traits?.country ||
-      message?.context?.traits?.Country ||
-      message?.context?.traits?.address?.country ||
-      message?.context?.traits?.address?.Country,
-  };
-
-  if (!traitsValue.name && traitsValue?.firstName && traitsValue?.lastName) {
-    traitsValue.name = `${traitsValue?.firstName} ${traitsValue?.lastName}`;
-  }
-  return traitsValue;
-}
-
-/**
- * To check if a variable is storing object or not
- */
-const isObject = (obj) => {
-  return type(obj) === "object";
-};
-
-/**
- * To check if a variable is storing array or not
- */
-const isArray = (obj) => {
-  return type(obj) === "array";
-};
-
-const isDefined = (x) => x !== undefined;
-const isNotNull = (x) => x !== null;
-const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
-
-const getDataFromSource = (src, dest, properties) => {
-  const data = {};
-  if (isArray(src)) {
-    for (let index = 0; index < src.length; index += 1) {
-      if (properties[src[index]]) {
-        data[dest] = properties[src[index]];
-        if (data) {
-          // return only if the value is valid.
-          // else look for next possible source in precedence
-          return data;
-        }
-      }
-    }
-  } else if (typeof src === "string") {
-    if (properties[src]) {
-      data[dest] = properties[src];
-    }
-  }
-  return data;
-};
 
 const removeTrailingSlashes = (str) => {
   return str && str.endsWith("/") ? str.replace(/\/+$/, "") : str;
@@ -784,18 +629,11 @@ export {
   tranformToRudderNames,
   transformToServerNames,
   handleError,
-  rejectArr,
-  type,
   flattenJsonPayload,
   checkReservedKeywords,
   getReferrer,
   getReferringDomain,
   extractCustomFields,
-  getDefinedTraits,
-  isObject,
-  isArray,
-  isDefinedAndNotNull,
-  getDataFromSource,
   commonNames,
   removeTrailingSlashes,
   constructPayload,

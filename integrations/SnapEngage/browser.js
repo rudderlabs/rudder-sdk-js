@@ -5,8 +5,7 @@ import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 
 import { recordingLiveChatEvents } from "./util";
-import { getHashFromArray } from "../utils/commonUtils";
-import { isObject } from "../../utils/utils";
+import { getHashFromArray, isObject } from "../utils/commonUtils";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 
 class SnapEngage {

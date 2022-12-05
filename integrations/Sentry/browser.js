@@ -6,8 +6,7 @@
 import get from "get-value";
 import logger from "../../utils/logUtil";
 import { SentryScriptLoader, sentryInit } from "./utils";
-import { removeUndefinedAndNullValues } from "../utils/commonUtils";
-import { getDefinedTraits, isObject } from "../../utils/utils";
+import { removeUndefinedAndNullValues, getDefinedTraits, isObject } from '../utils/commonUtils';
 import { NAME } from "./constants";
 
 class Sentry {
