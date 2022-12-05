@@ -3,6 +3,7 @@ import _isEmpty from 'lodash.isempty';
 import _pickBy from 'lodash.pickby';
 import _pick from 'lodash.pick';
 import _toString from 'lodash.tostring';
+import get from 'get-value';
 
 const isDefined = (x) => !_isUndefined(x);
 const isNotEmpty = (x) => !_isEmpty(x);
@@ -171,6 +172,76 @@ const isDefinedNotNullNotEmpty = (value) => {
   );
 };
 
+/**
+ * check type of object incoming in the rejectArr function
+ * @param  {} val
+ */
+ function type(val) {
+  switch (Object.prototype.toString.call(val)) {
+    case '[object Function]':
+      return 'function';
+    case '[object Date]':
+      return 'date';
+    case '[object RegExp]':
+      return 'regexp';
+    case '[object Arguments]':
+      return 'arguments';
+    case '[object Array]':
+      return 'array';
+  }
+
+  if (val === null) return 'null';
+  if (val === undefined) return 'undefined';
+  if (val === Object(val)) return 'object';
+
+  return typeof val;
+}
+
+/**
+ *
+ * @param {*} message
+ *
+ * Use get-value to retrieve defined traits from message traits
+ */
+ function getDefinedTraits(message) {
+  const traitsValue = {
+    userId:
+      get(message, 'userId') ||
+      get(message, 'context.traits.userId') ||
+      get(message, 'anonymousId'),
+    userIdOnly: get(message, 'userId') || get(message, 'context.traits.userId'),
+    email:
+      get(message, 'context.traits.email') ||
+      get(message, 'context.traits.Email') ||
+      get(message, 'context.traits.E-mail'),
+    phone: get(message, 'context.traits.phone') || get(message, 'context.traits.Phone'),
+    firstName:
+      get(message, 'context.traits.firstName') ||
+      get(message, 'context.traits.firstname') ||
+      get(message, 'context.traits.first_name'),
+    lastName:
+      get(message, 'context.traits.lastName') ||
+      get(message, 'context.traits.lastname') ||
+      get(message, 'context.traits.last_name'),
+    name: get(message, 'context.traits.name') || get(message, 'context.traits.Name'),
+    city:
+      get(message, 'context.traits.city') ||
+      get(message, 'context.traits.City') ||
+      get(message, 'context.traits.address.city') ||
+      get(message, 'context.traits.address.City'),
+    country:
+      get(message, 'context.traits.country') ||
+      get(message, 'context.traits.Country') ||
+      get(message, 'context.traits.address.country') ||
+      get(message, 'context.traits.address.Country'),
+  };
+
+  if (!get(traitsValue, 'name') && get(traitsValue, 'firstName') && get(traitsValue, 'lastName')) {
+    traitsValue.name = `${get(traitsValue, 'firstName')} ${get(traitsValue, 'lastName')}`;
+  }
+  return traitsValue;
+}
+
 export {
   getEventMappingFromConfig,
   getHashFromArrayWithDuplicate,
@@ -190,4 +261,6 @@ export {
   isDefinedNotNullNotEmpty,
   isBlank,
   pick,
+  type,
+  getDefinedTraits,
 };

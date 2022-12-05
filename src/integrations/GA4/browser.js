@@ -10,7 +10,8 @@ import {
   getPageViewProperty,
   hasRequiredParameters,
 } from './utils';
-import { type, flattenJsonPayload } from '../../utils/utils';
+import { flattenJsonPayload } from '../../utils/utils';
+import { type } from '../../utils/commonUtils';
 import { NAME } from './constants';
 
 export default class GA4 {

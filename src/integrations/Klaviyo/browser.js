@@ -3,9 +3,9 @@
 import get from 'get-value';
 import logger from '../../utils/logUtil';
 import ScriptLoader from '../../utils/ScriptLoader';
-import { extractCustomFields, getDefinedTraits } from '../../utils/utils';
+import { extractCustomFields } from '../../utils/utils';
 import ecommEventPayload from './util';
-import { isNotEmpty } from '../../utils/commonUtils';
+import { isNotEmpty, getDefinedTraits } from '../../utils/commonUtils';
 import { NAME } from './constants';
 
 class Klaviyo {

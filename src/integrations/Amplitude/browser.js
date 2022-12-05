@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 import Logger from '../../utils/logger';
-import { type } from '../../utils/utils';
+import { type } from '../../utils/commonUtils';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 

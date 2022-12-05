@@ -2,7 +2,8 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-prototype-builtins */
 import logger from '../../utils/logUtil';
-import { getDefinedTraits, extractCustomFields } from '../../utils/utils';
+import { getDefinedTraits } from '../../utils/commonUtils';
+import { extractCustomFields } from '../../utils/utils';
 
 const keysToExtract = ['context.traits'];
 const exclusionKeys = [

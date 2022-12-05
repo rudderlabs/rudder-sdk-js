@@ -3,7 +3,7 @@ import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { refinePayload, getDestinationExternalID } from './utils.js';
-import { getDefinedTraits } from '../../utils/utils';
+import { getDefinedTraits } from '../../utils/commonUtils';
 import { removeUndefinedAndNullValues } from '../../utils/commonUtils';
 
 class Engage {
