@@ -11,6 +11,7 @@ import { pageEventParametersConfigArray } from "./PageEventConfig";
 import { type } from "../../utils/utils";
 import logger from "../../utils/logUtil";
 import { Cookie } from "../../utils/storage/cookie";
+import { Store } from "../../utils/storage/store";
 
 /**
  * Check if event name is not one of the following reserved names
@@ -236,11 +237,8 @@ const getGa4SessionId = (measurementId) => {
     sessionId = Cookie.get(`_ga_${measurementIdArr[1]}`).split(".");
     return sessionId[2];
   }
-  if (
-    window.localStorage &&
-    window.localStorage.getItem(`_ga_${measurementIdArr[1]}`)
-  ) {
-    sessionId = window.localStorage.getItem(`_ga_${measurementIdArr[1]}`);
+  if (Store.get(`_ga_${measurementIdArr[1]}`)) {
+    sessionId = Store.get(`_ga_${measurementIdArr[1]}`);
     return sessionId[2];
   }
   return "";

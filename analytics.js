@@ -926,11 +926,12 @@ class Analytics {
       const tempClientSuppliedIntegrations = Object.keys(
         clientSuppliedIntegrations
       )
-        .filter(
-          (integration) =>
-            integration !== "All" &&
-            clientSuppliedIntegrations[integration] !== true
-        )
+        .filter((integration) => {
+          if (integration !== "All") {
+            return clientSuppliedIntegrations[integration] !== true;
+          }
+          return integration;
+        })
         .reduce((obj, key) => {
           obj[key] = clientSuppliedIntegrations[key];
           return obj;
