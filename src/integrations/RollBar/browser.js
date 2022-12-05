@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
 
-import { isObject } from '../../utils/utils';
+import { isObject } from '../../utils/commonUtils';
 import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 

@@ -198,6 +198,67 @@ const isDefinedNotNullNotEmpty = (value) => {
 }
 
 /**
+ * To check if a variable is storing object or not
+ */
+ const isObject = (obj) => {
+  return type(obj) === 'object';
+};
+
+/**
+ * To check if a variable is storing array or not
+ */
+const isArray = (obj) => {
+  return type(obj) === 'array';
+};
+
+function compact(value) {
+  return value == null;
+}
+
+/**
+ * particular case when rejecting an array
+ * @param  {} arr
+ * @param  {} fn
+ */
+var rejectarray = function (arr, fn) {
+  const ret = [];
+
+  for (let i = 0; i < arr.length; ++i) {
+    if (!fn(arr[i], i)) ret[ret.length] = arr[i];
+  }
+
+  return ret;
+};
+
+/**
+ * Rejecting null from any object other than arrays
+ * @param  {} obj
+ * @param  {} fn
+ *
+ */
+var rejectobject = function (obj, fn) {
+  const ret = {};
+
+  for (const k in obj) {
+    if (obj.hasOwnProperty(k) && !fn(obj[k], k)) {
+      ret[k] = obj[k];
+    }
+  }
+
+  return ret;
+};
+
+/**
+ * reject all null values from array/object
+ * @param  {} obj
+ * @param  {} fn
+ */
+ function rejectArr(obj, fn) {
+  fn = fn || compact;
+  return type(obj) == 'array' ? rejectarray(obj, fn) : rejectobject(obj, fn);
+}
+
+/**
  *
  * @param {*} message
  *
@@ -242,6 +303,27 @@ const isDefinedNotNullNotEmpty = (value) => {
   return traitsValue;
 }
 
+const getDataFromSource = (src, dest, properties) => {
+  const data = {};
+  if (isArray(src)) {
+    for (let index = 0; index < src.length; index += 1) {
+      if (properties[src[index]]) {
+        data[dest] = properties[src[index]];
+        if (data) {
+          // return only if the value is valid.
+          // else look for next possible source in precedence
+          return data;
+        }
+      }
+    }
+  } else if (typeof src === 'string') {
+    if (properties[src]) {
+      data[dest] = properties[src];
+    }
+  }
+  return data;
+};
+
 export {
   getEventMappingFromConfig,
   getHashFromArrayWithDuplicate,
@@ -263,4 +345,8 @@ export {
   pick,
   type,
   getDefinedTraits,
+  isObject,
+  isArray,
+  rejectArr,
+  getDataFromSource,
 };

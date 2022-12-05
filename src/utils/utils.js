@@ -389,53 +389,6 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
   return enabledList;
 }
 
-/**
- * reject all null values from array/object
- * @param  {} obj
- * @param  {} fn
- */
-function rejectArr(obj, fn) {
-  fn = fn || compact;
-  return type(obj) == 'array' ? rejectarray(obj, fn) : rejectobject(obj, fn);
-}
-
-/**
- * particular case when rejecting an array
- * @param  {} arr
- * @param  {} fn
- */
-var rejectarray = function (arr, fn) {
-  const ret = [];
-
-  for (let i = 0; i < arr.length; ++i) {
-    if (!fn(arr[i], i)) ret[ret.length] = arr[i];
-  }
-
-  return ret;
-};
-
-/**
- * Rejecting null from any object other than arrays
- * @param  {} obj
- * @param  {} fn
- *
- */
-var rejectobject = function (obj, fn) {
-  const ret = {};
-
-  for (const k in obj) {
-    if (obj.hasOwnProperty(k) && !fn(obj[k], k)) {
-      ret[k] = obj[k];
-    }
-  }
-
-  return ret;
-};
-
-function compact(value) {
-  return value == null;
-}
-
 function getUserProvidedConfigUrl(configUrl, defConfigUrl) {
   let url = configUrl;
   if (url.indexOf('sourceConfig') === -1) {
@@ -575,45 +528,6 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
   return destination;
 }
 
-/**
- * To check if a variable is storing object or not
- */
-const isObject = (obj) => {
-  return type(obj) === 'object';
-};
-
-/**
- * To check if a variable is storing array or not
- */
-const isArray = (obj) => {
-  return type(obj) === 'array';
-};
-
-const isDefined = (x) => x !== undefined;
-const isNotNull = (x) => x !== null;
-const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
-
-const getDataFromSource = (src, dest, properties) => {
-  const data = {};
-  if (isArray(src)) {
-    for (let index = 0; index < src.length; index += 1) {
-      if (properties[src[index]]) {
-        data[dest] = properties[src[index]];
-        if (data) {
-          // return only if the value is valid.
-          // else look for next possible source in precedence
-          return data;
-        }
-      }
-    }
-  } else if (typeof src === 'string') {
-    if (properties[src]) {
-      data[dest] = properties[src];
-    }
-  }
-  return data;
-};
-
 const getConfigUrl = (writeKey) => {
   return CONFIG_URL.concat(CONFIG_URL.includes('?') ? '&' : '?').concat(
     writeKey ? `writeKey=${writeKey}` : '',
@@ -710,16 +624,11 @@ export {
   transformToRudderNames,
   transformToServerNames,
   handleError,
-  rejectArr,
   flattenJsonPayload,
   checkReservedKeywords,
   getReferrer,
   getReferringDomain,
   extractCustomFields,
-  isObject,
-  isArray,
-  isDefinedAndNotNull,
-  getDataFromSource,
   commonNames,
   removeTrailingSlashes,
   constructPayload,

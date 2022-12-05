@@ -8,8 +8,8 @@ import {
   propertyMapping,
   pinterestPropertySupport,
 } from './propertyMappingConfig';
-import { flattenJsonPayload, isDefinedAndNotNull, getDataFromSource } from '../../utils/utils';
-import { getHashFromArrayWithDuplicate, isDefined } from '../../utils/commonUtils';
+import { flattenJsonPayload } from '../../utils/utils';
+import { getHashFromArrayWithDuplicate, isDefined, getDataFromSource, isDefinedAndNotNull } from '../../utils/commonUtils';
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 

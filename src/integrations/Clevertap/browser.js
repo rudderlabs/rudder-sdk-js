@@ -2,8 +2,8 @@
 import get from 'get-value';
 import logger from '../../utils/logUtil';
 import ScriptLoader from '../../utils/ScriptLoader';
-import { extractCustomFields, isArray, isObject } from '../../utils/utils';
-import { getDefinedTraits } from '../../utils/commonUtils';
+import { extractCustomFields } from '../../utils/utils';
+import { getDefinedTraits, isArray, isObject } from '../../utils/commonUtils';
 import { NAME } from './constants';
 
 class Clevertap {

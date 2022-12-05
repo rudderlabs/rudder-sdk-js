@@ -4,8 +4,7 @@ import get from 'get-value';
 import logger from '../../utils/logUtil';
 
 import { recordingLiveChatEvents } from './util';
-import { isObject } from '../../utils/utils';
-import { flattenJson } from '../../utils/commonUtils';
+import { flattenJson, isObject } from '../../utils/commonUtils';
 import { NAME } from './constants';
 
 class LiveChat {
