@@ -1,0 +1,17 @@
+name: Check PR title
+
+on:
+  pull_request:
+    branches: ['production', 'production-staging']
+    types: ['opened', 'reopened', 'edited', 'synchronize']
+
+jobs:
+  check_pr_title:
+    name: Check PR title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v3
+
+      - name: Check PR title
+        uses: rudderlabs/github-action-check-pr-title@v1.0.7

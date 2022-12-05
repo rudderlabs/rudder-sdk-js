@@ -1,5 +1,5 @@
-import { resolveDataPlaneUrl } from '../utils/utils';
-import { DEFAULT_DATAPLANE_URL } from '../utils/constants';
+import { resolveDataPlaneUrl } from '../src/utils/utils';
+import { DEFAULT_DATAPLANE_URL } from '../src/utils/constants';
 
 const usDataplaneUrl = 'https://sample.rudderlabs.com/us';
 const euDataplaneUrl = 'https://sample.rudderlabs.com/eu';
