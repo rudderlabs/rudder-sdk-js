@@ -68,6 +68,7 @@ const configToIntNames = {
   QUALAROO: 'Qualaroo',
   PODSIGHTS: 'Podsights',
   AXEPTIO: 'Axeptio',
+  SATISMETER: 'Satismeter',
   MICROSOFT_CLARITY: 'MicrosoftClarity',
 };
 
