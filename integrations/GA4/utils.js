@@ -232,16 +232,11 @@ function getPageViewProperty(props) {
  */
 const getGa4SessionId = (measurementId) => {
   const measurementIdArr = measurementId.split("-");
-  let sessionId;
-  if (Cookie.get(`_ga_${measurementIdArr[1]}`)) {
-    sessionId = Cookie.get(`_ga_${measurementIdArr[1]}`).split(".");
-    return sessionId[2];
+  let sessionId = Cookie.get(`_ga_${measurementIdArr[1]}`).split(".");
+  if (!sessionId) {
+    sessionId = Store.get(`_ga_${measurementIdArr[1]}`).split(".");
   }
-  if (Store.get(`_ga_${measurementIdArr[1]}`)) {
-    sessionId = Store.get(`_ga_${measurementIdArr[1]}`);
-    return sessionId[2];
-  }
-  return "";
+  return sessionId ? sessionId[2] : "";
 };
 
 export {
