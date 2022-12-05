@@ -930,7 +930,7 @@ class Analytics {
           if (integration !== "All") {
             return clientSuppliedIntegrations[integration] !== true;
           }
-          return integration;
+          return true;
         })
         .reduce((obj, key) => {
           obj[key] = clientSuppliedIntegrations[key];
