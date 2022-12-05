@@ -1,3 +1,5 @@
+import * as AdobeAnalytics from "../integrations/AdobeAnalytics/constants"
+
 // from client native integration name to server identified display name
 // add a mapping from Rudder identified key names to Rudder server recognizable names
 const clientToServerNames = {
@@ -68,6 +70,7 @@ const clientToServerNames = {
   SATISMETER: "Satismeter",
   MICROSOFT_CLARITY: "Microsoft Clarity",
   AXEPTIO: "Axeptio",
+  [AdobeAnalytics.NAME]: AdobeAnalytics.DISPLAY_NAME,
 };
 
 export { clientToServerNames };

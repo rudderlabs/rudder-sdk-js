@@ -1,14 +1,10 @@
 /* eslint-disable class-methods-use-this */
-import get from "get-value";
-import logger from "../../utils/logUtil";
-import ScriptLoader from "../ScriptLoader";
-import {
-  extractCustomFields,
-  getDefinedTraits,
-  isArray,
-  isObject,
-} from "../../utils/utils";
-import { NAME } from "./constants";
+import get from 'get-value';
+import logger from '../../utils/logUtil';
+import ScriptLoader from '../ScriptLoader';
+import { extractCustomFields } from '../../utils/utils';
+import { getDefinedTraits, isArray, isObject } from '../utils/commonUtils';
+import { NAME } from './constants';
 
 class Clevertap {
   constructor(config) {

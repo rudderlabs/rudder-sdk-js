@@ -8,7 +8,7 @@ import {
 } from "./ECommerceEventConfig";
 
 import { pageEventParametersConfigArray } from "./PageEventConfig";
-import { type } from "../../utils/utils";
+import { type } from "../utils/commonUtils";
 import logger from "../../utils/logUtil";
 
 /**

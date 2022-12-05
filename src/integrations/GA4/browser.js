@@ -11,8 +11,9 @@ import {
   hasRequiredParameters,
   proceedCloudMode,
 } from "./utils";
-import { type, flattenJsonPayload } from "../../utils/utils";
-import { NAME } from "./constants";
+import { flattenJsonPayload } from '../../utils/utils';
+import { type } from '../utils/commonUtils';
+import { NAME } from './constants';
 
 const logger = new Logger(NAME);
 export default class GA4 {

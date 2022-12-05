@@ -7,7 +7,7 @@ import {
 } from "../utils/commonUtils";
 import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
-import { getDefinedTraits } from "../../utils/utils";
+import { getDefinedTraits } from "../utils/commonUtils";
 
 class YandexMetrica {
   constructor(config, analytics) {
