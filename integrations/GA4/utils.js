@@ -236,6 +236,13 @@ const getGa4SessionId = (measurementId) => {
     sessionId = Cookie.get(`_ga_${measurementIdArr[1]}`).split(".");
     return sessionId[2];
   }
+  if (
+    window.localStorage &&
+    window.localStorage.getItem(`_ga_${measurementIdArr[1]}`)
+  ) {
+    sessionId = window.localStorage.getItem(`_ga_${measurementIdArr[1]}`);
+    return sessionId[2];
+  }
   return "";
 };
 

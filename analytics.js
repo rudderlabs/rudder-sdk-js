@@ -292,10 +292,14 @@ class Analytics {
   prepareDataForIntegrationsObj(integrationInstances) {
     integrationInstances.forEach((integrationInstance) => {
       if (integrationInstance.getDataForIntegrationsObject) {
-        this.integrationsData = {
-          ...this.integrationsData,
-          ...integrationInstance.getDataForIntegrationsObject(),
-        };
+        try {
+          this.integrationsData = {
+            ...this.integrationsData,
+            ...integrationInstance.getDataForIntegrationsObject(),
+          };
+        } catch (error) {
+          logger.debug(error);
+        }
       }
     });
   }
@@ -857,10 +861,9 @@ class Analytics {
       checkReservedKeywords(rudderElement.message, type);
 
       // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = rudderElement.message.integrations || {
+      let clientSuppliedIntegrations = rudderElement.message.integrations || {
         All: true,
       };
-
       // structure user supplied integrations object to rudder format
       tranformToRudderNames(clientSuppliedIntegrations);
 
@@ -918,8 +921,22 @@ class Analytics {
 
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
+
+      // Removing true values from clientSuppliedIntegrations except All
+      clientSuppliedIntegrations = Object.keys(clientSuppliedIntegrations)
+        .filter(
+          (integration) =>
+            integration !== "All" &&
+            clientSuppliedIntegrations[integration] !== true
+        )
+        .reduce((obj, key) => {
+          obj[key] = clientSuppliedIntegrations[key];
+          return obj;
+        }, {});
+
+      const tempIntegrationsData = cloneDeep(this.integrationsData);
       rudderElement.message.integrations = merge(
-        this.integrationsData,
+        tempIntegrationsData,
         clientSuppliedIntegrations
       );
 
