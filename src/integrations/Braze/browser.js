@@ -1,8 +1,12 @@
 /* eslint-disable class-methods-use-this */
 import { del } from 'obj-case';
-import logger from '../../utils/logUtil';
+import cloneDeep from "lodash.clonedeep";
+import isEqual from "lodash.isequal";
+import Logger from "../../utils/logger";
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { BrazeOperationString, NAME } from './constants';
+
+const logger = new Logger(NAME);
 
 /*
 E-commerce support required for logPurchase support & other e-commerce events as track with productId changed
@@ -30,7 +34,8 @@ class Braze {
     }
 
     this.name = NAME;
-
+    this.previousPayload = null;
+    this.supportDedup = config.supportDedup || false;
     logger.debug('Config ', config);
   }
 
@@ -111,74 +116,164 @@ class Braze {
     return props;
   }
 
+  /**
+   * As each users will have unique session, So if the supportDedup is enabled from config,
+   * then we are comparing from the previous payload and tried to reduce the redundant data.
+   * If supportDedup is enabled,
+   * Examples:
+   * - If userId is different from previous call, then it will make new call and store the payload.
+   * - It will deeply check all other attributes and pass the unique or changed fields.
+   *   1st- payload                                                                                     2nd- payload
+   * rudderanalytics.identify("rudderUserId100", {                                                   rudderanalytics.identify("rudderUserId100", {
+   *  name: "Rudder Keener",                                                                          name: "Rudder Keener",
+   *  email: "rudder100@example.com",                                                                 email: "rudder100@example.com",
+   *  primaryEmail: "test350@email.com",                                                              primaryEmail: "test350@email.com",
+   *  country: "USA",                                                                                 country: "USA",
+   *  subscription: "youtube-prime-6",                                                                subscription: "youtube-prime-6",
+   *  channelName: ["b", "d", "e", "f"],                                                              channelName: ["b", "d", "e", "f"],
+   *  gender: "male",                                                                                 gender: "male",
+   *  facebook: "https://www.facebook.com/rudder.123",                                                facebook: "https://www.facebook.com/rudder.345",
+   *  birthday: new Date("2000-10-23"),                                                               birthday: new Date("2000-10-24"),
+   *  firstname: "Rudder",                                                                            firstname: "Rudder",
+   *  lastname: "Keener",                                                                             lastname: "Usertest",
+   *  phone: "9112345631",                                                                            phone: "9112345631",
+   *  key1: "value4",                                                                                 key1: "value5",
+   *  address: {                                                                                      address: {
+   *   city: "Manali",                                                                                 city: "Shimla",
+   *   country: "India",                                                                               country: "India",
+   *  },                                                                                              },
+   * });                                                                                             });
+   * As both payload have same userId so it will deeply check all other attributes and pass the unique fields
+   * or the updated fields.
+   * @param {*} rudderElement
+   */
   identify(rudderElement) {
+    logger.debug("in Braze identify");
     const { userId } = rudderElement.message;
     const { address } = rudderElement.message.context.traits;
-    const { birthday } = rudderElement.message.context.traits;
+    const birthday =
+      rudderElement.message.context.traits?.birthday ||
+      rudderElement.message.context.traits?.dob;
     const { email } = rudderElement.message.context.traits;
-    const { firstname } = rudderElement.message.context.traits;
+    const firstname =
+      rudderElement.message.context.traits?.firstname ||
+      rudderElement.message.context.traits?.firstName;
     const { gender } = rudderElement.message.context.traits;
-    const { lastname } = rudderElement.message.context.traits;
+    const lastname =
+      rudderElement.message.context.traits?.lastname ||
+      rudderElement.message.context.traits?.lastName;
     const { phone } = rudderElement.message.context.traits;
 
-    // This is a hack to make a deep copy that is not recommended because it will often fail:
-    const traits = JSON.parse(JSON.stringify(rudderElement.message.context.traits));
-
-    window.braze.changeUser(userId);
-    // method removed from v4 https://www.braze.com/docs/api/objects_filters/user_attributes_object#braze-user-profile-fields
-    // window.braze.getUser().setAvatarImageUrl(avatar);
-    if (email) window.braze.getUser().setEmail(email);
-    if (firstname) window.braze.getUser().setFirstName(firstname);
-    if (gender) window.braze.getUser().setGender(this.formatGender(gender));
-    if (lastname) window.braze.getUser().setLastName(lastname);
-    if (phone) window.braze.getUser().setPhoneNumber(phone);
-    if (address) {
+    // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
+    const reserved = [
+      "address",
+      "birthday",
+      "email",
+      "id",
+      "firstname",
+      "gender",
+      "lastname",
+      "phone",
+      "dob",
+      "external_id",
+      "country",
+      "home_city",
+      "bio",
+      "email_subscribe",
+      "push_subscribe",
+    ];
+    // function set Address
+    function setAddress() {
       window.braze.getUser().setCountry(address.country);
       window.braze.getUser().setHomeCity(address.city);
     }
-    if (birthday) {
+    // function set Birthday
+    function setBirthday() {
       window.braze
         .getUser()
         .setDateOfBirth(
           birthday.getUTCFullYear(),
           birthday.getUTCMonth() + 1,
-          birthday.getUTCDate(),
+          birthday.getUTCDate()
         );
     }
+    // function set Email
+    function setEmail() {
+      window.braze.getUser().setEmail(email);
+    }
+    // function set firstName
+    function setFirstName() {
+      window.braze.getUser().setFirstName(firstname);
+    }
+    // function set gender
+    function setGender(genderName) {
+      window.braze.getUser().setGender(genderName);
+    }
+    // function set lastName
+    function setLastName() {
+      window.braze.getUser().setLastName(lastname);
+    }
+    function setPhone() {
+      window.braze.getUser().setPhoneNumber(phone);
+    }
 
-    // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
-    const reserved = [
-      'avatar',
-      'address',
-      'birthday',
-      'email',
-      'id',
-      'firstname',
-      'gender',
-      'lastname',
-      'phone',
-      'facebook',
-      'twitter',
-      'first_name',
-      'last_name',
-      'dob',
-      'external_id',
-      'country',
-      'home_city',
-      'bio',
-      'gender',
-      'phone',
-      'email_subscribe',
-      'push_subscribe',
-    ];
+    // deep clone the traits object
+    let traits = {};
+    if (rudderElement.message?.context?.traits) {
+      traits = cloneDeep(rudderElement.message.context.traits);
+    }
 
     reserved.forEach((element) => {
       delete traits[element];
     });
 
-    Object.keys(traits).forEach((key) => {
-      window.braze.getUser().setCustomUserAttribute(key, traits[key]);
-    });
+    if (
+      this.supportDedup &&
+      this.previousPayload !== null &&
+      userId &&
+      userId === this.previousPayload.rudderElement?.message?.userId
+    ) {
+      const prevMessage = this.previousPayload.rudderElement?.message;
+      const prevTraits = prevMessage?.context?.traits;
+      const prevAddress = prevTraits?.address;
+      const prevBirthday = prevTraits?.birthday || prevTraits?.dob;
+      const prevEmail = prevTraits?.email;
+      const prevFirstname = prevTraits?.firstname || prevTraits?.firstName;
+      const prevGender = prevTraits?.gender;
+      const prevLastname = prevTraits?.lastname || prevTraits?.lastName;
+      const prevPhone = prevTraits?.phone;
+
+      if (address && !isEqual(address, prevAddress)) setAddress();
+      if (birthday && !isEqual(birthday, prevBirthday)) setBirthday();
+      if (email && email !== prevEmail) setEmail();
+      if (firstname && firstname !== prevFirstname) setFirstName();
+      if (gender && this.formatGender(gender) !== this.formatGender(prevGender))
+        setGender(this.formatGender(gender));
+      if (lastname && lastname !== prevLastname) setLastName();
+      if (phone && phone !== prevPhone) setPhone();
+
+      Object.keys(traits).forEach((key) => {
+        if (!prevTraits[key] || !isEqual(prevTraits[key], traits[key])) {
+          window.braze.getUser().setCustomUserAttribute(key, traits[key]);
+        }
+      });
+    } else {
+      window.braze.changeUser(userId);
+      // method removed from v4 https://www.braze.com/docs/api/objects_filters/user_attributes_object#braze-user-profile-fields
+      // window.braze.getUser().setAvatarImageUrl(avatar);
+      if (email) setEmail();
+      if (firstname) setFirstName();
+      if (gender) setGender(this.formatGender(gender));
+      if (lastname) setLastName();
+      if (phone) setPhone();
+      if (address) setAddress();
+      if (birthday) setBirthday();
+
+      Object.keys(traits).forEach((key) => {
+        window.braze.getUser().setCustomUserAttribute(key, traits[key]);
+      });
+    }
+    this.previousPayload = { ...this.previousPayload, rudderElement };
   }
 
   handlePurchase(properties, userId) {
