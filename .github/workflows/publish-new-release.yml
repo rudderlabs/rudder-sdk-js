@@ -43,14 +43,14 @@ jobs:
           npx conventional-github-releaser -p angular
 
       - name: Create pull request into staging
-        uses: peter-evans/create-pull-request@v4
+        uses: repo-sync/pull-request@v2
         with:
-          branch: 'production'
-          base: 'production-staging'
-          token: ${{ secrets.PAT }}
-          title: 'chore(release): pulling production into production-staging post release v${{ steps.extract-version.outputs.release_version }}'
-          body: ':crown: *An automated PR*'
-          reviewers: 'gbardis'
+          source_branch: 'production'
+          destination_branch: 'production-staging'
+          github_token: ${{ secrets.PAT }}
+          pr_title: 'chore(release): pulling production into production-staging post release v${{ steps.extract-version.outputs.release_version }}'
+          pr_body: ':crown: *An automated PR*'
+          pr_reviewer: 'gbardis'
 
       - name: Delete hotfix release branch
         uses: koj-co/delete-merged-action@master
