@@ -58,7 +58,7 @@ class BingAds {
 
   track = (rudderElement) => {
     const { type, properties, event } = rudderElement.message;
-    const { category, currency, value, revenue, total } = properties;
+    const { category, currency, value, revenue, total, eventValue } = properties;
     const payload = {
       event: type,
       event_label: event,
@@ -78,6 +78,10 @@ class BingAds {
     if (total) {
       payload.revenue_value = total;
     }
+    if (eventValue) {
+      payload.event_value = eventValue;
+    }
+
     window.uetq.push(payload);
   };
 
