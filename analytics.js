@@ -28,7 +28,6 @@ import {
   checkReservedKeywords,
   getReferrer,
   getReferringDomain,
-  commonNames,
   get,
   getStringId,
 } from "./utils/utils";
@@ -734,10 +733,7 @@ class Analytics {
     if (!eventName || !(typeof eventName === "string")) {
       return false;
     }
-    const sdkIntgName = commonNames[intgName];
-    const intg = this.clientIntegrations.find(
-      (intg) => intg.name === sdkIntgName
-    );
+    const intg = this.clientIntegrations.find((intg) => intg.name === intgName);
 
     const { blacklistedEvents, whitelistedEvents, eventFilteringOption } =
       intg.config;
