@@ -15,6 +15,8 @@ const excludeReservedTraits = [
   "phone",
   "Phone",
   "email",
+  "Email",
+  "E-mail",
 ];
 
 const excludePageProperties = ["url", "title", "path", "referrer"];

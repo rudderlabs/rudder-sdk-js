@@ -8,7 +8,9 @@ import {
   prepareTrackEventData,
   preparePagePayload,
   validateEmail,
+  validatePhoneWithCountryCode,
 } from "./utils";
+import { getDefinedTraits } from "../../utils/utils";
 
 class Sendinblue {
   constructor(config, analytics) {
@@ -77,19 +79,19 @@ class Sendinblue {
   identify(rudderElement) {
     logger.debug("===In Sendinblue identify===");
     const { message } = rudderElement;
-    const { email } = message?.context?.traits;
+    const { email, phone } = getDefinedTraits(message);
 
     if (!email || !validateEmail(email)) {
       logger.error("[Sendinblue]:: provided email is invalid");
       return;
     }
 
-    const userTraits = prepareUserTraits(message, this.contactAttributeMapping);
-
-    if (!userTraits) {
+    if (phone && !validatePhoneWithCountryCode(phone)) {
+      logger.error("[Sendinblue]:: provided phone number is invalid");
       return;
     }
 
+    const userTraits = prepareUserTraits(message, this.contactAttributeMapping);
     window.sendinblue.identify(email, {
       ...userTraits,
     });
@@ -104,16 +106,24 @@ class Sendinblue {
       return;
     }
 
-    const userTraits = this.sendTraitsInTrack
-      ? prepareUserTraits(message, this.contactAttributeMapping)
-      : {};
+    if (this.sendTraitsInTrack) {
+      const { email, phone } = getDefinedTraits(message);
 
-    if (!userTraits) {
-      return;
+      if (email && !validateEmail(email)) {
+        logger.error("[Sendinblue]:: provided email is invalid");
+        return;
+      }
+
+      if (phone && !validatePhoneWithCountryCode(phone)) {
+        logger.error("[Sendinblue]:: provided phone number is invalid");
+        return;
+      }
     }
 
+    const userTraits = this.sendTraitsInTrack
+      ? prepareUserTraits(message, this.contactAttributeMapping, true)
+      : {};
     const eventData = prepareTrackEventData(message);
-
     window.sendinblue.track(event, userTraits, eventData);
   }
 

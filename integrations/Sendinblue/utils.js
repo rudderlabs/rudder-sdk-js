@@ -1,4 +1,3 @@
-import logger from "../../utils/logUtil";
 import { getDefinedTraits } from "../../utils/utils";
 import {
   NAME,
@@ -8,6 +7,7 @@ import {
 import {
   getHashFromArray,
   removeUndefinedAndNullValues,
+  isNotEmpty,
 } from "../utils/commonUtils";
 
 const validateEmail = (email) => {
@@ -27,9 +27,17 @@ const validatePhoneWithCountryCode = (phone) => {
   return true;
 };
 
-// FIRSTNAME, LASTNAME and SMS are the default created contact attributes in sendinblue
-const prepareDefaultContactAttributes = (message) => {
-  const { firstName, lastName, phone } = getDefinedTraits(message);
+// FIRSTNAME, LASTNAME, SMS and EMAIL are the default created contact attributes in sendinblue
+const prepareDefaultContactAttributes = (message, trackCall = false) => {
+  const { firstName, lastName, phone, email } = getDefinedTraits(message);
+  if (trackCall) {
+    return {
+      FIRSTNAME: firstName,
+      LASTNAME: lastName,
+      SMS: phone,
+      EMAIL: email,
+    };
+  }
   return { FIRSTNAME: firstName, LASTNAME: lastName, SMS: phone };
 };
 
@@ -61,13 +69,9 @@ const refineUserTraits = (userTraits, attributeMap) => {
  * @param {*} contactAttributeMapping traits to Sendinblue contact attribute mapping defined in webapp
  * @returns
  */
-const prepareUserTraits = (message, contactAttributeMapping) => {
+const prepareUserTraits = (message, contactAttributeMapping, trackCall) => {
   const { traits } = message.context;
-  const reservedTraits = prepareDefaultContactAttributes(message);
-  if (reservedTraits.SMS && !validatePhoneWithCountryCode(reservedTraits.SMS)) {
-    logger.error("[Sendinblue]:: provided phone number is invalid");
-    return;
-  }
+  const reservedTraits = prepareDefaultContactAttributes(message, trackCall);
 
   // convert destination.Config.contactAttributeMapping to hashMap
   const attributeMap = getHashFromArray(
@@ -98,7 +102,7 @@ const prepareUserTraits = (message, contactAttributeMapping) => {
 const prepareTrackEventData = (message) => {
   const { properties, integrations } = message;
   let eventData = {};
-  if (properties) {
+  if (isNotEmpty(properties)) {
     let id;
     if (integrations && integrations[NAME]) {
       const key = integrations[NAME]?.propertiesIdKey;
@@ -123,10 +127,10 @@ const preparePagePayload = (message) => {
   const { properties } = message;
   const { page } = message.context;
 
-  const title = page?.title || properties?.title;
-  const url = page?.url || properties?.url;
-  const path = page?.path || properties?.path;
-  const referrer = page?.referrer || properties?.referrer;
+  const title = properties?.title || page?.title;
+  const url = properties?.url || page?.url;
+  const path = properties?.path || page?.path;
+  const referrer = properties?.referrer || page?.referrer;
 
   const refinedProperties = refinePageProperties(properties);
   const payload = {
