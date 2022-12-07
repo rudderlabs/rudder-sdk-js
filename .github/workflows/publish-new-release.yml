@@ -1,0 +1,69 @@
+name: Publish new github release
+
+on:
+  pull_request:
+    branches:
+      - production
+    types:
+      - closed
+
+jobs:
+  release:
+    name: Publish new release
+    runs-on: ubuntu-latest
+    if: (startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix-release/')) && github.event.pull_request.merged == true # only merged pull requests must trigger this job
+    steps:
+      - name: Extract version from branch name (for release branches)
+        id: extract-version
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          VERSION=${BRANCH_NAME#hotfix-}
+          VERSION=${VERSION#release/}
+
+          echo "release_version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Create GitHub Release
+        id: create_release
+        env:
+          HUSKY: 0
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.PAT }}
+        run: |
+          npx conventional-github-releaser -p angular
+
+      - name: Create pull request into staging
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: 'production'
+          destination_branch: 'production-staging'
+          github_token: ${{ secrets.PAT }}
+          pr_title: 'chore(release): pulling production into production-staging post release v${{ steps.extract-version.outputs.release_version }}'
+          pr_body: ':crown: *An automated PR*'
+          pr_reviewer: 'bardisg'
+
+      - name: Delete hotfix release branch
+        uses: koj-co/delete-merged-action@master
+        if: startsWith(github.event.pull_request.head.ref, 'hotfix-release/')
+        with:
+          branches: 'hotfix-release/*'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete release branch
+        uses: koj-co/delete-merged-action@master
+        if: startsWith(github.event.pull_request.head.ref, 'release/')
+        with:
+          branches: 'release/*'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
