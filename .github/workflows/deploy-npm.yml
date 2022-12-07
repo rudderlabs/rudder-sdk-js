@@ -1,6 +1,7 @@
 name: Deploy to NPM
 
 on:
+  workflow_dispatch:
   release:
     types: [created]
 
@@ -33,6 +34,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
           cd dist/npm-lib
           npm publish
 
