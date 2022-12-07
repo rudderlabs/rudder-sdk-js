@@ -923,25 +923,24 @@ class Analytics {
       transformToServerNames(rudderElement.message.integrations);
 
       /**
-       * Removing true values from clientSuppliedIntegrations object except All Key (object from the global integrations object should take precedence)
        * Cloning the global analytics integrationsData object
+       * Filtering the integrations which are not a part of integrationsData object or value set to false
        * merging tempClientSuppliedIntegrations and tempIntegrationsData using lodash merge method
        */
+      const tempIntegrationsData = cloneDeep(this.integrationsData);
       const tempClientSuppliedIntegrations = Object.keys(
         clientSuppliedIntegrations
       )
         .filter((integration) => {
-          if (integration !== "All") {
-            return clientSuppliedIntegrations[integration] !== true;
-          }
-          return true;
+          return !(
+            clientSuppliedIntegrations[integration] === true &&
+            tempIntegrationsData[integration]
+          );
         })
         .reduce((obj, key) => {
           obj[key] = clientSuppliedIntegrations[key];
           return obj;
         }, {});
-
-      const tempIntegrationsData = cloneDeep(this.integrationsData);
       rudderElement.message.integrations = merge(
         tempIntegrationsData,
         tempClientSuppliedIntegrations
