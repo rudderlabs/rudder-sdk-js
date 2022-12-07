@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   deploy-tag:
-    name: Deploy to STAGING
+    name: Deploy to STAGING v1
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/v1-staging') || github.event.pull_request.merged == true
     steps:
@@ -42,7 +42,7 @@ jobs:
 
       - name: Fix Bugsnag API key
         env:
-          BUGSNAG_API_KEY: ${{ secrets.RS_BUGSNAG_STAGING_API_KEY }}
+          BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
         run: |
           sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$BUGSNAG_API_KEY'|' dist/rudder-analytics.min.js
 
