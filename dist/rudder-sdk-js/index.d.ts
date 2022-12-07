@@ -448,6 +448,11 @@ declare module "rudder-sdk-js" {
    */
    function endSession(): void;
 
+   /**
+   * To fetch the current sessionId 
+   */
+  function getSessionId(): number|null;
+
   export {
     integrationOptions,
     loadOptions,
@@ -469,5 +474,6 @@ declare module "rudder-sdk-js" {
     getUserId,
     startSession,
     endSession,
+    getSessionId,
   };
 }
