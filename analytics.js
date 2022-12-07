@@ -922,12 +922,8 @@ class Analytics {
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
 
-      /**
-       * Cloning the global analytics integrationsData object
-       * Filtering the integrations which are not a part of integrationsData object or value set to false
-       * merging tempClientSuppliedIntegrations and tempIntegrationsData using lodash merge method
-       */
       const tempIntegrationsData = cloneDeep(this.integrationsData);
+      // Filtering the integrations which are not a part of integrationsData object or value set to false
       const tempClientSuppliedIntegrations = Object.keys(
         clientSuppliedIntegrations
       )
