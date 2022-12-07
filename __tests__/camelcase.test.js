@@ -1,4 +1,4 @@
-import camelcase from "../utils/camelcase";
+import camelcase from "../src/utils/camelcase";
 
 test("convert string with space to camelcase format", () => {
   expect(camelcase("camel case")).toBe("camelCase");
