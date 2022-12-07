@@ -886,7 +886,7 @@ class Analytics {
   }
 
   getSessionId() {
-    this.uSession.getSessionId();
+    return this.uSession.getSessionId();
   }
 
   getUserTraits() {

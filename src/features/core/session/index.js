@@ -19,7 +19,7 @@ class UserSession {
   }
 
   /**
-   * A function to initialize   session information
+   * A function to initialize session information
    * @param {object} options    load call options
    */
   initialize(options) {
@@ -140,9 +140,15 @@ class UserSession {
     this.storage.setSessionInfo(this.sessionInfo);
   }
 
+  /**
+   * A function to return current session id
+   * @returns string sessionId
+   */
   getSessionId() {
-    const session = this.getSessionInfo();
-    return session?.sessionId ? session.sessionId : '';
+    if ((this.sessionInfo.autoTrack && this.isValidSession(Date.now())) || this.sessionInfo.manualTrack) {
+      return this.sessionInfo.id;
+    }
+    return '';
   }
 
   /**
