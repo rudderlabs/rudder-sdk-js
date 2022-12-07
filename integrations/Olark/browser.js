@@ -105,9 +105,11 @@ class Olark {
       });
     }
 
-    delete traits.email;
-    delete traits.name;
-    delete traits.phone;
+    if (traits) {
+      delete traits.email;
+      delete traits.name;
+      delete traits.phone;
+    }
     window.olark("api.visitor.updateCustomFields", traits);
   }
 }
