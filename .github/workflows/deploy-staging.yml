@@ -38,7 +38,7 @@ jobs:
 
       - name: Fix Bugsnag API key
         env:
-          BUGSNAG_API_KEY: ${{ secrets.RS_BUGSNAG_STAGING_API_KEY }}
+          BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
         run: |
           sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$BUGSNAG_API_KEY'|' dist/legacy/rudder-analytics-staging.min.js
 
