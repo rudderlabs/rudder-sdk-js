@@ -148,7 +148,7 @@ class UserSession {
     if ((this.sessionInfo.autoTrack && this.isValidSession(Date.now())) || this.sessionInfo.manualTrack) {
       return this.sessionInfo.id;
     }
-    return '';
+    return null;
   }
 
   /**
