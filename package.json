@@ -1,6 +1,6 @@
 {
   "name": "rudder-analytics",
-  "version": "1.21.0",
+  "version": "1.22.0",
   "description": "",
   "main": "./dist/browser.min.js",
   "size-limit": [
@@ -65,8 +65,10 @@
     "is": "^3.3.0",
     "json3": "^3.3.3",
     "lodash.clonedeep": "^4.5.0",
+    "lodash.difference": "^4.5.0",
     "lodash.get": "^4.4.2",
     "lodash.isempty": "^4.4.0",
+    "lodash.isequal": "^4.5.0",
     "lodash.isstring": "^4.0.1",
     "lodash.isundefined": "^3.0.1",
     "lodash.merge": "^4.6.2",
