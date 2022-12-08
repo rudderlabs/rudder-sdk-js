@@ -66,6 +66,7 @@ import { CNameMapping as Podsights } from "./Podsights/constants";
 import { CNameMapping as Qualaroo } from "./Qualaroo/constants";
 import { CNameMapping as Satismeter } from "./Satismeter/constants";
 import { CNameMapping as MicrosoftClarity } from "./MicrosoftClarity/constants";
+import { CNameMapping as Sendinblue } from "./Sendinblue/constants";
 import { CNameMapping as Axeptio } from "./Axeptio/constants";
 
 // for sdk side native integration identification
@@ -140,6 +141,7 @@ const commonNames = {
   ...Qualaroo,
   ...Satismeter,
   ...MicrosoftClarity,
+  ...Sendinblue,
   ...Axeptio,
 };
 

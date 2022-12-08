@@ -66,6 +66,7 @@ import * as Podsights from "./Podsights";
 import * as Qualaroo from "./Qualaroo";
 import * as Satismeter from "./Satismeter";
 import * as MicrosoftClarity from "./MicrosoftClarity";
+import * as Sendinblue from "./Sendinblue";
 import * as Axeptio from "./Axeptio";
 
 // the key names should match the destination.name value to keep partity everywhere
@@ -140,6 +141,7 @@ const integrations = {
   QUALAROO: Qualaroo.default,
   SATISMETER: Satismeter.default,
   MICROSOFT_CLARITY: MicrosoftClarity.default,
+  SENDINBLUE: Sendinblue.default,
   AXEPTIO: Axeptio.default,
 };
 
