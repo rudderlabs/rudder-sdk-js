@@ -50,7 +50,7 @@ jobs:
           github_token: ${{ secrets.PAT }}
           pr_title: 'chore(release): pulling production into production-staging post release v${{ steps.extract-version.outputs.release_version }}'
           pr_body: ':crown: *An automated PR*'
-          pr_reviewer: 'bardisg'
+          pr_reviewer: 'bardisg,MoumitaM,saikumarrs'
 
       - name: Delete hotfix release branch
         uses: koj-co/delete-merged-action@master
