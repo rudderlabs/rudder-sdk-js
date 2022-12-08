@@ -56,7 +56,7 @@ jobs:
           PROJECT_NAME: 'JS SDK NPM Package'
           NPM_PACKAGE_URL: 'https://www.npmjs.com/package/rudder-sdk-js'
         with:
-          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
+          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
               "blocks": [

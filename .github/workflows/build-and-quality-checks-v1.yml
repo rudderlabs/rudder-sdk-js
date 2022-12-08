@@ -1,14 +1,14 @@
-name: Build & Code Quality Checks
+name: Build & Code Quality Checks v1
 
 on:
   pull_request:
-    branches: ['production', 'production-staging']
+    branches: ['v1-production', 'v1-staging']
     types: ['opened', 'reopened', 'synchronize']
 
 jobs:
   build:
-    name: Build & Code Quality Checks
-    runs-on: ubuntu-latest-4core
+    name: Build & Code Quality Checks v1
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
