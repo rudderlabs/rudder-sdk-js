@@ -107,6 +107,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.integrationsData = {};
     this.cookieConsentOptions = {};
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
@@ -179,9 +180,13 @@ class Analytics {
         if (typeof responseVal === "string") {
           response = JSON.parse(responseVal);
         }
-        
+
         // Do not proceed if the ultimate response value is not an object
-        if (!response || typeof response !== "object" || Array.isArray(response)) {
+        if (
+          !response ||
+          typeof response !== "object" ||
+          Array.isArray(response)
+        ) {
           throw new Error("Invalid source configuration");
         }
       } catch (err) {
@@ -198,10 +203,11 @@ class Analytics {
       // Load Bugsnag only if it is enabled in the source config
       if (isErrorReportEnabled === true) {
         // Fetch the name of the Error reporter from sourceConfig
-        const provider = get(
-          response.source.config,
-          "statsCollection.errorReports.provider"
-        ) || DEFAULT_ERROR_REPORT_PROVIDER;
+        const provider =
+          get(
+            response.source.config,
+            "statsCollection.errorReports.provider"
+          ) || DEFAULT_ERROR_REPORT_PROVIDER;
         if (!ERROR_REPORT_PROVIDERS.includes(provider)) {
           logger.error("Invalid error reporting provider value");
         }
@@ -277,6 +283,28 @@ class Analytics {
   }
 
   /**
+   * Prepares the data for integrationsObj
+   *
+   * @param {*} integration
+   * @param {*} integrationInstance
+   * @memberof Analytics
+   */
+  prepareDataForIntegrationsObj(integrationInstances) {
+    integrationInstances.forEach((integrationInstance) => {
+      if (integrationInstance.getDataForIntegrationsObject) {
+        try {
+          this.integrationsData = {
+            ...this.integrationsData,
+            ...integrationInstance.getDataForIntegrationsObject(),
+          };
+        } catch (error) {
+          logger.debug(error);
+        }
+      }
+    });
+  }
+
+  /**
    * Initialize integrations by addinfg respective scripts
    * keep the instances reference in core
    *
@@ -336,7 +364,6 @@ class Analytics {
       object.clientIntegrationObjects = [];
       // eslint-disable-next-line no-param-reassign
       object.clientIntegrationObjects = object.successfullyLoadedIntegration;
-
       if (
         object.clientIntegrationObjects.every(
           (intg) => !intg.isReady || intg.isReady()
@@ -344,6 +371,7 @@ class Analytics {
       ) {
         // Integrations are ready
         // set clientIntegrationsReady to be true
+        object.prepareDataForIntegrationsObj(object.clientIntegrationObjects);
         object.clientIntegrationsReady = true;
         // Execute the callbacks if any
         object.executeReadyCallback();
@@ -833,11 +861,11 @@ class Analytics {
       checkReservedKeywords(rudderElement.message, type);
 
       // if not specified at event level, All: true is default
-      const clientSuppliedIntegrations = rudderElement.message.integrations || { 'All' : true };
-
+      const clientSuppliedIntegrations = rudderElement.message.integrations || {
+        All: true,
+      };
       // structure user supplied integrations object to rudder format
       tranformToRudderNames(clientSuppliedIntegrations);
-      rudderElement.message.integrations = clientSuppliedIntegrations;
 
       // get intersection between config plane native enabled destinations
       // (which were able to successfully load on the page) vs user supplied integrations
@@ -871,7 +899,7 @@ class Analytics {
           if (err instanceof Error) {
             err.message = `${message}"${err.message}"`;
             newErr = err;
-          } else if (typeof err === 'string') {
+          } else if (typeof err === "string") {
             // eslint-disable-next-line no-ex-assign
             newErr = {
               message: `${message}"${err}"`,
@@ -893,6 +921,26 @@ class Analytics {
 
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
+
+      const tempIntegrationsData = cloneDeep(this.integrationsData);
+      // Filtering the integrations which are not a part of integrationsData object or value set to false
+      const tempClientSuppliedIntegrations = Object.keys(
+        clientSuppliedIntegrations
+      )
+        .filter((integration) => {
+          return !(
+            clientSuppliedIntegrations[integration] === true &&
+            tempIntegrationsData[integration]
+          );
+        })
+        .reduce((obj, key) => {
+          obj[key] = clientSuppliedIntegrations[key];
+          return obj;
+        }, {});
+      rudderElement.message.integrations = merge(
+        tempIntegrationsData,
+        tempClientSuppliedIntegrations
+      );
 
       // self analytics process, send to rudder
       enqueue.call(this, rudderElement, type);
@@ -1107,7 +1155,7 @@ class Analytics {
       storageOptions = { ...storageOptions, domain: options.setCookieDomain };
     }
 
-    if (options && typeof options.secureCookie === 'boolean') {
+    if (options && typeof options.secureCookie === "boolean") {
       storageOptions = { ...storageOptions, secure: options.secureCookie };
     }
 
