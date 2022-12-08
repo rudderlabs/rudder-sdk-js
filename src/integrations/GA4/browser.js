@@ -9,6 +9,7 @@ import {
   getDestinationItemProperties,
   getPageViewProperty,
   hasRequiredParameters,
+  getGa4SessionId,
 } from './utils';
 import { type, flattenJsonPayload } from '../../utils/utils';
 import { NAME } from './constants';
@@ -25,6 +26,7 @@ export default class GA4 {
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.extendGroupPayload = config.extendGroupPayload || false;
     this.debugMode = config.debugMode || false;
+    this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
     this.name = NAME;
   }
 
@@ -91,8 +93,8 @@ export default class GA4 {
   getdestinationProperties(properties, hasItem, products, includeList) {
     let destinationProperties = {};
     destinationProperties = getDestinationEventProperties(
-       properties,
-       includeList,
+      properties,
+      includeList,
        "properties",
        hasItem);
 
@@ -167,6 +169,10 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   track(rudderElement) {
+    // if Hybrid mode is enabled, don't send data to the device-mode
+    if (this.isHybridModeEnabled) {
+      return;
+    }
     const { event } = rudderElement.message;
     const { properties } = rudderElement.message;
     const { products } = properties;
@@ -185,6 +191,10 @@ export default class GA4 {
   }
 
   identify(rudderElement) {
+    // if Hybrid mode is enabled, don't send data to the device-mode
+    if (this.isHybridModeEnabled) {
+      return;
+    }
     window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
     if (this.sendUserId && rudderElement.message.userId) {
       const userId = this.analytics.userId || this.analytics.anonymousId;
@@ -204,6 +214,10 @@ export default class GA4 {
   }
 
   page(rudderElement) {
+    // if Hybrid mode is enabled, don't send data to the device-mode
+    if (this.isHybridModeEnabled) {
+      return;
+    }
     let pageProps = rudderElement.message.properties;
     if (!pageProps) return;
     pageProps = flattenJsonPayload(pageProps);
@@ -218,6 +232,10 @@ export default class GA4 {
   }
 
   group(rudderElement) {
+    // if Hybrid mode is enabled, don't send data to the device-mode
+    if (this.isHybridModeEnabled) {
+      return;
+    }
     const { groupId } = rudderElement.message;
     const { traits } = rudderElement.message;
 
@@ -227,5 +245,13 @@ export default class GA4 {
         ...(this.extendGroupPayload ? traits : {}),
       });
     });
+  }
+
+  getDataForIntegrationsObject() {
+    return {
+      'Google Analytics 4': {
+        sessionId: getGa4SessionId(this.measurementId),
+      },
+    };
   }
 }

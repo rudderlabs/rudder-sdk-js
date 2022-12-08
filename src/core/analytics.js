@@ -13,6 +13,7 @@
 /* eslint-disable no-param-reassign */
 import Emitter from 'component-emitter';
 import { parse } from 'component-querystring';
+import merge from 'lodash.merge';
 import * as R from 'ramda';
 import {
   getJSONTrimmed,
@@ -55,7 +56,7 @@ import { configToIntNames } from '../utils/config_to_integration_names';
 import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFactory';
 import * as BugsnagLib from '../features/core/metrics/error-report/Bugsnag';
 import { UserSession } from '../features/core/session';
-import { mergeDeepRight } from "../utils/ObjectUtils";
+import { mergeDeepRight } from '../utils/ObjectUtils';
 
 /**
  * class responsible for handling core
@@ -87,6 +88,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.integrationsData = {};
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
     this.cookieConsentOptions = {};
@@ -342,6 +344,28 @@ class Analytics {
     }
   }
 
+  /**
+   * Prepares the data for integrationsObj
+   *
+   * @param {*} integration
+   * @param {*} integrationInstance
+   * @memberof Analytics
+   */
+  prepareDataForIntegrationsObj(integrationInstances) {
+    integrationInstances.forEach((integrationInstance) => {
+      if (integrationInstance.getDataForIntegrationsObject) {
+        try {
+          this.integrationsData = {
+            ...this.integrationsData,
+            ...integrationInstance.getDataForIntegrationsObject(),
+          };
+        } catch (error) {
+          logger.debug(error);
+        }
+      }
+    });
+  }
+
   // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
     // logger.debug(
@@ -366,6 +390,7 @@ class Analytics {
     if (object.clientIntegrationObjects.every((intg) => !intg.isReady || intg.isReady())) {
       // Integrations are ready
       // set clientIntegrationsReady to be true
+      object.prepareDataForIntegrationsObj(object.clientIntegrationObjects);
       object.clientIntegrationsReady = true;
       // Execute the callbacks if any
       object.executeReadyCallback();
@@ -742,6 +767,24 @@ class Analytics {
 
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
+
+      const tempIntegrationsData = R.clone(this.integrationsData);
+      // Filtering the integrations which are not a part of integrationsData object or value set to false
+      const tempClientSuppliedIntegrations = Object.keys(clientSuppliedIntegrations)
+        .filter(
+          (integration) =>
+            !(
+              clientSuppliedIntegrations[integration] === true && tempIntegrationsData[integration]
+            ),
+        )
+        .reduce((obj, key) => {
+          obj[key] = clientSuppliedIntegrations[key];
+          return obj;
+        }, {});
+      rudderElement.message.integrations = merge(
+        tempIntegrationsData,
+        tempClientSuppliedIntegrations,
+      );
 
       // self analytics process, send to rudder
       this.eventRepository.enqueue(rudderElement, type);
