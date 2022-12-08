@@ -14,9 +14,8 @@ class UserSession {
   constructor() {
     this.storage = Storage;
     this.timeout = DEFAULT_SESSION_TIMEOUT;
-    this.sessionInfo = {
-      autoTrack: true,
-    };
+    // Fetch session information from storage if any or enable auto track
+    this.sessionInfo = this.storage.getSessionInfo() || { autoTrack: true };
   }
 
   /**
@@ -25,8 +24,6 @@ class UserSession {
    */
   initialize(options) {
     try {
-      // Fetch session information from storage if any or initialize with an empty object
-      this.sessionInfo = this.storage.getSessionInfo() || this.sessionInfo;
       /**
        * By default this.autoTrack will be true
        * Cases where this.autoTrack will be false:
@@ -141,6 +138,17 @@ class UserSession {
       manualTrack: true,
     };
     this.storage.setSessionInfo(this.sessionInfo);
+  }
+
+  /**
+   * A function to return current session id
+   * @returns string sessionId
+   */
+  getSessionId() {
+    if ((this.sessionInfo.autoTrack && this.isValidSession(Date.now())) || this.sessionInfo.manualTrack) {
+      return this.sessionInfo.id;
+    }
+    return null;
   }
 
   /**
