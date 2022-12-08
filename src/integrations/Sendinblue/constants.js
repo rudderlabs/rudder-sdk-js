@@ -3,6 +3,7 @@ const CNameMapping = {
   [NAME]: NAME,
   Sendinblue: NAME,
   sendinblue: NAME,
+  SendinBlue: NAME
 };
 
 const excludeReservedTraits = [
