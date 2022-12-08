@@ -10,23 +10,6 @@ import {
   isNotEmpty,
 } from "../utils/commonUtils";
 
-const validateEmail = (email) => {
-  const regex =
-    /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  if (!regex.test(email)) {
-    return false;
-  }
-  return true;
-};
-
-const validatePhoneWithCountryCode = (phone) => {
-  const regex = /^\+(?:[{0-9] ?){6,14}[0-9]$/;
-  if (!regex.test(phone)) {
-    return false;
-  }
-  return true;
-};
-
 // FIRSTNAME, LASTNAME, SMS and EMAIL are the default created contact attributes in sendinblue
 const prepareDefaultContactAttributes = (message, trackCall = false) => {
   const { firstName, lastName, phone, email } = getDefinedTraits(message);
@@ -147,6 +130,4 @@ export {
   prepareUserTraits,
   prepareTrackEventData,
   preparePagePayload,
-  validateEmail,
-  validatePhoneWithCountryCode,
 };

@@ -6,10 +6,13 @@ import { LOAD_ORIGIN } from "../ScriptLoader";
 import {
   prepareUserTraits,
   prepareTrackEventData,
-  preparePagePayload,
+  preparePagePayload
+} from "./utils";
+import {
   validateEmail,
   validatePhoneWithCountryCode,
-} from "./utils";
+} from "../utils/commonUtils";
+
 import { getDefinedTraits } from "../../utils/utils";
 
 class Sendinblue {
