@@ -1,10 +1,7 @@
-.husky/
-__mocks__/
 dist/
 node_modules/
 reports/
 stats/
 prodsdk.js
-*.json
-*.md
-*.d.ts
+CHANGELOG.md
+CONTRIBUTING.md

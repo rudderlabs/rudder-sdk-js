@@ -43,11 +43,8 @@ test("Check SDK is loaded as object and api calls reaching to hit network", asyn
     })(method);
   }
 
-  rudderanalytics.load(
-    "1d4Qof5j9WqTuFhvUkmLaHe4EV3",
-    "https://hosted.rudderlabs.com"
-  ),
-    rudderanalytics.page();
+  rudderanalytics.load('WRITE_KEY', 'DATA_PLANE_URL');
+  rudderanalytics.page();
 
   require("./prodsdk.js");
   await wait(500);
