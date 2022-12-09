@@ -28,22 +28,19 @@
         })(method);
       }
 
-      rudderanalytics.load(
-          "1tIpBighm1f4TosFZHwOBbjSLV9",
-          "http://localhost:8080",
-        {
-          logLevel: "DEBUG",
-          configUrl: "https://api.dev.rudderlabs.com",
-        }
-      );
+      rudderanalytics.load('__WRITE_KEY__', '__DATAPLANE_URL__', {
+        logLevel: "DEBUG",
+        configUrl: "https://api.dev.rudderlabs.com"
+      });
+
       //  rudderanalytics.track();
       //rudderanalytics.page(); //Turn this on if Chartbeat is a destination
     </script>
 
-    <script src="../browser.js"></script>
-    <script type="module">
-     import mediaHeartbeats from "../../src/integrations/AdobeAnalytics/heartbeatHandle.js"
-     </script>
+    <script src="./rudder-analytics.js"></script>
+<!--    <script type="module">-->
+<!--      import mediaHeartbeats from "../../src/integrations/AdobeAnalytics/heartbeatHandle.js"-->
+<!--    </script>-->
     <script>
       window.rudderanalytics.ready(() => {
         console.log("we are all set!!!");
