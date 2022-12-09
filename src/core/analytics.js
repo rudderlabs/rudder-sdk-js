@@ -13,7 +13,6 @@
 /* eslint-disable no-param-reassign */
 import Emitter from 'component-emitter';
 import { parse } from 'component-querystring';
-import merge from 'lodash.merge';
 import * as R from 'ramda';
 import {
   getJSONTrimmed,
@@ -781,7 +780,7 @@ class Analytics {
           obj[key] = clientSuppliedIntegrations[key];
           return obj;
         }, {});
-      rudderElement.message.integrations = merge(
+      rudderElement.message.integrations = R.mergeDeepRight(
         tempIntegrationsData,
         tempClientSuppliedIntegrations,
       );
