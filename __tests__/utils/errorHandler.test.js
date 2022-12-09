@@ -24,4 +24,14 @@ describe("Test group for 'normaliseError' method", () => {
     const errMessage = normaliseError(msg, customMessage);
     expect(errMessage).toBe(`${staticMessage}${customMessage} "${msg}"`);
   });
+  it('Should normaliseError for object with message property input', () => {
+    const msg = 'Sample error message';
+    const errMessage = normaliseError({ message: msg });
+    expect(errMessage).toBe(`${staticMessage} "${msg}"`);
+  });
+  it('Should normaliseError for object with no message property input', () => {
+    const obj = { random: 12345678 };
+    const errMessage = normaliseError(obj);
+    expect(errMessage).toBe(`${staticMessage} "${JSON.stringify(obj)}"`);
+  });
 });

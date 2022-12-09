@@ -310,8 +310,8 @@ class Analytics {
                 self.dynamicallyLoadedIntegrations[pluginName] = intMod[modName];
               });
             } catch (e) {
-              e.message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
-              handleError(e);
+              const message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
+              handleError(e, message);
               self.failedToBeLoadedIntegration.push(intgInstance);
             }
           }
