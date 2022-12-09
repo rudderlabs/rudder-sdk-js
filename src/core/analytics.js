@@ -735,18 +735,7 @@ class Analytics {
             }
           } catch (err) {
             const message = `[sendToNative]:: [Destination: ${obj.name}]:: `;
-            let newErr;
-            if (err instanceof Error) {
-              err.message = `${message}"${err.message}"`;
-              newErr = err;
-            } else if (typeof err === "string") {
-              newErr = {
-                message: `${message}"${err}"`,
-              };
-            } else {
-              newErr = err;
-            }
-            handleError(newErr);
+            handleError(err, message);
           }
         });
       }
@@ -1272,7 +1261,7 @@ Emitter(instance);
 window.addEventListener(
   'error',
   (e) => {
-    handleError(e, instance);
+    handleError(e, null, instance);
   },
   true,
 );

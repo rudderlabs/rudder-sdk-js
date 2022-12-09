@@ -137,7 +137,7 @@ function notifyError(error) {
   }
 }
 
-function handleError(error, analyticsInstance) {
+function handleError(error, customMessage, analyticsInstance) {
   let errorMessage;
   try {
     if (typeof error === 'string') {
@@ -179,7 +179,8 @@ function handleError(error, analyticsInstance) {
       }
     }
 
-    errorMessage = `[handleError]:: "${errorMessage}"`;
+    const customeErrMessagePrefix = customMessage || '';
+    errorMessage = `[handleError]::${customeErrMessagePrefix} "${errorMessage}"`;
     logger.error(errorMessage);
     let errorObj = error;
     if (!(error instanceof Error)) errorObj = new Error(errorMessage);
