@@ -17,8 +17,6 @@ import * as R from 'ramda';
 import {
   getJSONTrimmed,
   generateUUID,
-  handleError,
-  leaveBreadcrumb,
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
@@ -34,6 +32,7 @@ import {
   get,
   getStringId,
 } from '../utils/utils';
+import { handleError, leaveBreadcrumb } from '../utils/errorHandler';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
@@ -55,7 +54,7 @@ import { configToIntNames } from '../utils/config_to_integration_names';
 import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFactory';
 import * as BugsnagLib from '../features/core/metrics/error-report/Bugsnag';
 import { UserSession } from '../features/core/session';
-import { mergeDeepRight } from "../utils/ObjectUtils";
+import { mergeDeepRight } from '../utils/ObjectUtils';
 
 /**
  * class responsible for handling core
@@ -1261,7 +1260,7 @@ Emitter(instance);
 window.addEventListener(
   'error',
   (e) => {
-    handleError(e, null, instance);
+    handleError(e, undefined, instance);
   },
   true,
 );
