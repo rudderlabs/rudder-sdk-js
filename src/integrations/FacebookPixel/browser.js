@@ -29,6 +29,7 @@ class FacebookPixel {
     this.whitelistPiiProperties = config.whitelistPiiProperties;
     this.useUpdatedMapping = config.useUpdatedMapping;
     this.name = NAME;
+    this.analytics = analytics;
   }
 
   init() {
@@ -62,10 +63,10 @@ class FacebookPixel {
     if (this.useUpdatedMapping) {
       const userData = {
         context: {
-          traits: { ...Storage.getUserTraits() }
+          traits: { ...this.analytics.getUserTraits() }
         },
-        userId: Storage.getUserId(),
-        anonymousId: Storage.getAnonymousId()
+        userId: this.analytics.getUserId(),
+        anonymousId: this.analytics.getAnonymousId()
       }
 
       let userPayload = constructPayload(userData, traitsMapper);
