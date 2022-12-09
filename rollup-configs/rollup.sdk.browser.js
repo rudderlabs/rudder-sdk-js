@@ -101,7 +101,7 @@ export default {
     }),
     process.env.DEV_SERVER &&
     htmlTemplate({
-      template: 'examples/html/script-test.html',
+      template: process.env.EXAMPLE_PATH || 'examples/html/script-test.html',
       target: 'index.html',
       attrs: ['async', 'defer'],
       replaceVars: {
