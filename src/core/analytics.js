@@ -1444,6 +1444,10 @@ class Analytics {
   endSession() {
     this.uSession.end();
   }
+
+  getSessionId() {
+    return this.uSession.getSessionId();
+  }
 }
 
 function pushQueryStringDataToAnalyticsArray(obj) {
@@ -1562,6 +1566,7 @@ const setAnonymousId = instance.setAnonymousId.bind(instance);
 const startSession = instance.startSession.bind(instance);
 const endSession = instance.endSession.bind(instance);
 const getUserId = instance.getUserId.bind(instance);
+const getSessionId = instance.getSessionId.bind(instance);
 
 export {
   initialized,
@@ -1578,5 +1583,6 @@ export {
   setAnonymousId,
   startSession,
   endSession,
-  getUserId
+  getUserId,
+  getSessionId,
 };
