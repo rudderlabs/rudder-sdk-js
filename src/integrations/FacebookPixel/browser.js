@@ -7,11 +7,12 @@ import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
 import getEventId from "./utils";
 import { getHashFromArray, isDefined } from "../utils/commonUtils";
-import { NAME, traitsMapper } from "./constants";
+import { NAME, traitsMapper, reserve } from "./constants";
 import { constructPayload } from "../../utils/utils";
 
 class FacebookPixel {
-  constructor(config) {
+  constructor(config, analytics) {
+    this.analytics = analytics;
     this.blacklistPiiProperties = config.blacklistPiiProperties;
     this.categoryToContent = config.categoryToContent;
     this.pixelId = config.pixelId;
@@ -56,7 +57,31 @@ class FacebookPixel {
     window.fbq.version = "2.0";
     window.fbq.queue = [];
 
-    window.fbq("init", this.pixelId);
+    if (this.useUpdatedMapping) {
+      const userData = {
+        context: {
+          traits: { ...this.analytics.getUserTraits() }
+        },
+        userId: this.analytics.getUserId(),
+        anonymousId: this.analytics.getAnonymousId()
+      }
+
+      let userPayload = constructPayload(userData, traitsMapper);
+      // here we are sending other traits apart from the reserved ones.
+      reserve.forEach((element) => {
+        delete userData.context?.traits[element];
+      });
+
+      userPayload = { ...userPayload, ...userData.context.traits };
+
+      if (userPayload.external_id) {
+        userPayload.external_id = sha256(userPayload.external_id).toString();
+      }
+      window.fbq('init', this.pixelId, userPayload);
+    } else {
+      window.fbq('init', this.pixelId );
+    }
+
     ScriptLoader(
       "fbpixel-integration",
       "https://connect.facebook.net/en_US/fbevents.js"
@@ -87,19 +112,7 @@ class FacebookPixel {
         ? rudderElement.message.context.traits
         : undefined;
       if (this.useUpdatedMapping) {
-        const reserve = [
-          "email",
-          "lastName",
-          "firstName",
-          "phone",
-          "external_id",
-          "city",
-          "birthday",
-          "gender",
-          "street",
-          "zip",
-          "country",
-        ];
+       
         // this construcPayload will help to map the traits in the same way as cloud mode
         payload = constructPayload(rudderElement.message, traitsMapper);
         if (payload.external_id) {
