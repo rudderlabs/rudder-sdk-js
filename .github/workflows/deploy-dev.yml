@@ -50,5 +50,5 @@ jobs:
       - name: Sync files to S3
         run: |
           aws s3 cp dist/legacy/rudder-analytics.js s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/rudder-analytics.js --cache-control max-age=3600
-          aws s3 cp dist/legacy/integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/js-integrations/ --recursive --cache-control max-age=3600
+          aws s3 cp dist/legacy/js-integrations/ s3://${{ secrets.AWS_DEV_S3_BUCKET_NAME }}/dev/latest/js-integrations/ --recursive --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_DEV_CF_DISTRIBUTION_ID }} --paths "/dev/latest*"

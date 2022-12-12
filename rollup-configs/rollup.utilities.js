@@ -34,10 +34,7 @@ export function getDefaultConfig(distName) {
 
   return {
     watch: {
-      include: [
-        'src/**',
-        'packages/**',
-      ],
+      include: ['src/**', 'packages/**', 'examples/**'],
     },
     external: [],
     onwarn(warning, warn) {
@@ -94,7 +91,7 @@ export function getDefaultConfig(distName) {
       }),
       process.env.DEV_SERVER &&
         htmlTemplate({
-          template: 'examples/html/script-test.html',
+          template: process.env.EXAMPLE_PATH || 'examples/html/script-test.html',
           target: 'index.html',
           attrs: ['async', 'defer'],
           replaceVars: {
