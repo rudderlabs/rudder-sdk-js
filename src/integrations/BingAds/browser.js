@@ -58,28 +58,25 @@ class BingAds {
 
   track = (rudderElement) => {
     const { type, properties, event } = rudderElement.message;
-    const { category, currency, value, revenue, total, eventValue } = properties;
+    const { category, currency, value, revenue, total } = properties;
     const payload = {
-      event: type,
-      event_label: event,
+      ea: type,
+      el: event,
     };
     if (category) {
-      payload.event_category = category;
+      payload.ec = category;
     }
     if (currency) {
-      payload.currency = currency;
+      payload.gc = currency;
     }
     if (value) {
-      payload.revenue_value = value;
+      payload.gv = value;
     }
     if (revenue) {
-      payload.revenue_value = revenue;
+      payload.gv = revenue;
     }
     if (total) {
-      payload.revenue_value = total;
-    }
-    if (eventValue) {
-      payload.event_value = eventValue;
+      payload.gv = total;
     }
 
     window.uetq.push(payload);
