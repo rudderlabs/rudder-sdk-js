@@ -105,7 +105,9 @@ export function getDefaultConfig(distName) {
       process.env.DEV_SERVER &&
         serve({
           open: true,
-          openPage: '/legacy/index.html',
+          openPage: `/${
+            process.env.BROWSERSLIST_ENV === 'modern' ? 'modern' : 'legacy'
+          }/index.html`,
           contentBase: ['dist'],
           host: 'localhost',
           port: 3001,
