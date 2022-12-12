@@ -17,14 +17,18 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 const version = process.env.VERSION || 'dev-snapshot';
 const moduleType = process.env.NPM === 'true' ? 'npm' : 'cdn';
-const sourceMapType = process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
+const sourceMapType =
+  process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const outDir = `dist`;
 const distName = 'rudder-analytics';
 const modName = 'rudderanalytics';
 
 const fileNamePrefix = `${distName}${process.env.STAGING === 'true' ? '-staging' : ''}`;
 const fileNameSuffix = process.env.PROD_DEBUG === 'inline' ? '-map' : '';
-const outFilePath = process.env.ENV === 'prod' ? `${outDir}/${fileNamePrefix}${fileNameSuffix}.min.js` : `${outDir}/${fileNamePrefix}.js`;
+const outFilePath =
+  process.env.ENV === 'prod'
+    ? `${outDir}/${fileNamePrefix}${fileNameSuffix}.min.js`
+    : `${outDir}/${fileNamePrefix}.js`;
 
 const outputFiles = [
   {
@@ -40,12 +44,10 @@ const outputFiles = [
 
 export default {
   input: 'src/core/analytics.js',
-  external: ["Xmlhttprequest", "universal-analytics"],
+  external: ['Xmlhttprequest', 'universal-analytics'],
   output: outputFiles,
   watch: {
-    include: [
-      'src/**'
-    ],
+    include: ['src/**'],
   },
   onwarn(warning, warn) {
     if (warning.code === 'THIS_IS_UNDEFINED') {
@@ -79,47 +81,49 @@ export default {
       exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
     }),
     process.env.UGLIFY === 'true' &&
-    terser({
-      // remove all comments
-      format: {
-        comments: false,
-      },
-    }),
+      terser({
+        // remove all comments
+        format: {
+          comments: false,
+        },
+      }),
     process.env.VISUALIZER === 'true' &&
-    process.env.UGLIFY === 'true' &&
-    visualizer({
-      filename: `./stats/stats.html`,
-      title: `Rollup Visualizer - ${distName}`,
-      sourcemap: true,
-      open: true,
-      gzipSize: true,
-      brotliSize: true,
-    }),
+      process.env.UGLIFY === 'true' &&
+      visualizer({
+        filename: `./stats/stats.html`,
+        title: `Rollup Visualizer - ${distName}`,
+        sourcemap: true,
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+      }),
     filesize({
       showBeforeSizes: 'build',
       showBrotliSize: true,
     }),
     process.env.DEV_SERVER &&
-    htmlTemplate({
-      template: process.env.EXAMPLE_PATH || 'examples/html/script-test.html',
-      target: 'index.html',
-      attrs: ['async', 'defer'],
-      replaceVars: {
-        __WRITE_KEY__: process.env.WRITE_KEY,
-        __DATAPLANE_URL__: process.env.DATAPLANE_URL,
-      },
-    }),
+      htmlTemplate({
+        template: process.env.EXAMPLE_PATH || 'examples/html/script-test.html',
+        target: 'index.html',
+        attrs: ['async', 'defer'],
+        replaceVars: {
+          __WRITE_KEY__: process.env.WRITE_KEY,
+          __DATAPLANE_URL__: process.env.DATAPLANE_URL,
+          __CONFIG_SERVER_HOST__:
+            process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
+        },
+      }),
     process.env.DEV_SERVER &&
-    serve({
-      open: true,
-      openPage: '/index.html',
-      contentBase: ['dist', 'src/integrations'],
-      host: 'localhost',
-      port: 3001,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
-    }),
+      serve({
+        open: true,
+        openPage: '/index.html',
+        contentBase: ['dist', 'src/integrations'],
+        host: 'localhost',
+        port: 3001,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+        },
+      }),
     process.env.DEV_SERVER && livereload(),
   ],
 };
