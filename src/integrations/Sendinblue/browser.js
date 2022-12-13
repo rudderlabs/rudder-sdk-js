@@ -110,13 +110,7 @@ class Sendinblue {
     }
 
     if (this.sendTraitsInTrack) {
-      const { email, phone } = getDefinedTraits(message);
-
-      if (email && !validateEmail(email)) {
-        logger.error("[Sendinblue]:: provided email is invalid");
-        return;
-      }
-
+      const {phone } = getDefinedTraits(message);
       if (phone && !validatePhoneWithCountryCode(phone)) {
         logger.error("[Sendinblue]:: provided phone number is invalid");
         return;

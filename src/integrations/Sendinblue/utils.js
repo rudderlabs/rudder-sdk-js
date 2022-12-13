@@ -83,7 +83,7 @@ const prepareUserTraits = (message, contactAttributeMapping, trackCall) => {
 // id -> from integration object or messageId
 // data -> properties
 const prepareTrackEventData = (message) => {
-  const { properties, integrations } = message;
+  const { properties, integrations, messageId } = message;
   let eventData = {};
   if (isNotEmpty(properties)) {
     let id;
@@ -94,7 +94,7 @@ const prepareTrackEventData = (message) => {
       }
     }
 
-    id = id || message.messageId;
+    id = id || messageId;
     eventData = { id, data: removeUndefinedAndNullValues(properties) };
   }
   return eventData;
