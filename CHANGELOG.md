@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.22.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.20.0...v2.22.0) (2022-12-13)
+
+
+### Features
+
+* **core:** getSessionId API ([#769](https://github.com/rudderlabs/rudder-sdk-js/issues/769)) ([24a6f5b](https://github.com/rudderlabs/rudder-sdk-js/commit/24a6f5bb21f572fc903aeb44f3a4ce7828fdf1c1))
+* **core:** remove timestamp from message id  ([#737](https://github.com/rudderlabs/rudder-sdk-js/issues/737)) ([4e3671a](https://github.com/rudderlabs/rudder-sdk-js/commit/4e3671acb1dd01803abd39ed863b22a5614f99da))
+* **destination:** add dedup support for identify call in Braze ([#756](https://github.com/rudderlabs/rudder-sdk-js/issues/756)) ([59f38b5](https://github.com/rudderlabs/rudder-sdk-js/commit/59f38b5a22bda43470b0d04e603a23eb9b48d9e2))
+* **destination:** adding custom properties for ga4 ([#750](https://github.com/rudderlabs/rudder-sdk-js/issues/750)) ([f1356d4](https://github.com/rudderlabs/rudder-sdk-js/commit/f1356d47d8510880c53ec6e216bcd116ce205c8d))
+* **destination:** onboard satismeter ([#753](https://github.com/rudderlabs/rudder-sdk-js/issues/753)) ([618d917](https://github.com/rudderlabs/rudder-sdk-js/commit/618d917336f9eb405f56ec96247bb4e4b9b37753))
+* onbaord destination axeptio ([#752](https://github.com/rudderlabs/rudder-sdk-js/issues/752)) ([a0d0429](https://github.com/rudderlabs/rudder-sdk-js/commit/a0d0429ded60f63d9ea6aedd0323c0702af0f9a8))
+* onboard microsoft clarity destination ([#749](https://github.com/rudderlabs/rudder-sdk-js/issues/749)) ([dd5eebe](https://github.com/rudderlabs/rudder-sdk-js/commit/dd5eebe70c3902b1aa6c97640d5c49a3956d1382))
+* posthog option to not load core sdk ([#748](https://github.com/rudderlabs/rudder-sdk-js/issues/748)) ([997ceae](https://github.com/rudderlabs/rudder-sdk-js/commit/997ceaefca152b0bcda6fc93662b4a635f2d55b9))
+
+
+### Bug Fixes
+
+* braze update supportDedup ([#761](https://github.com/rudderlabs/rudder-sdk-js/issues/761)) ([26f0fb6](https://github.com/rudderlabs/rudder-sdk-js/commit/26f0fb6da32fe8358b1ff3d41504332ef68ef020))
+* **core:** illegal invocation of sendBeacon ([#738](https://github.com/rudderlabs/rudder-sdk-js/issues/738)) ([1191a8c](https://github.com/rudderlabs/rudder-sdk-js/commit/1191a8c1975944212878313f172c20a6a2c05459))
+* **core:** replicate lodash merge behaviour with ramda ([#745](https://github.com/rudderlabs/rudder-sdk-js/issues/745)) ([e88e1fb](https://github.com/rudderlabs/rudder-sdk-js/commit/e88e1fb505b4db774f600db84069346c3d89ec4d))
+* **core:** unhandled exceprion for error mutation coming from integrations ([#787](https://github.com/rudderlabs/rudder-sdk-js/issues/787)) ([3e457ab](https://github.com/rudderlabs/rudder-sdk-js/commit/3e457abbd03bf1aa91b3c5ce72ede21571d0d479))
+* **destination:** updated bing ads syntax as per the updated Microsoft syntax ([#751](https://github.com/rudderlabs/rudder-sdk-js/issues/751)) ([c4be4dd](https://github.com/rudderlabs/rudder-sdk-js/commit/c4be4dd6f6e7030c857c38edbf2b28748331448b))
+* reverting the changes made in  bing ads integration ([#793](https://github.com/rudderlabs/rudder-sdk-js/issues/793)) ([a2d66f4](https://github.com/rudderlabs/rudder-sdk-js/commit/a2d66f408be8668d77fe48124096d23fe51b7e67))
+* **security:** [snyk] upgrade @vespaiach/axios-fetch-adapter from 0.3.0 to 0.3.1 ([#702](https://github.com/rudderlabs/rudder-sdk-js/issues/702)) ([cce3796](https://github.com/rudderlabs/rudder-sdk-js/commit/cce37960aeb54110b89addeabf2c1acbbfea71b8))
+
+## [1.21.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.20.0...v1.21.0) (2022-11-08)
+
 ## [2.21.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.20.0...v2.21.0) (2022-12-05)
 
 
