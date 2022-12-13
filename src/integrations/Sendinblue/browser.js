@@ -118,7 +118,7 @@ class Sendinblue {
     }
 
     const userTraits = this.sendTraitsInTrack
-      ? prepareUserTraits(message, this.contactAttributeMapping, true)
+      ? prepareUserTraits(message, this.contactAttributeMapping)
       : {};
     const eventData = prepareTrackEventData(message);
     window.sendinblue.track(event, userTraits, eventData);

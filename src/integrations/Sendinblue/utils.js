@@ -10,17 +10,9 @@ import {
   isNotEmpty,
 } from "../utils/commonUtils";
 
-// FIRSTNAME, LASTNAME, SMS and EMAIL are the default created contact attributes in sendinblue
-const prepareDefaultContactAttributes = (message, trackCall = false) => {
-  const { firstName, lastName, phone, email } = getDefinedTraits(message);
-  if (trackCall) {
-    return {
-      FIRSTNAME: firstName,
-      LASTNAME: lastName,
-      SMS: phone,
-      EMAIL: email,
-    };
-  }
+// FIRSTNAME, LASTNAME, SMS are the default created contact attributes in sendinblue
+const prepareDefaultContactAttributes = (message) => {
+  const { firstName, lastName, phone} = getDefinedTraits(message);
   return { FIRSTNAME: firstName, LASTNAME: lastName, SMS: phone };
 };
 
@@ -52,9 +44,9 @@ const refineUserTraits = (userTraits, attributeMap) => {
  * @param {*} contactAttributeMapping traits to Sendinblue contact attribute mapping defined in webapp
  * @returns
  */
-const prepareUserTraits = (message, contactAttributeMapping, trackCall) => {
+const prepareUserTraits = (message, contactAttributeMapping) => {
   const { traits } = message.context;
-  const reservedTraits = prepareDefaultContactAttributes(message, trackCall);
+  const reservedTraits = prepareDefaultContactAttributes(message);
 
   // convert destination.Config.contactAttributeMapping to hashMap
   const attributeMap = getHashFromArray(
