@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
+import logger from "../../utils/logUtil";
 import ScriptLoader from "../ScriptLoader";
-import Logger from "../../utils/logger";
 
 import {
   isReservedName,
@@ -9,12 +9,10 @@ import {
   getDestinationItemProperties,
   getPageViewProperty,
   hasRequiredParameters,
-  proceedCloudMode,
 } from "./utils";
 import { type, flattenJsonPayload } from "../../utils/utils";
 import { NAME } from "./constants";
 
-const logger = new Logger(NAME);
 export default class GA4 {
   constructor(config, analytics) {
     if (analytics.logLevel) {
@@ -27,7 +25,6 @@ export default class GA4 {
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.extendGroupPayload = config.extendGroupPayload || false;
     this.debugMode = config.debugMode || false;
-    this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
     this.name = NAME;
   }
 
@@ -174,10 +171,6 @@ export default class GA4 {
    * @param {*} rudderElement
    */
   track(rudderElement) {
-    // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.isHybridModeEnabled) {
-      return proceedCloudMode(rudderElement, this.measurementId);
-    }
     const { event } = rudderElement.message;
     const { properties } = rudderElement.message;
     const { products } = properties;
@@ -196,11 +189,6 @@ export default class GA4 {
   }
 
   identify(rudderElement) {
-    // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.isHybridModeEnabled) {
-      return proceedCloudMode(rudderElement, this.measurementId);
-    }
-
     window.gtag(
       "set",
       "user_properties",
@@ -224,11 +212,6 @@ export default class GA4 {
   }
 
   page(rudderElement) {
-    // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.isHybridModeEnabled) {
-      return proceedCloudMode(rudderElement, this.measurementId);
-    }
-
     let pageProps = rudderElement.message.properties;
     if (!pageProps) return;
     pageProps = flattenJsonPayload(pageProps);
@@ -243,11 +226,6 @@ export default class GA4 {
   }
 
   group(rudderElement) {
-    // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.isHybridModeEnabled) {
-      return proceedCloudMode(rudderElement, this.measurementId);
-    }
-
     const { groupId } = rudderElement.message;
     const { traits } = rudderElement.message;
 
