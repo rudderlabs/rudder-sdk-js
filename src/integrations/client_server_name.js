@@ -68,7 +68,6 @@ const clientToServerNames = {
   SATISMETER: "Satismeter",
   MICROSOFT_CLARITY: "Microsoft Clarity",
   AXEPTIO: "Axeptio",
-  SENDINBLUE: "Sendinblue"
 };
 
 export { clientToServerNames };
