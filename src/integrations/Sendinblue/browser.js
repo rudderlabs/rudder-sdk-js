@@ -128,12 +128,6 @@ class Sendinblue {
     logger.debug("===In Sendinblue page===");
     const { message } = rudderElement;
     const { name } = message;
-
-    if (!name) {
-      logger.error("[Sendinblue]:: name is required for page call");
-      return;
-    }
-
     const payload = preparePagePayload(message);
     window.sendinblue.page(name, payload);
   }
