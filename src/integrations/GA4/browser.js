@@ -137,10 +137,8 @@ export default class GA4 {
   }
 
   sendGAEvent(event, parameters, checkRequiredParameters, eventMappingObj) {
-    if (checkRequiredParameters) {
-      if (!hasRequiredParameters(parameters, eventMappingObj)) {
+    if (checkRequiredParameters && !hasRequiredParameters(parameters, eventMappingObj)) {
         throw Error('Payload must have required parameters..');
-      }
     }
     window.gtag('event', event, parameters);
   }
@@ -173,6 +171,8 @@ export default class GA4 {
     if (this.isHybridModeEnabled) {
       return;
     }
+
+    logger.debug('In GoogleAnalyticsManager Track');
     const { event } = rudderElement.message;
     const { properties } = rudderElement.message;
     const { products } = properties;
@@ -195,6 +195,8 @@ export default class GA4 {
     if (this.isHybridModeEnabled) {
       return;
     }
+
+    logger.debug('In GoogleAnalyticsManager Identify');
     window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
     if (this.sendUserId && rudderElement.message.userId) {
       const userId = this.analytics.userId || this.analytics.anonymousId;
@@ -218,6 +220,8 @@ export default class GA4 {
     if (this.isHybridModeEnabled) {
       return;
     }
+
+    logger.debug('In GoogleAnalyticsManager Page');
     let pageProps = rudderElement.message.properties;
     if (!pageProps) return;
     pageProps = flattenJsonPayload(pageProps);
@@ -236,6 +240,8 @@ export default class GA4 {
     if (this.isHybridModeEnabled) {
       return;
     }
+
+    logger.debug('In GoogleAnalyticsManager Group');
     const { groupId } = rudderElement.message;
     const { traits } = rudderElement.message;
 
