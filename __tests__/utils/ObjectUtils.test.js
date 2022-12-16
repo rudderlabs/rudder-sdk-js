@@ -6,7 +6,7 @@ const identifyTraitsPayloadMock = {
   phone: '1234567890',
   email: 'dummy@email.com',
   custom_flavor: 'chocolate',
-  custom_date: Date.now(),
+  custom_date: new Date(2022, 1, 21, 0, 0, 0),
   address: [
     {
       label: 'office',
@@ -75,7 +75,7 @@ const expectedMergedTraitsPayload = {
   phone: '1234567890',
   email: 'dummy@email.com',
   custom_flavor: 'chocolate',
-  custom_date: Date.now(),
+  custom_date: new Date(2022, 1, 21, 0, 0, 0),
   address: [
     {
       label: 'Head office',

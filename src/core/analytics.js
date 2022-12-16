@@ -17,8 +17,6 @@ import * as R from 'ramda';
 import {
   getJSONTrimmed,
   generateUUID,
-  handleError,
-  leaveBreadcrumb,
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
@@ -34,6 +32,7 @@ import {
   get,
   getStringId,
 } from '../utils/utils';
+import { handleError, leaveBreadcrumb } from '../utils/errorHandler';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
@@ -55,7 +54,7 @@ import { configToIntNames } from '../utils/config_to_integration_names';
 import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFactory';
 import * as BugsnagLib from '../features/core/metrics/error-report/Bugsnag';
 import { UserSession } from '../features/core/session';
-import { mergeDeepRight } from "../utils/ObjectUtils";
+import { mergeDeepRight } from '../utils/ObjectUtils';
 
 /**
  * class responsible for handling core
@@ -311,8 +310,8 @@ class Analytics {
                 self.dynamicallyLoadedIntegrations[pluginName] = intMod[modName];
               });
             } catch (e) {
-              e.message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
-              handleError(e);
+              const message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
+              handleError(e, message);
               self.failedToBeLoadedIntegration.push(intgInstance);
             }
           }
@@ -734,8 +733,8 @@ class Analytics {
               }
             }
           } catch (err) {
-            err.message = `[sendToNative]::[Destination:${obj.name}]:: ${err}`;
-            handleError(err);
+            const message = `[sendToNative]:: [Destination: ${obj.name}]:: `;
+            handleError(err, message);
           }
         });
       }
@@ -883,6 +882,10 @@ class Analytics {
 
   getUserId() {
     return this.userId;
+  }
+
+  getSessionId() {
+    return this.uSession.getSessionId();
   }
 
   getUserTraits() {
@@ -1257,7 +1260,7 @@ Emitter(instance);
 window.addEventListener(
   'error',
   (e) => {
-    handleError(e, instance);
+    handleError(e, undefined, instance);
   },
   true,
 );
@@ -1309,6 +1312,7 @@ const reset = instance.reset.bind(instance);
 const load = instance.load.bind(instance);
 const initialized = (instance.initialized = true);
 const getUserId = instance.getUserId.bind(instance);
+const getSessionId = instance.getSessionId.bind(instance);
 const getUserTraits = instance.getUserTraits.bind(instance);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
@@ -1328,6 +1332,7 @@ export {
   alias,
   group,
   getUserId,
+  getSessionId,
   getUserTraits,
   getAnonymousId,
   setAnonymousId,
