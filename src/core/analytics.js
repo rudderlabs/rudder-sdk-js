@@ -17,8 +17,6 @@ import * as R from 'ramda';
 import {
   getJSONTrimmed,
   generateUUID,
-  handleError,
-  leaveBreadcrumb,
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
@@ -34,6 +32,7 @@ import {
   get,
   getStringId,
 } from '../utils/utils';
+import { handleError, leaveBreadcrumb } from '../utils/errorHandler';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
@@ -312,8 +311,8 @@ class Analytics {
                 self.dynamicallyLoadedIntegrations[pluginName] = intMod[modName];
               });
             } catch (e) {
-              e.message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
-              handleError(e);
+              const message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
+              handleError(e, message);
               self.failedToBeLoadedIntegration.push(intgInstance);
             }
           }
@@ -758,8 +757,8 @@ class Analytics {
               }
             }
           } catch (err) {
-            err.message = `[sendToNative]::[Destination:${obj.name}]:: ${err}`;
-            handleError(err);
+            const message = `[sendToNative]:: [Destination: ${obj.name}]:: `;
+            handleError(err, message);
           }
         });
       }
@@ -1303,7 +1302,7 @@ Emitter(instance);
 window.addEventListener(
   'error',
   (e) => {
-    handleError(e, instance);
+    handleError(e, undefined, instance);
   },
   true,
 );

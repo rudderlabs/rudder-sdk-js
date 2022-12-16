@@ -4,7 +4,7 @@ import { INTG_SUFFIX } from '../src/utils/constants';
 const variantSubfolder = process.env.BROWSERSLIST_ENV === 'modern' ? '/modern' : '/legacy';
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
-const outDir = `dist${variantSubfolder}/integrations`;
+const outDir = `dist${variantSubfolder}/js-integrations`;
 const distName = process.env.INTG_NAME;
 const modName = `${process.env.INTG_NAME}${INTG_SUFFIX}`;
 
