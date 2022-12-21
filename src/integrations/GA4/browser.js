@@ -201,6 +201,7 @@ export default class GA4 {
       return;
     }
 
+    logger.debug('In GoogleAnalyticsManager Identify');
     window.gtag(
       "set",
       "user_properties",
