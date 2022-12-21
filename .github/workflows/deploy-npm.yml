@@ -36,6 +36,7 @@ jobs:
 
       - name: Publish package to NPM
         env:
+          HUSKY: 0
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           npm set //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
