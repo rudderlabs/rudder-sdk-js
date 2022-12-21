@@ -211,8 +211,6 @@ export default class GA4 {
         });
       }
     }
-
-    logger.debug('in GoogleAnalyticsManager identify');
   }
 
   page(rudderElement) {
