@@ -216,11 +216,6 @@ export default class GA4 {
   }
 
   page(rudderElement) {
-    // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.isHybridModeEnabled) {
-      return;
-    }
-
     logger.debug('In GoogleAnalyticsManager Page');
     let pageProps = rudderElement.message.properties;
     if (!pageProps) return;
