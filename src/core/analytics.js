@@ -766,6 +766,31 @@ class Analytics {
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
 
+       /*
+      Example :
+
+      integrationsData object
+      "integrations": {
+        "Google Analytics 4": {
+            "sessionId": "1669961395"
+        }
+      }
+
+      clientSuppliedIntegrations object
+      "integrations": {
+        "Google Analytics 4": true,
+        "AM": false
+      }
+
+      After Merge
+      rudderElement.message.integrations = {
+         "Google Analytics 4": {
+            "sessionId": "1669961395"
+        },
+        "AM": false
+      }
+      */
+
       const tempIntegrationsData = R.clone(this.integrationsData);
       // Filtering the integrations which are not a part of integrationsData object or value set to false
       const tempClientSuppliedIntegrations = Object.keys(clientSuppliedIntegrations)
