@@ -67,6 +67,7 @@ import { CNameMapping as Podsights } from '../integrations/Podsights/constants';
 import { CNameMapping as Axeptio } from '../integrations/Axeptio/constants';
 import { CNameMapping as SatisMeter } from '../integrations/Satismeter/constants';
 import { CNameMapping as MicrosoftClarity } from '../integrations/MicrosoftClarity/constants';
+import { CNameMapping as LemniskMarketingAutomation } from '../integrations/LemniskMarketingAutomation/constants';
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -141,6 +142,7 @@ const commonNames = {
   ...Axeptio,
   ...SatisMeter,
   ...MicrosoftClarity,
+  ...LemniskMarketingAutomation
 };
 
 export { commonNames };
