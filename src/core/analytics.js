@@ -55,6 +55,7 @@ import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFa
 import * as BugsnagLib from '../features/core/metrics/error-report/Bugsnag';
 import { UserSession } from '../features/core/session';
 import { mergeDeepRight } from '../utils/ObjectUtils';
+import {getMergedClientSuppliedIntegrations, constructMessageIntegrationsObj} from "../utils/IntegrationsData";
 
 /**
  * class responsible for handling core
@@ -342,28 +343,6 @@ class Analytics {
     }
   }
 
-  /**
-   * Prepares the data for integrationsObj
-   *
-   * @param {*} integration
-   * @param {*} integrationInstance
-   * @memberof Analytics
-   */
-  prepareDataForIntegrationsObj(integrationInstances) {
-    integrationInstances.forEach((integrationInstance) => {
-      if (integrationInstance.getDataForIntegrationsObject) {
-        try {
-          this.integrationsData = {
-            ...this.integrationsData,
-            ...integrationInstance.getDataForIntegrationsObject(),
-          };
-        } catch (error) {
-          logger.debug(error);
-        }
-      }
-    });
-  }
-
   // eslint-disable-next-line class-methods-use-this
   replayEvents(object) {
     // logger.debug(
@@ -388,7 +367,7 @@ class Analytics {
     if (object.clientIntegrationObjects.every((intg) => !intg.isReady || intg.isReady())) {
       // Integrations are ready
       // set clientIntegrationsReady to be true
-      object.prepareDataForIntegrationsObj(object.clientIntegrationObjects);
+      this.integrationsData = constructMessageIntegrationsObj(this.integrationsData, object.clientIntegrationObjects);
       object.clientIntegrationsReady = true;
       // Execute the callbacks if any
       object.executeReadyCallback();
@@ -409,28 +388,28 @@ class Analytics {
 
       // get intersection between config plane native enabled destinations
       // (which were able to successfully load on the page) vs user supplied integrations
-      const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+      const successfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
         clientSuppliedIntegrations,
         object.clientIntegrationObjects,
       );
 
       // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-      for (let i = 0; i < succesfulLoadedIntersectClientSuppliedIntegrations.length; i += 1) {
+      for (let i = 0; i < successfulLoadedIntersectClientSuppliedIntegrations.length; i += 1) {
         try {
           if (
-            !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
-            !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
+            !successfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
+            !successfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
           ) {
-            if (succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
+            if (successfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
               const sendEvent = !object.IsEventBlackListed(
                 event[0].message.event,
-                succesfulLoadedIntersectClientSuppliedIntegrations[i].name,
+                successfulLoadedIntersectClientSuppliedIntegrations[i].name,
               );
 
               // Block the event if it is blacklisted for the device-mode destination
               if (sendEvent) {
                 const clonedBufferEvent = R.clone(event);
-                succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
+                successfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
                   ...clonedBufferEvent,
                 );
               }
@@ -737,13 +716,13 @@ class Analytics {
       } else {
         // get intersection between config plane native enabled destinations
         // (which were able to successfully load on the page) vs user supplied integrations
-        const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+        const successfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
           clientSuppliedIntegrations,
           this.clientIntegrationObjects,
         );
 
         // try to first send to all integrations, if list populated from BE
-        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+        successfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
           try {
             if (!obj.isFailed || !obj.isFailed()) {
               if (obj[type]) {
@@ -766,47 +745,9 @@ class Analytics {
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
 
-       /*
-      Example :
-
-      integrationsData object
-      "integrations": {
-        "Google Analytics 4": {
-            "sessionId": "1669961395"
-        }
-      }
-
-      clientSuppliedIntegrations object
-      "integrations": {
-        "Google Analytics 4": true,
-        "AM": false
-      }
-
-      After Merge
-      rudderElement.message.integrations = {
-         "Google Analytics 4": {
-            "sessionId": "1669961395"
-        },
-        "AM": false
-      }
-      */
-
-      const tempIntegrationsData = R.clone(this.integrationsData);
-      // Filtering the integrations which are not a part of integrationsData object or value set to false
-      const tempClientSuppliedIntegrations = Object.keys(clientSuppliedIntegrations)
-        .filter(
-          (integration) =>
-            !(
-              clientSuppliedIntegrations[integration] === true && tempIntegrationsData[integration]
-            ),
-        )
-        .reduce((obj, key) => {
-          obj[key] = clientSuppliedIntegrations[key];
-          return obj;
-        }, {});
-      rudderElement.message.integrations = R.mergeDeepRight(
-        tempIntegrationsData,
-        tempClientSuppliedIntegrations,
+      rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
+          this.integrationsData,
+          clientSuppliedIntegrations
       );
 
       // self analytics process, send to rudder
