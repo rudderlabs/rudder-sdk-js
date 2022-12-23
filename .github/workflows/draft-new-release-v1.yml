@@ -39,10 +39,13 @@ jobs:
           git fetch origin v1-production --depth=1
           git merge origin/v1-production
           current_version=$(jq -r .version package.json)
+          
           npx standard-version --skip.commit --skip.tag --skip.changelog
           new_version=$(jq -r .version package.json)
           git reset --hard
+          
           branch_name="${release_type}/${new_version}"
+          
           echo "Source branch for new release is $source_branch_name"
           echo "Current version is $current_version"
           echo "Release type is $release_type"
@@ -50,6 +53,7 @@ jobs:
           echo "New release branch name is $branch_name"
           git checkout -b "$branch_name"
           git push --set-upstream origin "$branch_name"
+          
           echo "source_branch_name=$source_branch_name" >> $GITHUB_OUTPUT
           echo "branch_name=$branch_name" >> $GITHUB_OUTPUT
           echo "new_version=$new_version" >> $GITHUB_OUTPUT
@@ -61,11 +65,11 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npx standard-version -a
+          npx standard-version -a --skip-tag
 
       - name: Push new version in release branch & tag
         run: |
-          git push --follow-tags
+          git push
 
       - name: Create pull request into v1-production
         uses: repo-sync/pull-request@v2
