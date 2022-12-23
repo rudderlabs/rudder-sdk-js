@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+import sha256 from 'sha256';
 import get from 'get-value';
 import logger from '../../utils/logUtil';
 import {
@@ -8,8 +9,8 @@ import {
   propertyMapping,
   pinterestPropertySupport,
 } from './propertyMappingConfig';
-import { flattenJsonPayload, isDefinedAndNotNull, getDataFromSource } from '../../utils/utils';
-import { getHashFromArrayWithDuplicate, isDefined } from '../utils/commonUtils';
+import { flattenJsonPayload, isDefinedAndNotNull, getDataFromSource, getDefinedTraits } from '../../utils/utils';
+import { getHashFromArrayWithDuplicate } from '../utils/commonUtils';
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../ScriptLoader';
 
@@ -72,6 +73,43 @@ export default class PinterestTag {
     return !!(window.pintrk && window.pintrk.push !== Array.prototype.push);
   }
   /* utility functions --- Ends here ---  */
+
+  generateLdpObject(message) {
+    if (!message) {
+      const { userTraits } = this.analytics;
+      const optOutType = userTraits?.optOutType;
+      const state =
+        userTraits?.state ||
+        userTraits?.State ||
+        userTraits?.address?.state ||
+        userTraits?.address?.State ||
+        '';
+      const country =
+        userTraits?.country ||
+        userTraits?.Country ||
+        userTraits?.address?.country ||
+        userTraits?.address?.Country ||
+        '';
+      return {
+        opt_out_type: optOutType,
+        st: sha256(state),
+        country: sha256(country),
+      };
+    }
+
+    const optOutType = message.context.traits?.optOutType || message.properties?.optOutType;
+    const { state, country } = getDefinedTraits(message);
+    return {
+      opt_out_type: optOutType,
+      st: sha256(state || ''),
+      country: sha256(country || ''),
+    };
+  }
+
+  setLdp(message) {
+    window.pintrk('set', this.generateLdpObject(message));
+  }
+
 
   sendPinterestTrack(eventName, pinterestObject) {
     window.pintrk("track", eventName, pinterestObject);
@@ -217,6 +255,7 @@ export default class PinterestTag {
     destEventArray.forEach((eventName) => {
       const pinterestObject = this.generatePinterestObject(properties);
       pinterestObject.event_id = get(message, `${this.deduplicationKey}`) || messageId;
+      this.setLdp(message);
       this.sendPinterestTrack(eventName, pinterestObject);
     });
   }
@@ -229,13 +268,15 @@ export default class PinterestTag {
       pageObject.category = category;
       event = "ViewCategory";
     }
+    this.setLdp(rudderElement.message);
     window.pintrk("track", event, pageObject);
   }
 
   identify() {
     const email = this.analytics.userTraits && this.analytics.userTraits.email;
     if (email) {
-      window.pintrk("set", { em: email });
+      const ldpObject = this.generateLdpObject();
+      window.pintrk('set', { em: email, ...ldpObject });
     }
   }
 }
