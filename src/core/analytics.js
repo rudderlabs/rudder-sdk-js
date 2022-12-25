@@ -52,6 +52,10 @@ import parseLinker from "../utils/linker";
 import CookieConsentFactory from "../features/core/cookieConsent/CookieConsentFactory";
 import * as BugsnagLib from "../features/core/metrics/error-report/Bugsnag";
 import { UserSession } from "../features/core/session";
+import {
+  getMergedClientSuppliedIntegrations,
+  constructMessageIntegrationsObj,
+} from "../utils/IntegrationsData";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -278,28 +282,6 @@ class Analytics {
   }
 
   /**
-   * Prepares the data for integrationsObj
-   *
-   * @param {*} integration
-   * @param {*} integrationInstance
-   * @memberof Analytics
-   */
-  prepareDataForIntegrationsObj(integrationInstances) {
-    integrationInstances.forEach((integrationInstance) => {
-      if (integrationInstance.getDataForIntegrationsObject) {
-        try {
-          this.integrationsData = {
-            ...this.integrationsData,
-            ...integrationInstance.getDataForIntegrationsObject(),
-          };
-        } catch (error) {
-          logger.debug(error);
-        }
-      }
-    });
-  }
-
-  /**
    * Initialize integrations by addinfg respective scripts
    * keep the instances reference in core
    *
@@ -367,7 +349,7 @@ class Analytics {
       ) {
         // Integrations are ready
         // set clientIntegrationsReady to be true
-        object.prepareDataForIntegrationsObj(object.clientIntegrationObjects);
+        object.integrationsData = constructMessageIntegrationsObj(object.integrationsData, object.clientIntegrationObjects);
         object.clientIntegrationsReady = true;
         // Execute the callbacks if any
         object.executeReadyCallback();
@@ -917,48 +899,9 @@ class Analytics {
 
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
-      /*
-      Example :
-
-      integrationsData object
-      "integrations": {
-        "Google Analytics 4": {
-            "sessionId": "1669961395"
-        }
-      }
-
-      clientSuppliedIntegrations object
-      "integrations": {
-        "Google Analytics 4": true,
-        "AM": false
-      }
-
-      After Merge
-      rudderElement.message.integrations = {
-         "Google Analytics 4": {
-            "sessionId": "1669961395"
-        },
-        "AM": false
-      }
-      */
-      const tempIntegrationsData = cloneDeep(this.integrationsData);
-      // Filtering the integrations which are not a part of integrationsData object or value set to false
-      const tempClientSuppliedIntegrations = Object.keys(
-        clientSuppliedIntegrations
-      )
-        .filter((integration) => {
-          return !(
-            clientSuppliedIntegrations[integration] === true &&
-            tempIntegrationsData[integration]
-          );
-        })
-        .reduce((obj, key) => {
-          obj[key] = clientSuppliedIntegrations[key];
-          return obj;
-        }, {});
-      rudderElement.message.integrations = merge(
-        tempIntegrationsData,
-        tempClientSuppliedIntegrations
+       rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
+          this.integrationsData,
+          clientSuppliedIntegrations
       );
 
       // self analytics process, send to rudder
