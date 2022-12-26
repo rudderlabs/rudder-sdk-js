@@ -61,11 +61,11 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          npx standard-version -a
+          npx standard-version -a --skip.tag
 
       - name: Push new version in release branch & tag
         run: |
-          git push --follow-tags
+          git push
 
       - name: Create pull request into v1-production
         uses: repo-sync/pull-request@v2
