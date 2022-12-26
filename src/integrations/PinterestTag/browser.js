@@ -98,8 +98,8 @@ export default class PinterestTag {
         '';
       return {
         opt_out_type: optOutType,
-        st: sha256(state).toString(),
-        country: sha256(country).toString(),
+        st: optOutType ? sha256(state).toString() : '',
+        country: optOutType ? sha256(country).toString() : '',
       };
     }
 
@@ -107,8 +107,8 @@ export default class PinterestTag {
     const { state, country } = getDefinedTraits(message);
     return {
       opt_out_type: optOutType,
-      st: sha256(state || '').toString(),
-      country: sha256(country || '').toString(),
+      st: optOutType ? sha256(state || '').toString() : '',
+      country: optOutType ? sha256(country || '').toString() : '',
     };
   }
 
