@@ -97,6 +97,11 @@ class FacebookPixel {
     return !!(window.fbq && window.fbq.callMethod);
   }
 
+  identify(rudderElement) {
+    logger.error("Identify is deprecated for Facebook Pixel");
+    return;
+  }
+
   page(rudderElement) {
     const { properties } = rudderElement.message;
     window.fbq('track', 'PageView', properties, {
