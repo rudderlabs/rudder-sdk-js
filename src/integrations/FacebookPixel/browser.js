@@ -7,7 +7,7 @@ import ScriptLoader from '../../utils/ScriptLoader';
 import logger from '../../utils/logUtil';
 import getEventId from './utils';
 import { getHashFromArray, isDefined } from '../../utils/commonUtils';
-import { NAME, traitsMapper, reserve } from './constants';
+import { NAME, traitsMapper, reserveTraits } from './constants';
 import { constructPayload } from '../../utils/utils';
 import Storage from '../../utils/storage';
 
@@ -71,7 +71,7 @@ class FacebookPixel {
 
       let userPayload = constructPayload(userData, traitsMapper);
       // here we are sending other traits apart from the reserved ones.
-      reserve.forEach((element) => {
+      reserveTraits.forEach((element) => {
         delete userData.context?.traits[element];
       });
 
