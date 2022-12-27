@@ -8,7 +8,8 @@ import {
   MIN_SESSION_TIMEOUT,
   MIN_SESSION_ID_LENGTH,
 } from '../../../utils/constants';
-import { handleError, countDigits } from '../../../utils/utils';
+import { countDigits } from '../../../utils/utils';
+import { handleError } from '../../../utils/errorHandler';
 
 class UserSession {
   constructor() {
@@ -145,7 +146,10 @@ class UserSession {
    * @returns string sessionId
    */
   getSessionId() {
-    if ((this.sessionInfo.autoTrack && this.isValidSession(Date.now())) || this.sessionInfo.manualTrack) {
+    if (
+      (this.sessionInfo.autoTrack && this.isValidSession(Date.now())) ||
+      this.sessionInfo.manualTrack
+    ) {
       return this.sessionInfo.id;
     }
     return null;

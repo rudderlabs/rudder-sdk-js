@@ -1,7 +1,8 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable class-methods-use-this */
 import { Store } from './storage/store';
-import { replacer, handleError } from './utils';
+import { replacer } from './utils';
+import { handleError } from './errorHandler';
 
 const defaults = {
   queue: 'queue',
