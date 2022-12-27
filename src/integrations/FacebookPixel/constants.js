@@ -69,7 +69,7 @@ const traitsMapper = [
   },
 ];
 
-const reserve = [
+const reserveTraits = [
   "email",
   "lastName",
   "firstName",
@@ -83,4 +83,4 @@ const reserve = [
   "country",
 ];
 
-export { traitsMapper, CNameMapping, NAME, reserve};
+export { traitsMapper, CNameMapping, NAME, reserveTraits};
