@@ -139,11 +139,9 @@ export default class GA4 {
   }
 
   sendGAEvent(event, parameters, checkRequiredParameters, eventMappingObj) {
-    if (checkRequiredParameters) {
-      if (!hasRequiredParameters(parameters, eventMappingObj)) {
-        throw Error("Payload must have required parameters..");
-      }
-    }
+    if (checkRequiredParameters && !hasRequiredParameters(parameters, eventMappingObj)) {
+      throw Error('Payload must have required parameters..');
+    }    
     window.gtag("event", event, parameters);
   }
 
@@ -178,6 +176,8 @@ export default class GA4 {
     if (this.isHybridModeEnabled) {
       return;
     }
+
+    logger.debug('In GoogleAnalyticsManager Track');
     const { event } = rudderElement.message;
     const { properties } = rudderElement.message;
     const { products } = properties;
@@ -201,6 +201,7 @@ export default class GA4 {
       return;
     }
 
+    logger.debug('In GoogleAnalyticsManager Identify');
     window.gtag(
       "set",
       "user_properties",
@@ -219,16 +220,10 @@ export default class GA4 {
         });
       }
     }
-
-    logger.debug("in GoogleAnalyticsManager identify");
   }
 
   page(rudderElement) {
-    // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.isHybridModeEnabled) {
-      return;
-    }
-
+    logger.debug('In GoogleAnalyticsManager Page');
     let pageProps = rudderElement.message.properties;
     if (!pageProps) return;
     pageProps = flattenJsonPayload(pageProps);
@@ -248,6 +243,7 @@ export default class GA4 {
       return;
     }
 
+    logger.debug('In GoogleAnalyticsManager Group');
     const { groupId } = rudderElement.message;
     const { traits } = rudderElement.message;
 
@@ -261,7 +257,7 @@ export default class GA4 {
 
   getDataForIntegrationsObject() {
     return {
-      "Google Analytics 4": {
+      'Google Analytics 4': {
         sessionId: getGa4SessionId(this.measurementId),
       },
     };
