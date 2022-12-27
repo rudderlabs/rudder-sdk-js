@@ -106,27 +106,8 @@ class FacebookPixel {
   }
 
   identify(rudderElement) {
-    if (this.advancedMapping) {
-      let payload = {};
-      const traits = rudderElement.message.context
-        ? rudderElement.message.context.traits
-        : undefined;
-      if (this.useUpdatedMapping) {
-       
-        // this construcPayload will help to map the traits in the same way as cloud mode
-        payload = constructPayload(rudderElement.message, traitsMapper);
-        if (payload.external_id) {
-          payload.external_id = sha256(payload.external_id).toString();
-        }
-
-        // here we are sending other traits apart from the reserved ones.
-        reserve.forEach((element) => {
-          delete traits[element];
-        });
-      }
-      payload = { ...payload, ...traits };
-      window.fbq("init", this.pixelId, payload);
-    }
+    logger.error("Identify is deprecated for Facebook Pixel");
+    return;
   }
 
   track(rudderElement) {
