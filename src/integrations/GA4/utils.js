@@ -220,14 +220,13 @@ function getPageViewProperty(props) {
 
 /**
  * Returns the payload for cloud-mode
- * @param {*} rudderElement
  * @param {*} measurementId
  */
 const getGa4SessionId = (measurementId) => {
   const measurementIdArr = measurementId.split('-');
-  let sessionId = Cookie.get(`_ga_${measurementIdArr[1]}`).split('.');
+  let sessionId = Cookie.get(`_ga_${measurementIdArr[1]}`) && Cookie.get(`_ga_${measurementIdArr[1]}`).split('.');
   if (!sessionId) {
-    sessionId = Store.get(`_ga_${measurementIdArr[1]}`).split('.');
+    sessionId = Store.get(`_ga_${measurementIdArr[1]}`) && Store.get(`_ga_${measurementIdArr[1]}`).split('.');
   }
   return sessionId ? sessionId[2] : '';
 };
