@@ -529,6 +529,11 @@ function getDefinedTraits(message) {
       get(message, 'context.traits.lastname') ||
       get(message, 'context.traits.last_name'),
     name: get(message, 'context.traits.name') || get(message, 'context.traits.Name'),
+    state:
+      get(message, 'context.traits.state') ||
+      get(message, 'context.traits.State') ||
+      get(message, 'context.traits.address.state') ||
+      get(message, 'context.traits.address.State'),
     city:
       get(message, 'context.traits.city') ||
       get(message, 'context.traits.City') ||
