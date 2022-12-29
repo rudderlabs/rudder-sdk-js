@@ -1,19 +1,4 @@
 /* eslint-disable class-methods-use-this */
-<<<<<<< HEAD:integrations/FacebookPixel/browser.js
-import is from "is";
-import each from "@ndhoule/each";
-import sha256 from "crypto-js/sha256";
-import get from "get-value";
-import ScriptLoader from "../ScriptLoader";
-import logger from "../../utils/logUtil";
-import getEventId from "./utils";
-import { getHashFromArray, isDefined } from "../utils/commonUtils";
-import { NAME, traitsMapper, reserve } from "./constants";
-import { constructPayload } from "../../utils/utils";
-
-class FacebookPixel {
-  constructor(config, analytics) {
-=======
 import is from 'is';
 import each from '@ndhoule/each';
 import sha256 from 'crypto-js/sha256';
@@ -24,14 +9,12 @@ import getEventId from './utils';
 import { getHashFromArray, isDefined } from '../../utils/commonUtils';
 import { NAME, traitsMapper, reserveTraits } from './constants';
 import { constructPayload } from '../../utils/utils';
-import Storage from '../../utils/storage';
 
 class FacebookPixel {
   constructor(config, analytics) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
->>>>>>> f00de8ea13cc2af42ed791aa6cfb9a39249b45ca:src/integrations/FacebookPixel/browser.js
     this.blacklistPiiProperties = config.blacklistPiiProperties;
     this.categoryToContent = config.categoryToContent;
     this.pixelId = config.pixelId;
@@ -87,32 +70,20 @@ class FacebookPixel {
 
       let userPayload = constructPayload(userData, traitsMapper);
       // here we are sending other traits apart from the reserved ones.
-<<<<<<< HEAD:integrations/FacebookPixel/browser.js
-      reserve.forEach((element) => {
-=======
       reserveTraits.forEach((element) => {
->>>>>>> f00de8ea13cc2af42ed791aa6cfb9a39249b45ca:src/integrations/FacebookPixel/browser.js
         delete userData.context?.traits[element];
       });
 
-      userPayload = { ...userPayload, ...userData.context.traits };
+      this.userPayload = { ...userPayload, ...userData.context.traits };
 
-      if (userPayload.external_id) {
-        userPayload.external_id = sha256(userPayload.external_id).toString();
+      if (this.userPayload.external_id) {
+        this.userPayload.external_id = sha256(this.userPayload.external_id).toString();
       }
-      window.fbq('init', this.pixelId, userPayload);
+      window.fbq('init', this.pixelId, this.userPayload);
     } else {
       window.fbq('init', this.pixelId );
     }
-<<<<<<< HEAD:integrations/FacebookPixel/browser.js
-    window.fbq("init", this.pixelId);
-    ScriptLoader(
-      "fbpixel-integration",
-      "https://connect.facebook.net/en_US/fbevents.js"
-    );
-=======
     ScriptLoader('fbpixel-integration', 'https://connect.facebook.net/en_US/fbevents.js');
->>>>>>> f00de8ea13cc2af42ed791aa6cfb9a39249b45ca:src/integrations/FacebookPixel/browser.js
   }
 
   isLoaded() {
@@ -137,32 +108,6 @@ class FacebookPixel {
     });
   }
 
-<<<<<<< HEAD:integrations/FacebookPixel/browser.js
-  // identify(rudderElement) {
-  //   if (this.advancedMapping) {
-  //     let payload = {};
-  //     const traits = rudderElement.message.context
-  //       ? rudderElement.message.context.traits
-  //       : undefined;
-  //     if (this.useUpdatedMapping) {
-  //       // this construcPayload will help to map the traits in the same way as cloud mode
-  //       payload = constructPayload(rudderElement.message, traitsMapper);
-  //       if (payload.external_id) {
-  //         payload.external_id = sha256(payload.external_id).toString();
-  //       }
-
-  //       // here we are sending other traits apart from the reserved ones.
-  //       reserve.forEach((element) => {
-  //         delete traits[element];
-  //       });
-  //     }
-  //     payload = { ...payload, ...traits };
-  //     window.fbq("init", this.pixelId, payload);
-  //   }
-  // }
-
-=======
->>>>>>> f00de8ea13cc2af42ed791aa6cfb9a39249b45ca:src/integrations/FacebookPixel/browser.js
   track(rudderElement) {
     const self = this;
     const { event, properties, messageId } = rudderElement.message;
@@ -693,4 +638,4 @@ class FacebookPixel {
   }
 }
 
-export { FacebookPixel };
+export default FacebookPixel ;

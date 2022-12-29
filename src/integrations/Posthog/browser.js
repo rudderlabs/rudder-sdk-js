@@ -113,8 +113,7 @@ class Posthog {
       configObject.persistence = 'localStorage+cookie';
     }
 
-      posthog.init(this.teamApiKey, configObject);
-    }
+    posthog.init(this.teamApiKey, configObject);
   }
 
   /**
