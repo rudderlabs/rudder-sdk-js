@@ -652,4 +652,4 @@ class FacebookPixel {
   }
 }
 
-export default FacebookPixel ;
+export { FacebookPixel };

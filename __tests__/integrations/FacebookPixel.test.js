@@ -1,4 +1,4 @@
-import FacebookPixel from "../../src/integrations/FacebookPixel/browser";
+import FacebookPixel from "../../src/integrations/FacebookPixel";
 
 beforeAll(() => { });
 
