@@ -72,12 +72,12 @@ class FacebookPixel {
         delete userData.context?.traits[element];
       });
 
-      userPayload = { ...userPayload, ...userData.context.traits };
+      this.userPayload = { ...userPayload, ...userData.context.traits };
 
-      if (userPayload.external_id) {
-        userPayload.external_id = sha256(userPayload.external_id).toString();
+      if (this.userPayload.external_id) {
+        this.userPayload.external_id = sha256(userPayload.external_id).toString();
       }
-      window.fbq('init', this.pixelId, userPayload);
+      window.fbq('init', this.pixelId, this.userPayload);
     } else {
       window.fbq('init', this.pixelId );
     }
@@ -652,4 +652,4 @@ class FacebookPixel {
   }
 }
 
-export { FacebookPixel };
+export default FacebookPixel ;
