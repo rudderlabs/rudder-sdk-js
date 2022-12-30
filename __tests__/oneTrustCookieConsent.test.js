@@ -2,11 +2,11 @@ import { OneTrust } from '../src/features/core/cookieConsent/OneTrust';
 
 window.OneTrust = {
   GetDomainData: jest.fn(() => ({
-      Groups: [
-        { CustomGroupId: 'C0001', GroupName: 'Functional Cookies' },
-        { CustomGroupId: 'C0003', GroupName: 'Analytical Cookies' },
-      ],
-    })),
+    Groups: [
+      { CustomGroupId: 'C0001', GroupName: 'Functional Cookies' },
+      { CustomGroupId: 'C0003', GroupName: 'Analytical Cookies' },
+    ],
+  })),
 };
 window.OnetrustActiveGroups = ',C0001,C0003,';
 
