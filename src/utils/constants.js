@@ -12,8 +12,10 @@ const RESERVED_KEYS = [
 
 const CONFIG_URL =
   'https://api.rudderlabs.com/sourceConfig/?p=process.module_type&v=process.package_version';
+const SDK_CDN_BASE_URL = 'https://cdn.rudderlabs.com';
+const CDN_ARCH_VERSION_DIR = 'v1.1';
 const CDN_INT_DIR = 'js-integrations';
-const DEST_SDK_BASE_URL = `https://cdn.rudderlabs.com/v1.1/${CDN_INT_DIR}`;
+const DEST_SDK_BASE_URL = `${SDK_CDN_BASE_URL}/${CDN_ARCH_VERSION_DIR}/${CDN_INT_DIR}`;
 
 const MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
 const INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
@@ -36,6 +38,8 @@ const MIN_SESSION_ID_LENGTH = 10;
 export {
   RESERVED_KEYS,
   CONFIG_URL,
+  SDK_CDN_BASE_URL,
+  CDN_ARCH_VERSION_DIR,
   CDN_INT_DIR,
   DEST_SDK_BASE_URL,
   MAX_WAIT_FOR_INTEGRATION_LOAD,
