@@ -32,7 +32,9 @@ describe('CDN Paths: getIntegrationsCDNPath', () => {
 
   it('should throw error if invalid custom url is provided', () => {
     const integrationsCDNPath = () => getIntegrationsCDNPath(dummyVersion, false, '/');
-    expect(integrationsCDNPath).toThrow('Failed to load Rudder SDK from provided URL');
+    expect(integrationsCDNPath).toThrow(
+      'Failed to load Rudder SDK: CDN base URL for integrations is not valid',
+    );
   });
 
   it('should return script src path if script src exists and integrations version is not locked', () => {
