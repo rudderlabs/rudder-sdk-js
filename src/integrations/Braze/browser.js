@@ -17,6 +17,7 @@ class Braze {
     if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.appKey = config.appKey;
     this.trackAnonymousUser = config.trackAnonymousUser;
+    this.enableLoggingToConsole = config.enableLoggingToConsole;
     this.enableHtmlInAppMessages = config.enableHtmlInAppMessages || false;
     this.allowUserSuppliedJavascript =
       config.allowUserSuppliedJavascript || false;
@@ -96,9 +97,8 @@ class Braze {
     })(window, document, "script");
 
     window.braze.initialize(this.appKey, {
-      enableLogging: true,
+      enableLogging: this.enableLoggingToConsole,
       baseUrl: this.endPoint,
-      enableHtmlInAppMessages: this.enableHtmlInAppMessages,
       allowUserSuppliedJavascript: this.allowUserSuppliedJavascript,
     });
     window.braze.automaticallyShowInAppMessages();
