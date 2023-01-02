@@ -11,7 +11,6 @@ class BingAds {
     this.name = NAME;
   }
 
-  // Destination ref - https://help.ads.microsoft.com/#apex/ads/en/56686/2
   loadBingadsScript = () => {
     ((w, d, t, r, u) => {
       let f;
@@ -63,30 +62,26 @@ class BingAds {
 
   track = (rudderElement) => {
     const { type, properties, event } = rudderElement.message;
-    const { category, currency, value, revenue, total, eventValue } = properties;
+    const { category, currency, value, revenue, total } = properties;
     const payload = {
-      event: type,
-      event_label: event,
+      ea: type,
+      el: event,
     };
     if (category) {
-      payload.event_category = category;
+      payload.ec = category;
     }
     if (currency) {
-      payload.currency = currency;
+      payload.gc = currency;
     }
     if (value) {
-      payload.revenue_value = value;
+      payload.gv = value;
     }
     if (revenue) {
-      payload.revenue_value = revenue;
+      payload.gv = revenue;
     }
     if (total) {
-      payload.revenue_value = total;
+      payload.gv = total;
     }
-    if (eventValue) {
-      payload.event_value = eventValue;
-    }
-
     window.uetq.push(payload);
   };
 
