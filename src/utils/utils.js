@@ -639,6 +639,11 @@ function getDefinedTraits(message) {
       message?.context?.traits?.lastname ||
       message?.context?.traits?.last_name,
     name: message?.context?.traits?.name || message?.context?.traits?.Name,
+    state:
+      message?.context?.traits?.state ||
+      message?.context?.traits?.State ||
+      message?.context?.traits?.address?.state ||
+      message?.context?.traits?.address?.State,
     city:
       message?.context?.traits?.city ||
       message?.context?.traits?.City ||
