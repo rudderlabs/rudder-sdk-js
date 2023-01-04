@@ -1,4 +1,4 @@
-const RudderProperty = require("./RudderProperty");
+const RudderProperty = require('./RudderProperty');
 
 // Parent class for order and checkout events
 class OrderEvent {

@@ -1,5 +1,5 @@
-const ShareEvent = require("./ShareEvent");
-const { ECommerceEvents } = require("./constants");
+const ShareEvent = require('./ShareEvent');
+const { ECommerceEvents } = require('./constants');
 
 // Class representing product share
 class ProductSharedEvent extends ShareEvent {

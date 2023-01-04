@@ -1,3 +1,5 @@
-import Woopra from './browser';
 
-export default Woopra;
+
+
+
+export {default} from './browser';

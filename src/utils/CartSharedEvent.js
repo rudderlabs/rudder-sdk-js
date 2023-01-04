@@ -1,11 +1,11 @@
-const ShareEvent = require("./ShareEvent");
-const { ECommerceEvents } = require("./constants");
-const { ECommerceParamNames } = require("./constants");
+const ShareEvent = require('./ShareEvent');
+const { ECommerceEvents } = require('./constants');
+const { ECommerceParamNames } = require('./constants');
 
 class CartSharedEvent extends ShareEvent {
   constructor() {
     super();
-    this.cart_id = "";
+    this.cart_id = '';
     this.products = [];
   }
 

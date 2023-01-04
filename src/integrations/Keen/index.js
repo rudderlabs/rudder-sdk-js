@@ -1,3 +1,5 @@
-import { Keen } from "./browser";
 
-export default Keen;
+
+
+
+export {Keen as default} from './browser';

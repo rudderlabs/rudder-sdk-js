@@ -1,3 +1,5 @@
-import GA4 from "./browser";
 
-export default GA4;
+
+
+
+export {default} from './browser';

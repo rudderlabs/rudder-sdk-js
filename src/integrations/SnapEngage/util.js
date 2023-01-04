@@ -1,6 +1,6 @@
 const integrationContext = {
-  name: "snapengage",
-  version: "1.0.0",
+  name: 'snapengage',
+  version: '1.0.0',
 };
 
 /**
@@ -9,71 +9,69 @@ const integrationContext = {
  * @returns
  */
 function flip(data) {
-  return Object.fromEntries(
-    Object.entries(data).map(([key, value]) => [value, key])
-  );
+  return Object.fromEntries(Object.entries(data).map(([key, value]) => [value, key]));
 }
 
 function recordingLiveChatEvents(updateEventNames, standardEventsMap) {
   const eventNames = flip(standardEventsMap);
 
-  window.SnapEngage.setCallback("StartChat", function () {
-    let eventName = "Live Chat Conversation Started";
+  window.SnapEngage.setCallback('StartChat', () => {
+    let eventName = 'Live Chat Conversation Started';
     if (updateEventNames && eventNames?.startChat) {
       eventName = eventNames.startChat;
     }
     window.rudderanalytics.track(
       `${eventName}`,
       {},
-      { context: { integration: integrationContext } }
+      { context: { integration: integrationContext } },
     );
   });
 
-  window.SnapEngage.setCallback("ChatMessageReceived", function (agent) {
-    let eventName = "Live Chat Message Received";
+  window.SnapEngage.setCallback('ChatMessageReceived', (agent) => {
+    let eventName = 'Live Chat Message Received';
     if (updateEventNames && eventNames?.chatMessageReceived) {
       eventName = eventNames.chatMessageReceived;
     }
     window.rudderanalytics.track(
       `${eventName}`,
       { agentUsername: agent },
-      { context: { integration: integrationContext } }
+      { context: { integration: integrationContext } },
     );
   });
 
-  window.SnapEngage.setCallback("ChatMessageSent", function () {
-    let eventName = "Live Chat Message Sent";
+  window.SnapEngage.setCallback('ChatMessageSent', () => {
+    let eventName = 'Live Chat Message Sent';
     if (updateEventNames && eventNames?.chatMessageSent) {
       eventName = eventNames.chatMessageSent;
     }
     window.rudderanalytics.track(
       `${eventName}`,
       {},
-      { context: { integration: integrationContext } }
+      { context: { integration: integrationContext } },
     );
   });
 
-  window.SnapEngage.setCallback("Close", function () {
-    let eventName = "Live Chat Conversation Ended";
+  window.SnapEngage.setCallback('Close', () => {
+    let eventName = 'Live Chat Conversation Ended';
     if (updateEventNames && eventNames?.close) {
       eventName = eventNames.close;
     }
     window.rudderanalytics.track(
       `${eventName}`,
       {},
-      { context: { integration: integrationContext } }
+      { context: { integration: integrationContext } },
     );
   });
 
-  window.SnapEngage.setCallback("InlineButtonClicked", function () {
-    let eventName = "Inline Button Clicked";
+  window.SnapEngage.setCallback('InlineButtonClicked', () => {
+    let eventName = 'Inline Button Clicked';
     if (updateEventNames && eventNames?.inlineButtonClicked) {
       eventName = eventNames.inlineButtonClicked;
     }
     window.rudderanalytics.track(
       `${eventName}`,
       {},
-      { context: { integration: integrationContext } }
+      { context: { integration: integrationContext } },
     );
   });
 }

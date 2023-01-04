@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
-import ScriptLoader from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import ScriptLoader from '../ScriptLoader';
+import { NAME } from './constants';
 
 class Bugsnag {
   constructor(config) {
@@ -12,16 +12,10 @@ class Bugsnag {
   }
 
   init() {
-    logger.debug("===in init Bugsnag===");
-    ScriptLoader(
-      "bugsnag-id",
-      "https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js"
-    );
+    logger.debug('===in init Bugsnag===');
+    ScriptLoader('bugsnag-id', 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js');
 
-    this.setIntervalHandler = setInterval(
-      this.initBugsnagClient.bind(this),
-      1000
-    );
+    this.setIntervalHandler = setInterval(this.initBugsnagClient.bind(this), 1000);
   }
 
   initBugsnagClient() {
@@ -33,12 +27,12 @@ class Bugsnag {
   }
 
   isLoaded() {
-    logger.debug("in bugsnag isLoaded");
+    logger.debug('in bugsnag isLoaded');
     return !!window.bugsnagClient;
   }
 
   isReady() {
-    logger.debug("in bugsnag isReady");
+    logger.debug('in bugsnag isReady');
     return !!window.bugsnagClient;
   }
 
@@ -51,7 +45,7 @@ class Bugsnag {
     };
 
     window.bugsnagClient.user = traitsFinal;
-    window.bugsnagClient.notify(new Error("error in identify"));
+    window.bugsnagClient.notify(new Error('error in identify'));
   }
 }
 export { Bugsnag };

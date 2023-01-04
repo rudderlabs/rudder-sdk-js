@@ -1,3 +1,5 @@
-import MoEngage from "./browser";
 
-export default MoEngage;
+
+
+
+export {default} from './browser';

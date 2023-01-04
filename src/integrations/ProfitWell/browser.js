@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
-import get from "get-value";
-import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import get from 'get-value';
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 class ProfitWell {
   constructor(config) {
@@ -12,18 +12,18 @@ class ProfitWell {
   }
 
   init() {
-    logger.debug("===In init ProfitWell===");
+    logger.debug('===In init ProfitWell===');
 
     if (!this.publicApiKey) {
-      logger.debug("===[ProfitWell]: Public API Key not found===");
+      logger.debug('===[ProfitWell]: Public API Key not found===');
       return;
     }
 
     window.publicApiKey = this.publicApiKey;
 
-    const scriptTag = document.createElement("script");
-    scriptTag.setAttribute("id", "profitwell-js");
-    scriptTag.setAttribute("data-pw-auth", window.publicApiKey);
+    const scriptTag = document.createElement('script');
+    scriptTag.setAttribute('id', 'profitwell-js');
+    scriptTag.setAttribute('data-pw-auth', window.publicApiKey);
     document.body.appendChild(scriptTag);
 
     (function (i, s, o, g, r, a, m) {
@@ -35,56 +35,48 @@ class ProfitWell {
       a = s.createElement(g);
       m = s.getElementsByTagName(g)[0];
       a.async = 1;
-      a.setAttribute("data-loader", LOAD_ORIGIN);
-      a.src = r + "?auth=" + window.publicApiKey;
+      a.setAttribute('data-loader', LOAD_ORIGIN);
+      a.src = `${r  }?auth=${  window.publicApiKey}`;
       m.parentNode.insertBefore(a, m);
-    })(
-      window,
-      document,
-      "profitwell",
-      "script",
-      "https://public.profitwell.com/js/profitwell.js"
-    );
+    })(window, document, 'profitwell', 'script', 'https://public.profitwell.com/js/profitwell.js');
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded ProfitWell===");
-    return !!(window.profitwell && window.profitwell.length !== 0);
+    logger.debug('===In isLoaded ProfitWell===');
+    return !!(window.profitwell && window.profitwell.length > 0);
   }
 
   isReady() {
-    logger.debug("===In isReady ProfitWell===");
-    return !!(window.profitwell && window.profitwell.length !== 0);
+    logger.debug('===In isReady ProfitWell===');
+    return !!(window.profitwell && window.profitwell.length > 0);
   }
 
   identify(rudderElement) {
-    logger.debug("===In ProfitWell identify===");
+    logger.debug('===In ProfitWell identify===');
 
-    if (this.siteType === "marketing") {
-      window.profitwell("start", {});
+    if (this.siteType === 'marketing') {
+      window.profitwell('start', {});
       return;
     }
 
     const { message } = rudderElement;
-    const email = get(message, "context.traits.email");
+    const email = get(message, 'context.traits.email');
     if (email) {
-      window.profitwell("start", {
+      window.profitwell('start', {
         user_email: email,
       });
       return;
     }
 
-    const userId = get(message, "userId");
+    const userId = get(message, 'userId');
     if (userId) {
-      window.profitwell("start", {
+      window.profitwell('start', {
         user_id: userId,
       });
       return;
     }
 
-    logger.debug(
-      "===[ProfitWell]: email or userId is required for identify==="
-    );
+    logger.debug('===[ProfitWell]: email or userId is required for identify===');
   }
 }
 

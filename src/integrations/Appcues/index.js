@@ -1,3 +1,5 @@
-import Appcues from "./browser";
 
-export default Appcues; 
+
+
+
+export {default} from './browser';

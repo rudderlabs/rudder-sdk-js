@@ -1,3 +1,5 @@
-import June from "./browser";
 
-export default June;
+
+
+
+export {default} from './browser';

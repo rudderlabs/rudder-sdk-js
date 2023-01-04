@@ -1,4 +1,4 @@
-import { identifyExcludeFields } from "./constants";
+import { identifyExcludeFields } from './constants';
 
 // External ID format
 // {
@@ -37,7 +37,7 @@ const flattenPayload = (payload) => {
   const flattenedPayload = {};
   if (payload) {
     Object.keys(payload).forEach((v) => {
-      if (typeof payload[v] === "object" && !Array.isArray(payload[v])) {
+      if (typeof payload[v] === 'object' && !Array.isArray(payload[v])) {
         const temp = flattenPayload(payload[v]);
         Object.keys(temp).forEach((i) => {
           flattenedPayload[i] = temp[i];

@@ -1,3 +1,5 @@
-import Optimizely from "./browser";
 
-export default Optimizely;
+
+
+
+export {default} from './browser';

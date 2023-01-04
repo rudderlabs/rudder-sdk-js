@@ -33,14 +33,24 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Create GitHub Release
+      # In order to make a commit, we need to initialize a user.
+      # You may choose to write something less generic here if you want, it doesn't matter functionality wise.
+      - name: Initialize mandatory git config
+        run: |
+          git config user.name "GitHub actions"
+          git config user.email noreply@github.com
+
+      - name: Create GitHub Release & Tag
         id: create_release
         env:
           HUSKY: 0
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          git tag -a v${{ steps.extract-version.outputs.release_version }} -m "chore: release v${{ steps.extract-version.outputs.release_version }}"
+          git push origin refs/tags/v${{ steps.extract-version.outputs.release_version }}
           npm run release:github
+          echo "DATE=$(date)" >> $GITHUB_ENV
 
       - name: Create pull request into v1-staging
         uses: repo-sync/pull-request@v2
@@ -50,7 +60,7 @@ jobs:
           github_token: ${{ secrets.PAT }}
           pr_title: 'chore(release): pulling v1-production into v1-staging post release v${{ steps.extract-version.outputs.release_version }}'
           pr_body: ':crown: *An automated PR*'
-          pr_reviewer: 'bardisg'
+          pr_reviewer: 'bardisg,MoumitaM,saikumarrs'
 
       - name: Delete hotfix release branch
         uses: koj-co/delete-merged-action@master
@@ -74,27 +84,28 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK (v1)'
+          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/'
         with:
-          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
+          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
-              {
-                "blocks": [
-                  {
-                    "type": "header",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "New release: ${{ env.PROJECT_NAME }}"
-                    }
-                  },
-                  {
-                    "type": "divider"
-                  },
-                  {
-                    "type": "section",
-                    "text": {
-                      "type": "mrkdwn",
-                      "text": "*Release: <${{ github.event.release.html_url }}|${{ github.event.release.tag_name }}>*\n${{ github.event.release.created_at }}"
-                    }
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "New release: ${{ env.PROJECT_NAME }}"
                   }
-                ]
-              }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Release: <${{env.RELEASES_URL}}${{ steps.extract-version.outputs.release_version }}|v${{ steps.extract-version.outputs.release_version }}>*\n${{ env.DATE }}"
+                  }
+                }
+              ]
+            }

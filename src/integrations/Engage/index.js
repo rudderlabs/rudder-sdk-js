@@ -1,3 +1,5 @@
-import Engage from "./browser";
 
-export default Engage;
+
+
+
+export {default} from './browser';

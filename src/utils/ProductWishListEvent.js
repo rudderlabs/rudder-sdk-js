@@ -1,5 +1,5 @@
-const RudderProperty = require("./RudderProperty");
-const { ECommerceParamNames } = require("./constants");
+const RudderProperty = require('./RudderProperty');
+const { ECommerceParamNames } = require('./constants');
 
 // Parent class for Product-to-Wishlist events
 class ProductWishlistEvent {
@@ -11,14 +11,8 @@ class ProductWishlistEvent {
   build() {
     const eventProperty = new RudderProperty();
     eventProperty.setPropertyMap(this.product);
-    eventProperty.setProperty(
-      ECommerceParamNames.WISHLIST_ID,
-      this.wishlist.wishlist_id
-    );
-    eventProperty.setProperty(
-      ECommerceParamNames.WISHLIST_NAME,
-      this.wishlist.wishlist_name
-    );
+    eventProperty.setProperty(ECommerceParamNames.WISHLIST_ID, this.wishlist.wishlist_id);
+    eventProperty.setProperty(ECommerceParamNames.WISHLIST_NAME, this.wishlist.wishlist_name);
 
     return eventProperty;
   }

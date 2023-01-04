@@ -1,3 +1,5 @@
-import { INTERCOM } from "./browser";
 
-export default INTERCOM;
+
+
+
+export {INTERCOM as default} from './browser';

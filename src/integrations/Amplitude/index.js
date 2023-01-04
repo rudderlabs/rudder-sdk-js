@@ -1,3 +1,5 @@
-import Amplitude from "./browser";
 
-export default Amplitude;
+
+
+
+export {default} from './browser';

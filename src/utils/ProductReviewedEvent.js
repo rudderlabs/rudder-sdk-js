@@ -1,13 +1,13 @@
-const RudderProperty = require("./RudderProperty");
-const { ECommerceEvents } = require("./constants");
+const RudderProperty = require('./RudderProperty');
+const { ECommerceEvents } = require('./constants');
 
 // Class representing Product Reviewed event
 class ProductReviewedEvent {
   constructor() {
-    this.product_id = "";
-    this.review_id = "";
-    this.review_body = "";
-    this.rating = "";
+    this.product_id = '';
+    this.review_id = '';
+    this.review_body = '';
+    this.rating = '';
   }
 
   event() {

@@ -1,3 +1,5 @@
-import RedditPixel from "./browser";
 
-export default RedditPixel;
+
+
+
+export {default} from './browser';

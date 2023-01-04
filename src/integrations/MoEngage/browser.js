@@ -1,21 +1,21 @@
-import each from "@ndhoule/each";
-import logger from "../../utils/logUtil";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import each from '@ndhoule/each';
+import logger from '../../utils/logUtil';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 // custom traits mapping context.traits --> moengage properties
 const traitsMap = {
-  firstName: "first_name",
-  lastName: "last_name",
-  firstname: "first_name",
-  lastname: "last_name",
-  email: "email",
-  phone: "mobile",
-  name: "user_name",
-  username: "user_name",
-  userName: "user_name",
-  gender: "gender",
-  birthday: "birthday",
+  firstName: 'first_name',
+  lastName: 'last_name',
+  firstname: 'first_name',
+  lastname: 'last_name',
+  email: 'email',
+  phone: 'mobile',
+  name: 'user_name',
+  username: 'user_name',
+  userName: 'user_name',
+  gender: 'gender',
+  birthday: 'birthday',
   id: null,
 };
 class MoEngage {
@@ -29,7 +29,7 @@ class MoEngage {
 
   init() {
     const self = this;
-    logger.debug("===in init MoEnagage===");
+    logger.debug('===in init MoEnagage===');
     // loading the script for moengage web sdk
     /* eslint-disable */
     (function (i, s, o, g, r, a, m, n) {
@@ -41,34 +41,34 @@ class MoEngage {
         };
       };
       var f = [
-        "track_event",
-        "add_user_attribute",
-        "add_first_name",
-        "add_last_name",
-        "add_email",
-        "add_mobile",
-        "add_user_name",
-        "add_gender",
-        "add_birthday",
-        "destroy_session",
-        "add_unique_user_id",
-        "moe_events",
-        "call_web_push",
-        "track",
-        "location_type_attribute",
+        'track_event',
+        'add_user_attribute',
+        'add_first_name',
+        'add_last_name',
+        'add_email',
+        'add_mobile',
+        'add_user_name',
+        'add_gender',
+        'add_birthday',
+        'destroy_session',
+        'add_unique_user_id',
+        'moe_events',
+        'call_web_push',
+        'track',
+        'location_type_attribute',
       ];
-      var h = { onsite: ["getData", "registerCallback"] };
+      var h = { onsite: ['getData', 'registerCallback'] };
       for (var k in f) {
         t[f[k]] = q(f[k]);
       }
       for (var k in h)
         for (var l in h[k]) {
-          null == t[k] && (t[k] = {}), (t[k][h[k][l]] = q(k + "." + h[k][l]));
+          null == t[k] && (t[k] = {}), (t[k][h[k][l]] = q(k + '.' + h[k][l]));
         }
       a = s.createElement(o);
       m = s.getElementsByTagName(o)[0];
       a.async = 1;
-      a.setAttribute("data-loader", LOAD_ORIGIN);
+      a.setAttribute('data-loader', LOAD_ORIGIN);
       a.src = g;
       m.parentNode.insertBefore(a, m);
       i.moe =
@@ -85,20 +85,20 @@ class MoEngage {
     })(
       window,
       document,
-      "script",
-      document.location.protocol === "https:"
-        ? "https://cdn.moengage.com/webpush/moe_webSdk.min.latest.js"
-        : "http://cdn.moengage.com/webpush/moe_webSdk.min.latest.js",
-      "Moengage"
+      'script',
+      document.location.protocol === 'https:'
+        ? 'https://cdn.moengage.com/webpush/moe_webSdk.min.latest.js'
+        : 'http://cdn.moengage.com/webpush/moe_webSdk.min.latest.js',
+      'Moengage',
     );
     /* eslint-enable */
 
     // setting the region if us then not needed.
-    if (this.region !== "US") {
+    if (this.region !== 'US') {
       self.moeClient = window.moe({
         app_id: this.apiId,
         debug_logs: this.debug ? 1 : 0,
-        cluster: this.region === "EU" ? "eu" : "in",
+        cluster: this.region === 'EU' ? 'eu' : 'in',
       });
     } else {
       self.moeClient = window.moe({
@@ -110,31 +110,29 @@ class MoEngage {
   }
 
   isLoaded = () => {
-    logger.debug("in MoEngage isLoaded");
+    logger.debug('in MoEngage isLoaded');
     return !!window.moeBannerText;
   };
 
   isReady = () => {
-    logger.debug("in MoEngage isReady");
+    logger.debug('in MoEngage isReady');
     return !!window.moeBannerText;
   };
 
   track(rudderElement) {
-    logger.debug("inside track");
+    logger.debug('inside track');
     // Check if the user id is same as previous session if not a new session will start
     if (!rudderElement.message) {
-      logger.error("Payload not correct");
+      logger.error('Payload not correct');
       return;
     }
     const { event, properties, userId } = rudderElement.message;
-    if (userId) {
-      if (this.initialUserId !== userId) {
+    if (userId && this.initialUserId !== userId) {
         this.reset();
       }
-    }
     // track event : https://docs.moengage.com/docs/tracking-events
     if (!event) {
-      logger.error("Event name not present");
+      logger.error('Event name not present');
       return;
     }
     if (properties) {
@@ -145,7 +143,7 @@ class MoEngage {
   }
 
   reset() {
-    logger.debug("inside reset");
+    logger.debug('inside reset');
     // reset the user id
     this.initialUserId = this.analyticsinstance.userId;
     this.moeClient.destroy_session();
@@ -169,9 +167,9 @@ class MoEngage {
 
     // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
     if (traits) {
-      each(function add(value, key) {
+      each((value, key) => {
         // check if name is present
-        if (key === "name") {
+        if (key === 'name') {
           self.moeClient.add_user_name(value);
         }
         if (Object.prototype.hasOwnProperty.call(traitsMap, key)) {

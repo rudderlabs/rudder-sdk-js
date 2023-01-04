@@ -1,26 +1,26 @@
 /* eslint-disable class-methods-use-this */
-import AES from "crypto-js/aes";
-import Utf8 from "crypto-js/enc-utf8";
-import get from "get-value";
-import logger from "../logUtil";
-import { Cookie } from "./cookie";
-import { Store } from "./store";
+import AES from 'crypto-js/aes';
+import Utf8 from 'crypto-js/enc-utf8';
+import get from 'get-value';
+import logger from '../logUtil';
+import { Cookie } from './cookie';
+import { Store } from './store';
 
 const defaults = {
-  user_storage_key: "rl_user_id",
-  user_storage_trait: "rl_trait",
-  user_storage_anonymousId: "rl_anonymous_id",
-  group_storage_key: "rl_group_id",
-  group_storage_trait: "rl_group_trait",
-  page_storage_init_referrer: "rl_page_init_referrer",
-  page_storage_init_referring_domain: "rl_page_init_referring_domain",
-  session_info: "rl_session",
-  prefix: "RudderEncrypt:",
-  key: "Rudder",
+  user_storage_key: 'rl_user_id',
+  user_storage_trait: 'rl_trait',
+  user_storage_anonymousId: 'rl_anonymous_id',
+  group_storage_key: 'rl_group_id',
+  group_storage_trait: 'rl_group_trait',
+  page_storage_init_referrer: 'rl_page_init_referrer',
+  page_storage_init_referring_domain: 'rl_page_init_referring_domain',
+  session_info: 'rl_session',
+  prefix: 'RudderEncrypt:',
+  key: 'Rudder',
 };
 
 const anonymousIdKeyMap = {
-  segment: "ajs_anonymous_id",
+  segment: 'ajs_anonymous_id',
 };
 
 /**
@@ -41,7 +41,7 @@ class Storage {
     }
 
     if (!this.storage) {
-      throw Error("Could not initialize the SDK :: no storage is available");
+      throw Error('Could not initialize the SDK :: no storage is available');
     }
   }
 
@@ -76,7 +76,7 @@ class Storage {
    * @param {*} value
    */
   trim(value) {
-    return value.replace(/^\s+|\s+$/gm, "");
+    return value.replace(/^\s+|\s+$/gm, '');
   }
 
   /**
@@ -84,13 +84,10 @@ class Storage {
    * @param {*} value
    */
   encryptValue(value) {
-    if (this.trim(value) == "") {
+    if (this.trim(value) == '') {
       return value;
     }
-    const prefixedVal = `${defaults.prefix}${AES.encrypt(
-      value,
-      defaults.key
-    ).toString()}`;
+    const prefixedVal = `${defaults.prefix}${AES.encrypt(value, defaults.key).toString()}`;
 
     return prefixedVal;
   }
@@ -100,14 +97,11 @@ class Storage {
    * @param {*} value
    */
   decryptValue(value) {
-    if (!value || (typeof value === "string" && this.trim(value) == "")) {
+    if (!value || (typeof value === 'string' && this.trim(value) == '')) {
       return value;
     }
     if (value.substring(0, defaults.prefix.length) == defaults.prefix) {
-      return AES.decrypt(
-        value.substring(defaults.prefix.length),
-        defaults.key
-      ).toString(Utf8);
+      return AES.decrypt(value.substring(defaults.prefix.length), defaults.key).toString(Utf8);
     }
     return value;
   }
@@ -126,14 +120,11 @@ class Storage {
    * @param {*} value
    */
   setUserId(value) {
-    if (typeof value !== "string") {
-      logger.error("[Storage] setUserId:: userId should be string");
+    if (typeof value !== 'string') {
+      logger.error('[Storage] setUserId:: userId should be string');
       return;
     }
-    this.storage.set(
-      defaults.user_storage_key,
-      this.encryptValue(this.stringify(value))
-    );
+    this.storage.set(defaults.user_storage_key, this.encryptValue(this.stringify(value)));
   }
 
   /**
@@ -141,10 +132,7 @@ class Storage {
    * @param {*} value
    */
   setUserTraits(value) {
-    this.storage.set(
-      defaults.user_storage_trait,
-      this.encryptValue(this.stringify(value))
-    );
+    this.storage.set(defaults.user_storage_trait, this.encryptValue(this.stringify(value)));
   }
 
   /**
@@ -152,14 +140,11 @@ class Storage {
    * @param {*} value
    */
   setGroupId(value) {
-    if (typeof value !== "string") {
-      logger.error("[Storage] setGroupId:: groupId should be string");
+    if (typeof value !== 'string') {
+      logger.error('[Storage] setGroupId:: groupId should be string');
       return;
     }
-    this.storage.set(
-      defaults.group_storage_key,
-      this.encryptValue(this.stringify(value))
-    );
+    this.storage.set(defaults.group_storage_key, this.encryptValue(this.stringify(value)));
   }
 
   /**
@@ -167,10 +152,7 @@ class Storage {
    * @param {*} value
    */
   setGroupTraits(value) {
-    this.storage.set(
-      defaults.group_storage_trait,
-      this.encryptValue(this.stringify(value))
-    );
+    this.storage.set(defaults.group_storage_trait, this.encryptValue(this.stringify(value)));
   }
 
   /**
@@ -178,24 +160,18 @@ class Storage {
    * @param {*} value
    */
   setAnonymousId(value) {
-    if (typeof value !== "string") {
-      logger.error("[Storage] setAnonymousId:: anonymousId should be string");
+    if (typeof value !== 'string') {
+      logger.error('[Storage] setAnonymousId:: anonymousId should be string');
       return;
     }
-    this.storage.set(
-      defaults.user_storage_anonymousId,
-      this.encryptValue(this.stringify(value))
-    );
+    this.storage.set(defaults.user_storage_anonymousId, this.encryptValue(this.stringify(value)));
   }
 
   /**
    * @param {*} value
    */
   setInitialReferrer(value) {
-    this.storage.set(
-      defaults.page_storage_init_referrer,
-      this.encryptValue(this.stringify(value))
-    );
+    this.storage.set(defaults.page_storage_init_referrer, this.encryptValue(this.stringify(value)));
   }
 
   /**
@@ -204,7 +180,7 @@ class Storage {
   setInitialReferringDomain(value) {
     this.storage.set(
       defaults.page_storage_init_referring_domain,
-      this.encryptValue(this.stringify(value))
+      this.encryptValue(this.stringify(value)),
     );
   }
 
@@ -213,10 +189,7 @@ class Storage {
    * @param {*} value
    */
   setSessionInfo(value) {
-    this.storage.set(
-      defaults.session_info,
-      this.encryptValue(this.stringify(value))
-    );
+    this.storage.set(defaults.session_info, this.encryptValue(this.stringify(value)));
   }
 
   /**
@@ -231,36 +204,28 @@ class Storage {
    * get the stored userId
    */
   getUserId() {
-    return this.parse(
-      this.decryptValue(this.storage.get(defaults.user_storage_key))
-    );
+    return this.parse(this.decryptValue(this.storage.get(defaults.user_storage_key)));
   }
 
   /**
    * get the stored user traits
    */
   getUserTraits() {
-    return this.parse(
-      this.decryptValue(this.storage.get(defaults.user_storage_trait))
-    );
+    return this.parse(this.decryptValue(this.storage.get(defaults.user_storage_trait)));
   }
 
   /**
    * get the stored userId
    */
   getGroupId() {
-    return this.parse(
-      this.decryptValue(this.storage.get(defaults.group_storage_key))
-    );
+    return this.parse(this.decryptValue(this.storage.get(defaults.group_storage_key)));
   }
 
   /**
    * get the stored user traits
    */
   getGroupTraits() {
-    return this.parse(
-      this.decryptValue(this.storage.get(defaults.group_storage_trait))
-    );
+    return this.parse(this.decryptValue(this.storage.get(defaults.group_storage_trait)));
   }
 
   /**
@@ -275,7 +240,7 @@ class Storage {
       return anonId;
     }
     switch (key) {
-      case "segment":
+      case 'segment':
         /**
          * First check the local storage for anonymousId
          * Ref: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#identify
@@ -320,7 +285,7 @@ class Storage {
   getAnonymousId(anonymousIdOptions) {
     // fetch the rl_anonymous_id from storage
     const rlAnonymousId = this.parse(
-      this.decryptValue(this.storage.get(defaults.user_storage_anonymousId))
+      this.decryptValue(this.storage.get(defaults.user_storage_anonymousId)),
     );
     /**
      * If RS's anonymous ID is available, return from here.
@@ -341,11 +306,8 @@ class Storage {
       return rlAnonymousId;
     }
     // validate the provided anonymousIdOptions argument
-    const source = get(anonymousIdOptions, "autoCapture.source");
-    if (
-      get(anonymousIdOptions, "autoCapture.enabled") === true &&
-      typeof source === "string"
-    ) {
+    const source = get(anonymousIdOptions, 'autoCapture.source');
+    if (get(anonymousIdOptions, 'autoCapture.enabled') === true && typeof source === 'string') {
       // fetch the anonymousId from the external source
       // ex - segment
       const anonId = this.fetchExternalAnonymousId(source);
@@ -359,9 +321,7 @@ class Storage {
    * get stored initial referrer
    */
   getInitialReferrer(value) {
-    return this.parse(
-      this.decryptValue(this.storage.get(defaults.page_storage_init_referrer))
-    );
+    return this.parse(this.decryptValue(this.storage.get(defaults.page_storage_init_referrer)));
   }
 
   /**
@@ -369,9 +329,7 @@ class Storage {
    */
   getInitialReferringDomain(value) {
     return this.parse(
-      this.decryptValue(
-        this.storage.get(defaults.page_storage_init_referring_domain)
-      )
+      this.decryptValue(this.storage.get(defaults.page_storage_init_referring_domain)),
     );
   }
 
@@ -379,9 +337,7 @@ class Storage {
    * get the stored session info
    */
   getSessionInfo() {
-    return this.parse(
-      this.decryptValue(this.storage.get(defaults.session_info))
-    );
+    return this.parse(this.decryptValue(this.storage.get(defaults.session_info)));
   }
 
   /**

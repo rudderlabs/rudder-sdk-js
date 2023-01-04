@@ -1,5 +1,5 @@
-const RudderProperty = require("./RudderProperty");
-const { ECommerceParamNames } = require("./constants");
+const RudderProperty = require('./RudderProperty');
+const { ECommerceParamNames } = require('./constants');
 
 // Parent class of "Product Added to Cart" and "Product Removed from Cart" events
 class ProductCartEvent {

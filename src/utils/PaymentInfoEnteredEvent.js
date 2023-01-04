@@ -1,5 +1,5 @@
-const { ECommerceEvents } = require("./constants");
-const RudderProperty = require("./RudderProperty");
+const { ECommerceEvents } = require('./constants');
+const RudderProperty = require('./RudderProperty');
 
 // Class representing payment info entered event
 class PaymentInfoEnteredEvent {

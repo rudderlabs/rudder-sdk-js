@@ -1,4 +1,4 @@
-const NAME = "TVSQUARED";
+const NAME = 'TVSQUARED';
 const CNameMapping = {
   [NAME]: NAME,
   TVSquared: NAME,
@@ -6,9 +6,9 @@ const CNameMapping = {
   tvSquared: NAME,
   TvSquared: NAME,
   Tvsquared: NAME,
-  "TV Squared": NAME,
-  "tv squared": NAME,
-  "tv Squared": NAME,
+  'TV Squared': NAME,
+  'tv squared': NAME,
+  'tv Squared': NAME,
 };
 
 export { NAME, CNameMapping };

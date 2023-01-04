@@ -1,54 +1,54 @@
 const ITEM_PROP_EXCLUSION_LIST = [
-  "item_id",
-  "item_name",
-  "coupon",
-  "item_category",
-  "item_brand",
-  "item_variant",
-  "price",
-  "quantity",
-  "index",
-  "product_id",
-  "name",
-  "category",
-  "brand",
-  "variant",
-  "position",
+  'item_id',
+  'item_name',
+  'coupon',
+  'item_category',
+  'item_brand',
+  'item_variant',
+  'price',
+  'quantity',
+  'index',
+  'product_id',
+  'name',
+  'category',
+  'brand',
+  'variant',
+  'position',
 ];
 
 const EVENT_PROP_EXCLUSION_LIST = [
-  "promotion_id",
-  "promotion_name",
-  "search_term",
-  "item_id",
-  "item_name",
-  "item_list_id",
-  "item_list_name",
-  "value",
-  "currency",
-  "coupon",
-  "affiliation",
-  "shipping",
-  "tax",
-  "transaction_id",
-  "shipping_tier",
-  "payment_type",
-  "list_id",
-  "category",
-  "price",
-  "total",
-  "order_id",
-  "shipping_method",
-  "payment_method",
-  "products",
+  'promotion_id',
+  'promotion_name',
+  'search_term',
+  'item_id',
+  'item_name',
+  'item_list_id',
+  'item_list_name',
+  'value',
+  'currency',
+  'coupon',
+  'affiliation',
+  'shipping',
+  'tax',
+  'transaction_id',
+  'shipping_tier',
+  'payment_type',
+  'list_id',
+  'category',
+  'price',
+  'total',
+  'order_id',
+  'shipping_method',
+  'payment_method',
+  'products',
 ];
 
 const requiredEventParameters = {
-  PromotionId: "promotion_id",
-  PromotionName: "promotion_name",
-  Search: "search_term",
-  ProductId: "item_id",
-  ProductName: "item_name",
+  PromotionId: 'promotion_id',
+  PromotionName: 'promotion_name',
+  Search: 'search_term',
+  ProductId: 'item_id',
+  ProductName: 'item_name',
 };
 
 // To Do : Future Scope :: We can remove this one and add everything in include list.
@@ -56,168 +56,129 @@ const requiredEventParameters = {
 const includeParams = {
   CartShare: {
     defaults: {
-      content_type: "Cart",
+      content_type: 'Cart',
     },
     mappings: {
-      share_via: "method",
-      cart_id: "content_id",
+      share_via: 'method',
+      cart_id: 'content_id',
     },
   },
   ProductShare: {
     defaults: {
-      content_type: "Product",
+      content_type: 'Product',
     },
     mappings: {
-      share_via: "method",
-      product_id: "content_id",
+      share_via: 'method',
+      product_id: 'content_id',
     },
   },
   Search: {
     mappings: {
-      query: "search_term",
+      query: 'search_term',
     },
   },
   Promotion: {
     mappings: {
-      position: "location_id",
+      position: 'location_id',
     },
   },
 };
 
 const eventParametersConfigArray = {
-  ListId: { src: "list_id", dest: "item_list_id", inItems: true },
-  Category: { src: "category", dest: "item_list_name", inItems: true },
-  Price: { src: "price", dest: "value" },
-  Currency: { src: "currency", dest: "currency", inItems: true },
-  Coupon: { src: "coupon", dest: "coupon", inItems: true },
-  Affiliation: { src: "affiliation", dest: "affiliation", inItems: true },
-  Shipping: { src: "shipping", dest: "shipping" },
-  Tax: { src: "tax", dest: "tax" },
-  Total: { src: "total", dest: "value" },
-  OrderId: { src: "order_id", dest: "transaction_id" },
-  ShippingMethod: { src: "shipping_method", dest: "shipping_tier" },
-  PaymentMethod: { src: "payment_method", dest: "payment_type" },
+  ListId: { src: 'list_id', dest: 'item_list_id', inItems: true },
+  Category: { src: 'category', dest: 'item_list_name', inItems: true },
+  Price: { src: 'price', dest: 'value' },
+  Currency: { src: 'currency', dest: 'currency', inItems: true },
+  Coupon: { src: 'coupon', dest: 'coupon', inItems: true },
+  Affiliation: { src: 'affiliation', dest: 'affiliation', inItems: true },
+  Shipping: { src: 'shipping', dest: 'shipping' },
+  Tax: { src: 'tax', dest: 'tax' },
+  Total: { src: 'total', dest: 'value' },
+  OrderId: { src: 'order_id', dest: 'transaction_id' },
+  ShippingMethod: { src: 'shipping_method', dest: 'shipping_tier' },
+  PaymentMethod: { src: 'payment_method', dest: 'payment_type' },
 };
 
 const itemParametersConfigArray = [
-  { src: "product_id", dest: "item_id" },
-  { src: "name", dest: "item_name" },
-  { src: "coupon", dest: "coupon" },
-  { src: "category", dest: "item_category" },
-  { src: "brand", dest: "item_brand" },
-  { src: "variant", dest: "item_variant" },
-  { src: "price", dest: "price" },
-  { src: "quantity", dest: "quantity" },
-  { src: "position", dest: "index" },
+  { src: 'product_id', dest: 'item_id' },
+  { src: 'name', dest: 'item_name' },
+  { src: 'coupon', dest: 'coupon' },
+  { src: 'category', dest: 'item_category' },
+  { src: 'brand', dest: 'item_brand' },
+  { src: 'variant', dest: 'item_variant' },
+  { src: 'price', dest: 'price' },
+  { src: 'quantity', dest: 'quantity' },
+  { src: 'position', dest: 'index' },
 ];
 
 const eventNamesConfigArray = [
   // Browsing Section
   {
-    src: ["products searched", "product searched"],
-    dest: "search",
+    src: ['products searched', 'product searched'],
+    dest: 'search',
     requiredParams: requiredEventParameters.Search,
     onlyIncludeParams: includeParams.Search,
   },
   {
-    src: ["product list viewed"],
-    dest: "view_item_list",
-    requiredParams: [
-      requiredEventParameters.ProductId,
-      requiredEventParameters.ProductName,
-    ],
+    src: ['product list viewed'],
+    dest: 'view_item_list',
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
-    includeList: [
-      eventParametersConfigArray.ListId,
-      eventParametersConfigArray.Category,
-    ],
+    includeList: [eventParametersConfigArray.ListId, eventParametersConfigArray.Category],
   },
 
   // Promotion Section
   {
-    src: ["promotion viewed"],
-    dest: "view_promotion",
+    src: ['promotion viewed'],
+    dest: 'view_promotion',
     onlyIncludeParams: includeParams.Promotion,
   },
   {
-    src: ["promotion clicked"],
-    dest: "select_promotion",
+    src: ['promotion clicked'],
+    dest: 'select_promotion',
     onlyIncludeParams: includeParams.Promotion,
   },
 
   // Ordering Section
   {
-    src: ["product clicked", "products clicked"],
-    dest: "select_item",
-    requiredParams: [
-      requiredEventParameters.ProductId,
-      requiredEventParameters.ProductName,
-    ],
+    src: ['product clicked', 'products clicked'],
+    dest: 'select_item',
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
-    includeList: [
-      eventParametersConfigArray.ListId,
-      eventParametersConfigArray.Category,
-    ],
+    includeList: [eventParametersConfigArray.ListId, eventParametersConfigArray.Category],
   },
   {
-    src: ["product viewed"],
-    dest: "view_item",
-    requiredParams: [
-      requiredEventParameters.ProductId,
-      requiredEventParameters.ProductName,
-    ],
+    src: ['product viewed'],
+    dest: 'view_item',
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
-    includeList: [
-      eventParametersConfigArray.Currency,
-      eventParametersConfigArray.Total,
-    ],
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total],
   },
   {
-    src: ["product added"],
-    dest: "add_to_cart",
-    requiredParams: [
-      requiredEventParameters.ProductId,
-      requiredEventParameters.ProductName,
-    ],
+    src: ['product added'],
+    dest: 'add_to_cart',
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
-    includeList: [
-      eventParametersConfigArray.Currency,
-      eventParametersConfigArray.Total,
-    ],
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total],
   },
   {
-    src: ["product removed"],
-    dest: "remove_from_cart",
-    requiredParams: [
-      requiredEventParameters.ProductId,
-      requiredEventParameters.ProductName,
-    ],
+    src: ['product removed'],
+    dest: 'remove_from_cart',
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
-    includeList: [
-      eventParametersConfigArray.Currency,
-      eventParametersConfigArray.Total,
-    ],
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total],
   },
   {
-    src: ["cart viewed"],
-    dest: "view_cart",
-    requiredParams: [
-      requiredEventParameters.ProductId,
-      requiredEventParameters.ProductName,
-    ],
+    src: ['cart viewed'],
+    dest: 'view_cart',
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
-    includeList: [
-      eventParametersConfigArray.Currency,
-      eventParametersConfigArray.Total,
-    ],
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total],
   },
   {
-    src: ["checkout started"],
-    dest: "begin_checkout",
-    requiredParams: [
-      requiredEventParameters.ProductId,
-      requiredEventParameters.ProductName,
-    ],
+    src: ['checkout started'],
+    dest: 'begin_checkout',
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
     includeList: [
       eventParametersConfigArray.Coupon,
@@ -226,24 +187,21 @@ const eventNamesConfigArray = [
     ],
   },
   {
-    src: ["payment info entered"],
-    dest: "add_payment_info",
+    src: ['payment info entered'],
+    dest: 'add_payment_info',
     hasItem: false,
     includeList: [eventParametersConfigArray.PaymentMethod],
   },
   {
-    src: ["payment info entered"],
-    dest: "add_shipping_info",
+    src: ['payment info entered'],
+    dest: 'add_shipping_info',
     hasItem: false,
     includeList: [eventParametersConfigArray.ShippingMethod],
   },
   {
-    src: ["order completed"],
-    dest: "purchase",
-    requiredParams: [
-      requiredEventParameters.ProductId,
-      requiredEventParameters.ProductName,
-    ],
+    src: ['order completed'],
+    dest: 'purchase',
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
     includeList: [
       eventParametersConfigArray.Affiliation,
@@ -256,8 +214,8 @@ const eventNamesConfigArray = [
     ],
   },
   {
-    src: ["order refunded"],
-    dest: "refund",
+    src: ['order refunded'],
+    dest: 'refund',
     hasItem: true,
     includeList: [
       eventParametersConfigArray.Affiliation,
@@ -276,38 +234,32 @@ const eventNamesConfigArray = [
 
   // Wishlist Section
   {
-    src: ["product added to wishlist"],
-    dest: "add_to_wishlist",
-    requiredParams: [
-      requiredEventParameters.ProductId,
-      requiredEventParameters.ProductName,
-    ],
+    src: ['product added to wishlist'],
+    dest: 'add_to_wishlist',
+    requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
-    includeList: [
-      eventParametersConfigArray.Currency,
-      eventParametersConfigArray.Total,
-    ],
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total],
   },
   //-------
 
   // Sharing Section
   {
-    src: ["product shared"],
-    dest: "share",
+    src: ['product shared'],
+    dest: 'share',
     hasItem: false,
     onlyIncludeParams: includeParams.ProductShare,
   },
 
   {
-    src: ["cart shared"],
-    dest: "share",
+    src: ['cart shared'],
+    dest: 'share',
     hasItem: false,
     onlyIncludeParams: includeParams.CartShare,
   },
   //---------
   {
-    src: ["group"],
-    dest: "join_group",
+    src: ['group'],
+    dest: 'join_group',
     hasItem: false,
   },
 ];

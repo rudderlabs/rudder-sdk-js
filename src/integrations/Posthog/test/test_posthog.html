@@ -2,7 +2,7 @@
   <head>
     <script type="text/javascript">
       rudderanalytics = window.rudderanalytics = [];
-      var methods = ["load", "page", "identify", "track", "ready", "group"];
+      var methods = ['load', 'page', 'identify', 'track', 'ready', 'group'];
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
         rudderanalytics[method] = (function (methodName) {
@@ -10,24 +10,47 @@
             rudderanalytics.push([methodName, ...arguments]);
           };
         })(method);
-      } 
-      rudderanalytics.load(
-        "1l90d23mEVIDyCeoZkE7X85DH0P",
-        "https://hosted.rudderlabs.com",
-        {
-          logLevel: "DEBUG",
-          configUrl:"http://localhost:5000/sourceConfig",
-          loadIntegration: false
-        }
-      );
+      }
+      rudderanalytics.load('1l90d23mEVIDyCeoZkE7X85DH0P', 'https://hosted.rudderlabs.com', {
+        logLevel: 'DEBUG',
+        configUrl: 'http://localhost:5000/sourceConfig',
+        loadIntegration: false,
+      });
     </script>
-    <script src= "https://cdn.rudderlabs.com/v1/rudder-analytics-staging.min.js"></script>
+    <script src="https://cdn.rudderlabs.com/v1/rudder-analytics-staging.min.js"></script>
     <script>
       rudderanalytics.page();
-      rudderanalytics.identify("user123456", {email: "user@email.com", age: 22}, { integrations: { Posthog: {unsetProperties: ["identifysuperprop1", "identifysuperprop2"]} } });
-      rudderanalytics.track("track without property");
-      rudderanalytics.track("track with property", {validProp: "valid property", blackproperty: "not valid"}, { integrations: { Posthog: {superProperties: {superprop1: "value1", superprop2: "value2"}, setOnceProperties: {onceprop: "value2"}} } });
-      rudderanalytics.track("track with property2", {validProp: "valid property", blackproperty: "not valid"}, { integrations: { Posthog: {unsetProperties: ["identifysuperprop1", "identifysuperprop2"]} } });
+      rudderanalytics.identify(
+        'user123456',
+        { email: 'user@email.com', age: 22 },
+        {
+          integrations: {
+            Posthog: { unsetProperties: ['identifysuperprop1', 'identifysuperprop2'] },
+          },
+        },
+      );
+      rudderanalytics.track('track without property');
+      rudderanalytics.track(
+        'track with property',
+        { validProp: 'valid property', blackproperty: 'not valid' },
+        {
+          integrations: {
+            Posthog: {
+              superProperties: { superprop1: 'value1', superprop2: 'value2' },
+              setOnceProperties: { onceprop: 'value2' },
+            },
+          },
+        },
+      );
+      rudderanalytics.track(
+        'track with property2',
+        { validProp: 'valid property', blackproperty: 'not valid' },
+        {
+          integrations: {
+            Posthog: { unsetProperties: ['identifysuperprop1', 'identifysuperprop2'] },
+          },
+        },
+      );
       /*
       The above calls will generate the following 3 base64 encoded payloads - 
 

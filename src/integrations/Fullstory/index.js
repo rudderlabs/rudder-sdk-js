@@ -1,3 +1,5 @@
-import { Fullstory } from "./browser";
 
-export default Fullstory;
+
+
+
+export {Fullstory as default} from './browser';

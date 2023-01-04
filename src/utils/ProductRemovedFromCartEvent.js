@@ -1,5 +1,5 @@
-const ProductCartEvent = require("./ProductCartEvent");
-const { ECommerceEvents } = require("./constants");
+const ProductCartEvent = require('./ProductCartEvent');
+const { ECommerceEvents } = require('./constants');
 
 // Class for representing product removed event
 class ProductRemovedFromCartEvent extends ProductCartEvent {

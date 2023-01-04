@@ -1,21 +1,18 @@
-const RudderProperty = require("./RudderProperty");
-const { ECommerceParamNames } = require("./constants");
+const RudderProperty = require('./RudderProperty');
+const { ECommerceParamNames } = require('./constants');
 
 // Parent class for all social media sharing events
 class ShareEvent {
   constructor() {
-    this.share_via = "";
-    this.share_message = "";
-    this.recipient = "";
+    this.share_via = '';
+    this.share_message = '';
+    this.recipient = '';
   }
 
   build() {
     const eventProperty = new RudderProperty();
     eventProperty.setProperty(ECommerceParamNames.SHARE_VIA, this.share_via);
-    eventProperty.setProperty(
-      ECommerceParamNames.SHARE_MESSAGE,
-      this.share_message
-    );
+    eventProperty.setProperty(ECommerceParamNames.SHARE_MESSAGE, this.share_message);
     eventProperty.setProperty(ECommerceParamNames.RECIPIENT, this.recipient);
     return eventProperty;
   }

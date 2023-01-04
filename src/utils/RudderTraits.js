@@ -92,19 +92,19 @@ class RudderTraits {
 // Class for Company to be embedded in Traits
 class TraitsCompany {
   constructor() {
-    this.name = "";
-    this.id = "";
-    this.industry = "";
+    this.name = '';
+    this.id = '';
+    this.industry = '';
   }
 }
 // Class for Address to be embedded in Traits
 class TraitsAddress {
   constructor() {
-    this.city = "";
-    this.country = "";
-    this.postalcode = "";
-    this.state = "";
-    this.street = "";
+    this.city = '';
+    this.country = '';
+    this.postalcode = '';
+    this.state = '';
+    this.street = '';
   }
 }
 export { RudderTraits, TraitsCompany, TraitsAddress };

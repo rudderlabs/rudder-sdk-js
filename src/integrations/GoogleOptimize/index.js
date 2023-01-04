@@ -1,3 +1,5 @@
-import GoogleOptimize from "./browser";
 
-export default GoogleOptimize;
+
+
+
+export {default} from './browser';

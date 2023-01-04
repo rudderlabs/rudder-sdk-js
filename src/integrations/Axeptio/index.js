@@ -1,3 +1,5 @@
-import Axeptio from "./browser";
 
-export default Axeptio;
+
+
+
+export {default} from './browser';

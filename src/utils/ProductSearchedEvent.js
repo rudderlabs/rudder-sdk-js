@@ -1,6 +1,6 @@
-const RudderProperty = require("./RudderProperty");
-const { ECommerceEvents } = require("./constants");
-const { ECommerceParamNames } = require("./constants");
+const RudderProperty = require('./RudderProperty');
+const { ECommerceEvents } = require('./constants');
+const { ECommerceParamNames } = require('./constants');
 
 // Class for representing product searched event
 class ProductSearchedEvent {

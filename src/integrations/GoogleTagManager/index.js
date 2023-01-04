@@ -1,3 +1,5 @@
-import { GoogleTagManager } from "./browser";
 
-export default GoogleTagManager;
+
+
+
+export {GoogleTagManager as default} from './browser';

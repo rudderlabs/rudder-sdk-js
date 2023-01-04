@@ -1,9 +1,9 @@
-const ECommerceOrder = require("./ECommerceOrder");
+const ECommerceOrder = require('./ECommerceOrder');
 // Class representing completed e-commerce order
 class ECommerceCompletedOrder extends ECommerceOrder {
   constructor() {
     super();
-    this.checkout_id = "";
+    this.checkout_id = '';
   }
 
   // Setter method in accordance with Builder pattern

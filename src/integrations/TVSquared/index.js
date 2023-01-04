@@ -1,3 +1,5 @@
-import TVSquared from "./browser";
 
-export default TVSquared;
+
+
+
+export {default} from './browser';

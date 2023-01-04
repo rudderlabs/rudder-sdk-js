@@ -1,3 +1,5 @@
-import LiveChat from "./browser";
 
-export default LiveChat;
+
+
+
+export {default} from './browser';

@@ -1,4 +1,4 @@
-const NAME = "YANDEX_METRICA";
+const NAME = 'YANDEX_METRICA';
 const CNameMapping = {
   [NAME]: NAME,
   Yandexmetrica: NAME,

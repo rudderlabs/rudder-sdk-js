@@ -1,4 +1,4 @@
-import { RudderProperty } from "./RudderProperty";
+import { RudderProperty } from './RudderProperty';
 
 // Parent class of promotion viewed and promotion clicked events
 class PromotionEvent {

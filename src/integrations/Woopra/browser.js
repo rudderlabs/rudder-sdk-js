@@ -2,10 +2,10 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
+import logger from '../../utils/logUtil';
 
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Woopra {
   constructor(config) {
@@ -24,7 +24,7 @@ class Woopra {
   }
 
   init() {
-    logger.debug("===In init Woopra===");
+    logger.debug('===In init Woopra===');
     !(function () {
       var t,
         o,
@@ -32,30 +32,25 @@ class Woopra {
         e = window,
         n = document,
         r = arguments,
-        a = "script",
+        a = 'script',
         i = [
-          "call",
-          "cancelAction",
-          "config",
-          "identify",
-          "push",
-          "track",
-          "trackClick",
-          "trackForm",
-          "update",
-          "visit",
+          'call',
+          'cancelAction',
+          'config',
+          'identify',
+          'push',
+          'track',
+          'trackClick',
+          'trackForm',
+          'update',
+          'visit',
         ],
         s = function () {
           var t,
             o = this,
             c = function (t) {
               o[t] = function () {
-                return (
-                  o._e.push(
-                    [t].concat(Array.prototype.slice.call(arguments, 0))
-                  ),
-                  o
-                );
+                return o._e.push([t].concat(Array.prototype.slice.call(arguments, 0))), o;
               };
             };
           for (o._e = [], t = 0; t < i.length; t++) c(i[t]);
@@ -63,10 +58,10 @@ class Woopra {
       for (e.__woo = e.__woo || {}, t = 0; t < r.length; t++)
         e.__woo[r[t]] = e[r[t]] = e[r[t]] || new s();
       ((o = n.createElement(a)).async = 1),
-        (o.src = "https://static.woopra.com/w.js"),
-        o.setAttribute("data-loader", LOAD_ORIGIN),
+        (o.src = 'https://static.woopra.com/w.js'),
+        o.setAttribute('data-loader', LOAD_ORIGIN),
         (c = n.getElementsByTagName(a)[0]).parentNode.insertBefore(o, c);
-    })("Woopra");
+    })('Woopra');
     window.Woopra.config({
       domain: this.projectName,
       cookie_name: this.cookieName,
@@ -83,17 +78,17 @@ class Woopra {
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded Woopra===");
+    logger.debug('===In isLoaded Woopra===');
     return !!(window.Woopra && window.Woopra.loaded);
   }
 
   isReady() {
-    logger.debug("===In isReady Woopra===");
+    logger.debug('===In isReady Woopra===');
     return !!window.Woopra;
   }
 
   identify(rudderElement) {
-    logger.debug("===In Woopra Identify===");
+    logger.debug('===In Woopra Identify===');
     const { traits } = rudderElement.message.context;
     if (traits) {
       window.Woopra.identify(traits).push();
@@ -101,16 +96,16 @@ class Woopra {
   }
 
   track(rudderElement) {
-    logger.debug("===In Woopra Track===");
+    logger.debug('===In Woopra Track===');
     const { event, properties } = rudderElement.message;
     window.Woopra.track(event, properties);
   }
 
   page(rudderElement) {
-    logger.debug("===In Woopra Page ===");
+    logger.debug('===In Woopra Page ===');
     const { name, properties, category } = rudderElement.message;
-    const pageCat = category ? `${category} ` : "";
-    const pageName = name ? `${name} ` : "";
+    const pageCat = category ? `${category} ` : '';
+    const pageName = name ? `${name} ` : '';
     const eventName = `Viewed ${pageCat}${pageName}Page`;
     window.Woopra.track(eventName, properties);
   }

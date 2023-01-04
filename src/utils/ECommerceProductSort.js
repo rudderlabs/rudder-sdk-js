@@ -1,8 +1,8 @@
 // Class representing e-commerce product sort
 class ECommerceProductSort {
   constructor() {
-    this.type = "";
-    this.value = "";
+    this.type = '';
+    this.value = '';
   }
 
   // Setter methods in accordance to Builder pattern

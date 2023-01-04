@@ -1,5 +1,5 @@
-const ProductWishlistEvent = require("./ProductWishListEvent");
-const { ECommerceEvents } = require("./constants");
+const ProductWishlistEvent = require('./ProductWishListEvent');
+const { ECommerceEvents } = require('./constants');
 
 // Class representing product removed from wishlist
 class ProductRemovedFromWishlistEvent extends ProductWishlistEvent {

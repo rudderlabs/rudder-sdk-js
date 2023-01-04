@@ -1,14 +1,14 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-undef */
-import each from "@ndhoule/each";
-import get from "lodash.get";
+import each from '@ndhoule/each';
+import get from 'lodash.get';
 import {
   toIso,
   getHashFromArray,
   isDefinedAndNotNullAndNotEmpty,
   isDefined,
-} from "../utils/commonUtils";
-import logger from "../../utils/logUtil";
+} from '../utils/commonUtils';
+import logger from '../../utils/logUtil';
 
 let dynamicKeys = [];
 
@@ -16,20 +16,16 @@ const setDynamicKeys = (dk) => {
   dynamicKeys = dk;
 };
 
-const getDynamicKeys = () => {
-  return dynamicKeys;
-};
+const getDynamicKeys = () => dynamicKeys;
 
 let config;
 const setConfig = (c) => {
   config = c;
 };
 
-const getConfig = () => {
-  return config;
-};
+const getConfig = () => config;
 
-const topLevelProperties = ["messageId", "anonymousId", "event"];
+const topLevelProperties = ['messageId', 'anonymousId', 'event'];
 
 /* eslint-disable camelcase */
 /**
@@ -51,7 +47,7 @@ const createQos = (rudderElement) => {
     bitrate || 0,
     startupTime || 0,
     fps || 0,
-    droppedFrames || 0
+    droppedFrames || 0,
   );
   return qosData;
 };
@@ -68,17 +64,8 @@ const standardVideoMetadata = (rudderElement, mediaObj) => {
   const { va } = window.ADB;
   const { properties } = rudderElement.message;
   const metaKeys = va.MediaHeartbeat.VideoMetadataKeys;
-  const {
-    SHOW,
-    SEASON,
-    EPISODE,
-    ASSET_ID,
-    GENRE,
-    FIRST_AIR_DATE,
-    ORIGINATOR,
-    NETWORK,
-    RATING,
-  } = metaKeys;
+  const { SHOW, SEASON, EPISODE, ASSET_ID, GENRE, FIRST_AIR_DATE, ORIGINATOR, NETWORK, RATING } =
+    metaKeys;
   const stdVidMeta = {};
   const rudderAdbMap = {
     program: SHOW,
@@ -94,14 +81,10 @@ const standardVideoMetadata = (rudderElement, mediaObj) => {
   };
 
   Object.keys(rudderAdbMap).forEach((value) => {
-    stdVidMeta[rudderAdbMap[value]] =
-      properties[value] || `no ${rudderAdbMap[value]}`;
+    stdVidMeta[rudderAdbMap[value]] = properties[value] || `no ${rudderAdbMap[value]}`;
   });
 
-  mediaObj.setValue(
-    va.MediaHeartbeat.MediaObjectKey.StandardVideoMetadata,
-    stdVidMeta
-  );
+  mediaObj.setValue(va.MediaHeartbeat.MediaObjectKey.StandardVideoMetadata, stdVidMeta);
 };
 
 const standardAdMetadata = (rudderElement, adObj) => {
@@ -115,14 +98,10 @@ const standardAdMetadata = (rudderElement, adObj) => {
 
   // eslint-disable-next-line
   Object.keys(rudderAdbMap).forEach((value) => {
-    stdAdMeta[rudderAdbMap[value]] =
-      properties[value] || `no ${rudderAdbMap[value]}`;
+    stdAdMeta[rudderAdbMap[value]] = properties[value] || `no ${rudderAdbMap[value]}`;
   });
 
-  adObj.setValue(
-    va.MediaHeartbeat.MediaObjectKey.StandardAdMetadata,
-    stdAdMeta
-  );
+  adObj.setValue(va.MediaHeartbeat.MediaObjectKey.StandardAdMetadata, stdAdMeta);
 };
 
 // clear the previously set keys for adobe analytics
@@ -159,14 +138,14 @@ const updateCommonWindowSKeys = (rudderElement, pageName) => {
   const zip = context.traits.zip || properties.zip;
   const state = context.traits.state || properties.state;
 
-  updateWindowSKeys(channel, "channel");
-  updateWindowSKeys(campaign, "campaign");
-  updateWindowSKeys(state, "state");
-  updateWindowSKeys(zip, "zip");
+  updateWindowSKeys(channel, 'channel');
+  updateWindowSKeys(campaign, 'campaign');
+  updateWindowSKeys(state, 'state');
+  updateWindowSKeys(zip, 'zip');
   const name = context.page ? context.page.name : undefined;
 
-  if (config.trackPageName && type === "track") {
-    updateWindowSKeys(properties.pageName || pageName || name, "pageName");
+  if (config.trackPageName && type === 'track') {
+    updateWindowSKeys(properties.pageName || pageName || name, 'pageName');
   }
 };
 // TODO: Need to check why timestamp not setting
@@ -175,20 +154,17 @@ const updateCommonWindowSKeys = (rudderElement, pageName) => {
 const calculateTimestamp = (rudderElement) => {
   const { properties, originalTimestamp, timestamp } = rudderElement.message;
   let timestampVal =
-    originalTimestamp ||
-    timestamp ||
-    properties.originalTimestamp ||
-    properties.timestamp;
+    originalTimestamp || timestamp || properties.originalTimestamp || properties.timestamp;
   // The s.timestamp variable is a string containing the date and time of the hit. Valid timestamp formats include ISO 8601 and Unix time.
   if (timestampVal) {
-    if (typeof timestampVal !== "string") {
+    if (typeof timestampVal !== 'string') {
       timestampVal = toIso(timestampVal);
     }
     if (
-      (config.timestampOption === "hybrid" && !config.preferVisitorId) ||
-      config.timestampOption === "enabled"
+      (config.timestampOption === 'hybrid' && !config.preferVisitorId) ||
+      config.timestampOption === 'enabled'
     ) {
-      updateWindowSKeys(timestampVal, "timestamp");
+      updateWindowSKeys(timestampVal, 'timestamp');
     }
   }
 };
@@ -211,9 +187,7 @@ const getDataFromContext = (contextMap, rudderElement) => {
       if (topLevelProperties.includes(value)) {
         val = rudderElement.message[value];
       } else {
-        val = get(context, value)
-          ? get(context, value)
-          : get(properties, value);
+        val = get(context, value) ? get(context, value) : get(properties, value);
       }
       if (val) {
         contextDataMap[contextMap[value]] = val;
@@ -250,9 +224,7 @@ const setContextData = (contextDataKey, contextDataValue, video = false) => {
 const handleContextData = (rudderElement) => {
   window.s.contextData = {};
   const { properties } = rudderElement.message;
-  const contextDataPrefixValue = config.contextDataPrefix
-    ? `${config.contextDataPrefix}.`
-    : "";
+  const contextDataPrefixValue = config.contextDataPrefix ? `${config.contextDataPrefix}.` : '';
   if (properties) {
     each((value, key) => {
       setContextData(contextDataPrefixValue + key, value);
@@ -261,14 +233,11 @@ const handleContextData = (rudderElement) => {
 
   const contextDataMappingHashmap = getHashFromArray(
     config.contextDataMapping,
-    "from",
-    "to",
-    false
+    'from',
+    'to',
+    false,
   );
-  const keyValueContextData = getDataFromContext(
-    contextDataMappingHashmap,
-    rudderElement
-  );
+  const keyValueContextData = getDataFromContext(contextDataMappingHashmap, rudderElement);
   if (keyValueContextData) {
     each((value, key) => {
       if (isDefinedAndNotNullAndNotEmpty(key)) {
@@ -287,12 +256,7 @@ const handleContextData = (rudderElement) => {
 
 const handleEVars = (rudderElement) => {
   const { properties } = rudderElement.message;
-  const eVarMappingHashmap = getHashFromArray(
-    config.eVarMapping,
-    "from",
-    "to",
-    false
-  );
+  const eVarMappingHashmap = getHashFromArray(config.eVarMapping, 'from', 'to', false);
   const eVarHashmapMod = {};
   Object.keys(eVarMappingHashmap).forEach((value) => {
     eVarHashmapMod[value] = `eVar${eVarMappingHashmap[value]}`;
@@ -315,12 +279,7 @@ const handleEVars = (rudderElement) => {
 
 const handleHier = (rudderElement) => {
   const { properties } = rudderElement.message;
-  const hierMappingHashmap = getHashFromArray(
-    config.hierMapping,
-    "from",
-    "to",
-    false
-  );
+  const hierMappingHashmap = getHashFromArray(config.hierMapping, 'from', 'to', false);
   const hierHashmapMod = {};
   Object.keys(hierMappingHashmap).forEach((value) => {
     hierHashmapMod[value] = `hier${hierMappingHashmap[value]}`;
@@ -348,28 +307,18 @@ const handleHier = (rudderElement) => {
 
 const handleLists = (rudderElement) => {
   const { properties } = rudderElement.message;
-  const listMappingHashmap = getHashFromArray(
-    config.listMapping,
-    "from",
-    "to",
-    false
-  );
-  const listDelimiterHashmap = getHashFromArray(
-    config.listDelimiter,
-    "from",
-    "to",
-    false
-  );
+  const listMappingHashmap = getHashFromArray(config.listMapping, 'from', 'to', false);
+  const listDelimiterHashmap = getHashFromArray(config.listDelimiter, 'from', 'to', false);
   if (properties) {
     each((value, key) => {
       if (listMappingHashmap[key] && listDelimiterHashmap[key]) {
-        if (typeof value !== "string" && !Array.isArray(value)) {
-          logger.error("list variable is neither a string nor an array");
+        if (typeof value !== 'string' && !Array.isArray(value)) {
+          logger.error('list variable is neither a string nor an array');
           return;
         }
         const delimiter = listDelimiterHashmap[key];
         const listValue = `list${listMappingHashmap[key]}`;
-        if (typeof value === "string") {
+        if (typeof value === 'string') {
           value = value.replace(/\s*,+\s*/g, delimiter);
         } else {
           value = value.join(delimiter);
@@ -392,28 +341,21 @@ const handleCustomProps = (rudderElement) => {
   const { properties } = rudderElement.message;
   const customPropsMappingHashmap = getHashFromArray(
     config.customPropsMapping,
-    "from",
-    "to",
-    false
+    'from',
+    'to',
+    false,
   );
-  const propsDelimiterHashmap = getHashFromArray(
-    config.propsDelimiter,
-    "from",
-    "to",
-    false
-  );
+  const propsDelimiterHashmap = getHashFromArray(config.propsDelimiter, 'from', 'to', false);
   if (properties) {
     each((value, key) => {
       if (customPropsMappingHashmap[key]) {
-        if (typeof value !== "string" && !Array.isArray(value)) {
-          logger.error("prop variable is neither a string nor an array");
+        if (typeof value !== 'string' && !Array.isArray(value)) {
+          logger.error('prop variable is neither a string nor an array');
           return;
         }
-        const delimiter = propsDelimiterHashmap[key]
-          ? propsDelimiterHashmap[key]
-          : "|";
+        const delimiter = propsDelimiterHashmap[key] ? propsDelimiterHashmap[key] : '|';
         const propValue = `prop${customPropsMappingHashmap[key]}`;
-        if (typeof value === "string") {
+        if (typeof value === 'string') {
           value = value.replace(/\s*,+\s*/g, delimiter);
         } else {
           value = value.join(delimiter);
@@ -425,27 +367,19 @@ const handleCustomProps = (rudderElement) => {
 };
 
 const mapMerchEvents = (event, properties) => {
-  const eventMerchEventToAdobeEventHashmap = getHashFromArray(
-    config.eventMerchEventToAdobeEvent
-  );
+  const eventMerchEventToAdobeEventHashmap = getHashFromArray(config.eventMerchEventToAdobeEvent);
 
   const merchMap = [];
-  if (
-    !eventMerchEventToAdobeEventHashmap[event.toLowerCase()] ||
-    !config.eventMerchProperties
-  ) {
+  if (!eventMerchEventToAdobeEventHashmap[event.toLowerCase()] || !config.eventMerchProperties) {
     return merchMap;
   }
-  const adobeEvent =
-    eventMerchEventToAdobeEventHashmap[event.toLowerCase()].split(",");
+  const adobeEvent = eventMerchEventToAdobeEventHashmap[event.toLowerCase()].split(',');
   let eventString;
   each((rudderProp) => {
     if (rudderProp.eventMerchProperties in properties) {
       each((value) => {
         if (properties[rudderProp.eventMerchProperties])
-          eventString = `${value}=${
-            properties[rudderProp.eventMerchProperties]
-          }`;
+          eventString = `${value}=${properties[rudderProp.eventMerchProperties]}`;
         merchMap.push(eventString);
       }, adobeEvent);
     }
@@ -462,23 +396,21 @@ const mapMerchEvents = (event, properties) => {
 
 const setEventsString = (event, properties, adobeEventName) => {
   // adobe events are taken as comma separated string
-  let adobeEventArray = adobeEventName ? adobeEventName.split(",") : [];
+  let adobeEventArray = adobeEventName ? adobeEventName.split(',') : [];
   const merchMap = mapMerchEvents(event, properties);
   adobeEventArray = adobeEventArray.concat(merchMap);
-  adobeEventArray = adobeEventArray.filter((item) => {
-    return !!item;
-  });
+  adobeEventArray = adobeEventArray.filter((item) => !!item);
 
   const productMerchEventToAdobeEventHashmap = getHashFromArray(
-    config.productMerchEventToAdobeEvent
+    config.productMerchEventToAdobeEvent,
   );
   if (productMerchEventToAdobeEventHashmap[event.toLowerCase()]) {
     each((value) => {
       adobeEventArray.push(value);
     }, productMerchEventToAdobeEventHashmap);
   }
-  const adobeEvent = adobeEventArray.join(",");
-  updateWindowSKeys(adobeEvent, "events");
+  const adobeEvent = adobeEventArray.join(',');
+  updateWindowSKeys(adobeEvent, 'events');
 
   /**
    * The s.linkTrackEvents variable is a string containing a comma-delimited list of
@@ -499,10 +431,10 @@ const setEventsString = (event, properties, adobeEventName) => {
 
 const mapMerchProductEvents = (event, properties, adobeEvent) => {
   const productMerchEventToAdobeEventHashmap = getHashFromArray(
-    config.productMerchEventToAdobeEvent
+    config.productMerchEventToAdobeEvent,
   );
   // converting string to array if more than 1 event is there.
-  adobeEvent = adobeEvent.split(",");
+  adobeEvent = adobeEvent.split(',');
   const merchMap = [];
   let eventString;
   if (
@@ -514,8 +446,8 @@ const mapMerchProductEvents = (event, properties, adobeEvent) => {
 
   each((rudderProp) => {
     // if property mapped with products. as starting handle differently
-    if (rudderProp.productMerchProperties.startsWith("products.")) {
-      const key = rudderProp.productMerchProperties.split(".");
+    if (rudderProp.productMerchProperties.startsWith('products.')) {
+      const key = rudderProp.productMerchProperties.split('.');
       // take the keys after products. and find the value in properties
       const value = get(properties, key[1]);
       if (isDefined(value)) {
@@ -544,15 +476,15 @@ const mapMerchProductEvents = (event, properties, adobeEvent) => {
 const mapMerchProductEVars = (properties) => {
   const productMerchEvarsMapHashmap = getHashFromArray(
     config.productMerchEvarsMap,
-    "from",
-    "to",
-    false
+    'from',
+    'to',
+    false,
   );
   const eVars = [];
   each((value, key) => {
     // if property mapped with products. as starting handle differently
-    if (key.startsWith("products.")) {
-      key = key.split(".");
+    if (key.startsWith('products.')) {
+      key = key.split('.');
       // take the keys after products. and find the value in properties
       const productValue = get(properties, key[1]);
       if (isDefined(productValue)) {
@@ -562,7 +494,7 @@ const mapMerchProductEVars = (properties) => {
       eVars.push(`eVar${value}=${properties[key]}`);
     }
   }, productMerchEvarsMapHashmap);
-  return eVars.join("|");
+  return eVars.join('|');
 };
 
 /**
@@ -576,34 +508,25 @@ const mapMerchProductEVars = (properties) => {
 const mapProducts = (event, prodFields, adobeEvent) => {
   const prodString = [];
   prodFields.forEach((value) => {
-    const category = value.category || "";
+    const category = value.category || '';
     const quantity = value.quantity || 1;
     const total = value.price ? (value.price * quantity).toFixed(2) : 0;
     let item;
-    if (config.productIdentifier === "id") {
+    if (config.productIdentifier === 'id') {
       item = value.product_id || value.id;
     } else {
       item = value[config.productIdentifier];
     }
-    const eventString = mapMerchProductEvents(event, value, adobeEvent).join(
-      "|"
-    );
+    const eventString = mapMerchProductEvents(event, value, adobeEvent).join('|');
     const prodEVarsString = mapMerchProductEVars(value);
-    if (eventString !== "" || prodEVarsString !== "") {
-      const test = [
-        category,
-        item,
-        quantity,
-        total,
-        eventString,
-        prodEVarsString,
-      ].map((val) => {
+    if (eventString !== '' || prodEVarsString !== '') {
+      const test = [category, item, quantity, total, eventString, prodEVarsString].map((val) => {
         if (val == null) {
           return String(val);
         }
         return val;
       });
-      prodString.push(test.join(";"));
+      prodString.push(test.join(';'));
     } else {
       const test = [category, item, quantity, total]
         .map((val) => {
@@ -612,11 +535,11 @@ const mapProducts = (event, prodFields, adobeEvent) => {
           }
           return val;
         })
-        .join(";");
+        .join(';');
       prodString.push(test);
     }
   });
-  updateWindowSKeys(prodString, "products");
+  updateWindowSKeys(prodString, 'products');
 };
 
 /**
@@ -627,15 +550,14 @@ const mapProducts = (event, prodFields, adobeEvent) => {
 
 const setProductString = (event, properties) => {
   const productMerchEventToAdobeEventHashmap = getHashFromArray(
-    config.productMerchEventToAdobeEvent
+    config.productMerchEventToAdobeEvent,
   );
   const adobeEvent = productMerchEventToAdobeEventHashmap[event.toLowerCase()];
   if (adobeEvent) {
     const isSingleProdEvent =
-      adobeEvent === "scAdd" ||
-      adobeEvent === "scRemove" ||
-      (adobeEvent === "prodView" &&
-        event.toLowerCase() !== "product list viewed") ||
+      adobeEvent === 'scAdd' ||
+      adobeEvent === 'scRemove' ||
+      (adobeEvent === 'prodView' && event.toLowerCase() !== 'product list viewed') ||
       !Array.isArray(properties.products);
     const prodFields = isSingleProdEvent ? [properties] : properties.products;
     mapProducts(event, prodFields, adobeEvent);
@@ -654,8 +576,8 @@ const processEvent = (rudderElement, adobeEventName, pageName) => {
   updateCommonWindowSKeys(rudderElement, pageName);
   calculateTimestamp(rudderElement);
   // useful for setting evar as amount value if this is set
-  if (currency !== "USD") {
-    updateWindowSKeys(currency, "currencyCode");
+  if (currency !== 'USD') {
+    updateWindowSKeys(currency, 'currencyCode');
   }
 
   setEventsString(event, properties, adobeEventName);
@@ -672,7 +594,7 @@ const processEvent = (rudderElement, adobeEventName, pageName) => {
    * include in link tracking image requests
    */
 
-  window.s.linkTrackVars = dynamicKeys.join(",");
+  window.s.linkTrackVars = dynamicKeys.join(',');
 
   /**
    * The tl() method is an important core component to Adobe Analytics.
@@ -681,15 +603,13 @@ const processEvent = (rudderElement, adobeEventName, pageName) => {
    * however this method does not increment page views.
    * It is useful for tracking links and other elements that wouldn’t be considered a full page load.
    */
-  window.s.tl(true, "o", event);
+  window.s.tl(true, 'o', event);
 };
 
 const handleVideoContextData = (rudderElement) => {
   let contextData;
   const { properties } = rudderElement.message;
-  const contextDataPrefixValue = config.contextDataPrefix
-    ? `${config.contextDataPrefix}.`
-    : "";
+  const contextDataPrefixValue = config.contextDataPrefix ? `${config.contextDataPrefix}.` : '';
   if (properties) {
     each((value, key) => {
       contextData = {
@@ -700,14 +620,11 @@ const handleVideoContextData = (rudderElement) => {
   }
   const contextDataMappingHashmap = getHashFromArray(
     config.contextDataMapping,
-    "from",
-    "to",
-    false
+    'from',
+    'to',
+    false,
   );
-  const keyValueContextData = getDataFromContext(
-    contextDataMappingHashmap,
-    rudderElement
-  );
+  const keyValueContextData = getDataFromContext(contextDataMappingHashmap, rudderElement);
   if (keyValueContextData) {
     each((value, key) => {
       if (isDefinedAndNotNullAndNotEmpty(key)) {

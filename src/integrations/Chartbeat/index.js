@@ -1,3 +1,5 @@
-import { Chartbeat } from "./browser";
 
-export default Chartbeat;
+
+
+
+export {Chartbeat as default} from './browser';

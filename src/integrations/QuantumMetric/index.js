@@ -1,3 +1,5 @@
-import QuantumMetric from "./browser";
 
-export default QuantumMetric;
+
+
+
+export {default} from './browser';

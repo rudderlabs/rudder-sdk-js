@@ -7,16 +7,15 @@ import {
   DEFAULT_SESSION_TIMEOUT,
   MIN_SESSION_TIMEOUT,
   MIN_SESSION_ID_LENGTH,
-} from "../../../utils/constants";
-import { handleError, countDigits } from "../../../utils/utils";
+} from '../../../utils/constants';
+import { handleError, countDigits } from '../../../utils/utils';
 
 class UserSession {
   constructor() {
     this.storage = Storage;
     this.timeout = DEFAULT_SESSION_TIMEOUT;
-    this.sessionInfo = {
-      autoTrack: true,
-    };
+    // Fetch session information from storage if any or initialize with an empty object
+    this.sessionInfo = this.storage.getSessionInfo() || { autoTrack: true };
   }
 
   /**
@@ -25,8 +24,6 @@ class UserSession {
    */
   initialize(options) {
     try {
-      // Fetch session information from storage if any or initialize with an empty object
-      this.sessionInfo = this.storage.getSessionInfo() || this.sessionInfo;
       /**
        * By default this.autoTrack will be true
        * Cases where this.autoTrack will be false:
@@ -62,10 +59,7 @@ class UserSession {
       // If auto session tracking is enabled start the session tracking
       if (this.sessionInfo.autoTrack) {
         this.startAutoTracking();
-      } else if (
-        this.sessionInfo.autoTrack === false &&
-        !this.sessionInfo.manualTrack
-      ) {
+      } else if (this.sessionInfo.autoTrack === false && !this.sessionInfo.manualTrack) {
         /**
          * Use case:
          * By default user session is enabled which means storage will have session data.
@@ -123,7 +117,7 @@ class UserSession {
     }
     if (countDigits(sessionId) < MIN_SESSION_ID_LENGTH) {
       logger.error(
-        `[Session]:: "sessionId" should at least be "${MIN_SESSION_ID_LENGTH}" digits long`
+        `[Session]:: "sessionId" should at least be "${MIN_SESSION_ID_LENGTH}" digits long`,
       );
       return;
     }
@@ -136,9 +130,7 @@ class UserSession {
    * @returns
    */
   start(id) {
-    const sessionId = id
-      ? this.validateSessionId(id)
-      : this.generateSessionId();
+    const sessionId = id ? this.validateSessionId(id) : this.generateSessionId();
 
     this.sessionInfo = {
       id: sessionId || this.generateSessionId(),
@@ -146,6 +138,20 @@ class UserSession {
       manualTrack: true,
     };
     this.storage.setSessionInfo(this.sessionInfo);
+  }
+
+  /**
+   * A function to return current session id
+   * @returns string sessionId
+   */
+  getSessionId() {
+    if (
+      (this.sessionInfo.autoTrack && this.isValidSession(Date.now())) ||
+      this.sessionInfo.manualTrack
+    ) {
+      return this.sessionInfo.id;
+    }
+    return null;
   }
 
   /**

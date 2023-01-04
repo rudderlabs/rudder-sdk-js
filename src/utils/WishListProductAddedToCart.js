@@ -1,12 +1,12 @@
-const ProductWishlistEvent = require("./ProductWishListEvent");
-const { ECommerceEvents } = require("./constants");
-const { ECommerceParamNames } = require("./constants");
+const ProductWishlistEvent = require('./ProductWishListEvent');
+const { ECommerceEvents } = require('./constants');
+const { ECommerceParamNames } = require('./constants');
 
 // Class representing wishlist product added to cart event
 class WishlistProductAddedToCartEvent extends ProductWishlistEvent {
   constructor() {
     super();
-    this.cart_id = "";
+    this.cart_id = '';
   }
 
   event() {

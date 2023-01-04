@@ -1,10 +1,10 @@
-const ECommerceExtendedCoupon = require("./ECommerceExtendedCoupon");
+const ECommerceExtendedCoupon = require('./ECommerceExtendedCoupon');
 
 // Class representing denied e-commerce coupon
 class ECommerceDeniedCoupon extends ECommerceExtendedCoupon {
   constructor() {
     super();
-    this.reason = "";
+    this.reason = '';
   }
 
   // Setter method in accordance to Builder pattern
@@ -16,8 +16,8 @@ class ECommerceDeniedCoupon extends ECommerceExtendedCoupon {
 // Class representing e-commerce wishlist
 class ECommerceWishList {
   constructor() {
-    this.wishlist_id = "";
-    this.wishlist_name = "";
+    this.wishlist_id = '';
+    this.wishlist_name = '';
   }
 
   // Generic setters in accordance with builder pattern

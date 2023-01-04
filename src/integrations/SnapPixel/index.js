@@ -1,3 +1,5 @@
-import SnapPixel from "./browser";
 
-export default SnapPixel;
+
+
+
+export {default} from './browser';

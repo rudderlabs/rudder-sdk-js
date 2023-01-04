@@ -26,11 +26,9 @@ const SDK_FILE_NAMES = ['rudder-analytics.min.js'];
 const load = () => {
   const pluginName = 'bugsnag';
   if (!window.hasOwnProperty(pluginName)) {
-    ScriptLoader(
-      pluginName,
-      "https://d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js",
-      { isNonNativeSDK: "true" }
-    );
+    ScriptLoader(pluginName, 'https://d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js', {
+      isNonNativeSDK: 'true',
+    });
   }
 };
 

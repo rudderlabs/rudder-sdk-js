@@ -1,11 +1,11 @@
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
-import cloneDeep from "lodash.clonedeep";
-import isEqual from "lodash.isequal";
-import { del } from "obj-case";
-import Logger from "../../utils/logger";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { BrazeOperationString, NAME } from "./constants";
+import cloneDeep from 'lodash.clonedeep';
+import isEqual from 'lodash.isequal';
+import { del } from 'obj-case';
+import Logger from '../../utils/logger';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { BrazeOperationString, NAME } from './constants';
 
 const logger = new Logger(NAME);
 /*
@@ -18,14 +18,13 @@ class Braze {
     this.appKey = config.appKey;
     this.trackAnonymousUser = config.trackAnonymousUser;
     this.enableHtmlInAppMessages = config.enableHtmlInAppMessages || false;
-    this.allowUserSuppliedJavascript =
-      config.allowUserSuppliedJavascript || false;
-    if (!config.appKey) this.appKey = "";
-    this.endPoint = "";
+    this.allowUserSuppliedJavascript = config.allowUserSuppliedJavascript || false;
+    if (!config.appKey) this.appKey = '';
+    this.endPoint = '';
     if (config.dataCenter) {
       // ref: https://www.braze.com/docs/user_guide/administrative/access_braze/braze_instances
-      const dataCenterArr = config.dataCenter.trim().split("-");
-      if (dataCenterArr[0].toLowerCase() === "eu") {
+      const dataCenterArr = config.dataCenter.trim().split('-');
+      if (dataCenterArr[0].toLowerCase() === 'eu') {
         this.endPoint = `sdk.fra-${dataCenterArr[1]}.braze.eu`;
       } else {
         this.endPoint = `sdk.iad-${dataCenterArr[1]}.braze.com`;
@@ -35,7 +34,7 @@ class Braze {
     this.name = NAME;
     this.previousPayload = null;
     this.supportDedup = config.supportDedup || false;
-    logger.debug("Config ", config);
+    logger.debug('Config ', config);
   }
 
   /** https://js.appboycdn.com/web-sdk/latest/doc/ab.User.html#toc4
@@ -43,40 +42,32 @@ class Braze {
 
   formatGender(gender) {
     if (!gender) return;
-    if (typeof gender !== "string") return;
+    if (typeof gender !== 'string') return;
 
-    const femaleGenders = ["woman", "female", "w", "f"];
-    const maleGenders = ["man", "male", "m"];
-    const otherGenders = ["other", "o"];
+    const femaleGenders = ['woman', 'female', 'w', 'f'];
+    const maleGenders = ['man', 'male', 'm'];
+    const otherGenders = ['other', 'o'];
 
-    if (femaleGenders.indexOf(gender.toLowerCase()) > -1)
-      return window.braze.User.Genders.FEMALE;
-    if (maleGenders.indexOf(gender.toLowerCase()) > -1)
-      return window.braze.User.Genders.MALE;
-    if (otherGenders.indexOf(gender.toLowerCase()) > -1)
-      return window.braze.User.Genders.OTHER;
+    if (femaleGenders.includes(gender.toLowerCase())) return window.braze.User.Genders.FEMALE;
+    if (maleGenders.includes(gender.toLowerCase())) return window.braze.User.Genders.MALE;
+    if (otherGenders.includes(gender.toLowerCase())) return window.braze.User.Genders.OTHER;
   }
 
   init() {
-    logger.debug("===in init Braze===");
+    logger.debug('===in init Braze===');
 
     // load braze
     // eslint-disable-next-line func-names
     +(function (a, p, P, b, y) {
       a.braze = {};
       a.brazeQueue = [];
-      for (let s = BrazeOperationString.split(" "), i = 0; i < s.length; i++) {
-        for (
-          var m = s[i], k = a.braze, l = m.split("."), j = 0;
-          j < l.length - 1;
-          j++
-        )
-          k = k[l[j]];
+      for (let s = BrazeOperationString.split(' '), i = 0; i < s.length; i++) {
+        for (var m = s[i], k = a.braze, l = m.split('.'), j = 0; j < l.length - 1; j++) k = k[l[j]];
         k[l[j]] = new Function(
           `return function ${m.replace(
             /\./g,
-            "_"
-          )}(){window.brazeQueue.push(arguments); return true}`
+            '_',
+          )}(){window.brazeQueue.push(arguments); return true}`,
         )();
       }
       window.braze.getCachedContentCards = function () {
@@ -88,12 +79,12 @@ class Braze {
       window.braze.getUser = function () {
         return new window.braze.User();
       };
-      (y = p.createElement(P)).type = "text/javascript";
-      y.src = "https://js.appboycdn.com/web-sdk/4.2/braze.min.js";
+      (y = p.createElement(P)).type = 'text/javascript';
+      y.src = 'https://js.appboycdn.com/web-sdk/4.2/braze.min.js';
       y.async = 1;
-      y.setAttribute("data-loader", LOAD_ORIGIN);
+      y.setAttribute('data-loader', LOAD_ORIGIN);
       (b = p.getElementsByTagName(P)[0]).parentNode.insertBefore(y, b);
-    })(window, document, "script");
+    })(window, document, 'script');
 
     window.braze.initialize(this.appKey, {
       enableLogging: true,
@@ -114,14 +105,7 @@ class Braze {
   handleReservedProperties(props) {
     // remove reserved keys from custom event properties
     // https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
-    const reserved = [
-      "time",
-      "product_id",
-      "quantity",
-      "event_name",
-      "price",
-      "currency",
-    ];
+    const reserved = ['time', 'product_id', 'quantity', 'event_name', 'price', 'currency'];
 
     reserved.forEach((element) => {
       // eslint-disable-next-line no-param-reassign
@@ -162,12 +146,11 @@ class Braze {
    * @param {*} rudderElement
    */
   identify(rudderElement) {
-    logger.debug("in Braze identify");
+    logger.debug('in Braze identify');
     const { userId } = rudderElement.message;
     const { address } = rudderElement.message.context.traits;
     const birthday =
-      rudderElement.message.context.traits?.birthday ||
-      rudderElement.message.context.traits?.dob;
+      rudderElement.message.context.traits?.birthday || rudderElement.message.context.traits?.dob;
     const { email } = rudderElement.message.context.traits;
     const firstname =
       rudderElement.message.context.traits?.firstname ||
@@ -180,21 +163,21 @@ class Braze {
 
     // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
     const reserved = [
-      "address",
-      "birthday",
-      "email",
-      "id",
-      "firstname",
-      "gender",
-      "lastname",
-      "phone",
-      "dob",
-      "external_id",
-      "country",
-      "home_city",
-      "bio",
-      "email_subscribe",
-      "push_subscribe",
+      'address',
+      'birthday',
+      'email',
+      'id',
+      'firstname',
+      'gender',
+      'lastname',
+      'phone',
+      'dob',
+      'external_id',
+      'country',
+      'home_city',
+      'bio',
+      'email_subscribe',
+      'push_subscribe',
     ];
     // function set Address
     function setAddress() {
@@ -208,7 +191,7 @@ class Braze {
         .setDateOfBirth(
           birthday.getUTCFullYear(),
           birthday.getUTCMonth() + 1,
-          birthday.getUTCDate()
+          birthday.getUTCDate(),
         );
     }
     // function set Email
@@ -297,8 +280,8 @@ class Braze {
     window.braze.changeUser(userId);
 
     // del used properties
-    del(properties, "products");
-    del(properties, "currency");
+    del(properties, 'products');
+    del(properties, 'currency');
 
     // we have to make a separate call to appboy for each product
     products.forEach((product) => {
@@ -306,18 +289,12 @@ class Braze {
       const { price } = product;
       const { quantity } = product;
       if (quantity && price && productId)
-        window.braze.logPurchase(
-          productId,
-          price,
-          currencyCode,
-          quantity,
-          properties
-        );
+        window.braze.logPurchase(productId, price, currencyCode, quantity, properties);
     });
   }
 
   track(rudderElement) {
-    logger.debug("in Braze track");
+    logger.debug('in Braze track');
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.event;
     let { properties } = rudderElement.message;
@@ -330,7 +307,7 @@ class Braze {
       canSendCustomEvent = true;
     }
     if (eventName && canSendCustomEvent) {
-      if (eventName.toLowerCase() === "order completed") {
+      if (eventName.toLowerCase() === 'order completed') {
         this.handlePurchase(properties, userId);
       } else {
         properties = this.handleReservedProperties(properties);
@@ -340,7 +317,7 @@ class Braze {
   }
 
   page(rudderElement) {
-    logger.debug("in Braze page");
+    logger.debug('in Braze page');
     const { userId } = rudderElement.message;
     const eventName = rudderElement.message.name;
     let { properties } = rudderElement.message;
@@ -353,7 +330,7 @@ class Braze {
     if (eventName) {
       window.braze.logCustomEvent(eventName, properties);
     } else {
-      window.braze.logCustomEvent("Page View", properties);
+      window.braze.logCustomEvent('Page View', properties);
     }
   }
 

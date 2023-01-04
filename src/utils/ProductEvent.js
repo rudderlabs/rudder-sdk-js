@@ -1,4 +1,4 @@
-const RudderProperty = require("./RudderProperty");
+const RudderProperty = require('./RudderProperty');
 
 // Parent class of "Product Clicked" and "Product Viewed" events
 class ProductEvent {

@@ -1,7 +1,7 @@
 /* eslint-disable */
-import { NAME } from "./constants";
-import Logger from "../../utils/logger";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import { NAME } from './constants';
+import Logger from '../../utils/logger';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 const logger = new Logger(NAME);
 class MicrosoftClarity {
@@ -23,39 +23,37 @@ class MicrosoftClarity {
         };
       t = l.createElement(r);
       t.async = 1;
-      t.src = "https://www.clarity.ms/tag/" + i;
-      t.setAttribute("data-loader", LOAD_ORIGIN);
+      t.src = 'https://www.clarity.ms/tag/' + i;
+      t.setAttribute('data-loader', LOAD_ORIGIN);
       y = l.getElementsByTagName(r)[0];
       y.parentNode.insertBefore(t, y);
-    })(window, document, "clarity", "script", this.projectId);
+    })(window, document, 'clarity', 'script', this.projectId);
     if (this.cookieConsent) {
-      window.clarity("consent");
+      window.clarity('consent');
     }
   }
 
   init() {
-    logger.debug("===In init Microsoft Clarity===");
+    logger.debug('===In init Microsoft Clarity===');
     this.loadScript();
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded Microsoft Clarity===");
+    logger.debug('===In isLoaded Microsoft Clarity===');
     return !!window.clarity;
   }
 
   isReady() {
-    logger.debug("===In isReady Microsoft Clarity===");
+    logger.debug('===In isReady Microsoft Clarity===');
     return !!window.clarity;
   }
 
   identify(rudderElement) {
-    logger.debug("===In Microsoft Clarity Identify===");
+    logger.debug('===In Microsoft Clarity Identify===');
     const { message } = rudderElement;
     const { userId, context } = message;
     if (!userId) {
-      logger.error(
-        "[Microsoft Clarity] :: userId is required for an identify call"
-      );
+      logger.error('[Microsoft Clarity] :: userId is required for an identify call');
       return;
     }
     let sessionId;
@@ -66,12 +64,12 @@ class MicrosoftClarity {
     if (context?.traits?.customPageId) {
       customPageId = context.traits.customPageId;
     }
-    window.clarity("identify", userId, sessionId, customPageId);
+    window.clarity('identify', userId, sessionId, customPageId);
     if (context?.traits) {
       const { traits } = context;
       const keys = Object.keys(traits);
       keys.forEach((key) => {
-        window.clarity("set", key, traits[key]);
+        window.clarity('set', key, traits[key]);
       });
     }
   }

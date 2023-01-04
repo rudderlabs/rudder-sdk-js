@@ -1,4 +1,4 @@
-import { HubspotAnalyticsManager } from "../integration-old/HubSpot";
+import { HubspotAnalyticsManager } from '../integration-old/HubSpot';
 
 class AnalyticsManager {
   initializeHubSpot(hubId, wrappers) {
@@ -12,11 +12,11 @@ class AnalyticsManager {
       // var HubspotAnalyticsManager = require("./../integration/Hubspot.js");
       const _hub = new HubspotAnalyticsManager(hubId).init();
       if (_hub) {
-        console.log("===_hub===", _hub);
+        console.log('===_hub===', _hub);
         wrappers.push(_hub);
-        console.log("Hubspot loaded!");
+        console.log('Hubspot loaded!');
       }
-      console.log("Script loaded in sync");
+      console.log('Script loaded in sync');
     }
   }
 }

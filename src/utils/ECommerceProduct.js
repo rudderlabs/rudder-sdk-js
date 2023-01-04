@@ -1,21 +1,21 @@
-const ECommerceProductBase = require("./ECommerceProductBase");
+const ECommerceProductBase = require('./ECommerceProductBase');
 
 // Class representing e-commerce product object
 class ECommerceProduct extends ECommerceProductBase {
   constructor() {
     super();
-    this.sku = "";
-    this.category = "";
-    this.name = "";
-    this.brand = "";
-    this.variant = "";
+    this.sku = '';
+    this.category = '';
+    this.name = '';
+    this.brand = '';
+    this.variant = '';
     this.price = 0;
-    this.currency = "";
+    this.currency = '';
     this.quantity = 0;
-    this.coupon = "";
+    this.coupon = '';
     this.position = 0;
-    this.url = "";
-    this.image_url = "";
+    this.url = '';
+    this.image_url = '';
   }
 
   // Setter methods in accordance with Builder pattern

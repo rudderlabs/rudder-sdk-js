@@ -1,15 +1,17 @@
-import _difference from "lodash.difference";
+import _difference from 'lodash.difference';
 /* eslint-disable no-underscore-dangle */
 import {
   eventNamesConfigArray,
   itemParametersConfigArray,
   ITEM_PROP_EXCLUSION_LIST,
   EVENT_PROP_EXCLUSION_LIST,
-} from "./ECommerceEventConfig";
+} from './ECommerceEventConfig';
 
-import { pageEventParametersConfigArray } from "./PageEventConfig";
-import { type } from "../utils/commonUtils";
-import logger from "../../utils/logUtil";
+import { pageEventParametersConfigArray } from './PageEventConfig';
+import { type } from '../utils/commonUtils';
+import logger from '../../utils/logUtil';
+import { Cookie } from '../../utils/storage/cookie';
+import { Store } from '../../utils/storage/store';
 
 /**
  * Check if event name is not one of the following reserved names
@@ -17,28 +19,28 @@ import logger from "../../utils/logUtil";
  */
 function isReservedName(name) {
   const reservedEventNames = [
-    "ad_activeview",
-    "ad_click",
-    "ad_exposure",
-    "ad_impression",
-    "ad_query",
-    "adunit_exposure",
-    "app_clear_data",
-    "app_install",
-    "app_update",
-    "app_remove",
-    "error",
-    "first_open",
-    "first_visit",
-    "in_app_purchase",
-    "notification_dismiss",
-    "notification_foreground",
-    "notification_open",
-    "notification_receive",
-    "os_update",
-    "screen_view",
-    "session_start",
-    "user_engagement",
+    'ad_activeview',
+    'ad_click',
+    'ad_exposure',
+    'ad_impression',
+    'ad_query',
+    'adunit_exposure',
+    'app_clear_data',
+    'app_install',
+    'app_update',
+    'app_remove',
+    'error',
+    'first_open',
+    'first_visit',
+    'in_app_purchase',
+    'notification_dismiss',
+    'notification_foreground',
+    'notification_open',
+    'notification_receive',
+    'os_update',
+    'screen_view',
+    'session_start',
+    'user_engagement',
   ];
 
   return reservedEventNames.includes(name);
@@ -49,9 +51,7 @@ function isReservedName(name) {
  * @param {*} event
  */
 function getDestinationEventName(event) {
-  return eventNamesConfigArray.filter((p) =>
-    p.src.includes(event.toLowerCase())
-  );
+  return eventNamesConfigArray.filter((p) => p.src.includes(event.toLowerCase()));
 }
 
 /**
@@ -111,7 +111,7 @@ function hasRequiredParameters(props, eventMappingObj) {
 function extractCustomVariables(rootObj, destination, exclusionFields) {
   const mappingKeys = _difference(Object.keys(rootObj), exclusionFields);
   mappingKeys.map((mappingKey) => {
-    if (typeof rootObj[mappingKey] !== "undefined") {
+    if (typeof rootObj[mappingKey] !== 'undefined') {
       destination[mappingKey] = rootObj[mappingKey];
     }
   });
@@ -127,19 +127,11 @@ function extractCustomVariables(rootObj, destination, exclusionFields) {
  * in properties or product type objects and returns the final output.
  */
 function addCustomVariables(destinationProperties, props, contextOp) {
-  logger.debug("within addCustomVariables");
-  if (contextOp === "product") {
-    return extractCustomVariables(
-      props,
-      destinationProperties,
-      ITEM_PROP_EXCLUSION_LIST
-    );
-  } else if (contextOp === "properties") {
-    return extractCustomVariables(
-      props,
-      destinationProperties,
-      EVENT_PROP_EXCLUSION_LIST
-    );
+  logger.debug('within addCustomVariables');
+  if (contextOp === 'product') {
+    return extractCustomVariables(props, destinationProperties, ITEM_PROP_EXCLUSION_LIST);
+  } if (contextOp === 'properties') {
+    return extractCustomVariables(props, destinationProperties, EVENT_PROP_EXCLUSION_LIST);
   }
   return destinationProperties;
 }
@@ -153,33 +145,20 @@ function addCustomVariables(destinationProperties, props, contextOp) {
  * Defined Parameter present GA4/utils.js ex: [{ src: "category", dest: "item_list_name", inItems: true }]
  * @param {*} contextOp "properties" or "product"
  */
-function getDestinationEventProperties(
-  props,
-  destParameterConfig,
-  contextOp,
-  hasItem = true
-) {
+function getDestinationEventProperties(props, destParameterConfig, contextOp, hasItem = true) {
   let destinationProperties = {};
   Object.keys(props).forEach((key) => {
     destParameterConfig.forEach((param) => {
       if (key === param.src) {
         // handle case where the key needs to go inside items as well as top level params in GA4
         if (param.inItems && hasItem) {
-          destinationProperties = createItemProperty(
-            destinationProperties,
-            param.dest,
-            props[key]
-          );
+          destinationProperties = createItemProperty(destinationProperties, param.dest, props[key]);
         }
         destinationProperties[param.dest] = props[key];
       }
     });
   });
-  const propsWithCustomFields = addCustomVariables(
-    destinationProperties,
-    props,
-    contextOp
-  );
+  const propsWithCustomFields = addCustomVariables(destinationProperties, props, contextOp);
   return propsWithCustomFields;
 }
 
@@ -191,19 +170,14 @@ function getDestinationEventProperties(
 function getDestinationItemProperties(products, item) {
   const items = [];
   let obj = {};
-  const contextOp = type(products) !== "array" ? "properties" : "product";
-  const finalProducts = type(products) !== "array" ? [products] : products;
-  const finalItemObj = item && type(item) === "array" && item[0] ? item[0] : {};
+  const contextOp = type(products) !== 'array' ? 'properties' : 'product';
+  const finalProducts = type(products) !== 'array' ? [products] : products;
+  const finalItemObj = item && type(item) === 'array' && item[0] ? item[0] : {};
   // get the dest keys from itemParameters config
   // append the already created item object keys (this is done to get the keys that are actually top level props in Rudder payload but GA expects them under items too)
   finalProducts.forEach((product) => {
     obj = {
-      ...getDestinationEventProperties(
-        product,
-        itemParametersConfigArray,
-        contextOp,
-        true
-      ),
+      ...getDestinationEventProperties(product, itemParametersConfigArray, contextOp, true),
       ...finalItemObj,
     };
     items.push(obj);
@@ -216,11 +190,7 @@ function getDestinationItemProperties(products, item) {
  * @param {*} props
  */
 function getPageViewProperty(props) {
-  return getDestinationEventProperties(
-    props,
-    pageEventParametersConfigArray,
-    "properties"
-  );
+  return getDestinationEventProperties(props, pageEventParametersConfigArray, 'properties');
 }
 
 /**
@@ -228,24 +198,13 @@ function getPageViewProperty(props) {
  * @param {*} rudderElement
  * @param {*} measurementId
  */
-const proceedCloudMode = (rudderElement, measurementId) => {
-  const payload = rudderElement;
-  const cookieArr = document.cookie.split(";");
-  const cookieObj = {};
-  cookieArr.forEach((cookieEle) => {
-    const cookieElements = cookieEle.split("=");
-    const [first, second] = cookieElements;
-    cookieObj[first.trim()] = second;
-  });
-  const measurementIdArr = measurementId.split("-");
-  let sessionId;
-  if (cookieObj[`_ga_${measurementIdArr[1]}`]) {
-    sessionId = cookieObj[`_ga_${measurementIdArr[1]}`].split(".");
-    const GA4 = { sessionId: sessionId[2] };
-    payload.message.integrations = { All: true, GA4 };
-    return payload;
+const getGa4SessionId = (measurementId) => {
+  const measurementIdArr = measurementId.split('-');
+  let sessionId = Cookie.get(`_ga_${measurementIdArr[1]}`).split('.');
+  if (!sessionId) {
+    sessionId = Store.get(`_ga_${measurementIdArr[1]}`).split('.');
   }
-  return payload;
+  return sessionId ? sessionId[2] : '';
 };
 
 export {
@@ -255,5 +214,5 @@ export {
   getDestinationItemProperties,
   getPageViewProperty,
   hasRequiredParameters,
-  proceedCloudMode,
+  getGa4SessionId,
 };

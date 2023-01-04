@@ -1,9 +1,9 @@
 // Class representing e-commerce coupon
 class ECommerceCoupon {
   constructor() {
-    this.order_id = "";
-    this.cart_id = "";
-    this.coupon_id = "";
+    this.order_id = '';
+    this.cart_id = '';
+    this.coupon_id = '';
   }
 
   // Generic setter methods in accordance with builder pattern

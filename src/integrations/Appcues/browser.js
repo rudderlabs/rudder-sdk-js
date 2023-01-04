@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
-import ScriptLoader from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import ScriptLoader from '../ScriptLoader';
+import { NAME } from './constants';
 
 class Appcues {
   constructor(config) {
@@ -12,17 +12,17 @@ class Appcues {
   }
 
   init() {
-    logger.debug("===in init Appcues===");
-    ScriptLoader("appcues-id", `https://fast.appcues.com/${this.accountId}.js`);
+    logger.debug('===in init Appcues===');
+    ScriptLoader('appcues-id', `https://fast.appcues.com/${this.accountId}.js`);
   }
 
   isLoaded() {
-    logger.debug("in appcues isLoaded");
+    logger.debug('in appcues isLoaded');
     return !!window.Appcues;
   }
 
   isReady() {
-    logger.debug("in appcues isReady");
+    logger.debug('in appcues isReady');
     // This block of code enables us to send Appcues Flow events to all the other destinations connected to the same source (we might use it in future)
     // if (this.sendToAllDestinations && window.Appcues) {
     //   window.Appcues.on("all", function(eventName, event) {
@@ -43,7 +43,7 @@ class Appcues {
     if (userId) {
       window.Appcues.identify(userId, traits);
     } else {
-      logger.error("user id is empty");
+      logger.error('user id is empty');
     }
   }
 
@@ -53,7 +53,7 @@ class Appcues {
     if (eventName) {
       window.Appcues.track(eventName, properties);
     } else {
-      logger.error("event name is empty");
+      logger.error('event name is empty');
     }
   }
 

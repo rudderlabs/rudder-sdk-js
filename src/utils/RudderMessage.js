@@ -1,11 +1,11 @@
 // Core message class with default values
-import { generateUUID } from "./utils";
-import { MessageType, ECommerceEvents } from "./constants";
-import RudderContext from "./RudderContext";
+import { generateUUID } from './utils';
+import { MessageType, ECommerceEvents } from './constants';
+import RudderContext from './RudderContext';
 
 class RudderMessage {
   constructor() {
-    this.channel = "web";
+    this.channel = 'web';
     this.context = new RudderContext();
     this.type = null;
     this.action = null;
@@ -35,14 +35,14 @@ class RudderMessage {
   validateFor(messageType) {
     // First check that properties is populated
     if (!this.properties) {
-      throw new Error("Key properties is required");
+      throw new Error('Key properties is required');
     }
     // Event type specific checks
     switch (messageType) {
       case MessageType.TRACK:
         // check if event is present
         if (!this.event) {
-          throw new Error("Key event is required for track event");
+          throw new Error('Key event is required for track event');
         }
         // Next make specific checks for e-commerce events
         if (this.event in Object.values(ECommerceEvents)) {
@@ -50,15 +50,15 @@ class RudderMessage {
             case ECommerceEvents.CHECKOUT_STEP_VIEWED:
             case ECommerceEvents.CHECKOUT_STEP_COMPLETED:
             case ECommerceEvents.PAYMENT_INFO_ENTERED:
-              this.checkForKey("checkout_id");
-              this.checkForKey("step");
+              this.checkForKey('checkout_id');
+              this.checkForKey('step');
               break;
             case ECommerceEvents.PROMOTION_VIEWED:
             case ECommerceEvents.PROMOTION_CLICKED:
-              this.checkForKey("promotion_id");
+              this.checkForKey('promotion_id');
               break;
             case ECommerceEvents.ORDER_REFUNDED:
-              this.checkForKey("order_id");
+              this.checkForKey('order_id');
               break;
             default:
           }

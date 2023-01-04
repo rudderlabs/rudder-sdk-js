@@ -1,3 +1,5 @@
-import { Bugsnag } from "./browser";
 
-export default Bugsnag; 
+
+
+
+export {Bugsnag as default} from './browser';

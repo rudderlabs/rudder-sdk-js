@@ -1,7 +1,7 @@
 // Class representing an e-commerce cart
 class ECommerceCart {
   constructor() {
-    this.cart_id = "";
+    this.cart_id = '';
     this.products = [];
   }
 

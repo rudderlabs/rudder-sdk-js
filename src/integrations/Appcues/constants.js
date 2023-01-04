@@ -1,8 +1,8 @@
-const NAME = "APPCUES";
+const NAME = 'APPCUES';
 const CNameMapping = {
   [NAME]: NAME,
   Appcues: NAME,
-  "App Cues": NAME,
+  'App Cues': NAME,
   appcues: NAME,
 };
 

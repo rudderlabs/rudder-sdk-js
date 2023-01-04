@@ -1,16 +1,16 @@
 // Class representing e-commerce order object
 class ECommerceOrder {
   constructor() {
-    this.order_id = "";
-    this.affiliation = "";
+    this.order_id = '';
+    this.affiliation = '';
     this.total = 0;
     this.value = 0;
     this.revenue = 0;
     this.shipping = 0;
     this.tax = 0;
     this.discount = 0;
-    this.coupon = "";
-    this.currency = "";
+    this.coupon = '';
+    this.currency = '';
     this.products = [];
   }
 

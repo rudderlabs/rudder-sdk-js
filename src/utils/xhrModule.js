@@ -5,9 +5,9 @@
 /* eslint-disable guard-for-in */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable class-methods-use-this */
-import Queue from "@segment/localstorage-retry";
-import { getCurrentTimeFormatted, handleError, replacer } from "./utils";
-import logger from "./logUtil";
+import Queue from '@segment/localstorage-retry';
+import { getCurrentTimeFormatted, handleError, replacer } from './utils';
+import logger from './logUtil';
 
 const queueOptions = {
   maxRetryDelay: 360000,
@@ -19,8 +19,8 @@ const queueOptions = {
 
 class XHRQueue {
   constructor() {
-    this.url = "";
-    this.writeKey = "";
+    this.url = '';
+    this.writeKey = '';
   }
 
   init(writeKey, url, options) {
@@ -31,9 +31,9 @@ class XHRQueue {
       Object.assign(queueOptions, options);
     }
     this.payloadQueue = new Queue(
-      "rudder",
+      'rudder',
       queueOptions,
-      function (item, done) {
+      ((item, done) => {
         // apply sentAt at flush time and reset on each retry
         item.message.sentAt = getCurrentTimeFormatted();
         // send this item for processing, with a callback to enable queue to get the done status
@@ -44,14 +44,14 @@ class XHRQueue {
           item.message,
           10 * 1000,
           // eslint-disable-next-line consistent-return
-          function (err, res) {
+          (err, res) => {
             if (err) {
               return done(err);
             }
             done(null, res);
-          }
+          },
         );
-      }.bind(this)
+      }),
     );
 
     // start queue
@@ -69,7 +69,7 @@ class XHRQueue {
   processQueueElement(url, headers, message, timeout, queueFn) {
     try {
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", url, true);
+      xhr.open('POST', url, true);
       for (const k in headers) {
         xhr.setRequestHeader(k, headers[k]);
       }
@@ -81,18 +81,16 @@ class XHRQueue {
           if (xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600)) {
             handleError(
               new Error(
-                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`
-              )
+                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`,
+              ),
             );
             queueFn(
               new Error(
-                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`
-              )
+                `request failed with status: ${xhr.status}${xhr.statusText} for url: ${url}`,
+              ),
             );
           } else {
-            logger.debug(
-              `====== request processed successfully: ${xhr.status}`
-            );
+            logger.debug(`====== request processed successfully: ${xhr.status}`);
             queueFn(null, xhr.status);
           }
         }
@@ -106,7 +104,7 @@ class XHRQueue {
 
   enqueue(message, type) {
     const headers = {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Basic ${btoa(`${this.writeKey}:`)}`,
       AnonymousId: btoa(message.anonymousId),
     };

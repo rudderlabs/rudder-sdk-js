@@ -9,13 +9,11 @@ const isDefined = (x) => !_isUndefined(x);
 const isNotEmpty = (x) => !_isEmpty(x);
 const isNotNull = (x) => x != null;
 const isDefinedAndNotNull = (x) => isDefined(x) && isNotNull(x);
-const isDefinedAndNotNullAndNotEmpty = (x) =>
-  isDefined(x) && isNotNull(x) && isNotEmpty(x);
+const isDefinedAndNotNullAndNotEmpty = (x) => isDefined(x) && isNotNull(x) && isNotEmpty(x);
 const removeUndefinedValues = (obj) => _pickBy(obj, isDefined);
 const removeNullValues = (obj) => _pickBy(obj, isNotNull);
 const removeUndefinedAndNullValues = (obj) => _pickBy(obj, isDefinedAndNotNull);
-const removeUndefinedAndNullAndEmptyValues = (obj) =>
-  _pickBy(obj, isDefinedAndNotNullAndNotEmpty);
+const removeUndefinedAndNullAndEmptyValues = (obj) => _pickBy(obj, isDefinedAndNotNullAndNotEmpty);
 const isBlank = (value) => _isEmpty(_toString(value));
 const pick = (argObj, argArr) => _pick(argObj, argArr);
 
@@ -30,17 +28,15 @@ const pick = (argObj, argArr) => _pick(argObj, argArr);
  */
 const getHashFromArrayWithDuplicate = (
   arrays,
-  fromKey = "from",
-  toKey = "to",
-  isLowerCase = true
+  fromKey = 'from',
+  toKey = 'to',
+  isLowerCase = true,
 ) => {
   const hashMap = {};
   if (Array.isArray(arrays)) {
     arrays.forEach((array) => {
       if (!isNotEmpty(array[fromKey])) return;
-      const key = isLowerCase
-        ? array[fromKey].toLowerCase().trim()
-        : array[fromKey].trim();
+      const key = isLowerCase ? array[fromKey].toLowerCase().trim() : array[fromKey].trim();
 
       if (hashMap[key]) {
         const val = hashMap[key];
@@ -64,18 +60,12 @@ const getHashFromArrayWithDuplicate = (
  * @param  {} isLowerCase=true
  * @param  {} return hashmap {"prop1":"val1","prop2:"val2"}
  */
-const getHashFromArray = (
-  arrays,
-  fromKey = "from",
-  toKey = "to",
-  isLowerCase = true
-) => {
+const getHashFromArray = (arrays, fromKey = 'from', toKey = 'to', isLowerCase = true) => {
   const hashMap = {};
   if (Array.isArray(arrays)) {
     arrays.forEach((array) => {
       if (!isNotEmpty(array[fromKey])) return;
-      hashMap[isLowerCase ? array[fromKey].toLowerCase() : array[fromKey]] =
-        array[toKey];
+      hashMap[isLowerCase ? array[fromKey].toLowerCase() : array[fromKey]] = array[toKey];
     });
   }
   return hashMap;
@@ -85,9 +75,7 @@ const getHashFromArray = (
  * @param  {} timestamp
  * @param  {} return iso format of date
  */
-const toIso = (timestamp) => {
-  return new Date(timestamp).toISOString();
-};
+const toIso = (timestamp) => new Date(timestamp).toISOString();
 
 // function to flatten a json
 function flattenJson(data) {
@@ -116,7 +104,7 @@ function flattenJson(data) {
     }
   }
 
-  recurse(data, "");
+  recurse(data, '');
   return result;
 }
 
@@ -172,21 +160,19 @@ function getDestinationExternalID(message, type) {
  * @param {*} value 123
  * @returns yes
  */
-const isDefinedNotNullNotEmpty = (value) => {
-  return !(
+const isDefinedNotNullNotEmpty = (value) => !(
     value === undefined ||
     value === null ||
     Number.isNaN(value) ||
-    (typeof value === "object" && Object.keys(value).length === 0) ||
-    (typeof value === "string" && value.trim().length === 0)
+    (typeof value === 'object' && Object.keys(value).length === 0) ||
+    (typeof value === 'string' && value.trim().length === 0)
   );
-};
 
 /**
  * check type of object incoming in the rejectArr function
  * @param  {} val
  */
- function type(val) {
+function type(val) {
   switch (Object.prototype.toString.call(val)) {
     case '[object Function]':
       return 'function';
@@ -210,16 +196,12 @@ const isDefinedNotNullNotEmpty = (value) => {
 /**
  * To check if a variable is storing object or not
  */
- const isObject = (obj) => {
-  return type(obj) === 'object';
-};
+const isObject = (obj) => type(obj) === 'object';
 
 /**
  * To check if a variable is storing array or not
  */
-const isArray = (obj) => {
-  return type(obj) === 'array';
-};
+const isArray = (obj) => type(obj) === 'array';
 
 function compact(value) {
   return value == null;
@@ -230,11 +212,11 @@ function compact(value) {
  * @param  {} arr
  * @param  {} fn
  */
-var rejectarray = function (arr, fn) {
+const rejectarray = function (arr, fn) {
   const ret = [];
 
-  for (let i = 0; i < arr.length; ++i) {
-    if (!fn(arr[i], i)) ret[ret.length] = arr[i];
+  for (const [i, element] of arr.entries()) {
+    if (!fn(element, i)) ret[ret.length] = element;
   }
 
   return ret;
@@ -246,7 +228,7 @@ var rejectarray = function (arr, fn) {
  * @param  {} fn
  *
  */
-var rejectobject = function (obj, fn) {
+const rejectobject = function (obj, fn) {
   const ret = {};
 
   for (const k in obj) {
@@ -263,7 +245,7 @@ var rejectobject = function (obj, fn) {
  * @param  {} obj
  * @param  {} fn
  */
- function rejectArr(obj, fn) {
+function rejectArr(obj, fn) {
   fn = fn || compact;
   return type(obj) == 'array' ? rejectarray(obj, fn) : rejectobject(obj, fn);
 }
@@ -274,7 +256,7 @@ var rejectobject = function (obj, fn) {
  *
  * Use get-value to retrieve defined traits from message traits
  */
- function getDefinedTraits(message) {
+function getDefinedTraits(message) {
   const traitsValue = {
     userId:
       get(message, 'userId') ||
@@ -316,9 +298,9 @@ var rejectobject = function (obj, fn) {
 const getDataFromSource = (src, dest, properties) => {
   const data = {};
   if (isArray(src)) {
-    for (let index = 0; index < src.length; index += 1) {
-      if (properties[src[index]]) {
-        data[dest] = properties[src[index]];
+    for (const element of src) {
+      if (properties[element]) {
+        data[dest] = properties[element];
         if (data) {
           // return only if the value is valid.
           // else look for next possible source in precedence
@@ -326,12 +308,21 @@ const getDataFromSource = (src, dest, properties) => {
         }
       }
     }
-  } else if (typeof src === 'string') {
-    if (properties[src]) {
+  } else if (typeof src === 'string' && properties[src]) {
       data[dest] = properties[src];
     }
-  }
   return data;
+};
+
+const validateEmail = (email) => {
+  const regex =
+    /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z-]+\.)+[A-Za-z]{2,}))$/;
+  return !!regex.test(email);
+};
+
+const validatePhoneWithCountryCode = (phone) => {
+  const regex = /^\+(?:[\d{] ?){6,14}\d$/;
+  return !!regex.test(phone);
 };
 
 export {
@@ -359,4 +350,6 @@ export {
   isArray,
   rejectArr,
   getDataFromSource,
+  validateEmail,
+  validatePhoneWithCountryCode,
 };

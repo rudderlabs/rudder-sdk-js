@@ -1,3 +1,5 @@
-import { Comscore } from "./browser";
 
-export default Comscore;
+
+
+
+export {Comscore as default} from './browser';

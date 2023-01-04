@@ -1,3 +1,5 @@
-import Qualaroo from "./browser";
 
-export default Qualaroo;
+
+
+
+export {default} from './browser';

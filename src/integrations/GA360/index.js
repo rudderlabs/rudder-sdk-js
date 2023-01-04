@@ -1,3 +1,5 @@
-import { GA360 } from "./browser";
 
-export default GA360;
+
+
+
+export {GA360 as default} from './browser';

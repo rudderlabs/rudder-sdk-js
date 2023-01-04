@@ -1,6 +1,6 @@
-import logger from "../../utils/logUtil";
-import { NAME } from "./constants";
-import { generateUUID } from "../../utils/utils";
+import logger from '../../utils/logUtil';
+import { NAME } from './constants';
+import { generateUUID } from '../../utils/utils';
 
 class Shynet {
   constructor(config) {
@@ -21,8 +21,8 @@ class Shynet {
 
           this.skipHeartbeat = true;
           const xhr = new XMLHttpRequest();
-          xhr.open("POST", `${shynetServiceUrl}`, true);
-          xhr.setRequestHeader("Content-Type", "application/json");
+          xhr.open('POST', `${shynetServiceUrl}`, true);
+          xhr.setRequestHeader('Content-Type', 'application/json');
           xhr.onload = function () {
             this.skipHeartBeat = false;
           };
@@ -51,7 +51,7 @@ class Shynet {
         // taking default as 5 sec as used in shynet doc
         this.heartBeatTaskId = setInterval(
           this.sendHeartBeat,
-          parseInt(heartBeatFrequencyInMs || 5000)
+          parseInt(heartBeatFrequencyInMs || 5000),
         );
         this.sendHeartBeat(referrer, url);
       },
@@ -60,17 +60,17 @@ class Shynet {
   }
 
   init() {
-    logger.debug("=== in init Shynet ===");
+    logger.debug('=== in init Shynet ===');
     return this.scriptCheck;
   }
 
   isLoaded() {
-    logger.debug("=== in Shynet isLoaded= ==");
+    logger.debug('=== in Shynet isLoaded= ==');
     return this.scriptCheck;
   }
 
   isReady() {
-    logger.debug("=== in Shynet is Ready===");
+    logger.debug('=== in Shynet is Ready===');
     return this.scriptCheck;
   }
 
@@ -78,7 +78,7 @@ class Shynet {
     try {
       this.shynetScript.newPageLoad(
         rudderElement?.message?.properties?.referrer,
-        rudderElement?.message?.properties?.url
+        rudderElement?.message?.properties?.url,
       );
     } catch (exp) {
       logger.info(exp.message);

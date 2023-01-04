@@ -1,3 +1,5 @@
-import Satismeter from "./browser";
 
-export default Satismeter;
+
+
+
+export {default} from './browser';

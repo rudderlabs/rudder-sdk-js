@@ -5,32 +5,32 @@ import logger from '../../utils/logUtil';
 import { getDefinedTraits } from '../utils/commonUtils';
 import { extractCustomFields } from '../../utils/utils';
 
-const keysToExtract = ["context.traits"];
+const keysToExtract = ['context.traits'];
 const exclusionKeys = [
-  "email",
-  "E-mail",
-  "Email",
-  "phone",
-  "Phone",
-  "name",
-  "Name",
-  "lastName",
-  "lastname",
-  "last_name",
-  "firstName",
-  "firstname",
-  "first_name",
+  'email',
+  'E-mail',
+  'Email',
+  'phone',
+  'Phone',
+  'name',
+  'Name',
+  'lastName',
+  'lastname',
+  'last_name',
+  'firstName',
+  'firstname',
+  'first_name',
 ];
 
 const traitAliases = {
-  created: "$created",
-  email: "$email",
-  firstName: "$first_name",
-  lastName: "$last_name",
-  lastSeen: "$last_seen",
-  name: "$name",
-  username: "$username",
-  phone: "$phone",
+  created: '$created',
+  email: '$email',
+  firstName: '$first_name',
+  lastName: '$last_name',
+  lastSeen: '$last_seen',
+  name: '$name',
+  username: '$username',
+  phone: '$phone',
 };
 
 const formatTraits = (message) => {
@@ -44,12 +44,7 @@ const formatTraits = (message) => {
   };
   // Extract other K-V property from traits about user custom properties
   try {
-    outgoingTraits = extractCustomFields(
-      message,
-      outgoingTraits,
-      keysToExtract,
-      exclusionKeys
-    );
+    outgoingTraits = extractCustomFields(message, outgoingTraits, keysToExtract, exclusionKeys);
   } catch (err) {
     logger.debug(`Error occured at extractCustomFields ${err}`);
   }
@@ -58,7 +53,7 @@ const formatTraits = (message) => {
 
 const parseConfigArray = (arr, key) => {
   if (!arr) {
-    logger.debug("===Mixpanel: arr is undefined or null===");
+    logger.debug('===Mixpanel: arr is undefined or null===');
     return;
   }
   // eslint-disable-next-line consistent-return
@@ -84,7 +79,7 @@ const inverseObjectArrays = (input) => {
       const tempArray = input[key];
       tempArray.forEach((obj) => {
         // operate if object encountered in array
-        if (typeof obj === "object") {
+        if (typeof obj === 'object') {
           // {sku: 32, revenue: 99}
           Object.entries(obj).forEach((k) => {
             const attrKey = `${key}_${k[0]}s`;
@@ -139,7 +134,7 @@ const extendTraits = (arr) => {
   });
 
   keys.forEach((key) => {
-    if (arr.indexOf(key) < 0) {
+    if (!arr.includes(key)) {
       arr.push(key);
     }
   });

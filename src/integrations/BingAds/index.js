@@ -1,3 +1,5 @@
-import { BingAds } from "./browser";
 
-export default BingAds;
+
+
+
+export {BingAds as default} from './browser';

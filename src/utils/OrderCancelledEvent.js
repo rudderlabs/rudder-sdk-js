@@ -1,5 +1,5 @@
-const OrderEvent = require("./OrderEvent");
-const { ECommerceEvents } = require("./constants");
+const OrderEvent = require('./OrderEvent');
+const { ECommerceEvents } = require('./constants');
 
 class OrderCancelledEvent extends OrderEvent {
   event() {

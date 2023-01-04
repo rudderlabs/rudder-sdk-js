@@ -6,6 +6,6 @@ module.exports = [
   {
     name: 'SDK (core & integrations) - CDN',
     path: 'dist/rudder-analytics.min.js',
-    gzip: true
-  }
+    gzip: true,
+  },
 ];

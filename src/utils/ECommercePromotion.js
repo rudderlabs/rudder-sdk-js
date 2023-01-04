@@ -1,9 +1,9 @@
 // Class representing e-commerce promotion
 class ECommercePromotion {
   constructor() {
-    this.promotion_id = "";
-    this.creative = "";
-    this.name = "";
+    this.promotion_id = '';
+    this.creative = '';
+    this.name = '';
     this.position = 0;
   }
 

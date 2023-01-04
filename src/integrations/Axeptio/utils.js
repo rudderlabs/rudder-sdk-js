@@ -1,4 +1,4 @@
-import { isDefinedAndNotNull } from "../utils/commonUtils";
+import { isDefinedAndNotNull } from '../utils/commonUtils';
 
 /**
  * This function is used to trigger a callback.

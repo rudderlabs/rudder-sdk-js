@@ -1,16 +1,16 @@
 /* eslint-disable no-unused-expressions */
 
-import logger from "../../utils/logUtil";
-import ScriptLoader from "../ScriptLoader";
+import logger from '../../utils/logUtil';
+import ScriptLoader from '../ScriptLoader';
 import {
   handleCommonFields,
   generateExtraData,
   handleProductView,
   handlingEventDuo,
   handleListView,
-} from "./utils";
-import { NAME, supportedEvents } from "./constants";
-import { getHashFromArrayWithDuplicate } from "../utils/commonUtils";
+} from './utils';
+import { NAME, supportedEvents } from './constants';
+import { getHashFromArrayWithDuplicate } from '../utils/commonUtils';
 
 class Criteo {
   constructor(config) {
@@ -20,42 +20,37 @@ class Criteo {
     this.url = config.homePageUrl;
     // eslint-disable-next-line no-nested-ternary
     this.deviceType = /iPad/.test(navigator.userAgent)
-      ? "t"
-      : /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/.test(
-          navigator.userAgent
-        )
-      ? "m"
-      : "d";
+      ? 't'
+      : /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile|Silk/.test(navigator.userAgent)
+      ? 'm'
+      : 'd';
     this.fieldMapping = config.fieldMapping;
     this.eventsToStandard = config.eventsToStandard;
-    this.OPERATOR_LIST = ["eq", "gt", "lt", "ge", "le", "in"];
+    this.OPERATOR_LIST = ['eq', 'gt', 'lt', 'ge', 'le', 'in'];
   }
 
   init() {
-    logger.debug("===in init Criteo===");
+    logger.debug('===in init Criteo===');
     if (!this.accountId) {
-      logger.debug("Account ID missing");
+      logger.debug('Account ID missing');
       return;
     }
     window.criteo_q = window.criteo_q || [];
 
-    ScriptLoader(
-      "Criteo",
-      `//dynamic.criteo.com/js/ld/ld.js?a=${this.accountId}`
-    );
-    window.criteo_q.push({ event: "setAccount", account: this.accountId });
-    window.criteo_q.push({ event: "setSiteType", type: this.deviceType });
+    ScriptLoader('Criteo', `//dynamic.criteo.com/js/ld/ld.js?a=${this.accountId}`);
+    window.criteo_q.push({ event: 'setAccount', account: this.accountId });
+    window.criteo_q.push({ event: 'setSiteType', type: this.deviceType });
   }
 
   // eslint-disable-next-line class-methods-use-this
   isLoaded() {
-    logger.debug("===in Criteo isLoaded===");
+    logger.debug('===in Criteo isLoaded===');
     return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);
   }
 
   // eslint-disable-next-line class-methods-use-this
   isReady() {
-    logger.debug("===in Criteo isReady===");
+    logger.debug('===in Criteo isReady===');
     return !!(window.criteo_q && window.criteo_q.push !== Array.prototype.push);
   }
 
@@ -65,23 +60,23 @@ class Criteo {
     const finalPayload = handleCommonFields(rudderElement, this.hashMethod);
 
     if (
-      name === "home" ||
-      (properties && properties.name === "home") ||
+      name === 'home' ||
+      (properties && properties.name === 'home') ||
       (this.url && this.url === window.location.href) ||
       (properties && properties.url === this.url)
     ) {
       const homeEvent = {
-        event: "viewHome",
+        event: 'viewHome',
       };
       finalPayload.push(homeEvent);
     } else {
-      logger.debug("[Criteo] Home page is not detected");
+      logger.debug('[Criteo] Home page is not detected');
       return;
     }
 
     const extraDataObject = generateExtraData(rudderElement, this.fieldMapping);
-    if (Object.keys(extraDataObject).length !== 0) {
-      finalPayload.push({ event: "setData", ...extraDataObject });
+    if (Object.keys(extraDataObject).length > 0) {
+      finalPayload.push({ event: 'setData', ...extraDataObject });
     }
 
     window.criteo_q.push(finalPayload);
@@ -108,24 +103,19 @@ class Criteo {
     const finalPayload = handleCommonFields(rudderElement, this.hashMethod);
 
     if (!event) {
-      logger.debug("[Criteo] Event name from track call is missing!!===");
+      logger.debug('[Criteo] Event name from track call is missing!!===');
       return;
     }
 
     if (!properties || Object.keys(properties).length === 0) {
-      logger.debug(
-        "[Criteo] Either properties object is missing or empty in the track call"
-      );
+      logger.debug('[Criteo] Either properties object is missing or empty in the track call');
       return;
     }
 
     const eventMapping = getHashFromArrayWithDuplicate(this.eventsToStandard);
     const trimmedEvent = event.toLowerCase().trim();
 
-    if (
-      !supportedEvents.includes(trimmedEvent) &&
-      !eventMapping[trimmedEvent]
-    ) {
+    if (!supportedEvents.includes(trimmedEvent) && !eventMapping[trimmedEvent]) {
       logger.debug(`[Criteo] event ${trimmedEvent} is not supported`);
       return;
     }
@@ -138,19 +128,15 @@ class Criteo {
 
     events.forEach((eventType) => {
       switch (eventType) {
-        case "product viewed":
+        case 'product viewed':
           handleProductView(rudderElement.message, finalPayload);
           break;
-        case "cart viewed":
-        case "order completed":
+        case 'cart viewed':
+        case 'order completed':
           handlingEventDuo(rudderElement.message, finalPayload);
           break;
-        case "product list viewed":
-          handleListView(
-            rudderElement.message,
-            finalPayload,
-            this.OPERATOR_LIST
-          );
+        case 'product list viewed':
+          handleListView(rudderElement.message, finalPayload, this.OPERATOR_LIST);
           break;
         default:
           break;
@@ -158,8 +144,8 @@ class Criteo {
     });
 
     const extraDataObject = generateExtraData(rudderElement, this.fieldMapping);
-    if (Object.keys(extraDataObject).length !== 0) {
-      finalPayload.push({ event: "setData", ...extraDataObject });
+    if (Object.keys(extraDataObject).length > 0) {
+      finalPayload.push({ event: 'setData', ...extraDataObject });
     }
     window.criteo_q.push(finalPayload);
   }

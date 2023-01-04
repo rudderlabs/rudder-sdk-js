@@ -1,6 +1,6 @@
-import logger from "../../utils/logUtil";
-import ScriptLoader from "../ScriptLoader";
-import { NAME } from "./constants";
+import logger from '../../utils/logUtil';
+import ScriptLoader from '../ScriptLoader';
+import { NAME } from './constants';
 
 class Keen {
   constructor(config) {
@@ -15,11 +15,8 @@ class Keen {
   }
 
   init() {
-    logger.debug("===in init Keen===");
-    ScriptLoader(
-      "keen-integration",
-      "https://cdn.jsdelivr.net/npm/keen-tracking@4"
-    );
+    logger.debug('===in init Keen===');
+    ScriptLoader('keen-integration', 'https://cdn.jsdelivr.net/npm/keen-tracking@4');
 
     const check = setInterval(checkAndInitKeen.bind(this), 1000);
     function initKeen(object) {
@@ -38,7 +35,7 @@ class Keen {
   }
 
   identify(rudderElement) {
-    logger.debug("in Keen identify");
+    logger.debug('in Keen identify');
     const { traits } = rudderElement.message.context;
     const userId = rudderElement.message.userId
       ? rudderElement.message.userId
@@ -55,7 +52,7 @@ class Keen {
   }
 
   track(rudderElement) {
-    logger.debug("in Keen track");
+    logger.debug('in Keen track');
 
     const { event } = rudderElement.message;
     let { properties } = rudderElement.message;
@@ -64,12 +61,12 @@ class Keen {
   }
 
   page(rudderElement) {
-    logger.debug("in Keen page");
+    logger.debug('in Keen page');
     const pageName = rudderElement.message.name;
     const pageCategory = rudderElement.message.properties
       ? rudderElement.message.properties.category
       : undefined;
-    let name = "Loaded a Page";
+    let name = 'Loaded a Page';
     if (pageName) {
       name = `Viewed ${pageName} page`;
     }
@@ -83,7 +80,7 @@ class Keen {
   }
 
   isLoaded() {
-    logger.debug("in Keen isLoaded");
+    logger.debug('in Keen isLoaded');
     return !!(this.client != null);
   }
 
@@ -94,45 +91,45 @@ class Keen {
   getAddOn(properties) {
     const addOns = [];
     if (this.ipAddon) {
-      properties.ip_address = "${keen.ip}";
+      properties.ip_address = '${keen.ip}';
       addOns.push({
-        name: "keen:ip_to_geo",
+        name: 'keen:ip_to_geo',
         input: {
-          ip: "ip_address",
+          ip: 'ip_address',
         },
-        output: "ip_geo_info",
+        output: 'ip_geo_info',
       });
     }
     if (this.uaAddon) {
-      properties.user_agent = "${keen.user_agent}";
+      properties.user_agent = '${keen.user_agent}';
       addOns.push({
-        name: "keen:ua_parser",
+        name: 'keen:ua_parser',
         input: {
-          ua_string: "user_agent",
+          ua_string: 'user_agent',
         },
-        output: "parsed_user_agent",
+        output: 'parsed_user_agent',
       });
     }
     if (this.urlAddon) {
       properties.page_url = document.location.href;
       addOns.push({
-        name: "keen:url_parser",
+        name: 'keen:url_parser',
         input: {
-          url: "page_url",
+          url: 'page_url',
         },
-        output: "parsed_page_url",
+        output: 'parsed_page_url',
       });
     }
     if (this.referrerAddon) {
       properties.page_url = document.location.href;
       properties.referrer_url = document.referrer;
       addOns.push({
-        name: "keen:referrer_parser",
+        name: 'keen:referrer_parser',
         input: {
-          referrer_url: "referrer_url",
-          page_url: "page_url",
+          referrer_url: 'referrer_url',
+          page_url: 'page_url',
         },
-        output: "referrer_info",
+        output: 'referrer_info',
       });
     }
     properties.keen = {

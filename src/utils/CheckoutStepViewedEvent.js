@@ -1,5 +1,5 @@
-const CheckoutEvent = require("./CheckoutEvent");
-const { ECommerceEvents } = require("./constants");
+const CheckoutEvent = require('./CheckoutEvent');
+const { ECommerceEvents } = require('./constants');
 
 // class representing "Checkout Step Viewed"
 class CheckoutStepViewedEvent extends CheckoutEvent {

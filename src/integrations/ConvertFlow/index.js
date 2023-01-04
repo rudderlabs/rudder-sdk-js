@@ -1,3 +1,5 @@
-import ConvertFlow from "./browser";
 
-export default ConvertFlow;
+
+
+
+export {default} from './browser';

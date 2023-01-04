@@ -1,4 +1,4 @@
-const NAME = "BUGSNAG";
+const NAME = 'BUGSNAG';
 const CNameMapping = {
   [NAME]: NAME,
   bugsnag: NAME,

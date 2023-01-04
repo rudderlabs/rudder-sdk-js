@@ -1,8 +1,8 @@
 /* eslint-disable camelcase */
 /* eslint-disable no-underscore-dangle */
-import ScriptLoader from "../ScriptLoader";
-import logger from "../../utils/logUtil";
-import { NAME } from "./constants";
+import ScriptLoader from '../ScriptLoader';
+import logger from '../../utils/logUtil';
+import { NAME } from './constants';
 
 class TVSquared {
   constructor(config) {
@@ -14,32 +14,32 @@ class TVSquared {
   }
 
   init() {
-    logger.debug("===in init TVSquared===");
+    logger.debug('===in init TVSquared===');
     window._tvq = window._tvq || [];
-    let url = document.location.protocol === "https:" ? "https://" : "http://";
+    let url = document.location.protocol === 'https:' ? 'https://' : 'http://';
     url += `collector-${this.clientId}.tvsquared.com/`;
-    window._tvq.push(["setSiteId", this.brandId]);
-    window._tvq.push(["setTrackerUrl", `${url}tv2track.php`]);
-    ScriptLoader("TVSquared-integration", `${url}tv2track.js`);
+    window._tvq.push(['setSiteId', this.brandId]);
+    window._tvq.push(['setTrackerUrl', `${url}tv2track.php`]);
+    ScriptLoader('TVSquared-integration', `${url}tv2track.js`);
   }
 
   isLoaded = () => {
-    logger.debug("in TVSqaured isLoaded");
+    logger.debug('in TVSqaured isLoaded');
     return !!(window._tvq && window._tvq.push !== Array.prototype.push);
   };
 
   isReady = () => {
-    logger.debug("in TVSqaured isReady");
+    logger.debug('in TVSqaured isReady');
     return !!(window._tvq && window._tvq.push !== Array.prototype.push);
   };
 
   page = () => {
     window._tvq.push([
       function () {
-        this.deleteCustomVariable(5, "page");
+        this.deleteCustomVariable(5, 'page');
       },
     ]);
-    window._tvq.push(["trackPageView"]);
+    window._tvq.push(['trackPageView']);
   };
 
   track(rudderElement) {
@@ -49,9 +49,7 @@ class TVSquared {
     let i;
     let j;
     let whitelist = this.eventWhiteList.slice();
-    whitelist = whitelist.filter((wl) => {
-      return wl.event !== "";
-    });
+    whitelist = whitelist.filter((wl) => wl.event !== '');
     for (i = 0; i < whitelist.length; i += 1) {
       if (event.toUpperCase() === whitelist[i].event.toUpperCase()) {
         break;
@@ -61,18 +59,16 @@ class TVSquared {
       }
     }
 
-    const session = { user: userId || anonymousId || "" };
+    const session = { user: userId || anonymousId || '' };
     const action = {
-      rev: revenue ? this.formatRevenue(revenue) : "",
-      prod: category || productType || "",
-      id: order_id || "",
-      promo: promotion_id || "",
+      rev: revenue ? this.formatRevenue(revenue) : '',
+      prod: category || productType || '',
+      id: order_id || '',
+      promo: promotion_id || '',
     };
     let customMetrics = this.customMetrics.slice();
-    customMetrics = customMetrics.filter((cm) => {
-      return cm.propertyName !== "";
-    });
-    if (customMetrics.length) {
+    customMetrics = customMetrics.filter((cm) => cm.propertyName !== '');
+    if (customMetrics.length > 0) {
       for (j = 0; j < customMetrics.length; j += 1) {
         const key = customMetrics[j].propertyName;
         const value = rudderElement.message.properties[key];
@@ -83,20 +79,20 @@ class TVSquared {
     }
     window._tvq.push([
       function () {
-        this.setCustomVariable(5, "session", JSON.stringify(session), "visit");
+        this.setCustomVariable(5, 'session', JSON.stringify(session), 'visit');
       },
     ]);
-    if (event.toUpperCase() !== "RESPONSE") {
+    if (event.toUpperCase() !== 'RESPONSE') {
       window._tvq.push([
         function () {
-          this.setCustomVariable(5, event, JSON.stringify(action), "page");
+          this.setCustomVariable(5, event, JSON.stringify(action), 'page');
         },
       ]);
-      window._tvq.push(["trackPageView"]);
+      window._tvq.push(['trackPageView']);
     } else {
       window._tvq.push([
         function () {
-          this.deleteCustomVariable(5, "page");
+          this.deleteCustomVariable(5, 'page');
         },
       ]);
     }
@@ -104,7 +100,7 @@ class TVSquared {
 
   formatRevenue = (revenue) => {
     let rev = revenue;
-    rev = parseFloat(rev.toString().replace(/^[^\d.]*/, ""));
+    rev = parseFloat(rev.toString().replace(/^[^\d.]*/, ''));
     return rev;
   };
 }

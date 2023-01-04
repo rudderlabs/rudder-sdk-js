@@ -1,13 +1,13 @@
 // import * as XMLHttpRequestNode from "Xmlhttprequest";
-import { parse } from "component-url";
-import get from "get-value";
-import { v4 as uuid } from "@lukeed/uuid";
-import { LOAD_ORIGIN } from "../integrations/ScriptLoader";
-import logger from "./logUtil";
-import { commonNames } from "../integrations/integration_cname";
-import { clientToServerNames } from "../integrations/client_server_name";
-import { CONFIG_URL, ReservedPropertyKeywords } from "./constants";
-import Storage from "./storage";
+import { parse } from 'component-url';
+import get from 'get-value';
+import { v4 as uuid } from '@lukeed/uuid';
+import { LOAD_ORIGIN } from '../integrations/ScriptLoader';
+import logger from './logUtil';
+import { commonNames } from '../integrations/integration_cname';
+import { clientToServerNames } from '../integrations/client_server_name';
+import { CONFIG_URL, ReservedPropertyKeywords } from './constants';
+import Storage from './storage';
 
 /**
  *
@@ -63,11 +63,11 @@ function getJSON(url, wrappers, isLoaded, callback) {
 
   const xhr = new XMLHttpRequest();
 
-  xhr.open("GET", url, false);
+  xhr.open('GET', url, false);
   xhr.onload = function () {
     const { status } = xhr;
     if (status == 200) {
-      logger.debug("status 200");
+      logger.debug('status 200');
       callback(null, xhr.responseText, wrappers, isLoaded);
     } else {
       callback(status);
@@ -89,18 +89,16 @@ function getJSONTrimmed(context, url, writeKey, callback) {
 
   const xhr = new XMLHttpRequest();
 
-  xhr.open("GET", url, true);
-  xhr.setRequestHeader("Authorization", `Basic ${btoa(`${writeKey}:`)}`);
+  xhr.open('GET', url, true);
+  xhr.setRequestHeader('Authorization', `Basic ${btoa(`${writeKey}:`)}`);
 
   xhr.onload = function () {
     const { status } = xhr;
     if (status == 200) {
-      logger.debug("status 200 " + "calling callback");
+      logger.debug('status 200 ' + 'calling callback');
       cb_(200, xhr.responseText);
     } else {
-      handleError(
-        new Error(`request failed with status: ${xhr.status} for url: ${url}`)
-      );
+      handleError(new Error(`request failed with status: ${xhr.status} for url: ${url}`));
       cb_(status);
     }
   };
@@ -130,7 +128,7 @@ function notifyError(error) {
 function handleError(error, analyticsInstance) {
   let errorMessage;
   try {
-    if (typeof error === "string") {
+    if (typeof error === 'string') {
       errorMessage = error;
     } else if (error instanceof Error) {
       errorMessage = error.message;
@@ -138,31 +136,31 @@ function handleError(error, analyticsInstance) {
       errorMessage = error.message ? error.message : JSON.stringify(error);
     }
   } catch (e) {
-    errorMessage = "";
+    errorMessage = '';
   }
 
   try {
     if (error instanceof Event) {
       // Discard all the non-script loading errors
-      if (error.target && error.target.localName !== "script") return;
+      if (error.target && error.target.localName !== 'script') return;
 
       // Discard script errors that are not originated at SDK or from native SDKs
       if (
         error.target.dataset &&
         (error.target.dataset.loader !== LOAD_ORIGIN ||
-          error.target.dataset.isNonNativeSDK !== "true")
+          error.target.dataset.isNonNativeSDK !== 'true')
       )
         return;
 
       errorMessage = `error in script loading:: src::  ${error.target.src} id:: ${error.target.id}`;
 
       // SDK triggered ad-blocker script
-      if (error.target.id === "ad-block") {
+      if (error.target.id === 'ad-block') {
         analyticsInstance.page(
-          "RudderJS-Initiated",
-          "ad-block page request",
-          { path: "/ad-blocked", title: errorMessage },
-          analyticsInstance.sendAdblockPageOptions
+          'RudderJS-Initiated',
+          'ad-block page request',
+          { path: '/ad-blocked', title: errorMessage },
+          analyticsInstance.sendAdblockPageOptions,
         );
         // No need to proceed further for Ad-block errors
         return;
@@ -175,17 +173,15 @@ function handleError(error, analyticsInstance) {
     if (!(error instanceof Error)) errorObj = new Error(errorMessage);
     notifyError(errorObj);
   } catch (err) {
-    logger.error("[handleError] Exception:: ", err);
-    logger.error("[handleError] Original error:: ", JSON.stringify(error));
+    logger.error('[handleError] Exception:: ', err);
+    logger.error('[handleError] Original error:: ', JSON.stringify(error));
     notifyError(err);
   }
 }
 
 function getDefaultPageProperties() {
   const canonicalUrl = getCanonicalUrl();
-  const path = canonicalUrl
-    ? parse(canonicalUrl).pathname
-    : window.location.pathname;
+  const path = canonicalUrl ? parse(canonicalUrl).pathname : window.location.pathname;
   // const { referrer } = document;
   const { search } = window.location;
   const { title } = document;
@@ -211,7 +207,7 @@ function getDefaultPageProperties() {
 
 function getReferrer() {
   // This error handling is in place to avoid accessing dead object(document)
-  const defaultReferrer = "$direct";
+  const defaultReferrer = '$direct';
   try {
     return document.referrer || defaultReferrer;
   } catch (e) {
@@ -221,43 +217,43 @@ function getReferrer() {
 }
 
 function getReferringDomain(referrer) {
-  const split = referrer.split("/");
+  const split = referrer.split('/');
   if (split.length >= 3) {
     return split[2];
   }
-  return "";
+  return '';
 }
 
 function getUrl(search) {
   const canonicalUrl = getCanonicalUrl();
   const url = canonicalUrl
-    ? canonicalUrl.indexOf("?") > -1
+    ? canonicalUrl.includes('?')
       ? canonicalUrl
       : canonicalUrl + search
     : window.location.href;
-  const hashIndex = url.indexOf("#");
+  const hashIndex = url.indexOf('#');
   return hashIndex > -1 ? url.slice(0, hashIndex) : url;
 }
 
 function getCanonicalUrl() {
-  const tags = document.getElementsByTagName("link");
+  const tags = document.getElementsByTagName('link');
   for (var i = 0, tag; (tag = tags[i]); i++) {
-    if (tag.getAttribute("rel") === "canonical") {
-      return tag.getAttribute("href");
+    if (tag.getAttribute('rel') === 'canonical') {
+      return tag.getAttribute('href');
     }
   }
 }
 
 function getCurrency(val) {
   if (!val) return;
-  if (typeof val === "number") {
+  if (typeof val === 'number') {
     return val;
   }
-  if (typeof val !== "string") {
+  if (typeof val !== 'string') {
     return;
   }
 
-  val = val.replace(/\$/g, "");
+  val = val.replace(/\$/g, '');
   val = parseFloat(val);
 
   if (!isNaN(val)) {
@@ -267,8 +263,7 @@ function getCurrency(val) {
 
 function getRevenue(properties, eventName) {
   let { revenue } = properties;
-  const orderCompletedRegExp =
-    /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
+  const orderCompletedRegExp = /^[ _]?completed[ _]?order[ _]?|^[ _]?order[ _]?completed[ _]?$/i;
 
   // it's always revenue, unless it's called during an order completion.
   if (!revenue && eventName && eventName.match(orderCompletedRegExp)) {
@@ -283,7 +278,7 @@ function getRevenue(properties, eventName) {
  *
  * @param {*} integrationObject
  */
- function tranformToRudderNames(integrationObject) {
+function tranformToRudderNames(integrationObject) {
   Object.keys(integrationObject).forEach((key) => {
     if (integrationObject.hasOwnProperty(key)) {
       // TODO: Clean the raw key lookup logic
@@ -293,20 +288,16 @@ function getRevenue(properties, eventName) {
       if (commonNames[key]) {
         integrationObject[commonNames[key]] = integrationObject[key];
       } else if (commonNames[sanitizedIntgName]) {
-        integrationObject[commonNames[sanitizedIntgName]] =
-          integrationObject[key];
+        integrationObject[commonNames[sanitizedIntgName]] = integrationObject[key];
       }
 
-      if (key !== "All") {
-        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
-        if (
+      if (key !== 'All' && // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
+        (
           (commonNames[key] !== undefined && commonNames[key] !== key) ||
-          (commonNames[sanitizedIntgName] !== undefined &&
-            commonNames[sanitizedIntgName] !== key)
-        ) {
+          (commonNames[sanitizedIntgName] !== undefined && commonNames[sanitizedIntgName] !== key)
+        )) {
           delete integrationObject[key];
         }
-      }
     }
   });
 }
@@ -317,15 +308,10 @@ function transformToServerNames(integrationObject) {
       if (clientToServerNames[key]) {
         integrationObject[clientToServerNames[key]] = integrationObject[key];
       }
-      if (key != "All") {
-        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
-        if (
-          clientToServerNames[key] != undefined &&
-          clientToServerNames[key] != key
-        ) {
+      if (key != 'All' && // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
+        clientToServerNames[key] != undefined && clientToServerNames[key] != key) {
           delete integrationObject[key];
         }
-      }
     }
   });
 }
@@ -335,39 +321,27 @@ function transformToServerNames(integrationObject) {
  * @param {*} sdkSuppliedIntegrations
  * @param {*} configPlaneEnabledIntegrations
  */
-function findAllEnabledDestinations(
-  sdkSuppliedIntegrations,
-  configPlaneEnabledIntegrations
-) {
+function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledIntegrations) {
   const enabledList = [];
-  if (
-    !configPlaneEnabledIntegrations ||
-    configPlaneEnabledIntegrations.length == 0
-  ) {
+  if (!configPlaneEnabledIntegrations || configPlaneEnabledIntegrations.length === 0) {
     return enabledList;
   }
   let allValue = true;
-  if (typeof configPlaneEnabledIntegrations[0] === "string") {
+  if (typeof configPlaneEnabledIntegrations[0] === 'string') {
     if (sdkSuppliedIntegrations.All != undefined) {
       allValue = sdkSuppliedIntegrations.All;
     }
     configPlaneEnabledIntegrations.forEach((intg) => {
       if (!allValue) {
         // All false ==> check if intg true supplied
-        if (
-          sdkSuppliedIntegrations[intg] != undefined &&
-          sdkSuppliedIntegrations[intg] == true
-        ) {
+        if (sdkSuppliedIntegrations[intg] != undefined && sdkSuppliedIntegrations[intg] == true) {
           enabledList.push(intg);
         }
       } else {
         // All true ==> intg true by default
         let intgValue = true;
         // check if intg false supplied
-        if (
-          sdkSuppliedIntegrations[intg] != undefined &&
-          sdkSuppliedIntegrations[intg] == false
-        ) {
+        if (sdkSuppliedIntegrations[intg] != undefined && sdkSuppliedIntegrations[intg] == false) {
           intgValue = false;
         }
         if (intgValue) {
@@ -379,7 +353,7 @@ function findAllEnabledDestinations(
     return enabledList;
   }
 
-  if (typeof configPlaneEnabledIntegrations[0] === "object") {
+  if (typeof configPlaneEnabledIntegrations[0] === 'object') {
     if (sdkSuppliedIntegrations.All != undefined) {
       allValue = sdkSuppliedIntegrations.All;
     }
@@ -414,17 +388,17 @@ function findAllEnabledDestinations(
 
 function getUserProvidedConfigUrl(configUrl) {
   let url = configUrl;
-  if (configUrl.indexOf("sourceConfig") == -1) {
-    url = url.slice(-1) == "/" ? url.slice(0, -1) : url;
+  if (!configUrl.includes('sourceConfig')) {
+    url = url.slice(-1) == '/' ? url.slice(0, -1) : url;
     url = `${url}/sourceConfig/`;
   }
-  url = url.slice(-1) == "/" ? url : `${url}/`;
-  if (url.indexOf("?") > -1) {
-    if (url.split("?")[1] !== CONFIG_URL.split("?")[1]) {
-      url = `${url.split("?")[0]}?${CONFIG_URL.split("?")[1]}`;
+  url = url.slice(-1) == '/' ? url : `${url}/`;
+  if (url.includes('?')) {
+    if (url.split('?')[1] !== CONFIG_URL.split('?')[1]) {
+      url = `${url.split('?')[0]}?${CONFIG_URL.split('?')[1]}`;
     }
   } else {
-    url = `${url}?${CONFIG_URL.split("?")[1]}`;
+    url = `${url}?${CONFIG_URL.split('?')[1]}`;
   }
   return url;
 }
@@ -440,27 +414,27 @@ function checkReservedKeywords(message, messageType) {
   const contextualTraits = message.context.traits;
   if (properties) {
     Object.keys(properties).forEach((property) => {
-      if (ReservedPropertyKeywords.indexOf(property.toLowerCase()) >= 0) {
+      if (ReservedPropertyKeywords.includes(property.toLowerCase())) {
         logger.error(
-          `Warning! : Reserved keyword used in properties--> ${property} with ${messageType} call`
+          `Warning! : Reserved keyword used in properties--> ${property} with ${messageType} call`,
         );
       }
     });
   }
   if (traits) {
     Object.keys(traits).forEach((trait) => {
-      if (ReservedPropertyKeywords.indexOf(trait.toLowerCase()) >= 0) {
+      if (ReservedPropertyKeywords.includes(trait.toLowerCase())) {
         logger.error(
-          `Warning! : Reserved keyword used in traits--> ${trait} with ${messageType} call`
+          `Warning! : Reserved keyword used in traits--> ${trait} with ${messageType} call`,
         );
       }
     });
   }
   if (contextualTraits) {
     Object.keys(contextualTraits).forEach((contextTrait) => {
-      if (ReservedPropertyKeywords.indexOf(contextTrait.toLowerCase()) >= 0) {
+      if (ReservedPropertyKeywords.includes(contextTrait.toLowerCase())) {
         logger.error(
-          `Warning! : Reserved keyword used in traits --> ${contextTrait} with ${messageType} call`
+          `Warning! : Reserved keyword used in traits --> ${contextTrait} with ${messageType} call`,
         );
       }
     });
@@ -481,8 +455,7 @@ function recurse(cur, prop, result) {
     res[prop] = cur;
   } else if (Array.isArray(cur)) {
     const l = cur.length;
-    for (let i = 0; i < l; i += 1)
-      recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res);
+    for (let i = 0; i < l; i += 1) recurse(cur[i], prop ? `${prop}.${i}` : `${i}`, res);
     if (l === 0) res[prop] = [];
   } else {
     let isEmpty = true;
@@ -495,7 +468,7 @@ function recurse(cur, prop, result) {
   return res;
 }
 
-function flattenJsonPayload(data, property = "") {
+function flattenJsonPayload(data, property = '') {
   return recurse(data, property, {});
 }
 /* ------- End FlattenJson ----------- */
@@ -533,12 +506,12 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
     if (messageContext) {
       const objKeys = [];
       Object.keys(messageContext).map((k) => {
-        if (exclusionFields.indexOf(k) < 0) {
+        if (!exclusionFields.includes(k)) {
           objKeys.push(k);
         }
       });
       objKeys.map((k) => {
-        if (!(typeof messageContext[k] === "undefined")) {
+        if (!(typeof messageContext[k] === 'undefined')) {
           if (destination) {
             destination[k] = get(messageContext, k);
           } else {
@@ -553,9 +526,7 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
   return destination;
 }
 
-const removeTrailingSlashes = (str) => {
-  return str && str.endsWith("/") ? str.replace(/\/+$/, "") : str;
-};
+const removeTrailingSlashes = (str) => str && str.endsWith('/') ? str.replace(/\/+$/, '') : str;
 
 /**
  * Using this function we can create a payload from a mapping object.
@@ -601,20 +572,16 @@ const constructPayload = (object, mapper) => {
   return payload;
 };
 
-const countDigits = (number) => {
-  return number ? number.toString().length : 0;
-};
+const countDigits = (number) => number ? number.toString().length : 0;
 
 /**
  * A function to convert non-string IDs to string format
  * @param {any} id
  * @returns
  */
-const getStringId = (id) => {
-  return typeof id === "string" || typeof id === "undefined" || id === null
+const getStringId = (id) => typeof id === 'string' || typeof id === 'undefined' || id === null
     ? id
     : JSON.stringify(id);
-};
 
 export {
   replacer,
@@ -634,12 +601,15 @@ export {
   getReferrer,
   getReferringDomain,
   extractCustomFields,
-  commonNames,
+  
   removeTrailingSlashes,
   constructPayload,
   notifyError,
   leaveBreadcrumb,
-  get,
+  
   countDigits,
   getStringId,
 };
+
+export {commonNames} from '../integrations/integration_cname';
+export {default as get} from 'get-value';

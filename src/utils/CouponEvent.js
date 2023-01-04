@@ -1,4 +1,4 @@
-const RudderProperty = require("./RudderProperty");
+const RudderProperty = require('./RudderProperty');
 
 // Parent class for Coupon events
 class CouponEvent {

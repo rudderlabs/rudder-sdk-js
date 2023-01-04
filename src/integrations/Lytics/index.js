@@ -1,3 +1,5 @@
-import Lytics from "./browser";
 
-export default Lytics;
+
+
+
+export {default} from './browser';

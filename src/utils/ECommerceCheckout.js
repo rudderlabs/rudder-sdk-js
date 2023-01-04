@@ -1,10 +1,10 @@
 // Class encapsulating checkout details
 class ECommerceCheckout {
   constructor() {
-    this.checkout_id = "";
+    this.checkout_id = '';
     this.step = -1;
-    this.shipping_method = "";
-    this.payment_method = "";
+    this.shipping_method = '';
+    this.payment_method = '';
   }
 
   // Setter methods in accordance to Builder pattern

@@ -1,3 +1,5 @@
-import OneTrust from "./browser";
 
-export { OneTrust };
+
+
+
+export {default as OneTrust} from './browser';

@@ -1,3 +1,5 @@
-import { Lotame } from "./browser";
 
-export default Lotame;
+
+
+
+export {Lotame as default} from './browser';

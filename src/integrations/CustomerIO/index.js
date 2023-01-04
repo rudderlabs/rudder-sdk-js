@@ -1,3 +1,5 @@
-import { CustomerIO } from "./browser";
 
-export default CustomerIO;
+
+
+
+export {CustomerIO as default} from './browser';

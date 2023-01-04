@@ -1,16 +1,13 @@
 /* eslint-disable class-methods-use-this */
 /* eslint-disable no-underscore-dangle */
-import get from "get-value";
-import logger from "../../utils/logUtil";
-import {
-  isDefinedAndNotNull,
-  removeUndefinedAndNullValues,
-} from "../utils/commonUtils";
-import { getDestinationExternalID } from "./utils";
+import get from 'get-value';
+import logger from '../../utils/logUtil';
+import { isDefinedAndNotNull, removeUndefinedAndNullValues } from '../utils/commonUtils';
+import { getDestinationExternalID } from './utils';
 
-import { extractCustomFields } from "../../utils/utils";
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../ScriptLoader";
+import { extractCustomFields } from '../../utils/utils';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../ScriptLoader';
 
 class Drip {
   constructor(config) {
@@ -18,83 +15,80 @@ class Drip {
     this.campaignId = config.campaignId;
     this.name = NAME;
     this.exclusionFields = [
-      "email",
-      "new_email",
-      "newEmail",
-      "tags",
-      "remove_tags",
-      "removeTags",
-      "prospect",
-      "eu_consent",
-      "euConsent",
-      "eu_consent_message",
-      "euConsentMessage",
+      'email',
+      'new_email',
+      'newEmail',
+      'tags',
+      'remove_tags',
+      'removeTags',
+      'prospect',
+      'eu_consent',
+      'euConsent',
+      'eu_consent_message',
+      'euConsentMessage',
     ];
   }
 
   init() {
-    logger.debug("===In init Drip===");
+    logger.debug('===In init Drip===');
 
     window._dcq = window._dcq || [];
     window._dcs = window._dcs || {};
     window._dcs.account = this.accountId;
 
     (function () {
-      var dc = document.createElement("script");
-      dc.type = "text/javascript";
-      dc.setAttribute("data-loader", LOAD_ORIGIN);
+      const dc = document.createElement('script');
+      dc.type = 'text/javascript';
+      dc.setAttribute('data-loader', LOAD_ORIGIN);
       dc.async = true;
       dc.src = `//tag.getdrip.com/${window._dcs.account}.js`;
-      var s = document.getElementsByTagName("script")[0];
+      const s = document.getElementsByTagName('script')[0];
       s.parentNode.insertBefore(dc, s);
     })();
   }
 
   isLoaded() {
-    logger.debug("===In isLoaded Drip===");
+    logger.debug('===In isLoaded Drip===');
     return !!window._dcq;
   }
 
   isReady() {
-    logger.debug("===In isReady Drip===");
+    logger.debug('===In isReady Drip===');
     return !!window._dcq;
   }
 
   identify(rudderElement) {
-    logger.debug("===In Drip identify===");
+    logger.debug('===In Drip identify===');
 
     const { message } = rudderElement;
     if (!message.context || !message.context.traits) {
-      logger.error("user context or traits not present");
+      logger.error('user context or traits not present');
       return;
     }
 
-    const email = get(message, "context.traits.email");
+    const email = get(message, 'context.traits.email');
     if (!email) {
-      logger.error("email is required for identify");
+      logger.error('email is required for identify');
       return;
     }
 
-    let euConsent = get(message, "context.traits.euConsent");
+    let euConsent = get(message, 'context.traits.euConsent');
     if (
       euConsent &&
-      !(
-        euConsent.toLowerCase() === "granted" ||
-        euConsent.toLowerCase() === "denied"
-      )
+      !(euConsent.toLowerCase() === 'granted' || euConsent.toLowerCase() === 'denied')
     ) {
       euConsent = null;
     }
 
     let payload = {
       email,
-      new_email: get(message, "context.traits.newEmail"),
-      user_id: get(message, "userId") || get(message, "anonymousId"),
-      tags: get(message, "context.traits.tags"),
-      remove_tags: get(message, "context.traits.removeTags"),
-      prospect: get(message, "context.traits.prospect"),
+      new_email: get(message, 'context.traits.newEmail'),
+      user_id: get(message, 'userId') || get(message, 'anonymousId'),
+      tags: get(message, 'context.traits.tags'),
+      remove_tags: get(message, 'context.traits.removeTags'),
+      prospect: get(message, 'context.traits.prospect'),
       eu_consent: euConsent,
-      eu_consent_message: get(message, "context.traits.euConsentMessage"),
+      eu_consent_message: get(message, 'context.traits.euConsentMessage'),
     };
 
     let extraFields = {};
@@ -102,8 +96,8 @@ class Drip {
       extraFields = extractCustomFields(
         message,
         extraFields,
-        ["context.traits"],
-        this.exclusionFields
+        ['context.traits'],
+        this.exclusionFields,
       );
     } catch (err) {
       logger.debug(`Error occured at extractCustomFields ${err}`);
@@ -115,10 +109,9 @@ class Drip {
     };
 
     payload = removeUndefinedAndNullValues(payload);
-    window._dcq.push(["identify", payload]);
+    window._dcq.push(['identify', payload]);
 
-    const campaignId =
-      getDestinationExternalID(message, "dripCampaignId") || this.campaignId;
+    const campaignId = getDestinationExternalID(message, 'dripCampaignId') || this.campaignId;
 
     if (campaignId) {
       const fields = payload;
@@ -129,32 +122,31 @@ class Drip {
       let campaignPayload = {
         fields,
         campaign_id: campaignId,
-        double_optin: get(message, "context.traits.doubleOptin"),
+        double_optin: get(message, 'context.traits.doubleOptin'),
       };
       campaignPayload = removeUndefinedAndNullValues(campaignPayload);
-      window._dcq.push(["subscribe", campaignPayload]);
+      window._dcq.push(['subscribe', campaignPayload]);
     }
   }
 
   track(rudderElement) {
-    logger.debug("===In Drip track===");
+    logger.debug('===In Drip track===');
 
     const { message } = rudderElement;
     const { event } = rudderElement.message;
 
     if (!event) {
-      logger.error("Event name not present");
+      logger.error('Event name not present');
       return;
     }
 
-    const email =
-      get(message, "properties.email") || get(message, "context.traits.email");
+    const email = get(message, 'properties.email') || get(message, 'context.traits.email');
     if (!email) {
-      logger.error("email is required for track");
+      logger.error('email is required for track');
       return;
     }
 
-    let payload = get(message, "properties");
+    let payload = get(message, 'properties');
 
     if (isDefinedAndNotNull(payload.revenue)) {
       const cents = Math.round(payload.revenue * 100);
@@ -168,13 +160,11 @@ class Drip {
     payload = {
       ...payload,
       email,
-      occurred_at:
-        get(message, "properties.occurred_at") ||
-        get(message, "originalTimestamp"),
+      occurred_at: get(message, 'properties.occurred_at') || get(message, 'originalTimestamp'),
     };
 
     payload = removeUndefinedAndNullValues(payload);
-    window._dcq.push(["track", event, payload]);
+    window._dcq.push(['track', event, payload]);
   }
 }
 

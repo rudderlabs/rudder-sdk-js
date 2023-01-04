@@ -1,4 +1,4 @@
-const RudderProperty = require("./RudderProperty");
+const RudderProperty = require('./RudderProperty');
 
 // Parent class of "checkout step viewed" and "checkout step completed" events
 class CheckoutEvent {

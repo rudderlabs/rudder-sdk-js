@@ -1,3 +1,5 @@
-import Criteo from "./browser";
 
-export default Criteo;
+
+
+
+export {default} from './browser';

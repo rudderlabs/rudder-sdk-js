@@ -1,10 +1,10 @@
-const ECommerceCoupon = require("./ECommerceCoupon");
+const ECommerceCoupon = require('./ECommerceCoupon');
 
 // Class representing e-commerce coupon with added coupon_name property
 class ECommerceExtendedCoupon extends ECommerceCoupon {
   constructor() {
     super();
-    this.coupon_name = "";
+    this.coupon_name = '';
   }
 
   // Setter method in accordance to Builder pattern

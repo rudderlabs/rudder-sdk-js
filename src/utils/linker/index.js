@@ -4,14 +4,14 @@
  * @author Parth Mahajan, Ayush Mehra
  */
 
-import crc32 from "./crc32";
-import USER_INTERFACE from "./userLib";
-import decode from "./base64decoder";
+import crc32 from './crc32';
+import USER_INTERFACE from './userLib';
+import decode from './base64decoder';
 
-const KEY_VALIDATOR = /^[a-zA-Z0-9\-_.]+$/;
+const KEY_VALIDATOR = /^[\w.\-]+$/;
 const CHECKSUM_OFFSET_MAX_MIN = 1;
 const VALID_VERSION = 1;
-const DELIMITER = "*";
+const DELIMITER = '*';
 
 /**
  * Return the key value pairs
@@ -69,12 +69,7 @@ function isCheckSumValid(serializedIds, checksum) {
   const userAgent = USER_INTERFACE.getUserAgent();
   const language = USER_INTERFACE.getUserLanguage();
   for (let i = 0; i <= CHECKSUM_OFFSET_MAX_MIN; i++) {
-    const calculateCheckSum = getCheckSum(
-      serializedIds,
-      i,
-      userAgent,
-      language
-    );
+    const calculateCheckSum = getCheckSum(serializedIds, i, userAgent, language);
     if (calculateCheckSum == checksum) {
       return true;
     }
@@ -97,7 +92,7 @@ function deserialize(serializedIds) {
       continue;
     }
     const value = decode(params[i + 1]);
-    //const value = params[i + 1];
+    // const value = params[i + 1];
     keyValuePairs[key] = value;
   }
   return keyValuePairs;
