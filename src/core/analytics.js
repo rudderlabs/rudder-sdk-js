@@ -54,6 +54,10 @@ import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFa
 import * as BugsnagLib from '../features/core/metrics/error-report/Bugsnag';
 import { UserSession } from '../features/core/session';
 import { mergeDeepRight } from '../utils/ObjectUtils';
+import {
+  getMergedClientSuppliedIntegrations,
+  constructMessageIntegrationsObj,
+} from '../utils/IntegrationsData';
 import { getIntegrationsCDNPath } from '../utils/cdnPaths';
 
 /**
@@ -86,6 +90,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.integrationsData = {};
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
     this.cookieConsentOptions = {};
@@ -366,6 +371,10 @@ class Analytics {
     if (object.clientIntegrationObjects.every((intg) => !intg.isReady || intg.isReady())) {
       // Integrations are ready
       // set clientIntegrationsReady to be true
+      this.integrationsData = constructMessageIntegrationsObj(
+        this.integrationsData,
+        object.clientIntegrationObjects,
+      );
       object.clientIntegrationsReady = true;
       // Execute the callbacks if any
       object.executeReadyCallback();
@@ -386,28 +395,31 @@ class Analytics {
 
       // get intersection between config plane native enabled destinations
       // (which were able to successfully load on the page) vs user supplied integrations
-      const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+      const successfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
         clientSuppliedIntegrations,
         object.clientIntegrationObjects,
       );
 
       // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-      for (const succesfulLoadedIntersectClientSuppliedIntegration of succesfulLoadedIntersectClientSuppliedIntegrations) {
+      for (let i = 0; i < successfulLoadedIntersectClientSuppliedIntegrations.length; i += 1) {
         try {
           if (
-            (!succesfulLoadedIntersectClientSuppliedIntegration.isFailed ||
-              !succesfulLoadedIntersectClientSuppliedIntegration.isFailed()) &&
-            succesfulLoadedIntersectClientSuppliedIntegration[methodName]
+            !successfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
+            !successfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
           ) {
-            const sendEvent = !object.IsEventBlackListed(
-              event[0].message.event,
-              succesfulLoadedIntersectClientSuppliedIntegration.name,
-            );
+            if (successfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
+              const sendEvent = !object.IsEventBlackListed(
+                event[0].message.event,
+                successfulLoadedIntersectClientSuppliedIntegrations[i].name,
+              );
 
-            // Block the event if it is blacklisted for the device-mode destination
-            if (sendEvent) {
-              const clonedBufferEvent = R.clone(event);
-              succesfulLoadedIntersectClientSuppliedIntegration[methodName](...clonedBufferEvent);
+              // Block the event if it is blacklisted for the device-mode destination
+              if (sendEvent) {
+                const clonedBufferEvent = R.clone(event);
+                successfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
+                  ...clonedBufferEvent,
+                );
+              }
             }
           }
         } catch (error) {
@@ -709,13 +721,13 @@ class Analytics {
       } else {
         // get intersection between config plane native enabled destinations
         // (which were able to successfully load on the page) vs user supplied integrations
-        const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+        const successfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
           clientSuppliedIntegrations,
           this.clientIntegrationObjects,
         );
 
         // try to first send to all integrations, if list populated from BE
-        succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
+        successfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
           try {
             if ((!obj.isFailed || !obj.isFailed()) && obj[type]) {
               const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, obj.name);
@@ -735,6 +747,11 @@ class Analytics {
 
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
+
+      rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
+        this.integrationsData,
+        clientSuppliedIntegrations,
+      );
 
       // self analytics process, send to rudder
       this.eventRepository.enqueue(rudderElement, type);
