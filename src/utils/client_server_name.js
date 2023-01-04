@@ -71,6 +71,7 @@ const clientToServerNames = {
   SATISMETER: 'Satismeter',
   MICROSOFT_CLARITY: 'Microsoft Clarity',
   [AdobeAnalytics.NAME]: AdobeAnalytics.DISPLAY_NAME,
+  OLARK: 'Olark',
 };
 
 export { clientToServerNames };
