@@ -4,9 +4,7 @@ import logger from '../../utils/logUtil';
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../ScriptLoader';
 import { prepareUserTraits, prepareTrackEventData, preparePagePayload } from './utils';
-import { validateEmail, validatePhoneWithCountryCode } from '../utils/commonUtils';
-
-import { getDefinedTraits } from '../../utils/utils';
+import { validateEmail, validatePhoneWithCountryCode, getDefinedTraits } from '../utils/commonUtils';
 
 class Sendinblue {
   constructor(config, analytics) {
