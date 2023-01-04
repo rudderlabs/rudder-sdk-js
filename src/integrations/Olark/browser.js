@@ -80,8 +80,15 @@ class Olark {
   identify(rudderElement) {
     logger.debug('===In Olark Identify===');
     const { message } = rudderElement;
-    const { traits } = message.context;
+    const { context } = message;
+
     const userTraits = getDefinedTraits(message);
+
+    if (context.traits) {
+      const { traits } = context;
+      window.olark('api.visitor.updateCustomFields', traits);
+    }
+
     if (userTraits?.email) {
       window.olark('api.visitor.updateEmailAddress', {
         emailAddress: userTraits.email,
@@ -99,8 +106,6 @@ class Olark {
         phoneNumber: userTraits.phone,
       });
     }
-
-    window.olark('api.visitor.updateCustomFields', traits);
   }
 }
 
