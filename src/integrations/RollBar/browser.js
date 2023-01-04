@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
+/* eslint-disable no-prototype-builtins */
 
 import { isObject } from '../../utils/commonUtils';
 import logger from '../../utils/logUtil';
@@ -183,6 +184,7 @@ class RollBar {
                         for (var o, n, a, l, i = 0; (o = r._rollbarShims[i++]); )
                           for (o = o.messages || []; (n = o.shift()); )
                             for (a = n.args || [], i = 0; i < a.length; ++i)
+                              /* eslint-disable no-cond-assign */
                               if (typeof (l = a[i]) === 'function') {
                                 l(e);
                                 break;
