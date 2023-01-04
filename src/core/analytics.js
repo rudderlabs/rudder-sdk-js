@@ -11,14 +11,13 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable import/extensions */
 /* eslint-disable no-param-reassign */
+/* eslint-disable sonarjs/cognitive-complexity */
 import Emitter from 'component-emitter';
 import { parse } from 'component-querystring';
 import * as R from 'ramda';
 import {
   getJSONTrimmed,
   generateUUID,
-  handleError,
-  leaveBreadcrumb,
   getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
@@ -27,17 +26,16 @@ import {
   checkReservedKeywords,
   getReferrer,
   getReferringDomain,
-  removeTrailingSlashes,
   getConfigUrl,
   getSDKUrlInfo,
   get,
   getStringId,
 } from '../utils/utils';
+import { handleError, leaveBreadcrumb } from '../utils/errorHandler';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
   DEST_SDK_BASE_URL,
-  CDN_INT_DIR,
   INTG_SUFFIX,
   POLYFILL_URL,
   DEFAULT_ERROR_REPORT_PROVIDER,
@@ -54,7 +52,8 @@ import { configToIntNames } from '../utils/config_to_integration_names';
 import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFactory';
 import * as BugsnagLib from '../features/core/metrics/error-report/Bugsnag';
 import { UserSession } from '../features/core/session';
-import { mergeDeepRight } from "../utils/ObjectUtils";
+import { mergeDeepRight } from '../utils/ObjectUtils';
+import { getIntegrationsCDNPath } from '../utils/cdnPaths';
 
 /**
  * class responsible for handling core
@@ -93,6 +92,8 @@ class Analytics {
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
     this.uSession = UserSession;
+    this.version = 'process.package_version';
+    this.lockIntegrationsVersion = false;
   }
 
   /**
@@ -145,10 +146,10 @@ class Analytics {
         // logger.debug("Max wait for dynamically loaded integrations over")
         resolve(this);
       } else {
-        this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+        this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() =>
           // logger.debug("Check if all integration SDKs are loaded after pause")
-          return this.allModulesInitialized(time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
-        });
+          this.allModulesInitialized(time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve),
+        );
       }
     });
   }
@@ -231,7 +232,7 @@ class Analytics {
         }
       }
 
-      response.source.destinations.forEach(function (destination, index) {
+      response.source.destinations.forEach(function (destination) {
         // logger.debug(
         //   `Destination ${index} Enabled? ${destination.enabled} Type: ${destination.destinationDefinition.name} Use Native SDK? true`
         // );
@@ -249,19 +250,18 @@ class Analytics {
         this.clientIntegrations,
       );
       // Check if cookie consent manager is being set through load options
-      if (Object.keys(this.cookieConsentOptions).length) {
+      if (Object.keys(this.cookieConsentOptions).length > 0) {
         // Call the cookie consent factory to initialise and return the type of cookie
         // consent being set. For now we only support OneTrust.
         try {
           const cookieConsent = CookieConsentFactory.initialize(this.cookieConsentOptions);
           // If cookie consent object is return we filter according to consents given by user
           // else we do not consider any filtering for cookie consent.
-          this.clientIntegrations = this.clientIntegrations.filter((intg) => {
-            return (
+          this.clientIntegrations = this.clientIntegrations.filter(
+            (intg) =>
               !cookieConsent || // check if cookieconsent object is present and then do filtering
-              (cookieConsent && cookieConsent.isEnabled(intg.config))
-            );
-          });
+              (cookieConsent && cookieConsent.isEnabled(intg.config)),
+          );
         } catch (e) {
           handleError(e);
         }
@@ -288,7 +288,7 @@ class Analytics {
         }
 
         const self = this;
-        const interval = setInterval(function () {
+        const interval = setInterval(() => {
           if (self.integrationSDKLoaded(pluginName, modName)) {
             const intMod = window[pluginName];
             clearInterval(interval);
@@ -310,8 +310,8 @@ class Analytics {
                 self.dynamicallyLoadedIntegrations[pluginName] = intMod[modName];
               });
             } catch (e) {
-              e.message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
-              handleError(e);
+              const message = `[Analytics] 'integration.init()' failed :: ${pluginName} :: ${e.message}`;
+              handleError(e, message);
               self.failedToBeLoadedIntegration.push(intgInstance);
             }
           }
@@ -324,7 +324,7 @@ class Analytics {
 
       const self = this;
       this.allModulesInitialized().then(() => {
-        if (!self.clientIntegrations || self.clientIntegrations.length == 0) {
+        if (!self.clientIntegrations || self.clientIntegrations.length === 0) {
           // If no integrations are there to be loaded
           // set clientIntegrationsReady to be true
           this.clientIntegrationsReady = true;
@@ -391,25 +391,22 @@ class Analytics {
       );
 
       // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-      for (let i = 0; i < succesfulLoadedIntersectClientSuppliedIntegrations.length; i += 1) {
+      for (const succesfulLoadedIntersectClientSuppliedIntegration of succesfulLoadedIntersectClientSuppliedIntegrations) {
         try {
           if (
-            !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
-            !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
+            (!succesfulLoadedIntersectClientSuppliedIntegration.isFailed ||
+              !succesfulLoadedIntersectClientSuppliedIntegration.isFailed()) &&
+            succesfulLoadedIntersectClientSuppliedIntegration[methodName]
           ) {
-            if (succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
-              const sendEvent = !object.IsEventBlackListed(
-                event[0].message.event,
-                succesfulLoadedIntersectClientSuppliedIntegrations[i].name,
-              );
+            const sendEvent = !object.IsEventBlackListed(
+              event[0].message.event,
+              succesfulLoadedIntersectClientSuppliedIntegration.name,
+            );
 
-              // Block the event if it is blacklisted for the device-mode destination
-              if (sendEvent) {
-                const clonedBufferEvent = R.clone(event);
-                succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
-                  ...clonedBufferEvent,
-                );
-              }
+            // Block the event if it is blacklisted for the device-mode destination
+            if (sendEvent) {
+              const clonedBufferEvent = R.clone(event);
+              succesfulLoadedIntersectClientSuppliedIntegration[methodName](...clonedBufferEvent);
             }
           }
         } catch (error) {
@@ -437,10 +434,10 @@ class Analytics {
         this.failedToBeLoadedIntegration.push(instance);
         resolve(this);
       } else {
-        this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
+        this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() =>
           // logger.debug("====after pause, again checking====")
-          return this.isInitialized(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
-        });
+          this.isInitialized(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve),
+        );
       }
     });
   }
@@ -577,7 +574,7 @@ class Analytics {
   group(groupId, traits, options, callback) {
     leaveBreadcrumb(`Group event`);
     if (!this.loaded) return;
-    if (!arguments.length) return;
+    if (arguments.length === 0) return;
 
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
@@ -604,7 +601,9 @@ class Analytics {
     if (!eventName || !(typeof eventName === 'string')) {
       return false;
     }
-    const intg = this.clientIntegrations.find((intg) => intg.name === intgName);
+    const intg = this.clientIntegrations.find(
+      (clientIntegration) => clientIntegration.name === intgName,
+    );
 
     const { blacklistedEvents, whitelistedEvents, eventFilteringOption } = intg.config;
 
@@ -617,24 +616,20 @@ class Analytics {
       // disabled filtering
       case 'disable':
         return false;
-      // Blacklist is choosen for filtering events
+      // Blacklist is chosen for filtering events
       case 'blacklistedEvents':
         if (Array.isArray(blacklistedEvents)) {
-          return (
-            blacklistedEvents.find(
-              (eventObj) => eventObj.eventName.trim().toUpperCase() === formattedEventName,
-            ) !== undefined
+          return blacklistedEvents.some(
+            (eventObj) => eventObj.eventName.trim().toUpperCase() === formattedEventName,
           );
         }
         return false;
 
-      // Whitelist is choosen for filtering events
+      // Whitelist is chosen for filtering events
       case 'whitelistedEvents':
         if (Array.isArray(whitelistedEvents)) {
-          return (
-            whitelistedEvents.find(
-              (eventObj) => eventObj.eventName.trim().toUpperCase() === formattedEventName,
-            ) === undefined
+          return !whitelistedEvents.some(
+            (eventObj) => eventObj.eventName.trim().toUpperCase() === formattedEventName,
           );
         }
         return true;
@@ -720,20 +715,18 @@ class Analytics {
         // try to first send to all integrations, if list populated from BE
         succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
           try {
-            if (!obj.isFailed || !obj.isFailed()) {
-              if (obj[type]) {
-                const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, obj.name);
+            if ((!obj.isFailed || !obj.isFailed()) && obj[type]) {
+              const sendEvent = !this.IsEventBlackListed(rudderElement.message.event, obj.name);
 
-                // Block the event if it is blacklisted for the device-mode destination
-                if (sendEvent) {
-                  const clonedRudderElement = R.clone(rudderElement);
-                  obj[type](clonedRudderElement);
-                }
+              // Block the event if it is blacklisted for the device-mode destination
+              if (sendEvent) {
+                const clonedRudderElement = R.clone(rudderElement);
+                obj[type](clonedRudderElement);
               }
             }
           } catch (err) {
-            err.message = `[sendToNative]::[Destination:${obj.name}]:: ${err}`;
-            handleError(err);
+            const message = `[sendToNative]:: [Destination: ${obj.name}]:: `;
+            handleError(err, message);
           }
         });
       }
@@ -766,12 +759,10 @@ class Analytics {
     const results = {};
 
     for (const key in params) {
-      if (Object.prototype.hasOwnProperty.call(params, key)) {
-        if (key.substr(0, 4) === 'utm_') {
-          param = key.substr(4);
-          if (param === 'campaign') param = 'name';
-          results[param] = params[key];
-        }
+      if (Object.prototype.hasOwnProperty.call(params, key) && key.substr(0, 4) === 'utm_') {
+        param = key.substr(4);
+        if (param === 'campaign') param = 'name';
+        results[param] = params[key];
       }
     }
 
@@ -801,25 +792,23 @@ class Analytics {
    * @memberof Analytics
    */
   processOptionsParam(rudderElement, options) {
-    const { type, properties } = rudderElement.message;
+    const { type, properties, context } = rudderElement.message;
 
     this.addCampaignInfo(rudderElement);
 
     // assign page properties to context.page
-    rudderElement.message.context.page = this.getContextPageProperties(
-      type === 'page' ? properties : undefined,
-    );
+    context.page = this.getContextPageProperties(type === 'page' ? properties : undefined);
 
     const topLevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];
     for (const key in options) {
       if (topLevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== 'context') {
-        rudderElement.message.context = mergeDeepRight(rudderElement.message.context, {
+        rudderElement.message.context = mergeDeepRight(context, {
           [key]: options[key],
         });
       } else if (typeof options[key] === 'object' && options[key] != null) {
-        rudderElement.message.context = mergeDeepRight(rudderElement.message.context, {
+        rudderElement.message.context = mergeDeepRight(context, {
           ...options[key],
         });
       } else {
@@ -883,6 +872,10 @@ class Analytics {
     return this.userId;
   }
 
+  getSessionId() {
+    return this.uSession.getSessionId();
+  }
+
   getUserTraits() {
     return this.userTraits;
   }
@@ -914,17 +907,11 @@ class Analytics {
   }
 
   isValidWriteKey(writeKey) {
-    if (!writeKey || typeof writeKey !== 'string' || writeKey.trim().length == 0) {
-      return false;
-    }
-    return true;
+    return writeKey && typeof writeKey === 'string' && writeKey.trim().length > 0;
   }
 
   isValidServerUrl(serverUrl) {
-    if (!serverUrl || typeof serverUrl !== 'string' || serverUrl.trim().length == 0) {
-      return false;
-    }
-    return true;
+    return serverUrl && typeof serverUrl === 'string' && serverUrl.trim().length > 0;
   }
 
   isDatasetAvailable() {
@@ -990,11 +977,12 @@ class Analytics {
       // convert to rudder recognized method names
       const transformedCallbackMapping = {};
       Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
-        if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
-          if (options.clientSuppliedCallbacks[this.methodToCallbackMapping[methodName]]) {
-            transformedCallbackMapping[methodName] =
-              options.clientSuppliedCallbacks[this.methodToCallbackMapping[methodName]];
-          }
+        if (
+          this.methodToCallbackMapping.hasOwnProperty(methodName) &&
+          options.clientSuppliedCallbacks[this.methodToCallbackMapping[methodName]]
+        ) {
+          transformedCallbackMapping[methodName] =
+            options.clientSuppliedCallbacks[this.methodToCallbackMapping[methodName]];
         }
       });
       Object.assign(this.clientSuppliedCallbacks, transformedCallbackMapping);
@@ -1005,26 +993,21 @@ class Analytics {
       this.loadIntegration = !!options.loadIntegration;
     }
 
+    if (options && options.lockIntegrationsVersion !== undefined) {
+      this.lockIntegrationsVersion = options.lockIntegrationsVersion === true;
+    }
+
     this.eventRepository.initialize(writeKey, serverUrl, options);
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
     this.loaded = true;
 
-    if (options && options.destSDKBaseURL) {
-      this.destSDKBaseURL = removeTrailingSlashes(options.destSDKBaseURL);
-      if (!this.destSDKBaseURL) {
-        handleError({
-          message: '[Analytics] load:: CDN base URL is not valid',
-        });
-        throw Error('failed to load');
-      }
-    } else {
-      // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
-      const { sdkURL } = getSDKUrlInfo();
-      if (sdkURL) {
-        this.destSDKBaseURL = sdkURL.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/');
-      }
-    }
+    this.destSDKBaseURL = getIntegrationsCDNPath(
+      this.version,
+      this.lockIntegrationsVersion,
+      options && options.destSDKBaseURL,
+    );
+
     if (options && options.getSourceConfig) {
       if (typeof options.getSourceConfig !== 'function') {
         handleError(new Error('option "getSourceConfig" must be a function'));
@@ -1085,7 +1068,7 @@ class Analytics {
       const id = 'polyfill';
       ScriptLoader(id, POLYFILL_URL, { skipDatasetAttributes: true });
       const self = this;
-      const interval = setInterval(function () {
+      const interval = setInterval(() => {
         // check if the polyfill is loaded
         // In chrome 83 and below versions ID of a script is not part of window's scope
         // even though it is loaded and returns false for <window.hasOwnProperty("polyfill")> this.
@@ -1133,27 +1116,25 @@ class Analytics {
   registerCallbacks(calledFromLoad) {
     if (!calledFromLoad) {
       Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
-        if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
-          if (window.rudderanalytics) {
-            if (
-              typeof window.rudderanalytics[this.methodToCallbackMapping[methodName]] === 'function'
-            ) {
-              this.clientSuppliedCallbacks[methodName] =
-                window.rudderanalytics[this.methodToCallbackMapping[methodName]];
-            }
-          }
-          // let callback =
-          //   ? typeof window.rudderanalytics[
-          //       this.methodToCallbackMapping[methodName]
-          //     ] == "function"
-          //     ? window.rudderanalytics[this.methodToCallbackMapping[methodName]]
-          //     : () => {}
-          //   : () => {};
-
-          // logger.debug("registerCallbacks", methodName, callback);
-
-          // this.on(methodName, callback);
+        if (
+          this.methodToCallbackMapping.hasOwnProperty(methodName) &&
+          window.rudderanalytics &&
+          typeof window.rudderanalytics[this.methodToCallbackMapping[methodName]] === 'function'
+        ) {
+          this.clientSuppliedCallbacks[methodName] =
+            window.rudderanalytics[this.methodToCallbackMapping[methodName]];
         }
+        // let callback =
+        //   ? typeof window.rudderanalytics[
+        //       this.methodToCallbackMapping[methodName]
+        //     ] == "function"
+        //     ? window.rudderanalytics[this.methodToCallbackMapping[methodName]]
+        //     : () => {}
+        //   : () => {};
+
+        // logger.debug("registerCallbacks", methodName, callback);
+
+        // this.on(methodName, callback);
       });
     }
 
@@ -1193,7 +1174,7 @@ class Analytics {
 const instance = new Analytics();
 
 function processDataInAnalyticsArray(analytics) {
-  if (analytics.toBeProcessedArray.length) {
+  if (analytics.toBeProcessedArray.length > 0) {
     while (analytics.toBeProcessedArray.length > 0) {
       const event = [...analytics.toBeProcessedArray[0]];
 
@@ -1255,7 +1236,7 @@ Emitter(instance);
 window.addEventListener(
   'error',
   (e) => {
-    handleError(e, instance);
+    handleError(e, undefined, instance);
   },
   true,
 );
@@ -1292,7 +1273,7 @@ parseQueryString(window.location.search);
 if (isValidArgsArray) argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
 
 // Process load method if present in the buffered requests
-if (defaultEvent && defaultEvent.length) {
+if (defaultEvent && defaultEvent.length > 0) {
   defaultEvent.shift();
   instance[defaultMethod](...defaultEvent);
 }
@@ -1307,6 +1288,7 @@ const reset = instance.reset.bind(instance);
 const load = instance.load.bind(instance);
 const initialized = (instance.initialized = true);
 const getUserId = instance.getUserId.bind(instance);
+const getSessionId = instance.getSessionId.bind(instance);
 const getUserTraits = instance.getUserTraits.bind(instance);
 const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
@@ -1326,6 +1308,7 @@ export {
   alias,
   group,
   getUserId,
+  getSessionId,
   getUserTraits,
   getAnonymousId,
   setAnonymousId,

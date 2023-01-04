@@ -1,3 +1,3 @@
-import Satismeter from "./browser";
+import Satismeter from './browser';
 
 export { Satismeter };

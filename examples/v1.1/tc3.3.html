@@ -13,38 +13,31 @@
       rudderanalytics = window.rudderanalytics = [];
 
       var methods = [
-        "load",
-        "page",
-        "track",
-        "identify",
-        "alias",
-        "group",
-        "ready",
-        "reset",
-        "getAnonymousId",
-        "setAnonymousId",
+        'load',
+        'page',
+        'track',
+        'identify',
+        'alias',
+        'group',
+        'ready',
+        'reset',
+        'getAnonymousId',
+        'setAnonymousId',
       ];
 
       for (var i = 0; i < methods.length; i++) {
         var method = methods[i];
         rudderanalytics[method] = (function (methodName) {
           return function () {
-            rudderanalytics.push(
-              [methodName].concat(Array.prototype.slice.call(arguments))
-            );
+            rudderanalytics.push([methodName].concat(Array.prototype.slice.call(arguments)));
           };
         })(method);
       }
 
-      rudderanalytics.load(
-        "1xXRrCtFweOR54PIyMRCLQfFjBN",
-        "http://localhost:8080/",
-        {
-          configUrl:
-            "https://api.dev.rudderlabs.com/sourceConfig/?p=web&v=1.1.18",
-          // destSDKBaseURL: "https://ddim5kcy73icz.cloudfront.net/v2/intg/", // need to provide destination sdk path
-        }
-      );
+      rudderanalytics.load('1xXRrCtFweOR54PIyMRCLQfFjBN', 'http://localhost:8080/', {
+        configUrl: 'https://api.dev.rudderlabs.com/sourceConfig/?p=web&v=1.1.18',
+        // destSDKBaseURL: "https://ddim5kcy73icz.cloudfront.net/v2/intg/", // need to provide destination sdk path
+      });
     </script>
 
     <!-- ============ Cuustomer's own CDN ============ -->
@@ -67,12 +60,8 @@
         text-align: center;
       "
     >
-      <h3>
-        Case 3: Customer downloaded all the sdks and uploaded in their own CDN
-      </h3>
-      <h3>
-        3.3: Core SDK file name remains same but integration SDKs re-located
-      </h3>
+      <h3>Case 3: Customer downloaded all the sdks and uploaded in their own CDN</h3>
+      <h3>3.3: Core SDK file name remains same but integration SDKs re-located</h3>
     </div>
     <div
       style="
@@ -91,10 +80,7 @@
         <b>Note:</b> Rudderstack's JS SDK CDN:
         https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js
       </p>
-      <p>
-        Rudderstack's destination SDKs url :
-        https://cdn.rudderlabs.com/v1.1/js-integration
-      </p>
+      <p>Rudderstack's destination SDKs url : https://cdn.rudderlabs.com/v1.1/js-integration</p>
       <p>
         Refer this link for more info:
         <a
@@ -123,35 +109,35 @@
 
     <script>
       function myFunction() {
-        document.getElementById("demo").innerHTML = "Hello World";
+        document.getElementById('demo').innerHTML = 'Hello World';
         rudderanalytics.page();
 
         rudderanalytics.identify(
-          "moumita123",
-          { email: "name@domain.com" },
+          'moumita123',
+          { email: 'name@domain.com' },
           {
             page: {
-              path: "",
-              referrer: "",
-              search: "",
-              title: "",
-              url: "",
+              path: '',
+              referrer: '',
+              search: '',
+              title: '',
+              url: '',
             },
           },
           () => {
-            console.log("in identify call");
-          }
+            console.log('in identify call');
+          },
         );
         rudderanalytics.track(
-          "test track event GA3",
+          'test track event GA3',
           {
             revenue: 30,
-            currency: "USD",
+            currency: 'USD',
             user_actual_id: 12345,
           },
           () => {
-            console.log("in track call");
-          }
+            console.log('in track call');
+          },
         );
       }
     </script>

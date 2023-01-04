@@ -69,11 +69,11 @@ jobs:
           echo "New version: $NEW_VERSION_VALUE"
           npx replace $CURRENT_VERSION_VALUE $NEW_VERSION_VALUE sonar-project.properties
           git add sonar-project.properties
-          npx standard-version -a
+          npx standard-version -a --skip.tag
 
-      - name: Push new version in release branch & tag
+      - name: Push new version in release branch
         run: |
-          git push --follow-tags
+          git push
 
       - name: Create pull request into production
         uses: repo-sync/pull-request@v2
@@ -82,5 +82,5 @@ jobs:
           destination_branch: 'production'
           github_token: ${{ secrets.PAT }}
           pr_title: 'chore(release): pulling ${{ steps.create-release.outputs.branch_name }} into production'
-          pr_body: ":crown: *An automated PR*"
-          pr_reviewer: 'bardisg'
+          pr_body: ':crown: *An automated PR*'
+          pr_reviewer: 'bardisg,MoumitaM,saikumarrs'

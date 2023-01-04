@@ -34,10 +34,7 @@ export function getDefaultConfig(distName) {
 
   return {
     watch: {
-      include: [
-        'src/**',
-        'packages/**',
-      ],
+      include: ['src/**', 'packages/**', 'examples/**'],
     },
     external: [],
     onwarn(warning, warn) {
@@ -94,18 +91,23 @@ export function getDefaultConfig(distName) {
       }),
       process.env.DEV_SERVER &&
         htmlTemplate({
-          template: 'examples/html/script-test.html',
+          template: process.env.EXAMPLE_PATH || 'examples/html/script-test.html',
           target: 'index.html',
           attrs: ['async', 'defer'],
           replaceVars: {
             __WRITE_KEY__: process.env.WRITE_KEY,
             __DATAPLANE_URL__: process.env.DATAPLANE_URL,
+            __CONFIG_SERVER_HOST__:
+              process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
+            __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
           },
         }),
       process.env.DEV_SERVER &&
         serve({
           open: true,
-          openPage: '/legacy/index.html',
+          openPage: `/${
+            process.env.BROWSERSLIST_ENV === 'modern' ? 'modern' : 'legacy'
+          }/index.html`,
           contentBase: ['dist'],
           host: 'localhost',
           port: 3001,

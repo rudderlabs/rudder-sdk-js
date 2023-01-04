@@ -2,12 +2,12 @@
 import { getHashFromArray } from '../../utils/commonUtils';
 
 const integrationContext = {
-  name: "Satismeter",
-  version: "1.0.0",
+  name: 'Satismeter',
+  version: '1.0.0',
 };
 
 // supported callback events
-const standardEventsList = ["display", "progress", "complete", "dismiss"];
+const standardEventsList = ['display', 'progress', 'complete', 'dismiss'];
 
 /**
  * This function is used to trigger a callback
@@ -15,16 +15,9 @@ const standardEventsList = ["display", "progress", "complete", "dismiss"];
  * @param {*} eventName standard event name
  * @param {*} updateEventNames boolean variable to change eventName
  */
-const triggerCallback = (
-  standardEventsMap,
-  eventName,
-  updateEventNames,
-  events
-) => {
+const triggerCallback = (standardEventsMap, eventName, updateEventNames, events) => {
   const updatedEvent =
-    standardEventsMap[eventName] && updateEventNames
-      ? standardEventsMap[eventName]
-      : eventName;
+    standardEventsMap[eventName] && updateEventNames ? standardEventsMap[eventName] : eventName;
   const updatedEvents = events;
   updatedEvents[eventName] = (event) => {
     window.rudderanalytics.track(`${updatedEvent}`, event, {
@@ -42,18 +35,13 @@ const triggerCallback = (
 const recordSatismeterEvents = (
   updateEventNames,
   userDefinedEventsList,
-  userDefinedEventsMapping
+  userDefinedEventsMapping,
 ) => {
   const standardEventsMap = getHashFromArray(userDefinedEventsMapping);
   let events = {};
   standardEventsList.forEach((eventName) => {
     if (userDefinedEventsList.includes(eventName)) {
-      events = triggerCallback(
-        standardEventsMap,
-        eventName,
-        updateEventNames,
-        events
-      );
+      events = triggerCallback(standardEventsMap, eventName, updateEventNames, events);
     }
   });
   window.satismeter({ events });

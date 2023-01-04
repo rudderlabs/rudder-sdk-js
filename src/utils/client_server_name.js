@@ -1,4 +1,4 @@
-import * as AdobeAnalytics from "../integrations/AdobeAnalytics/constants"
+import * as AdobeAnalytics from '../integrations/AdobeAnalytics/constants';
 
 // from client native integration name to server identified display name
 // add a mapping from Rudder identified key names to Rudder server recognizable names

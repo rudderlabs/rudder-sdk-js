@@ -30,15 +30,15 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version-file: '.nvmrc'
+          cache: 'npm'
 
-      - name: Build and sync files to S3
+      - name: Build files
         env:
           HUSKY: 0
         run: |
-          npm install
-          npm run prodTest && npm test
-          npm run buildProdBrowser
+          npm ci
+          npm run build:browser
 
       - name: Fix Bugsnag API key
         env:
@@ -54,7 +54,7 @@ jobs:
           aws s3 cp s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/v1/rudder-analytics.min.js.map s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/rudder-analytics.min.js.map --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/v1/rudder-analytics.min.js" "/v1/rudder-analytics.min.js.map" "/rudder-analytics.min.js" "/rudder-analytics.min.js.map"
 
-      - name: Get new version number
+      - name: Get new version number and date
         run: |
           current_version=$(jq -r .version package.json)
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
@@ -66,9 +66,9 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK v1 Browser Package'
-          CDN_URL: 'https://cdn.rudderlabs.com/v1.1/rudder-analytics.min.js'
+          CDN_URL: 'https://cdn.rudderlabs.com/v1/rudder-analytics.min.js'
         with:
-          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
+          channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
             {
               "blocks": [

@@ -69,6 +69,7 @@ declare module 'rudder-sdk-js' {
     queueOptions?: queueOptions;
     // Defaults to true
     loadIntegration?: boolean;
+    lockIntegrationsVersion?: boolean;
     // Defaults to false
     secureCookie?: boolean;
     // Defaults to "Lax" (see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite)
@@ -417,6 +418,11 @@ declare module 'rudder-sdk-js' {
    */
   function endSession(): void;
 
+  /**
+   * To fetch the current sessionId
+   */
+  function getSessionId(): number | null;
+
   export {
     integrationOptions,
     loadOptions,
@@ -441,5 +447,6 @@ declare module 'rudder-sdk-js' {
     getGroupTraits,
     startSession,
     endSession,
+    getSessionId,
   };
 }

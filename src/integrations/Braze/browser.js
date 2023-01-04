@@ -1,8 +1,8 @@
 /* eslint-disable class-methods-use-this */
 import { del } from 'obj-case';
-import cloneDeep from "lodash.clonedeep";
-import isEqual from "lodash.isequal";
-import Logger from "../../utils/logger";
+import cloneDeep from 'lodash.clonedeep';
+import isEqual from 'lodash.isequal';
+import Logger from '../../utils/logger';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { BrazeOperationString, NAME } from './constants';
 
@@ -148,12 +148,11 @@ class Braze {
    * @param {*} rudderElement
    */
   identify(rudderElement) {
-    logger.debug("in Braze identify");
+    logger.debug('in Braze identify');
     const { userId } = rudderElement.message;
     const { address } = rudderElement.message.context.traits;
     const birthday =
-      rudderElement.message.context.traits?.birthday ||
-      rudderElement.message.context.traits?.dob;
+      rudderElement.message.context.traits?.birthday || rudderElement.message.context.traits?.dob;
     const { email } = rudderElement.message.context.traits;
     const firstname =
       rudderElement.message.context.traits?.firstname ||
@@ -166,21 +165,21 @@ class Braze {
 
     // remove reserved keys https://www.appboy.com/documentation/Platform_Wide/#reserved-keys
     const reserved = [
-      "address",
-      "birthday",
-      "email",
-      "id",
-      "firstname",
-      "gender",
-      "lastname",
-      "phone",
-      "dob",
-      "external_id",
-      "country",
-      "home_city",
-      "bio",
-      "email_subscribe",
-      "push_subscribe",
+      'address',
+      'birthday',
+      'email',
+      'id',
+      'firstname',
+      'gender',
+      'lastname',
+      'phone',
+      'dob',
+      'external_id',
+      'country',
+      'home_city',
+      'bio',
+      'email_subscribe',
+      'push_subscribe',
     ];
     // function set Address
     function setAddress() {
@@ -194,7 +193,7 @@ class Braze {
         .setDateOfBirth(
           birthday.getUTCFullYear(),
           birthday.getUTCMonth() + 1,
-          birthday.getUTCDate()
+          birthday.getUTCDate(),
         );
     }
     // function set Email

@@ -1,4 +1,4 @@
-import * as AdobeAnalytics from "../integrations/AdobeAnalytics/constants";
+import * as AdobeAnalytics from '../integrations/AdobeAnalytics/constants';
 import { CNameMapping as Amplitude } from '../integrations/Amplitude/constants';
 import { CNameMapping as Appcues } from '../integrations/Appcues/constants';
 import { CNameMapping as BingAds } from '../integrations/BingAds/constants';
@@ -83,10 +83,10 @@ function getIntgCommonNames(intg) {
     // Add the sanitized display name
     cNamesMap[displayNameSanitized] = nameSanitized;
 
-    const words = displayNameSanitized.split(" ");
+    const words = displayNameSanitized.split(' ');
 
-    cNamesMap[words.join("_")] = nameSanitized;
-    cNamesMap[words.join("")] = nameSanitized;
+    cNamesMap[words.join('_')] = nameSanitized;
+    cNamesMap[words.join('')] = nameSanitized;
   }
 
   // add the hard-coded common names
@@ -179,7 +179,7 @@ const commonNames = {
   ...SatisMeter,
   ...MicrosoftClarity,
   ...getIntgCommonNames(AdobeAnalytics),
-  all: "All",
+  all: 'All',
 };
 
 export { commonNames };

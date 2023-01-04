@@ -176,7 +176,7 @@ const isDefinedNotNullNotEmpty = (value) => {
  * check type of object incoming in the rejectArr function
  * @param  {} val
  */
- function type(val) {
+function type(val) {
   switch (Object.prototype.toString.call(val)) {
     case '[object Function]':
       return 'function';
@@ -200,7 +200,7 @@ const isDefinedNotNullNotEmpty = (value) => {
 /**
  * To check if a variable is storing object or not
  */
- const isObject = (obj) => {
+const isObject = (obj) => {
   return type(obj) === 'object';
 };
 
@@ -253,7 +253,7 @@ var rejectobject = function (obj, fn) {
  * @param  {} obj
  * @param  {} fn
  */
- function rejectArr(obj, fn) {
+function rejectArr(obj, fn) {
   fn = fn || compact;
   return type(obj) == 'array' ? rejectarray(obj, fn) : rejectobject(obj, fn);
 }
@@ -264,7 +264,7 @@ var rejectobject = function (obj, fn) {
  *
  * Use get-value to retrieve defined traits from message traits
  */
- function getDefinedTraits(message) {
+function getDefinedTraits(message) {
   const traitsValue = {
     userId:
       get(message, 'userId') ||

@@ -13,7 +13,10 @@ import {
 } from './constants';
 import ScriptLoader from '../../utils/ScriptLoader';
 import logger from '../../utils/logUtil';
-import { getHashFromArrayWithDuplicate, removeUndefinedAndNullValues } from '../../utils/commonUtils';
+import {
+  getHashFromArrayWithDuplicate,
+  removeUndefinedAndNullValues,
+} from '../../utils/commonUtils';
 import { constructPayload } from '../../utils/utils';
 import { payloadBuilder, payloadBuilderInList } from './utils';
 

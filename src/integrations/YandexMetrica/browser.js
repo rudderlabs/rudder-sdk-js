@@ -1,7 +1,10 @@
 import logger from '../../utils/logUtil';
 
 import { ecommEventPayload, sendEvent, ecommerceEventMapping } from './utils';
-import { removeUndefinedAndNullValues, getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
+import {
+  removeUndefinedAndNullValues,
+  getHashFromArrayWithDuplicate,
+} from '../../utils/commonUtils';
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { getDefinedTraits } from '../../utils/commonUtils';
