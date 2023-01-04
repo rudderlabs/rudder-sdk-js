@@ -23,8 +23,8 @@ class Axeptio {
       clientId: this.clientId,
     };
     (function (d, s) {
-      var t = d.getElementsByTagName(s)[0],
-        e = d.createElement(s);
+      const t = d.getElementsByTagName(s)[0];
+        const e = d.createElement(s);
       e.async = true;
       e.src = '//static.axept.io/sdk.js';
       e.setAttribute('data-loader', LOAD_ORIGIN), t.parentNode.insertBefore(e, t);
@@ -52,10 +52,10 @@ class Axeptio {
   // this fucntion is used to record the triggered axeptio events through callback
   recordAxeptioEvents() {
     window._axcb = window._axcb || [];
-    window._axcb.push(function () {
+    window._axcb.push(() => {
       window.__axeptioSDK.on(
         'cookies:*',
-        function (payload, event) {
+        (payload, event) => {
           makeACall(event, payload);
         },
         // set to true to record the past events too that have been dispatched before the event handler is set

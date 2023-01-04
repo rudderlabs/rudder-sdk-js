@@ -16,18 +16,14 @@ const setDynamicKeys = (dk) => {
   dynamicKeys = dk;
 };
 
-const getDynamicKeys = () => {
-  return dynamicKeys;
-};
+const getDynamicKeys = () => dynamicKeys;
 
 let config;
 const setConfig = (c) => {
   config = c;
 };
 
-const getConfig = () => {
-  return config;
-};
+const getConfig = () => config;
 
 const topLevelProperties = ['messageId', 'anonymousId', 'event'];
 
@@ -403,9 +399,7 @@ const setEventsString = (event, properties, adobeEventName) => {
   let adobeEventArray = adobeEventName ? adobeEventName.split(',') : [];
   const merchMap = mapMerchEvents(event, properties);
   adobeEventArray = adobeEventArray.concat(merchMap);
-  adobeEventArray = adobeEventArray.filter((item) => {
-    return !!item;
-  });
+  adobeEventArray = adobeEventArray.filter((item) => !!item);
 
   const productMerchEventToAdobeEventHashmap = getHashFromArray(
     config.productMerchEventToAdobeEvent,

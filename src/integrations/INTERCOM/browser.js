@@ -30,7 +30,7 @@ class INTERCOM {
         ic('update', w.intercomSettings);
       } else {
         const d = document;
-        var i = function () {
+        const i = function () {
           i.c(arguments);
         };
         i.q = [];

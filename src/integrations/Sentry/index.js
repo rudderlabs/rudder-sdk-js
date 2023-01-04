@@ -1,3 +1,5 @@
-import Sentry from './browser';
 
-export { Sentry };
+
+
+
+export {default as Sentry} from './browser';

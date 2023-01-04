@@ -57,9 +57,9 @@ class Adroll {
       if (userId) {
         properties.user_id = userId;
       }
-      if (PRODUCT_EVENTS.indexOf(event.toLowerCase()) !== -1) {
+      if (PRODUCT_EVENTS.includes(event.toLowerCase())) {
         data = productEvent(properties);
-      } else if (ORDER_EVENTS.indexOf(event.toLowerCase()) !== -1) {
+      } else if (ORDER_EVENTS.includes(event.toLowerCase())) {
         data = orderEvent(properties);
       } else {
         if (properties.revenue) {

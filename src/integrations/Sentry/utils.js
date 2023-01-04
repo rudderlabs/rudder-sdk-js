@@ -4,11 +4,9 @@ import logger from '../../utils/logUtil';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 
-const convertObjectToArray = (objectInput, propertyName) => {
-  return objectInput
+const convertObjectToArray = (objectInput, propertyName) => objectInput
     .map((objectItem) => objectItem[propertyName])
     .filter((e) => isDefinedAndNotNullAndNotEmpty(e));
-};
 
 const SentryScriptLoader = (id, src, integrity) => {
   logger.debug(`in script loader=== ${id}`);
@@ -59,7 +57,7 @@ const sentryInit = (
 
   if (formattedIncludePaths.length > 0) {
     // eslint-disable-next-line func-names
-    includePaths = formattedIncludePaths.map(function (path) {
+    includePaths = formattedIncludePaths.map((path) => {
       let regex;
       try {
         regex = new RegExp(path);

@@ -4,7 +4,7 @@
 // Several foreground scripts can be declared
 // and injected into the same or different pages.
 (() => {
-  //======================== npm package code ==========================================
+  //= ======================= npm package code ==========================================
   (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined'
       ? factory(exports)
@@ -12,18 +12,16 @@
       ? define(['exports'], factory)
       : ((global = typeof globalThis !== 'undefined' ? globalThis : global || self),
         factory((global.rudderanalytics = {})));
-  })(this, function (exports) {
-    'use strict';
+  })(this, (exports) => {
+    
 
     function ownKeys(object, enumerableOnly) {
-      var keys = Object.keys(object);
+      const keys = Object.keys(object);
 
       if (Object.getOwnPropertySymbols) {
-        var symbols = Object.getOwnPropertySymbols(object);
+        let symbols = Object.getOwnPropertySymbols(object);
         enumerableOnly &&
-          (symbols = symbols.filter(function (sym) {
-            return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-          })),
+          (symbols = symbols.filter((sym) => Object.getOwnPropertyDescriptor(object, sym).enumerable)),
           keys.push.apply(keys, symbols);
       }
 
@@ -31,15 +29,15 @@
     }
 
     function _objectSpread2(target) {
-      for (var i = 1; i < arguments.length; i++) {
-        var source = null != arguments[i] ? arguments[i] : {};
+      for (let i = 1; i < arguments.length; i++) {
+        var source = arguments[i] != null ? arguments[i] : {};
         i % 2
-          ? ownKeys(Object(source), !0).forEach(function (key) {
+          ? ownKeys(Object(source), !0).forEach((key) => {
               _defineProperty(target, key, source[key]);
             })
           : Object.getOwnPropertyDescriptors
           ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source))
-          : ownKeys(Object(source)).forEach(function (key) {
+          : ownKeys(Object(source)).forEach((key) => {
               Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
             });
       }
@@ -52,13 +50,13 @@
 
       return (
         (_typeof =
-          'function' == typeof Symbol && 'symbol' == typeof Symbol.iterator
+          typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol'
             ? function (obj) {
                 return typeof obj;
               }
             : function (obj) {
                 return obj &&
-                  'function' == typeof Symbol &&
+                  typeof Symbol === 'function' &&
                   obj.constructor === Symbol &&
                   obj !== Symbol.prototype
                   ? 'symbol'
@@ -75,8 +73,7 @@
     }
 
     function _defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
+      for (const descriptor of props) {
         descriptor.enumerable = descriptor.enumerable || false;
         descriptor.configurable = true;
         if ('value' in descriptor) descriptor.writable = true;
@@ -96,7 +93,7 @@
     function _defineProperty(obj, key, value) {
       if (key in obj) {
         Object.defineProperty(obj, key, {
-          value: value,
+          value,
           enumerable: true,
           configurable: true,
           writable: true,
@@ -112,10 +109,10 @@
       _extends = Object.assign
         ? Object.assign.bind()
         : function (target) {
-            for (var i = 1; i < arguments.length; i++) {
-              var source = arguments[i];
+            for (let i = 1; i < arguments.length; i++) {
+              const source = arguments[i];
 
-              for (var key in source) {
+              for (const key in source) {
                 if (Object.prototype.hasOwnProperty.call(source, key)) {
                   target[key] = source[key];
                 }
@@ -151,7 +148,7 @@
     function _unsupportedIterableToArray(o, minLen) {
       if (!o) return;
       if (typeof o === 'string') return _arrayLikeToArray(o, minLen);
-      var n = Object.prototype.toString.call(o).slice(8, -1);
+      let n = Object.prototype.toString.call(o).slice(8, -1);
       if (n === 'Object' && o.constructor) n = o.constructor.name;
       if (n === 'Map' || n === 'Set') return Array.from(o);
       if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n))
@@ -172,7 +169,7 @@
       );
     }
 
-    var commonjsGlobal =
+    const commonjsGlobal =
       typeof globalThis !== 'undefined'
         ? globalThis
         : typeof window !== 'undefined'
@@ -184,16 +181,16 @@
         : {};
 
     function getAugmentedNamespace(n) {
-      var f = n.default;
-      if (typeof f == 'function') {
+      const f = n.default;
+      if (typeof f === 'function') {
         var a = function () {
           return f.apply(this, arguments);
         };
         a.prototype = f.prototype;
       } else a = {};
       Object.defineProperty(a, '__esModule', { value: true });
-      Object.keys(n).forEach(function (k) {
-        var d = Object.getOwnPropertyDescriptor(n, k);
+      Object.keys(n).forEach((k) => {
+        const d = Object.getOwnPropertyDescriptor(n, k);
         Object.defineProperty(
           a,
           k,
@@ -201,7 +198,7 @@
             ? d
             : {
                 enumerable: true,
-                get: function () {
+                get () {
                   return n[k];
                 },
               },
@@ -210,7 +207,7 @@
       return a;
     }
 
-    var componentEmitter = { exports: {} };
+    const componentEmitter = { exports: {} };
 
     (function (module) {
       /**
@@ -239,7 +236,7 @@
        */
 
       function mixin(obj) {
-        for (var key in Emitter.prototype) {
+        for (const key in Emitter.prototype) {
           obj[key] = Emitter.prototype[key];
         }
 
@@ -257,7 +254,7 @@
 
       Emitter.prototype.on = Emitter.prototype.addEventListener = function (event, fn) {
         this._callbacks = this._callbacks || {};
-        (this._callbacks['$' + event] = this._callbacks['$' + event] || []).push(fn);
+        (this._callbacks[`$${  event}`] = this._callbacks[`$${  event}`] || []).push(fn);
         return this;
       };
       /**
@@ -297,22 +294,22 @@
           function (event, fn) {
             this._callbacks = this._callbacks || {}; // all
 
-            if (0 == arguments.length) {
+            if (arguments.length === 0) {
               this._callbacks = {};
               return this;
             } // specific event
 
-            var callbacks = this._callbacks['$' + event];
+            const callbacks = this._callbacks[`$${  event}`];
             if (!callbacks) return this; // remove all handlers
 
-            if (1 == arguments.length) {
-              delete this._callbacks['$' + event];
+            if (arguments.length == 1) {
+              delete this._callbacks[`$${  event}`];
               return this;
             } // remove specific handler
 
-            var cb;
+            let cb;
 
-            for (var i = 0; i < callbacks.length; i++) {
+            for (let i = 0; i < callbacks.length; i++) {
               cb = callbacks[i];
 
               if (cb === fn || cb.fn === fn) {
@@ -323,7 +320,7 @@
             // one is subscribed for to avoid memory leak.
 
             if (callbacks.length === 0) {
-              delete this._callbacks['$' + event];
+              delete this._callbacks[`$${  event}`];
             }
 
             return this;
@@ -338,8 +335,8 @@
 
       Emitter.prototype.emit = function (event) {
         this._callbacks = this._callbacks || {};
-        var args = new Array(arguments.length - 1),
-          callbacks = this._callbacks['$' + event];
+        const args = new Array(arguments.length - 1);
+          let callbacks = this._callbacks[`$${  event}`];
 
         for (var i = 1; i < arguments.length; i++) {
           args[i - 1] = arguments[i];
@@ -365,7 +362,7 @@
 
       Emitter.prototype.listeners = function (event) {
         this._callbacks = this._callbacks || {};
-        return this._callbacks['$' + event] || [];
+        return this._callbacks[`$${  event}`] || [];
       };
       /**
        * Check if this emitter has `event` handlers.
@@ -376,13 +373,13 @@
        */
 
       Emitter.prototype.hasListeners = function (event) {
-        return !!this.listeners(event).length;
+        return this.listeners(event).length > 0;
       };
     })(componentEmitter);
 
-    var Emitter$1 = componentEmitter.exports;
+    const Emitter$1 = componentEmitter.exports;
 
-    var trim$2 = { exports: {} };
+    const trim$2 = { exports: {} };
 
     (function (module, exports) {
       exports = module.exports = trim;
@@ -394,13 +391,13 @@
 
       exports.left = function (str) {
         if (str.trimLeft) return str.trimLeft();
-        return str.replace(/^\s\s*/, '');
+        return str.replace(/^\s+/, '');
       };
 
       exports.right = function (str) {
         if (str.trimRight) return str.trimRight();
-        var whitespace_pattern = /\s/,
-          i = str.length;
+        const whitespace_pattern = /\s/;
+          let i = str.length;
 
         while (whitespace_pattern.test(str.charAt(--i))) {}
 
@@ -412,8 +409,8 @@
      * Module dependencies.
      */
 
-    var trim$1 = trim$2.exports;
-    var pattern = /(\w+)\[(\d+)\]/;
+    const trim$1 = trim$2.exports;
+    const pattern = /(\w+)\[(\d+)]/;
     /**
      * Safely decode the string
      *
@@ -422,7 +419,7 @@
      * @api private
      */
 
-    var decode$3 = function decode(str) {
+    const decode$3 = function decode(str) {
       try {
         return decodeURIComponent(str.replace(/\+/g, ' '));
       } catch (e) {
@@ -437,17 +434,17 @@
      * @api public
      */
 
-    var parse$6 = function (str) {
-      if ('string' != typeof str) return {};
+    const parse$6 = function (str) {
+      if (typeof str !== 'string') return {};
       str = trim$1(str);
-      if ('' == str) return {};
-      if ('?' == str.charAt(0)) str = str.slice(1);
-      var obj = {};
-      var pairs = str.split('&');
+      if (str == '') return {};
+      if (str.charAt(0) == '?') str = str.slice(1);
+      const obj = {};
+      const pairs = str.split('&');
 
-      for (var i = 0; i < pairs.length; i++) {
-        var parts = pairs[i].split('=');
-        var key = decode$3(parts[0]);
+      for (const pair of pairs) {
+        const parts = pair.split('=');
+        const key = decode$3(parts[0]);
         var m;
 
         if ((m = pattern.exec(key))) {
@@ -456,73 +453,73 @@
           continue;
         }
 
-        obj[parts[0]] = null == parts[1] ? '' : decode$3(parts[1]);
+        obj[parts[0]] = parts[1] == null ? '' : decode$3(parts[1]);
       }
 
       return obj;
     };
 
-    var lodash_merge = { exports: {} };
+    const lodash_merge = { exports: {} };
 
     (function (module, exports) {
       /** Used as the size to enable large array optimizations. */
-      var LARGE_ARRAY_SIZE = 200;
+      const LARGE_ARRAY_SIZE = 200;
       /** Used to stand-in for `undefined` hash values. */
 
-      var HASH_UNDEFINED = '__lodash_hash_undefined__';
+      const HASH_UNDEFINED = '__lodash_hash_undefined__';
       /** Used to detect hot functions by number of calls within a span of milliseconds. */
 
-      var HOT_COUNT = 800,
-        HOT_SPAN = 16;
+      const HOT_COUNT = 800;
+        const HOT_SPAN = 16;
       /** Used as references for various `Number` constants. */
 
-      var MAX_SAFE_INTEGER = 9007199254740991;
+      const MAX_SAFE_INTEGER = 9007199254740991;
       /** `Object#toString` result references. */
 
-      var argsTag = '[object Arguments]',
-        arrayTag = '[object Array]',
-        asyncTag = '[object AsyncFunction]',
-        boolTag = '[object Boolean]',
-        dateTag = '[object Date]',
-        errorTag = '[object Error]',
-        funcTag = '[object Function]',
-        genTag = '[object GeneratorFunction]',
-        mapTag = '[object Map]',
-        numberTag = '[object Number]',
-        nullTag = '[object Null]',
-        objectTag = '[object Object]',
-        proxyTag = '[object Proxy]',
-        regexpTag = '[object RegExp]',
-        setTag = '[object Set]',
-        stringTag = '[object String]',
-        undefinedTag = '[object Undefined]',
-        weakMapTag = '[object WeakMap]';
-      var arrayBufferTag = '[object ArrayBuffer]',
-        dataViewTag = '[object DataView]',
-        float32Tag = '[object Float32Array]',
-        float64Tag = '[object Float64Array]',
-        int8Tag = '[object Int8Array]',
-        int16Tag = '[object Int16Array]',
-        int32Tag = '[object Int32Array]',
-        uint8Tag = '[object Uint8Array]',
-        uint8ClampedTag = '[object Uint8ClampedArray]',
-        uint16Tag = '[object Uint16Array]',
-        uint32Tag = '[object Uint32Array]';
+      const argsTag = '[object Arguments]';
+        const arrayTag = '[object Array]';
+        const asyncTag = '[object AsyncFunction]';
+        const boolTag = '[object Boolean]';
+        const dateTag = '[object Date]';
+        const errorTag = '[object Error]';
+        const funcTag = '[object Function]';
+        const genTag = '[object GeneratorFunction]';
+        const mapTag = '[object Map]';
+        const numberTag = '[object Number]';
+        const nullTag = '[object Null]';
+        const objectTag = '[object Object]';
+        const proxyTag = '[object Proxy]';
+        const regexpTag = '[object RegExp]';
+        const setTag = '[object Set]';
+        const stringTag = '[object String]';
+        const undefinedTag = '[object Undefined]';
+        const weakMapTag = '[object WeakMap]';
+      const arrayBufferTag = '[object ArrayBuffer]';
+        const dataViewTag = '[object DataView]';
+        const float32Tag = '[object Float32Array]';
+        const float64Tag = '[object Float64Array]';
+        const int8Tag = '[object Int8Array]';
+        const int16Tag = '[object Int16Array]';
+        const int32Tag = '[object Int32Array]';
+        const uint8Tag = '[object Uint8Array]';
+        const uint8ClampedTag = '[object Uint8ClampedArray]';
+        const uint16Tag = '[object Uint16Array]';
+        const uint32Tag = '[object Uint32Array]';
       /**
        * Used to match `RegExp`
        * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
        */
 
-      var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+      const reRegExpChar = /[$()*+.?[\\\]^{|}]/g;
       /** Used to detect host constructors (Safari). */
 
-      var reIsHostCtor = /^\[object .+?Constructor\]$/;
+      const reIsHostCtor = /^\[object .+?Constructor]$/;
       /** Used to detect unsigned integer values. */
 
-      var reIsUint = /^(?:0|[1-9]\d*)$/;
+      const reIsUint = /^(?:0|[1-9]\d*)$/;
       /** Used to identify `toStringTag` values of typed arrays. */
 
-      var typedArrayTags = {};
+      const typedArrayTags = {};
       typedArrayTags[float32Tag] =
         typedArrayTags[float64Tag] =
         typedArrayTags[int8Tag] =
@@ -551,39 +548,39 @@
           false;
       /** Detect free variable `global` from Node.js. */
 
-      var freeGlobal =
+      const freeGlobal =
         _typeof(commonjsGlobal) == 'object' &&
         commonjsGlobal &&
         commonjsGlobal.Object === Object &&
         commonjsGlobal;
       /** Detect free variable `self`. */
 
-      var freeSelf =
+      const freeSelf =
         (typeof self === 'undefined' ? 'undefined' : _typeof(self)) == 'object' &&
         self &&
         self.Object === Object &&
         self;
       /** Used as a reference to the global object. */
 
-      var root = freeGlobal || freeSelf || Function('return this')();
+      const root = freeGlobal || freeSelf || Function('return this')();
       /** Detect free variable `exports`. */
 
-      var freeExports = exports && !exports.nodeType && exports;
+      const freeExports = exports && !exports.nodeType && exports;
       /** Detect free variable `module`. */
 
-      var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
+      const freeModule = freeExports && 'object' === 'object' && module && !module.nodeType && module;
       /** Detect the popular CommonJS extension `module.exports`. */
 
-      var moduleExports = freeModule && freeModule.exports === freeExports;
+      const moduleExports = freeModule && freeModule.exports === freeExports;
       /** Detect free variable `process` from Node.js. */
 
-      var freeProcess = moduleExports && freeGlobal.process;
+      const freeProcess = moduleExports && freeGlobal.process;
       /** Used to access faster Node.js helpers. */
 
-      var nodeUtil = (function () {
+      const nodeUtil = (function () {
         try {
           // Use `util.types` for Node.js 10+.
-          var types = freeModule && freeModule.require && freeModule.require('util').types;
+          const types = freeModule && freeModule.require && freeModule.require('util').types;
 
           if (types) {
             return types;
@@ -594,7 +591,7 @@
       })();
       /* Node.js helper references. */
 
-      var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
+      const nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
 
       /**
        * A faster alternative to `Function#apply`, this function invokes `func`
@@ -636,8 +633,8 @@
        */
 
       function baseTimes(n, iteratee) {
-        var index = -1,
-          result = Array(n);
+        let index = -1;
+          const result = Array(n);
 
         while (++index < n) {
           result[index] = iteratee(index);
@@ -690,23 +687,23 @@
 
       /** Used for built-in method references. */
 
-      var arrayProto = Array.prototype,
-        funcProto = Function.prototype,
-        objectProto = Object.prototype;
+      const arrayProto = Array.prototype;
+        const funcProto = Function.prototype;
+        const objectProto = Object.prototype;
       /** Used to detect overreaching core-js shims. */
 
-      var coreJsData = root['__core-js_shared__'];
+      const coreJsData = root['__core-js_shared__'];
       /** Used to resolve the decompiled source of functions. */
 
-      var funcToString = funcProto.toString;
+      const funcToString = funcProto.toString;
       /** Used to check objects for own properties. */
 
-      var hasOwnProperty = objectProto.hasOwnProperty;
+      const {hasOwnProperty} = objectProto;
       /** Used to detect methods masquerading as native. */
 
-      var maskSrcKey = (function () {
-        var uid = /[^.]+$/.exec((coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO) || '');
-        return uid ? 'Symbol(src)_1.' + uid : '';
+      const maskSrcKey = (function () {
+        const uid = /[^.]+$/.exec((coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO) || '');
+        return uid ? `Symbol(src)_1.${  uid}` : '';
       })();
       /**
        * Used to resolve the
@@ -714,48 +711,48 @@
        * of values.
        */
 
-      var nativeObjectToString = objectProto.toString;
+      const nativeObjectToString = objectProto.toString;
       /** Used to infer the `Object` constructor. */
 
-      var objectCtorString = funcToString.call(Object);
+      const objectCtorString = funcToString.call(Object);
       /** Used to detect if a method is native. */
 
-      var reIsNative = RegExp(
-        '^' +
+      const reIsNative = RegExp(
+        `^${ 
           funcToString
             .call(hasOwnProperty)
             .replace(reRegExpChar, '\\$&')
-            .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') +
-          '$',
+            .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\])/g, '$1.*?') 
+          }$`,
       );
       /** Built-in value references. */
 
-      var Buffer = moduleExports ? root.Buffer : undefined,
-        _Symbol = root.Symbol,
-        Uint8Array = root.Uint8Array,
-        allocUnsafe = Buffer ? Buffer.allocUnsafe : undefined,
-        getPrototype = overArg(Object.getPrototypeOf, Object),
-        objectCreate = Object.create,
-        propertyIsEnumerable = objectProto.propertyIsEnumerable,
-        splice = arrayProto.splice,
-        symToStringTag = _Symbol ? _Symbol.toStringTag : undefined;
+      const Buffer = moduleExports ? root.Buffer : undefined;
+        const _Symbol = root.Symbol;
+        const {Uint8Array} = root;
+        const allocUnsafe = Buffer ? Buffer.allocUnsafe : undefined;
+        const getPrototype = overArg(Object.getPrototypeOf, Object);
+        const objectCreate = Object.create;
+        const {propertyIsEnumerable} = objectProto;
+        const {splice} = arrayProto;
+        const symToStringTag = _Symbol ? _Symbol.toStringTag : undefined;
 
-      var defineProperty = (function () {
+      const defineProperty = (function () {
         try {
-          var func = getNative(Object, 'defineProperty');
+          const func = getNative(Object, 'defineProperty');
           func({}, '', {});
           return func;
         } catch (e) {}
       })();
       /* Built-in method references for those with the same name as other `lodash` methods. */
 
-      var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined,
-        nativeMax = Math.max,
-        nativeNow = Date.now;
+      const nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
+        const nativeMax = Math.max;
+        const nativeNow = Date.now;
       /* Built-in method references that are verified to be native. */
 
-      var Map = getNative(root, 'Map'),
-        nativeCreate = getNative(Object, 'create');
+      const Map = getNative(root, 'Map');
+        const nativeCreate = getNative(Object, 'create');
       /**
        * The base implementation of `_.create` without support for assigning
        * properties to the created object.
@@ -765,7 +762,7 @@
        * @returns {Object} Returns the new object.
        */
 
-      var baseCreate = (function () {
+      const baseCreate = (function () {
         function object() {}
 
         return function (proto) {
@@ -778,7 +775,7 @@
           }
 
           object.prototype = proto;
-          var result = new object();
+          const result = new object();
           object.prototype = undefined;
           return result;
         };
@@ -793,12 +790,12 @@
        */
 
       function Hash(entries) {
-        var index = -1,
-          length = entries == null ? 0 : entries.length;
+        let index = -1;
+          const length = entries == null ? 0 : entries.length;
         this.clear();
 
         while (++index < length) {
-          var entry = entries[index];
+          const entry = entries[index];
           this.set(entry[0], entry[1]);
         }
       }
@@ -828,7 +825,7 @@
        */
 
       function hashDelete(key) {
-        var result = this.has(key) && delete this.__data__[key];
+        const result = this.has(key) && delete this.__data__[key];
         this.size -= result ? 1 : 0;
         return result;
       }
@@ -844,10 +841,10 @@
        */
 
       function hashGet(key) {
-        var data = this.__data__;
+        const data = this.__data__;
 
         if (nativeCreate) {
-          var result = data[key];
+          const result = data[key];
           return result === HASH_UNDEFINED ? undefined : result;
         }
 
@@ -865,7 +862,7 @@
        */
 
       function hashHas(key) {
-        var data = this.__data__;
+        const data = this.__data__;
         return nativeCreate ? data[key] !== undefined : hasOwnProperty.call(data, key);
       }
 
@@ -881,14 +878,14 @@
        */
 
       function hashSet(key, value) {
-        var data = this.__data__;
+        const data = this.__data__;
         this.size += this.has(key) ? 0 : 1;
         data[key] = nativeCreate && value === undefined ? HASH_UNDEFINED : value;
         return this;
       } // Add methods to `Hash`.
 
       Hash.prototype.clear = hashClear;
-      Hash.prototype['delete'] = hashDelete;
+      Hash.prototype.delete = hashDelete;
       Hash.prototype.get = hashGet;
       Hash.prototype.has = hashHas;
       Hash.prototype.set = hashSet;
@@ -902,12 +899,12 @@
        */
 
       function ListCache(entries) {
-        var index = -1,
-          length = entries == null ? 0 : entries.length;
+        let index = -1;
+          const length = entries == null ? 0 : entries.length;
         this.clear();
 
         while (++index < length) {
-          var entry = entries[index];
+          const entry = entries[index];
           this.set(entry[0], entry[1]);
         }
       }
@@ -936,14 +933,14 @@
        */
 
       function listCacheDelete(key) {
-        var data = this.__data__,
-          index = assocIndexOf(data, key);
+        const data = this.__data__;
+          const index = assocIndexOf(data, key);
 
         if (index < 0) {
           return false;
         }
 
-        var lastIndex = data.length - 1;
+        const lastIndex = data.length - 1;
 
         if (index == lastIndex) {
           data.pop();
@@ -966,8 +963,8 @@
        */
 
       function listCacheGet(key) {
-        var data = this.__data__,
-          index = assocIndexOf(data, key);
+        const data = this.__data__;
+          const index = assocIndexOf(data, key);
         return index < 0 ? undefined : data[index][1];
       }
 
@@ -997,8 +994,8 @@
        */
 
       function listCacheSet(key, value) {
-        var data = this.__data__,
-          index = assocIndexOf(data, key);
+        const data = this.__data__;
+          const index = assocIndexOf(data, key);
 
         if (index < 0) {
           ++this.size;
@@ -1011,7 +1008,7 @@
       } // Add methods to `ListCache`.
 
       ListCache.prototype.clear = listCacheClear;
-      ListCache.prototype['delete'] = listCacheDelete;
+      ListCache.prototype.delete = listCacheDelete;
       ListCache.prototype.get = listCacheGet;
       ListCache.prototype.has = listCacheHas;
       ListCache.prototype.set = listCacheSet;
@@ -1025,12 +1022,12 @@
        */
 
       function MapCache(entries) {
-        var index = -1,
-          length = entries == null ? 0 : entries.length;
+        let index = -1;
+          const length = entries == null ? 0 : entries.length;
         this.clear();
 
         while (++index < length) {
-          var entry = entries[index];
+          const entry = entries[index];
           this.set(entry[0], entry[1]);
         }
       }
@@ -1063,7 +1060,7 @@
        */
 
       function mapCacheDelete(key) {
-        var result = getMapData(this, key)['delete'](key);
+        const result = getMapData(this, key).delete(key);
         this.size -= result ? 1 : 0;
         return result;
       }
@@ -1108,15 +1105,15 @@
        */
 
       function mapCacheSet(key, value) {
-        var data = getMapData(this, key),
-          size = data.size;
+        const data = getMapData(this, key);
+          const {size} = data;
         data.set(key, value);
         this.size += data.size == size ? 0 : 1;
         return this;
       } // Add methods to `MapCache`.
 
       MapCache.prototype.clear = mapCacheClear;
-      MapCache.prototype['delete'] = mapCacheDelete;
+      MapCache.prototype.delete = mapCacheDelete;
       MapCache.prototype.get = mapCacheGet;
       MapCache.prototype.has = mapCacheHas;
       MapCache.prototype.set = mapCacheSet;
@@ -1130,7 +1127,7 @@
        */
 
       function Stack(entries) {
-        var data = (this.__data__ = new ListCache(entries));
+        const data = (this.__data__ = new ListCache(entries));
         this.size = data.size;
       }
 
@@ -1158,8 +1155,8 @@
        */
 
       function stackDelete(key) {
-        var data = this.__data__,
-          result = data['delete'](key);
+        const data = this.__data__;
+          const result = data.delete(key);
         this.size = data.size;
         return result;
       }
@@ -1204,10 +1201,10 @@
        */
 
       function stackSet(key, value) {
-        var data = this.__data__;
+        let data = this.__data__;
 
         if (data instanceof ListCache) {
-          var pairs = data.__data__;
+          const pairs = data.__data__;
 
           if (!Map || pairs.length < LARGE_ARRAY_SIZE - 1) {
             pairs.push([key, value]);
@@ -1224,7 +1221,7 @@
       } // Add methods to `Stack`.
 
       Stack.prototype.clear = stackClear;
-      Stack.prototype['delete'] = stackDelete;
+      Stack.prototype.delete = stackDelete;
       Stack.prototype.get = stackGet;
       Stack.prototype.has = stackHas;
       Stack.prototype.set = stackSet;
@@ -1239,15 +1236,15 @@
        */
 
       function arrayLikeKeys(value, inherited) {
-        var isArr = isArray(value),
-          isArg = !isArr && isArguments(value),
-          isBuff = !isArr && !isArg && isBuffer(value),
-          isType = !isArr && !isArg && !isBuff && isTypedArray(value),
-          skipIndexes = isArr || isArg || isBuff || isType,
-          result = skipIndexes ? baseTimes(value.length, String) : [],
-          length = result.length;
+        const isArr = isArray(value);
+          const isArg = !isArr && isArguments(value);
+          const isBuff = !isArr && !isArg && isBuffer(value);
+          const isType = !isArr && !isArg && !isBuff && isTypedArray(value);
+          const skipIndexes = isArr || isArg || isBuff || isType;
+          const result = skipIndexes ? baseTimes(value.length, String) : [];
+          const {length} = result;
 
-        for (var key in value) {
+        for (const key in value) {
           if (
             (inherited || hasOwnProperty.call(value, key)) &&
             !(
@@ -1296,7 +1293,7 @@
        */
 
       function assignValue(object, key, value) {
-        var objValue = object[key];
+        const objValue = object[key];
 
         if (
           !(hasOwnProperty.call(object, key) && eq(objValue, value)) ||
@@ -1316,7 +1313,7 @@
        */
 
       function assocIndexOf(array, key) {
-        var length = array.length;
+        let {length} = array;
 
         while (length--) {
           if (eq(array[length][0], key)) {
@@ -1342,7 +1339,7 @@
           defineProperty(object, key, {
             configurable: true,
             enumerable: true,
-            value: value,
+            value,
             writable: true,
           });
         } else {
@@ -1362,7 +1359,7 @@
        * @returns {Object} Returns `object`.
        */
 
-      var baseFor = createBaseFor();
+      const baseFor = createBaseFor();
 
       /**
        * The base implementation of `getTag` without fallbacks for buggy environments.
@@ -1408,7 +1405,7 @@
           return false;
         }
 
-        var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
+        const pattern = isFunction(value) ? reIsNative : reIsHostCtor;
         return pattern.test(toSource(value));
       }
 
@@ -1437,10 +1434,10 @@
           return nativeKeysIn(object);
         }
 
-        var isProto = isPrototype(object),
-          result = [];
+        const isProto = isPrototype(object);
+          const result = [];
 
-        for (var key in object) {
+        for (const key in object) {
           if (!(key == 'constructor' && (isProto || !hasOwnProperty.call(object, key)))) {
             result.push(key);
           }
@@ -1468,14 +1465,14 @@
 
         baseFor(
           source,
-          function (srcValue, key) {
+          (srcValue, key) => {
             stack || (stack = new Stack());
 
             if (isObject(srcValue)) {
               baseMergeDeep(object, source, key, srcIndex, baseMerge, customizer, stack);
             } else {
-              var newValue = customizer
-                ? customizer(safeGet(object, key), srcValue, key + '', object, source, stack)
+              let newValue = customizer
+                ? customizer(safeGet(object, key), srcValue, `${key  }`, object, source, stack)
                 : undefined;
 
               if (newValue === undefined) {
@@ -1506,24 +1503,24 @@
        */
 
       function baseMergeDeep(object, source, key, srcIndex, mergeFunc, customizer, stack) {
-        var objValue = safeGet(object, key),
-          srcValue = safeGet(source, key),
-          stacked = stack.get(srcValue);
+        const objValue = safeGet(object, key);
+          const srcValue = safeGet(source, key);
+          const stacked = stack.get(srcValue);
 
         if (stacked) {
           assignMergeValue(object, key, stacked);
           return;
         }
 
-        var newValue = customizer
-          ? customizer(objValue, srcValue, key + '', object, source, stack)
+        let newValue = customizer
+          ? customizer(objValue, srcValue, `${key  }`, object, source, stack)
           : undefined;
-        var isCommon = newValue === undefined;
+        let isCommon = newValue === undefined;
 
         if (isCommon) {
-          var isArr = isArray(srcValue),
-            isBuff = !isArr && isBuffer(srcValue),
-            isTyped = !isArr && !isBuff && isTypedArray(srcValue);
+          const isArr = isArray(srcValue);
+            const isBuff = !isArr && isBuffer(srcValue);
+            const isTyped = !isArr && !isBuff && isTypedArray(srcValue);
           newValue = srcValue;
 
           if (isArr || isBuff || isTyped) {
@@ -1557,7 +1554,7 @@
           // Recursively merge objects and arrays (susceptible to call stack limits).
           stack.set(srcValue, newValue);
           mergeFunc(newValue, srcValue, srcIndex, customizer, stack);
-          stack['delete'](srcValue);
+          stack.delete(srcValue);
         }
 
         assignMergeValue(object, key, newValue);
@@ -1573,7 +1570,7 @@
        */
 
       function baseRest(func, start) {
-        return setToString(overRest(func, start, identity), func + '');
+        return setToString(overRest(func, start, identity), `${func  }`);
       }
 
       /**
@@ -1585,7 +1582,7 @@
        * @returns {Function} Returns `func`.
        */
 
-      var baseSetToString = !defineProperty
+      const baseSetToString = !defineProperty
         ? identity
         : function (func, string) {
             return defineProperty(func, 'toString', {
@@ -1610,8 +1607,8 @@
           return buffer.slice();
         }
 
-        var length = buffer.length,
-          result = allocUnsafe ? allocUnsafe(length) : new buffer.constructor(length);
+        const {length} = buffer;
+          const result = allocUnsafe ? allocUnsafe(length) : new buffer.constructor(length);
         buffer.copy(result);
         return result;
       }
@@ -1625,7 +1622,7 @@
        */
 
       function cloneArrayBuffer(arrayBuffer) {
-        var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
+        const result = new arrayBuffer.constructor(arrayBuffer.byteLength);
         new Uint8Array(result).set(new Uint8Array(arrayBuffer));
         return result;
       }
@@ -1640,7 +1637,7 @@
        */
 
       function cloneTypedArray(typedArray, isDeep) {
-        var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
+        const buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
         return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
       }
 
@@ -1654,8 +1651,8 @@
        */
 
       function copyArray(source, array) {
-        var index = -1,
-          length = source.length;
+        let index = -1;
+          const {length} = source;
         array || (array = Array(length));
 
         while (++index < length) {
@@ -1677,14 +1674,14 @@
        */
 
       function copyObject(source, props, object, customizer) {
-        var isNew = !object;
+        const isNew = !object;
         object || (object = {});
-        var index = -1,
-          length = props.length;
+        let index = -1;
+          const {length} = props;
 
         while (++index < length) {
-          var key = props[index];
-          var newValue = customizer
+          const key = props[index];
+          let newValue = customizer
             ? customizer(object[key], source[key], key, object, source)
             : undefined;
 
@@ -1711,13 +1708,13 @@
        */
 
       function createAssigner(assigner) {
-        return baseRest(function (object, sources) {
-          var index = -1,
-            length = sources.length,
-            customizer = length > 1 ? sources[length - 1] : undefined,
-            guard = length > 2 ? sources[2] : undefined;
+        return baseRest((object, sources) => {
+          let index = -1;
+            let {length} = sources;
+            let customizer = length > 1 ? sources[length - 1] : undefined;
+            const guard = length > 2 ? sources[2] : undefined;
           customizer =
-            assigner.length > 3 && typeof customizer == 'function'
+            assigner.length > 3 && typeof customizer === 'function'
               ? (length--, customizer)
               : undefined;
 
@@ -1729,7 +1726,7 @@
           object = Object(object);
 
           while (++index < length) {
-            var source = sources[index];
+            const source = sources[index];
 
             if (source) {
               assigner(object, source, index, customizer);
@@ -1750,13 +1747,13 @@
 
       function createBaseFor(fromRight) {
         return function (object, iteratee, keysFunc) {
-          var index = -1,
-            iterable = Object(object),
-            props = keysFunc(object),
-            length = props.length;
+          let index = -1;
+            const iterable = Object(object);
+            const props = keysFunc(object);
+            let {length} = props;
 
           while (length--) {
-            var key = props[fromRight ? length : ++index];
+            const key = props[fromRight ? length : ++index];
 
             if (iteratee(iterable[key], key, iterable) === false) {
               break;
@@ -1777,8 +1774,8 @@
        */
 
       function getMapData(map, key) {
-        var data = map.__data__;
-        return isKeyable(key) ? data[typeof key == 'string' ? 'string' : 'hash'] : data.map;
+        const data = map.__data__;
+        return isKeyable(key) ? data[typeof key === 'string' ? 'string' : 'hash'] : data.map;
       }
 
       /**
@@ -1791,7 +1788,7 @@
        */
 
       function getNative(object, key) {
-        var value = getValue(object, key);
+        const value = getValue(object, key);
         return baseIsNative(value) ? value : undefined;
       }
 
@@ -1804,15 +1801,15 @@
        */
 
       function getRawTag(value) {
-        var isOwn = hasOwnProperty.call(value, symToStringTag),
-          tag = value[symToStringTag];
+        const isOwn = hasOwnProperty.call(value, symToStringTag);
+          const tag = value[symToStringTag];
 
         try {
           value[symToStringTag] = undefined;
           var unmasked = true;
         } catch (e) {}
 
-        var result = nativeObjectToString.call(value);
+        const result = nativeObjectToString.call(value);
 
         if (unmasked) {
           if (isOwn) {
@@ -1834,7 +1831,7 @@
        */
 
       function initCloneObject(object) {
-        return typeof object.constructor == 'function' && !isPrototype(object)
+        return typeof object.constructor === 'function' && !isPrototype(object)
           ? baseCreate(getPrototype(object))
           : {};
       }
@@ -1849,7 +1846,7 @@
        */
 
       function isIndex(value, length) {
-        var type = _typeof(value);
+        const type = _typeof(value);
 
         length = length == null ? MAX_SAFE_INTEGER : length;
         return (
@@ -1877,7 +1874,7 @@
           return false;
         }
 
-        var type = _typeof(index);
+        const type = _typeof(index);
 
         if (
           type == 'number'
@@ -1899,7 +1896,7 @@
        */
 
       function isKeyable(value) {
-        var type = _typeof(value);
+        const type = _typeof(value);
 
         return type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean'
           ? value !== '__proto__'
@@ -1927,8 +1924,8 @@
        */
 
       function isPrototype(value) {
-        var Ctor = value && value.constructor,
-          proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
+        const Ctor = value && value.constructor;
+          const proto = (typeof Ctor === 'function' && Ctor.prototype) || objectProto;
         return value === proto;
       }
 
@@ -1943,10 +1940,10 @@
        */
 
       function nativeKeysIn(object) {
-        var result = [];
+        const result = [];
 
         if (object != null) {
-          for (var key in Object(object)) {
+          for (const key in Object(object)) {
             result.push(key);
           }
         }
@@ -1979,17 +1976,17 @@
       function overRest(func, start, transform) {
         start = nativeMax(start === undefined ? func.length - 1 : start, 0);
         return function () {
-          var args = arguments,
-            index = -1,
-            length = nativeMax(args.length - start, 0),
-            array = Array(length);
+          const args = arguments;
+            let index = -1;
+            const length = nativeMax(args.length - start, 0);
+            const array = Array(length);
 
           while (++index < length) {
             array[index] = args[start + index];
           }
 
           index = -1;
-          var otherArgs = Array(start + 1);
+          const otherArgs = Array(start + 1);
 
           while (++index < start) {
             otherArgs[index] = args[index];
@@ -2043,11 +2040,11 @@
        */
 
       function shortOut(func) {
-        var count = 0,
-          lastCalled = 0;
+        let count = 0;
+          let lastCalled = 0;
         return function () {
-          var stamp = nativeNow(),
-            remaining = HOT_SPAN - (stamp - lastCalled);
+          const stamp = nativeNow();
+            const remaining = HOT_SPAN - (stamp - lastCalled);
           lastCalled = stamp;
 
           if (remaining > 0) {
@@ -2077,7 +2074,7 @@
           } catch (e) {}
 
           try {
-            return func + '';
+            return `${func  }`;
           } catch (e) {}
         }
 
@@ -2177,7 +2174,7 @@
        * // => false
        */
 
-      var isArray = Array.isArray;
+      var {isArray} = Array;
 
       /**
        * Checks if `value` is array-like. A value is considered array-like if it's
@@ -2283,7 +2280,7 @@
         } // The use of `Object#toString` avoids issues with the `typeof` operator
         // in Safari 9 which returns 'object' for typed arrays and other constructors.
 
-        var tag = baseGetTag(value);
+        const tag = baseGetTag(value);
         return tag == funcTag || tag == genTag || tag == asyncTag || tag == proxyTag;
       }
 
@@ -2316,7 +2313,7 @@
 
       function isLength(value) {
         return (
-          typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER
+          typeof value === 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER
         );
       }
 
@@ -2347,7 +2344,7 @@
        */
 
       function isObject(value) {
-        var type = _typeof(value);
+        const type = _typeof(value);
 
         return value != null && (type == 'object' || type == 'function');
       }
@@ -2415,15 +2412,15 @@
           return false;
         }
 
-        var proto = getPrototype(value);
+        const proto = getPrototype(value);
 
         if (proto === null) {
           return true;
         }
 
-        var Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
+        const Ctor = hasOwnProperty.call(proto, 'constructor') && proto.constructor;
         return (
-          typeof Ctor == 'function' &&
+          typeof Ctor === 'function' &&
           Ctor instanceof Ctor &&
           funcToString.call(Ctor) == objectCtorString
         );
@@ -2538,7 +2535,7 @@
        * // => { 'a': [{ 'b': 2, 'c': 3 }, { 'd': 4, 'e': 5 }] }
        */
 
-      var merge = createAssigner(function (object, source, srcIndex) {
+      const merge = createAssigner((object, source, srcIndex) => {
         baseMerge(object, source, srcIndex);
       });
 
@@ -2610,66 +2607,66 @@
       module.exports = merge;
     })(lodash_merge, lodash_merge.exports);
 
-    var merge = lodash_merge.exports;
+    const merge = lodash_merge.exports;
 
-    var lodash_clonedeep = { exports: {} };
+    const lodash_clonedeep = { exports: {} };
 
     (function (module, exports) {
       /** Used as the size to enable large array optimizations. */
-      var LARGE_ARRAY_SIZE = 200;
+      const LARGE_ARRAY_SIZE = 200;
       /** Used to stand-in for `undefined` hash values. */
 
-      var HASH_UNDEFINED = '__lodash_hash_undefined__';
+      const HASH_UNDEFINED = '__lodash_hash_undefined__';
       /** Used as references for various `Number` constants. */
 
-      var MAX_SAFE_INTEGER = 9007199254740991;
+      const MAX_SAFE_INTEGER = 9007199254740991;
       /** `Object#toString` result references. */
 
-      var argsTag = '[object Arguments]',
-        arrayTag = '[object Array]',
-        boolTag = '[object Boolean]',
-        dateTag = '[object Date]',
-        errorTag = '[object Error]',
-        funcTag = '[object Function]',
-        genTag = '[object GeneratorFunction]',
-        mapTag = '[object Map]',
-        numberTag = '[object Number]',
-        objectTag = '[object Object]',
-        promiseTag = '[object Promise]',
-        regexpTag = '[object RegExp]',
-        setTag = '[object Set]',
-        stringTag = '[object String]',
-        symbolTag = '[object Symbol]',
-        weakMapTag = '[object WeakMap]';
-      var arrayBufferTag = '[object ArrayBuffer]',
-        dataViewTag = '[object DataView]',
-        float32Tag = '[object Float32Array]',
-        float64Tag = '[object Float64Array]',
-        int8Tag = '[object Int8Array]',
-        int16Tag = '[object Int16Array]',
-        int32Tag = '[object Int32Array]',
-        uint8Tag = '[object Uint8Array]',
-        uint8ClampedTag = '[object Uint8ClampedArray]',
-        uint16Tag = '[object Uint16Array]',
-        uint32Tag = '[object Uint32Array]';
+      const argsTag = '[object Arguments]';
+        const arrayTag = '[object Array]';
+        const boolTag = '[object Boolean]';
+        const dateTag = '[object Date]';
+        const errorTag = '[object Error]';
+        const funcTag = '[object Function]';
+        const genTag = '[object GeneratorFunction]';
+        const mapTag = '[object Map]';
+        const numberTag = '[object Number]';
+        const objectTag = '[object Object]';
+        const promiseTag = '[object Promise]';
+        const regexpTag = '[object RegExp]';
+        const setTag = '[object Set]';
+        const stringTag = '[object String]';
+        const symbolTag = '[object Symbol]';
+        const weakMapTag = '[object WeakMap]';
+      const arrayBufferTag = '[object ArrayBuffer]';
+        const dataViewTag = '[object DataView]';
+        const float32Tag = '[object Float32Array]';
+        const float64Tag = '[object Float64Array]';
+        const int8Tag = '[object Int8Array]';
+        const int16Tag = '[object Int16Array]';
+        const int32Tag = '[object Int32Array]';
+        const uint8Tag = '[object Uint8Array]';
+        const uint8ClampedTag = '[object Uint8ClampedArray]';
+        const uint16Tag = '[object Uint16Array]';
+        const uint32Tag = '[object Uint32Array]';
       /**
        * Used to match `RegExp`
        * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
        */
 
-      var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+      const reRegExpChar = /[$()*+.?[\\\]^{|}]/g;
       /** Used to match `RegExp` flags from their coerced string values. */
 
-      var reFlags = /\w*$/;
+      const reFlags = /\w*$/;
       /** Used to detect host constructors (Safari). */
 
-      var reIsHostCtor = /^\[object .+?Constructor\]$/;
+      const reIsHostCtor = /^\[object .+?Constructor]$/;
       /** Used to detect unsigned integer values. */
 
-      var reIsUint = /^(?:0|[1-9]\d*)$/;
+      const reIsUint = /^(?:0|[1-9]\d*)$/;
       /** Used to identify `toStringTag` values supported by `_.clone`. */
 
-      var cloneableTags = {};
+      const cloneableTags = {};
       cloneableTags[argsTag] =
         cloneableTags[arrayTag] =
         cloneableTags[arrayBufferTag] =
@@ -2696,30 +2693,30 @@
       cloneableTags[errorTag] = cloneableTags[funcTag] = cloneableTags[weakMapTag] = false;
       /** Detect free variable `global` from Node.js. */
 
-      var freeGlobal =
+      const freeGlobal =
         _typeof(commonjsGlobal) == 'object' &&
         commonjsGlobal &&
         commonjsGlobal.Object === Object &&
         commonjsGlobal;
       /** Detect free variable `self`. */
 
-      var freeSelf =
+      const freeSelf =
         (typeof self === 'undefined' ? 'undefined' : _typeof(self)) == 'object' &&
         self &&
         self.Object === Object &&
         self;
       /** Used as a reference to the global object. */
 
-      var root = freeGlobal || freeSelf || Function('return this')();
+      const root = freeGlobal || freeSelf || Function('return this')();
       /** Detect free variable `exports`. */
 
-      var freeExports = exports && !exports.nodeType && exports;
+      const freeExports = exports && !exports.nodeType && exports;
       /** Detect free variable `module`. */
 
-      var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
+      const freeModule = freeExports && 'object' === 'object' && module && !module.nodeType && module;
       /** Detect the popular CommonJS extension `module.exports`. */
 
-      var moduleExports = freeModule && freeModule.exports === freeExports;
+      const moduleExports = freeModule && freeModule.exports === freeExports;
 
       /**
        * Adds the key-value `pair` to `map`.
@@ -2762,8 +2759,8 @@
        */
 
       function arrayEach(array, iteratee) {
-        var index = -1,
-          length = array ? array.length : 0;
+        let index = -1;
+          const length = array ? array.length : 0;
 
         while (++index < length) {
           if (iteratee(array[index], index, array) === false) {
@@ -2784,9 +2781,9 @@
        */
 
       function arrayPush(array, values) {
-        var index = -1,
-          length = values.length,
-          offset = array.length;
+        let index = -1;
+          const {length} = values;
+          const offset = array.length;
 
         while (++index < length) {
           array[offset + index] = values[index];
@@ -2809,8 +2806,8 @@
        */
 
       function arrayReduce(array, iteratee, accumulator, initAccum) {
-        var index = -1,
-          length = array ? array.length : 0;
+        let index = -1;
+          const length = array ? array.length : 0;
 
         if (initAccum && length) {
           accumulator = array[++index];
@@ -2834,8 +2831,8 @@
        */
 
       function baseTimes(n, iteratee) {
-        var index = -1,
-          result = Array(n);
+        let index = -1;
+          const result = Array(n);
 
         while (++index < n) {
           result[index] = iteratee(index);
@@ -2868,11 +2865,11 @@
       function isHostObject(value) {
         // Many host objects are `Object` objects that can coerce to strings
         // despite having improperly defined `toString` methods.
-        var result = false;
+        let result = false;
 
-        if (value != null && typeof value.toString != 'function') {
+        if (value != null && typeof value.toString !== 'function') {
           try {
-            result = !!(value + '');
+            result = !!(`${value  }`);
           } catch (e) {}
         }
 
@@ -2888,9 +2885,9 @@
        */
 
       function mapToArray(map) {
-        var index = -1,
-          result = Array(map.size);
-        map.forEach(function (value, key) {
+        let index = -1;
+          const result = Array(map.size);
+        map.forEach((value, key) => {
           result[++index] = [key, value];
         });
         return result;
@@ -2920,9 +2917,9 @@
        */
 
       function setToArray(set) {
-        var index = -1,
-          result = Array(set.size);
-        set.forEach(function (value) {
+        let index = -1;
+          const result = Array(set.size);
+        set.forEach((value) => {
           result[++index] = value;
         });
         return result;
@@ -2930,74 +2927,74 @@
 
       /** Used for built-in method references. */
 
-      var arrayProto = Array.prototype,
-        funcProto = Function.prototype,
-        objectProto = Object.prototype;
+      const arrayProto = Array.prototype;
+        const funcProto = Function.prototype;
+        const objectProto = Object.prototype;
       /** Used to detect overreaching core-js shims. */
 
-      var coreJsData = root['__core-js_shared__'];
+      const coreJsData = root['__core-js_shared__'];
       /** Used to detect methods masquerading as native. */
 
-      var maskSrcKey = (function () {
-        var uid = /[^.]+$/.exec((coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO) || '');
-        return uid ? 'Symbol(src)_1.' + uid : '';
+      const maskSrcKey = (function () {
+        const uid = /[^.]+$/.exec((coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO) || '');
+        return uid ? `Symbol(src)_1.${  uid}` : '';
       })();
       /** Used to resolve the decompiled source of functions. */
 
-      var funcToString = funcProto.toString;
+      const funcToString = funcProto.toString;
       /** Used to check objects for own properties. */
 
-      var hasOwnProperty = objectProto.hasOwnProperty;
+      const {hasOwnProperty} = objectProto;
       /**
        * Used to resolve the
        * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
        * of values.
        */
 
-      var objectToString = objectProto.toString;
+      const objectToString = objectProto.toString;
       /** Used to detect if a method is native. */
 
-      var reIsNative = RegExp(
-        '^' +
+      const reIsNative = RegExp(
+        `^${ 
           funcToString
             .call(hasOwnProperty)
             .replace(reRegExpChar, '\\$&')
-            .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') +
-          '$',
+            .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\])/g, '$1.*?') 
+          }$`,
       );
       /** Built-in value references. */
 
-      var Buffer = moduleExports ? root.Buffer : undefined,
-        _Symbol = root.Symbol,
-        Uint8Array = root.Uint8Array,
-        getPrototype = overArg(Object.getPrototypeOf, Object),
-        objectCreate = Object.create,
-        propertyIsEnumerable = objectProto.propertyIsEnumerable,
-        splice = arrayProto.splice;
+      const Buffer = moduleExports ? root.Buffer : undefined;
+        const _Symbol = root.Symbol;
+        const {Uint8Array} = root;
+        const getPrototype = overArg(Object.getPrototypeOf, Object);
+        const objectCreate = Object.create;
+        const {propertyIsEnumerable} = objectProto;
+        const {splice} = arrayProto;
       /* Built-in method references for those with the same name as other `lodash` methods. */
 
-      var nativeGetSymbols = Object.getOwnPropertySymbols,
-        nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined,
-        nativeKeys = overArg(Object.keys, Object);
+      const nativeGetSymbols = Object.getOwnPropertySymbols;
+        const nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
+        const nativeKeys = overArg(Object.keys, Object);
       /* Built-in method references that are verified to be native. */
 
-      var DataView = getNative(root, 'DataView'),
-        Map = getNative(root, 'Map'),
-        Promise = getNative(root, 'Promise'),
-        Set = getNative(root, 'Set'),
-        WeakMap = getNative(root, 'WeakMap'),
-        nativeCreate = getNative(Object, 'create');
+      const DataView = getNative(root, 'DataView');
+        const Map = getNative(root, 'Map');
+        const Promise = getNative(root, 'Promise');
+        const Set = getNative(root, 'Set');
+        const WeakMap = getNative(root, 'WeakMap');
+        const nativeCreate = getNative(Object, 'create');
       /** Used to detect maps, sets, and weakmaps. */
 
-      var dataViewCtorString = toSource(DataView),
-        mapCtorString = toSource(Map),
-        promiseCtorString = toSource(Promise),
-        setCtorString = toSource(Set),
-        weakMapCtorString = toSource(WeakMap);
+      const dataViewCtorString = toSource(DataView);
+        const mapCtorString = toSource(Map);
+        const promiseCtorString = toSource(Promise);
+        const setCtorString = toSource(Set);
+        const weakMapCtorString = toSource(WeakMap);
       /** Used to convert symbols to primitives and strings. */
 
-      var symbolProto = _Symbol ? _Symbol.prototype : undefined,
-        symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
+      const symbolProto = _Symbol ? _Symbol.prototype : undefined;
+        const symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
 
       /**
        * Creates a hash object.
@@ -3008,12 +3005,12 @@
        */
 
       function Hash(entries) {
-        var index = -1,
-          length = entries ? entries.length : 0;
+        let index = -1;
+          const length = entries ? entries.length : 0;
         this.clear();
 
         while (++index < length) {
-          var entry = entries[index];
+          const entry = entries[index];
           this.set(entry[0], entry[1]);
         }
       }
@@ -3056,10 +3053,10 @@
        */
 
       function hashGet(key) {
-        var data = this.__data__;
+        const data = this.__data__;
 
         if (nativeCreate) {
-          var result = data[key];
+          const result = data[key];
           return result === HASH_UNDEFINED ? undefined : result;
         }
 
@@ -3077,7 +3074,7 @@
        */
 
       function hashHas(key) {
-        var data = this.__data__;
+        const data = this.__data__;
         return nativeCreate ? data[key] !== undefined : hasOwnProperty.call(data, key);
       }
 
@@ -3093,13 +3090,13 @@
        */
 
       function hashSet(key, value) {
-        var data = this.__data__;
+        const data = this.__data__;
         data[key] = nativeCreate && value === undefined ? HASH_UNDEFINED : value;
         return this;
       } // Add methods to `Hash`.
 
       Hash.prototype.clear = hashClear;
-      Hash.prototype['delete'] = hashDelete;
+      Hash.prototype.delete = hashDelete;
       Hash.prototype.get = hashGet;
       Hash.prototype.has = hashHas;
       Hash.prototype.set = hashSet;
@@ -3113,12 +3110,12 @@
        */
 
       function ListCache(entries) {
-        var index = -1,
-          length = entries ? entries.length : 0;
+        let index = -1;
+          const length = entries ? entries.length : 0;
         this.clear();
 
         while (++index < length) {
-          var entry = entries[index];
+          const entry = entries[index];
           this.set(entry[0], entry[1]);
         }
       }
@@ -3146,14 +3143,14 @@
        */
 
       function listCacheDelete(key) {
-        var data = this.__data__,
-          index = assocIndexOf(data, key);
+        const data = this.__data__;
+          const index = assocIndexOf(data, key);
 
         if (index < 0) {
           return false;
         }
 
-        var lastIndex = data.length - 1;
+        const lastIndex = data.length - 1;
 
         if (index == lastIndex) {
           data.pop();
@@ -3175,8 +3172,8 @@
        */
 
       function listCacheGet(key) {
-        var data = this.__data__,
-          index = assocIndexOf(data, key);
+        const data = this.__data__;
+          const index = assocIndexOf(data, key);
         return index < 0 ? undefined : data[index][1];
       }
 
@@ -3206,8 +3203,8 @@
        */
 
       function listCacheSet(key, value) {
-        var data = this.__data__,
-          index = assocIndexOf(data, key);
+        const data = this.__data__;
+          const index = assocIndexOf(data, key);
 
         if (index < 0) {
           data.push([key, value]);
@@ -3219,7 +3216,7 @@
       } // Add methods to `ListCache`.
 
       ListCache.prototype.clear = listCacheClear;
-      ListCache.prototype['delete'] = listCacheDelete;
+      ListCache.prototype.delete = listCacheDelete;
       ListCache.prototype.get = listCacheGet;
       ListCache.prototype.has = listCacheHas;
       ListCache.prototype.set = listCacheSet;
@@ -3233,12 +3230,12 @@
        */
 
       function MapCache(entries) {
-        var index = -1,
-          length = entries ? entries.length : 0;
+        let index = -1;
+          const length = entries ? entries.length : 0;
         this.clear();
 
         while (++index < length) {
-          var entry = entries[index];
+          const entry = entries[index];
           this.set(entry[0], entry[1]);
         }
       }
@@ -3270,7 +3267,7 @@
        */
 
       function mapCacheDelete(key) {
-        return getMapData(this, key)['delete'](key);
+        return getMapData(this, key).delete(key);
       }
 
       /**
@@ -3318,7 +3315,7 @@
       } // Add methods to `MapCache`.
 
       MapCache.prototype.clear = mapCacheClear;
-      MapCache.prototype['delete'] = mapCacheDelete;
+      MapCache.prototype.delete = mapCacheDelete;
       MapCache.prototype.get = mapCacheGet;
       MapCache.prototype.has = mapCacheHas;
       MapCache.prototype.set = mapCacheSet;
@@ -3358,7 +3355,7 @@
        */
 
       function stackDelete(key) {
-        return this.__data__['delete'](key);
+        return this.__data__.delete(key);
       }
 
       /**
@@ -3401,10 +3398,10 @@
        */
 
       function stackSet(key, value) {
-        var cache = this.__data__;
+        let cache = this.__data__;
 
         if (cache instanceof ListCache) {
-          var pairs = cache.__data__;
+          const pairs = cache.__data__;
 
           if (!Map || pairs.length < LARGE_ARRAY_SIZE - 1) {
             pairs.push([key, value]);
@@ -3419,7 +3416,7 @@
       } // Add methods to `Stack`.
 
       Stack.prototype.clear = stackClear;
-      Stack.prototype['delete'] = stackDelete;
+      Stack.prototype.delete = stackDelete;
       Stack.prototype.get = stackGet;
       Stack.prototype.has = stackHas;
       Stack.prototype.set = stackSet;
@@ -3436,11 +3433,11 @@
       function arrayLikeKeys(value, inherited) {
         // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
         // Safari 9 makes `arguments.length` enumerable in strict mode.
-        var result = isArray(value) || isArguments(value) ? baseTimes(value.length, String) : [];
-        var length = result.length,
-          skipIndexes = !!length;
+        const result = isArray(value) || isArguments(value) ? baseTimes(value.length, String) : [];
+        const {length} = result;
+          const skipIndexes = !!length;
 
-        for (var key in value) {
+        for (const key in value) {
           if (
             (inherited || hasOwnProperty.call(value, key)) &&
             !(skipIndexes && (key == 'length' || isIndex(key, length)))
@@ -3464,7 +3461,7 @@
        */
 
       function assignValue(object, key, value) {
-        var objValue = object[key];
+        const objValue = object[key];
 
         if (
           !(hasOwnProperty.call(object, key) && eq(objValue, value)) ||
@@ -3484,7 +3481,7 @@
        */
 
       function assocIndexOf(array, key) {
-        var length = array.length;
+        let {length} = array;
 
         while (length--) {
           if (eq(array[length][0], key)) {
@@ -3525,7 +3522,7 @@
        */
 
       function baseClone(value, isDeep, isFull, customizer, key, object, stack) {
-        var result;
+        let result;
 
         if (customizer) {
           result = object ? customizer(value, key, object, stack) : customizer(value);
@@ -3539,7 +3536,7 @@
           return value;
         }
 
-        var isArr = isArray(value);
+        const isArr = isArray(value);
 
         if (isArr) {
           result = initCloneArray(value);
@@ -3548,8 +3545,8 @@
             return copyArray(value, result);
           }
         } else {
-          var tag = getTag(value),
-            isFunc = tag == funcTag || tag == genTag;
+          const tag = getTag(value);
+            const isFunc = tag == funcTag || tag == genTag;
 
           if (isBuffer(value)) {
             return cloneBuffer(value, isDeep);
@@ -3575,7 +3572,7 @@
         } // Check for circular references and return its corresponding clone.
 
         stack || (stack = new Stack());
-        var stacked = stack.get(value);
+        const stacked = stack.get(value);
 
         if (stacked) {
           return stacked;
@@ -3587,7 +3584,7 @@
           var props = isFull ? getAllKeys(value) : keys(value);
         }
 
-        arrayEach(props || value, function (subValue, key) {
+        arrayEach(props || value, (subValue, key) => {
           if (props) {
             key = subValue;
             subValue = value[key];
@@ -3628,7 +3625,7 @@
        */
 
       function baseGetAllKeys(object, keysFunc, symbolsFunc) {
-        var result = keysFunc(object);
+        const result = keysFunc(object);
         return isArray(object) ? result : arrayPush(result, symbolsFunc(object));
       }
 
@@ -3658,7 +3655,7 @@
           return false;
         }
 
-        var pattern = isFunction(value) || isHostObject(value) ? reIsNative : reIsHostCtor;
+        const pattern = isFunction(value) || isHostObject(value) ? reIsNative : reIsHostCtor;
         return pattern.test(toSource(value));
       }
 
@@ -3675,9 +3672,9 @@
           return nativeKeys(object);
         }
 
-        var result = [];
+        const result = [];
 
-        for (var key in Object(object)) {
+        for (const key in Object(object)) {
           if (hasOwnProperty.call(object, key) && key != 'constructor') {
             result.push(key);
           }
@@ -3700,7 +3697,7 @@
           return buffer.slice();
         }
 
-        var result = new buffer.constructor(buffer.length);
+        const result = new buffer.constructor(buffer.length);
         buffer.copy(result);
         return result;
       }
@@ -3714,7 +3711,7 @@
        */
 
       function cloneArrayBuffer(arrayBuffer) {
-        var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
+        const result = new arrayBuffer.constructor(arrayBuffer.byteLength);
         new Uint8Array(result).set(new Uint8Array(arrayBuffer));
         return result;
       }
@@ -3729,7 +3726,7 @@
        */
 
       function cloneDataView(dataView, isDeep) {
-        var buffer = isDeep ? cloneArrayBuffer(dataView.buffer) : dataView.buffer;
+        const buffer = isDeep ? cloneArrayBuffer(dataView.buffer) : dataView.buffer;
         return new dataView.constructor(buffer, dataView.byteOffset, dataView.byteLength);
       }
 
@@ -3744,7 +3741,7 @@
        */
 
       function cloneMap(map, isDeep, cloneFunc) {
-        var array = isDeep ? cloneFunc(mapToArray(map), true) : mapToArray(map);
+        const array = isDeep ? cloneFunc(mapToArray(map), true) : mapToArray(map);
         return arrayReduce(array, addMapEntry, new map.constructor());
       }
 
@@ -3757,7 +3754,7 @@
        */
 
       function cloneRegExp(regexp) {
-        var result = new regexp.constructor(regexp.source, reFlags.exec(regexp));
+        const result = new regexp.constructor(regexp.source, reFlags.exec(regexp));
         result.lastIndex = regexp.lastIndex;
         return result;
       }
@@ -3773,7 +3770,7 @@
        */
 
       function cloneSet(set, isDeep, cloneFunc) {
-        var array = isDeep ? cloneFunc(setToArray(set), true) : setToArray(set);
+        const array = isDeep ? cloneFunc(setToArray(set), true) : setToArray(set);
         return arrayReduce(array, addSetEntry, new set.constructor());
       }
 
@@ -3799,7 +3796,7 @@
        */
 
       function cloneTypedArray(typedArray, isDeep) {
-        var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
+        const buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
         return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
       }
 
@@ -3813,8 +3810,8 @@
        */
 
       function copyArray(source, array) {
-        var index = -1,
-          length = source.length;
+        let index = -1;
+          const {length} = source;
         array || (array = Array(length));
 
         while (++index < length) {
@@ -3837,12 +3834,12 @@
 
       function copyObject(source, props, object, customizer) {
         object || (object = {});
-        var index = -1,
-          length = props.length;
+        let index = -1;
+          const {length} = props;
 
         while (++index < length) {
-          var key = props[index];
-          var newValue = customizer
+          const key = props[index];
+          const newValue = customizer
             ? customizer(object[key], source[key], key, object, source)
             : undefined;
           assignValue(object, key, newValue === undefined ? source[key] : newValue);
@@ -3886,8 +3883,8 @@
        */
 
       function getMapData(map, key) {
-        var data = map.__data__;
-        return isKeyable(key) ? data[typeof key == 'string' ? 'string' : 'hash'] : data.map;
+        const data = map.__data__;
+        return isKeyable(key) ? data[typeof key === 'string' ? 'string' : 'hash'] : data.map;
       }
 
       /**
@@ -3900,7 +3897,7 @@
        */
 
       function getNative(object, key) {
-        var value = getValue(object, key);
+        const value = getValue(object, key);
         return baseIsNative(value) ? value : undefined;
       }
 
@@ -3932,9 +3929,9 @@
         (WeakMap && getTag(new WeakMap()) != weakMapTag)
       ) {
         getTag = function getTag(value) {
-          var result = objectToString.call(value),
-            Ctor = result == objectTag ? value.constructor : undefined,
-            ctorString = Ctor ? toSource(Ctor) : undefined;
+          const result = objectToString.call(value);
+            const Ctor = result == objectTag ? value.constructor : undefined;
+            const ctorString = Ctor ? toSource(Ctor) : undefined;
 
           if (ctorString) {
             switch (ctorString) {
@@ -3968,10 +3965,10 @@
        */
 
       function initCloneArray(array) {
-        var length = array.length,
-          result = array.constructor(length); // Add properties assigned by `RegExp#exec`.
+        const {length} = array;
+          const result = array.constructor(length); // Add properties assigned by `RegExp#exec`.
 
-        if (length && typeof array[0] == 'string' && hasOwnProperty.call(array, 'index')) {
+        if (length && typeof array[0] === 'string' && hasOwnProperty.call(array, 'index')) {
           result.index = array.index;
           result.input = array.input;
         }
@@ -3988,7 +3985,7 @@
        */
 
       function initCloneObject(object) {
-        return typeof object.constructor == 'function' && !isPrototype(object)
+        return typeof object.constructor === 'function' && !isPrototype(object)
           ? baseCreate(getPrototype(object))
           : {};
       }
@@ -4008,7 +4005,7 @@
        */
 
       function initCloneByTag(object, tag, cloneFunc, isDeep) {
-        var Ctor = object.constructor;
+        const Ctor = object.constructor;
 
         switch (tag) {
           case arrayBufferTag:
@@ -4063,7 +4060,7 @@
         length = length == null ? MAX_SAFE_INTEGER : length;
         return (
           !!length &&
-          (typeof value == 'number' || reIsUint.test(value)) &&
+          (typeof value === 'number' || reIsUint.test(value)) &&
           value > -1 &&
           value % 1 == 0 &&
           value < length
@@ -4079,7 +4076,7 @@
        */
 
       function isKeyable(value) {
-        var type = _typeof(value);
+        const type = _typeof(value);
 
         return type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean'
           ? value !== '__proto__'
@@ -4107,8 +4104,8 @@
        */
 
       function isPrototype(value) {
-        var Ctor = value && value.constructor,
-          proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
+        const Ctor = value && value.constructor;
+          const proto = (typeof Ctor === 'function' && Ctor.prototype) || objectProto;
         return value === proto;
       }
 
@@ -4127,7 +4124,7 @@
           } catch (e) {}
 
           try {
-            return func + '';
+            return `${func  }`;
           } catch (e) {}
         }
 
@@ -4246,7 +4243,7 @@
        * // => false
        */
 
-      var isArray = Array.isArray;
+      var {isArray} = Array;
 
       /**
        * Checks if `value` is array-like. A value is considered array-like if it's
@@ -4349,7 +4346,7 @@
       function isFunction(value) {
         // The use of `Object#toString` avoids issues with the `typeof` operator
         // in Safari 8-9 which returns 'object' for typed array and other constructors.
-        var tag = isObject(value) ? objectToString.call(value) : '';
+        const tag = isObject(value) ? objectToString.call(value) : '';
         return tag == funcTag || tag == genTag;
       }
 
@@ -4382,7 +4379,7 @@
 
       function isLength(value) {
         return (
-          typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER
+          typeof value === 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER
         );
       }
 
@@ -4413,7 +4410,7 @@
        */
 
       function isObject(value) {
-        var type = _typeof(value);
+        const type = _typeof(value);
 
         return !!value && (type == 'object' || type == 'function');
       }
@@ -4524,9 +4521,9 @@
       module.exports = cloneDeep;
     })(lodash_clonedeep, lodash_clonedeep.exports);
 
-    var cloneDeep = lodash_clonedeep.exports;
+    const cloneDeep = lodash_clonedeep.exports;
 
-    var componentUrl = {};
+    const componentUrl = {};
 
     (function (exports) {
       /**
@@ -4537,16 +4534,16 @@
        * @api public
        */
       exports.parse = function (url) {
-        var a = document.createElement('a');
+        const a = document.createElement('a');
         a.href = url;
         return {
           href: a.href,
           host: a.host || location.host,
-          port: '0' === a.port || '' === a.port ? port(a.protocol) : a.port,
+          port: a.port === '0' || a.port === '' ? port(a.protocol) : a.port,
           hash: a.hash,
           hostname: a.hostname || location.hostname,
-          pathname: a.pathname.charAt(0) != '/' ? '/' + a.pathname : a.pathname,
-          protocol: !a.protocol || ':' == a.protocol ? location.protocol : a.protocol,
+          pathname: a.pathname.charAt(0) != '/' ? `/${  a.pathname}` : a.pathname,
+          protocol: !a.protocol || a.protocol == ':' ? location.protocol : a.protocol,
           search: a.search,
           query: a.search.slice(1),
         };
@@ -4560,7 +4557,7 @@
        */
 
       exports.isAbsolute = function (url) {
-        return 0 == url.indexOf('//') || !!~url.indexOf('://');
+        return url.indexOf('//') == 0 || !!~url.indexOf('://');
       };
       /**
        * Check if `url` is relative.
@@ -4583,7 +4580,7 @@
 
       exports.isCrossDomain = function (url) {
         url = exports.parse(url);
-        var location = exports.parse(window.location.href);
+        const location = exports.parse(window.location.href);
         return (
           url.hostname !== location.hostname ||
           url.port !== location.port ||
@@ -4613,7 +4610,7 @@
       }
     })(componentUrl);
 
-    var isobject = function isObject(val) {
+    const isobject = function isObject(val) {
       return val != null && _typeof(val) === 'object' && Array.isArray(val) === false;
     };
 
@@ -4623,9 +4620,9 @@
      * Copyright (c) 2014-2018, Jon Schlinkert.
      * Released under the MIT License.
      */
-    var isObject$1 = isobject;
+    const isObject$1 = isobject;
 
-    var getValue = function getValue(target, path, options) {
+    const getValue = function getValue(target, path, options) {
       if (!isObject$1(options)) {
         options = {
           default: options,
@@ -4640,10 +4637,10 @@
         path = String(path);
       }
 
-      var isArray = Array.isArray(path);
-      var isString = typeof path === 'string';
-      var splitChar = options.separator || '.';
-      var joinChar = options.joinChar || (typeof splitChar === 'string' ? splitChar : '.');
+      const isArray = Array.isArray(path);
+      const isString = typeof path === 'string';
+      const splitChar = options.separator || '.';
+      const joinChar = options.joinChar || (typeof splitChar === 'string' ? splitChar : '.');
 
       if (!isString && !isArray) {
         return target;
@@ -4653,12 +4650,12 @@
         return isValid(path, target, options) ? target[path] : options.default;
       }
 
-      var segs = isArray ? path : split(path, splitChar, options);
-      var len = segs.length;
-      var idx = 0;
+      const segs = isArray ? path : split(path, splitChar, options);
+      const len = segs.length;
+      let idx = 0;
 
       do {
-        var prop = segs[idx];
+        let prop = segs[idx];
 
         if (typeof prop === 'number') {
           prop = String(prop);
@@ -4675,8 +4672,8 @@
 
           target = target[prop];
         } else {
-          var hasProp = false;
-          var n = idx + 1;
+          let hasProp = false;
+          let n = idx + 1;
 
           while (n < len) {
             prop = join([prop, segs[n++]], joinChar, options);
@@ -4733,18 +4730,18 @@
       return isObject$1(val) || Array.isArray(val) || typeof val === 'function';
     }
 
-    var IDX$1 = 256,
-      HEX$1 = [],
-      BUFFER$1;
+    let IDX$1 = 256;
+      const HEX$1 = [];
+      let BUFFER$1;
 
     while (IDX$1--) {
       HEX$1[IDX$1] = (IDX$1 + 256).toString(16).substring(1);
     }
 
     function v4$2() {
-      var i = 0,
-        num,
-        out = '';
+      let i = 0;
+        let num;
+        let out = '';
 
       if (!BUFFER$1 || IDX$1 + 16 > 256) {
         BUFFER$1 = Array((i = 256));
@@ -4770,8 +4767,8 @@
 
     /* eslint-disable no-use-before-define */
     // import logger from "../utils/logUtil";
-    var defaultAsyncState = true;
-    var LOAD_ORIGIN = 'RS_JS_SDK';
+    const defaultAsyncState = true;
+    const LOAD_ORIGIN = 'RS_JS_SDK';
     /**
      * Script loader
      * @param {String} id                               Id of the script
@@ -4782,16 +4779,16 @@
      * @param {Boolean} options.skipDatasetAttributes   Determines whether to add or skip dataset attribute
      */
 
-    var ScriptLoader = function ScriptLoader(id, src) {
-      var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-      var exists = document.getElementById(id);
+    const ScriptLoader = function ScriptLoader(id, src) {
+      const options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      const exists = document.getElementById(id);
 
       if (exists) {
         // logger.debug("script already loaded");
         return;
       }
 
-      var js = document.createElement('script');
+      const js = document.createElement('script');
       js.src = src;
       js.async = options.async === undefined ? defaultAsyncState : options.async;
       js.type = 'text/javascript';
@@ -4805,26 +4802,26 @@
         }
       }
 
-      var headElmColl = document.getElementsByTagName('head');
+      const headElmColl = document.getElementsByTagName('head');
 
-      if (headElmColl.length !== 0) {
+      if (headElmColl.length > 0) {
         // logger.debug("==adding script==", js);
         headElmColl[0].insertBefore(js, headElmColl[0].firstChild);
       } else {
-        var e = document.getElementsByTagName('script')[0]; // logger.debug("==parent script==", e);
+        const e = document.getElementsByTagName('script')[0]; // logger.debug("==parent script==", e);
         // logger.debug("==adding script==", js);
 
         e.parentNode.insertBefore(js, e);
       }
     };
 
-    var LOG_LEVEL_INFO = 1;
-    var LOG_LEVEL_DEBUG = 2;
-    var LOG_LEVEL_WARN = 3;
-    var LOG_LEVEL_ERROR = 4;
-    var DEF_LOG_LEVEL = LOG_LEVEL_ERROR;
-    var LOG_LEVEL = DEF_LOG_LEVEL;
-    var logger = {
+    const LOG_LEVEL_INFO = 1;
+    const LOG_LEVEL_DEBUG = 2;
+    const LOG_LEVEL_WARN = 3;
+    const LOG_LEVEL_ERROR = 4;
+    const DEF_LOG_LEVEL = LOG_LEVEL_ERROR;
+    let LOG_LEVEL = DEF_LOG_LEVEL;
+    const logger = {
       setLogLevel: function setLogLevel(logLevel) {
         switch (logLevel.toUpperCase()) {
           case 'INFO':
@@ -4846,38 +4843,38 @@
       },
       info: function info() {
         if (LOG_LEVEL <= LOG_LEVEL_INFO) {
-          var _console;
+          let _console;
 
           (_console = console).info.apply(_console, arguments);
         }
       },
       debug: function debug() {
         if (LOG_LEVEL <= LOG_LEVEL_DEBUG) {
-          var _console2;
+          let _console2;
 
           (_console2 = console).log.apply(_console2, arguments);
         }
       },
       warn: function warn() {
         if (LOG_LEVEL <= LOG_LEVEL_WARN) {
-          var _console3;
+          let _console3;
 
           (_console3 = console).warn.apply(_console3, arguments);
         }
       },
       error: function error() {
         if (LOG_LEVEL <= LOG_LEVEL_ERROR) {
-          var _console4;
+          let _console4;
 
           (_console4 = console).error.apply(_console4, arguments);
         }
       },
     };
 
-    var _CNameMapping$V;
+    let _CNameMapping$V;
 
-    var NAME$W = 'ADOBE_ANALYTICS';
-    var CNameMapping$V =
+    const NAME$W = 'ADOBE_ANALYTICS';
+    const CNameMapping$V =
       ((_CNameMapping$V = {
         'Adobe Analytics': NAME$W,
       }),
@@ -4886,108 +4883,108 @@
       _defineProperty(_CNameMapping$V, 'adobeanalytics', NAME$W),
       _CNameMapping$V);
 
-    var _CNameMapping$U;
+    let _CNameMapping$U;
 
-    var NAME$V = 'AM';
-    var CNameMapping$U =
+    const NAME$V = 'AM';
+    const CNameMapping$U =
       ((_CNameMapping$U = {}),
       _defineProperty(_CNameMapping$U, NAME$V, NAME$V),
       _defineProperty(_CNameMapping$U, 'AMPLITUDE', NAME$V),
       _defineProperty(_CNameMapping$U, 'Amplitude', NAME$V),
       _CNameMapping$U);
 
-    var _CNameMapping$T;
+    let _CNameMapping$T;
 
-    var NAME$U = 'APPCUES';
-    var CNameMapping$T =
+    const NAME$U = 'APPCUES';
+    const CNameMapping$T =
       ((_CNameMapping$T = {}),
       _defineProperty(_CNameMapping$T, NAME$U, NAME$U),
       _defineProperty(_CNameMapping$T, 'Appcues', NAME$U),
       _CNameMapping$T);
 
-    var _CNameMapping$S;
+    let _CNameMapping$S;
 
-    var NAME$T = 'BINGADS';
-    var CNameMapping$S =
+    const NAME$T = 'BINGADS';
+    const CNameMapping$S =
       ((_CNameMapping$S = {}),
       _defineProperty(_CNameMapping$S, NAME$T, NAME$T),
       _defineProperty(_CNameMapping$S, 'BingAds', NAME$T),
       _CNameMapping$S);
 
-    var _CNameMapping$R;
+    let _CNameMapping$R;
 
-    var NAME$S = 'BRAZE';
-    var CNameMapping$R =
+    const NAME$S = 'BRAZE';
+    const CNameMapping$R =
       ((_CNameMapping$R = {}),
       _defineProperty(_CNameMapping$R, NAME$S, NAME$S),
       _defineProperty(_CNameMapping$R, 'Braze', NAME$S),
       _CNameMapping$R);
 
-    var NAME$R = 'BUGSNAG';
+    const NAME$R = 'BUGSNAG';
 
-    var CNameMapping$Q = _defineProperty({}, NAME$R, NAME$R);
+    const CNameMapping$Q = _defineProperty({}, NAME$R, NAME$R);
 
-    var _CNameMapping$Q;
+    let _CNameMapping$Q;
 
-    var NAME$Q = 'CHARTBEAT';
-    var CNameMapping$P =
+    const NAME$Q = 'CHARTBEAT';
+    const CNameMapping$P =
       ((_CNameMapping$Q = {}),
       _defineProperty(_CNameMapping$Q, NAME$Q, NAME$Q),
       _defineProperty(_CNameMapping$Q, 'Chartbeat', NAME$Q),
       _CNameMapping$Q);
 
-    var _CNameMapping$P;
+    let _CNameMapping$P;
 
-    var NAME$P = 'CLEVERTAP';
-    var CNameMapping$O =
+    const NAME$P = 'CLEVERTAP';
+    const CNameMapping$O =
       ((_CNameMapping$P = {}),
       _defineProperty(_CNameMapping$P, NAME$P, NAME$P),
       _defineProperty(_CNameMapping$P, 'Clevertap', NAME$P),
       _CNameMapping$P);
 
-    var _CNameMapping$O;
+    let _CNameMapping$O;
 
-    var NAME$O = 'COMSCORE';
-    var CNameMapping$N =
+    const NAME$O = 'COMSCORE';
+    const CNameMapping$N =
       ((_CNameMapping$O = {}),
       _defineProperty(_CNameMapping$O, NAME$O, NAME$O),
       _defineProperty(_CNameMapping$O, 'Comscore', NAME$O),
       _CNameMapping$O);
 
-    var _CNameMapping$N;
+    let _CNameMapping$N;
 
-    var NAME$N = 'CRITEO';
-    var CNameMapping$M =
+    const NAME$N = 'CRITEO';
+    const CNameMapping$M =
       ((_CNameMapping$N = {}),
       _defineProperty(_CNameMapping$N, NAME$N, NAME$N),
       _defineProperty(_CNameMapping$N, 'Criteo', NAME$N),
       _defineProperty(_CNameMapping$N, 'criteo', NAME$N),
       _CNameMapping$N);
 
-    var _CNameMapping$M;
+    let _CNameMapping$M;
 
-    var NAME$M = 'CUSTOMERIO';
-    var CNameMapping$L =
+    const NAME$M = 'CUSTOMERIO';
+    const CNameMapping$L =
       ((_CNameMapping$M = {}),
       _defineProperty(_CNameMapping$M, NAME$M, NAME$M),
       _defineProperty(_CNameMapping$M, 'Customerio', NAME$M),
       _defineProperty(_CNameMapping$M, 'Customer.io', NAME$M),
       _CNameMapping$M);
 
-    var _CNameMapping$L;
+    let _CNameMapping$L;
 
-    var NAME$L = 'DRIP';
-    var CNameMapping$K =
+    const NAME$L = 'DRIP';
+    const CNameMapping$K =
       ((_CNameMapping$L = {}),
       _defineProperty(_CNameMapping$L, NAME$L, NAME$L),
       _defineProperty(_CNameMapping$L, 'Drip', NAME$L),
       _defineProperty(_CNameMapping$L, 'drip', NAME$L),
       _CNameMapping$L);
 
-    var _CNameMapping$K;
+    let _CNameMapping$K;
 
-    var NAME$K = 'FACEBOOK_PIXEL';
-    var CNameMapping$J =
+    const NAME$K = 'FACEBOOK_PIXEL';
+    const CNameMapping$J =
       ((_CNameMapping$K = {}),
       _defineProperty(_CNameMapping$K, NAME$K, NAME$K),
       _defineProperty(_CNameMapping$K, 'FB Pixel', NAME$K),
@@ -4995,50 +4992,50 @@
       _defineProperty(_CNameMapping$K, 'FB_PIXEL', NAME$K),
       _CNameMapping$K);
 
-    var _CNameMapping$J;
+    let _CNameMapping$J;
 
-    var NAME$J = 'FULLSTORY';
-    var CNameMapping$I =
+    const NAME$J = 'FULLSTORY';
+    const CNameMapping$I =
       ((_CNameMapping$J = {}),
       _defineProperty(_CNameMapping$J, NAME$J, NAME$J),
       _defineProperty(_CNameMapping$J, 'Fullstory', NAME$J),
       _defineProperty(_CNameMapping$J, 'FullStory', NAME$J),
       _CNameMapping$J);
 
-    var _CNameMapping$I;
+    let _CNameMapping$I;
 
-    var NAME$I = 'GA';
-    var CNameMapping$H =
+    const NAME$I = 'GA';
+    const CNameMapping$H =
       ((_CNameMapping$I = {}),
       _defineProperty(_CNameMapping$I, NAME$I, NAME$I),
       _defineProperty(_CNameMapping$I, 'Google Analytics', NAME$I),
       _defineProperty(_CNameMapping$I, 'GoogleAnalytics', NAME$I),
       _CNameMapping$I);
 
-    var _CNameMapping$H;
+    let _CNameMapping$H;
 
-    var NAME$H = 'GA4';
-    var CNameMapping$G =
+    const NAME$H = 'GA4';
+    const CNameMapping$G =
       ((_CNameMapping$H = {}),
       _defineProperty(_CNameMapping$H, NAME$H, NAME$H),
       _defineProperty(_CNameMapping$H, 'Google Analytics 4', NAME$H),
       _defineProperty(_CNameMapping$H, 'GoogleAnalytics4', NAME$H),
       _CNameMapping$H);
 
-    var _CNameMapping$G;
+    let _CNameMapping$G;
 
-    var NAME$G = 'GOOGLEADS';
-    var CNameMapping$F =
+    const NAME$G = 'GOOGLEADS';
+    const CNameMapping$F =
       ((_CNameMapping$G = {}),
       _defineProperty(_CNameMapping$G, NAME$G, NAME$G),
       _defineProperty(_CNameMapping$G, 'Google Ads', NAME$G),
       _defineProperty(_CNameMapping$G, 'GoogleAds', NAME$G),
       _CNameMapping$G);
 
-    var _CNameMapping$F;
+    let _CNameMapping$F;
 
-    var NAME$F = 'GOOGLE_OPTIMIZE';
-    var CNameMapping$E =
+    const NAME$F = 'GOOGLE_OPTIMIZE';
+    const CNameMapping$E =
       ((_CNameMapping$F = {}),
       _defineProperty(_CNameMapping$F, NAME$F, NAME$F),
       _defineProperty(_CNameMapping$F, 'Google Optimize', NAME$F),
@@ -5047,19 +5044,19 @@
       _defineProperty(_CNameMapping$F, 'GOOGLEOPTIMIZE', NAME$F),
       _CNameMapping$F);
 
-    var _CNameMapping$E;
+    let _CNameMapping$E;
 
-    var NAME$E = 'GTM';
-    var CNameMapping$D =
+    const NAME$E = 'GTM';
+    const CNameMapping$D =
       ((_CNameMapping$E = {}),
       _defineProperty(_CNameMapping$E, NAME$E, NAME$E),
       _defineProperty(_CNameMapping$E, 'Google Tag Manager', NAME$E),
       _CNameMapping$E);
 
-    var _CNameMapping$D;
+    let _CNameMapping$D;
 
-    var NAME$D = 'HEAP';
-    var CNameMapping$C =
+    const NAME$D = 'HEAP';
+    const CNameMapping$C =
       ((_CNameMapping$D = {}),
       _defineProperty(_CNameMapping$D, NAME$D, NAME$D),
       _defineProperty(_CNameMapping$D, 'Heap', NAME$D),
@@ -5067,67 +5064,67 @@
       _defineProperty(_CNameMapping$D, 'Heap.io', NAME$D),
       _CNameMapping$D);
 
-    var _CNameMapping$C;
+    let _CNameMapping$C;
 
-    var NAME$C = 'HOTJAR';
-    var CNameMapping$B =
+    const NAME$C = 'HOTJAR';
+    const CNameMapping$B =
       ((_CNameMapping$C = {}),
       _defineProperty(_CNameMapping$C, NAME$C, NAME$C),
       _defineProperty(_CNameMapping$C, 'Hotjar', NAME$C),
       _defineProperty(_CNameMapping$C, 'hotjar', NAME$C),
       _CNameMapping$C);
 
-    var _CNameMapping$B;
+    let _CNameMapping$B;
 
-    var NAME$B = 'HS';
-    var CNameMapping$A =
+    const NAME$B = 'HS';
+    const CNameMapping$A =
       ((_CNameMapping$B = {}),
       _defineProperty(_CNameMapping$B, NAME$B, NAME$B),
       _defineProperty(_CNameMapping$B, 'Hubspot', NAME$B),
       _defineProperty(_CNameMapping$B, 'HUBSPOT', NAME$B),
       _CNameMapping$B);
 
-    var _CNameMapping$A;
+    let _CNameMapping$A;
 
-    var NAME$A = 'INTERCOM';
-    var CNameMapping$z =
+    const NAME$A = 'INTERCOM';
+    const CNameMapping$z =
       ((_CNameMapping$A = {}),
       _defineProperty(_CNameMapping$A, NAME$A, NAME$A),
       _defineProperty(_CNameMapping$A, 'Intercom', NAME$A),
       _CNameMapping$A);
 
-    var _CNameMapping$z;
+    let _CNameMapping$z;
 
-    var NAME$z = 'KEEN';
-    var CNameMapping$y =
+    const NAME$z = 'KEEN';
+    const CNameMapping$y =
       ((_CNameMapping$z = {}),
       _defineProperty(_CNameMapping$z, NAME$z, NAME$z),
       _defineProperty(_CNameMapping$z, 'Keen', NAME$z),
       _defineProperty(_CNameMapping$z, 'Keen.io', NAME$z),
       _CNameMapping$z);
 
-    var _CNameMapping$y;
+    let _CNameMapping$y;
 
-    var NAME$y = 'KISSMETRICS';
-    var CNameMapping$x =
+    const NAME$y = 'KISSMETRICS';
+    const CNameMapping$x =
       ((_CNameMapping$y = {}),
       _defineProperty(_CNameMapping$y, NAME$y, NAME$y),
       _defineProperty(_CNameMapping$y, 'Kissmetrics', NAME$y),
       _CNameMapping$y);
 
-    var _CNameMapping$x;
+    let _CNameMapping$x;
 
-    var NAME$x = 'KLAVIYO';
-    var CNameMapping$w =
+    const NAME$x = 'KLAVIYO';
+    const CNameMapping$w =
       ((_CNameMapping$x = {}),
       _defineProperty(_CNameMapping$x, NAME$x, NAME$x),
       _defineProperty(_CNameMapping$x, 'Klaviyo', NAME$x),
       _CNameMapping$x);
 
-    var _CNameMapping$w;
+    let _CNameMapping$w;
 
-    var NAME$w = 'LAUNCHDARKLY';
-    var CNameMapping$v =
+    const NAME$w = 'LAUNCHDARKLY';
+    const CNameMapping$v =
       ((_CNameMapping$w = {}),
       _defineProperty(_CNameMapping$w, NAME$w, NAME$w),
       _defineProperty(_CNameMapping$w, 'LaunchDarkly', NAME$w),
@@ -5136,10 +5133,10 @@
       _defineProperty(_CNameMapping$w, 'launchDarkly', NAME$w),
       _CNameMapping$w);
 
-    var _CNameMapping$v;
+    let _CNameMapping$v;
 
-    var NAME$v = 'LINKEDIN_INSIGHT_TAG';
-    var CNameMapping$u =
+    const NAME$v = 'LINKEDIN_INSIGHT_TAG';
+    const CNameMapping$u =
       ((_CNameMapping$v = {}),
       _defineProperty(_CNameMapping$v, NAME$v, NAME$v),
       _defineProperty(_CNameMapping$v, 'LinkedIn Insight Tag', NAME$v),
@@ -5151,65 +5148,65 @@
       _defineProperty(_CNameMapping$v, 'LINKEDININSIGHTTAG', NAME$v),
       _CNameMapping$v);
 
-    var _CNameMapping$u;
+    let _CNameMapping$u;
 
-    var NAME$u = 'LOTAME';
-    var CNameMapping$t =
+    const NAME$u = 'LOTAME';
+    const CNameMapping$t =
       ((_CNameMapping$u = {}),
       _defineProperty(_CNameMapping$u, NAME$u, NAME$u),
       _defineProperty(_CNameMapping$u, 'Lotame', NAME$u),
       _CNameMapping$u);
 
-    var _CNameMapping$t;
+    let _CNameMapping$t;
 
-    var NAME$t = 'LYTICS';
-    var CNameMapping$s =
+    const NAME$t = 'LYTICS';
+    const CNameMapping$s =
       ((_CNameMapping$t = {}),
       _defineProperty(_CNameMapping$t, NAME$t, NAME$t),
       _defineProperty(_CNameMapping$t, 'Lytics', NAME$t),
       _CNameMapping$t);
 
-    var _CNameMapping$s;
+    let _CNameMapping$s;
 
-    var NAME$s = 'MP';
-    var CNameMapping$r =
+    const NAME$s = 'MP';
+    const CNameMapping$r =
       ((_CNameMapping$s = {}),
       _defineProperty(_CNameMapping$s, NAME$s, NAME$s),
       _defineProperty(_CNameMapping$s, 'MIXPANEL', NAME$s),
       _defineProperty(_CNameMapping$s, 'Mixpanel', NAME$s),
       _CNameMapping$s);
 
-    var _CNameMapping$r;
+    let _CNameMapping$r;
 
-    var NAME$r = 'MOENGAGE';
-    var CNameMapping$q =
+    const NAME$r = 'MOENGAGE';
+    const CNameMapping$q =
       ((_CNameMapping$r = {}),
       _defineProperty(_CNameMapping$r, NAME$r, NAME$r),
       _defineProperty(_CNameMapping$r, 'MoEngage', NAME$r),
       _CNameMapping$r);
 
-    var _CNameMapping$q;
+    let _CNameMapping$q;
 
-    var NAME$q = 'OPTIMIZELY';
-    var CNameMapping$p =
+    const NAME$q = 'OPTIMIZELY';
+    const CNameMapping$p =
       ((_CNameMapping$q = {}),
       _defineProperty(_CNameMapping$q, NAME$q, NAME$q),
       _defineProperty(_CNameMapping$q, 'Optimizely', NAME$q),
       _CNameMapping$q);
 
-    var _CNameMapping$p;
+    let _CNameMapping$p;
 
-    var NAME$p = 'PENDO';
-    var CNameMapping$o =
+    const NAME$p = 'PENDO';
+    const CNameMapping$o =
       ((_CNameMapping$p = {}),
       _defineProperty(_CNameMapping$p, NAME$p, NAME$p),
       _defineProperty(_CNameMapping$p, 'Pendo', NAME$p),
       _CNameMapping$p);
 
-    var _CNameMapping$o;
+    let _CNameMapping$o;
 
-    var NAME$o = 'PINTEREST_TAG';
-    var CNameMapping$n =
+    const NAME$o = 'PINTEREST_TAG';
+    const CNameMapping$n =
       ((_CNameMapping$o = {}),
       _defineProperty(_CNameMapping$o, NAME$o, NAME$o),
       _defineProperty(_CNameMapping$o, 'PinterestTag', NAME$o),
@@ -5221,10 +5218,10 @@
       _defineProperty(_CNameMapping$o, 'Pinterest', NAME$o),
       _CNameMapping$o);
 
-    var _CNameMapping$n;
+    let _CNameMapping$n;
 
-    var NAME$n = 'POST_AFFILIATE_PRO';
-    var CNameMapping$m =
+    const NAME$n = 'POST_AFFILIATE_PRO';
+    const CNameMapping$m =
       ((_CNameMapping$n = {}),
       _defineProperty(_CNameMapping$n, NAME$n, NAME$n),
       _defineProperty(_CNameMapping$n, 'PostAffiliatePro', NAME$n),
@@ -5234,20 +5231,20 @@
       _defineProperty(_CNameMapping$n, 'POSTAFFILIATEPRO', NAME$n),
       _CNameMapping$n);
 
-    var _CNameMapping$m;
+    let _CNameMapping$m;
 
-    var NAME$m = 'POSTHOG';
-    var CNameMapping$l =
+    const NAME$m = 'POSTHOG';
+    const CNameMapping$l =
       ((_CNameMapping$m = {}),
       _defineProperty(_CNameMapping$m, NAME$m, NAME$m),
       _defineProperty(_CNameMapping$m, 'PostHog', NAME$m),
       _defineProperty(_CNameMapping$m, 'Posthog', NAME$m),
       _CNameMapping$m);
 
-    var _CNameMapping$l;
+    let _CNameMapping$l;
 
-    var NAME$l = 'PROFITWELL';
-    var CNameMapping$k =
+    const NAME$l = 'PROFITWELL';
+    const CNameMapping$k =
       ((_CNameMapping$l = {}),
       _defineProperty(_CNameMapping$l, NAME$l, NAME$l),
       _defineProperty(_CNameMapping$l, 'ProfitWell', NAME$l),
@@ -5255,20 +5252,20 @@
       _defineProperty(_CNameMapping$l, 'Profitwell', NAME$l),
       _CNameMapping$l);
 
-    var _CNameMapping$k;
+    let _CNameMapping$k;
 
-    var NAME$k = 'QUALTRICS';
-    var CNameMapping$j =
+    const NAME$k = 'QUALTRICS';
+    const CNameMapping$j =
       ((_CNameMapping$k = {}),
       _defineProperty(_CNameMapping$k, NAME$k, NAME$k),
       _defineProperty(_CNameMapping$k, 'Qualtrics', NAME$k),
       _defineProperty(_CNameMapping$k, 'qualtrics', NAME$k),
       _CNameMapping$k);
 
-    var _CNameMapping$j;
+    let _CNameMapping$j;
 
-    var NAME$j = 'QUANTUMMETRIC';
-    var CNameMapping$i =
+    const NAME$j = 'QUANTUMMETRIC';
+    const CNameMapping$i =
       ((_CNameMapping$j = {}),
       _defineProperty(_CNameMapping$j, NAME$j, NAME$j),
       _defineProperty(_CNameMapping$j, 'Quantum Metric', NAME$j),
@@ -5278,10 +5275,10 @@
       _defineProperty(_CNameMapping$j, 'Quantum_Metric', NAME$j),
       _CNameMapping$j);
 
-    var _CNameMapping$i;
+    let _CNameMapping$i;
 
-    var NAME$i = 'REDDIT_PIXEL';
-    var CNameMapping$h =
+    const NAME$i = 'REDDIT_PIXEL';
+    const CNameMapping$h =
       ((_CNameMapping$i = {}),
       _defineProperty(_CNameMapping$i, NAME$i, NAME$i),
       _defineProperty(_CNameMapping$i, 'Reddit_Pixel', NAME$i),
@@ -5293,20 +5290,20 @@
       _defineProperty(_CNameMapping$i, 'reddit pixel', NAME$i),
       _CNameMapping$i);
 
-    var _CNameMapping$h;
+    let _CNameMapping$h;
 
-    var NAME$h = 'SENTRY';
-    var CNameMapping$g =
+    const NAME$h = 'SENTRY';
+    const CNameMapping$g =
       ((_CNameMapping$h = {}),
       _defineProperty(_CNameMapping$h, NAME$h, NAME$h),
       _defineProperty(_CNameMapping$h, 'sentry', NAME$h),
       _defineProperty(_CNameMapping$h, 'Sentry', NAME$h),
       _CNameMapping$h);
 
-    var _CNameMapping$g;
+    let _CNameMapping$g;
 
-    var NAME$g = 'SNAP_PIXEL';
-    var CNameMapping$f =
+    const NAME$g = 'SNAP_PIXEL';
+    const CNameMapping$f =
       ((_CNameMapping$g = {}),
       _defineProperty(_CNameMapping$g, NAME$g, NAME$g),
       _defineProperty(_CNameMapping$g, 'Snap_Pixel', NAME$g),
@@ -5318,28 +5315,28 @@
       _defineProperty(_CNameMapping$g, 'snap pixel', NAME$g),
       _CNameMapping$g);
 
-    var _CNameMapping$f;
+    let _CNameMapping$f;
 
-    var NAME$f = 'TVSQUARED';
-    var CNameMapping$e =
+    const NAME$f = 'TVSQUARED';
+    const CNameMapping$e =
       ((_CNameMapping$f = {}),
       _defineProperty(_CNameMapping$f, NAME$f, NAME$f),
       _defineProperty(_CNameMapping$f, 'TVSquared', NAME$f),
       _CNameMapping$f);
 
-    var _CNameMapping$e;
+    let _CNameMapping$e;
 
-    var NAME$e = 'VWO';
-    var CNameMapping$d =
+    const NAME$e = 'VWO';
+    const CNameMapping$d =
       ((_CNameMapping$e = {}),
       _defineProperty(_CNameMapping$e, NAME$e, NAME$e),
       _defineProperty(_CNameMapping$e, 'Visual Website Optimizer', NAME$e),
       _CNameMapping$e);
 
-    var _CNameMapping$d;
+    let _CNameMapping$d;
 
-    var NAME$d = 'GA360';
-    var CNameMapping$c =
+    const NAME$d = 'GA360';
+    const CNameMapping$c =
       ((_CNameMapping$d = {}),
       _defineProperty(_CNameMapping$d, NAME$d, NAME$d),
       _defineProperty(_CNameMapping$d, 'Google Analytics 360', NAME$d),
@@ -5347,20 +5344,20 @@
       _defineProperty(_CNameMapping$d, 'GA 360', NAME$d),
       _CNameMapping$d);
 
-    var _CNameMapping$c;
+    let _CNameMapping$c;
 
-    var NAME$c = 'ADROLL';
-    var CNameMapping$b =
+    const NAME$c = 'ADROLL';
+    const CNameMapping$b =
       ((_CNameMapping$c = {}),
       _defineProperty(_CNameMapping$c, NAME$c, NAME$c),
       _defineProperty(_CNameMapping$c, 'Adroll', NAME$c),
       _defineProperty(_CNameMapping$c, 'Ad roll', NAME$c),
       _CNameMapping$c);
 
-    var _CNameMapping$b;
+    let _CNameMapping$b;
 
-    var NAME$b = 'DCM_FLOODLIGHT';
-    var CNameMapping$a =
+    const NAME$b = 'DCM_FLOODLIGHT';
+    const CNameMapping$a =
       ((_CNameMapping$b = {}),
       _defineProperty(_CNameMapping$b, NAME$b, NAME$b),
       _defineProperty(_CNameMapping$b, 'DCM Floodlight', NAME$b),
@@ -5374,10 +5371,10 @@
       _defineProperty(_CNameMapping$b, 'DCM_Floodlight', NAME$b),
       _CNameMapping$b);
 
-    var _CNameMapping$a;
+    let _CNameMapping$a;
 
-    var NAME$a = 'MATOMO';
-    var CNameMapping$9 =
+    const NAME$a = 'MATOMO';
+    const CNameMapping$9 =
       ((_CNameMapping$a = {}),
       _defineProperty(_CNameMapping$a, NAME$a, NAME$a),
       _defineProperty(_CNameMapping$a, 'MATOMO', NAME$a),
@@ -5385,20 +5382,20 @@
       _defineProperty(_CNameMapping$a, 'matomo', NAME$a),
       _CNameMapping$a);
 
-    var _CNameMapping$9;
+    let _CNameMapping$9;
 
-    var NAME$9 = 'VERO';
-    var CNameMapping$8 =
+    const NAME$9 = 'VERO';
+    const CNameMapping$8 =
       ((_CNameMapping$9 = {}),
       _defineProperty(_CNameMapping$9, NAME$9, NAME$9),
       _defineProperty(_CNameMapping$9, 'Vero', NAME$9),
       _defineProperty(_CNameMapping$9, 'vero', NAME$9),
       _CNameMapping$9);
 
-    var _CNameMapping$8;
+    let _CNameMapping$8;
 
-    var NAME$8 = 'MOUSEFLOW';
-    var CNameMapping$7 =
+    const NAME$8 = 'MOUSEFLOW';
+    const CNameMapping$7 =
       ((_CNameMapping$8 = {}),
       _defineProperty(_CNameMapping$8, NAME$8, NAME$8),
       _defineProperty(_CNameMapping$8, 'Mouseflow', NAME$8),
@@ -5407,9 +5404,9 @@
       _defineProperty(_CNameMapping$8, 'MouseFlow', NAME$8),
       _CNameMapping$8);
 
-    var _CNameMapping$7;
+    let _CNameMapping$7;
 
-    var NAME$7 = 'ROCKERBOX';
+    const NAME$7 = 'ROCKERBOX';
     (_CNameMapping$7 = {}),
       _defineProperty(_CNameMapping$7, NAME$7, NAME$7),
       _defineProperty(_CNameMapping$7, 'Rockerbox', NAME$7),
@@ -5417,10 +5414,10 @@
       _defineProperty(_CNameMapping$7, 'RockerBox', NAME$7),
       _CNameMapping$7;
 
-    var _CNameMapping$6;
+    let _CNameMapping$6;
 
-    var NAME$6 = 'CONVERTFLOW';
-    var CNameMapping$6 =
+    const NAME$6 = 'CONVERTFLOW';
+    const CNameMapping$6 =
       ((_CNameMapping$6 = {}),
       _defineProperty(_CNameMapping$6, NAME$6, NAME$6),
       _defineProperty(_CNameMapping$6, 'Convertflow', NAME$6),
@@ -5429,10 +5426,10 @@
       _defineProperty(_CNameMapping$6, 'ConvertFlow', NAME$6),
       _CNameMapping$6);
 
-    var _CNameMapping$5;
+    let _CNameMapping$5;
 
-    var NAME$5 = 'SNAPENGAGE';
-    var CNameMapping$5 =
+    const NAME$5 = 'SNAPENGAGE';
+    const CNameMapping$5 =
       ((_CNameMapping$5 = {}),
       _defineProperty(_CNameMapping$5, NAME$5, NAME$5),
       _defineProperty(_CNameMapping$5, 'SNAPENGAGE', NAME$5),
@@ -5444,10 +5441,10 @@
       _defineProperty(_CNameMapping$5, 'snap engage', NAME$5),
       _CNameMapping$5);
 
-    var _CNameMapping$4;
+    let _CNameMapping$4;
 
-    var NAME$4 = 'LIVECHAT';
-    var CNameMapping$4 =
+    const NAME$4 = 'LIVECHAT';
+    const CNameMapping$4 =
       ((_CNameMapping$4 = {}),
       _defineProperty(_CNameMapping$4, NAME$4, NAME$4),
       _defineProperty(_CNameMapping$4, 'LIVECHAT', NAME$4),
@@ -5459,10 +5456,10 @@
       _defineProperty(_CNameMapping$4, 'live chat', NAME$4),
       _CNameMapping$4);
 
-    var _CNameMapping$3;
+    let _CNameMapping$3;
 
-    var NAME$3 = 'SHYNET';
-    var CNameMapping$3 =
+    const NAME$3 = 'SHYNET';
+    const CNameMapping$3 =
       ((_CNameMapping$3 = {}),
       _defineProperty(_CNameMapping$3, NAME$3, NAME$3),
       _defineProperty(_CNameMapping$3, 'shynet', NAME$3),
@@ -5471,19 +5468,19 @@
       _defineProperty(_CNameMapping$3, 'Shynet', NAME$3),
       _CNameMapping$3);
 
-    var _CNameMapping$2;
+    let _CNameMapping$2;
 
-    var NAME$2 = 'WOOPRA';
-    var CNameMapping$2 =
+    const NAME$2 = 'WOOPRA';
+    const CNameMapping$2 =
       ((_CNameMapping$2 = {}),
       _defineProperty(_CNameMapping$2, NAME$2, NAME$2),
       _defineProperty(_CNameMapping$2, 'Woopra', NAME$2),
       _CNameMapping$2);
 
-    var _CNameMapping$1;
+    let _CNameMapping$1;
 
-    var NAME$1 = 'ROLLBAR';
-    var CNameMapping$1 =
+    const NAME$1 = 'ROLLBAR';
+    const CNameMapping$1 =
       ((_CNameMapping$1 = {}),
       _defineProperty(_CNameMapping$1, NAME$1, NAME$1),
       _defineProperty(_CNameMapping$1, 'RollBar', NAME$1),
@@ -5495,10 +5492,10 @@
       _defineProperty(_CNameMapping$1, 'roll bar', NAME$1),
       _CNameMapping$1);
 
-    var _CNameMapping;
+    let _CNameMapping;
 
-    var NAME = 'QUORA_PIXEL';
-    var CNameMapping =
+    const NAME = 'QUORA_PIXEL';
+    const CNameMapping =
       ((_CNameMapping = {}),
       _defineProperty(_CNameMapping, NAME, NAME),
       _defineProperty(_CNameMapping, 'Quora Pixel', NAME),
@@ -5512,7 +5509,7 @@
 
     // add a mapping from common names to index.js exported key names as identified by Rudder
 
-    var commonNames = _objectSpread2(
+    const commonNames = _objectSpread2(
       _objectSpread2(
         _objectSpread2(
           _objectSpread2(
@@ -5692,7 +5689,7 @@
 
     // from client native integration name to server identified display name
     // add a mapping from Rudder identified key names to Rudder server recognizable names
-    var clientToServerNames = {
+    const clientToServerNames = {
       All: 'All',
       GA: 'Google Analytics',
       GOOGLEADS: 'Google Ads',
@@ -5753,7 +5750,7 @@
     };
 
     // Reserved Keywords for properties/traits
-    var RESERVED_KEYS = [
+    const RESERVED_KEYS = [
       'anonymous_id',
       'id',
       'sent_at',
@@ -5763,28 +5760,28 @@
       'event_text',
       'event',
     ];
-    var CONFIG_URL = 'https://api.rudderlabs.com/sourceConfig/?p=npm&v=2.15.0';
-    var CDN_INT_DIR = 'js-integrations';
-    var DEST_SDK_BASE_URL = 'https://cdn.rudderlabs.com/v1.1/'.concat(CDN_INT_DIR);
-    var MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
-    var INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
-    var INTG_SUFFIX = '_RS';
-    var POLYFILL_URL =
+    const CONFIG_URL = 'https://api.rudderlabs.com/sourceConfig/?p=npm&v=2.15.0';
+    const CDN_INT_DIR = 'js-integrations';
+    const DEST_SDK_BASE_URL = 'https://cdn.rudderlabs.com/v1.1/'.concat(CDN_INT_DIR);
+    const MAX_WAIT_FOR_INTEGRATION_LOAD = 10000;
+    const INTEGRATION_LOAD_CHECK_INTERVAL = 1000;
+    const INTG_SUFFIX = '_RS';
+    const POLYFILL_URL =
       'https://polyfill.io/v3/polyfill.min.js?features=Array.prototype.find%2CArray.prototype.includes%2CPromise%2CString.prototype.endsWith%2CString.prototype.includes%2CString.prototype.startsWith%2CObject.entries%2CObject.values%2CElement.prototype.dataset%2CString.prototype.replaceAll';
-    var DEFAULT_ERROR_REPORT_PROVIDER = 'bugsnag';
-    var ERROR_REPORT_PROVIDERS = [DEFAULT_ERROR_REPORT_PROVIDER];
-    var SAMESITE_COOKIE_OPTS = ['Lax', 'None', 'Strict'];
-    var DEFAULT_SESSION_TIMEOUT = 30 * 60 * 1000; // 30 min in milliseconds
+    const DEFAULT_ERROR_REPORT_PROVIDER = 'bugsnag';
+    const ERROR_REPORT_PROVIDERS = [DEFAULT_ERROR_REPORT_PROVIDER];
+    const SAMESITE_COOKIE_OPTS = ['Lax', 'None', 'Strict'];
+    const DEFAULT_SESSION_TIMEOUT = 30 * 60 * 1000; // 30 min in milliseconds
 
-    var MIN_SESSION_TIMEOUT = 10 * 1000; // 10 sec in milliseconds
+    const MIN_SESSION_TIMEOUT = 10 * 1000; // 10 sec in milliseconds
 
-    var MIN_SESSION_ID_LENGTH = 10;
+    const MIN_SESSION_ID_LENGTH = 10;
 
-    var aes = { exports: {} };
+    const aes = { exports: {} };
 
-    var core = { exports: {} };
+    const core = { exports: {} };
 
-    var hasRequiredCore;
+    let hasRequiredCore;
 
     function requireCore() {
       if (hasRequiredCore) return core.exports;
@@ -5796,7 +5793,7 @@
             // CommonJS
             module.exports = factory();
           }
-        })(commonjsGlobal, function () {
+        })(commonjsGlobal, () => {
           /**
            * CryptoJS core components.
            */
@@ -5806,13 +5803,13 @@
               /*
                * Local polyfil of Object.create
                */
-              var create =
+              const create =
                 Object.create ||
                 (function () {
                   function F() {}
 
                   return function (obj) {
-                    var subtype;
+                    let subtype;
                     F.prototype = obj;
                     subtype = new F();
                     F.prototype = null;
@@ -5823,17 +5820,17 @@
                * CryptoJS namespace.
                */
 
-              var C = {};
+              const C = {};
               /**
                * Library namespace.
                */
 
-              var C_lib = (C.lib = {});
+              const C_lib = (C.lib = {});
               /**
                * Base object for prototypal inheritance.
                */
 
-              var Base = (C_lib.Base = (function () {
+              const Base = (C_lib.Base = (function () {
                 return {
                   /**
                    * Creates a new object that inherits from this object.
@@ -5855,7 +5852,7 @@
                    */
                   extend: function extend(overrides) {
                     // Spawn
-                    var subtype = create(this); // Augment
+                    const subtype = create(this); // Augment
 
                     if (overrides) {
                       subtype.mixIn(overrides);
@@ -5886,7 +5883,7 @@
                    *     var instance = MyType.create();
                    */
                   create: function create() {
-                    var instance = this.extend();
+                    const instance = this.extend();
                     instance.init.apply(instance, arguments);
                     return instance;
                   },
@@ -5917,7 +5914,7 @@
                    *     });
                    */
                   mixIn: function mixIn(properties) {
-                    for (var propertyName in properties) {
+                    for (const propertyName in properties) {
                       if (properties.hasOwnProperty(propertyName)) {
                         this[propertyName] = properties[propertyName];
                       }
@@ -6002,17 +5999,17 @@
                  */
                 concat: function concat(wordArray) {
                   // Shortcuts
-                  var thisWords = this.words;
-                  var thatWords = wordArray.words;
-                  var thisSigBytes = this.sigBytes;
-                  var thatSigBytes = wordArray.sigBytes; // Clamp excess bits
+                  const thisWords = this.words;
+                  const thatWords = wordArray.words;
+                  const thisSigBytes = this.sigBytes;
+                  const thatSigBytes = wordArray.sigBytes; // Clamp excess bits
 
                   this.clamp(); // Concat
 
                   if (thisSigBytes % 4) {
                     // Copy one byte at a time
                     for (var i = 0; i < thatSigBytes; i++) {
-                      var thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                      const thatByte = (thatWords[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
                       thisWords[(thisSigBytes + i) >>> 2] |=
                         thatByte << (24 - ((thisSigBytes + i) % 4) * 8);
                     }
@@ -6037,8 +6034,8 @@
                  */
                 clamp: function clamp() {
                   // Shortcuts
-                  var words = this.words;
-                  var sigBytes = this.sigBytes; // Clamp
+                  const {words} = this;
+                  const {sigBytes} = this; // Clamp
 
                   words[sigBytes >>> 2] &= 0xffffffff << (32 - (sigBytes % 4) * 8);
                   words.length = Math.ceil(sigBytes / 4);
@@ -6054,7 +6051,7 @@
                  *     var clone = wordArray.clone();
                  */
                 clone: function clone() {
-                  var clone = Base.clone.call(this);
+                  const clone = Base.clone.call(this);
                   clone.words = this.words.slice(0);
                   return clone;
                 },
@@ -6073,16 +6070,16 @@
                  *     var wordArray = CryptoJS.lib.WordArray.random(16);
                  */
                 random: function random(nBytes) {
-                  var words = [];
+                  const words = [];
 
-                  var r = function r(m_w) {
+                  const r = function r(m_w) {
                     var m_w = m_w;
-                    var m_z = 0x3ade68b1;
-                    var mask = 0xffffffff;
+                    let m_z = 0x3ade68b1;
+                    const mask = 0xffffffff;
                     return function () {
                       m_z = (0x9069 * (m_z & 0xffff) + (m_z >> 0x10)) & mask;
                       m_w = (0x4650 * (m_w & 0xffff) + (m_w >> 0x10)) & mask;
-                      var result = ((m_z << 0x10) + m_w) & mask;
+                      let result = ((m_z << 0x10) + m_w) & mask;
                       result /= 0x100000000;
                       result += 0.5;
                       return result * (Math.random() > 0.5 ? 1 : -1);
@@ -6090,7 +6087,7 @@
                   };
 
                   for (var i = 0, rcache; i < nBytes; i += 4) {
-                    var _r = r((rcache || Math.random()) * 0x100000000);
+                    const _r = r((rcache || Math.random()) * 0x100000000);
 
                     rcache = _r() * 0x3ade67b7;
                     words.push((_r() * 0x100000000) | 0);
@@ -6103,7 +6100,7 @@
                * Encoder namespace.
                */
 
-              var C_enc = (C.enc = {});
+              const C_enc = (C.enc = {});
               /**
                * Hex encoding strategy.
                */
@@ -6124,13 +6121,13 @@
                  */
                 stringify: function stringify(wordArray) {
                   // Shortcuts
-                  var words = wordArray.words;
-                  var sigBytes = wordArray.sigBytes; // Convert
+                  const {words} = wordArray;
+                  const {sigBytes} = wordArray; // Convert
 
-                  var hexChars = [];
+                  const hexChars = [];
 
-                  for (var i = 0; i < sigBytes; i++) {
-                    var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                  for (let i = 0; i < sigBytes; i++) {
+                    const bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
                     hexChars.push((bite >>> 4).toString(16));
                     hexChars.push((bite & 0x0f).toString(16));
                   }
@@ -6153,11 +6150,11 @@
                  */
                 parse: function parse(hexStr) {
                   // Shortcut
-                  var hexStrLength = hexStr.length; // Convert
+                  const hexStrLength = hexStr.length; // Convert
 
-                  var words = [];
+                  const words = [];
 
-                  for (var i = 0; i < hexStrLength; i += 2) {
+                  for (let i = 0; i < hexStrLength; i += 2) {
                     words[i >>> 3] |= parseInt(hexStr.substr(i, 2), 16) << (24 - (i % 8) * 4);
                   }
 
@@ -6168,7 +6165,7 @@
                * Latin1 encoding strategy.
                */
 
-              var Latin1 = (C_enc.Latin1 = {
+              const Latin1 = (C_enc.Latin1 = {
                 /**
                  * Converts a word array to a Latin1 string.
                  *
@@ -6184,13 +6181,13 @@
                  */
                 stringify: function stringify(wordArray) {
                   // Shortcuts
-                  var words = wordArray.words;
-                  var sigBytes = wordArray.sigBytes; // Convert
+                  const {words} = wordArray;
+                  const {sigBytes} = wordArray; // Convert
 
-                  var latin1Chars = [];
+                  const latin1Chars = [];
 
-                  for (var i = 0; i < sigBytes; i++) {
-                    var bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                  for (let i = 0; i < sigBytes; i++) {
+                    const bite = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
                     latin1Chars.push(String.fromCharCode(bite));
                   }
 
@@ -6212,11 +6209,11 @@
                  */
                 parse: function parse(latin1Str) {
                   // Shortcut
-                  var latin1StrLength = latin1Str.length; // Convert
+                  const latin1StrLength = latin1Str.length; // Convert
 
-                  var words = [];
+                  const words = [];
 
-                  for (var i = 0; i < latin1StrLength; i++) {
+                  for (let i = 0; i < latin1StrLength; i++) {
                     words[i >>> 2] |= (latin1Str.charCodeAt(i) & 0xff) << (24 - (i % 4) * 8);
                   }
 
@@ -6227,7 +6224,7 @@
                * UTF-8 encoding strategy.
                */
 
-              var Utf8 = (C_enc.Utf8 = {
+              const Utf8 = (C_enc.Utf8 = {
                 /**
                  * Converts a word array to a UTF-8 string.
                  *
@@ -6274,7 +6271,7 @@
                * @property {number} _minBufferSize The number of blocks that should be kept unprocessed in the buffer. Default: 0
                */
 
-              var BufferedBlockAlgorithm = (C_lib.BufferedBlockAlgorithm = Base.extend({
+              const BufferedBlockAlgorithm = (C_lib.BufferedBlockAlgorithm = Base.extend({
                 /**
                  * Resets this block algorithm's data buffer to its initial state.
                  *
@@ -6300,7 +6297,7 @@
                  */
                 _append: function _append(data) {
                   // Convert string to WordArray, else assume WordArray already
-                  if (typeof data == 'string') {
+                  if (typeof data === 'string') {
                     data = Utf8.parse(data);
                   } // Append
 
@@ -6325,13 +6322,13 @@
                  */
                 _process: function _process(doFlush) {
                   // Shortcuts
-                  var data = this._data;
-                  var dataWords = data.words;
-                  var dataSigBytes = data.sigBytes;
-                  var blockSize = this.blockSize;
-                  var blockSizeBytes = blockSize * 4; // Count blocks ready
+                  const data = this._data;
+                  const dataWords = data.words;
+                  const dataSigBytes = data.sigBytes;
+                  const {blockSize} = this;
+                  const blockSizeBytes = blockSize * 4; // Count blocks ready
 
-                  var nBlocksReady = dataSigBytes / blockSizeBytes;
+                  let nBlocksReady = dataSigBytes / blockSizeBytes;
 
                   if (doFlush) {
                     // Round up to include partial blocks
@@ -6342,12 +6339,12 @@
                     nBlocksReady = Math.max((nBlocksReady | 0) - this._minBufferSize, 0);
                   } // Count words ready
 
-                  var nWordsReady = nBlocksReady * blockSize; // Count bytes ready
+                  const nWordsReady = nBlocksReady * blockSize; // Count bytes ready
 
-                  var nBytesReady = Math.min(nWordsReady * 4, dataSigBytes); // Process blocks
+                  const nBytesReady = Math.min(nWordsReady * 4, dataSigBytes); // Process blocks
 
                   if (nWordsReady) {
-                    for (var offset = 0; offset < nWordsReady; offset += blockSize) {
+                    for (let offset = 0; offset < nWordsReady; offset += blockSize) {
                       // Perform concrete-algorithm logic
                       this._doProcessBlock(dataWords, offset);
                     } // Remove processed words
@@ -6369,7 +6366,7 @@
                  *     var clone = bufferedBlockAlgorithm.clone();
                  */
                 clone: function clone() {
-                  var clone = Base.clone.call(this);
+                  const clone = Base.clone.call(this);
                   clone._data = this._data.clone();
                   return clone;
                 },
@@ -6458,7 +6455,7 @@
                     this._append(messageUpdate);
                   } // Perform concrete-hasher logic
 
-                  var hash = this._doFinalize();
+                  const hash = this._doFinalize();
 
                   return hash;
                 },
@@ -6517,9 +6514,9 @@
       return core.exports;
     }
 
-    var encBase64 = { exports: {} };
+    const encBase64 = { exports: {} };
 
-    var hasRequiredEncBase64;
+    let hasRequiredEncBase64;
 
     function requireEncBase64() {
       if (hasRequiredEncBase64) return encBase64.exports;
@@ -6531,13 +6528,13 @@
             // CommonJS
             module.exports = factory(requireCore());
           }
-        })(commonjsGlobal, function (CryptoJS) {
+        })(commonjsGlobal, (CryptoJS) => {
           (function () {
             // Shortcuts
-            var C = CryptoJS;
-            var C_lib = C.lib;
-            var WordArray = C_lib.WordArray;
-            var C_enc = C.enc;
+            const C = CryptoJS;
+            const C_lib = C.lib;
+            const {WordArray} = C_lib;
+            const C_enc = C.enc;
             /**
              * Base64 encoding strategy.
              */
@@ -6558,26 +6555,26 @@
                */
               stringify: function stringify(wordArray) {
                 // Shortcuts
-                var words = wordArray.words;
-                var sigBytes = wordArray.sigBytes;
-                var map = this._map; // Clamp excess bits
+                const {words} = wordArray;
+                const {sigBytes} = wordArray;
+                const map = this._map; // Clamp excess bits
 
                 wordArray.clamp(); // Convert
 
-                var base64Chars = [];
+                const base64Chars = [];
 
-                for (var i = 0; i < sigBytes; i += 3) {
-                  var byte1 = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
-                  var byte2 = (words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xff;
-                  var byte3 = (words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xff;
-                  var triplet = (byte1 << 16) | (byte2 << 8) | byte3;
+                for (let i = 0; i < sigBytes; i += 3) {
+                  const byte1 = (words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff;
+                  const byte2 = (words[(i + 1) >>> 2] >>> (24 - ((i + 1) % 4) * 8)) & 0xff;
+                  const byte3 = (words[(i + 2) >>> 2] >>> (24 - ((i + 2) % 4) * 8)) & 0xff;
+                  const triplet = (byte1 << 16) | (byte2 << 8) | byte3;
 
-                  for (var j = 0; j < 4 && i + j * 0.75 < sigBytes; j++) {
+                  for (let j = 0; j < 4 && i + j * 0.75 < sigBytes; j++) {
                     base64Chars.push(map.charAt((triplet >>> (6 * (3 - j))) & 0x3f));
                   }
                 } // Add padding
 
-                var paddingChar = map.charAt(64);
+                const paddingChar = map.charAt(64);
 
                 if (paddingChar) {
                   while (base64Chars.length % 4) {
@@ -6603,22 +6600,22 @@
                */
               parse: function parse(base64Str) {
                 // Shortcuts
-                var base64StrLength = base64Str.length;
-                var map = this._map;
-                var reverseMap = this._reverseMap;
+                let base64StrLength = base64Str.length;
+                const map = this._map;
+                let reverseMap = this._reverseMap;
 
                 if (!reverseMap) {
                   reverseMap = this._reverseMap = [];
 
-                  for (var j = 0; j < map.length; j++) {
+                  for (let j = 0; j < map.length; j++) {
                     reverseMap[map.charCodeAt(j)] = j;
                   }
                 } // Ignore padding
 
-                var paddingChar = map.charAt(64);
+                const paddingChar = map.charAt(64);
 
                 if (paddingChar) {
-                  var paddingIndex = base64Str.indexOf(paddingChar);
+                  const paddingIndex = base64Str.indexOf(paddingChar);
 
                   if (paddingIndex !== -1) {
                     base64StrLength = paddingIndex;
@@ -6631,13 +6628,13 @@
             };
 
             function parseLoop(base64Str, base64StrLength, reverseMap) {
-              var words = [];
-              var nBytes = 0;
+              const words = [];
+              let nBytes = 0;
 
-              for (var i = 0; i < base64StrLength; i++) {
+              for (let i = 0; i < base64StrLength; i++) {
                 if (i % 4) {
-                  var bits1 = reverseMap[base64Str.charCodeAt(i - 1)] << ((i % 4) * 2);
-                  var bits2 = reverseMap[base64Str.charCodeAt(i)] >>> (6 - (i % 4) * 2);
+                  const bits1 = reverseMap[base64Str.charCodeAt(i - 1)] << ((i % 4) * 2);
+                  const bits2 = reverseMap[base64Str.charCodeAt(i)] >>> (6 - (i % 4) * 2);
                   words[nBytes >>> 2] |= (bits1 | bits2) << (24 - (nBytes % 4) * 8);
                   nBytes++;
                 }
@@ -6654,9 +6651,9 @@
       return encBase64.exports;
     }
 
-    var md5$1 = { exports: {} };
+    const md5$1 = { exports: {} };
 
-    var hasRequiredMd5;
+    let hasRequiredMd5;
 
     function requireMd5() {
       if (hasRequiredMd5) return md5$1.exports;
@@ -6668,19 +6665,19 @@
             // CommonJS
             module.exports = factory(requireCore());
           }
-        })(commonjsGlobal, function (CryptoJS) {
+        })(commonjsGlobal, (CryptoJS) => {
           (function (Math) {
             // Shortcuts
-            var C = CryptoJS;
-            var C_lib = C.lib;
-            var WordArray = C_lib.WordArray;
-            var Hasher = C_lib.Hasher;
-            var C_algo = C.algo; // Constants table
+            const C = CryptoJS;
+            const C_lib = C.lib;
+            const {WordArray} = C_lib;
+            const {Hasher} = C_lib;
+            const C_algo = C.algo; // Constants table
 
-            var T = []; // Compute constants
+            const T = []; // Compute constants
 
             (function () {
-              for (var i = 0; i < 64; i++) {
+              for (let i = 0; i < 64; i++) {
                 T[i] = (Math.abs(Math.sin(i + 1)) * 0x100000000) | 0;
               }
             })();
@@ -6688,43 +6685,43 @@
              * MD5 hash algorithm.
              */
 
-            var MD5 = (C_algo.MD5 = Hasher.extend({
+            const MD5 = (C_algo.MD5 = Hasher.extend({
               _doReset: function _doReset() {
                 this._hash = new WordArray.init([0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476]);
               },
               _doProcessBlock: function _doProcessBlock(M, offset) {
                 // Swap endian
-                for (var i = 0; i < 16; i++) {
+                for (let i = 0; i < 16; i++) {
                   // Shortcuts
-                  var offset_i = offset + i;
-                  var M_offset_i = M[offset_i];
+                  const offset_i = offset + i;
+                  const M_offset_i = M[offset_i];
                   M[offset_i] =
                     (((M_offset_i << 8) | (M_offset_i >>> 24)) & 0x00ff00ff) |
                     (((M_offset_i << 24) | (M_offset_i >>> 8)) & 0xff00ff00);
                 } // Shortcuts
 
-                var H = this._hash.words;
-                var M_offset_0 = M[offset + 0];
-                var M_offset_1 = M[offset + 1];
-                var M_offset_2 = M[offset + 2];
-                var M_offset_3 = M[offset + 3];
-                var M_offset_4 = M[offset + 4];
-                var M_offset_5 = M[offset + 5];
-                var M_offset_6 = M[offset + 6];
-                var M_offset_7 = M[offset + 7];
-                var M_offset_8 = M[offset + 8];
-                var M_offset_9 = M[offset + 9];
-                var M_offset_10 = M[offset + 10];
-                var M_offset_11 = M[offset + 11];
-                var M_offset_12 = M[offset + 12];
-                var M_offset_13 = M[offset + 13];
-                var M_offset_14 = M[offset + 14];
-                var M_offset_15 = M[offset + 15]; // Working varialbes
+                const H = this._hash.words;
+                const M_offset_0 = M[offset + 0];
+                const M_offset_1 = M[offset + 1];
+                const M_offset_2 = M[offset + 2];
+                const M_offset_3 = M[offset + 3];
+                const M_offset_4 = M[offset + 4];
+                const M_offset_5 = M[offset + 5];
+                const M_offset_6 = M[offset + 6];
+                const M_offset_7 = M[offset + 7];
+                const M_offset_8 = M[offset + 8];
+                const M_offset_9 = M[offset + 9];
+                const M_offset_10 = M[offset + 10];
+                const M_offset_11 = M[offset + 11];
+                const M_offset_12 = M[offset + 12];
+                const M_offset_13 = M[offset + 13];
+                const M_offset_14 = M[offset + 14];
+                const M_offset_15 = M[offset + 15]; // Working varialbes
 
-                var a = H[0];
-                var b = H[1];
-                var c = H[2];
-                var d = H[3]; // Computation
+                let a = H[0];
+                let b = H[1];
+                let c = H[2];
+                let d = H[3]; // Computation
 
                 a = FF(a, b, c, d, M_offset_0, 7, T[0]);
                 d = FF(d, a, b, c, M_offset_1, 12, T[1]);
@@ -6798,14 +6795,14 @@
               },
               _doFinalize: function _doFinalize() {
                 // Shortcuts
-                var data = this._data;
-                var dataWords = data.words;
-                var nBitsTotal = this._nDataBytes * 8;
-                var nBitsLeft = data.sigBytes * 8; // Add padding
+                const data = this._data;
+                const dataWords = data.words;
+                const nBitsTotal = this._nDataBytes * 8;
+                const nBitsLeft = data.sigBytes * 8; // Add padding
 
                 dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - (nBitsLeft % 32));
-                var nBitsTotalH = Math.floor(nBitsTotal / 0x100000000);
-                var nBitsTotalL = nBitsTotal;
+                const nBitsTotalH = Math.floor(nBitsTotal / 0x100000000);
+                const nBitsTotalL = nBitsTotal;
                 dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 15] =
                   (((nBitsTotalH << 8) | (nBitsTotalH >>> 24)) & 0x00ff00ff) |
                   (((nBitsTotalH << 24) | (nBitsTotalH >>> 8)) & 0xff00ff00);
@@ -6816,12 +6813,12 @@
 
                 this._process(); // Shortcuts
 
-                var hash = this._hash;
-                var H = hash.words; // Swap endian
+                const hash = this._hash;
+                const H = hash.words; // Swap endian
 
-                for (var i = 0; i < 4; i++) {
+                for (let i = 0; i < 4; i++) {
                   // Shortcut
-                  var H_i = H[i];
+                  const H_i = H[i];
                   H[i] =
                     (((H_i << 8) | (H_i >>> 24)) & 0x00ff00ff) |
                     (((H_i << 24) | (H_i >>> 8)) & 0xff00ff00);
@@ -6830,29 +6827,29 @@
                 return hash;
               },
               clone: function clone() {
-                var clone = Hasher.clone.call(this);
+                const clone = Hasher.clone.call(this);
                 clone._hash = this._hash.clone();
                 return clone;
               },
             }));
 
             function FF(a, b, c, d, x, s, t) {
-              var n = a + ((b & c) | (~b & d)) + x + t;
+              const n = a + ((b & c) | (~b & d)) + x + t;
               return ((n << s) | (n >>> (32 - s))) + b;
             }
 
             function GG(a, b, c, d, x, s, t) {
-              var n = a + ((b & d) | (c & ~d)) + x + t;
+              const n = a + ((b & d) | (c & ~d)) + x + t;
               return ((n << s) | (n >>> (32 - s))) + b;
             }
 
             function HH(a, b, c, d, x, s, t) {
-              var n = a + (b ^ c ^ d) + x + t;
+              const n = a + (b ^ c ^ d) + x + t;
               return ((n << s) | (n >>> (32 - s))) + b;
             }
 
             function II(a, b, c, d, x, s, t) {
-              var n = a + (c ^ (b | ~d)) + x + t;
+              const n = a + (c ^ (b | ~d)) + x + t;
               return ((n << s) | (n >>> (32 - s))) + b;
             }
 
@@ -6897,11 +6894,11 @@
       return md5$1.exports;
     }
 
-    var evpkdf = { exports: {} };
+    const evpkdf = { exports: {} };
 
-    var sha1$1 = { exports: {} };
+    const sha1$1 = { exports: {} };
 
-    var hasRequiredSha1;
+    let hasRequiredSha1;
 
     function requireSha1() {
       if (hasRequiredSha1) return sha1$1.exports;
@@ -6913,21 +6910,21 @@
             // CommonJS
             module.exports = factory(requireCore());
           }
-        })(commonjsGlobal, function (CryptoJS) {
+        })(commonjsGlobal, (CryptoJS) => {
           (function () {
             // Shortcuts
-            var C = CryptoJS;
-            var C_lib = C.lib;
-            var WordArray = C_lib.WordArray;
-            var Hasher = C_lib.Hasher;
-            var C_algo = C.algo; // Reusable object
+            const C = CryptoJS;
+            const C_lib = C.lib;
+            const {WordArray} = C_lib;
+            const {Hasher} = C_lib;
+            const C_algo = C.algo; // Reusable object
 
-            var W = [];
+            const W = [];
             /**
              * SHA-1 hash algorithm.
              */
 
-            var SHA1 = (C_algo.SHA1 = Hasher.extend({
+            const SHA1 = (C_algo.SHA1 = Hasher.extend({
               _doReset: function _doReset() {
                 this._hash = new WordArray.init([
                   0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0,
@@ -6935,23 +6932,23 @@
               },
               _doProcessBlock: function _doProcessBlock(M, offset) {
                 // Shortcut
-                var H = this._hash.words; // Working variables
+                const H = this._hash.words; // Working variables
 
-                var a = H[0];
-                var b = H[1];
-                var c = H[2];
-                var d = H[3];
-                var e = H[4]; // Computation
+                let a = H[0];
+                let b = H[1];
+                let c = H[2];
+                let d = H[3];
+                let e = H[4]; // Computation
 
-                for (var i = 0; i < 80; i++) {
+                for (let i = 0; i < 80; i++) {
                   if (i < 16) {
                     W[i] = M[offset + i] | 0;
                   } else {
-                    var n = W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16];
+                    const n = W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16];
                     W[i] = (n << 1) | (n >>> 31);
                   }
 
-                  var t = ((a << 5) | (a >>> 27)) + e + W[i];
+                  let t = ((a << 5) | (a >>> 27)) + e + W[i];
 
                   if (i < 20) {
                     t += ((b & c) | (~b & d)) + 0x5a827999;
@@ -6960,7 +6957,7 @@
                   } else if (i < 60) {
                     t += ((b & c) | (b & d) | (c & d)) - 0x70e44324;
                   } else {
-                  /* if (i < 80) */
+                    /* if (i < 80) */
                     t += (b ^ c ^ d) - 0x359d3e2a;
                   }
 
@@ -6979,10 +6976,10 @@
               },
               _doFinalize: function _doFinalize() {
                 // Shortcuts
-                var data = this._data;
-                var dataWords = data.words;
-                var nBitsTotal = this._nDataBytes * 8;
-                var nBitsLeft = data.sigBytes * 8; // Add padding
+                const data = this._data;
+                const dataWords = data.words;
+                const nBitsTotal = this._nDataBytes * 8;
+                const nBitsLeft = data.sigBytes * 8; // Add padding
 
                 dataWords[nBitsLeft >>> 5] |= 0x80 << (24 - (nBitsLeft % 32));
                 dataWords[(((nBitsLeft + 64) >>> 9) << 4) + 14] = Math.floor(
@@ -6996,7 +6993,7 @@
                 return this._hash;
               },
               clone: function clone() {
-                var clone = Hasher.clone.call(this);
+                const clone = Hasher.clone.call(this);
                 clone._hash = this._hash.clone();
                 return clone;
               },
@@ -7042,9 +7039,9 @@
       return sha1$1.exports;
     }
 
-    var hmac = { exports: {} };
+    const hmac = { exports: {} };
 
-    var hasRequiredHmac;
+    let hasRequiredHmac;
 
     function requireHmac() {
       if (hasRequiredHmac) return hmac.exports;
@@ -7056,15 +7053,15 @@
             // CommonJS
             module.exports = factory(requireCore());
           }
-        })(commonjsGlobal, function (CryptoJS) {
+        })(commonjsGlobal, (CryptoJS) => {
           (function () {
             // Shortcuts
-            var C = CryptoJS;
-            var C_lib = C.lib;
-            var Base = C_lib.Base;
-            var C_enc = C.enc;
-            var Utf8 = C_enc.Utf8;
-            var C_algo = C.algo;
+            const C = CryptoJS;
+            const C_lib = C.lib;
+            const {Base} = C_lib;
+            const C_enc = C.enc;
+            const {Utf8} = C_enc;
+            const C_algo = C.algo;
             /**
              * HMAC algorithm.
              */
@@ -7084,12 +7081,12 @@
                 // Init hasher
                 hasher = this._hasher = new hasher.init(); // Convert string to WordArray, else assume WordArray already
 
-                if (typeof key == 'string') {
+                if (typeof key === 'string') {
                   key = Utf8.parse(key);
                 } // Shortcuts
 
-                var hasherBlockSize = hasher.blockSize;
-                var hasherBlockSizeBytes = hasherBlockSize * 4; // Allow arbitrary length keys
+                const hasherBlockSize = hasher.blockSize;
+                const hasherBlockSizeBytes = hasherBlockSize * 4; // Allow arbitrary length keys
 
                 if (key.sigBytes > hasherBlockSizeBytes) {
                   key = hasher.finalize(key);
@@ -7097,13 +7094,13 @@
 
                 key.clamp(); // Clone key for inner and outer pads
 
-                var oKey = (this._oKey = key.clone());
-                var iKey = (this._iKey = key.clone()); // Shortcuts
+                const oKey = (this._oKey = key.clone());
+                const iKey = (this._iKey = key.clone()); // Shortcuts
 
-                var oKeyWords = oKey.words;
-                var iKeyWords = iKey.words; // XOR keys with pad constants
+                const oKeyWords = oKey.words;
+                const iKeyWords = iKey.words; // XOR keys with pad constants
 
-                for (var i = 0; i < hasherBlockSize; i++) {
+                for (let i = 0; i < hasherBlockSize; i++) {
                   oKeyWords[i] ^= 0x5c5c5c5c;
                   iKeyWords[i] ^= 0x36363636;
                 }
@@ -7122,7 +7119,7 @@
                */
               reset: function reset() {
                 // Shortcut
-                var hasher = this._hasher; // Reset
+                const hasher = this._hasher; // Reset
 
                 hasher.reset();
                 hasher.update(this._iKey);
@@ -7162,11 +7159,11 @@
                */
               finalize: function finalize(messageUpdate) {
                 // Shortcut
-                var hasher = this._hasher; // Compute HMAC
+                const hasher = this._hasher; // Compute HMAC
 
-                var innerHash = hasher.finalize(messageUpdate);
+                const innerHash = hasher.finalize(messageUpdate);
                 hasher.reset();
-                var hmac = hasher.finalize(this._oKey.clone().concat(innerHash));
+                const hmac = hasher.finalize(this._oKey.clone().concat(innerHash));
                 return hmac;
               },
             });
@@ -7177,7 +7174,7 @@
       return hmac.exports;
     }
 
-    var hasRequiredEvpkdf;
+    let hasRequiredEvpkdf;
 
     function requireEvpkdf() {
       if (hasRequiredEvpkdf) return evpkdf.exports;
@@ -7189,21 +7186,21 @@
             // CommonJS
             module.exports = factory(requireCore(), requireSha1(), requireHmac());
           }
-        })(commonjsGlobal, function (CryptoJS) {
+        })(commonjsGlobal, (CryptoJS) => {
           (function () {
             // Shortcuts
-            var C = CryptoJS;
-            var C_lib = C.lib;
-            var Base = C_lib.Base;
-            var WordArray = C_lib.WordArray;
-            var C_algo = C.algo;
-            var MD5 = C_algo.MD5;
+            const C = CryptoJS;
+            const C_lib = C.lib;
+            const {Base} = C_lib;
+            const {WordArray} = C_lib;
+            const C_algo = C.algo;
+            const {MD5} = C_algo;
             /**
              * This key derivation function is meant to conform with EVP_BytesToKey.
              * www.openssl.org/docs/crypto/EVP_BytesToKey.html
              */
 
-            var EvpKDF = (C_algo.EvpKDF = Base.extend({
+            const EvpKDF = (C_algo.EvpKDF = Base.extend({
               /**
                * Configuration options.
                *
@@ -7246,15 +7243,15 @@
                */
               compute: function compute(password, salt) {
                 // Shortcut
-                var cfg = this.cfg; // Init hasher
+                const {cfg} = this; // Init hasher
 
-                var hasher = cfg.hasher.create(); // Initial values
+                const hasher = cfg.hasher.create(); // Initial values
 
-                var derivedKey = WordArray.create(); // Shortcuts
+                const derivedKey = WordArray.create(); // Shortcuts
 
-                var derivedKeyWords = derivedKey.words;
-                var keySize = cfg.keySize;
-                var iterations = cfg.iterations; // Generate key
+                const derivedKeyWords = derivedKey.words;
+                const {keySize} = cfg;
+                const {iterations} = cfg; // Generate key
 
                 while (derivedKeyWords.length < keySize) {
                   if (block) {
@@ -7264,7 +7261,7 @@
                   var block = hasher.update(password).finalize(salt);
                   hasher.reset(); // Iterations
 
-                  for (var i = 1; i < iterations; i++) {
+                  for (let i = 1; i < iterations; i++) {
                     block = hasher.finalize(block);
                     hasher.reset();
                   }
@@ -7306,9 +7303,9 @@
       return evpkdf.exports;
     }
 
-    var cipherCore = { exports: {} };
+    const cipherCore = { exports: {} };
 
-    var hasRequiredCipherCore;
+    let hasRequiredCipherCore;
 
     function requireCipherCore() {
       if (hasRequiredCipherCore) return cipherCore.exports;
@@ -7320,23 +7317,23 @@
             // CommonJS
             module.exports = factory(requireCore(), requireEvpkdf());
           }
-        })(commonjsGlobal, function (CryptoJS) {
+        })(commonjsGlobal, (CryptoJS) => {
           /**
            * Cipher core components.
            */
           CryptoJS.lib.Cipher ||
             (function (undefined$1) {
               // Shortcuts
-              var C = CryptoJS;
-              var C_lib = C.lib;
-              var Base = C_lib.Base;
-              var WordArray = C_lib.WordArray;
-              var BufferedBlockAlgorithm = C_lib.BufferedBlockAlgorithm;
-              var C_enc = C.enc;
+              const C = CryptoJS;
+              const C_lib = C.lib;
+              const {Base} = C_lib;
+              const {WordArray} = C_lib;
+              const {BufferedBlockAlgorithm} = C_lib;
+              const C_enc = C.enc;
               C_enc.Utf8;
-              var Base64 = C_enc.Base64;
-              var C_algo = C.algo;
-              var EvpKDF = C_algo.EvpKDF;
+              const {Base64} = C_enc;
+              const C_algo = C.algo;
+              const {EvpKDF} = C_algo;
               /**
                * Abstract base cipher template.
                *
@@ -7346,7 +7343,7 @@
                * @property {number} _DEC_XFORM_MODE A constant representing decryption mode.
                */
 
-              var Cipher = (C_lib.Cipher = BufferedBlockAlgorithm.extend({
+              const Cipher = (C_lib.Cipher = BufferedBlockAlgorithm.extend({
                 /**
                  * Configuration options.
                  *
@@ -7464,7 +7461,7 @@
                     this._append(dataUpdate);
                   } // Perform concrete-cipher logic
 
-                  var finalProcessedData = this._doFinalize();
+                  const finalProcessedData = this._doFinalize();
 
                   return finalProcessedData;
                 },
@@ -7488,11 +7485,11 @@
                  */
                 _createHelper: (function () {
                   function selectCipherStrategy(key) {
-                    if (typeof key == 'string') {
+                    if (typeof key === 'string') {
                       return PasswordBasedCipher;
-                    } else {
+                    } 
                       return SerializableCipher;
-                    }
+                    
                   }
 
                   return function (cipher) {
@@ -7516,7 +7513,7 @@
               C_lib.StreamCipher = Cipher.extend({
                 _doFinalize: function _doFinalize() {
                   // Process partial blocks
-                  var finalProcessedBlocks = this._process(!!'flush');
+                  const finalProcessedBlocks = this._process(!!'flush');
 
                   return finalProcessedBlocks;
                 },
@@ -7526,12 +7523,12 @@
                * Mode namespace.
                */
 
-              var C_mode = (C.mode = {});
+              const C_mode = (C.mode = {});
               /**
                * Abstract base block cipher mode template.
                */
 
-              var BlockCipherMode = (C_lib.BlockCipherMode = Base.extend({
+              const BlockCipherMode = (C_lib.BlockCipherMode = Base.extend({
                 /**
                  * Creates this mode for encryption.
                  *
@@ -7583,11 +7580,11 @@
                * Cipher Block Chaining mode.
                */
 
-              var CBC = (C_mode.CBC = (function () {
+              const CBC = (C_mode.CBC = (function () {
                 /**
                  * Abstract base CBC mode.
                  */
-                var CBC = BlockCipherMode.extend();
+                const CBC = BlockCipherMode.extend();
                 /**
                  * CBC encryptor.
                  */
@@ -7605,8 +7602,8 @@
                    */
                   processBlock: function processBlock(words, offset) {
                     // Shortcuts
-                    var cipher = this._cipher;
-                    var blockSize = cipher.blockSize; // XOR and encrypt
+                    const cipher = this._cipher;
+                    const {blockSize} = cipher; // XOR and encrypt
 
                     xorBlock.call(this, words, offset, blockSize);
                     cipher.encryptBlock(words, offset); // Remember this block to use with next block
@@ -7631,10 +7628,10 @@
                    */
                   processBlock: function processBlock(words, offset) {
                     // Shortcuts
-                    var cipher = this._cipher;
-                    var blockSize = cipher.blockSize; // Remember this block to use with next block
+                    const cipher = this._cipher;
+                    const {blockSize} = cipher; // Remember this block to use with next block
 
-                    var thisBlock = words.slice(offset, offset + blockSize); // Decrypt and XOR
+                    const thisBlock = words.slice(offset, offset + blockSize); // Decrypt and XOR
 
                     cipher.decryptBlock(words, offset);
                     xorBlock.call(this, words, offset, blockSize); // This block becomes the previous block
@@ -7645,7 +7642,7 @@
 
                 function xorBlock(words, offset, blockSize) {
                   // Shortcut
-                  var iv = this._iv; // Choose mixing block
+                  const iv = this._iv; // Choose mixing block
 
                   if (iv) {
                     var block = iv; // Remove IV for subsequent blocks
@@ -7655,7 +7652,7 @@
                     var block = this._prevBlock;
                   } // XOR blocks
 
-                  for (var i = 0; i < blockSize; i++) {
+                  for (let i = 0; i < blockSize; i++) {
                     words[offset + i] ^= block[i];
                   }
                 }
@@ -7666,12 +7663,12 @@
                * Padding namespace.
                */
 
-              var C_pad = (C.pad = {});
+              const C_pad = (C.pad = {});
               /**
                * PKCS #5/7 padding strategy.
                */
 
-              var Pkcs7 = (C_pad.Pkcs7 = {
+              const Pkcs7 = (C_pad.Pkcs7 = {
                 /**
                  * Pads data using the algorithm defined in PKCS #5/7.
                  *
@@ -7686,23 +7683,23 @@
                  */
                 pad: function pad(data, blockSize) {
                   // Shortcut
-                  var blockSizeBytes = blockSize * 4; // Count padding bytes
+                  const blockSizeBytes = blockSize * 4; // Count padding bytes
 
-                  var nPaddingBytes = blockSizeBytes - (data.sigBytes % blockSizeBytes); // Create padding word
+                  const nPaddingBytes = blockSizeBytes - (data.sigBytes % blockSizeBytes); // Create padding word
 
-                  var paddingWord =
+                  const paddingWord =
                     (nPaddingBytes << 24) |
                     (nPaddingBytes << 16) |
                     (nPaddingBytes << 8) |
                     nPaddingBytes; // Create padding
 
-                  var paddingWords = [];
+                  const paddingWords = [];
 
-                  for (var i = 0; i < nPaddingBytes; i += 4) {
+                  for (let i = 0; i < nPaddingBytes; i += 4) {
                     paddingWords.push(paddingWord);
                   }
 
-                  var padding = WordArray.create(paddingWords, nPaddingBytes); // Add padding
+                  const padding = WordArray.create(paddingWords, nPaddingBytes); // Add padding
 
                   data.concat(padding);
                 },
@@ -7720,7 +7717,7 @@
                  */
                 unpad: function unpad(data) {
                   // Get number of padding bytes from last byte
-                  var nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff; // Remove padding
+                  const nPaddingBytes = data.words[(data.sigBytes - 1) >>> 2] & 0xff; // Remove padding
 
                   data.sigBytes -= nPaddingBytes;
                 },
@@ -7746,14 +7743,14 @@
                   // Reset cipher
                   Cipher.reset.call(this); // Shortcuts
 
-                  var cfg = this.cfg;
-                  var iv = cfg.iv;
-                  var mode = cfg.mode; // Reset block mode
+                  const {cfg} = this;
+                  const {iv} = cfg;
+                  const {mode} = cfg; // Reset block mode
 
                   if (this._xformMode == this._ENC_XFORM_MODE) {
                     var modeCreator = mode.createEncryptor;
                   } else {
-                  /* if (this._xformMode == this._DEC_XFORM_MODE) */
+                    /* if (this._xformMode == this._DEC_XFORM_MODE) */
                     var modeCreator = mode.createDecryptor; // Keep at least one block in the buffer for unpadding
 
                     this._minBufferSize = 1;
@@ -7771,7 +7768,7 @@
                 },
                 _doFinalize: function _doFinalize() {
                   // Shortcut
-                  var padding = this.cfg.padding; // Finalize
+                  const {padding} = this.cfg; // Finalize
 
                   if (this._xformMode == this._ENC_XFORM_MODE) {
                     // Pad data
@@ -7779,7 +7776,7 @@
 
                     var finalProcessedBlocks = this._process(!!'flush');
                   } else {
-                  /* if (this._xformMode == this._DEC_XFORM_MODE) */
+                    /* if (this._xformMode == this._DEC_XFORM_MODE) */
                     // Process final blocks
                     var finalProcessedBlocks = this._process(!!'flush'); // Unpad data
 
@@ -7804,7 +7801,7 @@
                * @property {Format} formatter The default formatting strategy to convert this cipher params object to a string.
                */
 
-              var CipherParams = (C_lib.CipherParams = Base.extend({
+              const CipherParams = (C_lib.CipherParams = Base.extend({
                 /**
                  * Initializes a newly created cipher params object.
                  *
@@ -7851,12 +7848,12 @@
                * Format namespace.
                */
 
-              var C_format = (C.format = {});
+              const C_format = (C.format = {});
               /**
                * OpenSSL formatting strategy.
                */
 
-              var OpenSSLFormatter = (C_format.OpenSSL = {
+              const OpenSSLFormatter = (C_format.OpenSSL = {
                 /**
                  * Converts a cipher params object to an OpenSSL-compatible string.
                  *
@@ -7872,8 +7869,8 @@
                  */
                 stringify: function stringify(cipherParams) {
                   // Shortcuts
-                  var ciphertext = cipherParams.ciphertext;
-                  var salt = cipherParams.salt; // Format
+                  const {ciphertext} = cipherParams;
+                  const {salt} = cipherParams; // Format
 
                   if (salt) {
                     var wordArray = WordArray.create([0x53616c74, 0x65645f5f])
@@ -7901,9 +7898,9 @@
                  */
                 parse: function parse(openSSLStr) {
                   // Parse base64
-                  var ciphertext = Base64.parse(openSSLStr); // Shortcut
+                  const ciphertext = Base64.parse(openSSLStr); // Shortcut
 
-                  var ciphertextWords = ciphertext.words; // Test for salt
+                  const ciphertextWords = ciphertext.words; // Test for salt
 
                   if (ciphertextWords[0] == 0x53616c74 && ciphertextWords[1] == 0x65645f5f) {
                     // Extract salt
@@ -7914,8 +7911,8 @@
                   }
 
                   return CipherParams.create({
-                    ciphertext: ciphertext,
-                    salt: salt,
+                    ciphertext,
+                    salt,
                   });
                 },
               });
@@ -7955,14 +7952,14 @@
                   // Apply config defaults
                   cfg = this.cfg.extend(cfg); // Encrypt
 
-                  var encryptor = cipher.createEncryptor(key, cfg);
-                  var ciphertext = encryptor.finalize(message); // Shortcut
+                  const encryptor = cipher.createEncryptor(key, cfg);
+                  const ciphertext = encryptor.finalize(message); // Shortcut
 
-                  var cipherCfg = encryptor.cfg; // Create and return serializable cipher params
+                  const cipherCfg = encryptor.cfg; // Create and return serializable cipher params
 
                   return CipherParams.create({
-                    ciphertext: ciphertext,
-                    key: key,
+                    ciphertext,
+                    key,
                     iv: cipherCfg.iv,
                     algorithm: cipher,
                     mode: cipherCfg.mode,
@@ -7995,7 +7992,7 @@
 
                   ciphertext = this._parse(ciphertext, cfg.format); // Decrypt
 
-                  var plaintext = cipher.createDecryptor(key, cfg).finalize(ciphertext.ciphertext);
+                  const plaintext = cipher.createDecryptor(key, cfg).finalize(ciphertext.ciphertext);
                   return plaintext;
                 },
 
@@ -8015,23 +8012,23 @@
                  *     var ciphertextParams = CryptoJS.lib.SerializableCipher._parse(ciphertextStringOrParams, format);
                  */
                 _parse: function _parse(ciphertext, format) {
-                  if (typeof ciphertext == 'string') {
+                  if (typeof ciphertext === 'string') {
                     return format.parse(ciphertext, this);
-                  } else {
+                  } 
                     return ciphertext;
-                  }
+                  
                 },
               }));
               /**
                * Key derivation function namespace.
                */
 
-              var C_kdf = (C.kdf = {});
+              const C_kdf = (C.kdf = {});
               /**
                * OpenSSL key derivation function.
                */
 
-              var OpenSSLKdf = (C_kdf.OpenSSL = {
+              const OpenSSLKdf = (C_kdf.OpenSSL = {
                 /**
                  * Derives a key and IV from a password.
                  *
@@ -8055,17 +8052,17 @@
                     salt = WordArray.random(64 / 8);
                   } // Derive key and IV
 
-                  var key = EvpKDF.create({
+                  const key = EvpKDF.create({
                     keySize: keySize + ivSize,
                   }).compute(password, salt); // Separate key and IV
 
-                  var iv = WordArray.create(key.words.slice(keySize), ivSize * 4);
+                  const iv = WordArray.create(key.words.slice(keySize), ivSize * 4);
                   key.sigBytes = keySize * 4; // Return params
 
                   return CipherParams.create({
-                    key: key,
-                    iv: iv,
-                    salt: salt,
+                    key,
+                    iv,
+                    salt,
                   });
                 },
               });
@@ -8105,11 +8102,11 @@
                   // Apply config defaults
                   cfg = this.cfg.extend(cfg); // Derive key and other params
 
-                  var derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize); // Add IV to config
+                  const derivedParams = cfg.kdf.execute(password, cipher.keySize, cipher.ivSize); // Add IV to config
 
                   cfg.iv = derivedParams.iv; // Encrypt
 
-                  var ciphertext = SerializableCipher.encrypt.call(
+                  const ciphertext = SerializableCipher.encrypt.call(
                     this,
                     cipher,
                     message,
@@ -8144,7 +8141,7 @@
 
                   ciphertext = this._parse(ciphertext, cfg.format); // Derive key and other params
 
-                  var derivedParams = cfg.kdf.execute(
+                  const derivedParams = cfg.kdf.execute(
                     password,
                     cipher.keySize,
                     cipher.ivSize,
@@ -8153,7 +8150,7 @@
 
                   cfg.iv = derivedParams.iv; // Decrypt
 
-                  var plaintext = SerializableCipher.decrypt.call(
+                  const plaintext = SerializableCipher.decrypt.call(
                     this,
                     cipher,
                     ciphertext,
@@ -8182,28 +8179,28 @@
             requireCipherCore(),
           );
         }
-      })(commonjsGlobal, function (CryptoJS) {
+      })(commonjsGlobal, (CryptoJS) => {
         (function () {
           // Shortcuts
-          var C = CryptoJS;
-          var C_lib = C.lib;
-          var BlockCipher = C_lib.BlockCipher;
-          var C_algo = C.algo; // Lookup tables
+          const C = CryptoJS;
+          const C_lib = C.lib;
+          const {BlockCipher} = C_lib;
+          const C_algo = C.algo; // Lookup tables
 
-          var SBOX = [];
-          var INV_SBOX = [];
-          var SUB_MIX_0 = [];
-          var SUB_MIX_1 = [];
-          var SUB_MIX_2 = [];
-          var SUB_MIX_3 = [];
-          var INV_SUB_MIX_0 = [];
-          var INV_SUB_MIX_1 = [];
-          var INV_SUB_MIX_2 = [];
-          var INV_SUB_MIX_3 = []; // Compute lookup tables
+          const SBOX = [];
+          const INV_SBOX = [];
+          const SUB_MIX_0 = [];
+          const SUB_MIX_1 = [];
+          const SUB_MIX_2 = [];
+          const SUB_MIX_3 = [];
+          const INV_SUB_MIX_0 = [];
+          const INV_SUB_MIX_1 = [];
+          const INV_SUB_MIX_2 = [];
+          const INV_SUB_MIX_3 = []; // Compute lookup tables
 
           (function () {
             // Compute double table
-            var d = [];
+            const d = [];
 
             for (var i = 0; i < 256; i++) {
               if (i < 128) {
@@ -8213,19 +8210,19 @@
               }
             } // Walk GF(2^8)
 
-            var x = 0;
-            var xi = 0;
+            let x = 0;
+            let xi = 0;
 
             for (var i = 0; i < 256; i++) {
               // Compute sbox
-              var sx = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
+              let sx = xi ^ (xi << 1) ^ (xi << 2) ^ (xi << 3) ^ (xi << 4);
               sx = (sx >>> 8) ^ (sx & 0xff) ^ 0x63;
               SBOX[x] = sx;
               INV_SBOX[sx] = x; // Compute multiplication
 
-              var x2 = d[x];
-              var x4 = d[x2];
-              var x8 = d[x4]; // Compute sub bytes, mix columns tables
+              const x2 = d[x];
+              const x4 = d[x2];
+              const x8 = d[x4]; // Compute sub bytes, mix columns tables
 
               var t = (d[sx] * 0x101) ^ (sx * 0x1010100);
               SUB_MIX_0[x] = (t << 24) | (t >>> 8);
@@ -8248,27 +8245,27 @@
             }
           })(); // Precomputed Rcon lookup
 
-          var RCON = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
+          const RCON = [0x00, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36];
           /**
            * AES block cipher algorithm.
            */
 
-          var AES = (C_algo.AES = BlockCipher.extend({
+          const AES = (C_algo.AES = BlockCipher.extend({
             _doReset: function _doReset() {
               // Skip reset of nRounds has been set before and key did not change
               if (this._nRounds && this._keyPriorReset === this._key) {
                 return;
               } // Shortcuts
 
-              var key = (this._keyPriorReset = this._key);
-              var keyWords = key.words;
-              var keySize = key.sigBytes / 4; // Compute number of rounds
+              const key = (this._keyPriorReset = this._key);
+              const keyWords = key.words;
+              const keySize = key.sigBytes / 4; // Compute number of rounds
 
-              var nRounds = (this._nRounds = keySize + 6); // Compute number of key schedule rows
+              const nRounds = (this._nRounds = keySize + 6); // Compute number of key schedule rows
 
-              var ksRows = (nRounds + 1) * 4; // Compute key schedule
+              const ksRows = (nRounds + 1) * 4; // Compute key schedule
 
-              var keySchedule = (this._keySchedule = []);
+              const keySchedule = (this._keySchedule = []);
 
               for (var ksRow = 0; ksRow < ksRows; ksRow++) {
                 if (ksRow < keySize) {
@@ -8300,9 +8297,9 @@
                 }
               } // Compute inv key schedule
 
-              var invKeySchedule = (this._invKeySchedule = []);
+              const invKeySchedule = (this._invKeySchedule = []);
 
-              for (var invKsRow = 0; invKsRow < ksRows; invKsRow++) {
+              for (let invKsRow = 0; invKsRow < ksRows; invKsRow++) {
                 var ksRow = ksRows - invKsRow;
 
                 if (invKsRow % 4) {
@@ -8366,16 +8363,16 @@
               SBOX,
             ) {
               // Shortcut
-              var nRounds = this._nRounds; // Get input, add round key
+              const nRounds = this._nRounds; // Get input, add round key
 
-              var s0 = M[offset] ^ keySchedule[0];
-              var s1 = M[offset + 1] ^ keySchedule[1];
-              var s2 = M[offset + 2] ^ keySchedule[2];
-              var s3 = M[offset + 3] ^ keySchedule[3]; // Key schedule row counter
+              let s0 = M[offset] ^ keySchedule[0];
+              let s1 = M[offset + 1] ^ keySchedule[1];
+              let s2 = M[offset + 2] ^ keySchedule[2];
+              let s3 = M[offset + 3] ^ keySchedule[3]; // Key schedule row counter
 
-              var ksRow = 4; // Rounds
+              let ksRow = 4; // Rounds
 
-              for (var round = 1; round < nRounds; round++) {
+              for (let round = 1; round < nRounds; round++) {
                 // Shift rows, sub bytes, mix columns, add round key
                 var t0 =
                   SUB_MIX_0[s0 >>> 24] ^
@@ -8456,9 +8453,9 @@
       });
     })(aes);
 
-    var AES = aes.exports;
+    const AES = aes.exports;
 
-    var encUtf8 = { exports: {} };
+    const encUtf8 = { exports: {} };
 
     (function (module, exports) {
       (function (root, factory) {
@@ -8466,25 +8463,23 @@
           // CommonJS
           module.exports = factory(requireCore());
         }
-      })(commonjsGlobal, function (CryptoJS) {
-        return CryptoJS.enc.Utf8;
-      });
+      })(commonjsGlobal, (CryptoJS) => CryptoJS.enc.Utf8);
     })(encUtf8);
 
-    var Utf8 = encUtf8.exports;
+    const Utf8 = encUtf8.exports;
 
-    var browser$2 = { exports: {} };
+    const browser$2 = { exports: {} };
 
-    var debug$5 = { exports: {} };
+    const debug$5 = { exports: {} };
 
     /**
      * Helpers.
      */
-    var s$1 = 1000;
-    var m$1 = s$1 * 60;
-    var h$1 = m$1 * 60;
-    var d$1 = h$1 * 24;
-    var y$1 = d$1 * 365.25;
+    const s$1 = 1000;
+    const m$1 = s$1 * 60;
+    const h$1 = m$1 * 60;
+    const d$1 = h$1 * 24;
+    const y$1 = d$1 * 365.25;
     /**
      * Parse or format the given `val`.
      *
@@ -8498,9 +8493,9 @@
      * @api public
      */
 
-    var ms$1 = function ms(val, options) {
+    const ms$1 = function ms(val, options) {
       options = options || {};
-      if ('string' == typeof val) return parse$5(val);
+      if (typeof val === 'string') return parse$5(val);
       return options.long ? long(val) : short(val);
     };
 
@@ -8513,15 +8508,15 @@
      */
 
     function parse$5(str) {
-      str = '' + str;
+      str = `${  str}`;
       if (str.length > 10000) return;
-      var match =
+      const match =
         /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(
           str,
         );
       if (!match) return;
-      var n = parseFloat(match[1]);
-      var type = (match[2] || 'ms').toLowerCase();
+      const n = parseFloat(match[1]);
+      const type = (match[2] || 'ms').toLowerCase();
 
       switch (type) {
         case 'years':
@@ -8575,11 +8570,11 @@
      */
 
     function short(ms) {
-      if (ms >= d$1) return Math.round(ms / d$1) + 'd';
-      if (ms >= h$1) return Math.round(ms / h$1) + 'h';
-      if (ms >= m$1) return Math.round(ms / m$1) + 'm';
-      if (ms >= s$1) return Math.round(ms / s$1) + 's';
-      return ms + 'ms';
+      if (ms >= d$1) return `${Math.round(ms / d$1)  }d`;
+      if (ms >= h$1) return `${Math.round(ms / h$1)  }h`;
+      if (ms >= m$1) return `${Math.round(ms / m$1)  }m`;
+      if (ms >= s$1) return `${Math.round(ms / s$1)  }s`;
+      return `${ms  }ms`;
     }
 
     /**
@@ -8596,7 +8591,7 @@
         plural$1(ms, h$1, 'hour') ||
         plural$1(ms, m$1, 'minute') ||
         plural$1(ms, s$1, 'second') ||
-        ms + ' ms'
+        `${ms  } ms`
       );
     }
 
@@ -8606,8 +8601,8 @@
 
     function plural$1(ms, n, name) {
       if (ms < n) return;
-      if (ms < n * 1.5) return Math.floor(ms / n) + ' ' + name;
-      return Math.ceil(ms / n) + ' ' + name + 's';
+      if (ms < n * 1.5) return `${Math.floor(ms / n)  } ${  name}`;
+      return `${Math.ceil(ms / n)  } ${  name  }s`;
     }
 
     (function (module, exports) {
@@ -8640,12 +8635,12 @@
        * Previously assigned color.
        */
 
-      var prevColor = 0;
+      let prevColor = 0;
       /**
        * Previous log timestamp.
        */
 
-      var prevTime;
+      let prevTime;
 
       /**
        * Select a color.
@@ -8673,34 +8668,34 @@
         disabled.enabled = false; // define the `enabled` version
 
         function enabled() {
-          var self = enabled; // set `diff` timestamp
+          const self = enabled; // set `diff` timestamp
 
-          var curr = +new Date();
-          var ms = curr - (prevTime || curr);
+          const curr = +new Date();
+          const ms = curr - (prevTime || curr);
           self.diff = ms;
           self.prev = prevTime;
           self.curr = curr;
           prevTime = curr; // add the `color` if not set
 
-          if (null == self.useColors) self.useColors = exports.useColors();
-          if (null == self.color && self.useColors) self.color = selectColor();
-          var args = Array.prototype.slice.call(arguments);
+          if (self.useColors == null) self.useColors = exports.useColors();
+          if (self.color == null && self.useColors) self.color = selectColor();
+          let args = Array.prototype.slice.call(arguments);
           args[0] = exports.coerce(args[0]);
 
-          if ('string' !== typeof args[0]) {
+          if (typeof args[0] !== 'string') {
             // anything else let's inspect with %o
             args = ['%o'].concat(args);
           } // apply any `formatters` transformations
 
-          var index = 0;
-          args[0] = args[0].replace(/%([a-z%])/g, function (match, format) {
+          let index = 0;
+          args[0] = args[0].replace(/%([%a-z])/g, (match, format) => {
             // if we encounter an escaped % then don't increase the array index
             if (match === '%%') return match;
             index++;
-            var formatter = exports.formatters[format];
+            const formatter = exports.formatters[format];
 
-            if ('function' === typeof formatter) {
-              var val = args[index];
+            if (typeof formatter === 'function') {
+              const val = args[index];
               match = formatter.call(self, val); // now we need to remove `args[index]` since it's inlined in the `format`
 
               args.splice(index, 1);
@@ -8710,16 +8705,16 @@
             return match;
           });
 
-          if ('function' === typeof exports.formatArgs) {
+          if (typeof exports.formatArgs === 'function') {
             args = exports.formatArgs.apply(self, args);
           }
 
-          var logFn = enabled.log || exports.log || console.log.bind(console);
+          const logFn = enabled.log || exports.log || console.log.bind(console);
           logFn.apply(self, args);
         }
 
         enabled.enabled = true;
-        var fn = exports.enabled(namespace) ? enabled : disabled;
+        const fn = exports.enabled(namespace) ? enabled : disabled;
         fn.namespace = namespace;
         return fn;
       }
@@ -8734,18 +8729,18 @@
 
       function enable(namespaces) {
         exports.save(namespaces);
-        var split = (namespaces || '').split(/[\s,]+/);
-        var len = split.length;
+        const split = (namespaces || '').split(/[\s,]+/);
+        const len = split.length;
 
-        for (var i = 0; i < len; i++) {
+        for (let i = 0; i < len; i++) {
           if (!split[i]) continue; // ignore empty strings
 
           namespaces = split[i].replace(/\*/g, '.*?');
 
           if (namespaces[0] === '-') {
-            exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+            exports.skips.push(new RegExp(`^${  namespaces.substr(1)  }$`));
           } else {
-            exports.names.push(new RegExp('^' + namespaces + '$'));
+            exports.names.push(new RegExp(`^${  namespaces  }$`));
           }
         }
       }
@@ -8769,7 +8764,7 @@
        */
 
       function enabled(name) {
-        var i, len;
+        let i; let len;
 
         for (i = 0, len = exports.skips.length; i < len; i++) {
           if (exports.skips[i].test(name)) {
@@ -8813,7 +8808,7 @@
       exports.load = load;
       exports.useColors = useColors;
       exports.storage =
-        'undefined' != typeof chrome && 'undefined' != typeof chrome.storage
+        typeof chrome !== 'undefined' && typeof chrome.storage !== 'undefined'
           ? chrome.storage.local
           : localstorage();
       /**
@@ -8863,29 +8858,29 @@
        */
 
       function formatArgs() {
-        var args = arguments;
-        var useColors = this.useColors;
+        let args = arguments;
+        const {useColors} = this;
         args[0] =
-          (useColors ? '%c' : '') +
+          `${(useColors ? '%c' : '') +
           this.namespace +
           (useColors ? ' %c' : ' ') +
           args[0] +
-          (useColors ? '%c ' : ' ') +
-          '+' +
-          exports.humanize(this.diff);
+          (useColors ? '%c ' : ' ') 
+          }+${ 
+          exports.humanize(this.diff)}`;
         if (!useColors) return args;
-        var c = 'color: ' + this.color;
+        const c = `color: ${  this.color}`;
         args = [args[0], c, 'color: inherit'].concat(Array.prototype.slice.call(args, 1)); // the final "%c" is somewhat tricky, because there could be other
         // arguments passed either before or after the %c, so we need to
         // figure out the correct index to insert the CSS into
 
-        var index = 0;
-        var lastC = 0;
-        args[0].replace(/%[a-z%]/g, function (match) {
-          if ('%%' === match) return;
+        let index = 0;
+        let lastC = 0;
+        args[0].replace(/%[%a-z]/g, (match) => {
+          if (match === '%%') return;
           index++;
 
-          if ('%c' === match) {
+          if (match === '%c') {
             // we only are interested in the *last* %c
             // (the user may have provided their own)
             lastC = index;
@@ -8906,7 +8901,7 @@
         // this hackery is required for IE8/9, where
         // the `console.log` function doesn't have 'apply'
         return (
-          'object' === (typeof console === 'undefined' ? 'undefined' : _typeof(console)) &&
+          (typeof console === 'undefined' ? 'undefined' : _typeof(console)) === 'object' &&
           console.log &&
           Function.prototype.apply.call(console.log, console, arguments)
         );
@@ -8921,7 +8916,7 @@
 
       function save(namespaces) {
         try {
-          if (null == namespaces) {
+          if (namespaces == null) {
             exports.storage.removeItem('debug');
           } else {
             exports.storage.debug = namespaces;
@@ -8937,7 +8932,7 @@
        */
 
       function load() {
-        var r;
+        let r;
 
         try {
           r = exports.storage.debug;
@@ -8974,7 +8969,7 @@
      * Module dependencies.
      */
 
-    var debug$4 = browser$2.exports('cookie');
+    const debug$4 = browser$2.exports('cookie');
     /**
      * Set or get cookie `name` with `value` and `options` object.
      *
@@ -8985,7 +8980,7 @@
      * @api public
      */
 
-    var rudderComponentCookie = function rudderComponentCookie(name, value, options) {
+    const rudderComponentCookie = function rudderComponentCookie(name, value, options) {
       switch (arguments.length) {
         case 3:
         case 2:
@@ -9010,17 +9005,17 @@
 
     function set$1(name, value, options) {
       options = options || {};
-      var str = encode$1(name) + '=' + encode$1(value);
-      if (null == value) options.maxage = -1;
+      let str = `${encode$1(name)  }=${  encode$1(value)}`;
+      if (value == null) options.maxage = -1;
 
       if (options.maxage) {
         options.expires = new Date(+new Date() + options.maxage);
       }
 
-      if (options.path) str += '; path=' + options.path;
-      if (options.domain) str += '; domain=' + options.domain;
-      if (options.expires) str += '; expires=' + options.expires.toUTCString();
-      if (options.samesite) str += '; samesite=' + options.samesite;
+      if (options.path) str += `; path=${  options.path}`;
+      if (options.domain) str += `; domain=${  options.domain}`;
+      if (options.expires) str += `; expires=${  options.expires.toUTCString()}`;
+      if (options.samesite) str += `; samesite=${  options.samesite}`;
       if (options.secure) str += '; secure';
       document.cookie = str;
     }
@@ -9033,7 +9028,7 @@
      */
 
     function all$1() {
-      var str;
+      let str;
 
       try {
         str = document.cookie;
@@ -9069,13 +9064,13 @@
      */
 
     function parse$4(str) {
-      var obj = {};
-      var pairs = str.split(/ *; */);
-      var pair;
-      if ('' == pairs[0]) return obj;
+      const obj = {};
+      const pairs = str.split(/ *; */);
+      let pair;
+      if (pairs[0] == '') return obj;
 
-      for (var i = 0; i < pairs.length; ++i) {
-        pair = pairs[i].split('=');
+      for (const pair_ of pairs) {
+        pair = pair_.split('=');
         obj[decode$2(pair[0])] = decode$2(pair[1]);
       }
 
@@ -9106,9 +9101,9 @@
       }
     }
 
-    var defaults$3 = { exports: {} };
+    const defaults$3 = { exports: {} };
 
-    var max$1 = Math.max;
+    const max$1 = Math.max;
     /**
      * Produce a new array composed of all but the first `n` elements of an input `collection`.
      *
@@ -9125,8 +9120,8 @@
      * drop(4, [1, 2, 3]); // => []
      */
 
-    var drop$1 = function drop(count, collection) {
-      var length = collection ? collection.length : 0;
+    const drop$1 = function drop(count, collection) {
+      const length = collection ? collection.length : 0;
 
       if (!length) {
         return [];
@@ -9134,11 +9129,11 @@
       // `arguments` objects on v8. For a summary, see:
       // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
 
-      var toDrop = max$1(Number(count) || 0, 0);
-      var resultsLength = max$1(length - toDrop, 0);
-      var results = new Array(resultsLength);
+      const toDrop = max$1(Number(count) || 0, 0);
+      const resultsLength = max$1(length - toDrop, 0);
+      const results = new Array(resultsLength);
 
-      for (var i = 0; i < resultsLength; i += 1) {
+      for (let i = 0; i < resultsLength; i += 1) {
         results[i] = collection[i + toDrop];
       }
 
@@ -9148,9 +9143,9 @@
      * Exports.
      */
 
-    var drop_1 = drop$1;
+    const drop_1 = drop$1;
 
-    var max = Math.max;
+    const {max} = Math;
     /**
      * Produce a new array by passing each value in the input `collection` through a transformative
      * `iterator` function. The `iterator` function is passed three arguments:
@@ -9164,16 +9159,16 @@
      * rest([1, 2, 3]); // => [2, 3]
      */
 
-    var rest$1 = function rest(collection) {
-      if (collection == null || !collection.length) {
+    const rest$1 = function rest(collection) {
+      if (collection == null || collection.length === 0) {
         return [];
       } // Preallocating an array *significantly* boosts performance when dealing with
       // `arguments` objects on v8. For a summary, see:
       // https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
 
-      var results = new Array(max(collection.length - 2, 0));
+      const results = new Array(max(collection.length - 2, 0));
 
-      for (var i = 1; i < collection.length; i += 1) {
+      for (let i = 1; i < collection.length; i += 1) {
         results[i - 1] = collection[i];
       }
 
@@ -9183,16 +9178,16 @@
      * Exports.
      */
 
-    var rest_1 = rest$1;
+    const rest_1 = rest$1;
 
     /*
      * Module dependencies.
      */
 
-    var drop = drop_1;
-    var rest = rest_1;
-    var has$1 = Object.prototype.hasOwnProperty;
-    var objToString$1 = Object.prototype.toString;
+    const drop = drop_1;
+    const rest = rest_1;
+    const has$1 = Object.prototype.hasOwnProperty;
+    const objToString$1 = Object.prototype.toString;
     /**
      * Returns `true` if a value is an object, otherwise `false`.
      *
@@ -9203,7 +9198,7 @@
      */
     // TODO: Move to a library
 
-    var isObject = function isObject(value) {
+    const isObject = function isObject(value) {
       return Boolean(value) && _typeof(value) === 'object';
     };
     /**
@@ -9216,7 +9211,7 @@
      */
     // TODO: Move to a library
 
-    var isPlainObject = function isPlainObject(value) {
+    const isPlainObject = function isPlainObject(value) {
       return Boolean(value) && objToString$1.call(value) === '[object Object]';
     };
     /**
@@ -9231,7 +9226,7 @@
      * @param {string} key
      */
 
-    var shallowCombiner = function shallowCombiner(target, source, value, key) {
+    const shallowCombiner = function shallowCombiner(target, source, value, key) {
       if (has$1.call(source, key) && target[key] === undefined) {
         target[key] = value;
       }
@@ -9251,7 +9246,7 @@
      * @return {Object}
      */
 
-    var deepCombiner = function deepCombiner(target, source, value, key) {
+    const deepCombiner = function deepCombiner(target, source, value, key) {
       if (has$1.call(source, key)) {
         if (isPlainObject(target[key]) && isPlainObject(value)) {
           target[key] = defaultsDeep(target[key], value);
@@ -9273,21 +9268,21 @@
      * @return {Object} Return the input `target`.
      */
 
-    var defaultsWith = function defaultsWith(
+    const defaultsWith = function defaultsWith(
       combiner,
       target,
-      /*, ...sources */
+      /* , ...sources */
     ) {
       if (!isObject(target)) {
         return target;
       }
 
       combiner = combiner || shallowCombiner;
-      var sources = drop(2, arguments);
+      const sources = drop(2, arguments);
 
-      for (var i = 0; i < sources.length; i += 1) {
-        for (var key in sources[i]) {
-          combiner(target, sources[i], sources[i][key], key);
+      for (const source of sources) {
+        for (const key in source) {
+          combiner(target, source, source[key], key);
         }
       }
 
@@ -9307,7 +9302,7 @@
 
     var defaultsDeep = function defaultsDeep(
       target,
-      /*, sources */
+      /* , sources */
     ) {
       // TODO: Replace with `partial` call?
       return defaultsWith.apply(null, [deepCombiner, target].concat(rest(arguments)));
@@ -9329,9 +9324,9 @@
      * console.log(a); //=> { a: 1, b: 2 }
      */
 
-    var defaults$2 = function defaults(
+    const defaults$2 = function defaults(
       target,
-      /*, ...sources */
+      /* , ...sources */
     ) {
       // TODO: Replace with `partial` call?
       return defaultsWith.apply(null, [null, target].concat(rest(arguments)));
@@ -9343,9 +9338,9 @@
     defaults$3.exports = defaults$2;
     defaults$3.exports.deep = defaultsDeep;
 
-    var lib$1 = { exports: {} };
+    const lib$1 = { exports: {} };
 
-    var global$1 =
+    const global$1 =
       typeof global !== 'undefined'
         ? global
         : typeof self !== 'undefined'
@@ -9364,8 +9359,8 @@
       throw new Error('clearTimeout has not been defined');
     }
 
-    var cachedSetTimeout = defaultSetTimout;
-    var cachedClearTimeout = defaultClearTimeout;
+    let cachedSetTimeout = defaultSetTimout;
+    let cachedClearTimeout = defaultClearTimeout;
 
     if (typeof global$1.setTimeout === 'function') {
       cachedSetTimeout = setTimeout;
@@ -9377,7 +9372,7 @@
 
     function runTimeout(fun) {
       if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
+        // normal enviroments in sane situations
         return setTimeout(fun, 0);
       } // if setTimeout wasn't available but was latter defined
 
@@ -9402,7 +9397,7 @@
 
     function runClearTimeout(marker) {
       if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
+        // normal enviroments in sane situations
         return clearTimeout(marker);
       } // if clearTimeout wasn't available but was latter defined
 
@@ -9426,10 +9421,10 @@
       }
     }
 
-    var queue = [];
-    var draining = false;
-    var currentQueue;
-    var queueIndex = -1;
+    let queue = [];
+    let draining = false;
+    let currentQueue;
+    let queueIndex = -1;
 
     function cleanUpNextTick() {
       if (!draining || !currentQueue) {
@@ -9438,13 +9433,13 @@
 
       draining = false;
 
-      if (currentQueue.length) {
+      if (currentQueue.length > 0) {
         queue = currentQueue.concat(queue);
       } else {
         queueIndex = -1;
       }
 
-      if (queue.length) {
+      if (queue.length > 0) {
         drainQueue();
       }
     }
@@ -9454,9 +9449,9 @@
         return;
       }
 
-      var timeout = runTimeout(cleanUpNextTick);
+      const timeout = runTimeout(cleanUpNextTick);
       draining = true;
-      var len = queue.length;
+      let len = queue.length;
 
       while (len) {
         currentQueue = queue;
@@ -9478,10 +9473,10 @@
     }
 
     function nextTick(fun) {
-      var args = new Array(arguments.length - 1);
+      const args = new Array(arguments.length - 1);
 
       if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
+        for (let i = 1; i < arguments.length; i++) {
           args[i - 1] = arguments[i];
         }
       }
@@ -9502,26 +9497,26 @@
       this.fun.apply(null, this.array);
     };
 
-    var title = 'browser';
-    var platform = 'browser';
-    var browser$1 = true;
-    var env = {};
-    var argv = [];
-    var version$1 = ''; // empty string to avoid regexp issues
+    const title = 'browser';
+    const platform = 'browser';
+    const browser$1 = true;
+    const env = {};
+    const argv = [];
+    const version$1 = ''; // empty string to avoid regexp issues
 
-    var versions = {};
-    var release = {};
-    var config = {};
+    const versions = {};
+    const release = {};
+    const config = {};
 
     function noop() {}
 
-    var on = noop;
-    var addListener = noop;
-    var once = noop;
-    var off = noop;
-    var removeListener = noop;
-    var removeAllListeners = noop;
-    var emit = noop;
+    const on = noop;
+    const addListener = noop;
+    const once = noop;
+    const off = noop;
+    const removeListener = noop;
+    const removeAllListeners = noop;
+    const emit = noop;
 
     function binding(name) {
       throw new Error('process.binding is not supported');
@@ -9539,9 +9534,9 @@
       return 0;
     } // from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
 
-    var performance$1 = global$1.performance || {};
+    const performance$1 = global$1.performance || {};
 
-    var performanceNow =
+    const performanceNow =
       performance$1.now ||
       performance$1.mozNow ||
       performance$1.msNow ||
@@ -9553,13 +9548,13 @@
     // see http://nodejs.org/api/process.html#process_process_hrtime
 
     function hrtime(previousTimestamp) {
-      var clocktime = performanceNow.call(performance$1) * 1e-3;
-      var seconds = Math.floor(clocktime);
-      var nanoseconds = Math.floor((clocktime % 1) * 1e9);
+      const clocktime = performanceNow.call(performance$1) * 1e-3;
+      let seconds = Math.floor(clocktime);
+      let nanoseconds = Math.floor((clocktime % 1) * 1e9);
 
       if (previousTimestamp) {
-        seconds = seconds - previousTimestamp[0];
-        nanoseconds = nanoseconds - previousTimestamp[1];
+        seconds -= previousTimestamp[0];
+        nanoseconds -= previousTimestamp[1];
 
         if (nanoseconds < 0) {
           seconds--;
@@ -9570,49 +9565,49 @@
       return [seconds, nanoseconds];
     }
 
-    var startTime = new Date();
+    const startTime = new Date();
 
     function uptime() {
-      var currentTime = new Date();
-      var dif = currentTime - startTime;
+      const currentTime = new Date();
+      const dif = currentTime - startTime;
       return dif / 1000;
     }
 
-    var process = {
-      nextTick: nextTick,
-      title: title,
+    const process = {
+      nextTick,
+      title,
       browser: browser$1,
-      env: env,
-      argv: argv,
+      env,
+      argv,
       version: version$1,
-      versions: versions,
-      on: on,
-      addListener: addListener,
-      once: once,
-      off: off,
-      removeListener: removeListener,
-      removeAllListeners: removeAllListeners,
-      emit: emit,
-      binding: binding,
-      cwd: cwd,
-      chdir: chdir,
-      umask: umask,
-      hrtime: hrtime,
-      platform: platform,
-      release: release,
-      config: config,
-      uptime: uptime,
+      versions,
+      on,
+      addListener,
+      once,
+      off,
+      removeListener,
+      removeAllListeners,
+      emit,
+      binding,
+      cwd,
+      chdir,
+      umask,
+      hrtime,
+      platform,
+      release,
+      config,
+      uptime,
     };
 
-    var browser = { exports: {} };
+    const browser = { exports: {} };
 
-    var debug$3 = { exports: {} };
+    const debug$3 = { exports: {} };
 
-    var s = 1000;
-    var m = s * 60;
-    var h = m * 60;
-    var d = h * 24;
-    var y = d * 365.25;
+    const s = 1000;
+    const m = s * 60;
+    const h = m * 60;
+    const d = h * 24;
+    const y = d * 365.25;
     /**
      * Parse or format the given `val`.
      *
@@ -9627,19 +9622,19 @@
      * @api public
      */
 
-    var ms = function ms(val, options) {
+    const ms = function ms(val, options) {
       options = options || {};
 
-      var type = _typeof(val);
+      const type = _typeof(val);
 
       if (type === 'string' && val.length > 0) {
         return parse$3(val);
-      } else if (type === 'number' && isNaN(val) === false) {
+      } if (type === 'number' && isNaN(val) === false) {
         return options.long ? fmtLong(val) : fmtShort(val);
       }
 
       throw new Error(
-        'val is not a non-empty string or a valid number. val=' + JSON.stringify(val),
+        `val is not a non-empty string or a valid number. val=${  JSON.stringify(val)}`,
       );
     };
 
@@ -9658,7 +9653,7 @@
         return;
       }
 
-      var match =
+      const match =
         /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(
           str,
         );
@@ -9667,8 +9662,8 @@
         return;
       }
 
-      var n = parseFloat(match[1]);
-      var type = (match[2] || 'ms').toLowerCase();
+      const n = parseFloat(match[1]);
+      const type = (match[2] || 'ms').toLowerCase();
 
       switch (type) {
         case 'years':
@@ -9726,22 +9721,22 @@
 
     function fmtShort(ms) {
       if (ms >= d) {
-        return Math.round(ms / d) + 'd';
+        return `${Math.round(ms / d)  }d`;
       }
 
       if (ms >= h) {
-        return Math.round(ms / h) + 'h';
+        return `${Math.round(ms / h)  }h`;
       }
 
       if (ms >= m) {
-        return Math.round(ms / m) + 'm';
+        return `${Math.round(ms / m)  }m`;
       }
 
       if (ms >= s) {
-        return Math.round(ms / s) + 's';
+        return `${Math.round(ms / s)  }s`;
       }
 
-      return ms + 'ms';
+      return `${ms  }ms`;
     }
 
     /**
@@ -9758,7 +9753,7 @@
         plural(ms, h, 'hour') ||
         plural(ms, m, 'minute') ||
         plural(ms, s, 'second') ||
-        ms + ' ms'
+        `${ms  } ms`
       );
     }
 
@@ -9772,10 +9767,10 @@
       }
 
       if (ms < n * 1.5) {
-        return Math.floor(ms / n) + ' ' + name;
+        return `${Math.floor(ms / n)  } ${  name}`;
       }
 
-      return Math.ceil(ms / n) + ' ' + name + 's';
+      return `${Math.ceil(ms / n)  } ${  name  }s`;
     }
 
     (function (module, exports) {
@@ -9785,7 +9780,7 @@
        *
        * Expose `debug()` as the module.
        */
-      exports = module.exports = createDebug.debug = createDebug['default'] = createDebug;
+      exports = module.exports = createDebug.debug = createDebug.default = createDebug;
       exports.coerce = coerce;
       exports.disable = disable;
       exports.enable = enable;
@@ -9808,7 +9803,7 @@
        * Previous log timestamp.
        */
 
-      var prevTime;
+      let prevTime;
 
       /**
        * Select a color.
@@ -9818,8 +9813,8 @@
        */
 
       function selectColor(namespace) {
-        var hash = 0,
-          i;
+        let hash = 0;
+          let i;
 
         for (i in namespace) {
           hash = (hash << 5) - hash + namespace.charCodeAt(i);
@@ -9841,37 +9836,37 @@
         function debug() {
           // disabled?
           if (!debug.enabled) return;
-          var self = debug; // set `diff` timestamp
+          const self = debug; // set `diff` timestamp
 
-          var curr = +new Date();
-          var ms = curr - (prevTime || curr);
+          const curr = +new Date();
+          const ms = curr - (prevTime || curr);
           self.diff = ms;
           self.prev = prevTime;
           self.curr = curr;
           prevTime = curr; // turn the `arguments` into a proper Array
 
-          var args = new Array(arguments.length);
+          const args = new Array(arguments.length);
 
-          for (var i = 0; i < args.length; i++) {
+          for (let i = 0; i < args.length; i++) {
             args[i] = arguments[i];
           }
 
           args[0] = exports.coerce(args[0]);
 
-          if ('string' !== typeof args[0]) {
+          if (typeof args[0] !== 'string') {
             // anything else let's inspect with %O
             args.unshift('%O');
           } // apply any `formatters` transformations
 
-          var index = 0;
-          args[0] = args[0].replace(/%([a-zA-Z%])/g, function (match, format) {
+          let index = 0;
+          args[0] = args[0].replace(/%([%A-Za-z])/g, (match, format) => {
             // if we encounter an escaped % then don't increase the array index
             if (match === '%%') return match;
             index++;
-            var formatter = exports.formatters[format];
+            const formatter = exports.formatters[format];
 
-            if ('function' === typeof formatter) {
-              var val = args[index];
+            if (typeof formatter === 'function') {
+              const val = args[index];
               match = formatter.call(self, val); // now we need to remove `args[index]` since it's inlined in the `format`
 
               args.splice(index, 1);
@@ -9882,7 +9877,7 @@
           }); // apply env-specific formatting (colors, etc.)
 
           exports.formatArgs.call(self, args);
-          var logFn = debug.log || exports.log || console.log.bind(console);
+          const logFn = debug.log || exports.log || console.log.bind(console);
           logFn.apply(self, args);
         }
 
@@ -9891,7 +9886,7 @@
         debug.useColors = exports.useColors();
         debug.color = selectColor(namespace); // env-specific initialization logic for debug instances
 
-        if ('function' === typeof exports.init) {
+        if (typeof exports.init === 'function') {
           exports.init(debug);
         }
 
@@ -9910,18 +9905,18 @@
         exports.save(namespaces);
         exports.names = [];
         exports.skips = [];
-        var split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
-        var len = split.length;
+        const split = (typeof namespaces === 'string' ? namespaces : '').split(/[\s,]+/);
+        const len = split.length;
 
-        for (var i = 0; i < len; i++) {
+        for (let i = 0; i < len; i++) {
           if (!split[i]) continue; // ignore empty strings
 
           namespaces = split[i].replace(/\*/g, '.*?');
 
           if (namespaces[0] === '-') {
-            exports.skips.push(new RegExp('^' + namespaces.substr(1) + '$'));
+            exports.skips.push(new RegExp(`^${  namespaces.substr(1)  }$`));
           } else {
-            exports.names.push(new RegExp('^' + namespaces + '$'));
+            exports.names.push(new RegExp(`^${  namespaces  }$`));
           }
         }
       }
@@ -9945,7 +9940,7 @@
        */
 
       function enabled(name) {
-        var i, len;
+        let i; let len;
 
         for (i = 0, len = exports.skips.length; i < len; i++) {
           if (exports.skips[i].test(name)) {
@@ -9984,7 +9979,7 @@
       exports.load = load;
       exports.useColors = useColors;
       exports.storage =
-        'undefined' != typeof chrome && 'undefined' != typeof chrome.storage
+        typeof chrome !== 'undefined' && typeof chrome.storage !== 'undefined'
           ? chrome.storage.local
           : localstorage();
       /**
@@ -10044,7 +10039,7 @@
         try {
           return JSON.stringify(v);
         } catch (err) {
-          return '[UnexpectedJSONParseError]: ' + err.message;
+          return `[UnexpectedJSONParseError]: ${  err.message}`;
         }
       };
 
@@ -10055,28 +10050,28 @@
        */
 
       function formatArgs(args) {
-        var useColors = this.useColors;
+        const {useColors} = this;
         args[0] =
-          (useColors ? '%c' : '') +
+          `${(useColors ? '%c' : '') +
           this.namespace +
           (useColors ? ' %c' : ' ') +
           args[0] +
-          (useColors ? '%c ' : ' ') +
-          '+' +
-          exports.humanize(this.diff);
+          (useColors ? '%c ' : ' ') 
+          }+${ 
+          exports.humanize(this.diff)}`;
         if (!useColors) return;
-        var c = 'color: ' + this.color;
+        const c = `color: ${  this.color}`;
         args.splice(1, 0, c, 'color: inherit'); // the final "%c" is somewhat tricky, because there could be other
         // arguments passed either before or after the %c, so we need to
         // figure out the correct index to insert the CSS into
 
-        var index = 0;
-        var lastC = 0;
-        args[0].replace(/%[a-zA-Z%]/g, function (match) {
-          if ('%%' === match) return;
+        let index = 0;
+        let lastC = 0;
+        args[0].replace(/%[%A-Za-z]/g, (match) => {
+          if (match === '%%') return;
           index++;
 
-          if ('%c' === match) {
+          if (match === '%c') {
             // we only are interested in the *last* %c
             // (the user may have provided their own)
             lastC = index;
@@ -10096,7 +10091,7 @@
         // this hackery is required for IE8/9, where
         // the `console.log` function doesn't have 'apply'
         return (
-          'object' === (typeof console === 'undefined' ? 'undefined' : _typeof(console)) &&
+          (typeof console === 'undefined' ? 'undefined' : _typeof(console)) === 'object' &&
           console.log &&
           Function.prototype.apply.call(console.log, console, arguments)
         );
@@ -10111,7 +10106,7 @@
 
       function save(namespaces) {
         try {
-          if (null == namespaces) {
+          if (namespaces == null) {
             exports.storage.removeItem('debug');
           } else {
             exports.storage.debug = namespaces;
@@ -10127,7 +10122,7 @@
        */
 
       function load() {
-        var r;
+        let r;
 
         try {
           r = exports.storage.debug;
@@ -10168,7 +10163,7 @@
      * Module dependencies.
      */
 
-    var debug$2 = browser.exports('cookie');
+    const debug$2 = browser.exports('cookie');
     /**
      * Set or get cookie `name` with `value` and `options` object.
      *
@@ -10179,7 +10174,7 @@
      * @api public
      */
 
-    var componentCookie = function componentCookie(name, value, options) {
+    const componentCookie = function componentCookie(name, value, options) {
       switch (arguments.length) {
         case 3:
         case 2:
@@ -10204,16 +10199,16 @@
 
     function set(name, value, options) {
       options = options || {};
-      var str = encode(name) + '=' + encode(value);
-      if (null == value) options.maxage = -1;
+      let str = `${encode(name)  }=${  encode(value)}`;
+      if (value == null) options.maxage = -1;
 
       if (options.maxage) {
         options.expires = new Date(+new Date() + options.maxage);
       }
 
-      if (options.path) str += '; path=' + options.path;
-      if (options.domain) str += '; domain=' + options.domain;
-      if (options.expires) str += '; expires=' + options.expires.toUTCString();
+      if (options.path) str += `; path=${  options.path}`;
+      if (options.domain) str += `; domain=${  options.domain}`;
+      if (options.expires) str += `; expires=${  options.expires.toUTCString()}`;
       if (options.secure) str += '; secure';
       document.cookie = str;
     }
@@ -10226,7 +10221,7 @@
      */
 
     function all() {
-      var str;
+      let str;
 
       try {
         str = document.cookie;
@@ -10262,13 +10257,13 @@
      */
 
     function parse$2(str) {
-      var obj = {};
-      var pairs = str.split(/ *; */);
-      var pair;
-      if ('' == pairs[0]) return obj;
+      const obj = {};
+      const pairs = str.split(/ *; */);
+      let pair;
+      if (pairs[0] == '') return obj;
 
-      for (var i = 0; i < pairs.length; ++i) {
-        pair = pairs[i].split('=');
+      for (const pair_ of pairs) {
+        pair = pair_.split('=');
         obj[decode$1(pair[0])] = decode$1(pair[1]);
       }
 
@@ -10304,8 +10299,8 @@
        * Module dependencies.
        */
 
-      var parse = componentUrl.parse;
-      var cookie = componentCookie;
+      const {parse} = componentUrl;
+      const cookie = componentCookie;
 
       /**
        * Get the top domain.
@@ -10337,14 +10332,13 @@
        */
 
       function domain(url) {
-        var cookie = exports.cookie;
-        var levels = exports.levels(url); // Lookup the real top level one.
+        const {cookie} = exports;
+        const levels = exports.levels(url); // Lookup the real top level one.
 
-        for (var i = 0; i < levels.length; ++i) {
-          var cname = '__tld__';
-          var domain = levels[i];
-          var opts = {
-            domain: '.' + domain,
+        for (const domain of levels) {
+          const cname = '__tld__';
+          const opts = {
+            domain: `.${  domain}`,
           };
           cookie(cname, 1, opts);
 
@@ -10366,10 +10360,10 @@
        */
 
       domain.levels = function (url) {
-        var host = parse(url).hostname;
-        var parts = host.split('.');
-        var last = parts[parts.length - 1];
-        var levels = []; // Ip address.
+        const host = parse(url).hostname;
+        const parts = host.split('.');
+        const last = parts[parts.length - 1];
+        const levels = []; // Ip address.
 
         if (parts.length === 4 && last === parseInt(last, 10)) {
           return levels;
@@ -10379,7 +10373,7 @@
           return levels;
         } // Create levels.
 
-        for (var i = parts.length - 2; i >= 0; --i) {
+        for (let i = parts.length - 2; i >= 0; --i) {
           levels.push(parts.slice(i).join('.'));
         }
 
@@ -10397,13 +10391,13 @@
       exports = module.exports = domain;
     })(lib$1, lib$1.exports);
 
-    var topDomain = lib$1.exports;
+    const topDomain = lib$1.exports;
 
     /**
      * An object utility to persist values in cookies
      */
 
-    var CookieLocal = /*#__PURE__*/ (function () {
+    const CookieLocal = /* #__PURE__ */ (function () {
       function CookieLocal(options) {
         _classCallCheck(this, CookieLocal);
 
@@ -10421,15 +10415,15 @@
         {
           key: 'options',
           value: function options() {
-            var inOpts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            const inOpts = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
             if (arguments.length === 0) return this.cOpts;
-            var domain = '.'.concat(topDomain(window.location.href));
+            let domain = '.'.concat(topDomain(window.location.href));
             if (domain === '.') domain = null; // the default maxage and path
 
             this.cOpts = defaults$3.exports(inOpts, {
               maxage: 31536000000,
               path: '/',
-              domain: domain,
+              domain,
               samesite: 'Lax',
             });
             return this.cOpts;
@@ -10484,7 +10478,7 @@
         {
           key: 'checkSupportAvailability',
           value: function checkSupportAvailability() {
-            var name = 'test_rudder_cookie';
+            const name = 'test_rudder_cookie';
             this.set(name, true);
 
             if (this.get(name)) {
@@ -10500,11 +10494,11 @@
       return CookieLocal;
     })(); // Exporting only the instance
 
-    var Cookie = new CookieLocal({});
+    const Cookie = new CookieLocal({});
 
-    var store$2 = { exports: {} };
+    const store$2 = { exports: {} };
 
-    /**!
+    /** !
      * storejs v2.0.1
      * Local storage localstorage package provides a simple API
      *
@@ -10517,13 +10511,13 @@
     (function (module, exports) {
       (function (global, factory) {
         module.exports = factory();
-      })(commonjsGlobal, function () {
-        var storage = window.localStorage;
+      })(commonjsGlobal, () => {
+        let storage = window.localStorage;
 
         function isJSON(obj) {
           obj = JSON.stringify(obj);
 
-          if (!/^\{[\s\S]*\}$/.test(obj)) {
+          if (!/^{[\S\s]*}$/.test(obj)) {
             return false;
           }
 
@@ -10531,7 +10525,7 @@
         }
 
         function stringify(val) {
-          return val === undefined || typeof val === 'function' ? val + '' : JSON.stringify(val);
+          return val === undefined || typeof val === 'function' ? `${val  }` : JSON.stringify(val);
         }
 
         function deserialize(value) {
@@ -10556,14 +10550,14 @@
         // Error: QuotaExceededError
 
         function dealIncognito(storage) {
-          var _KEY = '_Is_Incognit',
-            _VALUE = 'yes';
+          const _KEY = '_Is_Incognit';
+            const _VALUE = 'yes';
 
           try {
             storage.setItem(_KEY, _VALUE);
           } catch (e) {
             if (e.name === 'QuotaExceededError') {
-              var _nothing = function _nothing() {};
+              const _nothing = function _nothing() {};
 
               storage.__proto__ = {
                 setItem: _nothing,
@@ -10592,7 +10586,7 @@
             if (key && !isJSON(key)) {
               storage.setItem(key, stringify(val));
             } else if (isJSON(key)) {
-              for (var a in key) {
+              for (const a in key) {
                 this.set(a, key[a]);
               }
             }
@@ -10601,10 +10595,8 @@
           },
           get: function get(key) {
             if (!key) {
-              var ret = {};
-              this.forEach(function (key, val) {
-                return (ret[key] = val);
-              });
+              const ret = {};
+              this.forEach((key, val) => (ret[key] = val));
               return ret;
             }
 
@@ -10612,13 +10604,13 @@
               return this.has(key.substr(1));
             }
 
-            var args = arguments;
+            const args = arguments;
 
             if (args.length > 1) {
-              var dt = {};
+              const dt = {};
 
-              for (var i = 0, len = args.length; i < len; i++) {
-                var value = deserialize(storage.getItem(args[i]));
+              for (let i = 0, len = args.length; i < len; i++) {
+                const value = deserialize(storage.getItem(args[i]));
 
                 if (this.has(args[i])) {
                   dt[args[i]] = value;
@@ -10635,7 +10627,7 @@
             return this;
           },
           remove: function remove(key) {
-            var val = this.get(key);
+            const val = this.get(key);
             storage.removeItem(key);
             return val;
           },
@@ -10643,36 +10635,36 @@
             return {}.hasOwnProperty.call(this.get(), key);
           },
           keys: function keys() {
-            var d = [];
-            this.forEach(function (k) {
+            const d = [];
+            this.forEach((k) => {
               d.push(k);
             });
             return d;
           },
           forEach: function forEach(callback) {
-            for (var i = 0, len = storage.length; i < len; i++) {
-              var key = storage.key(i);
+            for (let i = 0, len = storage.length; i < len; i++) {
+              const key = storage.key(i);
               callback(key, this.get(key));
             }
 
             return this;
           },
           search: function search(str) {
-            var arr = this.keys(),
-              dt = {};
+            const arr = this.keys();
+              const dt = {};
 
-            for (var i = 0, len = arr.length; i < len; i++) {
-              if (arr[i].indexOf(str) > -1) dt[arr[i]] = this.get(arr[i]);
+            for (let i = 0, len = arr.length; i < len; i++) {
+              if (arr[i].includes(str)) dt[arr[i]] = this.get(arr[i]);
             }
 
             return dt;
           },
         };
-        var _Store = null;
+        let _Store = null;
 
         function store(key, data) {
-          var argm = arguments;
-          var dt = null;
+          const argm = arguments;
+          let dt = null;
           if (!_Store) _Store = Store();
           if (argm.length === 0) return _Store.get();
 
@@ -10693,7 +10685,7 @@
           }
 
           if (argm.length === 2 && isArray(key) && isFunction(data)) {
-            for (var i = 0, len = key.length; i < len; i++) {
+            for (let i = 0, len = key.length; i < len; i++) {
               dt = data(key[i], _Store.get(key[i]));
               store.set(key[i], dt);
             }
@@ -10702,7 +10694,7 @@
           return store;
         }
 
-        for (var a in Store.prototype) {
+        for (const a in Store.prototype) {
           store[a] = Store.prototype[a];
         }
 
@@ -10710,13 +10702,13 @@
       });
     })(store$2);
 
-    var store$1 = store$2.exports;
+    const store$1 = store$2.exports;
 
     /**
      * An object utility to persist user and other values in localstorage
      */
 
-    var StoreLocal = /*#__PURE__*/ (function () {
+    const StoreLocal = /* #__PURE__ */ (function () {
       function StoreLocal(options) {
         _classCallCheck(this, StoreLocal);
 
@@ -10734,7 +10726,7 @@
         {
           key: 'options',
           value: function options() {
-            var _options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            const _options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
             if (arguments.length === 0) return this.sOpts;
             defaults$3.exports(_options, {
@@ -10783,7 +10775,7 @@
         {
           key: 'checkSupportAvailability',
           value: function checkSupportAvailability() {
-            var name = 'test_rudder_ls';
+            const name = 'test_rudder_ls';
             this.set(name, true);
 
             if (this.get(name)) {
@@ -10799,9 +10791,9 @@
       return StoreLocal;
     })(); // Exporting only the instance
 
-    var Store$2 = new StoreLocal({});
+    const Store$2 = new StoreLocal({});
 
-    var defaults$1 = {
+    const defaults$1 = {
       user_storage_key: 'rl_user_id',
       user_storage_trait: 'rl_trait',
       user_storage_anonymousId: 'rl_anonymous_id',
@@ -10813,7 +10805,7 @@
       prefix: 'RudderEncrypt:',
       key: 'Rudder',
     };
-    var anonymousIdKeyMap = {
+    const anonymousIdKeyMap = {
       segment: 'ajs_anonymous_id',
     };
 
@@ -10879,7 +10871,7 @@
         return value;
       }
 
-      var prefixedVal = ''
+      const prefixedVal = ''
         .concat(defaults$1.prefix)
         .concat(AES.encrypt(value, defaults$1.key).toString());
       return prefixedVal;
@@ -10889,7 +10881,7 @@
      * An object that handles persisting key-val from Analytics
      */
 
-    var Storage$1 = /*#__PURE__*/ (function () {
+    const Storage$1 = /* #__PURE__ */ (function () {
       function Storage() {
         _classCallCheck(this, Storage);
 
@@ -10912,7 +10904,7 @@
         {
           key: 'options',
           value: function options() {
-            var _options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            const _options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
             this.storage.options(_options);
           },
@@ -11076,8 +11068,8 @@
         {
           key: 'fetchExternalAnonymousId',
           value: function fetchExternalAnonymousId(source) {
-            var anonId;
-            var key = source.toLowerCase();
+            let anonId;
+            const key = source.toLowerCase();
 
             if (!Object.keys(anonymousIdKeyMap).includes(key)) {
               return anonId;
@@ -11131,7 +11123,7 @@
           key: 'getAnonymousId',
           value: function getAnonymousId(anonymousIdOptions) {
             // fetch the rl_anonymous_id from storage
-            var rlAnonymousId = parse$1(
+            const rlAnonymousId = parse$1(
               decryptValue(this.storage.get(defaults$1.user_storage_anonymousId)),
             );
             /**
@@ -11154,7 +11146,7 @@
               return rlAnonymousId;
             } // validate the provided anonymousIdOptions argument
 
-            var source = getValue(anonymousIdOptions, 'autoCapture.source');
+            const source = getValue(anonymousIdOptions, 'autoCapture.source');
 
             if (
               getValue(anonymousIdOptions, 'autoCapture.enabled') === true &&
@@ -11162,7 +11154,7 @@
             ) {
               // fetch the anonymousId from the external source
               // ex - segment
-              var anonId = this.fetchExternalAnonymousId(source);
+              const anonId = this.fetchExternalAnonymousId(source);
               if (anonId) return anonId; // return anonymousId if present
             }
 
@@ -11233,7 +11225,7 @@
       return Storage;
     })();
 
-    var Storage = new Storage$1();
+    const Storage = new Storage$1();
 
     /**
      *
@@ -11277,7 +11269,7 @@
      */
 
     function getCurrentTimeFormatted() {
-      var curDateTime = new Date().toISOString(); // Keeping same as iso string
+      const curDateTime = new Date().toISOString(); // Keeping same as iso string
 
       /* let curDate = curDateTime.split("T")[0];
     let curTimeExceptMillis = curDateTime
@@ -11300,8 +11292,8 @@
 
     function getJSONTrimmed(context, url, writeKey, callback) {
       // server-side integration, XHR is node module
-      var cb_ = callback.bind(context);
-      var xhr = new XMLHttpRequest();
+      const cb_ = callback.bind(context);
+      const xhr = new XMLHttpRequest();
       xhr.open('GET', url, true);
       xhr.setRequestHeader(
         'Authorization',
@@ -11309,7 +11301,7 @@
       );
 
       xhr.onload = function () {
-        var status = xhr.status;
+        const {status} = xhr;
 
         if (status == 200) {
           // logger.debug("status 200 " + "calling callback");
@@ -11348,7 +11340,7 @@
     }
 
     function handleError(error, analyticsInstance) {
-      var errorMessage = error.message;
+      let errorMessage = error.message;
 
       try {
         if (error instanceof Event) {
@@ -11382,7 +11374,7 @@
 
         errorMessage = '[handleError]:: "'.concat(errorMessage, '"');
         logger.error(errorMessage);
-        var errorObj = error;
+        let errorObj = error;
         if (!(error instanceof Error)) errorObj = new Error(errorMessage);
         notifyError(errorObj);
       } catch (err) {
@@ -11392,30 +11384,30 @@
     }
 
     function getDefaultPageProperties() {
-      var canonicalUrl = getCanonicalUrl();
-      var path = canonicalUrl
+      const canonicalUrl = getCanonicalUrl();
+      const path = canonicalUrl
         ? componentUrl.parse(canonicalUrl).pathname
         : window.location.pathname; // const { referrer } = document;
 
-      var search = window.location.search;
-      var _document = document,
-        title = _document.title;
-      var url = getUrl(search);
-      var tab_url = window.location.href;
-      var referrer = getReferrer();
-      var referring_domain = getReferringDomain(referrer);
-      var initial_referrer = Storage.getInitialReferrer();
-      var initial_referring_domain = Storage.getInitialReferringDomain();
+      const {search} = window.location;
+      const _document = document;
+        const {title} = _document;
+      const url = getUrl(search);
+      const tab_url = window.location.href;
+      const referrer = getReferrer();
+      const referring_domain = getReferringDomain(referrer);
+      const initial_referrer = Storage.getInitialReferrer();
+      const initial_referring_domain = Storage.getInitialReferringDomain();
       return {
-        path: path,
-        referrer: referrer,
-        referring_domain: referring_domain,
-        search: search,
-        title: title,
-        url: url,
-        tab_url: tab_url,
-        initial_referrer: initial_referrer,
-        initial_referring_domain: initial_referring_domain,
+        path,
+        referrer,
+        referring_domain,
+        search,
+        title,
+        url,
+        tab_url,
+        initial_referrer,
+        initial_referring_domain,
       };
     }
 
@@ -11424,7 +11416,7 @@
     }
 
     function getReferringDomain(referrer) {
-      var split = referrer.split('/');
+      const split = referrer.split('/');
 
       if (split.length >= 3) {
         return split[2];
@@ -11434,18 +11426,18 @@
     }
 
     function getUrl(search) {
-      var canonicalUrl = getCanonicalUrl();
-      var url = canonicalUrl
-        ? canonicalUrl.indexOf('?') > -1
+      const canonicalUrl = getCanonicalUrl();
+      const url = canonicalUrl
+        ? canonicalUrl.includes('?')
           ? canonicalUrl
           : canonicalUrl + search
         : window.location.href;
-      var hashIndex = url.indexOf('#');
+      const hashIndex = url.indexOf('#');
       return hashIndex > -1 ? url.slice(0, hashIndex) : url;
     }
 
     function getCanonicalUrl() {
-      var tags = document.getElementsByTagName('link');
+      const tags = document.getElementsByTagName('link');
 
       for (var i = 0, tag; (tag = tags[i]); i++) {
         if (tag.getAttribute('rel') === 'canonical') {
@@ -11455,18 +11447,16 @@
     }
 
     function transformNamesCore(integrationObject, namesObj) {
-      Object.keys(integrationObject).forEach(function (key) {
+      Object.keys(integrationObject).forEach((key) => {
         if (integrationObject.hasOwnProperty(key)) {
           if (namesObj[key]) {
             integrationObject[namesObj[key]] = integrationObject[key];
           }
 
-          if (key != 'All') {
-            // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
-            if (namesObj[key] != undefined && namesObj[key] != key) {
+          if (key != 'All' && // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
+            namesObj[key] != undefined && namesObj[key] != key) {
               delete integrationObject[key];
             }
-          }
         }
       });
     }
@@ -11492,29 +11482,29 @@
      */
 
     function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledIntegrations) {
-      var enabledList = [];
+      const enabledList = [];
 
       if (!configPlaneEnabledIntegrations || configPlaneEnabledIntegrations.length === 0) {
         return enabledList;
       }
 
-      var allValue = true;
+      let allValue = true;
 
       if (sdkSuppliedIntegrations.All !== undefined) {
         allValue = sdkSuppliedIntegrations.All;
       }
 
-      var intgData = [];
+      const intgData = [];
 
       if (typeof configPlaneEnabledIntegrations[0] === 'string') {
-        configPlaneEnabledIntegrations.forEach(function (intg) {
+        configPlaneEnabledIntegrations.forEach((intg) => {
           intgData.push({
             intgName: intg,
             intObj: intg,
           });
         });
       } else if (_typeof(configPlaneEnabledIntegrations[0]) === 'object') {
-        configPlaneEnabledIntegrations.forEach(function (intg) {
+        configPlaneEnabledIntegrations.forEach((intg) => {
           intgData.push({
             intgName: intg.name,
             intObj: intg,
@@ -11522,9 +11512,9 @@
         });
       }
 
-      intgData.forEach(function (_ref) {
-        var intgName = _ref.intgName,
-          intObj = _ref.intObj;
+      intgData.forEach((_ref) => {
+        const {intgName} = _ref;
+          const {intObj} = _ref;
 
         if (!allValue) {
           // All false ==> check if intg true supplied
@@ -11536,7 +11526,7 @@
           }
         } else {
           // All true ==> intg true by default
-          var intgValue = true; // check if intg false supplied
+          let intgValue = true; // check if intg false supplied
 
           if (
             sdkSuppliedIntegrations[intgName] != undefined &&
@@ -11554,15 +11544,15 @@
     }
 
     function getUserProvidedConfigUrl(configUrl, defConfigUrl) {
-      var url = configUrl;
+      let url = configUrl;
 
-      if (url.indexOf('sourceConfig') === -1) {
+      if (!url.includes('sourceConfig')) {
         url = ''.concat(removeTrailingSlashes(url), '/sourceConfig/');
       }
 
       url = url.slice(-1) === '/' ? url : ''.concat(url, '/');
-      var defQueryParams = defConfigUrl.split('?')[1];
-      var urlSplitItems = url.split('?');
+      const defQueryParams = defConfigUrl.split('?')[1];
+      const urlSplitItems = url.split('?');
 
       if (urlSplitItems.length > 1 && urlSplitItems[1] !== defQueryParams) {
         url = ''.concat(urlSplitItems[0], '?').concat(defQueryParams);
@@ -11582,12 +11572,12 @@
 
     function checkReservedKeywords(message, messageType) {
       //  properties, traits, contextualTraits are either undefined or object
-      var properties = message.properties,
-        traits = message.traits;
+      const {properties} = message;
+        const {traits} = message;
 
       if (properties) {
-        Object.keys(properties).forEach(function (property) {
-          if (RESERVED_KEYS.indexOf(property.toLowerCase()) >= 0) {
+        Object.keys(properties).forEach((property) => {
+          if (RESERVED_KEYS.includes(property.toLowerCase())) {
             logger.error(
               'Warning! : Reserved keyword used in properties--> '
                 .concat(property, ' with ')
@@ -11598,8 +11588,8 @@
       }
 
       if (traits) {
-        Object.keys(traits).forEach(function (trait) {
-          if (RESERVED_KEYS.indexOf(trait.toLowerCase()) >= 0) {
+        Object.keys(traits).forEach((trait) => {
+          if (RESERVED_KEYS.includes(trait.toLowerCase())) {
             logger.error(
               'Warning! : Reserved keyword used in traits--> '
                 .concat(trait, ' with ')
@@ -11609,11 +11599,11 @@
         });
       }
 
-      var contextualTraits = message.context.traits;
+      const contextualTraits = message.context.traits;
 
       if (contextualTraits) {
-        Object.keys(contextualTraits).forEach(function (contextTrait) {
-          if (RESERVED_KEYS.indexOf(contextTrait.toLowerCase()) >= 0) {
+        Object.keys(contextualTraits).forEach((contextTrait) => {
+          if (RESERVED_KEYS.includes(contextTrait.toLowerCase())) {
             logger.error(
               'Warning! : Reserved keyword used in traits --> '
                 .concat(contextTrait, ' with ')
@@ -11624,22 +11614,22 @@
       }
     }
 
-    var getConfigUrl = function getConfigUrl(writeKey) {
+    const getConfigUrl = function getConfigUrl(writeKey) {
       return CONFIG_URL.concat(CONFIG_URL.includes('?') ? '&' : '?').concat(
         writeKey ? 'writeKey='.concat(writeKey) : '',
       );
     };
 
-    var getSDKUrlInfo = function getSDKUrlInfo() {
-      var scripts = document.getElementsByTagName('script');
-      var sdkURL;
-      var isStaging = false;
+    const getSDKUrlInfo = function getSDKUrlInfo() {
+      const scripts = document.getElementsByTagName('script');
+      let sdkURL;
+      let isStaging = false;
 
-      for (var i = 0; i < scripts.length; i += 1) {
-        var curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute('src'));
+      for (const script of scripts) {
+        const curScriptSrc = removeTrailingSlashes(script.getAttribute('src'));
 
         if (curScriptSrc) {
-          var urlMatches = curScriptSrc.match(/^.*rudder-analytics(-staging)?(\.min)?\.js$/);
+          const urlMatches = curScriptSrc.match(/^.*rudder-analytics(-staging)?(\.min)?\.js$/);
 
           if (urlMatches) {
             sdkURL = curScriptSrc;
@@ -11650,17 +11640,17 @@
       }
 
       return {
-        sdkURL: sdkURL,
-        isStaging: isStaging,
+        sdkURL,
+        isStaging,
       };
     };
 
-    var countDigits = function countDigits(number) {
+    const countDigits = function countDigits(number) {
       return number ? number.toString().length : 0;
     };
 
     // Application class
-    var RudderApp = /*#__PURE__*/ _createClass(function RudderApp() {
+    const RudderApp = /* #__PURE__ */ _createClass(function RudderApp() {
       _classCallCheck(this, RudderApp);
 
       this.build = '1.0.0';
@@ -11671,21 +11661,21 @@
 
     /* eslint-disable max-classes-per-file */
     // Library information class
-    var RudderLibraryInfo = /*#__PURE__*/ _createClass(function RudderLibraryInfo() {
+    const RudderLibraryInfo = /* #__PURE__ */ _createClass(function RudderLibraryInfo() {
       _classCallCheck(this, RudderLibraryInfo);
 
       this.name = 'RudderLabs JavaScript SDK';
       this.version = '2.15.0';
     }); // Operating System information class
 
-    var RudderOSInfo = /*#__PURE__*/ _createClass(function RudderOSInfo() {
+    const RudderOSInfo = /* #__PURE__ */ _createClass(function RudderOSInfo() {
       _classCallCheck(this, RudderOSInfo);
 
       this.name = '';
       this.version = '';
     }); // Screen information class
 
-    var RudderScreenInfo = /*#__PURE__*/ _createClass(function RudderScreenInfo() {
+    const RudderScreenInfo = /* #__PURE__ */ _createClass(function RudderScreenInfo() {
       _classCallCheck(this, RudderScreenInfo);
 
       this.density = 0;
@@ -11695,7 +11685,7 @@
       this.innerHeight = 0;
     }); // Device information class
 
-    var RudderContext = /*#__PURE__*/ _createClass(function RudderContext() {
+    const RudderContext = /* #__PURE__ */ _createClass(function RudderContext() {
       _classCallCheck(this, RudderContext);
 
       this.app = new RudderApp();
@@ -11724,7 +11714,7 @@
         if (navigator.brave && Object.getPrototypeOf(navigator.brave).isBrave) {
           // Example:
           // Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36
-          var matchedArr = this.userAgent.match(/(Chrome)\/([\w\.]+)/i);
+          const matchedArr = this.userAgent.match(/(chrome)\/([\w.]+)/i);
 
           if (matchedArr) {
             this.userAgent = ''.concat(this.userAgent, ' Brave/').concat(matchedArr[2]);
@@ -11735,7 +11725,7 @@
       }
     });
 
-    var RudderMessage = /*#__PURE__*/ (function () {
+    const RudderMessage = /* #__PURE__ */ (function () {
       function RudderMessage() {
         _classCallCheck(this, RudderMessage);
 
@@ -11772,7 +11762,7 @@
       return RudderMessage;
     })();
 
-    var RudderElement = /*#__PURE__*/ (function () {
+    const RudderElement = /* #__PURE__ */ (function () {
       function RudderElement() {
         _classCallCheck(this, RudderElement);
 
@@ -11821,7 +11811,7 @@
       return RudderElement;
     })();
 
-    var RudderElementBuilder = /*#__PURE__*/ (function () {
+    const RudderElementBuilder = /* #__PURE__ */ (function () {
       function RudderElementBuilder() {
         _classCallCheck(this, RudderElementBuilder);
 
@@ -11843,7 +11833,7 @@
         {
           key: 'build',
           value: function build() {
-            var element = new RudderElement();
+            const element = new RudderElement();
             element.setUserId(this.userId);
             element.setType(this.type);
             element.setEventName(this.event);
@@ -11857,20 +11847,20 @@
       return RudderElementBuilder;
     })();
 
-    var dist = {};
+    const dist = {};
 
-    var IDX = 256,
-      HEX = [],
-      BUFFER;
+    let IDX = 256;
+      const HEX = [];
+      let BUFFER;
 
     while (IDX--) {
       HEX[IDX] = (IDX + 256).toString(16).substring(1);
     }
 
     function v4$1() {
-      var i = 0,
-        num,
-        out = '';
+      let i = 0;
+        let num;
+        let out = '';
 
       if (!BUFFER || IDX + 16 > 256) {
         BUFFER = Array((i = 256));
@@ -11896,11 +11886,11 @@
 
     dist.v4 = v4$1;
 
-    var engine = {};
+    const engine = {};
 
-    var hop = Object.prototype.hasOwnProperty;
-    var strCharAt = String.prototype.charAt;
-    var toStr = Object.prototype.toString;
+    const hop = Object.prototype.hasOwnProperty;
+    const strCharAt = String.prototype.charAt;
+    const toStr = Object.prototype.toString;
     /**
      * Returns the character at a given index.
      *
@@ -11910,7 +11900,7 @@
      */
     // TODO: Move to a library
 
-    var charAt = function charAt(str, index) {
+    const charAt = function charAt(str, index) {
       return strCharAt.call(str, index);
     };
     /**
@@ -11924,7 +11914,7 @@
      */
     // TODO: Move to a library
 
-    var has = function has(context, prop) {
+    const has = function has(context, prop) {
       return hop.call(context, prop);
     };
     /**
@@ -11937,7 +11927,7 @@
      */
     // TODO: Move to a library
 
-    var isString = function isString(val) {
+    const isString = function isString(val) {
       return toStr.call(val) === '[object String]';
     };
     /**
@@ -11952,7 +11942,7 @@
      */
     // TODO: Move to a library
 
-    var isArrayLike$1 = function isArrayLike(val) {
+    const isArrayLike$1 = function isArrayLike(val) {
       return val != null && typeof val !== 'function' && typeof val.length === 'number';
     };
     /**
@@ -11965,11 +11955,11 @@
      * @return {Array}
      */
 
-    var indexKeys = function indexKeys(target, pred) {
+    const indexKeys = function indexKeys(target, pred) {
       pred = pred || has;
-      var results = [];
+      const results = [];
 
-      for (var i = 0, len = target.length; i < len; i += 1) {
+      for (let i = 0, len = target.length; i < len; i += 1) {
         if (pred(target, i)) {
           results.push(String(i));
         }
@@ -11988,11 +11978,11 @@
      * @return {Array}
      */
 
-    var objectKeys = function objectKeys(target, pred) {
+    const objectKeys = function objectKeys(target, pred) {
       pred = pred || has;
-      var results = [];
+      const results = [];
 
-      for (var key in target) {
+      for (const key in target) {
         if (pred(target, key)) {
           results.push(String(key));
         }
@@ -12033,7 +12023,7 @@
      * //=> ['0', '4']
      */
 
-    var keys$3 = function keys(source) {
+    const keys$3 = function keys(source) {
       if (source == null) {
         return [];
       } // IE6-8 compatibility (string)
@@ -12052,13 +12042,13 @@
      * Exports.
      */
 
-    var keys_1 = keys$3;
+    const keys_1 = keys$3;
 
     // Unique ID creation requires a high quality random # generator. In the browser we therefore
     // require the crypto API and do not support built-in fallback to lower quality random number
     // generators (like Math.random()).
-    var getRandomValues;
-    var rnds8 = new Uint8Array(16);
+    let getRandomValues;
+    const rnds8 = new Uint8Array(16);
 
     function rng() {
       // lazy load so that environments that need to polyfill have a chance to do so
@@ -12083,8 +12073,8 @@
       return getRandomValues(rnds8);
     }
 
-    var REGEX =
-      /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
+    const REGEX =
+      /^(?:[\da-f]{8}-[\da-f]{4}-[1-5][\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}|0{8}-(?:0{4}-){3}0{12})$/i;
 
     function validate(uuid) {
       return typeof uuid === 'string' && REGEX.test(uuid);
@@ -12095,37 +12085,37 @@
      * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
      */
 
-    var byteToHex = [];
+    const byteToHex = [];
 
-    for (var i$1 = 0; i$1 < 256; ++i$1) {
+    for (let i$1 = 0; i$1 < 256; ++i$1) {
       byteToHex.push((i$1 + 0x100).toString(16).substr(1));
     }
 
     function stringify(arr) {
-      var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0; // Note: Be careful editing this code!  It's been tuned for performance
+      const offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0; // Note: Be careful editing this code!  It's been tuned for performance
       // and works in ways you may not expect. See https://github.com/uuidjs/uuid/pull/434
 
-      var uuid = (
-        byteToHex[arr[offset + 0]] +
+      const uuid = (
+        `${byteToHex[arr[offset + 0]] +
         byteToHex[arr[offset + 1]] +
         byteToHex[arr[offset + 2]] +
-        byteToHex[arr[offset + 3]] +
-        '-' +
-        byteToHex[arr[offset + 4]] +
-        byteToHex[arr[offset + 5]] +
-        '-' +
-        byteToHex[arr[offset + 6]] +
-        byteToHex[arr[offset + 7]] +
-        '-' +
-        byteToHex[arr[offset + 8]] +
-        byteToHex[arr[offset + 9]] +
-        '-' +
-        byteToHex[arr[offset + 10]] +
-        byteToHex[arr[offset + 11]] +
-        byteToHex[arr[offset + 12]] +
-        byteToHex[arr[offset + 13]] +
-        byteToHex[arr[offset + 14]] +
-        byteToHex[arr[offset + 15]]
+        byteToHex[arr[offset + 3]] 
+        }-${ 
+        byteToHex[arr[offset + 4]] 
+        }${byteToHex[arr[offset + 5]] 
+        }-${ 
+        byteToHex[arr[offset + 6]] 
+        }${byteToHex[arr[offset + 7]] 
+        }-${ 
+        byteToHex[arr[offset + 8]] 
+        }${byteToHex[arr[offset + 9]] 
+        }-${ 
+        byteToHex[arr[offset + 10]] 
+        }${byteToHex[arr[offset + 11]] 
+        }${byteToHex[arr[offset + 12]] 
+        }${byteToHex[arr[offset + 13]] 
+        }${byteToHex[arr[offset + 14]] 
+        }${byteToHex[arr[offset + 15]]}`
       ).toLowerCase(); // Consistency check for valid UUID.  If this throws, it's likely due to one
       // of the following:
       // - One or more input array values don't map to a hex octet (leading to
@@ -12143,24 +12133,24 @@
     // Inspired by https://github.com/LiosK/UUID.js
     // and http://docs.python.org/library/uuid.html
 
-    var _nodeId;
+    let _nodeId;
 
-    var _clockseq; // Previous uuid creation time
+    let _clockseq; // Previous uuid creation time
 
-    var _lastMSecs = 0;
-    var _lastNSecs = 0; // See https://github.com/uuidjs/uuid for API details
+    let _lastMSecs = 0;
+    let _lastNSecs = 0; // See https://github.com/uuidjs/uuid for API details
 
     function v1(options, buf, offset) {
-      var i = (buf && offset) || 0;
-      var b = buf || new Array(16);
+      let i = (buf && offset) || 0;
+      const b = buf || new Array(16);
       options = options || {};
-      var node = options.node || _nodeId;
-      var clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq; // node and clockseq need to be initialized to random values if they're not
+      let node = options.node || _nodeId;
+      let clockseq = options.clockseq !== undefined ? options.clockseq : _clockseq; // node and clockseq need to be initialized to random values if they're not
       // specified.  We do this lazily to minimize issues related to insufficient
       // system entropy.  See #189
 
       if (node == null || clockseq == null) {
-        var seedBytes = options.random || (options.rng || rng)();
+        const seedBytes = options.random || (options.rng || rng)();
 
         if (node == null) {
           // Per 4.5, create and 48-bit node id, (47 random bits + multicast bit = 1)
@@ -12183,12 +12173,12 @@
       // time is handled internally as 'msecs' (integer milliseconds) and 'nsecs'
       // (100-nanoseconds offset from msecs) since unix epoch, 1970-01-01 00:00.
 
-      var msecs = options.msecs !== undefined ? options.msecs : Date.now(); // Per 4.2.1.2, use count of uuid's generated during the current clock
+      let msecs = options.msecs !== undefined ? options.msecs : Date.now(); // Per 4.2.1.2, use count of uuid's generated during the current clock
       // cycle to simulate higher resolution clock
 
-      var nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1; // Time since last uuid creation (in msecs)
+      let nsecs = options.nsecs !== undefined ? options.nsecs : _lastNSecs + 1; // Time since last uuid creation (in msecs)
 
-      var dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 10000; // Per 4.2.1.2, Bump clockseq on clock regression
+      const dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 10000; // Per 4.2.1.2, Bump clockseq on clock regression
 
       if (dt < 0 && options.clockseq === undefined) {
         clockseq = (clockseq + 1) & 0x3fff;
@@ -12209,13 +12199,13 @@
 
       msecs += 12219292800000; // `time_low`
 
-      var tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
+      const tl = ((msecs & 0xfffffff) * 10000 + nsecs) % 0x100000000;
       b[i++] = (tl >>> 24) & 0xff;
       b[i++] = (tl >>> 16) & 0xff;
       b[i++] = (tl >>> 8) & 0xff;
       b[i++] = tl & 0xff; // `time_mid`
 
-      var tmh = ((msecs / 0x100000000) * 10000) & 0xfffffff;
+      const tmh = ((msecs / 0x100000000) * 10000) & 0xfffffff;
       b[i++] = (tmh >>> 8) & 0xff;
       b[i++] = tmh & 0xff; // `time_high_and_version`
 
@@ -12227,7 +12217,7 @@
 
       b[i++] = clockseq & 0xff; // `node`
 
-      for (var n = 0; n < 6; ++n) {
+      for (let n = 0; n < 6; ++n) {
         b[i + n] = node[n];
       }
 
@@ -12239,8 +12229,8 @@
         throw TypeError('Invalid UUID');
       }
 
-      var v;
-      var arr = new Uint8Array(16); // Parse ########-....-....-....-............
+      let v;
+      const arr = new Uint8Array(16); // Parse ########-....-....-....-............
 
       arr[0] = (v = parseInt(uuid.slice(0, 8), 16)) >>> 24;
       arr[1] = (v >>> 16) & 0xff;
@@ -12269,17 +12259,17 @@
     function stringToBytes(str) {
       str = unescape(encodeURIComponent(str)); // UTF8 escape
 
-      var bytes = [];
+      const bytes = [];
 
-      for (var i = 0; i < str.length; ++i) {
+      for (let i = 0; i < str.length; ++i) {
         bytes.push(str.charCodeAt(i));
       }
 
       return bytes;
     }
 
-    var DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
-    var URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
+    const DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+    const URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
 
     function v35(name, version, hashfunc) {
       function generateUUID(value, namespace, buf, offset) {
@@ -12297,7 +12287,7 @@
         // Future: Use spread syntax when supported on all platforms, e.g. `bytes =
         // hashfunc([...namespace, ... value])`
 
-        var bytes = new Uint8Array(16 + value.length);
+        let bytes = new Uint8Array(16 + value.length);
         bytes.set(namespace);
         bytes.set(value, namespace.length);
         bytes = hashfunc(bytes);
@@ -12307,7 +12297,7 @@
         if (buf) {
           offset = offset || 0;
 
-          for (var i = 0; i < 16; ++i) {
+          for (let i = 0; i < 16; ++i) {
             buf[offset + i] = bytes[i];
           }
 
@@ -12348,11 +12338,11 @@
      */
     function md5(bytes) {
       if (typeof bytes === 'string') {
-        var msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
+        const msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
 
         bytes = new Uint8Array(msg.length);
 
-        for (var i = 0; i < msg.length; ++i) {
+        for (let i = 0; i < msg.length; ++i) {
           bytes[i] = msg.charCodeAt(i);
         }
       }
@@ -12365,13 +12355,13 @@
      */
 
     function md5ToHexEncodedArray(input) {
-      var output = [];
-      var length32 = input.length * 32;
-      var hexTab = '0123456789abcdef';
+      const output = [];
+      const length32 = input.length * 32;
+      const hexTab = '0123456789abcdef';
 
-      for (var i = 0; i < length32; i += 8) {
-        var x = (input[i >> 5] >>> i % 32) & 0xff;
-        var hex = parseInt(hexTab.charAt((x >>> 4) & 0x0f) + hexTab.charAt(x & 0x0f), 16);
+      for (let i = 0; i < length32; i += 8) {
+        const x = (input[i >> 5] >>> i % 32) & 0xff;
+        const hex = parseInt(hexTab.charAt((x >>> 4) & 0x0f) + hexTab.charAt(x & 0x0f), 16);
         output.push(hex);
       }
 
@@ -12394,16 +12384,16 @@
       /* append padding */
       x[len >> 5] |= 0x80 << len % 32;
       x[getOutputLength(len) - 1] = len;
-      var a = 1732584193;
-      var b = -271733879;
-      var c = -1732584194;
-      var d = 271733878;
+      let a = 1732584193;
+      let b = -271733879;
+      let c = -1732584194;
+      let d = 271733878;
 
-      for (var i = 0; i < x.length; i += 16) {
-        var olda = a;
-        var oldb = b;
-        var oldc = c;
-        var oldd = d;
+      for (let i = 0; i < x.length; i += 16) {
+        const olda = a;
+        const oldb = b;
+        const oldc = c;
+        const oldd = d;
         a = md5ff(a, b, c, d, x[i], 7, -680876936);
         d = md5ff(d, a, b, c, x[i + 1], 12, -389564586);
         c = md5ff(c, d, a, b, x[i + 2], 17, 606105819);
@@ -12487,10 +12477,10 @@
         return [];
       }
 
-      var length8 = input.length * 8;
-      var output = new Uint32Array(getOutputLength(length8));
+      const length8 = input.length * 8;
+      const output = new Uint32Array(getOutputLength(length8));
 
-      for (var i = 0; i < length8; i += 8) {
+      for (let i = 0; i < length8; i += 8) {
         output[i >> 5] |= (input[i / 8] & 0xff) << i % 32;
       }
 
@@ -12503,8 +12493,8 @@
      */
 
     function safeAdd(x, y) {
-      var lsw = (x & 0xffff) + (y & 0xffff);
-      var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+      const lsw = (x & 0xffff) + (y & 0xffff);
+      const msw = (x >> 16) + (y >> 16) + (lsw >> 16);
       return (msw << 16) | (lsw & 0xffff);
     }
 
@@ -12540,12 +12530,12 @@
       return md5cmn(c ^ (b | ~d), a, b, x, s, t);
     }
 
-    var v3 = v35('v3', 0x30, md5);
-    var v3$1 = v3;
+    const v3 = v35('v3', 0x30, md5);
+    const v3$1 = v3;
 
     function v4(options, buf, offset) {
       options = options || {};
-      var rnds = options.random || (options.rng || rng)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+      const rnds = options.random || (options.rng || rng)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
 
       rnds[6] = (rnds[6] & 0x0f) | 0x40;
       rnds[8] = (rnds[8] & 0x3f) | 0x80; // Copy bytes to buffer, if provided
@@ -12553,7 +12543,7 @@
       if (buf) {
         offset = offset || 0;
 
-        for (var i = 0; i < 16; ++i) {
+        for (let i = 0; i < 16; ++i) {
           buf[offset + i] = rnds[i];
         }
 
@@ -12586,15 +12576,15 @@
     }
 
     function sha1(bytes) {
-      var K = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6];
-      var H = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
+      const K = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6];
+      const H = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
 
       if (typeof bytes === 'string') {
-        var msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
+        const msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
 
         bytes = [];
 
-        for (var i = 0; i < msg.length; ++i) {
+        for (let i = 0; i < msg.length; ++i) {
           bytes.push(msg.charCodeAt(i));
         }
       } else if (!Array.isArray(bytes)) {
@@ -12603,14 +12593,14 @@
       }
 
       bytes.push(0x80);
-      var l = bytes.length / 4 + 2;
-      var N = Math.ceil(l / 16);
-      var M = new Array(N);
+      const l = bytes.length / 4 + 2;
+      const N = Math.ceil(l / 16);
+      const M = new Array(N);
 
-      for (var _i = 0; _i < N; ++_i) {
-        var arr = new Uint32Array(16);
+      for (let _i = 0; _i < N; ++_i) {
+        const arr = new Uint32Array(16);
 
-        for (var j = 0; j < 16; ++j) {
+        for (let j = 0; j < 16; ++j) {
           arr[j] =
             (bytes[_i * 64 + j * 4] << 24) |
             (bytes[_i * 64 + j * 4 + 1] << 16) |
@@ -12621,30 +12611,30 @@
         M[_i] = arr;
       }
 
-      M[N - 1][14] = ((bytes.length - 1) * 8) / Math.pow(2, 32);
+      M[N - 1][14] = ((bytes.length - 1) * 8) / 2**32;
       M[N - 1][14] = Math.floor(M[N - 1][14]);
       M[N - 1][15] = ((bytes.length - 1) * 8) & 0xffffffff;
 
-      for (var _i2 = 0; _i2 < N; ++_i2) {
-        var W = new Uint32Array(80);
+      for (let _i2 = 0; _i2 < N; ++_i2) {
+        const W = new Uint32Array(80);
 
-        for (var t = 0; t < 16; ++t) {
+        for (let t = 0; t < 16; ++t) {
           W[t] = M[_i2][t];
         }
 
-        for (var _t = 16; _t < 80; ++_t) {
+        for (let _t = 16; _t < 80; ++_t) {
           W[_t] = ROTL(W[_t - 3] ^ W[_t - 8] ^ W[_t - 14] ^ W[_t - 16], 1);
         }
 
-        var a = H[0];
-        var b = H[1];
-        var c = H[2];
-        var d = H[3];
-        var e = H[4];
+        let a = H[0];
+        let b = H[1];
+        let c = H[2];
+        let d = H[3];
+        let e = H[4];
 
-        for (var _t2 = 0; _t2 < 80; ++_t2) {
-          var s = Math.floor(_t2 / 20);
-          var T = (ROTL(a, 5) + f(s, b, c, d) + e + K[s] + W[_t2]) >>> 0;
+        for (let _t2 = 0; _t2 < 80; ++_t2) {
+          const s = Math.floor(_t2 / 20);
+          const T = (ROTL(a, 5) + f(s, b, c, d) + e + K[s] + W[_t2]) >>> 0;
           e = d;
           d = c;
           c = ROTL(b, 30) >>> 0;
@@ -12683,10 +12673,10 @@
       ];
     }
 
-    var v5 = v35('v5', 0x50, sha1);
-    var v5$1 = v5;
+    const v5 = v35('v5', 0x50, sha1);
+    const v5$1 = v5;
 
-    var nil = '00000000-0000-0000-0000-000000000000';
+    const nil = '00000000-0000-0000-0000-000000000000';
 
     function version(uuid) {
       if (!validate(uuid)) {
@@ -12696,24 +12686,24 @@
       return parseInt(uuid.substr(14, 1), 16);
     }
 
-    var esmBrowser = /*#__PURE__*/ Object.freeze({
+    const esmBrowser = /* #__PURE__ */ Object.freeze({
       __proto__: null,
-      v1: v1,
+      v1,
       v3: v3$1,
-      v4: v4,
+      v4,
       v5: v5$1,
       NIL: nil,
-      version: version,
-      validate: validate,
-      stringify: stringify,
-      parse: parse,
+      version,
+      validate,
+      stringify,
+      parse,
     });
 
-    var require$$1 = /*@__PURE__*/ getAugmentedNamespace(esmBrowser);
+    const require$$1 = /* @__PURE__ */ getAugmentedNamespace(esmBrowser);
 
-    var keys$2 = keys_1;
-    var uuid$1 = require$$1.v4;
-    var inMemoryStore = {
+    const keys$2 = keys_1;
+    const uuid$1 = require$$1.v4;
+    const inMemoryStore = {
       _data: {},
       length: 0,
       setItem: function setItem(key, value) {
@@ -12748,9 +12738,9 @@
     function isSupportedNatively() {
       try {
         if (!window.localStorage) return false;
-        var key = uuid$1();
+        const key = uuid$1();
         window.localStorage.setItem(key, 'test_value');
-        var value = window.localStorage.getItem(key);
+        const value = window.localStorage.getItem(key);
         window.localStorage.removeItem(key); // handle localStorage silently failing
 
         return value === 'test_value';
@@ -12776,8 +12766,8 @@
      * Module dependencies.
      */
 
-    var keys$1 = keys_1;
-    var objToString = Object.prototype.toString;
+    const keys$1 = keys_1;
+    const objToString = Object.prototype.toString;
     /**
      * Tests if a value is a number.
      *
@@ -12788,8 +12778,8 @@
      */
     // TODO: Move to library
 
-    var isNumber = function isNumber(val) {
-      var type = _typeof(val);
+    const isNumber = function isNumber(val) {
+      const type = _typeof(val);
 
       return (
         type === 'number' || (type === 'object' && objToString.call(val) === '[object Number]')
@@ -12805,7 +12795,7 @@
      */
     // TODO: Move to library
 
-    var isArray =
+    const isArray =
       typeof Array.isArray === 'function'
         ? Array.isArray
         : function isArray(val) {
@@ -12822,7 +12812,7 @@
      */
     // TODO: Move to library
 
-    var isArrayLike = function isArrayLike(val) {
+    const isArrayLike = function isArrayLike(val) {
       return val != null && (isArray(val) || (val !== 'function' && isNumber(val.length)));
     };
     /**
@@ -12835,8 +12825,8 @@
      * @return {undefined}
      */
 
-    var arrayEach = function arrayEach(iterator, array) {
-      for (var i = 0; i < array.length; i += 1) {
+    const arrayEach = function arrayEach(iterator, array) {
+      for (let i = 0; i < array.length; i += 1) {
         // Break iteration early if `iterator` returns `false`
         if (iterator(array[i], i, array) === false) {
           break;
@@ -12853,12 +12843,12 @@
      * @return {undefined}
      */
 
-    var baseEach = function baseEach(iterator, object) {
-      var ks = keys$1(object);
+    const baseEach = function baseEach(iterator, object) {
+      const ks = keys$1(object);
 
-      for (var i = 0; i < ks.length; i += 1) {
+      for (const k of ks) {
         // Break iteration early if `iterator` returns `false`
-        if (iterator(object[ks[i]], ks[i], object) === false) {
+        if (iterator(object[k], k, object) === false) {
           break;
         }
       }
@@ -12895,20 +12885,20 @@
      * //=> undefined
      */
 
-    var each$3 = function each(iterator, collection) {
+    const each$3 = function each(iterator, collection) {
       return (isArrayLike(collection) ? arrayEach : baseEach).call(this, iterator, collection);
     };
     /*
      * Exports.
      */
 
-    var each_1 = each$3;
+    const each_1 = each$3;
 
-    var defaultEngine = engine.defaultEngine;
-    var inMemoryEngine = engine.inMemoryEngine;
-    var each$2 = each_1;
-    var keys = keys_1;
-    var json = JSON;
+    const {defaultEngine} = engine;
+    const {inMemoryEngine} = engine;
+    const each$2 = each_1;
+    const keys = keys_1;
+    const json = JSON;
 
     /**
      * Store Implementation with dedicated
@@ -12927,7 +12917,7 @@
      */
 
     Store$1.prototype.set = function (key, value) {
-      var compoundKey = this._createValidKey(key);
+      const compoundKey = this._createValidKey(key);
 
       if (!compoundKey) return;
 
@@ -12948,7 +12938,7 @@
 
     Store$1.prototype.get = function (key) {
       try {
-        var str = this.engine.getItem(this._createValidKey(key));
+        const str = this.engine.getItem(this._createValidKey(key));
 
         if (str === null) {
           return null;
@@ -12978,12 +12968,12 @@
      */
 
     Store$1.prototype._createValidKey = function (key) {
-      var name = this.name;
-      var id = this.id;
-      if (!keys(this.keys).length) return [name, id, key].join('.'); // validate and return undefined if invalid key
+      const {name} = this;
+      const {id} = this;
+      if (keys(this.keys).length === 0) return [name, id, key].join('.'); // validate and return undefined if invalid key
 
-      var compoundKey;
-      each$2(function (value) {
+      let compoundKey;
+      each$2((value) => {
         if (value === key) {
           compoundKey = [name, id, key].join('.');
         }
@@ -12995,22 +12985,22 @@
      */
 
     Store$1.prototype._swapEngine = function () {
-      var self = this; // grab existing data, but only for this page's queue instance, not all
+      const self = this; // grab existing data, but only for this page's queue instance, not all
       // better to keep other queues in localstorage to be flushed later
       // than to pull them into memory and remove them from durable storage
 
-      each$2(function (key) {
-        var value = self.get(key);
+      each$2((key) => {
+        const value = self.get(key);
         inMemoryEngine.setItem([self.name, self.id, key].join('.'), value);
         self.remove(key);
       }, this.keys);
       this.engine = inMemoryEngine;
     };
 
-    var store = Store$1;
+    const store = Store$1;
 
     function isQuotaExceeded(e) {
-      var quotaExceeded = false;
+      let quotaExceeded = false;
 
       if (e.code) {
         switch (e.code) {
@@ -13034,9 +13024,9 @@
       return quotaExceeded;
     }
 
-    var each$1 = each_1;
-    var CLOCK_LATE_FACTOR = 2;
-    var defaultClock = {
+    const each$1 = each_1;
+    const CLOCK_LATE_FACTOR = 2;
+    const defaultClock = {
       setTimeout: function setTimeout(fn, ms) {
         return window.setTimeout(fn, ms);
       },
@@ -13045,8 +13035,8 @@
       },
       Date: window.Date,
     };
-    var clock = defaultClock;
-    var modes = {
+    let clock = defaultClock;
+    const modes = {
       ASAP: 1,
       RESCHEDULE: 2,
       ABANDON: 3,
@@ -13062,7 +13052,7 @@
     };
 
     Schedule$1.prototype.run = function (task, timeout, mode) {
-      var id = this.nextId++;
+      const id = this.nextId++;
       this.tasks[id] = clock.setTimeout(
         this._handle(id, task, timeout, mode || modes.ASAP),
         timeout,
@@ -13083,8 +13073,8 @@
     };
 
     Schedule$1.prototype._handle = function (id, callback, timeout, mode) {
-      var self = this;
-      var start = self.now();
+      const self = this;
+      const start = self.now();
       return function () {
         delete self.tasks[id];
 
@@ -13109,13 +13099,13 @@
     };
 
     Schedule$1.Modes = modes;
-    var schedule = Schedule$1;
+    const schedule = Schedule$1;
 
     /**
      * Expose `debug()` as the module.
      */
 
-    var debug_1 = debug$1;
+    const debug_1 = debug$1;
 
     /**
      * Create a debugger with the given `name`.
@@ -13129,10 +13119,10 @@
       if (!debug$1.enabled(name)) return function () {};
       return function (fmt) {
         fmt = coerce(fmt);
-        var curr = new Date();
-        var ms = curr - (debug$1[name] || curr);
+        const curr = new Date();
+        const ms = curr - (debug$1[name] || curr);
         debug$1[name] = curr;
-        fmt = name + ' ' + fmt + ' +' + debug$1.humanize(ms); // This hackery is required for IE8
+        fmt = `${name  } ${  fmt  } +${  debug$1.humanize(ms)}`; // This hackery is required for IE8
         // where `console.log` doesn't have 'apply'
 
         window.console &&
@@ -13160,16 +13150,16 @@
         localStorage.debug = name;
       } catch (e) {}
 
-      var split = (name || '').split(/[\s,]+/),
-        len = split.length;
+      const split = (name || '').split(/[\s,]+/);
+        const len = split.length;
 
-      for (var i = 0; i < len; i++) {
+      for (let i = 0; i < len; i++) {
         name = split[i].replace('*', '.*?');
 
         if (name[0] === '-') {
-          debug$1.skips.push(new RegExp('^' + name.substr(1) + '$'));
+          debug$1.skips.push(new RegExp(`^${  name.substr(1)  }$`));
         } else {
-          debug$1.names.push(new RegExp('^' + name + '$'));
+          debug$1.names.push(new RegExp(`^${  name  }$`));
         }
       }
     };
@@ -13191,13 +13181,13 @@
      */
 
     debug$1.humanize = function (ms) {
-      var sec = 1000,
-        min = 60 * 1000,
-        hour = 60 * min;
-      if (ms >= hour) return (ms / hour).toFixed(1) + 'h';
-      if (ms >= min) return (ms / min).toFixed(1) + 'm';
-      if (ms >= sec) return ((ms / sec) | 0) + 's';
-      return ms + 'ms';
+      const sec = 1000;
+        const min = 60 * 1000;
+        const hour = 60 * min;
+      if (ms >= hour) return `${(ms / hour).toFixed(1)  }h`;
+      if (ms >= min) return `${(ms / min).toFixed(1)  }m`;
+      if (ms >= sec) return `${(ms / sec) | 0  }s`;
+      return `${ms  }ms`;
     };
     /**
      * Returns true if the given mode name is enabled, false otherwise.
@@ -13236,12 +13226,12 @@
       if (window.localStorage) debug$1.enable(localStorage.debug);
     } catch (e) {}
 
-    var uuid = dist.v4;
-    var Store = store;
-    var each = each_1;
-    var Schedule = schedule;
-    var debug = debug_1('localstorage-retry');
-    var Emitter = componentEmitter.exports; // Some browsers don't support Function.prototype.bind, so just including a simplified version here
+    const uuid = dist.v4;
+    const Store = store;
+    const each = each_1;
+    const Schedule = schedule;
+    const debug = debug_1('localstorage-retry');
+    const Emitter = componentEmitter.exports; // Some browsers don't support Function.prototype.bind, so just including a simplified version here
 
     function bind(func, obj) {
       return function () {
@@ -13360,11 +13350,11 @@
      */
 
     Queue.prototype.getDelay = function (attemptNumber) {
-      var ms = this.backoff.MIN_RETRY_DELAY * Math.pow(this.backoff.FACTOR, attemptNumber);
+      let ms = this.backoff.MIN_RETRY_DELAY * this.backoff.FACTOR**attemptNumber;
 
       if (this.backoff.JITTER) {
-        var rand = Math.random();
-        var deviation = Math.floor(rand * this.backoff.JITTER * ms);
+        const rand = Math.random();
+        const deviation = Math.floor(rand * this.backoff.JITTER * ms);
 
         if (Math.floor(rand * 10) < 5) {
           ms -= deviation;
@@ -13383,7 +13373,7 @@
 
     Queue.prototype.addItem = function (item) {
       this._enqueue({
-        item: item,
+        item,
         attemptNumber: 0,
         time: this._schedule.now(),
         id: uuid(),
@@ -13401,8 +13391,8 @@
     Queue.prototype.requeue = function (item, attemptNumber, error, id) {
       if (this.shouldRetry(item, attemptNumber, error)) {
         this._enqueue({
-          item: item,
-          attemptNumber: attemptNumber,
+          item,
+          attemptNumber,
           time: this._schedule.now() + this.getDelay(attemptNumber),
           id: id || uuid(),
         });
@@ -13412,12 +13402,10 @@
     };
 
     Queue.prototype._enqueue = function (entry) {
-      var queue = this._store.get(this.keys.QUEUE) || [];
+      let queue = this._store.get(this.keys.QUEUE) || [];
       queue = queue.slice(-(this.maxItems - 1));
       queue.push(entry);
-      queue = queue.sort(function (a, b) {
-        return a.time - b.time;
-      });
+      queue = queue.sort((a, b) => a.time - b.time);
 
       this._store.set(this.keys.QUEUE, queue);
 
@@ -13427,23 +13415,23 @@
     };
 
     Queue.prototype._processHead = function () {
-      var self = this;
-      var store = this._store; // cancel the scheduled task if it exists
+      const self = this;
+      const store = this._store; // cancel the scheduled task if it exists
 
       this._schedule.cancel(this._processId); // Pop the head off the queue
 
-      var queue = store.get(this.keys.QUEUE) || [];
-      var inProgress = store.get(this.keys.IN_PROGRESS) || {};
+      let queue = store.get(this.keys.QUEUE) || [];
+      const inProgress = store.get(this.keys.IN_PROGRESS) || {};
 
-      var now = this._schedule.now();
+      const now = this._schedule.now();
 
-      var toRun = [];
+      const toRun = [];
 
       function enqueue(el, id) {
         toRun.push({
           item: el.item,
           done: function handle(err, res) {
-            var inProgress = store.get(self.keys.IN_PROGRESS) || {};
+            const inProgress = store.get(self.keys.IN_PROGRESS) || {};
             delete inProgress[id];
             store.set(self.keys.IN_PROGRESS, inProgress);
             self.emit('processed', err, res, el.item);
@@ -13455,11 +13443,11 @@
         });
       }
 
-      var inProgressSize = Object.keys(inProgress).length;
+      let inProgressSize = Object.keys(inProgress).length;
 
-      while (queue.length && queue[0].time <= now && inProgressSize++ < self.maxItems) {
-        var el = queue.shift();
-        var id = uuid(); // Save this to the in progress map
+      while (queue.length > 0 && queue[0].time <= now && inProgressSize++ < self.maxItems) {
+        const el = queue.shift();
+        const id = uuid(); // Save this to the in progress map
 
         inProgress[id] = {
           item: el.item,
@@ -13471,12 +13459,12 @@
 
       store.set(this.keys.QUEUE, queue);
       store.set(this.keys.IN_PROGRESS, inProgress);
-      each(function (el) {
+      each((el) => {
         // TODO: handle fn timeout
         try {
           self.fn(el.item, el.done);
         } catch (err) {
-          debug('Process function threw error: ' + err);
+          debug(`Process function threw error: ${  err}`);
         }
       }, toRun); // re-read the queue in case the process function finished immediately or added another item
 
@@ -13504,19 +13492,19 @@
     };
 
     Queue.prototype._checkReclaim = function () {
-      var self = this;
+      const self = this;
 
       function tryReclaim(store) {
         store.set(self.keys.RECLAIM_START, self.id);
         store.set(self.keys.ACK, self._schedule.now());
 
         self._schedule.run(
-          function () {
+          () => {
             if (store.get(self.keys.RECLAIM_START) !== self.id) return;
             store.set(self.keys.RECLAIM_END, self.id);
 
             self._schedule.run(
-              function () {
+              () => {
                 if (store.get(self.keys.RECLAIM_END) !== self.id) return;
                 if (store.get(self.keys.RECLAIM_START) !== self.id) return;
 
@@ -13532,13 +13520,13 @@
       }
 
       function findOtherQueues(name) {
-        var res = [];
+        const res = [];
 
-        var storage = self._store.getOriginalEngine();
+        const storage = self._store.getOriginalEngine();
 
-        for (var i = 0; i < storage.length; i++) {
-          var k = storage.key(i);
-          var parts = k.split('.');
+        for (let i = 0; i < storage.length; i++) {
+          const k = storage.key(i);
+          const parts = k.split('.');
           if (parts.length !== 3) continue;
           if (parts[0] !== name) continue;
           if (parts[2] !== 'ack') continue;
@@ -13548,7 +13536,7 @@
         return res;
       }
 
-      each(function (store) {
+      each((store) => {
         if (store.id === self.id) return;
         if (self._schedule.now() - store.get(self.keys.ACK) < self.timeouts.RECLAIM_TIMEOUT) return;
         tryReclaim(store);
@@ -13562,29 +13550,29 @@
     };
 
     Queue.prototype._reclaim = function (id) {
-      var self = this;
-      var other = new Store(this.name, id, this.keys);
-      var our = {
+      const self = this;
+      const other = new Store(this.name, id, this.keys);
+      const our = {
         queue: this._store.get(this.keys.QUEUE) || [],
       };
-      var their = {
+      const their = {
         inProgress: other.get(this.keys.IN_PROGRESS) || {},
         queue: other.get(this.keys.QUEUE) || [],
       };
-      var trackMessageIds = [];
+      const trackMessageIds = [];
 
-      var addConcatQueue = function addConcatQueue(queue, incrementAttemptNumberBy) {
-        each(function (el) {
-          var id = el.id || uuid();
+      const addConcatQueue = function addConcatQueue(queue, incrementAttemptNumberBy) {
+        each((el) => {
+          const id = el.id || uuid();
 
-          if (trackMessageIds.indexOf(id) >= 0) {
+          if (trackMessageIds.includes(id)) {
             self.emit('duplication', el.item, el.attemptNumber);
           } else {
             our.queue.push({
               item: el.item,
               attemptNumber: el.attemptNumber + incrementAttemptNumberBy,
               time: self._schedule.now(),
-              id: id,
+              id,
             });
             trackMessageIds.push(id);
           }
@@ -13594,9 +13582,7 @@
       addConcatQueue(their.queue, 0); // if the queue is abandoned, all the in-progress are failed. retry them immediately and increment the attempt#
 
       addConcatQueue(their.inProgress, 1);
-      our.queue = our.queue.sort(function (a, b) {
-        return a.time - b.time;
-      });
+      our.queue = our.queue.sort((a, b) => a.time - b.time);
 
       this._store.set(this.keys.QUEUE, our.queue); // remove all keys
 
@@ -13609,9 +13595,9 @@
       this._processHead();
     };
 
-    var lib = Queue;
+    const lib = Queue;
 
-    var queueOptions = {
+    const queueOptions = {
       maxRetryDelay: 360000,
       minRetryDelay: 1000,
       backoffFactor: 2,
@@ -13619,7 +13605,7 @@
       maxItems: 100,
     };
 
-    var XHRQueue = /*#__PURE__*/ (function () {
+    const XHRQueue = /* #__PURE__ */ (function () {
       function XHRQueue() {
         _classCallCheck(this, XHRQueue);
 
@@ -13642,7 +13628,7 @@
             this.payloadQueue = new lib(
               'rudder',
               queueOptions,
-              function (item, done) {
+              ((item, done) => {
                 // apply sentAt at flush time and reset on each retry
                 item.message.sentAt = getCurrentTimeFormatted(); // send this item for processing, with a callback to enable queue to get the done status
                 // eslint-disable-next-line no-use-before-define
@@ -13652,7 +13638,7 @@
                   item.headers,
                   item.message,
                   10 * 1000, // eslint-disable-next-line consistent-return
-                  function (err, res) {
+                  (err, res) => {
                     if (err) {
                       return done(err);
                     }
@@ -13660,7 +13646,7 @@
                     done(null, res);
                   },
                 );
-              }.bind(this),
+              }),
             ); // start queue
 
             this.payloadQueue.start();
@@ -13678,10 +13664,10 @@
           key: 'processQueueElement',
           value: function processQueueElement(url, headers, message, timeout, queueFn) {
             try {
-              var xhr = new XMLHttpRequest();
+              const xhr = new XMLHttpRequest();
               xhr.open('POST', url, true);
 
-              for (var k in headers) {
+              for (const k in headers) {
                 xhr.setRequestHeader(k, headers[k]);
               }
 
@@ -13723,7 +13709,7 @@
         {
           key: 'enqueue',
           value: function enqueue(message, type) {
-            var headers = {
+            const headers = {
               'Content-Type': 'application/json',
               Authorization: 'Basic '.concat(btoa(''.concat(this.writeKey, ':'))),
               AnonymousId: btoa(message.anonymousId),
@@ -13731,8 +13717,8 @@
 
             this.payloadQueue.addItem({
               url: ''.concat(this.url, '/v1/').concat(type),
-              headers: headers,
-              message: message,
+              headers,
+              message,
             });
           },
         },
@@ -13741,12 +13727,12 @@
       return XHRQueue;
     })();
 
-    var defaults = {
+    const defaults = {
       queue: 'queue',
       maxPayloadSize: 64 * 1000,
     };
 
-    var BeaconQueue = /*#__PURE__*/ (function () {
+    const BeaconQueue = /* #__PURE__ */ (function () {
       function BeaconQueue() {
         _classCallCheck(this, BeaconQueue);
 
@@ -13776,7 +13762,7 @@
             if (options.maxItems) this.maxItems = options.maxItems;
             if (options.flushQueueInterval)
               this.flushQueueTimeOutInterval = options.flushQueueInterval;
-            var sendQueueData = this.sendQueueDataForBeacon.bind(this);
+            const sendQueueData = this.sendQueueDataForBeacon.bind(this);
             window.addEventListener('unload', sendQueueData);
           },
         },
@@ -13795,14 +13781,14 @@
         {
           key: 'enqueue',
           value: function enqueue(message) {
-            var queue = this.getQueue() || [];
+            let queue = this.getQueue() || [];
             queue = queue.slice(-(this.maxItems - 1));
             queue.push(message);
-            var batch = queue.slice(0);
-            var data = {
-              batch: batch,
+            let batch = queue.slice(0);
+            const data = {
+              batch,
             };
-            var dataToSend = JSON.stringify(data, replacer);
+            const dataToSend = JSON.stringify(data, replacer);
 
             if (dataToSend.length > defaults.maxPayloadSize) {
               batch = queue.slice(0, queue.length - 1);
@@ -13829,10 +13815,10 @@
         {
           key: 'sendDataFromQueue',
           value: function sendDataFromQueue() {
-            var queue = this.getQueue();
+            const queue = this.getQueue();
 
             if (queue && queue.length > 0) {
-              var batch = queue.slice(0, queue.length);
+              const batch = queue.slice(0, queue.length);
               this.flushQueue(batch);
             }
           },
@@ -13840,17 +13826,17 @@
         {
           key: 'flushQueue',
           value: function flushQueue(batch) {
-            batch.forEach(function (event) {
+            batch.forEach((event) => {
               event.sentAt = new Date().toISOString();
             });
-            var data = {
-              batch: batch,
+            const data = {
+              batch,
             };
-            var payload = JSON.stringify(data, replacer);
-            var blob = new Blob([payload], {
+            const payload = JSON.stringify(data, replacer);
+            const blob = new Blob([payload], {
               type: 'text/plain',
             });
-            var isPushed = navigator.sendBeacon(
+            const isPushed = navigator.sendBeacon(
               ''.concat(this.url, '?writeKey=').concat(this.writekey),
               blob,
             );
@@ -13889,7 +13875,7 @@
       return BeaconQueue;
     })();
 
-    var MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
+    const MESSAGE_LENGTH = 32 * 1000; // ~32 Kb
 
     /**
      *
@@ -13898,7 +13884,7 @@
      * in batch and maintains order of the event.
      */
 
-    var EventRepository = /*#__PURE__*/ (function () {
+    const EventRepository = /* #__PURE__ */ (function () {
       /**
        *Creates an instance of EventRepository.
        * @memberof EventRepository
@@ -13913,8 +13899,8 @@
         {
           key: 'initialize',
           value: function initialize(writeKey, url, options) {
-            var queueOptions = {};
-            var targetUrl = removeTrailingSlashes(url);
+            let queueOptions = {};
+            let targetUrl = removeTrailingSlashes(url);
 
             if (options && options.useBeacon && navigator.sendBeacon) {
               if (
@@ -13959,7 +13945,7 @@
         {
           key: 'enqueue',
           value: function enqueue(rudderElement, type) {
-            var message = rudderElement.getElementContent();
+            const message = rudderElement.getElementContent();
             message.originalTimestamp = message.originalTimestamp || getCurrentTimeFormatted();
             message.sentAt = getCurrentTimeFormatted(); // add this, will get modified when actually being sent
             // check message size, if greater log an error
@@ -13976,7 +13962,7 @@
       return EventRepository;
     })();
 
-    var eventRepository = new EventRepository();
+    const eventRepository = new EventRepository();
 
     /* eslint-disable no-bitwise */
 
@@ -13990,14 +13976,14 @@
      * @params none
      * @returns array of CRC table
      */
-    var makeCRCTable = function makeCRCTable() {
-      var crcTable = [];
-      var c;
+    const makeCRCTable = function makeCRCTable() {
+      const crcTable = [];
+      let c;
 
-      for (var n = 0; n < 256; n++) {
+      for (let n = 0; n < 256; n++) {
         c = n;
 
-        for (var k = 0; k < 8; k++) {
+        for (let k = 0; k < 8; k++) {
           c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
         }
 
@@ -14012,11 +13998,11 @@
      * @returns {Bytestream} crc32
      */
 
-    var crc32 = function crc32(str) {
-      var crcTable = makeCRCTable();
-      var crc = 0 ^ -1;
+    const crc32 = function crc32(str) {
+      const crcTable = makeCRCTable();
+      let crc = 0 ^ -1;
 
-      for (var i = 0; i < str.length; i++) {
+      for (let i = 0; i < str.length; i++) {
         crc = (crc >>> 8) ^ crcTable[(crc ^ str.charCodeAt(i)) & 0xff];
       }
 
@@ -14027,7 +14013,7 @@
      * @description An interface to fetch user device details.
      * @version v1.0.0
      */
-    var USER_INTERFACE = {
+    const USER_INTERFACE = {
       /**
        * @param {*} req
        * @returns {string} user language
@@ -14059,9 +14045,7 @@
       return decodeURIComponent(
         atob(str)
           .split('')
-          .map(function (c) {
-            return '%'.concat('00'.concat(c.charCodeAt(0).toString(16)).slice(-2));
-          })
+          .map((c) => '%'.concat('00'.concat(c.charCodeAt(0).toString(16)).slice(-2)))
           .join(''),
       );
     }
@@ -14072,7 +14056,7 @@
      */
 
     function decode() {
-      var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+      let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
       data = data.endsWith('..') ? data.substr(0, data.length - 2) : data;
       return b64DecodeUnicode(data);
     }
@@ -14082,10 +14066,10 @@
      * @version v1.0.0
      * @author Parth Mahajan, Ayush Mehra
      */
-    var KEY_VALIDATOR = /^[a-zA-Z0-9\-_.]+$/;
-    var CHECKSUM_OFFSET_MAX_MIN = 1;
-    var VALID_VERSION = 1;
-    var DELIMITER = '*';
+    const KEY_VALIDATOR = /^[\w.\-]+$/;
+    const CHECKSUM_OFFSET_MAX_MIN = 1;
+    const VALID_VERSION = 1;
+    const DELIMITER = '*';
 
     /**
      * Parse the linker param value to version checksum and serializedParams
@@ -14094,8 +14078,8 @@
      */
 
     function parseLinkerParamValue(value) {
-      var parts = value.split(DELIMITER);
-      var isEven = parts.length % 2 === 0;
+      const parts = value.split(DELIMITER);
+      const isEven = parts.length % 2 === 0;
 
       if (parts.length < 4 || !isEven) {
         // Format <version>*<checksum>*<key1>*<value1>
@@ -14104,17 +14088,17 @@
         return null;
       }
 
-      var version = Number(parts.shift());
+      const version = Number(parts.shift());
 
       if (version !== VALID_VERSION) {
         return null;
       }
 
-      var checksum = parts.shift();
-      var serializedIds = parts.join(DELIMITER);
+      const checksum = parts.shift();
+      const serializedIds = parts.join(DELIMITER);
       return {
-        checksum: checksum,
-        serializedIds: serializedIds,
+        checksum,
+        serializedIds,
       };
     }
 
@@ -14125,15 +14109,15 @@
      */
 
     function deserialize(serializedIds) {
-      var keyValuePairs = {};
-      var params = serializedIds.split(DELIMITER);
+      const keyValuePairs = {};
+      const params = serializedIds.split(DELIMITER);
 
-      for (var i = 0; i < params.length; i += 2) {
-        var key = params[i];
-        var valid = KEY_VALIDATOR.test(key);
+      for (let i = 0; i < params.length; i += 2) {
+        const key = params[i];
+        const valid = KEY_VALIDATOR.test(key);
 
         if (valid) {
-          var value = decode(params[i + 1]); // const value = params[i + 1];
+          const value = decode(params[i + 1]); // const value = params[i + 1];
 
           keyValuePairs[key] = value;
         }
@@ -14148,8 +14132,8 @@
      */
 
     function getFingerprint(userAgent, language) {
-      var date = new Date();
-      var timezone = date.getTimezoneOffset();
+      const date = new Date();
+      const timezone = date.getTimezoneOffset();
       return [userAgent, timezone, language].join(DELIMITER);
     }
 
@@ -14171,10 +14155,10 @@
      */
 
     function getCheckSum(serializedIds, optOffsetMin, userAgent, language) {
-      var fingerprint = getFingerprint(userAgent, language);
-      var offset = optOffsetMin || 0;
-      var timestamp = getMinSinceEpoch() - offset;
-      var crc = crc32([fingerprint, timestamp, serializedIds].join(DELIMITER)); // Encoded to base36 for less bytes.
+      const fingerprint = getFingerprint(userAgent, language);
+      const offset = optOffsetMin || 0;
+      const timestamp = getMinSinceEpoch() - offset;
+      const crc = crc32([fingerprint, timestamp, serializedIds].join(DELIMITER)); // Encoded to base36 for less bytes.
 
       return crc.toString(36);
     }
@@ -14187,11 +14171,11 @@
      */
 
     function isCheckSumValid(serializedIds, checksum) {
-      var userAgent = USER_INTERFACE.getUserAgent();
-      var language = USER_INTERFACE.getUserLanguage();
+      const userAgent = USER_INTERFACE.getUserAgent();
+      const language = USER_INTERFACE.getUserLanguage();
 
-      for (var i = 0; i <= CHECKSUM_OFFSET_MAX_MIN; i += 1) {
-        var calculateCheckSum = getCheckSum(serializedIds, i, userAgent, language);
+      for (let i = 0; i <= CHECKSUM_OFFSET_MAX_MIN; i += 1) {
+        const calculateCheckSum = getCheckSum(serializedIds, i, userAgent, language);
 
         if (calculateCheckSum === checksum) {
           return true;
@@ -14208,14 +14192,14 @@
      */
 
     function parseLinker(value) {
-      var linkerObj = parseLinkerParamValue(value);
+      const linkerObj = parseLinkerParamValue(value);
 
       if (!linkerObj) {
         return null;
       }
 
-      var checksum = linkerObj.checksum,
-        serializedIds = linkerObj.serializedIds;
+      const {checksum} = linkerObj;
+        const {serializedIds} = linkerObj;
 
       if (!isCheckSumValid(serializedIds, checksum)) {
         return null;
@@ -14226,7 +14210,7 @@
 
     // map b/w the names of integrations coming from config plane to
     // integration module names
-    var configToIntNames = {
+    const configToIntNames = {
       HS: 'HubSpot',
       GA: 'GA',
       HOTJAR: 'Hotjar',
@@ -14290,9 +14274,9 @@
 
     /* eslint-disable class-methods-use-this */
 
-    var OneTrust = /*#__PURE__*/ (function () {
+    const OneTrust = /* #__PURE__ */ (function () {
       function OneTrust() {
-        var _this = this;
+        const _this = this;
 
         _classCallCheck(this, OneTrust);
 
@@ -14307,16 +14291,16 @@
         // Eg: ',C0001,C0003,'
         // We split it and save it as an array.
 
-        var userSetConsentGroupIds = window.OnetrustActiveGroups.split(','); // Ids user has consented
+        const userSetConsentGroupIds = window.OnetrustActiveGroups.split(','); // Ids user has consented
         // Get information about the cookie script - data includes, consent models, cookies in preference centre, etc.
         // We get the groups(cookie categorization), user has created in one trust account.
 
-        var oneTrustAllGroupsInfo = window.OneTrust.GetDomainData().Groups;
+        const oneTrustAllGroupsInfo = window.OneTrust.GetDomainData().Groups;
         this.userSetConsentGroupNames = []; // Get the names of the cookies consented by the user in the browser.
 
-        oneTrustAllGroupsInfo.forEach(function (group) {
-          var CustomGroupId = group.CustomGroupId,
-            GroupName = group.GroupName;
+        oneTrustAllGroupsInfo.forEach((group) => {
+          const {CustomGroupId} = group;
+            const {GroupName} = group;
 
           if (userSetConsentGroupIds.includes(CustomGroupId)) {
             _this.userSetConsentGroupNames.push(GroupName.toUpperCase().trim());
@@ -14328,7 +14312,7 @@
         {
           key: 'isEnabled',
           value: function isEnabled(destConfig) {
-            var _this2 = this;
+            const _this2 = this;
 
             try {
               /**
@@ -14347,7 +14331,7 @@
                          ]
                          *
                          */
-              var oneTrustCookieCategories = destConfig.oneTrustCookieCategories; // mapping of the destination with the consent group name
+              const {oneTrustCookieCategories} = destConfig; // mapping of the destination with the consent group name
               // If the destination do not have this mapping events will be sent.
 
               if (!oneTrustCookieCategories) {
@@ -14356,18 +14340,12 @@
               // Eg:
               // ["Performance Cookies", "Functional Cookies"]
 
-              var oneTrustConsentGroupArr = oneTrustCookieCategories
-                .map(function (c) {
-                  return c.oneTrustCookieCategory;
-                })
-                .filter(function (n) {
-                  return n;
-                });
-              var containsAllConsent = true; // Check if all the destination's mapped cookie categories are consented by the user in the browser.
+              const oneTrustConsentGroupArr = oneTrustCookieCategories
+                .map((c) => c.oneTrustCookieCategory)
+                .filter((n) => n);
+              let containsAllConsent = true; // Check if all the destination's mapped cookie categories are consented by the user in the browser.
 
-              containsAllConsent = oneTrustConsentGroupArr.every(function (element) {
-                return _this2.userSetConsentGroupNames.includes(element.toUpperCase().trim());
-              });
+              containsAllConsent = oneTrustConsentGroupArr.every((element) => _this2.userSetConsentGroupNames.includes(element.toUpperCase().trim()));
               return containsAllConsent;
             } catch (e) {
               logger.error('Error during onetrust cookie consent management '.concat(e));
@@ -14380,7 +14358,7 @@
       return OneTrust;
     })();
 
-    var CookieConsentFactory = /*#__PURE__*/ (function () {
+    const CookieConsentFactory = /* #__PURE__ */ (function () {
       function CookieConsentFactory() {
         _classCallCheck(this, CookieConsentFactory);
       }
@@ -14389,7 +14367,7 @@
         {
           key: 'initialize',
           value: function initialize(cookieConsentOptions) {
-            var _cookieConsentOptions;
+            let _cookieConsentOptions;
 
             /**
              *
@@ -14423,20 +14401,18 @@
       return CookieConsentFactory;
     })();
 
-    var META_DATA = {
+    const META_DATA = {
       SDK: {
         name: 'JS',
         installType: 'npm',
       },
     }; // This API key token is parsed in the CI pipeline
 
-    var API_KEY = '{{RS_BUGSNAG_API_KEY}}'; // Errors only from Below SDKs are allowed to reach Bugsnag
+    const API_KEY = '{{RS_BUGSNAG_API_KEY}}'; // Errors only from Below SDKs are allowed to reach Bugsnag
 
-    var SDK_FILE_NAMES = ['rudder-analytics.min.js'].concat(
+    const SDK_FILE_NAMES = ['rudder-analytics.min.js'].concat(
       _toConsumableArray(
-        Object.keys(configToIntNames).map(function (intgName) {
-          return ''.concat(configToIntNames[intgName], '.min.js');
-        }),
+        Object.keys(configToIntNames).map((intgName) => ''.concat(configToIntNames[intgName], '.min.js')),
       ),
     );
     /**
@@ -14444,8 +14420,8 @@
      * Once loaded it will be available in window.Bugsnag
      */
 
-    var load$1 = function load() {
-      var pluginName = 'bugsnag';
+    const load$1 = function load() {
+      const pluginName = 'bugsnag';
 
       if (!window.hasOwnProperty(pluginName)) {
         ScriptLoader(pluginName, 'https://d2wy8f7a9ursnm.cloudfront.net/v7/bugsnag.min.js', {
@@ -14465,10 +14441,10 @@
       if (window.Bugsnag === undefined) return; // If the API key token is not parsed yet, don't proceed to initialize the client
       // This also prevents unnecessary errors sent to Bugsnag during development phase.
 
-      var apiKeyRegex = /{{.+}}/;
+      const apiKeyRegex = /{{.+}}/;
       if (API_KEY.match(apiKeyRegex) !== null) return;
-      var host = window.location.hostname;
-      var devHosts = ['localhost', '127.0.0.1', '[::1]'];
+      const host = window.location.hostname;
+      const devHosts = ['localhost', '127.0.0.1', '[::1]'];
       window.rsBugsnagClient = window.Bugsnag.start({
         apiKey: API_KEY,
         appVersion: '2.15.0',
@@ -14476,17 +14452,17 @@
         metadata: META_DATA,
         onError: function onError(event) {
           try {
-            var errorOrigin = getValue(event, 'errors.0.stacktrace.0.file'); // Skip errors that do not have a valid stack trace
+            const errorOrigin = getValue(event, 'errors.0.stacktrace.0.file'); // Skip errors that do not have a valid stack trace
 
             if (!errorOrigin || typeof errorOrigin !== 'string') return false;
-            var srcFileName = errorOrigin.substring(errorOrigin.lastIndexOf('/') + 1);
+            const srcFileName = errorOrigin.substring(errorOrigin.lastIndexOf('/') + 1);
             if (!SDK_FILE_NAMES.includes(srcFileName))
               // Discard the event if it's not originated at the SDK
               return false;
             event.addMetadata('source', {
-              sourceId: sourceId,
+              sourceId,
             });
-            var errMsg = event.errors[0].errorMessage;
+            const errMsg = event.errors[0].errorMessage;
             event.context = errMsg; // Hack for easily grouping the script load errors
             // on the dashboard
 
@@ -14516,26 +14492,26 @@
      * @param {*} sourceId
      */
 
-    var init = function init(sourceId) {
+    const init = function init(sourceId) {
       if (window.hasOwnProperty('rsBugsnagClient')) return; // return if already initialized
 
       if (window.Bugsnag !== undefined) {
         initClient(sourceId);
       } else {
         // Check if Bugsnag is loaded every '100'ms
-        var interval = setInterval(function () {
+        var interval = setInterval(() => {
           if (window.Bugsnag !== undefined) {
             clearInterval(interval);
             initClient(sourceId);
           }
         }, 100);
-        setTimeout(function () {
+        setTimeout(() => {
           clearInterval(interval);
         }, MAX_WAIT_FOR_INTEGRATION_LOAD);
       }
     };
 
-    var UserSession = /*#__PURE__*/ (function () {
+    const UserSession = /* #__PURE__ */ (function () {
       function UserSession() {
         _classCallCheck(this, UserSession);
 
@@ -14556,7 +14532,7 @@
           key: 'initialize',
           value: function initialize(options) {
             try {
-              var _options$sessions;
+              let _options$sessions;
 
               // Fetch session information from storage if any or initialize with an empty object
               this.sessionInfo = this.storage.getSessionInfo() || this.sessionInfo;
@@ -14588,7 +14564,7 @@
                 options.sessions &&
                 !isNaN(options.sessions.timeout)
               ) {
-                var timeout = options.sessions.timeout; // In case user provides 0 as the timeout, auto session tracking will be disabled
+                const {timeout} = options.sessions; // In case user provides 0 as the timeout, auto session tracking will be disabled
 
                 if (timeout === 0) {
                   logger.warn(
@@ -14650,7 +14626,7 @@
         {
           key: 'startAutoTracking',
           value: function startAutoTracking() {
-            var timestamp = Date.now();
+            const timestamp = Date.now();
 
             if (!this.isValidSession(timestamp)) {
               this.sessionInfo = {};
@@ -14699,7 +14675,7 @@
         {
           key: 'start',
           value: function start(id) {
-            var sessionId = id ? this.validateSessionId(id) : this.generateSessionId();
+            const sessionId = id ? this.validateSessionId(id) : this.generateSessionId();
             this.sessionInfo = {
               id: sessionId || this.generateSessionId(),
               sessionStart: true,
@@ -14724,12 +14700,12 @@
         {
           key: 'getSessionInfo',
           value: function getSessionInfo() {
-            var session = {};
+            const session = {};
 
             if (this.sessionInfo.autoTrack || this.sessionInfo.manualTrack) {
               // renew or create a new auto-tracking session
               if (this.sessionInfo.autoTrack) {
-                var timestamp = Date.now();
+                const timestamp = Date.now();
 
                 if (!this.isValidSession(timestamp)) {
                   this.startAutoTracking();
@@ -14756,9 +14732,9 @@
         {
           key: 'reset',
           value: function reset() {
-            var _this$sessionInfo = this.sessionInfo,
-              manualTrack = _this$sessionInfo.manualTrack,
-              autoTrack = _this$sessionInfo.autoTrack;
+            const _this$sessionInfo = this.sessionInfo;
+              const {manualTrack} = _this$sessionInfo;
+              const {autoTrack} = _this$sessionInfo;
 
             if (autoTrack) {
               this.sessionInfo = {};
@@ -14773,14 +14749,14 @@
       return UserSession;
     })();
 
-    var userSession = new UserSession();
+    const userSession = new UserSession();
 
     /**
      * class responsible for handling core
      * event tracking functionalities
      */
 
-    var Analytics = /*#__PURE__*/ (function () {
+    const Analytics = /* #__PURE__ */ (function () {
       /**
        * Creates an instance of Analytics.
        * @memberof Analytics
@@ -14845,7 +14821,7 @@
               this.storage.getInitialReferrer() == null &&
               this.storage.getInitialReferringDomain() == null
             ) {
-              var initialReferrer = getReferrer();
+              const initialReferrer = getReferrer();
               this.storage.setInitialReferrer(initialReferrer);
               this.storage.setInitialReferringDomain(getReferringDomain(initialReferrer));
             }
@@ -14854,18 +14830,16 @@
         {
           key: 'allModulesInitialized',
           value: function allModulesInitialized() {
-            var _this = this;
+            const _this = this;
 
-            var time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-            return new Promise(function (resolve) {
+            const time = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+            return new Promise((resolve) => {
               if (
-                _this.clientIntegrations.every(function (intg) {
-                  return (
+                _this.clientIntegrations.every((intg) => (
                     _this.dynamicallyLoadedIntegrations[
                       ''.concat(configToIntNames[intg.name]).concat(INTG_SUFFIX)
                     ] != undefined
-                  );
-                })
+                  ))
               ) {
                 // logger.debug(
                 //   "All integrations loaded dynamically",
@@ -14876,12 +14850,12 @@
                 // logger.debug("Max wait for dynamically loaded integrations over")
                 resolve(_this);
               } else {
-                _this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(function () {
+                _this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => 
                   // logger.debug("Check if all integration SDKs are loaded after pause")
-                  return _this
+                   _this
                     .allModulesInitialized(time + INTEGRATION_LOAD_CHECK_INTERVAL)
-                    .then(resolve);
-                });
+                    .then(resolve)
+                );
               }
             });
           },
@@ -14893,9 +14867,7 @@
         {
           key: 'executeReadyCallback',
           value: function executeReadyCallback() {
-            this.readyCallbacks.forEach(function (callback) {
-              return callback();
-            });
+            this.readyCallbacks.forEach((callback) => callback());
           },
           /**
            * A function to validate integration SDK is available in window
@@ -14931,11 +14903,11 @@
         {
           key: 'processResponse',
           value: function processResponse(status, responseVal) {
-            var _this2 = this;
+            const _this2 = this;
 
             try {
               // logger.debug(`===in process response=== ${status}`);
-              var response = responseVal;
+              let response = responseVal;
 
               try {
                 if (typeof responseVal === 'string') {
@@ -14950,14 +14922,14 @@
                 return;
               } // Fetch Error reporting enable option from sourceConfig
 
-              var isErrorReportEnabled = getValue(
+              const isErrorReportEnabled = getValue(
                 response.source.config,
                 'statsCollection.errorReports.enabled',
               ); // Load Bugsnag only if it is enabled in the source config
 
               if (isErrorReportEnabled === true) {
                 // Fetch the name of the Error reporter from sourceConfig
-                var provider =
+                const provider =
                   getValue(response.source.config, 'statsCollection.errorReports.provider') ||
                   DEFAULT_ERROR_REPORT_PROVIDER;
 
@@ -14989,29 +14961,27 @@
                 this.clientIntegrations,
               ); // Check if cookie consent manager is being set through load options
 
-              if (Object.keys(this.cookieConsentOptions).length) {
+              if (Object.keys(this.cookieConsentOptions).length > 0) {
                 // Call the cookie consent factory to initialise and return the type of cookie
                 // consent being set. For now we only support OneTrust.
                 try {
-                  var cookieConsent = CookieConsentFactory.initialize(this.cookieConsentOptions); // If cookie consent object is return we filter according to consents given by user
+                  const cookieConsent = CookieConsentFactory.initialize(this.cookieConsentOptions); // If cookie consent object is return we filter according to consents given by user
                   // else we do not consider any filtering for cookie consent.
 
-                  this.clientIntegrations = this.clientIntegrations.filter(function (intg) {
-                    return (
+                  this.clientIntegrations = this.clientIntegrations.filter((intg) => (
                       !cookieConsent || // check if cookieconsent object is present and then do filtering
                       (cookieConsent && cookieConsent.isEnabled(intg.config))
-                    );
-                  });
+                    ));
                 } catch (e) {
                   handleError(e);
                 }
               }
 
-              var suffix = ''; // default suffix
+              let suffix = ''; // default suffix
               // Get the CDN base URL is rudder staging url
 
-              var _getSDKUrlInfo = getSDKUrlInfo(),
-                isStaging = _getSDKUrlInfo.isStaging;
+              const _getSDKUrlInfo = getSDKUrlInfo();
+                const {isStaging} = _getSDKUrlInfo;
 
               if (isStaging) {
                 suffix = '-staging'; // stagging suffix
@@ -15020,12 +14990,12 @@
               leaveBreadcrumb('Starting device-mode initialization'); // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
               // Load all the client integrations dynamically
 
-              this.clientIntegrations.forEach(function (intg) {
-                var modName = configToIntNames[intg.name]; // script URL can be constructed from this
+              this.clientIntegrations.forEach((intg) => {
+                const modName = configToIntNames[intg.name]; // script URL can be constructed from this
 
-                var pluginName = ''.concat(modName).concat(INTG_SUFFIX); // this is the name of the object loaded on the window
+                const pluginName = ''.concat(modName).concat(INTG_SUFFIX); // this is the name of the object loaded on the window
 
-                var modURL = ''
+                const modURL = ''
                   .concat(_this2.destSDKBaseURL, '/')
                   .concat(modName)
                   .concat(suffix, '.min.js');
@@ -15036,16 +15006,16 @@
                   });
                 }
 
-                var self = _this2;
-                var interval = setInterval(function () {
+                const self = _this2;
+                var interval = setInterval(() => {
                   if (self.integrationSDKLoaded(pluginName, modName)) {
-                    var intMod = window[pluginName];
+                    const intMod = window[pluginName];
                     clearInterval(interval); // logger.debug(pluginName, " dynamically loaded integration SDK");
 
-                    var intgInstance;
+                    let intgInstance;
 
                     try {
-                      var msg =
+                      const msg =
                         '[Analytics] processResponse :: trying to initialize integration name:: '.concat(
                           pluginName,
                         ); // logger.debug(msg);
@@ -15054,7 +15024,7 @@
                       intgInstance = new intMod[modName](intg.config, self);
                       intgInstance.init(); // logger.debug(pluginName, " initializing destination");
 
-                      self.isInitialized(intgInstance).then(function () {
+                      self.isInitialized(intgInstance).then(() => {
                         // logger.debug(pluginName, " module init sequence complete");
                         self.dynamicallyLoadedIntegrations[pluginName] = intMod[modName];
                       });
@@ -15067,13 +15037,13 @@
                     }
                   }
                 }, 100);
-                setTimeout(function () {
+                setTimeout(() => {
                   clearInterval(interval);
                 }, MAX_WAIT_FOR_INTEGRATION_LOAD);
               });
-              var self = this;
-              this.allModulesInitialized().then(function () {
-                if (!self.clientIntegrations || self.clientIntegrations.length == 0) {
+              const self = this;
+              this.allModulesInitialized().then(() => {
+                if (!self.clientIntegrations || self.clientIntegrations.length === 0) {
                   // If no integrations are there to be loaded
                   // set clientIntegrationsReady to be true
                   _this2.clientIntegrationsReady = true; // Execute the callbacks if any
@@ -15112,9 +15082,7 @@
             // );
 
             if (
-              object.clientIntegrationObjects.every(function (intg) {
-                return !intg.isReady || intg.isReady();
-              })
+              object.clientIntegrationObjects.every((intg) => !intg.isReady || intg.isReady())
             ) {
               // Integrations are ready
               // set clientIntegrationsReady to be true
@@ -15123,51 +15091,47 @@
               object.executeReadyCallback();
             } // send the queued events to the fetched integration
 
-            object.toBeProcessedByIntegrationArray.forEach(function (event) {
-              var methodName = event[0];
+            object.toBeProcessedByIntegrationArray.forEach((event) => {
+              const methodName = event[0];
               event.shift(); // convert common names to sdk identified name
 
               if (Object.keys(event[0].message.integrations).length > 0) {
                 transformToRudderNames(event[0].message.integrations);
               } // if not specified at event level, All: true is default
 
-              var clientSuppliedIntegrations = event[0].message.integrations; // get intersection between config plane native enabled destinations
+              const clientSuppliedIntegrations = event[0].message.integrations; // get intersection between config plane native enabled destinations
               // (which were able to successfully load on the page) vs user supplied integrations
 
-              var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+              const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
                 clientSuppliedIntegrations,
                 object.clientIntegrationObjects,
               ); // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
 
               for (
-                var i = 0;
-                i < succesfulLoadedIntersectClientSuppliedIntegrations.length;
-                i += 1
+                const succesfulLoadedIntersectClientSuppliedIntegration of succesfulLoadedIntersectClientSuppliedIntegrations
               ) {
                 try {
-                  if (
-                    !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
-                    !succesfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
-                  ) {
-                    if (succesfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
-                      var sendEvent = !object.IsEventBlackListed(
+                  if ((
+                    !succesfulLoadedIntersectClientSuppliedIntegration.isFailed ||
+                    !succesfulLoadedIntersectClientSuppliedIntegration.isFailed()
+                  ) && succesfulLoadedIntersectClientSuppliedIntegration[methodName]) {
+                      const sendEvent = !object.IsEventBlackListed(
                         event[0].message.event,
-                        succesfulLoadedIntersectClientSuppliedIntegrations[i].name,
+                        succesfulLoadedIntersectClientSuppliedIntegration.name,
                       ); // Block the event if it is blacklisted for the device-mode destination
 
                       if (sendEvent) {
                         var _succesfulLoadedInter;
 
-                        var clonedBufferEvent = cloneDeep(event);
+                        const clonedBufferEvent = cloneDeep(event);
 
                         (_succesfulLoadedInter =
-                          succesfulLoadedIntersectClientSuppliedIntegrations[i])[methodName].apply(
+                          succesfulLoadedIntersectClientSuppliedIntegration)[methodName].apply(
                           _succesfulLoadedInter,
                           _toConsumableArray(clonedBufferEvent),
                         );
                       }
                     }
-                  }
                 } catch (error) {
                   handleError(error);
                 }
@@ -15179,7 +15143,7 @@
         {
           key: 'pause',
           value: function pause(time) {
-            return new Promise(function (resolve) {
+            return new Promise((resolve) => {
               setTimeout(resolve, time);
             });
           },
@@ -15187,10 +15151,10 @@
         {
           key: 'isInitialized',
           value: function isInitialized(instance) {
-            var _this3 = this;
+            const _this3 = this;
 
-            var time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-            return new Promise(function (resolve) {
+            const time = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+            return new Promise((resolve) => {
               if (instance.isLoaded()) {
                 // logger.debug("===integration loaded successfully====", instance.name)
                 _this3.successfullyLoadedIntegration.push(instance);
@@ -15202,12 +15166,12 @@
 
                 resolve(_this3);
               } else {
-                _this3.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(function () {
+                _this3.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => 
                   // logger.debug("====after pause, again checking====")
-                  return _this3
+                   _this3
                     .isInitialized(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL)
-                    .then(resolve);
-                });
+                    .then(resolve)
+                );
               }
             });
           },
@@ -15242,7 +15206,7 @@
               this.sendSampleRequest();
             }
 
-            var rudderElement = new RudderElementBuilder().setType('page').build();
+            const rudderElement = new RudderElementBuilder().setType('page').build();
 
             if (!properties) {
               properties = {};
@@ -15277,7 +15241,7 @@
             if (typeof options === 'function') (callback = options), (options = null);
             if (typeof properties === 'function')
               (callback = properties), (options = null), (properties = null);
-            var rudderElement = new RudderElementBuilder().setType('track').build();
+            const rudderElement = new RudderElementBuilder().setType('track').build();
 
             if (event) {
               rudderElement.setEventName(event);
@@ -15315,14 +15279,14 @@
             this.storage.setUserId(this.userId);
 
             if (traits) {
-              for (var key in traits) {
+              for (const key in traits) {
                 this.userTraits[key] = traits[key];
               }
 
               this.storage.setUserTraits(this.userTraits);
             }
 
-            var rudderElement = new RudderElementBuilder().setType('identify').build();
+            const rudderElement = new RudderElementBuilder().setType('identify').build();
             this.processAndSendDataToDestinations('identify', rudderElement, options, callback);
           },
           /**
@@ -15341,7 +15305,7 @@
             if (typeof options === 'function') (callback = options), (options = null);
             if (typeof from === 'function') (callback = from), (options = null), (from = null);
             if (_typeof(from) === 'object') (options = from), (from = null);
-            var rudderElement = new RudderElementBuilder().setType('alias').build();
+            const rudderElement = new RudderElementBuilder().setType('alias').build();
             rudderElement.message.previousId =
               from || (this.userId ? this.userId : this.getAnonymousId());
             rudderElement.message.userId = to;
@@ -15360,7 +15324,7 @@
           value: function group(groupId, traits, options, callback) {
             leaveBreadcrumb('Group event');
             if (!this.loaded) return;
-            if (!arguments.length) return;
+            if (arguments.length === 0) return;
             if (typeof options === 'function') (callback = options), (options = null);
             if (typeof traits === 'function')
               (callback = traits), (options = null), (traits = null);
@@ -15368,10 +15332,10 @@
               (options = traits), (traits = groupId), (groupId = this.groupId);
             this.groupId = groupId;
             this.storage.setGroupId(this.groupId);
-            var rudderElement = new RudderElementBuilder().setType('group').build();
+            const rudderElement = new RudderElementBuilder().setType('group').build();
 
             if (traits) {
-              for (var key in traits) {
+              for (const key in traits) {
                 this.groupTraits[key] = traits[key];
               }
             } else {
@@ -15389,20 +15353,18 @@
               return false;
             }
 
-            var sdkIntgName = commonNames[intgName];
-            var intg = this.clientIntegrations.find(function (intg) {
-              return intg.name === sdkIntgName;
-            });
-            var _intg$config = intg.config,
-              blacklistedEvents = _intg$config.blacklistedEvents,
-              whitelistedEvents = _intg$config.whitelistedEvents,
-              eventFilteringOption = _intg$config.eventFilteringOption;
+            const sdkIntgName = commonNames[intgName];
+            const intg = this.clientIntegrations.find((intg) => intg.name === sdkIntgName);
+            const _intg$config = intg.config;
+              const {blacklistedEvents} = _intg$config;
+              const {whitelistedEvents} = _intg$config;
+              const {eventFilteringOption} = _intg$config;
 
             if (!eventFilteringOption) {
               return false;
             }
 
-            var formattedEventName = eventName.trim().toUpperCase();
+            const formattedEventName = eventName.trim().toUpperCase();
 
             switch (eventFilteringOption) {
               // disabled filtering
@@ -15413,9 +15375,7 @@
               case 'blacklistedEvents':
                 if (Array.isArray(blacklistedEvents)) {
                   return (
-                    blacklistedEvents.find(function (eventObj) {
-                      return eventObj.eventName.trim().toUpperCase() === formattedEventName;
-                    }) !== undefined
+                    blacklistedEvents.find((eventObj) => eventObj.eventName.trim().toUpperCase() === formattedEventName) !== undefined
                   );
                 }
 
@@ -15425,9 +15385,7 @@
               case 'whitelistedEvents':
                 if (Array.isArray(whitelistedEvents)) {
                   return (
-                    whitelistedEvents.find(function (eventObj) {
-                      return eventObj.eventName.trim().toUpperCase() === formattedEventName;
-                    }) === undefined
+                    whitelistedEvents.find((eventObj) => eventObj.eventName.trim().toUpperCase() === formattedEventName) === undefined
                   );
                 }
 
@@ -15449,7 +15407,7 @@
         {
           key: 'processAndSendDataToDestinations',
           value: function processAndSendDataToDestinations(type, rudderElement, options, callback) {
-            var _this4 = this;
+            const _this4 = this;
 
             try {
               if (!this.anonymousId) {
@@ -15476,9 +15434,9 @@
               } // If auto/manual session tracking is enabled sessionId will be sent in the context
 
               try {
-                var _this$uSession$getSes = this.uSession.getSessionInfo(),
-                  sessionId = _this$uSession$getSes.sessionId,
-                  sessionStart = _this$uSession$getSes.sessionStart;
+                const _this$uSession$getSes = this.uSession.getSessionInfo();
+                  const {sessionId} = _this$uSession$getSes;
+                  const {sessionStart} = _this$uSession$getSes;
 
                 rudderElement.message.context.sessionId = sessionId;
                 if (sessionStart) rudderElement.message.context.sessionStart = true;
@@ -15491,7 +15449,7 @@
 
               checkReservedKeywords(rudderElement.message, type); // if not specified at event level, All: true is default
 
-              var clientSuppliedIntegrations = rudderElement.message.integrations || {
+              const clientSuppliedIntegrations = rudderElement.message.integrations || {
                 All: true,
               }; // structure user supplied integrations object to rudder format
 
@@ -15506,26 +15464,24 @@
               } else {
                 // get intersection between config plane native enabled destinations
                 // (which were able to successfully load on the page) vs user supplied integrations
-                var succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
+                const succesfulLoadedIntersectClientSuppliedIntegrations = findAllEnabledDestinations(
                   clientSuppliedIntegrations,
                   this.clientIntegrationObjects,
                 ); // try to first send to all integrations, if list populated from BE
 
-                succesfulLoadedIntersectClientSuppliedIntegrations.forEach(function (obj) {
+                succesfulLoadedIntersectClientSuppliedIntegrations.forEach((obj) => {
                   try {
-                    if (!obj.isFailed || !obj.isFailed()) {
-                      if (obj[type]) {
-                        var sendEvent = !_this4.IsEventBlackListed(
+                    if ((!obj.isFailed || !obj.isFailed()) && obj[type]) {
+                        const sendEvent = !_this4.IsEventBlackListed(
                           rudderElement.message.event,
                           obj.name,
                         ); // Block the event if it is blacklisted for the device-mode destination
 
                         if (sendEvent) {
-                          var clonedRudderElement = cloneDeep(rudderElement);
+                          const clonedRudderElement = cloneDeep(rudderElement);
                           obj[type](clonedRudderElement);
                         }
                       }
-                    }
                   } catch (err) {
                     err.message = '[sendToNative]::[Destination:'
                       .concat(obj.name, ']:: ')
@@ -15556,18 +15512,16 @@
             }
 
             query = query.replace(/\?/g, '&');
-            var param;
-            var params = parse$6(query);
-            var results = {};
+            let param;
+            const params = parse$6(query);
+            const results = {};
 
-            for (var key in params) {
-              if (Object.prototype.hasOwnProperty.call(params, key)) {
-                if (key.substr(0, 4) === 'utm_') {
+            for (const key in params) {
+              if (Object.prototype.hasOwnProperty.call(params, key) && key.substr(0, 4) === 'utm_') {
                   param = key.substr(4);
                   if (param === 'campaign') param = 'name';
                   results[param] = params[key];
                 }
-              }
             }
 
             return results;
@@ -15580,11 +15534,11 @@
         {
           key: 'addCampaignInfo',
           value: function addCampaignInfo(rudderElement) {
-            var msgContext = rudderElement.message.context;
+            const msgContext = rudderElement.message.context;
 
             if (msgContext && _typeof(msgContext) === 'object') {
-              var _getDefaultPageProper = getDefaultPageProperties(),
-                search = _getDefaultPageProper.search;
+              const _getDefaultPageProper = getDefaultPageProperties();
+                const {search} = _getDefaultPageProper;
 
               rudderElement.message.context.campaign = this.utm(search);
             }
@@ -15603,17 +15557,17 @@
         {
           key: 'processOptionsParam',
           value: function processOptionsParam(rudderElement, options) {
-            var _rudderElement$messag = rudderElement.message,
-              type = _rudderElement$messag.type,
-              properties = _rudderElement$messag.properties;
+            const _rudderElement$messag = rudderElement.message;
+              const {type} = _rudderElement$messag;
+              const {properties} = _rudderElement$messag;
             this.addCampaignInfo(rudderElement); // assign page properties to context.page
 
             rudderElement.message.context.page = this.getContextPageProperties(
               type === 'page' ? properties : undefined,
             );
-            var topLevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];
+            const topLevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];
 
-            for (var key in options) {
+            for (const key in options) {
               if (topLevelElements.includes(key)) {
                 rudderElement.message[key] = options[key];
               } else if (key !== 'context') {
@@ -15637,10 +15591,10 @@
         {
           key: 'getPageProperties',
           value: function getPageProperties(properties, options) {
-            var defaultPageProperties = getDefaultPageProperties();
-            var optionPageProperties = (options && options.page) || {};
+            const defaultPageProperties = getDefaultPageProperties();
+            const optionPageProperties = (options && options.page) || {};
 
-            for (var key in defaultPageProperties) {
+            for (const key in defaultPageProperties) {
               if (properties[key] === undefined) {
                 properties[key] = optionPageProperties[key] || defaultPageProperties[key];
               }
@@ -15652,10 +15606,10 @@
         {
           key: 'getContextPageProperties',
           value: function getContextPageProperties(properties) {
-            var defaultPageProperties = getDefaultPageProperties();
-            var contextPageProperties = {};
+            const defaultPageProperties = getDefaultPageProperties();
+            const contextPageProperties = {};
 
-            for (var key in defaultPageProperties) {
+            for (const key in defaultPageProperties) {
               contextPageProperties[key] =
                 properties && properties[key] ? properties[key] : defaultPageProperties[key];
             }
@@ -15737,10 +15691,10 @@
           key: 'setAnonymousId',
           value: function setAnonymousId(anonymousId, rudderAmpLinkerParm) {
             // if (!this.loaded) return;
-            var parsedAnonymousIdObj = rudderAmpLinkerParm
+            const parsedAnonymousIdObj = rudderAmpLinkerParm
               ? parseLinker(rudderAmpLinkerParm)
               : null;
-            var parsedAnonymousId = parsedAnonymousIdObj ? parsedAnonymousIdObj.rs_amp_id : null;
+            const parsedAnonymousId = parsedAnonymousIdObj ? parsedAnonymousIdObj.rs_amp_id : null;
             this.anonymousId = anonymousId || parsedAnonymousId || generateUUID();
             this.storage.setAnonymousId(this.anonymousId);
           },
@@ -15748,7 +15702,7 @@
         {
           key: 'isValidWriteKey',
           value: function isValidWriteKey(writeKey) {
-            if (!writeKey || typeof writeKey !== 'string' || writeKey.trim().length == 0) {
+            if (!writeKey || typeof writeKey !== 'string' || writeKey.trim().length === 0) {
               return false;
             }
 
@@ -15758,7 +15712,7 @@
         {
           key: 'isValidServerUrl',
           value: function isValidServerUrl(serverUrl) {
-            if (!serverUrl || typeof serverUrl !== 'string' || serverUrl.trim().length == 0) {
+            if (!serverUrl || typeof serverUrl !== 'string' || serverUrl.trim().length === 0) {
               return false;
             }
 
@@ -15768,7 +15722,7 @@
         {
           key: 'isDatasetAvailable',
           value: function isDatasetAvailable() {
-            var t = document.createElement('div');
+            const t = document.createElement('div');
             return t.setAttribute('data-a-b', 'c'), t.dataset ? t.dataset.aB === 'c' : false;
           },
           /**
@@ -15782,7 +15736,7 @@
         {
           key: 'loadAfterPolyfill',
           value: function loadAfterPolyfill(writeKey, serverUrl, options) {
-            var _this5 = this;
+            const _this5 = this;
 
             if (options && options.logLevel) {
               this.logLevel = options.logLevel;
@@ -15800,7 +15754,7 @@
               throw Error('Unable to load the SDK due to invalid writeKey or serverUrl');
             }
 
-            var storageOptions = {};
+            let storageOptions = {};
 
             if (options && options.setCookieDomain) {
               storageOptions = _objectSpread2(
@@ -15856,14 +15810,12 @@
 
             if (options && options.clientSuppliedCallbacks) {
               // convert to rudder recognized method names
-              var transformedCallbackMapping = {};
-              Object.keys(this.methodToCallbackMapping).forEach(function (methodName) {
-                if (_this5.methodToCallbackMapping.hasOwnProperty(methodName)) {
-                  if (options.clientSuppliedCallbacks[_this5.methodToCallbackMapping[methodName]]) {
+              const transformedCallbackMapping = {};
+              Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
+                if (_this5.methodToCallbackMapping.hasOwnProperty(methodName) && options.clientSuppliedCallbacks[_this5.methodToCallbackMapping[methodName]]) {
                     transformedCallbackMapping[methodName] =
                       options.clientSuppliedCallbacks[_this5.methodToCallbackMapping[methodName]];
                   }
-                }
               });
 
               _extends(this.clientSuppliedCallbacks, transformedCallbackMapping);
@@ -15891,8 +15843,8 @@
               }
             } else {
               // Get the CDN base URL from the included 'rudder-analytics.min.js' script tag
-              var _getSDKUrlInfo2 = getSDKUrlInfo(),
-                sdkURL = _getSDKUrlInfo2.sdkURL;
+              const _getSDKUrlInfo2 = getSDKUrlInfo();
+                const {sdkURL} = _getSDKUrlInfo2;
 
               if (sdkURL) {
                 this.destSDKBaseURL = sdkURL.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/');
@@ -15903,13 +15855,11 @@
               if (typeof options.getSourceConfig !== 'function') {
                 handleError(new Error('option "getSourceConfig" must be a function'));
               } else {
-                var res = options.getSourceConfig();
+                const res = options.getSourceConfig();
 
                 if (res instanceof Promise) {
                   res
-                    .then(function (pRes) {
-                      return _this5.processResponse(200, pRes);
-                    })
+                    .then((pRes) => _this5.processResponse(200, pRes))
                     .catch(handleError);
                 } else {
                   this.processResponse(200, res);
@@ -15919,7 +15869,7 @@
               return;
             }
 
-            var configUrl = getConfigUrl(writeKey);
+            let configUrl = getConfigUrl(writeKey);
 
             if (options && options.configUrl) {
               configUrl = getUserProvidedConfigUrl(options.configUrl, configUrl);
@@ -15957,12 +15907,12 @@
               !String.prototype.replaceAll ||
               !this.isDatasetAvailable()
             ) {
-              var id = 'polyfill';
+              const id = 'polyfill';
               ScriptLoader(id, POLYFILL_URL, {
                 skipDatasetAttributes: true,
               });
-              var self = this;
-              var interval = setInterval(function () {
+              const self = this;
+              var interval = setInterval(() => {
                 // check if the polyfill is loaded
                 // In chrome 83 and below versions ID of a script is not part of window's scope
                 // even though it is loaded and returns false for <window.hasOwnProperty("polyfill")> this.
@@ -15972,7 +15922,7 @@
                   self.loadAfterPolyfill(writeKey, serverUrl, options);
                 }
               }, 100);
-              setTimeout(function () {
+              setTimeout(() => {
                 clearInterval(interval);
               }, MAX_WAIT_FOR_INTEGRATION_LOAD);
             } else {
@@ -16006,11 +15956,11 @@
         {
           key: 'initializeCallbacks',
           value: function initializeCallbacks() {
-            var _this6 = this;
+            const _this6 = this;
 
-            Object.keys(this.methodToCallbackMapping).forEach(function (methodName) {
+            Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
               if (_this6.methodToCallbackMapping.hasOwnProperty(methodName)) {
-                _this6.on(methodName, function () {});
+                _this6.on(methodName, () => {});
               }
             });
           },
@@ -16018,20 +15968,17 @@
         {
           key: 'registerCallbacks',
           value: function registerCallbacks(calledFromLoad) {
-            var _this7 = this;
+            const _this7 = this;
 
             if (!calledFromLoad) {
-              Object.keys(this.methodToCallbackMapping).forEach(function (methodName) {
-                if (_this7.methodToCallbackMapping.hasOwnProperty(methodName)) {
-                  if (window.rudderanalytics) {
-                    if (
+              Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
+                if (_this7.methodToCallbackMapping.hasOwnProperty(methodName) && window.rudderanalytics && 
                       typeof window.rudderanalytics[_this7.methodToCallbackMapping[methodName]] ===
                       'function'
                     ) {
                       _this7.clientSuppliedCallbacks[methodName] =
                         window.rudderanalytics[_this7.methodToCallbackMapping[methodName]];
-                    }
-                  } // let callback =
+                    } // let callback =
                   //   ? typeof window.rudderanalytics[
                   //       this.methodToCallbackMapping[methodName]
                   //     ] == "function"
@@ -16040,11 +15987,10 @@
                   //   : () => {};
                   // logger.debug("registerCallbacks", methodName, callback);
                   // this.on(methodName, callback);
-                }
               });
             }
 
-            Object.keys(this.clientSuppliedCallbacks).forEach(function (methodName) {
+            Object.keys(this.clientSuppliedCallbacks).forEach((methodName) => {
               if (_this7.clientSuppliedCallbacks.hasOwnProperty(methodName)) {
                 // logger.debug(
                 //   "registerCallbacks",
@@ -16087,13 +16033,13 @@
       return Analytics;
     })();
 
-    var instance = new Analytics();
+    const instance = new Analytics();
 
     function processDataInAnalyticsArray(analytics) {
-      analytics.toBeProcessedArray.forEach(function (x) {
-        var event = _toConsumableArray(x);
+      analytics.toBeProcessedArray.forEach((x) => {
+        const event = _toConsumableArray(x);
 
-        var method = event[0];
+        const method = event[0];
         event.shift(); // logger.debug("=====from analytics array, calling method:: ", method)
 
         analytics[method].apply(analytics, _toConsumableArray(event));
@@ -16107,14 +16053,14 @@
      */
 
     function parseQueryString(query) {
-      var queryDefaults = {
+      const queryDefaults = {
         trait: 'ajs_trait_',
         prop: 'ajs_prop_',
       };
 
       function getDataFromQueryObj(qObj, dataType) {
-        var data = {};
-        Object.keys(qObj).forEach(function (key) {
+        const data = {};
+        Object.keys(qObj).forEach((key) => {
           if (key.startsWith(dataType)) {
             data[key.substr(dataType.length)] = qObj[key];
           }
@@ -16122,7 +16068,7 @@
         return data;
       }
 
-      var queryObject = parse$6(query);
+      const queryObject = parse$6(query);
 
       if (queryObject.ajs_aid) {
         instance.toBeProcessedArray.push(['setAnonymousId', queryObject.ajs_aid]);
@@ -16148,7 +16094,7 @@
     Emitter$1(instance);
     window.addEventListener(
       'error',
-      function (e) {
+      (e) => {
         handleError(e, instance);
       },
       true,
@@ -16157,16 +16103,16 @@
     instance.initializeCallbacks(); // register supported callbacks
 
     instance.registerCallbacks(false);
-    var defaultMethod = 'load';
-    var argumentsArray = window.rudderanalytics;
-    var isValidArgsArray = Array.isArray(argumentsArray);
+    const defaultMethod = 'load';
+    const argumentsArray = window.rudderanalytics;
+    const isValidArgsArray = Array.isArray(argumentsArray);
 
     if (isValidArgsArray) {
       /**
        * Iterate the buffered API calls until we find load call and
        * queue it first for processing
        */
-      var i = 0;
+      let i = 0;
 
       while (i < argumentsArray.length) {
         if (argumentsArray[i] && argumentsArray[i][0] === defaultMethod) {
@@ -16181,27 +16127,25 @@
 
     parseQueryString(window.location.search);
     if (isValidArgsArray)
-      argumentsArray.forEach(function (x) {
-        return instance.toBeProcessedArray.push(x);
-      });
+      argumentsArray.forEach((x) => instance.toBeProcessedArray.push(x));
     processDataInAnalyticsArray(instance);
-    var ready = instance.ready.bind(instance);
-    var identify = instance.identify.bind(instance);
-    var page = instance.page.bind(instance);
-    var track = instance.track.bind(instance);
-    var alias = instance.alias.bind(instance);
-    var group = instance.group.bind(instance);
-    var reset = instance.reset.bind(instance);
-    var load = instance.load.bind(instance);
-    var initialized = (instance.initialized = true);
-    var getUserId = instance.getUserId.bind(instance);
-    var getUserTraits = instance.getUserTraits.bind(instance);
-    var getAnonymousId = instance.getAnonymousId.bind(instance);
-    var setAnonymousId = instance.setAnonymousId.bind(instance);
-    var getGroupId = instance.getGroupId.bind(instance);
-    var getGroupTraits = instance.getGroupTraits.bind(instance);
-    var startSession = instance.startSession.bind(instance);
-    var endSession = instance.endSession.bind(instance);
+    const ready = instance.ready.bind(instance);
+    const identify = instance.identify.bind(instance);
+    const page = instance.page.bind(instance);
+    const track = instance.track.bind(instance);
+    const alias = instance.alias.bind(instance);
+    const group = instance.group.bind(instance);
+    const reset = instance.reset.bind(instance);
+    const load = instance.load.bind(instance);
+    const initialized = (instance.initialized = true);
+    const getUserId = instance.getUserId.bind(instance);
+    const getUserTraits = instance.getUserTraits.bind(instance);
+    const getAnonymousId = instance.getAnonymousId.bind(instance);
+    const setAnonymousId = instance.setAnonymousId.bind(instance);
+    const getGroupId = instance.getGroupId.bind(instance);
+    const getGroupTraits = instance.getGroupTraits.bind(instance);
+    const startSession = instance.startSession.bind(instance);
+    const endSession = instance.endSession.bind(instance);
 
     exports.alias = alias;
     exports.endSession = endSession;
@@ -16223,7 +16167,7 @@
 
     Object.defineProperty(exports, '__esModule', { value: true });
   });
-  //=====================================================================================
+  //= ====================================================================================
 
   console.log('This prints to the console of the page (injected only if the page url matched)');
 

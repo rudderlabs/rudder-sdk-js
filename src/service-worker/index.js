@@ -244,14 +244,12 @@ class Analytics {
       return setImmediate(callback);
     }
 
-    if (type == 'identify') {
-      if (lMessage.traits) {
+    if (type == 'identify' && lMessage.traits) {
         if (!lMessage.context) {
           lMessage.context = {};
         }
         lMessage.context.traits = lMessage.traits;
       }
-    }
 
     lMessage = { ...lMessage };
     lMessage.type = type;
@@ -336,7 +334,7 @@ class Analytics {
       this.flushTimer = null;
     }
 
-    if (!this.queue.length) {
+    if (this.queue.length === 0) {
       this.logger.debug('queue is empty, nothing to flush');
       return setImmediate(callback);
     }

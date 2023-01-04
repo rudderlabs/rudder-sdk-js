@@ -111,7 +111,7 @@ class VWO {
         );
         if (
           typeof _vwo_exp[expId].comb_n[variationId] !== 'undefined' &&
-          ['VISUAL_AB', 'VISUAL', 'SPLIT_URL', 'SURVEY'].indexOf(_vwo_exp[expId].type) > -1
+          ['VISUAL_AB', 'VISUAL', 'SPLIT_URL', 'SURVEY'].includes(_vwo_exp[expId].type)
         ) {
           try {
             if (self.sendExperimentTrack) {

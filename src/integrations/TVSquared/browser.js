@@ -52,9 +52,7 @@ class TVSquared {
     let i;
     let j;
     let whitelist = this.eventWhiteList.slice();
-    whitelist = whitelist.filter((wl) => {
-      return wl.event !== '';
-    });
+    whitelist = whitelist.filter((wl) => wl.event !== '');
     for (i = 0; i < whitelist.length; i += 1) {
       if (event.toUpperCase() === whitelist[i].event.toUpperCase()) {
         break;
@@ -72,10 +70,8 @@ class TVSquared {
       promo: promotion_id || '',
     };
     let customMetrics = this.customMetrics.slice();
-    customMetrics = customMetrics.filter((cm) => {
-      return cm.propertyName !== '';
-    });
-    if (customMetrics.length) {
+    customMetrics = customMetrics.filter((cm) => cm.propertyName !== '');
+    if (customMetrics.length > 0) {
       for (j = 0; j < customMetrics.length; j += 1) {
         const key = customMetrics[j].propertyName;
         const value = rudderElement.message.properties[key];

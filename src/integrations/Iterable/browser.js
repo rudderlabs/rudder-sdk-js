@@ -65,7 +65,7 @@ class Iterable {
     const { message } = rudderElement;
     const { integrations } = message;
     const userEmail = message.traits?.email || message.context?.traits?.email;
-    const userId = message.userId;
+    const {userId} = message;
 
     async function extractJWT(message) {
       if (integrations && integrations.ITERABLE) {
@@ -73,12 +73,12 @@ class Iterable {
         if (isDefinedAndNotNull(jwt_token)) return jwt_token;
       } else {
         logger.error('The JWT token was not passed, The SDK could not be initialised.');
-        return;
+        
       }
     }
 
     // Initialize the iterable SDK with the proper apiKey and the passed JWT
-    let wd = window['@iterable/web-sdk'].initialize(this.apiKey, extractJWT);
+    const wd = window['@iterable/web-sdk'].initialize(this.apiKey, extractJWT);
     switch (this.initialisationIdentifier) {
       case 'email':
         wd.setEmail(userEmail).then(() => {

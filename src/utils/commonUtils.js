@@ -75,9 +75,7 @@ const getHashFromArray = (arrays, fromKey = 'from', toKey = 'to', isLowerCase = 
  * @param  {} timestamp
  * @param  {} return iso format of date
  */
-const toIso = (timestamp) => {
-  return new Date(timestamp).toISOString();
-};
+const toIso = (timestamp) => new Date(timestamp).toISOString();
 
 // function to flatten a json
 function flattenJson(data) {
@@ -162,15 +160,13 @@ function getDestinationExternalID(message, type) {
  * @param {*} value 123
  * @returns yes
  */
-const isDefinedNotNullNotEmpty = (value) => {
-  return !(
+const isDefinedNotNullNotEmpty = (value) => !(
     value === undefined ||
     value === null ||
     Number.isNaN(value) ||
     (typeof value === 'object' && Object.keys(value).length === 0) ||
     (typeof value === 'string' && value.trim().length === 0)
   );
-};
 
 /**
  * check type of object incoming in the rejectArr function
@@ -200,16 +196,12 @@ function type(val) {
 /**
  * To check if a variable is storing object or not
  */
-const isObject = (obj) => {
-  return type(obj) === 'object';
-};
+const isObject = (obj) => type(obj) === 'object';
 
 /**
  * To check if a variable is storing array or not
  */
-const isArray = (obj) => {
-  return type(obj) === 'array';
-};
+const isArray = (obj) => type(obj) === 'array';
 
 function compact(value) {
   return value == null;
@@ -220,11 +212,11 @@ function compact(value) {
  * @param  {} arr
  * @param  {} fn
  */
-var rejectarray = function (arr, fn) {
+const rejectarray = function (arr, fn) {
   const ret = [];
 
-  for (let i = 0; i < arr.length; ++i) {
-    if (!fn(arr[i], i)) ret[ret.length] = arr[i];
+  for (const [i, element] of arr.entries()) {
+    if (!fn(element, i)) ret[ret.length] = element;
   }
 
   return ret;
@@ -236,11 +228,11 @@ var rejectarray = function (arr, fn) {
  * @param  {} fn
  *
  */
-var rejectobject = function (obj, fn) {
+const rejectobject = function (obj, fn) {
   const ret = {};
 
   for (const k in obj) {
-    if (obj.hasOwnProperty(k) && !fn(obj[k], k)) {
+    if (Object.prototype.hasOwnProperty.call(obj, k) && !fn(obj[k], k)) {
       ret[k] = obj[k];
     }
   }
@@ -306,9 +298,9 @@ function getDefinedTraits(message) {
 const getDataFromSource = (src, dest, properties) => {
   const data = {};
   if (isArray(src)) {
-    for (let index = 0; index < src.length; index += 1) {
-      if (properties[src[index]]) {
-        data[dest] = properties[src[index]];
+    for (const element of src) {
+      if (properties[element]) {
+        data[dest] = properties[element];
         if (data) {
           // return only if the value is valid.
           // else look for next possible source in precedence
@@ -316,11 +308,9 @@ const getDataFromSource = (src, dest, properties) => {
         }
       }
     }
-  } else if (typeof src === 'string') {
-    if (properties[src]) {
+  } else if (typeof src === 'string' && properties[src]) {
       data[dest] = properties[src];
     }
-  }
   return data;
 };
 

@@ -1,3 +1,5 @@
-import { VWO } from './browser';
 
-export { VWO };
+
+
+
+export {VWO} from './browser';

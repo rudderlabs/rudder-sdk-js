@@ -302,7 +302,7 @@ class Mixpanel {
     // Mixpanel People operations
     if (this.people) {
       // increment event count, check if the current event exists in eventIncrements
-      if (eventIncrements.indexOf(event) !== -1) {
+      if (eventIncrements.includes(event)) {
         window.mixpanel.people.increment(event);
         window.mixpanel.people.set('Last ' + event, new Date());
       }
@@ -310,7 +310,7 @@ class Mixpanel {
       // eslint-disable-next-line guard-for-in
       for (const key in props) {
         const prop = props[key];
-        if (prop && propIncrements.indexOf(key) != -1) {
+        if (prop && propIncrements.includes(key)) {
           window.mixpanel.people.increment(key, prop);
         }
       }
@@ -359,7 +359,7 @@ class Mixpanel {
      * groupIdentifierTraits: [ {trait: "<trait_value>"}, ... ]
      */
     const identifierTraitsList = parseConfigArray(this.groupKeySettings, 'groupKey');
-    if (traits && Object.keys(traits).length) {
+    if (traits && Object.keys(traits).length > 0) {
       identifierTraitsList.forEach((trait) => {
         window.mixpanel.get_group(trait, groupId).set_once(traits);
       });

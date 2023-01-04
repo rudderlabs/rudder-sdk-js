@@ -50,9 +50,9 @@ class Braze {
     const maleGenders = ['man', 'male', 'm'];
     const otherGenders = ['other', 'o'];
 
-    if (femaleGenders.indexOf(gender.toLowerCase()) > -1) return window.braze.User.Genders.FEMALE;
-    if (maleGenders.indexOf(gender.toLowerCase()) > -1) return window.braze.User.Genders.MALE;
-    if (otherGenders.indexOf(gender.toLowerCase()) > -1) return window.braze.User.Genders.OTHER;
+    if (femaleGenders.includes(gender.toLowerCase())) return window.braze.User.Genders.FEMALE;
+    if (maleGenders.includes(gender.toLowerCase())) return window.braze.User.Genders.MALE;
+    if (otherGenders.includes(gender.toLowerCase())) return window.braze.User.Genders.OTHER;
   }
 
   init() {

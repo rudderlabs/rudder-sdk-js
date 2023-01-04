@@ -134,7 +134,7 @@ const extendTraits = (arr) => {
   });
 
   keys.forEach((key) => {
-    if (arr.indexOf(key) < 0) {
+    if (!arr.includes(key)) {
       arr.push(key);
     }
   });

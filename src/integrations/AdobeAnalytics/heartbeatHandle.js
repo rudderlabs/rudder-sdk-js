@@ -57,9 +57,7 @@ const initHeartbeat = (rudderElement) => {
     return playhead;
   };
 
-  mediaHeartbeatDelegate.getQoSObject = () => {
-    return qosData;
-  };
+  mediaHeartbeatDelegate.getQoSObject = () => qosData;
 
   mediaHeartbeats[session_id || 'default'] = {
     heartbeat: new va.MediaHeartbeat(mediaHeartbeatDelegate, mediaHeartbeatConfig, window.s),

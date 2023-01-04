@@ -29,24 +29,24 @@ class LiveChat {
         _q: [],
         _h: null,
         _v: '2.0',
-        on: function () {
+        on () {
           i(['on', c.call(arguments)]);
         },
-        once: function () {
+        once () {
           i(['once', c.call(arguments)]);
         },
-        off: function () {
+        off () {
           i(['off', c.call(arguments)]);
         },
-        get: function () {
+        get () {
           if (!e._h) throw new Error("[LiveChatWidget] You can't use getters before load.");
           return i(['get', c.call(arguments)]);
         },
-        call: function () {
+        call () {
           i(['call', c.call(arguments)]);
         },
-        init: function () {
-          var n = t.createElement('script');
+        init () {
+          const n = t.createElement('script');
           (n.async = !0),
             (n.type = 'text/javascript'),
             (n.src = 'https://cdn.livechatinc.com/tracking.js'),

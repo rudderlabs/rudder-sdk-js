@@ -15,7 +15,7 @@ class Fullstory {
 
   static getFSProperties(properties) {
     const FS_properties = {};
-    Object.keys(properties).map(function (key, index) {
+    Object.keys(properties).map((key, index) => {
       FS_properties[
         key === 'displayName' || key === 'email' ? key : Fullstory.camelCaseField(key)
       ] = properties[key];
@@ -92,7 +92,7 @@ class Fullstory {
         g('log', [a, b]);
       };
       g.consent = function (a) {
-        g('consent', !arguments.length || a);
+        g('consent', arguments.length === 0 || a);
       };
       g.identifyAccount = function (i, v) {
         o = 'account';
@@ -149,11 +149,9 @@ class Fullstory {
               return;
             }
             delay = Math.min(delay * 2, 1024);
-            if (totalTime > timeout) {
-              if (timeoutFn) {
+            if (totalTime > timeout && timeoutFn) {
                 timeoutFn();
               }
-            }
             totalTime += delay;
             setTimeout(resultFn, delay);
           };

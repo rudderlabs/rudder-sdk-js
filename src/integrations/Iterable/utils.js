@@ -22,7 +22,7 @@ function getMappingObject(properties, mappings) {
 }
 
 function formPurchaseEventPayload(message) {
-  let purchaseEventPayload = {};
+  const purchaseEventPayload = {};
   const { products } = message.properties;
   purchaseEventPayload.id = message.properties.order_id || message.properties.checkout_id;
   purchaseEventPayload.total = message.properties.total;
@@ -35,7 +35,7 @@ function formPurchaseEventPayload(message) {
     });
   } else {
     // if product related info is on properties root
-    let product = {};
+    const product = {};
     product.id = message.properties.product_id;
     product.sku = message.properties.sku;
     product.name = message.properties.name;

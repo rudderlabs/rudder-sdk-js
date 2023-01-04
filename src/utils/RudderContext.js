@@ -32,7 +32,7 @@ class RudderContext {
       if (navigator.brave && Object.getPrototypeOf(navigator.brave).isBrave) {
         // Example:
         // Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36
-        const matchedArr = this.userAgent.match(/(Chrome)\/([\w\.]+)/i);
+        const matchedArr = this.userAgent.match(/(chrome)\/([\w.]+)/i);
         if (matchedArr) {
           this.userAgent = `${this.userAgent} Brave/${matchedArr[2]}`;
         }

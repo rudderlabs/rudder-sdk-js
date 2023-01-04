@@ -173,8 +173,7 @@ class FacebookPixel {
       const contents = [];
 
       if (products && Array.isArray(products)) {
-        for (let i = 0; i < products.length; i++) {
-          const product = products[i];
+        for (const product of products) {
           if (product) {
             const productId = product.product_id || product.sku || product.id;
             if (isDefined(productId)) {
@@ -189,7 +188,7 @@ class FacebookPixel {
         }
       }
 
-      if (contentIds.length) {
+      if (contentIds.length > 0) {
         contentType = ['product'];
       } else if (category) {
         contentIds.push(category);
@@ -330,8 +329,7 @@ class FacebookPixel {
       const contentIds = [];
       const contents = [];
       if (products) {
-        for (let i = 0; i < products.length; i++) {
-          const product = products[i];
+        for (const product of products) {
           if (product) {
             const pId = product.product_id || product.sku || product.id;
             if (pId) {
@@ -424,8 +422,7 @@ class FacebookPixel {
       const contentIds = [];
       const contents = [];
       if (products) {
-        for (let i = 0; i < products.length; i++) {
-          const product = products[i];
+        for (const product of products) {
           if (product) {
             const pId = product.product_id || product.sku || product.id;
             if (pId) {
@@ -618,26 +615,24 @@ class FacebookPixel {
 
       const customProperties = eventCustomProperties.map((e) => e.eventCustomProperties);
 
-      if (isStandardEvent && customProperties.indexOf(property) < 0) {
+      if (isStandardEvent && !customProperties.includes(property)) {
         continue;
       }
 
       const value = properties[property];
 
-      if (dateFields.indexOf(properties) >= 0) {
-        if (is.date(value)) {
+      if (dateFields.includes(properties) && is.date(value)) {
           payload[property] = value.toISOTring().split('T')[0];
           continue;
         }
-      }
       if (customPiiProperties.hasOwnProperty(property)) {
         if (customPiiProperties[property] && typeof value === 'string') {
           payload[property] = sha256(value).toString();
         }
         continue;
       }
-      const isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
-      const isProperyWhiteListed = whitelistPiiProperties.indexOf(property) >= 0;
+      const isPropertyPii = defaultPiiProperties.includes(property);
+      const isProperyWhiteListed = whitelistPiiProperties.includes(property);
       if (!isPropertyPii || isProperyWhiteListed) {
         payload[property] = value;
       }

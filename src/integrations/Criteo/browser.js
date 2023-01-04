@@ -78,7 +78,7 @@ class Criteo {
     }
 
     const extraDataObject = generateExtraData(rudderElement, this.fieldMapping);
-    if (Object.keys(extraDataObject).length !== 0) {
+    if (Object.keys(extraDataObject).length > 0) {
       finalPayload.push({ event: 'setData', ...extraDataObject });
     }
 
@@ -147,7 +147,7 @@ class Criteo {
     });
 
     const extraDataObject = generateExtraData(rudderElement, this.fieldMapping);
-    if (Object.keys(extraDataObject).length !== 0) {
+    if (Object.keys(extraDataObject).length > 0) {
       finalPayload.push({ event: 'setData', ...extraDataObject });
     }
     window.criteo_q.push(finalPayload);

@@ -1,3 +1,5 @@
-import { Chartbeat } from './browser';
 
-export { Chartbeat };
+
+
+
+export {Chartbeat} from './browser';

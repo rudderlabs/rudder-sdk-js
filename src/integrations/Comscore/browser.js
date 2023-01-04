@@ -102,9 +102,7 @@ class Comscore {
         this.failed = true;
         return resolve(instance);
       }
-      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        return this._isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
-      });
+      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => this._isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve));
     });
   }
 
@@ -114,7 +112,7 @@ class Comscore {
 
     const comScoreParams = {};
 
-    Object.keys(comScoreBeaconParamsMap).forEach(function (property) {
+    Object.keys(comScoreBeaconParamsMap).forEach((property) => {
       if (property in properties) {
         const key = comScoreBeaconParamsMap[property];
         const value = properties[property];

@@ -35,7 +35,7 @@ describe('Test suite for the SDK', () => {
     document.head.innerHTML = ` `;
     rudderanalytics = window.rudderanalytics = [];
     for (
-      var methods = [
+      let methods = [
           'load',
           'page',
           'track',
@@ -56,7 +56,7 @@ describe('Test suite for the SDK', () => {
       i < methods.length;
       i++
     ) {
-      var method = methods[i];
+      const method = methods[i];
       rudderanalytics[method] = (function (d) {
         return function () {
           rudderanalytics.push([d, ...arguments]);
@@ -97,7 +97,7 @@ describe('Test suite for the SDK', () => {
     it("If 'getAnonymousId' API is invoked with no prior persisted data, then a UUID value is returned", () => {
       const anonId = rudderanalytics.getAnonymousId();
 
-      const uuidRegEx = /^[a-z0-9]{8}-[a-z0-9]{4}-4[a-z0-9]{3}-[a-z0-9]{4}-[a-z0-9]{12}$/;
+      const uuidRegEx = /^[\da-z]{8}-[\da-z]{4}-4[\da-z]{3}-[\da-z]{4}-[\da-z]{12}$/;
       expect(anonId).toMatch(uuidRegEx);
     });
 

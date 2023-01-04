@@ -88,9 +88,9 @@ class Podsights {
     let events = [];
     const customEvent = eventsMappingFromCustomEvents[trimmedEvent] || [];
     const standardEvents = eventMappingFromStandardEvents[trimmedEvent] || [];
-    if (customEvent.length !== 0) {
+    if (customEvent.length > 0) {
       events = customEvent;
-    } else if (standardEvents.length !== 0) {
+    } else if (standardEvents.length > 0) {
       events = standardEvents;
     } else {
       logger.error(`===No Podsights Pixel mapped event found. Aborting!===`);

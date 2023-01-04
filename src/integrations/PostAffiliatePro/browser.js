@@ -103,11 +103,11 @@ class PostAffiliatePro {
           const merged = mergedProductId.join();
           if (merged) window.sale.setProductID(merged);
         } else {
-          for (let i = 0; i < productsArr.length; i += 1) {
+          for (const [i, element] of productsArr.entries()) {
             window[`sale${i}`] = window.PostAffTracker.createSale();
             updateSaleObject(window[`sale${i}`], properties);
-            if (productsArr[i].product_id)
-              window[`sale${i}`].setProductID(productsArr[i].product_id);
+            if (element.product_id)
+              window[`sale${i}`].setProductID(element.product_id);
           }
         }
       } else {

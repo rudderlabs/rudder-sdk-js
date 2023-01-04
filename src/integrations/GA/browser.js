@@ -155,7 +155,7 @@ export default class GA {
       this.contentGroupingsArray,
     );
 
-    if (Object.keys(custom).length) {
+    if (Object.keys(custom).length > 0) {
       window.ga(`${this.trackerName}set`, custom);
     }
 
@@ -384,14 +384,10 @@ export default class GA {
           props.filters = props.filters || [];
           props.sorts = props.sorts || [];
           filters = props.filters
-            .map((obj) => {
-              return `${obj.type}:${obj.value}`;
-            })
+            .map((obj) => `${obj.type}:${obj.value}`)
             .join();
           sorts = props.sorters
-            .map((obj) => {
-              return `${obj.type}:${obj.value}`;
-            })
+            .map((obj) => `${obj.type}:${obj.value}`)
             .join();
 
           this.loadEnhancedEcommerce(rudderElement);
@@ -647,7 +643,7 @@ export default class GA {
       this.metricsArray,
       this.contentGroupingsArray,
     );
-    if (Object.keys(custom).length) {
+    if (Object.keys(custom).length > 0) {
       if (this.setAllMappedProps) {
         window.ga(`${this.trackerName}set`, custom);
       } else {
@@ -670,11 +666,9 @@ export default class GA {
    */
   path(properties, includeSearch) {
     let str = properties.path;
-    if (properties) {
-      if (includeSearch && properties.search) {
+    if (properties && includeSearch && properties.search) {
         str += properties.search;
       }
-    }
     return str;
   }
 
@@ -797,9 +791,7 @@ export default class GA {
 
     return (
       products
-        .map((x) => {
-          return x.product_id;
-        })
+        .map((x) => x.product_id)
         .indexOf(item.properties.product_id) + 1
     );
   }

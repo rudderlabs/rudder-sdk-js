@@ -1,12 +1,10 @@
 function ownKeys$1(object, enumerableOnly) {
-  var keys = Object.keys(object);
+  const keys = Object.keys(object);
 
   if (Object.getOwnPropertySymbols) {
-    var symbols = Object.getOwnPropertySymbols(object);
+    let symbols = Object.getOwnPropertySymbols(object);
     enumerableOnly &&
-      (symbols = symbols.filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-      })),
+      (symbols = symbols.filter((sym) => Object.getOwnPropertyDescriptor(object, sym).enumerable)),
       keys.push.apply(keys, symbols);
   }
 
@@ -14,15 +12,15 @@ function ownKeys$1(object, enumerableOnly) {
 }
 
 function _objectSpread2(target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = null != arguments[i] ? arguments[i] : {};
+  for (let i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
     i % 2
-      ? ownKeys$1(Object(source), !0).forEach(function (key) {
+      ? ownKeys$1(Object(source), !0).forEach((key) => {
           _defineProperty$1(target, key, source[key]);
         })
       : Object.getOwnPropertyDescriptors
       ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source))
-      : ownKeys$1(Object(source)).forEach(function (key) {
+      : ownKeys$1(Object(source)).forEach((key) => {
           Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
         });
   }
@@ -37,18 +35,18 @@ function _regeneratorRuntime() {
     return exports;
   };
 
-  var exports = {},
-    Op = Object.prototype,
-    hasOwn = Op.hasOwnProperty,
-    $Symbol = 'function' == typeof Symbol ? Symbol : {},
-    iteratorSymbol = $Symbol.iterator || '@@iterator',
-    asyncIteratorSymbol = $Symbol.asyncIterator || '@@asyncIterator',
-    toStringTagSymbol = $Symbol.toStringTag || '@@toStringTag';
+  var exports = {};
+    const Op = Object.prototype;
+    const hasOwn = Op.hasOwnProperty;
+    const $Symbol = typeof Symbol === 'function' ? Symbol : {};
+    const iteratorSymbol = $Symbol.iterator || '@@iterator';
+    const asyncIteratorSymbol = $Symbol.asyncIterator || '@@asyncIterator';
+    const toStringTagSymbol = $Symbol.toStringTag || '@@toStringTag';
 
   function define(obj, key, value) {
     return (
       Object.defineProperty(obj, key, {
-        value: value,
+        value,
         enumerable: !0,
         configurable: !0,
         writable: !0,
@@ -66,25 +64,25 @@ function _regeneratorRuntime() {
   }
 
   function wrap(innerFn, outerFn, self, tryLocsList) {
-    var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator,
-      generator = Object.create(protoGenerator.prototype),
-      context = new Context(tryLocsList || []);
+    const protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator;
+      const generator = Object.create(protoGenerator.prototype);
+      const context = new Context(tryLocsList || []);
     return (
       (generator._invoke = (function (innerFn, self, context) {
-        var state = 'suspendedStart';
+        let state = 'suspendedStart';
         return function (method, arg) {
-          if ('executing' === state) throw new Error('Generator is already running');
+          if (state === 'executing') throw new Error('Generator is already running');
 
-          if ('completed' === state) {
-            if ('throw' === method) throw arg;
+          if (state === 'completed') {
+            if (method === 'throw') throw arg;
             return doneResult();
           }
 
           for (context.method = method, context.arg = arg; ; ) {
-            var delegate = context.delegate;
+            const {delegate} = context;
 
             if (delegate) {
-              var delegateResult = maybeInvokeDelegate(delegate, context);
+              const delegateResult = maybeInvokeDelegate(delegate, context);
 
               if (delegateResult) {
                 if (delegateResult === ContinueSentinel) continue;
@@ -92,15 +90,15 @@ function _regeneratorRuntime() {
               }
             }
 
-            if ('next' === context.method) context.sent = context._sent = context.arg;
-            else if ('throw' === context.method) {
-              if ('suspendedStart' === state) throw ((state = 'completed'), context.arg);
+            if (context.method === 'next') context.sent = context._sent = context.arg;
+            else if (context.method === 'throw') {
+              if (state === 'suspendedStart') throw ((state = 'completed'), context.arg);
               context.dispatchException(context.arg);
-            } else 'return' === context.method && context.abrupt('return', context.arg);
+            } else context.method === 'return' && context.abrupt('return', context.arg);
             state = 'executing';
-            var record = tryCatch(innerFn, self, context);
+            const record = tryCatch(innerFn, self, context);
 
-            if ('normal' === record.type) {
+            if (record.type === 'normal') {
               if (
                 ((state = context.done ? 'completed' : 'suspendedYield'),
                 record.arg === ContinueSentinel)
@@ -112,7 +110,7 @@ function _regeneratorRuntime() {
               };
             }
 
-            'throw' === record.type &&
+            record.type === 'throw' &&
               ((state = 'completed'), (context.method = 'throw'), (context.arg = record.arg));
           }
         };
@@ -144,23 +142,23 @@ function _regeneratorRuntime() {
 
   function GeneratorFunctionPrototype() {}
 
-  var IteratorPrototype = {};
+  let IteratorPrototype = {};
   define(IteratorPrototype, iteratorSymbol, function () {
     return this;
   });
-  var getProto = Object.getPrototypeOf,
-    NativeIteratorPrototype = getProto && getProto(getProto(values([])));
+  const getProto = Object.getPrototypeOf;
+    const NativeIteratorPrototype = getProto && getProto(getProto(values([])));
   NativeIteratorPrototype &&
     NativeIteratorPrototype !== Op &&
     hasOwn.call(NativeIteratorPrototype, iteratorSymbol) &&
     (IteratorPrototype = NativeIteratorPrototype);
-  var Gp =
+  const Gp =
     (GeneratorFunctionPrototype.prototype =
     Generator.prototype =
       Object.create(IteratorPrototype));
 
   function defineIteratorMethods(prototype) {
-    ['next', 'throw', 'return'].forEach(function (method) {
+    ['next', 'throw', 'return'].forEach((method) => {
       define(prototype, method, function (arg) {
         return this._invoke(method, arg);
       });
@@ -169,38 +167,36 @@ function _regeneratorRuntime() {
 
   function AsyncIterator(generator, PromiseImpl) {
     function invoke(method, arg, resolve, reject) {
-      var record = tryCatch(generator[method], generator, arg);
+      const record = tryCatch(generator[method], generator, arg);
 
-      if ('throw' !== record.type) {
-        var result = record.arg,
-          value = result.value;
-        return value && 'object' == typeof value && hasOwn.call(value, '__await')
+      if (record.type !== 'throw') {
+        const result = record.arg;
+          const {value} = result;
+        return value && typeof value === 'object' && hasOwn.call(value, '__await')
           ? PromiseImpl.resolve(value.__await).then(
-              function (value) {
+              (value) => {
                 invoke('next', value, resolve, reject);
               },
-              function (err) {
+              (err) => {
                 invoke('throw', err, resolve, reject);
               },
             )
           : PromiseImpl.resolve(value).then(
-              function (unwrapped) {
+              (unwrapped) => {
                 (result.value = unwrapped), resolve(result);
               },
-              function (error) {
-                return invoke('throw', error, resolve, reject);
-              },
+              (error) => invoke('throw', error, resolve, reject),
             );
       }
 
       reject(record.arg);
     }
 
-    var previousPromise;
+    let previousPromise;
 
     this._invoke = function (method, arg) {
       function callInvokeWithMethodAndArg() {
-        return new PromiseImpl(function (resolve, reject) {
+        return new PromiseImpl((resolve, reject) => {
           invoke(method, arg, resolve, reject);
         });
       }
@@ -212,16 +208,16 @@ function _regeneratorRuntime() {
   }
 
   function maybeInvokeDelegate(delegate, context) {
-    var method = delegate.iterator[context.method];
+    const method = delegate.iterator[context.method];
 
     if (undefined === method) {
-      if (((context.delegate = null), 'throw' === context.method)) {
+      if (((context.delegate = null), context.method === 'throw')) {
         if (
           delegate.iterator.return &&
           ((context.method = 'return'),
           (context.arg = undefined),
           maybeInvokeDelegate(delegate, context),
-          'throw' === context.method)
+          context.method === 'throw')
         )
           return ContinueSentinel;
         (context.method = 'throw'),
@@ -231,20 +227,20 @@ function _regeneratorRuntime() {
       return ContinueSentinel;
     }
 
-    var record = tryCatch(method, delegate.iterator, context.arg);
-    if ('throw' === record.type)
+    const record = tryCatch(method, delegate.iterator, context.arg);
+    if (record.type === 'throw')
       return (
         (context.method = 'throw'),
         (context.arg = record.arg),
         (context.delegate = null),
         ContinueSentinel
       );
-    var info = record.arg;
+    const info = record.arg;
     return info
       ? info.done
         ? ((context[delegate.resultName] = info.value),
           (context.next = delegate.nextLoc),
-          'return' !== context.method && ((context.method = 'next'), (context.arg = undefined)),
+          context.method !== 'return' && ((context.method = 'next'), (context.arg = undefined)),
           (context.delegate = null),
           ContinueSentinel)
         : info
@@ -255,7 +251,7 @@ function _regeneratorRuntime() {
   }
 
   function pushTryEntry(locs) {
-    var entry = {
+    const entry = {
       tryLoc: locs[0],
     };
     1 in locs && (entry.catchLoc = locs[1]),
@@ -264,7 +260,7 @@ function _regeneratorRuntime() {
   }
 
   function resetTryEntry(entry) {
-    var record = entry.completion || {};
+    const record = entry.completion || {};
     (record.type = 'normal'), delete record.arg, (entry.completion = record);
   }
 
@@ -280,14 +276,14 @@ function _regeneratorRuntime() {
 
   function values(iterable) {
     if (iterable) {
-      var iteratorMethod = iterable[iteratorSymbol];
+      const iteratorMethod = iterable[iteratorSymbol];
       if (iteratorMethod) return iteratorMethod.call(iterable);
-      if ('function' == typeof iterable.next) return iterable;
+      if (typeof iterable.next === 'function') return iterable;
 
       if (!isNaN(iterable.length)) {
-        var i = -1,
-          next = function next() {
-            for (; ++i < iterable.length; )
+        let i = -1;
+          const next = function next() {
+            while (++i < iterable.length)
               if (hasOwn.call(iterable, i))
                 return (next.value = iterable[i]), (next.done = !1), next;
 
@@ -320,10 +316,10 @@ function _regeneratorRuntime() {
       'GeneratorFunction',
     )),
     (exports.isGeneratorFunction = function (genFun) {
-      var ctor = 'function' == typeof genFun && genFun.constructor;
+      const ctor = typeof genFun === 'function' && genFun.constructor;
       return (
         !!ctor &&
-        (ctor === GeneratorFunction || 'GeneratorFunction' === (ctor.displayName || ctor.name))
+        (ctor === GeneratorFunction || (ctor.displayName || ctor.name) === 'GeneratorFunction')
       );
     }),
     (exports.mark = function (genFun) {
@@ -348,31 +344,27 @@ function _regeneratorRuntime() {
     (exports.AsyncIterator = AsyncIterator),
     (exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) {
       void 0 === PromiseImpl && (PromiseImpl = Promise);
-      var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl);
+      const iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl);
       return exports.isGeneratorFunction(outerFn)
         ? iter
-        : iter.next().then(function (result) {
-            return result.done ? result.value : iter.next();
-          });
+        : iter.next().then((result) => result.done ? result.value : iter.next());
     }),
     defineIteratorMethods(Gp),
     define(Gp, toStringTagSymbol, 'Generator'),
     define(Gp, iteratorSymbol, function () {
       return this;
     }),
-    define(Gp, 'toString', function () {
-      return '[object Generator]';
-    }),
+    define(Gp, 'toString', () => '[object Generator]'),
     (exports.keys = function (object) {
-      var keys = [];
+      const keys = [];
 
-      for (var key in object) keys.push(key);
+      for (const key in object) keys.push(key);
 
       return (
         keys.reverse(),
         function next() {
-          for (; keys.length; ) {
-            var key = keys.pop();
+          while (keys.length > 0) {
+            const key = keys.pop();
             if (key in object) return (next.value = key), (next.done = !1), next;
           }
 
@@ -383,7 +375,7 @@ function _regeneratorRuntime() {
     (exports.values = values),
     (Context.prototype = {
       constructor: Context,
-      reset: function (skipTempReset) {
+      reset (skipTempReset) {
         if (
           ((this.prev = 0),
           (this.next = 0),
@@ -395,21 +387,21 @@ function _regeneratorRuntime() {
           this.tryEntries.forEach(resetTryEntry),
           !skipTempReset)
         )
-          for (var name in this)
-            't' === name.charAt(0) &&
+          for (const name in this)
+            name.charAt(0) === 't' &&
               hasOwn.call(this, name) &&
               !isNaN(+name.slice(1)) &&
               (this[name] = undefined);
       },
-      stop: function () {
+      stop () {
         this.done = !0;
-        var rootRecord = this.tryEntries[0].completion;
-        if ('throw' === rootRecord.type) throw rootRecord.arg;
+        const rootRecord = this.tryEntries[0].completion;
+        if (rootRecord.type === 'throw') throw rootRecord.arg;
         return this.rval;
       },
-      dispatchException: function (exception) {
+      dispatchException (exception) {
         if (this.done) throw exception;
-        var context = this;
+        const context = this;
 
         function handle(loc, caught) {
           return (
@@ -421,14 +413,14 @@ function _regeneratorRuntime() {
           );
         }
 
-        for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-          var entry = this.tryEntries[i],
-            record = entry.completion;
-          if ('root' === entry.tryLoc) return handle('end');
+        for (let i = this.tryEntries.length - 1; i >= 0; --i) {
+          const entry = this.tryEntries[i];
+            var record = entry.completion;
+          if (entry.tryLoc === 'root') return handle('end');
 
           if (entry.tryLoc <= this.prev) {
-            var hasCatch = hasOwn.call(entry, 'catchLoc'),
-              hasFinally = hasOwn.call(entry, 'finallyLoc');
+            const hasCatch = hasOwn.call(entry, 'catchLoc');
+              const hasFinally = hasOwn.call(entry, 'finallyLoc');
 
             if (hasCatch && hasFinally) {
               if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0);
@@ -442,9 +434,9 @@ function _regeneratorRuntime() {
           }
         }
       },
-      abrupt: function (type, arg) {
-        for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-          var entry = this.tryEntries[i];
+      abrupt (type, arg) {
+        for (let i = this.tryEntries.length - 1; i >= 0; --i) {
+          const entry = this.tryEntries[i];
 
           if (
             entry.tryLoc <= this.prev &&
@@ -457,11 +449,11 @@ function _regeneratorRuntime() {
         }
 
         finallyEntry &&
-          ('break' === type || 'continue' === type) &&
+          (type === 'break' || type === 'continue') &&
           finallyEntry.tryLoc <= arg &&
           arg <= finallyEntry.finallyLoc &&
           (finallyEntry = null);
-        var record = finallyEntry ? finallyEntry.completion : {};
+        const record = finallyEntry ? finallyEntry.completion : {};
         return (
           (record.type = type),
           (record.arg = arg),
@@ -470,20 +462,20 @@ function _regeneratorRuntime() {
             : this.complete(record)
         );
       },
-      complete: function (record, afterLoc) {
-        if ('throw' === record.type) throw record.arg;
+      complete (record, afterLoc) {
+        if (record.type === 'throw') throw record.arg;
         return (
-          'break' === record.type || 'continue' === record.type
+          record.type === 'break' || record.type === 'continue'
             ? (this.next = record.arg)
-            : 'return' === record.type
+            : record.type === 'return'
             ? ((this.rval = this.arg = record.arg), (this.method = 'return'), (this.next = 'end'))
-            : 'normal' === record.type && afterLoc && (this.next = afterLoc),
+            : record.type === 'normal' && afterLoc && (this.next = afterLoc),
           ContinueSentinel
         );
       },
-      finish: function (finallyLoc) {
-        for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-          var entry = this.tryEntries[i];
+      finish (finallyLoc) {
+        for (let i = this.tryEntries.length - 1; i >= 0; --i) {
+          const entry = this.tryEntries[i];
           if (entry.finallyLoc === finallyLoc)
             return (
               this.complete(entry.completion, entry.afterLoc),
@@ -492,14 +484,14 @@ function _regeneratorRuntime() {
             );
         }
       },
-      catch: function (tryLoc) {
-        for (var i = this.tryEntries.length - 1; i >= 0; --i) {
-          var entry = this.tryEntries[i];
+      catch (tryLoc) {
+        for (let i = this.tryEntries.length - 1; i >= 0; --i) {
+          const entry = this.tryEntries[i];
 
           if (entry.tryLoc === tryLoc) {
-            var record = entry.completion;
+            const record = entry.completion;
 
-            if ('throw' === record.type) {
+            if (record.type === 'throw') {
               var thrown = record.arg;
               resetTryEntry(entry);
             }
@@ -510,14 +502,14 @@ function _regeneratorRuntime() {
 
         throw new Error('illegal catch attempt');
       },
-      delegateYield: function (iterable, resultName, nextLoc) {
+      delegateYield (iterable, resultName, nextLoc) {
         return (
           (this.delegate = {
             iterator: values(iterable),
-            resultName: resultName,
-            nextLoc: nextLoc,
+            resultName,
+            nextLoc,
           }),
-          'next' === this.method && (this.arg = undefined),
+          this.method === 'next' && (this.arg = undefined),
           ContinueSentinel
         );
       },
@@ -531,13 +523,13 @@ function _typeof(obj) {
 
   return (
     (_typeof =
-      'function' == typeof Symbol && 'symbol' == typeof Symbol.iterator
+      typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol'
         ? function (obj) {
             return typeof obj;
           }
         : function (obj) {
             return obj &&
-              'function' == typeof Symbol &&
+              typeof Symbol === 'function' &&
               obj.constructor === Symbol &&
               obj !== Symbol.prototype
               ? 'symbol'
@@ -550,7 +542,7 @@ function _typeof(obj) {
 function asyncGeneratorStep$1(gen, resolve, reject, _next, _throw, key, arg) {
   try {
     var info = gen[key](arg);
-    var value = info.value;
+    var {value} = info;
   } catch (error) {
     reject(error);
     return;
@@ -565,10 +557,10 @@ function asyncGeneratorStep$1(gen, resolve, reject, _next, _throw, key, arg) {
 
 function _asyncToGenerator$1(fn) {
   return function () {
-    var self = this,
-      args = arguments;
-    return new Promise(function (resolve, reject) {
-      var gen = fn.apply(self, args);
+    const self = this;
+      const args = arguments;
+    return new Promise((resolve, reject) => {
+      const gen = fn.apply(self, args);
 
       function _next(value) {
         asyncGeneratorStep$1(gen, resolve, reject, _next, _throw, 'next', value);
@@ -590,8 +582,7 @@ function _classCallCheck(instance, Constructor) {
 }
 
 function _defineProperties(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
+  for (const descriptor of props) {
     descriptor.enumerable = descriptor.enumerable || false;
     descriptor.configurable = true;
     if ('value' in descriptor) descriptor.writable = true;
@@ -611,7 +602,7 @@ function _createClass(Constructor, protoProps, staticProps) {
 function _defineProperty$1(obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
-      value: value,
+      value,
       enumerable: true,
       configurable: true,
       writable: true,
@@ -627,10 +618,10 @@ function _extends() {
   _extends = Object.assign
     ? Object.assign.bind()
     : function (target) {
-        for (var i = 1; i < arguments.length; i++) {
-          var source = arguments[i];
+        for (let i = 1; i < arguments.length; i++) {
+          const source = arguments[i];
 
-          for (var key in source) {
+          for (const key in source) {
             if (Object.prototype.hasOwnProperty.call(source, key)) {
               target[key] = source[key];
             }
@@ -642,7 +633,7 @@ function _extends() {
   return _extends.apply(this, arguments);
 }
 
-var global$1 =
+const global$1 =
   typeof global !== 'undefined'
     ? global
     : typeof self !== 'undefined'
@@ -661,8 +652,8 @@ function defaultClearTimeout() {
   throw new Error('clearTimeout has not been defined');
 }
 
-var cachedSetTimeout = defaultSetTimout;
-var cachedClearTimeout = defaultClearTimeout;
+let cachedSetTimeout = defaultSetTimout;
+let cachedClearTimeout = defaultClearTimeout;
 
 if (typeof global$1.setTimeout === 'function') {
   cachedSetTimeout = setTimeout;
@@ -674,7 +665,7 @@ if (typeof global$1.clearTimeout === 'function') {
 
 function runTimeout(fun) {
   if (cachedSetTimeout === setTimeout) {
-    //normal enviroments in sane situations
+    // normal enviroments in sane situations
     return setTimeout(fun, 0);
   } // if setTimeout wasn't available but was latter defined
 
@@ -699,7 +690,7 @@ function runTimeout(fun) {
 
 function runClearTimeout(marker) {
   if (cachedClearTimeout === clearTimeout) {
-    //normal enviroments in sane situations
+    // normal enviroments in sane situations
     return clearTimeout(marker);
   } // if clearTimeout wasn't available but was latter defined
 
@@ -723,10 +714,10 @@ function runClearTimeout(marker) {
   }
 }
 
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
+let queue = [];
+let draining = false;
+let currentQueue;
+let queueIndex = -1;
 
 function cleanUpNextTick() {
   if (!draining || !currentQueue) {
@@ -735,13 +726,13 @@ function cleanUpNextTick() {
 
   draining = false;
 
-  if (currentQueue.length) {
+  if (currentQueue.length > 0) {
     queue = currentQueue.concat(queue);
   } else {
     queueIndex = -1;
   }
 
-  if (queue.length) {
+  if (queue.length > 0) {
     drainQueue();
   }
 }
@@ -751,9 +742,9 @@ function drainQueue() {
     return;
   }
 
-  var timeout = runTimeout(cleanUpNextTick);
+  const timeout = runTimeout(cleanUpNextTick);
   draining = true;
-  var len = queue.length;
+  let len = queue.length;
 
   while (len) {
     currentQueue = queue;
@@ -775,10 +766,10 @@ function drainQueue() {
 }
 
 function nextTick(fun) {
-  var args = new Array(arguments.length - 1);
+  const args = new Array(arguments.length - 1);
 
   if (arguments.length > 1) {
-    for (var i = 1; i < arguments.length; i++) {
+    for (let i = 1; i < arguments.length; i++) {
       args[i - 1] = arguments[i];
     }
   }
@@ -799,26 +790,26 @@ Item.prototype.run = function () {
   this.fun.apply(null, this.array);
 };
 
-var title = 'browser';
-var platform = 'browser';
-var browser = true;
-var env = {};
-var argv = [];
-var version$2 = ''; // empty string to avoid regexp issues
+const title = 'browser';
+const platform = 'browser';
+const browser = true;
+const env = {};
+const argv = [];
+const version$2 = ''; // empty string to avoid regexp issues
 
-var versions = {};
-var release = {};
-var config = {};
+const versions = {};
+const release = {};
+const config = {};
 
 function noop$1() {}
 
-var on = noop$1;
-var addListener = noop$1;
-var once = noop$1;
-var off = noop$1;
-var removeListener = noop$1;
-var removeAllListeners = noop$1;
-var emit = noop$1;
+const on = noop$1;
+const addListener = noop$1;
+const once = noop$1;
+const off = noop$1;
+const removeListener = noop$1;
+const removeAllListeners = noop$1;
+const emit = noop$1;
 function binding(name) {
   throw new Error('process.binding is not supported');
 }
@@ -832,9 +823,9 @@ function umask() {
   return 0;
 } // from https://github.com/kumavis/browser-process-hrtime/blob/master/index.js
 
-var performance = global$1.performance || {};
+const performance = global$1.performance || {};
 
-var performanceNow =
+const performanceNow =
   performance.now ||
   performance.mozNow ||
   performance.msNow ||
@@ -846,13 +837,13 @@ var performanceNow =
 // see http://nodejs.org/api/process.html#process_process_hrtime
 
 function hrtime(previousTimestamp) {
-  var clocktime = performanceNow.call(performance) * 1e-3;
-  var seconds = Math.floor(clocktime);
-  var nanoseconds = Math.floor((clocktime % 1) * 1e9);
+  const clocktime = performanceNow.call(performance) * 1e-3;
+  let seconds = Math.floor(clocktime);
+  let nanoseconds = Math.floor((clocktime % 1) * 1e9);
 
   if (previousTimestamp) {
-    seconds = seconds - previousTimestamp[0];
-    nanoseconds = nanoseconds - previousTimestamp[1];
+    seconds -= previousTimestamp[0];
+    nanoseconds -= previousTimestamp[1];
 
     if (nanoseconds < 0) {
       seconds--;
@@ -862,39 +853,39 @@ function hrtime(previousTimestamp) {
 
   return [seconds, nanoseconds];
 }
-var startTime = new Date();
+const startTime = new Date();
 function uptime() {
-  var currentTime = new Date();
-  var dif = currentTime - startTime;
+  const currentTime = new Date();
+  const dif = currentTime - startTime;
   return dif / 1000;
 }
-var process = {
-  nextTick: nextTick,
-  title: title,
-  browser: browser,
-  env: env,
-  argv: argv,
+const process = {
+  nextTick,
+  title,
+  browser,
+  env,
+  argv,
   version: version$2,
-  versions: versions,
-  on: on,
-  addListener: addListener,
-  once: once,
-  off: off,
-  removeListener: removeListener,
-  removeAllListeners: removeAllListeners,
-  emit: emit,
-  binding: binding,
-  cwd: cwd,
-  chdir: chdir,
-  umask: umask,
-  hrtime: hrtime,
-  platform: platform,
-  release: release,
-  config: config,
-  uptime: uptime,
+  versions,
+  on,
+  addListener,
+  once,
+  off,
+  removeListener,
+  removeAllListeners,
+  emit,
+  binding,
+  cwd,
+  chdir,
+  umask,
+  hrtime,
+  platform,
+  release,
+  config,
+  uptime,
 };
 
-var commonjsGlobal =
+const commonjsGlobal =
   typeof globalThis !== 'undefined'
     ? globalThis
     : typeof window !== 'undefined'
@@ -906,20 +897,20 @@ var commonjsGlobal =
     : {};
 
 function getDefaultExportFromCjs(x) {
-  return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
+  return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x.default : x;
 }
 
 function getAugmentedNamespace(n) {
-  var f = n.default;
-  if (typeof f == 'function') {
+  const f = n.default;
+  if (typeof f === 'function') {
     var a = function () {
       return f.apply(this, arguments);
     };
     a.prototype = f.prototype;
   } else a = {};
   Object.defineProperty(a, '__esModule', { value: true });
-  Object.keys(n).forEach(function (k) {
-    var d = Object.getOwnPropertyDescriptor(n, k);
+  Object.keys(n).forEach((k) => {
+    const d = Object.getOwnPropertyDescriptor(n, k);
     Object.defineProperty(
       a,
       k,
@@ -927,7 +918,7 @@ function getAugmentedNamespace(n) {
         ? d
         : {
             enumerable: true,
-            get: function () {
+            get () {
               return n[k];
             },
           },
@@ -936,19 +927,19 @@ function getAugmentedNamespace(n) {
   return a;
 }
 
-var buffer = {};
+const buffer = {};
 
-var base64Js = {};
+const base64Js = {};
 
 base64Js.byteLength = byteLength$1;
 base64Js.toByteArray = toByteArray$1;
 base64Js.fromByteArray = fromByteArray$1;
-var lookup$1 = [];
-var revLookup$1 = [];
-var Arr$1 = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;
-var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const lookup$1 = [];
+const revLookup$1 = [];
+const Arr$1 = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;
+const code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-for (var i$1 = 0, len = code.length; i$1 < len; ++i$1) {
+for (let i$1 = 0, len = code.length; i$1 < len; ++i$1) {
   lookup$1[i$1] = code[i$1];
   revLookup$1[code.charCodeAt(i$1)] = i$1;
 } // Support decoding URL-safe base64 strings, as Node.js does.
@@ -958,23 +949,23 @@ revLookup$1['-'.charCodeAt(0)] = 62;
 revLookup$1['_'.charCodeAt(0)] = 63;
 
 function getLens(b64) {
-  var len = b64.length;
+  const len = b64.length;
 
   if (len % 4 > 0) {
     throw new Error('Invalid string. Length must be a multiple of 4');
   } // Trim off extra bytes after placeholder bytes are found
   // See: https://github.com/beatgammit/base64-js/issues/42
 
-  var validLen = b64.indexOf('=');
+  let validLen = b64.indexOf('=');
   if (validLen === -1) validLen = len;
-  var placeHoldersLen = validLen === len ? 0 : 4 - (validLen % 4);
+  const placeHoldersLen = validLen === len ? 0 : 4 - (validLen % 4);
   return [validLen, placeHoldersLen];
 } // base64 is 4/3 + up to two characters of the original data
 
 function byteLength$1(b64) {
-  var lens = getLens(b64);
-  var validLen = lens[0];
-  var placeHoldersLen = lens[1];
+  const lens = getLens(b64);
+  const validLen = lens[0];
+  const placeHoldersLen = lens[1];
   return ((validLen + placeHoldersLen) * 3) / 4 - placeHoldersLen;
 }
 
@@ -983,15 +974,15 @@ function _byteLength(b64, validLen, placeHoldersLen) {
 }
 
 function toByteArray$1(b64) {
-  var tmp;
-  var lens = getLens(b64);
-  var validLen = lens[0];
-  var placeHoldersLen = lens[1];
-  var arr = new Arr$1(_byteLength(b64, validLen, placeHoldersLen));
-  var curByte = 0; // if there are placeholders, only get up to the last complete 4 chars
+  let tmp;
+  const lens = getLens(b64);
+  const validLen = lens[0];
+  const placeHoldersLen = lens[1];
+  const arr = new Arr$1(_byteLength(b64, validLen, placeHoldersLen));
+  let curByte = 0; // if there are placeholders, only get up to the last complete 4 chars
 
-  var len = placeHoldersLen > 0 ? validLen - 4 : validLen;
-  var i;
+  const len = placeHoldersLen > 0 ? validLen - 4 : validLen;
+  let i;
 
   for (i = 0; i < len; i += 4) {
     tmp =
@@ -1031,10 +1022,10 @@ function tripletToBase64$1(num) {
 }
 
 function encodeChunk$1(uint8, start, end) {
-  var tmp;
-  var output = [];
+  let tmp;
+  const output = [];
 
-  for (var i = start; i < end; i += 3) {
+  for (let i = start; i < end; i += 3) {
     tmp = ((uint8[i] << 16) & 0xff0000) + ((uint8[i + 1] << 8) & 0xff00) + (uint8[i + 2] & 0xff);
     output.push(tripletToBase64$1(tmp));
   }
@@ -1043,44 +1034,44 @@ function encodeChunk$1(uint8, start, end) {
 }
 
 function fromByteArray$1(uint8) {
-  var tmp;
-  var len = uint8.length;
-  var extraBytes = len % 3; // if we have 1 byte left, pad 2 bytes
+  let tmp;
+  const len = uint8.length;
+  const extraBytes = len % 3; // if we have 1 byte left, pad 2 bytes
 
-  var parts = [];
-  var maxChunkLength = 16383; // must be multiple of 3
+  const parts = [];
+  const maxChunkLength = 16383; // must be multiple of 3
   // go through the array every three bytes, we'll deal with trailing stuff later
 
-  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+  for (let i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
     parts.push(encodeChunk$1(uint8, i, i + maxChunkLength > len2 ? len2 : i + maxChunkLength));
   } // pad the end with zeros, but make sure to not forget the extra bytes
 
   if (extraBytes === 1) {
     tmp = uint8[len - 1];
-    parts.push(lookup$1[tmp >> 2] + lookup$1[(tmp << 4) & 0x3f] + '==');
+    parts.push(`${lookup$1[tmp >> 2] + lookup$1[(tmp << 4) & 0x3f]  }==`);
   } else if (extraBytes === 2) {
     tmp = (uint8[len - 2] << 8) + uint8[len - 1];
     parts.push(
-      lookup$1[tmp >> 10] + lookup$1[(tmp >> 4) & 0x3f] + lookup$1[(tmp << 2) & 0x3f] + '=',
+      `${lookup$1[tmp >> 10] + lookup$1[(tmp >> 4) & 0x3f] + lookup$1[(tmp << 2) & 0x3f]  }=`,
     );
   }
 
   return parts.join('');
 }
 
-var ieee754 = {};
+const ieee754 = {};
 
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 
 ieee754.read = function (buffer, offset, isLE, mLen, nBytes) {
-  var e, m;
-  var eLen = nBytes * 8 - mLen - 1;
-  var eMax = (1 << eLen) - 1;
-  var eBias = eMax >> 1;
-  var nBits = -7;
-  var i = isLE ? nBytes - 1 : 0;
-  var d = isLE ? -1 : 1;
-  var s = buffer[offset + i];
+  let e; let m;
+  const eLen = nBytes * 8 - mLen - 1;
+  const eMax = (1 << eLen) - 1;
+  const eBias = eMax >> 1;
+  let nBits = -7;
+  let i = isLE ? nBytes - 1 : 0;
+  const d = isLE ? -1 : 1;
+  let s = buffer[offset + i];
   i += d;
   e = s & ((1 << -nBits) - 1);
   s >>= -nBits;
@@ -1099,22 +1090,22 @@ ieee754.read = function (buffer, offset, isLE, mLen, nBytes) {
   } else if (e === eMax) {
     return m ? NaN : (s ? -1 : 1) * Infinity;
   } else {
-    m = m + Math.pow(2, mLen);
-    e = e - eBias;
+    m += 2**mLen;
+    e -= eBias;
   }
 
-  return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
+  return (s ? -1 : 1) * m * 2**(e - mLen);
 };
 
 ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
-  var e, m, c;
-  var eLen = nBytes * 8 - mLen - 1;
-  var eMax = (1 << eLen) - 1;
-  var eBias = eMax >> 1;
-  var rt = mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0;
-  var i = isLE ? 0 : nBytes - 1;
-  var d = isLE ? 1 : -1;
-  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
+  let e; let m; let c;
+  let eLen = nBytes * 8 - mLen - 1;
+  const eMax = (1 << eLen) - 1;
+  const eBias = eMax >> 1;
+  const rt = mLen === 23 ? 2**-24 - 2**-77 : 0;
+  let i = isLE ? 0 : nBytes - 1;
+  const d = isLE ? 1 : -1;
+  const s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
   value = Math.abs(value);
 
   if (isNaN(value) || value === Infinity) {
@@ -1123,7 +1114,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   } else {
     e = Math.floor(Math.log(value) / Math.LN2);
 
-    if (value * (c = Math.pow(2, -e)) < 1) {
+    if (value * (c = 2**-e) < 1) {
       e--;
       c *= 2;
     }
@@ -1131,7 +1122,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     if (e + eBias >= 1) {
       value += rt / c;
     } else {
-      value += rt * Math.pow(2, 1 - eBias);
+      value += rt * 2**(1 - eBias);
     }
 
     if (value * c >= 2) {
@@ -1143,10 +1134,10 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       m = 0;
       e = eMax;
     } else if (e + eBias >= 1) {
-      m = (value * c - 1) * Math.pow(2, mLen);
-      e = e + eBias;
+      m = (value * c - 1) * 2**mLen;
+      e += eBias;
     } else {
-      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
+      m = value * 2**(eBias - 1) * 2**mLen;
       e = 0;
     }
   }
@@ -1162,16 +1153,16 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 };
 
 (function (exports) {
-  var base64 = base64Js;
-  var ieee754$1 = ieee754;
-  var customInspectSymbol =
+  const base64 = base64Js;
+  const ieee754$1 = ieee754;
+  const customInspectSymbol =
     typeof Symbol === 'function' && typeof Symbol['for'] === 'function' // eslint-disable-line dot-notation
       ? Symbol['for']('nodejs.util.inspect.custom') // eslint-disable-line dot-notation
       : null;
   exports.Buffer = Buffer;
   exports.SlowBuffer = SlowBuffer;
   exports.INSPECT_MAX_BYTES = 50;
-  var K_MAX_LENGTH = 0x7fffffff;
+  const K_MAX_LENGTH = 0x7fffffff;
   exports.kMaxLength = K_MAX_LENGTH;
   /**
    * If `Buffer.TYPED_ARRAY_SUPPORT`:
@@ -1204,8 +1195,8 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   function typedArraySupport() {
     // Can typed array instances can be augmented?
     try {
-      var arr = new Uint8Array(1);
-      var proto = {
+      const arr = new Uint8Array(1);
+      const proto = {
         foo: function foo() {
           return 42;
         },
@@ -1235,10 +1226,10 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   function createBuffer(length) {
     if (length > K_MAX_LENGTH) {
-      throw new RangeError('The value "' + length + '" is invalid for option "size"');
+      throw new RangeError(`The value "${  length  }" is invalid for option "size"`);
     } // Return an augmented `Uint8Array` instance
 
-    var buf = new Uint8Array(length);
+    const buf = new Uint8Array(length);
     Object.setPrototypeOf(buf, Buffer.prototype);
     return buf;
   }
@@ -1278,9 +1269,9 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
     if (value == null) {
       throw new TypeError(
-        'The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' +
-          'or Array-like Object. Received type ' +
-          _typeof(value),
+        `The first argument must be one of type string, Buffer, ArrayBuffer, Array, ` +
+          `or Array-like Object. Received type ${ 
+          _typeof(value)}`,
       );
     }
 
@@ -1300,13 +1291,13 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       throw new TypeError('The "value" argument must not be of type number. Received type number');
     }
 
-    var valueOf = value.valueOf && value.valueOf();
+    const valueOf = value.valueOf && value.valueOf();
 
     if (valueOf != null && valueOf !== value) {
       return Buffer.from(valueOf, encodingOrOffset, length);
     }
 
-    var b = fromObject(value);
+    const b = fromObject(value);
     if (b) return b;
 
     if (
@@ -1318,9 +1309,9 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     }
 
     throw new TypeError(
-      'The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' +
-        'or Array-like Object. Received type ' +
-        _typeof(value),
+      `The first argument must be one of type string, Buffer, ArrayBuffer, Array, ` +
+        `or Array-like Object. Received type ${ 
+        _typeof(value)}`,
     );
   }
   /**
@@ -1330,7 +1321,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
    * Buffer.from(array)
    * Buffer.from(buffer)
    * Buffer.from(arrayBuffer[, byteOffset[, length]])
-   **/
+   * */
 
   Buffer.from = function (value, encodingOrOffset, length) {
     return from(value, encodingOrOffset, length);
@@ -1344,7 +1335,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     if (typeof size !== 'number') {
       throw new TypeError('"size" argument must be of type number');
     } else if (size < 0) {
-      throw new RangeError('The value "' + size + '" is invalid for option "size"');
+      throw new RangeError(`The value "${  size  }" is invalid for option "size"`);
     }
   }
 
@@ -1369,7 +1360,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   /**
    * Creates a new filled Buffer instance.
    * alloc(size[, fill[, encoding]])
-   **/
+   * */
 
   Buffer.alloc = function (size, fill, encoding) {
     return alloc(size, fill, encoding);
@@ -1400,12 +1391,12 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     }
 
     if (!Buffer.isEncoding(encoding)) {
-      throw new TypeError('Unknown encoding: ' + encoding);
+      throw new TypeError(`Unknown encoding: ${  encoding}`);
     }
 
-    var length = byteLength(string, encoding) | 0;
-    var buf = createBuffer(length);
-    var actual = buf.write(string, encoding);
+    const length = byteLength(string, encoding) | 0;
+    let buf = createBuffer(length);
+    const actual = buf.write(string, encoding);
 
     if (actual !== length) {
       // Writing a hex string, for example, that contains invalid characters will
@@ -1418,10 +1409,10 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   }
 
   function fromArrayLike(array) {
-    var length = array.length < 0 ? 0 : checked(array.length) | 0;
-    var buf = createBuffer(length);
+    const length = array.length < 0 ? 0 : checked(array.length) | 0;
+    const buf = createBuffer(length);
 
-    for (var i = 0; i < length; i += 1) {
+    for (let i = 0; i < length; i += 1) {
       buf[i] = array[i] & 255;
     }
 
@@ -1430,7 +1421,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   function fromArrayView(arrayView) {
     if (isInstance(arrayView, Uint8Array)) {
-      var copy = new Uint8Array(arrayView);
+      const copy = new Uint8Array(arrayView);
       return fromArrayBuffer(copy.buffer, copy.byteOffset, copy.byteLength);
     }
 
@@ -1446,7 +1437,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       throw new RangeError('"length" is outside of buffer bounds');
     }
 
-    var buf;
+    let buf;
 
     if (byteOffset === undefined && length === undefined) {
       buf = new Uint8Array(array);
@@ -1462,8 +1453,8 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   function fromObject(obj) {
     if (Buffer.isBuffer(obj)) {
-      var len = checked(obj.length) | 0;
-      var buf = createBuffer(len);
+      const len = checked(obj.length) | 0;
+      const buf = createBuffer(len);
 
       if (buf.length === 0) {
         return buf;
@@ -1491,10 +1482,10 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     // length is NaN (which is otherwise coerced to zero.)
     if (length >= K_MAX_LENGTH) {
       throw new RangeError(
-        'Attempt to allocate Buffer larger than maximum ' +
-          'size: 0x' +
-          K_MAX_LENGTH.toString(16) +
-          ' bytes',
+        `Attempt to allocate Buffer larger than maximum ` +
+          `size: 0x${ 
+          K_MAX_LENGTH.toString(16) 
+          } bytes`,
       );
     }
 
@@ -1523,10 +1514,10 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     }
 
     if (a === b) return 0;
-    var x = a.length;
-    var y = b.length;
+    let x = a.length;
+    let y = b.length;
 
-    for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+    for (let i = 0, len = Math.min(x, y); i < len; ++i) {
       if (a[i] !== b[i]) {
         x = a[i];
         y = b[i];
@@ -1568,7 +1559,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       return Buffer.alloc(0);
     }
 
-    var i;
+    let i;
 
     if (length === undefined) {
       length = 0;
@@ -1578,11 +1569,11 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       }
     }
 
-    var buffer = Buffer.allocUnsafe(length);
-    var pos = 0;
+    const buffer = Buffer.allocUnsafe(length);
+    let pos = 0;
 
     for (i = 0; i < list.length; ++i) {
-      var buf = list[i];
+      const buf = list[i];
 
       if (isInstance(buf, Uint8Array)) {
         if (pos + buf.length > buffer.length) {
@@ -1613,17 +1604,17 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
     if (typeof string !== 'string') {
       throw new TypeError(
-        'The "string" argument must be one of type string, Buffer, or ArrayBuffer. ' +
-          'Received type ' +
-          _typeof(string),
+        `The "string" argument must be one of type string, Buffer, or ArrayBuffer. ` +
+          `Received type ${ 
+          _typeof(string)}`,
       );
     }
 
-    var len = string.length;
-    var mustMatch = arguments.length > 2 && arguments[2] === true;
+    const len = string.length;
+    const mustMatch = arguments.length > 2 && arguments[2] === true;
     if (!mustMatch && len === 0) return 0; // Use a for loop to avoid recursion
 
-    var loweredCase = false;
+    let loweredCase = false;
 
     for (;;) {
       switch (encoding) {
@@ -1653,7 +1644,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
             return mustMatch ? -1 : utf8ToBytes(string).length; // assume utf8
           }
 
-          encoding = ('' + encoding).toLowerCase();
+          encoding = (`${  encoding}`).toLowerCase();
           loweredCase = true;
       }
     }
@@ -1662,7 +1653,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   Buffer.byteLength = byteLength;
 
   function slowToString(encoding, start, end) {
-    var loweredCase = false; // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
+    let loweredCase = false; // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
     // property of a typed array.
     // This behaves neither like String nor Uint8Array in that we set start/end
     // to their upper/lower bounds if the value passed is out of range.
@@ -1721,8 +1712,8 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
           return utf16leSlice(this, start, end);
 
         default:
-          if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding);
-          encoding = (encoding + '').toLowerCase();
+          if (loweredCase) throw new TypeError(`Unknown encoding: ${  encoding}`);
+          encoding = (`${encoding  }`).toLowerCase();
           loweredCase = true;
       }
     }
@@ -1736,19 +1727,19 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   Buffer.prototype._isBuffer = true;
 
   function swap(b, n, m) {
-    var i = b[n];
+    const i = b[n];
     b[n] = b[m];
     b[m] = i;
   }
 
   Buffer.prototype.swap16 = function swap16() {
-    var len = this.length;
+    const len = this.length;
 
     if (len % 2 !== 0) {
       throw new RangeError('Buffer size must be a multiple of 16-bits');
     }
 
-    for (var i = 0; i < len; i += 2) {
+    for (let i = 0; i < len; i += 2) {
       swap(this, i, i + 1);
     }
 
@@ -1756,13 +1747,13 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   };
 
   Buffer.prototype.swap32 = function swap32() {
-    var len = this.length;
+    const len = this.length;
 
     if (len % 4 !== 0) {
       throw new RangeError('Buffer size must be a multiple of 32-bits');
     }
 
-    for (var i = 0; i < len; i += 4) {
+    for (let i = 0; i < len; i += 4) {
       swap(this, i, i + 3);
       swap(this, i + 1, i + 2);
     }
@@ -1771,13 +1762,13 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   };
 
   Buffer.prototype.swap64 = function swap64() {
-    var len = this.length;
+    const len = this.length;
 
     if (len % 8 !== 0) {
       throw new RangeError('Buffer size must be a multiple of 64-bits');
     }
 
-    for (var i = 0; i < len; i += 8) {
+    for (let i = 0; i < len; i += 8) {
       swap(this, i, i + 7);
       swap(this, i + 1, i + 6);
       swap(this, i + 2, i + 5);
@@ -1788,7 +1779,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   };
 
   Buffer.prototype.toString = function toString() {
-    var length = this.length;
+    const {length} = this;
     if (length === 0) return '';
     if (arguments.length === 0) return utf8Slice(this, 0, length);
     return slowToString.apply(this, arguments);
@@ -1803,13 +1794,13 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   };
 
   Buffer.prototype.inspect = function inspect() {
-    var str = '';
-    var max = exports.INSPECT_MAX_BYTES;
+    let str = '';
+    const max = exports.INSPECT_MAX_BYTES;
     str = this.toString('hex', 0, max)
       .replace(/(.{2})/g, '$1 ')
       .trim();
     if (this.length > max) str += ' ... ';
-    return '<Buffer ' + str + '>';
+    return `<Buffer ${  str  }>`;
   };
 
   if (customInspectSymbol) {
@@ -1823,9 +1814,9 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
     if (!Buffer.isBuffer(target)) {
       throw new TypeError(
-        'The "target" argument must be one of type Buffer or Uint8Array. ' +
-          'Received type ' +
-          _typeof(target),
+        `The "target" argument must be one of type Buffer or Uint8Array. ` +
+          `Received type ${ 
+          _typeof(target)}`,
       );
     }
 
@@ -1866,13 +1857,13 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     thisStart >>>= 0;
     thisEnd >>>= 0;
     if (this === target) return 0;
-    var x = thisEnd - thisStart;
-    var y = end - start;
-    var len = Math.min(x, y);
-    var thisCopy = this.slice(thisStart, thisEnd);
-    var targetCopy = target.slice(start, end);
+    let x = thisEnd - thisStart;
+    let y = end - start;
+    const len = Math.min(x, y);
+    const thisCopy = this.slice(thisStart, thisEnd);
+    const targetCopy = target.slice(start, end);
 
-    for (var i = 0; i < len; ++i) {
+    for (let i = 0; i < len; ++i) {
       if (thisCopy[i] !== targetCopy[i]) {
         x = thisCopy[i];
         y = targetCopy[i];
@@ -1917,7 +1908,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
     if (byteOffset >= buffer.length) {
       if (dir) return -1;
-      else byteOffset = buffer.length - 1;
+      byteOffset = buffer.length - 1;
     } else if (byteOffset < 0) {
       if (dir) byteOffset = 0;
       else return -1;
@@ -1934,15 +1925,15 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       }
 
       return arrayIndexOf(buffer, val, byteOffset, encoding, dir);
-    } else if (typeof val === 'number') {
-      val = val & 0xff; // Search for a byte value [0-255]
+    } if (typeof val === 'number') {
+      val &= 0xff; // Search for a byte value [0-255]
 
       if (typeof Uint8Array.prototype.indexOf === 'function') {
         if (dir) {
           return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset);
-        } else {
+        } 
           return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset);
-        }
+        
       }
 
       return arrayIndexOf(buffer, [val], byteOffset, encoding, dir);
@@ -1952,9 +1943,9 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   }
 
   function arrayIndexOf(arr, val, byteOffset, encoding, dir) {
-    var indexSize = 1;
-    var arrLength = arr.length;
-    var valLength = val.length;
+    let indexSize = 1;
+    let arrLength = arr.length;
+    let valLength = val.length;
 
     if (encoding !== undefined) {
       encoding = String(encoding).toLowerCase();
@@ -1979,15 +1970,15 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     function read(buf, i) {
       if (indexSize === 1) {
         return buf[i];
-      } else {
+      } 
         return buf.readUInt16BE(i * indexSize);
-      }
+      
     }
 
-    var i;
+    let i;
 
     if (dir) {
-      var foundIndex = -1;
+      let foundIndex = -1;
 
       for (i = byteOffset; i < arrLength; i++) {
         if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
@@ -2002,9 +1993,9 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength;
 
       for (i = byteOffset; i >= 0; i--) {
-        var found = true;
+        let found = true;
 
-        for (var j = 0; j < valLength; j++) {
+        for (let j = 0; j < valLength; j++) {
           if (read(arr, i + j) !== read(val, j)) {
             found = false;
             break;
@@ -2032,7 +2023,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   function hexWrite(buf, string, offset, length) {
     offset = Number(offset) || 0;
-    var remaining = buf.length - offset;
+    const remaining = buf.length - offset;
 
     if (!length) {
       length = remaining;
@@ -2044,14 +2035,14 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       }
     }
 
-    var strLen = string.length;
+    const strLen = string.length;
 
     if (length > strLen / 2) {
       length = strLen / 2;
     }
 
     for (var i = 0; i < length; ++i) {
-      var parsed = parseInt(string.substr(i * 2, 2), 16);
+      const parsed = parseInt(string.substr(i * 2, 2), 16);
       if (numberIsNaN(parsed)) return i;
       buf[offset + i] = parsed;
     }
@@ -2086,10 +2077,10 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       length = this.length;
       offset = 0; // Buffer#write(string, offset[, length][, encoding])
     } else if (isFinite(offset)) {
-      offset = offset >>> 0;
+      offset >>>= 0;
 
       if (isFinite(length)) {
-        length = length >>> 0;
+        length >>>= 0;
         if (encoding === undefined) encoding = 'utf8';
       } else {
         encoding = length;
@@ -2099,7 +2090,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       throw new Error('Buffer.write(string, encoding, offset[, length]) is no longer supported');
     }
 
-    var remaining = this.length - offset;
+    const remaining = this.length - offset;
     if (length === undefined || length > remaining) length = remaining;
 
     if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
@@ -2107,7 +2098,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     }
 
     if (!encoding) encoding = 'utf8';
-    var loweredCase = false;
+    let loweredCase = false;
 
     for (;;) {
       switch (encoding) {
@@ -2134,8 +2125,8 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
           return ucs2Write(this, string, offset, length);
 
         default:
-          if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding);
-          encoding = ('' + encoding).toLowerCase();
+          if (loweredCase) throw new TypeError(`Unknown encoding: ${  encoding}`);
+          encoding = (`${  encoding}`).toLowerCase();
           loweredCase = true;
       }
     }
@@ -2151,23 +2142,23 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   function base64Slice(buf, start, end) {
     if (start === 0 && end === buf.length) {
       return base64.fromByteArray(buf);
-    } else {
+    } 
       return base64.fromByteArray(buf.slice(start, end));
-    }
+    
   }
 
   function utf8Slice(buf, start, end) {
     end = Math.min(buf.length, end);
-    var res = [];
-    var i = start;
+    const res = [];
+    let i = start;
 
     while (i < end) {
-      var firstByte = buf[i];
-      var codePoint = null;
-      var bytesPerSequence = firstByte > 0xef ? 4 : firstByte > 0xdf ? 3 : firstByte > 0xbf ? 2 : 1;
+      const firstByte = buf[i];
+      let codePoint = null;
+      let bytesPerSequence = firstByte > 0xef ? 4 : firstByte > 0xdf ? 3 : firstByte > 0xbf ? 2 : 1;
 
       if (i + bytesPerSequence <= end) {
-        var secondByte, thirdByte, fourthByte, tempCodePoint;
+        var secondByte; var thirdByte; var fourthByte; var tempCodePoint;
 
         switch (bytesPerSequence) {
           case 1:
@@ -2249,17 +2240,17 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   // the lowest limit is Chrome, with 0x10000 args.
   // We go 1 magnitude less, for safety
 
-  var MAX_ARGUMENTS_LENGTH = 0x1000;
+  const MAX_ARGUMENTS_LENGTH = 0x1000;
 
   function decodeCodePointsArray(codePoints) {
-    var len = codePoints.length;
+    const len = codePoints.length;
 
     if (len <= MAX_ARGUMENTS_LENGTH) {
       return String.fromCharCode.apply(String, codePoints); // avoid extra slice()
     } // Decode in chunks to avoid "call stack size exceeded".
 
-    var res = '';
-    var i = 0;
+    let res = '';
+    let i = 0;
 
     while (i < len) {
       res += String.fromCharCode.apply(String, codePoints.slice(i, (i += MAX_ARGUMENTS_LENGTH)));
@@ -2269,10 +2260,10 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   }
 
   function asciiSlice(buf, start, end) {
-    var ret = '';
+    let ret = '';
     end = Math.min(buf.length, end);
 
-    for (var i = start; i < end; ++i) {
+    for (let i = start; i < end; ++i) {
       ret += String.fromCharCode(buf[i] & 0x7f);
     }
 
@@ -2280,10 +2271,10 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   }
 
   function latin1Slice(buf, start, end) {
-    var ret = '';
+    let ret = '';
     end = Math.min(buf.length, end);
 
-    for (var i = start; i < end; ++i) {
+    for (let i = start; i < end; ++i) {
       ret += String.fromCharCode(buf[i]);
     }
 
@@ -2291,12 +2282,12 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   }
 
   function hexSlice(buf, start, end) {
-    var len = buf.length;
+    const len = buf.length;
     if (!start || start < 0) start = 0;
     if (!end || end < 0 || end > len) end = len;
-    var out = '';
+    let out = '';
 
-    for (var i = start; i < end; ++i) {
+    for (let i = start; i < end; ++i) {
       out += hexSliceLookupTable[buf[i]];
     }
 
@@ -2304,10 +2295,10 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   }
 
   function utf16leSlice(buf, start, end) {
-    var bytes = buf.slice(start, end);
-    var res = ''; // If bytes.length is odd, the last 8 bits must be ignored (same as node.js)
+    const bytes = buf.slice(start, end);
+    let res = ''; // If bytes.length is odd, the last 8 bits must be ignored (same as node.js)
 
-    for (var i = 0; i < bytes.length - 1; i += 2) {
+    for (let i = 0; i < bytes.length - 1; i += 2) {
       res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256);
     }
 
@@ -2315,7 +2306,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   }
 
   Buffer.prototype.slice = function slice(start, end) {
-    var len = this.length;
+    const len = this.length;
     start = ~~start;
     end = end === undefined ? len : ~~end;
 
@@ -2334,7 +2325,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     }
 
     if (end < start) end = start;
-    var newBuf = this.subarray(start, end); // Return an augmented `Uint8Array` instance
+    const newBuf = this.subarray(start, end); // Return an augmented `Uint8Array` instance
 
     Object.setPrototypeOf(newBuf, Buffer.prototype);
     return newBuf;
@@ -2353,12 +2344,12 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     byteLength,
     noAssert,
   ) {
-    offset = offset >>> 0;
-    byteLength = byteLength >>> 0;
+    offset >>>= 0;
+    byteLength >>>= 0;
     if (!noAssert) checkOffset(offset, byteLength, this.length);
-    var val = this[offset];
-    var mul = 1;
-    var i = 0;
+    let val = this[offset];
+    let mul = 1;
+    let i = 0;
 
     while (++i < byteLength && (mul *= 0x100)) {
       val += this[offset + i] * mul;
@@ -2372,15 +2363,15 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     byteLength,
     noAssert,
   ) {
-    offset = offset >>> 0;
-    byteLength = byteLength >>> 0;
+    offset >>>= 0;
+    byteLength >>>= 0;
 
     if (!noAssert) {
       checkOffset(offset, byteLength, this.length);
     }
 
-    var val = this[offset + --byteLength];
-    var mul = 1;
+    let val = this[offset + --byteLength];
+    let mul = 1;
 
     while (byteLength > 0 && (mul *= 0x100)) {
       val += this[offset + --byteLength] * mul;
@@ -2390,7 +2381,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   };
 
   Buffer.prototype.readUint8 = Buffer.prototype.readUInt8 = function readUInt8(offset, noAssert) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 1, this.length);
     return this[offset];
   };
@@ -2399,7 +2390,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     offset,
     noAssert,
   ) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 2, this.length);
     return this[offset] | (this[offset + 1] << 8);
   };
@@ -2408,7 +2399,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     offset,
     noAssert,
   ) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 2, this.length);
     return (this[offset] << 8) | this[offset + 1];
   };
@@ -2417,7 +2408,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     offset,
     noAssert,
   ) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 4, this.length);
     return (
       (this[offset] | (this[offset + 1] << 8) | (this[offset + 2] << 16)) +
@@ -2429,7 +2420,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     offset,
     noAssert,
   ) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 4, this.length);
     return (
       this[offset] * 0x1000000 +
@@ -2438,62 +2429,62 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   };
 
   Buffer.prototype.readIntLE = function readIntLE(offset, byteLength, noAssert) {
-    offset = offset >>> 0;
-    byteLength = byteLength >>> 0;
+    offset >>>= 0;
+    byteLength >>>= 0;
     if (!noAssert) checkOffset(offset, byteLength, this.length);
-    var val = this[offset];
-    var mul = 1;
-    var i = 0;
+    let val = this[offset];
+    let mul = 1;
+    let i = 0;
 
     while (++i < byteLength && (mul *= 0x100)) {
       val += this[offset + i] * mul;
     }
 
     mul *= 0x80;
-    if (val >= mul) val -= Math.pow(2, 8 * byteLength);
+    if (val >= mul) val -= 2**(8 * byteLength);
     return val;
   };
 
   Buffer.prototype.readIntBE = function readIntBE(offset, byteLength, noAssert) {
-    offset = offset >>> 0;
-    byteLength = byteLength >>> 0;
+    offset >>>= 0;
+    byteLength >>>= 0;
     if (!noAssert) checkOffset(offset, byteLength, this.length);
-    var i = byteLength;
-    var mul = 1;
-    var val = this[offset + --i];
+    let i = byteLength;
+    let mul = 1;
+    let val = this[offset + --i];
 
     while (i > 0 && (mul *= 0x100)) {
       val += this[offset + --i] * mul;
     }
 
     mul *= 0x80;
-    if (val >= mul) val -= Math.pow(2, 8 * byteLength);
+    if (val >= mul) val -= 2**(8 * byteLength);
     return val;
   };
 
   Buffer.prototype.readInt8 = function readInt8(offset, noAssert) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 1, this.length);
     if (!(this[offset] & 0x80)) return this[offset];
     return (0xff - this[offset] + 1) * -1;
   };
 
   Buffer.prototype.readInt16LE = function readInt16LE(offset, noAssert) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 2, this.length);
-    var val = this[offset] | (this[offset + 1] << 8);
+    const val = this[offset] | (this[offset + 1] << 8);
     return val & 0x8000 ? val | 0xffff0000 : val;
   };
 
   Buffer.prototype.readInt16BE = function readInt16BE(offset, noAssert) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 2, this.length);
-    var val = this[offset + 1] | (this[offset] << 8);
+    const val = this[offset + 1] | (this[offset] << 8);
     return val & 0x8000 ? val | 0xffff0000 : val;
   };
 
   Buffer.prototype.readInt32LE = function readInt32LE(offset, noAssert) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 4, this.length);
     return (
       this[offset] | (this[offset + 1] << 8) | (this[offset + 2] << 16) | (this[offset + 3] << 24)
@@ -2501,7 +2492,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   };
 
   Buffer.prototype.readInt32BE = function readInt32BE(offset, noAssert) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 4, this.length);
     return (
       (this[offset] << 24) | (this[offset + 1] << 16) | (this[offset + 2] << 8) | this[offset + 3]
@@ -2509,25 +2500,25 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   };
 
   Buffer.prototype.readFloatLE = function readFloatLE(offset, noAssert) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 4, this.length);
     return ieee754$1.read(this, offset, true, 23, 4);
   };
 
   Buffer.prototype.readFloatBE = function readFloatBE(offset, noAssert) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 4, this.length);
     return ieee754$1.read(this, offset, false, 23, 4);
   };
 
   Buffer.prototype.readDoubleLE = function readDoubleLE(offset, noAssert) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 8, this.length);
     return ieee754$1.read(this, offset, true, 52, 8);
   };
 
   Buffer.prototype.readDoubleBE = function readDoubleBE(offset, noAssert) {
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkOffset(offset, 8, this.length);
     return ieee754$1.read(this, offset, false, 52, 8);
   };
@@ -2545,16 +2536,16 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     noAssert,
   ) {
     value = +value;
-    offset = offset >>> 0;
-    byteLength = byteLength >>> 0;
+    offset >>>= 0;
+    byteLength >>>= 0;
 
     if (!noAssert) {
-      var maxBytes = Math.pow(2, 8 * byteLength) - 1;
+      const maxBytes = 2**(8 * byteLength) - 1;
       checkInt(this, value, offset, byteLength, maxBytes, 0);
     }
 
-    var mul = 1;
-    var i = 0;
+    let mul = 1;
+    let i = 0;
     this[offset] = value & 0xff;
 
     while (++i < byteLength && (mul *= 0x100)) {
@@ -2571,16 +2562,16 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     noAssert,
   ) {
     value = +value;
-    offset = offset >>> 0;
-    byteLength = byteLength >>> 0;
+    offset >>>= 0;
+    byteLength >>>= 0;
 
     if (!noAssert) {
-      var maxBytes = Math.pow(2, 8 * byteLength) - 1;
+      const maxBytes = 2**(8 * byteLength) - 1;
       checkInt(this, value, offset, byteLength, maxBytes, 0);
     }
 
-    var i = byteLength - 1;
-    var mul = 1;
+    let i = byteLength - 1;
+    let mul = 1;
     this[offset + i] = value & 0xff;
 
     while (--i >= 0 && (mul *= 0x100)) {
@@ -2596,7 +2587,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     noAssert,
   ) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0);
     this[offset] = value & 0xff;
     return offset + 1;
@@ -2608,7 +2599,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     noAssert,
   ) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
     this[offset] = value & 0xff;
     this[offset + 1] = value >>> 8;
@@ -2621,7 +2612,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     noAssert,
   ) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
     this[offset] = value >>> 8;
     this[offset + 1] = value & 0xff;
@@ -2634,7 +2625,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     noAssert,
   ) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
     this[offset + 3] = value >>> 24;
     this[offset + 2] = value >>> 16;
@@ -2649,7 +2640,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     noAssert,
   ) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
     this[offset] = value >>> 24;
     this[offset + 1] = value >>> 16;
@@ -2660,16 +2651,16 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   Buffer.prototype.writeIntLE = function writeIntLE(value, offset, byteLength, noAssert) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
 
     if (!noAssert) {
-      var limit = Math.pow(2, 8 * byteLength - 1);
+      const limit = 2**(8 * byteLength - 1);
       checkInt(this, value, offset, byteLength, limit - 1, -limit);
     }
 
-    var i = 0;
-    var mul = 1;
-    var sub = 0;
+    let i = 0;
+    let mul = 1;
+    let sub = 0;
     this[offset] = value & 0xff;
 
     while (++i < byteLength && (mul *= 0x100)) {
@@ -2685,16 +2676,16 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   Buffer.prototype.writeIntBE = function writeIntBE(value, offset, byteLength, noAssert) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
 
     if (!noAssert) {
-      var limit = Math.pow(2, 8 * byteLength - 1);
+      const limit = 2**(8 * byteLength - 1);
       checkInt(this, value, offset, byteLength, limit - 1, -limit);
     }
 
-    var i = byteLength - 1;
-    var mul = 1;
-    var sub = 0;
+    let i = byteLength - 1;
+    let mul = 1;
+    let sub = 0;
     this[offset + i] = value & 0xff;
 
     while (--i >= 0 && (mul *= 0x100)) {
@@ -2710,7 +2701,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   Buffer.prototype.writeInt8 = function writeInt8(value, offset, noAssert) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80);
     if (value < 0) value = 0xff + value + 1;
     this[offset] = value & 0xff;
@@ -2719,7 +2710,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   Buffer.prototype.writeInt16LE = function writeInt16LE(value, offset, noAssert) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
     this[offset] = value & 0xff;
     this[offset + 1] = value >>> 8;
@@ -2728,7 +2719,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   Buffer.prototype.writeInt16BE = function writeInt16BE(value, offset, noAssert) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
     this[offset] = value >>> 8;
     this[offset + 1] = value & 0xff;
@@ -2737,7 +2728,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   Buffer.prototype.writeInt32LE = function writeInt32LE(value, offset, noAssert) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
     this[offset] = value & 0xff;
     this[offset + 1] = value >>> 8;
@@ -2748,7 +2739,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   Buffer.prototype.writeInt32BE = function writeInt32BE(value, offset, noAssert) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
     if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
     if (value < 0) value = 0xffffffff + value + 1;
     this[offset] = value >>> 24;
@@ -2765,7 +2756,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   function writeFloat(buf, value, offset, littleEndian, noAssert) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
 
     if (!noAssert) {
       checkIEEE754(buf, value, offset, 4);
@@ -2785,7 +2776,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   function writeDouble(buf, value, offset, littleEndian, noAssert) {
     value = +value;
-    offset = offset >>> 0;
+    offset >>>= 0;
 
     if (!noAssert) {
       checkIEEE754(buf, value, offset, 8);
@@ -2827,7 +2818,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       end = target.length - targetStart + start;
     }
 
-    var len = end - start;
+    const len = end - start;
 
     if (this === target && typeof Uint8Array.prototype.copyWithin === 'function') {
       // Use built-in when available, missing from IE11
@@ -2859,11 +2850,11 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       }
 
       if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {
-        throw new TypeError('Unknown encoding: ' + encoding);
+        throw new TypeError(`Unknown encoding: ${  encoding}`);
       }
 
       if (val.length === 1) {
-        var code = val.charCodeAt(0);
+        const code = val.charCodeAt(0);
 
         if ((encoding === 'utf8' && code < 128) || encoding === 'latin1') {
           // Fast path: If `val` fits into a single byte, use that numeric value.
@@ -2871,7 +2862,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
         }
       }
     } else if (typeof val === 'number') {
-      val = val & 255;
+      val &= 255;
     } else if (typeof val === 'boolean') {
       val = Number(val);
     } // Invalid ranges are not set to a default, so can range check early.
@@ -2884,21 +2875,21 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
       return this;
     }
 
-    start = start >>> 0;
+    start >>>= 0;
     end = end === undefined ? this.length : end >>> 0;
     if (!val) val = 0;
-    var i;
+    let i;
 
     if (typeof val === 'number') {
       for (i = start; i < end; ++i) {
         this[i] = val;
       }
     } else {
-      var bytes = Buffer.isBuffer(val) ? val : Buffer.from(val, encoding);
-      var len = bytes.length;
+      const bytes = Buffer.isBuffer(val) ? val : Buffer.from(val, encoding);
+      const len = bytes.length;
 
       if (len === 0) {
-        throw new TypeError('The value "' + val + '" is invalid for argument "value"');
+        throw new TypeError(`The value "${  val  }" is invalid for argument "value"`);
       }
 
       for (i = 0; i < end - start; ++i) {
@@ -2910,7 +2901,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   }; // HELPER FUNCTIONS
   // ================
 
-  var INVALID_BASE64_RE = /[^+/0-9A-Za-z-_]/g;
+  const INVALID_BASE64_RE = /[^\w+/-]/g;
 
   function base64clean(str) {
     // Node takes equal signs as end of the Base64 encoding
@@ -2921,7 +2912,7 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
     if (str.length < 2) return ''; // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
 
     while (str.length % 4 !== 0) {
-      str = str + '=';
+      str += '=';
     }
 
     return str;
@@ -2929,12 +2920,12 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 
   function utf8ToBytes(string, units) {
     units = units || Infinity;
-    var codePoint;
-    var length = string.length;
-    var leadSurrogate = null;
-    var bytes = [];
+    let codePoint;
+    const {length} = string;
+    let leadSurrogate = null;
+    const bytes = [];
 
-    for (var i = 0; i < length; ++i) {
+    for (let i = 0; i < length; ++i) {
       codePoint = string.charCodeAt(i); // is surrogate component
 
       if (codePoint > 0xd7ff && codePoint < 0xe000) {
@@ -2962,10 +2953,8 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
         } // valid surrogate pair
 
         codePoint = (((leadSurrogate - 0xd800) << 10) | (codePoint - 0xdc00)) + 0x10000;
-      } else if (leadSurrogate) {
-        // valid bmp char, but last char was a lead
-        if ((units -= 3) > -1) bytes.push(0xef, 0xbf, 0xbd);
-      }
+      } else if (leadSurrogate && // valid bmp char, but last char was a lead
+        (units -= 3) > -1) bytes.push(0xef, 0xbf, 0xbd);
 
       leadSurrogate = null; // encode utf8
 
@@ -2999,9 +2988,9 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   }
 
   function asciiToBytes(str) {
-    var byteArray = [];
+    const byteArray = [];
 
-    for (var i = 0; i < str.length; ++i) {
+    for (let i = 0; i < str.length; ++i) {
       // Node's code seems to be doing this and not & 0x7F..
       byteArray.push(str.charCodeAt(i) & 0xff);
     }
@@ -3010,10 +2999,10 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   }
 
   function utf16leToBytes(str, units) {
-    var c, hi, lo;
-    var byteArray = [];
+    let c; let hi; let lo;
+    const byteArray = [];
 
-    for (var i = 0; i < str.length; ++i) {
+    for (let i = 0; i < str.length; ++i) {
       if ((units -= 2) < 0) break;
       c = str.charCodeAt(i);
       hi = c >> 8;
@@ -3057,13 +3046,13 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   // See: https://github.com/feross/buffer/issues/219
 
   var hexSliceLookupTable = (function () {
-    var alphabet = '0123456789abcdef';
-    var table = new Array(256);
+    const alphabet = '0123456789abcdef';
+    const table = new Array(256);
 
-    for (var i = 0; i < 16; ++i) {
-      var i16 = i * 16;
+    for (let i = 0; i < 16; ++i) {
+      const i16 = i * 16;
 
-      for (var j = 0; j < 16; ++j) {
+      for (let j = 0; j < 16; ++j) {
         table[i16 + j] = alphabet[i] + alphabet[j];
       }
     }
@@ -3072,13 +3061,13 @@ ieee754.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   })();
 })(buffer);
 
-var util = {};
+const util = {};
 
-var types = {};
+const types = {};
 
 /* eslint complexity: [2, 18], max-statements: [2, 33] */
 
-var shams$1 = function hasSymbols() {
+const shams$1 = function hasSymbols() {
   if (typeof Symbol !== 'function' || typeof Object.getOwnPropertySymbols !== 'function') {
     return false;
   }
@@ -3087,9 +3076,9 @@ var shams$1 = function hasSymbols() {
     return true;
   }
 
-  var obj = {};
-  var sym = Symbol('test');
-  var symObj = Object(sym);
+  const obj = {};
+  let sym = Symbol('test');
+  const symObj = Object(sym);
 
   if (typeof sym === 'string') {
     return false;
@@ -3108,25 +3097,25 @@ var shams$1 = function hasSymbols() {
   // if (typeof Symbol.prototype.toString !== 'function') { return false; }
   // if (String(sym) !== Symbol.prototype.toString.call(sym)) { return false; }
 
-  var symVal = 42;
+  const symVal = 42;
   obj[sym] = symVal;
 
   for (sym in obj) {
     return false;
   } // eslint-disable-line no-restricted-syntax, no-unreachable-loop
 
-  if (typeof Object.keys === 'function' && Object.keys(obj).length !== 0) {
+  if (typeof Object.keys === 'function' && Object.keys(obj).length > 0) {
     return false;
   }
 
   if (
     typeof Object.getOwnPropertyNames === 'function' &&
-    Object.getOwnPropertyNames(obj).length !== 0
+    Object.getOwnPropertyNames(obj).length > 0
   ) {
     return false;
   }
 
-  var syms = Object.getOwnPropertySymbols(obj);
+  const syms = Object.getOwnPropertySymbols(obj);
 
   if (syms.length !== 1 || syms[0] !== sym) {
     return false;
@@ -3137,7 +3126,7 @@ var shams$1 = function hasSymbols() {
   }
 
   if (typeof Object.getOwnPropertyDescriptor === 'function') {
-    var descriptor = Object.getOwnPropertyDescriptor(obj, sym);
+    const descriptor = Object.getOwnPropertyDescriptor(obj, sym);
 
     if (descriptor.value !== symVal || descriptor.enumerable !== true) {
       return false;
@@ -3147,16 +3136,16 @@ var shams$1 = function hasSymbols() {
   return true;
 };
 
-var hasSymbols$2 = shams$1;
+const hasSymbols$2 = shams$1;
 
-var shams = function hasToStringTagShams() {
+const shams = function hasToStringTagShams() {
   return hasSymbols$2() && !!Symbol.toStringTag;
 };
 
-var origSymbol = typeof Symbol !== 'undefined' && Symbol;
-var hasSymbolSham = shams$1;
+const origSymbol = typeof Symbol !== 'undefined' && Symbol;
+const hasSymbolSham = shams$1;
 
-var hasSymbols$1 = function hasNativeSymbols() {
+const hasSymbols$1 = function hasNativeSymbols() {
   if (typeof origSymbol !== 'function') {
     return false;
   }
@@ -3178,49 +3167,49 @@ var hasSymbols$1 = function hasNativeSymbols() {
 
 /* eslint no-invalid-this: 1 */
 
-var ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
-var slice = Array.prototype.slice;
-var toStr$3 = Object.prototype.toString;
-var funcType = '[object Function]';
+const ERROR_MESSAGE = 'Function.prototype.bind called on incompatible ';
+const {slice} = Array.prototype;
+const toStr$3 = Object.prototype.toString;
+const funcType = '[object Function]';
 
-var implementation$1 = function bind(that) {
-  var target = this;
+const implementation$1 = function bind(that) {
+  const target = this;
 
   if (typeof target !== 'function' || toStr$3.call(target) !== funcType) {
     throw new TypeError(ERROR_MESSAGE + target);
   }
 
-  var args = slice.call(arguments, 1);
-  var bound;
+  const args = slice.call(arguments, 1);
+  let bound;
 
-  var binder = function binder() {
+  const binder = function binder() {
     if (this instanceof bound) {
-      var result = target.apply(this, args.concat(slice.call(arguments)));
+      const result = target.apply(this, args.concat(slice.call(arguments)));
 
       if (Object(result) === result) {
         return result;
       }
 
       return this;
-    } else {
+    } 
       return target.apply(that, args.concat(slice.call(arguments)));
-    }
+    
   };
 
-  var boundLength = Math.max(0, target.length - args.length);
-  var boundArgs = [];
+  const boundLength = Math.max(0, target.length - args.length);
+  const boundArgs = [];
 
-  for (var i = 0; i < boundLength; i++) {
-    boundArgs.push('$' + i);
+  for (let i = 0; i < boundLength; i++) {
+    boundArgs.push(`$${  i}`);
   }
 
   bound = Function(
     'binder',
-    'return function (' + boundArgs.join(',') + '){ return binder.apply(this,arguments); }',
+    `return function (${  boundArgs.join(',')  }){ return binder.apply(this,arguments); }`,
   )(binder);
 
   if (target.prototype) {
-    var Empty = function Empty() {};
+    const Empty = function Empty() {};
 
     Empty.prototype = target.prototype;
     bound.prototype = new Empty();
@@ -3230,24 +3219,24 @@ var implementation$1 = function bind(that) {
   return bound;
 };
 
-var implementation = implementation$1;
-var functionBind = Function.prototype.bind || implementation;
+const implementation = implementation$1;
+const functionBind = Function.prototype.bind || implementation;
 
-var bind$4 = functionBind;
-var src = bind$4.call(Function.call, Object.prototype.hasOwnProperty);
+const bind$4 = functionBind;
+const src = bind$4.call(Function.call, Object.prototype.hasOwnProperty);
 
-var undefined$1;
-var $SyntaxError = SyntaxError;
-var $Function = Function;
-var $TypeError = TypeError; // eslint-disable-next-line consistent-return
+let undefined$1;
+const $SyntaxError = SyntaxError;
+const $Function = Function;
+const $TypeError = TypeError; // eslint-disable-next-line consistent-return
 
-var getEvalledConstructor = function getEvalledConstructor(expressionSyntax) {
+const getEvalledConstructor = function getEvalledConstructor(expressionSyntax) {
   try {
-    return $Function('"use strict"; return (' + expressionSyntax + ').constructor;')();
+    return $Function(`"use strict"; return (${  expressionSyntax  }).constructor;`)();
   } catch (e) {}
 };
 
-var $gOPD = Object.getOwnPropertyDescriptor;
+let $gOPD = Object.getOwnPropertyDescriptor;
 
 if ($gOPD) {
   try {
@@ -3257,11 +3246,11 @@ if ($gOPD) {
   }
 }
 
-var throwTypeError = function throwTypeError() {
+const throwTypeError = function throwTypeError() {
   throw new $TypeError();
 };
 
-var ThrowTypeError = $gOPD
+const ThrowTypeError = $gOPD
   ? (function () {
       try {
         // eslint-disable-next-line no-unused-expressions, no-caller, no-restricted-properties
@@ -3278,17 +3267,17 @@ var ThrowTypeError = $gOPD
       }
     })()
   : throwTypeError;
-var hasSymbols = hasSymbols$1();
+const hasSymbols = hasSymbols$1();
 
-var getProto$1 =
+const getProto$1 =
   Object.getPrototypeOf ||
   function (x) {
     return x.__proto__;
   }; // eslint-disable-line no-proto
 
-var needsEval = {};
-var TypedArray = typeof Uint8Array === 'undefined' ? undefined$1 : getProto$1(Uint8Array);
-var INTRINSICS = {
+const needsEval = {};
+const TypedArray = typeof Uint8Array === 'undefined' ? undefined$1 : getProto$1(Uint8Array);
+const INTRINSICS = {
   '%AggregateError%': typeof AggregateError === 'undefined' ? undefined$1 : AggregateError,
   '%Array%': Array,
   '%ArrayBuffer%': typeof ArrayBuffer === 'undefined' ? undefined$1 : ArrayBuffer,
@@ -3364,8 +3353,8 @@ var INTRINSICS = {
   '%WeakSet%': typeof WeakSet === 'undefined' ? undefined$1 : WeakSet,
 };
 
-var doEval = function doEval(name) {
-  var value;
+const doEval = function doEval(name) {
+  let value;
 
   if (name === '%AsyncFunction%') {
     value = getEvalledConstructor('async function () {}');
@@ -3374,13 +3363,13 @@ var doEval = function doEval(name) {
   } else if (name === '%AsyncGeneratorFunction%') {
     value = getEvalledConstructor('async function* () {}');
   } else if (name === '%AsyncGenerator%') {
-    var fn = doEval('%AsyncGeneratorFunction%');
+    const fn = doEval('%AsyncGeneratorFunction%');
 
     if (fn) {
       value = fn.prototype;
     }
   } else if (name === '%AsyncIteratorPrototype%') {
-    var gen = doEval('%AsyncGenerator%');
+    const gen = doEval('%AsyncGenerator%');
 
     if (gen) {
       value = getProto$1(gen.prototype);
@@ -3391,7 +3380,7 @@ var doEval = function doEval(name) {
   return value;
 };
 
-var LEGACY_ALIASES = {
+const LEGACY_ALIASES = {
   '%ArrayBufferPrototype%': ['ArrayBuffer', 'prototype'],
   '%ArrayPrototype%': ['Array', 'prototype'],
   '%ArrayProto_entries%': ['Array', 'prototype', 'entries'],
@@ -3444,23 +3433,23 @@ var LEGACY_ALIASES = {
   '%WeakMapPrototype%': ['WeakMap', 'prototype'],
   '%WeakSetPrototype%': ['WeakSet', 'prototype'],
 };
-var bind$3 = functionBind;
-var hasOwn$1 = src;
-var $concat = bind$3.call(Function.call, Array.prototype.concat);
-var $spliceApply = bind$3.call(Function.apply, Array.prototype.splice);
-var $replace = bind$3.call(Function.call, String.prototype.replace);
-var $strSlice = bind$3.call(Function.call, String.prototype.slice);
-var $exec = bind$3.call(Function.call, RegExp.prototype.exec);
+const bind$3 = functionBind;
+const hasOwn$1 = src;
+const $concat = bind$3.call(Function.call, Array.prototype.concat);
+const $spliceApply = bind$3.call(Function.apply, Array.prototype.splice);
+const $replace = bind$3.call(Function.call, String.prototype.replace);
+const $strSlice = bind$3.call(Function.call, String.prototype.slice);
+const $exec = bind$3.call(Function.call, RegExp.prototype.exec);
 /* adapted from https://github.com/lodash/lodash/blob/4.17.15/dist/lodash.js#L6735-L6744 */
 
-var rePropName =
-  /[^%.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|%$))/g;
-var reEscapeChar = /\\(\\)?/g;
+const rePropName =
+  /[^%.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)]|(?=(?:\.|\[])(?:\.|\[]|%$))/g;
+const reEscapeChar = /\\(\\)?/g;
 /** Used to match backslashes in property paths. */
 
-var stringToPath = function stringToPath(string) {
-  var first = $strSlice(string, 0, 1);
-  var last = $strSlice(string, -1);
+const stringToPath = function stringToPath(string) {
+  const first = $strSlice(string, 0, 1);
+  const last = $strSlice(string, -1);
 
   if (first === '%' && last !== '%') {
     throw new $SyntaxError('invalid intrinsic syntax, expected closing `%`');
@@ -3468,25 +3457,25 @@ var stringToPath = function stringToPath(string) {
     throw new $SyntaxError('invalid intrinsic syntax, expected opening `%`');
   }
 
-  var result = [];
-  $replace(string, rePropName, function (match, number, quote, subString) {
+  const result = [];
+  $replace(string, rePropName, (match, number, quote, subString) => {
     result[result.length] = quote ? $replace(subString, reEscapeChar, '$1') : number || match;
   });
   return result;
 };
 /* end adaptation */
 
-var getBaseIntrinsic = function getBaseIntrinsic(name, allowMissing) {
-  var intrinsicName = name;
-  var alias;
+const getBaseIntrinsic = function getBaseIntrinsic(name, allowMissing) {
+  let intrinsicName = name;
+  let alias;
 
   if (hasOwn$1(LEGACY_ALIASES, intrinsicName)) {
     alias = LEGACY_ALIASES[intrinsicName];
-    intrinsicName = '%' + alias[0] + '%';
+    intrinsicName = `%${  alias[0]  }%`;
   }
 
   if (hasOwn$1(INTRINSICS, intrinsicName)) {
-    var value = INTRINSICS[intrinsicName];
+    let value = INTRINSICS[intrinsicName];
 
     if (value === needsEval) {
       value = doEval(intrinsicName);
@@ -3494,21 +3483,21 @@ var getBaseIntrinsic = function getBaseIntrinsic(name, allowMissing) {
 
     if (typeof value === 'undefined' && !allowMissing) {
       throw new $TypeError(
-        'intrinsic ' + name + ' exists, but is not available. Please file an issue!',
+        `intrinsic ${  name  } exists, but is not available. Please file an issue!`,
       );
     }
 
     return {
-      alias: alias,
+      alias,
       name: intrinsicName,
-      value: value,
+      value,
     };
   }
 
-  throw new $SyntaxError('intrinsic ' + name + ' does not exist!');
+  throw new $SyntaxError(`intrinsic ${  name  } does not exist!`);
 };
 
-var getIntrinsic = function GetIntrinsic(name, allowMissing) {
+const getIntrinsic = function GetIntrinsic(name, allowMissing) {
   if (typeof name !== 'string' || name.length === 0) {
     throw new $TypeError('intrinsic name must be a non-empty string');
   }
@@ -3523,23 +3512,23 @@ var getIntrinsic = function GetIntrinsic(name, allowMissing) {
     );
   }
 
-  var parts = stringToPath(name);
-  var intrinsicBaseName = parts.length > 0 ? parts[0] : '';
-  var intrinsic = getBaseIntrinsic('%' + intrinsicBaseName + '%', allowMissing);
-  var intrinsicRealName = intrinsic.name;
-  var value = intrinsic.value;
-  var skipFurtherCaching = false;
-  var alias = intrinsic.alias;
+  const parts = stringToPath(name);
+  let intrinsicBaseName = parts.length > 0 ? parts[0] : '';
+  const intrinsic = getBaseIntrinsic(`%${  intrinsicBaseName  }%`, allowMissing);
+  let intrinsicRealName = intrinsic.name;
+  let {value} = intrinsic;
+  let skipFurtherCaching = false;
+  const {alias} = intrinsic;
 
   if (alias) {
     intrinsicBaseName = alias[0];
     $spliceApply(parts, $concat([0, 1], alias));
   }
 
-  for (var i = 1, isOwn = true; i < parts.length; i += 1) {
-    var part = parts[i];
-    var first = $strSlice(part, 0, 1);
-    var last = $strSlice(part, -1);
+  for (let i = 1, isOwn = true; i < parts.length; i += 1) {
+    const part = parts[i];
+    const first = $strSlice(part, 0, 1);
+    const last = $strSlice(part, -1);
 
     if (
       (first === '"' ||
@@ -3557,8 +3546,8 @@ var getIntrinsic = function GetIntrinsic(name, allowMissing) {
       skipFurtherCaching = true;
     }
 
-    intrinsicBaseName += '.' + part;
-    intrinsicRealName = '%' + intrinsicBaseName + '%';
+    intrinsicBaseName += `.${  part}`;
+    intrinsicRealName = `%${  intrinsicBaseName  }%`;
 
     if (hasOwn$1(INTRINSICS, intrinsicRealName)) {
       value = INTRINSICS[intrinsicRealName];
@@ -3566,7 +3555,7 @@ var getIntrinsic = function GetIntrinsic(name, allowMissing) {
       if (!(part in value)) {
         if (!allowMissing) {
           throw new $TypeError(
-            'base intrinsic for ' + name + ' exists, but the property is not available.',
+            `base intrinsic for ${  name  } exists, but the property is not available.`,
           );
         }
 
@@ -3574,7 +3563,7 @@ var getIntrinsic = function GetIntrinsic(name, allowMissing) {
       }
 
       if ($gOPD && i + 1 >= parts.length) {
-        var desc = $gOPD(value, part);
+        const desc = $gOPD(value, part);
         isOwn = !!desc; // By convention, when a data property is converted to an accessor
         // property to emulate a data property that does not suffer from
         // the override mistake, that accessor's getter is marked with
@@ -3602,17 +3591,17 @@ var getIntrinsic = function GetIntrinsic(name, allowMissing) {
   return value;
 };
 
-var callBind$1 = { exports: {} };
+const callBind$1 = { exports: {} };
 
 (function (module) {
-  var bind = functionBind;
-  var GetIntrinsic = getIntrinsic;
-  var $apply = GetIntrinsic('%Function.prototype.apply%');
-  var $call = GetIntrinsic('%Function.prototype.call%');
-  var $reflectApply = GetIntrinsic('%Reflect.apply%', true) || bind.call($call, $apply);
-  var $gOPD = GetIntrinsic('%Object.getOwnPropertyDescriptor%', true);
-  var $defineProperty = GetIntrinsic('%Object.defineProperty%', true);
-  var $max = GetIntrinsic('%Math.max%');
+  const bind = functionBind;
+  const GetIntrinsic = getIntrinsic;
+  const $apply = GetIntrinsic('%Function.prototype.apply%');
+  const $call = GetIntrinsic('%Function.prototype.call%');
+  const $reflectApply = GetIntrinsic('%Reflect.apply%', true) || bind.call($call, $apply);
+  const $gOPD = GetIntrinsic('%Object.getOwnPropertyDescriptor%', true);
+  let $defineProperty = GetIntrinsic('%Object.defineProperty%', true);
+  const $max = GetIntrinsic('%Math.max%');
 
   if ($defineProperty) {
     try {
@@ -3626,10 +3615,10 @@ var callBind$1 = { exports: {} };
   }
 
   module.exports = function callBind(originalFunction) {
-    var func = $reflectApply(bind, $call, arguments);
+    const func = $reflectApply(bind, $call, arguments);
 
     if ($gOPD && $defineProperty) {
-      var desc = $gOPD(func, 'length');
+      const desc = $gOPD(func, 'length');
 
       if (desc.configurable) {
         // original length, plus the receiver, minus any additional arguments (after the receiver)
@@ -3642,7 +3631,7 @@ var callBind$1 = { exports: {} };
     return func;
   };
 
-  var applyBind = function applyBind() {
+  const applyBind = function applyBind() {
     return $reflectApply(bind, $apply, arguments);
   };
 
@@ -3655,12 +3644,12 @@ var callBind$1 = { exports: {} };
   }
 })(callBind$1);
 
-var GetIntrinsic = getIntrinsic;
-var callBind = callBind$1.exports;
-var $indexOf$1 = callBind(GetIntrinsic('String.prototype.indexOf'));
+const GetIntrinsic = getIntrinsic;
+const callBind = callBind$1.exports;
+const $indexOf$1 = callBind(GetIntrinsic('String.prototype.indexOf'));
 
-var callBound$3 = function callBoundIntrinsic(name, allowMissing) {
-  var intrinsic = GetIntrinsic(name, !!allowMissing);
+const callBound$3 = function callBoundIntrinsic(name, allowMissing) {
+  const intrinsic = GetIntrinsic(name, !!allowMissing);
 
   if (typeof intrinsic === 'function' && $indexOf$1(name, '.prototype.') > -1) {
     return callBind(intrinsic);
@@ -3669,11 +3658,11 @@ var callBound$3 = function callBoundIntrinsic(name, allowMissing) {
   return intrinsic;
 };
 
-var hasToStringTag$4 = shams();
-var callBound$2 = callBound$3;
-var $toString$2 = callBound$2('Object.prototype.toString');
+const hasToStringTag$4 = shams();
+const callBound$2 = callBound$3;
+const $toString$2 = callBound$2('Object.prototype.toString');
 
-var isStandardArguments = function isArguments(value) {
+const isStandardArguments = function isArguments(value) {
   if (hasToStringTag$4 && value && _typeof(value) === 'object' && Symbol.toStringTag in value) {
     return false;
   }
@@ -3681,7 +3670,7 @@ var isStandardArguments = function isArguments(value) {
   return $toString$2(value) === '[object Arguments]';
 };
 
-var isLegacyArguments = function isArguments(value) {
+const isLegacyArguments = function isArguments(value) {
   if (isStandardArguments(value)) {
     return true;
   }
@@ -3696,21 +3685,21 @@ var isLegacyArguments = function isArguments(value) {
   );
 };
 
-var supportsStandardArguments = (function () {
+const supportsStandardArguments = (function () {
   return isStandardArguments(arguments);
 })();
 
 isStandardArguments.isLegacyArguments = isLegacyArguments; // for tests
 
-var isArguments$1 = supportsStandardArguments ? isStandardArguments : isLegacyArguments;
+const isArguments$1 = supportsStandardArguments ? isStandardArguments : isLegacyArguments;
 
-var toStr$2 = Object.prototype.toString;
-var fnToStr$1 = Function.prototype.toString;
-var isFnRegex = /^\s*(?:function)?\*/;
-var hasToStringTag$3 = shams();
-var getProto = Object.getPrototypeOf;
+const toStr$2 = Object.prototype.toString;
+const fnToStr$1 = Function.prototype.toString;
+const isFnRegex = /^\s*(?:function)?\*/;
+const hasToStringTag$3 = shams();
+const getProto = Object.getPrototypeOf;
 
-var getGeneratorFunc = function getGeneratorFunc() {
+const getGeneratorFunc = function getGeneratorFunc() {
   // eslint-disable-line consistent-return
   if (!hasToStringTag$3) {
     return false;
@@ -3721,9 +3710,9 @@ var getGeneratorFunc = function getGeneratorFunc() {
   } catch (e) {}
 };
 
-var GeneratorFunction;
+let GeneratorFunction;
 
-var isGeneratorFunction = function isGeneratorFunction(fn) {
+const isGeneratorFunction = function isGeneratorFunction(fn) {
   if (typeof fn !== 'function') {
     return false;
   }
@@ -3733,7 +3722,7 @@ var isGeneratorFunction = function isGeneratorFunction(fn) {
   }
 
   if (!hasToStringTag$3) {
-    var str = toStr$2.call(fn);
+    const str = toStr$2.call(fn);
     return str === '[object GeneratorFunction]';
   }
 
@@ -3742,20 +3731,20 @@ var isGeneratorFunction = function isGeneratorFunction(fn) {
   }
 
   if (typeof GeneratorFunction === 'undefined') {
-    var generatorFunc = getGeneratorFunc();
+    const generatorFunc = getGeneratorFunc();
     GeneratorFunction = generatorFunc ? getProto(generatorFunc) : false;
   }
 
   return getProto(fn) === GeneratorFunction;
 };
 
-var fnToStr = Function.prototype.toString;
-var reflectApply =
+const fnToStr = Function.prototype.toString;
+let reflectApply =
   (typeof Reflect === 'undefined' ? 'undefined' : _typeof(Reflect)) === 'object' &&
   Reflect !== null &&
   Reflect.apply;
-var badArrayLike;
-var isCallableMarker;
+let badArrayLike;
+let isCallableMarker;
 
 if (typeof reflectApply === 'function' && typeof Object.defineProperty === 'function') {
   try {
@@ -3767,7 +3756,7 @@ if (typeof reflectApply === 'function' && typeof Object.defineProperty === 'func
     isCallableMarker = {}; // eslint-disable-next-line no-throw-literal
 
     reflectApply(
-      function () {
+      () => {
         throw 42;
       },
       null,
@@ -3782,18 +3771,18 @@ if (typeof reflectApply === 'function' && typeof Object.defineProperty === 'func
   reflectApply = null;
 }
 
-var constructorRegex = /^\s*class\b/;
+const constructorRegex = /^\s*class\b/;
 
-var isES6ClassFn = function isES6ClassFunction(value) {
+const isES6ClassFn = function isES6ClassFunction(value) {
   try {
-    var fnStr = fnToStr.call(value);
+    const fnStr = fnToStr.call(value);
     return constructorRegex.test(fnStr);
   } catch (e) {
     return false; // not a function
   }
 };
 
-var tryFunctionObject = function tryFunctionToStr(value) {
+const tryFunctionObject = function tryFunctionToStr(value) {
   try {
     if (isES6ClassFn(value)) {
       return false;
@@ -3806,20 +3795,20 @@ var tryFunctionObject = function tryFunctionToStr(value) {
   }
 };
 
-var toStr$1 = Object.prototype.toString;
-var fnClass = '[object Function]';
-var genClass = '[object GeneratorFunction]';
-var hasToStringTag$2 = typeof Symbol === 'function' && !!Symbol.toStringTag; // better: use `has-tostringtag`
+const toStr$1 = Object.prototype.toString;
+const fnClass = '[object Function]';
+const genClass = '[object GeneratorFunction]';
+const hasToStringTag$2 = typeof Symbol === 'function' && !!Symbol.toStringTag; // better: use `has-tostringtag`
 
 /* globals document: false */
 
-var documentDotAll =
+const documentDotAll =
   (typeof document === 'undefined' ? 'undefined' : _typeof(document)) === 'object' &&
   typeof document.all === 'undefined' &&
   document.all !== undefined
     ? document.all
     : {};
-var isCallable$1 = reflectApply
+const isCallable$1 = reflectApply
   ? function isCallable(value) {
       if (value === documentDotAll) {
         return true;
@@ -3872,16 +3861,16 @@ var isCallable$1 = reflectApply
         return false;
       }
 
-      var strClass = toStr$1.call(value);
+      const strClass = toStr$1.call(value);
       return strClass === fnClass || strClass === genClass;
     };
 
-var isCallable = isCallable$1;
-var toStr = Object.prototype.toString;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
+const isCallable = isCallable$1;
+const toStr = Object.prototype.toString;
+const {hasOwnProperty} = Object.prototype;
 
-var forEachArray = function forEachArray(array, iterator, receiver) {
-  for (var i = 0, len = array.length; i < len; i++) {
+const forEachArray = function forEachArray(array, iterator, receiver) {
+  for (let i = 0, len = array.length; i < len; i++) {
     if (hasOwnProperty.call(array, i)) {
       if (receiver == null) {
         iterator(array[i], i, array);
@@ -3892,8 +3881,8 @@ var forEachArray = function forEachArray(array, iterator, receiver) {
   }
 };
 
-var forEachString = function forEachString(string, iterator, receiver) {
-  for (var i = 0, len = string.length; i < len; i++) {
+const forEachString = function forEachString(string, iterator, receiver) {
+  for (let i = 0, len = string.length; i < len; i++) {
     // no such thing as a sparse string.
     if (receiver == null) {
       iterator(string.charAt(i), i, string);
@@ -3903,8 +3892,8 @@ var forEachString = function forEachString(string, iterator, receiver) {
   }
 };
 
-var forEachObject = function forEachObject(object, iterator, receiver) {
-  for (var k in object) {
+const forEachObject = function forEachObject(object, iterator, receiver) {
+  for (const k in object) {
     if (hasOwnProperty.call(object, k)) {
       if (receiver == null) {
         iterator(object[k], k, object);
@@ -3915,12 +3904,12 @@ var forEachObject = function forEachObject(object, iterator, receiver) {
   }
 };
 
-var forEach$3 = function forEach(list, iterator, thisArg) {
+const forEach$3 = function forEach(list, iterator, thisArg) {
   if (!isCallable(iterator)) {
     throw new TypeError('iterator must be a function');
   }
 
-  var receiver;
+  let receiver;
 
   if (arguments.length >= 3) {
     receiver = thisArg;
@@ -3935,9 +3924,9 @@ var forEach$3 = function forEach(list, iterator, thisArg) {
   }
 };
 
-var forEach_1 = forEach$3;
+const forEach_1 = forEach$3;
 
-var possibleNames = [
+const possibleNames = [
   'BigInt64Array',
   'BigUint64Array',
   'Float32Array',
@@ -3950,29 +3939,29 @@ var possibleNames = [
   'Uint8Array',
   'Uint8ClampedArray',
 ];
-var g$2 = typeof globalThis === 'undefined' ? commonjsGlobal : globalThis;
+const g$2 = typeof globalThis === 'undefined' ? commonjsGlobal : globalThis;
 
-var availableTypedArrays$2 = function availableTypedArrays() {
-  var out = [];
+const availableTypedArrays$2 = function availableTypedArrays() {
+  const out = [];
 
-  for (var i = 0; i < possibleNames.length; i++) {
-    if (typeof g$2[possibleNames[i]] === 'function') {
-      out[out.length] = possibleNames[i];
+  for (const possibleName of possibleNames) {
+    if (typeof g$2[possibleName] === 'function') {
+      out[out.length] = possibleName;
     }
   }
 
   return out;
 };
 
-var getOwnPropertyDescriptor;
-var hasRequiredGetOwnPropertyDescriptor;
+let getOwnPropertyDescriptor;
+let hasRequiredGetOwnPropertyDescriptor;
 
 function requireGetOwnPropertyDescriptor() {
   if (hasRequiredGetOwnPropertyDescriptor) return getOwnPropertyDescriptor;
   hasRequiredGetOwnPropertyDescriptor = 1;
 
-  var GetIntrinsic = getIntrinsic;
-  var $gOPD = GetIntrinsic('%Object.getOwnPropertyDescriptor%', true);
+  const GetIntrinsic = getIntrinsic;
+  let $gOPD = GetIntrinsic('%Object.getOwnPropertyDescriptor%', true);
 
   if ($gOPD) {
     try {
@@ -3987,19 +3976,19 @@ function requireGetOwnPropertyDescriptor() {
   return getOwnPropertyDescriptor;
 }
 
-var forEach$2 = forEach_1;
-var availableTypedArrays$1 = availableTypedArrays$2;
-var callBound$1 = callBound$3;
-var $toString$1 = callBound$1('Object.prototype.toString');
-var hasToStringTag$1 = shams();
-var g$1 = typeof globalThis === 'undefined' ? commonjsGlobal : globalThis;
-var typedArrays$1 = availableTypedArrays$1();
+const forEach$2 = forEach_1;
+const availableTypedArrays$1 = availableTypedArrays$2;
+const callBound$1 = callBound$3;
+const $toString$1 = callBound$1('Object.prototype.toString');
+const hasToStringTag$1 = shams();
+const g$1 = typeof globalThis === 'undefined' ? commonjsGlobal : globalThis;
+const typedArrays$1 = availableTypedArrays$1();
 
-var $indexOf =
+const $indexOf =
   callBound$1('Array.prototype.indexOf', true) ||
   function indexOf(array, value) {
-    for (var i = 0; i < array.length; i += 1) {
-      if (array[i] === value) {
+    for (const [i, element] of array.entries()) {
+      if (element === value) {
         return i;
       }
     }
@@ -4007,21 +3996,21 @@ var $indexOf =
     return -1;
   };
 
-var $slice$1 = callBound$1('String.prototype.slice');
-var toStrTags$1 = {};
-var gOPD$1 = requireGetOwnPropertyDescriptor();
-var getPrototypeOf$1 = Object.getPrototypeOf; // require('getprototypeof');
+const $slice$1 = callBound$1('String.prototype.slice');
+const toStrTags$1 = {};
+const gOPD$1 = requireGetOwnPropertyDescriptor();
+const getPrototypeOf$1 = Object.getPrototypeOf; // require('getprototypeof');
 
 if (hasToStringTag$1 && gOPD$1 && getPrototypeOf$1) {
-  forEach$2(typedArrays$1, function (typedArray) {
-    var arr = new g$1[typedArray]();
+  forEach$2(typedArrays$1, (typedArray) => {
+    const arr = new g$1[typedArray]();
 
     if (Symbol.toStringTag in arr) {
-      var proto = getPrototypeOf$1(arr);
-      var descriptor = gOPD$1(proto, Symbol.toStringTag);
+      const proto = getPrototypeOf$1(arr);
+      let descriptor = gOPD$1(proto, Symbol.toStringTag);
 
       if (!descriptor) {
-        var superProto = getPrototypeOf$1(proto);
+        const superProto = getPrototypeOf$1(proto);
         descriptor = gOPD$1(superProto, Symbol.toStringTag);
       }
 
@@ -4030,9 +4019,9 @@ if (hasToStringTag$1 && gOPD$1 && getPrototypeOf$1) {
   });
 }
 
-var tryTypedArrays$1 = function tryAllTypedArrays(value) {
-  var anyTrue = false;
-  forEach$2(toStrTags$1, function (getter, typedArray) {
+const tryTypedArrays$1 = function tryAllTypedArrays(value) {
+  let anyTrue = false;
+  forEach$2(toStrTags$1, (getter, typedArray) => {
     if (!anyTrue) {
       try {
         anyTrue = getter.call(value) === typedArray;
@@ -4044,13 +4033,13 @@ var tryTypedArrays$1 = function tryAllTypedArrays(value) {
   return anyTrue;
 };
 
-var isTypedArray$2 = function isTypedArray(value) {
+const isTypedArray$2 = function isTypedArray(value) {
   if (!value || _typeof(value) !== 'object') {
     return false;
   }
 
   if (!hasToStringTag$1 || !(Symbol.toStringTag in value)) {
-    var tag = $slice$1($toString$1(value), 8, -1);
+    const tag = $slice$1($toString$1(value), 8, -1);
     return $indexOf(typedArrays$1, tag) > -1;
   }
 
@@ -4061,29 +4050,29 @@ var isTypedArray$2 = function isTypedArray(value) {
   return tryTypedArrays$1(value);
 };
 
-var forEach$1 = forEach_1;
-var availableTypedArrays = availableTypedArrays$2;
-var callBound = callBound$3;
-var $toString = callBound('Object.prototype.toString');
-var hasToStringTag = shams();
-var g = typeof globalThis === 'undefined' ? commonjsGlobal : globalThis;
-var typedArrays = availableTypedArrays();
-var $slice = callBound('String.prototype.slice');
-var toStrTags = {};
-var gOPD = requireGetOwnPropertyDescriptor();
-var getPrototypeOf = Object.getPrototypeOf; // require('getprototypeof');
+const forEach$1 = forEach_1;
+const availableTypedArrays = availableTypedArrays$2;
+const callBound = callBound$3;
+const $toString = callBound('Object.prototype.toString');
+const hasToStringTag = shams();
+const g = typeof globalThis === 'undefined' ? commonjsGlobal : globalThis;
+const typedArrays = availableTypedArrays();
+const $slice = callBound('String.prototype.slice');
+const toStrTags = {};
+const gOPD = requireGetOwnPropertyDescriptor();
+const {getPrototypeOf} = Object; // require('getprototypeof');
 
 if (hasToStringTag && gOPD && getPrototypeOf) {
-  forEach$1(typedArrays, function (typedArray) {
+  forEach$1(typedArrays, (typedArray) => {
     if (typeof g[typedArray] === 'function') {
-      var arr = new g[typedArray]();
+      const arr = new g[typedArray]();
 
       if (Symbol.toStringTag in arr) {
-        var proto = getPrototypeOf(arr);
-        var descriptor = gOPD(proto, Symbol.toStringTag);
+        const proto = getPrototypeOf(arr);
+        let descriptor = gOPD(proto, Symbol.toStringTag);
 
         if (!descriptor) {
-          var superProto = getPrototypeOf(proto);
+          const superProto = getPrototypeOf(proto);
           descriptor = gOPD(superProto, Symbol.toStringTag);
         }
 
@@ -4093,12 +4082,12 @@ if (hasToStringTag && gOPD && getPrototypeOf) {
   });
 }
 
-var tryTypedArrays = function tryAllTypedArrays(value) {
-  var foundName = false;
-  forEach$1(toStrTags, function (getter, typedArray) {
+const tryTypedArrays = function tryAllTypedArrays(value) {
+  let foundName = false;
+  forEach$1(toStrTags, (getter, typedArray) => {
     if (!foundName) {
       try {
-        var name = getter.call(value);
+        const name = getter.call(value);
 
         if (name === typedArray) {
           foundName = name;
@@ -4109,9 +4098,9 @@ var tryTypedArrays = function tryAllTypedArrays(value) {
   return foundName;
 };
 
-var isTypedArray$1 = isTypedArray$2;
+const isTypedArray$1 = isTypedArray$2;
 
-var whichTypedArray = function whichTypedArray(value) {
+const whichTypedArray = function whichTypedArray(value) {
   if (!isTypedArray$1(value)) {
     return false;
   }
@@ -4124,21 +4113,21 @@ var whichTypedArray = function whichTypedArray(value) {
 };
 
 (function (exports) {
-  var isArgumentsObject = isArguments$1;
-  var isGeneratorFunction$1 = isGeneratorFunction;
-  var whichTypedArray$1 = whichTypedArray;
-  var isTypedArray = isTypedArray$2;
+  const isArgumentsObject = isArguments$1;
+  const isGeneratorFunction$1 = isGeneratorFunction;
+  const whichTypedArray$1 = whichTypedArray;
+  const isTypedArray = isTypedArray$2;
 
   function uncurryThis(f) {
     return f.call.bind(f);
   }
 
-  var BigIntSupported = typeof BigInt !== 'undefined';
-  var SymbolSupported = typeof Symbol !== 'undefined';
-  var ObjectToString = uncurryThis(Object.prototype.toString);
-  var numberValue = uncurryThis(Number.prototype.valueOf);
-  var stringValue = uncurryThis(String.prototype.valueOf);
-  var booleanValue = uncurryThis(Boolean.prototype.valueOf);
+  const BigIntSupported = typeof BigInt !== 'undefined';
+  const SymbolSupported = typeof Symbol !== 'undefined';
+  const ObjectToString = uncurryThis(Object.prototype.toString);
+  const numberValue = uncurryThis(Number.prototype.valueOf);
+  const stringValue = uncurryThis(String.prototype.valueOf);
+  const booleanValue = uncurryThis(Boolean.prototype.valueOf);
 
   if (BigIntSupported) {
     var bigIntValue = uncurryThis(BigInt.prototype.valueOf);
@@ -4352,7 +4341,7 @@ var whichTypedArray = function whichTypedArray(value) {
 
   exports.isDataView = isDataView; // Store a copy of SharedArrayBuffer in case it's deleted elsewhere
 
-  var SharedArrayBufferCopy =
+  const SharedArrayBufferCopy =
     typeof SharedArrayBuffer !== 'undefined' ? SharedArrayBuffer : undefined;
 
   function isSharedArrayBufferToString(value) {
@@ -4456,17 +4445,17 @@ var whichTypedArray = function whichTypedArray(value) {
   }
 
   exports.isAnyArrayBuffer = isAnyArrayBuffer;
-  ['isProxy', 'isExternal', 'isModuleNamespaceObject'].forEach(function (method) {
+  ['isProxy', 'isExternal', 'isModuleNamespaceObject'].forEach((method) => {
     Object.defineProperty(exports, method, {
       enumerable: false,
       value: function value() {
-        throw new Error(method + ' is not supported in userland');
+        throw new Error(`${method  } is not supported in userland`);
       },
     });
   });
 })(types);
 
-var isBufferBrowser = function isBuffer(arg) {
+const isBufferBrowser = function isBuffer(arg) {
   return (
     arg &&
     _typeof(arg) === 'object' &&
@@ -4476,7 +4465,7 @@ var isBufferBrowser = function isBuffer(arg) {
   );
 };
 
-var inherits_browser = { exports: {} };
+const inherits_browser = { exports: {} };
 
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
@@ -4499,7 +4488,7 @@ if (typeof Object.create === 'function') {
     if (superCtor) {
       ctor.super_ = superCtor;
 
-      var TempCtor = function TempCtor() {};
+      const TempCtor = function TempCtor() {};
 
       TempCtor.prototype = superCtor.prototype;
       ctor.prototype = new TempCtor();
@@ -4529,24 +4518,24 @@ if (typeof Object.create === 'function') {
   // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
   // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
   // USE OR OTHER DEALINGS IN THE SOFTWARE.
-  var getOwnPropertyDescriptors =
+  const getOwnPropertyDescriptors =
     Object.getOwnPropertyDescriptors ||
     function getOwnPropertyDescriptors(obj) {
-      var keys = Object.keys(obj);
-      var descriptors = {};
+      const keys = Object.keys(obj);
+      const descriptors = {};
 
-      for (var i = 0; i < keys.length; i++) {
-        descriptors[keys[i]] = Object.getOwnPropertyDescriptor(obj, keys[i]);
+      for (const key of keys) {
+        descriptors[key] = Object.getOwnPropertyDescriptor(obj, key);
       }
 
       return descriptors;
     };
 
-  var formatRegExp = /%[sdj%]/g;
+  const formatRegExp = /%[%djs]/g;
 
   exports.format = function (f) {
     if (!isString(f)) {
-      var objects = [];
+      const objects = [];
 
       for (var i = 0; i < arguments.length; i++) {
         objects.push(inspect(arguments[i]));
@@ -4556,9 +4545,9 @@ if (typeof Object.create === 'function') {
     }
 
     var i = 1;
-    var args = arguments;
-    var len = args.length;
-    var str = String(f).replace(formatRegExp, function (x) {
+    const args = arguments;
+    const len = args.length;
+    let str = String(f).replace(formatRegExp, (x) => {
       if (x === '%%') return '%';
       if (i >= len) return x;
 
@@ -4581,11 +4570,11 @@ if (typeof Object.create === 'function') {
       }
     });
 
-    for (var x = args[i]; i < len; x = args[++i]) {
+    for (let x = args[i]; i < len; x = args[++i]) {
       if (isNull(x) || !isObject(x)) {
-        str += ' ' + x;
+        str += ` ${  x}`;
       } else {
-        str += ' ' + inspect(x);
+        str += ` ${  inspect(x)}`;
       }
     }
 
@@ -4605,7 +4594,7 @@ if (typeof Object.create === 'function') {
       };
     }
 
-    var warned = false;
+    let warned = false;
 
     function deprecated() {
       if (!warned) {
@@ -4626,17 +4615,17 @@ if (typeof Object.create === 'function') {
     return deprecated;
   };
 
-  var debugs = {};
-  var debugEnvRegex = /^$/;
+  const debugs = {};
+  let debugEnvRegex = /^$/;
 
   if (process.env.NODE_DEBUG) {
-    var debugEnv = process.env.NODE_DEBUG;
+    let debugEnv = process.env.NODE_DEBUG;
     debugEnv = debugEnv
-      .replace(/[|\\{}()[\]^$+?.]/g, '\\$&')
+      .replace(/[$()+.?[\\\]^{|}]/g, '\\$&')
       .replace(/\*/g, '.*')
       .replace(/,/g, '$|^')
       .toUpperCase();
-    debugEnvRegex = new RegExp('^' + debugEnv + '$', 'i');
+    debugEnvRegex = new RegExp(`^${  debugEnv  }$`, 'i');
   }
 
   exports.debuglog = function (set) {
@@ -4644,10 +4633,10 @@ if (typeof Object.create === 'function') {
 
     if (!debugs[set]) {
       if (debugEnvRegex.test(set)) {
-        var pid = process.pid;
+        const {pid} = process;
 
         debugs[set] = function () {
-          var msg = exports.format.apply(exports, arguments);
+          const msg = exports.format.apply(exports, arguments);
           console.error('%s %d: %s', set, pid, msg);
         };
       } else {
@@ -4665,11 +4654,11 @@ if (typeof Object.create === 'function') {
    * @param {Object} opts Optional options object that alters the output.
    */
 
-  /* legacy: obj, showHidden, depth, colors*/
+  /* legacy: obj, showHidden, depth, colors */
 
   function inspect(obj, opts) {
     // default options
-    var ctx = {
+    const ctx = {
       seen: [],
       stylize: stylizeNoColor,
     }; // legacy...
@@ -4724,15 +4713,15 @@ if (typeof Object.create === 'function') {
   };
 
   function stylizeWithColor(str, styleType) {
-    var style = inspect.styles[styleType];
+    const style = inspect.styles[styleType];
 
     if (style) {
       return (
-        '\x1B[' + inspect.colors[style][0] + 'm' + str + '\x1B[' + inspect.colors[style][1] + 'm'
+        `\x1B[${  inspect.colors[style][0]  }m${  str  }\x1B[${  inspect.colors[style][1]  }m`
       );
-    } else {
+    } 
       return str;
-    }
+    
   }
 
   function stylizeNoColor(str, styleType) {
@@ -4740,8 +4729,8 @@ if (typeof Object.create === 'function') {
   }
 
   function arrayToHash(array) {
-    var hash = {};
-    array.forEach(function (val, idx) {
+    const hash = {};
+    array.forEach((val, idx) => {
       hash[val] = true;
     });
     return hash;
@@ -4757,7 +4746,7 @@ if (typeof Object.create === 'function') {
       value.inspect !== exports.inspect && // Also filter out any prototype objects using the circular check.
       !(value.constructor && value.constructor.prototype === value)
     ) {
-      var ret = value.inspect(recurseTimes, ctx);
+      let ret = value.inspect(recurseTimes, ctx);
 
       if (!isString(ret)) {
         ret = formatValue(ctx, ret, recurseTimes);
@@ -4766,28 +4755,28 @@ if (typeof Object.create === 'function') {
       return ret;
     } // Primitive types cannot have properties
 
-    var primitive = formatPrimitive(ctx, value);
+    const primitive = formatPrimitive(ctx, value);
 
     if (primitive) {
       return primitive;
     } // Look up the keys of the object.
 
-    var keys = Object.keys(value);
-    var visibleKeys = arrayToHash(keys);
+    let keys = Object.keys(value);
+    const visibleKeys = arrayToHash(keys);
 
     if (ctx.showHidden) {
       keys = Object.getOwnPropertyNames(value);
     } // IE doesn't make error fields non-enumerable
     // http://msdn.microsoft.com/en-us/library/ie/dww52sbt(v=vs.94).aspx
 
-    if (isError(value) && (keys.indexOf('message') >= 0 || keys.indexOf('description') >= 0)) {
+    if (isError(value) && (keys.includes('message') || keys.includes('description'))) {
       return formatError(value);
     } // Some type of object without properties can be shortcutted.
 
     if (keys.length === 0) {
       if (isFunction(value)) {
-        var name = value.name ? ': ' + value.name : '';
-        return ctx.stylize('[Function' + name + ']', 'special');
+        const name = value.name ? `: ${  value.name}` : '';
+        return ctx.stylize(`[Function${  name  }]`, 'special');
       }
 
       if (isRegExp(value)) {
@@ -4803,9 +4792,9 @@ if (typeof Object.create === 'function') {
       }
     }
 
-    var base = '',
-      array = false,
-      braces = ['{', '}']; // Make Array say that they are Array
+    let base = '';
+      let array = false;
+      let braces = ['{', '}']; // Make Array say that they are Array
 
     if (isArray(value)) {
       array = true;
@@ -4813,43 +4802,41 @@ if (typeof Object.create === 'function') {
     } // Make functions say that they are functions
 
     if (isFunction(value)) {
-      var n = value.name ? ': ' + value.name : '';
-      base = ' [Function' + n + ']';
+      const n = value.name ? `: ${  value.name}` : '';
+      base = ` [Function${  n  }]`;
     } // Make RegExps say that they are RegExps
 
     if (isRegExp(value)) {
-      base = ' ' + RegExp.prototype.toString.call(value);
+      base = ` ${  RegExp.prototype.toString.call(value)}`;
     } // Make dates with properties first say the date
 
     if (isDate(value)) {
-      base = ' ' + Date.prototype.toUTCString.call(value);
+      base = ` ${  Date.prototype.toUTCString.call(value)}`;
     } // Make error with message first say the error
 
     if (isError(value)) {
-      base = ' ' + formatError(value);
+      base = ` ${  formatError(value)}`;
     }
 
-    if (keys.length === 0 && (!array || value.length == 0)) {
+    if (keys.length === 0 && (!array || value.length === 0)) {
       return braces[0] + base + braces[1];
     }
 
     if (recurseTimes < 0) {
       if (isRegExp(value)) {
         return ctx.stylize(RegExp.prototype.toString.call(value), 'regexp');
-      } else {
+      } 
         return ctx.stylize('[Object]', 'special');
-      }
+      
     }
 
     ctx.seen.push(value);
-    var output;
+    let output;
 
     if (array) {
       output = formatArray(ctx, value, recurseTimes, visibleKeys, keys);
     } else {
-      output = keys.map(function (key) {
-        return formatProperty(ctx, value, recurseTimes, visibleKeys, key, array);
-      });
+      output = keys.map((key) => formatProperty(ctx, value, recurseTimes, visibleKeys, key, array));
     }
 
     ctx.seen.pop();
@@ -4860,27 +4847,27 @@ if (typeof Object.create === 'function') {
     if (isUndefined(value)) return ctx.stylize('undefined', 'undefined');
 
     if (isString(value)) {
-      var simple =
-        "'" +
-        JSON.stringify(value).replace(/^"|"$/g, '').replace(/'/g, "\\'").replace(/\\"/g, '"') +
-        "'";
+      const simple =
+        `'${ 
+        JSON.stringify(value).replace(/^"|"$/g, '').replace(/'/g, "\\'").replace(/\\"/g, '"') 
+        }'`;
       return ctx.stylize(simple, 'string');
     }
 
-    if (isNumber(value)) return ctx.stylize('' + value, 'number');
-    if (isBoolean(value)) return ctx.stylize('' + value, 'boolean'); // For some reason typeof null is "object", so special case here.
+    if (isNumber(value)) return ctx.stylize(`${  value}`, 'number');
+    if (isBoolean(value)) return ctx.stylize(`${  value}`, 'boolean'); // For some reason typeof null is "object", so special case here.
 
     if (isNull(value)) return ctx.stylize('null', 'null');
   }
 
   function formatError(value) {
-    return '[' + Error.prototype.toString.call(value) + ']';
+    return `[${  Error.prototype.toString.call(value)  }]`;
   }
 
   function formatArray(ctx, value, recurseTimes, visibleKeys, keys) {
-    var output = [];
+    const output = [];
 
-    for (var i = 0, l = value.length; i < l; ++i) {
+    for (let i = 0, l = value.length; i < l; ++i) {
       if (hasOwnProperty(value, String(i))) {
         output.push(formatProperty(ctx, value, recurseTimes, visibleKeys, String(i), true));
       } else {
@@ -4888,7 +4875,7 @@ if (typeof Object.create === 'function') {
       }
     }
 
-    keys.forEach(function (key) {
+    keys.forEach((key) => {
       if (!key.match(/^\d+$/)) {
         output.push(formatProperty(ctx, value, recurseTimes, visibleKeys, key, true));
       }
@@ -4897,7 +4884,7 @@ if (typeof Object.create === 'function') {
   }
 
   function formatProperty(ctx, value, recurseTimes, visibleKeys, key, array) {
-    var name, str, desc;
+    let name; let str; let desc;
     desc = Object.getOwnPropertyDescriptor(value, key) || {
       value: value[key],
     };
@@ -4908,42 +4895,36 @@ if (typeof Object.create === 'function') {
       } else {
         str = ctx.stylize('[Getter]', 'special');
       }
-    } else {
-      if (desc.set) {
+    } else if (desc.set) {
         str = ctx.stylize('[Setter]', 'special');
       }
-    }
 
     if (!hasOwnProperty(visibleKeys, key)) {
-      name = '[' + key + ']';
+      name = `[${  key  }]`;
     }
 
     if (!str) {
-      if (ctx.seen.indexOf(desc.value) < 0) {
+      if (!ctx.seen.includes(desc.value)) {
         if (isNull(recurseTimes)) {
           str = formatValue(ctx, desc.value, null);
         } else {
           str = formatValue(ctx, desc.value, recurseTimes - 1);
         }
 
-        if (str.indexOf('\n') > -1) {
+        if (str.includes('\n')) {
           if (array) {
             str = str
               .split('\n')
-              .map(function (line) {
-                return '  ' + line;
-              })
+              .map((line) => `  ${  line}`)
               .join('\n')
               .substr(2);
           } else {
             str =
-              '\n' +
+              `\n${ 
               str
                 .split('\n')
-                .map(function (line) {
-                  return '   ' + line;
-                })
-                .join('\n');
+                .map((line) => `   ${  line}`)
+                .join('\n')}`;
           }
         }
       } else {
@@ -4956,9 +4937,9 @@ if (typeof Object.create === 'function') {
         return str;
       }
 
-      name = JSON.stringify('' + key);
+      name = JSON.stringify(`${  key}`);
 
-      if (name.match(/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)) {
+      if (name.match(/^"([A-Z_a-z]\w*)"$/)) {
         name = name.substr(1, name.length - 2);
         name = ctx.stylize(name, 'name');
       } else {
@@ -4970,22 +4951,22 @@ if (typeof Object.create === 'function') {
       }
     }
 
-    return name + ': ' + str;
+    return `${name  }: ${  str}`;
   }
 
   function reduceToSingleString(output, base, braces) {
-    var length = output.reduce(function (prev, cur) {
-      if (cur.indexOf('\n') >= 0);
+    const length = output.reduce((prev, cur) => {
+      if (cur.includes('\n'));
       return prev + cur.replace(/\u001b\[\d\d?m/g, '').length + 1;
     }, 0);
 
     if (length > 60) {
       return (
-        braces[0] + (base === '' ? '' : base + '\n ') + ' ' + output.join(',\n  ') + ' ' + braces[1]
+        `${braces[0] + (base === '' ? '' : `${base  }\n `)  } ${  output.join(',\n  ')  } ${  braces[1]}`
       );
     }
 
-    return braces[0] + base + ' ' + output.join(', ') + ' ' + braces[1];
+    return `${braces[0] + base  } ${  output.join(', ')  } ${  braces[1]}`;
   } // NOTE: These type checking functions intentionally don't use `instanceof`
   // because it is fragile and can be easily faked with `Object.create()`.
 
@@ -5091,14 +5072,14 @@ if (typeof Object.create === 'function') {
   }
 
   function pad(n) {
-    return n < 10 ? '0' + n.toString(10) : n.toString(10);
+    return n < 10 ? `0${  n.toString(10)}` : n.toString(10);
   }
 
-  var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; // 26 Feb 16:19:34
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; // 26 Feb 16:19:34
 
   function timestamp() {
-    var d = new Date();
-    var time = [pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())].join(':');
+    const d = new Date();
+    const time = [pad(d.getHours()), pad(d.getMinutes()), pad(d.getSeconds())].join(':');
     return [d.getDate(), months[d.getMonth()], time].join(' ');
   } // log is just a thin wrapper to console.log that prepends a timestamp
 
@@ -5124,8 +5105,8 @@ if (typeof Object.create === 'function') {
   exports._extend = function (origin, add) {
     // Don't do anything if add isn't an object
     if (!add || !isObject(add)) return origin;
-    var keys = Object.keys(add);
-    var i = keys.length;
+    const keys = Object.keys(add);
+    let i = keys.length;
 
     while (i--) {
       origin[keys[i]] = add[keys[i]];
@@ -5138,7 +5119,7 @@ if (typeof Object.create === 'function') {
     return Object.prototype.hasOwnProperty.call(obj, prop);
   }
 
-  var kCustomPromisifiedSymbol =
+  const kCustomPromisifiedSymbol =
     typeof Symbol !== 'undefined' ? Symbol('util.promisify.custom') : undefined;
 
   exports.promisify = function promisify(original) {
@@ -5162,18 +5143,18 @@ if (typeof Object.create === 'function') {
     }
 
     function fn() {
-      var promiseResolve, promiseReject;
-      var promise = new Promise(function (resolve, reject) {
+      let promiseResolve; let promiseReject;
+      const promise = new Promise((resolve, reject) => {
         promiseResolve = resolve;
         promiseReject = reject;
       });
-      var args = [];
+      const args = [];
 
-      for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
+      for (const argument of arguments) {
+        args.push(argument);
       }
 
-      args.push(function (err, value) {
+      args.push((err, value) => {
         if (err) {
           promiseReject(err);
         } else {
@@ -5209,7 +5190,7 @@ if (typeof Object.create === 'function') {
     // occurred", we error-wrap so the callback consumer can distinguish between
     // "the promise rejected with null" or "the promise fulfilled with undefined".
     if (!reason) {
-      var newReason = new Error('Promise was rejected with a falsy value');
+      const newReason = new Error('Promise was rejected with a falsy value');
       newReason.reason = reason;
       reason = newReason;
     }
@@ -5225,30 +5206,30 @@ if (typeof Object.create === 'function') {
     // and that the callback throwing will reject the promise.
 
     function callbackified() {
-      var args = [];
+      const args = [];
 
-      for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
+      for (const argument of arguments) {
+        args.push(argument);
       }
 
-      var maybeCb = args.pop();
+      const maybeCb = args.pop();
 
       if (typeof maybeCb !== 'function') {
         throw new TypeError('The last argument must be of type Function');
       }
 
-      var self = this;
+      const self = this;
 
-      var cb = function cb() {
+      const cb = function cb() {
         return maybeCb.apply(self, arguments);
       }; // In true node style we process the callback on `nextTick` with all the
       // implications (stack, `uncaughtException`, `async_hooks`)
 
       original.apply(this, args).then(
-        function (ret) {
+        (ret) => {
           nextTick(cb.bind(null, null, ret));
         },
-        function (rej) {
+        (rej) => {
           nextTick(callbackifyOnRejected.bind(null, rej, cb));
         },
       );
@@ -5267,10 +5248,10 @@ function compare(a, b) {
     return 0;
   }
 
-  var x = a.length;
-  var y = b.length;
+  let x = a.length;
+  let y = b.length;
 
-  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+  for (let i = 0, len = Math.min(x, y); i < len; ++i) {
     if (a[i] !== b[i]) {
       x = a[i];
       y = b[i];
@@ -5289,22 +5270,22 @@ function compare(a, b) {
   return 0;
 }
 
-var hasOwn = Object.prototype.hasOwnProperty;
+const hasOwn = Object.prototype.hasOwnProperty;
 
-var objectKeys =
+const objectKeys =
   Object.keys ||
   function (obj) {
-    var keys = [];
+    const keys = [];
 
-    for (var key in obj) {
+    for (const key in obj) {
       if (hasOwn.call(obj, key)) keys.push(key);
     }
 
     return keys;
   }; // based on node assert, original notice:
-var pSlice = Array.prototype.slice;
+const pSlice = Array.prototype.slice;
 
-var _functionsHaveNames;
+let _functionsHaveNames;
 
 function functionsHaveNames() {
   if (typeof _functionsHaveNames !== 'undefined') {
@@ -5357,7 +5338,7 @@ function assert$1(value, message) {
 //                             actual: actual,
 //                             expected: expected })
 
-var regex = /\s*function\s+([^\(\s]*)\s*/; // based on https://github.com/ljharb/function.prototype.name/blob/adeeeec8bfcc6068b187d7d9fb3d5bb1d3a30899/implementation.js
+const regex = /\s*function\s+([^\s(]*)\s*/; // based on https://github.com/ljharb/function.prototype.name/blob/adeeeec8bfcc6068b187d7d9fb3d5bb1d3a30899/implementation.js
 
 function getName(func) {
   if (!util.isFunction(func)) {
@@ -5368,8 +5349,8 @@ function getName(func) {
     return func.name;
   }
 
-  var str = func.toString();
-  var match = str.match(regex);
+  const str = func.toString();
+  const match = str.match(regex);
   return match && match[1];
 }
 
@@ -5388,24 +5369,24 @@ function AssertionError(options) {
     this.generatedMessage = true;
   }
 
-  var stackStartFunction = options.stackStartFunction || fail;
+  const stackStartFunction = options.stackStartFunction || fail;
 
   if (Error.captureStackTrace) {
     Error.captureStackTrace(this, stackStartFunction);
   } else {
     // non v8 browsers so we can have a stacktrace
-    var err = new Error();
+    const err = new Error();
 
     if (err.stack) {
-      var out = err.stack; // try to strip useless frames
+      let out = err.stack; // try to strip useless frames
 
-      var fn_name = getName(stackStartFunction);
-      var idx = out.indexOf('\n' + fn_name);
+      const fn_name = getName(stackStartFunction);
+      const idx = out.indexOf(`\n${  fn_name}`);
 
       if (idx >= 0) {
         // once we have located the function frame
         // we need to strip out everything before it (and its line)
-        var next_line = out.indexOf('\n', idx + 1);
+        const next_line = out.indexOf('\n', idx + 1);
         out = out.substring(next_line + 1);
       }
 
@@ -5419,9 +5400,9 @@ util.inherits(AssertionError, Error);
 function truncate(s, n) {
   if (typeof s === 'string') {
     return s.length < n ? s : s.slice(0, n);
-  } else {
+  } 
     return s;
-  }
+  
 }
 
 function inspect(something) {
@@ -5429,18 +5410,18 @@ function inspect(something) {
     return util.inspect(something);
   }
 
-  var rawname = getName(something);
-  var name = rawname ? ': ' + rawname : '';
-  return '[Function' + name + ']';
+  const rawname = getName(something);
+  const name = rawname ? `: ${  rawname}` : '';
+  return `[Function${  name  }]`;
 }
 
 function getMessage(self) {
   return (
-    truncate(inspect(self.actual), 128) +
-    ' ' +
-    self.operator +
-    ' ' +
-    truncate(inspect(self.expected), 128)
+    `${truncate(inspect(self.actual), 128) 
+    } ${ 
+    self.operator 
+    } ${ 
+    truncate(inspect(self.expected), 128)}`
   );
 } // At present only the three keys mentioned above are used and
 // understood by the spec. Implementations or sub modules can pass
@@ -5454,11 +5435,11 @@ function getMessage(self) {
 
 function fail(actual, expected, message, operator, stackStartFunction) {
   throw new AssertionError({
-    message: message,
-    actual: actual,
-    expected: expected,
-    operator: operator,
-    stackStartFunction: stackStartFunction,
+    message,
+    actual,
+    expected,
+    operator,
+    stackStartFunction,
   });
 } // EXTENSION! allows for well behaved errors defined elsewhere.
 
@@ -5507,14 +5488,14 @@ function _deepEqual(actual, expected, strict, memos) {
   // 7.1. All identical values are equivalent, as determined by ===.
   if (actual === expected) {
     return true;
-  } else if (buffer.isBuffer(actual) && buffer.isBuffer(expected)) {
+  } if (buffer.isBuffer(actual) && buffer.isBuffer(expected)) {
     return compare(actual, expected) === 0; // 7.2. If the expected value is a Date object, the actual value is
     // equivalent if it is also a Date object that refers to the same time.
-  } else if (util.isDate(actual) && util.isDate(expected)) {
+  } if (util.isDate(actual) && util.isDate(expected)) {
     return actual.getTime() === expected.getTime(); // 7.3 If the expected value is a RegExp object, the actual value is
     // equivalent if it is also a RegExp object with the same source and
     // properties (`global`, `multiline`, `lastIndex`, `ignoreCase`).
-  } else if (util.isRegExp(actual) && util.isRegExp(expected)) {
+  } if (util.isRegExp(actual) && util.isRegExp(expected)) {
     return (
       actual.source === expected.source &&
       actual.global === expected.global &&
@@ -5523,7 +5504,7 @@ function _deepEqual(actual, expected, strict, memos) {
       actual.ignoreCase === expected.ignoreCase
     ); // 7.4. Other pairs that do not both pass typeof value == 'object',
     // equivalence is determined by ==.
-  } else if (
+  } if (
     (actual === null || _typeof(actual) !== 'object') &&
     (expected === null || _typeof(expected) !== 'object')
   ) {
@@ -5533,7 +5514,7 @@ function _deepEqual(actual, expected, strict, memos) {
     // Object.prototype.toString (aka pToString). Never perform binary
     // comparisons for Float*Arrays, though, since e.g. +0 === -0 but their
     // bit patterns are not identical.
-  } else if (
+  } if (
     isView(actual) &&
     isView(expected) &&
     pToString(actual) === pToString(expected) &&
@@ -5545,25 +5526,23 @@ function _deepEqual(actual, expected, strict, memos) {
     // (although not necessarily the same order), equivalent values for every
     // corresponding key, and an identical 'prototype' property. Note: this
     // accounts for both named and indexed properties on Arrays.
-  } else if (buffer.isBuffer(actual) !== buffer.isBuffer(expected)) {
+  } if (buffer.isBuffer(actual) !== buffer.isBuffer(expected)) {
     return false;
-  } else {
+  } 
     memos = memos || {
       actual: [],
       expected: [],
     };
-    var actualIndex = memos.actual.indexOf(actual);
+    const actualIndex = memos.actual.indexOf(actual);
 
-    if (actualIndex !== -1) {
-      if (actualIndex === memos.expected.indexOf(expected)) {
+    if (actualIndex !== -1 && actualIndex === memos.expected.indexOf(expected)) {
         return true;
       }
-    }
 
     memos.actual.push(actual);
     memos.expected.push(expected);
     return objEquiv(actual, expected, strict, memos);
-  }
+  
 }
 
 function isArguments(object) {
@@ -5575,8 +5554,8 @@ function objEquiv(a, b, strict, actualVisitedObjects) {
 
   if (util.isPrimitive(a) || util.isPrimitive(b)) return a === b;
   if (strict && Object.getPrototypeOf(a) !== Object.getPrototypeOf(b)) return false;
-  var aIsArgs = isArguments(a);
-  var bIsArgs = isArguments(b);
+  const aIsArgs = isArguments(a);
+  const bIsArgs = isArguments(b);
   if ((aIsArgs && !bIsArgs) || (!aIsArgs && bIsArgs)) return false;
 
   if (aIsArgs) {
@@ -5585,20 +5564,20 @@ function objEquiv(a, b, strict, actualVisitedObjects) {
     return _deepEqual(a, b, strict);
   }
 
-  var ka = objectKeys(a);
-  var kb = objectKeys(b);
-  var key, i; // having the same number of owned properties (keys incorporates
+  const ka = objectKeys(a);
+  const kb = objectKeys(b);
+  let key; let i; // having the same number of owned properties (keys incorporates
   // hasOwnProperty)
 
-  if (ka.length !== kb.length) return false; //the same set of keys (although not necessarily the same order),
+  if (ka.length !== kb.length) return false; // the same set of keys (although not necessarily the same order),
 
   ka.sort();
-  kb.sort(); //~~~cheap key test
+  kb.sort(); // ~~~cheap key test
 
   for (i = ka.length - 1; i >= 0; i--) {
     if (ka[i] !== kb[i]) return false;
-  } //equivalent values for every corresponding key, and
-  //~~~possibly expensive deep test
+  } // equivalent values for every corresponding key, and
+  // ~~~possibly expensive deep test
 
   for (i = ka.length - 1; i >= 0; i--) {
     key = ka[i];
@@ -5663,7 +5642,7 @@ function expectedException(actual, expected) {
 }
 
 function _tryBlock(block) {
-  var error;
+  let error;
 
   try {
     block();
@@ -5675,7 +5654,7 @@ function _tryBlock(block) {
 }
 
 function _throws(shouldThrow, block, expected, message) {
-  var actual;
+  let actual;
 
   if (typeof block !== 'function') {
     throw new TypeError('"block" argument must be a function');
@@ -5688,22 +5667,22 @@ function _throws(shouldThrow, block, expected, message) {
 
   actual = _tryBlock(block);
   message =
-    (expected && expected.name ? ' (' + expected.name + ').' : '.') +
-    (message ? ' ' + message : '.');
+    (expected && expected.name ? ` (${  expected.name  }).` : '.') +
+    (message ? ` ${  message}` : '.');
 
   if (shouldThrow && !actual) {
-    fail(actual, expected, 'Missing expected exception' + message);
+    fail(actual, expected, `Missing expected exception${  message}`);
   }
 
-  var userProvidedMessage = typeof message === 'string';
-  var isUnwantedException = !shouldThrow && util.isError(actual);
-  var isUnexpectedException = !shouldThrow && actual && !expected;
+  const userProvidedMessage = typeof message === 'string';
+  const isUnwantedException = !shouldThrow && util.isError(actual);
+  const isUnexpectedException = !shouldThrow && actual && !expected;
 
   if (
     (isUnwantedException && userProvidedMessage && expectedException(actual, expected)) ||
     isUnexpectedException
   ) {
-    fail(actual, expected, 'Got unwanted exception' + message);
+    fail(actual, expected, `Got unwanted exception${  message}`);
   }
 
   if (
@@ -5718,9 +5697,9 @@ function _throws(shouldThrow, block, expected, message) {
 assert$1.throws = throws;
 function throws(
   block,
-  /*optional*/
+  /* optional */
   error,
-  /*optional*/
+  /* optional */
   message,
 ) {
   _throws(true, block, error, message);
@@ -5729,9 +5708,9 @@ function throws(
 assert$1.doesNotThrow = doesNotThrow;
 function doesNotThrow(
   block,
-  /*optional*/
+  /* optional */
   error,
-  /*optional*/
+  /* optional */
   message,
 ) {
   _throws(false, block, error, message);
@@ -5741,36 +5720,36 @@ function ifError(err) {
   if (err) throw err;
 }
 
-var assert$2 = /*#__PURE__*/ Object.freeze({
+const assert$2 = /* #__PURE__ */ Object.freeze({
   __proto__: null,
   default: assert$1,
-  AssertionError: AssertionError,
-  fail: fail,
-  ok: ok,
+  AssertionError,
+  fail,
+  ok,
   assert: ok,
-  equal: equal,
-  notEqual: notEqual,
-  deepEqual: deepEqual,
-  deepStrictEqual: deepStrictEqual,
-  notDeepEqual: notDeepEqual,
-  notDeepStrictEqual: notDeepStrictEqual,
-  strictEqual: strictEqual,
-  notStrictEqual: notStrictEqual,
-  throws: throws,
-  doesNotThrow: doesNotThrow,
-  ifError: ifError,
+  equal,
+  notEqual,
+  deepEqual,
+  deepStrictEqual,
+  notDeepEqual,
+  notDeepStrictEqual,
+  strictEqual,
+  notStrictEqual,
+  throws,
+  doesNotThrow,
+  ifError,
 });
 
-var lookup = [];
-var revLookup = [];
-var Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;
-var inited = false;
+const lookup = [];
+const revLookup = [];
+const Arr = typeof Uint8Array !== 'undefined' ? Uint8Array : Array;
+let inited = false;
 
 function init() {
   inited = true;
-  var code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  const code = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-  for (var i = 0, len = code.length; i < len; ++i) {
+  for (let i = 0, len = code.length; i < len; ++i) {
     lookup[i] = code[i];
     revLookup[code.charCodeAt(i)] = i;
   }
@@ -5784,8 +5763,8 @@ function toByteArray(b64) {
     init();
   }
 
-  var i, j, l, tmp, placeHolders, arr;
-  var len = b64.length;
+  let i; let j; let l; let tmp; let placeHolders; let arr;
+  const len = b64.length;
 
   if (len % 4 > 0) {
     throw new Error('Invalid string. Length must be a multiple of 4');
@@ -5800,7 +5779,7 @@ function toByteArray(b64) {
   arr = new Arr((len * 3) / 4 - placeHolders); // if there are placeholders, only get up to the last complete 4 chars
 
   l = placeHolders > 0 ? len - 4 : len;
-  var L = 0;
+  let L = 0;
 
   for (i = 0, j = 0; i < l; i += 4, j += 3) {
     tmp =
@@ -5838,10 +5817,10 @@ function tripletToBase64(num) {
 }
 
 function encodeChunk(uint8, start, end) {
-  var tmp;
-  var output = [];
+  let tmp;
+  const output = [];
 
-  for (var i = start; i < end; i += 3) {
+  for (let i = start; i < end; i += 3) {
     tmp = (uint8[i] << 16) + (uint8[i + 1] << 8) + uint8[i + 2];
     output.push(tripletToBase64(tmp));
   }
@@ -5854,16 +5833,16 @@ function fromByteArray(uint8) {
     init();
   }
 
-  var tmp;
-  var len = uint8.length;
-  var extraBytes = len % 3; // if we have 1 byte left, pad 2 bytes
+  let tmp;
+  const len = uint8.length;
+  const extraBytes = len % 3; // if we have 1 byte left, pad 2 bytes
 
-  var output = '';
-  var parts = [];
-  var maxChunkLength = 16383; // must be multiple of 3
+  let output = '';
+  const parts = [];
+  const maxChunkLength = 16383; // must be multiple of 3
   // go through the array every three bytes, we'll deal with trailing stuff later
 
-  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+  for (let i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
     parts.push(encodeChunk(uint8, i, i + maxChunkLength > len2 ? len2 : i + maxChunkLength));
   } // pad the end with zeros, but make sure to not forget the extra bytes
 
@@ -5885,14 +5864,14 @@ function fromByteArray(uint8) {
 }
 
 function read(buffer, offset, isLE, mLen, nBytes) {
-  var e, m;
-  var eLen = nBytes * 8 - mLen - 1;
-  var eMax = (1 << eLen) - 1;
-  var eBias = eMax >> 1;
-  var nBits = -7;
-  var i = isLE ? nBytes - 1 : 0;
-  var d = isLE ? -1 : 1;
-  var s = buffer[offset + i];
+  let e; let m;
+  const eLen = nBytes * 8 - mLen - 1;
+  const eMax = (1 << eLen) - 1;
+  const eBias = eMax >> 1;
+  let nBits = -7;
+  let i = isLE ? nBytes - 1 : 0;
+  const d = isLE ? -1 : 1;
+  let s = buffer[offset + i];
   i += d;
   e = s & ((1 << -nBits) - 1);
   s >>= -nBits;
@@ -5911,21 +5890,21 @@ function read(buffer, offset, isLE, mLen, nBytes) {
   } else if (e === eMax) {
     return m ? NaN : (s ? -1 : 1) * Infinity;
   } else {
-    m = m + Math.pow(2, mLen);
-    e = e - eBias;
+    m += 2**mLen;
+    e -= eBias;
   }
 
-  return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
+  return (s ? -1 : 1) * m * 2**(e - mLen);
 }
 function write(buffer, value, offset, isLE, mLen, nBytes) {
-  var e, m, c;
-  var eLen = nBytes * 8 - mLen - 1;
-  var eMax = (1 << eLen) - 1;
-  var eBias = eMax >> 1;
-  var rt = mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0;
-  var i = isLE ? 0 : nBytes - 1;
-  var d = isLE ? 1 : -1;
-  var s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
+  let e; let m; let c;
+  let eLen = nBytes * 8 - mLen - 1;
+  const eMax = (1 << eLen) - 1;
+  const eBias = eMax >> 1;
+  const rt = mLen === 23 ? 2**-24 - 2**-77 : 0;
+  let i = isLE ? 0 : nBytes - 1;
+  const d = isLE ? 1 : -1;
+  const s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
   value = Math.abs(value);
 
   if (isNaN(value) || value === Infinity) {
@@ -5934,7 +5913,7 @@ function write(buffer, value, offset, isLE, mLen, nBytes) {
   } else {
     e = Math.floor(Math.log(value) / Math.LN2);
 
-    if (value * (c = Math.pow(2, -e)) < 1) {
+    if (value * (c = 2**-e) < 1) {
       e--;
       c *= 2;
     }
@@ -5942,7 +5921,7 @@ function write(buffer, value, offset, isLE, mLen, nBytes) {
     if (e + eBias >= 1) {
       value += rt / c;
     } else {
-      value += rt * Math.pow(2, 1 - eBias);
+      value += rt * 2**(1 - eBias);
     }
 
     if (value * c >= 2) {
@@ -5954,10 +5933,10 @@ function write(buffer, value, offset, isLE, mLen, nBytes) {
       m = 0;
       e = eMax;
     } else if (e + eBias >= 1) {
-      m = (value * c - 1) * Math.pow(2, mLen);
-      e = e + eBias;
+      m = (value * c - 1) * 2**mLen;
+      e += eBias;
     } else {
-      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
+      m = value * 2**(eBias - 1) * 2**mLen;
       e = 0;
     }
   }
@@ -5972,14 +5951,14 @@ function write(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 }
 
-var toString$2 = {}.toString;
-var isArray$2 =
+const toString$2 = {}.toString;
+const isArray$2 =
   Array.isArray ||
   function (arr) {
     return toString$2.call(arr) == '[object Array]';
   };
 
-var INSPECT_MAX_BYTES = 50;
+const INSPECT_MAX_BYTES = 50;
 /**
  * If `Buffer.TYPED_ARRAY_SUPPORT`:
  *   === true    Use Uint8Array implementation (fastest)
@@ -6092,7 +6071,7 @@ function from(that, value, encodingOrOffset, length) {
  * Buffer.from(array)
  * Buffer.from(buffer)
  * Buffer.from(arrayBuffer[, byteOffset[, length]])
- **/
+ * */
 
 Buffer.from = function (value, encodingOrOffset, length) {
   return from(null, value, encodingOrOffset, length);
@@ -6134,7 +6113,7 @@ function alloc(that, size, fill, encoding) {
 /**
  * Creates a new filled Buffer instance.
  * alloc(size[, fill[, encoding]])
- **/
+ * */
 
 Buffer.alloc = function (size, fill, encoding) {
   return alloc(null, size, fill, encoding);
@@ -6145,7 +6124,7 @@ function allocUnsafe(that, size) {
   that = createBuffer(that, size < 0 ? 0 : checked(size) | 0);
 
   if (!Buffer.TYPED_ARRAY_SUPPORT) {
-    for (var i = 0; i < size; ++i) {
+    for (let i = 0; i < size; ++i) {
       that[i] = 0;
     }
   }
@@ -6176,9 +6155,9 @@ function fromString(that, string, encoding) {
     throw new TypeError('"encoding" must be a valid string encoding');
   }
 
-  var length = byteLength(string, encoding) | 0;
+  const length = byteLength(string, encoding) | 0;
   that = createBuffer(that, length);
-  var actual = that.write(string, encoding);
+  const actual = that.write(string, encoding);
 
   if (actual !== length) {
     // Writing a hex string, for example, that contains invalid characters will
@@ -6191,10 +6170,10 @@ function fromString(that, string, encoding) {
 }
 
 function fromArrayLike(that, array) {
-  var length = array.length < 0 ? 0 : checked(array.length) | 0;
+  const length = array.length < 0 ? 0 : checked(array.length) | 0;
   that = createBuffer(that, length);
 
-  for (var i = 0; i < length; i += 1) {
+  for (let i = 0; i < length; i += 1) {
     that[i] = array[i] & 255;
   }
 
@@ -6234,7 +6213,7 @@ function fromArrayBuffer(that, array, byteOffset, length) {
 
 function fromObject(that, obj) {
   if (internalIsBuffer(obj)) {
-    var len = checked(obj.length) | 0;
+    const len = checked(obj.length) | 0;
     that = createBuffer(that, len);
 
     if (that.length === 0) {
@@ -6272,10 +6251,10 @@ function checked(length) {
   // length is NaN (which is otherwise coerced to zero.)
   if (length >= kMaxLength()) {
     throw new RangeError(
-      'Attempt to allocate Buffer larger than maximum ' +
-        'size: 0x' +
-        kMaxLength().toString(16) +
-        ' bytes',
+      `Attempt to allocate Buffer larger than maximum ` +
+        `size: 0x${ 
+        kMaxLength().toString(16) 
+        } bytes`,
     );
   }
 
@@ -6293,10 +6272,10 @@ Buffer.compare = function compare(a, b) {
   }
 
   if (a === b) return 0;
-  var x = a.length;
-  var y = b.length;
+  let x = a.length;
+  let y = b.length;
 
-  for (var i = 0, len = Math.min(x, y); i < len; ++i) {
+  for (let i = 0, len = Math.min(x, y); i < len; ++i) {
     if (a[i] !== b[i]) {
       x = a[i];
       y = b[i];
@@ -6338,7 +6317,7 @@ Buffer.concat = function concat(list, length) {
     return Buffer.alloc(0);
   }
 
-  var i;
+  let i;
 
   if (length === undefined) {
     length = 0;
@@ -6348,11 +6327,11 @@ Buffer.concat = function concat(list, length) {
     }
   }
 
-  var buffer = Buffer.allocUnsafe(length);
-  var pos = 0;
+  const buffer = Buffer.allocUnsafe(length);
+  let pos = 0;
 
   for (i = 0; i < list.length; ++i) {
-    var buf = list[i];
+    const buf = list[i];
 
     if (!internalIsBuffer(buf)) {
       throw new TypeError('"list" argument must be an Array of Buffers');
@@ -6379,13 +6358,13 @@ function byteLength(string, encoding) {
   }
 
   if (typeof string !== 'string') {
-    string = '' + string;
+    string = `${  string}`;
   }
 
-  var len = string.length;
+  const len = string.length;
   if (len === 0) return 0; // Use a for loop to avoid recursion
 
-  var loweredCase = false;
+  let loweredCase = false;
 
   for (;;) {
     switch (encoding) {
@@ -6414,7 +6393,7 @@ function byteLength(string, encoding) {
       default: // assume utf8
         if (loweredCase) return utf8ToBytes(string).length;
 
-        encoding = ('' + encoding).toLowerCase();
+        encoding = (`${  encoding}`).toLowerCase();
         loweredCase = true;
     }
   }
@@ -6423,7 +6402,7 @@ function byteLength(string, encoding) {
 Buffer.byteLength = byteLength;
 
 function slowToString(encoding, start, end) {
-  var loweredCase = false; // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
+  let loweredCase = false; // No need to verify that "this.length <= MAX_UINT32" since it's a read-only
   // property of a typed array.
   // This behaves neither like String nor Uint8Array in that we set start/end
   // to their upper/lower bounds if the value passed is out of range.
@@ -6482,8 +6461,8 @@ function slowToString(encoding, start, end) {
         return utf16leSlice(this, start, end);
 
       default:
-        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding);
-        encoding = (encoding + '').toLowerCase();
+        if (loweredCase) throw new TypeError(`Unknown encoding: ${  encoding}`);
+        encoding = (`${encoding  }`).toLowerCase();
         loweredCase = true;
     }
   }
@@ -6493,19 +6472,19 @@ function slowToString(encoding, start, end) {
 Buffer.prototype._isBuffer = true;
 
 function swap(b, n, m) {
-  var i = b[n];
+  const i = b[n];
   b[n] = b[m];
   b[m] = i;
 }
 
 Buffer.prototype.swap16 = function swap16() {
-  var len = this.length;
+  const len = this.length;
 
   if (len % 2 !== 0) {
     throw new RangeError('Buffer size must be a multiple of 16-bits');
   }
 
-  for (var i = 0; i < len; i += 2) {
+  for (let i = 0; i < len; i += 2) {
     swap(this, i, i + 1);
   }
 
@@ -6513,13 +6492,13 @@ Buffer.prototype.swap16 = function swap16() {
 };
 
 Buffer.prototype.swap32 = function swap32() {
-  var len = this.length;
+  const len = this.length;
 
   if (len % 4 !== 0) {
     throw new RangeError('Buffer size must be a multiple of 32-bits');
   }
 
-  for (var i = 0; i < len; i += 4) {
+  for (let i = 0; i < len; i += 4) {
     swap(this, i, i + 3);
     swap(this, i + 1, i + 2);
   }
@@ -6528,13 +6507,13 @@ Buffer.prototype.swap32 = function swap32() {
 };
 
 Buffer.prototype.swap64 = function swap64() {
-  var len = this.length;
+  const len = this.length;
 
   if (len % 8 !== 0) {
     throw new RangeError('Buffer size must be a multiple of 64-bits');
   }
 
-  for (var i = 0; i < len; i += 8) {
+  for (let i = 0; i < len; i += 8) {
     swap(this, i, i + 7);
     swap(this, i + 1, i + 6);
     swap(this, i + 2, i + 5);
@@ -6545,7 +6524,7 @@ Buffer.prototype.swap64 = function swap64() {
 };
 
 Buffer.prototype.toString = function toString() {
-  var length = this.length | 0;
+  const length = this.length | 0;
   if (length === 0) return '';
   if (arguments.length === 0) return utf8Slice(this, 0, length);
   return slowToString.apply(this, arguments);
@@ -6558,15 +6537,15 @@ Buffer.prototype.equals = function equals(b) {
 };
 
 Buffer.prototype.inspect = function inspect() {
-  var str = '';
-  var max = INSPECT_MAX_BYTES;
+  let str = '';
+  const max = INSPECT_MAX_BYTES;
 
   if (this.length > 0) {
     str = this.toString('hex', 0, max).match(/.{2}/g).join(' ');
     if (this.length > max) str += ' ... ';
   }
 
-  return '<Buffer ' + str + '>';
+  return `<Buffer ${  str  }>`;
 };
 
 Buffer.prototype.compare = function compare(target, start, end, thisStart, thisEnd) {
@@ -6611,13 +6590,13 @@ Buffer.prototype.compare = function compare(target, start, end, thisStart, thisE
   thisStart >>>= 0;
   thisEnd >>>= 0;
   if (this === target) return 0;
-  var x = thisEnd - thisStart;
-  var y = end - start;
-  var len = Math.min(x, y);
-  var thisCopy = this.slice(thisStart, thisEnd);
-  var targetCopy = target.slice(start, end);
+  let x = thisEnd - thisStart;
+  let y = end - start;
+  const len = Math.min(x, y);
+  const thisCopy = this.slice(thisStart, thisEnd);
+  const targetCopy = target.slice(start, end);
 
-  for (var i = 0; i < len; ++i) {
+  for (let i = 0; i < len; ++i) {
     if (thisCopy[i] !== targetCopy[i]) {
       x = thisCopy[i];
       y = targetCopy[i];
@@ -6662,7 +6641,7 @@ function bidirectionalIndexOf(buffer, val, byteOffset, encoding, dir) {
 
   if (byteOffset >= buffer.length) {
     if (dir) return -1;
-    else byteOffset = buffer.length - 1;
+    byteOffset = buffer.length - 1;
   } else if (byteOffset < 0) {
     if (dir) byteOffset = 0;
     else return -1;
@@ -6679,15 +6658,15 @@ function bidirectionalIndexOf(buffer, val, byteOffset, encoding, dir) {
     }
 
     return arrayIndexOf(buffer, val, byteOffset, encoding, dir);
-  } else if (typeof val === 'number') {
-    val = val & 0xff; // Search for a byte value [0-255]
+  } if (typeof val === 'number') {
+    val &= 0xff; // Search for a byte value [0-255]
 
     if (Buffer.TYPED_ARRAY_SUPPORT && typeof Uint8Array.prototype.indexOf === 'function') {
       if (dir) {
         return Uint8Array.prototype.indexOf.call(buffer, val, byteOffset);
-      } else {
+      } 
         return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset);
-      }
+      
     }
 
     return arrayIndexOf(buffer, [val], byteOffset, encoding, dir);
@@ -6697,9 +6676,9 @@ function bidirectionalIndexOf(buffer, val, byteOffset, encoding, dir) {
 }
 
 function arrayIndexOf(arr, val, byteOffset, encoding, dir) {
-  var indexSize = 1;
-  var arrLength = arr.length;
-  var valLength = val.length;
+  let indexSize = 1;
+  let arrLength = arr.length;
+  let valLength = val.length;
 
   if (encoding !== undefined) {
     encoding = String(encoding).toLowerCase();
@@ -6724,15 +6703,15 @@ function arrayIndexOf(arr, val, byteOffset, encoding, dir) {
   function read(buf, i) {
     if (indexSize === 1) {
       return buf[i];
-    } else {
+    } 
       return buf.readUInt16BE(i * indexSize);
-    }
+    
   }
 
-  var i;
+  let i;
 
   if (dir) {
-    var foundIndex = -1;
+    let foundIndex = -1;
 
     for (i = byteOffset; i < arrLength; i++) {
       if (read(arr, i) === read(val, foundIndex === -1 ? 0 : i - foundIndex)) {
@@ -6747,9 +6726,9 @@ function arrayIndexOf(arr, val, byteOffset, encoding, dir) {
     if (byteOffset + valLength > arrLength) byteOffset = arrLength - valLength;
 
     for (i = byteOffset; i >= 0; i--) {
-      var found = true;
+      let found = true;
 
-      for (var j = 0; j < valLength; j++) {
+      for (let j = 0; j < valLength; j++) {
         if (read(arr, i + j) !== read(val, j)) {
           found = false;
           break;
@@ -6777,7 +6756,7 @@ Buffer.prototype.lastIndexOf = function lastIndexOf(val, byteOffset, encoding) {
 
 function hexWrite(buf, string, offset, length) {
   offset = Number(offset) || 0;
-  var remaining = buf.length - offset;
+  const remaining = buf.length - offset;
 
   if (!length) {
     length = remaining;
@@ -6789,7 +6768,7 @@ function hexWrite(buf, string, offset, length) {
     }
   } // must be an even number of digits
 
-  var strLen = string.length;
+  const strLen = string.length;
   if (strLen % 2 !== 0) throw new TypeError('Invalid hex string');
 
   if (length > strLen / 2) {
@@ -6797,7 +6776,7 @@ function hexWrite(buf, string, offset, length) {
   }
 
   for (var i = 0; i < length; ++i) {
-    var parsed = parseInt(string.substr(i * 2, 2), 16);
+    const parsed = parseInt(string.substr(i * 2, 2), 16);
     if (isNaN(parsed)) return i;
     buf[offset + i] = parsed;
   }
@@ -6836,10 +6815,10 @@ Buffer.prototype.write = function write(string, offset, length, encoding) {
     length = this.length;
     offset = 0; // Buffer#write(string, offset[, length][, encoding])
   } else if (isFinite(offset)) {
-    offset = offset | 0;
+    offset |= 0;
 
     if (isFinite(length)) {
-      length = length | 0;
+      length |= 0;
       if (encoding === undefined) encoding = 'utf8';
     } else {
       encoding = length;
@@ -6849,7 +6828,7 @@ Buffer.prototype.write = function write(string, offset, length, encoding) {
     throw new Error('Buffer.write(string, encoding, offset[, length]) is no longer supported');
   }
 
-  var remaining = this.length - offset;
+  const remaining = this.length - offset;
   if (length === undefined || length > remaining) length = remaining;
 
   if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
@@ -6857,7 +6836,7 @@ Buffer.prototype.write = function write(string, offset, length, encoding) {
   }
 
   if (!encoding) encoding = 'utf8';
-  var loweredCase = false;
+  let loweredCase = false;
 
   for (;;) {
     switch (encoding) {
@@ -6886,8 +6865,8 @@ Buffer.prototype.write = function write(string, offset, length, encoding) {
         return ucs2Write(this, string, offset, length);
 
       default:
-        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding);
-        encoding = ('' + encoding).toLowerCase();
+        if (loweredCase) throw new TypeError(`Unknown encoding: ${  encoding}`);
+        encoding = (`${  encoding}`).toLowerCase();
         loweredCase = true;
     }
   }
@@ -6903,23 +6882,23 @@ Buffer.prototype.toJSON = function toJSON() {
 function base64Slice(buf, start, end) {
   if (start === 0 && end === buf.length) {
     return fromByteArray(buf);
-  } else {
+  } 
     return fromByteArray(buf.slice(start, end));
-  }
+  
 }
 
 function utf8Slice(buf, start, end) {
   end = Math.min(buf.length, end);
-  var res = [];
-  var i = start;
+  const res = [];
+  let i = start;
 
   while (i < end) {
-    var firstByte = buf[i];
-    var codePoint = null;
-    var bytesPerSequence = firstByte > 0xef ? 4 : firstByte > 0xdf ? 3 : firstByte > 0xbf ? 2 : 1;
+    const firstByte = buf[i];
+    let codePoint = null;
+    let bytesPerSequence = firstByte > 0xef ? 4 : firstByte > 0xdf ? 3 : firstByte > 0xbf ? 2 : 1;
 
     if (i + bytesPerSequence <= end) {
-      var secondByte, thirdByte, fourthByte, tempCodePoint;
+      var secondByte; var thirdByte; var fourthByte; var tempCodePoint;
 
       switch (bytesPerSequence) {
         case 1:
@@ -7001,17 +6980,17 @@ function utf8Slice(buf, start, end) {
 // the lowest limit is Chrome, with 0x10000 args.
 // We go 1 magnitude less, for safety
 
-var MAX_ARGUMENTS_LENGTH = 0x1000;
+const MAX_ARGUMENTS_LENGTH = 0x1000;
 
 function decodeCodePointsArray(codePoints) {
-  var len = codePoints.length;
+  const len = codePoints.length;
 
   if (len <= MAX_ARGUMENTS_LENGTH) {
     return String.fromCharCode.apply(String, codePoints); // avoid extra slice()
   } // Decode in chunks to avoid "call stack size exceeded".
 
-  var res = '';
-  var i = 0;
+  let res = '';
+  let i = 0;
 
   while (i < len) {
     res += String.fromCharCode.apply(String, codePoints.slice(i, (i += MAX_ARGUMENTS_LENGTH)));
@@ -7021,10 +7000,10 @@ function decodeCodePointsArray(codePoints) {
 }
 
 function asciiSlice(buf, start, end) {
-  var ret = '';
+  let ret = '';
   end = Math.min(buf.length, end);
 
-  for (var i = start; i < end; ++i) {
+  for (let i = start; i < end; ++i) {
     ret += String.fromCharCode(buf[i] & 0x7f);
   }
 
@@ -7032,10 +7011,10 @@ function asciiSlice(buf, start, end) {
 }
 
 function latin1Slice(buf, start, end) {
-  var ret = '';
+  let ret = '';
   end = Math.min(buf.length, end);
 
-  for (var i = start; i < end; ++i) {
+  for (let i = start; i < end; ++i) {
     ret += String.fromCharCode(buf[i]);
   }
 
@@ -7043,12 +7022,12 @@ function latin1Slice(buf, start, end) {
 }
 
 function hexSlice(buf, start, end) {
-  var len = buf.length;
+  const len = buf.length;
   if (!start || start < 0) start = 0;
   if (!end || end < 0 || end > len) end = len;
-  var out = '';
+  let out = '';
 
-  for (var i = start; i < end; ++i) {
+  for (let i = start; i < end; ++i) {
     out += toHex(buf[i]);
   }
 
@@ -7056,10 +7035,10 @@ function hexSlice(buf, start, end) {
 }
 
 function utf16leSlice(buf, start, end) {
-  var bytes = buf.slice(start, end);
-  var res = '';
+  const bytes = buf.slice(start, end);
+  let res = '';
 
-  for (var i = 0; i < bytes.length; i += 2) {
+  for (let i = 0; i < bytes.length; i += 2) {
     res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256);
   }
 
@@ -7067,7 +7046,7 @@ function utf16leSlice(buf, start, end) {
 }
 
 Buffer.prototype.slice = function slice(start, end) {
-  var len = this.length;
+  const len = this.length;
   start = ~~start;
   end = end === undefined ? len : ~~end;
 
@@ -7086,16 +7065,16 @@ Buffer.prototype.slice = function slice(start, end) {
   }
 
   if (end < start) end = start;
-  var newBuf;
+  let newBuf;
 
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     newBuf = this.subarray(start, end);
     newBuf.__proto__ = Buffer.prototype;
   } else {
-    var sliceLen = end - start;
+    const sliceLen = end - start;
     newBuf = new Buffer(sliceLen, undefined);
 
-    for (var i = 0; i < sliceLen; ++i) {
+    for (let i = 0; i < sliceLen; ++i) {
       newBuf[i] = this[i + start];
     }
   }
@@ -7112,12 +7091,12 @@ function checkOffset(offset, ext, length) {
 }
 
 Buffer.prototype.readUIntLE = function readUIntLE(offset, byteLength, noAssert) {
-  offset = offset | 0;
-  byteLength = byteLength | 0;
+  offset |= 0;
+  byteLength |= 0;
   if (!noAssert) checkOffset(offset, byteLength, this.length);
-  var val = this[offset];
-  var mul = 1;
-  var i = 0;
+  let val = this[offset];
+  let mul = 1;
+  let i = 0;
 
   while (++i < byteLength && (mul *= 0x100)) {
     val += this[offset + i] * mul;
@@ -7127,15 +7106,15 @@ Buffer.prototype.readUIntLE = function readUIntLE(offset, byteLength, noAssert) 
 };
 
 Buffer.prototype.readUIntBE = function readUIntBE(offset, byteLength, noAssert) {
-  offset = offset | 0;
-  byteLength = byteLength | 0;
+  offset |= 0;
+  byteLength |= 0;
 
   if (!noAssert) {
     checkOffset(offset, byteLength, this.length);
   }
 
-  var val = this[offset + --byteLength];
-  var mul = 1;
+  let val = this[offset + --byteLength];
+  let mul = 1;
 
   while (byteLength > 0 && (mul *= 0x100)) {
     val += this[offset + --byteLength] * mul;
@@ -7176,36 +7155,36 @@ Buffer.prototype.readUInt32BE = function readUInt32BE(offset, noAssert) {
 };
 
 Buffer.prototype.readIntLE = function readIntLE(offset, byteLength, noAssert) {
-  offset = offset | 0;
-  byteLength = byteLength | 0;
+  offset |= 0;
+  byteLength |= 0;
   if (!noAssert) checkOffset(offset, byteLength, this.length);
-  var val = this[offset];
-  var mul = 1;
-  var i = 0;
+  let val = this[offset];
+  let mul = 1;
+  let i = 0;
 
   while (++i < byteLength && (mul *= 0x100)) {
     val += this[offset + i] * mul;
   }
 
   mul *= 0x80;
-  if (val >= mul) val -= Math.pow(2, 8 * byteLength);
+  if (val >= mul) val -= 2**(8 * byteLength);
   return val;
 };
 
 Buffer.prototype.readIntBE = function readIntBE(offset, byteLength, noAssert) {
-  offset = offset | 0;
-  byteLength = byteLength | 0;
+  offset |= 0;
+  byteLength |= 0;
   if (!noAssert) checkOffset(offset, byteLength, this.length);
-  var i = byteLength;
-  var mul = 1;
-  var val = this[offset + --i];
+  let i = byteLength;
+  let mul = 1;
+  let val = this[offset + --i];
 
   while (i > 0 && (mul *= 0x100)) {
     val += this[offset + --i] * mul;
   }
 
   mul *= 0x80;
-  if (val >= mul) val -= Math.pow(2, 8 * byteLength);
+  if (val >= mul) val -= 2**(8 * byteLength);
   return val;
 };
 
@@ -7217,13 +7196,13 @@ Buffer.prototype.readInt8 = function readInt8(offset, noAssert) {
 
 Buffer.prototype.readInt16LE = function readInt16LE(offset, noAssert) {
   if (!noAssert) checkOffset(offset, 2, this.length);
-  var val = this[offset] | (this[offset + 1] << 8);
+  const val = this[offset] | (this[offset + 1] << 8);
   return val & 0x8000 ? val | 0xffff0000 : val;
 };
 
 Buffer.prototype.readInt16BE = function readInt16BE(offset, noAssert) {
   if (!noAssert) checkOffset(offset, 2, this.length);
-  var val = this[offset + 1] | (this[offset] << 8);
+  const val = this[offset + 1] | (this[offset] << 8);
   return val & 0x8000 ? val | 0xffff0000 : val;
 };
 
@@ -7269,16 +7248,16 @@ function checkInt(buf, value, offset, ext, max, min) {
 
 Buffer.prototype.writeUIntLE = function writeUIntLE(value, offset, byteLength, noAssert) {
   value = +value;
-  offset = offset | 0;
-  byteLength = byteLength | 0;
+  offset |= 0;
+  byteLength |= 0;
 
   if (!noAssert) {
-    var maxBytes = Math.pow(2, 8 * byteLength) - 1;
+    const maxBytes = 2**(8 * byteLength) - 1;
     checkInt(this, value, offset, byteLength, maxBytes, 0);
   }
 
-  var mul = 1;
-  var i = 0;
+  let mul = 1;
+  let i = 0;
   this[offset] = value & 0xff;
 
   while (++i < byteLength && (mul *= 0x100)) {
@@ -7290,16 +7269,16 @@ Buffer.prototype.writeUIntLE = function writeUIntLE(value, offset, byteLength, n
 
 Buffer.prototype.writeUIntBE = function writeUIntBE(value, offset, byteLength, noAssert) {
   value = +value;
-  offset = offset | 0;
-  byteLength = byteLength | 0;
+  offset |= 0;
+  byteLength |= 0;
 
   if (!noAssert) {
-    var maxBytes = Math.pow(2, 8 * byteLength) - 1;
+    const maxBytes = 2**(8 * byteLength) - 1;
     checkInt(this, value, offset, byteLength, maxBytes, 0);
   }
 
-  var i = byteLength - 1;
-  var mul = 1;
+  let i = byteLength - 1;
+  let mul = 1;
   this[offset + i] = value & 0xff;
 
   while (--i >= 0 && (mul *= 0x100)) {
@@ -7311,7 +7290,7 @@ Buffer.prototype.writeUIntBE = function writeUIntBE(value, offset, byteLength, n
 
 Buffer.prototype.writeUInt8 = function writeUInt8(value, offset, noAssert) {
   value = +value;
-  offset = offset | 0;
+  offset |= 0;
   if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0);
   if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
   this[offset] = value & 0xff;
@@ -7321,7 +7300,7 @@ Buffer.prototype.writeUInt8 = function writeUInt8(value, offset, noAssert) {
 function objectWriteUInt16(buf, value, offset, littleEndian) {
   if (value < 0) value = 0xffff + value + 1;
 
-  for (var i = 0, j = Math.min(buf.length - offset, 2); i < j; ++i) {
+  for (let i = 0, j = Math.min(buf.length - offset, 2); i < j; ++i) {
     buf[offset + i] =
       (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>> ((littleEndian ? i : 1 - i) * 8);
   }
@@ -7329,7 +7308,7 @@ function objectWriteUInt16(buf, value, offset, littleEndian) {
 
 Buffer.prototype.writeUInt16LE = function writeUInt16LE(value, offset, noAssert) {
   value = +value;
-  offset = offset | 0;
+  offset |= 0;
   if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
 
   if (Buffer.TYPED_ARRAY_SUPPORT) {
@@ -7344,7 +7323,7 @@ Buffer.prototype.writeUInt16LE = function writeUInt16LE(value, offset, noAssert)
 
 Buffer.prototype.writeUInt16BE = function writeUInt16BE(value, offset, noAssert) {
   value = +value;
-  offset = offset | 0;
+  offset |= 0;
   if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0);
 
   if (Buffer.TYPED_ARRAY_SUPPORT) {
@@ -7360,14 +7339,14 @@ Buffer.prototype.writeUInt16BE = function writeUInt16BE(value, offset, noAssert)
 function objectWriteUInt32(buf, value, offset, littleEndian) {
   if (value < 0) value = 0xffffffff + value + 1;
 
-  for (var i = 0, j = Math.min(buf.length - offset, 4); i < j; ++i) {
+  for (let i = 0, j = Math.min(buf.length - offset, 4); i < j; ++i) {
     buf[offset + i] = (value >>> ((littleEndian ? i : 3 - i) * 8)) & 0xff;
   }
 }
 
 Buffer.prototype.writeUInt32LE = function writeUInt32LE(value, offset, noAssert) {
   value = +value;
-  offset = offset | 0;
+  offset |= 0;
   if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
 
   if (Buffer.TYPED_ARRAY_SUPPORT) {
@@ -7384,7 +7363,7 @@ Buffer.prototype.writeUInt32LE = function writeUInt32LE(value, offset, noAssert)
 
 Buffer.prototype.writeUInt32BE = function writeUInt32BE(value, offset, noAssert) {
   value = +value;
-  offset = offset | 0;
+  offset |= 0;
   if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0);
 
   if (Buffer.TYPED_ARRAY_SUPPORT) {
@@ -7401,16 +7380,16 @@ Buffer.prototype.writeUInt32BE = function writeUInt32BE(value, offset, noAssert)
 
 Buffer.prototype.writeIntLE = function writeIntLE(value, offset, byteLength, noAssert) {
   value = +value;
-  offset = offset | 0;
+  offset |= 0;
 
   if (!noAssert) {
-    var limit = Math.pow(2, 8 * byteLength - 1);
+    const limit = 2**(8 * byteLength - 1);
     checkInt(this, value, offset, byteLength, limit - 1, -limit);
   }
 
-  var i = 0;
-  var mul = 1;
-  var sub = 0;
+  let i = 0;
+  let mul = 1;
+  let sub = 0;
   this[offset] = value & 0xff;
 
   while (++i < byteLength && (mul *= 0x100)) {
@@ -7426,16 +7405,16 @@ Buffer.prototype.writeIntLE = function writeIntLE(value, offset, byteLength, noA
 
 Buffer.prototype.writeIntBE = function writeIntBE(value, offset, byteLength, noAssert) {
   value = +value;
-  offset = offset | 0;
+  offset |= 0;
 
   if (!noAssert) {
-    var limit = Math.pow(2, 8 * byteLength - 1);
+    const limit = 2**(8 * byteLength - 1);
     checkInt(this, value, offset, byteLength, limit - 1, -limit);
   }
 
-  var i = byteLength - 1;
-  var mul = 1;
-  var sub = 0;
+  let i = byteLength - 1;
+  let mul = 1;
+  let sub = 0;
   this[offset + i] = value & 0xff;
 
   while (--i >= 0 && (mul *= 0x100)) {
@@ -7451,7 +7430,7 @@ Buffer.prototype.writeIntBE = function writeIntBE(value, offset, byteLength, noA
 
 Buffer.prototype.writeInt8 = function writeInt8(value, offset, noAssert) {
   value = +value;
-  offset = offset | 0;
+  offset |= 0;
   if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80);
   if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value);
   if (value < 0) value = 0xff + value + 1;
@@ -7461,7 +7440,7 @@ Buffer.prototype.writeInt8 = function writeInt8(value, offset, noAssert) {
 
 Buffer.prototype.writeInt16LE = function writeInt16LE(value, offset, noAssert) {
   value = +value;
-  offset = offset | 0;
+  offset |= 0;
   if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
 
   if (Buffer.TYPED_ARRAY_SUPPORT) {
@@ -7476,7 +7455,7 @@ Buffer.prototype.writeInt16LE = function writeInt16LE(value, offset, noAssert) {
 
 Buffer.prototype.writeInt16BE = function writeInt16BE(value, offset, noAssert) {
   value = +value;
-  offset = offset | 0;
+  offset |= 0;
   if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000);
 
   if (Buffer.TYPED_ARRAY_SUPPORT) {
@@ -7491,7 +7470,7 @@ Buffer.prototype.writeInt16BE = function writeInt16BE(value, offset, noAssert) {
 
 Buffer.prototype.writeInt32LE = function writeInt32LE(value, offset, noAssert) {
   value = +value;
-  offset = offset | 0;
+  offset |= 0;
   if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
 
   if (Buffer.TYPED_ARRAY_SUPPORT) {
@@ -7508,7 +7487,7 @@ Buffer.prototype.writeInt32LE = function writeInt32LE(value, offset, noAssert) {
 
 Buffer.prototype.writeInt32BE = function writeInt32BE(value, offset, noAssert) {
   value = +value;
-  offset = offset | 0;
+  offset |= 0;
   if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000);
   if (value < 0) value = 0xffffffff + value + 1;
 
@@ -7586,8 +7565,8 @@ Buffer.prototype.copy = function copy(target, targetStart, start, end) {
     end = target.length - targetStart + start;
   }
 
-  var len = end - start;
-  var i;
+  const len = end - start;
+  let i;
 
   if (this === target && start < targetStart && targetStart < end) {
     // descending copy from end
@@ -7622,7 +7601,7 @@ Buffer.prototype.fill = function fill(val, start, end, encoding) {
     }
 
     if (val.length === 1) {
-      var code = val.charCodeAt(0);
+      const code = val.charCodeAt(0);
 
       if (code < 256) {
         val = code;
@@ -7634,10 +7613,10 @@ Buffer.prototype.fill = function fill(val, start, end, encoding) {
     }
 
     if (typeof encoding === 'string' && !Buffer.isEncoding(encoding)) {
-      throw new TypeError('Unknown encoding: ' + encoding);
+      throw new TypeError(`Unknown encoding: ${  encoding}`);
     }
   } else if (typeof val === 'number') {
-    val = val & 255;
+    val &= 255;
   } // Invalid ranges are not set to a default, so can range check early.
 
   if (start < 0 || this.length < start || this.length < end) {
@@ -7648,18 +7627,18 @@ Buffer.prototype.fill = function fill(val, start, end, encoding) {
     return this;
   }
 
-  start = start >>> 0;
+  start >>>= 0;
   end = end === undefined ? this.length : end >>> 0;
   if (!val) val = 0;
-  var i;
+  let i;
 
   if (typeof val === 'number') {
     for (i = start; i < end; ++i) {
       this[i] = val;
     }
   } else {
-    var bytes = internalIsBuffer(val) ? val : utf8ToBytes(new Buffer(val, encoding).toString());
-    var len = bytes.length;
+    const bytes = internalIsBuffer(val) ? val : utf8ToBytes(new Buffer(val, encoding).toString());
+    const len = bytes.length;
 
     for (i = 0; i < end - start; ++i) {
       this[i + start] = bytes[i % len];
@@ -7670,7 +7649,7 @@ Buffer.prototype.fill = function fill(val, start, end, encoding) {
 }; // HELPER FUNCTIONS
 // ================
 
-var INVALID_BASE64_RE = /[^+\/0-9A-Za-z-_]/g;
+const INVALID_BASE64_RE = /[^\w+/-]/g;
 
 function base64clean(str) {
   // Node strips out invalid characters like \n and \t from the string, base64-js does not
@@ -7679,7 +7658,7 @@ function base64clean(str) {
   if (str.length < 2) return ''; // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
 
   while (str.length % 4 !== 0) {
-    str = str + '=';
+    str += '=';
   }
 
   return str;
@@ -7691,18 +7670,18 @@ function stringtrim(str) {
 }
 
 function toHex(n) {
-  if (n < 16) return '0' + n.toString(16);
+  if (n < 16) return `0${  n.toString(16)}`;
   return n.toString(16);
 }
 
 function utf8ToBytes(string, units) {
   units = units || Infinity;
-  var codePoint;
-  var length = string.length;
-  var leadSurrogate = null;
-  var bytes = [];
+  let codePoint;
+  const {length} = string;
+  let leadSurrogate = null;
+  const bytes = [];
 
-  for (var i = 0; i < length; ++i) {
+  for (let i = 0; i < length; ++i) {
     codePoint = string.charCodeAt(i); // is surrogate component
 
     if (codePoint > 0xd7ff && codePoint < 0xe000) {
@@ -7730,10 +7709,8 @@ function utf8ToBytes(string, units) {
       } // valid surrogate pair
 
       codePoint = (((leadSurrogate - 0xd800) << 10) | (codePoint - 0xdc00)) + 0x10000;
-    } else if (leadSurrogate) {
-      // valid bmp char, but last char was a lead
-      if ((units -= 3) > -1) bytes.push(0xef, 0xbf, 0xbd);
-    }
+    } else if (leadSurrogate && // valid bmp char, but last char was a lead
+      (units -= 3) > -1) bytes.push(0xef, 0xbf, 0xbd);
 
     leadSurrogate = null; // encode utf8
 
@@ -7767,9 +7744,9 @@ function utf8ToBytes(string, units) {
 }
 
 function asciiToBytes(str) {
-  var byteArray = [];
+  const byteArray = [];
 
-  for (var i = 0; i < str.length; ++i) {
+  for (let i = 0; i < str.length; ++i) {
     // Node's code seems to be doing this and not & 0x7F..
     byteArray.push(str.charCodeAt(i) & 0xff);
   }
@@ -7778,10 +7755,10 @@ function asciiToBytes(str) {
 }
 
 function utf16leToBytes(str, units) {
-  var c, hi, lo;
-  var byteArray = [];
+  let c; let hi; let lo;
+  const byteArray = [];
 
-  for (var i = 0; i < str.length; ++i) {
+  for (let i = 0; i < str.length; ++i) {
     if ((units -= 2) < 0) break;
     c = str.charCodeAt(i);
     hi = c >> 8;
@@ -7832,7 +7809,7 @@ function isSlowBuffer$1(obj) {
   );
 }
 
-var toString$1 = Object.prototype.toString;
+const toString$1 = Object.prototype.toString;
 /**
  * Return the type of `val`.
  *
@@ -7841,7 +7818,7 @@ var toString$1 = Object.prototype.toString;
  * @api public
  */
 
-var componentType = function componentType(val) {
+const componentType = function componentType(val) {
   switch (toString$1.call(val)) {
     case '[object Date]':
       return 'date';
@@ -7889,29 +7866,29 @@ function isBuffer$2(obj) {
  * @api public
  */
 
-var joinComponent = function joinComponent(arr, str, sep) {
+const joinComponent = function joinComponent(arr, str, sep) {
   str = str || 'and';
   sep = sep || ', ';
   if (arr.length < 2) return arr[0] || '';
-  var oxford = str.slice(0, 2) === sep;
+  const oxford = str.slice(0, 2) === sep;
 
   if (!oxford) {
-    str = ' ' + str;
+    str = ` ${  str}`;
   } else if (arr.length == 2) {
     str = str.slice(1);
   }
 
-  return arr.slice(0, -1).join(sep) + str + ' ' + arr[arr.length - 1];
+  return `${arr.slice(0, -1).join(sep) + str  } ${  arr[arr.length - 1]}`;
 };
 
-var require$$2 = /*@__PURE__*/ getAugmentedNamespace(assert$2);
+const require$$2 = /* @__PURE__ */ getAugmentedNamespace(assert$2);
 
-var type = componentType;
-var join = joinComponent;
-var assert = require$$2; // Segment messages can be a maximum of 32kb.
+const type = componentType;
+const join = joinComponent;
+const assert = require$$2; // Segment messages can be a maximum of 32kb.
 
-var MAX_SIZE = 32 << 10;
-var looselyValidateEvent_1 = looselyValidateEvent;
+const MAX_SIZE = 32 << 10;
+const looselyValidateEvent_1 = looselyValidateEvent;
 /**
  * Validate an event.
  */
@@ -7941,7 +7918,7 @@ function looselyValidateEvent(event, type) {
       return validateAliasEvent(event);
 
     default:
-      assert(0, 'Invalid event type: "' + type + '"');
+      assert(0, `Invalid event type: "${  type  }"`);
   }
 }
 /**
@@ -7993,7 +7970,7 @@ function validateAliasEvent(event) {
  * Validation rules.
  */
 
-var genericValidationRules = {
+const genericValidationRules = {
   anonymousId: ['string', 'number'],
   category: 'string',
   context: 'object',
@@ -8012,38 +7989,36 @@ var genericValidationRules = {
 
 function validateGenericEvent(event) {
   assert(type(event) === 'object', 'You must pass a message object.');
-  var json = JSON.stringify(event); // Strings are variable byte encoded, so json.length is not sufficient.
+  const json = JSON.stringify(event); // Strings are variable byte encoded, so json.length is not sufficient.
 
   assert(Buffer.byteLength(json, 'utf8') < MAX_SIZE, 'Your message must be < 32kb.');
 
-  for (var key in genericValidationRules) {
+  for (const key in genericValidationRules) {
     var val = event[key];
     if (!val) continue;
-    var rule = genericValidationRules[key];
+    let rule = genericValidationRules[key];
 
     if (type(rule) !== 'array') {
       rule = [rule];
     }
 
-    var a = rule[0] === 'object' ? 'an' : 'a';
+    const a = rule[0] === 'object' ? 'an' : 'a';
     assert(
-      rule.some(function (e) {
-        return type(val) === e;
-      }),
-      '"' + key + '" must be ' + a + ' ' + join(rule, 'or') + '.',
+      rule.some((e) => type(val) === e),
+      `"${  key  }" must be ${  a  } ${  join(rule, 'or')  }.`,
     );
   }
 }
 
-var axios$3 = { exports: {} };
+const axios$3 = { exports: {} };
 
-var axios$2 = { exports: {} };
+const axios$2 = { exports: {} };
 
-var bind$2 = function bind(fn, thisArg) {
+const bind$2 = function bind(fn, thisArg) {
   return function wrap() {
-    var args = new Array(arguments.length);
+    const args = new Array(arguments.length);
 
-    for (var i = 0; i < args.length; i++) {
+    for (let i = 0; i < args.length; i++) {
       args[i] = arguments[i];
     }
 
@@ -8051,14 +8026,14 @@ var bind$2 = function bind(fn, thisArg) {
   };
 };
 
-var bind$1 = bind$2; // utils is a library of generic helper functions non-specific to axios
+const bind$1 = bind$2; // utils is a library of generic helper functions non-specific to axios
 
-var toString = Object.prototype.toString; // eslint-disable-next-line func-names
+const {toString} = Object.prototype; // eslint-disable-next-line func-names
 
-var kindOf = (function (cache) {
+const kindOf = (function (cache) {
   // eslint-disable-next-line func-names
   return function (thing) {
-    var str = toString.call(thing);
+    const str = toString.call(thing);
     return cache[str] || (cache[str] = str.slice(8, -1).toLowerCase());
   };
 })(Object.create(null));
@@ -8114,7 +8089,7 @@ function isBuffer$1(val) {
  * @returns {boolean} True if value is an ArrayBuffer, otherwise false
  */
 
-var isArrayBuffer = kindOfTest('ArrayBuffer');
+const isArrayBuffer = kindOfTest('ArrayBuffer');
 /**
  * Determine if a value is a view on an ArrayBuffer
  *
@@ -8123,7 +8098,7 @@ var isArrayBuffer = kindOfTest('ArrayBuffer');
  */
 
 function isArrayBufferView(val) {
-  var result;
+  let result;
 
   if (typeof ArrayBuffer !== 'undefined' && ArrayBuffer.isView) {
     result = ArrayBuffer.isView(val);
@@ -8175,7 +8150,7 @@ function isPlainObject(val) {
     return false;
   }
 
-  var prototype = Object.getPrototypeOf(val);
+  const prototype = Object.getPrototypeOf(val);
   return prototype === null || prototype === Object.prototype;
 }
 /**
@@ -8186,7 +8161,7 @@ function isPlainObject(val) {
  * @returns {boolean} True if value is a Date, otherwise false
  */
 
-var isDate = kindOfTest('Date');
+const isDate = kindOfTest('Date');
 /**
  * Determine if a value is a File
  *
@@ -8195,7 +8170,7 @@ var isDate = kindOfTest('Date');
  * @returns {boolean} True if value is a File, otherwise false
  */
 
-var isFile = kindOfTest('File');
+const isFile = kindOfTest('File');
 /**
  * Determine if a value is a Blob
  *
@@ -8204,7 +8179,7 @@ var isFile = kindOfTest('File');
  * @returns {boolean} True if value is a Blob, otherwise false
  */
 
-var isBlob = kindOfTest('Blob');
+const isBlob = kindOfTest('Blob');
 /**
  * Determine if a value is a FileList
  *
@@ -8213,7 +8188,7 @@ var isBlob = kindOfTest('Blob');
  * @returns {boolean} True if value is a File, otherwise false
  */
 
-var isFileList = kindOfTest('FileList');
+const isFileList = kindOfTest('FileList');
 /**
  * Determine if a value is a Function
  *
@@ -8242,7 +8217,7 @@ function isStream(val) {
  */
 
 function isFormData(thing) {
-  var pattern = '[object FormData]';
+  const pattern = '[object FormData]';
   return (
     thing &&
     ((typeof FormData === 'function' && thing instanceof FormData) ||
@@ -8257,7 +8232,7 @@ function isFormData(thing) {
  * @returns {boolean} True if value is a URLSearchParams object, otherwise false
  */
 
-var isURLSearchParams = kindOfTest('URLSearchParams');
+const isURLSearchParams = kindOfTest('URLSearchParams');
 /**
  * Trim excess whitespace off the beginning and end of a string
  *
@@ -8316,18 +8291,18 @@ function forEach(obj, fn) {
   } // Force an array if not already something iterable
 
   if (_typeof(obj) !== 'object') {
-    /*eslint no-param-reassign:0*/
+    /* eslint no-param-reassign:0 */
     obj = [obj];
   }
 
   if (isArray$1(obj)) {
     // Iterate over array values
-    for (var i = 0, l = obj.length; i < l; i++) {
+    for (let i = 0, l = obj.length; i < l; i++) {
       fn.call(null, obj[i], i, obj);
     }
   } else {
     // Iterate over object keys
-    for (var key in obj) {
+    for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         fn.call(null, obj[key], key, obj);
       }
@@ -8354,7 +8329,7 @@ function forEach(obj, fn) {
 
 function /* obj1, obj2, obj3, ... */
 merge() {
-  var result = {};
+  const result = {};
 
   function assignValue(val, key) {
     if (isPlainObject(result[key]) && isPlainObject(val)) {
@@ -8368,7 +8343,7 @@ merge() {
     }
   }
 
-  for (var i = 0, l = arguments.length; i < l; i++) {
+  for (let i = 0, l = arguments.length; i < l; i++) {
     forEach(arguments[i], assignValue);
   }
 
@@ -8384,7 +8359,7 @@ merge() {
  */
 
 function extend(a, b, thisArg) {
-  forEach(b, function assignValue(val, key) {
+  forEach(b, (val, key) => {
     if (thisArg && typeof val === 'function') {
       a[key] = bind$1(val, thisArg);
     } else {
@@ -8429,10 +8404,10 @@ function inherits(constructor, superConstructor, props, descriptors) {
  */
 
 function toFlatObject(sourceObj, destObj, filter) {
-  var props;
-  var i;
-  var prop;
-  var merged = {};
+  let props;
+  let i;
+  let prop;
+  const merged = {};
   destObj = destObj || {};
 
   do {
@@ -8469,7 +8444,7 @@ function endsWith(str, searchString, position) {
   }
 
   position -= searchString.length;
-  var lastIndex = str.indexOf(searchString, position);
+  const lastIndex = str.indexOf(searchString, position);
   return lastIndex !== -1 && lastIndex === position;
 }
 /**
@@ -8480,9 +8455,9 @@ function endsWith(str, searchString, position) {
 
 function toArray(thing) {
   if (!thing) return null;
-  var i = thing.length;
+  let i = thing.length;
   if (isUndefined(i)) return null;
-  var arr = new Array(i);
+  const arr = new Array(i);
 
   while (i-- > 0) {
     arr[i] = thing[i];
@@ -8491,56 +8466,56 @@ function toArray(thing) {
   return arr;
 } // eslint-disable-next-line func-names
 
-var isTypedArray = (function (TypedArray) {
+const isTypedArray = (function (TypedArray) {
   // eslint-disable-next-line func-names
   return function (thing) {
     return TypedArray && thing instanceof TypedArray;
   };
 })(typeof Uint8Array !== 'undefined' && Object.getPrototypeOf(Uint8Array));
 
-var utils$9 = {
+const utils$9 = {
   isArray: isArray$1,
-  isArrayBuffer: isArrayBuffer,
+  isArrayBuffer,
   isBuffer: isBuffer$1,
-  isFormData: isFormData,
-  isArrayBufferView: isArrayBufferView,
+  isFormData,
+  isArrayBufferView,
   isString: isString$1,
-  isNumber: isNumber,
-  isObject: isObject,
-  isPlainObject: isPlainObject,
-  isUndefined: isUndefined,
-  isDate: isDate,
-  isFile: isFile,
-  isBlob: isBlob,
-  isFunction: isFunction,
-  isStream: isStream,
-  isURLSearchParams: isURLSearchParams,
-  isStandardBrowserEnv: isStandardBrowserEnv,
-  forEach: forEach,
-  merge: merge,
-  extend: extend,
-  trim: trim,
-  stripBOM: stripBOM,
-  inherits: inherits,
-  toFlatObject: toFlatObject,
-  kindOf: kindOf,
-  kindOfTest: kindOfTest,
-  endsWith: endsWith,
-  toArray: toArray,
-  isTypedArray: isTypedArray,
-  isFileList: isFileList,
+  isNumber,
+  isObject,
+  isPlainObject,
+  isUndefined,
+  isDate,
+  isFile,
+  isBlob,
+  isFunction,
+  isStream,
+  isURLSearchParams,
+  isStandardBrowserEnv,
+  forEach,
+  merge,
+  extend,
+  trim,
+  stripBOM,
+  inherits,
+  toFlatObject,
+  kindOf,
+  kindOfTest,
+  endsWith,
+  toArray,
+  isTypedArray,
+  isFileList,
 };
 
-var utils$8 = utils$9;
+const utils$8 = utils$9;
 
 function encode(val) {
   return encodeURIComponent(val)
-    .replace(/%3A/gi, ':')
+    .replace(/%3a/gi, ':')
     .replace(/%24/g, '$')
-    .replace(/%2C/gi, ',')
+    .replace(/%2c/gi, ',')
     .replace(/%20/g, '+')
-    .replace(/%5B/gi, '[')
-    .replace(/%5D/gi, ']');
+    .replace(/%5b/gi, '[')
+    .replace(/%5d/gi, ']');
 }
 /**
  * Build a URL by appending params to the end
@@ -8550,58 +8525,58 @@ function encode(val) {
  * @returns {string} The formatted url
  */
 
-var buildURL$1 = function buildURL(url, params, paramsSerializer) {
-  /*eslint no-param-reassign:0*/
+const buildURL$1 = function buildURL(url, params, paramsSerializer) {
+  /* eslint no-param-reassign:0 */
   if (!params) {
     return url;
   }
 
-  var serializedParams;
+  let serializedParams;
 
   if (paramsSerializer) {
     serializedParams = paramsSerializer(params);
   } else if (utils$8.isURLSearchParams(params)) {
     serializedParams = params.toString();
   } else {
-    var parts = [];
-    utils$8.forEach(params, function serialize(val, key) {
+    const parts = [];
+    utils$8.forEach(params, (val, key) => {
       if (val === null || typeof val === 'undefined') {
         return;
       }
 
       if (utils$8.isArray(val)) {
-        key = key + '[]';
+        key += '[]';
       } else {
         val = [val];
       }
 
-      utils$8.forEach(val, function parseValue(v) {
+      utils$8.forEach(val, (v) => {
         if (utils$8.isDate(v)) {
           v = v.toISOString();
         } else if (utils$8.isObject(v)) {
           v = JSON.stringify(v);
         }
 
-        parts.push(encode(key) + '=' + encode(v));
+        parts.push(`${encode(key)  }=${  encode(v)}`);
       });
     });
     serializedParams = parts.join('&');
   }
 
   if (serializedParams) {
-    var hashmarkIndex = url.indexOf('#');
+    const hashmarkIndex = url.indexOf('#');
 
     if (hashmarkIndex !== -1) {
       url = url.slice(0, hashmarkIndex);
     }
 
-    url += (url.indexOf('?') === -1 ? '?' : '&') + serializedParams;
+    url += (!url.includes('?') ? '?' : '&') + serializedParams;
   }
 
   return url;
 };
 
-var utils$7 = utils$9;
+const utils$7 = utils$9;
 
 function InterceptorManager$1() {
   this.handlers = [];
@@ -8617,8 +8592,8 @@ function InterceptorManager$1() {
 
 InterceptorManager$1.prototype.use = function use(fulfilled, rejected, options) {
   this.handlers.push({
-    fulfilled: fulfilled,
-    rejected: rejected,
+    fulfilled,
+    rejected,
     synchronous: options ? options.synchronous : false,
     runWhen: options ? options.runWhen : null,
   });
@@ -8645,19 +8620,19 @@ InterceptorManager$1.prototype.eject = function eject(id) {
  */
 
 InterceptorManager$1.prototype.forEach = function forEach(fn) {
-  utils$7.forEach(this.handlers, function forEachHandler(h) {
+  utils$7.forEach(this.handlers, (h) => {
     if (h !== null) {
       fn(h);
     }
   });
 };
 
-var InterceptorManager_1 = InterceptorManager$1;
+const InterceptorManager_1 = InterceptorManager$1;
 
-var utils$6 = utils$9;
+const utils$6 = utils$9;
 
-var normalizeHeaderName$1 = function normalizeHeaderName(headers, normalizedName) {
-  utils$6.forEach(headers, function processHeader(value, name) {
+const normalizeHeaderName$1 = function normalizeHeaderName(headers, normalizedName) {
+  utils$6.forEach(headers, (value, name) => {
     if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
       headers[normalizedName] = value;
       delete headers[name];
@@ -8665,14 +8640,14 @@ var normalizeHeaderName$1 = function normalizeHeaderName(headers, normalizedName
   });
 };
 
-var AxiosError_1;
-var hasRequiredAxiosError;
+let AxiosError_1;
+let hasRequiredAxiosError;
 
 function requireAxiosError() {
   if (hasRequiredAxiosError) return AxiosError_1;
   hasRequiredAxiosError = 1;
 
-  var utils = utils$9;
+  const utils = utils$9;
   /**
    * Create an Error with the specified message, config, error code, request and response.
    *
@@ -8715,8 +8690,8 @@ function requireAxiosError() {
       };
     },
   });
-  var prototype = AxiosError.prototype;
-  var descriptors = {};
+  const {prototype} = AxiosError;
+  const descriptors = {};
   [
     'ERR_BAD_OPTION_VALUE',
     'ERR_BAD_OPTION',
@@ -8728,7 +8703,7 @@ function requireAxiosError() {
     'ERR_BAD_RESPONSE',
     'ERR_BAD_REQUEST',
     'ERR_CANCELED', // eslint-disable-next-line func-names
-  ].forEach(function (code) {
+  ].forEach((code) => {
     descriptors[code] = {
       value: code,
     };
@@ -8739,10 +8714,8 @@ function requireAxiosError() {
   }); // eslint-disable-next-line func-names
 
   AxiosError.from = function (error, code, config, request, response, customProps) {
-    var axiosError = Object.create(prototype);
-    utils.toFlatObject(error, axiosError, function filter(obj) {
-      return obj !== Error.prototype;
-    });
+    const axiosError = Object.create(prototype);
+    utils.toFlatObject(error, axiosError, (obj) => obj !== Error.prototype);
     AxiosError.call(axiosError, error.message, code, config, request, response);
     axiosError.name = error.name;
     customProps && _extends(axiosError, customProps);
@@ -8753,31 +8726,31 @@ function requireAxiosError() {
   return AxiosError_1;
 }
 
-var transitional = {
+const transitional = {
   silentJSONParsing: true,
   forcedJSONParsing: true,
   clarifyTimeoutError: false,
 };
 
-var toFormData_1;
-var hasRequiredToFormData;
+let toFormData_1;
+let hasRequiredToFormData;
 
 function requireToFormData() {
   if (hasRequiredToFormData) return toFormData_1;
   hasRequiredToFormData = 1;
 
-  var utils = utils$9;
+  const utils = utils$9;
   /**
    * Convert a data object to FormData
    * @param {Object} obj
    * @param {?Object} [formData]
    * @returns {Object}
-   **/
+   * */
 
   function toFormData(obj, formData) {
     // eslint-disable-next-line no-param-reassign
     formData = formData || new FormData();
-    var stack = [];
+    const stack = [];
 
     function convertValue(value) {
       if (value === null) return '';
@@ -8795,15 +8768,15 @@ function requireToFormData() {
 
     function build(data, parentKey) {
       if (utils.isPlainObject(data) || utils.isArray(data)) {
-        if (stack.indexOf(data) !== -1) {
-          throw Error('Circular reference detected in ' + parentKey);
+        if (stack.includes(data)) {
+          throw Error(`Circular reference detected in ${  parentKey}`);
         }
 
         stack.push(data);
-        utils.forEach(data, function each(value, key) {
+        utils.forEach(data, (value, key) => {
           if (utils.isUndefined(value)) return;
-          var fullKey = parentKey ? parentKey + '.' + key : key;
-          var arr;
+          const fullKey = parentKey ? `${parentKey  }.${  key}` : key;
+          let arr;
 
           if (value && !parentKey && _typeof(value) === 'object') {
             if (utils.endsWith(key, '{}')) {
@@ -8811,7 +8784,7 @@ function requireToFormData() {
               value = JSON.stringify(value);
             } else if (utils.endsWith(key, '[]') && (arr = utils.toArray(value))) {
               // eslint-disable-next-line func-names
-              arr.forEach(function (el) {
+              arr.forEach((el) => {
                 !utils.isUndefined(el) && formData.append(fullKey, convertValue(el));
               });
               return;
@@ -8834,7 +8807,7 @@ function requireToFormData() {
   return toFormData_1;
 }
 
-var AxiosError$2 = requireAxiosError();
+const AxiosError$2 = requireAxiosError();
 /**
  * Resolve or reject a Promise based on response status.
  *
@@ -8843,15 +8816,15 @@ var AxiosError$2 = requireAxiosError();
  * @param {object} response The response.
  */
 
-var settle = function settle(resolve, reject, response) {
-  var validateStatus = response.config.validateStatus;
+const settle = function settle(resolve, reject, response) {
+  const {validateStatus} = response.config;
 
   if (!response.status || !validateStatus || validateStatus(response.status)) {
     resolve(response);
   } else {
     reject(
       new AxiosError$2(
-        'Request failed with status code ' + response.status,
+        `Request failed with status code ${  response.status}`,
         [AxiosError$2.ERR_BAD_REQUEST, AxiosError$2.ERR_BAD_RESPONSE][
           Math.floor(response.status / 100) - 4
         ],
@@ -8863,31 +8836,31 @@ var settle = function settle(resolve, reject, response) {
   }
 };
 
-var cookies;
-var hasRequiredCookies;
+let cookies;
+let hasRequiredCookies;
 
 function requireCookies() {
   if (hasRequiredCookies) return cookies;
   hasRequiredCookies = 1;
 
-  var utils = utils$9;
+  const utils = utils$9;
   cookies = utils.isStandardBrowserEnv() // Standard browser envs support document.cookie
     ? (function standardBrowserEnv() {
         return {
           write: function write(name, value, expires, path, domain, secure) {
-            var cookie = [];
-            cookie.push(name + '=' + encodeURIComponent(value));
+            const cookie = [];
+            cookie.push(`${name  }=${  encodeURIComponent(value)}`);
 
             if (utils.isNumber(expires)) {
-              cookie.push('expires=' + new Date(expires).toGMTString());
+              cookie.push(`expires=${  new Date(expires).toGMTString()}`);
             }
 
             if (utils.isString(path)) {
-              cookie.push('path=' + path);
+              cookie.push(`path=${  path}`);
             }
 
             if (utils.isString(domain)) {
-              cookie.push('domain=' + domain);
+              cookie.push(`domain=${  domain}`);
             }
 
             if (secure === true) {
@@ -8897,7 +8870,7 @@ function requireCookies() {
             document.cookie = cookie.join('; ');
           },
           read: function read(name) {
-            var match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+            const match = document.cookie.match(new RegExp(`(^|;\\s*)(${  name  })=([^;]*)`));
             return match ? decodeURIComponent(match[3]) : null;
           },
           remove: function remove(name) {
@@ -8924,11 +8897,11 @@ function requireCookies() {
  * @returns {boolean} True if the specified URL is absolute, otherwise false
  */
 
-var isAbsoluteURL$1 = function isAbsoluteURL(url) {
+const isAbsoluteURL$1 = function isAbsoluteURL(url) {
   // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
   // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
   // by any combination of letters, digits, plus, period, or hyphen.
-  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
+  return /^([a-z][\d+.a-z\-]*:)?\/\//i.test(url);
 };
 
 /**
@@ -8939,14 +8912,14 @@ var isAbsoluteURL$1 = function isAbsoluteURL(url) {
  * @returns {string} The combined URL
  */
 
-var combineURLs$1 = function combineURLs(baseURL, relativeURL) {
+const combineURLs$1 = function combineURLs(baseURL, relativeURL) {
   return relativeURL
-    ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
+    ? `${baseURL.replace(/\/+$/, '')  }/${  relativeURL.replace(/^\/+/, '')}`
     : baseURL;
 };
 
-var isAbsoluteURL = isAbsoluteURL$1;
-var combineURLs = combineURLs$1;
+const isAbsoluteURL = isAbsoluteURL$1;
+const combineURLs = combineURLs$1;
 /**
  * Creates a new URL by combining the baseURL with the requestedURL,
  * only when the requestedURL is not already an absolute URL.
@@ -8957,7 +8930,7 @@ var combineURLs = combineURLs$1;
  * @returns {string} The combined full path
  */
 
-var buildFullPath$1 = function buildFullPath(baseURL, requestedURL) {
+const buildFullPath$1 = function buildFullPath(baseURL, requestedURL) {
   if (baseURL && !isAbsoluteURL(requestedURL)) {
     return combineURLs(baseURL, requestedURL);
   }
@@ -8965,17 +8938,17 @@ var buildFullPath$1 = function buildFullPath(baseURL, requestedURL) {
   return requestedURL;
 };
 
-var parseHeaders;
-var hasRequiredParseHeaders;
+let parseHeaders;
+let hasRequiredParseHeaders;
 
 function requireParseHeaders() {
   if (hasRequiredParseHeaders) return parseHeaders;
   hasRequiredParseHeaders = 1;
 
-  var utils = utils$9; // Headers whose duplicates are ignored by node
+  const utils = utils$9; // Headers whose duplicates are ignored by node
   // c.f. https://nodejs.org/api/http.html#http_message_headers
 
-  var ignoreDuplicateOf = [
+  const ignoreDuplicateOf = [
     'age',
     'authorization',
     'content-length',
@@ -9009,29 +8982,29 @@ function requireParseHeaders() {
    */
 
   parseHeaders = function parseHeaders(headers) {
-    var parsed = {};
-    var key;
-    var val;
-    var i;
+    const parsed = {};
+    let key;
+    let val;
+    let i;
 
     if (!headers) {
       return parsed;
     }
 
-    utils.forEach(headers.split('\n'), function parser(line) {
+    utils.forEach(headers.split('\n'), (line) => {
       i = line.indexOf(':');
       key = utils.trim(line.substr(0, i)).toLowerCase();
       val = utils.trim(line.substr(i + 1));
 
       if (key) {
-        if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+        if (parsed[key] && ignoreDuplicateOf.includes(key)) {
           return;
         }
 
         if (key === 'set-cookie') {
           parsed[key] = (parsed[key] ? parsed[key] : []).concat([val]);
         } else {
-          parsed[key] = parsed[key] ? parsed[key] + ', ' + val : val;
+          parsed[key] = parsed[key] ? `${parsed[key]  }, ${  val}` : val;
         }
       }
     });
@@ -9041,20 +9014,20 @@ function requireParseHeaders() {
   return parseHeaders;
 }
 
-var isURLSameOrigin;
-var hasRequiredIsURLSameOrigin;
+let isURLSameOrigin;
+let hasRequiredIsURLSameOrigin;
 
 function requireIsURLSameOrigin() {
   if (hasRequiredIsURLSameOrigin) return isURLSameOrigin;
   hasRequiredIsURLSameOrigin = 1;
 
-  var utils = utils$9;
+  const utils = utils$9;
   isURLSameOrigin = utils.isStandardBrowserEnv() // Standard browser envs have full support of the APIs needed to test
     ? // whether the request URL is of the same origin as current location.
       (function standardBrowserEnv() {
-        var msie = /(msie|trident)/i.test(navigator.userAgent);
-        var urlParsingNode = document.createElement('a');
-        var originURL;
+        const msie = /(msie|trident)/i.test(navigator.userAgent);
+        const urlParsingNode = document.createElement('a');
+        let originURL;
         /**
          * Parse a URL to discover it's components
          *
@@ -9063,7 +9036,7 @@ function requireIsURLSameOrigin() {
          */
 
         function resolveURL(url) {
-          var href = url;
+          let href = url;
 
           if (msie) {
             // IE needs attribute set twice to normalize properties
@@ -9084,7 +9057,7 @@ function requireIsURLSameOrigin() {
             pathname:
               urlParsingNode.pathname.charAt(0) === '/'
                 ? urlParsingNode.pathname
-                : '/' + urlParsingNode.pathname,
+                : `/${  urlParsingNode.pathname}`,
           };
         }
 
@@ -9097,7 +9070,7 @@ function requireIsURLSameOrigin() {
          */
 
         return function isURLSameOrigin(requestURL) {
-          var parsed = utils.isString(requestURL) ? resolveURL(requestURL) : requestURL;
+          const parsed = utils.isString(requestURL) ? resolveURL(requestURL) : requestURL;
           return parsed.protocol === originURL.protocol && parsed.host === originURL.host;
         };
       })() // Non standard browser envs (web workers, react-native) lack needed support.
@@ -9109,15 +9082,15 @@ function requireIsURLSameOrigin() {
   return isURLSameOrigin;
 }
 
-var CanceledError_1;
-var hasRequiredCanceledError;
+let CanceledError_1;
+let hasRequiredCanceledError;
 
 function requireCanceledError() {
   if (hasRequiredCanceledError) return CanceledError_1;
   hasRequiredCanceledError = 1;
 
-  var AxiosError = requireAxiosError();
-  var utils = utils$9;
+  const AxiosError = requireAxiosError();
+  const utils = utils$9;
   /**
    * A `CanceledError` is an object that is thrown when an operation is canceled.
    *
@@ -9138,46 +9111,46 @@ function requireCanceledError() {
   return CanceledError_1;
 }
 
-var parseProtocol;
-var hasRequiredParseProtocol;
+let parseProtocol;
+let hasRequiredParseProtocol;
 
 function requireParseProtocol() {
   if (hasRequiredParseProtocol) return parseProtocol;
   hasRequiredParseProtocol = 1;
 
   parseProtocol = function parseProtocol(url) {
-    var match = /^([-+\w]{1,25})(:?\/\/|:)/.exec(url);
+    const match = /^([\w+-]{1,25})(:?\/\/|:)/.exec(url);
     return (match && match[1]) || '';
   };
 
   return parseProtocol;
 }
 
-var xhr;
-var hasRequiredXhr;
+let xhr;
+let hasRequiredXhr;
 
 function requireXhr() {
   if (hasRequiredXhr) return xhr;
   hasRequiredXhr = 1;
 
-  var utils = utils$9;
-  var settle$1 = settle;
-  var cookies = requireCookies();
-  var buildURL = buildURL$1;
-  var buildFullPath = buildFullPath$1;
-  var parseHeaders = requireParseHeaders();
-  var isURLSameOrigin = requireIsURLSameOrigin();
-  var transitionalDefaults = transitional;
-  var AxiosError = requireAxiosError();
-  var CanceledError = requireCanceledError();
-  var parseProtocol = requireParseProtocol();
+  const utils = utils$9;
+  const settle$1 = settle;
+  const cookies = requireCookies();
+  const buildURL = buildURL$1;
+  const buildFullPath = buildFullPath$1;
+  const parseHeaders = requireParseHeaders();
+  const isURLSameOrigin = requireIsURLSameOrigin();
+  const transitionalDefaults = transitional;
+  const AxiosError = requireAxiosError();
+  const CanceledError = requireCanceledError();
+  const parseProtocol = requireParseProtocol();
 
   xhr = function xhrAdapter(config) {
-    return new Promise(function dispatchXhrRequest(resolve, reject) {
-      var requestData = config.data;
-      var requestHeaders = config.headers;
-      var responseType = config.responseType;
-      var onCanceled;
+    return new Promise((resolve, reject) => {
+      let requestData = config.data;
+      const requestHeaders = config.headers;
+      const {responseType} = config;
+      let onCanceled;
 
       function done() {
         if (config.cancelToken) {
@@ -9193,17 +9166,17 @@ function requireXhr() {
         delete requestHeaders['Content-Type']; // Let the browser set it
       }
 
-      var request = new XMLHttpRequest(); // HTTP basic authentication
+      let request = new XMLHttpRequest(); // HTTP basic authentication
 
       if (config.auth) {
-        var username = config.auth.username || '';
-        var password = config.auth.password
+        const username = config.auth.username || '';
+        const password = config.auth.password
           ? unescape(encodeURIComponent(config.auth.password))
           : '';
-        requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
+        requestHeaders.Authorization = `Basic ${  btoa(`${username  }:${  password}`)}`;
       }
 
-      var fullPath = buildFullPath(config.baseURL, config.url);
+      const fullPath = buildFullPath(config.baseURL, config.url);
       request.open(
         config.method.toUpperCase(),
         buildURL(fullPath, config.params, config.paramsSerializer),
@@ -9217,26 +9190,26 @@ function requireXhr() {
           return;
         } // Prepare the response
 
-        var responseHeaders =
+        const responseHeaders =
           'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
-        var responseData =
+        const responseData =
           !responseType || responseType === 'text' || responseType === 'json'
             ? request.responseText
             : request.response;
-        var response = {
+        const response = {
           data: responseData,
           status: request.status,
           statusText: request.statusText,
           headers: responseHeaders,
-          config: config,
-          request: request,
+          config,
+          request,
         };
         settle$1(
-          function _resolve(value) {
+          (value) => {
             resolve(value);
             done();
           },
-          function _reject(err) {
+          (err) => {
             reject(err);
             done();
           },
@@ -9290,10 +9263,10 @@ function requireXhr() {
       }; // Handle timeout
 
       request.ontimeout = function handleTimeout() {
-        var timeoutErrorMessage = config.timeout
-          ? 'timeout of ' + config.timeout + 'ms exceeded'
+        let timeoutErrorMessage = config.timeout
+          ? `timeout of ${  config.timeout  }ms exceeded`
           : 'timeout exceeded';
-        var transitional = config.transitional || transitionalDefaults;
+        const transitional = config.transitional || transitionalDefaults;
 
         if (config.timeoutErrorMessage) {
           timeoutErrorMessage = config.timeoutErrorMessage;
@@ -9315,7 +9288,7 @@ function requireXhr() {
 
       if (utils.isStandardBrowserEnv()) {
         // Add xsrf header
-        var xsrfValue =
+        const xsrfValue =
           (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName
             ? cookies.read(config.xsrfCookieName)
             : undefined;
@@ -9326,7 +9299,7 @@ function requireXhr() {
       } // Add headers to the request
 
       if ('setRequestHeader' in request) {
-        utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+        utils.forEach(requestHeaders, (val, key) => {
           if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
             // Remove Content-Type if data is undefined
             delete requestHeaders[key];
@@ -9379,12 +9352,12 @@ function requireXhr() {
         requestData = null;
       }
 
-      var protocol = parseProtocol(fullPath);
+      const protocol = parseProtocol(fullPath);
 
-      if (protocol && ['http', 'https', 'file'].indexOf(protocol) === -1) {
+      if (protocol && !['http', 'https', 'file'].includes(protocol)) {
         reject(
           new AxiosError(
-            'Unsupported protocol ' + protocol + ':',
+            `Unsupported protocol ${  protocol  }:`,
             AxiosError.ERR_BAD_REQUEST,
             config,
           ),
@@ -9399,9 +9372,9 @@ function requireXhr() {
   return xhr;
 }
 
-var _null;
+let _null;
 
-var hasRequired_null;
+let hasRequired_null;
 
 function require_null() {
   if (hasRequired_null) return _null;
@@ -9411,12 +9384,12 @@ function require_null() {
   return _null;
 }
 
-var utils$5 = utils$9;
-var normalizeHeaderName = normalizeHeaderName$1;
-var AxiosError$1 = requireAxiosError();
-var transitionalDefaults = transitional;
-var toFormData = requireToFormData();
-var DEFAULT_CONTENT_TYPE = {
+const utils$5 = utils$9;
+const normalizeHeaderName = normalizeHeaderName$1;
+const AxiosError$1 = requireAxiosError();
+const transitionalDefaults = transitional;
+const toFormData = requireToFormData();
+const DEFAULT_CONTENT_TYPE = {
   'Content-Type': 'application/x-www-form-urlencoded',
 };
 
@@ -9427,7 +9400,7 @@ function setContentTypeIfUnset(headers, value) {
 }
 
 function getDefaultAdapter() {
-  var adapter;
+  let adapter;
 
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
@@ -9486,15 +9459,15 @@ var defaults$3 = {
         return data.toString();
       }
 
-      var isObjectPayload = utils$5.isObject(data);
-      var contentType = headers && headers['Content-Type'];
-      var isFileList;
+      const isObjectPayload = utils$5.isObject(data);
+      const contentType = headers && headers['Content-Type'];
+      let isFileList;
 
       if (
         (isFileList = utils$5.isFileList(data)) ||
         (isObjectPayload && contentType === 'multipart/form-data')
       ) {
-        var _FormData = this.env && this.env.FormData;
+        const _FormData = this.env && this.env.FormData;
 
         return toFormData(
           isFileList
@@ -9504,7 +9477,7 @@ var defaults$3 = {
             : data,
           _FormData && new _FormData(),
         );
-      } else if (isObjectPayload || contentType === 'application/json') {
+      } if (isObjectPayload || contentType === 'application/json') {
         setContentTypeIfUnset(headers, 'application/json');
         return stringifySafely(data);
       }
@@ -9514,12 +9487,12 @@ var defaults$3 = {
   ],
   transformResponse: [
     function transformResponse(data) {
-      var transitional = this.transitional || defaults$3.transitional;
-      var silentJSONParsing = transitional && transitional.silentJSONParsing;
-      var forcedJSONParsing = transitional && transitional.forcedJSONParsing;
-      var strictJSONParsing = !silentJSONParsing && this.responseType === 'json';
+      const transitional = this.transitional || defaults$3.transitional;
+      const silentJSONParsing = transitional && transitional.silentJSONParsing;
+      const forcedJSONParsing = transitional && transitional.forcedJSONParsing;
+      const strictJSONParsing = !silentJSONParsing && this.responseType === 'json';
 
-      if (strictJSONParsing || (forcedJSONParsing && utils$5.isString(data) && data.length)) {
+      if (strictJSONParsing || (forcedJSONParsing && utils$5.isString(data) && data.length > 0)) {
         try {
           return JSON.parse(data);
         } catch (e) {
@@ -9558,16 +9531,16 @@ var defaults$3 = {
     },
   },
 };
-utils$5.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
+utils$5.forEach(['delete', 'get', 'head'], (method) => {
   defaults$3.headers[method] = {};
 });
-utils$5.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+utils$5.forEach(['post', 'put', 'patch'], (method) => {
   defaults$3.headers[method] = utils$5.merge(DEFAULT_CONTENT_TYPE);
 });
-var defaults_1 = defaults$3;
+const defaults_1 = defaults$3;
 
-var utils$4 = utils$9;
-var defaults$2 = defaults_1;
+const utils$4 = utils$9;
+const defaults$2 = defaults_1;
 /**
  * Transform the data for a request or a response
  *
@@ -9577,18 +9550,18 @@ var defaults$2 = defaults_1;
  * @returns {*} The resulting transformed data
  */
 
-var transformData$1 = function transformData(data, headers, fns) {
-  var context = this || defaults$2;
-  /*eslint no-param-reassign:0*/
+const transformData$1 = function transformData(data, headers, fns) {
+  const context = this || defaults$2;
+  /* eslint no-param-reassign:0 */
 
-  utils$4.forEach(fns, function transform(fn) {
+  utils$4.forEach(fns, (fn) => {
     data = fn.call(context, data, headers);
   });
   return data;
 };
 
-var isCancel$1;
-var hasRequiredIsCancel;
+let isCancel$1;
+let hasRequiredIsCancel;
 
 function requireIsCancel() {
   if (hasRequiredIsCancel) return isCancel$1;
@@ -9601,11 +9574,11 @@ function requireIsCancel() {
   return isCancel$1;
 }
 
-var utils$3 = utils$9;
-var transformData = transformData$1;
-var isCancel = requireIsCancel();
-var defaults$1 = defaults_1;
-var CanceledError = requireCanceledError();
+const utils$3 = utils$9;
+const transformData = transformData$1;
+const isCancel = requireIsCancel();
+const defaults$1 = defaults_1;
+const CanceledError = requireCanceledError();
 /**
  * Throws a `CanceledError` if cancellation has been requested.
  */
@@ -9626,7 +9599,7 @@ function throwIfCancellationRequested(config) {
  * @returns {Promise} The Promise to be fulfilled
  */
 
-var dispatchRequest$1 = function dispatchRequest(config) {
+const dispatchRequest$1 = function dispatchRequest(config) {
   throwIfCancellationRequested(config); // Ensure headers exist
 
   config.headers = config.headers || {}; // Transform request data
@@ -9640,13 +9613,13 @@ var dispatchRequest$1 = function dispatchRequest(config) {
   );
   utils$3.forEach(
     ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
-    function cleanHeaderConfig(method) {
+    (method) => {
       delete config.headers[method];
     },
   );
-  var adapter = config.adapter || defaults$1.adapter;
+  const adapter = config.adapter || defaults$1.adapter;
   return adapter(config).then(
-    function onAdapterResolution(response) {
+    (response) => {
       throwIfCancellationRequested(config); // Transform response data
 
       response.data = transformData.call(
@@ -9657,7 +9630,7 @@ var dispatchRequest$1 = function dispatchRequest(config) {
       );
       return response;
     },
-    function onAdapterRejection(reason) {
+    (reason) => {
       if (!isCancel(reason)) {
         throwIfCancellationRequested(config); // Transform response data
 
@@ -9676,7 +9649,7 @@ var dispatchRequest$1 = function dispatchRequest(config) {
   );
 };
 
-var utils$2 = utils$9;
+const utils$2 = utils$9;
 /**
  * Config-specific merge-function which creates a new config-object
  * by merging two configuration objects together.
@@ -9686,17 +9659,17 @@ var utils$2 = utils$9;
  * @returns {Object} New object resulting from merging config2 to config1
  */
 
-var mergeConfig$2 = function mergeConfig(config1, config2) {
+const mergeConfig$2 = function mergeConfig(config1, config2) {
   // eslint-disable-next-line no-param-reassign
   config2 = config2 || {};
-  var config = {};
+  const config = {};
 
   function getMergedValue(target, source) {
     if (utils$2.isPlainObject(target) && utils$2.isPlainObject(source)) {
       return utils$2.merge(target, source);
-    } else if (utils$2.isPlainObject(source)) {
+    } if (utils$2.isPlainObject(source)) {
       return utils$2.merge({}, source);
-    } else if (utils$2.isArray(source)) {
+    } if (utils$2.isArray(source)) {
       return source.slice();
     }
 
@@ -9706,7 +9679,7 @@ var mergeConfig$2 = function mergeConfig(config1, config2) {
   function mergeDeepProperties(prop) {
     if (!utils$2.isUndefined(config2[prop])) {
       return getMergedValue(config1[prop], config2[prop]);
-    } else if (!utils$2.isUndefined(config1[prop])) {
+    } if (!utils$2.isUndefined(config1[prop])) {
       return getMergedValue(undefined, config1[prop]);
     }
   } // eslint-disable-next-line consistent-return
@@ -9720,7 +9693,7 @@ var mergeConfig$2 = function mergeConfig(config1, config2) {
   function defaultToConfig2(prop) {
     if (!utils$2.isUndefined(config2[prop])) {
       return getMergedValue(undefined, config2[prop]);
-    } else if (!utils$2.isUndefined(config1[prop])) {
+    } if (!utils$2.isUndefined(config1[prop])) {
       return getMergedValue(undefined, config1[prop]);
     }
   } // eslint-disable-next-line consistent-return
@@ -9728,12 +9701,12 @@ var mergeConfig$2 = function mergeConfig(config1, config2) {
   function mergeDirectKeys(prop) {
     if (prop in config2) {
       return getMergedValue(config1[prop], config2[prop]);
-    } else if (prop in config1) {
+    } if (prop in config1) {
       return getMergedValue(undefined, config1[prop]);
     }
   }
 
-  var mergeMap = {
+  const mergeMap = {
     url: valueFromConfig2,
     method: valueFromConfig2,
     data: valueFromConfig2,
@@ -9764,9 +9737,9 @@ var mergeConfig$2 = function mergeConfig(config1, config2) {
   };
   utils$2.forEach(
     Object.keys(config1).concat(Object.keys(config2)),
-    function computeConfigValue(prop) {
-      var merge = mergeMap[prop] || mergeDeepProperties;
-      var configValue = merge(prop);
+    (prop) => {
+      const merge = mergeMap[prop] || mergeDeepProperties;
+      const configValue = merge(prop);
       (utils$2.isUndefined(configValue) && merge !== mergeDirectKeys) ||
         (config[prop] = configValue);
     },
@@ -9774,8 +9747,8 @@ var mergeConfig$2 = function mergeConfig(config1, config2) {
   return config;
 };
 
-var data;
-var hasRequiredData;
+let data;
+let hasRequiredData;
 
 function requireData() {
   if (hasRequiredData) return data;
@@ -9786,16 +9759,16 @@ function requireData() {
   return data;
 }
 
-var VERSION = requireData().version;
-var AxiosError = requireAxiosError();
-var validators$1 = {}; // eslint-disable-next-line func-names
+const VERSION = requireData().version;
+const AxiosError = requireAxiosError();
+const validators$1 = {}; // eslint-disable-next-line func-names
 
-['object', 'boolean', 'number', 'function', 'string', 'symbol'].forEach(function (type, i) {
+['object', 'boolean', 'number', 'function', 'string', 'symbol'].forEach((type, i) => {
   validators$1[type] = function validator(thing) {
-    return _typeof(thing) === type || 'a' + (i < 1 ? 'n ' : ' ') + type;
+    return _typeof(thing) === type || `a${  i < 1 ? 'n ' : ' '  }${type}`;
   };
 });
-var deprecatedWarnings = {};
+const deprecatedWarnings = {};
 /**
  * Transitional option validator
  * @param {function|boolean?} validator - set to false if the transitional option has been removed
@@ -9807,20 +9780,20 @@ var deprecatedWarnings = {};
 validators$1.transitional = function transitional(validator, version, message) {
   function formatMessage(opt, desc) {
     return (
-      '[Axios v' +
-      VERSION +
-      "] Transitional option '" +
-      opt +
-      "'" +
-      desc +
-      (message ? '. ' + message : '')
+      `[Axios v${ 
+      VERSION 
+      }] Transitional option '${ 
+      opt 
+      }'${ 
+      desc 
+      }${message ? `. ${  message}` : ''}`
     );
   } // eslint-disable-next-line func-names
 
   return function (value, opt, opts) {
     if (validator === false) {
       throw new AxiosError(
-        formatMessage(opt, ' has been removed' + (version ? ' in ' + version : '')),
+        formatMessage(opt, ` has been removed${  version ? ` in ${  version}` : ''}`),
         AxiosError.ERR_DEPRECATED,
       );
     }
@@ -9831,7 +9804,7 @@ validators$1.transitional = function transitional(validator, version, message) {
       console.warn(
         formatMessage(
           opt,
-          ' has been deprecated since v' + version + ' and will be removed in the near future',
+          ` has been deprecated since v${  version  } and will be removed in the near future`,
         ),
       );
     }
@@ -9851,20 +9824,20 @@ function assertOptions(options, schema, allowUnknown) {
     throw new AxiosError('options must be an object', AxiosError.ERR_BAD_OPTION_VALUE);
   }
 
-  var keys = Object.keys(options);
-  var i = keys.length;
+  const keys = Object.keys(options);
+  let i = keys.length;
 
   while (i-- > 0) {
-    var opt = keys[i];
-    var validator = schema[opt];
+    const opt = keys[i];
+    const validator = schema[opt];
 
     if (validator) {
-      var value = options[opt];
-      var result = value === undefined || validator(value, opt, options);
+      const value = options[opt];
+      const result = value === undefined || validator(value, opt, options);
 
       if (result !== true) {
         throw new AxiosError(
-          'option ' + opt + ' must be ' + result,
+          `option ${  opt  } must be ${  result}`,
           AxiosError.ERR_BAD_OPTION_VALUE,
         );
       }
@@ -9873,24 +9846,24 @@ function assertOptions(options, schema, allowUnknown) {
     }
 
     if (allowUnknown !== true) {
-      throw new AxiosError('Unknown option ' + opt, AxiosError.ERR_BAD_OPTION);
+      throw new AxiosError(`Unknown option ${  opt}`, AxiosError.ERR_BAD_OPTION);
     }
   }
 }
 
-var validator$1 = {
-  assertOptions: assertOptions,
+const validator$1 = {
+  assertOptions,
   validators: validators$1,
 };
 
-var utils$1 = utils$9;
-var buildURL = buildURL$1;
-var InterceptorManager = InterceptorManager_1;
-var dispatchRequest = dispatchRequest$1;
-var mergeConfig$1 = mergeConfig$2;
-var buildFullPath = buildFullPath$1;
-var validator = validator$1;
-var validators = validator.validators;
+const utils$1 = utils$9;
+const buildURL = buildURL$1;
+const InterceptorManager = InterceptorManager_1;
+const dispatchRequest = dispatchRequest$1;
+const mergeConfig$1 = mergeConfig$2;
+const buildFullPath = buildFullPath$1;
+const validator = validator$1;
+const {validators} = validator;
 /**
  * Create a new instance of Axios
  *
@@ -9911,7 +9884,7 @@ function Axios$1(instanceConfig) {
  */
 
 Axios$1.prototype.request = function request(configOrUrl, config) {
-  /*eslint no-param-reassign:0*/
+  /* eslint no-param-reassign:0 */
   // Allow for axios('example/url'[, config]) a la fetch API
   if (typeof configOrUrl === 'string') {
     config = config || {};
@@ -9930,7 +9903,7 @@ Axios$1.prototype.request = function request(configOrUrl, config) {
     config.method = 'get';
   }
 
-  var transitional = config.transitional;
+  const {transitional} = config;
 
   if (transitional !== undefined) {
     validator.assertOptions(
@@ -9944,9 +9917,9 @@ Axios$1.prototype.request = function request(configOrUrl, config) {
     );
   } // filter out skipped interceptors
 
-  var requestInterceptorChain = [];
-  var synchronousRequestInterceptors = true;
-  this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
+  const requestInterceptorChain = [];
+  let synchronousRequestInterceptors = true;
+  this.interceptors.request.forEach((interceptor) => {
     if (typeof interceptor.runWhen === 'function' && interceptor.runWhen(config) === false) {
       return;
     }
@@ -9954,30 +9927,30 @@ Axios$1.prototype.request = function request(configOrUrl, config) {
     synchronousRequestInterceptors = synchronousRequestInterceptors && interceptor.synchronous;
     requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
   });
-  var responseInterceptorChain = [];
-  this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
+  const responseInterceptorChain = [];
+  this.interceptors.response.forEach((interceptor) => {
     responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
   });
-  var promise;
+  let promise;
 
   if (!synchronousRequestInterceptors) {
-    var chain = [dispatchRequest, undefined];
+    let chain = [dispatchRequest, undefined];
     Array.prototype.unshift.apply(chain, requestInterceptorChain);
     chain = chain.concat(responseInterceptorChain);
     promise = Promise.resolve(config);
 
-    while (chain.length) {
+    while (chain.length > 0) {
       promise = promise.then(chain.shift(), chain.shift());
     }
 
     return promise;
   }
 
-  var newConfig = config;
+  let newConfig = config;
 
-  while (requestInterceptorChain.length) {
-    var onFulfilled = requestInterceptorChain.shift();
-    var onRejected = requestInterceptorChain.shift();
+  while (requestInterceptorChain.length > 0) {
+    const onFulfilled = requestInterceptorChain.shift();
+    const onRejected = requestInterceptorChain.shift();
 
     try {
       newConfig = onFulfilled(newConfig);
@@ -9993,7 +9966,7 @@ Axios$1.prototype.request = function request(configOrUrl, config) {
     return Promise.reject(error);
   }
 
-  while (responseInterceptorChain.length) {
+  while (responseInterceptorChain.length > 0) {
     promise = promise.then(responseInterceptorChain.shift(), responseInterceptorChain.shift());
   }
 
@@ -10002,54 +9975,54 @@ Axios$1.prototype.request = function request(configOrUrl, config) {
 
 Axios$1.prototype.getUri = function getUri(config) {
   config = mergeConfig$1(this.defaults, config);
-  var fullPath = buildFullPath(config.baseURL, config.url);
+  const fullPath = buildFullPath(config.baseURL, config.url);
   return buildURL(fullPath, config.params, config.paramsSerializer);
 }; // Provide aliases for supported request methods
 
-utils$1.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
-  /*eslint func-names:0*/
+utils$1.forEach(['delete', 'get', 'head', 'options'], (method) => {
+  /* eslint func-names:0 */
   Axios$1.prototype[method] = function (url, config) {
     return this.request(
       mergeConfig$1(config || {}, {
-        method: method,
-        url: url,
+        method,
+        url,
         data: (config || {}).data,
       }),
     );
   };
 });
-utils$1.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-  /*eslint func-names:0*/
+utils$1.forEach(['post', 'put', 'patch'], (method) => {
+  /* eslint func-names:0 */
   function generateHTTPMethod(isForm) {
     return function httpMethod(url, data, config) {
       return this.request(
         mergeConfig$1(config || {}, {
-          method: method,
+          method,
           headers: isForm
             ? {
                 'Content-Type': 'multipart/form-data',
               }
             : {},
-          url: url,
-          data: data,
+          url,
+          data,
         }),
       );
     };
   }
 
   Axios$1.prototype[method] = generateHTTPMethod();
-  Axios$1.prototype[method + 'Form'] = generateHTTPMethod(true);
+  Axios$1.prototype[`${method  }Form`] = generateHTTPMethod(true);
 });
-var Axios_1 = Axios$1;
+const Axios_1 = Axios$1;
 
-var CancelToken_1;
-var hasRequiredCancelToken;
+let CancelToken_1;
+let hasRequiredCancelToken;
 
 function requireCancelToken() {
   if (hasRequiredCancelToken) return CancelToken_1;
   hasRequiredCancelToken = 1;
 
-  var CanceledError = requireCanceledError();
+  const CanceledError = requireCanceledError();
   /**
    * A `CancelToken` is an object that can be used to request cancellation of an operation.
    *
@@ -10062,16 +10035,16 @@ function requireCancelToken() {
       throw new TypeError('executor must be a function.');
     }
 
-    var resolvePromise;
-    this.promise = new Promise(function promiseExecutor(resolve) {
+    let resolvePromise;
+    this.promise = new Promise((resolve) => {
       resolvePromise = resolve;
     });
-    var token = this; // eslint-disable-next-line func-names
+    const token = this; // eslint-disable-next-line func-names
 
-    this.promise.then(function (cancel) {
+    this.promise.then((cancel) => {
       if (!token._listeners) return;
-      var i;
-      var l = token._listeners.length;
+      let i;
+      const l = token._listeners.length;
 
       for (i = 0; i < l; i++) {
         token._listeners[i](cancel);
@@ -10081,9 +10054,9 @@ function requireCancelToken() {
     }); // eslint-disable-next-line func-names
 
     this.promise.then = function (onfulfilled) {
-      var _resolve; // eslint-disable-next-line func-names
+      let _resolve; // eslint-disable-next-line func-names
 
-      var promise = new Promise(function (resolve) {
+      const promise = new Promise((resolve) => {
         token.subscribe(resolve);
         _resolve = resolve;
       }).then(onfulfilled);
@@ -10095,7 +10068,7 @@ function requireCancelToken() {
       return promise;
     };
 
-    executor(function cancel(message) {
+    executor((message) => {
       if (token.reason) {
         // Cancellation has already been requested
         return;
@@ -10139,7 +10112,7 @@ function requireCancelToken() {
       return;
     }
 
-    var index = this._listeners.indexOf(listener);
+    const index = this._listeners.indexOf(listener);
 
     if (index !== -1) {
       this._listeners.splice(index, 1);
@@ -10151,13 +10124,13 @@ function requireCancelToken() {
    */
 
   CancelToken.source = function source() {
-    var cancel;
-    var token = new CancelToken(function executor(c) {
+    let cancel;
+    const token = new CancelToken((c) => {
       cancel = c;
     });
     return {
-      token: token,
-      cancel: cancel,
+      token,
+      cancel,
     };
   };
 
@@ -10165,8 +10138,8 @@ function requireCancelToken() {
   return CancelToken_1;
 }
 
-var spread;
-var hasRequiredSpread;
+let spread;
+let hasRequiredSpread;
 
 function requireSpread() {
   if (hasRequiredSpread) return spread;
@@ -10201,14 +10174,14 @@ function requireSpread() {
   return spread;
 }
 
-var isAxiosError;
-var hasRequiredIsAxiosError;
+let isAxiosError;
+let hasRequiredIsAxiosError;
 
 function requireIsAxiosError() {
   if (hasRequiredIsAxiosError) return isAxiosError;
   hasRequiredIsAxiosError = 1;
 
-  var utils = utils$9;
+  const utils = utils$9;
   /**
    * Determines whether the payload is an error thrown by Axios
    *
@@ -10223,11 +10196,11 @@ function requireIsAxiosError() {
   return isAxiosError;
 }
 
-var utils = utils$9;
-var bind = bind$2;
-var Axios = Axios_1;
-var mergeConfig = mergeConfig$2;
-var defaults = defaults_1;
+const utils = utils$9;
+const bind = bind$2;
+const Axios = Axios_1;
+const mergeConfig = mergeConfig$2;
+const defaults = defaults_1;
 /**
  * Create an instance of Axios
  *
@@ -10236,8 +10209,8 @@ var defaults = defaults_1;
  */
 
 function createInstance(defaultConfig) {
-  var context = new Axios(defaultConfig);
-  var instance = bind(Axios.prototype.request, context); // Copy axios.prototype to instance
+  const context = new Axios(defaultConfig);
+  const instance = bind(Axios.prototype.request, context); // Copy axios.prototype to instance
 
   utils.extend(instance, Axios.prototype, context); // Copy context to instance
 
@@ -10250,7 +10223,7 @@ function createInstance(defaultConfig) {
   return instance;
 } // Create the default instance to be exported
 
-var axios$1 = createInstance(defaults); // Expose Axios class to allow class inheritance
+const axios$1 = createInstance(defaults); // Expose Axios class to allow class inheritance
 
 axios$1.Axios = Axios; // Expose Cancel & CancelToken
 
@@ -10279,9 +10252,9 @@ axios$2.exports.default = axios$1;
   module.exports = axios$2.exports;
 })(axios$3);
 
-var axios = /*@__PURE__*/ getDefaultExportFromCjs(axios$3.exports);
+const axios = /* @__PURE__ */ getDefaultExportFromCjs(axios$3.exports);
 
-var denyList = new Set([
+const denyList = new Set([
   'ENOTFOUND',
   'ENETUNREACH', // SSL errors from https://github.com/nodejs/node/blob/fc8e3e2cdc521978351de257030db0076d79e0ab/src/crypto/crypto_common.cc#L301-L328
   'UNABLE_TO_GET_ISSUER_CERT',
@@ -10314,14 +10287,14 @@ var denyList = new Set([
   'HOSTNAME_MISMATCH',
 ]); // TODO: Use `error?.code` when targeting Node.js 14
 
-var isRetryAllowed = function isRetryAllowed(error) {
+const isRetryAllowed = function isRetryAllowed(error) {
   return !denyList.has(error && error.code);
 };
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
   try {
     var info = gen[key](arg);
-    var value = info.value;
+    var {value} = info;
   } catch (error) {
     reject(error);
     return;
@@ -10336,10 +10309,10 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
 
 function _asyncToGenerator(fn) {
   return function () {
-    var self = this,
-      args = arguments;
-    return new Promise(function (resolve, reject) {
-      var gen = fn.apply(self, args);
+    const self = this;
+      const args = arguments;
+    return new Promise((resolve, reject) => {
+      const gen = fn.apply(self, args);
 
       function _next(value) {
         asyncGeneratorStep(gen, resolve, reject, _next, _throw, 'next', value);
@@ -10355,15 +10328,13 @@ function _asyncToGenerator(fn) {
 }
 
 function ownKeys(object, enumerableOnly) {
-  var keys = Object.keys(object);
+  const keys = Object.keys(object);
 
   if (Object.getOwnPropertySymbols) {
-    var symbols = Object.getOwnPropertySymbols(object);
+    let symbols = Object.getOwnPropertySymbols(object);
 
     if (enumerableOnly) {
-      symbols = symbols.filter(function (sym) {
-        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-      });
+      symbols = symbols.filter((sym) => Object.getOwnPropertyDescriptor(object, sym).enumerable);
     }
 
     keys.push.apply(keys, symbols);
@@ -10373,17 +10344,17 @@ function ownKeys(object, enumerableOnly) {
 }
 
 function _objectSpread(target) {
-  for (var i = 1; i < arguments.length; i++) {
+  for (let i = 1; i < arguments.length; i++) {
     var source = arguments[i] != null ? arguments[i] : {};
 
     if (i % 2) {
-      ownKeys(Object(source), true).forEach(function (key) {
+      ownKeys(Object(source), true).forEach((key) => {
         _defineProperty(target, key, source[key]);
       });
     } else if (Object.getOwnPropertyDescriptors) {
       Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
     } else {
-      ownKeys(Object(source)).forEach(function (key) {
+      ownKeys(Object(source)).forEach((key) => {
         Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
       });
     }
@@ -10395,7 +10366,7 @@ function _objectSpread(target) {
 function _defineProperty(obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
-      value: value,
+      value,
       enumerable: true,
       configurable: true,
       writable: true,
@@ -10406,7 +10377,7 @@ function _defineProperty(obj, key, value) {
 
   return obj;
 }
-var namespace = 'axios-retry';
+const namespace = 'axios-retry';
 /**
  * @param  {Error}  error
  * @return {boolean}
@@ -10420,8 +10391,8 @@ function isNetworkError(error) {
     isRetryAllowed(error)
   ); // Prevents retrying unsafe errors
 }
-var SAFE_HTTP_METHODS = ['get', 'head', 'options'];
-var IDEMPOTENT_HTTP_METHODS = SAFE_HTTP_METHODS.concat(['put', 'delete']);
+const SAFE_HTTP_METHODS = ['get', 'head', 'options'];
+const IDEMPOTENT_HTTP_METHODS = SAFE_HTTP_METHODS.concat(['put', 'delete']);
 /**
  * @param  {Error}  error
  * @return {boolean}
@@ -10444,7 +10415,7 @@ function isSafeRequestError(error) {
     return false;
   }
 
-  return isRetryableError(error) && SAFE_HTTP_METHODS.indexOf(error.config.method) !== -1;
+  return isRetryableError(error) && SAFE_HTTP_METHODS.includes(error.config.method);
 }
 /**
  * @param  {Error}  error
@@ -10457,7 +10428,7 @@ function isIdempotentRequestError(error) {
     return false;
   }
 
-  return isRetryableError(error) && IDEMPOTENT_HTTP_METHODS.indexOf(error.config.method) !== -1;
+  return isRetryableError(error) && IDEMPOTENT_HTTP_METHODS.includes(error.config.method);
 }
 /**
  * @param  {Error}  error
@@ -10480,9 +10451,9 @@ function noDelay() {
  */
 
 function exponentialDelay() {
-  var retryNumber = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-  var delay = Math.pow(2, retryNumber) * 100;
-  var randomSum = delay * 0.2 * Math.random(); // 0-20% of the delay
+  const retryNumber = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+  const delay = 2**retryNumber * 100;
+  const randomSum = delay * 0.2 * Math.random(); // 0-20% of the delay
 
   return delay + randomSum;
 }
@@ -10493,7 +10464,7 @@ function exponentialDelay() {
  */
 
 function getCurrentState(config) {
-  var currentState = config[namespace] || {};
+  const currentState = config[namespace] || {};
   currentState.retryCount = currentState.retryCount || 0;
   config[namespace] = currentState;
   return currentState;
@@ -10595,15 +10566,15 @@ function shouldRetry(_x, _x2, _x3, _x4) {
 
 function _shouldRetry() {
   _shouldRetry = _asyncToGenerator(
-    /*#__PURE__*/ _regeneratorRuntime().mark(function _callee(
+    /* #__PURE__ */ _regeneratorRuntime().mark(function _callee(
       retries,
       retryCondition,
       currentState,
       error,
     ) {
-      var shouldRetryOrPromise, shouldRetryPromiseResult;
+      let shouldRetryOrPromise; let shouldRetryPromiseResult;
       return _regeneratorRuntime().wrap(
-        function _callee$(_context) {
+        (_context) => {
           while (1) {
             switch ((_context.prev = _context.next)) {
               case 0:
@@ -10624,7 +10595,7 @@ function _shouldRetry() {
 
               case 9:
                 _context.prev = 9;
-                _context.t0 = _context['catch'](2);
+                _context.t0 = _context.catch(2);
                 return _context.abrupt('return', false);
 
               case 12:
@@ -10646,33 +10617,33 @@ function _shouldRetry() {
 }
 
 function axiosRetry(axios, defaultOptions) {
-  axios.interceptors.request.use(function (config) {
-    var currentState = getCurrentState(config);
+  axios.interceptors.request.use((config) => {
+    const currentState = getCurrentState(config);
     currentState.lastRequestTime = Date.now();
     return config;
   });
   axios.interceptors.response.use(
     null,
-    /*#__PURE__*/ (function () {
-      var _ref = _asyncToGenerator(
-        /*#__PURE__*/ _regeneratorRuntime().mark(function _callee2(error) {
-          var config,
-            _getRequestOptions,
-            _getRequestOptions$re,
-            retries,
-            _getRequestOptions$re2,
-            retryCondition,
-            _getRequestOptions$re3,
-            retryDelay,
-            _getRequestOptions$sh,
-            shouldResetTimeout,
-            _getRequestOptions$on,
-            onRetry,
-            currentState,
-            delay,
-            lastRequestDuration;
+    /* #__PURE__ */ (function () {
+      const _ref = _asyncToGenerator(
+        /* #__PURE__ */ _regeneratorRuntime().mark(function _callee2(error) {
+          let config;
+            let _getRequestOptions;
+            let _getRequestOptions$re;
+            let retries;
+            let _getRequestOptions$re2;
+            let retryCondition;
+            let _getRequestOptions$re3;
+            let retryDelay;
+            let _getRequestOptions$sh;
+            let shouldResetTimeout;
+            let _getRequestOptions$on;
+            let onRetry;
+            let currentState;
+            let delay;
+            let lastRequestDuration;
 
-          return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          return _regeneratorRuntime().wrap((_context2) => {
             while (1) {
               switch ((_context2.prev = _context2.next)) {
                 case 0:
@@ -10733,11 +10704,7 @@ function axiosRetry(axios, defaultOptions) {
                   onRetry(currentState.retryCount, error, config);
                   return _context2.abrupt(
                     'return',
-                    new Promise(function (resolve) {
-                      return setTimeout(function () {
-                        return resolve(axios(config));
-                      }, delay);
-                    }),
+                    new Promise((resolve) => setTimeout(() => resolve(axios(config)), delay)),
                   );
 
                 case 15:
@@ -10766,12 +10733,12 @@ axiosRetry.isNetworkOrIdempotentRequestError = isNetworkOrIdempotentRequestError
 axiosRetry.exponentialDelay = exponentialDelay;
 axiosRetry.isRetryableError = isRetryableError;
 
-var s = 1000;
-var m = s * 60;
-var h = m * 60;
-var d = h * 24;
-var w = d * 7;
-var y = d * 365.25;
+const s = 1000;
+const m = s * 60;
+const h = m * 60;
+const d = h * 24;
+const w = d * 7;
+const y = d * 365.25;
 /**
  * Parse or format the given `val`.
  *
@@ -10786,18 +10753,18 @@ var y = d * 365.25;
  * @api public
  */
 
-var ms = function ms(val, options) {
+const ms = function ms(val, options) {
   options = options || {};
 
-  var type = _typeof(val);
+  const type = _typeof(val);
 
   if (type === 'string' && val.length > 0) {
     return parse$1(val);
-  } else if (type === 'number' && isFinite(val)) {
+  } if (type === 'number' && isFinite(val)) {
     return options.long ? fmtLong(val) : fmtShort(val);
   }
 
-  throw new Error('val is not a non-empty string or a valid number. val=' + JSON.stringify(val));
+  throw new Error(`val is not a non-empty string or a valid number. val=${  JSON.stringify(val)}`);
 };
 /**
  * Parse the given `str` and return milliseconds.
@@ -10814,7 +10781,7 @@ function parse$1(str) {
     return;
   }
 
-  var match =
+  const match =
     /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
       str,
     );
@@ -10823,8 +10790,8 @@ function parse$1(str) {
     return;
   }
 
-  var n = parseFloat(match[1]);
-  var type = (match[2] || 'ms').toLowerCase();
+  const n = parseFloat(match[1]);
+  const type = (match[2] || 'ms').toLowerCase();
 
   switch (type) {
     case 'years':
@@ -10885,25 +10852,25 @@ function parse$1(str) {
  */
 
 function fmtShort(ms) {
-  var msAbs = Math.abs(ms);
+  const msAbs = Math.abs(ms);
 
   if (msAbs >= d) {
-    return Math.round(ms / d) + 'd';
+    return `${Math.round(ms / d)  }d`;
   }
 
   if (msAbs >= h) {
-    return Math.round(ms / h) + 'h';
+    return `${Math.round(ms / h)  }h`;
   }
 
   if (msAbs >= m) {
-    return Math.round(ms / m) + 'm';
+    return `${Math.round(ms / m)  }m`;
   }
 
   if (msAbs >= s) {
-    return Math.round(ms / s) + 's';
+    return `${Math.round(ms / s)  }s`;
   }
 
-  return ms + 'ms';
+  return `${ms  }ms`;
 }
 /**
  * Long format for `ms`.
@@ -10914,7 +10881,7 @@ function fmtShort(ms) {
  */
 
 function fmtLong(ms) {
-  var msAbs = Math.abs(ms);
+  const msAbs = Math.abs(ms);
 
   if (msAbs >= d) {
     return plural(ms, msAbs, d, 'day');
@@ -10932,24 +10899,24 @@ function fmtLong(ms) {
     return plural(ms, msAbs, s, 'second');
   }
 
-  return ms + ' ms';
+  return `${ms  } ms`;
 }
 /**
  * Pluralization helper.
  */
 
 function plural(ms, msAbs, n, name) {
-  var isPlural = msAbs >= n * 1.5;
-  return Math.round(ms / n) + ' ' + name + (isPlural ? 's' : '');
+  const isPlural = msAbs >= n * 1.5;
+  return `${Math.round(ms / n)  } ${  name  }${isPlural ? 's' : ''}`;
 }
 
-var md5$1 = { exports: {} };
+const md5$1 = { exports: {} };
 
-var crypt = { exports: {} };
+const crypt = { exports: {} };
 
 (function () {
-  var base64map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
-    crypt$1 = {
+  const base64map = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    var crypt$1 = {
       // Bit-wise rotation left
       rotl: function rotl(n, b) {
         return (n << b) | (n >>> (32 - b));
@@ -10965,7 +10932,7 @@ var crypt = { exports: {} };
           return (crypt$1.rotl(n, 8) & 0x00ff00ff) | (crypt$1.rotl(n, 24) & 0xff00ff00);
         } // Else, assume array and swap all items
 
-        for (var i = 0; i < n.length; i++) {
+        for (let i = 0; i < n.length; i++) {
           n[i] = crypt$1.endian(n[i]);
         }
 
@@ -11015,9 +10982,9 @@ var crypt = { exports: {} };
       // Convert a byte array to a base-64 string
       bytesToBase64: function bytesToBase64(bytes) {
         for (var base64 = [], i = 0; i < bytes.length; i += 3) {
-          var triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+          const triplet = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
 
-          for (var j = 0; j < 4; j++) {
+          for (let j = 0; j < 4; j++) {
             if (i * 8 + j * 6 <= bytes.length * 8)
               base64.push(base64map.charAt((triplet >>> (6 * (3 - j))) & 0x3f));
             else base64.push('=');
@@ -11029,12 +10996,12 @@ var crypt = { exports: {} };
       // Convert a base-64 string to a byte array
       base64ToBytes: function base64ToBytes(base64) {
         // Remove non-base-64 characters
-        base64 = base64.replace(/[^A-Z0-9+\/]/gi, '');
+        base64 = base64.replace(/[^\d+/a-z]/gi, '');
 
         for (var bytes = [], i = 0, imod4 = 0; i < base64.length; imod4 = ++i % 4) {
           if (imod4 == 0) continue;
           bytes.push(
-            ((base64map.indexOf(base64.charAt(i - 1)) & (Math.pow(2, -2 * imod4 + 8) - 1)) <<
+            ((base64map.indexOf(base64.charAt(i - 1)) & (2**(-2 * imod4 + 8) - 1)) <<
               (imod4 * 2)) |
               (base64map.indexOf(base64.charAt(i)) >>> (6 - imod4 * 2)),
           );
@@ -11078,7 +11045,7 @@ var charenc = {
     },
   },
 };
-var charenc_1 = charenc;
+const charenc_1 = charenc;
 
 /*!
  * Determine if an object is a Buffer
@@ -11088,7 +11055,7 @@ var charenc_1 = charenc;
  */
 // Object.prototype.constructor. Remove this eventually
 
-var isBuffer_1 = function isBuffer_1(obj) {
+const isBuffer_1 = function isBuffer_1(obj) {
   return obj != null && (isBuffer(obj) || isSlowBuffer(obj) || !!obj._isBuffer);
 };
 
@@ -11109,12 +11076,12 @@ function isSlowBuffer(obj) {
 }
 
 (function () {
-  var crypt$1 = crypt.exports,
-    utf8 = charenc_1.utf8,
-    isBuffer = isBuffer_1,
-    bin = charenc_1.bin,
+  const crypt$1 = crypt.exports;
+    const {utf8} = charenc_1;
+    const isBuffer = isBuffer_1;
+    const {bin} = charenc_1;
     // The core
-    md5 = function md5(message, options) {
+    const md5 = function md5(message, options) {
       // Convert to byte array
       if (message.constructor == String) {
         if (options && options.encoding === 'binary') message = bin.stringToBytes(message);
@@ -11123,12 +11090,12 @@ function isSlowBuffer(obj) {
       else if (!Array.isArray(message) && message.constructor !== Uint8Array)
         message = message.toString(); // else, assume byte array already
 
-      var m = crypt$1.bytesToWords(message),
-        l = message.length * 8,
-        a = 1732584193,
-        b = -271733879,
-        c = -1732584194,
-        d = 271733878; // Swap endian
+      const m = crypt$1.bytesToWords(message);
+        const l = message.length * 8;
+        let a = 1732584193;
+        let b = -271733879;
+        let c = -1732584194;
+        let d = 271733878; // Swap endian
 
       for (var i = 0; i < m.length; i++) {
         m[i] =
@@ -11139,16 +11106,16 @@ function isSlowBuffer(obj) {
       m[l >>> 5] |= 0x80 << l % 32;
       m[(((l + 64) >>> 9) << 4) + 14] = l; // Method shortcuts
 
-      var FF = md5._ff,
-        GG = md5._gg,
-        HH = md5._hh,
-        II = md5._ii;
+      const FF = md5._ff;
+        const GG = md5._gg;
+        const HH = md5._hh;
+        const II = md5._ii;
 
       for (var i = 0; i < m.length; i += 16) {
-        var aa = a,
-          bb = b,
-          cc = c,
-          dd = d;
+        const aa = a;
+          const bb = b;
+          const cc = c;
+          const dd = d;
         a = FF(a, b, c, d, m[i + 0], 7, -680876936);
         d = FF(d, a, b, c, m[i + 1], 12, -389564586);
         c = FF(c, d, a, b, m[i + 2], 17, 606105819);
@@ -11223,22 +11190,22 @@ function isSlowBuffer(obj) {
     }; // Auxiliary functions
 
   md5._ff = function (a, b, c, d, x, s, t) {
-    var n = a + ((b & c) | (~b & d)) + (x >>> 0) + t;
+    const n = a + ((b & c) | (~b & d)) + (x >>> 0) + t;
     return ((n << s) | (n >>> (32 - s))) + b;
   };
 
   md5._gg = function (a, b, c, d, x, s, t) {
-    var n = a + ((b & d) | (c & ~d)) + (x >>> 0) + t;
+    const n = a + ((b & d) | (c & ~d)) + (x >>> 0) + t;
     return ((n << s) | (n >>> (32 - s))) + b;
   };
 
   md5._hh = function (a, b, c, d, x, s, t) {
-    var n = a + (b ^ c ^ d) + (x >>> 0) + t;
+    const n = a + (b ^ c ^ d) + (x >>> 0) + t;
     return ((n << s) | (n >>> (32 - s))) + b;
   };
 
   md5._ii = function (a, b, c, d, x, s, t) {
-    var n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
+    const n = a + (c ^ (b | ~d)) + (x >>> 0) + t;
     return ((n << s) | (n >>> (32 - s))) + b;
   }; // Package private blocksize
 
@@ -11246,8 +11213,8 @@ function isSlowBuffer(obj) {
   md5._digestsize = 16;
 
   md5$1.exports = function (message, options) {
-    if (message === undefined || message === null) throw new Error('Illegal argument ' + message);
-    var digestbytes = crypt$1.wordsToBytes(md5(message, options));
+    if (message === undefined || message === null) throw new Error(`Illegal argument ${  message}`);
+    const digestbytes = crypt$1.wordsToBytes(md5(message, options));
     return options && options.asBytes
       ? digestbytes
       : options && options.asString
@@ -11259,8 +11226,8 @@ function isSlowBuffer(obj) {
 // Unique ID creation requires a high quality random # generator. In the browser we therefore
 // require the crypto API and do not support built-in fallback to lower quality random number
 // generators (like Math.random()).
-var getRandomValues;
-var rnds8 = new Uint8Array(16);
+let getRandomValues;
+const rnds8 = new Uint8Array(16);
 function rng() {
   // lazy load so that environments that need to polyfill have a chance to do so
   if (!getRandomValues) {
@@ -11284,8 +11251,8 @@ function rng() {
   return getRandomValues(rnds8);
 }
 
-var REGEX =
-  /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i;
+const REGEX =
+  /^(?:[\da-f]{8}-[\da-f]{4}-[1-5][\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}|0{8}-(?:0{4}-){3}0{12})$/i;
 
 function validate(uuid) {
   return typeof uuid === 'string' && REGEX.test(uuid);
@@ -11296,37 +11263,37 @@ function validate(uuid) {
  * XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
  */
 
-var byteToHex = [];
+const byteToHex = [];
 
-for (var i = 0; i < 256; ++i) {
+for (let i = 0; i < 256; ++i) {
   byteToHex.push((i + 0x100).toString(16).substr(1));
 }
 
 function stringify(arr) {
-  var offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0; // Note: Be careful editing this code!  It's been tuned for performance
+  const offset = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0; // Note: Be careful editing this code!  It's been tuned for performance
   // and works in ways you may not expect. See https://github.com/uuidjs/uuid/pull/434
 
-  var uuid = (
-    byteToHex[arr[offset + 0]] +
+  const uuid = (
+    `${byteToHex[arr[offset + 0]] +
     byteToHex[arr[offset + 1]] +
     byteToHex[arr[offset + 2]] +
-    byteToHex[arr[offset + 3]] +
-    '-' +
-    byteToHex[arr[offset + 4]] +
-    byteToHex[arr[offset + 5]] +
-    '-' +
-    byteToHex[arr[offset + 6]] +
-    byteToHex[arr[offset + 7]] +
-    '-' +
-    byteToHex[arr[offset + 8]] +
-    byteToHex[arr[offset + 9]] +
-    '-' +
-    byteToHex[arr[offset + 10]] +
-    byteToHex[arr[offset + 11]] +
-    byteToHex[arr[offset + 12]] +
-    byteToHex[arr[offset + 13]] +
-    byteToHex[arr[offset + 14]] +
-    byteToHex[arr[offset + 15]]
+    byteToHex[arr[offset + 3]] 
+    }-${ 
+    byteToHex[arr[offset + 4]] 
+    }${byteToHex[arr[offset + 5]] 
+    }-${ 
+    byteToHex[arr[offset + 6]] 
+    }${byteToHex[arr[offset + 7]] 
+    }-${ 
+    byteToHex[arr[offset + 8]] 
+    }${byteToHex[arr[offset + 9]] 
+    }-${ 
+    byteToHex[arr[offset + 10]] 
+    }${byteToHex[arr[offset + 11]] 
+    }${byteToHex[arr[offset + 12]] 
+    }${byteToHex[arr[offset + 13]] 
+    }${byteToHex[arr[offset + 14]] 
+    }${byteToHex[arr[offset + 15]]}`
   ).toLowerCase(); // Consistency check for valid UUID.  If this throws, it's likely due to one
   // of the following:
   // - One or more input array values don't map to a hex octet (leading to
@@ -11345,8 +11312,8 @@ function parse(uuid) {
     throw TypeError('Invalid UUID');
   }
 
-  var v;
-  var arr = new Uint8Array(16); // Parse ########-....-....-....-............
+  let v;
+  const arr = new Uint8Array(16); // Parse ########-....-....-....-............
 
   arr[0] = (v = parseInt(uuid.slice(0, 8), 16)) >>> 24;
   arr[1] = (v >>> 16) & 0xff;
@@ -11375,17 +11342,17 @@ function parse(uuid) {
 function stringToBytes(str) {
   str = unescape(encodeURIComponent(str)); // UTF8 escape
 
-  var bytes = [];
+  const bytes = [];
 
-  for (var i = 0; i < str.length; ++i) {
+  for (let i = 0; i < str.length; ++i) {
     bytes.push(str.charCodeAt(i));
   }
 
   return bytes;
 }
 
-var DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
-var URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
+const DNS = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';
+const URL = '6ba7b811-9dad-11d1-80b4-00c04fd430c8';
 function v35(name, version, hashfunc) {
   function generateUUID(value, namespace, buf, offset) {
     if (typeof value === 'string') {
@@ -11402,7 +11369,7 @@ function v35(name, version, hashfunc) {
     // Future: Use spread syntax when supported on all platforms, e.g. `bytes =
     // hashfunc([...namespace, ... value])`
 
-    var bytes = new Uint8Array(16 + value.length);
+    let bytes = new Uint8Array(16 + value.length);
     bytes.set(namespace);
     bytes.set(value, namespace.length);
     bytes = hashfunc(bytes);
@@ -11412,7 +11379,7 @@ function v35(name, version, hashfunc) {
     if (buf) {
       offset = offset || 0;
 
-      for (var i = 0; i < 16; ++i) {
+      for (let i = 0; i < 16; ++i) {
         buf[offset + i] = bytes[i];
       }
 
@@ -11453,11 +11420,11 @@ function v35(name, version, hashfunc) {
  */
 function md5(bytes) {
   if (typeof bytes === 'string') {
-    var msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
+    const msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
 
     bytes = new Uint8Array(msg.length);
 
-    for (var i = 0; i < msg.length; ++i) {
+    for (let i = 0; i < msg.length; ++i) {
       bytes[i] = msg.charCodeAt(i);
     }
   }
@@ -11469,13 +11436,13 @@ function md5(bytes) {
  */
 
 function md5ToHexEncodedArray(input) {
-  var output = [];
-  var length32 = input.length * 32;
-  var hexTab = '0123456789abcdef';
+  const output = [];
+  const length32 = input.length * 32;
+  const hexTab = '0123456789abcdef';
 
-  for (var i = 0; i < length32; i += 8) {
-    var x = (input[i >> 5] >>> i % 32) & 0xff;
-    var hex = parseInt(hexTab.charAt((x >>> 4) & 0x0f) + hexTab.charAt(x & 0x0f), 16);
+  for (let i = 0; i < length32; i += 8) {
+    const x = (input[i >> 5] >>> i % 32) & 0xff;
+    const hex = parseInt(hexTab.charAt((x >>> 4) & 0x0f) + hexTab.charAt(x & 0x0f), 16);
     output.push(hex);
   }
 
@@ -11496,16 +11463,16 @@ function wordsToMd5(x, len) {
   /* append padding */
   x[len >> 5] |= 0x80 << len % 32;
   x[getOutputLength(len) - 1] = len;
-  var a = 1732584193;
-  var b = -271733879;
-  var c = -1732584194;
-  var d = 271733878;
+  let a = 1732584193;
+  let b = -271733879;
+  let c = -1732584194;
+  let d = 271733878;
 
-  for (var i = 0; i < x.length; i += 16) {
-    var olda = a;
-    var oldb = b;
-    var oldc = c;
-    var oldd = d;
+  for (let i = 0; i < x.length; i += 16) {
+    const olda = a;
+    const oldb = b;
+    const oldc = c;
+    const oldd = d;
     a = md5ff(a, b, c, d, x[i], 7, -680876936);
     d = md5ff(d, a, b, c, x[i + 1], 12, -389564586);
     c = md5ff(c, d, a, b, x[i + 2], 17, 606105819);
@@ -11588,10 +11555,10 @@ function bytesToWords(input) {
     return [];
   }
 
-  var length8 = input.length * 8;
-  var output = new Uint32Array(getOutputLength(length8));
+  const length8 = input.length * 8;
+  const output = new Uint32Array(getOutputLength(length8));
 
-  for (var i = 0; i < length8; i += 8) {
+  for (let i = 0; i < length8; i += 8) {
     output[i >> 5] |= (input[i / 8] & 0xff) << i % 32;
   }
 
@@ -11603,8 +11570,8 @@ function bytesToWords(input) {
  */
 
 function safeAdd(x, y) {
-  var lsw = (x & 0xffff) + (y & 0xffff);
-  var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+  const lsw = (x & 0xffff) + (y & 0xffff);
+  const msw = (x >> 16) + (y >> 16) + (lsw >> 16);
   return (msw << 16) | (lsw & 0xffff);
 }
 /*
@@ -11642,7 +11609,7 @@ v35('v3', 0x30, md5);
 
 function v4(options, buf, offset) {
   options = options || {};
-  var rnds = options.random || (options.rng || rng)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
+  const rnds = options.random || (options.rng || rng)(); // Per 4.4, set bits for version and `clock_seq_hi_and_reserved`
 
   rnds[6] = (rnds[6] & 0x0f) | 0x40;
   rnds[8] = (rnds[8] & 0x3f) | 0x80; // Copy bytes to buffer, if provided
@@ -11650,7 +11617,7 @@ function v4(options, buf, offset) {
   if (buf) {
     offset = offset || 0;
 
-    for (var i = 0; i < 16; ++i) {
+    for (let i = 0; i < 16; ++i) {
       buf[offset + i] = rnds[i];
     }
 
@@ -11683,15 +11650,15 @@ function ROTL(x, n) {
 }
 
 function sha1(bytes) {
-  var K = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6];
-  var H = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
+  const K = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6];
+  const H = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
 
   if (typeof bytes === 'string') {
-    var msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
+    const msg = unescape(encodeURIComponent(bytes)); // UTF8 escape
 
     bytes = [];
 
-    for (var i = 0; i < msg.length; ++i) {
+    for (let i = 0; i < msg.length; ++i) {
       bytes.push(msg.charCodeAt(i));
     }
   } else if (!Array.isArray(bytes)) {
@@ -11700,14 +11667,14 @@ function sha1(bytes) {
   }
 
   bytes.push(0x80);
-  var l = bytes.length / 4 + 2;
-  var N = Math.ceil(l / 16);
-  var M = new Array(N);
+  const l = bytes.length / 4 + 2;
+  const N = Math.ceil(l / 16);
+  const M = new Array(N);
 
-  for (var _i = 0; _i < N; ++_i) {
-    var arr = new Uint32Array(16);
+  for (let _i = 0; _i < N; ++_i) {
+    const arr = new Uint32Array(16);
 
-    for (var j = 0; j < 16; ++j) {
+    for (let j = 0; j < 16; ++j) {
       arr[j] =
         (bytes[_i * 64 + j * 4] << 24) |
         (bytes[_i * 64 + j * 4 + 1] << 16) |
@@ -11718,30 +11685,30 @@ function sha1(bytes) {
     M[_i] = arr;
   }
 
-  M[N - 1][14] = ((bytes.length - 1) * 8) / Math.pow(2, 32);
+  M[N - 1][14] = ((bytes.length - 1) * 8) / 2**32;
   M[N - 1][14] = Math.floor(M[N - 1][14]);
   M[N - 1][15] = ((bytes.length - 1) * 8) & 0xffffffff;
 
-  for (var _i2 = 0; _i2 < N; ++_i2) {
-    var W = new Uint32Array(80);
+  for (let _i2 = 0; _i2 < N; ++_i2) {
+    const W = new Uint32Array(80);
 
-    for (var t = 0; t < 16; ++t) {
+    for (let t = 0; t < 16; ++t) {
       W[t] = M[_i2][t];
     }
 
-    for (var _t = 16; _t < 80; ++_t) {
+    for (let _t = 16; _t < 80; ++_t) {
       W[_t] = ROTL(W[_t - 3] ^ W[_t - 8] ^ W[_t - 14] ^ W[_t - 16], 1);
     }
 
-    var a = H[0];
-    var b = H[1];
-    var c = H[2];
-    var d = H[3];
-    var e = H[4];
+    let a = H[0];
+    let b = H[1];
+    let c = H[2];
+    let d = H[3];
+    let e = H[4];
 
-    for (var _t2 = 0; _t2 < 80; ++_t2) {
-      var s = Math.floor(_t2 / 20);
-      var T = (ROTL(a, 5) + f(s, b, c, d) + e + K[s] + W[_t2]) >>> 0;
+    for (let _t2 = 0; _t2 < 80; ++_t2) {
+      const s = Math.floor(_t2 / 20);
+      const T = (ROTL(a, 5) + f(s, b, c, d) + e + K[s] + W[_t2]) >>> 0;
       e = d;
       d = c;
       c = ROTL(b, 30) >>> 0;
@@ -11784,16 +11751,16 @@ v35('v5', 0x50, sha1);
 
 /** `Object#toString` result references. */
 
-var stringTag = '[object String]';
+const stringTag = '[object String]';
 /** Used for built-in method references. */
 
-var objectProto = Object.prototype;
+const objectProto = Object.prototype;
 /**
  * Used to resolve the [`toStringTag`](http://ecma-international.org/ecma-262/6.0/#sec-object.prototype.tostring)
  * of values.
  */
 
-var objectToString = objectProto.toString;
+const objectToString = objectProto.toString;
 /**
  * Checks if `value` is classified as an `Array` object.
  *
@@ -11818,7 +11785,7 @@ var objectToString = objectProto.toString;
  * // => false
  */
 
-var isArray = Array.isArray;
+const {isArray} = Array;
 /**
  * Checks if `value` is object-like. A value is object-like if it's not `null`
  * and has a `typeof` result of "object".
@@ -11865,71 +11832,71 @@ function isObjectLike(value) {
 
 function isString(value) {
   return (
-    typeof value == 'string' ||
+    typeof value === 'string' ||
     (!isArray(value) && isObjectLike(value) && objectToString.call(value) == stringTag)
   );
 }
 
-var lodash_isstring = isString;
+const lodash_isstring = isString;
 
-var lodash_clonedeep = { exports: {} };
+const lodash_clonedeep = { exports: {} };
 
 (function (module, exports) {
   /** Used as the size to enable large array optimizations. */
-  var LARGE_ARRAY_SIZE = 200;
+  const LARGE_ARRAY_SIZE = 200;
   /** Used to stand-in for `undefined` hash values. */
 
-  var HASH_UNDEFINED = '__lodash_hash_undefined__';
+  const HASH_UNDEFINED = '__lodash_hash_undefined__';
   /** Used as references for various `Number` constants. */
 
-  var MAX_SAFE_INTEGER = 9007199254740991;
+  const MAX_SAFE_INTEGER = 9007199254740991;
   /** `Object#toString` result references. */
 
-  var argsTag = '[object Arguments]',
-    arrayTag = '[object Array]',
-    boolTag = '[object Boolean]',
-    dateTag = '[object Date]',
-    errorTag = '[object Error]',
-    funcTag = '[object Function]',
-    genTag = '[object GeneratorFunction]',
-    mapTag = '[object Map]',
-    numberTag = '[object Number]',
-    objectTag = '[object Object]',
-    promiseTag = '[object Promise]',
-    regexpTag = '[object RegExp]',
-    setTag = '[object Set]',
-    stringTag = '[object String]',
-    symbolTag = '[object Symbol]',
-    weakMapTag = '[object WeakMap]';
-  var arrayBufferTag = '[object ArrayBuffer]',
-    dataViewTag = '[object DataView]',
-    float32Tag = '[object Float32Array]',
-    float64Tag = '[object Float64Array]',
-    int8Tag = '[object Int8Array]',
-    int16Tag = '[object Int16Array]',
-    int32Tag = '[object Int32Array]',
-    uint8Tag = '[object Uint8Array]',
-    uint8ClampedTag = '[object Uint8ClampedArray]',
-    uint16Tag = '[object Uint16Array]',
-    uint32Tag = '[object Uint32Array]';
+  const argsTag = '[object Arguments]';
+    const arrayTag = '[object Array]';
+    const boolTag = '[object Boolean]';
+    const dateTag = '[object Date]';
+    const errorTag = '[object Error]';
+    const funcTag = '[object Function]';
+    const genTag = '[object GeneratorFunction]';
+    const mapTag = '[object Map]';
+    const numberTag = '[object Number]';
+    const objectTag = '[object Object]';
+    const promiseTag = '[object Promise]';
+    const regexpTag = '[object RegExp]';
+    const setTag = '[object Set]';
+    const stringTag = '[object String]';
+    const symbolTag = '[object Symbol]';
+    const weakMapTag = '[object WeakMap]';
+  const arrayBufferTag = '[object ArrayBuffer]';
+    const dataViewTag = '[object DataView]';
+    const float32Tag = '[object Float32Array]';
+    const float64Tag = '[object Float64Array]';
+    const int8Tag = '[object Int8Array]';
+    const int16Tag = '[object Int16Array]';
+    const int32Tag = '[object Int32Array]';
+    const uint8Tag = '[object Uint8Array]';
+    const uint8ClampedTag = '[object Uint8ClampedArray]';
+    const uint16Tag = '[object Uint16Array]';
+    const uint32Tag = '[object Uint32Array]';
   /**
    * Used to match `RegExp`
    * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
    */
 
-  var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+  const reRegExpChar = /[$()*+.?[\\\]^{|}]/g;
   /** Used to match `RegExp` flags from their coerced string values. */
 
-  var reFlags = /\w*$/;
+  const reFlags = /\w*$/;
   /** Used to detect host constructors (Safari). */
 
-  var reIsHostCtor = /^\[object .+?Constructor\]$/;
+  const reIsHostCtor = /^\[object .+?Constructor]$/;
   /** Used to detect unsigned integer values. */
 
-  var reIsUint = /^(?:0|[1-9]\d*)$/;
+  const reIsUint = /^(?:0|[1-9]\d*)$/;
   /** Used to identify `toStringTag` values supported by `_.clone`. */
 
-  var cloneableTags = {};
+  const cloneableTags = {};
   cloneableTags[argsTag] =
     cloneableTags[arrayTag] =
     cloneableTags[arrayBufferTag] =
@@ -11956,30 +11923,30 @@ var lodash_clonedeep = { exports: {} };
   cloneableTags[errorTag] = cloneableTags[funcTag] = cloneableTags[weakMapTag] = false;
   /** Detect free variable `global` from Node.js. */
 
-  var freeGlobal =
+  const freeGlobal =
     _typeof(commonjsGlobal) == 'object' &&
     commonjsGlobal &&
     commonjsGlobal.Object === Object &&
     commonjsGlobal;
   /** Detect free variable `self`. */
 
-  var freeSelf =
+  const freeSelf =
     (typeof self === 'undefined' ? 'undefined' : _typeof(self)) == 'object' &&
     self &&
     self.Object === Object &&
     self;
   /** Used as a reference to the global object. */
 
-  var root = freeGlobal || freeSelf || Function('return this')();
+  const root = freeGlobal || freeSelf || Function('return this')();
   /** Detect free variable `exports`. */
 
-  var freeExports = exports && !exports.nodeType && exports;
+  const freeExports = exports && !exports.nodeType && exports;
   /** Detect free variable `module`. */
 
-  var freeModule = freeExports && 'object' == 'object' && module && !module.nodeType && module;
+  const freeModule = freeExports && 'object' === 'object' && module && !module.nodeType && module;
   /** Detect the popular CommonJS extension `module.exports`. */
 
-  var moduleExports = freeModule && freeModule.exports === freeExports;
+  const moduleExports = freeModule && freeModule.exports === freeExports;
   /**
    * Adds the key-value `pair` to `map`.
    *
@@ -12019,8 +11986,8 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function arrayEach(array, iteratee) {
-    var index = -1,
-      length = array ? array.length : 0;
+    let index = -1;
+      const length = array ? array.length : 0;
 
     while (++index < length) {
       if (iteratee(array[index], index, array) === false) {
@@ -12040,9 +12007,9 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function arrayPush(array, values) {
-    var index = -1,
-      length = values.length,
-      offset = array.length;
+    let index = -1;
+      const {length} = values;
+      const offset = array.length;
 
     while (++index < length) {
       array[offset + index] = values[index];
@@ -12064,8 +12031,8 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function arrayReduce(array, iteratee, accumulator, initAccum) {
-    var index = -1,
-      length = array ? array.length : 0;
+    let index = -1;
+      const length = array ? array.length : 0;
 
     if (initAccum && length) {
       accumulator = array[++index];
@@ -12088,8 +12055,8 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function baseTimes(n, iteratee) {
-    var index = -1,
-      result = Array(n);
+    let index = -1;
+      const result = Array(n);
 
     while (++index < n) {
       result[index] = iteratee(index);
@@ -12120,11 +12087,11 @@ var lodash_clonedeep = { exports: {} };
   function isHostObject(value) {
     // Many host objects are `Object` objects that can coerce to strings
     // despite having improperly defined `toString` methods.
-    var result = false;
+    let result = false;
 
-    if (value != null && typeof value.toString != 'function') {
+    if (value != null && typeof value.toString !== 'function') {
       try {
-        result = !!(value + '');
+        result = !!(`${value  }`);
       } catch (e) {}
     }
 
@@ -12139,9 +12106,9 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function mapToArray(map) {
-    var index = -1,
-      result = Array(map.size);
-    map.forEach(function (value, key) {
+    let index = -1;
+      const result = Array(map.size);
+    map.forEach((value, key) => {
       result[++index] = [key, value];
     });
     return result;
@@ -12169,83 +12136,83 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function setToArray(set) {
-    var index = -1,
-      result = Array(set.size);
-    set.forEach(function (value) {
+    let index = -1;
+      const result = Array(set.size);
+    set.forEach((value) => {
       result[++index] = value;
     });
     return result;
   }
   /** Used for built-in method references. */
 
-  var arrayProto = Array.prototype,
-    funcProto = Function.prototype,
-    objectProto = Object.prototype;
+  const arrayProto = Array.prototype;
+    const funcProto = Function.prototype;
+    const objectProto = Object.prototype;
   /** Used to detect overreaching core-js shims. */
 
-  var coreJsData = root['__core-js_shared__'];
+  const coreJsData = root['__core-js_shared__'];
   /** Used to detect methods masquerading as native. */
 
-  var maskSrcKey = (function () {
-    var uid = /[^.]+$/.exec((coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO) || '');
-    return uid ? 'Symbol(src)_1.' + uid : '';
+  const maskSrcKey = (function () {
+    const uid = /[^.]+$/.exec((coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO) || '');
+    return uid ? `Symbol(src)_1.${  uid}` : '';
   })();
   /** Used to resolve the decompiled source of functions. */
 
-  var funcToString = funcProto.toString;
+  const funcToString = funcProto.toString;
   /** Used to check objects for own properties. */
 
-  var hasOwnProperty = objectProto.hasOwnProperty;
+  const {hasOwnProperty} = objectProto;
   /**
    * Used to resolve the
    * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
    * of values.
    */
 
-  var objectToString = objectProto.toString;
+  const objectToString = objectProto.toString;
   /** Used to detect if a method is native. */
 
-  var reIsNative = RegExp(
-    '^' +
+  const reIsNative = RegExp(
+    `^${ 
       funcToString
         .call(hasOwnProperty)
         .replace(reRegExpChar, '\\$&')
-        .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') +
-      '$',
+        .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\])/g, '$1.*?') 
+      }$`,
   );
   /** Built-in value references. */
 
-  var Buffer = moduleExports ? root.Buffer : undefined,
-    _Symbol = root.Symbol,
-    Uint8Array = root.Uint8Array,
-    getPrototype = overArg(Object.getPrototypeOf, Object),
-    objectCreate = Object.create,
-    propertyIsEnumerable = objectProto.propertyIsEnumerable,
-    splice = arrayProto.splice;
+  const Buffer = moduleExports ? root.Buffer : undefined;
+    const _Symbol = root.Symbol;
+    const {Uint8Array} = root;
+    const getPrototype = overArg(Object.getPrototypeOf, Object);
+    const objectCreate = Object.create;
+    const {propertyIsEnumerable} = objectProto;
+    const {splice} = arrayProto;
   /* Built-in method references for those with the same name as other `lodash` methods. */
 
-  var nativeGetSymbols = Object.getOwnPropertySymbols,
-    nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined,
-    nativeKeys = overArg(Object.keys, Object);
+  const nativeGetSymbols = Object.getOwnPropertySymbols;
+    const nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
+    const nativeKeys = overArg(Object.keys, Object);
   /* Built-in method references that are verified to be native. */
 
-  var DataView = getNative(root, 'DataView'),
-    Map = getNative(root, 'Map'),
-    Promise = getNative(root, 'Promise'),
-    Set = getNative(root, 'Set'),
-    WeakMap = getNative(root, 'WeakMap'),
-    nativeCreate = getNative(Object, 'create');
+  const DataView = getNative(root, 'DataView');
+    const Map = getNative(root, 'Map');
+    const Promise = getNative(root, 'Promise');
+    const Set = getNative(root, 'Set');
+    const WeakMap = getNative(root, 'WeakMap');
+    const nativeCreate = getNative(Object, 'create');
   /** Used to detect maps, sets, and weakmaps. */
 
-  var dataViewCtorString = toSource(DataView),
-    mapCtorString = toSource(Map),
-    promiseCtorString = toSource(Promise),
-    setCtorString = toSource(Set),
-    weakMapCtorString = toSource(WeakMap);
+  const dataViewCtorString = toSource(DataView);
+    const mapCtorString = toSource(Map);
+    const promiseCtorString = toSource(Promise);
+    const setCtorString = toSource(Set);
+    const weakMapCtorString = toSource(WeakMap);
   /** Used to convert symbols to primitives and strings. */
 
-  var symbolProto = _Symbol ? _Symbol.prototype : undefined,
-    symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
+  const symbolProto = _Symbol ? _Symbol.prototype : undefined;
+    const symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
   /**
    * Creates a hash object.
    *
@@ -12255,12 +12222,12 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function Hash(entries) {
-    var index = -1,
-      length = entries ? entries.length : 0;
+    let index = -1;
+      const length = entries ? entries.length : 0;
     this.clear();
 
     while (++index < length) {
-      var entry = entries[index];
+      const entry = entries[index];
       this.set(entry[0], entry[1]);
     }
   }
@@ -12300,10 +12267,10 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function hashGet(key) {
-    var data = this.__data__;
+    const data = this.__data__;
 
     if (nativeCreate) {
-      var result = data[key];
+      const result = data[key];
       return result === HASH_UNDEFINED ? undefined : result;
     }
 
@@ -12320,7 +12287,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function hashHas(key) {
-    var data = this.__data__;
+    const data = this.__data__;
     return nativeCreate ? data[key] !== undefined : hasOwnProperty.call(data, key);
   }
   /**
@@ -12335,13 +12302,13 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function hashSet(key, value) {
-    var data = this.__data__;
+    const data = this.__data__;
     data[key] = nativeCreate && value === undefined ? HASH_UNDEFINED : value;
     return this;
   } // Add methods to `Hash`.
 
   Hash.prototype.clear = hashClear;
-  Hash.prototype['delete'] = hashDelete;
+  Hash.prototype.delete = hashDelete;
   Hash.prototype.get = hashGet;
   Hash.prototype.has = hashHas;
   Hash.prototype.set = hashSet;
@@ -12354,12 +12321,12 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function ListCache(entries) {
-    var index = -1,
-      length = entries ? entries.length : 0;
+    let index = -1;
+      const length = entries ? entries.length : 0;
     this.clear();
 
     while (++index < length) {
-      var entry = entries[index];
+      const entry = entries[index];
       this.set(entry[0], entry[1]);
     }
   }
@@ -12385,14 +12352,14 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function listCacheDelete(key) {
-    var data = this.__data__,
-      index = assocIndexOf(data, key);
+    const data = this.__data__;
+      const index = assocIndexOf(data, key);
 
     if (index < 0) {
       return false;
     }
 
-    var lastIndex = data.length - 1;
+    const lastIndex = data.length - 1;
 
     if (index == lastIndex) {
       data.pop();
@@ -12413,8 +12380,8 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function listCacheGet(key) {
-    var data = this.__data__,
-      index = assocIndexOf(data, key);
+    const data = this.__data__;
+      const index = assocIndexOf(data, key);
     return index < 0 ? undefined : data[index][1];
   }
   /**
@@ -12442,8 +12409,8 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function listCacheSet(key, value) {
-    var data = this.__data__,
-      index = assocIndexOf(data, key);
+    const data = this.__data__;
+      const index = assocIndexOf(data, key);
 
     if (index < 0) {
       data.push([key, value]);
@@ -12455,7 +12422,7 @@ var lodash_clonedeep = { exports: {} };
   } // Add methods to `ListCache`.
 
   ListCache.prototype.clear = listCacheClear;
-  ListCache.prototype['delete'] = listCacheDelete;
+  ListCache.prototype.delete = listCacheDelete;
   ListCache.prototype.get = listCacheGet;
   ListCache.prototype.has = listCacheHas;
   ListCache.prototype.set = listCacheSet;
@@ -12468,12 +12435,12 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function MapCache(entries) {
-    var index = -1,
-      length = entries ? entries.length : 0;
+    let index = -1;
+      const length = entries ? entries.length : 0;
     this.clear();
 
     while (++index < length) {
-      var entry = entries[index];
+      const entry = entries[index];
       this.set(entry[0], entry[1]);
     }
   }
@@ -12503,7 +12470,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function mapCacheDelete(key) {
-    return getMapData(this, key)['delete'](key);
+    return getMapData(this, key).delete(key);
   }
   /**
    * Gets the map value for `key`.
@@ -12548,7 +12515,7 @@ var lodash_clonedeep = { exports: {} };
   } // Add methods to `MapCache`.
 
   MapCache.prototype.clear = mapCacheClear;
-  MapCache.prototype['delete'] = mapCacheDelete;
+  MapCache.prototype.delete = mapCacheDelete;
   MapCache.prototype.get = mapCacheGet;
   MapCache.prototype.has = mapCacheHas;
   MapCache.prototype.set = mapCacheSet;
@@ -12585,7 +12552,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function stackDelete(key) {
-    return this.__data__['delete'](key);
+    return this.__data__.delete(key);
   }
   /**
    * Gets the stack value for `key`.
@@ -12625,10 +12592,10 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function stackSet(key, value) {
-    var cache = this.__data__;
+    let cache = this.__data__;
 
     if (cache instanceof ListCache) {
-      var pairs = cache.__data__;
+      const pairs = cache.__data__;
 
       if (!Map || pairs.length < LARGE_ARRAY_SIZE - 1) {
         pairs.push([key, value]);
@@ -12643,7 +12610,7 @@ var lodash_clonedeep = { exports: {} };
   } // Add methods to `Stack`.
 
   Stack.prototype.clear = stackClear;
-  Stack.prototype['delete'] = stackDelete;
+  Stack.prototype.delete = stackDelete;
   Stack.prototype.get = stackGet;
   Stack.prototype.has = stackHas;
   Stack.prototype.set = stackSet;
@@ -12659,11 +12626,11 @@ var lodash_clonedeep = { exports: {} };
   function arrayLikeKeys(value, inherited) {
     // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
     // Safari 9 makes `arguments.length` enumerable in strict mode.
-    var result = isArray(value) || isArguments(value) ? baseTimes(value.length, String) : [];
-    var length = result.length,
-      skipIndexes = !!length;
+    const result = isArray(value) || isArguments(value) ? baseTimes(value.length, String) : [];
+    const {length} = result;
+      const skipIndexes = !!length;
 
-    for (var key in value) {
+    for (const key in value) {
       if (
         (inherited || hasOwnProperty.call(value, key)) &&
         !(skipIndexes && (key == 'length' || isIndex(key, length)))
@@ -12686,7 +12653,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function assignValue(object, key, value) {
-    var objValue = object[key];
+    const objValue = object[key];
 
     if (
       !(hasOwnProperty.call(object, key) && eq(objValue, value)) ||
@@ -12705,7 +12672,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function assocIndexOf(array, key) {
-    var length = array.length;
+    let {length} = array;
 
     while (length--) {
       if (eq(array[length][0], key)) {
@@ -12744,7 +12711,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function baseClone(value, isDeep, isFull, customizer, key, object, stack) {
-    var result;
+    let result;
 
     if (customizer) {
       result = object ? customizer(value, key, object, stack) : customizer(value);
@@ -12758,7 +12725,7 @@ var lodash_clonedeep = { exports: {} };
       return value;
     }
 
-    var isArr = isArray(value);
+    const isArr = isArray(value);
 
     if (isArr) {
       result = initCloneArray(value);
@@ -12767,8 +12734,8 @@ var lodash_clonedeep = { exports: {} };
         return copyArray(value, result);
       }
     } else {
-      var tag = getTag(value),
-        isFunc = tag == funcTag || tag == genTag;
+      const tag = getTag(value);
+        const isFunc = tag == funcTag || tag == genTag;
 
       if (isBuffer(value)) {
         return cloneBuffer(value, isDeep);
@@ -12794,7 +12761,7 @@ var lodash_clonedeep = { exports: {} };
     } // Check for circular references and return its corresponding clone.
 
     stack || (stack = new Stack());
-    var stacked = stack.get(value);
+    const stacked = stack.get(value);
 
     if (stacked) {
       return stacked;
@@ -12806,7 +12773,7 @@ var lodash_clonedeep = { exports: {} };
       var props = isFull ? getAllKeys(value) : keys(value);
     }
 
-    arrayEach(props || value, function (subValue, key) {
+    arrayEach(props || value, (subValue, key) => {
       if (props) {
         key = subValue;
         subValue = value[key];
@@ -12841,7 +12808,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function baseGetAllKeys(object, keysFunc, symbolsFunc) {
-    var result = keysFunc(object);
+    const result = keysFunc(object);
     return isArray(object) ? result : arrayPush(result, symbolsFunc(object));
   }
   /**
@@ -12869,7 +12836,7 @@ var lodash_clonedeep = { exports: {} };
       return false;
     }
 
-    var pattern = isFunction(value) || isHostObject(value) ? reIsNative : reIsHostCtor;
+    const pattern = isFunction(value) || isHostObject(value) ? reIsNative : reIsHostCtor;
     return pattern.test(toSource(value));
   }
   /**
@@ -12885,9 +12852,9 @@ var lodash_clonedeep = { exports: {} };
       return nativeKeys(object);
     }
 
-    var result = [];
+    const result = [];
 
-    for (var key in Object(object)) {
+    for (const key in Object(object)) {
       if (hasOwnProperty.call(object, key) && key != 'constructor') {
         result.push(key);
       }
@@ -12909,7 +12876,7 @@ var lodash_clonedeep = { exports: {} };
       return buffer.slice();
     }
 
-    var result = new buffer.constructor(buffer.length);
+    const result = new buffer.constructor(buffer.length);
     buffer.copy(result);
     return result;
   }
@@ -12922,7 +12889,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function cloneArrayBuffer(arrayBuffer) {
-    var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
+    const result = new arrayBuffer.constructor(arrayBuffer.byteLength);
     new Uint8Array(result).set(new Uint8Array(arrayBuffer));
     return result;
   }
@@ -12936,7 +12903,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function cloneDataView(dataView, isDeep) {
-    var buffer = isDeep ? cloneArrayBuffer(dataView.buffer) : dataView.buffer;
+    const buffer = isDeep ? cloneArrayBuffer(dataView.buffer) : dataView.buffer;
     return new dataView.constructor(buffer, dataView.byteOffset, dataView.byteLength);
   }
   /**
@@ -12950,7 +12917,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function cloneMap(map, isDeep, cloneFunc) {
-    var array = isDeep ? cloneFunc(mapToArray(map), true) : mapToArray(map);
+    const array = isDeep ? cloneFunc(mapToArray(map), true) : mapToArray(map);
     return arrayReduce(array, addMapEntry, new map.constructor());
   }
   /**
@@ -12962,7 +12929,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function cloneRegExp(regexp) {
-    var result = new regexp.constructor(regexp.source, reFlags.exec(regexp));
+    const result = new regexp.constructor(regexp.source, reFlags.exec(regexp));
     result.lastIndex = regexp.lastIndex;
     return result;
   }
@@ -12977,7 +12944,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function cloneSet(set, isDeep, cloneFunc) {
-    var array = isDeep ? cloneFunc(setToArray(set), true) : setToArray(set);
+    const array = isDeep ? cloneFunc(setToArray(set), true) : setToArray(set);
     return arrayReduce(array, addSetEntry, new set.constructor());
   }
   /**
@@ -13001,7 +12968,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function cloneTypedArray(typedArray, isDeep) {
-    var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
+    const buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
     return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
   }
   /**
@@ -13014,8 +12981,8 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function copyArray(source, array) {
-    var index = -1,
-      length = source.length;
+    let index = -1;
+      const {length} = source;
     array || (array = Array(length));
 
     while (++index < length) {
@@ -13037,12 +13004,12 @@ var lodash_clonedeep = { exports: {} };
 
   function copyObject(source, props, object, customizer) {
     object || (object = {});
-    var index = -1,
-      length = props.length;
+    let index = -1;
+      const {length} = props;
 
     while (++index < length) {
-      var key = props[index];
-      var newValue = customizer
+      const key = props[index];
+      const newValue = customizer
         ? customizer(object[key], source[key], key, object, source)
         : undefined;
       assignValue(object, key, newValue === undefined ? source[key] : newValue);
@@ -13083,8 +13050,8 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function getMapData(map, key) {
-    var data = map.__data__;
-    return isKeyable(key) ? data[typeof key == 'string' ? 'string' : 'hash'] : data.map;
+    const data = map.__data__;
+    return isKeyable(key) ? data[typeof key === 'string' ? 'string' : 'hash'] : data.map;
   }
   /**
    * Gets the native function at `key` of `object`.
@@ -13096,7 +13063,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function getNative(object, key) {
-    var value = getValue(object, key);
+    const value = getValue(object, key);
     return baseIsNative(value) ? value : undefined;
   }
   /**
@@ -13127,9 +13094,9 @@ var lodash_clonedeep = { exports: {} };
     (WeakMap && getTag(new WeakMap()) != weakMapTag)
   ) {
     getTag = function getTag(value) {
-      var result = objectToString.call(value),
-        Ctor = result == objectTag ? value.constructor : undefined,
-        ctorString = Ctor ? toSource(Ctor) : undefined;
+      const result = objectToString.call(value);
+        const Ctor = result == objectTag ? value.constructor : undefined;
+        const ctorString = Ctor ? toSource(Ctor) : undefined;
 
       if (ctorString) {
         switch (ctorString) {
@@ -13162,10 +13129,10 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function initCloneArray(array) {
-    var length = array.length,
-      result = array.constructor(length); // Add properties assigned by `RegExp#exec`.
+    const {length} = array;
+      const result = array.constructor(length); // Add properties assigned by `RegExp#exec`.
 
-    if (length && typeof array[0] == 'string' && hasOwnProperty.call(array, 'index')) {
+    if (length && typeof array[0] === 'string' && hasOwnProperty.call(array, 'index')) {
       result.index = array.index;
       result.input = array.input;
     }
@@ -13181,7 +13148,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function initCloneObject(object) {
-    return typeof object.constructor == 'function' && !isPrototype(object)
+    return typeof object.constructor === 'function' && !isPrototype(object)
       ? baseCreate(getPrototype(object))
       : {};
   }
@@ -13200,7 +13167,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function initCloneByTag(object, tag, cloneFunc, isDeep) {
-    var Ctor = object.constructor;
+    const Ctor = object.constructor;
 
     switch (tag) {
       case arrayBufferTag:
@@ -13254,7 +13221,7 @@ var lodash_clonedeep = { exports: {} };
     length = length == null ? MAX_SAFE_INTEGER : length;
     return (
       !!length &&
-      (typeof value == 'number' || reIsUint.test(value)) &&
+      (typeof value === 'number' || reIsUint.test(value)) &&
       value > -1 &&
       value % 1 == 0 &&
       value < length
@@ -13269,7 +13236,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function isKeyable(value) {
-    var type = _typeof(value);
+    const type = _typeof(value);
 
     return type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean'
       ? value !== '__proto__'
@@ -13295,8 +13262,8 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function isPrototype(value) {
-    var Ctor = value && value.constructor,
-      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
+    const Ctor = value && value.constructor;
+      const proto = (typeof Ctor === 'function' && Ctor.prototype) || objectProto;
     return value === proto;
   }
   /**
@@ -13314,7 +13281,7 @@ var lodash_clonedeep = { exports: {} };
       } catch (e) {}
 
       try {
-        return func + '';
+        return `${func  }`;
       } catch (e) {}
     }
 
@@ -13429,7 +13396,7 @@ var lodash_clonedeep = { exports: {} };
    * // => false
    */
 
-  var isArray = Array.isArray;
+  var {isArray} = Array;
   /**
    * Checks if `value` is array-like. A value is considered array-like if it's
    * not a function and has a `value.length` that's an integer greater than or
@@ -13528,7 +13495,7 @@ var lodash_clonedeep = { exports: {} };
   function isFunction(value) {
     // The use of `Object#toString` avoids issues with the `typeof` operator
     // in Safari 8-9 which returns 'object' for typed array and other constructors.
-    var tag = isObject(value) ? objectToString.call(value) : '';
+    const tag = isObject(value) ? objectToString.call(value) : '';
     return tag == funcTag || tag == genTag;
   }
   /**
@@ -13559,7 +13526,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function isLength(value) {
-    return typeof value == 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+    return typeof value === 'number' && value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
   }
   /**
    * Checks if `value` is the
@@ -13588,7 +13555,7 @@ var lodash_clonedeep = { exports: {} };
    */
 
   function isObject(value) {
-    var type = _typeof(value);
+    const type = _typeof(value);
 
     return !!value && (type == 'object' || type == 'function');
   }
@@ -13695,7 +13662,7 @@ var lodash_clonedeep = { exports: {} };
   module.exports = cloneDeep;
 })(lodash_clonedeep, lodash_clonedeep.exports);
 
-var cloneDeep = lodash_clonedeep.exports;
+const cloneDeep = lodash_clonedeep.exports;
 
 /**
  * - Create a request object
@@ -13713,9 +13680,9 @@ function fetchAdapter(_x) {
 
 function _fetchAdapter() {
   _fetchAdapter = _asyncToGenerator$1(
-    /*#__PURE__*/ _regeneratorRuntime().mark(function _callee(config) {
-      var request, promiseChain, data;
-      return _regeneratorRuntime().wrap(function _callee$(_context) {
+    /* #__PURE__ */ _regeneratorRuntime().mark(function _callee(config) {
+      let request; let promiseChain; let data;
+      return _regeneratorRuntime().wrap((_context) => {
         while (1) {
           switch ((_context.prev = _context.next)) {
             case 0:
@@ -13724,11 +13691,11 @@ function _fetchAdapter() {
 
               if (config.timeout && config.timeout > 0) {
                 promiseChain.push(
-                  new Promise(function (res) {
-                    setTimeout(function () {
-                      var message = config.timeoutErrorMessage
+                  new Promise((res) => {
+                    setTimeout(() => {
+                      const message = config.timeoutErrorMessage
                         ? config.timeoutErrorMessage
-                        : 'timeout of ' + config.timeout + 'ms exceeded';
+                        : `timeout of ${  config.timeout  }ms exceeded`;
                       res(createError(message, config, 'ECONNABORTED', request));
                     }, config.timeout);
                   }),
@@ -13742,7 +13709,7 @@ function _fetchAdapter() {
               data = _context.sent;
               return _context.abrupt(
                 'return',
-                new Promise(function (resolve, reject) {
+                new Promise((resolve, reject) => {
                   if (data instanceof Error) {
                     reject(data);
                   } else {
@@ -13773,10 +13740,10 @@ function getResponse(_x2, _x3) {
 
 function _getResponse() {
   _getResponse = _asyncToGenerator$1(
-    /*#__PURE__*/ _regeneratorRuntime().mark(function _callee2(request, config) {
-      var stageOne, response;
+    /* #__PURE__ */ _regeneratorRuntime().mark(function _callee2(request, config) {
+      let stageOne; let response;
       return _regeneratorRuntime().wrap(
-        function _callee2$(_context2) {
+        (_context2) => {
           while (1) {
             switch ((_context2.prev = _context2.next)) {
               case 0:
@@ -13791,7 +13758,7 @@ function _getResponse() {
 
               case 6:
                 _context2.prev = 6;
-                _context2.t0 = _context2['catch'](0);
+                _context2.t0 = _context2.catch(0);
                 return _context2.abrupt(
                   'return',
                   createError('Network Error', config, 'ERR_NETWORK', request),
@@ -13804,8 +13771,8 @@ function _getResponse() {
                   statusText: stageOne.statusText,
                   headers: new Headers(stageOne.headers),
                   // Make a copy of headers
-                  config: config,
-                  request: request,
+                  config,
+                  request,
                 };
 
                 if (!(stageOne.status >= 200 && stageOne.status !== 204)) {
@@ -13885,18 +13852,18 @@ function _getResponse() {
 }
 
 function createRequest(config) {
-  var headers = new Headers(config.headers); // HTTP basic authentication
+  const headers = new Headers(config.headers); // HTTP basic authentication
 
   if (config.auth) {
-    var username = config.auth.username || '';
-    var password = config.auth.password ? decodeURI(encodeURIComponent(config.auth.password)) : '';
-    headers.set('Authorization', 'Basic '.concat(btoa(username + ':' + password)));
+    const username = config.auth.username || '';
+    const password = config.auth.password ? decodeURI(encodeURIComponent(config.auth.password)) : '';
+    headers.set('Authorization', 'Basic '.concat(btoa(`${username  }:${  password}`)));
   }
 
-  var method = config.method.toUpperCase();
-  var options = {
-    headers: headers,
-    method: method,
+  const method = config.method.toUpperCase();
+  const options = {
+    headers,
+    method,
   };
 
   if (method !== 'GET' && method !== 'HEAD') {
@@ -13928,8 +13895,8 @@ function createRequest(config) {
     options.credentials = config.withCredentials ? 'include' : 'omit';
   }
 
-  var fullPath = buildFullPath$1(config.baseURL, config.url);
-  var url = buildURL$1(fullPath, config.params, config.paramsSerializer); // Expected browser to throw error if there is any wrong configuration value
+  const fullPath = buildFullPath$1(config.baseURL, config.url);
+  const url = buildURL$1(fullPath, config.params, config.paramsSerializer); // Expected browser to throw error if there is any wrong configuration value
 
   return new Request(url, options);
 }
@@ -13956,7 +13923,7 @@ function createError(message, config, code, request, response) {
     return new axios.AxiosError(message, axios.AxiosError[code], config, request, response);
   }
 
-  var error = new Error(message);
+  const error = new Error(message);
   return enhanceError(error, config, code, request, response);
 }
 /**
@@ -14010,19 +13977,19 @@ function enhanceError(error, config, code, request, response) {
   return error;
 }
 
-var version$1 = '2.18.0';
+const version$1 = '2.18.0';
 
-var version = version$1;
+const version = version$1;
 
-var removeTrailingSlashes = function removeTrailingSlashes(inURL) {
+const removeTrailingSlashes = function removeTrailingSlashes(inURL) {
   return inURL && inURL.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
 };
 
-var setImmediate = global$1.setImmediate || nextTick.bind(process);
+const setImmediate = global$1.setImmediate || nextTick.bind(process);
 
-var noop = function noop() {};
+const noop = function noop() {};
 
-var Analytics = /*#__PURE__*/ (function () {
+const Analytics = /* #__PURE__ */ (function () {
   /**
    * Initialize a new `Analytics` with your RudderStack source's `writeKey` and an
    * optional dictionary of `options`.
@@ -14065,7 +14032,7 @@ var Analytics = /*#__PURE__*/ (function () {
     this.logger = {
       error: function error(message) {
         if (this.logLevel !== 'off') {
-          var _console;
+          let _console;
 
           for (
             var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1;
@@ -14085,7 +14052,7 @@ var Analytics = /*#__PURE__*/ (function () {
       },
       info: function info(message) {
         if (['silly', 'debug', 'info'].includes(this.logLevel)) {
-          var _console2;
+          let _console2;
 
           for (
             var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1;
@@ -14105,7 +14072,7 @@ var Analytics = /*#__PURE__*/ (function () {
       },
       debug: function debug(message) {
         if (['silly', 'debug'].includes(this.logLevel)) {
-          var _console3;
+          let _console3;
 
           for (
             var _len3 = arguments.length, args = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1;
@@ -14125,7 +14092,7 @@ var Analytics = /*#__PURE__*/ (function () {
       },
       silly: function silly(message) {
         if (['silly'].includes(this.logLevel)) {
-          var _console4;
+          let _console4;
 
           for (
             var _len4 = arguments.length, args = new Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1;
@@ -14320,22 +14287,20 @@ var Analytics = /*#__PURE__*/ (function () {
         } // Clone the incoming message object
         // before altering the data
 
-        var lMessage = cloneDeep(message);
+        let lMessage = cloneDeep(message);
         callback = callback || noop;
 
         if (!this.enable) {
           return setImmediate(callback);
         }
 
-        if (type == 'identify') {
-          if (lMessage.traits) {
+        if (type == 'identify' && lMessage.traits) {
             if (!lMessage.context) {
               lMessage.context = {};
             }
 
             lMessage.context.traits = lMessage.traits;
           }
-        }
 
         lMessage = _objectSpread2({}, lMessage);
         lMessage.type = type;
@@ -14343,7 +14308,7 @@ var Analytics = /*#__PURE__*/ (function () {
           {
             library: {
               name: 'analytics-service-worker',
-              version: version,
+              version,
             },
           },
           lMessage.context,
@@ -14378,7 +14343,7 @@ var Analytics = /*#__PURE__*/ (function () {
 
         this.queue.push({
           message: lMessage,
-          callback: callback,
+          callback,
         });
 
         if (!this.flushed) {
@@ -14407,7 +14372,7 @@ var Analytics = /*#__PURE__*/ (function () {
     {
       key: 'flush',
       value: function flush(callback) {
-        var _this = this;
+        const _this = this;
 
         // check if earlier flush was pushed to queue
         this.logger.debug('in flush');
@@ -14429,16 +14394,14 @@ var Analytics = /*#__PURE__*/ (function () {
           this.flushTimer = null;
         }
 
-        if (!this.queue.length) {
+        if (this.queue.length === 0) {
           this.logger.debug('queue is empty, nothing to flush');
           return setImmediate(callback);
         }
 
-        var items = this.queue.splice(0, this.flushAt);
-        var callbacks = items.map(function (item) {
-          return item.callback;
-        });
-        var messages = items.map(function (item) {
+        const items = this.queue.splice(0, this.flushAt);
+        const callbacks = items.map((item) => item.callback);
+        const messages = items.map((item) => {
           // if someone mangles directly with queue
           if (_typeof(item.message) === 'object') {
             item.message.sentAt = new Date();
@@ -14446,15 +14409,15 @@ var Analytics = /*#__PURE__*/ (function () {
 
           return item.message;
         });
-        var data = {
+        const data = {
           batch: messages,
           sentAt: new Date(),
         };
         this.logger.debug('batch size is '.concat(items.length));
         this.logger.silly('===data===', data);
 
-        var done = function done(err) {
-          callbacks.forEach(function (callback_) {
+        const done = function done(err) {
+          callbacks.forEach((callback_) => {
             callback_(err);
           });
           callback(err, data);
@@ -14463,21 +14426,21 @@ var Analytics = /*#__PURE__*/ (function () {
         // and https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/setRequestHeader),
         // but browsers such as Chrome and Safari have not caught up.
 
-        var headers = {};
+        const headers = {};
 
         if (typeof window === 'undefined') {
           headers['user-agent'] = 'analytics-service-worker/'.concat(version);
           headers['Content-Type'] = 'application/json';
         }
 
-        var req = {
+        const req = {
           method: 'POST',
           url: ''.concat(this.host),
           auth: {
             username: this.writeKey,
           },
-          data: data,
-          headers: headers,
+          data,
+          headers,
         };
 
         if (this.timeout) {
@@ -14497,11 +14460,11 @@ var Analytics = /*#__PURE__*/ (function () {
             },
           ),
         )
-          .then(function (response) {
+          .then((response) => {
             _this.timer = setTimeout(_this.flush.bind(_this), _this.flushInterval);
             done();
           })
-          .catch(function (err) {
+          .catch((err) => {
             console.log(err);
 
             _this.logger.error(
@@ -14514,7 +14477,7 @@ var Analytics = /*#__PURE__*/ (function () {
             _this.timer = setTimeout(_this.flush.bind(_this), _this.flushInterval);
 
             if (err.response) {
-              var error = new Error(err.response.statusText);
+              const error = new Error(err.response.statusText);
               return done(error);
             }
 

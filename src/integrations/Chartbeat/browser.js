@@ -96,7 +96,7 @@ class Chartbeat {
 
     for (const key in properties) {
       if (!properties.hasOwnProperty(key)) continue;
-      if (this.subscriberEngagementKeys.indexOf(key) > -1) {
+      if (this.subscriberEngagementKeys.includes(key)) {
         _cbq.push([key, properties[key]]);
       }
     }
@@ -144,9 +144,7 @@ class Chartbeat {
         logger.debug('===chartbeat failed===');
         return resolve(instance);
       }
-      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => {
-        return this._isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve);
-      });
+      this.pause(INTEGRATION_LOAD_CHECK_INTERVAL).then(() => this._isReady(instance, time + INTEGRATION_LOAD_CHECK_INTERVAL).then(resolve));
     });
   }
 }

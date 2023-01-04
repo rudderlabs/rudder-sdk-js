@@ -87,8 +87,8 @@ class Amplitude {
           return this;
         };
         const a = ['add', 'append', 'clearAll', 'prepend', 'set', 'setOnce', 'unset'];
-        for (let c = 0; c < a.length; c++) {
-          s(o, a[c]);
+        for (const element of a) {
+          s(o, element);
         }
         n.Identify = o;
         const u = function () {
@@ -102,8 +102,8 @@ class Amplitude {
           'setRevenueType',
           'setEventProperties',
         ];
-        for (let p = 0; p < l.length; p++) {
-          s(u, l[p]);
+        for (const element of l) {
+          s(u, element);
         }
         n.Revenue = u;
         const d = [
@@ -137,8 +137,8 @@ class Amplitude {
               e._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
             };
           }
-          for (let n = 0; n < d.length; n++) {
-            t(d[n]);
+          for (const element of d) {
+            t(element);
           }
         }
         v(n);
@@ -196,8 +196,8 @@ class Amplitude {
           continue;
         }
 
-        const shouldIncrement = this.traitsToIncrement.indexOf(trait) >= 0;
-        const shouldSetOnce = this.traitsToSetOnce.indexOf(trait) >= 0;
+        const shouldIncrement = this.traitsToIncrement.includes(trait);
+        const shouldSetOnce = this.traitsToSetOnce.includes(trait);
 
         if (shouldIncrement) {
           amplitudeIdentify.add(trait, traits[trait]);
@@ -278,8 +278,7 @@ class Amplitude {
   trackingEventAndRevenuePerProduct(trackEventMessage, products, shouldTrackEventPerProduct) {
     let { revenue, revenueType, revenue_type } = trackEventMessage.properties;
     revenueType = revenueType || revenue_type;
-    for (let index = 0; index < products.length; index++) {
-      const product = products[index];
+    for (const product of products) {
       trackEventMessage.properties = product;
       trackEventMessage.event = 'Product Purchased';
       if (this.trackRevenuePerProduct) {

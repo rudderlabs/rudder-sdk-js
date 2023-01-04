@@ -130,11 +130,9 @@ class MoEngage {
       return;
     }
     const { event, properties, userId } = rudderElement.message;
-    if (userId) {
-      if (this.initialUserId !== userId) {
+    if (userId && this.initialUserId !== userId) {
         this.reset();
       }
-    }
     // track event : https://docs.moengage.com/docs/tracking-events
     if (!event) {
       logger.error('Event name not present');
@@ -172,7 +170,7 @@ class MoEngage {
 
     // track user attributes : https://docs.moengage.com/docs/tracking-web-user-attributes
     if (traits) {
-      each(function add(value, key) {
+      each((value, key) => {
         // check if name is present
         if (key === 'name') {
           self.moeClient.add_user_name(value);

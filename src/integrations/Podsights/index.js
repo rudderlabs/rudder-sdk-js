@@ -1,3 +1,5 @@
-import Podsights from './browser';
 
-export { Podsights };
+
+
+
+export {default as Podsights} from './browser';

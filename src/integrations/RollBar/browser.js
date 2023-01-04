@@ -20,7 +20,7 @@ class RollBar {
 
   init() {
     logger.debug('===in init RollBar===');
-    var _rollbarConfig = {
+    let _rollbarConfig = {
       accessToken: this.accessToken,
       captureUncaught: this.captureUncaughtException,
       captureUnhandledRejections: this.captureUnhandledRejections,
@@ -35,22 +35,22 @@ class RollBar {
         },
       },
     };
-    var msg = this.ignoredMessages;
+    const msg = this.ignoredMessages;
     if (msg.length > 0) {
-      var ret = [];
+      const ret = [];
       // clean out array
-      for (var x = 0; x < msg.length; x++) {
-        if (msg[x] !== null && msg[x].singleIgnoredMessage !== '')
-          ret.push(msg[x].singleIgnoredMessage);
+      for (const element of msg) {
+        if (element !== null && element.singleIgnoredMessage !== '')
+          ret.push(element.singleIgnoredMessage);
       }
       _rollbarConfig.ignoredMessages = ret;
     }
     // Rollbar Snippet
     !(function (r) {
-      var e = {};
+      const e = {};
       function o(n) {
         if (e[n]) return e[n].exports;
-        var t = (e[n] = { i: n, l: !1, exports: {} });
+        const t = (e[n] = { i: n, l: !1, exports: {} });
         return r[n].call(t.exports, t, t.exports, o), (t.l = !0), t.exports;
       }
       (o.m = r),
@@ -59,32 +59,30 @@ class RollBar {
           o.o(r, e) || Object.defineProperty(r, e, { enumerable: !0, get: n });
         }),
         (o.r = function (r) {
-          'undefined' != typeof Symbol &&
+          typeof Symbol !== 'undefined' &&
             Symbol.toStringTag &&
             Object.defineProperty(r, Symbol.toStringTag, { value: 'Module' }),
             Object.defineProperty(r, '__esModule', { value: !0 });
         }),
         (o.t = function (r, e) {
           if ((1 & e && (r = o(r)), 8 & e)) return r;
-          if (4 & e && 'object' == typeof r && r && r.__esModule) return r;
-          var n = Object.create(null);
+          if (4 & e && typeof r === 'object' && r && r.__esModule) return r;
+          const n = Object.create(null);
           if (
             (o.r(n),
             Object.defineProperty(n, 'default', { enumerable: !0, value: r }),
-            2 & e && 'string' != typeof r)
+            2 & e && typeof r !== 'string')
           )
-            for (var t in r)
+            for (const t in r)
               o.d(
                 n,
                 t,
-                function (e) {
-                  return r[e];
-                }.bind(null, t),
+                ((e) => r[e]).bind(null, t),
               );
           return n;
         }),
         (o.n = function (r) {
-          var e =
+          const e =
             r && r.__esModule
               ? function () {
                   return r.default;
@@ -101,23 +99,23 @@ class RollBar {
         o((o.s = 0));
     })([
       function (r, e, o) {
-        'use strict';
-        var n = o(1),
-          t = o(5);
+        
+        const n = o(1);
+          const t = o(5);
         (_rollbarConfig = _rollbarConfig || {}),
           (_rollbarConfig.rollbarJsUrl =
             _rollbarConfig.rollbarJsUrl ||
             'https://cdn.rollbar.com/rollbarjs/refs/tags/v2.24.0/rollbar.min.js'),
           (_rollbarConfig.async = void 0 === _rollbarConfig.async || _rollbarConfig.async);
-        var a = n.setupShim(window, _rollbarConfig),
-          l = t(_rollbarConfig);
+        const a = n.setupShim(window, _rollbarConfig);
+          const l = t(_rollbarConfig);
         (window.rollbar = n.Rollbar),
           a.loadFull(window, document, !_rollbarConfig.async, _rollbarConfig, l);
       },
       function (r, e, o) {
-        'use strict';
-        var n = o(2),
-          t = o(3);
+        
+        const n = o(2);
+          const t = o(3);
         function a(r) {
           return function () {
             try {
@@ -129,37 +127,37 @@ class RollBar {
             }
           };
         }
-        var l = 0;
+        let l = 0;
         function i(r, e) {
           (this.options = r), (this._rollbarOldOnError = null);
-          var o = l++;
+          const o = l++;
           (this.shimId = function () {
             return o;
           }),
-            'undefined' != typeof window &&
+            typeof window !== 'undefined' &&
               window._rollbarShims &&
               (window._rollbarShims[o] = { handler: e, messages: [] });
         }
-        var s = o(4),
-          d = function (r, e) {
+        const s = o(4);
+          const d = function (r, e) {
             return new i(r, e);
-          },
-          c = function (r) {
+          };
+          const c = function (r) {
             return new s(d, r);
           };
         function u(r) {
           return a(function () {
-            var e = this,
-              o = Array.prototype.slice.call(arguments, 0),
-              n = { shim: e, method: r, args: o, ts: new Date() };
+            const e = this;
+              const o = Array.prototype.slice.call(arguments, 0);
+              const n = { shim: e, method: r, args: o, ts: new Date() };
             window._rollbarShims[this.shimId()].messages.push(n);
           });
         }
         (i.prototype.loadFull = function (r, e, o, n, t) {
-          var l = !1,
-            i = e.createElement('script'),
-            s = e.getElementsByTagName('script')[0],
-            d = s.parentNode;
+          let l = !1;
+            const i = e.createElement('script');
+            const s = e.getElementsByTagName('script')[0];
+            const d = s.parentNode;
           (i.crossOrigin = ''),
             (i.src = n.rollbarJsUrl),
             o || (i.async = !0),
@@ -169,8 +167,8 @@ class RollBar {
                   !(
                     l ||
                     (this.readyState &&
-                      'loaded' !== this.readyState &&
-                      'complete' !== this.readyState)
+                      this.readyState !== 'loaded' &&
+                      this.readyState !== 'complete')
                   )
                 ) {
                   i.onload = i.onreadystatechange = null;
@@ -179,18 +177,18 @@ class RollBar {
                   } catch (r) {}
                   (l = !0),
                     (function () {
-                      var e;
+                      let e;
                       if (void 0 === r._rollbarDidLoad) {
                         e = new Error('rollbar.js did not load');
                         for (var o, n, a, l, i = 0; (o = r._rollbarShims[i++]); )
                           for (o = o.messages || []; (n = o.shift()); )
                             for (a = n.args || [], i = 0; i < a.length; ++i)
-                              if ('function' == typeof (l = a[i])) {
+                              if (typeof (l = a[i]) === 'function') {
                                 l(e);
                                 break;
                               }
                       }
-                      'function' == typeof t && t(e);
+                      typeof t === 'function' && t(e);
                     })();
                 }
               })),
@@ -198,29 +196,29 @@ class RollBar {
         }),
           (i.prototype.wrap = function (r, e, o) {
             try {
-              var n;
+              let n;
               if (
                 ((n =
-                  'function' == typeof e
+                  typeof e === 'function'
                     ? e
                     : function () {
                         return e || {};
                       }),
-                'function' != typeof r)
+                typeof r !== 'function')
               )
                 return r;
               if (r._isWrap) return r;
               if (
                 !r._rollbar_wrapped &&
                 ((r._rollbar_wrapped = function () {
-                  o && 'function' == typeof o && o.apply(this, arguments);
+                  o && typeof o === 'function' && o.apply(this, arguments);
                   try {
                     return r.apply(this, arguments);
                   } catch (o) {
-                    var e = o;
+                    let e = o;
                     throw (
                       (e &&
-                        ('string' == typeof e && (e = new String(e)),
+                        (typeof e === 'string' && (e = new String(e)),
                         (e._rollbarContext = n() || {}),
                         (e._rollbarContext._wrappedSource = r.toString()),
                         (window._rollbarWrappedError = e)),
@@ -231,14 +229,14 @@ class RollBar {
                 (r._rollbar_wrapped._isWrap = !0),
                 r.hasOwnProperty)
               )
-                for (var t in r) r.hasOwnProperty(t) && (r._rollbar_wrapped[t] = r[t]);
+                for (const t in r) r.hasOwnProperty(t) && (r._rollbar_wrapped[t] = r[t]);
               return r._rollbar_wrapped;
             } catch (e) {
               return r;
             }
           });
         for (
-          var p =
+          let p =
               'log,debug,info,warn,warning,error,critical,global,configure,handleUncaughtException,handleAnonymousErrors,handleUnhandledRejection,captureEvent,captureDomContentLoaded,captureLoad'.split(
                 ',',
               ),
@@ -248,22 +246,22 @@ class RollBar {
         )
           i.prototype[p[f]] = u(p[f]);
         r.exports = {
-          setupShim: function (r, e) {
+          setupShim (r, e) {
             if (r) {
-              var o = e.globalAlias || 'Rollbar';
-              if ('object' == typeof r[o]) return r[o];
+              const o = e.globalAlias || 'Rollbar';
+              if (typeof r[o] === 'object') return r[o];
               (r._rollbarShims = {}), (r._rollbarWrappedError = null);
-              var l = new c(e);
-              return a(function () {
+              const l = new c(e);
+              return a(() => {
                 e.captureUncaught &&
                   ((l._rollbarOldOnError = r.onerror),
                   n.captureUncaughtExceptions(r, l, !0),
                   e.wrapGlobalEventHandlers && t(r, l, !0)),
                   e.captureUnhandledRejections && n.captureUnhandledRejections(r, l, !0);
-                var a = e.autoInstrument;
+                const a = e.autoInstrument;
                 return (
                   !1 !== e.enabled &&
-                    (void 0 === a || !0 === a || ('object' == typeof a && a.network)) &&
+                    (void 0 === a || !0 === a || (typeof a === 'object' && a.network)) &&
                     r.addEventListener &&
                     (r.addEventListener('load', l.captureLoad.bind(l)),
                     r.addEventListener('DOMContentLoaded', l.captureDomContentLoaded.bind(l))),
@@ -277,39 +275,39 @@ class RollBar {
         };
       },
       function (r, e, o) {
-        'use strict';
+        
         function n(r, e, o, n) {
           r._rollbarWrappedError &&
             (n[4] || (n[4] = r._rollbarWrappedError),
             n[5] || (n[5] = r._rollbarWrappedError._rollbarContext),
             (r._rollbarWrappedError = null));
-          var t = e.handleUncaughtException.apply(e, n);
-          o && o.apply(r, n), 'anonymous' === t && (e.anonymousErrorsPending += 1);
+          const t = e.handleUncaughtException.apply(e, n);
+          o && o.apply(r, n), t === 'anonymous' && (e.anonymousErrorsPending += 1);
         }
         r.exports = {
-          captureUncaughtExceptions: function (r, e, o) {
+          captureUncaughtExceptions (r, e, o) {
             if (r) {
-              var t;
-              if ('function' == typeof e._rollbarOldOnError) t = e._rollbarOldOnError;
+              let t;
+              if (typeof e._rollbarOldOnError === 'function') t = e._rollbarOldOnError;
               else if (r.onerror) {
                 for (t = r.onerror; t._rollbarOldOnError; ) t = t._rollbarOldOnError;
                 e._rollbarOldOnError = t;
               }
               e.handleAnonymousErrors();
-              var a = function () {
-                var o = Array.prototype.slice.call(arguments, 0);
+              const a = function () {
+                const o = Array.prototype.slice.call(arguments, 0);
                 n(r, e, t, o);
               };
               o && (a._rollbarOldOnError = t), (r.onerror = a);
             }
           },
-          captureUnhandledRejections: function (r, e, o) {
+          captureUnhandledRejections (r, e, o) {
             if (r) {
-              'function' == typeof r._rollbarURH &&
+              typeof r._rollbarURH === 'function' &&
                 r._rollbarURH.belongsToShim &&
                 r.removeEventListener('unhandledrejection', r._rollbarURH);
-              var n = function (r) {
-                var o, n, t;
+              const n = function (r) {
+                let o; let n; let t;
                 try {
                   o = r.reason;
                 } catch (r) {
@@ -334,18 +332,18 @@ class RollBar {
         };
       },
       function (r, e, o) {
-        'use strict';
+        
         function n(r, e, o) {
           if (e.hasOwnProperty && e.hasOwnProperty('addEventListener')) {
             for (var n = e.addEventListener; n._rollbarOldAdd && n.belongsToShim; )
               n = n._rollbarOldAdd;
-            var t = function (e, o, t) {
+            const t = function (e, o, t) {
               n.call(this, e, r.wrap(o), t);
             };
             (t._rollbarOldAdd = n), (t.belongsToShim = o), (e.addEventListener = t);
             for (var a = e.removeEventListener; a._rollbarOldRemove && a.belongsToShim; )
               a = a._rollbarOldRemove;
-            var l = function (r, e, o) {
+            const l = function (r, e, o) {
               a.call(this, r, (e && e._rollbar_wrapped) || e, o);
             };
             (l._rollbarOldRemove = a), (l.belongsToShim = o), (e.removeEventListener = l);
@@ -353,9 +351,9 @@ class RollBar {
         }
         r.exports = function (r, e, o) {
           if (r) {
-            var t,
-              a,
-              l =
+            let t;
+              let a;
+              const l =
                 'EventTarget,Window,Node,ApplicationCache,AudioTrackList,ChannelMergerNode,CryptoOperation,EventSource,FileReader,HTMLUnknownElement,IDBDatabase,IDBRequest,IDBTransaction,KeyOperation,MediaController,MessagePort,ModalWindow,Notification,SVGElementInstance,Screen,TextTrack,TextTrackCue,TextTrackList,WebSocket,WebSocketWorker,Worker,XMLHttpRequest,XMLHttpRequestEventTarget,XMLHttpRequestUpload'.split(
                   ',',
                 );
@@ -365,15 +363,15 @@ class RollBar {
         };
       },
       function (r, e, o) {
-        'use strict';
+        
         function n(r, e) {
           (this.impl = r(e, this)),
             (this.options = e),
             (function (r) {
               for (
-                var e = function (r) {
+                let e = function (r) {
                     return function () {
-                      var e = Array.prototype.slice.call(arguments, 0);
+                      const e = Array.prototype.slice.call(arguments, 0);
                       if (this.impl[r]) return this.impl[r].apply(this.impl, e);
                     };
                   },
@@ -389,13 +387,13 @@ class RollBar {
             })(n.prototype);
         }
         (n.prototype._swapAndProcessMessages = function (r, e) {
-          var o, n, t;
+          let o; let n; let t;
           for (this.impl = r(this.options); (o = e.shift()); )
             (n = o.method),
               (t = o.args),
               this[n] &&
-                'function' == typeof this[n] &&
-                ('captureDomContentLoaded' === n || 'captureLoad' === n
+                typeof this[n] === 'function' &&
+                (n === 'captureDomContentLoaded' || n === 'captureLoad'
                   ? this[n].apply(this, [t[0], o.ts])
                   : this[n].apply(this, t));
           return this;
@@ -403,7 +401,7 @@ class RollBar {
           (r.exports = n);
       },
       function (r, e, o) {
-        'use strict';
+        
         r.exports = function (r) {
           return function (e) {
             if (!e && !window._rollbarInitialized) {

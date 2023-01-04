@@ -1,3 +1,5 @@
-import Iterable from './browser';
 
-export { Iterable };
+
+
+
+export {default as Iterable} from './browser';

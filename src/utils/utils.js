@@ -158,7 +158,7 @@ function getReferringDomain(referrer) {
 function getUrl(search) {
   const canonicalUrl = getCanonicalUrl();
   const url = canonicalUrl
-    ? canonicalUrl.indexOf('?') > -1
+    ? canonicalUrl.includes('?')
       ? canonicalUrl
       : canonicalUrl + search
     : window.location.href;
@@ -210,12 +210,10 @@ function transformNamesCore(integrationObject, namesObj) {
       if (namesObj[key]) {
         integrationObject[namesObj[key]] = integrationObject[key];
       }
-      if (key != 'All') {
-        // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
-        if (namesObj[key] != undefined && namesObj[key] != key) {
+      if (key != 'All' && // delete user supplied keys except All and if except those where oldkeys are not present or oldkeys are same as transformed keys
+        namesObj[key] != undefined && namesObj[key] != key) {
           delete integrationObject[key];
         }
-      }
     }
   });
 }
@@ -227,7 +225,7 @@ function transformNamesCore(integrationObject, namesObj) {
  */
 function transformToRudderNames(integrationObject) {
   Object.keys(integrationObject).forEach((key) => {
-    if (integrationObject.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(integrationObject, key)) {
       // TODO: Clean the raw key lookup logic
       // once all the destinations move to consistent common
       // names generation format
@@ -315,7 +313,7 @@ function findAllEnabledDestinations(sdkSuppliedIntegrations, configPlaneEnabledI
 
 function getUserProvidedConfigUrl(configUrl, defConfigUrl) {
   let url = configUrl;
-  if (url.indexOf('sourceConfig') === -1) {
+  if (!url.includes('sourceConfig')) {
     url = `${removeTrailingSlashes(url)}/sourceConfig/`;
   }
   url = url.slice(-1) === '/' ? url : `${url}/`;
@@ -339,7 +337,7 @@ function checkReservedKeywords(message, messageType) {
   const { properties, traits } = message;
   if (properties) {
     Object.keys(properties).forEach((property) => {
-      if (RESERVED_KEYS.indexOf(property.toLowerCase()) >= 0) {
+      if (RESERVED_KEYS.includes(property.toLowerCase())) {
         logger.error(
           `Warning! : Reserved keyword used in properties--> ${property} with ${messageType} call`,
         );
@@ -348,7 +346,7 @@ function checkReservedKeywords(message, messageType) {
   }
   if (traits) {
     Object.keys(traits).forEach((trait) => {
-      if (RESERVED_KEYS.indexOf(trait.toLowerCase()) >= 0) {
+      if (RESERVED_KEYS.includes(trait.toLowerCase())) {
         logger.error(
           `Warning! : Reserved keyword used in traits--> ${trait} with ${messageType} call`,
         );
@@ -358,7 +356,7 @@ function checkReservedKeywords(message, messageType) {
   const contextualTraits = message.context.traits;
   if (contextualTraits) {
     Object.keys(contextualTraits).forEach((contextTrait) => {
-      if (RESERVED_KEYS.indexOf(contextTrait.toLowerCase()) >= 0) {
+      if (RESERVED_KEYS.includes(contextTrait.toLowerCase())) {
         logger.error(
           `Warning! : Reserved keyword used in traits --> ${contextTrait} with ${messageType} call`,
         );
@@ -432,7 +430,7 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
     if (messageContext) {
       const objKeys = [];
       Object.keys(messageContext).map((k) => {
-        if (exclusionFields.indexOf(k) < 0) {
+        if (!exclusionFields.includes(k)) {
           objKeys.push(k);
         }
       });
@@ -452,18 +450,16 @@ function extractCustomFields(message, destination, keys, exclusionFields) {
   return destination;
 }
 
-const getConfigUrl = (writeKey) => {
-  return CONFIG_URL.concat(CONFIG_URL.includes('?') ? '&' : '?').concat(
+const getConfigUrl = (writeKey) => CONFIG_URL.concat(CONFIG_URL.includes('?') ? '&' : '?').concat(
     writeKey ? `writeKey=${writeKey}` : '',
   );
-};
 
 const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName('script');
   let sdkURL;
   let isStaging = false;
-  for (let i = 0; i < scripts.length; i += 1) {
-    const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute('src'));
+  for (const script of scripts) {
+    const curScriptSrc = removeTrailingSlashes(script.getAttribute('src'));
     if (curScriptSrc) {
       const urlMatches = curScriptSrc.match(/^.*rudder-analytics(-staging)?(\.min)?\.js$/);
       if (urlMatches) {
@@ -520,20 +516,16 @@ const constructPayload = (object, mapper) => {
   return payload;
 };
 
-const countDigits = (number) => {
-  return number ? number.toString().length : 0;
-};
+const countDigits = (number) => number ? number.toString().length : 0;
 
 /**
  * A function to convert non-string IDs to string format
  * @param {any} id
  * @returns
  */
-const getStringId = (id) => {
-  return typeof id === 'string' || typeof id === 'undefined' || id === null
+const getStringId = (id) => typeof id === 'string' || typeof id === 'undefined' || id === null
     ? id
     : JSON.stringify(id);
-};
 
 export {
   replacer,
@@ -547,18 +539,19 @@ export {
   findAllEnabledDestinations,
   transformToRudderNames,
   transformToServerNames,
-  handleError,
   flattenJsonPayload,
   checkReservedKeywords,
   getReferrer,
   getReferringDomain,
   extractCustomFields,
-  commonNames,
   removeTrailingSlashes,
   constructPayload,
   getConfigUrl,
-  getSDKUrlInfo,
-  get,
+  getSDKUrlInfo,  
   countDigits,
   getStringId,
 };
+
+export {handleError} from './errorHandler';
+export {commonNames} from './integration_cname';
+export {default as get} from 'get-value';

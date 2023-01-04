@@ -47,7 +47,7 @@ const payloadBuilder = (properties, CONFIG_EVENT) => {
 const payloadBuilderInList = (properties, CONFIG_EVENT) => {
   const payloadList = [];
   const productList = properties?.products;
-  let productPayload = constructPayload(properties, CONFIG_EVENT);
+  const productPayload = constructPayload(properties, CONFIG_EVENT);
   if (productList && Array.isArray(productList)) {
     for (const product of productList) {
       const productDetails = constructPayload(product, CONFIG_EVENT);

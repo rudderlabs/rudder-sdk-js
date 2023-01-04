@@ -1,3 +1,5 @@
-import Shynet from './browser';
 
-export { Shynet };
+
+
+
+export {default as Shynet} from './browser';

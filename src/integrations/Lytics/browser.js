@@ -74,15 +74,15 @@ class Lytics {
         (o.init = function n(t) {
           return (
             (this.config = t),
-            this.loadScript(t.src, function () {
+            this.loadScript(t.src, () => {
               if (o.init === n) throw new Error('Load error!');
               // eslint-disable-next-line no-unused-expressions
               o.init(o.config),
                 // eslint-disable-next-line func-names
                 (function () {
-                  for (var n = 0; n < r.length; n++) {
-                    var t = r[n][0],
-                      i = r[n][1];
+                  for (const element of r) {
+                    var t = element[0],
+                      i = element[1];
                     o[t].apply(o, i);
                   }
                   r = void 0;

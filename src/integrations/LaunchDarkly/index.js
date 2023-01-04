@@ -1,3 +1,5 @@
-import LaunchDarkly from './browser';
 
-export { LaunchDarkly };
+
+
+
+export {default as LaunchDarkly} from './browser';

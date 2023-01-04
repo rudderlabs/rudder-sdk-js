@@ -4,10 +4,9 @@ import { ecommEventPayload, sendEvent, ecommerceEventMapping } from './utils';
 import {
   removeUndefinedAndNullValues,
   getHashFromArrayWithDuplicate,
-} from '../../utils/commonUtils';
+ getDefinedTraits } from '../../utils/commonUtils';
 import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
-import { getDefinedTraits } from '../../utils/commonUtils';
 
 class YandexMetrica {
   constructor(config, analytics) {
@@ -31,7 +30,7 @@ class YandexMetrica {
           (m[i].a = m[i].a || []).push(arguments);
         };
       m[i].l = 1 * new Date();
-      for (var j = 0; j < document.scripts.length; j++) {
+      for (let j = 0; j < document.scripts.length; j++) {
         if (document.scripts[j].src === r) {
           return;
         }

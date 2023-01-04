@@ -1,3 +1,5 @@
-import ProfitWell from './browser';
 
-export { ProfitWell };
+
+
+
+export {default as ProfitWell} from './browser';

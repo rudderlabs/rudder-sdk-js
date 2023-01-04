@@ -1,3 +1,5 @@
-import { Fullstory } from './browser';
 
-export { Fullstory };
+
+
+
+export {Fullstory} from './browser';

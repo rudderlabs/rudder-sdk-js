@@ -22,7 +22,7 @@ class Kissmetrics {
 
     const _kmk = window._kmk || this.apiKey;
     function _kms(u) {
-      setTimeout(function () {
+      setTimeout(() => {
         const d = document;
         const f = d.getElementsByTagName('script')[0];
         const s = d.createElement('script');
@@ -43,12 +43,12 @@ class Kissmetrics {
 
   isEnvMobile() {
     return (
-      navigator.userAgent.match(/Android/i) ||
-      navigator.userAgent.match(/BlackBerry/i) ||
-      navigator.userAgent.match(/IEMobile/i) ||
-      navigator.userAgent.match(/Opera Mini/i) ||
-      navigator.userAgent.match(/iPad/i) ||
-      navigator.userAgent.match(/iPhone|iPod/i)
+      navigator.userAgent.match(/android/i) ||
+      navigator.userAgent.match(/blackberry/i) ||
+      navigator.userAgent.match(/iemobile/i) ||
+      navigator.userAgent.match(/opera mini/i) ||
+      navigator.userAgent.match(/ipad/i) ||
+      navigator.userAgent.match(/iphone|ipod/i)
     );
   }
 
@@ -142,7 +142,7 @@ class Kissmetrics {
             }
           }
 
-          if (!isarray && isobject && arr.length && currentDepth < maxDepth) {
+          if (!isarray && isobject && arr.length > 0 && currentDepth < maxDepth) {
             ++currentDepth;
             return step(value, newKey);
           }
@@ -160,7 +160,7 @@ class Kissmetrics {
   //  source : https://github.com/segment-integrations/analytics.js-integration-kissmetrics/blob/master/lib/index.js
   prefix(event, properties) {
     const prefixed = {};
-    each(properties, function (key, val) {
+    each(properties, (key, val) => {
       if (key === 'Billing Amount') {
         prefixed[key] = val;
       } else if (key === 'revenue') {

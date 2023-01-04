@@ -89,13 +89,13 @@ class Qualtrics {
             ? window.addEventListener
               ? window.addEventListener(
                   'load',
-                  function () {
+                  () => {
                     t.go();
                   },
                   !1,
                 )
               : window.attachEvent &&
-                window.attachEvent('onload', function () {
+                window.attachEvent('onload', () => {
                   t.go();
                 })
             : t.go();

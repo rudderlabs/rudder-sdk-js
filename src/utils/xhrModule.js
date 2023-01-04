@@ -33,7 +33,7 @@ class XHRQueue {
     this.payloadQueue = new Queue(
       'rudder',
       queueOptions,
-      function (item, done) {
+      ((item, done) => {
         // apply sentAt at flush time and reset on each retry
         item.message.sentAt = getCurrentTimeFormatted();
         // send this item for processing, with a callback to enable queue to get the done status
@@ -44,14 +44,14 @@ class XHRQueue {
           item.message,
           10 * 1000,
           // eslint-disable-next-line consistent-return
-          function (err, res) {
+          (err, res) => {
             if (err) {
               return done(err);
             }
             done(null, res);
           },
         );
-      }.bind(this),
+      }),
     );
 
     // start queue

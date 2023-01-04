@@ -1,3 +1,5 @@
-import PinterestTag from './browser';
 
-export { PinterestTag };
+
+
+
+export {default as PinterestTag} from './browser';
