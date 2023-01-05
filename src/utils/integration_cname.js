@@ -68,6 +68,7 @@ import { CNameMapping as Axeptio } from '../integrations/Axeptio/constants';
 import { CNameMapping as SatisMeter } from '../integrations/Satismeter/constants';
 import { CNameMapping as MicrosoftClarity } from '../integrations/MicrosoftClarity/constants';
 import { CNameMapping as Sendinblue } from '../integrations/Sendinblue/constants';
+import { CNameMapping as Olark } from '../integrations/Olark/constants';
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -143,6 +144,7 @@ const commonNames = {
   ...SatisMeter,
   ...MicrosoftClarity,
   ...Sendinblue,
+  ...Olark,
 };
 
 export { commonNames };

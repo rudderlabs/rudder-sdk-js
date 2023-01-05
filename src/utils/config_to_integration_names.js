@@ -71,6 +71,7 @@ const configToIntNames = {
   SATISMETER: 'Satismeter',
   MICROSOFT_CLARITY: 'MicrosoftClarity',
   SENDINBLUE: 'Sendinblue',
+  OLARK: 'Olark',
 };
 
 export { configToIntNames };
