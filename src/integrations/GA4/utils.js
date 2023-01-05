@@ -9,6 +9,8 @@ import {
 import { pageEventParametersConfigArray } from './PageEventConfig';
 import { type } from '../../utils/utils';
 import logger from '../../utils/logUtil';
+import { Cookie } from '../../utils/storage/cookie';
+import { Store } from '../../utils/storage/store';
 
 /**
  * Check if event name is not one of the following reserved names
@@ -105,7 +107,7 @@ function hasRequiredParameters(props, eventMappingObj) {
  * @param {*} exclusionFields
  * @returns
  */
- function extractCustomVariables(rootObj, destination, exclusionFields) {
+function extractCustomVariables(rootObj, destination, exclusionFields) {
   const mappingKeys = _difference(Object.keys(rootObj), exclusionFields);
   mappingKeys.map((mappingKey) => {
     if (typeof rootObj[mappingKey] !== "undefined") {
@@ -149,7 +151,7 @@ function addCustomVariables(destinationProperties, props, contextOp) {
  * @param {*} destParameterConfig
  * Defined Parameter present GA4/utils.js ex: [{ src: "category", dest: "item_list_name", inItems: true }]
  * @param {*} contextOp "properties" or "product"
-*/
+ */
 function getDestinationEventProperties(
   props,
   destParameterConfig,
@@ -181,7 +183,7 @@ function getDestinationEventProperties(
  * @param {*} products
  * @param {*} item
  */
- function getDestinationItemProperties(products, item) {
+function getDestinationItemProperties(products, item) {
   const items = [];
   let obj = {};
   const contextOp = type(products) !== "array" ? "properties" : "product";
@@ -208,13 +210,26 @@ function getDestinationEventProperties(
  * Generate ga4 page_view events payload
  * @param {*} props
  */
- function getPageViewProperty(props) {
+function getPageViewProperty(props) {
   return getDestinationEventProperties(
     props,
     pageEventParametersConfigArray,
     "properties"
   );
 }
+
+/**
+ * Returns the payload for cloud-mode
+ * @param {*} measurementId
+ */
+const getGa4SessionId = (measurementId) => {
+  const measurementIdArr = measurementId.split('-');
+  let sessionId = Cookie.get(`_ga_${measurementIdArr[1]}`) && Cookie.get(`_ga_${measurementIdArr[1]}`).split('.');
+  if (!sessionId) {
+    sessionId = Store.get(`_ga_${measurementIdArr[1]}`) && Store.get(`_ga_${measurementIdArr[1]}`).split('.');
+  }
+  return sessionId ? sessionId[2] : '';
+};
 
 export {
   isReservedName,
@@ -223,4 +238,5 @@ export {
   getDestinationItemProperties,
   getPageViewProperty,
   hasRequiredParameters,
+  getGa4SessionId,
 };
