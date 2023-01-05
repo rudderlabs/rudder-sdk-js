@@ -6,27 +6,20 @@ afterAll(() => {
   jest.restoreAllMocks();
 });
 
-const mockAnalyticsIdentifiedUser = {
-  getUserTraits: jest.fn(() => ({
-    firstName: "rudder",
-    lastName: "stack",
-    email: "abc@rudderstack.com"
-  })),
-  getAnonymousId: jest.fn(() => "testAnonymousID"),
-  getUserId: jest.fn(() => "testUserID")
-};
-
-const mockAnalyticsAnonymousUser = {
-  getUserTraits: jest.fn(() => null),
-  getAnonymousId: jest.fn(() => "testAnonymousID"),
-  getUserId: jest.fn(() => null)
-};
-
 describe("FacebookPixel init tests", () => {
   let facebookPixel;
 
   test("Testing init call of Facebook Pixel with identified user", () => {
-    facebookPixel = new FacebookPixel({ pixelId: "12567839", useUpdatedMapping: true }, mockAnalyticsIdentifiedUser);
+    const mockAnalytics = {
+      getUserTraits: jest.fn(() => ({
+        firstName: "rudder",
+        lastName: "stack",
+        email: "abc@rudderstack.com"
+      })),
+      getAnonymousId: jest.fn(() => "testAnonymousID"),
+      getUserId: jest.fn(() => "testUserID")
+    };
+    facebookPixel = new FacebookPixel({ pixelId: "12567839", useUpdatedMapping: true }, mockAnalytics);
     facebookPixel.init();
     expect(typeof window.fbq).toBe("function");
     expect(facebookPixel.userPayload).toStrictEqual({
@@ -41,7 +34,12 @@ describe("FacebookPixel init tests", () => {
   });
 
   test("Testing init call of Facebook Pixel with anonymous user", () => {
-    facebookPixel = new FacebookPixel({ pixelId: "12567839", useUpdatedMapping: true }, mockAnalyticsAnonymousUser);
+    const mockAnalytics = {
+      getUserTraits: jest.fn(() => null),
+      getAnonymousId: jest.fn(() => "testAnonymousID"),
+      getUserId: jest.fn(() => null)
+    };
+    facebookPixel = new FacebookPixel({ pixelId: "12567839", useUpdatedMapping: true }, mockAnalytics);
     facebookPixel.init();
     expect(typeof window.fbq).toBe("function");
     expect(facebookPixel.userPayload).toStrictEqual(
@@ -52,8 +50,17 @@ describe("FacebookPixel init tests", () => {
 
 describe("FacebookPixel page", () => {
   let facebookPixel;
+  const mockAnalytics = {
+    getUserTraits: jest.fn(() => ({
+      firstName: "rudder",
+      lastName: "stack",
+      email: "abc@rudderstack.com"
+    })),
+    getAnonymousId: jest.fn(() => "testAnonymousID"),
+    getUserId: jest.fn(() => "testUserID")
+  };
   beforeEach(() => {
-    facebookPixel = new FacebookPixel({ pixelId: "12567839", useUpdatedMapping: true }, mockAnalyticsIdentifiedUser);
+    facebookPixel = new FacebookPixel({ pixelId: "12567839", useUpdatedMapping: true }, mockAnalytics);
     facebookPixel.init();
     window.fbq = jest.fn();
   });
@@ -87,9 +94,18 @@ describe("FacebookPixel page", () => {
 });
 
 describe("Facebook Pixel Track event", () => {
+  const mockAnalytics = {
+    getUserTraits: jest.fn(() => ({
+      firstName: "rudder",
+      lastName: "stack",
+      email: "abc@rudderstack.com"
+    })),
+    getAnonymousId: jest.fn(() => "testAnonymousID"),
+    getUserId: jest.fn(() => "testUserID")
+  };
   let facebookPixel;
   beforeEach(() => {
-    facebookPixel = new FacebookPixel({ pixelId: "12567839", useUpdatedMapping: true }, mockAnalyticsIdentifiedUser);
+    facebookPixel = new FacebookPixel({ pixelId: "12567839", useUpdatedMapping: true }, mockAnalytics);
     facebookPixel.init();
     window.fbq = jest.fn();
   });
