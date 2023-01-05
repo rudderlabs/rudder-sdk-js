@@ -1527,6 +1527,7 @@ const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
 const startSession = instance.startSession.bind(instance);
 const endSession = instance.endSession.bind(instance);
+const getUserId = instance.getUserId.bind(instance);
 const getSessionId = instance.getSessionId.bind(instance);
 
 export {
@@ -1544,5 +1545,6 @@ export {
   setAnonymousId,
   startSession,
   endSession,
+  getUserId,
   getSessionId,
 };
