@@ -169,6 +169,7 @@ const eventNamesConfigArray = [
     hasItem: true,
     includeList: [
       eventParametersConfigArray.Currency,
+      eventParametersConfigArray.Total,
       eventParametersConfigArray.Price,
     ],
   },
@@ -182,6 +183,7 @@ const eventNamesConfigArray = [
     hasItem: true,
     includeList: [
       eventParametersConfigArray.Currency,
+      eventParametersConfigArray.Total,
       eventParametersConfigArray.Price,
     ],
   },
@@ -195,6 +197,7 @@ const eventNamesConfigArray = [
     hasItem: true,
     includeList: [
       eventParametersConfigArray.Currency,
+      eventParametersConfigArray.Total,
       eventParametersConfigArray.Price,
     ],
   },
@@ -285,6 +288,7 @@ const eventNamesConfigArray = [
     hasItem: true,
     includeList: [
       eventParametersConfigArray.Currency,
+      eventParametersConfigArray.Total,
       eventParametersConfigArray.Price,
     ],
   },
