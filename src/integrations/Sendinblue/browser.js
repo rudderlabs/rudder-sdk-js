@@ -98,17 +98,18 @@ class Sendinblue {
       return;
     }
 
+    let userTraits = {};
     if (this.sendTraitsInTrack) {
       const { phone } = getDefinedTraits(message);
       if (phone && !validatePhoneWithCountryCode(phone)) {
         logger.error('[Sendinblue]:: provided phone number is invalid');
         return;
       }
+      userTraits = this.sendTraitsInTrack
+        ? prepareUserTraits(message, this.contactAttributeMapping)
+        : {};
     }
 
-    const userTraits = this.sendTraitsInTrack
-      ? prepareUserTraits(message, this.contactAttributeMapping)
-      : {};
     const eventData = prepareTrackEventData(message);
     window.sendinblue.track(event, userTraits, eventData);
   }
