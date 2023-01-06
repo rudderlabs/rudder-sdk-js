@@ -1,10 +1,10 @@
-import _difference from 'lodash.difference';
+import _difference from "lodash.difference";
 import {
   eventNamesConfigArray,
   itemParametersConfigArray,
   ITEM_PROP_EXCLUSION_LIST,
   EVENT_PROP_EXCLUSION_LIST,
-} from './ECommerceEventConfig';
+} from "./ECommerceEventConfig";
 
 import { pageEventParametersConfigArray } from './PageEventConfig';
 import { type } from '../../utils/utils';
@@ -110,7 +110,7 @@ function hasRequiredParameters(props, eventMappingObj) {
 function extractCustomVariables(rootObj, destination, exclusionFields) {
   const mappingKeys = _difference(Object.keys(rootObj), exclusionFields);
   mappingKeys.map((mappingKey) => {
-    if (typeof rootObj[mappingKey] !== 'undefined') {
+    if (typeof rootObj[mappingKey] !== "undefined") {
       destination[mappingKey] = rootObj[mappingKey];
     }
   });
@@ -126,11 +126,19 @@ function extractCustomVariables(rootObj, destination, exclusionFields) {
  * in properties or product type objects and returns the final output.
  */
 function addCustomVariables(destinationProperties, props, contextOp) {
-  logger.debug('within addCustomVariables');
-  if (contextOp === 'product') {
-    return extractCustomVariables(props, destinationProperties, ITEM_PROP_EXCLUSION_LIST);
-  } else if (contextOp === 'properties') {
-    return extractCustomVariables(props, destinationProperties, EVENT_PROP_EXCLUSION_LIST);
+  logger.debug("within addCustomVariables");
+  if (contextOp === "product") {
+    return extractCustomVariables(
+      props,
+      destinationProperties,
+      ITEM_PROP_EXCLUSION_LIST
+    );
+  } else if (contextOp === "properties") {
+    return extractCustomVariables(
+      props,
+      destinationProperties,
+      EVENT_PROP_EXCLUSION_LIST
+    );
   }
   return destinationProperties;
 }
@@ -144,7 +152,12 @@ function addCustomVariables(destinationProperties, props, contextOp) {
  * Defined Parameter present GA4/utils.js ex: [{ src: "category", dest: "item_list_name", inItems: true }]
  * @param {*} contextOp "properties" or "product"
  */
-function getDestinationEventProperties(props, destParameterConfig, contextOp, hasItem = true) {
+function getDestinationEventProperties(
+  props,
+  destParameterConfig,
+  contextOp,
+  hasItem = true
+) {
   let destinationProperties = {};
   Object.keys(props).forEach((key) => {
     destParameterConfig.forEach((param) => {
@@ -157,7 +170,11 @@ function getDestinationEventProperties(props, destParameterConfig, contextOp, ha
       }
     });
   });
-  const propsWithCustomFields = addCustomVariables(destinationProperties, props, contextOp);
+  const propsWithCustomFields = addCustomVariables(
+    destinationProperties,
+    props,
+    contextOp
+  );
   return propsWithCustomFields;
 }
 
@@ -169,14 +186,19 @@ function getDestinationEventProperties(props, destParameterConfig, contextOp, ha
 function getDestinationItemProperties(products, item) {
   const items = [];
   let obj = {};
-  const contextOp = type(products) !== 'array' ? 'properties' : 'product';
-  const finalProducts = type(products) !== 'array' ? [products] : products;
-  const finalItemObj = item && type(item) === 'array' && item[0] ? item[0] : {};
+  const contextOp = type(products) !== "array" ? "properties" : "product";
+  const finalProducts = type(products) !== "array" ? [products] : products;
+  const finalItemObj = item && type(item) === "array" && item[0] ? item[0] : {};
   // get the dest keys from itemParameters config
   // append the already created item object keys (this is done to get the keys that are actually top level props in Rudder payload but GA expects them under items too)
   finalProducts.forEach((product) => {
     obj = {
-      ...getDestinationEventProperties(product, itemParametersConfigArray, contextOp, true),
+      ...getDestinationEventProperties(
+        product,
+        itemParametersConfigArray,
+        contextOp,
+        true
+      ),
       ...finalItemObj,
     };
     items.push(obj);
@@ -189,7 +211,11 @@ function getDestinationItemProperties(products, item) {
  * @param {*} props
  */
 function getPageViewProperty(props) {
-  return getDestinationEventProperties(props, pageEventParametersConfigArray, 'properties');
+  return getDestinationEventProperties(
+    props,
+    pageEventParametersConfigArray,
+    "properties"
+  );
 }
 
 /**

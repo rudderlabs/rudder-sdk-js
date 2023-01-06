@@ -95,14 +95,13 @@ export default class GA4 {
     destinationProperties = getDestinationEventProperties(
       properties,
       includeList,
-      'properties',
-      hasItem,
-    );
+       "properties",
+       hasItem);
 
     if (hasItem) {
       // only for events where GA requires an items array to be sent
       // get the product related destination keys || if products is not present use the rudder message properties to get the product related destination keys
-      if (products && type(products) !== 'array') {
+      if (products && type(products) !== "array") {
         logger.debug("Event payload doesn't have products array");
       }
       destinationProperties.items = getDestinationItemProperties(
@@ -139,7 +138,7 @@ export default class GA4 {
 
   sendGAEvent(event, parameters, checkRequiredParameters, eventMappingObj) {
     if (checkRequiredParameters && !hasRequiredParameters(parameters, eventMappingObj)) {
-      throw Error('Payload must have required parameters..');
+        throw Error('Payload must have required parameters..');
     }
     window.gtag('event', event, parameters);
   }
