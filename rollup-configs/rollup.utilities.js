@@ -47,8 +47,6 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        'process.browser': process.env.NODE_ENV !== 'true',
-        'process.prod': process.env.ENV === 'prod',
         'process.package_version': version,
         'process.module_type': moduleType,
       }),

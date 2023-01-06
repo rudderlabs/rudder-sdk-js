@@ -1,5 +1,6 @@
 .husky/
 __mocks__/
+jest/
 dist/
 node_modules/
 reports/
