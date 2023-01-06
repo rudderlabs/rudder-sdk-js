@@ -60,4 +60,18 @@ const traitsMapper = [
   },
 ];
 
-export { traitsMapper, CNameMapping, NAME };
+const reserveTraits = [
+  'email',
+  'lastName',
+  'firstName',
+  'phone',
+  'external_id',
+  'city',
+  'birthday',
+  'gender',
+  'street',
+  'zip',
+  'country',
+];
+
+export { traitsMapper, CNameMapping, NAME, reserveTraits };
