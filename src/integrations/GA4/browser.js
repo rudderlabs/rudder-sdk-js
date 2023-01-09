@@ -9,7 +9,7 @@ import {
   getDestinationItemProperties,
   getPageViewProperty,
   hasRequiredParameters,
-  getGa4SessionId,
+  getGa4SessionIdAndClientId,
 } from './utils';
 import { type, flattenJsonPayload } from '../../utils/utils';
 import { NAME } from './constants';
@@ -247,9 +247,11 @@ export default class GA4 {
   }
 
   getDataForIntegrationsObject() {
+    const { sessionId, clientId } = getGa4SessionIdAndClientId(this.measurementId);
     return {
       'Google Analytics 4': {
-        sessionId: getGa4SessionId(this.measurementId),
+        sessionId,
+        clientId,
       },
     };
   }

@@ -219,16 +219,28 @@ function getPageViewProperty(props) {
 }
 
 /**
- * Returns the payload for cloud-mode
+ * get clientId and sessionId for cloud mode
  * @param {*} measurementId
  */
-const getGa4SessionId = (measurementId) => {
+const getGa4SessionIdAndClientId = (measurementId) => {
   const measurementIdArr = measurementId.split('-');
-  let sessionId = Cookie.get(`_ga_${measurementIdArr[1]}`) && Cookie.get(`_ga_${measurementIdArr[1]}`).split('.');
+  let sessionId =
+    Cookie.get(`_ga_${measurementIdArr[1]}`) && Cookie.get(`_ga_${measurementIdArr[1]}`).split('.');
+  let clientId = Cookie.get('_ga') && Cookie.get('_ga').split('.');
+
   if (!sessionId) {
-    sessionId = Store.get(`_ga_${measurementIdArr[1]}`) && Store.get(`_ga_${measurementIdArr[1]}`).split('.');
+    sessionId =
+      Store.get(`_ga_${measurementIdArr[1]}`) && Store.get(`_ga_${measurementIdArr[1]}`).split('.');
   }
-  return sessionId ? sessionId[2] : '';
+
+  if (!clientId) {
+    clientId = Store.get('_ga') && Store.get('_ga').split('.');
+  }
+
+  return {
+    sessionId: sessionId ? sessionId[2] : '',
+    clientId: clientId ? `${clientId[2]}.${clientId[3]}` : '',
+  };
 };
 
 export {
@@ -238,5 +250,5 @@ export {
   getDestinationItemProperties,
   getPageViewProperty,
   hasRequiredParameters,
-  getGa4SessionId,
+  getGa4SessionIdAndClientId,
 };
