@@ -1,4 +1,3 @@
-import assert from 'assert';
 import looselyValidate from '@segment/loosely-validate-event';
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
@@ -37,8 +36,13 @@ class Analytics {
   constructor(writeKey, dataPlaneURL, options) {
     options = options || {};
 
-    assert(writeKey, "You must pass your project's write key.");
-    assert(dataPlaneURL, 'You must pass your data plane url.');
+    if(!writeKey) {
+      throw new Error('You must pass your project\'s write key.')
+    }
+
+    if(!dataPlaneURL) {
+      throw new Error('You must pass our data plane url.')
+    }
 
     this.queue = [];
     this.writeKey = writeKey;
