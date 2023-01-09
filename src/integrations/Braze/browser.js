@@ -6,7 +6,6 @@ import { del } from "obj-case";
 import Logger from "../../utils/logger";
 import { LOAD_ORIGIN } from "../ScriptLoader";
 import { BrazeOperationString, NAME } from "./constants";
-import { isDefinedAndNotNull } from "../../utils/utils";
 
 const logger = new Logger(NAME);
 /*
@@ -18,8 +17,7 @@ class Braze {
     if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.appKey = config.appKey;
     this.trackAnonymousUser = config.trackAnonymousUser;
-    this.enableBrazeLogging = isDefinedAndNotNull(config.enableBrazeLogging) ?
-        config.enableBrazeLogging : false;
+    this.enableBrazeLogging = config.enableBrazeLogging || false;
     this.enableHtmlInAppMessages = config.enableHtmlInAppMessages || false;
     this.allowUserSuppliedJavascript =
       config.allowUserSuppliedJavascript || false;
