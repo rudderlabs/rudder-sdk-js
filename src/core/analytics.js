@@ -29,18 +29,15 @@ import {
   getConfigUrl,
   getSDKUrlInfo,
   commonNames,
-  get,
   getStringId,
 } from '../utils/utils';
-import { handleError, leaveBreadcrumb } from '../utils/errorHandler';
+import { handleError } from '../utils/errorHandler';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,
   INTEGRATION_LOAD_CHECK_INTERVAL,
   DEST_SDK_BASE_URL,
   INTG_SUFFIX,
   POLYFILL_URL,
-  DEFAULT_ERROR_REPORT_PROVIDER,
-  ERROR_REPORT_PROVIDERS,
   SAMESITE_COOKIE_OPTS,
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
@@ -51,7 +48,6 @@ import ScriptLoader from '../utils/ScriptLoader';
 import parseLinker from '../utils/linker';
 import { configToIntNames } from '../utils/config_to_integration_names';
 import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFactory';
-import * as BugsnagLib from '../features/core/metrics/error-report/Bugsnag';
 import { UserSession } from '../features/core/session';
 import { mergeDeepRight } from '../utils/ObjectUtils';
 import {
@@ -59,6 +55,7 @@ import {
   constructMessageIntegrationsObj,
 } from '../utils/IntegrationsData';
 import { getIntegrationsCDNPath } from '../utils/cdnPaths';
+import { ErrorReportService } from '../features/core/metrics/error-report/ErrorReportService';
 
 /**
  * class responsible for handling core
@@ -98,8 +95,9 @@ class Analytics {
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
     this.uSession = UserSession;
-    this.version = 'process.package_version';
+    this.version = '__PACKAGE_VERSION__';
     this.lockIntegrationsVersion = false;
+    this.errorReporting = new ErrorReportService(logger);
   }
 
   /**
@@ -193,7 +191,7 @@ class Analytics {
    * call initialize for integrations
    *
    * @param {*} status
-   * @param {*} response
+   * @param {*} responseVal
    * @memberof Analytics
    */
   processResponse(status, responseVal) {
@@ -215,27 +213,11 @@ class Analytics {
         return;
       }
 
-      // Fetch Error reporting enable option from sourceConfig
-      const isErrorReportEnabled = get(
-        response.source.config,
-        'statsCollection.errorReports.enabled',
-      );
-
-      // Load Bugsnag only if it is enabled in the source config
-      if (isErrorReportEnabled === true) {
-        // Fetch the name of the Error reporter from sourceConfig
-        const provider =
-          get(response.source.config, 'statsCollection.errorReports.provider') ||
-          DEFAULT_ERROR_REPORT_PROVIDER;
-        if (!ERROR_REPORT_PROVIDERS.includes(provider)) {
-          logger.error('Invalid error reporting provider value');
-        }
-
-        if (provider === 'bugsnag') {
-          // Load Bugsnag client SDK
-          BugsnagLib.load();
-          BugsnagLib.init(response.source.id);
-        }
+      // Initialise error reporting provider if set in source config
+      try {
+        this.errorReporting.init(response.source.config, response.source.id);
+      } catch (err) {
+        handleError(err);
       }
 
       response.source.destinations.forEach(function (destination) {
@@ -281,7 +263,7 @@ class Analytics {
         suffix = '-staging'; // stagging suffix
       }
 
-      leaveBreadcrumb('Starting device-mode initialization');
+      this.errorReporting.leaveBreadcrumb('Starting device-mode initialization');
       // logger.debug("this.clientIntegrations: ", this.clientIntegrations)
       // Load all the client integrations dynamically
       this.clientIntegrations.forEach((intg) => {
@@ -305,7 +287,7 @@ class Analytics {
             try {
               const msg = `[Analytics] processResponse :: trying to initialize integration name:: ${pluginName}`;
               // logger.debug(msg);
-              leaveBreadcrumb(msg);
+              this.errorReporting.leaveBreadcrumb(msg);
               intgInstance = new intMod[modName](intg.config, self);
               intgInstance.init();
 
@@ -356,7 +338,7 @@ class Analytics {
     //   " failed loaded count: ",
     //   object.failedToBeLoadedIntegration.length
     // );
-    leaveBreadcrumb(`Started replaying buffered events`);
+    this.errorReporting.leaveBreadcrumb(`Started replaying buffered events`);
     // eslint-disable-next-line no-param-reassign
     object.clientIntegrationObjects = [];
     // eslint-disable-next-line no-param-reassign
@@ -401,27 +383,25 @@ class Analytics {
       );
 
       // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-      for (let i = 0; i < successfulLoadedIntersectClientSuppliedIntegrations.length; i += 1) {
+      for (const successfulLoadedIntersectClientSuppliedIntegration of successfulLoadedIntersectClientSuppliedIntegrations) {
         try {
-          if (
-            !successfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
-            !successfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
-          ) {
-            if (successfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
+          if ((
+            !successfulLoadedIntersectClientSuppliedIntegration.isFailed ||
+            !successfulLoadedIntersectClientSuppliedIntegration.isFailed()
+          ) && successfulLoadedIntersectClientSuppliedIntegration[methodName]) {
               const sendEvent = !object.IsEventBlackListed(
                 event[0].message.event,
-                successfulLoadedIntersectClientSuppliedIntegrations[i].name,
+                successfulLoadedIntersectClientSuppliedIntegration.name,
               );
 
               // Block the event if it is blacklisted for the device-mode destination
               if (sendEvent) {
                 const clonedBufferEvent = R.clone(event);
-                successfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
+                successfulLoadedIntersectClientSuppliedIntegration[methodName](
                   ...clonedBufferEvent,
                 );
               }
             }
-          }
         } catch (error) {
           handleError(error);
         }
@@ -466,7 +446,7 @@ class Analytics {
    * @memberof Analytics
    */
   page(category, name, properties, options, callback) {
-    leaveBreadcrumb(`Page event`);
+    this.errorReporting.leaveBreadcrumb(`Page event`);
     if (!this.loaded) return;
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof properties === 'function') (callback = properties), (options = properties = null);
@@ -506,7 +486,7 @@ class Analytics {
    * @memberof Analytics
    */
   track(event, properties, options, callback) {
-    leaveBreadcrumb(`Track event`);
+    this.errorReporting.leaveBreadcrumb(`Track event`);
     if (!this.loaded) return;
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof properties === 'function')
@@ -531,7 +511,7 @@ class Analytics {
    * @memberof Analytics
    */
   identify(userId, traits, options, callback) {
-    leaveBreadcrumb(`Identify event`);
+    this.errorReporting.leaveBreadcrumb(`Identify event`);
     if (!this.loaded) return;
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
@@ -562,7 +542,7 @@ class Analytics {
    * @param {*} callback
    */
   alias(to, from, options, callback) {
-    leaveBreadcrumb(`Alias event`);
+    this.errorReporting.leaveBreadcrumb(`Alias event`);
     if (!this.loaded) return;
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof from === 'function') (callback = from), (options = null), (from = null);
@@ -585,7 +565,7 @@ class Analytics {
    * @param {*} callback
    */
   group(groupId, traits, options, callback) {
-    leaveBreadcrumb(`Group event`);
+    this.errorReporting.leaveBreadcrumb(`Group event`);
     if (!this.loaded) return;
     if (arguments.length === 0) return;
 
@@ -669,7 +649,7 @@ class Analytics {
 
       // assign page properties to context
       // rudderElement.message.context.page = getDefaultPageProperties();
-      leaveBreadcrumb('Started sending data to destinations');
+      this.errorReporting.leaveBreadcrumb('Started sending data to destinations');
       rudderElement.message.context.traits = {
         ...this.userTraits,
       };
@@ -864,7 +844,7 @@ class Analytics {
    * @memberof Analytics
    */
   reset(flag) {
-    leaveBreadcrumb(`reset API :: flag: ${flag}`);
+    this.errorReporting.leaveBreadcrumb(`reset API :: flag: ${flag}`);
 
     if (!this.loaded) return;
     if (flag) {

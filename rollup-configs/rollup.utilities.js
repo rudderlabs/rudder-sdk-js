@@ -4,8 +4,6 @@ import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import { terser } from 'rollup-plugin-terser';
-import builtins from 'rollup-plugin-node-builtins';
-import globals from 'rollup-plugin-node-globals';
 import json from '@rollup/plugin-json';
 import visualizer from 'rollup-plugin-visualizer';
 import filesize from 'rollup-plugin-filesize';
@@ -47,8 +45,10 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        'process.package_version': version,
-        'process.module_type': moduleType,
+        __PACKAGE_VERSION__: version,
+        __MODULE_TYPE__: moduleType,
+        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
+        __RS_BUGSNUG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
       }),
       resolve({
         jsnext: true,
@@ -59,8 +59,6 @@ export function getDefaultConfig(distName) {
         include: 'node_modules/**',
       }),
       json(),
-      globals(),
-      builtins(),
       babel({
         inputSourceMap: true,
         babelHelpers: 'bundled',
