@@ -10,8 +10,6 @@ import {
 import { pageEventParametersConfigArray } from "./PageEventConfig";
 import { type } from "../../utils/utils";
 import logger from "../../utils/logUtil";
-import { Cookie } from '../../utils/storage/cookie';
-import { Store } from '../../utils/storage/store';
 
 /**
  * Check if event name is not one of the following reserved names
@@ -225,32 +223,6 @@ function getPageViewProperty(props) {
   );
 }
 
-/**
- * get clientId and sessionId for cloud mode
- * @param {*} rudderElement
- * @param {*} measurementId
- */
-const getGa4SessionIdAndClientId = (measurementId) => {
- const measurementIdArr = measurementId.split('-');
-  let sessionId =
-    Cookie.get(`_ga_${measurementIdArr[1]}`) && Cookie.get(`_ga_${measurementIdArr[1]}`).split('.');
-  let clientId = Cookie.get('_ga') && Cookie.get('_ga').split('.');
-
-  if (!sessionId) {
-    sessionId =
-      Store.get(`_ga_${measurementIdArr[1]}`) && Store.get(`_ga_${measurementIdArr[1]}`).split('.');
-  }
-
-  if (!clientId) {
-    clientId = Store.get('_ga') && Store.get('_ga').split('.');
-  }
-
-  return {
-    sessionId: sessionId ? sessionId[2] : '',
-    clientId: clientId ? `${clientId[2]}.${clientId[3]}` : '',
-  };
-};
-
 export {
   isReservedName,
   getDestinationEventName,
@@ -258,5 +230,4 @@ export {
   getDestinationItemProperties,
   getPageViewProperty,
   hasRequiredParameters,
-  getGa4SessionIdAndClientId,
 };
