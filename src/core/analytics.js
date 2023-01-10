@@ -371,10 +371,6 @@ class Analytics {
     if (object.clientIntegrationObjects.every((intg) => !intg.isReady || intg.isReady())) {
       // Integrations are ready
       // set clientIntegrationsReady to be true
-      this.integrationsData = constructMessageIntegrationsObj(
-        this.integrationsData,
-        object.clientIntegrationObjects,
-      );
       object.clientIntegrationsReady = true;
       // Execute the callbacks if any
       object.executeReadyCallback();
@@ -747,10 +743,10 @@ class Analytics {
 
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
-
-      rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
-        this.integrationsData,
-        clientSuppliedIntegrations,
+      this.integrationsData = constructMessageIntegrationsObj(this.integrationsData, this.clientIntegrationObjects);
+       rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
+          this.integrationsData,
+          clientSuppliedIntegrations
       );
 
       // self analytics process, send to rudder
