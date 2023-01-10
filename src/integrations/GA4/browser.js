@@ -58,12 +58,18 @@ export default class GA4 {
     } else {
       window.gtag("config", measurementId, gtagParameterObject);
     }
+
+    /**
+     * Setting the parameter clientId and sessionId using gtag api
+     * Ref: https://developers.google.com/tag-platform/gtagjs/reference
+     */
     window.gtag("get", this.measurementId, "client_id", (clientId) => {
       this.clientId = clientId;
     });
     window.gtag("get", this.measurementId, "session_id", (sessionId) => {
       this.sessionId = sessionId;
     });
+
     // To disable debug mode, exclude the 'debug_mode' parameter;
     // Setting the parameter to false doesn't disable debug mode.
     // Ref: https://support.google.com/analytics/answer/7201382?hl=en#zippy=%2Cglobal-site-tag-websites
