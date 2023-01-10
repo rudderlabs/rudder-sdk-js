@@ -33,7 +33,6 @@ const constructMessageIntegrationsObj = (integrationsData, integrationInstances)
       }
     }
   });
-  console.log('data',enhancedIntegrationsData);
   return enhancedIntegrationsData;
 };
 
