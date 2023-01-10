@@ -55,7 +55,7 @@ import {
   constructMessageIntegrationsObj,
 } from '../utils/IntegrationsData';
 import { getIntegrationsCDNPath } from '../utils/cdnPaths';
-import { ErrorReportService } from '../features/core/metrics/error-report/ErrorReportService';
+import { ErrorReportingService } from '../features/core/metrics/errorReporting/ErrorReportingService';
 
 /**
  * class responsible for handling core
@@ -97,7 +97,7 @@ class Analytics {
     this.uSession = UserSession;
     this.version = '__PACKAGE_VERSION__';
     this.lockIntegrationsVersion = false;
-    this.errorReporting = new ErrorReportService(logger);
+    this.errorReporting = new ErrorReportingService(logger);
   }
 
   /**
@@ -385,23 +385,22 @@ class Analytics {
       // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
       for (const successfulLoadedIntersectClientSuppliedIntegration of successfulLoadedIntersectClientSuppliedIntegrations) {
         try {
-          if ((
-            !successfulLoadedIntersectClientSuppliedIntegration.isFailed ||
-            !successfulLoadedIntersectClientSuppliedIntegration.isFailed()
-          ) && successfulLoadedIntersectClientSuppliedIntegration[methodName]) {
-              const sendEvent = !object.IsEventBlackListed(
-                event[0].message.event,
-                successfulLoadedIntersectClientSuppliedIntegration.name,
-              );
+          if (
+            (!successfulLoadedIntersectClientSuppliedIntegration.isFailed ||
+              !successfulLoadedIntersectClientSuppliedIntegration.isFailed()) &&
+            successfulLoadedIntersectClientSuppliedIntegration[methodName]
+          ) {
+            const sendEvent = !object.IsEventBlackListed(
+              event[0].message.event,
+              successfulLoadedIntersectClientSuppliedIntegration.name,
+            );
 
-              // Block the event if it is blacklisted for the device-mode destination
-              if (sendEvent) {
-                const clonedBufferEvent = R.clone(event);
-                successfulLoadedIntersectClientSuppliedIntegration[methodName](
-                  ...clonedBufferEvent,
-                );
-              }
+            // Block the event if it is blacklisted for the device-mode destination
+            if (sendEvent) {
+              const clonedBufferEvent = R.clone(event);
+              successfulLoadedIntersectClientSuppliedIntegration[methodName](...clonedBufferEvent);
             }
+          }
         } catch (error) {
           handleError(error);
         }

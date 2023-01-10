@@ -9,12 +9,12 @@ const ERROR_REPORTS_PROVIDER_NAME_CONFIG_KEY = 'statsCollection.errorReports.pro
 
 // TODO: remove the '|| true' when we can get this config value from response
 const getErrorReportEnabledFromConfig = (sourceConfig) =>
-  get(sourceConfig, ERROR_REPORTS_ENABLED_CONFIG_KEY); // || true;
+  get(sourceConfig, ERROR_REPORTS_ENABLED_CONFIG_KEY) || true;
 
 const getProviderNameFromConfig = (sourceConfig) =>
   get(sourceConfig, ERROR_REPORTS_PROVIDER_NAME_CONFIG_KEY);
 
-class ErrorReportService {
+class ErrorReportingService {
   constructor(logger) {
     this.isEnabled = false;
     this.providerName = DEFAULT_ERROR_REPORT_PROVIDER;
@@ -91,7 +91,7 @@ class ErrorReportService {
   }
 
   leaveBreadcrumb(breadcrumb) {
-    if (this.provider && this.provider.client) {
+    if (this.provider?.client) {
       try {
         this.provider.client.leaveBreadcrumb(breadcrumb);
       } catch (e) {
@@ -101,7 +101,7 @@ class ErrorReportService {
   }
 
   notify(error) {
-    if (this.provider && this.provider.client) {
+    if (this.provider?.client) {
       try {
         this.provider.client.notify(error);
       } catch (e) {
@@ -111,4 +111,4 @@ class ErrorReportService {
   }
 }
 
-export { ErrorReportService };
+export { ErrorReportingService };
