@@ -28,8 +28,8 @@ export default class GA4 {
     this.debugMode = config.debugMode || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
     this.name = NAME;
-    this.clientId = '';
-    this.sessionId = '';
+    this.clientId = "";
+    this.sessionId = "";
   }
 
   loadScript(measurementId, userId) {
