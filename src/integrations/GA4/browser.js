@@ -88,7 +88,7 @@ export default class GA4 {
   /* utility functions ---Start here ---  */
 
   /**
-   * we are making sure that for every user clientId and sessionId exists by calling window.gtag function
+   * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
    return !!(this.clientId && this.sessionId);
