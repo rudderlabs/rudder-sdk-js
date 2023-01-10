@@ -89,7 +89,7 @@ export default class GA4 {
   /* utility functions ---Start here ---  */
 
   /**
-   *  If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
+   * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
     return !!(this.clientId && this.sessionId);
