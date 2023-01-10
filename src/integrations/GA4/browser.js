@@ -86,6 +86,10 @@ export default class GA4 {
   }
 
   /* utility functions ---Start here ---  */
+
+  /**
+   * we are making sure that for every user clientId and sessionId exists by calling window.gtag function
+   */
   isLoaded() {
    return !!(this.clientId && this.sessionId);
   }
@@ -93,6 +97,7 @@ export default class GA4 {
   isReady() {
    return this.isLoaded();
   }
+
   /* utility functions --- Ends here ---  */
 
   /**
