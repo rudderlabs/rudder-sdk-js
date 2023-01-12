@@ -4,8 +4,10 @@ rudderanalytics.load(
   'WRITE_KEY',
   'DATA_PLANE_URL',
   {
+    logLevel: 'DEBUG',
     configUrl: 'CONTROL_PLANE_URL',
-    lockIntegrationsVersion: true
+    lockIntegrationsVersion: true,
+    destSDKBaseURL: 'DEST_SDK_BASE_URL'
   }
 );
 

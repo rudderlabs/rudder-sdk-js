@@ -48,6 +48,7 @@ export default {
         __CONFIG_SERVER_HOST__:
           process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
         __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
+        __CDN_VERSION_PATH__: process.env.CDN_VERSION_PATH || ''
       },
     }),
     process.env.DEV_SERVER &&
