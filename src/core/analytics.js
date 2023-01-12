@@ -810,29 +810,30 @@ class Analytics {
    * @memberof Analytics
    */
   processOptionsParam(rudderElement, options) {
-    const { type, properties } = rudderElement.message;
+    const { type, properties, context } = rudderElement.message;
 
     this.addCampaignInfo(rudderElement);
 
     // assign page properties to context.page
-    rudderElement.message.context.page = this.getContextPageProperties(type === 'page' ? properties : undefined);
+    context.page = this.getContextPageProperties(type === 'page' ? properties : undefined);
 
     const topLevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];
     for (const key in options) {
       if (topLevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== 'context') {
-        rudderElement.message.context = mergeDeepRight(rudderElement.message.context, {
+        context = mergeDeepRight(context, {
           [key]: options[key],
         });
       } else if (typeof options[key] === 'object' && options[key] != null) {
-        rudderElement.message.context = mergeDeepRight(rudderElement.message.context, {
+        context = mergeDeepRight(context, {
           ...options[key],
         });
       } else {
         logger.error('[Analytics: processOptionsParam] context passed in options is not object');
       }
     }
+    rudderElement.message.context = context;
   }
 
   getPageProperties(properties, options) {
