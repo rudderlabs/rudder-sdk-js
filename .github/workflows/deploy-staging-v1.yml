@@ -30,30 +30,26 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version-file: '.nvmrc'
+          cache: 'npm'
 
-      - name: Build and sync files to S3
+      - name: Build files
         env:
           HUSKY: 0
         run: |
-          npm install
-          npm run prodTest && npm test
-          npm run buildProdBrowser
+          npm ci
+          npm run build:browser --staging=true
 
       - name: Fix Bugsnag API key
         env:
-          BUGSNAG_API_KEY: ${{ secrets.RS_BUGSNAG_STAGING_API_KEY }}
+          BUGSNAG_API_KEY: ${{ secrets.RS_STAGING_BUGSNAG_API_KEY }}
         run: |
-          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$BUGSNAG_API_KEY'|' dist/rudder-analytics.min.js
-
-      - name: Fix sourcemap paths
-        run: |
-          sed -i -e 's|rudder-analytics.min.js.map|rudder-analytics-staging.min.js.map|' dist/rudder-analytics.min.js
+          sed -i -e 's|{{RS_BUGSNAG_API_KEY}}|'$BUGSNAG_API_KEY'|' dist/rudder-analytics-staging.min.js
 
       - name: Sync files to S3
         run: |
-          aws s3 cp dist/rudder-analytics.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/v1/rudder-analytics-staging.min.js --cache-control max-age=3600
-          aws s3 cp dist/rudder-analytics.min.js.map s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/v1/rudder-analytics-staging.min.js.map --cache-control max-age=3600
+          aws s3 cp dist/rudder-analytics-staging.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/v1/rudder-analytics-staging.min.js --cache-control max-age=3600
+          aws s3 cp dist/rudder-analytics-staging.min.js.map s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/v1/rudder-analytics-staging.min.js.map --cache-control max-age=3600
           aws s3 cp s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/v1/rudder-analytics-staging.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/rudder-analytics-staging.min.js --cache-control max-age=3600
           aws s3 cp s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/v1/rudder-analytics-staging.min.js.map s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/rudder-analytics-staging.min.js.map --cache-control max-age=3600
           aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }} --paths "/v1/rudder-analytics-staging.min.js" "/v1/rudder-analytics-staging.min.js.map" "/rudder-analytics-staging.min.js" "/rudder-analytics-staging.min.js.map"

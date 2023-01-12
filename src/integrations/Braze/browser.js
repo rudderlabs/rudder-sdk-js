@@ -19,6 +19,7 @@ class Braze {
     this.analytics = analytics;
     this.appKey = config.appKey;
     this.trackAnonymousUser = config.trackAnonymousUser;
+    this.enableBrazeLogging = config.enableBrazeLogging || false;
     this.enableHtmlInAppMessages = config.enableHtmlInAppMessages || false;
     this.allowUserSuppliedJavascript = config.allowUserSuppliedJavascript || false;
     if (!config.appKey) this.appKey = '';
@@ -89,7 +90,7 @@ class Braze {
     })(window, document, 'script');
 
     window.braze.initialize(this.appKey, {
-      enableLogging: true,
+      enableLogging: this.enableBrazeLogging,
       baseUrl: this.endPoint,
       enableHtmlInAppMessages: this.enableHtmlInAppMessages,
       allowUserSuppliedJavascript: this.allowUserSuppliedJavascript,
