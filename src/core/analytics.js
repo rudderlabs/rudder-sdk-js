@@ -52,6 +52,10 @@ import parseLinker from "../utils/linker";
 import CookieConsentFactory from "../features/core/cookieConsent/CookieConsentFactory";
 import * as BugsnagLib from "../features/core/metrics/error-report/Bugsnag";
 import { UserSession } from "../features/core/session";
+import {
+  getMergedClientSuppliedIntegrations,
+  constructMessageIntegrationsObj,
+} from "../utils/IntegrationsData";
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -107,6 +111,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.integrationsData = {};
     this.cookieConsentOptions = {};
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
@@ -344,6 +349,7 @@ class Analytics {
       ) {
         // Integrations are ready
         // set clientIntegrationsReady to be true
+        object.integrationsData = constructMessageIntegrationsObj(object.integrationsData, object.clientIntegrationObjects);
         object.clientIntegrationsReady = true;
         // Execute the callbacks if any
         object.executeReadyCallback();
@@ -893,6 +899,10 @@ class Analytics {
 
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
+       rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
+          this.integrationsData,
+          clientSuppliedIntegrations
+      );
 
       // self analytics process, send to rudder
       enqueue.call(this, rudderElement, type);
@@ -1517,6 +1527,7 @@ const getAnonymousId = instance.getAnonymousId.bind(instance);
 const setAnonymousId = instance.setAnonymousId.bind(instance);
 const startSession = instance.startSession.bind(instance);
 const endSession = instance.endSession.bind(instance);
+const getUserId = instance.getUserId.bind(instance);
 const getSessionId = instance.getSessionId.bind(instance);
 
 export {
@@ -1534,5 +1545,6 @@ export {
   setAnonymousId,
   startSession,
   endSession,
+  getUserId,
   getSessionId,
 };

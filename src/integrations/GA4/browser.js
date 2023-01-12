@@ -8,8 +8,7 @@ import {
   getDestinationEventProperties,
   getDestinationItemProperties,
   getPageViewProperty,
-  hasRequiredParameters,
-  proceedCloudMode,
+  hasRequiredParameters
 } from "./utils";
 import { type, flattenJsonPayload } from "../../utils/utils";
 import { NAME } from "./constants";
@@ -29,6 +28,8 @@ export default class GA4 {
     this.debugMode = config.debugMode || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
     this.name = NAME;
+    this.clientId = "";
+    this.sessionId = "";
   }
 
   loadScript(measurementId, userId) {
@@ -57,6 +58,18 @@ export default class GA4 {
     } else {
       window.gtag("config", measurementId, gtagParameterObject);
     }
+
+    /**
+     * Setting the parameter clientId and sessionId using gtag api
+     * Ref: https://developers.google.com/tag-platform/gtagjs/reference
+     */
+    window.gtag("get", this.measurementId, "client_id", (clientId) => {
+      this.clientId = clientId;
+    });
+    window.gtag("get", this.measurementId, "session_id", (sessionId) => {
+      this.sessionId = sessionId;
+    });
+
     // To disable debug mode, exclude the 'debug_mode' parameter;
     // Setting the parameter to false doesn't disable debug mode.
     // Ref: https://support.google.com/analytics/answer/7201382?hl=en#zippy=%2Cglobal-site-tag-websites
@@ -74,13 +87,18 @@ export default class GA4 {
   }
 
   /* utility functions ---Start here ---  */
+
+  /**
+   * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
+   */
   isLoaded() {
-    return !!(window.gtag && window.gtag.push !== Array.prototype.push);
+    return !!(this.clientId && this.sessionId);
   }
 
   isReady() {
-    return !!(window.gtag && window.gtag.push !== Array.prototype.push);
+    return this.isLoaded();
   }
+
   /* utility functions --- Ends here ---  */
 
   /**
@@ -139,10 +157,8 @@ export default class GA4 {
   }
 
   sendGAEvent(event, parameters, checkRequiredParameters, eventMappingObj) {
-    if (checkRequiredParameters) {
-      if (!hasRequiredParameters(parameters, eventMappingObj)) {
-        throw Error("Payload must have required parameters..");
-      }
+    if (checkRequiredParameters && !hasRequiredParameters(parameters, eventMappingObj)) {
+      throw Error('Payload must have required parameters..');
     }
     window.gtag("event", event, parameters);
   }
@@ -176,8 +192,10 @@ export default class GA4 {
   track(rudderElement) {
     // if Hybrid mode is enabled, don't send data to the device-mode
     if (this.isHybridModeEnabled) {
-      return proceedCloudMode(rudderElement, this.measurementId);
+      return;
     }
+
+    logger.debug('In GoogleAnalyticsManager Track');
     const { event } = rudderElement.message;
     const { properties } = rudderElement.message;
     const { products } = properties;
@@ -198,9 +216,10 @@ export default class GA4 {
   identify(rudderElement) {
     // if Hybrid mode is enabled, don't send data to the device-mode
     if (this.isHybridModeEnabled) {
-      return proceedCloudMode(rudderElement, this.measurementId);
+      return;
     }
 
+    logger.debug('In GoogleAnalyticsManager Identify');
     window.gtag(
       "set",
       "user_properties",
@@ -219,16 +238,10 @@ export default class GA4 {
         });
       }
     }
-
-    logger.debug("in GoogleAnalyticsManager identify");
   }
 
   page(rudderElement) {
-    // if Hybrid mode is enabled, don't send data to the device-mode
-    if (this.isHybridModeEnabled) {
-      return proceedCloudMode(rudderElement, this.measurementId);
-    }
-
+    logger.debug('In GoogleAnalyticsManager Page');
     let pageProps = rudderElement.message.properties;
     if (!pageProps) return;
     pageProps = flattenJsonPayload(pageProps);
@@ -245,9 +258,10 @@ export default class GA4 {
   group(rudderElement) {
     // if Hybrid mode is enabled, don't send data to the device-mode
     if (this.isHybridModeEnabled) {
-      return proceedCloudMode(rudderElement, this.measurementId);
+      return;
     }
 
+    logger.debug('In GoogleAnalyticsManager Group');
     const { groupId } = rudderElement.message;
     const { traits } = rudderElement.message;
 
@@ -257,5 +271,14 @@ export default class GA4 {
         ...(this.extendGroupPayload ? traits : {}),
       });
     });
+  }
+
+  getDataForIntegrationsObject() {
+    return {
+      'Google Analytics 4': {
+        sessionId: this.sessionId,
+        clientId: this.clientId,
+      },
+    };
   }
 }

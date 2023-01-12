@@ -181,6 +181,17 @@ const isDefinedNotNullNotEmpty = (value) => {
   );
 };
 
+const validateEmail = (email) => {
+  const regex =
+    /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z-]+\.)+[A-Za-z]{2,}))$/;
+  return !(!regex.test(email));
+};
+
+const validatePhoneWithCountryCode = (phone) => {
+  const regex = /^\+(?:[\d{] ?){6,14}\d$/;
+  return !(!regex.test(phone));
+};
+
 export {
   getEventMappingFromConfig,
   getHashFromArrayWithDuplicate,
@@ -200,4 +211,6 @@ export {
   isDefinedNotNullNotEmpty,
   isBlank,
   pick,
+  validateEmail,
+  validatePhoneWithCountryCode
 };

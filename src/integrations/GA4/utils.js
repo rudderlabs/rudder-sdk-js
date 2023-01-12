@@ -223,31 +223,6 @@ function getPageViewProperty(props) {
   );
 }
 
-/**
- * Returns the payload for cloud-mode
- * @param {*} rudderElement
- * @param {*} measurementId
- */
-const proceedCloudMode = (rudderElement, measurementId) => {
-  const payload = rudderElement;
-  const cookieArr = document.cookie.split(";");
-  const cookieObj = {};
-  cookieArr.forEach((cookieEle) => {
-    const cookieElements = cookieEle.split("=");
-    const [first, second] = cookieElements;
-    cookieObj[first.trim()] = second;
-  });
-  const measurementIdArr = measurementId.split("-");
-  let sessionId;
-  if (cookieObj[`_ga_${measurementIdArr[1]}`]) {
-    sessionId = cookieObj[`_ga_${measurementIdArr[1]}`].split(".");
-    const GA4 = { sessionId: sessionId[2] };
-    payload.message.integrations = { All: true, GA4 };
-    return payload;
-  }
-  return payload;
-};
-
 export {
   isReservedName,
   getDestinationEventName,
@@ -255,5 +230,4 @@ export {
   getDestinationItemProperties,
   getPageViewProperty,
   hasRequiredParameters,
-  proceedCloudMode,
 };
