@@ -748,8 +748,8 @@ class Analytics {
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
       rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
-          this.integrationsData,
-          clientSuppliedIntegrations
+        this.integrationsData,
+        clientSuppliedIntegrations
       );
 
       // self analytics process, send to rudder
@@ -810,7 +810,8 @@ class Analytics {
    * @memberof Analytics
    */
   processOptionsParam(rudderElement, options) {
-    const { type, properties, context } = rudderElement.message;
+    const { type, properties } = rudderElement.message;
+    let { context } = rudderElement.message;
 
     this.addCampaignInfo(rudderElement);
 
@@ -1127,7 +1128,7 @@ class Analytics {
   initializeCallbacks() {
     Object.keys(this.methodToCallbackMapping).forEach((methodName) => {
       if (this.methodToCallbackMapping.hasOwnProperty(methodName)) {
-        this.on(methodName, () => {});
+        this.on(methodName, () => { });
       }
     });
   }
