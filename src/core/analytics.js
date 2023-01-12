@@ -810,23 +810,23 @@ class Analytics {
    * @memberof Analytics
    */
   processOptionsParam(rudderElement, options) {
-    const { type, properties, context } = rudderElement.message;
+    const { type, properties } = rudderElement.message;
 
     this.addCampaignInfo(rudderElement);
 
     // assign page properties to context.page
-    context.page = this.getContextPageProperties(type === 'page' ? properties : undefined);
+    rudderElement.message.context.page = this.getContextPageProperties(type === 'page' ? properties : undefined);
 
     const topLevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];
     for (const key in options) {
       if (topLevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== 'context') {
-        rudderElement.message.context = mergeDeepRight(context, {
+        rudderElement.message.context = mergeDeepRight(rudderElement.message.context, {
           [key]: options[key],
         });
       } else if (typeof options[key] === 'object' && options[key] != null) {
-        rudderElement.message.context = mergeDeepRight(context, {
+        rudderElement.message.context = mergeDeepRight(rudderElement.message.context, {
           ...options[key],
         });
       } else {
