@@ -48,8 +48,6 @@
 
     rudderanalytics.page();
   </script>
-
-  <script src="https://cdn.rudderlabs.com/__CDN_VERSION_PATH__rudder-analytics.min.js"></script>
 </head>
 
 <body>
@@ -68,7 +66,7 @@
 <script>
   function page() {
     rudderanalytics.page(
-      'Cart viewed',
+      'Cart viewed', 
       (rudderElement) => {
         console.log('in page call');
         document.getElementById('action').innerHTML = 'Page called';
@@ -120,7 +118,7 @@
         console.log('alias call');
         document.getElementById('action').innerHTML = 'Alias called';
         document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-      });
+    });
   }
 
   function group() {
@@ -134,7 +132,7 @@
         console.log('group call');
         document.getElementById('action').innerHTML = 'Group called';
         document.getElementById('rudderElement').innerHTML = JSON.stringify(rudderElement);
-      });
+    });
   }
 </script>
 

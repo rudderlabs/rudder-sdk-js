@@ -757,7 +757,7 @@ class Analytics {
 
       // logger.debug(`${type} is called `)
       if (callback) {
-        callback();
+        callback(rudderElement);
       }
     } catch (error) {
       handleError(error);
