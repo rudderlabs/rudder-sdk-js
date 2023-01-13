@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.22.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.22.0...v2.22.1) (2023-01-13)
+
+
+### Bug Fixes
+
+* context merge bug, added unit test, decoupled the original function ([5edc4de](https://github.com/rudderlabs/rudder-sdk-js/commit/5edc4de48e3f58b34cd41b9a9fe22aa655236e9e))
+* context merge issue ([d05b5d3](https://github.com/rudderlabs/rudder-sdk-js/commit/d05b5d30e4d2976a44c8f24265f7255955871dea))
+* handle undefined options passed in eventProcessorUtils ([cfc528d](https://github.com/rudderlabs/rudder-sdk-js/commit/cfc528db05813cad3f8a5aa66cd432fa753ea4c2))
+
 ## [2.22.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.21.0...v2.22.0) (2023-01-12)
 
 
