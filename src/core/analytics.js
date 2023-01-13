@@ -53,7 +53,7 @@ import { configToIntNames } from '../utils/config_to_integration_names';
 import CookieConsentFactory from '../features/core/cookieConsent/CookieConsentFactory';
 import * as BugsnagLib from '../features/core/metrics/error-report/Bugsnag';
 import { UserSession } from '../features/core/session';
-import { mergeDeepRight } from '../utils/ObjectUtils';
+import { mergeContext, mergeTopLevelElementsMutator } from '../utils/eventProcessorUtils';
 import {
   getMergedClientSuppliedIntegrations,
   constructMessageIntegrationsObj,
@@ -403,23 +403,22 @@ class Analytics {
       // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
       for (const successfulLoadedIntersectClientSuppliedIntegration of successfulLoadedIntersectClientSuppliedIntegrations) {
         try {
-          if ((
-            !successfulLoadedIntersectClientSuppliedIntegration.isFailed ||
-            !successfulLoadedIntersectClientSuppliedIntegration.isFailed()
-          ) && successfulLoadedIntersectClientSuppliedIntegration[methodName]) {
-              const sendEvent = !object.IsEventBlackListed(
-                event[0].message.event,
-                successfulLoadedIntersectClientSuppliedIntegration.name,
-              );
+          if (
+            (!successfulLoadedIntersectClientSuppliedIntegration.isFailed ||
+              !successfulLoadedIntersectClientSuppliedIntegration.isFailed()) &&
+            successfulLoadedIntersectClientSuppliedIntegration[methodName]
+          ) {
+            const sendEvent = !object.IsEventBlackListed(
+              event[0].message.event,
+              successfulLoadedIntersectClientSuppliedIntegration.name,
+            );
 
-              // Block the event if it is blacklisted for the device-mode destination
-              if (sendEvent) {
-                const clonedBufferEvent = R.clone(event);
-                successfulLoadedIntersectClientSuppliedIntegration[methodName](
-                  ...clonedBufferEvent,
-                );
-              }
+            // Block the event if it is blacklisted for the device-mode destination
+            if (sendEvent) {
+              const clonedBufferEvent = R.clone(event);
+              successfulLoadedIntersectClientSuppliedIntegration[methodName](...clonedBufferEvent);
             }
+          }
         } catch (error) {
           handleError(error);
         }
@@ -809,30 +808,15 @@ class Analytics {
    */
   processOptionsParam(rudderElement, options) {
     const { type, properties } = rudderElement.message;
-    let { context } = rudderElement.message;
 
     this.addCampaignInfo(rudderElement);
 
     // assign page properties to context.page
-    context.page = this.getContextPageProperties(type === 'page' ? properties : undefined);
-
-    const topLevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];
-    for (const key in options) {
-      if (topLevelElements.includes(key)) {
-        rudderElement.message[key] = options[key];
-      } else if (key !== 'context') {
-        context = mergeDeepRight(context, {
-          [key]: options[key],
-        });
-      } else if (typeof options[key] === 'object' && options[key] != null) {
-        context = mergeDeepRight(context, {
-          ...options[key],
-        });
-      } else {
-        logger.error('[Analytics: processOptionsParam] context passed in options is not object');
-      }
-    }
-    rudderElement.message.context = context;
+    rudderElement.message.context.page = this.getContextPageProperties(
+      type === 'page' ? properties : undefined,
+    );
+    mergeTopLevelElementsMutator(rudderElement.message, options);
+    rudderElement.message.context = mergeContext(rudderElement.message, options);
   }
 
   getPageProperties(properties, options) {
