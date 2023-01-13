@@ -9,8 +9,6 @@ import {
 import { pageEventParametersConfigArray } from './PageEventConfig';
 import { type } from '../../utils/utils';
 import logger from '../../utils/logUtil';
-import { Cookie } from '../../utils/storage/cookie';
-import { Store } from '../../utils/storage/store';
 
 /**
  * Check if event name is not one of the following reserved names
@@ -218,19 +216,6 @@ function getPageViewProperty(props) {
   );
 }
 
-/**
- * Returns the payload for cloud-mode
- * @param {*} measurementId
- */
-const getGa4SessionId = (measurementId) => {
-  const measurementIdArr = measurementId.split('-');
-  let sessionId = Cookie.get(`_ga_${measurementIdArr[1]}`) && Cookie.get(`_ga_${measurementIdArr[1]}`).split('.');
-  if (!sessionId) {
-    sessionId = Store.get(`_ga_${measurementIdArr[1]}`) && Store.get(`_ga_${measurementIdArr[1]}`).split('.');
-  }
-  return sessionId ? sessionId[2] : '';
-};
-
 export {
   isReservedName,
   getDestinationEventName,
@@ -238,5 +223,4 @@ export {
   getDestinationItemProperties,
   getPageViewProperty,
   hasRequiredParameters,
-  getGa4SessionId,
 };
