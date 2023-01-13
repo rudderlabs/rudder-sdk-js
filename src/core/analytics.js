@@ -401,27 +401,25 @@ class Analytics {
       );
 
       // send to all integrations now from the 'toBeProcessedByIntegrationArray' replay queue
-      for (let i = 0; i < successfulLoadedIntersectClientSuppliedIntegrations.length; i += 1) {
+      for (const successfulLoadedIntersectClientSuppliedIntegration of successfulLoadedIntersectClientSuppliedIntegrations) {
         try {
-          if (
-            !successfulLoadedIntersectClientSuppliedIntegrations[i].isFailed ||
-            !successfulLoadedIntersectClientSuppliedIntegrations[i].isFailed()
-          ) {
-            if (successfulLoadedIntersectClientSuppliedIntegrations[i][methodName]) {
+          if ((
+            !successfulLoadedIntersectClientSuppliedIntegration.isFailed ||
+            !successfulLoadedIntersectClientSuppliedIntegration.isFailed()
+          ) && successfulLoadedIntersectClientSuppliedIntegration[methodName]) {
               const sendEvent = !object.IsEventBlackListed(
                 event[0].message.event,
-                successfulLoadedIntersectClientSuppliedIntegrations[i].name,
+                successfulLoadedIntersectClientSuppliedIntegration.name,
               );
 
               // Block the event if it is blacklisted for the device-mode destination
               if (sendEvent) {
                 const clonedBufferEvent = R.clone(event);
-                successfulLoadedIntersectClientSuppliedIntegrations[i][methodName](
+                successfulLoadedIntersectClientSuppliedIntegration[methodName](
                   ...clonedBufferEvent,
                 );
               }
             }
-          }
         } catch (error) {
           handleError(error);
         }
@@ -748,8 +746,8 @@ class Analytics {
       // convert integrations object to server identified names, kind of hack now!
       transformToServerNames(rudderElement.message.integrations);
       rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
-          this.integrationsData,
-          clientSuppliedIntegrations
+        this.integrationsData,
+        clientSuppliedIntegrations,
       );
 
       // self analytics process, send to rudder
@@ -810,7 +808,8 @@ class Analytics {
    * @memberof Analytics
    */
   processOptionsParam(rudderElement, options) {
-    const { type, properties, context } = rudderElement.message;
+    const { type, properties } = rudderElement.message;
+    let { context } = rudderElement.message;
 
     this.addCampaignInfo(rudderElement);
 
@@ -822,17 +821,18 @@ class Analytics {
       if (topLevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== 'context') {
-        rudderElement.message.context = mergeDeepRight(context, {
+        context = mergeDeepRight(context, {
           [key]: options[key],
         });
       } else if (typeof options[key] === 'object' && options[key] != null) {
-        rudderElement.message.context = mergeDeepRight(context, {
+        context = mergeDeepRight(context, {
           ...options[key],
         });
       } else {
         logger.error('[Analytics: processOptionsParam] context passed in options is not object');
       }
     }
+    rudderElement.message.context = context;
   }
 
   getPageProperties(properties, options) {
