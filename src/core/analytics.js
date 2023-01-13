@@ -812,6 +812,7 @@ class Analytics {
     this.addCampaignInfo(rudderElement);
 
     // assign page properties to context.page
+    // eslint-disable-next-line unicorn/consistent-destructuring
     rudderElement.message.context.page = this.getContextPageProperties(
       type === 'page' ? properties : undefined,
     );
