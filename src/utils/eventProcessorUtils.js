@@ -4,6 +4,10 @@ import { mergeDeepRight } from './ObjectUtils';
 const defaultTopLevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];
 
 const mergeTopLevelElementsMutator = (rudderElementMessage, options = {}) => {
+  if (typeof options !== 'object' || options === null) {
+    return;
+  }
+
   Object.keys(options).forEach((key) => {
     if (defaultTopLevelElements.includes(key)) {
       // eslint-disable-next-line no-param-reassign
@@ -14,6 +18,10 @@ const mergeTopLevelElementsMutator = (rudderElementMessage, options = {}) => {
 
 const mergeContext = (rudderElementMessage, options = {}) => {
   let { context } = rudderElementMessage;
+
+  if (typeof options !== 'object' || options === null) {
+    return context;
+  }
 
   Object.keys(options).forEach((key) => {
     if (!defaultTopLevelElements.includes(key)) {
