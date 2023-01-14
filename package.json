@@ -1,6 +1,6 @@
 {
   "name": "rudder-analytics",
-  "version": "2.22.1",
+  "version": "2.22.2",
   "description": "",
   "main": "./dist/browser.min.js",
   "scripts": {
@@ -43,7 +43,7 @@
     "commit-msg": "commitlint --edit",
     "commit": "git-cz",
     "release": "npx standard-version",
-    "release:github": "npx conventional-github-releaser -p angular"
+    "release:github": "DEBUG=conventional-github-releaser npx conventional-github-releaser -p angular --config github-release.config.js"
   },
   "author": "RudderStack",
   "license": "MIT",

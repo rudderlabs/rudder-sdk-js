@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 2.22.2 (2023-01-14)
+
+
+### Bug Fixes
+
+* null context merge ([cfb4810](https://github.com/rudderlabs/rudder-sdk-js/commit/cfb4810f1f97a1d35b2effe9595e22617bbca5cb))
+
 ### [2.22.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.22.0...v2.22.1) (2023-01-13)
 
 
