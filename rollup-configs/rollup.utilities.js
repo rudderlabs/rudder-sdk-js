@@ -89,7 +89,7 @@ export function getDefaultConfig(distName) {
       }),
       process.env.DEV_SERVER &&
         htmlTemplate({
-          template: process.env.TEST_FILE_PATH || 'sanity-suite/local/public/index.html',
+          template: process.env.TEST_FILE_PATH || 'public/index.html',
           target: 'index.html',
           attrs: ['async', 'defer'],
           replaceVars: {

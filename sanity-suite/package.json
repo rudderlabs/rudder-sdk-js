@@ -1,16 +1,23 @@
 {
-  "name": "rudder-analytics-cdn-sanity",
-  "version": "2.22.0",
-  "description": "Sample package for sanity testing SDK CDN package",
-  "main": "./dist/index.js",
+  "name": "rudder-analytics-js-sdk-sanity-suite",
+  "version": "2.22.2",
+  "description": "Sanity suite for testing JS SDK package",
+  "main": "./dist/testBook.js",
   "scripts": {
     "setup": "npm i",
-    "start": "npm run build -- --watch --environment DEV_SERVER",
-    "build": "rollup --config rollup.config.js"
+    "start": "cd .. && npm run build:browser && cd sanity-suite && npm run start:local",
+    "start:local": "npm run build -- --watch --environment DEV_SERVER",
+    "start:cdn": "npm run build:cdn -- --watch --environment DEV_SERVER",
+    "start:npm": "npm run build:npm -- --watch --environment DEV_SERVER",
+    "build": "rollup --config rollup.config.js --environment TEST_PACKAGE:local",
+    "build:cdn": "rollup --config rollup.config.js --environment TEST_PACKAGE:cdn",
+    "build:npm": "rollup --config rollup.config.js --environment TEST_PACKAGE:npm"
   },
   "author": "RudderStack",
   "license": "MIT",
   "dependencies": {
+    "object-path": "^0.11.8",
+    "rudder-sdk-js": "2.22.2"
   },
   "devDependencies": {
     "@babel/core": "7.20.7",

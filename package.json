@@ -4,7 +4,7 @@
   "description": "",
   "main": "./dist/browser.min.js",
   "scripts": {
-    "setup": "npm i",
+    "setup": "npm i && cd sanity-suite && npm i",
     "test": "npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/legacy/rudder-analytics.min.js > __tests__/prodsdk.js && jest --watchAll=false --maxWorkers=50% --coverage",
     "test:ci": "npm run build:browser && sed 's/var rudderanalytics/rudderanalytics/g' dist/legacy/rudder-analytics.min.js > __tests__/prodsdk.js && jest --watchAll=false --maxWorkers=2 --coverage",
     "start": "rollup --config rollup-configs/rollup.sdk.browser.js --watch --environment DEV_SERVER",
@@ -43,7 +43,10 @@
     "commit-msg": "commitlint --edit",
     "commit": "git-cz",
     "release": "npx standard-version",
-    "release:github": "npx conventional-github-releaser -p angular"
+    "release:github": "npx conventional-github-releaser -p angular",
+    "sanity": "npm run build:browser && cd sanity-suite && npm run start:local",
+    "sanity:cdn": "cd sanity-suite && npm run start:cdn",
+    "sanity:npm": "cd sanity-suite && npm run start:npm"
   },
   "author": "RudderStack",
   "license": "MIT",
