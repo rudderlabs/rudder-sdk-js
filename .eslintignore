@@ -1,5 +1,11 @@
-**/*test.js
-/**/*.d.ts
-/node_modules/
-/dist/**/*.js
-**/archive/
+.husky/
+__mocks__/
+jest/
+dist/
+node_modules/
+reports/
+stats/
+prodsdk.js
+*.json
+*.md
+*.d.ts
