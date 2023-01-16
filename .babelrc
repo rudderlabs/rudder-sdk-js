@@ -28,6 +28,7 @@
       }
     ],
     ["@babel/plugin-transform-arrow-functions"],
-    ["@babel/plugin-transform-object-assign"]
+    ["@babel/plugin-transform-object-assign"],
+    ["babel-plugin-transform-object-hasown"]
   ]
 }
