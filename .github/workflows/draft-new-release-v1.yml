@@ -7,7 +7,7 @@ jobs:
   draft-new-release:
     name: Draft a new release v1
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/v1-staging') || startsWith(github.ref, 'refs/heads/v1-hotfix-release')
+    if: startsWith(github.ref, 'refs/heads/v1-staging') || startsWith(github.ref, 'refs/heads/v1-hotfix')
     steps:
       - name: Checkout source branch
         uses: actions/checkout@v3
@@ -35,7 +35,7 @@ jobs:
         run: |
           source_branch_name=${GITHUB_REF##*/}
           release_type=v1-release
-          grep -q "v1-hotfix-release/" <<< "${GITHUB_REF}" && release_type=v1-hotfix-release
+          grep -q "v1-hotfix" <<< "${GITHUB_REF}" && release_type=v1-hotfix-release
           git fetch origin v1-production --depth=1
           git merge origin/v1-production
           current_version=$(jq -r .version package.json)
