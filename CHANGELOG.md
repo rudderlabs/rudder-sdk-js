@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 2.22.3 (2023-01-16)
+
+
+### Bug Fixes
+
+* **integrations:** facebook pixel advanced matching condition added ([#846](https://github.com/rudderlabs/rudder-sdk-js/issues/846)) ([c228723](https://github.com/rudderlabs/rudder-sdk-js/commit/c2287230272cea805c503be4d784270665549f28))
+
 ### 2.22.2 (2023-01-14)
 
 
