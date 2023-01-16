@@ -72,17 +72,23 @@ class TestBook {
                         <td style="word-wrap: break-word;"><span class="badge text-bg-warning" id="test-case-status-${
                           testCase.id
                         }">pending</span></td>
-                        <td style="word-wrap: break-word; max-width: 200px;"><pre>${JSON.stringify(
-                          testCase.inputData,
-                          undefined,
-                          2,
-                        )}</pre></td>
-                        <td style="word-wrap: break-word; max-width: 200px;"><pre class="testCaseResult" id="test-case-result-${
-                          testCase.id
-                        }" data-test-case-id="${testCase.id}"></pre></td>
-                        <td style="word-wrap: break-word; max-width: 200px;"><pre data-testid="test-case-expected-${
-                          testCase.id
-                        }">${JSON.stringify(testCase.expectedResult, undefined, 2)}</pre></td>
+                        <td style="word-wrap: break-word; max-width: 200px; position: relative;">
+                          <pre>${JSON.stringify(testCase.inputData, undefined, 2)}</pre>
+                        </td>
+                        <td style="word-wrap: break-word; max-width: 200px; position: relative;">
+                          <pre class="testCaseResult" id="test-case-result-${testCase.id}" data-test-case-id="${testCase.id}"></pre>
+                          <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
+                            <i class="bi bi-clipboard" data-clipboard-target="#test-case-result-${testCase.id}"></i>
+                          </button>
+                        </td>
+                        <td style="word-wrap: break-word; max-width: 200px; position: relative;">
+                          <pre data-testid="test-case-expected-${testCase.id}" id="expected-data${testCase.id}">
+                            ${JSON.stringify(testCase.expectedResult, undefined, 2)}
+                          </pre>
+                          <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
+                            <i class="bi bi-clipboard" data-clipboard-target="#expected-data${testCase.id}"></i>
+                          </button>
+                        </td>
                     </tr>
                 `;
       }
@@ -169,6 +175,8 @@ class TestBook {
           window.rudderanalytics[testCaseData.triggerHandler].apply(null, testCaseData.inputData);
         }
       });
+
+      new ClipboardJS('.bi-clipboard');
     }
 
     const executeAllElement = document.getElementById('execute-all-trigger');
