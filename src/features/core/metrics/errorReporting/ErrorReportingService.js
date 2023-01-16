@@ -57,7 +57,7 @@ class ErrorReportingService {
       return;
     }
 
-    if (!providerName || !AVAILABLE_ERROR_REPORT_PROVIDERS.includes(providerName)) {
+    if (providerName && !AVAILABLE_ERROR_REPORT_PROVIDERS.includes(providerName)) {
       this.logger(
         `[Analytics] ErrorReporting :: Invalid error reporting provider value. Value should be one of: ${AVAILABLE_ERROR_REPORT_PROVIDERS.join(
           ',',
