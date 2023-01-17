@@ -59,25 +59,29 @@ class FacebookPixel {
     window.fbq.allowDuplicatePageViews = true; // enables fb
     window.fbq.version = '2.0';
     window.fbq.queue = [];
-    if (this.useUpdatedMapping) {
-      const userData = {
-        context: {
-          traits: { ...this.analytics.getUserTraits() }
-        },
-        userId: this.analytics.getUserId(),
-        anonymousId: this.analytics.getAnonymousId()
-      }
-
-      let userPayload = constructPayload(userData, traitsMapper);
-      // here we are sending other traits apart from the reserved ones.
-      reserveTraits.forEach((element) => {
-        delete userData.context?.traits[element];
-      });
-
-      this.userPayload = { ...userPayload, ...userData.context.traits };
-
-      if (this.userPayload.external_id) {
-        this.userPayload.external_id = sha256(this.userPayload.external_id).toString();
+    if (this.advancedMapping) {
+      if (this.useUpdatedMapping) {
+        const userData = {
+          context: {
+            traits: { ...this.analytics.getUserTraits() }
+          },
+          userId: this.analytics.getUserId(),
+          anonymousId: this.analytics.getAnonymousId()
+        }
+  
+        let userPayload = constructPayload(userData, traitsMapper);
+        // here we are sending other traits apart from the reserved ones.
+        reserveTraits.forEach((element) => {
+          delete userData.context?.traits[element];
+        });
+  
+        this.userPayload = { ...userPayload, ...userData.context.traits };
+  
+        if (this.userPayload.external_id) {
+          this.userPayload.external_id = sha256(this.userPayload.external_id).toString();
+        }
+      } else {
+        this.userPayload = {...this.analytics.getUserTraits()};
       }
       window.fbq('init', this.pixelId, this.userPayload);
     } else {
