@@ -152,21 +152,21 @@ const eventNamesConfigArray = [
     dest: 'view_item',
     requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
-    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total],
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total, eventParametersConfigArray.Price],
   },
   {
     src: ['product added'],
     dest: 'add_to_cart',
     requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
-    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total],
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total, eventParametersConfigArray.Price],
   },
   {
     src: ['product removed'],
     dest: 'remove_from_cart',
     requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
-    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total],
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total, eventParametersConfigArray.Price],
   },
   {
     src: ['cart viewed'],
@@ -238,7 +238,7 @@ const eventNamesConfigArray = [
     dest: 'add_to_wishlist',
     requiredParams: [requiredEventParameters.ProductId, requiredEventParameters.ProductName],
     hasItem: true,
-    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total],
+    includeList: [eventParametersConfigArray.Currency, eventParametersConfigArray.Total, eventParametersConfigArray.Price],
   },
   //-------
 
