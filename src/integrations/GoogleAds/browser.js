@@ -6,6 +6,7 @@ import {
   removeUndefinedAndNullValues,
   getEventMappingFromConfig,
 } from '../../utils/commonUtils';
+import shouldSendEvent from './utils';
 import { NAME } from './constants';
 
 class GoogleAds {
@@ -80,18 +81,27 @@ class GoogleAds {
 
     const { event } = rudderElement.message;
     const conversionData = this.getConversionData(this.clickEventConversions, event);
-    if (conversionData.conversionLabel && this.sendEvent('conversion', event)) {
+    if (
+      conversionData.conversionLabel &&
+      shouldSendEvent(
+        event,
+        this.trackConversions,
+        this.enableConversionEventsFiltering,
+        this.eventsToTrackConversions,
+      )
+    ) {
       const { conversionLabel } = conversionData;
       const { eventName } = conversionData;
       const sendToValue = `${this.conversionId}/${conversionLabel}`;
-      let properties = {};
-      if (rudderElement.message.properties) {
-        properties.value = rudderElement.message.properties.revenue;
-        properties.currency = rudderElement.message.properties.currency;
-        properties.transaction_id = rudderElement.message.properties.order_id;
-      }
-      properties.send_to = sendToValue;
+
+      let properties = {
+        value: rudderElement.message?.properties?.revenue,
+        currency: rudderElement.message?.properties?.currency,
+        transaction_id: rudderElement.message?.properties?.order_id,
+        send_to: sendToValue,
+      };
       properties = removeUndefinedAndNullValues(properties);
+
       window.gtag('event', eventName, properties);
     }
 
@@ -100,7 +110,14 @@ class GoogleAds {
       return;
     }
 
-    if (this.sendEvent('dynamicRemarketing', event)) {
+    if (
+      shouldSendEvent(
+        event,
+        this.trackDynamicRemarketing,
+        this.enableDynamicRemarketingEventsFiltering,
+        this.eventsToTrackDynamicRemarketing,
+      )
+    ) {
       // modify the event name to mapped event name from the config
       const eventsHashmap = getHashFromArrayWithDuplicate(
         this.eventMappingFromConfig,
@@ -130,7 +147,15 @@ class GoogleAds {
 
     const { name } = rudderElement.message;
     const conversionData = this.getConversionData(this.clickEventConversions, name);
-    if (conversionData.conversionLabel && this.sendEvent('conversion', conversionData.eventName)) {
+    if (
+      conversionData.conversionLabel &&
+      shouldSendEvent(
+        name,
+        this.trackConversions,
+        this.enableConversionEventsFiltering,
+        this.eventsToTrackConversions,
+      )
+    ) {
       const { conversionLabel } = conversionData;
       const { eventName } = conversionData;
       window.gtag('event', eventName, {
@@ -143,7 +168,14 @@ class GoogleAds {
       return;
     }
 
-    if (this.sendEvent('dynamicRemarketing', name)) {
+    if (
+      shouldSendEvent(
+        name,
+        this.trackDynamicRemarketing,
+        this.enableDynamicRemarketingEventsFiltering,
+        this.eventsToTrackDynamicRemarketing,
+      )
+    ) {
       const event = name;
       const { properties } = rudderElement.message;
       const sendToValue = this.conversionId;
@@ -172,36 +204,6 @@ class GoogleAds {
     return conversionData;
   }
 
-  sendEvent(type, eventName) {
-    if (type === 'conversion' && this.trackConversions) {
-      if (this.enableConversionEventsFiltering) {
-        const eventNames = [];
-        this.eventsToTrackConversions.forEach((event) => {
-          if (event.eventName !== '') {
-            eventNames.push(event.eventName);
-          }
-        });
-        return eventNames.includes(eventName.trim());
-      }
-      return true;
-    }
-
-    if (type === 'dynamicRemarketing' && this.trackDynamicRemarketing) {
-      if (this.enableDynamicRemarketingEventsFiltering) {
-        const eventNames = [];
-        this.eventsToTrackDynamicRemarketing.forEach((event) => {
-          if (event.eventName && event.eventName !== '') {
-            eventNames.push(event.eventName);
-          }
-        });
-        return eventNames.includes(eventName.trim());
-      }
-      return true;
-    }
-
-    return false;
-  }
-
   isLoaded() {
     return window.dataLayer.push !== Array.prototype.push;
   }
@@ -211,4 +213,4 @@ class GoogleAds {
   }
 }
 
-export { GoogleAds };
+export default GoogleAds;
