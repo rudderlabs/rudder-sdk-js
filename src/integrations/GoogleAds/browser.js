@@ -6,7 +6,7 @@ import {
   removeUndefinedAndNullValues,
   getEventMappingFromConfig,
 } from '../../utils/commonUtils';
-import shouldSendEvent from './utils';
+import { shouldSendEvent, getConversionData } from './utils';
 import { NAME } from './constants';
 
 class GoogleAds {
@@ -80,7 +80,7 @@ class GoogleAds {
     logger.debug('in GoogleAdsAnalyticsManager track');
 
     const { event } = rudderElement.message;
-    const conversionData = this.getConversionData(this.clickEventConversions, event);
+    const conversionData = getConversionData(this.clickEventConversions, event);
     if (
       conversionData.conversionLabel &&
       shouldSendEvent(
@@ -146,7 +146,7 @@ class GoogleAds {
     logger.debug('in GoogleAdsAnalyticsManager page');
 
     const { name } = rudderElement.message;
-    const conversionData = this.getConversionData(this.clickEventConversions, name);
+    const conversionData = getConversionData(this.clickEventConversions, name);
     if (
       conversionData.conversionLabel &&
       shouldSendEvent(
@@ -183,25 +183,6 @@ class GoogleAds {
       payload.send_to = sendToValue;
       window.gtag('event', event, payload);
     }
-  }
-
-  getConversionData(eventTypeConversions, eventName) {
-    const conversionData = {};
-    if (eventTypeConversions) {
-      if (eventName) {
-        eventTypeConversions.forEach((eventTypeConversion) => {
-          if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
-            // rudderElement["message"]["name"]
-            conversionData.conversionLabel = eventTypeConversion.conversionLabel;
-            conversionData.eventName = eventTypeConversion.name;
-          }
-        });
-      } else if (this.defaultPageConversion) {
-        conversionData.conversionLabel = this.defaultPageConversion;
-        conversionData.eventName = 'Viewed a Page';
-      }
-    }
-    return conversionData;
   }
 
   isLoaded() {

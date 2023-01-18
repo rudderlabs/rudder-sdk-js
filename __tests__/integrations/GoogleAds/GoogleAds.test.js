@@ -1,5 +1,5 @@
 import GoogleAds from '../../../src/integrations/GoogleAds/browser';
-import shouldSendEvent from '../../../src/integrations/GoogleAds/utils';
+import { shouldSendEvent } from '../../../src/integrations/GoogleAds/utils';
 
 const mockEvents = [
   { eventName: 'Product Viewed' },
