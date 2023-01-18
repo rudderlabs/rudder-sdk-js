@@ -151,6 +151,18 @@ class TestBook {
     this.container.innerHTML = this.joinHtml(this.markupItems);
   }
 
+  // Invoke the trigger handlers passing as arguments the input data array items
+  invokeTriggerHandlers(clickHandler, inputData, resultCallback) {
+    // Always add callback methods in order to retrieve the generated message object
+    inputData.push(resultCallback);
+
+    if (typeof clickHandler === 'function') {
+      clickHandler.apply(null, inputData);
+    } else if (typeof clickHandler === 'string') {
+      window.rudderanalytics[clickHandler].apply(null, inputData);
+    }
+  }
+
   attachClickHandlers(suiteData) {
     const triggerElements = document.getElementsByClassName('testCaseTrigger');
     const totalTriggerElements = triggerElements.length;
@@ -166,13 +178,23 @@ class TestBook {
         resultContainer.innerHTML = JSON.stringify(generatedPayload, undefined, 2);
       };
 
-      testCaseData.inputData.push(resultCallback);
-
       triggerElement.addEventListener('click', () => {
-        if (typeof testCaseData.triggerHandler === 'function') {
-          testCaseData.triggerHandler.apply(null, testCaseData.inputData);
-        } else if (typeof testCaseData.triggerHandler === 'string') {
-          window.rudderanalytics[testCaseData.triggerHandler].apply(null, testCaseData.inputData);
+        const clickHandlerData = testCaseData.triggerHandler;
+
+        // Allow single or sequential calls with defined sequential payloads
+        if(Array.isArray(clickHandlerData)) {
+          const totalClickHandlers = clickHandlerData.length;
+
+          clickHandlerData.forEach((clickHandler, index) => {
+            if(index === (totalClickHandlers - 1)) {
+              // Only pass callback on last item of the sequence
+              this.invokeTriggerHandlers(clickHandler, testCaseData.inputData[index], resultCallback);
+            } else {
+              this.invokeTriggerHandlers(clickHandler, testCaseData.inputData[index]);
+            }
+          });
+        } else {
+          this.invokeTriggerHandlers(testCaseData.triggerHandler, testCaseData.inputData, resultCallback);
         }
       });
 
@@ -206,13 +228,12 @@ class TestBook {
       const testCaseId = resultContainerElement.dataset.testCaseId;
 
       const observer = new MutationObserver((mutationList, observer) => {
-        const resultData = mutationList[0].addedNodes[0].nodeValue;
-        const expectedResult = resultRowElement.lastElementChild.firstChild.textContent;
+        const resultData = mutationList[0].addedNodes[0].nodeValue.trim();
+        const expectedResult = resultRowElement.lastElementChild.childNodes[1].textContent.trim();
         const sanitizedResultData = ResultsAssertions.sanitizeResultData(
           resultData,
           expectedResult,
         );
-        console.log(sanitizedResultData, expectedResult);
         const assertionResult = ResultsAssertions.assertResult(sanitizedResultData, expectedResult);
         const statusElement = document.getElementById(`test-case-status-${testCaseId}`);
         statusElement.textContent = assertionResult;
