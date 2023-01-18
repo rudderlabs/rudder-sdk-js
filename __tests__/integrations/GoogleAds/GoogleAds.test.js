@@ -1,21 +1,16 @@
 import GoogleAds from '../../../src/integrations/GoogleAds/browser';
 import { shouldSendEvent, getConversionData } from '../../../src/integrations/GoogleAds/utils';
-
-const orderCompleted = 'Order Completed';
-
-const mockEvents = [
-  { eventName: 'Product Viewed' },
-  { eventName: orderCompleted },
-  { eventName: 'Sign Up' },
-  { eventName: 'Lead' },
-];
-
-const mockEventTypeConversions = [
-  { conversionLabel: '15klCKLCs4gYETIBi58p', name: 'Sign Up' },
-  { conversionLabel: '9Hr5CKXCs4gYETIBi58p', name: 'Page View' },
-  { conversionLabel: 'TCBjCKjCs4gYETIBi58p', name: orderCompleted },
-  { conversionLabel: 'KhF2CKvCs4gYETIBi58p', name: 'Product Added' },
-];
+import {
+  mockEvents,
+  mockOrderId,
+  productAdded,
+  orderCompleted,
+  googleAdsTrack,
+  googleAdsConfigs,
+  trackCallPayload,
+  mockConversionId,
+  mockEventTypeConversions,
+} from './__mocks__/data';
 
 beforeAll(() => {});
 
@@ -33,9 +28,138 @@ describe('GoogleAds init tests', () => {
   });
 });
 
+describe(googleAdsTrack, () => {
+  let googleAds;
+  beforeEach(() => {
+    googleAds = new GoogleAds(googleAdsConfigs[0], {});
+  });
+
+  test('Send Order Completed event as conversion and dynamic remarketing', () => {
+    googleAds.init();
+    window.gtag = jest.fn();
+    googleAds.track(trackCallPayload);
+
+    // verify conversion events
+    expect(window.gtag.mock.calls[0][0]).toEqual('event');
+    expect(window.gtag.mock.calls[0][1]).toEqual(orderCompleted);
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      currency: 'IND',
+      send_to: `${mockConversionId}/TCBjCKjCs4gYEIXBi58p`,
+      transaction_id: mockOrderId,
+    });
+
+    // verify dynamic remarketing events
+    expect(window.gtag.mock.calls[1][0]).toEqual('event');
+    expect(window.gtag.mock.calls[1][1]).toEqual('Lead');
+    expect(window.gtag.mock.calls[1][2]).toEqual({
+      send_to: mockConversionId,
+      event_id: 'purchaseId',
+      order_id: mockOrderId,
+      value: 35.0,
+      shipping: 4.0,
+      currency: 'IND',
+      products: [
+        {
+          product_id: 'abc',
+          category: 'Merch',
+          name: 'Food/Drink',
+          brand: '',
+          variant: 'Extra topped',
+          price: 3.0,
+          quantity: 2,
+          currency: 'GBP',
+          typeOfProduct: 'Food',
+        },
+      ],
+    });
+  });
+});
+
+describe(googleAdsTrack, () => {
+  let googleAds;
+  beforeEach(() => {
+    googleAds = new GoogleAds(googleAdsConfigs[1], {});
+  });
+
+  test('Send Order Completed event as conversion but not dynamic remarketing', () => {
+    googleAds.init();
+    window.gtag = jest.fn();
+    googleAds.track(trackCallPayload);
+
+    // verify conversion events
+    expect(window.gtag.mock.calls[0][0]).toEqual('event');
+    expect(window.gtag.mock.calls[0][1]).toEqual('Order Completed');
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      currency: 'IND',
+      send_to: `${mockConversionId}/TCBjCKjCs4gYEIXBi58p`,
+      transaction_id: mockOrderId,
+    });
+  });
+});
+
+describe(googleAdsTrack, () => {
+  let googleAds;
+  beforeEach(() => {
+    googleAds = new GoogleAds(googleAdsConfigs[2], {});
+  });
+
+  test('Send Order Completed event as dynamic remarketing but not as conversion', () => {
+    googleAds.init();
+    window.gtag = jest.fn();
+    googleAds.track(trackCallPayload);
+
+    // verify dynamic remarketing events
+    expect(window.gtag.mock.calls[0][0]).toEqual('event');
+    expect(window.gtag.mock.calls[0][1]).toEqual('Lead');
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      send_to: mockConversionId,
+      event_id: 'purchaseId',
+      order_id: mockOrderId,
+      value: 35.0,
+      shipping: 4.0,
+      currency: 'IND',
+      products: [
+        {
+          product_id: 'abc',
+          category: 'Merch',
+          name: 'Food/Drink',
+          brand: '',
+          variant: 'Extra topped',
+          price: 3.0,
+          quantity: 2,
+          currency: 'GBP',
+          typeOfProduct: 'Food',
+        },
+      ],
+    });
+  });
+});
+
+describe(googleAdsTrack, () => {
+  let googleAds;
+  beforeEach(() => {
+    googleAds = new GoogleAds(googleAdsConfigs[3], {});
+  });
+
+  test('Send Order Completed event as conversion', () => {
+    googleAds.init();
+    window.gtag = jest.fn();
+    googleAds.track(trackCallPayload);
+
+    // verify conversion events
+    expect(window.gtag.mock.calls[0][0]).toEqual('event');
+    expect(window.gtag.mock.calls[0][1]).toEqual(orderCompleted);
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      currency: 'IND',
+      send_to: `${mockConversionId}/TCBjCKjCs4gYEIXBi58p`,
+      transaction_id: mockOrderId,
+    });
+  });
+});
+
 describe('GoogleAds utilities shouldSendEvent function tests', () => {
   it('event tracking is enabled and event filtering is disabled', () => {
-    const eventToSend = shouldSendEvent('Product Added', true, false, mockEvents);
+    const eventToSend = shouldSendEvent(productAdded, true, false, mockEvents);
     expect(eventToSend).toEqual(true);
   });
 
