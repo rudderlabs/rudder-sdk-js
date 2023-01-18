@@ -1,5 +1,1 @@
-
-
-
-
-export {default as GoogleAds} from './browser';
+export { default as GoogleAds } from './browser';

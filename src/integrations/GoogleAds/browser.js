@@ -71,6 +71,14 @@ class GoogleAds {
     logger.debug('===in init Google Ads===');
   }
 
+  isLoaded() {
+    return window.dataLayer.push !== Array.prototype.push;
+  }
+
+  isReady() {
+    return this.isLoaded();
+  }
+
   identify() {
     logger.debug('[GoogleAds] identify:: method not supported');
   }
@@ -183,14 +191,6 @@ class GoogleAds {
       payload.send_to = sendToValue;
       window.gtag('event', event, payload);
     }
-  }
-
-  isLoaded() {
-    return window.dataLayer.push !== Array.prototype.push;
-  }
-
-  isReady() {
-    return window.dataLayer.push !== Array.prototype.push;
   }
 }
 
