@@ -1,31 +1,35 @@
-import track1ExpectedData from '../../__mocks__/track1.json';
+import page1ExpectedData from '../../__mocks__/page1.json';
 
-const trackMethodSuite = {
-  id: 'trackMethod',
-  name: 'Track',
+const pageMethodSuite = {
+  id: 'pageMethod',
+  name: 'Page',
   description:
-    'Track Method: rudderanalytics.track(event, [properties], [apiOptions], [callback]);',
+    'Page Method: rudderanalytics.page(category, name, [properties], [apiOptions], [callback]);',
   testCases: [
     {
-      id: 'track1',
+      id: 'page1',
       description: 'Call with all arguments and all primitives in traits and apiOptions',
       inputData: [
-        'Order Completed',
+        'Cart',
+        'Cart Item',
         {
-          revenue: 30,
-          currency: 'USD',
-          user_actual_id: 12345,
-          productId: '234567-sdfghj-345tygh-567890dfghj',
-          productCategory: 'clothing',
-          paid: true,
-          paymentMode: 4,
-          paymentModeName: 'online',
-          productSizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-          sampleObj: {
-            sampleObj1: {
-              newKey: 'sample text',
-            },
-            newKey1: 3456789009876543,
+          initial_referrer: '$direct',
+          initial_referring_domain: '',
+          name: 'Cart Item',
+          referring_domain: '',
+          tab_url: 'http://localhost:4000/',
+          path: '/best-seller/1',
+          referrer: 'https://www.google.com/search?q=estore+bestseller',
+          search: 'estore bestseller',
+          title: 'The best sellers offered by EStore',
+          url: 'https://www.estore.com/best-seller/1',
+          temp: 12345,
+          temp1: null,
+          temp2: undefined,
+          temp3: [1, 2, 3],
+          temp4: {
+            selectedType: 'hard copy',
+            typesAvailable: ['kindle edition', 'audio book', 'hard copy', null],
           },
         },
         {
@@ -79,10 +83,10 @@ const trackMethodSuite = {
           },
         },
       ],
-      expectedResult: track1ExpectedData,
-      triggerHandler: 'track',
+      expectedResult: page1ExpectedData,
+      triggerHandler: 'page',
     },
   ],
 };
 
-export { trackMethodSuite };
+export { pageMethodSuite };

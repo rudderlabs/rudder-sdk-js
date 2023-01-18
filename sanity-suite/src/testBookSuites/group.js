@@ -1,31 +1,35 @@
-import track1ExpectedData from '../../__mocks__/track1.json';
+import group1ExpectedData from '../../__mocks__/group1.json';
 
-const trackMethodSuite = {
-  id: 'trackMethod',
-  name: 'Track',
-  description:
-    'Track Method: rudderanalytics.track(event, [properties], [apiOptions], [callback]);',
+const groupMethodSuite = {
+  id: 'groupMethod',
+  name: 'Group',
+  description: 'Group Method: rudderanalytics.group(groupId, [traits], [apiOptions], [callback]);',
   testCases: [
     {
-      id: 'track1',
+      id: 'group1',
       description: 'Call with all arguments and all primitives in traits and apiOptions',
       inputData: [
-        'Order Completed',
+        'customGroupID',
         {
-          revenue: 30,
-          currency: 'USD',
-          user_actual_id: 12345,
-          productId: '234567-sdfghj-345tygh-567890dfghj',
-          productCategory: 'clothing',
-          paid: true,
-          paymentMode: 4,
-          paymentModeName: 'online',
-          productSizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-          sampleObj: {
-            sampleObj1: {
-              newKey: 'sample text',
-            },
-            newKey1: 3456789009876543,
+          groupName: 'Anime fan club',
+          email: 'name.surname@domain.com',
+          company: 'Company123',
+          phone: '123-456-7890',
+          rating: 'Hot',
+          startDate: new Date(),
+          city: 'San Antonio',
+          postalCode: 890465,
+          country: 'US',
+          street: 'Sample Address',
+          state: 'TX',
+          label: 'club office',
+          defaultAddress: true,
+          temp1: null,
+          temp2: undefined,
+          temp3: [1, 2, 3],
+          temp4: {
+            selectedType: 'hard copy',
+            typesAvailable: ['kindle edition', 'audio book', 'hard copy', null],
           },
         },
         {
@@ -48,6 +52,12 @@ const trackMethodSuite = {
           },
           key8: null,
           key9: undefined,
+          externalIds: [
+            {
+              id: 'some_external_id_1',
+              type: 'brazeExternalId',
+            },
+          ],
           device: {
             id: 'sdfghj567-cghj5678-fghjvbn888',
           },
@@ -71,18 +81,12 @@ const trackMethodSuite = {
           originalTimestamp: '2023-01-13T08:13:58.548Z',
           channel: 'random',
           timestamp: new Date(),
-          traits: {
-            subscribed: true,
-            plan: 'Gold',
-            endDate: '2023-04-13T08:13:58.548Z',
-            startDate: '2023-01-13T08:13:58.548Z',
-          },
         },
       ],
-      expectedResult: track1ExpectedData,
-      triggerHandler: 'track',
+      expectedResult: group1ExpectedData,
+      triggerHandler: 'group',
     },
   ],
 };
 
-export { trackMethodSuite };
+export { groupMethodSuite };

@@ -16,6 +16,10 @@ const ignoredProperties = [
     type: 'number',
   },
   {
+    key: 'message.context.sessionStart',
+    type: 'boolean',
+  },
+  {
     key: 'message.context.page.tab_url',
     type: 'string',
   },
@@ -29,6 +33,10 @@ const ignoredProperties = [
   },
   {
     key: 'message.context.page.referring_domain',
+    type: 'string',
+  },
+  {
+    key: 'message.context.locale',
     type: 'string',
   },
   {
