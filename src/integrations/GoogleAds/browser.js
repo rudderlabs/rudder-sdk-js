@@ -88,7 +88,11 @@ class GoogleAds {
     logger.debug('in GoogleAdsAnalyticsManager track');
 
     const { event } = rudderElement.message;
-    const conversionData = getConversionData(this.clickEventConversions, event);
+    const conversionData = getConversionData(
+      this.clickEventConversions,
+      event,
+      this.defaultPageConversion,
+    );
     if (
       conversionData.conversionLabel &&
       shouldSendEvent(
@@ -154,7 +158,11 @@ class GoogleAds {
     logger.debug('in GoogleAdsAnalyticsManager page');
 
     const { name } = rudderElement.message;
-    const conversionData = getConversionData(this.clickEventConversions, name);
+    const conversionData = getConversionData(
+      this.clickEventConversions,
+      name,
+      this.defaultPageConversion,
+    );
     if (
       conversionData.conversionLabel &&
       shouldSendEvent(

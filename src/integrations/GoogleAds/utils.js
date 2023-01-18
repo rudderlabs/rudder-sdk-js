@@ -36,9 +36,10 @@ function shouldSendEvent(eventName, trackEvents, enableFiltering, events) {
  * if eventName is not present but defaultPageConversion is configured then keeping default eventName as Viewed a Page
  * @param {*} eventTypeConversions
  * @param {*} eventName
+ * @param {*} defaultPageConversion
  * @returns
  */
-function getConversionData(eventTypeConversions, eventName) {
+function getConversionData(eventTypeConversions, eventName, defaultPageConversion) {
   const conversionData = {};
   if (eventTypeConversions) {
     if (eventName) {
@@ -49,8 +50,8 @@ function getConversionData(eventTypeConversions, eventName) {
           conversionData.eventName = eventTypeConversion.name;
         }
       });
-    } else if (this.defaultPageConversion) {
-      conversionData.conversionLabel = this.defaultPageConversion;
+    } else if (defaultPageConversion) {
+      conversionData.conversionLabel = defaultPageConversion;
       conversionData.eventName = 'Viewed a Page';
     }
   }
