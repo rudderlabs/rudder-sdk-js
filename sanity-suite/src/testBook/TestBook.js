@@ -72,17 +72,23 @@ class TestBook {
                         <td style="word-wrap: break-word;"><span class="badge text-bg-warning" id="test-case-status-${
                           testCase.id
                         }">pending</span></td>
-                        <td style="word-wrap: break-word; max-width: 200px;"><pre>${JSON.stringify(
-                          testCase.inputData,
-                          undefined,
-                          2,
-                        )}</pre></td>
-                        <td style="word-wrap: break-word; max-width: 200px;"><pre class="testCaseResult" id="test-case-result-${
-                          testCase.id
-                        }" data-test-case-id="${testCase.id}"></pre></td>
-                        <td style="word-wrap: break-word; max-width: 200px;"><pre data-testid="test-case-expected-${
-                          testCase.id
-                        }">${JSON.stringify(testCase.expectedResult, undefined, 2)}</pre></td>
+                        <td style="word-wrap: break-word; max-width: 200px; position: relative;">
+                          <pre>${JSON.stringify(testCase.inputData, undefined, 2)}</pre>
+                        </td>
+                        <td style="word-wrap: break-word; max-width: 200px; position: relative;">
+                          <pre class="testCaseResult" id="test-case-result-${testCase.id}" data-test-case-id="${testCase.id}"></pre>
+                          <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
+                            <i class="bi bi-clipboard" data-clipboard-target="#test-case-result-${testCase.id}"></i>
+                          </button>
+                        </td>
+                        <td style="word-wrap: break-word; max-width: 200px; position: relative;">
+                          <pre data-testid="test-case-expected-${testCase.id}" id="expected-data${testCase.id}">
+                            ${JSON.stringify(testCase.expectedResult, undefined, 2)}
+                          </pre>
+                          <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
+                            <i class="bi bi-clipboard" data-clipboard-target="#expected-data${testCase.id}"></i>
+                          </button>
+                        </td>
                     </tr>
                 `;
       }
@@ -145,6 +151,18 @@ class TestBook {
     this.container.innerHTML = this.joinHtml(this.markupItems);
   }
 
+  // Invoke the trigger handlers passing as arguments the input data array items
+  invokeTriggerHandlers(clickHandler, inputData, resultCallback) {
+    // Always add callback methods in order to retrieve the generated message object
+    inputData.push(resultCallback);
+
+    if (typeof clickHandler === 'function') {
+      clickHandler.apply(null, inputData);
+    } else if (typeof clickHandler === 'string') {
+      window.rudderanalytics[clickHandler].apply(null, inputData);
+    }
+  }
+
   attachClickHandlers(suiteData) {
     const triggerElements = document.getElementsByClassName('testCaseTrigger');
     const totalTriggerElements = triggerElements.length;
@@ -160,15 +178,27 @@ class TestBook {
         resultContainer.innerHTML = JSON.stringify(generatedPayload, undefined, 2);
       };
 
-      testCaseData.inputData.push(resultCallback);
-
       triggerElement.addEventListener('click', () => {
-        if (typeof testCaseData.triggerHandler === 'function') {
-          testCaseData.triggerHandler.apply(null, testCaseData.inputData);
-        } else if (typeof testCaseData.triggerHandler === 'string') {
-          window.rudderanalytics[testCaseData.triggerHandler].apply(null, testCaseData.inputData);
+        const clickHandlerData = testCaseData.triggerHandler;
+
+        // Allow single or sequential calls with defined sequential payloads
+        if(Array.isArray(clickHandlerData)) {
+          const totalClickHandlers = clickHandlerData.length;
+
+          clickHandlerData.forEach((clickHandler, index) => {
+            if(index === (totalClickHandlers - 1)) {
+              // Only pass callback on last item of the sequence
+              this.invokeTriggerHandlers(clickHandler, testCaseData.inputData[index], resultCallback);
+            } else {
+              this.invokeTriggerHandlers(clickHandler, testCaseData.inputData[index]);
+            }
+          });
+        } else {
+          this.invokeTriggerHandlers(testCaseData.triggerHandler, testCaseData.inputData, resultCallback);
         }
       });
+
+      new ClipboardJS('.bi-clipboard');
     }
 
     const executeAllElement = document.getElementById('execute-all-trigger');
@@ -198,13 +228,12 @@ class TestBook {
       const testCaseId = resultContainerElement.dataset.testCaseId;
 
       const observer = new MutationObserver((mutationList, observer) => {
-        const resultData = mutationList[0].addedNodes[0].nodeValue;
-        const expectedResult = resultRowElement.lastElementChild.firstChild.textContent;
+        const resultData = mutationList[0].addedNodes[0].nodeValue.trim();
+        const expectedResult = resultRowElement.lastElementChild.childNodes[1].textContent.trim();
         const sanitizedResultData = ResultsAssertions.sanitizeResultData(
           resultData,
           expectedResult,
         );
-        console.log(sanitizedResultData, expectedResult);
         const assertionResult = ResultsAssertions.assertResult(sanitizedResultData, expectedResult);
         const statusElement = document.getElementById(`test-case-status-${testCaseId}`);
         statusElement.textContent = assertionResult;
