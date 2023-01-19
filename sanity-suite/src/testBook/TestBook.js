@@ -234,7 +234,7 @@ class TestBook {
           resultData,
           expectedResult,
         );
-        const assertionResult = ResultsAssertions.assertResult(sanitizedResultData, expectedResult);
+        const assertionResult = ResultsAssertions.assertDeepObjectDiffResult(sanitizedResultData, expectedResult);
         const statusElement = document.getElementById(`test-case-status-${testCaseId}`);
         statusElement.textContent = assertionResult;
         statusElement.className = `badge text-bg-${assertionResult}`;
