@@ -1,4 +1,5 @@
 import objectPath from 'object-path';
+import deepEqual from 'deep-equal';
 import { ignoredProperties } from './ignoredProperties';
 
 class ResultsAssertions {
@@ -19,6 +20,17 @@ class ResultsAssertions {
 
   static assertResult(result, expected) {
     return result === expected ? 'success' : 'danger';
+  }
+
+  static assertDeepObjectDiffResult(result, expected) {
+    try {
+      const resultObj = JSON.parse(result);
+      const expectedObj = JSON.parse(expected);
+      return deepEqual(resultObj, expectedObj) ? 'success' : 'danger';
+    } catch (e) {
+      console.error(`Error: Comparison diff: ${e}`)
+      return 'danger';
+    }
   }
 }
 
