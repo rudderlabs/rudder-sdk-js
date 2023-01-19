@@ -114,23 +114,7 @@
     "anonymousId": "sample anonymousId",
     "userId": "customUserID",
     "event": "Order Completed",
-    "properties": {
-      "revenue": 30,
-      "currency": "USD",
-      "user_actual_id": 12345,
-      "productId": "234567-sdfghj-345tygh-567890dfghj",
-      "productCategory": "clothing",
-      "paid": true,
-      "paymentMode": 4,
-      "paymentModeName": "online",
-      "productSizes": ["XS", "S", "M", "L", "XL", "XXL"],
-      "sampleObj": {
-        "sampleObj1": {
-          "newKey": "sample text"
-        },
-        "newKey1": 3456789009876543
-      }
-    },
+    "properties": {},
     "integrations": {
       "All": false,
       "Google Analytics": true,

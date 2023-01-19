@@ -1,6 +1,8 @@
 import identify1ExpectedData from '../../__mocks__/identify1.json';
 import identify2ExpectedData from '../../__mocks__/identify2.json';
 import identify3ExpectedData from '../../__mocks__/identify3.json';
+import identify4ExpectedData from '../../__mocks__/identify4.json';
+import identify5ExpectedData from '../../__mocks__/identify5.json';
 
 const identifyMethodSuite = {
   id: 'identifyMethod',
@@ -218,6 +220,64 @@ const identifyMethodSuite = {
       ],
       expectedResult: identify3ExpectedData,
       triggerHandler: ['reset', 'identify'],
+    },
+    {
+      id: 'identify4',
+      description: 'Call with only userId as argument',
+      inputData: [[true], ['customUserID']],
+      expectedResult: identify4ExpectedData,
+      triggerHandler: ['reset', 'identify'],
+    },
+    {
+      id: 'identify5',
+      description:
+        'Call with userId and traits and null apiOptions as arguments with all possible data types',
+      inputData: [
+        [
+          'customUserID',
+          {
+            name: 'John Doe',
+            title: 'CEO',
+            email: 'name.surname@domain.com',
+            company: 'Company123',
+            phone: '123-456-7890',
+            rating: 'Hot',
+            dob: new Date('12/1/1990'),
+            address: [
+              {
+                city: 'Austin',
+                postalCode: 12345,
+                country: 'US',
+                street: 'Sample Address',
+                state: 'TX',
+                label: 'Home',
+                defaultAddress: true,
+              },
+              {
+                city: 'Houston',
+                postalCode: 345678,
+                country: 'US',
+                street: 'Sample Address 2',
+                state: 'TX',
+                label: 'Office',
+                defaultAddress: false,
+              },
+              {
+                city: 'Dallas',
+                postalCode: 987654,
+                country: 'US',
+                street: 'Sample Address 3',
+                state: 'TX',
+                label: 'Toms place',
+                defaultAddress: false,
+              },
+            ],
+          },
+          null,
+        ],
+      ],
+      expectedResult: identify5ExpectedData,
+      triggerHandler: ['identify'],
     },
   ],
 };
