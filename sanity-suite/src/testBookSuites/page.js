@@ -8,7 +8,7 @@ const pageMethodSuite = {
   testCases: [
     {
       id: 'page1',
-      description: 'Call with all arguments and all primitives in traits and apiOptions',
+      description: 'Call with all arguments and all primitives in properties and apiOptions',
       inputData: [
         'Cart',
         'Cart Item',

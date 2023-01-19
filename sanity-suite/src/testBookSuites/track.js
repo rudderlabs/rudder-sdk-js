@@ -1,6 +1,7 @@
 import track1ExpectedData from '../../__mocks__/track1.json';
 import track2ExpectedData from '../../__mocks__/track2.json';
 import track4ExpectedData from '../../__mocks__/track4.json';
+import track5ExpectedData from '../../__mocks__/track5.json';
 
 const trackMethodSuite = {
   id: 'trackMethod',
@@ -195,6 +196,13 @@ const trackMethodSuite = {
         },
       ],
       expectedResult: track4ExpectedData,
+      triggerHandler: 'track',
+    },
+    {
+      id: 'track5',
+      description: 'Call with only event name as argument',
+      inputData: ['Order Completed'],
+      expectedResult: track5ExpectedData,
       triggerHandler: 'track',
     },
   ],
