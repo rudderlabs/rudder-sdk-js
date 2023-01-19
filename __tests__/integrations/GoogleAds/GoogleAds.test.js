@@ -5,14 +5,11 @@ import {
   mockOrderId,
   productAdded,
   orderCompleted,
-  googleAdsTrack,
   googleAdsConfigs,
   trackCallPayload,
   mockConversionId,
   mockEventTypeConversions,
 } from './__mocks__/data';
-
-beforeAll(() => {});
 
 afterAll(() => {
   jest.restoreAllMocks();
@@ -28,15 +25,15 @@ describe('GoogleAds init tests', () => {
   });
 });
 
-describe(googleAdsTrack, () => {
+describe('Scenario to test conversion and dynamic remarketing events', () => {
   let googleAds;
   beforeEach(() => {
     googleAds = new GoogleAds(googleAdsConfigs[0], {});
+    googleAds.init();
+    window.gtag = jest.fn();
   });
 
   test('Send Order Completed event as conversion and dynamic remarketing', () => {
-    googleAds.init();
-    window.gtag = jest.fn();
     googleAds.track(trackCallPayload);
 
     // verify conversion events
@@ -75,15 +72,15 @@ describe(googleAdsTrack, () => {
   });
 });
 
-describe(googleAdsTrack, () => {
+describe('Scenario to test only conversion events when track conversion button is enabled', () => {
   let googleAds;
   beforeEach(() => {
     googleAds = new GoogleAds(googleAdsConfigs[1], {});
+    googleAds.init();
+    window.gtag = jest.fn();
   });
 
   test('Send Order Completed event as conversion but not dynamic remarketing', () => {
-    googleAds.init();
-    window.gtag = jest.fn();
     googleAds.track(trackCallPayload);
 
     // verify conversion events
@@ -97,15 +94,15 @@ describe(googleAdsTrack, () => {
   });
 });
 
-describe(googleAdsTrack, () => {
+describe('Scenario to test only dynamic remarketing events when track dynamic remarketing button is enabled', () => {
   let googleAds;
   beforeEach(() => {
     googleAds = new GoogleAds(googleAdsConfigs[2], {});
+    googleAds.init();
+    window.gtag = jest.fn();
   });
 
   test('Send Order Completed event as dynamic remarketing but not as conversion', () => {
-    googleAds.init();
-    window.gtag = jest.fn();
     googleAds.track(trackCallPayload);
 
     // verify dynamic remarketing events
@@ -135,15 +132,15 @@ describe(googleAdsTrack, () => {
   });
 });
 
-describe(googleAdsTrack, () => {
+describe('Scenario to test only conversion events when track conversion button and event filtering is enabled', () => {
   let googleAds;
   beforeEach(() => {
     googleAds = new GoogleAds(googleAdsConfigs[3], {});
+    googleAds.init();
+    window.gtag = jest.fn();
   });
 
   test('Send Order Completed event as conversion', () => {
-    googleAds.init();
-    window.gtag = jest.fn();
     googleAds.track(trackCallPayload);
 
     // verify conversion events
@@ -158,41 +155,41 @@ describe(googleAdsTrack, () => {
 });
 
 describe('GoogleAds utilities shouldSendEvent function tests', () => {
-  it('event tracking is enabled and event filtering is disabled', () => {
+  test('event tracking is enabled and event filtering is disabled', () => {
     const eventToSend = shouldSendEvent(productAdded, true, false, mockEvents);
     expect(eventToSend).toEqual(true);
   });
 
-  it('event tracking is disabled and event filtering is disabled', () => {
+  test('event tracking is disabled and event filtering is disabled', () => {
     const eventToSend = shouldSendEvent('Product Viewed', false, false, mockEvents);
     expect(eventToSend).toEqual(false);
   });
 
-  it('event tracking is enabled and event filtering is enabled but event is not added to events list', () => {
+  test('event tracking is enabled and event filtering is enabled but event is not added to events list', () => {
     const eventToSend = shouldSendEvent('Cart Checkout', true, true, mockEvents);
     expect(eventToSend).toEqual(false);
   });
 
-  it('event tracking is enabled and event filtering is enabled and event is added to events list', () => {
+  test('event tracking is enabled and event filtering is enabled and event is added to events list', () => {
     const eventToSend = shouldSendEvent(orderCompleted, true, true, mockEvents);
     expect(eventToSend).toEqual(true);
   });
 });
 
 describe('GoogleAds utilities getConversionData function tests', () => {
-  it('Should return matching conversionLabel and eventName', () => {
+  test('Event name is present in mapping', () => {
     const conversionData = getConversionData(mockEventTypeConversions, 'Sign Up', '');
     expect(conversionData.eventName).toEqual('Sign Up');
     expect(conversionData.conversionLabel).toEqual('15klCKLCs4gYETIBi58p');
   });
 
-  it('Should return default conversionLabel and eventName', () => {
+  test('No event name is present', () => {
     const conversionData = getConversionData(mockEventTypeConversions, '', 'KhF2CKvCs4gYETIBi58p');
     expect(conversionData.eventName).toEqual('Viewed a Page');
     expect(conversionData.conversionLabel).toEqual('KhF2CKvCs4gYETIBi58p');
   });
 
-  it('Should return empty object as no matching event name is present and no defaultPageConversion is present', () => {
+  test('No matching event name is present and no defaultPageConversion is present', () => {
     const conversionData = getConversionData(mockEventTypeConversions, 'Cart Checkout', '');
     expect(conversionData).toEqual({});
   });

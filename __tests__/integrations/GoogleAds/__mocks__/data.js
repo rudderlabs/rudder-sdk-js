@@ -124,8 +124,6 @@ const googleAdsConfigs = [
   },
 ];
 
-const googleAdsTrack = 'Google Ads Track';
-
 const trackCallPayload = {
   message: {
     context: {},
@@ -158,7 +156,6 @@ export {
   mockOrderId,
   productAdded,
   orderCompleted,
-  googleAdsTrack,
   googleAdsConfigs,
   trackCallPayload,
   mockConversionId,
