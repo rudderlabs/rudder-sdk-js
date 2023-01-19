@@ -74,7 +74,6 @@ const pageMethodSuite = {
           anonymousId: 'sample anonymousId',
           originalTimestamp: '2023-01-13T08:13:58.548Z',
           channel: 'random',
-          timestamp: new Date(),
           traits: {
             subscribed: true,
             plan: 'Gold',

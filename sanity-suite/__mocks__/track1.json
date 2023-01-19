@@ -76,7 +76,6 @@
         "release_stage": "Production"
       },
       "channel": "random",
-      "timestamp": "2023-01-17T12:33:09.710Z",
       "library": {
         "name": "RudderLabs JavaScript SDK",
         "version": "2.22.2"

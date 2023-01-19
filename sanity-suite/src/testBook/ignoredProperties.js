@@ -8,6 +8,10 @@ const ignoredProperties = [
     type: 'string',
   },
   {
+    key: 'message.context.library.name',
+    type: 'string',
+  },
+  {
     key: 'message.context.locale',
     type: 'string',
   },
