@@ -7,44 +7,7 @@
         "namespace": "com.rudderlabs.javascript",
         "version": "2.22.2"
       },
-      "traits": {
-        "name": "John Doe",
-        "title": "CEO",
-        "email": "name.surname@domain.com",
-        "company": "Company123",
-        "phone": "123-456-7890",
-        "rating": "Hot",
-        "dob": "1990-11-30T18:30:00.000Z",
-        "address": [
-          {
-            "city": "Austin",
-            "postalCode": 12345,
-            "country": "US",
-            "street": "Sample Address",
-            "state": "TX",
-            "label": "Home",
-            "defaultAddress": true
-          },
-          {
-            "city": "Houston",
-            "postalCode": 345678,
-            "country": "US",
-            "street": "Sample Address 2",
-            "state": "TX",
-            "label": "Office",
-            "defaultAddress": false
-          },
-          {
-            "city": "Dallas",
-            "postalCode": 987654,
-            "country": "US",
-            "street": "Sample Address 3",
-            "state": "TX",
-            "label": "Toms place",
-            "defaultAddress": false
-          }
-        ]
-      },
+      "traits": {},
       "key1": [1, 2, 3, 4],
       "key2": "sample text",
       "key3": false,
@@ -104,12 +67,12 @@
         "initial_referring_domain": ""
       }
     },
-    "type": "alias",
+    "type": "group",
     "messageId": "469fccf3-ba54-427d-9bf4-f01940382231",
     "originalTimestamp": "2023-01-13T08:13:58.548Z",
     "anonymousId": "sample anonymousId",
-    "userId": "newCustomUserID",
-    "previousId": "customUserID",
+    "userId": "",
+    "groupId": "customGroupID",
     "event": null,
     "properties": null,
     "integrations": {
@@ -118,6 +81,7 @@
       "Amplitude": true
     },
     "user_properties": null,
+    "traits": {},
     "sentAt": "2023-01-14T20:26:36.001Z"
   }
 }

@@ -8,7 +8,7 @@ const ignoredProperties = [
     type: 'string',
   },
   {
-    key: 'message.context.library.name',
+    key: 'message.context.library.name', // TODO: remove this entry once we solve the bug of overriding the library name
     type: 'string',
   },
   {
@@ -44,7 +44,11 @@ const ignoredProperties = [
     type: 'string',
   },
   {
-    key: 'message.context.locale',
+    key: 'message.context.page.initial_referrer',
+    type: 'string',
+  },
+  {
+    key: 'message.context.page.initial_referring_domain',
     type: 'string',
   },
   {
@@ -81,6 +85,14 @@ const ignoredProperties = [
   },
   {
     key: 'message.sentAt',
+    type: 'string',
+  },
+  {
+    key: 'message.properties.referrer',
+    type: 'string',
+  },
+  {
+    key: 'message.properties.referring_domain',
     type: 'string',
   },
 ];
