@@ -3,7 +3,7 @@
 import logger from "../../utils/logUtil";
 import { NAME } from "./constants";
 import { LOAD_ORIGIN } from "../ScriptLoader";
-import { getHashFromArray } from "../utils/commonUtils";
+import { getHashFromArray, isDefinedAndNotNullAndNotEmpty } from "../utils/commonUtils";
 
 class Rockerbox {
   constructor(config) {
@@ -12,6 +12,7 @@ class Rockerbox {
     this.customDomain = config.customDomain;
     this.enableCookieSync = config.enableCookieSync;
     this.eventsMap = config.eventsMap || [];
+    this.customPropsMapping = config.customPropsMapping || [];
     this.useNativeSDKToSend = config.useNativeSDKToSend;
   }
 
@@ -59,18 +60,18 @@ class Rockerbox {
   identify(rudderElement) {
     logger.debug("===In Rockerbox Identify===");
     const { message } = rudderElement;
-    const { userId, anonymousId } = message;
+    const { userId, anonymousId, traits, context } = message;
     if (!userId) {
       logger.debug(
         "userId is needed. A primary identifier is expected by RockerBox"
       );
     }
-    const email = message.traits?.email || message.context?.traits?.email;
+    const email = traits?.email || context?.traits?.email;
     window.RB.track("identify", {
       external_id: userId,
       anonymousId,
       email,
-      phone_number: message.traits?.phone || message.context?.traits?.phone,
+      phone_number: traits?.phone || context?.traits?.phone,
     });
   }
 
@@ -84,18 +85,29 @@ class Rockerbox {
     logger.debug("===In Rockerbox track===");
 
     const { message } = rudderElement;
-    const { event, anonymousId } = message;
+    const { event, anonymousId, properties } = message;
+    const finalProperties = properties;
     if (!event) {
       logger.error("Event name not present");
       return;
     }
     const eventsHashmap = getHashFromArray(this.eventsMap);
+    const customPropsHashMap = getHashFromArray(this.customPropsMapping);
+
     const rbEvent = eventsHashmap[event.toLowerCase()];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const key in customPropsHashMap) {
+      if (isDefinedAndNotNullAndNotEmpty(properties[key])){
+          finalProperties[customPropsHashMap[key]] = properties[key]
+          delete finalProperties.key;
+      }
+    }
+
     if (rbEvent) {
-      window.RB.track(rbEvent, { ...message.properties, anonymousId });
+      window.RB.track(rbEvent, { ...finalProperties, anonymousId });
     } else {
       logger.error(
-        `The event ${message.event} is not mapped to any Rockerbox Event. Aborting!`
+        `The event ${event} is not mapped to any Rockerbox Event. Aborting!`
       );
     }
   }
@@ -103,8 +115,8 @@ class Rockerbox {
   page(rudderElement) {
     logger.debug("=== In Rockerbox Page ===");
     const { message } = rudderElement;
-    const { anonymousId } = message;
-    window.RB.track("view", { ...message.properties, anonymousId });
+    const { anonymousId, properties } = message;
+    window.RB.track("view", { ...properties, anonymousId });
   }
 }
 
