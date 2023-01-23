@@ -1,3 +1,6 @@
+/* eslint-disable prefer-rest-params */
+/* eslint-disable func-names */
+/* eslint-disable no-param-reassign */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable class-methods-use-this */
 import logger from "../../utils/logUtil";
@@ -33,7 +36,7 @@ class Rockerbox {
         RB.initialize = function (s) {
           RB.source = s;
         };
-        var a = d.createElement("script");
+        const a = d.createElement("script");
         a.type = "text/javascript";
         a.async = !0;
         a.src = `https://${host}/assets/${library}.js`;
