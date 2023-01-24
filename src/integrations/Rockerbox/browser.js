@@ -3,10 +3,10 @@
 /* eslint-disable func-names */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable class-methods-use-this */
-import logger from "../../utils/logUtil";
-import { NAME } from "./constants";
-import { LOAD_ORIGIN } from "../../utils/ScriptLoader";
-import { getHashFromArray, isDefinedAndNotNullAndNotEmpty } from "../../utils/commonUtils";
+import logger from '../../utils/logUtil';
+import { NAME } from './constants';
+import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
+import { getHashFromArray, isDefinedAndNotNullAndNotEmpty } from '../../utils/commonUtils';
 
 class Rockerbox {
   constructor(config) {
@@ -67,7 +67,7 @@ class Rockerbox {
       logger.debug('userId is needed. A primary identifier is expected by RockerBox');
     }
     const email = traits?.email || context?.traits?.email;
-    window.RB.track("identify", {
+    window.RB.track('identify', {
       external_id: userId,
       anonymousId,
       email,
@@ -97,18 +97,16 @@ class Rockerbox {
     const rbEvent = eventsHashmap[event.toLowerCase()];
     // eslint-disable-next-line no-restricted-syntax
     for (const key in customPropsHashMap) {
-      if (isDefinedAndNotNullAndNotEmpty(properties[key])){
-          finalProperties[customPropsHashMap[key]] = properties[key]
-          delete finalProperties.key;
+      if (isDefinedAndNotNullAndNotEmpty(properties[key])) {
+        finalProperties[customPropsHashMap[key]] = properties[key];
+        delete finalProperties.key;
       }
     }
 
     if (rbEvent) {
       window.RB.track(rbEvent, { ...finalProperties, anonymousId });
     } else {
-      logger.error(
-        `The event ${event} is not mapped to any Rockerbox Event. Aborting!`
-      );
+      logger.error(`The event ${event} is not mapped to any Rockerbox Event. Aborting!`);
     }
   }
 
@@ -116,7 +114,7 @@ class Rockerbox {
     logger.debug('=== In Rockerbox Page ===');
     const { message } = rudderElement;
     const { anonymousId, properties } = message;
-    window.RB.track("view", { ...properties, anonymousId });
+    window.RB.track('view', { ...properties, anonymousId });
   }
 }
 
