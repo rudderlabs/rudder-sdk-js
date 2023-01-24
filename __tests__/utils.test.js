@@ -263,3 +263,41 @@ describe("getDataFromSource Tests", () => {
             });
     
 })
+
+describe("flattenJsonPayload Tests", () => {
+    test("simple string returns object with empty key", () => {
+        const testObj =  "abc";
+        const result = utils.flattenJsonPayload(testObj);
+        expect(result).toStrictEqual({"": "abc"});
+        });
+    test("simple empty array returns an with empty key with empty array value", () => {
+        const testObj =  [];
+        const result = utils.flattenJsonPayload(testObj);
+        expect(result).toStrictEqual({"": []});
+        });
+    test("simple array of object returns single object with indexed keys", () => {
+        const testObj =  [{"prop1": "val1"}, {"prop2": "val2"}];
+        const result = utils.flattenJsonPayload(testObj);
+        expect(result).toStrictEqual({"0.prop1": "val1", "1.prop2": "val2"});
+        });
+    test("simple array of object returns single object with indexed keys", () => {
+        const testObj =  [{"prop1": "val1"}, {"prop2": "val2"}];
+        const result = utils.flattenJsonPayload(testObj);
+        expect(result).toStrictEqual({"0.prop1": "val1", "1.prop2": "val2"});
+        });
+    test("test case with object with array as value", () => {
+        const testObj =  {"prop1": ["val1", "val3"],"prop2": "val2"};
+        const result = utils.flattenJsonPayload(testObj);
+        expect(result).toStrictEqual({"prop1.0": "val1","prop1.1": "val3","prop2": "val2"});
+        });
+    test("test case with nested object", () => {
+        const testObj =  {"prop1": {"prop2": "abc"}};
+        const result = utils.flattenJsonPayload(testObj);
+        expect(result).toStrictEqual({"prop1.prop2": "abc"});
+        });
+        test("test case with specified delimeter", () => {
+            const testObj =  {"prop1": {"prop2": "abc"}};
+            const result = utils.flattenJsonPayload(testObj, '-');
+            expect(result).toStrictEqual({"-.prop1.prop2": "abc"});
+            });
+})
