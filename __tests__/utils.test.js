@@ -295,9 +295,9 @@ describe("flattenJsonPayload Tests", () => {
         const result = utils.flattenJsonPayload(testObj);
         expect(result).toStrictEqual({"prop1.prop2": "abc"});
         });
-        test("test case with specified delimeter", () => {
-            const testObj =  {"prop1": {"prop2": "abc"}};
-            const result = utils.flattenJsonPayload(testObj, '-');
-            expect(result).toStrictEqual({"-.prop1.prop2": "abc"});
-            });
+    test("test case with specified delimeter", () => {
+        const testObj =  {"prop1": {"prop2": "abc"}};
+        const result = utils.flattenJsonPayload(testObj, '-');
+        expect(result).toStrictEqual({"-.prop1.prop2": "abc"});
+        });
 })
