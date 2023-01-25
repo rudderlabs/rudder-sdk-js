@@ -24,7 +24,7 @@ const identifyMethodSuite = {
             company: 'Company123',
             phone: '123-456-7890',
             rating: 'Hot',
-            dob: new Date('12/1/1990'),
+            dob: new Date(Date.UTC(1990, 0, 12)),
             address: [
               {
                 city: 'Austin',
@@ -122,7 +122,7 @@ const identifyMethodSuite = {
             company: 'Company123',
             phone: '123-456-7890',
             rating: 'Hot',
-            dob: new Date('12/1/1990'),
+            dob: new Date(Date.UTC(1990, 0, 12)),
             address: [
               {
                 city: 'Austin',
@@ -242,7 +242,7 @@ const identifyMethodSuite = {
             company: 'Company123',
             phone: '123-456-7890',
             rating: 'Hot',
-            dob: new Date('12/1/1990'),
+            dob: new Date(Date.UTC(1990, 0, 12)),
             address: [
               {
                 city: 'Austin',

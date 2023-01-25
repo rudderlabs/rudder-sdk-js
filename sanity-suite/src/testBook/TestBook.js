@@ -56,16 +56,16 @@ class TestBook {
         markupString += `
                     <tr class="collapsed-row" data-testid="test-case-${testCase.id}">
                         <th scope="row" style="word-wrap: break-word; max-width: 280px;">
-                            <button type="button" class="btn btn-dark testCaseTrigger" id="test-case-trigger-${
+                            <button type="button" class="btn btn-dark btn-sm testCaseTrigger" id="test-case-trigger-${
                               testCase.id
-                            }" data-suite-group-index="${groupIndex}" data-suite-index="${i}" data-test-case-index="${j}">
+                            }" data-suite-group-index="${groupIndex}" data-suite-index="${i}" data-test-case-index="${j}" style="text-align: left;">
                                 <span class="text-start">
                                     ${testCase.description}
                                 </span>
                             </button>
                             <br>
                             <br>
-                            <button type="button" class="btn btn-secondary testCaseToggle">
+                            <button type="button" class="btn btn-secondary btn-sm testCaseToggle">
                                 <i class="bi bi-arrows-expand"></i> Expand/Collapse
                             </button>
                         </th>
@@ -238,6 +238,10 @@ class TestBook {
         const statusElement = document.getElementById(`test-case-status-${testCaseId}`);
         statusElement.textContent = assertionResult;
         statusElement.className = `badge text-bg-${assertionResult}`;
+        statusElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
       });
 
       observer.observe(resultContainerElement, {

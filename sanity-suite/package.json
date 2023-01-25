@@ -1,6 +1,6 @@
 {
   "name": "rudder-analytics-js-sdk-sanity-suite",
-  "version": "2.22.2",
+  "version": "2.22.3",
   "description": "Sanity suite for testing JS SDK package",
   "main": "./dist/testBook.js",
   "scripts": {
@@ -8,17 +8,21 @@
     "start": "cd .. && npm run build:browser && cd sanity-suite && npm run start:local",
     "start:local": "npm run build -- --watch --environment DEV_SERVER",
     "start:cdn": "npm run build:cdn -- --watch --environment DEV_SERVER",
+    "start:cdn:v1": "npm run build:cdn:v1 -- --watch --environment DEV_SERVER",
     "start:npm": "npm run build:npm -- --watch --environment DEV_SERVER",
-    "build": "rollup --config rollup.config.js --environment TEST_PACKAGE:local",
-    "build:cdn": "rollup --config rollup.config.js --environment TEST_PACKAGE:cdn",
-    "build:npm": "rollup --config rollup.config.js --environment TEST_PACKAGE:npm"
+    "build": "rollup -c --environment TEST_PACKAGE:local",
+    "build:cdn": "rollup -c --environment TEST_PACKAGE:cdn",
+    "build:cdn:v1": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1",
+    "build:cdn:staging": "rollup -c --environment TEST_PACKAGE:cdn,STAGING:true",
+    "build:cdn:v1:staging": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1,STAGING:true",
+    "build:npm": "rollup -c --environment TEST_PACKAGE:npm"
   },
   "author": "RudderStack",
   "license": "MIT",
   "dependencies": {
     "deep-equal": "^2.2.0",
     "object-path": "^0.11.8",
-    "rudder-sdk-js": "2.22.2"
+    "rudder-sdk-js": "2.22.3"
   },
   "devDependencies": {
     "@babel/core": "7.20.7",

@@ -14,7 +14,7 @@
         "company": "Company123",
         "phone": "123-456-7890",
         "rating": "Hot",
-        "dob": "1990-11-30T18:30:00.000Z",
+        "dob": "1990-01-12T00:00:00.000Z",
         "address": [
           {
             "city": "Austin",

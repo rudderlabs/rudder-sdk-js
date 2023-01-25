@@ -468,6 +468,7 @@ class Analytics {
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof properties === 'function') (callback = properties), (options = properties = null);
     if (typeof name === 'function') (callback = name), (options = properties = name = null);
+    if (typeof category === 'function') (callback = category), (options = properties = name = category = null);
     if (typeof category === 'object' && category != null && category != undefined)
       (options = name), (properties = category), (name = category = null);
     if (typeof name === 'object' && name != null && name != undefined)
@@ -563,7 +564,9 @@ class Analytics {
     if (!this.loaded) return;
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof from === 'function') (callback = from), (options = null), (from = null);
+    if (typeof to === 'function') (callback = to), (options = null), (from = null), (to = null);
     if (typeof from === 'object') (options = from), (from = null);
+    if (typeof to === 'object') (options = to), (from = null), (to = null);
 
     const rudderElement = new RudderElementBuilder().setType('alias').build();
 

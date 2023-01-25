@@ -4,6 +4,10 @@ const ignoredProperties = [
     type: 'string',
   },
   {
+    key: 'message.context.device.id',
+    type: 'string',
+  },
+  {
     key: 'message.context.library.version',
     type: 'string',
   },
