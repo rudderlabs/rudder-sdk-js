@@ -590,6 +590,8 @@ class Analytics {
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
     if (typeof groupId === 'object')
       (options = traits), (traits = groupId), (groupId = this.groupId);
+    if (typeof groupId === 'function')
+      (callback = groupId), (options = null), (traits = null), (groupId = this.groupId);
 
     this.groupId = getStringId(groupId);
     this.storage.setGroupId(this.groupId);
