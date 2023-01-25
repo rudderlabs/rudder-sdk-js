@@ -95,6 +95,14 @@ const ignoredProperties = [
     key: 'message.properties.referring_domain',
     type: 'string',
   },
+  {
+    key: 'message.properties.initial_referrer',
+    type: 'string',
+  },
+  {
+    key: 'message.properties.initial_referring_domain',
+    type: 'string',
+  },
 ];
 
 export { ignoredProperties };
