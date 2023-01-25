@@ -11,8 +11,6 @@ import {
   testEvent,
 } from './__mocks__/data';
 
-beforeAll(() => {});
-
 afterAll(() => {
   jest.restoreAllMocks();
 });

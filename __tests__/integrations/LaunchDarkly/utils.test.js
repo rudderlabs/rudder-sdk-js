@@ -1,8 +1,6 @@
 import createUser from '../../../src/integrations/LaunchDarkly/utils';
 import { mockAnonymousUsersSharedKey, mockTraits, mockUserId } from './__mocks__/data';
 
-beforeAll(() => {});
-
 afterAll(() => {
   jest.restoreAllMocks();
 });
