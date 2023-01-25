@@ -1,3 +1,5 @@
+import { isDefinedAndNotNull } from '../../utils/utils';
+
 /**
  * if trackEvents are not enabled then do not send events (return false)
  * if trackEvents are enabled but event filtering is not enabled then send all events
@@ -9,7 +11,18 @@
  * @param {*} events
  * @returns
  */
-function shouldSendEvent(eventName, trackEvents, enableFiltering, events) {
+function shouldSendEvent(
+  eventName,
+  trackEvents,
+  enableFiltering,
+  events,
+  dynamicRemarketing,
+  eventType,
+) {
+  if (isDefinedAndNotNull(dynamicRemarketing)) {
+    return eventType === 'conversion' ? !dynamicRemarketing : dynamicRemarketing;
+  }
+
   if (!trackEvents) {
     return false;
   }

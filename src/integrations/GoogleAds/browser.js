@@ -30,6 +30,8 @@ class GoogleAds {
     this.eventsToTrackConversions = config.eventsToTrackConversions || [];
     this.eventsToTrackDynamicRemarketing = config.eventsToTrackDynamicRemarketing || [];
     this.eventMappingFromConfig = config.eventMappingFromConfig;
+    // To make changes backward compatible
+    this.dynamicRemarketing = config.dynamicRemarketing;
     this.name = NAME;
   }
 
@@ -100,6 +102,8 @@ class GoogleAds {
         this.trackConversions,
         this.enableConversionEventsFiltering,
         this.eventsToTrackConversions,
+        this.dynamicRemarketing,
+        'conversion',
       )
     ) {
       const { conversionLabel } = conversionData;
@@ -128,6 +132,8 @@ class GoogleAds {
         this.trackDynamicRemarketing,
         this.enableDynamicRemarketingEventsFiltering,
         this.eventsToTrackDynamicRemarketing,
+        this.dynamicRemarketing,
+        'dynamicRemarketing',
       )
     ) {
       // modify the event name to mapped event name from the config
@@ -170,6 +176,8 @@ class GoogleAds {
         this.trackConversions,
         this.enableConversionEventsFiltering,
         this.eventsToTrackConversions,
+        this.dynamicRemarketing,
+        'conversion',
       )
     ) {
       const { conversionLabel } = conversionData;
@@ -190,6 +198,8 @@ class GoogleAds {
         this.trackDynamicRemarketing,
         this.enableDynamicRemarketingEventsFiltering,
         this.eventsToTrackDynamicRemarketing,
+        this.dynamicRemarketing,
+        'dynamicRemarketing',
       )
     ) {
       const event = name;
