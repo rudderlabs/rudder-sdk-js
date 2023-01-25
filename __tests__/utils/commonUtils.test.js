@@ -1,4 +1,4 @@
-import * as utils from '../src/utils/commonUtils';
+import * as utils from '../../src/utils/commonUtils';
 
 describe("isDefinedAndNotNull Tests", () => {
     const testObj = {
