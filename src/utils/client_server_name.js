@@ -71,6 +71,7 @@ const clientToServerNames = {
   LEMNISK_MARKETING_AUTOMATION: 'LemniskMarketingAutomation',
   SENDINBLUE: 'Sendinblue',
   OLARK: 'Olark',
+  Lemnisk: "Lemnisk",
 };
 
 export { clientToServerNames };

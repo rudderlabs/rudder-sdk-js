@@ -70,7 +70,7 @@ import * as MicrosoftClarity from './MicrosoftClarity';
 import * as LemniskMarketingAutomation from './LemniskMarketingAutomation';
 import * as Sendinblue from './Sendinblue';
 import * as Olark from './Olark';
-
+import * as Lemnisk from "./Lemnisk";
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
 
@@ -147,6 +147,7 @@ const integrations = {
   Lemnisk_Marketing_Automation: LemniskMarketingAutomation.default,
   SENDINBLUE: Sendinblue.default,
   OLARK: Olark.default,
+  LEMNISK: Lemnisk.default,
 };
 
 export { integrations };
