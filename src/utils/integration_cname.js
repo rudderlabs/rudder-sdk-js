@@ -67,10 +67,9 @@ import { CNameMapping as Podsights } from '../integrations/Podsights/constants';
 import { CNameMapping as Axeptio } from '../integrations/Axeptio/constants';
 import { CNameMapping as SatisMeter } from '../integrations/Satismeter/constants';
 import { CNameMapping as MicrosoftClarity } from '../integrations/MicrosoftClarity/constants';
-import { CNameMapping as LemniskMarketingAutomation } from '../integrations/LemniskMarketingAutomation/constants';
 import { CNameMapping as Sendinblue } from '../integrations/Sendinblue/constants';
 import { CNameMapping as Olark } from '../integrations/Olark/constants';
-import { CNameMapping as Lemnisk } from "./Lemnisk/constants";
+import { CNameMapping as Lemnisk } from '../integrations/Lemnisk/constants';
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder

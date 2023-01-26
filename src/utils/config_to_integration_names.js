@@ -70,7 +70,7 @@ const configToIntNames = {
   AXEPTIO: 'Axeptio',
   SATISMETER: 'Satismeter',
   MICROSOFT_CLARITY: 'MicrosoftClarity',
-  LEMNISK_MARKETING_AUTOMATION: 'LemniskMarketingAutomation'
+  LEMNISK_MARKETING_AUTOMATION: 'LemniskMarketingAutomation',
   SENDINBLUE: 'Sendinblue',
   OLARK: 'Olark',
 };
