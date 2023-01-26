@@ -144,7 +144,6 @@ const commonNames = {
   ...Axeptio,
   ...SatisMeter,
   ...MicrosoftClarity,
-  ...LemniskMarketingAutomation,
   ...Sendinblue,
   ...Olark,
   ...Lemnisk,

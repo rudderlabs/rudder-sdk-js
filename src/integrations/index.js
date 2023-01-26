@@ -67,7 +67,6 @@ import * as Qualaroo from './Qualaroo';
 import * as Axeptio from './Axeptio';
 import * as Satismeter from './Satismeter';
 import * as MicrosoftClarity from './MicrosoftClarity';
-import * as LemniskMarketingAutomation from './LemniskMarketingAutomation';
 import * as Sendinblue from './Sendinblue';
 import * as Olark from './Olark';
 import * as Lemnisk from "./Lemnisk";
@@ -144,7 +143,6 @@ const integrations = {
   AXEPTIO: Axeptio.default,
   SATISMETER: Satismeter.default,
   MICROSOFT_CLARITY: MicrosoftClarity.default,
-  Lemnisk_Marketing_Automation: LemniskMarketingAutomation.default,
   SENDINBLUE: Sendinblue.default,
   OLARK: Olark.default,
   LEMNISK: Lemnisk.default,

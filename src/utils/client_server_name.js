@@ -68,7 +68,6 @@ const clientToServerNames = {
   AXEPTIO: 'Axeptio',
   SATISMETER: 'Satismeter',
   MICROSOFT_CLARITY: 'Microsoft Clarity',
-  LEMNISK_MARKETING_AUTOMATION: 'LemniskMarketingAutomation',
   SENDINBLUE: 'Sendinblue',
   OLARK: 'Olark',
   Lemnisk: "Lemnisk",
