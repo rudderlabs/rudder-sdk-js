@@ -156,7 +156,8 @@
     "json5": "2.2.2",
     "semver": "7.3.8",
     "semver-regex": "3.1.4",
-    "trim-newlines": "3.0.1"
+    "trim-newlines": "3.0.1",
+    "debug": "4.3.4"
   },
   "browserslist": {
     "production": [
