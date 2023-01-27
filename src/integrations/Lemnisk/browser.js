@@ -1,4 +1,6 @@
-/* eslint-disable */
+/* eslint-disable no-param-reassign */
+/* eslint-disable func-names */
+/* eslint-disable class-methods-use-this */
 import Logger from "../../utils/logger";
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { NAME } from './constants';
@@ -12,13 +14,11 @@ class LemniskMarketingAutomation {
         this.accountId = config.accountId;
         this.sdkWriteKey = config.sdkWriteKey;
         this.name = NAME;
-        this._ready = false;
 
     }
 
     init() {
         logger.debug('===in init Lemnisk Marketing Automation===');
-        // this.loadScript();
         (function (window, tag, o, a, r) {
             window.lmSMTObj = window.lmSMTObj || [];
             var methods = [
@@ -34,7 +34,6 @@ class LemniskMarketingAutomation {
                     };
                 }(methods[i]);
             }
-            // window.lmSMTObj.init(this.sdkWriteKey);
             a = o.getElementsByTagName('head')[0];
             r = o.createElement('script');
             r.setAttribute('data-loader', LOAD_ORIGIN);
@@ -44,11 +43,10 @@ class LemniskMarketingAutomation {
             a.appendChild(r);
         })(
             window,
-            document.location.protocol === 'https:' ? 'https://cdn25.lemnisk.co/ssp/st/' + this.accountId + '.js' : 'http://cdn25.lemnisk.co/ssp/st/' + this.accountId + '.js',
+            document.location.protocol === 'https:' ? `https://cdn25.lemnisk.co/ssp/st/${  this.accountId  }.js` : `http://cdn25.lemnisk.co/ssp/st/${  this.accountId  }.js`,
             document
         );
         window.lmSMTObj.init(this.sdkWriteKey);
-        this._ready = true;
     }
 
     isLoaded() {
