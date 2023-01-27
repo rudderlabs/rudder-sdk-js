@@ -1,0 +1,53 @@
+{
+  "message": {
+    "channel": "web",
+    "context": {
+      "app": {
+        "name": "RudderLabs JavaScript SDK",
+        "namespace": "com.rudderlabs.javascript",
+        "version": "2.22.2"
+      },
+      "traits": {},
+      "library": { "name": "RudderLabs JavaScript SDK", "version": "2.22.2" },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+      "device": null,
+      "network": null,
+      "os": { "name": "", "version": "" },
+      "locale": "en-US",
+      "screen": {
+        "density": 2,
+        "width": 1728,
+        "height": 1117,
+        "innerWidth": 1728,
+        "innerHeight": 969
+      },
+      "sessionId": 1673726912351,
+      "campaign": {},
+      "page": {
+        "path": "/index.html",
+        "referrer": "$direct",
+        "referring_domain": "",
+        "search": "",
+        "title": "RudderStack JS SDK Sanity Suite",
+        "url": "http://localhost:3001/index.html",
+        "tab_url": "http://localhost:3001/index.html",
+        "initial_referrer": "$direct",
+        "initial_referring_domain": ""
+      }
+    },
+    "type": "group",
+    "messageId": "469fccf3-ba54-427d-9bf4-f01940382231",
+    "originalTimestamp": "2023-01-13T08:13:58.548Z",
+    "anonymousId": "sample anonymousId",
+    "userId": "",
+    "groupId": "customGroupID",
+    "event": null,
+    "properties": null,
+    "integrations": {
+      "All": true
+    },
+    "user_properties": null,
+    "traits": {},
+    "sentAt": "2023-01-14T20:26:36.001Z"
+  }
+}
