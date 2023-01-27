@@ -1,3 +1,4 @@
+/* eslint-disable no-var */
 /* eslint-disable no-param-reassign */
 /* eslint-disable func-names */
 /* eslint-disable class-methods-use-this */
@@ -20,13 +21,15 @@ class LemniskMarketingAutomation {
     init() {
         logger.debug('===in init Lemnisk Marketing Automation===');
         (function (window, tag, o, a, r) {
-            window.lmSMTObj = window.lmSMTObj || [];
+            
             var methods = [
                 "init",
                 "page",
                 "track",
                 "identify"
             ];
+            window.lmSMTObj = window.lmSMTObj || [];
+            
             for (var i = 0; i < methods.length; i++) {
                 lmSMTObj[methods[i]] = function (methodName) {
                     return function () {
@@ -34,7 +37,9 @@ class LemniskMarketingAutomation {
                     };
                 }(methods[i]);
             }
+            // eslint-disable-next-line no-param-reassign
             a = o.getElementsByTagName('head')[0];
+            // eslint-disable-next-line no-param-reassign
             r = o.createElement('script');
             r.setAttribute('data-loader', LOAD_ORIGIN);
             r.type = "text/javascript";

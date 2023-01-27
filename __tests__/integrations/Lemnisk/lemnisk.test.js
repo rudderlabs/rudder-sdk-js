@@ -125,3 +125,30 @@ describe("Lemnisk Track event", () => {
 
     });
 });
+describe("Lemnisk Identify event", () => {
+    let lemnisk;
+    beforeEach(() => {
+        lemnisk = new LemniskMarketingAutomation({ accountId: "12567839", writeKey: "04789yt8rfhbkwjenkl" }, { loglevel: "DEBUG" });
+        lemnisk.init();
+        window.lmSMTObj.identify = jest.fn();
+    });
+    test("Testing Identify Custom Events", () => {
+
+        lemnisk.identify({
+            message: {
+                "userId": "rudder01",
+                context: {
+                    traits: {
+                        email: "abc@ruddertack.com"
+                    }
+                },
+
+            }
+        });
+        expect(window.lmSMTObj.identify.mock.calls[0][0]).toEqual("rudder01");
+        expect(window.lmSMTObj.identify.mock.calls[0][1]).toEqual({
+            email: "abc@ruddertack.com"
+        });
+
+    });
+});
