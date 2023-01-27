@@ -12,8 +12,9 @@
     "start:npm": "npm run build:npm -- --watch --environment DEV_SERVER",
     "build": "rollup -c --environment TEST_PACKAGE:local",
     "build:cdn": "rollup -c --environment TEST_PACKAGE:cdn",
+    "build:cdn:v1.1": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1.1",
     "build:cdn:v1": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1",
-    "build:cdn:staging": "rollup -c --environment TEST_PACKAGE:cdn,STAGING:true",
+    "build:cdn:v1.1:staging": "rollup -c --environment TEST_PACKAGE:cdn,STAGING:true",
     "build:cdn:v1:staging": "rollup -c --environment TEST_PACKAGE:cdn,CDN_VERSION_PATH:v1,STAGING:true",
     "build:npm": "rollup -c --environment TEST_PACKAGE:npm"
   },
