@@ -1,0 +1,69 @@
+{
+  "message": {
+    "channel": "web",
+    "context": {
+      "app": {
+        "name": "RudderLabs JavaScript SDK",
+        "namespace": "com.rudderlabs.javascript",
+        "version": "2.22.2"
+      },
+      "traits": {},
+      "library": {
+        "name": "RudderLabs JavaScript SDK",
+        "version": "2.22.2"
+      },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+      "device": null,
+      "network": null,
+      "os": {
+        "name": "",
+        "version": ""
+      },
+      "locale": "en-US",
+      "screen": {
+        "density": 2,
+        "width": 1728,
+        "height": 1117,
+        "innerWidth": 1728,
+        "innerHeight": 969
+      },
+      "sessionId": 1673747756719,
+      "campaign": {},
+      "page": {
+        "path": "/index.html",
+        "referrer": "http://localhost:3001/index.html",
+        "referring_domain": "localhost:3001",
+        "search": "",
+        "title": "RudderStack JS SDK Sanity Suite",
+        "url": "http://localhost:3001/index.html",
+        "tab_url": "http://localhost:3001/index.html",
+        "initial_referrer": "$direct",
+        "initial_referring_domain": ""
+      }
+    },
+    "type": "page",
+    "messageId": "bb934032-05c6-4c8c-a2d8-5d1b6ed58bbf",
+    "originalTimestamp": "2023-01-13T08:13:58.548Z",
+    "anonymousId": "sample anonymousId",
+    "userId": "",
+    "event": null,
+    "properties": {
+      "name": "Cart",
+      "path": "/index.html",
+      "referrer": "http://localhost:3001/index.html",
+      "referring_domain": "localhost:3001",
+      "search": "",
+      "title": "RudderStack JS SDK Sanity Suite",
+      "url": "http://localhost:3001/index.html",
+      "tab_url": "http://localhost:3001/index.html",
+      "initial_referrer": "$direct",
+      "initial_referring_domain": ""
+    },
+    "integrations": {
+      "All": true
+    },
+    "user_properties": null,
+    "name": "Cart",
+    "sentAt": "2023-01-15T02:37:59.230Z"
+  }
+}
