@@ -32,10 +32,8 @@ jobs:
         env:
           HUSKY: 0
         run: |
-          cd sanity-suite
-          npm i
-          npm run build:all
-          npm run build:staging
+          npm run setup
+          npm run build:sanity
 
       - name: Sync files to S3
         run: |
