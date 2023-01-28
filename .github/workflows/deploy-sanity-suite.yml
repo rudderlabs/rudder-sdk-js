@@ -34,7 +34,8 @@ jobs:
         run: |
           cd sanity-suite
           npm i
-          npm run build:sanity
+          npm run build:all
+          npm run build:staging
 
       - name: Sync files to S3
         run: |
