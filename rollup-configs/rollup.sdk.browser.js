@@ -10,6 +10,7 @@ import filesize from 'rollup-plugin-filesize';
 import livereload from 'rollup-plugin-livereload';
 import serve from 'rollup-plugin-serve';
 import htmlTemplate from 'rollup-plugin-generate-html-template';
+import nodePolyfills from "rollup-plugin-polyfill-node";
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -71,6 +72,7 @@ export default {
       include: 'node_modules/**',
     }),
     json(),
+    nodePolyfills({ include: null }),
     babel({
       inputSourceMap: true,
       compact: true,
