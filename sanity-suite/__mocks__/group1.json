@@ -1,0 +1,106 @@
+{
+  "message": {
+    "channel": "web",
+    "context": {
+      "app": {
+        "name": "RudderLabs JavaScript SDK",
+        "namespace": "com.rudderlabs.javascript",
+        "version": "2.22.2"
+      },
+      "traits": {},
+      "key1": [1, 2, 3, 4],
+      "key2": "sample text",
+      "key3": false,
+      "key4": 9087654,
+      "key5": {
+        "key6": "sample text 2",
+        "key7": [
+          {
+            "color": "#3456789",
+            "name": null
+          },
+          {
+            "color": "#3456767",
+            "name": "Red"
+          }
+        ]
+      },
+      "key8": null,
+      "externalIds": [
+        {
+          "id": "some_external_id_1",
+          "type": "brazeExternalId"
+        }
+      ],
+      "device": {
+        "id": "sdfghj567-cghj5678-fghjvbn888"
+      },
+      "metaData": {
+        "appVersion": "2.8.0",
+        "appId": "1hKOmRA4GRlm",
+        "release_stage": "Production"
+      },
+      "channel": "random",
+      "library": { "name": "RudderLabs JavaScript SDK", "version": "2.22.2" },
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+      "network": null,
+      "os": { "name": "", "version": "" },
+      "locale": "en-US",
+      "screen": {
+        "density": 2,
+        "width": 1728,
+        "height": 1117,
+        "innerWidth": 1728,
+        "innerHeight": 969
+      },
+      "sessionId": 1673726912351,
+      "campaign": {},
+      "page": {
+        "path": "/index.html",
+        "referrer": "$direct",
+        "referring_domain": "",
+        "search": "",
+        "title": "RudderStack JS SDK Sanity Suite",
+        "url": "http://localhost:3001/index.html",
+        "tab_url": "http://localhost:3001/index.html",
+        "initial_referrer": "$direct",
+        "initial_referring_domain": ""
+      }
+    },
+    "type": "group",
+    "messageId": "469fccf3-ba54-427d-9bf4-f01940382231",
+    "originalTimestamp": "2023-01-13T08:13:58.548Z",
+    "anonymousId": "sample anonymousId",
+    "userId": "",
+    "groupId": "customGroupID",
+    "event": null,
+    "properties": null,
+    "integrations": {
+      "All": false,
+      "Google Analytics": true,
+      "Amplitude": true
+    },
+    "user_properties": null,
+    "traits": {
+      "groupName": "Anime fan club",
+      "email": "name.surname@domain.com",
+      "company": "Company123",
+      "phone": "123-456-7890",
+      "rating": "Hot",
+      "city": "San Antonio",
+      "postalCode": 890465,
+      "country": "US",
+      "street": "Sample Address",
+      "state": "TX",
+      "label": "club office",
+      "defaultAddress": true,
+      "temp1": null,
+      "temp3": [1, 2, 3],
+      "temp4": {
+        "selectedType": "hard copy",
+        "typesAvailable": ["kindle edition", "audio book", "hard copy", null]
+      }
+    },
+    "sentAt": "2023-01-14T20:26:36.001Z"
+  }
+}
