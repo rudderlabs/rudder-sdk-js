@@ -1,5 +1,5 @@
 import logger from './logUtil';
-import { LOAD_ORIGIN } from './ScriptLoader';
+import { LOAD_ORIGIN } from './constants';
 import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from './constants';
 
 /**
