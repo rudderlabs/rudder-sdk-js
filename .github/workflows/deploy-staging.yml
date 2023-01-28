@@ -48,6 +48,13 @@ jobs:
           echo "CURRENT_VERSION_VALUE=$current_version" >> $GITHUB_ENV
           echo "DATE=$(date)" >> $GITHUB_ENV
 
+      - name: Sync files to S3 staging folder
+        run: |
+          aws s3 cp dist/legacy/rudder-analytics-staging.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/v1.1/staging/rudder-analytics-staging.min.js --cache-control max-age=3600
+          aws s3 cp dist/legacy/rudder-analytics-staging.min.js.map s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/v1.1/staging/rudder-analytics-staging.min.js.map --cache-control max-age=3600
+          aws s3 cp dist/legacy/js-integrations/ s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/v1.1/staging/js-integrations/ --recursive --cache-control max-age=3600
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_STAGING_CF_DISTRIBUTION_ID }} --paths "/v1.1/staging*"
+
       - name: Sync files to S3 staging versioned folder
         run: |
           aws s3 cp dist/legacy/rudder-analytics-staging.min.js s3://${{ secrets.AWS_STAGING_S3_BUCKET_NAME }}/staging/${{ env.CURRENT_VERSION_VALUE }}/rudder-analytics-staging.min.js --cache-control max-age=3600
