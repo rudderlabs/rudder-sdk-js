@@ -99,8 +99,9 @@ const buildConfig = {
       WRITE_KEY: process.env.WRITE_KEY,
       DATA_PLANE_URL: process.env.DATAPLANE_URL,
       CONFIG_SERVER_HOST: process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
-      DEST_SDK_BASE_URL: process.env.DEST_SDK_BASE_URL,
-      CDN_VERSION_PATH: `${process.env.CDN_VERSION_PATH}/` || '',
+      DEST_SDK_BASE_URL: getDestinationsURL(),
+      CDN_VERSION_PATH: `${process.env.CDN_VERSION_PATH}/${process.env.STAGING ? 'staging/' : ''}` || '',
+      STAGING_FILE_PATH: process.env.STAGING ? '-staging' : ''
     }),
     resolve({
       jsnext: true,
@@ -128,7 +129,7 @@ const buildConfig = {
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
         __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
         __DEST_SDK_BASE_URL__: getDestinationsURL(),
-        __CDN_VERSION_PATH__: `${process.env.CDN_VERSION_PATH}/` || '',
+        __CDN_VERSION_PATH__: `${process.env.CDN_VERSION_PATH}/${process.env.STAGING ? 'staging/' : ''}` || '',
         __STAGING_FILE_PATH__: process.env.STAGING ? '-staging' : ''
       },
     }),
