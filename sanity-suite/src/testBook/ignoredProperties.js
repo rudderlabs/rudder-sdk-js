@@ -111,6 +111,10 @@ const ignoredProperties = [
     key: 'message.properties.initial_referring_domain',
     type: 'string',
   },
+  {
+    key: 'message.properties.path',
+    type: 'string',
+  },
 ];
 
 export { ignoredProperties };
