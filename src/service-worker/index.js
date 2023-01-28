@@ -13,7 +13,7 @@ const { version } = packageJson;
 const removeTrailingSlashes = (inURL) =>
   inURL && inURL.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
 
-const setImmediate = global.setImmediate || process.nextTick.bind(process);
+const setImmediate = process.nextTick.bind(process);
 const noop = () => {};
 
 class Analytics {
@@ -30,7 +30,6 @@ class Analytics {
    * @param {Number=20000} options.maxInternalQueueSize (default: 20000)
    * @param {Number} options.timeout (default: false)
    * @param {String=info} options.logLevel (default: info)
-   * @param {Boolean=true} options.enable (default: true)
    */
 
   constructor(writeKey, dataPlaneURL, options) {

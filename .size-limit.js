@@ -37,6 +37,6 @@ module.exports = [
     name: 'Service Worker - NPM',
     path: 'dist/npm-lib/service-worker/index.js',
     gzip: true,
-    limit: '33 kB',
+    limit: '28 kB',
   },
 ];
