@@ -57,7 +57,7 @@ export function getDefaultConfig(distName) {
       commonjs({
         include: 'node_modules/**',
       }),
-      json(),,
+      json(),
       nodePolyfills({ include: null }),
       babel({
         inputSourceMap: true,
