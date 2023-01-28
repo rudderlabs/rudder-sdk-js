@@ -48,7 +48,8 @@
     "release:github": "DEBUG=conventional-github-releaser npx conventional-github-releaser -p angular --config github-release.config.js",
     "sanity": "npm run build:browser && cd sanity-suite && npm run start:local",
     "sanity:cdn": "cd sanity-suite && npm run start:cdn",
-    "sanity:npm": "cd sanity-suite && npm run start:npm"
+    "sanity:npm": "cd sanity-suite && npm run start:npm",
+    "build:sanity": "rm -rf sanity-suite/dist && cd sanity-suite && npm run build:all && npm run build:all:staging"
   },
   "author": "RudderStack",
   "license": "MIT",
