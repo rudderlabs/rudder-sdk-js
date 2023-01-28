@@ -40,6 +40,10 @@ const ignoredProperties = [
     type: 'string',
   },
   {
+    key: 'message.context.page.path',
+    type: 'string',
+  },
+  {
     key: 'message.context.page.referrer',
     type: 'string',
   },
