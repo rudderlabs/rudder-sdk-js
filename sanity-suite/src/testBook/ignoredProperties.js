@@ -115,6 +115,14 @@ const ignoredProperties = [
     key: 'message.properties.path',
     type: 'string',
   },
+  {
+    key: 'message.properties.url',
+    type: 'string',
+  },
+  {
+    key: 'message.properties.tab_url',
+    type: 'string',
+  },
 ];
 
 export { ignoredProperties };
