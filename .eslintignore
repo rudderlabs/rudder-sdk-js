@@ -1,5 +1,6 @@
 .husky/
 __mocks__/
+jest/
 dist/
 node_modules/
 reports/
@@ -8,3 +9,4 @@ prodsdk.js
 *.json
 *.md
 *.d.ts
+sanity-suite/

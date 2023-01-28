@@ -67,6 +67,8 @@ import * as Qualaroo from './Qualaroo';
 import * as Axeptio from './Axeptio';
 import * as Satismeter from './Satismeter';
 import * as MicrosoftClarity from './MicrosoftClarity';
+import * as Sendinblue from './Sendinblue';
+import * as Olark from './Olark';
 
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
@@ -141,6 +143,8 @@ const integrations = {
   AXEPTIO: Axeptio.default,
   SATISMETER: Satismeter.default,
   MICROSOFT_CLARITY: MicrosoftClarity.default,
+  SENDINBLUE: Sendinblue.default,
+  OLARK: Olark.default,
 };
 
 export { integrations };
