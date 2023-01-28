@@ -1,4 +1,3 @@
-import assert from 'assert';
 import looselyValidate from '@segment/loosely-validate-event';
 import axios from 'axios';
 import axiosRetry from 'axios-retry';
@@ -14,7 +13,7 @@ const { version } = packageJson;
 const removeTrailingSlashes = (inURL) =>
   inURL && inURL.endsWith('/') ? inURL.replace(/\/+$/, '') : inURL;
 
-const setImmediate = global.setImmediate || process.nextTick.bind(process);
+const setImmediate = process.nextTick.bind(process);
 const noop = () => {};
 
 class Analytics {
@@ -31,14 +30,18 @@ class Analytics {
    * @param {Number=20000} options.maxInternalQueueSize (default: 20000)
    * @param {Number} options.timeout (default: false)
    * @param {String=info} options.logLevel (default: info)
-   * @param {Boolean=true} options.enable (default: true)
    */
 
   constructor(writeKey, dataPlaneURL, options) {
     options = options || {};
 
-    assert(writeKey, "You must pass your project's write key.");
-    assert(dataPlaneURL, 'You must pass your data plane url.');
+    if(!writeKey) {
+      throw new Error('You must pass your project\'s write key.')
+    }
+
+    if(!dataPlaneURL) {
+      throw new Error('You must pass our data plane url.')
+    }
 
     this.queue = [];
     this.writeKey = writeKey;
