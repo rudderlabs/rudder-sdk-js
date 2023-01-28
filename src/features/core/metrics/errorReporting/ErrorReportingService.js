@@ -1,9 +1,9 @@
 import { get } from '../../../../utils/utils';
-import { BugsnagProvider, ERROR_REPORT_PROVIDER_NAME_BUGSNUG } from './providers/Bugsnag';
+import { BugsnagProvider, ERROR_REPORT_PROVIDER_NAME_BUGSNAG } from './providers/Bugsnag';
 import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from '../../../../utils/constants';
 
-const DEFAULT_ERROR_REPORT_PROVIDER = ERROR_REPORT_PROVIDER_NAME_BUGSNUG;
-const AVAILABLE_ERROR_REPORT_PROVIDERS = [ERROR_REPORT_PROVIDER_NAME_BUGSNUG];
+const DEFAULT_ERROR_REPORT_PROVIDER = ERROR_REPORT_PROVIDER_NAME_BUGSNAG;
+const AVAILABLE_ERROR_REPORT_PROVIDERS = [ERROR_REPORT_PROVIDER_NAME_BUGSNAG];
 const ERROR_REPORTS_ENABLED_CONFIG_KEY = 'statsCollection.errorReports.enabled';
 const ERROR_REPORTS_PROVIDER_NAME_CONFIG_KEY = 'statsCollection.errorReports.provider';
 
@@ -72,7 +72,7 @@ class ErrorReportingService {
   initProvider(sourceConfig, sourceId) {
     // eslint-disable-next-line sonarjs/no-small-switch
     switch (this.providerName) {
-      case ERROR_REPORT_PROVIDER_NAME_BUGSNUG:
+      case ERROR_REPORT_PROVIDER_NAME_BUGSNAG:
         this.provider = new BugsnagProvider(sourceId, this.onClientReady);
         break;
       default:

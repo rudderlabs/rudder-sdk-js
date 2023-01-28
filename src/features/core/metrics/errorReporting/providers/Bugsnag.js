@@ -7,15 +7,15 @@ import {
 } from '../../../../../utils/constants';
 import { get } from '../../../../../utils/utils';
 
-// Using the Bugsnug integration version to avoid version issues
-const BUGSNUG_CDN_URL = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
-const BUGSNUG_VALID_MAJOR_VERSION = '6';
-const ERROR_REPORT_PROVIDER_NAME_BUGSNUG = 'rs-bugsnug';
-const BUGSNUG_LIB_INSTANCE_GLOBAL_KEY_NAME = 'bugsnag'; // For version 7 this is 'Bugsnug'
+// Using the Bugsnag integration version to avoid version issues
+const BUGSNAG_CDN_URL = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
+const BUGSNAG_VALID_MAJOR_VERSION = '6';
+const ERROR_REPORT_PROVIDER_NAME_BUGSNAG = 'rs-bugsnag';
+const BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME = 'bugsnag'; // For version 7 this is 'Bugsnag'
 const GLOBAL_LIBRARY_OBJECT_NAMES = [
-  ERROR_REPORT_PROVIDER_NAME_BUGSNUG,
-  'Bugsnug',
-  BUGSNUG_LIB_INSTANCE_GLOBAL_KEY_NAME,
+  ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
+  'Bugsnag',
+  BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME,
   ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME,
 ];
 
@@ -39,7 +39,7 @@ const getReleaseStage = () => {
   const host = window.location.hostname;
   const devHosts = ['www.rs-unit-test-host.com', 'localhost', '127.0.0.1', '[::1]'];
 
-  return host && devHosts.includes(host) ? 'development' : '__RS_BUGSNUG_RELEASE_STAGE__';
+  return host && devHosts.includes(host) ? 'development' : '__RS_BUGSNAG_RELEASE_STAGE__';
 };
 
 const isValidVersion = (globalLibInstance) => {
@@ -57,7 +57,7 @@ const isValidVersion = (globalLibInstance) => {
     tempInstance = undefined;
   }
 
-  return version && version.charAt(0) === BUGSNUG_VALID_MAJOR_VERSION;
+  return version && version.charAt(0) === BUGSNAG_VALID_MAJOR_VERSION;
 };
 
 const isRudderSDKError = (event) => {
@@ -91,13 +91,13 @@ const enhanceErrorEventMutator = (event, metadataSource) => {
   event.severity = 'error';
 };
 
-const loadBugsnugSDKScript = (name) => {
+const loadBugsnagSDKScript = (name) => {
   const isNotLoaded = GLOBAL_LIBRARY_OBJECT_NAMES.every(
     (globalKeyName) => !Object.hasOwn(window, globalKeyName),
   );
 
   if (isNotLoaded) {
-    ScriptLoader(name, BUGSNUG_CDN_URL, {
+    ScriptLoader(name, BUGSNAG_CDN_URL, {
       isNonNativeSDK: 'true',
       async: 'false',
       skipDatasetAttributes: true,
@@ -107,7 +107,7 @@ const loadBugsnugSDKScript = (name) => {
 
 class BugsnagProvider {
   constructor(sourceId, onClientReady) {
-    this.pluginName = ERROR_REPORT_PROVIDER_NAME_BUGSNUG;
+    this.pluginName = ERROR_REPORT_PROVIDER_NAME_BUGSNAG;
     this.sourceId = sourceId;
     this.onClientReady = onClientReady;
     this.initClientOnLibReadyInterval = undefined;
@@ -120,7 +120,7 @@ class BugsnagProvider {
    * If already loaded initialize the SDK.
    */
   init() {
-    // Return if RS Bugsnug instance is already initialized
+    // Return if RS Bugsnag instance is already initialized
     if (window.analytics && window.analytics[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME]) {
       return;
     }
@@ -129,13 +129,13 @@ class BugsnagProvider {
      * This function will load the Bugsnag native SDK through CDN
      * Once loaded it will be available in window.Bugsnag
      */
-    loadBugsnugSDKScript(this.pluginName);
+    loadBugsnagSDKScript(this.pluginName);
 
-    const globalBugsnugLibInstance = window[BUGSNUG_LIB_INSTANCE_GLOBAL_KEY_NAME];
+    const globalBugsnagLibInstance = window[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
 
     // Initialise if SDK is loaded and has valid version else return if other version exists
-    if (globalBugsnugLibInstance) {
-      if (isValidVersion(globalBugsnugLibInstance)) {
+    if (globalBugsnagLibInstance) {
+      if (isValidVersion(globalBugsnagLibInstance)) {
         this.initClient();
       }
 
@@ -144,10 +144,10 @@ class BugsnagProvider {
 
     // Check if Bugsnag is loaded with valid version every '100'ms
     this.initClientOnLibReadyInterval = setInterval(() => {
-      const globalBugsnugLibInstanceOnInterval = window[BUGSNUG_LIB_INSTANCE_GLOBAL_KEY_NAME];
+      const globalBugsnagLibInstanceOnInterval = window[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
 
-      if (globalBugsnugLibInstanceOnInterval) {
-        if (isValidVersion(globalBugsnugLibInstanceOnInterval)) {
+      if (globalBugsnagLibInstanceOnInterval) {
+        if (isValidVersion(globalBugsnagLibInstanceOnInterval)) {
           this.initClient();
         }
 
@@ -167,16 +167,16 @@ class BugsnagProvider {
    * After initialization Bugsnag instance will be available in window.rsBugsnagClient
    */
   initClient() {
-    const globalBugsnugLibInstance = window[BUGSNUG_LIB_INSTANCE_GLOBAL_KEY_NAME];
+    const globalBugsnagLibInstance = window[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
     const apiKeyRegex = /{{.+}}/;
     const isAPIKeyValid = !API_KEY.match(apiKeyRegex);
 
-    // If valid version of Bugsnug SDK not loaded or API key token is not parsed or invalid, don't proceed to initialize the client
-    if (!isValidVersion(globalBugsnugLibInstance) || !isAPIKeyValid) {
+    // If valid version of Bugsnag SDK not loaded or API key token is not parsed or invalid, don't proceed to initialize the client
+    if (!isValidVersion(globalBugsnagLibInstance) || !isAPIKeyValid) {
       return;
     }
 
-    this.client = globalBugsnugLibInstance({
+    this.client = globalBugsnagLibInstance({
       apiKey: API_KEY,
       appVersion: '__PACKAGE_VERSION__', // Set SDK version as the app version from build config
       metaData: {
@@ -230,4 +230,4 @@ class BugsnagProvider {
   }
 }
 
-export { ERROR_REPORT_PROVIDER_NAME_BUGSNUG, BugsnagProvider };
+export { ERROR_REPORT_PROVIDER_NAME_BUGSNAG, BugsnagProvider };
