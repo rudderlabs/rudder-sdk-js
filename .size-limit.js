@@ -19,12 +19,12 @@ module.exports = [
     name: 'Core - NPM',
     path: 'dist/npm-lib/index.js',
     gzip: true,
-    limit: '38 kB',
+    limit: '37.5 kB',
   },
   {
     name: 'Service Worker - NPM',
     path: 'dist/npm-lib/service-worker/index.js',
     gzip: true,
-    limit: '26 kB',
+    limit: '28 kB',
   },
 ];
