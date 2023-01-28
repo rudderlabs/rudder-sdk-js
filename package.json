@@ -15,7 +15,8 @@
     "clean": "rm -rf dist",
     "check:lint": "eslint \"src/**/*.js\"",
     "check:lint:ci": "eslint \"src/**/*.js\" -f json -o reports/eslint.json || exit 0",
-    "check:size": "npm run clean && npm run build:browser && size-limit",
+    "check:size:build": "npm run clean && npm run build:browser",
+    "check:size": "npm run check:size:build && size-limit",
     "check:circular": "madge --circular --extensions js ./src || exit 0",
     "check:support": "NODE_ENV=production npx browserslist --mobile-to-desktop",
     "check:duplicates": "jscpd src --threshold 5",
@@ -102,7 +103,8 @@
     "@rollup/plugin-json": "6.0.0",
     "@rollup/plugin-node-resolve": "15.0.1",
     "@rollup/plugin-replace": "5.0.2",
-    "@size-limit/preset-big-lib": "^7.0.8",
+    "@size-limit/file": "8.1.2",
+    "@size-limit/webpack": "8.1.2",
     "babel-eslint": "10.1.0",
     "commitizen": "4.3.0",
     "commitlint": "17.4.2",
@@ -140,7 +142,7 @@
     "rollup-plugin-serve": "2.0.2",
     "rollup-plugin-terser": "7.0.2",
     "rollup-plugin-visualizer": "5.9.0",
-    "size-limit": "^7.0.8",
+    "size-limit": "8.1.2",
     "standard-version": "9.5.0"
   },
   "overrides": {
