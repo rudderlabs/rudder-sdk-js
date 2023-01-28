@@ -13,8 +13,12 @@ let index = 0;
 
 // At any given time, create only processes for
 // max CPUs available
-// Intentionally using 1 less CPU
-const maxAtOnce = numCPUs > 1 ? numCPUs - 1 : 1;
+// Intentionally using 1 less CPU and all cpus in github runner
+let maxAtOnce = numCPUs > 1 ? numCPUs - 1 : 1;
+
+if(process && process.env && process.env.CI) {
+  maxAtOnce = numCPUs;
+}
 
 console.log(`Total integrations to build: ${totalIntgCount}`);
 console.log(`Maximum number of concurrent processes: ${maxAtOnce}`);

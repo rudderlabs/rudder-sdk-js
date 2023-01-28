@@ -5,3 +5,6 @@ stats/
 prodsdk.js
 CHANGELOG.md
 CONTRIBUTING.md
+
+examples/chrome-extension/background-script/rudderAnalytics.js
+examples/chrome-extension/content-script/foreground.js
