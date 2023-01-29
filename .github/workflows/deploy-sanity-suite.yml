@@ -1,0 +1,44 @@
+name: Deploy Sanity Suite
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write # allows the JWT to be requested from GitHub's OIDC provider
+  contents: read # This is required for actions/checkout
+
+jobs:
+  deploy-tag:
+    name: Deploy Sanity Suite
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/production') || startsWith(github.ref, 'refs/heads/production-staging') || startsWith(github.ref, 'refs/heads/hotfix-release') || startsWith(github.ref, 'refs/heads/release') || startsWith(github.ref, 'refs/heads/hotfix/')
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
+          aws-region: us-east-1
+
+      - name: Checkout source branch
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Build
+        env:
+          WRITE_KEY: ${{ secrets.SANITY_SUITE_WRITE_KEY }}
+          DATAPLANE_URL: ${{ secrets.SANITY_SUITE_DATAPLANE_URL }}
+          CONFIG_SERVER_HOST: ${{ secrets.SANITY_SUITE_CONFIG_SERVER_HOST }}
+          HUSKY: 0
+        run: |
+          npm run setup
+          npm run build:sanity
+
+      - name: Sync files to S3
+        run: |
+          aws s3 cp sanity-suite/dist/ s3://${{ secrets.AWS_PROD_S3_BUCKET_NAME }}/sanity-suite --recursive --cache-control max-age=3600
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_PROD_CF_DISTRIBUTION_ID }} --paths "/sanity-suite*"
