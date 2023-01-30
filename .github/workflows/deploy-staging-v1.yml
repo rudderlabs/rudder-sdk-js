@@ -16,7 +16,7 @@ jobs:
   deploy-tag:
     name: Deploy to STAGING v1
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/heads/v1-staging') || github.event.pull_request.merged == true
+    if: startsWith(github.ref, 'refs/tags/v') || startsWith(github.ref, 'refs/tags/bugbash') ||  startsWith(github.ref, 'refs/heads/v1-staging') || github.event.pull_request.merged == true
     steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
