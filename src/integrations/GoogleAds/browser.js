@@ -6,7 +6,11 @@ import {
   removeUndefinedAndNullValues,
   getEventMappingFromConfig,
 } from '../../utils/commonUtils';
-import { shouldSendEvent, getConversionData } from './utils';
+import {
+  shouldSendConversionEvent,
+  shouldSendDynamicRemarketingEvent,
+  getConversionData,
+} from './utils';
 import { NAME } from './constants';
 
 class GoogleAds {
@@ -97,13 +101,12 @@ class GoogleAds {
     );
     if (
       conversionData.conversionLabel &&
-      shouldSendEvent(
+      shouldSendConversionEvent(
         event,
         this.trackConversions,
         this.enableConversionEventsFiltering,
         this.eventsToTrackConversions,
         this.dynamicRemarketing,
-        'conversion',
       )
     ) {
       const { conversionLabel } = conversionData;
@@ -127,13 +130,12 @@ class GoogleAds {
     }
 
     if (
-      shouldSendEvent(
+      shouldSendDynamicRemarketingEvent(
         event,
         this.trackDynamicRemarketing,
         this.enableDynamicRemarketingEventsFiltering,
         this.eventsToTrackDynamicRemarketing,
         this.dynamicRemarketing,
-        'dynamicRemarketing',
       )
     ) {
       // modify the event name to mapped event name from the config
@@ -171,13 +173,12 @@ class GoogleAds {
     );
     if (
       conversionData.conversionLabel &&
-      shouldSendEvent(
+      shouldSendConversionEvent(
         name,
         this.trackConversions,
         this.enableConversionEventsFiltering,
         this.eventsToTrackConversions,
         this.dynamicRemarketing,
-        'conversion',
       )
     ) {
       const { conversionLabel } = conversionData;
@@ -193,13 +194,12 @@ class GoogleAds {
     }
 
     if (
-      shouldSendEvent(
+      shouldSendDynamicRemarketingEvent(
         name,
         this.trackDynamicRemarketing,
         this.enableDynamicRemarketingEventsFiltering,
         this.eventsToTrackDynamicRemarketing,
         this.dynamicRemarketing,
-        'dynamicRemarketing',
       )
     ) {
       const event = name;

@@ -1,4 +1,8 @@
-import { shouldSendEvent, getConversionData } from '../../../src/integrations/GoogleAds/utils';
+import {
+  getConversionData,
+  shouldSendConversionEvent,
+  shouldSendDynamicRemarketingEvent,
+} from '../../../src/integrations/GoogleAds/utils';
 import {
   mockEvents,
   productAdded,
@@ -9,74 +13,62 @@ import {
 describe('GoogleAds utilities shouldSendEvent function tests', () => {
   // Old Config
   test('dynamicRemarketing flag disabled', () => {
-    const eventToSend = shouldSendEvent(
+    const eventToSend = shouldSendConversionEvent(
       undefined,
       undefined,
       undefined,
       undefined,
       false,
-      'conversion',
     );
     expect(eventToSend).toEqual(true);
   });
 
   test('dynamicRemarketing flag enabled', () => {
-    const eventToSend = shouldSendEvent(
+    const eventToSend = shouldSendDynamicRemarketingEvent(
       undefined,
       undefined,
       undefined,
       undefined,
       true,
-      'dynamicRemarketing',
     );
     expect(eventToSend).toEqual(true);
   });
 
   // New Config
   test('event tracking is enabled and event filtering is disabled', () => {
-    const eventToSend = shouldSendEvent(
-      productAdded,
-      true,
-      false,
-      mockEvents,
-      undefined,
-      'conversion',
-    );
+    const eventToSend = shouldSendConversionEvent(productAdded, true, false, mockEvents, undefined);
     expect(eventToSend).toEqual(true);
   });
 
   test('event tracking is disabled and event filtering is disabled', () => {
-    const eventToSend = shouldSendEvent(
+    const eventToSend = shouldSendConversionEvent(
       'Product Viewed',
       false,
       false,
       mockEvents,
       undefined,
-      'conversion',
     );
     expect(eventToSend).toEqual(false);
   });
 
   test('event tracking is enabled and event filtering is enabled but event is not added to events list', () => {
-    const eventToSend = shouldSendEvent(
+    const eventToSend = shouldSendConversionEvent(
       'Cart Checkout',
       true,
       true,
       mockEvents,
       undefined,
-      'dynamicRemarketing',
     );
     expect(eventToSend).toEqual(false);
   });
 
   test('event tracking is enabled and event filtering is enabled and event is added to events list', () => {
-    const eventToSend = shouldSendEvent(
+    const eventToSend = shouldSendConversionEvent(
       orderCompleted,
       true,
       true,
       mockEvents,
       undefined,
-      'dynamicRemarketing',
     );
     expect(eventToSend).toEqual(true);
   });

@@ -11,18 +11,7 @@ import { isDefinedAndNotNull } from '../../utils/utils';
  * @param {*} events
  * @returns
  */
-function shouldSendEvent(
-  eventName,
-  trackEvents,
-  enableFiltering,
-  events,
-  dynamicRemarketing,
-  eventType,
-) {
-  if (isDefinedAndNotNull(dynamicRemarketing)) {
-    return eventType === 'conversion' ? !dynamicRemarketing : dynamicRemarketing;
-  }
-
+function shouldSendEvent(eventName, trackEvents, enableFiltering, events) {
   if (!trackEvents) {
     return false;
   }
@@ -42,6 +31,60 @@ function shouldSendEvent(
   }
 
   return false;
+}
+
+/**
+ * returns weather to send conversion event or not
+ * @param {*} eventName
+ * @param {*} trackConversions
+ * @param {*} enableConversionEventsFiltering
+ * @param {*} eventsToTrackConversions
+ * @param {*} dynamicRemarketing
+ * @returns
+ */
+function shouldSendConversionEvent(
+  eventName,
+  trackConversions,
+  enableConversionEventsFiltering,
+  eventsToTrackConversions,
+  dynamicRemarketing,
+) {
+  if (isDefinedAndNotNull(dynamicRemarketing)) {
+    return !dynamicRemarketing;
+  }
+  return shouldSendEvent(
+    eventName,
+    trackConversions,
+    enableConversionEventsFiltering,
+    eventsToTrackConversions,
+  );
+}
+
+/**
+ * returns weather to send dynamic remarketing event or not
+ * @param {*} eventName
+ * @param {*} trackDynamicRemarketing
+ * @param {*} enableDynamicRemarketingEventsFiltering
+ * @param {*} eventsToTrackDynamicRemarketing
+ * @param {*} dynamicRemarketing
+ * @returns
+ */
+function shouldSendDynamicRemarketingEvent(
+  eventName,
+  trackDynamicRemarketing,
+  enableDynamicRemarketingEventsFiltering,
+  eventsToTrackDynamicRemarketing,
+  dynamicRemarketing,
+) {
+  if (isDefinedAndNotNull(dynamicRemarketing)) {
+    return dynamicRemarketing;
+  }
+  return shouldSendEvent(
+    eventName,
+    trackDynamicRemarketing,
+    enableDynamicRemarketingEventsFiltering,
+    eventsToTrackDynamicRemarketing,
+  );
 }
 
 /**
@@ -71,4 +114,4 @@ function getConversionData(eventTypeConversions, eventName, defaultPageConversio
   return conversionData;
 }
 
-export { shouldSendEvent, getConversionData };
+export { shouldSendConversionEvent, shouldSendDynamicRemarketingEvent, getConversionData };
