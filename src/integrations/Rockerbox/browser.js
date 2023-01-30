@@ -92,17 +92,21 @@ class Rockerbox {
       return;
     }
     const eventsHashmap = getHashFromArray(this.eventsMap);
-    const customPropsHashMap = getHashFromArray(this.customPropsMapping);
+    const customPropsHashMap = getHashFromArray(
+      this.customPropsMapping,
+      undefined,
+      undefined,
+      false,
+    );
 
     const rbEvent = eventsHashmap[event.toLowerCase()];
     // eslint-disable-next-line no-restricted-syntax
     for (const key in customPropsHashMap) {
       if (isDefinedAndNotNull(properties[key])) {
         finalProperties[customPropsHashMap[key]] = properties[key];
-        delete finalProperties.key;
+        delete finalProperties[key];
       }
     }
-
     if (rbEvent) {
       window.RB.track(rbEvent, { ...finalProperties, anonymousId });
     } else {
