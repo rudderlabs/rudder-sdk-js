@@ -176,3 +176,26 @@ describe('Scenario to test only conversion events when track conversion button a
     });
   });
 });
+
+// Old + New config test
+describe('Scenario to test both configs together, old config should be given first priority', () => {
+  let googleAds;
+  beforeEach(() => {
+    googleAds = new GoogleAds(googleAdsConfigs[6], {});
+    googleAds.init();
+    window.gtag = jest.fn();
+  });
+
+  test('As dynamicRemarketing flag is disabled, send order completed event as conversion event', () => {
+    googleAds.track(trackCallPayload);
+
+    // verify conversion events
+    expect(window.gtag.mock.calls[0][0]).toEqual('event');
+    expect(window.gtag.mock.calls[0][1]).toEqual(orderCompleted);
+    expect(window.gtag.mock.calls[0][2]).toEqual({
+      currency: 'IND',
+      send_to: `${mockConversionId}/TCBjCKjCs4gYEIXBi58p`,
+      transaction_id: mockOrderId,
+    });
+  });
+});

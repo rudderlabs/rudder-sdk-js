@@ -178,6 +178,33 @@ const googleAdsConfigs = [
       { conversionLabel: 'KhF2CKvCs4gYEIXBi58p', name: productAdded },
     ],
   },
+  {
+    conversionID: mockConversionId,
+    conversionLinker: true,
+    defaultPageConversion: '9Hr5CKXCs4gYEIXBi58p',
+    disableAdPersonalization: false,
+    eventFilteringOption: 'disable',
+    sendPageView: true,
+    dynamicRemarketing: false,
+    trackConversions: true,
+    trackDynamicRemarketing: true,
+    enableConversionEventsFiltering: true,
+    enableDynamicRemarketingEventsFiltering: true,
+    eventsToTrackConversions: [{ eventName: orderCompleted }],
+    eventsToTrackDynamicRemarketing: [{ eventName: 'Product Added To The List' }],
+    eventMappingFromConfig: [
+      { from: 'Sign Up', to: 'Signup' },
+      { to: 'Lead', from: orderCompleted },
+      { from: 'Page View', to: 'PageVisit' },
+      { from: productAdded, to: 'AddToCart' },
+    ],
+    clickEventConversions: [
+      { conversionLabel: '15klCKLCs4gYEIXBi58p', name: 'Sign Up' },
+      { conversionLabel: '9Hr5CKXCs4gYEIXBi58p', name: 'Page View' },
+      { conversionLabel: 'TCBjCKjCs4gYEIXBi58p', name: orderCompleted },
+      { conversionLabel: 'KhF2CKvCs4gYEIXBi58p', name: productAdded },
+    ],
+  },
 ];
 
 const trackCallPayload = {

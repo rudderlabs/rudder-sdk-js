@@ -41,7 +41,7 @@ describe('GoogleAds utilities shouldSendEvent function tests', () => {
   });
 
   test('event tracking is disabled and event filtering is disabled', () => {
-    const eventToSend = shouldSendConversionEvent(
+    const eventToSend = shouldSendDynamicRemarketingEvent(
       'Product Viewed',
       false,
       false,
@@ -63,12 +63,28 @@ describe('GoogleAds utilities shouldSendEvent function tests', () => {
   });
 
   test('event tracking is enabled and event filtering is enabled and event is added to events list', () => {
-    const eventToSend = shouldSendConversionEvent(
+    const eventToSend = shouldSendDynamicRemarketingEvent(
       orderCompleted,
       true,
       true,
       mockEvents,
       undefined,
+    );
+    expect(eventToSend).toEqual(true);
+  });
+
+  test('when both config (new + old) is present, old config should be given first priority', () => {
+    const eventToSend = shouldSendConversionEvent(orderCompleted, true, true, mockEvents, false);
+    expect(eventToSend).toEqual(true);
+  });
+
+  test('when both config (new + old) is present, old config should be given first priority', () => {
+    const eventToSend = shouldSendDynamicRemarketingEvent(
+      orderCompleted,
+      true,
+      true,
+      mockEvents,
+      true,
     );
     expect(eventToSend).toEqual(true);
   });
