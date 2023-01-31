@@ -69,7 +69,7 @@ class TestBook {
                                 <i class="bi bi-arrows-expand"></i> Expand/Collapse
                             </button>
                         </th>
-                        <td style="word-wrap: break-word;"><span class="badge text-bg-warning" id="test-case-status-${
+                        <td style="word-wrap: break-word;"><span class="badge badge-warning" id="test-case-status-${
                           testCase.id
                         }">pending</span></td>
                         <td style="word-wrap: break-word; max-width: 200px; position: relative;">
@@ -137,7 +137,7 @@ class TestBook {
                             <button type="button" class="btn btn-dark" id="execute-all-trigger">
                                 Execute All
                             </button>
-                            <a href="https://text-compare.com/" target="_blank" class="btn btn-secondary">See payloads diff</a>
+                            <a href="https://www.comparetext.net/compare" target="_blank" class="btn btn-secondary">See payloads diff</a>
                             <button type="button" class="btn btn-secondary" onClick="window.location.reload()">
                                 Reset/Reload
                             </button>
@@ -256,7 +256,7 @@ class TestBook {
         );
         const statusElement = document.getElementById(`test-case-status-${testCaseId}`);
         statusElement.textContent = assertionResult;
-        statusElement.className = `badge text-bg-${assertionResult}`;
+        statusElement.className = `badge badge-${assertionResult}`;
         statusElement.scrollIntoView({
           behavior: 'smooth',
           block: 'center',
@@ -272,7 +272,7 @@ class TestBook {
   resultStatusSummary() {
     const resultSummaryElement = document.getElementById('resultSummary');
     const totalTestCases = document.getElementsByClassName('testCaseResult').length;
-    const totalPassedTestCases = document.getElementsByClassName('text-bg-success').length;
+    const totalPassedTestCases = document.getElementsByClassName('badge-success').length;
 
     resultSummaryElement.innerHTML = `${totalTestCases}/${totalPassedTestCases}`;
   }
