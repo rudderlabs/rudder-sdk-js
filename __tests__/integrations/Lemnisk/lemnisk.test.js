@@ -1,7 +1,5 @@
 import LemniskMarketingAutomation from "../../../src/integrations/Lemnisk/browser";
 
-beforeAll(() => { });
-
 afterAll(() => {
     jest.restoreAllMocks();
 });

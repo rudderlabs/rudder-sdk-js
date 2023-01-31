@@ -72,7 +72,7 @@ const configToIntNames = {
   MICROSOFT_CLARITY: 'MicrosoftClarity',
   SENDINBLUE: 'Sendinblue',
   OLARK: 'Olark',
-  Lemnisk: "Lemnisk",
+  LEMNISK: "Lemnisk",
 };
 
 export { configToIntNames };
