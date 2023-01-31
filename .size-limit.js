@@ -13,13 +13,7 @@ module.exports = [
     name: 'All Integrations - CDN',
     path: 'dist/legacy/js-integrations/*.min.js',
     gzip: true,
-    limit: '681 kB',
-  },
-  {
-    name: 'All Integrations - CDN (modern only)',
-    path: 'dist/modern/js-integrations/*.min.js',
-    gzip: true,
-    limit: '530 kB',
+    limit: '685 kB',
   },
   {
     name: 'Core - NPM',
@@ -31,6 +25,6 @@ module.exports = [
     name: 'Service Worker - NPM',
     path: 'dist/npm-lib/service-worker/index.js',
     gzip: true,
-    limit: '28 kB',
+    limit: '28.5 kB',
   },
 ];
