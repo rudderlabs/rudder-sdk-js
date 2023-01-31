@@ -19,7 +19,6 @@ class GoogleAds {
     this.pageLoadConversions = config.pageLoadConversions;
     this.clickEventConversions = config.clickEventConversions;
     this.defaultPageConversion = config.defaultPageConversion;
-    this.dynamicRemarketing = config.dynamicRemarketing;
     this.sendPageView = config.sendPageView || true;
     this.conversionLinker = config.conversionLinker || true;
     this.disableAdPersonalization = config.disableAdPersonalization || false;
