@@ -7,6 +7,7 @@ const CNameMapping = {
   'lemniskmarketingautomation': NAME,
   'lemniskMarketingAutomation': NAME,
   'lemnisk': NAME,
+  'Lemnisk': NAME,
 };
 
 export { NAME, CNameMapping };

@@ -63,7 +63,7 @@ class LemniskMarketingAutomation {
     logger.debug('===In Lemnisk Marketing Automation identify===');
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
-      logger.debug('[LemniskMarketingAutomation] identify:: user id is required');
+      logger.error('[LemniskMarketingAutomation] identify:: user id is required');
       return;
     }
     // disabling eslint as message will be there iinn any case

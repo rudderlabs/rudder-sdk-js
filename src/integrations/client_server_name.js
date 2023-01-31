@@ -70,7 +70,7 @@ const clientToServerNames = {
   AXEPTIO: "Axeptio",
   SENDINBLUE: "Sendinblue",
   OLARK: "Olark",
-  Lemnisk: "Lemnisk",
+  LEMNISK: "Lemnisk",
 };
 
 export { clientToServerNames };
