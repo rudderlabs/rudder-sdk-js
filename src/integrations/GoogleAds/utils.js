@@ -34,12 +34,12 @@ function shouldSendEvent(eventName, trackEvents, enableFiltering, events) {
 }
 
 /**
- * returns weather to send conversion event or not
- * @param {*} eventName
- * @param {*} trackConversions
- * @param {*} enableConversionEventsFiltering
- * @param {*} eventsToTrackConversions
- * @param {*} dynamicRemarketing
+ * Returns weather to send conversion event or not
+ * @param {*} eventName - event name
+ * @param {*} trackConversions - decides weather to send conversion event or not
+ * @param {*} enableConversionEventsFiltering - decides weather to apply filtering on event or not
+ * @param {*} eventsToTrackConversions - allowed list of events to send google ads
+ * @param {*} dynamicRemarketing - Depreciating : old config flag to check weather to send event as conversion or dynamic remarketing
  * @returns
  */
 function shouldSendConversionEvent(
@@ -61,12 +61,12 @@ function shouldSendConversionEvent(
 }
 
 /**
- * returns weather to send dynamic remarketing event or not
+ * Returns weather to send dynamic remarketing event or not
  * @param {*} eventName
- * @param {*} trackDynamicRemarketing
- * @param {*} enableDynamicRemarketingEventsFiltering
- * @param {*} eventsToTrackDynamicRemarketing
- * @param {*} dynamicRemarketing
+ * @param {*} trackDynamicRemarketing - decides weather to send dynamic remarketing event or not
+ * @param {*} enableDynamicRemarketingEventsFiltering - decides weather to apply filtering on event or not
+ * @param {*} eventsToTrackDynamicRemarketing - allowed list of events to send google ads
+ * @param {*} dynamicRemarketing - Depreciating : old config flag to check weather to send event as conversion or dynamic remarketing
  * @returns
  */
 function shouldSendDynamicRemarketingEvent(

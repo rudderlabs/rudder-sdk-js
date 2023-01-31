@@ -34,7 +34,7 @@ class GoogleAds {
     this.eventsToTrackConversions = config.eventsToTrackConversions || [];
     this.eventsToTrackDynamicRemarketing = config.eventsToTrackDynamicRemarketing || [];
     this.eventMappingFromConfig = config.eventMappingFromConfig;
-    // To make changes backward compatible
+    // Depreciating: Added to make changes backward compatible
     this.dynamicRemarketing = config.dynamicRemarketing;
     this.name = NAME;
   }

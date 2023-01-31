@@ -69,24 +69,32 @@ class TestBook {
                                 <i class="bi bi-arrows-expand"></i> Expand/Collapse
                             </button>
                         </th>
-                        <td style="word-wrap: break-word;"><span class="badge text-bg-warning" id="test-case-status-${
+                        <td style="word-wrap: break-word;"><span class="badge badge-warning" id="test-case-status-${
                           testCase.id
                         }">pending</span></td>
                         <td style="word-wrap: break-word; max-width: 200px; position: relative;">
                           <pre>${JSON.stringify(testCase.inputData, undefined, 2)}</pre>
                         </td>
                         <td style="word-wrap: break-word; max-width: 200px; position: relative;">
-                          <pre class="testCaseResult" id="test-case-result-${testCase.id}" data-test-case-id="${testCase.id}"></pre>
+                          <pre class="testCaseResult" id="test-case-result-${
+                            testCase.id
+                          }" data-test-case-id="${testCase.id}"></pre>
                           <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
-                            <i class="bi bi-clipboard" data-clipboard-target="#test-case-result-${testCase.id}"></i>
+                            <i class="bi bi-clipboard" data-clipboard-target="#test-case-result-${
+                              testCase.id
+                            }"></i>
                           </button>
                         </td>
                         <td style="word-wrap: break-word; max-width: 200px; position: relative;">
-                          <pre data-testid="test-case-expected-${testCase.id}" id="expected-data${testCase.id}">
+                          <pre data-testid="test-case-expected-${testCase.id}" id="expected-data${
+          testCase.id
+        }">
                             ${JSON.stringify(testCase.expectedResult, undefined, 2)}
                           </pre>
                           <button type="button" class="btn btn-secondary" style="position: absolute; top:10px; right:10px;">
-                            <i class="bi bi-clipboard" data-clipboard-target="#expected-data${testCase.id}"></i>
+                            <i class="bi bi-clipboard" data-clipboard-target="#expected-data${
+                              testCase.id
+                            }"></i>
                           </button>
                         </td>
                     </tr>
@@ -129,7 +137,7 @@ class TestBook {
                             <button type="button" class="btn btn-dark" id="execute-all-trigger">
                                 Execute All
                             </button>
-                            <a href="https://text-compare.com/" target="_blank" class="btn btn-secondary">See payloads diff</a>
+                            <a href="https://www.comparetext.net/compare" target="_blank" class="btn btn-secondary">See payloads diff</a>
                             <button type="button" class="btn btn-secondary" onClick="window.location.reload()">
                                 Reset/Reload
                             </button>
@@ -182,19 +190,27 @@ class TestBook {
         const clickHandlerData = testCaseData.triggerHandler;
 
         // Allow single or sequential calls with defined sequential payloads
-        if(Array.isArray(clickHandlerData)) {
+        if (Array.isArray(clickHandlerData)) {
           const totalClickHandlers = clickHandlerData.length;
 
           clickHandlerData.forEach((clickHandler, index) => {
-            if(index === (totalClickHandlers - 1)) {
+            if (index === totalClickHandlers - 1) {
               // Only pass callback on last item of the sequence
-              this.invokeTriggerHandlers(clickHandler, testCaseData.inputData[index], resultCallback);
+              this.invokeTriggerHandlers(
+                clickHandler,
+                testCaseData.inputData[index],
+                resultCallback,
+              );
             } else {
               this.invokeTriggerHandlers(clickHandler, testCaseData.inputData[index]);
             }
           });
         } else {
-          this.invokeTriggerHandlers(testCaseData.triggerHandler, testCaseData.inputData, resultCallback);
+          this.invokeTriggerHandlers(
+            testCaseData.triggerHandler,
+            testCaseData.inputData,
+            resultCallback,
+          );
         }
       });
 
@@ -234,13 +250,16 @@ class TestBook {
           resultData,
           expectedResult,
         );
-        const assertionResult = ResultsAssertions.assertDeepObjectDiffResult(sanitizedResultData, expectedResult);
+        const assertionResult = ResultsAssertions.assertDeepObjectDiffResult(
+          sanitizedResultData,
+          expectedResult,
+        );
         const statusElement = document.getElementById(`test-case-status-${testCaseId}`);
         statusElement.textContent = assertionResult;
-        statusElement.className = `badge text-bg-${assertionResult}`;
+        statusElement.className = `badge badge-${assertionResult}`;
         statusElement.scrollIntoView({
           behavior: 'smooth',
-          block: 'center'
+          block: 'center',
         });
       });
 
@@ -253,7 +272,7 @@ class TestBook {
   resultStatusSummary() {
     const resultSummaryElement = document.getElementById('resultSummary');
     const totalTestCases = document.getElementsByClassName('testCaseResult').length;
-    const totalPassedTestCases = document.getElementsByClassName('text-bg-success').length;
+    const totalPassedTestCases = document.getElementsByClassName('badge-success').length;
 
     resultSummaryElement.innerHTML = `${totalTestCases}/${totalPassedTestCases}`;
   }
