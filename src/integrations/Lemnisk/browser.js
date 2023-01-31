@@ -18,7 +18,6 @@ class LemniskMarketingAutomation {
 
   init() {
     logger.debug('===in init Lemnisk Marketing Automation===');
-    // this.loadScript();
     (function (window, tag, o, a, r) {
       window.lmSMTObj = window.lmSMTObj || [];
       var methods = [
@@ -34,7 +33,6 @@ class LemniskMarketingAutomation {
           };
         }(methods[i]);
       }
-      // window.lmSMTObj.init(this.sdkWriteKey);
       a = o.getElementsByTagName('head')[0];
       r = o.createElement('script');
       r.setAttribute('data-loader', LOAD_ORIGIN);
