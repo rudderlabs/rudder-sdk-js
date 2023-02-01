@@ -2,6 +2,7 @@
 import { parse } from 'component-url';
 import get from 'get-value';
 import { v4 as uuid } from '@lukeed/uuid';
+import { v4 as uuidSecure } from "@lukeed/uuid/secure";
 import logger from './logUtil';
 import { commonNames } from './integration_cname';
 import { clientToServerNames } from './client_server_name';
@@ -43,6 +44,10 @@ function removeTrailingSlashes(inURL) {
  * @returns
  */
 function generateUUID() {
+  if(window.crypto && typeof window.crypto.getRandomValues === 'function') {
+    return uuidSecure();
+  }
+
   return uuid();
 }
 

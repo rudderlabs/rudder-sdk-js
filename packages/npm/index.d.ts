@@ -99,6 +99,9 @@ declare module 'rudder-sdk-js' {
       timeout?: number; // Defaults to 30 mins
     };
     residencyServer?: RESIDENCY_SERVER;
+    // Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
+    // Defaults to true
+    polyfillIfRequired?: boolean;
   }
 
   /**
