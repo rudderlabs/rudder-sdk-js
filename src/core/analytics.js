@@ -974,7 +974,7 @@ class Analytics {
           });
         }
       } else if (typeof options[key] === "object" && options[key] !== null) {
-        let tempContext = {};
+        const tempContext = {};
         Object.keys(options[key]).forEach((e) => {
             if (e !== "library") {
               tempContext[e] = options[key][e];
