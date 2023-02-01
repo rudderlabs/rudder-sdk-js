@@ -1,3 +1,3 @@
-import LemniskMarketingAutomation from './browser';
+import Lemnisk from './browser';
 
-export { LemniskMarketingAutomation };
+export { Lemnisk };
