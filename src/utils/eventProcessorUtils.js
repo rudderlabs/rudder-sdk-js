@@ -26,12 +26,20 @@ const mergeContext = (rudderElementMessage, options = {}) => {
   Object.keys(options).forEach((key) => {
     if (!defaultTopLevelElements.includes(key)) {
       if (key !== 'context') {
-        context = mergeDeepRight(context, {
-          [key]: options[key],
-        });
+        if (key !== "library") {
+          context = mergeDeepRight(context, {
+            [key]: options[key],
+          });
+        }
       } else if (typeof options[key] === 'object' && options[key] !== null) {
+        var tempContext = {};
+        Object.keys(options[key]).forEach((e) => {
+            if (e !== "library") {
+              tempContext[e] = options[key][e];
+            }
+        });
         context = mergeDeepRight(context, {
-          ...options[key],
+          ...tempContext,
         });
       } else {
         logger.error(
