@@ -1241,18 +1241,21 @@ class Analytics {
     if (this.loaded) return;
 
     // check if the below features are available in the browser or not
-    // If not present dynamically load from the polyfill cdn
+    // If not present dynamically load from the polyfill cdn, unless
+    // the options are configured not to.
+    const polyfillIfRequired = (options && typeof(options.polyfillIfRequired)==='boolean') ? options.polyfillIfRequired: true;
     if (
-      !String.prototype.endsWith ||
-      !String.prototype.startsWith ||
-      !String.prototype.includes ||
-      !Array.prototype.find ||
-      !Array.prototype.includes ||
-      !Promise ||
-      !Object.entries ||
-      !Object.values ||
-      !String.prototype.replaceAll ||
-      !this.isDatasetAvailable()
+      polyfillIfRequired &&
+      (!String.prototype.endsWith ||
+        !String.prototype.startsWith ||
+        !String.prototype.includes ||
+        !Array.prototype.find ||
+        !Array.prototype.includes ||
+        !Promise ||
+        !Object.entries ||
+        !Object.values ||
+        !String.prototype.replaceAll ||
+        !this.isDatasetAvailable())
     ) {
       const id = "polyfill";
       ScriptLoader(id, POLYFILL_URL, { skipDatasetAttributes: true });
