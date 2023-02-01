@@ -69,7 +69,10 @@ class LemniskMarketingAutomation {
     // disabling eslint as message will be there iinn any case
     // eslint-disable-next-line no-unsafe-optional-chaining 
     const { traits } = rudderElement.message?.context;
-    window.lmSMTObj.identify(rudderElement.message.userId, traits);
+    if(traits)
+      window.lmSMTObj.identify(rudderElement.message.userId, traits);
+    else
+      window.lmSMTObj.identify(rudderElement.message.userId);
   }
 
   track(rudderElement) {
