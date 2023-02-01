@@ -8,7 +8,6 @@ class RudderMessage {
     this.channel = "web";
     this.context = new RudderContext();
     this.type = null;
-    this.action = null;
     this.messageId = generateUUID();
     this.originalTimestamp = new Date().toISOString();
     this.anonymousId = null;

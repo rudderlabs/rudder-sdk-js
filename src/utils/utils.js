@@ -2,6 +2,7 @@
 import { parse } from "component-url";
 import get from "get-value";
 import { v4 as uuid } from "@lukeed/uuid";
+import { v4 as uuidSecure } from "@lukeed/uuid/secure";
 import { LOAD_ORIGIN } from "../integrations/ScriptLoader";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
@@ -25,10 +26,14 @@ function replacer(key, value) {
 
 /**
  *
- * Utility function for UUID genration
+ * Utility function for UUID generation
  * @returns
  */
 function generateUUID() {
+  if(window.crypto && typeof window.crypto.getRandomValues === 'function') {
+    return uuidSecure();
+  }
+
   return uuid();
 }
 
