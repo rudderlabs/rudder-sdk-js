@@ -4,7 +4,7 @@ import { LOAD_ORIGIN } from '../ScriptLoader';
 import { NAME } from './constants';
 
 const logger = new Logger(NAME);
-class LemniskMarketingAutomation {
+class Lemnisk {
   constructor(config, analytics) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
@@ -63,7 +63,7 @@ class LemniskMarketingAutomation {
     logger.debug('===In Lemnisk Marketing Automation identify===');
     const userId = rudderElement.message.userId || rudderElement.message.anonymousId;
     if (!userId) {
-      logger.error('[LemniskMarketingAutomation] identify:: user id is required');
+      logger.error('[Lemnisk] identify:: user id is required');
       return;
     }
     // disabling eslint as message will be there iinn any case
@@ -80,7 +80,7 @@ class LemniskMarketingAutomation {
     const { event, properties } = rudderElement.message;
 
     if (!event) {
-      logger.error('[LemniskMarketingAutomation] track:: Event name is missing!');
+      logger.error('[Lemnisk] track:: Event name is missing!');
       return;
     }
     if (properties) {
@@ -104,4 +104,4 @@ class LemniskMarketingAutomation {
     }
   }
 }
-export default LemniskMarketingAutomation;
+export default Lemnisk;
