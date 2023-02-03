@@ -6,6 +6,11 @@ import {
   removeUndefinedAndNullValues,
   getEventMappingFromConfig,
 } from '../../utils/commonUtils';
+import {
+  shouldSendConversionEvent,
+  shouldSendDynamicRemarketingEvent,
+  getConversionData,
+} from './utils';
 import { NAME } from './constants';
 
 class GoogleAds {
@@ -13,17 +18,25 @@ class GoogleAds {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
-    // this.accountId = config.accountId;//AW-696901813
+
     this.conversionId = config.conversionID;
     this.pageLoadConversions = config.pageLoadConversions;
     this.clickEventConversions = config.clickEventConversions;
     this.defaultPageConversion = config.defaultPageConversion;
-    this.dynamicRemarketing = config.dynamicRemarketing;
     this.sendPageView = config.sendPageView || true;
     this.conversionLinker = config.conversionLinker || true;
     this.disableAdPersonalization = config.disableAdPersonalization || false;
-    this.name = NAME;
+    this.trackConversions = config.trackConversions || false;
+    this.trackDynamicRemarketing = config.trackDynamicRemarketing || false;
+    this.enableConversionEventsFiltering = config.enableConversionEventsFiltering || false;
+    this.enableDynamicRemarketingEventsFiltering =
+      config.enableDynamicRemarketingEventsFiltering || false;
+    this.eventsToTrackConversions = config.eventsToTrackConversions || [];
+    this.eventsToTrackDynamicRemarketing = config.eventsToTrackDynamicRemarketing || [];
     this.eventMappingFromConfig = config.eventMappingFromConfig;
+    // Depreciating: Added to make changes backward compatible
+    this.dynamicRemarketing = config.dynamicRemarketing;
+    this.name = NAME;
   }
 
   init() {
@@ -43,15 +56,17 @@ class GoogleAds {
 
     window.dataLayer = window.dataLayer || [];
     window.gtag = function () {
+      // eslint-disable-next-line prefer-rest-params
       window.dataLayer.push(arguments);
     };
     window.gtag('js', new Date());
 
     // Additional Settings
 
-    const config = {};
-    config.send_page_view = this.sendPageView;
-    config.conversion_linker = this.conversionLinker;
+    const config = {
+      send_page_view: this.sendPageView,
+      conversion_linker: this.conversionLinker,
+    };
 
     if (this.disableAdPersonalization) {
       window.gtag('set', 'allow_ad_personalization_signals', false);
@@ -62,6 +77,14 @@ class GoogleAds {
     logger.debug('===in init Google Ads===');
   }
 
+  isLoaded() {
+    return window.dataLayer.push !== Array.prototype.push;
+  }
+
+  isReady() {
+    return this.isLoaded();
+  }
+
   identify() {
     logger.debug('[GoogleAds] identify:: method not supported');
   }
@@ -70,32 +93,51 @@ class GoogleAds {
   track(rudderElement) {
     logger.debug('in GoogleAdsAnalyticsManager track');
 
-    // Dynamic remarketing disabled
-    if (!this.dynamicRemarketing) {
-      const conversionData = this.getConversionData(
-        this.clickEventConversions,
-        rudderElement.message.event,
-      );
-      if (conversionData.conversionLabel) {
-        const { conversionLabel } = conversionData;
-        const { eventName } = conversionData;
-        const sendToValue = `${this.conversionId}/${conversionLabel}`;
-        let properties = {};
-        if (rudderElement.message.properties) {
-          properties.value = rudderElement.message.properties.revenue;
-          properties.currency = rudderElement.message.properties.currency;
-          properties.transaction_id = rudderElement.message.properties.order_id;
-        }
-        properties.send_to = sendToValue;
-        properties = removeUndefinedAndNullValues(properties);
-        window.gtag('event', eventName, properties);
-      }
-    } else {
-      const { event } = rudderElement.message;
-      if (!event) {
-        logger.error('Event name not present');
-        return;
-      }
+    const { event } = rudderElement.message;
+    const conversionData = getConversionData(
+      this.clickEventConversions,
+      event,
+      this.defaultPageConversion,
+    );
+    if (
+      conversionData.conversionLabel &&
+      shouldSendConversionEvent(
+        event,
+        this.trackConversions,
+        this.enableConversionEventsFiltering,
+        this.eventsToTrackConversions,
+        this.dynamicRemarketing,
+      )
+    ) {
+      const { conversionLabel } = conversionData;
+      const { eventName } = conversionData;
+      const sendToValue = `${this.conversionId}/${conversionLabel}`;
+
+      let properties = {
+        value: rudderElement.message?.properties?.revenue,
+        currency: rudderElement.message?.properties?.currency,
+        transaction_id: rudderElement.message?.properties?.order_id,
+        send_to: sendToValue,
+      };
+      properties = removeUndefinedAndNullValues(properties);
+
+      window.gtag('event', eventName, properties);
+    }
+
+    if (!event) {
+      logger.error('Event name not present');
+      return;
+    }
+
+    if (
+      shouldSendDynamicRemarketingEvent(
+        event,
+        this.trackDynamicRemarketing,
+        this.enableDynamicRemarketingEventsFiltering,
+        this.eventsToTrackDynamicRemarketing,
+        this.dynamicRemarketing,
+      )
+    ) {
       // modify the event name to mapped event name from the config
       const eventsHashmap = getHashFromArrayWithDuplicate(
         this.eventMappingFromConfig,
@@ -103,12 +145,11 @@ class GoogleAds {
         'to',
         false,
       );
-      let payload = {};
+
+      const { properties } = rudderElement.message;
+      const payload = properties || {};
       const sendToValue = this.conversionId;
 
-      if (rudderElement.message.properties) {
-        payload = rudderElement.message.properties;
-      }
       payload.send_to = sendToValue;
       const events = getEventMappingFromConfig(event, eventsHashmap);
       if (events) {
@@ -124,64 +165,51 @@ class GoogleAds {
   page(rudderElement) {
     logger.debug('in GoogleAdsAnalyticsManager page');
 
-    // Dynamic re-marketing is disabled
-    if (!this.dynamicRemarketing) {
-      const conversionData = this.getConversionData(
-        this.pageLoadConversions,
-        rudderElement.message.name,
-      );
-      if (conversionData.conversionLabel) {
-        const { conversionLabel } = conversionData;
-        const { eventName } = conversionData;
-        window.gtag('event', eventName, {
-          send_to: `${this.conversionId}/${conversionLabel}`,
-        });
-      }
-    } else {
-      const event = rudderElement.message.name;
-      if (!event) {
-        logger.error('Event name not present');
-        return;
-      }
+    const { name } = rudderElement.message;
+    const conversionData = getConversionData(
+      this.clickEventConversions,
+      name,
+      this.defaultPageConversion,
+    );
+    if (
+      conversionData.conversionLabel &&
+      shouldSendConversionEvent(
+        name,
+        this.trackConversions,
+        this.enableConversionEventsFiltering,
+        this.eventsToTrackConversions,
+        this.dynamicRemarketing,
+      )
+    ) {
+      const { conversionLabel } = conversionData;
+      const { eventName } = conversionData;
+      window.gtag('event', eventName, {
+        send_to: `${this.conversionId}/${conversionLabel}`,
+      });
+    }
 
-      let payload = {};
+    if (!name) {
+      logger.error('Event name not present');
+      return;
+    }
+
+    if (
+      shouldSendDynamicRemarketingEvent(
+        name,
+        this.trackDynamicRemarketing,
+        this.enableDynamicRemarketingEventsFiltering,
+        this.eventsToTrackDynamicRemarketing,
+        this.dynamicRemarketing,
+      )
+    ) {
+      const event = name;
+      const { properties } = rudderElement.message;
       const sendToValue = this.conversionId;
-
-      if (rudderElement.message.properties) {
-        payload = rudderElement.message.properties;
-      }
-
+      const payload = properties || {};
       payload.send_to = sendToValue;
       window.gtag('event', event, payload);
     }
   }
-
-  getConversionData(eventTypeConversions, eventName) {
-    const conversionData = {};
-    if (eventTypeConversions) {
-      if (eventName) {
-        eventTypeConversions.forEach((eventTypeConversion) => {
-          if (eventTypeConversion.name.toLowerCase() === eventName.toLowerCase()) {
-            // rudderElement["message"]["name"]
-            conversionData.conversionLabel = eventTypeConversion.conversionLabel;
-            conversionData.eventName = eventTypeConversion.name;
-          }
-        });
-      } else if (this.defaultPageConversion) {
-        conversionData.conversionLabel = this.defaultPageConversion;
-        conversionData.eventName = 'Viewed a Page';
-      }
-    }
-    return conversionData;
-  }
-
-  isLoaded() {
-    return window.dataLayer.push !== Array.prototype.push;
-  }
-
-  isReady() {
-    return window.dataLayer.push !== Array.prototype.push;
-  }
 }
 
-export { GoogleAds };
+export default GoogleAds;
