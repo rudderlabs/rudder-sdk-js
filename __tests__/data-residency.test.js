@@ -1,5 +1,4 @@
 import { resolveDataPlaneUrl } from '../src/utils/utils';
-import { DEFAULT_DATAPLANE_URL } from '../src/utils/constants';
 
 const usDataplaneUrl = 'https://sample.rudderlabs.com/us';
 const euDataplaneUrl = 'https://sample.rudderlabs.com/eu';
@@ -57,14 +56,14 @@ const validResidencyServerUS = { residencyServer: 'US' };
 const validResidencyServerEU = { residencyServer: 'EU' };
 
 const testCaseData = [
-  {
-    description:
-      'When dataplane is not provided in source config or in load API, default dataplane Url will be selected',
-    input: {
-      response: sourceConfigWithEmptyDataPlanes,
-    },
-    output: DEFAULT_DATAPLANE_URL,
-  },
+  // {
+  //   description:
+  //     'When dataplane is not provided in source config or in load API, default dataplane Url will be selected',
+  //   input: {
+  //     response: sourceConfigWithEmptyDataPlanes,
+  //   },
+  //   output: DEFAULT_DATAPLANE_URL,
+  // },
   {
     description:
       'When dataplane is not provided in source config but provided in load API, dataplane Url from load option will be selected',
@@ -82,15 +81,15 @@ const testCaseData = [
     },
     output: usDataplaneUrl,
   },
-  {
-    description:
-      'In case of invalid residencyServer option: dataplane is not provided in source config or in load API, default dataplane Url will be selected',
-    input: {
-      response: sourceConfigWithEmptyDataPlanes,
-      options: invalidResidencyServer1,
-    },
-    output: DEFAULT_DATAPLANE_URL,
-  },
+  // {
+  //   description:
+  //     'In case of invalid residencyServer option: dataplane is not provided in source config or in load API, default dataplane Url will be selected',
+  //   input: {
+  //     response: sourceConfigWithEmptyDataPlanes,
+  //     options: invalidResidencyServer1,
+  //   },
+  //   output: DEFAULT_DATAPLANE_URL,
+  // },
   {
     description:
       'In case of invalid residencyServer option: dataplane is not provided in source config but provided in load API, dataplane Url from load option will be selected',
@@ -111,15 +110,15 @@ const testCaseData = [
     },
     output: usDataplaneUrl,
   },
-  {
-    description:
-      'In case of valid residencyServer(US) option: dataplane is not provided in source config or in load API, default dataplane Url will be selected',
-    input: {
-      response: sourceConfigWithEmptyDataPlanes,
-      options: validResidencyServerUS,
-    },
-    output: DEFAULT_DATAPLANE_URL,
-  },
+  // {
+  //   description:
+  //     'In case of valid residencyServer(US) option: dataplane is not provided in source config or in load API, default dataplane Url will be selected',
+  //   input: {
+  //     response: sourceConfigWithEmptyDataPlanes,
+  //     options: validResidencyServerUS,
+  //   },
+  //   output: DEFAULT_DATAPLANE_URL,
+  // },
   {
     description:
       'In case of valid residencyServer(US) option: dataplane is not provided in source config but provided in load API, dataplane Url from load option will be selected',
@@ -150,15 +149,15 @@ const testCaseData = [
     },
     output: serverUrl,
   },
-  {
-    description:
-      'In case of valid residencyServer(EU) option: dataplane is not provided in source config or in load API, default dataplane Url will be selected',
-    input: {
-      response: sourceConfigWithEmptyDataPlanes,
-      options: validResidencyServerEU,
-    },
-    output: DEFAULT_DATAPLANE_URL,
-  },
+  // {
+  //   description:
+  //     'In case of valid residencyServer(EU) option: dataplane is not provided in source config or in load API, default dataplane Url will be selected',
+  //   input: {
+  //     response: sourceConfigWithEmptyDataPlanes,
+  //     options: validResidencyServerEU,
+  //   },
+  //   output: DEFAULT_DATAPLANE_URL,
+  // },
   {
     description:
       'In case of valid residencyServer(EU) option: dataplane is not provided in source config but provided in load API, dataplane Url from load option will be selected',
@@ -191,7 +190,49 @@ const testCaseData = [
   },
 ];
 
+const testCaseDataWithInvalidDataplaneUrl = [
+  {
+    description:
+      'When dataplane is not provided in source config or in load API, default dataplane Url will be selected',
+    input: {
+      response: sourceConfigWithEmptyDataPlanes,
+      serverUrl: null
+    },
+  },
+  {
+    description:
+      'In case of invalid residencyServer option: dataplane is not provided in source config or in load API, default dataplane Url will be selected',
+    input: {
+      response: sourceConfigWithEmptyDataPlanes,
+      options: invalidResidencyServer1,
+    },
+  },
+   {
+    description:
+      'In case of valid residencyServer(US) option: dataplane is not provided in source config or in load API, default dataplane Url will be selected',
+    input: {
+      response: sourceConfigWithEmptyDataPlanes,
+      options: validResidencyServerUS,
+    },
+  },
+  {
+    description:
+      'In case of valid residencyServer(EU) option: dataplane is not provided in source config or in load API, default dataplane Url will be selected',
+    input: {
+      response: sourceConfigWithEmptyDataPlanes,
+      options: validResidencyServerEU,
+    },
+  },
+]
+
 test.each(testCaseData)('$description', ({ input, output }) => {
   const url = resolveDataPlaneUrl(input.response, input.serverUrl, input.options);
   expect(url).toEqual(output);
+});
+
+test.each(testCaseDataWithInvalidDataplaneUrl)('$description', ({ input }) => {
+  const url = () => resolveDataPlaneUrl(input.response, input.serverUrl, input.options);
+  expect(url).toThrow(
+    'Unable to load the SDK due to invalid data plane url'
+  );
 });

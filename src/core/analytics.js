@@ -966,7 +966,7 @@ class Analytics {
    * @returns
    */
   loadAfterPolyfill(writeKey, serverUrl, options) {
-    if (typeof serverUrl === 'object') {
+    if (typeof serverUrl === 'object' && serverUrl !== null) {
       options = serverUrl;
       serverUrl = null;
     }

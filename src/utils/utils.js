@@ -10,7 +10,6 @@ import {
   CONFIG_URL,
   RESERVED_KEYS,
   DEFAULT_REGION,
-  DEFAULT_DATAPLANE_URL,
   RESIDENCY_SERVERS,
 } from './constants';
 import Storage from './storage';
@@ -749,10 +748,16 @@ const resolveDataPlaneUrl = (response, serverUrl, options) => {
       return serverUrl;
     }
     // return the default dataPlaneUrl
-    return DEFAULT_DATAPLANE_URL;
+    // return DEFAULT_DATAPLANE_URL; // we do not want to divert the events to hosted data plane url
+
+    // Throw error if correct data plane url is not provided
+    throw Error('Unable to load the SDK due to invalid data plane url');
   } catch (e) {
     handleError(e);
-    return isValidServerUrl(serverUrl) ? serverUrl : DEFAULT_DATAPLANE_URL;
+    if (isValidServerUrl(serverUrl)) {
+      return serverUrl;
+    }
+    throw Error('Unable to load the SDK due to invalid data plane url');
   }
 };
 
