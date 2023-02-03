@@ -70,6 +70,7 @@ const clientToServerNames = {
   MICROSOFT_CLARITY: 'Microsoft Clarity',
   SENDINBLUE: 'Sendinblue',
   OLARK: 'Olark',
+  LEMNISK: "Lemnisk",
 };
 
 export { clientToServerNames };
