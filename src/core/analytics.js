@@ -968,12 +968,20 @@ class Analytics {
       if (toplevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== "context") {
-        rudderElement.message.context = merge(rudderElement.message.context, {
-          [key]: options[key],
+        if (key !== "library") {
+          rudderElement.message.context = merge(rudderElement.message.context, {
+            [key]: options[key],
+          });
+        }
+      } else if (typeof options[key] === "object" && options[key] !== null) {
+        const tempContext = {};
+        Object.keys(options[key]).forEach((e) => {
+            if (e !== "library") {
+              tempContext[e] = options[key][e];
+            }
         });
-      } else if (typeof options[key] === "object" && options[key] != null) {
         rudderElement.message.context = merge(rudderElement.message.context, {
-          ...options[key],
+          ...tempContext,
         });
       } else {
         logger.error(
