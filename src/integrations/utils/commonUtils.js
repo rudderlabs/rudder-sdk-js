@@ -153,7 +153,7 @@ function getDestinationExternalID(message, type) {
   if (message.context && message.context.externalId) {
     externalIdArray = message.context.externalId;
   }
-  if (externalIdArray) {
+  if (externalIdArray && Array.isArray(externalIdArray)) {
     externalIdArray.forEach((extIdObj) => {
       if (extIdObj.type === type) {
         destinationExternalId = extIdObj.id;
