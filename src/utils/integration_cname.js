@@ -69,6 +69,7 @@ import { CNameMapping as SatisMeter } from '../integrations/Satismeter/constants
 import { CNameMapping as MicrosoftClarity } from '../integrations/MicrosoftClarity/constants';
 import { CNameMapping as Sendinblue } from '../integrations/Sendinblue/constants';
 import { CNameMapping as Olark } from '../integrations/Olark/constants';
+import { CNameMapping as Lemnisk } from '../integrations/Lemnisk/constants';
 
 // for sdk side native integration identification
 // add a mapping from common names to index.js exported key names as identified by Rudder
@@ -145,6 +146,7 @@ const commonNames = {
   ...MicrosoftClarity,
   ...Sendinblue,
   ...Olark,
+  ...Lemnisk,
 };
 
 export { commonNames };
