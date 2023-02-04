@@ -982,7 +982,7 @@ class Analytics {
     }
     if (options && options.cookieConsentManager)
       this.cookieConsentOptions = R.clone(options.cookieConsentManager);
-    
+
     this.writeKey = writeKey;
     this.serverUrl = serverUrl;
     this.options = options;
@@ -1134,7 +1134,10 @@ class Analytics {
   }
 
   ready(callback) {
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['ready', callback]);
+      return;
+    }
     if (typeof callback === 'function') {
       /**
        * If integrations are loaded or no integration is available for loading
