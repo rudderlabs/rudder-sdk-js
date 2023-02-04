@@ -62,6 +62,7 @@ const ignoredProperties = [
   {
     key: 'message.context.screen.density',
     type: 'number',
+    optional: true
   },
   {
     key: 'message.context.screen.height',
