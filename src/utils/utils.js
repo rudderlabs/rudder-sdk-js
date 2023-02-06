@@ -2,10 +2,16 @@
 import { parse } from 'component-url';
 import get from 'get-value';
 import { v4 as uuid } from '@lukeed/uuid';
+import { v4 as uuidSecure } from "@lukeed/uuid/secure";
 import logger from './logUtil';
 import { commonNames } from './integration_cname';
 import { clientToServerNames } from './client_server_name';
-import { CONFIG_URL, RESERVED_KEYS } from './constants';
+import {
+  CONFIG_URL,
+  RESERVED_KEYS,
+  DEFAULT_REGION,
+  RESIDENCY_SERVERS,
+} from './constants';
 import Storage from './storage';
 import { handleError } from './errorHandler';
 
@@ -37,6 +43,10 @@ function removeTrailingSlashes(inURL) {
  * @returns
  */
 function generateUUID() {
+  if(window.crypto && typeof window.crypto.getRandomValues === 'function') {
+    return uuidSecure();
+  }
+
   return uuid();
 }
 
@@ -674,6 +684,79 @@ const getStringId = (id) => {
     : JSON.stringify(id);
 };
 
+/**
+ * A function to validate and return Residency server input
+ * @returns string/undefined
+ */
+const getResidencyServer = (options) => {
+  const region = options ? options.residencyServer : undefined;
+  if (region) {
+    if (typeof region !== 'string' || !RESIDENCY_SERVERS.includes(region.toUpperCase())) {
+      logger.error('Invalid residencyServer input');
+      return undefined;
+    }
+    return region.toUpperCase();
+  }
+  return undefined;
+};
+
+const isValidServerUrl = (serverUrl) => {
+  if (!serverUrl || typeof serverUrl !== 'string' || serverUrl.trim().length === 0) {
+    return false;
+  }
+  return true;
+};
+
+/**
+ * A function to get url from source config response
+ * @param {array} urls    An array of objects containing urls
+ * @returns
+ */
+const getDefaultUrlofRegion = (urls) => {
+  let url;
+  if (Array.isArray(urls) && urls.length) {
+    const obj = urls.find((elem) => elem.default === true);
+    if (obj && isValidServerUrl(obj.url)) {
+      return obj.url;
+    }
+  }
+  return url;
+};
+
+/**
+ * A function to determine the dataPlaneUrl
+ * @param {Object} dataPlaneUrls An object containing dataPlaneUrl for different region
+ * @returns string
+ */
+const resolveDataPlaneUrl = (response, serverUrl, options) => {
+  try {
+    const dataPlanes = response.source.dataplanes || {};
+    // Check if dataPlanes object is present in source config
+    if (Object.keys(dataPlanes).length) {
+      const inputRegion = getResidencyServer(options);
+      const regionUrlArr = dataPlanes[inputRegion] || dataPlanes[DEFAULT_REGION];
+
+      if (regionUrlArr) {
+        const defaultUrl = getDefaultUrlofRegion(regionUrlArr);
+        if (defaultUrl) {
+          return defaultUrl;
+        }
+      }
+    }
+    // return the dataPlaneUrl provided in load API(if available)
+    if (isValidServerUrl(serverUrl)) {
+      return serverUrl;
+    }
+    // return the default dataPlaneUrl
+    // return DEFAULT_DATAPLANE_URL; // we do not want to divert the events to hosted data plane url
+
+    // Throw error if correct data plane url is not provided
+    throw Error('Unable to load the SDK due to invalid data plane url');
+  } catch (e) {
+    throw Error(e);
+  }
+};
+
 export {
   replacer,
   generateUUID,
@@ -706,4 +789,5 @@ export {
   get,
   countDigits,
   getStringId,
+  resolveDataPlaneUrl,
 };

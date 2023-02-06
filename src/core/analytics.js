@@ -1,3 +1,4 @@
+/* eslint-disable prefer-rest-params */
 /* eslint-disable no-use-before-define */
 /* eslint-disable new-cap */
 /* eslint-disable func-names */
@@ -31,6 +32,7 @@ import {
   commonNames,
   get,
   getStringId,
+  resolveDataPlaneUrl,
 } from '../utils/utils';
 import { handleError, leaveBreadcrumb } from '../utils/errorHandler';
 import {
@@ -237,6 +239,16 @@ class Analytics {
           BugsnagLib.init(response.source.id);
         }
       }
+
+      // determine the dataPlaneUrl
+      this.serverUrl = resolveDataPlaneUrl(response, this.serverUrl, this.options);
+
+      // Initialize event repository
+      this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
+      this.loaded = true;
+      // Execute any pending buffered requests
+      // (needed if the load call was not previously buffered)
+      processDataInAnalyticsArray(this);
 
       response.source.destinations.forEach(function (destination) {
         // logger.debug(
@@ -464,10 +476,15 @@ class Analytics {
    */
   page(category, name, properties, options, callback) {
     leaveBreadcrumb(`Page event`);
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['page', ...arguments]);
+      return;
+    }
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof properties === 'function') (callback = properties), (options = properties = null);
     if (typeof name === 'function') (callback = name), (options = properties = name = null);
+    if (typeof category === 'function')
+      (callback = category), (options = properties = name = category = null);
     if (typeof category === 'object' && category != null && category != undefined)
       (options = name), (properties = category), (name = category = null);
     if (typeof name === 'object' && name != null && name != undefined)
@@ -504,7 +521,10 @@ class Analytics {
    */
   track(event, properties, options, callback) {
     leaveBreadcrumb(`Track event`);
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['track', ...arguments]);
+      return;
+    }
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof properties === 'function')
       (callback = properties), (options = null), (properties = null);
@@ -529,7 +549,10 @@ class Analytics {
    */
   identify(userId, traits, options, callback) {
     leaveBreadcrumb(`Identify event`);
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['identify', ...arguments]);
+      return;
+    }
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
     if (typeof userId === 'object') (options = traits), (traits = userId), (userId = this.userId);
@@ -560,10 +583,15 @@ class Analytics {
    */
   alias(to, from, options, callback) {
     leaveBreadcrumb(`Alias event`);
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['alias', ...arguments]);
+      return;
+    }
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof from === 'function') (callback = from), (options = null), (from = null);
+    if (typeof to === 'function') (callback = to), (options = null), (from = null), (to = null);
     if (typeof from === 'object') (options = from), (from = null);
+    if (typeof to === 'object') (options = to), (from = null), (to = null);
 
     const rudderElement = new RudderElementBuilder().setType('alias').build();
 
@@ -583,13 +611,18 @@ class Analytics {
    */
   group(groupId, traits, options, callback) {
     leaveBreadcrumb(`Group event`);
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['group', ...arguments]);
+      return;
+    }
     if (arguments.length === 0) return;
 
     if (typeof options === 'function') (callback = options), (options = null);
     if (typeof traits === 'function') (callback = traits), (options = null), (traits = null);
     if (typeof groupId === 'object')
       (options = traits), (traits = groupId), (groupId = this.groupId);
+    if (typeof groupId === 'function')
+      (callback = groupId), (options = null), (traits = null), (groupId = this.groupId);
 
     this.groupId = getStringId(groupId);
     this.storage.setGroupId(this.groupId);
@@ -754,7 +787,7 @@ class Analytics {
 
       // logger.debug(`${type} is called `)
       if (callback) {
-        callback();
+        callback(rudderElement);
       }
     } catch (error) {
       handleError(error);
@@ -850,7 +883,10 @@ class Analytics {
   reset(flag) {
     leaveBreadcrumb(`reset API :: flag: ${flag}`);
 
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['reset', flag]);
+      return;
+    }
     if (flag) {
       this.anonymousId = '';
     }
@@ -930,18 +966,26 @@ class Analytics {
    * @returns
    */
   loadAfterPolyfill(writeKey, serverUrl, options) {
+    if (typeof serverUrl === 'object' && serverUrl !== null) {
+      options = serverUrl;
+      serverUrl = null;
+    }
     if (options && options.logLevel) {
       this.logLevel = options.logLevel;
       logger.setLogLevel(options.logLevel);
+    }
+    if (!this.isValidWriteKey(writeKey)) {
+      throw Error('Unable to load the SDK due to invalid writeKey');
     }
     if (!this.storage || Object.keys(this.storage).length === 0) {
       throw Error('Cannot proceed as no storage is available');
     }
     if (options && options.cookieConsentManager)
       this.cookieConsentOptions = R.clone(options.cookieConsentManager);
-    if (!this.isValidWriteKey(writeKey) || !this.isValidServerUrl(serverUrl)) {
-      throw Error('Unable to load the SDK due to invalid writeKey or serverUrl');
-    }
+
+    this.writeKey = writeKey;
+    this.serverUrl = serverUrl;
+    this.options = options;
 
     let storageOptions = {};
 
@@ -1003,7 +1047,6 @@ class Analytics {
     this.eventRepository.initialize(writeKey, serverUrl, options);
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
-    this.loaded = true;
 
     this.destSDKBaseURL = getIntegrationsCDNPath(
       this.version,
@@ -1022,9 +1065,6 @@ class Analytics {
         } else {
           this.processResponse(200, res);
         }
-        // Execute any pending buffered requests
-        // (needed if the load call was not previously buffered)
-        processDataInAnalyticsArray(this);
       }
       return;
     }
@@ -1039,9 +1079,6 @@ class Analytics {
     } catch (error) {
       handleError(error);
     }
-    // Execute any pending buffered requests
-    // (needed if the load call was not previously buffered)
-    processDataInAnalyticsArray(this);
   }
 
   /**
@@ -1055,18 +1092,24 @@ class Analytics {
     if (this.loaded) return;
 
     // check if the below features are available in the browser or not
-    // If not present dynamically load from the polyfill cdn
+    // If not present dynamically load from the polyfill cdn, unless
+    // the options are configured not to.
+    const polyfillIfRequired =
+      options && typeof options.polyfillIfRequired === 'boolean'
+        ? options.polyfillIfRequired
+        : true;
     if (
-      !String.prototype.endsWith ||
-      !String.prototype.startsWith ||
-      !String.prototype.includes ||
-      !Array.prototype.find ||
-      !Array.prototype.includes ||
-      !Promise ||
-      !Object.entries ||
-      !Object.values ||
-      !String.prototype.replaceAll ||
-      !this.isDatasetAvailable()
+      polyfillIfRequired &&
+      (!String.prototype.endsWith ||
+        !String.prototype.startsWith ||
+        !String.prototype.includes ||
+        !Array.prototype.find ||
+        !Array.prototype.includes ||
+        !Promise ||
+        !Object.entries ||
+        !Object.values ||
+        !String.prototype.replaceAll ||
+        !this.isDatasetAvailable())
     ) {
       const id = 'polyfill';
       ScriptLoader(id, POLYFILL_URL, { skipDatasetAttributes: true });
@@ -1091,7 +1134,10 @@ class Analytics {
   }
 
   ready(callback) {
-    if (!this.loaded) return;
+    if (!this.loaded) {
+      this.toBeProcessedArray.push(['ready', callback]);
+      return;
+    }
     if (typeof callback === 'function') {
       /**
        * If integrations are loaded or no integration is available for loading
