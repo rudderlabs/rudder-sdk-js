@@ -468,6 +468,8 @@ class Analytics {
       (callback = properties), (options = properties = null);
     if (typeof name === "function")
       (callback = name), (options = properties = name = null);
+    if (typeof category === 'function')
+      (callback = category), (options = properties = name = category = null);
     if (
       typeof category === "object" &&
       category != null &&
@@ -537,7 +539,10 @@ class Analytics {
     if (typeof options === "function") (callback = options), (options = null);
     if (typeof from === "function")
       (callback = from), (options = null), (from = null);
+    if (typeof to === 'function')
+      (callback = to), (options = null), (from = null), (to = null);
     if (typeof from === "object") (options = from), (from = null);
+    if (typeof to === 'object') (options = to), (from = null), (to = null);
 
     const rudderElement = new RudderElementBuilder().setType("alias").build();
 
@@ -570,6 +575,8 @@ class Analytics {
       (callback = traits), (options = null), (traits = null);
     if (typeof groupId === "object")
       (options = traits), (traits = groupId), (groupId = this.groupId);
+    if (typeof groupId === 'function')
+      (callback = groupId), (options = null), (traits = null), (groupId = this.groupId);
 
     this.groupId = getStringId(groupId);
     this.storage.setGroupId(this.groupId);
@@ -909,7 +916,7 @@ class Analytics {
 
       logger.debug(`${type} is called `);
       if (callback) {
-        callback();
+        callback(rudderElement);
       }
     } catch (error) {
       handleError(error);
@@ -961,12 +968,20 @@ class Analytics {
       if (toplevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== "context") {
-        rudderElement.message.context = merge(rudderElement.message.context, {
-          [key]: options[key],
+        if (key !== "library") {
+          rudderElement.message.context = merge(rudderElement.message.context, {
+            [key]: options[key],
+          });
+        }
+      } else if (typeof options[key] === "object" && options[key] !== null) {
+        const tempContext = {};
+        Object.keys(options[key]).forEach((e) => {
+            if (e !== "library") {
+              tempContext[e] = options[key][e];
+            }
         });
-      } else if (typeof options[key] === "object" && options[key] != null) {
         rudderElement.message.context = merge(rudderElement.message.context, {
-          ...options[key],
+          ...tempContext,
         });
       } else {
         logger.error(
@@ -1234,18 +1249,21 @@ class Analytics {
     if (this.loaded) return;
 
     // check if the below features are available in the browser or not
-    // If not present dynamically load from the polyfill cdn
+    // If not present dynamically load from the polyfill cdn, unless
+    // the options are configured not to.
+    const polyfillIfRequired = (options && typeof(options.polyfillIfRequired)==='boolean') ? options.polyfillIfRequired: true;
     if (
-      !String.prototype.endsWith ||
-      !String.prototype.startsWith ||
-      !String.prototype.includes ||
-      !Array.prototype.find ||
-      !Array.prototype.includes ||
-      !Promise ||
-      !Object.entries ||
-      !Object.values ||
-      !String.prototype.replaceAll ||
-      !this.isDatasetAvailable()
+      polyfillIfRequired &&
+      (!String.prototype.endsWith ||
+        !String.prototype.startsWith ||
+        !String.prototype.includes ||
+        !Array.prototype.find ||
+        !Array.prototype.includes ||
+        !Promise ||
+        !Object.entries ||
+        !Object.values ||
+        !String.prototype.replaceAll ||
+        !this.isDatasetAvailable())
     ) {
       const id = "polyfill";
       ScriptLoader(id, POLYFILL_URL, { skipDatasetAttributes: true });

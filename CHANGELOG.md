@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.24.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.23.0...v1.24.0) (2023-02-06)
+
+
+### Features
+
+* added support for both click event and dynamic remarketing events ([#855](https://github.com/rudderlabs/rudder-sdk-js/issues/855)) ([97eda04](https://github.com/rudderlabs/rudder-sdk-js/commit/97eda04b2458ef2e99b98e763c2c99889401eff7))
+* **bugbash:** adding bugbash tag condition ([#871](https://github.com/rudderlabs/rudder-sdk-js/issues/871)) ([a761d2a](https://github.com/rudderlabs/rudder-sdk-js/commit/a761d2a6215d42aa7722c7dcbdebe5b613c95337))
+* **destination:** onboarding new destination lemnisk ([#857](https://github.com/rudderlabs/rudder-sdk-js/issues/857)) ([6319785](https://github.com/rudderlabs/rudder-sdk-js/commit/63197859aa985545bdeb6ea55b64cf9dffcd4c86))
+* option to opt out from loading polyfill ([#879](https://github.com/rudderlabs/rudder-sdk-js/issues/879)) ([1ff688e](https://github.com/rudderlabs/rudder-sdk-js/commit/1ff688e763fabc10a78375dbc69efad4c79e959e))
+* **test-suite:** adding test cases for majorly used util functions of web device mode integrations ([#861](https://github.com/rudderlabs/rudder-sdk-js/issues/861)) ([934a0ef](https://github.com/rudderlabs/rudder-sdk-js/commit/934a0ef1721f5bb93d59c114318d73373ebed446))
+
+
+### Bug Fixes
+
+* add support for more method overloads for group api  ([66986d8](https://github.com/rudderlabs/rudder-sdk-js/commit/66986d8e737527f5bf76e3c914d7fdf3fe8b7c78))
+* fix method overload values on edge case of wrong usage ([5798db0](https://github.com/rudderlabs/rudder-sdk-js/commit/5798db0133166a3f1183b031633b032f7e85bd05))
+* library info override bug  ([c993601](https://github.com/rudderlabs/rudder-sdk-js/commit/c9936016f9a7cce081c8f907a8acc552bce7b5a7))
+* replace node globals & build-ins rollup plugins with polyfill-node to allow optional chaining ([3961d16](https://github.com/rudderlabs/rudder-sdk-js/commit/3961d162a7bc468a3ac90a01659f190a36ba8a39))
+* use uuid secure (using crypto) for supported browsers  ([bebf3d0](https://github.com/rudderlabs/rudder-sdk-js/commit/bebf3d0e4c2eb6d22fec7bea2cac5708f2c21245))
+
 ### [1.23.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.23.0...v1.23.1) (2023-01-16)
 
 
