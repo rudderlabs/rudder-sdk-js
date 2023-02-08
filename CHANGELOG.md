@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.24.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.24.0...v1.24.1) (2023-02-08)
+
+
+### Bug Fixes
+
+* added logic to capture full url for ga4 page_location param ([#891](https://github.com/rudderlabs/rudder-sdk-js/issues/891)) ([b997fb0](https://github.com/rudderlabs/rudder-sdk-js/commit/b997fb09542423b6b61ecd38c145d16001b3ac1a))
+* googleads config order ([#889](https://github.com/rudderlabs/rudder-sdk-js/issues/889)) ([517b0d0](https://github.com/rudderlabs/rudder-sdk-js/commit/517b0d0cda77ce917ddf1e4fc2e6eb26b8972b07))
+* reverted got package ([#895](https://github.com/rudderlabs/rudder-sdk-js/issues/895)) ([19fb7d2](https://github.com/rudderlabs/rudder-sdk-js/commit/19fb7d2eb9e7100cac4116f5c448ef79efa8f621))
+* v1 staging security check issue ([#894](https://github.com/rudderlabs/rudder-sdk-js/issues/894)) ([52d1d09](https://github.com/rudderlabs/rudder-sdk-js/commit/52d1d09ddd0bcab6cdf75cd47ffd462408c0dbe0))
+
 ## [1.24.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.23.0...v1.24.0) (2023-02-06)
 
 
