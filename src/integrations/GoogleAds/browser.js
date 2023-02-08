@@ -26,8 +26,8 @@ class GoogleAds {
     this.sendPageView = config.sendPageView || true;
     this.conversionLinker = config.conversionLinker || true;
     this.disableAdPersonalization = config.disableAdPersonalization || false;
-    this.trackConversions = config.trackConversions || false;
-    this.trackDynamicRemarketing = config.trackDynamicRemarketing || false;
+    this.trackConversions = config.trackConversions;
+    this.trackDynamicRemarketing = config.trackDynamicRemarketing;
     this.enableConversionEventsFiltering = config.enableConversionEventsFiltering || false;
     this.enableDynamicRemarketingEventsFiltering =
       config.enableDynamicRemarketingEventsFiltering || false;
