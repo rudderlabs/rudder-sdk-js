@@ -175,7 +175,11 @@ function getDestinationEventProperties(
       }
     });
   });
-  const propsWithCustomFields = addCustomVariables(destinationProperties, props, contextOp);
+  const propsWithCustomFields = addCustomVariables(
+    destinationProperties,
+    props,
+    contextOp
+  );
   return propsWithCustomFields;
 }
 
