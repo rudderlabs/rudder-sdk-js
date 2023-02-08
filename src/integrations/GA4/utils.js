@@ -173,8 +173,6 @@ function getDestinationEventProperties(
     props,
     contextOp
   );
-  // overriding js sdk page param to capture full url
-  propsWithCustomFields.page_location = window.location.href;
   return propsWithCustomFields;
 }
 
