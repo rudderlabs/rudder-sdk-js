@@ -1,6 +1,6 @@
 {
   "name": "rudder-analytics",
-  "version": "2.23.0",
+  "version": "2.24.0",
   "description": "",
   "main": "./dist/browser.min.js",
   "scripts": {
@@ -165,6 +165,7 @@
     "debug": "4.3.4",
     "dot-prop": "5.3.0",
     "json5": "2.2.2",
+    "http-cache-semantics": "4.1.1",
     "semver": "7.3.8",
     "semver-regex": "3.1.4",
     "trim-newlines": "3.0.1"
