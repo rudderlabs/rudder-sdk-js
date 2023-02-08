@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.24.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.23.0...v2.24.0) (2023-02-08)
+
+### Bug Fixes
+
+* added logic to capture full url for ga4 page_location param ([#890](https://github.com/rudderlabs/rudder-sdk-js/issues/890)) ([6a118cb](https://github.com/rudderlabs/rudder-sdk-js/commit/6a118cb7e932d06cdc5d000507321b08831f91eb))
+* googleads config order ([#888](https://github.com/rudderlabs/rudder-sdk-js/issues/888)) ([6ea660b](https://github.com/rudderlabs/rudder-sdk-js/commit/6ea660bff45ae48eb47783003b14b10c780c043b))
+* upgrade http-cache-semantics dependency to non-vulnerable version ([634e976](https://github.com/rudderlabs/rudder-sdk-js/commit/634e976d8cd40194b132f0badf7b7d6df500f1e9))
+
 ## [2.23.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.22.3...v2.23.0) (2023-02-06)
 
 
