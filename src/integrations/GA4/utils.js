@@ -175,11 +175,9 @@ function getDestinationEventProperties(
       }
     });
   });
-  const propsWithCustomFields = addCustomVariables(
-    destinationProperties,
-    props,
-    contextOp
-  );
+  const propsWithCustomFields = addCustomVariables(destinationProperties, props, contextOp);
+  // overriding js sdk page param to capture full url
+  propsWithCustomFields.page_location = window.location.href;
   return propsWithCustomFields;
 }
 
