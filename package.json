@@ -172,6 +172,7 @@
   },
   "browserslist": {
     "production": [
+      "defaults",
       "Edge >= 15",
       "Firefox >= 40",
       "IE >= 10",
