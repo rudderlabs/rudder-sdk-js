@@ -1,3 +1,1 @@
-import { GoogleAds } from './browser';
-
-export { GoogleAds };
+export { default as GoogleAds } from './browser';

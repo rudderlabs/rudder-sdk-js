@@ -69,7 +69,7 @@ import * as Satismeter from './Satismeter';
 import * as MicrosoftClarity from './MicrosoftClarity';
 import * as Sendinblue from './Sendinblue';
 import * as Olark from './Olark';
-
+import * as Lemnisk from "./Lemnisk";
 // the key names should match the destination.name value to keep partity everywhere
 // (config-plan name, native destination.name , exported integration name(this one below))
 
@@ -145,6 +145,7 @@ const integrations = {
   MICROSOFT_CLARITY: MicrosoftClarity.default,
   SENDINBLUE: Sendinblue.default,
   OLARK: Olark.default,
+  LEMNISK: Lemnisk.default,
 };
 
 export { integrations };

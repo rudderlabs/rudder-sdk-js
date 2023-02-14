@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.24.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.23.0...v2.24.0) (2023-02-08)
+
+### Bug Fixes
+
+* added logic to capture full url for ga4 page_location param ([#890](https://github.com/rudderlabs/rudder-sdk-js/issues/890)) ([6a118cb](https://github.com/rudderlabs/rudder-sdk-js/commit/6a118cb7e932d06cdc5d000507321b08831f91eb))
+* googleads config order ([#888](https://github.com/rudderlabs/rudder-sdk-js/issues/888)) ([6ea660b](https://github.com/rudderlabs/rudder-sdk-js/commit/6ea660bff45ae48eb47783003b14b10c780c043b))
+* upgrade http-cache-semantics dependency to non-vulnerable version ([634e976](https://github.com/rudderlabs/rudder-sdk-js/commit/634e976d8cd40194b132f0badf7b7d6df500f1e9))
+
+## [2.23.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.22.3...v2.23.0) (2023-02-06)
+
+
+### Features
+
+* added support for both click event and dynamic remarketing events ([#854](https://github.com/rudderlabs/rudder-sdk-js/issues/854)) ([55e5297](https://github.com/rudderlabs/rudder-sdk-js/commit/55e5297aca36625cb3790ca0ac80fab323dad978))
+* **bugbash:** adding bugbash tag condition ([#870](https://github.com/rudderlabs/rudder-sdk-js/issues/870)) ([6512eeb](https://github.com/rudderlabs/rudder-sdk-js/commit/6512eebb17ded5e63ac04bd50b53ac389b3405a7))
+* data residency ([#718](https://github.com/rudderlabs/rudder-sdk-js/issues/718)) ([e00f9bb](https://github.com/rudderlabs/rudder-sdk-js/commit/e00f9bbd32ac707827f2cce0153849556c0d5ef3))
+* **destination:** onboard lemnisk integration ([#864](https://github.com/rudderlabs/rudder-sdk-js/issues/864)) ([69f4f22](https://github.com/rudderlabs/rudder-sdk-js/commit/69f4f22ae82ff9df4fbe20c8d426c1cd7d489ba5)), closes [#806](https://github.com/rudderlabs/rudder-sdk-js/issues/806)
+* option to opt out from loading polyfill ([#878](https://github.com/rudderlabs/rudder-sdk-js/issues/878)) ([18c2cb2](https://github.com/rudderlabs/rudder-sdk-js/commit/18c2cb29cc0cbac8409d93082fe27eb963a09b32))
+* **test-suite:** adding test cases for hugely used util functions for device mode integrations ([#860](https://github.com/rudderlabs/rudder-sdk-js/issues/860)) ([2d18bc0](https://github.com/rudderlabs/rudder-sdk-js/commit/2d18bc05dd915113338b9c6907d745cde9bdc803))
+
+
+### Bug Fixes
+
+* add support for more method overloads for group api ([a34bb26](https://github.com/rudderlabs/rudder-sdk-js/commit/a34bb26d9a8bdf1ee55752d108e2c939d468c903))
+* **launchDarkly:** ldClient Initialization ([#831](https://github.com/rudderlabs/rudder-sdk-js/issues/831)) ([39e24b3](https://github.com/rudderlabs/rudder-sdk-js/commit/39e24b394d878205534391f489c6ec52dda31578))
+* library info override bug ([aef7b94](https://github.com/rudderlabs/rudder-sdk-js/commit/aef7b94a07dec04fb8439410fe5fe28c632f7ffb))
+* replace node globals & build-ins rollup plugins with polyfill-node to allow optional chaining ([913613d](https://github.com/rudderlabs/rudder-sdk-js/commit/913613dcedcc8b341b5fac35ae7995954cc7729c))
+* use uuid secure (using crypto) for supported browsers  ([d6b81f6](https://github.com/rudderlabs/rudder-sdk-js/commit/d6b81f68183aa53c1bec49538a6b968055379658))
+
 ### 2.22.3 (2023-01-16)
 
 

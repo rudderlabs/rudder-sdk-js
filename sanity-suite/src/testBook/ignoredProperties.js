@@ -40,6 +40,10 @@ const ignoredProperties = [
     type: 'string',
   },
   {
+    key: 'message.context.page.path',
+    type: 'string',
+  },
+  {
     key: 'message.context.page.referrer',
     type: 'string',
   },
@@ -58,6 +62,7 @@ const ignoredProperties = [
   {
     key: 'message.context.screen.density',
     type: 'number',
+    optional: true
   },
   {
     key: 'message.context.screen.height',
@@ -105,6 +110,18 @@ const ignoredProperties = [
   },
   {
     key: 'message.properties.initial_referring_domain',
+    type: 'string',
+  },
+  {
+    key: 'message.properties.path',
+    type: 'string',
+  },
+  {
+    key: 'message.properties.url',
+    type: 'string',
+  },
+  {
+    key: 'message.properties.tab_url',
     type: 'string',
   },
 ];

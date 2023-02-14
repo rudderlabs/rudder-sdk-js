@@ -1,6 +1,6 @@
 {
   "name": "rudder-analytics",
-  "version": "2.22.3",
+  "version": "2.24.0",
   "description": "",
   "main": "./dist/browser.min.js",
   "scripts": {
@@ -48,7 +48,8 @@
     "release:github": "DEBUG=conventional-github-releaser npx conventional-github-releaser -p angular --config github-release.config.js",
     "sanity": "npm run build:browser && cd sanity-suite && npm run start:local",
     "sanity:cdn": "cd sanity-suite && npm run start:cdn",
-    "sanity:npm": "cd sanity-suite && npm run start:npm"
+    "sanity:npm": "cd sanity-suite && npm run start:npm",
+    "build:sanity": "rm -rf sanity-suite/dist && cd sanity-suite && npm run build:all && npm run build:all:staging"
   },
   "author": "RudderStack",
   "license": "MIT",
@@ -164,12 +165,14 @@
     "debug": "4.3.4",
     "dot-prop": "5.3.0",
     "json5": "2.2.2",
+    "http-cache-semantics": "4.1.1",
     "semver": "7.3.8",
     "semver-regex": "3.1.4",
     "trim-newlines": "3.0.1"
   },
   "browserslist": {
     "production": [
+      "defaults",
       "Edge >= 15",
       "Firefox >= 40",
       "IE >= 10",

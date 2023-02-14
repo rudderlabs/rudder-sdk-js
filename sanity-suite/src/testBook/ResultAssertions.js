@@ -10,7 +10,7 @@ class ResultsAssertions {
     const expectedResultData = JSON.parse(expectedResult);
 
     ignoredProperties.forEach((property) => {
-      if (typeof objectPath.get(resultData, property.key) === property.type) {
+      if (typeof objectPath.get(resultData, property.key) === property.type || property.optional === true) {
         objectPath.set(resultData, property.key, objectPath.get(expectedResultData, property.key));
       }
     });
