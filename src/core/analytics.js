@@ -33,6 +33,7 @@ import {
   get,
   getStringId,
   resolveDataPlaneUrl,
+  fetchCookieConsentState,
 } from '../utils/utils';
 import { handleError, leaveBreadcrumb } from '../utils/errorHandler';
 import {
@@ -102,6 +103,7 @@ class Analytics {
     this.uSession = UserSession;
     this.version = 'process.package_version';
     this.lockIntegrationsVersion = false;
+    this.deniedConsentIds = [];
   }
 
   /**
@@ -273,6 +275,8 @@ class Analytics {
         // consent being set. For now we only support OneTrust.
         try {
           const cookieConsent = CookieConsentFactory.initialize(this.cookieConsentOptions);
+          // Fetch denied consent group Ids and pass it to cloud mode
+          this.deniedConsentIds = cookieConsent && cookieConsent.getDeniedList();
           // If cookie consent object is return we filter according to consents given by user
           // else we do not consider any filtering for cookie consent.
           this.clientIntegrations = this.clientIntegrations.filter(
@@ -727,6 +731,12 @@ class Analytics {
         if (sessionStart) rudderElement.message.context.sessionStart = true;
       } catch (e) {
         handleError(e);
+      }
+      // If cookie consent is enabled attach the denied consent group Ids to the context
+      if (fetchCookieConsentState(this.cookieConsentOptions)) {
+        rudderElement.message.context.consentManagement = {
+          deniedConsentIds: this.deniedConsentIds
+        };
       }
 
       this.processOptionsParam(rudderElement, options);
