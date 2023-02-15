@@ -769,6 +769,22 @@ const getStringId = (id) => {
     : JSON.stringify(id);
 };
 
+/**
+ * Function to return the state of consent management based on config passed in load options 
+ * @param {Object} cookieConsentOptions 
+ * @returns 
+ */
+const fetchCookieConsentState = (cookieConsentOptions) => {
+  let isEnabled = false;
+  // eslint-disable-next-line consistent-return
+  Object.keys(cookieConsentOptions).forEach((e) => {
+    if ( typeof(cookieConsentOptions[e].enabled) === 'boolean' && cookieConsentOptions[e].enabled === true) {
+      isEnabled = true;
+    }
+  });
+  return isEnabled;
+};
+
 export {
   replacer,
   generateUUID,
@@ -802,4 +818,5 @@ export {
   get,
   countDigits,
   getStringId,
+  fetchCookieConsentState,
 };

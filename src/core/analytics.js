@@ -31,6 +31,7 @@ import {
   commonNames,
   get,
   getStringId,
+  fetchCookieConsentState,
 } from "../utils/utils";
 import {
   CONFIG_URL,
@@ -116,6 +117,7 @@ class Analytics {
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
     this.uSession = UserSession;
+    this.deniedConsentIds = [];
   }
 
   /**
@@ -252,6 +254,8 @@ class Analytics {
         cookieConsent = CookieConsentFactory.initialize(
           this.cookieConsentOptions
         );
+        // Fetch denied consent group Ids and pass it to cloud mode
+        this.deniedConsentIds = cookieConsent && cookieConsent.getDeniedList();
       } catch (e) {
         handleError(e);
       }
@@ -837,6 +841,12 @@ class Analytics {
         if (sessionStart) rudderElement.message.context.sessionStart = true;
       } catch (e) {
         handleError(e);
+      }
+      // If cookie consent is enabled attach the denied consent group Ids to the context
+      if (fetchCookieConsentState(this.cookieConsentOptions)) {
+        rudderElement.message.context.consentManagement = {
+          deniedConsentIds: this.deniedConsentIds
+        };
       }
 
       this.processOptionsParam(rudderElement, options);
