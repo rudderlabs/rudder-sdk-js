@@ -25,7 +25,6 @@ export default class GA4 {
     this.blockPageView = config.blockPageViewEvent || false;
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.extendGroupPayload = config.extendGroupPayload || false;
-    this.debugMode = config.debugMode || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
     this.name = NAME;
     this.clientId = "";
@@ -50,9 +49,9 @@ export default class GA4 {
     if (this.sendUserId) {
       gtagParameterObject.user_id = userId;
     }
-    if (this.debugMode) {
-      gtagParameterObject.debug_mode = true;
-    }
+
+    gtagParameterObject.debug_mode = true;
+
     if (Object.keys(gtagParameterObject).length === 0) {
       window.gtag("config", measurementId);
     } else {
