@@ -48,13 +48,14 @@ export default class GA4 {
     if (this.sendUserId) {
       gtagParameterObject.user_id = userId;
     }
+
+    gtagParameterObject.debug_mode = true;
+
     if (Object.keys(gtagParameterObject).length === 0) {
       window.gtag('config', measurementId);
     } else {
       window.gtag('config', measurementId, gtagParameterObject);
     }
-
-    gtagParameterObject.debug_mode = true;
 
     /**
      * Setting the parameter clientId and sessionId using gtag api
