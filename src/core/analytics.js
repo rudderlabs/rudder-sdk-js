@@ -41,6 +41,7 @@ import {
   DEFAULT_ERROR_REPORT_PROVIDER,
   ERROR_REPORT_PROVIDERS,
   SAMESITE_COOKIE_OPTS,
+  SYSTEM_KEYWORDS,
 } from "../utils/constants";
 import { integrations } from "../integrations";
 import RudderElementBuilder from "../utils/RudderElementBuilder";
@@ -978,7 +979,7 @@ class Analytics {
       if (toplevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== "context") {
-        if (key !== "library") {
+        if (!SYSTEM_KEYWORDS.includes(key)) {
           rudderElement.message.context = merge(rudderElement.message.context, {
             [key]: options[key],
           });
@@ -986,7 +987,7 @@ class Analytics {
       } else if (typeof options[key] === "object" && options[key] !== null) {
         const tempContext = {};
         Object.keys(options[key]).forEach((e) => {
-            if (e !== "library") {
+            if (!SYSTEM_KEYWORDS.includes(e)) {
               tempContext[e] = options[key][e];
             }
         });

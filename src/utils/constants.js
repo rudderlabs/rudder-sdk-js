@@ -108,6 +108,8 @@ const MIN_SESSION_ID_LENGTH = 10;
 
 const SUPPORTED_CONSENT_MANAGERS = ['oneTrust'];
 
+const SYSTEM_KEYWORDS = ['library', 'consentManagement'];
+
 export {
   ReservedPropertyKeywords,
   MessageType,
@@ -130,6 +132,7 @@ export {
   MIN_SESSION_TIMEOUT,
   MIN_SESSION_ID_LENGTH,
   SUPPORTED_CONSENT_MANAGERS,
+  SYSTEM_KEYWORDS,
 };
 
 /* module.exports = {

@@ -778,11 +778,12 @@ const fetchCookieConsentState = (cookieConsentOptions) => {
   let isEnabled = false;
   // eslint-disable-next-line consistent-return
   Object.keys(cookieConsentOptions).forEach((e) => {
-    if ( 
-      SUPPORTED_CONSENT_MANAGERS.includes(e) && 
-      typeof(cookieConsentOptions[e].enabled) === 'boolean' && 
-      cookieConsentOptions[e].enabled === true
-    ) {
+    const isSupportedAndEnabled =
+      SUPPORTED_CONSENT_MANAGERS.includes(e) &&
+      typeof cookieConsentOptions[e].enabled === 'boolean' &&
+      cookieConsentOptions[e].enabled === true;
+
+    if (isSupportedAndEnabled) {
       isEnabled = true;
     }
   });
