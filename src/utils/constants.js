@@ -106,6 +106,8 @@ const DEFAULT_SESSION_TIMEOUT = 30 * 60 * 1000; // 30 min in milliseconds
 const MIN_SESSION_TIMEOUT = 10 * 1000; // 10 sec in milliseconds
 const MIN_SESSION_ID_LENGTH = 10;
 
+const SUPPORTED_CONSENT_MANAGERS = ['oneTrust'];
+
 export {
   ReservedPropertyKeywords,
   MessageType,
@@ -127,6 +129,7 @@ export {
   DEFAULT_SESSION_TIMEOUT,
   MIN_SESSION_TIMEOUT,
   MIN_SESSION_ID_LENGTH,
+  SUPPORTED_CONSENT_MANAGERS,
 };
 
 /* module.exports = {

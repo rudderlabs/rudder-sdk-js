@@ -7,7 +7,7 @@ import { LOAD_ORIGIN } from "../integrations/ScriptLoader";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
-import { CONFIG_URL, ReservedPropertyKeywords } from "./constants";
+import { CONFIG_URL, ReservedPropertyKeywords, SUPPORTED_CONSENT_MANAGERS } from "./constants";
 import Storage from "./storage";
 
 /**
@@ -778,7 +778,11 @@ const fetchCookieConsentState = (cookieConsentOptions) => {
   let isEnabled = false;
   // eslint-disable-next-line consistent-return
   Object.keys(cookieConsentOptions).forEach((e) => {
-    if ( typeof(cookieConsentOptions[e].enabled) === 'boolean' && cookieConsentOptions[e].enabled === true) {
+    if ( 
+      SUPPORTED_CONSENT_MANAGERS.includes(e) && 
+      typeof(cookieConsentOptions[e].enabled) === 'boolean' && 
+      cookieConsentOptions[e].enabled === true
+    ) {
       isEnabled = true;
     }
   });
