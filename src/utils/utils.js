@@ -11,6 +11,7 @@ import {
   RESERVED_KEYS,
   DEFAULT_REGION,
   RESIDENCY_SERVERS,
+  SUPPORTED_CONSENT_MANAGERS,
 } from './constants';
 import Storage from './storage';
 import { handleError } from './errorHandler';
@@ -766,7 +767,11 @@ const fetchCookieConsentState = (cookieConsentOptions) => {
   let isEnabled = false;
   // eslint-disable-next-line consistent-return
   Object.keys(cookieConsentOptions).forEach((e) => {
-    if ( typeof(cookieConsentOptions[e].enabled) === 'boolean' && cookieConsentOptions[e].enabled === true) {
+    if ( 
+      SUPPORTED_CONSENT_MANAGERS.includes(e) && 
+      typeof(cookieConsentOptions[e].enabled) === 'boolean' && 
+      cookieConsentOptions[e].enabled === true
+    ) {
       isEnabled = true;
     }
   });

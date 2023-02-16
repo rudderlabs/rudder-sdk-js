@@ -336,18 +336,6 @@ describe('Utilities for cookie consent management', () => {
     const actualState = utils.fetchCookieConsentState({});
     expect(actualState).toEqual(false);
   });
-  it('should return true when cookie consent is enabled for other consent management tool', () => {
-    const cookieConsentOptions = {
-      oneTrust: {
-        enabled: false,
-      },
-      cookieBot: {
-        enabled: true,
-      },
-    };
-    const actualState = utils.fetchCookieConsentState(cookieConsentOptions);
-    expect(actualState).toEqual(true);
-  });
   it('should return true when cookie consent is enabled for OneTrust', () => {
     const cookieConsentOptions = {
       oneTrust: {
