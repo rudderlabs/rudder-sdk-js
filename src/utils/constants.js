@@ -42,6 +42,8 @@ const RESIDENCY_SERVERS = [DEFAULT_REGION, 'EU'];
 
 const SUPPORTED_CONSENT_MANAGERS = ['oneTrust'];
 
+const SYSTEM_KEYWORDS = ['library', 'consentManagement'];
+
 export {
   RESERVED_KEYS,
   CONFIG_URL,
@@ -65,4 +67,5 @@ export {
   DEFAULT_DATAPLANE_URL,
   RESIDENCY_SERVERS,
   SUPPORTED_CONSENT_MANAGERS,
+  SYSTEM_KEYWORDS,
 };
