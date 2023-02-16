@@ -27,8 +27,9 @@ export default class GA4 {
     this.debugMode = config.debugMode || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
     this.name = NAME;
-    this.clientId = "";
-    this.sessionId = "";
+    this.clientId = '';
+    this.sessionId = '';
+    this.addSendToParameter = config.addSendToParameter || false;
   }
 
   loadScript(measurementId, userId) {
@@ -62,10 +63,10 @@ export default class GA4 {
      * Setting the parameter clientId and sessionId using gtag api
      * Ref: https://developers.google.com/tag-platform/gtagjs/reference
      */
-    window.gtag("get", this.measurementId, "client_id", (clientId) => {
+    window.gtag('get', this.measurementId, 'client_id', (clientId) => {
       this.clientId = clientId;
     });
-    window.gtag("get", this.measurementId, "session_id", (sessionId) => {
+    window.gtag('get', this.measurementId, 'session_id', (sessionId) => {
       this.sessionId = sessionId;
     });
 
@@ -91,11 +92,11 @@ export default class GA4 {
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
-   return !!(this.clientId && this.sessionId);
+    return !!(this.clientId && this.sessionId);
   }
 
   isReady() {
-   return this.isLoaded();
+    return this.isLoaded();
   }
 
   /* utility functions --- Ends here ---  */
@@ -113,13 +114,14 @@ export default class GA4 {
     destinationProperties = getDestinationEventProperties(
       properties,
       includeList,
-       "properties",
-       hasItem);
+      'properties',
+      hasItem,
+    );
 
     if (hasItem) {
       // only for events where GA requires an items array to be sent
       // get the product related destination keys || if products is not present use the rudder message properties to get the product related destination keys
-      if (products && type(products) !== "array") {
+      if (products && type(products) !== 'array') {
         logger.debug("Event payload doesn't have products array");
       }
       destinationProperties.items = getDestinationItemProperties(
@@ -156,9 +158,13 @@ export default class GA4 {
 
   sendGAEvent(event, parameters, checkRequiredParameters, eventMappingObj) {
     if (checkRequiredParameters && !hasRequiredParameters(parameters, eventMappingObj)) {
-        throw Error('Payload must have required parameters..');
+      throw Error('Payload must have required parameters..');
     }
-    window.gtag('event', event, parameters);
+    const params = { ...parameters };
+    if (this.addSendToParameter) {
+      params.send_to = this.measurementId;
+    }
+    window.gtag('event', event, params);
   }
 
   handleEventMapper(eventMappingObj, properties, products) {
@@ -199,7 +205,7 @@ export default class GA4 {
     }
     // get GA4 event name and corresponding configs defined to add properties to that event
     const eventMappingArray = getDestinationEventName(event);
-    if (eventMappingArray && eventMappingArray.length) {
+    if (eventMappingArray && eventMappingArray.length > 0) {
       eventMappingArray.forEach((events) => {
         this.handleEventMapper(events, properties, products);
       });
@@ -236,13 +242,17 @@ export default class GA4 {
     let pageProps = rudderElement.message.properties;
     if (!pageProps) return;
     pageProps = flattenJsonPayload(pageProps);
+    const properties = { ...getPageViewProperty(pageProps) };
+    if (this.addSendToParameter) {
+      properties.send_to = this.measurementId;
+    }
     if (this.extendPageViewParams) {
       window.gtag('event', 'page_view', {
         ...pageProps,
-        ...getPageViewProperty(pageProps),
+        ...properties,
       });
     } else {
-      window.gtag('event', 'page_view', getPageViewProperty(pageProps));
+      window.gtag('event', 'page_view', properties);
     }
   }
 
