@@ -29,6 +29,9 @@ If applicable, add screenshots to help explain your problem.
 - CDN URL: (if applicable)
 - NPM Version: (if applicable)
 - Webpage URL: (where the SDK is installed, if applicable)
+- Share the event payload
+- Integration that has the issue (if applicable)
+- Used JS Framework (e.g: NextJS, ReactJs, Vue) (if applicable)
 
 **Desktop (please complete the following information):**
 
