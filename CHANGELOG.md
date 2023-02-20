@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.25.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.24.1...v1.25.0) (2023-02-20)
+
+
+### Features
+
+* **ga4:** add sent_to parameter in gtag event call ([#906](https://github.com/rudderlabs/rudder-sdk-js/issues/906)) ([e621560](https://github.com/rudderlabs/rudder-sdk-js/commit/e621560a9822c4e5faaa8e7a42ff5194bb66b67f))
+
 ### [1.24.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.24.0...v1.24.1) (2023-02-08)
 
 
