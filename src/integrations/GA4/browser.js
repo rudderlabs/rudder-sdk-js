@@ -23,7 +23,6 @@ export default class GA4 {
     this.blockPageView = config.blockPageViewEvent || false;
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.extendGroupPayload = config.extendGroupPayload || false;
-    this.debugMode = config.debugMode || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
     this.name = NAME;
     this.sessionId = '';
@@ -48,9 +47,7 @@ export default class GA4 {
     if (this.analytics.userId) {
       gtagParameterObject.user_id = this.analytics.userId;
     }
-    if (this.debugMode) {
-      gtagParameterObject.debug_mode = true;
-    }
+    gtagParameterObject.debug_mode = true;
     gtagParameterObject.client_id = this.analytics.anonymousId;
 
     if (Object.keys(gtagParameterObject).length === 0) {
@@ -66,10 +63,6 @@ export default class GA4 {
     window.gtag('get', this.measurementId, 'session_id', (sessionId) => {
       this.sessionId = sessionId;
     });
-
-    // To disable debug mode, exclude the 'debug_mode' parameter;
-    // Setting the parameter to false doesn't disable debug mode.
-    // Ref: https://support.google.com/analytics/answer/7201382?hl=en#zippy=%2Cglobal-site-tag-websites
 
     ScriptLoader(
       'google-analytics 4',
