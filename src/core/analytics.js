@@ -1188,6 +1188,12 @@ class Analytics {
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
     this.loaded = true;
+
+    // Execute onLoaded callback if provided in load options
+    if (options && typeof options.onLoaded === 'function') {
+      options.onLoaded();
+    }
+
     if (
       options &&
       options.valTrackingList &&
