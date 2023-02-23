@@ -246,6 +246,12 @@ class Analytics {
       // Initialize event repository
       this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
       this.loaded = true;
+
+      // Execute onLoaded callback if provided in load options
+      if (this.options && typeof this.options.onLoaded === 'function') {
+        this.options.onLoaded();
+      }
+
       // Execute any pending buffered requests
       // (needed if the load call was not previously buffered)
       processDataInAnalyticsArray(this);
