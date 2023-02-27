@@ -1,0 +1,79 @@
+/* eslint-disable sonarjs/no-duplicate-string */
+import { getUserAgentClientHint } from '../../src/utils/clientHint';
+
+describe('User Agent Client Hint Utilities', () => {
+  const chromeDefaultUACH = {
+    brands: [
+      { brand: 'Chromium', version: '110' },
+      { brand: 'Not A(Brand', version: '24' },
+      { brand: 'Google Chrome', version: '110' },
+    ],
+    mobile: false,
+    platform: 'macOS',
+  };
+
+  const chromeFullUACH = {
+    architecture: 'x86',
+    bitness: '64',
+    brands: [
+      {
+        brand: 'Chromium',
+        version: '110',
+      },
+      {
+        brand: 'Not A(Brand',
+        version: '24',
+      },
+      {
+        brand: 'Google Chrome',
+        version: '110',
+      },
+    ],
+    fullVersionList: [
+      {
+        brand: 'Chromium',
+        version: '110.0.5481.100',
+      },
+      {
+        brand: 'Not A(Brand',
+        version: '24.0.0.0',
+      },
+      {
+        brand: 'Google Chrome',
+        version: '110.0.5481.100',
+      },
+    ],
+    mobile: false,
+    model: '',
+    platform: 'macOS',
+    platformVersion: '13.2.1',
+    uaFullVersion: '110.0.5481.100',
+    wow64: false,
+  };
+
+  afterEach(() => {
+    // Reset global.window.navigator mocks
+    global.navigator.userAgentData = undefined;
+  });
+
+  it('Should return undefined when none is passed as the level', async () => {
+    const userAgentClientHint = await getUserAgentClientHint('none');
+    expect(userAgentClientHint).toBe(undefined);
+  });
+  it('Should return undefined if no argument is passed as the level', async () => {
+    const userAgentClientHint = await getUserAgentClientHint();
+    expect(userAgentClientHint).toBe(undefined);
+  });
+  it('Should return default client-hint object if default is passed as the level', async () => {
+    global.navigator.userAgentData = chromeDefaultUACH;
+    const userAgentClientHint = await getUserAgentClientHint('default');
+    expect(userAgentClientHint).toBe(chromeDefaultUACH);
+  });
+  it('Should return default client-hint object if full is passed as the level', async () => {
+    navigator.userAgentData = {
+      getHighEntropyValues: jest.fn().mockResolvedValue(chromeFullUACH),
+    };
+    const userAgentClientHint = await getUserAgentClientHint('full');
+    expect(userAgentClientHint).toBe(chromeFullUACH);
+  });
+});

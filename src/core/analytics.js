@@ -44,6 +44,7 @@ import {
   DEFAULT_ERROR_REPORT_PROVIDER,
   ERROR_REPORT_PROVIDERS,
   SAMESITE_COOKIE_OPTS,
+  UA_CH_LEVELS,
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
 import Storage from '../utils/storage';
@@ -61,6 +62,7 @@ import {
   constructMessageIntegrationsObj,
 } from '../utils/IntegrationsData';
 import { getIntegrationsCDNPath } from '../utils/cdnPaths';
+import { getUserAgentClientHint } from '../utils/clientHint';
 
 /**
  * class responsible for handling core
@@ -742,6 +744,12 @@ class Analytics {
       transformToRudderNames(clientSuppliedIntegrations);
       rudderElement.message.integrations = clientSuppliedIntegrations;
 
+      try {
+        rudderElement.message.context['ua-ch'] = this.uach;
+      } catch (err) {
+        handleError(err);
+      }
+
       // config plane native enabled destinations, still not completely loaded
       // in the page, add the events to a queue and process later
       if (!this.clientIntegrationObjects) {
@@ -1001,6 +1009,16 @@ class Analytics {
       storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
     }
     this.storage.options(storageOptions);
+
+    const isUACHOptionAvailable =
+      options && typeof options['ua-ch'] === 'string' && UA_CH_LEVELS.includes(options['ua-ch']);
+
+    if (isUACHOptionAvailable) {
+      this.uachLevel = options['ua-ch'];
+    }
+    getUserAgentClientHint(this.uachLevel).then((ua) => {
+      this.uach = ua;
+    });
 
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
