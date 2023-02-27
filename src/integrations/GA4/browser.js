@@ -265,6 +265,9 @@ export default class GA4 {
     logger.debug('In GoogleAnalyticsManager Group');
     const { groupId } = rudderElement.message;
     const { traits } = rudderElement.message;
+     if (this.analytics.userId) {
+       traits.user_id = this.analytics.userId;
+     }
 
     getDestinationEventName(rudderElement.message.type).forEach((events) => {
       this.sendGAEvent(events.dest, {
