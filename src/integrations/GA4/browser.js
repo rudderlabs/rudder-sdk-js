@@ -24,7 +24,6 @@ export default class GA4 {
     this.analytics = analytics;
     this.measurementId = config.measurementId;
     this.capturePageView = config.capturePageView || 'rs';
-    this.blockPageView = config.blockPageViewEvent || false;
     this.addSendToParameter = config.addSendToParameter || false;
     this.extendPageViewParams = config.extendPageViewParams || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
@@ -44,6 +43,7 @@ export default class GA4 {
     if (this.capturePageView === 'rs') {
       gtagParameterObject.send_page_view = false;
     }
+    // Setting the userId as a part of configuration
     if (this.analytics.userId) {
       gtagParameterObject.user_id = this.analytics.userId;
     }
@@ -215,9 +215,10 @@ export default class GA4 {
 
     logger.debug('In GoogleAnalyticsManager Identify');
     window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
-    if (this.sendUserId && rudderElement.message.userId) {
+    // Setting the userId as a part of configuration
+    if (rudderElement.message.userId) {
       const { userId } = rudderElement.message;
-      if (this.blockPageView) {
+      if (this.capturePageView === 'rs') {
         window.gtag('config', this.measurementId, {
           user_id: userId,
           send_page_view: false,
