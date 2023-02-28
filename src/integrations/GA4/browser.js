@@ -22,8 +22,8 @@ export default class GA4 {
     this.measurementId = config.measurementId;
     this.analytics = analytics;
     this.sendUserId = config.sendUserId || false;
-    this.blockPageView = config.blockPageViewEvent || false;
     this.extendPageViewParams = config.extendPageViewParams || false;
+    this.capturePageView = config.capturePageView || 'rs';
     this.extendGroupPayload = config.extendGroupPayload || false;
     this.debugMode = config.debugMode || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
@@ -43,9 +43,8 @@ export default class GA4 {
       };
     window.gtag('js', new Date());
     const gtagParameterObject = {};
-    // This condition is not working, even after disabling page view
-    // page_view is even getting called on page load
-    if (this.blockPageView) {
+
+    if (this.capturePageView === 'rs') {
       gtagParameterObject.send_page_view = false;
     }
     if (this.sendUserId) {
@@ -225,7 +224,7 @@ export default class GA4 {
     window.gtag('set', 'user_properties', flattenJsonPayload(this.analytics.userTraits));
     if (this.sendUserId && rudderElement.message.userId) {
       const userId = this.analytics.userId || this.analytics.anonymousId;
-      if (this.blockPageView) {
+      if (this.capturePageView === 'rs') {
         window.gtag('config', this.measurementId, {
           user_id: userId,
           send_page_view: false,
@@ -240,20 +239,23 @@ export default class GA4 {
 
   page(rudderElement) {
     logger.debug('In GoogleAnalyticsManager Page');
-    let pageProps = rudderElement.message.properties;
-    if (!pageProps) return;
-    pageProps = flattenJsonPayload(pageProps);
-    const properties = { ...getPageViewProperty(pageProps) };
-    if (this.addSendToParameter) {
-      properties.send_to = this.measurementId;
-    }
-    if (this.extendPageViewParams) {
-      window.gtag('event', 'page_view', {
-        ...pageProps,
-        ...properties,
-      });
-    } else {
-      window.gtag('event', 'page_view', properties);
+
+    if (this.capturePageView === 'rs') {
+      let pageProps = rudderElement.message.properties;
+      if (!pageProps) return;
+      pageProps = flattenJsonPayload(pageProps);
+      const properties = { ...getPageViewProperty(pageProps) };
+      if (this.addSendToParameter) {
+        properties.send_to = this.measurementId;
+      }
+      if (this.extendPageViewParams) {
+        window.gtag('event', 'page_view', {
+          ...pageProps,
+          ...properties,
+        });
+      } else {
+        window.gtag('event', 'page_view', properties);
+      }
     }
   }
 
