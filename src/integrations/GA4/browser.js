@@ -24,7 +24,6 @@ export default class GA4 {
     this.sendUserId = config.sendUserId || false;
     this.blockPageView = config.blockPageViewEvent || false;
     this.extendPageViewParams = config.extendPageViewParams || false;
-    this.extendGroupPayload = config.extendGroupPayload || false;
     this.debugMode = config.debugMode || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
     this.name = NAME;
@@ -270,7 +269,7 @@ export default class GA4 {
     getDestinationEventName(rudderElement.message.type).forEach((events) => {
       this.sendGAEvent(events.dest, {
         group_id: groupId,
-        ...(this.extendGroupPayload ? traits : {}),
+        ...(traits || {}),
       });
     });
   }
