@@ -1,16 +1,29 @@
 {
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
+  },
   "env": {
     "browser": true,
-    "es2020": true,
+    "es2021": true,
     "jest": true
   },
-  "extends": ["airbnb-base", "plugin:sonarjs/recommended", "prettier", "plugin:compat/recommended"],
-  "plugins": ["unicorn", "compat"],
-  "parser": "@babel/eslint-parser",
+  "extends": [
+    "airbnb-base",
+    "airbnb-typescript/base",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:sonarjs/recommended",
+    "prettier",
+    "plugin:compat/recommended"
+  ],
+  "plugins": ["@typescript-eslint", "unicorn", "compat"],
+  "parser": "@typescript-eslint/parser",
   "globals": {},
   "parserOptions": {
-    "ecmaVersion": 11,
-    "sourceType": "module"
+    "ecmaVersion": 12,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
   },
   "rules": {
     "import/prefer-default-export": "off",
@@ -36,6 +49,17 @@
     "sonarjs/no-nested-template-literals": "off",
     "sonarjs/max-switch-cases": "off",
     "sonarjs/cognitive-complexity": ["error", 40],
-    "compat/compat": "warn"
+    "compat/compat": "warn",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-shadow": "off",
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "ignoreRestSiblings": true, "varsIgnorePattern": "^CatchErr" }
+    ],
+    "@typescript-eslint/no-non-null-asserted-optional-chain": "off",
+    "@typescript-eslint/no-unnecessary-type-constraint": "off",
+    "@typescript-eslint/no-useless-constructor": ["error"]
   }
 }

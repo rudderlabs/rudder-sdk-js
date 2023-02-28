@@ -1,0 +1,21 @@
+diff --git a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
+index 14fea9c..36eafc3 100644
+--- a/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
++++ b/node_modules/@originjs/vite-plugin-federation/dist/index.mjs
+@@ -1889,7 +1889,15 @@ export {__federation_method_ensure, __federation_method_getRemote , __federation
+                 if (requiresRuntime) {
+                     magicString.prepend(`import {__federation_method_ensure, __federation_method_getRemote , __federation_method_wrapDefault , __federation_method_unwrapDefault} from '__federation__';\n\n`);
+                 }
+-                return magicString.toString();
++                return {
++									code: magicString.toString(),
++									map: magicString.generateMap({
++										hires: false,
++										file: id,
++										includeContent: false,
++										source: undefined
++									})
++								};
+             }
+         }
+     };

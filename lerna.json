@@ -1,0 +1,29 @@
+{
+  "lerna": "4",
+  "version": "independent",
+  "npmClient": "npm",
+  "useNx": true,
+  "useWorkspaces": true,
+  "command": {
+    "version": {
+      "allowBranch": ["v3-staging", "v3-release/*", "v3-hotfix/*", "v3-production"],
+      "message": "chore(release): bump up package versions [skip ci]"
+    },
+    "publish": {
+      "ignoreChanges": [
+        "**/__tests__/**",
+        "**/__mocks__/**",
+        "tsconfig.*",
+        "*.config.*",
+        "*.md",
+        "*.example",
+        ".npmrc",
+        ".nvmrc"
+      ],
+      "conventionalCommits": true,
+      "yes": true,
+      "message": "chore(release): publish new package versions [skip ci]"
+    }
+  },
+  "packages": ["packages/*"]
+}

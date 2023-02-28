@@ -5,10 +5,12 @@ dist/
 node_modules/
 reports/
 stats/
-prodsdk.js
+cdnSDK.js
 *.json
 *.md
 *.d.ts
-sanity-suite/
+*.config.js
 examples/chrome-extension/background-script/rudderAnalytics.js
 examples/chrome-extension/content-script/foreground.js
+testBookSuites/
+tsconfig.build.tsbuildinfo
