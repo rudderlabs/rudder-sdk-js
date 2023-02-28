@@ -249,7 +249,7 @@ class Analytics {
 
       // Execute onLoaded callback if provided in load options
       if (this.options && typeof this.options.onLoaded === 'function') {
-        this.options.onLoaded();
+        this.options.onLoaded(this);
       }
 
       // Execute any pending buffered requests
