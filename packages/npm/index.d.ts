@@ -103,6 +103,7 @@ declare module 'rudder-sdk-js' {
     // Defaults to true
     polyfillIfRequired?: boolean;
     'ua-ch'?: 'none' | 'default' | 'full';
+    onLoaded?: () => void;
   }
 
   /**
