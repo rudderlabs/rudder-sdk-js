@@ -1,34 +1,27 @@
-const getUserAgentClientHint = async (level = 'none') => {
-  let uach;
-
-  switch (level) {
-    case 'none':
-      break;
-    case 'default':
-      if (navigator.userAgentData) {
-        uach = navigator.userAgentData;
-      }
-      break;
-    case 'full':
-      if (navigator.userAgentData) {
-        uach = await navigator.userAgentData.getHighEntropyValues([
-          'architecture',
-          'bitness',
-          'brands',
-          'mobile',
-          'model',
-          'platform',
-          'platformVersion',
-          'uaFullVersion',
-          'fullVersionList',
-          'wow64',
-        ]);
-      }
-      break;
-    default:
-      break;
+const getUserAgentClientHint = (callback, level = 'none') => {
+  if (level === 'none') {
+    callback(undefined);
   }
-  return uach;
+  if (level === 'default') {
+    callback(navigator.userAgentData);
+  }
+  if (level === 'full') {
+    navigator.userAgentData.getHighEntropyValues([
+      'architecture',
+      'bitness',
+      'brands',
+      'mobile',
+      'model',
+      'platform',
+      'platformVersion',
+      'uaFullVersion',
+      'fullVersionList',
+      'wow64',
+    ])
+    .then((ua) => {
+      callback(ua);
+    })
+  }
 };
 
 export { getUserAgentClientHint };
