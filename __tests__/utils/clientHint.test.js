@@ -56,24 +56,32 @@ describe('User Agent Client Hint Utilities', () => {
     global.navigator.userAgentData = undefined;
   });
 
-  it('Should return undefined when none is passed as the level', async () => {
-    const userAgentClientHint = await getUserAgentClientHint('none');
-    expect(userAgentClientHint).toBe(undefined);
+  it('Should return undefined when none is passed as the level', () => {
+    const callback = jest.fn((userAgentClientHint) => {
+      expect(userAgentClientHint).toBe(undefined);
+    });
+    getUserAgentClientHint(callback, 'none');
   });
-  it('Should return undefined if no argument is passed as the level', async () => {
-    const userAgentClientHint = await getUserAgentClientHint();
-    expect(userAgentClientHint).toBe(undefined);
+  it('Should return undefined if no argument is passed as the level', () => {
+    const callback = jest.fn((userAgentClientHint) => {
+      expect(userAgentClientHint).toBe(undefined);
+    });
+    getUserAgentClientHint(callback);
   });
-  it('Should return default client-hint object if default is passed as the level', async () => {
+  it('Should return default client-hint object if default is passed as the level', () => {
     global.navigator.userAgentData = chromeDefaultUACH;
-    const userAgentClientHint = await getUserAgentClientHint('default');
-    expect(userAgentClientHint).toBe(chromeDefaultUACH);
+    const callback = jest.fn((userAgentClientHint) => {
+      expect(userAgentClientHint).toBe(chromeDefaultUACH);
+    });
+    getUserAgentClientHint(callback, 'default');
   });
-  it('Should return default client-hint object if full is passed as the level', async () => {
+  it('Should return default client-hint object if full is passed as the level', () => {
     navigator.userAgentData = {
       getHighEntropyValues: jest.fn().mockResolvedValue(chromeFullUACH),
     };
-    const userAgentClientHint = await getUserAgentClientHint('full');
-    expect(userAgentClientHint).toBe(chromeFullUACH);
+    const callback = jest.fn((userAgentClientHint) => {
+      expect(userAgentClientHint).toBe(chromeFullUACH);
+    });
+    getUserAgentClientHint(callback, 'full');
   });
 });

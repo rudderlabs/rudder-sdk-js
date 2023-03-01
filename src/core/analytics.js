@@ -1016,9 +1016,12 @@ class Analytics {
     if (isUACHOptionAvailable) {
       this.uachLevel = options['ua-ch'];
     }
-    getUserAgentClientHint(this.uachLevel).then((ua) => {
-      this.uach = ua;
-    });
+
+    if (navigator.userAgentData) {
+      getUserAgentClientHint((uach) => {
+        this.uach = uach;
+      }, this.uachLevel);
+    }
 
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
