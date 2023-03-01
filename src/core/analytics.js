@@ -444,18 +444,22 @@ class Analytics {
         }
       }
 
-      // Processing the holden cloud mode events
-      transformToServerNames(event[0].message.integrations);
-      event[0].message.integrations = getMergedClientSuppliedIntegrations(
-        this.integrationsData,
-        clientSuppliedIntegrations,
-      );
+      // We only need to send those events which has flag enabled
+      const options = event[2];
+      if (options?.bufferDataPlaneEventsUntilReady) {
+        // Processing the holden cloud mode events
+        transformToServerNames(event[0].message.integrations);
+        event[0].message.integrations = getMergedClientSuppliedIntegrations(
+          this.integrationsData,
+          clientSuppliedIntegrations,
+        );
 
-      // self analytics process, send to rudder
-      this.eventRepository.enqueue(event[0], methodName);
-      // Executing callbacks if any, event[1] = callback, event[0] = rudderElement
-      if (event[1]) {
-        event[1](event[0]);
+        // self analytics process, send to rudder
+        this.eventRepository.enqueue(event[0], methodName);
+        // Executing callbacks if any, event[1] = callback, event[0] = rudderElement
+        if (event[1]) {
+          event[1](event[0]);
+        }
       }
     });
     object.toBeProcessedByIntegrationArray = [];
@@ -775,7 +779,7 @@ class Analytics {
       if (!this.clientIntegrationObjects) {
         // logger.debug("pushing in replay queue")
         // new event processing after analytics initialized  but integrations not fetched from BE
-        this.toBeProcessedByIntegrationArray.push([type, rudderElement, callback]);
+        this.toBeProcessedByIntegrationArray.push([type, rudderElement, callback, options]);
       } else {
         // get intersection between config plane native enabled destinations
         // (which were able to successfully load on the page) vs user supplied integrations
