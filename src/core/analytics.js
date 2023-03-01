@@ -1150,16 +1150,16 @@ class Analytics {
     this.storage.options(storageOptions);
 
     const isUACHOptionAvailable =
-      options && typeof options['ua-ch'] === 'string' && UA_CH_LEVELS.includes(options['ua-ch']);
+      options && typeof options.uaChTrackLevel === 'string' && UA_CH_LEVELS.includes(options.uaChTrackLevel);
 
     if (isUACHOptionAvailable) {
-      this.uachLevel = options['ua-ch'];
+      this.uaChTrackLevel = options.uaChTrackLevel;
     }
 
     if (navigator.userAgentData) {
       getUserAgentClientHint((uach) =>{
         this.uach = uach;
-      }, this.uachLevel);
+      }, this.uaChTrackLevel);
     }
 
     if (options && options.integrations) {
