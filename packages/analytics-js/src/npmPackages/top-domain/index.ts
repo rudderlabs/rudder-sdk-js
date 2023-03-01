@@ -1,18 +1,15 @@
 import { cookie } from '../component-cookie';
 import { parse } from '../component-url';
+import { TOP_LEVEL_DOMAIN } from "../../constants/cookieNames";
 
 /**
- * Levels returns all levels of the given url.
- *
- * @param {string} url
- * @return {Array}
- * @api public
+ * Levels returns all levels of the given url
  */
-var levelsFunc = function (url: any) {
-  var host = parse(url).hostname;
-  var parts = host.split('.');
-  var last = parts[parts.length - 1];
-  var levels: any[] = [];
+const levelsFunc = (url: string): string[] => {
+  const host = parse(url).hostname;
+  const parts = host.split('.');
+  const last = parts[parts.length - 1];
+  const levels: string[] = [];
 
   // Ip address.
   if (parts.length === 4 && last === parseInt(last, 10).toString()) {
@@ -25,7 +22,7 @@ var levelsFunc = function (url: any) {
   }
 
   // Create levels.
-  for (var i = parts.length - 2; i >= 0; --i) {
+  for (let i = parts.length - 2; i >= 0; i -= 1) {
     levels.push(parts.slice(i).join('.'));
   }
 
@@ -53,24 +50,25 @@ var levelsFunc = function (url: any) {
  *      // => ''
  *      domain('http://127.0.0.1:3000/baz');
  *      // => ''
- *      domain('http://segment.io/baz');
- *      // => 'segment.io'
- *
- * @param {string} url
- * @return {string}
- * @api public
+ *      domain('http://test.io/baz');
+ *      // => 'test.io'
  */
-var domain = function (url: any) {
-  var levels: any[] = levelsFunc(url);
+const domain = (url: string): string => {
+  const levels = levelsFunc(url);
 
   // Lookup the real top level one.
-  for (var i = 0; i < levels.length; ++i) {
-    var cname = '__tld__';
-    var domain = levels[i];
-    var opts = { domain: '.' + domain };
+  for (let i = 0; i < levels.length; i += i){
+    const domain = levels[i];
+    const cname = TOP_LEVEL_DOMAIN;
+    const opts = {
+      domain: `.${domain}`
+    };
 
+    // Set cookie on domain
     cookie(cname, 1, opts);
+    // If successful
     if (cookie(cname)) {
+      // Remove cookie from domain
       cookie(cname, null, opts);
       return domain;
     }
