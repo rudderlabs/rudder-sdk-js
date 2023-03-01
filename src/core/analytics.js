@@ -443,6 +443,20 @@ class Analytics {
           handleError(error);
         }
       }
+
+      // Processing the holden cloud mode events
+      transformToServerNames(event[0].message.integrations);
+      event[0].message.integrations = getMergedClientSuppliedIntegrations(
+        this.integrationsData,
+        clientSuppliedIntegrations,
+      );
+
+      // self analytics process, send to rudder
+      this.eventRepository.enqueue(event[0], methodName);
+      // Executing callbacks if any, event[1] = callback, event[0] = rudderElement
+      if (event[1]) {
+        event[1](event[0]);
+      }
     });
     object.toBeProcessedByIntegrationArray = [];
   }
@@ -761,7 +775,7 @@ class Analytics {
       if (!this.clientIntegrationObjects) {
         // logger.debug("pushing in replay queue")
         // new event processing after analytics initialized  but integrations not fetched from BE
-        this.toBeProcessedByIntegrationArray.push([type, rudderElement]);
+        this.toBeProcessedByIntegrationArray.push([type, rudderElement, callback]);
       } else {
         // get intersection between config plane native enabled destinations
         // (which were able to successfully load on the page) vs user supplied integrations
@@ -789,19 +803,26 @@ class Analytics {
         });
       }
 
-      // convert integrations object to server identified names, kind of hack now!
-      transformToServerNames(rudderElement.message.integrations);
-      rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
-        this.integrationsData,
-        clientSuppliedIntegrations,
-      );
+      // Holding the cloud mode events based on flag and integrations load check
+      if (
+        !options?.waitForAllIntegrationsToGetLoaded ||
+        (this.clientIntegrationObjects &&
+          this.clientIntegrationObjects.every((intg) => !intg.isReady || intg.isReady()))
+      ) {
+        // convert integrations object to server identified names, kind of hack now!
+        transformToServerNames(rudderElement.message.integrations);
+        rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
+          this.integrationsData,
+          clientSuppliedIntegrations,
+        );
 
-      // self analytics process, send to rudder
-      this.eventRepository.enqueue(rudderElement, type);
+        // self analytics process, send to rudder
+        this.eventRepository.enqueue(rudderElement, type);
 
-      // logger.debug(`${type} is called `)
-      if (callback) {
-        callback(rudderElement);
+        // logger.debug(`${type} is called `)
+        if (callback) {
+          callback(rudderElement);
+        }
       }
     } catch (error) {
       handleError(error);
