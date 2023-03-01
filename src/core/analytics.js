@@ -805,7 +805,7 @@ class Analytics {
 
       // Holding the cloud mode events based on flag and integrations load check
       if (
-        !options?.waitForAllIntegrationsToGetLoaded ||
+        !options?.bufferDataPlaneEventsUntilReady ||
         (this.clientIntegrationObjects &&
           this.clientIntegrationObjects.every((intg) => !intg.isReady || intg.isReady()))
       ) {
