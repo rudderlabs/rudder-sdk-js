@@ -1,126 +1,133 @@
-/**
- * Set or get cookie `name` with `value` and `options` object.
- *
- * @param {String} name
- * @param {String} value
- * @param {Object} options
- * @return {Mixed}
- * @api public
- */
+import { GenericObject, Nullable } from "@rudderstack/analytics-js/types";
 
-var cookie = function (name?: any, value?: any, options?: any) {
-  switch (arguments.length) {
-    case 3:
-    case 2:
-      return set(name, value, options);
-    case 1:
-      return get(name);
-    default:
-      return all();
-  }
-};
-
-/**
- * Set cookie `name` to `value`.
- *
- * @param {String} name
- * @param {String} value
- * @param {Object} options
- * @api private
- */
-
-function set(name?: any, value?: any, options?: any) {
-  options = options || {};
-  var str = encode(name) + '=' + encode(value);
-
-  if (null == value) options.maxage = -1;
-
-  if (options.maxage) {
-    options.expires = new Date(+new Date() + options.maxage);
-  }
-
-  if (options.path) str += '; path=' + options.path;
-  if (options.domain) str += '; domain=' + options.domain;
-  if (options.expires) str += '; expires=' + options.expires.toUTCString();
-  if (options.secure) str += '; secure';
-
-  document.cookie = str;
-}
-
-/**
- * Return all cookies.
- *
- * @return {Object}
- * @api private
- */
-
-function all() {
-  var str;
-  try {
-    str = document.cookie;
-  } catch (err: any) {
-    if (typeof console !== 'undefined' && typeof console.error === 'function') {
-      console.error(err.stack || err);
-    }
-    return {};
-  }
-  return parse(str);
-}
-
-/**
- * Get cookie `name`.
- *
- * @param {String} name
- * @return {String}
- * @api private
- */
-
-function get(name: any) {
-  return (all() as any)[name];
-}
-
-/**
- * Parse cookie `str`.
- *
- * @param {String} str
- * @return {Object}
- * @api private
- */
-
-function parse(str: any) {
-  var obj = {} as any;
-  var pairs = str.split(/ *; */);
-  var pair;
-  if (!pairs[0]) return obj;
-  for (var i = 0; i < pairs.length; ++i) {
-    pair = pairs[i].split('=');
-    obj[decode(pair[0]) as string] = decode(pair[1]);
-  }
-  return obj;
+export type CookieOptions = {
+  maxage?: number;
+  expires?: Date;
+  path?: string;
+  domain?: string;
+  secure?: boolean;
 }
 
 /**
  * Encode.
  */
-
-function encode(value: any) {
+const encode = (value: any): string | undefined => {
   try {
     return encodeURIComponent(value);
   } catch (e) {
+    // TODO: should it throw error?
     console.error('error `encode(%o)` - %o', value, e);
+    return undefined
   }
 }
 
 /**
- * Decode.
+ * Decode
  */
-
-function decode(value: any) {
+const decode = (value: string): string | undefined => {
   try {
     return decodeURIComponent(value);
   } catch (e) {
+    // TODO: should it throw error?
     console.error('error `decode(%o)` - %o', value, e);
+    return undefined
   }
 }
+
+/**
+ * Parse cookie `str`
+ */
+const parse = (str: string): GenericObject => {
+  const obj: GenericObject = {};
+  const pairs = str.split(/ *; */);
+  let pair;
+
+  if (!pairs[0]) {
+    return obj;
+  }
+
+  pairs.forEach(pairItem => {
+    pair = pairItem.split('=');
+    obj[decode(pair[0]) as string] = decode(pair[1]);
+  });
+
+  return obj;
+}
+
+/**
+ * Set cookie `name` to `value`
+ */
+const set = (name?: string, value?: Nullable<string | number>, optionsConfig?: CookieOptions) => {
+  const options = { ...optionsConfig } || {};
+  let cookieString = `${encode(name)}=${encode(value)}`;
+
+  if (value === null) {
+    options.maxage = -1;
+  }
+
+  if (options.maxage) {
+    options.expires = new Date(+new Date() + options.maxage);
+  }
+
+  if (options.path) {
+    cookieString += `; path=${options.path}`;
+  }
+
+  if (options.domain) {
+    cookieString += `; domain=${options.domain}`;
+  }
+
+  if (options.expires) {
+    cookieString += `; expires=${options.expires.toUTCString()}`;
+  }
+
+  if (options.secure) {
+    cookieString += `; secure`;
+  }
+
+  document.cookie = cookieString;
+}
+
+/**
+ * Return all cookies
+ */
+const all = (): GenericObject => {
+  let cookieStringValue;
+
+  try {
+    cookieStringValue = document.cookie;
+  } catch (err) {
+    console.error((err as Error).stack || err);
+    return {} as GenericObject;
+  }
+
+  return parse(cookieStringValue);
+}
+
+/**
+ * Get cookie `name`
+ */
+
+function get(name: string): string {
+  return (all() as any)[name];
+}
+
+/**
+ * Set or get cookie `name` with `value` and `options` object
+ */
+const cookie = function (name?: string, value?: Nullable<string | number>, options?: GenericObject): void | any {
+  switch (arguments.length) {
+    case 3:
+    case 2:
+      return set(name, value, options);
+    case 1:
+      if(name) {
+        return get(name);
+      }
+      return all();
+    default:
+      return all();
+  }
+};
 
 export { cookie };
