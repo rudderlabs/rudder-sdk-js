@@ -1,13 +1,12 @@
 {
-  "lerna": "4",
   "version": "independent",
   "npmClient": "npm",
-  "useNx": true,
   "useWorkspaces": true,
   "command": {
     "version": {
       "allowBranch": ["v3-staging", "v3-release/*", "v3-hotfix/*", "v3-production"],
-      "message": "chore(release): bump up package versions [skip ci]"
+      "message": "chore(release): bump up package versions [skip ci]",
+      "conventionalCommits": true
     },
     "publish": {
       "ignoreChanges": [

@@ -103,7 +103,7 @@ const buildConfig = {
   },
   external: [],
   onwarn(warning, warn) {
-    // Silence "this" has been rewritten to "undefined" warning
+    // Silence 'this' has been rewritten to 'undefined' warning
     // https://rollupjs.org/guide/en/#error-this-is-undefined
     if (warning.code === 'THIS_IS_UNDEFINED') {
       return;
@@ -148,7 +148,6 @@ const buildConfig = {
       }
     ),
     babel({
-      inputSourceMap: true,
       compact: true,
       babelHelpers: 'bundled',
       exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],

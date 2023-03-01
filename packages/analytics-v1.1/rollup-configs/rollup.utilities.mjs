@@ -13,7 +13,7 @@ import htmlTemplate from 'rollup-plugin-generate-html-template';
 import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import * as dotenv from 'dotenv';
-import { DEFAULT_EXTENSIONS } from "@babel/core";
+import { DEFAULT_EXTENSIONS } from '@babel/core';
 
 export function getOutputFilePath(dirPath, distName) {
   const fileNamePrefix = `${distName}${process.env.STAGING === 'true' ? '-staging' : ''}`;
@@ -31,6 +31,7 @@ export function getOutputFilePath(dirPath, distName) {
 export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
   const moduleType = process.env.NPM === 'true' ? 'npm' : 'cdn';
+  const isLocalServerEnabled = moduleType === 'cdn' && process.env.DEV_SERVER;
   const sourceMapType = process.env.PROD_DEBUG === 'inline' ?
     'inline' : process.env.PROD_DEBUG === 'true';
   dotenv.config();
@@ -41,7 +42,7 @@ export function getDefaultConfig(distName) {
     },
     external: [],
     onwarn(warning, warn) {
-      // Silence "this" has been rewritten to "undefined" warning
+      // Silence 'this' has been rewritten to 'undefined' warning
       // https://rollupjs.org/guide/en/#error-this-is-undefined
       if (warning.code === 'THIS_IS_UNDEFINED') {
         return;
@@ -59,7 +60,10 @@ export function getDefaultConfig(distName) {
       resolve({
         jsnext: true,
         browser: true,
-        preferBuiltins: false
+        preferBuiltins: false,
+        extensions: [
+          '.js', '.ts'
+        ]
       }),
       commonjs({
         include: /node_modules/,
@@ -73,7 +77,6 @@ export function getDefaultConfig(distName) {
         }
       ),
       babel({
-        inputSourceMap: true,
         compact: true,
         babelHelpers: 'bundled',
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
@@ -103,7 +106,7 @@ export function getDefaultConfig(distName) {
         showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
-      process.env.DEV_SERVER &&
+      isLocalServerEnabled &&
       htmlTemplate({
         template: process.env.TEST_FILE_PATH || 'public/index.html',
         target: 'index.html',
@@ -116,7 +119,7 @@ export function getDefaultConfig(distName) {
           __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
         },
       }),
-      process.env.DEV_SERVER &&
+      isLocalServerEnabled &&
       serve({
         open: true,
         openPage: `/${
@@ -129,7 +132,7 @@ export function getDefaultConfig(distName) {
           'Access-Control-Allow-Origin': '*',
         },
       }),
-      process.env.DEV_SERVER && livereload(),
+      isLocalServerEnabled && livereload(),
     ],
   };
 }

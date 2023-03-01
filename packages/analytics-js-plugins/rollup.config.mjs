@@ -2,7 +2,7 @@
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-import excludeDependenciesFromBundle from "rollup-plugin-exclude-dependencies-from-bundle";
+import excludeDependenciesFromBundle from 'rollup-plugin-exclude-dependencies-from-bundle';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
@@ -19,14 +19,15 @@ import * as dotenv from 'dotenv';
 import pkg from './package.json' assert { type: 'json' };
 
 const variantSubfolder = process.env.BROWSERSLIST_ENV === 'modern' ? '/modern' : '/legacy';
-const sourceMapType =
-  process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
+const sourceMapType = process.env.PROD_DEBUG === 'inline' ?
+  'inline' : process.env.PROD_DEBUG === 'true';
 const outDir = `dist${variantSubfolder}`;
 const distName = 'rudder-analytics-plugins';
 const modName = 'rudderanalyticsplugins';
 
 export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
+  const isLocalServerEnabled = process.env.DEV_SERVER;
   dotenv.config();
 
   return {
@@ -37,7 +38,7 @@ export function getDefaultConfig(distName) {
       ...Object.keys(pkg.peerDependencies || {})
     ],
     onwarn(warning, warn) {
-      // Silence "this" has been rewritten to "undefined" warning
+      // Silence 'this' has been rewritten to 'undefined' warning
       // https://rollupjs.org/guide/en/#error-this-is-undefined
       if (warning.code === 'THIS_IS_UNDEFINED') {
         return;
@@ -74,6 +75,7 @@ export function getDefaultConfig(distName) {
       ),
       excludeDependenciesFromBundle({peerDependencies: true}),
       babel({
+        compact: true,
         babelHelpers: 'bundled',
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
         extensions: [
@@ -82,45 +84,45 @@ export function getDefaultConfig(distName) {
         ]
       }),
       federation({
-        name: "remoteModules",
-        filename: "remoteEntry.js",
+        name: 'remoteModules',
+        filename: 'remoteEntry.js',
         exposes: {
-          "./RemotePlugin": "./src/RemotePlugin.ts",
-          "./RemotePlugin2": "./src/RemotePlugin2.ts",
-          "./LoadIntegrations": "./src/LoadIntegrations.ts"
+          './RemotePlugin': './src/RemotePlugin.ts',
+          './RemotePlugin2': './src/RemotePlugin2.ts',
+          './LoadIntegrations': './src/LoadIntegrations.ts'
         }
       }),
       process.env.UGLIFY === 'true' &&
-      terser({
-        safari10: process.env.BROWSERSLIST_ENV !== 'modern',
-        ecma: process.env.BROWSERSLIST_ENV === 'modern' ? 2017 : 2015,
-        format: {
-          comments: false,
-        },
-      }),
-      process.env.VISUALIZER === 'true' &&
-      visualizer({
-        filename: `./stats/${distName}.html`,
-        title: `Rollup Visualizer - ${distName}`,
-        sourcemap: true,
-        open: true,
-        gzipSize: true,
-        brotliSize: true,
-      }),
+        terser({
+          safari10: process.env.BROWSERSLIST_ENV !== 'modern',
+          ecma: process.env.BROWSERSLIST_ENV === 'modern' ? 2017 : 2015,
+          format: {
+            comments: false,
+          },
+        }),
       filesize({
         showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
-      process.env.DEV_SERVER &&
-      serve({
-        contentBase: ['dist'],
-        host: 'localhost',
-        port: 3002,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-      }),
-      process.env.DEV_SERVER && livereload(),
+      process.env.VISUALIZER === 'true' &&
+        visualizer({
+          filename: `./stats/${distName}.html`,
+          title: `Rollup Visualizer - ${distName}`,
+          sourcemap: true,
+          open: true,
+          gzipSize: true,
+          brotliSize: true,
+        }),
+      isLocalServerEnabled &&
+        serve({
+          contentBase: ['dist'],
+          host: 'localhost',
+          port: 3002,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+        }),
+      isLocalServerEnabled && livereload(),
     ],
   };
 }

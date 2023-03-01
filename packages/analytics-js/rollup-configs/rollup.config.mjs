@@ -2,7 +2,7 @@
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-import excludeDependenciesFromBundle from "rollup-plugin-exclude-dependencies-from-bundle";
+import excludeDependenciesFromBundle from 'rollup-plugin-exclude-dependencies-from-bundle';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
@@ -16,10 +16,11 @@ import typescript from 'rollup-plugin-typescript2';
 import nodePolyfills from 'rollup-plugin-polyfill-node';
 import { DEFAULT_EXTENSIONS } from '@babel/core';
 import dts from 'rollup-plugin-dts';
-import federation from "@originjs/vite-plugin-federation";
+import federation from '@originjs/vite-plugin-federation';
 import * as dotenv from 'dotenv';
 import pkg from '../package.json' assert { type: 'json' };
 
+const remoteModuleBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002';
 const variantSubfolder = process.env.BROWSERSLIST_ENV === 'modern' ?
   '/modern' : '/legacy';
 const sourceMapType = process.env.PROD_DEBUG === 'inline' ?
@@ -30,6 +31,7 @@ const modName = 'rudderanalytics';
 
 export function getDefaultConfig(distName, moduleType = 'npm') {
   const version = process.env.VERSION || 'dev-snapshot';
+  const isLocalServerEnabled = moduleType === 'cdn' && process.env.DEV_SERVER;
   dotenv.config();
 
   return {
@@ -41,7 +43,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
       ...Object.keys(pkg.peerDependencies || {})
     ],
     onwarn(warning, warn) {
-      // Silence "this" has been rewritten to "undefined" warning
+      // Silence 'this' has been rewritten to 'undefined' warning
       // https://rollupjs.org/guide/en/#error-this-is-undefined
       if (warning.code === 'THIS_IS_UNDEFINED') {
         return;
@@ -79,7 +81,6 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
       ),
       excludeDependenciesFromBundle({peerDependencies: true}),
       babel({
-        inputSourceMap: true,
         compact: true,
         babelHelpers: 'bundled',
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
@@ -91,7 +92,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
       }),
       federation({
         remotes: {
-          remoteModules: "http://localhost:3002/dist/modern/remoteEntry.js",
+          remoteModules: `${remoteModuleBasePath}/modern/remoteEntry.js`,
         },
         sourcemap: sourceMapType,
       }),
@@ -113,6 +114,10 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
             { src: 'LICENSE', dest: outDir },
           ],
         }),
+      filesize({
+        showBeforeSizes: 'build',
+        showBrotliSize: true,
+      }),
       process.env.VISUALIZER === 'true' &&
         visualizer({
           filename: `./stats/${distName}.html`,
@@ -122,13 +127,9 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
           gzipSize: true,
           brotliSize: true
         }),
-        filesize({
-          showBeforeSizes: 'build',
-          showBrotliSize: true,
-        }),
-      process.env.DEV_SERVER &&
+      isLocalServerEnabled &&
         htmlTemplate({
-          template: process.env.TEST_FILE_PATH || './public/index.html',
+          template: process.env.TEST_FILE_PATH || 'public/index.html',
           target: 'index.html',
           attrs: ['async', 'defer'],
           replaceVars: {
@@ -139,12 +140,12 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
             __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
           },
         }),
-      process.env.DEV_SERVER &&
+      isLocalServerEnabled &&
         serve({
           open: true,
           openPage: `/${
             process.env.BROWSERSLIST_ENV === 'modern' ? 'modern' : 'legacy'
-          }/index.html`,
+          }/iife/index.html`,
           contentBase: ['dist'],
           host: 'localhost',
           port: 3001,
@@ -152,7 +153,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
             'Access-Control-Allow-Origin': '*',
           },
         }),
-      process.env.DEV_SERVER && livereload(),
+      isLocalServerEnabled && livereload(),
     ],
   };
 }
