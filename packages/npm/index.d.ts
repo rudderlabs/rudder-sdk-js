@@ -102,7 +102,8 @@ declare module 'rudder-sdk-js' {
     // Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
     // Defaults to true
     polyfillIfRequired?: boolean;
-    onLoaded?: () => void;
+    uaChTrackLevel?: 'none' | 'default' | 'full';
+    onLoaded?: (any) => void;
   }
 
   /**
