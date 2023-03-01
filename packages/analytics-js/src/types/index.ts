@@ -1,4 +1,2 @@
-import { GenericObject } from './GenericObject';
-import { Nullable } from './Nullable';
-
-export type { GenericObject, Nullable };
+export {type GenericObject} from './GenericObject';
+export {type Nullable} from './Nullable';
