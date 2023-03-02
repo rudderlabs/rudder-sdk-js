@@ -94,6 +94,7 @@ class Analytics {
     };
     this.loaded = false;
     this.loadIntegration = true;
+    this.bufferDataPlaneEventsUntilReady = false;
     this.integrationsData = {};
     this.dynamicallyLoadedIntegrations = {};
     this.destSDKBaseURL = DEST_SDK_BASE_URL;
@@ -445,7 +446,7 @@ class Analytics {
       }
 
       // We only need to send those events which has flag enabled
-      if (object.options?.bufferDataPlaneEventsUntilReady) {
+      if (object.bufferDataPlaneEventsUntilReady) {
         // Processing the holden cloud mode events
         transformToServerNames(event[0].message.integrations);
         event[0].message.integrations = getMergedClientSuppliedIntegrations(
@@ -807,7 +808,7 @@ class Analytics {
       }
 
       // Holding the cloud mode events based on flag and integrations load check
-      if (!this.options?.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects) {
+      if (!this.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects) {
         // convert integrations object to server identified names, kind of hack now!
         transformToServerNames(rudderElement.message.integrations);
         rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
@@ -1087,6 +1088,10 @@ class Analytics {
 
     if (options && options.loadIntegration != undefined) {
       this.loadIntegration = !!options.loadIntegration;
+    }
+
+    if (options && options.bufferDataPlaneEventsUntilReady != undefined) {
+      this.bufferDataPlaneEventsUntilReady = !!options.bufferDataPlaneEventsUntilReady;
     }
 
     if (options && options.lockIntegrationsVersion !== undefined) {
