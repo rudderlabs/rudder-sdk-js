@@ -128,6 +128,10 @@ const ignoredProperties = [
     key: `message.integrations.Google Analytics 4`,
     type: 'object',
   },
+  {
+    key: 'message.context.consentManagement',
+    type: 'object',
+  },
 ];
 
 export { ignoredProperties };
