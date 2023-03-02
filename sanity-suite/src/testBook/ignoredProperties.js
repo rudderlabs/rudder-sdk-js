@@ -62,7 +62,7 @@ const ignoredProperties = [
   {
     key: 'message.context.screen.density',
     type: 'number',
-    optional: true
+    optional: true,
   },
   {
     key: 'message.context.screen.height',
@@ -123,6 +123,10 @@ const ignoredProperties = [
   {
     key: 'message.properties.tab_url',
     type: 'string',
+  },
+  {
+    key: `message.integrations.Google Analytics 4`,
+    type: 'object',
   },
 ];
 
