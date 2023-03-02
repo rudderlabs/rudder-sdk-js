@@ -2,7 +2,7 @@
 import { parse } from 'component-url';
 import get from 'get-value';
 import { v4 as uuid } from '@lukeed/uuid';
-import { v4 as uuidSecure } from "@lukeed/uuid/secure";
+import { v4 as uuidSecure } from '@lukeed/uuid/secure';
 import logger from './logUtil';
 import { commonNames } from './integration_cname';
 import { clientToServerNames } from './client_server_name';
@@ -11,6 +11,7 @@ import {
   RESERVED_KEYS,
   DEFAULT_REGION,
   RESIDENCY_SERVERS,
+  SUPPORTED_CONSENT_MANAGERS,
 } from './constants';
 import Storage from './storage';
 import { handleError } from './errorHandler';
@@ -43,7 +44,7 @@ function removeTrailingSlashes(inURL) {
  * @returns
  */
 function generateUUID() {
-  if(window.crypto && typeof window.crypto.getRandomValues === 'function') {
+  if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
     return uuidSecure();
   }
 
@@ -757,6 +758,27 @@ const resolveDataPlaneUrl = (response, serverUrl, options) => {
   }
 };
 
+/**
+ * Function to return the state of consent management based on config passed in load options
+ * @param {Object} cookieConsentOptions
+ * @returns
+ */
+const fetchCookieConsentState = (cookieConsentOptions) => {
+  let isEnabled = false;
+  // eslint-disable-next-line consistent-return
+  Object.keys(cookieConsentOptions).forEach((e) => {
+    const isSupportedAndEnabled =
+      SUPPORTED_CONSENT_MANAGERS.includes(e) &&
+      typeof cookieConsentOptions[e].enabled === 'boolean' &&
+      cookieConsentOptions[e].enabled === true;
+
+    if (isSupportedAndEnabled) {
+      isEnabled = true;
+    }
+  });
+  return isEnabled;
+};
+
 export {
   replacer,
   generateUUID,
@@ -790,4 +812,5 @@ export {
   countDigits,
   getStringId,
   resolveDataPlaneUrl,
+  fetchCookieConsentState,
 };
