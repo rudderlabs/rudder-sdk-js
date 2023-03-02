@@ -42,6 +42,7 @@ import {
   ERROR_REPORT_PROVIDERS,
   SAMESITE_COOKIE_OPTS,
   SYSTEM_KEYWORDS,
+  UA_CH_LEVELS,
 } from "../utils/constants";
 import { integrations } from "../integrations";
 import RudderElementBuilder from "../utils/RudderElementBuilder";
@@ -58,6 +59,7 @@ import {
   getMergedClientSuppliedIntegrations,
   constructMessageIntegrationsObj,
 } from "../utils/IntegrationsData";
+import { getUserAgentClientHint } from '../utils/clientHint';
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -863,6 +865,12 @@ class Analytics {
       tranformToRudderNames(clientSuppliedIntegrations);
       rudderElement.message.integrations = clientSuppliedIntegrations;
 
+      try {
+        rudderElement.message.context['ua-ch'] = this.uach;
+      } catch (err) {
+        handleError(err);
+      }
+
       // get intersection between config plane native enabled destinations
       // (which were able to successfully load on the page) vs user supplied integrations
       const succesfulLoadedIntersectClientSuppliedIntegrations =
@@ -1152,6 +1160,19 @@ class Analytics {
     }
     this.storage.options(storageOptions);
 
+    const isUACHOptionAvailable =
+      options && typeof options.uaChTrackLevel === 'string' && UA_CH_LEVELS.includes(options.uaChTrackLevel);
+
+    if (isUACHOptionAvailable) {
+      this.uaChTrackLevel = options.uaChTrackLevel;
+    }
+
+    if (navigator.userAgentData) {
+      getUserAgentClientHint((uach) =>{
+        this.uach = uach;
+      }, this.uaChTrackLevel);
+    }
+
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       tranformToRudderNames(this.loadOnlyIntegrations);
@@ -1199,6 +1220,12 @@ class Analytics {
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
     this.loaded = true;
+
+    // Execute onLoaded callback if provided in load options
+    if (options && typeof options.onLoaded === 'function') {
+      options.onLoaded(this);
+    }
+
     if (
       options &&
       options.valTrackingList &&

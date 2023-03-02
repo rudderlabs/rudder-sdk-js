@@ -109,6 +109,7 @@ const MIN_SESSION_ID_LENGTH = 10;
 const SUPPORTED_CONSENT_MANAGERS = ['oneTrust'];
 
 const SYSTEM_KEYWORDS = ['library', 'consentManagement'];
+const UA_CH_LEVELS = ['none', 'default', 'full'];
 
 export {
   ReservedPropertyKeywords,
@@ -133,6 +134,7 @@ export {
   MIN_SESSION_ID_LENGTH,
   SUPPORTED_CONSENT_MANAGERS,
   SYSTEM_KEYWORDS,
+  UA_CH_LEVELS,
 };
 
 /* module.exports = {
