@@ -2,6 +2,315 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.26.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.25.0...v1.26.0) (2023-03-02)
+
+
+### Features
+
+* **ga4:** add sent_to parameter in gtag event call ([#906](https://github.com/rudderlabs/rudder-sdk-js/issues/906)) ([e621560](https://github.com/rudderlabs/rudder-sdk-js/commit/e621560a9822c4e5faaa8e7a42ff5194bb66b67f))
+* onetrust for cloud mode events ([#903](https://github.com/rudderlabs/rudder-sdk-js/issues/903)) ([57ac565](https://github.com/rudderlabs/rudder-sdk-js/commit/57ac56541c8b10456fecec2e0b5091fc4985f904))
+* onLoaded callback option ([#917](https://github.com/rudderlabs/rudder-sdk-js/issues/917)) ([0cbfbda](https://github.com/rudderlabs/rudder-sdk-js/commit/0cbfbda3b20c9bd4882dfc174d633b73eaac00ae))
+* user agent client hint info added in context ([#919](https://github.com/rudderlabs/rudder-sdk-js/issues/919)) ([3b8a6d1](https://github.com/rudderlabs/rudder-sdk-js/commit/3b8a6d1c31927f96eebf5b79e068fd00369ef081))
+
+### [1.24.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.24.0...v1.24.1) (2023-02-08)
+
+
+### Bug Fixes
+
+* added logic to capture full url for ga4 page_location param ([#891](https://github.com/rudderlabs/rudder-sdk-js/issues/891)) ([b997fb0](https://github.com/rudderlabs/rudder-sdk-js/commit/b997fb09542423b6b61ecd38c145d16001b3ac1a))
+* googleads config order ([#889](https://github.com/rudderlabs/rudder-sdk-js/issues/889)) ([517b0d0](https://github.com/rudderlabs/rudder-sdk-js/commit/517b0d0cda77ce917ddf1e4fc2e6eb26b8972b07))
+* reverted got package ([#895](https://github.com/rudderlabs/rudder-sdk-js/issues/895)) ([19fb7d2](https://github.com/rudderlabs/rudder-sdk-js/commit/19fb7d2eb9e7100cac4116f5c448ef79efa8f621))
+* v1 staging security check issue ([#894](https://github.com/rudderlabs/rudder-sdk-js/issues/894)) ([52d1d09](https://github.com/rudderlabs/rudder-sdk-js/commit/52d1d09ddd0bcab6cdf75cd47ffd462408c0dbe0))
+
+## [1.24.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.23.1...v1.24.0) (2023-02-06)
+
+
+### Features
+
+* added support for both click event and dynamic remarketing events ([#855](https://github.com/rudderlabs/rudder-sdk-js/issues/855)) ([97eda04](https://github.com/rudderlabs/rudder-sdk-js/commit/97eda04b2458ef2e99b98e763c2c99889401eff7))
+* **bugbash:** adding bugbash tag condition ([#871](https://github.com/rudderlabs/rudder-sdk-js/issues/871)) ([a761d2a](https://github.com/rudderlabs/rudder-sdk-js/commit/a761d2a6215d42aa7722c7dcbdebe5b613c95337))
+* **destination:** onboarding new destination lemnisk ([#857](https://github.com/rudderlabs/rudder-sdk-js/issues/857)) ([6319785](https://github.com/rudderlabs/rudder-sdk-js/commit/63197859aa985545bdeb6ea55b64cf9dffcd4c86))
+* option to opt out from loading polyfill ([#879](https://github.com/rudderlabs/rudder-sdk-js/issues/879)) ([1ff688e](https://github.com/rudderlabs/rudder-sdk-js/commit/1ff688e763fabc10a78375dbc69efad4c79e959e))
+* **test-suite:** adding test cases for majorly used util functions of web device mode integrations ([#861](https://github.com/rudderlabs/rudder-sdk-js/issues/861)) ([934a0ef](https://github.com/rudderlabs/rudder-sdk-js/commit/934a0ef1721f5bb93d59c114318d73373ebed446))
+
+
+### Bug Fixes
+
+* add support for more method overloads for group api  ([66986d8](https://github.com/rudderlabs/rudder-sdk-js/commit/66986d8e737527f5bf76e3c914d7fdf3fe8b7c78))
+* fix method overload values on edge case of wrong usage ([5798db0](https://github.com/rudderlabs/rudder-sdk-js/commit/5798db0133166a3f1183b031633b032f7e85bd05))
+* library info override bug  ([c993601](https://github.com/rudderlabs/rudder-sdk-js/commit/c9936016f9a7cce081c8f907a8acc552bce7b5a7))
+* replace node globals & build-ins rollup plugins with polyfill-node to allow optional chaining ([3961d16](https://github.com/rudderlabs/rudder-sdk-js/commit/3961d162a7bc468a3ac90a01659f190a36ba8a39))
+* use uuid secure (using crypto) for supported browsers  ([bebf3d0](https://github.com/rudderlabs/rudder-sdk-js/commit/bebf3d0e4c2eb6d22fec7bea2cac5708f2c21245))
+
+### [1.23.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.23.0...v1.23.1) (2023-01-16)
+
+
+### Bug Fixes
+
+* **integrations:** facebook pixel advanced matching condition added ([#847](https://github.com/rudderlabs/rudder-sdk-js/issues/847)) ([208a15a](https://github.com/rudderlabs/rudder-sdk-js/commit/208a15a1acdcce53c7eae84d5dc51464d5c2a7f2))
+
+## [1.23.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.22.0...v1.23.0) (2023-01-12)
+
+
+### Features
+
+* allow usage of OneTrust category ids or names ([#814](https://github.com/rudderlabs/rudder-sdk-js/issues/814)) ([611aa44](https://github.com/rudderlabs/rudder-sdk-js/commit/611aa44be577a82272d1cc188d1a8373944a8760))
+* **braze:** make logging configurable ([#817](https://github.com/rudderlabs/rudder-sdk-js/issues/817)) ([7d4252d](https://github.com/rudderlabs/rudder-sdk-js/commit/7d4252d53be4691c51f39ecabe4581cc448a2296))
+* clientId support in ga4 hybrid mode ([#827](https://github.com/rudderlabs/rudder-sdk-js/issues/827)) ([4d222e6](https://github.com/rudderlabs/rudder-sdk-js/commit/4d222e68e9569919e8bed979b9071c0c9489b04c))
+* ga4 hybrid mode ([#808](https://github.com/rudderlabs/rudder-sdk-js/issues/808)) ([f051549](https://github.com/rudderlabs/rudder-sdk-js/commit/f051549944337faa7f5b1e8215ee36f357620098))
+* ga4 hybrid mode support ([#805](https://github.com/rudderlabs/rudder-sdk-js/issues/805)) ([0ccb557](https://github.com/rudderlabs/rudder-sdk-js/commit/0ccb5574fc7e29a99ac37f21aa506a23be8a1249))
+* getSessionId api in v1 ([#781](https://github.com/rudderlabs/rudder-sdk-js/issues/781)) ([1107b4e](https://github.com/rudderlabs/rudder-sdk-js/commit/1107b4ecbd1d325733a8d76d001d39085ac9b93b))
+* **new integration:** onboarding sendinblue web device mode destination ([#785](https://github.com/rudderlabs/rudder-sdk-js/issues/785)) ([7314094](https://github.com/rudderlabs/rudder-sdk-js/commit/73140949b6ef7a96bd4bd5fbd3ba7f401348ae44))
+* onboard ga4 hybrid mode ([#747](https://github.com/rudderlabs/rudder-sdk-js/issues/747)) ([cd88940](https://github.com/rudderlabs/rudder-sdk-js/commit/cd88940c6a72d8648efbe953b42db0b5528d580a))
+* onboard olark web device mode ([#762](https://github.com/rudderlabs/rudder-sdk-js/issues/762)) ([fc35c6c](https://github.com/rudderlabs/rudder-sdk-js/commit/fc35c6cfe46c9e8012cd89569bf9844b6a1f8079))
+* **pinterest:** add ldp support ([#810](https://github.com/rudderlabs/rudder-sdk-js/issues/810)) ([f427d03](https://github.com/rudderlabs/rudder-sdk-js/commit/f427d03d32c12f6d48244b25e8627c963888d629))
+
+
+### Bug Fixes
+
+* **destination:** facebook pixel userData capturing fix for both identified and annonymous users ([#790](https://github.com/rudderlabs/rudder-sdk-js/issues/790)) ([120494c](https://github.com/rudderlabs/rudder-sdk-js/commit/120494c70fd00b04a9490e2a35320ff8bd404767))
+* detection of sessionId for GA4 if no cookie exists, add unit test ([#820](https://github.com/rudderlabs/rudder-sdk-js/issues/820)) ([7024248](https://github.com/rudderlabs/rudder-sdk-js/commit/70242484b4fc7855dcab027f28142c8e01f2e49f))
+* ga4 cookie issue ([#829](https://github.com/rudderlabs/rudder-sdk-js/issues/829)) ([d6bddb2](https://github.com/rudderlabs/rudder-sdk-js/commit/d6bddb2c725697ae28941ead2fe6bcab4fb8cea9))
+* ga4- fix total to price for events ([#822](https://github.com/rudderlabs/rudder-sdk-js/issues/822)) ([279b780](https://github.com/rudderlabs/rudder-sdk-js/commit/279b7804c038c4f0d47a6587900aaa21a11a70da))
+* reverting the changes made in  bing ads integration ([#792](https://github.com/rudderlabs/rudder-sdk-js/issues/792)) ([774a843](https://github.com/rudderlabs/rudder-sdk-js/commit/774a84399fb909b759ae1742de0822d93c8ec7b1))
+* upgrade vulnerable dependencies ([#816](https://github.com/rudderlabs/rudder-sdk-js/issues/816)) ([c6067d3](https://github.com/rudderlabs/rudder-sdk-js/commit/c6067d38d4d7ca220badd27c91de4db37e27a031))
+
+## [1.22.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.21.0...v1.22.0) (2022-12-07)
+
+
+### Features
+
+* added event_value field in bing ads payload ([#746](https://github.com/rudderlabs/rudder-sdk-js/issues/746)) ([0cadecf](https://github.com/rudderlabs/rudder-sdk-js/commit/0cadecfd9cbd67a6acbed2612b976e47aa4537ff))
+* **destination:** add dedup support for identify call in Braze ([#728](https://github.com/rudderlabs/rudder-sdk-js/issues/728)) ([074ceeb](https://github.com/rudderlabs/rudder-sdk-js/commit/074ceeb082767e4e06db42752e4823cdcefb7daa))
+* **destination:** onboard satismeter ([#732](https://github.com/rudderlabs/rudder-sdk-js/issues/732)) ([b1e75cf](https://github.com/rudderlabs/rudder-sdk-js/commit/b1e75cf4f44cafb428392216fec37d70a7660d72))
+* ga4 hybrid mode support ([#731](https://github.com/rudderlabs/rudder-sdk-js/issues/731)) ([6e4a874](https://github.com/rudderlabs/rudder-sdk-js/commit/6e4a874dfc4cc2f1054295ddb2514baff8c4438a))
+* messageId format updated ([#684](https://github.com/rudderlabs/rudder-sdk-js/issues/684)) ([67a9b48](https://github.com/rudderlabs/rudder-sdk-js/commit/67a9b48889d044936cff9cda1a2f84c20526cc95))
+* onboarding microsoft clarity ([#733](https://github.com/rudderlabs/rudder-sdk-js/issues/733)) ([8e643e4](https://github.com/rudderlabs/rudder-sdk-js/commit/8e643e4e099e5d4ef42bb911b8902d814d5cbe6e))
+
+
+### Bug Fixes
+
+* **destination:** custom properties support in ga4 ([#719](https://github.com/rudderlabs/rudder-sdk-js/issues/719)) ([11fe920](https://github.com/rudderlabs/rudder-sdk-js/commit/11fe9207498550c8cf40e5c9548fd0071f2db31e))
+* **destination:** updated bing ads syntax as per the updated Microsoft's syntax ([#740](https://github.com/rudderlabs/rudder-sdk-js/issues/740)) ([4c810ab](https://github.com/rudderlabs/rudder-sdk-js/commit/4c810ab7aa20c139815a4c19b6c4dcae1c42281f))
+* illegal invocation issue for sendBeacon ([#735](https://github.com/rudderlabs/rudder-sdk-js/issues/735)) ([6965b22](https://github.com/rudderlabs/rudder-sdk-js/commit/6965b22b74a7c819dba7a155126ccc8a4fbaa87a))
+
+## [1.21.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.20.0...v1.21.0) (2022-11-08)
+
+
+### Features
+
+* add utility to generate integration common names automatically ([#685](https://github.com/rudderlabs/rudder-sdk-js/issues/685)) ([3e69f43](https://github.com/rudderlabs/rudder-sdk-js/commit/3e69f4321b3f0cfb27942123ab5e6e1c5163b93f))
+* **new integration:** onboarding qualaroo device mode destination ([#715](https://github.com/rudderlabs/rudder-sdk-js/issues/715)) ([dcaeefd](https://github.com/rudderlabs/rudder-sdk-js/commit/dcaeefd900f57bdf471b0c673ddc62c9f806bad3))
+* **Podsights:** Onboarding new destination ([#709](https://github.com/rudderlabs/rudder-sdk-js/issues/709)) ([d3d5285](https://github.com/rudderlabs/rudder-sdk-js/commit/d3d5285273b58e2e7fb1e4ab026501ba81c903dd))
+
+## [1.20.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.19.0...v1.20.0) (2022-10-31)
+
+
+### Features
+
+* **dcm floodlight:** add iframe support ([#698](https://github.com/rudderlabs/rudder-sdk-js/issues/698)) ([4106c6e](https://github.com/rudderlabs/rudder-sdk-js/commit/4106c6e3f1b972e0caa4344daae015f6a0c24368))
+* refiner device mode integration ([#710](https://github.com/rudderlabs/rudder-sdk-js/issues/710)) ([72acd72](https://github.com/rudderlabs/rudder-sdk-js/commit/72acd72da0aa2ea4c658a1b7ca6ff8bb8f6a34b7))
+
+
+### Bug Fixes
+
+* convert non-string userId to a string ([#706](https://github.com/rudderlabs/rudder-sdk-js/issues/706)) ([a3ff529](https://github.com/rudderlabs/rudder-sdk-js/commit/a3ff5293bb0c066636f16f6459f223f7997a8101))
+
+## [1.19.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.18.0...v1.19.0) (2022-10-25)
+
+
+### Features
+
+* **new integration:** refiner onboarding  ([#682](https://github.com/rudderlabs/rudder-sdk-js/issues/682)) ([43cabf9](https://github.com/rudderlabs/rudder-sdk-js/commit/43cabf95a96070bf117b61a5967beb10b4359e7a))
+* posthog group call support ([#688](https://github.com/rudderlabs/rudder-sdk-js/issues/688)) ([1ebd1a8](https://github.com/rudderlabs/rudder-sdk-js/commit/1ebd1a862fbd26fcf6e4c5da6eebc561f5874bd6))
+
+
+### Bug Fixes
+
+* **ga:** adding support of revenue along with total. ([#690](https://github.com/rudderlabs/rudder-sdk-js/issues/690)) ([88b49b7](https://github.com/rudderlabs/rudder-sdk-js/commit/88b49b73a973a738683e8963a94470cbbfaeaeb0))
+* refiner device mode code removed ([#705](https://github.com/rudderlabs/rudder-sdk-js/issues/705)) ([1d54380](https://github.com/rudderlabs/rudder-sdk-js/commit/1d5438022abfab525b0516fd38e09f0bcdb6ae77))
+* refiner group call email conflicts issue ([#699](https://github.com/rudderlabs/rudder-sdk-js/issues/699)) ([8613b62](https://github.com/rudderlabs/rudder-sdk-js/commit/8613b62278959832182005922a72f5f64e0b9813))
+
+## [1.18.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.17.0...v1.18.0) (2022-10-19)
+
+
+### Features
+
+* **new-integration:** onboarding yandex.metrica destination ([#671](https://github.com/rudderlabs/rudder-sdk-js/issues/671)) ([5ceac7a](https://github.com/rudderlabs/rudder-sdk-js/commit/5ceac7a46b4de2a9bd3a21695e952703d2121d48))
+
+
+### Bug Fixes
+
+* common names map update ([#681](https://github.com/rudderlabs/rudder-sdk-js/issues/681)) ([ebddf62](https://github.com/rudderlabs/rudder-sdk-js/commit/ebddf627f73ff20d67aacb72ac0bb8712223982d))
+
+## [1.17.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.16.0...v1.17.0) (2022-10-12)
+
+
+### Features
+
+* enhanced logger module ([#657](https://github.com/rudderlabs/rudder-sdk-js/issues/657)) ([abe450c](https://github.com/rudderlabs/rudder-sdk-js/commit/abe450c7fd8de0bba82002668686dfd970937043))
+* improved page/track calls braze ([#669](https://github.com/rudderlabs/rudder-sdk-js/issues/669)) ([b348fb9](https://github.com/rudderlabs/rudder-sdk-js/commit/b348fb9207ce1ce36d75d12f10604142cb7d0b0e))
+* **integration:** add multiplexing support to Pinterest Tag ([#659](https://github.com/rudderlabs/rudder-sdk-js/issues/659)) ([8e7c356](https://github.com/rudderlabs/rudder-sdk-js/commit/8e7c3568fec96a62fada9a2a76517aac20716091))
+* **june:** set log level ([#675](https://github.com/rudderlabs/rudder-sdk-js/issues/675)) ([00db1fb](https://github.com/rudderlabs/rudder-sdk-js/commit/00db1fbe5f877832ebdde6cb0580c604201eed83))
+* **new integration:** Iterable - onboard integration ([#670](https://github.com/rudderlabs/rudder-sdk-js/issues/670)) ([e29d2af](https://github.com/rudderlabs/rudder-sdk-js/commit/e29d2af588269060b65c0d3da5ca0b1a3c292e68))
+* **new integration:** Onboarding Engage Device Mode ([#662](https://github.com/rudderlabs/rudder-sdk-js/issues/662)) ([dba04ac](https://github.com/rudderlabs/rudder-sdk-js/commit/dba04ac754ad108216f2135f9faf2715a5c984cf))
+* **new integration:** onboarding june device mode destination ([#663](https://github.com/rudderlabs/rudder-sdk-js/issues/663)) ([9a6c64c](https://github.com/rudderlabs/rudder-sdk-js/commit/9a6c64c3c04d19b53bf53e1e7d7cc8bb9d98abc7))
+* **quora pixel:** add warn logs for track API ([#660](https://github.com/rudderlabs/rudder-sdk-js/issues/660)) ([233f071](https://github.com/rudderlabs/rudder-sdk-js/commit/233f071e63c6152c7f3a3f7ff2bb36c925a4b83b))
+
+
+### Bug Fixes
+
+* Permission denied accessing error message ([#613](https://github.com/rudderlabs/rudder-sdk-js/issues/613)) ([abed89b](https://github.com/rudderlabs/rudder-sdk-js/commit/abed89bc77eb4fc6e853330f457290cca3fbe5a1))
+
+## [1.16.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.15.0...v1.16.0) (2022-09-21)
+
+
+### Bug Fixes
+
+* **integration:** update error message in LinkedIn Insight Tag ([#656](https://github.com/rudderlabs/rudder-sdk-js/issues/656)) ([d95cfa2](https://github.com/rudderlabs/rudder-sdk-js/commit/d95cfa259a1a1759f0422bd757cf92f14d01b30c))
+
+## [1.15.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.14.0...v1.15.0) (2022-09-15)
+
+
+### Features
+
+* **integration:** add common util function for mapping event names in ads destinations ([#643](https://github.com/rudderlabs/rudder-sdk-js/issues/643)) ([96b8fee](https://github.com/rudderlabs/rudder-sdk-js/commit/96b8feeee723e2cb128495fc452177df50f6f79d))
+* **LinkedIn Insights Tag:** add support for event-specific conversion ([#648](https://github.com/rudderlabs/rudder-sdk-js/issues/648)) ([6913c38](https://github.com/rudderlabs/rudder-sdk-js/commit/6913c38c651310298d92b6f88723a01ac338921d))
+* **new integration:** quora pixel device mode destination onboarding ([#647](https://github.com/rudderlabs/rudder-sdk-js/issues/647)) ([395708b](https://github.com/rudderlabs/rudder-sdk-js/commit/395708b28f037154ba33ab8f187e10e31369614a))
+* **quora pixel:** add data-loader attribute ([#649](https://github.com/rudderlabs/rudder-sdk-js/issues/649)) ([1b23d4c](https://github.com/rudderlabs/rudder-sdk-js/commit/1b23d4cea75b8e5cc6b7518e580ce09341fa4c1e))
+
+## [1.14.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.13.3...v1.14.0) (2022-09-07)
+
+### [1.13.3](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.13.2...v1.13.3) (2022-09-05)
+
+### [1.13.2](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.13.1...v1.13.2) (2022-08-30)
+
+
+### Bug Fixes
+
+* **snappixel:** cookie check ([#626](https://github.com/rudderlabs/rudder-sdk-js/issues/626)) ([ab9ac73](https://github.com/rudderlabs/rudder-sdk-js/commit/ab9ac7375ed54c57a6bb7296f895b721ae6b3462))
+
+### [1.13.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.13.0...v1.13.1) (2022-08-24)
+
+## [1.13.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.12.1...v1.13.0) (2022-08-23)
+
+
+### Bug Fixes
+
+* VWO loadintegration option ([#614](https://github.com/rudderlabs/rudder-sdk-js/issues/614)) ([2adee37](https://github.com/rudderlabs/rudder-sdk-js/commit/2adee37b5c08bf323c86894ea951863cc4672003))
+
+### [1.12.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.12.0...v1.12.1) (2022-08-09)
+
+## [1.12.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.11.4...v1.12.0) (2022-08-05)
+
+
+### Bug Fixes
+
+* dataset attribute syntax updated in scriptLoader ([#598](https://github.com/rudderlabs/rudder-sdk-js/issues/598)) ([9e0ca2b](https://github.com/rudderlabs/rudder-sdk-js/commit/9e0ca2b039b59bce1de523e2a31639e16bfae595))
+* source config fetch error handled ([#582](https://github.com/rudderlabs/rudder-sdk-js/issues/582)) ([5edc1c4](https://github.com/rudderlabs/rudder-sdk-js/commit/5edc1c40182912ee45a36f9391521b310308b28f))
+
+### [1.11.4](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.11.3...v1.11.4) (2022-07-28)
+
+### [1.11.3](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.11.2...v1.11.3) (2022-07-26)
+
+
+### Bug Fixes
+
+* Added validation for userAgent in brave browser ([#574](https://github.com/rudderlabs/rudder-sdk-js/issues/574)) ([1537f01](https://github.com/rudderlabs/rudder-sdk-js/commit/1537f019eb5b51dd5958031b116511c1b110d7ce))
+
+### [1.11.2](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.11.1...v1.11.2) (2022-07-22)
+
+
+### Bug Fixes
+
+* Accessing dead object error in Firefox ([#567](https://github.com/rudderlabs/rudder-sdk-js/issues/567)) ([4274f06](https://github.com/rudderlabs/rudder-sdk-js/commit/4274f06cda9944c2420db0d69c31c9746fbb9453))
+* undefined 'referrer' ([58b460e](https://github.com/rudderlabs/rudder-sdk-js/commit/58b460ed9b01d9bda18a7c8e5abcc4a5bdd56b4b))
+
+### [1.11.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.11.0...v1.11.1) (2022-07-12)
+
+## [1.11.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.10.0...v1.11.0) (2022-07-11)
+
+
+### Bug Fixes
+
+* handled undefined integration obj error ([#551](https://github.com/rudderlabs/rudder-sdk-js/issues/551)) ([87c8220](https://github.com/rudderlabs/rudder-sdk-js/commit/87c8220c65188421ff794ef41b8bf94f2dedc328))
+* Use standard library for UUID generation ([#554](https://github.com/rudderlabs/rudder-sdk-js/issues/554)) ([f89649b](https://github.com/rudderlabs/rudder-sdk-js/commit/f89649baa7533556f70de4ad9179b225728eaa98))
+
+## [1.10.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.9.0...v1.10.0) (2022-06-21)
+
+## [1.9.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.8.0...v1.9.0) (2022-06-14)
+
+## [1.8.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.7.2...v1.8.0) (2022-06-09)
+
+
+### Bug Fixes
+
+* **braze:** adding dynamic support for eu data center ([#541](https://github.com/rudderlabs/rudder-sdk-js/issues/541)) ([de1265d](https://github.com/rudderlabs/rudder-sdk-js/commit/de1265d59ff6c7f1a102c2a8f064f766a5a88e48))
+
+### [1.7.2](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.7.1...v1.7.2) (2022-05-30)
+
+### [1.7.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.7.0...v1.7.1) (2022-05-14)
+
+## [1.7.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.6.3...v1.7.0) (2022-05-11)
+
+
+### Bug Fixes
+
+* corrected the rules in CODEOWNERS file ([a4ceda3](https://github.com/rudderlabs/rudder-sdk-js/commit/a4ceda3cdfbd7f06b414db1b3bc4c102823c9434))
+
+### [1.6.3](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.6.1...v1.6.3) (2022-05-09)
+
+
+### Bug Fixes
+
+* 'IsCookieSupported' method doesn't exist ([b9db102](https://github.com/rudderlabs/rudder-sdk-js/commit/b9db1022e6763f3448807d65e489c30a3099c554))
+
+### [1.6.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.4.3...v1.6.1) (2022-04-29)
+
+### [1.4.3](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.4.2...v1.4.3) (2022-02-21)
+
+### [1.4.2](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.4.1...v1.4.2) (2022-02-17)
+
+### [1.4.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.4.0...v1.4.1) (2022-02-14)
+
+## [1.4.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.3.4...v1.4.0) (2022-02-11)
+
+### [1.3.4](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.3.3...v1.3.4) (2022-02-03)
+
+### [1.3.3](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.3.2...v1.3.3) (2022-01-25)
+
+### [1.3.2](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.3.1...v1.3.2) (2022-01-21)
+
+### [1.3.1](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.2.20...v1.3.1) (2022-01-18)
+
+### [1.2.20](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.2.19...v1.2.20) (2022-01-14)
+
+### [1.2.19](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.2.16...v1.2.19) (2022-01-13)
+
+### [1.2.16](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.2.15...v1.2.16) (2022-01-06)
+
+### [1.2.15](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.2.14...v1.2.15) (2022-01-04)
+
+### [1.2.14](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.0.15...v1.2.14) (2021-12-24)
+
+
+### Features
+
+* Moved useNewPageEventNameFormat inside integrations.AM ([#375](https://github.com/rudderlabs/rudder-sdk-js/issues/375)) ([9cea49b](https://github.com/rudderlabs/rudder-sdk-js/commit/9cea49b535ef89f0e82c84719b5e8e2b9aff1088))
+* Option to alter page event name in Amplitude ([#369](https://github.com/rudderlabs/rudder-sdk-js/issues/369)) ([1377e86](https://github.com/rudderlabs/rudder-sdk-js/commit/1377e86a9799ded18aacebd83870930af6cd7298))
+
+
+### Bug Fixes
+
+* Facebook content type ([#283](https://github.com/rudderlabs/rudder-sdk-js/issues/283)) ([40b0489](https://github.com/rudderlabs/rudder-sdk-js/commit/40b0489d8fed1e056b2f8f6f1d588b507a743466))
+
+### [1.0.15](https://github.com/rudderlabs/rudder-sdk-js/compare/66882932271f0f26930e385cc71cc47b52cacd8b...v1.0.15) (2021-02-08)
+
+
+### Bug Fixes
+
+* intercom not loading ([6688293](https://github.com/rudderlabs/rudder-sdk-js/commit/66882932271f0f26930e385cc71cc47b52cacd8b))
+
 ## [1.25.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.24.1...v1.25.0) (2023-02-20)
 
 
