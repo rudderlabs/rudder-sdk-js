@@ -1223,7 +1223,9 @@ class Analytics {
 
     // Execute onLoaded callback if provided in load options
     if (options && typeof options.onLoaded === 'function') {
-      options.onLoaded(this);
+      setTimeout(()=>{
+        options.onLoaded(this);
+      }, 1);
     }
 
     if (
