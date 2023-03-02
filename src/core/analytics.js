@@ -1091,7 +1091,7 @@ class Analytics {
     }
 
     if (options && options.bufferDataPlaneEventsUntilReady != undefined) {
-      this.bufferDataPlaneEventsUntilReady = !!options.bufferDataPlaneEventsUntilReady;
+      this.bufferDataPlaneEventsUntilReady = options.bufferDataPlaneEventsUntilReady === true;
     }
 
     if (options && options.lockIntegrationsVersion !== undefined) {
