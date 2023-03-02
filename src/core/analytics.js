@@ -31,6 +31,7 @@ import {
   commonNames,
   get,
   getStringId,
+  fetchCookieConsentState,
 } from "../utils/utils";
 import {
   CONFIG_URL,
@@ -40,6 +41,7 @@ import {
   DEFAULT_ERROR_REPORT_PROVIDER,
   ERROR_REPORT_PROVIDERS,
   SAMESITE_COOKIE_OPTS,
+  SYSTEM_KEYWORDS,
   UA_CH_LEVELS,
 } from "../utils/constants";
 import { integrations } from "../integrations";
@@ -118,6 +120,7 @@ class Analytics {
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
     this.uSession = UserSession;
+    this.deniedConsentIds = [];
   }
 
   /**
@@ -254,6 +257,8 @@ class Analytics {
         cookieConsent = CookieConsentFactory.initialize(
           this.cookieConsentOptions
         );
+        // Fetch denied consent group Ids and pass it to cloud mode
+        this.deniedConsentIds = cookieConsent && cookieConsent.getDeniedList();
       } catch (e) {
         handleError(e);
       }
@@ -840,6 +845,12 @@ class Analytics {
       } catch (e) {
         handleError(e);
       }
+      // If cookie consent is enabled attach the denied consent group Ids to the context
+      if (fetchCookieConsentState(this.cookieConsentOptions)) {
+        rudderElement.message.context.consentManagement = {
+          deniedConsentIds: this.deniedConsentIds
+        };
+      }
 
       this.processOptionsParam(rudderElement, options);
       logger.debug(JSON.stringify(rudderElement));
@@ -976,7 +987,7 @@ class Analytics {
       if (toplevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== "context") {
-        if (key !== "library") {
+        if (!SYSTEM_KEYWORDS.includes(key)) {
           rudderElement.message.context = merge(rudderElement.message.context, {
             [key]: options[key],
           });
@@ -984,7 +995,7 @@ class Analytics {
       } else if (typeof options[key] === "object" && options[key] !== null) {
         const tempContext = {};
         Object.keys(options[key]).forEach((e) => {
-            if (e !== "library") {
+            if (!SYSTEM_KEYWORDS.includes(e)) {
               tempContext[e] = options[key][e];
             }
         });
