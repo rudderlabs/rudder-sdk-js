@@ -445,8 +445,7 @@ class Analytics {
       }
 
       // We only need to send those events which has flag enabled
-      const options = event[2];
-      if (options?.bufferDataPlaneEventsUntilReady) {
+      if (object.options?.bufferDataPlaneEventsUntilReady) {
         // Processing the holden cloud mode events
         transformToServerNames(event[0].message.integrations);
         event[0].message.integrations = getMergedClientSuppliedIntegrations(
@@ -779,7 +778,7 @@ class Analytics {
       if (!this.clientIntegrationObjects) {
         // logger.debug("pushing in replay queue")
         // new event processing after analytics initialized  but integrations not fetched from BE
-        this.toBeProcessedByIntegrationArray.push([type, rudderElement, callback, options]);
+        this.toBeProcessedByIntegrationArray.push([type, rudderElement, callback]);
       } else {
         // get intersection between config plane native enabled destinations
         // (which were able to successfully load on the page) vs user supplied integrations
@@ -808,11 +807,7 @@ class Analytics {
       }
 
       // Holding the cloud mode events based on flag and integrations load check
-      if (
-        !options?.bufferDataPlaneEventsUntilReady ||
-        (this.clientIntegrationObjects &&
-          this.clientIntegrationObjects.every((intg) => !intg.isReady || intg.isReady()))
-      ) {
+      if (!this.options?.bufferDataPlaneEventsUntilReady || this.clientIntegrationObjects) {
         // convert integrations object to server identified names, kind of hack now!
         transformToServerNames(rudderElement.message.integrations);
         rudderElement.message.integrations = getMergedClientSuppliedIntegrations(
