@@ -6,6 +6,11 @@ rudderanalytics.load('WRITE_KEY', 'DATA_PLANE_URL', {
   configUrl: 'CONFIG_SERVER_HOST',
   lockIntegrationsVersion: true,
   destSDKBaseURL: 'DEST_SDK_BASE_URL',
+  cookieConsentManager: {
+    oneTrust: {
+      enabled: true,
+    },
+  },
 });
 
 rudderanalytics.ready(() => {
