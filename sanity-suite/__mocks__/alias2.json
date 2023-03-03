@@ -70,6 +70,47 @@
         "tab_url": "http://localhost:3001/index.html",
         "initial_referrer": "$direct",
         "initial_referring_domain": ""
+      },
+      "consentManagement": {
+        "deniedConsentIds": []
+      },
+      "ua-ch": {
+        "architecture": "arm",
+        "bitness": "64",
+        "brands": [
+          {
+            "brand": "Chromium",
+            "version": "110"
+          },
+          {
+            "brand": "Not A(Brand",
+            "version": "24"
+          },
+          {
+            "brand": "Google Chrome",
+            "version": "110"
+          }
+        ],
+        "fullVersionList": [
+          {
+            "brand": "Chromium",
+            "version": "110.0.5481.77"
+          },
+          {
+            "brand": "Not A(Brand",
+            "version": "24.0.0.0"
+          },
+          {
+            "brand": "Google Chrome",
+            "version": "110.0.5481.77"
+          }
+        ],
+        "mobile": false,
+        "model": "",
+        "platform": "macOS",
+        "platformVersion": "13.1.0",
+        "uaFullVersion": "110.0.5481.77",
+        "wow64": false
       }
     },
     "type": "alias",
@@ -81,7 +122,11 @@
     "event": null,
     "properties": null,
     "integrations": {
-      "All": true
+      "All": true,
+      "Google Analytics 4": {
+        "sessionId": "1677835184",
+        "clientId": "52797861-a2b3-43d0-853c-b25756a24543"
+      }
     },
     "user_properties": null,
     "sentAt": "2023-01-14T20:26:36.001Z"
