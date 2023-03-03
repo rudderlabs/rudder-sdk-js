@@ -47,6 +47,10 @@ declare module 'rudder-sdk-js' {
     oneTrust?: {
       enabled: boolean;
     };
+    // Osano
+    osano?: {
+      enabled: boolean;
+    };
   }
 
   /**

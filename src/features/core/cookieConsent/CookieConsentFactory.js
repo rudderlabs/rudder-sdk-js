@@ -1,7 +1,8 @@
 import { OneTrust } from './OneTrust';
+import { Osano } from './Osano';
 
-class CookieConsentFactory {
-  static initialize(cookieConsentOptions) {
+const CookieConsentFactory = {
+  initialize(cookieConsentOptions) {
     /**
      *
      * check which type of cookie consent manager needs to be called if enabled
@@ -22,8 +23,11 @@ class CookieConsentFactory {
 
       // }
     }
+    if (cookieConsentOptions?.osano?.enabled) {
+      return new Osano();
+    }
     return null;
-  }
-}
+  },
+};
 
 export default CookieConsentFactory;
