@@ -33,7 +33,7 @@ const SDK_FILE_NAMES = [
   ),
   ...Object.keys(configToIntNames).map((intgName) => `${configToIntNames[intgName]}.js`),
 ];
-const BUGSNAG_ERROR_FILE_ORIGIN_KEY = 'errors.0.stacktrace.0.file';
+const BUGSNAG_ERROR_FILE_ORIGIN_KEY = 'stacktrace.0.file';
 
 const getReleaseStage = () => {
   const host = window.location.hostname;
@@ -52,7 +52,14 @@ const isValidVersion = (globalLibInstance) => {
 
   // For versions older than 7
   if (!version) {
-    let tempInstance = globalLibInstance({ apiKey: API_KEY, releaseStage: 'version-test' });
+    let tempInstance = globalLibInstance({
+      apiKey: API_KEY,
+      releaseStage: 'version-test',
+      // eslint-disable-next-line func-names, object-shorthand
+      beforeSend: function () {
+        return false;
+      },
+    });
     version = tempInstance.notifier && tempInstance.notifier.version;
     tempInstance = undefined;
   }
@@ -72,11 +79,11 @@ const isRudderSDKError = (event) => {
 };
 
 const enhanceErrorEventMutator = (event, metadataSource) => {
-  event.addMetadata('source', {
+  event.updateMetaData('source', {
     metadataSource,
   });
 
-  const errorMessage = event.errors && event.errors[0] && event.errors[0].errorMessage;
+  const { errorMessage } = event;
   // eslint-disable-next-line no-param-reassign
   event.context = errorMessage;
 
@@ -134,7 +141,7 @@ class BugsnagProvider {
     const globalBugsnagLibInstance = window[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
 
     // Initialise if SDK is loaded and has valid version else return if other version exists
-    if (globalBugsnagLibInstance) {
+    if (typeof globalBugsnagLibInstance === 'function') {
       if (isValidVersion(globalBugsnagLibInstance)) {
         this.initClient();
       }
@@ -146,7 +153,7 @@ class BugsnagProvider {
     this.initClientOnLibReadyInterval = setInterval(() => {
       const globalBugsnagLibInstanceOnInterval = window[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
 
-      if (globalBugsnagLibInstanceOnInterval) {
+      if (typeof globalBugsnagLibInstanceOnInterval === 'function') {
         if (isValidVersion(globalBugsnagLibInstanceOnInterval)) {
           this.initClient();
         }
@@ -172,7 +179,7 @@ class BugsnagProvider {
     const isAPIKeyValid = !API_KEY.match(apiKeyRegex);
 
     // If valid version of Bugsnag SDK not loaded or API key token is not parsed or invalid, don't proceed to initialize the client
-    if (!isValidVersion(globalBugsnagLibInstance) || !isAPIKeyValid) {
+    if (!isAPIKeyValid) {
       return;
     }
 
@@ -185,7 +192,7 @@ class BugsnagProvider {
           installType: '__MODULE_TYPE__',
         },
       },
-      onError: this.onError(),
+      beforeSend: this.onError(),
       autoTrackSessions: false, // auto tracking sessions is disabled
       collectUserIp: false, // collecting user's IP is disabled
       enabledBreadcrumbTypes: ['error', 'log', 'user'],
