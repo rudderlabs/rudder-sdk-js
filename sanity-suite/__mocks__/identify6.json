@@ -73,7 +73,7 @@
         "initial_referring_domain": ""
       },
       "consentManagement": {
-        "deniedConsentIds": []
+        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"]
       },
       "ua-ch": {
         "architecture": "arm",
