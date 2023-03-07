@@ -4,11 +4,17 @@ window.OneTrust = {
   GetDomainData: jest.fn(() => ({
     Groups: [
       { CustomGroupId: 'C0001', GroupName: 'Functional Cookies' },
+      { CustomGroupId: 'C0002', GroupName: 'Performance Cookies' },
       { CustomGroupId: 'C0003', GroupName: 'Analytical Cookies' },
+      { CustomGroupId: 'C0004', GroupName: 'Targeting Cookies' },
+      { CustomGroupId: 'C0005', GroupName: 'Social Media Cookies' },
+      { CustomGroupId: 'C0006', GroupName: 'Advertisement Cookies' },
     ],
   })),
 };
 window.OnetrustActiveGroups = ',C0001,C0003,';
+
+const expectedDeniedConsentIds = ['C0002','C0004', 'C0005', 'C0006'];
 
 const oneTrust = new OneTrust();
 
@@ -76,4 +82,8 @@ describe('Test suit for OneTrust cookie consent manager', () => {
     const allowEvent = oneTrust.isEnabled(destConfig);
     expect(allowEvent).toBe(false);
   });
+  it('Should return the category IDs that the user has not consented for', () => {
+    const actualDeniedConsentIds = oneTrust.getDeniedList();
+    expect(actualDeniedConsentIds).toEqual(expectedDeniedConsentIds);
+  });  
 });

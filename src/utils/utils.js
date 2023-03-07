@@ -7,7 +7,7 @@ import { LOAD_ORIGIN } from "../integrations/ScriptLoader";
 import logger from "./logUtil";
 import { commonNames } from "../integrations/integration_cname";
 import { clientToServerNames } from "../integrations/client_server_name";
-import { CONFIG_URL, ReservedPropertyKeywords } from "./constants";
+import { CONFIG_URL, ReservedPropertyKeywords, SUPPORTED_CONSENT_MANAGERS } from "./constants";
 import Storage from "./storage";
 
 /**
@@ -769,6 +769,27 @@ const getStringId = (id) => {
     : JSON.stringify(id);
 };
 
+/**
+ * Function to return the state of consent management based on config passed in load options 
+ * @param {Object} cookieConsentOptions 
+ * @returns 
+ */
+const fetchCookieConsentState = (cookieConsentOptions) => {
+  let isEnabled = false;
+  // eslint-disable-next-line consistent-return
+  Object.keys(cookieConsentOptions).forEach((e) => {
+    const isSupportedAndEnabled =
+      SUPPORTED_CONSENT_MANAGERS.includes(e) &&
+      typeof cookieConsentOptions[e].enabled === 'boolean' &&
+      cookieConsentOptions[e].enabled === true;
+
+    if (isSupportedAndEnabled) {
+      isEnabled = true;
+    }
+  });
+  return isEnabled;
+};
+
 export {
   replacer,
   generateUUID,
@@ -802,4 +823,5 @@ export {
   get,
   countDigits,
   getStringId,
+  fetchCookieConsentState,
 };

@@ -31,6 +31,7 @@ import {
   commonNames,
   get,
   getStringId,
+  fetchCookieConsentState,
 } from "../utils/utils";
 import {
   CONFIG_URL,
@@ -40,6 +41,8 @@ import {
   DEFAULT_ERROR_REPORT_PROVIDER,
   ERROR_REPORT_PROVIDERS,
   SAMESITE_COOKIE_OPTS,
+  SYSTEM_KEYWORDS,
+  UA_CH_LEVELS,
 } from "../utils/constants";
 import { integrations } from "../integrations";
 import RudderElementBuilder from "../utils/RudderElementBuilder";
@@ -56,6 +59,7 @@ import {
   getMergedClientSuppliedIntegrations,
   constructMessageIntegrationsObj,
 } from "../utils/IntegrationsData";
+import { getUserAgentClientHint } from '../utils/clientHint';
 
 const queryDefaults = {
   trait: "ajs_trait_",
@@ -116,6 +120,7 @@ class Analytics {
     // flag to indicate client integrations` ready status
     this.clientIntegrationsReady = false;
     this.uSession = UserSession;
+    this.deniedConsentIds = [];
   }
 
   /**
@@ -252,6 +257,8 @@ class Analytics {
         cookieConsent = CookieConsentFactory.initialize(
           this.cookieConsentOptions
         );
+        // Fetch denied consent group Ids and pass it to cloud mode
+        this.deniedConsentIds = cookieConsent && cookieConsent.getDeniedList();
       } catch (e) {
         handleError(e);
       }
@@ -838,6 +845,12 @@ class Analytics {
       } catch (e) {
         handleError(e);
       }
+      // If cookie consent is enabled attach the denied consent group Ids to the context
+      if (fetchCookieConsentState(this.cookieConsentOptions)) {
+        rudderElement.message.context.consentManagement = {
+          deniedConsentIds: this.deniedConsentIds
+        };
+      }
 
       this.processOptionsParam(rudderElement, options);
       logger.debug(JSON.stringify(rudderElement));
@@ -851,6 +864,12 @@ class Analytics {
       // structure user supplied integrations object to rudder format
       tranformToRudderNames(clientSuppliedIntegrations);
       rudderElement.message.integrations = clientSuppliedIntegrations;
+
+      try {
+        rudderElement.message.context['ua-ch'] = this.uach;
+      } catch (err) {
+        handleError(err);
+      }
 
       // get intersection between config plane native enabled destinations
       // (which were able to successfully load on the page) vs user supplied integrations
@@ -968,7 +987,7 @@ class Analytics {
       if (toplevelElements.includes(key)) {
         rudderElement.message[key] = options[key];
       } else if (key !== "context") {
-        if (key !== "library") {
+        if (!SYSTEM_KEYWORDS.includes(key)) {
           rudderElement.message.context = merge(rudderElement.message.context, {
             [key]: options[key],
           });
@@ -976,7 +995,7 @@ class Analytics {
       } else if (typeof options[key] === "object" && options[key] !== null) {
         const tempContext = {};
         Object.keys(options[key]).forEach((e) => {
-            if (e !== "library") {
+            if (!SYSTEM_KEYWORDS.includes(e)) {
               tempContext[e] = options[key][e];
             }
         });
@@ -1141,6 +1160,19 @@ class Analytics {
     }
     this.storage.options(storageOptions);
 
+    const isUACHOptionAvailable =
+      options && typeof options.uaChTrackLevel === 'string' && UA_CH_LEVELS.includes(options.uaChTrackLevel);
+
+    if (isUACHOptionAvailable) {
+      this.uaChTrackLevel = options.uaChTrackLevel;
+    }
+
+    if (navigator.userAgentData) {
+      getUserAgentClientHint((uach) =>{
+        this.uach = uach;
+      }, this.uaChTrackLevel);
+    }
+
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);
       tranformToRudderNames(this.loadOnlyIntegrations);
@@ -1188,6 +1220,14 @@ class Analytics {
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
     this.loaded = true;
+
+    // Execute onLoaded callback if provided in load options
+    if (options && typeof options.onLoaded === 'function') {
+      setTimeout(()=>{
+        options.onLoaded(this);
+      }, 1);
+    }
+
     if (
       options &&
       options.valTrackingList &&
