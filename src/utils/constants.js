@@ -40,6 +40,11 @@ const DEFAULT_DATAPLANE_URL = 'https://hosted.rudderlabs.com';
 
 const RESIDENCY_SERVERS = [DEFAULT_REGION, 'EU'];
 
+const SUPPORTED_CONSENT_MANAGERS = ['oneTrust'];
+
+const SYSTEM_KEYWORDS = ['library', 'consentManagement'];
+const UA_CH_LEVELS = ['none', 'default', 'full'];
+
 export {
   RESERVED_KEYS,
   CONFIG_URL,
@@ -62,4 +67,7 @@ export {
   DEFAULT_REGION,
   DEFAULT_DATAPLANE_URL,
   RESIDENCY_SERVERS,
+  SUPPORTED_CONSENT_MANAGERS,
+  SYSTEM_KEYWORDS,
+  UA_CH_LEVELS,
 };
