@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.26.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.25.0...v1.26.0) (2023-03-02)
+
+
+### Features
+
+* onetrust for cloud mode events ([#903](https://github.com/rudderlabs/rudder-sdk-js/issues/903)) ([57ac565](https://github.com/rudderlabs/rudder-sdk-js/commit/57ac56541c8b10456fecec2e0b5091fc4985f904))
+* onLoaded callback option ([#917](https://github.com/rudderlabs/rudder-sdk-js/issues/917)) ([0cbfbda](https://github.com/rudderlabs/rudder-sdk-js/commit/0cbfbda3b20c9bd4882dfc174d633b73eaac00ae))
+* user agent client hint info added in context ([#919](https://github.com/rudderlabs/rudder-sdk-js/issues/919)) ([3b8a6d1](https://github.com/rudderlabs/rudder-sdk-js/commit/3b8a6d1c31927f96eebf5b79e068fd00369ef081))
+
+
 ## [1.25.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.24.1...v1.25.0) (2023-02-20)
 
 
