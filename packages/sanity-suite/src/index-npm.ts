@@ -7,6 +7,11 @@ const sanitySuiteApp = () => {
     configUrl: 'CONFIG_SERVER_HOST',
     lockIntegrationsVersion: true,
     destSDKBaseURL: 'DEST_SDK_BASE_URL',
+    cookieConsentManager: {
+      oneTrust: {
+        enabled: true,
+      },
+    },
   });
 
   (RudderAnalytics as any).ready(() => {

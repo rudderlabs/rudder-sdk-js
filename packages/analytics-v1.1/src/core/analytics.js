@@ -33,6 +33,7 @@ import {
   get,
   getStringId,
   resolveDataPlaneUrl,
+  fetchCookieConsentState,
 } from '../utils/utils';
 import { handleError, leaveBreadcrumb } from '../utils/errorHandler';
 import {
@@ -44,6 +45,7 @@ import {
   DEFAULT_ERROR_REPORT_PROVIDER,
   ERROR_REPORT_PROVIDERS,
   SAMESITE_COOKIE_OPTS,
+  UA_CH_LEVELS,
 } from '../utils/constants';
 import RudderElementBuilder from '../utils/RudderElementBuilder';
 import Storage from '../utils/storage';
@@ -61,6 +63,7 @@ import {
   constructMessageIntegrationsObj,
 } from '../utils/IntegrationsData';
 import { getIntegrationsCDNPath } from '../utils/cdnPaths';
+import { getUserAgentClientHint } from '../utils/clientHint';
 
 /**
  * class responsible for handling core
@@ -102,6 +105,7 @@ class Analytics {
     this.uSession = UserSession;
     this.version = 'process.package_version';
     this.lockIntegrationsVersion = false;
+    this.deniedConsentIds = [];
   }
 
   /**
@@ -246,6 +250,12 @@ class Analytics {
       // Initialize event repository
       this.eventRepository.initialize(this.writeKey, this.serverUrl, this.options);
       this.loaded = true;
+
+      // Execute onLoaded callback if provided in load options
+      if (this.options && typeof this.options.onLoaded === 'function') {
+        this.options.onLoaded(this);
+      }
+
       // Execute any pending buffered requests
       // (needed if the load call was not previously buffered)
       processDataInAnalyticsArray(this);
@@ -273,6 +283,8 @@ class Analytics {
         // consent being set. For now we only support OneTrust.
         try {
           const cookieConsent = CookieConsentFactory.initialize(this.cookieConsentOptions);
+          // Fetch denied consent group Ids and pass it to cloud mode
+          this.deniedConsentIds = cookieConsent && cookieConsent.getDeniedList();
           // If cookie consent object is return we filter according to consents given by user
           // else we do not consider any filtering for cookie consent.
           this.clientIntegrations = this.clientIntegrations.filter(
@@ -728,6 +740,12 @@ class Analytics {
       } catch (e) {
         handleError(e);
       }
+      // If cookie consent is enabled attach the denied consent group Ids to the context
+      if (fetchCookieConsentState(this.cookieConsentOptions)) {
+        rudderElement.message.context.consentManagement = {
+          deniedConsentIds: this.deniedConsentIds,
+        };
+      }
 
       this.processOptionsParam(rudderElement, options);
       // logger.debug(JSON.stringify(rudderElement))
@@ -741,6 +759,12 @@ class Analytics {
       // structure user supplied integrations object to rudder format
       transformToRudderNames(clientSuppliedIntegrations);
       rudderElement.message.integrations = clientSuppliedIntegrations;
+
+      try {
+        rudderElement.message.context['ua-ch'] = this.uach;
+      } catch (err) {
+        handleError(err);
+      }
 
       // config plane native enabled destinations, still not completely loaded
       // in the page, add the events to a queue and process later
@@ -1001,6 +1025,21 @@ class Analytics {
       storageOptions = { ...storageOptions, samesite: options.sameSiteCookie };
     }
     this.storage.options(storageOptions);
+
+    const isUACHOptionAvailable =
+      options &&
+      typeof options.uaChTrackLevel === 'string' &&
+      UA_CH_LEVELS.includes(options.uaChTrackLevel);
+
+    if (isUACHOptionAvailable) {
+      this.uaChTrackLevel = options.uaChTrackLevel;
+    }
+
+    if (navigator.userAgentData) {
+      getUserAgentClientHint(uach => {
+        this.uach = uach;
+      }, this.uaChTrackLevel);
+    }
 
     if (options && options.integrations) {
       Object.assign(this.loadOnlyIntegrations, options.integrations);

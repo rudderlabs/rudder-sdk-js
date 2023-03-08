@@ -1,5 +1,6 @@
 import logger from './logUtil';
 import { mergeDeepRight } from './ObjectUtils';
+import { SYSTEM_KEYWORDS } from './constants';
 
 const defaultTopLevelElements = ['integrations', 'anonymousId', 'originalTimestamp'];
 
@@ -24,17 +25,15 @@ const mergeContext = (rudderElementMessage, options = {}) => {
   }
 
   Object.keys(options).forEach(key => {
-    if (!defaultTopLevelElements.includes(key)) {
+    if (!defaultTopLevelElements.includes(key) && !SYSTEM_KEYWORDS.includes(key)) {
       if (key !== 'context') {
-        if (key !== 'library') {
-          context = mergeDeepRight(context, {
-            [key]: options[key],
-          });
-        }
+        context = mergeDeepRight(context, {
+          [key]: options[key],
+        });
       } else if (typeof options[key] === 'object' && options[key] !== null) {
         const tempContext = {};
         Object.keys(options[key]).forEach(e => {
-          if (e !== 'library') {
+          if (!SYSTEM_KEYWORDS.includes(e)) {
             tempContext[e] = options[key][e];
           }
         });

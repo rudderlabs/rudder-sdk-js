@@ -39,6 +39,11 @@
         logLevel: 'DEBUG',
         configUrl: '__CONFIG_SERVER_HOST__',
         destSDKBaseURL: '__DEST_SDK_BASE_URL__',
+        cookieConsentManager: {
+          oneTrust: {
+            enabled: true,
+          },
+        },
       });
 
       rudderanalytics.ready(function () {

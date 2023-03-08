@@ -30,7 +30,7 @@ class TestBook {
                                 <h3>${suite.name}</h3>
                             </div>
                         </div>
-                        
+
                         <div class="row">
                             <div class="col">
                                 <table class="table table-striped table-hover table-bordered">
@@ -212,6 +212,11 @@ class TestBook {
             resultCallback,
           );
         }
+        if (typeof testCaseData.resetWindow === 'function') {
+          setTimeout(() => {
+            testCaseData.resetWindow();
+          }, 1);
+        }
       });
 
       new ClipboardJS('.bi-clipboard');
@@ -254,6 +259,7 @@ class TestBook {
           sanitizedResultData,
           expectedResult,
         );
+
         const statusElement = document.getElementById(`test-case-status-${testCaseId}`);
         statusElement.textContent = assertionResult;
         statusElement.className = `badge badge-${assertionResult}`;

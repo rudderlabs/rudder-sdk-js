@@ -6,7 +6,13 @@ import { v4 as uuidSecure } from '@lukeed/uuid/secure';
 import logger from './logUtil';
 import { commonNames } from './integration_cname';
 import { clientToServerNames } from './client_server_name';
-import { CONFIG_URL, RESERVED_KEYS, DEFAULT_REGION, RESIDENCY_SERVERS } from './constants';
+import {
+  CONFIG_URL,
+  RESERVED_KEYS,
+  DEFAULT_REGION,
+  RESIDENCY_SERVERS,
+  SUPPORTED_CONSENT_MANAGERS,
+} from './constants';
 import Storage from './storage';
 import { handleError } from './errorHandler';
 
@@ -752,6 +758,27 @@ const resolveDataPlaneUrl = (response, serverUrl, options) => {
   }
 };
 
+/**
+ * Function to return the state of consent management based on config passed in load options
+ * @param {Object} cookieConsentOptions
+ * @returns
+ */
+const fetchCookieConsentState = cookieConsentOptions => {
+  let isEnabled = false;
+  // eslint-disable-next-line consistent-return
+  Object.keys(cookieConsentOptions).forEach(e => {
+    const isSupportedAndEnabled =
+      SUPPORTED_CONSENT_MANAGERS.includes(e) &&
+      typeof cookieConsentOptions[e].enabled === 'boolean' &&
+      cookieConsentOptions[e].enabled === true;
+
+    if (isSupportedAndEnabled) {
+      isEnabled = true;
+    }
+  });
+  return isEnabled;
+};
+
 export {
   replacer,
   generateUUID,
@@ -785,4 +812,5 @@ export {
   countDigits,
   getStringId,
   resolveDataPlaneUrl,
+  fetchCookieConsentState,
 };
