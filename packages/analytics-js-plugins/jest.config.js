@@ -17,7 +17,6 @@ module.exports = {
     '!<rootDir>/node_modules/**/*',
     '!<rootDir>/**/dist/**/*',
     '!<rootDir>/**/jest.*',
-    '!<rootDir>/**/index.ts',
     '!<rootDir>/**/types.ts',
     '!<rootDir>/**/*.d.*',
     '!<rootDir>/**/__mocks__/**/*',

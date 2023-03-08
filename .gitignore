@@ -13,6 +13,7 @@ reports/
 *.tgz
 *.tsbuildinfo
 cdnSDK.js
+cdnSDKv3.js
 dist
 
 # misc

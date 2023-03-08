@@ -6,6 +6,7 @@ node_modules/
 reports/
 stats/
 cdnSDK.js
+cdnSDKv3.js
 *.json
 *.md
 *.d.ts

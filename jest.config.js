@@ -35,6 +35,8 @@ module.exports = {
       {
         diagnostics: false,
         isolatedModules: true,
+        sourceMap: true,
+        inlineSourceMap: true,
         tsconfig: 'tsconfig.test.json',
       },
     ],
@@ -55,7 +57,6 @@ module.exports = {
   moduleFileExtensions: ['web.ts', 'ts', 'web.js', 'js', 'json', 'node', 'mjs'],
   collectCoverageFrom: [
     '<rootDir>/packages/**/src/**/*.{js,ts}',
-    '!<rootDir>/**/index.ts',
     '!<rootDir>/**/types.ts',
     '!<rootDir>/**/*.d.*',
     '!<rootDir>/**/*.test.js',
@@ -82,7 +83,7 @@ module.exports = {
   },
   modulePathIgnorePatterns: ['<rootDir>/node', '<rootDir>/packages/(.*)/dist'],
   testEnvironmentOptions: {
-    url: 'https://www.test-host.com',
+    url: 'http://www.test-host.com',
     runScripts: 'dangerously',
     resources: 'usable',
   },

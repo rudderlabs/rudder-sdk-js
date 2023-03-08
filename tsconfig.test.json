@@ -5,8 +5,8 @@
     "module": "commonjs",
     "target": "esnext",
     "noEmit": true,
-    "sourceMap": false,
-    "inlineSourceMap": false,
+    "sourceMap": true,
+    "inlineSourceMap": true,
     "isolatedModules": true
   }
 }

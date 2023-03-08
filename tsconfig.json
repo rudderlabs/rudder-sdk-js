@@ -34,6 +34,7 @@
     "types/**/*",
     "scripts/**/*",
     "*.config.js",
+    "tsconfig.paths.json",
     "packages/**/*.config.js"
   ],
   "exclude": ["**/node_modules", "**/dist"]

@@ -3,6 +3,7 @@ node_modules/
 reports/
 stats/
 cdnSDK.js
+cdnSDKv3.js
 CHANGELOG.md
 CONTRIBUTING.md
 
