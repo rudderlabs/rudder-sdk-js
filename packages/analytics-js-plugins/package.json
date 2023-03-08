@@ -53,7 +53,6 @@
     "@lukeed/uuid": "2.0.0",
     "@preact/signals-core": "1.2.3",
     "crypto-js": "3.1.9-1",
-    "js-plugin": "1.1.0",
     "ramda": "0.28.0"
   },
   "devDependencies": {

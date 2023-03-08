@@ -62,6 +62,7 @@
     "@typescript-eslint/no-non-null-asserted-optional-chain": "off",
     "@typescript-eslint/no-unnecessary-type-constraint": "off",
     "@typescript-eslint/no-useless-constructor": ["error"],
-    "no-console": "off"
+    "no-console": "off",
+    "no-plusplus": "off"
   }
 }
