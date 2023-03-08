@@ -66,8 +66,6 @@
     "@preact/signals-core": "1.2.3",
     "@types/component-emitter": "1.2.11",
     "@types/ramda": "0.28.23",
-    "@types/uuid": "8.3.4",
-    "js-plugin": "1.1.0",
     "ramda": "0.28.0",
     "unfetch": "5.0.0"
   },

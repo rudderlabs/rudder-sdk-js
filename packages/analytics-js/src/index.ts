@@ -1,7 +1,7 @@
-import plugin from 'js-plugin';
 import { v4 as uuidv4 } from '@lukeed/uuid/secure';
 import * as R from 'ramda';
 import { effect } from '@preact/signals-core';
+import { pluginEngineInstance } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
 import { initPlugins, registerCustomPlugins } from './plugins';
 import { HttpClient } from './services/HttpClient';
 import { Queue } from './npmPackages/localstorage-retry';
@@ -60,9 +60,9 @@ class AnalyticsV3 implements IV3 {
       console.log('local state in ready: ', state.globalLocalState.value);
     });
 
-    plugin.invoke('init.pre', { data: {} }, state);
-    plugin.invoke('init.post', state);
-    plugin.invoke('ready.post');
+    pluginEngineInstance.invoke('init.pre', { data: {} }, state);
+    pluginEngineInstance.invoke('init.post', state);
+    pluginEngineInstance.invoke('ready.post');
 
     setTimeout(() => {
       this.loadIntegration();
@@ -89,13 +89,13 @@ class AnalyticsV3 implements IV3 {
     // Process value with assignment and return (plugin.invoke will return an array containing all returned values)\
     // TODO: need to add ability to chain and process sequentially the result by adding an invokeChain method
     // https://stackoverflow.com/questions/51822513/in-javascript-how-to-execute-next-function-from-an-array-of-functions
-    this.newData = plugin.invoke('local.test', data) as any[];
+    this.newData = pluginEngineInstance.invoke('local.test', data) as any[];
 
     // Process value with callback
-    plugin.invoke('localMutate.test', this.newData);
+    pluginEngineInstance.invoke('localMutate.test', this.newData);
 
     // Process value with callback nd remote plugin
-    plugin.invoke('remote.test', this.newData, setData);
+    pluginEngineInstance.invoke('remote.test', this.newData, setData);
   }
 
   async dummyFetch() {
@@ -166,7 +166,7 @@ class AnalyticsV3 implements IV3 {
       },
     ];
 
-    plugin.invoke('remote.load_integrations', clientIntegrations, state);
+    pluginEngineInstance.invoke('remote.load_integrations', clientIntegrations, state);
 
     effect(() => {
       console.log('successfullyLoadedIntegration', state.successfullyLoadedIntegration.value);

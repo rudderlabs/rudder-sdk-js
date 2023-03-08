@@ -1,13 +1,14 @@
-import plugin from 'js-plugin';
 import { effect } from '@preact/signals-core';
+import { pluginEngineInstance } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
 import { globalLocalState, remoteState } from '../state/index';
 
 // TODO: define types for plugins
 // TODO: In register also pass automatically the state to all plugins
 // TODO: copy the source of js-plugin so we can extend to to auto pass GlobalState
 // TODO: we may want to add chained plugins that pass their value to the next one
+// TODO: add retry mechanism for getting remote plugins
 const initPlugins = async () => {
-  plugin.register({
+  pluginEngineInstance.register({
     name: 'localTest',
     deps: ['localTest2', 'localTest3'] as any,
     local: {
@@ -35,7 +36,7 @@ const initPlugins = async () => {
       },
     },
   });
-  plugin.register({
+  pluginEngineInstance.register({
     name: 'localTest2',
     local: {
       test(data: any[]): any[] {
@@ -46,7 +47,7 @@ const initPlugins = async () => {
       },
     },
   });
-  plugin.register({
+  pluginEngineInstance.register({
     name: 'localTest3',
     localMutate: {
       test(data: any[]) {
@@ -54,7 +55,7 @@ const initPlugins = async () => {
       },
     },
   });
-  plugin.register({
+  pluginEngineInstance.register({
     name: 'dummyMultiLifeCyclePlugin',
     init: {
       pre(configData: any, state: any) {
@@ -68,7 +69,7 @@ const initPlugins = async () => {
     ready: {
       post() {
         console.log(`ready.post lifecycle event`);
-        plugin.invoke('ready.insidePlugin');
+        pluginEngineInstance.invoke('ready.insidePlugin');
       },
       insidePlugin() {
         console.log(`ready.insidePlugin lifecycle event`);
@@ -89,16 +90,16 @@ const initPlugins = async () => {
 
   // TODO: fix await until all remote plugins have been fetched
   remotePluginsList.forEach(async remotePlugin => {
-    await remotePlugin().then(remotePluginModule => plugin.register(remotePluginModule.default()));
+    await remotePlugin().then(remotePluginModule =>
+      pluginEngineInstance.register(remotePluginModule.default()),
+    );
   });
 };
 
 const registerCustomPlugins = (customPlugins?: any[]) => {
   customPlugins?.forEach(customPlugin => {
-    plugin.register(customPlugin);
+    pluginEngineInstance.register(customPlugin);
   });
 };
-
-// TODO: add retry mechanism for getting remote plugins
 
 export { initPlugins, registerCustomPlugins };
