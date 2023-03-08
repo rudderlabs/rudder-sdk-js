@@ -1,14 +1,14 @@
 import {
   defaultStorageEngine,
-  inMemoryStorageEngine
-} from "@rudderstack/analytics-js/components/storage/storage";
-import { Store } from "../../../src/npmPackages/localstorage-retry/Store";
-import { QueueStatuses } from "../../../src/npmPackages/localstorage-retry/QueueStatuses";
+  inMemoryStorageEngine,
+} from '@rudderstack/analytics-js/components/storage/storage';
+import { Store } from '../../../src/npmPackages/localstorage-retry/Store';
+import { QueueStatuses } from '../../../src/npmPackages/localstorage-retry/QueueStatuses';
 
 describe('Store', () => {
   let store: Store;
   const engine = defaultStorageEngine;
-  const lsProxy =  {
+  const lsProxy = {
     length: window.localStorage.length,
     setItem(k: string, v: any) {
       return window.localStorage.setItem(k, v);
@@ -22,7 +22,7 @@ describe('Store', () => {
     clear: () => window.localStorage.clear(),
     key(i: number) {
       return window.localStorage.key(i);
-    }
+    },
   };
 
   beforeEach(() => {
@@ -32,15 +32,15 @@ describe('Store', () => {
 
   describe('.get', () => {
     it('should default to null', () => {
-      Object.keys(QueueStatuses).forEach((key) => {
-        expect(store.get(QueueStatuses[key])).toBeNull();
+      Object.values(QueueStatuses).forEach(keyValue => {
+        expect(store.get(keyValue)).toBeNull();
       });
     });
 
     it('should de-serialize json', () => {
-      Object.keys(QueueStatuses).forEach((key) => {
-        engine.setItem('name.id.' + QueueStatuses[key], '["a","b",{}]');
-        expect(store.get(QueueStatuses[key])).toStrictEqual([ 'a', 'b', {} ]);
+      Object.values(QueueStatuses).forEach(keyValue => {
+        engine.setItem(`name.id.${keyValue}`, '["a","b",{}]');
+        expect(store.get(keyValue)).toStrictEqual(['a', 'b', {}]);
       });
     });
 
@@ -52,33 +52,33 @@ describe('Store', () => {
 
   describe('.set', () => {
     it('should serialize json', () => {
-      Object.keys(QueueStatuses).forEach((key) => {
-        store.set(QueueStatuses[key], ['a', 'b', {}]);
-        expect(engine.getItem('name.id.' + QueueStatuses[key])).toStrictEqual('["a","b",{}]');
+      Object.values(QueueStatuses).forEach(keyValue => {
+        store.set(keyValue, ['a', 'b', {}]);
+        expect(engine.getItem(`name.id.${keyValue}`)).toStrictEqual('["a","b",{}]');
       });
     });
   });
 
   describe('.remove', () => {
     it('should remove the item', () => {
-      Object.keys(QueueStatuses).forEach((key) => {
-        store.set(QueueStatuses[key], 'a');
-        store.remove(QueueStatuses[key]);
-        expect(engine.getItem('name.id.' + QueueStatuses[key])).toBeNull()
+      Object.values(QueueStatuses).forEach(keyValue => {
+        store.set(keyValue, 'a');
+        store.remove(keyValue);
+        expect(engine.getItem(`name.id.${keyValue}`)).toBeNull();
       });
     });
   });
 
   describe('.createValidKey', () => {
     it('should return compound if no QueueStatuses specd', () => {
-      Object.keys(QueueStatuses).forEach(() => {
+      Object.values(QueueStatuses).forEach(() => {
         store = new Store('name', 'id');
         expect(store.createValidKey('test')).toStrictEqual('name.id.test');
       });
     });
 
     it('should return undefined if invalid key', () => {
-      Object.keys(QueueStatuses).forEach(() => {
+      Object.values(QueueStatuses).forEach(() => {
         store = new Store('name', 'id', { nope: 'wrongKey' });
         expect(store.createValidKey('test')).toBeUndefined();
       });
@@ -106,8 +106,8 @@ describe('Store', () => {
     it('should swap upon quotaExceeded on set', () => {
       store = new Store('name', 'id', QueueStatuses, lsProxy);
 
-      Object.keys(QueueStatuses).forEach((key) => {
-        store.set(QueueStatuses[key], 'stuff');
+      Object.keys(QueueStatuses).forEach(keyValue => {
+        store.set(keyValue, 'stuff');
       });
 
       store.engine.setItem = () => {

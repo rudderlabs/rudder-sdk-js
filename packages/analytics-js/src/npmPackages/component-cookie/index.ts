@@ -1,4 +1,4 @@
-import { GenericObject, Nullable } from "@rudderstack/analytics-js/types";
+import { GenericObject, Nullable } from '@rudderstack/analytics-js/types';
 
 export type CookieOptions = {
   maxage?: number;
@@ -6,7 +6,7 @@ export type CookieOptions = {
   path?: string;
   domain?: string;
   secure?: boolean;
-}
+};
 
 /**
  * Encode.
@@ -17,9 +17,9 @@ const encode = (value: any): string | undefined => {
   } catch (e) {
     // TODO: should it throw error?
     console.error('error `encode(%o)` - %o', value, e);
-    return undefined
+    return undefined;
   }
-}
+};
 
 /**
  * Decode
@@ -32,7 +32,7 @@ const decode = (value: string): string | null => {
     console.error('error `decode(%o)` - %o', value, e);
     return null;
   }
-}
+};
 
 /**
  * Parse cookie `str`
@@ -52,7 +52,7 @@ const parse = (str: string): GenericObject => {
   });
 
   return obj;
-}
+};
 
 /**
  * Set cookie `name` to `value`
@@ -86,7 +86,7 @@ const set = (name?: string, value?: Nullable<string | number>, optionsConfig?: C
   }
 
   window.document.cookie = cookieString;
-}
+};
 
 /**
  * Return all cookies
@@ -102,26 +102,28 @@ const all = (): GenericObject => {
   }
 
   return parse(cookieStringValue);
-}
+};
 
 /**
  * Get cookie `name`
  */
 
-const get = (name: string): string => {
-  return (all() as any)[name];
-}
+const get = (name: string): string => (all() as any)[name];
 
 /**
  * Set or get cookie `name` with `value` and `options` object
  */
-const cookie = (name?: string, value?: Nullable<string | number>, options?: CookieOptions): void | any => {
+const cookie = function (
+  name?: string,
+  value?: Nullable<string | number>,
+  options?: CookieOptions,
+): void | any {
   switch (arguments.length) {
     case 3:
     case 2:
       return set(name, value, options);
     case 1:
-      if(name) {
+      if (name) {
         return get(name);
       }
       return all();

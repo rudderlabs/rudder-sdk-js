@@ -1,9 +1,9 @@
 import Emitter from 'component-emitter';
-import { generateUUID } from "@rudderstack/analytics-js/components/common/uuId";
-import { GenericObject } from "@rudderstack/analytics-js/types";
-import { Schedule, ScheduleModes } from "./Schedule";
+import { generateUUID } from '@rudderstack/analytics-js/components/common/uuId';
+import { GenericObject } from '@rudderstack/analytics-js/types';
+import { Schedule, ScheduleModes } from './Schedule';
 import { Store } from './Store';
-import { QueueStatuses } from "./QueueStatuses";
+import { QueueStatuses } from './QueueStatuses';
 
 export interface QueueOptions {
   maxItems?: number;
@@ -19,26 +19,26 @@ export type QueueBackoff = {
   MAX_RETRY_DELAY: number;
   FACTOR: number;
   JITTER: number;
-}
+};
 
 export type QueueTimeouts = {
   ACK_TIMER: number;
   RECLAIM_TIMER: number;
   RECLAIM_TIMEOUT: number;
   RECLAIM_WAIT: number;
-}
+};
 
 export type QueueItem = {
   item: GenericObject | string | number;
   attemptNumber: number;
   time: number;
   id: string;
-}
+};
 
 export type InProgressQueueItem = {
   item: GenericObject | string | number;
   done: QueueProcessCallback;
-}
+};
 
 export type QueueItemData = GenericObject | string | number;
 
@@ -75,7 +75,7 @@ class Queue extends Emitter {
   running: boolean;
 
   constructor(name: string, opts: QueueOptions | QueueProcessCallback, fn?: QueueProcessCallback) {
-    super()
+    super();
 
     let queueProcessCb = fn;
     let options: QueueOptions = {};
@@ -136,7 +136,7 @@ class Queue extends Emitter {
   /**
    * Starts processing the queue
    */
-  start(){
+  start() {
     if (this.running) {
       this.stop();
     }
@@ -165,7 +165,7 @@ class Queue extends Emitter {
    * @return {Number} The delay in milliseconds to wait before attempting a retry
    */
   getDelay(attemptNumber: number): number {
-    let ms = this.backoff.MIN_RETRY_DELAY * this.backoff.FACTOR**attemptNumber;
+    let ms = this.backoff.MIN_RETRY_DELAY * this.backoff.FACTOR ** attemptNumber;
 
     if (this.backoff.JITTER) {
       const rand = Math.random();
@@ -179,7 +179,7 @@ class Queue extends Emitter {
     }
 
     return Number(Math.min(ms, this.backoff.MAX_RETRY_DELAY).toPrecision(1));
-  };
+  }
 
   enqueue(entry: QueueItem) {
     let queue = this.store.get(QueueStatuses.QUEUE) || [];
@@ -193,7 +193,7 @@ class Queue extends Emitter {
     if (this.running) {
       this.processHead();
     }
-  };
+  }
 
   /**
    * Adds an item to the queue
@@ -207,7 +207,7 @@ class Queue extends Emitter {
       time: this.schedule.now(),
       id: generateUUID(),
     });
-  };
+  }
 
   /**
    * Adds an item to the retry queue
@@ -228,7 +228,7 @@ class Queue extends Emitter {
     } else {
       this.emit('discard', item, attemptNumber);
     }
-  };
+  }
 
   processHead() {
     // cancel the scheduled task if it exists
@@ -250,7 +250,7 @@ class Queue extends Emitter {
       if (err) {
         this.requeue(el.item, el.attemptNumber + 1, err, el.id);
       }
-    }
+    };
     const enqueueItem = (el: QueueItem, id: string) => {
       toRun.push({
         item: el.item,
@@ -278,7 +278,7 @@ class Queue extends Emitter {
     this.store.set(QueueStatuses.QUEUE, queue);
     this.store.set(QueueStatuses.IN_PROGRESS, inProgress);
 
-    toRun.forEach((el) => {
+    toRun.forEach(el => {
       // TODO: handle fn timeout
       try {
         this.fn(el.item, el.done);
@@ -320,8 +320,11 @@ class Queue extends Emitter {
     };
     const trackMessageIds: string[] = [];
 
-    const addConcatQueue = (queue: QueueItem[] | Object, incrementAttemptNumberBy: number) => {
-      const concatIterator = (el) => {
+    const addConcatQueue = (
+      queue: QueueItem[] | GenericObject | null,
+      incrementAttemptNumberBy: number,
+    ) => {
+      const concatIterator = (el: QueueItem | GenericObject) => {
         const id = el.id || generateUUID();
 
         if (trackMessageIds.includes(id)) {
@@ -337,9 +340,9 @@ class Queue extends Emitter {
         }
       };
 
-      if(Array.isArray(queue)) {
+      if (Array.isArray(queue)) {
         queue.forEach(concatIterator);
-      } else {
+      } else if (queue) {
         Object.values(queue).forEach(concatIterator);
       }
     };
@@ -427,9 +430,9 @@ class Queue extends Emitter {
       }
 
       return res;
-    }
+    };
 
-    findOtherQueues(this.name).forEach((store) => {
+    findOtherQueues(this.name).forEach(store => {
       if (store.id === this.id) {
         return;
       }
@@ -442,7 +445,7 @@ class Queue extends Emitter {
     });
 
     this.schedule.run(this.checkReclaim, this.timeouts.RECLAIM_TIMER, ScheduleModes.RESCHEDULE);
-  };
+  }
 }
 
 /**
@@ -451,6 +454,4 @@ class Queue extends Emitter {
 Emitter(Queue);
 
 // TODO: see if we can get rid of the Emitter
-export {
-  Queue
-};
+export { Queue };

@@ -1,38 +1,46 @@
-import { GenericObject } from "@rudderstack/analytics-js/types";
-import { cookie } from '../../../src/npmPackages/component-cookie';
-import { domain } from "../../../src/npmPackages/top-domain";
+import { GenericObject, Nullable } from '@rudderstack/analytics-js/types';
+import { cookie, CookieOptions } from '../../../src/npmPackages/component-cookie';
+import { domain } from '../../../src/npmPackages/top-domain';
 
 let cookies: GenericObject = {};
 
-jest.mock('../../../src/npmPackages/component-cookie', () => ({
-  cookie: jest.fn((name, val, opts) => {
-    if(val || opts) {
-      const parts = opts.domain.split('.');
+jest.mock('../../../src/npmPackages/component-cookie', () => {
+  const originalModule = jest.requireActual('../../../src/npmPackages/component-cookie');
 
-      if (parts[1] === 'co') {
-        return undefined;
-      }
+  return {
+    __esModule: true,
+    ...originalModule,
+    cookie: jest.fn(
+      (name: string, value: Nullable<string | number>, options: CookieOptions): void | any => {
+        if (value || options) {
+          const parts = options.domain?.split('.') || [];
 
-      cookies[name] = val;
-      return cookies[name];
-    }
+          if (parts[1] === 'co') {
+            return undefined;
+          }
 
-    if (name) {
-      return cookies[name];
-    }
+          cookies[name] = value;
+          return cookies[name];
+        }
 
-    return cookies;
-  })
-}));
+        if (name) {
+          return cookies[name];
+        }
+
+        return cookies;
+      },
+    ),
+  };
+});
 
 describe('topDomain', () => {
-
   beforeEach(() => {
     cookies = {};
   });
 
   it('should match the following urls', () => {
     expect(jest.isMockFunction(cookie)).toBeTruthy();
+    cookie('test', 1, { domain: window.location.hostname });
     expect(domain('http://www.google.com')).toEqual('google.com');
     expect(domain('http://www.google.co.uk')).toEqual('google.co.uk');
     expect(domain('http://google.co.uk')).toEqual('google.co.uk');
