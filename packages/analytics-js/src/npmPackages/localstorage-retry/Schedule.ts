@@ -1,12 +1,17 @@
-import { GenericObject } from "@rudderstack/analytics-js/types";
+import { GenericObject } from '@rudderstack/analytics-js/types';
 
-export type ScheduleTaskHandler = (id: string, callback: () => any, timeout: number, mode: ScheduleModes) => any;
+export type ScheduleTaskHandler = (
+  id: string,
+  callback: () => any,
+  timeout: number,
+  mode: ScheduleModes,
+) => any;
 export type ScheduleClock = {
   setTimeout: (fn: ScheduleTaskHandler, ms: number) => number;
   clearTimeout: (id: number) => void;
   Date: DateConstructor;
   clockLateFactor: number;
-}
+};
 
 export const enum ScheduleModes {
   ASAP = 1,
@@ -17,14 +22,14 @@ export const enum ScheduleModes {
 const DEFAULT_CLOCK_LATE_FACTOR = 2;
 
 const DEFAULT_CLOCK: ScheduleClock = {
-  setTimeout (fn: ScheduleTaskHandler, ms: number): number {
+  setTimeout(fn: ScheduleTaskHandler, ms: number): number {
     return window.setTimeout(fn, ms);
   },
-  clearTimeout (id: number) {
+  clearTimeout(id: number) {
     return window.clearTimeout(id);
   },
   Date: window.Date,
-  clockLateFactor: DEFAULT_CLOCK_LATE_FACTOR
+  clockLateFactor: DEFAULT_CLOCK_LATE_FACTOR,
 };
 
 class Schedule {
@@ -43,20 +48,27 @@ class Schedule {
 
     this.tasks[id] = this.clock.setTimeout(
       this.handle(id, task, timeout, mode || ScheduleModes.ASAP),
-      timeout
+      timeout,
     );
 
     return id;
   }
 
-  handle(id: string, callback: () => any, timeout: number, mode: ScheduleModes): () => any | undefined {
+  handle(
+    id: string,
+    callback: () => any,
+    timeout: number,
+    mode: ScheduleModes,
+  ): () => any | undefined {
     const start = this.now();
 
     return () => {
       delete this.tasks[id];
-      const elapsedTimeoutTime = start + (timeout * (this.clock.clockLateFactor || DEFAULT_CLOCK_LATE_FACTOR));
+      const elapsedTimeoutTime =
+        start + timeout * (this.clock.clockLateFactor || DEFAULT_CLOCK_LATE_FACTOR);
       const currentTime = this.now();
-      const notCompletedOrTimedOut = mode >= ScheduleModes.RESCHEDULE && elapsedTimeoutTime < currentTime;
+      const notCompletedOrTimedOut =
+        mode >= ScheduleModes.RESCHEDULE && elapsedTimeoutTime < currentTime;
 
       if (notCompletedOrTimedOut) {
         if (mode === ScheduleModes.RESCHEDULE) {
@@ -91,8 +103,4 @@ class Schedule {
   }
 }
 
-export {
-  Schedule,
-  DEFAULT_CLOCK,
-  DEFAULT_CLOCK_LATE_FACTOR
-}
+export { Schedule, DEFAULT_CLOCK, DEFAULT_CLOCK_LATE_FACTOR };

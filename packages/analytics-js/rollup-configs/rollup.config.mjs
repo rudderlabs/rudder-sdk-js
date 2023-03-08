@@ -21,10 +21,9 @@ import * as dotenv from 'dotenv';
 import pkg from '../package.json' assert { type: 'json' };
 
 const remoteModuleBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002';
-const variantSubfolder = process.env.BROWSERSLIST_ENV === 'modern' ?
-  '/modern' : '/legacy';
-const sourceMapType = process.env.PROD_DEBUG === 'inline' ?
-  'inline' : process.env.PROD_DEBUG === 'true';
+const variantSubfolder = process.env.BROWSERSLIST_ENV === 'modern' ? '/modern' : '/legacy';
+const sourceMapType =
+  process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const outDir = `dist${variantSubfolder}`;
 const distName = 'rudder-analytics';
 const modName = 'rudderanalytics';
@@ -39,9 +38,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
     watch: {
       include: ['src/**'],
     },
-    external: [
-      ...Object.keys(pkg.peerDependencies || {})
-    ],
+    external: [...Object.keys(pkg.peerDependencies || {})],
     onwarn(warning, warn) {
       // Silence 'this' has been rewritten to 'undefined' warning
       // https://rollupjs.org/guide/en/#error-this-is-undefined
@@ -61,34 +58,27 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
         jsnext: true,
         browser: true,
         preferBuiltins: false,
-        extensions: [
-          '.js', '.ts'
-        ],
+        extensions: ['.js', '.ts'],
       }),
       nodePolyfills({
-        include: ['crypto']
+        include: ['crypto'],
       }),
       commonjs({
         include: /node_modules/,
-        requireReturnsDefault: 'auto'
+        requireReturnsDefault: 'auto',
       }),
       json(),
-      typescript(
-        {
-          tsconfig: './tsconfig.json',
-          useTsconfigDeclarationDir: true
-        }
-      ),
-      excludeDependenciesFromBundle({peerDependencies: true}),
+      typescript({
+        tsconfig: './tsconfig.json',
+        useTsconfigDeclarationDir: true,
+      }),
+      excludeDependenciesFromBundle({ peerDependencies: true }),
       babel({
         compact: true,
         babelHelpers: 'bundled',
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
-        extensions: [
-          ...DEFAULT_EXTENSIONS,
-          '.ts'
-        ],
-        sourcemap: sourceMapType
+        extensions: [...DEFAULT_EXTENSIONS, '.ts'],
+        sourcemap: sourceMapType,
       }),
       federation({
         remotes: {
@@ -125,7 +115,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
           sourcemap: true,
           open: true,
           gzipSize: true,
-          brotliSize: true
+          brotliSize: true,
         }),
       isLocalServerEnabled &&
         htmlTemplate({
@@ -196,13 +186,13 @@ const outputFilesCdn = [
     generatedCode: {
       preset: process.env.BROWSERSLIST_ENV === 'modern' ? 'es2015' : 'es5',
     },
-  }
+  },
 ];
 
-const buildConfig = (moduleType) => {
+const buildConfig = moduleType => {
   return {
-  ...getDefaultConfig(distName, moduleType),
-  }
+    ...getDefaultConfig(distName, moduleType),
+  };
 };
 
 export default [
@@ -223,5 +213,5 @@ export default [
       file: `${outDir}/index.d.ts`,
       format: 'es',
     },
-  }
+  },
 ];

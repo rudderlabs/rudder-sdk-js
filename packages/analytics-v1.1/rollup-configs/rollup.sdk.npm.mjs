@@ -22,7 +22,7 @@ const outputFiles = [
     file: `${npmPackageOutDir}/index.cjs.js`,
     format: 'cjs',
     name: modName,
-  }
+  },
 ];
 
 const buildConfig = {

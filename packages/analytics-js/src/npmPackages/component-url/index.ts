@@ -8,7 +8,7 @@ export type ParsedURL = {
   protocol: string;
   search: string;
   query?: string;
-}
+};
 
 /**
  * Return default port for `protocol`
@@ -22,7 +22,7 @@ const port = (protocol: string): string => {
     default:
       return window.location.port;
   }
-}
+};
 
 /**
  * Parse the given `url`
@@ -49,8 +49,7 @@ const parse = (url: string): ParsedURL => {
 /**
  * Check if `url` is absolute
  */
-const isAbsolute =  (url: string): boolean =>
-  url.indexOf('//') === 0 || url.indexOf('://') > 0;
+const isAbsolute = (url: string): boolean => url.indexOf('//') === 0 || url.indexOf('://') > 0;
 
 /**
  * Check if `url` is relative
@@ -68,8 +67,8 @@ const isCrossDomain = (urlString: string): boolean => {
 
   return Boolean(
     url.hostname !== location.hostname ||
-    url.port !== location.port ||
-    url.protocol !== location.protocol
+      url.port !== location.port ||
+      url.protocol !== location.protocol,
   );
 };
 

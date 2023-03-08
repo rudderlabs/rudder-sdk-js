@@ -74,5 +74,5 @@ jobs:
           destination_branch: 'v1-production'
           github_token: ${{ secrets.PAT }}
           pr_title: 'chore(release): pulling ${{ steps.create-release.outputs.branch_name }} into v1-production'
-          pr_body: ":crown: *An automated PR*"
+          pr_body: ':crown: *An automated PR*'
           pr_reviewer: 'bardisg,MoumitaM,saikumarrs'

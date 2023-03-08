@@ -3,9 +3,7 @@ const QueueStatuses = {
   QUEUE: 'queue',
   RECLAIM_START: 'reclaimStart',
   RECLAIM_END: 'reclaimEnd',
-  ACK: 'ack'
+  ACK: 'ack',
 };
 
-export {
-  QueueStatuses
-}
+export { QueueStatuses };

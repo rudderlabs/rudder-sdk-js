@@ -1,9 +1,9 @@
-import { GenericObject } from "@rudderstack/analytics-js/types";
+import { GenericObject } from '@rudderstack/analytics-js/types';
 import {
   defaultStorageEngine,
   inMemoryStorageEngine,
-  isStorageQuotaExceeded
-} from "@rudderstack/analytics-js/components/storage/storage";
+  isStorageQuotaExceeded,
+} from '@rudderstack/analytics-js/components/storage/storage';
 
 // TODO: should we use the same store engine for everything??
 /**
@@ -40,7 +40,7 @@ class Store {
 
     // validate and return undefined if invalid key
     let compoundKey;
-    Object.values(keys).forEach((existingKeyName) => {
+    Object.values(keys).forEach(existingKeyName => {
       if (existingKeyName === key) {
         compoundKey = [name, id, key].join('.');
       }
@@ -56,7 +56,7 @@ class Store {
     // grab existing data, but only for this page's queue instance, not all
     // better to keep other queues in localstorage to be flushed later
     // than to pull them into memory and remove them from durable storage
-    Object.keys(this.keys).forEach((key) => {
+    Object.keys(this.keys).forEach(key => {
       const value = this.get(this.keys[key]);
       const compoundKey = [this.name, this.id, key].join('.');
 
@@ -96,7 +96,7 @@ class Store {
     try {
       const validKey = this.createValidKey(key);
 
-      if(!validKey) {
+      if (!validKey) {
         return null;
       }
 
@@ -109,11 +109,10 @@ class Store {
 
       return JSON.parse(str);
     } catch (err) {
-      console.error(`error: value 'validKey' cannot be retrieved/parsed from storage`)
+      console.error(`error: value 'validKey' cannot be retrieved/parsed from storage`);
       return null;
     }
   }
-
 
   /**
    * Remove by Key.
@@ -121,7 +120,7 @@ class Store {
   remove(key: string) {
     const validKey = this.createValidKey(key);
 
-    if(validKey) {
+    if (validKey) {
       this.engine.removeItem(validKey);
     }
   }
@@ -134,6 +133,4 @@ class Store {
   }
 }
 
-export {
-  Store
-}
+export { Store };

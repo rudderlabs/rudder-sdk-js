@@ -19,8 +19,8 @@ import * as dotenv from 'dotenv';
 import pkg from './package.json' assert { type: 'json' };
 
 const variantSubfolder = process.env.BROWSERSLIST_ENV === 'modern' ? '/modern' : '/legacy';
-const sourceMapType = process.env.PROD_DEBUG === 'inline' ?
-  'inline' : process.env.PROD_DEBUG === 'true';
+const sourceMapType =
+  process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
 const outDir = `dist${variantSubfolder}`;
 const distName = 'rudder-analytics-plugins';
 const modName = 'rudderanalyticsplugins';
@@ -34,9 +34,7 @@ export function getDefaultConfig(distName) {
     watch: {
       include: ['src/**'],
     },
-    external: [
-      ...Object.keys(pkg.peerDependencies || {})
-    ],
+    external: [...Object.keys(pkg.peerDependencies || {})],
     onwarn(warning, warn) {
       // Silence 'this' has been rewritten to 'undefined' warning
       // https://rollupjs.org/guide/en/#error-this-is-undefined
@@ -55,33 +53,26 @@ export function getDefaultConfig(distName) {
         jsnext: true,
         browser: true,
         preferBuiltins: false,
-        extensions: [
-          '.js', '.ts'
-        ]
+        extensions: ['.js', '.ts'],
       }),
       nodePolyfills({
-        include: ['crypto']
+        include: ['crypto'],
       }),
       commonjs({
         include: /node_modules/,
-        requireReturnsDefault: 'auto'
+        requireReturnsDefault: 'auto',
       }),
       json(),
-      typescript(
-        {
-          tsconfig: './tsconfig.json',
-          useTsconfigDeclarationDir: true
-        }
-      ),
-      excludeDependenciesFromBundle({peerDependencies: true}),
+      typescript({
+        tsconfig: './tsconfig.json',
+        useTsconfigDeclarationDir: true,
+      }),
+      excludeDependenciesFromBundle({ peerDependencies: true }),
       babel({
         compact: true,
         babelHelpers: 'bundled',
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
-        extensions: [
-          ...DEFAULT_EXTENSIONS,
-          '.ts'
-        ]
+        extensions: [...DEFAULT_EXTENSIONS, '.ts'],
       }),
       federation({
         name: 'remoteModules',
@@ -89,8 +80,8 @@ export function getDefaultConfig(distName) {
         exposes: {
           './RemotePlugin': './src/RemotePlugin.ts',
           './RemotePlugin2': './src/RemotePlugin2.ts',
-          './LoadIntegrations': './src/LoadIntegrations.ts'
-        }
+          './LoadIntegrations': './src/LoadIntegrations.ts',
+        },
       }),
       process.env.UGLIFY === 'true' &&
         terser({
@@ -136,7 +127,7 @@ const outputFiles = [
     generatedCode: {
       preset: process.env.BROWSERSLIST_ENV === 'modern' ? 'es2015' : 'es5',
     },
-  }
+  },
 ];
 
 const buildConfig = {
@@ -156,5 +147,5 @@ export default [
       file: `${outDir}/index.d.ts`,
       format: 'es',
     },
-  }
+  },
 ];

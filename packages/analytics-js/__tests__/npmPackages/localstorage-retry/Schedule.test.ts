@@ -1,8 +1,8 @@
 import {
   DEFAULT_CLOCK_LATE_FACTOR,
   Schedule,
-  ScheduleModes
-} from "../../../src/npmPackages/localstorage-retry/Schedule";
+  ScheduleModes,
+} from '../../../src/npmPackages/localstorage-retry/Schedule';
 
 describe('Schedule', () => {
   const clockTick = 500; // in ms
@@ -47,7 +47,7 @@ describe('Schedule', () => {
       const testCallback = jest.fn();
       schedule.run(testCallback, clockTick, ScheduleModes.ABANDON);
       // Fast forwards time but doesnt trigger timers
-      jest.setSystemTime(schedule.now() + (clockTick * DEFAULT_CLOCK_LATE_FACTOR));
+      jest.setSystemTime(schedule.now() + clockTick * DEFAULT_CLOCK_LATE_FACTOR);
       // Trigger timers here
       jest.advanceTimersByTime(clockTick);
       expect(testCallback).toHaveBeenCalledTimes(0);
@@ -67,7 +67,7 @@ describe('Schedule', () => {
       const testCallback = jest.fn();
       schedule.run(testCallback, clockTick, ScheduleModes.RESCHEDULE);
       // Fast forwards time but doesnt trigger timers
-      jest.setSystemTime(schedule.now() + (clockTick * DEFAULT_CLOCK_LATE_FACTOR));
+      jest.setSystemTime(schedule.now() + clockTick * DEFAULT_CLOCK_LATE_FACTOR);
       // Trigger timers here
       jest.advanceTimersByTime(clockTick);
       expect(testCallback).toHaveBeenCalledTimes(0);

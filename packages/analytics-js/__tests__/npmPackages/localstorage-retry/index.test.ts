@@ -1,17 +1,14 @@
+import { Schedule } from '../../../src/npmPackages/localstorage-retry/Schedule';
+import { Store } from '../../../src/npmPackages/localstorage-retry/Store';
+import { Queue } from '../../../src/npmPackages/localstorage-retry';
+import { defaultStorageEngine } from '../../../src/components/storage/storage';
+import { QueueStatuses } from '../../../src/npmPackages/localstorage-retry/QueueStatuses';
+import { GenericObject } from '@rudderstack/analytics-js/types';
 
-import { Schedule } from "../../../src/npmPackages/localstorage-retry/Schedule";
-import { Store } from "../../../src/npmPackages/localstorage-retry/Store";
-import { Queue } from "../../../src/npmPackages/localstorage-retry";
-import { defaultStorageEngine } from "../../../src/components/storage/storage";
-import {
-  QueueStatuses
-} from "../../../src/npmPackages/localstorage-retry/QueueStatuses";
-import { GenericObject } from "@rudderstack/analytics-js/types";
-
-const size = (queue: Queue): { queue: number, inProgress: number } => ({
-    queue: queue.store.get(QueueStatuses.QUEUE).length,
-    inProgress: Object.keys(queue.store.get(QueueStatuses.IN_PROGRESS) || {}).length
-  });
+const size = (queue: Queue): { queue: number; inProgress: number } => ({
+  queue: queue.store.get(QueueStatuses.QUEUE).length,
+  inProgress: Object.keys(queue.store.get(QueueStatuses.IN_PROGRESS) || {}).length,
+});
 
 describe('Queue', () => {
   let queue: Queue;
@@ -108,7 +105,7 @@ describe('Queue', () => {
 
     const mockProcessItemCb = jest.fn((_, cb) => cb(new Error('no')));
 
-      // Fail
+    // Fail
     queue.fn = mockProcessItemCb;
     queue.start();
 
@@ -123,7 +120,7 @@ describe('Queue', () => {
     expect(queue.fn).toBeCalledTimes(1);
 
     // logic based on item state (eg. could be msg timestamp field)
-    queue.shouldRetry = (item) => {
+    queue.shouldRetry = item => {
       if (item.shouldRetry === false) {
         return false;
       }
@@ -156,11 +153,13 @@ describe('Queue', () => {
     // a wild queue of interest appears
     const foundQueue = new Store('test', 'fake-id', QueueStatuses);
     foundQueue.set(foundQueue.keys.ACK, 0); // fake timers starts at time 0
-    foundQueue.set(foundQueue.keys.QUEUE, [{
-      item: 'a',
-      time: 0,
-      attemptNumber: 0
-    }]);
+    foundQueue.set(foundQueue.keys.QUEUE, [
+      {
+        item: 'a',
+        time: 0,
+        attemptNumber: 0,
+      },
+    ]);
 
     // wait for the queue to expire
     jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
@@ -168,9 +167,7 @@ describe('Queue', () => {
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(
-      queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2
-    );
+    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(1);
     expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function));
@@ -184,8 +181,8 @@ describe('Queue', () => {
       'task-id': {
         item: 'a',
         time: 0,
-        attemptNumber: 0
-      }
+        attemptNumber: 0,
+      },
     });
 
     // wait for the queue to expire
@@ -194,9 +191,7 @@ describe('Queue', () => {
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(
-      queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2
-    );
+    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(1);
     expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function));
@@ -211,14 +206,14 @@ describe('Queue', () => {
         item: 'a',
         time: 0,
         attemptNumber: 0,
-        id: '123'
+        id: '123',
       },
       {
         item: 'a',
         time: 0,
         attemptNumber: 0,
-        id: '123'
-      }
+        id: '123',
+      },
     ]);
 
     // wait for the queue to expire
@@ -227,10 +222,7 @@ describe('Queue', () => {
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(
-      queue.timeouts.RECLAIM_TIMER
-      + queue.timeouts.RECLAIM_WAIT * 2
-    );
+    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(1);
     expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function));
@@ -245,14 +237,14 @@ describe('Queue', () => {
         item: 'a',
         time: 0,
         attemptNumber: 0,
-        id: '123'
+        id: '123',
       },
       'task-id-1': {
         item: 'a',
         time: 0,
         attemptNumber: 0,
-        id: '123'
-      }
+        id: '123',
+      },
     });
 
     // wait for the queue to expire
@@ -261,10 +253,7 @@ describe('Queue', () => {
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(
-      queue.timeouts.RECLAIM_TIMER
-      + queue.timeouts.RECLAIM_WAIT * 2
-    );
+    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(1);
     expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function));
@@ -279,14 +268,14 @@ describe('Queue', () => {
         item: 'a',
         time: 0,
         attemptNumber: 0,
-        id: '123'
+        id: '123',
       },
       'task-id-1': {
         item: 'b',
         time: 0,
         attemptNumber: 0,
-        id: '456'
-      }
+        id: '456',
+      },
     });
 
     foundQueue.set(foundQueue.keys.QUEUE, [
@@ -294,14 +283,14 @@ describe('Queue', () => {
         item: 'a',
         time: 0,
         attemptNumber: 0,
-        id: '123'
+        id: '123',
       },
       {
         item: 'b',
         time: 0,
         attemptNumber: 0,
-        id: '456'
-      }
+        id: '456',
+      },
     ]);
 
     // wait for the queue to expire
@@ -310,10 +299,7 @@ describe('Queue', () => {
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(
-      queue.timeouts.RECLAIM_TIMER
-      + queue.timeouts.RECLAIM_WAIT * 2
-    );
+    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(2);
     expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function));
@@ -328,26 +314,26 @@ describe('Queue', () => {
       'task-id-0': {
         item: 'a',
         time: 0,
-        attemptNumber: 0
+        attemptNumber: 0,
       },
       'task-id-1': {
         item: 'a',
         time: 0,
-        attemptNumber: 0
-      }
+        attemptNumber: 0,
+      },
     });
 
     foundQueue.set(foundQueue.keys.QUEUE, [
       {
         item: 'a',
         time: 0,
-        attemptNumber: 0
+        attemptNumber: 0,
       },
       {
         item: 'a',
         time: 0,
-        attemptNumber: 0
-      }
+        attemptNumber: 0,
+      },
     ]);
 
     // wait for the queue to expire
@@ -356,10 +342,7 @@ describe('Queue', () => {
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(
-      queue.timeouts.RECLAIM_TIMER
-      + queue.timeouts.RECLAIM_WAIT * 2
-    );
+    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(4);
     expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function));
@@ -369,17 +352,19 @@ describe('Queue', () => {
     // set up a fake queue
     const foundQueue = new Store('test', 'fake-id', QueueStatuses);
     foundQueue.set(foundQueue.keys.ACK, -15000);
-    foundQueue.set(foundQueue.keys.QUEUE, [{
-      item: 'a',
-      time: 0,
-      attemptNumber: 0
-    }]);
+    foundQueue.set(foundQueue.keys.QUEUE, [
+      {
+        item: 'a',
+        time: 0,
+        attemptNumber: 0,
+      },
+    ]);
     foundQueue.set(foundQueue.keys.IN_PROGRESS, {
       'task-id': {
         item: 'b',
         time: 1,
-        attemptNumber: 0
-      }
+        attemptNumber: 0,
+      },
     });
 
     // wait for the queue to expire
@@ -388,10 +373,7 @@ describe('Queue', () => {
     queue.start();
 
     // wait long enough for the other queue to expire and be reclaimed
-    jest.advanceTimersByTime(
-      queue.timeouts.RECLAIM_TIMER
-      + queue.timeouts.RECLAIM_WAIT * 2
-    );
+    jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
     expect(queue.fn).toHaveBeenCalledTimes(2);
     expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function));
@@ -407,11 +389,13 @@ describe('Queue', () => {
       // a wild queue of interest appears
       const foundQueue = new Store('test', 'fake-id', QueueStatuses);
       foundQueue.set(foundQueue.keys.ACK, 0); // fake timers starts at time 0
-      foundQueue.set(foundQueue.keys.QUEUE, [{
-        item: 'a',
-        time: 0,
-        attemptNumber: 0
-      }]);
+      foundQueue.set(foundQueue.keys.QUEUE, [
+        {
+          item: 'a',
+          time: 0,
+          attemptNumber: 0,
+        },
+      ]);
 
       // wait for the queue to expire
       jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMEOUT);
@@ -419,10 +403,7 @@ describe('Queue', () => {
       queue.start();
 
       // wait long enough for the other queue to expire and be reclaimed
-      jest.advanceTimersByTime(
-        queue.timeouts.RECLAIM_TIMER
-        + queue.timeouts.RECLAIM_WAIT * 2
-      );
+      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
       expect(queue.fn).toHaveBeenCalledTimes(1);
       expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function));
@@ -436,8 +417,8 @@ describe('Queue', () => {
         'task-id': {
           item: 'a',
           time: 0,
-          attemptNumber: 0
-        }
+          attemptNumber: 0,
+        },
       });
 
       // wait for the queue to expire
@@ -446,10 +427,7 @@ describe('Queue', () => {
       queue.start();
 
       // wait long enough for the other queue to expire and be reclaimed
-      jest.advanceTimersByTime(
-        queue.timeouts.RECLAIM_TIMER
-        + queue.timeouts.RECLAIM_WAIT * 2
-      );
+      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
       expect(queue.fn).toHaveBeenCalledTimes(1);
       expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function));
@@ -459,17 +437,19 @@ describe('Queue', () => {
       // set up a fake queue
       const foundQueue = new Store('test', 'fake-id', QueueStatuses);
       foundQueue.set(foundQueue.keys.ACK, -15000);
-      foundQueue.set(foundQueue.keys.QUEUE, [{
-        item: 'a',
-        time: 0,
-        attemptNumber: 0
-      }]);
+      foundQueue.set(foundQueue.keys.QUEUE, [
+        {
+          item: 'a',
+          time: 0,
+          attemptNumber: 0,
+        },
+      ]);
       foundQueue.set(foundQueue.keys.IN_PROGRESS, {
         'task-id': {
           item: 'b',
           time: 1,
-          attemptNumber: 0
-        }
+          attemptNumber: 0,
+        },
       });
 
       // wait for the queue to expire
@@ -478,10 +458,7 @@ describe('Queue', () => {
       queue.start();
 
       // wait long enough for the other queue to expire and be reclaimed
-      jest.advanceTimersByTime(
-        queue.timeouts.RECLAIM_TIMER
-        + queue.timeouts.RECLAIM_WAIT * 2
-      );
+      jest.advanceTimersByTime(queue.timeouts.RECLAIM_TIMER + queue.timeouts.RECLAIM_WAIT * 2);
 
       expect(queue.fn).toHaveBeenCalledTimes(2);
       expect(queue.fn).toHaveBeenCalledWith('a', expect.any(Function));
@@ -512,7 +489,7 @@ describe('Queue', () => {
     queue.start();
 
     jest.advanceTimersByTime(queue.getDelay(1) + queue.getDelay(2));
-    calls.forEach((call) => {
+    calls.forEach(call => {
       expect(call === queue.maxAttempts + 1);
     });
   });
@@ -580,7 +557,7 @@ describe('events', () => {
     queue.stop();
   });
 
-  it('should emit processed with response, and item', (done) => {
+  it('should emit processed with response, and item', done => {
     queue.fn = (item, cb) => {
       cb(null, { text: 'ok' });
     };
@@ -594,7 +571,7 @@ describe('events', () => {
     queue.addItem({ a: 'b' });
   });
 
-  it('should include errors in callback to processed event', (done) => {
+  it('should include errors in callback to processed event', done => {
     queue.fn = (item, cb) => {
       cb(new Error('fail'));
     };
@@ -609,7 +586,7 @@ describe('events', () => {
     queue.addItem({ a: 'c' });
   });
 
-  it('should emit discard if the message fails shouldRetry', (done) => {
+  it('should emit discard if the message fails shouldRetry', done => {
     queue.fn = (item, cb) => {
       cb(new Error('no'));
     };
@@ -627,14 +604,16 @@ describe('events', () => {
 describe('end-to-end', () => {
   let queue: Queue;
   beforeEach(() => {
-    queue = new Queue('e2e_test', (_, cb) => { cb(); });
+    queue = new Queue('e2e_test', (_, cb) => {
+      cb();
+    });
   });
 
   afterEach(() => {
     queue.stop();
   });
 
-  it('should run end-to-end', (done) => {
+  it('should run end-to-end', done => {
     queue.fn = (item, cb) => {
       cb();
       done();
@@ -643,7 +622,7 @@ describe('end-to-end', () => {
     queue.addItem({ a: 'b' });
   });
 
-  it('should run end-to-end async', (done) => {
+  it('should run end-to-end async', done => {
     queue.fn = (item, cb) => {
       setTimeout(() => {
         cb();

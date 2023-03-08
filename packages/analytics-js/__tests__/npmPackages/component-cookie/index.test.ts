@@ -1,4 +1,4 @@
-import { cookie } from "../../../src/npmPackages/component-cookie";
+import { cookie } from '../../../src/npmPackages/component-cookie';
 
 // TODO: clean up structure here, clean up cookie before each test
 describe('cookie(name, value)', () => {
@@ -8,17 +8,17 @@ describe('cookie(name, value)', () => {
 
     cookie('species', 'ferret');
     expect('ferret').toEqual(cookie('species'));
-  })
+  });
 
   it('should escape', () => {
     cookie('name', 'tobi ferret');
     expect(document.cookie.includes('name=tobi%20ferret')).toBeTruthy();
-  })
+  });
 
   it('should unescape', () => {
     cookie('full name', 'tobi ferret');
     expect('tobi ferret').toEqual(cookie('full name'));
-  })
+  });
 
   it('should ignore URIError', () => {
     cookie('bad', '%');
@@ -30,7 +30,7 @@ describe('cookie(name, value)', () => {
 describe('when undefined', () => {
   it('should return undefined', () => {
     expect(undefined).toEqual(cookie('whatever'));
-  })
+  });
 });
 
 describe('cookie(name, null)', () => {
@@ -38,7 +38,7 @@ describe('cookie(name, null)', () => {
     cookie('type', 'ferret');
     cookie('type', null);
     expect(undefined).toEqual(cookie('type'));
-  })
+  });
 
   it('should not be returned in the cookie() object', () => {
     cookie('full name', null);
@@ -56,7 +56,7 @@ describe('cookie(name, null)', () => {
     expect(cookie('bad')).toBeNull();
     cookie('bad', null);
   });
-})
+});
 
 describe('cookie()', () => {
   it('should return all cookies', () => {
@@ -67,7 +67,7 @@ describe('cookie()', () => {
     expect(2).toEqual(Object.keys(obj).length);
     expect('loki').toEqual(obj.name);
     expect('ferret').toEqual(obj.species);
-  })
+  });
 
   it('should return all cookies and ignore URIErrors', () => {
     cookie('name', 'loki');
@@ -80,4 +80,4 @@ describe('cookie()', () => {
     expect(obj.bad).toBeNull();
     cookie('bad', null);
   });
-})
+});

@@ -1,4 +1,4 @@
-import { GenericObject } from "@rudderstack/analytics-js/types";
+import { GenericObject } from '@rudderstack/analytics-js/types';
 
 class InMemoryStorage {
   data: GenericObject = {};
@@ -36,6 +36,4 @@ class InMemoryStorage {
   }
 }
 
-export {
-  InMemoryStorage
-}
+export { InMemoryStorage };

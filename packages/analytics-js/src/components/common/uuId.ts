@@ -1,5 +1,5 @@
-import { v4 as uuidSecure } from "@lukeed/uuid/secure";
-import { v4 as uuid } from "@lukeed/uuid";
+import { v4 as uuidSecure } from '@lukeed/uuid/secure';
+import { v4 as uuid } from '@lukeed/uuid';
 
 const generateUUID = (): string => {
   if (window.crypto && typeof window.crypto.getRandomValues === 'function') {
@@ -7,8 +7,6 @@ const generateUUID = (): string => {
   }
 
   return uuid();
-}
+};
 
-export {
-  generateUUID
-}
+export { generateUUID };

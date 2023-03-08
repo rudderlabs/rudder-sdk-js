@@ -1,7 +1,7 @@
 import {
   defaultStorageEngine,
-  inMemoryStorageEngine
-} from "../../../src/components/storage/storage";
+  inMemoryStorageEngine,
+} from '../../../src/components/storage/storage';
 
 describe('localStorage', () => {
   let engine: Storage;

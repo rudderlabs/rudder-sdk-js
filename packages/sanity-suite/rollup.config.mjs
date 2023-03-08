@@ -22,16 +22,16 @@ const defaultVersion = 'v1.1';
 const getDistPath = () => {
   let distPath = process.env.TEST_PACKAGE ? `/${process.env.TEST_PACKAGE}` : '';
 
-  if(process.env.TEST_PACKAGE === 'cdn') {
-    distPath += `/${process.env.CDN_VERSION_PATH || defaultVersion}`
+  if (process.env.TEST_PACKAGE === 'cdn') {
+    distPath += `/${process.env.CDN_VERSION_PATH || defaultVersion}`;
   }
 
-  if(process.env.STAGING) {
+  if (process.env.STAGING) {
     distPath += '/staging';
   }
 
   return `dist${distPath}`;
-}
+};
 
 const getHTMLSource = () => {
   switch (process.env.TEST_PACKAGE) {
@@ -56,7 +56,7 @@ const getJSSource = () => {
 };
 
 const getDestinationsURL = () => {
-  if(process.env.DEST_SDK_BASE_URL){
+  if (process.env.DEST_SDK_BASE_URL) {
     return process.env.DEST_SDK_BASE_URL;
   }
 
@@ -66,7 +66,7 @@ const getDestinationsURL = () => {
     case 'cdn':
       versionPath = process.env.CDN_VERSION_PATH || defaultVersion;
 
-      if(process.env.STAGING) {
+      if (process.env.STAGING) {
         versionPath += '/staging';
       }
       return `${prodCDNURL}/${versionPath}/js-integrations/`;
@@ -75,7 +75,7 @@ const getDestinationsURL = () => {
     default:
       return `http://localhost:${serverPort}/js-integrations/`;
   }
-}
+};
 
 const getCopyTargets = () => {
   switch (process.env.TEST_PACKAGE) {
@@ -85,15 +85,39 @@ const getCopyTargets = () => {
       return [];
     default:
       const isV3 = process.env.CDN_VERSION_PATH === 'v3';
-      return isV3 ? [
-        { src: '../analytics-js/dist/legacy/iife/index.js', dest: getDistPath(), rename: 'rudder-analytics.min.js' },
-        { src: '../analytics-js/dist/legacy/iife/index.js.map', dest: getDistPath(), rename: 'rudder-analytics.min.js.map' },
-        { src: '../analytics-v1.1/dist/legacy/js-integrations/*', dest: `${getDistPath()}/js-integrations` },
-      ] : [
-        { src: '../analytics-v1.1/dist/legacy/rudder-analytics.min.js', dest: getDistPath(), rename: 'rudder-analytics.min.js' },
-        { src: '../analytics-v1.1/dist/legacy/rudder-analytics.min.js.map', dest: getDistPath(), rename: 'rudder-analytics.min.js.map' },
-        { src: '../analytics-v1.1/dist/legacy/js-integrations/*', dest: `${getDistPath()}/js-integrations` },
-      ];
+      return isV3
+        ? [
+            {
+              src: '../analytics-js/dist/legacy/iife/index.js',
+              dest: getDistPath(),
+              rename: 'rudder-analytics.min.js',
+            },
+            {
+              src: '../analytics-js/dist/legacy/iife/index.js.map',
+              dest: getDistPath(),
+              rename: 'rudder-analytics.min.js.map',
+            },
+            {
+              src: '../analytics-v1.1/dist/legacy/js-integrations/*',
+              dest: `${getDistPath()}/js-integrations`,
+            },
+          ]
+        : [
+            {
+              src: '../analytics-v1.1/dist/legacy/rudder-analytics.min.js',
+              dest: getDistPath(),
+              rename: 'rudder-analytics.min.js',
+            },
+            {
+              src: '../analytics-v1.1/dist/legacy/rudder-analytics.min.js.map',
+              dest: getDistPath(),
+              rename: 'rudder-analytics.min.js.map',
+            },
+            {
+              src: '../analytics-v1.1/dist/legacy/js-integrations/*',
+              dest: `${getDistPath()}/js-integrations`,
+            },
+          ];
   }
 };
 
@@ -118,44 +142,36 @@ const buildConfig = {
       DATA_PLANE_URL: process.env.DATAPLANE_URL,
       CONFIG_SERVER_HOST: process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
       DEST_SDK_BASE_URL: getDestinationsURL(),
-      CDN_VERSION_PATH: `${process.env.CDN_VERSION_PATH || defaultVersion}/${process.env.STAGING ? 'staging/' : ''}` || '',
-      STAGING_FILE_PATH: process.env.STAGING ? '-staging' : ''
+      CDN_VERSION_PATH:
+        `${process.env.CDN_VERSION_PATH || defaultVersion}/${
+          process.env.STAGING ? 'staging/' : ''
+        }` || '',
+      STAGING_FILE_PATH: process.env.STAGING ? '-staging' : '',
     }),
     resolve({
       jsnext: true,
       browser: true,
       preferBuiltins: false,
-      extensions: [
-        ...DEFAULT_EXTENSIONS,
-        '.ts'
-      ],
+      extensions: [...DEFAULT_EXTENSIONS, '.ts'],
     }),
     nodePolyfills({
-      include: ['crypto']
+      include: ['crypto'],
     }),
     commonjs({
-      include: [
-        /analytics-v1.1/,
-        /node_modules/
-      ],
-      requireReturnsDefault: 'auto'
+      include: [/analytics-v1.1/, /node_modules/],
+      requireReturnsDefault: 'auto',
     }),
     json(),
-    typescript(
-      {
-        tsconfig: './tsconfig.json',
-        useTsconfigDeclarationDir: true
-      }
-    ),
+    typescript({
+      tsconfig: './tsconfig.json',
+      useTsconfigDeclarationDir: true,
+    }),
     babel({
       compact: true,
       babelHelpers: 'bundled',
       exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
-      extensions: [
-        ...DEFAULT_EXTENSIONS,
-        '.ts'
-      ],
-      sourcemap: true
+      extensions: [...DEFAULT_EXTENSIONS, '.ts'],
+      sourcemap: true,
     }),
     copy({
       targets: getCopyTargets(),
@@ -169,8 +185,11 @@ const buildConfig = {
         __DATAPLANE_URL__: process.env.DATAPLANE_URL,
         __CONFIG_SERVER_HOST__: process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
         __DEST_SDK_BASE_URL__: getDestinationsURL(),
-        __CDN_VERSION_PATH__: `${process.env.CDN_VERSION_PATH || defaultVersion}/${process.env.STAGING ? 'staging/' : ''}` || '',
-        __STAGING_FILE_PATH__: process.env.STAGING ? '-staging' : ''
+        __CDN_VERSION_PATH__:
+          `${process.env.CDN_VERSION_PATH || defaultVersion}/${
+            process.env.STAGING ? 'staging/' : ''
+          }` || '',
+        __STAGING_FILE_PATH__: process.env.STAGING ? '-staging' : '',
       },
     }),
     process.env.DEV_SERVER &&

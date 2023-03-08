@@ -12,7 +12,7 @@ const defaultLanguage = window.navigator.language;
 Object.defineProperty(
   window.navigator,
   'userAgent',
-  ((value) => ({
+  (value => ({
     get() {
       return value || defaultUserAgent;
     },
@@ -25,7 +25,7 @@ Object.defineProperty(
 Object.defineProperty(
   window.navigator,
   'brave',
-  ((value) => ({
+  (value => ({
     get() {
       return value;
     },
@@ -38,7 +38,7 @@ Object.defineProperty(
 Object.defineProperty(
   window.navigator,
   'language',
-  ((value) => ({
+  (value => ({
     get() {
       return value || defaultLanguage;
     },

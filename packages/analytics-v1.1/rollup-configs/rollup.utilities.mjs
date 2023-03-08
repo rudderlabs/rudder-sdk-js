@@ -32,8 +32,8 @@ export function getDefaultConfig(distName) {
   const version = process.env.VERSION || 'dev-snapshot';
   const moduleType = process.env.NPM === 'true' ? 'npm' : 'cdn';
   const isLocalServerEnabled = moduleType === 'cdn' && process.env.DEV_SERVER;
-  const sourceMapType = process.env.PROD_DEBUG === 'inline' ?
-    'inline' : process.env.PROD_DEBUG === 'true';
+  const sourceMapType =
+    process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
   dotenv.config();
 
   return {
@@ -54,84 +54,77 @@ export function getDefaultConfig(distName) {
       replace({
         preventAssignment: true,
         'process.package_version': version,
-        'process.module_type': moduleType
+        'process.module_type': moduleType,
       }),
       nodePolyfills(),
       resolve({
         jsnext: true,
         browser: true,
         preferBuiltins: false,
-        extensions: [
-          '.js', '.ts'
-        ]
+        extensions: ['.js', '.ts'],
       }),
       commonjs({
         include: /node_modules/,
-        requireReturnsDefault: 'auto'
+        requireReturnsDefault: 'auto',
       }),
       json(),
-      typescript(
-        {
-          tsconfig: './tsconfig.json',
-          useTsconfigDeclarationDir: true
-        }
-      ),
+      typescript({
+        tsconfig: './tsconfig.json',
+        useTsconfigDeclarationDir: true,
+      }),
       babel({
         compact: true,
         babelHelpers: 'bundled',
         exclude: ['node_modules/@babel/**', 'node_modules/core-js/**'],
-        extensions: [
-          ...DEFAULT_EXTENSIONS,
-          '.ts'
-        ],
-        sourcemap: sourceMapType
+        extensions: [...DEFAULT_EXTENSIONS, '.ts'],
+        sourcemap: sourceMapType,
       }),
       process.env.UGLIFY === 'true' &&
-      terser({
-        format: {
-          comments: false,
-        },
-      }),
+        terser({
+          format: {
+            comments: false,
+          },
+        }),
       process.env.VISUALIZER === 'true' &&
-      process.env.UGLIFY === 'true' &&
-      visualizer({
-        filename: `./stats/${distName}.html`,
-        title: `Rollup Visualizer - ${distName}`,
-        sourcemap: true,
-        open: true,
-        gzipSize: true,
-        brotliSize: true,
-      }),
+        process.env.UGLIFY === 'true' &&
+        visualizer({
+          filename: `./stats/${distName}.html`,
+          title: `Rollup Visualizer - ${distName}`,
+          sourcemap: true,
+          open: true,
+          gzipSize: true,
+          brotliSize: true,
+        }),
       filesize({
         showBeforeSizes: 'build',
         showBrotliSize: true,
       }),
       isLocalServerEnabled &&
-      htmlTemplate({
-        template: process.env.TEST_FILE_PATH || 'public/index.html',
-        target: 'index.html',
-        attrs: ['async', 'defer'],
-        replaceVars: {
-          __WRITE_KEY__: process.env.WRITE_KEY,
-          __DATAPLANE_URL__: process.env.DATAPLANE_URL,
-          __CONFIG_SERVER_HOST__:
-            process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
-          __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
-        },
-      }),
+        htmlTemplate({
+          template: process.env.TEST_FILE_PATH || 'public/index.html',
+          target: 'index.html',
+          attrs: ['async', 'defer'],
+          replaceVars: {
+            __WRITE_KEY__: process.env.WRITE_KEY,
+            __DATAPLANE_URL__: process.env.DATAPLANE_URL,
+            __CONFIG_SERVER_HOST__:
+              process.env.CONFIG_SERVER_HOST || 'https://api.dev.rudderlabs.com',
+            __DEST_SDK_BASE_URL__: process.env.DEST_SDK_BASE_URL,
+          },
+        }),
       isLocalServerEnabled &&
-      serve({
-        open: true,
-        openPage: `/${
-          process.env.BROWSERSLIST_ENV === 'modern' ? 'modern' : 'legacy'
-        }/index.html`,
-        contentBase: ['dist'],
-        host: 'localhost',
-        port: 3004,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-        },
-      }),
+        serve({
+          open: true,
+          openPage: `/${
+            process.env.BROWSERSLIST_ENV === 'modern' ? 'modern' : 'legacy'
+          }/index.html`,
+          contentBase: ['dist'],
+          host: 'localhost',
+          port: 3004,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+          },
+        }),
       isLocalServerEnabled && livereload(),
     ],
   };

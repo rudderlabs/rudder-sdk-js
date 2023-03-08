@@ -11,13 +11,13 @@ service worker.
 
 ## Examples
 
-The provided examples are based on [Chrome Extension v3 Starter](https://github.com/SimGus/chrome-extension-v3-starter) 
+The provided examples are based on [Chrome Extension v3 Starter](https://github.com/SimGus/chrome-extension-v3-starter)
 that contains a minimal Chrome/Chromium extension using the newest version of the manifest (v3).
 
 ## Background Script
 
-RuderStack npm package JS SDK service worker export can be used as background script. In order to do so you will need to 
-place it in your Chrome extension resources, either by copying the file from node modules, and have it as part of the 
+RuderStack npm package JS SDK service worker export can be used as background script. In order to do so you will need to
+place it in your Chrome extension resources, either by copying the file from node modules, and have it as part of the
 resources, or by using a JS bundler and bundle it as part of you service worker script.
 
 Relevant permissions need to be enabled in the manifest file as per the desired capabilities and connections allowed.
@@ -40,7 +40,7 @@ Additionally setting the background script type as module will allow you to impo
         "type": "module"
     },
 
-After that you should be able to follow the [NodeJS SDK documentation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/) 
+After that you should be able to follow the [NodeJS SDK documentation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-node-sdk/)
 for further usage.
 
 You can react to events that are available in background scripts via the [Chrome API](https://developer.chrome.com/docs/extensions/reference/).
@@ -56,12 +56,12 @@ Sample background script imports:
     import { Analytics } from "rudder-sdk-js/service-worker";
 
     # In case the package is imported directly as es-module and then bundled in the background script
-    import { Analytics } from "rudder-sdk-js/service-worker/index.es"; 
+    import { Analytics } from "rudder-sdk-js/service-worker/index.es";
 
 Sample background script:
-    
+
     const rudderClient = new Analytics("<writeKey>","<dataPlaneURL>/v1/batch");
-    
+
     chrome.tabs.onUpdated.addListener((tabId, tab) => {
         if (tab.url) {
             rudderClient.track({
@@ -77,7 +77,7 @@ Sample background script:
 ## Content Script
 
 RuderStack JS SDK can be used as content script. In order to do so you will need to place it in your Chrome extension
-resources, either by downloading the file and have it as part of the resources or by using a JS bundler and bundle it as 
+resources, either by downloading the file and have it as part of the resources or by using a JS bundler and bundle it as
 part of you content script.
 
 Relevant permissions need to be enabled in the manifest file as per the desired capabilities and connections allowed
@@ -95,7 +95,7 @@ Relevant permissions need to be enabled in the manifest file as per the desired 
         ]
     }
 
-After that you should be able to follow the [JS SDK documentation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/quick-start-guide/) 
+After that you should be able to follow the [JS SDK documentation](https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/quick-start-guide/)
 for further usage.
 
 You can react to events that are available in both content and background scripts too via the [Chrome API](https://developer.chrome.com/docs/extensions/reference/).
@@ -106,7 +106,7 @@ Sample content script:
 
     # prepend the JS SDK file here
     rudderanalytics.load("<writeKey>", "<dataPlaneURL>");
-    
+
     chrome.runtime.onMessage.addListener((obj, sender, response) => {
         const { type, value } = obj;
 

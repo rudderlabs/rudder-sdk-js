@@ -1,5 +1,5 @@
 module.exports = {
-    gitRawCommitsOpts: {
-        merges: null
-    }
-}
+  gitRawCommitsOpts: {
+    merges: null,
+  },
+};

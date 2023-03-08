@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires,import/no-extraneous-dependencies
 const custom = require('@digitalroute/cz-conventional-changelog-for-jira/configurable');
 
 module.exports = custom({
@@ -12,9 +13,9 @@ module.exports = custom({
     'release',
     'monorepo',
     'integrations',
-    '@rudderstack/analytics-js',
-    '@rudderstack/analytics-js-plugins',
+    'analytics-js',
+    'analytics-js-plugins',
     'rudder-sdk-js',
-    '@rudderstack/analytics-js-sanity-suite',
+    'analytics-js-sanity-suite',
   ],
 });

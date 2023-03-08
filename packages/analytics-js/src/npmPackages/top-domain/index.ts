@@ -1,4 +1,4 @@
-import { TOP_LEVEL_DOMAIN } from "@rudderstack/analytics-js/constants/storageKeyNames";
+import { TOP_LEVEL_DOMAIN } from '@rudderstack/analytics-js/constants/storageKeyNames';
 import { cookie } from '../component-cookie';
 import { parse } from '../component-url';
 
@@ -43,11 +43,11 @@ const domain = (url: string): string => {
   const levels = levelsFunc(url);
 
   // Lookup the real top level one.
-  for (let i = 0; i < levels.length; i = i + 1){
+  for (let i = 0; i < levels.length; i = i + 1) {
     const domain = levels[i];
     const cname = TOP_LEVEL_DOMAIN;
     const opts = {
-      domain: `.${domain}`
+      domain: `.${domain}`,
     };
 
     // Set cookie on domain
