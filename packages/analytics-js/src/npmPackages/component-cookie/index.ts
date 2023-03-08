@@ -24,13 +24,13 @@ const encode = (value: any): string | undefined => {
 /**
  * Decode
  */
-const decode = (value: string): string | undefined => {
+const decode = (value: string): string | null => {
   try {
     return decodeURIComponent(value);
   } catch (e) {
     // TODO: should it throw error?
     console.error('error `decode(%o)` - %o', value, e);
-    return undefined
+    return null;
   }
 }
 
@@ -58,7 +58,7 @@ const parse = (str: string): GenericObject => {
  * Set cookie `name` to `value`
  */
 const set = (name?: string, value?: Nullable<string | number>, optionsConfig?: CookieOptions) => {
-  const options = { ...optionsConfig } || {};
+  const options: CookieOptions = { ...optionsConfig } || {};
   let cookieString = `${encode(name)}=${encode(value)}`;
 
   if (value === null) {
@@ -85,7 +85,7 @@ const set = (name?: string, value?: Nullable<string | number>, optionsConfig?: C
     cookieString += `; secure`;
   }
 
-  document.cookie = cookieString;
+  window.document.cookie = cookieString;
 }
 
 /**
@@ -95,7 +95,7 @@ const all = (): GenericObject => {
   let cookieStringValue;
 
   try {
-    cookieStringValue = document.cookie;
+    cookieStringValue = window.document.cookie;
   } catch (err) {
     console.error((err as Error).stack || err);
     return {} as GenericObject;
@@ -108,14 +108,14 @@ const all = (): GenericObject => {
  * Get cookie `name`
  */
 
-function get(name: string): string {
+const get = (name: string): string => {
   return (all() as any)[name];
 }
 
 /**
  * Set or get cookie `name` with `value` and `options` object
  */
-const cookie = function (name?: string, value?: Nullable<string | number>, options?: GenericObject): void | any {
+const cookie = (name?: string, value?: Nullable<string | number>, options?: CookieOptions): void | any => {
   switch (arguments.length) {
     case 3:
     case 2:

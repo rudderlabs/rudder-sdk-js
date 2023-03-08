@@ -1,3 +1,3 @@
-const TEST = 'test';
+export {
 
-export { TEST };
+}

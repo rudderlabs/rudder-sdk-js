@@ -1,9 +1,11 @@
+import { TOP_LEVEL_DOMAIN } from "@rudderstack/analytics-js/constants/storageKeyNames";
 import { cookie } from '../component-cookie';
 import { parse } from '../component-url';
-import { TOP_LEVEL_DOMAIN } from "../../constants/cookieNames";
 
 /**
  * Levels returns all levels of the given url
+ *
+ * The method returns an empty array when the hostname is an ip or `localhost`.
  */
 const levelsFunc = (url: string): string[] => {
   const host = parse(url).hostname;
@@ -36,28 +38,12 @@ const levelsFunc = (url: string): string[] => {
  * cookie on each one when it succeeds it returns the top level domain.
  *
  * The method returns an empty string when the hostname is an ip or `localhost`.
- *
- * Example levels:
- *
- *      domain.levels('http://www.google.co.uk');
- *      // => ["co.uk", "google.co.uk", "www.google.co.uk"]
- *
- * Example:
- *
- *      domain('http://localhost:3000/baz');
- *      // => ''
- *      domain('http://dev:3000/baz');
- *      // => ''
- *      domain('http://127.0.0.1:3000/baz');
- *      // => ''
- *      domain('http://test.io/baz');
- *      // => 'test.io'
  */
 const domain = (url: string): string => {
   const levels = levelsFunc(url);
 
   // Lookup the real top level one.
-  for (let i = 0; i < levels.length; i += i){
+  for (let i = 0; i < levels.length; i = i + 1){
     const domain = levels[i];
     const cname = TOP_LEVEL_DOMAIN;
     const opts = {
@@ -66,6 +52,7 @@ const domain = (url: string): string => {
 
     // Set cookie on domain
     cookie(cname, 1, opts);
+
     // If successful
     if (cookie(cname)) {
       // Remove cookie from domain
