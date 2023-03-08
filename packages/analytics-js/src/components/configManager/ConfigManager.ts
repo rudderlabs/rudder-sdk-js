@@ -1,0 +1,3 @@
+class ConfigManager {}
+
+export { ConfigManager };

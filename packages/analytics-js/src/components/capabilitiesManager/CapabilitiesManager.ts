@@ -1,0 +1,3 @@
+class CapabilitiesManager {}
+
+export { CapabilitiesManager };

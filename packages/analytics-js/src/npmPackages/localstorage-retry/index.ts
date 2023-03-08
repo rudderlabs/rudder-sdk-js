@@ -1,8 +1,8 @@
 import Emitter from 'component-emitter';
-import { generateUUID } from '@rudderstack/analytics-js/components/common/uuId';
+import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
 import { GenericObject } from '@rudderstack/analytics-js/types';
+import { Store } from '@rudderstack/analytics-js/services/StorageManager/Store';
 import { Schedule, ScheduleModes } from './Schedule';
-import { Store } from './Store';
 import { QueueStatuses } from './QueueStatuses';
 
 export interface QueueOptions {
@@ -407,7 +407,7 @@ class Queue extends Emitter {
       const res: Store[] = [];
       const storage = this.store.getOriginalEngine();
 
-      for (let i = 0; i < storage.length; i = i + 1) {
+      for (let i = 0; i < storage.length; i++) {
         const k = storage.key(i);
         const parts: string[] = k ? k.split('.') : [];
 

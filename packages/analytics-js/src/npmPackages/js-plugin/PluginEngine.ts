@@ -1,9 +1,9 @@
 import { GenericObject } from '@rudderstack/analytics-js/types';
-import { isFunction } from '@rudderstack/analytics-js/components/common/checkUtils';
+import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
 import {
   getValueByPath,
   hasValueByPath,
-} from '@rudderstack/analytics-js/components/common/objectUtils';
+} from '@rudderstack/analytics-js/components/utilities/object';
 import { isPluginEngineDebugMode } from '@rudderstack/analytics-js/npmPackages/js-plugin/debug';
 
 export interface ExtensionPoint {

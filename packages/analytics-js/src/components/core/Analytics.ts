@@ -1,0 +1,3 @@
+class Analytics {}
+
+export { Analytics };

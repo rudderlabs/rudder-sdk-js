@@ -1,7 +1,7 @@
 import {
   isBrowser,
   isNode,
-} from '@rudderstack/analytics-js/components/CapabilitiesManager/detection';
+} from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
 
 /*
  * Only support debug mode on browser and node, not web workers.

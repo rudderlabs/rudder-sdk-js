@@ -1,13 +1,13 @@
+import { v4 as uuidv4 } from '@lukeed/uuid/secure';
 import * as R from 'ramda';
 import { effect } from '@preact/signals-core';
-import { pluginEngineInstance } from './npmPackages/js-plugin/PluginEngine';
+import { pluginEngineInstance } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
 import { initPlugins, registerCustomPlugins } from './plugins/indexPOCToDelete';
 import { HttpClientPOC } from './services/HttpClient/HttpClientPOC';
 import { Queue } from './npmPackages/localstorage-retry';
 import { setExposedGlobal, state } from './state/index';
 import type { GenericObject } from './types/GenericObject';
 import { UserSession } from './services/StorageManager/POCStorageToDelete/session';
-import { generateUUID } from './components/utilities/uuId';
 
 export interface IV3 {
   status?: 'starting' | 'ready';
@@ -31,7 +31,7 @@ class AnalyticsV3 implements IV3 {
   constructor() {
     this.status = 'starting';
     this.newData = [];
-    this.messageId = generateUUID();
+    this.messageId = uuidv4();
     this.userSession = UserSession;
     setExposedGlobal('state', state);
     this.httpClient = new HttpClientPOC();

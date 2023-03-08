@@ -1,0 +1,3 @@
+class PluginsManager {}
+
+export { PluginsManager };
