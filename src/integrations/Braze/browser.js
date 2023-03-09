@@ -288,13 +288,15 @@ class Braze {
     del(properties, 'currency');
 
     // we have to make a separate call to appboy for each product
-    products.forEach((product) => {
-      const productId = product.product_id;
-      const { price } = product;
-      const { quantity } = product;
-      if (quantity && price && productId)
-        window.braze.logPurchase(productId, price, currencyCode, quantity, properties);
-    });
+    if(products && Array.isArray(products) && products.length > 0) {
+        products.forEach((product) => {
+          const productId = product.product_id;
+          const { price } = product;
+          const { quantity } = product;
+          if (quantity && price && productId)
+            window.braze.logPurchase(productId, price, currencyCode, quantity, properties);
+        });
+    }
   }
 
   track(rudderElement) {
