@@ -11,6 +11,7 @@ rudderanalytics.load('WRITE_KEY', 'DATA_PLANE_URL', {
       enabled: true,
     },
   },
+  uaChTrackLevel: 'full',
 });
 
 rudderanalytics.ready(() => {
