@@ -18,16 +18,15 @@ export default class GA4 {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
-    this.measurementId = config.measurementId;
-    this.analytics = analytics;
-    this.extendPageViewParams = config.extendPageViewParams || false;
-    this.capturePageView = config.capturePageView || 'rs';
-    this.extendGroupPayload = config.extendGroupPayload || false;
-    this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
     this.name = NAME;
-    this.clientId = '';
     this.sessionId = '';
+    this.analytics = analytics;
+    this.measurementId = config.measurementId;
+    this.capturePageView = config.capturePageView || 'rs';
     this.addSendToParameter = config.addSendToParameter || false;
+    this.addSendToParameter = config.addSendToParameter || false;
+    this.extendPageViewParams = config.extendPageViewParams || false;
+    this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
   }
 
   loadScript(measurementId) {
@@ -276,7 +275,7 @@ export default class GA4 {
     getDestinationEventName(rudderElement.message.type).forEach((events) => {
       this.sendGAEvent(events.dest, {
         group_id: groupId,
-        ...(this.extendGroupPayload ? traits : {}),
+        ...(traits || {}),
       });
     });
   }
