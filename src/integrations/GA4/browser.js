@@ -21,10 +21,9 @@ export default class GA4 {
     }
     this.measurementId = config.measurementId;
     this.analytics = analytics;
-    this.blockPageView = config.blockPageViewEvent || false;
     this.extendPageViewParams = config.extendPageViewParams || false;
+    this.capturePageView = config.capturePageView || 'rs';
     this.extendGroupPayload = config.extendGroupPayload || false;
-    this.debugMode = config.debugMode || false;
     this.isHybridModeEnabled = config.useNativeSDKToSend === false || false;
     this.name = NAME;
     this.clientId = '';
@@ -42,18 +41,18 @@ export default class GA4 {
       };
     window.gtag('js', new Date());
     const gtagParameterObject = {};
-    // This condition is not working, even after disabling page view
-    // page_view is even getting called on page load
-    if (this.blockPageView) {
+
+    if (this.capturePageView === 'rs') {
       gtagParameterObject.send_page_view = false;
     }
     // Setting the userId as a part of configuration
     if (this.analytics.userId) {
       gtagParameterObject.user_id = this.analytics.userId;
     }
-    if (this.debugMode) {
-      gtagParameterObject.debug_mode = true;
-    }
+
+    gtagParameterObject.client_id = this.analytics.anonymousId;
+    gtagParameterObject.debug_mode = true;
+
     if (Object.keys(gtagParameterObject).length === 0) {
       window.gtag('config', measurementId);
     } else {
@@ -61,12 +60,9 @@ export default class GA4 {
     }
 
     /**
-     * Setting the parameter clientId and sessionId using gtag api
+     * Setting the parameter sessionId using gtag api
      * Ref: https://developers.google.com/tag-platform/gtagjs/reference
      */
-    window.gtag('get', this.measurementId, 'client_id', (clientId) => {
-      this.clientId = clientId;
-    });
     window.gtag('get', this.measurementId, 'session_id', (sessionId) => {
       this.sessionId = sessionId;
     });
@@ -91,7 +87,7 @@ export default class GA4 {
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
-    return !!(this.clientId && this.sessionId);
+    return !!this.sessionId;
   }
 
   isReady() {
@@ -227,7 +223,7 @@ export default class GA4 {
     // Setting the userId as a part of configuration
     if (rudderElement.message.userId) {
       const { userId } = rudderElement.message;
-      if (this.blockPageView) {
+      if (this.capturePageView === 'rs') {
         window.gtag('config', this.measurementId, {
           user_id: userId,
           send_page_view: false,
@@ -242,23 +238,25 @@ export default class GA4 {
 
   page(rudderElement) {
     logger.debug('In GoogleAnalyticsManager Page');
-    let pageProps = rudderElement.message.properties;
-    if (!pageProps) return;
-    pageProps = flattenJsonPayload(pageProps);
-    const properties = { ...getPageViewProperty(pageProps) };
-    if (this.addSendToParameter) {
-      properties.send_to = this.measurementId;
-    }
-    if (this.analytics.userId) {
-      properties.user_id = this.analytics.userId;
-    }
-    if (this.extendPageViewParams) {
-      window.gtag('event', 'page_view', {
-        ...pageProps,
-        ...properties,
-      });
-    } else {
-      window.gtag('event', 'page_view', properties);
+    if (this.capturePageView === 'rs') {
+      let pageProps = rudderElement.message.properties;
+      if (!pageProps) return;
+      pageProps = flattenJsonPayload(pageProps);
+      const properties = { ...getPageViewProperty(pageProps) };
+      if (this.addSendToParameter) {
+        properties.send_to = this.measurementId;
+      }
+      if (this.analytics.userId) {
+        properties.user_id = this.analytics.userId;
+      }
+      if (this.extendPageViewParams) {
+        window.gtag('event', 'page_view', {
+          ...pageProps,
+          ...properties,
+        });
+      } else {
+        window.gtag('event', 'page_view', properties);
+      }
     }
   }
 
@@ -287,7 +285,6 @@ export default class GA4 {
     return {
       'Google Analytics 4': {
         sessionId: this.sessionId,
-        clientId: this.clientId,
       },
     };
   }
