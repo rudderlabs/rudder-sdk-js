@@ -137,7 +137,7 @@ class TestBook {
                             <button type="button" class="btn btn-dark" id="execute-all-trigger">
                                 Execute All
                             </button>
-                            <a href="https://www.comparetext.net/compare" target="_blank" class="btn btn-secondary">See payloads diff</a>
+                            <a href="https://jsondiff.com" target="_blank" class="btn btn-secondary">See payloads diff</a>
                             <button type="button" class="btn btn-secondary" onClick="window.location.reload()">
                                 Reset/Reload
                             </button>

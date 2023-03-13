@@ -1,6 +1,6 @@
 jest.setTimeout(60000);
 
-const documentHTML = '<script></script>';
+const documentHTML = '<!doctype html><html><head></head><body><div id="root"></div></body></html>';
 
 global.window.document.body.innerHTML = documentHTML;
 global.window.innerWidth = 1680;
