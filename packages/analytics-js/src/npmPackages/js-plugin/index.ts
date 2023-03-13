@@ -1,1 +1,1 @@
-export { PluginEngine, pluginEngineInstance } from './PluginEngine';
+export { PluginEngine, defaultPluginEngine } from './PluginEngine';

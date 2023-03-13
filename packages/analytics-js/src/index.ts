@@ -1,15 +1,18 @@
 import * as R from 'ramda';
 import { effect } from '@preact/signals-core';
 import { defaultHttpClient, HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { pluginEngineInstance } from './npmPackages/js-plugin/PluginEngine';
+import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
+import {
+  defaultPluginManager,
+  PluginsManager,
+} from '@rudderstack/analytics-js/components/pluginsManager';
 import { initPlugins, registerCustomPlugins } from './plugins/indexPOCToDelete';
 import { Queue } from './npmPackages/localstorage-retry';
 import { setExposedGlobal, state } from './state/index';
 import type { GenericObject } from './types/GenericObject';
 import { UserSession } from './services/StorageManager/POCStorageToDelete/session';
 import { generateUUID } from './components/utilities/uuId';
-import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
 
 export interface IV3 {
   status?: 'starting' | 'ready';
@@ -28,6 +31,7 @@ class AnalyticsV3 implements IV3 {
   httpClient: HttpClient;
   logger: Logger;
   errorHandler: ErrorHandler;
+  pluginsManager: PluginsManager;
   payloadQueue: any;
   uSession: any;
 
@@ -41,6 +45,7 @@ class AnalyticsV3 implements IV3 {
     this.httpClient = defaultHttpClient;
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
+    this.pluginsManager = defaultPluginManager;
     this.httpClient.setAuthHeader('2L8Fl7ryPss3Zku133Pj5ox7NeP');
 
     effect(() => {
@@ -67,9 +72,9 @@ class AnalyticsV3 implements IV3 {
       console.log('local state in ready: ', state.globalLocalState.value);
     });
 
-    pluginEngineInstance.invoke('init.pre', { data: {} }, state);
-    pluginEngineInstance.invoke('init.post', state);
-    pluginEngineInstance.invoke('ready.post');
+    this.pluginsManager.invoke('init.pre', { data: {} }, state);
+    this.pluginsManager.invoke('init.post', state);
+    this.pluginsManager.invoke('ready.post');
 
     setTimeout(() => {
       this.loadIntegration();
@@ -111,13 +116,13 @@ class AnalyticsV3 implements IV3 {
     // Process value with assignment and return (plugin.invoke will return an array containing all returned values)\
     // TODO: need to add ability to chain and process sequentially the result by adding an invokeChain method
     // https://stackoverflow.com/questions/51822513/in-javascript-how-to-execute-next-function-from-an-array-of-functions
-    this.newData = pluginEngineInstance.invoke('local.test', data) as any[];
+    this.newData = this.pluginsManager.invoke('local.test', data) as any[];
 
     // Process value with callback
-    pluginEngineInstance.invoke('localMutate.test', this.newData);
+    this.pluginsManager.invoke('localMutate.test', this.newData);
 
     // Process value with callback nd remote plugin
-    pluginEngineInstance.invoke('remote.test', this.newData, setData);
+    this.pluginsManager.invoke('remote.test', this.newData, setData);
   }
 
   async dummyFetch() {
@@ -203,7 +208,7 @@ class AnalyticsV3 implements IV3 {
       },
     ];
 
-    pluginEngineInstance.invoke('remote.load_integrations', clientIntegrations, state);
+    this.pluginsManager.invoke('remote.load_integrations', clientIntegrations, state);
 
     effect(() => {
       console.log('successfullyLoadedIntegration', state.successfullyLoadedIntegration.value);

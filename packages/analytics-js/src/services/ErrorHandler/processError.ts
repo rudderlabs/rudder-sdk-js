@@ -1,6 +1,7 @@
 import { LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
 import { handleScriptLoadAdBlocked } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/adBlockers';
 import { serializeError } from 'serialize-error';
+import { isEvent } from '@rudderstack/analytics-js/components/utilities/event';
 
 export type SDKError = Error | Event | string | unknown;
 
@@ -23,19 +24,16 @@ const processScriptLoadError = (event: Event): string => {
     } with id ${targetElement.id}`;
 
     // TODO: adblocker detection record here?
-    //  better to decouple, if not we need to pass the analytics instance here somehow instead of null
+    //  better to decouple, if not we need to pass the analytics instance here somehow
+    //  or find another way to trigger the analytics track event from handleScriptLoadAdBlocked
     // Discard Ad-block errors for third party native SDK loading, only track them in analytics
-    errorMessage = handleScriptLoadAdBlocked(
-      null,
-      errorMessage,
-      targetElement as HTMLScriptElement,
-    );
+    errorMessage = handleScriptLoadAdBlocked(errorMessage, targetElement as HTMLScriptElement);
   }
 
   return errorMessage;
 };
 
-const processError = (error: SDKError) => {
+const processError = (error: SDKError): string => {
   let errorMessage;
 
   try {
@@ -43,11 +41,13 @@ const processError = (error: SDKError) => {
       errorMessage = error;
     } else if (error instanceof Error) {
       errorMessage = error.message;
-    } else if (error instanceof Event) {
-      errorMessage = processScriptLoadError(error);
+    } else if (isEvent(error)) {
+      errorMessage = processScriptLoadError(error as Event);
     } else {
-      // TODO: JSON.stringify goes into circular dependency if window object exist in firefox, fix this known issue, trying serializeError
-      errorMessage = (error as any).message ? (error as any).message : serializeError(error);
+      // TODO: JSON.stringify goes into circular dependency if window object exist in firefox, fix this known issue, trying serializeError but takes up bundle size
+      errorMessage = (error as any).message
+        ? (error as any).message
+        : JSON.stringify(serializeError(error));
     }
   } catch (e) {
     errorMessage = `Unknown error: ${(e as Error).message}`;

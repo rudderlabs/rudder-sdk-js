@@ -182,6 +182,6 @@ class PluginEngine {
   }
 }
 
-const pluginEngineInstance = new PluginEngine({ throws: true });
+const defaultPluginEngine = new PluginEngine({ throws: true });
 
-export { PluginEngine, pluginEngineInstance };
+export { PluginEngine, defaultPluginEngine };

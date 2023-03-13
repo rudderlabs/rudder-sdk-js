@@ -1,18 +1,18 @@
 const isAdBlockedElement = (element: HTMLScriptElement): boolean => element.id === 'ad-block';
 
 const handleScriptLoadAdBlocked = (
-  analyticsInstance: any,
   errorMessage: string,
   element: HTMLScriptElement,
+  analyticsInstance?: any,
 ): string => {
   // SDK triggered ad-blocker script
   if (isAdBlockedElement(element)) {
     // Track ad blocked page in analytics
-    analyticsInstance.page(
+    analyticsInstance?.page(
       'RudderJS-Initiated',
       'ad-block page request',
       { path: '/ad-blocked', title: errorMessage },
-      analyticsInstance.sendAdblockPageOptions,
+      analyticsInstance?.sendAdblockPageOptions,
     );
 
     // No need to proceed further for Ad-block errors

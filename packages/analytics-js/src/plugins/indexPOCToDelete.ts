@@ -1,5 +1,5 @@
 import { effect } from '@preact/signals-core';
-import { pluginEngineInstance } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
 import { globalLocalState, remoteState } from '../state/index';
 
 // TODO: define types for plugins
@@ -8,7 +8,7 @@ import { globalLocalState, remoteState } from '../state/index';
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
 const initPlugins = async () => {
-  pluginEngineInstance.register({
+  defaultPluginEngine.register({
     name: 'localTest',
     deps: ['localTest2', 'localTest3'] as any,
     local: {
@@ -36,7 +36,7 @@ const initPlugins = async () => {
       },
     },
   });
-  pluginEngineInstance.register({
+  defaultPluginEngine.register({
     name: 'localTest2',
     local: {
       test(data: any[]): any[] {
@@ -47,7 +47,7 @@ const initPlugins = async () => {
       },
     },
   });
-  pluginEngineInstance.register({
+  defaultPluginEngine.register({
     name: 'localTest3',
     localMutate: {
       test(data: any[]) {
@@ -55,7 +55,7 @@ const initPlugins = async () => {
       },
     },
   });
-  pluginEngineInstance.register({
+  defaultPluginEngine.register({
     name: 'dummyMultiLifeCyclePlugin',
     init: {
       pre(configData: any, state: any) {
@@ -69,7 +69,7 @@ const initPlugins = async () => {
     ready: {
       post() {
         console.log(`ready.post lifecycle event`);
-        pluginEngineInstance.invoke('ready.insidePlugin');
+        defaultPluginEngine.invoke('ready.insidePlugin');
       },
       insidePlugin() {
         console.log(`ready.insidePlugin lifecycle event`);
@@ -91,14 +91,14 @@ const initPlugins = async () => {
   // TODO: fix await until all remote plugins have been fetched
   remotePluginsList.forEach(async remotePlugin => {
     await remotePlugin().then(remotePluginModule =>
-      pluginEngineInstance.register(remotePluginModule.default()),
+      defaultPluginEngine.register(remotePluginModule.default()),
     );
   });
 };
 
 const registerCustomPlugins = (customPlugins?: any[]) => {
   customPlugins?.forEach(customPlugin => {
-    pluginEngineInstance.register(customPlugin);
+    defaultPluginEngine.register(customPlugin);
   });
 };
 
