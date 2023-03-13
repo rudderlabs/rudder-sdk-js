@@ -13,20 +13,18 @@ export interface ExtensionPoint {
 /**
  * ExtensionPoint can be nested, e.g. 'sdk.initialize.phase1'
  * When index signature is provided, every key have to match the type, the types
- * for 'name', 'deps', order,  and 'initialize' is added as index signature.
+ * for 'name', 'deps',  and 'initialize' is added as index signature.
  */
-export interface LifeCyclePlugin {
+export interface ExtensionPlugin {
   name: string;
   initialize?: () => void;
   deps?: string[];
-  order?: number;
   [key: string]:
     | string
     | (() => void)
     | ExtensionPoint
     | ((...args: any[]) => unknown)
     | string[]
-    | number
     | undefined;
 }
 
@@ -34,10 +32,11 @@ export type PluginEngineConfig = {
   throws?: boolean | RegExp;
 };
 
+// TODO: pass and use here the logger and the error handler
 class PluginEngine {
-  plugins: LifeCyclePlugin[];
-  byName: GenericObject<LifeCyclePlugin>;
-  cache: GenericObject<LifeCyclePlugin[]>;
+  plugins: ExtensionPlugin[];
+  byName: GenericObject<ExtensionPlugin>;
+  cache: GenericObject<ExtensionPlugin[]>;
   config: PluginEngineConfig;
 
   constructor(options: PluginEngineConfig = {}) {
@@ -47,7 +46,7 @@ class PluginEngine {
     this.config = { ...options };
   }
 
-  register(plugin: LifeCyclePlugin) {
+  register(plugin: ExtensionPlugin) {
     if (!plugin.name) {
       console.log('error: Every plugin should have a name.');
       console.log(plugin);
@@ -62,7 +61,7 @@ class PluginEngine {
     this.plugins = this.plugins.slice();
     let pos = this.plugins.length;
 
-    this.plugins.forEach((pluginItem: LifeCyclePlugin, index: number) => {
+    this.plugins.forEach((pluginItem: ExtensionPlugin, index: number) => {
       if (pluginItem.deps && pluginItem.deps.includes(plugin.name)) {
         pos = Math.min(pos, index);
       }
@@ -98,11 +97,11 @@ class PluginEngine {
     this.plugins.splice(index, 1);
   }
 
-  getPlugin(name: string): LifeCyclePlugin | undefined {
+  getPlugin(name: string): ExtensionPlugin | undefined {
     return this.byName[name];
   }
 
-  getPlugins(extPoint?: string): LifeCyclePlugin[] {
+  getPlugins(extPoint?: string): ExtensionPlugin[] {
     const lifeCycleName = extPoint || '.';
 
     if (!this.cache[lifeCycleName]) {
@@ -124,34 +123,34 @@ class PluginEngine {
 
   // This method allows to process this.plugins so that it could
   // do some unified pre-process before application starts.
-  processRawPlugins(callback: (plugins: LifeCyclePlugin[]) => any) {
+  processRawPlugins(callback: (plugins: ExtensionPlugin[]) => any) {
     callback(this.plugins);
     this.cache = {};
   }
 
   invoke(extPoint?: string, ...args: any[]): unknown {
-    let lifeCycleName = extPoint;
+    let extensionPointName = extPoint;
 
-    if (!lifeCycleName) {
-      throw new Error('error: Invoke on plugin should have a lifeCycleName');
+    if (!extensionPointName) {
+      throw new Error('error: Invoke on plugin should have a extensionPointName');
     }
 
-    const noCall = /^!/.test(lifeCycleName);
-    const throws = this.config.throws || /!$/.test(lifeCycleName);
+    const noCall = /^!/.test(extensionPointName);
+    const throws = this.config.throws || /!$/.test(extensionPointName);
 
-    lifeCycleName = lifeCycleName.replace(/^!|!$/g, '');
+    extensionPointName = extensionPointName.replace(/^!|!$/g, '');
 
-    if (!lifeCycleName) {
-      throw new Error('error: Invoke on plugin should have a valid lifeCycleName');
+    if (!extensionPointName) {
+      throw new Error('error: Invoke on plugin should have a valid extensionPointName');
     }
 
-    const lifeCycleNameParts = lifeCycleName.split('.');
-    lifeCycleNameParts.pop();
+    const extensionPointNameParts = extensionPointName.split('.');
+    extensionPointNameParts.pop();
 
-    const obj = lifeCycleNameParts.join('.');
+    const obj = extensionPointNameParts.join('.');
 
-    return this.getPlugins(lifeCycleName).map(plugin => {
-      const method = getValueByPath(plugin, lifeCycleName as string);
+    return this.getPlugins(extensionPointName).map(plugin => {
+      const method = getValueByPath(plugin, extensionPointName as string);
 
       if (!isFunction(method) || noCall) {
         return method;
@@ -159,13 +158,13 @@ class PluginEngine {
 
       try {
         if (isPluginEngineDebugMode) {
-          console.log('Before', plugin.name, lifeCycleName, args);
+          console.log('Before', plugin.name, extensionPointName, args);
         }
 
         return method.apply(getValueByPath(plugin, obj), args);
       } catch (err) {
         // When a plugin failed, doesn't break the app
-        console.log(`error: Failed to invoke plugin: ${plugin.name}!${lifeCycleName}`);
+        console.log(`error: Failed to invoke plugin: ${plugin.name}!${extensionPointName}`);
 
         if (throws) {
           throw err;
@@ -174,24 +173,11 @@ class PluginEngine {
         }
       } finally {
         if (isPluginEngineDebugMode) {
-          console.log('After ', plugin.name, lifeCycleName, args);
+          console.log('After ', plugin.name, extensionPointName, args);
         }
       }
 
       return null;
-    });
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  sort(arr: LifeCyclePlugin[], sortProp = 'order') {
-    const LAST_ITEM_ORDER_INDEX = 1000000;
-    arr.sort((a: LifeCyclePlugin, b: LifeCyclePlugin): number => {
-      // eslint-disable-next-line no-prototype-builtins
-      const order1 = a.hasOwnProperty(sortProp) ? (a[sortProp] as number) : LAST_ITEM_ORDER_INDEX;
-      // eslint-disable-next-line no-prototype-builtins
-      const order2 = b.hasOwnProperty(sortProp) ? (b[sortProp] as number) : LAST_ITEM_ORDER_INDEX;
-
-      return order1 - order2;
     });
   }
 }

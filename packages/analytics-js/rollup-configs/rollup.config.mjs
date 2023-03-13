@@ -58,7 +58,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
         jsnext: true,
         browser: true,
         preferBuiltins: false,
-        extensions: ['.js', '.ts'],
+        extensions: ['.js', '.ts', '.mjs'],
       }),
       nodePolyfills({
         include: ['crypto'],

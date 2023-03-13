@@ -1,6 +1,5 @@
 import { TOP_LEVEL_DOMAIN } from '@rudderstack/analytics-js/constants/storageKeyNames';
 import { cookie } from '../component-cookie';
-import { parse } from '../component-url';
 
 /**
  * Levels returns all levels of the given url
@@ -8,7 +7,8 @@ import { parse } from '../component-url';
  * The method returns an empty array when the hostname is an ip or `localhost`.
  */
 const levelsFunc = (url: string): string[] => {
-  const host = parse(url).hostname;
+  // TODO: add the polyfill for IE11
+  const host = new URL(url).hostname;
   const parts = host.split('.');
   const last = parts[parts.length - 1];
   const levels: string[] = [];

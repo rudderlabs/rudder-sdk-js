@@ -28,4 +28,26 @@ const hasValueByPath = (obj: GenericObject, path: string): boolean => {
   return Boolean(getValueByPath(obj, path));
 };
 
-export { getValueByPath, hasValueByPath };
+const mergeDeepRightObjectArrays = (
+  leftValue: any | any[],
+  rightValue: any | any[],
+): any | any[] => {
+  if (!Array.isArray(leftValue) || !Array.isArray(rightValue)) {
+    return R.clone(rightValue);
+  }
+
+  const mergedArray = R.clone(leftValue);
+  rightValue.forEach((value, index) => {
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    mergedArray[index] = mergeDeepRight(mergedArray[index], value);
+  });
+
+  return mergedArray;
+};
+
+const mergeDeepRight = <T = GenericObject>(
+  leftObject: GenericObject,
+  rightObject: GenericObject,
+): T => R.mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
+
+export { getValueByPath, hasValueByPath, mergeDeepRightObjectArrays, mergeDeepRight };

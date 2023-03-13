@@ -1,13 +1,15 @@
 import * as R from 'ramda';
 import { effect } from '@preact/signals-core';
+import { defaultHttpClient, HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { pluginEngineInstance } from './npmPackages/js-plugin/PluginEngine';
 import { initPlugins, registerCustomPlugins } from './plugins/indexPOCToDelete';
-import { HttpClientPOC } from './services/HttpClient/HttpClientPOC';
 import { Queue } from './npmPackages/localstorage-retry';
 import { setExposedGlobal, state } from './state/index';
 import type { GenericObject } from './types/GenericObject';
 import { UserSession } from './services/StorageManager/POCStorageToDelete/session';
 import { generateUUID } from './components/utilities/uuId';
+import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
 
 export interface IV3 {
   status?: 'starting' | 'ready';
@@ -23,7 +25,9 @@ class AnalyticsV3 implements IV3 {
   newData: any[];
 
   messageId: string;
-  httpClient: any;
+  httpClient: HttpClient;
+  logger: Logger;
+  errorHandler: ErrorHandler;
   payloadQueue: any;
   uSession: any;
 
@@ -34,7 +38,10 @@ class AnalyticsV3 implements IV3 {
     this.messageId = generateUUID();
     this.userSession = UserSession;
     setExposedGlobal('state', state);
-    this.httpClient = new HttpClientPOC();
+    this.httpClient = defaultHttpClient;
+    this.errorHandler = defaultErrorHandler;
+    this.logger = defaultLogger;
+    this.httpClient.setAuthHeader('2L8Fl7ryPss3Zku133Pj5ox7NeP');
 
     effect(() => {
       console.log('remote state in constructor: ', state.remoteState.value);
@@ -81,6 +88,21 @@ class AnalyticsV3 implements IV3 {
     this.dummyFetch();
   }
 
+  dummyError() {
+    try {
+      throw new Error('Caught dummy error');
+    } catch (err) {
+      this.errorHandler.onError(err, 'Dummy', 'V3 test');
+    }
+
+    throw new Error('Uncaught dummy error');
+  }
+
+  dummyLog() {
+    this.logger.error('this is a dummy error level log');
+    this.logger.info('this is a dummy info level log');
+  }
+
   dummyPlugins(data: any[]) {
     const setData = (processedData: any[]) => {
       this.newData = processedData;
@@ -99,7 +121,22 @@ class AnalyticsV3 implements IV3 {
   }
 
   async dummyFetch() {
-    const request = this.httpClient.get('http://www.google.com');
+    console.log('start request sequence');
+    const response = await this.httpClient.getData({
+      url: 'https://apiiii.rudderlabs.com/sourceConfig/?p=cdn&v=dev-snapshot&writeKey=2L8Fl7ryPss3Zku133Pj5ox7NeP',
+      isRawResponse: true,
+      timeout: 1000,
+    });
+    console.log('blocking response', response);
+
+    this.httpClient.getAsyncData({
+      url: 'https://api.rudderlabs.com/sourceConfig/?p=cdn&v=dev-snapshot&writeKey=2L8Fl7ryPss3Zku133Pj5ox7NeP',
+      callback: data => {
+        console.log('async response via callback', data);
+        console.log('end sequence');
+      },
+    });
+    console.log('after async call');
   }
 
   dummyQueue() {

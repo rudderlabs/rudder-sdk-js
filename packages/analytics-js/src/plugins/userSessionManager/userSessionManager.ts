@@ -1,6 +1,6 @@
-import { LifeCyclePlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
+import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
 
-const userSessionManager: LifeCyclePlugin = {
+const userSessionManager: ExtensionPlugin = {
   name: 'userSessionManager',
   deps: [],
 };

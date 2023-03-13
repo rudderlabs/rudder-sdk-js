@@ -139,4 +139,10 @@ describe('parse(str)', () => {
     const url = parse('http://google.com:3000/foo/bar#something');
     expect('#something').toEqual(url.hash);
   });
+
+  it('should match new URL()', () => {
+    const url = parse('http://google.com:3000/foo/bar#something');
+    const newUrl = new URL('http://google.com:3000/foo/bar#something');
+    expect(url.hostname).toStrictEqual(newUrl.hostname);
+  });
 });

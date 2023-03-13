@@ -1,4 +1,4 @@
 const isFunction = (value: any): boolean =>
-  typeof value === 'function' && !!(value.constructor && value.call && value.apply);
+  typeof value === 'function' && Boolean(value.constructor && value.call && value.apply);
 
 export { isFunction };

@@ -1,9 +1,9 @@
 import {
-  LifeCyclePlugin,
+  ExtensionPlugin,
   PluginEngine,
 } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
 
-const mockPlugin1: LifeCyclePlugin = {
+const mockPlugin1: ExtensionPlugin = {
   name: 'p1',
   foo: 'bar1',
   ext: {
@@ -15,12 +15,12 @@ const mockPlugin1: LifeCyclePlugin = {
   },
 };
 
-const mockPlugin2: LifeCyclePlugin = {
+const mockPlugin2: ExtensionPlugin = {
   name: 'p2',
   foo: 'bar2',
 };
 
-const mockPlugin3: LifeCyclePlugin = {
+const mockPlugin3: ExtensionPlugin = {
   name: 'p3',
   foo: 'bar3',
   ext: {
@@ -48,7 +48,7 @@ describe('PluginEngine', () => {
     expect(pluginEngineTestInstance.getPlugins().length).toEqual(3);
   });
 
-  it('should retrieve registered plugins by lifeCycle name part', () => {
+  it('should retrieve registered plugins by extensionPoint name part', () => {
     expect(pluginEngineTestInstance.getPlugins('ext').length).toEqual(2);
   });
 
@@ -124,16 +124,6 @@ describe('PluginEngine', () => {
     }
   });
 
-  it('should sort by order', () => {
-    const arr: LifeCyclePlugin[] = [
-      { name: '0', order: 0 },
-      { name: '10', order: 10 },
-      { name: '5', order: 5 },
-    ];
-    pluginEngineTestInstance.sort(arr);
-    expect(arr.map(o => o.name)).toStrictEqual(['0', '5', '10']);
-  });
-
   it('should sort plugins by deps when registered', () => {
     const d1 = { name: 'd1', deps: ['d2'] };
     const d2 = { name: 'd2', deps: [] };
@@ -155,7 +145,9 @@ describe('PluginEngine', () => {
     ).toStrictEqual(['d2', 'd1', 'd5', 'd4', 'd3']);
 
     let rawPlugins = null;
-    pluginEngineTestInstance.processRawPlugins(plugins => (rawPlugins = plugins.map(p => p.name)));
+    pluginEngineTestInstance.processRawPlugins(plugins => {
+      rawPlugins = plugins.map(p => p.name);
+    });
     expect(rawPlugins).toStrictEqual(['p1', 'p2', 'p3', 'd2', 'd1', 'd5', 'd4', 'd3']);
   });
 
@@ -200,16 +192,3 @@ describe('PluginEngine', () => {
     expect(elapsedTime < 100).toBeTruthy();
   });
 });
-
-// // Test failure
-//
-//
-// // Performance benchmak: register 1000 plugins should take less than 100ms
-// const time1 = Date.now();
-// for (let i = 0; i < 1000; i++) {
-//   plugin.register({ name: 'name' + i, deps: ['n1', 'n2', 'n3', 'n4'] });
-// }
-// const time2 = Date.now();
-// expect(time2 - time2).to.below(100);
-
-console.log('Test success.');

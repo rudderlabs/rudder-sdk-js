@@ -3,7 +3,6 @@ import * as R from 'ramda';
 import { effect } from '@preact/signals-core';
 import { pluginEngineInstance } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
 import { initPlugins, registerCustomPlugins } from './plugins/indexPOCToDelete';
-import { HttpClientPOC } from './services/HttpClient/HttpClientPOC';
 import { Queue } from './npmPackages/localstorage-retry';
 import { setExposedGlobal, state } from './state/index';
 import type { GenericObject } from './types/GenericObject';
@@ -23,7 +22,6 @@ class AnalyticsV3 implements IV3 {
   newData: any[];
 
   messageId: string;
-  httpClient: any;
   payloadQueue: any;
   uSession: any;
 
@@ -34,7 +32,6 @@ class AnalyticsV3 implements IV3 {
     this.messageId = uuidv4();
     this.userSession = UserSession;
     setExposedGlobal('state', state);
-    this.httpClient = new HttpClientPOC();
 
     effect(() => {
       console.log('remote state in constructor: ', state.remoteState.value);
@@ -78,7 +75,6 @@ class AnalyticsV3 implements IV3 {
     let cloned = R.clone({});
     let clonedMerged = R.mergeDeepWith(n => n, {}, {});
     console.log(this.newData);
-    this.dummyFetch();
   }
 
   dummyPlugins(data: any[]) {
@@ -96,10 +92,6 @@ class AnalyticsV3 implements IV3 {
 
     // Process value with callback nd remote plugin
     pluginEngineInstance.invoke('remote.test', this.newData, setData);
-  }
-
-  async dummyFetch() {
-    const request = this.httpClient.get('http://www.google.com');
   }
 
   dummyQueue() {

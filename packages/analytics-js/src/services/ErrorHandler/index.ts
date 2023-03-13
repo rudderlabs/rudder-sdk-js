@@ -1,1 +1,1 @@
-export { ErrorHandler, errorHandlerInstance } from './ErrorHandler';
+export { ErrorHandler, defaultErrorHandler } from './ErrorHandler';
