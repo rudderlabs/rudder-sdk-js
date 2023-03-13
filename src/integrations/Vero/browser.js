@@ -6,9 +6,12 @@ import { isDefinedAndNotNull } from '../../utils/commonUtils';
 import ScriptLoader from '../../utils/ScriptLoader';
 
 class Vero {
-  constructor(config) {
+  constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.apiKey = config.apiKey;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

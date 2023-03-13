@@ -8,7 +8,7 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 const logger = new Logger(NAME);
 class Satismeter {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     this.analytics = analytics;
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
@@ -20,6 +20,8 @@ class Satismeter {
     this.eventsToStandard = config.eventsToStandard;
     this.updateEventNames = config.updateEventNames;
     this.eventsList = config.eventsList;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

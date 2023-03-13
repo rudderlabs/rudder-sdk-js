@@ -5,10 +5,13 @@ import { getHashFromArrayWithDuplicate } from '../../utils/commonUtils';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 class QuoraPixel {
-  constructor(config) {
+  constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.name = NAME;
     this.pixelId = config.pixelId;
     this.eventsToQPEvents = config.eventsToQPEvents;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   loadScript() {

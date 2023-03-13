@@ -6,13 +6,16 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 import { getHashFromArray } from '../../utils/commonUtils';
 
 class Rockerbox {
-  constructor(config) {
+  constructor(config, analytics, destinationInfo) {
+    if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
     this.clientAuthId = config.clientAuthId;
     this.name = NAME;
     this.customDomain = config.customDomain;
     this.enableCookieSync = config.enableCookieSync;
     this.eventsMap = config.eventsMap || [];
     this.useNativeSDKToSend = config.useNativeSDKToSend;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {
