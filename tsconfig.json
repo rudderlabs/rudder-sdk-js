@@ -28,6 +28,7 @@
   "include": [
     "packages/**/src/**/*",
     "packages/**/src/**/*.json",
+    "packages/**/__mocks__/**/*",
     "packages/**/__tests__/**/*",
     "packages/**/__tests__/**/*.json",
     "packages/**/scripts/**/*.js",
