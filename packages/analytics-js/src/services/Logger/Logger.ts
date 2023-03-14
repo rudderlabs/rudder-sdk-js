@@ -1,5 +1,8 @@
-export type LoggerLevel = 'log' | 'info' | 'debug' | 'warn' | 'error';
-export type LoggerProvider = Record<LoggerLevel, (...data: any[]) => void>;
+export type LoggerLevel = 'log' | 'info' | 'debug' | 'warn' | 'error' | 'none';
+export type LoggerProvider = Record<
+  'log' | 'info' | 'debug' | 'warn' | 'error',
+  (...data: any[]) => void
+>;
 
 const LOG_LEVEL: Record<LoggerLevel, number> = {
   log: 0,
@@ -7,6 +10,7 @@ const LOG_LEVEL: Record<LoggerLevel, number> = {
   debug: 2,
   warn: 3,
   error: 4,
+  none: 5,
 };
 
 const DEFAULT_LOG_LEVEL: LoggerLevel = 'error';
@@ -46,6 +50,10 @@ class Logger {
   }
 
   outputLog(logMethod: LoggerLevel, data: any[]) {
+    if (logMethod === 'none') {
+      return;
+    }
+
     if (this.minLogLevel <= LOG_LEVEL[logMethod]) {
       this.logProvider[logMethod](...this.formatLogData(data));
     }
@@ -64,7 +72,7 @@ class Logger {
   /**
    * Formats the console message using `scope` and styles
    */
-  formatLogData(...data: any[]) {
+  formatLogData(data: any[]) {
     if (Array.isArray(data) && data.length > 0) {
       // prefix SDK identifier
       let msg = `%c ${LOG_MSG_PREFIX}`;
@@ -102,4 +110,12 @@ class Logger {
 
 const defaultLogger = new Logger();
 
-export { Logger, DEFAULT_LOG_LEVEL, LOG_LEVEL, defaultLogger };
+export {
+  Logger,
+  DEFAULT_LOG_LEVEL,
+  LOG_LEVEL,
+  LOG_MSG_PREFIX,
+  LOG_MSG_PREFIX_STYLE,
+  LOG_MSG_STYLE,
+  defaultLogger,
+};

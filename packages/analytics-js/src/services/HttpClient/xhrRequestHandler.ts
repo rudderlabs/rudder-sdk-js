@@ -71,7 +71,7 @@ const xhrRequest = async (
     const xhrReject = () => {
       reject(
         new Error(
-          `Request failed with status: ${xhr.status}${xhr.statusText} for url: ${options.url}`,
+          `Request failed with status: ${xhr.status}, ${xhr.statusText} for url: ${options.url}`,
         ),
       );
     };

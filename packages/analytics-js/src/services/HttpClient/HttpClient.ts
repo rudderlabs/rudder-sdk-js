@@ -15,6 +15,7 @@ export interface IAsyncRequestConfig<T> extends IRequestConfig {
   callback?: (data?: T | string | undefined) => void;
 }
 
+// TODO: should we add any debug level loggers?
 class HttpClient {
   errorhandler?: ErrorHandler;
   logger?: Logger;
@@ -27,6 +28,7 @@ class HttpClient {
     this.logger = logger;
     this.hasErrorHandler = Boolean(this.errorhandler);
     this.hasLogger = Boolean(this.logger);
+    this.onError = this.onError.bind(this);
   }
 
   async getData<T = any>(config: IRequestConfig): Promise<T | string | undefined> {

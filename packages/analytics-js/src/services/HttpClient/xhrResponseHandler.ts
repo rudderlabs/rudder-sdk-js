@@ -4,22 +4,14 @@ const responseTextToJson = <T = any>(
   responseText?: string,
   onError?: (message: Error | unknown) => void,
 ): T | undefined => {
-  if (!responseText) {
-    const err = new Error(`Response data parsing failed, no responseText`);
-    if (onError && isFunction(onError)) {
-      onError(err);
-    } else {
-      throw err;
-    }
-  }
-
   try {
-    return JSON.parse(responseText as string);
+    return JSON.parse(responseText || '');
   } catch (err) {
+    const error = new Error(`Response data parsing failed, ${(err as Error).message}`);
     if (onError && isFunction(onError)) {
-      onError(err);
+      onError(error);
     } else {
-      throw err;
+      throw error;
     }
   }
 
