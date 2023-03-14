@@ -129,10 +129,6 @@ const ignoredProperties = [
     type: 'string',
   },
   {
-    key: `message.integrations.Google Analytics 4.clientId`,
-    type: 'string',
-  },
-  {
     key: 'message.context.ua-ch.architecture',
     type: 'string',
   },
