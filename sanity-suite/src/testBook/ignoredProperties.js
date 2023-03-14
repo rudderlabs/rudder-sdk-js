@@ -128,46 +128,6 @@ const ignoredProperties = [
     key: `message.integrations.Google Analytics 4.sessionId`,
     type: 'string',
   },
-  {
-    key: 'message.context.ua-ch.architecture',
-    type: 'string',
-  },
-  {
-    key: 'message.context.ua-ch.bitness',
-    type: 'string',
-  },
-  {
-    key: 'message.context.ua-ch.brands',
-    type: 'object',
-  },
-  {
-    key: 'message.context.ua-ch.fullVersionList',
-    type: 'object',
-  },
-  {
-    key: 'message.context.ua-ch.mobile',
-    type: 'boolean',
-  },
-  {
-    key: 'message.context.ua-ch.model',
-    type: 'string',
-  },
-  {
-    key: 'message.context.ua-ch.platform',
-    type: 'string',
-  },
-  {
-    key: 'message.context.ua-ch.platformVersion',
-    type: 'string',
-  },
-  {
-    key: 'message.context.ua-ch.uaFullVersion',
-    type: 'string',
-  },
-  {
-    key: 'message.context.ua-ch.wow64',
-    type: 'boolean',
-  },
 ];
 
 export { ignoredProperties };
