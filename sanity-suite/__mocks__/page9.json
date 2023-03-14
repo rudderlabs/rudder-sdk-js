@@ -180,8 +180,7 @@
       "Google Analytics": true,
       "Amplitude": true,
       "Google Analytics 4": {
-        "sessionId": "1677835184",
-        "clientId": "52797861-a2b3-43d0-853c-b25756a24543"
+        "sessionId": "1677835184"
       }
     },
     "user_properties": null,
