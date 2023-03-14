@@ -14,7 +14,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v1') || startsWith(github.ref, 'refs/heads/v1-production')
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_PROD_ACCOUNT_ID }}:role/${{ secrets.AWS_PROD_S3_SYNC_ROLE }}
           aws-region: us-east-1
