@@ -2,10 +2,9 @@
 import is from "is";
 import each from "@ndhoule/each";
 import sha256 from "crypto-js/sha256";
-import get from "get-value";
 import ScriptLoader from "../ScriptLoader";
 import logger from "../../utils/logUtil";
-import getEventId from "./utils";
+import { getEventId, getContentCategory} from "./utils";
 import { getHashFromArray, isDefined } from "../utils/commonUtils";
 import { NAME, traitsMapper, reserveTraits } from "./constants";
 import { constructPayload } from "../../utils/utils";
@@ -114,7 +113,7 @@ class FacebookPixel {
 
   track(rudderElement) {
     const self = this;
-    const { event, properties, messageId } = rudderElement.message;
+    const { event, properties } = rudderElement.message;
     let revValue;
     let currVal;
     if (properties) {
@@ -137,7 +136,6 @@ class FacebookPixel {
       this.userIdAsPixelId = [];
     }
 
-    payload.value = revValue;
     const standard = this.eventsToEvents;
     const legacy = this.legacyConversionPixelId;
     const standardTo = getHashFromArray(standard);
@@ -151,16 +149,23 @@ class FacebookPixel {
     let value;
     let price;
     let query;
+    let contentName
     if (properties) {
       products = properties.products;
       quantity = properties.quantity;
       category = properties.category;
       prodId = properties.product_id || properties.id || properties.sku;
-      prodName = properties.product_name;
-      value = properties.value;
+      prodName = properties.product_name || properties.name;
+      value = revValue || properties.value;
       price = properties.price;
       query = properties.query;
+      contentName = properties.contentName;
     }
+
+    if(category && !getContentCategory(category)){
+      return;
+    }
+    category = getContentCategory(category);
     const customProperties = this.buildPayLoad(rudderElement, true);
     const derivedEventID = getEventId(rudderElement.message);
     if (event === "Product List Viewed") {
@@ -186,14 +191,14 @@ class FacebookPixel {
       }
 
       if (contentIds.length) {
-        contentType = ["product"];
+        contentType = "product";
       } else if (category) {
         contentIds.push(category);
         contents.push({
           id: category,
           quantity: 1,
         });
-        contentType = ["product_group"];
+        contentType = "product_group";
       }
 
       window.fbq(
@@ -205,6 +210,10 @@ class FacebookPixel {
             content_ids: contentIds,
             content_type: this.getContentType(rudderElement, contentType),
             contents,
+            content_category: category || "",
+            content_name: contentName,
+            value: this.formatRevenue(properties?.value),
+            currency: currVal
           },
           customProperties
         ),
@@ -236,7 +245,7 @@ class FacebookPixel {
         this.merge(
           {
             content_ids: [prodId],
-            content_type: this.getContentType(rudderElement, ["product"]),
+            content_type: this.getContentType(rudderElement, "product"),
             content_name: prodName || "",
             content_category: category || "",
             currency: currVal,
@@ -290,8 +299,7 @@ class FacebookPixel {
       }
       const productInfo = {
         content_ids: contentIds,
-        content_type: this.getContentType(rudderElement, ["product"]),
-
+        content_type: this.getContentType(rudderElement, "product"),
         content_name: prodName || "",
         content_category: category || "",
         currency: currVal,
@@ -328,7 +336,7 @@ class FacebookPixel {
       }, legacyTo);
       this.merge(productInfo, customProperties);
     } else if (event === "Order Completed") {
-      const contentType = this.getContentType(rudderElement, ["product"]);
+      const contentType = this.getContentType(rudderElement, "product");
       const contentIds = [];
       const contents = [];
       if (products) {
@@ -361,6 +369,7 @@ class FacebookPixel {
         value: revValue,
         contents,
         num_items: contentIds.length,
+        content_name: contentName
       };
 
       window.fbq(
@@ -390,16 +399,30 @@ class FacebookPixel {
         }
       }, legacyTo);
     } else if (event === "Products Searched") {
+      const contentIds = [];
+      const contents = [];
+
+      if (prodId) {
+        contentIds.push(prodId);
+        contents.push({
+          id: prodId,
+          quantity,
+          item_price: price,
+        });
+      }
+      const productInfo = {
+        content_ids: contentIds,
+        content_category: category || "",
+        currency: currVal,
+        value: useValue ? this.formatRevenue(value) : this.formatRevenue(price),
+        contents,
+        search_string: query,
+      };
       window.fbq(
         "trackSingle",
         self.pixelId,
         "Search",
-        this.merge(
-          {
-            search_string: query,
-          },
-          customProperties
-        ),
+        this.merge(productInfo, customProperties),
         {
           eventID: derivedEventID,
         }
@@ -449,7 +472,8 @@ class FacebookPixel {
 
       const productInfo = {
         content_ids: contentIds,
-        content_type: this.getContentType(rudderElement, ["product"]),
+        content_type: this.getContentType(rudderElement, "product"),
+        content_category: contentCategory,
         currency: currVal,
         value: revValue,
         contents,
@@ -538,7 +562,7 @@ class FacebookPixel {
     // Get the message-specific override if it exists in the options parameter of `track()`
     const contentTypeMessageOverride =
       rudderElement.message.integrations?.FACEBOOK_PIXEL?.contentType;
-    if (contentTypeMessageOverride) return [contentTypeMessageOverride];
+    if (contentTypeMessageOverride) return contentTypeMessageOverride;
 
     // Otherwise check if there is a replacement set for all Facebook Pixel
     // track calls of this category
@@ -547,7 +571,7 @@ class FacebookPixel {
       const categoryMapping = this.categoryToContent?.find(
         (i) => i.from === category
       );
-      if (categoryMapping?.to) return [categoryMapping.to];
+      if (categoryMapping?.to) return categoryMapping.to;
     }
 
     // Otherwise return the default value
