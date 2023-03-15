@@ -63,22 +63,24 @@ describe('HttpClient', () => {
     expect(data).toStrictEqual({ json: 'sample' });
   });
 
-  it('should getAsyncData expecting raw response', async () => {
+  it('should getAsyncData expecting raw response', done => {
     const callback = response => {
       expect(response).toStrictEqual('{"raw": "sample"}');
+      done();
     };
-    await clientInstance.getAsyncData({
+    clientInstance.getAsyncData({
       callback: callback,
       url: `${dummyDataplaneHost}/rawSample`,
       isRawResponse: true,
     });
   });
 
-  it('should getAsyncData expecting json response', async () => {
+  it('should getAsyncData expecting json response', done => {
     const callback = response => {
       expect(response).toStrictEqual({ json: 'sample' });
+      done();
     };
-    await clientInstance.getAsyncData({
+    clientInstance.getAsyncData({
       callback: callback,
       url: `${dummyDataplaneHost}/jsonSample`,
     });
@@ -107,18 +109,19 @@ describe('HttpClient', () => {
     expect(clientInstance.basicAuthHeader).toBeUndefined();
   });
 
-  it('should getAsyncData with auth header expecting json response', async () => {
+  it('should getAsyncData with auth header expecting json response', done => {
     const callback = response => {
       expect(response).toStrictEqual({ json: 'sample' });
+      done();
     };
     clientInstance.setAuthHeader('dummyWriteKey');
-    await clientInstance.getAsyncData({
+    clientInstance.getAsyncData({
       callback: callback,
       url: `${dummyDataplaneHost}/jsonSample`,
     });
   });
 
-  it('should handle 400 range errors in getAsyncData requests', async () => {
+  it('should handle 400 range errors in getAsyncData requests', done => {
     const callback = response => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
@@ -128,8 +131,9 @@ describe('HttpClient', () => {
         ),
         'HttpClient',
       );
+      done();
     };
-    await clientInstance.getAsyncData({
+    clientInstance.getAsyncData({
       callback: callback,
       url: `${dummyDataplaneHost}/404ErrorSample`,
     });
@@ -149,7 +153,7 @@ describe('HttpClient', () => {
     );
   });
 
-  it('should handle 500 range errors in getAsyncData requests', async () => {
+  it('should handle 500 range errors in getAsyncData requests', done => {
     const callback = response => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
@@ -159,8 +163,9 @@ describe('HttpClient', () => {
         ),
         'HttpClient',
       );
+      done();
     };
-    await clientInstance.getAsyncData({
+    clientInstance.getAsyncData({
       callback: callback,
       url: `${dummyDataplaneHost}/500ErrorSample`,
     });
@@ -180,7 +185,21 @@ describe('HttpClient', () => {
     );
   });
 
-  it('should handle malformed json response when expecting json response', async () => {
+  it('should handle connection errors in getData requests', async () => {
+    const response = await clientInstance.getData({
+      url: `${dummyDataplaneHost}/noConnectionSample`,
+    });
+    expect(response).toBeUndefined();
+    expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
+    expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
+      new Error(
+        'Request failed due to timeout or no connection, error for url: https://dummy.dataplane.host.com/noConnectionSample',
+      ),
+      'HttpClient',
+    );
+  });
+
+  it('should handle malformed json response when expecting json response', done => {
     const callback = response => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
@@ -188,14 +207,15 @@ describe('HttpClient', () => {
         new Error('Response data parsing failed, Unexpected token r in JSON at position 1'),
         'HttpClient',
       );
+      done();
     };
-    await clientInstance.getAsyncData({
+    clientInstance.getAsyncData({
       callback: callback,
       url: `${dummyDataplaneHost}/brokenJsonSample`,
     });
   });
 
-  it('should handle empty response when expecting json response', async () => {
+  it('should handle empty response when expecting json response', done => {
     const callback = response => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
@@ -203,8 +223,9 @@ describe('HttpClient', () => {
         new Error('Response data parsing failed, Unexpected end of JSON input'),
         'HttpClient',
       );
+      done();
     };
-    await clientInstance.getAsyncData({
+    clientInstance.getAsyncData({
       callback: callback,
       url: `${dummyDataplaneHost}/emptyJsonSample`,
     });

@@ -2,7 +2,7 @@
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-import excludeDependenciesFromBundle from 'rollup-plugin-exclude-dependencies-from-bundle';
+// import excludeDependenciesFromBundle from 'rollup-plugin-exclude-dependencies-from-bundle';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
@@ -72,7 +72,7 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
         tsconfig: './tsconfig.json',
         useTsconfigDeclarationDir: true,
       }),
-      excludeDependenciesFromBundle({ peerDependencies: true }),
+      // excludeDependenciesFromBundle({ peerDependencies: true }),
       babel({
         compact: true,
         babelHelpers: 'bundled',
@@ -80,11 +80,14 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
       }),
+      // TODO: keep checking for updates on when the sourcemaps will be fixed
+      //  https://github.com/originjs/vite-plugin-federation/issues/355
+      //  https://github.com/originjs/vite-plugin-federation/issues/336
       federation({
         remotes: {
           remoteModules: `${remoteModuleBasePath}/modern/remoteEntry.js`,
         },
-        sourcemap: sourceMapType,
+        //sourcemap: sourceMapType,
       }),
       process.env.UGLIFY === 'true' &&
         terser({

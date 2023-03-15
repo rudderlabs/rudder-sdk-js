@@ -9,7 +9,7 @@ class PluginsManager {
   }
 
   invoke(extPoint?: string, ...args: any[]): unknown {
-    return this.engine.invoke(extPoint, args);
+    return this.engine.invoke(extPoint, ...args);
   }
 }
 

@@ -1,1 +1,1 @@
-export const LOAD_ORIGIN = 'RS_JS_SDK';
+export const EXTERNAL_SOURCE_LOAD_ORIGIN = 'RS_JS_SDK';

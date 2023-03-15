@@ -17,16 +17,16 @@ export interface IAsyncRequestConfig<T> extends IRequestConfig {
 
 // TODO: should we add any debug level loggers?
 class HttpClient {
-  errorhandler?: ErrorHandler;
+  errorHandler?: ErrorHandler;
   logger?: Logger;
   basicAuthHeader?: string;
   hasErrorHandler = false;
   hasLogger = false;
 
-  constructor(errorhandler?: ErrorHandler, logger?: Logger) {
-    this.errorhandler = errorhandler;
+  constructor(errorHandler?: ErrorHandler, logger?: Logger) {
+    this.errorHandler = errorHandler;
     this.logger = logger;
-    this.hasErrorHandler = Boolean(this.errorhandler);
+    this.hasErrorHandler = Boolean(this.errorHandler);
     this.hasLogger = Boolean(this.logger);
     this.onError = this.onError.bind(this);
   }
@@ -46,7 +46,7 @@ class HttpClient {
     }
   }
 
-  getAsyncData<T = any>(config: IAsyncRequestConfig<T>): void {
+  getAsyncData<T = any>(config: IAsyncRequestConfig<T>) {
     const { callback, url, options, timeout, isRawResponse } = config;
     const isFireAndForget = !(callback && isFunction(callback));
 
@@ -66,7 +66,7 @@ class HttpClient {
 
   onError(error: Error | unknown) {
     if (this.hasErrorHandler) {
-      this.errorhandler?.onError(error, 'HttpClient');
+      this.errorHandler?.onError(error, 'HttpClient');
     } else {
       throw error;
     }

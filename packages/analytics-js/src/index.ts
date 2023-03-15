@@ -7,6 +7,10 @@ import {
   defaultPluginManager,
   PluginsManager,
 } from '@rudderstack/analytics-js/components/pluginsManager';
+import {
+  defaultExternalSrcLoader,
+  ExternalSrcLoader,
+} from '@rudderstack/analytics-js/services/ExternalSrcLoader';
 import { initPlugins, registerCustomPlugins } from './plugins/indexPOCToDelete';
 import { Queue } from './npmPackages/localstorage-retry';
 import { setExposedGlobal, state } from './state/index';
@@ -32,6 +36,7 @@ class AnalyticsV3 implements IV3 {
   logger: Logger;
   errorHandler: ErrorHandler;
   pluginsManager: PluginsManager;
+  externalSrcLoader: ExternalSrcLoader;
   payloadQueue: any;
   uSession: any;
 
@@ -46,6 +51,7 @@ class AnalyticsV3 implements IV3 {
     this.errorHandler = defaultErrorHandler;
     this.logger = defaultLogger;
     this.pluginsManager = defaultPluginManager;
+    this.externalSrcLoader = defaultExternalSrcLoader;
     this.httpClient.setAuthHeader('2L8Fl7ryPss3Zku133Pj5ox7NeP');
 
     effect(() => {
@@ -76,7 +82,7 @@ class AnalyticsV3 implements IV3 {
     this.pluginsManager.invoke('init.post', state);
     this.pluginsManager.invoke('ready.post');
 
-    setTimeout(() => {
+    window.setTimeout(() => {
       this.loadIntegration();
       this.page();
     }, 5000);
@@ -208,7 +214,22 @@ class AnalyticsV3 implements IV3 {
       },
     ];
 
-    this.pluginsManager.invoke('remote.load_integrations', clientIntegrations, state);
+    // TODO: store in state and calculate is all are loaded to fire the onReady
+    const extScriptOnLoad = (id?: string) => {
+      if (!id) {
+        return;
+      }
+
+      console.log(`${id} Script loaded`);
+    };
+
+    this.pluginsManager.invoke(
+      'remote.load_integrations',
+      clientIntegrations,
+      state,
+      this.externalSrcLoader,
+      extScriptOnLoad,
+    );
 
     effect(() => {
       console.log('successfullyLoadedIntegration', state.successfullyLoadedIntegration.value);

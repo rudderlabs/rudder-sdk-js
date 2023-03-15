@@ -1,5 +1,5 @@
 import { processError } from '@rudderstack/analytics-js/services/ErrorHandler/processError';
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
+import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
 
 jest.mock('../../../src/components/utilities/event', () => {
   const originalModule = jest.requireActual('../../../src/components/utilities/event');
@@ -33,7 +33,7 @@ describe('ErrorHandler - process error', () => {
         src: 'dummyUrl',
         id: 'dummyId',
         dataset: {
-          loader: LOAD_ORIGIN,
+          appendOrigin: EXTERNAL_SOURCE_LOAD_ORIGIN,
         },
         localName: 'script',
       },
@@ -61,7 +61,7 @@ describe('ErrorHandler - process error', () => {
         src: 'dummyUrl',
         id: 'ad-block',
         dataset: {
-          loader: LOAD_ORIGIN,
+          appendOrigin: EXTERNAL_SOURCE_LOAD_ORIGIN,
         },
         localName: 'script',
       },

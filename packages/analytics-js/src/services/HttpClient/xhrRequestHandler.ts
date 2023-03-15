@@ -1,4 +1,5 @@
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
 
 export interface IXHRRequestOptions {
   method: HTTPClientMethod;
@@ -29,7 +30,6 @@ export type HTTPClientMethod =
   | 'unlink'
   | 'UNLINK';
 
-const DEFAULT_XHR_TIMEOUT = 10 * 1000; // 10 sec
 const DEFAULT_XHR_REQUEST_OPTIONS: Partial<IXHRRequestOptions> = {
   headers: {
     Accept: 'application/json',
@@ -61,24 +61,33 @@ const createXhrRequestOptions = (
 
 // TODO: why we used in v1.1 xhrModule
 //  xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600) instead for < 400????
-const xhrRequest = async (
+const xhrRequest = (
   options: IXHRRequestOptions,
   timeout = DEFAULT_XHR_TIMEOUT,
 ): Promise<string | undefined> =>
   // eslint-disable-next-line compat/compat
   new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    const xhrReject = () => {
+    const xhrReject = (e?: ProgressEvent) => {
       reject(
         new Error(
           `Request failed with status: ${xhr.status}, ${xhr.statusText} for url: ${options.url}`,
         ),
       );
     };
+    const xhrError = (e?: ProgressEvent) => {
+      reject(
+        new Error(
+          `Request failed due to timeout or no connection, ${e ? e.type : ''} for url: ${
+            options.url
+          }`,
+        ),
+      );
+    };
 
     xhr.timeout = timeout;
-    xhr.ontimeout = xhrReject;
-    xhr.onerror = xhrReject;
+    xhr.ontimeout = xhrError;
+    xhr.onerror = xhrError;
 
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 400) {
@@ -104,4 +113,4 @@ const xhrRequest = async (
     }
   });
 
-export { createXhrRequestOptions, xhrRequest, DEFAULT_XHR_TIMEOUT, DEFAULT_XHR_REQUEST_OPTIONS };
+export { createXhrRequestOptions, xhrRequest, DEFAULT_XHR_REQUEST_OPTIONS };

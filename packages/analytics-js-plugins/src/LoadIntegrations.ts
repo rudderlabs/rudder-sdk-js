@@ -1,4 +1,4 @@
-import ScriptLoader from './ScriptLoader';
+import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
 
 const integrationSDKLoaded = (pluginName: string, modName: string) => {
   try {
@@ -25,8 +25,19 @@ const LoadIntegrations = () => ({
     test() {
       console.log('loadIntegrationsTest');
     },
-    load_integrations(clientIntegrations: any[], state: any) {
-      console.log('loadIntegrations start', clientIntegrations, state);
+    load_integrations(
+      clientIntegrations: any[],
+      state: any,
+      externalSrcLoader: ExternalSrcLoader,
+      externalScriptOnLoad: (id?: string) => unknown,
+    ) {
+      console.log(
+        'loadIntegrations start',
+        clientIntegrations,
+        state,
+        externalSrcLoader,
+        externalScriptOnLoad,
+      );
 
       const isInitialized = (instance: any, time = 0) => {
         return new Promise(resolve => {
@@ -57,7 +68,11 @@ const LoadIntegrations = () => ({
         const modURL = `https://cdn.rudderlabs.com/v1.1/js-integrations/${modName}.min.js`;
 
         if (!window.hasOwnProperty(pluginName)) {
-          ScriptLoader(modName, modURL, { isNonNativeSDK: true } as any);
+          externalSrcLoader.loadJSFile({
+            url: modURL,
+            id: modName,
+            callback: externalScriptOnLoad,
+          });
         }
 
         const interval = setInterval(() => {

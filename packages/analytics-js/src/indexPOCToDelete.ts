@@ -7,6 +7,7 @@ import { Queue } from './npmPackages/localstorage-retry';
 import { setExposedGlobal, state } from './state/index';
 import type { GenericObject } from './types/GenericObject';
 import { UserSession } from './services/StorageManager/POCStorageToDelete/session';
+import { defaultExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
 
 export interface IV3 {
   status?: 'starting' | 'ready';
@@ -158,7 +159,13 @@ class AnalyticsV3 implements IV3 {
       },
     ];
 
-    defaultPluginEngine.invoke('remote.load_integrations', clientIntegrations, state);
+    defaultPluginEngine.invoke(
+      'remote.load_integrations',
+      clientIntegrations,
+      state,
+      defaultExternalSrcLoader,
+      () => {},
+    );
 
     effect(() => {
       console.log('successfullyLoadedIntegration', state.successfullyLoadedIntegration.value);

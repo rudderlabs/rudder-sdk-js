@@ -1,4 +1,4 @@
-import { LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
+import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants/htmlAttributes';
 import { handleScriptLoadAdBlocked } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/adBlockers';
 import { serializeError } from 'serialize-error';
 import { isEvent } from '@rudderstack/analytics-js/components/utilities/event';
@@ -9,11 +9,9 @@ const processScriptLoadError = (event: Event): string => {
   let errorMessage = '';
 
   const targetElement = event.target as HTMLElement | null;
-  const dataAttributes = targetElement && targetElement.dataset;
-  const isScriptElement = targetElement && targetElement.localName === 'script';
-  const isRudderSDKScriptElement =
-    dataAttributes &&
-    (dataAttributes.loader === LOAD_ORIGIN || dataAttributes.isNonNativeSDK === 'true');
+  const dataAttributes = targetElement?.dataset;
+  const isScriptElement = targetElement?.localName === 'script';
+  const isRudderSDKScriptElement = dataAttributes?.appendOrigin === EXTERNAL_SOURCE_LOAD_ORIGIN;
 
   // Discard all the non-script loading onerror Events
   // Discard script errors that are not originated from

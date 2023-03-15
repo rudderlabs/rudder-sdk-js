@@ -158,7 +158,7 @@ class PluginEngine {
 
       try {
         if (isPluginEngineDebugMode) {
-          console.log('Before', plugin.name, extensionPointName, args);
+          console.log('Before', plugin.name, extensionPointName, ...args);
         }
 
         return method.apply(getValueByPath(plugin, obj), args);
@@ -173,7 +173,7 @@ class PluginEngine {
         }
       } finally {
         if (isPluginEngineDebugMode) {
-          console.log('After ', plugin.name, extensionPointName, args);
+          console.log('After ', plugin.name, extensionPointName, ...args);
         }
       }
 
