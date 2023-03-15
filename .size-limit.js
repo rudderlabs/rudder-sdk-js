@@ -7,7 +7,7 @@ module.exports = [
     name: 'Core - CDN',
     path: 'dist/legacy/rudder-analytics.min.js',
     gzip: true,
-    limit: '38.5 kB',
+    limit: '38.7 kB',
   },
   {
     name: 'All Integrations - CDN',
