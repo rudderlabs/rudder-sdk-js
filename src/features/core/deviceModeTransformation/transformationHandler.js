@@ -4,8 +4,13 @@
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable consistent-return */
 import { replacer, removeTrailingSlashes } from '../../../utils/utils';
-import logger from '../../../utils/logUtil';
 import { createPayload } from './util';
+import { handleError } from '../../../utils/errorHandler';
+
+const timeout = 10 * 1000;
+const EVENT_CHECK_INTERVAL = 100;
+const RETRY_INTERVAL = 500;
+const backoffFactor = 2;
 
 class TransformationsHandler {
   constructor() {
@@ -47,6 +52,7 @@ class TransformationsHandler {
         const xhr = new XMLHttpRequest();
         xhr.open('POST', url, true);
         Object.keys(headers).forEach((k) => xhr.setRequestHeader(k, headers[k]));
+        xhr.timeout = timeout;
 
         xhr.onreadystatechange = () => {
           if (xhr.readyState === 4) {
@@ -113,10 +119,14 @@ class TransformationsHandler {
               // one or more transformation is unsuccessfull
               // retry till the retryAttempt is exhausted
               if (retryAttempt > 0) {
-                const newretryAttempt = retryAttempt - 1;
-                setTimeout(() => this.sendEventForTransformation(payload, newretryAttempt)
-                    .then(resolve)
-                    .catch(reject), 500);
+                const newRetryAttempt = retryAttempt - 1;
+                setTimeout(
+                  () =>
+                    this.sendEventForTransformation(payload, newRetryAttempt)
+                      .then(resolve)
+                      .catch(reject),
+                  RETRY_INTERVAL * backoffFactor ** (this.retryAttempt - newRetryAttempt),
+                );
               } else {
                 // Even after all the retries event transformation
                 // is not successful, ignore the event
@@ -160,9 +170,9 @@ class TransformationsHandler {
       })
       .catch((err) => {
         if (typeof err === 'string') {
-          logger.error(err);
+          handleError(err);
         } else {
-          logger.error(err.message);
+          handleError(err.message);
         }
         this.isTransformationProcessing = false;
         // send null as response in case of error or retry fail
@@ -172,12 +182,11 @@ class TransformationsHandler {
   }
 
   start() {
-    const self = this;
     setInterval(() => {
-      if (!self.isTransformationProcessing && self.queue.length > 0) {
-        self.process();
+      if (!this.isTransformationProcessing) {
+        this.checkQueueLengthAndProcess();
       }
-    }, 100);
+    }, EVENT_CHECK_INTERVAL);
   }
 
   setAuthToken(token) {
@@ -185,6 +194,6 @@ class TransformationsHandler {
   }
 }
 
-const transformationsHandler = new TransformationsHandler();
+const DeviceModeTransformations = new TransformationsHandler();
 
-export { transformationsHandler as TransformationsHandler };
+export { DeviceModeTransformations };

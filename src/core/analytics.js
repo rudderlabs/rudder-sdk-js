@@ -64,7 +64,7 @@ import {
 } from '../utils/IntegrationsData';
 import { getIntegrationsCDNPath } from '../utils/cdnPaths';
 import { getUserAgentClientHint } from '../utils/clientHint';
-import { TransformationsHandler } from '../features/core/deviceModeTransformation/dmtHandler';
+import { DeviceModeTransformations } from '../features/core/deviceModeTransformation/transformationHandler';
 
 /**
  * class responsible for handling core
@@ -107,7 +107,7 @@ class Analytics {
     this.version = 'process.package_version';
     this.lockIntegrationsVersion = false;
     this.deniedConsentIds = [];
-    this.transformationHandler = TransformationsHandler;
+    this.transformationHandler = DeviceModeTransformations;
   }
 
   /**
@@ -395,6 +395,49 @@ class Analytics {
     }
   }
 
+  sendTransformedDataToDestination(destWithTransformation, rudderElement, methodName) {
+    try {
+      // convert integrations object to server identified names, kind of hack now!
+      transformToServerNames(rudderElement.message.integrations);
+
+      // Process Transformation
+      this.transformationHandler.enqueue(
+        rudderElement,
+        ({ transformedPayload, transformationServerAccess }) => {
+          if (transformedPayload) {
+            destWithTransformation.forEach((intg) => {
+              try {
+                let transformedEvents;
+                if (transformationServerAccess) {
+                  // filter the transformed event for that destination
+                  transformedEvents = transformedPayload.find(
+                    (e) => e.id === intg.destinationId,
+                  ).payload;
+                } else {
+                  transformedEvents = transformedPayload;
+                }
+                // send transformed event to destination
+                transformedEvents.forEach((tEvent) => {
+                  this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
+                });
+              } catch (e) {
+                if (e instanceof Error) {
+                  e.message = `[DMT]::[Destination:${intg.name}]:: ${e.message}`;
+                }
+                handleError(e);
+              }
+            });
+          }
+        },
+      );
+    } catch (e) {
+      if (e instanceof Error) {
+        e.message = `[DMT]:: ${e.message}`;
+      }
+      handleError(e);
+    }
+  }
+
   /**
    * A function to process and send events to device mode destinations
    * @param {instance} destinations
@@ -426,46 +469,7 @@ class Analytics {
     });
 
     if (destWithTransformation.length > 0) {
-      try {
-        // convert integrations object to server identified names, kind of hack now!
-        transformToServerNames(rudderElement.message.integrations);
-
-        // Process Transformation
-        this.transformationHandler.enqueue(
-          rudderElement,
-          ({ transformedPayload, transformationServerAccess }) => {
-            if (transformedPayload) {
-              destWithTransformation.forEach((intg) => {
-                try {
-                  let transformedEvents;
-                  if (transformationServerAccess) {
-                    // filter the transformed event for that destination
-                    transformedEvents = transformedPayload.find(
-                      (e) => e.id === intg.destinationId,
-                    ).payload;
-                  } else {
-                    transformedEvents = transformedPayload;
-                  }
-                  // send transformed event to destination
-                  transformedEvents.forEach((tEvent) => {
-                    this.sendDataToDestination(intg, { message: tEvent.event }, methodName);
-                  });
-                } catch (e) {
-                  if (e instanceof Error) {
-                    e.message = `[DMT]::[Destination:${intg.name}]:: ${e.message}`;
-                  }
-                  handleError(e);
-                }
-              });
-            }
-          },
-        );
-      } catch (e) {
-        if (e instanceof Error) {
-          e.message = `[DMT]:: ${e.message}`;
-        }
-        handleError(e);
-      }
+      this.sendTransformedDataToDestination(destWithTransformation, rudderElement, methodName);
     }
   }
 
@@ -824,7 +828,7 @@ class Analytics {
       // If cookie consent is enabled attach the denied consent group Ids to the context
       if (fetchCookieConsentState(this.cookieConsentOptions)) {
         rudderElement.message.context.consentManagement = {
-          deniedConsentIds: this.deniedConsentIds
+          deniedConsentIds: this.deniedConsentIds,
         };
       }
 
@@ -1199,17 +1203,18 @@ class Analytics {
       this.options && typeof this.options.polyfillIfRequired === 'boolean'
         ? this.options.polyfillIfRequired
         : true;
-    return polyfillIfRequired && (
-      !String.prototype.endsWith ||
-      !String.prototype.startsWith ||
-      !String.prototype.includes ||
-      !Array.prototype.find ||
-      !Array.prototype.includes ||
-      !Promise ||
-      !Object.entries ||
-      !Object.values ||
-      !String.prototype.replaceAll ||
-      !this.isDatasetAvailable()
+    return (
+      polyfillIfRequired &&
+      (!String.prototype.endsWith ||
+        !String.prototype.startsWith ||
+        !String.prototype.includes ||
+        !Array.prototype.find ||
+        !Array.prototype.includes ||
+        !Promise ||
+        !Object.entries ||
+        !Object.values ||
+        !String.prototype.replaceAll ||
+        !this.isDatasetAvailable())
     );
   }
 
@@ -1330,7 +1335,7 @@ class Analytics {
   }
 
   setAuthToken(token) {
-    if(typeof token !== 'string') {
+    if (typeof token !== 'string') {
       logger.error('Provided input should be in string format');
       return;
     }
