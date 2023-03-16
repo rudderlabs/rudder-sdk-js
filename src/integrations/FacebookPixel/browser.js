@@ -1,5 +1,4 @@
 /* eslint-disable class-methods-use-this */
-/* eslint-disable */
 import is from "is";
 import each from "@ndhoule/each";
 import sha256 from "crypto-js/sha256";
