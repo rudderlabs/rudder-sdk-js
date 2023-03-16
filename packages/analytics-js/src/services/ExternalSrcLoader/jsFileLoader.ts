@@ -79,12 +79,12 @@ const jsFileLoader = (
 ): Promise<string | undefined> =>
   // eslint-disable-next-line compat/compat
   new Promise((resolve, reject) => {
-    try {
-      const scriptExists = document.getElementById(id);
-      if (scriptExists) {
-        reject(new Error(`A script with the id "${id}" is already loaded. Hence, skipping it.`));
-      }
+    const scriptExists = document.getElementById(id);
+    if (scriptExists) {
+      reject(new Error(`A script with the id "${id}" is already loaded. Hence, skipping it.`));
+    }
 
+    try {
       let timeoutID: number;
 
       const onload = () => {
@@ -97,11 +97,8 @@ const jsFileLoader = (
         reject(new Error(`Couldn't load the script: "${url}" with id ${id}.`));
       };
 
-      // Create the DOM element to load the script
-      const scriptElement = createScriptElement(url, id, async, onload, onerror);
-
-      // Add it to the DOM
-      insertScript(scriptElement);
+      // Create the DOM element to load the script and add it to the DOM
+      insertScript(createScriptElement(url, id, async, onload, onerror));
 
       // Reject on timeout
       timeoutID = window.setTimeout(() => {
@@ -121,4 +118,5 @@ const jsFileLoader = (
       );
     }
   });
+
 export { jsFileLoader, insertScript, createScriptElement };

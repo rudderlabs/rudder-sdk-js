@@ -52,7 +52,7 @@ class ExternalSrcLoader {
 
   onError(error: Error | unknown) {
     if (this.hasErrorHandler) {
-      this.errorHandler?.onError(error, 'HttpClient');
+      this.errorHandler?.onError(error, 'ExternalSrcLoader');
     } else {
       throw error;
     }
