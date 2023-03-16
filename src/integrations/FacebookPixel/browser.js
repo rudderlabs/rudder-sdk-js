@@ -1,4 +1,5 @@
 /* eslint-disable class-methods-use-this */
+/* eslint-disable */
 import is from "is";
 import each from "@ndhoule/each";
 import sha256 from "crypto-js/sha256";
@@ -65,7 +66,7 @@ class FacebookPixel {
           anonymousId: this.analytics.getAnonymousId()
         }
   
-        let userPayload = constructPayload(userData, traitsMapper);
+        const userPayload = constructPayload(userData, traitsMapper);
         // here we are sending other traits apart from the reserved ones.
         reserveTraits.forEach((element) => {
           delete userData.context?.traits[element];
@@ -174,7 +175,7 @@ class FacebookPixel {
       const contents = [];
 
       if (products && Array.isArray(products)) {
-        for (let i = 0; i < products.length; i++) {
+        for (let i = 0; i < products.length; i += 1) {
           const product = products[i];
           if (product) {
             const productId = product.product_id || product.sku || product.id;
@@ -190,7 +191,7 @@ class FacebookPixel {
         }
       }
 
-      if (contentIds.length) {
+      if (contentIds.length > 0) {
         contentType = "product";
       } else if (category) {
         contentIds.push(category);
@@ -340,7 +341,7 @@ class FacebookPixel {
       const contentIds = [];
       const contents = [];
       if (products) {
-        for (let i = 0; i < products.length; i++) {
+        for (let i = 0; i < products.length; i += 1) {
           const product = products[i];
           if (product) {
             const pId = product.product_id || product.sku || product.id;
@@ -449,7 +450,7 @@ class FacebookPixel {
       const contentIds = [];
       const contents = [];
       if (products) {
-        for (let i = 0; i < products.length; i++) {
+        for (let i = 0; i < products.length; i += 1) {
           const product = products[i];
           if (product) {
             const pId = product.product_id || product.sku || product.id;
@@ -566,7 +567,7 @@ class FacebookPixel {
 
     // Otherwise check if there is a replacement set for all Facebook Pixel
     // track calls of this category
-    const category = rudderElement.message.properties.category;
+    const category = rudderElement.message.properties?.category;
     if (category) {
       const categoryMapping = this.categoryToContent?.find(
         (i) => i.from === category
@@ -633,7 +634,7 @@ class FacebookPixel {
     const blacklistPiiProperties = this.blacklistPiiProperties || [];
     const eventCustomProperties = this.eventCustomProperties || [];
     const customPiiProperties = {};
-    for (let i = 0; i < blacklistPiiProperties[i]; i++) {
+    for (let i = 0; i < blacklistPiiProperties[i]; i += 1) {
       const configuration = blacklistPiiProperties[i];
       customPiiProperties[configuration.blacklistPiiProperties] =
         configuration.blacklistPiiHash;

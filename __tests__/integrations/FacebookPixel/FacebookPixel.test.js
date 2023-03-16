@@ -177,10 +177,9 @@ describe("Facebook Pixel Track event", () => {
       "content_ids": [
         "abc"
       ],
-      "content_type": [
-        "product"
-      ],
+      "content_type":"product",
       "currency": "GBP",
+      "content_name": undefined,
       "value": 0,
       "contents": [
         {
