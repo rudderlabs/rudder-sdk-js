@@ -1,13 +1,13 @@
 /* eslint-disable class-methods-use-this */
-import is from "is";
-import each from "@ndhoule/each";
-import sha256 from "crypto-js/sha256";
-import ScriptLoader from "../ScriptLoader";
-import logger from "../../utils/logUtil";
-import { getEventId, getContentCategory} from "./utils";
-import { getHashFromArray, isDefined } from "../utils/commonUtils";
-import { NAME, traitsMapper, reserveTraits } from "./constants";
-import { constructPayload } from "../../utils/utils";
+import is from 'is';
+import each from '@ndhoule/each';
+import sha256 from 'crypto-js/sha256';
+import ScriptLoader from '../ScriptLoader';
+import logger from '../../utils/logUtil';
+import { getEventId, getContentCategory } from './utils';
+import { getHashFromArray, isDefined } from '../utils/commonUtils';
+import { NAME, traitsMapper, reserveTraits } from './constants';
+import { constructPayload } from '../../utils/utils';
 
 class FacebookPixel {
   constructor(config, analytics) {
@@ -38,7 +38,7 @@ class FacebookPixel {
       this.userIdAsPixelId = [];
     }
 
-    logger.debug("===in init FbPixel===");
+    logger.debug('===in init FbPixel===');
 
     window._fbq = function () {
       if (window.fbq.callMethod) {
@@ -53,61 +53,58 @@ class FacebookPixel {
     window.fbq.loaded = true;
     window.fbq.disablePushState = true; // disables automatic pageview tracking
     window.fbq.allowDuplicatePageViews = true; // enables fb
-    window.fbq.version = "2.0";
+    window.fbq.version = '2.0';
     window.fbq.queue = [];
     if (this.advancedMapping) {
       if (this.useUpdatedMapping) {
         const userData = {
           context: {
-            traits: { ...this.analytics.getUserTraits() }
+            traits: { ...this.analytics.getUserTraits() },
           },
           userId: this.analytics.getUserId(),
-          anonymousId: this.analytics.getAnonymousId()
-        }
-  
+          anonymousId: this.analytics.getAnonymousId(),
+        };
+
         const userPayload = constructPayload(userData, traitsMapper);
         // here we are sending other traits apart from the reserved ones.
         reserveTraits.forEach((element) => {
           delete userData.context?.traits[element];
         });
-  
+
         this.userPayload = { ...userPayload, ...userData.context.traits };
-  
+
         if (this.userPayload.external_id) {
           this.userPayload.external_id = sha256(this.userPayload.external_id).toString();
         }
       } else {
-        this.userPayload = {...this.analytics.getUserTraits()};
+        this.userPayload = { ...this.analytics.getUserTraits() };
       }
-      window.fbq("init", this.pixelId, this.userPayload);
+      window.fbq('init', this.pixelId, this.userPayload);
     } else {
-      window.fbq("init", this.pixelId );
+      window.fbq('init', this.pixelId);
     }
-    ScriptLoader(
-      "fbpixel-integration",
-      "https://connect.facebook.net/en_US/fbevents.js"
-    );
+    ScriptLoader('fbpixel-integration', 'https://connect.facebook.net/en_US/fbevents.js');
   }
 
   isLoaded() {
-    logger.debug("in FBPixel isLoaded");
+    logger.debug('in FBPixel isLoaded');
     return !!(window.fbq && window.fbq.callMethod);
   }
 
   isReady() {
-    logger.debug("in FBPixel isReady");
+    logger.debug('in FBPixel isReady');
     return !!(window.fbq && window.fbq.callMethod);
   }
 
   page(rudderElement) {
     const { properties } = rudderElement.message;
-    window.fbq("track", "PageView", properties, {
+    window.fbq('track', 'PageView', properties, {
       eventID: getEventId(rudderElement.message),
     });
   }
 
   identify(rudderElement) {
-    logger.error("Identify is deprecated for Facebook Pixel");
+    logger.error('Identify is deprecated for Facebook Pixel');
     return;
   }
 
@@ -122,7 +119,7 @@ class FacebookPixel {
       if (!isDefined(revValue)) {
         logger.error("'properties.revenue' could not be converted to a number");
       }
-      currVal = currency || "USD";
+      currVal = currency || 'USD';
     }
     const payload = this.buildPayLoad(rudderElement, true);
 
@@ -140,7 +137,7 @@ class FacebookPixel {
     const legacy = this.legacyConversionPixelId;
     const standardTo = getHashFromArray(standard);
     const legacyTo = getHashFromArray(legacy);
-    const useValue = this.valueFieldIdentifier === "properties.value";
+    const useValue = this.valueFieldIdentifier === 'properties.value';
     let products;
     let quantity;
     let category;
@@ -149,26 +146,26 @@ class FacebookPixel {
     let value;
     let price;
     let query;
-    let contentName
+    let contentName;
     if (properties) {
       products = properties.products;
       quantity = properties.quantity;
       category = properties.category;
-      prodId = properties.product_id || properties.id || properties.sku;
+      prodId = properties.product_id || properties.sku || properties.id;
       prodName = properties.product_name || properties.name;
-      value = revValue || properties.value;
+      value = revValue || this.formatRevenue(properties.value);
       price = properties.price;
       query = properties.query;
       contentName = properties.contentName;
     }
 
-    if(category && !getContentCategory(category)){
+    if (category && !getContentCategory(category)) {
       return;
     }
     category = getContentCategory(category);
     const customProperties = this.buildPayLoad(rudderElement, true);
     const derivedEventID = getEventId(rudderElement.message);
-    if (event === "Product List Viewed") {
+    if (event === 'Product List Viewed') {
       let contentType;
       const contentIds = [];
       const contents = [];
@@ -191,67 +188,65 @@ class FacebookPixel {
       }
 
       if (contentIds.length > 0) {
-        contentType = "product";
+        contentType = 'product';
       } else if (category) {
         contentIds.push(category);
         contents.push({
           id: category,
           quantity: 1,
         });
-        contentType = "product_group";
+        contentType = 'product_group';
       }
 
       window.fbq(
-        "trackSingle",
+        'trackSingle',
         self.pixelId,
-        "ViewContent",
+        'ViewContent',
         this.merge(
           {
             content_ids: contentIds,
             content_type: this.getContentType(rudderElement, contentType),
             contents,
-            content_category: category || "",
+            content_category: category || '',
             content_name: contentName,
-            value: this.formatRevenue(properties?.value),
-            currency: currVal
+            value,
+            currency: currVal,
           },
-          customProperties
+          customProperties,
         ),
         {
           eventID: derivedEventID,
-        }
+        },
       );
       each((val, key) => {
         if (key === event.toLowerCase()) {
           window.fbq(
-            "trackSingle",
+            'trackSingle',
             self.pixelId,
             val,
             {
               currency: currVal,
-              value: revValue,
+              value,
             },
             {
               eventID: derivedEventID,
-            }
+            },
           );
         }
       }, legacyTo);
-    } else if (event === "Product Viewed") {
+    } else if (event === 'Product Viewed') {
       window.fbq(
-        "trackSingle",
+        'trackSingle',
         self.pixelId,
-        "ViewContent",
+        'ViewContent',
         this.merge(
           {
             content_ids: [prodId],
-            content_type: this.getContentType(rudderElement, "product"),
-            content_name: prodName || "",
-            content_category: category || "",
+            content_type: this.getContentType(rudderElement, 'product'),
+            content_name: prodName || '',
+            content_category: category || '',
             currency: currVal,
-            value: useValue
-              ? this.formatRevenue(value)
-              : this.formatRevenue(price),
+            value: useValue ? value : this.formatRevenue(price),
             contents: [
               {
                 id: prodId,
@@ -260,32 +255,30 @@ class FacebookPixel {
               },
             ],
           },
-          customProperties
+          customProperties,
         ),
         {
           eventID: derivedEventID,
-        }
+        },
       );
 
       each((val, key) => {
         if (key === event.toLowerCase()) {
           window.fbq(
-            "trackSingle",
+            'trackSingle',
             self.pixelId,
             val,
             {
               currency: currVal,
-              value: useValue
-                ? this.formatRevenue(value)
-                : this.formatRevenue(price),
+              value: useValue ? value : this.formatRevenue(price),
             },
             {
               eventID: derivedEventID,
-            }
+            },
           );
         }
       }, legacyTo);
-    } else if (event === "Product Added") {
+    } else if (event === 'Product Added') {
       const contentIds = [];
       const contents = [];
 
@@ -299,44 +292,42 @@ class FacebookPixel {
       }
       const productInfo = {
         content_ids: contentIds,
-        content_type: this.getContentType(rudderElement, "product"),
-        content_name: prodName || "",
-        content_category: category || "",
+        content_type: this.getContentType(rudderElement, 'product'),
+        content_name: prodName || '',
+        content_category: category || '',
         currency: currVal,
-        value: useValue ? this.formatRevenue(value) : this.formatRevenue(price),
+        value: useValue ? value : this.formatRevenue(price),
         contents,
       };
       window.fbq(
-        "trackSingle",
+        'trackSingle',
         self.pixelId,
-        "AddToCart",
+        'AddToCart',
         this.merge(productInfo, customProperties),
         {
           eventID: derivedEventID,
-        }
+        },
       );
 
       each((val, key) => {
         if (key === event.toLowerCase()) {
           window.fbq(
-            "trackSingle",
+            'trackSingle',
             self.pixelId,
             val,
             {
               currency: currVal,
-              value: useValue
-                ? this.formatRevenue(value)
-                : this.formatRevenue(price),
+              value: useValue ? value : this.formatRevenue(price),
             },
             {
               eventID: derivedEventID,
-            }
+            },
           );
         }
       }, legacyTo);
       this.merge(productInfo, customProperties);
-    } else if (event === "Order Completed") {
-      const contentType = this.getContentType(rudderElement, "product");
+    } else if (event === 'Order Completed') {
+      const contentType = this.getContentType(rudderElement, 'product');
       const contentIds = [];
       const contents = [];
       if (products) {
@@ -356,7 +347,7 @@ class FacebookPixel {
           }
         }
       } else {
-        logger.debug("No product array found");
+        logger.debug('No product array found');
       }
       // ref: https://developers.facebook.com/docs/meta-pixel/implementation/marketing-api#purchase
       // "trackSingle" feature is :
@@ -369,13 +360,13 @@ class FacebookPixel {
         value: revValue,
         contents,
         num_items: contentIds.length,
-        content_name: contentName
+        content_name: contentName,
       };
 
       window.fbq(
-        "trackSingle",
+        'trackSingle',
         self.pixelId,
-        "Purchase",
+        'Purchase',
         this.merge(productInfo, customProperties),
         {
           eventID: derivedEventID,
@@ -385,7 +376,7 @@ class FacebookPixel {
       each((val, key) => {
         if (key === event.toLowerCase()) {
           window.fbq(
-            "trackSingle",
+            'trackSingle',
             self.pixelId,
             val,
             {
@@ -398,7 +389,7 @@ class FacebookPixel {
           );
         }
       }, legacyTo);
-    } else if (event === "Products Searched") {
+    } else if (event === 'Products Searched') {
       const contentIds = [];
       const contents = [];
 
@@ -412,26 +403,20 @@ class FacebookPixel {
       }
       const productInfo = {
         content_ids: contentIds,
-        content_category: category || "",
+        content_category: category || '',
         currency: currVal,
-        value: useValue ? this.formatRevenue(value) : this.formatRevenue(price),
+        value: this.formatRevenue(properties?.value),
         contents,
         search_string: query,
       };
-      window.fbq(
-        "trackSingle",
-        self.pixelId,
-        "Search",
-        this.merge(productInfo, customProperties),
-        {
-          eventID: derivedEventID,
-        }
-      );
+      window.fbq('trackSingle', self.pixelId, 'Search', this.merge(productInfo, customProperties), {
+        eventID: derivedEventID,
+      });
 
       each((val, key) => {
         if (key === event.toLowerCase()) {
           window.fbq(
-            "trackSingle",
+            'trackSingle',
             self.pixelId,
             val,
             {
@@ -440,11 +425,11 @@ class FacebookPixel {
             },
             {
               eventID: derivedEventID,
-            }
+            },
           );
         }
       }, legacyTo);
-    } else if (event === "Checkout Started") {
+    } else if (event === 'Checkout Started') {
       let contentCategory = category;
       const contentIds = [];
       const contents = [];
@@ -472,7 +457,7 @@ class FacebookPixel {
 
       const productInfo = {
         content_ids: contentIds,
-        content_type: this.getContentType(rudderElement, "product"),
+        content_type: this.getContentType(rudderElement, 'product'),
         content_category: contentCategory,
         currency: currVal,
         value: revValue,
@@ -480,9 +465,9 @@ class FacebookPixel {
         num_items: contentIds.length,
       };
       window.fbq(
-        "trackSingle",
+        'trackSingle',
         self.pixelId,
-        "InitiateCheckout",
+        'InitiateCheckout',
         this.merge(productInfo, customProperties),
         {
           eventID: derivedEventID,
@@ -492,7 +477,7 @@ class FacebookPixel {
       each((val, key) => {
         if (key === event.toLowerCase()) {
           window.fbq(
-            "trackSingle",
+            'trackSingle',
             self.pixelId,
             val,
             {
@@ -506,12 +491,12 @@ class FacebookPixel {
         }
       }, legacyTo);
     } else {
-      logger.debug("inside custom");
+      logger.debug('inside custom');
       if (!standardTo[event.toLowerCase()] && !legacyTo[event.toLowerCase()]) {
-        logger.debug("inside custom not mapped");
+        logger.debug('inside custom not mapped');
         const payloadVal = this.buildPayLoad(rudderElement, false);
         payloadVal.value = revValue;
-        window.fbq("trackSingleCustom", self.pixelId, event, payloadVal, {
+        window.fbq('trackSingleCustom', self.pixelId, event, payloadVal, {
           eventID: derivedEventID,
         });
       } else {
@@ -519,7 +504,7 @@ class FacebookPixel {
           if (key === event.toLowerCase()) {
             payload.currency = currVal;
 
-            window.fbq("trackSingle", self.pixelId, val, payload, {
+            window.fbq('trackSingle', self.pixelId, val, payload, {
               eventID: derivedEventID,
             });
           }
@@ -528,7 +513,7 @@ class FacebookPixel {
         each((val, key) => {
           if (key === event.toLowerCase()) {
             window.fbq(
-              "trackSingle",
+              'trackSingle',
               self.pixelId,
               val,
               {
@@ -537,7 +522,7 @@ class FacebookPixel {
               },
               {
                 eventID: derivedEventID,
-              }
+              },
             );
           }
         }, legacyTo);
@@ -568,9 +553,7 @@ class FacebookPixel {
     // track calls of this category
     const category = rudderElement.message.properties?.category;
     if (category) {
-      const categoryMapping = this.categoryToContent?.find(
-        (i) => i.from === category
-      );
+      const categoryMapping = this.categoryToContent?.find((i) => i.from === category);
       if (categoryMapping?.to) return categoryMapping.to;
     }
 
@@ -582,52 +565,52 @@ class FacebookPixel {
     const res = {};
 
     // All properties of obj1
-    for (const propObj1 in obj1) {
-      if (obj1.hasOwnProperty(propObj1)) {
+    Object.keys(obj1).forEach((propObj1) => {
+      if (Object.prototype.hasOwnProperty.call(obj1, propObj1)) {
         res[propObj1] = obj1[propObj1];
       }
-    }
+    });
 
     // Extra properties of obj2
-    for (const propObj2 in obj2) {
-      if (obj2.hasOwnProperty(propObj2) && !res.hasOwnProperty(propObj2)) {
+    Object.keys(obj2).forEach((propObj2) => {
+      if (Object.prototype.hasOwnProperty.call(obj2, propObj2) && !Object.prototype.hasOwnProperty.call(res, propObj2)) {
         res[propObj2] = obj2[propObj2];
       }
-    }
-
+    });
+  
     return res;
   }
 
   formatRevenue(revenue) {
     const formattedRevenue = parseFloat(parseFloat(revenue || 0).toFixed(2));
     if (Number.isNaN(formattedRevenue)) {
-      logger.error("Revenue could not be converted to number");
+      logger.error('Revenue could not be converted to number');
     }
     return formattedRevenue;
   }
 
   buildPayLoad(rudderElement, isStandardEvent) {
     const dateFields = [
-      "checkinDate",
-      "checkoutDate",
-      "departingArrivalDate",
-      "departingDepartureDate",
-      "returningArrivalDate",
-      "returningDepartureDate",
-      "travelEnd",
-      "travelStart",
+      'checkinDate',
+      'checkoutDate',
+      'departingArrivalDate',
+      'departingDepartureDate',
+      'returningArrivalDate',
+      'returningDepartureDate',
+      'travelEnd',
+      'travelStart',
     ];
     const defaultPiiProperties = [
-      "email",
-      "firstName",
-      "lastName",
-      "gender",
-      "city",
-      "country",
-      "phone",
-      "state",
-      "zip",
-      "birthday",
+      'email',
+      'firstName',
+      'lastName',
+      'gender',
+      'city',
+      'country',
+      'phone',
+      'state',
+      'zip',
+      'birthday',
     ];
     const whitelistPiiProperties = this.whitelistPiiProperties || [];
     const blacklistPiiProperties = this.blacklistPiiProperties || [];
