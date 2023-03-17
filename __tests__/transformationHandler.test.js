@@ -1,4 +1,5 @@
 /* eslint-disable no-plusplus */
+import { rest } from 'msw';
 import { DeviceModeTransformations } from '../src/features/core/deviceModeTransformation/transformationHandler';
 import { createPayload } from '../src/features/core/deviceModeTransformation/util';
 import { server } from '../__mocks__/msw.server';
@@ -13,19 +14,6 @@ import {
 } from '../__mocks__/fixtures';
 
 describe('Test suite for device mode transformation feature', () => {
-  const xhrMockServerDown = {
-    attempt: 0,
-    open: jest.fn(),
-    setRequestHeader: jest.fn(),
-    onreadystatechange: jest.fn(),
-    readyState: 4,
-    response: null,
-    status: 500,
-  };
-  xhrMockServerDown.send = () => {
-    xhrMockServerDown.onreadystatechange();
-    xhrMockServerDown.attempt++;
-  };
 
   beforeAll(() => {
     server.listen();
@@ -110,6 +98,16 @@ describe('Test suite for device mode transformation feature', () => {
   });
 
   it('Validate whether the SDK is retrying the request in case failures', async () => {
+    let counter = 0;
+    server.use(
+      rest.post(`${dummyDataplaneHost}/serverDown/transform`, (req, res, ctx) => {
+          counter +=1;
+          return res(
+            ctx.status(500)
+          )
+      }),
+    );
+
     DeviceModeTransformations.init(dummyWriteKey, `${dummyDataplaneHost}/serverDown`);
 
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
@@ -119,7 +117,7 @@ describe('Test suite for device mode transformation feature', () => {
       })
       .catch((e) => {
         expect(typeof e).toBe('string');
-        // expect(xhrMockServerDown.attempt).toEqual(retryCount + 1); // retryCount+ first attempt
+        expect(counter).toEqual(retryCount + 1); // retryCount+ first attempt
       });
   });
 
@@ -161,19 +159,26 @@ describe('Test suite for device mode transformation feature', () => {
   });
 
   it('Transformation server returns success after intermediate retry', async () => {
-    xhrMockServerDown.attempt = 0;
-    window.XMLHttpRequest = jest.fn(() => xhrMockServerDown);
 
-    // After first attempt fails SDK retries after 500 milliseconds.
-    // So, used a delay of 1 sec to get success after first attempt and atleast one retry.
-    setTimeout(() => {
-      xhrMockServerDown.status = 200;
-      xhrMockServerDown.response = JSON.stringify(samplePayloadSuccess);
-    }, 1000);
+    let counter = 0;
+    server.use(
+      rest.post(`${dummyDataplaneHost}/success/transform`, (req, res, ctx) => {
+        if(counter === 0){
+          counter +=1;
+          return res(
+            ctx.status(500)
+          )
+        }
+        counter +=1;
+        return res(ctx.status(200), ctx.json(samplePayloadSuccess));
+      }),
+    );
+
+    DeviceModeTransformations.init(dummyWriteKey, `${dummyDataplaneHost}/success`);
 
     await DeviceModeTransformations.sendEventForTransformation(payload, retryCount)
       .then((response) => {
-        expect(xhrMockServerDown.attempt).toBeGreaterThan(1);
+        expect(counter).toBeGreaterThan(1);
         expect(response.transformationServerAccess).toEqual(true);
         expect(Array.isArray(response.transformedPayload)).toEqual(true);
 
