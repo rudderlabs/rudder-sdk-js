@@ -405,7 +405,7 @@ class FacebookPixel {
         content_ids: contentIds,
         content_category: category || '',
         currency: currVal,
-        value: this.formatRevenue(properties?.value),
+        value,
         contents,
         search_string: query,
       };
@@ -421,7 +421,7 @@ class FacebookPixel {
             val,
             {
               currency: currVal,
-              value: revValue,
+              value,
             },
             {
               eventID: derivedEventID,
