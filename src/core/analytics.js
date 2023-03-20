@@ -506,19 +506,20 @@ class Analytics {
     if (this.sendAdblockPage && category != 'RudderJS-Initiated') {
       this.sendSampleRequest();
     }
+    let clonedProperties = R.clone(properties);
+    const clonedOptions = R.clone(options);
 
     const rudderElement = new RudderElementBuilder().setType('page').build();
-    if (!properties) {
-      properties = {};
+    if (!clonedProperties) {
+      clonedProperties = {};
     }
     if (name) {
-      rudderElement.message.name = properties.name = name;
+      rudderElement.message.name = clonedProperties.name = name;
     }
     if (category) {
-      rudderElement.message.category = properties.category = category;
+      rudderElement.message.category = clonedProperties.category = category;
     }
-    const clonedProperties = R.clone(properties);
-    const clonedOptions = R.clone(options);
+
     rudderElement.message.properties = this.getPageProperties(clonedProperties);
 
     this.processAndSendDataToDestinations('page', rudderElement, clonedOptions, callback);
@@ -543,12 +544,13 @@ class Analytics {
     if (typeof properties === 'function')
       (callback = properties), (options = null), (properties = null);
 
+    const clonedProperties = R.clone(properties);
+    const clonedOptions = R.clone(options);
+
     const rudderElement = new RudderElementBuilder().setType('track').build();
     if (event) {
       rudderElement.setEventName(event);
     }
-    const clonedProperties = R.clone(properties);
-    const clonedOptions = R.clone(options);
     rudderElement.setProperty(clonedProperties || {});
 
     this.processAndSendDataToDestinations('track', rudderElement, clonedOptions, callback);
@@ -646,10 +648,11 @@ class Analytics {
 
     this.groupId = getStringId(groupId);
     this.storage.setGroupId(this.groupId);
-
-    const rudderElement = new RudderElementBuilder().setType('group').build();
     const clonedTraits = R.clone(traits);
     const clonedOptions = R.clone(options);
+
+    const rudderElement = new RudderElementBuilder().setType('group').build();
+
     if (clonedTraits) {
       for (const key in clonedTraits) {
         this.groupTraits[key] = clonedTraits[key];
