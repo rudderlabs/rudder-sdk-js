@@ -106,7 +106,10 @@
         "appId": "1hKOmRA4GRlm",
         "release_stage": "Production"
       },
-      "channel": "random"
+      "channel": "random",
+      "consentManagement": {
+        "deniedConsentIds": ["C0002", "C0004", "C0005", "C0006"]
+      }
     },
     "type": "track",
     "messageId": "bb934032-05c6-4c8c-a2d8-5d1b6ed58bbf",
@@ -134,7 +137,10 @@
     "integrations": {
       "All": false,
       "Google Analytics": true,
-      "Amplitude": true
+      "Amplitude": true,
+      "Google Analytics 4": {
+        "sessionId": "1677835184"
+      }
     },
     "user_properties": null,
     "sentAt": "2023-01-15T02:37:59.230Z"

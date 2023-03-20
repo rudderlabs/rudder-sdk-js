@@ -68,7 +68,10 @@
       }
     },
     "integrations": {
-      "All": true
+      "All": true,
+      "Google Analytics 4": {
+        "sessionId": "1677835184"
+      }
     },
     "user_properties": null,
     "sentAt": "2023-01-15T02:37:59.230Z"
