@@ -517,9 +517,11 @@ class Analytics {
     if (category) {
       rudderElement.message.category = properties.category = category;
     }
-    rudderElement.message.properties = this.getPageProperties(properties);
+    const clonedProperties = R.clone(properties);
+    const clonedOptions = R.clone(options);
+    rudderElement.message.properties = this.getPageProperties(clonedProperties);
 
-    this.processAndSendDataToDestinations('page', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('page', rudderElement, clonedOptions, callback);
   }
 
   /**
@@ -545,9 +547,11 @@ class Analytics {
     if (event) {
       rudderElement.setEventName(event);
     }
-    rudderElement.setProperty(properties || {});
+    const clonedProperties = R.clone(properties);
+    const clonedOptions = R.clone(options);
+    rudderElement.setProperty(clonedProperties || {});
 
-    this.processAndSendDataToDestinations('track', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('track', rudderElement, clonedOptions, callback);
   }
 
   /**
@@ -575,15 +579,18 @@ class Analytics {
     this.userId = getStringId(userId);
     this.storage.setUserId(this.userId);
 
-    if (traits) {
-      for (const key in traits) {
-        this.userTraits[key] = traits[key];
+    const clonedTraits = R.clone(traits);
+    const clonedOptions = R.clone(options);
+
+    if (clonedTraits) {
+      for (const key in clonedTraits) {
+        this.userTraits[key] = clonedTraits[key];
       }
       this.storage.setUserTraits(this.userTraits);
     }
     const rudderElement = new RudderElementBuilder().setType('identify').build();
 
-    this.processAndSendDataToDestinations('identify', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('identify', rudderElement, clonedOptions, callback);
   }
 
   /**
@@ -610,8 +617,9 @@ class Analytics {
     rudderElement.message.previousId =
       getStringId(from) || (this.userId ? this.userId : this.getAnonymousId());
     rudderElement.message.userId = getStringId(to);
+    const clonedOptions = R.clone(options);
 
-    this.processAndSendDataToDestinations('alias', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('alias', rudderElement, clonedOptions, callback);
   }
 
   /**
@@ -640,16 +648,18 @@ class Analytics {
     this.storage.setGroupId(this.groupId);
 
     const rudderElement = new RudderElementBuilder().setType('group').build();
-    if (traits) {
-      for (const key in traits) {
-        this.groupTraits[key] = traits[key];
+    const clonedTraits = R.clone(traits);
+    const clonedOptions = R.clone(options);
+    if (clonedTraits) {
+      for (const key in clonedTraits) {
+        this.groupTraits[key] = clonedTraits[key];
       }
     } else {
       this.groupTraits = {};
     }
     this.storage.setGroupTraits(this.groupTraits);
 
-    this.processAndSendDataToDestinations('group', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('group', rudderElement, clonedOptions, callback);
   }
 
   IsEventBlackListed(eventName, intgName) {
@@ -743,7 +753,7 @@ class Analytics {
       // If cookie consent is enabled attach the denied consent group Ids to the context
       if (fetchCookieConsentState(this.cookieConsentOptions)) {
         rudderElement.message.context.consentManagement = {
-          deniedConsentIds: this.deniedConsentIds
+          deniedConsentIds: this.deniedConsentIds,
         };
       }
 
@@ -1005,7 +1015,7 @@ class Analytics {
       throw Error('Cannot proceed as no storage is available');
     }
     if (options && options.cookieConsentManager)
-      this.cookieConsentOptions = R.clone(options.cookieConsentManager);
+      this.cookieConsentOptions = options.cookieConsentManager;
 
     this.writeKey = writeKey;
     this.serverUrl = serverUrl;
@@ -1130,12 +1140,14 @@ class Analytics {
     // logger.debug("inside load ");
     if (this.loaded) return;
 
+    // clone options
+    const clonedOptions = R.clone(options);
     // check if the below features are available in the browser or not
     // If not present dynamically load from the polyfill cdn, unless
     // the options are configured not to.
     const polyfillIfRequired =
-      options && typeof options.polyfillIfRequired === 'boolean'
-        ? options.polyfillIfRequired
+      clonedOptions && typeof clonedOptions.polyfillIfRequired === 'boolean'
+        ? clonedOptions.polyfillIfRequired
         : true;
     if (
       polyfillIfRequired &&
@@ -1160,7 +1172,7 @@ class Analytics {
         // So, added another checking to fulfill that purpose.
         if (window.hasOwnProperty(id) || document.getElementById(id) !== null) {
           clearInterval(interval);
-          self.loadAfterPolyfill(writeKey, serverUrl, options);
+          self.loadAfterPolyfill(writeKey, serverUrl, clonedOptions);
         }
       }, 100);
 
@@ -1168,7 +1180,7 @@ class Analytics {
         clearInterval(interval);
       }, MAX_WAIT_FOR_INTEGRATION_LOAD);
     } else {
-      this.loadAfterPolyfill(writeKey, serverUrl, options);
+      this.loadAfterPolyfill(writeKey, serverUrl, clonedOptions);
     }
   }
 
