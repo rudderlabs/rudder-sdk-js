@@ -24,14 +24,6 @@ const anonymousIdKeyMap = {
 };
 
 /**
- * Json stringify the given value
- * @param {*} value
- */
-function stringify(value) {
-  return JSON.stringify(value);
-}
-
-/**
  * JSON parse the value
  * @param {*} value
  */
@@ -62,7 +54,7 @@ function decryptValue(value) {
     return value;
   }
   if (value.substring(0, defaults.prefix.length) === defaults.prefix) {
-    //return AES.decrypt(value.substring(defaults.prefix.length), defaults.key).toString(Utf8);
+    // return AES.decrypt(value.substring(defaults.prefix.length), defaults.key).toString(Utf8);
     return value.substring(defaults.prefix.length);
   }
   return value;
@@ -76,7 +68,7 @@ function encryptValue(value) {
   if (trim(value) === '') {
     return value;
   }
-  //const prefixedVal = `${defaults.prefix}${AES.encrypt(value, defaults.key).toString()}`;
+  // const prefixedVal = `${defaults.prefix}${AES.encrypt(value, defaults.key).toString()}`;
   const prefixedVal = `${defaults.prefix}${value}`;
 
   return prefixedVal;
@@ -114,7 +106,7 @@ class Storage {
    * @param {*} value
    */
   setItem(key, value) {
-    this.storage.set(key, encryptValue(stringify(value)));
+    this.storage.set(key, encryptValue(JSON.stringify(value)));
   }
 
   /**

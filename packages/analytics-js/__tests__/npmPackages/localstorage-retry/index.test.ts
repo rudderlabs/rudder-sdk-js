@@ -1,9 +1,9 @@
-import { Schedule } from '../../../src/npmPackages/localstorage-retry/Schedule';
-import { Store } from '@rudderstack/analytics-js/services/StorageManager/Store';
-import { Queue } from '../../../src/npmPackages/localstorage-retry';
-import { defaultStorageEngine } from '@rudderstack/analytics-js/services/StorageManager/storage';
-import { QueueStatuses } from '../../../src/npmPackages/localstorage-retry/QueueStatuses';
 import { GenericObject } from '@rudderstack/analytics-js/types';
+import { Store } from '@rudderstack/analytics-js/services/StorageManager/Store';
+import { getStorageEngine } from '@rudderstack/analytics-js/services/StorageManager/storages/storageEngine';
+import { Schedule } from '../../../src/npmPackages/localstorage-retry/Schedule';
+import { Queue } from '../../../src/npmPackages/localstorage-retry';
+import { QueueStatuses } from '../../../src/npmPackages/localstorage-retry/QueueStatuses';
 
 const size = (queue: Queue): { queue: number; inProgress: number } => ({
   queue: queue.store.get(QueueStatuses.QUEUE).length,
@@ -14,7 +14,7 @@ describe('Queue', () => {
   let queue: Queue;
   // let clock: InstalledClock;
   let schedule: Schedule;
-  const engine = defaultStorageEngine;
+  const engine = getStorageEngine('localStorage');
 
   beforeAll(() => {
     jest.useFakeTimers();
@@ -26,7 +26,7 @@ describe('Queue', () => {
     schedule.now = () => +new window.Date();
 
     // Have the default function be a spied success
-    queue = new Queue('test', jest.fn());
+    queue = new Queue('test', {}, jest.fn());
     queue.schedule = schedule;
   });
 
@@ -151,9 +151,16 @@ describe('Queue', () => {
 
   it('should take over a queued task if a queue is abandoned', () => {
     // a wild queue of interest appears
-    const foundQueue = new Store('test', 'fake-id', QueueStatuses);
-    foundQueue.set(foundQueue.keys.ACK, 0); // fake timers starts at time 0
-    foundQueue.set(foundQueue.keys.QUEUE, [
+    const foundQueue = new Store(
+      {
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      },
+      getStorageEngine('localStorage'),
+    );
+    foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
+    foundQueue.set(foundQueue.validKeys.QUEUE, [
       {
         item: 'a',
         time: 0,
@@ -175,9 +182,16 @@ describe('Queue', () => {
 
   it('should take over an in-progress task if a queue is abandoned', () => {
     // set up a fake queue
-    const foundQueue = new Store('test', 'fake-id', QueueStatuses);
-    foundQueue.set(foundQueue.keys.ACK, -15000);
-    foundQueue.set(foundQueue.keys.IN_PROGRESS, {
+    const foundQueue = new Store(
+      {
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      },
+      getStorageEngine('localStorage'),
+    );
+    foundQueue.set(foundQueue.validKeys.ACK, -15000);
+    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
       'task-id': {
         item: 'a',
         time: 0,
@@ -199,9 +213,16 @@ describe('Queue', () => {
 
   it('should deduplicate ids when reclaiming abandoned queue tasks', () => {
     // set up a fake queue
-    const foundQueue = new Store('test', 'fake-id', QueueStatuses);
-    foundQueue.set(foundQueue.keys.ACK, -15000);
-    foundQueue.set(foundQueue.keys.QUEUE, [
+    const foundQueue = new Store(
+      {
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      },
+      getStorageEngine('localStorage'),
+    );
+    foundQueue.set(foundQueue.validKeys.ACK, -15000);
+    foundQueue.set(foundQueue.validKeys.QUEUE, [
       {
         item: 'a',
         time: 0,
@@ -230,9 +251,16 @@ describe('Queue', () => {
 
   it('should deduplicate ids when reclaiming abandoned in-progress tasks', () => {
     // set up a fake queue
-    const foundQueue = new Store('test', 'fake-id', QueueStatuses);
-    foundQueue.set(foundQueue.keys.ACK, -15000);
-    foundQueue.set(foundQueue.keys.IN_PROGRESS, {
+    const foundQueue = new Store(
+      {
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      },
+      getStorageEngine('localStorage'),
+    );
+    foundQueue.set(foundQueue.validKeys.ACK, -15000);
+    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
       'task-id-0': {
         item: 'a',
         time: 0,
@@ -261,9 +289,16 @@ describe('Queue', () => {
 
   it('should deduplicate ids when reclaiming abandoned in-progress and queue tasks', () => {
     // set up a fake queue
-    const foundQueue = new Store('test', 'fake-id', QueueStatuses);
-    foundQueue.set(foundQueue.keys.ACK, -15000);
-    foundQueue.set(foundQueue.keys.IN_PROGRESS, {
+    const foundQueue = new Store(
+      {
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      },
+      getStorageEngine('localStorage'),
+    );
+    foundQueue.set(foundQueue.validKeys.ACK, -15000);
+    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
       'task-id-0': {
         item: 'a',
         time: 0,
@@ -278,7 +313,7 @@ describe('Queue', () => {
       },
     });
 
-    foundQueue.set(foundQueue.keys.QUEUE, [
+    foundQueue.set(foundQueue.validKeys.QUEUE, [
       {
         item: 'a',
         time: 0,
@@ -308,9 +343,16 @@ describe('Queue', () => {
 
   it('should not deduplicate tasks when ids are not set during reclaim', () => {
     // set up a fake queue
-    const foundQueue = new Store('test', 'fake-id', QueueStatuses);
-    foundQueue.set(foundQueue.keys.ACK, -15000);
-    foundQueue.set(foundQueue.keys.IN_PROGRESS, {
+    const foundQueue = new Store(
+      {
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      },
+      getStorageEngine('localStorage'),
+    );
+    foundQueue.set(foundQueue.validKeys.ACK, -15000);
+    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
       'task-id-0': {
         item: 'a',
         time: 0,
@@ -323,7 +365,7 @@ describe('Queue', () => {
       },
     });
 
-    foundQueue.set(foundQueue.keys.QUEUE, [
+    foundQueue.set(foundQueue.validKeys.QUEUE, [
       {
         item: 'a',
         time: 0,
@@ -350,16 +392,23 @@ describe('Queue', () => {
 
   it('should take over multiple tasks if a queue is abandoned', () => {
     // set up a fake queue
-    const foundQueue = new Store('test', 'fake-id', QueueStatuses);
-    foundQueue.set(foundQueue.keys.ACK, -15000);
-    foundQueue.set(foundQueue.keys.QUEUE, [
+    const foundQueue = new Store(
+      {
+        name: 'test',
+        id: 'fake-id',
+        validKeys: QueueStatuses,
+      },
+      getStorageEngine('localStorage'),
+    );
+    foundQueue.set(foundQueue.validKeys.ACK, -15000);
+    foundQueue.set(foundQueue.validKeys.QUEUE, [
       {
         item: 'a',
         time: 0,
         attemptNumber: 0,
       },
     ]);
-    foundQueue.set(foundQueue.keys.IN_PROGRESS, {
+    foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
       'task-id': {
         item: 'b',
         time: 1,
@@ -382,14 +431,21 @@ describe('Queue', () => {
 
   describe('while using in memory engine', () => {
     beforeEach(() => {
-      queue.store.swapToInMemoryEngine();
+      queue.store.swapQueueStoreToInMemoryEngine();
     });
 
     it('should take over a queued task if a queue is abandoned', () => {
       // a wild queue of interest appears
-      const foundQueue = new Store('test', 'fake-id', QueueStatuses);
-      foundQueue.set(foundQueue.keys.ACK, 0); // fake timers starts at time 0
-      foundQueue.set(foundQueue.keys.QUEUE, [
+      const foundQueue = new Store(
+        {
+          name: 'test',
+          id: 'fake-id',
+          validKeys: QueueStatuses,
+        },
+        getStorageEngine('localStorage'),
+      );
+      foundQueue.set(foundQueue.validKeys.ACK, 0); // fake timers starts at time 0
+      foundQueue.set(foundQueue.validKeys.QUEUE, [
         {
           item: 'a',
           time: 0,
@@ -411,9 +467,16 @@ describe('Queue', () => {
 
     it('should take over an in-progress task if a queue is abandoned', () => {
       // set up a fake queue
-      const foundQueue = new Store('test', 'fake-id', QueueStatuses);
-      foundQueue.set(foundQueue.keys.ACK, -15000);
-      foundQueue.set(foundQueue.keys.IN_PROGRESS, {
+      const foundQueue = new Store(
+        {
+          name: 'test',
+          id: 'fake-id',
+          validKeys: QueueStatuses,
+        },
+        getStorageEngine('localStorage'),
+      );
+      foundQueue.set(foundQueue.validKeys.ACK, -15000);
+      foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
         'task-id': {
           item: 'a',
           time: 0,
@@ -435,16 +498,23 @@ describe('Queue', () => {
 
     it('should take over multiple tasks if a queue is abandoned', () => {
       // set up a fake queue
-      const foundQueue = new Store('test', 'fake-id', QueueStatuses);
-      foundQueue.set(foundQueue.keys.ACK, -15000);
-      foundQueue.set(foundQueue.keys.QUEUE, [
+      const foundQueue = new Store(
+        {
+          name: 'test',
+          id: 'fake-id',
+          validKeys: QueueStatuses,
+        },
+        getStorageEngine('localStorage'),
+      );
+      foundQueue.set(foundQueue.validKeys.ACK, -15000);
+      foundQueue.set(foundQueue.validKeys.QUEUE, [
         {
           item: 'a',
           time: 0,
           attemptNumber: 0,
         },
       ]);
-      foundQueue.set(foundQueue.keys.IN_PROGRESS, {
+      foundQueue.set(foundQueue.validKeys.IN_PROGRESS, {
         'task-id': {
           item: 'b',
           time: 1,

@@ -1,4 +1,4 @@
-import { GenericObject, Nullable } from '@rudderstack/analytics-js/types';
+import { Nullable } from '@rudderstack/analytics-js/types';
 
 export type CookieOptions = {
   maxage?: number;
@@ -24,7 +24,7 @@ const encode = (value: any): string | undefined => {
 /**
  * Decode
  */
-const decode = (value: string): string | null => {
+const decode = (value: string): Nullable<string> => {
   try {
     return decodeURIComponent(value);
   } catch (e) {
@@ -37,8 +37,8 @@ const decode = (value: string): string | null => {
 /**
  * Parse cookie `str`
  */
-const parse = (str: string): GenericObject => {
-  const obj: GenericObject = {};
+const parse = (str: string): Record<string, Nullable<string>> => {
+  const obj: Record<string, any> = {};
   const pairs = str.split(/ *; */);
   let pair;
 
@@ -91,14 +91,14 @@ const set = (name?: string, value?: Nullable<string | number>, optionsConfig?: C
 /**
  * Return all cookies
  */
-const all = (): GenericObject => {
+const all = (): Record<string, Nullable<string>> => {
   let cookieStringValue;
 
   try {
     cookieStringValue = window.document.cookie;
   } catch (err) {
     console.error((err as Error).stack || err);
-    return {} as GenericObject;
+    return {} as Record<string, Nullable<string>>;
   }
 
   return parse(cookieStringValue);
@@ -113,6 +113,7 @@ const get = (name: string): string => (all() as any)[name];
 /**
  * Set or get cookie `name` with `value` and `options` object
  */
+// eslint-disable-next-line func-names
 const cookie = function (
   name?: string,
   value?: Nullable<string | number>,

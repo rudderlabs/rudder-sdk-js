@@ -1,45 +1,69 @@
-import { GenericObject } from '../../types';
-import { defaultStorageEngine, inMemoryStorageEngine } from './storage';
+import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { trim } from '@rudderstack/analytics-js/components/utilities/string';
+import { Nullable } from '@rudderstack/analytics-js/types';
+import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
+import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { IStorage } from './types';
+import { getStorageEngine } from './storages/storageEngine';
 import { isStorageQuotaExceeded } from '../../components/capabilitiesManager/detection';
 
-// TODO: should we use the same store engine for everything??
+export interface IStoreConfig {
+  name: string;
+  id: string;
+  isEncrypted?: boolean;
+  validKeys?: Record<string, string>;
+  noCompoundKey?: boolean;
+  errorHandler?: ErrorHandler;
+  logger?: Logger;
+}
+
 /**
  * Store Implementation with dedicated storage
  */
 class Store {
   id: string;
-
   name: string;
+  isEncrypted: boolean;
+  validKeys: Record<string, string>;
+  engine: IStorage;
+  originalEngine: IStorage;
+  noKeyValidation?: boolean;
+  noCompoundKey?: boolean;
+  errorHandler?: ErrorHandler;
+  hasErrorHandler = false;
+  logger?: Logger;
+  hasLogger = false;
 
-  keys: GenericObject;
-
-  engine: Storage;
-
-  originalEngine: Storage;
-
-  constructor(name: string, id: string, keys?: GenericObject, optionalEngine?: Storage) {
-    this.id = id;
-    this.name = name;
-    this.keys = keys || {};
-    this.engine = optionalEngine || defaultStorageEngine;
+  constructor(config: IStoreConfig, engine?: IStorage) {
+    this.id = config.id;
+    this.name = config.name;
+    this.isEncrypted = config.isEncrypted || false;
+    this.validKeys = config.validKeys || {};
+    this.engine = engine || getStorageEngine('localStorage');
+    this.noKeyValidation = Object.keys(this.validKeys).length === 0;
+    this.noCompoundKey = config.noCompoundKey;
     this.originalEngine = this.engine;
+    this.errorHandler = config.errorHandler || defaultErrorHandler;
+    this.hasErrorHandler = Boolean(this.errorHandler);
+    this.logger = config.logger || defaultLogger;
+    this.hasLogger = Boolean(this.logger);
   }
 
   /**
-   * Ensure the key is valid
+   * Ensure the key is valid and with correct format
    */
   createValidKey(key: string): string | undefined {
-    const { name, id, keys } = this;
+    const { name, id, validKeys, noKeyValidation, noCompoundKey } = this;
 
-    if (Object.keys(keys).length === 0) {
-      return [name, id, key].join('.');
+    if (noKeyValidation) {
+      return noCompoundKey ? key : [name, id, key].join('.');
     }
 
     // validate and return undefined if invalid key
     let compoundKey;
-    Object.values(keys).forEach(existingKeyName => {
-      if (existingKeyName === key) {
-        compoundKey = [name, id, key].join('.');
+    Object.values(validKeys).forEach(validKeyName => {
+      if (validKeyName === key) {
+        compoundKey = noCompoundKey ? key : [name, id, key].join('.');
       }
     });
 
@@ -49,64 +73,98 @@ class Store {
   /**
    * Switch to inMemoryEngine, bringing any existing data with.
    */
-  swapToInMemoryEngine() {
+  swapQueueStoreToInMemoryEngine() {
+    const { name, id, validKeys, noCompoundKey } = this;
+    const inMemoryStorage = getStorageEngine('memoryStorage');
+
     // grab existing data, but only for this page's queue instance, not all
     // better to keep other queues in localstorage to be flushed later
     // than to pull them into memory and remove them from durable storage
-    Object.keys(this.keys).forEach(key => {
-      const value = this.get(this.keys[key]);
-      const compoundKey = [this.name, this.id, key].join('.');
+    Object.keys(validKeys).forEach(key => {
+      const value = this.get(validKeys[key]);
+      const validKey = noCompoundKey ? key : [name, id, key].join('.');
 
-      inMemoryStorageEngine.setItem(compoundKey, value);
+      inMemoryStorage.setItem(validKey, value);
+      // TODO: are we sure we want to drop clientData
+      //  if cookies are not available and localstorage is full?
       this.remove(key);
     });
 
-    this.engine = inMemoryStorageEngine;
+    this.engine = inMemoryStorage;
   }
 
   /**
    * Set value by key.
    */
   set(key: string, value: any) {
-    const compoundKey = this.createValidKey(key);
+    const validKey = this.createValidKey(key);
 
-    if (!compoundKey) {
+    if (!validKey) {
       return;
     }
 
     try {
-      this.engine.setItem(compoundKey, JSON.stringify(value));
+      // storejs that is used in localstorage engine already stringifies json
+      this.engine.setItem(validKey, this.encrypt(JSON.stringify(value))); // was original value for localstorage retry store
+      // this.engine.setItem(validKey, this.encrypt(value));
     } catch (err) {
       if (isStorageQuotaExceeded(err)) {
+        this.logger?.warn(
+          'Storage is full or unavailable, switching to in memory storage. Data will not be persisted.',
+        );
         // switch to inMemory engine
-        this.swapToInMemoryEngine();
+        this.swapQueueStoreToInMemoryEngine();
         // and save it there
         this.set(key, value);
+      } else {
+        this.onError(
+          new Error(
+            `Value for '${validKey}' cannot be persisted to storage, ${(err as Error).message}`,
+          ),
+        );
       }
     }
   }
+
+  // TODO: Do we really need this one?
+  // setStringItem(key: string, value: any) {
+  //   if (typeof value !== 'string') {
+  //     this.logger?.error(`Storage ${key} should be string`);
+  //     return;
+  //   }
+  //
+  //   this.set(key, value);
+  // }
 
   /**
    * Get by Key.
    */
   get(key: string): any {
-    try {
-      const validKey = this.createValidKey(key);
+    const validKey = this.createValidKey(key);
 
+    try {
       if (!validKey) {
         return null;
       }
 
-      const str = this.engine.getItem(validKey);
+      const str = this.decrypt(this.engine.getItem(validKey));
 
       // TODO: make isNull, isUndefined & isEmpty helpers
       if (str === null || str === undefined) {
         return null;
       }
 
+      // storejs that is used in localstorage engine already deserializes json strings but swallows errors
+      // return JSON.parse(str); // was original value for localstorage retry store
       return JSON.parse(str);
     } catch (err) {
-      console.error(`error: value 'validKey' cannot be retrieved/parsed from storage`);
+      this.onError(
+        new Error(
+          `Value for '${validKey}' cannot be retrieved/parsed from storage, ${
+            (err as Error).message
+          }`,
+        ),
+      );
       return null;
     }
   }
@@ -125,8 +183,42 @@ class Store {
   /**
    * Get original engine
    */
-  getOriginalEngine(): Storage {
+  getOriginalEngine(): IStorage {
     return this.originalEngine;
+  }
+
+  decrypt(value?: Nullable<string>): Nullable<string> {
+    if (value === null || typeof value === 'undefined') {
+      return null;
+    }
+
+    return this.crypto(value, 'decrypt');
+  }
+
+  encrypt(value: any): string {
+    return this.crypto(value, 'encrypt');
+  }
+
+  crypto(value: string, mode: 'encrypt' | 'decrypt'): string {
+    const noEncryption = !this.isEncrypted || !value || trim(value) === '';
+
+    if (noEncryption) {
+      return value;
+    }
+
+    const extensionPointName = `storage.${mode}`;
+
+    const formattedValue = defaultPluginManager.invoke<string>(extensionPointName, value);
+
+    return typeof formattedValue[0] === 'undefined' ? value : formattedValue[0];
+  }
+
+  onError(error: Error | unknown) {
+    if (this.hasErrorHandler) {
+      this.errorHandler?.onError(error, `Store ${this.id}`);
+    } else {
+      throw error;
+    }
   }
 }
 

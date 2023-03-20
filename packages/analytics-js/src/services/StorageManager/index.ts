@@ -1,1 +1,2 @@
-export { StorageManager, storageManagerInstance } from './StorageManager';
+export { StoreManager, defaultStoreManager } from './StoreManager';
+export { Store } from './Store';

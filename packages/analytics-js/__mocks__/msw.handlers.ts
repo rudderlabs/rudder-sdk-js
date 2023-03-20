@@ -44,6 +44,15 @@ const handlers = [
       ctx.body(fileContents),
     );
   }),
+  rest.get(`${dummyDataplaneHost}/jsFileEmpty`, (req, res, ctx) => {
+    const fileContents = '';
+    return res(
+      ctx.status(200),
+      ctx.set('Content-Length', fileContents.length.toString()),
+      ctx.set('Content-Type', 'text/javascript'),
+      ctx.body(fileContents),
+    );
+  }),
 ];
 
 export { handlers };

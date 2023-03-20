@@ -78,11 +78,13 @@ const initPlugins = async () => {
   });
 
   // Load and register remote plugins
+  // const encryptRemotePlugin = () => import('remoteModules/EncryptRemote');
   const lazyLoadRemotePlugin = () => import('remoteModules/RemotePlugin');
   const lazyLoadRemotePlugin2 = () => import('remoteModules/RemotePlugin2');
   const lazyLoadRemoteLoadIntegrations = () => import('remoteModules/LoadIntegrations');
 
   const remotePluginsList = [
+    // encryptRemotePlugin,
     lazyLoadRemotePlugin,
     lazyLoadRemotePlugin2,
     lazyLoadRemoteLoadIntegrations,

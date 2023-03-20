@@ -1,10 +1,10 @@
-import { TOP_LEVEL_DOMAIN } from '@rudderstack/analytics-js/constants/storageKeyNames';
+import { STORAGE_TEST_TOP_LEVEL_DOMAIN } from '@rudderstack/analytics-js/constants/storageKeyNames';
 import { cookie } from '../component-cookie';
 
 /**
  * Levels returns all levels of the given url
  *
- * The method returns an empty array when the hostname is an ip or `localhost`.
+ * The method returns an empty array when the hostname is an ip.
  */
 const levelsFunc = (url: string): string[] => {
   // TODO: add the polyfill for IE11
@@ -20,6 +20,10 @@ const levelsFunc = (url: string): string[] => {
 
   // Localhost.
   if (parts.length <= 1) {
+    // Fix to support localhost
+    if (parts[0].includes('localhost')) {
+      return ['localhost'];
+    }
     return levels;
   }
 
@@ -37,7 +41,7 @@ const levelsFunc = (url: string): string[] => {
  * The function constructs the levels of domain and attempts to set a global
  * cookie on each one when it succeeds it returns the top level domain.
  *
- * The method returns an empty string when the hostname is an ip or `localhost`.
+ * The method returns an empty string when the hostname is an ip.
  */
 const domain = (url: string): string => {
   const levels = levelsFunc(url);
@@ -45,9 +49,9 @@ const domain = (url: string): string => {
   // Lookup the real top level one.
   for (let i = 0; i < levels.length; i = i + 1) {
     const domain = levels[i];
-    const cname = TOP_LEVEL_DOMAIN;
+    const cname = STORAGE_TEST_TOP_LEVEL_DOMAIN;
     const opts = {
-      domain: `.${domain}`,
+      domain: `${domain.includes('localhost') ? '' : '.'}${domain}`,
     };
 
     // Set cookie on domain

@@ -125,7 +125,7 @@ describe('External Source Loader', () => {
     const dummyElement = createScriptElement(`${dummyDataplaneHost}/jsFileSample`, 'dummyScript');
 
     // If head exists should be placed as first script
-    insertScript(createScriptElement('', 'dummyScript1'));
+    insertScript(createScriptElement(`${dummyDataplaneHost}/jsFileEmpty`, 'dummyScript1'));
     insertScript(dummyElement);
     let scriptElement = document.getElementById('dummyScript');
     expect(scriptElement).toBeDefined();
@@ -138,7 +138,7 @@ describe('External Source Loader', () => {
     document.getElementsByTagName('head')[0].remove();
     const scriptElement1 = document.createElement('script');
     scriptElement1.type = 'text/javascript';
-    scriptElement1.src = '';
+    scriptElement1.src = `${dummyDataplaneHost}/jsFileEmpty`;
     scriptElement1.id = 'dummyScript1';
     document.getElementsByTagName('body')[0].append(scriptElement1);
     insertScript(dummyElement);

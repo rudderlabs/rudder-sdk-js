@@ -2,6 +2,7 @@ import Emitter from 'component-emitter';
 import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
 import { GenericObject } from '@rudderstack/analytics-js/types';
 import { Store } from '@rudderstack/analytics-js/services/StorageManager/Store';
+import { getStorageEngine } from '@rudderstack/analytics-js/services/StorageManager/storages/storageEngine';
 import { Schedule, ScheduleModes } from './Schedule';
 import { QueueStatuses } from './QueueStatuses';
 
@@ -74,23 +75,12 @@ class Queue extends Emitter {
   store: Store;
   running: boolean;
 
-  constructor(name: string, opts: QueueOptions | QueueProcessCallback, fn?: QueueProcessCallback) {
+  constructor(name: string, options: QueueOptions, queueProcessCb: QueueProcessCallback) {
     super();
-
-    let queueProcessCb = fn;
-    let options: QueueOptions = {};
-
-    // TODO: is this used anywhere? If not remove the arguments override and enforce 3 arguments
-    // Allow arguments override
-    if (typeof opts === 'function') {
-      queueProcessCb = opts as QueueProcessCallback;
-    } else {
-      options = opts as QueueOptions;
-    }
 
     this.name = name;
     this.id = generateUUID();
-    this.fn = queueProcessCb as QueueProcessCallback;
+    this.fn = queueProcessCb;
     this.maxItems = options.maxItems || Infinity;
     this.maxAttempts = options.maxAttempts || Infinity;
 
@@ -113,7 +103,14 @@ class Queue extends Emitter {
     this.processId = '0';
 
     // Set up our empty queues
-    this.store = new Store(this.name, this.id, QueueStatuses);
+    this.store = new Store(
+      {
+        name: this.name,
+        id: this.id,
+        validKeys: QueueStatuses,
+      },
+      getStorageEngine('localStorage'),
+    );
     this.store.set(QueueStatuses.IN_PROGRESS, {});
     this.store.set(QueueStatuses.QUEUE, []);
 
@@ -310,7 +307,14 @@ class Queue extends Emitter {
   }
 
   reclaim(id: string) {
-    const other = new Store(this.name, id, QueueStatuses);
+    const other = new Store(
+      {
+        name: this.name,
+        id: id,
+        validKeys: QueueStatuses,
+      },
+      getStorageEngine('localStorage'),
+    );
     const our = {
       queue: (this.store.get(QueueStatuses.QUEUE) || []) as QueueItem[],
     };
@@ -426,7 +430,16 @@ class Queue extends Emitter {
           continue;
         }
 
-        res.push(new Store(name, parts[1], QueueStatuses));
+        res.push(
+          new Store(
+            {
+              name: name,
+              id: parts[1],
+              validKeys: QueueStatuses,
+            },
+            getStorageEngine('localStorage'),
+          ),
+        );
       }
 
       return res;

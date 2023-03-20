@@ -11,6 +11,11 @@ import {
   defaultExternalSrcLoader,
   ExternalSrcLoader,
 } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
+import {
+  defaultStoreManager,
+  StoreManager,
+} from '@rudderstack/analytics-js/services/StorageManager';
+import { Store } from '@rudderstack/analytics-js/services/StorageManager/Store';
 import { initPlugins, registerCustomPlugins } from './plugins/indexPOCToDelete';
 import { Queue } from './npmPackages/localstorage-retry';
 import { setExposedGlobal, state } from './state/index';
@@ -28,19 +33,18 @@ export interface IV3 {
 
 class AnalyticsV3 implements IV3 {
   status?: 'starting' | 'ready';
-
   newData: any[];
-
   messageId: string;
   httpClient: HttpClient;
   logger: Logger;
   errorHandler: ErrorHandler;
   pluginsManager: PluginsManager;
   externalSrcLoader: ExternalSrcLoader;
+  storageManager: StoreManager;
+  clientDataStore?: Store;
   payloadQueue: any;
-  uSession: any;
-
   userSession: any;
+
   constructor() {
     this.status = 'starting';
     this.newData = [];
@@ -52,13 +56,20 @@ class AnalyticsV3 implements IV3 {
     this.logger = defaultLogger;
     this.pluginsManager = defaultPluginManager;
     this.externalSrcLoader = defaultExternalSrcLoader;
+    this.storageManager = defaultStoreManager;
+    // pass values from sdk init config too
+    this.storageManager.init({
+      cookieOptions: { enabled: true },
+      localStorageOptions: { enabled: true },
+    });
+    this.clientDataStore = this.storageManager.getStore('clientData');
     this.httpClient.setAuthHeader('2L8Fl7ryPss3Zku133Pj5ox7NeP');
 
     effect(() => {
       console.log('remote state in constructor: ', state.remoteState.value);
       console.log('local state in constructor: ', state.globalLocalState.value);
     });
-    this.startStorage();
+    this.startSessionTracking();
     this.load();
   }
 
@@ -158,8 +169,8 @@ class AnalyticsV3 implements IV3 {
     this.payloadQueue.start();
   }
 
-  startStorage() {
-    this.uSession = UserSession;
+  startSessionTracking() {
+    this.userSession.initialize({}, this.clientDataStore);
   }
 
   pluginRegister(customPlugins?: any[]) {

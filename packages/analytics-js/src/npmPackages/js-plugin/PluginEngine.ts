@@ -33,6 +33,10 @@ export type PluginEngineConfig = {
 };
 
 // TODO: pass and use here the logger and the error handler
+// TODO: make this a singleton in the constructor
+// TODO: create chained invoke to take the output frm first plugin and pass
+//  to next or return the value if it is the last one instead of an array per
+//  plugin that is the normal invoke
 class PluginEngine {
   plugins: ExtensionPlugin[];
   byName: GenericObject<ExtensionPlugin>;
@@ -128,7 +132,7 @@ class PluginEngine {
     this.cache = {};
   }
 
-  invoke(extPoint?: string, ...args: any[]): unknown {
+  invoke<T = any>(extPoint?: string, ...args: any[]): T[] {
     let extensionPointName = extPoint;
 
     if (!extensionPointName) {

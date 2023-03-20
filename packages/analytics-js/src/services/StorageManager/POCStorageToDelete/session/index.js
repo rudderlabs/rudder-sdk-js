@@ -1,6 +1,7 @@
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable import/prefer-default-export */
+import { persistedSessionStorageKeys } from '@rudderstack/analytics-js/plugins/userSessionManager/sessionStorageKeys';
 import Storage from './storage';
 import logger from './logUtil';
 import { DEFAULT_SESSION_TIMEOUT, MIN_SESSION_TIMEOUT, MIN_SESSION_ID_LENGTH } from './constants';
@@ -11,15 +12,22 @@ class UserSession {
   constructor() {
     this.storage = Storage;
     this.timeout = DEFAULT_SESSION_TIMEOUT;
-    // Fetch session information from storage if any or enable auto track
-    this.sessionInfo = this.storage.getSessionInfo() || { autoTrack: true };
   }
 
   /**
    * A function to initialize session information
    * @param {object} options    load call options
    */
-  initialize(options) {
+  initialize(options, storage) {
+    if (storage) {
+      this.storage = storage;
+    }
+
+    // Fetch session information from storage if any or enable auto track
+    this.sessionInfo = this.storage.get(persistedSessionStorageKeys.session_info) || {
+      autoTrack: true,
+    };
+
     try {
       /**
        * By default this.autoTrack will be true
@@ -99,7 +107,7 @@ class UserSession {
       this.sessionInfo.sessionStart = true;
       this.sessionInfo.autoTrack = true;
     }
-    this.storage.setSessionInfo(this.sessionInfo);
+    this.storage.set(persistedSessionStorageKeys.session_info, this.sessionInfo);
   }
 
   /**
@@ -134,7 +142,7 @@ class UserSession {
       sessionStart: true,
       manualTrack: true,
     };
-    this.storage.setSessionInfo(this.sessionInfo);
+    this.storage.set(persistedSessionStorageKeys.session_info, this.sessionInfo);
   }
 
   /**
@@ -156,7 +164,7 @@ class UserSession {
    */
   end() {
     this.sessionInfo = {};
-    this.storage.removeSessionInfo();
+    this.storage.remove(persistedSessionStorageKeys.session_info);
   }
 
   /**
@@ -180,7 +188,7 @@ class UserSession {
         this.sessionInfo.sessionStart = false;
       }
       session.sessionId = this.sessionInfo.id;
-      this.storage.setSessionInfo(this.sessionInfo);
+      this.storage.set(persistedSessionStorageKeys.session_info, this.sessionInfo);
     }
     return session;
   }

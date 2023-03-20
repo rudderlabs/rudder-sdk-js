@@ -46,7 +46,7 @@ describe('topDomain', () => {
     expect(domain('http://google.co.uk')).toEqual('google.co.uk');
     expect(domain('http://google.co.il')).toEqual('google.co.il');
     expect(domain('http://gist.github.com/calvinfo/some_file')).toEqual('github.com');
-    expect(domain('http://localhost:3000')).toEqual('');
+    expect(domain('http://localhost:3000')).toEqual('localhost');
     expect(domain('https://google.com:443/stuff')).toEqual('google.com');
     expect(domain('http://dev:3000')).toEqual('');
     expect(domain('http://0.0.0.0')).toEqual('');
