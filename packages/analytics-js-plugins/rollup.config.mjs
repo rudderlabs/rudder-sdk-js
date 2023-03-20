@@ -2,7 +2,6 @@
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-//import excludeDependenciesFromBundle from 'rollup-plugin-exclude-dependencies-from-bundle';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
@@ -67,7 +66,6 @@ export function getDefaultConfig(distName) {
         tsconfig: './tsconfig.json',
         useTsconfigDeclarationDir: true,
       }),
-      //excludeDependenciesFromBundle({ peerDependencies: true }),
       babel({
         compact: true,
         babelHelpers: 'bundled',
@@ -78,6 +76,7 @@ export function getDefaultConfig(distName) {
         name: 'remoteModules',
         filename: 'remoteEntry.js',
         exposes: {
+          './EncryptRemote': './src/storageEncryption/storageEncryptionV1.ts',
           './RemotePlugin': './src/RemotePlugin.ts',
           './RemotePlugin2': './src/RemotePlugin2.ts',
           './LoadIntegrations': './src/LoadIntegrations.ts',
