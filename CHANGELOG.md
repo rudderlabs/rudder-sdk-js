@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.28.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.27.0...v2.28.0) (2023-03-21)
+
+
+### Bug Fixes
+
+* mutation of user provided object values ([#958](https://github.com/rudderlabs/rudder-sdk-js/issues/958)) ([74f4974](https://github.com/rudderlabs/rudder-sdk-js/commit/74f4974377ad61b1bc86315484a7274a065c5706))
+
+
 ## [2.27.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.26.0...v2.27.0) (2023-03-14)
 
 ### Bug Fixes
