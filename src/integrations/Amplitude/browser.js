@@ -8,7 +8,7 @@ import { NAME } from './constants';
 const logger = new Logger(NAME);
 
 class Amplitude {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -37,6 +37,8 @@ class Amplitude {
     this.unsetParamsReferrerOnNewSession = config.unsetParamsReferrerOnNewSession || false;
     this.trackProductsOnce = config.trackProductsOnce || false;
     this.versionName = config.versionName;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
 
     if (config.traitsToSetOnce && config.traitsToSetOnce.length > 0) {
       config.traitsToSetOnce.forEach((element) => {

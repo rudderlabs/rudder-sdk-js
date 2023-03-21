@@ -18,12 +18,14 @@ import { constructPayload } from '../../utils/utils';
 import { payloadBuilder, payloadBuilderInList } from './utils';
 
 class Podsights {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     this.pixelId = config.pixelId;
     this.eventsToPodsightsEvents = config.eventsToPodsightsEvents;
     this.enableAliasCall = config.enableAliasCall;
     this.name = NAME;
     if (analytics.logLevel) logger.setLogLevel(analytics.logLevel);
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   init() {

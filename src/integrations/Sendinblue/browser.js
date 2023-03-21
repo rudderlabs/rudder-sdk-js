@@ -9,7 +9,7 @@ import { validateEmail, validatePhoneWithCountryCode } from '../../utils/commonU
 import { getDefinedTraits } from '../../utils/utils';
 
 class Sendinblue {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -17,6 +17,8 @@ class Sendinblue {
     this.clientKey = config.clientKey;
     this.contactAttributeMapping = config.contactAttributeMapping;
     this.sendTraitsInTrack = config.sendTraitsInTrack;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   loadScript() {

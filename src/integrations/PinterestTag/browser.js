@@ -20,7 +20,7 @@ import { NAME } from './constants';
 import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 export default class PinterestTag {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
@@ -31,6 +31,8 @@ export default class PinterestTag {
     this.userDefinedEventsMapping = config.eventsMapping || [];
     this.name = NAME;
     this.deduplicationKey = config.deduplicationKey;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
     logger.debug('config', config);
   }
 

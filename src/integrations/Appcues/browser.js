@@ -4,13 +4,15 @@ import ScriptLoader from '../../utils/ScriptLoader';
 import { NAME } from './constants';
 
 class Appcues {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.accountId = config.accountId;
     this.apiKey = config.apiKey;
     this.name = NAME;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
     // this.sendToAllDestinations = config.sendToAll;
   }
 

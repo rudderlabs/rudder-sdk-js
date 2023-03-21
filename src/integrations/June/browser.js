@@ -8,12 +8,14 @@ import ScriptLoader from '../../utils/ScriptLoader';
 import { getDestinationExternalID } from '../../utils/commonUtils';
 
 class June {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
     this.apiKey = config.apiKey;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   loadScript() {

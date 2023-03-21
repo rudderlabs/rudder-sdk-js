@@ -5,13 +5,15 @@ import { LOAD_ORIGIN } from '../../utils/ScriptLoader';
 
 const logger = new Logger(NAME);
 class MicrosoftClarity {
-  constructor(config, analytics) {
+  constructor(config, analytics, destinationInfo) {
     if (analytics.logLevel) {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
     this.projectId = config.projectId;
     this.cookieConsent = config.cookieConsent;
+    this.areTransformationsConnected = destinationInfo.areTransformationsConnected;
+    this.destinationId = destinationInfo.destinationId;
   }
 
   loadScript() {
