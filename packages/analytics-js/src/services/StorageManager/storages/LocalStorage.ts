@@ -7,8 +7,11 @@ import { getDefaultLocalStorageOptions } from './defaultOptions';
 
 // TODO: can we remove the storejs dependency to save bundlesize?
 //  check if the get, set overloads and search methods are used at all
-//  if we do ensure we provide types to support overloads as per storejs docs
+//  if we do, ensure we provide types to support overloads as per storejs docs
 //  https://www.npmjs.com/package/storejs
+/**
+ * A storage utility to persist values in localstorage via Storage interface
+ */
 class LocalStorage {
   logger?: Logger;
   options: ILocalStorageOptions;

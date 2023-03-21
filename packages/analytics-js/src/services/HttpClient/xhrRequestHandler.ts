@@ -38,6 +38,9 @@ const DEFAULT_XHR_REQUEST_OPTIONS: Partial<IXHRRequestOptions> = {
   method: 'GET',
 };
 
+/**
+ * Utility to create request configuration based on default options
+ */
 const createXhrRequestOptions = (
   url: string,
   options?: Partial<IXHRRequestOptions>,
@@ -59,8 +62,11 @@ const createXhrRequestOptions = (
   return requestOptions;
 };
 
-// TODO: why we used in v1.1 xhrModule
-//  xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600) instead for < 400????
+/**
+ * Utility implementation of XHR, fetch cannot be used as it requires explicit
+ * origin allowed values and not wildcard for CORS requests with credentials and
+ * this is not supported by our sourceConfig API
+ */
 const xhrRequest = (
   options: IXHRRequestOptions,
   timeout = DEFAULT_XHR_TIMEOUT,
@@ -89,6 +95,8 @@ const xhrRequest = (
     xhr.ontimeout = xhrError;
     xhr.onerror = xhrError;
 
+    // TODO: why we used in v1.1 xhrModule
+    //  xhr.status === 429 || (xhr.status >= 500 && xhr.status < 600) instead for < 400????
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 400) {
         resolve(xhr.responseText);

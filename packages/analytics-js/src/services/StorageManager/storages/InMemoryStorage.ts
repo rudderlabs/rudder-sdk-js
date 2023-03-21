@@ -3,6 +3,9 @@ import { Logger } from '@rudderstack/analytics-js/services/Logger';
 import { IInMemoryStorageOptions } from '../types';
 import { getDefaultInMemoryStorageOptions } from './defaultOptions';
 
+/**
+ * A storage utility to retain values in memory via Storage interface
+ */
 class InMemoryStorage {
   logger?: Logger;
   options: IInMemoryStorageOptions;

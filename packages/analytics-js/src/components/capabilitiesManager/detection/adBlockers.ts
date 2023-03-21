@@ -1,5 +1,8 @@
 const isAdBlockedElement = (element: HTMLScriptElement): boolean => element.id === 'ad-block';
 
+/**
+ * Utility method to handle script load errors that are ad blocked
+ */
 const handleScriptLoadAdBlocked = (
   errorMessage: string,
   element: HTMLScriptElement,

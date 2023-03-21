@@ -18,6 +18,9 @@ const LOG_MSG_PREFIX = 'RS SDK';
 const LOG_MSG_PREFIX_STYLE = 'font-weight: bold; background: black; color: white;';
 const LOG_MSG_STYLE = 'font-weight: normal;';
 
+/**
+ * Service to log messages/data to output provider, default is console
+ */
 class Logger {
   minLogLevel: number;
   scope?: string;

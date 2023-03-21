@@ -12,6 +12,9 @@ export interface IExternalSourceLoadConfig {
   timeout?: number;
 }
 
+/**
+ * Service to load external resources/files
+ */
 class ExternalSrcLoader {
   errorHandler?: ErrorHandler;
   logger?: Logger;
@@ -32,6 +35,9 @@ class ExternalSrcLoader {
     this.onError = this.onError.bind(this);
   }
 
+  /**
+   * Load external resource of type javascript
+   */
   async loadJSFile(config: IExternalSourceLoadConfig) {
     const { url, id, timeout, async, callback } = config;
     const isFireAndForget = !(callback && isFunction(callback));
@@ -50,6 +56,9 @@ class ExternalSrcLoader {
       });
   }
 
+  /**
+   * Handle errors
+   */
   onError(error: Error | unknown) {
     if (this.hasErrorHandler) {
       this.errorHandler?.onError(error, 'ExternalSrcLoader');

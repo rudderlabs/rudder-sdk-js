@@ -9,6 +9,11 @@ import { defaultInMemoryStorage } from './InMemoryStorage';
 import { defaultCookieStorage } from './CookieStorage';
 import { defaultLocalStorage } from './LocalStorage';
 
+// TODO: create session storage client (similar to localstorage if needed)
+
+/**
+ * A utility to retrieve the storage singleton instance by type
+ */
 const getStorageEngine = (type?: StorageType): IStorage => {
   switch (type) {
     case 'localStorage':
@@ -24,18 +29,30 @@ const getStorageEngine = (type?: StorageType): IStorage => {
   }
 };
 
+/**
+ * Configure cookie storage singleton
+ */
 const configureCookieStorageEngine = (options: Partial<ICookieStorageOptions>) => {
   defaultCookieStorage.configure(options);
 };
 
+/**
+ * Configure local storage singleton
+ */
 const configureLocalStorageEngine = (options: Partial<ILocalStorageOptions>) => {
   defaultLocalStorage.configure(options);
 };
 
+/**
+ * Configure in memory storage singleton
+ */
 const configureInMemoryStorageEngine = (options: Partial<IInMemoryStorageOptions>) => {
   defaultInMemoryStorage.configure(options);
 };
 
+/**
+ * Configure all storage singleton instances
+ */
 const configureStorageEngines = (
   cookieOptions: Partial<ICookieStorageOptions> = {},
   localStorageOptions: Partial<ILocalStorageOptions> = {},
