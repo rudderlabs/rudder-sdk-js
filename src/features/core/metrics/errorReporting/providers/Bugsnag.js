@@ -11,12 +11,11 @@ import { get } from '../../../../../utils/utils';
 const BUGSNAG_CDN_URL = 'https://d2wy8f7a9ursnm.cloudfront.net/v6/bugsnag.min.js';
 const BUGSNAG_VALID_MAJOR_VERSION = '6';
 const ERROR_REPORT_PROVIDER_NAME_BUGSNAG = 'rs-bugsnag';
-const BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME = 'bugsnag'; // For version 7 this is 'Bugsnag'
+const BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME = 'bugsnag'; // For version 6 and bellow
+const BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME = 'Bugsnag';
 const GLOBAL_LIBRARY_OBJECT_NAMES = [
-  ERROR_REPORT_PROVIDER_NAME_BUGSNAG,
-  'Bugsnag',
+  BUGSNAG_LIB_V7_INSTANCE_GLOBAL_KEY_NAME,
   BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME,
-  ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME,
 ];
 
 // This API key token is parsed in the CI pipeline
@@ -106,7 +105,7 @@ const loadBugsnagSDKScript = (name) => {
   if (isNotLoaded) {
     ScriptLoader(name, BUGSNAG_CDN_URL, {
       isNonNativeSDK: 'true',
-      async: 'false',
+      async: 'true',
       skipDatasetAttributes: true,
     });
   }
@@ -128,7 +127,7 @@ class BugsnagProvider {
    */
   init() {
     // Return if RS Bugsnag instance is already initialized
-    if (window.analytics && window.analytics[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME]) {
+    if (window.rudderanalytics && window.rudderanalytics[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME]) {
       return;
     }
 

@@ -19,15 +19,14 @@ class ErrorReportingService {
     this.isEnabled = false;
     this.providerName = DEFAULT_ERROR_REPORT_PROVIDER;
     this.provider = undefined;
-    this.providerClient = undefined;
-    this.logger = logger.error;
+    this.logger = logger;
     this.onClientReady = this.onClientReady.bind(this);
     this.exposeToGlobal = this.exposeToGlobal.bind(this);
   }
 
   init(sourceConfig, sourceId) {
     if (!sourceConfig || !sourceId) {
-      this.logger(
+      this.logger.error(
         `[Analytics] ErrorReporting :: Invalid configuration or missing source id provided.`,
       );
       return;
@@ -58,7 +57,7 @@ class ErrorReportingService {
     }
 
     if (providerName && !AVAILABLE_ERROR_REPORT_PROVIDERS.includes(providerName)) {
-      this.logger(
+      this.logger.error(
         `[Analytics] ErrorReporting :: Invalid error reporting provider value. Value should be one of: ${AVAILABLE_ERROR_REPORT_PROVIDERS.join(
           ',',
         )}`,
@@ -93,9 +92,9 @@ class ErrorReportingService {
   leaveBreadcrumb(breadcrumb) {
     if (this.provider?.client) {
       try {
-        this.provider.client.leaveBreadcrumb(breadcrumb);
+        this.provider.leaveBreadcrumb(breadcrumb);
       } catch (e) {
-        this.logger(`[Analytics] ErrorReporting :: leaveBreadcrumb method ${e.toString()}`);
+        this.logger.error(`[Analytics] ErrorReporting :: leaveBreadcrumb method ${e.toString()}`);
       }
     }
   }
@@ -103,9 +102,9 @@ class ErrorReportingService {
   notify(error) {
     if (this.provider?.client) {
       try {
-        this.provider.client.notify(error);
+        this.provider.notify(error);
       } catch (e) {
-        this.logger(`[Analytics] ErrorReporting :: notify method ${e.toString()}`);
+        this.logger.error(`[Analytics] ErrorReporting :: notify method ${e.toString()}`);
       }
     }
   }
