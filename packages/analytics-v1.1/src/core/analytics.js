@@ -506,20 +506,23 @@ class Analytics {
     if (this.sendAdblockPage && category != 'RudderJS-Initiated') {
       this.sendSampleRequest();
     }
+    let clonedProperties = R.clone(properties);
+    const clonedOptions = R.clone(options);
 
     const rudderElement = new RudderElementBuilder().setType('page').build();
-    if (!properties) {
-      properties = {};
+    if (!clonedProperties) {
+      clonedProperties = {};
     }
     if (name) {
-      rudderElement.message.name = properties.name = name;
+      rudderElement.message.name = clonedProperties.name = name;
     }
     if (category) {
-      rudderElement.message.category = properties.category = category;
+      rudderElement.message.category = clonedProperties.category = category;
     }
-    rudderElement.message.properties = this.getPageProperties(properties);
 
-    this.processAndSendDataToDestinations('page', rudderElement, options, callback);
+    rudderElement.message.properties = this.getPageProperties(clonedProperties);
+
+    this.processAndSendDataToDestinations('page', rudderElement, clonedOptions, callback);
   }
 
   /**
@@ -541,13 +544,16 @@ class Analytics {
     if (typeof properties === 'function')
       (callback = properties), (options = null), (properties = null);
 
+    const clonedProperties = R.clone(properties);
+    const clonedOptions = R.clone(options);
+
     const rudderElement = new RudderElementBuilder().setType('track').build();
     if (event) {
       rudderElement.setEventName(event);
     }
-    rudderElement.setProperty(properties || {});
+    rudderElement.setProperty(clonedProperties || {});
 
-    this.processAndSendDataToDestinations('track', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('track', rudderElement, clonedOptions, callback);
   }
 
   /**
@@ -575,15 +581,18 @@ class Analytics {
     this.userId = getStringId(userId);
     this.storage.setUserId(this.userId);
 
-    if (traits) {
-      for (const key in traits) {
-        this.userTraits[key] = traits[key];
+    const clonedTraits = R.clone(traits);
+    const clonedOptions = R.clone(options);
+
+    if (clonedTraits) {
+      for (const key in clonedTraits) {
+        this.userTraits[key] = clonedTraits[key];
       }
       this.storage.setUserTraits(this.userTraits);
     }
     const rudderElement = new RudderElementBuilder().setType('identify').build();
 
-    this.processAndSendDataToDestinations('identify', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('identify', rudderElement, clonedOptions, callback);
   }
 
   /**
@@ -610,8 +619,9 @@ class Analytics {
     rudderElement.message.previousId =
       getStringId(from) || (this.userId ? this.userId : this.getAnonymousId());
     rudderElement.message.userId = getStringId(to);
+    const clonedOptions = R.clone(options);
 
-    this.processAndSendDataToDestinations('alias', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('alias', rudderElement, clonedOptions, callback);
   }
 
   /**
@@ -638,18 +648,21 @@ class Analytics {
 
     this.groupId = getStringId(groupId);
     this.storage.setGroupId(this.groupId);
+    const clonedTraits = R.clone(traits);
+    const clonedOptions = R.clone(options);
 
     const rudderElement = new RudderElementBuilder().setType('group').build();
-    if (traits) {
-      for (const key in traits) {
-        this.groupTraits[key] = traits[key];
+
+    if (clonedTraits) {
+      for (const key in clonedTraits) {
+        this.groupTraits[key] = clonedTraits[key];
       }
     } else {
       this.groupTraits = {};
     }
     this.storage.setGroupTraits(this.groupTraits);
 
-    this.processAndSendDataToDestinations('group', rudderElement, options, callback);
+    this.processAndSendDataToDestinations('group', rudderElement, clonedOptions, callback);
   }
 
   IsEventBlackListed(eventName, intgName) {
@@ -1005,7 +1018,7 @@ class Analytics {
       throw Error('Cannot proceed as no storage is available');
     }
     if (options && options.cookieConsentManager)
-      this.cookieConsentOptions = R.clone(options.cookieConsentManager);
+      this.cookieConsentOptions = options.cookieConsentManager;
 
     this.writeKey = writeKey;
     this.serverUrl = serverUrl;
@@ -1130,12 +1143,14 @@ class Analytics {
     // logger.debug("inside load ");
     if (this.loaded) return;
 
+    // clone options
+    const clonedOptions = R.clone(options);
     // check if the below features are available in the browser or not
     // If not present dynamically load from the polyfill cdn, unless
     // the options are configured not to.
     const polyfillIfRequired =
-      options && typeof options.polyfillIfRequired === 'boolean'
-        ? options.polyfillIfRequired
+      clonedOptions && typeof clonedOptions.polyfillIfRequired === 'boolean'
+        ? clonedOptions.polyfillIfRequired
         : true;
     if (
       polyfillIfRequired &&
@@ -1160,7 +1175,7 @@ class Analytics {
         // So, added another checking to fulfill that purpose.
         if (window.hasOwnProperty(id) || document.getElementById(id) !== null) {
           clearInterval(interval);
-          self.loadAfterPolyfill(writeKey, serverUrl, options);
+          self.loadAfterPolyfill(writeKey, serverUrl, clonedOptions);
         }
       }, 100);
 
@@ -1168,7 +1183,7 @@ class Analytics {
         clearInterval(interval);
       }, MAX_WAIT_FOR_INTEGRATION_LOAD);
     } else {
-      this.loadAfterPolyfill(writeKey, serverUrl, options);
+      this.loadAfterPolyfill(writeKey, serverUrl, clonedOptions);
     }
   }
 
