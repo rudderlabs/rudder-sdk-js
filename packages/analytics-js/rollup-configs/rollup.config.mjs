@@ -2,7 +2,6 @@
 import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-// import excludeDependenciesFromBundle from 'rollup-plugin-exclude-dependencies-from-bundle';
 import replace from '@rollup/plugin-replace';
 import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
@@ -20,7 +19,7 @@ import federation from '@originjs/vite-plugin-federation';
 import * as dotenv from 'dotenv';
 import pkg from '../package.json' assert { type: 'json' };
 
-const remoteModuleBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002';
+const remotePluginsBasePath = process.env.REMOTE_MODULES_BASE_PATH || 'http://localhost:3002';
 const variantSubfolder = process.env.BROWSERSLIST_ENV === 'modern' ? '/modern' : '/legacy';
 const sourceMapType =
   process.env.PROD_DEBUG === 'inline' ? 'inline' : process.env.PROD_DEBUG === 'true';
@@ -72,7 +71,6 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
         tsconfig: './tsconfig.json',
         useTsconfigDeclarationDir: true,
       }),
-      // excludeDependenciesFromBundle({ peerDependencies: true }),
       babel({
         compact: true,
         babelHelpers: 'bundled',
@@ -80,12 +78,12 @@ export function getDefaultConfig(distName, moduleType = 'npm') {
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
         sourcemap: sourceMapType,
       }),
-      // TODO: keep checking for updates on when the sourcemaps will be fixed
+      // TODO: keep checking for updates on when the sourcemaps will be fixed and remove patch
       //  https://github.com/originjs/vite-plugin-federation/issues/355
       //  https://github.com/originjs/vite-plugin-federation/issues/336
       federation({
         remotes: {
-          remoteModules: `${remoteModuleBasePath}/modern/remoteEntry.js`,
+          remotePlugins: `${remotePluginsBasePath}/modern/remotePlugins.js`,
         },
         //sourcemap: sourceMapType,
       }),

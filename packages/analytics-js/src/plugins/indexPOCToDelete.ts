@@ -78,19 +78,20 @@ const initPlugins = async () => {
   });
 
   // Load and register remote plugins
-  // const encryptRemotePlugin = () => import('remoteModules/EncryptRemote');
-  const lazyLoadRemotePlugin = () => import('remoteModules/RemotePlugin');
-  const lazyLoadRemotePlugin2 = () => import('remoteModules/RemotePlugin2');
-  const lazyLoadRemoteLoadIntegrations = () => import('remoteModules/LoadIntegrations');
+  const lazyLoadRemotePlugin = () => import('remotePlugins/RemotePlugin');
+  const lazyLoadRemotePlugin2 = () => import('remotePlugins/RemotePlugin2');
+  const lazyLoadRemoteLoadIntegrations = () => import('remotePlugins/LoadIntegrations');
 
   const remotePluginsList = [
-    // encryptRemotePlugin,
     lazyLoadRemotePlugin,
     lazyLoadRemotePlugin2,
     lazyLoadRemoteLoadIntegrations,
   ];
 
-  // TODO: fix await until all remote plugins have been fetched
+  // TODO: fix await until all remote plugins have been fetched, this can be
+  //  done using the initialize function of the plugins with a callback to
+  //  notify state that the plugin is loaded and calculate signal when all are
+  //  loaded
   remotePluginsList.forEach(async remotePlugin => {
     await remotePlugin().then(remotePluginModule =>
       defaultPluginEngine.register(remotePluginModule.default()),

@@ -69,7 +69,6 @@ class AnalyticsV3 implements IV3 {
       console.log('remote state in constructor: ', state.remoteState.value);
       console.log('local state in constructor: ', state.globalLocalState.value);
     });
-    this.startSessionTracking();
     this.load();
   }
 
@@ -95,6 +94,7 @@ class AnalyticsV3 implements IV3 {
 
     window.setTimeout(() => {
       this.loadIntegration();
+      this.startSessionTracking();
       this.page();
     }, 5000);
   }

@@ -1,13 +1,10 @@
 import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
 import AES from 'crypto-js/aes';
 import Utf8 from 'crypto-js/enc-utf8';
-import {
-  ENCRYPTION_KEY_V1,
-  ENCRYPTION_PREFIX_V1,
-} from '@rudderstack/analytics-js/constants/encryption';
+import { ENCRYPTION_KEY_V1, ENCRYPTION_PREFIX_V1 } from './constants';
 
 // TODO: Migrate the existing encryption to new one
-const storageEncryptionV1: ExtensionPlugin = {
+const storageEncryptionV1 = (): ExtensionPlugin => ({
   name: 'storageEncryptionV1',
   storage: {
     encrypt(value: any): string {
@@ -31,7 +28,7 @@ const storageEncryptionV1: ExtensionPlugin = {
       return value;
     },
   },
-};
+});
 
 export { storageEncryptionV1 };
 

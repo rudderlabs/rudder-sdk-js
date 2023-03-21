@@ -5,7 +5,7 @@
 module.exports = [
   {
     name: 'Remote Plugins - CDN',
-    path: 'dist/legacy/remoteEntry.js',
+    path: 'dist/legacy/remotePlugins.js',
     gzip: true,
     limit: '0.5 kB',
   },

@@ -73,13 +73,13 @@ export function getDefaultConfig(distName) {
         extensions: [...DEFAULT_EXTENSIONS, '.ts'],
       }),
       federation({
-        name: 'remoteModules',
-        filename: 'remoteEntry.js',
+        name: 'remotePlugins',
+        filename: 'remotePlugins.js',
         exposes: {
-          './EncryptRemote': './src/storageEncryption/storageEncryptionV1.ts',
-          './RemotePlugin': './src/RemotePlugin.ts',
-          './RemotePlugin2': './src/RemotePlugin2.ts',
-          './LoadIntegrations': './src/LoadIntegrations.ts',
+          './StorageEncryptionV1': './src/storageEncryption/storageEncryptionV1.ts',
+          './RemotePlugin': './src/pocToDelete/RemotePlugin.ts',
+          './RemotePlugin2': './src/pocToDelete/RemotePlugin2.ts',
+          './LoadIntegrations': './src/pocToDelete/LoadIntegrations.ts',
         },
       }),
       process.env.UGLIFY === 'true' &&
