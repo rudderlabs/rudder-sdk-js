@@ -159,6 +159,7 @@ class FacebookPixel {
       contentName = properties.contentName;
     }
 
+    // check for category data type
     if (category && !getContentCategory(category)) {
       return;
     }
@@ -573,11 +574,14 @@ class FacebookPixel {
 
     // Extra properties of obj2
     Object.keys(obj2).forEach((propObj2) => {
-      if (Object.prototype.hasOwnProperty.call(obj2, propObj2) && !Object.prototype.hasOwnProperty.call(res, propObj2)) {
+      if (
+        Object.prototype.hasOwnProperty.call(obj2, propObj2) &&
+        !Object.prototype.hasOwnProperty.call(res, propObj2)
+      ) {
         res[propObj2] = obj2[propObj2];
       }
     });
-  
+
     return res;
   }
 
@@ -618,8 +622,7 @@ class FacebookPixel {
     const customPiiProperties = {};
     for (let i = 0; i < blacklistPiiProperties[i]; i += 1) {
       const configuration = blacklistPiiProperties[i];
-      customPiiProperties[configuration.blacklistPiiProperties] =
-        configuration.blacklistPiiHash;
+      customPiiProperties[configuration.blacklistPiiProperties] = configuration.blacklistPiiHash;
     }
     const payload = {};
     const { properties } = rudderElement.message;
@@ -628,9 +631,7 @@ class FacebookPixel {
         continue;
       }
 
-      const customProperties = eventCustomProperties.map(
-        (e) => e.eventCustomProperties
-      );
+      const customProperties = eventCustomProperties.map((e) => e.eventCustomProperties);
 
       if (isStandardEvent && customProperties.indexOf(property) < 0) {
         continue;
@@ -640,19 +641,18 @@ class FacebookPixel {
 
       if (dateFields.indexOf(properties) >= 0) {
         if (is.date(value)) {
-          payload[property] = value.toISOTring().split("T")[0];
+          payload[property] = value.toISOTring().split('T')[0];
           continue;
         }
       }
       if (customPiiProperties.hasOwnProperty(property)) {
-        if (customPiiProperties[property] && typeof value === "string") {
+        if (customPiiProperties[property] && typeof value === 'string') {
           payload[property] = sha256(value).toString();
         }
         continue;
       }
       const isPropertyPii = defaultPiiProperties.indexOf(property) >= 0;
-      const isProperyWhiteListed =
-        whitelistPiiProperties.indexOf(property) >= 0;
+      const isProperyWhiteListed = whitelistPiiProperties.indexOf(property) >= 0;
       if (!isPropertyPii || isProperyWhiteListed) {
         payload[property] = value;
       }
