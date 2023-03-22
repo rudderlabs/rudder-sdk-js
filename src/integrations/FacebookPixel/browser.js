@@ -162,6 +162,7 @@ class FacebookPixel {
       contentName = properties.contentName;
     }
 
+    // check for category data type
     if (category && !getContentCategory(category)) {
       return;
     }
