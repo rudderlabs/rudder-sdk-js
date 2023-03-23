@@ -18,7 +18,7 @@ import {
 import { Store } from '@rudderstack/analytics-js/services/StorageManager/Store';
 import { initPlugins, registerCustomPlugins } from './plugins/indexPOCToDelete';
 import { Queue } from './npmPackages/localstorage-retry';
-import { setExposedGlobal, state } from './state/index';
+import { setExposedGlobal, state } from './state/indexPOCToDelete';
 import type { GenericObject } from './types/GenericObject';
 import { UserSession } from './services/StorageManager/POCStorageToDelete/session';
 import { generateUUID } from './components/utilities/uuId';
