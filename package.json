@@ -166,7 +166,8 @@
     "standard-version": "9.5.0",
     "ts-jest": "29.0.5",
     "tslib": "2.5.0",
-    "typescript": "4.9.5"
+    "typescript": "4.9.5",
+    "user-agent-data-types": "0.3.1"
   },
   "overrides": {
     "debug": "4.3.4",

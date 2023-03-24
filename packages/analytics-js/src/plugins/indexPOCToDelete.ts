@@ -1,6 +1,6 @@
 import { effect } from '@preact/signals-core';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
-import { globalLocalState, remoteState } from '../state/index';
+import { globalLocalState, remoteState } from '../state/indexPOCToDelete';
 
 // TODO: define types for plugins
 // TODO: In register also pass automatically the state to all plugins

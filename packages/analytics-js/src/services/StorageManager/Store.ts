@@ -187,6 +187,9 @@ class Store {
     return this.originalEngine;
   }
 
+  /**
+   * Decrypt values
+   */
   decrypt(value?: Nullable<string>): Nullable<string> {
     if (value === null || typeof value === 'undefined') {
       return null;
@@ -195,10 +198,16 @@ class Store {
     return this.crypto(value, 'decrypt');
   }
 
+  /**
+   * Encrypt value
+   */
   encrypt(value: any): string {
     return this.crypto(value, 'encrypt');
   }
 
+  /**
+   * Extension point to use with encryption plugins
+   */
   crypto(value: string, mode: 'encrypt' | 'decrypt'): string {
     const noEncryption = !this.isEncrypted || !value || trim(value) === '';
 
@@ -213,6 +222,9 @@ class Store {
     return typeof formattedValue[0] === 'undefined' ? value : formattedValue[0];
   }
 
+  /**
+   * Handle errors
+   */
   onError(error: Error | unknown) {
     if (this.hasErrorHandler) {
       this.errorHandler?.onError(error, `Store ${this.id}`);

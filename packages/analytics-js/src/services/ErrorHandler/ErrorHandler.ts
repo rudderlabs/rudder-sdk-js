@@ -3,11 +3,14 @@ import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger
 import { defaultPluginEngine, PluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
 import { processError, SDKError } from './processError';
 
+/**
+ * A service to handle errors
+ */
 class ErrorHandler {
   logger?: Logger;
   pluginEngine?: PluginEngine;
 
-  // If no logger is passed errors will be thrown as unhandled instead of logged
+  // If no logger is passed errors will be thrown as unhandled error
   constructor(logger?: Logger, pluginEngine?: PluginEngine) {
     this.logger = logger;
     this.pluginEngine = pluginEngine;

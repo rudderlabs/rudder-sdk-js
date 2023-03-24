@@ -1,5 +1,6 @@
 import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
+import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import {
   ICookieStorageOptions,
   IInMemoryStorageOptions,
@@ -9,7 +10,6 @@ import {
 } from './types';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { IStoreConfig, Store } from './Store';
-import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
 
 export type StoreManagerOptions = {
   cookieOptions?: Partial<ICookieStorageOptions>;
@@ -17,6 +17,9 @@ export type StoreManagerOptions = {
   inMemoryStorageOptions?: Partial<IInMemoryStorageOptions>;
 };
 
+/**
+ * A service to manage stores & available storage client configurations
+ */
 class StoreManager {
   stores: Record<StoreId, Store> = {};
   isInitialized = false;
@@ -33,6 +36,9 @@ class StoreManager {
     this.onError = this.onError.bind(this);
   }
 
+  /**
+   * Configure available storage client instances
+   */
   init(config: StoreManagerOptions = {}) {
     if (this.isInitialized) {
       return;
@@ -49,6 +55,9 @@ class StoreManager {
     this.isInitialized = true;
   }
 
+  /**
+   * Create store to persist data used by the SDK like session, used details etc
+   */
   initClientDataStore() {
     let storageType: StorageType | '' = '';
 
@@ -59,7 +68,8 @@ class StoreManager {
       storageType = 'localStorage';
     }
 
-    // TODO: should we fallback to session storage instead so we retain values on page refresh, navigation etc?
+    // TODO: should we fallback to session storage instead so we retain values
+    //  on page refresh, navigation etc?
     if (!storageType) {
       this.logger?.error(
         'No storage is available for data store :: initializing the SDK without storage',
@@ -81,20 +91,31 @@ class StoreManager {
     );
   }
 
-  // TODO: use this as extension point to create storage for event queues
+  /**
+   * Extension point to use with event queue plugins
+   */
   initQueueStore() {
+    // TODO: use this as extension point to create storage for event queues
     defaultPluginManager.invoke('queuestore.create', this.setStore);
   }
-
+  /**
+   * Create a new store
+   */
   setStore(id: StoreId, storeConfig: IStoreConfig, type?: StorageType) {
     const storageEngine = getStorageEngine(type);
     this.stores[id] = new Store(storeConfig, storageEngine);
   }
 
+  /**
+   * Retrieve a store
+   */
   getStore(id: StoreId): Store | undefined {
     return this.stores[id];
   }
 
+  /**
+   * Handle errors
+   */
   onError(error: Error | unknown) {
     if (this.hasErrorHandler) {
       this.errorHandler?.onError(error, 'StorageManager');

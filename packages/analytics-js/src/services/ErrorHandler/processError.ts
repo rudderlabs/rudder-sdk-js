@@ -5,6 +5,9 @@ import { isEvent } from '@rudderstack/analytics-js/components/utilities/event';
 
 export type SDKError = Error | Event | string | unknown;
 
+/**
+ * Utility method to process errors that originate from script load
+ */
 const processScriptLoadError = (event: Event): string => {
   let errorMessage = '';
 
@@ -24,6 +27,7 @@ const processScriptLoadError = (event: Event): string => {
     // TODO: adblocker detection record here?
     //  better to decouple, if not we need to pass the analytics instance here somehow
     //  or find another way to trigger the analytics track event from handleScriptLoadAdBlocked
+    //  maybe via setting value to state and a signals effect
     // Discard Ad-block errors for third party native SDK loading, only track them in analytics
     errorMessage = handleScriptLoadAdBlocked(errorMessage, targetElement as HTMLScriptElement);
   }
@@ -31,6 +35,9 @@ const processScriptLoadError = (event: Event): string => {
   return errorMessage;
 };
 
+/**
+ * Utility method to normalise errors
+ */
 const processError = (error: SDKError): string => {
   let errorMessage;
 

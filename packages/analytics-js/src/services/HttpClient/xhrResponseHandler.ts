@@ -1,5 +1,8 @@
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
 
+/**
+ * Utility to parse XHR JSON response
+ */
 const responseTextToJson = <T = any>(
   responseText?: string,
   onError?: (message: Error | unknown) => void,

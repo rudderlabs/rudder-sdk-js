@@ -7,7 +7,7 @@ import { ICookieStorageOptions } from '../types';
 import { getDefaultCookieOptions } from './defaultOptions';
 
 /**
- * A storage utility to persist values in cookies
+ * A storage utility to persist values in cookies via Storage interface
  */
 class CookieStorage {
   logger?: Logger;

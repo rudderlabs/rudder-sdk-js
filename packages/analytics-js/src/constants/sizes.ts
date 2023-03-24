@@ -1,0 +1,1 @@
+export const DEFAULT_BEACON_QUEUE_MAX_SIZE = 10;
