@@ -22,6 +22,8 @@ import { setExposedGlobal, state } from './state/indexPOCToDelete';
 import type { GenericObject } from './types/GenericObject';
 import { UserSession } from './services/StorageManager/POCStorageToDelete/session';
 import { generateUUID } from './components/utilities/uuId';
+import { ConfigManager, defaultConfigManager } from './components/configManager/ConfigManager';
+import { LoadOptions } from './components/core/IAnalytics';
 
 export interface IV3 {
   status?: 'starting' | 'ready';
@@ -36,6 +38,7 @@ class AnalyticsV3 implements IV3 {
   newData: any[];
   messageId: string;
   httpClient: HttpClient;
+  configManager: ConfigManager;
   logger: Logger;
   errorHandler: ErrorHandler;
   pluginsManager: PluginsManager;
@@ -57,6 +60,7 @@ class AnalyticsV3 implements IV3 {
     this.pluginsManager = defaultPluginManager;
     this.externalSrcLoader = defaultExternalSrcLoader;
     this.storageManager = defaultStoreManager;
+    this.configManager = defaultConfigManager;
     // pass values from sdk init config too
     this.storageManager.init({
       cookieOptions: { enabled: true },
@@ -64,6 +68,11 @@ class AnalyticsV3 implements IV3 {
     });
     this.clientDataStore = this.storageManager.getStore('clientData');
     this.httpClient.setAuthHeader('2L8Fl7ryPss3Zku133Pj5ox7NeP');
+    this.configManager.setLoadOptions(
+      '2L8Fl7ryPss3Zku133Pj5ox7NeP',
+      'https://rudderstacpn.dataplane.rudderstack.com',
+      {} as LoadOptions,
+    );
 
     effect(() => {
       console.log('remote state in constructor: ', state.remoteState.value);

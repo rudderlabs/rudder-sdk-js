@@ -3,17 +3,29 @@ import { ResidencyServerRegion } from '@rudderstack/analytics-js/components/core
 
 export type Source = {
   id: string;
-  name: string;
-  writeKey: string;
-  workspaceId: string;
-  enabled: boolean;
-  updatedAt: string; // TODO: do we use it at all?
-  dataplanes: Record<ResidencyServerRegion, RegionDetails>;
+  name?: string;
+  writeKey?: string;
+  workspaceId?: string;
+  enabled?: boolean;
+  updatedAt?: string; // TODO: do we use it at all?
+  dataplanes?: Record<ResidencyServerRegion, RegionDetails[]>;
+  config: SourceConfig;
 };
 
 export type RegionDetails = {
   url: string;
   default: boolean;
+};
+
+export type SourceConfig = {
+  statsCollection?: {
+    errorReports: {
+      enabled: boolean;
+    };
+    metrics: {
+      enabled: boolean;
+    };
+  };
 };
 
 export type SourceConfigState = Signal<Source | undefined>;

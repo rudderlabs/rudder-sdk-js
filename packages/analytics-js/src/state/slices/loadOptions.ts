@@ -10,7 +10,7 @@ import { DEFAULT_BEACON_QUEUE_MAX_SIZE } from '@rudderstack/analytics-js/constan
 export type LoadOptionsState = {
   writeKey: Signal<string | undefined>;
   dataPlaneUrl: Signal<string | undefined>;
-  loadOptions: Signal<LoadOptions | undefined>;
+  loadOptions: Signal<LoadOptions>;
 };
 
 const defaultLoadOptions: LoadOptions = {
@@ -28,6 +28,10 @@ const defaultLoadOptions: LoadOptions = {
   },
   sameSiteCookie: 'Lax',
   polyfillIfRequired: true,
+  integrations: { All: true },
+  useBeacon: false,
+  lockIntegrationsVersion: false,
+  uaChTrackLevel: 'none',
 };
 
 const writeKey = signal(undefined);
