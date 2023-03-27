@@ -66,7 +66,7 @@ class GoogleAds {
     };
 
     if (this.allowEnhancedConversions) {
-      config.allow_enhanced_conversions = this.allow_enhanced_conversions;
+      config.allow_enhanced_conversions = this.allowEnhancedConversions;
     }
 
     if (this.disableAdPersonalization) {
