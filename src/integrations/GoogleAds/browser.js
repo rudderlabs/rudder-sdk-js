@@ -36,6 +36,7 @@ class GoogleAds {
     this.eventMappingFromConfig = config.eventMappingFromConfig;
     // Depreciating: Added to make changes backward compatible
     this.dynamicRemarketing = config.dynamicRemarketing;
+    this.allowEnhancedConversions = config.allowEnhancedConversions || false;
     this.name = NAME;
   }
 
@@ -67,6 +68,10 @@ class GoogleAds {
       send_page_view: this.sendPageView,
       conversion_linker: this.conversionLinker,
     };
+
+    if (this.allowEnhancedConversions) {
+      config.allow_enhanced_conversions = this.allowEnhancedConversions;
+    }
 
     if (this.disableAdPersonalization) {
       window.gtag('set', 'allow_ad_personalization_signals', false);
