@@ -9,8 +9,10 @@ class BingAds {
     }
     this.tagID = config.tagID;
     this.name = NAME;
+    this.uniqueId = `bing${this.tagID}`;
   }
 
+  /* eslint-disable */
   loadBingadsScript = () => {
     ((w, d, t, r, u) => {
       let f;
@@ -35,8 +37,9 @@ class BingAds {
           }),
         (i = d.getElementsByTagName(t)[0]),
         i.parentNode.insertBefore(n, i);
-    })(window, document, 'script', 'https://bat.bing.com/bat.js', 'uetq');
+    })(window, document, 'script', 'https://bat.bing.com/bat.js', this.uniqueId);
   };
+  /* eslint-enable */
 
   init = () => {
     this.loadBingadsScript();
@@ -45,12 +48,12 @@ class BingAds {
 
   isLoaded = () => {
     logger.debug('in BingAds isLoaded');
-    return !!window.uetq && window.uetq.push !== Array.prototype.push;
+    return !!window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push;
   };
 
   isReady = () => {
     logger.debug('in BingAds isReady');
-    return !!(window.uetq && window.uetq.push !== Array.prototype.push);
+    return !!(window[this.uniqueId] && window[this.uniqueId].push !== Array.prototype.push);
   };
 
   /*
@@ -82,11 +85,11 @@ class BingAds {
     if (total) {
       payload.gv = total;
     }
-    window.uetq.push(payload);
+    window[this.uniqueId].push(payload);
   };
 
   page = () => {
-    window.uetq.push('pageLoad');
+    window[this.uniqueId].push('pageLoad');
   };
 }
 
