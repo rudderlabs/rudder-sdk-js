@@ -69,6 +69,7 @@ class GoogleAds {
       conversion_linker: this.conversionLinker,
     };
 
+    // ref:- https://support.google.com/google-ads/answer/12785474?hl=en-GB#Config&zippy=%2Cconfigure-your-conversion-page-google-tag
     if (this.allowEnhancedConversions) {
       config.allow_enhanced_conversions = this.allowEnhancedConversions;
     }
