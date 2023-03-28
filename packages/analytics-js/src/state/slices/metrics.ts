@@ -1,5 +1,6 @@
 import { signal, Signal } from '@preact/signals-core';
 
+// TODO: define the metrics that we need to track
 export type MetricsState = {
   retries: Signal<number>;
   dropped: Signal<number>;

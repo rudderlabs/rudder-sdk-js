@@ -4,7 +4,8 @@ import {
   DEST_SDK_BASE_URL,
   PLUGINS_BASE_URL,
 } from '@rudderstack/analytics-js/constants/urls';
-import { LogLevel } from '@rudderstack/analytics-js/components/core/IAnalytics';
+
+export type LogLevel = 'ERROR' | 'DEBUG' | 'INFO' | 'WARN';
 
 // TODO: make enum
 export type LifecycleStatus =

@@ -5,8 +5,9 @@ import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsMana
 import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
 import { Store, StoreManager } from '@rudderstack/analytics-js/services/StorageManager';
 import { CookieSameSite } from '@rudderstack/analytics-js/services/StorageManager/types';
-import { LifecycleStatus } from '@rudderstack/analytics-js/state/slices/lifecycle';
+import { LifecycleStatus, LogLevel } from '@rudderstack/analytics-js/state/slices/lifecycle';
 import { CookieConsentOptions } from '@rudderstack/analytics-js/state/slices/consents';
+import { ResidencyServerRegion } from '@rudderstack/analytics-js/components/configManager/types';
 
 // TODO: for all methods expose the overloads in globalObject but use only one object argument to pass values to instance
 export interface IAnalytics {
@@ -168,8 +169,6 @@ export type SessionOpts = {
   timeout?: number; // Defaults to 30 mins
 };
 
-export type LogLevel = 'ERROR' | 'DEBUG' | 'INFO' | 'WARN';
-
 export type UaChTrackLevel = 'none' | 'default' | 'full';
 
 /**
@@ -221,14 +220,6 @@ export type AnonymousIdOptions = {
     source?: string;
   };
 };
-
-/**
- * Represents residency server input the options
- */
-export enum ResidencyServerRegion {
-  US = 'US',
-  EU = 'EU',
-}
 
 /**
  * Represents the options parameter in the APIs
