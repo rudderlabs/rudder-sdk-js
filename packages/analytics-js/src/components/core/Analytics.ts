@@ -17,6 +17,8 @@ import {
 import { IAnalytics, LoadOptions } from '@rudderstack/analytics-js/components/core/IAnalytics';
 import { LifecycleStatus } from '@rudderstack/analytics-js/state/slices/lifecycle';
 import { effect } from '@preact/signals-core';
+import { state } from '@rudderstack/analytics-js/state';
+import { setExposedGlobal } from './exposedGlobals';
 
 class Analytics {
   //implements IAnalytics {
@@ -39,6 +41,9 @@ class Analytics {
   }
 
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: LoadOptions) {
+    // TODO: for multiple instances pass the write key or another unique analytics instance id here
+    setExposedGlobal('state', state);
+
     // TODO: add any validation for arguments
     // TODO: run capabilities detection
     this.httpClient.setAuthHeader(writeKey);

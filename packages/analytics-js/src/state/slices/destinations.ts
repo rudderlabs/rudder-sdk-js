@@ -1,32 +1,11 @@
 import { signal, Signal } from '@preact/signals-core';
-
-export type DestinationEvent = {
-  eventName: string;
-};
-
-export type DestinationDefinition = {
-  name: string;
-  displayName: string;
-  updatedAt: string;
-};
+import { DestinationConfig } from '@rudderstack/analytics-js/components/configManager/types';
 
 export type Destination = {
   id: string;
   name: string;
-  updatedAt: string;
-  measurementId: string;
-  capturePageView: string;
-  writeKey: string;
-  whitelistedEvents: DestinationEvent[];
-  blacklistedEvents: DestinationEvent[];
-  useNativeSDKToSend: boolean;
-  eventFilteringOption: boolean;
-  extendPageViewParams: boolean;
-  oneTrustCookieCategories: string[];
-  enabled: boolean;
-  deleted: boolean;
   areTransformationsConnected: boolean;
-  destinationDefinition: DestinationDefinition;
+  config: DestinationConfig;
 };
 
 export type DestinationConfigState = Signal<Destination[] | undefined>;

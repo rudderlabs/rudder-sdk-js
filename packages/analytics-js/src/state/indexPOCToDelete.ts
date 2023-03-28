@@ -21,12 +21,4 @@ const state = {
   config,
 };
 
-const setExposedGlobal = (keyName: string, value?: any) => {
-  if (!(window as any).RudderStackGlobals) {
-    (window as any).RudderStackGlobals = {} as any;
-  }
-
-  (window as any).RudderStackGlobals[keyName] = value;
-};
-
-export { globalLocalState, remoteState, setExposedGlobal, state };
+export { globalLocalState, remoteState, state };
