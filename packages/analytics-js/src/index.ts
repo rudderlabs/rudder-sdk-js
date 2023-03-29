@@ -18,12 +18,13 @@ import {
 import { Store } from '@rudderstack/analytics-js/services/StorageManager/Store';
 import { initPlugins, registerCustomPlugins } from './plugins/indexPOCToDelete';
 import { Queue } from './npmPackages/localstorage-retry';
-import { setExposedGlobal, state } from './state/indexPOCToDelete';
+import { state } from './state/indexPOCToDelete';
 import type { GenericObject } from './types/GenericObject';
 import { UserSession } from './services/StorageManager/POCStorageToDelete/session';
 import { generateUUID } from './components/utilities/uuId';
 import { ConfigManager, defaultConfigManager } from './components/configManager/ConfigManager';
 import { LoadOptions } from './components/core/IAnalytics';
+import { setExposedGlobal } from './components/core/exposedGlobals';
 
 export interface IV3 {
   status?: 'starting' | 'ready';
@@ -61,7 +62,7 @@ class AnalyticsV3 implements IV3 {
     this.externalSrcLoader = defaultExternalSrcLoader;
     this.storageManager = defaultStoreManager;
     this.configManager = defaultConfigManager;
-    // pass values from sdk init config too
+    // TODO: pass values from sdk init config too
     this.storageManager.init({
       cookieOptions: { enabled: true },
       localStorageOptions: { enabled: true },

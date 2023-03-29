@@ -26,7 +26,7 @@ export type OSInfo = {
   version: string;
 };
 
-// TODO: should we take the types from IdentifyTrait in stead of string key?
+// TODO: should we take the types from IdentifyTrait instead of any string key?
 //  https://www.rudderstack.com/docs/event-spec/standard-events/identify/#identify-traits
 export type Traits = Record<string, any>;
 

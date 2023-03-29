@@ -1,4 +1,3 @@
-import { IRudderStackGlobals } from '@rudderstack/analytics-js/components/core/IRudderStackGlobals';
 import { LoadOptionsState, loadOptionsState } from './slices/loadOptions';
 import { SessionState, sessionState } from './slices/session';
 import { capabilitiesState, CapabilitiesState } from './slices/capabilities';
@@ -9,6 +8,9 @@ import { DestinationConfigState, destinationConfigState } from './slices/destina
 import { consentsState, ConsentsState } from './slices/consents';
 import { MetricsState, metricsState } from './slices/metrics';
 import { contextState, ContextState } from './slices/context';
+import { nativeDestinationsState, NativeDestinationsState } from './slices/nativeDestinations';
+import { EventBufferState, eventBufferState } from './slices/eventBuffer';
+import { pluginsState, PluginsState } from './slices/plugins';
 
 export type ApplicationState = {
   capabilities: CapabilitiesState;
@@ -21,6 +23,9 @@ export type ApplicationState = {
   destinations: DestinationConfigState;
   metrics: MetricsState;
   context: ContextState;
+  nativeDestinations: NativeDestinationsState;
+  eventBuffer: EventBufferState;
+  plugins: PluginsState;
 };
 
 const state: ApplicationState = {
@@ -28,22 +33,15 @@ const state: ApplicationState = {
   consents: consentsState,
   context: contextState,
   destinations: destinationConfigState,
+  eventBuffer: eventBufferState,
   lifecycle: lifecycleState,
   loadOptions: loadOptionsState,
   metrics: metricsState,
+  nativeDestinations: nativeDestinationsState,
+  plugins: pluginsState,
   reporting: reportingState,
   session: sessionState,
   source: sourceConfigState,
 };
 
-// TODO: How to support multiple instances? Use writeKey as key per instance?
-// TODO: move to other file and then call in analytics class on mount to export the state
-const setExposedGlobal = (keyName: string, value?: any) => {
-  if (!(window as any).RudderStackGlobals) {
-    (window as any).RudderStackGlobals = {} as IRudderStackGlobals;
-  }
-
-  (window as any).RudderStackGlobals[keyName] = value;
-};
-
-export { setExposedGlobal, state };
+export { state };

@@ -1,13 +1,5 @@
 import { effect } from '@preact/signals-core';
-
-const getExposedGlobal = (keyName: string): any => {
-  if (!(window as any).RudderStackGlobals) {
-    (window as any).RudderStackGlobals = {} as any;
-    return undefined;
-  }
-
-  return (window as any).RudderStackGlobals[keyName];
-};
+import { getExposedGlobal } from '../utilities/globals';
 
 const RemotePlugin2 = () => ({
   name: 'remoteTest2',
@@ -20,19 +12,19 @@ const RemotePlugin2 = () => ({
       cb(newData);
 
       effect(() => {
-        console.log('local state in remote plugin2: ', state.globalLocalState.value);
+        console.log('local state in remote plugin2: ', (state as any).globalLocalState.value);
 
         // Whenever this effect is triggered, increase `counter`.
         // But we don't want this signal to react to `remoteState` changes
         const nextState = {
-          ...state.remoteState.peek(),
+          ...(state as any).remoteState.peek(),
         };
         nextState.counter += 1;
-        state.remoteState.value = nextState;
+        (state as any).remoteState.value = nextState;
       });
 
       effect(() => {
-        console.log('remote state in remote plugin2: ', state.remoteState.value);
+        console.log('remote state in remote plugin2: ', (state as any).remoteState.value);
       });
     },
   },

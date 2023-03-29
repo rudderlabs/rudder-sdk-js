@@ -82,8 +82,8 @@ class ConfigManager {
           loadOptionsState.dataPlaneUrl.value,
           loadOptionsState.loadOptions.value.residencyServer,
         );
-        const nativeDestinations: any = [];
-        res.source.destinations.forEach((destination: Destination) => {
+        const nativeDestinations: Destination[] = [];
+        res.source.destinations.forEach((destination: any) => {
           if (destination.enabled && destination.deleted !== true) {
             nativeDestinations.push({
               id: destination.id,
@@ -99,7 +99,6 @@ class ConfigManager {
           sourceConfigState.value = {
             id: res.source.id,
             config: res.source.config,
-            // dataplanes: res.source.dataplanes,
           };
           // set device mode destination related information in state
           destinationConfigState.value = nativeDestinations;

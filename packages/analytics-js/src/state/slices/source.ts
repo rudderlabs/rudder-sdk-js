@@ -1,20 +1,17 @@
 import { signal, Signal } from '@preact/signals-core';
-import { ResidencyServerRegion } from '@rudderstack/analytics-js/components/core/IAnalytics';
+import {
+  RegionDetails,
+  ResidencyServerRegion,
+} from '@rudderstack/analytics-js/components/configManager/types';
 
 export type Source = {
   id: string;
+  config: SourceConfig;
   name?: string;
   writeKey?: string;
   workspaceId?: string;
   enabled?: boolean;
-  updatedAt?: string; // TODO: do we use it at all?
   dataplanes?: Record<ResidencyServerRegion, RegionDetails[]>;
-  config: SourceConfig;
-};
-
-export type RegionDetails = {
-  url: string;
-  default: boolean;
 };
 
 export type SourceConfig = {
