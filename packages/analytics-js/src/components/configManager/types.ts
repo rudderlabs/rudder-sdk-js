@@ -85,8 +85,6 @@ export type ConfigResponseDestinationItem = {
   enabled: boolean;
   id: string;
   name: string;
-  workspaceId: string;
-  destinationDefinitionId: string;
 };
 
 export type Connection = {
@@ -146,6 +144,6 @@ export type SourceConfigResponse = {
     createdAt: string;
     createdBy: string;
     deleted: boolean;
-    dataplanes?: Record<ResidencyServerRegion, RegionDetails>;
+    dataplanes?: Record<ResidencyServerRegion, RegionDetails[]>;
   };
 };

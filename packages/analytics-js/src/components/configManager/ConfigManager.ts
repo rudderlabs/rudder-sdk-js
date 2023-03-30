@@ -16,6 +16,8 @@ import { lifecycleState } from '@rudderstack/analytics-js/state/slices/lifecycle
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
 import { getSDKUrlInfo } from './util/commonUtil';
+import { SourceConfigResponse } from './types';
+import { filterEnabledDestination } from './util/filterDestinations';
 
 class ConfigManager {
   httpClient: HttpClient;
@@ -38,7 +40,7 @@ class ConfigManager {
     loadOptions: LoadOptions | undefined,
   ) {
     // TODO: create a deepcopy of loadOption if not done in previous step
-    validateLoadArgs(writeKey, dataPlaneUrl, loadOptions);
+    validateLoadArgs(writeKey, dataPlaneUrl);
     const finalLoadOption: LoadOptions = mergeDeepRight(
       loadOptionsState.loadOptions.value, // default load options from state
       loadOptions || {},
@@ -72,41 +74,58 @@ class ConfigManager {
     this.fetchSourceConfig();
   }
 
+  processResponse(res: SourceConfigResponse | string | undefined) {
+    if (!res || typeof res === 'string') {
+      throw Error('Unable to fetch source config');
+    }
+    // determine the dataPlane url
+    const dataPlaneUrl = resolveDataPlaneUrl(
+      res.source.dataplanes,
+      loadOptionsState.dataPlaneUrl.value,
+      loadOptionsState.loadOptions.value.residencyServer,
+    );
+    const nativeDestinations: Destination[] =
+      res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
+
+    // set in the state --> source, destination, lifecycle
+    batch(() => {
+      // set source related information in state
+      sourceConfigState.value = {
+        id: res.source.id,
+        config: res.source.config,
+      };
+      // set device mode destination related information in state
+      destinationConfigState.value = nativeDestinations;
+      // set application lifecycle state
+      lifecycleState.activeDataplaneUrl.value = dataPlaneUrl;
+      lifecycleState.status.value = 'configured';
+    });
+  }
+
   fetchSourceConfig() {
+    const sourceConfigOption = loadOptionsState.loadOptions.value.getSourceConfig;
+    if (sourceConfigOption) {
+      // fetch source config from the function
+      const res = sourceConfigOption();
+
+      if (res instanceof Promise) {
+        res
+          .then(pRes => this.processResponse(pRes as SourceConfigResponse))
+          .catch(e => {
+            if (this.hasErrorHandler) {
+              this.errorHandler?.onError(e, 'sourceConfig');
+            }
+          });
+      } else {
+        this.processResponse(res as SourceConfigResponse);
+      }
+      return;
+    }
+
+    // fetch source config from config url API
     this.httpClient.getAsyncData({
       url: lifecycleState.sourceConfigUrl.value,
-      callback: res => {
-        // determine the dataPlane url
-        const dataPlaneUrl = resolveDataPlaneUrl(
-          res.source.dataplanes,
-          loadOptionsState.dataPlaneUrl.value,
-          loadOptionsState.loadOptions.value.residencyServer,
-        );
-        const nativeDestinations: Destination[] = [];
-        res.source.destinations.forEach((destination: any) => {
-          if (destination.enabled && destination.deleted !== true) {
-            nativeDestinations.push({
-              id: destination.id,
-              name: destination.destinationDefinition.name,
-              config: destination.config,
-              areTransformationsConnected: destination.areTransformationsConnected || false,
-            });
-          }
-        });
-        // set in the state --> source, destination, lifecycle
-        batch(() => {
-          // set source related information in state
-          sourceConfigState.value = {
-            id: res.source.id,
-            config: res.source.config,
-          };
-          // set device mode destination related information in state
-          destinationConfigState.value = nativeDestinations;
-          // set application lifecycle state
-          lifecycleState.activeDataplaneUrl.value = dataPlaneUrl;
-          lifecycleState.status.value = 'configured';
-        });
-      },
+      callback: this.processResponse,
     });
   }
 }

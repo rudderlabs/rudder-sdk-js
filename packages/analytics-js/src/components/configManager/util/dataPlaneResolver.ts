@@ -29,14 +29,19 @@ const getDefaultUrlofRegion = (urls: RegionUrl[]) => {
  * @returns string
  */
 const resolveDataPlaneUrl = (
-  dataplanes: Record<ResidencyServerRegion, RegionDetails[]> | undefined,
+  dataplanes:
+    | Record<
+        ResidencyServerRegion | ResidencyServerRegion.US | ResidencyServerRegion.EU,
+        RegionDetails[]
+      >
+    | undefined,
   serverUrl: string | undefined,
   residencyServer: ResidencyServerRegion | undefined,
 ) => {
   // Check if dataPlanes object is present in source config
   if (dataplanes && Object.keys(dataplanes).length > 0) {
     const region = residencyServer || DEFAULT_REGION;
-    const regionUrlArr: RegionDetails[] = dataplanes[region];
+    const regionUrlArr: RegionDetails[] = dataplanes[region] || dataplanes[DEFAULT_REGION];
 
     if (regionUrlArr) {
       const defaultUrl = getDefaultUrlofRegion(regionUrlArr);
