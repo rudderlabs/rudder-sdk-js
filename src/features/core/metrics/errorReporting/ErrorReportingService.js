@@ -7,9 +7,8 @@ const AVAILABLE_ERROR_REPORT_PROVIDERS = [ERROR_REPORT_PROVIDER_NAME_BUGSNAG];
 const ERRORS_COLLECTION_ENABLED_CONFIG_KEY = 'statsCollection.errors.enabled';
 const ERRORS_COLLECTION_PROVIDER_NAME_CONFIG_KEY = 'statsCollection.errors.provider';
 
-// TODO: remove the '|| true' when we can get this config value from response
 const getErrorCollectionEnabledFromConfig = (sourceConfig) =>
-  get(sourceConfig, ERRORS_COLLECTION_ENABLED_CONFIG_KEY) || true;
+  get(sourceConfig, ERRORS_COLLECTION_ENABLED_CONFIG_KEY) || false;
 
 const getProviderNameFromConfig = (sourceConfig) =>
   get(sourceConfig, ERRORS_COLLECTION_PROVIDER_NAME_CONFIG_KEY);
