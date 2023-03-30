@@ -9,6 +9,8 @@ export interface IStorage extends Storage {
 }
 export interface ICookieStorageOptions extends CookieOptions {
   samesite?: CookieSameSite;
+  domain?: string;
+  secure?: boolean;
   enabled?: boolean;
 }
 export interface ILocalStorageOptions {

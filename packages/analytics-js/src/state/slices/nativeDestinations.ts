@@ -1,6 +1,6 @@
 import { Signal, signal } from '@preact/signals-core';
 import { DestinationConfig } from '@rudderstack/analytics-js/components/configManager/types';
-import { IntegrationOpts } from '@rudderstack/analytics-js/components/core/IAnalytics';
+import { IntegrationOpts } from './loadOptions';
 
 export type ClientIntegrations = {
   name: string;
@@ -39,8 +39,55 @@ export type NativeDestinationsState = {
   clientIntegrationsReady: Signal<boolean>;
 };
 
+const dummyIntegrationConfigToDelete: ClientIntegrations[] = [
+  {
+    name: 'GA',
+    config: {
+      trackingID: 'UA-179234741-1',
+      doubleClick: false,
+      enhancedLinkAttribution: false,
+      includeSearch: false,
+      trackCategorizedPages: true,
+      trackNamedPages: true,
+      useRichEventNames: false,
+      sampleRate: '100',
+      siteSpeedSampleRate: '1',
+      resetCustomDimensionsOnPage: [
+        {
+          resetCustomDimensionsOnPage: '',
+        },
+      ],
+      setAllMappedProps: true,
+      anonymizeIp: false,
+      domain: 'auto',
+      enhancedEcommerce: false,
+      nonInteraction: false,
+      optimize: '',
+      sendUserId: false,
+      useGoogleAmpClientId: false,
+      namedTracker: false,
+      blacklistedEvents: [
+        {
+          eventName: '',
+        },
+      ],
+      whitelistedEvents: [
+        {
+          eventName: '',
+        },
+      ],
+      oneTrustCookieCategories: [
+        {
+          oneTrustCookieCategory: '',
+        },
+      ],
+      eventFilteringOption: 'disable',
+    },
+  },
+];
+
 const nativeDestinationsState: NativeDestinationsState = {
-  clientIntegrations: signal([]),
+  clientIntegrations: signal(dummyIntegrationConfigToDelete), // TODO: make default as [] once dummy is removed
   loadOnlyIntegrations: signal({}),
   clientIntegrationObjects: signal(undefined),
   successfullyLoadedIntegration: signal([]),
