@@ -2,6 +2,7 @@ import { GenericObject } from '@rudderstack/analytics-js/types';
 import * as R from 'ramda';
 
 // Original implementations before migrating to ramda
+
 // function _get(obj, prop) {
 //   var arr = prop.split('.');
 //   for (var i = 0; i < arr.length; i++) {
@@ -18,6 +19,15 @@ import * as R from 'ramda';
 //   }
 //   return true;
 // }
+// const isEmpty = (value: any): boolean => {
+//   return typeof value === 'undefined'
+//     || value === null
+//     || (Array.isArray(value) && value.length === 0)
+//     || value === ''
+//     || (Object.prototype.toString.call(value) !== '[object Date]' && (typeof value === 'object' && Object.keys(value).length === 0));
+// }
+
+//
 
 const getValueByPath = (obj: GenericObject, path: string): any => {
   const pathParts = path.split('.');

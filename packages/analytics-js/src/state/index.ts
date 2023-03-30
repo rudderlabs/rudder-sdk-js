@@ -11,6 +11,7 @@ import { contextState, ContextState } from './slices/context';
 import { nativeDestinationsState, NativeDestinationsState } from './slices/nativeDestinations';
 import { EventBufferState, eventBufferState } from './slices/eventBuffer';
 import { pluginsState, PluginsState } from './slices/plugins';
+import { dummyState } from './slices/dummy';
 
 export type ApplicationState = {
   capabilities: CapabilitiesState;
@@ -26,6 +27,7 @@ export type ApplicationState = {
   nativeDestinations: NativeDestinationsState;
   eventBuffer: EventBufferState;
   plugins: PluginsState;
+  dummy: any;
 };
 
 const state: ApplicationState = {
@@ -42,6 +44,7 @@ const state: ApplicationState = {
   reporting: reportingState,
   session: sessionState,
   source: sourceConfigState,
+  dummy: dummyState,
 };
 
 export { state };
