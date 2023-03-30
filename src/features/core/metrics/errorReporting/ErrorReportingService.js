@@ -4,15 +4,15 @@ import { ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from '../../../../utils/const
 
 const DEFAULT_ERROR_REPORT_PROVIDER = ERROR_REPORT_PROVIDER_NAME_BUGSNAG;
 const AVAILABLE_ERROR_REPORT_PROVIDERS = [ERROR_REPORT_PROVIDER_NAME_BUGSNAG];
-const ERROR_REPORTS_ENABLED_CONFIG_KEY = 'statsCollection.errorReports.enabled';
-const ERROR_REPORTS_PROVIDER_NAME_CONFIG_KEY = 'statsCollection.errorReports.provider';
+const ERRORS_COLLECTION_ENABLED_CONFIG_KEY = 'statsCollection.errors.enabled';
+const ERRORS_COLLECTION_PROVIDER_NAME_CONFIG_KEY = 'statsCollection.errors.provider';
 
 // TODO: remove the '|| true' when we can get this config value from response
-const getErrorReportEnabledFromConfig = (sourceConfig) =>
-  get(sourceConfig, ERROR_REPORTS_ENABLED_CONFIG_KEY) || true;
+const getErrorCollectionEnabledFromConfig = (sourceConfig) =>
+  get(sourceConfig, ERRORS_COLLECTION_ENABLED_CONFIG_KEY) || true;
 
 const getProviderNameFromConfig = (sourceConfig) =>
-  get(sourceConfig, ERROR_REPORTS_PROVIDER_NAME_CONFIG_KEY);
+  get(sourceConfig, ERRORS_COLLECTION_PROVIDER_NAME_CONFIG_KEY);
 
 class ErrorReportingService {
   constructor(logger) {
@@ -33,7 +33,7 @@ class ErrorReportingService {
     }
 
     // Initialize error reporting based on enable option from sourceConfig
-    if (getErrorReportEnabledFromConfig(sourceConfig)) {
+    if (getErrorCollectionEnabledFromConfig(sourceConfig)) {
       this.enable();
       this.setProviderName(getProviderNameFromConfig(sourceConfig));
       this.initProvider(sourceConfig, sourceId);
