@@ -3,23 +3,34 @@ import { validateLoadArgs } from '@rudderstack/analytics-js/components/configMan
 describe('Config manager util - validate load arguments', () => {
   const sampleWriteKey = '2LoR1TbVG2bcISXvy7DamldfkgO';
   const sampleDataPlaneUrl = 'https://www.dummy.url';
-  // it('should not throw error for valid write key', () => {
-  //   const validated = validateLoadArgs(sampleWriteKey);
-  //   expect(validated).not.toThrow('Unable to load the SDK due to invalid writeKey');
-  // });
-  // it('should not throw error for valid data plane url', () => {
-  //   const validated = validateLoadArgs(sampleWriteKey, sampleDataPlaneUrl);
-  //   expect(validated).not.toThrow('Unable to load the SDK due to invalid dataPlaneUrl');
-  // });
-  // it('should throw error for invalid write key', () => {
-  //   const validated = validateLoadArgs('INVALID-WRITE-KEY');
-  //   expect(validated).not.toThrow('Unable to load the SDK due to invalid writeKey');
-  // });
-  // it('should throw error for invalid data plane url', () => {
-  //   const validated = validateLoadArgs(sampleWriteKey, '/');
-  //   expect(validated).toThrow('Unable to load the SDK due to invalid dataPlaneUrl');
-  // });
-  it('should dummy', () => {
-    expect(true).toBeTruthy();
+  const errorMsg = 'Unable to load the SDK due to invalid writeKey';
+
+  it('should not throw error for valid write key', () => {
+    try {
+      validateLoadArgs(sampleWriteKey);
+    } catch (e) {
+      expect(e).not.toThrow(errorMsg);
+    }
+  });
+  it('should not throw error for valid data plane url', () => {
+    try {
+      validateLoadArgs(sampleWriteKey, sampleDataPlaneUrl);
+    } catch (e) {
+      expect(e).not.toThrow('Unable to load the SDK due to invalid dataPlaneUrl');
+    }
+  });
+  it('should throw error for invalid write key', () => {
+    try {
+      validateLoadArgs('INVALID-WRITE-KEY');
+    } catch (e) {
+      expect(e.message).toBe(errorMsg);
+    }
+  });
+  it('should throw error for invalid data plane url', () => {
+    try {
+      validateLoadArgs(sampleWriteKey, '/');
+    } catch (e) {
+      expect(e.message).toBe('Unable to load the SDK due to invalid dataPlaneUrl');
+    }
   });
 });

@@ -181,15 +181,12 @@ const expectedFilteredDestinations = [
 ];
 
 describe('Config manager util - filterEnabledDestination', () => {
-  // it('should return enabled destinations in specific format', () => {
-  //   const actualOutcome = filterEnabledDestination(sampleDestinationResponse1);
-  //   expect(actualOutcome).toBe(expectedFilteredDestinations);
-  // });
-  // it('should not return deleted destinations', () => {
-  //   const actualOutcome = filterEnabledDestination(sampleDestinationResponse2);
-  //   expect(actualOutcome).toBe([]);
-  // });
-  it('should dummy', () => {
-    expect(true).toBeTruthy();
+  it('should return enabled destinations in specific format', () => {
+    const actualOutcome = filterEnabledDestination(sampleDestinationResponse1);
+    expect(actualOutcome).toStrictEqual(expectedFilteredDestinations);
+  });
+  it('should not return deleted destinations', () => {
+    const actualOutcome = filterEnabledDestination(sampleDestinationResponse2);
+    expect(actualOutcome).toStrictEqual([]);
   });
 });

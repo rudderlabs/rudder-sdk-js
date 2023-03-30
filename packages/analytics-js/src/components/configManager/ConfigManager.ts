@@ -2,12 +2,10 @@
 import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { HttpClient, defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { batch } from '@preact/signals-core';
 import { validateLoadArgs } from '@rudderstack/analytics-js/components/configManager/util/validate';
 import { Destination } from '@rudderstack/analytics-js/state/slices/destinations';
 import { state } from '@rudderstack/analytics-js/state';
-import { LoadOptions } from "@rudderstack/analytics-js/state/slices/loadOptions";
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
 import { getSDKUrlInfo } from './util/commonUtil';
@@ -29,8 +27,7 @@ class ConfigManager {
     this.hasLogger = Boolean(this.logger);
   }
 
-  init(
-  ) {
+  init() {
     // TODO: create a deepcopy of loadOption if not done in previous step
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     // determine the sourceConfig url
@@ -114,8 +111,8 @@ class ConfigManager {
       url: state.lifecycle.sourceConfigUrl.value,
       options: {
         headers: {
-          'Content-Type': undefined
-        }
+          'Content-Type': undefined,
+        },
       },
       callback: this.processResponse,
     });
