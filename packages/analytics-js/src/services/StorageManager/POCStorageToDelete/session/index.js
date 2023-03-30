@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 /* eslint-disable class-methods-use-this */
 /* eslint-disable import/prefer-default-export */
-import { persistedSessionStorageKeys } from '@rudderstack/analytics-js/plugins/userSessionManager/sessionStorageKeys';
+import { persistedSessionStorageKeys } from '@rudderstack/analytics-js/components/userSessionManager/sessionStorageKeys';
 import Storage from './storage';
 import logger from './logUtil';
 import { DEFAULT_SESSION_TIMEOUT, MIN_SESSION_TIMEOUT, MIN_SESSION_ID_LENGTH } from './constants';

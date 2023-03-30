@@ -9,7 +9,7 @@ const getIntegrationsCDNPath = (
   currentVersion: string,
   lockIntegrationsVersion: boolean,
   customIntegrationsCDNPath: string | undefined,
-) => {
+): string => {
   let integrationsCDNPath = '';
 
   // Get the CDN base URL from the user provided URL if any

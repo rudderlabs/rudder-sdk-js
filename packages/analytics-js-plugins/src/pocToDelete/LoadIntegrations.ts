@@ -43,15 +43,15 @@ const LoadIntegrations = () => ({
         return new Promise(resolve => {
           if (instance.isLoaded()) {
             console.log('instance.isLoaded');
-            state.successfullyLoadedIntegration.value = [
-              ...state.successfullyLoadedIntegration.value,
+            state.nativeDestinations.successfullyLoadedIntegration.value = [
+              ...state.nativeDestinations.successfullyLoadedIntegration.value,
               instance,
             ];
             resolve(this);
           } else if (time >= 11000) {
             console.log('instance.failed');
-            state.failedToBeLoadedIntegration.value = [
-              ...state.failedToBeLoadedIntegration.value,
+            state.nativeDestinations.failedToBeLoadedIntegration.value = [
+              ...state.nativeDestinations.failedToBeLoadedIntegration.value,
               instance,
             ];
             resolve(this);
@@ -109,8 +109,8 @@ const LoadIntegrations = () => ({
                 const initializedDestination = {} as any;
                 initializedDestination[pluginName] = intMod[modName];
 
-                state.dynamicallyLoadedIntegrations.value = {
-                  ...state.dynamicallyLoadedIntegrations.value,
+                state.nativeDestinations.dynamicallyLoadedIntegrations.value = {
+                  ...state.nativeDestinations.dynamicallyLoadedIntegrations.value,
                   ...initializedDestination,
                 };
               });

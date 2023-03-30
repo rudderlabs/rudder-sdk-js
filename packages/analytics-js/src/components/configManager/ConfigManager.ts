@@ -3,16 +3,11 @@ import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger
 import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { HttpClient, defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
-import { LoadOptions } from '@rudderstack/analytics-js/components/core/IAnalytics';
 import { batch } from '@preact/signals-core';
 import { validateLoadArgs } from '@rudderstack/analytics-js/components/configManager/util/validate';
-import { loadOptionsState } from '@rudderstack/analytics-js/state/slices/loadOptions';
-import { sourceConfigState } from '@rudderstack/analytics-js/state/slices/source';
-import {
-  Destination,
-  destinationConfigState,
-} from '@rudderstack/analytics-js/state/slices/destinations';
-import { lifecycleState } from '@rudderstack/analytics-js/state/slices/lifecycle';
+import { Destination } from '@rudderstack/analytics-js/state/slices/destinations';
+import { state } from '@rudderstack/analytics-js/state';
+import { LoadOptions } from "@rudderstack/analytics-js/state/slices/loadOptions";
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
 import { getSDKUrlInfo } from './util/commonUtil';
@@ -34,42 +29,34 @@ class ConfigManager {
     this.hasLogger = Boolean(this.logger);
   }
 
-  setLoadOptions(
-    writeKey: string,
-    dataPlaneUrl: string | undefined,
-    loadOptions: LoadOptions | undefined,
+  init(
   ) {
     // TODO: create a deepcopy of loadOption if not done in previous step
-    validateLoadArgs(writeKey, dataPlaneUrl);
-    const finalLoadOption: LoadOptions = mergeDeepRight(
-      loadOptionsState.loadOptions.value, // default load options from state
-      loadOptions || {},
-    );
+    validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     // determine the sourceConfig url
     const intgCdnUrl = getIntegrationsCDNPath(
-      '2.28.0', // TODO: use package.version
-      loadOptionsState.loadOptions.value.lockIntegrationsVersion as boolean,
-      loadOptionsState.loadOptions.value.destSDKBaseURL,
+      'process.package_version',
+      state.loadOptions.value.lockIntegrationsVersion as boolean,
+      state.loadOptions.value.destSDKBaseURL,
     );
 
     // determine if the staging SDK is being used
+    // TODO: deprecate this in new version and stop adding '-staging' in filenames
     const { isStaging } = getSDKUrlInfo();
 
     // set the final load option in state
     batch(() => {
-      loadOptionsState.writeKey.value = writeKey;
-      loadOptionsState.dataPlaneUrl.value = dataPlaneUrl;
-      loadOptionsState.loadOptions.value = finalLoadOption;
-
       // set application lifecycle state in state
-      if (loadOptionsState.loadOptions.value.logLevel) {
-        lifecycleState.logLevel.value = loadOptionsState.loadOptions.value.logLevel;
+      if (state.loadOptions.value.logLevel) {
+        state.lifecycle.logLevel.value = state.loadOptions.value.logLevel;
       }
-      lifecycleState.integrationsCDNPath.value = intgCdnUrl;
-      if (loadOptionsState.loadOptions.value.configUrl) {
-        lifecycleState.sourceConfigUrl.value = `${loadOptionsState.loadOptions.value.configUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${loadOptionsState.writeKey.value}`;
+      state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
+      if (state.loadOptions.value.configUrl) {
+        // TODO: pass the load option for lockedIntegrations version as query param in the future for metrics capturing
+        state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${state.lifecycle.writeKey.value}`;
       }
-      lifecycleState.isStaging.value = isStaging;
+      state.lifecycle.isStaging.value = isStaging;
+      // TODO: set the values in state for reporting slice
     });
     this.fetchSourceConfig();
   }
@@ -81,8 +68,8 @@ class ConfigManager {
     // determine the dataPlane url
     const dataPlaneUrl = resolveDataPlaneUrl(
       res.source.dataplanes,
-      loadOptionsState.dataPlaneUrl.value,
-      loadOptionsState.loadOptions.value.residencyServer,
+      state.lifecycle.dataPlaneUrl.value,
+      state.loadOptions.value.residencyServer,
     );
     const nativeDestinations: Destination[] =
       res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
@@ -90,20 +77,20 @@ class ConfigManager {
     // set in the state --> source, destination, lifecycle
     batch(() => {
       // set source related information in state
-      sourceConfigState.value = {
+      state.source.value = {
         id: res.source.id,
         config: res.source.config,
       };
       // set device mode destination related information in state
-      destinationConfigState.value = nativeDestinations;
+      state.destinations.value = nativeDestinations;
       // set application lifecycle state
-      lifecycleState.activeDataplaneUrl.value = dataPlaneUrl;
-      lifecycleState.status.value = 'configured';
+      state.lifecycle.activeDataplaneUrl.value = dataPlaneUrl;
+      state.lifecycle.status.value = 'configured';
     });
   }
 
   fetchSourceConfig() {
-    const sourceConfigOption = loadOptionsState.loadOptions.value.getSourceConfig;
+    const sourceConfigOption = state.loadOptions.value.getSourceConfig;
     if (sourceConfigOption) {
       // fetch source config from the function
       const res = sourceConfigOption();
@@ -124,7 +111,12 @@ class ConfigManager {
 
     // fetch source config from config url API
     this.httpClient.getAsyncData({
-      url: lifecycleState.sourceConfigUrl.value,
+      url: state.lifecycle.sourceConfigUrl.value,
+      options: {
+        headers: {
+          'Content-Type': undefined
+        }
+      },
       callback: this.processResponse,
     });
   }

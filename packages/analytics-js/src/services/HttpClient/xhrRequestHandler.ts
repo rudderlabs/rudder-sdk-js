@@ -4,7 +4,7 @@ import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeout
 export interface IXHRRequestOptions {
   method: HTTPClientMethod;
   url: string;
-  headers: Record<string, string>;
+  headers: Record<string, string | undefined>;
   data?: XMLHttpRequestBodyInit;
 }
 
@@ -108,7 +108,9 @@ const xhrRequest = (
     xhr.open(options.method, options.url);
 
     Object.keys(options.headers).forEach(headerName => {
-      xhr.setRequestHeader(headerName, options.headers[headerName]);
+      if(options.headers[headerName]) {
+        xhr.setRequestHeader(headerName, options.headers[headerName] as string);
+      }
     });
 
     try {

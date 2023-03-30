@@ -10,12 +10,14 @@ export type LogLevel = 'ERROR' | 'DEBUG' | 'INFO' | 'WARN';
 // TODO: make enum
 export type LifecycleStatus =
   | 'mounted'
-  | 'init'
+  | 'polyfillLoaded'
+  | 'initialized'
   | 'configured'
   | 'pluginsReady'
   | 'loaded'
   | 'integrationsReady'
-  | 'ready';
+  | 'ready'
+  | undefined;
 
 export type ReadyCallback = () => void;
 
@@ -30,6 +32,8 @@ export type LifecycleState = {
   logLevel: Signal<LogLevel>;
   loaded: Signal<boolean>;
   readyCallbacks: Signal<ReadyCallback[]>;
+  writeKey: Signal<string | undefined>;
+  dataPlaneUrl: Signal<string | undefined>;
 };
 
 const lifecycleState: LifecycleState = {
@@ -37,12 +41,14 @@ const lifecycleState: LifecycleState = {
   integrationsCDNPath: signal(DEST_SDK_BASE_URL),
   pluginsCDNPath: signal(PLUGINS_BASE_URL),
   sourceConfigUrl: signal(CONFIG_URL),
-  status: signal('mounted'),
+  status: signal(undefined),
   isStaging: signal(false),
   initialized: signal(false),
   logLevel: signal('ERROR'),
   loaded: signal(false),
   readyCallbacks: signal([]),
+  writeKey: signal(undefined),
+  dataPlaneUrl: signal(undefined),
 };
 
 export { lifecycleState };

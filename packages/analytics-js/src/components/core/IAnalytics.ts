@@ -4,10 +4,15 @@ import { ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
 import { Store, StoreManager } from '@rudderstack/analytics-js/services/StorageManager';
-import { CookieSameSite } from '@rudderstack/analytics-js/services/StorageManager/types';
-import { LifecycleStatus, LogLevel } from '@rudderstack/analytics-js/state/slices/lifecycle';
-import { CookieConsentOptions } from '@rudderstack/analytics-js/state/slices/consents';
-import { ResidencyServerRegion } from '@rudderstack/analytics-js/components/configManager/types';
+import { LifecycleStatus } from '@rudderstack/analytics-js/state/slices/lifecycle';
+import {
+  AnonymousIdOptions,
+  ApiObject,
+  ApiOptions,
+  LoadOptions,
+} from '@rudderstack/analytics-js/state/slices/loadOptions';
+import { SessionInfo } from '@rudderstack/analytics-js/state/slices/session';
+import { ApiCallback } from '@rudderstack/analytics-js/state/slices/eventBuffer';
 
 // TODO: for all methods expose the overloads in globalObject but use only one object argument to pass values to instance
 export interface IAnalytics {
@@ -23,7 +28,26 @@ export interface IAnalytics {
   /**
    * Call control pane to get client configs
    */
-  load: (writeKey: string, dataPlaneUrl: string, loadOptions?: LoadOptions) => void;
+  load: (writeKey: string, dataPlaneUrl: string, loadOptions: Partial<LoadOptions>) => void;
+
+  /**
+   * Orchestrate the lifecycle of the application phases/status
+   */
+  startLifecycle(): void;
+
+  loadPolyfill(): void;
+
+  init(): void;
+
+  loadConfig(): void;
+
+  loadPlugins(): void;
+
+  onLoaded(): void;
+
+  loadIntegrations(): void;
+
+  onReady(): void;
 
   /**
    * To register a callback for SDK ready state
@@ -33,53 +57,27 @@ export interface IAnalytics {
   /**
    * To record a page view event
    */
-  page(
-    category?: string,
-    name?: string,
-    properties?: ApiObject,
-    options?: ApiOptions,
-    callback?: ApiCallback,
-  ): void;
-  page(category: string, name: string, properties: ApiObject, callback: ApiCallback): void;
-  page(name: string, properties?: ApiObject, options?: ApiOptions, callback?: ApiCallback): void;
-  page(category: string, name: string, callback: ApiCallback): void;
-  page(name: string, properties: ApiObject, callback: ApiCallback): void;
-  page(name: string, callback: ApiCallback): void;
-  page(properties: ApiObject, options: ApiOptions, callback?: ApiCallback): void;
-  page(properties: ApiObject, callback?: ApiCallback): void;
+  page(pageOptions: PageCallOptions): void;
 
   /**
    * To record a user track event
    */
-  track(event: string, properties?: ApiObject, options?: ApiOptions, callback?: ApiCallback): void;
-  track(event: string, properties: ApiObject, callback: ApiCallback): void;
-  track(event: string, callback: ApiCallback): void;
+  track(trackCallOptions: TrackCallOptions): void;
 
   /**
    * To record a user identification event
    */
-  identify(userId?: string, traits?: ApiObject, options?: ApiOptions, callback?: ApiCallback): void;
-  identify(userId: string, traits: ApiObject, callback: ApiCallback): void;
-  identify(userId: string, callback: ApiCallback): void;
-  identify(traits: ApiObject, options: ApiOptions, callback?: ApiCallback): void;
-  identify(traits: ApiObject, callback?: ApiCallback): void;
+  identify(identifyCallOptions: IdentifyCallOptions): void;
 
   /**
    * To record a user alias event
    */
-  alias(to: string, from?: string, options?: ApiOptions, callback?: ApiCallback): void;
-  alias(to: string, from: string, callback: ApiCallback): void;
-  alias(to: string, callback: ApiCallback): void;
-  alias(to: string, options: ApiOptions, callback?: ApiCallback): void;
+  alias(aliasCallOptions: AliasCallOptions): void;
 
   /**
    * To record a user group event
    */
-  group(groupId: string, traits?: ApiObject, options?: ApiOptions, callback?: ApiCallback): void;
-  group(groupId: string, traits: ApiObject, callback: ApiCallback): void;
-  group(groupId: string, callback: ApiCallback): void;
-  group(traits: ApiObject, options: ApiOptions, callback?: ApiCallback): void;
-  group(traits: ApiObject, callback?: ApiCallback): void;
+  group(groupCallOptions: GroupCallOptions): void;
 
   /**
    * To get anonymousId set in the SDK
@@ -91,7 +89,7 @@ export interface IAnalytics {
    * @param anonymousId
    * @param rudderAmpLinkerParm AMP Linker ID string
    */
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParm?: string): void;
+  setAnonymousId(anonymousId?: string, rudderAmpLinkerParm?: string): string;
 
   /**
    * Clear user information
@@ -102,22 +100,22 @@ export interface IAnalytics {
   /**
    * To get userId set in the SDK
    */
-  getUserId(): string;
+  getUserId(): string | undefined;
 
   /**
    * To get user traits set in the SDK
    */
-  getUserTraits(): ApiObject;
+  getUserTraits(): ApiObject | undefined;
 
   /**
    * To get groupId set in the SDK
    */
-  getGroupId(): string;
+  getGroupId(): string | undefined;
 
   /**
    * To get group traits set in the SDK
    */
-  getGroupTraits(): ApiObject;
+  getGroupTraits(): ApiObject | undefined;
 
   /**
    * To manually start user session in the SDK
@@ -133,125 +131,45 @@ export interface IAnalytics {
    * To fetch the current sessionId
    */
   getSessionId(): number | null;
+
+  /**
+   * To fetch the current sessionInfo
+   */
+  getSessionInfo(): SessionInfo | null;
 }
 
-/**
- * Represents the options parameter in the load API
- */
-export type LoadOptions = {
-  logLevel?: LogLevel; // defaults to ERROR
-  integrations?: IntegrationOpts; // defaults to { All : true }
-  configUrl: string; // defaults to https://api.rudderlabs.com
-  queueOptions?: QueueOpts;
-  loadIntegration?: boolean; // defaults to true.
-  sessions: SessionOpts;
-  secureCookie?: boolean; // defaults to false.
-  destSDKBaseURL: string; // defaults to https://cdn.rudderlabs.com/v1.1/js-integrations
-  useBeacon?: boolean; // defaults to false.
-  beaconQueueOptions?: BeaconQueueOpts;
-  cookieConsentManager?: CookieConsentOptions;
-  anonymousIdOptions?: AnonymousIdOptions;
-  setCookieDomain?: string; // defaults to current domain.
-  sameSiteCookie: CookieSameSite; // defaults to Lax.
-  lockIntegrationsVersion?: boolean; // defaults to false.
-  polyfillIfRequired: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
-  onLoaded?: (analytics: IAnalytics) => void;
-  uaChTrackLevel?: UaChTrackLevel;
-  residencyServer?: ResidencyServerRegion;
-  getSourceConfig?: () => string | ApiObject | Promise<ApiObject> | Promise<string>;
-  sendAdblockPage?: boolean;
-  sendAdblockPageOptions?: ApiOptions;
-  // clientSuppliedCallbacks?: { string: () => void }; // deprecate in new version
+export type PageCallOptions = {
+  category?: string;
+  name?: string;
+  properties?: ApiObject;
+  options?: ApiOptions;
+  callback?: ApiCallback;
 };
 
-export type SessionOpts = {
-  autoTrack?: boolean; // Defaults to true
-  timeout?: number; // Defaults to 30 mins
+export type TrackCallOptions = {
+  name: string;
+  properties?: ApiObject;
+  options?: ApiOptions;
+  callback?: ApiCallback;
 };
 
-export type UaChTrackLevel = 'none' | 'default' | 'full';
-
-/**
- * Represents the integration options object
- * Example usages:
- * integrationOptions { All: false, "Google Analytics": true, "Braze": true}
- * integrationOptions { All: true, "Chartbeat": false, "Customer.io": false}
- */
-export type IntegrationOpts = {
-  // Defaults to true
-  // If set to false, specific integration should be set to true to send the event
-  All?: boolean;
-  // Destination name: true/false/integration specific information
-  [index: string]: boolean | undefined | ApiObject;
+export type IdentifyCallOptions = {
+  userId?: string;
+  traits?: ApiObject;
+  options?: ApiOptions;
+  callback?: ApiCallback;
 };
 
-/**
- * Represents the queue options parameter in loadOptions type
- */
-export type QueueOpts = {
-  // Upper cap on maximum delay for an event
-  maxRetryDelay?: number;
-  // Minimum delay before sending an event
-  minRetryDelay?: number;
-  // Exponential base
-  backoffFactor?: number;
-  // Maximum number of attempts
-  maxAttempts?: number;
-  // Maximum number of events in storage
-  maxItems?: number;
+export type AliasCallOptions = {
+  to: string;
+  from?: string;
+  options?: ApiOptions;
+  callback?: ApiCallback;
 };
 
-/**
- * Represents the beacon queue options parameter in loadOptions type
- */
-export type BeaconQueueOpts = {
-  // Maximum number of events in storage
-  maxItems?: number;
-  // Time in milliseconds to flush the queue automatically
-  flushQueueInterval?: number;
+export type GroupCallOptions = {
+  groupId: string;
+  traits?: ApiObject;
+  options?: ApiOptions;
+  callback?: ApiCallback;
 };
-
-/**
- * Represents the options parameter for anonymousId
- */
-export type AnonymousIdOptions = {
-  autoCapture?: {
-    enabled?: boolean;
-    source?: string;
-  };
-};
-
-/**
- * Represents the options parameter in the APIs
- */
-export type ApiOptions = {
-  integrations?: IntegrationOpts;
-  anonymousId?: string;
-  // ISO 8601 date string
-  originalTimestamp?: string;
-  // Merged with event's contextual information
-  [index: string]:
-    | string
-    | number
-    | boolean
-    | ApiObject
-    | (string | number | boolean | ApiObject)[]
-    | IntegrationOpts
-    | undefined;
-};
-
-/**
- * Represents a generic object in the APIs
- * Use for parameters like properties, traits etc.
- */
-export type ApiObject = {
-  [index: string]:
-    | string
-    | number
-    | boolean
-    | ApiObject
-    | (string | number | boolean | ApiObject)[]
-    | undefined;
-};
-
-export type ApiCallback = () => void;
