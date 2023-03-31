@@ -1,11 +1,11 @@
-import { IStorage } from '@rudderstack/analytics-js/services/StorageManager/types';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StorageManager/storages/storageEngine';
+import { IStorage } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
 
-describe('CookieStorage', () => {
+describe('InMemoryStorage', () => {
   let engine: IStorage;
 
   beforeEach(() => {
-    engine = getStorageEngine('cookieStorage');
+    engine = getStorageEngine('memoryStorage');
     engine.clear();
   });
 
@@ -19,9 +19,8 @@ describe('CookieStorage', () => {
     expect(engine.getItem('test-key')).toBeNull();
     expect(engine.length).toStrictEqual(0);
 
-    // clear not implemented intentionally, see source code comments
-    // engine.setItem('test-key', 'abc');
-    // engine.clear();
-    // expect(engine.length).toStrictEqual(0);
+    engine.setItem('test-key', 'abc');
+    engine.clear();
+    expect(engine.length).toStrictEqual(0);
   });
 });

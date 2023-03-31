@@ -66,7 +66,6 @@
     "@preact/signals-core": "1.2.3",
     "@types/component-emitter": "1.2.11",
     "@types/ramda": "0.28.23",
-    "lodash.merge": "4.6.2",
     "ramda": "0.28.0",
     "serialize-error": "11.0.0",
     "storejs": "2.0.3"

@@ -1,12 +1,12 @@
 import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
 import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
-import { server } from '../../../__mocks__/msw.server';
-import { dummyDataplaneHost } from '../../../__mocks__/fixtures';
 import {
   createScriptElement,
   insertScript,
 } from '@rudderstack/analytics-js/services/ExternalSrcLoader/jsFileLoader';
+import { server } from '../../../__mocks__/msw.server';
+import { dummyDataplaneHost } from '../../../__mocks__/fixtures';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');

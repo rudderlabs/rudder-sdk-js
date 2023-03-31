@@ -1,17 +1,5 @@
 import { signal, Signal } from '@preact/signals-core';
-import {
-  RegionDetails,
-  ResidencyServerRegion,
-} from '@rudderstack/analytics-js/components/configManager/types';
-
-export type Source = {
-  id: string;
-  name: string;
-  writeKey: string;
-  workspaceId: string;
-  enabled: boolean;
-  dataplanes: Record<ResidencyServerRegion, RegionDetails>;
-};
+import { Source } from '@rudderstack/analytics-js/state/types';
 
 export type SourceConfigState = Signal<Source | undefined>;
 

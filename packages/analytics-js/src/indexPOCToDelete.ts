@@ -11,22 +11,18 @@ import {
   defaultExternalSrcLoader,
   ExternalSrcLoader,
 } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
-import {
-  defaultStoreManager,
-  StoreManager,
-} from '@rudderstack/analytics-js/services/StorageManager';
-import { Store } from '@rudderstack/analytics-js/services/StorageManager/Store';
+import { defaultStoreManager, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
+import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
+import { defaultUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager';
 import { Queue } from './npmPackages/localstorage-retry';
 import { state } from './state';
-import type { GenericObject } from './types/GenericObject';
-import { UserSession } from './services/StorageManager/POCStorageToDelete/session';
 import { generateUUID } from './components/utilities/uuId';
 import { setExposedGlobal } from './components/core/exposedGlobals';
-import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
+import { dummyState } from './dummyStateToDelete';
 
 export interface IV3 {
   status?: 'starting' | 'ready';
-  load: (writeKey: string, config: GenericObject) => void;
+  load: (writeKey: string, config: Record<string, any>) => void;
   ready: () => void;
   page: () => void;
   pluginRegister: (customPlugins?: any[]) => void;
@@ -50,7 +46,7 @@ class AnalyticsV3 implements IV3 {
     this.status = 'starting';
     this.newData = [];
     this.messageId = generateUUID();
-    this.userSession = UserSession;
+    this.userSession = defaultUserSessionManager;
     setExposedGlobal('state', state);
     this.httpClient = defaultHttpClient;
     this.errorHandler = defaultErrorHandler;
@@ -67,8 +63,8 @@ class AnalyticsV3 implements IV3 {
     this.httpClient.setAuthHeader('2L8Fl7ryPss3Zku133Pj5ox7NeP');
 
     effect(() => {
-      console.log('remote state in constructor: ', state.dummy.remoteState.value);
-      console.log('local state in constructor: ', state.dummy.globalLocalState.value);
+      console.log('remote state in constructor: ', dummyState.remoteState.value);
+      console.log('local state in constructor: ', dummyState.globalLocalState.value);
     });
     this.load();
   }
@@ -82,11 +78,11 @@ class AnalyticsV3 implements IV3 {
   ready() {
     this.status = 'ready';
     console.log(this);
-    state.dummy.globalLocalState.value = { counter: 1 };
+    dummyState.globalLocalState.value = { counter: 1 };
 
     effect(() => {
-      console.log('remote state in ready: ', state.dummy.remoteState.value);
-      console.log('local state in ready: ', state.dummy.globalLocalState.value);
+      console.log('remote state in ready: ', dummyState.remoteState.value);
+      console.log('local state in ready: ', dummyState.globalLocalState.value);
     });
 
     this.pluginsManager.invoke('init.pre', { data: {} }, state);
@@ -171,7 +167,7 @@ class AnalyticsV3 implements IV3 {
   }
 
   startSessionTracking() {
-    this.userSession.initialize({}, this.clientDataStore);
+    //this.userSession.setStorage(this.clientDataStore);
   }
 
   pluginRegister(customPlugins: any[] = []) {
@@ -244,11 +240,11 @@ class AnalyticsV3 implements IV3 {
     );
 
     effect(() => {
-      console.log('successfullyLoadedIntegration', state.dummy.successfullyLoadedIntegration.value);
+      console.log('successfullyLoadedIntegration', dummyState.successfullyLoadedIntegration.value);
     });
 
     effect(() => {
-      console.log('dynamicallyLoadedIntegrations', state.dummy.dynamicallyLoadedIntegrations.value);
+      console.log('dynamicallyLoadedIntegrations', dummyState.dynamicallyLoadedIntegrations.value);
     });
   }
 }

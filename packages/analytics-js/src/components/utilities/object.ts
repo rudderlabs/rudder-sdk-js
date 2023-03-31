@@ -1,4 +1,3 @@
-import { GenericObject } from '@rudderstack/analytics-js/types';
 import * as R from 'ramda';
 
 // Original implementations before migrating to ramda
@@ -29,12 +28,12 @@ import * as R from 'ramda';
 
 //
 
-const getValueByPath = (obj: GenericObject, path: string): any => {
+const getValueByPath = (obj: Record<string, any>, path: string): any => {
   const pathParts = path.split('.');
   return R.path(pathParts, obj);
 };
 
-const hasValueByPath = (obj: GenericObject, path: string): boolean => {
+const hasValueByPath = (obj: Record<string, any>, path: string): boolean => {
   return Boolean(getValueByPath(obj, path));
 };
 
@@ -55,9 +54,9 @@ const mergeDeepRightObjectArrays = (
   return mergedArray;
 };
 
-const mergeDeepRight = <T = GenericObject>(
-  leftObject: GenericObject,
-  rightObject: GenericObject,
+const mergeDeepRight = <T = Record<string, any>>(
+  leftObject: Record<string, any>,
+  rightObject: Record<string, any>,
 ): T => R.mergeDeepWith(mergeDeepRightObjectArrays, leftObject, rightObject);
 
 export { getValueByPath, hasValueByPath, mergeDeepRightObjectArrays, mergeDeepRight };

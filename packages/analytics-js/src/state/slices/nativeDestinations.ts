@@ -1,29 +1,12 @@
 import { Signal, signal } from '@preact/signals-core';
-import { DestinationConfig } from '@rudderstack/analytics-js/components/configManager/types';
-import { IntegrationOpts } from './loadOptions';
-
-export type ClientIntegrations = {
-  name: string;
-  config: DestinationConfig;
-};
-
-export type IntegrationInstance = {
-  isLoaded: () => boolean;
-  isReady?: () => boolean;
-};
-
-// TODO: is this still used? only lotame used it
-export type ClientSuppliedCallbacks = {
-  syncPixel?: () => void;
-};
-
-// TODO: is this still used? only lotame used it
-export type MethodToCallbackMap = {
-  syncPixel: string;
-};
-
-// TODO: is this still used? const intMod = window[pluginName];
-export type DynamicallyLoadedIntegration = Record<string, any>;
+import {
+  ClientIntegrations,
+  ClientSuppliedCallbacks,
+  DynamicallyLoadedIntegration,
+  IntegrationInstance,
+  IntegrationOpts,
+  MethodToCallbackMap,
+} from '@rudderstack/analytics-js/state/types';
 
 export type NativeDestinationsState = {
   clientIntegrations: Signal<ClientIntegrations[]>;
@@ -39,6 +22,7 @@ export type NativeDestinationsState = {
   clientIntegrationsReady: Signal<boolean>;
 };
 
+// TODO: when we have the config manager ready
 const dummyIntegrationConfigToDelete: ClientIntegrations[] = [
   {
     name: 'GA',
