@@ -18,6 +18,13 @@ import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capab
 import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager';
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
+import {
+  AliasCallOptions,
+  GroupCallOptions,
+  IdentifyCallOptions,
+  PageCallOptions,
+  TrackCallOptions,
+} from './eventMethodOverloads';
 
 // TODO: for all methods expose the overloads in globalObject but use only one object argument to pass values to instance
 export interface IAnalytics {
@@ -38,7 +45,7 @@ export interface IAnalytics {
   /**
    * Call control pane to get client configs
    */
-  load: (writeKey: string, dataPlaneUrl: string, loadOptions: Partial<LoadOptions>) => void;
+  load: (writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>) => void;
 
   /**
    * Orchestrate the lifecycle of the application phases/status
@@ -147,39 +154,3 @@ export interface IAnalytics {
    */
   getSessionInfo(): SessionInfo | null;
 }
-
-export type PageCallOptions = {
-  category?: string;
-  name?: string;
-  properties?: ApiObject;
-  options?: ApiOptions;
-  callback?: ApiCallback;
-};
-
-export type TrackCallOptions = {
-  name: string;
-  properties?: ApiObject;
-  options?: ApiOptions;
-  callback?: ApiCallback;
-};
-
-export type IdentifyCallOptions = {
-  userId?: string;
-  traits?: ApiObject;
-  options?: ApiOptions;
-  callback?: ApiCallback;
-};
-
-export type AliasCallOptions = {
-  to: string;
-  from?: string;
-  options?: ApiOptions;
-  callback?: ApiCallback;
-};
-
-export type GroupCallOptions = {
-  groupId: string;
-  traits?: ApiObject;
-  options?: ApiOptions;
-  callback?: ApiCallback;
-};

@@ -12,25 +12,19 @@ import { defaultConfigManager } from '@rudderstack/analytics-js/components/confi
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
 import { defaultCapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/CapabilitiesManager';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
-import {
-  AliasCallOptions,
-  GroupCallOptions,
-  IAnalytics,
-  IdentifyCallOptions,
-  PageCallOptions,
-  TrackCallOptions,
-} from '@rudderstack/analytics-js/components/core/IAnalytics';
-import {
-  AnonymousIdOptions,
-  ApiObject,
-  LoadOptions,
-} from '@rudderstack/analytics-js/IRudderAnalytics';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
 import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 import { defaultEventManager } from '@rudderstack/analytics-js/components/eventManager/EventManager';
 import { defaultUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { ApiCallback, LifecycleStatus, SessionInfo } from '@rudderstack/analytics-js/state/types';
+import {
+  AnonymousIdOptions,
+  ApiCallback,
+  ApiObject,
+  LifecycleStatus,
+  LoadOptions,
+  SessionInfo,
+} from '@rudderstack/analytics-js/state/types';
 import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
@@ -39,6 +33,14 @@ import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalS
 import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
 import { setExposedGlobal } from './exposedGlobals';
+import {
+  AliasCallOptions,
+  GroupCallOptions,
+  IdentifyCallOptions,
+  PageCallOptions,
+  TrackCallOptions,
+} from './eventMethodOverloads';
+import { IAnalytics } from './IAnalytics';
 
 class Analytics implements IAnalytics {
   initialized: boolean;

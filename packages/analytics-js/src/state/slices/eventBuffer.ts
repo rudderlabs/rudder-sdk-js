@@ -3,6 +3,7 @@ import { ApiCallback, BufferedEvent } from '@rudderstack/analytics-js/state/type
 
 // TODO: add proper types for array items instead of any
 export type EventBufferState = {
+  // TODO: make this a BufferQueue?
   toBeProcessedArray: Signal<BufferedEvent[]>;
   toBeProcessedByIntegrationArray: Signal<any[]>;
   readyCallbacksArray: Signal<ApiCallback[]>;
