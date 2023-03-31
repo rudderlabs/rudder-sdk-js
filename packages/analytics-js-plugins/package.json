@@ -52,6 +52,7 @@
   "dependencies": {
     "@lukeed/uuid": "2.0.0",
     "@preact/signals-core": "1.2.3",
+    "@rudderstack/analytics-js": "*",
     "crypto-js": "4.1.1",
     "ramda": "0.28.0"
   },
