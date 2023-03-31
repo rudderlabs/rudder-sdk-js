@@ -1,27 +1,28 @@
 /* eslint-disable class-methods-use-this */
-import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { HttpClient, defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import { IHttpClient } from "@rudderstack/analytics-js/services/HttpClient/types";
+import { IErrorHandler } from "@rudderstack/analytics-js/services/ErrorHandler/types";
+import { ILogger } from "@rudderstack/analytics-js/services/Logger/types";
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
 import { batch } from '@preact/signals-core';
 import { validateLoadArgs } from '@rudderstack/analytics-js/components/configManager/util/validate';
-import { Destination } from '@rudderstack/analytics-js/state/slices/destinations';
 import { state } from '@rudderstack/analytics-js/state';
-import { LoadOptions } from "@rudderstack/analytics-js/state/slices/loadOptions";
+import { Destination } from "@rudderstack/analytics-js/state/types";
 import { resolveDataPlaneUrl } from './util/dataPlaneResolver';
 import { getIntegrationsCDNPath } from './util/cdnPaths';
 import { getSDKUrlInfo } from './util/commonUtil';
-import { SourceConfigResponse } from './types';
+import { IConfigManager, SourceConfigResponse } from "./types";
 import { filterEnabledDestination } from './util/filterDestinations';
 
-class ConfigManager {
-  httpClient: HttpClient;
-  errorHandler?: ErrorHandler;
-  logger?: Logger;
+class ConfigManager implements IConfigManager {
+  httpClient: IHttpClient;
+  errorHandler?: IErrorHandler;
+  logger?: ILogger;
   hasErrorHandler = false;
   hasLogger = false;
 
-  constructor(httpClient: HttpClient, errorHandler?: ErrorHandler, logger?: Logger) {
+  constructor(httpClient: IHttpClient, errorHandler?: IErrorHandler, logger?: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.httpClient = httpClient;
@@ -29,8 +30,7 @@ class ConfigManager {
     this.hasLogger = Boolean(this.logger);
   }
 
-  init(
-  ) {
+  init() {
     // TODO: create a deepcopy of loadOption if not done in previous step
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     // determine the sourceConfig url

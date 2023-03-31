@@ -1,7 +1,7 @@
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
-import { SDKError } from '@rudderstack/analytics-js/services/ErrorHandler/processError';
 import { ErrorHandler } from '../../../src/services/ErrorHandler';
+import { SDKError } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 
 jest.mock('../../../src/services/Logger', () => {
   const originalModule = jest.requireActual('../../../src/services/Logger');

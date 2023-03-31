@@ -1,34 +1,24 @@
-import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
+import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import {
-  ICookieStorageOptions,
-  IInMemoryStorageOptions,
-  ILocalStorageOptions,
-  StorageType,
-  StoreId,
-} from './types';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
-import { IStoreConfig, Store } from './Store';
-
-export type StoreManagerOptions = {
-  cookieOptions?: Partial<ICookieStorageOptions>;
-  localStorageOptions?: Partial<ILocalStorageOptions>;
-  inMemoryStorageOptions?: Partial<IInMemoryStorageOptions>;
-};
+import { IStoreConfig, IStoreManager, StorageType, StoreId, StoreManagerOptions } from './types';
+import { Store } from './Store';
 
 /**
  * A service to manage stores & available storage client configurations
  */
-class StoreManager {
+class StoreManager implements IStoreManager {
   stores: Record<StoreId, Store> = {};
   isInitialized = false;
-  errorHandler?: ErrorHandler;
-  logger?: Logger;
+  errorHandler?: IErrorHandler;
+  logger?: ILogger;
   hasErrorHandler = false;
   hasLogger = false;
 
-  constructor(errorHandler?: ErrorHandler, logger?: Logger) {
+  constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.hasErrorHandler = Boolean(this.errorHandler);

@@ -1,7 +1,11 @@
-import { PluginEngine, defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
-import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
+import {
+  ExtensionPlugin,
+  IPluginEngine,
+} from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
 import { state } from '@rudderstack/analytics-js/state';
 import { dummyPlugins, dummyRemotePlugins } from '@rudderstack/analytics-js/plugins/dummyToDelete';
+import { IPluginsManager } from './types';
 
 // TODO: define types for plugins
 // TODO: In register also pass automatically the state to all plugins
@@ -9,8 +13,8 @@ import { dummyPlugins, dummyRemotePlugins } from '@rudderstack/analytics-js/plug
 // TODO: we may want to add chained plugins that pass their value to the next one
 // TODO: add retry mechanism for getting remote plugins
 // TODO: implement the engine, pass state, logger etc
-class PluginsManager {
-  engine: PluginEngine;
+class PluginsManager implements IPluginsManager {
+  engine: IPluginEngine;
 
   constructor() {
     this.engine = defaultPluginEngine;

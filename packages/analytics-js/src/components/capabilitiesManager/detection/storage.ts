@@ -3,7 +3,7 @@ import {
   STORAGE_TEST_LOCAL_STORAGE,
   STORAGE_TEST_SESSION_STORAGE,
 } from '@rudderstack/analytics-js/constants/storageKeyNames';
-import { IStorage, StorageType } from '@rudderstack/analytics-js/services/StorageManager/types';
+import { IStorage, StorageType } from '@rudderstack/analytics-js/services/StoreManager/types';
 
 const isStorageQuotaExceeded = (e: DOMException | any): boolean => {
   const matchingNames = ['QuotaExceededError', 'NS_ERROR_DOM_QUOTA_REACHED']; // [everything except Firefox, Firefox]

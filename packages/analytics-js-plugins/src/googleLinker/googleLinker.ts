@@ -1,5 +1,5 @@
-import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
-import { Nullable } from '@rudderstack/analytics-js/types';
+import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
+import { Nullable } from '@rudderstack/analytics-js/types/Nullable';
 import { AMP_LINKER_ANONYMOUS_ID_KEY } from './constants';
 import parseLinker from './utils';
 

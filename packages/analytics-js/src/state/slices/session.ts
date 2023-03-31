@@ -1,24 +1,6 @@
 import { signal, Signal } from '@preact/signals-core';
 import { DEFAULT_SESSION_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
-
-export type ApiObject = {
-  [index: string]:
-    | string
-    | number
-    | boolean
-    | ApiObject
-    | (string | number | boolean | ApiObject)[]
-    | undefined;
-};
-
-export type SessionInfo = {
-  autoTrack?: boolean;
-  manualTrack?: boolean;
-  timeout: number;
-  expiresAt?: number;
-  id?: number;
-  sessionStart?: boolean;
-};
+import { ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
 
 export type SessionState = {
   rl_user_id: Signal<string | undefined>;
