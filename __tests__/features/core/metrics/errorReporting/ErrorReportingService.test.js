@@ -12,18 +12,18 @@ describe('Error reporting service Test suite', () => {
   });
   // TODO: un-comment the below test case once we remove the '|| true' from line 12
   // test('Should not initialize provider if not enabled from source config in init call', () => {
-  //     errorReportingService.init({statsCollection:{errorReports:{enabled:false}}}, sourceId);
+  //     errorReportingService.init({statsCollection:{errors:{enabled:false}}}, sourceId);
   //     expect(errorReportingService.isEnabled).toEqual(false);
   // });
   test('Should initialize provider if enabled from source config in init call', async () => {
-    errorReportingService.init({ statsCollection: { errorReports: { enabled: true } } }, sourceId);
+    errorReportingService.init({ statsCollection: { errors: { enabled: true } } }, sourceId);
     expect(errorReportingService.isEnabled).toEqual(true);
   });
   test('Should initialize default provider if enabled from source config but provider name is not there', async () => {
     window.bugsnag = jest.fn(() => ({ notifier: { version: '6.0.0' } }));
     errorReportingService.exposeToGlobal = jest.fn();
     errorReportingService.onClientReady = jest.fn(() => errorReportingService.exposeToGlobal());
-    errorReportingService.init({ statsCollection: { errorReports: { enabled: true } } }, sourceId);
+    errorReportingService.init({ statsCollection: { errors: { enabled: true } } }, sourceId);
     expect(errorReportingService.providerName).toEqual(DEFAULT_ERROR_REPORT_PROVIDER);
     expect(errorReportingService.onClientReady).toHaveBeenCalledTimes(1);
     expect(errorReportingService.exposeToGlobal).toHaveBeenCalledTimes(1);
@@ -31,7 +31,7 @@ describe('Error reporting service Test suite', () => {
   test('Should not initialize provider if provider from source config does not match with SDK supported list', async () => {
     window.bugsnag = undefined;
     errorReportingService.init(
-      { statsCollection: { errorReports: { enabled: true, provider: 'test' } } },
+      { statsCollection: { errors: { enabled: true, provider: 'test' } } },
       sourceId,
     );
     expect(errorReportingService.provider.client).toEqual(undefined);
@@ -42,17 +42,17 @@ describe('Error reporting service Test suite', () => {
 describe('Bugsnag Test suite', () => {
   test('Should not initialize bugsnag if version > 6 of bugsnag is present in window scope', async () => {
     window.bugsnag = { _client: { _notifier: { version: '7.0.0' } } };
-    errorReportingService.init({ statsCollection: { errorReports: { enabled: true } } }, sourceId);
+    errorReportingService.init({ statsCollection: { errors: { enabled: true } } }, sourceId);
     expect(errorReportingService.provider.client).toEqual(undefined);
   });
   test('Should not initialize bugsnag if version <6 of bugsnag is present in window scope', async () => {
     window.bugsnag = jest.fn(() => ({ notifier: { version: '4.0.0' } }));
-    errorReportingService.init({ statsCollection: { errorReports: { enabled: true } } }, sourceId);
+    errorReportingService.init({ statsCollection: { errors: { enabled: true } } }, sourceId);
     expect(errorReportingService.provider.client).toEqual(undefined);
   });
   test('Should initialize bugsnag if version 6 of bugsnag is present in window scope', async () => {
     window.bugsnag = jest.fn(() => ({ notifier: { version: '6.0.0' } }));
-    errorReportingService.init({ statsCollection: { errorReports: { enabled: true } } }, sourceId);
+    errorReportingService.init({ statsCollection: { errors: { enabled: true } } }, sourceId);
     expect(errorReportingService.provider.client).not.toBe(undefined);
   });
 });
