@@ -19,6 +19,7 @@ export default class GA4 {
       logger.setLogLevel(analytics.logLevel);
     }
     this.name = NAME;
+    this.clientId = '';
     this.sessionId = '';
     this.analytics = analytics;
     this.measurementId = config.measurementId;
@@ -47,10 +48,7 @@ export default class GA4 {
     if (this.analytics.userId) {
       gtagParameterObject.user_id = this.analytics.userId;
     }
-
-    gtagParameterObject.client_id = this.analytics.anonymousId;
     gtagParameterObject.debug_mode = true;
-
     if (Object.keys(gtagParameterObject).length === 0) {
       window.gtag('config', measurementId);
     } else {
@@ -58,9 +56,12 @@ export default class GA4 {
     }
 
     /**
-     * Setting the parameter sessionId using gtag api
+     * Setting the parameter clientId and sessionId using gtag api
      * Ref: https://developers.google.com/tag-platform/gtagjs/reference
      */
+    window.gtag('get', this.measurementId, 'client_id', (clientId) => {
+      this.clientId = clientId;
+    });
     window.gtag('get', this.measurementId, 'session_id', (sessionId) => {
       this.sessionId = sessionId;
     });
@@ -85,7 +86,7 @@ export default class GA4 {
    * If the gtag is successfully initialized, client ID and session ID fields will have valid values for the given GA4 configuration
    */
   isLoaded() {
-    return !!this.sessionId;
+    return !!(this.clientId && this.sessionId);
   }
 
   isReady() {
@@ -284,6 +285,7 @@ export default class GA4 {
     return {
       'Google Analytics 4': {
         sessionId: this.sessionId,
+        clientId: this.clientId,
       },
     };
   }

@@ -5,12 +5,15 @@ import {
 
 const mockIntegrationsData = {};
 
+const cid = '1893997368.1671656493';
+
 const mockIntegrationInstances = [
   {
     name: 'Mock GA4 Integration instance',
     getDataForIntegrationsObject: () => ({
       'Google Analytics 4': {
         sessionId: '1669961395',
+        clientId: '1893997368.1672656493',
       },
     }),
   },
@@ -22,12 +25,14 @@ const mockIntegrationInstances = [
 const expectedEnhancedIntegrationsObject = {
   'Google Analytics 4': {
     sessionId: '1669961395',
+    clientId: '1893997368.1672656493',
   },
 };
 
 const mockEnhancedIntegrationsData = {
   'Google Analytics 4': {
     sessionId: '1669961395',
+    clientId: cid,
   },
   AM: true,
 };
@@ -39,6 +44,7 @@ const mockClientSuppliedIntegrations = {
 const expectedMergedClientSuppliedIntegrationsObject = {
   'Google Analytics 4': {
     sessionId: '1669961395',
+    clientId: cid,
   },
   AM: true,
 };
@@ -46,6 +52,7 @@ const expectedMergedClientSuppliedIntegrationsObject = {
 const mockClientSuppliedIntegrationsWithKeys = {
   'Google Analytics 4': {
     sessionId: '16678456735',
+    clientId: 'G-389csDff',
     trackingId: 't-rtcyuTcrw',
   },
 };
@@ -53,6 +60,7 @@ const mockClientSuppliedIntegrationsWithKeys = {
 const expectedMergedClientSuppliedIntegrationsWithKeysObject = {
   'Google Analytics 4': {
     sessionId: '16678456735',
+    clientId: 'G-389csDff',
     trackingId: 't-rtcyuTcrw',
   },
   AM: true,
@@ -66,6 +74,7 @@ const mockClientSuppliedIntegrationsWithInactive = {
 const expectedMergedClientSuppliedIntegrationsWithInactiveObject = {
   'Google Analytics 4': {
     sessionId: '1669961395',
+    clientId: cid,
   },
   AM: false,
 };
