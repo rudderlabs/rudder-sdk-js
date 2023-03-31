@@ -10,11 +10,10 @@ describe('Error reporting service Test suite', () => {
     const outcome = errorReportingService.init();
     expect(outcome).toBe(undefined);
   });
-  // TODO: un-comment the below test case once we remove the '|| true' from line 12
-  // test('Should not initialize provider if not enabled from source config in init call', () => {
-  //     errorReportingService.init({statsCollection:{errors:{enabled:false}}}, sourceId);
-  //     expect(errorReportingService.isEnabled).toEqual(false);
-  // });
+  test('Should not initialize provider if not enabled from source config in init call', () => {
+      errorReportingService.init({statsCollection:{errors:{enabled:false}}}, sourceId);
+      expect(errorReportingService.isEnabled).toEqual(false);
+  });
   test('Should initialize provider if enabled from source config in init call', async () => {
     errorReportingService.init({ statsCollection: { errors: { enabled: true } } }, sourceId);
     expect(errorReportingService.isEnabled).toEqual(true);
@@ -54,5 +53,13 @@ describe('Bugsnag Test suite', () => {
     window.bugsnag = jest.fn(() => ({ notifier: { version: '6.0.0' } }));
     errorReportingService.init({ statsCollection: { errors: { enabled: true } } }, sourceId);
     expect(errorReportingService.provider.client).not.toBe(undefined);
+  });
+  test('Should initialize Bugsnag if provider from source config matches with SDK supported list', async () => {
+    window.bugsnag = jest.fn(() => ({ notifier: { version: '6.0.0' } }));
+    errorReportingService.init(
+      { statsCollection: { errors: { enabled: true, provider: 'rs-bugsnag' } } },
+      sourceId,
+    );
+    expect(errorReportingService.provider.client).not.toEqual(undefined);
   });
 });
