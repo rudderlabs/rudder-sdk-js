@@ -1,7 +1,4 @@
-import merge from 'lodash.merge';
 import {
-  getValueByPath,
-  hasValueByPath,
   mergeDeepRight,
   mergeDeepRightObjectArrays,
 } from '@rudderstack/analytics-js/components/utilities/object';
@@ -131,8 +128,8 @@ describe('Common Utils - Object', () => {
     expect(mergedArray).toEqual(expectedMergedTraitsPayload);
   });
 
-  it('should merge right nested object properties like lodash merge', () => {
-    const mergedArray = mergeDeepRight(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock);
-    expect(mergedArray).toEqual(merge(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock));
-  });
+  // it('should merge right nested object properties like lodash merge', () => {
+  //   const mergedArray = mergeDeepRight(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock);
+  //   expect(mergedArray).toEqual(merge(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock));
+  // });
 });

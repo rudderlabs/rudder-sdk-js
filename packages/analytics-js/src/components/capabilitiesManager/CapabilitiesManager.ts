@@ -1,6 +1,7 @@
 import { state } from '@rudderstack/analytics-js/state';
+import { ICapabilitiesManager } from './types';
 
-class CapabilitiesManager {
+class CapabilitiesManager implements ICapabilitiesManager {
   loadPolyfill() {
     if (state.loadOptions.value.polyfillIfRequired) {
       this.onReady();

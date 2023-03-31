@@ -1,7 +1,5 @@
 import { Signal, signal } from '@preact/signals-core';
-
-export type ApiCallback = () => void;
-export type BufferedEvent = any[];
+import { ApiCallback, BufferedEvent } from '@rudderstack/analytics-js/state/types';
 
 // TODO: add proper types for array items instead of any
 export type EventBufferState = {

@@ -1,6 +1,6 @@
 import { signal } from '@preact/signals-core';
 
-const dummyState = {
+export const dummyState = {
   globalLocalState: signal({
     counter: 0,
   }),
@@ -12,5 +12,3 @@ const dummyState = {
   dynamicallyLoadedIntegrations: signal({}),
   config: signal({}),
 };
-
-export { dummyState };

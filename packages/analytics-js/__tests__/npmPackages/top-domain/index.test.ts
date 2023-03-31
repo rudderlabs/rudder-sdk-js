@@ -1,8 +1,8 @@
-import { GenericObject, Nullable } from '@rudderstack/analytics-js/types';
+import { Nullable } from '@rudderstack/analytics-js/types';
 import { cookie, CookieOptions } from '../../../src/npmPackages/component-cookie';
 import { domain } from '../../../src/npmPackages/top-domain';
 
-let cookies: GenericObject = {};
+let cookies: Record<string, any> = {};
 
 jest.mock('../../../src/npmPackages/component-cookie', () => {
   const originalModule = jest.requireActual('../../../src/npmPackages/component-cookie');

@@ -5,8 +5,7 @@ export type ExposedGlobals = {
   state?: ApplicationState;
 };
 
-// As key we use the default value 'analytic' or a unique value if multiple
-// instances in same DOM
+// As key, we use the default value of writeKey assigned to analytics instance
 export interface IRudderStackGlobals {
   [key: string]: ExposedGlobals;
 }

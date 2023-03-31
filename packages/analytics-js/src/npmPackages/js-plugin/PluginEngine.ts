@@ -1,46 +1,20 @@
-import { GenericObject } from '@rudderstack/analytics-js/types';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
 import {
   getValueByPath,
   hasValueByPath,
 } from '@rudderstack/analytics-js/components/utilities/object';
-import { isPluginEngineDebugMode } from '@rudderstack/analytics-js/npmPackages/js-plugin/debug';
-
-export interface ExtensionPoint {
-  [lifeCycleName: string]: (...args: any[]) => unknown;
-}
-
-/**
- * ExtensionPoint can be nested, e.g. 'sdk.initialize.phase1'
- * When index signature is provided, every key have to match the type, the types
- * for 'name', 'deps',  and 'initialize' is added as index signature.
- */
-export interface ExtensionPlugin {
-  name: string;
-  initialize?: () => void;
-  deps?: string[];
-  [key: string]:
-    | string
-    | (() => void)
-    | ExtensionPoint
-    | ((...args: any[]) => unknown)
-    | string[]
-    | undefined;
-}
-
-export type PluginEngineConfig = {
-  throws?: boolean | RegExp;
-};
+import { isPluginEngineDebugMode } from './debug';
+import { ExtensionPlugin, IPluginEngine, PluginEngineConfig } from './types';
 
 // TODO: pass and use here the logger and the error handler
 // TODO: make this a singleton in the constructor
 // TODO: create chained invoke to take the output frm first plugin and pass
 //  to next or return the value if it is the last one instead of an array per
 //  plugin that is the normal invoke
-class PluginEngine {
+class PluginEngine implements IPluginEngine {
   plugins: ExtensionPlugin[];
-  byName: GenericObject<ExtensionPlugin>;
-  cache: GenericObject<ExtensionPlugin[]>;
+  byName: Record<string, ExtensionPlugin>;
+  cache: Record<string, ExtensionPlugin[]>;
   config: PluginEngineConfig;
 
   constructor(options: PluginEngineConfig = {}) {

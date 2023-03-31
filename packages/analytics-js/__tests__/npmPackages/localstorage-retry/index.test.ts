@@ -1,6 +1,5 @@
-import { GenericObject } from '@rudderstack/analytics-js/types';
-import { Store } from '@rudderstack/analytics-js/services/StorageManager/Store';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StorageManager/storages/storageEngine';
+import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
+import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
 import { Schedule } from '../../../src/npmPackages/localstorage-retry/Schedule';
 import { Queue } from '../../../src/npmPackages/localstorage-retry';
 import { QueueStatuses } from '../../../src/npmPackages/localstorage-retry/QueueStatuses';
@@ -661,7 +660,7 @@ describe('events', () => {
       cb(new Error('no'));
     };
     queue.shouldRetry = (item, attemptNumber) => attemptNumber < 2;
-    queue.on('discard', (item: GenericObject, attempts: number) => {
+    queue.on('discard', (item: Record<string, any>, attempts: number) => {
       expect(item.a).toEqual('b');
       expect(attempts).toEqual(2);
       done();

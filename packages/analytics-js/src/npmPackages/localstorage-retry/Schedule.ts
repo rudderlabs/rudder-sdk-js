@@ -1,5 +1,3 @@
-import { GenericObject } from '@rudderstack/analytics-js/types';
-
 export type ScheduleTaskHandler = (
   id: string,
   callback: () => any,
@@ -33,7 +31,7 @@ const DEFAULT_CLOCK: ScheduleClock = {
 };
 
 class Schedule {
-  tasks: GenericObject<number> = {};
+  tasks: Record<string, number> = {};
 
   nextId = 1;
 
