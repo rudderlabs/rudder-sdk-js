@@ -32,7 +32,7 @@ class ErrorReportingService {
     }
 
     // Initialize error reporting based on enable option from sourceConfig
-    if (getErrorCollectionEnabledFromConfig(sourceConfig)) {
+    if (getErrorCollectionEnabledFromConfig(sourceConfig) === true) {
       this.enable();
       this.setProviderName(getProviderNameFromConfig(sourceConfig));
       this.initProvider(sourceConfig, sourceId);

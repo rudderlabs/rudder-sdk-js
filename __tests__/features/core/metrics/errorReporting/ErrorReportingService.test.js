@@ -11,8 +11,8 @@ describe('Error reporting service Test suite', () => {
     expect(outcome).toBe(undefined);
   });
   test('Should not initialize provider if not enabled from source config in init call', () => {
-      errorReportingService.init({statsCollection:{errors:{enabled:false}}}, sourceId);
-      expect(errorReportingService.isEnabled).toEqual(false);
+    errorReportingService.init({ statsCollection: { errors: { enabled: false } } }, sourceId);
+    expect(errorReportingService.isEnabled).toEqual(false);
   });
   test('Should initialize provider if enabled from source config in init call', async () => {
     errorReportingService.init({ statsCollection: { errors: { enabled: true } } }, sourceId);
@@ -31,6 +31,21 @@ describe('Error reporting service Test suite', () => {
     window.bugsnag = undefined;
     errorReportingService.init(
       { statsCollection: { errors: { enabled: true, provider: 'test' } } },
+      sourceId,
+    );
+    expect(errorReportingService.provider.client).toEqual(undefined);
+    expect(errorReportingService.onClientReady).toHaveBeenCalledTimes(0);
+  });
+  test('Should not initialize provider if the enabled flag is missing from the source config (default state is to not load)', async () => {
+    window.bugsnag = undefined;
+    errorReportingService.init({ statsCollection: { errors: { provider: 'test' } } }, sourceId);
+    expect(errorReportingService.provider.client).toEqual(undefined);
+    expect(errorReportingService.onClientReady).toHaveBeenCalledTimes(0);
+  });
+  test('Should not initialize provider if the error collection enabled flag is not a boolean', async () => {
+    window.bugsnag = undefined;
+    errorReportingService.init(
+      { statsCollection: { errors: { enabled: 'true', provider: 'test' } } },
       sourceId,
     );
     expect(errorReportingService.provider.client).toEqual(undefined);
