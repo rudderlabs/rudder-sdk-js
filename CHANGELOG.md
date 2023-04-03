@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.28.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.27.0...v1.28.0) (2023-04-03)
+
+
+### Features
+
+* **goole_ads:** enhanced conversions ([#969](https://github.com/rudderlabs/rudder-sdk-js/issues/969)) ([755a978](https://github.com/rudderlabs/rudder-sdk-js/commit/755a9781b67e61c74faffafe561d9c52b012852c))
+
+
+### Bug Fixes
+
+* **fb pixel:** ecomm ([#955](https://github.com/rudderlabs/rudder-sdk-js/issues/955)) ([5c35592](https://github.com/rudderlabs/rudder-sdk-js/commit/5c35592943502f19ffda206eadb4a750bbcaf28d))
+* support bingAds for multiple tagIds ([#957](https://github.com/rudderlabs/rudder-sdk-js/issues/957)) ([7ec2fd7](https://github.com/rudderlabs/rudder-sdk-js/commit/7ec2fd72a76b57777c6177e10977604e501c05e8))
+* **ua and ga4:** cookie conflicts ([#979](https://github.com/rudderlabs/rudder-sdk-js/issues/979)) ([6b8cb60](https://github.com/rudderlabs/rudder-sdk-js/commit/6b8cb60ffd6c4ccd5bbbf4bb46b5ebb3d827dfff))
+
 ## [1.27.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v1.26.0...v1.27.0) (2023-03-14)
 
 
