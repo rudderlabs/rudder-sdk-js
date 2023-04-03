@@ -333,7 +333,7 @@ class FacebookPixel {
       const contentType = this.getContentType(rudderElement, 'product');
       const contentIds = [];
       const contents = [];
-      if (products) {
+      if (products && Array.isArray(products)) {
         products.forEach((product) => {
           if (product) {
             const pId = product.product_id || product.sku || product.id;
@@ -435,7 +435,7 @@ class FacebookPixel {
       let contentCategory = category;
       const contentIds = [];
       const contents = [];
-      if (products) {
+      if (products && Array.isArray(products)) {
         products.forEach((product) => {
           if (product) {
             const pId = product.product_id || product.sku || product.id;
