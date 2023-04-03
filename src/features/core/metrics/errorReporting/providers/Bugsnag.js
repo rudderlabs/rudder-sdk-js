@@ -146,7 +146,7 @@ class BugsnagProvider {
 
     const globalBugsnagLibInstance = window[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
 
-    // Initialise if SDK is loaded and has valid version else return if other version exists
+    // Initialize if SDK is loaded and has valid version else return if other version exists
     if (typeof globalBugsnagLibInstance === 'function') {
       if (isValidVersion(globalBugsnagLibInstance)) {
         this.initClient();
