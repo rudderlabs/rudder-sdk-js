@@ -49,6 +49,7 @@ export default class GA4 {
       gtagParameterObject.user_id = this.analytics.userId;
     }
 
+    gtagParameterObject.cookie_prefix = 'rs';
     gtagParameterObject.client_id = this.analytics.anonymousId;
     gtagParameterObject.debug_mode = true;
 
