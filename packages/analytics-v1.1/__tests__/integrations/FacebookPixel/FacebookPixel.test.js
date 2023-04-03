@@ -115,7 +115,6 @@ describe('FacebookPixel page', () => {
         },
       },
     });
-    // console.log(JSON.stringify(window.fbq.mock.calls)); // this has set with empty {} object when resetCustomDimensions
     expect(window.fbq.mock.calls[0][0]).toEqual('track');
     expect(window.fbq.mock.calls[0][1]).toEqual('PageView');
     expect(window.fbq.mock.calls[0][2]).toEqual({
@@ -189,8 +188,9 @@ describe('Facebook Pixel Track event', () => {
     expect(window.fbq.mock.calls[0][2]).toEqual('Purchase');
     expect(window.fbq.mock.calls[0][3]).toEqual({
       content_ids: ['abc'],
-      content_type: ['product'],
+      content_type: 'product',
       currency: 'GBP',
+      content_name: undefined,
       value: 0,
       contents: [
         {
@@ -241,7 +241,6 @@ describe('Facebook Pixel Track event', () => {
         },
       },
     });
-    console.log(JSON.stringify(window.fbq.mock.calls));
     expect(window.fbq.mock.calls[0][0]).toEqual('trackSingleCustom');
     expect(window.fbq.mock.calls[0][1]).toEqual('12567839');
     expect(window.fbq.mock.calls[0][2]).toEqual('Custom');

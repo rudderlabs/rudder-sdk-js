@@ -1,6 +1,6 @@
 {
   "name": "@rudderstack/analytics-js-sanity-suite",
-  "version": "2.28.0",
+  "version": "2.29.0",
   "description": "Sanity suite for testing JS SDK package",
   "main": "./dist/testBook.js",
   "scripts": {
@@ -50,7 +50,7 @@
     "@rudderstack/analytics-js": "*",
     "deep-equal": "2.2.0",
     "object-path": "0.11.8",
-    "rudder-sdk-js": "^2.27.0"
+    "rudder-sdk-js": "^2.28.0"
   },
   "devDependencies": {
     "@babel/core": "7.21.3",

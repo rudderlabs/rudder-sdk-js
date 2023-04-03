@@ -1,4 +1,5 @@
 import get from 'get-value';
+import logger from '../../utils/logUtil';
 
 function getEventId(message) {
   return (
@@ -8,4 +9,36 @@ function getEventId(message) {
     message.messageId
   );
 }
-export default getEventId;
+
+/**
+ * This method gets content category
+ *
+ * @param {*} category
+ * @returns The content category as a string
+ */
+const getContentCategory = (category) => {
+  let contentCategory = category;
+  if (Array.isArray(contentCategory)) {
+    contentCategory = contentCategory.map(String).join(',');
+  }
+  if (
+    contentCategory &&
+    typeof contentCategory !== 'string' &&
+    typeof contentCategory !== 'object'
+  ) {
+    contentCategory = String(contentCategory);
+  }
+  if (
+    contentCategory &&
+    typeof contentCategory !== 'string' &&
+    !Array.isArray(contentCategory) &&
+    typeof contentCategory === 'object'
+  ) {
+    logger.error("'properties.category' must be either be a string or an array");
+    return;
+  }
+  // eslint-disable-next-line consistent-return
+  return contentCategory;
+};
+
+export { getEventId, getContentCategory };

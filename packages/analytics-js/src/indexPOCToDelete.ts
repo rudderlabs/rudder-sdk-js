@@ -14,10 +14,10 @@ import {
 import { defaultStoreManager, StoreManager } from '@rudderstack/analytics-js/services/StoreManager';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 import { defaultUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager';
+import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
 import { Queue } from './npmPackages/localstorage-retry';
 import { state } from './state';
 import { generateUUID } from './components/utilities/uuId';
-import { setExposedGlobal } from './components/core/exposedGlobals';
 import { dummyState } from './dummyStateToDelete';
 
 export interface IV3 {

@@ -4,7 +4,7 @@ class EventManager implements IEventManager {
   init() {}
 
   addEvent(event: RudderEvent) {
-    console.log(`New event to add: ${event}`);
+    console.log(`New event to add: ${event.type} ${JSON.stringify(event)}`);
   }
 }
 
