@@ -105,7 +105,6 @@ const loadBugsnagSDKScript = (name) => {
   if (isNotLoaded) {
     ScriptLoader(name, BUGSNAG_CDN_URL, {
       isNonNativeSDK: 'true',
-      async: 'true',
       skipDatasetAttributes: true,
     });
   }
@@ -128,6 +127,14 @@ class BugsnagProvider {
   init() {
     // Return if RS Bugsnag instance is already initialized
     if (window.rudderanalytics && window.rudderanalytics[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME]) {
+      return;
+    }
+
+    const apiKeyRegex = /{{.+}}/;
+    const isAPIKeyValid = !API_KEY.match(apiKeyRegex);
+
+    // If API key token is not parsed or invalid, don't proceed to initialize the client
+    if (!isAPIKeyValid) {
       return;
     }
 
@@ -174,13 +181,6 @@ class BugsnagProvider {
    */
   initClient() {
     const globalBugsnagLibInstance = window[BUGSNAG_LIB_INSTANCE_GLOBAL_KEY_NAME];
-    const apiKeyRegex = /{{.+}}/;
-    const isAPIKeyValid = !API_KEY.match(apiKeyRegex);
-
-    // If valid version of Bugsnag SDK not loaded or API key token is not parsed or invalid, don't proceed to initialize the client
-    if (!isAPIKeyValid) {
-      return;
-    }
 
     this.client = globalBugsnagLibInstance({
       apiKey: API_KEY,

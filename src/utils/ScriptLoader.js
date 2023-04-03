@@ -36,7 +36,7 @@ const ScriptLoader = (id, src, options = {}) => {
       }
     }
     const headElmColl = document.getElementsByTagName('head');
-    if (headElmColl.length !== 0) {
+    if (headElmColl.length > 0) {
       // logger.debug("==adding script==", js);
       headElmColl[0].insertBefore(js, headElmColl[0].firstChild);
     } else {
