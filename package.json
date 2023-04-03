@@ -1,6 +1,6 @@
 {
   "name": "rudder-analytics",
-  "version": "1.27.0",
+  "version": "1.28.0",
   "description": "",
   "main": "./dist/rudder-analytics.min.js",
   "scripts": {
@@ -154,7 +154,8 @@
     "semver": "7.3.8",
     "semver-regex": "3.1.4",
     "shelljs": "^0.8.4",
-    "trim-newlines": "3.0.1"
+    "trim-newlines": "3.0.1",
+    "webpack": "5.76.0"
   },
   "browserslist": {
     "production": [
