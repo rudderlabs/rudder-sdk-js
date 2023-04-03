@@ -32,7 +32,7 @@ import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsMan
 import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
 import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
-import { setExposedGlobal } from './exposedGlobals';
+import { setExposedGlobal } from '@rudderstack/analytics-js/components/utilities/globals';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -70,24 +70,43 @@ class Analytics implements IAnalytics {
     this.eventManager = defaultEventManager;
     this.userSessionManager = defaultUserSessionManager;
 
+    this.attachGlobalErrorHandler = this.attachGlobalErrorHandler.bind(this);
+    this.load = this.load.bind(this);
+    this.startLifecycle = this.startLifecycle.bind(this);
+    this.loadPolyfill = this.loadPolyfill.bind(this);
+    this.loadConfig = this.loadConfig.bind(this);
+    this.init = this.init.bind(this);
+    this.loadPlugins = this.loadPlugins.bind(this);
+    this.onLoaded = this.onLoaded.bind(this);
+    this.loadIntegrations = this.loadIntegrations.bind(this);
+    this.onReady = this.onReady.bind(this);
     this.ready = this.ready.bind(this);
-    this.identify = this.identify.bind(this);
     this.page = this.page.bind(this);
     this.track = this.track.bind(this);
+    this.identify = this.identify.bind(this);
     this.alias = this.alias.bind(this);
     this.group = this.group.bind(this);
     this.reset = this.reset.bind(this);
-    this.load = this.load.bind(this);
-    this.getUserId = this.getUserId.bind(this);
-    this.getSessionId = this.getSessionId.bind(this);
-    this.getSessionInfo = this.getSessionInfo.bind(this);
-    this.getUserTraits = this.getUserTraits.bind(this);
     this.getAnonymousId = this.getAnonymousId.bind(this);
     this.setAnonymousId = this.setAnonymousId.bind(this);
+    this.getUserId = this.getUserId.bind(this);
+    this.getUserTraits = this.getUserTraits.bind(this);
     this.getGroupId = this.getGroupId.bind(this);
     this.getGroupTraits = this.getGroupTraits.bind(this);
     this.startSession = this.startSession.bind(this);
     this.endSession = this.endSession.bind(this);
+    this.getSessionId = this.getSessionId.bind(this);
+    this.getSessionInfo = this.getSessionInfo.bind(this);
+  }
+
+  attachGlobalErrorHandler() {
+    window.addEventListener(
+      'error',
+      e => {
+        this.errorHandler.onError(e, 'Global Boundary', state.lifecycle.writeKey.value);
+      },
+      true,
+    );
   }
 
   load(writeKey: string, dataPlaneUrl: string, loadOptions: Partial<LoadOptions> = {}) {
@@ -96,6 +115,7 @@ class Analytics implements IAnalytics {
     }
 
     // Set initial state values and expose state global this
+    this.attachGlobalErrorHandler();
     state.lifecycle.status.value = 'mounted';
     state.lifecycle.writeKey.value = writeKey;
     state.lifecycle.dataPlaneUrl.value = dataPlaneUrl;
@@ -314,6 +334,8 @@ class Analytics implements IAnalytics {
 
   identify(payload: IdentifyCallOptions) {
     const type = 'identify';
+    const normalisedUserId =
+      payload.userId || payload.userId === 0 ? payload.userId.toString() : null;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
 
     if (!state.lifecycle.loaded) {
@@ -321,9 +343,20 @@ class Analytics implements IAnalytics {
       return;
     }
 
+    if (
+      normalisedUserId &&
+      state.session.rl_user_id.value &&
+      normalisedUserId !== state.session.rl_user_id.value
+    ) {
+      this.reset();
+    }
+
+    this.userSessionManager.setUserId(normalisedUserId);
+    this.userSessionManager.setUserTraits(payload.traits);
+
     this.eventManager.addEvent({
       type: 'identify',
-      userId: payload.userId,
+      userId: normalisedUserId,
       traits: payload.traits,
       options: payload.options,
       callback: payload.callback,
@@ -350,6 +383,8 @@ class Analytics implements IAnalytics {
 
   group(payload: GroupCallOptions) {
     const type = 'group';
+    const normalisedGroupId =
+      payload.groupId || payload.groupId === 0 ? payload.groupId.toString() : null;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
 
     if (!state.lifecycle.loaded) {
@@ -357,9 +392,12 @@ class Analytics implements IAnalytics {
       return;
     }
 
+    this.userSessionManager.setGroupId(normalisedGroupId);
+    this.userSessionManager.setGroupTraits(payload.traits);
+
     this.eventManager.addEvent({
       type,
-      groupId: payload.groupId,
+      groupId: normalisedGroupId,
       traits: payload.traits,
       options: payload.options,
       callback: payload.callback,
@@ -379,8 +417,32 @@ class Analytics implements IAnalytics {
     this.userSessionManager.clearUserSessionStorage(resetAnonymousId);
   }
 
+  getAnonymousId(options?: AnonymousIdOptions): string {
+    return this.userSessionManager.getAnonymousId(options);
+  }
+
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): string {
     return this.userSessionManager.setAnonymousId(anonymousId, rudderAmpLinkerParam);
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getUserId(): Nullable<string> | undefined {
+    return state.session.rl_user_id.value;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getUserTraits(): Nullable<ApiObject> | undefined {
+    return state.session.rl_trait.value;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getGroupId(): Nullable<string> | undefined {
+    return state.session.rl_group_id.value;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  getGroupTraits(): Nullable<ApiObject> | undefined {
+    return state.session.rl_group_trait.value;
   }
 
   startSession(sessionId?: number) {
@@ -389,30 +451,6 @@ class Analytics implements IAnalytics {
 
   endSession() {
     this.userSessionManager.end();
-  }
-
-  getAnonymousId(options?: AnonymousIdOptions): string {
-    return this.userSessionManager.getAnonymousId(options);
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  getUserId(): string | undefined {
-    return state.session.rl_user_id.value;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  getUserTraits(): ApiObject | undefined {
-    return state.session.rl_trait.value;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  getGroupId(): string | undefined {
-    return state.session.rl_group_id.value;
-  }
-
-  // eslint-disable-next-line class-methods-use-this
-  getGroupTraits(): ApiObject | undefined {
-    return state.session.rl_group_trait.value;
   }
 
   getSessionId(): Nullable<number> {
@@ -424,8 +462,9 @@ class Analytics implements IAnalytics {
     return this.userSessionManager.getSessionInfo();
   }
 
-  // TODO: should we still implement methodToCallbackMapping?
-  //  if yes we need initializeCallbacks & registerCallbacks methods
+  // TODO: should we still implement methodToCallbackMapping? Seems we will deprecate this
+  //  non used feature https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/supported-api/#callbacks-to-common-methods
+  //  if we need to keep we need initializeCallbacks & registerCallbacks methods
 }
 
 export { Analytics };

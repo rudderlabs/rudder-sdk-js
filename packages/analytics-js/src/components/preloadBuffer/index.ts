@@ -1,6 +1,7 @@
-import { IRudderAnalytics } from '@rudderstack/analytics-js/IRudderAnalytics';
+import { IRudderAnalytics } from '@rudderstack/analytics-js/components/core/IRudderAnalytics';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
+import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
 
 const getEventDataFromQueryString = (
   params: URLSearchParams,
@@ -50,36 +51,49 @@ const retrieveEventsFromQueryString = (argumentsArray: PreloadedEventCall[] = []
   }
 };
 
-const retrievePreloadBufferEvents = (instance: IRudderAnalytics) => {
-  let defaultEvent;
+const getPreloadedLoadEvent = (preloadedEventsArray: PreloadedEventCall[]): PreloadedEventCall => {
   const loadMethodName = 'load';
-  const argumentsArray: PreloadedEventCall[] = Array.isArray((window as any).rudderanalytics)
-    ? (window as any).rudderanalytics
-    : [];
+  let loadEvent: PreloadedEventCall = [];
 
   /**
    * Iterate the buffered API calls until we find load call and
    * queue it first for processing
    */
   let i = 0;
-  while (i < argumentsArray.length) {
-    if (argumentsArray[i] && argumentsArray[i][0] === loadMethodName) {
-      defaultEvent = argumentsArray[i];
-      argumentsArray.splice(i, 1);
+  while (i < preloadedEventsArray.length) {
+    if (preloadedEventsArray[i] && preloadedEventsArray[i][0] === loadMethodName) {
+      loadEvent = preloadedEventsArray[i];
+      preloadedEventsArray.splice(i, 1);
       break;
     }
     i += 1;
   }
 
-  retrieveEventsFromQueryString(argumentsArray);
-  instance.enqueuePreloadBufferEvents(argumentsArray);
+  return loadEvent;
+};
+
+const retrievePreloadBufferEvents = (instance: IRudderAnalytics) => {
+  const preloadedEventsArray: PreloadedEventCall[] = Array.isArray((window as any).rudderanalytics)
+    ? (window as any).rudderanalytics
+    : [];
+
+  const loadEvent: PreloadedEventCall = getPreloadedLoadEvent(preloadedEventsArray);
+
+  retrieveEventsFromQueryString(preloadedEventsArray);
+  instance.enqueuePreloadBufferEvents(preloadedEventsArray);
 
   // Process load method if present in the buffered requests
-  if (defaultEvent && defaultEvent.length > 0) {
-    defaultEvent.shift();
-    // @ts-ignore
-    instance[loadMethodName](...defaultEvent);
+  if (loadEvent.length > 0) {
+    const loadMethodName = loadEvent.shift();
+    if (isFunction((instance as any)[loadMethodName])) {
+      (instance as any)[loadMethodName](...loadEvent);
+    }
   }
 };
 
-export { retrievePreloadBufferEvents };
+export {
+  getEventDataFromQueryString,
+  retrieveEventsFromQueryString,
+  getPreloadedLoadEvent,
+  retrievePreloadBufferEvents,
+};

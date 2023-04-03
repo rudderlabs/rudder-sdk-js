@@ -2,7 +2,6 @@ import {
   AnonymousIdOptions,
   ApiCallback,
   ApiObject,
-  ApiOptions,
   LifecycleStatus,
   LoadOptions,
   SessionInfo,
@@ -18,6 +17,7 @@ import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capab
 import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 import { Store } from '@rudderstack/analytics-js/services/StoreManager';
 import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
+import { Nullable } from '@rudderstack/analytics-js/types';
 import {
   AliasCallOptions,
   GroupCallOptions,
@@ -45,7 +45,7 @@ export interface IAnalytics {
   /**
    * Call control pane to get client configs
    */
-  load: (writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>) => void;
+  load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>): void;
 
   /**
    * Orchestrate the lifecycle of the application phases/status
@@ -104,35 +104,34 @@ export interface IAnalytics {
   /**
    * To set anonymousId
    * @param anonymousId
-   * @param rudderAmpLinkerParm AMP Linker ID string
+   * @param rudderAmpLinkerParam AMP Linker ID string
    */
-  setAnonymousId(anonymousId?: string, rudderAmpLinkerParm?: string): string;
+  setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): string;
 
   /**
-   * Clear user information
-   * @param flag If true, clears anonymousId as well
+   * Clear user information, optionally anonymousId as well
    */
-  reset(flag?: boolean): void;
+  reset(resetAnonymousId?: boolean): void;
 
   /**
    * To get userId set in the SDK
    */
-  getUserId(): string | undefined;
+  getUserId(): Nullable<string> | undefined;
 
   /**
    * To get user traits set in the SDK
    */
-  getUserTraits(): ApiObject | undefined;
+  getUserTraits(): Nullable<ApiObject> | undefined;
 
   /**
    * To get groupId set in the SDK
    */
-  getGroupId(): string | undefined;
+  getGroupId(): Nullable<string> | undefined;
 
   /**
    * To get group traits set in the SDK
    */
-  getGroupTraits(): ApiObject | undefined;
+  getGroupTraits(): Nullable<ApiObject> | undefined;
 
   /**
    * To manually start user session in the SDK

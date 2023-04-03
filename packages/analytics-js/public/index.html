@@ -3,13 +3,15 @@
     <script>
       rudderanalytics = window.rudderanalytics = [];
       var methods = [
+        'setDefaultInstanceKey',
+        'getAnalyticsInstance',
         'load',
+        'ready',
         'page',
         'track',
         'identify',
         'alias',
         'group',
-        'ready',
         'reset',
         'getAnonymousId',
         'setAnonymousId',
@@ -17,8 +19,10 @@
         'getUserTraits',
         'getGroupId',
         'getGroupTraits',
-        'endSession',
         'startSession',
+        'endSession',
+        'getSessionId',
+        'getSessionInfo'
       ];
 
       for (var i = 0; i < methods.length; i++) {
@@ -107,7 +111,7 @@
         },
       );
 
-      rudderanalytics.onReady(function() {
+      rudderanalytics.ready(function() {
         console.log('All ready!!!');
       });
 

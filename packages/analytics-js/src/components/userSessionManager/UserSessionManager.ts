@@ -4,7 +4,14 @@ import { defaultPluginManager } from '@rudderstack/analytics-js/components/plugi
 import { Nullable } from '@rudderstack/analytics-js/types';
 import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
 import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
-import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
+import {
+  AnonymousIdOptions,
+  ApiObject,
+  ApiOptions,
+  SessionInfo,
+} from '@rudderstack/analytics-js/state/types';
+import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
+import * as R from 'ramda';
 import { IUserSessionManager } from './types';
 
 // TODO: the v1.1 user data storage part joined with the auto session features and addCampaignInfo
@@ -109,6 +116,39 @@ class UserSessionManager implements IUserSessionManager {
       this.startAutoTracking();
     } else if (manualTrack) {
       this.start();
+    }
+  }
+
+  setUserId(userId?: Nullable<string>) {
+    state.session.rl_user_id.value = userId;
+    this.storage?.set('rl_user_id', userId);
+  }
+
+  // TODO: should we reset traits in value is null?
+  setUserTraits(traits?: Nullable<ApiObject>) {
+    if (traits) {
+      state.session.rl_trait.value = mergeDeepRight(state.session.rl_trait.value || {}, traits);
+      window.setTimeout(() => {
+        this.storage?.set('rl_trait', state.session.rl_trait.value);
+      }, 1);
+    }
+  }
+
+  setGroupId(groupId?: Nullable<string>) {
+    state.session.rl_group_id.value = groupId;
+    this.storage?.set('rl_group_id', groupId);
+  }
+
+  // TODO: should we reset traits in value is null?
+  setGroupTraits(traits?: Nullable<ApiOptions>) {
+    if (traits) {
+      state.session.rl_group_trait.value = mergeDeepRight(
+        state.session.rl_group_trait.value || {},
+        traits,
+      );
+      window.setTimeout(() => {
+        this.storage?.set('rl_group_trait', state.session.rl_group_trait.value);
+      }, 1);
     }
   }
 
