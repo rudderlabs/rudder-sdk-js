@@ -89,7 +89,7 @@ class ErrorReportingService {
   }
 
   leaveBreadcrumb(breadcrumb) {
-    if (this.provider?.client) {
+    if (this.provider) {
       try {
         this.provider.leaveBreadcrumb(breadcrumb);
       } catch (e) {
@@ -99,7 +99,7 @@ class ErrorReportingService {
   }
 
   notify(error) {
-    if (this.provider?.client) {
+    if (this.provider) {
       try {
         this.provider.notify(error);
       } catch (e) {
