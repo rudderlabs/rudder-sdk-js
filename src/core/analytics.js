@@ -1121,7 +1121,6 @@ class Analytics {
       this.lockIntegrationsVersion = options.lockIntegrationsVersion === true;
     }
 
-    this.eventRepository.initialize(writeKey, serverUrl, options);
     this.initializeUser(options ? options.anonymousIdOptions : undefined);
     this.setInitialPageProperties();
 
