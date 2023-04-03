@@ -1,18 +1,21 @@
 import { state } from '@rudderstack/analytics-js/state';
-import { Store } from '@rudderstack/analytics-js/services/StorageManager';
 import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
 import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { AnonymousIdOptions, ApiObject } from '@rudderstack/analytics-js/IRudderAnalytics';
-import { defaultSessionInfo, SessionInfo } from '@rudderstack/analytics-js/state/slices/session';
+import { defaultSessionInfo } from '@rudderstack/analytics-js/state/slices/session';
+import { IStore } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { AnonymousIdOptions, ApiObject, SessionInfo } from '@rudderstack/analytics-js/state/types';
+import { IUserSessionManager } from './types';
 
 // TODO: the v1.1 user data storage part joined with the auto session features and addCampaignInfo
-class UserSessionManager {
-  storage?: Store;
+class UserSessionManager implements IUserSessionManager {
+  storage?: IStore;
 
-  constructor() {}
+  constructor(storage?: IStore) {
+    this.storage = storage;
+  }
 
-  setStorage(storage: Store) {
+  setStorage(storage: IStore) {
     this.storage = storage;
   }
 
@@ -77,12 +80,12 @@ class UserSessionManager {
     return Boolean(sessionExpirationTimestamp && timestamp <= sessionExpirationTimestamp);
   }
 
-  getGroupId(): string | undefined {
-    return this.storage?.get('rl_group_id');
+  getGroupId(): Nullable<string> {
+    return this.storage?.get('rl_group_id') || null;
   }
 
-  getGroupTraits(): ApiObject | undefined {
-    return this.storage?.get('rl_group_trait');
+  getGroupTraits(): Nullable<ApiObject> {
+    return this.storage?.get('rl_group_trait') || null;
   }
 
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean) {

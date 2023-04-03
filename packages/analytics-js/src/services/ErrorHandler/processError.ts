@@ -2,8 +2,7 @@ import { EXTERNAL_SOURCE_LOAD_ORIGIN } from '@rudderstack/analytics-js/constants
 import { handleScriptLoadAdBlocked } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/adBlockers';
 import { serializeError } from 'serialize-error';
 import { isEvent } from '@rudderstack/analytics-js/components/utilities/event';
-
-export type SDKError = Error | Event | string | unknown;
+import { SDKError } from './types';
 
 /**
  * Utility method to process errors that originate from script load

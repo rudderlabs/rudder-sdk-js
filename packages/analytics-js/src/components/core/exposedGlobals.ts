@@ -1,7 +1,4 @@
-import {
-  ExposedGlobals,
-  IRudderStackGlobals,
-} from '@rudderstack/analytics-js/components/core/IRudderStackGlobals';
+import { ExposedGlobals, IRudderStackGlobals } from './IRudderStackGlobals';
 
 const prepareExposedGlobal = (analyticsInstanceId = 'analytics') => {
   if (!(window as any).RudderStackGlobals) {

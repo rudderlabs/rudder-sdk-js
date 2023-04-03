@@ -1,4 +1,6 @@
-const removeTrailingSlashes = (url: string | null) =>
+import { Nullable } from '@rudderstack/analytics-js/types';
+
+const removeTrailingSlashes = (url: string | null): Nullable<string> =>
   url && url.endsWith('/') ? url.replace(/\/+$/, '') : url;
 
 const getSDKUrlInfo = () => {

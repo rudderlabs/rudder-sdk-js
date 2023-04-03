@@ -1,4 +1,4 @@
-import { Destination } from '@rudderstack/analytics-js/state/slices/destinations';
+import { Destination } from '@rudderstack/analytics-js/state/types';
 import { ConfigResponseDestinationItem } from '../types';
 
 const filterEnabledDestination = (

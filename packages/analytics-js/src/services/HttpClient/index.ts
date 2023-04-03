@@ -3,5 +3,5 @@ export {
   createXhrRequestOptions,
   xhrRequest,
   DEFAULT_XHR_REQUEST_OPTIONS,
-} from './xhrRequestHandler';
-export { responseTextToJson } from './xhrResponseHandler';
+} from './xhr/xhrRequestHandler';
+export { responseTextToJson } from './xhr/xhrResponseHandler';

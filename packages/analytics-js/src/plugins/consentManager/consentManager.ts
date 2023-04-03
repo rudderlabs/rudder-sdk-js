@@ -1,4 +1,4 @@
-import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
+import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
 
 const consentManager: ExtensionPlugin = {
   name: 'consentManager',

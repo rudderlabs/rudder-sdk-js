@@ -64,24 +64,24 @@ describe('HttpClient', () => {
   });
 
   it('should getAsyncData expecting raw response', done => {
-    const callback = response => {
+    const callback = (response: any) => {
       expect(response).toStrictEqual('{"raw": "sample"}');
       done();
     };
     clientInstance.getAsyncData({
-      callback: callback,
+      callback,
       url: `${dummyDataplaneHost}/rawSample`,
       isRawResponse: true,
     });
   });
 
   it('should getAsyncData expecting json response', done => {
-    const callback = response => {
+    const callback = (response: any) => {
       expect(response).toStrictEqual({ json: 'sample' });
       done();
     };
     clientInstance.getAsyncData({
-      callback: callback,
+      callback,
       url: `${dummyDataplaneHost}/jsonSample`,
     });
   });
@@ -110,19 +110,19 @@ describe('HttpClient', () => {
   });
 
   it('should getAsyncData with auth header expecting json response', done => {
-    const callback = response => {
+    const callback = (response: any) => {
       expect(response).toStrictEqual({ json: 'sample' });
       done();
     };
     clientInstance.setAuthHeader('dummyWriteKey');
     clientInstance.getAsyncData({
-      callback: callback,
+      callback,
       url: `${dummyDataplaneHost}/jsonSample`,
     });
   });
 
   it('should handle 400 range errors in getAsyncData requests', done => {
-    const callback = response => {
+    const callback = (response: any) => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
@@ -134,7 +134,7 @@ describe('HttpClient', () => {
       done();
     };
     clientInstance.getAsyncData({
-      callback: callback,
+      callback,
       url: `${dummyDataplaneHost}/404ErrorSample`,
     });
   });
@@ -154,7 +154,7 @@ describe('HttpClient', () => {
   });
 
   it('should handle 500 range errors in getAsyncData requests', done => {
-    const callback = response => {
+    const callback = (response: any) => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
@@ -166,7 +166,7 @@ describe('HttpClient', () => {
       done();
     };
     clientInstance.getAsyncData({
-      callback: callback,
+      callback,
       url: `${dummyDataplaneHost}/500ErrorSample`,
     });
   });
@@ -200,7 +200,7 @@ describe('HttpClient', () => {
   });
 
   it('should handle malformed json response when expecting json response', done => {
-    const callback = response => {
+    const callback = (response: any) => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
@@ -210,13 +210,13 @@ describe('HttpClient', () => {
       done();
     };
     clientInstance.getAsyncData({
-      callback: callback,
+      callback,
       url: `${dummyDataplaneHost}/brokenJsonSample`,
     });
   });
 
   it('should handle empty response when expecting json response', done => {
-    const callback = response => {
+    const callback = (response: any) => {
       expect(response).toBeUndefined();
       expect(defaultErrorHandler.onError).toHaveBeenCalledTimes(1);
       expect(defaultErrorHandler.onError).toHaveBeenCalledWith(
@@ -226,7 +226,7 @@ describe('HttpClient', () => {
       done();
     };
     clientInstance.getAsyncData({
-      callback: callback,
+      callback,
       url: `${dummyDataplaneHost}/emptyJsonSample`,
     });
   });

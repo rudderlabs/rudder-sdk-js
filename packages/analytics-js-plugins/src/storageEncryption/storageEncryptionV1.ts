@@ -1,4 +1,4 @@
-import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/PluginEngine';
+import { ExtensionPlugin } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
 import AES from 'crypto-js/aes';
 import Utf8 from 'crypto-js/enc-utf8';
 import { ENCRYPTION_KEY_V1, ENCRYPTION_PREFIX_V1 } from './constants';

@@ -4,22 +4,7 @@ import {
   DEST_SDK_BASE_URL,
   PLUGINS_BASE_URL,
 } from '@rudderstack/analytics-js/constants/urls';
-
-export type LogLevel = 'ERROR' | 'DEBUG' | 'INFO' | 'WARN';
-
-// TODO: make enum
-export type LifecycleStatus =
-  | 'mounted'
-  | 'polyfillLoaded'
-  | 'initialized'
-  | 'configured'
-  | 'pluginsReady'
-  | 'loaded'
-  | 'integrationsReady'
-  | 'ready'
-  | undefined;
-
-export type ReadyCallback = () => void;
+import { LifecycleStatus, LogLevel, ReadyCallback } from '@rudderstack/analytics-js/state/types';
 
 export type LifecycleState = {
   activeDataplaneUrl: Signal<string | undefined>;

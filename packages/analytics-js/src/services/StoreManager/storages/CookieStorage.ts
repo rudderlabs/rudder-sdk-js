@@ -2,21 +2,22 @@ import * as R from 'ramda';
 import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
 import { cookie } from '@rudderstack/analytics-js/npmPackages/component-cookie';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
-import { ICookieStorageOptions } from '../types';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { ICookieStorageOptions, IStorage } from '../types';
 import { getDefaultCookieOptions } from './defaultOptions';
 
 /**
  * A storage utility to persist values in cookies via Storage interface
  */
-class CookieStorage {
-  logger?: Logger;
+class CookieStorage implements IStorage {
+  logger?: ILogger;
   options: ICookieStorageOptions;
   isSupportAvailable = true;
   isEnabled = true;
   length = 0;
 
-  constructor(options: Partial<ICookieStorageOptions> = {}, logger?: Logger) {
+  constructor(options: Partial<ICookieStorageOptions> = {}, logger?: ILogger) {
     this.options = getDefaultCookieOptions();
     this.logger = logger;
     this.configure(options);

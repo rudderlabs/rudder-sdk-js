@@ -1,30 +1,25 @@
-import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
 import { DEFAULT_EXT_SRC_LOAD_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
+import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { jsFileLoader } from './jsFileLoader';
-
-export interface IExternalSourceLoadConfig {
-  url: string;
-  id: string;
-  callback?: (id?: string) => unknown;
-  async?: boolean;
-  timeout?: number;
-}
+import { IExternalSourceLoadConfig, IExternalSrcLoader } from './types';
 
 /**
  * Service to load external resources/files
  */
-class ExternalSrcLoader {
-  errorHandler?: ErrorHandler;
-  logger?: Logger;
+class ExternalSrcLoader implements IExternalSrcLoader {
+  errorHandler?: IErrorHandler;
+  logger?: ILogger;
   hasErrorHandler = false;
   hasLogger = false;
   timeout: number;
 
   constructor(
-    errorHandler?: ErrorHandler,
-    logger?: Logger,
+    errorHandler?: IErrorHandler,
+    logger?: ILogger,
     timeout = DEFAULT_EXT_SRC_LOAD_TIMEOUT,
   ) {
     this.errorHandler = errorHandler;
@@ -38,7 +33,7 @@ class ExternalSrcLoader {
   /**
    * Load external resource of type javascript
    */
-  async loadJSFile(config: IExternalSourceLoadConfig) {
+  async loadJSFile(config: IExternalSourceLoadConfig): Promise<void> {
     const { url, id, timeout, async, callback } = config;
     const isFireAndForget = !(callback && isFunction(callback));
 

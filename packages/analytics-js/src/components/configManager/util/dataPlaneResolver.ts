@@ -1,4 +1,4 @@
-import { RegionDetails, ResidencyServerRegion } from '../types';
+import { RegionDetails, ResidencyServerRegion } from '@rudderstack/analytics-js/state/types';
 import { isValidUrl } from './validate';
 
 const DEFAULT_REGION = 'US';

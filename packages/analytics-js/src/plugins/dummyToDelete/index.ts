@@ -1,6 +1,6 @@
 import { effect } from '@preact/signals-core';
 import { defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
-import { state } from '@rudderstack/analytics-js/state';
+import { dummyState } from '@rudderstack/analytics-js/dummyStateToDelete';
 
 const dummyPlugins = [
   {
@@ -13,18 +13,18 @@ const dummyPlugins = [
 
         effect(() => {
           const nextState = {
-            ...state.dummy.globalLocalState.peek(),
+            ...dummyState.globalLocalState.peek(),
           };
           nextState.counter += 1;
-          state.dummy.globalLocalState.value = nextState;
+          dummyState.globalLocalState.value = nextState;
         });
 
         effect(() => {
-          console.log('local state in local plugin: ', state.dummy.globalLocalState.value);
+          console.log('local state in local plugin: ', dummyState.globalLocalState.value);
         });
 
         effect(() => {
-          console.log('remote state in local plugin: ', state.dummy.remoteState.value);
+          console.log('remote state in local plugin: ', dummyState.remoteState.value);
         });
 
         return newData;

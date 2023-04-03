@@ -1,11 +1,5 @@
 import { Signal, signal } from '@preact/signals-core';
-
-export type CookieConsentOptions = {
-  // OneTrust
-  oneTrust?: {
-    enabled: boolean;
-  };
-};
+import { CookieConsentOptions } from '@rudderstack/analytics-js/state/types';
 
 export type ConsentsState = {
   deniedConsentIds: Signal<string[]>;

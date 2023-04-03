@@ -1,6 +1,6 @@
-import { Store } from '@rudderstack/analytics-js/services/StorageManager/Store';
+import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
 import { QueueStatuses } from '@rudderstack/analytics-js/npmPackages/localstorage-retry/QueueStatuses';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StorageManager/storages/storageEngine';
+import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
 
 describe('Store', () => {
   let store: Store;

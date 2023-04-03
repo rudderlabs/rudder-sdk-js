@@ -1,26 +1,14 @@
 import * as R from 'ramda';
-import { defaultHttpClient, HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import {
-  defaultPluginManager,
-  PluginsManager,
-} from '@rudderstack/analytics-js/components/pluginsManager';
-import {
-  defaultExternalSrcLoader,
-  ExternalSrcLoader,
-} from '@rudderstack/analytics-js/services/ExternalSrcLoader';
-import {
-  defaultStoreManager,
-  Store,
-  StoreManager,
-} from '@rudderstack/analytics-js/services/StorageManager';
-import { LifecycleStatus } from '@rudderstack/analytics-js/state/slices/lifecycle';
+import { defaultHttpClient } from '@rudderstack/analytics-js/services/HttpClient';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { defaultExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
+import { defaultStoreManager, Store } from '@rudderstack/analytics-js/services/StoreManager';
 import { effect } from '@preact/signals-core';
 import { state } from '@rudderstack/analytics-js/state';
-import { ConfigManager } from '@rudderstack/analytics-js/components/configManager';
 import { defaultConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
-import { CapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager';
+import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
 import { defaultCapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/CapabilitiesManager';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import {
@@ -37,31 +25,35 @@ import {
   LoadOptions,
 } from '@rudderstack/analytics-js/IRudderAnalytics';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
-import { EventManager } from '@rudderstack/analytics-js/components/eventManager';
+import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
 import { defaultEventManager } from '@rudderstack/analytics-js/components/eventManager/EventManager';
-import {
-  defaultUserSessionManager,
-  UserSessionManager,
-} from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
+import { defaultUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/UserSessionManager';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { SessionInfo } from '@rudderstack/analytics-js/state/slices/session';
-import { ApiCallback } from '@rudderstack/analytics-js/state/slices/eventBuffer';
+import { ApiCallback, LifecycleStatus, SessionInfo } from '@rudderstack/analytics-js/state/types';
+import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
+import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
+import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 import { setExposedGlobal } from './exposedGlobals';
 
 class Analytics implements IAnalytics {
   initialized: boolean;
   status: LifecycleStatus;
-  httpClient: HttpClient;
-  logger: Logger;
-  errorHandler: ErrorHandler;
-  pluginsManager: PluginsManager;
-  externalSrcLoader: ExternalSrcLoader;
-  storageManager: StoreManager;
-  configManager: ConfigManager;
-  capabilitiesManager: CapabilitiesManager;
-  eventManager: EventManager;
+  httpClient: IHttpClient;
+  logger: ILogger;
+  errorHandler: IErrorHandler;
+  pluginsManager: IPluginsManager;
+  externalSrcLoader: IExternalSrcLoader;
+  storageManager: IStoreManager;
+  configManager: IConfigManager;
+  capabilitiesManager: ICapabilitiesManager;
+  eventManager: IEventManager;
   clientDataStore?: Store;
-  userSessionManager: UserSessionManager;
+  userSessionManager: IUserSessionManager;
 
   constructor() {
     this.initialized = false;

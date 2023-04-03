@@ -1,8 +1,4 @@
-export type LoggerLevel = 'log' | 'info' | 'debug' | 'warn' | 'error' | 'none';
-export type LoggerProvider = Record<
-  'log' | 'info' | 'debug' | 'warn' | 'error',
-  (...data: any[]) => void
->;
+import { ILogger, LoggerLevel, LoggerProvider } from './types';
 
 const LOG_LEVEL: Record<LoggerLevel, number> = {
   log: 0,
@@ -21,7 +17,7 @@ const LOG_MSG_STYLE = 'font-weight: normal;';
 /**
  * Service to log messages/data to output provider, default is console
  */
-class Logger {
+class Logger implements ILogger {
   minLogLevel: number;
   scope?: string;
   logProvider: LoggerProvider;

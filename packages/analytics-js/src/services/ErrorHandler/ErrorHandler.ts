@@ -1,17 +1,20 @@
 import { serializeError } from 'serialize-error';
-import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultPluginEngine, PluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
-import { processError, SDKError } from './processError';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { defaultPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin';
+import { IPluginEngine } from '@rudderstack/analytics-js/npmPackages/js-plugin/types';
+import { processError } from './processError';
+import { IErrorHandler, SDKError } from './types';
 
 /**
  * A service to handle errors
  */
-class ErrorHandler {
-  logger?: Logger;
-  pluginEngine?: PluginEngine;
+class ErrorHandler implements IErrorHandler {
+  logger?: ILogger;
+  pluginEngine?: IPluginEngine;
 
   // If no logger is passed errors will be thrown as unhandled error
-  constructor(logger?: Logger, pluginEngine?: PluginEngine) {
+  constructor(logger?: ILogger, pluginEngine?: IPluginEngine) {
     this.logger = logger;
     this.pluginEngine = pluginEngine;
   }

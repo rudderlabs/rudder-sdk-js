@@ -4,31 +4,12 @@ import {
   getLanguage,
   getUserAgent,
 } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/browser';
-import { APP_NAME, APP_NAMESPACE, APP_VERSION } from '@rudderstack/analytics-js/constants/app';
 import {
   getScreenDetails,
   ScreenInfo,
 } from '@rudderstack/analytics-js/components/capabilitiesManager/detection/screen';
-
-export type AppDetails = {
-  name: string;
-  version: string;
-  namespace: string;
-};
-
-export type LibraryInfo = {
-  name: string;
-  version: string;
-};
-
-export type OSInfo = {
-  name: string;
-  version: string;
-};
-
-// TODO: should we take the types from IdentifyTrait instead of any string key?
-//  https://www.rudderstack.com/docs/event-spec/standard-events/identify/#identify-traits
-export type Traits = Record<string, any>;
+import { APP_NAME, APP_NAMESPACE, APP_VERSION } from '@rudderstack/analytics-js/constants/app';
+import { AppDetails, LibraryInfo, OSInfo, Traits } from '@rudderstack/analytics-js/state/types';
 
 export type ContextState = {
   app: Signal<AppDetails>;

@@ -1,19 +1,19 @@
 import * as R from 'ramda';
-import { Logger } from '@rudderstack/analytics-js/services/Logger';
-import { IInMemoryStorageOptions } from '../types';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { IInMemoryStorageOptions, IStorage } from '../types';
 import { getDefaultInMemoryStorageOptions } from './defaultOptions';
 
 /**
  * A storage utility to retain values in memory via Storage interface
  */
-class InMemoryStorage {
-  logger?: Logger;
+class InMemoryStorage implements IStorage {
+  logger?: ILogger;
   options: IInMemoryStorageOptions;
   isEnabled = true;
   length = 0;
   data: Record<string, any> = {};
 
-  constructor(options: IInMemoryStorageOptions = {}, logger?: Logger) {
+  constructor(options: IInMemoryStorageOptions = {}, logger?: ILogger) {
     this.options = getDefaultInMemoryStorageOptions();
     this.logger = logger;
     this.configure(options);

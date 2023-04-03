@@ -1,29 +1,39 @@
-import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { Logger } from '@rudderstack/analytics-js/services/Logger';
-import { ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { PluginsManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { ExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
-import { Store, StoreManager } from '@rudderstack/analytics-js/services/StorageManager';
-import { LifecycleStatus } from '@rudderstack/analytics-js/state/slices/lifecycle';
 import {
   AnonymousIdOptions,
+  ApiCallback,
   ApiObject,
   ApiOptions,
+  LifecycleStatus,
   LoadOptions,
-} from '@rudderstack/analytics-js/state/slices/loadOptions';
-import { SessionInfo } from '@rudderstack/analytics-js/state/slices/session';
-import { ApiCallback } from '@rudderstack/analytics-js/state/slices/eventBuffer';
+  SessionInfo,
+} from '@rudderstack/analytics-js/state/types';
+import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { IExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader/types';
+import { IStoreManager } from '@rudderstack/analytics-js/services/StoreManager/types';
+import { IPluginsManager } from '@rudderstack/analytics-js/components/pluginsManager/types';
+import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
+import { IEventManager } from '@rudderstack/analytics-js/components/eventManager/types';
+import { Store } from '@rudderstack/analytics-js/services/StoreManager';
+import { IUserSessionManager } from '@rudderstack/analytics-js/components/userSessionManager/types';
+import { IConfigManager } from '@rudderstack/analytics-js/components/configManager/types';
 
 // TODO: for all methods expose the overloads in globalObject but use only one object argument to pass values to instance
 export interface IAnalytics {
+  initialized: boolean;
   status: LifecycleStatus;
-  httpClient: HttpClient;
-  logger: Logger;
-  errorHandler: ErrorHandler;
-  pluginsManager: PluginsManager;
-  externalSrcLoader: ExternalSrcLoader;
-  storageManager: StoreManager;
+  httpClient: IHttpClient;
+  logger: ILogger;
+  errorHandler: IErrorHandler;
+  pluginsManager: IPluginsManager;
+  externalSrcLoader: IExternalSrcLoader;
+  storageManager: IStoreManager;
+  configManager: IConfigManager;
+  capabilitiesManager: ICapabilitiesManager;
+  eventManager: IEventManager;
   clientDataStore?: Store;
+  userSessionManager: IUserSessionManager;
 
   /**
    * Call control pane to get client configs

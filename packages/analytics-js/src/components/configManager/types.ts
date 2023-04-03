@@ -1,79 +1,20 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
-
-/**
- * Represents residency server input the options
- */
-export enum ResidencyServerRegion {
-  US = 'US',
-  EU = 'EU',
-}
-
-export type RegionDetails = {
-  url: string;
-  default: boolean;
-};
-
-export type DestinationEvent = {
-  eventName: string;
-};
-
-export type Conversion = {
-  conversionLabel: string;
-  name: string;
-};
-
-export type OneTrustCookieCategory = {
-  oneTrustCookieCategory: string;
-};
-
-export type EventMapping = {
-  from: string;
-  to: string;
-};
+import {
+  DestinationConfig,
+  RegionDetails,
+  ResidencyServerRegion,
+} from '@rudderstack/analytics-js/state/types';
+import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
+import { ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { Logger } from '@rudderstack/analytics-js/services/Logger';
+import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
+import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 
 export type DestinationDefinition = {
   name: string;
   displayName: string;
   updatedAt: string;
-};
-
-export type DestinationConfig = {
-  blacklistedEvents: DestinationEvent[];
-  whitelistedEvents: DestinationEvent[];
-  oneTrustCookieCategories: OneTrustCookieCategory[];
-  eventFilteringOption: 'disable' | 'whitelistedEvents' | 'blacklistedEvents';
-  clickEventConversions?: Conversion[];
-  pageLoadConversions?: Conversion[];
-  conversionID?: string;
-  conversionLinker?: boolean;
-  disableAdPersonalization?: boolean;
-  dynamicRemarketing?: boolean;
-  sendPageView?: boolean;
-  defaultPageConversion?: string;
-  enableConversionEventsFiltering?: boolean;
-  trackConversions?: boolean;
-  trackDynamicRemarketing?: boolean;
-  tagID?: string;
-  advertiserId?: string;
-  partnerId?: string;
-  measurementId?: string;
-  capturePageView?: string;
-  useNativeSDKToSend?: boolean;
-  extendPageViewParams?: boolean;
-  eventMappingFromConfig?: EventMapping[];
-  appKey?: string;
-  dataCenter?: string;
-  enableBrazeLogging?: boolean;
-  enableNestedArrayOperations?: boolean;
-  enableSubscriptionGroupInGroupCall?: boolean;
-  supportDedup?: boolean;
-  trackAnonymousUser?: boolean;
-  serverUrl?: string;
-  containerID?: string;
-  fs_debug_mode?: boolean;
-  fs_org?: boolean;
-  siteID?: string;
-  [key: string]: any;
 };
 
 export type ConfigResponseDestinationItem = {
@@ -147,3 +88,10 @@ export type SourceConfigResponse = {
     dataplanes?: Record<ResidencyServerRegion, RegionDetails[]>;
   };
 };
+
+export interface IConfigManager {
+  httpClient: IHttpClient;
+  errorHandler?: IErrorHandler;
+  logger?: ILogger;
+  init: () => void;
+}

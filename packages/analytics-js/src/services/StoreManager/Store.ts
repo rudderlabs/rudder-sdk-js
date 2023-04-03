@@ -1,26 +1,18 @@
-import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { trim } from '@rudderstack/analytics-js/components/utilities/string';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
-import { IStorage } from './types';
+import { isStorageQuotaExceeded } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
 import { getStorageEngine } from './storages/storageEngine';
-import { isStorageQuotaExceeded } from '../../components/capabilitiesManager/detection';
-
-export interface IStoreConfig {
-  name: string;
-  id: string;
-  isEncrypted?: boolean;
-  validKeys?: Record<string, string>;
-  noCompoundKey?: boolean;
-  errorHandler?: ErrorHandler;
-  logger?: Logger;
-}
+import { IStorage, IStore, IStoreConfig } from './types';
 
 /**
  * Store Implementation with dedicated storage
  */
-class Store {
+class Store implements IStore {
   id: string;
   name: string;
   isEncrypted: boolean;
@@ -29,9 +21,9 @@ class Store {
   originalEngine: IStorage;
   noKeyValidation?: boolean;
   noCompoundKey?: boolean;
-  errorHandler?: ErrorHandler;
+  errorHandler?: IErrorHandler;
   hasErrorHandler = false;
-  logger?: Logger;
+  logger?: ILogger;
   hasLogger = false;
 
   constructor(config: IStoreConfig, engine?: IStorage) {
@@ -139,7 +131,7 @@ class Store {
   /**
    * Get by Key.
    */
-  get(key: string): any {
+  get<T = any>(key: string): Nullable<T> {
     const validKey = this.createValidKey(key);
 
     try {

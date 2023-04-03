@@ -1,34 +1,6 @@
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { DEFAULT_XHR_TIMEOUT } from '@rudderstack/analytics-js/constants/timeouts';
-
-export interface IXHRRequestOptions {
-  method: HTTPClientMethod;
-  url: string;
-  headers: Record<string, string | undefined>;
-  data?: XMLHttpRequestBodyInit;
-}
-
-export type HTTPClientMethod =
-  | 'get'
-  | 'GET'
-  | 'delete'
-  | 'DELETE'
-  | 'head'
-  | 'HEAD'
-  | 'options'
-  | 'OPTIONS'
-  | 'post'
-  | 'POST'
-  | 'put'
-  | 'PUT'
-  | 'patch'
-  | 'PATCH'
-  | 'purge'
-  | 'PURGE'
-  | 'link'
-  | 'LINK'
-  | 'unlink'
-  | 'UNLINK';
+import { IXHRRequestOptions } from '../types';
 
 const DEFAULT_XHR_REQUEST_OPTIONS: Partial<IXHRRequestOptions> = {
   headers: {
@@ -108,7 +80,7 @@ const xhrRequest = (
     xhr.open(options.method, options.url);
 
     Object.keys(options.headers).forEach(headerName => {
-      if(options.headers[headerName]) {
+      if (options.headers[headerName]) {
         xhr.setRequestHeader(headerName, options.headers[headerName] as string);
       }
     });

@@ -1,33 +1,25 @@
-import { defaultLogger, Logger } from '@rudderstack/analytics-js/services/Logger';
-import { defaultErrorHandler, ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
+import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
-import { createXhrRequestOptions, IXHRRequestOptions, xhrRequest } from './xhrRequestHandler';
-import { responseTextToJson } from './xhrResponseHandler';
-
-export interface IRequestConfig {
-  url: string;
-  options?: Partial<IXHRRequestOptions>;
-  isRawResponse?: boolean;
-  timeout?: number;
-}
-
-export interface IAsyncRequestConfig<T> extends IRequestConfig {
-  callback?: (data?: T | string | undefined) => void;
-}
+import { createXhrRequestOptions, xhrRequest } from './xhr/xhrRequestHandler';
+import { responseTextToJson } from './xhr/xhrResponseHandler';
+import { IAsyncRequestConfig, IHttpClient, IRequestConfig } from './types';
 
 // TODO: should we add any debug level loggers?
 
 /**
  * Service to handle data communication with APIs
  */
-class HttpClient {
-  errorHandler?: ErrorHandler;
-  logger?: Logger;
+class HttpClient implements IHttpClient {
+  errorHandler?: IErrorHandler;
+  logger?: ILogger;
   basicAuthHeader?: string;
   hasErrorHandler = false;
   hasLogger = false;
 
-  constructor(errorHandler?: ErrorHandler, logger?: Logger) {
+  constructor(errorHandler?: IErrorHandler, logger?: ILogger) {
     this.errorHandler = errorHandler;
     this.logger = logger;
     this.hasErrorHandler = Boolean(this.errorHandler);

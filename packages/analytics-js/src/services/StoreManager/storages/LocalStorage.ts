@@ -1,8 +1,8 @@
 import store from 'storejs';
 import { isStorageAvailable } from '@rudderstack/analytics-js/components/capabilitiesManager/detection';
-import { Logger } from '@rudderstack/analytics-js/services/Logger';
+import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import * as R from 'ramda';
-import { ILocalStorageOptions } from '../types';
+import { ILocalStorageOptions, IStorage } from '../types';
 import { getDefaultLocalStorageOptions } from './defaultOptions';
 
 // TODO: can we remove the storejs dependency to save bundlesize?
@@ -12,14 +12,14 @@ import { getDefaultLocalStorageOptions } from './defaultOptions';
 /**
  * A storage utility to persist values in localstorage via Storage interface
  */
-class LocalStorage {
-  logger?: Logger;
+class LocalStorage implements IStorage {
+  logger?: ILogger;
   options: ILocalStorageOptions;
   isSupportAvailable = true;
   isEnabled = true;
   length = 0;
 
-  constructor(options: ILocalStorageOptions = {}, logger?: Logger) {
+  constructor(options: ILocalStorageOptions = {}, logger?: ILogger) {
     this.options = getDefaultLocalStorageOptions();
     this.logger = logger;
     this.configure(options);

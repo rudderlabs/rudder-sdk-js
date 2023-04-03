@@ -1,8 +1,7 @@
 import Emitter from 'component-emitter';
 import { generateUUID } from '@rudderstack/analytics-js/components/utilities/uuId';
-import { GenericObject } from '@rudderstack/analytics-js/types';
-import { Store } from '@rudderstack/analytics-js/services/StorageManager/Store';
-import { getStorageEngine } from '@rudderstack/analytics-js/services/StorageManager/storages/storageEngine';
+import { Store } from '@rudderstack/analytics-js/services/StoreManager/Store';
+import { getStorageEngine } from '@rudderstack/analytics-js/services/StoreManager/storages/storageEngine';
 import { Schedule, ScheduleModes } from './Schedule';
 import { QueueStatuses } from './QueueStatuses';
 
@@ -30,18 +29,18 @@ export type QueueTimeouts = {
 };
 
 export type QueueItem = {
-  item: GenericObject | string | number;
+  item: Record<string, any> | string | number;
   attemptNumber: number;
   time: number;
   id: string;
 };
 
 export type InProgressQueueItem = {
-  item: GenericObject | string | number;
+  item: Record<string, any> | string | number;
   done: QueueProcessCallback;
 };
 
-export type QueueItemData = GenericObject | string | number;
+export type QueueItemData = Record<string, any> | string | number;
 
 /**
  * @callback processFunc
@@ -325,10 +324,10 @@ class Queue extends Emitter {
     const trackMessageIds: string[] = [];
 
     const addConcatQueue = (
-      queue: QueueItem[] | GenericObject | null,
+      queue: QueueItem[] | Record<string, any> | null,
       incrementAttemptNumberBy: number,
     ) => {
-      const concatIterator = (el: QueueItem | GenericObject) => {
+      const concatIterator = (el: QueueItem | Record<string, any>) => {
         const id = el.id || generateUUID();
 
         if (trackMessageIds.includes(id)) {
