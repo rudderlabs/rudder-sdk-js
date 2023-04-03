@@ -1,6 +1,47 @@
-import { Analytics } from '@rudderstack/analytics-js/components/core/Analytics';
+import { RudderAnalytics } from '@rudderstack/analytics-js/components/core/RudderAnalytics';
 
-const analytics = new Analytics();
-// TODO: add analytics restart/reset mechanism
+const {
+  setDefaultInstanceKey,
+  getAnalyticsInstance,
+  load,
+  ready,
+  page,
+  track,
+  identify,
+  alias,
+  group,
+  reset,
+  getAnonymousId,
+  setAnonymousId,
+  getUserId,
+  getUserTraits,
+  getGroupId,
+  getGroupTraits,
+  startSession,
+  endSession,
+  getSessionId,
+  getSessionInfo,
+} = new RudderAnalytics();
 
-export { analytics };
+export {
+  setDefaultInstanceKey,
+  getAnalyticsInstance,
+  load,
+  ready,
+  page,
+  track,
+  identify,
+  alias,
+  group,
+  reset,
+  getAnonymousId,
+  setAnonymousId,
+  getUserId,
+  getUserTraits,
+  getGroupId,
+  getGroupTraits,
+  startSession,
+  endSession,
+  getSessionId,
+  getSessionInfo,
+};
