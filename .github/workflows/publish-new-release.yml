@@ -84,7 +84,7 @@ jobs:
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           PROJECT_NAME: 'JS SDK (v1.1)'
-          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/'
+          RELEASES_URL: 'https://github.com/rudderlabs/rudder-sdk-js/releases/tag/v'
         with:
           channel-id: ${{ secrets.SLACK_RELEASE_CHANNEL_ID }}
           payload: |
