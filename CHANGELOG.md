@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.29.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.28.0...v2.29.0) (2023-04-03)
+
+
+### Features
+
+* **goole_ads:** enhanced conversions ([#970](https://github.com/rudderlabs/rudder-sdk-js/issues/970)) ([154589b](https://github.com/rudderlabs/rudder-sdk-js/commit/154589b09d4ab336f872ed440c881606c8b2272b))
+
+
+### Bug Fixes
+
+* event repository initialisation ([#974](https://github.com/rudderlabs/rudder-sdk-js/issues/974)) ([13ef5bd](https://github.com/rudderlabs/rudder-sdk-js/commit/13ef5bdaf026804b31d93a9b26953e3f2bc6dc53))
+* **fb pixel:** ecomm ([#967](https://github.com/rudderlabs/rudder-sdk-js/issues/967)) ([cb55955](https://github.com/rudderlabs/rudder-sdk-js/commit/cb559551213040f68a37590ed0cf5f36397d1415))
+* **ga4 and ua:** cookie conflicts ([#978](https://github.com/rudderlabs/rudder-sdk-js/issues/978)) ([0ed6f5a](https://github.com/rudderlabs/rudder-sdk-js/commit/0ed6f5a3cf242e08083c976ac3518d86cd0b1454))
+* mutation of user provided object values ([#958](https://github.com/rudderlabs/rudder-sdk-js/issues/958)) ([74f4974](https://github.com/rudderlabs/rudder-sdk-js/commit/74f4974377ad61b1bc86315484a7274a065c5706))
+* support bingAds for multiple tagIds ([#972](https://github.com/rudderlabs/rudder-sdk-js/issues/972)) ([f736fff](https://github.com/rudderlabs/rudder-sdk-js/commit/f736fffb487f4dc197b6465a89eaa9c7d136b8ae))
+
 ## [2.28.0](https://github.com/rudderlabs/rudder-sdk-js/compare/v2.27.0...v2.28.0) (2023-03-21)
 
 
