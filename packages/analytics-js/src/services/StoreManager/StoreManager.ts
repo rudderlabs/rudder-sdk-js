@@ -3,6 +3,7 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
 import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
+import { state } from '@rudderstack/analytics-js/state';
 import { configureStorageEngines, getStorageEngine } from './storages/storageEngine';
 import { IStoreConfig, IStoreManager, StorageType, StoreId, StoreManagerOptions } from './types';
 import { Store } from './Store';
@@ -29,10 +30,21 @@ class StoreManager implements IStoreManager {
   /**
    * Configure available storage client instances
    */
-  init(config: StoreManagerOptions = {}) {
+  init() {
     if (this.isInitialized) {
       return;
     }
+
+    const config: StoreManagerOptions = {
+      cookieOptions: {
+        samesite: state.loadOptions.value.sameSiteCookie,
+        secure: state.loadOptions.value.secureCookie,
+        domain: state.loadOptions.value.setCookieDomain,
+        enabled: true,
+      },
+      localStorageOptions: { enabled: true },
+      inMemoryStorageOptions: { enabled: true },
+    };
 
     configureStorageEngines(
       config.cookieOptions,

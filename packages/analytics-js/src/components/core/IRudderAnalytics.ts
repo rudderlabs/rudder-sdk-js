@@ -7,9 +7,9 @@ import {
   SessionInfo,
 } from '@rudderstack/analytics-js/state/types';
 import { Nullable } from '@rudderstack/analytics-js/types';
-import { IAnalytics } from '@rudderstack/analytics-js/components/core/IAnalytics';
-import { BufferQueue } from '@rudderstack/analytics-js/components/preloadBuffer/BufferQueue';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
+import { IAnalytics } from './IAnalytics';
+import { BufferQueue } from './BufferQueue';
 
 export interface IRudderAnalytics {
   analyticsInstances: Record<string, IAnalytics>;
@@ -95,40 +95,40 @@ export interface IRudderAnalytics {
    */
   identify(
     userId?: string,
-    traits?: Nullable<ApiOptions>,
+    traits?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
     callback?: ApiCallback,
   ): void;
-  identify(userId: string, traits: Nullable<ApiOptions>, callback: ApiCallback): void;
+  identify(userId: string, traits: Nullable<ApiObject>, callback: ApiCallback): void;
   identify(userId: string, callback: ApiCallback): void;
   identify(
-    traits: Nullable<ApiOptions>,
+    traits: Nullable<ApiObject>,
     options: Nullable<ApiOptions>,
     callback?: ApiCallback,
   ): void;
-  identify(traits: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  identify(traits: Nullable<ApiObject>, callback?: ApiCallback): void;
 
   /**
    * To record a user alias event
    */
   alias(to: string, from?: string, options?: Nullable<ApiOptions>, callback?: ApiCallback): void;
   alias(to: string, from: string, callback: ApiCallback): void;
-  alias(to: string, callback: ApiCallback): void;
   alias(to: string, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  alias(to: string, callback: ApiCallback): void;
 
   /**
    * To record a user group event
    */
   group(
     groupId: string,
-    traits?: Nullable<ApiOptions>,
+    traits?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
     callback?: ApiCallback,
   ): void;
-  group(groupId: string, traits: Nullable<ApiOptions>, callback: ApiCallback): void;
+  group(groupId: string, traits: Nullable<ApiObject>, callback: ApiCallback): void;
   group(groupId: string, callback: ApiCallback): void;
-  group(traits: Nullable<ApiOptions>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
-  group(traits: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  group(traits: Nullable<ApiObject>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
+  group(traits: Nullable<ApiObject>, callback?: ApiCallback): void;
 
   /**
    * Clear user information
@@ -139,13 +139,15 @@ export interface IRudderAnalytics {
 
   /**
    * To get anonymousId set in the SDK
+   *
+   * @param options options for anonymousId
    */
   getAnonymousId(options?: AnonymousIdOptions): string;
 
   /**
    * To set anonymousId
    *
-   * @param anonymousId
+   * @param anonymousId custom anonymousId value
    * @param rudderAmpLinkerParam AMP Linker ID string
    */
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): void;

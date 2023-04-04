@@ -1,4 +1,5 @@
 import * as R from 'ramda';
+import Emitter from 'component-emitter';
 import { Nullable } from '@rudderstack/analytics-js/types';
 import {
   AnonymousIdOptions,
@@ -14,22 +15,30 @@ import {
   pageArgumentsToCallOptions,
   trackArgumentsToCallOptions,
 } from '@rudderstack/analytics-js/components/core/eventMethodOverloads';
-import { BufferQueue } from '@rudderstack/analytics-js/components/preloadBuffer/BufferQueue';
 import { isFunction } from '@rudderstack/analytics-js/components/utilities/checks';
 import { PreloadedEventCall } from '@rudderstack/analytics-js/components/preloadBuffer/types';
 import { retrievePreloadBufferEvents } from '@rudderstack/analytics-js/components/preloadBuffer';
-import Emitter from 'component-emitter';
 import { Analytics } from './Analytics';
 import { IAnalytics } from './IAnalytics';
+import { BufferQueue } from './BufferQueue';
 import { IRudderAnalytics } from './IRudderAnalytics';
 
 // TODO: add analytics restart/reset mechanism
+
+/*
+ * RudderAnalytics facade singleton that is exposed as global object and will:
+ * expose overloaded methods
+ * handle multiple Analytics instances
+ * consume SDK preload event buffer
+ * attach Emitter
+ */
 class RudderAnalytics implements IRudderAnalytics {
   static globalSingleton: Nullable<RudderAnalytics> = null;
   analyticsInstances: Record<string, IAnalytics> = {};
   defaultAnalyticsKey = '';
   preloadBuffer: BufferQueue<PreloadedEventCall> = new BufferQueue();
 
+  // Singleton with constructor bind methods
   constructor() {
     if (RudderAnalytics.globalSingleton) {
       // eslint-disable-next-line no-constructor-return
@@ -60,15 +69,20 @@ class RudderAnalytics implements IRudderAnalytics {
     this.getSessionInfo = this.getSessionInfo.bind(this);
 
     RudderAnalytics.globalSingleton = this;
-    retrievePreloadBufferEvents(this as any);
+
+    // initialise the preloaded events enqueuing
+    retrievePreloadBufferEvents(this);
+
     // TODO: remove the need for Emitter and deprecate it
     Emitter(this);
+
     // eslint-disable-next-line no-constructor-return
     return this;
   }
 
   /**
    * Set instance to use if no specific writeKey is provided in methods
+   * TODO: to support multiple analytics instances in the near future
    */
   setDefaultInstanceKey(writeKey: string) {
     if (R.isEmpty(this.analyticsInstances)) {
@@ -76,34 +90,54 @@ class RudderAnalytics implements IRudderAnalytics {
     }
   }
 
+  /**
+   * Retrieve an existing analytics instance
+   */
   getAnalyticsInstance(writeKey?: string): IAnalytics {
+    const noAnalyticsInstanceExists = Boolean(
+      this.analyticsInstances[writeKey || this.defaultAnalyticsKey],
+    );
+    if (noAnalyticsInstanceExists) {
+      this.analyticsInstances[writeKey || this.defaultAnalyticsKey] = new Analytics();
+    }
+
     return this.analyticsInstances[writeKey || this.defaultAnalyticsKey];
   }
 
   /**
-   * Create new analytics instance and start application lifecycle
+   * Create new analytics instance and trigger application lifecycle start
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: LoadOptions) {
-    if (this.analyticsInstances[writeKey]) {
+    const shouldSkipLoad = typeof writeKey !== 'string' || this.analyticsInstances[writeKey];
+    if (shouldSkipLoad) {
       return;
     }
 
     this.setDefaultInstanceKey(writeKey);
     this.analyticsInstances[writeKey] = new Analytics();
-    this.processDataInPreloadBuffer();
     this.getAnalyticsInstance(writeKey).load(writeKey, dataPlaneUrl, loadOptions);
+    this.processDataInPreloadBuffer();
   }
 
+  /**
+   * Process ready arguments and forward to page call
+   */
   ready(callback: ApiCallback) {
     this.getAnalyticsInstance().ready(callback);
   }
 
+  /**
+   * Enqueue in SDK preload buffer events, used from preloadBuffer component
+   */
   enqueuePreloadBufferEvents(bufferedEvents: PreloadedEventCall[]) {
     if (Array.isArray(bufferedEvents)) {
       bufferedEvents.forEach(bufferedEvent => this.preloadBuffer.enqueue(bufferedEvent));
     }
   }
 
+  /**
+   * Process the buffer preloaded events by passing their arguments to the respective facade methods
+   */
   processDataInPreloadBuffer() {
     for (let i = 0; i < this.preloadBuffer.size(); i++) {
       const eventToProcess = this.preloadBuffer.dequeue();
@@ -120,7 +154,7 @@ class RudderAnalytics implements IRudderAnalytics {
   }
 
   /**
-   * Process page params and forward to page call
+   * Process page arguments and forward to page call
    */
   page(
     category?: string | Nullable<ApiObject> | ApiCallback,
@@ -135,7 +169,7 @@ class RudderAnalytics implements IRudderAnalytics {
   }
 
   /**
-   * Process track params and forward to track call
+   * Process track arguments and forward to page call
    */
   track(
     event: string,
@@ -149,7 +183,7 @@ class RudderAnalytics implements IRudderAnalytics {
   }
 
   /**
-   * Process identify params and forward to identify call
+   * Process identify arguments and forward to page call
    */
   identify(
     userId?: string | number | Nullable<ApiObject>,
@@ -163,7 +197,7 @@ class RudderAnalytics implements IRudderAnalytics {
   }
 
   /**
-   * Process alias params and forward to identify call
+   * Process alias arguments and forward to page call
    */
   alias(
     to: string,
@@ -174,6 +208,9 @@ class RudderAnalytics implements IRudderAnalytics {
     this.getAnalyticsInstance().alias(aliasArgumentsToCallOptions(to, from, options, callback));
   }
 
+  /**
+   * Process group arguments and forward to page call
+   */
   group(
     groupId: string | Nullable<ApiObject> | ApiCallback,
     traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,

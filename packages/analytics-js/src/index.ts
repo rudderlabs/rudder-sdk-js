@@ -1,5 +1,8 @@
 import { RudderAnalytics } from '@rudderstack/analytics-js/components/core/RudderAnalytics';
 
+/*
+ * Create new RudderAnalytics facade singleton
+ */
 const {
   setDefaultInstanceKey,
   getAnalyticsInstance,
@@ -23,6 +26,9 @@ const {
   getSessionInfo,
 } = new RudderAnalytics();
 
+/*
+ * Export as global object the RudderAnalytics facade singleton methods
+ */
 export {
   setDefaultInstanceKey,
   getAnalyticsInstance,

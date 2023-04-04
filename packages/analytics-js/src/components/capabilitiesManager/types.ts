@@ -1,3 +1,4 @@
 export interface ICapabilitiesManager {
-  loadPolyfill: () => void;
+  loadPolyfill(): void;
+  onReady(): void;
 }

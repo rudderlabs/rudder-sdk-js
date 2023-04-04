@@ -196,7 +196,13 @@ const buildConfig = moduleType => {
   };
 };
 
-export default [
+const buildEntries = process.env.ONLY_IIFE === 'true' ? [
+  {
+    ...buildConfig('cdn'),
+    input: 'src/index.ts',
+    output: outputFilesCdn,
+  }
+] : [
   {
     ...buildConfig(),
     input: 'src/index.ts',
@@ -216,3 +222,5 @@ export default [
     },
   },
 ];
+
+export default buildEntries;

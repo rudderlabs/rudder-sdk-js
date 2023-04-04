@@ -1,5 +1,8 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
 
+/**
+ * A buffer queue to serve as a store for any type of data
+ */
 class BufferQueue<T = any> {
   items: T[];
 

@@ -9,7 +9,7 @@ export type StoreId = 'clientData' | 'eventQueue' | string;
 export type StorageType = 'localStorage' | 'sessionStorage' | 'memoryStorage' | 'cookieStorage';
 
 export interface IStorage extends Storage {
-  configure?: (options: StorageOptions) => void;
+  configure?(options: StorageOptions): void;
   isEnabled?: boolean;
 }
 
@@ -53,11 +53,11 @@ export interface IStoreManager {
   isInitialized?: boolean;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
-  init: (config?: StoreManagerOptions) => void;
-  initClientDataStore: () => void;
-  initQueueStore: () => void;
-  setStore: (id: StoreId, storeConfig: IStoreConfig, type?: StorageType) => void;
-  getStore: (id: StoreId) => IStore | undefined;
+  init(): void;
+  initClientDataStore(): void;
+  initQueueStore(): void;
+  setStore(id: StoreId, storeConfig: IStoreConfig, type?: StorageType): void;
+  getStore(id: StoreId): IStore | undefined;
 }
 
 export interface IStore {
@@ -71,9 +71,9 @@ export interface IStore {
   noCompoundKey?: boolean;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
-  createValidKey: (key: string) => string | undefined;
-  swapQueueStoreToInMemoryEngine: () => void;
-  set: (key: string, value: any) => void;
-  get: <T = any>(key: string) => Nullable<T>;
-  remove: (key: string) => void;
+  createValidKey(key: string): string | undefined;
+  swapQueueStoreToInMemoryEngine(): void;
+  set(key: string, value: any): void;
+  get<T = any>(key: string): Nullable<T>;
+  remove(key: string): void;
 }
