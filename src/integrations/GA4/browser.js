@@ -51,6 +51,9 @@ export default class GA4 {
     gtagParameterObject.client_id = this.analytics.anonymousId;
     gtagParameterObject.debug_mode = true;
 
+    if (this.isHybridModeEnabled) {
+      gtagParameterObject.session_id = this.analytics.uSession.sessionInfo.id;
+    }
     if (Object.keys(gtagParameterObject).length === 0) {
       window.gtag('config', measurementId);
     } else {
