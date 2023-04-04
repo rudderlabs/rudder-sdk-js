@@ -1,11 +1,11 @@
 import { Signal, signal } from '@preact/signals-core';
 import {
   ClientIntegrations,
-  ClientSuppliedCallbacks,
+  // ClientSuppliedCallbacks,
   DynamicallyLoadedIntegration,
   IntegrationInstance,
   IntegrationOpts,
-  MethodToCallbackMap,
+  // MethodToCallbackMap,
 } from '@rudderstack/analytics-js/state/types';
 
 export type NativeDestinationsState = {
@@ -14,8 +14,8 @@ export type NativeDestinationsState = {
   clientIntegrationObjects: Signal<IntegrationInstance[] | undefined>;
   successfullyLoadedIntegration: Signal<IntegrationInstance[]>;
   failedToBeLoadedIntegration: Signal<IntegrationInstance[]>;
-  clientSuppliedCallbacks: Signal<ClientSuppliedCallbacks | undefined>;
-  methodToCallbackMapping: Signal<MethodToCallbackMap | undefined>;
+  // clientSuppliedCallbacks: Signal<ClientSuppliedCallbacks | undefined>;
+  // methodToCallbackMapping: Signal<MethodToCallbackMap | undefined>;
   loadIntegration: Signal<boolean>;
   integrationsData: Signal<Record<string, any>>;
   dynamicallyLoadedIntegrations: Signal<Record<string, DynamicallyLoadedIntegration>>;
@@ -76,10 +76,10 @@ const nativeDestinationsState: NativeDestinationsState = {
   clientIntegrationObjects: signal(undefined),
   successfullyLoadedIntegration: signal([]),
   failedToBeLoadedIntegration: signal([]),
-  clientSuppliedCallbacks: signal(undefined),
-  methodToCallbackMapping: signal({
-    syncPixel: 'syncPixelCallback',
-  }),
+  // clientSuppliedCallbacks: signal(undefined),
+  // methodToCallbackMapping: signal({
+  //   syncPixel: 'syncPixelCallback',
+  // }),
   loadIntegration: signal(true),
   integrationsData: signal({}),
   dynamicallyLoadedIntegrations: signal({}),

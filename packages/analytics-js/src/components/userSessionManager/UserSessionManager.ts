@@ -11,7 +11,6 @@ import {
   SessionInfo,
 } from '@rudderstack/analytics-js/state/types';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
-import * as R from 'ramda';
 import { IUserSessionManager } from './types';
 
 // TODO: the v1.1 user data storage part joined with the auto session features and addCampaignInfo

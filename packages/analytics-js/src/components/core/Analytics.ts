@@ -42,6 +42,9 @@ import {
 } from './eventMethodOverloads';
 import { IAnalytics } from './IAnalytics';
 
+/*
+ * Analytics class with lifecycle based on state ad user triggered events
+ */
 class Analytics implements IAnalytics {
   initialized: boolean;
   status: LifecycleStatus;
@@ -50,13 +53,16 @@ class Analytics implements IAnalytics {
   errorHandler: IErrorHandler;
   pluginsManager: IPluginsManager;
   externalSrcLoader: IExternalSrcLoader;
-  storageManager: IStoreManager;
+  storeManager: IStoreManager;
   configManager: ConfigManager;
   capabilitiesManager: ICapabilitiesManager;
   eventManager: IEventManager;
-  clientDataStore?: Store;
   userSessionManager: IUserSessionManager;
+  clientDataStore?: Store;
 
+  /**
+   * Initialize services and components or use default ones if singletons
+   */
   constructor() {
     this.initialized = false;
     this.httpClient = defaultHttpClient;
@@ -64,7 +70,7 @@ class Analytics implements IAnalytics {
     this.logger = defaultLogger;
     this.pluginsManager = defaultPluginManager;
     this.externalSrcLoader = defaultExternalSrcLoader;
-    this.storageManager = defaultStoreManager;
+    this.storeManager = defaultStoreManager;
     this.configManager = defaultConfigManager;
     this.capabilitiesManager = defaultCapabilitiesManager;
     this.eventManager = defaultEventManager;
@@ -109,27 +115,37 @@ class Analytics implements IAnalytics {
     );
   }
 
+  /**
+   * Start application lifecycle if not already started
+   */
   load(writeKey: string, dataPlaneUrl: string, loadOptions: Partial<LoadOptions> = {}) {
     if (state.lifecycle.status.value) {
       return;
     }
 
-    // Set initial state values and expose state global this
+    // Attach global error boundary handler
     this.attachGlobalErrorHandler();
+
+    // Set initial state values
     state.lifecycle.status.value = 'mounted';
     state.lifecycle.writeKey.value = writeKey;
     state.lifecycle.dataPlaneUrl.value = dataPlaneUrl;
     state.loadOptions.value = mergeDeepRight(state.loadOptions.value, loadOptions);
+
+    // Expose state to global objects
     setExposedGlobal('state', state, writeKey);
 
     // Configure initial config of any services or components here
+    // TODO
 
     // State application lifecycle
     this.startLifecycle();
   }
 
   // Start lifecycle methods
-
+  /**
+   * Orchestrate the lifecycle of the application phases/status
+   */
   startLifecycle() {
     effect(() => {
       switch (state.lifecycle.status.value) {
@@ -162,13 +178,19 @@ class Analytics implements IAnalytics {
     });
   }
 
+  /**
+   * Load browser polyfill if required
+   */
   loadPolyfill() {
     this.capabilitiesManager.loadPolyfill();
   }
 
+  /**
+   * Load configuration
+   */
   loadConfig() {
-    // TODO: handle missing write key as error
     if (!state.lifecycle.writeKey.value) {
+      this.errorHandler.onError(new Error('No write key is provided'), 'Load configuration');
       return;
     }
 
@@ -176,26 +198,24 @@ class Analytics implements IAnalytics {
     this.configManager.init();
   }
 
+  /**
+   * Initialize the storage and event queue
+   */
   init() {
     // Initialise storage
-    const storageConfig = {
-      cookieOptions: {
-        samesite: state.loadOptions.value.sameSiteCookie,
-        secure: state.loadOptions.value.secureCookie,
-        domain: state.loadOptions.value.setCookieDomain,
-        enabled: true,
-      },
-      localStorageOptions: { enabled: true },
-      inMemoryStorageOptions: { enabled: true },
-    };
-    this.storageManager.init(storageConfig);
-    this.clientDataStore = this.storageManager.getStore('clientData') as Store;
+    this.storeManager.init();
+    this.clientDataStore = this.storeManager.getStore('clientData') as Store;
     this.userSessionManager.setStorage(this.clientDataStore);
 
-    // TODO: add eventManager and set status.value = 'initialized'; once eventManager event repository is ready
-    state.lifecycle.status.value = 'initialized';
+    // Initialise event manager
+    this.eventManager.init();
   }
 
+  /**
+   * Load plugins
+   */
+  // TODO: dummy implementation for testing until we implement plugin manager
+  //  create proper implementation once relevant task is picked up
   loadPlugins() {
     // TODO: maybe we need to separate the plugins that are required before the eventManager init and after
     this.pluginsManager.init();
@@ -203,8 +223,11 @@ class Analytics implements IAnalytics {
     // registerCustomPlugins(state.loadOptions.value.customPlugins);
   }
 
+  /**
+   * Trigger onLoaded callback if any is provided in config
+   */
   onLoaded() {
-    this.eventManager.init();
+    // Set lifecycle state
     state.lifecycle.loaded.value = true;
     state.lifecycle.status.value = 'loaded';
 
@@ -214,7 +237,11 @@ class Analytics implements IAnalytics {
     }
   }
 
+  /**
+   * Load device mode integrations
+   */
   // TODO: dummy implementation for testing until we implement device mode
+  //  create proper implementation once relevant task is picked up
   loadIntegrations() {
     if (R.isEmpty(state.nativeDestinations.clientIntegrations)) {
       state.lifecycle.status.value = 'ready';
@@ -261,13 +288,16 @@ class Analytics implements IAnalytics {
     }, 3000);
   }
 
+  /**
+   * Invoke the ready callbacks if any exist
+   */
   // eslint-disable-next-line class-methods-use-this
   onReady() {
     state.eventBuffer.readyCallbacksArray.value.forEach(callback => callback());
   }
+  // End lifecycle methods
 
   // Start consumer exposed methods
-
   ready(callback: ApiCallback) {
     const type = 'ready';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
@@ -343,11 +373,13 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    if (
+    const shouldResetSession = Boolean(
       normalisedUserId &&
-      state.session.rl_user_id.value &&
-      normalisedUserId !== state.session.rl_user_id.value
-    ) {
+        state.session.rl_user_id.value &&
+        normalisedUserId !== state.session.rl_user_id.value,
+    );
+
+    if (shouldResetSession) {
       this.reset();
     }
 
@@ -461,6 +493,7 @@ class Analytics implements IAnalytics {
   getSessionInfo(): Nullable<SessionInfo> {
     return this.userSessionManager.getSessionInfo();
   }
+  // End consumer exposed methods
 
   // TODO: should we still implement methodToCallbackMapping? Seems we will deprecate this
   //  non used feature https://www.rudderstack.com/docs/sources/event-streams/sdks/rudderstack-javascript-sdk/supported-api/#callbacks-to-common-methods

@@ -5,7 +5,7 @@ import {
 
 export interface IPluginsManager {
   engine: IPluginEngine;
-  init: () => void;
-  invoke: <T = any>(extPoint?: string, ...args: any[]) => T[];
-  register: (plugins: ExtensionPlugin[]) => void;
+  init(): void;
+  invoke<T = any>(extPoint?: string, ...args: any[]): T[];
+  register(plugins: ExtensionPlugin[]): void;
 }

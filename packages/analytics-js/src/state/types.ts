@@ -1,3 +1,5 @@
+import { IAnalytics } from '@rudderstack/analytics-js/components/core/IAnalytics';
+
 export type CookieConsentOptions = {
   // OneTrust
   oneTrust?: {
@@ -99,15 +101,15 @@ export type IntegrationInstance = {
   isReady?: () => boolean;
 };
 
-// TODO: is this still used? only lotame used it
-export type ClientSuppliedCallbacks = {
-  syncPixel?: () => void;
-};
-
-// TODO: is this still used? only lotame used it
-export type MethodToCallbackMap = {
-  syncPixel: string;
-};
+// TODO: is this still used? only lotame used it for mg1
+// export type ClientSuppliedCallbacks = {
+//   syncPixel?: () => void;
+// };
+//
+// // TODO: is this still used? only lotame used it for mg1
+// export type MethodToCallbackMap = {
+//   syncPixel: string;
+// };
 
 // TODO: is this still used? const intMod = window[pluginName];
 export type DynamicallyLoadedIntegration = Record<string, any>;
@@ -224,7 +226,7 @@ export type LoadOptions = {
   sameSiteCookie: CookieSameSite; // defaults to Lax.
   lockIntegrationsVersion?: boolean; // defaults to false.
   polyfillIfRequired: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
-  onLoaded?: (analytics: any) => void;
+  onLoaded?: (analytics: IAnalytics) => void;
   uaChTrackLevel?: UaChTrackLevel;
   residencyServer?: ResidencyServerRegion;
   getSourceConfig?: () => string | ApiObject | Promise<ApiObject> | Promise<string>;

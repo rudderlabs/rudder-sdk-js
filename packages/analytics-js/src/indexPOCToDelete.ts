@@ -55,10 +55,7 @@ class AnalyticsV3 implements IV3 {
     this.externalSrcLoader = defaultExternalSrcLoader;
     this.storageManager = defaultStoreManager;
     // TODO: pass values from sdk init config too
-    this.storageManager.init({
-      cookieOptions: { enabled: true },
-      localStorageOptions: { enabled: true },
-    });
+    this.storageManager.init();
     this.clientDataStore = this.storageManager.getStore('clientData');
     this.httpClient.setAuthHeader('2L8Fl7ryPss3Zku133Pj5ox7NeP');
 
