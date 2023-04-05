@@ -31,7 +31,6 @@ class ConfigManager implements IConfigManager {
   }
 
   init() {
-    // TODO: create a deepcopy of loadOption if not done in previous step
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     // determine the sourceConfig url
     const intgCdnUrl = getIntegrationsCDNPath(
@@ -56,7 +55,6 @@ class ConfigManager implements IConfigManager {
         state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${state.lifecycle.writeKey.value}`;
       }
       state.lifecycle.isStaging.value = isStaging;
-      // TODO: set the values in state for reporting slice
     });
     this.fetchSourceConfig();
   }
@@ -74,7 +72,7 @@ class ConfigManager implements IConfigManager {
     const nativeDestinations: Destination[] =
       res.source.destinations.length > 0 ? filterEnabledDestination(res.source.destinations) : [];
 
-    // set in the state --> source, destination, lifecycle
+    // set in the state --> source, destination, lifecycle, reporting
     batch(() => {
       // set source related information in state
       state.source.value = {
@@ -83,9 +81,16 @@ class ConfigManager implements IConfigManager {
       };
       // set device mode destination related information in state
       state.destinations.value = nativeDestinations;
+
       // set application lifecycle state
       state.lifecycle.activeDataplaneUrl.value = dataPlaneUrl;
       state.lifecycle.status.value = 'configured';
+
+      // set the values in state for reporting slice
+      state.reporting.isErrorReportingEnabled.value =
+        res.source.config.statsCollection.errorReports.enabled || false;
+      state.reporting.isMetricsReportingEnabled.value =
+        res.source.config.statsCollection.metrics.enabled || false;
     });
   }
 

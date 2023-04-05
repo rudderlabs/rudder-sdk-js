@@ -1,5 +1,5 @@
 import { rest } from 'msw';
-import { dummyDataplaneHost } from './fixtures';
+import { dummyDataplaneHost, dummySourceConfigResponse } from './fixtures';
 
 // TODO: Why on data plane we allow-origin the domain but in sourceConfig is wildcard?
 const handlers = [
@@ -52,6 +52,9 @@ const handlers = [
       ctx.set('Content-Type', 'text/javascript'),
       ctx.body(fileContents),
     );
+  }),
+  rest.get(`${dummyDataplaneHost}/sourceConfig*`, (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(dummySourceConfigResponse));
   }),
 ];
 
