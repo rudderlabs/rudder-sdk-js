@@ -5,6 +5,13 @@ import {
 } from '@rudderstack/analytics-js/constants/urls';
 import { getSDKUrlInfo, removeTrailingSlashes } from './commonUtil';
 
+/**
+ * A function that determines integration SDK loading path
+ * @param currentVersion
+ * @param lockIntegrationsVersion
+ * @param customIntegrationsCDNPath
+ * @returns
+ */
 const getIntegrationsCDNPath = (
   currentVersion: string,
   lockIntegrationsVersion: boolean,

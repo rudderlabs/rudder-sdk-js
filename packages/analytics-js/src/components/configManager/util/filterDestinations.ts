@@ -1,6 +1,11 @@
 import { Destination } from '@rudderstack/analytics-js/state/types';
 import { ConfigResponseDestinationItem } from '../types';
 
+/**
+ * A function to filter enabled destinations and map required properties
+ * @param destinations
+ * @returns
+ */
 const filterEnabledDestination = (
   destinations: ConfigResponseDestinationItem[],
 ): Destination[] | [] => {

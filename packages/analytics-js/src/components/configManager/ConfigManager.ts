@@ -30,6 +30,10 @@ class ConfigManager implements IConfigManager {
     this.hasLogger = Boolean(this.logger);
   }
 
+  /**
+   * A function to validate, construct and store loadOption, lifecycle, source and destination
+   * config related information in global state
+   */
   init() {
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
     // determine the sourceConfig url
@@ -59,6 +63,11 @@ class ConfigManager implements IConfigManager {
     this.fetchSourceConfig();
   }
 
+  /**
+   * A callback function that is executed once we fetch the source config response.
+   * Use to construct and store information that are dependent on the sourceConfig.
+   * @param res source config response
+   */
   processResponse(res: SourceConfigResponse | string | undefined) {
     if (!res || typeof res === 'string') {
       throw Error('Unable to fetch source config');
@@ -94,6 +103,11 @@ class ConfigManager implements IConfigManager {
     });
   }
 
+  /**
+   * A function to fetch source config either from /sourceConfig endpoint
+   * or from getSourceConfig load option
+   * @returns
+   */
   fetchSourceConfig() {
     const sourceConfigOption = state.loadOptions.value.getSourceConfig;
     if (sourceConfigOption) {

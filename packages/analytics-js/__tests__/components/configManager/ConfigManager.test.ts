@@ -32,18 +32,6 @@ jest.mock('../../../src/services/ErrorHandler', () => {
   };
 });
 
-// jest.mock('../../../src/services/HttpClient', () => {
-//   const originalModule = jest.requireActual('../../../src/services/HttpClient');
-
-//   return {
-//     __esModule: true,
-//     ...originalModule,
-//     defaultHttpClient: {
-//       onError: jest.fn((): void => {}),
-//     },
-//   };
-// });
-
 jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
   const originalModule = jest.requireActual(
     '../../../src/components/configManager/util/commonUtil.ts',
