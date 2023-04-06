@@ -53,6 +53,7 @@ describe('ConfigManager', () => {
   const sampleDestSDKUrl = 'https://www.sample.url/integrations';
   const sampleConfigUrl = 'https://dummy.dataplane.host.com';
   const sampleScriptURL = 'https://www.dummy.url/fromScript/v3/rudder-analytics.min.js';
+  const lockIntegrationsVersion = false;
 
   beforeAll(() => {
     server.listen();
@@ -102,7 +103,8 @@ describe('ConfigManager', () => {
     state.loadOptions.value.destSDKBaseURL = sampleDestSDKUrl;
     state.loadOptions.value.logLevel = 'DEBUG';
     state.loadOptions.value.configUrl = sampleConfigUrl;
-    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}`;
+    state.loadOptions.value.lockIntegrationsVersion = lockIntegrationsVersion;
+    const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
 
     configManagerInstance.init();
 
@@ -196,7 +198,7 @@ describe('ConfigManager', () => {
     }
   });
   it('should fetch the sourceConfig and call the callback with the response ', () => {
-    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}`;
+    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
     configManagerInstance.processConfig = jest.fn();
     configManagerInstance.getConfig();
     setTimeout(() => {

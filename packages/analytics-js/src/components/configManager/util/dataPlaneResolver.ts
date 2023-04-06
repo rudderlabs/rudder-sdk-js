@@ -24,10 +24,7 @@ const getDefaultUrlofRegion = (urls: RegionDetails[]) => {
  * @returns string
  */
 const resolveDataPlaneUrl = (
-  dataplanes?: Record<
-    ResidencyServerRegion | ResidencyServerRegion.US | ResidencyServerRegion.EU,
-    RegionDetails[]
-  >,
+  dataplanes?: Record<ResidencyServerRegion, RegionDetails[]>,
   serverUrl?: string,
   residencyServer?: ResidencyServerRegion,
 ) => {

@@ -55,8 +55,7 @@ class ConfigManager implements IConfigManager {
       }
       state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
       if (state.loadOptions.value.configUrl) {
-        // TODO: pass the load option for lockedIntegrations version as query param in the future for metrics capturing
-        state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${state.lifecycle.writeKey.value}`;
+        state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${state.loadOptions.value.lockIntegrationsVersion}`;
       }
       state.lifecycle.isStaging.value = isStaging;
     });

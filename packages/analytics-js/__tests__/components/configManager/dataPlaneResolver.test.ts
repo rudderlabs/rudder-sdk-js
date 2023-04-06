@@ -20,7 +20,7 @@ const sourceConfigWithBothDataPlane: Record<ResidencyServerRegion, RegionDetails
   ],
 };
 
-const sourceConfigWithUSDataPlane: Record<ResidencyServerRegion.US, RegionDetails[]> = {
+const sourceConfigWithUSDataPlane: Record<ResidencyServerRegion, RegionDetails[]> = {
   US: [
     {
       url: usDataplaneUrl,
@@ -29,7 +29,7 @@ const sourceConfigWithUSDataPlane: Record<ResidencyServerRegion.US, RegionDetail
   ],
 };
 
-const sourceConfigWithEUDataPlane: Record<ResidencyServerRegion.EU, RegionDetails[]> = {
+const sourceConfigWithEUDataPlane: Record<ResidencyServerRegion, RegionDetails[]> = {
   EU: [
     {
       url: euDataplaneUrl,
