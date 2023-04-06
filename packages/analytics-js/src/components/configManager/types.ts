@@ -94,4 +94,6 @@ export interface IConfigManager {
   errorHandler?: IErrorHandler;
   logger?: ILogger;
   init: () => void;
+  getConfig: () => void;
+  processConfig: () => void;
 }

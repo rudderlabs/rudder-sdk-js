@@ -183,24 +183,24 @@ describe('ConfigManager', () => {
   });
   it('should throw an error for undefined sourceConfig response', () => {
     try {
-      configManagerInstance.processResponse(undefined);
+      configManagerInstance.processConfig(undefined);
     } catch (e) {
       expect(e.message).toBe(errorMsgSourceConfigResponse);
     }
   });
   it('should throw an error for sourceConfig response in string format', () => {
     try {
-      configManagerInstance.processResponse(JSON.stringify(dummySourceConfigResponse));
+      configManagerInstance.processConfig(JSON.stringify(dummySourceConfigResponse));
     } catch (e) {
       expect(e.message).toBe(errorMsgSourceConfigResponse);
     }
   });
   it('should fetch the sourceConfig and call the callback with the response ', () => {
     state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}`;
-    configManagerInstance.processResponse = jest.fn();
-    configManagerInstance.fetchSourceConfig();
+    configManagerInstance.processConfig = jest.fn();
+    configManagerInstance.getConfig();
     setTimeout(() => {
-      expect(configManagerInstance.processResponse).toHaveBeenCalled();
+      expect(configManagerInstance.processConfig).toHaveBeenCalled();
     }, 1);
   });
 });

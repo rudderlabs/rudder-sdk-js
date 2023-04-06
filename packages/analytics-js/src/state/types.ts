@@ -276,7 +276,7 @@ export type RegionDetails = {
 
 export type Source = {
   id: string;
-  config: SourceConfig;
+  config?: SourceConfig;
   name?: string;
   writeKey?: string;
   workspaceId?: string;

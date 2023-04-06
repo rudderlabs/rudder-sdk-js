@@ -60,7 +60,7 @@ class ConfigManager implements IConfigManager {
       }
       state.lifecycle.isStaging.value = isStaging;
     });
-    this.fetchSourceConfig();
+    this.getConfig();
   }
 
   /**
@@ -68,8 +68,8 @@ class ConfigManager implements IConfigManager {
    * Use to construct and store information that are dependent on the sourceConfig.
    * @param res source config response
    */
-  processResponse(res: SourceConfigResponse | string | undefined) {
-    if (!res || typeof res === 'string') {
+  processConfig(res?: SourceConfigResponse | string) {
+    if (!res || typeof res !== 'object') {
       throw Error('Unable to fetch source config');
     }
     // determine the dataPlane url
@@ -86,7 +86,6 @@ class ConfigManager implements IConfigManager {
       // set source related information in state
       state.source.value = {
         id: res.source.id,
-        config: res.source.config,
       };
       // set device mode destination related information in state
       state.destinations.value = nativeDestinations;
@@ -108,7 +107,7 @@ class ConfigManager implements IConfigManager {
    * or from getSourceConfig load option
    * @returns
    */
-  fetchSourceConfig() {
+  getConfig() {
     const sourceConfigOption = state.loadOptions.value.getSourceConfig;
     if (sourceConfigOption) {
       // fetch source config from the function
@@ -116,14 +115,14 @@ class ConfigManager implements IConfigManager {
 
       if (res instanceof Promise) {
         res
-          .then(pRes => this.processResponse(pRes as SourceConfigResponse))
+          .then(pRes => this.processConfig(pRes as SourceConfigResponse))
           .catch(e => {
             if (this.hasErrorHandler) {
               this.errorHandler?.onError(e, 'sourceConfig');
             }
           });
       } else {
-        this.processResponse(res as SourceConfigResponse);
+        this.processConfig(res as SourceConfigResponse);
       }
       return;
     }
@@ -136,7 +135,7 @@ class ConfigManager implements IConfigManager {
           'Content-Type': undefined,
         },
       },
-      callback: this.processResponse,
+      callback: this.processConfig,
     });
   }
 }

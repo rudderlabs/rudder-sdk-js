@@ -3,17 +3,12 @@ import { isValidUrl } from './validate';
 
 const DEFAULT_REGION = 'US';
 
-export type RegionUrl = {
-  url: string;
-  default: boolean;
-};
-
 /**
  * A function to get url from source config response
  * @param {array} urls    An array of objects containing urls
  * @returns
  */
-const getDefaultUrlofRegion = (urls: RegionUrl[]) => {
+const getDefaultUrlofRegion = (urls: RegionDetails[]) => {
   let url;
   if (Array.isArray(urls) && urls.length > 0) {
     const obj = urls.find(elem => elem.default === true);
@@ -29,14 +24,12 @@ const getDefaultUrlofRegion = (urls: RegionUrl[]) => {
  * @returns string
  */
 const resolveDataPlaneUrl = (
-  dataplanes:
-    | Record<
-        ResidencyServerRegion | ResidencyServerRegion.US | ResidencyServerRegion.EU,
-        RegionDetails[]
-      >
-    | undefined,
-  serverUrl: string | undefined,
-  residencyServer: ResidencyServerRegion | undefined,
+  dataplanes?: Record<
+    ResidencyServerRegion | ResidencyServerRegion.US | ResidencyServerRegion.EU,
+    RegionDetails[]
+  >,
+  serverUrl?: string,
+  residencyServer?: ResidencyServerRegion,
 ) => {
   // Check if dataPlanes object is present in source config
   if (dataplanes && Object.keys(dataplanes).length > 0) {

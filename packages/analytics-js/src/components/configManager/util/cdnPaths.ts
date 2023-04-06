@@ -3,7 +3,8 @@ import {
   CDN_INT_DIR,
   DEST_SDK_BASE_URL,
 } from '@rudderstack/analytics-js/constants/urls';
-import { getSDKUrlInfo, removeTrailingSlashes } from './commonUtil';
+import { removeTrailingSlashes } from '../../utilities/url';
+import { getSDKUrlInfo } from './commonUtil';
 
 /**
  * A function that determines integration SDK loading path
