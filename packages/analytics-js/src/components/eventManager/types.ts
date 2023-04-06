@@ -18,6 +18,6 @@ export type RudderEvent = {
 };
 
 export interface IEventManager {
-  init: () => void;
-  addEvent: (event: RudderEvent) => void;
+  init(): void;
+  addEvent(event: RudderEvent): void;
 }

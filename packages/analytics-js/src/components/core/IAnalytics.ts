@@ -26,7 +26,6 @@ import {
   TrackCallOptions,
 } from './eventMethodOverloads';
 
-// TODO: for all methods expose the overloads in globalObject but use only one object argument to pass values to instance
 export interface IAnalytics {
   initialized: boolean;
   status: LifecycleStatus;
@@ -39,11 +38,16 @@ export interface IAnalytics {
   configManager: IConfigManager;
   capabilitiesManager: ICapabilitiesManager;
   eventManager: IEventManager;
-  clientDataStore?: Store;
   userSessionManager: IUserSessionManager;
+  clientDataStore?: Store;
 
   /**
-   * Call control pane to get client configs
+   * Attach error handler on the window onerror
+   */
+  attachGlobalErrorHandler(): void;
+
+  /**
+   * Start application lifecycle if not already started
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: Partial<LoadOptions>): void;
 
@@ -52,18 +56,39 @@ export interface IAnalytics {
    */
   startLifecycle(): void;
 
+  /**
+   * Load browser polyfill if required
+   */
   loadPolyfill(): void;
 
-  init(): void;
-
+  /**
+   * Load configuration
+   */
   loadConfig(): void;
 
+  /**
+   * Initialize the storage and event queue
+   */
+  init(): void;
+
+  /**
+   * Load plugins
+   */
   loadPlugins(): void;
 
+  /**
+   * Trigger onLoaded callback if any is provided in config
+   */
   onLoaded(): void;
 
+  /**
+   * Load device mode integrations
+   */
   loadIntegrations(): void;
 
+  /**
+   * Invoke the ready callbacks if any exist
+   */
   onReady(): void;
 
   /**
@@ -103,8 +128,6 @@ export interface IAnalytics {
 
   /**
    * To set anonymousId
-   * @param anonymousId
-   * @param rudderAmpLinkerParam AMP Linker ID string
    */
   setAnonymousId(anonymousId?: string, rudderAmpLinkerParam?: string): string;
 
@@ -146,10 +169,10 @@ export interface IAnalytics {
   /**
    * To fetch the current sessionId
    */
-  getSessionId(): number | null;
+  getSessionId(): Nullable<number>;
 
   /**
    * To fetch the current sessionInfo
    */
-  getSessionInfo(): SessionInfo | null;
+  getSessionInfo(): Nullable<SessionInfo>;
 }

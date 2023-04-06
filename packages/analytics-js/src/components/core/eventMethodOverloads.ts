@@ -39,8 +39,12 @@ export type GroupCallOptions = {
   callback?: ApiCallback;
 };
 
-// TODO: is there any specific reason why we ser the overloaded values to nul instead of undefined?
+// TODO: is there any specific reason why we set the overloaded values to null instead of undefined?
 //   if yes make them null instead of omitting in overloaded cases
+
+/*
+ * Normalise the overloaded arguments of the page call facade
+ */
 const pageArgumentsToCallOptions = (
   category?: string | Nullable<ApiObject> | ApiCallback,
   name?: string | Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
@@ -100,6 +104,9 @@ const pageArgumentsToCallOptions = (
   return payload;
 };
 
+/*
+ * Normalise the overloaded arguments of the track call facade
+ */
 const trackArgumentsToCallOptions = (
   event: string,
   properties?: Nullable<ApiObject> | ApiCallback,
@@ -117,7 +124,7 @@ const trackArgumentsToCallOptions = (
   }
 
   if (typeof options === 'function') {
-    payload.properties = R.clone(properties as Nullable<ApiOptions>);
+    payload.properties = R.clone(properties as Nullable<ApiObject>);
     payload.callback = options;
   }
 
@@ -128,8 +135,11 @@ const trackArgumentsToCallOptions = (
   return payload;
 };
 
+/*
+ * Normalise the overloaded arguments of the identify call facade
+ */
 const identifyArgumentsToCallOptions = (
-  userId?: string | number | Nullable<ApiObject>,
+  userId?: Nullable<ApiObject | string | number>,
   traits?: Nullable<ApiObject> | ApiCallback,
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
@@ -137,20 +147,20 @@ const identifyArgumentsToCallOptions = (
   const payload: IdentifyCallOptions = {};
 
   if (typeof callback === 'function') {
-    payload.userId = userId as string | number | null | undefined;
+    payload.userId = userId as Nullable<string | number> | undefined;
     payload.traits = R.clone(traits as Nullable<ApiObject>);
     payload.options = R.clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
   if (typeof options === 'function') {
-    payload.userId = userId as string | number | null | undefined;
+    payload.userId = userId as Nullable<string | number> | undefined;
     payload.traits = R.clone(traits as Nullable<ApiObject>);
     payload.callback = options;
   }
 
   if (typeof traits === 'function') {
-    payload.userId = userId as string | number | null | undefined;
+    payload.userId = userId as Nullable<string | number> | undefined;
     payload.callback = traits;
   }
 
@@ -163,6 +173,9 @@ const identifyArgumentsToCallOptions = (
   return payload;
 };
 
+/*
+ * Normalise the overloaded arguments of the alias call facade
+ */
 const aliasArgumentsToCallOptions = (
   to: string,
   from?: string | Nullable<ApiOptions> | ApiCallback,
@@ -195,6 +208,9 @@ const aliasArgumentsToCallOptions = (
   return payload;
 };
 
+/*
+ * Normalise the overloaded arguments of the group call facade
+ */
 const groupArgumentsToCallOptions = (
   groupId: string | Nullable<ApiObject> | ApiCallback,
   traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
@@ -221,7 +237,12 @@ const groupArgumentsToCallOptions = (
     payload.callback = traits;
   }
 
+  if (typeof groupId === 'function') {
+    payload.callback = groupId;
+  }
+
   if (typeof groupId === 'object') {
+    delete payload.groupId;
     payload.traits = R.clone(groupId as Nullable<ApiObject>);
 
     if (typeof traits === 'function') {

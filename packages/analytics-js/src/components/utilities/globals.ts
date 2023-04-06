@@ -1,5 +1,8 @@
 import { ExposedGlobals, IRudderStackGlobals } from '../core/IRudderStackGlobals';
 
+/**
+ * Create globally accessible RudderStackGlobals object
+ */
 const createExposedGlobals = (analyticsInstanceId = 'analytics') => {
   if (!(window as any).RudderStackGlobals) {
     (window as any).RudderStackGlobals = {} as IRudderStackGlobals;
@@ -10,11 +13,17 @@ const createExposedGlobals = (analyticsInstanceId = 'analytics') => {
   }
 };
 
+/**
+ * Add move values to globally accessible RudderStackGlobals object per analytics instance
+ */
 const setExposedGlobal = (keyName: string, value?: any, analyticsInstanceId = 'analytics') => {
   createExposedGlobals(analyticsInstanceId);
   (window as any).RudderStackGlobals[analyticsInstanceId][keyName] = value;
 };
 
+/**
+ * Get values from globally accessible RudderStackGlobals object by analytics instance
+ */
 const getExposedGlobal = (
   keyName: string,
   analyticsInstanceId = 'analytics',

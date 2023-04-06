@@ -9,7 +9,7 @@ export interface IRequestConfig {
 }
 
 export interface IAsyncRequestConfig<T> extends IRequestConfig {
-  callback?: (data?: T | string | undefined) => void;
+  callback?(data?: T | string | undefined): void;
 }
 
 export interface IXHRRequestOptions {
@@ -47,8 +47,8 @@ export interface IHttpClient {
   basicAuthHeader?: string;
   hasErrorHandler: boolean;
   hasLogger: boolean;
-  getData: <T = any>(config: IRequestConfig) => Promise<T | string | undefined>;
-  getAsyncData: <T = any>(config: IAsyncRequestConfig<T>) => void;
-  setAuthHeader: (value: string, noBto?: boolean) => void;
-  resetAuthHeader: () => void;
+  getData<T = any>(config: IRequestConfig): Promise<T | string | undefined>;
+  getAsyncData<T = any>(config: IAsyncRequestConfig<T>): void;
+  setAuthHeader(value: string, noBto?: boolean): void;
+  resetAuthHeader(): void;
 }
