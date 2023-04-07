@@ -8,12 +8,12 @@ const isLegacyJSEngine = (): boolean =>
   !String.prototype.endsWith ||
   !String.prototype.startsWith ||
   !String.prototype.includes ||
+  !String.prototype.replaceAll ||
   !Array.prototype.find ||
   !Array.prototype.includes ||
-  !Promise ||
   !Object.entries ||
   !Object.values ||
-  !String.prototype.replaceAll ||
+  !Promise ||
   !isDatasetAvailable();
 
 export { isDatasetAvailable, isLegacyJSEngine };

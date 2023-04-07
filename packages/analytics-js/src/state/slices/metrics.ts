@@ -6,6 +6,7 @@ export type MetricsState = {
   dropped: Signal<number>;
   sent: Signal<number>;
   queued: Signal<number>;
+  triggered: Signal<number>;
 };
 
 const metricsState: MetricsState = {
@@ -13,6 +14,7 @@ const metricsState: MetricsState = {
   dropped: signal(0),
   sent: signal(0),
   queued: signal(0),
+  triggered: signal(0),
 };
 
 export { metricsState };

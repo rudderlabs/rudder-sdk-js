@@ -8,7 +8,9 @@ class ConfigManager {
 
   getConfig() {
     // Once done call all ready
-    this.onReady();
+    window.setTimeout(() => {
+      this.onReady();
+    }, 500);
   }
 
   onReady() {

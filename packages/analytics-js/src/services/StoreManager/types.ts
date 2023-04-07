@@ -40,12 +40,13 @@ export type StoreManagerOptions = {
 
 export interface IStoreConfig {
   name: string;
-  id: string;
+  id: StoreId;
   isEncrypted?: boolean;
   validKeys?: Record<string, string>;
   noCompoundKey?: boolean;
   errorHandler?: IErrorHandler;
   logger?: ILogger;
+  type?: StorageType;
 }
 
 export interface IStoreManager {
@@ -56,7 +57,7 @@ export interface IStoreManager {
   init(): void;
   initClientDataStore(): void;
   initQueueStore(): void;
-  setStore(id: StoreId, storeConfig: IStoreConfig, type?: StorageType): void;
+  setStore(storeConfig: IStoreConfig): void;
   getStore(id: StoreId): IStore | undefined;
 }
 

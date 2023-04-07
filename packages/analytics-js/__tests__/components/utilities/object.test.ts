@@ -128,6 +128,7 @@ describe('Common Utils - Object', () => {
     expect(mergedArray).toEqual(expectedMergedTraitsPayload);
   });
 
+  // This has been proved so no need to have lodash dependency and this test case anymore
   // it('should merge right nested object properties like lodash merge', () => {
   //   const mergedArray = mergeDeepRight(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock);
   //   expect(mergedArray).toEqual(merge(identifyTraitsPayloadMock, trackTraitsOverridePayloadMock));
