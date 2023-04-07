@@ -32,7 +32,7 @@ const getEventDataFromQueryString = (
 };
 
 /**
- * Parse query string params into preload buffer events and push into existing array
+ * Parse query string into preload buffer events & push into existing array before any other events
  */
 const retrieveEventsFromQueryString = (argumentsArray: PreloadedEventCall[] = []) => {
   // Mapping for trait and properties values based on key prefix
@@ -41,29 +41,29 @@ const retrieveEventsFromQueryString = (argumentsArray: PreloadedEventCall[] = []
     properties: QUERY_PARAM_PROPERTY_PREFIX,
   };
 
-  const queryObject = new URLSearchParams(document.location.search);
+  const queryObject = new URLSearchParams(window.location.search);
 
-  // Set anonymousID
-  if (queryObject.get(QUERY_PARAM_ANONYMOUS_ID_KEY)) {
-    argumentsArray.push(['setAnonymousId', queryObject.get(QUERY_PARAM_ANONYMOUS_ID_KEY)]);
+  // Add track events with name and properties
+  if (queryObject.get(QUERY_PARAM_TRACK_EVENT_NAME_KEY)) {
+    argumentsArray.unshift([
+      'track',
+      queryObject.get(QUERY_PARAM_TRACK_EVENT_NAME_KEY),
+      getEventDataFromQueryString(queryObject, eventArgumentToQueryParamMap.properties),
+    ]);
   }
 
   // Set userId and user traits
   if (queryObject.get(QUERY_PARAM_USER_ID_KEY)) {
-    argumentsArray.push([
+    argumentsArray.unshift([
       'identify',
       queryObject.get(QUERY_PARAM_USER_ID_KEY),
       getEventDataFromQueryString(queryObject, eventArgumentToQueryParamMap.trait),
     ]);
   }
 
-  // Add track events with name and properties
-  if (queryObject.get(QUERY_PARAM_TRACK_EVENT_NAME_KEY)) {
-    argumentsArray.push([
-      'track',
-      queryObject.get(QUERY_PARAM_TRACK_EVENT_NAME_KEY),
-      getEventDataFromQueryString(queryObject, eventArgumentToQueryParamMap.properties),
-    ]);
+  // Set anonymousID
+  if (queryObject.get(QUERY_PARAM_ANONYMOUS_ID_KEY)) {
+    argumentsArray.unshift(['setAnonymousId', queryObject.get(QUERY_PARAM_ANONYMOUS_ID_KEY)]);
   }
 };
 
@@ -105,7 +105,9 @@ const retrievePreloadBufferEvents = (instance: IRudderAnalytics) => {
   retrieveEventsFromQueryString(preloadedEventsArray);
 
   // Enqueue the events in the buffer of the global rudder analytics singleton
-  instance.enqueuePreloadBufferEvents(preloadedEventsArray);
+  if (preloadedEventsArray.length > 0) {
+    instance.enqueuePreloadBufferEvents(preloadedEventsArray);
+  }
 
   // Process load method if present in the buffered requests
   if (loadEvent.length > 0) {

@@ -9,6 +9,7 @@ global.window.innerHeight = 1024;
 // Setup mocking for window.navigator
 const defaultUserAgent = window.navigator.userAgent;
 const defaultLanguage = window.navigator.language;
+
 Object.defineProperty(
   window.navigator,
   'userAgent',
@@ -32,7 +33,7 @@ Object.defineProperty(
     set(v) {
       value = v;
     },
-  }))(window.navigator.userAgent),
+  }))(window.navigator.brave),
 );
 
 Object.defineProperty(
@@ -45,5 +46,5 @@ Object.defineProperty(
     set(v) {
       value = v;
     },
-  }))(window.navigator.userAgent),
+  }))(window.navigator.language),
 );

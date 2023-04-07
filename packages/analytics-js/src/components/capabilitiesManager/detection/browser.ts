@@ -1,17 +1,19 @@
 import { Nullable } from '@rudderstack/analytics-js/types';
 
-const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
+const isBrowser = (): boolean =>
+  typeof window !== 'undefined' && typeof window.document !== 'undefined';
 
-const isNode =
+const isNode = (): boolean =>
   typeof process !== 'undefined' && process.versions != null && process.versions.node != null;
 
-const hasCrypto = window.crypto && typeof window.crypto.getRandomValues === 'function';
+const hasCrypto = (): boolean =>
+  Boolean(window.crypto && typeof window.crypto.getRandomValues === 'function');
 
 // eslint-disable-next-line compat/compat
-const hasUAClientHints = Boolean(window.navigator.userAgentData);
+const hasUAClientHints = (): boolean => Boolean(window.navigator.userAgentData);
 
 // eslint-disable-next-line compat/compat
-const hasBeacon = Boolean(window.navigator.sendBeacon);
+const hasBeacon = (): boolean => Boolean(window.navigator.sendBeacon);
 
 const getUserAgent = (): Nullable<string> => {
   if (typeof window.navigator === 'undefined') {
@@ -37,7 +39,7 @@ const getUserAgent = (): Nullable<string> => {
 };
 
 const getLanguage = (): Nullable<string> => {
-  if (typeof navigator === 'undefined') {
+  if (typeof window.navigator === 'undefined') {
     return null;
   }
 
