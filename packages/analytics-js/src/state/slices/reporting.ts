@@ -6,8 +6,8 @@ export type ReportingState = {
 };
 
 const reportingState: ReportingState = {
-  isErrorReportingEnabled: signal(false), // source.config.statsCollection.errorReports
-  isMetricsReportingEnabled: signal(false), // source.config.statsCollection.metrics
+  isErrorReportingEnabled: signal(false),
+  isMetricsReportingEnabled: signal(false),
 };
 
 export { reportingState };

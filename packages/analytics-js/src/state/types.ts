@@ -1,5 +1,3 @@
-import { IAnalytics } from '@rudderstack/analytics-js/components/core/IAnalytics';
-
 export type CookieConsentOptions = {
   // OneTrust
   oneTrust?: {
@@ -226,7 +224,7 @@ export type LoadOptions = {
   sameSiteCookie: CookieSameSite; // defaults to Lax.
   lockIntegrationsVersion?: boolean; // defaults to false.
   polyfillIfRequired: boolean; // defaults to true. Controls whether the SDK should polyfill unsupported browser API's if they are detected as missing
-  onLoaded?: (analytics: IAnalytics) => void;
+  onLoaded?: (analytics: any) => void;
   uaChTrackLevel?: UaChTrackLevel;
   residencyServer?: ResidencyServerRegion;
   getSourceConfig?: () => string | ApiObject | Promise<ApiObject> | Promise<string>;
@@ -287,12 +285,14 @@ export type Source = {
 };
 
 export type SourceConfig = {
-  statsCollection?: {
-    errorReports: {
-      enabled: boolean;
-    };
-    metrics: {
-      enabled: boolean;
-    };
+  statsCollection?: StatsCollection;
+};
+
+export type StatsCollection = {
+  errors: {
+    enabled: boolean;
+  };
+  metrics: {
+    enabled: boolean;
   };
 };

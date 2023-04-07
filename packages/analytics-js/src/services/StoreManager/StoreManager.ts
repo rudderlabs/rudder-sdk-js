@@ -64,9 +64,9 @@ class StoreManager implements IStoreManager {
     let storageType: StorageType | '' = '';
 
     // First try setting the storage to cookie else to localstorage
-    if (getStorageEngine('cookieStorage').isEnabled) {
+    if (getStorageEngine('cookieStorage')?.isEnabled) {
       storageType = 'cookieStorage';
-    } else if (getStorageEngine('localStorage').isEnabled) {
+    } else if (getStorageEngine('localStorage')?.isEnabled) {
       storageType = 'localStorage';
     }
 
@@ -81,16 +81,13 @@ class StoreManager implements IStoreManager {
 
     // TODO: fill in extra config values and bring them in from StoreManagerOptions if needed
     // TODO: should we pass the keys for all in order to validate or leave free as v1.1?
-    this.setStore(
-      'clientData',
-      {
-        id: 'clientData',
-        name: 'clientData',
-        isEncrypted: true,
-        noCompoundKey: true,
-      },
-      storageType,
-    );
+    this.setStore({
+      id: 'clientData',
+      name: 'clientData',
+      isEncrypted: true,
+      noCompoundKey: true,
+      type: storageType,
+    });
   }
 
   /**
@@ -103,9 +100,9 @@ class StoreManager implements IStoreManager {
   /**
    * Create a new store
    */
-  setStore(id: StoreId, storeConfig: IStoreConfig, type?: StorageType) {
-    const storageEngine = getStorageEngine(type);
-    this.stores[id] = new Store(storeConfig, storageEngine);
+  setStore(storeConfig: IStoreConfig) {
+    const storageEngine = getStorageEngine(storeConfig.type);
+    this.stores[storeConfig.id] = new Store(storeConfig, storageEngine);
   }
 
   /**

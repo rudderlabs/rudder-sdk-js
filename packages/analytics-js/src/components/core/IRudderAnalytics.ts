@@ -29,7 +29,7 @@ export interface IRudderAnalytics {
   /**
    * Set the writeKey of the analytics instance that should be default
    */
-  setDefaultInstanceKey(writeKey: string): void;
+  setDefaultInstanceKey(writeKey: string, autoSet: boolean): void;
 
   /**
    * Get the instance of Analytics that is set as default
@@ -120,13 +120,13 @@ export interface IRudderAnalytics {
    * To record a user group event
    */
   group(
-    groupId: string,
+    groupId: string | number,
     traits?: Nullable<ApiObject>,
     options?: Nullable<ApiOptions>,
     callback?: ApiCallback,
   ): void;
-  group(groupId: string, traits: Nullable<ApiObject>, callback: ApiCallback): void;
-  group(groupId: string, callback: ApiCallback): void;
+  group(groupId: string | number, traits: Nullable<ApiObject>, callback: ApiCallback): void;
+  group(groupId: string | number, callback: ApiCallback): void;
   group(traits: Nullable<ApiObject>, options: Nullable<ApiOptions>, callback?: ApiCallback): void;
   group(traits: Nullable<ApiObject>, callback?: ApiCallback): void;
 

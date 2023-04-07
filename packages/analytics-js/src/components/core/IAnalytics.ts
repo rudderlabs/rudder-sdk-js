@@ -34,7 +34,7 @@ export interface IAnalytics {
   errorHandler: IErrorHandler;
   pluginsManager: IPluginsManager;
   externalSrcLoader: IExternalSrcLoader;
-  storageManager: IStoreManager;
+  storeManager: IStoreManager;
   configManager: IConfigManager;
   capabilitiesManager: ICapabilitiesManager;
   eventManager: IEventManager;

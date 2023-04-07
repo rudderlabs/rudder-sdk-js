@@ -82,6 +82,7 @@ class RudderAnalytics implements IRudderAnalytics {
 
   /**
    * Set instance to use if no specific writeKey is provided in methods
+   * automatically for the first created instance
    * TODO: to support multiple analytics instances in the near future
    */
   setDefaultInstanceKey(writeKey: string) {
@@ -94,21 +95,23 @@ class RudderAnalytics implements IRudderAnalytics {
    * Retrieve an existing analytics instance
    */
   getAnalyticsInstance(writeKey?: string): IAnalytics {
-    const noAnalyticsInstanceExists = Boolean(
-      this.analyticsInstances[writeKey || this.defaultAnalyticsKey],
-    );
-    if (noAnalyticsInstanceExists) {
-      this.analyticsInstances[writeKey || this.defaultAnalyticsKey] = new Analytics();
+    const instanceId = writeKey || this.defaultAnalyticsKey;
+
+    const analyticsInstanceExists = Boolean(this.analyticsInstances[instanceId]);
+
+    if (!analyticsInstanceExists) {
+      this.analyticsInstances[instanceId] = new Analytics();
     }
 
-    return this.analyticsInstances[writeKey || this.defaultAnalyticsKey];
+    return this.analyticsInstances[instanceId];
   }
 
   /**
    * Create new analytics instance and trigger application lifecycle start
    */
   load(writeKey: string, dataPlaneUrl: string, loadOptions?: LoadOptions) {
-    const shouldSkipLoad = typeof writeKey !== 'string' || this.analyticsInstances[writeKey];
+    const shouldSkipLoad =
+      typeof writeKey !== 'string' || Boolean(this.analyticsInstances[writeKey]);
     if (shouldSkipLoad) {
       return;
     }
@@ -212,12 +215,12 @@ class RudderAnalytics implements IRudderAnalytics {
    * Process group arguments and forward to page call
    */
   group(
-    groupId: string | Nullable<ApiObject> | ApiCallback,
+    groupId: string | number | Nullable<ApiObject> | ApiCallback,
     traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
     options?: Nullable<ApiOptions> | ApiCallback,
     callback?: ApiCallback,
   ) {
-    this.getAnalyticsInstance().alias(
+    this.getAnalyticsInstance().group(
       groupArgumentsToCallOptions(groupId, traits, options, callback),
     );
   }
@@ -266,5 +269,7 @@ class RudderAnalytics implements IRudderAnalytics {
     return this.getAnalyticsInstance().getSessionInfo();
   }
 }
+
+// TODO: ensure the user, group and anonymous id is always converted to string if its number
 
 export { RudderAnalytics };

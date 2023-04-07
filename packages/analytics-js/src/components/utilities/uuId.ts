@@ -3,7 +3,7 @@ import { v4 as uuid } from '@lukeed/uuid';
 import { hasCrypto } from '../capabilitiesManager/detection/browser';
 
 const generateUUID = (): string => {
-  if (hasCrypto) {
+  if (hasCrypto()) {
     return uuidSecure();
   }
 
