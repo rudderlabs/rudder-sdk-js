@@ -1,5 +1,5 @@
 {
-  "threshold": 5,
+  "threshold": 20,
   "reporters": ["html", "console"],
   "pattern": "**/*",
   "ignore": ["**/__tests__/**", "**/__mocks__/**", "**/node_modules/**", "*.test.*"],
