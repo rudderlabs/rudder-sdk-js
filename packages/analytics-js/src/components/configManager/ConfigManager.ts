@@ -95,7 +95,7 @@ class ConfigManager implements IConfigManager {
 
       // set the values in state for reporting slice
       state.reporting.isErrorReportingEnabled.value =
-        res.source.config.statsCollection.errorReports.enabled || false;
+        res.source.config.statsCollection.errors.enabled || false;
       state.reporting.isMetricsReportingEnabled.value =
         res.source.config.statsCollection.metrics.enabled || false;
     });

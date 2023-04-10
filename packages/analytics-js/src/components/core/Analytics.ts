@@ -5,7 +5,7 @@ import { defaultErrorHandler } from '@rudderstack/analytics-js/services/ErrorHan
 import { defaultPluginManager } from '@rudderstack/analytics-js/components/pluginsManager';
 import { defaultExternalSrcLoader } from '@rudderstack/analytics-js/services/ExternalSrcLoader';
 import { defaultStoreManager, Store } from '@rudderstack/analytics-js/services/StoreManager';
-import { effect } from '@preact/signals-core';
+import { batch, effect } from '@preact/signals-core';
 import { state } from '@rudderstack/analytics-js/state';
 import { defaultConfigManager } from '@rudderstack/analytics-js/components/configManager/ConfigManager';
 import { ICapabilitiesManager } from '@rudderstack/analytics-js/components/capabilitiesManager/types';
@@ -53,7 +53,7 @@ class Analytics implements IAnalytics {
   errorHandler: IErrorHandler;
   pluginsManager: IPluginsManager;
   externalSrcLoader: IExternalSrcLoader;
-  storageManager: IStoreManager;
+  storeManager: IStoreManager;
   configManager: IConfigManager;
   capabilitiesManager: ICapabilitiesManager;
   eventManager: IEventManager;
@@ -127,10 +127,12 @@ class Analytics implements IAnalytics {
     this.attachGlobalErrorHandler();
 
     // Set initial state values
-    state.lifecycle.status.value = 'mounted';
-    state.lifecycle.writeKey.value = writeKey;
-    state.lifecycle.dataPlaneUrl.value = dataPlaneUrl;
-    state.loadOptions.value = mergeDeepRight(state.loadOptions.value, R.clone(loadOptions));
+    batch(() => {
+      state.lifecycle.writeKey.value = writeKey;
+      state.lifecycle.dataPlaneUrl.value = dataPlaneUrl;
+      state.loadOptions.value = mergeDeepRight(state.loadOptions.value, R.clone(loadOptions));
+      state.lifecycle.status.value = 'mounted';
+    });
 
     // Expose state to global objects
     setExposedGlobal('state', state, writeKey);
@@ -228,8 +230,10 @@ class Analytics implements IAnalytics {
    */
   onLoaded() {
     // Set lifecycle state
-    state.lifecycle.loaded.value = true;
-    state.lifecycle.status.value = 'loaded';
+    batch(() => {
+      state.lifecycle.loaded.value = true;
+      state.lifecycle.status.value = 'loaded';
+    });
 
     // Execute onLoaded callback if provided in load options
     if (state.loadOptions.value.onLoaded && isFunction(state.loadOptions.value.onLoaded)) {
@@ -308,7 +312,7 @@ class Analytics implements IAnalytics {
       return;
     }
 
-    if (!state.lifecycle.loaded) {
+    if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, callback]);
       return;
     }
@@ -328,8 +332,9 @@ class Analytics implements IAnalytics {
   page(payload: PageCallOptions) {
     const type = 'page';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value = state.metrics.triggered.value + 1;
 
-    if (!state.lifecycle.loaded) {
+    if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
@@ -347,8 +352,9 @@ class Analytics implements IAnalytics {
   track(payload: TrackCallOptions) {
     const type = 'track';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value = state.metrics.triggered.value + 1;
 
-    if (!state.lifecycle.loaded) {
+    if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
@@ -364,31 +370,30 @@ class Analytics implements IAnalytics {
 
   identify(payload: IdentifyCallOptions) {
     const type = 'identify';
-    const normalisedUserId =
-      payload.userId || payload.userId === 0 ? payload.userId.toString() : null;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value = state.metrics.triggered.value + 1;
 
-    if (!state.lifecycle.loaded) {
+    if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
 
     const shouldResetSession = Boolean(
-      normalisedUserId &&
+      payload.userId &&
         state.session.rl_user_id.value &&
-        normalisedUserId !== state.session.rl_user_id.value,
+        payload.userId !== state.session.rl_user_id.value,
     );
 
     if (shouldResetSession) {
       this.reset();
     }
 
-    this.userSessionManager.setUserId(normalisedUserId);
+    this.userSessionManager.setUserId(payload.userId);
     this.userSessionManager.setUserTraits(payload.traits);
 
     this.eventManager.addEvent({
       type: 'identify',
-      userId: normalisedUserId,
+      userId: payload.userId,
       traits: payload.traits,
       options: payload.options,
       callback: payload.callback,
@@ -398,8 +403,9 @@ class Analytics implements IAnalytics {
   alias(payload: AliasCallOptions) {
     const type = 'alias';
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value = state.metrics.triggered.value + 1;
 
-    if (!state.lifecycle.loaded) {
+    if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
@@ -415,21 +421,20 @@ class Analytics implements IAnalytics {
 
   group(payload: GroupCallOptions) {
     const type = 'group';
-    const normalisedGroupId =
-      payload.groupId || payload.groupId === 0 ? payload.groupId.toString() : null;
     this.errorHandler.leaveBreadcrumb(`New ${type} event`);
+    state.metrics.triggered.value = state.metrics.triggered.value + 1;
 
-    if (!state.lifecycle.loaded) {
+    if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, payload]);
       return;
     }
 
-    this.userSessionManager.setGroupId(normalisedGroupId);
+    this.userSessionManager.setGroupId(payload.groupId);
     this.userSessionManager.setGroupTraits(payload.traits);
 
     this.eventManager.addEvent({
       type,
-      groupId: normalisedGroupId,
+      groupId: payload.groupId,
       traits: payload.traits,
       options: payload.options,
       callback: payload.callback,
@@ -440,7 +445,7 @@ class Analytics implements IAnalytics {
     const type = 'reset';
     this.errorHandler.leaveBreadcrumb(`New ${type} event, resetAnonymousId: ${resetAnonymousId}`);
 
-    if (!state.lifecycle.loaded) {
+    if (!state.lifecycle.loaded.value) {
       state.eventBuffer.toBeProcessedArray.value.push([type, resetAnonymousId]);
       return;
     }

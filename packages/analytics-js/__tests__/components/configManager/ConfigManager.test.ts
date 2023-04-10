@@ -4,8 +4,8 @@ import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { ConfigManager } from '@rudderstack/analytics-js/components/configManager';
 import { state } from '@rudderstack/analytics-js/state';
 import { getSDKUrlInfo } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
-import { server } from '../../../__mocks__/msw.server';
 import { rest } from 'msw';
+import { server } from '../../../__mocks__/msw.server';
 import { dummySourceConfigResponse } from '../../../__mocks__/fixtures';
 
 jest.mock('../../../src/services/Logger', () => {

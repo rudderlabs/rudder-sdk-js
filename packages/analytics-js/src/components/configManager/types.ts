@@ -3,10 +3,8 @@ import {
   DestinationConfig,
   RegionDetails,
   ResidencyServerRegion,
-} from '@rudderstack/analytics-js/state/types';
-import { HttpClient } from '@rudderstack/analytics-js/services/HttpClient';
-import { ErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler';
-import { Logger } from '@rudderstack/analytics-js/services/Logger';
+  StatsCollection
+} from "@rudderstack/analytics-js/state/types";
 import { IHttpClient } from '@rudderstack/analytics-js/services/HttpClient/types';
 import { IErrorHandler } from '@rudderstack/analytics-js/services/ErrorHandler/types';
 import { ILogger } from '@rudderstack/analytics-js/services/Logger/types';
@@ -36,15 +34,6 @@ export type Connection = {
   id: string;
   sourceId: string;
   updatedAt: string;
-};
-
-export type StatsCollection = {
-  errorReports: {
-    enabled: boolean;
-  };
-  metrics: {
-    enabled: boolean;
-  };
 };
 
 export type SourceDefinition = {

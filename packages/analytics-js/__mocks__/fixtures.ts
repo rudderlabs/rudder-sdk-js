@@ -70,7 +70,7 @@ const dummySourceConfigResponse = {
   source: {
     config: {
       statsCollection: {
-        errorReports: {
+        errors: {
           enabled: false,
         },
         metrics: {

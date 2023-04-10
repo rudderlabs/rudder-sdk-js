@@ -19,7 +19,7 @@ export type TrackCallOptions = {
 };
 
 export type IdentifyCallOptions = {
-  userId?: string | number | null;
+  userId?: string | null;
   traits?: Nullable<ApiObject>;
   options?: Nullable<ApiOptions>;
   callback?: ApiCallback;
@@ -33,7 +33,7 @@ export type AliasCallOptions = {
 };
 
 export type GroupCallOptions = {
-  groupId?: Nullable<string | number>;
+  groupId?: Nullable<string>;
   traits?: Nullable<ApiObject>;
   options?: Nullable<ApiOptions>;
   callback?: ApiCallback;
@@ -87,19 +87,25 @@ const pageArgumentsToCallOptions = (
   if (typeof category === 'object' && category !== null) {
     payload.options = R.clone(name as Nullable<ApiOptions>);
     payload.properties = R.clone(category as Nullable<ApiObject>);
+    delete payload.name;
+    delete payload.category;
   } else if (typeof name === 'object' && name !== null) {
     payload.options = R.clone(properties as Nullable<ApiOptions>);
     payload.properties = R.clone(name as Nullable<ApiObject>);
+    delete payload.name;
   }
 
-  if (typeof category === 'string' && typeof name !== 'string') {
-    payload.name = category;
+  if (typeof payload.category === 'string' && typeof payload.name !== 'string') {
+    payload.name = payload.category;
   }
 
-  payload.properties = mergeDeepRight(payload.properties || {}, {
-    name: typeof name === 'string' ? name : null,
-    category: typeof category === 'string' ? category : null,
-  });
+  payload.properties = mergeDeepRight(
+    typeof payload.properties === 'object' && payload.properties !== null ? payload.properties : {},
+    {
+      name: typeof payload.name === 'string' ? payload.name : null,
+      category: typeof payload.category === 'string' ? payload.category : null,
+    },
+  );
 
   return payload;
 };
@@ -132,6 +138,14 @@ const trackArgumentsToCallOptions = (
     payload.callback = properties;
   }
 
+  if (typeof options === 'object') {
+    payload.options = options;
+  }
+
+  if (typeof properties === 'object') {
+    payload.properties = properties;
+  }
+
   return payload;
 };
 
@@ -147,27 +161,26 @@ const identifyArgumentsToCallOptions = (
   const payload: IdentifyCallOptions = {};
 
   if (typeof callback === 'function') {
-    payload.userId = userId as Nullable<string | number> | undefined;
     payload.traits = R.clone(traits as Nullable<ApiObject>);
     payload.options = R.clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
   if (typeof options === 'function') {
-    payload.userId = userId as Nullable<string | number> | undefined;
     payload.traits = R.clone(traits as Nullable<ApiObject>);
     payload.callback = options;
   }
 
   if (typeof traits === 'function') {
-    payload.userId = userId as Nullable<string | number> | undefined;
     payload.callback = traits;
   }
 
   if (typeof userId === 'object') {
-    payload.userId = undefined;
+    delete payload.userId;
     payload.traits = R.clone(userId as Nullable<ApiObject>);
     payload.options = R.clone(traits as Nullable<ApiOptions>);
+  } else {
+    payload.userId = typeof userId === 'number' ? userId.toString() : userId;
   }
 
   return payload;
@@ -203,6 +216,7 @@ const aliasArgumentsToCallOptions = (
 
   if (typeof from === 'object') {
     payload.options = R.clone(from as Nullable<ApiOptions>);
+    delete payload.from;
   }
 
   return payload;
@@ -212,7 +226,7 @@ const aliasArgumentsToCallOptions = (
  * Normalise the overloaded arguments of the group call facade
  */
 const groupArgumentsToCallOptions = (
-  groupId: string | Nullable<ApiObject> | ApiCallback,
+  groupId: string | number | Nullable<ApiObject> | ApiCallback,
   traits?: Nullable<ApiOptions> | Nullable<ApiObject> | ApiCallback,
   options?: Nullable<ApiOptions> | ApiCallback,
   callback?: ApiCallback,
@@ -220,29 +234,24 @@ const groupArgumentsToCallOptions = (
   const payload: GroupCallOptions = {};
 
   if (typeof callback === 'function') {
-    payload.groupId = groupId as string;
     payload.traits = R.clone(traits as Nullable<ApiObject>);
     payload.options = R.clone(options as Nullable<ApiOptions>);
     payload.callback = callback;
   }
 
   if (typeof options === 'function') {
-    payload.groupId = groupId as string;
     payload.traits = R.clone(traits as Nullable<ApiObject>);
     payload.callback = options;
   }
 
   if (typeof traits === 'function') {
-    payload.groupId = groupId as string;
     payload.callback = traits;
   }
 
+  // TODO: why do we enable overload for group that only passes callback? is there any use case?
   if (typeof groupId === 'function') {
     payload.callback = groupId;
-  }
-
-  if (typeof groupId === 'object') {
-    delete payload.groupId;
+  } else if (typeof groupId === 'object') {
     payload.traits = R.clone(groupId as Nullable<ApiObject>);
 
     if (typeof traits === 'function') {
@@ -250,6 +259,8 @@ const groupArgumentsToCallOptions = (
     } else {
       payload.options = R.clone(traits as Nullable<ApiOptions>);
     }
+  } else {
+    payload.groupId = typeof groupId === 'number' ? groupId.toString() : groupId;
   }
 
   return payload;
