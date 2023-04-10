@@ -156,5 +156,5 @@ test.each(testCaseData)('$description', ({ input, output }) => {
 
 test.each(testCaseDataWithInvalidDataplaneUrl)('$description', ({ input }) => {
   const url = () => resolveDataPlaneUrl(input.response, input.serverUrl, input.options);
-  expect(url).toThrow('Unable to load the SDK due to invalid data plane url');
+  expect(url).toThrow('Unable to load the SDK due to invalid data plane URL');
 });

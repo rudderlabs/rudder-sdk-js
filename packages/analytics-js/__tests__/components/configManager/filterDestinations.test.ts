@@ -134,7 +134,7 @@ const sampleDestinationResponse2: ConfigResponseDestinationItem[] = [
 const expectedFilteredDestinations = [
   {
     id: '2LoR1TbVG2bcISXvy7DamldfkgO',
-    name: 'GA4',
+    definitionName: 'GA4',
     areTransformationsConnected: true,
     config: {
       measurementId: 'G-SC6JGSYH6H',
@@ -157,7 +157,7 @@ const expectedFilteredDestinations = [
   },
   {
     id: '2LoR1TbVG2bcISXvy7Damldfkg1',
-    name: 'BRAZE',
+    definitionName: 'BRAZE',
     areTransformationsConnected: false,
     config: {
       measurementId: 'G-SC6JGSYH6H',

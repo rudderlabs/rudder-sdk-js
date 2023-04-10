@@ -29,7 +29,7 @@ export type Traits = Record<string, any>;
 
 export type Destination = {
   id: string;
-  name: string;
+  definitionName: string;
   areTransformationsConnected: boolean;
   config: DestinationConfig;
 };
@@ -279,10 +279,6 @@ export type RegionDetails = {
 export type Source = {
   id: string;
   config?: SourceConfig;
-  name?: string;
-  writeKey?: string;
-  workspaceId?: string;
-  enabled?: boolean;
   dataplanes?: Record<ResidencyServerRegion, RegionDetails[]>;
 };
 

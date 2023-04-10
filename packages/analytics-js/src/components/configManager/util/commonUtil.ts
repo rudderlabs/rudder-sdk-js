@@ -1,7 +1,7 @@
 import { removeTrailingSlashes } from '../../utilities/url';
 
 /**
- * Determines if staging SDK is being used
+ * Determines the SDK url and also returns a boolean value determining if SDK is a staging SDK
  * @returns { sdkURL, isStaging }
  */
 const getSDKUrlInfo = () => {

@@ -36,10 +36,11 @@ class ConfigManager implements IConfigManager {
    */
   init() {
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
-    // determine the sourceConfig url
+    const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion || false;
+    // determine the path to fetch integration SDK url from
     const intgCdnUrl = getIntegrationsCDNPath(
       'process.package_version',
-      state.loadOptions.value.lockIntegrationsVersion as boolean,
+      lockIntegrationsVersion,
       state.loadOptions.value.destSDKBaseURL,
     );
 
@@ -47,15 +48,14 @@ class ConfigManager implements IConfigManager {
     // TODO: deprecate this in new version and stop adding '-staging' in filenames
     const { isStaging } = getSDKUrlInfo();
 
-    // set the final load option in state
+    // set application lifecycle state in global state
     batch(() => {
-      // set application lifecycle state in state
       if (state.loadOptions.value.logLevel) {
         state.lifecycle.logLevel.value = state.loadOptions.value.logLevel;
       }
       state.lifecycle.integrationsCDNPath.value = intgCdnUrl;
       if (state.loadOptions.value.configUrl) {
-        state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${state.loadOptions.value.lockIntegrationsVersion}`;
+        state.lifecycle.sourceConfigUrl.value = `${state.loadOptions.value.configUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${state.lifecycle.writeKey.value}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
       }
       state.lifecycle.isStaging.value = isStaging;
     });
@@ -107,10 +107,10 @@ class ConfigManager implements IConfigManager {
    * @returns
    */
   getConfig() {
-    const sourceConfigOption = state.loadOptions.value.getSourceConfig;
-    if (sourceConfigOption) {
+    const sourceConfigFunc = state.loadOptions.value.getSourceConfig;
+    if (sourceConfigFunc) {
       // fetch source config from the function
-      const res = sourceConfigOption();
+      const res = sourceConfigFunc();
 
       if (res instanceof Promise) {
         res

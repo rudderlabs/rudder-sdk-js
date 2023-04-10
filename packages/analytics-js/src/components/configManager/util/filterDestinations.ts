@@ -14,9 +14,9 @@ const filterEnabledDestination = (
     if (destination.enabled && destination.deleted !== true) {
       nativeDestinations.push({
         id: destination.id,
-        name: destination.destinationDefinition.name,
+        definitionName: destination.destinationDefinition.name,
         config: destination.config,
-        areTransformationsConnected: destination.areTransformationsConnected || false,
+        areTransformationsConnected: destination.areTransformationsConnected,
       });
     }
   });
