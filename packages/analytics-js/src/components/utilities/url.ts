@@ -11,7 +11,7 @@ const removeTrailingSlashes = (url: string | null): Nullable<string> =>
 /**
  * Checks if provided url is valid or not
  * @param url
- * @returns boolean
+ * @returns true if `url` is valid and false otherwise
  */
 const isValidUrl = (url: string): boolean => {
   try {
