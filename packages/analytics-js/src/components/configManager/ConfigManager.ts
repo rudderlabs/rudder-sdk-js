@@ -67,9 +67,17 @@ class ConfigManager implements IConfigManager {
    * Use to construct and store information that are dependent on the sourceConfig.
    * @param res source config response
    */
-  processConfig(res?: SourceConfigResponse | string) {
+  processConfig(response?: SourceConfigResponse | string) {
+    if (!response) {
+      throw Error('Unable to fetch source config');
+    }
+    let res: SourceConfigResponse;
+    if (typeof response === 'string') {
+      res = JSON.parse(response);
+    } else {
+      res = response;
+    }
     if (
-      !res ||
       typeof res !== 'object' ||
       !res.source ||
       !res.source.id ||
@@ -136,11 +144,6 @@ class ConfigManager implements IConfigManager {
     // fetch source config from config url API
     this.httpClient.getAsyncData({
       url: state.lifecycle.sourceConfigUrl.value,
-      options: {
-        headers: {
-          'Content-Type': undefined,
-        },
-      },
       callback: this.processConfig,
     });
   }
