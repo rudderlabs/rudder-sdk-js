@@ -1,6 +1,8 @@
 import { isValidUrl } from '../../utilities/url';
 
-const WRITE_KEY_LENGTH = 27; // writeKey generated in control plane consists of 27 character
+// The write key is a KSUID, 
+// https://github.com/segmentio/ksuid
+const WRITE_KEY_LENGTH = 27;
 
 const validateWriteKey = (writeKey?: string) => {
   if (!writeKey || writeKey.trim().length !== WRITE_KEY_LENGTH) {

@@ -23,7 +23,7 @@ const getDefaultUrlofRegion = (urls?: RegionDetails[]) => {
  * @param {Object} dataPlaneUrls An object containing dataPlaneUrl for different region
  * @param {String} serverUrl dataPlaneUrl provided in the load call
  * @param {String} residencyServerRegion User provided residency server region
- * @returns string
+ * @returns The data plane URL string to use
  */
 const resolveDataPlaneUrl = (
   dataplanes?: Record<ResidencyServerRegion, RegionDetails[]>,
