@@ -17,7 +17,8 @@ function getReferringDomain(referrer) {
 
 function getCanonicalUrl() {
   const tags = document.getElementsByTagName('link');
-  for (let i = 0, tag; (tag = tags[i]); i++) {
+  for (let i = 0; tags[i]; i += 1) {
+    const tag = tags[i];
     if (tag.getAttribute('rel') === 'canonical') {
       return tag.getAttribute('href');
     }
