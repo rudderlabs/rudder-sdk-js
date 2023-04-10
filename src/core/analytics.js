@@ -19,14 +19,11 @@ import * as R from 'ramda';
 import {
   getJSONTrimmed,
   generateUUID,
-  getDefaultPageProperties,
   getUserProvidedConfigUrl,
   findAllEnabledDestinations,
   transformToRudderNames,
   transformToServerNames,
   checkReservedKeywords,
-  getReferrer,
-  getReferringDomain,
   getConfigUrl,
   getSDKUrlInfo,
   commonNames,
@@ -35,6 +32,7 @@ import {
   resolveDataPlaneUrl,
   fetchCookieConsentState,
 } from '../utils/utils';
+import { getReferrer, getReferringDomain, getDefaultPageProperties } from '../utils/pageProperties';
 import { handleError, leaveBreadcrumb } from '../utils/errorHandler';
 import {
   MAX_WAIT_FOR_INTEGRATION_LOAD,

@@ -49,7 +49,8 @@
     "sanity": "npm run build:browser && cd sanity-suite && npm run start:local",
     "sanity:cdn": "cd sanity-suite && npm run start:cdn",
     "sanity:npm": "cd sanity-suite && npm run start:npm",
-    "build:sanity": "rm -rf sanity-suite/dist && cd sanity-suite && npm run build:all && npm run build:all:staging"
+    "build:sanity": "rm -rf sanity-suite/dist && cd sanity-suite && npm run build:all && npm run build:all:staging",
+    "postinstall": "npx patch-package"
   },
   "author": "RudderStack",
   "license": "MIT",
@@ -98,7 +99,7 @@
     "ramda": "0.29.0",
     "rudder-component-cookie": "0.0.1",
     "serialize-javascript": "6.0.1",
-    "storejs": "2.0.1",
+    "storejs": "2.0.3",
     "uuid": "8.3.2"
   },
   "devDependencies": {
