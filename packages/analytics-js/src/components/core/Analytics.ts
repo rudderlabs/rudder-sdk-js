@@ -70,7 +70,7 @@ class Analytics implements IAnalytics {
     this.logger = defaultLogger;
     this.pluginsManager = defaultPluginManager;
     this.externalSrcLoader = defaultExternalSrcLoader;
-    this.storageManager = defaultStoreManager;
+    this.storeManager = defaultStoreManager;
     this.configManager = defaultConfigManager;
     this.capabilitiesManager = defaultCapabilitiesManager;
     this.eventManager = defaultEventManager;
@@ -205,8 +205,8 @@ class Analytics implements IAnalytics {
    */
   init() {
     // Initialise storage
-    this.storageManager.init();
-    this.clientDataStore = this.storageManager.getStore('clientData') as Store;
+    this.storeManager.init();
+    this.clientDataStore = this.storeManager.getStore('clientData') as Store;
     this.userSessionManager.setStorage(this.clientDataStore);
 
     // Initialise event manager

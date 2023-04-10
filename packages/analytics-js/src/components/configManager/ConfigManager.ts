@@ -68,8 +68,15 @@ class ConfigManager implements IConfigManager {
    * @param res source config response
    */
   processConfig(res?: SourceConfigResponse | string) {
-    if (!res || typeof res !== 'object') {
-      throw Error('Unable to fetch source config');
+    if (
+      !res ||
+      typeof res !== 'object' ||
+      !res.source ||
+      !res.source.id ||
+      !res.source.config ||
+      !Array.isArray(res.source.destinations)
+    ) {
+      throw Error('Invalid source config');
     }
     // determine the dataPlane url
     const dataPlaneUrl = resolveDataPlaneUrl(

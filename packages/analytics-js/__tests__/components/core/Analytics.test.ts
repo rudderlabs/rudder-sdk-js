@@ -104,10 +104,11 @@ describe('Core - Analytics', () => {
   });
 
   describe('load', () => {
+    const sampleDataPlaneUrl = 'https://www.dummy.url';
     it('should load the analytics script with the given options', () => {
       const attachGlobalErrorHandlerSpy = jest.spyOn(analytics, 'attachGlobalErrorHandler');
       const startLifecycleSpy = jest.spyOn(analytics, 'startLifecycle');
-      analytics.load(dummyWriteKey, 'dataPlaneUrl', { logLevel: 'ERROR' });
+      analytics.load(dummyWriteKey, sampleDataPlaneUrl, { logLevel: 'ERROR' });
       expect(attachGlobalErrorHandlerSpy).toHaveBeenCalledTimes(1);
       expect(state.lifecycle.status.value).toBe('polyfillLoaded');
       expect(startLifecycleSpy).toHaveBeenCalledTimes(1);
