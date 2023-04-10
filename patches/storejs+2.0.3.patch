@@ -1,8 +1,8 @@
 diff --git a/node_modules/storejs/dist/store.js b/node_modules/storejs/dist/store.js
-index b4d7933..2a09e8b 100644
+index b4d7933..305b930 100644
 --- a/node_modules/storejs/dist/store.js
 +++ b/node_modules/storejs/dist/store.js
-@@ -42,31 +42,27 @@
+@@ -42,29 +42,31 @@
    }
    // https://github.com/jaywcjlove/store.js/pull/8
    // Error: QuotaExceededError
@@ -11,45 +11,35 @@ index b4d7933..2a09e8b 100644
 +  function dealIncognito(storage) {
      var _KEY = '_Is_Incognit',
        _VALUE = 'yes';
--    try {
--      storage.setItem(_KEY, _VALUE);
--      storage.removeItem(_KEY);
--    } catch (e) {
+     try {
++      var storage = window.localStorage;
+       storage.setItem(_KEY, _VALUE);
+       storage.removeItem(_KEY);
+     } catch (e) {
 -      Storage.prototype._data = {};
 -      Storage.prototype.setItem = function (id, val) {
--        return this._data[id] = String(val);
--      };
++      var inMemoryStorage = {};
++      inMemoryStorage._data = {};
++      inMemoryStorage.setItem = function (id, val) {
+         return this._data[id] = String(val);
+       };
 -      Storage.prototype.getItem = function (id) {
--        return this._data.hasOwnProperty(id) ? this._data[id] : undefined;
--      };
++      inMemoryStorage.getItem = function (id) {
+         return this._data.hasOwnProperty(id) ? this._data[id] : undefined;
+       };
 -      Storage.prototype.removeItem = function (id) {
--        return delete this._data[id];
--      };
++      inMemoryStorage.removeItem = function (id) {
+         return delete this._data[id];
+       };
 -      Storage.prototype.clear = function () {
--        return this._data = {};
--      };
++      inMemoryStorage.clear = function () {
+         return this._data = {};
+       };
 -      storage = Storage;
 -    } finally {
--      if (storage.getItem(_KEY) === _VALUE) storage.removeItem(_KEY);
--    }
-+    var inMemoryStorage = {};
-+    inMemoryStorage._data = {};
-+    inMemoryStorage.setItem = function (id, val) {
-+      return this._data[id] = String(val);
-+    };
-+    inMemoryStorage.getItem = function (id) {
-+      return this._data.hasOwnProperty(id) ? this._data[id] : undefined;
-+    };
-+    inMemoryStorage.removeItem = function (id) {
-+      return delete this._data[id];
-+    };
-+    inMemoryStorage.clear = function () {
-+      return this._data = {};
-+    };
-+    storage = inMemoryStorage;
++      storage = inMemoryStorage;
 +
-+    storage.setItem(_KEY, _VALUE);
-+    if (storage.getItem(_KEY) === _VALUE) storage.removeItem(_KEY);
++      storage.setItem(_KEY, _VALUE);
+       if (storage.getItem(_KEY) === _VALUE) storage.removeItem(_KEY);
+     }
      return storage;
-   }
- 
