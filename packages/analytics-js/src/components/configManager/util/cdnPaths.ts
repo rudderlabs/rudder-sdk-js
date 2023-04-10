@@ -27,7 +27,7 @@ const getIntegrationsCDNPath = (
     if (!integrationsCDNPath || (integrationsCDNPath && !isValidUrl(integrationsCDNPath))) {
       const errorMsg = 'CDN base URL for integrations is not valid';
 
-      throw Error(`Failed to load Rudder SDK: ${errorMsg}`);
+      throw Error(`Failed to load RudderStack SDK: ${errorMsg}`);
     }
 
     return integrationsCDNPath;
