@@ -7,7 +7,7 @@ on:
 
 jobs:
   check_pr_title:
-    name: Check PR title v1
+    name: Check PR title v3
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source branch
