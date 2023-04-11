@@ -17,7 +17,7 @@
     "build:worker": "lerna run build:worker",
     "build:package": "lerna run build:package",
     "test": "lerna run test",
-    "test:ci": "lerna run test:ci",
+    "test:ci": "lerna run test:ci --concurrency 1",
     "check:lint": "lerna run check:lint",
     "check:size": "lerna run check:size",
     "check:size:build": "lerna run check:size:build",
