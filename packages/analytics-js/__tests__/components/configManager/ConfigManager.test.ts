@@ -193,7 +193,7 @@ describe('ConfigManager', () => {
       expect(e.message).toBe(errorMsgSourceConfigResponse);
     }
   });
-  it('should fetch the sourceConfig and call the callback with the response ', () => {
+  it('should fetch the source config and call the callback with the response', () => {
     state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
     configManagerInstance.processConfig = jest.fn();
     configManagerInstance.getConfig();
