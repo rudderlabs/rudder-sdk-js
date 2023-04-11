@@ -3,6 +3,7 @@
   "version": "2.31.1",
   "description": "Sanity suite for testing JS SDK package",
   "main": "./dist/testBook.js",
+  "private": true,
   "scripts": {
     "clean": "rimraf -rf ./dist && rimraf -rf ./node_modules/.cache && rimraf tsconfig.build.tsbuildinfo",
     "start": "cd ../analytics-v1.1 && npm run build:browser && cd .. && cd sanity-suite && npm run start:local",
