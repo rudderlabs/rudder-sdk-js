@@ -134,6 +134,9 @@ class ConfigManager implements IConfigManager {
   getConfig() {
     const sourceConfigFunc = state.loadOptions.value.getSourceConfig;
     if (sourceConfigFunc) {
+      if (typeof sourceConfigFunc !== 'function') {
+        throw Error(`"getSourceConfig" must be a function`);
+      }
       // fetch source config from the function
       const res = sourceConfigFunc();
 

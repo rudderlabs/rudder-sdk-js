@@ -1,4 +1,5 @@
 import { RegionDetails, ResidencyServerRegion } from '@rudderstack/analytics-js/state/types';
+import { defaultLogger } from '@rudderstack/analytics-js/services/Logger';
 import { isValidUrl } from '../../utilities/url';
 
 const DEFAULT_REGION = 'US';
@@ -30,6 +31,13 @@ const resolveDataPlaneUrl = (
   serverUrl?: string,
   residencyServerRegion?: ResidencyServerRegion,
 ) => {
+  // validate residency server region input
+  if (
+    residencyServerRegion &&
+    !Object.values(ResidencyServerRegion).includes(residencyServerRegion)
+  ) {
+    defaultLogger.error('Invalid residencyServer input');
+  }
   // Check if dataPlanes object is present in source config
   if (dataplanes && Object.keys(dataplanes).length > 0) {
     const region = residencyServerRegion || DEFAULT_REGION;
