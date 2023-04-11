@@ -19,6 +19,18 @@ const getDefaultUrlofRegion = (urls?: RegionDetails[]) => {
   }
   return url;
 };
+
+const validateResidencyServerRegionInput = (residencyServerRegion?: ResidencyServerRegion) => {
+  if (
+    residencyServerRegion &&
+    !Object.values(ResidencyServerRegion).includes(residencyServerRegion)
+  ) {
+    defaultLogger.error(`Invalid residencyServer input: '${residencyServerRegion}'`);
+    return undefined;
+  }
+  return residencyServerRegion;
+};
+
 /**
  * A function to determine the dataPlaneUrl
  * @param {Object} dataPlaneUrls An object containing dataPlaneUrl for different region
@@ -31,16 +43,9 @@ const resolveDataPlaneUrl = (
   serverUrl?: string,
   residencyServerRegion?: ResidencyServerRegion,
 ) => {
-  // validate residency server region input
-  if (
-    residencyServerRegion &&
-    !Object.values(ResidencyServerRegion).includes(residencyServerRegion)
-  ) {
-    defaultLogger.error(`Invalid residencyServer input: '${residencyServerRegion}'`);
-  }
   // Check if dataPlanes object is present in source config
   if (dataplanes && Object.keys(dataplanes).length > 0) {
-    const region = residencyServerRegion || DEFAULT_REGION;
+    const region = validateResidencyServerRegionInput(residencyServerRegion) || DEFAULT_REGION;
     const regionUrlArr: RegionDetails[] = dataplanes[region] || dataplanes[DEFAULT_REGION];
 
     const defaultUrl = getDefaultUrlofRegion(regionUrlArr);

@@ -1,7 +1,7 @@
 import { validateLoadArgs } from '@rudderstack/analytics-js/components/configManager/util/validate.ts';
 
 describe('Config manager util - validate load arguments', () => {
-  const sampleWriteKey = '2LoR1TbVG2bcISXvy7DamldfkgO';
+  const sampleWriteKey = 'dummyWriteKey';
   const sampleDataPlaneUrl = 'https://www.dummy.url';
   const errorMsg = 'Unable to load the SDK due to invalid write key: " "';
 
