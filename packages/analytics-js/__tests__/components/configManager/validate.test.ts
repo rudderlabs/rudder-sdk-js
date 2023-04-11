@@ -6,11 +6,7 @@ describe('Config manager util - validate load arguments', () => {
   const errorMsg = 'Unable to load the SDK due to invalid write key: "INVALID-WRITE-KEY"';
 
   it('should not throw error for valid write key', () => {
-    try {
-      validateLoadArgs(sampleWriteKey);
-    } catch (e) {
-      expect(e).not.toThrow(errorMsg);
-    }
+   expect(() => { validateLoadArgs(sampleWriteKey) }).not.toThrow(errorMsg);
   });
   it('should not throw error for valid data plane url', () => {
     try {
