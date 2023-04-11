@@ -72,11 +72,20 @@ class ConfigManager implements IConfigManager {
       throw Error('Unable to fetch source config');
     }
     let res: SourceConfigResponse;
-    if (typeof response === 'string') {
-      res = JSON.parse(response);
-    } else {
-      res = response;
+    const errMessage = 'Invalid source config';
+    try {
+      if (typeof response === 'string') {
+        res = JSON.parse(response);
+      } else {
+        res = response;
+      }
+    } catch (e) {
+      if (this.hasErrorHandler) {
+        this.errorHandler?.onError(e, 'Config Manager: processConfig');
+      }
+      throw Error(errMessage);
     }
+
     if (
       typeof res !== 'object' ||
       !res.source ||
@@ -84,8 +93,9 @@ class ConfigManager implements IConfigManager {
       !res.source.config ||
       !Array.isArray(res.source.destinations)
     ) {
-      throw Error('Invalid source config');
+      throw Error(errMessage);
     }
+
     // determine the dataPlane url
     const dataPlaneUrl = resolveDataPlaneUrl(
       res.source.dataplanes,

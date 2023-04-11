@@ -53,7 +53,7 @@ const handlers = [
       ctx.body(fileContents),
     );
   }),
-  rest.get(`${dummyDataplaneHost}/sourceConfig*`, (req, res, ctx) => {
+  rest.get(`${dummyDataplaneHost}/sourceConfig`, (req, res, ctx) => {
     return res(ctx.status(200), ctx.json(dummySourceConfigResponse));
   }),
 ];

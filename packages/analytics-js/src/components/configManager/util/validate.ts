@@ -1,11 +1,7 @@
 import { isValidUrl } from '../../utilities/url';
 
-// The write key is a KSUID, 
-// https://github.com/segmentio/ksuid
-const WRITE_KEY_LENGTH = 27;
-
 const validateWriteKey = (writeKey?: string) => {
-  if (!writeKey || writeKey.trim().length !== WRITE_KEY_LENGTH) {
+  if (!writeKey || writeKey.trim().length === 0) {
     throw Error(`Unable to load the SDK due to invalid write key: "${writeKey}"`);
   }
 };

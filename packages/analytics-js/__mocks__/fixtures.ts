@@ -78,17 +78,17 @@ const dummySourceConfigResponse = {
         },
       },
     },
-    id: '2L8FlAECp1sEUP7NVilWLTeA2wp',
+    id: 'aU8c7qKYK7ZH7X7tZbbU9cHUw8i',
     name: 'JS SDK Prod',
-    writeKey: '2L8Fl7ryPss3Zku133Pj5ox7NeP',
+    writeKey: 'TqkGfRxybyxXu5YXABYXTmJwTbr',
     enabled: true,
-    workspaceId: '2L8FgwnU8Q4I4nQbdqmin8uP5n8',
+    workspaceId: 'yB5nJLKZ8kUcwqECRdqzYCwTXtP',
     updatedAt: '2023-02-03T13:53:35.731Z',
     dataplanes: {},
     destinations: [
       {
         config: {
-          measurementId: 'G-SC6JGSYH6H',
+          measurementId: 'G-SC6JGS1234',
           capturePageView: 'rs',
           whitelistedEvents: [
             {
@@ -105,7 +105,7 @@ const dummySourceConfigResponse = {
           extendPageViewParams: false,
           oneTrustCookieCategories: [],
         },
-        id: '2LoR1TbVG2bcISXvy7DamldfkgO',
+        id: 'AXDp72jQQUNLJGzNAFjRYphXnSv',
         name: 'GA4 for JS SDK',
         updatedAt: '2023-03-14T11:34:29.216Z',
         enabled: true,
@@ -115,7 +115,7 @@ const dummySourceConfigResponse = {
           displayName: 'Google Analytics 4 (GA4)',
           updatedAt: '2023-03-14T11:21:29.656Z',
         },
-        areTransformationsConnected: true,
+        areTransformationsConnected: false,
       },
     ],
   },

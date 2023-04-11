@@ -46,7 +46,7 @@ jest.mock('../../../src/components/configManager/util/commonUtil.ts', () => {
 
 describe('ConfigManager', () => {
   let configManagerInstance: ConfigManager;
-  const errorMsg = 'Unable to load the SDK due to invalid write key: "INVALID-WRITE-KEY"';
+  const errorMsg = 'Unable to load the SDK due to invalid write key: " "';
   const errorMsgSourceConfigResponse = 'Unable to fetch source config';
   const sampleWriteKey = '2LoR1TbVG2bcISXvy7DamldfkgO';
   const sampleDataPlaneUrl = 'https://www.dummy.url';
@@ -77,18 +77,17 @@ describe('ConfigManager', () => {
   });
 
   it('should throw an error for invalid writeKey', () => {
-    state.lifecycle.writeKey.value = 'INVALID-WRITE-KEY';
-    expect(() => { configManagerInstance.init() }).toThrow(errorMsg);
+    state.lifecycle.writeKey.value = ' ';
+    expect(() => {
+      configManagerInstance.init();
+    }).toThrow(errorMsg);
   });
   it('should throw error for invalid data plane url', () => {
     state.lifecycle.writeKey.value = sampleWriteKey;
     state.lifecycle.dataPlaneUrl.value = ' ';
-
-    try {
+    expect(() => {
       configManagerInstance.init();
-    } catch (e) {
-      expect(e.message).toBe('Unable to load the SDK due to invalid data plane URL: " "');
-    }
+    }).toThrow('Unable to load the SDK due to invalid data plane URL: " "');
   });
   it('should update lifecycle state with proper values', () => {
     getSDKUrlInfo.mockImplementation(() => ({ sdkURL: sampleScriptURL, isStaging: false }));
@@ -118,7 +117,7 @@ describe('ConfigManager', () => {
 
     let counter = 0;
     server.use(
-      rest.get(`${sampleConfigUrl}/sourceConfig*`, (req, res, ctx) => {
+      rest.get(`${sampleConfigUrl}/sourceConfig`, (req, res, ctx) => {
         counter += 1;
         return res(ctx.status(200), ctx.json(dummySourceConfigResponse));
       }),
@@ -140,7 +139,7 @@ describe('ConfigManager', () => {
 
     let counter = 0;
     server.use(
-      rest.get(`${sampleConfigUrl}/sourceConfig*`, (req, res, ctx) => {
+      rest.get(`${sampleConfigUrl}/sourceConfig`, (req, res, ctx) => {
         counter += 1;
         return res(ctx.status(200), ctx.json(dummySourceConfigResponse));
       }),
@@ -180,20 +179,16 @@ describe('ConfigManager', () => {
     }, 1);
   });
   it('should throw an error for undefined sourceConfig response', () => {
-    try {
+    expect(() => {
       configManagerInstance.processConfig(undefined);
-    } catch (e) {
-      expect(e.message).toBe(errorMsgSourceConfigResponse);
-    }
+    }).toThrow(errorMsgSourceConfigResponse);
   });
-  it('should throw an error for sourceConfig response in string format', () => {
-    try {
+  it('should not throw an error for sourceConfig response in string format', () => {
+    expect(() => {
       configManagerInstance.processConfig(JSON.stringify(dummySourceConfigResponse));
-    } catch (e) {
-      expect(e.message).toBe(errorMsgSourceConfigResponse);
-    }
+    }).not.toThrow(errorMsgSourceConfigResponse);
   });
-  it('should fetch the source config and call the callback with the response', () => {
+  it('should fetch the source config and process the response', () => {
     state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
     configManagerInstance.processConfig = jest.fn();
     configManagerInstance.getConfig();
