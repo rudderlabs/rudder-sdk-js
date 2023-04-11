@@ -1,0 +1,2 @@
+export { defaultEventsHandler } from './eventsHandler';
+
