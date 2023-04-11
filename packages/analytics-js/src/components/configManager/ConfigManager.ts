@@ -36,7 +36,7 @@ class ConfigManager implements IConfigManager {
    */
   init() {
     validateLoadArgs(state.lifecycle.writeKey.value, state.lifecycle.dataPlaneUrl.value);
-    const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion || false;
+    const lockIntegrationsVersion = state.loadOptions.value.lockIntegrationsVersion === true;
     // determine the path to fetch integration SDK url from
     const intgCdnUrl = getIntegrationsCDNPath(
       'process.package_version',
