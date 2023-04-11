@@ -62,14 +62,12 @@ describe('StoreManager', () => {
 
   describe('initClientDataStore', () => {
     it('should initialize client data store using cookie storage', () => {
-      getStorageEngine.mockImplementation(type => {
-        return {
-          isEnabled: type === 'cookieStorage',
-          getItem: jest.fn(),
-          setItem: jest.fn(),
-          removeItem: jest.fn(),
-        };
-      });
+      getStorageEngine.mockImplementation(type => ({
+        isEnabled: type === 'cookieStorage',
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      }));
 
       storeManager.initClientDataStore();
 
@@ -77,14 +75,12 @@ describe('StoreManager', () => {
     });
 
     it('should initialize client data store using local storage', () => {
-      getStorageEngine.mockImplementation(type => {
-        return {
-          isEnabled: type === 'localStorage',
-          getItem: jest.fn(),
-          setItem: jest.fn(),
-          removeItem: jest.fn(),
-        };
-      });
+      getStorageEngine.mockImplementation(type => ({
+        isEnabled: type === 'localStorage',
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      }));
 
       storeManager.initClientDataStore();
 
@@ -92,14 +88,12 @@ describe('StoreManager', () => {
     });
 
     it('should log an error if neither cookie nor local storage is available', () => {
-      getStorageEngine.mockImplementation(type => {
-        return {
-          isEnabled: false,
-          getItem: jest.fn(),
-          setItem: jest.fn(),
-          removeItem: jest.fn(),
-        };
-      });
+      getStorageEngine.mockImplementation(type => ({
+        isEnabled: false,
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      }));
 
       storeManager.initClientDataStore();
 

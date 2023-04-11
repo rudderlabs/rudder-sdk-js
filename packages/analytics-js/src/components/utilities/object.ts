@@ -32,9 +32,8 @@ const getValueByPath = (obj: Record<string, any>, keyPath: string): any => {
   return path(pathParts, obj);
 };
 
-const hasValueByPath = (obj: Record<string, any>, path: string): boolean => {
-  return Boolean(getValueByPath(obj, path));
-};
+const hasValueByPath = (obj: Record<string, any>, path: string): boolean =>
+  Boolean(getValueByPath(obj, path));
 
 const mergeDeepRightObjectArrays = (
   leftValue: any | any[],
