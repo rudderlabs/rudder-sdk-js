@@ -36,7 +36,7 @@ const resolveDataPlaneUrl = (
     residencyServerRegion &&
     !Object.values(ResidencyServerRegion).includes(residencyServerRegion)
   ) {
-    defaultLogger.error('Invalid residencyServer input');
+    defaultLogger.error(`Invalid residencyServer input: '${residencyServerRegion}'`);
   }
   // Check if dataPlanes object is present in source config
   if (dataplanes && Object.keys(dataplanes).length > 0) {

@@ -72,7 +72,7 @@ class ConfigManager implements IConfigManager {
       throw Error('Unable to fetch source config');
     }
     let res: SourceConfigResponse;
-    const errMessage = 'Invalid source config';
+    const errMessage = 'Unable to process/parse source config';
     try {
       if (typeof response === 'string') {
         res = JSON.parse(response);
@@ -144,9 +144,7 @@ class ConfigManager implements IConfigManager {
         res
           .then(pRes => this.processConfig(pRes as SourceConfigResponse))
           .catch(e => {
-            if (this.hasErrorHandler) {
-              this.errorHandler?.onError(e, 'sourceConfig');
-            }
+            this.errorHandler?.onError(e, 'sourceConfig');
           });
       } else {
         this.processConfig(res as SourceConfigResponse);
