@@ -10,7 +10,7 @@ import filesize from 'rollup-plugin-filesize';
 import livereload from 'rollup-plugin-livereload';
 import serve from 'rollup-plugin-serve';
 import htmlTemplate from 'rollup-plugin-generate-html-template';
-import nodePolyfills from "rollup-plugin-polyfill-node";
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 import * as dotenv from 'dotenv';
 
 export function getOutputFilePath(dirPath, distName) {
@@ -46,8 +46,10 @@ export function getDefaultConfig(distName) {
     plugins: [
       replace({
         preventAssignment: true,
-        'process.package_version': version,
-        'process.module_type': moduleType,
+        __PACKAGE_VERSION__: version,
+        __MODULE_TYPE__: moduleType,
+        __RS_BUGSNAG_API_KEY__: process.env.BUGSNAG_API_KEY || '{{__RS_BUGSNAG_API_KEY__}}',
+        __RS_BUGSNUG_RELEASE_STAGE__: process.env.BUGSNAG_RELEASE_STAGE || 'production',
       }),
       resolve({
         jsnext: true,

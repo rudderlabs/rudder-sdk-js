@@ -1,23 +1,17 @@
 import logger from './logUtil';
-import { LOAD_ORIGIN } from './ScriptLoader';
+import { LOAD_ORIGIN, ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME } from './constants';
 
 /**
- * This function is to add breadcrumbs
- * @param {string} breadcrumb Message to add insight of an user's journey before the error occurred
- */
-function leaveBreadcrumb(breadcrumb) {
-  if (window.rsBugsnagClient) {
-    window.rsBugsnagClient.leaveBreadcrumb(breadcrumb);
-  }
-}
-
-/**
- * This function is to send handled errors to Bugsnag if Bugsnag client is available
+ * This function is to send handled errors to available error reporting client
+ *
  * @param {Error} error Error instance from handled error
  */
 function notifyError(error) {
-  if (window.rsBugsnagClient) {
-    window.rsBugsnagClient.notify(error);
+  const errorReportingClient =
+    window.rudderanalytics && window.rudderanalytics[ERROR_REPORTING_SERVICE_GLOBAL_KEY_NAME];
+
+  if (errorReportingClient) {
+    errorReportingClient.notify(error);
   }
 }
 
@@ -64,12 +58,13 @@ function normaliseError(error, customMessage, analyticsInstance) {
     }
   }
 
-  const customeErrMessagePrefix = customMessage || '';
-  return `[handleError]::${customeErrMessagePrefix} "${errorMessage}"`;
+  const customErrMessagePrefix = customMessage || '';
+  return `[handleError]::${customErrMessagePrefix} "${errorMessage}"`;
 }
 
 function handleError(error, customMessage, analyticsInstance) {
   let errorMessage;
+
   try {
     errorMessage = normaliseError(error, customMessage, analyticsInstance);
   } catch (err) {
@@ -77,13 +72,15 @@ function handleError(error, customMessage, analyticsInstance) {
     logger.error('[handleError] Original error:: ', JSON.stringify(error));
     notifyError(err);
   }
+
   if (!errorMessage) {
     return;
   }
+
   logger.error(errorMessage);
   let errorObj = error;
   if (!(error instanceof Error)) errorObj = new Error(errorMessage);
   notifyError(errorObj);
 }
 
-export { leaveBreadcrumb, notifyError, handleError, normaliseError };
+export { notifyError, handleError, normaliseError };
