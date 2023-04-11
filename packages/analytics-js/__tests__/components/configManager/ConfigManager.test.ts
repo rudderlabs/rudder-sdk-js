@@ -5,6 +5,8 @@ import { ConfigManager } from '@rudderstack/analytics-js/components/configManage
 import { state } from '@rudderstack/analytics-js/state';
 import { getSDKUrlInfo } from '@rudderstack/analytics-js/components/configManager/util/commonUtil';
 import { rest } from 'msw';
+import { CONFIG_URL, DEST_SDK_BASE_URL } from '@rudderstack/analytics-js/constants/urls';
+import { batch } from '@preact/signals-core';
 import { server } from '../../../__mocks__/msw.server';
 import { dummySourceConfigResponse } from '../../../__mocks__/fixtures';
 
@@ -55,11 +57,23 @@ describe('ConfigManager', () => {
   const sampleScriptURL = 'https://www.dummy.url/fromScript/v3/rudder-analytics.min.js';
   const lockIntegrationsVersion = false;
 
+  const resetState = () => {
+    batch(() => {
+      state.lifecycle.writeKey.value = undefined;
+      state.lifecycle.dataPlaneUrl.value = undefined;
+      state.loadOptions.value.lockIntegrationsVersion = false;
+      state.loadOptions.value.destSDKBaseURL = DEST_SDK_BASE_URL;
+      state.loadOptions.value.logLevel = 'ERROR';
+      state.loadOptions.value.configUrl = CONFIG_URL;
+    });
+  };
+
   beforeAll(() => {
     server.listen();
   });
 
   beforeEach(() => {
+    resetState();
     configManagerInstance = new ConfigManager(
       defaultHttpClient,
       defaultErrorHandler,
@@ -70,12 +84,6 @@ describe('ConfigManager', () => {
   afterEach(() => {
     server.resetHandlers();
     server.events.removeAllListeners();
-    // state.lifecycle.writeKey.value = undefined;
-    // state.lifecycle.dataPlaneUrl.value = undefined;
-    // state.loadOptions.value.lockIntegrationsVersion = false;
-    // state.loadOptions.value.destSDKBaseURL = DEST_SDK_BASE_URL;
-    // state.loadOptions.value.logLevel = 'ERROR';
-    // state.loadOptions.value.configUrl = CONFIG_URL;
   });
 
   afterAll(() => {
