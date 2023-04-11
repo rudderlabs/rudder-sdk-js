@@ -6,20 +6,22 @@ import { removeTrailingSlashes } from '../../utilities/url';
  */
 const getSDKUrlInfo = () => {
   const scripts = document.getElementsByTagName('script');
-  let sdkURL;
+  let sdkURL: string | undefined;
   let isStaging = false;
-  // eslint-disable-next-line unicorn/no-for-loop
-  for (let i = 0; i < scripts.length; i += 1) {
-    const curScriptSrc = removeTrailingSlashes(scripts[i].getAttribute('src'));
+  const scriptList = Array.prototype.slice.call(scripts);
+  scriptList.some(script => {
+    const curScriptSrc = removeTrailingSlashes(script.getAttribute('src'));
     if (curScriptSrc) {
       const urlMatches = curScriptSrc.match(/^.*rudder-analytics(-staging)?(\.min)?\.js$/); // TODO: fetch 'rudder-analytics' this string from rollup
       if (urlMatches) {
         sdkURL = curScriptSrc;
         isStaging = urlMatches[1] !== undefined;
-        break;
+        return true;
       }
     }
-  }
+    return false;
+  });
+  // TODO: Return the URL object instead of the plane URL string
   return { sdkURL, isStaging };
 };
 

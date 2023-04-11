@@ -35,9 +35,10 @@ const getIntegrationsCDNPath = (
 
   // Get the base path from the SDK script tag src attribute or use the default path
   const { sdkURL } = getSDKUrlInfo();
-  integrationsCDNPath = sdkURL
-    ? sdkURL.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/')
-    : DEST_SDK_BASE_URL;
+  integrationsCDNPath =
+    typeof sdkURL === 'string'
+      ? sdkURL.split('/').slice(0, -1).concat(CDN_INT_DIR).join('/')
+      : DEST_SDK_BASE_URL;
 
   // If version is not locked it will always get the latest version of the integrations
   if (lockIntegrationsVersion) {
