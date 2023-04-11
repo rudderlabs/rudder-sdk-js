@@ -73,7 +73,6 @@ describe('ConfigManager', () => {
   });
 
   beforeEach(() => {
-    resetState();
     configManagerInstance = new ConfigManager(
       defaultHttpClient,
       defaultErrorHandler,
@@ -84,6 +83,7 @@ describe('ConfigManager', () => {
   afterEach(() => {
     server.resetHandlers();
     server.events.removeAllListeners();
+    resetState();
   });
 
   afterAll(() => {
@@ -114,6 +114,7 @@ describe('ConfigManager', () => {
     state.loadOptions.value.configUrl = sampleConfigUrl;
     state.loadOptions.value.lockIntegrationsVersion = lockIntegrationsVersion;
     const expectedConfigUrl = `${sampleConfigUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+    configManagerInstance.getConfig = jest.fn();
 
     configManagerInstance.init();
 
@@ -121,13 +122,11 @@ describe('ConfigManager', () => {
     expect(state.lifecycle.integrationsCDNPath.value).toBe(sampleDestSDKUrl);
     expect(state.lifecycle.sourceConfigUrl.value).toBe(expectedConfigUrl);
     expect(state.lifecycle.isStaging.value).toBe(false);
+    expect(configManagerInstance.getConfig).toHaveBeenCalled();
   });
   it('should fetch configurations using sourceConfig endpoint', () => {
-    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: sampleScriptURL, isStaging: false }));
-
-    state.lifecycle.writeKey.value = sampleWriteKey;
-    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
-    state.loadOptions.value.configUrl = sampleConfigUrl;
+    state.lifecycle.sourceConfigUrl.value = `${sampleConfigUrl}/sourceConfig/?p=process.module_type&v=process.package_version&writeKey=${sampleWriteKey}&lockIntegrationsVersion=${lockIntegrationsVersion}`;
+    configManagerInstance.processConfig = jest.fn();
 
     let counter = 0;
     server.use(
@@ -137,19 +136,17 @@ describe('ConfigManager', () => {
       }),
     );
 
-    configManagerInstance.init();
+    configManagerInstance.getConfig();
 
     setTimeout(() => {
       expect(counter).toBe(1);
+      expect(configManagerInstance.processConfig).toHaveBeenCalled();
     }, 1);
   });
 
   it('should not fetch configurations using sourceConfig endpoint if getSourceConfig load option is present', () => {
-    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: sampleScriptURL, isStaging: false }));
-
-    state.lifecycle.writeKey.value = sampleWriteKey;
-    state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
     state.loadOptions.value.getSourceConfig = () => dummySourceConfigResponse;
+    configManagerInstance.processConfig = jest.fn();
 
     let counter = 0;
     server.use(
@@ -159,38 +156,30 @@ describe('ConfigManager', () => {
       }),
     );
 
-    configManagerInstance.init();
+    configManagerInstance.getConfig();
 
     setTimeout(() => {
       expect(counter).toBe(0);
+      expect(configManagerInstance.processConfig).toHaveBeenCalled();
     }, 1);
   });
   it('should update source, destination,lifecycle and reporting state with proper values', () => {
-    getSDKUrlInfo.mockImplementation(() => ({ sdkURL: sampleScriptURL, isStaging: false }));
-
     const expectedSourceState = {
       id: dummySourceConfigResponse.source.id,
-      config: dummySourceConfigResponse.source.config,
     };
-
-    state.lifecycle.writeKey.value = sampleWriteKey;
     state.lifecycle.dataPlaneUrl.value = sampleDataPlaneUrl;
-    state.loadOptions.value.configUrl = sampleConfigUrl;
 
-    configManagerInstance.init();
+    configManagerInstance.processConfig(dummySourceConfigResponse);
 
-    setTimeout(() => {
-      expect(state.source.value).toBe(expectedSourceState);
-      //   expect(state.destination.value).toBe(sampleDestSDKUrl);
-      expect(state.lifecycle.activeDataplaneUrl.value).toBe(sampleDataPlaneUrl);
-      expect(state.lifecycle.status.value).toBe('configured');
-      expect(state.reporting.isErrorReportingEnabled.value).toBe(
-        dummySourceConfigResponse.source.config.statsCollection.errors.enabled,
-      );
-      expect(state.reporting.isMetricsReportingEnabled.value).toBe(
-        dummySourceConfigResponse.source.config.statsCollection.metrics.enabled,
-      );
-    }, 1);
+    expect(state.source.value).toStrictEqual(expectedSourceState);
+    expect(state.lifecycle.activeDataplaneUrl.value).toBe(sampleDataPlaneUrl);
+    expect(state.lifecycle.status.value).toBe('configured');
+    expect(state.reporting.isErrorReportingEnabled.value).toBe(
+      dummySourceConfigResponse.source.config.statsCollection.errors.enabled,
+    );
+    expect(state.reporting.isMetricsReportingEnabled.value).toBe(
+      dummySourceConfigResponse.source.config.statsCollection.metrics.enabled,
+    );
   });
   it('should throw an error for undefined sourceConfig response', () => {
     expect(() => {
