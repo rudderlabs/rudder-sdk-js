@@ -70,6 +70,12 @@ describe('ConfigManager', () => {
   afterEach(() => {
     server.resetHandlers();
     server.events.removeAllListeners();
+    // state.lifecycle.writeKey.value = undefined;
+    // state.lifecycle.dataPlaneUrl.value = undefined;
+    // state.loadOptions.value.lockIntegrationsVersion = false;
+    // state.loadOptions.value.destSDKBaseURL = DEST_SDK_BASE_URL;
+    // state.loadOptions.value.logLevel = 'ERROR';
+    // state.loadOptions.value.configUrl = CONFIG_URL;
   });
 
   afterAll(() => {
