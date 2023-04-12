@@ -1,6 +1,5 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import { isArray } from 'lodash';
 import Logger from '../../utils/logger';
 import { type } from '../../utils/utils';
 import { LOAD_ORIGIN } from '../ScriptLoader';
@@ -85,7 +84,8 @@ class Amplitude {
               };
             n.invoked = !0;
             var a = t.createElement('script');
-            (a.type = 'text/javascript'),
+            a.setAttribute('data-loader', LOAD_ORIGIN),
+              (a.type = 'text/javascript'),
               (a.integrity =
                 'sha384-TPZhteUkZj8CAyBx+GZZytBdkuKnhKsSKcCoVCq0QSteWf/Kw5Kb9oVFUROLE1l3'),
               (a.crossOrigin = 'anonymous'),
