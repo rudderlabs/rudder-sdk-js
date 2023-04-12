@@ -1,9 +1,10 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import Logger from "../../utils/logger";
-import { type } from "../../utils/utils";
-import { LOAD_ORIGIN } from "../ScriptLoader";
-import { NAME } from "./constants";
+import { isArray } from 'lodash';
+import Logger from '../../utils/logger';
+import { type } from '../../utils/utils';
+import { LOAD_ORIGIN } from '../ScriptLoader';
+import { NAME } from './constants';
 
 const logger = new Logger(NAME);
 
@@ -23,31 +24,28 @@ class Amplitude {
     this.eventUploadPeriodMillis = +config.eventUploadPeriodMillis || 30000;
     this.forceHttps = config.forceHttps || false;
     this.trackGclid = config.trackGclid || false;
-    this.saveParamsReferrerOncePerSession =
-      config.saveParamsReferrerOncePerSession || false;
+    this.saveParamsReferrerOncePerSession = config.saveParamsReferrerOncePerSession || false;
     this.deviceIdFromUrlParam = config.deviceIdFromUrlParam || false;
     // this.mapQueryParams = config.mapQueryParams;
     this.trackRevenuePerProduct = config.trackRevenuePerProduct || false;
-    this.preferAnonymousIdForDeviceId =
-      config.preferAnonymousIdForDeviceId || false;
+    this.preferAnonymousIdForDeviceId = config.preferAnonymousIdForDeviceId || false;
     this.traitsToSetOnce = [];
     this.traitsToIncrement = [];
     this.appendFieldsToEventProps = config.appendFieldsToEventProps || false;
-    this.unsetParamsReferrerOnNewSession =
-      config.unsetParamsReferrerOnNewSession || false;
+    this.unsetParamsReferrerOnNewSession = config.unsetParamsReferrerOnNewSession || false;
     this.trackProductsOnce = config.trackProductsOnce || false;
     this.versionName = config.versionName;
 
     if (config.traitsToSetOnce && config.traitsToSetOnce.length > 0) {
       config.traitsToSetOnce.forEach((element) => {
-        if (element && element.traits && element.traits !== "") {
+        if (element && element.traits && element.traits !== '') {
           this.traitsToSetOnce.push(element.traits);
         }
       });
     }
     if (config.traitsToIncrement && config.traitsToIncrement.length > 0) {
       config.traitsToIncrement.forEach((element) => {
-        if (element && element.traits && element.traits !== "") {
+        if (element && element.traits && element.traits !== '') {
           this.traitsToIncrement.push(element.traits);
         }
       });
@@ -56,139 +54,138 @@ class Amplitude {
 
   init() {
     if (this.analytics.loadIntegration) {
-      (function (e, t) {
-        const n = e.amplitude || {
-          _q: [],
-          _iq: {},
-        };
-        const r = t.createElement("script");
-        r.type = "text/javascript";
-        r.integrity =
-          "sha384-girahbTbYZ9tT03PWWj0mEVgyxtZoyDF9KVZdL+R53PP5wCY0PiVUKq0jeRlMx9M";
-        r.crossOrigin = "anonymous";
-        r.async = true;
-        r.setAttribute("data-loader", LOAD_ORIGIN);
-        r.src = "https://cdn.amplitude.com/libs/amplitude-7.2.1-min.gz.js";
-        r.onload = function () {
-          if (!e.amplitude.runQueuedFunctions) {
-            console.log("[Amplitude] Error: could not load SDK");
+      !(function () {
+        'use strict';
+        !(function (e, t) {
+          var n = e.amplitude || { _q: [], _iq: {} };
+          if (n.invoked)
+            e.console && console.error && console.error('Amplitude snippet has been loaded.');
+          else {
+            var r = function (e, t) {
+                e.prototype[t] = function () {
+                  return (
+                    this._q.push({ name: t, args: Array.prototype.slice.call(arguments, 0) }), this
+                  );
+                };
+              },
+              s = function (e, t, n) {
+                return function (r) {
+                  e._q.push({ name: t, args: Array.prototype.slice.call(n, 0), resolve: r });
+                };
+              },
+              o = function (e, t, n) {
+                e[t] = function () {
+                  if (n)
+                    return { promise: new Promise(s(e, t, Array.prototype.slice.call(arguments))) };
+                };
+              },
+              i = function (e) {
+                for (var t = 0; t < y.length; t++) o(e, y[t], !1);
+                for (var n = 0; n < g.length; n++) o(e, g[n], !0);
+              };
+            n.invoked = !0;
+            var a = t.createElement('script');
+            (a.type = 'text/javascript'),
+              (a.integrity =
+                'sha384-TPZhteUkZj8CAyBx+GZZytBdkuKnhKsSKcCoVCq0QSteWf/Kw5Kb9oVFUROLE1l3'),
+              (a.crossOrigin = 'anonymous'),
+              (a.async = !0),
+              (a.src = 'https://cdn.amplitude.com/libs/analytics-browser-1.9.1-min.js.gz'),
+              (a.onload = function () {
+                e.amplitude.runQueuedFunctions ||
+                  console.log('[Amplitude] Error: could not load SDK');
+              });
+            var c = t.getElementsByTagName('script')[0];
+            c.parentNode.insertBefore(a, c);
+            for (
+              var u = function () {
+                  return (this._q = []), this;
+                },
+                l = [
+                  'add',
+                  'append',
+                  'clearAll',
+                  'prepend',
+                  'set',
+                  'setOnce',
+                  'unset',
+                  'preInsert',
+                  'postInsert',
+                  'remove',
+                  'getUserProperties',
+                ],
+                p = 0;
+              p < l.length;
+              p++
+            )
+              r(u, l[p]);
+            n.Identify = u;
+            for (
+              var d = function () {
+                  return (this._q = []), this;
+                },
+                f = [
+                  'getEventProperties',
+                  'setProductId',
+                  'setQuantity',
+                  'setPrice',
+                  'setRevenue',
+                  'setRevenueType',
+                  'setEventProperties',
+                ],
+                v = 0;
+              v < f.length;
+              v++
+            )
+              r(d, f[v]);
+            n.Revenue = d;
+            var y = [
+                'getDeviceId',
+                'setDeviceId',
+                'getSessionId',
+                'setSessionId',
+                'getUserId',
+                'setUserId',
+                'setOptOut',
+                'setTransport',
+                'reset',
+              ],
+              g = [
+                'init',
+                'add',
+                'remove',
+                'track',
+                'logEvent',
+                'identify',
+                'groupIdentify',
+                'setGroup',
+                'revenue',
+                'flush',
+              ];
+            i(n),
+              (n.createInstance = function (e) {
+                return (n._iq[e] = { _q: [] }), i(n._iq[e]), n._iq[e];
+              }),
+              (e.amplitude = n);
           }
-        };
-        const i = t.getElementsByTagName("script")[0];
-        i.parentNode.insertBefore(r, i);
-
-        function s(e, t) {
-          e.prototype[t] = function () {
-            this._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
-            return this;
-          };
-        }
-        const o = function () {
-          this._q = [];
-          return this;
-        };
-        const a = [
-          "add",
-          "append",
-          "clearAll",
-          "prepend",
-          "set",
-          "setOnce",
-          "unset",
-        ];
-        for (let c = 0; c < a.length; c++) {
-          s(o, a[c]);
-        }
-        n.Identify = o;
-        const u = function () {
-          this._q = [];
-          return this;
-        };
-        const l = [
-          "setProductId",
-          "setQuantity",
-          "setPrice",
-          "setRevenueType",
-          "setEventProperties",
-        ];
-        for (let p = 0; p < l.length; p++) {
-          s(u, l[p]);
-        }
-        n.Revenue = u;
-        const d = [
-          "init",
-          "logEvent",
-          "logRevenue",
-          "setUserId",
-          "setUserProperties",
-          "setOptOut",
-          "setVersionName",
-          "setDomain",
-          "setDeviceId",
-          "enableTracking",
-          "setGlobalUserProperties",
-          "identify",
-          "clearUserProperties",
-          "setGroup",
-          "logRevenueV2",
-          "regenerateDeviceId",
-          "groupIdentify",
-          "onInit",
-          "logEventWithTimestamp",
-          "logEventWithGroups",
-          "setSessionId",
-          "resetSessionId",
-        ];
-
-        function v(e) {
-          function t(t) {
-            e[t] = function () {
-              e._q.push([t].concat(Array.prototype.slice.call(arguments, 0)));
-            };
-          }
-          for (let n = 0; n < d.length; n++) {
-            t(d[n]);
-          }
-        }
-        v(n);
-        n.getInstance = function (e) {
-          e = (!e || e.length === 0 ? "$default_instance" : e).toLowerCase();
-          if (!n._iq.hasOwnProperty(e)) {
-            n._iq[e] = {
-              _q: [],
-            };
-            v(n._iq[e]);
-          }
-          return n._iq[e];
-        };
-        e.amplitude = n;
-      })(window, document);
+        })(window, document);
+      })();
     }
 
     const initOptions = {
-      includeUtm: this.trackUtmProperties,
-      batchEvents: this.batchEvents,
-      eventUploadThreshold: this.eventUploadThreshold,
-      eventUploadPeriodMillis: this.eventUploadPeriodMillis,
-      forceHttps: this.forceHttps,
-      includeGclid: this.trackGclid,
-      includeReferrer: this.trackReferrer,
-      saveParamsReferrerOncePerSession: this.saveParamsReferrerOncePerSession,
-      deviceIdFromUrlParam: this.deviceIdFromUrlParam,
-      unsetParamsReferrerOnNewSession: this.unsetParamsReferrerOnNewSession,
-      deviceId:
-        this.preferAnonymousIdForDeviceId &&
-        this.analytics &&
-        this.analytics.getAnonymousId(),
+      attribution: { disabled: this.attribution },
+      flushQueueSize: this.flushQueueSize,
+      flushIntervalMillis: this.flushIntervalMillis,
+      trackNewCampaigns: !this.trackNewCampaigns,
+      appVersion: this.versionName,
     };
-    window.amplitude.getInstance().init(this.apiKey, null, initOptions);
-    if (this.versionName) {
-      window.amplitude.getInstance().setVersionName(this.versionName);
-    }
+    if (this.preferAnonymousIdForDeviceId && this.analytics)
+      initOptions.deviceId = this.analytics.getAnonymousId();
+    window.amplitude.init(this.apiKey, null, initOptions);
   }
 
   identify(rudderElement) {
-    logger.debug("in Amplitude identify");
+    logger.debug('in Amplitude identify');
 
     this.setDeviceId(rudderElement);
 
@@ -197,18 +194,14 @@ class Amplitude {
     const { userId } = rudderElement.message;
 
     if (userId) {
-      window.amplitude.getInstance().setUserId(userId);
+      window.amplitude.setUserId(userId);
     }
 
     if (traits) {
       const amplitudeIdentify = new window.amplitude.Identify();
-      for (const trait in traits) {
-        if (!traits.hasOwnProperty(trait)) {
-          continue;
-        }
-
-        const shouldIncrement = this.traitsToIncrement.indexOf(trait) >= 0;
-        const shouldSetOnce = this.traitsToSetOnce.indexOf(trait) >= 0;
+      Object.keys(traits).forEach((trait) => {
+        const shouldIncrement = this.traitsToIncrement.includes(trait);
+        const shouldSetOnce = this.traitsToSetOnce.includes(trait);
 
         if (shouldIncrement) {
           amplitudeIdentify.add(trait, traits[trait]);
@@ -221,13 +214,13 @@ class Amplitude {
         if (!shouldIncrement && !shouldSetOnce) {
           amplitudeIdentify.set(trait, traits[trait]);
         }
-      }
+      });
       window.amplitude.identify(amplitudeIdentify);
     }
   }
 
   track(rudderElement) {
-    logger.debug("in Amplitude track");
+    logger.debug('in Amplitude track');
     this.setDeviceId(rudderElement);
 
     const { properties } = rudderElement.message;
@@ -240,7 +233,7 @@ class Amplitude {
 
     // For track products once, we will send the products in a single call.
     if (this.trackProductsOnce) {
-      if (products && type(products) == "array") {
+      if (products && Array.isArray(products)) {
         // track all the products in a single event.
         const allProducts = [];
 
@@ -253,20 +246,13 @@ class Amplitude {
 
         clonedTrackEvent.properties.products = allProducts;
 
-        this.logEventAndCorrespondingRevenue(
-          clonedTrackEvent,
-          this.trackRevenuePerProduct
-        ); // we do not want to track revenue as a whole if trackRevenuePerProduct is enabled.
+        this.logEventAndCorrespondingRevenue(clonedTrackEvent, this.trackRevenuePerProduct); // we do not want to track revenue as a whole if trackRevenuePerProduct is enabled.
 
         // If trackRevenuePerProduct is enabled, track revenues per product.
         if (this.trackRevenuePerProduct) {
           const trackEventMessage = {};
           Object.assign(trackEventMessage, clonedTrackEvent);
-          this.trackingEventAndRevenuePerProduct(
-            trackEventMessage,
-            products,
-            false
-          ); // also track revenue only and not event per product.
+          this.trackingEventAndRevenuePerProduct(trackEventMessage, products, false); // also track revenue only and not event per product.
         }
       } else {
         // track event and revenue as a whole as products array is not available.
@@ -275,15 +261,12 @@ class Amplitude {
       return;
     }
 
-    if (products && type(products) == "array") {
+    if (products && type(products) == 'array') {
       // track events iterating over product array individually.
 
       // Log the actuall event without products array. We will subsequently track each product with 'Product Purchased' event.
       delete clonedTrackEvent.properties.products;
-      this.logEventAndCorrespondingRevenue(
-        clonedTrackEvent,
-        this.trackRevenuePerProduct
-      );
+      this.logEventAndCorrespondingRevenue(clonedTrackEvent, this.trackRevenuePerProduct);
 
       const trackEventMessage = {};
       Object.assign(trackEventMessage, clonedTrackEvent);
@@ -296,17 +279,13 @@ class Amplitude {
     }
   }
 
-  trackingEventAndRevenuePerProduct(
-    trackEventMessage,
-    products,
-    shouldTrackEventPerProduct
-  ) {
+  trackingEventAndRevenuePerProduct(trackEventMessage, products, shouldTrackEventPerProduct) {
     let { revenue, revenueType, revenue_type } = trackEventMessage.properties;
     revenueType = revenueType || revenue_type;
     for (let index = 0; index < products.length; index++) {
       const product = products[index];
       trackEventMessage.properties = product;
-      trackEventMessage.event = "Product Purchased";
+      trackEventMessage.event = 'Product Purchased';
       if (this.trackRevenuePerProduct) {
         if (revenueType) {
           trackEventMessage.properties.revenueType = revenueType;
@@ -327,7 +306,7 @@ class Amplitude {
   logEventAndCorrespondingRevenue(rudderMessage, dontTrackRevenue) {
     const { properties, event } = rudderMessage;
 
-    window.amplitude.getInstance().logEvent(event, properties);
+    window.amplitude.logEvent(event, properties);
     if (properties.revenue && !dontTrackRevenue) {
       this.trackRevenue(rudderMessage);
     }
@@ -341,17 +320,16 @@ class Amplitude {
    * @memberof Amplitude
    */
   page(rudderElement) {
-    logger.debug("in Amplitude page");
+    logger.debug('in Amplitude page');
     this.setDeviceId(rudderElement);
 
     const { properties, name, category } = rudderElement.message;
     const useNewPageEventNameFormat =
-      rudderElement.message.integrations?.AM?.useNewPageEventNameFormat ||
-      false;
+      rudderElement.message.integrations?.AM?.useNewPageEventNameFormat || false;
     // all pages
     if (this.trackAllPages) {
-      const event = "Loaded a page";
-      amplitude.getInstance().logEvent(event, properties);
+      const event = 'Loaded a page';
+      amplitude.logEvent(event, properties);
     }
 
     // categorized pages
@@ -359,7 +337,7 @@ class Amplitude {
       let event;
       if (!useNewPageEventNameFormat) event = `Viewed page ${category}`;
       else event = `Viewed ${category} Page`;
-      amplitude.getInstance().logEvent(event, properties);
+      amplitude.logEvent(event, properties);
     }
 
     // named pages
@@ -367,12 +345,12 @@ class Amplitude {
       let event;
       if (!useNewPageEventNameFormat) event = `Viewed page ${name}`;
       else event = `Viewed ${name} Page`;
-      amplitude.getInstance().logEvent(event, properties);
+      amplitude.logEvent(event, properties);
     }
   }
 
   group(rudderElement) {
-    logger.debug("in Amplitude group");
+    logger.debug('in Amplitude group');
 
     this.setDeviceId(rudderElement);
 
@@ -380,17 +358,18 @@ class Amplitude {
 
     const { groupTypeTrait } = this;
     const { groupValueTrait } = this;
-
+    let groupType;
+    let groupValue;
     if (groupTypeTrait && groupValueTrait && traits) {
-      var groupType = traits[groupTypeTrait];
-      var groupValue = traits[groupValueTrait];
+      groupType = traits[groupTypeTrait];
+      groupValue = traits[groupValueTrait];
     }
 
     if (groupType && groupValue) {
-      window.amplitude.getInstance().setGroup(groupTypeTrait, groupValueTrait);
+      window.amplitude.setGroup(groupTypeTrait, groupValueTrait);
     } else if (groupId) {
       // Similar as segment but not sure whether we need it as our cloud mode supports only the above if block
-      window.amplitude.getInstance().setGroup("[Rudderstack] Group", groupId);
+      window.amplitude.setGroup('[Rudderstack] Group', groupId);
     }
 
     // https://developers.amplitude.com/docs/setting-user-properties#setting-group-properties
@@ -400,7 +379,7 @@ class Amplitude {
   setDeviceId(rudderElement) {
     const { anonymousId } = rudderElement.message;
     if (this.preferAnonymousIdForDeviceId && anonymousId) {
-      window.amplitude.getInstance().setDeviceId(anonymousId);
+      window.amplitude.setDeviceId(anonymousId);
     }
   }
 
@@ -415,17 +394,15 @@ class Amplitude {
    */
   trackRevenue(rudderMessage) {
     const mapRevenueType = {
-      "order completed": "Purchase",
-      "completed order": "Purchase",
-      "product purchased": "Purchase",
+      'order completed': 'Purchase',
+      'completed order': 'Purchase',
+      'product purchased': 'Purchase',
     };
 
     const { properties, event } = rudderMessage;
     let { price, productId, quantity, revenue, product_id } = properties;
     const revenueType =
-      properties.revenueType ||
-      properties.revenue_type ||
-      mapRevenueType[event.toLowerCase()];
+      properties.revenueType || properties.revenue_type || mapRevenueType[event.toLowerCase()];
 
     productId = productId || product_id;
 
@@ -434,9 +411,7 @@ class Amplitude {
     // If price not present set price as revenue's value and force quantity to be 1.
     // Ultimately set quantity to 1 if not already present from above logic.
     if (!revenue && !price) {
-      logger.warn(
-        'Neither "revenue" nor "price" is available. Hence, not logging revenue'
-      );
+      logger.warn('Neither "revenue" nor "price" is available. Hence, not logging revenue');
       return;
     }
 
@@ -463,7 +438,7 @@ class Amplitude {
       delete amplitudeRevenue._properties.productId;
       delete amplitudeRevenue._properties.quantity;
     }
-    window.amplitude.getInstance().logRevenueV2(amplitudeRevenue);
+    window.amplitude.revenue(amplitudeRevenue);
   }
 
   getProductAttributes(product) {
@@ -478,12 +453,12 @@ class Amplitude {
   }
 
   isLoaded() {
-    logger.debug("in Amplitude isLoaded");
-    return !!(window.amplitude && window.amplitude.getInstance().options);
+    logger.debug('in Amplitude isLoaded');
+    return !!(window.amplitude && window.amplitude.getDeviceId());
   }
 
   isReady() {
-    return !!(window.amplitude && window.amplitude.getInstance().options);
+    return !!(window.amplitude && window.amplitude.getDeviceId());
   }
 }
 
