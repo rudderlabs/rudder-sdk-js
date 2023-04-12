@@ -12,6 +12,7 @@ import {
 } from '@rudderstack/analytics-js/state/types';
 import { mergeDeepRight } from '@rudderstack/analytics-js/components/utilities/object';
 import { IUserSessionManager } from './types';
+import { getReferrer } from './referrer';
 
 // TODO: the v1.1 user data storage part joined with the auto session features and addCampaignInfo
 class UserSessionManager implements IUserSessionManager {
@@ -29,6 +30,12 @@ class UserSessionManager implements IUserSessionManager {
     this.setGroupId(this.getGroupId() || '');
     this.setGroupTraits(this.getGroupTraits() || {});
     this.setAnonymousId(this.getAnonymousId());
+
+    if (this.getInitialReferrer() === null && this.getInitialReferringDomain() === null) {
+      const referrer = getReferrer();
+      this.setInitialReferrer(referrer);
+      this.setInitialReferringDomain(referrer);
+    }
   }
 
   /**
@@ -105,12 +112,12 @@ class UserSessionManager implements IUserSessionManager {
     return this.storage?.get('rl_group_trait') || null;
   }
 
-  getInitialReferrer(): string | undefined {
-    return this.storage?.get('rl_page_init_referrer') || undefined;
+  getInitialReferrer(): Nullable<string> {
+    return this.storage?.get('rl_page_init_referrer') || null;
   }
 
-  getInitialReferringDomain(): string | undefined {
-    return this.storage?.get('rl_page_init_referring_domain') || undefined;
+  getInitialReferringDomain(): Nullable<string> {
+    return this.storage?.get('rl_page_init_referring_domain') || null;
   }
 
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean) {
@@ -173,6 +180,11 @@ class UserSessionManager implements IUserSessionManager {
   setInitialReferrer(referrer?: string) {
     state.session.rl_page_init_referrer.value = referrer;
     this.storage?.set('rl_page_init_referrer', referrer);
+  }
+
+  setInitialReferringDomain(referrer?: string) {
+    state.session.rl_page_init_referring_domain.value = referrer;
+    this.storage?.set('rl_page_init_referring_domain', referrer);
   }
 
   startAutoTracking() {}

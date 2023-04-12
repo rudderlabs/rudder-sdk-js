@@ -212,7 +212,7 @@ class Analytics implements IAnalytics {
     // Initialise storage
     this.storeManager.init();
     this.clientDataStore = this.storeManager.getStore('clientData') as Store;
-    this.userSessionManager.setStorage(this.clientDataStore);
+    this.userSessionManager.init(this.clientDataStore);
 
     // Initialise event manager
     this.eventManager.init();
