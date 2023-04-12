@@ -21,8 +21,14 @@ class UserSessionManager implements IUserSessionManager {
     this.storage = storage;
   }
 
-  setStorage(storage: IStore) {
+  init(storage: IStore) {
     this.storage = storage;
+
+    this.setUserId(this.getUserId() || '');
+    this.setUserTraits(this.getUserTraits() || {});
+    this.setGroupId(this.getGroupId() || '');
+    this.setGroupTraits(this.getGroupTraits() || {});
+    this.setAnonymousId(this.getAnonymousId());
   }
 
   /**
@@ -99,6 +105,14 @@ class UserSessionManager implements IUserSessionManager {
     return this.storage?.get('rl_group_trait') || null;
   }
 
+  getInitialReferrer(): string | undefined {
+    return this.storage?.get('rl_page_init_referrer') || undefined;
+  }
+
+  getInitialReferringDomain(): string | undefined {
+    return this.storage?.get('rl_page_init_referring_domain') || undefined;
+  }
+
   reset(resetAnonymousId?: boolean, noNewSessionStart?: boolean) {
     const { manualTrack, autoTrack } = state.session.rl_session.value;
 
@@ -154,6 +168,11 @@ class UserSessionManager implements IUserSessionManager {
         this.storage?.set('rl_group_trait', state.session.rl_group_trait.value);
       }, 1);
     }
+  }
+
+  setInitialReferrer(referrer?: string) {
+    state.session.rl_page_init_referrer.value = referrer;
+    this.storage?.set('rl_page_init_referrer', referrer);
   }
 
   startAutoTracking() {}
