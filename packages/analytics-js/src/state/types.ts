@@ -1,3 +1,5 @@
+import { Nullable } from '@rudderstack/analytics-js/types';
+
 export type CookieConsentOptions = {
   // OneTrust
   oneTrust?: {
@@ -99,12 +101,12 @@ export type IntegrationInstance = {
   isReady?: () => boolean;
 };
 
-// TODO: is this still used? only lotame used it for mg1
+// TODO: is this still used? only lotame used it for 1mg
 // export type ClientSuppliedCallbacks = {
 //   syncPixel?: () => void;
 // };
 //
-// // TODO: is this still used? only lotame used it for mg1
+// // TODO: is this still used? only lotame used it for 1mg
 // export type MethodToCallbackMap = {
 //   syncPixel: string;
 // };
@@ -121,6 +123,7 @@ export type UaChTrackLevel = 'none' | 'default' | 'full';
  * Example usages:
  * integrationOptions { All: false, "Google Analytics": true, "Braze": true}
  * integrationOptions { All: true, "Chartbeat": false, "Customer.io": false}
+ * integrationOptions { All: true, "GA4": { "clientId": "1234" }, "Google Analytics": false }
  */
 export type IntegrationOpts = {
   // Defaults to true
@@ -181,7 +184,6 @@ export type ApiOptions = {
     | boolean
     | ApiObject
     | (string | number | boolean | ApiObject)[]
-    | IntegrationOpts
     | undefined;
 };
 
@@ -252,6 +254,10 @@ export type LifecycleStatus =
 
 export type ReadyCallback = () => void;
 
+export type ConsentManagement = {
+  deniedConsentIds: string[];
+}
+
 export type SessionInfo = {
   autoTrack?: boolean;
   manualTrack?: boolean;
@@ -291,4 +297,46 @@ export type StatsCollection = {
   metrics: {
     enabled: boolean;
   };
+};
+
+export type RudderContext = ApiObject & {
+  traits: ApiObject;
+  sessionId?: number;
+  sessionStart?: boolean;
+  consentManagement: ConsentManagement;
+};
+
+export type RudderEvent = {
+  type: string;
+  userId?: Nullable<string>;
+  anonymousId?: string;
+  channel: string;
+  context: RudderContext;
+  originalTimestamp: string;
+  sentAt?: string;
+  integrations: IntegrationOpts;
+  messageId: string;
+};
+
+export type RudderTrackEvent = RudderEvent & {
+  properties?: ApiObject;
+  event: string;
+};
+
+export type RudderPageEvent = RudderEvent & {
+  name?: string;
+  properties?: ApiObject;
+};
+
+export type RudderIdentifyEvent = RudderEvent & {
+  traits?: ApiObject;
+};
+
+export type RudderAliasEvent = RudderEvent & {
+  previousId: string;
+};
+
+export type RudderGroupEvent = RudderEvent & {
+  groupId: string;
+  traits?: ApiObject;
 };
